@@ -18,12 +18,36 @@
     "recordedSteps": 532,
     "remainingScreensUpperBound": 11
   },
-  "summary": "The poison attack and Conflict caller now match through screen 520. The first remaining difference is the message and cursor at screen 521 with no earlier RNG divergence; a later equipment-change refusal at emitted screen 528 must be diagnosed separately. The source owner of the first difference is under investigation.",
+  "summary": "Poison state and RNG match through screen 520. At screen 521 C displays You die... while JavaScript displays You feel weaker!, after Escape dismisses an encumbrance More. The difference concerns message timing or suppression, but its exact source owner is unresolved: C update_topl captures skip before more(), just as JavaScript captures stoppedAtEntry before its awaited dismissal, so rereading the stop flag afterward is not yet justified. The later equipment-change refusal at emitted screen 528 is independent.",
+  "source": {
+    "file": "win/tty/topl.c",
+    "functions": [
+      "more",
+      "update_topl"
+    ],
+    "branch": "Compare complete topl.c update_topl250–306, more204–248 and their message callers. skip is captured at257; more() may set WIN_STOP at274, but redotoplin at304 still uses the captured skip. Establish which C message call owns the Escape wait and compare its logical toplines, toplin and physical row state against JavaScript.",
+    "callers": [
+      "attrib.c: poisoned() lines 317-408 calls adjattrib() at 397, then poisontell() at 398, then its own done() check at 405; in this witness u.uhp is still positive during poisoned(), so the later lethal physical damage is finalized by mhitu.c hitmu() lines 1193-1202 and end.c done_in_by() lines 184-196.",
+      "attrib.c: adjattrib() lines 117-199 calls encumber_msg() at 196-197 for a strength/constitution change during the move loop.",
+      "js/attrib.js: adjattrib() lines 1137-1233 awaits encumberMessage after the attribute mutation; poisoned() lines 1632-1735 awaits poisontell and then done().",
+      "js/tty_message.js: dismissPendingTtyMessage() lines 239-294 sets _ttyMessageStopped after its awaited key; ttyPlineCore() lines 418-520 snapshots it at 442 and awaits the pending-message dismissal at 499-505.",
+      "hack.c: losehp() lines 4279-4288 uses urgent_pline() for its separate lethal HP-loss path; js/hack.js lines 1240-1267 uses ttyUrgentPline()."
+    ],
+    "dependencies": [
+      "A blanket post-dismissal stop reread would contradict the captured skip variable in update_topl. Trace call boundaries and line wrapping before choosing a general correction.",
+      "C wintty.c tty_putstr() lines 2272-2283 clears WIN_STOP for ATR_URGENT, clears the prior physical message window, and marks the current message WIN_NOSTOP. js/tty_message.js ttyUrgentPline() lines 574-603 still throws when _ttyMessageStopped is set, so that general urgent contract remains a separate source-backed gap after the ordinary stop is fixed.",
+      "The later step-528 refusal is sourced to mon.c movemon_singlemon() lines 1268-1282 and worn.c m_dowear()/m_dowear_type() lines 756 onward: JS allmain.js moveElapsedTurnMonster() lines 1063-1079 injects the `monster equipment changes` boundary, while js/makemon_create.js m_dowear() lines 2775-2798 admits only the narrow new W_ARMF/no-old-item runtime arm. The saved artifact does not identify the exact armor slot or inventory state, so no slot-specific claim is justified."
+    ]
+  },
+  "goalKind": "divergence-fix",
   "evidence": [
-    "Accepted checkpoint da3c62dd/run-SRYRKz passes all checks and all 331 recordings; this session rises from 509 to 521 matching screens out of 532, with 11217/11409 RNG values matching positionally. All other development metrics are unchanged.",
-    "The completed .cache/A22-development-scan.json records the first screen and cursor difference at segment 0 step 521, ESC input, row 0 column 4: C d versus JavaScript f, cursor C[18,0,1] versus JS[24,0,1]. The scan reports no RNG divergence before its later refusal.",
-    "The same scan emits 528 screens before elapsed-turn monster equipment changes are refused. That later stop does not establish the source owner of the earlier message difference.",
-    "The accepted whole mhitm_really_poison/mhitm_ad_drst family and required dochug Conflict correction have four matching independent recordings. Hero-to-monster and poisoned-weapon entry recordings remain open in the parked source goal."
+    "Focused assigned replay run-UvHEqC (2026-09-17) emits 528 JavaScript screens and 11217 RNG entries, with no unported entry except sounds.c SoundAchievement; its output around the mismatch is: step 519 encumbrance More, step 520 ignored i, step 521 JavaScript `You feel weaker!--More--`, then step 523 `You die...--More--`.",
+    ".cache/A22-development-scan.json records the first screen/cursor divergence at segment 0 step 521, key Escape, C row 0 column 4 `d` versus JS `f`, C cursor [18,0,1] versus JS [24,0,1], with no RNG divergence before the later refusal.",
+    "sessions/holdout/seed0399-wizard-hallu-actions.session.json records C step 518 poison attribute RNG rn2(30)=5 and d(2,2)=3, step 519 encumbrance More, step 520 ignored i, and step 521 `You die...--More--` after rn2(3)=0 and rn2(6)=4 knockback draws. The physical attack then applies its already rolled damage in mhitu.c hitmu() and reaches done_in_by() with HP 0; this is not a poison RNG/state mismatch.",
+    "C attrib.c adjattrib() suppresses its own attribute-change text for msgflg 1, but its move-loop encumber_msg() still runs before poisoned() calls poisontell(); the source order explains why the ordinary feel-weaker message follows the Escape-dismissed encumbrance More.",
+    "C topl.c more() 204-248 sets WIN_STOP on Escape at 232-235; update_topl() 250-281 updates logical gt.toplines while skip is true and suppresses addtopl(). C wintty.c tty_putstr() 2259-2300 separately clears WIN_STOP for ATR_URGENT at 2277-2283. The current JS comments and code at tty_message.js 474-510 and 574-603 expose both required state transitions.",
+    "The same scan emits 528 screens before `elapsed turn reached monster equipment changes`. This later boundary is an independent source-completion limit in the worn/monmove family; the saved recording contains no exact m_dowear_type() armor slot or state sufficient to name a narrower branch.",
+    "Root source verification rejected the initial proposed post-dismissal stop reread: complete topl.c update_topl250–306 captures skip before calling more and checks the same local skip before redotoplin. The focused replay establishes the output difference but does not establish that stop snapshotting is a JavaScript defect. The investigation remains partial until message-call timing and state explain the difference."
   ],
-  "nextProbe": "Trace the source message at screen521 and its preceding death/recovery state before attributing the difference to the later monster equipment refusal. Preserve exact RNG and message-wait ordering."
+  "nextProbe": "Trace C and JavaScript logical/physical message state at the encumber_msg and poisontell calls, including wrapping and who owns the Escape wait. Preserve C skip snapshot order. The urgent WIN_STOP clearing gap and later equipment refusal remain separate source-backed continuations."
 }

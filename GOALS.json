@@ -59128,7 +59128,7 @@
     {
       "id": "fix-doherecmdmenu-nul-20260917",
       "kind": "divergence-fix",
-      "status": "open",
+      "status": "closed",
       "summary": "Preserve command-menu cancellation without advancing a turn.",
       "cFile": "cmd.c",
       "sessions": [],
@@ -59137,8 +59137,8 @@
       "spans": [
         {
           "name": "command-menu-cancellation",
-          "status": "queued",
-          "closedBy": null,
+          "status": "closed",
+          "closedBy": "3817301c8d0be56cd202174af9f5c5411ce4b5f5",
           "functions": [
             "doherecmdmenu",
             "dotherecmdmenu"
@@ -59151,8 +59151,11 @@
         "screens": 10959,
         "rng": 771217
       },
-      "closedAt": null,
-      "delivered": null,
+      "closedAt": "3817301c8d0be56cd202174af9f5c5411ce4b5f5",
+      "delivered": {
+        "screens": 17,
+        "rng": 13382
+      },
       "function": "doherecmdmenu",
       "session": "seed0108-wizard-extcmd-wishlist",
       "step": 281,
@@ -59227,7 +59230,12 @@
             }
           }
         }
-      ]
+      ],
+      "closeStanding": {
+        "sha": "3817301c8d0be56cd202174af9f5c5411ce4b5f5",
+        "screens": 10976,
+        "rng": 784599
+      }
     }
   ]
 }

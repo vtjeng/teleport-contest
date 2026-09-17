@@ -1,27 +1,22 @@
 {
   "session": "seed0108-wizard-extcmd-wishlist",
-  "remainingScreensUpperBound": 22,
+  "remainingScreensUpperBound": 0,
   "status": "complete",
-  "commit": "4fd9503f1467079e78ebd5b262efabbb9ef90433",
+  "commit": "3817301c8d0be56cd202174af9f5c5411ce4b5f5",
   "mismatch": {
     "session": "seed0108-wizard-extcmd-wishlist",
-    "remainingScreensUpperBound": 22,
-    "step": 281,
-    "kind": "screen",
-    "function": null,
-    "functionDeclared": false,
-    "sourceFile": null,
-    "cFile": null,
-    "luaFile": null,
-    "line": null,
-    "message": null,
-    "unlocatedKinds": [],
-    "recordedSteps": 303
+    "step": null,
+    "kind": "resolved",
+    "recordedSteps": 303,
+    "remainingScreensUpperBound": 0,
+    "message": "All development screens, RNG and cursors match after the command-menu NUL/ESC result correction."
   },
-  "summary": "The #herecmdmenu menu itself matches at screen index 280, but its Escape dismissal at index 281 advances a turn in JavaScript. C doherecmdmenu() receives the NUL returned by here_cmd_menu() and returns ECMD_OK; JavaScript treats the '\\0' string as truthy and returns ECMD_TIME, causing the first post-menu RNG, monster movement, and map mismatch.",
+  "summary": "Resolved: cancelling #herecmdmenu now returns ECMD_OK without advancing a turn. The entire fixed session matches all 303 screens and cursors and 16,958 RNG values. The same C byte predicate is corrected in dotherecmdmenu; its separate production entry has no new completion claim.",
   "source": {
     "file": "cmd.c",
-    "functions": ["doherecmdmenu"],
+    "functions": [
+      "doherecmdmenu"
+    ],
     "branch": "When #herecmdmenu calls here_cmd_menu() and the menu is cancelled with Escape, here_cmd_menu() returns NUL. C's `(ch && ch != '\\033')` tests the byte value and returns ECMD_OK for NUL; js/cmd.js:4264-4267 tests a JavaScript string, so '\\0' is truthy and returns ECMD_TIME. The same NUL-versus-string condition appears in dotherecmdmenu(), but this session reaches doherecmdmenu().",
     "callers": [
       "nethack-c/upstream/src/cmd.c:1736-1737 extcmdlist[] binds #herecmdmenu to doherecmdmenu()",
@@ -39,6 +34,8 @@
     "sessions/seed0108-wizard-extcmd-wishlist.session.json segment 0 steps[280-281] record the newline that opens `What do you want to do?` for a broken chest and the Escape that dismisses it; the C step at index 281 has no RNG calls and retains the map's `[` at row 18 and `f` at row 19.",
     "Focused in-memory runSegment replay at commit 4fd9503f1467079e78ebd5b262efabbb9ef90433 matches the recorded screen through index 280; after the Escape at index 281 it emits 32 RNG calls and swaps the nearby displayed `[`/`f` positions, proving that a turn was spent during dismissal.",
     "nethack-c/upstream/src/cmd.c:4332-4339 defines doherecmdmenu(); here_cmd_menu() at :4898-4903 always returns the NUL byte, so the C conditional returns ECMD_OK after a menu cancellation.",
-    "js/cmd.js:4263-4267 returns ECMD_TIME for the NUL string because JavaScript treats `'\\0'` as truthy; correcting the NUL test in doherecmdmenu() is the smallest source-traced scope for this session. The sibling dotherecmdmenu() condition at :4285 and :4296 has the same defect and should be checked when the fix is wired."
-  ]
+    "js/cmd.js:4263-4267 returns ECMD_TIME for the NUL string because JavaScript treats `'\\0'` as truthy; correcting the NUL test in doherecmdmenu() is the smallest source-traced scope for this session. The sibling dotherecmdmenu() condition at :4285 and :4296 has the same defect and should be checked when the fix is wired.",
+    "Accepted checkpoint 3817301c/run-orq6Wz passes all checks and all 331 recordings. seed0108 rises from 286 to 303 matching screens, 3576 to 16958 matching RNG values and 300 to 303 matching cursors; every other session metric stays unchanged. The refreshed .cache/A24-development-scan.json contains no mismatch for this session."
+  ],
+  "nextProbe": "No unresolved fixed-session mismatch remains. Preserve the shared NUL/ESC predicate and existing menu recordings; separate dotherecmdmenu source-entry coverage remains future work."
 }
