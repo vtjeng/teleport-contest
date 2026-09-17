@@ -646,6 +646,7 @@ import { note_unported } from './unported.js';
 import { mon_has_amulet, mon_has_special, pick_nasty } from './wizard.js';
 import { getlin } from './windows.js';
 import { tt_doppel } from './topten.js';
+import { mwepgone } from './weapon.js';
 import {
     cansee,
     canseemon,
@@ -5275,7 +5276,15 @@ export async function monstone(mdef, state = game, env = {}) {
         let oldminvent = null;
         while (mdef.minvent) {
             const obj = mdef.minvent;
-            extract_from_minvent(mdef, obj, true, true, { ...env, state });
+            await extract_from_minvent(mdef, obj, true, true, {
+                ...env,
+                state,
+                hooks: {
+                    ...(env.hooks ?? {}),
+                    mwepgone: env.hooks?.mwepgone
+                        ?? ((target, actionEnv) => mwepgone(target, actionEnv)),
+                },
+            });
             if (obj.otyp === BOULDER
                 || obj_resists(obj, 0, 0, { ...env, state, random })) {
                 if (await flooreffects(obj, x, y, 'fall', { ...env, state }))

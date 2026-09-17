@@ -1848,15 +1848,15 @@ export async function zhitm(
         } else if (mon.misc_worn_check & W_ARM) {
             otmp = which_armor(mon, W_ARM, state);
             const cloak = which_armor(mon, W_ARMC, state);
-            if (cloak) m_useup(mon, cloak, { ...env });
+            if (cloak) await m_useup(mon, cloak, { ...env });
         } else {
             // MAGIC_COOKIE is the sentinel used by dobuzz() to call
             // disintegrate_mon(), rather than ordinary damage handling.
             tmp = 1000;
             const cloak = which_armor(mon, W_ARMC, state);
-            if (cloak) m_useup(mon, cloak, { ...env });
+            if (cloak) await m_useup(mon, cloak, { ...env });
             const shirt = which_armor(mon, W_ARMU, state);
-            if (shirt) m_useup(mon, shirt, { ...env });
+            if (shirt) await m_useup(mon, shirt, { ...env });
         }
         type = -1;
         break;
@@ -4283,7 +4283,7 @@ async function disintegrate_mon(mon, type, fltxt, state, random, env) {
             && (obj.owornmask ?? 0);
         if (!protectedByProperty && !protectedByResist
             && !protectedByQuest && !lifesaver)
-            m_useupall(mon, obj, { state, random });
+            await m_useupall(mon, obj, { state, random });
         obj = next;
     }
     const killEnv = {
@@ -4439,7 +4439,7 @@ async function buzzmonst(
                     state, env,
                 );
             }
-            m_useup(mon, otmp, { state, random });
+            await m_useup(mon, otmp, { state, random });
         }
         if (monCouldMove && !mon.mcanmove) { /* ZT_SLEEP */
             // slept_monst() releases a sleeping grabber.
