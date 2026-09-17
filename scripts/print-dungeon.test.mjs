@@ -1,15 +1,18 @@
-// Focused tests for dungeon.c print_dungeon(TRUE) and its helpers, plus the
-// teleport.c level_tele() "?" path that calls it.
+// Focused tests for dungeon.c print_dungeon() and its helpers, plus the
+// teleport.c level_tele() "?" path that calls its menu arm and the
+// wizcmds.c wiz_where() informational caller.
 //
 // C ref: dungeon.c unplaced_floater() (2174-2187), unreachable_level()
 // (2189-2201), tport_menu() (2203-2236), br_string() (2238-2253),
 // chr_u_on_lvl() (2255-2259), print_branch() (2261-2286),
-// print_dungeon() (2288-2398); teleport.c level_tele() (1221-1247).
+// print_dungeon() (2288-2438); teleport.c level_tele() (1221-1247);
+// wizcmds.c wiz_where() (218-225).
 
 import assert from 'node:assert/strict';
 import test from 'node:test';
 
 import {
+    MAGIC_PORTAL,
     LAST_PROP,
     TT_BEARTRAP,
     TT_BURIEDBALL,
@@ -24,6 +27,9 @@ import {
     br_string,
     print_dungeon,
 } from '../js/dungeon.js';
+import { wiz_where } from '../js/wizcmds.js';
+import { ADMITTED_COMMANDS } from '../js/cmd.js';
+import { extcmdlist } from '../js/extcmdlist_data.js';
 import {
     UnsupportedLevelChangeError,
 } from '../js/do.js';
@@ -43,7 +49,7 @@ import { add_menu_heading } from '../js/windows.js';
 
 // Build a minimal state that print_dungeon can iterate. The main dungeon has
 // the oracle and castle as special levels and a branch to the Mines.
-function printDungeonState({ heroLevel, selectIndex } = {}) {
+function printDungeonState({ heroLevel, selectIndex, nonMenu = false } = {}) {
     const state = resetGame();
     state.wizard = true;
     state.iflags = {
@@ -114,7 +120,7 @@ function printDungeonState({ heroLevel, selectIndex } = {}) {
     if (selectIndex != null) {
         const letter = String.fromCharCode('a'.charCodeAt(0) + selectIndex);
         state.nhDisplay.pushKey(letter.charCodeAt(0));
-    } else {
+    } else if (!nonMenu) {
         // Escape to cancel.
         state.nhDisplay.pushKey(0x1b);
     }
@@ -220,6 +226,104 @@ test('print_dungeon returns null on cancel', async () => {
     const result = await print_dungeon(state);
     assert.equal(result, null);
 });
+
+// C print_dungeon(FALSE) writes plain lines to its NHW_MENU window and then
+// waits for the same acknowledgement as the menu arm. Its branch marker is a
+// literal space, rather than chr_u_on_lvl(), because no line is selectable.
+test('print_dungeon informational path prints plain dungeon lines', async () => {
+    const state = printDungeonState({ nonMenu: true });
+    const lines = [];
+    state._captureDungeonLines = (items) => {
+        lines.push(...items.map((item) => item.text));
+    };
+    state.nhDisplay.pushKey('\n'.charCodeAt(0));
+
+    const result = await print_dungeon(state, { bymenu: false });
+
+    assert.equal(result, 0);
+    assert.equal(lines[0], 'The Dungeons of Doom: levels 1 to 29');
+    assert.ok(lines.includes('  Stair to The Gnomish Mines: 3'),
+        'non-menu branch uses the literal C informational marker');
+    assert.ok(lines.includes('  oracle: 5'),
+        'special levels remain in source order');
+    assert.ok(lines.every((line) => typeof line === 'string'));
+});
+
+test('print_dungeon informational path reports floating and invocation data',
+    async () => {
+        const state = printDungeonState({
+            heroLevel: { dnum: 0, dlevel: 28 },
+            nonMenu: true,
+        });
+        state.dungeons[0].flags.hellish = true;
+        state.svb.branches = {
+            end1: { dnum: state.n_dgns, dlevel: 0 },
+            end2: { dnum: 0, dlevel: 1 },
+            type: BR_PORTAL,
+            next: state.svb.branches,
+        };
+        state.inv_pos = { x: 7, y: 8 };
+        state.u.ux = 3;
+        state.u.uy = 4;
+        const lines = [];
+        state._captureDungeonLines = (items) => {
+            lines.push(...items.map((item) => item.text));
+        };
+        state.nhDisplay.pushKey('\n'.charCodeAt(0));
+
+        await print_dungeon(state, { bymenu: false });
+
+        assert.ok(lines.includes('Floating branches'));
+        assert.ok(lines.includes('   Portal to The Dungeons of Doom'));
+        assert.ok(lines.includes('Invocation position @ (7,8), hero @ (3,4)'));
+    });
+
+test('print_dungeon informational path reports a portal or an expected absence',
+    async () => {
+        const state = printDungeonState({ nonMenu: true });
+        state.earth_level = { dnum: 0, dlevel: 1 };
+        state.u.ux = 12;
+        state.u.uy = 13;
+        state.level = { traps: [{ ttyp: MAGIC_PORTAL, tx: 20, ty: 21 }] };
+        let lines = [];
+        state._captureDungeonLines = (items) => {
+            lines = items.map((item) => item.text);
+        };
+        state.nhDisplay.pushKey('\n'.charCodeAt(0));
+        await print_dungeon(state, { bymenu: false });
+        assert.ok(lines.includes('Portal @ (20,21), hero @ (12,13)'));
+
+        const withoutPortal = printDungeonState({ nonMenu: true });
+        withoutPortal.earth_level = { dnum: 0, dlevel: 1 };
+        withoutPortal.u.ux = 12;
+        withoutPortal.u.uy = 13;
+        withoutPortal.level = { traps: [] };
+        lines = [];
+        withoutPortal._captureDungeonLines = (items) => {
+            lines = items.map((item) => item.text);
+        };
+        withoutPortal.nhDisplay.pushKey('\n'.charCodeAt(0));
+        await print_dungeon(withoutPortal, { bymenu: false });
+        assert.ok(lines.includes('No portal found.'));
+    });
+
+test('wizwhere dispatches the non-menu dungeon report for wizard mode',
+    async () => {
+        const row = extcmdlist.find((entry) => entry.ef_txt === 'wizwhere');
+        assert.equal(row?.ef_funct, 'wiz_where');
+        assert.ok(ADMITTED_COMMANDS.includes('wizwhere'));
+
+        const state = printDungeonState({ nonMenu: true });
+        let lines = [];
+        state._captureDungeonLines = (items) => {
+            lines = items.map((item) => item.text);
+        };
+        state.nhDisplay.pushKey('\n'.charCodeAt(0));
+        const result = await wiz_where(state);
+
+        assert.equal(result, 0);
+        assert.ok(lines.includes('The Dungeons of Doom: levels 1 to 29'));
+    });
 
 // When the hero is on the oracle level, chr_u_on_lvl marks it with '*'.
 // The test selects the oracle entry and verifies that depth is correct.

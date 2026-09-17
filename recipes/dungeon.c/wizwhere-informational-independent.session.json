@@ -1,0 +1,18 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 9300201,
+      "datetime": "20360202030405",
+      "nethackrc": "OPTIONS=name:WhereProbe,role:Wizard,race:human,gender:male,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen\nOPTIONS=pettype:none,!acoustics,playmode:debug\n",
+      "moves": " #wizwhere\n\n"
+    },
+    {
+      "seed": 9300202,
+      "datetime": "20360203040506",
+      "nethackrc": "OPTIONS=name:WhereVariation,role:Valkyrie,race:human,gender:female,align:lawful\nOPTIONS=!legacy,!tutorial,!splash_screen\nOPTIONS=pettype:none,!acoustics,playmode:debug\n",
+      "moves": " #wizwhere\n\n"
+    }
+  ],
+  "comment": "Independently chosen debug-wizard seeds exercise the wizcmds.c wiz_where() caller and dungeon.c print_dungeon(FALSE) informational window. The second role and clock provide a cheap variation while preserving the same source entry."
+}

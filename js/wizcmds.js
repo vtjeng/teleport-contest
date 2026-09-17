@@ -93,6 +93,7 @@ import { ttyPline } from './tty_message.js';
 import { makewish } from './zap.js';
 import { docrt, map_engraving, map_trap } from './display.js';
 import { do_mapping } from './detect.js';
+import { print_dungeon } from './dungeon.js';
 import {
     incr_itimeout, make_blinded, make_deaf, make_glib, make_hallucinated,
 } from './potion.js';
@@ -127,6 +128,18 @@ export async function wiz_map(state = game) {
         hallucination.intrinsic = save_Hhallu;
     } else {
         await ttyPline("Unavailable command 'wizmap'.", state);
+    }
+    return ECMD_OK;
+}
+
+// C ref: wizcmds.c wiz_where() (218-225), the #wizwhere command. The
+// informational print_dungeon() call deliberately passes bymenu=false; it
+// owns the NHW_MENU text window and its acknowledgement before returning.
+export async function wiz_where(state = game) {
+    if (state.wizard) {
+        await print_dungeon(state, { bymenu: false });
+    } else {
+        await ttyPline("Unavailable command 'wizwhere'.", state);
     }
     return ECMD_OK;
 }
