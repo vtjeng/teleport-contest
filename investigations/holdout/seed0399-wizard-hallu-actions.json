@@ -35,14 +35,17 @@
       "C worn.c m_dowear_type814-906: snapshot visibility/name before altering equipment, retain cursed and superior-amulet guards, body compatibility, racial_exception, ARM_BONUS and extra_pref ordering.",
       "C worn.c m_dowear_type910 onward: preserve old mask for artifact_light, remove old extrinsics, restore mask for end_burn then clear it, apply new mask and autocurse, begin artifact light and recalculate visibility, then apply new extrinsics and subsequent visibility feedback.",
       "Use the existing canonical object naming, curse, update_mon_extrinsics, artifact light/burn, and visibility owners. Await observable message and effect order in every production caller; do not retain the injected wearArmor placeholder.",
-      "The separate urgent-message stop behavior in wintty.c tty_putstr2272-2300 remains unresolved: C clears WIN_STOP and sets WIN_NOSTOP before update_topl, while JS tty_message.js keeps an urgent-stop refusal. It is not this equipment boundary."
+      "The separate urgent-message stop behavior in wintty.c tty_putstr2272-2300 remains unresolved: C clears WIN_STOP and sets WIN_NOSTOP before update_topl, while JS tty_message.js keeps an urgent-stop refusal. It is not this equipment boundary.",
+      "Review of the pending equipment delivery found that extract_from_minvent and weapon.mwepgone must await canonical setmnotwielded/end_burn before callers delete, merge or place the object. The correction must also restrict its new monster-carried curse fast path to unlit armor and pass the supplied state to racial_exception at hero armor callers. These are integration findings; the equipment delivery is not yet accepted."
     ]
   },
   "goalKind": "file-port",
   "evidence": [
     "The passing checkpoint at fdbd02789bba64d10f8edc639d06f7a289f4b7fb moves this session from521 to528 matching screens/cursors with11217 matched RNG values unchanged. The refreshed .cache/B23-development-scan.json has divergence=null and stops with elapsed turn reached monster equipment changes after528 of532 screens.",
     "The saved scan does not identify the exact monster armor slot or inventory state. The source and refusal establish the whole equipment family as the actionable scope; no narrower slot is asserted.",
-    "C topl.c update_topl251-304 captures skip before more and dismisses the previous line only when !skip. The accepted correction keeps that snapshot; rereading WIN_STOP after more would contradict C. The independent stopped-death test verifies replacement does not consume another queued key."
+    "C topl.c update_topl251-304 captures skip before more and dismisses the previous line only when !skip. The accepted correction keeps that snapshot; rereading WIN_STOP after more would contradict C. The independent stopped-death test verifies replacement does not consume another queued key.",
+    "Validated experience-loss commit8585e97451c7d33d02da51a42627ced6dbae0195 completes the later losexp boundary independently of the pending equipment delivery. Its new recordings cover Archeologist5-to-2 lowering, Wizard2-to-1 retaining19XP, and the supporting newman intrinsic-loss caller. Current fixed-development replay remains528/532screens for this session; the equipment stop still comes first. The combined checkpoint passed all342 recordings and preserved every fixed-development match.",
+    "The losexp caller review also preserves separate unfinished upward-level paths: pluslvl while polymorphed, setuhpmax for monster HP, and the newly eligible skill-advancement message. Those existing gaps do not invalidate the recorded downward-level paths and are not claimed complete."
   ],
   "nextProbe": "Complete the source-owned m_dowear/m_dowear_type family and both live/planning callers, then replay this session beyond the current equipment boundary. Keep the urgent-message contract separate."
 }

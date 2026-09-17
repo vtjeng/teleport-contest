@@ -4,6 +4,7 @@ import test from 'node:test';
 import { ADMITTED_COMMANDS } from '../js/cmd.js';
 import {
     ECMD_OK,
+    ECMD_TIME,
     EXT_ENCUMBER,
     GETOBJ_DOWNPLAY,
     GETOBJ_EXCLUDE,
@@ -45,6 +46,8 @@ import {
     FOOD_RATION,
     EGG,
     GOLD_PIECE,
+    POT_FRUIT_JUICE,
+    POTION_CLASS,
     SILVER_SABER,
     SPEAR,
     SPE_BOOK_OF_THE_DEAD,
@@ -57,6 +60,7 @@ import {
     loadEatPromptRecipe,
 } from './run-eat-prompt.mjs';
 import { loadEatNonfoodRecipe } from './run-eat-nonfood.mjs';
+import { enableRngLog, getRngLog } from '../js/rng.js';
 
 const { compactify, getobj_hands_txt, invletter_value } = _getobjInternals;
 
@@ -318,6 +322,44 @@ test('is_edible gives a gelatinous cube empty organic objects', () => {
     assert.equal(
         is_edible({ otyp: SPEAR, oclass: WEAPON_CLASS }, state), false,
     );
+});
+
+test('potion glass is outside every non-food edibility material gate', () => {
+    // include/objects.h POTION uses GLASS; objclass.h is_organic stops at
+    // WOOD. The source's eatspecial potion arm has no admitted potion type.
+    const state = catalogState();
+    for (const form of [PM_FIRE_ELEMENTAL, PM_RUST_MONSTER, PM_GELATINOUS_CUBE]) {
+        state.u.umonnum = form;
+        state.youmonst.data = state.mons[form];
+        assert.equal(is_edible({
+            otyp: POT_FRUIT_JUICE, oclass: POTION_CLASS,
+        }, state), false);
+    }
+});
+
+test('rustproof spit-back retains the caller stun-argument draw', async () => {
+    await runSegment({ ...segmentFor('ea'), moves: '.' });
+    game.u.umonnum = PM_RUST_MONSTER;
+    game.youmonst.data = game.mons[PM_RUST_MONSTER];
+    const weapon = game.uwep;
+    weapon.oerodeproof = true;
+    weapon.cursed = true;
+    const messages = [];
+    game.nhDisplay.pushKey(weapon.invlet.charCodeAt(0));
+    enableRngLog();
+    const hunger = game.u.uhunger;
+    assert.equal(await doeat(game, {
+        message: (text) => { messages.push(text); },
+    }), ECMD_TIME);
+    // eat.c:2888 evaluates rn2(10) before its currently unported
+    // make_stunned call. The welded weapon stays in hand, with no nutrition.
+    assert.match(getRngLog().join('\n'), /^rn2\(10\)=\d$/u);
+    assert.equal(weapon.oerodeproof, 0);
+    assert.equal(game.uwep, weapon);
+    assert.equal(game.u.uhunger, hunger);
+    assert.equal(messages.length, 2);
+    assert.match(messages[0], /was rustproofed!/u);
+    assert.match(messages[1], /^You spit out /u);
 });
 
 test('the production eat command consumes an admitted fire-elemental weapon',

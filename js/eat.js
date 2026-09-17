@@ -242,7 +242,7 @@ import {
 } from './monsters.js';
 import { change_luck } from './moveloop_preamble.js';
 import {
-    incr_itimeout, make_blinded, make_confused, make_deaf,
+    dopotion, incr_itimeout, make_blinded, make_confused, make_deaf,
 } from './potion.js';
 import {
     carried,
@@ -336,9 +336,8 @@ import {
 import { ttyPline } from './tty_message.js';
 import { remove_worn_item } from './steal.js';
 import {
-    uwepgone, uswapwepgone, welded,
+    uwepgone, uswapwepgone, uqwepgone, welded,
 } from './wield.js';
-import { setuqwep } from './worn.js';
 
 // C ref: eat.c hu_stat[], indexed by u.uhs and shared with botl.c and
 // insight.c. Every entry is eight columns wide, so a reader that wants the
@@ -2717,9 +2716,8 @@ export async function floorfood(verb, corpsecheck, state = game) {
 
 // C ref: eat.c eatspecial() (2414-2486), the common completion tail for an
 // object that doeat_nonfood() admits.  C keeps this helper in eat.c, so its
-// state transitions stay here too.  The potion, accessory, leash and
-// punishment helpers are separate source owners; their discarded C results
-// are recorded at the actual call sites when those branches are reached.
+// state transitions stay here too. Unported accessory, leash and punishment
+// helpers are recorded at their call sites when those branches are reached.
 async function eatspecial(state, env) {
     const meal = victual(state);
     const otmp = meal.piece;
@@ -2729,6 +2727,7 @@ async function eatspecial(state, env) {
     // one-turn non-food action uses the same hunger machinery as a meal.
     set_occupation(eatfood, 'eating non-food', 0, state);
     await lesshungry(meal.nmod, state, env);
+    if (state.program_state?.gameover) return;
     if (state.go) state.go.occupation = null;
     state.context.victual = zero_victual();
 
@@ -2758,11 +2757,11 @@ async function eatspecial(state, env) {
     }
 
     if (otmp.oclass === POTION_CLASS) {
-        // dopotion() consumes one charge and has its own source owner. C
-        // increments first so that dopotion's useup() does not remove the
+        // C increments first so that dopotion's useup() does not remove the
         // object before this function's final useup() call.
         otmp.quan = Math.trunc(otmp.quan ?? 1) + 1;
-        note_unported('potion.c dopotion');
+        await dopotion(otmp, state);
+        if (state.program_state?.gameover) return;
     } else if (otmp.oclass === RING_CLASS || otmp.oclass === AMULET_CLASS) {
         note_unported('eat.c eataccessory');
     } else if (otmp.otyp === LEASH && otmp.leashmon) {
@@ -2793,7 +2792,7 @@ async function eatspecial(state, env) {
     if (otmp === state.uwep && otmp.quan === 1)
         uwepgone({ state });
     if (otmp === state.uquiver && otmp.quan === 1)
-        setuqwep(null, { state });
+        uqwepgone({ state });
     if (otmp === state.uswapwep && otmp.quan === 1)
         uswapwepgone({ state });
 
@@ -2895,6 +2894,7 @@ export async function doeat_nonfood(otmp, state = game, env = {}) {
                     encumberMessage: (target) => encumber_msg(target),
                 },
             );
+            if (state.program_state?.gameover) return ECMD_TIME;
         } else {
             await env.message('You seem unaffected by the poison.', state);
         }
@@ -2979,8 +2979,8 @@ export async function doeat(state = game, env = {}) {
         throw new UnsupportedEatError('retouch_object() for an artifact');
 
     // C ref: eat.c rust-monster arm (2876-2907).  A rust monster can eat a
-    // rustproof metallic object, but spits it back out after the single-turn
-    // nutrition setup.  make_stunned() is a discarded void call whose potion.c
+    // rustproof metallic object, but spits it back out without nutrition.
+    // make_stunned() is a discarded void call whose potion.c
     // owner is not yet ported, so record that source gap at the call site.
     if (isMetallic(otmp, state)
         && u.umonnum === PM_RUST_MONSTER && otmp.oerodeproof) {
@@ -2995,6 +2995,9 @@ export async function doeat(state = game, env = {}) {
             `Ulch - that ${xnameFresh(otmp, state)} was rustproofed!`, state,
         );
         otmp.oerodeproof = 0;
+        // eat.c evaluates the timeout argument before make_stunned(). This
+        // caller-owned draw remains even while the stun effect is unported.
+        rn2(10);
         note_unported('potion.c make_stunned');
         if (welded(otmp, state)
             || (otmp.cursed

@@ -60578,7 +60578,7 @@
     {
       "id": "port-exper-losexp-seed0399-20260917",
       "kind": "file-port",
-      "status": "open",
+      "status": "parked",
       "summary": "Complete experience loss, intrinsic removal and wizard level lowering",
       "cFile": "exper.c",
       "sessions": [
@@ -60589,8 +60589,8 @@
       "spans": [
         {
           "name": "losexp",
-          "status": "queued",
-          "closedBy": null,
+          "status": "closed",
+          "closedBy": "8585e97451c7d33d02da51a42627ced6dbae0195",
           "functions": [
             "losexp"
           ]
@@ -60732,10 +60732,10 @@
               "recordings/exper.c/levelchange-loss-independent.session.json",
               "recordings/exper.c/levelchange-loss-variation-b25.session.json"
             ],
-            "checkedAt": "67f9006c3c2472791c712316a8001ea05ed54fe8"
+            "checkedAt": "8585e97451c7d33d02da51a42627ced6dbae0195"
           }
         ],
-        "entryPointReview": "The primary losexp entry #levelchange lowering is reached through command dispatch into wizcmds.wiz_level_change. The independent Archeologist 5-to-2 recording contains the stealth-loss message and all three Goodbye levels (53 screens/3031 RNG); the Wizard 2-to-1 showexp variation contains Xp:1/19 (39 screens/2946 RNG). Supporting adjabil has production callers exper.pluslvl/losexp, u_init.u_init_misc and polyself.newman; the separate independent newman recording (54 screens/2615 RNG) crosses Archeologist level five downward and prints You feel less stealthy before You feel like a new woman, proving the default terminal caller. The weapon skill rollback arm is source-pinned but these recordings spend unused slots. No unrecorded life-drain, divine anger, lethal or polymorphed entry is counted complete; park the source goal after span acceptance. The attrib.c losestr caller under #if 0 is excluded by source, not by missing JavaScript. Active C losexp sites are sit.c261, zap.c2820, uhitm.c2484, trap.c4294 (fire damage), mhitu.c2206, artifact.c1713, pray.c742 and wizcmds.c474; attrib.c261 is inside #if 0. The implemented zapyourself caller is now wired, but its spell-cast recording remains open.",
+        "entryPointReview": "The primary losexp entry #levelchange lowering is reached through command dispatch into wizcmds.wiz_level_change. The independent Archeologist 5-to-2 recording contains the stealth-loss message and all three Goodbye levels (53 screens/3031 RNG); the Wizard 2-to-1 showexp variation contains Xp:1/19 (39 screens/2946 RNG). Supporting adjabil has production callers exper.pluslvl/losexp, u_init.u_init_misc and polyself.newman; the separate independent newman recording (54 screens/2615 RNG) crosses Archeologist level five downward and prints You feel less stealthy before You feel like a new woman, proving the default terminal caller. The weapon skill rollback arm is source-pinned but these recordings spend unused slots. No unrecorded life-drain, divine anger, lethal or polymorphed entry is counted complete; park the source goal after span acceptance. The attrib.c losestr caller under #if 0 is excluded by source, not by missing JavaScript. Active C losexp sites are sit.c261, zap.c2820, uhitm.c2484, trap.c4294 (fire damage), mhitu.c2206, artifact.c1713, pray.c742 and wizcmds.c474; attrib.c261 is inside #if 0. The implemented zapyourself caller is now wired, but its spell-cast recording remains open. Independent caller verification confirms the other active sites remain blocked in their source owners: uhitm.mhitm_ad_drli, mhitu.doseduce, trap.dofiretrap and sit.special_throne_effect. Supporting upward level change still has pre-existing polymorphed pluslvl/setuhpmax and add_weapon_skill confidence-message gaps; this loss span does not claim those gain paths complete.",
         "entryPoints": [
           {
             "name": "#levelchange lowering",
@@ -60776,6 +60776,177 @@
             "recordings": []
           }
         ]
+      },
+      "progressBeforePark": {
+        "screens": 0,
+        "rng": 0
+      },
+      "parkedStanding": {
+        "sha": "8585e97451c7d33d02da51a42627ced6dbae0195",
+        "screens": 11099,
+        "rng": 784966
+      },
+      "parkedReason": "The complete losexp span and level-lowering entry passed the combined checkpoint, including independent 2-to-1 and supporting newman recordings. Self-directed spell, divine anger, combat drain, fire-trap/throne/overexertion and fatal or polymorphed loss entry recordings remain open; existing upward-level dependencies are not claimed complete."
+    },
+    {
+      "id": "port-eat-is-edible-seed4500-20260917",
+      "kind": "file-port",
+      "status": "open",
+      "summary": "Complete polymorphed object edibility and its non-food eating callers",
+      "cFile": "eat.c",
+      "sessions": [
+        "holdout/seed4500-knight-coverage"
+      ],
+      "selectionReason": "The completed investigation investigations/holdout/seed4500-knight-coverage.json identifies is_edible at step1536 with278 remaining screens. This is the highest-priority fixed-workload session; its corrected worker delivery is ready before the equipment correction. Include the required doeat_nonfood return path and eatspecial completion, without treating the broader partial doeat owner as verified.",
+      "detail": "Read eat.c is_edible91–121, supporting eatspecial2414–2486 and doeat_nonfood2734–2813, and the rust-monster and slow-digestion caller branches. Verify independently recorded non-food consumption and retain unrecorded or unsupported caller families as explicit gaps.",
+      "spans": [
+        {
+          "name": "is_edible",
+          "status": "queued",
+          "closedBy": null,
+          "functions": [
+            "is_edible"
+          ]
+        }
+      ],
+      "openedAt": "58aecaf4d55f2f1eee71f512d7f861d1deab9a8a",
+      "openStanding": {
+        "sha": "8585e97451c7d33d02da51a42627ced6dbae0195",
+        "screens": 11099,
+        "rng": 784966
+      },
+      "closedAt": null,
+      "delivered": null,
+      "functions": [
+        {
+          "name": "is_edible",
+          "line": 91,
+          "endLine": 125,
+          "declared": true,
+          "complete": true
+        }
+      ],
+      "range": {
+        "from": 91,
+        "to": 125
+      },
+      "activeStanding": {
+        "sha": "8585e97451c7d33d02da51a42627ced6dbae0195",
+        "screens": 11099,
+        "rng": 784966
+      },
+      "openMismatches": [
+        {
+          "session": "holdout/seed4500-knight-coverage",
+          "step": 1536,
+          "kind": "stop",
+          "function": "is_edible",
+          "functionDeclared": true,
+          "sourceFile": "eat.c",
+          "cFile": "eat.c",
+          "luaFile": null,
+          "line": null,
+          "message": "unsupported hero command: an unported branch of this command: eating requires is_edible() for a polymorphed hero",
+          "unlocatedKinds": [],
+          "recordedSteps": 1814,
+          "remainingScreensUpperBound": 278,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/holdout/seed4500-knight-coverage.json",
+            "result": {
+              "session": "holdout/seed4500-knight-coverage",
+              "remainingScreensUpperBound": 278,
+              "status": "complete",
+              "commit": "c04193106e88a205f3c6341bddcfb193bbe8284f",
+              "mismatch": {
+                "session": "holdout/seed4500-knight-coverage",
+                "step": 1536,
+                "kind": "stop",
+                "function": "is_edible",
+                "functionDeclared": true,
+                "sourceFile": "eat.c",
+                "cFile": "eat.c",
+                "luaFile": null,
+                "line": null,
+                "message": "unsupported hero command: an unported branch of this command: eating requires is_edible() for a polymorphed hero",
+                "unlocatedKinds": [],
+                "recordedSteps": 1814,
+                "remainingScreensUpperBound": 278
+              },
+              "summary": "Forced polymorph armor removal now matches through the next command sequence. The first remaining stop is eat.c is_edible: JavaScript rejects a polymorphed hero before C applies its form-specific food/material rules. Complete the pure predicate and the source-required eating continuations it admits. The shared monster damage helper is implemented for both hit-point pools; skinback artifact-light restoration remains separately unported.",
+              "source": {
+                "file": "eat.c",
+                "functions": [
+                  "is_edible"
+                ],
+                "branch": "eat.c is_edible91–121 first rejects unique object types, then accepts fire-elemental flammable objects, metallivore metallic objects with the rust-monster rust-prone restriction, ghoul non-vegan corpses or eggs, and empty organic objects for a gelatinous cube, before the ordinary FOOD_CLASS fallback. It performs no RNG call, output or game-state mutation.",
+                "callers": [
+                  "C eat.c doeat and floorfood call is_edible before accepting an item; js/eat.js doeat, floorfood and eat_ok already route through this predicate.",
+                  "C iactions.c classifies item actions with is_edible; js/iactions.js itemactions imports the same owner."
+                ],
+                "dependencies": [
+                  "Use existing source-owned object material predicates, Has_contents, metallivorous, vegan and the canonical monster table. No missing return-valued callee or fabricated RNG/state transition is required.",
+                  "C doeat returns doeat_nonfood for an admitted non-food object. Completing the polymorph predicate therefore also requires the return-valued non-food eating owner and the preceding rust-monster/ring branches; a new refusal cannot replace that source continuation.",
+                  "Unresolved prior source finding: polyself.c skinback1953–1969 still needs artifact-light radius capture and maybe_adjust_light when merged dragon scales are restored. This is separate from the resolved break_armor mismatch."
+                ]
+              },
+              "goalKind": "file-port",
+              "evidence": [
+                "The passing checkpoint c04193106e88a205f3c6341bddcfb193bbe8284f advances the Knight session from 1439 to 1536 matching screens. The saved A27 scan and queue identify is_edible as the next source stop, with no earlier RNG or screen divergence.",
+                "Read complete nethack-c/upstream/src/eat.c is_edible91–121 and the accepted js/eat.js helper: its polymorphed-hero refusal precedes the form-specific C acceptance rules. Implement the whole pure predicate, not a session-specific food allowance.",
+                "The completed armor fix is independently exercised by the Knight brown-mold and equipped Valkyrie giant-ant recordings under recordings/polyself.c/break-armor-*-a27.session.json. C messages verify forced suit, glove, shield, helmet and boot removal; the older raven recording specifically verifies sliparm cloak removal.",
+                "The independent recordings/mhitu.c/mdamageu-marilith-*-a29.session.json also execute plain suit destruction during marilith polymorph and subsequent nonlethal monster damage. They match C in full with both seed/gender choices. Artifact cloak exceptions, horned-helmet, headless-eyewear and fatal-lava entry coverage remains open; the Eyes-of-the-Overworld sight-loss and skinback artifact-light paths remain separate downstream gaps.",
+                "At d78e57fbe8e4acfee9c35930b6e3c253ff2a110b, mhitu.c mdamageu1902–1927 preserves ordinary and polymorphed damage, display-before-cap ordering and live recovery callbacks. Independent marilith/newt recordings reach the live polymorphed melee branch because that species has six active attack slots, so passiveum returns without its unported tail. This does not change the earlier is_edible mismatch; spell, gaze, falling-monster, passive-reaction and lethal recovery entries remain unrecorded."
+              ],
+              "nextProbe": "Complete is_edible in source order with pure tests and the non-food eating continuation its caller returns; then replay the production route and trace the next first mismatch. Preserve the separate passiveum, rare armor and skinback gaps."
+            }
+          }
+        }
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "is_edible",
+            "implementation": "js/eat.js",
+            "symbol": "is_edible",
+            "sourceReview": "Read nethack-c/upstream/src/eat.c:91-121 in full. The pure predicate checks oc_unique, fire-elemental flammability, metallivore metallic/rust-prone material, ghoul non-vegan corpses or eggs, gelatinous-cube organic objects without contents, and FOOD_CLASS in source order. It makes no random draw, output, or state mutation; its production callers remain doeat(), floorfood(), eat_ok() and itemactions(). Supporting C eatspecial2414–2486, doeat_nonfood2734–2813 and doeat rustproof/slow-digestion/non-food dispatch were compared in full for the implemented additions. The required return-valued doeat_nonfood now initializes one-turn victual state, source nutrition and conduct, poison/delicious messages and eatspecial consumption; the obsolete non-food refusal is removed. Root preserves the eat.c rn2(10) argument draw before the named unported make_stunned call, and stops after terminal poison at losestr, poison_strdmg and doeat_nonfood to represent C nonreturning done. The existing canonical dopotion owner replaces its obsolete named gap, but GLASS potion definitions make that branch unreachable through current is_edible. Remaining discarded unported callees are vault_gd_watching, eataccessory, o_unleash, unpunish and make_stunned; they are explicit gaps, not fabricated effects. Existing downstream choking, equipment-light, artifact retouch and other broader doeat behavior remain unfinished and are not counted as verified units. Supporting wield.c uqwepgone897–903 is ported under its source name and called by eatspecial, preserving the explicit inventory refresh after setworn already refreshes the slot.",
+            "callers": [
+              {
+                "path": "js/eat.js",
+                "symbol": "doeat",
+                "source": "C doeat() invokes is_edible() before its worn-object, artifact and non-food dispatch arms; JavaScript retains that production call."
+              },
+              {
+                "path": "js/eat.js",
+                "symbol": "floorfood",
+                "source": "C floorfood() invokes is_edible() while selecting an object on the floor; JavaScript uses the same completed predicate."
+              },
+              {
+                "path": "js/eat.js",
+                "symbol": "eat_ok",
+                "source": "C eat_ok() wraps is_edible() for inventory suggestions; JavaScript keeps this callback wired."
+              },
+              {
+                "path": "js/iactions.js",
+                "symbol": "itemactions",
+                "source": "C iactions.c item-action classification calls is_edible(); JavaScript itemactions() imports and calls it for the same classification."
+              }
+            ],
+            "pure": true,
+            "tests": [
+              "scripts/eat-prompt.test.mjs",
+              "scripts/hero-attributes.test.mjs"
+            ],
+            "recordings": [
+              "recordings/eat.c/doeat-nonfood-fire-independent.session.json",
+              "recordings/eat.c/doeat-nonfood-fire-variation.session.json",
+              "recordings/eat.c/is-edible-potion-rejection-a28.session.json"
+            ],
+            "checkedAt": "3d24686e20407398ed73d056f082add4b04827a0"
+          }
+        ],
+        "entryPointReview": "is_edible is a pure helper-only source range, with production callers doeat, floorfood, eat_ok and iactions.itemactions and source-pinned tests for each material/form branch. The primary goal does not verify the entire partial doeat owner or claim its unrelated branches complete. Supporting impure entry evidence: independent Wizard and Valkyrie fire-elemental recordings each match43 screens and consume a wished bullwhip through runEatCommand -> doeat -> doeat_nonfood -> eatspecial, with initialized tests confirming form, removed object and cleared victual. The separate gelatinous-cube potion case matches59 screens and2258 RNG and explicitly rejects the glass potion; it disproves the attempted potion-entry recipe and supplies negative admission coverage. The first, shorter input stopped in polymorph More messages and established no eating coverage. Active rustproof/slow-digestion, poisoned non-food, coins, paper, accessory, leash, punishment and exceptional cleanup families still lack matching entry recordings or have named downstream gaps. Keep these supporting coverage gaps in the parked goal; no whole-doeat completion is recorded. Fatal strength-loss regression pins one damage call and no later HP/strength adjustment after gameover; rustproof spit-back pins exactly one rn2(10) and no nutrition.",
+        "entryPoints": []
       }
     }
   ]
