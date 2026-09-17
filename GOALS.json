@@ -62263,7 +62263,7 @@
     {
       "id": "port-insight-show-achievements-seed4500-20260917",
       "kind": "file-port",
-      "status": "open",
+      "status": "parked",
       "summary": "Display recorded achievements through the conduct window",
       "cFile": "insight.c",
       "sessions": [
@@ -62274,8 +62274,8 @@
       "spans": [
         {
           "name": "show_achievements",
-          "status": "queued",
-          "closedBy": null,
+          "status": "closed",
+          "closedBy": "f427df2bbf75c56fb87061ded509e3209f84040a",
           "functions": [
             "show_achievements"
           ]
@@ -62451,7 +62451,17 @@
             "recordings": []
           }
         ]
-      }
+      },
+      "progressBeforePark": {
+        "screens": 0,
+        "rng": 0
+      },
+      "parkedStanding": {
+        "sha": "f427df2bbf75c56fb87061ded509e3209f84040a",
+        "screens": 11157,
+        "rng": 785954
+      },
+      "parkedReason": "Achievement display and two independent object-achievement conduct recordings are verified; the development score remains unchanged because goto_level omits the Mines achievement producer. Final disclosure, ascension ordering, relinquished-object wording and female-rank production recordings remain open. Resume for those entry recordings when source reachability and queue priority permit."
     }
   ]
 }
