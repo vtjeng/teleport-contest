@@ -57008,7 +57008,7 @@
           "line": 1,
           "endLine": 443,
           "declared": false,
-          "complete": false
+          "complete": true
         }
       ],
       "activeStanding": {
@@ -57083,7 +57083,124 @@
             }
           }
         }
-      ]
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "hellfill.lua",
+            "implementation": "js/hell_levels.js",
+            "symbol": "hellfill",
+            "sourceReview": "Read nethack-c/upstream/dat/hellfill.lua:1-443 in full, including the hellobjects, hellmonsters, helltraps, populatemaze, alignment helpers, ten prefab entries, rnd_hell_prefab, all seven hells generator arms, common stair or invocation trap tail, and top-level population call. The port preserves Lua evaluation order and awaits each descriptor callback in source order. The ten prefab entries now evaluate their explicit halign/valign expressions before des.map(), so centered prefab 4 consumes no alignment draw and the other entries retain the source horizontal-before-vertical order; prefabMap no longer inserts an implicit draw. Read dat/nhlib.lua and nhlua.c nhl_random: math.random(n) is one-based 1 + rn2(n), math.random(a,b) is a + rn2(b-a+1), and shuffle/percent use those bounds; js/hell_levels.js keeps the injected rn2-shaped callback and js/asmodeus_levels.js forwards it through hell_tweaks. Read sp_lev.c lspo_terrain/sel_set_ter: set_levltyp_lit performs the single lighting update, ICE updates icedpool only with splev_init_present, and CLOUD clears engravings after a successful terrain write; js/mklev.js owns those arms and lspo_terrain forwards the source RNG. Read selvar.c selection_new/selection_not and nhlsel.c l_selection_not: selection_new and matching selections use map coordinates, so no-operand selection_negate preserves an absolute frame while relative area constructors remain relative. All seven generator arms, all ten prefabs and their alignment/draw order, common-tail branches, population order, special-level terrain arms, and selection-coordinate behavior are source-pinned. No unported callee, injected substitute, or swallowed refusal remains within this Lua program and its recorded helper scope.",
+            "callers": [
+              {
+                "path": "js/mklev.js",
+                "symbol": "makelevel",
+                "source": "mklev.c makelevel():1251-1274 resolves the dungeon fill_lvl and invokes mkmaze.c makemaz(); js/mklev.js follows this production dispatch."
+              },
+              {
+                "path": "js/mklev.js",
+                "symbol": "makemaz",
+                "source": "mkmaze.c makemaz() resolves the fill protofile and calls load_special() for the selected special-level loader."
+              },
+              {
+                "path": "js/mklev.js",
+                "symbol": "load_special",
+                "source": "sp_lev.c load_special():6454 loads the Lua level program; js/mklev.js load_special resolves HELL_LEVEL_LOADERS.hellfill and executes it through the special-level API."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/hellfill-level-loader.test.mjs",
+              "scripts/asmodeus-level-loader.test.mjs",
+              "scripts/sel-set-ter.test.mjs",
+              "scripts/themerooms-selection.test.mjs"
+            ],
+            "recordings": [
+              "recordings/hellfill.lua/generator-1-independent-82016.session.json",
+              "recordings/hellfill.lua/generator-2-independent-82003.session.json",
+              "recordings/hellfill.lua/generator-3-independent-82005.session.json",
+              "recordings/hellfill.lua/generator-4-independent-82001.session.json",
+              "recordings/hellfill.lua/generator-5-independent-82002.session.json",
+              "recordings/hellfill.lua/generator-6-independent-82028.session.json",
+              "recordings/hellfill.lua/generator-7-independent-82008.session.json"
+            ],
+            "checkedAt": "526fd9b16f0b8e274dd436131cf12d1fce3e69cf"
+          }
+        ],
+        "entryPointReview": "The selected Lua program has seven generator entry points in hells[1] through hells[7]. Each is covered by one independently chosen production recipe and strict C/JavaScript recording under recordings/hellfill.lua/. The recipes vary seed, date/time and character name and each selects the named generator in the patched C recorder; the bounded matrix run-Qq0N19 matches 149608 PRNG calls, 112 screens and 112 cursors across all seven segments. The source-only definitions hellobjects(), hellmonsters(), and helltraps() have no production dat callers and are not claimed as loader entry points; their definitions remain source-pinned in js/hell_levels.js. The descriptor callback test invokes all ten prefab contents functions and asserts placement and random draw order. Orchestrator source comparison verifies rnd_hell_prefab() repeatability, the inclusive [0, nloops * 2] draw, and its six-iteration stopping rule. populatemaze() is reached through the top-level loader in the seven recordings. The common up-stair/down-stair tail is reached by those recordings. The invocation-level vibrating-square branch is an active production feature, but no committed recording currently reaches that level, so it remains listed with an empty recording array. The sel_set_ter ICE/CLOUD arms and one-draw SET_LIT_RANDOM contract are pinned by sel-set-ter.test.mjs, while the selection_new/selection_not absolute-frame contract is pinned by themerooms-selection.test.mjs and the generator-6 recording. Production wiring is traced through mklev.js makelevel -> makemaz -> load_special -> HELL_LEVEL_LOADERS.hellfill.",
+        "entryPoints": [
+          {
+            "name": "Hellfill generator 1 (hells[1] mines with lava)",
+            "functions": [
+              "hellfill.lua"
+            ],
+            "recordings": [
+              "recordings/hellfill.lua/generator-1-independent-82016.session.json"
+            ]
+          },
+          {
+            "name": "Hellfill generator 2 (hells[2] mazegrid with hell_tweaks)",
+            "functions": [
+              "hellfill.lua"
+            ],
+            "recordings": [
+              "recordings/hellfill.lua/generator-2-independent-82003.session.json"
+            ]
+          },
+          {
+            "name": "Hellfill generator 3 (hells[3] random corridor maze)",
+            "functions": [
+              "hellfill.lua"
+            ],
+            "recordings": [
+              "recordings/hellfill.lua/generator-3-independent-82005.session.json"
+            ]
+          },
+          {
+            "name": "Hellfill generator 4 (hells[4] iron or lava maze)",
+            "functions": [
+              "hellfill.lua"
+            ],
+            "recordings": [
+              "recordings/hellfill.lua/generator-4-independent-82001.session.json"
+            ]
+          },
+          {
+            "name": "Hellfill generator 5 (hells[5] thick-wall maze)",
+            "functions": [
+              "hellfill.lua"
+            ],
+            "recordings": [
+              "recordings/hellfill.lua/generator-5-independent-82002.session.json"
+            ]
+          },
+          {
+            "name": "Hellfill generator 6 (hells[6] cold maze)",
+            "functions": [
+              "hellfill.lua"
+            ],
+            "recordings": [
+              "recordings/hellfill.lua/generator-6-independent-82028.session.json"
+            ]
+          },
+          {
+            "name": "Hellfill generator 7 (hells[7] open cavern)",
+            "functions": [
+              "hellfill.lua"
+            ],
+            "recordings": [
+              "recordings/hellfill.lua/generator-7-independent-82008.session.json"
+            ]
+          },
+          {
+            "name": "Hellfill invocation-level vibrating-square tail",
+            "functions": [
+              "hellfill.lua"
+            ],
+            "recordings": []
+          }
+        ]
+      }
     }
   ]
 }
