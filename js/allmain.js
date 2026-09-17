@@ -1220,13 +1220,36 @@ async function advanceElapsedTurn(state) {
     let preflight = await planElapsedTurn(state);
     const random = { d, rn1, rn2, rnd, rne, rnl, rnz };
 
+    // A lethal monster action stops the planning clone before movemon() has
+    // returned its scan result. The live pass must replay that action first,
+    // including any life-saving recovery, then plan the continuation from the
+    // post-scan state. Keep this separate from the movement gate: the
+    // preflight's false gate is only the result of the early planning exit.
+    let pendingDeathReplan = Boolean(preflight.heroDeath);
+    let upkeepCount = 0;
+    const replanAfterDeath = async () => {
+        const completedUpkeeps = upkeepCount;
+        const resumed = await planElapsedTurn(state, {
+            consumeHeroRation: false,
+        });
+        preflight = {
+            ...resumed,
+            // preflightSimpleMonsterActions() reports only the suffix it was
+            // able to scan. The live side has already completed the prefix;
+            // rebase the expected count so the final source gate compares the
+            // same complete allocation sequence on both sides.
+            initialCapacity: preflight.initialCapacity,
+            upkeepCount: completedUpkeeps + resumed.upkeepCount,
+        };
+        pendingDeathReplan = Boolean(resumed.heroDeath);
+    };
+
     // C ref: allmain.c moveloop_core().  The outer loop repeats while the hero
     // still cannot move; the inner one runs monsters until either they are out
     // of rations or the hero regains one.  The once-per-turn block runs only
     // when both sides are out, which is why the gate carries !monstersCanMove
     // as well as the movement test.
     state.u.umovement -= NORMAL_SPEED;
-    let upkeepCount = 0;
     do {
         await encumber_msg(state);
         state.context.mon_moving = true;
@@ -1251,12 +1274,22 @@ async function advanceElapsedTurn(state) {
                     deferredGoto: (env) =>
                         runDeferredGotoAtTurnBoundary(env.state),
                 });
-                // C's done_in_by() is NORETURN, so a hero the monster scan
-                // kills never reaches the once-per-turn upkeep, the movement
-                // gate below, or another scan. js/end.js returns from the
-                // end-game display instead, so that replay can capture its
-                // final window; stop here the way C's longjmp does.
+                // C's terminal death path eventually longjmps out through
+                // really_done(), but done_in_by() itself returns after a
+                // life-saving recovery (end.c:185). js/end.js returns from
+                // the terminal end-game display so replay can capture its
+                // final window; stop only after that completed gameover path.
                 if (state.program_state?.gameover) return;
+                // A planned death is the one intentional exception to the
+                // ordinary movement comparison below. The live scan has now
+                // replayed the lethal action and completed its canonical
+                // recovery; if another monster scan is due, its source gate
+                // starts at this post-scan state.
+                if (pendingDeathReplan
+                    && monstersCanMove
+                    && state.u.umovement < NORMAL_SPEED) {
+                    await replanAfterDeath();
+                }
                 if (state.u.umovement >= NORMAL_SPEED) break;
             } while (monstersCanMove);
         } catch (error) {
@@ -1293,7 +1326,8 @@ async function advanceElapsedTurn(state) {
 
         const runsOncePerTurnUpkeep =
             !monstersCanMove && state.u.umovement < NORMAL_SPEED;
-        if (runsOncePerTurnUpkeep !== preflight.runsOncePerTurnUpkeep) {
+        if (!pendingDeathReplan
+            && runsOncePerTurnUpkeep !== preflight.runsOncePerTurnUpkeep) {
             throw new Error(
                 'elapsed-turn preflight disagreed with the live movement gate',
             );
@@ -1334,15 +1368,22 @@ async function advanceElapsedTurn(state) {
                     'elapsed-turn preflight disagreed with live timeout',
                 );
             }
-            if ((afterUnmul || afterTimeout) && state.u.umovement < NORMAL_SPEED) {
+            if (!pendingDeathReplan
+                && (afterUnmul || afterTimeout)
+                && state.u.umovement < NORMAL_SPEED) {
                 preflight = await planElapsedTurn(state, {
                     consumeHeroRation: false,
                 });
+                pendingDeathReplan = Boolean(preflight.heroDeath);
                 upkeepCount = 0;
+            }
+            if (pendingDeathReplan && state.u.umovement < NORMAL_SPEED) {
+                await replanAfterDeath();
             }
         }
     } while (state.u.umovement < NORMAL_SPEED);
-    if (preflight.initialCapacity > 0
+    if (!pendingDeathReplan
+        && preflight.initialCapacity > 0
         && upkeepCount !== preflight.upkeepCount) {
         throw new Error(
             'elapsed-turn preflight disagreed with live allocation count',
