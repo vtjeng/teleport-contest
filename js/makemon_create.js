@@ -95,6 +95,7 @@ import {
     TUWALL,
     TRAPDOOR,
     VAULT,
+    W_ARMH,
     W_SADDLE,
     IS_WALL,
     ZOO,
