@@ -1,0 +1,10 @@
+{
+  "version": 5,
+  "_comment": "Independent mhitu.c passiveum witness: a Valkyrie polymorphs into a grounded yellow mold, creates a newt with #wizgenesis, then waits twice. The generated monster's turn reaches passiveum's AD_STUN arm and the recording matches the patched C output (run-2E1vQg).",
+  "segments": [{
+    "seed": 9753137,
+    "datetime": "20330918091500",
+    "nethackrc": "OPTIONS=name:PassiveMold,role:Valkyrie,race:human,gender:female,align:lawful\nOPTIONS=!legacy,!tutorial,!splash_screen\nOPTIONS=playmode:debug,pettype:none,!acoustics,!autopickup\n",
+    "moves": " #polyself\nyellow mold\n #wizgenesis\nnewt\n.."
+  }]
+}

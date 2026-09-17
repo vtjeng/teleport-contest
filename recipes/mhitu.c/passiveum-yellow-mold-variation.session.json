@@ -1,0 +1,10 @@
+{
+  "version": 5,
+  "_comment": "Cheap A30 variation of the independent passiveum witness: a male neutral Wizard uses a different seed and clock with the same grounded yellow-mold AD_STUN counterattack setup; this also matches the patched C production caller (run-jVUt5l).",
+  "segments": [{
+    "seed": 9753299,
+    "datetime": "20340112091500",
+    "nethackrc": "OPTIONS=name:PassiveMoldVar,role:Wizard,race:human,gender:male,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen\nOPTIONS=playmode:debug,pettype:none,!acoustics,!autopickup\n",
+    "moves": " #polyself\nyellow mold\n #wizgenesis\nnewt\n.."
+  }]
+}
