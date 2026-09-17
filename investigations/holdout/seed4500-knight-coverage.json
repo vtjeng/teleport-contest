@@ -2,7 +2,7 @@
   "session": "holdout/seed4500-knight-coverage",
   "remainingScreensUpperBound": 485,
   "status": "complete",
-  "commit": "4e0cff9e1c51feb7ba0094f924613e5f896b0904",
+  "commit": "da13fffda60e1126741e2922fb3a820ffe2444ff",
   "mismatch": {
     "session": "holdout/seed4500-knight-coverage",
     "step": 1329,
@@ -32,7 +32,7 @@
     ],
     "dependencies": [
       "vision.c do_clear_area traverses y then x after any required vision recalculation. The existing JavaScript collects all pool squares before applying their effects, which can reorder RNG and monster/liquid state changes. Preserve source order across awaited effects.",
-      "trap.c delfloortrap returns a Boolean used by gush, so its required behavior must be implemented. water_damage_chain has discarded return value and may be represented by note_unported until ported, without a blanket refusal for occupied floor squares.",
+      "trap.c delfloortrap returns a Boolean used by gush; the canonical js/trap.js implementation already matches its trap-type gate, actor trap-state cleanup and unlinking. Reuse that owner. water_damage_chain has discarded return value and may remain a note_unported call until ported, without a blanket refusal for occupied floor squares.",
       "mon.c minliquid, display newsym, engrave del_engr_at and rm set_levltyp supply existing source-owned effects; the fountain caller must preserve their per-square order."
     ]
   },
@@ -42,6 +42,7 @@
     "The original C recording selects rnd(30)=30 in drinkfountain. C fountain.c case 30 calls dogushforth(TRUE), but current js/fountain.js case 30 throws UnsupportedFountainError for the gushing-forth effect.",
     "Source comparison of fountain.c 119-161 and vision.c 2107-2150 establishes per-square traversal and effect order. Current js/fountain.js dogushforth accumulates poolSquares synchronously before its async effect loop, so merely removing the drinking refusal would retain an ordering defect.",
     "The earlier force-quitchar explanation remains falsified: getpos already continues forced selection after quitchars. The resolved pager mismatch came from shared sink/fountain symbol refinement and must not be addressed with teleport-specific output.",
-    "The remaining-screen count is the mismatch queue upper bound, not a predicted gain; the actual combined development score remains recorded only from the accepted checkpoint."
+    "The remaining-screen count is the mismatch queue upper bound, not a predicted gain; the actual combined development score remains recorded only from the accepted checkpoint.",
+    "A later independent cursor defect is source-confirmed in the current code: getpos.c 955-961 always sets show_goal_msg and continues for NHKF_GETPOS_SHOWVALID, even without getpos_hilitefunc. JavaScript js/getpos.js gates that entire branch on the callback, so a valid-square key without a callback falls into terrain-feature lookup. A post-fountain continuation observed it at Knight step1347; the current published queue remains blocked earlier at fountain fate30, and no downstream gain is claimed."
   ]
 }

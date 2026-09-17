@@ -58436,7 +58436,7 @@
     {
       "id": "div-tutorial-overview-reached-seed0009-20260917",
       "kind": "divergence-fix",
-      "status": "open",
+      "status": "closed",
       "summary": "Fix the tutorial dungeon reached-depth state used by overview",
       "cFile": "do.c",
       "sessions": [],
@@ -58445,8 +58445,8 @@
       "spans": [
         {
           "name": "tutorial-reached-depth",
-          "status": "queued",
-          "closedBy": null,
+          "status": "closed",
+          "closedBy": "da13fffda60e1126741e2922fb3a820ffe2444ff",
           "functions": [
             "goto_level"
           ]
@@ -58458,8 +58458,11 @@
         "screens": 10837,
         "rng": 771039
       },
-      "closedAt": null,
-      "delivered": null,
+      "closedAt": "da13fffda60e1126741e2922fb3a820ffe2444ff",
+      "delivered": {
+        "screens": 1,
+        "rng": 0
+      },
       "function": "goto_level",
       "session": "holdout/seed0009-swimmer-mforce",
       "step": 69,
@@ -58535,7 +58538,12 @@
             }
           }
         }
-      ]
+      ],
+      "closeStanding": {
+        "sha": "da13fffda60e1126741e2922fb3a820ffe2444ff",
+        "screens": 10838,
+        "rng": 771039
+      }
     }
   ]
 }

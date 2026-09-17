@@ -1,47 +1,52 @@
 {
   "session": "holdout/seed0009-swimmer-mforce",
-  "remainingScreensUpperBound": 4,
+  "remainingScreensUpperBound": 0,
   "status": "complete",
-  "commit": "8e90f33b3721bd996b79487ffc509a71b7f3c594",
+  "commit": "da13fffda60e1126741e2922fb3a820ffe2444ff",
   "mismatch": {
     "session": "holdout/seed0009-swimmer-mforce",
-    "step": 69,
-    "kind": "screen",
-    "function": null,
-    "functionDeclared": false,
-    "sourceFile": null,
-    "cFile": null,
+    "step": 73,
+    "kind": "stop",
+    "function": "switch_terrain",
+    "functionDeclared": true,
+    "sourceFile": "hack.c",
+    "cFile": "hack.c",
     "luaFile": null,
     "line": null,
-    "message": null,
+    "message": "unsupported hero move: switch_terrain() onto terrain that blocks levitation",
     "unlocatedKinds": [],
     "recordedSteps": 73,
-    "remainingScreensUpperBound": 4
+    "remainingScreensUpperBound": 0
   },
-  "summary": "Death finalization now completes. One screen still differs at step 69: the tutorial overview says levels 1 to 0 because startup tutorial entry leaves dunlev_ureached at zero. C reaches do.c goto_level through maybe_do_tutorial and updates that value immediately after assigning u.uz. Share the existing do.js reached-level update with enter_tutorial before level creation; preserve dungeon.c print_mapseen formatting.",
+  "summary": "The current A21 replay emits all 73 recorded screens, with all 3713 RNG values and 73 cursors matching; no recorded screen is missing. The only remaining diagnostic is a post-recording behavioral boundary at step 73: js/hack.js switch_terrain() throws when the hero occupies obstructed, closed-door, waterwall or lavawall terrain. C hack.c switch_terrain() handles that same blocklev predicate by setting BLevitation/BFlying FROMOUTSIDE, issuing messages only when the corresponding property is active, updating the status line when a property changes, and classifying terrain. This boundary is therefore a future whole-source switch_terrain port with zero currently unmatched recorded screens; the prior tutorial reached-depth explanation is superseded.",
   "source": {
-    "file": "do.c",
-    "functions": [
-      "goto_level"
-    ],
-    "branch": "do.c goto_level1679-1684 records the greatest reached depth in ordinary branches, or the smallest depth in an up-building branch, initializing an unvisited branch from zero. js/do.js already implements this block for ordinary transitions, but js/tutorial_startup.js enter_tutorial assigns the tutorial level directly without it. dungeon.c print_mapseen3516-3555 omits the level-range suffix when dunlev_ureached equals entry_lev; the current zero is incorrect source state.",
+    "file": "hack.c",
+    "branch": "hack.c switch_terrain() 3178-3217 computes blocklev from IS_OBSTRUCTED, closed_door, IS_WATERWALL and LAVAWALL. On blocklev it sets BLevitation and BFlying FROMOUTSIDE, with You_cant() output only for active Levitation/Flying; otherwise it clears those masks and invokes float_up()/float_vs_flight() as needed. It then updates disp.botl when Levitation/Flying changed and calls classify_terrain() when terrainstatus is enabled. js/hack.js 4794-4824 computes the same predicate but throws UnsupportedHeroMoveBoundaryError at 4811-4813, and similarly refuses nonzero blocked masks at 4815-4819 instead of implementing those source state transitions.",
     "callers": [
-      "allmain.c maybe_do_tutorial567-585 calls schedule_goto/deferred_goto for tut-1 and then redraws; js/jsmain.js dispatches the accepted tutorial target to js/tutorial_startup.js enter_tutorial.",
-      "do.c goto_level assigns u.uz and u.utolev before updating dunlev_reached; ordinary js/do.js goto_level already follows that order.",
-      "dungeon.c show_overview and print_mapseen read the dungeon reached-level field during final overview disclosure; their equal-to-entry formatting branch already matches C."
+      "hack.c set_uinwater() 3221-3227 calls switch_terrain() only when u.uinwater changes; js/hack.js set_uinwater() 4827-4836 is the corresponding owner and js/cmd.js 2573 uses it during level transitions.",
+      "hack.c spoteffects() 3342-3349 calls switch_terrain() before pooleffects() when the current terrain differs from the previous terrain or terrain_typ is MAX_TYPE; js/hack.js spoteffects() 4938-4970 calls its terrain check after pooleffects(), so a liquid death that returns true skips this call.",
+      "dungeon.c u_on_rndspot() 1604-1638 calls switch_terrain() after random level arrival; js/dungeon.js u_on_rndspot() 1156-1214 calls the current JS owner, and js/cmd.js 2583-2589 is a production level-change caller.",
+      "teleport.c teleds() 551-552 calls switch_terrain() after a terrain-type change; js/teleport.js 1601-1606 preserves this call after map and vision updates.",
+      "dothrow.c 913-917 calls switch_terrain() after thrown movement changes terrain; js/dothrow.js 643-649 is the corresponding caller.",
+      "dig.c 733 and 757 calls switch_terrain() after a hero-created pit or hole changes solid terrain; no direct js/dig.js caller currently exists for these unported post-trap arms.",
+      "monmove.c dissolve_bars() 2169-2177 calls switch_terrain() when bars dissolve under the hero; js/monmove.js 4035-4048 preserves that caller.",
+      "objnam.c wizterrainwish() 3907-3910 calls switch_terrain() after a terrain wish; the corresponding JS terrain-wish path remains unported and has no direct caller."
     ],
     "dependencies": [
-      "Existing dungeon.js builds_up, dunlev, dunlev_reached and set_dunlev_reached provide the source values; reuse their state-scoped owners.",
-      "Keep the shared source block in js/do.js and call it from both ordinary travel and tutorial entry. Preserve ascending, first-unvisited and already-reached cases.",
-      "Existing independent tutorial-entry recipes reach the live startup query and map. They cover entry reachability; the saved fixed session exercises the later overview header."
+      "Terrain classification requires the canonical IS_OBSTRUCTED, closed_door, IS_WATERWALL and LAVAWALL predicates and the current level cell at u.ux/u.uy.",
+      "The source state contract owns u.uprops[LEVITATION].blocked and u.uprops[FLYING].blocked (BLevitation/BFlying), plus float_up(), float_vs_flight(), disp.botl and classify_terrain(); a future implementation must preserve their source order and conditional messages.",
+      "The saved scan reports boundary at behavioral step 73 with key null, keyCursor answer, divergence null, and screensEmitted 73. Because recordedSteps is also 73 and the queue count is zero, the boundary occurs after the complete observed output; do not charge it as a lost screen or restore the superseded tutorial overview diagnosis."
+    ],
+    "functions": [
+      "switch_terrain"
     ]
   },
-  "goalKind": "divergence-fix",
+  "goalKind": "file-port",
   "evidence": [
-    "Passing checkpoint 8e90f33b/run-qzFm9S records 10834/11405 development screens and 319/319 regression recordings. This session advances from62 to72/73 screens, retains3713/3713 RNG calls, and now matches73/73 cursors.",
-    "The saved .cache/A20-development-scan.json and .cache/A20-queue.json identify the first screen mismatch at step69 of73, with remainingScreensUpperBound4. Only one screen is actually unmatched; the queue count is an upper bound.",
-    "The completed worker investigation compared the overview text: C shows The Tutorial:, while the unfixed JavaScript shows The Tutorial: levels 1 to 0. Reading do.c1679-1684 and dungeon.c3516-3555 identifies the omitted state update rather than a formatting defect.",
-    "Root compared the current enter_tutorial assignment and mklev sequence with C maybe_do_tutorial and goto_level, and verified that ordinary goto_level already owns the needed branch. The queued correction shares that code and adds ascending/unvisited behavioral coverage.",
-    "The prior really_done special-death refusal at step62 is resolved by this checkpoint. Retain its historical investigation in Git; it is no longer the current mismatch."
+    "The passing checkpoint at da13fffda60e1126741e2922fb3a820ffe2444ff (.cache/A21-checkpoint.log, run-2ujRP0) passes the fixed workload at 36/44 fully matched sessions and reports 10838/11405 screens, 771039/792838 RNG values and 10860/11405 cursors.",
+    "The assigned row in .cache/A21-development-scan.json reports screensEmitted 73, recordedSteps 73, divergence null, boundary \"unsupported hero move: switch_terrain() onto terrain that blocks levitation\", commandRefusal false, key null, command null, keyCursor \"answer\", and behavioral at 73. Its segment end state has inputExhausted false and recordingMatched false only because runSegment marks any boundary as unmatched; the emitted screen, RNG and cursor streams are complete through the recorded final step.",
+    "The queue entry in .cache/A21-queue.json pins step 73, function switch_terrain, sourceFile/cFile hack.c, the same boundary message, recordedSteps 73 and remainingScreensUpperBound 0. The old tracked investigation used count 4 and the resolved do.c tutorial reached-depth explanation, so it is stale and replaced here.",
+    "The exact C implementation is nethack-c/upstream/src/hack.c:3178-3217. Its blocklev arm does not refuse a hero who is neither actively levitating nor flying: it sets the blocked masks and continues through the botl and terrainstatus tails. The JavaScript refusal is js/hack.js:4794-4824, where the blocklev throw precedes those source effects.",
+    "No replay, recording, scan, aggregate score, game-code edit or central-record update was performed for this refresh; the current source and saved A21 artifacts establish the zero-screen attribution."
   ]
 }
