@@ -61,7 +61,8 @@ import { next_ident } from './obj.js';
 import { discover_object } from './o_init.js';
 import { BAG_OF_TRICKS } from './objects.js';
 import { create_particular } from './read.js';
-import { d, rn1, rn2, rnd } from './rng.js';
+import { d, rn1, rn2, rnd, rne } from './rng.js';
+import { shkname } from './shknam.js';
 import {
     G_FREQ,
     G_HELL,
@@ -441,7 +442,22 @@ export function grow_up(mtmp, victim, env = {}) {
 // and similar effects. The clone gets half the parent's current HP; the parent
 // keeps the extra point when HP is odd. Returns the clone or null on failure.
 // Async because the tamedog path (for cloning a tame monster) is async.
-export async function clone_mon(mon, x, y, state = game) {
+// rawEnv carries the planning RNG and redraw seam when a clone is made during
+// an isolated monster turn; ordinary callers retain the live defaults.
+export async function clone_mon(mon, x, y, state = game, rawEnv = {}) {
+    const random = {
+        d,
+        rn1,
+        rn2,
+        rnd,
+        rne,
+        ...(rawEnv.random ?? {}),
+    };
+    const redraw = typeof rawEnv.redraw === 'function'
+        ? rawEnv.redraw
+        : rawEnv.planning
+            ? () => {}
+            : (xx, yy) => newsym(xx, yy, state);
     const mndx = monsndx(mon.data);
 
     /* may be too weak or have been extinguished for population control */
@@ -463,7 +479,11 @@ export async function clone_mon(mon, x, y, state = game) {
     }
     /* C: MON_AT(mm.x, mm.y) checks level.monsters[x][y] */
     if (state.level.monsters[mmx]?.[mmy]) {
-        const coord = enexto(mmx, mmy, mon.data, { state });
+        const coord = enexto(mmx, mmy, mon.data, {
+            ...rawEnv,
+            state,
+            random,
+        });
         if (!coord || state.level.monsters[coord.x]?.[coord.y])
             return null;
         mmx = coord.x;
@@ -471,7 +491,7 @@ export async function clone_mon(mon, x, y, state = game) {
     }
 
     /* C: m2 = newmonst(); *m2 = *mon; -- shallow copy of the monster */
-    const m2 = { ...mon };
+    let m2 = { ...mon };
     /* mtrack is an array of objects; each clone needs its own copy */
     m2.mtrack = mon.mtrack
         ? mon.mtrack.map((t) => ({ ...t }))
@@ -480,7 +500,10 @@ export async function clone_mon(mon, x, y, state = game) {
     m2.mextra = null;
     m2.nmon = state.level.monlist;
     state.level.monlist = m2;
-    m2.m_id = next_ident({ state });
+    // C next_ident() consumes the shared identity RNG.  Keep that draw on
+    // the caller's stream when a planning clone is made; falling back to the
+    // module-global wrapper would advance the live game during preflight.
+    m2.m_id = next_ident({ state, random });
     m2.mx = mmx;
     m2.my = mmy;
 
@@ -488,7 +511,10 @@ export async function clone_mon(mon, x, y, state = game) {
     m2.mtrapped = false;
     m2.mcloned = true;
     m2.minvent = null; /* objects don't clone */
-    m2.mw = null;
+    // C's shallow `*m2 = *mon` deliberately leaves mw pointing at the
+    // parent's wielded object; clone_mon() clears minvent but does not clear
+    // MON_WEP(). Preserve that source-visible pointer, including its odd
+    // relationship to the clone's empty inventory.
     m2.mleashed = false;
     /* Max HP the same, but current HP halved for both.  The caller
      * might want to override this by halving the max HP also.
@@ -516,18 +542,25 @@ export async function clone_mon(mon, x, y, state = game) {
     }
     /* if 'parent' is named, give the clone the same name */
     if (has_mgivenname(mon)) {
-        christen_monst(m2, MGIVENNAME(mon));
+        m2 = christen_monst(m2, MGIVENNAME(mon), { ...rawEnv, state });
     } else if (mon.isshk) {
-        /* shkname() is from shknam.c and not ported; skip naming the clone */
-        note_unported('shknam.c shkname');
+        m2 = christen_monst(
+            m2,
+            shkname(mon, state, { ...rawEnv, state, random }),
+            { ...rawEnv, state },
+        );
     }
 
     /* not all clones caused by player are tame or peaceful */
     if (!state.context?.mon_moving && mon.mpeaceful) {
         if (mon.mtame)
-            m2.mtame = rn2(Math.max(2 + state.u.uluck, 2)) ? mon.mtame : 0;
+            m2.mtame = random.rn2(Math.max(2 + state.u.uluck, 2))
+                ? mon.mtame
+                : 0;
         else if (mon.mpeaceful)
-            m2.mpeaceful = rn2(Math.max(2 + state.u.uluck, 2)) ? true : false;
+            m2.mpeaceful = random.rn2(Math.max(2 + state.u.uluck, 2))
+                ? true
+                : false;
     }
     /* if guardian angel could be cloned (maybe after polymorph?),
        m2 could be both isminion and mtame; isminion takes precedence */
@@ -536,8 +569,10 @@ export async function clone_mon(mon, x, y, state = game) {
         if (has_emin(m2) && has_emin(mon)) {
             const src = EMIN(mon);
             const dst = EMIN(m2);
-            dst.min_align = src.min_align;
-            dst.renegade = src.renegade;
+            // C assigns the whole emin record, including parentmid. The
+            // later renegade expression intentionally overwrites only that
+            // member after the assignment.
+            Object.assign(dst, src);
         }
         /* renegade when same alignment as hero but not peaceful or
            when peaceful while being different alignment from hero */
@@ -548,16 +583,25 @@ export async function clone_mon(mon, x, y, state = game) {
            However, tamedog() will not re-tame a tame dog, so m2
            must be made non-tame to get initialized properly. */
         m2.mtame = 0;
-        if (await tamedog(m2, null, false, { state })) {
+        if (await tamedog(m2, null, false, {
+            ...rawEnv,
+            state,
+            random,
+        })) {
             if (has_edog(m2) && has_edog(mon)) {
                 const src = EDOG(mon);
                 const dst = EDOG(m2);
-                Object.assign(dst, src);
+                // edog.ogoal is an inline C coordinate. Keep the copy
+                // independent even though the JS representation is an
+                // object, while retaining every scalar field verbatim.
+                Object.assign(dst, src, {
+                    ogoal: src.ogoal ? { ...src.ogoal } : src.ogoal,
+                });
             }
         }
     }
     set_malign(m2, state);
-    newsym(m2.mx, m2.my); /* display the new monster */
+    redraw(m2.mx, m2.my, state); /* display the new monster */
 
     return m2;
 }

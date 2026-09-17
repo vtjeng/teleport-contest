@@ -348,6 +348,7 @@ import {
     closed_door,
     m_in_air,
     onscary,
+    set_apparxy,
     wormCross,
     youHear,
 } from './monmove.js';
@@ -369,7 +370,7 @@ import { maybe_adjust_hero_bubble, water_friction } from './mkmaze.js';
 import { is_db_wall } from './dbridge.js';
 import { waterbody_name } from './pager.js';
 import { Cold_resistance } from './zap.js';
-import { enexto, goodpos, rloc_to } from './teleport.js';
+import { enexto, goodpos, rloc, rloc_to } from './teleport.js';
 import { inside_room } from './room_coordinates.js';
 import { check_special_room, in_rooms } from './rooms.js';
 import {
@@ -4718,7 +4719,20 @@ export async function domove_swap_with_pet(
 
     // hack.c:2198-2226. minliquid() has precedence over mintrap(); both are
     // invoked after the monster has arrived on the hero's former square.
-    const random = env.random ?? { d, rn1, rn2, rnd, rne, rnl };
+    // The movement caller commonly supplies only its candidate rn2 seam.
+    // minliquid's ordinary survivor path can reach teleport.c:rloc(), whose
+    // source contract also requires rnd; fill the standard operations here so
+    // the caller's supplied draws remain authoritative without a partial
+    // random object causing a relocation failure.
+    const random = {
+        d,
+        rn1,
+        rn2,
+        rnd,
+        rne,
+        rnl,
+        ...(env.random ?? {}),
+    };
     const trapEnv = {
         ...env,
         state,
@@ -4728,6 +4742,39 @@ export async function domove_swap_with_pet(
         mInAir: env.mInAir ?? ((mon, st) => m_in_air(mon, st)),
         heroDeaf: env.heroDeaf ?? heroIsDeaf,
         youHear: env.youHear ?? ((line, st) => youHear(line, st)),
+        // hack.c:2198-2199 calls minliquid() after the swap and consumes the
+        // rloc() result inside that source function. Supply the complete
+        // teleport.c operation set so a liquid survivor can relocate before
+        // mintrap() runs, including the planning-safe seams when a caller
+        // provides them.
+        relocateMonster: env.relocateMonster ?? (
+            (subject, flags, relocationEnv) => rloc(
+                subject,
+                flags,
+                {
+                    ...relocationEnv,
+                    state,
+                    random: relocationEnv.random ?? random,
+                    message,
+                    newsym: relocationEnv.newsym
+                        ?? ((tx, ty) => newsym(tx, ty, state)),
+                    onscary: relocationEnv.onscary
+                        ?? ((tx, ty, target) => onscary(tx, ty, target, state)),
+                    setApparxy: relocationEnv.setApparxy
+                        ?? ((target, setEnv) => set_apparxy(target, {
+                            ...setEnv,
+                            state,
+                            random: setEnv.random ?? random,
+                        })),
+                },
+            )
+        ),
+        // hack.c:2198-2199 consumes minliquid()'s return to choose
+        // Trap_Killed_Mon. Only the later deal_with_overcrowding() result is
+        // discarded when rloc() fails; keep that owner explicit instead of
+        // swallowing an exception.
+        dealWithOvercrowding: env.dealWithOvercrowding
+            ?? (() => note_unported('mon.c deal_with_overcrowding')),
         unsupported: env.unsupported ?? ((reason) => {
             throw new UnsupportedHeroMoveBoundaryError(reason);
         }),

@@ -24,6 +24,7 @@ import {
     LEVITATION,
     MM_NOMSG,
     POOL,
+    RLOC_MSG,
     ROOM,
     SICK,
     SICK_VOMITABLE,
@@ -47,6 +48,8 @@ import {
     PM_SEWER_RAT,
     PM_WATER_ELEMENTAL,
     PM_WATER_MOCCASIN,
+    M1_TPORT,
+    PM_HUMAN,
     PM_YELLOW_DRAGON,
     PM_WATCHMAN,
 } from '../js/monsters.js';
@@ -139,6 +142,39 @@ test('dogushforth interleaves candidate RNG with each square effect', async () =
     assert.deepEqual(messages, [
         'Water gushes forth from the overflowing fountain!',
     ]);
+});
+
+// fountain.c:gush() discards minliquid()'s integer result, but minliquid's
+// teleporter survivor arm still consumes its rloc() boolean before gush moves
+// on.  A supplied relocation seam makes that source caller contract directly
+// observable without depending on a particular random destination.
+test('gush forwards its monster liquid relocation operation', async () => {
+    await prepareGushingSquares();
+    const monster = newMonster({
+        mx: 42,
+        my: 10,
+        m_id: 9012,
+        mhp: 5,
+        mhpmax: 5,
+        mcanmove: true,
+        data: {
+            ...game.mons[PM_HUMAN],
+            mflags1: game.mons[PM_HUMAN].mflags1 | M1_TPORT,
+        },
+        mnum: PM_HUMAN,
+    });
+    game.level.monsters[42][10] = monster;
+    const calls = [];
+    await dogushforth(false, game, {
+        message: () => {},
+        random: { rn2: () => 0 },
+        relocateMonster: (subject, flags) => {
+            calls.push([subject, flags]);
+            return true;
+        },
+    });
+    assert.equal(game.level.at(42, 10).typ, POOL);
+    assert.deepEqual(calls, [[monster, RLOC_MSG]]);
 });
 
 test('drinkfountain dispatches fate 30 to gushing before dryup', async () => {

@@ -7,7 +7,7 @@ import {
 } from '../js/const.js';
 import { game } from '../js/gstate.js';
 import { runSegment } from '../js/jsmain.js';
-import { PM_HUMAN } from '../js/monsters.js';
+import { PM_GREMLIN, PM_HUMAN } from '../js/monsters.js';
 import { newMonster } from '../js/monst.js';
 import {
     preflight_dotrap,
@@ -137,4 +137,44 @@ test('trapeffect_rust_trap monster arm returns the C finished sentinel',
         );
         assert.equal(result, Trap_Effect_Finished);
         assert.deepEqual(env.randomCalls, [5]);
+    });
+
+test('trapeffect_rust_trap wires the monster gremlin split caller',
+    async () => {
+        const state = await stateReady();
+        const monster = newMonster({
+            data: state.mons[PM_GREMLIN],
+            mnum: PM_GREMLIN,
+            mx: 10,
+            my: 10,
+            mhp: 10,
+            mhpmax: 10,
+            minvent: null,
+            mw: null,
+            mtrapped: false,
+            mpeaceful: false,
+        });
+        const monsterTrap = {
+            ttyp: RUST_TRAP,
+            tseen: false,
+            once: false,
+            tx: monster.mx,
+            ty: monster.my,
+            madeby_u: false,
+        };
+        const env = effectEnv(state, 3);
+        const result = await trapeffect_selector(
+            monster,
+            monsterTrap,
+            0,
+            env,
+        );
+        assert.equal(result, Trap_Effect_Finished);
+        assert.deepEqual(env.randomCalls, [5, 3]);
+        assert.equal(monster.mhp, 5);
+        assert.equal(monster.mhpmax, 5);
+        assert.ok(
+            state.level.monlist !== monster
+                && state.level.monlist?.data === state.mons[PM_GREMLIN],
+        );
     });

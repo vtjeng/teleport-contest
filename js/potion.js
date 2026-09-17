@@ -89,7 +89,12 @@ import {
     bot, newsym, see_monsters, see_objects, see_traps, swallowed, tmp_at,
 } from './display.js';
 import { heal_legs, trycall } from './do.js';
-import { Amonnam, capitalizedMonsterName } from './do_name.js';
+import {
+    Amonnam,
+    Monnam,
+    capitalizedMonsterName,
+    mon_nam,
+} from './do_name.js';
 import { tamedog } from './dog.js';
 import { can_reach_floor } from './engrave.js';
 import { drinkfountain, drinksink } from './fountain.js';
@@ -102,13 +107,14 @@ import {
 import {
     getobj, hands_obj, learn_unseen_invent, obfree, update_inventory, useup,
 } from './invent.js';
-import { set_malign } from './makemon.js';
+import { clone_mon, set_malign } from './makemon.js';
 import { makemon_runtime, mongone } from './makemon_create.js';
 import { breathless, haseyes, likes_fire } from './mondata.js';
 import {
     PM_CYCLOPS, PM_DJINNI, PM_FLOATING_EYE, PM_HEALER,
 } from './monsters.js';
 import { bcsign, objectType } from './obj.js';
+import { s_suffix } from './hacklib.js';
 import {
     Tobjnam, donameFresh, is_plural, short_oname, thesimpleoname, vtense,
 } from './objnam.js';
@@ -119,6 +125,7 @@ import { encumber_msg } from './pickup.js';
 import { body_part } from './polyself.js';
 import { d, rn1, rn2, rnd, rne, rnz } from './rng.js';
 import { canSpotMonster } from './startup_a11y.js';
+import { cloneu } from './mhitu.js';
 import { burn_away_slime } from './timeout.js';
 import { Levitation, unconscious } from './trap.js';
 import { surface } from './dungeon.js';
@@ -191,6 +198,56 @@ export class UnsupportedQuaffError extends Error {
 
 function djinniRandom(env = {}) {
     return env.random ?? { d, rn1, rn2, rnd, rne, rnz };
+}
+
+// C ref: potion.c split_mon() (2873-2935).  A heat-triggered split can target
+// either the hero or a monster.  Its returned clone controls the caller's
+// fountain cleanup, so both clone paths preserve that return value and their
+// source-specific hit-point updates.
+export async function split_mon(mon, attacker = null, rawEnv = {}) {
+    const state = rawEnv.state ?? game;
+    const message = rawEnv.message ?? ttyPline;
+    let reason = '';
+    if (attacker) {
+        reason = attacker === state.youmonst
+            ? ' from your heat'
+            : ` from ${s_suffix(mon_nam(attacker, state, rawEnv))} heat`;
+    }
+
+    if (mon === state.youmonst) {
+        if (state.u.mh > state.u.mhmax)
+            state.u.mh = state.u.mhmax;
+        const clone = state.u.mh > 1
+            ? await cloneu(state, { ...rawEnv, state })
+            : null;
+        if (clone) {
+            clone.mhpmax = Math.trunc(state.u.mhmax / 2);
+            state.u.mhmax -= clone.mhpmax;
+            state.disp.botl = true;
+            await message(`You multiply${reason}!`, state, rawEnv);
+        }
+        return clone;
+    }
+
+    if (mon.mhp > mon.mhpmax)
+        mon.mhp = mon.mhpmax;
+    const clone = mon.mhp > 1
+        ? await clone_mon(mon, 0, 0, state, { ...rawEnv, state })
+        : null;
+    if (clone) {
+        // C asserts mon->mhpmax >= mon->mhp here. The preceding clamp and
+        // clone_mon()'s half-current-HP operation establish that invariant.
+        clone.mhpmax = Math.trunc(mon.mhpmax / 2);
+        mon.mhpmax -= clone.mhpmax;
+        if (canSpotMonster(mon, state)) {
+            await message(
+                `${Monnam(mon, state, rawEnv)} multiplies${reason}!`,
+                state,
+                rawEnv,
+            );
+        }
+    }
+    return clone;
 }
 
 // C ref: potion.c mongrantswish() (2794-2812). Remove the djinni before the

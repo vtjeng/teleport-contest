@@ -1428,11 +1428,22 @@ function preflightCreation(ptr, x, y, mmflags, normalized) {
         && Boolean(ptr)
         && !randomCoordinates
         && mmflags === (NO_MINVENT | MM_NOMSG);
+    // mhitu.c cloneu() creates a second hero-form monster during ordinary
+    // play, at the hero square, with the inventoryless dog flags.  It then
+    // completes clone initialization in the caller, so use the normal
+    // runtime async tail while keeping this caller's exact source shape
+    // separate from starting-pet creation.
+    const cloneuCall = !state.in_mklev
+        && normalized._cloneu === true
+        && ptr === state.youmonst?.data
+        && x === state.u?.ux
+        && y === state.u?.uy
+        && mmflags === (NO_MINVENT | MM_EDOG | MM_NOMSG);
     const runtimeCall = startingPetCall || confusedLightCall || djinniBottleCall
         || fountainCreatureCall
         || runtimeRandomCall || runtimeGroupCall || createParticularCall
         || vaultGuardCall || revivalCall || statueAnimationCall
-        || figurineAnimationCall;
+        || figurineAnimationCall || cloneuCall;
     if (runtimeCall
         && (!normalized.runtimeContinuation
             || typeof normalized.runtimeContinuation !== 'object')) {
@@ -1535,6 +1546,7 @@ function preflightCreation(ptr, x, y, mmflags, normalized) {
         if (!revivalCall
             && !statueInventoryCall
             && !specialRoomCall
+            && !cloneuCall
             && (!state.in_mklev || (isMainDungeonLevel(state)
                 && !normalized._rndmonMklev))) {
             assertSupportedSpecies(ptr);

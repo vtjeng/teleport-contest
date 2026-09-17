@@ -125,7 +125,7 @@ import {
 } from './startup_a11y.js';
 import { u_wipe_engr } from './engrave.js';
 import { check_special_room } from './rooms.js';
-import { mnexto } from './teleport.js';
+import { mnexto, rloc } from './teleport.js';
 import {
     block_point,
     cansee,
@@ -158,7 +158,11 @@ import { UnsupportedEnlightenmentError } from './insight.js';
 import { UnsupportedShopError } from './shk.js';
 import { UnsupportedVaultGuardError, invault } from './vault.js';
 import { fightm } from './mhitm.js';
-import { m_everyturn_effect } from './monmove.js';
+import {
+    m_everyturn_effect,
+    onscary,
+    set_apparxy,
+} from './monmove.js';
 import {
     admitPlannedVisionChange,
     preflightElapsedTurnTail,
@@ -171,6 +175,7 @@ import {
     create_gas_cloud,
     run_regions,
 } from './region.js';
+import { note_unported } from './unported.js';
 import {
     UnsupportedHeroTimeoutBoundaryError,
     nh_timeout,
@@ -672,17 +677,45 @@ function elapsedTurnMinLiquid(monster, env) {
         unsupported: unavailableElapsedTurnOperation(
             'monster liquid effect',
         ),
-        relocateMonster: unavailableElapsedTurnOperation(
-            'monster liquid relocation',
+        // minliquid() uses rloc()'s result to decide whether its liquid
+        // effect is finished. Keep the relocation on the elapsed-turn state
+        // and provide the complete teleport.c hook set for both the planning
+        // and live passes.
+        relocateMonster: (subject, flags, relocationEnv) => rloc(
+            subject,
+            flags,
+            {
+                ...relocationEnv,
+                state: env.state,
+                random: relocationEnv.random ?? env.random,
+                message: env.planning ? async () => {} : ttyPline,
+                newsym: env.planning
+                    ? () => {}
+                    : (x, y) => newsym(x, y, env.state),
+                onscary: (x, y, target) => onscary(
+                    x,
+                    y,
+                    target,
+                    env.state,
+                ),
+                setApparxy: (target, setEnv) => set_apparxy(target, {
+                    ...setEnv,
+                    state: env.state,
+                    random: relocationEnv.random ?? env.random,
+                }),
+            },
         ),
-        fireDamageChain: unavailableElapsedTurnOperation(
-            'monster fire inventory damage',
-        ),
-        waterDamageChain: unavailableElapsedTurnOperation(
-            'monster water inventory damage',
-        ),
-        dealWithOvercrowding: unavailableElapsedTurnOperation(
-            'monster liquid overcrowding',
+        // C discards both inventory-chain return values. The chain owners
+        // remain unported, so record their exact source calls and continue
+        // the minliquid branch rather than turning a valid monster effect
+        // into an elapsed-turn refusal.
+        fireDamageChain: () => note_unported('trap.c fire_damage_chain'),
+        waterDamageChain: () => note_unported('trap.c water_damage_chain'),
+        // C discards deal_with_overcrowding()'s result. Its remaining level
+        // transition branches are outside this span, so name and skip that
+        // discarded call after rloc() has returned false.
+        dealWithOvercrowding: () => note_unported(
+            'mon.c deal_with_overcrowding',
         ),
         hooks: {
             ...(env.hooks ?? {}),

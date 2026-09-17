@@ -57,7 +57,7 @@ import {
     is_watch, mhis, mhe, monstseesu, monstunseesu, nolimbs,
 } from './mondata.js';
 import { get_iter_mons } from './mon.js';
-import { youHear } from './monmove.js';
+import { onscary, set_apparxy, youHear } from './monmove.js';
 import { m_at } from './monst.js';
 import { canSpotMonster, heroIsBlind } from './startup_a11y.js';
 import {
@@ -69,6 +69,7 @@ import { observe_object } from './o_init.js';
 import { body_part, mbodypart } from './polyself.js';
 import { d, rn1, rn2, rnd, rne } from './rng.js';
 import { set_levltyp } from './terrain.js';
+import { rloc } from './teleport.js';
 import { cansee, couldsee, do_clear_area_async } from './vision.js';
 import { S_cloud } from './symbols.js';
 import { mintrap } from './trap_effects.js';
@@ -300,7 +301,57 @@ async function gush(x, y, argument, state = game, env = {}) {
     const mtmp = m_at(x, y, state);
     if (mtmp) {
         const { minliquid: minliq } = await import('./mon.js');
-        await minliq(mtmp, { ...env, state, random });
+        // fountain.c:gush() discards minliquid()'s result, but minliquid's
+        // lava and water survivor arms consume rloc()'s result. Keep that
+        // return-valued teleport path complete for monsters created on this
+        // newly flooded square.
+        // dogushforth's candidate stream normally supplies only rn2.  The
+        // survivor arm may call teleport.c:rloc(), whose source contract also
+        // needs rnd (and the other standard random operations), so complete
+        // that adapter without changing the already-consumed candidate draw.
+        const liquidRandom = {
+            d,
+            rn1,
+            rn2,
+            rnd,
+            rne,
+            ...random,
+        };
+        const liquidEnv = {
+            ...env,
+            state,
+            random: liquidRandom,
+            message,
+            relocateMonster: env.relocateMonster ?? (
+                (subject, flags, relocationEnv) => rloc(
+                    subject,
+                    flags,
+                    {
+                        ...relocationEnv,
+                        state,
+                        random: relocationEnv.random ?? liquidRandom,
+                        message,
+                        newsym: relocationEnv.newsym
+                            ?? ((tx, ty) => newsym(tx, ty, state)),
+                        onscary: relocationEnv.onscary
+                            ?? ((tx, ty, target) =>
+                                onscary(tx, ty, target, state)),
+                        setApparxy: relocationEnv.setApparxy
+                            ?? ((target, setEnv) => set_apparxy(target, {
+                                ...setEnv,
+                                state,
+                                random: setEnv.random ?? liquidRandom,
+                            })),
+                    },
+                )
+            ),
+            // fountain.c:gush() discards the minliquid() result and continues
+            // to the next clear-area square.  Keep that discarded source call
+            // explicit when no complete overcrowding owner is supplied.
+            dealWithOvercrowding: env.dealWithOvercrowding
+                ?? (() => note_unported('mon.c deal_with_overcrowding')),
+        };
+        await minliq(mtmp, liquidEnv);
     } else {
         newsym(x, y);
     }
