@@ -13,9 +13,11 @@ import { rn2 } from './rng.js';
 import { selection_area, selection_negate, ThemeroomSelection } from './themerooms.js';
 import { hellTweaks } from './asmodeus_levels.js';
 
-// C ref: nhlib.lua math.random().  The injected callback has the rn2 shape;
-// one-based Lua ranges are translated here so every local random call remains
-// independently testable without changing the production RNG owner.
+// C ref: dat/nhlib.lua's compatibility shim over nhlua.c nhl_random().
+// The shim keeps Lua's one-based math.random(n) result and converts an
+// inclusive [first, second] range to nh.random(first, second + 1 - first).
+// The injected callback has the rn2 shape, so every local random call remains
+// independently testable without changing the RNG owner.
 function mathRandom(first, second, random = rn2) {
     if (second === undefined) return 1 + random(first);
     return first + random(second - first + 1);
@@ -26,7 +28,7 @@ function percent(threshold, random = rn2) {
 }
 
 function sourceShuffle(values, random = rn2) {
-    // C ref: nhlib.lua shuffle(); Lua's math.random(i) is rn2(i) here.
+    // C ref: nhlib.lua shuffle(); Lua's math.random(i) is 1 + rn2(i).
     for (let i = values.length; i > 1; --i) {
         const j = random(i);
         [values[i - 1], values[j]] = [values[j], values[i - 1]];
@@ -110,11 +112,13 @@ export async function populatemaze(des, random = rn2) {
 }
 
 export function rnd_halign(random = rn2) {
-    return ['half-left', 'center', 'half-right'][mathRandom(3, undefined, random) - 1];
+    return ['half-left', 'center', 'half-right'][
+        mathRandom(1, 3, random) - 1
+    ];
 }
 
 export function rnd_valign(random = rn2) {
-    return ['top', 'center', 'bottom'][mathRandom(3, undefined, random) - 1];
+    return ['top', 'center', 'bottom'][mathRandom(1, 3, random) - 1];
 }
 
 function prefabMap(des, map, random, options = {}, contents = async () => {}) {

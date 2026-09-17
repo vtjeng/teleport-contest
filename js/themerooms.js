@@ -347,7 +347,7 @@ export function selection_floodfill(ov, x, y, diagonals) {
 // selection.negate() with no operand starts with selection_new(), whose map is
 // empty, and therefore selects the whole map.
 export function selection_negate(selection = null) {
-    return (selection ?? new ThemeroomSelection()).negate();
+    return (selection ?? new ThemeroomSelection(null, true)).negate();
 }
 
 export function selection_room(room, locationAt) {

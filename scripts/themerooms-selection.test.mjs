@@ -118,6 +118,10 @@ test('selection map filtering preserves terrain and random-lit semantics', () =>
 test('selection negate and grow return new source-shaped selections', () => {
     const wholeMap = selection_negate();
     assert.equal(wholeMap.numpoints(), COLNO * ROWNO);
+    // C selection_new() stores map coordinates directly.  A no-operand
+    // selection.negate() therefore remains absolute when a special-level API
+    // later consumes it; relative constructors are a separate source path.
+    assert.equal(wholeMap.absolute, true);
 
     let iterated = 0;
     wholeMap.iterate(() => { ++iterated; });
