@@ -235,8 +235,8 @@ function Lifesaved(state) {
 //
 // options.c initoptions_init():7173 leaves PARANOID_DIE out of the startup
 // flags.paranoia_bits, and optfn_paranoid_confirmation() writes every startup
-// setting into that same field. done() calls this as a preflight before its
-// first output or mutation whenever its supported path can reach the query.
+// setting into that same field. done() reads it at the source query after
+// the death-state prefix and any unsuccessful life-saving attempt.
 function ParanoidDie(state) {
     return (state.flags.paranoia_bits & PARANOID_DIE) !== 0;
 }
@@ -279,7 +279,7 @@ async function savelife(how, state = game) {
     // C ref: Sick is u.uprops[SICK].intrinsic; TIMEOUT is 0x00FFFFFF.
     if (((u.uprops?.[SICK]?.intrinsic ?? 0) & TIMEOUT) === 1) {
         // C discards make_sick()'s result. Its cure effects remain an explicit
-        // boundary until eat.c ports that function.
+        // boundary until potion.c ports that function.
         note_unported('potion.c make_sick');
     }
 
@@ -694,7 +694,7 @@ export async function done(how, state = game, source = {}) {
         // filesystem side effect has no browser owner, so retain the named
         // gap while keeping the killer clear and the wizard return branch.
         if (killer.name) {
-            note_unported('end.c paniclog');
+            note_unported('files.c paniclog');
             killer.name = '';
         }
         if (state.wizard) {
@@ -716,13 +716,9 @@ export async function done(how, state = game, source = {}) {
     } else {
         /* otherwise force full status update */
         state.disp.botlx = true;
-        // js/display.js bot() paints the module-level `game` rather than the
-        // `state` this function carries, which is safe only because every
-        // caller runs on the hero's own turn. js/hack.js:718-725 states the
-        // seam: js/unported_monster_actions.js runs each monster turn twice,
-        // once against a clone, and a write that reached the live terminal
-        // from the clone would paint a turn that has not happened. hack.c
-        // losehp() is not on that path.
+        // bot() paints the canonical game for live hero and monster damage.
+        // Monster planning stops at mdamageu's lethal boundary before it can
+        // reach this terminal operation from a clone.
         await bot();
     }
 
