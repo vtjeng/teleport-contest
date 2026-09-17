@@ -1,0 +1,9 @@
+{
+  "version": 5,
+  "segments": [{
+    "seed": 7710064,
+    "datetime": "20370102030408",
+    "nethackrc": "OPTIONS=name:GolemProbe,role:Wizard,race:human,gender:female,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen\nOPTIONS=playmode:debug,pettype:none,!acoustics,!safe_wait\n",
+    "moves": " #polyself\nstone golem\n  "
+  }]
+}
