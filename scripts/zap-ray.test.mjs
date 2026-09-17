@@ -40,23 +40,30 @@ import {
     POOL,
     REFLECTING,
     ROOM,
+    SYM_UNEXPLORED,
     STONE,
     VWALL,
     W_WEP,
 } from '../js/const.js';
 import {
     GLYPH_INVISIBLE,
+    back_to_glyph,
     map_glyphinfo,
     map_invisible,
+    map_monster_glyph_info,
+    mon_to_glyph,
     zapdir_to_glyph,
 } from '../js/display.js';
-import { GLYPH_ZAP_OFF } from '../js/glyph_offsets.js';
+import {
+    GLYPH_UNEXPLORED_OFF,
+    GLYPH_ZAP_OFF,
+} from '../js/glyph_offsets.js';
 import { game } from '../js/gstate.js';
 import { runSegment } from '../js/jsmain.js';
 import { relocate_monster } from '../js/monst.js';
 import {
     AD_ACID, AD_COLD, AD_DISN, AD_DRLI, AD_DRST, AD_ELEC, AD_FIRE, AD_PHYS,
-    AD_SLEE, AD_STON, PM_BABY_GRAY_DRAGON, PM_GIANT_RAT, PM_KNIGHT,
+    AD_SLEE, AD_STON, NUMMONS, PM_BABY_GRAY_DRAGON, PM_GIANT_RAT, PM_KNIGHT,
 } from '../js/monsters.js';
 import {
     ARMOR_CLASS,
@@ -86,7 +93,7 @@ import { enableRngLog, getRngLog } from '../js/rng.js';
 // js/symbols.js, so the assertion does not rest on the same `S_vbeam + n`
 // arithmetic the arm under test performs.
 import { SYMBOL_INDEX_BY_NAME } from '../js/symbol_data.js';
-import { cmap_symbol } from '../js/symbols.js';
+import { cmap_symbol, misc_symbol } from '../js/symbols.js';
 import { burnarmor, erode_obj } from '../js/trap_erode_obj.js';
 import {
     CLR_BRIGHT_BLUE, CLR_GREEN, CLR_ORANGE, CLR_WHITE, CLR_YELLOW, NO_COLOR,
@@ -109,7 +116,9 @@ import {
     zhitm,
     zhituLosehpArguments,
 } from '../js/zap.js';
+import { flash_glyph_at } from '../js/display.js';
 import { flash_mon, shieldeff_mon } from '../js/mon.js';
+import { couldsee } from '../js/vision.js';
 import { mon_reflects } from '../js/muse.js';
 import {
     RAY_CASES,
@@ -1694,14 +1703,136 @@ test('flash_mon restores the original vision byte before newsym()', async () => 
     const monster = game.level.monlist;
     assert.ok(monster, 'the debug-wished ray fixture has a monster');
     const original = game.viz_array[monster.my][monster.mx];
-    flash_mon(monster, game);
+    const frames = [];
+    game._animationFrameHook = () => {
+        frames.push(game.level.at(monster.mx, monster.my).disp_glyph?.glyph);
+    };
+    await flash_mon(monster, game);
     assert.equal(game.viz_array[monster.my][monster.mx], original,
         'mon.c flash_mon() restores saveviz after the flash');
-    assert.ok(game.unported.has('display.c flash_glyph_at'),
-        'display.c flash_glyph_at() remains an explicit gap');
+    const count = couldsee(monster.mx, monster.my, game) ? 8 : 4;
+    const expectedFrames = (game.flags?.sparkle ? count : count / 2) * 2;
+    assert.equal(frames.length, expectedFrames,
+        'display.c flash_glyph_at() draws two frames per count');
+    assert.equal(frames[0], frames.at(2),
+        'flash_glyph_at() starts each pair with the target glyph');
+    assert.equal(frames[1], frames.at(3),
+        'flash_glyph_at() follows each target with the background glyph');
+    assert.notEqual(frames[0], frames[1],
+        'flash_glyph_at() alternates target and background glyphs');
     assert.equal(IN_SIGHT | COULD_SEE, 3,
         'vision.h assigns IN_SIGHT=2 and COULD_SEE=1 before the temporary OR');
+    game._animationFrameHook = null;
 });
+
+test('flash_mon uses ordinary mon_to_glyph for tame and hallucinated monsters',
+    async () => {
+        await runSegment({
+            ...raySegment(0), moves: movesThroughWish(RAY_CASES[0]),
+        });
+        const monster = game.level.monlist;
+        assert.ok(monster, 'the debug-wished ray fixture has a monster');
+        const tame = { ...monster, mtame: 1 };
+        const ordinary = mon_to_glyph(monster, game);
+        const tameFlash = mon_to_glyph(tame, game);
+        const tameMap = map_monster_glyph_info(tame, game);
+        assert.equal(tameFlash.glyph, ordinary.glyph,
+            'display.h mon_to_glyph() keeps tame monsters in the ordinary range');
+        assert.notEqual(tameMap.glyph, ordinary.glyph,
+            'detector presentation keeps the pet glyph range separate');
+
+        const oldHalluc = game.u.uprops[HALLUC];
+        const oldHallucRes = game.u.uprops[HALLUC_RES];
+        let draws = 0;
+        game.u.uprops[HALLUC] = { intrinsic: 1, extrinsic: 0 };
+        game.u.uprops[HALLUC_RES] = { intrinsic: 0, extrinsic: 0 };
+        try {
+            mon_to_glyph(monster, game, (bound) => {
+                draws += 1;
+                assert.equal(bound, NUMMONS,
+                    'display.h mon_to_glyph() uses the monster catalog bound');
+                return 0;
+            });
+            assert.equal(draws, 1,
+                'display.h mon_to_glyph() spends one display-RNG draw under Hallucination');
+        } finally {
+            game.u.uprops[HALLUC] = oldHalluc;
+            game.u.uprops[HALLUC_RES] = oldHallucRes;
+        }
+    });
+
+test('flash_mon leaves the live display alone for a planning clone', async () => {
+    await runSegment({
+        ...raySegment(0), moves: movesThroughWish(RAY_CASES[0]),
+    });
+    const monster = game.level.monlist;
+    assert.ok(monster, 'the debug-wished ray fixture has a monster');
+    const clone = {
+        ...game,
+        program_state: { ...game.program_state, planning: true },
+        viz_array: game.viz_array.map((row) => [...row]),
+    };
+    const x = monster.mx;
+    const y = monster.my;
+    const liveViz = game.viz_array[y][x];
+    const cloneViz = clone.viz_array[y][x];
+    const liveGlyph = game.level.at(x, y).disp_glyph?.glyph;
+    let frames = 0;
+    game._animationFrameHook = () => { frames += 1; };
+    try {
+        await flash_mon(monster, clone);
+        assert.equal(frames, 0,
+            'planning flash_mon() does not paint the live animation buffer');
+        assert.equal(clone.viz_array[y][x], cloneViz,
+            'planning flash_mon() restores the clone vision byte');
+        assert.equal(game.viz_array[y][x], liveViz,
+            'planning flash_mon() does not mutate live vision');
+        assert.equal(game.level.at(x, y).disp_glyph?.glyph, liveGlyph,
+            'planning flash_mon() skips the live newsym() tail');
+    } finally {
+        game._animationFrameHook = null;
+    }
+});
+
+test('flash_glyph_at() uses remembered terrain when hero memory is enabled',
+    async () => {
+        const x = game.u.ux + 1;
+        const y = game.u.uy;
+        const location = game.level.at(x, y);
+        const remembered = location.remembered_glyph?.glyph;
+        assert.ok(Number.isInteger(remembered),
+            'the initialized ray fixture remembers the target terrain');
+        const target = map_glyphinfo(GLYPH_INVISIBLE, game).glyph;
+        const frames = [];
+        game._animationFrameHook = () => {
+            frames.push(location.disp_glyph?.glyph);
+        };
+        await flash_glyph_at(x, y, target, 1, game);
+        assert.deepEqual(frames, [target, remembered],
+            'display.c flash_glyph_at() alternates target and remembered glyph');
+
+        const previousMemory = game.level.flags.hero_memory;
+        game.level.flags.hero_memory = false;
+        const terrain = back_to_glyph(x, y, game);
+        frames.length = 0;
+        await flash_glyph_at(x, y, target, 1, game);
+        assert.deepEqual(frames, [target, terrain],
+            'display.c flash_glyph_at() uses back_to_glyph without memory');
+
+        const savedMemory = location.remembered_glyph;
+        location.remembered_glyph = undefined;
+        game.level.flags.hero_memory = true;
+        frames.length = 0;
+        await flash_glyph_at(x, y, target, 1, game);
+        assert.equal(frames[1], GLYPH_UNEXPLORED_OFF,
+            'display.c flash_glyph_at() keeps GLYPH_UNEXPLORED for missing memory');
+        assert.equal(location.disp_glyph?.ch,
+            misc_symbol(SYM_UNEXPLORED, game).ch,
+            'display.c flash_glyph_at() uses the configured unexplored symbol');
+        location.remembered_glyph = savedMemory;
+        game.level.flags.hero_memory = previousMemory;
+        game._animationFrameHook = null;
+    });
 
 // ---------------------------------------------------------------------------
 // zhitm() — bolt damage to a monster (zap.c:4238-4398), ZT_COLD branch
