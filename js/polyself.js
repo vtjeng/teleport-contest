@@ -785,7 +785,7 @@ async function break_armor(state, rawEnv = {}) {
             await exercise(A_STR, false, state, { rn2: random.rn2 }, {
                 encumberMessage: (target) => encumber_msg(target, { message }),
             });
-            await Armor_gone(state);
+            await Armor_gone(state, env);
             consume(otmp);
         }
         if ((otmp = state.uarmc) != null
@@ -796,7 +796,7 @@ async function break_armor(state, rawEnv = {}) {
                     state,
                     env,
                 );
-                await Cloak_off(state);
+                await Cloak_off(state, env);
                 consume(otmp);
             } else if (otmp.otyp === ALCHEMY_SMOCK) {
                 await message(
@@ -804,7 +804,7 @@ async function break_armor(state, rawEnv = {}) {
                     state,
                     env,
                 );
-                await Cloak_off(state);
+                await Cloak_off(state, env);
                 await dropp(otmp, state, env);
             } else {
                 await message(
@@ -812,7 +812,7 @@ async function break_armor(state, rawEnv = {}) {
                     state,
                     env,
                 );
-                await Cloak_off(state);
+                await Cloak_off(state, env);
                 await dropp(otmp, state, env);
             }
         }
@@ -825,7 +825,7 @@ async function break_armor(state, rawEnv = {}) {
             && racial_exception(state.youmonst, otmp, state) < 1) {
             cancelDonning(otmp);
             await message('Your armor falls around you!', state, env);
-            await Armor_gone(state);
+            await Armor_gone(state, env);
             await dropp(otmp, state, env);
         }
         if ((otmp = state.uarmc) != null
@@ -837,7 +837,7 @@ async function break_armor(state, rawEnv = {}) {
                 state,
                 env,
             );
-            await Cloak_off(state);
+            await Cloak_off(state, env);
             await dropp(otmp, state, env);
         }
         if ((otmp = state.uarmu) != null) {

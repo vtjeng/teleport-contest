@@ -21,6 +21,7 @@ import {
     THRONE,
     STONE_RES,
     STONED,
+    TIMEOUT,
     W_ARM,
 } from '../js/const.js';
 import { game } from '../js/gstate.js';
@@ -36,6 +37,9 @@ import {
     PM_COCKATRICE,
     PM_DWARF_LEADER,
     PM_HUMAN,
+    PM_IRON_GOLEM,
+    PM_STONE_GOLEM,
+    PM_TOURIST,
     PM_KITTEN,
     PM_LITTLE_DOG,
     PM_PONY,
@@ -988,6 +992,112 @@ test('mhitm_ad_phys handles a petrifying corpse weapon before ordinary damage',
         'The cockatrice hits you with the cockatrice corpse.',
     ]);
     assert.ok(game.unported.has('potion.c make_stoned'));
+});
+
+test('mhitm_ad_phys continues a petrifying corpse after do_stone_u declines',
+    async () => {
+    // C uhitm.c:4047-4061 does not return when do_stone_u() returns false:
+    // resistance, an existing Stoned timeout, and successful conversion to a
+    // stone golem all continue through dmgval() and hitmsg().  The corpse is
+    // FOOD_CLASS, so this also pins the exception to the generic non-weapon
+    // guard rather than admitting unrelated food objects.
+    async function corpseAttack(configure) {
+        await runSegment({
+            seed: 7710060, datetime: DATETIME, nethackrc: RC, moves: '',
+        });
+        game.invent = null;
+        for (const slot of ['uarm', 'uarmc', 'uarmh', 'uarms',
+            'uarmg', 'uarmf', 'uarmu', 'uwep', 'uswapwep'])
+            game[slot] = null;
+        game.u.uprops[STONE_RES] = { intrinsic: 0, extrinsic: 0 };
+        game.u.uprops[STONED] = { intrinsic: 0, extrinsic: 0 };
+        const attacker = {
+            data: game.mons[PM_COCKATRICE],
+            female: false,
+            m_id: 92008,
+            mcan: false,
+            mx: game.u.ux + 1,
+            my: game.u.uy,
+            mw: mksobj(CORPSE, false, false, { state: game }),
+        };
+        attacker.mw.corpsenm = PM_COCKATRICE;
+        configure?.(game, attacker);
+        const lines = [];
+        const draws = [];
+        const mhm = { damage: 0, hitflags: 0, done: false };
+        await mhitm_ad_phys(
+            attacker,
+            { aatyp: AT_WEAP },
+            game.youmonst,
+            mhm,
+            game,
+            {
+                random: {
+                    rn2: (bound) => {
+                        draws.push(`rn2(${bound})`);
+                        return 1;
+                    },
+                    rn1: (range, base) => {
+                        draws.push(`rn1(${range},${base})`);
+                        return base;
+                    },
+                    rnd: (bound) => {
+                        draws.push(`rnd(${bound})`);
+                        return 1;
+                    },
+                    d: (number, sides) => {
+                        draws.push(`d(${number},${sides})`);
+                        return number;
+                    },
+                },
+                message: async (line) => { lines.push(line); },
+                unsupported: (reason) => { throw new Error(reason); },
+            },
+        );
+        return { mhm, lines, draws, form: game.youmonst.data.pmidx };
+    }
+
+    const resistant = await corpseAttack((state) => {
+        state.u.uprops[STONE_RES].intrinsic = 1;
+    });
+    assert.deepEqual(resistant, {
+        mhm: { damage: 1, hitflags: M_ATTK_HIT, done: false },
+        lines: [
+            'The cockatrice hits you with the cockatrice corpse.',
+            'The cockatrice hits!',
+        ],
+        draws: [],
+        form: PM_TOURIST,
+    });
+
+    const alreadyStoned = await corpseAttack((state) => {
+        state.u.uprops[STONED].intrinsic = TIMEOUT;
+    });
+    assert.deepEqual(alreadyStoned, {
+        mhm: { damage: 1, hitflags: M_ATTK_HIT, done: false },
+        lines: [
+            'The cockatrice hits you with the cockatrice corpse.',
+            'The cockatrice hits!',
+        ],
+        draws: [],
+        form: PM_TOURIST,
+    });
+
+    const golem = await corpseAttack((state) => {
+        // poly_when_stoned() sees the current golem form and polymon() owns
+        // the successful PM_STONE_GOLEM transition.
+        state.youmonst.data = state.mons[PM_IRON_GOLEM];
+    });
+    assert.deepEqual(golem, {
+        mhm: { damage: 1, hitflags: M_ATTK_HIT, done: false },
+        lines: [
+            'The cockatrice hits you with the cockatrice corpse.',
+            'You turn into a stone golem!',
+            'The cockatrice hits!',
+        ],
+        draws: ['rn2(2)', 'rn2(19)', 'rn1(500,500)'],
+        form: PM_STONE_GOLEM,
+    });
 });
 
 test('mhitm_ad_drst uses the monster female bit for the poison killer name',

@@ -2816,9 +2816,9 @@ export async function mhitm_ad_drst(
 //     test, so the stop sits exactly where C's branch begins.
 //   AT_WEAP with something wielded (4041-4121) admits the ordinary arm
 //     through dmgval() and hitmsg(). The petrifying-corpse pre-arm is also
-//     complete through do_stone_u(); the later artifact, silver, pudding
-//     split, effective rust, poison, and potentially fatal branches remain
-//     explicit boundaries.
+//     complete through do_stone_u() and the corpse's fall-through to
+//     dmgval()/hitmsg(); the later artifact, silver, pudding split, effective
+//     rust, poison, and potentially fatal branches remain explicit boundaries.
 //
 // An AT_WEAP attacker holding nothing is not that edge. It falls to the last
 // arm with everyone else and prints hitmsg()'s default verb, which is what
@@ -2879,8 +2879,9 @@ export async function mhitm_ad_phys(
             const otmp = magr.mw; /* MON_WEP(magr) */
 
             if (mattk.aatyp === AT_WEAP && otmp) {
-                if (otmp.otyp === CORPSE
-                    && touch_petrifies(state.mons?.[otmp.corpsenm])) {
+                const petrifyingCorpse = otmp.otyp === CORPSE
+                    && touch_petrifies(state.mons?.[otmp.corpsenm]);
+                if (petrifyingCorpse) {
                     // uhitm.c:4047-4059.  This damage is established before
                     // do_stone_u(), and a successful petrification consumes
                     // the rest of the attack through mhm.done.
@@ -2901,7 +2902,14 @@ export async function mhitm_ad_phys(
                         return;
                     }
                 }
-                if (!(otmp.oclass === WEAPON_CLASS || is_weptool(otmp, state)))
+                // C4047-4061 continues through dmgval()/hitmsg() for the
+                // petrifying corpse even when do_stone_u() returns false
+                // (resistance, existing Stoned, or a golem transition).
+                // Keep the ordinary non-weapon boundary for every other
+                // object, whose later C arms remain outside this span.
+                if (!petrifyingCorpse
+                    && !(otmp.oclass === WEAPON_CLASS
+                         || is_weptool(otmp, state)))
                     unsupported('a non-weapon object hitting the hero');
 
                 const gloves = which_armor(magr, W_ARMG, state);
@@ -3196,7 +3204,8 @@ export async function mhitm_ad_ston(
                     );
                 }
 
-                // C's short-circuit preserves the no-draw new-moon arm.
+                // C always draws rn2(10) before checking the new-moon
+                // fallback; only the moonphase term itself is short-circuited.
                 if (!random.rn2(10)
                     || state.flags?.moonphase === NEW_MOON) {
                     if (await do_stone_u(magr, state, env)) {

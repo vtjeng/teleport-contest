@@ -332,6 +332,18 @@ import { note_unported } from './unported.js';
 import { Glib, welded } from './wield.js';
 import { bimanual, setnotworn, setuswapwep, setworn } from './worn.js';
 
+// The armor callbacks can run during a planning polymorph.  Keep the live
+// defaults in one place while allowing that caller to supply its message and
+// repaint seams; C's callbacks do not own the terminal or a second game.
+function wearOperationEnv(rawEnv = {}) {
+    const planning = Boolean(rawEnv.planning);
+    return {
+        ...rawEnv,
+        message: rawEnv.message ?? (planning ? async () => {} : ttyPline),
+        redraw: rawEnv.redraw ?? (planning ? () => {} : newsym),
+    };
+}
+
 // Raised where do_wear.c reaches a branch this port has not translated.
 // js/cmd.js failClosedCommandRefusals() lists it, so the segment keeps every
 // frame the command already matched instead of failing hard.
@@ -1126,9 +1138,13 @@ async function on_msg(otmp, state) {
 // All dragon armor status arms are shared by the ordinary and polymorph
 // takeoff owners.  The gold arm uses make_hallucinated() on both transitions;
 // Armor_on() still keeps its separate artifact-light boundary.
-async function dragon_armor_handling(otmp, puton, _on_purpose, state) {
+async function dragon_armor_handling(
+    otmp, puton, _on_purpose, state, rawEnv = {},
+) {
     if (!otmp)
         return;
+    const env = wearOperationEnv(rawEnv);
+    const { message, redraw } = env;
 
     switch (otmp.otyp) {
     /* grey: no extra effect */
@@ -1151,8 +1167,8 @@ async function dragon_armor_handling(otmp, puton, _on_purpose, state) {
             // C ref: youprop.h:376 Fast = (HFast || EFast).
             const Fast = Boolean(fast.intrinsic || fast.extrinsic);
             if (!Very_fast)
-                await ttyPline(
-                    `You speed up${Fast ? ' a bit more' : ''}.`, state);
+                await message(
+                    `You speed up${Fast ? ' a bit more' : ''}.`, state, env);
             fast.extrinsic |= W_ARM;
         } else {
             const fast = state.u.uprops[FAST];
@@ -1163,7 +1179,7 @@ async function dragon_armor_handling(otmp, puton, _on_purpose, state) {
             const veryFast = Boolean(
                 (fast.intrinsic & ~INTRINSIC) || fast.extrinsic);
             if (!veryFast && !takeoffContext(state).cancelled_don)
-                await ttyPline('You slow down.', state);
+                await message('You slow down.', state, env);
         }
         break;
     case GREEN_DRAGON_SCALES:
@@ -1182,13 +1198,13 @@ async function dragon_armor_handling(otmp, puton, _on_purpose, state) {
             state.u.uprops[INFRAVISION].extrinsic &= ~W_ARM;
         }
         // C calls see_monsters() unconditionally for both put-on and take-off
-        see_monsters(state);
+        see_monsters(state, { redraw });
         break;
     case GOLD_DRAGON_SCALES:
     case GOLD_DRAGON_SCALE_MAIL:
         // C uses the worn armor bit as a hallucination-resistance source.
         await make_hallucinated(
-            !puton, !state.program_state?.restoring, W_ARM, state,
+            !puton, !state.program_state?.restoring, W_ARM, state, env,
         );
         break;
     case ORANGE_DRAGON_SCALES:
@@ -1245,15 +1261,16 @@ async function dragon_armor_handling(otmp, puton, _on_purpose, state) {
 // Shield_on() below, only a suit the game creates after startup witnesses
 // the write, because mkobj.c mksobj() (864) leaves obj->known 0 for armor
 // where u_init.c ini_inv_adjust_obj() (1215-1216) sets it to 1.
-async function Armor_on(state) {
+async function Armor_on(state, rawEnv = {}) {
+    const env = wearOperationEnv(rawEnv);
     if (!state.uarm) /* no known instances of !uarm here but play it safe */
         return 0;
     if (!state.uarm.known) {
         /* suit's +/- evident because of status line AC */
         state.uarm.known = true;
-        update_inventory({ state });
+        update_inventory({ ...env, state });
     }
-    await dragon_armor_handling(state.uarm, true, true, state);
+    await dragon_armor_handling(state.uarm, true, true, state, env);
     /* gold DSM requires extra handling since it emits light when worn;
        do that after the special armor handling */
     if (artifact_light(state.uarm) && !state.uarm.lamplit) {
@@ -1296,7 +1313,8 @@ function Armor_off(state) {
 // than Armor_off(): the armor is removed from its slot as a gone object before
 // its inventory copy is consumed, and life-saving cannot restore it if the
 // removal itself causes a fatal landing effect.
-async function Armor_gone(state) {
+async function Armor_gone(state, rawEnv = {}) {
+    const env = wearOperationEnv(rawEnv);
     const otmp = state.uarm;
     if (!otmp) return 0;
     const wasArtiLight = Boolean(otmp.lamplit && artifact_light(otmp));
@@ -1312,11 +1330,12 @@ async function Armor_gone(state) {
     if (wasArtiLight && !artifact_light(otmp)) {
         const { end_burn } = await import('./timeout.js');
         const { objectGenerationEnv } = await import('./object_generation.js');
-        end_burn(otmp, false, objectGenerationEnv({ state }));
+        end_burn(otmp, false, objectGenerationEnv({ ...env, state }));
         if (!heroIsBlind(state))
-            await ttyPline(`${Tobjnam(otmp, 'stop', state)} shining.`, state);
+            await env.message(
+                `${Tobjnam(otmp, 'stop', state)} shining.`, state, env);
     }
-    await dragon_armor_handling(otmp, false, false, state);
+    await dragon_armor_handling(otmp, false, false, state, env);
     return 0;
 }
 
@@ -1522,7 +1541,10 @@ export async function Boots_off(state = game) {
 // set_wear() while startup callbacks replay the effects of starting gear;
 // `cancelled_don` is retained by takeoffContext() for an interrupted callback.
 // timeout.c also calls it with a null object when timed displacement ends.
-export async function toggle_displacement(obj, oldprop, on, state = game) {
+export async function toggle_displacement(
+    obj, oldprop, on, state = game, rawEnv = {},
+) {
+    const env = wearOperationEnv(rawEnv);
     // Keep C's conditional read order: an initial don checks only
     // gi.initial_don, while the off arm is the one that reads takeoff.
     const cancelledDon = !on && takeoffContext(state).cancelled_don;
@@ -1559,10 +1581,11 @@ export async function toggle_displacement(obj, oldprop, on, state = game) {
             discover_object(obj.otyp, true, true, true, state);
         const unaware = state.multi < 0
             && (unconscious(state) || state.u.uhs === FAINTED);
-        await ttyPline(
+        await env.message(
             `${unaware ? 'You dream that you feel' : 'You feel'} that monsters${on ? '' : ' no longer'} have difficulty `
             + 'pinpointing your location.',
             state,
+            env,
         );
     }
     return 0;
@@ -1637,7 +1660,8 @@ function cloakOnPorted(otyp) {
 // cloak the game creates after startup witnesses it: mkobj.c mksobj() (864)
 // leaves obj->known 0 for armor where u_init.c ini_inv_adjust_obj()
 // (1215-1216) sets it to 1.
-async function Cloak_on(state) {
+async function Cloak_on(state, rawEnv = {}) {
+    const env = wearOperationEnv(rawEnv);
     const cloak = state.uarmc;
     const otyp = cloak.otyp;
     const oldprop = state.u.uprops[objectType(cloak, state).oc_oprop]
@@ -1645,12 +1669,13 @@ async function Cloak_on(state) {
 
     switch (otyp) {
     case CLOAK_OF_DISPLACEMENT:
-        await toggle_displacement(cloak, oldprop, true, state);
+        await toggle_displacement(cloak, oldprop, true, state, env);
         break;
     case OILSKIN_CLOAK:
-        await ttyPline(
+        await env.message(
             `${Tobjnam(cloak, 'fit', state)} very tightly.`,
             state,
+            env,
         );
         break;
     /* Alchemy smock gives poison _and_ acid resistance */
@@ -1661,7 +1686,7 @@ async function Cloak_on(state) {
     if (cloak && !cloak.known) { /* no known instance of !uarmc */
         /* cloak's +/- evident because of status line AC */
         cloak.known = true;
-        update_inventory({ state });
+        update_inventory({ ...env, state });
     }
     return 0;
 }
@@ -1669,9 +1694,12 @@ async function Cloak_on(state) {
 // C ref: do_wear.c Cloak_off() (382-431). C computes `oldprop` at 385 for
 // toggle_stealth(), toggle_displacement() and the invisibility arm, and runs
 // its switch after setworn().  The ordinary and polymorph paths below retain
-// the source order; unsupported stealth/displacement redraw work still stops
-// at its discarded call boundary.
-async function Cloak_off(state) {
+// the source order; only toggle_stealth() remains at its discarded-call
+// boundary, while displacement and self-redraw operations use the caller's
+// planning seams.
+async function Cloak_off(state, rawEnv = {}) {
+    const env = wearOperationEnv(rawEnv);
+    const { message, redraw } = env;
     const cloak = state.uarmc;
     if (!cloak) return 0;
     const otyp = cloak.otyp;
@@ -1703,12 +1731,13 @@ async function Cloak_off(state) {
              || state.u.uprops[INVIS]?.extrinsic)
             && !state.u.uprops[INVIS]?.blocked
             && !heroIsBlind(state)) {
-            newsym(state.u.ux, state.u.uy, state);
-            await ttyPline(
+            redraw(state.u.ux, state.u.uy, state);
+            await message(
                 `You can ${state.u.uprops[SEE_INVIS]?.intrinsic
                     || state.u.uprops[SEE_INVIS]?.extrinsic
                     ? 'see through yourself' : 'no longer see yourself'}.`,
                 state,
+                env,
             );
         }
         break;
@@ -1718,17 +1747,18 @@ async function Cloak_off(state) {
             && !state.u.uprops[INVIS]?.extrinsic
             && !heroIsBlind(state)) {
             discover_object(otyp, true, true, true, state);
-            newsym(state.u.ux, state.u.uy, state);
-            await ttyPline(
+            redraw(state.u.ux, state.u.uy, state);
+            await message(
                 `Suddenly you can ${state.u.uprops[SEE_INVIS]?.intrinsic
                     || state.u.uprops[SEE_INVIS]?.extrinsic
                     ? 'no longer see through yourself' : 'see yourself'}.`,
                 state,
+                env,
             );
         }
         break;
     case CLOAK_OF_DISPLACEMENT:
-        await toggle_displacement(cloak, oldprop, false, state);
+        await toggle_displacement(cloak, oldprop, false, state, env);
         break;
     default:
         note_unported('pline.c impossible');

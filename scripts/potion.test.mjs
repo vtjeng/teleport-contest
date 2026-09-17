@@ -23,6 +23,7 @@ import { docall } from '../js/do_name.js';
 import { game } from '../js/gstate.js';
 import { runSegment } from '../js/jsmain.js';
 import { discover_object } from '../js/o_init.js';
+import { planningState } from '../js/unported_monster_actions.js';
 import { mksobj } from '../js/obj.js';
 import {
     POT_ACID,
@@ -60,6 +61,7 @@ import {
     incr_itimeout,
     make_confused,
     make_blinded,
+    make_hallucinated,
     make_glib,
     peffects,
     potionbreathe,
@@ -88,6 +90,42 @@ test('make_blinded silently extends an existing timed blindness', async () => {
     assert.deepEqual(lines, []);
     assert.equal(state.disp.botl, false,
         'an extension that remains blind does not toggle status display');
+});
+
+test('make_hallucinated forwards every planning display seam in source order',
+    async () => {
+    await startedGame(8460002, 'HallucinationDisplaySeams');
+    clearTopline();
+    const planned = planningState(game);
+    planned.u.uprops[HALLUC].intrinsic = 0;
+    planned.u.uprops[HALLUC_RES].intrinsic = 0;
+    planned.u.uprops[HALLUC_RES].extrinsic = 0;
+    planned.u.uswallow = false;
+    const events = [];
+    await make_hallucinated(12, true, 0, planned, {
+        planning: true,
+        message: async (line) => events.push(['message', line]),
+        seeMonsters: (state, env) => {
+            events.push(['monsters', state, env.redraw]);
+        },
+        seeObjects: (state, options) => {
+            events.push(['objects', state, options.redraw]);
+        },
+        seeTraps: (state, options) => {
+            events.push(['traps', state, options.redraw]);
+        },
+    });
+    assert.deepEqual(events.map(([kind]) => kind),
+        ['monsters', 'objects', 'traps', 'message']);
+    assert.equal(planned.u.uprops[HALLUC].intrinsic & TIMEOUT, 12);
+    assert.equal(game.u.uprops[HALLUC].intrinsic & TIMEOUT, 0);
+    assert.equal(planned.disp.botl, true);
+    assert.equal(events[0][1], planned);
+    assert.equal(typeof events[0][2], 'function');
+    assert.equal(typeof events[1][2], 'function');
+    assert.equal(typeof events[2][2], 'function');
+    assert.equal(game._pending_message ?? '', '',
+        'planning feedback does not paint the live TTY');
 });
 
 test('make_blinded uses injected vision state for planned blindness', async () => {
