@@ -60791,7 +60791,7 @@
     {
       "id": "port-eat-is-edible-seed4500-20260917",
       "kind": "file-port",
-      "status": "open",
+      "status": "parked",
       "summary": "Complete polymorphed object edibility and its non-food eating callers",
       "cFile": "eat.c",
       "sessions": [
@@ -60802,8 +60802,8 @@
       "spans": [
         {
           "name": "is_edible",
-          "status": "queued",
-          "closedBy": null,
+          "status": "closed",
+          "closedBy": "82ef7a6348a995565737d850a74b004963a77965",
           "functions": [
             "is_edible"
           ]
@@ -60947,7 +60947,17 @@
         ],
         "entryPointReview": "is_edible is a pure helper-only source range, with production callers doeat, floorfood, eat_ok and iactions.itemactions and source-pinned tests for each material/form branch. The primary goal does not verify the entire partial doeat owner or claim its unrelated branches complete. Supporting impure entry evidence: independent Wizard and Valkyrie fire-elemental recordings each match43 screens and consume a wished bullwhip through runEatCommand -> doeat -> doeat_nonfood -> eatspecial, with initialized tests confirming form, removed object and cleared victual. The separate gelatinous-cube potion case matches59 screens and2258 RNG and explicitly rejects the glass potion; it disproves the attempted potion-entry recipe and supplies negative admission coverage. The first, shorter input stopped in polymorph More messages and established no eating coverage. Active rustproof/slow-digestion, poisoned non-food, coins, paper, accessory, leash, punishment and exceptional cleanup families still lack matching entry recordings or have named downstream gaps. Keep these supporting coverage gaps in the parked goal; no whole-doeat completion is recorded. Fatal strength-loss regression pins one damage call and no later HP/strength adjustment after gameover; rustproof spit-back pins exactly one rn2(10) and no nutrition.",
         "entryPoints": []
-      }
+      },
+      "progressBeforePark": {
+        "screens": 24,
+        "rng": 491
+      },
+      "parkedStanding": {
+        "sha": "82ef7a6348a995565737d850a74b004963a77965",
+        "screens": 11123,
+        "rng": 785457
+      },
+      "parkedReason": "The pure is_edible span is verified and closes with two independent non-food eating recordings plus a glass-potion rejection recording. Supporting rustproof, slow-digestion, poison, coins, paper, accessory, leash, punishment and exceptional cleanup entries remain unrecorded or have named gaps; do not claim whole-doeat completion. Continue the current Knight passiveum mismatch separately."
     }
   ]
 }
