@@ -42,6 +42,7 @@ import {
     ROOM,
     STONE,
     VWALL,
+    W_WEP,
 } from '../js/const.js';
 import {
     GLYPH_INVISIBLE,
@@ -79,6 +80,7 @@ import {
     WAN_SLEEP,
     WAND_CLASS,
 } from '../js/objects.js';
+import { ART_DRAGONBANE } from '../js/artifacts.js';
 import { enableRngLog, getRngLog } from '../js/rng.js';
 // Read straight out of the generated defsym.h index rather than through
 // js/symbols.js, so the assertion does not rest on the same `S_vbeam + n`
@@ -1841,4 +1843,27 @@ test('mon_reflects() returns false for a monster with no reflective gear',
     const result = await mon_reflects(monster, null, game);
     assert.equal(result, false,
         'a monster with no reflective equipment does not reflect');
+});
+
+test('mon_reflects uses the artifact reflection return contract', async () => {
+    await runSegment({
+        ...raySegment(0), moves: movesThroughWish(RAY_CASES[0]),
+    });
+    const monster = game.level.monlist;
+    assert.ok(monster);
+    const oldWeapon = monster.mw;
+    monster.mw = { oartifact: ART_DRAGONBANE, owornmask: W_WEP };
+    const lines = [];
+    try {
+        assert.equal(await mon_reflects(
+            monster,
+            'But %s reflects from %s!',
+            game,
+            { message: async (line) => lines.push(line) },
+        ), true);
+    } finally {
+        monster.mw = oldWeapon;
+    }
+    assert.equal(lines.length, 1);
+    assert.match(lines[0], /weapon!/u);
 });

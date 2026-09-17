@@ -24,6 +24,11 @@ import {
     NORMAL_SPEED,
     PASSES_WALLS,
     SLEEP_RES,
+    STRAT_WAITFORU,
+    W_ARMC,
+    W_ARMF,
+    W_ARMG,
+    W_ARMH,
     helpless,
     ismnum,
 } from './const.js';
@@ -72,6 +77,7 @@ import {
     AD_WRAP,
     AT_BITE,
     AT_BREA,
+    AT_BOOM,
     AT_BUTT,
     AT_CLAW,
     AT_ENGL,
@@ -79,6 +85,7 @@ import {
     AT_GAZE,
     AT_HUGS,
     AT_KICK,
+    AT_MAGC,
     AT_NONE,
     AT_SPIT,
     AT_STNG,
@@ -115,6 +122,51 @@ import { finish_meating } from './dogmove.js';
 import { note_unported } from './unported.js';
 import { resist } from './zap.js';
 import { ttyPline } from './tty_message.js';
+
+// C ref: mhitm.c attk_protection() (1475-1518). Return the worn-item mask
+// that protects a target from the attack type. This is a pure source helper;
+// special attacks need no defense, hand attacks need gloves/feet/helmet, and
+// the remaining contact attacks have no available protection.
+export function attk_protection(aatyp) {
+    switch (aatyp) {
+    case AT_NONE:
+    case AT_SPIT:
+    case AT_EXPL:
+    case AT_BOOM:
+    case AT_GAZE:
+    case AT_BREA:
+    case AT_MAGC:
+        return ~0;
+    case AT_CLAW:
+    case AT_TUCH:
+    case AT_WEAP:
+        return W_ARMG;
+    case AT_KICK:
+        return W_ARMF;
+    case AT_BUTT:
+        return W_ARMH;
+    case AT_HUGS:
+        return W_ARMC | W_ARMG;
+    case AT_BITE:
+    case AT_STNG:
+    case AT_ENGL:
+    case AT_TENT:
+    default:
+        return 0;
+    }
+}
+
+// C ref: mhitm.c paralyze_monst() (1210-1219). A passive gaze/cube attack
+// writes all four fields together and has no return value. Keep this small
+// state owner beside its C source rather than dropping the mutation at the
+// passiveum call site.
+export function paralyze_monst(mon, amount) {
+    const amt = Math.min(amount, 127);
+    mon.mcanmove = false;
+    mon.mfrozen = amt;
+    mon.meating = 0;
+    mon.mstrategy = (mon.mstrategy ?? 0) & ~STRAT_WAITFORU;
+}
 
 // C ref: mhitm.c sleep_monst() (1221-1245). zap.c discards its boolean
 // result while trap_effects consumes it; the state transition remains owned

@@ -2,7 +2,7 @@
   "session": "seed0367-priest-quest-tour",
   "remainingScreensUpperBound": 3,
   "status": "complete",
-  "commit": "a0986b8404a83d232bee4bd2b5a9433337cf2739",
+  "commit": "f083b34a642ad6b16939767e509c2b18a68ac67f",
   "mismatch": {
     "session": "seed0367-priest-quest-tour",
     "step": 321,
@@ -18,32 +18,29 @@
     "recordedSteps": 324,
     "remainingScreensUpperBound": 3
   },
-  "summary": "The special-action refusal is an overbroad killer-bee guard. The blocked bee is asleep at squared distance145 from the hero; monmove.c disturb() returns0 before any random draw, so dochug() returns before bee_eat_jelly(). JavaScript already carries this sleeping return, but assertSimpleActionState() refuses every killer bee before dispatch reaches it.",
+  "summary": "The sleeping killer-bee admission defect is resolved and this session now matches completely. Both planning and live dispatch reach the existing disturb/dochug early return when line of sight, distance or Stealth prevents wakeup. Active killer-bee behavior remains separately guarded.",
   "source": {
     "file": "monmove.c",
     "functions": [
       "dochug",
       "disturb"
     ],
-    "branch": "dochug(): a sleeping monster whose disturb() returns0 exits before phase-three bee behavior. disturb(): couldsee(mx,my) is false OR mdistu(monster)>100 makes the wakeup conjunction false before RNG or state changes. At the observed refusal the killer bee is alive, mobile, non-tame and sleeping at(32,15), with hero(44,14), so mdistu=145>100; any wait-mask early return would also precede the bee action.",
+    "branch": "C monmove.c disturb327–358 returns without waking a killer bee when couldsee is false, mdistu exceeds100 or Stealth is active. dochug727–731 returns from that sleeping state before bee_eat_jelly868–874. The JavaScript admission guard now permits these deterministic states and retains the active-bee boundary.",
     "callers": [
       "C mon.c movemon() -> movemon_singlemon() (1230–1321), which debits NORMAL_SPEED before dochugw(mtmp,TRUE); monmove.c dochugw() (205–237) calls dochug(), which calls disturb() at727.",
       "JS allmain.js moveloop_core() invokes preflightSimpleMonsterActions() at1127; unported_monster_actions.js planSimpleMonsterTurn() at1928 -> planSimpleMonsterScan() at1739 -> mon.js movemon_singlemon() -> runSimpleMonsterAction() at1516.",
       "JS runSimpleMonsterAction() calls assertSimpleActionState() at1534 before monmove.js dochugw(); it also injects the same guard as dochug preflight at1698, ahead of monmove.js dochug() sleeping return at2431–2435. The live allmain.js monster adapter also uses runSimpleMonsterAction()."
     ],
     "dependencies": [
-      "Existing monmove.js disturb() at2116–2150 and movementEnv/couldsee plus squared hero distance already implement the no-wakeup branch; no additional gameplay callee is needed to admit this branch.",
-      "Preserve mon.c movement debit and per-turn effects, dochug quest/wait handling and its Hallucination redraw, and clone/live isolation. Do not call disturb twice to predict its outcome: its reachable wakeup branches consume RNG.",
-      "bee_eat_jelly() is a later, separate branch at C monmove.c868–874 and JS monmove.js2534–2537. Its declaration does not prove complete reachable behavior; the observed sleeping return does not require enabling or claiming completion of awake-bee growth behavior."
+      "Preserve mon.c movement debit, dochug quest/wait handling and Hallucination redraw. The guard predicts only draw-free sleeping conditions; it does not call disturb a second time or consume wakeup RNG.",
+      "Awake or visible in-range non-stealth bee actions, including bee_eat_jelly, remain separately guarded and unverified. The fixed replay also names worn.c mon_break_armor and trap.c mselftouch as independent gaps."
     ]
   },
   "goalKind": "divergence-fix",
   "evidence": [
-    "Reused the partial investigation: the former attributes stop at318 was already fixed, leaving the count3/step321 assignment. A fresh single-session scanRecordedSession replay at exact a0986b8404a83d232bee4bd2b5a9433337cf2739 emitted321 screens, boundary=\"simple monster action requires a special monster action\", divergence=null. Artifact: .cache/seed0367-priest-quest-tour/replay-result.json. No other session, aggregate scorer, checkpoint or C recorder was run.",
-    "Replay uses a git-archive snapshot of the assigned commit under .cache/seed0367-priest-quest-tour/replay with the official frozen isaac64.js, terminal.js and storage.js overlays, matching scripts/scoring-workspace.mjs. Node inspector paused at the unchanged assertSimpleActionState() throw (zero-based line420) and read its local variables without changing game code or state.",
-    "The sole paused guard instance has monster m_id2024, data.pmidx1 (killer bee), mx32/my15, hp3/3, msleeping=true, mcanmove=true, mpeaceful=false, mtame0, minvent=null, moves23; hero ux44/uy14 on dnum4/dlevel1. Its movement0 is after movemon_singlemon() debited the available12-point ration, not evidence that the scan should omit the monster. Other alternatives of the generic guard (Tengu, leprechaun, gelatinous cube) are false for this species.",
-    "Pinned C gitlink16ff59115315917b93185d026aeefea06db9b0f4: monmove.c disturb()327–358 evaluates couldsee && mdistu<=100 before Stealth and every rn2; the observed squared distance is(44-32)^2+(14-15)^2=145, so it returns0 with no wake_msg or msleeping write. dochug()690–989 tests this at727–731 and returns0, optionally redrawing during Hallucination. Its jelly check at868–874 is unreachable on this turn. monmove.c dochugw()205–237 still performs its own occupation check after dochug returns.",
-    "At assigned JavaScript commit, monmove.js disturb()2116–2150 has the matching distance>100 early return, and dochug()2431–2435 has the matching sleeping return. unported_monster_actions.js assertSimpleActionState()318–423 instead includes unconditional PM_KILLER_BEE at417 and throws at421. Both runSimpleMonsterAction()1534 and dochug preflight1698 encounter this guard before either existing source branch can run.",
-    "Actionable scope: divergence-fix for monmove.c dochug()/disturb() production admission. Review these whole C functions and the complete assertSimpleActionState()/runSimpleMonsterAction() caller path; change the killer-bee preflight to admit the source-defined deterministic sleeping return while preserving guards for behavior that can actually be reached. This is a correction to existing sleeping dispatch, not evidence that every awake-bee action is complete. A source-pinned focused check should exercise sleeping bees beyond squared distance100 and without line of sight, plus a case at the100 boundary that may wake, and verify clone/live state and random-call preservation. Choose fresh validation inputs independently. Replay beyond step321 before claiming the fix works; the upper bound3 is not a promised gain."
-  ]
+    "The retained mismatch object identifies the former step321 refusal. The current development scan removes this session from the mismatch queue after source-correct sleeping admission.",
+    "Independent recordings/monmove.c/sleeping-beehive-disturb-independent.session.json reaches a D:10 beehive and performs a live wait with mobile sleeping bees beyond squared distance100. It has seven recorded boundaries and strict RNG, screen and cursor parity.",
+    "Source-pinned tests check unseen bees, visible bees beyond100 and Stealth. At distance100, disturb consumes rn2(7) and its result depends on that draw; the active admission guard remains. Planning tests compare state and RNG before and after the admitted turn."
+  ],
+  "nextProbe": "No further investigation is selected from this fully matching session. Select active-bee behavior and the remaining named worn/trap source gaps independently when their priority permits."
 }

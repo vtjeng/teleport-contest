@@ -66,7 +66,10 @@ import { sticks, thick_skinned } from '../js/mondata.js';
 import { newMonster, place_monster } from '../js/monst.js';
 import {
     monst_globals_init,
+    AD_ACID,
     AD_COLD,
+    AD_ENCH,
+    AD_PLYS,
     AD_PHYS,
     AD_SEDU,
     AD_SITM,
@@ -103,6 +106,7 @@ import {
     PM_PURPLE_WORM,
     PM_SHRIEKER,
     PM_GRID_BUG,
+    PM_FLOATING_EYE,
     PM_HUMAN,
     PM_ICE_VORTEX,
     PM_JACKAL,
@@ -1374,6 +1378,31 @@ test('mattacku lets an armed attacker reach its hand-to-hand arm', async () => {
     assert.equal(await mattacku(rat, armed.env), false);
     // AT_BITE reads no weapon bonus, so the threshold is the bare one.
     assert.deepEqual(armed.lines, ['The sewer rat misses!']);
+});
+
+test('mattacku resets mon_currwep before a nonweapon attack slot', async () => {
+    // mhitu.c:mattacku() clears the static mon_currwep before each getmattk()
+    // slot. A held weapon therefore cannot make a later AD_ENCH passive arm
+    // call zap.c:drain_item when the current attack is not AT_WEAP.
+    const state = await meleeHero();
+    state.u.umonster = PM_HUMAN;
+    state.u.umonnum = PM_RUST_MONSTER;
+    state.youmonst.data = {
+        ...state.mons[PM_RUST_MONSTER],
+        mattk: [{
+            aatyp: AT_NONE,
+            adtyp: AD_ENCH,
+            damn: 1,
+            damd: 1,
+        }],
+    };
+    const bug = meleeAttacker(state, PM_GRID_BUG, 1, 0, { mconf: true });
+    // Keep a stale held-weapon pointer. The current slot is AT_BITE, so C's
+    // per-slot reset must leave the passive AD_ENCH arm with no current weapon.
+    bug.mw = {};
+    const result = meleeEnv(state, [1]);
+    assert.equal(await mattacku(bug, result.env), false);
+    assert.equal(state.unported.has('zap.c drain_item'), false);
 });
 
 test('mattacku reveals an eel the moment it strikes', async () => {
@@ -2754,6 +2783,91 @@ test('passiveum finds the hero form\'s empty slot and rolls its dice',
     assert.equal(await mattacku(bug, full.env), false);
     assert.deepEqual(full.bounds.filter((b) => b.startsWith('d(')), ['d(1,1)']);
     state.youmonst.data = ordinary;
+});
+
+test('passiveum runs the source acid and physical counterattack arms',
+    async () => {
+    // mhitu.c:2463-2517, 2521-2529. These are production mattacku() calls
+    // with an initialized polymorphed hero, so the damage and conditional
+    // rn2 draws are checked at the caller boundary rather than by invoking a
+    // private helper directly.
+    const state = await meleeHero();
+    const bug = meleeAttacker(state, PM_GRID_BUG, 1, 0);
+    state.u.umonster = PM_HUMAN;
+    state.u.umonnum = PM_RUST_MONSTER;
+    state.u.mh = 30;
+    state.u.mhmax = 30;
+    const ordinary = state.youmonst.data;
+
+    state.youmonst.data = {
+        ...state.mons[PM_RUST_MONSTER],
+        mattk: [
+            { aatyp: AT_NONE, adtyp: AD_ACID, damn: 1, damd: 2 },
+            ...ordinary.mattk.slice(1),
+        ],
+    };
+    const acid = meleeEnv(state, [1], {
+        rn2: (bound) => bound === 2 ? 0 : 1,
+    });
+    assert.equal(await mattacku(bug, acid.env), false);
+    assert.equal(bug.mhp, 9, 'acid damage reaches assess_dmg');
+    assert.deepEqual(acid.lines.slice(-1),
+        ['The grid bug is splashed by your acid!']);
+    assert.deepEqual(acid.bounds.filter((bound) => bound.startsWith('rn2(')).slice(-3),
+        ['rn2(2)', 'rn2(30)', 'rn2(6)']);
+
+    // C's ordinary polymorphed physical arm retains its rolled damage and
+    // spends the tail rn2(3), whereas an unpolymorphed AT_NONE form returns
+    // before that draw.
+    state.youmonst.data = {
+        ...state.mons[PM_RUST_MONSTER],
+        mattk: [
+            { aatyp: AT_NONE, adtyp: AD_PHYS, damn: 1, damd: 4 },
+            ...ordinary.mattk.slice(1),
+        ],
+    };
+    const physical = meleeEnv(state, [1]);
+    assert.equal(await mattacku(bug, physical.env), false);
+    assert.equal(bug.mhp, 8, 'physical passive damage reaches assess_dmg');
+    assert.deepEqual(physical.bounds.filter((bound) => bound.startsWith('d(')),
+        ['d(1,1)', 'd(1,4)']);
+    assert.deepEqual(physical.bounds.filter((bound) => bound === 'rn2(3)').slice(-1),
+        ['rn2(3)']);
+
+    state.youmonst.data = ordinary;
+    state.u.umonnum = state.u.umonster;
+});
+
+test('passiveum paralyzes a monster from a floating-eye form', async () => {
+    // mhitu.c:2536-2559 and mhitm.c:1210-1219. A visible, eye-bearing
+    // defender reaches the gaze message and the complete paralyze_monst
+    // state mutation when the source probability gates succeed.
+    const state = await meleeHero();
+    const bug = meleeAttacker(state, PM_GRID_BUG, 1, 0);
+    state.u.umonster = PM_HUMAN;
+    state.u.umonnum = PM_FLOATING_EYE;
+    state.u.mh = 30;
+    state.u.mhmax = 30;
+    const ordinary = state.youmonst.data;
+    state.youmonst.data = {
+        ...state.mons[PM_FLOATING_EYE],
+        mattk: [
+            { aatyp: AT_NONE, adtyp: AD_PLYS, damn: 1, damd: 3 },
+            ...ordinary.mattk.slice(1),
+        ],
+    };
+    const gaze = meleeEnv(state, [1], {
+        rn2: (bound) => bound === 4 ? 1 : 1,
+    });
+    assert.equal(await mattacku(bug, gaze.env), false);
+    assert.equal(bug.mcanmove, false);
+    assert.equal(bug.mfrozen, 1);
+    assert.equal(bug.meating, 0);
+    assert.match(gaze.lines.at(-1), /frozen by your gaze!/);
+    assert.deepEqual(gaze.bounds.filter((bound) => bound.startsWith('rn2(')).slice(-3),
+        ['rn2(3)', 'rn2(4)', 'rn2(3)']);
+    state.youmonst.data = ordinary;
+    state.u.umonnum = state.u.umonster;
 });
 
 // mhitu.c ranged_attk_available() reads only mtmp->data->mattk[] and

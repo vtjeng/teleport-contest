@@ -2,6 +2,8 @@ import assert from 'node:assert/strict';
 import test from 'node:test';
 
 import {
+    HALLUC,
+    HALLUC_RES,
     G_GENOD,
     M_AP_OBJECT,
     MSLOW,
@@ -31,6 +33,8 @@ import {
     PM_WATCHMAN,
     PM_WINGED_GARGOYLE,
     PM_GARGOYLE,
+    LOW_PM,
+    SPECIAL_PM,
 } from '../js/monsters.js';
 import { EGG, SPE_HEALING } from '../js/objects.js';
 import { newMonster } from '../js/monst.js';
@@ -128,6 +132,31 @@ test('golemeffects heals and slows the matching golem',
         assert.equal(flesh.mspeed, MSLOW);
         assert.match(speedLines[0], /moving slower\.$/u);
         assert.ok(!game.unported.has('worn.c mon_adjust_speed'));
+    });
+
+test('golemeffects routes hallucinated monster names through display RNG',
+    async () => {
+        await hero();
+        game.u.uprops[HALLUC] = { intrinsic: 1, extrinsic: 0, blocked: 0 };
+        game.u.uprops[HALLUC_RES] = { intrinsic: 0, extrinsic: 0, blocked: 0 };
+        const displayBounds = [];
+        const lines = [];
+        const iron = monster(PM_IRON_GOLEM, { mhp: 5, mhpmax: 20 });
+        await golemeffects(iron, AD_FIRE, 3, {
+            state: game,
+            planning: true,
+            displayRandom: (bound) => {
+                displayBounds.push(bound);
+                return 0;
+            },
+            message: async (text) => lines.push(text),
+        });
+        // do_name.c:rndmonnam() consumes the display candidate and gender
+        // draws; golemeffects must carry that stream through Monnam even on a
+        // planning clone, while the core attack RNG remains untouched.
+        assert.deepEqual(displayBounds, [SPECIAL_PM + 100 - LOW_PM, 2]);
+        assert.equal(lines.length, 1);
+        assert.match(lines[0], /seems healthier\.$/u);
     });
 
 test('angry_guards changes visible guards, then pacify_guards restores them',
