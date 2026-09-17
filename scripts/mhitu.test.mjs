@@ -31,7 +31,9 @@ import {
     STONE,
     TIMEOUT,
     TT_PIT,
+    TELEPAT,
     W_AMUL,
+    WARN_OF_MON,
     W_ARM,
     W_ARMG,
     W_ARMC,
@@ -63,7 +65,7 @@ import {
     expels,
 } from '../js/mhitu.js';
 import { sticks, thick_skinned } from '../js/mondata.js';
-import { newMonster, place_monster } from '../js/monst.js';
+import { newMonster, place_monster, remove_monster } from '../js/monst.js';
 import {
     monst_globals_init,
     AD_ACID,
@@ -100,6 +102,7 @@ import {
     PM_COBRA,
     PM_COCKATRICE,
     PM_GIANT_EEL,
+    PM_CAVE_SPIDER,
     PM_GIANT_ANT,
     PM_BABY_GRAY_DRAGON,
     PM_GOBLIN,
@@ -133,6 +136,7 @@ import { mksobj } from '../js/obj.js';
 import { init_artifacts } from '../js/artifacts.js';
 import {
     AMULET_OF_GUARDING,
+    BOULDER,
     BULLWHIP,
     CLOAK_OF_PROTECTION,
     CORPSE,
@@ -154,6 +158,7 @@ import {
 } from '../js/uhitm.js';
 import { UnsupportedSimpleMonsterActionError }
     from '../js/unported_monster_actions.js';
+import { tp_sensemon } from '../js/display.js';
 
 // mhitu.c magic_negation() reads the invent chain, the objects[] catalog,
 // u.uprops[PROTECTION], u.ublessed, u.uspellprot and youmonst.data. Nothing
@@ -2146,11 +2151,11 @@ test('hitmu marks an invisible-monster square for an unspotted attacker',
     assert.deepEqual(marking.lines, ['It bites!', 'You get zapped!']);
 });
 
-test('hitmu stops for an attacker that was hiding under something',
+test('hitmu reveals a hidden attacker and continues its blow',
     async () => {
-    // mhitu.c:1161-1184. After map_invisible(), hitmu() checks whether the
-    // attacker was hiding. A detected grid bug with DETECT_MONSTERS is neither
-    // a hider nor an eel, so both terms of C's guard leave it alone.
+    // mhitu.c:1161-1184. After map_invisible(), hitmu() clears the hidden flag
+    // and, when the hero has neither telepathy nor Detect_monsters, describes
+    // the object below the attacker before repainting its square.
     //
     // The property is set as well as the seam, because hitmu()'s line names
     // the attacker through Monnam(), whose do_it arm (do_name.c:863-865) reads
@@ -2167,24 +2172,116 @@ test('hitmu stops for an attacker that was hiding under something',
     assert.equal(await mattacku(bug, through.env), false);
     assert.deepEqual(through.lines, ['The grid bug bites!', 'You get zapped!']);
 
+    // A cave spider qualifies through M1_CONCEAL. Its object is visible to a
+    // sighted hero, so Amonnam() and doname() retain their source articles.
+    state.u.uprops[DETECT_MONSTERS] = {
+        intrinsic: 0, extrinsic: 0, blocked: 0,
+    };
+    const spider = meleeAttacker(state, PM_CAVE_SPIDER, -1, 0,
+        { m_lev: 1, mundetected: 1 });
+    const boulder = mksobj(BOULDER, false, false, { state });
+    state.level.objects[spider.mx][spider.my] = boulder;
+    const painted = [];
+    const reveal = meleeEnv(state, [1], {
+        redraw: (x, y) => painted.push([x, y]),
+    });
+    assert.equal(await mattacku(spider, reveal.env), false);
+    assert.equal(spider.mundetected, 0);
+    assert.deepEqual(reveal.lines, [
+        'A cave spider was hidden under a boulder!',
+        'The cave spider bites!',
+    ]);
+    assert.deepEqual(painted, [[spider.mx, spider.my]]);
+    state.level.monsters[spider.mx][spider.my] = null;
+
     // A giant eel qualifies through the S_EEL half alone -- it carries no
-    // M1_CONCEAL -- so it stops here rather than on its AD_PHYS bite.
+    // M1_CONCEAL. With no object, C still clears hidden state and repaints,
+    // but emits no discovery sentence before the AD_WRAP gap.
     const eel = meleeAttacker(state, PM_GIANT_EEL, -1, 0,
         { m_lev: 0, mundetected: 1 });
+    state.level.objects[eel.mx][eel.my] = null;
+    const eelPainted = [];
+    const eelReveal = meleeEnv(state, [1], {
+        canSpotMonster: () => false,
+        redraw: (x, y) => eelPainted.push([x, y]),
+    });
     await assert.rejects(
-        () => mattacku(eel, meleeEnv(state, [1], sensed).env),
-        (error) => error.reason === 'a hit by a monster that was hiding',
-    );
-    // Detected, the same eel's bite reaches mhitm_ad_phys() and lands. Its
-    // mattk[1] is {AT_TUCH, AD_WRAP, 0d0}, an arm mhitm_adtyping() still
-    // refuses, so the turn prints the bite and then stops.
-    eel.mundetected = 0;
-    const seen = meleeEnv(state, [1]);
-    await assert.rejects(
-        () => mattacku(eel, seen.env),
+        () => mattacku(eel, eelReveal.env),
         (error) => error.reason === 'uhitm.c mhitm_ad_wrap()',
     );
-    assert.deepEqual(seen.lines, ['The giant eel bites!']);
+    assert.equal(eel.mundetected, 0);
+    assert.deepEqual(eelReveal.lines, ['It bites!']);
+    assert.deepEqual(eelPainted, [[eel.mx, eel.my]]);
+});
+
+test('hitmu hidden feedback ignores warning and terrain sensing wrappers',
+    async () => {
+    // display.h:41-51 and mhitu.c:1163-1184. hitmu asks only tp_sensemon()
+    // here: MATCH_WARN_OF_MON, Underwater, and u.uswallow are sensemon()
+    // wrapper gates and must not hide the source feedback arm.
+    const state = await meleeHero();
+    const warning = {
+        intrinsic: 1, extrinsic: 0, blocked: 0,
+    };
+    state.u.uprops[WARN_OF_MON] = warning;
+    state.context = {
+        ...(state.context ?? {}),
+        warntype: { obj: state.mons[PM_CAVE_SPIDER].mflags2 },
+    };
+
+    const boulder = (monster) => {
+        const object = mksobj(BOULDER, false, false, { state });
+        state.level.objects[monster.mx][monster.my] = object;
+    };
+    const first = meleeAttacker(state, PM_CAVE_SPIDER, -1, 0,
+        { m_lev: 1, mundetected: 1 });
+    boulder(first);
+    const warningEnv = meleeEnv(state, [1]);
+    assert.equal(await mattacku(first, warningEnv.env), false);
+    assert.ok(warningEnv.lines.some(line =>
+        line === 'A cave spider was hidden under a boulder!'));
+    assert.equal(first.mundetected, 0);
+    remove_monster(first.mx, first.my, state);
+
+    state.u.uinwater = 1;
+    const underwater = meleeAttacker(state, PM_CAVE_SPIDER, -1, 0,
+        { m_lev: 1, mundetected: 1 });
+    boulder(underwater);
+    const underwaterEnv = meleeEnv(state, [1]);
+    assert.equal(await mattacku(underwater, underwaterEnv.env), false);
+    assert.ok(underwaterEnv.lines.some(line =>
+        line === 'A cave spider was hidden under a boulder!'));
+    assert.equal(underwater.mundetected, 0);
+    remove_monster(underwater.mx, underwater.my, state);
+
+});
+
+test('tp_sensemon excludes warning, underwater, and swallowed wrapper gates',
+    async () => {
+    // display.h:_tp_sensemon(). Warning, Underwater, and uswallow belong to
+    // the wider sensemon() wrapper; the exact telepathy predicate is pure and
+    // must answer independently of those state gates.
+    const state = await meleeHero();
+    const spider = meleeAttacker(state, PM_CAVE_SPIDER, 1, 0);
+    state.u.uprops[WARN_OF_MON] = {
+        intrinsic: 1, extrinsic: 0, blocked: 0,
+    };
+    state.context = {
+        ...(state.context ?? {}),
+        warntype: { obj: spider.data.mflags2 },
+    };
+    state.u.uinwater = 1;
+    state.u.uswallow = 1;
+    state.u.ustuck = null;
+    assert.equal(tp_sensemon(spider, state), false);
+
+    state.u.uprops[TELEPAT] = {
+        intrinsic: 1, extrinsic: 0, blocked: 0,
+    };
+    state.u.uprops[BLINDED] = {
+        intrinsic: 1, extrinsic: 0, blocked: 0,
+    };
+    assert.equal(tp_sensemon(spider, state), true);
 });
 
 // ---- uhitm.c mhitm_ad_phys() ----

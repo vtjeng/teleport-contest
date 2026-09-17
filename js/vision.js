@@ -17,14 +17,13 @@ import {
     D_CLOSED, D_LOCKED, D_TRAPPED,
     MAX_RADIUS,
     M_AP_FURNITURE, M_AP_OBJECT, M_AP_TYPMASK, SEE_INVIS,
-    TELEPAT, DETECT_MONSTERS, WARN_OF_MON,
+    DETECT_MONSTERS, WARN_OF_MON,
     MONSEEN_NORMAL, MONSEEN_SEEINVIS, MONSEEN_INFRAVIS,
     MONSEEN_TELEPAT, MONSEEN_XRAYVIS, MONSEEN_DETECT, MONSEEN_WARNMON,
     SV0, SV1, SV2, SV3, SV4, SV5, SV6, SV7, SVALL,
     IS_WALL, TEMP_LIT,
 } from './const.js';
-import { newsym } from './display.js';
-import { M1_MINDLESS } from './monsters.js';
+import { newsym, tp_sensemon } from './display.js';
 import {
     S_hcdoor,
     S_ndoor,
@@ -943,10 +942,10 @@ export function canseemon(mon, state = game) {
     return locationVisible && mon_visible(mon, state);
 }
 
-// C ref: vision.c howmonseen() (2152-2186), with display.h's
-// _tp_sensemon() and MATCH_WARN_OF_MON() predicates kept in this source
-// owner. The bitmask is consumed by pager.c:look_at_monster() to explain why
-// a displayed monster is known.
+// C ref: vision.c howmonseen() (2152-2186), using display.c's tp_sensemon()
+// together with this source owner's MATCH_WARN_OF_MON() predicate. The
+// bitmask is consumed by pager.c:look_at_monster() to explain why a displayed
+// monster is known.
 function warningMatches(mon, state) {
     const hero = state.u ?? {};
     const warning = hero.uprops?.[WARN_OF_MON];
@@ -958,22 +957,6 @@ function warningMatches(mon, state) {
         || (warned.species && warned.species === mon.data)
         || (warned.speciesidx != null
             && state.mons?.[warned.speciesidx] === mon.data));
-}
-
-function telepathicSense(mon, state) {
-    const hero = state.u ?? {};
-    const data = mon?.data;
-    if (!data || (data.mflags1 & M1_MINDLESS)) return false;
-    const telepathy = hero.uprops?.[TELEPAT] ?? {};
-    const blind = heroIsBlind(hero);
-    const intrinsic = Boolean(telepathy.intrinsic);
-    const extrinsic = Boolean(telepathy.extrinsic);
-    if (blind && (intrinsic || extrinsic)) return true;
-    if (!extrinsic) return false;
-    const dx = (mon.mx ?? 0) - (hero.ux ?? 0);
-    const dy = (mon.my ?? 0) - (hero.uy ?? 0);
-    return dx * dx + dy * dy
-        <= Math.trunc(hero.unblind_telepat_range ?? 0);
 }
 
 // C ref: vision.c howmonseen(). The state argument preserves the focused
@@ -999,7 +982,7 @@ export function howmonseen(mon, state = game) {
         && see_with_infrared(mon, state)) {
         seen |= MONSEEN_INFRAVIS;
     }
-    if (telepathicSense(mon, state))
+    if (tp_sensemon(mon, state))
         seen |= MONSEEN_TELEPAT;
     const hero = state.u ?? {};
     const dx = (mon.mx ?? 0) - (hero.ux ?? 0);

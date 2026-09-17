@@ -11,6 +11,7 @@ import {
     BLINDED,
     COLD_RES,
     CONFLICT,
+    DETECT_MONSTERS,
     DISPLACED,
     DIED,
     FIRE_RES,
@@ -52,7 +53,7 @@ import {
     is_pit,
     u_at,
 } from './const.js';
-import { exercise } from './attrib.js';
+import { exercise, minuhpmax } from './attrib.js';
 // js/unported_monster_actions.js already imports allmain.js across the same
 // cycle and records why it is safe: `stop_occupation` is a hoisted function
 // declaration, initialized before either module body runs, and nothing here
@@ -66,10 +67,12 @@ import {
     map_invisible,
     newsym,
     swallowed,
+    tp_sensemon,
 } from './display.js';
 import { reset_occupations } from './cmd.js';
 import {
     Monnam,
+    Amonnam,
     capitalizedMonsterName,
     christen_monst,
     hliquid,
@@ -139,16 +142,17 @@ import {
     WEAPON_CLASS,
     getObjects,
 } from './objects.js';
-import { xnameFresh } from './objnam.js';
+import { donameFresh, xnameFresh } from './objnam.js';
 import { is_quest_artifact } from './questpgr.js';
 import { d, rn1, rn2, rnd, rne, rn2_on_display_rng } from './rng.js';
 import {
     canSeeMonster,
     canSpotMonster,
+    heroIsBlind,
     messageAt,
     monsterVisible,
 } from './startup_a11y.js';
-import { t_at } from './trap.js';
+import { is_pool, t_at } from './trap.js';
 import {
     displayPendingTtyMessageWindow,
     ttyPline,
@@ -1470,16 +1474,11 @@ function Half_physical_damage(state) {
 // Ported: the base damage roll, mhitm_adtyping(), mhitm_knockback(), the
 // negative-armor-class reduction, mdamageu() and passiveum().
 //
-// Ported: the marker for an unspottable attacker in hitmu() and missmu().
-//
-// Refused where C acts: the block that reveals an attacker hidden under an
-// object, which needs doname(), Amonnam() and tp_sensemon().
-//
-// One piece of C is absent rather than refused: mhm.permdmg's whole block
-// (1229-1259), which drains permanent hit points. Death's life-force drain is
-// its only writer, that is uhitm.c mhitm_ad_deth(), and mhitm_adtyping()
-// refuses AD_DETH above. The field is still initialized, because the mhm
-// record is C's and every arm of that switch may write it.
+// Ported: the marker for an unspottable attacker in hitmu() and missmu(), the
+// hidden-under-object reveal, and the permanent hit-point accounting. The
+// latter is exercised when a future uhitm.c mhitm_ad_deth() writer supplies a
+// nonzero field; that AD_DETH arm remains an unported source gap, while this
+// reader preserves C's update and display order.
 //
 // mhm.specialdmg has no ported reader either, and mhitm_ad_phys() did not
 // bring one. Its two C readers, uhitm.c:3992 and :3995, are inside the
@@ -1488,7 +1487,6 @@ function Half_physical_damage(state) {
 async function hitmu(mtmp, mattk, env) {
     const state = env.state;
     const random = env.random;
-    const unsupported = requireMattackuOperation(env, 'unsupported');
     const markInvisible = requireMattackuOperation(env, 'markInvisible');
     const spotMonster = env.canSpotMonster ?? canSpotMonster;
     const mdat = mtmp.data;
@@ -1512,8 +1510,31 @@ async function hitmu(mtmp, mattk, env) {
     /*  If the monster is undetected & hits you, you should know where
      *  the attack came from.
      */
-    if (mtmp.mundetected && (hides_under(mdat) || mdat.mlet === M.S_EEL))
-        unsupported('a hit by a monster that was hiding');
+    if (mtmp.mundetected && (hides_under(mdat) || mdat.mlet === M.S_EEL)) {
+        mtmp.mundetected = 0;
+        if (!tp_sensemon(mtmp, state)
+            && !activeHeroProperty(state, DETECT_MONSTERS)) {
+            const obj = state.level?.objects?.[mtmp.mx]?.[mtmp.my] ?? null;
+            if (obj) {
+                let what;
+                if (heroIsBlind(state) && !obj.dknown)
+                    what = 'something';
+                else if (is_pool(mtmp.mx, mtmp.my, state)
+                    && !state.u.uinwater)
+                    what = 'the water';
+                else
+                    what = donameFresh(obj, state);
+
+                let name = Amonnam(mtmp, { ...env, state });
+                // C substitutes Something when Amonnam() cannot identify an
+                // unseen attacker, preserving sentence capitalization.
+                if (name === 'It') name = 'Something';
+                await env.message(`${name} was hidden under ${what}!`, state);
+            }
+            // C repaints even when there is no object beneath the attacker.
+            env.redraw(mtmp.mx, mtmp.my);
+        }
+    }
 
     /*  First determine the base damage done */
     mhm.damage = random.d(mattk.damn, mattk.damd);
@@ -1558,6 +1579,40 @@ async function hitmu(mtmp, mattk, env) {
                 && is_quest_artifact(state.uarmh, state)
                 && mon_hates_blessings(mtmp)))
             mhm.damage = Math.trunc((mhm.damage + 1) / 2);
+
+        if (mhm.permdmg) {
+            /* Death's life force drain: half-physical damage does not reduce
+             * this permanent component. Keep the random draw and thresholds
+             * in the C order. */
+            mhm.permdmg = random.rn2(Math.trunc(mhm.damage / 2) + 1);
+            if (Upolyd(state.u)
+                || state.u.uhpmax > 25 * state.u.ulevel)
+                mhm.permdmg = mhm.damage;
+            else if (state.u.uhpmax > 10 * state.u.ulevel)
+                mhm.permdmg += Math.trunc(mhm.damage / 2);
+            else if (state.u.uhpmax > 5 * state.u.ulevel)
+                mhm.permdmg += Math.trunc(mhm.damage / 4);
+
+            let lowerlimit;
+            if (Upolyd(state.u)) {
+                lowerlimit = Math.min(
+                    state.youmonst.data.mlevel, state.u.ulevel,
+                );
+            } else {
+                lowerlimit = minuhpmax(1, state);
+            }
+            const hpmax = Upolyd(state.u) ? state.u.mhmax : state.u.uhpmax;
+            const reduced = hpmax - mhm.permdmg;
+            if (reduced > lowerlimit) {
+                if (Upolyd(state.u)) state.u.mhmax = reduced;
+                else state.u.uhpmax = reduced;
+            } else if (hpmax > lowerlimit) {
+                if (Upolyd(state.u)) state.u.mhmax = lowerlimit;
+                else state.u.uhpmax = lowerlimit;
+            }
+            state.disp ??= {};
+            state.disp.botl = true;
+        }
 
         await mdamageu(mtmp, mhm.damage, state, env);
         // A completed really_done() must not continue into passiveum() or the
