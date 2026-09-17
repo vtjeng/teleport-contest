@@ -4992,7 +4992,11 @@ export async function spoteffects(pick, state = game, rawEnv = {}) {
     // FAILEDUNTRAP never reaches dotrap() -- but the read belongs here, where
     // C makes it, rather than being written out as the constant 0.
     const trapflag = state.iflags?.failing_untrap ? FAILEDUNTRAP : 0;
-    if (await pooleffects(true, state, rawEnv)) return;
+    if (await pooleffects(true, state, rawEnv)
+        // C's done() is non-returning.  The JS finalizer returns after setting
+        // gameover so that the segment can capture its terminal display; stop
+        // spoteffects here before its ordinary arrival tail redraws the map.
+        || state.program_state?.gameover) return;
     if (terrain_changed_under_hero(state))
         await switch_terrain(state, rawEnv);
     await check_special_room(false, state);
