@@ -6,7 +6,7 @@
       "datetime": "20370106081234",
       "nethackrc": "OPTIONS=name:BlindGlance,role:Wizard,race:human,gender:female,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,blind\n",
       "moves": " ;.",
-      "comment": "Independent pager.c do_look witness: the blind roleplay option is selected independently, then a leading space dismisses startup output and ;. enters the production quick-glance cursor path. C allows this path for a blind hero; the recording checks that the cursor prompt is reached rather than refused at admission."
+      "comment": "Abandoned A36 admission probe retained with its matching recording: the leading space is consumed as an unknown command, then ; reaches the production blind quick-glance prompt, but the final . remains at its --More-- boundary. It does not establish location selection or description parity. The valid selected-location input is retained separately as blind-glance-description-blocked-independent.session.json, blocked by the existing JS ttyPutmixed versus C putmixed(WIN_MESSAGE) owner."
     }
   ]
 }
