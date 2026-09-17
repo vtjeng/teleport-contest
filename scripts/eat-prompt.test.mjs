@@ -23,16 +23,28 @@ import { game } from '../js/gstate.js';
 import { near_capacity, weight_cap } from '../js/hack.js';
 import { _getobjInternals, getobj } from '../js/invent.js';
 import { runSegment } from '../js/jsmain.js';
-import { PM_HUMAN, PM_RUST_MONSTER, monst_globals_init } from '../js/monsters.js';
+import {
+    PM_FIRE_ELEMENTAL,
+    PM_GELATINOUS_CUBE,
+    PM_GHOUL,
+    PM_HUMAN,
+    PM_LICHEN,
+    PM_RUST_MONSTER,
+    monst_globals_init,
+} from '../js/monsters.js';
 import { clearTtyMessageWindow } from '../js/tty_message.js';
 import {
     AMULET_OF_YENDOR,
     BELL_OF_OPENING,
+    BULLWHIP,
     CANDELABRUM_OF_INVOCATION,
     COIN_CLASS,
+    CORPSE,
     FOOD_CLASS,
     FOOD_RATION,
+    EGG,
     GOLD_PIECE,
+    SILVER_SABER,
     SPEAR,
     SPE_BOOK_OF_THE_DEAD,
     WEAPON_CLASS,
@@ -225,8 +237,8 @@ test('is_edible answers on object class and excludes unique objects', () => {
     // tells the two apart. objects.c has none -- the four unique types are the
     // Amulet, two invocation tools and the Book of the Dead -- which is why
     // the pairing is fabricated here and why deleting the test would change no
-    // reachable answer for an unpolymorphed hero. It still guards the arms
-    // eat.c:99-118 would reach for a polymorphed one.
+    // The pairing is fabricated because the ordinary object table has no
+    // unique food; the form-dependent arms below use real object definitions.
     assert.deepEqual(
         state.objects
             .map((type, otyp) => ({ type, otyp }))
@@ -243,17 +255,67 @@ test('is_edible answers on object class and excludes unique objects', () => {
     );
 });
 
-test('is_edible stops for a polymorphed hero', () => {
+test('is_edible admits fire-elemental flammable objects', () => {
     const state = catalogState();
-    // you.h:554 spells Upolyd (u.umonnum != u.umonster). The four
-    // form-dependent arms eat.c:99-118 carries are unported, so the port must
-    // not answer them by class. A rust monster is the form that takes the
-    // is_metallic()/is_rustprone() arm, and u.mtimedone stays 0, so a guard
-    // that read the polymorph timer instead would answer false here.
+    state.u.umonnum = PM_FIRE_ELEMENTAL;
+    state.youmonst.data = state.mons[PM_FIRE_ELEMENTAL];
+    // eat.c:99-101 accepts a flammable non-food object, while its material
+    // guard still rejects a metallic spear.
+    assert.equal(
+        is_edible({ otyp: BULLWHIP, oclass: WEAPON_CLASS }, state), true,
+    );
+    assert.equal(
+        is_edible({ otyp: SPEAR, oclass: WEAPON_CLASS }, state), false,
+    );
+});
+
+test('is_edible applies the metallivore rust-prone exception', () => {
+    const state = catalogState();
     state.u.umonnum = PM_RUST_MONSTER;
-    assert.throws(
-        () => is_edible({ otyp: FOOD_RATION, oclass: 7 }, state),
-        /is_edible\(\) for a polymorphed hero/,
+    state.youmonst.data = state.mons[PM_RUST_MONSTER];
+    // C accepts iron for a rust monster, but silver is metallic without being
+    // rust-prone. Both are non-food objects, so the source arm is observable.
+    assert.equal(
+        is_edible({ otyp: SPEAR, oclass: WEAPON_CLASS }, state), true,
+    );
+    assert.equal(
+        is_edible({ otyp: SILVER_SABER, oclass: WEAPON_CLASS }, state), false,
+    );
+});
+
+test('is_edible gives ghouls the corpse and egg diet', () => {
+    const state = catalogState();
+    state.u.umonnum = PM_GHOUL;
+    state.youmonst.data = state.mons[PM_GHOUL];
+    // Human flesh is non-vegan; lichen is vegan. C's egg arm is independent
+    // of the corpse species and admits an egg even for a vegan species.
+    assert.equal(
+        is_edible({ otyp: CORPSE, oclass: FOOD_CLASS, corpsenm: PM_HUMAN }, state),
+        true,
+    );
+    assert.equal(
+        is_edible({ otyp: CORPSE, oclass: FOOD_CLASS, corpsenm: PM_LICHEN }, state),
+        false,
+    );
+    assert.equal(
+        is_edible({ otyp: EGG, oclass: FOOD_CLASS }, state), true,
+    );
+});
+
+test('is_edible gives a gelatinous cube empty organic objects', () => {
+    const state = catalogState();
+    state.u.umonnum = PM_GELATINOUS_CUBE;
+    state.youmonst.data = state.mons[PM_GELATINOUS_CUBE];
+    // eat.c:114-118 uses is_organic and Has_contents before the final class
+    // test. A leather bullwhip is organic and empty; contents disqualify it.
+    assert.equal(
+        is_edible({ otyp: BULLWHIP, oclass: WEAPON_CLASS }, state), true,
+    );
+    assert.equal(
+        is_edible({ otyp: BULLWHIP, oclass: WEAPON_CLASS, cobj: {} }, state), false,
+    );
+    assert.equal(
+        is_edible({ otyp: SPEAR, oclass: WEAPON_CLASS }, state), false,
     );
 });
 

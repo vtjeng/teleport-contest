@@ -32,6 +32,7 @@ import {
     GETOBJ_EXCLUDE_SELECTABLE,
     GETOBJ_NOFLAGS,
     GETOBJ_SUGGEST,
+    Has_contents,
     IRONBARS,
     HEALTHY_TIN,
     HOMEMADE_TIN,
@@ -179,6 +180,8 @@ import {
     PM_GENETIC_ENGINEER,
     PM_GIANT_BAT,
     PM_GIANT_MIMIC,
+    PM_GELATINOUS_CUBE,
+    PM_GHOUL,
     PM_HOUSECAT,
     PM_HUMAN_WEREJACKAL,
     PM_HUMAN_WERERAT,
@@ -240,6 +243,9 @@ import {
     carried,
     costly_alteration,
     bcsign,
+    is_flammable,
+    isMetallic,
+    isRustprone,
     is_rottable,
     objectType,
     peek_at_iced_corpse_age,
@@ -290,6 +296,7 @@ import {
     TIN,
     TRIPE_RATION,
     BEARTRAP,
+    WOOD,
 } from './objects.js';
 import { objectGenerationEnv } from './object_generation.js';
 import { discover_object } from './o_init.js';
@@ -504,25 +511,39 @@ export class UnsupportedEatError extends Error {
     }
 }
 
-// C ref: eat.c is_edible() (88-121). Answers whether the possibly polymorphed
-// hero can eat this object.
-//
-// Four of C's five tests read the hero's current form: the fire elemental's
-// is_flammable() arm, the metallivore's is_metallic()/is_rustprone() arm, the
-// ghoul's corpse-and-egg arm and the gelatinous cube's is_organic() arm. Only
-// a polymorphed hero can take any of them -- u_init.c sets u.umonnum to the
-// role's mnum and polyself.c, the one writer that changes it, is unported --
-// so the port stops for a polymorphed hero rather than carry four arms and the
-// four objclass.h material predicates they need, none of which any case can
-// reach. oc_unique and the FOOD_CLASS answer apply to every hero and are here.
+// C ref: eat.c is_edible() (91-121). This is a pure predicate: it reads the
+// current form and object definition but makes no random draw, output, or
+// state change. The form-specific arms intentionally precede FOOD_CLASS just
+// as in C, so a non-food object can be eaten by a compatible polymorph.
 export function is_edible(obj, state = game) {
+    const type = objectType(obj, state);
     /* protect invocation tools but not Rider corpses (handled elsewhere) */
-    if (objectType(obj, state).oc_unique) return false;
+    if (type.oc_unique) return false;
     /* above also prevents the Amulet from being eaten, so we must never
        allow fake amulets to be eaten either [which is already the case] */
 
-    if (Upolyd(state.u))
-        throw new UnsupportedEatError('is_edible() for a polymorphed hero');
+    const species = state.youmonst?.data;
+    if (species === state.mons?.[PM_FIRE_ELEMENTAL]
+        && is_flammable(obj, state))
+        return true;
+
+    if (metallivorous(species) && isMetallic(obj, state)
+        && (species !== state.mons?.[PM_RUST_MONSTER]
+            || isRustprone(obj, state)))
+        return true;
+
+    /* Ghouls only eat non-veggy corpses or eggs (see dogfood()). */
+    if (state.u?.umonnum === PM_GHOUL)
+        return (obj.otyp === CORPSE
+                && !vegan(state.mons?.[obj.corpsenm]))
+            || obj.otyp === EGG;
+
+    if (state.u?.umonnum === PM_GELATINOUS_CUBE
+        && type.oc_material <= WOOD
+        /* g-cubes can eat containers and retain all contents, but a
+           polymorphed player can't do that */
+        && !Has_contents(obj))
+        return true;
 
     return obj.oclass === FOOD_CLASS;
 }
@@ -1122,9 +1143,8 @@ export function eaten_stat(base, obj, env = {}) {
 // worth, which two races read differently for the two foods they were made
 // for. Only start_eating() and bite() call it, and only with nmod negative.
 //
-// C's maybe_polyd(is_elf(gy.youmonst.data), Race_if(PM_ELF)) reduces to the
-// race test while the hero is not polymorphed, which is_edible() has already
-// established by the time any of this runs.
+// C's maybe_polyd(is_elf(gy.youmonst.data), Race_if(PM_ELF)) uses the current
+// form only when the completed food meal reaches this nutrition adjustment.
 export function adj_victual_nutrition(state) {
     const otyp = victual(state).piece.otyp;
     let nut = -victual(state).nmod; /* convert 'nmod' to positive */
@@ -2734,14 +2754,12 @@ export async function doeat(state = game, env = {}) {
     if (otmp.oartifact)
         throw new UnsupportedEatError('retouch_object() for an artifact');
 
-    // C ref: the rust-monster arm (2876-2907) and the RIN_SLOW_DIGESTION arm
-    // (2909-2916), then `if (otmp->oclass != FOOD_CLASS)
-    // return doeat_nonfood(otmp)`. The rust arm needs
-    // `u.umonnum == PM_RUST_MONSTER`, which is_edible() refuses above; the
-    // other two need a ring or an object outside FOOD_CLASS, which is_edible()
-    // cannot answer true for. Being non-metallic is not what keeps a
-    // comestible out of the rust arm: objects.h:1117 gives the tin METAL, and
-    // objclass.h:194 puts METAL inside is_metallic()'s IRON..MITHRIL range.
+    // C ref: the rust-monster arm (2876-2907), the RIN_SLOW_DIGESTION arm
+    // (2909-2916), and then doeat_nonfood(). is_edible() now admits the
+    // compatible polymorphed objects; those caller branches remain a later
+    // eat.c span, so stop before treating a non-food object as a meal.
+    if (otmp.oclass !== FOOD_CLASS)
+        throw new UnsupportedEatError('doeat_nonfood()');
 
     if (otmp === victual(state).piece) {
         // A meal interrupted and then resumed, which needs touchfood() against
