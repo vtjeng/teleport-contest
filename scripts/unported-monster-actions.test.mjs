@@ -1895,6 +1895,47 @@ test('minliquid rusts an iron golem with the source draws', async () => {
     assert.match(messages[0], /rusts\.$/u);
 });
 
+// C mon.c:1001 calls mondied() for an iron golem without consulting
+// mon_moving.  The ordinary liquidDeath() xkilled arm is for the other
+// water/lava branches; using it here would lose the source golem cleanup when
+// minliquid is called outside a monster turn.
+test('minliquid uses mondied for a lethal iron golem outside monster movement',
+    async () => {
+    const target = await prepareSelectedAction({ pmidx: PM_IRON_GOLEM });
+    game.level.at(target.monsterX, target.heroY).typ = POOL;
+    target.monster.mhp = target.monster.mhpmax = 1;
+    const calls = [];
+    game.context.mon_moving = false;
+    try {
+        const result = await minliquid(target.monster, {
+            state: game,
+            random: {
+                rn2: (bound) => {
+                    assert.equal(bound, 5);
+                    return 0;
+                },
+                d: (number, sides) => {
+                    assert.deepEqual([number, sides], [2, 6]);
+                    return 6;
+                },
+            },
+            canSee: () => false,
+            mondied: (monster) => {
+                calls.push('mondied');
+                monster.mhp = 0;
+            },
+            xkilled: () => {
+                calls.push('xkilled');
+                assert.fail('iron-golem rust must use mondied');
+            },
+        });
+        assert.equal(result, 1);
+        assert.deepEqual(calls, ['mondied']);
+    } finally {
+        game.context.mon_moving = false;
+    }
+});
+
 // C ref: mon.c minliquid_core():1111-1119. A stranded eel spends
 // rn2(mhp), rn2(8), and refreshes monflee() without a message.
 test('minliquid hurts a stranded eel and refreshes fleeing', async () => {

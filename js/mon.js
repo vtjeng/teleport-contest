@@ -2086,6 +2086,7 @@ async function liquidRelocate(monster, flags, env) {
 
 async function liquidDamageInventory(monster, lava, env) {
     const operationName = lava ? 'fireDamageChain' : 'waterDamageChain';
+    const sourceName = lava ? 'fire_damage_chain' : 'water_damage_chain';
     const operation = env[operationName];
     // Both source damage-chain functions return immediately for a null chain.
     // A nonempty chain is an explicit discarded-result gap in this span; name
@@ -2093,7 +2094,7 @@ async function liquidDamageInventory(monster, lava, env) {
     // valid minliquid branch has already changed the monster.
     if (typeof operation !== 'function') {
         if (monster.minvent)
-            note_unported('trap.c ' + operationName);
+            note_unported('trap.c ' + sourceName);
         return;
     }
     if (lava) {
@@ -2162,6 +2163,7 @@ export async function minliquid(monster, env = {}) {
 
 export async function minliquid_core(monster, env = {}) {
     const state = env.state ?? game;
+    const namingEnv = { ...env, state };
     const random = {
         d,
         rn1,
@@ -2220,7 +2222,7 @@ export async function minliquid_core(monster, env = {}) {
         const dam = random.d(2, 6);
         if (liquidCanSee(monster, env)) {
             await liquidMessage(
-                capitalizedMonsterName(monster, state) + ' rusts.',
+                capitalizedMonsterName(monster, state, namingEnv) + ' rusts.',
                 monster,
                 env,
             );
@@ -2228,7 +2230,7 @@ export async function minliquid_core(monster, env = {}) {
         monster.mhp -= dam;
         if (monster.mhpmax > dam) monster.mhpmax -= dam;
         if (monster.mhp < 1) {
-            await liquidDeath(monster, true, env);
+            await (env.mondied ?? mondied)(monster, state, env);
             if (monster.mhp < 1) return 1;
         }
         await liquidDamageInventory(monster, false, env);
@@ -2255,7 +2257,7 @@ export async function minliquid_core(monster, env = {}) {
                             ? 'melts away'
                             : 'burns to a crisp';
                     await liquidMessage(
-                        capitalizedMonsterName(monster, state)
+                        capitalizedMonsterName(monster, state, namingEnv)
                             + ' ' + verb + '.',
                         monster,
                         env,
@@ -2267,7 +2269,7 @@ export async function minliquid_core(monster, env = {}) {
                 if (monster.mhp < 1) {
                     if (liquidCanSee(monster, env)) {
                         await liquidMessage(
-                            capitalizedMonsterName(monster, state)
+                            capitalizedMonsterName(monster, state, namingEnv)
                                 + ' surrenders to the fire.',
                             monster,
                             env,
@@ -2276,7 +2278,7 @@ export async function minliquid_core(monster, env = {}) {
                     await mondead(monster, state, env);
                 } else if (liquidCanSee(monster, env)) {
                     await liquidMessage(
-                        capitalizedMonsterName(monster, state)
+                        capitalizedMonsterName(monster, state, namingEnv)
                             + ' burns slightly.',
                         monster,
                         env,
@@ -2308,18 +2310,18 @@ export async function minliquid_core(monster, env = {}) {
             if (liquidCanSee(monster, env)) {
                 await liquidMessage(
                     state.context?.mon_moving
-                        ? capitalizedMonsterName(monster, state)
+                        ? capitalizedMonsterName(monster, state, namingEnv)
                             + ' drowns.'
                         : 'You drown '
-                            + monsterCommonName(monster, state) + '.',
+                            + monsterCommonName(monster, state, 0, namingEnv) + '.',
                     monster,
                     env,
                 );
             }
             if (engulfing_u(monster, state)) {
                 await liquidMessage(
-                    capitalizedMonsterName(monster, state)
-                        + ' sinks as ' + hliquid('water', { state })
+                    capitalizedMonsterName(monster, state, namingEnv)
+                        + ' sinks as ' + hliquid('water', namingEnv)
                         + ' rushes in and flushes you out.',
                     monster,
                     env,
