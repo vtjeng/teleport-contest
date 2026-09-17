@@ -2374,7 +2374,7 @@ export async function wield_pre_move_weapon(monster, range, rawEnv = {}) {
 // MS_CUSS species is the imp at 4.
 export async function dochug(monster, rawEnv = {}) {
     const state = rawEnv.state ?? game;
-    const random = rawEnv.random ?? { rn2 };
+    const random = rawEnv.random ?? { rn2, rnd };
     const preflight = requireDochugOperation(rawEnv, 'preflight');
     const usePreMoveItems = requireDochugOperation(rawEnv, 'usePreMoveItems');
     const moveMonster = requireDochugOperation(rawEnv, 'moveMonster');
@@ -2552,10 +2552,11 @@ export async function dochug(monster, rawEnv = {}) {
             return res;
     }
 
-    // PHASE THREE: movement.  C's disjunction also carries a leprechaun gold
-    // term and (Conflict && !iswiz) between is_wanderer and !mcansee; both are
-    // unported, so a reachable Conflict or leprechaun would shift the
-    // !mcansee draw.  Neither is reachable behind the current boundary.
+    // PHASE THREE: movement. C's disjunction also carries a leprechaun gold
+    // term before is_wanderer. The Conflict term is live here:
+    // movemon_singlemon() has just let fightm() try a monster-versus-monster
+    // attack, and a monster which resists that fight still takes this movement
+    // path before the ordinary hero-attack gate.
     const mayMove = !range.nearby
         || monster.mflee
         || range.scared
@@ -2563,6 +2564,7 @@ export async function dochug(monster, rawEnv = {}) {
         || monster.mstun
         || (monster.minvis && !random.rn2(3))
         || (is_wanderer(monster.data) && !random.rn2(4))
+        || (activeProperty(state, CONFLICT, false) && !monster.iswiz)
         || (!monster.mcansee && !random.rn2(4))
         || monster.mpeaceful;
     let status = MMOVE_NOTHING;
@@ -2614,16 +2616,16 @@ export async function dochug(monster, rawEnv = {}) {
         }
     }
 
-    // PHASE FOUR: standard attacks.  A peaceful monster, including every pet,
-    // fails this gate in C too.  C's `Conflict && !resist_conflict()` disjunct
-    // is unreachable here: assertSimpleScanState() refuses an active CONFLICT
-    // before the scan starts.  So is C's `u.uhp > 0` term, since a dead hero
-    // ends the turn before monsters move.  The gate admits a monster anywhere
-    // inside BOLT_LIM, not only an adjacent one, because mhitu.c mattacku()
-    // runs its range2 arms -- AT_WEAP's thrwmu(), AT_BREA, AT_SPIT and
-    // AT_GAZE -- for a monster that only thinks it is near.
+    // PHASE FOUR: standard attacks.  A peaceful monster reaches this gate
+    // under Conflict only after its own resist_conflict() draw says it should
+    // attack.  The gate admits a monster anywhere inside BOLT_LIM, not only
+    // an adjacent one, because mhitu.c mattacku() runs its range2 arms --
+    // AT_WEAP's thrwmu(), AT_BREA, AT_SPIT and AT_GAZE -- for a monster that
+    // only thinks it is near.
     if (status !== MMOVE_DONE
-        && !monster.mpeaceful
+        && (!monster.mpeaceful
+            || (activeProperty(state, CONFLICT, false)
+                && !resist_conflict(monster, state, random)))
         && ((range.inrange && !range.scared) || panicattk)
         && !noattacks(monster.data)) {
         await attackHero(monster, env);

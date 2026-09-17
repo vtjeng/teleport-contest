@@ -32,7 +32,9 @@ import {
     TT_PIT,
     FAST,
     W_AMUL,
+    W_ACCESSORY,
     W_ARMOR,
+    W_WEP,
     Upolyd,
     is_pit,
     u_at,
@@ -43,7 +45,7 @@ import { exercise } from './attrib.js';
 // declaration, initialized before either module body runs, and nothing here
 // reads it at module scope.
 import { stop_occupation } from './allmain.js';
-import { ART_SNICKERSNEE } from './artifacts.js';
+import { ART_SNICKERSNEE, protects } from './artifacts.js';
 import { midnight } from './calendar.js';
 import {
     bot,
@@ -88,12 +90,13 @@ import {
 import { monnear } from './monmove.js';
 import * as M from './monsters.js';
 import { find_offensive } from './muse.js';
-import { is_wet_towel, objectType, sobj_at } from './obj.js';
+import { is_weptool, is_wet_towel, objectType, sobj_at } from './obj.js';
 import { place_monster, remove_monster } from './monst.js';
 import {
     AMULET_OF_GUARDING,
     BOULDER,
     PIERCE,
+    WEAPON_CLASS,
     getObjects,
 } from './objects.js';
 import { xnameFresh } from './objnam.js';
@@ -530,6 +533,19 @@ async function mswings(mtmp, otemp, bash, rawEnv = {}) {
             state,
         );
     }
+}
+
+// C ref: mhitu.c mpoisons_subj() (145-162). This pure helper describes how
+// the attack delivered poison. The weapon slot is selected from the attacker
+// exactly as C chooses uwep for youmonst and MON_WEP for another monster.
+export function mpoisons_subj(mtmp, mattk, state = game) {
+    if (mattk.aatyp === M.AT_WEAP) {
+        const mwep = mtmp === state.youmonst ? state.uwep : mtmp.mw;
+        return (!mwep || !mwep.opoisoned) ? 'attack' : 'weapon';
+    }
+    return mattk.aatyp === M.AT_TUCH ? 'contact'
+        : mattk.aatyp === M.AT_GAZE ? 'gaze'
+            : mattk.aatyp === M.AT_BITE ? 'bite' : 'sting';
 }
 
 // C ref: mhitu.c getmattk() (309-444). "select a monster's next attack,
@@ -1263,29 +1279,25 @@ async function gulpmu(mtmp, mattk, rawEnv = {}) {
 // the body might be able to block magic"; the answer is the magic-cancellation
 // factor, 0 through 3.
 //
-// This covers the `mon == &gy.youmonst` half. insight.c:1800 is the only caller
-// this port reaches and it passes the hero, and `is_you` is what makes C's
-// `if (is_you || gotprot) continue;` end every loop iteration early. That
-// leaves worn.c protects() and obj.c is_weptool() -- the whole apparatus the
-// monster half needs -- unreached. uhitm.c:86 is the C caller that passes a
-// monster; no ported path reaches it, so this throws instead of answering a
-// cancellation factor it did not compute.
+// C's two callers pass either the hero or a monster. The inventory traversal
+// and protection test are the same in both cases; the hero's property and the
+// high priest's innate protection are the two source-specific initial values.
 export function magic_negation(mon, state = game) {
-    if (mon !== state.youmonst) {
-        throw new TypeError('magic_negation() covers only the hero; the'
-            + ' monster half needs worn.c protects()');
-    }
     const { u } = state;
     const objects = getObjects(state);
+    const isYou = mon === state.youmonst;
     let mc = 0;
     let via_amul = false;
-    const gotprot = Boolean(u.uprops?.[PROTECTION]?.extrinsic);
+    let gotprot = isYou
+        ? Boolean(u.uprops?.[PROTECTION]?.extrinsic)
+        : mon.data === state.mons[M.PM_HIGH_CLERIC];
+    const inventory = isYou ? state.invent : mon.minvent;
 
-    for (let o = state.invent; o; o = o.nobj) {
+    for (let o = inventory; o; o = o.nobj) {
         const wornmask = o.owornmask ?? 0;
         /* a_can field is only applicable for armor (which must be worn) */
         if ((wornmask & W_ARMOR) !== 0) {
-            const armpro = objects[o.otyp].a_can;
+            const armpro = objects[o.otyp]?.a_can ?? 0;
             if (armpro > mc) mc = armpro;
         } else if ((wornmask & W_AMUL) !== 0) {
             // C assigns rather than accumulates, so a second worn amulet would
@@ -1293,9 +1305,17 @@ export function magic_negation(mon, state = game) {
             // spellings cannot differ; ported as written.
             via_amul = (o.otyp === AMULET_OF_GUARDING);
         }
-        /* if we've already confirmed Protection, skip additional checks */
-        /* (is_you ends every iteration here, so the rest of C's loop body --
-           the wearmask and protects() calls -- belongs to the monster half) */
+        /* A hero's Protection property and a high priest's innate protection
+           skip the item-level artifact/property checks, as in C. */
+        if (isYou || gotprot) continue;
+
+        // W_SWAPWEP and W_QUIVER are intentionally excluded. W_ART and W_ARTI
+        // are handled by protects() when the item is worn or carried.
+        let wearMask = W_ARMOR | W_ACCESSORY;
+        if (o.oclass === WEAPON_CLASS || is_weptool(o, state))
+            wearMask |= W_WEP;
+        if (protects(o, Boolean(wornmask & wearMask), state))
+            gotprot = true;
     }
 
     if (gotprot) {
@@ -1307,8 +1327,8 @@ export function magic_negation(mon, state = game) {
     } else if (mc < 1) {
         /* intrinsic Protection is weaker (play balance; obtaining divine
            protection is too easy); it confers minimum mc 1 instead of 0 */
-        if ((u.uprops?.[PROTECTION]?.intrinsic && u.ublessed > 0)
-            || u.uspellprot
+        if ((isYou && ((u.uprops?.[PROTECTION]?.intrinsic
+                        && u.ublessed > 0) || u.uspellprot))
             /* aligned priests and angels have innate intrinsic Protection */
             // Indexed without a guard on purpose: an absent catalog would make
             // two undefineds compare equal and answer 1 where C answers 0.

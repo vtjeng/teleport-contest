@@ -1,0 +1,12 @@
+{
+  "comment": "Independent uhitm.c poison witness: debug wizard genesis creates a hostile water moccasin; alternating wait and More-response inputs reach mhitu.c:mattacku -> uhitm.c:mhitm_ad_drst -> attrib.c:poisoned. Seed, datetime, role, name, species, and inputs were chosen for this reproduction.",
+  "version": 5,
+  "segments": [
+    {
+      "seed": 662233,
+      "datetime": "20360917112233",
+      "nethackrc": "OPTIONS=name:VenomProbe,role:Valkyrie,race:human,gender:female,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen\nOPTIONS=playmode:debug,pettype:none,!acoustics,!safe_wait\n",
+      "moves": " \u0007water moccasin\n. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . "
+    }
+  ]
+}

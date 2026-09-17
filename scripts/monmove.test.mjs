@@ -108,6 +108,7 @@ import {
     can_fog,
     can_hide_under_obj,
     can_ooze,
+    dochug,
     dochugw,
     distfleeck,
     disturb,
@@ -3212,6 +3213,120 @@ test('dochugw preflights occupation owners before monster action', async () => {
 
     await assert.rejects(dochugw(monster, true, { state }), /dochug/);
     assert.equal(actions, 0);
+});
+
+// monmove.c:889-970.  A monster which has just resisted fightm() still enters
+// dochug()'s Conflict movement disjunct.  That movement can end the turn
+// before the standard hero attack, so the source term must be present even
+// though the nearby monster has no flee, fear, confusion, invisibility, or
+// peaceful disposition that would otherwise make it move.
+test('dochug gives Conflict monsters the source movement turn', async () => {
+    const { state } = makeState();
+    state.u.uprops[CONFLICT] = { intrinsic: 1, extrinsic: 0, blocked: 0 };
+    const monster = ordinaryMonster(state, {
+        mx: 9,
+        my: 10,
+        mux: 10,
+        muy: 10,
+        mcanmove: true,
+        mspec_used: 1,
+        mpeaceful: false,
+    });
+    const movement = [];
+    const attacks = [];
+    const ranges = [];
+    const draws = [];
+    const env = {
+        state,
+        random: {
+            rn2(bound) { draws.push(['rn2', bound]); return 1; },
+            rnd(bound) { draws.push(['rnd', bound]); return 1; },
+        },
+        preflight() {},
+        usePreMoveItems: () => false,
+        moveMonster(candidate) {
+            movement.push(candidate.m_id);
+            return MMOVE_MOVED;
+        },
+        attackHero() { attacks.push(monster.m_id); },
+        wakeMessage() {},
+        monFlee() {},
+        monsterCanSeeHero: () => true,
+        unsupported: (reason) => assert.fail(`unexpected refusal: ${reason}`),
+        castUndirectedSpell: () => false,
+        distanceAndFear() {
+            ranges.push(true);
+            return { nearby: true, inrange: true, scared: false };
+        },
+        setApparentHero() {},
+        wipeEngraving() {},
+        wieldPreMoveWeapon: () => false,
+        redraw() {},
+    };
+
+    assert.equal(await dochug(monster, env), 0);
+    assert.deepEqual(movement, [monster.m_id]);
+    assert.deepEqual(attacks, []);
+    assert.deepEqual(ranges, [true, true]);
+    assert.deepEqual(draws, []);
+});
+
+// monmove.c:967.  The phase-four Conflict disjunct has no iswiz exception;
+// even a peaceful wizard rolls resist_conflict() before it attacks.
+test('dochug applies the phase-four Conflict roll to peaceful wizards', async () => {
+    const { state } = makeState();
+    state.u.uprops[CONFLICT] = { intrinsic: 1, extrinsic: 0, blocked: 0 };
+    state.u.acurr = { a: [] };
+    state.u.acurr.a[A_CHA] = 10;
+    state.u.ulevel = 1;
+    const monster = ordinaryMonster(state, {
+        mx: 9,
+        my: 10,
+        mux: 10,
+        muy: 10,
+        mcanmove: true,
+        mspec_used: 1,
+        mpeaceful: true,
+        iswiz: true,
+        m_lev: 1,
+    });
+    const movement = [];
+    const attacks = [];
+    const bounds = [];
+    const env = {
+        state,
+        random: {
+            rn2(bound) { bounds.push(['rn2', bound]); return 1; },
+            rnd(bound) {
+                bounds.push(['rnd', bound]);
+                return 1;
+            },
+        },
+        preflight() {},
+        usePreMoveItems: () => false,
+        moveMonster() {
+            movement.push(true);
+            return MMOVE_NOTHING;
+        },
+        attackHero() { attacks.push(monster.m_id); },
+        wakeMessage() {},
+        monFlee() {},
+        monsterCanSeeHero: () => true,
+        unsupported: (reason) => assert.fail(`unexpected refusal: ${reason}`),
+        castUndirectedSpell: () => false,
+        distanceAndFear() {
+            return { nearby: true, inrange: true, scared: false };
+        },
+        setApparentHero() {},
+        wipeEngraving() {},
+        wieldPreMoveWeapon: () => false,
+        redraw() {},
+    };
+
+    assert.equal(await dochug(monster, env), 0);
+    assert.deepEqual(movement, [true]);
+    assert.deepEqual(attacks, [monster.m_id]);
+    assert.deepEqual(bounds, [['rnd', 20]]);
 });
 
 test('m_can_break_boulder preserves rider and cooldown exceptions', () => {

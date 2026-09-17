@@ -1,0 +1,12 @@
+{
+  "comment": "Cheap independent uhitm.c poison variation: a distinct wizard identity and hostile soldier ant use the same source-supported wait/More interaction to reach mhitu.c:mattacku -> uhitm.c:mhitm_ad_drst -> attrib.c:poisoned. Seed, datetime, role, name, species, and inputs were chosen independently.",
+  "version": 5,
+  "segments": [
+    {
+      "seed": 662234,
+      "datetime": "20360918122334",
+      "nethackrc": "OPTIONS=name:VenomVariant,role:Wizard,race:human,gender:male,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen\nOPTIONS=playmode:debug,pettype:none,!acoustics,!safe_wait\n",
+      "moves": " \u0007soldier ant\n. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . "
+    }
+  ]
+}

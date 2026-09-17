@@ -58877,6 +58877,243 @@
         "screens": 10947,
         "rng": 771130
       }
+    },
+    {
+      "id": "port-uhitm-poison-seed0399-20260917",
+      "kind": "file-port",
+      "status": "open",
+      "summary": "Port poison attack directions and preserve lethal planning and live death handling.",
+      "cFile": "uhitm.c",
+      "sessions": [
+        "holdout/seed0399-wizard-hallu-actions"
+      ],
+      "selectionReason": "Worker A continues the poison boundary at step 509; the higher-ranked Knight self-zap family is reserved by worker B, and seed2200 remains the recorded machine-local configuration-path question.",
+      "detail": "Select complete uhitm.c mhitm_really_poison and mhitm_ad_drst, all attacker/defender directions, canonical mhitu.c mpoisons_subj and magic_negation, and attrib.c poisoned planning handoff. Include the required monmove.c dochug Conflict caller correction from immutable delivery efeaac58: without its source-ordered movement and peaceful-attack gates the independent monster-versus-monster poison recording diverges before establishing helper coverage. Reconcile that pending delivery within this poison span rather than claim its helper evidence from a different candidate; no whole-dochug completion is implied. Two poison and two Conflict recordings cover monster-to-hero and monster-to-monster entries. Hero attack and poisoned-weapon entries remain unrecorded or blocked; park the source goal after verified span closure.",
+      "spans": [
+        {
+          "name": "mhitm_really_poison..mhitm_ad_drst",
+          "status": "queued",
+          "closedBy": null,
+          "functions": [
+            "mhitm_really_poison",
+            "mhitm_ad_drst"
+          ]
+        }
+      ],
+      "openedAt": "9983f2c31981b124ef13c6e580178e3d61b5e059",
+      "openStanding": {
+        "sha": "bacd6775cf8727b59eb755a882b81388a8f8eb40",
+        "screens": 10947,
+        "rng": 771130
+      },
+      "closedAt": null,
+      "delivered": null,
+      "functions": [
+        {
+          "name": "mhitm_really_poison",
+          "line": 3104,
+          "endLine": 3121,
+          "declared": true,
+          "complete": true
+        },
+        {
+          "name": "mhitm_ad_drst",
+          "line": 3122,
+          "endLine": 3167,
+          "declared": true,
+          "complete": true
+        }
+      ],
+      "range": {
+        "from": 3104,
+        "to": 3167
+      },
+      "activeStanding": {
+        "sha": "bacd6775cf8727b59eb755a882b81388a8f8eb40",
+        "screens": 10947,
+        "rng": 771130
+      },
+      "openMismatches": [
+        {
+          "session": "holdout/seed0399-wizard-hallu-actions",
+          "step": 509,
+          "kind": "stop",
+          "function": null,
+          "functionDeclared": false,
+          "sourceFile": null,
+          "cFile": null,
+          "luaFile": null,
+          "line": null,
+          "message": "simple monster action requires a non-resistant hero poisoned by a monster",
+          "unlocatedKinds": [],
+          "recordedSteps": 532,
+          "remainingScreensUpperBound": 23,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/holdout/seed0399-wizard-hallu-actions.json",
+            "result": {
+              "session": "holdout/seed0399-wizard-hallu-actions",
+              "remainingScreensUpperBound": 23,
+              "status": "complete",
+              "commit": "bacd6775cf8727b59eb755a882b81388a8f8eb40",
+              "mismatch": {
+                "session": "holdout/seed0399-wizard-hallu-actions",
+                "step": 509,
+                "kind": "stop",
+                "function": null,
+                "functionDeclared": false,
+                "sourceFile": null,
+                "cFile": null,
+                "luaFile": null,
+                "line": null,
+                "message": "simple monster action requires a non-resistant hero poisoned by a monster",
+                "unlocatedKinds": [],
+                "recordedSteps": 532,
+                "remainingScreensUpperBound": 23
+              },
+              "summary": "At step 509 a soldier ant's poison sting reaches the unsupported non-resistant-hero branch in mhitm_ad_drst(). Port the whole uhitm.c mhitm_really_poison/mhitm_ad_drst family, including all three attacker/defender directions, and wire the existing attrib.c poisoned() owner through the monster-turn adapter. Preserve the initial magic-cancellation draw, hit message, one-in-eight poison gate, poison effects, and subsequent physical damage. The adapter currently binds live losehp/done even during planning, so lethal poison needs the established planning-death handoff before enabling this branch.",
+              "evidence": [
+                "The saved .cache/B16-r3-development-scan.json and .cache/B16-r3-queue.json identify this assigned session at commit a3ce8ade, first stop step 509, message “simple monster action requires a non-resistant hero poisoned by a monster”, recordedSteps 532, and remainingScreensUpperBound 23. The accepted checkpoint had already matched through this boundary; no new replay was needed because the saved scan and assigned recording provide the exact current stop.",
+                "sessions/holdout/seed0399-wizard-hallu-actions.session.json segments[0] steps[509] and [518] show the source sequence. At step 509 C consumes rnd(20)=20 for the attack roll, d(2,4)=4 for the bite, rn2(3)=0 and rn2(6)=1 for knockback, rnd(21)=8, d(3,4)=5 for the sting, rn2(10)=4 in mhitm_mgc_atk_negated(), and rn2(8)=0 in mhitm_ad_drst(). The next poison continuation at step 518 consumes rn2(30)=5 in poisoned() followed by d(2,2)=3, and C prints “The soldier ant's sting was poisoned!” before the later physical damage/death path.",
+                "nethack-c/upstream/include/monsters.h:105-110 defines PM_SOLDIER_ANT with AT_BITE/AD_PHYS 2d4 followed by AT_STNG/AD_DRST 3d4 and MR_POISON. This matches the two hit messages and the exact attack order in the assigned recording; it is a monster-to-hero attack, not a generic poison annotation case.",
+                "nethack-c/upstream/src/uhitm.c:3121-3165 contains mhitm_ad_drst(): the hero-defender arm maps AD_DRST to A_STR, emits hitmsg(), spends rn2(8), and calls poisoned() with fatal 30 and thrown_weapon FALSE. nethack-c/upstream/src/uhitm.c:4781-4811 maps all three attribute-poison types to this owner. nethack-c/upstream/src/attrib.c:317-408 supplies the consumed poison branches, including rn2(30), d(2,2), adjattrib(), done(), and encumber_msg().",
+                "At the examined commit, git show a3ce8ade:js/uhitm.js shows js/uhitm.js:mhitm_ad_drst() at 2687-2726 calling hitmsg() and the rn2(8) gate, then throwing unsupported(“a non-resistant hero poisoned by a monster”) at 2713-2715 instead of invoking the existing poison operation. js/attrib.js already ports poisoned(), and js/unported_monster_actions.js:monsterMissileEnv() binds env.poisoned with state, message, losehp, done, and encumberMessage for both planning and live passes.",
+                "The production chain is source-backed: mhitu.c:mattacku() -> hitmu() -> mhitm_adtyping() -> mhitm_ad_drst() -> poisoned(), followed by knockback and mdamageu(). js/unported_monster_actions.js:attackHeroWithMattacku() provides the same chain and operation environment, while preflightSimpleMonsterActions() catches MonsterDeathPlanningError before replaying the live turn. The earlier 9b147c15 elapsed-turn planner experiment disagreed with the live movement gate in three development sessions; fabricated wizard recovery in the planner is invalid. Preserve the accepted life-saving recovery evidence as a separate prior span.",
+                "Orchestrator source check: the 45-line mhitm_ad_drst function contains three attacker/defender arms, and its neighboring mhitm_really_poison helper is 17 lines. Whole-source selection must include the sibling directions rather than retain their refusals as a claimed complete port. monsterMissileEnv's current poisoned binding invokes live losehp/done on planning state, so its presence alone does not establish safe lethal planning.",
+                "At 8e90f33b3721bd996b79487ffc509a71b7f3c594, root verified the existing lethal-planning contract in mthrowu.js thitu (1958-1965), muse.js mbhitm (2177-2182), and mhitu.js mdamageu (1465-1477): write source damage state on the clone and raise MonsterDeathPlanningError before live death handling. unported_monster_actions.js preflightSimpleMonsterActions catches that marker and allmain.js advanceElapsedTurn replays the action live, then replans after lifesaving. attrib.js poisoned has both losehp damage and a direct uhp=-1 instant-poison arm before its final done call; both lethal boundaries need the same adapter handoff. The existing RNG and message adapters remain authoritative, and the used-return dependencies already have owners.",
+                "At bacd6775 the saved B20 scan still stops at the same non-resistant poison branch at step 509. Separately, source comparison for an independent Conflict recipe found two omitted monmove.c dochug conditions: (Conflict && !mtmp->iswiz) after the wanderer draw in the phase-three movement disjunction, and (Conflict && !resist_conflict(mtmp)) in the phase-four peaceful-monster attack gate. The wizard exception belongs only to phase three. Both conditions are required before that independent monster-versus-monster poison witness can establish helper coverage. Worker corrections and their recording coverage remain pending integration."
+              ],
+              "source": {
+                "file": "uhitm.c",
+                "functions": [
+                  "mhitm_really_poison",
+                  "mhitm_ad_drst"
+                ],
+                "branch": "Select the complete uhitm.c mhitm_really_poison() and mhitm_ad_drst() functions (3098-3165). mhitm_ad_drst begins with mhitm_mgc_atk_negated before branching. The hero-attacker arm applies resistance or poison damage; the hero-defender arm maps AD_DRST/AD_DRDX/AD_DRCO to A_STR/A_DEX/A_CON, emits hitmsg, spends rn2(8) when not negated, and calls poisoned with monster possessive attack description, species name, fatal 30 and thrown_weapon false; the monster-versus-monster arm calls mhitm_really_poison. Complete all three directions and their production callers. The assigned refusal isolates the hero-defender entry but does not authorize a partial function port. Verify shared attrib.c poisoned and the planner/live death seam before enabling non-resistant damage.",
+                "callers": [
+                  "nethack-c/upstream/src/mhitu.c:hitmu() (1143-1267) rolls base damage at 1187, calls mhitm_adtyping(mtmp, mattk, &gy.youmonst, &mhm) at 1191, then performs knockback and mdamageu(); js/mhitu.js:hitmu() preserves this order and passes the operation/random environment.",
+                  "nethack-c/upstream/src/uhitm.c:mhitm_adtyping() (4781-4832) maps AD_DRST, AD_DRDX, and AD_DRCO to mhitm_ad_drst; js/uhitm.js:mhitm_adtyping() at 3032-3071 dispatches all three types to the partial owner.",
+                  "nethack-c/upstream/src/mhitu.c:mattacku() (491-951) reaches hitmu() from the landed melee attack loop; js/mhitu.js:mattacku() invokes the same hitmu path for this soldier-ant AT_STNG attack.",
+                  "js/unported_monster_actions.js:attackHeroWithMattacku() (1465-1505) is the production dochugw-to-mattacku seam. Its monsterMissileEnv() (1265-1345) already supplies poisoned, losehp, done, message, and planner/live behavior; mhitm_ad_drst must consume env.poisoned() rather than duplicate resistance-only messages.",
+                  "js/unported_monster_actions.js:preflightSimpleMonsterActions()/planSimpleMonsterTurn()/planSimpleMonsterScan() (1874-2000) clone state and random, catch MonsterDeathPlanningError, and replay the live monster turn; js/allmain.js:advanceElapsedTurn() owns this planner/live contract. Poison effects and subsequent physical damage must remain atomic across both passes."
+                ],
+                "dependencies": [
+                  "nethack-c/upstream/src/uhitm.c:mhitm_mgc_atk_negated() (74-98), already ported as js/uhitm.js:mhitm_mgc_atk_negated(); its rn2(10) draw precedes the poison rn2(8).",
+                  "nethack-c/upstream/src/mhitu.c:hitmsg() (28-81), already ported as js/mhitu.js:hitmsg(); the soldier-ant bite/sting line precedes poisoned()'s announcement.",
+                  "nethack-c/upstream/src/attrib.c:poisoned() (317-408), already ported as js/attrib.js:poisoned(); call it with the soldier ant sting reason, A_STR, the soldier-ant pmname, fatal 30, and thrown_weapon false so rn2(30) and d(2,2) match the recording.",
+                  "poisoned() consumes attrib.c:adjattrib()/poisontell(), hack.c:losehp(), and end.c:done() when uhp < 1. js/attrib.js requires losehp, done, message, and encumberMessage operations, all already bound by monsterMissileEnv(); do not add a second poison implementation.",
+                  "uhitm.c mhitm_really_poison is part of this self-contained family, used by mhitm_ad_drst's monster-versus-monster arm and mhitm_ad_phys poisoned weapons. Port its complete message, resistance and rn1(10,6) damage behavior and wire source callers.",
+                  "nethack-c/upstream/src/mhitu.c:mdamageu() (1901-1927) receives the pending physical damage after mhitm_adtyping() and invokes death handling; js/mhitu.js:mdamageu() raises MonsterDeathPlanningError for planner lethal damage and calls live done_in_by(), so the existing preflight catch/replay must be retained.",
+                  "At a3ce8ade, js/unported_monster_actions.js monsterMissileEnv binds poisoned's losehp and done to live implementations regardless of env.planning. The existing mthrowu.js thitu planningDeath guard belongs to its projectile entry and does not automatically protect the new melee entry. Adapt lethal poison to stop speculative planning before live death input/output, preserve the accepted live recovery continuation, and validate both nonlethal and lethal calls.",
+                  "Independent Conflict coverage requires the two source-ordered dochug gates in monmove.c. Existing monster-to-hero poison recordings do not execute mhitm_really_poison; require a matching production witness before recording that helper as complete. mhitm_ad_phys calls mhitm_really_poison directly, while mhitm_adtyping dispatches the attribute-poison types to mhitm_ad_drst."
+                ]
+              },
+              "goalKind": "file-port",
+              "nextProbe": "Implement the whole mhitm_really_poison/mhitm_ad_drst family, including sibling directions and production dispatch. Use canonical poisoned and correct its adapter's lethal planning boundary, with independent recordings that exercise the implemented entries; park any unrecorded entry coverage at closure rather than claiming completion."
+            }
+          }
+        }
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "mhitm_really_poison",
+            "implementation": "js/uhitm.js",
+            "symbol": "mhitm_really_poison",
+            "sourceReview": "Compared complete uhitm.c mhitm_really_poison body: visible attacker message uses canonical mhitu.c mpoisons_subj, then poison resistance and conditional defender message; non-resistant damage uses exactly rn1(10,6), followed by the deadly comparison and canspotmon guard. It spends neither the cancellation nor one-in-eight dispatcher gate. The independent Conflict swarm records the poison and resistant water-moccasin messages at frames138–141. Its production caller requires the source-ordered monmove.c dochug Conflict movement/attack correction included in this candidate. The separate armed mhitm_ad_phys caller is still blocked in its surrounding weapon implementation and is not claimed complete.",
+            "callers": [
+              {
+                "path": "js/uhitm.js",
+                "symbol": "mhitm_ad_drst",
+                "source": "uhitm.c3160–3162: the monster-versus-monster arm calls mhitm_really_poison after cancellation and rn2(8)."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/uhitm.test.mjs"
+            ],
+            "recordings": [
+              "recordings/monmove.c/dochug-conflict-swarm-independent.session.json",
+              "recordings/monmove.c/dochug-conflict-variant-independent.session.json"
+            ],
+            "checkedAt": "65fc89b36d495c9ce94da0bae5923aa24ce02ef7"
+          },
+          {
+            "name": "mhitm_ad_drst",
+            "implementation": "js/uhitm.js",
+            "symbol": "mhitm_ad_drst",
+            "sourceReview": "Compared complete uhitm.c mhitm_ad_drst body and all three directions. mhitm_mgc_atk_negated precedes the direction split; hero attack preserves resistance, rn2(10) fatal gate and rn1(10,6); monster attack prints hitmsg before rn2(8), then canonical attrib.c poisoned with mapped A_STR/A_DEX/A_CON, Mgender species name, fatal30 and thrown_weapon FALSE; monster-versus-monster uses the helper after its own rn2(8). Source subject naming lives in mhitu.js mpoisons_subj with pure source-pinned tests. Monster magic_negation uses C inventory/armor/protection order, and the verbose cancellation message uses canseemon while poison messages use canspotmon. Removed the direction refusals. Production poison planning subtracts from the clone’s normal or polymorphed hit points and hands off before losehp can enter rehumanize/done. The production adapter regression pins the complete draw sequence, lethal polymorphed HP, unchanged live HP/gameover and unchanged input queue.",
+            "callers": [
+              {
+                "path": "js/uhitm.js",
+                "symbol": "mhitm_adtyping",
+                "source": "uhitm.c4782–4811 dispatches AD_DRST, AD_DRDX and AD_DRCO to mhitm_ad_drst."
+              },
+              {
+                "path": "js/mhitu.js",
+                "symbol": "hitmu",
+                "source": "mhitu.c1191 calls mhitm_adtyping from a landed monster-to-hero attack."
+              },
+              {
+                "path": "js/mhitm.js",
+                "symbol": "mdamagem",
+                "source": "mhitm.c1059 calls mhitm_adtyping from a landed monster-versus-monster attack."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/uhitm.test.mjs",
+              "scripts/mhitu.test.mjs",
+              "scripts/unported-monster-actions.test.mjs"
+            ],
+            "recordings": [
+              "recordings/uhitm.c/mhitm-ad-drst-water-moccasin-independent.session.json",
+              "recordings/uhitm.c/mhitm-ad-drst-soldier-ant-variant.session.json",
+              "recordings/monmove.c/dochug-conflict-swarm-independent.session.json",
+              "recordings/monmove.c/dochug-conflict-variant-independent.session.json"
+            ],
+            "checkedAt": "65fc89b36d495c9ce94da0bae5923aa24ce02ef7"
+          }
+        ],
+        "entryPointReview": "The source range has hero-to-monster, monster-to-hero and monster-versus-monster attribute-poison entries; mhitm_really_poison also serves the poisoned-weapon arm of mhitm_ad_phys. Two independent poison recordings execute the monster-to-hero entry. The two Conflict recordings execute the monster-versus-monster entry through fightm/mattackm/mdamagem/mhitm_adtyping after the required dochug caller correction. No whole-dochug completion is claimed by this dependency fix. Hero-to-monster production coverage remains unrecorded, and the mhitm_ad_phys weapon caller is still blocked; preserve both open entries and park the source goal after its verified span. Pure mpoisons_subj result tests and monster magic-negation tests supplement the recordings; direct tests alone do not establish those missing entries.",
+        "entryPoints": [
+          {
+            "name": "monster-to-hero attribute-poison attack",
+            "functions": [
+              "mhitm_ad_drst"
+            ],
+            "recordings": [
+              "recordings/uhitm.c/mhitm-ad-drst-water-moccasin-independent.session.json",
+              "recordings/uhitm.c/mhitm-ad-drst-soldier-ant-variant.session.json"
+            ]
+          },
+          {
+            "name": "monster-to-monster attribute-poison attack under Conflict",
+            "functions": [
+              "mhitm_ad_drst",
+              "mhitm_really_poison"
+            ],
+            "recordings": [
+              "recordings/monmove.c/dochug-conflict-swarm-independent.session.json",
+              "recordings/monmove.c/dochug-conflict-variant-independent.session.json"
+            ]
+          },
+          {
+            "name": "hero-to-monster attribute-poison attack",
+            "functions": [
+              "mhitm_ad_drst"
+            ],
+            "recordings": []
+          },
+          {
+            "name": "monster-to-monster poisoned weapon through mhitm_ad_phys",
+            "functions": [
+              "mhitm_really_poison"
+            ],
+            "recordings": []
+          }
+        ]
+      }
     }
   ]
 }
