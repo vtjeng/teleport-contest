@@ -251,6 +251,7 @@ import {
 } from '../js/objects.js';
 import { timeout_globals_init } from '../js/timeout.js';
 import { InMemoryStorage } from '../js/storage.js';
+import { update_mon_extrinsics } from '../js/worn.js';
 import { rawMonsterGenerationState } from './monster-test-state.mjs';
 import { scriptedRandom, step } from './monster-scripted-random.mjs';
 
@@ -1277,9 +1278,14 @@ test('m_dowear preserves eager hallucinated naming for unchanged slots',
         planning: true,
         message: async () => {},
     });
-    assert.deepEqual(calls, [], 'the JavaScript-only planner stays cosmetic-free');
+    assert.deepEqual(
+        calls,
+        Array.from({ length: 7 }, () => [430, 2]).flat(),
+        'planning preserves C name-selection order on the clone',
+    );
 
     // Creation suppresses wearing messages, but C still copies each name.
+    calls.length = 0;
     await m_dowear(monster, true, { state, displayRandom });
     assert.deepEqual(calls, Array.from({ length: 7 }, () => [430, 2]).flat());
 
@@ -1456,6 +1462,101 @@ test('runtime speed boots update FAST before the admitted wear return',
     assert.equal(monster.mspeed, MFAST);
 });
 
+test('planning m_dowear preserves runtime delay while suppressing output',
+    async () => {
+        // C m_dowear_type() keeps the non-creation delay and mcanmove writes
+        // even when the planning clone suppresses its presentation calls.
+        const state = initialLevelState();
+        state.in_mklev = false;
+        const monster = newMonster({
+            data: state.mons[PM_GNOME],
+            mnum: PM_GNOME,
+            m_id: 9011,
+            mcanmove: true,
+            permspeed: 0,
+            mspeed: 0,
+        });
+        const boots = mksobj(SPEED_BOOTS, false, false, {
+            state,
+            random: FIXED_OBJECT_ID_RANDOM,
+        });
+        add_to_minv(monster, boots, { state });
+        let messages = 0;
+
+        await m_dowear(monster, false, {
+            state,
+            planning: true,
+            message: async () => { ++messages; },
+        });
+
+        assert.equal(boots.owornmask, W_ARMF);
+        assert.equal(monster.misc_worn_check, W_ARMF);
+        assert.equal(monster.mfrozen, state.objects[SPEED_BOOTS].oc_delay);
+        assert.equal(monster.mcanmove, false);
+        assert.equal(messages, 0);
+    });
+
+test('update_mon_extrinsics forwards the runtime silence flag', async () => {
+    // C update_mon_extrinsics() passes its silently argument through the FAST
+    // branch to mon_adjust_speed(), which may announce a visible speed change.
+    const state = initialLevelState();
+    state.in_mklev = false;
+    const monster = newMonster({
+        data: state.mons[PM_GNOME],
+        mnum: PM_GNOME,
+        m_id: 9012,
+        mcanmove: true,
+        permspeed: MSLOW,
+        mspeed: MSLOW,
+        mx: MON_X,
+        my: MON_Y,
+    });
+    const boots = mksobj(SPEED_BOOTS, false, false, {
+        state,
+        random: FIXED_OBJECT_ID_RANDOM,
+    });
+    boots.owornmask = W_ARMF;
+    monster.minvent = boots;
+    monster.misc_worn_check = W_ARMF;
+    const messages = [];
+    await update_mon_extrinsics(monster, boots, true, {
+        state,
+        silent: false,
+        canseemon: () => true,
+        learnwand: () => {},
+        message: async (text) => messages.push(text),
+    });
+
+    assert.equal(monster.mspeed, MFAST);
+    assert.equal(messages.length, 1);
+    assert.ok(messages[0].includes('suddenly moving'));
+});
+
+test('saddle removal records the discarded steed dismount boundary', async () => {
+    // worn.c:708-709 calls dismount_steed(DISMOUNT_FELL) for a steed's
+    // saddle. Its fall-specific callee remains unported, so this state path
+    // records the named discarded-call gap and completes the worn update.
+    const state = initialLevelState();
+    game.unported = new Set();
+    const steed = newMonster({
+        data: state.mons[PM_PONY],
+        mnum: PM_PONY,
+        m_id: 9013,
+    });
+    const saddle = mksobj(SADDLE, false, false, {
+        state,
+        random: FIXED_OBJECT_ID_RANDOM,
+    });
+    saddle.owornmask = W_SADDLE;
+    steed.minvent = saddle;
+    steed.misc_worn_check = W_SADDLE;
+    state.u.usteed = steed;
+
+    await update_mon_extrinsics(steed, saddle, false, { state, silent: true });
+
+    assert.ok(game.unported.has('steed.c dismount_steed DISMOUNT_FELL'));
+});
+
 test('m_dowear starts a worn gold scale mail light in source order', () => {
     const state = initialLevelState();
     state.viz_array = Array.from({ length: 21 }, () =>
@@ -1483,6 +1584,83 @@ test('m_dowear starts a worn gold scale mail light in source order', () => {
     assert.equal(mail.lamplit, true);
     assert.equal(state.gl.light_base.id, mail);
     assert.equal(state.gl.light_base.range, 4);
+});
+
+test('m_dowear restores an old artifact mask before ending its light', async () => {
+    // C worn.c:m_dowear_type():961-969 restores oldmask before end_burn()
+    // because artifact_light() reads the worn mask, then clears it.  This
+    // exercises the live replacement path with the canonical light hook.
+    const state = initialLevelState();
+    state.viz_array = Array.from({ length: ROWNO }, () =>
+        new Uint8Array(COLNO).fill(IN_SIGHT | COULD_SEE));
+    light_globals_init(state);
+    const monster = newMonster({
+        data: state.mons[PM_HUMAN],
+        mnum: PM_HUMAN,
+        m_id: 9014,
+        mx: MON_X,
+        my: MON_Y,
+        mhp: 10,
+        mcanmove: true,
+    });
+    const oldMail = mksobj(GOLD_DRAGON_SCALE_MAIL, false, false, {
+        state,
+        random: FIXED_OBJECT_ID_RANDOM,
+    });
+    oldMail.blessed = true;
+    add_to_minv(monster, oldMail, { state });
+    m_dowear(monster, true, { state });
+    assert.equal(oldMail.owornmask, W_ARM);
+    assert.equal(oldMail.lamplit, true);
+    state.in_mklev = false;
+
+    const replacement = mksobj(ELVEN_MITHRIL_COAT, false, false, {
+        state,
+        random: FIXED_OBJECT_ID_RANDOM,
+    });
+    replacement.spe = 5;
+    add_to_minv(monster, replacement, { state });
+    await m_dowear(monster, false, {
+        state,
+        message: async () => {},
+    });
+
+    assert.equal(oldMail.owornmask, 0);
+    assert.equal(oldMail.lamplit, false);
+    assert.equal(replacement.owornmask, W_ARM);
+    assert.equal(state.gl.light_base, null);
+});
+
+test('m_dowear does not rediscover an already invisible monster', async () => {
+    // C worn.c:m_dowear_type():996-1001 emits the sudden-invisibility line
+    // only when sawmon XOR canseemon changes. A visible location alone is not
+    // enough when the monster was already invisible.
+    const state = initialLevelState();
+    state.in_mklev = false;
+    state.viz_array = Array.from({ length: ROWNO }, () =>
+        new Uint8Array(COLNO).fill(IN_SIGHT | COULD_SEE));
+    const monster = newMonster({
+        data: state.mons[PM_HUMAN],
+        mnum: PM_HUMAN,
+        m_id: 9015,
+        mx: MON_X,
+        my: MON_Y,
+        mhp: 10,
+        mcanmove: true,
+        minvis: true,
+        perminvis: true,
+    });
+    const helm = mksobj(ORCISH_HELM, false, false, {
+        state,
+        random: FIXED_OBJECT_ID_RANDOM,
+    });
+    add_to_minv(monster, helm, { state });
+    const messages = [];
+    await m_dowear(monster, false, {
+        state,
+        message: async (text) => messages.push(text),
+    });
+    assert.equal(messages.some((text) => text.includes('Suddenly')), false);
 });
 
 test('large humanoids can wear only mummy wrapping from generated body armor', () => {
