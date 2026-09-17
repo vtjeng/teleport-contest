@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "Continuation probe for the independent water-walking lava_effects() witness. The appended space and period ask for the post-message cleanup/return and next command. C reaches the cleanup screen at the space boundary, then region.c upkeep advances before the period; the JavaScript replay stops at that source boundary because region upkeep still requires its blockPoint owner. Keep this input-only recipe until that dependency lands; it has no recording.",
+  "segments": [
+    {
+      "seed": 810141,
+      "datetime": "20450910123456",
+      "nethackrc": "OPTIONS=name:LavaWalker,role:Wizard,race:human,gender:female,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen\nOPTIONS=playmode:debug,pettype:none\n",
+      "moves": " #levelchange\n20\n                    \u0016?\nl .#wizintrinsic\n>h\n mb ."
+    }
+  ]
+}

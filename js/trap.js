@@ -153,6 +153,12 @@ import {
     WWALKING,
     WT_TOOMUCH_DIAGONAL,
     W_SADDLE,
+    W_AMUL,
+    W_ARMOR,
+    W_BALL,
+    W_CHAIN,
+    W_TOOL,
+    W_WEAPONS,
     ZAP_POS,
     helpless,
     is_hole,
@@ -1215,8 +1221,22 @@ export async function lava_effects(state = game) {
                     // C removes every doomed worn item. The message is
                     // conditional on lifesaving, but remove_worn_item() is
                     // unconditional before useupall().
-                    const { remove_worn_item } = await import('./steal.js');
-                    remove_worn_item(obj, true, state);
+                    // remove_worn_item() is still partial: C discards its
+                    // return, so call it only for the source arms that have
+                    // an implemented owner.  The other C branches are
+                    // recorded as discarded gaps at this call site rather
+                    // than entering a helper that throws a refusal.
+                    const mask = obj.owornmask;
+                    const unsupportedMask = Boolean(mask
+                        & (W_ARMOR | W_AMUL | W_TOOL | W_BALL | W_CHAIN));
+                    const unsupportedQuiver = Boolean(mask & W_WEAPONS)
+                        && obj === state.uquiver;
+                    if (unsupportedMask || unsupportedQuiver) {
+                        note_unported('steal.c remove_worn_item');
+                    } else {
+                        const { remove_worn_item } = await import('./steal.js');
+                        remove_worn_item(obj, true, state);
+                    }
                 }
                 useupall(obj, { state });
                 burncount++;

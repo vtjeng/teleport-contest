@@ -111,6 +111,36 @@ test('lava source owns the complete damage and Boots_off call order',
         assert.match(lava, /destroy_items\(&gy\.youmonst, AD_FIRE, dmg\)/u);
     });
 
+test('fatal lava records unsupported worn-item removal as a discarded gap',
+    async () => {
+        const source = await readFile(
+            new URL('../nethack-c/upstream/src/trap.c', import.meta.url),
+            'utf8',
+        );
+        const lava = source.slice(
+            source.indexOf('boolean\nlava_effects(void)'),
+            source.indexOf('\n/* called each turn when trapped in lava */'),
+        );
+        assert.match(lava, /remove_worn_item\(obj, TRUE\)/u);
+
+        const implementation = await readFile(
+            new URL('../js/trap.js', import.meta.url),
+            'utf8',
+        );
+        assert.match(
+            implementation,
+            /const unsupportedMask = Boolean\(mask\s*&\s*\(W_ARMOR \| W_AMUL \| W_TOOL \| W_BALL \| W_CHAIN\)\)/u,
+        );
+        assert.match(
+            implementation,
+            /const unsupportedQuiver = Boolean\(mask & W_WEAPONS\)\s*&& obj === state\.uquiver/u,
+        );
+        assert.match(
+            implementation,
+            /note_unported\('steal\.c remove_worn_item'\)/u,
+        );
+    });
+
 test('water walking boots clear their slot without recursive lava effects',
     async () => {
         const state = stateWithLava();
