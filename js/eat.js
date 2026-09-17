@@ -336,9 +336,8 @@ import {
 import { ttyPline } from './tty_message.js';
 import { remove_worn_item } from './steal.js';
 import {
-    uwepgone, uswapwepgone, welded,
+    uwepgone, uswapwepgone, uqwepgone, welded,
 } from './wield.js';
-import { setuqwep } from './worn.js';
 
 // C ref: eat.c hu_stat[], indexed by u.uhs and shared with botl.c and
 // insight.c. Every entry is eight columns wide, so a reader that wants the
@@ -2717,9 +2716,8 @@ export async function floorfood(verb, corpsecheck, state = game) {
 
 // C ref: eat.c eatspecial() (2414-2486), the common completion tail for an
 // object that doeat_nonfood() admits.  C keeps this helper in eat.c, so its
-// state transitions stay here too.  The potion, accessory, leash and
-// punishment helpers are separate source owners; their discarded C results
-// are recorded at the actual call sites when those branches are reached.
+// state transitions stay here too. Unported accessory, leash and punishment
+// helpers are recorded at their call sites when those branches are reached.
 async function eatspecial(state, env) {
     const meal = victual(state);
     const otmp = meal.piece;
@@ -2794,7 +2792,7 @@ async function eatspecial(state, env) {
     if (otmp === state.uwep && otmp.quan === 1)
         uwepgone({ state });
     if (otmp === state.uquiver && otmp.quan === 1)
-        setuqwep(null, { state });
+        uqwepgone({ state });
     if (otmp === state.uswapwep && otmp.quan === 1)
         uswapwepgone({ state });
 
