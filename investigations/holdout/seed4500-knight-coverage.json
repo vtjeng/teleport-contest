@@ -1,49 +1,54 @@
 {
   "session": "holdout/seed4500-knight-coverage",
-  "remainingScreensUpperBound": 254,
+  "remainingScreensUpperBound": 241,
   "status": "complete",
-  "commit": "394068a52d8ec575a6e1186a5a703e0f79cb2ed2",
+  "commit": "26515ac339a181f9be07d4bfa68224f786902c37",
   "mismatch": {
     "session": "holdout/seed4500-knight-coverage",
-    "step": 1560,
-    "kind": "stop",
-    "function": "mhitm_ad_ston",
+    "step": 1573,
+    "kind": "screen",
+    "function": null,
     "functionDeclared": false,
-    "sourceFile": "uhitm.c",
-    "cFile": "uhitm.c",
+    "sourceFile": null,
+    "cFile": null,
     "luaFile": null,
     "line": null,
-    "message": "simple monster action requires uhitm.c mhitm_ad_ston()",
+    "message": null,
     "unlocatedKinds": [],
     "recordedSteps": 1814,
-    "remainingScreensUpperBound": 254
+    "remainingScreensUpperBound": 241
   },
-  "summary": "The first remaining stop is uhitm.c mhitm_ad_ston at step 1560, reached by the live monster-to-hero attack path. Port the complete three-context stoning dispatcher and wire its existing mhitm_adtyping callers, including do_stone_u/do_stone_mon and the trap.c minstapetrify behavior required by the hero and monster branches. The previous passiveum-first-blocker diagnosis is superseded; retain separate unresolved eating cleanup, skinback artifact-light and armor cleanup, and unrecorded passive families as independent coverage debt.",
+  "summary": "The first mismatch is the #conduct window at step 1573: C appends an Achievements header and seven entries, but JavaScript ends after voluntary challenges because show_achievements is unported. Port the whole insight.c show_achievements function and its conduct/disclosure callers. A separate later stop at 1576 is mon.c minliquid_core stranded-eel behavior; its complete liquid-effects family is also missing. Liquid dependencies also require replacing split-call placeholders, correcting clone naming and copied fields, forwarding planning RNG through liquid messages, and completing relocation for fountain and monster-swap callers. Preserve the independent stoning, passive, eating and polymorph cleanup coverage gaps.",
   "source": {
-    "file": "uhitm.c",
+    "file": "insight.c",
     "functions": [
-      "mhitm_ad_ston"
+      "show_achievements"
     ],
-    "branch": "C uhitm.c mhitm_ad_ston() at 4203–4262 dispatches by combat direction. Hero attacking a monster calls munstone(mdef, TRUE), otherwise minstapetrify(mdef, TRUE), then clears damage. A monster attacking the hero calls hitmsg, spends rn2(3), emits the Deaf/Hallucination/Blind-specific cockatrice messages, and on !rn2(10) or NEW_MOON calls do_stone_u; a cancelled attacker only takes the cough branch. Monster versus monster returns for a cancelled attacker and otherwise calls do_stone_mon, which sets mhm.done/hitflags for lifesaving or death and leaves AD_STON damage at zero.",
+    "branch": "C insight.c show_achievements 2243–2402 returns for ordinary non-wizard play or an empty achievement list, otherwise appends to the active conduct window or creates a separate menu. It preserves recorded achievement order except ascension/Amulet reordering, formats possession-sensitive tense and gender-sensitive rank names, and displays/destroys only a separately created window. The wizard #conduct entry reaches the active-window path.",
     "callers": [
-      "C mhitu.c hitmu() 1186–1197 invokes mhitm_adtyping after the base damage roll; js/mhitu.js hitmu() 1452–1457 already forwards the production attack env and is the session's monster-to-hero entry.",
-      "C mhitm.c mdamagem() 1059–1068 invokes the same dispatcher for monster-versus-monster blows; js/mhitm.js mdamagem() 920–940 forwards state, injected random and message operations.",
-      "C uhitm.c damageum() 4842–4857 invokes the dispatcher for hero-versus-monster blows; js/uhitm.js damageum() 3164–3185 forwards the hero attack env. The AD_STON case remains the explicit refusal at js/uhitm.js:3107."
+      "C insight.c doconduct 2081–2085 calls show_conduct; show_conduct calls show_achievements before displaying the menu at 2230. js/cmd.js dispatches doconduct to js/insight.js show_conduct, whose achievement branch currently only records note_unported.",
+      "C end-of-game disclose/dump paths also use show_conduct; preserve final tense and active versus separately owned window behavior when wiring the whole function."
     ],
     "dependencies": [
-      "uhitm.c do_stone_u() 3923–3942 is return-valued in the mhitu branch: preserve Stoned/Stone_resistance, poly_when_stoned plus PM_STONE_GOLEM escape, killer naming, and make_stoned(5). The existing JS state predicates are present, but make_stoned and this helper are not wired into mhitm_adtyping.",
-      "uhitm.c do_stone_mon() 3944–3978 is the monster-versus-monster side effect helper: it calls muse.c munstone(), handles poly_when_stoned/mon_to_stone(), resists_ston(), monstone(), grow_up(), lifesaving, and mhm done/hitflags. Existing JS munstone, mon_to_stone, monstone and monster resistance owners must be passed the attack env where their output is reachable.",
-      "trap.c minstapetrify() 3858–3880 is called by the hero-versus-monster branch after munstone returns false. It needs resists_ston, poly_when_stoned/mon_to_stone, vamp_stone, mon_adjust_speed, and byplayer-specific gs.stoned plus xkilled or monstone behavior; current js/uhitm.js still records this owner as unported in adjacent petrifying-corpse paths.",
-      "Preserve env-scoped random/message behavior through hitmsg, Monnam/mon_nam naming and You_hear/plines. The planning clone must consume only its injected core/display operations and suppress terminal output through its existing message seam; no global RNG or TTY fallback should be introduced.",
-      "Earlier eating/non-food cleanup remains separately incomplete, including the polyself.c skinback artifact-light radius/maybe_adjust_light path and rare armor/Eyes-of-the-Overworld cleanup. The other passiveum cold, fire, electricity, paralysis, and lethal/recovery families remain unrecorded or outside this stoning owner and should not be folded into this diagnosis."
+      "Reuse insight.c count_achievements, remove_achievement and record_achievement, plus botl.c rank_of/rank_to_xlev and the existing enlightenment text helpers. Check their source definitions and current owners; ascension reordering changes the achievement list rather than merely sorting display text.",
+      "The later mon.c minliquid/minliquid_core 945–1122 scope includes gremlin splitting, iron-golem rust, lava/water death and recovery, steed/Plane-of-Water gates, and stranded-eel distress. Eel HP greater than one gates rn2(mhp) then rn2(8); monflee(mtmp,2,FALSE,FALSE) still runs when HP does not decrease.",
+      "Liquid dependencies include return-valued potion.c split_mon, mhitu.c cloneu and makemon.c clone_mon; preserve split current/max HP, RNG and planning output. Inventory chain calls whose discarded owners remain unported must stay named gaps.",
+      "Separate unresolved coverage: make_stoned/minstapetrify/do_stone_mon stoning gaps; unrecorded hero/monster stoning directions, corpse-weapon entry and attack-triggered stone-golem conversion; passive cold/fire/electricity/paralysis and lethal/recovery families; eating/non-food cleanup; skinback artifact-light radius and rare armor/Eyes-of-the-Overworld cleanup.",
+      "Existing implemented split_mon callers still have placeholders in mhitu.c passiveum and trap.c water effects (js/trap_effects.js). Replace them with the canonical potion.c owner when it lands, carrying the caller environment. The existing uhitm.c pudding split caller also needs the clone operation environment. Still-unported containing paths remain separate active gaps.",
+      "makemon.c clone_mon uses the return of shknam.c shkname when naming an unnamed shopkeeper clone. The canonical JavaScript shkname exists, but clone_mon retains a stale unported placeholder. Its C struct copy preserves mw, copies all EMIN fields including parentmid, and copies EDOG ogoal by value; current JavaScript clears mw, copies only two EMIN fields and shallow-copies the EDOG coordinate. Reconcile these source differences in the split dependency.",
+      "The existing minliquid liquidRelocate helper requires an injected operation, but fountain.c gush and hack.c monster-swap call minliquid without it. Wire the canonical return-valued rloc owner for these callers and retain a named discarded deal_with_overcrowding gap. Forward each liquid monster-name and hliquid environment so hallucination naming stays on the planning RNG stream."
     ]
   },
   "goalKind": "file-port",
   "evidence": [
-    "The saved A30 queue entry .cache/A30-queue.json and scan row .cache/A30-development-scan.json both retain remainingScreensUpperBound 254, recordedSteps 1814, and step 1560 boundary message simple monster action requires uhitm.c mhitm_ad_ston(). The scan stop context is the Knight session command movenorth with the preceding line You collapse under your load. It bites! It is suddenly very cold!--More--; no count change invalidates this update.",
-    "The immutable C source at nethack-c/upstream/src/uhitm.c:4203–4262 contains the complete mhitm_ad_ston function and its direction-specific random, message, stoning, cancellation, lifesaving and return-flag branches. uhitm.c:3923–3978 contains the two directly required stoning helpers.",
-    "The current immutable JS owner at js/uhitm.js:3080–3107 dispatches AD_STON to an explicit unsupported boundary. js/mhitu.js:1452–1457, js/mhitm.js:920–940, and js/uhitm.js:3182–3185 are the three production dispatch routes and already carry injected state/random/message envs, so the actionable span is the source owner plus this dispatch wiring and required callee propagation.",
-    "The prior cached passiveum/assess_dmg finding described the former stop and is no longer the queue owner. It is replaced here while retaining its independent unresolved eating, skinback/armor, and unrecorded passive-family counter-evidence."
-  ],
-  "nextProbe": "Implement and validate the complete uhitm.c mhitm_ad_ston family through an independent stoning attack, including the mhitu branch that reaches do_stone_u; then cover the hero and monster-versus-monster branches as their required helpers land while keeping the separate passiveum and cleanup debts open."
+    ".cache/A31-development-scan.json identifies screen and cursor divergence at 1573, key newline, row 11 column 34: C blank versus JS hyphen; C cursor [42,20,1], JS [42,11,1]. It later stops at 1576 with simple monster action requires an eel out of water. The current queue upper bound is 241, distinct from the 239 actually unmatched Knight screens.",
+    "Decoding sessions/holdout/seed4500-knight-coverage.session.json segment0 step1573 shows Voluntary challenges followed by Achievements: four rank entries (Esquire, Bachelor, Sergeant, Knight), Gehennom, Gnomish Mines and Minetown. The source show_achievements emits these from u.uachieved; JS show_conduct at 2734–2741 only notes the missing helper before displaying its shorter menu.",
+    "C insight.c show_achievements 2243–2402 defines the complete list/window behavior, with show_conduct 2230 as the production caller. The scan reports insight.c show_achievements in its reached unported set. This establishes the missing source owner without inferring a generic menu-layout defect.",
+    "C mon.c minliquid_core 961–1122 and the explicit guards in js/unported_monster_actions.js identify the separate later eel stop. Keep this source scope independent of achievement display.",
+    "At 26515ac339a181f9be07d4bfa68224f786902c37, checkpoint run-PzEsMU passes all 357 recordings and matches 1575 Knight screens, 101391 RNG calls and 1575 cursors. The per-session comparison against accepted 58e22132 gains 15 screens, 135 RNG calls and 15 cursors only in Knight, with no losses elsewhere.",
+    "The previous mhitm_ad_ston-first-stop explanation is superseded. Three cockatrice recordings cover monster-to-hero stoning and resistance; the separate golem command recording establishes fixed HP only, not an attack-triggered conversion. All named stoning and earlier cleanup coverage gaps remain open.",
+    "C split_mon call sites include mhitu.c2574 and trap.c1653/1720. Current js/mhitu.js passiveum and js/trap_effects.js still record the helper as unported; these are implemented callers, distinct from containing paths that remain unported. C makemon.c clone_mon837–962, monst.h196/210 and mextra.h151–185 establish the clone field-copy requirements. js/shknam.js86–121 already supplies the shopkeeper naming owner that clone_mon incorrectly describes as absent.",
+    "Counter-evidence for liquid teleport tracing: js/mon.js liquidTeleportRestricted already implements both the level restriction and its visible message. Do not reopen a missing-message diagnosis. It duplicates teleport.c tele_restrict, while its naming call omits the operation environment forwarded by the canonical JavaScript owner; verify that forwarding when wiring the complete liquid path.",
+    "Current js/mon.js minliquid_core calls capitalizedMonsterName and monsterCommonName without their environment and hliquid with only state. do_name.js accepts the operation environment for hallucination naming. js/fountain.js gush passes state/random to minliquid, and js/hack.js monster-swap builds trapEnv without relocateMonster; either liquid recovery or teleport escape can therefore reach a missing operation. C mon.c1001 separately calls mondied unconditionally for iron-golem rust, unlike the context-dependent ordinary pool/lava kill paths. Preserve that distinction in the whole source port."
+  ]
 }

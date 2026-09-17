@@ -50,9 +50,16 @@ import {
     A_WIS,
     AC_MAX,
     ACH_RNK1,
+    ACH_RNK2,
+    ACH_RNK3,
+    ACH_RNK4,
+    ACH_RNK5,
+    ACH_RNK6,
+    ACH_RNK7,
     ACH_RNK8,
     ACH_AMUL,
     ACH_ASTR,
+    ACH_BLND,
     ACH_BELL,
     ACH_BGRM,
     ACH_BOOK,
@@ -64,6 +71,7 @@ import {
     ACH_MINE,
     ACH_MINE_PRIZE,
     ACH_NOVL,
+    ACH_NUDE,
     ACH_ORCL,
     ACH_SOKO,
     ACH_SOKO_PRIZE,
@@ -231,7 +239,7 @@ import {
 import { timet_delta } from './allmain.js';
 import { acurr, from_what, stone_luck } from './attrib.js';
 import { getnow, midnight, night } from './calendar.js';
-import { enc_stat, rank_of } from './display.js';
+import { enc_stat, rank_of, rank_to_xlev } from './display.js';
 import { depth, dunlev, endgamelevelname, surface } from './dungeon.js';
 import { hu_stat, temp_resist } from './eat.js';
 import { game } from './gstate.js';
@@ -2041,8 +2049,7 @@ export function record_achievement(achidx, state = game) {
 
     if (absidx >= ACH_RNK1 && absidx <= ACH_RNK8) {
         const rank = absidx - (ACH_RNK1 - 1);
-        const level = rank < 1 ? 1 : rank < 2 ? 3
-            : rank < 8 ? rank * 4 - 2 : 30;
+        const level = rank_to_xlev(rank);
         const title = rank_of(
             level,
             state.urole?.mnum,
@@ -2109,6 +2116,16 @@ export function record_achievement(achidx, state = game) {
             state,
         );
     }
+}
+
+// C ref: insight.c count_achievements() (2494-2501). The list is zero
+// terminated even though its backing array has one spare slot; count only
+// the entries before that sentinel and keep this helper free of side effects.
+export function count_achievements(state = game) {
+    const achievements = state.u?.uachieved ?? [];
+    let count = 0;
+    while (achievements[count]) ++count;
+    return count;
 }
 
 // C ref: insight.c remove_achievement() (2476-2493). The signed value keeps
@@ -2608,12 +2625,150 @@ export function sokoban_in_play(state = game) {
     return false;
 }
 
+// C ref: insight.c show_achievements() (2243-2402). The static helper is
+// called from show_conduct() and either appends to that caller's window or
+// owns a private menu when directly invoked. The shared-array option models
+// C's ge.en_win: the caller remains responsible for the final display and
+// dismissal, while this helper only inserts its rows.
+export async function show_achievements(
+    final = ENL_GAMEINPROGRESS,
+    state = game,
+    { displayMenuWindow = displayTtyMenuTextWindow, appendTo = null } = {},
+) {
+    // C refuses to disclose achievements during ordinary in-progress play;
+    // wizard mode is the deliberate spoiler exception.
+    if (!final && !state.wizard) return [];
+
+    const acnt = count_achievements(state);
+    if (!acnt) return [];
+
+    const shared = Array.isArray(appendTo);
+    const lines = shared ? appendTo : [];
+    if (shared) lines.push('');
+    lines.push(`Achievement${plur(acnt)}:`);
+
+    // On ascension C moves the Amulet and UWIN entries after all other
+    // achievements so the final two rows read in narrative order. These
+    // helpers also preserve the signed rank values in the list.
+    if (remove_achievement(ACH_UWIN, state)) {
+        if (remove_achievement(ACH_AMUL, state))
+            record_achievement(ACH_AMUL, state);
+        record_achievement(ACH_UWIN, state);
+    }
+
+    const addX = (text) => you_have_X(lines, final, text);
+    const addMsg = (prefix, present, past, suffix) =>
+        enl_msg(lines, final, prefix, present, past, suffix, '');
+    const u = state.u ?? {};
+    for (let i = 0; i < acnt; ++i) {
+        const achidx = u.uachieved?.[i] ?? 0;
+        const absidx = Math.abs(achidx);
+        switch (absidx) {
+        case ACH_BLND:
+            addMsg(You_, 'are exploring', 'explored',
+                ' without being able to see');
+            break;
+        case ACH_NUDE:
+            addMsg(You_, 'have gone', 'went', ' without any armor');
+            break;
+        case ACH_MINE:
+            addX('entered the Gnomish Mines');
+            break;
+        case ACH_TOWN:
+            addX('entered Minetown');
+            break;
+        case ACH_SHOP:
+            addX('entered a shop');
+            break;
+        case ACH_TMPL:
+            addX('entered a temple');
+            break;
+        case ACH_ORCL:
+            addX('consulted the Oracle of Delphi');
+            break;
+        case ACH_NOVL:
+            addX('read from a Discworld novel');
+            break;
+        case ACH_SOKO:
+            addX('entered Sokoban');
+            break;
+        case ACH_SOKO_PRIZE:
+            addX('completed Sokoban');
+            break;
+        case ACH_MINE_PRIZE:
+            addX('completed the Gnomish Mines');
+            break;
+        case ACH_BGRM:
+            addX('entered the Big Room');
+            break;
+        case ACH_MEDU:
+            addX('defeated Medusa');
+            break;
+        case ACH_TUNE:
+            addX("learned the tune to open and close the Castle's drawbridge");
+            break;
+        case ACH_BELL:
+            addMsg(You_, u.uhave?.bell ? 'have' : 'have handled',
+                u.uhave?.bell ? 'had' : 'handled', ' the Bell of Opening');
+            break;
+        case ACH_HELL:
+            addMsg(You_, 'have ', '', 'entered Gehennom');
+            break;
+        case ACH_CNDL:
+            addMsg(You_, u.uhave?.menorah ? 'have' : 'have handled',
+                u.uhave?.menorah ? 'had' : 'handled',
+                ' the Candelabrum of Invocation');
+            break;
+        case ACH_BOOK:
+            addMsg(You_, u.uhave?.book ? 'have' : 'have handled',
+                u.uhave?.book ? 'had' : 'handled',
+                ' the Book of the Dead');
+            break;
+        case ACH_INVK:
+            addX("gained access to Moloch's Sanctum");
+            break;
+        case ACH_AMUL:
+            addMsg(You_, u.uhave?.amulet ? 'have' : 'have obtained',
+                u.uevent?.ascended ? 'delivered'
+                    : u.uhave?.amulet ? 'had' : 'had obtained',
+                ' the Amulet of Yendor');
+            break;
+        case ACH_ENDG:
+            addX('reached the Elemental Planes');
+            break;
+        case ACH_ASTR:
+            addX('reached the Astral Plane');
+            break;
+        case ACH_UWIN:
+            enlght_out(lines, ' You ascended!');
+            break;
+        case ACH_RNK1: case ACH_RNK2: case ACH_RNK3: case ACH_RNK4:
+        case ACH_RNK5: case ACH_RNK6: case ACH_RNK7: case ACH_RNK8: {
+            const rank = absidx - (ACH_RNK1 - 1);
+            const title = rank_of(
+                rank_to_xlev(rank),
+                state.urole?.mnum,
+                achidx < 0,
+                state,
+            );
+            addX(`attained the rank of ${title}`);
+            break;
+        }
+        default:
+            enlght_out(lines, ` [Unexpected achievement #${achidx}.]`);
+            break;
+        }
+    }
+
+    if (!shared) {
+        await displayMenuWindow(state, lines.map((text) => ({ text })));
+    }
+    return lines;
+}
+
 // C ref: insight.c show_conduct() (2089-2236). The text-window helper models
 // C's NHW_MENU display and dismissal; all line construction preserves the
-// source order and its present/past tense helpers. show_achievements() is a
-// void callee whose ordinary in-progress non-wizard branch returns before
-// producing output. Its wizard/final disclosure branch remains an explicit
-// discarded gap until that adjacent source function is ported.
+// source order and its present/past tense helpers.
 export async function show_conduct(final = ENL_GAMEINPROGRESS,
                                    state = game,
                                    { displayMenuWindow = displayTtyMenuTextWindow } = {}) {
@@ -2730,14 +2885,7 @@ export async function show_conduct(final = ENL_GAMEINPROGRESS,
         enl_msg(lines, final, You_, presentverb, pastverb, sokobuf, '');
     }
 
-    let hasAchievement = false;
-    for (const achievement of u.uachieved ?? []) {
-        if (!achievement) break;
-        hasAchievement = true;
-        break;
-    }
-    if ((final !== ENL_GAMEINPROGRESS || state.wizard) && hasAchievement)
-        note_unported('insight.c show_achievements');
+    await show_achievements(final, state, { appendTo: lines });
     await displayMenuWindow(state, lines.map((text) => ({ text })));
 }
 
