@@ -2463,11 +2463,15 @@ test('canwearobj refuses a form that cannot hold armor', async () => {
     assert.equal(takePendingTopLine(),
         'The suit will not fit on your body.');
     // worn.c racial_exception() is the last conjunct, and it only matters for
-    // the three categories the arm covers: a hobbit is MZ_SMALL, so sliparm()
-    // refuses it an ordinary suit, but the exception lets elven mail through.
+    // the three categories the arm covers.  raceptr() reads the hero's
+    // configured urace when the hero is not polymorphed, so set that source
+    // field explicitly rather than changing only the display data pointer.
+    // A hobbit is MZ_SMALL, so sliparm() refuses an ordinary suit, but the
+    // exception lets elven mail through.
     // racial_exception() answers 1 there and 0 otherwise, so C's `< 1` and a
     // `<= 1` in its place differ on exactly this pair.
     game.youmonst.data = species(PM_HOBBIT);
+    game.urace.mnum = PM_HOBBIT;
     assert.deepEqual(
         await canwearobj(armor(ELVEN_MITHRIL_COAT, { dknown: 1 }), true, game),
         { ok: true, mask: W_ARM },

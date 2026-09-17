@@ -582,9 +582,9 @@ function dropEnv(rawEnv = {}) {
 // handles source cleanup and mdrop_obj() invokes update_mon_extrinsics() at the
 // required post-placement point below.
 //
-// endArtifactLight, at worn.c 1399-1400, remains an injected boundary when a
-// surviving drop reaches a lit suit. The ordinary equipped-armor tail now
-// runs through the canonical update owner.
+// endArtifactLight, at worn.c 1399-1400, uses the canonical timeout owner for
+// a surviving drop's lit suit; an explicit hook remains available for a
+// caller-owned cleanup integration.
 //
 // mwepgone, at worn.c 1414-1415, wants a W_WEP object, and nothing refuses a
 // wielded weapon's name. extractionEnv() supplies the weapon.c implementation
@@ -624,7 +624,7 @@ export async function mdrop_obj(mon, obj, verbosely, rawEnv = {}) {
     // so no drop can reach extract_from_minvent()'s copy of that call and no
     // test through here can tell `silently` from its opposite.
     // scripts/worn.test.mjs drives both directly instead.
-    extract_from_minvent(mon, obj, false, true, extractionEnv(env));
+    await extract_from_minvent(mon, obj, false, true, extractionEnv(env));
     /* don't charge for an owned saddle on dead steed (provided
         that the hero is within the same shop at the time) */
     // Untested: reaching it needs a tame steed wearing a saddle to die inside

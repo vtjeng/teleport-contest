@@ -59,14 +59,16 @@ import {
     W_ARMG,
     W_ARMS,
     W_ARMU,
+    HAND,
     W_RINGL,
     W_RINGR,
     W_WEP,
 } from './const.js';
 import { game } from './gstate.js';
-import { dist2 } from './hacklib.js';
+import { dist2, s_suffix } from './hacklib.js';
 import { hands_obj } from './invent.js';
 import { m_carrying } from './mon.js';
+import { mon_nam } from './do_name.js';
 import {
     bigmonst,
     hates_light,
@@ -226,8 +228,10 @@ import { y_n } from './cmd.js';
 import { select_menu } from './windows.js';
 import { ttyPline } from './tty_message.js';
 import { note_unported } from './unported.js';
-import { couldsee } from './vision.js';
+import { canseemon, couldsee } from './vision.js';
 import { mwelded, will_weld } from './wield.js';
+import { The, otense, xnameFresh } from './objnam.js';
+import { mbodypart } from './polyself.js';
 import { which_armor } from './worn.js';
 
 const MR_STONE = 0x80;
@@ -803,6 +807,27 @@ export function select_hwep(monster, env = {}) {
     return null;
 }
 
+async function endMonsterArtifactLight(monster, obj, normalized) {
+    // C setmnotwielded() owns end_burn(FALSE), rather than requiring a caller
+    // hook.  objectGenerationEnv supplies the canonical light deletion and
+    // timer cleanup owners for live and planning clones alike.
+    const { end_burn } = await import('./timeout.js');
+    const { objectGenerationEnv } = await import('./object_generation.js');
+    end_burn(obj, false, objectGenerationEnv(normalized));
+
+    // Planning clones suppress all presentation.  Runtime callers use the
+    // same visibility test C canseemon(mon) does, after the light is stopped.
+    const seeMonster = normalized.canseemon ?? canseemon;
+    if (normalized.planning || !seeMonster(monster, normalized.state)) return;
+    const message = normalized.message ?? ttyPline;
+    await message(
+        `${The(xnameFresh(obj, normalized.state), normalized.state)} in `
+        + `${s_suffix(mon_nam(monster, normalized.state, normalized))} `
+        + `${mbodypart(monster, HAND)} ${otense(obj, 'stop')} shining.`,
+        normalized.state,
+    );
+}
+
 async function clearMonsterWeapon(
     monster,
     obj,
@@ -811,32 +836,38 @@ async function clearMonsterWeapon(
 ) {
     if (!obj) return;
     if (artifact_light(obj) && obj.lamplit) {
-        const endArtifactLight = preflightEndArtifactLight
-            ?? requiredOperation(
-                normalized,
-                'endArtifactLight',
-                'setmnotwielded',
-            );
-        await endArtifactLight(monster, obj, normalized);
+        if (preflightEndArtifactLight) {
+            await preflightEndArtifactLight(monster, obj, normalized);
+        } else if (typeof normalized.endArtifactLight === 'function') {
+            await normalized.endArtifactLight(monster, obj, normalized);
+        } else if (typeof normalized.hooks?.endArtifactLight === 'function') {
+            await normalized.hooks.endArtifactLight(obj, normalized);
+        } else if (normalized.endArtifactLight !== undefined
+                   || normalized.hooks?.endArtifactLight !== undefined) {
+            throw new TypeError('setmnotwielded requires an endArtifactLight operation');
+        } else {
+            await endMonsterArtifactLight(monster, obj, normalized);
+        }
     }
     if (monster.mw === obj) monster.mw = null;
     obj.owornmask &= ~W_WEP;
 }
 
-// C ref: weapon.c setmnotwielded(). The artifact-light operation owns
-// end_burn(FALSE) and its visibility-dependent message.
+// C ref: weapon.c setmnotwielded(). End the artifact light through the
+// canonical timeout owner when no caller supplies an integration hook, then
+// print C's visibility-dependent stop-shining message.
 export async function setmnotwielded(monster, obj, env = {}) {
     return clearMonsterWeapon(monster, obj, weaponEnv(env));
 }
 
 // C ref: weapon.c mwepgone() (938-946). Release a monster's wielded weapon
-// and make its next weapon check reconsider what it should wield. The C
-// caller, worn.c extract_from_minvent(), is synchronous; the ordinary weapon
-// path in setmnotwielded() therefore completes before this function returns.
-export function mwepgone(monster, env = {}) {
+// and make its next weapon check reconsider what it should wield. Completion
+// includes the asynchronous setmnotwielded light cleanup before the check is
+// changed, so extract_from_minvent() can await the complete source operation.
+export async function mwepgone(monster, env = {}) {
     const mwep = monster.mw; /* MON_WEP(monster) */
     if (mwep) {
-        setmnotwielded(monster, mwep, env);
+        await setmnotwielded(monster, mwep, env);
         monster.weapon_check = NEED_WEAPON;
     }
 }
@@ -969,23 +1000,15 @@ export async function mon_wield_item(monster, env = {}) {
             return 1;
         }
 
-        // Resolve every operation before the first mutation. In particular,
-        // the old-light hook is deliberately preflighted here and invoked by
-        // clearMonsterWeapon() after the new weapon has been assigned.
+        // Resolve the presentation operations before the first mutation.
+        // setmnotwielded() now owns its artifact-light cleanup, so an old
+        // light has a canonical fallback when no presentation hook is passed.
         const transition = {
             canSeeMonster: requiredOperation(
                 normalized,
                 'canSeeMonster',
                 'mon_wield_item',
             ),
-            endArtifactLight: current
-                && artifact_light(current) && current.lamplit
-                ? requiredOperation(
-                    normalized,
-                    'endArtifactLight',
-                    'mon_wield_item',
-                )
-                : null,
         };
         const startsArtifactLight = artifact_light(obj) && !obj.lamplit;
         transition.startArtifactLight = startsArtifactLight
@@ -1001,7 +1024,6 @@ export async function mon_wield_item(monster, env = {}) {
             monster,
             current,
             normalized,
-            transition.endArtifactLight,
         );
         monster.weapon_check = NEED_WEAPON;
         // weapon.c mon_wield_item() evaluates canseemon() here, after
@@ -1009,8 +1031,7 @@ export async function mon_wield_item(monster, env = {}) {
         // monster lit only by that artifact is unseen by this test. Resolving
         // wieldMessage inside the branch keeps the operation optional for an
         // unseen monster, which C never prints for, and matches the welded
-        // branch above. The preflight above still resolves every operation
-        // this path can reach before the first mutation.
+        // branch above.
         if (transition.canSeeMonster(monster, normalized)) {
             const wieldMessage = requiredOperation(
                 normalized,

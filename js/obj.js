@@ -1588,11 +1588,13 @@ export function curse(obj, env = {}) {
         return obj;
     }
     // worn.c m_dowear_type() curses a helmet after it has been installed in
-    // a monster's inventory.  The monster arms cannot trigger any of curse's
-    // hero weapon, luck, figurine, book, or light side effects, so preserve
-    // the source BUC mutation for this owned equipment path instead of
-    // rejecting a valid runtime transition.
-    if (obj.where === OBJ_MINVENT) {
+    // a monster's inventory.  This narrowly admitted arm is an unlit,
+    // monster-owned armor object, so no bag, figurine, book, or artifact-light
+    // work is due here; other owned classes retain the existing boundary until
+    // their full curse side effects are available.
+    if (obj.where === OBJ_MINVENT
+        && obj.oclass === ARMOR_CLASS
+        && !obj.lamplit) {
         obj.blessed = false;
         obj.cursed = true;
         return obj;

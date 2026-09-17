@@ -72,7 +72,12 @@ import {
 import { is_giant, is_mercenary, is_ndemon } from '../js/mondata.js';
 import { newMonster, place_monster } from '../js/monst.js';
 import { init_objects } from '../js/o_init.js';
-import { mksobj, weight } from '../js/obj.js';
+import {
+    UnsupportedObjectOperationError,
+    curse,
+    mksobj,
+    weight,
+} from '../js/obj.js';
 import {
     G_FREQ,
     G_HELL,
@@ -1410,6 +1415,35 @@ test('runtime helmet autocurse preserves the owned-object BUC transition',
         assert.equal(helm.cursed, true);
         assert.equal(helm.blessed, false);
     });
+
+test('monster-owned curse admits only the source-safe unlit armor arm', () => {
+    // mkobj.c curse() still has bag-weight, figurine-timer, spellbook, and
+    // artifact-light work for other carried objects.  The worn.c helmet path
+    // reaches only the BUC mutation after an unlit armor object is installed.
+    const armor = {
+        where: OBJ_MINVENT,
+        oclass: ARMOR_CLASS,
+        lamplit: false,
+        blessed: true,
+        cursed: false,
+    };
+    curse(armor);
+    assert.equal(armor.blessed, false);
+    assert.equal(armor.cursed, true);
+
+    const weapon = {
+        where: OBJ_MINVENT,
+        oclass: WEAPON_CLASS,
+        lamplit: false,
+        blessed: true,
+        cursed: false,
+    };
+    assert.throws(
+        () => curse(weapon),
+        (error) => error instanceof UnsupportedObjectOperationError
+            && error.operation === 'curse outside object initialization',
+    );
+});
 
 test('m_dowear has a canonical runtime owner outside creation', async () => {
     const state = initialLevelState();
