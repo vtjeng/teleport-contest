@@ -62078,8 +62078,8 @@
           "name": "mhitm_ad_ston",
           "line": 4203,
           "endLine": 4264,
-          "declared": false,
-          "complete": false
+          "declared": true,
+          "complete": true
         }
       ],
       "range": {
@@ -62160,7 +62160,95 @@
             }
           }
         }
-      ]
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "mhitm_ad_ston",
+            "implementation": "js/uhitm.js",
+            "symbol": "mhitm_ad_ston",
+            "sourceReview": "Read the whole uhitm.c mhitm_ad_ston4203–4263 and supporting do_stone_u3924–3942. Preserve the three attack directions, hitmsg before rn2(3), cancelled-attacker cough, Deaf/Hallucination/Blind messages, and rn2(10) before the new-moon fallback. The source-returned stoning result controls M_ATTK_HIT and done; successful stone-golem transformation returns false. Hero attack damage becomes zero after munstone. Discarded trap.c minstapetrify, uhitm.c do_stone_mon and potion.c make_stoned remain named gaps; no gap return is used as data. Wire AD_STON through the shared dispatcher and existing production callers. The supporting physical petrifying-corpse caller sets damage to 1 before its message and do_stone_u, then continues through dmgval and hitmsg when already stoned, resistant or transformed. Ordinary nonweapon, artifact and other preexisting unsupported physical branches remain outside this correction. Polymon uses canonical golemhp and forwards planning RNG, message, redraw and inventory operations through armor removal, dragon properties, cloak displacement, object discovery and hallucination. The Wisdom exercise uses cloned RNG; live default output and source state-update order are preserved.",
+            "callers": [
+              {
+                "path": "js/uhitm.js",
+                "symbol": "mhitm_adtyping",
+                "source": "uhitm.c:4796 dispatches AD_STON to mhitm_ad_ston; JavaScript awaits this arm in the same source-order switch."
+              },
+              {
+                "path": "js/mhitu.js",
+                "symbol": "hitmu",
+                "source": "C mhitu.c hitmu calls mhitm_adtyping after the base damage roll; the JavaScript owner awaits that shared dispatcher with the attack environment."
+              },
+              {
+                "path": "js/mhitm.js",
+                "symbol": "mdamagem",
+                "source": "C mhitm.c mdamagem computes a monster-to-monster landed blow and calls mhitm_adtyping; the JavaScript owner awaits it with state, random and message operations."
+              },
+              {
+                "path": "js/uhitm.js",
+                "symbol": "damageum",
+                "source": "C uhitm.c damageum calls mhitm_adtyping for the hero-as-monster attack path; JavaScript awaits it before applying damage flags."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/uhitm.test.mjs",
+              "scripts/mhitu.test.mjs",
+              "scripts/polyself.test.mjs",
+              "scripts/wear-armor.test.mjs",
+              "scripts/potion.test.mjs"
+            ],
+            "recordings": [
+              "recordings/uhitm.c/mhitm-ad-ston-monster-independent.session.json",
+              "recordings/uhitm.c/mhitm-ad-ston-monster-variation.session.json",
+              "recordings/uhitm.c/mhitm-ad-ston-stone-resistance-independent.session.json"
+            ],
+            "checkedAt": "1a2e93933a204257cf5abc8f22cc5ceeece34baf"
+          }
+        ],
+        "entryPointReview": "The primary range contains mhitm_ad_ston only: intervening C do_stone_mon and mhitm_ad_phys definitions are not claimed as whole-source units. Three independent cockatrice recordings reach the monster-to-hero AD_STON entry; the resistance recording also reaches do_stone_u through the random gate. The separate stone-golem polyself recording establishes the canonical fixed golemhp dependency but does not establish an attack-triggered transformation. Hero-to-monster and monster-to-monster entries remain unrecorded, with discarded minstapetrify and do_stone_mon gaps. Successful petrification remains open behind the discarded make_stoned call. The supporting physical corpse caller and attack-triggered golem escape have initialized-state tests but no matching independent production recording. Planning armor removal, discovery, hallucination and permanent-inventory checks establish isolated operations, not new production entries. Keep all these supporting coverage gaps open and park the source goal after the verified primary span.",
+        "entryPoints": [
+          {
+            "name": "monster-to-hero cockatrice AD_STON",
+            "functions": [
+              "mhitm_ad_ston"
+            ],
+            "recordings": [
+              "recordings/uhitm.c/mhitm-ad-ston-monster-independent.session.json",
+              "recordings/uhitm.c/mhitm-ad-ston-monster-variation.session.json",
+              "recordings/uhitm.c/mhitm-ad-ston-stone-resistance-independent.session.json"
+            ]
+          },
+          {
+            "name": "hero-to-monster AD_STON",
+            "functions": [
+              "mhitm_ad_ston"
+            ],
+            "recordings": []
+          },
+          {
+            "name": "monster-to-monster AD_STON",
+            "functions": [
+              "mhitm_ad_ston"
+            ],
+            "recordings": []
+          },
+          {
+            "name": "monster-to-hero successful petrification",
+            "functions": [
+              "mhitm_ad_ston"
+            ],
+            "recordings": []
+          },
+          {
+            "name": "monster-to-hero stoning escape through stone-golem transformation",
+            "functions": [
+              "mhitm_ad_ston"
+            ],
+            "recordings": []
+          }
+        ]
+      }
     }
   ]
 }

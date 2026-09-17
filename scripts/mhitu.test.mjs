@@ -2328,8 +2328,8 @@ test('mhitm_ad_phys keeps remaining special and fatal weapon hits fail-closed',
 
     const corpse = mksobj(CORPSE, false, false, { state });
     // Cockatrice flesh selects do_stone_u() before the ordinary weapon arm.
-    // Its make_stoned() result is a named void gap, so the source path falls
-    // through when this initialized hero is not stone-resistant.
+    // make_stoned() remains a named void gap, but do_stone_u() returns true
+    // and handles this attack when the initialized hero is not resistant.
     corpse.corpsenm = PM_COCKATRICE;
     assert.equal(await stopped(corpse), undefined);
 
