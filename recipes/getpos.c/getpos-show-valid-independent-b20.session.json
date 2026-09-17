@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 613907,
+      "datetime": "20390127140622",
+      "nethackrc": "OPTIONS=name:ValidProbe,role:Valkyrie,race:human,gender:female,align:lawful\nOPTIONS=!legacy,!tutorial,!splash_screen\nOPTIONS=playmode:debug,pettype:none\n",
+      "moves": " \u0014  $."
+    }
+  ],
+  "comment": "Independent getpos.c SHOWVALID witness: seed 613907, a fresh lawful female Valkyrie, enters wizard teleport targeting, dismisses its More and tip prompts, then presses '$' before the traditional pick. The '$' key is the source's NHHKF_GETPOS_SHOWVALID binding; this case exercises its unconditional show_goal_msg/goto-nxtc continuation when no highlight callback is installed."
+}
