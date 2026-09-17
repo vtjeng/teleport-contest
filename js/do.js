@@ -1551,6 +1551,21 @@ export async function doup(state = game) {
     return ECMD_TIME;
 }
 
+// C ref: do.c goto_level() (1679-1684). Both the ordinary level transition
+// and the startup tutorial assign u.uz before this block. Keep the update in
+// the do.c owner so dungeon.c show_overview()/print_mapseen() sees one
+// source-ordered reached-depth value regardless of which caller performed the
+// assignment.
+export function updateDunlevReached(level, state = game) {
+    if (!builds_up(level, state)) {
+        if (dunlev(level) > dunlev_reached(level, state))
+            set_dunlev_reached(level, dunlev(level), state);
+    } else if (dunlev_reached(level, state) === 0
+               || dunlev(level) < dunlev_reached(level, state)) {
+        set_dunlev_reached(level, dunlev(level), state);
+    }
+}
+
 // C ref: do.c goto_level() (1478-1998), for first-time arrival on an ordinary
 // main-dungeon level through stairs or positive-decimal level teleport.
 //
@@ -1575,22 +1590,6 @@ export async function doup(state = game) {
 // renderings of the dungeon.h macros and read the module-level game. They
 // ignore the state passed here, as every other caller of those two does. On
 // the live path the two are the same object.
-
-// C ref: do.c goto_level() (1679-1684). Both the ordinary level transition
-// and the startup tutorial assign u.uz before this block. Keep the update in
-// the do.c owner so dungeon.c show_overview()/print_mapseen() sees one
-// source-ordered reached-depth value regardless of which caller performed the
-// assignment.
-export function updateDunlevReached(level, state = game) {
-    if (!builds_up(level, state)) {
-        if (dunlev(level) > dunlev_reached(level, state))
-            set_dunlev_reached(level, dunlev(level), state);
-    } else if (dunlev_reached(level, state) === 0
-               || dunlev(level) < dunlev_reached(level, state)) {
-        set_dunlev_reached(level, dunlev(level), state);
-    }
-}
-
 export async function goto_level(
     newlevel,
     at_stairs,

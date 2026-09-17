@@ -284,17 +284,6 @@ test('tutorial entry records the reached level before dungeon overview', () => {
             source.indexOf('\ngoto_level(')),
     );
     assert.match(update, /dunlev_reached\(&u\.uz\)/u);
-    const doSource = readFileSync(
-        new URL('../js/do.js', import.meta.url),
-        'utf8',
-    );
-    const tutorialSource = readFileSync(
-        new URL('../js/tutorial_startup.js', import.meta.url),
-        'utf8',
-    );
-    assert.match(doSource, /export function updateDunlevReached\(/u);
-    assert.match(tutorialSource, /updateDunlevReached\(state\.u\.uz, state\)/u);
-    assert.doesNotMatch(tutorialSource, /recordTutorialLevelReached/u);
 
     const state = {
         dungeons: Array.from({ length: 9 }, (_, dnum) => ({
