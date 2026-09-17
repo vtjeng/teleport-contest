@@ -1,7 +1,7 @@
 {
   "session": "holdout/seed0399-wizard-hallu-actions",
   "remainingScreensUpperBound": 11,
-  "status": "partial",
+  "status": "complete",
   "commit": "da3c62dda8e2cd652a8bd8ffa845b54022f37365",
   "mismatch": {
     "session": "holdout/seed0399-wizard-hallu-actions",
@@ -18,25 +18,26 @@
     "recordedSteps": 532,
     "remainingScreensUpperBound": 11
   },
-  "summary": "Poison state and RNG match through screen 520. At screen 521 C displays You die... while JavaScript displays You feel weaker!, after Escape dismisses an encumbrance More. The difference concerns message timing or suppression, but its exact source owner is unresolved: C update_topl captures skip before more(), just as JavaScript captures stoppedAtEntry before its awaited dismissal, so rereading the stop flag afterward is not yet justified. The later equipment-change refusal at emitted screen 528 is independent.",
+  "summary": "The first mismatch is now source-located in the ordinary TTY message boundary. The Escape is consumed by the More wait inside the poisontell update_topl() call, after encumber_msg() has produced the burden line. C captures skip before that more(), so it writes the attribute feedback after Escape; done_in_by() then calls pline(\"You die...\") with WIN_STOP set and replaces the pending line immediately. JavaScript mirrors the pre-more snapshot but its death path unconditionally dismisses the pending feel-weaker line, consuming later input and delaying death. The independent equipment-change refusal after the 528th emitted screen remains separate.",
   "source": {
     "file": "win/tty/topl.c",
     "functions": [
       "more",
       "update_topl"
     ],
-    "branch": "Compare complete topl.c update_topl250–306, more204–248 and their message callers. skip is captured at257; more() may set WIN_STOP at274, but redotoplin at304 still uses the captured skip. Establish which C message call owns the Escape wait and compare its logical toplines, toplin and physical row state against JavaScript.",
+    "branch": "C update_topl captures skip before its more call. The poisontell call enters without WIN_STOP, waits for the burden line, and retains skip=false when Escape sets WIN_STOP, so it displays the attribute feedback. The following short You die message enters with WIN_STOP and reaches the death comparison; update_topl skips the prior-line dismissal, replaces toplines, clears WIN_STOP and redraws. JavaScript incorrectly dismisses the pending feedback on this death path.",
     "callers": [
-      "attrib.c: poisoned() lines 317-408 calls adjattrib() at 397, then poisontell() at 398, then its own done() check at 405; in this witness u.uhp is still positive during poisoned(), so the later lethal physical damage is finalized by mhitu.c hitmu() lines 1193-1202 and end.c done_in_by() lines 184-196.",
-      "attrib.c: adjattrib() lines 117-199 calls encumber_msg() at 196-197 for a strength/constitution change during the move loop.",
-      "js/attrib.js: adjattrib() lines 1137-1233 awaits encumberMessage after the attribute mutation; poisoned() lines 1632-1735 awaits poisontell and then done().",
-      "js/tty_message.js: dismissPendingTtyMessage() lines 239-294 sets _ttyMessageStopped after its awaited key; ttyPlineCore() lines 418-520 snapshots it at 442 and awaits the pending-message dismissal at 499-505.",
-      "hack.c: losehp() lines 4279-4288 uses urgent_pline() for its separate lethal HP-loss path; js/hack.js lines 1240-1267 uses ttyUrgentPline()."
+      "attrib.c: poisoned() 327-408 emits the poison notice, takes the attribute-loss arm at 393-399, and calls encumber_msg() from adjattrib() 194-198 before poisontell().",
+      "mhitu.c: hitmu() 1191-1203 runs mhitm_adtyping(), including poisoned(), then applies the already rolled physical damage through mdamageu() at 1258; end.c: done_in_by() 184-196 owns the resulting regular pline(\"You die...\").",
+      "js/attrib.js: poisoned() 1632-1735 and adjattrib() 1137-1233 preserve the C order; js/tty_message.js:499-505 currently dismisses any current pending line without the C !skip gate, while js/tty_message.js:442 snapshots the stop state before that call.",
+      "js/mhitu.js:1394-1433 preserves the poison-before-physical-damage order; js/mhitu.js:1479-1495 routes lethal damage to done_in_by().",
+      "The later emitted-screen-528 equipment-change refusal is independent of this message mismatch and remains a separate worn/monster-movement boundary."
     ],
     "dependencies": [
-      "A blanket post-dismissal stop reread would contradict the captured skip variable in update_topl. Trace call boundaries and line wrapping before choosing a general correction.",
-      "C wintty.c tty_putstr() lines 2272-2283 clears WIN_STOP for ATR_URGENT, clears the prior physical message window, and marks the current message WIN_NOSTOP. js/tty_message.js ttyUrgentPline() lines 574-603 still throws when _ttyMessageStopped is set, so that general urgent contract remains a separate source-backed gap after the ordinary stop is fixed.",
-      "The later step-528 refusal is sourced to mon.c movemon_singlemon() lines 1268-1282 and worn.c m_dowear()/m_dowear_type() lines 756 onward: JS allmain.js moveElapsedTurnMonster() lines 1063-1079 injects the `monster equipment changes` boundary, while js/makemon_create.js m_dowear() lines 2775-2798 admits only the narrow new W_ARMF/no-old-item runtime arm. The saved artifact does not identify the exact armor slot or inventory state, so no slot-specific claim is justified."
+      "The smallest source-shaped correction is to let the JS replacement/dismissal arm run only when the stop snapshot is false (`current && !stoppedAtEntry`), matching C update_topl()'s `else if (!skip)` at 272. Do not reread the stop flag after dismissPendingTtyMessage(): C deliberately keeps the local pre-more skip value.",
+      "The poisoned, adjattrib/encumber_msg, poisontell, hitmu/mdamageu and done_in_by call chain establishes the message order. The saved frames show the burden More prompt rejecting i, then death immediately after Escape; JavaScript delays death until later input.",
+      "The urgent-message path remains separate: wintty.c:2272-2300 clears WIN_STOP and sets one-shot WIN_NOSTOP before update_topl(); js/tty_message.js:574-603 still has its distinct urgent stop refusal.",
+      "The later refusal is at mon.c movemon_singlemon calling worn.c m_dowear. JavaScript allmain.moveElapsedTurnMonster injects the equipment-change boundary, and makemon_create.m_dowear admits only a narrow new W_ARMF/no-old-item runtime arm. The saved artifact does not identify the exact armor slot or inventory state."
     ]
   },
   "goalKind": "divergence-fix",
@@ -47,7 +48,7 @@
     "C attrib.c adjattrib() suppresses its own attribute-change text for msgflg 1, but its move-loop encumber_msg() still runs before poisoned() calls poisontell(); the source order explains why the ordinary feel-weaker message follows the Escape-dismissed encumbrance More.",
     "C topl.c more() 204-248 sets WIN_STOP on Escape at 232-235; update_topl() 250-281 updates logical gt.toplines while skip is true and suppresses addtopl(). C wintty.c tty_putstr() 2259-2300 separately clears WIN_STOP for ATR_URGENT at 2277-2283. The current JS comments and code at tty_message.js 474-510 and 574-603 expose both required state transitions.",
     "The same scan emits 528 screens before `elapsed turn reached monster equipment changes`. This later boundary is an independent source-completion limit in the worn/monmove family; the saved recording contains no exact m_dowear_type() armor slot or state sufficient to name a narrower branch.",
-    "Root source verification rejected the initial proposed post-dismissal stop reread: complete topl.c update_topl250–306 captures skip before calling more and checks the same local skip before redotoplin. The focused replay establishes the output difference but does not establish that stop snapshotting is a JavaScript defect. The investigation remains partial until message-call timing and state explain the difference."
+    "Root rejected the initial proposed post-dismissal stop reread: C update_topl retains its entry skip snapshot after more. The actionable defect is the missing !skip condition on dismissal in the following death call, not the snapshot itself."
   ],
-  "nextProbe": "Trace C and JavaScript logical/physical message state at the encumber_msg and poisontell calls, including wrapping and who owns the Escape wait. Preserve C skip snapshot order. The urgent WIN_STOP clearing gap and later equipment refusal remain separate source-backed continuations."
+  "nextProbe": "Apply and validate the narrow `!stoppedAtEntry` gate on the JS death/replacement path, preserving the ordinary local skip snapshot and the separate urgent contract. Then replay this assigned session to verify the death frame and input alignment; keep the later equipment-change boundary as an independent remaining source gap."
 }
