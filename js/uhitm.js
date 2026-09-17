@@ -2061,7 +2061,10 @@ async function hmon_hitmon_splitmon(hmd, mon, obj, state, env) {
             /* but not bashing with darts, arrows or ya */
             && !(is_ammo(obj, state) || is_missile(obj, state)))
         && hmd.hand_to_hand) {
-        const mclone = await clone_mon(mon, 0, 0, state);
+        const mclone = await clone_mon(mon, 0, 0, state, {
+            ...env,
+            state,
+        });
         if (mclone) {
             const message = requireAttackOperation(env, 'message');
             let withwhat = '';
