@@ -1575,6 +1575,22 @@ export async function doup(state = game) {
 // renderings of the dungeon.h macros and read the module-level game. They
 // ignore the state passed here, as every other caller of those two does. On
 // the live path the two are the same object.
+
+// C ref: do.c goto_level() (1679-1684). Both the ordinary level transition
+// and the startup tutorial assign u.uz before this block. Keep the update in
+// the do.c owner so dungeon.c show_overview()/print_mapseen() sees one
+// source-ordered reached-depth value regardless of which caller performed the
+// assignment.
+export function updateDunlevReached(level, state = game) {
+    if (!builds_up(level, state)) {
+        if (dunlev(level) > dunlev_reached(level, state))
+            set_dunlev_reached(level, dunlev(level), state);
+    } else if (dunlev_reached(level, state) === 0
+               || dunlev(level) < dunlev_reached(level, state)) {
+        set_dunlev_reached(level, dunlev(level), state);
+    }
+}
+
 export async function goto_level(
     newlevel,
     at_stairs,
@@ -1746,16 +1762,7 @@ export async function goto_level(
     assign_level(u.uz, newlevel);
     assign_level(u.utolev, newlevel);
     u.utotype = UTOTYPE_NONE;
-    if (!builds_up(u.uz, state)) { /* usual case */
-        if (dunlev(u.uz) > dunlev_reached(u.uz, state))
-            set_dunlev_reached(u.uz, dunlev(u.uz), state);
-    } else {
-        // do.c:1682-1684 — up-building dungeons (Sokoban, Vlad's Tower)
-        // track the shallowest level reached rather than the deepest.
-        if (dunlev_reached(u.uz, state) === 0
-            || dunlev(u.uz) < dunlev_reached(u.uz, state))
-            set_dunlev_reached(u.uz, dunlev(u.uz), state);
-    }
+    updateDunlevReached(u.uz, state);
 
     stairway_free_all(state);
     // do.c:1688-1690 clears the default arrival areas a special level may
