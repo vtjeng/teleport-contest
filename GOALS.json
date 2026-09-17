@@ -62047,7 +62047,7 @@
     {
       "id": "port-uhitm-mhitm-ad-ston-seed4500-20260917",
       "kind": "file-port",
-      "status": "open",
+      "status": "parked",
       "summary": "Complete stoning attack dispatch and source-ordered petrification gates",
       "cFile": "uhitm.c",
       "sessions": [
@@ -62058,8 +62058,8 @@
       "spans": [
         {
           "name": "mhitm_ad_ston",
-          "status": "queued",
-          "closedBy": null,
+          "status": "closed",
+          "closedBy": "26515ac339a181f9be07d4bfa68224f786902c37",
           "functions": [
             "mhitm_ad_ston"
           ]
@@ -62248,7 +62248,17 @@
             "recordings": []
           }
         ]
-      }
+      },
+      "progressBeforePark": {
+        "screens": 15,
+        "rng": 135
+      },
+      "parkedStanding": {
+        "sha": "26515ac339a181f9be07d4bfa68224f786902c37",
+        "screens": 11157,
+        "rng": 785954
+      },
+      "parkedReason": "The verified stoning span adds 15 development screen matches and four matching recordings. Hero/monster directions, successful petrification, physical corpse entry and attack-triggered stone-golem conversion remain unrecorded or blocked by make_stoned/minstapetrify/do_stone_mon gaps. Resume when the required source owners and production recordings are available and queue priority permits."
     }
   ]
 }
