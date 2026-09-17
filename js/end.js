@@ -194,6 +194,7 @@ import { reset_utrap } from './trap.js';
 import { force_launch_placement, launch_in_progress } from './trap_effects.js';
 import {
     clearTtyMessageWindow,
+    displayPendingTtyMessageWindow,
     showPendingTtyMessage,
     ttyPline,
 } from './tty_message.js';
@@ -1454,11 +1455,10 @@ async function really_done(how, state) {
     else
         discloseStop(state);
 
-    // C: display_nhwindow(WIN_MESSAGE, TRUE) -- show pending messages.
-    // Repaint the pending marker after the synchronous wait, matching the
-    // final WIN_MESSAGE display before the tombstone window is created.
+    // C: display_nhwindow(WIN_MESSAGE, TRUE) -- consume the pending message
+    // boundary after the synchronous wait, before the tombstone window.
     if (haveWindows)
-        showPendingTtyMessage(state);
+        await displayPendingTtyMessageWindow(state);
 
     // C: if (how < GENOCIDED && flags.tombstone && endwin != WIN_ERR)
     //        outrip(endwin, how, endtime);
