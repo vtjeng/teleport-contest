@@ -140,8 +140,10 @@ import { ttyPline } from './tty_message.js';
 import { messageAt } from './startup_a11y.js';
 import { cansee, canseemon, vision_recalc } from './vision.js';
 import { arti_light_description } from './light.js';
+import { objectGenerationEnv } from './object_generation.js';
 import { begin_burn, end_burn } from './timeout.js';
 import { discover_object } from './o_init.js';
+import { note_unported } from './unported.js';
 import {
     distant_name,
     donameFresh,
@@ -534,9 +536,10 @@ export async function mon_adjust_speed(
 // C refs: worn.c update_mon_extrinsics() (579-712), m_dowear() (757-797),
 // and m_dowear_type() (799-1002).  Monster equipment belongs to worn.c even
 // though level creation historically kept a narrow copy in makemon_create.js.
-// Creation and planning calls stay synchronous when the source is silent;
-// live reassessment returns a promise so its messages and speed recalculation
-// finish before movemon continues.
+// Creation stays synchronous; planning follows the runtime state and ordering
+// on a clone while suppressing presentation; live reassessment returns a
+// promise so its messages and speed recalculation finish before movemon
+// continues.
 
 function monsterArmorEnv(rawEnv = {}) {
     if (rawEnv && rawEnv.state) {
@@ -621,7 +624,7 @@ function updateMonsterExtrinsicsCore(monster, obj, on, env) {
             case FAST:
                 return mon_adjust_speed(monster, 0, obj, state, {
                     ...env,
-                    silent: true,
+                    silent: Boolean(env.silent),
                 });
             case ANTIMAGIC:
             case REFLECTING:
@@ -651,7 +654,7 @@ function updateMonsterExtrinsicsCore(monster, obj, on, env) {
             case FAST:
                 return mon_adjust_speed(monster, 0, obj, state, {
                     ...env,
-                    silent: true,
+                    silent: Boolean(env.silent),
                 });
             case FIRE_RES:
             case COLD_RES:
@@ -685,6 +688,12 @@ function updateMonsterExtrinsicsCore(monster, obj, on, env) {
 
     const first = apply(primary);
     const second = alternate && alternate !== primary ? apply(alternate) : null;
+    if (!on && monster === state.u?.usteed && obj.otyp === SADDLE) {
+        // worn.c:708-709 discards dismount_steed(DISMOUNT_FELL)'s result.
+        // Its fall-specific implementation remains an explicit unported
+        // steed.c boundary, so record the call and continue the worn update.
+        note_unported('steed.c dismount_steed DISMOUNT_FELL');
+    }
     const finish = () => {
         const blocked = monsterBlockedProperty(obj, W_ARMOR | W_TOOL, state);
         if (blocked === INVIS) {
@@ -762,6 +771,7 @@ async function applyMonsterArmorRuntime(
     sourceName,
 ) {
     const { state } = env;
+    const silent = Boolean(env.silent);
     let delay = 0;
     const autocurse = (best.otyp === HELM_OF_OPPOSITE_ALIGNMENT
         || best.otyp === DUNCE_CAP) && !best.cursed;
@@ -786,18 +796,20 @@ async function applyMonsterArmorRuntime(
             else if (strncmpi(newName, 'an ', 3) === 0)
                 newName = strsubst(newName, 'an ', 'another ');
         }
-        const subject = Monnam(monster, state, env);
-        const message = env.message ?? ttyPline;
-        const text = old
-            ? `${subject} removes ${oldName} and puts on ${newName}.`
-            : `${subject} puts on ${newName}.`;
-        await message(messageAt(text, monster.mx, monster.my, state), state);
-        if (autocurse) {
-            await message(messageAt(
-                `${s_suffix(subject)} ${simpleonames(best, state)} `
-                + `${otense(best, 'glow')} ${hcolor('black', state, env)} for a moment.`,
-                monster.mx, monster.my, state,
-            ), state);
+        if (!silent) {
+            const subject = Monnam(monster, state, env);
+            const message = env.message ?? ttyPline;
+            const text = old
+                ? `${subject} removes ${oldName} and puts on ${newName}.`
+                : `${subject} puts on ${newName}.`;
+            await message(messageAt(text, monster.mx, monster.my, state), state);
+            if (autocurse) {
+                await message(messageAt(
+                    `${s_suffix(subject)} ${simpleonames(best, state)} `
+                    + `${otense(best, 'glow')} ${hcolor('black', state, env)} for a moment.`,
+                    monster.mx, monster.my, state,
+                ), state);
+            }
         }
     }
     delay += Math.trunc(state.objects[best.otyp].oc_delay ?? 0);
@@ -805,10 +817,12 @@ async function applyMonsterArmorRuntime(
     if (monster.mfrozen) monster.mcanmove = false;
     if (old) {
         await update_mon_extrinsics(monster, old, false, {
-            ...env, state, silent: false,
+            ...env, state, silent,
         });
         old.owornmask = oldMask;
-        if (old.lamplit && artifact_light(old)) end_burn(old, false, env);
+        if (old.lamplit && artifact_light(old)) {
+            end_burn(old, false, objectGenerationEnv({ ...env, state }));
+        }
         old.owornmask = 0;
     }
     monster.misc_worn_check = (monster.misc_worn_check ?? 0) | mask;
@@ -821,7 +835,7 @@ async function applyMonsterArmorRuntime(
             state,
             redraw: env.redraw ?? (() => {}),
         });
-        if (best.lamplit && cansee(monster.mx, monster.my, state)) {
+        if (!silent && best.lamplit && cansee(monster.mx, monster.my, state)) {
             const adesc = arti_light_description(best, state);
             const message = env.message ?? ttyPline;
             if (sawMonster) {
@@ -856,14 +870,15 @@ async function applyMonsterArmorRuntime(
         }
     }
     await update_mon_extrinsics(monster, best, true, {
-        ...env, state, silent: false,
+        ...env, state, silent,
     });
-    if (!sawMonster && canseemon(monster, state)) newsym(monster.mx, monster.my, state);
-    if (sawLocation && monster.minvis && !monsterHeroProperty(state, SEE_INVIS)) {
-        const message = env.message ?? ttyPline;
-        await message(messageAt(`Suddenly you cannot see ${sourceName}.`,
-            monster.mx, monster.my, state), state);
-        discover_object(best.otyp, true, true, true, state, env);
+    if (!silent && sawMonster !== canseemon(monster, state)) {
+        if (monster.minvis && !monsterHeroProperty(state, SEE_INVIS)) {
+            const message = env.message ?? ttyPline;
+            await message(messageAt(`Suddenly you cannot see ${sourceName}.`,
+                monster.mx, monster.my, state), state);
+            discover_object(best.otyp, true, true, true, state, env);
+        }
     }
 }
 
@@ -875,13 +890,10 @@ function m_dowear_type(
     racialException = false,
 ) {
     if (monster.mfrozen) return undefined;
-    const runtime = !creation && !env.planning;
-    let sourceName = '';
-    if (!env.planning) {
-        sourceName = monsterHeroProperty(env.state, SEE_INVIS)
-            ? Monnam(monster, env.state, env)
-            : mon_nam(monster, env.state, env);
-    }
+    const runtime = !creation;
+    const sourceName = monsterHeroProperty(env.state, SEE_INVIS)
+        ? Monnam(monster, env.state, env)
+        : mon_nam(monster, env.state, env);
     const selected = selectMonsterArmor(monster, mask, {
         ...env, creation,
     }, racialException);
@@ -891,11 +903,23 @@ function m_dowear_type(
             monster, mask, selected.old, selected.best, env, sourceName,
         );
     const { old, best } = selected;
+    const oldMask = old?.owornmask ?? 0;
     if (old) {
         old.owornmask = 0;
         update_mon_extrinsics(monster, old, false, {
             ...env, state: env.state, silent: true,
         });
+        // C restores owornmask before end_burn(), since artifact_light()
+        // reads it, then clears the mask again.  This applies to creation and
+        // planning too; objectGenerationEnv supplies the canonical light
+        // deletion hook for both live and cloned states.
+        old.owornmask = oldMask;
+        if (old.lamplit && artifact_light(old)) {
+            end_burn(old, false, objectGenerationEnv({
+                ...env, state: env.state,
+            }));
+        }
+        old.owornmask = 0;
     }
     monster.misc_worn_check = (monster.misc_worn_check ?? 0) | mask;
     best.owornmask |= mask;
@@ -920,7 +944,12 @@ function m_dowear_type(
 
 export function m_dowear(monster, creation = false, rawEnv = {}) {
     const state = rawEnv.state ?? game;
-    const env = { ...rawEnv, state, creation };
+    const env = {
+        ...rawEnv,
+        state,
+        creation,
+        silent: rawEnv.silent ?? Boolean(creation || rawEnv.planning),
+    };
     const species = monster.data;
     const flags = species.mflags1 ?? 0;
     if (species.msize < MZ_SMALL || (flags & (M1_NOHANDS | M1_ANIMAL)))
@@ -946,7 +975,7 @@ export function m_dowear(monster, creation = false, rawEnv = {}) {
             ? [[W_ARMF, false]] : []),
         [W_ARM, !canWearArmor],
     ];
-    if (!creation && !rawEnv.planning) {
+    if (!creation) {
         return (async () => {
             for (const [mask, racial] of calls)
                 await m_dowear_type(monster, mask, creation, env, racial);
