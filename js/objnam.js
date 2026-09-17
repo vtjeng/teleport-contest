@@ -83,6 +83,7 @@ import {
     is_unpaid,
     record_price_quote,
     shk_your,
+    UnsupportedShopError,
     unpaid_cost,
 } from './shk.js';
 // wield.js holds the port's single reading of youprop.h:112 Glib. It imports
@@ -1696,6 +1697,18 @@ export function donameFresh(obj, state) {
     });
 }
 
+// C ref: objnam.c doname_vague_quan(). Farlook keeps an unknown stack's
+// quantity vague while preserving the ordinary doname formatter for every
+// other object and identification state.
+export function doname_vague_quan(obj, state = game) {
+    const name = donameFresh(obj, state);
+    if (obj.quan !== 1 && !obj.dknown
+        && !state.iflags?.override_ID) {
+        return name.replace(/^\d+ /u, 'some ');
+    }
+    return name;
+}
+
 // C ref: objnam.c Doname2() (2303-2309).
 export function Doname2(obj, state = game) {
     const name = donameFresh(obj, state);
@@ -1765,11 +1778,23 @@ export function doname_with_price(
     }
     if (typeof currencyName !== 'function')
         throw new TypeError('doname_with_price needs the currency owner');
-    assertPricedObjectNameable(obj, state);
-    const name = donameFreshInternal(obj, state, {
-        allowLiveShopPrice: true,
-    });
-    const quote = get_cost_of_shop_item(obj, state);
+    let name;
+    let quote;
+    try {
+        assertPricedObjectNameable(obj, state);
+        name = donameFreshInternal(obj, state, {
+            allowLiveShopPrice: true,
+        });
+        quote = get_cost_of_shop_item(obj, state);
+    } catch (error) {
+        // C get_cost_of_shop_item() returns cost zero with nochrg=-1 when a
+        // known object is outside an applicable shop.  The JS shop owner
+        // rejects those unsupported pricing contexts internally; translate
+        // that refusal into C's ordinary no-live-price fallthrough here.
+        if (!(error instanceof UnsupportedShopError)) throw error;
+        return donameFresh(obj, state);
+    }
+    if (quote.cost <= 0) return name;
     const suffix = `${quote.cost} ${currencyName(quote.cost, state)}`;
     const result = `${name} (for sale, ${suffix})`;
     // get_cost_of_shop_item() totals get_pricing_units(), but C remembers the

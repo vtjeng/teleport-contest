@@ -4,6 +4,7 @@ import test from 'node:test';
 import {
     ARROW_TRAP,
     BEAR_TRAP,
+    BLINDED,
     COULD_SEE,
     DART_TRAP,
     D_BROKEN,
@@ -18,16 +19,20 @@ import {
     HALLUC_RES,
     HEADSTONE,
     IN_SIGHT,
+    INVIS,
     ICE,
     LAVAPOOL,
     LAVAWALL,
     MOAT,
+    MONSEEN_TELEPAT,
     OBJ_FLOOR,
     POOL,
     TRAPPED_CHEST,
     TRAPPED_DOOR,
     TRAPNUM,
     TIP_GETPOS,
+    TELEPAT,
+    SEE_INVIS,
     TT_BURIEDBALL,
     WATER,
 } from '../js/const.js';
@@ -46,6 +51,7 @@ import {
 import { game } from '../js/gstate.js';
 import { runSegment } from '../js/jsmain.js';
 import { parseNethackrc } from '../js/options.js';
+import { cloneIsaacContext, initRng } from '../js/rng.js';
 import {
     NO_GLYPH,
     cmap_to_glyph,
@@ -96,6 +102,7 @@ import {
     look_traps,
     look_region_nearby,
     lookat,
+    mhidden_description,
     self_lookat,
     trap_description,
     waterbody_name,
@@ -142,6 +149,7 @@ import {
 } from './run-whatis-trap-engraving-lists.mjs';
 import { withSerializedGrids } from './terminal-grid-capture.mjs';
 import { howmonseen } from '../js/vision.js';
+import { worm_known } from '../js/worm.js';
 
 test('getpos valid selection follows the C x-then-y traversal', async () => {
     // getpos.c:102-115 visits x from 1 through COLNO - 1, with y from 0
@@ -228,6 +236,119 @@ test('self_lookat appends the punished hero ball from C state', () => {
         self_lookat(state),
         'human wizard called merlin, chained to a heavy iron ball',
     );
+});
+
+test('lookat keeps See_invisible separate from Invisible and senses blind extrinsic telepathy', () => {
+    // display.h:canspotself() uses Invisible (Invis && !See_invisible),
+    // while pager.c:self_lookat() uses Invis for the hero's own adjective.
+    const state = {
+        flags: { female: false },
+        iflags: {},
+        plname: 'merlin',
+        u: {
+            umonnum: 343,
+            umonster: 343,
+            ux: 3,
+            uy: 4,
+            uprops: [],
+            uz: { dnum: 0, dlevel: 1 },
+        },
+        urace: { adj: 'human' },
+        mons: { 343: { pmnames: ['wizard', 'wizard', 'wizard'] } },
+        level: { at: () => undefined },
+    };
+    state.u.uprops[INVIS] = { intrinsic: 1 };
+    state.u.uprops[SEE_INVIS] = { intrinsic: 1 };
+    const self = lookat(3, 4, state).buf;
+    assert.equal(self, 'invisible human wizard called merlin');
+    assert.doesNotMatch(self, /\[seen:/u);
+
+    // display.h:_tp_sensemon() accepts either intrinsic or extrinsic
+    // telepathy while Blind is active; the old JS branch only accepted the
+    // intrinsic form.
+    state.u.uprops[INVIS] = {};
+    state.u.uprops[SEE_INVIS] = {};
+    state.u.uprops[BLINDED] = { intrinsic: 1 };
+    state.u.uprops[TELEPAT] = { extrinsic: 1 };
+    const distantMind = {
+        data: { mflags1: 0 },
+        mx: 70,
+        my: 20,
+    };
+    assert.equal(
+        howmonseen(distantMind, state) & MONSEEN_TELEPAT,
+        MONSEEN_TELEPAT,
+    );
+});
+
+test('mhidden_description uses the hero state for hidden self coordinates', () => {
+    // pager.c:mhidden_description() switches from mon->mx/my and mundetected
+    // to u.ux/uy and u.uundetected for &gy.youmonst.
+    const state = {
+        u: { ux: 3, uy: 4, uundetected: true },
+        youmonst: {
+            mx: 70,
+            my: 20,
+            mundetected: false,
+            m_ap_type: 0,
+            data: { mlet: 'h' },
+        },
+        level: { at: () => undefined, regions: [] },
+    };
+    assert.equal(
+        mhidden_description(state.youmonst, state, { isYou: true }),
+        ', hiding',
+    );
+});
+
+test('lookat does not draw a swallowed glyph when looking away', () => {
+    // pager.c:lookat() evaluates mon_to_glyph(u.ustuck) only after u_at() and
+    // canspotself() pass.  The display RNG must stay untouched for a distant
+    // location even when save_uswallow is active.
+    const saved = {
+        coreCtx: game.coreCtx,
+        displayCtx: game.displayCtx,
+        currentSeed: game.currentSeed,
+    };
+    initRng(2026091701);
+    try {
+        const state = {
+            flags: {},
+            iflags: { save_uswallow: true },
+            displayCtx: cloneIsaacContext(game.displayCtx),
+            u: {
+                ux: 3,
+                uy: 4,
+                uprops: [],
+                ustuck: { data: { mlet: 'e' }, mx: 3, my: 4 },
+            },
+            level: { at: () => undefined },
+        };
+        const before = cloneIsaacContext(state.displayCtx);
+        assert.equal(lookat(2, 4, state).buf, 'unexplored area');
+        assert.deepEqual(state.displayCtx, before);
+    } finally {
+        game.coreCtx = saved.coreCtx;
+        game.displayCtx = saved.displayCtx;
+        game.currentSeed = saved.currentSeed;
+    }
+});
+
+test('worm_known remains the worm.c visibility owner', () => {
+    // worm.c:worm_known() checks visible segments, rather than the worm
+    // head's coordinates.  This also pins the moved source owner directly.
+    const state = {
+        viz_array: Array.from({ length: 21 }, () => new Uint8Array(80)),
+        level: {
+            worms: {
+                2: { segments: [{ x: 6, y: 5 }] },
+            },
+        },
+    };
+    state.viz_array[5][6] = IN_SIGHT;
+    assert.equal(worm_known({ wormno: 2 }, state), true);
+    state.viz_array[5][6] = 0;
+    assert.equal(worm_known({ wormno: 2 }, state), false);
 });
 
 test('the getpos tip is shown once and records TIP_GETPOS', async () => {

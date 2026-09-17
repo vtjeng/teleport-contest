@@ -47,7 +47,6 @@ import {
     LAVAWALL,
     M_AP_FURNITURE,
     M_AP_F_DKNOWN,
-    M_AP_MONSTER,
     M_AP_OBJECT,
     M_AP_TYPMASK,
     MOAT,
@@ -82,7 +81,10 @@ import {
     isok,
 } from './const.js';
 import { cansee } from './vision.js';
-import { waterbody_name } from './pager.js';
+import {
+    mhidden_description,
+    waterbody_name,
+} from './pager.js';
 import { is_drawbridge_wall } from './dbridge.js';
 import { engr_at } from './engrave.js';
 import { t_at } from './trap.js';
@@ -92,7 +94,6 @@ import {
     coyotename,
     distant_monnam,
     hliquid,
-    pmname,
     rndmonnam,
 } from './do_name.js';
 import {
@@ -107,14 +108,7 @@ import { objectGenerationEnv } from './object_generation.js';
 import { just_an } from './objnam.js';
 import { observe_object } from './o_init.js';
 import { obj_stop_timers } from './timeout.js';
-import {
-    hides_under,
-    gender,
-    is_clinger,
-    is_flyer,
-    is_hider,
-    locomotion,
-} from './mondata.js';
+import { locomotion } from './mondata.js';
 import {
     AMULET_CLASS,
     ARMOR_CLASS,
@@ -157,12 +151,7 @@ import {
     WEAPON_CLASS,
     WOOD,
 } from './objects.js';
-import {
-    M1_MINDLESS,
-    PM_COYOTE,
-    S_EEL,
-    S_MIMIC,
-} from './monsters.js';
+import { M1_MINDLESS, PM_COYOTE } from './monsters.js';
 import {
     S_air,
     S_altar,
@@ -204,6 +193,11 @@ import {
     S_vodoor,
     S_water,
 } from './symbols.js';
+
+// mhidden_description() is owned by pager.c.  Keep this compatibility export
+// for status-line and startup callers while pager.js remains the sole JS
+// implementation of the source helper.
+export { mhidden_description };
 
 const TRAP_DESCRIPTIONS = Object.freeze([
     '',
@@ -762,7 +756,7 @@ function heroHallucinating(state) {
         && !propertyActive(state.u, HALLUC_RES);
 }
 
-function monsterSurfaceDescription(monster, state) {
+export function monsterSurfaceDescription(monster, state) {
     const x = monster.mx;
     const y = monster.my;
     const location = state.level?.at(x, y);
@@ -795,7 +789,7 @@ function monsterSurfaceDescription(monster, state) {
 // remembered glyph without the sidecar permits the legacy mimic fallback. A
 // live glyph in no-memory mode never falls back because it is the current
 // display source.
-function bufferedGlyphSubjectAt(monster, state) {
+export function bufferedGlyphSubjectAt(monster, state) {
     const location = state.level?.at(
         monster.mx,
         monster.my,
@@ -810,7 +804,7 @@ function bufferedGlyphSubjectAt(monster, state) {
     };
 }
 
-function bufferedObjectSubjectAt(monster, state) {
+export function bufferedObjectSubjectAt(monster, state) {
     const bufferedGlyph = bufferedGlyphSubjectAt(monster, state);
     const buffered = bufferedGlyph.subject;
     if (buffered?.type === 'object') return buffered;
@@ -842,7 +836,7 @@ function bufferedObjectSubjectAt(monster, state) {
 // describe is synchronous and may return derived data but must not retain its
 // argument. Synthetic objects are deallocated as soon as it returns; live
 // objects remain owned by the level.
-function withBufferedObject(subject, x, y, state, describe) {
+export function withBufferedObject(subject, x, y, state, describe) {
     const resolved = objectFromBufferedGlyph(subject, x, y, state);
     try {
         return describe(resolved.object);
@@ -860,103 +854,10 @@ function simpleObjectName(object, state) {
         ? name : pluralObjectName(object, name);
 }
 
-function hiddenObjectPhrase(object, state) {
+export function hiddenObjectPhrase(object, state) {
     const name = simpleObjectName(object, state);
     if (Math.trunc(object.quan ?? 1) !== 1) return name;
     return `${just_an(name)}${name}`;
-}
-
-// C ref: pager.c mhidden_description(), with the fixed flag set insight.c
-// mstatusline() passes. describeMonster() is the existing look-at consumer;
-// mstatusline() is the second live consumer. Both request the prefix, article,
-// alternate-monster, and visible-region clauses together.
-export function mhidden_description(
-    monster,
-    state,
-    {
-        includePrefix = true,
-        includeArticle = true,
-        showAlternateMonster = false,
-    } = {},
-) {
-    let suffix = '';
-    const appearance = monster.m_ap_type & M_AP_TYPMASK;
-    if (appearance === M_AP_FURNITURE) {
-        const what = furnitureDescription(monster.mappearance) ?? 'something';
-        const article = includeArticle ? just_an(what) : '';
-        suffix = `${includePrefix ? ', mimicking ' : ''}${article}${what}`;
-    } else if (appearance === M_AP_OBJECT) {
-        const subject = bufferedObjectSubjectAt(monster, state);
-        if (subject) {
-            let what = withBufferedObject(
-                subject,
-                monster.mx,
-                monster.my,
-                state,
-                (object) => hiddenObjectPhrase(object, state),
-            );
-            if (!includeArticle) {
-                what = what.replace(/^(?:an?|the) /iu, '');
-            }
-            suffix = `${includePrefix ? ', mimicking ' : ''}${what}`;
-        } else {
-            suffix = `${includePrefix ? ', mimicking ' : ''}something`;
-        }
-    } else if (appearance === M_AP_MONSTER) {
-        if (showAlternateMonster) {
-            const what = pmname(
-                state.mons[monster.mappearance],
-                gender(monster),
-            );
-            const article = includeArticle
-                ? just_an(what) : '';
-            suffix = `${includePrefix ? ', masquerading as ' : ''}`
-                + `${article}${what}`;
-        }
-    } else if (!appearance && monster.mundetected) {
-        suffix = ', hiding';
-        if (hides_under(monster.data)) {
-            const buffered = bufferedGlyphSubjectAt(monster, state);
-            const what = buffered.subject?.type === 'object'
-                ? withBufferedObject(
-                    buffered.subject,
-                    monster.mx,
-                    monster.my,
-                    state,
-                    (object) => hiddenObjectPhrase(object, state),
-                )
-                : buffered.hasSubject
-                    || state.level?.flags?.hero_memory === false
-                    ? null
-                    : state.level?.objects?.[monster.mx]?.[monster.my]
-                        ? hiddenObjectPhrase(
-                            state.level.objects[monster.mx][monster.my],
-                            state,
-                        )
-                        : null;
-            suffix += what ? ` under ${what}` : ' under something';
-        } else if (is_hider(monster.data)) {
-            const ceiling = (is_clinger(monster.data)
-                    && monster.data?.mlet !== S_MIMIC)
-                || is_flyer(monster.data);
-            suffix += ceiling
-                ? ' on the ceiling'
-                : ` on the ${monsterSurfaceDescription(monster, state)}`;
-        } else if (monster.data?.mlet === S_EEL
-            && [POOL, MOAT, WATER].includes(
-                state.level?.at(monster.mx, monster.my)?.typ,
-            )) {
-            suffix += ' in murky water';
-        }
-    }
-
-    const region = visible_region_at(monster.mx, monster.my, state);
-    if (region) {
-        suffix += `, in a cloud of ${
-            region.glyph_cmap === S_poisoncloud ? 'poison gas' : 'vapor'
-        }`;
-    }
-    return suffix;
 }
 
 // C ref: pager.c look_at_monster() and do_name.c distant_monnam(). The
@@ -991,32 +892,38 @@ export function describeMonster(monster, env = {}) {
             // when the lightweight fixture has no map visibility state.
             { ...env, canSpotMonster: env.canSpotMonster ?? (() => true) },
         );
-    if (monster.minvis) text = `invisible ${text}`;
-    if (!hallucinating && monster.mtame) text = `tame ${text}`;
-    else if (!hallucinating && monster.mpeaceful) text = `peaceful ${text}`;
-    if (monster.mfrozen)
-        text += ", can't move (paralyzed or sleeping or busy)";
-    else if (monster.msleeping) text += ', asleep';
-    else if (monster.mstrategy & STRAT_WAITMASK) text += ', meditating';
-    if (monster.mleashed) text += ', leashed to you';
-    if (monster.mtrapped
-        && state
-        && cansee(monster.mx, monster.my, state)) {
-        const trap = t_at(monster.mx, monster.my, state);
-        const description = TRAP_DESCRIPTIONS[trap?.ttyp];
-        if (description
-            && ['bear trap', 'pit', 'spiked pit', 'web'].includes(
-                description,
-            )) {
-            text += `, trapped in ${indefiniteArticle(description)} ${description}`;
-            trap.tseen = true;
+    if (!env.pagerBase) {
+        if (monster.minvis) text = `invisible ${text}`;
+        if (!hallucinating && monster.mtame) text = `tame ${text}`;
+        else if (!hallucinating && monster.mpeaceful)
+            text = `peaceful ${text}`;
+        if (monster.mfrozen)
+            text += ", can't move (paralyzed or sleeping or busy)";
+        else if (monster.msleeping) text += ', asleep';
+        else if (monster.mstrategy & STRAT_WAITMASK)
+            text += ', meditating';
+        if (monster.mleashed) text += ', leashed to you';
+        if (monster.mtrapped
+            && state
+            && cansee(monster.mx, monster.my, state)) {
+            const trap = t_at(monster.mx, monster.my, state);
+            const description = TRAP_DESCRIPTIONS[trap?.ttyp];
+            if (description
+                && ['bear trap', 'pit', 'spiked pit', 'web'].includes(
+                    description,
+                )) {
+                text += `, trapped in ${an(description)}`;
+                trap.tseen = true;
+            }
         }
-    }
-    if (state
-        && (monster.mundetected
-            || (monster.m_ap_type & M_AP_TYPMASK)
-            || visible_region_at(monster.mx, monster.my, state))) {
-        text += mhidden_description(monster, state);
+        if (state
+            && (monster.mundetected
+                || (monster.m_ap_type & M_AP_TYPMASK)
+                || visible_region_at(monster.mx, monster.my, state))) {
+            text += mhidden_description(monster, state, {
+                forceRegion: true,
+            });
+        }
     }
     return text;
 }
@@ -1035,7 +942,7 @@ function noticeMonsterName(monster) {
     return `${indefiniteArticle(described)} ${described}`;
 }
 
-function furnitureDescription(symbol) {
+export function furnitureDescription(symbol) {
     switch (symbol) {
     case S_ndoor: return 'doorway';
     case S_vodoor:

@@ -5,6 +5,7 @@
 import { game } from './gstate.js';
 import { on_level } from './dungeon.js';
 import { do_light_sources } from './light.js';
+import { worm_known } from './worm.js';
 import { BOULDER } from './objects.js';
 import { visible_region_at } from './region.js';
 import { m_at } from './monst.js';
@@ -23,9 +24,7 @@ import {
     IS_WALL, TEMP_LIT,
 } from './const.js';
 import { newsym } from './display.js';
-import { Mgender, pmname } from './do_name.js';
-import { M1_MINDLESS, M2_DEMON, M2_ELF, M2_HUMAN, M2_ORC } from './monsters.js';
-import { makeplural } from './fruit.js';
+import { M1_MINDLESS } from './monsters.js';
 import {
     S_hcdoor,
     S_ndoor,
@@ -894,19 +893,6 @@ export function canseemon(mon, state = game) {
     return locationVisible && mon_visible(mon, state);
 }
 
-// C ref: worm.c worm_known() (877-893). The segment array is the JS owner of
-// wtails[worm->wormno]; a worm is known when any segment is in direct sight.
-// Invisibility and telepathy are deliberately left to the caller, as in C.
-export function worm_known(worm, state = game) {
-    const segments = state.level?.worms?.[worm?.wormno]?.segments ?? [];
-    return segments.some((segment) => cansee(
-        segment.x ?? segment.wx,
-        segment.y ?? segment.wy,
-        state,
-    ));
-}
-
-
 // C ref: vision.c howmonseen() (2152-2186), with display.h's
 // _tp_sensemon() and MATCH_WARN_OF_MON() predicates kept in this source
 // owner. The bitmask is consumed by pager.c:look_at_monster() to explain why
@@ -932,23 +918,12 @@ function telepathicSense(mon, state) {
     const blind = heroIsBlind(hero);
     const intrinsic = Boolean(telepathy.intrinsic);
     const extrinsic = Boolean(telepathy.extrinsic);
-    if (blind && intrinsic) return true;
+    if (blind && (intrinsic || extrinsic)) return true;
     if (!extrinsic) return false;
     const dx = (mon.mx ?? 0) - (hero.ux ?? 0);
     const dy = (mon.my ?? 0) - (hero.uy ?? 0);
     return dx * dx + dy * dy
         <= Math.trunc(hero.unblind_telepat_range ?? 0);
-}
-
-function warningDescription(mon, state) {
-    const warning = state.context?.warntype ?? {};
-    const flags = warning.obj | warning.polyd;
-    const mflags = mon?.data?.mflags2 ?? 0;
-    if (flags & M2_HUMAN & mflags) return 'human';
-    if (flags & M2_ELF & mflags) return 'elf';
-    if (flags & M2_ORC & mflags) return 'orc';
-    if (flags & M2_DEMON & mflags) return 'demon';
-    return mon?.data ? pmname(mon.data, Mgender(mon, state)) : 'monster';
 }
 
 // C ref: vision.c howmonseen(). The state argument preserves the focused
@@ -987,12 +962,6 @@ export function howmonseen(mon, state = game) {
     if (warningMatches(mon, state))
         seen |= MONSEEN_WARNMON;
     return seen;
-}
-
-// C ref: pager.c warning arm, kept beside howmonseen so both use the same
-// warning source predicates.
-export function warningMonsterName(mon, state = game) {
-    return makeplural(warningDescription(mon, state));
 }
 
 export function init_vision_globals() {

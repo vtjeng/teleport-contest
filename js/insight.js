@@ -300,7 +300,7 @@ import { spellid } from './spell.js';
 import { is_ammo, isMetallic, is_wet_towel, objectType } from './obj.js';
 import { body_part, udeadinside, ugenocided } from './polyself.js';
 import { visible_region_at } from './region.js';
-import { mhidden_description } from './startup_a11y.js';
+import { mhidden_description } from './pager.js';
 import {
     displayTtyMenuTextWindow,
     displayTtyTextWindow,
@@ -2729,6 +2729,7 @@ export async function mstatusline(mtmp, state = game) {
         || visible_region_at(state.gb.bhitpos.x, state.gb.bhitpos.y, state)) {
         info += mhidden_description(mtmp, state, {
             showAlternateMonster: true,
+            forceRegion: true,
         });
     }
     if (mtmp.mcan)
