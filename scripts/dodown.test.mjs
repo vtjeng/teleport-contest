@@ -34,7 +34,7 @@ import {
     OBJ_FREE,
 } from '../js/const.js';
 import { set_move_cmd } from '../js/cmd.js';
-import { UnsupportedLevelChangeError, dodown } from '../js/do.js';
+import { UnsupportedLevelChangeError, dodown, goto_level } from '../js/do.js';
 import { find_mapseen, ledger_no, level_info } from '../js/dungeon.js';
 import { u_rooted } from '../js/hack.js';
 import { game } from '../js/gstate.js';
@@ -360,7 +360,8 @@ test('the descent marks the staircase traversed before building the level',
     assert.notEqual(stway.u_traversed, true);
     const drawsBefore = getRngLog().length;
 
-    state.nhDisplay.pushKey(' '.charCodeAt(0));
+    for (let count = 0; count < 20; ++count)
+        state.nhDisplay.pushKey(' '.charCodeAt(0));
     await dodown(state);
 
     assert.equal(stway.u_traversed, true);
@@ -841,10 +842,19 @@ test('goto_level applies the endgame and tutorial transition guards',
     quiet(leaving);
     leaving.program_state.stopprint = 1;
     leaving.tutorial_dnum = leaving.u.uz.dnum;
+    const oldLevel = { ...leaving.u.uz };
     downStairsUnderHero(leaving, false, { dnum: 1, dlevel: 1 });
     destinationAlreadyVisited(leaving, { dnum: 1, dlevel: 1 });
     await assert.rejects(dodown(leaving), DESTINATION_REFUSAL,
         'tutorial exit continues to the reload boundary');
+    const oldLedger = ledger_no(oldLevel, leaving);
+    assert.equal(leaving.svl.level_info[oldLedger].flags & LFILE_EXISTS, 0,
+        'FREEING save does not leave a restorable level file flag');
+    assert.equal(leaving._savedLevels?.[oldLedger], undefined,
+        'FREEING save does not create an in-memory level snapshot');
+    const oldMapseen = find_mapseen(oldLevel, leaving);
+    assert.equal(oldMapseen?.flags.notreachable, 1,
+        'tutorial departure retains overview history as unreachable');
 });
 
 // Put the hero deep in a hellish dungeon carrying the Amulet, which is what
@@ -959,7 +969,7 @@ test('goto_level records a tethered buried-ball gap and continues', async () => 
     destinationAlreadyVisited(state);
 
     await assert.rejects(dodown(state), DESTINATION_REFUSAL);
-    assert.ok(state.unported?.has('ball.c buried_ball_to_punishment'));
+    assert.ok(state.unported?.has('dig.c buried_ball_to_punishment'));
 });
 
 test('goto_level carries a punished hero through the leaving phase', async () => {
@@ -1024,4 +1034,40 @@ test('goto_level falls down burdened stairs before the arrival tail',
     );
     assert.ok(game.unported?.has('trap.c selftouch'),
         'the discarded selftouch() result is recorded as a gap');
+});
+
+test('goto_level stops a terminal stair fall before pickup', async () => {
+    // do.c:1783-1797. This initialized terminal fall reaches the real
+    // post-arrival losehp() call. C done() can return after a life-saving
+    // or wizard response, so goto_level checks gameover only after that
+    // asynchronous call and does not run the later pickup tail on death.
+    const state = await descendTo('>');
+    quiet(state);
+    const heavy = mksobj(PICK_AXE, false, false, { state });
+    heavy.owt = 10000;
+    state.invent = heavy;
+    state.u.uhp = 1;
+    state.u.uhpmax = 1;
+    state.u.uhppeak = 1;
+    state.program_state.stopprint = 1;
+    downStairsUnderHero(state);
+    // The direct goto_level call is still running on the segment's display;
+    // the terminal death path may display several pending lines. Answer its
+    // source TTY More prompts while keeping the game fully initialized.
+    state.nhDisplay.onEmptyQueue = () => ' '.charCodeAt(0);
+
+    await goto_level(
+        { dnum: state.u.uz.dnum, dlevel: state.u.uz.dlevel + 1 },
+        true,
+        false,
+        false,
+        state,
+    );
+
+    assert.equal(state.program_state.gameover, true,
+        'terminal fall calls done() before the arrival tail');
+    assert.equal(state.u.uhp, 0,
+        'terminal fall leaves hero HP at the death boundary');
+    assert.equal(state._ttyToplines, 'You die...',
+        'terminal death output remains the final arrival output');
 });

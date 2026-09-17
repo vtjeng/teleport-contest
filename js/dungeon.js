@@ -906,14 +906,14 @@ export function assign_level(dest, src) {
     return dest;
 }
 
-// C ref: dungeon.c assign_rnd_level() (1984-1995). The caller supplies the
+// C ref: dungeon.c assign_rnd_level() (1986-1995). The caller supplies the
 // signed number of levels to move; rnd() is one-based, and the destination is
 // clamped to the branch's actual bounds after the draw.
 export function assign_rnd_level(dest, src, range, state = game) {
     assign_level(dest, src);
-    const amount = range > 0
-        ? rnd(range)
-        : range < 0 ? -rnd(-range) : 0;
+    // C uses the two-way conditional literally.  In particular, range==0
+    // still evaluates rnd(-range); rnd(0) is its canonical no-draw result.
+    const amount = range > 0 ? rnd(range) : -rnd(-range);
     dest.dlevel += amount;
     const maximum = dunlevs_in_dungeon(dest, state);
     if (dest.dlevel > maximum) dest.dlevel = maximum;
@@ -2189,6 +2189,17 @@ export async function donamelevel(state = game) {
 export function find_mapseen(lev, state = game) {
     return state.svm?.mapseenchn?.find((entry) => on_level(entry.lev, lev))
         ?? null;
+}
+
+// C ref: dungeon.c remdun_mapseen() (2807-2826). C retains the overview
+// nodes, marking every level in one dungeon unreachable so #overview ignores
+// them while end-of-game disclosure can still include their history.
+export function remdun_mapseen(dnum, state = game) {
+    for (const mapseen of state.svm?.mapseenchn ?? []) {
+        if (mapseen.lev?.dnum !== dnum) continue;
+        mapseen.flags ??= {};
+        mapseen.flags.notreachable = 1;
+    }
 }
 
 // C ref: dungeon.c recbranch_mapseen() (2446-2473). A staircase, portal, or
