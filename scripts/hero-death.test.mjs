@@ -52,7 +52,7 @@ import { UnsupportedMonsterCreationError } from '../js/makemon_create.js';
 import { m_at, newMonster, place_monster } from '../js/monst.js';
 import { set_mon_data } from '../js/mondata.js';
 import { tty_raw_print, tty_wait_synch } from '../js/tty_rawprint.js';
-import { TOPLINE_NEED_MORE } from '../js/tty_message.js';
+import { TOPLINE_NEED_MORE, ttyPline } from '../js/tty_message.js';
 import {
     NON_PM,
     PM_GIANT_BAT,
@@ -651,6 +651,38 @@ test('losehp() waits for done() before it returns', async () => {
     assert.equal(game.killer.name, 'a bolt of fire');
     assert.equal(game.u.umortality, 1);
     assert.equal(game.program_state.in_really_done, false);
+});
+
+test('a stopped top line is replaced by death without a second More wait', async () => {
+    // topl.c update_topl() captures WIN_STOP before more().  An earlier
+    // Escape has already been consumed by the feedback line; the following
+    // "You die..." replaces that stopped line and must leave the next key
+    // for the caller rather than dismissing the old line again.
+    await runSegment({
+        seed: 2026091701,
+        datetime: '20260917090000',
+        nethackrc: nethackrc(),
+        moves: '',
+    });
+    const prior = 'You feel weaker!';
+    game._pending_message = prior;
+    game._ttyToplines = prior;
+    game._ttyMessageStopped = true;
+    game.nhDisplay.topMessage = prior;
+    game.nhDisplay.toplines = prior;
+    game.nhDisplay.toplin = TOPLINE_NEED_MORE;
+    game.nhDisplay.pushKey(' '.charCodeAt(0));
+    const queuedBefore = game.nhDisplay.terminal._inputQueue.length;
+
+    await ttyPline('You die...', game);
+
+    assert.equal(game._pending_message, 'You die...');
+    assert.equal(game._ttyMessageStopped, false);
+    assert.equal(
+        game.nhDisplay.terminal._inputQueue.length,
+        queuedBefore,
+        'WIN_STOP replacement must not read another More response',
+    );
 });
 
 test('an ordinary D:1 death reaches the possessions disclosure prompt',

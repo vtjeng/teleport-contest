@@ -1,54 +1,48 @@
 {
   "session": "holdout/seed0399-wizard-hallu-actions",
-  "remainingScreensUpperBound": 11,
+  "remainingScreensUpperBound": 4,
   "status": "complete",
-  "commit": "da3c62dda8e2cd652a8bd8ffa845b54022f37365",
+  "commit": "fdbd02789bba64d10f8edc639d06f7a289f4b7fb",
   "mismatch": {
     "session": "holdout/seed0399-wizard-hallu-actions",
-    "step": 521,
-    "kind": "screen",
+    "step": 528,
+    "kind": "stop",
     "function": null,
     "functionDeclared": false,
     "sourceFile": null,
     "cFile": null,
     "luaFile": null,
     "line": null,
-    "message": null,
+    "message": "elapsed turn reached monster equipment changes",
     "unlocatedKinds": [],
     "recordedSteps": 532,
-    "remainingScreensUpperBound": 11
+    "remainingScreensUpperBound": 4
   },
-  "summary": "The first mismatch is now source-located in the ordinary TTY message boundary. The Escape is consumed by the More wait inside the poisontell update_topl() call, after encumber_msg() has produced the burden line. C captures skip before that more(), so it writes the attribute feedback after Escape; done_in_by() then calls pline(\"You die...\") with WIN_STOP set and replaces the pending line immediately. JavaScript mirrors the pre-more snapshot but its death path unconditionally dismisses the pending feel-weaker line, consuming later input and delaying death. The independent equipment-change refusal after the 528th emitted screen remains separate.",
+  "summary": "The stopped death-message replacement now matches. The first remaining boundary is monster equipment reassessment after 528 matching screens: movemon_singlemon calls m_dowear with creation=false, but JavaScript supports only a narrow new-boots case and refuses other equipment changes. Port the whole worn.c m_dowear/m_dowear_type family, including replacement messages, delays, worn masks, extrinsics, artifact light and visibility changes.",
   "source": {
-    "file": "win/tty/topl.c",
+    "file": "worn.c",
     "functions": [
-      "more",
-      "update_topl"
+      "m_dowear",
+      "m_dowear_type"
     ],
-    "branch": "C update_topl captures skip before its more call. The poisontell call enters without WIN_STOP, waits for the burden line, and retains skip=false when Escape sets WIN_STOP, so it displays the attribute feedback. The following short You die message enters with WIN_STOP and reaches the death comparison; update_topl skips the prior-line dismissal, replaces toplines, clears WIN_STOP and redraws. JavaScript incorrectly dismisses the pending feedback on this death path.",
+    "branch": "mon.c movemon_singlemon reassesses equipment when I_SPECIAL is set and the monster is peaceful, tame, or perceives the hero farther than three squares away. It clears I_SPECIAL, calls m_dowear(mon,FALSE), and spends the turn when worn state changes or equipping freezes the monster. The C m_dowear_type selector handles each compatible slot and replaces its old item with the best eligible inventory item; the runtime tail is only partially implemented in JavaScript.",
     "callers": [
-      "attrib.c: poisoned() 327-408 emits the poison notice, takes the attribute-loss arm at 393-399, and calls encumber_msg() from adjattrib() 194-198 before poisontell().",
-      "mhitu.c: hitmu() 1191-1203 runs mhitm_adtyping(), including poisoned(), then applies the already rolled physical damage through mdamageu() at 1258; end.c: done_in_by() 184-196 owns the resulting regular pline(\"You die...\").",
-      "js/attrib.js: poisoned() 1632-1735 and adjattrib() 1137-1233 preserve the C order; js/tty_message.js:499-505 currently dismisses any current pending line without the C !skip gate, while js/tty_message.js:442 snapshots the stop state before that call.",
-      "js/mhitu.js:1394-1433 preserves the poison-before-physical-damage order; js/mhitu.js:1479-1495 routes lethal damage to done_in_by().",
-      "The later emitted-screen-528 equipment-change refusal is independent of this message mismatch and remains a separate worn/monster-movement boundary."
+      "C mon.c movemon_singlemon1268-1282 calls worn.c m_dowear757-796; its slot calls reach m_dowear_type799 onward.",
+      "JS allmain.js moveElapsedTurnMonster1063 onward supplies m_dowear from makemon_create.js with an injected monster equipment changes refusal; unported_monster_actions.js1859-1866 supplies the same boundary to its planning path.",
+      "JS makemon_create.js m_dowear2860-2901 and m_dowear_type2718 onward cover selection and a restricted new W_ARMF runtime path. Monster creation also calls this family with creation=true, so preserve its source-ordered initialization while moving the port to worn.js."
     ],
     "dependencies": [
-      "The smallest source-shaped correction is to let the JS replacement/dismissal arm run only when the stop snapshot is false (`current && !stoppedAtEntry`), matching C update_topl()'s `else if (!skip)` at 272. Do not reread the stop flag after dismissPendingTtyMessage(): C deliberately keeps the local pre-more skip value.",
-      "The poisoned, adjattrib/encumber_msg, poisontell, hitmu/mdamageu and done_in_by call chain establishes the message order. The saved frames show the burden More prompt rejecting i, then death immediately after Escape; JavaScript delays death until later input.",
-      "The urgent-message path remains separate: wintty.c:2272-2300 clears WIN_STOP and sets one-shot WIN_NOSTOP before update_topl(); js/tty_message.js:574-603 still has its distinct urgent stop refusal.",
-      "The later refusal is at mon.c movemon_singlemon calling worn.c m_dowear. JavaScript allmain.moveElapsedTurnMonster injects the equipment-change boundary, and makemon_create.m_dowear admits only a narrow new W_ARMF/no-old-item runtime arm. The saved artifact does not identify the exact armor slot or inventory state."
+      "C worn.c m_dowear_type814-906: snapshot visibility/name before altering equipment, retain cursed and superior-amulet guards, body compatibility, racial_exception, ARM_BONUS and extra_pref ordering.",
+      "C worn.c m_dowear_type910 onward: preserve old mask for artifact_light, remove old extrinsics, restore mask for end_burn then clear it, apply new mask and autocurse, begin artifact light and recalculate visibility, then apply new extrinsics and subsequent visibility feedback.",
+      "Use the existing canonical object naming, curse, update_mon_extrinsics, artifact light/burn, and visibility owners. Await observable message and effect order in every production caller; do not retain the injected wearArmor placeholder.",
+      "The separate urgent-message stop behavior in wintty.c tty_putstr2272-2300 remains unresolved: C clears WIN_STOP and sets WIN_NOSTOP before update_topl, while JS tty_message.js keeps an urgent-stop refusal. It is not this equipment boundary."
     ]
   },
-  "goalKind": "divergence-fix",
+  "goalKind": "file-port",
   "evidence": [
-    "Focused assigned replay run-UvHEqC (2026-09-17) emits 528 JavaScript screens and 11217 RNG entries, with no unported entry except sounds.c SoundAchievement; its output around the mismatch is: step 519 encumbrance More, step 520 ignored i, step 521 JavaScript `You feel weaker!--More--`, then step 523 `You die...--More--`.",
-    ".cache/A22-development-scan.json records the first screen/cursor divergence at segment 0 step 521, key Escape, C row 0 column 4 `d` versus JS `f`, C cursor [18,0,1] versus JS [24,0,1], with no RNG divergence before the later refusal.",
-    "sessions/holdout/seed0399-wizard-hallu-actions.session.json records C step 518 poison attribute RNG rn2(30)=5 and d(2,2)=3, step 519 encumbrance More, step 520 ignored i, and step 521 `You die...--More--` after rn2(3)=0 and rn2(6)=4 knockback draws. The physical attack then applies its already rolled damage in mhitu.c hitmu() and reaches done_in_by() with HP 0; this is not a poison RNG/state mismatch.",
-    "C attrib.c adjattrib() suppresses its own attribute-change text for msgflg 1, but its move-loop encumber_msg() still runs before poisoned() calls poisontell(); the source order explains why the ordinary feel-weaker message follows the Escape-dismissed encumbrance More.",
-    "C topl.c more() 204-248 sets WIN_STOP on Escape at 232-235; update_topl() 250-281 updates logical gt.toplines while skip is true and suppresses addtopl(). C wintty.c tty_putstr() 2259-2300 separately clears WIN_STOP for ATR_URGENT at 2277-2283. The current JS comments and code at tty_message.js 474-510 and 574-603 expose both required state transitions.",
-    "The same scan emits 528 screens before `elapsed turn reached monster equipment changes`. This later boundary is an independent source-completion limit in the worn/monmove family; the saved recording contains no exact m_dowear_type() armor slot or state sufficient to name a narrower branch.",
-    "Root rejected the initial proposed post-dismissal stop reread: C update_topl retains its entry skip snapshot after more. The actionable defect is the missing !skip condition on dismissal in the following death call, not the snapshot itself."
+    "The passing checkpoint at fdbd02789bba64d10f8edc639d06f7a289f4b7fb moves this session from521 to528 matching screens/cursors with11217 matched RNG values unchanged. The refreshed .cache/B23-development-scan.json has divergence=null and stops with elapsed turn reached monster equipment changes after528 of532 screens.",
+    "The saved scan does not identify the exact monster armor slot or inventory state. The source and refusal establish the whole equipment family as the actionable scope; no narrower slot is asserted.",
+    "C topl.c update_topl251-304 captures skip before more and dismisses the previous line only when !skip. The accepted correction keeps that snapshot; rereading WIN_STOP after more would contradict C. The independent stopped-death test verifies replacement does not consume another queued key."
   ],
-  "nextProbe": "Apply and validate the narrow `!stoppedAtEntry` gate on the JS death/replacement path, preserving the ordinary local skip snapshot and the separate urgent contract. Then replay this assigned session to verify the death frame and input alignment; keep the later equipment-change boundary as an independent remaining source gap."
+  "nextProbe": "Complete the source-owned m_dowear/m_dowear_type family and both live/planning callers, then replay this session beyond the current equipment boundary. Keep the urgent-message contract separate."
 }
