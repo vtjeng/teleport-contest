@@ -180,6 +180,7 @@ import { is_lava, is_pool, t_at } from './trap.js';
 import { noteleport_level } from './teleport.js';
 import { ttyPline, ttyPlineWillWait } from './tty_message.js';
 import { passive_obj } from './uhitm.js';
+import { clear_bypasses } from './worn.js';
 import {
     block_point,
     cansee,
@@ -500,6 +501,12 @@ function cloneObjects(state, monsterMap) {
     enqueue(state.level?.buriedobjlist);
     enqueue(state.invent);
     enqueue(state.gb?.billobjs);
+    enqueue(state.gm?.migrating_objs);
+    enqueue(state.go?.objs_deleted);
+    enqueue(state.uball);
+    enqueue(state.uchain);
+    enqueue(state.u?.uball);
+    enqueue(state.u?.uchain);
     for (const monster of monsterMap.keys()) enqueue(monster.minvent);
     while (pending.length) {
         const original = pending.pop();
@@ -533,14 +540,18 @@ function cloneLocationGrid(locations) {
 
 export function planningState(state) {
     const monsterMap = new Map();
-    for (const head of [state.level?.monlist, state.gm?.migrating_mons]) {
+    for (const head of [
+        state.level?.monlist,
+        state.gm?.migrating_mons,
+        state.gm?.mydogs,
+    ]) {
         for (let monster = head; monster && !monsterMap.has(monster);
             monster = monster.nmon) {
             monsterMap.set(monster, cloneMonster(monster));
         }
     }
     const objectMap = cloneObjects(state, monsterMap);
-    const context = structuredClone(state.context);
+    const context = structuredClone(state.context ?? {});
     const remapContextObject = (target, source, field) => {
         const original = source?.[field];
         if (!original) return;
@@ -645,6 +656,8 @@ export function planningState(state) {
         ) ?? [],
         usteed: monsterMap.get(state.u?.usteed) ?? state.u?.usteed,
         ustuck: monsterMap.get(state.u?.ustuck) ?? state.u?.ustuck,
+        uball: objectMap.get(state.u?.uball) ?? state.u?.uball,
+        uchain: objectMap.get(state.u?.uchain) ?? state.u?.uchain,
     };
     const mvitals = state.mvitals?.map(
         (vital) => vital ? { ...vital } : vital,
@@ -759,13 +772,18 @@ export function planningState(state) {
         gm: state.gm ? {
             ...state.gm,
             migrating_mons: monsterMap.get(state.gm.migrating_mons) ?? null,
+            mydogs: monsterMap.get(state.gm.mydogs) ?? null,
+            migrating_objs: objectMap.get(state.gm.migrating_objs) ?? null,
         } : state.gm,
         gn: { ...(state.gn ?? {}) },
         gl: state.gl ? {
             ...state.gl,
             light_base: cloneLightList(state.gl.light_base),
         } : state.gl,
-        go: { ...(state.go ?? {}) },
+        go: {
+            ...(state.go ?? {}),
+            objs_deleted: objectMap.get(state.go?.objs_deleted) ?? null,
+        },
         gt: state.gt ? {
             ...state.gt,
             timer_base: cloneTimerList(state.gt.timer_base),
@@ -1785,7 +1803,7 @@ async function planSimpleMonsterScan(monster, env) {
             isolatePlannedVision(env.state);
             return planningVisionRecalc(env.state)(control);
         },
-        clearBypasses: () => unsupported('monster bypass cleanup'),
+        clearBypasses: (subjectEnv) => clear_bypasses(subjectEnv),
         // C ref: mon.c minliquid(). The clone uses the same source function
         // as the live elapsed-turn owner, but every display, relocation,
         // inventory, and overcrowding tail stays a planning-owned seam.
@@ -1871,9 +1889,14 @@ export async function preflightSimpleMonsterActions(
     // read a field nothing assigns, so it stopped nothing. monmove.c
     // dochugw() carries the per-monster occupation test, and stopOccupation
     // refuses there for the one monster that C would stop the meal for.
-    if (state.context?.bypasses || state.u?.utotype)
+    if (state.u?.utotype)
         unsupported('deferred monster cleanup or level transition');
     const planned = planningState(state);
+    // C's moveloop_core() clears object bypass marks before scanning monsters.
+    // The clone owns every object list, so perform that same cleanup here and
+    // leave the live context untouched for the real pass.
+    if (planned.context?.bypasses)
+        clear_bypasses(planned);
     const random = clonedRandom(planned);
     // A continuation after a live delayed-action callback has already paid
     // the action's ration. It starts at allmain.c's outer-loop condition,
@@ -1992,9 +2015,8 @@ async function planSimpleMonsterTurn(planned, random, advanceRound) {
             // exactly where movemon_singlemon() would rebuild viz_array,
             // whether the next scan comes from this inner loop or from the
             // allocation after advanceRound.
-            // clear_bypasses() cannot apply here, since this function already
-            // refused a state with context.bypasses set, and clear_splitobjs()
-            // and dmonsfree() would only touch the discarded clone.
+            // clear_bypasses() has already run on the clone before this scan;
+            // clear_splitobjs() and dmonsfree() touch only discarded state.
             if (any_light_source(planned)) planned.vision_full_recalc = 1;
             if (planned.u.umovement >= NORMAL_SPEED) break;
         } while (somebodyCanMove);

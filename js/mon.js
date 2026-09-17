@@ -657,7 +657,7 @@ import {
     unblock_point,
     vision_recalc,
 } from './vision.js';
-import { which_armor } from './worn.js';
+import { bypass_obj, which_armor } from './worn.js';
 import { body_part } from './polyself.js';
 import { mon_explodes } from './explode.js';
 
@@ -2870,7 +2870,7 @@ function* apply_newcham_steps(
                 object = next;
                 continue;
             }
-            if (polyspot) object.bypass = true;
+            if (polyspot) bypass_obj(object, state);
             obj_extract_self(object, normalized);
             const floorEffects = normalized.floorEffects ?? flooreffects;
             const effect = floorEffects(object, monster.mx, monster.my, '', {

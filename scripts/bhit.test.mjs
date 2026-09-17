@@ -8,6 +8,8 @@ import test from 'node:test';
 
 import {
     COLNO,
+    ENGRAVE,
+    HEADSTONE,
     IRONBARS,
     KICKED_WEAPON,
     LAVAWALL,
@@ -23,7 +25,13 @@ import {
 } from '../js/const.js';
 import { GLYPH_INVISIBLE, glyph_is_invisible } from '../js/display.js';
 import { GameMap } from '../js/game.js';
-import { UnsupportedBhitError, bhit } from '../js/zap.js';
+import {
+    UnsupportedBhitError,
+    UnsupportedZapError,
+    bhit,
+    zap_map,
+    weffects,
+} from '../js/zap.js';
 import { initialize_symbols_from_options } from '../js/symbols.js';
 import { PM_SHADE, monst_globals_init } from '../js/monsters.js';
 import { newObject } from '../js/obj.js';
@@ -38,6 +46,9 @@ import {
     PICK_AXE,
     ROCK,
     WAR_HAMMER,
+    IMMEDIATE,
+    WAN_POLYMORPH,
+    WAN_STRIKING,
 } from '../js/objects.js';
 
 // A straight run of floor at row 4 from column 1 to `last`, with the hero at
@@ -111,18 +122,22 @@ test('bhit() stops at a wall of water or lava without backing up', async () => {
     assert.deepEqual(sink.gb.bhitpos, { x: 3, y: 4 });
 });
 
-test('bhit() refuses every call type but a thrown weapon', async () => {
-    // zap.c's other four call types reach zap_map(), bhitpile(),
-    // flash_hits_mon() or hits_bars(); dothrow.c throwit() is the one ported
-    // caller and always passes THROWN_WEAPON with both callbacks null.
+test('bhit() admits an immediate wand and refuses an unsupported call type', async () => {
+    // zap.c's immediate-wand walk reaches zap_map() and bhitpile(); the
+    // thrown-weapon caller remains the other supported traversal. Kicked
+    // weapons still have no caller-owned flight implementation here.
     const state = corridor();
-    for (const weapon of [ZAPPED_WAND, KICKED_WEAPON]) {
-        await assert.rejects(
-            () => bhit(1, 0, 4, weapon, null, null,
-                { obj: missile(state) }, state),
-            UnsupportedBhitError,
-        );
-    }
+    const wand = missile(state, WAN_POLYMORPH);
+    assert.equal(
+        await bhit(1, 0, 4, ZAPPED_WAND, null, null,
+            { obj: wand }, state),
+        null,
+    );
+    await assert.rejects(
+        () => bhit(1, 0, 4, KICKED_WEAPON, null, null,
+            { obj: missile(state) }, state),
+        UnsupportedBhitError,
+    );
     await assert.rejects(
         () => bhit(1, 0, 4, THROWN_WEAPON, () => 0, null,
             { obj: missile(state) }, state),
@@ -134,6 +149,79 @@ test('bhit() refuses every call type but a thrown weapon', async () => {
         /an object or monster callback/u,
     );
 });
+
+test('zap_map changes only a downward non-headstone engraving', () => {
+    const state = corridor();
+    state.u.dz = 1;
+    state.head_engr = {
+        engr_x: 2,
+        engr_y: 4,
+        engr_type: ENGRAVE,
+        engr_txt: ['old mark', 'old mark', 'old mark'],
+        nxt_engr: null,
+    };
+    const wand = missile(state, WAN_POLYMORPH);
+    const random = { rn2: () => 0, rnd: () => 1 };
+    zap_map(2, 4, wand, state, random, {
+        getRandomText: () => 'new mark',
+        wipeoutText: (text) => text,
+    });
+    assert.deepEqual(state.head_engr.engr_txt, [
+        'new mark', 'new mark', 'new mark',
+    ]);
+
+    state.head_engr.engr_txt = ['headstone', 'headstone', 'headstone'];
+    state.head_engr.engr_type = HEADSTONE;
+    zap_map(2, 4, wand, state, random, {
+        getRandomText: () => 'must not be selected',
+        wipeoutText: (text) => text,
+    });
+    assert.deepEqual(state.head_engr.engr_txt, [
+        'headstone', 'headstone', 'headstone',
+    ]);
+
+    state.u.dz = 0;
+    zap_map(2, 4, wand, state, random, {
+        getRandomText: () => 'must not be selected',
+        wipeoutText: (text) => text,
+    });
+    assert.deepEqual(state.head_engr.engr_txt, [
+        'headstone', 'headstone', 'headstone',
+    ]);
+});
+
+test('weffects keeps unsupported immediate wand effects at its caller boundary',
+    async () => {
+        const state = corridor();
+        const wand = missile(state, WAN_POLYMORPH);
+        state.objects[wand.otyp].oc_dir = IMMEDIATE;
+        await assert.doesNotReject(
+            () => weffects(wand, state, {
+                d: () => 1,
+                rn1: () => 1,
+                rn2: () => 1,
+                rnd: () => 1,
+                rne: () => 1,
+                rnl: () => 1,
+                rnz: () => 1,
+            }),
+        );
+
+        const unsupported = missile(state, WAN_STRIKING);
+        state.objects[unsupported.otyp].oc_dir = IMMEDIATE;
+        await assert.rejects(
+            () => weffects(unsupported, state, {
+                d: () => 1,
+                rn1: () => 1,
+                rn2: () => 1,
+                rnd: () => 1,
+                rne: () => 1,
+                rnl: () => 1,
+                rnz: () => 1,
+            }),
+            UnsupportedZapError,
+        );
+    });
 
 test('bhit() refuses the four branches along the flight it cannot finish',
     async () => {

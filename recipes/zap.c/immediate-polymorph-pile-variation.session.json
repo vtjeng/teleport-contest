@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 731042,
+      "datetime": "20310917101500",
+      "nethackrc": "OPTIONS=name:ZapPileVar,role:Wizard,race:human,gender:male,align:neutral\nOPTIONS=!autopickup,!verbose,!legacy,!tutorial,!splash_screen\nOPTIONS=pettype:none\nOPTIONS=symset:DECgraphics\nOPTIONS=playmode:debug\n",
+      "moves": " \u0017wand of polymorph (0:30)\ndf\ndg\ndh\ndi\ndj\ndk\nhzol",
+      "comment": "Independent B17 immediate polymorph variation: a newly selected seed, clock, name, and male Wizard create a wand and a nearby dropped-object pile, then zap the pile. The input ends at the immediate object-arm result so later quit cleanup cannot mask zap.c parity."
+    }
+  ]
+}

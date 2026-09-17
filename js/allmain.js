@@ -183,6 +183,7 @@ import { age_spells } from './spell.js';
 import { settrack } from './track.js';
 import { clear_splitobjs } from './obj.js';
 import { makewish } from './zap.js';
+import { clear_bypasses } from './worn.js';
 
 // PRNG-owning initializer seam corresponding to the point immediately before
 // allmain.c:newgame() calls mklev(). Asynchronous only because u_init_misc()
@@ -1064,9 +1065,7 @@ async function moveElapsedTurnMonster(monster, env) {
         ...env,
         everyTurnEffect: runEveryTurnEffectWithRegionHooks,
         visionRecalc: vision_recalc,
-        clearBypasses: unavailableElapsedTurnOperation(
-            'monster bypass cleanup',
-        ),
+        clearBypasses: (subjectEnv) => clear_bypasses(subjectEnv),
         minLiquid: elapsedTurnMinLiquid,
         // C ref: mon.c movemon_singlemon():1268-1281. A monster whose gear
         // was flagged for reassessment reruns worn.c m_dowear(); the new
@@ -1260,9 +1259,7 @@ async function advanceElapsedTurn(state) {
                     state,
                     random,
                     moveSingleMonster: moveElapsedTurnMonster,
-                    clearBypasses: unavailableElapsedTurnOperation(
-                        'terminal monster bypass cleanup',
-                    ),
+                    clearBypasses: (subjectEnv) => clear_bypasses(subjectEnv),
                     // C ref: mon.c movemon():1343-1347. quest.c expulsion()
                     // schedules the hero's departure from inside the monster
                     // scan, so movemon()'s own tail performs it. The dry run
@@ -1403,6 +1400,12 @@ export async function moveloop_core() {
     const g = game;
 
     maybe_shuffle_customizations(g);
+
+    // C allmain.c:194 clears object bypass marks before deciding whether this
+    // input advances elapsed time. This is separate from movemon()'s tail, so
+    // a command with no monster scan still consumes the pending cleanup.
+    if (g.context?.bypasses)
+        clear_bypasses(g);
 
     // C gates its entire elapsed-time block on the preceding command's
     // context.move value. Capture that value before the next command dispatch

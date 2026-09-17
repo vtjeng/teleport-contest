@@ -30,14 +30,25 @@ import {
     WAND_CLASS,
     WAN_DIGGING,
     WAN_LIGHT,
+    WAN_POLYMORPH,
     WAN_SECRET_DOOR_DETECTION,
     WAN_SLEEP,
+    POT_POLYMORPH,
+    SPE_POLYMORPH,
+    AMULET_OF_UNCHANGING,
     objects_globals_init,
 } from '../js/objects.js';
 import { enableRngLog, getRngLog, initRng } from '../js/rng.js';
 import { check_unpaid, UnsupportedShopError } from '../js/shk.js';
 import { m_canseeu } from '../js/vision.js';
-import { dozap, UnsupportedZapError, zap_ok, zappable } from '../js/zap.js';
+import {
+    dozap,
+    obj_shudders,
+    obj_unpolyable,
+    UnsupportedZapError,
+    zap_ok,
+    zappable,
+} from '../js/zap.js';
 import {
     BLIND,
     ESCAPE_KEY,
@@ -160,6 +171,41 @@ test('zap_ok suggests every wand and excludes everything else', () => {
     assert.equal(
         zap_ok({ otyp: POT_WATER, oclass: POTION_CLASS }), GETOBJ_EXCLUDE,
     );
+});
+
+test('immediate polymorph protects source-unpolyable objects before RNG', () => {
+    // obj.h unpolyable() and zap.c obj_unpolyable():1678-1683 are a
+    // short-circuit macro followed by the ordinary/artifact resistance draw.
+    // Pin every macro term with a random stream that would fail if reached.
+    const ball = {};
+    const skin = {};
+    const state = { uball: ball, uskin: skin };
+    const noDraw = { rn2: () => assert.fail('protected object rolled RNG') };
+    for (const obj of [
+        { otyp: WAN_POLYMORPH },
+        { otyp: SPE_POLYMORPH },
+        { otyp: POT_POLYMORPH },
+        { otyp: AMULET_OF_UNCHANGING },
+        ball,
+        skin,
+    ]) {
+        assert.equal(obj_unpolyable(obj, state, noDraw), true);
+    }
+});
+
+test('obj_shudders halves the source odds only after the quantity check', () => {
+    // zap.c obj_shudders():1480-1499. Wands and cursed objects start at 3;
+    // a quantity above four halves that integer to one before rn2().
+    const calls = [];
+    assert.equal(
+        obj_shudders(
+            { oclass: WAND_CLASS, cursed: false, blessed: false, quan: 5 },
+            {},
+            { rn2: (bound) => { calls.push(bound); return 0; } },
+        ),
+        true,
+    );
+    assert.deepEqual(calls, [1]);
 });
 
 test('zappable refuses a spent wand without drawing', async () => {
@@ -1047,8 +1093,10 @@ test('every zap refusal names a zap.c function the port has not ported',
             // zhitu(): the still-unported hero damage branches.
             'zhitu', 'zhitu',
             // zapnodir() and weffects() retain their source defaults for
-            // directionless or unsupported caller families.
-            'zapnodir', 'zap_steed', 'zapsetup', 'ubuzz', 'weffects',
+            // directionless or unsupported caller families. The immediate
+            // wand gate is the existing weffects() caller boundary for
+            // object callbacks this span has not ported.
+            'zapnodir', 'bhit', 'ubuzz', 'weffects',
         ],
     );
 });

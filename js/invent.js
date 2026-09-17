@@ -4181,6 +4181,24 @@ function addinv_core2(obj, env, facts) {
     }
 }
 
+// C ref: invent.c's in-place poly_obj() sequence (1904-1913). The object
+// chain has already been swapped by obj.replace_object(); these helpers retain
+// the source order for the hero's intrinsic removal and addition without
+// extracting the replacement a second time. addinv_core2() may wait for the
+// Archeologist's label message, so callers must consume this return value.
+export function replace_inventory_core(obj, replacement, env = {}) {
+    const normalized = inventoryEnv(env);
+    requireInventoryRefresh(normalized);
+    const freeFacts = preflightFreeinvCore(obj, normalized);
+    const addFacts = preflightAddinvCores(replacement, normalized);
+    freeinv_core(obj, normalized, freeFacts);
+    addinv_core1(replacement, normalized, addFacts);
+    const effects = addinv_core2(replacement, normalized, addFacts);
+    if (isThenable(effects))
+        return Promise.resolve(effects).then(() => replacement);
+    return replacement;
+}
+
 function runCarryObjEffects(obj, env, shouldAttachFigurineTimer) {
     if (shouldAttachFigurineTimer) {
         requiredHook(env, 'attachFigurineTimer', obj)(obj, env);

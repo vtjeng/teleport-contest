@@ -32,9 +32,12 @@ import {
     W_QUIVER,
     W_RINGL,
     W_RINGR,
+    W_SADDLE,
     W_SWAPWEP,
     W_TOOL,
     W_WEP,
+    NON_PM,
+    has_mcorpsenm,
 } from './const.js';
 import {
     ART_EYES_OF_THE_OVERWORLD,
@@ -47,7 +50,7 @@ import { newsym } from './display.js';
 import { Monnam } from './do_name.js';
 import { obj_extract_self, update_inventory } from './invent.js';
 import { check_gear_next_turn } from './mon.js';
-import { PM_WIZARD } from './monsters.js';
+import { PM_LONG_WORM, PM_WIZARD } from './monsters.js';
 import {
     ARM_BONUS,
     is_ammo,
@@ -59,8 +62,15 @@ import {
 } from './obj.js';
 import {
     AMULET_OF_GUARDING,
+    AMULET_CLASS,
     ARM_BOOTS,
+    ARMOR_CLASS,
     ARM_CLOAK,
+    BALL_CLASS,
+    BLINDFOLD,
+    CHAIN_CLASS,
+    FOOD_CLASS,
+    GEM_CLASS,
     ARM_GLOVES,
     ARM_HELM,
     ARM_SHIELD,
@@ -68,6 +78,11 @@ import {
     ARM_SUIT,
     CORNUTHAUM,
     MUMMY_WRAPPING,
+    LENSES,
+    MEAT_RING,
+    RING_CLASS,
+    SADDLE,
+    TIN_OPENER,
     TOOL_CLASS,
     TOWEL,
     WEAPON_CLASS,
@@ -531,6 +546,102 @@ export function wearmask_to_obj(wornmask, state = game) {
         if (slot.mask & wornmask) return state[slot.field] ?? null;
     }
     return null;
+}
+
+// C ref: worn.c wearslot() (282-350). Returns every equipment mask in which
+// an object could be worn. Callers narrow a multi-slot answer to the mask that
+// was occupied before replacing the object.
+export function wearslot(obj, state = game) {
+    if (!obj || typeof obj !== 'object') return 0;
+    const type = objectType(obj, state);
+    switch (obj.oclass) {
+    case AMULET_CLASS:
+        return W_AMUL;
+    case RING_CLASS:
+        return W_RINGL | W_RINGR;
+    case ARMOR_CLASS:
+        return armcat_to_wornmask(type.oc_armcat);
+    case WEAPON_CLASS:
+        return W_WEP | W_SWAPWEP
+            | (type.oc_merge ? W_QUIVER : 0);
+    case TOOL_CLASS:
+        if (obj.otyp === BLINDFOLD || obj.otyp === TOWEL
+            || obj.otyp === LENSES)
+            return W_TOOL;
+        if (is_weptool(obj, state) || obj.otyp === TIN_OPENER)
+            return W_WEP | W_SWAPWEP;
+        if (obj.otyp === SADDLE) return W_SADDLE;
+        return 0;
+    case FOOD_CLASS:
+        return obj.otyp === MEAT_RING ? W_RINGL | W_RINGR : 0;
+    case GEM_CLASS:
+        return W_QUIVER;
+    case BALL_CLASS:
+        return W_BALL;
+    case CHAIN_CLASS:
+        return W_CHAIN;
+    default:
+        return 0;
+    }
+}
+
+// C ref: worn.c clear_bypass() (1053-1064). `nobj` is the chain for every
+// object list, while `cobj` is the head of a container's contents.
+export function clear_bypass(objchain) {
+    for (let obj = objchain ?? null; obj; obj = obj.nobj) {
+        obj.bypass = false;
+        if (obj.cobj) clear_bypass(obj.cobj);
+    }
+}
+
+// C ref: worn.c bypass_obj() (1118-1123). The context flag is part of the
+// same state owner as each object's bit, so a cleanup pass can be skipped when
+// no object has been marked.
+export function bypass_obj(obj, state = game) {
+    if (!obj) return;
+    obj.bypass = true;
+    state.context ??= {};
+    state.context.bypasses = true;
+}
+
+function clearMonsterObjectLists(monsters, state, resetLongWorm) {
+    for (let monster = monsters ?? null; monster; monster = monster.nmon) {
+        if (resetLongWorm && monster.mhp < 1) continue;
+        if (resetLongWorm
+            && (monster.data === state.mons?.[PM_LONG_WORM]
+                || monster.mnum === PM_LONG_WORM)
+            && has_mcorpsenm(monster)) {
+            monster.mextra.mcorpsenm = NON_PM;
+        }
+        clear_bypass(monster.minvent);
+    }
+}
+
+// C ref: worn.c clear_bypasses() (1066-1116). This walks every object owner,
+// including lists which are normally empty in the JavaScript runtime, and then
+// clears the long-worm polymorph marker and the floating ball/chain pointers.
+export function clear_bypasses(rawEnv = {}) {
+    // Callers pass either a state or an environment containing `state`. The
+    // source no-argument call uses the canonical global game; the default
+    // parameter is an empty environment, so do not mistake it for a state.
+    const state = rawEnv?.state
+        ?? (rawEnv === game || Object.keys(rawEnv ?? {}).length
+            ? rawEnv : game);
+    clear_bypass(state.level?.objlist);
+    clear_bypass(state.invent);
+    clear_bypass(state.gm?.migrating_objs);
+    clear_bypass(state.level?.buriedobjlist);
+    clear_bypass(state.gb?.billobjs);
+    clear_bypass(state.go?.objs_deleted);
+    clearMonsterObjectLists(state.level?.monlist, state, true);
+    clearMonsterObjectLists(state.gm?.migrating_mons, state, false);
+    clearMonsterObjectLists(state.gm?.mydogs, state, false);
+    if (state.uball) state.uball.bypass = false;
+    if (state.uchain) state.uchain.bypass = false;
+    if (state.u?.uball) state.u.uball.bypass = false;
+    if (state.u?.uchain) state.u.uchain.bypass = false;
+    state.context ??= {};
+    state.context.bypasses = false;
 }
 
 // C ref: obj.h:228 is_pole(). Snickersnee is not a polearm, but can hit from
