@@ -56582,7 +56582,7 @@
     {
       "id": "port-pickup-describe-decor-seed0009-20260916",
       "kind": "file-port",
-      "status": "open",
+      "status": "closed",
       "summary": "Complete terrain descriptions and deferred Fumbling feedback",
       "cFile": "pickup.c",
       "sessions": [
@@ -56593,8 +56593,8 @@
       "spans": [
         {
           "name": "deferred_decor..describe_decor",
-          "status": "queued",
-          "closedBy": null,
+          "status": "closed",
+          "closedBy": "1155b6ce37b4fb66db2dba00916ea4a0dd6b8557",
           "functions": [
             "deferred_decor",
             "describe_decor"
@@ -56607,8 +56607,11 @@
         "screens": 10644,
         "rng": 760798
       },
-      "closedAt": null,
-      "delivered": null,
+      "closedAt": "1155b6ce37b4fb66db2dba00916ea4a0dd6b8557",
+      "delivered": {
+        "screens": 18,
+        "rng": 79
+      },
       "functions": [
         {
           "name": "deferred_decor",
@@ -56804,6 +56807,33 @@
             ]
           }
         ]
+      },
+      "closeMismatches": [
+        {
+          "session": "holdout/seed0009-swimmer-mforce",
+          "step": 48,
+          "kind": "stop",
+          "function": "test_move",
+          "functionDeclared": true,
+          "sourceFile": "hack.c",
+          "cFile": "hack.c",
+          "luaFile": null,
+          "line": null,
+          "message": "unsupported hero move: test_move() door or special terrain movement",
+          "unlocatedKinds": [],
+          "recordedSteps": 73,
+          "remainingScreensUpperBound": 25,
+          "investigation": {
+            "status": "stale",
+            "path": "investigations/holdout/seed0009-swimmer-mforce.json",
+            "previousRemainingScreensUpperBound": 43
+          }
+        }
+      ],
+      "closeStanding": {
+        "sha": "1155b6ce37b4fb66db2dba00916ea4a0dd6b8557",
+        "screens": 10662,
+        "rng": 760877
       }
     }
   ]
