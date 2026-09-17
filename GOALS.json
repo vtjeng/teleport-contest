@@ -59994,6 +59994,147 @@
         "rng": 784683
       },
       "parkedReason": "The throwit span and ordinary hand-thrown arrow entry are verified by two independent recordings and a passing combined checkpoint. Active fire, boomerang, vertical, attached-ball, swallowed, dospit, and artifact venom entry recordings remain incomplete; resume when those source paths have matching production recipes and their priority permits."
+    },
+    {
+      "id": "port-worn-m-dowear-seed0399-20260917",
+      "kind": "file-port",
+      "status": "open",
+      "summary": "Port complete monster armor selection, worn properties, and runtime equipment delays",
+      "cFile": "worn.c",
+      "sessions": [
+        "holdout/seed0399-wizard-hallu-actions"
+      ],
+      "selectionReason": "Continue seed0399 at step 528, remaining-screen upper bound 4, from investigations/holdout/seed0399-wizard-hallu-actions.json. Its source owner is worn.c m_dowear and m_dowear_type with update_mon_extrinsics; include the intervening pure find_mac in C order. Seed continuation permits this independent family while worker A owns the higher-ranked Knight break_armor work and seed2200 remains blocked by the recorded machine-local configuration-path question.",
+      "detail": "Complete worn.c update_mon_extrinsics579–712, verify existing find_mac717–738, and complete m_dowear757–797/m_dowear_type799–1002 with creation, runtime and planning callers. Preserve source equipment delays, visibility/discovery, old-artifact cleanup and source-allowed unported saddle-fall handling. Live equipment reassessment requires a production recording through the wearing turn; rare artifact-light and other unrecorded entries remain open.",
+      "spans": [
+        {
+          "name": "update_mon_extrinsics..m_dowear_type",
+          "status": "queued",
+          "closedBy": null,
+          "functions": [
+            "update_mon_extrinsics",
+            "find_mac",
+            "m_dowear",
+            "m_dowear_type"
+          ]
+        }
+      ],
+      "openedAt": "8a6836143650aeaf9a37420ebc0b93165e48a049",
+      "openStanding": {
+        "sha": "254503a94c48650d434f073e6889afa2a73cad6e",
+        "screens": 11002,
+        "rng": 784683
+      },
+      "closedAt": null,
+      "delivered": null,
+      "functions": [
+        {
+          "name": "update_mon_extrinsics",
+          "line": 579,
+          "endLine": 716,
+          "declared": false,
+          "complete": false
+        },
+        {
+          "name": "find_mac",
+          "line": 717,
+          "endLine": 756,
+          "declared": true,
+          "complete": false
+        },
+        {
+          "name": "m_dowear",
+          "line": 757,
+          "endLine": 798,
+          "declared": true,
+          "complete": false
+        },
+        {
+          "name": "m_dowear_type",
+          "line": 799,
+          "endLine": 1005,
+          "declared": true,
+          "complete": false
+        }
+      ],
+      "range": {
+        "from": 579,
+        "to": 1005
+      },
+      "activeStanding": {
+        "sha": "254503a94c48650d434f073e6889afa2a73cad6e",
+        "screens": 11002,
+        "rng": 784683
+      },
+      "openMismatches": [
+        {
+          "session": "holdout/seed0399-wizard-hallu-actions",
+          "step": 528,
+          "kind": "stop",
+          "function": null,
+          "functionDeclared": false,
+          "sourceFile": null,
+          "cFile": null,
+          "luaFile": null,
+          "line": null,
+          "message": "elapsed turn reached monster equipment changes",
+          "unlocatedKinds": [],
+          "recordedSteps": 532,
+          "remainingScreensUpperBound": 4,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/holdout/seed0399-wizard-hallu-actions.json",
+            "result": {
+              "session": "holdout/seed0399-wizard-hallu-actions",
+              "remainingScreensUpperBound": 4,
+              "status": "complete",
+              "commit": "fdbd02789bba64d10f8edc639d06f7a289f4b7fb",
+              "mismatch": {
+                "session": "holdout/seed0399-wizard-hallu-actions",
+                "step": 528,
+                "kind": "stop",
+                "function": null,
+                "functionDeclared": false,
+                "sourceFile": null,
+                "cFile": null,
+                "luaFile": null,
+                "line": null,
+                "message": "elapsed turn reached monster equipment changes",
+                "unlocatedKinds": [],
+                "recordedSteps": 532,
+                "remainingScreensUpperBound": 4
+              },
+              "summary": "The stopped death-message replacement now matches. The first remaining boundary is monster equipment reassessment after 528 matching screens: movemon_singlemon calls m_dowear with creation=false, but JavaScript supports only a narrow new-boots case and refuses other equipment changes. Port the whole worn.c m_dowear/m_dowear_type family, including replacement messages, delays, worn masks, extrinsics, artifact light and visibility changes.",
+              "source": {
+                "file": "worn.c",
+                "functions": [
+                  "m_dowear",
+                  "m_dowear_type"
+                ],
+                "branch": "mon.c movemon_singlemon reassesses equipment when I_SPECIAL is set and the monster is peaceful, tame, or perceives the hero farther than three squares away. It clears I_SPECIAL, calls m_dowear(mon,FALSE), and spends the turn when worn state changes or equipping freezes the monster. The C m_dowear_type selector handles each compatible slot and replaces its old item with the best eligible inventory item; the runtime tail is only partially implemented in JavaScript.",
+                "callers": [
+                  "C mon.c movemon_singlemon1268-1282 calls worn.c m_dowear757-796; its slot calls reach m_dowear_type799 onward.",
+                  "JS allmain.js moveElapsedTurnMonster1063 onward supplies m_dowear from makemon_create.js with an injected monster equipment changes refusal; unported_monster_actions.js1859-1866 supplies the same boundary to its planning path.",
+                  "JS makemon_create.js m_dowear2860-2901 and m_dowear_type2718 onward cover selection and a restricted new W_ARMF runtime path. Monster creation also calls this family with creation=true, so preserve its source-ordered initialization while moving the port to worn.js."
+                ],
+                "dependencies": [
+                  "C worn.c m_dowear_type814-906: snapshot visibility/name before altering equipment, retain cursed and superior-amulet guards, body compatibility, racial_exception, ARM_BONUS and extra_pref ordering.",
+                  "C worn.c m_dowear_type910 onward: preserve old mask for artifact_light, remove old extrinsics, restore mask for end_burn then clear it, apply new mask and autocurse, begin artifact light and recalculate visibility, then apply new extrinsics and subsequent visibility feedback.",
+                  "Use the existing canonical object naming, curse, update_mon_extrinsics, artifact light/burn, and visibility owners. Await observable message and effect order in every production caller; do not retain the injected wearArmor placeholder.",
+                  "The separate urgent-message stop behavior in wintty.c tty_putstr2272-2300 remains unresolved: C clears WIN_STOP and sets WIN_NOSTOP before update_topl, while JS tty_message.js keeps an urgent-stop refusal. It is not this equipment boundary."
+                ]
+              },
+              "goalKind": "file-port",
+              "evidence": [
+                "The passing checkpoint at fdbd02789bba64d10f8edc639d06f7a289f4b7fb moves this session from521 to528 matching screens/cursors with11217 matched RNG values unchanged. The refreshed .cache/B23-development-scan.json has divergence=null and stops with elapsed turn reached monster equipment changes after528 of532 screens.",
+                "The saved scan does not identify the exact monster armor slot or inventory state. The source and refusal establish the whole equipment family as the actionable scope; no narrower slot is asserted.",
+                "C topl.c update_topl251-304 captures skip before more and dismisses the previous line only when !skip. The accepted correction keeps that snapshot; rereading WIN_STOP after more would contradict C. The independent stopped-death test verifies replacement does not consume another queued key."
+              ],
+              "nextProbe": "Complete the source-owned m_dowear/m_dowear_type family and both live/planning callers, then replay this session beyond the current equipment boundary. Keep the urgent-message contract separate."
+            }
+          }
+        }
+      ]
     }
   ]
 }
