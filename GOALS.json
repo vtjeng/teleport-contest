@@ -63268,7 +63268,7 @@
           "line": 1144,
           "endLine": 1272,
           "declared": true,
-          "complete": false
+          "complete": true
         }
       ],
       "range": {
@@ -63352,7 +63352,72 @@
             }
           }
         }
-      ]
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "hitmu",
+            "implementation": "js/mhitu.js",
+            "symbol": "hitmu",
+            "sourceReview": "Read nethack-c/upstream/src/mhitu.c:1143-1267 in full. The port initializes mhm exactly, marks invisible squares when canspotmon is false, clears hidden hiders/eels, and performs feedback only when the exact display.c tp_sensemon predicate and Detect_monsters both fail. It names the object and attacker in C order, converts Amonnam It to Something, repaints the square even without an object, then preserves base and midnight damage, mhitm_adtyping, mhitm_knockback, the already-dead branch, negative AC reduction, Half_physical_damage, the complete permanent-hit-point floor/update block, mdamageu, passiveum, and stop_occupation. The permanent block has no completed AD_DETH writer yet; the reader is source-complete and keeps its C draw/order. Alternate mdamageu death branches remain explicit gaps. Supporting display.c tp_sensemon166–168 and display.h41–51 were compared directly with the canonical JS predicate: mindlessness, blind intrinsic/extrinsic telepathy, and extrinsic range are preserved independently of sensemon terrain, Warning, swallowed, and Detect_monsters gates. Its source-pinned tests and the existing howmonseen caller exercise this pure dependency; the obsolete vision-local copy is removed.",
+            "callers": [
+              {
+                "path": "js/mhitu.js",
+                "symbol": "mattacku",
+                "source": "mhitu.c:783-917 dispatches monster attack slots to hitmu(); the JavaScript passes cloned/live random, message, display, redraw, and planning-death seams."
+              },
+              {
+                "path": "js/unported_monster_actions.js",
+                "symbol": "attackHeroWithMattacku",
+                "source": "The production monster-turn adapter calls mattacku() with the same live/planning operations; the selected hitmu source unit remains in js/mhitu.js."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/mhitu.test.mjs",
+              "scripts/monster-hiding.test.mjs",
+              "scripts/monster-melee-hit-phys.test.mjs",
+              "scripts/monster-melee-hit-elec.test.mjs"
+            ],
+            "recordings": [
+              "recordings/mhitu.c/mdamageu-marilith-independent-a29.session.json",
+              "recordings/mhitu.c/mdamageu-marilith-variation-a29.session.json",
+              "recordings/mhitu.c/passiveum-yellow-mold-independent.session.json",
+              "recordings/mhitu.c/passiveum-yellow-mold-variation.session.json"
+            ],
+            "checkedAt": "a2ec0d0b252e47151a04ece8f3f1dc6a36a01acb"
+          }
+        ],
+        "entryPointReview": "The fixed Knight replay reaches the corrected hitmu boundary after the A33 cleanup fix and retains its matching RNG prefix. The current hidden-attacker input-only recipes are independently chosen planned inputs with no matching recordings. The abandoned diagnostics run-vNvt2i and run-hcQvdr exercised earlier plain-eel no-hit inputs; each compared 59 screens/cursors with no hitmu or mattacku call, so they do not validate the current hidden/hostile recipes or establish a parser stop for them. Source comparison identifies read.c create_particular_parse()/creation as the blocker for the current hidden/hostile setup, so hidden-attacker feedback remains explicitly unrecorded. Existing matching mhitu.c hitmu() production recordings in recordings/mhitu.c/mdamageu-marilith-independent-a29.session.json, recordings/mhitu.c/mdamageu-marilith-variation-a29.session.json, recordings/mhitu.c/passiveum-yellow-mold-independent.session.json, and recordings/mhitu.c/passiveum-yellow-mold-variation.session.json establish ordinary hitmu damage/counterattack continuations; they do not claim hidden-attacker feedback. The recipes are retained under recipes/mhitu.c as honest input-only blocker diagnostics. The display.c tp_sensemon owner is pure and reused by vision.js; its test distinguishes telepathy from Warning, underwater, and swallowed wrapper gates. Supporting return-valued owners are existing ports; alternate death and AD_DETH writer paths remain named gaps.",
+        "entryPoints": [
+          {
+            "name": "ordinary monster hit damage reaches mdamageu and the source continuation",
+            "functions": [
+              "hitmu"
+            ],
+            "recordings": [
+              "recordings/mhitu.c/mdamageu-marilith-independent-a29.session.json",
+              "recordings/mhitu.c/mdamageu-marilith-variation-a29.session.json",
+              "recordings/mhitu.c/passiveum-yellow-mold-independent.session.json",
+              "recordings/mhitu.c/passiveum-yellow-mold-variation.session.json"
+            ]
+          },
+          {
+            "name": "hidden hider or eel hit reveals the attacker and continues hitmu",
+            "functions": [
+              "hitmu"
+            ],
+            "recordings": []
+          },
+          {
+            "name": "unspotted attacker damage and permanent-hit-point accounting",
+            "functions": [
+              "hitmu"
+            ],
+            "recordings": []
+          }
+        ]
+      }
     }
   ]
 }

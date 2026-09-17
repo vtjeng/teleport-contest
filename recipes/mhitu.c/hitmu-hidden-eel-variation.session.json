@@ -1,6 +1,6 @@
 {
   "version": 5,
-  "comment": "Cheap input-only variation for the blocked hitmu() hidden-attacker recipe. This changes the seed and hero name, but remains blocked at read.c create_particular_parse() because the hidden/hostile setup qualifiers are not yet ported; no recording is claimed and this does not count as hitmu production coverage.",
+  "comment": "Planned cave-spider variation of the hidden-attacker setup. Unlike the eel, the spider hides under an object, so a later completed recipe must establish that object and an actual hit. The JavaScript read.c create_particular_parse()/create_particular_creation() port currently refuses hidden/hostile qualifiers; no recording validates this input or establishes hitmu coverage.",
   "segments": [
     {
       "seed": 50302,
