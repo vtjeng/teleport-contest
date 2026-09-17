@@ -61534,6 +61534,122 @@
         "screens": 11142,
         "rng": 785819
       }
+    },
+    {
+      "id": "port-mhitu-passiveum-seed4500-20260917",
+      "kind": "file-port",
+      "status": "open",
+      "summary": "Complete polymorphed passive counterattacks through the monster-turn caller",
+      "cFile": "mhitu.c",
+      "sessions": [
+        "holdout/seed4500-knight-coverage"
+      ],
+      "selectionReason": "The current highest eligible session is holdout/seed4500-knight-coverage with 254 remaining screens at step1560; investigations/holdout/seed4500-knight-coverage.json identifies passiveum and its source-required helpers. Integrate A30 and its corrected immutable delivery before the later A31 petrification continuation.",
+      "detail": "Port whole mhitu.c passiveum2435–2615 and the supporting assess_dmg2355–2368, attk_protection and paralyze_monst owners. Wire per-attack mon_currwep and canonical reflection, naming and rehumanization calls while preserving planning RNG and output isolation. The primary span excludes the three #if0 functions between assess_dmg and passiveum. Two independent yellow-mold recordings establish AD_STUN; other passive forms, lethal recovery and runtime milky-potion creation remain unrecorded.",
+      "spans": [
+        {
+          "name": "passiveum",
+          "status": "queued",
+          "closedBy": null,
+          "functions": [
+            "passiveum"
+          ]
+        }
+      ],
+      "openedAt": "e345e9c91e55463922e0a75865c4ea7cac17cc3b",
+      "openStanding": {
+        "sha": "f083b34a642ad6b16939767e509c2b18a68ac67f",
+        "screens": 11142,
+        "rng": 785819
+      },
+      "closedAt": null,
+      "delivered": null,
+      "functions": [
+        {
+          "name": "passiveum",
+          "line": 2435,
+          "endLine": 2615,
+          "declared": true,
+          "complete": false
+        }
+      ],
+      "range": {
+        "from": 2435,
+        "to": 2615
+      },
+      "activeStanding": {
+        "sha": "f083b34a642ad6b16939767e509c2b18a68ac67f",
+        "screens": 11142,
+        "rng": 785819
+      },
+      "openMismatches": [
+        {
+          "session": "holdout/seed4500-knight-coverage",
+          "step": 1560,
+          "kind": "stop",
+          "function": null,
+          "functionDeclared": false,
+          "sourceFile": null,
+          "cFile": null,
+          "luaFile": null,
+          "line": null,
+          "message": "simple monster action requires a polymorphed hero's passive counter-attack",
+          "unlocatedKinds": [],
+          "recordedSteps": 1814,
+          "remainingScreensUpperBound": 254,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/holdout/seed4500-knight-coverage.json",
+            "result": {
+              "session": "holdout/seed4500-knight-coverage",
+              "remainingScreensUpperBound": 254,
+              "status": "complete",
+              "commit": "ffae930134bd4cff7ce1d27940078ab5d62aee65",
+              "mismatch": {
+                "session": "holdout/seed4500-knight-coverage",
+                "step": 1560,
+                "kind": "stop",
+                "function": null,
+                "functionDeclared": false,
+                "sourceFile": null,
+                "cFile": null,
+                "luaFile": null,
+                "line": null,
+                "message": "simple monster action requires a polymorphed hero's passive counter-attack",
+                "unlocatedKinds": [],
+                "recordedSteps": 1814,
+                "remainingScreensUpperBound": 254
+              },
+              "summary": "Polymorphed edibility and non-food eating now pass the former boundary. The first remaining stop is the polymorphed passive counterattack in mhitu.c passiveum. Complete its source-ordered elemental, paralysis and petrification effects, the required damage/death helper, and the monster-turn caller; preserve separate unrecorded eating and armor cleanup gaps.",
+              "source": {
+                "file": "mhitu.c",
+                "functions": [
+                  "assess_dmg",
+                  "passiveum"
+                ],
+                "branch": "C passiveum2435–2615 selects the first AT_NONE/AT_BOOM hero-form attack and rolls its damage before the acid, petrification and disenchantment branches. After the !Upolyd return, rn2(3) gates physical explosion, paralysis, cold healing/splitting, stun, fire and electricity. JavaScript still refuses this polymorphed tail before the required guard and returns no source effect.",
+                "callers": [
+                  "C hitmu1262 captures the pre-hit hero species and calls passiveum after damage; js/mhitu.js hitmu awaits passiveum after mdamageu through the production mattacku and monster-turn route.",
+                  "C passiveum returns assess_dmg after acid and the ordinary passive tail; assess_dmg2355–2368 subtracts monster HP, prints death, calls xkilled and distinguishes death from recovery."
+                ],
+                "dependencies": [
+                  "Use the canonical resistance, message, reflection, golem, death, equipment and polymorph owners. Complete return-valued attk_protection and mon_reflects dependencies when needed; discarded unported callees must remain named gaps rather than fabricated effects.",
+                  "Preserve C draw ordering, integer cold healing, passive damage after rehumanization where specified, and early attack-result returns after paralysis or death. assess_dmg is impure; isolated return-value tests do not establish its lethal production entry.",
+                  "Separate unresolved prior findings remain: polyself.c skinback1953–1969 lacks artifact-light radius capture/maybe_adjust_light, and rare armor, Eyes-of-the-Overworld sight-loss and exceptional eating cleanup entries remain unrecorded or unported.",
+                  "C mhitu.c resets mon_currwep for each attack and sets it only for AT_WEAP; passive disenchantment must use that per-attack value. Acid naming uses display RNG. The live monster-turn planner must forward its RNG and message operations through reflection, golem effects and rehumanization. Completing paralyze_monst also requires its existing milky-potion muse.c precheck caller; mon_reflects must use the already ported arti_reflects return value for wielded artifacts."
+                ]
+              },
+              "goalKind": "file-port",
+              "evidence": [
+                "Read complete C mhitu.c assess_dmg2355–2368 and passiveum2435–2615 against the current JavaScript partial implementation. The latter already searches passive attacks and consumes their damage dice but ends with a polymorphed-passive refusal instead of preserving the damage and executing the remaining source branches.",
+                "The saved current scan and queue locate the first stop after1560 matching Knight screens, following source-correct is_edible and doeat_nonfood. Independent eat.c fire-elemental recordings cover bullwhip consumption; the gelatinous-cube glass-potion recording rejects eating and prevents claiming the unreachable eatspecial potion arm as completed entry coverage.",
+                "Existing marilith recordings cover polymorphed melee without this tail: all six attack slots are active, so passiveum returns during its search. They do not establish elemental or paralysis passive coverage. Supporting non-food rustproof, poison, coin, paper, accessory, leash, punishment and exceptional cleanup entries still need matching independent recordings."
+              ],
+              "nextProbe": "Complete the whole passiveum/assess_dmg family and source-required dependencies, then record independent polymorphed passive reactions through the live monster-turn caller, including a cheap form or role variation. Keep lethal recovery and any unrecorded passive families open."
+            }
+          }
+        }
+      ]
     }
   ]
 }
