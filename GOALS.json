@@ -61802,7 +61802,7 @@
           "line": 3178,
           "endLine": 3220,
           "declared": true,
-          "complete": false
+          "complete": true
         }
       ],
       "range": {
@@ -61886,7 +61886,153 @@
             }
           }
         }
-      ]
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "switch_terrain",
+            "implementation": "js/hack.js",
+            "symbol": "switch_terrain",
+            "sourceReview": "Read nethack-c/upstream/src/hack.c:3178-3217 in full and compared evaluation order. The owner snapshots the terrain and effective Levitation/Flying states, computes blocklev from IS_OBSTRUCTED, closed_door, IS_WATERWALL, and LAVAWALL, emits You_cant only for each active effective property, sets both FROMOUTSIDE masks, clears those bits on unobstructed terrain, calls float_up before the flight arm and float_vs_flight before You start flying, marks disp.botl after effective states change while preserving float_vs_flight's own status update, and classifies terrain under flags.terrainstatus. JavaScript now follows that source order and every implemented caller awaits the async owner. The C float_up result is discarded and remains the named note_unported gap; no substitute output or state was added. The integration regression checks the actual nhDisplay.topMessage as well as the injected message log. Other preexisting spot-effect branches remain subject to their existing support boundaries.",
+            "callers": [
+              {
+                "path": "js/hack.js",
+                "symbol": "set_uinwater",
+                "source": "hack.c:3220-3227 calls switch_terrain after u.uinwater changes; JavaScript awaits the same transition."
+              },
+              {
+                "path": "js/hack.js",
+                "symbol": "spoteffects",
+                "source": "hack.c:3342-3349 reaches switch_terrain for terrain effects; JavaScript awaits it after the liquid-effects gate."
+              },
+              {
+                "path": "js/dungeon.js",
+                "symbol": "u_on_rndspot",
+                "source": "dungeon.c:1604-1638 calls the terrain transition after random arrival; JavaScript awaits it at the deferred completion seam."
+              },
+              {
+                "path": "js/teleport.js",
+                "symbol": "teleds",
+                "source": "teleport.c:551-552 calls switch_terrain after a terrain-type change; JavaScript awaits it after position and vision updates."
+              },
+              {
+                "path": "js/dothrow.js",
+                "symbol": "hurtle_step",
+                "source": "dothrow.c:hurtle_step:913-917 calls switch_terrain after the hero moves and vision refreshes; JavaScript awaits it before later terrain handling."
+              },
+              {
+                "path": "js/monmove.js",
+                "symbol": "dissolve_bars",
+                "source": "monmove.c:2170-2180 calls switch_terrain when iron bars dissolve below the hero; JavaScript awaits it from the monster movement caller."
+              },
+              {
+                "path": "js/do.js",
+                "symbol": "finish_random_arrival_effects",
+                "source": "do.c goto_level arrival effects preserve source order around switch_terrain; JavaScript awaits the deferred terrain owner before the next effect."
+              },
+              {
+                "path": "js/mhitu.js",
+                "symbol": "expels",
+                "source": "mhitu.c:264-306 calls spoteffects(true) after releasing the hero and repositioning the engulfer; JavaScript forwards rawEnv so the planning terrain transition suppresses live TTY output."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/hack.test.mjs",
+              "scripts/level-teleport-arrival.test.mjs",
+              "scripts/leaving-level-helpers.test.mjs",
+              "scripts/hero-placement.test.mjs",
+              "scripts/stairs.test.mjs",
+              "scripts/dodown.test.mjs",
+              "scripts/cmd.test.mjs",
+              "scripts/dothrow.test.mjs",
+              "scripts/monmove.test.mjs",
+              "scripts/dungeon.test.mjs",
+              "scripts/teleport.test.mjs",
+              "scripts/zap-command.test.mjs",
+              "scripts/mhitu.test.mjs"
+            ],
+            "recordings": [
+              "recordings/hack.c/liquid-pool-wizard-independent.session.json",
+              "recordings/hack.c/liquid-pool-priest-variation.session.json",
+              "recordings/hack.c/switch-terrain-flight-wall-independent.session.json",
+              "recordings/hack.c/switch-terrain-flight-wall-variation.session.json"
+            ],
+            "checkedAt": "d9d352f9acfa3d961158c28e87e5611928bfcd07"
+          }
+        ],
+        "entryPointReview": "The source owner has active production entry points through set_uinwater, spoteffects, swallowed expels terrain effects, random level arrival, teleport, hurtle movement, monster iron-bar dissolution, dig pit/hole, and terrain wish. The two fresh flight recordings execute switch_terrain through pass-wall movement and visibly reach both blocked and cleared flight arms; the two existing liquid recordings execute the spoteffects transition. Arrival, teleport, hurtle, bar dissolution, dig, terrain-wish, and swallowed expels entries remain active but unrecorded and therefore have empty recording lists below. The named float_up call is a discarded result with no canonical owner, so it remains an explicit gap rather than invented behavior. Remaining mthrowu dissolve_bars callers are recorded as active unported entry gaps.",
+        "entryPoints": [
+          {
+            "name": "terrain transition through spoteffects",
+            "functions": [
+              "switch_terrain"
+            ],
+            "recordings": [
+              "recordings/hack.c/liquid-pool-wizard-independent.session.json",
+              "recordings/hack.c/liquid-pool-priest-variation.session.json",
+              "recordings/hack.c/switch-terrain-flight-wall-independent.session.json",
+              "recordings/hack.c/switch-terrain-flight-wall-variation.session.json"
+            ]
+          },
+          {
+            "name": "terrain transition through set_uinwater",
+            "functions": [
+              "switch_terrain"
+            ],
+            "recordings": []
+          },
+          {
+            "name": "swallowed expulsion terrain transition",
+            "functions": [
+              "switch_terrain"
+            ],
+            "recordings": []
+          },
+          {
+            "name": "random level arrival terrain transition",
+            "functions": [
+              "switch_terrain"
+            ],
+            "recordings": []
+          },
+          {
+            "name": "teleport terrain transition",
+            "functions": [
+              "switch_terrain"
+            ],
+            "recordings": []
+          },
+          {
+            "name": "hurtle movement terrain transition",
+            "functions": [
+              "switch_terrain"
+            ],
+            "recordings": []
+          },
+          {
+            "name": "monster iron-bar dissolution terrain transition",
+            "functions": [
+              "switch_terrain"
+            ],
+            "recordings": []
+          },
+          {
+            "name": "dig pit or hole terrain transition",
+            "functions": [
+              "switch_terrain"
+            ],
+            "recordings": []
+          },
+          {
+            "name": "terrain wish transition",
+            "functions": [
+              "switch_terrain"
+            ],
+            "recordings": []
+          }
+        ]
+      }
     }
   ]
 }
