@@ -59642,7 +59642,7 @@
     {
       "id": "div-topl-update-topl-seed0399-20260917",
       "kind": "divergence-fix",
-      "status": "open",
+      "status": "closed",
       "summary": "Preserve the stopped-message snapshot when death replaces a pending top line",
       "cFile": "topl.c",
       "sessions": [],
@@ -59651,8 +59651,8 @@
       "spans": [
         {
           "name": "stopped-death-message",
-          "status": "queued",
-          "closedBy": null,
+          "status": "closed",
+          "closedBy": "fdbd02789bba64d10f8edc639d06f7a289f4b7fb",
           "functions": [
             "update_topl"
           ]
@@ -59664,8 +59664,11 @@
         "screens": 10977,
         "rng": 784606
       },
-      "closedAt": null,
-      "delivered": null,
+      "closedAt": "fdbd02789bba64d10f8edc639d06f7a289f4b7fb",
+      "delivered": {
+        "screens": 7,
+        "rng": 0
+      },
       "function": "update_topl",
       "session": "holdout/seed0399-wizard-hallu-actions",
       "step": 521,
@@ -59748,7 +59751,12 @@
             }
           }
         }
-      ]
+      ],
+      "closeStanding": {
+        "sha": "fdbd02789bba64d10f8edc639d06f7a289f4b7fb",
+        "screens": 10984,
+        "rng": 784606
+      }
     }
   ]
 }
