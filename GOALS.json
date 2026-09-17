@@ -57682,6 +57682,226 @@
         "rng": 771039
       },
       "parkedReason": "Whole poly_obj source and lateral wand caller are verified by two independent recordings and passing combined checkpoint61521489. Active egg, worn-inventory, trap iron-shoe, potion-dip and stone-to-flesh entries remain unrecorded; preserve their open evidence while higher-priority mismatches continue."
+    },
+    {
+      "id": "port-trap-lava-effects-seed0009-20260917",
+      "kind": "file-port",
+      "status": "parked",
+      "summary": "Port complete lava entry effects and footwear cleanup",
+      "cFile": "trap.c",
+      "sessions": [
+        "holdout/seed0009-swimmer-mforce"
+      ],
+      "selectionReason": "Integrate completed A19 lava_effects span for holdout/seed0009-swimmer-mforce, remaining-screen upper bound11, investigation investigations/holdout/seed0009-swimmer-mforce.json. This coherent trap.c lava_effects6794-6987 span was already underway when source tracing identified the current first stop as end.c really_done; preserve its normal handoff and source dependency rather than mislabel the current mismatch. Knight492 is owned by B18, seed2200 requires openQ1, and A20 already owns whole really_done continuation. The A19 corrected delivery is now the oldest ready independent span.",
+      "detail": "Whole trap.c lava_effects6794-6987 with supporting do_wear.c Boots_off262-323, existing hack.c pooleffects boolean caller, and botl.c InLava status. Two independent64-screen recordings reach lava damage/trapping before an in-function More prompt. Longer probes are retained as blocked recipes at region.c blockPoint; footwear, fatal/lifesaving, direct float_down and drawbridge entry recordings remain open. Verify the source span, then park the goal without claiming full continuation coverage.",
+      "spans": [
+        {
+          "name": "lava_effects",
+          "status": "closed",
+          "closedBy": "bc69002ecb5375f6316ae16e4a47f2ff38a672df",
+          "functions": [
+            "lava_effects"
+          ]
+        }
+      ],
+      "openedAt": "9d545eb92f93c1d35e3242df384c5290bb377aaa",
+      "openStanding": {
+        "sha": "615214896810913ba49e0d97d5bdf24e5e067ba0",
+        "screens": 10823,
+        "rng": 771039
+      },
+      "closedAt": null,
+      "delivered": null,
+      "functions": [
+        {
+          "name": "lava_effects",
+          "line": 6794,
+          "endLine": 6990,
+          "declared": true,
+          "complete": true
+        }
+      ],
+      "range": {
+        "from": 6794,
+        "to": 6990
+      },
+      "activeStanding": {
+        "sha": "615214896810913ba49e0d97d5bdf24e5e067ba0",
+        "screens": 10823,
+        "rng": 771039
+      },
+      "openMismatches": [
+        {
+          "session": "holdout/seed0009-swimmer-mforce",
+          "step": 62,
+          "kind": "stop",
+          "function": "really_done",
+          "functionDeclared": true,
+          "sourceFile": "end.c",
+          "cFile": "end.c",
+          "luaFile": null,
+          "line": null,
+          "message": "unsupported hero command: an unported branch of this command: really_done() special death or grave-arise state",
+          "unlocatedKinds": [],
+          "recordedSteps": 73,
+          "remainingScreensUpperBound": 11,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/holdout/seed0009-swimmer-mforce.json",
+            "result": {
+              "session": "holdout/seed0009-swimmer-mforce",
+              "remainingScreensUpperBound": 11,
+              "status": "complete",
+              "commit": "058e1e65c5f55de04dfc0c66f53eb179a085c0af",
+              "mismatch": {
+                "session": "holdout/seed0009-swimmer-mforce",
+                "step": 62,
+                "kind": "stop",
+                "function": "really_done",
+                "functionDeclared": true,
+                "sourceFile": "end.c",
+                "cFile": "end.c",
+                "luaFile": null,
+                "line": null,
+                "message": "unsupported hero command: an unported branch of this command: really_done() special death or grave-arise state",
+                "unlocatedKinds": [],
+                "recordedSteps": 73,
+                "remainingScreensUpperBound": 11
+              },
+              "summary": "Walking into the pool now matches. The next stop is step 62, after the hero enters a wall of lava and reaches end.c really_done() with BURNING. JavaScript rejects special death reasons and grave-arise states; C sets BURNING/DISSOLVED to leave no corpse and continues finalization. Port the whole really_done function and its required dependencies. trap.c lava_effects has separate incomplete branches, including boots removal, but the current recorded stop is the end.c special-death guard.",
+              "source": {
+                "file": "end.c",
+                "functions": [
+                  "really_done"
+                ],
+                "branch": "Complete end.c really_done() (1130-1593), including its death-reason and grave-arise handling, rather than merely admitting BURNING at the guard. At 1206-1218 C sets PANICKED to NON_PM-3, BURNING/DISSOLVED to NON_PM-2, STONING to LEAVESTATUE, and TURNED_SLIME to PM_GREEN_SLIME when not genocided, then continues through fixup_death, disclosure, score and final display. Current js/end.js really_done rejects every how other than DIED/QUIT and every nondefault ugrave_arise before those later stages. Preserve all other source branches, caller state and terminal input boundaries.",
+                "callers": [
+                  "C trap.c lava_effects() (6794-6965) enters done(BURNING) on fatal lava damage; js/trap.js lava_effects performs the matching call after its burn message and killer setup.",
+                  "C hack.c pooleffects() invokes lava_effects after domove_core commits liquid movement; js/hack.js pooleffects reaches the same owner, now enabled by the accepted walking-admission change.",
+                  "C end.c done() (1020-1126) calls really_done after life-saving/wizard recovery declines to return; js/end.js done() passes the same how value. Life-saving and recovery have separate accepted evidence."
+                ],
+                "dependencies": [
+                  "C end.c fixup_death and the remaining really_done cleanup, disclosure and scoring helpers must preserve their return values and source order; inventory settlement and final terminal capture already have JavaScript owners to compare.",
+                  "C can_make_bones() is called only when how < GENOCIDED; retain that random-call order before grave-arise handling.",
+                  "The current really_done implementation also refuses hangup, panic, achievement and first-move cases. Whole-function source completion must account for each rather than claiming the BURNING witness proves them. Unrecorded active entry coverage remains a reason to park the goal.",
+                  "trap.c lava_effects still has a separate Boots_off refusal and named inventory/display gaps. Those source defects remain independently actionable; the current step-62 scan specifically attributes the stop to really_done."
+                ]
+              },
+              "goalKind": "file-port",
+              "evidence": [
+                "Passing checkpoint 058e1e65 run-a4KCVm records 10,785/11,405 development screens and 312/312 matching recordings. Only this session changes: 48 to 62 matching screens, 3647 to 3713 RNG values, and 48 to 62 cursors. The other 43 sessions retain their previous metrics.",
+                "The saved .cache/A18-development-scan.json and .cache/A18-queue.json place the first stop at step62 and name end.c really_done with message unsupported hero command: an unported branch of this command: really_done() special death or grave-arise state; recordedSteps73 yields remainingScreensUpperBound11.",
+                "The assigned recording at step62 enters wall lava and prints You fall into the wall of lava! and You burn to a crisp... before the More input boundary. C end.c1206-1218 explicitly accepts this death reason and sets the no-corpse grave-arise value.",
+                "At 058e1e65 js/end.js really_done has the explicit `(how !== DIED && how !== QUIT) || state.u.ugrave_arise !== NON_PM` refusal. This source guard explains the current scan and is independent of the earlier walking-liquid refusal.",
+                "Retained counter-evidence: the previous test_move admission, m-prefix and decoration barriers are resolved by A18. Do not restore an early liquid/decor refusal or add arrival effects to preflight. The two independent water-walking recordings exercise real entry onto a pool.",
+                "An early worker hypothesis named the separate lava_effects Boots_off gap. The fresh accepted-main scan identifies really_done instead; complete the boots branch when its own source span requires it without calling it the current step62 blocker."
+              ]
+            }
+          }
+        }
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "lava_effects",
+            "implementation": "js/trap.js",
+            "symbol": "lava_effects",
+            "sourceReview": "Read nethack-c/upstream/src/trap.c lava_effects() 6794-6987 in full. The JavaScript owner preserves the source d(6,6), recursion guard, lava visibility, burn-stuff inventory marking, footwear-first Boots_off call, re-evaluation of Fire_resistance and Wwalking after footwear removal, water-walking damage, TT_LAVA trap setup, fatal inventory destruction, done(BURNING) retry/termination behavior, and final destroy/ignite effects. Existing implemented used-return owners are called directly; discarded void gaps remain named at their source call sites. The same delivery includes the required do_wear.c Boots_off() owner in js/do_wear.js and the botl.c InLava status condition in js/display.js as source-aligned dependencies; their focused tests are listed in the entry review.",
+            "callers": [
+              {
+                "path": "js/hack.js",
+                "symbol": "pooleffects",
+                "source": "hack.c pooleffects() calls lava_effects() for a hero standing on lava and consumes its boolean to skip remaining square effects after relocation."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/trap-lava-effects.test.mjs",
+              "scripts/hack.test.mjs",
+              "scripts/wear-armor.test.mjs",
+              "scripts/display-symbols.test.mjs"
+            ],
+            "recordings": [
+              "recordings/trap.c/lava-effects-water-walking-independent.session.json",
+              "recordings/trap.c/lava-effects-fire-resistance-variation.session.json"
+            ],
+            "checkedAt": "360889fcddb9a13e6fb12658d6608ef2e0ac9a40"
+          }
+        ],
+        "entryPointReview": "The selected implementation span is trap.c lava_effects() 6794-6987 with its production hack.c pooleffects() caller contract, plus the do_wear.c Boots_off() call required by the footwear-first branch and the botl.c InLava status predicate required by the TT_LAVA branch. The independent water-walking recording reaches lava_effects through pooleffects and matches C/JavaScript strictly at 7155 RNG calls, 64 screens, and 64 cursors. The independent fire-resistance variation reaches the TT_LAVA trap/status branch and matches with the same 7155 RNG, 64-screen, 64-cursor result. Their final --More-- screens are emitted inside lava_effects before the subsequent destroy_items/ignite_items cleanup and return; the input-only continuation probes append dismissal and next-command keys. The saved water-walking C probe completes lava cleanup and advances monster movement. Current-main JavaScript probes for both continuations stop in monmove.c m_postmove_effect(): the steam-vortex create_gas_cloud call lacks blockPoint during planSimpleMonsterTurn, a separate caller-wiring gap after lava cleanup. The earlier fire-resistant C probe contained only one space and remained at the second More prompt, so it does not establish the committed two-space continuation. Bounded probes run-HMHCog and run-9Zncoz preserve both exception stacks; neither establishes a matching continuation recording. Those blocked probes remain under recipes/trap.c without recordings. Focused runtime checks exercise water-walking damage, lava trapping/status, footwear slot/property cleanup, levitation blocking and ordinary footwear removal. Whole-source inspection verifies inventory and recursion ordering, fresh property reads after Boots_off, hallucinated Book of Dead naming, the final-death return boundary, and the fatal loop's explicit discarded-call gaps; no implementation-text assertion is treated as execution coverage. A separate independent Boots_off setup is retained under recipes/trap.c but has no recording: its production replay reaches the existing do_wear.c Boots_on water-walking refusal before Boots_off. The direct trap.c float_down() caller and dbridge.c e_died() caller remain unrecorded because their surrounding source paths are still refused. The fatal/lifesaving lava inventory and done(BURNING) path remains open at end.c really_done() and has an explicit empty-recording entry below; no entry completion is claimed for it. The source review keeps only actual discarded void gaps named at their source sites and does not claim the whole surrounding trap or wear files complete.",
+        "entryPoints": [
+          {
+            "name": "water-walking hero enters lava through pooleffects",
+            "functions": [
+              "lava_effects"
+            ],
+            "recordings": [
+              "recordings/trap.c/lava-effects-water-walking-independent.session.json"
+            ]
+          },
+          {
+            "name": "fire-resistant hero enters lava and receives TT_LAVA status",
+            "functions": [
+              "lava_effects"
+            ],
+            "recordings": [
+              "recordings/trap.c/lava-effects-fire-resistance-variation.session.json"
+            ]
+          },
+          {
+            "name": "lava burns worn footwear through Boots_off",
+            "functions": [
+              "lava_effects"
+            ],
+            "recordings": []
+          },
+          {
+            "name": "direct float_down lava caller",
+            "functions": [
+              "lava_effects"
+            ],
+            "recordings": []
+          },
+          {
+            "name": "drawbridge e_died lava caller",
+            "functions": [
+              "lava_effects"
+            ],
+            "recordings": []
+          },
+          {
+            "name": "fatal/lifesaving lava inventory and done(BURNING)",
+            "functions": [
+              "lava_effects"
+            ],
+            "recordings": []
+          },
+          {
+            "name": "water-walking lava cleanup and return to the next command",
+            "functions": [
+              "lava_effects"
+            ],
+            "recordings": []
+          },
+          {
+            "name": "fire-resistant lava cleanup and return to the next command",
+            "functions": [
+              "lava_effects"
+            ],
+            "recordings": []
+          }
+        ]
+      },
+      "progressBeforePark": {
+        "screens": 0,
+        "rng": 0
+      },
+      "parkedStanding": {
+        "sha": "bc69002ecb5375f6316ae16e4a47f2ff38a672df",
+        "screens": 10823,
+        "rng": 771039
+      },
+      "parkedReason": "The lava_effects span passes combined validation and adds two strict 64-screen recordings. Keep fatal/lifesaving, Boots_off, direct float_down, drawbridge, and both cleanup continuations open: really_done is owned by A20, the footwear setup stops in Boots_on, and continuation movement stops at the steam-vortex m_postmove_effect create_gas_cloud callback wiring. No full source-goal completion is claimed."
     }
   ]
 }

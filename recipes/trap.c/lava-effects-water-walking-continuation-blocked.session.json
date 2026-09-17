@@ -1,6 +1,6 @@
 {
   "version": 5,
-  "_comment": "Continuation probe for the independent water-walking lava_effects() witness. The appended space and period ask for the post-message cleanup/return and next command. C reaches the cleanup screen at the space boundary, then region.c upkeep advances before the period; the JavaScript replay stops at that source boundary because region upkeep still requires its blockPoint owner. Keep this input-only recipe until that dependency lands; it has no recording.",
+  "_comment": "Continuation probe for the independent water-walking lava_effects() witness. The appended space dismisses the lava message, and the period requests another command. The saved C probe completes lava cleanup and then advances monster movement. JavaScript stops in monmove.c m_postmove_effect(): a steam vortex calls create_gas_cloud() without the blockPoint callback required during movement planning. Keep this input-only recipe until that separate caller is wired; no matching continuation recording is claimed.",
   "segments": [
     {
       "seed": 810141,
