@@ -11,6 +11,11 @@ import {
     NEED_WEAPON,
     NATTK,
     PIT,
+    STRAT_WAITFORU,
+    W_ARMC,
+    W_ARMF,
+    W_ARMG,
+    W_ARMH,
 } from '../js/const.js';
 import {
     glyph_is_invisible,
@@ -20,7 +25,13 @@ import {
 import { game } from '../js/gstate.js';
 import { add_to_minv } from '../js/invent.js';
 import { runSegment } from '../js/jsmain.js';
-import { engulf_target, fightm, mattackm } from '../js/mhitm.js';
+import {
+    attk_protection,
+    engulf_target,
+    fightm,
+    mattackm,
+    paralyze_monst,
+} from '../js/mhitm.js';
 import {
     is_elf,
     is_orc,
@@ -37,14 +48,18 @@ import {
     AD_WRAP,
     AT_BITE,
     AT_BREA,
+    AT_BOOM,
+    AT_BUTT,
     AT_ENGL,
     AT_EXPL,
     AT_CLAW,
     AT_GAZE,
     AT_HUGS,
     AT_KICK,
+    AT_MAGC,
     AT_NONE,
     AT_SPIT,
+    AT_STNG,
     AT_TENT,
     AT_TUCH,
     AT_WEAP,
@@ -173,6 +188,37 @@ function scripted(rolls = [], fallback = 1) {
         },
     };
 }
+
+test('attk_protection maps every source attack family', () => {
+    // mhitm.c:1475-1518. The special attacks require no worn protection;
+    // contact attacks select the exact equipment masks used by C.
+    for (const aatyp of [AT_NONE, AT_SPIT, AT_EXPL, AT_BOOM,
+        AT_GAZE, AT_BREA, AT_MAGC]) {
+        assert.equal(attk_protection(aatyp), ~0);
+    }
+    for (const aatyp of [AT_CLAW, AT_TUCH, AT_WEAP])
+        assert.equal(attk_protection(aatyp), W_ARMG);
+    assert.equal(attk_protection(AT_KICK), W_ARMF);
+    assert.equal(attk_protection(AT_BUTT), W_ARMH);
+    assert.equal(attk_protection(AT_HUGS), W_ARMC | W_ARMG);
+    for (const aatyp of [AT_BITE, AT_STNG, AT_ENGL, AT_TENT, -2])
+        assert.equal(attk_protection(aatyp), 0);
+});
+
+test('paralyze_monst copies the source frozen state and clears its wait plan',
+    () => {
+        const mon = {
+            mcanmove: true,
+            mfrozen: 0,
+            meating: 9,
+            mstrategy: STRAT_WAITFORU | 0x17,
+        };
+        paralyze_monst(mon, 200);
+        assert.equal(mon.mcanmove, false);
+        assert.equal(mon.mfrozen, 127);
+        assert.equal(mon.meating, 0);
+        assert.equal(mon.mstrategy, 0x17);
+    });
 
 function attackEnv(rolls = [], fallback = 1) {
     const recorder = scripted(rolls, fallback);
