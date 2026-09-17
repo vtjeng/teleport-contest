@@ -19,6 +19,8 @@ import {
     STRAT_WAITMASK,
     M_ATTK_HIT,
     THRONE,
+    STONE_RES,
+    STONED,
     W_ARM,
 } from '../js/const.js';
 import { game } from '../js/gstate.js';
@@ -46,6 +48,7 @@ import { mksobj, mksobj_at } from '../js/obj.js';
 import { objectGenerationEnv } from '../js/object_generation.js';
 import {
     MIRROR,
+    CORPSE,
     ORCISH_DAGGER,
     SCR_ENCHANT_ARMOR,
     SCR_SCARE_MONSTER,
@@ -57,6 +60,7 @@ import { enableRngLog, getRngLog, initRng } from '../js/rng.js';
 import { clearTtyMessageWindow } from '../js/tty_message.js';
 import {
     do_attack,
+    mhitm_ad_phys,
     mhitm_ad_drst,
     mhitm_ad_ston,
     mhitm_mgc_atk_negated,
@@ -937,6 +941,53 @@ test('mhitm_ad_ston preserves each source direction and gate draws',
     assert.equal(reverse.damage, 0);
     assert.equal(reverse.done, false);
     assert.ok(game.unported.has('trap.c minstapetrify'));
+});
+
+test('mhitm_ad_phys handles a petrifying corpse weapon before ordinary damage',
+    async () => {
+    // uhitm.c:4047-4059. The corpse arm establishes one point of damage,
+    // reports the attack, then lets do_stone_u() consume the blow through the
+    // mhm.done/hitflags result. This source path must not be rejected as an
+    // ordinary non-weapon or artifact continuation.
+    await runSegment({
+        seed: 7710059, datetime: DATETIME, nethackrc: RC, moves: '',
+    });
+    game.invent = null;
+    game.u.uprops[STONE_RES] = { intrinsic: 0, extrinsic: 0 };
+    game.u.uprops[STONED] = { intrinsic: 0, extrinsic: 0 };
+    const attacker = {
+        data: game.mons[PM_COCKATRICE],
+        female: false,
+        m_id: 92007,
+        mcan: false,
+        mx: game.u.ux + 1,
+        my: game.u.uy,
+        mw: {
+            otyp: CORPSE,
+            corpsenm: PM_COCKATRICE,
+            oclass: 0,
+        },
+    };
+    const lines = [];
+    const mhm = { damage: 0, hitflags: 0, done: false };
+    await mhitm_ad_phys(
+        attacker,
+        { aatyp: AT_WEAP },
+        game.youmonst,
+        mhm,
+        game,
+        {
+            message: async (line) => { lines.push(line); },
+            unsupported: (reason) => { throw new Error(reason); },
+        },
+    );
+    assert.equal(mhm.damage, 1);
+    assert.equal(mhm.hitflags, M_ATTK_HIT);
+    assert.equal(mhm.done, true);
+    assert.deepEqual(lines, [
+        'The cockatrice hits you with the cockatrice corpse.',
+    ]);
+    assert.ok(game.unported.has('potion.c make_stoned'));
 });
 
 test('mhitm_ad_drst uses the monster female bit for the poison killer name',

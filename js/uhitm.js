@@ -2814,10 +2814,11 @@ export async function mhitm_ad_drst(
 //     refuses its own AT_HUGS arm first, at js/mhitu.js:626, so no ported path
 //     spells this attack. C's whole condition is kept rather than a bare aatyp
 //     test, so the stop sits exactly where C's branch begins.
-//   AT_WEAP with something wielded (4041-4121) admits the ordinary nonfatal
-//     arm through dmgval() and hitmsg(). A petrifying corpse, gauntlets of
-//     power, artifact, silver, pudding split, effective rust, poison, or a
-//     potentially fatal total still stops before its unported continuation.
+//   AT_WEAP with something wielded (4041-4121) admits the ordinary arm
+//     through dmgval() and hitmsg(). The petrifying-corpse pre-arm is also
+//     complete through do_stone_u(); the later artifact, silver, pudding
+//     split, effective rust, poison, and potentially fatal branches remain
+//     explicit boundaries.
 //
 // An AT_WEAP attacker holding nothing is not that edge. It falls to the last
 // arm with everyone else and prints hitmsg()'s default verb, which is what
@@ -2880,7 +2881,25 @@ export async function mhitm_ad_phys(
             if (mattk.aatyp === AT_WEAP && otmp) {
                 if (otmp.otyp === CORPSE
                     && touch_petrifies(state.mons?.[otmp.corpsenm])) {
-                    unsupported('a petrifying corpse weapon');
+                    // uhitm.c:4047-4059.  This damage is established before
+                    // do_stone_u(), and a successful petrification consumes
+                    // the rest of the attack through mhm.done.
+                    mhm.damage = 1;
+                    const message = requireAttackOperation(env, 'message');
+                    await message(
+                        `${Monnam(magr, state, env)} hits you with the `
+                        + `${pmname(state.mons[otmp.corpsenm], NEUTRAL)} corpse.`,
+                        state,
+                        env,
+                    );
+                    const stoned = Boolean(
+                        (state.u?.uprops?.[STONED]?.intrinsic ?? 0) & TIMEOUT,
+                    );
+                    if (!stoned && await do_stone_u(magr, state, env)) {
+                        mhm.hitflags = M_ATTK_HIT;
+                        mhm.done = true;
+                        return;
+                    }
                 }
                 if (!(otmp.oclass === WEAPON_CLASS || is_weptool(otmp, state)))
                     unsupported('a non-weapon object hitting the hero');
@@ -3086,9 +3105,11 @@ export async function mhitm_ad_blnd(
 }
 
 // C ref: uhitm.c do_stone_u() (3924-3942). Return TRUE exactly when the
-// hero's petrification has been started or the hero changed into a stone
-// golem. The make_stoned() call has no return value; its potion.c owner is
-// still outside this span, so retain the source call as an explicit gap.
+// hero's petrification has been started. A successful poly_when_stoned()
+// transition to a stone golem returns FALSE, because polymon() handled the
+// petrification and C continues without make_stoned(). The make_stoned() call
+// has no return value; its potion.c owner is still outside this span, so retain
+// the source call as an explicit gap.
 export async function do_stone_u(mtmp, state = game, env = {}) {
     const stoned = Boolean(
         (state.u?.uprops?.[STONED]?.intrinsic ?? 0) & TIMEOUT,
@@ -3096,7 +3117,7 @@ export async function do_stone_u(mtmp, state = game, env = {}) {
     if (!stoned
         && !propertyPresent(state.u, STONE_RES)
         && !(poly_when_stoned(state.youmonst?.data, state)
-            && await polymon(PM_STONE_GOLEM, state))) {
+            && await polymon(PM_STONE_GOLEM, state, env))) {
         let kformat = KILLED_BY_AN;
         // Mgender() reads the attacking monster instance's female bit; the
         // species record alone is not the source value here.
