@@ -59240,7 +59240,7 @@
     {
       "id": "port-zapyourself-seed4500-20260917",
       "kind": "file-port",
-      "status": "open",
+      "status": "parked",
       "summary": "Port complete self-directed wand and spell effects and their statue dependencies",
       "cFile": "zap.c",
       "sessions": [
@@ -59251,8 +59251,8 @@
       "spans": [
         {
           "name": "zapyourself",
-          "status": "queued",
-          "closedBy": null,
+          "status": "closed",
+          "closedBy": "2366751b9e74f18018459534f0f66dd658b1d95b",
           "functions": [
             "zapyourself"
           ]
@@ -59424,7 +59424,331 @@
             "recordings": []
           }
         ]
-      }
+      },
+      "progressBeforePark": {
+        "screens": 0,
+        "rng": 13
+      },
+      "parkedStanding": {
+        "sha": "2366751b9e74f18018459534f0f66dd658b1d95b",
+        "screens": 10976,
+        "rng": 784612
+      },
+      "parkedReason": "The verified whole zapyourself span and independent self-sleep recording pass at 2366751b. Spell and other self-effect entry families remain unrecorded; resume their coverage when the canonical polyself and remaining named callees support independent matching recipes."
+    },
+    {
+      "id": "port-polyself-seed4500-20260917",
+      "kind": "file-port",
+      "status": "parked",
+      "summary": "Port complete polymorph selection and wire self-directed polymorph effects",
+      "cFile": "polyself.c",
+      "sessions": [
+        "holdout/seed4500-knight-coverage"
+      ],
+      "selectionReason": "Highest eligible fixed-workload session after self-zap acceptance: Knight first RNG mismatch is polyself.c490 at step1438 with376 remaining-screen upper bound; investigations/holdout/seed4500-knight-coverage.json traces the missing selector and caller. Integrate queued B22 after its B21 dependency; other workers retain independent throwing and tty scopes.",
+      "detail": "Translate whole polyself469–731, canonical were_beastie and armor_to_dragon return-valued helpers, controlled and special-form targets, bounded random selection, and the zapyourself caller. Verify the independent controlled-raven recording; keep unrecorded entry families and existing downstream body-transition/light-restoration gaps open.",
+      "spans": [
+        {
+          "name": "polyself",
+          "status": "closed",
+          "closedBy": "0737209af932f58e30ff926172a787f595379498",
+          "functions": [
+            "polyself"
+          ]
+        }
+      ],
+      "openedAt": "744c38da1e59dfaa8927b40214aab5cb1c721b8a",
+      "openStanding": {
+        "sha": "2366751b9e74f18018459534f0f66dd658b1d95b",
+        "screens": 10976,
+        "rng": 784612
+      },
+      "closedAt": null,
+      "delivered": null,
+      "functions": [
+        {
+          "name": "polyself",
+          "line": 469,
+          "endLine": 734,
+          "declared": true,
+          "complete": true
+        }
+      ],
+      "range": {
+        "from": 469,
+        "to": 734
+      },
+      "activeStanding": {
+        "sha": "2366751b9e74f18018459534f0f66dd658b1d95b",
+        "screens": 10976,
+        "rng": 784612
+      },
+      "openMismatches": [
+        {
+          "session": "holdout/seed4500-knight-coverage",
+          "step": 1438,
+          "kind": "rng",
+          "function": "polyself",
+          "functionDeclared": true,
+          "sourceFile": "polyself.c",
+          "cFile": "polyself.c",
+          "luaFile": null,
+          "line": 490,
+          "message": null,
+          "unlocatedKinds": [],
+          "recordedSteps": 1814,
+          "remainingScreensUpperBound": 376,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/holdout/seed4500-knight-coverage.json",
+            "result": {
+              "session": "holdout/seed4500-knight-coverage",
+              "remainingScreensUpperBound": 376,
+              "status": "complete",
+              "commit": "2366751b9e74f18018459534f0f66dd658b1d95b",
+              "mismatch": {
+                "session": "holdout/seed4500-knight-coverage",
+                "step": 1438,
+                "kind": "rng",
+                "function": "polyself",
+                "functionDeclared": true,
+                "sourceFile": "polyself.c",
+                "cFile": "polyself.c",
+                "luaFile": null,
+                "line": 490,
+                "message": null,
+                "unlocatedKinds": [],
+                "recordedSteps": 1814,
+                "remainingScreensUpperBound": 376
+              },
+              "summary": "Self-directed wand dispatch now reaches the polymorph boundary. The remaining first defect is the named polyself gap: complete the whole controlled, special-form and random selector, wire zapyourself, and preserve its downstream transformation gaps.",
+              "source": {
+                "file": "polyself.c",
+                "functions": [
+                  "polyself"
+                ],
+                "branch": "polyself.c:469–731: preserve Unchanging and system-shock guards, controlled candidate retries, were/dragon/vampire direct targets, bounded uniform random selection, sex-change control and final light-source updates.",
+                "callers": [
+                  "zap.c zapyourself WAN_POLYMORPH/SPE_POLYMORPH at 2804–2808 sets learn_it and calls polyself(POLY_NOFLAGS) unless Unchanging; accepted js/zap.js currently records this discarded call as a named gap.",
+                  "wizcmds.c wiz_polyself calls polyself(POLY_CONTROLLED); polyself.c dopoly calls polyself(POLY_MONSTER) for vampire forms."
+                ],
+                "dependencies": [
+                  "Existing polyself.c polymon/newman/polyman own the body transition and still have unported branches. Selector completion does not establish their completion.",
+                  "Existing skinback at polyself.c:1954–1968 captures arti_light_radius(uskin), restores the armor slot and adjusts artifact light. JavaScript omits that light adjustment; controlled rehumanization can reach it with merged gold dragon scales.",
+                  "were.c were_beastie and polyself.c armor_to_dragon return values feed controlled selection; preserve their complete source mappings and canonical owners."
+                ]
+              },
+              "goalKind": "file-port",
+              "evidence": [
+                "Saved .cache/B21-development-scan.json at 2366751b places the first RNG mismatch at step 1438, C polyself.c:490. The self-zap refusal is gone, but its named polymorph gap skips the expected system-shock draw. Knight screen matches remain 1438/1814 and cursor matches rise to 1519/1814.",
+                "Source comparison at 2366751b confirms the full zapyourself switch and its required stone-to-flesh/statue/revival return-valued dependencies. Visibility, trap-state short-circuiting, bag probing, cancellation and monster-creation contracts were corrected; remaining discarded unported calls retain named gaps.",
+                "Independent self-sleep recording run-2MozYy reaches C zapyourself at step 19: The sleep ray hits you! You wake up., with rnd(50)=22. It matches 3,329 RNG calls, 21 screens/cursors and 3 animation frames. The original recording selected the wrong inventory letter and never reached this function; it was replaced after that reachability check.",
+                "C polyself.c:483–495 tests Unchanging and system shock before ordinary selection: rn2(20)>ACURR(A_CON), then rnd(30) damage and constitution exercise on failure. The accepted selector lacks these complete guards and hardcodes controllable_poly=false.",
+                "C polyself.c:698–706 tries up to 200 uniform rn1(SPECIAL_PM-LOW_PM,LOW_PM) candidates, accepting polyok&&!is_placeholder. Generation/genocide filtering does not belong in that loop; the final candidate is retained if no candidate qualifies.",
+                "Source comparison of pending selector correction 5347366a verifies original-role/current-form predicates, strstri negative-index semantics, Your dragon-mail wording, armor-light adjustment, class retry ordering and distinct special-form targets. Its canonical self-zap caller removes the named gap. These changes are not yet accepted on main.",
+                "The independent controlled-raven witness at 5347366a reaches C polymon at step 16, prints You turn into a raven!, and matches 3,586 RNG calls and 18 screens/cursors. It does not establish the uncontrolled self-zap, class-retry, were, dragon or vampire entries; those recording families remain open.",
+                "C skinback at 1954–1968 reads the old artifact-light radius before moving uskin back to uarm and invokes maybe_adjust_light afterward when artifact_light(uarm). Existing js/polyself.js skinback clears I_SPECIAL but omits those light operations. Keep this downstream source gap separate from selector completion."
+              ],
+              "nextProbe": "Integrate the source-checked whole polyself selector and canonical self-zap caller, then replay the Knight session to identify its next body-transition owner. Keep unrecorded entry families and skinback light restoration open."
+            }
+          }
+        }
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "polyself",
+            "implementation": "js/polyself.js",
+            "symbol": "polyself",
+            "sourceReview": "Read the complete polyself.c polyself() definition (469-731) and kept its early Unchanging/system-shock guards, old-light capture, form-revert and low-control normalization, controlled input loop, placeholder substitutions, role/race admission, wizard rehumanization, lycanthrope shift, dragon merge, vampire direct target, ordinary random selection, sex-change gate, and final light-source update in C order. The selector now re-enters name_to_monclass/mkclass_poly at the C by_class target without rereading input, compares the candidate against gu.urole.mnum, compares wizard reversion against u.umonster, and tests strstri's negative index result. Direct special targets retain C's goto destinations when dragon, were, vampire, and monsterpoly predicates overlap. Dragon armor captures artifact_light/arti_light_radius before changing the armor type, preserves the C Your message, and awaits the existing maybe_adjust_light owner. The discarded polymon/newman branches remain at their existing canonical boundaries. were_beastie is moved to its were.c owner, armor_to_dragon is complete with its source mapping/default, and zapyourself's discarded polyself call is awaited through the canonical production owner. No new Unsupported refusal or invented state/RNG/output was added.",
+            "callers": [
+              {
+                "path": "js/wizcmds.js",
+                "symbol": "wiz_polyself",
+                "source": "wizcmds.c wiz_polyself() (566-572) calls polyself(POLY_CONTROLLED) for the #polyself command."
+              },
+              {
+                "path": "js/polyself.js",
+                "symbol": "dopoly",
+                "source": "polyself.c dopoly() (1877-1891) calls polyself(POLY_MONSTER) for a vampire or vampshifter."
+              },
+              {
+                "path": "js/cmd.js",
+                "symbol": "domonability",
+                "source": "cmd.c domonability() dispatches the vampire/vampshifter special ability to dopoly(), which calls polyself(POLY_MONSTER)."
+              },
+              {
+                "path": "js/zap.js",
+                "symbol": "zapyourself",
+                "source": "zap.c zapyourself() (2705-3013) discards polyself's return for WAN_POLYMORPH/SPE_POLYMORPH; the JS caller now awaits the state transition."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/polyself.test.mjs",
+              "scripts/zapyourself.test.mjs"
+            ],
+            "recordings": [
+              "recordings/polyself.c/polyself-raven-independent.session.json"
+            ],
+            "checkedAt": "c7f8a775fe2f776aefc1df6e8c9aaac2bf6ad85b"
+          }
+        ],
+        "entryPointReview": "Active production entries are the #polyself wiz_polyself command, dopoly's POLY_MONSTER vampire/vampshifter path, self-polymorph through zapyourself, and the controlled lycanthrope/dragon/vampire direct-target paths. The independent raven recording reaches the controlled selector choosing raven and existing polymon caller. Source-pinned initialized-runtime tests additionally exercise the role-monster admission and wizard reversion against the original form, while pure tests pin were_beastie, armor_to_dragon, and the strstri result contract. The direct dopoly, self-zap, controlled lycanthrope, dragon-armor, vampire, class-retry, and rare placeholder entries remain active with empty recordings until independent recipes reach them; they are not source-inactive. The existing polymon/newman callers retain their separate source gaps where those functions still contain unported branches.",
+        "entryPoints": [
+          {
+            "name": "#polyself controlled monster selection",
+            "functions": [
+              "polyself"
+            ],
+            "recordings": [
+              "recordings/polyself.c/polyself-raven-independent.session.json"
+            ]
+          },
+          {
+            "name": "dopoly vampire/vampshifter form change",
+            "functions": [
+              "polyself"
+            ],
+            "recordings": []
+          },
+          {
+            "name": "zapyourself WAN_POLYMORPH/SPE_POLYMORPH self-polymorph",
+            "functions": [
+              "polyself"
+            ],
+            "recordings": []
+          },
+          {
+            "name": "controlled lycanthrope shift, dragon armor merge, and vampire direct target",
+            "functions": [
+              "polyself"
+            ],
+            "recordings": []
+          }
+        ]
+      },
+      "progressBeforePark": {
+        "screens": 1,
+        "rng": -6
+      },
+      "parkedStanding": {
+        "sha": "0737209af932f58e30ff926172a787f595379498",
+        "screens": 10977,
+        "rng": 784606
+      },
+      "parkedReason": "Whole polyself selection and its canonical self-zap caller pass at 0737209a, including the independent controlled-raven recording. Class-retry, lycanthrope, dragon, vampire and uncontrolled self-zap entry families still need independent matching recordings; resume their coverage when downstream body-transition owners, including break_armor, support those recipes."
+    },
+    {
+      "id": "div-topl-update-topl-seed0399-20260917",
+      "kind": "divergence-fix",
+      "status": "open",
+      "summary": "Preserve the stopped-message snapshot when death replaces a pending top line",
+      "cFile": "topl.c",
+      "sessions": [],
+      "selectionReason": "Integrate the oldest independent ready delivery B23 under the loop merge order. The completed seed0399 investigation identifies update_topl at step 521 with 11 remaining-screen upper bound. Knight break_armor is separate upcoming source work, seed2200 is blocked by Q1, and A25 owns the earlier throwing mismatch.",
+      "detail": "At segment 0 step 521, C shows You die while JavaScript waits again on You feel weaker. win/tty/topl.c update_topl snapshots WIN_STOP before more; its existing-line dismissal is gated by !skip even when the death comparison later clears WIN_STOP. Preserve that entry-time condition in js/tty_message.js ttyPlineCore. The independent production-message test verifies the next key remains queued.",
+      "spans": [
+        {
+          "name": "stopped-death-message",
+          "status": "queued",
+          "closedBy": null,
+          "functions": [
+            "update_topl"
+          ]
+        }
+      ],
+      "openedAt": "fed3823aeb2bbbc6bec4c0af80e4e47397198232",
+      "openStanding": {
+        "sha": "0737209af932f58e30ff926172a787f595379498",
+        "screens": 10977,
+        "rng": 784606
+      },
+      "closedAt": null,
+      "delivered": null,
+      "function": "update_topl",
+      "session": "holdout/seed0399-wizard-hallu-actions",
+      "step": 521,
+      "activeStanding": {
+        "sha": "0737209af932f58e30ff926172a787f595379498",
+        "screens": 10977,
+        "rng": 784606
+      },
+      "openMismatches": [
+        {
+          "session": "holdout/seed0399-wizard-hallu-actions",
+          "step": 521,
+          "kind": "screen",
+          "function": null,
+          "functionDeclared": false,
+          "sourceFile": null,
+          "cFile": null,
+          "luaFile": null,
+          "line": null,
+          "message": null,
+          "unlocatedKinds": [],
+          "recordedSteps": 532,
+          "remainingScreensUpperBound": 11,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/holdout/seed0399-wizard-hallu-actions.json",
+            "result": {
+              "session": "holdout/seed0399-wizard-hallu-actions",
+              "remainingScreensUpperBound": 11,
+              "status": "complete",
+              "commit": "da3c62dda8e2cd652a8bd8ffa845b54022f37365",
+              "mismatch": {
+                "session": "holdout/seed0399-wizard-hallu-actions",
+                "step": 521,
+                "kind": "screen",
+                "function": null,
+                "functionDeclared": false,
+                "sourceFile": null,
+                "cFile": null,
+                "luaFile": null,
+                "line": null,
+                "message": null,
+                "unlocatedKinds": [],
+                "recordedSteps": 532,
+                "remainingScreensUpperBound": 11
+              },
+              "summary": "The first mismatch is now source-located in the ordinary TTY message boundary. The Escape is consumed by the More wait inside the poisontell update_topl() call, after encumber_msg() has produced the burden line. C captures skip before that more(), so it writes the attribute feedback after Escape; done_in_by() then calls pline(\"You die...\") with WIN_STOP set and replaces the pending line immediately. JavaScript mirrors the pre-more snapshot but its death path unconditionally dismisses the pending feel-weaker line, consuming later input and delaying death. The independent equipment-change refusal after the 528th emitted screen remains separate.",
+              "source": {
+                "file": "win/tty/topl.c",
+                "functions": [
+                  "more",
+                  "update_topl"
+                ],
+                "branch": "C update_topl captures skip before its more call. The poisontell call enters without WIN_STOP, waits for the burden line, and retains skip=false when Escape sets WIN_STOP, so it displays the attribute feedback. The following short You die message enters with WIN_STOP and reaches the death comparison; update_topl skips the prior-line dismissal, replaces toplines, clears WIN_STOP and redraws. JavaScript incorrectly dismisses the pending feedback on this death path.",
+                "callers": [
+                  "attrib.c: poisoned() 327-408 emits the poison notice, takes the attribute-loss arm at 393-399, and calls encumber_msg() from adjattrib() 194-198 before poisontell().",
+                  "mhitu.c: hitmu() 1191-1203 runs mhitm_adtyping(), including poisoned(), then applies the already rolled physical damage through mdamageu() at 1258; end.c: done_in_by() 184-196 owns the resulting regular pline(\"You die...\").",
+                  "js/attrib.js: poisoned() 1632-1735 and adjattrib() 1137-1233 preserve the C order; js/tty_message.js:499-505 currently dismisses any current pending line without the C !skip gate, while js/tty_message.js:442 snapshots the stop state before that call.",
+                  "js/mhitu.js:1394-1433 preserves the poison-before-physical-damage order; js/mhitu.js:1479-1495 routes lethal damage to done_in_by().",
+                  "The later emitted-screen-528 equipment-change refusal is independent of this message mismatch and remains a separate worn/monster-movement boundary."
+                ],
+                "dependencies": [
+                  "The smallest source-shaped correction is to let the JS replacement/dismissal arm run only when the stop snapshot is false (`current && !stoppedAtEntry`), matching C update_topl()'s `else if (!skip)` at 272. Do not reread the stop flag after dismissPendingTtyMessage(): C deliberately keeps the local pre-more skip value.",
+                  "The poisoned, adjattrib/encumber_msg, poisontell, hitmu/mdamageu and done_in_by call chain establishes the message order. The saved frames show the burden More prompt rejecting i, then death immediately after Escape; JavaScript delays death until later input.",
+                  "The urgent-message path remains separate: wintty.c:2272-2300 clears WIN_STOP and sets one-shot WIN_NOSTOP before update_topl(); js/tty_message.js:574-603 still has its distinct urgent stop refusal.",
+                  "The later refusal is at mon.c movemon_singlemon calling worn.c m_dowear. JavaScript allmain.moveElapsedTurnMonster injects the equipment-change boundary, and makemon_create.m_dowear admits only a narrow new W_ARMF/no-old-item runtime arm. The saved artifact does not identify the exact armor slot or inventory state."
+                ]
+              },
+              "goalKind": "divergence-fix",
+              "evidence": [
+                "Focused assigned replay run-UvHEqC (2026-09-17) emits 528 JavaScript screens and 11217 RNG entries, with no unported entry except sounds.c SoundAchievement; its output around the mismatch is: step 519 encumbrance More, step 520 ignored i, step 521 JavaScript `You feel weaker!--More--`, then step 523 `You die...--More--`.",
+                ".cache/A22-development-scan.json records the first screen/cursor divergence at segment 0 step 521, key Escape, C row 0 column 4 `d` versus JS `f`, C cursor [18,0,1] versus JS [24,0,1], with no RNG divergence before the later refusal.",
+                "sessions/holdout/seed0399-wizard-hallu-actions.session.json records C step 518 poison attribute RNG rn2(30)=5 and d(2,2)=3, step 519 encumbrance More, step 520 ignored i, and step 521 `You die...--More--` after rn2(3)=0 and rn2(6)=4 knockback draws. The physical attack then applies its already rolled damage in mhitu.c hitmu() and reaches done_in_by() with HP 0; this is not a poison RNG/state mismatch.",
+                "C attrib.c adjattrib() suppresses its own attribute-change text for msgflg 1, but its move-loop encumber_msg() still runs before poisoned() calls poisontell(); the source order explains why the ordinary feel-weaker message follows the Escape-dismissed encumbrance More.",
+                "C topl.c more() 204-248 sets WIN_STOP on Escape at 232-235; update_topl() 250-281 updates logical gt.toplines while skip is true and suppresses addtopl(). C wintty.c tty_putstr() 2259-2300 separately clears WIN_STOP for ATR_URGENT at 2277-2283. The current JS comments and code at tty_message.js 474-510 and 574-603 expose both required state transitions.",
+                "The same scan emits 528 screens before `elapsed turn reached monster equipment changes`. This later boundary is an independent source-completion limit in the worn/monmove family; the saved recording contains no exact m_dowear_type() armor slot or state sufficient to name a narrower branch.",
+                "Root rejected the initial proposed post-dismissal stop reread: C update_topl retains its entry skip snapshot after more. The actionable defect is the missing !skip condition on dismissal in the following death call, not the snapshot itself."
+              ],
+              "nextProbe": "Apply and validate the narrow `!stoppedAtEntry` gate on the JS death/replacement path, preserving the ordinary local skip snapshot and the separate urgent contract. Then replay this assigned session to verify the death frame and input alignment; keep the later equipment-change boundary as an independent remaining source gap."
+            }
+          }
+        }
+      ]
     }
   ]
 }
