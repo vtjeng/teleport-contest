@@ -62499,14 +62499,14 @@
           "line": 947,
           "endLine": 960,
           "declared": true,
-          "complete": false
+          "complete": true
         },
         {
           "name": "minliquid_core",
           "line": 961,
           "endLine": 1125,
           "declared": true,
-          "complete": false
+          "complete": true
         }
       ],
       "range": {
@@ -62590,7 +62590,153 @@
             }
           }
         }
-      ]
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "minliquid",
+            "implementation": "js/mon.js",
+            "symbol": "minliquid",
+            "sourceReview": "Read mon.c:947-959. The port sets iflags.sad_feeling from tame-and-unseen state, calls minliquid_core, and clears the flag on every return path. The asynchronous wrapper preserves the core return value and operation environment. Supporting callers are source-reviewed separately: potion.c split_mon (including its used cloneu/clone_mon returns), mhitu.c cloneu, makemon.c clone_mon, teleport.c tele_restrict/rloc, fountain.c dryup, monmove.c monflee, hack.c domove_swap_with_pet, and fountain.c gush. Discarded nonempty inventory chains remain named at their exact source boundaries as trap.c fire_damage_chain/water_damage_chain, and discarded overcrowding remains mon.c deal_with_overcrowding. The former unportedMinliquidReason species refusal is removed. The canonical rloc owner remains partial for exceptional relocation states; no claim of complete teleport.c coverage is made. Supporting cloneu uses makemon_runtime with the source flags NO_MINVENT|MM_EDOG|MM_NOMSG, its exact hero-species/position caller admission, and the planning environment. The initialized runtime witness in unported-monster-actions.test.mjs exercises real creation, preserves the live hero HP, RNG, display and monster list, and verifies clone HP and planning state; bounded worker run-GSWKpI passed 672 focused tests and run-o3U9iT lint.",
+            "callers": [
+              {
+                "path": "js/mon.js",
+                "symbol": "movemon_singlemon",
+                "source": "mon.c:1265 invokes minliquid() after the monster movement debit; js/mon.js movemon_singlemon awaits the same operation before later monster movement effects."
+              },
+              {
+                "path": "js/unported_monster_actions.js",
+                "symbol": "planSimpleMonsterScan",
+                "source": "The planning movement adapter supplies minliquid through the same mon.c:1265 movemon path, forwarding cloned state, RNG, relocation, and output seams."
+              },
+              {
+                "path": "js/allmain.js",
+                "symbol": "elapsedTurnMinLiquid",
+                "source": "mon.c:1265 movemon_singlemon and mon.c:1188 m_calcdistress (zero-speed monsters) invoke minliquid; the elapsed-turn adapter supplies the same canonical operation with live or planning state."
+              },
+              {
+                "path": "js/hack.js",
+                "symbol": "domove_swap_with_pet",
+                "source": "hack.c:2179 invokes minliquid() after placing the swapped monster; the JS caller supplies the complete teleport.c relocation seam and preserves the discarded overcrowding boundary."
+              },
+              {
+                "path": "js/fountain.js",
+                "symbol": "gush",
+                "source": "fountain.c:158 discards minliquid()'s integer result; the JS caller forwards a complete rloc environment and keeps source-order continuation to the next clear-area square."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/unported-monster-actions.test.mjs",
+              "scripts/allmain-turn.test.mjs"
+            ],
+            "recordings": [
+              "recordings/mon.c/bee-eats-royal-jelly-span.session.json"
+            ],
+            "checkedAt": "85e99ee04ab33d307834b4e3006f3a5f3a3a2981"
+          },
+          {
+            "name": "minliquid_core",
+            "implementation": "js/mon.js",
+            "symbol": "minliquid_core",
+            "sourceReview": "Read mon.c:961-1122 in full. The port preserves waterwall, pool, lava, and fountain predicates; flyer/floater and Plane-of-Water handling; steed flight/levitation ordering; gremlin split and conditional fountain dryup; iron-golem rn2(5), d(2,6), maximum/current HP and unconditional mondied death ordering; teleport restriction and rloc flags; lava resistance, death and fire inventory/overcrowding order; pool drowning, engulfed message, death and water inventory/overcrowding order; and stranded eel rn2(mhp), rn2(8), and monflee order. Used-return split_mon, tele_restrict, rloc, and death owners are awaited. Source-discarded inventory chains and deal_with_overcrowding are named and skipped only at their actual call boundaries, with no synthetic draw or state substitute. The hack.c domove_swap_with_pet and fountain.c gush callers provide complete relocation seams for the rloc results consumed here. The former unportedMinliquidReason species refusal is removed. The canonical rloc owner remains partial for exceptional relocation states; no claim of complete teleport.c coverage is made.",
+            "callers": [
+              {
+                "path": "js/mon.js",
+                "symbol": "minliquid",
+                "source": "mon.c:953 calls minliquid_core() from minliquid(); js/mon.js awaits the core and returns its integer result."
+              },
+              {
+                "path": "js/mon.js",
+                "symbol": "movemon_singlemon",
+                "source": "mon.c:1265 reaches the core through minliquid(); js/mon.js preserves the movement stop decision from the returned 0/1 value."
+              },
+              {
+                "path": "js/hack.js",
+                "symbol": "domove_swap_with_pet",
+                "source": "hack.c:2179 reaches minliquid after moving the monster; the caller forwards relocation and named discarded-call seams."
+              },
+              {
+                "path": "js/fountain.js",
+                "symbol": "gush",
+                "source": "fountain.c:158 reaches minliquid after creating a pool; the caller forwards relocation and named discarded-call seams."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/unported-monster-actions.test.mjs",
+              "scripts/trap-rust-trap.test.mjs"
+            ],
+            "recordings": [
+              "recordings/mon.c/bee-eats-royal-jelly-span.session.json"
+            ],
+            "checkedAt": "85e99ee04ab33d307834b4e3006f3a5f3a3a2981"
+          }
+        ],
+        "entryPointReview": "The active production entries are monster movement into a pool, waterwall, fountain, lava, or dry terrain with a stranded eel; gremlin multiplication, iron-golem rust, steed/Plane-of-Water handling, teleport escape, drowning, fire death, and monster relocation are enumerated in mon.c:961-1122. Direct source callers also include hack.c domove_swap_with_pet at 2179 and fountain.c gush at 158; both JS callers now forward the canonical rloc operation set; hack consumes the liquid result as Trap_Killed_Mon, while fountain discards it. The trap.c trapeffect_rust_trap gremlin branch calls split_mon directly, so it is supporting split_mon evidence rather than a minliquid entry. Focused tests exercise each source branch with mocked source-order draws and the caller adapters, while the committed bee-eats-royal-jelly recording reaches the ordinary monster movement caller and is strictly matched by bounded run-0mx6lr; it supplies generic minliquid/minliquid_core caller evidence. The two new liquid session files are not cited for branch coverage because they stop before a source-confirmed liquid branch. No matching production recording currently proves minliquid/minliquid_core through a liquid-specific entry, or the supporting split_mon/cloneu/clone_mon liquid entries; these active entry points remain open for later recording. mon.c:1188 m_calcdistress also calls minliquid for zero-speed monsters and is wired through elapsedTurnMinLiquid. Additional C callers at mklev.c:2588, hack.c:2906, dothrow.c:1175, dog.c:182, dig.c:877, mhitm.c:944, dbridge.c:990 and zap.c:5078 remain unverified production routes in partial or unported enclosing paths; they are not claimed as completed by this delivery. The two untracked probe recordings remain diagnostic artifacts only, with no independent liquid-branch evidence claimed. Review of latest correction 452ef204 confirms runtime clone admission and the corrected swap-caller comment.",
+        "entryPoints": [
+          {
+            "name": "monster enters pool, waterwall, fountain, or lava through ordinary movement",
+            "functions": [
+              "minliquid",
+              "minliquid_core"
+            ],
+            "recordings": []
+          },
+          {
+            "name": "gremlin multiplication and fountain or pool cleanup",
+            "functions": [
+              "minliquid_core"
+            ],
+            "recordings": []
+          },
+          {
+            "name": "iron-golem rust and death continuation in a pool",
+            "functions": [
+              "minliquid_core"
+            ],
+            "recordings": []
+          },
+          {
+            "name": "lava teleport, fire death, resistant burn, and relocation continuation",
+            "functions": [
+              "minliquid_core"
+            ],
+            "recordings": []
+          },
+          {
+            "name": "stranded eel distress outside liquid",
+            "functions": [
+              "minliquid_core"
+            ],
+            "recordings": []
+          },
+          {
+            "name": "monster swap enters a pool or lava through hack.c domove_swap_with_pet",
+            "functions": [
+              "minliquid",
+              "minliquid_core"
+            ],
+            "recordings": []
+          },
+          {
+            "name": "fountain gush floods a square containing a monster",
+            "functions": [
+              "minliquid",
+              "minliquid_core"
+            ],
+            "recordings": []
+          },
+          {
+            "name": "zero-speed monster distress and other source liquid callers in level generation, movement, throwing, pet creation, digging, combat, drawbridges and zapping",
+            "functions": [
+              "minliquid",
+              "minliquid_core"
+            ],
+            "recordings": []
+          }
+        ]
+      }
     }
   ]
 }
