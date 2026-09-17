@@ -60,7 +60,11 @@ import {
 import { attach_fig_transform_timeout } from './timeout.js';
 import { ttyPline, ttyUrgentPline } from './tty_message.js';
 import { cansee } from './vision.js';
-import { extract_from_minvent, setnotworn } from './worn.js';
+import {
+    extract_from_minvent,
+    setnotworn,
+    update_mon_extrinsics,
+} from './worn.js';
 import { uwepgone, uswapwepgone } from './wield.js';
 import { monnear } from './monmove.js';
 import { stop_occupation } from './allmain.js';
@@ -573,19 +577,14 @@ function dropEnv(rawEnv = {}) {
     return { ...rawEnv, state };
 }
 
-// Passing do_extrinsics false leaves the WornEnv endArtifactLight hook as the
-// only missing operation extract_from_minvent() can ask mdrop_obj() for. It
-// would throw worn.js's bare "worn requires ..." Error, which js/jsmain.js does
-// not recognize as a boundary, so a segment would be discarded rather than
-// ended.
+// Passing do_extrinsics false keeps the steed's saddle from dismounting its
+// rider before the object reaches the floor. The extraction owner still
+// handles source cleanup and mdrop_obj() invokes update_mon_extrinsics() at the
+// required post-placement point below.
 //
-// endArtifactLight, at worn.c 1399-1400, wants a lamplit W_ARM object that
-// artifact_light() recognizes. mdrop_obj() currently stops one call earlier:
-// js/objnam.js refuses 'lit worn-object suffix' for any lamplit worn object,
-// a wider condition than that arm's, when distant_name() names the object.
-// Further out, js/makemon_create.js m_dowear_type() omits worn.c 973-975's
-// begin_burn(), so nothing a monster wears is lamplit to begin with.
-// scripts/steal.test.mjs pins the near gate, which is the one that holds.
+// endArtifactLight, at worn.c 1399-1400, remains an injected boundary when a
+// surviving drop reaches a lit suit. The ordinary equipped-armor tail now
+// runs through the canonical update owner.
 //
 // mwepgone, at worn.c 1414-1415, wants a W_WEP object, and nothing refuses a
 // wielded weapon's name. extractionEnv() supplies the weapon.c implementation
@@ -674,18 +673,15 @@ export async function mdrop_obj(mon, obj, verbosely, rawEnv = {}) {
     /* do this last, after placing obj on floor; removing steed's saddle
        throws rider, possibly inflicting fatal damage and producing bones; this
        is why we had to call extract_from_minvent() with do_intrinsics=FALSE */
-    // worn.c update_mon_extrinsics() (579-712) has only a partial port:
-    // js/makemon_create.js updateMonsterArmorEffects() covers the INVIS arm for
-    // a mummy wrapping and the FAST arm for speed boots, which is what
-    // creation-time gear carries, and discard_minvent() calls it on the same
-    // !DEADMONSTER() arm this refusal stands on. Equipment outside that set
-    // reaches neither arm, so a monster that survives losing it stops here.
-    // Whoever ports the rest owns both copies: move them into js/worn.js under
-    // the C name rather than adding a third. A dead monster does not stop:
-    // DEADMONSTER() is exactly what keeps the common case -- the hero's kill
-    // emptying a corpse's pack through mon.c m_detach() -- clear of that call.
+    // C calls the now-canonical worn.c owner after the object reaches the
+    // floor.  It passes silently=TRUE, so speed changes update state without
+    // adding the visible adjustment message at this source point.
     if (!(mon.mhp < 1) /* !DEADMONSTER() */ && unwornmask)
-        unsupported('a surviving monster losing gear it had equipped');
+        await update_mon_extrinsics(mon, obj, false, {
+            ...env,
+            state,
+            silent: true,
+        });
 }
 
 // C ref: steal.c relobj() (873-899). Release the objects a creature carries.

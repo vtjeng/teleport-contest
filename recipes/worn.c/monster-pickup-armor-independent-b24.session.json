@@ -5,14 +5,14 @@
       "seed": 8900275,
       "datetime": "20310203040506",
       "nethackrc": "OPTIONS=name:Hoarder,role:Barbarian,race:human,gender:male,align:chaotic\nOPTIONS=!legacy,!tutorial,!splash_screen\nOPTIONS=pettype:none,!acoustics\n",
-      "moves": "ssssssssssssssss"
+      "moves": "sssssssssssssssss"
     },
     {
       "seed": 8900275,
       "datetime": "20310203040506",
       "nethackrc": "OPTIONS=name:Hoarder,role:Barbarian,race:human,gender:male,align:chaotic\nOPTIONS=!legacy,!tutorial,!splash_screen\nOPTIONS=pettype:none,!acoustics,!verbose\n",
-      "moves": "ssssssssssssssss"
+      "moves": "ssssssssssssssssss"
     }
   ],
-  "_comment": "Independent B24 equipment-reassessment witness: the source-selected untamed pickup reaches the out-of-sight equipment boundary after sixteen searches. Its final frames have no pickup or wear text, so the recording is not counted as visible proof of an equipped item; the source-pinned runtime test records the monster/item/worn-mask/frozen transition. The seed, clock, character, and searches were selected independently of the fixed holdout. The second segment keeps the same route with verbose output disabled as a cheap message-arm variation."
+  "_comment": "Independent B24 equipment-reassessment witness: the source-selected untamed pickup reaches the out-of-sight equipment boundary after sixteen searches, and the seventeenth search runs the production worn.c m_dowear turn. The first segment ends immediately after the cloak is worn; the second continues one more search as a cheap longer-turn variation. Its final frames have no pickup or wear text, so the recording is not counted as visible proof from screen text; the production runSegment state check records goblin PM_GOBLIN carrying CLOAK_OF_PROTECTION before the turn and W_ARMC after it. The seed, clock, character, and searches were selected independently of the fixed holdout."
 }

@@ -68,6 +68,7 @@ import { monnear } from './monmove.js';
 import { restore_cham, wake_nearto } from './mon.js';
 import { m_at, mon_track_clear, remove_monster } from './monst.js';
 import { livelog_printf } from './pline.js';
+import { update_mon_extrinsics } from './worn.js';
 import {
     AT_WEAP,
     M1_AMORPHOUS,
@@ -553,6 +554,14 @@ export function put_saddle_on_mon(saddle, monster, env = {}) {
     monster.misc_worn_check |= W_SADDLE;
     saddle.owornmask = W_SADDLE;
     saddle.leashmon = monster.m_id;
+    // steed.c:162 calls update_mon_extrinsics() with silently=FALSE even
+    // though SADDLE has no property arm. Keep the source call at this point so
+    // a future saddle property change cannot silently bypass the owner.
+    update_mon_extrinsics(monster, saddle, true, {
+        ...normalized,
+        state: normalized.state,
+        silent: false,
+    });
     return saddle;
 }
 
