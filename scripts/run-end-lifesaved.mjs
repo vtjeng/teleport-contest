@@ -15,6 +15,8 @@ const RECIPE_PATHS = [
     '../recipes/end.c/lifesaved-amulet-wizard-independent.session.json',
     '../recipes/end.c/lifesaved-amulet-tourist-variation.session.json',
     '../recipes/end.c/lifesaved-amulet-monster-independent.session.json',
+    '../recipes/end.c/lifesaved-amulet-tourist-continuation.session.json',
+    '../recipes/end.c/lifesaved-amulet-monster-continuation.session.json',
 ];
 
 function loadRecipe(path) {
@@ -47,7 +49,11 @@ export async function runEndLifesavedMatrix() {
                 ? 'end.c life-saving Wizard'
                 : index === 1
                     ? 'end.c life-saving Tourist variation'
-                    : 'end.c life-saving monster damage',
+                    : index === 2
+                        ? 'end.c life-saving monster damage'
+                        : index === 3
+                            ? 'end.c life-saving Tourist continuation'
+                            : 'end.c life-saving monster continuation',
             recipe,
         })),
         summaryLabel: 'END.C LIFE-SAVING',

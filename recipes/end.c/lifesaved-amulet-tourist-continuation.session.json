@@ -1,0 +1,12 @@
+{
+  "_comment": "Independent end.c continuation witness: a debug Tourist wishes and wears a life-saving amulet, then self-zaps with a wished wand of death. The extra m. command runs after the reprieve and carries the turn through its next upkeep boundary; the role and seed are independent of the Wizard and monster cases.",
+  "version": 5,
+  "segments": [
+    {
+      "seed": 917346,
+      "datetime": "20310922101500",
+      "nethackrc": "OPTIONS=name:LifeTouristNext,role:Tourist,race:human,gender:male,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen\nOPTIONS=pettype:none,!acoustics,!autopickup\n",
+      "moves": " .\u0017amulet of life saving\nWl\u0017wand of death\nzm.   n m. "
+    }
+  ]
+}
