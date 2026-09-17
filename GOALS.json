@@ -62259,6 +62259,127 @@
         "rng": 785954
       },
       "parkedReason": "The verified stoning span adds 15 development screen matches and four matching recordings. Hero/monster directions, successful petrification, physical corpse entry and attack-triggered stone-golem conversion remain unrecorded or blocked by make_stoned/minstapetrify/do_stone_mon gaps. Resume when the required source owners and production recordings are available and queue priority permits."
+    },
+    {
+      "id": "port-insight-show-achievements-seed4500-20260917",
+      "kind": "file-port",
+      "status": "open",
+      "summary": "Display recorded achievements through the conduct window",
+      "cFile": "insight.c",
+      "sessions": [
+        "holdout/seed4500-knight-coverage"
+      ],
+      "selectionReason": "The first eligible session is holdout/seed4500-knight-coverage, with 241 remaining screens as an upper bound. investigations/holdout/seed4500-knight-coverage.json traces the step-1573 conduct mismatch to insight.c show_achievements. Worker B owns this primary display scope; worker A separately owns the later mon.c minliquid stop. The other queued session has the unresolved input-contract question Q1.",
+      "detail": "",
+      "spans": [
+        {
+          "name": "show_achievements",
+          "status": "queued",
+          "closedBy": null,
+          "functions": [
+            "show_achievements"
+          ]
+        }
+      ],
+      "openedAt": "8df858428facf173c72ca7424e95c173010e0019",
+      "openStanding": {
+        "sha": "26515ac339a181f9be07d4bfa68224f786902c37",
+        "screens": 11157,
+        "rng": 785954
+      },
+      "closedAt": null,
+      "delivered": null,
+      "functions": [
+        {
+          "name": "show_achievements",
+          "line": 2243,
+          "endLine": 2406,
+          "declared": false,
+          "complete": false
+        }
+      ],
+      "range": {
+        "from": 2243,
+        "to": 2406
+      },
+      "activeStanding": {
+        "sha": "26515ac339a181f9be07d4bfa68224f786902c37",
+        "screens": 11157,
+        "rng": 785954
+      },
+      "openMismatches": [
+        {
+          "session": "holdout/seed4500-knight-coverage",
+          "step": 1573,
+          "kind": "screen",
+          "function": null,
+          "functionDeclared": false,
+          "sourceFile": null,
+          "cFile": null,
+          "luaFile": null,
+          "line": null,
+          "message": null,
+          "unlocatedKinds": [],
+          "recordedSteps": 1814,
+          "remainingScreensUpperBound": 241,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/holdout/seed4500-knight-coverage.json",
+            "result": {
+              "session": "holdout/seed4500-knight-coverage",
+              "remainingScreensUpperBound": 241,
+              "status": "complete",
+              "commit": "26515ac339a181f9be07d4bfa68224f786902c37",
+              "mismatch": {
+                "session": "holdout/seed4500-knight-coverage",
+                "step": 1573,
+                "kind": "screen",
+                "function": null,
+                "functionDeclared": false,
+                "sourceFile": null,
+                "cFile": null,
+                "luaFile": null,
+                "line": null,
+                "message": null,
+                "unlocatedKinds": [],
+                "recordedSteps": 1814,
+                "remainingScreensUpperBound": 241
+              },
+              "summary": "The first mismatch is the #conduct window at step 1573: C appends an Achievements header and seven entries, but JavaScript ends after voluntary challenges because show_achievements is unported. Port the whole insight.c show_achievements function and its conduct/disclosure callers. A separate later stop at 1576 is mon.c minliquid_core stranded-eel behavior; its complete liquid-effects family is also missing. Liquid dependencies also require replacing existing split-call placeholders and correcting clone naming and copied fields. Preserve the independent stoning, passive, eating and polymorph cleanup coverage gaps.",
+              "source": {
+                "file": "insight.c",
+                "functions": [
+                  "show_achievements"
+                ],
+                "branch": "C insight.c show_achievements 2243–2402 returns for ordinary non-wizard play or an empty achievement list, otherwise appends to the active conduct window or creates a separate menu. It preserves recorded achievement order except ascension/Amulet reordering, formats possession-sensitive tense and gender-sensitive rank names, and displays/destroys only a separately created window. The wizard #conduct entry reaches the active-window path.",
+                "callers": [
+                  "C insight.c doconduct 2081–2085 calls show_conduct; show_conduct calls show_achievements before displaying the menu at 2230. js/cmd.js dispatches doconduct to js/insight.js show_conduct, whose achievement branch currently only records note_unported.",
+                  "C end-of-game disclose/dump paths also use show_conduct; preserve final tense and active versus separately owned window behavior when wiring the whole function."
+                ],
+                "dependencies": [
+                  "Reuse insight.c count_achievements, remove_achievement and record_achievement, plus botl.c rank_of/rank_to_xlev and the existing enlightenment text helpers. Check their source definitions and current owners; ascension reordering changes the achievement list rather than merely sorting display text.",
+                  "The later mon.c minliquid/minliquid_core 945–1122 scope includes gremlin splitting, iron-golem rust, lava/water death and recovery, steed/Plane-of-Water gates, and stranded-eel distress. Eel HP greater than one gates rn2(mhp) then rn2(8); monflee(mtmp,2,FALSE,FALSE) still runs when HP does not decrease.",
+                  "Liquid dependencies include return-valued potion.c split_mon, mhitu.c cloneu and makemon.c clone_mon; preserve split current/max HP, RNG and planning output. Inventory chain calls whose discarded owners remain unported must stay named gaps.",
+                  "Separate unresolved coverage: make_stoned/minstapetrify/do_stone_mon stoning gaps; unrecorded hero/monster stoning directions, corpse-weapon entry and attack-triggered stone-golem conversion; passive cold/fire/electricity/paralysis and lethal/recovery families; eating/non-food cleanup; skinback artifact-light radius and rare armor/Eyes-of-the-Overworld cleanup.",
+                  "Existing implemented split_mon callers still have placeholders in mhitu.c passiveum and trap.c water effects (js/trap_effects.js). Replace them with the canonical potion.c owner when it lands, carrying the caller environment. The existing uhitm.c pudding split caller also needs the clone operation environment. Still-unported containing paths remain separate active gaps.",
+                  "makemon.c clone_mon uses the return of shknam.c shkname when naming an unnamed shopkeeper clone. The canonical JavaScript shkname exists, but clone_mon retains a stale unported placeholder. Its C struct copy preserves mw, copies all EMIN fields including parentmid, and copies EDOG ogoal by value; current JavaScript clears mw, copies only two EMIN fields and shallow-copies the EDOG coordinate. Reconcile these source differences in the split dependency."
+                ]
+              },
+              "goalKind": "file-port",
+              "evidence": [
+                ".cache/A31-development-scan.json identifies screen and cursor divergence at 1573, key newline, row 11 column 34: C blank versus JS hyphen; C cursor [42,20,1], JS [42,11,1]. It later stops at 1576 with simple monster action requires an eel out of water. The current queue upper bound is 241, distinct from the 239 actually unmatched Knight screens.",
+                "Decoding sessions/holdout/seed4500-knight-coverage.session.json segment0 step1573 shows Voluntary challenges followed by Achievements: four rank entries (Esquire, Bachelor, Sergeant, Knight), Gehennom, Gnomish Mines and Minetown. The source show_achievements emits these from u.uachieved; JS show_conduct at 2734–2741 only notes the missing helper before displaying its shorter menu.",
+                "C insight.c show_achievements 2243–2402 defines the complete list/window behavior, with show_conduct 2230 as the production caller. The scan reports insight.c show_achievements in its reached unported set. This establishes the missing source owner without inferring a generic menu-layout defect.",
+                "C mon.c minliquid_core 961–1122 and the explicit guards in js/unported_monster_actions.js identify the separate later eel stop. Keep this source scope independent of achievement display.",
+                "At 26515ac339a181f9be07d4bfa68224f786902c37, checkpoint run-PzEsMU passes all 357 recordings and matches 1575 Knight screens, 101391 RNG calls and 1575 cursors. The per-session comparison against accepted 58e22132 gains 15 screens, 135 RNG calls and 15 cursors only in Knight, with no losses elsewhere.",
+                "The previous mhitm_ad_ston-first-stop explanation is superseded. Three cockatrice recordings cover monster-to-hero stoning and resistance; the separate golem command recording establishes fixed HP only, not an attack-triggered conversion. All named stoning and earlier cleanup coverage gaps remain open.",
+                "C split_mon call sites include mhitu.c2574 and trap.c1653/1720. Current js/mhitu.js passiveum and js/trap_effects.js still record the helper as unported; these are implemented callers, distinct from containing paths that remain unported. C makemon.c clone_mon837–962, monst.h196/210 and mextra.h151–185 establish the clone field-copy requirements. js/shknam.js86–121 already supplies the shopkeeper naming owner that clone_mon incorrectly describes as absent.",
+                "Counter-evidence for liquid teleport tracing: js/mon.js liquidTeleportRestricted already implements both the level restriction and its visible message. Do not reopen a missing-message diagnosis. It duplicates teleport.c tele_restrict, while its naming call omits the operation environment forwarded by the canonical JavaScript owner; verify that forwarding when wiring the complete liquid path."
+              ]
+            }
+          }
+        }
+      ]
     }
   ]
 }
