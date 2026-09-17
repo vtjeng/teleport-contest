@@ -3235,9 +3235,13 @@ test('dochug gives Conflict monsters the source movement turn', async () => {
     const movement = [];
     const attacks = [];
     const ranges = [];
+    const draws = [];
     const env = {
         state,
-        random: { rn2: () => 1, rnd: () => 1 },
+        random: {
+            rn2(bound) { draws.push(['rn2', bound]); return 1; },
+            rnd(bound) { draws.push(['rnd', bound]); return 1; },
+        },
         preflight() {},
         usePreMoveItems: () => false,
         moveMonster(candidate) {
@@ -3264,6 +3268,7 @@ test('dochug gives Conflict monsters the source movement turn', async () => {
     assert.deepEqual(movement, [monster.m_id]);
     assert.deepEqual(attacks, []);
     assert.deepEqual(ranges, [true, true]);
+    assert.deepEqual(draws, []);
 });
 
 // monmove.c:967.  The phase-four Conflict disjunct has no iswiz exception;
@@ -3271,6 +3276,9 @@ test('dochug gives Conflict monsters the source movement turn', async () => {
 test('dochug applies the phase-four Conflict roll to peaceful wizards', async () => {
     const { state } = makeState();
     state.u.uprops[CONFLICT] = { intrinsic: 1, extrinsic: 0, blocked: 0 };
+    state.u.acurr = { a: [] };
+    state.u.acurr.a[A_CHA] = 10;
+    state.u.ulevel = 1;
     const monster = ordinaryMonster(state, {
         mx: 9,
         my: 10,
@@ -3280,6 +3288,7 @@ test('dochug applies the phase-four Conflict roll to peaceful wizards', async ()
         mspec_used: 1,
         mpeaceful: true,
         iswiz: true,
+        m_lev: 1,
     });
     const movement = [];
     const attacks = [];
@@ -3287,10 +3296,10 @@ test('dochug applies the phase-four Conflict roll to peaceful wizards', async ()
     const env = {
         state,
         random: {
-            rn2: () => 1,
+            rn2(bound) { bounds.push(['rn2', bound]); return 1; },
             rnd(bound) {
-                bounds.push(bound);
-                return 0;
+                bounds.push(['rnd', bound]);
+                return 1;
             },
         },
         preflight() {},
@@ -3317,7 +3326,7 @@ test('dochug applies the phase-four Conflict roll to peaceful wizards', async ()
     assert.equal(await dochug(monster, env), 0);
     assert.deepEqual(movement, [true]);
     assert.deepEqual(attacks, [monster.m_id]);
-    assert.deepEqual(bounds, [20]);
+    assert.deepEqual(bounds, [['rnd', 20]]);
 });
 
 test('m_can_break_boulder preserves rider and cooldown exceptions', () => {
