@@ -1048,7 +1048,7 @@ test('every zap refusal names a zap.c function the port has not ported',
             'zhitu', 'zhitu',
             // zapnodir() and weffects() retain their source defaults for
             // directionless or unsupported caller families.
-            'zapnodir', 'zap_steed', 'zapsetup', 'ubuzz', 'weffects',
+            'zapnodir', 'ubuzz', 'weffects',
         ],
     );
 });

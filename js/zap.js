@@ -108,6 +108,7 @@ import {
     M_SEEN_SLEEP,
     OBJ_AT,
     OBJ_FLOOR,
+    OBJ_INVENT,
     CORPSTAT_FEMALE,
     CORPSTAT_GENDER,
     CORPSTAT_MALE,
@@ -122,6 +123,7 @@ import {
     NO_MINVENT,
     NON_PM,
     NOTELL,
+    G_GENOD,
     REFLECTING,
     ROOM,
     ROWNO,
@@ -148,6 +150,7 @@ import {
     STUNNED,
     TELEPORT_CONTROL,
     THROWN_WEAPON,
+    ZAPPED_WAND,
     WAND_BACKFIRE_CHANCE,
     WAND_WREST_CHANCE,
     WEB,
@@ -176,6 +179,8 @@ import {
     u_at,
     uhim,
     Upolyd,
+    NC_SHOW_MSG,
+    NC_VIA_WAND_OR_SPELL,
 } from './const.js';
 import { stop_occupation } from './allmain.js';
 import { acurr, exercise } from './attrib.js';
@@ -230,6 +235,7 @@ import { get_obj_location } from './light.js';
 import { monhp_per_lvl } from './makemon.js';
 import {
     makemon_revival,
+    makemon_runtime,
     newcham_revival,
 } from './makemon_create.js';
 import {
@@ -281,23 +287,35 @@ import {
     free_omid,
     free_omonst,
     is_helmet,
+    isBox,
     isMetallic,
     is_pick,
+    mkobj,
+    mksobj,
     mksobj_at,
     objectType,
     obj_ice_effects,
+    recreate_pile_at,
+    replace_object,
     remove_object,
+    rnd_class,
     splitobj,
+    weight,
 } from './obj.js';
 import { objectGenerationEnv } from './object_generation.js';
 import {
     CORPSE,
     AMULET_OF_LIFE_SAVING,
+    AMULET_OF_UNCHANGING,
+    BOULDER,
     DWARVISH_CLOAK,
     HEAVY_IRON_BALL,
     IMMEDIATE,
     NODIR,
     POTION_CLASS,
+    POT_FULL_HEALING,
+    POT_POLYMORPH,
+    POT_WATER,
     RING_CLASS,
     ROCK,
     SCROLL_CLASS,
@@ -307,13 +325,19 @@ import {
     SPE_FINGER_OF_DEATH,
     SPE_HEALING,
     SPE_MAGIC_MISSILE,
+    SPE_BLANK_PAPER,
     SPE_SLEEP,
     TOOL_CLASS,
     WAND_CLASS,
+    STATUE,
+    FIGURINE,
     WEAPON_CLASS,
     WAN_DEATH,
     WAN_DIGGING,
     WAN_LIGHTNING,
+    WAN_LIGHT,
+    WAN_POLYMORPH,
+    WAN_WISHING,
     WAN_STRIKING,
     WAN_MAGIC_MISSILE,
     WAN_SECRET_DOOR_DETECTION,
@@ -323,6 +347,7 @@ import {
     SCR_FIRE,
     SPE_TELEPORT_AWAY,
     GLASS,
+    STRANGE_OBJECT,
 } from './objects.js';
 import {
     The,
@@ -381,8 +406,8 @@ import { stairway_at } from './stairs.js';
 import { is_ice } from './terrain.js';
 import { burnarmor } from './trap_erode_obj.js';
 import {
-    conjoined_pits, delfloortrap, is_lava, is_pool, maketrap, reset_utrap,
-    set_utrap, t_at,
+    conjoined_pits, delfloortrap, fill_pit, is_lava, is_pool, maketrap,
+    reset_utrap, set_utrap, t_at,
 } from './trap.js';
 import { dotrap, mintrap } from './trap_effects.js';
 import { shade_miss } from './uhitm.js';
@@ -1437,10 +1462,9 @@ export async function makewish(state = game) {
 // and mon.c's writers use the same name. Every caller reads it after the call
 // rather than the return value, which is the monster hit.
 //
-// Only THROWN_WEAPON is ported here, because dothrow.c throwit() is bhit()'s
-// caller in this port. Everything the other five call types reach -- zap_map(),
-// bhitpile(), flash_hits_mon(), hits_bars(), doorlock() -- belongs to the
-// commands that use them.
+// The THROWN_WEAPON and ZAPPED_WAND walks are ported here.  The immediate arm
+// deliberately has no transient glyph: C's bhit() calls zap_map() and the two
+// callbacks on each square before testing whether the ray may continue.
 //
 // The thrown-weapon walk has several early-stop branches: a shopkeeper
 // catching a pick-axe, a lit object lighting the squares it passes, iron bars,
@@ -1464,6 +1488,314 @@ export class UnsupportedBhitError extends Error {
     }
 }
 
+// The following helpers are the IMMEDIATE-wand object arm from zap.c.  They
+// live here (rather than in obj.js) because zap.c owns the polymorph policy;
+// obj.js remains the owner of allocation and chain mechanics.
+
+function zapObjectEnv(state, random, rawEnv = {}) {
+    return objectGenerationEnv({
+        ...rawEnv,
+        state,
+        random,
+        redraw: rawEnv.redraw ?? ((x, y) => newsym(x, y, state)),
+    });
+}
+
+// C ref: obj.h unpolyable() and zap.c obj_unpolyable() (1678-1683).
+// The first four terms are the source macro; obj_resists() is the final
+// ordinary/artifact protection check and is deliberately always evaluated.
+export function obj_unpolyable(obj, state = game, random = { rn2 }) {
+    if (!obj || typeof obj !== 'object')
+        throw new TypeError('obj_unpolyable requires an object');
+    if (obj.otyp === WAN_POLYMORPH
+        || obj.otyp === POT_POLYMORPH
+        || obj.otyp === AMULET_OF_UNCHANGING)
+        return true;
+    return obj_resists(obj, 5, 95, { state, random });
+}
+
+// C ref: zap.c obj_shudders() (1476-1499).  This is pure apart from the one
+// rn2 which chooses whether system shock happens.
+export function obj_shudders(obj, state = game, random = { rn2 }) {
+    if (state.context?.bypasses && obj.bypass) return false;
+    let odds;
+    if (obj.oclass === WAND_CLASS || obj.cursed) odds = 3;
+    else if (obj.blessed) odds = 12;
+    else odds = 8;
+    if (obj.quan > 4) odds = Math.trunc(odds / 2);
+    return random.rn2(odds) === 0;
+}
+
+// C ref: zap.c do_osshock() (1637-1674).  delobj() consumes the final
+// object-resistance draw after the system-shock roll, so keep deletion in the
+// source order instead of using a direct grid splice.
+export function do_osshock(obj, state = game, random = { rn2, rnd }, rawEnv = {}) {
+    if (!obj || typeof obj !== 'object')
+        throw new TypeError('do_osshock requires an object');
+    state.go ??= {};
+    state.gp ??= {};
+    state.go.obj_zapped = true;
+    if (state.gp.poly_zapped == null || state.gp.poly_zapped < 0) {
+        const luck = Math.trunc(state.u?.uluck ?? 0)
+            + Math.trunc(state.u?.moreluck ?? 0);
+        for (let count = Math.trunc(obj.quan ?? 0); count; --count) {
+            if (!random.rn2(luck + 45)) {
+                state.gp.poly_zapped = objectType(obj, state).oc_material;
+                break;
+            }
+        }
+    }
+    if (obj.quan > 1) {
+        obj = splitobj(obj, random.rnd(Math.trunc(obj.quan) - 1),
+            zapObjectEnv(state, random, rawEnv));
+    }
+    delobj_core(obj, false, zapObjectEnv(state, random, rawEnv));
+}
+
+// C ref: zap.c polyuse() (1505-1544).  The object successor is captured
+// before each deletion because delobj() changes both pile chains.
+export function polyuse(objhdr, material, minwt, state = game,
+    random = { rn2 }, rawEnv = {}) {
+    let current = objhdr;
+    while (minwt > 0 && current) {
+        const next = current.nexthere;
+        if (!(state.context?.bypasses && current.bypass)
+            && current !== state.uball && current !== state.uchain
+            && !obj_resists(current, 0, 0, { state, random })) {
+            const sameMaterial = objectType(current, state).oc_material
+                === material;
+            if (sameMaterial === (random.rn2(minwt + 1) !== 0)) {
+                minwt = current.quan < 0x7fffffff
+                    ? Math.max(0, minwt - Math.trunc(current.quan)) : 0;
+                delobj_core(current, false,
+                    zapObjectEnv(state, random, rawEnv));
+            }
+        }
+        current = next;
+    }
+}
+
+// C ref: zap.c create_polymon() (1546-1634).  The golem-producing arm is a
+// rare consequence of a pile's system shock.  The target immediate-wand
+// witness does not enter it, but retaining the source selection and calling
+// canonical makemon/polyuse keeps the state contract complete when it does.
+export async function create_polymon(obj, material, state = game,
+    random = { rn2 }, rawEnv = {}) {
+    const names = {
+        11: 'iron golem', 12: 'iron golem', 17: 'iron golem',
+        13: 'stone golem', 14: 'stone golem', 15: 'stone golem',
+        16: 'stone golem', 20: 'stone golem', 21: 'stone golem',
+        0: 'flesh golem', 4: 'flesh golem', 8: 'wood golem',
+        7: 'leather golem', 6: 'rope golem', 9: 'skeleton',
+        15: 'gold golem', 19: 'glass golem', 5: 'paper golem',
+    };
+    const wanted = names[material] ?? 'straw golem';
+    const species = state.mons?.find((entry) =>
+        entry?.name === wanted || entry?.pmname === wanted
+        || entry?.mname === wanted);
+    if (!species) {
+        note_unported('zap.c create_polymon golem catalog');
+        return;
+    }
+    if ((state.mvitals?.[species.pmidx]?.mvflags ?? 0) & G_GENOD)
+        return;
+    const env = zapObjectEnv(state, random, rawEnv);
+    const monster = makemon_runtime(
+        species,
+        obj.ox,
+        obj.oy,
+        MM_NOMSG,
+        env,
+    );
+    const made = monster && typeof monster.then === 'function'
+        ? await monster : monster;
+    polyuse(state.level.objects[obj.ox][obj.oy], material,
+        species.cwt ?? 0, state, random, rawEnv);
+    if (made && cansee(made.mx, made.my, state)) {
+        await ttyPline(`Some objects meld, and ${mon_nam(made, state)} arises from the pile!`, state);
+    }
+}
+
+// C ref: zap.c poly_obj() (1702-2089).  Object allocation, chain replacement,
+// and deletion remain in their canonical obj/invent owners; this function
+// carries zap.c's polymorph-specific choice and field preservation.
+export function poly_obj(obj, id, state = game,
+    random = { rn2, rnd }, rawEnv = {}) {
+    if (!obj || typeof obj !== 'object')
+        throw new TypeError('poly_obj requires an object');
+    const env = zapObjectEnv(state, random, rawEnv);
+    const oldType = objectType(obj, state);
+    const oldLocation = obj.where;
+    let replacement;
+
+    if (id === STRANGE_OBJECT) {
+        const magic = oldType.oc_magic;
+        let tries = 3;
+        do {
+            if (replacement)
+                delobj_core(replacement, false, env);
+            replacement = mkobj(obj.oclass, false, env);
+        } while (--tries > 0
+                 && Boolean(objectType(replacement, state).oc_magic)
+                    !== Boolean(magic));
+    } else {
+        replacement = mksobj(id, false, false, env);
+        if ((obj.otyp === CORPSE || obj.otyp === STATUE
+             || obj.otyp === FIGURINE)
+            && (id === CORPSE || id === STATUE || id === FIGURINE)) {
+            replacement.corpsenm = obj.corpsenm;
+        }
+    }
+
+    replacement.quan = obj.quan;
+    replacement.no_charge = obj.no_charge;
+    if (oldLocation === OBJ_INVENT) replacement.invlet = obj.invlet;
+    replacement.recharged = obj.recharged;
+    replacement.cursed = obj.cursed;
+    replacement.blessed = obj.blessed;
+    if (replacement.oclass === WAND_CLASS
+        && (replacement.otyp === WAN_WISHING
+            || replacement.otyp === WAN_POLYMORPH)) {
+        do {
+            replacement.otyp = rnd_class(WAN_LIGHT, WAN_LIGHTNING, env);
+        } while (replacement.otyp === WAN_WISHING
+                 || replacement.otyp === WAN_POLYMORPH);
+    }
+    if (replacement.oclass === WAND_CLASS
+        && replacement.recharged < random.rn2(7))
+        replacement.recharged++;
+    if (replacement.oclass === POTION_CLASS
+        && replacement.otyp === POT_POLYMORPH) {
+        replacement.otyp = rnd_class(POT_FULL_HEALING, POT_WATER, env);
+    }
+    if (replacement.oclass === SPBOOK_CLASS
+        && replacement.otyp === SPE_POLYMORPH) {
+        replacement.otyp = rnd_class(SPE_MAGIC_MISSILE, SPE_BLANK_PAPER, env);
+    }
+    if (replacement.quan > 1
+        && (!objectType(replacement, state).oc_merge
+            || (id === STRANGE_OBJECT && replacement.quan > random.rn2(1000)))) {
+        replacement.quan = 1;
+    }
+    replacement.owt = weight(replacement, env);
+    replace_object(obj, replacement, env);
+    delobj_core(obj, false, env);
+    return replacement;
+}
+
+// C ref: zap.c bhito() (2118-2426), the WAN_POLYMORPH arm.  Other object
+// effects remain owned by their own zap.c spans and retain their established
+// fail-closed boundaries when reached by this callback.
+export async function bhito(obj, wand, state = game,
+    random = { rn2, rnd }, rawEnv = {}) {
+    if (obj === wand || obj?.bypass) return 0;
+    if (wand?.otyp !== WAN_POLYMORPH)
+        throw new UnsupportedBhitError(`bhito() for object type ${wand?.otyp}`);
+    if (obj_unpolyable(obj, state, random)) return 0;
+
+    state.u ??= {};
+    state.u.uconduct ??= {};
+    state.u.uconduct.polypiles = (state.u.uconduct.polypiles ?? 0) + 1;
+    if (isBox(obj)) note_unported('lock.c boxlock');
+
+    let learn_it = false;
+    if (obj_shudders(obj, state, random)) {
+        // C's bhito() records this intent before do_osshock(), but calls
+        // learnwand() only after that effect has consumed its own rolls.
+        // Keeping the flag here preserves the object-resistance/deletion
+        // order when discovery exercises Wisdom.
+        learn_it = cansee(obj.ox, obj.oy, state);
+        do_osshock(obj, state, random, rawEnv);
+    } else {
+        const replacement = poly_obj(obj, STRANGE_OBJECT, state, random, rawEnv);
+        newsym(replacement.ox, replacement.oy, state);
+    }
+    if (learn_it) learnwand(wand, state);
+    return 1;
+}
+
+// C ref: zap.c bhitm() (160-610).  The immediate polymorph callback uses the
+// same monster selector as mon.c and awaits its result because newcham may
+// prompt or run floor effects.  The other wand callbacks remain explicit
+// source boundaries until their own effect families land.
+export async function bhitm(monster, wand, state = game,
+    random = { rn2, rnd }, rawEnv = {}) {
+    if (wand?.otyp !== WAN_POLYMORPH)
+        throw new UnsupportedBhitError(`bhitm() for object type ${wand?.otyp}`);
+    if (resists_magm(monster, state)) {
+        await shieldeff_mon(monster, { state });
+        return 0;
+    }
+    if (await resist(monster, WAND_CLASS, 0, NOTELL, state, random))
+        return 0;
+    if (monster.cham === NON_PM && !random.rn2(25)) {
+        if (cansee(monster.mx, monster.my, state)) {
+            await ttyPline(`${Monnam(monster, state)} shudders!`, state);
+        }
+        await xkilled(monster, XKILL_GIVEMSG | XKILL_NOCORPSE, state, rawEnv);
+    } else {
+        const ncflags = NC_VIA_WAND_OR_SPELL
+            | (cansee(monster.mx, monster.my, state) ? NC_SHOW_MSG : 0);
+        let changed = await newcham(monster, null, {
+            ...rawEnv, state, random, ncflags,
+        });
+        if (!changed && Number.isInteger(monster.cham)
+            && monster.cham !== NON_PM) {
+            changed = await newcham(
+                monster,
+                state.mons[monster.cham],
+                { ...rawEnv, state, random, ncflags },
+            );
+        }
+    }
+    return 0;
+}
+
+// C ref: zap.c bhitpile() (2428-2537).  Every floor callback receives the
+// object successor captured before the callback can replace or delete it.
+export async function bhitpile(wand, tx, ty, state = game,
+    random = { rn2, rnd }, rawEnv = {}) {
+    let object = state.level?.objects?.[tx]?.[ty] ?? null;
+    if (!object) return 0;
+    state.gp ??= {};
+    state.gp.poly_zapped = -1;
+    let hitanything = 0;
+    while (object) {
+        const next = object.nexthere;
+        if (object.where === OBJ_FLOOR && object.ox === tx && object.oy === ty)
+            hitanything += await bhito(object, wand, state, random, rawEnv);
+        object = next;
+    }
+    if (state.gp.poly_zapped >= 0) {
+        await create_polymon(
+            state.level.objects?.[tx]?.[ty],
+            state.gp.poly_zapped,
+            state,
+            random,
+            rawEnv,
+        );
+    }
+    let previous = state.level.objects?.[tx]?.[ty] ?? null;
+    while (previous) {
+        if (previous.otyp === BOULDER
+            && previous !== state.level.objects[tx][ty]) {
+            recreate_pile_at(tx, ty, zapObjectEnv(state, random, rawEnv));
+            break;
+        }
+        previous = previous.nexthere;
+    }
+    fill_pit(tx, ty, state);
+    return hitanything;
+}
+
+// C ref: zap.c zap_map() (3625-3825).  WAN_POLYMORPH has no terrain action
+// in this helper; keeping the call explicit is important because it runs
+// before m_at()/bhitpile() for every square and is a no-op for this object.
+export function zap_map(x, y, wand, state = game, random = { rn2 }) {
+    void x; void y; void wand; void state; void random;
+    return undefined;
+}
+
 // C ref: zap.c skiprange() (3578-3590). Picks the range window over which a
 // thrown rock may skip. Its rnd() draws are part of the stream whether or not
 // any water lies ahead, so the caller runs it for every thrown rock.
@@ -1485,16 +1817,18 @@ export async function bhit(
     pobj,
     state = game,
     random = { rn2, rnd },
+    rawEnv = {},
 ) {
     const obj = pobj.obj;
     let allow_skip = false;
     let skiprange_start = 0;
     let skiprange_end = 0;
 
-    if (weapon !== THROWN_WEAPON) {
+    const zapped = weapon === ZAPPED_WAND;
+    if (weapon !== THROWN_WEAPON && !zapped) {
         throw new UnsupportedBhitError(`call type ${weapon}`);
     }
-    if (fhitm || fhito) {
+    if (weapon === THROWN_WEAPON && (fhitm || fhito)) {
         // Only ZAPPED_WAND supplies either callback; C passes null for a
         // thrown weapon at dothrow.c:1665-1666.
         throw new UnsupportedBhitError('an object or monster callback');
@@ -1502,13 +1836,14 @@ export async function bhit(
     state.gb ??= {};
     state.gb.bhitpos = { x: state.u.ux, y: state.u.uy };
 
-    if (obj && obj.otyp === ROCK) {
+    if (!zapped && obj && obj.otyp === ROCK) {
         ({ skipstart: skiprange_start, skipend: skiprange_end } =
             skiprange(range, random));
         allow_skip = random.rn2(3) === 0;
     }
 
-    await tmp_at(DISP_FLASH, obj_to_glyph(obj, state), state);
+    if (!zapped)
+        await tmp_at(DISP_FLASH, obj_to_glyph(obj, state), state);
     let point_blank = true;
 
     while (range-- > 0) {
@@ -1528,15 +1863,15 @@ export async function bhit(
             throw new UnsupportedBhitError('shkcatch()');
         }
 
-        const typ = state.level.at(x, y).typ;
+        let typ = state.level.at(x, y).typ;
 
         /* WATER aka "wall of water" stops items */
-        if (IS_WATERWALL(typ) || typ === LAVAWALL) break;
+        if (!zapped && (IS_WATERWALL(typ) || typ === LAVAWALL)) break;
 
-        if (obj.lamplit) {
+        if (!zapped && obj.lamplit) {
             throw new UnsupportedBhitError('show_transient_light()');
         }
-        if (typ === IRONBARS
+        if (!zapped && typ === IRONBARS
             && hits_bars(pobj, x - ddx, y - ddy, x, y,
                          point_blank ? 0 : !random.rn2(5) ? 1 : 0, 1,
                          state, random)) {
@@ -1546,9 +1881,15 @@ export async function bhit(
             break;
         }
 
+        if (zapped) {
+            zap_map(x, y, obj, state, random);
+            typ = state.level.at(x, y).typ;
+        }
+
         let mtmp = m_at(x, y, state);
         const ttmp = t_at(x, y, state);
-        if (!mtmp && ttmp && ttmp.ttyp === WEB && random.rn2(3) === 0) {
+        if (!zapped && !mtmp && ttmp && ttmp.ttyp === WEB
+            && random.rn2(3) === 0) {
             if (cansee(x, y, state)) {
                 await ttyPline(
                     `${Yname2(obj, state)} gets stuck in a web!`,
@@ -1567,7 +1908,7 @@ export async function bhit(
          *
          * skiprange_start is only set if this is a thrown rock
          */
-        if (skiprange_start && range === skiprange_start && allow_skip) {
+        if (!zapped && skiprange_start && range === skiprange_start && allow_skip) {
             if (is_pool(x, y, state) && !mtmp) {
                 throw new UnsupportedBhitError('a rock skipping over water');
             } else if (skiprange_start > skiprange_end + 1) {
@@ -1597,7 +1938,7 @@ export async function bhit(
         // continue; its false answer still costs a dmgval() roll for a shade
         // that the missile can hurt, which is why it is called rather than
         // skipped.
-        if (mtmp) {
+        if (!zapped && mtmp) {
             const passedShade = await shade_miss(
                 state.youmonst, mtmp, obj, true, true, state,
             );
@@ -1622,15 +1963,24 @@ export async function bhit(
             // zap.c:3994-3995 and 4021-4029. `tethered_weapon` is false for
             // every call this port admits, so the DISP_END always runs here
             // and the one at 4125-4127 is what `goto bhit_done` skips.
-            state.gn ??= {};
-            state.gn.notonhead = x !== mtmp.mx || y !== mtmp.my;
-            await tmp_at(DISP_END, 0, state);
-            if (cansee(x, y, state) && !canSpotMonster(mtmp, state))
-                map_invisible(x, y, state);
-            // goto bhit_done. transient_light_cleanup() there is inert for the
-            // same reason as at the tail below.
-            return mtmp;
+            if (zapped) {
+                if (fhitm && await fhitm(mtmp, obj, state, random, rawEnv))
+                    return mtmp;
+                range -= 3;
+            } else {
+                state.gn ??= {};
+                state.gn.notonhead = x !== mtmp.mx || y !== mtmp.my;
+                await tmp_at(DISP_END, 0, state);
+                if (cansee(x, y, state) && !canSpotMonster(mtmp, state))
+                    map_invisible(x, y, state);
+                // goto bhit_done. transient_light_cleanup() is inert for the
+                // same reason as at the tail below.
+                return mtmp;
+            }
         }
+
+        if (fhito && await bhitpile(obj, x, y, state, random, rawEnv))
+            range--;
 
         if (!ZAP_POS(typ) || closed_door(x, y, state)) {
             state.gb.bhitpos.x -= ddx;
@@ -1638,18 +1988,20 @@ export async function bhit(
             break;
         }
         /* 'I' present but no monster: erase; do this before tmp_at() */
-        if (glyph_is_invisible(state.level.at(x, y).remembered_glyph?.glyph)
+        if (!zapped && glyph_is_invisible(state.level.at(x, y).remembered_glyph?.glyph)
             && cansee(x, y, state)) {
             unmap_object(x, y, state);
             newsym(x, y);
         }
-        await tmp_at(x, y, state);
-        await nh_delay_output(state);
-        if (IS_SINK(typ))
+        if (!zapped) {
+            await tmp_at(x, y, state);
+            await nh_delay_output(state);
+        }
+        if (!zapped && IS_SINK(typ))
             break; /* physical objects fall onto sink */
 
         /* limit range of ball so hero won't make an invalid move */
-        if (range > 0 && obj.otyp === HEAVY_IRON_BALL) {
+        if (!zapped && range > 0 && obj.otyp === HEAVY_IRON_BALL) {
             throw new UnsupportedBhitError('a heavy iron ball in flight');
         }
 
@@ -1657,7 +2009,7 @@ export async function bhit(
         point_blank = false; /* affects passing through iron bars */
     }
 
-    await tmp_at(DISP_END, 0, state);
+    if (!zapped) await tmp_at(DISP_END, 0, state);
     // pay_for_damage("destroy"): only a zapped wand can break a shop door.
     // transient_light_cleanup(): only a lit object registers a transient
     // light, and the arm that would have shown one stops above.
@@ -3401,6 +3753,61 @@ export async function zap_dig(
         note_unported('shk.c pay_for_damage');
 }
 
+// C ref: zap.c zapsetup() (3413-3418).  The object-zap feedback flag is one
+// shared state value, reset for every immediate wand before its callbacks run.
+export function zapsetup(state = game) {
+    state.go ??= {};
+    state.go.obj_zapped = false;
+}
+
+// C ref: zap.c zapwrapup() (3421-3427).  System shock sets obj_zapped while a
+// pile is being processed; its feedback is emitted only after the ray ends.
+export async function zapwrapup(state = game, rawEnv = {}) {
+    state.go ??= {};
+    if (state.go.obj_zapped) {
+        const message = rawEnv.message ?? ttyPline;
+        await message('You feel shuddering vibrations.', state, rawEnv);
+    }
+    state.go.obj_zapped = false;
+}
+
+// C ref: zap.c zap_steed() (3087-3217).  The immediate polymorph arm uses the
+// ordinary monster callback at the steed's coordinates; unsupported wand
+// types still return false so we.effects can continue with its source test.
+export async function zap_steed(obj, state = game, random = { rn2, rnd }, rawEnv = {}) {
+    const steed = state.u?.usteed;
+    if (!steed) return false;
+    state.gb ??= {};
+    state.gb.bhitpos = { x: steed.mx, y: steed.my };
+    state.gn ??= {};
+    state.gn.notonhead = false;
+    if (obj.otyp !== WAN_POLYMORPH) return false;
+    await bhitm(steed, obj, state, random, rawEnv);
+    return true;
+}
+
+// C ref: zap.c zap_updown() (3219-3410).  Its polymorph path has no special
+// terrain arm: the floor pile is processed on a downward zap, while an upward
+// zap only reaches the hiding-under-object callback.
+export async function zap_updown(obj, state = game,
+    random = { rn2, rnd }, rawEnv = {}) {
+    const x = state.u.ux;
+    const y = state.u.uy;
+    let disclose = false;
+    if (state.u.dz > 0) {
+        await bhitpile(obj, x, y, state, random, rawEnv);
+        zap_map(x, y, obj, state, random);
+    } else if (state.u.dz < 0 && state.u.uundetected
+               && state.youmonst?.data?.mlet) {
+        const top = state.level?.objects?.[x]?.[y];
+        if (top && await bhito(top, obj, state, random, rawEnv)) {
+            state.u.uundetected = false;
+            disclose = true;
+        }
+    }
+    return disclose;
+}
+
 // C ref: zap.c weffects() (3430-3476), "called for various wand and spell
 // effects - M. Stephenson". dozap()'s final else is its ported caller, so
 // `obj` is a wand the hero aimed or a wand with no direction at all.
@@ -3422,20 +3829,28 @@ export async function weffects(
 
     await exercise(A_WIS, true, state, random);
     if (state.u.usteed && oc_dir !== NODIR && !state.u.dx && !state.u.dy
-        && state.u.dz > 0) {
-        // zap_steed() lets a ridden steed take a downward zap. C's condition
-        // ends in `&& zap_steed(obj)`, so the refusal stands one term short of
-        // the call rather than inside it.
-        throw new UnsupportedZapError(
-            'zap_steed() for a downward zap while riding',
-        );
+        && state.u.dz > 0 && await zap_steed(obj, state, random)) {
+        disclose = true;
     } else if (oc_dir === IMMEDIATE) {
-        // zapsetup(), bhitm(), zap_updown() and bhit()'s ZAPPED_WAND call
-        // type, plus zapwrapup()'s "You feel shuddering vibrations." Every one
-        // of them belongs to the immediate wands rather than to the ray.
-        throw new UnsupportedZapError(
-            'zapsetup() and the immediate-wand arm of weffects()',
-        );
+        zapsetup(state);
+        if (state.u.uswallow) {
+            await bhitm(state.u.ustuck, obj, state, random);
+        } else if (state.u.dz) {
+            disclose = await zap_updown(obj, state, random);
+        } else {
+            await bhit(
+                state.u.dx,
+                state.u.dy,
+                random.rn1(8, 6),
+                ZAPPED_WAND,
+                bhitm,
+                bhito,
+                { obj },
+                state,
+                random,
+            );
+        }
+        await zapwrapup(state);
     } else if (oc_dir === NODIR) {
         await zapnodir(obj, state);
     } else {
