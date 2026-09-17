@@ -24,6 +24,7 @@
     "The same replay emits 1329 screens and then refuses fountain.c gushing-forth behavior (fate 30), with Water gushes forth from the overflowing fountain! This later refusal does not explain the earlier screen mismatch.",
     "The accepted checkpoint e0b9b5f47e63e215870c9175b7cb2569fa67a9ae/run-62WQSa records 1326 matching Knight screens; matching totals and emitted-screen counts do not locate the first divergence. The current queue upper bound is 492, derived from the first difference at 1322.",
     "Whole hellfill.lua is source-reviewed, and all seven independent generator recordings match. Preserve the explicit horizontal-before-vertical prefab random order, no random draw for fixed alignment, one set_levltyp_lit lighting draw, and absolute no-operand selection.negate coordinates.",
-    "Historical counter-evidence: the old Knight blind-pile heading and blindness-state differences at steps 1063 and 1094 were resolved before this checkpoint. The old punishment recipe consumed its setup at the welcome More prompt and did not establish a feel_location defect."
+    "Historical counter-evidence: the old Knight blind-pile heading and blindness-state differences at steps 1063 and 1094 were resolved before this checkpoint. The old punishment recipe consumed its setup at the welcome More prompt and did not establish a feel_location defect.",
+    "Counter-evidence at e0b9b5f4: js/getpos.js lines 690-708 already places if (force) outside the non-quitchar diagnostic and continues for space, matching getpos.c lines 1134-1135. A proposed missing forced-quitchar continuation is therefore falsified. The next probe must compare actual target coordinates, automatic description, and message timing at steps 1321-1322."
   ]
 }

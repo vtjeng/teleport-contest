@@ -56839,19 +56839,19 @@
     {
       "id": "port-end.c-lifesaved-seed0399-20260916",
       "kind": "file-port",
-      "status": "open",
+      "status": "parked",
       "summary": "Complete death recovery and one-shot amulet life saving",
       "cFile": "end.c",
       "sessions": [
         "holdout/seed0399-wizard-hallu-actions"
       ],
       "selectionReason": "The complete life-saving source delivery now includes live monster-turn continuation and independent recovery recordings, correcting its preserved failed checkpoint. The higher-ranked Knight screen mismatch remains under source investigation.",
-      "detail": "Select whole end.c done1020-1126 with complete savelife and fuzzer_savelife supporting dependencies, canonical amulet consumption, paranoid query and live lethal callers. Three independent recordings cover direct and monster amulet recovery. Active exceptional entry families remain unrecorded; close the verified span then park this goal rather than claim their completion.",
+      "detail": "Select whole end.c done1020-1126 with complete savelife and fuzzer_savelife supporting dependencies, canonical amulet consumption, paranoid query and live lethal callers. Five independent recordings cover direct and monster amulet recovery, declined wizard death, and subsequent input. Active exceptional entry families remain unrecorded; close the verified span then park this goal rather than claim their completion.",
       "spans": [
         {
           "name": "done",
-          "status": "queued",
-          "closedBy": null,
+          "status": "closed",
+          "closedBy": "a3ce8ade573cec1ee6308cba97b7a92f77c01f07",
           "functions": [
             "done"
           ]
@@ -56963,15 +56963,15 @@
         }
       ],
       "progressBeforePark": {
-        "screens": 0,
-        "rng": 0
+        "screens": 61,
+        "rng": 401
       },
       "parkedStanding": {
-        "sha": "1155b6ce37b4fb66db2dba00916ea4a0dd6b8557",
-        "screens": 10662,
-        "rng": 760877
+        "sha": "a3ce8ade573cec1ee6308cba97b7a92f77c01f07",
+        "screens": 10771,
+        "rng": 770799
       },
-      "parkedReason": "Combined candidate 9b147c15 failed elapsed-turn movement gates after live monster death recovery; preserved on codex/B16-failed-bc60daaf while worker B corrects continuation. Integrate independent ready Hellfill delivery on accepted main first.",
+      "parkedReason": "The complete done span and live recovery continuation pass combined validation. Five independent recordings cover direct and monster amulet recovery, declined wizard death, and subsequent input. Explore-mode recovery, TRICKED, ParanoidDie, polymorphed unmul, and debug-fuzzer production entries remain unrecorded.",
       "evidence": {
         "functions": [
           {
