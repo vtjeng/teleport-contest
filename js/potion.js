@@ -539,8 +539,26 @@ export async function make_confused(xtime, talk, state = game, env = {}) {
 // updates the display before its optional feedback, including the special
 // stomach redraw used when the hero is swallowed.
 export async function make_hallucinated(
-    xtime, talk, mask = 0, state = game,
+    xtime, talk, mask = 0, state = game, rawEnv = {},
 ) {
+    const planning = Boolean(rawEnv.planning);
+    const message = rawEnv.message
+        ?? (planning ? async () => {} : ttyPline);
+    const redraw = rawEnv.redraw
+        ?? (planning ? () => {} : newsym);
+    // Object and trap repainting is display-only.  Their existing owners are
+    // live-game helpers; a planning clone supplies optional seams when it
+    // needs to observe these writes, and otherwise discards the repaint just
+    // as the clone discards every other terminal update.
+    const seeObjects = rawEnv.seeObjects
+        ?? (state === game ? see_objects : () => {});
+    const seeTraps = rawEnv.seeTraps
+        ?? (state === game ? see_traps : () => {});
+    const seeMonsters = rawEnv.seeMonsters
+        ?? ((subject) => see_monsters(subject, { redraw }));
+    const swallow = rawEnv.swallowed
+        ?? (state === game ? swallowed : async () => {});
+    const env = { ...rawEnv, state, message, redraw };
     const hallucination = state.u?.uprops?.[HALLUC];
     const resistance = state.u?.uprops?.[HALLUC_RES];
     if (!hallucination || !resistance)
@@ -563,22 +581,22 @@ export async function make_hallucinated(
     if (!changed) return false;
 
     if (state.u.uswallow) {
-        await swallowed(false, state);
+        await swallow(false, state, env);
     } else {
         // potion.c calls all three display helpers before it emits the
         // message, so each newsym() sees the new Hallucination property.
-        see_monsters(state);
-        see_objects(state);
-        see_traps(state);
+        seeMonsters(state, env);
+        seeObjects(state, { redraw });
+        seeTraps(state, { redraw });
     }
-    update_inventory({ state });
+    update_inventory({ ...env, state });
     state.disp.botl = true;
     if (talk) {
         const verb = heroIsBlind(state) ? 'feels' : 'looks';
         const message = xtime
             ? `Oh wow!  Everything ${verb} so cosmic!`
             : `Everything ${verb} SO boring now.`;
-        await ttyPline(message, state);
+        await env.message(message, state, env);
     }
     return true;
 }

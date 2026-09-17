@@ -106,6 +106,7 @@ import {
     PM_JACKAL,
     PM_KI_RIN,
     PM_LICH,
+    PM_LITTLE_DOG,
     PM_LICHEN,
     PM_OWLBEAR,
     PM_PONY,
@@ -2270,6 +2271,12 @@ test('mhitm_ad_phys keeps remaining special and fatal weapon hits fail-closed',
     // through when this initialized hero is not stone-resistant.
     corpse.corpsenm = PM_COCKATRICE;
     assert.equal(await stopped(corpse), undefined);
+
+    const ordinaryCorpse = mksobj(CORPSE, false, false, { state });
+    ordinaryCorpse.corpsenm = PM_LITTLE_DOG;
+    assert.equal(
+        await stopped(ordinaryCorpse), 'a non-weapon object hitting the hero',
+    );
 
     const powered = mksobj(DAGGER, false, false, { state });
     assert.equal(await stopped(powered, () => {
