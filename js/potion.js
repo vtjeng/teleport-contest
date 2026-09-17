@@ -539,8 +539,40 @@ export async function make_confused(xtime, talk, state = game, env = {}) {
 // updates the display before its optional feedback, including the special
 // stomach redraw used when the hero is swallowed.
 export async function make_hallucinated(
-    xtime, talk, mask = 0, state = game,
+    xtime, talk, mask = 0, state = game, rawEnv = {},
 ) {
+    const planning = Boolean(rawEnv.planning);
+    const message = rawEnv.message
+        ?? (planning ? async () => {} : ttyPline);
+    const redraw = rawEnv.redraw
+        ?? (planning ? () => {} : newsym);
+    // Object and trap repainting is display-only.  Their existing owners are
+    // live-game helpers; a planning clone supplies optional seams when it
+    // needs to observe these writes, and otherwise discards the repaint just
+    // as the clone discards every other terminal update.
+    const seeObjects = rawEnv.seeObjects
+        ?? (!planning && state === game ? see_objects : () => {});
+    const seeTraps = rawEnv.seeTraps
+        ?? (!planning && state === game ? see_traps : () => {});
+    // A planning clone still needs see_monsters() to update its own map
+    // memory.  An explicit planning call against the live game is the one
+    // case where the display fallback must stay silent.
+    const seeMonsters = rawEnv.seeMonsters
+        ?? (planning && state === game
+            ? () => {}
+            : (subject) => see_monsters(subject, { redraw }));
+    const swallow = rawEnv.swallowed
+        ?? (!planning && state === game ? swallowed : async () => {});
+    const hooks = {
+        ...(rawEnv.hooks ?? {}),
+        // invent.c requires an updateInventory seam for an active
+        // permanent-inventory window.  Planning has no live window to paint,
+        // but it still must pass that source preflight without refusal; a
+        // caller-provided hook remains authoritative.
+        ...(planning && typeof rawEnv.hooks?.updateInventory !== 'function'
+            ? { updateInventory: () => {} } : {}),
+    };
+    const env = { ...rawEnv, state, message, redraw, hooks };
     const hallucination = state.u?.uprops?.[HALLUC];
     const resistance = state.u?.uprops?.[HALLUC_RES];
     if (!hallucination || !resistance)
@@ -563,22 +595,22 @@ export async function make_hallucinated(
     if (!changed) return false;
 
     if (state.u.uswallow) {
-        await swallowed(false, state);
+        await swallow(false, state, env);
     } else {
         // potion.c calls all three display helpers before it emits the
         // message, so each newsym() sees the new Hallucination property.
-        see_monsters(state);
-        see_objects(state);
-        see_traps(state);
+        seeMonsters(state, env);
+        seeObjects(state, { redraw });
+        seeTraps(state, { redraw });
     }
-    update_inventory({ state });
+    update_inventory({ ...env, state });
     state.disp.botl = true;
     if (talk) {
         const verb = heroIsBlind(state) ? 'feels' : 'looks';
         const message = xtime
             ? `Oh wow!  Everything ${verb} so cosmic!`
             : `Everything ${verb} SO boring now.`;
-        await ttyPline(message, state);
+        await env.message(message, state, env);
     }
     return true;
 }

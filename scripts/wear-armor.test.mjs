@@ -78,6 +78,7 @@ import { unmul } from '../js/hack.js';
 import { enlightenment } from '../js/insight.js';
 import { runSegment } from '../js/jsmain.js';
 import { getRngLog } from '../js/rng.js';
+import { planningState } from '../js/unported_monster_actions.js';
 import { cantweararm, has_horns, num_horns } from '../js/mondata.js';
 import {
     MZ_HUGE,
@@ -778,6 +779,56 @@ test('toggle_displacement follows its source visibility guards', async () => {
     assert.equal(game._ttyToplines,
         'You dream that you feel that monsters no longer have difficulty pinpointing your location.');
 });
+
+test('toggle_displacement forwards discovery through a planning environment',
+    async () => {
+    const segment = segmentFor(`${TAKEOFF_KEY}${WEAR_KEY}c`);
+    await setup(segment, OFF);
+    const planned = planningState(game);
+    const type = planned.objects[CLOAK_OF_DISPLACEMENT];
+    type.oc_name_known = 0;
+    type.oc_encountered = 0;
+    planned.initial_don = false;
+    planned.context.takeoff.cancelled_don = false;
+    planned.u.uswallow = false;
+    planned.iflags.perm_invent = true;
+    planned.program_state.in_moveloop = true;
+    for (const index of [BLINDED, DETECT_MONSTERS, DISPLACED, INVIS,
+        SEE_INVIS, TELEPAT]) {
+        planned.u.uprops[index].intrinsic = 0;
+        planned.u.uprops[index].extrinsic = 0;
+        planned.u.uprops[index].blocked = 0;
+    }
+    planned.u.uprops[DETECT_MONSTERS].intrinsic = 1;
+    const draws = [];
+    const refreshes = [];
+    await toggle_displacement(
+        { otyp: CLOAK_OF_DISPLACEMENT },
+        0,
+        true,
+        planned,
+        {
+            planning: true,
+            random: { rn2: (limit) => {
+                draws.push(limit);
+                return 0;
+            } },
+            hooks: {
+                updateInventory: (state) => refreshes.push(state),
+            },
+        },
+    );
+    // o_init.c discover_object() exercises Wisdom exactly once after its
+    // discovery preflight.  The clone receives that draw and inventory hook;
+    // the live game's catalog and display remain untouched.
+    assert.deepEqual(draws, [19]);
+    assert.equal(refreshes.length, 1);
+    assert.equal(refreshes[0], planned);
+    assert.equal(type.oc_name_known, 1);
+    assert.equal(type.oc_encountered, 1);
+    assert.equal(game.objects[CLOAK_OF_DISPLACEMENT].oc_name_known, 0);
+    assert.equal(game._pending_message ?? '', '');
+    });
 
 // The keys scripts/run-wear-armor.mjs records for Cloak_on()'s two acting
 // arms, spelled here so that the segments the tests below replay are located
@@ -2033,6 +2084,76 @@ test('dragon_armor_handling BLUE arm clears EFast before slowdown check',
     assert.equal(fast.extrinsic & W_ARM, 0,
         'blue armor speed is cleared before the check');
     assert.equal(takePendingTopLine(), 'You slow down.');
+});
+
+test('planning armor callbacks use injected message and redraw operations',
+    async () => {
+    // do_wear.c:817-828, 839-851, and 939-960.  These callbacks are also
+    // reached by polymon() on a planning clone, so neither a status message
+    // nor the red dragon's see_monsters() repaint may touch the live TTY.
+    const segment = segmentFor(`${TAKEOFF_KEY}${WEAR_KEY}c`);
+
+    await setup(segment, OFF);
+    game.u.uprops[FAST].intrinsic = 0;
+    game.u.uprops[FAST].extrinsic = W_ARM;
+    game.uarm = armor(BLUE_DRAGON_SCALES, {
+        dknown: 1, known: true, owornmask: W_ARM,
+    });
+    const blueLines = [];
+    await Armor_gone(game, {
+        planning: true,
+        message: async (line) => blueLines.push(line),
+    });
+    assert.deepEqual(blueLines, ['You slow down.']);
+    assert.equal(takePendingTopLine(), '');
+
+    await setup(segment, OFF);
+    game.uarm = armor(RED_DRAGON_SCALES, {
+        dknown: 1, known: true, owornmask: W_ARM,
+    });
+    const redRedraws = [];
+    await Armor_gone(game, {
+        planning: true,
+        redraw: (x, y, state) => redRedraws.push([x, y, state]),
+    });
+    assert.ok(redRedraws.length > 0, 'red armor repaints through the seam');
+    assert.equal(redRedraws.every(([, , state]) => state === game), true);
+    assert.equal(takePendingTopLine(), '');
+
+    await setup(segment, OFF);
+    game.uarmc = armor(CLOAK_OF_DISPLACEMENT, {
+        dknown: 1, known: true, owornmask: W_ARMC,
+    });
+    // The worn bit is removed by setworn() before toggle_displacement reads
+    // the remaining property and emits the source's off message.
+    game.u.uprops[DISPLACED].extrinsic = W_ARMC;
+    const displacementLines = [];
+    await Cloak_off(game, {
+        planning: true,
+        message: async (line) => displacementLines.push(line),
+    });
+    assert.deepEqual(displacementLines, [
+        'You feel that monsters no longer have difficulty pinpointing your location.',
+    ]);
+    assert.equal(takePendingTopLine(), '');
+
+    await setup(segment, OFF);
+    game.uarmc = armor(CLOAK_OF_INVISIBILITY, {
+        dknown: 1, known: true, owornmask: W_ARMC,
+    });
+    // setworn() removes the cloak's WORN_CLOAK bit before Cloak_off's
+    // invisibility message checks the remaining property.
+    game.u.uprops[INVIS].extrinsic = W_ARMC;
+    const cloakLines = [];
+    const cloakRedraws = [];
+    await Cloak_off(game, {
+        planning: true,
+        message: async (line) => cloakLines.push(line),
+        redraw: (x, y, state) => cloakRedraws.push([x, y, state]),
+    });
+    assert.deepEqual(cloakLines, ['Suddenly you can see yourself.']);
+    assert.equal(cloakRedraws.length, 1);
+    assert.equal(takePendingTopLine(), '');
 });
 
 test('dragon_armor_handling GOLD arm reaches the artifact-light boundary',

@@ -1,0 +1,10 @@
+{
+  "version": 5,
+  "segments": [{
+    "seed": 7710063,
+    "datetime": "20370102030407",
+    "nethackrc": "OPTIONS=name:StoneMonVar,role:Valkyrie,race:human,gender:male,align:lawful\nOPTIONS=!legacy,!tutorial,!splash_screen\nOPTIONS=playmode:debug,pettype:none,!acoustics,!safe_wait\n",
+    "moves": " #wizgenesis\ncockatrice\n........"
+  }],
+  "_comment": "Cheap A31 variation of the independent mhitm_ad_ston witness: a Valkyrie with a different seed, clock, gender, and shorter wait sequence reaches the same production monster-to-hero attack."
+}

@@ -17,7 +17,11 @@ import {
     SINK,
     STAIRS,
     STRAT_WAITMASK,
+    M_ATTK_HIT,
     THRONE,
+    STONE_RES,
+    STONED,
+    TIMEOUT,
     W_ARM,
 } from '../js/const.js';
 import { game } from '../js/gstate.js';
@@ -27,10 +31,15 @@ import { runSegment } from '../js/jsmain.js';
 import { m_at, place_monster, remove_monster } from '../js/monst.js';
 import { monflee } from '../js/monmove.js';
 import {
+    AD_STON,
     AD_DRST,
     AT_WEAP,
+    PM_COCKATRICE,
     PM_DWARF_LEADER,
     PM_HUMAN,
+    PM_IRON_GOLEM,
+    PM_STONE_GOLEM,
+    PM_TOURIST,
     PM_KITTEN,
     PM_LITTLE_DOG,
     PM_PONY,
@@ -43,6 +52,7 @@ import { mksobj, mksobj_at } from '../js/obj.js';
 import { objectGenerationEnv } from '../js/object_generation.js';
 import {
     MIRROR,
+    CORPSE,
     ORCISH_DAGGER,
     SCR_ENCHANT_ARMOR,
     SCR_SCARE_MONSTER,
@@ -54,7 +64,9 @@ import { enableRngLog, getRngLog, initRng } from '../js/rng.js';
 import { clearTtyMessageWindow } from '../js/tty_message.js';
 import {
     do_attack,
+    mhitm_ad_phys,
     mhitm_ad_drst,
+    mhitm_ad_ston,
     mhitm_mgc_atk_negated,
     mhitm_really_poison,
     shade_miss,
@@ -857,6 +869,235 @@ test('mhitm_ad_drst applies the hero-to-monster poison arm', async () => {
     assert.deepEqual(bounds, ['rn2(10)', 'rn2(8)', 'rn2(10)', 'rn1(10,6)']);
     assert.deepEqual(lines, ['Your attack was poisoned!']);
     assert.equal(mhm.damage, 8);
+});
+
+test('mhitm_ad_ston preserves each source direction and gate draws',
+    async () => {
+    // uhitm.c:4203-4263. The monster-to-hero arm spends the 1/3 gate and
+    // then the 1/10 petrification gate; starting petrification marks the
+    // blow handled without changing its already-computed damage.
+    await runSegment({
+        seed: 7710057, datetime: DATETIME, nethackrc: RC, moves: '',
+    });
+    game.invent = null;
+    game.gh = { hitmsg_mid: 0, hitmsg_prev: null };
+    const attacker = {
+        data: game.mons[PM_COCKATRICE],
+        female: false,
+        m_id: 92005,
+        mcan: false,
+        mx: game.u.ux + 1,
+        my: game.u.uy,
+    };
+    const attack = attacker.data.mattk.find(({ adtyp }) => adtyp === AD_STON);
+    const bounds = [];
+    const lines = [];
+    const mhm = { damage: 4, hitflags: 0, done: false };
+    await mhitm_ad_ston(
+        attacker,
+        attack,
+        game.youmonst,
+        mhm,
+        game,
+        {
+            random: {
+                rn2: (bound) => {
+                    bounds.push(`rn2(${bound})`);
+                    return 0;
+                },
+            },
+            message: async (text) => { lines.push(text); },
+        },
+    );
+    assert.deepEqual(bounds, ['rn2(3)', 'rn2(10)']);
+    assert.deepEqual(lines, ['The cockatrice touches you!']);
+    assert.equal(mhm.damage, 4);
+    assert.equal(mhm.hitflags, M_ATTK_HIT);
+    assert.equal(mhm.done, true);
+    assert.ok(game.unported.has('potion.c make_stoned'));
+
+    // In the hero-to-monster direction C always clears damage after the
+    // source munstone() result, even when the discarded minstapetrify() arm
+    // remains unported. This path consumes no attack RNG.
+    await runSegment({
+        seed: 7710058, datetime: DATETIME, nethackrc: RC, moves: '',
+    });
+    const defender = {
+        data: game.mons[PM_RAVEN],
+        m_id: 92006,
+        mcan: false,
+        mx: game.u.ux + 1,
+        my: game.u.uy,
+        mhp: 20,
+        mhpmax: 20,
+        minvent: null,
+        mstrategy: 0,
+    };
+    const reverse = { damage: 7, hitflags: 0, done: false };
+    await mhitm_ad_ston(
+        game.youmonst,
+        { aatyp: AT_WEAP, adtyp: AD_STON, damn: 0, damd: 0 },
+        defender,
+        reverse,
+        game,
+        { message: async () => {} },
+    );
+    assert.equal(reverse.damage, 0);
+    assert.equal(reverse.done, false);
+    assert.ok(game.unported.has('trap.c minstapetrify'));
+});
+
+test('mhitm_ad_phys handles a petrifying corpse weapon before ordinary damage',
+    async () => {
+    // uhitm.c:4047-4059. The corpse arm establishes one point of damage,
+    // reports the attack, then lets do_stone_u() consume the blow through the
+    // mhm.done/hitflags result. This source path must not be rejected as an
+    // ordinary non-weapon or artifact continuation.
+    await runSegment({
+        seed: 7710059, datetime: DATETIME, nethackrc: RC, moves: '',
+    });
+    game.invent = null;
+    game.u.uprops[STONE_RES] = { intrinsic: 0, extrinsic: 0 };
+    game.u.uprops[STONED] = { intrinsic: 0, extrinsic: 0 };
+    const attacker = {
+        data: game.mons[PM_COCKATRICE],
+        female: false,
+        m_id: 92007,
+        mcan: false,
+        mx: game.u.ux + 1,
+        my: game.u.uy,
+        mw: {
+            otyp: CORPSE,
+            corpsenm: PM_COCKATRICE,
+            oclass: 0,
+        },
+    };
+    const lines = [];
+    const mhm = { damage: 0, hitflags: 0, done: false };
+    await mhitm_ad_phys(
+        attacker,
+        { aatyp: AT_WEAP },
+        game.youmonst,
+        mhm,
+        game,
+        {
+            message: async (line) => { lines.push(line); },
+            unsupported: (reason) => { throw new Error(reason); },
+        },
+    );
+    assert.equal(mhm.damage, 1);
+    assert.equal(mhm.hitflags, M_ATTK_HIT);
+    assert.equal(mhm.done, true);
+    assert.deepEqual(lines, [
+        'The cockatrice hits you with the cockatrice corpse.',
+    ]);
+    assert.ok(game.unported.has('potion.c make_stoned'));
+});
+
+test('mhitm_ad_phys continues a petrifying corpse after do_stone_u declines',
+    async () => {
+    // C uhitm.c:4047-4061 does not return when do_stone_u() returns false:
+    // resistance, an existing Stoned timeout, and successful conversion to a
+    // stone golem all continue through dmgval() and hitmsg().  The corpse is
+    // FOOD_CLASS, so this also pins the exception to the generic non-weapon
+    // guard rather than admitting unrelated food objects.
+    async function corpseAttack(configure) {
+        await runSegment({
+            seed: 7710060, datetime: DATETIME, nethackrc: RC, moves: '',
+        });
+        game.invent = null;
+        for (const slot of ['uarm', 'uarmc', 'uarmh', 'uarms',
+            'uarmg', 'uarmf', 'uarmu', 'uwep', 'uswapwep'])
+            game[slot] = null;
+        game.u.uprops[STONE_RES] = { intrinsic: 0, extrinsic: 0 };
+        game.u.uprops[STONED] = { intrinsic: 0, extrinsic: 0 };
+        const attacker = {
+            data: game.mons[PM_COCKATRICE],
+            female: false,
+            m_id: 92008,
+            mcan: false,
+            mx: game.u.ux + 1,
+            my: game.u.uy,
+            mw: mksobj(CORPSE, false, false, { state: game }),
+        };
+        attacker.mw.corpsenm = PM_COCKATRICE;
+        configure?.(game, attacker);
+        const lines = [];
+        const draws = [];
+        const mhm = { damage: 0, hitflags: 0, done: false };
+        await mhitm_ad_phys(
+            attacker,
+            { aatyp: AT_WEAP },
+            game.youmonst,
+            mhm,
+            game,
+            {
+                random: {
+                    rn2: (bound) => {
+                        draws.push(`rn2(${bound})`);
+                        return 1;
+                    },
+                    rn1: (range, base) => {
+                        draws.push(`rn1(${range},${base})`);
+                        return base;
+                    },
+                    rnd: (bound) => {
+                        draws.push(`rnd(${bound})`);
+                        return 1;
+                    },
+                    d: (number, sides) => {
+                        draws.push(`d(${number},${sides})`);
+                        return number;
+                    },
+                },
+                message: async (line) => { lines.push(line); },
+                unsupported: (reason) => { throw new Error(reason); },
+            },
+        );
+        return { mhm, lines, draws, form: game.youmonst.data.pmidx };
+    }
+
+    const resistant = await corpseAttack((state) => {
+        state.u.uprops[STONE_RES].intrinsic = 1;
+    });
+    assert.deepEqual(resistant, {
+        mhm: { damage: 1, hitflags: M_ATTK_HIT, done: false },
+        lines: [
+            'The cockatrice hits you with the cockatrice corpse.',
+            'The cockatrice hits!',
+        ],
+        draws: [],
+        form: PM_TOURIST,
+    });
+
+    const alreadyStoned = await corpseAttack((state) => {
+        state.u.uprops[STONED].intrinsic = TIMEOUT;
+    });
+    assert.deepEqual(alreadyStoned, {
+        mhm: { damage: 1, hitflags: M_ATTK_HIT, done: false },
+        lines: [
+            'The cockatrice hits you with the cockatrice corpse.',
+            'The cockatrice hits!',
+        ],
+        draws: [],
+        form: PM_TOURIST,
+    });
+
+    const golem = await corpseAttack((state) => {
+        // poly_when_stoned() sees the current golem form and polymon() owns
+        // the successful PM_STONE_GOLEM transition.
+        state.youmonst.data = state.mons[PM_IRON_GOLEM];
+    });
+    assert.deepEqual(golem, {
+        mhm: { damage: 1, hitflags: M_ATTK_HIT, done: false },
+        lines: [
+            'The cockatrice hits you with the cockatrice corpse.',
+            'You turn into a stone golem!',
+            'The cockatrice hits!',
+        ],
+        draws: ['rn2(2)', 'rn2(19)', 'rn1(500,500)'],
+        form: PM_STONE_GOLEM,
+    });
 });
 
 test('mhitm_ad_drst uses the monster female bit for the poison killer name',

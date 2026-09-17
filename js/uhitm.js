@@ -31,6 +31,8 @@ import {
     HMON_MELEE,
     HMON_KICKED,
     HMON_THROWN,
+    KILLED_BY,
+    KILLED_BY_AN,
     LL_CONDUCT,
     IS_DOOR,
     Is_airlevel,
@@ -69,6 +71,7 @@ import {
     SEE_INVIS,
     STRAT_WAITFORU,
     STRAT_WAITMASK,
+    STONED,
     STUNNED,
     TIMEOUT,
     TEST_MOVE,
@@ -84,6 +87,7 @@ import {
     HAND,
     NO_TRAP_FLAGS,
     MAX_EGG_HATCH_TIME,
+    NEW_MOON,
     NEUTRAL,
     CXN_ARTICLE,
     CXN_PFX_THE,
@@ -183,12 +187,15 @@ import {
     sticks,
     thick_skinned,
     touch_petrifies,
+    poly_when_stoned,
+    type_is_pname,
 } from './mondata.js';
 import {
     monflee,
     monfleeMessage,
     onscary,
     set_apparxy,
+    youHear,
 } from './monmove.js';
 import { m_at } from './monst.js';
 import {
@@ -243,6 +250,7 @@ import {
     AT_NONE,
     AT_TUCH,
     AT_WEAP,
+    G_UNIQ,
     PM_BARBARIAN,
     PM_BLACK_PUDDING,
     PM_BROWN_PUDDING,
@@ -261,6 +269,7 @@ import {
     PM_SAMURAI,
     PM_SHADE,
     PM_SHRIEKER,
+    PM_STONE_GOLEM,
     PM_STEAM_VORTEX,
     S_BLOB,
     S_EEL,
@@ -308,6 +317,7 @@ import {
     ysimple_name as ysimpleName,
     mshot_xname,
     isPoisonable,
+    the,
 } from './objnam.js';
 import {
     ACID_VENOM,
@@ -386,7 +396,7 @@ import { destroy_items } from './zap_destroy_items.js';
 import { Cold_resistance, exclam, hit, resist } from './zap.js';
 import { note_unported } from './unported.js';
 import { cansee, canseemon } from './vision.js';
-import { body_part, mbodypart } from './polyself.js';
+import { body_part, mbodypart, polymon } from './polyself.js';
 import { observe_object } from './o_init.js';
 import { obj_resists } from './bury.js';
 
@@ -407,6 +417,13 @@ function propertyPresent(hero, index) {
 function Hallucination(state) {
     return intrinsicProperty(state?.u, HALLUC)
         && !propertyPresent(state?.u, HALLUC_RES);
+}
+
+// C ref: youprop.h Deaf.  The role-play flag is part of the macro even when
+// no timed deafness property is active.
+function Deaf(state) {
+    return propertyPresent(state?.u, DEAF)
+        || Boolean(state?.u?.uroleplay?.deaf);
 }
 
 // C ref: display.h is_safemon().
@@ -2797,10 +2814,11 @@ export async function mhitm_ad_drst(
 //     refuses its own AT_HUGS arm first, at js/mhitu.js:626, so no ported path
 //     spells this attack. C's whole condition is kept rather than a bare aatyp
 //     test, so the stop sits exactly where C's branch begins.
-//   AT_WEAP with something wielded (4041-4121) admits the ordinary nonfatal
-//     arm through dmgval() and hitmsg(). A petrifying corpse, gauntlets of
-//     power, artifact, silver, pudding split, effective rust, poison, or a
-//     potentially fatal total still stops before its unported continuation.
+//   AT_WEAP with something wielded (4041-4121) admits the ordinary arm
+//     through dmgval() and hitmsg(). The petrifying-corpse pre-arm is also
+//     complete through do_stone_u() and the corpse's fall-through to
+//     dmgval()/hitmsg(); the later artifact, silver, pudding split, effective
+//     rust, poison, and potentially fatal branches remain explicit boundaries.
 //
 // An AT_WEAP attacker holding nothing is not that edge. It falls to the last
 // arm with everyone else and prints hitmsg()'s default verb, which is what
@@ -2861,11 +2879,37 @@ export async function mhitm_ad_phys(
             const otmp = magr.mw; /* MON_WEP(magr) */
 
             if (mattk.aatyp === AT_WEAP && otmp) {
-                if (otmp.otyp === CORPSE
-                    && touch_petrifies(state.mons?.[otmp.corpsenm])) {
-                    unsupported('a petrifying corpse weapon');
+                const petrifyingCorpse = otmp.otyp === CORPSE
+                    && touch_petrifies(state.mons?.[otmp.corpsenm]);
+                if (petrifyingCorpse) {
+                    // uhitm.c:4047-4059.  This damage is established before
+                    // do_stone_u(), and a successful petrification consumes
+                    // the rest of the attack through mhm.done.
+                    mhm.damage = 1;
+                    const message = requireAttackOperation(env, 'message');
+                    await message(
+                        `${Monnam(magr, state, env)} hits you with the `
+                        + `${pmname(state.mons[otmp.corpsenm], NEUTRAL)} corpse.`,
+                        state,
+                        env,
+                    );
+                    const stoned = Boolean(
+                        (state.u?.uprops?.[STONED]?.intrinsic ?? 0) & TIMEOUT,
+                    );
+                    if (!stoned && await do_stone_u(magr, state, env)) {
+                        mhm.hitflags = M_ATTK_HIT;
+                        mhm.done = true;
+                        return;
+                    }
                 }
-                if (!(otmp.oclass === WEAPON_CLASS || is_weptool(otmp, state)))
+                // C4047-4061 continues through dmgval()/hitmsg() for the
+                // petrifying corpse even when do_stone_u() returns false
+                // (resistance, existing Stoned, or a golem transition).
+                // Keep the ordinary non-weapon boundary for every other
+                // object, whose later C arms remain outside this span.
+                if (!petrifyingCorpse
+                    && !(otmp.oclass === WEAPON_CLASS
+                         || is_weptool(otmp, state)))
                     unsupported('a non-weapon object hitting the hero');
 
                 const gloves = which_armor(magr, W_ARMG, state);
@@ -3068,6 +3112,121 @@ export async function mhitm_ad_blnd(
     }
 }
 
+// C ref: uhitm.c do_stone_u() (3924-3942). Return TRUE exactly when the
+// hero's petrification has been started. A successful poly_when_stoned()
+// transition to a stone golem returns FALSE, because polymon() handled the
+// petrification and C continues without make_stoned(). The make_stoned() call
+// has no return value; its potion.c owner is still outside this span, so retain
+// the source call as an explicit gap.
+export async function do_stone_u(mtmp, state = game, env = {}) {
+    const stoned = Boolean(
+        (state.u?.uprops?.[STONED]?.intrinsic ?? 0) & TIMEOUT,
+    );
+    if (!stoned
+        && !propertyPresent(state.u, STONE_RES)
+        && !(poly_when_stoned(state.youmonst?.data, state)
+            && await polymon(PM_STONE_GOLEM, state, env))) {
+        let kformat = KILLED_BY_AN;
+        // Mgender() reads the attacking monster instance's female bit; the
+        // species record alone is not the source value here.
+        let kname = pmname(mtmp.data, Mgender(mtmp, state));
+
+        if ((mtmp.data?.geno ?? 0) & G_UNIQ) {
+            if (!type_is_pname(mtmp.data))
+                kname = the(kname, state);
+            kformat = KILLED_BY;
+        }
+        // C: make_stoned(5L, NULL, kformat, kname).  The return is void and
+        // no local state may be invented for this unported owner.
+        note_unported('potion.c make_stoned');
+        // Keep the arguments evaluated in C order for future owner wiring.
+        void kformat;
+        void kname;
+        void env;
+        return true;
+    }
+    return false;
+}
+
+// C ref: uhitm.c mhitm_ad_ston() (4203-4263). A cockatrice-style damage
+// type has three distinct directions: the hero attacks a monster, a monster
+// attacks the hero, or one monster attacks another. Damage is zero only in
+// the hero attacker arm; the monster-to-hero arm can instead mark the blow as
+// handled when do_stone_u() starts petrification.
+export async function mhitm_ad_ston(
+    magr,
+    mattk,
+    mdef,
+    mhm,
+    state = game,
+    env = {},
+) {
+    const random = env.random ?? { rn2 };
+    const message = requireAttackOperation(env, 'message');
+
+    if (magr === state.youmonst) {
+        // C's munstone() return is used to decide whether minstapetrify()
+        // runs. The latter is a discarded void call and remains an explicit
+        // source gap until trap.c is ported.
+        const { munstone } = await import('./muse.js');
+        if (!await munstone(mdef, true, state, env))
+            note_unported('trap.c minstapetrify');
+        mhm.damage = 0;
+    } else if (mdef === state.youmonst) {
+        await hitmsg(magr, mattk, state, env);
+        if (!random.rn2(3)) {
+            if (magr.mcan) {
+                if (!Deaf(state)) {
+                    const heard = youHear(
+                        `a cough from ${mon_nam(magr, state, env)}!`, state);
+                    if (heard) await message(heard, state, env);
+                }
+            } else {
+                if (Hallucination(state) && !heroIsBlind(state)) {
+                    // Soundeffect(se_cockatrice_hiss, 50) is a no-op in the
+                    // recorder's nosound backend, while You_hear is visible.
+                    const heard = youHear('hissing.', state);
+                    if (heard) await message(heard, state, env);
+                    await message(
+                        `${Monnam(magr, state, env)} appears to be blowing you a kiss...`,
+                        state,
+                        env,
+                    );
+                } else if (!Deaf(state)) {
+                    const heard = youHear(
+                        `${s_suffix(mon_nam(magr, state, env))} hissing!`, state);
+                    if (heard) await message(heard, state, env);
+                } else if (!heroIsBlind(state)) {
+                    await message(
+                        `${Monnam(magr, state, env)} seems to grimace.`,
+                        state,
+                        env,
+                    );
+                }
+
+                // C always draws rn2(10) before checking the new-moon
+                // fallback; only the moonphase term itself is short-circuited.
+                if (!random.rn2(10)
+                    || state.flags?.moonphase === NEW_MOON) {
+                    if (await do_stone_u(magr, state, env)) {
+                        mhm.hitflags = M_ATTK_HIT;
+                        mhm.done = true;
+                        return;
+                    }
+                }
+            }
+        }
+    } else {
+        // C discards do_stone_mon()'s void result. Keep this call boundary
+        // explicit until that source function is ported; do not use a gap's
+        // return as hitflags or damage data.
+        if (magr.mcan)
+            return;
+        note_unported('uhitm.c do_stone_mon');
+        return;
+    }
+}
+
 // C ref: uhitm.c mhitm_adtyping() (4781-4832). One landed blow's damage type
 // selects the function that applies it. C's switch is written out in full so
 // that the arms this port has not reached name the uhitm.c function a later
@@ -3104,7 +3263,9 @@ export async function mhitm_adtyping(
         await mhitm_ad_elec(magr, mattk, mdef, mhm, state, env);
         break;
     case AD_ACID: unported('mhitm_ad_acid'); break;
-    case AD_STON: unported('mhitm_ad_ston'); break;
+    case AD_STON:
+        await mhitm_ad_ston(magr, mattk, mdef, mhm, state, env);
+        break;
     case AD_SSEX: unported('mhitm_ad_ssex'); break;
     case AD_SITM:
     case AD_SEDU:

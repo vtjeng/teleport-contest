@@ -112,6 +112,7 @@ import {
     PM_JACKAL,
     PM_KI_RIN,
     PM_LICH,
+    PM_LITTLE_DOG,
     PM_LICHEN,
     PM_OWLBEAR,
     PM_PONY,
@@ -2297,11 +2298,12 @@ test('mhitm_ad_phys adds an ordinary wielded weapon and not an empty hand',
         { lines: ['The goblin hits!'], hitflags: M_ATTK_HIT, reason: undefined });
 });
 
-test('mhitm_ad_phys keeps special and fatal weapon hits fail-closed',
+test('mhitm_ad_phys keeps remaining special and fatal weapon hits fail-closed',
     async () => {
-    // uhitm.c:4041-4121 contains eight continuations beyond the ordinary
-    // weapon path. This slice excludes each one, so every fixture changes
-    // exactly the field that selects its continuation.
+    // uhitm.c:4041-4121 contains the continuations beyond the ordinary
+    // weapon path. The petrifying-corpse pre-arm is now source-complete;
+    // every remaining fixture changes exactly the field that selects its
+    // unported continuation.
     const state = await meleeHero();
     const goblin = meleeAttacker(state, PM_GOBLIN, 1, 0);
     const weap = goblin.data.mattk[0];
@@ -2325,9 +2327,17 @@ test('mhitm_ad_phys keeps special and fatal weapon hits fail-closed',
     };
 
     const corpse = mksobj(CORPSE, false, false, { state });
-    // Cockatrice flesh selects do_stone_u(), not ordinary weapon damage.
+    // Cockatrice flesh selects do_stone_u() before the ordinary weapon arm.
+    // make_stoned() remains a named void gap, but do_stone_u() returns true
+    // and handles this attack when the initialized hero is not resistant.
     corpse.corpsenm = PM_COCKATRICE;
-    assert.equal(await stopped(corpse), 'a petrifying corpse weapon');
+    assert.equal(await stopped(corpse), undefined);
+
+    const ordinaryCorpse = mksobj(CORPSE, false, false, { state });
+    ordinaryCorpse.corpsenm = PM_LITTLE_DOG;
+    assert.equal(
+        await stopped(ordinaryCorpse), 'a non-weapon object hitting the hero',
+    );
 
     const powered = mksobj(DAGGER, false, false, { state });
     assert.equal(await stopped(powered, () => {

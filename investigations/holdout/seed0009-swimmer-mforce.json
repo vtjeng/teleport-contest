@@ -2,7 +2,7 @@
   "session": "holdout/seed0009-swimmer-mforce",
   "remainingScreensUpperBound": 0,
   "status": "complete",
-  "commit": "da13fffda60e1126741e2922fb3a820ffe2444ff",
+  "commit": "58e2213278b377a9ba04d78685e58c5c1e4e5692",
   "mismatch": {
     "session": "holdout/seed0009-swimmer-mforce",
     "step": 73,
@@ -18,24 +18,19 @@
     "recordedSteps": 73,
     "remainingScreensUpperBound": 0
   },
-  "summary": "The current A21 replay emits all 73 recorded screens, with all 3713 RNG values and 73 cursors matching; no recorded screen is missing. The only remaining diagnostic is a post-recording behavioral boundary at step 73: js/hack.js switch_terrain() throws when the hero occupies obstructed, closed-door, waterwall or lavawall terrain. C hack.c switch_terrain() handles that same blocklev predicate by setting BLevitation/BFlying FROMOUTSIDE, issuing messages only when the corresponding property is active, updating the status line when a property changes, and classifying terrain. This boundary is therefore a future whole-source switch_terrain port with zero currently unmatched recorded screens; the prior tutorial reached-depth explanation is superseded.",
+  "summary": "Resolved in the current replay: all 73 recorded screens, 3713 RNG values and 73 cursors match, with no divergence or behavioral boundary. switch_terrain now applies the C flight and levitation blocking masks and messages, and spoteffects stops after terminal liquid death so its arrival tail cannot overwrite the final display. The session is absent from the mismatch queue. The source goal remains parked for float_up and unrecorded terrain-transition entries.",
   "source": {
     "file": "hack.c",
-    "branch": "hack.c switch_terrain() 3178-3217 computes blocklev from IS_OBSTRUCTED, closed_door, IS_WATERWALL and LAVAWALL. On blocklev it sets BLevitation and BFlying FROMOUTSIDE, with You_cant() output only for active Levitation/Flying; otherwise it clears those masks and invokes float_up()/float_vs_flight() as needed. It then updates disp.botl when Levitation/Flying changed and calls classify_terrain() when terrainstatus is enabled. js/hack.js 4794-4824 computes the same predicate but throws UnsupportedHeroMoveBoundaryError at 4811-4813, and similarly refuses nonzero blocked masks at 4815-4819 instead of implementing those source state transitions.",
+    "branch": "C hack.c switch_terrain3178–3217 sets and clears FROMOUTSIDE for obstructed terrain, preserves effective flight/levitation message order, updates status and classifies terrain. JavaScript now implements that owner. C fatal lava calls non-returning done(BURNING); the JavaScript spoteffects caller must stop when its returning finalizer sets program_state.gameover.",
     "callers": [
-      "hack.c set_uinwater() 3221-3227 calls switch_terrain() only when u.uinwater changes; js/hack.js set_uinwater() 4827-4836 is the corresponding owner and js/cmd.js 2573 uses it during level transitions.",
-      "hack.c spoteffects() 3342-3349 calls switch_terrain() before pooleffects() when the current terrain differs from the previous terrain or terrain_typ is MAX_TYPE; js/hack.js spoteffects() 4938-4970 calls its terrain check after pooleffects(), so a liquid death that returns true skips this call.",
-      "dungeon.c u_on_rndspot() 1604-1638 calls switch_terrain() after random level arrival; js/dungeon.js u_on_rndspot() 1156-1214 calls the current JS owner, and js/cmd.js 2583-2589 is a production level-change caller.",
-      "teleport.c teleds() 551-552 calls switch_terrain() after a terrain-type change; js/teleport.js 1601-1606 preserves this call after map and vision updates.",
-      "dothrow.c 913-917 calls switch_terrain() after thrown movement changes terrain; js/dothrow.js 643-649 is the corresponding caller.",
-      "dig.c 733 and 757 calls switch_terrain() after a hero-created pit or hole changes solid terrain; no direct js/dig.js caller currently exists for these unported post-trap arms.",
-      "monmove.c dissolve_bars() 2169-2177 calls switch_terrain() when bars dissolve under the hero; js/monmove.js 4035-4048 preserves that caller.",
-      "objnam.c wizterrainwish() 3907-3910 calls switch_terrain() after a terrain wish; the corresponding JS terrain-wish path remains unported and has no direct caller."
+      "hack.c set_uinwater calls switch_terrain after the water flag changes; the JavaScript owner and its implemented callers now await the transition.",
+      "hack.c spoteffects reaches switch_terrain through ordinary square effects. Its JavaScript liquid-effects gate now also stops after terminal death; other preexisting spoteffects behavior is not claimed complete.",
+      "dungeon.c u_on_rndspot, teleport.c teleds, dothrow.c hurtle_step and monmove.c dissolve_bars have awaited JavaScript terrain calls. mhitu.c expels forwards the planning environment through spoteffects.",
+      "dig.c pit/hole and objnam.c wizterrainwish terrain entries remain active source paths without matching production recordings; the source goal retains them as open entries."
     ],
     "dependencies": [
-      "Terrain classification requires the canonical IS_OBSTRUCTED, closed_door, IS_WATERWALL and LAVAWALL predicates and the current level cell at u.ux/u.uy.",
-      "The source state contract owns u.uprops[LEVITATION].blocked and u.uprops[FLYING].blocked (BLevitation/BFlying), plus float_up(), float_vs_flight(), disp.botl and classify_terrain(); a future implementation must preserve their source order and conditional messages.",
-      "The saved scan reports boundary at behavioral step 73 with key null, keyCursor answer, divergence null, and screensEmitted 73. Because recordedSteps is also 73 and the queue count is zero, the boundary occurs after the complete observed output; do not charge it as a lost screen or restore the superseded tutorial overview diagnosis."
+      "hack.c float_up remains a named discarded-call gap; float_vs_flight is the canonical implemented flight owner.",
+      "Water-state, swallowed expulsion, random arrival, teleport, hurtle, bar dissolution, digging and terrain-wish entries remain unrecorded. The flight-wall recordings establish ordinary movement blocking and restoration only."
     ],
     "functions": [
       "switch_terrain"
@@ -43,10 +38,11 @@
   },
   "goalKind": "file-port",
   "evidence": [
-    "The passing checkpoint at da13fffda60e1126741e2922fb3a820ffe2444ff (.cache/A21-checkpoint.log, run-2ujRP0) passes the fixed workload at 36/44 fully matched sessions and reports 10838/11405 screens, 771039/792838 RNG values and 10860/11405 cursors.",
-    "The assigned row in .cache/A21-development-scan.json reports screensEmitted 73, recordedSteps 73, divergence null, boundary \"unsupported hero move: switch_terrain() onto terrain that blocks levitation\", commandRefusal false, key null, command null, keyCursor \"answer\", and behavioral at 73. Its segment end state has inputExhausted false and recordingMatched false only because runSegment marks any boundary as unmatched; the emitted screen, RNG and cursor streams are complete through the recorded final step.",
-    "The queue entry in .cache/A21-queue.json pins step 73, function switch_terrain, sourceFile/cFile hack.c, the same boundary message, recordedSteps 73 and remainingScreensUpperBound 0. The old tracked investigation used count 4 and the resolved do.c tutorial reached-depth explanation, so it is stale and replaced here.",
-    "The exact C implementation is nethack-c/upstream/src/hack.c:3178-3217. Its blocklev arm does not refuse a hero who is neither actively levitating nor flying: it sets the blocked masks and continues through the botl and terrainstatus tails. The JavaScript refusal is js/hack.js:4794-4824, where the blocklev throw precedes those source effects.",
-    "No replay, recording, scan, aggregate score, game-code edit or central-record update was performed for this refresh; the current source and saved A21 artifacts establish the zero-screen attribution."
+    "At 58e2213278b377a9ba04d78685e58c5c1e4e5692, .cache/B28-development-scan.json reports 73 emitted/recorded screens, divergence null, boundary null and recordingMatched true. .cache/B28-queue.json contains only the Knight and seed2200 sessions.",
+    "The passing checkpoint .git/checkpoint-results/58e2213278b377a9ba04d78685e58c5c1e4e5692/run-sufKz5/summary.json preserves every development screen, RNG and cursor match from accepted 394068a5; .cache/B28-retry-development-comparison.json is empty.",
+    "Two independent 51-screen recordings under recordings/hack.c/switch-terrain-flight-wall-*.session.json execute the blocked-flight and restored-flight messages. All 353 committed recordings pass.",
+    "The first candidate c080eb65 passed checkpoint but lost the final seed0009 screen: screens fell from 73 to 72 while RNG and cursors stayed exact. .cache/B28-development-comparison.json preserves that rejected comparison. C hack.c spoteffects and trap.c lava_effects show that done(BURNING) cannot return; the JavaScript finalizer returns with gameover, requiring the new stop before ordinary arrival effects.",
+    "The zero-point topten omission hypothesis was falsified: its existing rank-zero fallback and outentry formatting were correct. No score-formatting change was required.",
+    "Preserve the earlier zero-screen switch_terrain boundary as provenance in mismatch; it was after complete recorded output. The superseded tutorial reached-depth explanation is not a current blocker."
   ]
 }
