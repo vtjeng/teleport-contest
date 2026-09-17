@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "Independent Ranger recipe for dothrow.c throwit()'s valid no-launcher ammunition arm. The bow is moved to the ready slot, then an arrow is thrown by hand; the changed seed, clock, name and alignment keep this case independent of the fixed holdout input.",
+  "segments": [
+    {
+        "seed": 9010102,
+        "datetime": "20260917100000",
+        "nethackrc": "OPTIONS=name:A25Two,role:Ranger,race:human,gender:female,align:chaotic\nOPTIONS=!autopickup\nOPTIONS=suppress_alert:3.4.3\nOPTIONS=symset:DECgraphics\n",
+      "moves": "  nQbytdl"
+    }
+  ]
+}

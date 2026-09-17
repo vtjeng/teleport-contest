@@ -56,10 +56,12 @@ import {
     DISP_CHANGE,
     DISP_END,
     DISP_FLASH,
+    DISP_TETHER,
     ECMD_CANCEL,
     ECMD_OK,
     ECMD_TIME,
     FIRE_RES,
+    FUMBLING,
     GETOBJ_EXCLUDE,
     GETOBJ_NOFLAGS,
     GETOBJ_SUGGEST,
@@ -75,6 +77,7 @@ import {
     ICED_MOAT,
     ICED_POOL,
     IRONBARS,
+    LEFT_HANDED,
     IS_FOUNTAIN,
     IS_OBSTRUCTED,
     IS_ROOM,
@@ -83,6 +86,9 @@ import {
     IS_WALL,
     IS_WATERWALL,
     In_mines,
+    TEST_MOVE,
+    is_hole,
+    is_pit,
     DIED,
     DOOR,
     DRAWBRIDGE_UP,
@@ -157,7 +163,6 @@ import {
     TT_PIT,
     MELT_ICE_AWAY,
     VWALL,
-    is_pit,
     nothing_happens,
     ONAME_KNOW_ARTI,
     ONAME_WISH,
@@ -169,6 +174,7 @@ import {
     DRAIN_RES,
     FAST,
     INVIS,
+    THROWN_TETHERED_WEAPON,
     THROWN_WEAPON,
     ZAPPED_WAND,
     WAND_BACKFIRE_CHANCE,
@@ -200,6 +206,8 @@ import {
     XKILL_NOMSG,
     XKILL_NOCORPSE,
     ZAP_POS,
+    xdir,
+    ydir,
     engulfing_u,
     isok,
     u_at,
@@ -216,8 +224,11 @@ import {
     bot,
     cmap_to_glyph,
     glyph_is_invisible,
+    glyph_is_monster,
+    glyph_at,
     map_glyphinfo,
     map_invisible,
+    glyph_is_warning,
     newsym,
     obj_to_glyph,
     tmp_at,
@@ -245,6 +256,7 @@ import { getlin } from './windows.js';
 import { game } from './gstate.js';
 import {
     check_capacity, end_running, in_town, losehp, may_dig, nh_delay_output, nomul,
+    test_move,
     set_uinwater,
 } from './hack.js';
 import {
@@ -289,6 +301,8 @@ import {
     is_rider,
     is_vampshifter,
     is_swimmer,
+    amphibious,
+    breathless,
     monster_resists_element,
     resists_magm,
     resists_blnd,
@@ -376,6 +390,7 @@ import {
     place_object,
     rnd_class,
     set_corpsenm,
+    sobj_at,
     splitobj,
     weight,
 } from './obj.js';
@@ -498,6 +513,8 @@ import {
     cloak_simple_name,
     donameFresh,
     corpse_xname,
+    distant_name,
+    otense,
     gloves_simple_name,
     helm_simple_name,
     killer_xname,
@@ -535,11 +552,13 @@ import {
     maybe_unhide_at,
     m_respond,
     newcham,
+    wake_nearto,
     wakeup,
     xkilled,
     set_ustuck,
     unstuck,
 } from './mon.js';
+import { dmgval } from './weapon.js';
 import { expels, u_slow_down } from './mhitu.js';
 import { sleep_monst, slept_monst } from './mhitm.js';
 import { explode } from './explode.js';
@@ -554,6 +573,7 @@ import {
     costly_spot,
     inhishop,
     inside_shop,
+    shkcatch,
     shop_keeper,
 } from './shk.js';
 import { Shknam } from './shknam.js';
@@ -600,7 +620,7 @@ import { burn_floor_objects, destroy_items } from './zap_destroy_items.js';
 import { create_gas_cloud } from './region.js';
 import { ignite_items } from './apply_catch_lit.js';
 import {
-    hits_bars, m_useup, m_useupall, rnd_hallublast,
+    hits_bars, m_useup, m_useupall, rnd_hallublast, thitu,
 } from './mthrowu.js';
 import { note_unported } from './unported.js';
 import { livelog_printf } from './pline.js';
@@ -634,6 +654,114 @@ function heroIsDeaf(state) {
     const property = state.u?.uprops?.[DEAF];
     return Boolean(property?.intrinsic || property?.extrinsic
         || state.u?.uroleplay?.deaf);
+}
+
+// C ref: zap.c bhit_done() (4125-4138).  The flight cleanup is a discarded
+// light.c call; retain its source boundary for every thrown or tethered exit
+// without inventing a transient-light state change.
+function noteBhitTransientLightCleanup(weapon, tetheredWeapon) {
+    if (weapon === THROWN_WEAPON || tetheredWeapon)
+        note_unported('light.c transient_light_cleanup');
+}
+
+// symbol_data.js derives these cmap positions from defsym.h; symbols.js
+// intentionally exports only the terrain symbols used by public callers.
+const S_BOOMLEFT = 80;
+const S_BOOMRIGHT = 81;
+
+// C ref: zap.c boomhit() (4148-4236).  This source owner lives in zap.js;
+// dothrow.js supplies throwit_mon_hit() and endmultishot() as the production
+// callbacks because C's boomerang caller owns those dothrow-side transitions.
+// Direct callers get those owners through lazy imports, which avoids adding a
+// second static zap.js -> dothrow.js cycle.
+export async function boomhit(
+    obj, dx, dy, state = game, hitMonster = null, endMultishotOwner = null,
+) {
+    const counterclockwise = state.u?.uhandedness !== LEFT_HANDED;
+    let direction = xytodir(dx, dy);
+    let nhits = Math.max(1, (obj.spe ?? 0) + 1);
+    state.gb ??= {};
+    state.gb.bhitpos = { x: state.u.ux, y: state.u.uy };
+    let boom = counterclockwise ? S_BOOMLEFT : S_BOOMRIGHT;
+
+    const boomGlyph = map_glyphinfo(cmap_to_glyph(boom, state), state);
+    await tmp_at(DISP_FLASH, boomGlyph, state);
+    for (let count = 0; count < 10; count++) {
+        direction = (direction + 8) % 8;
+        boom = S_BOOMLEFT + S_BOOMRIGHT - boom;
+        const turnGlyph = map_glyphinfo(
+            cmap_to_glyph(boom, state), state,
+        );
+        await tmp_at(DISP_CHANGE, turnGlyph, state);
+        const stepX = xdir[direction];
+        const stepY = ydir[direction];
+        state.gb.bhitpos.x += stepX;
+        state.gb.bhitpos.y += stepY;
+        if (!isok(state.gb.bhitpos.x, state.gb.bhitpos.y, state)) {
+            state.gb.bhitpos.x -= stepX;
+            state.gb.bhitpos.y -= stepY;
+            break;
+        }
+
+        const monster = m_at(state.gb.bhitpos.x, state.gb.bhitpos.y, state);
+        if (monster) {
+            await m_respond(monster, { state });
+            if (nhits-- < 0) {
+                await tmp_at(DISP_END, 0, state);
+                return monster;
+            }
+            const callback = hitMonster
+                ?? (await import('./dothrow.js')).throwit_mon_hit;
+            const caught = await callback(monster, obj, state);
+            if (caught || !state.gt?.thrownobj) break;
+        }
+        const location = state.level.at(state.gb.bhitpos.x, state.gb.bhitpos.y);
+        if (!ZAP_POS(location.typ)
+            || closed_door(state.gb.bhitpos.x, state.gb.bhitpos.y, state)) {
+            state.gb.bhitpos.x -= stepX;
+            state.gb.bhitpos.y -= stepY;
+            break;
+        }
+        if (state.gb.bhitpos.x === state.u.ux
+            && state.gb.bhitpos.y === state.u.uy) {
+            const fumbling = state.u?.uprops?.[FUMBLING];
+            if (Boolean(fumbling?.intrinsic || fumbling?.extrinsic)
+                || rn2(20) >= acurr(state, A_DEX)) {
+                // C discards both return values, but their source-owned
+                // effects still occur in this self-hit arm.
+                const damage = dmgval(obj, state.youmonst, state);
+                await thitu(
+                    10 + (obj.spe ?? 0), maybeHalfPhysical(damage, state),
+                    obj, 'boomerang', state,
+                    { message: ttyPline, losehp, exercise, random: { rnd } },
+                );
+                // C's accepted death enters done() and does not return.
+                if (state.program_state?.gameover) return null;
+                const finish = endMultishotOwner
+                    ?? (await import('./dothrow.js')).endmultishot;
+                await finish(true, state);
+                break;
+            }
+            await tmp_at(DISP_END, 0, state);
+            await ttyPline('You skillfully catch the boomerang.', state);
+            return state.youmonst;
+        }
+        await tmp_at(state.gb.bhitpos.x, state.gb.bhitpos.y, state);
+        await nh_delay_output(state);
+        if (IS_SINK(location.typ)) {
+            note_unported('sounds.c Soundeffect');
+            if (!heroIsDeaf(state)) await ttyPline('Klonk!', state);
+            await wake_nearto(
+                state.gb.bhitpos.x, state.gb.bhitpos.y, 20, { state },
+            );
+            break;
+        }
+        if (count % 5 !== 0)
+            direction = counterclockwise ? (direction + 7) % 8
+                : (direction + 1) % 8;
+    }
+    await tmp_at(DISP_END, 0, state);
+    return null;
 }
 
 // C ref: zap.c lightdamage() (3024-3056). Scrolls pass ordinary=TRUE, but
@@ -2954,16 +3082,23 @@ export async function bhit(
     random = { rn2, rnd },
     rawEnv = {},
 ) {
-    const obj = pobj.obj;
+    let obj = pobj.obj;
     let allow_skip = false;
     let skiprange_start = 0;
     let skiprange_end = 0;
+    let in_skip = false;
+    let skipcount = 0;
 
+    const tetheredWeapon = weapon === THROWN_TETHERED_WEAPON && Boolean(obj);
     const zapped = weapon === ZAPPED_WAND;
-    if (weapon !== THROWN_WEAPON && !zapped) {
+    // zap.c remembers whether this flight entered with an auto-returning
+    // missile so a web or another early stop can cancel that return before
+    // throwit() handles the landing tail.
+    const wasReturning = state.iflags?.returning_missile === obj ? obj : null;
+    if (weapon !== THROWN_WEAPON && !tetheredWeapon && !zapped) {
         throw new UnsupportedBhitError(`call type ${weapon}`);
     }
-    if (weapon === THROWN_WEAPON && (fhitm || fhito)) {
+    if ((weapon === THROWN_WEAPON || tetheredWeapon) && (fhitm || fhito)) {
         // Only ZAPPED_WAND supplies either callback; C passes null for a
         // thrown weapon at dothrow.c:1665-1666.
         throw new UnsupportedBhitError('an object or monster callback');
@@ -2977,7 +3112,12 @@ export async function bhit(
         allow_skip = random.rn2(3) === 0;
     }
 
-    if (!zapped)
+    if (tetheredWeapon) {
+        // display.c owns this transient frame; throwit() closes it after bhit
+        // returns because C leaves tethered flights open at their boundary.
+        await tmp_at(DISP_TETHER, obj_to_glyph(obj, state), state);
+    }
+    else if (!zapped)
         await tmp_at(DISP_FLASH, obj_to_glyph(obj, state), state);
     let point_blank = true;
 
@@ -2994,8 +3134,12 @@ export async function bhit(
         }
 
         if (is_pick(obj, state) && inside_shop(x, y, state)) {
-            // shkcatch() belongs to js/shk.js's unported half.
-            throw new UnsupportedBhitError('shkcatch()');
+            const caught = await shkcatch(obj, x, y, state, rawEnv);
+            if (caught) {
+                await tmp_at(DISP_END, 0, state);
+                noteBhitTransientLightCleanup(weapon, tetheredWeapon);
+                return caught;
+            }
         }
 
         let typ = state.level.at(x, y).typ;
@@ -3003,9 +3147,10 @@ export async function bhit(
         /* WATER aka "wall of water" stops items */
         if (!zapped && (IS_WATERWALL(typ) || typ === LAVAWALL)) break;
 
-        if (!zapped && obj.lamplit) {
-            throw new UnsupportedBhitError('show_transient_light()');
-        }
+        if (!zapped && obj.lamplit && !heroIsBlind(state))
+            // zap.c discards show_transient_light()'s void result. Keep the
+            // flight running when that display owner is still unported.
+            note_unported('display.c show_transient_light');
         if (!zapped && typ === IRONBARS
             && hits_bars(pobj, x - ddx, y - ddy, x, y,
                          point_blank ? 0 : !random.rn2(5) ? 1 : 0, 1,
@@ -3033,8 +3178,7 @@ export async function bhit(
                 ttmp.tseen = true;
                 newsym(x, y);
             }
-            // iflags.returning_missile: no ported object returns to the hand,
-            // so `was_returning` is always null and its two arms are inert.
+            if (wasReturning) state.iflags.returning_missile = null;
             break;
         }
 
@@ -3045,14 +3189,41 @@ export async function bhit(
          */
         if (!zapped && skiprange_start && range === skiprange_start && allow_skip) {
             if (is_pool(x, y, state) && !mtmp) {
-                throw new UnsupportedBhitError('a rock skipping over water');
+                in_skip = true;
+                if (!heroIsBlind(state)) {
+                    await ttyPline(
+                        `${Yname2(obj, state)} ${otense(obj, 'skip')}`
+                            + `${skipcount ? ' again' : ''}.`, state,
+                    );
+                } else {
+                    const heard = youHear(`${yname(obj, state)} skip.`, state);
+                    if (heard) await ttyPline(heard, state);
+                }
+                skipcount++;
             } else if (skiprange_start > skiprange_end + 1) {
                 --skiprange_start;
             }
         }
-        // C's `if (in_skip)` block below this cannot run: in_skip is set only
-        // by the arm that stops just above, so its branches -- another bounce
-        // and a monster the rock passes over -- are unreachable.
+        if (in_skip) {
+            if (range <= skiprange_end) {
+                in_skip = false;
+                if (range > 3) {
+                    ({ skipstart: skiprange_start, skipend: skiprange_end } =
+                        skiprange(range, random));
+                }
+            } else if (mtmp && (mtmp.data?.mlet === S_EEL
+                || is_swimmer(mtmp.data)
+                || amphibious(mtmp.data)
+                || breathless(mtmp.data))) {
+                if (!heroIsBlind(state) && canSpotMonster(mtmp, state)) {
+                    await ttyPline(
+                        `${Yname2(obj, state)} ${otense(obj, 'pass')} over `
+                            + `${mon_nam(mtmp, state)}.`, state,
+                    );
+                }
+                mtmp = null;
+            }
+        }
 
         /* if mtmp is a shade and missile passes harmlessly through it,
            give message and skip it in order to keep going;
@@ -3078,26 +3249,18 @@ export async function bhit(
                 state.youmonst, mtmp, obj, true, true, state,
             );
             if (passedShade) mtmp = null;
-            if (mtmp && M_AP_TYPE(mtmp) === M_AP_OBJECT) {
-                // The three glyph tests at 3987-3989 ask what the hero sees
-                // drawn on the square, which display.c glyph_at() reads out of
-                // gg.gbuf as a glyph number. This port's glyph buffer stores
-                // resolved presentations, and only js/display.js
-                // map_glyphinfo() puts a number on one (:1733); the monster
-                // presentations are built by glyphPresentation() and carry
-                // none, and map_glyphinfo() has no monster arm at all. So a
-                // square showing a monster cannot answer glyph_is_monster()
-                // here, and the disguise the hero has seen through cannot be
-                // told from the one they have not.
-                throw new UnsupportedBhitError('glyph_at()');
-            }
+            const xyglyph = glyph_at(x, y, state);
+            if (mtmp && M_AP_TYPE(mtmp) === M_AP_OBJECT
+                && !glyph_is_monster(xyglyph)
+                && !glyph_is_warning(xyglyph)
+                && !glyph_is_invisible(xyglyph))
+                mtmp = null;
         }
 
         if (mtmp) {
             /* THROWN_WEAPON, KICKED_WEAPON */
-            // zap.c:3994-3995 and 4021-4029. `tethered_weapon` is false for
-            // every call this port admits, so the DISP_END always runs here
-            // and the one at 4125-4127 is what `goto bhit_done` skips.
+            // zap.c:3994-3995 and 4021-4029. Tethered weapons retain their
+            // tether animation until throwit() owns the final cleanup.
             if (zapped) {
                 if (fhitm && await fhitm(mtmp, obj, state, random, rawEnv))
                     return mtmp;
@@ -3105,11 +3268,10 @@ export async function bhit(
             } else {
                 state.gn ??= {};
                 state.gn.notonhead = x !== mtmp.mx || y !== mtmp.my;
-                await tmp_at(DISP_END, 0, state);
+                if (!tetheredWeapon) await tmp_at(DISP_END, 0, state);
                 if (cansee(x, y, state) && !canSpotMonster(mtmp, state))
                     map_invisible(x, y, state);
-                // goto bhit_done. transient_light_cleanup() is inert for the
-                // same reason as at the tail below.
+                noteBhitTransientLightCleanup(weapon, tetheredWeapon);
                 return mtmp;
             }
         }
@@ -3137,17 +3299,47 @@ export async function bhit(
 
         /* limit range of ball so hero won't make an invalid move */
         if (!zapped && range > 0 && obj.otyp === HEAVY_IRON_BALL) {
-            throw new UnsupportedBhitError('a heavy iron ball in flight');
+            const boulder = sobj_at(BOULDER, x, y, state);
+            if (boulder) {
+                if (cansee(x, y, state)) {
+                    await ttyPline(
+                        `${The(distant_name(obj, xnameFresh, state), state)} `
+                            + `hits ${an(xnameFresh(boulder, state), state)}.`,
+                        state,
+                    );
+                }
+                range = 0;
+            } else if (obj === state.uball) {
+                // hack.c test_move() owns the source's doorway, boulder and
+                // Sokoban admission checks. Its boolean decides whether the
+                // ball's flight is stopped at this square.
+                const mayContinue = await test_move(
+                    x - ddx, y - ddy, ddx, ddy, TEST_MOVE, state, rawEnv,
+                );
+                if (!mayContinue) {
+                    if (cansee(x, y, state)) {
+                        await ttyPline(
+                            `${The(distant_name(obj, xnameFresh, state), state)} `
+                                + 'jerks to an abrupt halt.', state,
+                        );
+                    }
+                    range = 0;
+                } else if (state.level?.flags?.sokoban_rules
+                    && ttmp && (is_pit(ttmp.ttyp) || is_hole(ttmp.ttyp))) {
+                    range = 0;
+                }
+            }
         }
 
         /* thrown/kicked missile has moved away from its starting spot */
         point_blank = false; /* affects passing through iron bars */
     }
 
-    if (!zapped) await tmp_at(DISP_END, 0, state);
-    // pay_for_damage("destroy"): only a zapped wand can break a shop door.
-    // transient_light_cleanup(): only a lit object registers a transient
-    // light, and the arm that would have shown one stops above.
+    if ((!zapped && !tetheredWeapon)
+        || (wasReturning
+            && wasReturning !== state.iflags?.returning_missile))
+        await tmp_at(DISP_END, 0, state);
+    noteBhitTransientLightCleanup(weapon, tetheredWeapon);
     //
     // The return value is the monster the missile hit. Reaching the tail means
     // the flight ended on terrain or on its own range instead, so it is null.

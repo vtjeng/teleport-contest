@@ -16,9 +16,9 @@
 //     the answer. dothrow.c fixes which call happens with which argument, so
 //     a branch that C does not take costs a draw that is missing here; the
 //     answers depend on ARENA_SEED and are named only where one is used.
-//   - which UnsupportedThrowError the port stops at. Most branches of these
-//     functions end in an unported call, so the branch taken is legible in
-//     the refusal's own text.
+//   - the state and output left by each source branch. Calls whose C result is
+//     explicitly discarded may be named as unported, but do not turn a
+//     translated throw path into a production refusal.
 
 import assert from 'node:assert/strict';
 import test from 'node:test';
@@ -34,6 +34,8 @@ import {
     ECMD_TIME,
     ECMD_CANCEL,
     FUMBLING,
+    HALLUC,
+    HALLUC_RES,
     GETOBJ_DOWNPLAY,
     GETOBJ_EXCLUDE,
     GETOBJ_SUGGEST,
@@ -65,6 +67,7 @@ import {
     breaktest,
     dofire,
     dothrow,
+    endmultishot,
     find_launcher,
     impact_disturbs_zombies,
     multishot_class_bonus,
@@ -157,7 +160,7 @@ import {
     start_timer,
     timeout_globals_init,
 } from '../js/timeout.js';
-import { skiprange } from '../js/zap.js';
+import { boomhit, skiprange } from '../js/zap.js';
 import { newMonster, place_monster } from '../js/monst.js';
 import { PM_SHOPKEEPER } from '../js/monsters.js';
 
@@ -720,57 +723,123 @@ test('throwit() draws rn2(7) only for a cursed or greased missile',
         }
         // With no direction to slip away from -- u.dx and u.dy both zero --
         // the second conjunct stops the draw. u.dz is what throwit() reads
-        // next, and throwing straight down is unported, so the refusal is
-        // where this one ends.
+        // next; the vertical helper is a named discarded gap, so throwit()
+        // still retires its transit state.
         const down = arena();
         down.u.dx = 0;
         down.u.dy = 0;
         down.u.dz = 1;
-        await assert.rejects(
-            () => throwit(item(down, DAGGER, { cursed: 1 }), 0, false, null,
-                down),
-            /straight up or down/u,
-        );
+        await throwit(item(down, DAGGER, { cursed: 1 }), 0, false, null, down);
+        assert.equal(down.iflags.returning_missile, null);
+        assert.equal(down.gt.thrownobj, null);
         assert.deepEqual(draws(), []);
     });
 
-test('throwit() refuses a weapon that would return to the hand', async () => {
+test('throwit() handles weapons that return to the hand', async () => {
     // dothrow.c:30-34 AutoReturn(). The aklys arm needs the weapon in the
     // primary slot; the boomerang arm needs nothing.
     const wielded = arena();
-    await assert.rejects(
-        () => throwit(item(wielded, AKLYS), W_WEP, false, null, wielded),
-        /returning_missile/u,
-    );
+    const returning = item(wielded, AKLYS);
+    await throwit(returning, W_WEP, false, null, wielded);
+    assert.equal(wielded.uwep, returning);
+    assert.equal(wielded.iflags.returning_missile, null);
     // Thrown from anywhere but the hand the same aklys is an ordinary
     // missile, so it flies and lands.
     const loose = arena();
     const aklys = item(loose, AKLYS);
     await throwit(aklys, 0, false, null, loose);
     assert.deepEqual(pileAt(loose, loose.gb.bhitpos.x, 4), [aklys]);
-    // A boomerang returns whatever slot it came from, so the wield mask never
-    // reaches its half of the test. dothrow.c:1601 boomhit() is the next
-    // unported call, which is what a missed AutoReturn() would stop at
-    // instead.
+    // A boomerang returns whatever slot it came from. Its curved traversal
+    // ends at the map boundary in this empty arena, where throwit() drops it.
     const boomerang = arena();
+    const thrownBoomerang = item(boomerang, BOOMERANG);
+    await throwit(thrownBoomerang, 0, false, null, boomerang);
+    assert.equal(boomerang.iflags.returning_missile, null);
+    assert.equal(boomerang.gt.thrownobj, null);
+
+    // youprop.h Hallucination: HHalluc && !HHalluc_res.  Resistance keeps
+    // this weapon on the source's successful return arm, including the
+    // second rn2(100) that the impaired arm skips.
+    const resistant = arena();
+    resistant.u.uprops[HALLUC].intrinsic = 1;
+    resistant.u.uprops[HALLUC_RES].extrinsic = 1;
+    const resistantAklys = item(resistant, AKLYS);
+    await throwit(resistantAklys, W_WEP, true, null, resistant);
+    assert.equal(resistant.uwep, resistantAklys);
+    assert.equal(resistant.u.twoweap, true);
+    assert.deepEqual(draws(), ['rn2(100)', 'rn2(100)']);
+});
+
+test('throwit() treats unresisted hallucination as impaired', async () => {
+    const hallucinating = arena();
+    hallucinating.u.uprops[HALLUC].intrinsic = 1;
+    const aklys = item(hallucinating, AKLYS);
     await assert.rejects(
-        () => throwit(item(boomerang, BOOMERANG), 0, false, null, boomerang),
-        /returning_missile/u,
+        () => throwit(aklys, W_WEP, false, null, hallucinating),
+        /hallucinated display/u,
+    );
+    assert.notEqual(hallucinating.uwep, aklys);
+    // The impaired arm goes directly to the damage test after its initial
+    // return roll; it must not spend the successful-return rn2(100).
+    assert.deepEqual(draws(), ['rn2(100)', 'rn2(2)']);
+});
+
+test('endmultishot() reports the source ordinal for a verbose volley stop', async () => {
+    // dothrow.c:590-601.  A verbose stop outside monster movement emits the
+    // source's firing/shot wording and then clamps the volley at m_shot.i;
+    // ordinal 2 must use "2nd", while the toss arm uses the same formatter.
+    const firing = arena();
+    firing.m_shot = { i: 2, n: 5, s: true };
+    firing.context.mon_moving = false;
+    await endmultishot(true, firing);
+    assert.equal(firing.m_shot.n, 2);
+    assert.equal(
+        firing._pending_message,
+        'You stop firing after the 2nd shot.',
+    );
+
+    const throwing = arena();
+    throwing.m_shot = { i: 13, n: 20, s: false };
+    throwing.context.mon_moving = false;
+    await endmultishot(true, throwing);
+    assert.equal(throwing.m_shot.n, 13);
+    assert.equal(
+        throwing._pending_message,
+        'You stop throwing after the 13th toss.',
     );
 });
 
-test('throwit() stops for the recoil of a weightless throw', async () => {
+test('boomhit() applies the source self-hit and ends its volley', async () => {
+    // zap.c:4148-4236.  A broad room lets the curved path return to the
+    // hero; Fumbling selects the self-hit arm without spending the catch
+    // roll.  The source-discarded calls still run their own effects: thitu()
+    // damages the hero and endmultishot(TRUE) reports the stopped volley.
+    const state = arena({ last: 30, uhp: 100, uhpmax: 100 });
+    for (let y = 0; y < 21; y++) {
+        for (let x = 1; x < 80; x++) state.level.at(x, y).typ = ROOM;
+    }
+    state.u.ux = 40;
+    state.u.uy = 10;
+    state.u.uac = 100;
+    state.u.uprops[FUMBLING].intrinsic = 1;
+    state.m_shot = { i: 1, n: 3, s: true };
+    const boomerang = item(state, BOOMERANG);
+    await boomhit(boomerang, 1, 0, state);
+    assert.equal(state.m_shot.n, 1);
+    assert.equal(state.u.uhp < 100, true);
+    assert.match(state._ttyToplines, /You stop firing after the 1st shot\./u);
+});
+
+test('throwit() applies the recoil of a weightless throw', async () => {
     // dothrow.c:1650-1657, `Is_airlevel(&u.uz) || Levitation`. Neither holds
     // for a hero standing on an ordinary floor, and either alone is enough.
     const state = arena();
     state.u.uprops[LEVITATION].extrinsic = 1;
-    await assert.rejects(
-        () => throwit(item(state, DAGGER), 0, false, null, state),
-        /recoil of a weightless throw/u,
-    );
-    // The refusal is ahead of breaktest(), so the levitating throw draws
-    // nothing at all.
-    assert.deepEqual(draws(), []);
+    const dagger = item(state, DAGGER);
+    await throwit(dagger, 0, false, null, state);
+    assert.ok(state.gb.bhitpos.x > state.u.ux);
+    assert.equal(state.gt.thrownobj, null);
+    assert.deepEqual(draws(), ['rn2(100)']);
 });
 
 test('throwit() takes its range from the launcher, not from the hand',
@@ -794,6 +863,24 @@ test('throwit() takes its range from the launcher, not from the hand',
         carry(bolts, launcher);
         await throwit(item(bolts, CROSSBOW_BOLT), 0, false, null, bolts);
         assert.deepEqual(bolts.gb.bhitpos, { x: 9, y: 4 });
+    });
+
+test('throwit() halves an unlaunched missile range and names the hand throw',
+    async () => {
+        // dothrow.c:1640-1647.  An arrow without a matching launcher keeps
+        // the throw path: urange is 8, its range is 8 before the ammo arm,
+        // and the no-launcher branch halves that to 4.  The message uses
+        // skill_name(weapon_type(obj)), weapon_descr(obj), and body_part(HAND)
+        // in that source order.
+        const state = arena({ last: 20 });
+        state._ttyToplines = '';
+        const arrow = item(state, ARROW);
+        await throwit(arrow, 0, false, null, state);
+        assert.equal(state._ttyToplines,
+            "You aren't wielding a bow, so you throw your arrow by hand.");
+        assert.deepEqual(state.gb.bhitpos, { x: 5, y: 4 });
+        assert.deepEqual(draws(), ['rn2(100)']);
+        assert.deepEqual(pileAt(state, 5, 4), [arrow]);
     });
 
 test('throwit() breaks what lands hard and drowns what lands wet',
@@ -1001,16 +1088,14 @@ test('throwit() ships an object down a ladder but not down a hole it '
         || pileAt(seen, 9, 4).includes(atHole));
 });
 
-test('throwit() hands an unpaid missile to the shopkeeper', async () => {
+test('throwit() settles an unpaid missile after landing', async () => {
     // dothrow.c:1835, `(*u.ushops || obj->unpaid) && obj != uball`. Either
     // half alone reaches check_shop_obj(), so an unpaid missile thrown
     // outside a shop still does.
     const unpaid = arena();
-    await assert.rejects(
-        () => throwit(item(unpaid, DAGGER, { unpaid: 1 }), 0, false, null,
-            unpaid),
-        /check_shop_obj/u,
-    );
+    const unpaidDagger = item(unpaid, DAGGER, { unpaid: 1 });
+    await throwit(unpaidDagger, 0, false, null, unpaid);
+    assert.deepEqual(pileAt(unpaid, 9, 4), [unpaidDagger]);
     // A paid missile thrown outside a shop reaches neither half.
     const paid = arena();
     const dagger = item(paid, DAGGER);
@@ -1074,15 +1159,12 @@ test('throwit() drops a heavy missile from a tired hand', async () => {
         const dagger = item(state, DAGGER, { owt: weight });
         state._ttyToplines = '';
         if (row.drops) {
-            // The block sets u.dz to 1, and throwing straight down is
-            // unported, so the drop always ends at that refusal.
-            await assert.rejects(
-                () => throwit(dagger, 0, false, null, state),
-                /straight up or down/u,
-                row.name,
-            );
+            // The block sets u.dz to 1. The source hitfloor call is a named
+            // discarded gap, while throwit() still retires its transit state.
+            await throwit(dagger, 0, false, null, state);
             assert.equal(state.u.dz, 1, row.name);
             assert.match(state._ttyToplines, /so little stamina/u, row.name);
+            assert.equal(state.gt.thrownobj, null, row.name);
             // :1557 exercises Constitution downward, and attrib.c
             // exerciseAttribute() spends `-rn2(2)` on a decrease where an
             // increase would ask rn2(19) and compare it against the
@@ -1114,12 +1196,8 @@ test('throwit() keeps its foreign naming state for the stamina message',
         carry(foreign, item(foreign, DAGGER, { owt: 270 }));
         foreign._ttyToplines = '';
 
-        await assert.rejects(
-            () => throwit(
-                item(foreign, DAGGER, { owt: 30 }),
-                0, false, null, foreign,
-            ),
-            /straight up or down/u,
+        await throwit(
+            item(foreign, DAGGER, { owt: 30 }), 0, false, null, foreign,
         );
         assert.equal(
             foreign._ttyToplines,
@@ -1131,36 +1209,33 @@ test('throwit() reads the stamina test differently in each direction',
     async () => {
         // dothrow.c:1549's first conjunct is `(u.dx || u.dy || (u.dz < 1))`.
         // Aimed straight up -- u.dx and u.dy zero, u.dz -1 -- only the third
-        // term holds, and it is enough. The block then aims the throw down,
-        // which is unported, so both answers end at the same refusal and the
-        // message is what tells them apart.
+        // term holds, and it is enough. The block then aims the throw down;
+        // both source paths finish their vertical helper and clear transit.
         const upward = arena({ str: 3, con: 3, uhp: 5 });
         carry(upward, item(upward, DAGGER, { owt: 270 }));
         upward.u.dx = 0;
         upward.u.dy = 0;
         upward.u.dz = -1;
         upward._ttyToplines = '';
-        await assert.rejects(
-            () => throwit(item(upward, DAGGER, { owt: 30 }), 0, false, null,
-                upward),
-            /straight up or down/u,
-        );
+        await throwit(item(upward, DAGGER, { owt: 30 }), 0, false, null,
+            upward);
         assert.match(upward._ttyToplines, /so little stamina/u);
         assert.equal(upward.u.dz, 1);
         // Aimed straight down, `u.dz < 1` is false and no term holds, so the
         // same tired hero keeps hold of the same weight.
         const downward = arena({ str: 3, con: 3, uhp: 5 });
         carry(downward, item(downward, DAGGER, { owt: 270 }));
+        const downwardDagger = item(downward, DAGGER, { owt: 30 });
         downward.u.dx = 0;
         downward.u.dy = 0;
         downward.u.dz = 1;
         downward._ttyToplines = '';
-        await assert.rejects(
-            () => throwit(item(downward, DAGGER, { owt: 30 }), 0, false,
-                null, downward),
-            /straight up or down/u,
-        );
+        await throwit(downwardDagger, 0, false, null, downward);
         assert.doesNotMatch(downward._ttyToplines, /so little stamina/u);
+        // C's global `gb` is always allocated; the downward arm reaches the
+        // throw cleanup without leaving an object in its transit slot.
+        assert.ok(downward.gb);
+        assert.equal(downward.gt.thrownobj, null);
     });
 
 test('throw_obj() refuses the throws C answers with a message', async () => {
@@ -1313,13 +1388,10 @@ test('throw_obj() opens the multishot block only for a stack it can volley',
                 carry(impaired, held);
                 impaired.uquiver = held;
                 aimDown(impaired);
-                // Throwing straight down is unported, so the volley the
-                // closed block sized at one stops there -- after its split.
-                await assert.rejects(
-                    () => throw_obj(held, 0, impaired),
-                    /straight up or down/u,
-                    `${property}/${half}`,
-                );
+                // The closed block sizes the volley at one. Its vertical
+                // helper is a named discarded gap, so the split missile still
+                // completes and the parent stack remains in inventory.
+                await throw_obj(held, 0, impaired);
                 assert.deepEqual(draws(), ['rnd(2)'],
                     `${property}/${half} still volleyed`);
                 assert.equal(held.quan, 4);
@@ -1335,9 +1407,7 @@ test('throw_obj() opens the multishot block only for a stack it can volley',
         carry(clear, ready);
         clear.uquiver = ready;
         aimDown(clear);
-        await assert.rejects(
-            () => throw_obj(ready, 0, clear), /straight up or down/u,
-        );
+        await throw_obj(ready, 0, clear);
         assert.equal(draws()[0], 'rnd(3)');
     });
 
@@ -1774,7 +1844,8 @@ test('dofire() finds a launcher for the quivered ammo', async () => {
     ammo.uquiver = arrows;
     await assert.rejects(() => dofire(ammo), /use_pole/u);
     // With fireassist off the whole search is skipped, so the arrows are
-    // thrown by hand -- which this port does not carry either.
+    // thrown by hand. dothrow.c:1640-1647 halves the range and continues;
+    // it does not require a launcher for this ordinary ammo arm.
     const unassisted = arena();
     const shafts = item(unassisted, ARROW, { quan: 5 });
     const bow = item(unassisted, BOW, { owornmask: W_SWAPWEP });
@@ -1783,9 +1854,13 @@ test('dofire() finds a launcher for the quivered ammo', async () => {
     unassisted.uquiver = shafts;
     unassisted.iflags.fireassist = false;
     aimEast(unassisted);
-    await assert.rejects(
-        () => dofire(unassisted), /ammo without a launcher/u,
-    );
+    assert.equal(await dofire(unassisted), ECMD_TIME);
+    assert.equal(shafts.quan, 4);
+    const landed = pileAt(unassisted, 5, 4);
+    assert.equal(landed.length, 1);
+    assert.equal(landed[0].otyp, ARROW);
+    assert.equal(landed[0].quan, 1);
+    assert.equal(landed[0].where, OBJ_FLOOR);
     // With it on, :566 finds the launcher in the secondary slot, swaps to it
     // and reissues the command without spending a turn.
     const assisted = arena();

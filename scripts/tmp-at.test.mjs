@@ -13,6 +13,8 @@ import {
     DISP_END,
     DISP_FLASH,
     DISP_FREEMEM,
+    DISP_TETHER,
+    BACKTRACK,
     ROOM,
 } from '../js/const.js';
 import { GameMap } from '../js/game.js';
@@ -20,7 +22,7 @@ import { game, resetGame } from '../js/gstate.js';
 import { initialize_symbols_from_options } from '../js/symbols.js';
 import { monst_globals_init } from '../js/monsters.js';
 import { objects_globals_init } from '../js/objects.js';
-import { tmp_at } from '../js/display.js';
+import { tmp_at, tether_glyph, zapdir_to_glyph } from '../js/display.js';
 
 // A three-square corridor of floor at row 4, with the hero at its left end.
 // `sighted` lists the columns cansee() answers TRUE for; every other square
@@ -140,6 +142,42 @@ test('DISP_CHANGE swaps the glyph without moving the saved square', async () => 
     await tmp_at(3, 4, state);
     assert.equal(shown(state, 3), '/');
     await tmp_at(DISP_END, 0, state);
+});
+
+test('tether_glyph points from the missile back toward the hero', () => {
+    // display.c:1126-1133. The direction signs are packed as a type-2 zap
+    // glyph, so a horizontal tether from (2,4) to a hero at (5,4) uses the
+    // same presentation as zapdir_to_glyph(1, 0, 2).
+    const state = litRow([2, 3, 4]);
+    assert.deepEqual(
+        tether_glyph(2, 4, state), zapdir_to_glyph(1, 0, 2, state),
+    );
+});
+
+test('DISP_TETHER draws and erases its tether path', async () => {
+    // display.c:1220-1231 and :1245-1260. Each new position draws a tether
+    // glyph on the previous square, and closing restores every saved square.
+    const state = litRow([2, 3, 4]);
+    await tmp_at(DISP_TETHER, MISSILE, state);
+    await tmp_at(2, 4, state);
+    await tmp_at(3, 4, state);
+    assert.equal(state.tmp_at_stack[0].saved.length, 2);
+    await tmp_at(DISP_END, 0, state);
+    assert.notEqual(shown(state, 2), '*');
+    assert.notEqual(shown(state, 3), '*');
+});
+
+test('DISP_TETHER backtracks to the hero before closing', async () => {
+    // display.c:1247-1258. BACKTRACK redraws the previous tether square after
+    // erasing the current one, with a delay for each retraced segment.
+    const state = litRow([2, 3, 4]);
+    await tmp_at(DISP_TETHER, MISSILE, state);
+    await tmp_at(2, 4, state);
+    await tmp_at(3, 4, state);
+    await tmp_at(DISP_END, BACKTRACK, state);
+    assert.notEqual(shown(state, 2), '*');
+    assert.notEqual(shown(state, 3), '*');
+    assert.equal(state.tmp_at_stack.length, 0);
 });
 
 test('a position call with no open effect is display.c panic()', async () => {
