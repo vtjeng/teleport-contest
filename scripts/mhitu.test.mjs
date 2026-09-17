@@ -1641,11 +1641,13 @@ test('planned expulsion keeps terrain transition output off the live stream',
     state.u.uswldtim = 0;
 
     const planned = meleeEnv(state, []);
+    const liveMessage = state.nhDisplay.topMessage;
     await expels(vortex, {
         ...planned.env,
         planning: true,
     });
     assert.deepEqual(planned.lines, []);
+    assert.equal(state.nhDisplay.topMessage, liveMessage);
 
     // Keep the same planning display seam on a direct terrain transition as
     // the expels() caller does. This reaches the blocked flight branch after
@@ -1667,6 +1669,7 @@ test('planned expulsion keeps terrain transition output off the live stream',
     });
     assert.equal(state.u.uprops[FLYING].blocked, FROMOUTSIDE);
     assert.deepEqual(planned.lines, []);
+    assert.equal(state.nhDisplay.topMessage, liveMessage);
 });
 
 // ---- mhitu.c hitmsg(), hitmu(), mdamageu() and passiveum() ----
