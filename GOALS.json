@@ -63432,7 +63432,7 @@
     {
       "id": "port-read-create-particular-seed4500-20260917",
       "kind": "file-port",
-      "status": "open",
+      "status": "parked",
       "summary": "Complete wizard monster-creation parsing, species selection and requested state.",
       "cFile": "read.c",
       "sessions": [
@@ -63443,8 +63443,8 @@
       "spans": [
         {
           "name": "cant_revive..create_particular",
-          "status": "queued",
-          "closedBy": null,
+          "status": "closed",
+          "closedBy": "6c085eb26ea182d855a31f4a23d2fb005c3ab97c",
           "functions": [
             "cant_revive",
             "create_particular_parse",
@@ -63725,7 +63725,17 @@
             "recordings": []
           }
         ]
-      }
+      },
+      "progressBeforePark": {
+        "screens": 0,
+        "rng": 0
+      },
+      "parkedStanding": {
+        "sha": "6c085eb26ea182d855a31f4a23d2fb005c3ab97c",
+        "screens": 11232,
+        "rng": 788703
+      },
+      "parkedReason": "The whole creation family and its sleeping/peaceful production entries are verified. Resume for hidden/invisible entry recordings after display.c flash_glyph_at lands, and for class/random/saddle/tame/gender-conflict/forced-species, create-monster scroll/wand/spell and statue/figurine/bones caller recordings when source dependencies permit; the source span is closed without claiming these entry families complete."
     }
   ]
 }
