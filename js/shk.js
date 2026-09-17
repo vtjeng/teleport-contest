@@ -17,6 +17,7 @@ import {
     BUFSZ,
     COST_CONTENTS,
     COST_SINGLEOBJ,
+    CONTAINED_TOO,
     CONFLICT,
     DETECT_MONSTERS,
     DEAF,
@@ -42,6 +43,7 @@ import {
     OBJ_BURIED,
     OBJ_CONTAINED,
     OBJ_FLOOR,
+    OBJ_INVENT,
     OBJ_FREE,
     OBJ_MINVENT,
     OBJ_ONBILL,
@@ -1039,6 +1041,21 @@ function firstRoom(buffer) {
     return Math.trunc(buffer?.[0] ?? 0);
 }
 
+// C get_cost_of_shop_item() leaves `nochrg` at -1 when the object is not
+// applicable to the hero's current shop.  Keep that no-live-price result
+// distinct from an actually applicable item whose price is zero or no-charge;
+// callers must not turn an unrelated shop pricing refusal into an ordinary
+// name.
+function noShopPrice(noCharge = false) {
+    return {
+        applicable: false,
+        cost: 0,
+        noCharge,
+        pricingUnitCost: 0,
+        shopkeeper: null,
+    };
+}
+
 // C ref: shk.c get_cost_of_shop_item(), for the selected common generated-
 // shop floor branch. Every refused condition is checked before naming or
 // movement mutates the object, quote catalog, hero, or display state.
@@ -1050,14 +1067,56 @@ export function get_cost_of_shop_item(
     const observed = Boolean(options.observed);
     if (state.iflags?.suppress_price || state.program_state?.restoring)
         throw new UnsupportedShopError('suppressed or restoring price');
-    if (!obj || obj.where !== OBJ_FLOOR)
-        throw new UnsupportedShopError('non-floor shop object');
-    if (obj.oclass === COIN_CLASS)
-        throw new UnsupportedShopError('coin pricing');
-    if (obj === state.uball || obj === state.uchain)
-        throw new UnsupportedShopError('punishment-object pricing');
-    if (obj.unpaid || obj.no_charge)
-        throw new UnsupportedShopError('unpaid or no-charge floor object');
+
+    // C's entire shop applicability predicate precedes get_cost() and all of
+    // its object-specific pricing branches.  In particular, an artifact,
+    // container, glob, or unsupported adjustment outside an applicable shop
+    // simply has no live price; only once this predicate succeeds may those
+    // still-unported pricing arms fail closed.
+    if (!obj) return noShopPrice();
+    const position = get_obj_location(obj, CONTAINED_TOO, state);
+    const currentShop = firstRoom(state.u?.ushops);
+    if (!currentShop || obj.oclass === COIN_CLASS
+        || obj === state.uball || obj === state.uchain || !position) {
+        return noShopPrice();
+    }
+    const rooms = in_rooms(position.x, position.y, SHOPBASE, state);
+    if (rooms[0] !== currentShop) return noShopPrice();
+    const roomno = inside_shop(position.x, position.y, state);
+    const shopkeeper = shop_keeper(roomno, state);
+    if (!shopkeeper || !inhishop(shopkeeper, state)) return noShopPrice();
+
+    const keeperSquare = shopkeeper.mextra.eshk.shk;
+    const top = obj.where === OBJ_CONTAINED
+        ? (() => {
+            let current = obj;
+            while (current.where === OBJ_CONTAINED && current.ocontainer)
+                current = current.ocontainer;
+            return current;
+        })()
+        : obj;
+    const freespot = top.where === OBJ_FLOOR
+        && position.x === keeperSquare.x && position.y === keeperSquare.y;
+    // C computes nochrg before deciding whether get_cost() is needed.  A
+    // floor object on the keeper's square, or one marked no_charge, therefore
+    // bypasses all object-specific pricing guards; a carried object is priced
+    // only when its own unpaid bit is set.
+    const noCharge = top.where === OBJ_FLOOR && (obj.no_charge || freespot);
+    const needsPrice = top.where === OBJ_INVENT ? Boolean(obj.unpaid) : !noCharge;
+    if (!needsPrice) {
+        return {
+            applicable: true,
+            cost: 0,
+            noCharge,
+            pricingUnitCost: 0,
+            shopkeeper,
+        };
+    }
+
+    // The remaining guards describe an applicable item whose C path reaches
+    // get_cost() or its pricing-unit helper.  Keep these source-attributed
+    // refusals visible until their complete helpers land; callers must not
+    // turn them into an ordinary no-live-price result.
     if (obj.globby)
         throw new UnsupportedShopError('globby pricing units');
     if (isContainer(obj) || hasContents(obj))
@@ -1066,27 +1125,10 @@ export function get_cost_of_shop_item(
         throw new UnsupportedShopError('artifact pricing');
     if (obj.otyp === CORPSE || obj.otyp === TIN || obj.otyp === EGG)
         throw new UnsupportedShopError('corpse, tin, or egg pricing adjustment');
-
-    const position = get_obj_location(obj, 0, state);
-    if (!position)
-        throw new UnsupportedShopError('shop object without a location');
-    const rooms = in_rooms(position.x, position.y, SHOPBASE, state);
-    const currentShop = firstRoom(state.u?.ushops);
-    if (rooms.length !== 1 || rooms[0] !== currentShop)
-        throw new UnsupportedShopError('other or shared shop ownership');
-    const roomno = inside_shop(position.x, position.y, state);
-    if (roomno !== currentShop)
-        throw new UnsupportedShopError('shop boundary ownership');
-    const shopkeeper = shop_keeper(roomno, state);
-    if (!shopkeeper || !inhishop(shopkeeper, state))
-        throw new UnsupportedShopError('absent or displaced shopkeeper');
     if (!shopkeeper.mpeaceful)
         throw new UnsupportedShopError('angry shopkeeper pricing');
     if (shopkeeper.mextra.eshk.surcharge)
         throw new UnsupportedShopError('shopkeeper surcharge');
-    const keeperSquare = shopkeeper.mextra.eshk.shk;
-    if (position.x === keeperSquare.x && position.y === keeperSquare.y)
-        throw new UnsupportedShopError('shopkeeper freespot pricing');
 
     const type = objectType(obj, state);
     if (!type.oc_name_known && obj.oclass === GEM_CLASS
@@ -1104,7 +1146,9 @@ export function get_cost_of_shop_item(
         : obj;
     const pricingUnitCost = get_cost(pricedObject, shopkeeper, state);
     return {
-        cost: units * pricingUnitCost,
+        applicable: true,
+        cost: noCharge ? 0 : units * pricingUnitCost,
+        noCharge,
         pricingUnitCost,
         shopkeeper,
     };

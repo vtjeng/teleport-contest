@@ -83,7 +83,6 @@ import {
     is_unpaid,
     record_price_quote,
     shk_your,
-    UnsupportedShopError,
     unpaid_cost,
 } from './shk.js';
 // wield.js holds the port's single reading of youprop.h:112 Glib. It imports
@@ -1779,21 +1778,16 @@ export function doname_with_price(
     if (typeof currencyName !== 'function')
         throw new TypeError('doname_with_price needs the currency owner');
     let name;
-    let quote;
-    try {
-        assertPricedObjectNameable(obj, state);
-        name = donameFreshInternal(obj, state, {
-            allowLiveShopPrice: true,
-        });
-        quote = get_cost_of_shop_item(obj, state);
-    } catch (error) {
-        // C get_cost_of_shop_item() returns cost zero with nochrg=-1 when a
-        // known object is outside an applicable shop.  The JS shop owner
-        // rejects those unsupported pricing contexts internally; translate
-        // that refusal into C's ordinary no-live-price fallthrough here.
-        if (!(error instanceof UnsupportedShopError)) throw error;
-        return donameFresh(obj, state);
-    }
+    assertPricedObjectNameable(obj, state);
+    name = donameFreshInternal(obj, state, {
+        allowLiveShopPrice: true,
+    });
+    const quote = get_cost_of_shop_item(obj, state);
+    // C reports no live price (nochrg == -1) when the object is not in an
+    // applicable shop.  The ordinary formatter then gets its remembered
+    // quote opportunity, if any, without swallowing real pricing failures.
+    if (!quote.applicable) return donameFresh(obj, state);
+    if (quote.noCharge) return `${name} (no charge)`;
     if (quote.cost <= 0) return name;
     const suffix = `${quote.cost} ${currencyName(quote.cost, state)}`;
     const result = `${name} (for sale, ${suffix})`;

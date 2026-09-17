@@ -215,7 +215,6 @@ import {
     withBufferedObject,
 } from './startup_a11y.js';
 import {
-    gender,
     hides_under,
     is_clinger,
     is_flyer,
@@ -364,8 +363,11 @@ export function mhidden_description(
     let suffix = '';
     if (appearance === M_AP_FURNITURE) {
         const what = furnitureDescription(monster.mappearance) ?? 'something';
-        const article = includeArticle ? an(what) : '';
-        suffix = `${includePrefix ? ', mimicking ' : ''}${article}${what}`;
+        // C's an() returns the complete article-plus-name phrase.  Keep the
+        // source's single append; concatenating `what` again doubles the
+        // furniture noun ("a fountainfountain").
+        suffix = `${includePrefix ? ', mimicking ' : ''}`
+            + (includeArticle ? an(what) : what);
     } else if (appearance === M_AP_OBJECT) {
         let what = null;
         if (isYou) {
@@ -373,7 +375,9 @@ export function mhidden_description(
                 ? object_from_map(currentGlyph, x, y, state) : null;
             if (resolved?.object) {
                 try {
-                    what = hiddenObjectPhrase(resolved.object, state);
+                    what = hiddenObjectPhrase(resolved.object, state, {
+                        includeArticle,
+                    });
                 } finally {
                     if (resolved.fakeobj) {
                         resolved.object.where = OBJ_FREE;
@@ -389,23 +393,26 @@ export function mhidden_description(
                     x,
                     y,
                     state,
-                    (object) => hiddenObjectPhrase(object, state),
+                    (object) => hiddenObjectPhrase(object, state, {
+                        includeArticle,
+                    }),
                 );
             }
         }
         if (!what) what = 'something';
-        if (!includeArticle) what = what.replace(/^(?:an?|the) /iu, '');
         suffix = `${includePrefix ? ', mimicking ' : ''}${what}`;
     } else if (appearance === M_AP_MONSTER) {
         const alternate = state.mons?.[monster.mappearance];
         if (showAlternateMonster && alternate) {
             const what = pmname(
                 alternate,
-                gender(monster),
+                Mgender(monster, state),
             );
-            const article = includeArticle ? an(what) : '';
+            // pager.c gates an() on MHID_PREFIX, independently of
+            // MHID_ARTICLE.  This oddity is observable for callers asking
+            // for a bare alternate-monster name, so preserve it exactly.
             suffix = `${includePrefix ? ', masquerading as ' : ''}`
-                + `${article}${what}`;
+                + (includePrefix ? an(what) : what);
         }
     } else if (hidden) {
         suffix = ', hiding';
@@ -421,7 +428,11 @@ export function mhidden_description(
                     );
                     if (resolved?.object) {
                         try {
-                            what = hiddenObjectPhrase(resolved.object, state);
+                            what = hiddenObjectPhrase(
+                                resolved.object,
+                                state,
+                                { includeArticle },
+                            );
                         } finally {
                             if (resolved.fakeobj) {
                                 resolved.object.where = OBJ_FREE;
@@ -438,7 +449,11 @@ export function mhidden_description(
                         x,
                         y,
                         state,
-                        (object) => hiddenObjectPhrase(object, state),
+                        (object) => hiddenObjectPhrase(
+                            object,
+                            state,
+                            { includeArticle },
+                        ),
                     )
                     : buffered.hasSubject
                         || state.level?.flags?.hero_memory === false
@@ -447,6 +462,7 @@ export function mhidden_description(
                             ? hiddenObjectPhrase(
                                 state.level.objects[x][y],
                                 state,
+                                { includeArticle },
                             )
                             : null;
             }
@@ -459,9 +475,7 @@ export function mhidden_description(
                 ? ' on the ceiling'
                 : ` on the ${monsterSurfaceDescription(sourceMonster, state)}`;
         } else if (sourceMonster.data?.mlet === S_EEL
-            && [POOL, MOAT, WATER].includes(
-                state.level?.at(x, y)?.typ,
-            )) {
+            && is_pool(x, y, state)) {
             suffix += ' in murky water';
         }
     }

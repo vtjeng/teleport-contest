@@ -854,9 +854,9 @@ function simpleObjectName(object, state) {
         ? name : pluralObjectName(object, name);
 }
 
-export function hiddenObjectPhrase(object, state) {
+export function hiddenObjectPhrase(object, state, { includeArticle = true } = {}) {
     const name = simpleObjectName(object, state);
-    if (Math.trunc(object.quan ?? 1) !== 1) return name;
+    if (!includeArticle || Math.trunc(object.quan ?? 1) !== 1) return name;
     return `${just_an(name)}${name}`;
 }
 
