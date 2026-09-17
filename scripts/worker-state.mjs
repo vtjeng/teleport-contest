@@ -298,8 +298,9 @@ function applyEvent(state, event, at) {
         task.deliveries.push(event.delivery);
         task.status = 'ready';
     } else if (type === 'integrating') {
-        requireStatus('ready'); sha(event.integration, 'integration');
-        check(!Object.values(state.tasks).some(t => ['integrating', 'validated'].includes(t.status)), 'integration slot is occupied');
+        requireStatus('ready', 'integrating'); sha(event.integration, 'integration');
+        check(!Object.values(state.tasks).some(t => t.id !== task.id
+            && ['integrating', 'validated'].includes(t.status)), 'integration slot is occupied');
         for (const dependency of delivery.dependencies) check(acceptedDependency(state, dependency), `dependency is not accepted: ${dependency}`);
         Object.assign(delivery, { integratingAt: at, integration: event.integration });
         task.status = 'integrating';

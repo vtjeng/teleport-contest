@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent A15 production witness for pickup.c deferred_decor: debug Wizard enables Levitation, leaves the generated staircase, arms one-turn Fumbling through the wizard intrinsic menu, and returns to the staircase so pickup.c describe_decor() defers the feature and timeout.c nh_timeout() catches it up.",
+  "segments": [
+    {
+      "seed": 7744223,
+      "datetime": "20410712080911",
+      "nethackrc": "OPTIONS=name:A15FumbleA,role:Wizard,race:human,gender:female,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!acoustics,mention_decor,!autopickup,!debug_mongen\n",
+      "moves": " .#wizintrinsic\nq\n h#wizintrinsic\n>1s\n l      "
+    }
+  ]
+}

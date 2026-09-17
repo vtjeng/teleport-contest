@@ -66,7 +66,6 @@ import {
     DB_UNDER,
     DRAWBRIDGE_DOWN,
     DRAWBRIDGE_UP,
-    CORR,
     ICE,
     IRONBARS,
     IS_ALTAR,
@@ -75,7 +74,6 @@ import {
     IS_GRAVE,
     IS_SINK,
     IS_THRONE,
-    ROOM,
     TREE,
     MELT_ICE_AWAY,
     P_BOW,
@@ -2435,14 +2433,17 @@ export function preflight_look_here(
             );
         }
         if (state.flags.mention_decor) {
-            const terrain = state.level.at(ux, uy)?.typ;
             if (skip_objects) {
                 throw new UnsupportedFeatureDescriptionError(
                     'mention-decor pile-limit count',
                 );
             }
-            if ((terrain !== ROOM && terrain !== CORR)
-                || (decorTerrain ?? state.iflags.prev_decor) !== terrain) {
+            // describe_decor() owns every terrain family, including
+            // furniture and ordinary doorways.  The caller supplies the
+            // terrain it projected before committing movement; only a stale
+            // projection is unsafe for the subsequent object menu.
+            const terrain = state.level.at(ux, uy)?.typ;
+            if ((decorTerrain ?? state.iflags.prev_decor) !== terrain) {
                 throw new UnsupportedFeatureDescriptionError(
                     'describe_decor() before an object-pile menu',
                 );
@@ -2485,16 +2486,12 @@ export function preflight_look_here(
         }
     }
 
-    let dfeature = dfeature_at(ux, uy, state);
-    if (dfeature === 'pool of water' && state.u.uinwater) dfeature = null;
-    let surf = null;
     let cant_reach;
     let cannotReachObjects;
     if (blind) {
         if (Is_airlevel(state.u.uz) || Is_waterlevel(state.u.uz))
             throw new UnsupportedFeatureDescriptionError('a drifting level');
         cant_reach = !can_reach_floor(undefined, state);
-        surf = surface(ux, uy, state);
         cannotReachObjects = !can_reach_floor(
             Boolean(trap && is_pit(trap.ttyp)),
             state,
@@ -2516,14 +2513,12 @@ export function preflight_look_here(
         blind,
         cant_reach,
         cannotReachObjects,
-        dfeature,
         hasPile,
         objectList,
         otmp,
         pickedSome,
         skip_dfeature,
         skip_objects,
-        surf,
         withShopPrice,
     };
 }
@@ -2560,18 +2555,22 @@ export async function look_here(
         blind,
         cant_reach,
         cannotReachObjects,
-        dfeature,
         hasPile,
         otmp,
         pickedSome,
         skip_objects,
-        surf,
         withShopPrice,
     } = plan;
     const verb = blind ? 'feel' : 'see';
     const { ux, uy } = state.u;
+    // invent.c look_here() describes the feature before its blind-surface
+    // wording. Both helpers can consume display RNG, and dfeature_at() also
+    // updates ice_rating; admission must leave these effects to the live call.
+    let dfeature = dfeature_at(ux, uy, state);
+    if (dfeature === 'pool of water' && state.u.uinwater) dfeature = null;
     let skip_dfeature = plan.skip_dfeature;
     if (blind) {
+        const surf = surface(ux, uy, state);
         await message(
             `You try to feel what is ${
                 cant_reach ? 'lying beneath you' : `lying here on the ${surf}`
@@ -2636,8 +2635,9 @@ export async function look_here(
             throw new TypeError('look_here needs an object-pile display owner');
         const lines = [];
         if (dfeature && !skip_dfeature) lines.push(fbuf, '');
-        // C invent.c look_here() (4289-4296) uses "%s that %s here:";
-        // both the blind and sighted predicates retain the common "that".
+        // C invent.c:look_here() (4289-4296) formats the prefix and predicate
+        // as one sentence using "%s that %s here:"; both blind and sighted
+        // piles retain the common "that" in the heading.
         lines.push(`${pickedSome ? 'Other things' : 'Things'} ${blind ? 'that you feel' : 'that are'} here:`);
         let feltCockatrice = null;
         for (let object = otmp; object; object = object.nexthere) {

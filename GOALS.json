@@ -56578,6 +56578,263 @@
         "screens": 10613,
         "rng": 760315
       }
+    },
+    {
+      "id": "port-pickup-describe-decor-seed0009-20260916",
+      "kind": "file-port",
+      "status": "closed",
+      "summary": "Complete terrain descriptions and deferred Fumbling feedback",
+      "cFile": "pickup.c",
+      "sessions": [
+        "holdout/seed0009-swimmer-mforce"
+      ],
+      "selectionReason": "Integrate the completed A15 source family selected for holdout/seed0009-swimmer-mforce, 43 remaining screens, investigations/holdout/seed0009-swimmer-mforce.json. B16 owns the higher life-saving mismatch; seed2200 has an unresolved environment decision. The Knight hellfill.lua task became independent only after B15 acceptance and is next available implementation work; preserve this completed delivery instead of replacing its scope.",
+      "detail": "Port complete pickup.c deferred_decor and describe_decor, including timeout catch-up and canonical movement/pickup callers. Preserve C unchanged-terrain suppression before feature/ground-transition output and final terrain memory. Independent doorway and Fumbling recipes cover the selected entry families.",
+      "spans": [
+        {
+          "name": "deferred_decor..describe_decor",
+          "status": "closed",
+          "closedBy": "1155b6ce37b4fb66db2dba00916ea4a0dd6b8557",
+          "functions": [
+            "deferred_decor",
+            "describe_decor"
+          ]
+        }
+      ],
+      "openedAt": "477cdeab1e1602291058e091a69cbc6b32d028a1",
+      "openStanding": {
+        "sha": "00d21098fed110f4345203d69a050d4706feeeea",
+        "screens": 10644,
+        "rng": 760798
+      },
+      "closedAt": "1155b6ce37b4fb66db2dba00916ea4a0dd6b8557",
+      "delivered": {
+        "screens": 18,
+        "rng": 79
+      },
+      "functions": [
+        {
+          "name": "deferred_decor",
+          "line": 337,
+          "endLine": 352,
+          "declared": true,
+          "complete": true
+        },
+        {
+          "name": "describe_decor",
+          "line": 353,
+          "endLine": 429,
+          "declared": true,
+          "complete": true
+        }
+      ],
+      "range": {
+        "from": 337,
+        "to": 429
+      },
+      "activeStanding": {
+        "sha": "00d21098fed110f4345203d69a050d4706feeeea",
+        "screens": 10644,
+        "rng": 760798
+      },
+      "openMismatches": [
+        {
+          "session": "holdout/seed0009-swimmer-mforce",
+          "step": 30,
+          "kind": "stop",
+          "function": null,
+          "functionDeclared": false,
+          "sourceFile": null,
+          "cFile": null,
+          "luaFile": null,
+          "line": null,
+          "message": "unsupported hero move: decor description",
+          "unlocatedKinds": [],
+          "recordedSteps": 73,
+          "remainingScreensUpperBound": 43,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/holdout/seed0009-swimmer-mforce.json",
+            "result": {
+              "session": "holdout/seed0009-swimmer-mforce",
+              "remainingScreensUpperBound": 43,
+              "status": "complete",
+              "commit": "18a56313c56723cde906c27449d0fc2c6c085bf0",
+              "mismatch": {
+                "session": "holdout/seed0009-swimmer-mforce",
+                "step": 30,
+                "kind": "stop",
+                "function": null,
+                "functionDeclared": false,
+                "sourceFile": null,
+                "cFile": null,
+                "luaFile": null,
+                "line": null,
+                "message": "unsupported hero move: decor description",
+                "unlocatedKinds": [],
+                "recordedSteps": 73,
+                "remainingScreensUpperBound": 43
+              },
+              "summary": "At step 30, after three south attempts open the door at (5,9), the swimmer enters an open doorway. C pickup.c:describe_decor() suppresses the dfeature \"open door\", updates prev_decor from ROOM to DOOR, returns TRUE without output, and lets domove() continue into its normal movement RNG. JavaScript's preflight movement seam rejects every doorway with \"decor description\" before domove(), so the missing source branch is pickup.c:describe_decor() and its admission wiring. No Lua owner is involved.",
+              "source": {
+                "file": "pickup.c",
+                "functions": [
+                  "deferred_decor()",
+                  "describe_decor()"
+                ],
+                "branch": "pickup.c:353-425, especially 376-386 and 392-425: with mention_decor enabled, a sighted hero, no deferred/fumble override, and a destination whose dfeature_at() is \"open door\", describe_decor() sets doorhere, clears dfeature, does not take the repeated-terrain shortcut because ltyp=DOOR differs from prev_decor=ROOM, emits no message because there is no remaining dfeature or liquid transition, stores prev_decor=DOOR, and returns TRUE. The complete scope retains the function's fumble/deferred branch, terrain feature formatting and ICE Norep path, back_on_ground transition, and mention_decor-off STONE reset.",
+                "callers": [
+                  "nethack-c/upstream/src/hack.c:2695-2708 domove() wraps domove_core(); :2964-2980 records a successful WALK and calls spoteffects(TRUE), whose :3379-3381 calls pickup(1). In the replay, this is the production path from cmd.c:rhack() after the south movement command. JS js/cmd.js:executeMovement() -> js/hack.js:domove()/domove_core()/spoteffects() -> js/pickup.js:pickup().",
+                  "nethack-c/upstream/src/pickup.c:672-718 pickup() calls describe_decor() on its no-object or no-autopickup arrival path; JS js/pickup.js:1199-1210 has the corresponding autopickup branch and js/hack.js:1426-1434 preflights it before movement to avoid late state changes.",
+                  "nethack-c/upstream/src/pickup.c:428-456 check_here() calls describe_decor() before counting a floor pile; JS js/pickup.js:1305-1340 owns the corresponding caller.",
+                  "nethack-c/upstream/src/pickup.c:315-347 force_decor()/deferred_decor() call describe_decor() for probing, deferred terrain feedback, and timeout catch-up; their callers include invent.c:4181-4198 look_here() and zap.c:3245-3250 and 3763-3764, with JS admission/owner seams in js/pickup.js:351-399 and js/timeout.js:857-858.",
+                  "nethack-c/upstream/src/allmain.c:70-75 moveloop_preamble() reaches pickup(1) at startup, so the same describe_decor() source unit also owns initial decor state; JS startup routes through js/moveloop_preamble.js pickup()."
+                ],
+                "dependencies": [
+                  "nethack-c/upstream/src/invent.c:dfeature_at():4037-4094 supplies the \"open door\" explanation for D_ISOPEN; JS js/invent.js:dfeature_at():468-536 already returns that feature from the destination's DOOR/doormask state.",
+                  "nethack-c/upstream/src/pager.c:waterbody_name():560-611 and ice_descr():613-650 supply the liquid/ice descriptions used by describe_decor(); JS js/pager.js:778-820 and js/invent.js:385-457 own the corresponding helpers.",
+                  "nethack-c/upstream/src/trap.c:back_on_ground():4976-5011 is called when prev_decor is POOL, LAVA, or ICE and no feature message supersedes it; JS js/trap.js:843-905 is the existing state/output owner.",
+                  "hacklib.c an()/upstart(), pline.c pline()/Norep(), rm.h SURFACE_AT()/IS_FURNITURE(), and flags/iflags state (mention_decor, verbose, prev_decor, defer_decor, last_msg) determine the remaining source branches and output ordering.",
+                  "js/hack.js:1412-1458 requireSimpleHeroDestination()/preflightDomoveDestination() currently rejects IS_FURNITURE and D_NODOOR/D_BROKEN/D_ISOPEN doorways before set_move_cmd(); this guard must admit source-valid describe_decor results while preserving later feature/output and pickup preflight boundaries.",
+                  "The replay has no floor object, trap, underwater state, or active run at the boundary; the missing branch therefore does not require invent.c:look_here(), trap effects, or engraving behavior for this session, though check_here()/pickup() remain callers of the whole source function."
+                ]
+              },
+              "goalKind": "file-port",
+              "evidence": [
+                "The current saved queue entry in .cache/resume-queue-20260916.json identifies holdout/seed0009-swimmer-mforce at stop step 30 with message unsupported hero move: decor description, recordedSteps 73, and remainingScreensUpperBound 43; the prior tracked cache was stale at count 54.",
+                "Bounded focused run-K4Xf0n (receipt /tmp/teleport-validation-1000/run-K4Xf0n/receipt.json) replayed only sessions/holdout/seed0009-swimmer-mforce.session.json against commit 18a56313c56723cde906c27449d0fc2c6c085bf0. The diagnostic artifact is .cache/seed0009-investigation-18a56313/replay.json, produced by its session-specific replay.mjs; no game source or session input was changed.",
+                "The C recording's steps 26-30 show the source boundary: step 26 reads the engraving at the doorway, steps 27 and 28 spend rnl(20) and exercise() while \"The door resists!\", step 29 spends rnl(20)=3 and prints \"The door opens.\", and step 30 moves south with rnd(5)=3 at maybe_smudge_engr(hack.c:3026), three rn2(12) mcalcmove draws, then maybe_generate_rnd_mon(), gethungry(), and moveloop_core() draws. Step 30 has no decor message and cursor [4,10,1].",
+                "The current replay snapshots show the step-29 projected destination is (5,9), typ DOOR=23, doormask/flags D_ISOPEN=2, dfeature_at()=\"open door\", while hero state remains (5,8), prev_decor=ROOM=25, mention_decor=true, and rngCount=3568. The next movement is rejected at js/hack.js:1431-1434 before any movement or new RNG call with UnsupportedHeroMoveBoundaryError(\"decor description\").",
+                "Upstream pickup.c:describe_decor():376-386 computes ltyp and dfeature, treats \"open door\" and \"doorway\" as doorhere and clears dfeature; :392-418 then has no repeat, feature, or liquid-transition output for this state; :420-425 stores prev_decor=ltyp and returns TRUE. This is the exact source-valid branch omitted by the current JS admission and partial owner.",
+                "Current JS js/pickup.js:282-399 implements only startup-stair and silent ROOM/CORR describe_decor branches, while js/hack.js:1426-1434 documents and enforces a refusal for every furniture or doorway destination. The existing C dfeature_at(), pager, trap, tty message, and movement callers are dependencies, so the implementation handoff should extend pickup.c:describe_decor() and remove only the source-valid doorway refusal rather than compensate with RNG or screen changes.",
+                "Whole-source review of the decoration candidate found that pickup.c describe_decor chooses the unchanged non-furniture arm before both feature output and back_on_ground. A broken door still has a dfeature_at description, but revisiting the same DOOR terrain must suppress it while retaining the final prev_decor store. Worker commit 12f5806d corrects this ordering and adds a source-pinned broken-door check; this is candidate evidence, not a validated main result.",
+                "The selected family also includes pickup.c deferred_decor. Its timeout.c nh_timeout caller runs after Fumbling expiry movement effects, clearing FROMOUTSIDE and any source-required rnd(20) timeout reset. Four independent candidate recordings cover ordinary doorway movement and deferred Fumbling descriptions in verbose and terse modes: 14,008 random-number calls and 104 screens/cursors match C. Combined acceptance remains pending; force_decor is outside this selected family."
+              ]
+            }
+          }
+        }
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "deferred_decor",
+            "implementation": "js/pickup.js",
+            "symbol": "deferred_decor",
+            "sourceReview": "Read nethack-c/upstream/src/pickup.c:337-350 in full. The port keeps the mention_decor guard, setup and catch-up flag transitions, awaits describe_decor on timeout catch-up, and leaves the live timeout message path silent for planning clones. The state.iflags.defer_decor value remains beside prev_decor as C keeps both in iflags. The source callers are the describe_decor fumble branch and timeout.c nh_timeout after Fumbling expiry; the latter now awaits this asynchronous owner.",
+            "callers": [
+              {
+                "path": "js/pickup.js",
+                "symbol": "describe_decor",
+                "source": "pickup.c describe_decor fumble branch"
+              },
+              {
+                "path": "js/timeout.js",
+                "symbol": "nh_timeout",
+                "source": "timeout.c nh_timeout FUMBLING expiry"
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/pickup.test.mjs",
+              "scripts/timeout.test.mjs"
+            ],
+            "recordings": [
+              "recordings/pickup.c/deferred-decor-fumble-independent.session.json",
+              "recordings/pickup.c/deferred-decor-fumble-variation.session.json"
+            ],
+            "checkedAt": "4eb4baf2368c9c59a10b5e40b7531d3a8d96ca87"
+          },
+          {
+            "name": "describe_decor",
+            "implementation": "js/pickup.js",
+            "symbol": "describe_decor",
+            "sourceReview": "Read nethack-c/upstream/src/pickup.c:353-425 in full. The committed describe_decor path preserves SURFACE_AT and calls dfeature_at() exactly once after the Fumbling admission branch, before the unchanged non-furniture comparison, so live ICE rating and display-RNG effects retain C ordering. Its movement admission plan now reads only side-effect-free terrain/result state and never calls dfeature_at(), emits output, or changes decor/display state. The live path preserves open-door/doorway and underwater suppression, ice/pool suppression, waterbody_name and article selection, verbose versus terse feature text, ICE Norep behavior, back_on_ground guard, and final prev_decor versus STONE storage. Source callers pickup.c check_here and pickup, plus deferred_decor timeout catch-up, reach this owner. Admission now evaluates only the Fumbling/terrain predicates; dfeature_at runs once in the live function before unchanged-terrain output suppression, preserving its ice_rating update and Hallucination display RNG call. The focused ICE/Hallucination check verifies admission preserves both ice_rating and the display RNG state. Supporting object-arrival admission also reached invent.c look_here through check_here: its preflight previously evaluated dfeature_at and blind surface wording, duplicating live display effects. These helpers now execute only in look_here, in C feature-before-surface order, including when LOOKHERE_SKIP_DFEATURE suppresses output; preflight retains only pure reachability predicates. This supporting caller correction does not assert whole look_here completion.",
+            "callers": [
+              {
+                "path": "js/pickup.js",
+                "symbol": "deferred_decor",
+                "source": "pickup.c deferred_decor catch-up call"
+              },
+              {
+                "path": "js/pickup.js",
+                "symbol": "pickup",
+                "source": "pickup.c pickup inaccessible-floor and no-object arms"
+              },
+              {
+                "path": "js/pickup.js",
+                "symbol": "check_here",
+                "source": "pickup.c check_here before look_here"
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/pickup.test.mjs",
+              "scripts/hack.test.mjs",
+              "scripts/cmd.test.mjs",
+              "scripts/uhitm.test.mjs",
+              "scripts/timeout.test.mjs",
+              "scripts/inventory-substrate.test.mjs",
+              "scripts/blind-surface.test.mjs"
+            ],
+            "recordings": [
+              "recordings/pickup.c/describe-decor-door-fresh.session.json",
+              "recordings/pickup.c/deferred-decor-fumble-independent.session.json",
+              "recordings/pickup.c/deferred-decor-fumble-variation.session.json"
+            ],
+            "checkedAt": "4eb4baf2368c9c59a10b5e40b7531d3a8d96ca87"
+          }
+        ],
+        "entryPointReview": "The A15r2 source entry points are covered by four independently chosen production recordings. Two doorway segments (Rogue and Valkyrie, distinct seeds, dates, roles, names and routes) reach ordinary movement through pickup.c describe_decor; strict replay matches 7,273 PRNG calls, 10 screens and 10 cursors and verifies the final DOOR terrain memory without a message boundary. Two Wizard Fumbling segments use distinct seeds, dates, names and output mode; each arms one-turn Fumbling, leaves and returns to the generated staircase, then reaches timeout.c nh_timeout -> deferred_decor(FALSE) and describe_decor catch-up. The combined bounded matrix matches 14,008 PRNG calls, 104 screens and 104 cursors; the terse variation independently matches 3,458 PRNG calls, 47 screens and 47 cursors. pickup.c check_here, pickup and timeout.c nh_timeout callers are source-traced and covered by focused tests. pickup.c force_decor() and any unsupported feature helpers outside the two selected functions remain outside this span and are explicitly unverified. The correction adds a source-pinned ICE/Hallucination admission test that asserts ice_rating and the complete display RNG context remain unchanged, while the bounded doorway and deferred-Fumbling recordings still match. Additional source-pinned cases cover one- and two-object ICE arrivals preserving ice_rating and display RNG during admission, and live look_here performing exactly one feature-description display draw even when its output is hidden.",
+        "entryPoints": [
+          {
+            "name": "ordinary doorway movement -> pickup.c describe_decor",
+            "functions": [
+              "describe_decor"
+            ],
+            "recordings": [
+              "recordings/pickup.c/describe-decor-door-fresh.session.json"
+            ]
+          },
+          {
+            "name": "Fumbling timeout -> timeout.c nh_timeout -> pickup.c deferred_decor",
+            "functions": [
+              "deferred_decor",
+              "describe_decor"
+            ],
+            "recordings": [
+              "recordings/pickup.c/deferred-decor-fumble-independent.session.json",
+              "recordings/pickup.c/deferred-decor-fumble-variation.session.json"
+            ]
+          }
+        ]
+      },
+      "closeMismatches": [
+        {
+          "session": "holdout/seed0009-swimmer-mforce",
+          "step": 48,
+          "kind": "stop",
+          "function": "test_move",
+          "functionDeclared": true,
+          "sourceFile": "hack.c",
+          "cFile": "hack.c",
+          "luaFile": null,
+          "line": null,
+          "message": "unsupported hero move: test_move() door or special terrain movement",
+          "unlocatedKinds": [],
+          "recordedSteps": 73,
+          "remainingScreensUpperBound": 25,
+          "investigation": {
+            "status": "stale",
+            "path": "investigations/holdout/seed0009-swimmer-mforce.json",
+            "previousRemainingScreensUpperBound": 43
+          }
+        }
+      ],
+      "closeStanding": {
+        "sha": "1155b6ce37b4fb66db2dba00916ea4a0dd6b8557",
+        "screens": 10662,
+        "rng": 760877
+      }
     }
   ]
 }
