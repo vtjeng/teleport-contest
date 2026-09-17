@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent B28 production witness: a debug Wizard enables pass-through-walls and flying, enters obstructed terrain, then exits it so switch_terrain emits both blocked and unblocked flight transitions.",
+  "segments": [
+    {
+      "seed": 9241775,
+      "datetime": "20400101123456",
+      "nethackrc": "OPTIONS=name:WallFlight,role:Wizard,race:human,gender:male,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen,playmode:debug,pettype:none,!acoustics\n",
+      "moves": "  #wizintrinsic\n>f\n #wizintrinsic\n>>k\n hhhhhhhhhl."
+    }
+  ]
+}

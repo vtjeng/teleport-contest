@@ -1178,7 +1178,10 @@ export async function expels(mtmp, rawEnv = {}) {
             'Brrooaa...  You land hard at some distance.', state,
         );
     }
-    await spoteffects(true, state);
+    // Keep the planning clone's display seam attached through the terrain
+    // transition.  switch_terrain() is reached through spoteffects(), and a
+    // missing environment here would let a clone write live TTY output.
+    await spoteffects(true, state, rawEnv);
 }
 
 // C ref: mhitu.c gulpmu() (1287-1577). This slice covers an ordinary human
