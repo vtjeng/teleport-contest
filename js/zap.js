@@ -70,6 +70,7 @@ import {
     HEADSTONE,
     HWALL,
     ICE,
+    INTRINSIC,
     ICED_MOAT,
     ICED_POOL,
     IRONBARS,
@@ -91,6 +92,7 @@ import {
     LL_WISH,
     NO_KILLER_PREFIX,
     NO_TRAP_FLAGS,
+    TIMEOUT,
     PHYS_EXPL_TYPE,
     PLNMSG_ENVELOPED_IN_GAS,
     POOL,
@@ -1274,7 +1276,8 @@ export async function zapyourself(obj, ordinary, state = game) {
         // C's BInvis is the blocked field (a worn artifact can cancel an
         // intrinsic or extrinsic invisibility source); it is distinct from
         // the extrinsic source itself.
-        const msg = !property.intrinsic && !heroIsBlind(state)
+        const msg = !(property.intrinsic || property.extrinsic)
+            && !heroIsBlind(state)
             && !property.blocked;
         if (property.blocked && state.uarmc?.otyp === MUMMY_WRAPPING) {
             await ttyPline(
@@ -1321,7 +1324,7 @@ export async function zapyourself(obj, ordinary, state = game) {
     case SPE_SLOW_MONSTER:
         // C tests HFast & (TIMEOUT | INTRINSIC), so extrinsic speed alone
         // does not make a self-zap learn or invoke u_slow_down().
-        if (state.u?.uprops?.[FAST]?.intrinsic) {
+        if ((state.u?.uprops?.[FAST]?.intrinsic ?? 0) & (TIMEOUT | INTRINSIC)) {
             learn_it = true;
             await u_slow_down(state);
         }
@@ -1397,7 +1400,7 @@ export async function zapyourself(obj, ordinary, state = game) {
             await release_hold(state);
             learn_it = true;
         }
-        if (state.u.uball) {
+        if (state.uball) {
             learn_it = true;
             note_unported('read.c unpunish');
         }
@@ -2580,10 +2583,12 @@ export async function stone_to_flesh_obj(obj, state = game,
                     { ...env, state, random },
                 );
             } else {
-                const species = golemXform
-                    ? state.mons?.[PM_FLESH_GOLEM] : originalSpecies;
+                // C updates ptr before creation, so a failed golem
+                // animation tests the replacement species' corpse flags.
+                if (golemXform)
+                    originalSpecies = state.mons?.[PM_FLESH_GOLEM];
                 monster = await makemon_runtime(
-                    species,
+                    originalSpecies,
                     ox,
                     oy,
                     NO_MINVENT | MM_NOMSG,
@@ -5052,9 +5057,7 @@ export async function cancel_monst(
                         'Some writing vanishes from your head!', state,
                     );
                 } else {
-                    const hallucinating = Boolean(
-                        state.u?.uprops?.[HALLUC]?.intrinsic,
-                    );
+                    const hallucinating = Hallucination(state);
                     await ttyPline(
                         `You feel ${hallucinating ? 'dark' : 'light'} headed.`,
                         state,
