@@ -88,7 +88,7 @@ import { mongone } from './makemon_create.js';
 import { angry_guards, wake_nearto } from './mon.js';
 import { search_special } from './mkroom.js';
 import {
-    carried, dealloc_obj, hasContents, isCandle, isContainer, is_pick,
+    carried, dealloc_obj, hasContents, isCandle, is_pick,
     newObject, next_ident, newomid, objectType, sobj_at, splitobj,
 } from './obj.js';
 import {
@@ -1050,6 +1050,8 @@ function noShopPrice(noCharge = false) {
     return {
         applicable: false,
         cost: 0,
+        contentsCost: 0,
+        objectCost: 0,
         noCharge,
         pricingUnitCost: 0,
         shopkeeper: null,
@@ -1103,51 +1105,53 @@ export function get_cost_of_shop_item(
     // only when its own unpaid bit is set.
     const noCharge = top.where === OBJ_FLOOR && (obj.no_charge || freespot);
     const needsPrice = top.where === OBJ_INVENT ? Boolean(obj.unpaid) : !noCharge;
-    if (!needsPrice) {
-        return {
-            applicable: true,
-            cost: 0,
-            noCharge,
-            pricingUnitCost: 0,
-            shopkeeper,
-        };
-    }
+    let objectCost = 0;
+    let pricingUnitCost = 0;
+    if (needsPrice) {
+        // The remaining guards describe an applicable item whose C path reaches
+        // get_cost() or its pricing-unit helper.  Keep these source-attributed
+        // refusals visible until their complete helpers land; callers must not
+        // turn them into an ordinary no-live-price result.
+        if (obj.globby)
+            throw new UnsupportedShopError('globby pricing units');
+        if (obj.oartifact)
+            throw new UnsupportedShopError('artifact pricing');
+        if (obj.otyp === CORPSE || obj.otyp === TIN || obj.otyp === EGG)
+            throw new UnsupportedShopError('corpse, tin, or egg pricing adjustment');
+        if (!shopkeeper.mpeaceful)
+            throw new UnsupportedShopError('angry shopkeeper pricing');
+        if (shopkeeper.mextra.eshk.surcharge)
+            throw new UnsupportedShopError('shopkeeper surcharge');
 
-    // The remaining guards describe an applicable item whose C path reaches
-    // get_cost() or its pricing-unit helper.  Keep these source-attributed
-    // refusals visible until their complete helpers land; callers must not
-    // turn them into an ordinary no-live-price result.
-    if (obj.globby)
-        throw new UnsupportedShopError('globby pricing units');
-    if (isContainer(obj) || hasContents(obj))
-        throw new UnsupportedShopError('container pricing');
-    if (obj.oartifact)
-        throw new UnsupportedShopError('artifact pricing');
-    if (obj.otyp === CORPSE || obj.otyp === TIN || obj.otyp === EGG)
-        throw new UnsupportedShopError('corpse, tin, or egg pricing adjustment');
-    if (!shopkeeper.mpeaceful)
-        throw new UnsupportedShopError('angry shopkeeper pricing');
-    if (shopkeeper.mextra.eshk.surcharge)
-        throw new UnsupportedShopError('shopkeeper surcharge');
-
-    const type = objectType(obj, state);
-    if (!type.oc_name_known && obj.oclass === GEM_CLASS
-        && type.oc_material === GLASS) {
-        throw new UnsupportedShopError('unidentified glass-gem pricing');
+        const type = objectType(obj, state);
+        if (!type.oc_name_known && obj.oclass === GEM_CLASS
+            && type.oc_material === GLASS) {
+            throw new UnsupportedShopError('unidentified glass-gem pricing');
+        }
+        const units = get_pricing_units(obj);
+        if (!Number.isInteger(units) || units < 1)
+            throw new UnsupportedShopError('invalid pricing quantity');
+        // xname() observes a nearby object before doname_base() appends its price.
+        // Movement admission cannot mutate discovery state, so project that one
+        // source-ordered write for its arithmetic preflight.
+        const pricedObject = observed && !obj.dknown
+            ? { ...obj, dknown: true }
+            : obj;
+        pricingUnitCost = get_cost(pricedObject, shopkeeper, state);
+        objectCost = units * pricingUnitCost;
     }
-    const units = get_pricing_units(obj);
-    if (!Number.isInteger(units) || units < 1)
-        throw new UnsupportedShopError('invalid pricing quantity');
-    // xname() observes a nearby object before doname_base() appends its price.
-    // Movement admission cannot mutate discovery state, so project that one
-    // source-ordered write for its arithmetic preflight.
-    const pricedObject = observed && !obj.dknown
-        ? { ...obj, dknown: true }
-        : obj;
-    const pricingUnitCost = get_cost(pricedObject, shopkeeper, state);
+    // C adds contained_cost() after the outer-object price predicate, even when
+    // the outer floor container is free.  A free container with chargeable
+    // contents must therefore remain applicable and expose that live contents
+    // price (or the contained-cost branch's own source gap).
+    const contentsCost = hasContents(obj) && !freespot
+        ? contained_cost(obj, shopkeeper, 0, false, true, state)
+        : 0;
     return {
         applicable: true,
-        cost: noCharge ? 0 : units * pricingUnitCost,
+        cost: objectCost + contentsCost,
+        contentsCost,
+        objectCost,
         noCharge,
         pricingUnitCost,
         shopkeeper,

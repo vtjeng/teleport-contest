@@ -546,12 +546,13 @@ test('monster descriptions use the stored C shopkeeper name', () => {
         my: 10,
     };
 
-    assert.equal(describeMonster(shopkeeper, { state }), 'peaceful Adjama');
+    const visible = { state, canSpotMonster: () => true };
+    assert.equal(describeMonster(shopkeeper, visible), 'peaceful Adjama');
 
     // C names with a leading marker are returned without that marker by
     // shkname(); an apparent monster bypasses this shopkeeper arm.
     shopkeeper.mextra.eshk.shknam = '-Lucrezia';
-    assert.equal(describeMonster(shopkeeper, { state }), 'peaceful Lucrezia');
+    assert.equal(describeMonster(shopkeeper, visible), 'peaceful Lucrezia');
 
     const apparent = {
         ...shopkeeper,
@@ -561,6 +562,7 @@ test('monster descriptions use the stored C shopkeeper name', () => {
     assert.equal(
         describeMonster(apparent, {
             state,
+            canSpotMonster: () => true,
             species: { pmnames: [null, null, 'newt'] },
         }),
         'peaceful newt',
@@ -581,7 +583,10 @@ test('monster descriptions format a named ghost as a possessive ghost', () => {
 
     // pager.c look_at_monster() calls distant_monnam(), whose x_monnam()
     // ghost arm appends the species after making the given name possessive.
-    assert.equal(describeMonster(ghost, { state }), "Elara's ghost, asleep");
+    assert.equal(
+        describeMonster(ghost, { state, canSpotMonster: () => true }),
+        "Elara's ghost, asleep",
+    );
 });
 
 test('lookaround treats an adjacent object mimic as seen up close', () => {

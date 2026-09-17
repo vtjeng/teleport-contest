@@ -1696,6 +1696,26 @@ export function donameFresh(obj, state) {
     });
 }
 
+// C ref: doname_base(DONAME_WITH_PRICE)'s floor/container branch. The
+// shopkeeper's `nochrg` flag labels a positive contained-only price as
+// "contents"; it does not turn that price into "no charge".
+function appendLiveShopPrice(name, obj, quote, currencyName, state) {
+    if (!quote.applicable) return donameFresh(obj, state);
+    if (quote.cost > 0) {
+        const label = quote.noCharge && quote.contentsCost > 0
+            ? 'contents' : 'for sale';
+        const suffix = `${quote.cost} ${currencyName(quote.cost, state)}`;
+        const result = `${name} (${label}, ${suffix})`;
+        // get_cost_of_shop_item() totals get_pricing_units(), but C remembers
+        // the displayed quote per object quantity, which can be a different
+        // divisor.
+        record_price_quote(obj.otyp, quote.cost / obj.quan, true, state);
+        return result;
+    }
+    if (quote.noCharge) return `${name} (no charge)`;
+    return name;
+}
+
 // C ref: objnam.c doname_vague_quan(). Farlook keeps an unknown stack's
 // quantity vague while preserving the ordinary doname formatter for every
 // other object and identification state.
@@ -1768,6 +1788,19 @@ export function doname_with_price(
             && obj.where !== OBJ_MINVENT)
             unsupported('non-floor price suffix', obj);
         preflightDoname(obj, objectType(obj, state), state);
+        if (obj.where === OBJ_CONTAINED) {
+            const name = donameFreshInternal(obj, state, {
+                allowLiveShopPrice: true,
+            });
+            const quote = get_cost_of_shop_item(obj, state);
+            return appendLiveShopPrice(
+                name,
+                obj,
+                quote,
+                currencyName,
+                state,
+            );
+        }
         // Paid inventory items fall through to the remembered-price branch;
         // unpaid inventory and container contents were handled above.
         return donameFreshInternal(obj, state, {
@@ -1783,18 +1816,7 @@ export function doname_with_price(
         allowLiveShopPrice: true,
     });
     const quote = get_cost_of_shop_item(obj, state);
-    // C reports no live price (nochrg == -1) when the object is not in an
-    // applicable shop.  The ordinary formatter then gets its remembered
-    // quote opportunity, if any, without swallowing real pricing failures.
-    if (!quote.applicable) return donameFresh(obj, state);
-    if (quote.noCharge) return `${name} (no charge)`;
-    if (quote.cost <= 0) return name;
-    const suffix = `${quote.cost} ${currencyName(quote.cost, state)}`;
-    const result = `${name} (for sale, ${suffix})`;
-    // get_cost_of_shop_item() totals get_pricing_units(), but C remembers the
-    // displayed quote per object quantity, which can be a different divisor.
-    record_price_quote(obj.otyp, quote.cost / obj.quan, true, state);
-    return result;
+    return appendLiveShopPrice(name, obj, quote, currencyName, state);
 }
 
 // C ref: objnam.c distant_name(). Format an object seen from wherever the

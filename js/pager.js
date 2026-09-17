@@ -147,6 +147,7 @@ import {
     distant_name,
     doname_with_price,
     doname_vague_quan,
+    simpleonames,
     singular,
     xnameFresh,
 } from './objnam.js';
@@ -205,14 +206,10 @@ import {
 import { NO_COLOR } from './terminal.js';
 import { rn2, rn2_on_display_rng } from './rng.js';
 import {
-    bufferedGlyphSubjectAt,
-    bufferedObjectSubjectAt,
     describeMonster,
     furnitureDescription,
     heroIsBlind,
-    hiddenObjectPhrase,
     monsterSurfaceDescription,
-    withBufferedObject,
 } from './startup_a11y.js';
 import {
     hides_under,
@@ -359,7 +356,34 @@ export function mhidden_description(
             m_ap_type: appearance,
         }
         : monster;
-    const currentGlyph = isYou ? glyph_at(x, y, state) : null;
+    // pager.c selects levl[x][y].glyph for a remembered monster and glyph_at
+    // only when hero memory is disabled (or for the hero itself).  The glyph
+    // is the source of truth for an object-shaped disguise; a sidecar or the
+    // current floor pile can describe a different object than the remembered
+    // map square.
+    const currentGlyph = !isYou && state.level?.flags?.hero_memory
+        ? state.level?.at(x, y)?.remembered_glyph?.glyph
+            ?? GLYPH_UNEXPLORED_OFF
+        : glyph_at(x, y, state);
+    const objectWhat = () => {
+        if (!glyph_is_object(currentGlyph)) return null;
+        const resolved = object_from_map(currentGlyph, x, y, state);
+        if (!resolved?.object) return null;
+        try {
+            const raw = resolved.object.otyp === STRANGE_OBJECT
+                ? state.objects?.[STRANGE_OBJECT]?.oc_name
+                    ?? 'strange object'
+                : simpleonames(resolved.object, state);
+            return includeArticle
+                && (resolved.object.quan ?? 1) === 1
+                ? an(raw) : raw;
+        } finally {
+            if (resolved.fakeobj) {
+                resolved.object.where = OBJ_FREE;
+                dealloc_obj(resolved.object, { state });
+            }
+        }
+    };
     let suffix = '';
     if (appearance === M_AP_FURNITURE) {
         const what = furnitureDescription(monster.mappearance) ?? 'something';
@@ -369,36 +393,7 @@ export function mhidden_description(
         suffix = `${includePrefix ? ', mimicking ' : ''}`
             + (includeArticle ? an(what) : what);
     } else if (appearance === M_AP_OBJECT) {
-        let what = null;
-        if (isYou) {
-            const resolved = glyph_is_object(currentGlyph)
-                ? object_from_map(currentGlyph, x, y, state) : null;
-            if (resolved?.object) {
-                try {
-                    what = hiddenObjectPhrase(resolved.object, state, {
-                        includeArticle,
-                    });
-                } finally {
-                    if (resolved.fakeobj) {
-                        resolved.object.where = OBJ_FREE;
-                        dealloc_obj(resolved.object, { state });
-                    }
-                }
-            }
-        } else {
-            const subject = bufferedObjectSubjectAt(sourceMonster, state);
-            if (subject) {
-                what = withBufferedObject(
-                    subject,
-                    x,
-                    y,
-                    state,
-                    (object) => hiddenObjectPhrase(object, state, {
-                        includeArticle,
-                    }),
-                );
-            }
-        }
+        let what = objectWhat();
         if (!what) what = 'something';
         suffix = `${includePrefix ? ', mimicking ' : ''}${what}`;
     } else if (appearance === M_AP_MONSTER) {
@@ -417,55 +412,7 @@ export function mhidden_description(
     } else if (hidden) {
         suffix = ', hiding';
         if (hides_under(sourceMonster.data)) {
-            let what = null;
-            if (isYou) {
-                if (glyph_is_object(currentGlyph)) {
-                    const resolved = object_from_map(
-                        currentGlyph,
-                        x,
-                        y,
-                        state,
-                    );
-                    if (resolved?.object) {
-                        try {
-                            what = hiddenObjectPhrase(
-                                resolved.object,
-                                state,
-                                { includeArticle },
-                            );
-                        } finally {
-                            if (resolved.fakeobj) {
-                                resolved.object.where = OBJ_FREE;
-                                dealloc_obj(resolved.object, { state });
-                            }
-                        }
-                    }
-                }
-            } else {
-                const buffered = bufferedGlyphSubjectAt(sourceMonster, state);
-                what = buffered.subject?.type === 'object'
-                    ? withBufferedObject(
-                        buffered.subject,
-                        x,
-                        y,
-                        state,
-                        (object) => hiddenObjectPhrase(
-                            object,
-                            state,
-                            { includeArticle },
-                        ),
-                    )
-                    : buffered.hasSubject
-                        || state.level?.flags?.hero_memory === false
-                        ? null
-                        : state.level?.objects?.[x]?.[y]
-                            ? hiddenObjectPhrase(
-                                state.level.objects[x][y],
-                                state,
-                                { includeArticle },
-                            )
-                            : null;
-            }
+            const what = objectWhat();
             suffix += what ? ` under ${what}` : ' under something';
         } else if (is_hider(sourceMonster.data)) {
             const ceiling = (is_clinger(sourceMonster.data)

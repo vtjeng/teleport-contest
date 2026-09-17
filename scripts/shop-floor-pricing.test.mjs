@@ -394,11 +394,29 @@ test('shop pricing applies C ownership before object-specific guards',
                 ({ keeper }) => { keeper.mpeaceful = false; }],
             ['surcharged keeper', /surcharge/u,
                 ({ keeper }) => { keeper.mextra.eshk.surcharge = true; }],
-            ['container', /container pricing/u, ({ state, upper }) => {
+            ['container', null, ({ state, upper }) => {
                 changeObjectType(upper, SACK, state);
             }],
-            ['ordinary object contents', /container pricing/u,
-                ({ upper }) => { upper.cobj = newObject({ quan: 1 }); }],
+            ['ordinary object contents', null,
+                ({ state, upper }) => {
+                    upper.cobj = newObject({
+                        otyp: DART,
+                        oclass: state.objects[DART].oc_class,
+                        quan: 1,
+                        dknown: true,
+                    });
+                }],
+            ['free container contents', null,
+                ({ state, upper }) => {
+                    changeObjectType(upper, SACK, state);
+                    upper.no_charge = true;
+                    upper.cobj = newObject({
+                        otyp: DART,
+                        oclass: state.objects[DART].oc_class,
+                        quan: 1,
+                        dknown: true,
+                    });
+                }],
             ['glob', /globby/u, ({ upper }) => { upper.globby = true; }],
             ['artifact', /artifact pricing/u,
                 ({ upper }) => { upper.oartifact = 1; }],
@@ -454,7 +472,10 @@ test('shop pricing applies C ownership before object-specific guards',
             'displaced keeper',
         ]);
         const noChargeCases = new Set(['keeper freespot', 'no charge']);
-        const pricedCases = new Set(['contained object', 'unpaid']);
+        const pricedCases = new Set([
+            'contained object', 'unpaid', 'container', 'ordinary object contents',
+        ]);
+        const contentsPriceCases = new Set(['free container contents']);
         for (const [name, expected, prepare] of cases) {
             const fixture = await generatedShopPile();
             prepare(fixture);
@@ -482,6 +503,16 @@ test('shop pricing applies C ownership before object-specific guards',
                     [true, 0, true],
                     name,
                 );
+            } else if (contentsPriceCases.has(name)) {
+                const quote = get_cost_of_shop_item(
+                    fixture.upper,
+                    fixture.state,
+                    { observed: true },
+                );
+                assert.equal(quote.applicable, true, name);
+                assert.equal(quote.noCharge, true, name);
+                assert.ok(quote.contentsCost > 0, name);
+                assert.equal(quote.cost, quote.contentsCost, name);
             } else if (pricedCases.has(name)) {
                 const quote = get_cost_of_shop_item(
                     fixture.upper,
@@ -510,6 +541,24 @@ test('shop pricing applies C ownership before object-specific guards',
             assert.equal(fixture.upper.dknown, false, name);
         }
     });
+
+test('contained floor merchandise keeps its live shop price', async () => {
+    const { state, upper } = await generatedShopPile();
+    const contained = newObject({
+        otyp: DART,
+        oclass: state.objects[DART].oc_class,
+        quan: 1,
+        dknown: true,
+        where: OBJ_CONTAINED,
+        ocontainer: upper,
+    });
+    upper.cobj = contained;
+
+    const name = doname_with_price(contained, state, {
+        currencyName: () => 'zorkmids',
+    });
+    assert.match(name, /dart \(for sale, \d+ zorkmids\)/u);
+});
 
 test('priced preflight projects observation and accepts hallucination resistance',
     async () => {
