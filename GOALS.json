@@ -62751,7 +62751,7 @@
     {
       "id": "port-detect-mfind0-seed4500-20260917",
       "kind": "file-port",
-      "status": "open",
+      "status": "parked",
       "summary": "Complete monster discovery through explicit search and Warning reveal.",
       "cFile": "detect.c",
       "sessions": [
@@ -62762,8 +62762,8 @@
       "spans": [
         {
           "name": "mfind0",
-          "status": "queued",
-          "closedBy": null,
+          "status": "closed",
+          "closedBy": "e2d9bd2c726f9fd575469a859d45e70a0e5b1ba8",
           "functions": [
             "mfind0"
           ]
@@ -62869,15 +62869,15 @@
         }
       ],
       "progressBeforePark": {
-        "screens": 0,
-        "rng": 0
+        "screens": 7,
+        "rng": 1002
       },
       "parkedStanding": {
-        "sha": "c91c6bf7201f01aa59eb9facfbc5237e5aaec1b3",
-        "screens": 11203,
-        "rng": 786211
+        "sha": "e2d9bd2c726f9fd575469a859d45e70a0e5b1ba8",
+        "screens": 11211,
+        "rng": 787213
       },
-      "parkedReason": "Candidate d754cb24 is preserved on codex/a33-allocation-correction-20260917. It passes automated checkpoint but is rejected by per-session comparison: the newly reached step1624 allocation-count exception discards Knight output. Worker A is repairing the planning continuation; source evidence remains with that candidate until the correction is integrated. Integrate independent B30 from the published baseline meanwhile.",
+      "parkedReason": "Complete mfind0 and caller wiring passed combined validation with independent stalker and mimic recordings; Warning-only, hidden-hider/eel and repeated-marker entry recordings remain open.",
       "evidence": {
         "functions": [
           {
