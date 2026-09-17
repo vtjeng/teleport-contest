@@ -17,6 +17,9 @@ import {
     A_LAWFUL,
     A_STR,
     A_WIS,
+    ANIMATE_NORMAL,
+    ANIMATE_SHATTER,
+    ANIMATE_SPELL,
     ANTI_MAGIC,
     ANTIMAGIC,
     ARM,
@@ -48,6 +51,9 @@ import {
     DRAWBRIDGE_UP,
     ECMD_OK,
     ECMD_TIME,
+    AS_NO_MON,
+    AS_MON_IS_UNIQUE,
+    AS_OK,
     FAILEDUNTRAP,
     FAINTED,
     FIRE_RES,
@@ -96,6 +102,14 @@ import {
     M_AP_FURNITURE,
     M_AP_OBJECT,
     M_AP_TYPE,
+    MM_ADJACENTOK,
+    MM_FEMALE,
+    MM_MALE,
+    MM_NOCOUNTBIRTH,
+    MM_NOMSG,
+    NO_MINVENT,
+    NON_PM,
+    OBJ_AT,
     NOWEBMSG,
     NO_TRAP,
     N_DIRS,
@@ -160,6 +174,14 @@ import {
     W_TOOL,
     W_WEAPONS,
     ZAP_POS,
+    CORPSTAT_FEMALE,
+    CORPSTAT_GENDER,
+    CORPSTAT_HISTORIC,
+    CORPSTAT_MALE,
+    ONAME,
+    has_oname,
+    u_at,
+    something,
     helpless,
     is_hole,
     is_pit,
@@ -174,7 +196,8 @@ import { obj_resists, unearth_objs } from './bury.js';
 import { getdir, xytodir } from './cmd.js';
 import {
     capitalizedMonsterName, monsterCommonName, mon_pmname,
-    noit_Monnam, y_monnam, rndcolor, hliquid, hcolor,
+    noit_Monnam, y_monnam, rndcolor, hliquid, hcolor, rndmonnam,
+    a_monnam, christen_monst,
 } from './do_name.js';
 import { abuse_dog } from './dog.js';
 import {
@@ -185,7 +208,7 @@ import {
     surface,
 } from './dungeon.js';
 import { done } from './end.js';
-import { feel_newsym, rank_of } from './display.js';
+import { feel_newsym, rank_of, map_invisible } from './display.js';
 import { can_reach_floor } from './engrave.js';
 import { more_experienced, newexplevel } from './exper.js';
 import { makeplural } from './fruit.js';
@@ -199,29 +222,32 @@ import {
 import { sgn, upstart } from './hacklib.js';
 import {
     stackobj, getobj, useup, useupall, consume_obj_charge, delete_contents,
-    delobj,
+    delobj, obj_extract_self,
 } from './invent.js';
 import { get_obj_location } from './light.js';
 import { Is_box, stumble_on_door_mimic, ynq } from './lock.js';
 import { set_malign } from './makemon.js';
-import { killed, wake_nearby, wakeup } from './mon.js';
+import { killed, wake_nearby, wakeup, seemimic } from './mon.js';
 import {
     amorphous, amphibious, attacktype, breathless, can_teleport, flaming,
     is_clinger, is_floater,
     is_flyer, is_whirly, nohands, resists_magm, unsolid, webmaker, sticks,
     bigmonst, is_swimmer, likes_lava, mindless, monster_resists_element,
-    touch_petrifies, unique_corpstat, poly_when_stoned,
+    touch_petrifies, unique_corpstat, poly_when_stoned, is_golem,
+    is_vampshifter, nonliving,
 } from './mondata.js';
 import { stagger, monstseesu, monstunseesu } from './mondata.js';
 import {
     AD_ELEC, AD_FIRE, AT_BREA, AT_MAGC, S_HUMAN, PM_GELATINOUS_CUBE,
     MZ_SMALL, PM_FOG_CLOUD, PM_IRON_GOLEM, PM_STEAM_VORTEX,
     PM_STONE_GOLEM, PM_RANGER, PM_ROGUE, PM_WATER_ELEMENTAL,
+    PM_DOPPELGANGER, PM_FLESH_GOLEM, PM_ARCHEOLOGIST, MS_GUARDIAN,
 } from './monsters.js';
 import { m_at } from './monst.js';
 import { observe_object } from './o_init.js';
 import {
     mksobj,
+    carried,
     obj_ice_effects,
     is_blade,
     is_flammable,
@@ -246,7 +272,7 @@ import { make_hallucinated, set_itimeout } from './potion.js';
 import { waterbody_name } from './pager.js';
 import { float_vs_flight, body_part, polymon } from './polyself.js';
 import { create_gas_cloud } from './region.js';
-import { d, rn1, rn2, rnd, rne, rnl, rn2_on_display_rng } from './rng.js';
+import { d, rn1, rn2, rnd, rne, rnl, rn2_on_display_rng, rnz } from './rng.js';
 import { in_rooms } from './rooms.js';
 import { dismount_steed, Punished } from './steed.js';
 import { P_SKILL } from './startup_skills.js';
@@ -265,7 +291,8 @@ import { bimanual } from './worn.js';
 import { newsym, bot } from './display.js';
 import { m_next2u } from './mhitu.js';
 import { destroy_items } from './zap_destroy_items.js';
-import { costly_spot, shop_keeper } from './shk.js';
+import { costly_spot, shop_keeper, shk_your } from './shk.js';
+import { quest_info } from './questpgr.js';
 import { mon_has_amulet } from './wizard.js';
 
 // Env object for poisoned() calls inside chest_trap and other trap functions.
@@ -2617,6 +2644,213 @@ export async function openfallingtrap(mon, trapdoor_only, state = game) {
         result = ((await mintrap(mon, FORCETRAP, { state })) !== Trap_Effect_Finished);
     }
     return { result, noticed };
+}
+
+// C ref: trap.c animate_statue() (725-900).  This is the shared statue
+// transition used by statue traps and zap.c stone_to_flesh_obj().  Creation,
+// saved-trait restoration, object transfer, and deletion stay in their
+// canonical owners; this wrapper preserves their source order and carries a
+// single async result back to the caller.
+export async function animate_statue(
+    statue,
+    x,
+    y,
+    cause = ANIMATE_NORMAL,
+    rawEnv = {},
+) {
+    if (!statue || typeof statue !== 'object')
+        throw new TypeError('animate_statue requires a statue object');
+    const state = rawEnv.state ?? game;
+    const random = rawEnv.random ?? { d, rn1, rn2, rnd, rne, rnz };
+    const message = rawEnv.message ?? ttyPline;
+    const norepMessage = rawEnv.norepMessage ?? message;
+    const objectEnv = objectGenerationEnv({
+        ...rawEnv,
+        _animateStatue: true,
+        state,
+        random,
+        message,
+        norepMessage,
+    });
+
+    // These imports would make trap.js's existing makemon/inventory cycles
+    // eager.  C enters this function only after the game has initialized all
+    // of those owners, so resolve them at the call boundary instead.
+    const [{ cant_revive }, { montraits }, { makemon_runtime, m_dowear },
+        { mpickobj }] = await Promise.all([
+        import('./read.js'),
+        import('./zap.js'),
+        import('./makemon_create.js'),
+        import('./steal.js'),
+    ]);
+    const { newcham } = await import('./mon.js');
+
+    let mnum = Number.isInteger(statue.corpsenm)
+        ? statue.corpsenm : NON_PM;
+    let mptr = state.mons?.[mnum] ?? null;
+    if (!mptr) {
+        if (rawEnv.failReason) rawEnv.failReason.value = AS_NO_MON;
+        return null;
+    }
+
+    // read.c cant_revive() writes the possibly substituted species through
+    // its caller-owned pointer.  Keep mptr pointed at the original species
+    // for the doppelganger and quest-guardian decisions below.
+    const revival = cant_revive(mnum, true, statue, state);
+    const changed = Boolean(revival?.changed);
+    mnum = revival?.mtype ?? mnum;
+    if (changed && mnum !== PM_DOPPELGANGER)
+        mptr = state.mons?.[mnum] ?? mptr;
+
+    let golemXform = false;
+    let useSavedTraits;
+    if (changed) {
+        useSavedTraits = false;
+    } else if (is_golem(mptr) && cause === ANIMATE_SPELL) {
+        golemXform = mptr !== state.mons?.[PM_FLESH_GOLEM];
+        mnum = PM_FLESH_GOLEM;
+        mptr = state.mons?.[PM_FLESH_GOLEM] ?? mptr;
+        useSavedTraits = Boolean(statue.oextra?.omonst) && !golemXform;
+    } else {
+        useSavedTraits = Boolean(statue.oextra?.omonst);
+    }
+
+    let monster = null;
+    if (useSavedTraits) {
+        monster = await montraits(
+            statue,
+            { x, y },
+            cause === ANIMATE_SPELL,
+            { ...objectEnv, state, random },
+        );
+        if (monster?.mtame && !monster.isminion)
+            note_unported('dog.c wary_dog');
+    } else {
+        let mmflags = NO_MINVENT | MM_NOMSG;
+        const sgend = statue.spe & CORPSTAT_GENDER;
+        if (sgend === CORPSTAT_MALE) mmflags |= MM_MALE;
+        else if (sgend === CORPSTAT_FEMALE) mmflags |= MM_FEMALE;
+        const guardian = mptr.msound === MS_GUARDIAN
+            && quest_info(MS_GUARDIAN, state) !== mnum;
+        if ((mnum === PM_DOPPELGANGER
+                && mptr !== state.mons?.[PM_DOPPELGANGER]) || guardian) {
+            mmflags |= MM_NOCOUNTBIRTH | MM_ADJACENTOK;
+            monster = await makemon_runtime(
+                state.mons?.[PM_DOPPELGANGER], x, y, mmflags,
+                { ...objectEnv, state, random },
+            );
+            // C discards newcham()'s result here; the transition itself is
+            // still awaited so no placement or inventory work races it.
+            if (monster && Number.isInteger(monster.cham)
+                && monster.cham !== NON_PM)
+                await newcham(monster, mptr, { ...objectEnv, state, random });
+        } else {
+            if (cause === ANIMATE_SPELL) mmflags |= MM_ADJACENTOK;
+            monster = await makemon_runtime(
+                mptr, x, y, mmflags,
+                { ...objectEnv, state, random },
+            );
+        }
+    }
+
+    if (!monster) {
+        if (rawEnv.failReason) {
+            rawEnv.failReason.value = unique_corpstat(
+                state.mons?.[statue.corpsenm],
+            ) ? AS_MON_IS_UNIQUE : AS_NO_MON;
+        }
+        return null;
+    }
+
+    if (has_oname(statue) && !unique_corpstat(monster.data)) {
+        monster = christen_monst(monster, ONAME(statue), objectEnv);
+    }
+    if (M_AP_TYPE(monster))
+        seemimic(monster, state, objectEnv);
+    else
+        monster.mundetected = false;
+    monster.msleeping = 0;
+    if (cause === ANIMATE_NORMAL || cause === ANIMATE_SHATTER) {
+        monster.mtame = 0;
+        monster.mpeaceful = 0;
+        set_malign(monster, state);
+    }
+
+    const spotted = canspotmon(monster, state);
+    const comesToLife = !spotted ? 'disappears'
+        : golemXform ? 'turns into flesh'
+            : (nonliving(monster.data) || is_vampshifter(monster))
+                ? 'moves' : 'comes to life';
+    const atHero = u_at(x, y, state);
+    if (atHero || cause === ANIMATE_SPELL) {
+        const shopkeeper = shop_keeper(
+            in_rooms(monster.mx, monster.my, SHOPBASE, state)[0] ?? 0,
+            state,
+        );
+        const noun = cause === ANIMATE_SPELL
+            && (monster !== shopkeeper || carried(statue))
+            ? xnameFresh(statue, state) : 'statue';
+        const statueName = `${shk_your(statue, state)}${noun}`;
+        await message(`${upstart(statueName)} ${comesToLife}!`, state);
+    } else if (state.u?.uprops?.[HALLUC]?.intrinsic
+        || state.u?.uprops?.[HALLUC]?.extrinsic) {
+        await message(
+            `The ${rndmonnam({ state, random })} suddenly seems more animated.`,
+            state,
+        );
+    } else if (cause === ANIMATE_SHATTER) {
+        const statueName = cansee(x, y, state)
+            ? `${shk_your(statue, state)}${xnameFresh(statue, state)}`
+            : 'a statue';
+        await message(
+            `Instead of shattering, ${statueName} suddenly ${comesToLife}!`,
+            state,
+        );
+    } else {
+        await message(
+            `You find ${spotted ? a_monnam(monster, { ...objectEnv, state, random }) : something} posing as a statue.`,
+            state,
+        );
+        if (!spotted && state.u?.uprops?.[BLINDED]?.intrinsic)
+            map_invisible(x, y, state);
+        const { stop_occupation } = await import('./allmain.js');
+        await stop_occupation(state, { message });
+    }
+
+    const movingMonster = Boolean(state.context?.mon_moving);
+    if (!movingMonster && cause !== ANIMATE_NORMAL
+        && costly_spot(x, y, state)) {
+        const keeper = shop_keeper(in_rooms(x, y, SHOPBASE, state)[0] ?? 0, state);
+        if (keeper && (carried(statue) ? statue.unpaid : !statue.no_charge)
+            && monster !== keeper)
+            note_unported('shk.c stolen_value');
+    }
+    if (state.urole?.mnum === PM_ARCHEOLOGIST
+        && (statue.spe & CORPSTAT_HISTORIC)) {
+        await message(
+            `${movingMonster ? 'You regret' : 'You feel guilty'} that the historic statue is now gone.`,
+            state,
+        );
+        if (!movingMonster) adjalign(-1, state);
+    }
+
+    while (statue.cobj) {
+        const item = statue.cobj;
+        obj_extract_self(item, objectEnv);
+        await mpickobj(monster, item, objectEnv);
+    }
+    m_dowear(monster, true, objectEnv);
+    if (statue.owornmask)
+        note_unported('steal.c remove_worn_item');
+    delobj(statue, objectEnv);
+
+    if (atHero && Upolyd(state.u)
+        && hides_under(state.youmonst?.data)
+        && !OBJ_AT(x, y, state)) {
+        state.u.uundetected = 0;
+    }
+    if (rawEnv.failReason) rawEnv.failReason.value = AS_OK;
+    return monster;
 }
 
 // -----------------------------------------------------------------------

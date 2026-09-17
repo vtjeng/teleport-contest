@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 8210063,
+      "datetime": "20310204050607",
+      "nethackrc": "OPTIONS=name:ZapSleep,role:Wizard,race:human,gender:male,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen\nOPTIONS=pettype:none,!acoustics,!autopickup,playmode:debug\n",
+      "moves": ".\u0017wand of sleep\nze.",
+      "comment": "Independent B21 zapyourself WAN_SLEEP witness. A Wizard start and distinct clock provide a source-relevant variation from the fixed Healer sleep cases; the self-zap then exercises the ordinary sleep arm through dozap()."
+    }
+  ]
+}

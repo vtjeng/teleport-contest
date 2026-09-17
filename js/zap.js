@@ -14,10 +14,10 @@
 // UnsupportedShopError there for merchandise the hero has not paid for, so a
 // zap in a shop ends the segment before an effect arm is chosen at all.
 //
-// The self-zap arm runs through zapyourself() for sleep, death/finger-of-death,
-// and the two healing spells. Every other object type zapyourself() can be
-// handed stops in the single refusal that stands where C puts
-// `default: impossible()`.
+// The self-zap arm runs through zapyourself(), whose complete C switch is kept
+// below. Calls to helpers that are void in C but still outside the port are
+// recorded at their source boundary; the self-zap dispatch itself does not
+// reject a valid object type.
 //
 // wizcmds.c wiz_wish() calls makewish(); potion.c, sit.c and zap.c's own
 // wand code reach it too, and none of those callers is ported.
@@ -30,7 +30,8 @@ import { artifact_origin } from './artifacts.js';
 import {
     ACID_RES,
     A_INT,
-    A_DEX,
+    A_STR,
+    A_CON,
     AC_VALUE,
     ANTIMAGIC,
     ARM,
@@ -107,6 +108,9 @@ import {
     M_AP_OBJECT,
     M_AP_TYPE,
     M_SEEN_FIRE,
+    M_SEEN_MAGR,
+    M_SEEN_ELEC,
+    M_SEEN_COLD,
     M_SEEN_REFL,
     M_SEEN_SLEEP,
     OBJ_AT,
@@ -120,6 +124,7 @@ import {
     CXN_PFX_THE,
     DEAF,
     MM_FEMALE,
+    MM_ADJACENTOK,
     MM_MALE,
     MM_NOCOUNTBIRTH,
     MM_NOMSG,
@@ -153,8 +158,13 @@ import {
     ONAME_KNOW_ARTI,
     ONAME_WISH,
     SLEEP_RES,
+    STONED,
     STUNNED,
     TELEPORT_CONTROL,
+    UNCHANGING,
+    DRAIN_RES,
+    FAST,
+    INVIS,
     THROWN_WEAPON,
     ZAPPED_WAND,
     WAND_BACKFIRE_CHANCE,
@@ -191,6 +201,7 @@ import {
     Upolyd,
     NC_SHOW_MSG,
     NC_VIA_WAND_OR_SPELL,
+    ANIMATE_SPELL,
 } from './const.js';
 import { stop_occupation } from './allmain.js';
 import { acurr, exercise } from './attrib.js';
@@ -217,7 +228,7 @@ import {
     monsterCommonName,
 } from './do_name.js';
 import { get_mtraits } from './corpstat.js';
-import { eaten_stat } from './eat.js';
+import { eaten_stat, vegetarian } from './eat.js';
 import { cvt_sdoor_to_door, findit } from './detect.js';
 import { adj_pit_checks, fillholetyp, is_moat, watch_dig } from './dig.js';
 import { dropx, preflight_dropx } from './do.js';
@@ -242,7 +253,11 @@ import {
     replace_inventory_core,
     update_inventory,
     useupall,
+    useup,
+    obj_extract_self,
+    delobj,
     delobj_core,
+    mergedRuntime,
 } from './invent.js';
 import { get_obj_location } from './light.js';
 import { monhp_per_lvl, newmcorpsenm } from './makemon.js';
@@ -250,6 +265,7 @@ import {
     makemon_revival,
     makemon_runtime,
     newcham_revival,
+    neweshk,
 } from './makemon_create.js';
 import {
     can_be_hatched,
@@ -273,7 +289,11 @@ import {
     monstseesu,
     monstunseesu,
     nonliving,
+    is_golem,
+    carnivorous,
     nohands,
+    is_undead,
+    sticks,
     type_is_pname,
     unique_corpstat,
 } from './mondata.js';
@@ -288,6 +308,8 @@ import {
     AD_DRST,
     AD_MAGM,
     AD_RBRE,
+    AD_SEDU,
+    AD_SSEX,
     AD_WRAP,
     AT_ENGL,
     LOW_PM,
@@ -306,9 +328,12 @@ import {
     PM_WOOD_GOLEM,
     PM_DEATH,
     PM_DOPPELGANGER,
+    PM_MONK,
     PM_KNIGHT,
     PM_GREMLIN,
     PM_LONG_WORM,
+    G_NOCORPSE,
+    G_UNIQ,
     NUMMONS,
     S_EEL,
 } from './monsters.js';
@@ -349,6 +374,11 @@ import {
 import { objectGenerationEnv } from './object_generation.js';
 import {
     CORPSE,
+    ROCK_CLASS,
+    MEATBALL,
+    MEAT_STICK,
+    ENORMOUS_MEATBALL,
+    MEAT_RING,
     ARMOR_CLASS,
     GEM_CLASS,
     AMULET_OF_LIFE_SAVING,
@@ -366,15 +396,25 @@ import {
     SCROLL_CLASS,
     SPBOOK_CLASS,
     SPE_DIG,
+    SPE_FORCE_BOLT,
+    SPE_FIREBALL,
+    SPE_CONE_OF_COLD,
     SPE_EXTRA_HEALING,
     SPE_FINGER_OF_DEATH,
     SPE_HEALING,
     SPE_KNOCK,
     SPE_MAGIC_MISSILE,
+    SPE_DRAIN_LIFE,
+    SPE_CANCELLATION,
+    SPE_SLOW_MONSTER,
+    SPE_WIZARD_LOCK,
+    SPE_DETECT_UNSEEN,
+    SPE_TURN_UNDEAD,
     SPE_BLANK_PAPER,
     SPE_NOVEL,
     SPE_POLYMORPH,
     SPE_SLEEP,
+    SPE_STONE_TO_FLESH,
     TOOL_CLASS,
     WAND_CLASS,
     STATUE,
@@ -384,11 +424,27 @@ import {
     WAN_DIGGING,
     WAN_LIGHTNING,
     WAN_LIGHT,
+    WAN_MAKE_INVISIBLE,
+    WAN_SLOW_MONSTER,
+    WAN_SPEED_MONSTER,
+    WAN_UNDEAD_TURNING,
     WAN_OPENING,
     WAN_POLYMORPH,
     WAN_WISHING,
     WAN_STRIKING,
     WAN_MAGIC_MISSILE,
+    WAN_CANCELLATION,
+    WAN_NOTHING,
+    WAN_PROBING,
+    WAN_COLD,
+    WAN_FIRE,
+    WAN_LOCKING,
+    EXPENSIVE_CAMERA,
+    FROST_HORN,
+    FIRE_HORN,
+    MUMMY_WRAPPING,
+    LARGE_BOX,
+    TIN,
     WAN_SECRET_DOOR_DETECTION,
     WAN_SLEEP,
     WAN_TELEPORTATION,
@@ -436,6 +492,7 @@ import {
     corpse_xname,
     gloves_simple_name,
     helm_simple_name,
+    killer_xname,
     shield_simple_name,
     shirt_simple_name,
     simpleonames,
@@ -449,16 +506,21 @@ import { UnsupportedWishError, readobjnam } from './objnam_readobjnam.js';
 import { encumber_msg } from './pickup.js';
 import { cant_revive } from './read.js';
 import { is_quest_artifact } from './questpgr.js';
-import { body_part, mbodypart, rehumanize } from './polyself.js';
+import { ustatusline } from './insight.js';
+import {
+    body_part, mbodypart, polymon, rehumanize, ugolemeffects,
+} from './polyself.js';
 import { P_SKILL, spell_skilltype } from './startup_skills.js';
-import { healup, make_blinded } from './potion.js';
+import {
+    healup, make_blinded, incr_itimeout, speed_up, self_invis_message,
+} from './potion.js';
 import { d, rn1, rn2, rnd, rne, rnl, rnz } from './rng.js';
 import {
     shieldeff_mon,
     monkilled,
     normal_shape,
-    pm_to_cham,
     replmon,
+    restore_cham,
     seemimic,
     healmon,
     maybe_unhide_at,
@@ -466,8 +528,10 @@ import {
     newcham,
     wakeup,
     xkilled,
+    set_ustuck,
+    unstuck,
 } from './mon.js';
-import { expels } from './mhitu.js';
+import { expels, u_slow_down } from './mhitu.js';
 import { sleep_monst, slept_monst } from './mhitm.js';
 import { explode } from './explode.js';
 import {
@@ -492,7 +556,9 @@ import { is_ice } from './terrain.js';
 import { burnarmor } from './trap_erode_obj.js';
 import {
     conjoined_pits, delfloortrap, fill_pit, is_lava, is_pool,
-    is_pool_or_lava, maketrap,
+    is_pool_or_lava, maketrap, openholdingtrap, closeholdingtrap,
+    openfallingtrap,
+    animate_statue,
     reset_utrap, set_utrap, t_at,
 } from './trap.js';
 import { dotrap, mintrap } from './trap_effects.js';
@@ -517,7 +583,8 @@ import {
 } from './worn.js';
 import { remove_worn_item } from './steal.js';
 import {
-    burn_away_slime, fall_asleep, spot_stop_timers, spot_time_left,
+    burn_away_slime, fall_asleep, obj_stop_timers, spot_stop_timers,
+    spot_time_left,
 } from './timeout.js';
 import { ttyNorep, ttyPline, ttyUrgentPline } from './tty_message.js';
 import { burn_floor_objects, destroy_items } from './zap_destroy_items.js';
@@ -605,19 +672,14 @@ function revivalEnv(rawEnv = {}) {
     return { ...rawEnv, random, state: rawEnv.state ?? game };
 }
 
-// C ref: zap.c montraits() (713-829), bounded to the saved unique monsters
-// revive_nasty() can reach. Shopkeeper extensions remain outside this path;
-// revive() records the discarded wary_dog() tail for an anomalous tame one.
+// C ref: zap.c montraits() (713-829). Saved-trait restoration is shared by
+// statue animation and corpse revival. The shopkeeper extension is rebuilt
+// before replmon() so that its room and bill pointers remain value-consistent.
 export function montraits(obj, cc, adjacentok = false, rawEnv = {}) {
     const env = revivalEnv(rawEnv);
     const { random, state } = env;
     const saved = get_mtraits(obj, true, state);
     if (!saved) return null;
-    if (adjacentok || saved.isshk) {
-        throw new UnsupportedRevivalError(
-            'adjacent, shopkeeper, or pet saved traits',
-        );
-    }
     if (!saved.data || (saved.mhpmax <= 0 && !is_rider(saved.data)))
         return null;
 
@@ -625,10 +687,11 @@ export function montraits(obj, cc, adjacentok = false, rawEnv = {}) {
         saved.data,
         cc.x,
         cc.y,
-        NO_MINVENT | MM_NOWAIT | MM_NOCOUNTBIRTH | MM_NOTAIL | MM_NOMSG,
+        NO_MINVENT | MM_NOWAIT | MM_NOCOUNTBIRTH | MM_NOTAIL | MM_NOMSG
+            | (adjacentok ? MM_ADJACENTOK : 0),
         env,
     );
-    const finish = (resolvedDummy) => {
+    const finish = async (resolvedDummy) => {
         if (!resolvedDummy) return null;
 
         if (resolvedDummy.m_lev < resolvedDummy.data.mlevel) {
@@ -667,17 +730,35 @@ export function montraits(obj, cc, adjacentok = false, rawEnv = {}) {
         saved.msleeping = false;
         saved.mfrozen = 0;
         saved.mcanmove = true;
-        saved.mcan = false;
+        // C clears cancellation for ordinary monsters, but preserves it for
+        // seducers when that optional attack is enabled.  This predicate is
+        // source state, rather than a blanket revival reset.
+        if (!dmgtype(saved.data, AD_SEDU)
+            && (!(state.sysopt?.seduce ?? true)
+                || !dmgtype(saved.data, AD_SSEX))) {
+            saved.mcan = false;
+        }
         saved.mcansee = true;
         saved.mblinded = 0;
         saved.mstun = false;
         saved.mconf = false;
-        saved.mstate = resolvedDummy.mstate;
 
+        if (saved.isshk) {
+            // C neweshk() allocates the dummy's extension, then copies the
+            // saved shop record before replmon() updates the room resident
+            // and bill pointer. Keep nested coordinate and bill values by
+            // value so the corpse's snapshot is not aliased.
+            const extension = neweshk(resolvedDummy);
+            const savedExtension = saved.mextra?.eshk;
+            if (savedExtension)
+                Object.assign(extension, structuredClone(savedExtension));
+            if (extension.bill_p && extension.bill_p !== -1000)
+                extension.bill_p = extension.bill ?? [];
+            resolvedDummy.isshk = true;
+        }
         replmon(resolvedDummy, saved, state);
         newsym(saved.mx, saved.my, state);
-        if (saved.cham === NON_PM)
-            saved.cham = pm_to_cham(saved.mnum, state);
+        await restore_cham(saved, state, env);
         return saved;
     };
     return dummy && typeof dummy.then === 'function'
@@ -872,12 +953,9 @@ export function zap_ok(obj) {
 // weffects() runs the aimed-zap machinery below it and the empty
 // secret-door-detection scan.
 //
-// The self-zap arm runs and returns ECMD_TIME for a wand or spell of sleep,
-// which is the arm the recorded Healer takes. It stops only inside
-// zapyourself(), which owns one refusal for every other object type in place
-// of C's `default: impossible()` and a second for a sleep-resistant hero.
-// dozap()'s own losehp() throw below that call cannot fire while zapyourself()
-// returns 0 damage.
+// The self-zap arm runs the complete zapyourself() switch below. Its returned
+// damage is passed through the source losehp() call before the command's
+// inventory update, so damaging self-zaps keep C's killer and HP semantics.
 //
 // check_unpaid() stops the command earlier than any effect arm; the file
 // header says what that costs.
@@ -915,13 +993,11 @@ export async function dozap(state = game) {
     } else if (need_dir && !state.u.dx && !state.u.dy && !state.u.dz) {
         const damage = await zapyourself(obj, true, state);
         if (damage !== 0) {
-            // C names the killer with killer_xname() and halves the damage for
-            // a hero with physical-damage resistance through
-            // Maybe_Half_Phys(). Neither is ported, and the sleep arm is the
-            // only one zapyourself() runs, so `damage` is 0 on every path that
-            // reaches here.
-            throw new UnsupportedZapError(
-                'losehp() for a self-zap that wounds',
+            const reason = `zapped ${uhim(state)}self with `
+                + killer_xname(obj, state);
+            await losehp(
+                maybeHalfPhysical(damage, state), reason,
+                NO_KILLER_PREFIX, state,
             );
         }
     } else {
@@ -969,41 +1045,263 @@ function heroResistsSleep(state) {
     return Boolean(resistance?.intrinsic || resistance?.extrinsic);
 }
 
-// C ref: zap.c zapyourself() (2704-3013), the effect of a wand or spell the
-// hero aimed at their own square. The frame is here whole; of its thirty-odd
-// object arms WAN_SLEEP/SPE_SLEEP, WAN_DEATH/SPE_FINGER_OF_DEATH, and the
-// two healing spells are ported, and everything else falls into the single
-// refusal below.
-//
-// C's own `default:` is `impossible("zapyourself: object %d used?")`, so one
-// arm naming the object type is the shape C already uses for a type that has
-// no business here. It covers the unported wand effects at the same time.
-//
-// `ordinary` is TRUE for a zap the hero aimed and FALSE for a wand that broke;
-// only dozap() reaches this port, so it is always TRUE today.
-//
-// `damage` is the hit points dozap() then takes off the hero. The sleep arm
-// leaves it 0, which is what makes dozap()'s losehp() unreachable.
+// C ref: zap.c boxlock_invent() (2687-2701).  zap.c's boxlock() result is
+// discarded here, so the still-unported lock transition is recorded at its
+// source boundary while the inventory refresh remains in source order.
+async function boxlock_invent(obj, state = game) {
+    let boxing = false;
+    for (let item = state.invent; item;) {
+        const next = item.nobj;
+        if (isBox(item)) {
+            boxing = true;
+            note_unported('lock.c boxlock');
+        }
+        item = next;
+    }
+    if (boxing) update_inventory({ state });
+    void obj;
+}
+
+// C ref: zap.c release_hold() (578-606).  The expulsion and unstuck owners
+// keep their own asynchronous redraw/relocation contracts; only the absent
+// unturn/death helper remains a named discarded-call gap below.
+async function release_hold(state = game) {
+    const holder = state.u?.ustuck;
+    if (!holder) {
+        note_unported('zap.c impossible release_hold');
+        return;
+    }
+    const swallowed = Boolean(state.u?.uswallow);
+    if (swallowed) {
+        const digests = holder.data?.mattk?.some((attack) =>
+            attack.aatyp === AT_ENGL && attack.adtyp === AD_DGST);
+        if (digests) {
+            if (!heroIsBlind(state))
+                await ttyPline(`${Monnam(holder, state)} opens its mouth!`, state);
+            else
+                await ttyPline('You feel a sudden rush of air!', state);
+        }
+        await expels(holder, { state });
+    } else if (sticks(state.youmonst?.data)) {
+        set_ustuck(null, state);
+        await ttyPline(`You release ${mon_nam(holder, state)}.`, state);
+    } else {
+        await unstuck(holder, state);
+        const from = nohands(holder.data)
+            ? `by ${mon_nam(holder, state)}`
+            : `from ${s_suffix(mon_nam(holder, state))} grasp`;
+        await ttyPline(`You are released ${from}.`, state);
+    }
+}
+
+// C ref: zap.c probe_objchain() (612-623).  The helper is pure state
+// knowledge bookkeeping and is called by the probing self-zap below.
+function probe_objchain(head, state = game) {
+    for (let item = head; item; item = item.nobj) {
+        observe_object(item, state);
+        if (isBox(item) || item.otyp === STATUE) {
+            item.lknown = true;
+            // lock.c SchroedingersBox is LARGE_BOX with spe==1.
+            if (!(item.otyp === LARGE_BOX && item.spe === 1))
+                item.cknown = true;
+        } else if (item.otyp === TIN) {
+            item.known = true;
+        }
+    }
+}
+
+// C ref: zap.c unturn_you() (1225-1234).  unturn_dead() and make_stunned()
+// are void calls whose source owners are still outside this span; preserve
+// the source messages and record those discarded calls without rejecting the
+// otherwise valid undead-turning effect.
+async function unturn_you(state = game) {
+    note_unported('zap.c unturn_dead');
+    if (is_undead(state.youmonst?.data)) {
+        const already = Boolean(state.u?.uprops?.[STUNNED]?.intrinsic);
+        await ttyPline(
+            `You feel frightened and ${already ? 'even more ' : ''}stunned.`,
+            state,
+        );
+        note_unported('timeout.c make_stunned');
+    } else {
+        await ttyPline('You shudder in dread.', state);
+    }
+}
+
+function heroHasProperty(state, property) {
+    const value = state.u?.uprops?.[property];
+    return Boolean(value?.intrinsic || value?.extrinsic);
+}
+
+// C ref: zap.c zapyourself() (2705-3013), the complete effect switch for a
+// wand or spell aimed at the hero. The source order, damage rolls, inventory
+// destruction and discovery timing are retained for every arm. Helper calls
+// that return no value in C but remain outside this port are named explicitly;
+// no valid object type is routed through an artificial Unsupported error.
 export async function zapyourself(obj, ordinary, state = game) {
     let learn_it = false;
-    const damage = 0;
+    let damage = 0;
+    let orig_dmg = 0;
+    const random = { d, rn1, rn2, rnd, rne, rnl, rnz };
+    const env = { state, random };
 
     switch (obj.otyp) {
+    case WAN_STRIKING:
+    case SPE_FORCE_BOLT:
+        learn_it = true;
+        if (heroHasProperty(state, ANTIMAGIC)) {
+            note_unported('display.c shieldeff');
+            await ttyPline('Boing!', state);
+            monstseesu(M_SEEN_MAGR, state);
+        } else {
+            if (ordinary)
+                await ttyPline('You bash yourself!', state);
+            damage = ordinary ? d(2, 12) : d(1 + obj.spe, 6);
+            await exercise(A_STR, false, state);
+            monstunseesu(M_SEEN_MAGR, state);
+        }
+        break;
+
+    case WAN_LIGHTNING:
+        learn_it = true;
+        orig_dmg = d(12, 6);
+        if (!heroHasProperty(state, SHOCK_RES)) {
+            await ttyPline('You shock yourself!', state);
+            damage = orig_dmg;
+            await exercise(A_CON, false, state);
+            monstunseesu(M_SEEN_ELEC, state);
+        } else {
+            note_unported('display.c shieldeff');
+            await ttyPline('You zap yourself, but seem unharmed.', state);
+            monstseesu(M_SEEN_ELEC, state);
+            await ugolemeffects(AD_ELEC, orig_dmg, state);
+        }
+        await destroy_items(state.youmonst, AD_ELEC, orig_dmg, env);
+        await flashburn(rnd(100), true, state);
+        break;
+
+    case SPE_FIREBALL:
+        await ttyPline('You explode a fireball on top of yourself!', state);
+        await explode(
+            state.u.ux, state.u.uy, 11, d(6, 6), WAND_CLASS, EXPL_FIERY, state,
+        );
+        break;
+
+    case WAN_FIRE:
+    case FIRE_HORN:
+        learn_it = true;
+        orig_dmg = d(12, 6);
+        if (heroHasProperty(state, FIRE_RES)) {
+            note_unported('display.c shieldeff');
+            await ttyPline('You feel rather warm.', state);
+            monstseesu(M_SEEN_FIRE, state);
+            await ugolemeffects(AD_FIRE, orig_dmg, state);
+        } else {
+            await ttyPline("You've set yourself afire!", state);
+            damage = orig_dmg;
+            monstunseesu(M_SEEN_FIRE, state);
+        }
+        burn_away_slime(state);
+        await burnarmor(state.youmonst, env);
+        await destroy_items(state.youmonst, AD_FIRE, orig_dmg, env);
+        await ignite_items(state.invent, env);
+        break;
+
+    case WAN_COLD:
+    case SPE_CONE_OF_COLD:
+    case FROST_HORN:
+        learn_it = true;
+        orig_dmg = d(12, 6);
+        if (heroHasProperty(state, COLD_RES)) {
+            note_unported('display.c shieldeff');
+            await ttyPline('You feel a little chill.', state);
+            monstseesu(M_SEEN_COLD, state);
+            await ugolemeffects(AD_COLD, orig_dmg, state);
+        } else {
+            await ttyPline('You imitate a popsicle!', state);
+            damage = orig_dmg;
+            monstunseesu(M_SEEN_COLD, state);
+        }
+        await destroy_items(state.youmonst, AD_COLD, orig_dmg, env);
+        break;
+
+    case WAN_MAGIC_MISSILE:
+    case SPE_MAGIC_MISSILE:
+        learn_it = true;
+        if (heroHasProperty(state, ANTIMAGIC)) {
+            note_unported('display.c shieldeff');
+            await ttyPline('The missiles bounce!', state);
+            monstseesu(M_SEEN_MAGR, state);
+        } else {
+            damage = d(4, 6);
+            await ttyPline("Idiot!  You've shot yourself!", state);
+            monstunseesu(M_SEEN_MAGR, state);
+        }
+        break;
+
+    case WAN_POLYMORPH:
+    case SPE_POLYMORPH:
+        if (!heroHasProperty(state, UNCHANGING)) {
+            learn_it = true;
+            // zap.c discards polyself()'s result. Its random form-selection
+            // owner is still incomplete, so preserve this source boundary
+            // without letting an UnsupportedPolyselfError escape here.
+            note_unported('polyself.c polyself');
+        }
+        break;
+
+    case WAN_CANCELLATION:
+    case SPE_CANCELLATION:
+        await cancel_monst(state.youmonst, obj, true, true, true, state);
+        break;
+
+    case SPE_DRAIN_LIFE:
+        if (!heroHasProperty(state, DRAIN_RES)) {
+            learn_it = true;
+            note_unported('exper.c losexp');
+        }
+        break;
+
+    case WAN_MAKE_INVISIBLE: {
+        state.u.uprops ??= {};
+        const property = state.u.uprops[INVIS] ??= {
+            intrinsic: 0, extrinsic: 0,
+        };
+        const msg = !property.intrinsic && !heroIsBlind(state)
+            && !property.extrinsic;
+        if (property.extrinsic && state.uarmc?.otyp === MUMMY_WRAPPING) {
+            await ttyPline(
+                `You feel rather itchy under ${xnameFresh(state.uarmc, state)}.`,
+                state,
+            );
+            break;
+        }
+        incr_itimeout(property, rn1(15, 31));
+        if (msg) {
+            learn_it = true;
+            newsym(state.u.ux, state.u.uy, state);
+            await self_invis_message(state);
+        }
+        break;
+    }
+
+    case WAN_SPEED_MONSTER:
+        await speed_up(rn1(25, 50), state);
+        learn_it = true;
+        break;
+
     case WAN_SLEEP:
     case SPE_SLEEP:
         learn_it = true;
         if (heroResistsSleep(state)) {
-            // shieldeff() is a tmp_at() animation and monstseesu() is the
-            // "monsters notice what you shrugged off" ledger; neither is
-            // ported, and the port has no hero who resists sleep yet.
-            throw new UnsupportedZapError(
-                'shieldeff() and monstseesu() for a sleep-resistant hero',
-            );
+            note_unported('display.c shieldeff');
+            await ttyPline("You don't feel sleepy!", state);
+            monstseesu(M_SEEN_SLEEP, state);
         } else {
-            if (ordinary)
-                await ttyPline('The sleep ray hits you!', state);
-            else
-                await ttyPline('You fall asleep!', state);
+            await ttyPline(
+                ordinary ? 'The sleep ray hits you!' : 'You fall asleep!',
+                state,
+            );
             monstunseesu(M_SEEN_SLEEP, state);
             await fall_asleep(-rnd(50), true, state, {
                 message: ttyPline,
@@ -1012,22 +1310,27 @@ export async function zapyourself(obj, ordinary, state = game) {
         }
         break;
 
-    // C ref: zap.c zapyourself() (2908-2914). SPE_HEALING and SPE_EXTRA_HEALING
-    // call healup() with the d(6,4) or d(6,8) roll and optionally cure blindness
-    // when the pseudo object is blessed or the spell is SPE_EXTRA_HEALING.
-    case SPE_HEALING:
-    case SPE_EXTRA_HEALING:
-        learn_it = true; /* (no effect for spells...) */
-        await healup(d(6, obj.otyp === SPE_EXTRA_HEALING ? 8 : 4), 0, false,
-               (obj.blessed || obj.otyp === SPE_EXTRA_HEALING), state);
-        await ttyPline(
-            `You feel ${obj.otyp === SPE_EXTRA_HEALING ? 'much ' : ''}better.`,
-            state,
-        );
+    case WAN_SLOW_MONSTER:
+    case SPE_SLOW_MONSTER:
+        // C tests HFast & (TIMEOUT | INTRINSIC), so extrinsic speed alone
+        // does not make a self-zap learn or invoke u_slow_down().
+        if (state.u?.uprops?.[FAST]?.intrinsic) {
+            learn_it = true;
+            await u_slow_down(state);
+        }
         break;
 
-    // C ref: zap.c zapyourself() (2885-2902). Living, non-demon heroes die;
-    // nonliving or demon heroes get a harmless-beam message.
+    case WAN_TELEPORTATION:
+    case SPE_TELEPORT_AWAY:
+        await tele(state);
+        if ((heroHasProperty(state, TELEPORT_CONTROL)
+                && !heroHasProperty(state, STUNNED))
+            || !couldsee(state.u.ux0, state.u.uy0, state)
+            || ((state.u.ux0 - state.u.ux) ** 2
+                + (state.u.uy0 - state.u.uy) ** 2) >= 16)
+            learn_it = true;
+        break;
+
     case WAN_DEATH:
     case SPE_FINGER_OF_DEATH:
         if (nonliving(state.youmonst?.data)
@@ -1044,39 +1347,136 @@ export async function zapyourself(obj, ordinary, state = game) {
         state.killer ??= {};
         state.killer.name = `shot ${uhim(state)}self with a death ray`;
         state.killer.format = NO_KILLER_PREFIX;
-        /* probably don't need these to be urgent; player just gave input
-           without subsequent opportunity to dismiss --More-- with ESC */
         await ttyUrgentPline(
             'You irradiate yourself with pure energy!', state,
         );
         await ttyUrgentPline('You die.', state);
-        /* They might survive with an amulet of life saving */
         await done(DIED, state);
         break;
 
-    // C ref: zap.c zapyourself() (2876-2883).
-    case WAN_TELEPORTATION:
-    case SPE_TELEPORT_AWAY:
-        await tele(state);
-        if ((Boolean((state.u?.uprops?.[TELEPORT_CONTROL]?.intrinsic
-                || state.u?.uprops?.[TELEPORT_CONTROL]?.extrinsic)
-                && !state.u?.uprops?.[TELEPORT_CONTROL]?.blocked)
-                && !state.u?.uprops?.[STUNNED]?.intrinsic)
-            || !couldsee(state.u.ux0, state.u.uy0, state)
-            || ((state.u.ux0 - state.u.ux) ** 2
-                + (state.u.uy0 - state.u.uy) ** 2) >= 16)
-            learn_it = true;
+    case WAN_UNDEAD_TURNING:
+    case SPE_TURN_UNDEAD:
+        learn_it = true;
+        await unturn_you(state);
         break;
 
-    default:
-        throw new UnsupportedZapError(
-            `zapyourself() for object type ${obj.otyp}`,
+    case SPE_HEALING:
+    case SPE_EXTRA_HEALING:
+        learn_it = true;
+        await healup(d(6, obj.otyp === SPE_EXTRA_HEALING ? 8 : 4), 0, false,
+            (obj.blessed || obj.otyp === SPE_EXTRA_HEALING), state);
+        await ttyPline(
+            `You feel ${obj.otyp === SPE_EXTRA_HEALING ? 'much ' : ''}better.`,
+            state,
         );
+        break;
+
+    case WAN_LIGHT:
+        damage = d(obj.spe, 25);
+        // C deliberately falls through from a broken WAN_LIGHT to the camera
+        // arm, where a zero damage roll is replaced with five.
+        // falls through
+    case EXPENSIVE_CAMERA:
+        if (!damage) damage = 5;
+        damage = await lightdamage(obj, ordinary, damage, state);
+        damage += rnd(25);
+        if (await flashburn(damage, false, state)) learn_it = true;
+        damage = 0;
+        break;
+
+    case WAN_OPENING:
+    case SPE_KNOCK: {
+        if (state.u.ustuck) {
+            await release_hold(state);
+            learn_it = true;
+        }
+        if (state.u.uball) {
+            learn_it = true;
+            note_unported('read.c unpunish');
+        }
+        const holding = state.u.utrap
+            ? await openholdingtrap(state.youmonst, state)
+            : { result: false, noticed: false };
+        if (holding.noticed) learn_it = true;
+        if (!state.u.utrap || !holding.result) {
+            await boxlock_invent(obj, state);
+            const falling = await openfallingtrap(
+                state.youmonst, true, state,
+            );
+            if (falling.noticed) learn_it = true;
+        }
+        break;
     }
-    /* if effect was observable then discover the wand type provided
-       that the wand itself has been seen */
-    if (learn_it)
-        learnwand(obj, state);
+
+    case WAN_LOCKING:
+    case SPE_WIZARD_LOCK:
+        const closing = state.u.utrap
+            ? { result: false, noticed: false }
+            : await closeholdingtrap(state.youmonst, state);
+        if (closing.noticed) learn_it = true;
+        if (state.u.utrap || !closing.result)
+            await boxlock_invent(obj, state);
+        break;
+
+    case WAN_DIGGING:
+    case SPE_DIG:
+    case SPE_DETECT_UNSEEN:
+    case WAN_NOTHING:
+        break;
+
+    case WAN_PROBING:
+        probe_objchain(state.invent, state);
+        update_inventory({ state });
+        learn_it = true;
+        await ustatusline(state);
+        break;
+
+    case SPE_STONE_TO_FLESH: {
+        if (state.u.umonnum === PM_STONE_GOLEM) {
+            learn_it = true;
+            await polymon(PM_FLESH_GOLEM, state);
+        }
+        if (state.u.uprops?.[STONED]?.intrinsic || state.u.stoned) {
+            learn_it = true;
+            note_unported('eat.c fix_petrification');
+        }
+        for (let item = state.invent; item;) {
+            const next = item.nobj;
+            if (await bhito(item, obj, state, random, env))
+                learn_it = true;
+            item = next;
+        }
+        let didmerge;
+        const mergeEnv = {
+            state,
+            hooks: {
+                message: ttyPline,
+                inventoryComparisonDiscovered: () => ttyPline(
+                    'You learn more about your items by comparing them.',
+                    state,
+                ),
+            },
+        };
+        do {
+            didmerge = false;
+            for (let item = state.invent; !didmerge && item; item = item.nobj) {
+                if (item.owornmask) continue;
+                for (let next = item.nobj; next; next = next.nobj) {
+                    if (await mergedRuntime(item, next, mergeEnv)) {
+                        didmerge = true;
+                        break;
+                    }
+                }
+            }
+        } while (didmerge);
+        break;
+    }
+
+    default:
+        note_unported('zap.c impossible');
+        break;
+    }
+    if (learn_it) learnwand(obj, state);
     return damage;
 }
 
@@ -2111,6 +2511,156 @@ export async function poly_obj(obj, id, state = game,
     return replacement;
 }
 
+// C ref: zap.c stone_to_flesh_obj() (1993-2111).  This is the value-returning
+// callback used by bhito(); it handles both ordinary mineral replacement and
+// statue/figurine revival before reporting whether the object was affected.
+export async function stone_to_flesh_obj(obj, state = game,
+    random = { d, rn1, rn2, rnd, rne, rnl, rnz }, rawEnv = {}) {
+    const message = rawEnv.message ?? ttyPline;
+    const norepMessage = rawEnv.norepMessage ?? ttyNorep;
+    const env = zapObjectEnv(state, random, {
+        ...rawEnv,
+        message,
+        norepMessage,
+        hooks: {
+            updateInventory: () => update_inventory({ state }),
+            ...(rawEnv.hooks ?? {}),
+        },
+    });
+    const type = objectType(obj, state);
+    if (type.oc_material !== MINERAL && type.oc_material !== GEMSTONE)
+        return 0;
+    if (obj_resists(obj, 2, 98, { state, random })) return 0;
+
+    const location = get_obj_location(obj, 0, state);
+    const ox = location?.x ?? 0;
+    const oy = location?.y ?? 0;
+    let target = obj;
+    let result = 1;
+    let smell = false;
+    let golemXform = false;
+    let monster = null;
+    let originalSpecies = state.mons?.[obj.corpsenm] ?? null;
+
+    switch (type.oc_class) {
+    case ROCK_CLASS:
+    case TOOL_CLASS:
+        if (obj.otyp === BOULDER) {
+            target = await poly_obj(obj, ENORMOUS_MEATBALL,
+                state, random, rawEnv);
+            smell = true;
+        } else if (obj.otyp === STATUE || obj.otyp === FIGURINE) {
+            if (is_golem(originalSpecies)) {
+                golemXform = originalSpecies
+                    !== state.mons?.[PM_FLESH_GOLEM];
+            } else if (vegetarian(originalSpecies)) {
+                // Vegetarian statues become meat instead of animating.
+                target = await poly_obj(obj, MEATBALL,
+                    state, random, rawEnv);
+                smell = true;
+                break;
+            }
+
+            if (obj.otyp === STATUE) {
+                // animate_statue owns saved traits, contents, and deletion.
+                monster = await animate_statue(
+                    obj, ox, oy, ANIMATE_SPELL,
+                    { ...env, state, random },
+                );
+            } else {
+                const species = golemXform
+                    ? state.mons?.[PM_FLESH_GOLEM] : originalSpecies;
+                monster = await makemon_runtime(
+                    species,
+                    ox,
+                    oy,
+                    NO_MINVENT | MM_NOMSG,
+                    env,
+                );
+                if (monster) {
+                    if (costly_spot(ox, oy, state)
+                        && (carried(obj) ? obj.unpaid : !obj.no_charge)) {
+                        note_unported('shk.c stolen_value');
+                    }
+                    if (obj.timed) obj_stop_timers(obj, state, env);
+                    if (carried(obj)) useup(obj, env);
+                    else delobj(obj, env);
+                    if (cansee(monster.mx, monster.my, state)) {
+                        await ttyPline(
+                            `The figurine ${golemXform
+                                ? 'turns to flesh and ' : ''}animates!`,
+                            state,
+                        );
+                    }
+                }
+            }
+
+            if (monster) {
+                if (is_golem(monster.data)
+                    && monster.data !== state.mons?.[PM_FLESH_GOLEM]) {
+                    await newcham(
+                        monster,
+                        state.mons?.[PM_FLESH_GOLEM],
+                        { ...env, state, random, ncflags: NC_VIA_WAND_OR_SPELL },
+                    );
+                }
+            } else if (originalSpecies?.geno
+                && (originalSpecies.geno & (G_NOCORPSE | G_UNIQ))) {
+                result = 0;
+            } else {
+                // C drops statue contents before changing the statue to a
+                // corpse, and bypasses those contents for this same spell.
+                while (target.cobj) {
+                    const item = target.cobj;
+                    bypass_obj(item, state);
+                    obj_extract_self(item, env);
+                    place_object(item, ox, oy, env);
+                }
+                target = await poly_obj(target, CORPSE,
+                    state, random, rawEnv);
+            }
+        } else {
+            result = 0;
+        }
+        break;
+    case RING_CLASS:
+        target = await poly_obj(obj, MEAT_RING, state, random, rawEnv);
+        smell = true;
+        break;
+    case WAND_CLASS:
+        target = await poly_obj(obj, MEAT_STICK, state, random, rawEnv);
+        smell = true;
+        break;
+    case GEM_CLASS:
+        target = await poly_obj(obj, MEATBALL, state, random, rawEnv);
+        smell = true;
+        break;
+    case WEAPON_CLASS:
+    default:
+        result = 0;
+        break;
+    }
+
+    // The local target is deliberately retained even after poly_obj() or
+    // useup() changes the object chain, matching C's nhUse(obj) lifetime
+    // marker without exposing a stale pointer to a caller.
+    void target;
+    if (smell) {
+        const nonMeatEater = state.urole?.mnum === PM_MONK
+            || !state.u?.uconduct?.unvegetarian
+            || !carnivorous(state.youmonst?.data);
+        await norepMessage(
+            nonMeatEater
+                ? 'You smell the odor of meat.'
+                : 'You smell a delicious smell.',
+            state,
+            env,
+        );
+    }
+    newsym(ox, oy, state);
+    return result;
+}
+
 // C ref: zap.c bhito() (2118-2426), the WAN_POLYMORPH arm.  Other object
 // effects remain owned by their own zap.c spans and retain their established
 // fail-closed boundaries when reached by this callback.
@@ -2135,6 +2685,11 @@ export async function bhito(obj, wand, state = game,
         }
         return 0;
     }
+    // zap.c permits Stone to Flesh to reach inventory objects as well as
+    // floor objects; its return value is consumed by bhitpile(), so this
+    // branch must precede the polymorph-only unpolyable guard.
+    if (wand.otyp === SPE_STONE_TO_FLESH)
+        return await stone_to_flesh_obj(obj, state, random, rawEnv);
     if (obj_unpolyable(obj, state, random)) return 0;
 
     state.u ??= {};
