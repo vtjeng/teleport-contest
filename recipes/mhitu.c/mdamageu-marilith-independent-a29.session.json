@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent mhitu.c mdamageu probe: a marilith has six active attacks and no passive counterattack, so a weak monster can damage its polymorphed hit-point pool without the unported passiveum tail.",
+  "segments": [
+    {
+      "seed": 8302901,
+      "datetime": "20310422091500",
+      "nethackrc": "OPTIONS=name:DamageProbe,role:Barbarian,race:human,gender:male,align:chaotic\nOPTIONS=!legacy,!tutorial,!splash_screen\nOPTIONS=pettype:none,!acoustics,playmode:debug,showdamage\n",
+      "moves": " #polyself\nmarilith\n   #wizgenesis\nnewt\nm.m.m.m.m.m.m.m.m.m.m.m.m.m.m.m.m.m.m.m.     "
+    }
+  ]
+}

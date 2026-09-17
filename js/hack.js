@@ -260,6 +260,7 @@ import {
     grounded,
     amphibious,
     breathless,
+    ceiling_hider,
     is_swimmer,
     metallivorous,
     monster_resists_element,

@@ -59761,7 +59761,7 @@
     {
       "id": "port-dothrow-throwit-seed0101-20260917",
       "kind": "file-port",
-      "status": "open",
+      "status": "parked",
       "summary": "Port complete thrown-object flight, return, and landing behavior",
       "cFile": "dothrow.c",
       "sessions": [
@@ -59772,8 +59772,8 @@
       "spans": [
         {
           "name": "throwit",
-          "status": "queued",
-          "closedBy": null,
+          "status": "closed",
+          "closedBy": "254503a94c48650d434f073e6889afa2a73cad6e",
           "functions": [
             "throwit"
           ]
@@ -59979,6 +59979,586 @@
             "name": "invoke_fling_poison artifact venom",
             "functions": [
               "throwit"
+            ],
+            "recordings": []
+          }
+        ]
+      },
+      "progressBeforePark": {
+        "screens": 18,
+        "rng": 77
+      },
+      "parkedStanding": {
+        "sha": "254503a94c48650d434f073e6889afa2a73cad6e",
+        "screens": 11002,
+        "rng": 784683
+      },
+      "parkedReason": "The throwit span and ordinary hand-thrown arrow entry are verified by two independent recordings and a passing combined checkpoint. Active fire, boomerang, vertical, attached-ball, swallowed, dospit, and artifact venom entry recordings remain incomplete; resume when those source paths have matching production recipes and their priority permits."
+    },
+    {
+      "id": "port-worn-m-dowear-seed0399-20260917",
+      "kind": "file-port",
+      "status": "parked",
+      "summary": "Port complete monster armor selection, worn properties, and runtime equipment delays",
+      "cFile": "worn.c",
+      "sessions": [
+        "holdout/seed0399-wizard-hallu-actions"
+      ],
+      "selectionReason": "Continue seed0399 at step 528, remaining-screen upper bound 4, from investigations/holdout/seed0399-wizard-hallu-actions.json. Its source owner is worn.c m_dowear and m_dowear_type with update_mon_extrinsics; include the intervening pure find_mac in C order. Seed continuation permits this independent family while worker A owns the higher-ranked Knight break_armor work and seed2200 remains blocked by the recorded machine-local configuration-path question.",
+      "detail": "Complete worn.c update_mon_extrinsics579–712, verify existing find_mac717–738, and complete m_dowear757–797/m_dowear_type799–1002 with creation, runtime and planning callers. Preserve source equipment delays, visibility/discovery, old-artifact cleanup and source-allowed unported saddle-fall handling. Live equipment reassessment requires a production recording through the wearing turn; rare artifact-light and other unrecorded entries remain open.",
+      "spans": [
+        {
+          "name": "update_mon_extrinsics..m_dowear_type",
+          "status": "queued",
+          "closedBy": null,
+          "functions": [
+            "update_mon_extrinsics",
+            "find_mac",
+            "m_dowear",
+            "m_dowear_type"
+          ]
+        }
+      ],
+      "openedAt": "8a6836143650aeaf9a37420ebc0b93165e48a049",
+      "openStanding": {
+        "sha": "254503a94c48650d434f073e6889afa2a73cad6e",
+        "screens": 11002,
+        "rng": 784683
+      },
+      "closedAt": null,
+      "delivered": null,
+      "functions": [
+        {
+          "name": "update_mon_extrinsics",
+          "line": 579,
+          "endLine": 716,
+          "declared": false,
+          "complete": false
+        },
+        {
+          "name": "find_mac",
+          "line": 717,
+          "endLine": 756,
+          "declared": true,
+          "complete": false
+        },
+        {
+          "name": "m_dowear",
+          "line": 757,
+          "endLine": 798,
+          "declared": true,
+          "complete": false
+        },
+        {
+          "name": "m_dowear_type",
+          "line": 799,
+          "endLine": 1005,
+          "declared": true,
+          "complete": false
+        }
+      ],
+      "range": {
+        "from": 579,
+        "to": 1005
+      },
+      "activeStanding": {
+        "sha": "254503a94c48650d434f073e6889afa2a73cad6e",
+        "screens": 11002,
+        "rng": 784683
+      },
+      "openMismatches": [
+        {
+          "session": "holdout/seed0399-wizard-hallu-actions",
+          "step": 528,
+          "kind": "stop",
+          "function": null,
+          "functionDeclared": false,
+          "sourceFile": null,
+          "cFile": null,
+          "luaFile": null,
+          "line": null,
+          "message": "elapsed turn reached monster equipment changes",
+          "unlocatedKinds": [],
+          "recordedSteps": 532,
+          "remainingScreensUpperBound": 4,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/holdout/seed0399-wizard-hallu-actions.json",
+            "result": {
+              "session": "holdout/seed0399-wizard-hallu-actions",
+              "remainingScreensUpperBound": 4,
+              "status": "complete",
+              "commit": "fdbd02789bba64d10f8edc639d06f7a289f4b7fb",
+              "mismatch": {
+                "session": "holdout/seed0399-wizard-hallu-actions",
+                "step": 528,
+                "kind": "stop",
+                "function": null,
+                "functionDeclared": false,
+                "sourceFile": null,
+                "cFile": null,
+                "luaFile": null,
+                "line": null,
+                "message": "elapsed turn reached monster equipment changes",
+                "unlocatedKinds": [],
+                "recordedSteps": 532,
+                "remainingScreensUpperBound": 4
+              },
+              "summary": "The stopped death-message replacement now matches. The first remaining boundary is monster equipment reassessment after 528 matching screens: movemon_singlemon calls m_dowear with creation=false, but JavaScript supports only a narrow new-boots case and refuses other equipment changes. Port the whole worn.c m_dowear/m_dowear_type family, including replacement messages, delays, worn masks, extrinsics, artifact light and visibility changes.",
+              "source": {
+                "file": "worn.c",
+                "functions": [
+                  "m_dowear",
+                  "m_dowear_type"
+                ],
+                "branch": "mon.c movemon_singlemon reassesses equipment when I_SPECIAL is set and the monster is peaceful, tame, or perceives the hero farther than three squares away. It clears I_SPECIAL, calls m_dowear(mon,FALSE), and spends the turn when worn state changes or equipping freezes the monster. The C m_dowear_type selector handles each compatible slot and replaces its old item with the best eligible inventory item; the runtime tail is only partially implemented in JavaScript.",
+                "callers": [
+                  "C mon.c movemon_singlemon1268-1282 calls worn.c m_dowear757-796; its slot calls reach m_dowear_type799 onward.",
+                  "JS allmain.js moveElapsedTurnMonster1063 onward supplies m_dowear from makemon_create.js with an injected monster equipment changes refusal; unported_monster_actions.js1859-1866 supplies the same boundary to its planning path.",
+                  "JS makemon_create.js m_dowear2860-2901 and m_dowear_type2718 onward cover selection and a restricted new W_ARMF runtime path. Monster creation also calls this family with creation=true, so preserve its source-ordered initialization while moving the port to worn.js."
+                ],
+                "dependencies": [
+                  "C worn.c m_dowear_type814-906: snapshot visibility/name before altering equipment, retain cursed and superior-amulet guards, body compatibility, racial_exception, ARM_BONUS and extra_pref ordering.",
+                  "C worn.c m_dowear_type910 onward: preserve old mask for artifact_light, remove old extrinsics, restore mask for end_burn then clear it, apply new mask and autocurse, begin artifact light and recalculate visibility, then apply new extrinsics and subsequent visibility feedback.",
+                  "Use the existing canonical object naming, curse, update_mon_extrinsics, artifact light/burn, and visibility owners. Await observable message and effect order in every production caller; do not retain the injected wearArmor placeholder.",
+                  "The separate urgent-message stop behavior in wintty.c tty_putstr2272-2300 remains unresolved: C clears WIN_STOP and sets WIN_NOSTOP before update_topl, while JS tty_message.js keeps an urgent-stop refusal. It is not this equipment boundary."
+                ]
+              },
+              "goalKind": "file-port",
+              "evidence": [
+                "The passing checkpoint at fdbd02789bba64d10f8edc639d06f7a289f4b7fb moves this session from521 to528 matching screens/cursors with11217 matched RNG values unchanged. The refreshed .cache/B23-development-scan.json has divergence=null and stops with elapsed turn reached monster equipment changes after528 of532 screens.",
+                "The saved scan does not identify the exact monster armor slot or inventory state. The source and refusal establish the whole equipment family as the actionable scope; no narrower slot is asserted.",
+                "C topl.c update_topl251-304 captures skip before more and dismisses the previous line only when !skip. The accepted correction keeps that snapshot; rereading WIN_STOP after more would contradict C. The independent stopped-death test verifies replacement does not consume another queued key."
+              ],
+              "nextProbe": "Complete the source-owned m_dowear/m_dowear_type family and both live/planning callers, then replay this session beyond the current equipment boundary. Keep the urgent-message contract separate."
+            }
+          }
+        }
+      ],
+      "progressBeforePark": {
+        "screens": 0,
+        "rng": 0
+      },
+      "parkedStanding": {
+        "sha": "254503a94c48650d434f073e6889afa2a73cad6e",
+        "screens": 11002,
+        "rng": 784683
+      },
+      "parkedReason": "The queued worn.c update_mon_extrinsics..m_dowear_type span is still awaiting corrected production recording and canonical caller wiring from worker B. No game code has been integrated for it; resume this planned span when its corrected delivery is ready, after the independent ready break_armor span is measured."
+    },
+    {
+      "id": "port-polyself-break-armor-seed4500-20260917",
+      "kind": "file-port",
+      "status": "parked",
+      "summary": "Port complete polymorph armor removal and preserve fatal callback control flow",
+      "cFile": "polyself.c",
+      "sessions": [
+        "holdout/seed4500-knight-coverage"
+      ],
+      "selectionReason": "The accepted-main queue selects holdout/seed4500-knight-coverage at step1439 with remainingScreensUpperBound375; investigations/holdout/seed4500-knight-coverage.json traces the nohands branch to polyself.c break_armor. Worker A continued that highest-ranked seed and submitted the ready complete-function delivery. Worker B retains the independent worn.c correction; its unintegrated central plan is parked until that delivery is ready. The lower-ranked seed2200 environment-only pathname mismatch remains blocked by Q1.",
+      "detail": "Complete break_armor1156–1302 and required do_wear callbacks, preserving source-order destruction, removal, object ownership, messages, and fatal Boots_off propagation into polymon. The saved controlled-raven recording covers the existing production caller, and source-pinned initialized tests cover destroyed-shirt and fatal-lava transitions. Keep unrecorded breakarm, sliparm, horn, eyewear, and fatal entry coverage open rather than treating unit tests as matching recordings.",
+      "spans": [
+        {
+          "name": "break_armor",
+          "status": "closed",
+          "closedBy": "c04193106e88a205f3c6341bddcfb193bbe8284f",
+          "functions": [
+            "break_armor"
+          ]
+        }
+      ],
+      "openedAt": "5faa03a61b787593ab6324c1ded4d523f447838a",
+      "openStanding": {
+        "sha": "254503a94c48650d434f073e6889afa2a73cad6e",
+        "screens": 11002,
+        "rng": 784683
+      },
+      "closedAt": null,
+      "delivered": null,
+      "functions": [
+        {
+          "name": "break_armor",
+          "line": 1157,
+          "endLine": 1304,
+          "declared": true,
+          "complete": true
+        }
+      ],
+      "range": {
+        "from": 1157,
+        "to": 1304
+      },
+      "activeStanding": {
+        "sha": "254503a94c48650d434f073e6889afa2a73cad6e",
+        "screens": 11002,
+        "rng": 784683
+      },
+      "openMismatches": [
+        {
+          "session": "holdout/seed4500-knight-coverage",
+          "step": 1439,
+          "kind": "stop",
+          "function": null,
+          "functionDeclared": false,
+          "sourceFile": null,
+          "cFile": null,
+          "luaFile": null,
+          "line": null,
+          "message": "unsupported hero command: an unported branch of this command: break_armor: nohands/verysmall gloves removal not ported",
+          "unlocatedKinds": [],
+          "recordedSteps": 1814,
+          "remainingScreensUpperBound": 375,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/holdout/seed4500-knight-coverage.json",
+            "result": {
+              "session": "holdout/seed4500-knight-coverage",
+              "remainingScreensUpperBound": 375,
+              "status": "complete",
+              "commit": "0737209af932f58e30ff926172a787f595379498",
+              "mismatch": {
+                "session": "holdout/seed4500-knight-coverage",
+                "step": 1439,
+                "kind": "stop",
+                "function": null,
+                "functionDeclared": false,
+                "sourceFile": null,
+                "cFile": null,
+                "luaFile": null,
+                "line": null,
+                "message": "unsupported hero command: an unported branch of this command: break_armor: nohands/verysmall gloves removal not ported",
+                "unlocatedKinds": [],
+                "recordedSteps": 1814,
+                "remainingScreensUpperBound": 375
+              },
+              "summary": "The whole polyself selector now matches and reaches the next source boundary in break_armor: a polymorph into a nohands/verysmall form must remove gloves, drop the weapon with them, clear glove properties, and continue through the remaining armor checks. The downstream skinback artifact-light adjustment remains an open dependency.",
+              "source": {
+                "file": "polyself.c",
+                "functions": [
+                  "break_armor"
+                ],
+                "branch": "polyself.c:1156-1302: implement the complete armor-transition sequence for breakarm, sliparm, horned, nohands/verysmall, slithy/centaur, and headless forms, preserving source order, messages, worn-slot state, and inventory drops; the current reached branch is :1248-1271.",
+                "callers": [
+                  "polyself.c:886-890 polymon() calls break_armor() after skinback() and before drop_weapon(1), find_ac(), and the post-transformation state updates.",
+                  "Accepted js/polyself.js:721-814 owns break_armor(); js/polyself.js:1046-1050 invokes it from polymon() at the same transformation boundary."
+                ],
+                "dependencies": [
+                  "polyself.c:1121-1154 dropp() is the existing helper boundary: it scans gi.invent before calling dropx(); js/polyself.js:697-715 supplies dropx() with newsym, encumber_msg, and remove_object hooks. Its void result is discarded by break_armor().",
+                  "The reached polyself.c:1248-1258 branch calls drop_weapon(0), Gloves_off(), and dropp() in that order. do_wear.c:645-701 Gloves_off() returns 0 but its result is discarded; its state effects (setworn W_ARMG, glib reset, encumber feedback, and corpse-touch handling) still need a working owner. Accepted js/do_wear.js _doWearInternals exports no Gloves_off().",
+                  "polyself.c:1259-1271 calls Shield_off(), Helmet_off(), and dropp(); do_wear.c:518-756 defines the return-0 takeoff callbacks. Existing js/do_wear.js _doWearInternals has Shield_off() (1914-1923) and Helmet_off() (1786-1814), but their supported-type guards must not refuse valid polymorph removal branches.",
+                  "polyself.c:1273-1285 calls Boots_off() for nohands, verysmall, slithy, or centaur forms; do_wear.c:262-323 defines the return-0 callback and js/do_wear.js:1358-1461 is its existing owner. polyself.c:1210-1219 similarly requires Cloak_off(); js/do_wear.js:1612-1631 owns it with currently limited cloak types.",
+                  "The breakarm body branch at polyself.c:1162-1197 requires end_burn(), Armor_gone(), Cloak_off(), and useup(); Armor_gone() is do_wear.c:938-974 and has no exported JS owner in the accepted commit. The headless branch at polyself.c:1287-1300 requires Blindf_off(NULL), whose do_wear.c:1495-1534 result is discarded and is not exposed through _doWearInternals.",
+                  "Return-valued predicates used by break_armor are existing owners: racial_exception() is used as <1 at polyself.c:1199 and is implemented in js/makemon_create.js:2686-2718; WrappingAllowed() gates mummy wrapping at polyself.c:1176-1178 and :1210-1212 and is implemented in js/obj.js:1347-1358. breakarm(), sliparm(), has_horns(), nohands(), verysmall(), slithy(), is_whirly(), and has_head() are existing mondata/property predicates. No direct return-valued missing callee is needed beyond these existing owners; the missing takeoff callbacks are impure side-effect dependencies despite discarded C return values.",
+                  "Downstream polyself.c:1953-1969 skinback() still needs its artifact-light radius capture and maybe_adjust_light() update when merged dragon scales are restored; js/polyself.js:679-690 retains that known gap separately from break_armor."
+                ]
+              },
+              "goalKind": "file-port",
+              "evidence": [
+                "Saved .cache/B22-queue.json identifies the first boundary at step 1439 with message break_armor: nohands/verysmall gloves removal not ported, recordedSteps 1814, and remainingScreensUpperBound 375.",
+                "Saved .cache/B22-development-scan.json reports holdout/seed4500-knight-coverage.session.json with screensEmitted 1439, divergence null, and the same break_armor boundary; this is a source stop rather than a prior screen/RNG divergence.",
+                "The recorded session reaches polymon() as a brown mold at the preceding transformation screen, then C emits Your armor falls around you! and proceeds to the nohands branch. C polyself.c:1248-1258 emits drop your gloves and weapon!, calls drop_weapon(0), Gloves_off(), and dropp(); accepted js/polyself.js:781-786 instead throws before any of those state transitions.",
+                "C polyself.c:1156-1302 establishes break_armor as one complete static source function. Its only caller is polymon() at :888, while the accepted JS mirrors that owner and caller at js/polyself.js:721 and :1048.",
+                "The accepted selector at commit 0737209af932f58e30ff926172a787f595379498 has superseded the earlier polyself selector mismatch. The actionable remaining source scope is break_armor; the skinback artifact-light omission remains explicitly downstream and unresolved."
+              ],
+              "nextProbe": "Port the complete break_armor() function in polyself.js, beginning with Gloves_off-compatible state removal at polyself.c:1248-1258, then exercise the follow-on shield/helmet/boot paths and the existing sliparm case. Preserve the skinback artifact-light dependency and unrecorded selector entry families until their own recipes reach them."
+            }
+          }
+        }
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "break_armor",
+            "implementation": "js/polyself.js",
+            "symbol": "break_armor",
+            "sourceReview": "Read polyself.c:1156-1302 in full and matched the breakarm and sliparm branches, source-order suit/cloak/shirt removal, horn/helmet handling, nohands/vsmall glove and shield handling, footwear handling, blindfold handling, and each discarded or delegated callback. JavaScript uses the canonical do_wear callbacks and the worn-object setnotworn hook for useup; it returns after Boots_off has reached the JavaScript done(BURNING) terminal boundary so dropp cannot run after fatal cleanup. The required hack.c liquid callback now imports the existing mondata.c ceiling_hider helper. No unsupported refusal is swallowed as a substitute for the selected function. Supporting do_wear.c dragon_armor_handling, Armor_gone, Cloak_off, Helmet_off, adj_abon, Gloves_off, donning/doffing/cancel_don/cancel_doff were compared against C. The pure callback predicates have source-pinned armor, accessory and weapon mask tests. Source order clears blue-dragon FAST before checking Very_fast, uses !restoring for gold hallucination feedback, discovers the invisibility cloak before redraw, and marks the configured barehanded status. The fatal fixture links its wielded dagger into the inventory with W_WEP. Remaining discarded dependencies are named gaps for do_wear.c wielding_corpse and toggle_stealth; the existing Blindf_off Eyes-of-the-Overworld sight-loss branch remains an unported downstream entry. No return-used callee was replaced with invented data.",
+            "callers": [
+              {
+                "path": "js/polyself.js",
+                "symbol": "polymon",
+                "source": "C polyself.c polymon886–890 calls break_armor before drop_weapon and find_ac. The JavaScript production #polyself dispatcher reaches polymon, which awaits break_armor and stops after a fatal callback marks gameover; all ordinary polymon callers share this owner."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/polyself.test.mjs",
+              "scripts/wear-armor.test.mjs",
+              "scripts/take-off-armor.test.mjs"
+            ],
+            "recordings": [
+              "recordings/polyself.c/break-armor-independent-a27.session.json",
+              "recordings/polyself.c/break-armor-variation-a27.session.json",
+              "recordings/polyself.c/polyself-raven-independent.session.json"
+            ],
+            "checkedAt": "c42b792783195eeef32894a2b4a756fba8dc6540"
+          }
+        ],
+        "entryPointReview": "The active production owner is polymon at polyself.c886–890. Root inspected the existing seed820117 raven recording: C prints the cloak slipping off at step16, which covers sliparm cloak removal rather than worn nohands gloves/helmet/boots. New independent debug Knight seed8302701 reaches suit, glove, shield and helmet removal, with 29 screens matching; the independently chosen Valkyrie seed8302702 wishes for and wears plain low boots before changing to a giant ant, with 48 screens matching and the forced-boot message at step43. Both compare all RNG, complete screens and cursors strictly. Initialized tests establish destroyed-shirt ownership and fatal water-walking boot cleanup, while these unrecorded production branches remain open. The fixed Knight witness supplies supplementary production state coverage, not an independent recording. No formal correctness review is required for this parked source goal.",
+        "entryPoints": [
+          {
+            "name": "polymon nohands suit, glove, shield and helmet removal",
+            "functions": [
+              "break_armor"
+            ],
+            "recordings": [
+              "recordings/polyself.c/break-armor-independent-a27.session.json"
+            ]
+          },
+          {
+            "name": "polymon forced boot removal",
+            "functions": [
+              "break_armor"
+            ],
+            "recordings": [
+              "recordings/polyself.c/break-armor-variation-a27.session.json"
+            ]
+          },
+          {
+            "name": "sliparm cloak removal",
+            "functions": [
+              "break_armor"
+            ],
+            "recordings": [
+              "recordings/polyself.c/polyself-raven-independent.session.json"
+            ]
+          },
+          {
+            "name": "breakarm armor and shirt destruction",
+            "functions": [
+              "break_armor"
+            ],
+            "recordings": []
+          },
+          {
+            "name": "horned helmet piercing or removal",
+            "functions": [
+              "break_armor"
+            ],
+            "recordings": []
+          },
+          {
+            "name": "headless eyewear removal, including artifact sight transitions",
+            "functions": [
+              "break_armor"
+            ],
+            "recordings": []
+          },
+          {
+            "name": "fatal water-walking boot removal on lava",
+            "functions": [
+              "break_armor"
+            ],
+            "recordings": []
+          }
+        ]
+      },
+      "progressBeforePark": {
+        "screens": 97,
+        "rng": 283
+      },
+      "parkedStanding": {
+        "sha": "c04193106e88a205f3c6341bddcfb193bbe8284f",
+        "screens": 11099,
+        "rng": 784966
+      },
+      "parkedReason": "The complete break_armor span passes at c04193106e88a205f3c6341bddcfb193bbe8284f; independent recordings cover forced suit/glove/shield/helmet/boot removal and the saved raven recording covers sliparm cloak removal. Breakarm destruction, horned helmet and headless eyewear families, and fatal-lava production entries remain unrecorded. Preserve downstream Eyes-of-the-Overworld sight-loss and skinback artifact-light restoration gaps. Resume when these entry recipes are reachable and selection permits; the Knight first mismatch is now the independent eat.c is_edible helper."
+    },
+    {
+      "id": "port-mhitu-mdamageu-seed4500-20260917",
+      "kind": "file-port",
+      "status": "open",
+      "summary": "Complete ordinary and polymorphed hero damage from monster actions",
+      "cFile": "mhitu.c",
+      "sessions": [
+        "holdout/seed4500-knight-coverage"
+      ],
+      "selectionReason": "The saved Knight queue has 278 remaining screens and a complete investigation at investigations/holdout/seed4500-knight-coverage.json. Immutable worker continuation b5aefc96 traces the next monster-action boundary to mhitu.c mdamageu at screen 1560. The higher-priority is_edible delivery and B24 equipment delivery are being corrected; this source-independent two-file delivery is ready and does not require either code change. Its observed worker reachability remains tied to that worker commit.",
+      "detail": "Port whole mhitu.c mdamageu1902–1927, preserve source hit-point pool selection, showdamage-before-cap ordering and live rehumanize/done_in_by callbacks. Record all existing production callers and keep unrecorded polymorphed, gaze and exceptional entry coverage open.",
+      "spans": [
+        {
+          "name": "mdamageu",
+          "status": "queued",
+          "closedBy": null,
+          "functions": [
+            "mdamageu"
+          ]
+        }
+      ],
+      "openedAt": "2c8050871864672d507934e10e459067b26308d5",
+      "openStanding": {
+        "sha": "c04193106e88a205f3c6341bddcfb193bbe8284f",
+        "screens": 11099,
+        "rng": 784966
+      },
+      "closedAt": null,
+      "delivered": null,
+      "functions": [
+        {
+          "name": "mdamageu",
+          "line": 1902,
+          "endLine": 1933,
+          "declared": true,
+          "complete": true
+        }
+      ],
+      "range": {
+        "from": 1902,
+        "to": 1933
+      },
+      "activeStanding": {
+        "sha": "c04193106e88a205f3c6341bddcfb193bbe8284f",
+        "screens": 11099,
+        "rng": 784966
+      },
+      "openMismatches": [
+        {
+          "session": "holdout/seed4500-knight-coverage",
+          "step": 1536,
+          "kind": "stop",
+          "function": "is_edible",
+          "functionDeclared": true,
+          "sourceFile": "eat.c",
+          "cFile": "eat.c",
+          "luaFile": null,
+          "line": null,
+          "message": "unsupported hero command: an unported branch of this command: eating requires is_edible() for a polymorphed hero",
+          "unlocatedKinds": [],
+          "recordedSteps": 1814,
+          "remainingScreensUpperBound": 278,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/holdout/seed4500-knight-coverage.json",
+            "result": {
+              "session": "holdout/seed4500-knight-coverage",
+              "remainingScreensUpperBound": 278,
+              "status": "complete",
+              "commit": "c04193106e88a205f3c6341bddcfb193bbe8284f",
+              "mismatch": {
+                "session": "holdout/seed4500-knight-coverage",
+                "step": 1536,
+                "kind": "stop",
+                "function": "is_edible",
+                "functionDeclared": true,
+                "sourceFile": "eat.c",
+                "cFile": "eat.c",
+                "luaFile": null,
+                "line": null,
+                "message": "unsupported hero command: an unported branch of this command: eating requires is_edible() for a polymorphed hero",
+                "unlocatedKinds": [],
+                "recordedSteps": 1814,
+                "remainingScreensUpperBound": 278
+              },
+              "summary": "Forced polymorph armor removal now matches through the next command sequence. The first remaining stop is eat.c is_edible: JavaScript rejects a polymorphed hero before C applies its form-specific food/material rules. Complete the pure source predicate in C order and retain the existing doeat, floorfood and item-action callers. The downstream skinback artifact-light restoration remains separately unported.",
+              "source": {
+                "file": "eat.c",
+                "functions": [
+                  "is_edible"
+                ],
+                "branch": "eat.c is_edible91–121 first rejects unique object types, then accepts fire-elemental flammable objects, metallivore metallic objects with the rust-monster rust-prone restriction, ghoul non-vegan corpses or eggs, and empty organic objects for a gelatinous cube, before the ordinary FOOD_CLASS fallback. It performs no RNG call, output or game-state mutation.",
+                "callers": [
+                  "C eat.c doeat and floorfood call is_edible before accepting an item; js/eat.js doeat, floorfood and eat_ok already route through this predicate.",
+                  "C iactions.c classifies item actions with is_edible; js/iactions.js itemactions imports the same owner."
+                ],
+                "dependencies": [
+                  "Use existing source-owned object material predicates, Has_contents, metallivorous, vegan and the canonical monster table. No missing return-valued callee or fabricated RNG/state transition is required.",
+                  "Compatible non-food eating can later reach the separate doeat_nonfood owner; removing the pure predicate refusal does not establish that downstream behavior.",
+                  "Unresolved prior source finding: polyself.c skinback1953–1969 still needs artifact-light radius capture and maybe_adjust_light when merged dragon scales are restored. This is separate from the resolved break_armor mismatch."
+                ]
+              },
+              "goalKind": "file-port",
+              "evidence": [
+                "The passing checkpoint c04193106e88a205f3c6341bddcfb193bbe8284f advances the Knight session from 1439 to 1536 matching screens. The saved A27 scan and queue identify is_edible as the next source stop, with no earlier RNG or screen divergence.",
+                "Read complete nethack-c/upstream/src/eat.c is_edible91–121 and the accepted js/eat.js helper: its polymorphed-hero refusal precedes the form-specific C acceptance rules. Implement the whole pure predicate, not a session-specific food allowance.",
+                "The completed armor fix is independently exercised by the Knight brown-mold and equipped Valkyrie giant-ant recordings under recordings/polyself.c/break-armor-*-a27.session.json. C messages verify forced suit, glove, shield, helmet and boot removal; the older raven recording specifically verifies sliparm cloak removal.",
+                "The source goal for break_armor still retains unrecorded breakarm destruction, horned-helmet, headless-eyewear and fatal-lava entry families. The existing Eyes-of-the-Overworld sight-loss and skinback artifact-light paths remain separate downstream gaps."
+              ],
+              "nextProbe": "Port the complete pure is_edible predicate with source-pinned tests for each form and unique-object precedence; replay the existing production callers, then investigate the next mismatch without treating helper completion as full non-food eating support."
+            }
+          }
+        }
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "mdamageu",
+            "implementation": "js/mhitu.js",
+            "symbol": "mdamageu",
+            "sourceReview": "Read nethack-c/upstream/src/mhitu.c:1902-1927 in full. The owner reports impossible negative damage and continues with n=0, raises disp.botl, then selects the polymorphed u.mh/mhmax or ordinary u.uhp/uhpmax pool. Each arm calls showdamage before its maximum cap; a lethal polymorphed arm calls rehumanize and a lethal ordinary arm calls done_in_by. JavaScript now preserves that order, uses the canonical polyself.c rehumanize owner on the live path, and stops planning clones at the input-bearing lethal boundary without running terminal work on the clone. The discarded impossible diagnostic is recorded as note_unported(pline.c impossible), without an injected production substitute. Root cap-order tests use positive damage and an over-maximum initial pool, so their message assertions observe the pre-cap value. Supporting live rehumanize and done_in_by remain the existing canonical owners; no required return value is fabricated.",
+            "callers": [
+              {
+                "path": "js/mhitu.js",
+                "symbol": "hitmu",
+                "source": "mhitu.c:1201 and :1258 call mdamageu for a monster's landed hero blow; JavaScript awaits the completed owner for both the pre-existing-death and damage arms."
+              },
+              {
+                "path": "js/mhitu.js",
+                "symbol": "gulpmu",
+                "source": "mhitu.c:1560 calls mdamageu after the engulfing damage and before the expulsion/occupation continuation; JavaScript passes the same state and planning/live environment through."
+              },
+              {
+                "path": "js/mhitu.js",
+                "symbol": "mattacku",
+                "source": "mhitu.c mattacku dispatches the hitmu/gulpmu production arms; JavaScript awaits their completed result and stops the attack loop after live terminal finalization."
+              },
+              {
+                "path": "js/mcastu.js",
+                "symbol": "mcast_spell",
+                "source": "C mcastu.c:896 applies remaining psychic-bolt or open-wounds damage with mdamageu; JS mcast_spell awaits env.mdamageu. js/unported_monster_actions.js attackHeroWithMattacku and trySimpleMonsterSpell supply the canonical mhitu.mdamageu callback with the planning/live state."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/mhitu.test.mjs",
+              "scripts/unported-monster-actions.test.mjs",
+              "scripts/mcastu.test.mjs"
+            ],
+            "recordings": [
+              "recordings/mhitu.c/expels-ice-vortex.session.json",
+              "recordings/mhitu.c/mdamageu-marilith-independent-a29.session.json",
+              "recordings/mhitu.c/mdamageu-marilith-variation-a29.session.json"
+            ],
+            "checkedAt": "2a5e74ec41ef1c7a7f046af15d7c69475571ec2e"
+          }
+        ],
+        "entryPointReview": "Whole mhitu.c mdamageu1902–1927 is a shared impure helper. C callers include hitmu1201/1258, gulpmu1560, gazemu1851; mcastu.c castmu303 and mcast_spell896; hack.c domove_core3439; and uhitm.c mhitm_ad_drin3244 and passive5788/5915/5988/6077/6100/6113. Existing implemented hitmu, gulpmu and mcast_spell callbacks retain their canonical production wiring. The independent marilith recipes use six active attack slots (include/monsters.h2970) so passiveum returns after inspecting all slots; a created newt damages u.mh through the live monster turn without reaching its unported passive tail. Both new seed/gender variants match the complete C output and explicitly contain nonzero HP damage messages. Existing expels-ice-vortex covers ordinary engulfing damage only; it does not prove gaze or lethal recovery. Remaining active spell, gaze, falling-piercer, brain-eating, passive-reaction and lethal polymorph entries remain unrecorded or blocked in their callers. Park this source goal after span acceptance; no formal correctness review is required for that parked goal.",
+        "entryPoints": [
+          {
+            "name": "nonlethal polymorphed hero damage through a monster melee attack",
+            "functions": [
+              "mdamageu"
+            ],
+            "recordings": [
+              "recordings/mhitu.c/mdamageu-marilith-independent-a29.session.json",
+              "recordings/mhitu.c/mdamageu-marilith-variation-a29.session.json"
+            ]
+          },
+          {
+            "name": "ordinary hero engulfing damage",
+            "functions": [
+              "mdamageu"
+            ],
+            "recordings": [
+              "recordings/mhitu.c/expels-ice-vortex.session.json"
+            ]
+          },
+          {
+            "name": "monster spells and gaze damage",
+            "functions": [
+              "mdamageu"
+            ],
+            "recordings": []
+          },
+          {
+            "name": "falling piercer, brain-eating and monster passive reactions",
+            "functions": [
+              "mdamageu"
+            ],
+            "recordings": []
+          },
+          {
+            "name": "lethal ordinary damage and polymorphed rehumanization",
+            "functions": [
+              "mdamageu"
             ],
             "recordings": []
           }

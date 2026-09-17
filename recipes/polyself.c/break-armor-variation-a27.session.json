@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent polyself.c break_armor variation: a debug Valkyrie wishes for plain low boots, wears them in inventory slot e, then becomes a giant ant to force boot and shield removal. The inventory prompts dismiss the wish/wear message before the next command. Seed 8302702 was chosen independently; no seed search was used.",
+  "segments": [
+    {
+      "seed": 8302702,
+      "datetime": "20310421091500",
+      "nethackrc": "OPTIONS=name:Armorform,role:Valkyrie,race:human,gender:female,align:lawful\nOPTIONS=!legacy,!tutorial,!splash_screen\nOPTIONS=pettype:none,!acoustics,playmode:debug\n",
+      "moves": " \u0017+0 low boots\ni\u001bWei\u001b#polyself\ngiant ant\n      "
+    }
+  ]
+}

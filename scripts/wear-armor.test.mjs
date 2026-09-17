@@ -27,6 +27,7 @@ import {
     GETOBJ_EXCLUDE_INACCESS,
     GETOBJ_SUGGEST,
     GLIB,
+    HALLUC,
     INFRAVISION,
     INVIS,
     INTRINSIC,
@@ -52,10 +53,12 @@ import {
     W_ARMU,
     W_AMUL,
     W_ART,
+    W_QUIVER,
     W_RINGL,
     W_RINGR,
     W_SWAPWEP,
     W_TOOL,
+    W_WEP,
 } from '../js/const.js';
 import {
     UnsupportedRingOnError,
@@ -212,9 +215,9 @@ import {
     loadWearWishRecipe,
 } from './run-wear-armor.mjs';
 
-const { Armor_on, Boots_on, Cloak_on, Gloves_on, Helmet_on, Ring_on,
-    Shield_on, Shirt_on, accessory_or_armor_on, already_wearing, on_msg,
-    toggle_displacement }
+const { Armor_gone, Armor_on, Boots_on, Cloak_off, Cloak_on, Gloves_off, Gloves_on,
+    Helmet_on, Ring_on, Shield_on, Shirt_on, accessory_or_armor_on,
+    already_wearing, on_msg, toggle_displacement }
     = _doWearInternals;
 
 function topLine() {
@@ -2012,11 +2015,31 @@ test('dragon_armor_handling BLUE arm suppresses message when Very_fast',
     game.uarm = null;
 });
 
-test('dragon_armor_handling GOLD arm still throws UnsupportedWearError',
+test('dragon_armor_handling BLUE arm clears EFast before slowdown check',
     async () => {
-    // do_wear.c:846-851. Gold dragon armor calls make_hallucinated() which
-    // is not yet ported. The guard in accessory_or_armor_on() and the arm
-    // in dragon_armor_handling() both refuse it.
+    // do_wear.c:820-828.  Very_fast is evaluated after EFast loses the
+    // armor bit, so blue armor that supplied the only speed source reports
+    // the slowdown while leaving no W_ARM extrinsic behind.
+    const segment = segmentFor(`${TAKEOFF_KEY}${WEAR_KEY}c`);
+    await setup(segment, OFF);
+
+    const fast = game.u.uprops[FAST];
+    fast.intrinsic = 0;
+    fast.extrinsic = W_ARM;
+    game.uarm = armor(BLUE_DRAGON_SCALES, {
+        dknown: 1, known: true, owornmask: W_ARM,
+    });
+    assert.equal(await Armor_gone(game), 0);
+    assert.equal(fast.extrinsic & W_ARM, 0,
+        'blue armor speed is cleared before the check');
+    assert.equal(takePendingTopLine(), 'You slow down.');
+});
+
+test('dragon_armor_handling GOLD arm reaches the artifact-light boundary',
+    async () => {
+    // do_wear.c:846-851. The GOLD arm now completes its hallucination
+    // handling; the later artifact-light operation remains the explicit
+    // boundary in Armor_on().
     const segment = segmentFor(`${TAKEOFF_KEY}${WEAR_KEY}c`);
     await setup(segment, OFF);
 
@@ -2024,13 +2047,99 @@ test('dragon_armor_handling GOLD arm still throws UnsupportedWearError',
         dknown: 1, known: false, owornmask: W_ARM,
     });
     game.uarm = suit;
+    // The source passes `talk = !program_state.restoring`; an active
+    // hallucination makes the distinction observable even though Armor_on()
+    // then reaches its separate artifact-light boundary.
+    game.u.uprops[HALLUC].intrinsic = TIMEOUT;
+    game.program_state.restoring = 1;
     await assert.rejects(() => Armor_on(game), (err) => {
         assert.equal(err.name, 'UnsupportedWearError');
         assert.match(err.message,
-            /dragon_armor_handling\(\) for otyp 102/);
+            /Armor_on\(\) artifact_light/);
         return true;
     });
+    assert.equal(takePendingTopLine(), '',
+        'restoring suppresses gold armor hallucination speech');
     game.uarm = null;
+});
+
+test('Cloak_off discovers an invisibility cloak before its redraw', async () => {
+    // do_wear.c:414-418.  makeknown() precedes newsym() and the self-message
+    // when taking off the cloak removes the last source of invisibility.
+    const segment = segmentFor(`${TAKEOFF_KEY}${WEAR_KEY}c`);
+    await setup(segment, OFF);
+    const type = game.objects[CLOAK_OF_INVISIBILITY];
+    type.oc_name_known = 0;
+    type.oc_encountered = 0;
+    const cloak = armor(CLOAK_OF_INVISIBILITY, {
+        dknown: 1, known: false, owornmask: W_ARMC,
+    });
+    game.uarmc = cloak;
+    await Cloak_off(game);
+    assert.equal(type.oc_name_known, 1,
+        'taking off the last invisibility cloak makes its type known');
+});
+
+test('donning and doffing follow the source callback and worn-slot masks', () => {
+    // do_wear.c:1574-1640. The seven armor slots recognize their own on/off
+    // callbacks; all fourteen slots recognize only their takeoff.what mask.
+    // Accessory and weapon slots have no delayed callback branch in C.
+    const slots = [
+        ['uarm', W_ARM, 'Armor'], ['uarmu', W_ARMU, 'Shirt'],
+        ['uarmc', W_ARMC, 'Cloak'], ['uarmf', W_ARMF, 'Boots'],
+        ['uarmh', W_ARMH, 'Helmet'], ['uarmg', W_ARMG, 'Gloves'],
+        ['uarms', W_ARMS, 'Shield'], ['uamul', W_AMUL],
+        ['uleft', W_RINGL], ['uright', W_RINGR], ['ublindf', W_TOOL],
+        ['uwep', W_WEP], ['uswapwep', W_SWAPWEP], ['uquiver', W_QUIVER],
+    ];
+    const state = { context: { takeoff: { what: 0 } }, afternmv: null };
+    for (const [slot] of slots) state[slot] = {};
+    const { donning, doffing } = _doWearInternals;
+    for (const [slot, mask, callback] of slots) {
+        const object = state[slot];
+        state.afternmv = null;
+        state.context.takeoff.what = mask;
+        assert.equal(doffing(object, state), true, `${slot} takeoff mask`);
+        assert.equal(donning(object, state), true, `${slot} delegates to doffing`);
+        state.context.takeoff.what = mask === W_ARM ? W_ARMU : W_ARM;
+        assert.equal(doffing(object, state), false, `${slot} unrelated mask`);
+        assert.equal(donning(object, state), false, `${slot} unrelated mask`);
+        state.context.takeoff.what = 0;
+        state.afternmv = () => 0;
+        assert.equal(doffing(object, state), false, `${slot} unrelated callback`);
+        assert.equal(donning(object, state), false, `${slot} unrelated callback`);
+        if (callback) {
+            state.afternmv = _doWearInternals[`${callback}_on`];
+            assert.equal(typeof state.afternmv, 'function');
+            assert.equal(donning(object, state), true, `${slot} putting on`);
+            assert.equal(doffing(object, state), false, `${slot} putting on`);
+            state.afternmv = _doWearInternals[`${callback}_off`];
+            assert.equal(typeof state.afternmv, 'function');
+            assert.equal(doffing(object, state), true, `${slot} taking off`);
+            assert.equal(donning(object, state), true, `${slot} taking off`);
+        }
+    }
+    assert.equal(doffing({}, state), false, 'an object outside all worn slots');
+    assert.equal(donning({}, state), false, 'an object outside all worn slots');
+});
+
+test('Gloves_off refreshes barehanded status after the worn slot clears',
+    async () => {
+    // do_wear.c:696-698.  The final condtests[bl_bareh] arm requests a
+    // status-line redraw after setworn() has removed the gloves.
+    const segment = segmentFor(`${TAKEOFF_KEY}${WEAR_KEY}c`);
+    await setup(segment, OFF);
+    const configured = game.iflags.status_conditions.barehanded;
+    game.iflags.status_conditions.barehanded = true;
+    game.disp.botl = false;
+    game.uarmg = armor(LEATHER_GLOVES, {
+        dknown: 1, known: true, owornmask: W_ARMG,
+    });
+    await Gloves_off(game);
+    assert.equal(game.uarmg, null, 'Gloves_off clears the worn slot');
+    assert.equal(game.disp.botl, true,
+        'barehanded status is scheduled for repaint');
+    game.iflags.status_conditions.barehanded = configured;
 });
 
 test('both of dowear\'s guards answer before the prompt', async () => {

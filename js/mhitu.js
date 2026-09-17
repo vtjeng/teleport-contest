@@ -121,7 +121,8 @@ import { hitval } from './weapon.js';
 import { is_pole } from './worn.js';
 import { breamu, spitmu } from './mthrowu.js';
 import { mnexto } from './teleport.js';
-import { poly_gender } from './polyself.js';
+import { poly_gender, rehumanize } from './polyself.js';
+import { note_unported } from './unported.js';
 
 // C ref: mhitu.c u_slow_down() (163-171).  The self-zap and monster-action
 // callers share this owner: HFast is cleared in one operation, leaving any
@@ -1349,10 +1350,9 @@ function Half_physical_damage(state) {
 
 // C ref: mhitu.c hitmu() (1143-1267). "monster hits you; returns MM_ flags".
 //
-// Every reachable surviving exit answers M_ATTK_HIT. A lethal unpolymorphed
-// planning exit raises MonsterDeathPlanningError so the cloned turn can stop
-// at the same point that the live exit calls done_in_by(); the live end-game
-// boundary then unwinds the monster pass after the real death entry.
+// Every reachable surviving exit answers M_ATTK_HIT. Lethal planning damage
+// raises MonsterDeathPlanningError before live rehumanize() or done_in_by().
+// A completed live end-game boundary unwinds the monster pass.
 //
 // Ported: the base damage roll, mhitm_adtyping(), mhitm_knockback(), the
 // negative-armor-class reduction, mdamageu() and passiveum().
@@ -1360,8 +1360,7 @@ function Half_physical_damage(state) {
 // Ported: the marker for an unspottable attacker in hitmu() and missmu().
 //
 // Refused where C acts: the block that reveals an attacker hidden under an
-// object, which needs doname(), Amonnam() and tp_sensemon();
-// and the alternate mdamageu() death branches.
+// object, which needs doname(), Amonnam() and tp_sensemon().
 //
 // One piece of C is absent rather than refused: mhm.permdmg's whole block
 // (1229-1259), which drains permanent hit points. Death's life-force drain is
@@ -1462,32 +1461,39 @@ async function hitmu(mtmp, mattk, env) {
     return res;
 }
 
-// C ref: mhitu.c mdamageu() (1901-1927). "mtmp hits you for n points damage".
-//
-// C ref: mhitu.c mdamageu() (1901-1927). "mtmp hits you for n points damage".
-//
-// done_in_by() is ported in js/end.js and wired below. The live pass calls it
-// when uhp drops below 1; the normal planning pass raises the internal signal
-// above because done() calls bot() on the module-level game and
-// paranoid_query() reads input.
-export async function mdamageu(mtmp, n, state, env) {
-    const unsupported = requireMattackuOperation(env, 'unsupported');
-    const message = requireMattackuOperation(env, 'message');
+// C ref: mhitu.c mdamageu() (1902-1927). "mtmp hits you for n points damage".
+// The two hit-point pools are separate C fields: Upolyd selects u.mh/mhmax and
+// rehumanize(), while an ordinary hero uses u.uhp/uhpmax and done_in_by().
+// showdamage() runs before the matching cap, exactly as in C.
+export async function mdamageu(mtmp, n, state, env = {}) {
+    const message = env.message ?? (env.planning ? async () => {} : ttyPline);
 
     if (n < 0) {
-        // C calls impossible() and continues with n = 0. No ported caller can
-        // reach it: hitmu() calls this with 1 or with a damage it has already
-        // clamped above zero.
-        unsupported('mdamageu() for negative damage');
+        // C discards the diagnostic's result and continues with zero damage.
+        note_unported('pline.c impossible');
+        n = 0;
     }
 
     state.disp ??= {};
     state.disp.botl = true;
     if (Upolyd(state.u)) {
-        // u.mh, u.mhmax and rehumanize() belong to polyself.c, which is not
-        // ported; js/regen.js:52 records that Upolyd() is constantly false.
-        unsupported('damage to a polymorphed hero');
+        state.u.mh -= n;
+        await showdamage(n, state, { message });
+        /* caller might have reduced mhmax before calling mdamageu() */
+        if (state.u.mh > state.u.mhmax)
+            state.u.mh = state.u.mhmax;
+        if (state.u.mh < 1) {
+            // rehumanize() owns the live polyself.c transition. A planning
+            // clone cannot run it: polyman/newsym and a possible done() would
+            // write the live terminal or consume input. Hand the exact C
+            // lethal boundary back to the live replay instead.
+            if (env.planning)
+                throw new MonsterDeathPlanningError(mtmp);
+            await rehumanize(state);
+        }
+        return;
     }
+
     state.u.uhp -= n;
     await showdamage(n, state, { message });
     /* caller might have reduced uhpmax before calling mdamageu() */
@@ -1495,20 +1501,11 @@ export async function mdamageu(mtmp, n, state, env) {
         state.u.uhp = state.u.uhpmax;
     if (state.u.uhp < 1) {
         // C ref: mhitu.c:1924-1925. done_in_by() prints "You die...", builds
-        // the killer string, and calls done(). done() calls bot() on the
-        // module-level game and paranoid_query() reads input, so it cannot
-        // run on the planning pass's clone.
+        // the killer string, and calls done(). The planning clone cannot run
+        // that input-bearing NORETURN path, so it stops at this boundary.
         if (env.planning) {
-            // C's lethal mdamageu() enters done_in_by(), whose live path owns
-            // the amulet/query ordering, CON adjustment, and any resulting
-            // RNG. A planning clone cannot consume that input or safely replay
-            // those effects: doing so would model savelife twice and could
-            // leave the live pass with a different amulet/state. Hand the
-            // exact lethal boundary back to the live replay instead.
             throw new MonsterDeathPlanningError(mtmp);
         } else {
-            // Live pass: done_in_by() calls done(), which in wizard/discover
-            // mode asks "Die?"; savelife() runs on the real game state.
             await done_in_by(mtmp, DIED, state);
         }
     }

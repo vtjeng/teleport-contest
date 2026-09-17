@@ -137,6 +137,7 @@ import {
     VIBRATING_SQUARE,
     WARN_OF_MON,
     WEB,
+    W_ARMU,
     helpless,
     ismnum,
     plur,
@@ -205,6 +206,7 @@ import {
     your_race,
     name_to_monclass,
     name_to_monplus,
+    num_horns,
     type_is_pname,
 } from './mondata.js';
 import { character_race, genders } from './roles.js';
@@ -218,15 +220,16 @@ import {
 } from './do_name.js';
 import { set_mon_data } from './mondata.js';
 import { mkclass_poly } from './makemon.js';
+import { racial_exception } from './makemon_create.js';
 import {
-    cloak_simple_name, cxname, otense, simpleonames, an, the,
-    the_unique_pm,
+    cloak_simple_name, cxname, helm_simple_name, otense, simpleonames,
+    an, the, vtense, yname, the_unique_pm,
 } from './objnam.js';
 import { find_ac } from './u_init_inventory_attrs.js';
 import { max_rank_sz } from './u_init.js';
 import { newsym, rank_of, see_monsters } from './display.js';
 import { encumber_msg } from './pickup.js';
-import { update_inventory } from './invent.js';
+import { useup, update_inventory } from './invent.js';
 import { dropx, canletgo } from './do.js';
 import { getlin } from './windows.js';
 import { ttyPline, ttyUrgentPline } from './tty_message.js';
@@ -239,13 +242,16 @@ import { dotrap, feeltrap } from './trap_effects.js';
 import { make_blinded, make_glib, set_itimeout } from './potion.js';
 import { cantwield, untwoweapon, uwepgone, uswapwepgone } from './wield.js';
 import { _doWearInternals } from './do_wear.js';
+import { setnotworn, setworn } from './worn.js';
 import {
-    Is_dragon_armor, is_sword, maybe_adjust_light, mksobj, remove_object,
+    Is_dragon_armor, WrappingAllowed, is_sword, maybe_adjust_light, mksobj,
+    remove_object,
 } from './obj.js';
 import { artifact_light } from './artifacts.js';
 import { makeplural } from './fruit.js';
 import { weapon_descr } from './weapon.js';
 import {
+    ALCHEMY_SMOCK,
     ACID_VENOM,
     AMULET_OF_STRANGULATION,
     AMULET_OF_UNCHANGING,
@@ -716,100 +722,179 @@ async function dropp(obj, state) {
 }
 
 // ---------- break_armor ------------------------------------------------
-// C ref: polyself.c break_armor() (1156-1302). Remove armor that the new
-// form cannot wear. For the gnome case (sliparm), the cloak falls off.
+// C ref: polyself.c break_armor() (1156-1302).  The armor callbacks live in
+// do_wear.js, so this owner supplies their source-order polymorph context and
+// drops each object only after its worn slot has been updated.
 async function break_armor(state) {
     let otmp;
     const uptr = state.youmonst.data;
-    const { Cloak_off, Helmet_off, Shield_off } = _doWearInternals;
+    const {
+        Armor_gone, Blindf_off, Boots_off, Cloak_off, Gloves_off, Helmet_off,
+        Shield_off, Shirt_off, cancel_don, donning, setwornEnv,
+    } = _doWearInternals;
+
+    const cancelDonning = (obj) => {
+        if (donning(obj, state)) cancel_don(state);
+    };
+    // C useup(uarmu) calls useupall while the shirt is still worn.  Supply
+    // invent.c's setnotworn hook so the consumed object clears its slot and
+    // worn effects before obfree() deallocates it.
+    const consume = (obj) => {
+        const wearEnv = setwornEnv(state);
+        return useup(obj, {
+            state,
+            hooks: {
+                ...wearEnv.hooks,
+                setNotWorn: (item) => setnotworn(item, wearEnv),
+            },
+        });
+    };
+    const endBurn = async (obj) => {
+        if (!obj.lamplit) return;
+        const { end_burn } = await import('./timeout.js');
+        const { objectGenerationEnv } = await import('./object_generation.js');
+        end_burn(obj, false, objectGenerationEnv({ state }));
+    };
 
     if (breakarm(uptr)) {
-        // Body armor destruction
         if ((otmp = state.uarm) != null) {
-            // cancel_don() — donning interruption not ported
-            // end_burn, Armor_gone, useup — the armor destruction path
-            // is not exercised by the gnome case (gnome is sliparm, not
-            // breakarm). Throw if reached.
-            throw new UnsupportedPolyselfError('break_armor: breakarm body armor path not ported');
+            cancelDonning(otmp);
+            await endBurn(otmp);
+            await ttyPline('You break out of your armor!', state);
+            await exercise(A_STR, false, state, { rn2 }, {
+                encumberMessage: encumber_msg,
+            });
+            await Armor_gone(state);
+            consume(otmp);
         }
-        if ((otmp = state.uarmc) != null) {
-            throw new UnsupportedPolyselfError('break_armor: breakarm cloak path not ported');
+        if ((otmp = state.uarmc) != null
+            && (otmp.otyp !== MUMMY_WRAPPING || !WrappingAllowed(uptr))) {
+            if (otmp.otyp === MUMMY_WRAPPING) {
+                await ttyPline(
+                    `Your ${cloak_simple_name(otmp, state)} tears apart!`,
+                    state,
+                );
+                await Cloak_off(state);
+                consume(otmp);
+            } else if (otmp.otyp === ALCHEMY_SMOCK) {
+                await ttyPline(
+                    `The knot on your ${cloak_simple_name(otmp, state)} is pulled apart!`,
+                    state,
+                );
+                await Cloak_off(state);
+                await dropp(otmp, state);
+            } else {
+                await ttyPline(
+                    `The clasp on your ${cloak_simple_name(otmp, state)} breaks open!`,
+                    state,
+                );
+                await Cloak_off(state);
+                await dropp(otmp, state);
+            }
         }
-        if (state.uarmu) {
-            throw new UnsupportedPolyselfError('break_armor: breakarm shirt path not ported');
+        if ((otmp = state.uarmu) != null) {
+            await ttyPline('Your shirt rips to shreds!', state);
+            consume(otmp);
         }
     } else if (sliparm(uptr)) {
-        if ((otmp = state.uarm) != null) {
-            // racial_exception not needed for gnome case (no body armor)
-            // cancel_don() not ported — donning interruption
+        if ((otmp = state.uarm) != null
+            && racial_exception(state.youmonst, otmp) < 1) {
+            cancelDonning(otmp);
             await ttyPline('Your armor falls around you!', state);
-            // Armor_gone() — setworn(null, W_ARM) to clear owornmask
-            // The minimal equivalent: clear the worn slot
-            if (otmp.owornmask) {
-                otmp.owornmask = 0;
-                state.uarm = null;
-            }
+            await Armor_gone(state);
             await dropp(otmp, state);
         }
         if ((otmp = state.uarmc) != null
-            && (otmp.otyp !== MUMMY_WRAPPING /* WrappingAllowed omitted */)) {
-            // Not whirly for gnome
+            && (otmp.otyp !== MUMMY_WRAPPING || !WrappingAllowed(uptr))) {
             await ttyPline(
-                `You shrink out of your ${cloak_simple_name(otmp, state)}!`,
+                is_whirly(uptr)
+                    ? `Your ${cloak_simple_name(otmp, state)} falls, unsupported!`
+                    : `You shrink out of your ${cloak_simple_name(otmp, state)}!`,
                 state,
             );
-            Cloak_off(state);
+            await Cloak_off(state);
             await dropp(otmp, state);
         }
         if ((otmp = state.uarmu) != null) {
-            await ttyPline('You become much too small for your shirt!', state);
-            // setworn(null, W_ARMU)
-            if (otmp.owornmask) {
-                otmp.owornmask = 0;
-                state.uarmu = null;
-            }
+            await ttyPline(
+                is_whirly(uptr)
+                    ? 'You seep right through your shirt!'
+                    : 'You become much too small for your shirt!',
+                state,
+            );
+            setworn(null, otmp.owornmask & W_ARMU, setwornEnv(state));
             await dropp(otmp, state);
         }
     }
-    // has_horns check
-    if (has_horns(uptr)) {
-        if ((otmp = state.uarmh) != null) {
-            // cancel_don, Helmet_off, dropp — not exercised for gnome
-            throw new UnsupportedPolyselfError('break_armor: horned helmet removal not ported');
+    if (has_horns(uptr) && (otmp = state.uarmh) != null) {
+        if (is_flimsy(otmp, state) && !donning(otmp, state)) {
+            const hornbuf = `horn${plur(num_horns(uptr))}`;
+            await ttyPline(
+                `Your ${hornbuf} ${vtense(hornbuf, 'pierce')} through ${yname(otmp, state)}.`,
+                state,
+            );
+        } else {
+            cancelDonning(otmp);
+            await ttyPline(
+                `Your ${helm_simple_name(otmp, state)} falls to the ${surface(state.u.ux, state.u.uy, state)}!`,
+                state,
+            );
+            await Helmet_off(state);
+            await dropp(otmp, state);
         }
     }
-    // nohands or verysmall — gloves, shield, helmet
     if (nohands(uptr) || verysmall(uptr)) {
         if ((otmp = state.uarmg) != null) {
-            throw new UnsupportedPolyselfError(
-                'break_armor: nohands/verysmall gloves removal not ported',
+            cancelDonning(otmp);
+            await ttyPline(
+                `You drop your gloves${state.uwep ? ' and weapon' : ''}!`,
+                state,
             );
+            await drop_weapon(0, state);
+            await Gloves_off(state);
+            await dropp(otmp, state);
         }
         if ((otmp = state.uarms) != null) {
-            throw new UnsupportedPolyselfError(
-                'break_armor: nohands/verysmall shield removal not ported',
-            );
+            await ttyPline('You can no longer hold your shield!', state);
+            Shield_off(state);
+            await dropp(otmp, state);
         }
         if ((otmp = state.uarmh) != null) {
-            throw new UnsupportedPolyselfError(
-                'break_armor: nohands/verysmall helmet removal not ported',
+            cancelDonning(otmp);
+            await ttyPline(
+                `Your ${helm_simple_name(otmp, state)} falls to the ${surface(state.u.ux, state.u.uy, state)}!`,
+                state,
             );
+            await Helmet_off(state);
+            await dropp(otmp, state);
         }
     }
-    // nohands or verysmall or slithy or centaur — boots
     if (nohands(uptr) || verysmall(uptr)
         || slithy(uptr) || uptr.mlet === M.S_CENTAUR) {
         if ((otmp = state.uarmf) != null) {
-            // cancel_don, Boots_off, dropp — not exercised for gnome
-            throw new UnsupportedPolyselfError('break_armor: boots removal not ported');
+            cancelDonning(otmp);
+            await ttyPline(
+                is_whirly(uptr) ? 'Your boots fall away!'
+                    : `Your boots ${verysmall(uptr) ? 'slide' : 'are pushed'} off your feet!`,
+                state,
+            );
+            await Boots_off(state);
+            // C polyself.c:1290-1292. Boots_off can enter spoteffects() for
+            // water-walking boots; lava_effects() reaches done(BURNING), a
+            // non-returning C call.  The JS finalizer marks gameover and
+            // returns, so do not continue with dropp() after fatal cleanup.
+            if (state.program_state?.gameover) return;
+            await dropp(otmp, state);
         }
     }
-    // headless — eyewear
-    // has_head is mondata.h:33 (!M1_NOHEAD). Gnome has a head.
-    // skip for gnome; throw if hit
-    const has_head = !((uptr?.mflags1 ?? 0) & M.M1_NOHEAD);
-    if ((otmp = state.ublindf) != null && !has_head) {
-        throw new UnsupportedPolyselfError('break_armor: headless eyewear removal not ported');
+    if ((otmp = state.ublindf) != null && !has_head(uptr)) {
+        const eyewear = simpleonames(otmp, state).replace(/^pair of /u, '');
+        await ttyPline(
+            `Your ${eyewear} ${vtense(eyewear, 'fall')} off!`,
+            state,
+        );
+        await Blindf_off(null, state);
+        await dropp(otmp, state);
     }
 }
 
@@ -1046,6 +1131,10 @@ export async function polymon(mntmp, state = game) {
     if (state.uskin && mntmp !== armor_to_dragon(state.uskin.otyp))
         await skinback(false, state);
     await break_armor(state);
+    // C end.c done() never returns after fatal lava reached by Boots_off.
+    // The JS finalizer returns after setting gameover, so stop polymon before
+    // drop_weapon(), find_ac(), or later post-transformation effects.
+    if (state.program_state?.gameover) return 0;
     await drop_weapon(1, state);
     find_ac(state);
 

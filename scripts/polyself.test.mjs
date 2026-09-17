@@ -6,16 +6,19 @@ import { readFileSync } from 'node:fs';
 import test from 'node:test';
 
 import {
+    PM_BROWN_MOLD,
     PM_COYOTE,
     PM_FOX,
     PM_GRAY_DRAGON,
     PM_GREEN_DRAGON,
     PM_GIANT_RAT,
+    PM_GIANT_ANT,
     PM_HUMAN_WEREJACKAL,
     PM_HUMAN_WEREWOLF,
     PM_JACKAL,
     PM_RABID_RAT,
     PM_SEWER_RAT,
+    PM_STONE_GIANT,
     PM_WARG,
     PM_WEREJACKAL,
     PM_WERERAT,
@@ -26,16 +29,34 @@ import {
     M2_HUMAN,
     NON_PM,
 } from '../js/monsters.js';
-import { armor_to_dragon } from '../js/polyself.js';
+import { armor_to_dragon, polymon } from '../js/polyself.js';
 import { were_beastie } from '../js/were.js';
 import { your_race } from '../js/mondata.js';
 import { strstri } from '../js/hacklib.js';
 import { game } from '../js/gstate.js';
 import { runSegment } from '../js/jsmain.js';
+import { InMemoryStorage } from '../js/storage.js';
 import {
+    FIRE_RES,
+    FLYING,
+    LAVAPOOL,
+    LEVITATION,
+    LIFESAVED,
+    OBJ_INVENT,
+    W_ARMF,
+    W_ARMU,
+    W_WEP,
+    WWALKING,
+} from '../js/const.js';
+import {
+    ARMOR_CLASS,
+    DAGGER,
     GRAY_DRAGON_SCALE_MAIL,
     GREEN_DRAGON_SCALES,
     STRANGE_OBJECT,
+    T_SHIRT,
+    WATER_WALKING_BOOTS,
+    WEAPON_CLASS,
 } from '../js/objects.js';
 
 const C_SOURCE = readFileSync('nethack-c/upstream/src/polyself.c', 'utf8');
@@ -101,6 +122,156 @@ test('polyself uses the role monster and original form in production', async () 
     });
     assert.equal(game.u.umonnum, game.u.umonster);
     assert.match(game.nhDisplay.topMessage, /^You return to human form!/u);
+});
+
+test('the seed4500 polymorph reaches break_armor and removes nohands gear',
+    async () => {
+    // The fixed-workload Knight witness reaches polyself.c:1248-1271 after a
+    // polymorph into a brown mold.  Replay only through the next stable
+    // command boundary: the source branch must clear gloves, shield, helmet,
+    // and boots before polymon() continues its post-transformation work.  The
+    // returned NethackGame is a capture wrapper; the canonical state remains
+    // in the shared game object used by runSegment().
+    const recording = JSON.parse(readFileSync(
+        new URL('../sessions/holdout/seed4500-knight-coverage.session.json',
+            import.meta.url),
+        'utf8',
+    ));
+    const segment = recording.segments[0];
+    const end = 1460;
+    let boundary = null;
+    const replay = await runSegment({
+        ...segment,
+        moves: segment.steps.slice(1, end)
+            .map(({ key }) => key ?? '').join(''),
+        storage: new InMemoryStorage(),
+    }, { onBoundary: (error) => { boundary ??= error; } });
+
+    assert.equal(boundary, null,
+        'break_armor continues through the saved production prefix');
+    assert.equal(replay.getScreens().length, end,
+        'the source-matching prefix emits one screen per step');
+    assert.equal(game.u.umonnum, PM_BROWN_MOLD,
+        'the witness reaches the intended nohands polymorph');
+    assert.equal(game.youmonst.data.pmidx, PM_BROWN_MOLD,
+        'the canonical monster form is the selected brown mold');
+    for (const slot of ['uarm', 'uarmc', 'uarmh', 'uarms',
+        'uarmg', 'uarmf', 'uarmu']) {
+        assert.equal(game[slot] ?? null, null,
+            `${slot} is no longer worn`);
+    }
+});
+
+test('break_armor consumes a worn shirt through the inventory lifecycle',
+    async () => {
+    // polyself.c:1174-1201.  A breakarm form destroys uarmu with useup()
+    // while the slot is still worn; useupall must therefore invoke the
+    // canonical setnotworn hook before removing the inventory object.
+    const recording = JSON.parse(readFileSync(
+        new URL('../sessions/holdout/seed4500-knight-coverage.session.json',
+            import.meta.url),
+        'utf8',
+    ));
+    await runSegment({
+        ...recording.segments[0],
+        moves: recording.segments[0].steps.slice(1, 3)
+            .map(({ key }) => key ?? '').join(''),
+        storage: new InMemoryStorage(),
+    });
+    const shirt = {
+        oclass: ARMOR_CLASS,
+        otyp: T_SHIRT,
+        where: OBJ_INVENT,
+        quan: 1,
+        owornmask: W_ARMU,
+        nobj: game.invent,
+    };
+    game.invent = shirt;
+    game.uarmu = shirt;
+    // Directly invoking polymon() is the initialized-state fixture here; a
+    // fixed response keeps its ordinary pline waits from depending on the
+    // runSegment input queue.
+    game.nhDisplay.readKey = async () => 32;
+    await polymon(PM_STONE_GIANT, game);
+    assert.equal(game.uarmu, null, 'breakarm clears the worn shirt slot');
+    let stillCarried = false;
+    for (let obj = game.invent; obj; obj = obj.nobj)
+        stillCarried ||= obj === shirt;
+    assert.equal(stillCarried, false,
+        'useup removes the destroyed shirt from the inventory chain');
+    assert.equal(shirt.owornmask, 0,
+        'useupall clears worn state before deallocation');
+});
+
+test('polymon stops after fatal lava during water-walking boot removal',
+    async () => {
+    // polyself.c:886-890 calls break_armor before drop_weapon/find_ac.
+    // do_wear.c Boots_off can reach trap.c lava_effects, whose done(BURNING)
+    // is non-returning in C.  This initialized fixture keeps a wielded weapon
+    // sentinel in place after the JS finalizer returns, proving polymon did
+    // not continue into post-death drop_weapon cleanup.
+    const recording = JSON.parse(readFileSync(
+        new URL('../sessions/holdout/seed4500-knight-coverage.session.json',
+            import.meta.url),
+        'utf8',
+    ));
+    await runSegment({
+        ...recording.segments[0],
+        moves: recording.segments[0].steps.slice(1, 3)
+            .map(({ key }) => key ?? '').join(''),
+        storage: new InMemoryStorage(),
+    });
+    const boots = {
+        oclass: ARMOR_CLASS,
+        otyp: WATER_WALKING_BOOTS,
+        where: OBJ_INVENT,
+        quan: 1,
+        owornmask: W_ARMF,
+        nobj: null,
+    };
+    const weapon = {
+        oclass: WEAPON_CLASS,
+        otyp: DAGGER,
+        where: OBJ_INVENT,
+        quan: 1,
+        owornmask: W_WEP,
+        nobj: null,
+    };
+    boots.nobj = weapon;
+    game.invent = boots;
+    game.uwep = weapon;
+    // Keep this initialized fixture focused on the footwear callback.  A
+    // Knight's ordinary starting armor would take the sliparm branch first
+    // and legitimately try to drop that armor on the lava square.
+    for (const slot of ['uarm', 'uarmc', 'uarmh', 'uarms', 'uarmg', 'uarmu'])
+        game[slot] = null;
+    game.uarmf = boots;
+    game.u.uundetected = 0;
+    game.level.at(game.u.ux, game.u.uy).typ = LAVAPOOL;
+    for (const index of [FIRE_RES, LEVITATION, FLYING, WWALKING]) {
+        game.u.uprops[index].intrinsic = 0;
+        game.u.uprops[index].extrinsic = 0;
+        game.u.uprops[index].blocked = 0;
+    }
+    game.iflags.in_lava_effects = 0;
+    game.wizard = false;
+    game.discover = false;
+    game.u.uprops[LIFESAVED].intrinsic = 0;
+    game.u.uprops[LIFESAVED].extrinsic = 0;
+    game.nhDisplay.readKey = async () => 32;
+
+    await polymon(PM_GIANT_ANT, game);
+
+    assert.equal(game.program_state.gameover, true,
+        'fatal lava reaches the non-returning done(BURNING) boundary');
+    assert.equal(game.uarmf, null,
+        'Boots_off clears the worn slot before entering lava effects');
+    assert.equal(game.u.umonnum, PM_GIANT_ANT,
+        'the selected form is installed before the fatal callback');
+    assert.equal(game.uwep, weapon,
+        'polymon does not run post-death drop_weapon cleanup');
+    assert.equal(boots.owornmask, 0,
+        'fatal Boots_off leaves the boot object unworn');
 });
 test('polyself keeps the C early guards, selector, and final gate in order', () => {
     assert.ok(C_START >= 0 && C_END > C_START);

@@ -1,51 +1,46 @@
 {
   "session": "holdout/seed4500-knight-coverage",
-  "remainingScreensUpperBound": 375,
+  "remainingScreensUpperBound": 278,
   "status": "complete",
-  "commit": "0737209af932f58e30ff926172a787f595379498",
+  "commit": "c04193106e88a205f3c6341bddcfb193bbe8284f",
   "mismatch": {
     "session": "holdout/seed4500-knight-coverage",
-    "step": 1439,
+    "step": 1536,
     "kind": "stop",
-    "function": null,
-    "functionDeclared": false,
-    "sourceFile": null,
-    "cFile": null,
+    "function": "is_edible",
+    "functionDeclared": true,
+    "sourceFile": "eat.c",
+    "cFile": "eat.c",
     "luaFile": null,
     "line": null,
-    "message": "unsupported hero command: an unported branch of this command: break_armor: nohands/verysmall gloves removal not ported",
+    "message": "unsupported hero command: an unported branch of this command: eating requires is_edible() for a polymorphed hero",
     "unlocatedKinds": [],
     "recordedSteps": 1814,
-    "remainingScreensUpperBound": 375
+    "remainingScreensUpperBound": 278
   },
-  "summary": "The whole polyself selector now matches and reaches the next source boundary in break_armor: a polymorph into a nohands/verysmall form must remove gloves, drop the weapon with them, clear glove properties, and continue through the remaining armor checks. The downstream skinback artifact-light adjustment remains an open dependency.",
+  "summary": "Forced polymorph armor removal now matches through the next command sequence. The first remaining stop is eat.c is_edible: JavaScript rejects a polymorphed hero before C applies its form-specific food/material rules. Complete the pure source predicate in C order and retain the existing doeat, floorfood and item-action callers. The downstream skinback artifact-light restoration remains separately unported.",
   "source": {
-    "file": "polyself.c",
+    "file": "eat.c",
     "functions": [
-      "break_armor"
+      "is_edible"
     ],
-    "branch": "polyself.c:1156-1302: implement the complete armor-transition sequence for breakarm, sliparm, horned, nohands/verysmall, slithy/centaur, and headless forms, preserving source order, messages, worn-slot state, and inventory drops; the current reached branch is :1248-1271.",
+    "branch": "eat.c is_edible91–121 first rejects unique object types, then accepts fire-elemental flammable objects, metallivore metallic objects with the rust-monster rust-prone restriction, ghoul non-vegan corpses or eggs, and empty organic objects for a gelatinous cube, before the ordinary FOOD_CLASS fallback. It performs no RNG call, output or game-state mutation.",
     "callers": [
-      "polyself.c:886-890 polymon() calls break_armor() after skinback() and before drop_weapon(1), find_ac(), and the post-transformation state updates.",
-      "Accepted js/polyself.js:721-814 owns break_armor(); js/polyself.js:1046-1050 invokes it from polymon() at the same transformation boundary."
+      "C eat.c doeat and floorfood call is_edible before accepting an item; js/eat.js doeat, floorfood and eat_ok already route through this predicate.",
+      "C iactions.c classifies item actions with is_edible; js/iactions.js itemactions imports the same owner."
     ],
     "dependencies": [
-      "polyself.c:1121-1154 dropp() is the existing helper boundary: it scans gi.invent before calling dropx(); js/polyself.js:697-715 supplies dropx() with newsym, encumber_msg, and remove_object hooks. Its void result is discarded by break_armor().",
-      "The reached polyself.c:1248-1258 branch calls drop_weapon(0), Gloves_off(), and dropp() in that order. do_wear.c:645-701 Gloves_off() returns 0 but its result is discarded; its state effects (setworn W_ARMG, glib reset, encumber feedback, and corpse-touch handling) still need a working owner. Accepted js/do_wear.js _doWearInternals exports no Gloves_off().",
-      "polyself.c:1259-1271 calls Shield_off(), Helmet_off(), and dropp(); do_wear.c:518-756 defines the return-0 takeoff callbacks. Existing js/do_wear.js _doWearInternals has Shield_off() (1914-1923) and Helmet_off() (1786-1814), but their supported-type guards must not refuse valid polymorph removal branches.",
-      "polyself.c:1273-1285 calls Boots_off() for nohands, verysmall, slithy, or centaur forms; do_wear.c:262-323 defines the return-0 callback and js/do_wear.js:1358-1461 is its existing owner. polyself.c:1210-1219 similarly requires Cloak_off(); js/do_wear.js:1612-1631 owns it with currently limited cloak types.",
-      "The breakarm body branch at polyself.c:1162-1197 requires end_burn(), Armor_gone(), Cloak_off(), and useup(); Armor_gone() is do_wear.c:938-974 and has no exported JS owner in the accepted commit. The headless branch at polyself.c:1287-1300 requires Blindf_off(NULL), whose do_wear.c:1495-1534 result is discarded and is not exposed through _doWearInternals.",
-      "Return-valued predicates used by break_armor are existing owners: racial_exception() is used as <1 at polyself.c:1199 and is implemented in js/makemon_create.js:2686-2718; WrappingAllowed() gates mummy wrapping at polyself.c:1176-1178 and :1210-1212 and is implemented in js/obj.js:1347-1358. breakarm(), sliparm(), has_horns(), nohands(), verysmall(), slithy(), is_whirly(), and has_head() are existing mondata/property predicates. No direct return-valued missing callee is needed beyond these existing owners; the missing takeoff callbacks are impure side-effect dependencies despite discarded C return values.",
-      "Downstream polyself.c:1953-1969 skinback() still needs its artifact-light radius capture and maybe_adjust_light() update when merged dragon scales are restored; js/polyself.js:679-690 retains that known gap separately from break_armor."
+      "Use existing source-owned object material predicates, Has_contents, metallivorous, vegan and the canonical monster table. No missing return-valued callee or fabricated RNG/state transition is required.",
+      "Compatible non-food eating can later reach the separate doeat_nonfood owner; removing the pure predicate refusal does not establish that downstream behavior.",
+      "Unresolved prior source finding: polyself.c skinback1953–1969 still needs artifact-light radius capture and maybe_adjust_light when merged dragon scales are restored. This is separate from the resolved break_armor mismatch."
     ]
   },
   "goalKind": "file-port",
   "evidence": [
-    "Saved .cache/B22-queue.json identifies the first boundary at step 1439 with message break_armor: nohands/verysmall gloves removal not ported, recordedSteps 1814, and remainingScreensUpperBound 375.",
-    "Saved .cache/B22-development-scan.json reports holdout/seed4500-knight-coverage.session.json with screensEmitted 1439, divergence null, and the same break_armor boundary; this is a source stop rather than a prior screen/RNG divergence.",
-    "The recorded session reaches polymon() as a brown mold at the preceding transformation screen, then C emits Your armor falls around you! and proceeds to the nohands branch. C polyself.c:1248-1258 emits drop your gloves and weapon!, calls drop_weapon(0), Gloves_off(), and dropp(); accepted js/polyself.js:781-786 instead throws before any of those state transitions.",
-    "C polyself.c:1156-1302 establishes break_armor as one complete static source function. Its only caller is polymon() at :888, while the accepted JS mirrors that owner and caller at js/polyself.js:721 and :1048.",
-    "The accepted selector at commit 0737209af932f58e30ff926172a787f595379498 has superseded the earlier polyself selector mismatch. The actionable remaining source scope is break_armor; the skinback artifact-light omission remains explicitly downstream and unresolved."
+    "The passing checkpoint c04193106e88a205f3c6341bddcfb193bbe8284f advances the Knight session from 1439 to 1536 matching screens. The saved A27 scan and queue identify is_edible as the next source stop, with no earlier RNG or screen divergence.",
+    "Read complete nethack-c/upstream/src/eat.c is_edible91–121 and the accepted js/eat.js helper: its polymorphed-hero refusal precedes the form-specific C acceptance rules. Implement the whole pure predicate, not a session-specific food allowance.",
+    "The completed armor fix is independently exercised by the Knight brown-mold and equipped Valkyrie giant-ant recordings under recordings/polyself.c/break-armor-*-a27.session.json. C messages verify forced suit, glove, shield, helmet and boot removal; the older raven recording specifically verifies sliparm cloak removal.",
+    "The source goal for break_armor still retains unrecorded breakarm destruction, horned-helmet, headless-eyewear and fatal-lava entry families. The existing Eyes-of-the-Overworld sight-loss and skinback artifact-light paths remain separate downstream gaps."
   ],
-  "nextProbe": "Port the complete break_armor() function in polyself.js, beginning with Gloves_off-compatible state removal at polyself.c:1248-1258, then exercise the follow-on shield/helmet/boot paths and the existing sliparm case. Preserve the skinback artifact-light dependency and unrecorded selector entry families until their own recipes reach them."
+  "nextProbe": "Port the complete pure is_edible predicate with source-pinned tests for each form and unique-object precedence; replay the existing production callers, then investigate the next mismatch without treating helper completion as full non-food eating support."
 }

@@ -49,6 +49,7 @@ import {
     hitmsg,
     magic_negation,
     mattacku,
+    mdamageu,
     mpoisons_subj,
     MonsterDeathPlanningError,
     mswings_verb,
@@ -1582,6 +1583,78 @@ test('getmattk separates the two damage types its holder guard names',
 });
 
 // ---- mhitu.c hitmsg(), hitmu(), mdamageu() and passiveum() ----
+
+test('mdamageu updates the ordinary hit-point pool and caps it after showing damage',
+    async () => {
+    // mhitu.c:1908-1925. The ordinary arm writes u.uhp, emits showdamage()
+    // before the maximum cap, and raises botl for the caller's status refresh.
+    const state = heroState();
+    state.iflags = { showdamage: true };
+    state.disp = { botl: false };
+    state.u.uhp = 9;
+    state.u.uhpmax = 10;
+    const result = meleeEnv(state, []);
+    await mdamageu({ m_id: 6101 }, 3, state, result.env);
+    assert.equal(state.u.uhp, 6);
+    assert.equal(state.disp.botl, true);
+    assert.deepEqual(result.lines, ['[HP -3, 6 left]']);
+
+    // Display the reduced pool before applying a caller's lower maximum.
+    state.u.uhp = 14;
+    const capped = meleeEnv(state, []);
+    await mdamageu({ m_id: 6101 }, 2, state, capped.env);
+    assert.equal(state.u.uhp, 10);
+    assert.deepEqual(capped.lines, ['[HP -2, 12 left]']);
+
+    // The discarded diagnostic continues with n = 0 in C.
+    const noDamage = meleeEnv(state, []);
+    await mdamageu({ m_id: 6101 }, -2, state, noDamage.env);
+    assert.equal(state.u.uhp, 10);
+    assert.deepEqual(noDamage.lines, []);
+});
+
+test('mdamageu uses the polymorphed hit-point pool and stops before live rehumanize in planning',
+    async () => {
+    // mhitu.c:1910-1917. Upolyd selects u.mh/mhmax, leaving normal hit
+    // points untouched; a planning clone stops at the source lethal boundary
+    // instead of calling the input-bearing rehumanize() operation.
+    const state = heroState({ mnum: PM_RUST_MONSTER });
+    state.u.umonster = PM_HUMAN;
+    state.u.umonnum = PM_RUST_MONSTER;
+    state.u.mh = 8;
+    state.u.mhmax = 10;
+    state.u.uhp = 23;
+    state.u.uhpmax = 30;
+    state.iflags = { showdamage: true };
+    const result = meleeEnv(state, []);
+    await mdamageu({ m_id: 6102 }, 3, state, result.env);
+    assert.equal(state.u.mh, 5);
+    assert.equal(state.u.uhp, 23);
+    assert.deepEqual(result.lines, ['[HP -3, 5 left]']);
+
+    // Caller-side reductions can leave mh above mhmax; C displays that
+    // reduced value before capping the form pool.
+    state.u.mh = 12;
+    const capped = meleeEnv(state, []);
+    await mdamageu({ m_id: 6102 }, 1, state, capped.env);
+    assert.equal(state.u.mh, 10);
+    assert.deepEqual(capped.lines, ['[HP -1, 11 left]']);
+
+    state.u.mh = 1;
+    const lethal = meleeEnv(state, [], { planning: true });
+    await assert.rejects(
+        () => mdamageu({ m_id: 6102 }, 1, state, {
+            ...lethal.env,
+            planning: true,
+        }),
+        (error) => error instanceof MonsterDeathPlanningError
+            && error.monsterId === 6102,
+    );
+    assert.equal(state.u.mh, 0);
+    assert.equal(state.u.uhp, 23);
+    assert.equal(state.u.umonnum, PM_RUST_MONSTER);
+    assert.deepEqual(lethal.lines, ['[HP -1, 0 left]']);
+});
 
 // hitmsg() reads a monster, an attack record and the two gh fields; the env
 // carries the printer and the remaining unported hitmsg operations may raise.
