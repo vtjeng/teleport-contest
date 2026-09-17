@@ -34,6 +34,8 @@ import {
     ECMD_TIME,
     ECMD_CANCEL,
     FUMBLING,
+    HALLUC,
+    HALLUC_RES,
     GETOBJ_DOWNPLAY,
     GETOBJ_EXCLUDE,
     GETOBJ_SUGGEST,
@@ -753,6 +755,32 @@ test('throwit() handles weapons that return to the hand', async () => {
     await throwit(thrownBoomerang, 0, false, null, boomerang);
     assert.equal(boomerang.iflags.returning_missile, null);
     assert.equal(boomerang.gt.thrownobj, null);
+
+    // youprop.h Hallucination: HHalluc && !HHalluc_res.  Resistance keeps
+    // this weapon on the source's successful return arm, including the
+    // second rn2(100) that the impaired arm skips.
+    const resistant = arena();
+    resistant.u.uprops[HALLUC].intrinsic = 1;
+    resistant.u.uprops[HALLUC_RES].extrinsic = 1;
+    const resistantAklys = item(resistant, AKLYS);
+    await throwit(resistantAklys, W_WEP, true, null, resistant);
+    assert.equal(resistant.uwep, resistantAklys);
+    assert.equal(resistant.u.twoweap, true);
+    assert.deepEqual(draws(), ['rn2(100)', 'rn2(100)']);
+});
+
+test('throwit() treats unresisted hallucination as impaired', async () => {
+    const hallucinating = arena();
+    hallucinating.u.uprops[HALLUC].intrinsic = 1;
+    const aklys = item(hallucinating, AKLYS);
+    await assert.rejects(
+        () => throwit(aklys, W_WEP, false, null, hallucinating),
+        /hallucinated display/u,
+    );
+    assert.notEqual(hallucinating.uwep, aklys);
+    // The impaired arm goes directly to the damage test after its initial
+    // return roll; it must not spend the successful-return rn2(100).
+    assert.deepEqual(draws(), ['rn2(100)', 'rn2(2)']);
 });
 
 test('throwit() applies the recoil of a weightless throw', async () => {
