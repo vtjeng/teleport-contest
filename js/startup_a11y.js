@@ -94,7 +94,6 @@ import {
     coyotename,
     distant_monnam,
     hliquid,
-    rndmonnam,
 } from './do_name.js';
 import {
     fruit_from_indx,
@@ -862,11 +861,13 @@ export function hiddenObjectPhrase(object, state, { includeArticle = true } = {}
 
 // C ref: pager.c look_at_monster() and do_name.c distant_monnam(). The
 // optional species is the actual buffered monster glyph (including a
-// monster-shaped mimic appearance); hallucination replaces the name through
-// rndmonnam() but retains invisible and mobility suffixes. env.state is
-// required for full pager semantics: hero status and equipment, visibility,
-// terrain, regions, catalog state, and display RNG all affect the result.
-// Omitting it intentionally exposes only the reduced naming behavior.
+// monster-shaped mimic appearance). pager.c always delegates the name to
+// distant_monnam(), including while hallucinating; that owner supplies the
+// source invisible, swallower, and gameover naming rules and consumes the
+// display RNG in the source order. env.state is required for full pager
+// semantics: hero status and equipment, visibility, terrain, regions, catalog
+// state, and display RNG all affect the result. Omitting it intentionally
+// exposes only the reduced naming behavior.
 export function describeMonster(monster, env = {}) {
     const state = env.state;
     const hallucinating = env.hallucinating
@@ -874,26 +875,17 @@ export function describeMonster(monster, env = {}) {
     const namedMonster = env.species
         ? { ...monster, data: env.species }
         : monster;
-    let text = hallucinating
-        ? rndmonnam({
-            state,
-            random: env.displayRandom,
-            files: env.files,
-        })
-        : namedMonster.data?.pmidx === PM_COYOTE
+    let text = !hallucinating
+        && namedMonster.data?.pmidx === PM_COYOTE
             ? coyotename(namedMonster, [], state, env)
         : distant_monnam(
             namedMonster,
             ARTICLE_NONE,
             undefined,
             state,
-            // pager.c reaches this helper only after selecting a monster
-            // glyph, so its description is an intentional name lookup even
-            // when the lightweight fixture has no map visibility state.
-            { ...env, canSpotMonster: env.canSpotMonster ?? (() => true) },
+            env,
         );
     if (!env.pagerBase) {
-        if (monster.minvis) text = `invisible ${text}`;
         if (!hallucinating && monster.mtame) text = `tame ${text}`;
         else if (!hallucinating && monster.mpeaceful)
             text = `peaceful ${text}`;
