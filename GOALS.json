@@ -60149,7 +60149,7 @@
     {
       "id": "port-polyself-break-armor-seed4500-20260917",
       "kind": "file-port",
-      "status": "open",
+      "status": "parked",
       "summary": "Port complete polymorph armor removal and preserve fatal callback control flow",
       "cFile": "polyself.c",
       "sessions": [
@@ -60160,8 +60160,8 @@
       "spans": [
         {
           "name": "break_armor",
-          "status": "queued",
-          "closedBy": null,
+          "status": "closed",
+          "closedBy": "c04193106e88a205f3c6341bddcfb193bbe8284f",
           "functions": [
             "break_armor"
           ]
@@ -60351,7 +60351,17 @@
             "recordings": []
           }
         ]
-      }
+      },
+      "progressBeforePark": {
+        "screens": 97,
+        "rng": 283
+      },
+      "parkedStanding": {
+        "sha": "c04193106e88a205f3c6341bddcfb193bbe8284f",
+        "screens": 11099,
+        "rng": 784966
+      },
+      "parkedReason": "The complete break_armor span passes at c04193106e88a205f3c6341bddcfb193bbe8284f; independent recordings cover forced suit/glove/shield/helmet/boot removal and the saved raven recording covers sliparm cloak removal. Breakarm destruction, horned helmet and headless eyewear families, and fatal-lava production entries remain unrecorded. Preserve downstream Eyes-of-the-Overworld sight-loss and skinback artifact-light restoration gaps. Resume when these entry recipes are reachable and selection permits; the Knight first mismatch is now the independent eat.c is_edible helper."
     }
   ]
 }
