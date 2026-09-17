@@ -58881,7 +58881,7 @@
     {
       "id": "port-uhitm-poison-seed0399-20260917",
       "kind": "file-port",
-      "status": "open",
+      "status": "parked",
       "summary": "Port poison attack directions and preserve lethal planning and live death handling.",
       "cFile": "uhitm.c",
       "sessions": [
@@ -58892,8 +58892,8 @@
       "spans": [
         {
           "name": "mhitm_really_poison..mhitm_ad_drst",
-          "status": "queued",
-          "closedBy": null,
+          "status": "closed",
+          "closedBy": "da3c62dda8e2cd652a8bd8ffa845b54022f37365",
           "functions": [
             "mhitm_really_poison",
             "mhitm_ad_drst"
@@ -59113,7 +59113,17 @@
             "recordings": []
           }
         ]
-      }
+      },
+      "progressBeforePark": {
+        "screens": 12,
+        "rng": 87
+      },
+      "parkedStanding": {
+        "sha": "da3c62dda8e2cd652a8bd8ffa845b54022f37365",
+        "screens": 10959,
+        "rng": 771217
+      },
+      "parkedReason": "Verified poison span and required Conflict caller match monster-to-hero and monster-to-monster recordings. Hero-to-monster attribute poison and mhitm_ad_phys poisoned-weapon entry coverage remain unrecorded or blocked; resume when their source callers and matching independent recordings are available. The fixed session now first differs after the poison boundary at screen521."
     }
   ]
 }
