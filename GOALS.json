@@ -59761,7 +59761,7 @@
     {
       "id": "port-dothrow-throwit-seed0101-20260917",
       "kind": "file-port",
-      "status": "open",
+      "status": "parked",
       "summary": "Port complete thrown-object flight, return, and landing behavior",
       "cFile": "dothrow.c",
       "sessions": [
@@ -59772,8 +59772,8 @@
       "spans": [
         {
           "name": "throwit",
-          "status": "queued",
-          "closedBy": null,
+          "status": "closed",
+          "closedBy": "254503a94c48650d434f073e6889afa2a73cad6e",
           "functions": [
             "throwit"
           ]
@@ -59983,7 +59983,17 @@
             "recordings": []
           }
         ]
-      }
+      },
+      "progressBeforePark": {
+        "screens": 18,
+        "rng": 77
+      },
+      "parkedStanding": {
+        "sha": "254503a94c48650d434f073e6889afa2a73cad6e",
+        "screens": 11002,
+        "rng": 784683
+      },
+      "parkedReason": "The throwit span and ordinary hand-thrown arrow entry are verified by two independent recordings and a passing combined checkpoint. Active fire, boomerang, vertical, attached-ball, swallowed, dospit, and artifact venom entry recordings remain incomplete; resume when those source paths have matching production recipes and their priority permits."
     }
   ]
 }
