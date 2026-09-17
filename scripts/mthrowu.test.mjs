@@ -8,7 +8,9 @@ import {
     DOOR,
     HALLUC,
     IN_SIGHT,
+    I_SPECIAL,
     LAVAWALL,
+    MFAST,
     MOAT,
     M_AP_MONSTER,
     M_AP_NOTHING,
@@ -16,9 +18,11 @@ import {
     NO_WEAPON_WANTED,
     OBJ_DELETED,
     OBJ_FLOOR,
+    OBJ_FREE,
     ROOM,
     STONE,
     NEED_WEAPON,
+    W_ARMF,
     W_WEP,
 } from '../js/const.js';
 import { acurr, exercise } from '../js/attrib.js';
@@ -54,6 +58,7 @@ import {
     ORCISH_BOW,
     POT_HEALING,
     POT_SLEEPING,
+    SPEED_BOOTS,
     STRANGE_OBJECT,
     WAN_STRIKING,
 } from '../js/objects.js';
@@ -1450,14 +1455,51 @@ test('m_useup takes one potion from a stack and frees a lone one', async () => {
     potion.quan = 2;
     add_to_minv(subject, potion, { state });
 
-    m_useup(subject, potion, { state });
+    await m_useup(subject, potion, { state });
     assert.equal(potion.quan, 1);
     assert.equal(potion.owt, state.objects[POT_HEALING].oc_weight);
     assert.equal(subject.minvent, potion);
 
     // The last one: m_useupall() (mthrowu.c:1153-1158) extracts and frees it.
-    m_useup(subject, potion, { state });
+    await m_useup(subject, potion, { state });
     assert.equal(subject.minvent, null);
+});
+
+test('m_useup waits for equipped-gear cleanup before freeing the object', async () => {
+    const state = await hero();
+    const subject = attacker(state, state.u.ux + 2, state.u.uy,
+        state.u.ux, state.u.uy);
+    subject.mhp = subject.mhpmax = 1;
+    const boots = mksobj(SPEED_BOOTS, false, false, { state });
+    boots.owornmask = W_ARMF;
+    subject.misc_worn_check = W_ARMF;
+    subject.mspeed = MFAST;
+    add_to_minv(subject, boots, { state });
+
+    const order = [];
+    let release;
+    const gate = new Promise((resolve) => { release = resolve; });
+    const pending = m_useup(subject, boots, {
+        state,
+        hooks: {
+            updateMonExtrinsics: async () => {
+                order.push('extrinsics-start');
+                await gate;
+                order.push('extrinsics-done');
+            },
+        },
+    });
+    await Promise.resolve();
+    assert.deepEqual(order, ['extrinsics-start']);
+    assert.equal(subject.minvent, null);
+    assert.equal(boots.where, OBJ_FREE,
+        'm_useupall must detach but not deallocate before extraction cleanup');
+
+    release();
+    await pending;
+    assert.deepEqual(order, ['extrinsics-start', 'extrinsics-done']);
+    assert.equal(boots.where, OBJ_DELETED);
+    assert.equal(subject.misc_worn_check, I_SPECIAL);
 });
 
 test('m_throw performs the source-ordered cursed missile misfire', async () => {

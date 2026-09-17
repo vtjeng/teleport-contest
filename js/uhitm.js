@@ -2530,7 +2530,10 @@ async function mhitm_ad_sedu(magr, mattk, mdef, mhm, state = game, env = {}) {
                     ?? ((mon, actionEnv) => mwepgone(mon, actionEnv)),
             },
         };
-        extract_from_minvent(mdef, obj, true, false, extractionEnv);
+        // update_mon_extrinsics() may suspend for its source message/state
+        // transition.  C completes extraction before add_to_minv() can
+        // inspect or merge the object, so keep that continuation ordered.
+        await extract_from_minvent(mdef, obj, true, false, extractionEnv);
 
         // add_to_minv() may merge and free obj, so C obtains its display name
         // before adding it to the aggressor's inventory.

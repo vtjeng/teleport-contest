@@ -348,12 +348,22 @@ export async function erode_obj(obj, description, type, flags, env) {
                 note_unported('steal.c remove_worn_item');
             } else if (monsterVictim) {
                 const { extract_from_minvent } = await import('./worn.js');
-                extract_from_minvent(
+                const { mwepgone } = await import('./weapon.js');
+                await extract_from_minvent(
                     monsterVictim,
                     obj,
                     true,
                     false,
-                    { ...env, state },
+                    {
+                        ...env,
+                        state,
+                        hooks: {
+                            ...(env.hooks ?? {}),
+                            mwepgone: env.hooks?.mwepgone
+                                ?? ((target, actionEnv) =>
+                                    mwepgone(target, actionEnv)),
+                        },
+                    },
                 );
             } else {
                 // C's impossible() branch clears the mask before deleting a
