@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent polyself.c polyself() production witness: wizard-controlled selection of raven exercises name parsing, ordinary polymorph admission, the sex-change gate, and the existing polymon caller. The seed, role, gender, and target differ from the prior own-race recordings.",
+  "segments": [
+    {
+      "seed": 820117,
+      "datetime": "20310417091500",
+      "nethackrc": "OPTIONS=name:Skyform,role:Wizard,race:human,gender:male,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen\nOPTIONS=pettype:none,!acoustics,playmode:debug\n",
+      "moves": "#polyself\nraven\n "
+    }
+  ]
+}

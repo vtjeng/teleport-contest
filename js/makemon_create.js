@@ -58,6 +58,7 @@ import {
     MM_NOGRP,
     MM_NONAME,
     MM_NOMSG,
+    MM_ADJACENTOK,
     MS_BRIBE,
     M_AP_NOTHING,
     M_AP_MONSTER,
@@ -618,6 +619,7 @@ const SUPPORTED_FLAGS = NO_MINVENT
     | MM_EGD
     | MM_EPRI
     | MM_ESHK
+    | MM_ADJACENTOK
     | MM_NOGRP
     | MM_NONAME
     | MM_MALE
@@ -1434,11 +1436,32 @@ function preflightCreation(ptr, x, y, mmflags, normalized) {
         && Boolean(mmflags & MM_NOWAIT)
         && Boolean(mmflags & MM_NOMSG)
         && !(mmflags & ~(NO_MINVENT | MM_NOWAIT | MM_NOMSG
-            | MM_NOCOUNTBIRTH | MM_NOTAIL | MM_MALE | MM_FEMALE));
+            | MM_NOCOUNTBIRTH | MM_NOTAIL | MM_ADJACENTOK
+            | MM_MALE | MM_FEMALE));
+    // trap.c animate_statue() uses NO_MINVENT|MM_NOMSG, adding adjacency
+    // for the spell and substituted-species branches. Ordinary statue traps
+    // and shattered statues omit it. All use the runtime creation tail.
+    const statueAnimationCall = !state.in_mklev
+        && normalized._animateStatue === true
+        && Boolean(ptr)
+        && !randomCoordinates
+        && Boolean(mmflags & NO_MINVENT)
+        && Boolean(mmflags & MM_NOMSG)
+        && !(mmflags & ~(NO_MINVENT | MM_NOMSG | MM_ADJACENTOK
+            | MM_NOCOUNTBIRTH | MM_MALE | MM_FEMALE));
+    // zap.c stone_to_flesh_obj() animates a figurine with the same direct
+    // runtime creation shape, but without the statue's adjacent-square flag.
+    // Keep that source caller explicit so it gets the normal async tail.
+    const figurineAnimationCall = !state.in_mklev
+        && normalized._stoneFleshFigurine === true
+        && Boolean(ptr)
+        && !randomCoordinates
+        && mmflags === (NO_MINVENT | MM_NOMSG);
     const runtimeCall = startingPetCall || confusedLightCall || djinniBottleCall
         || fountainCreatureCall
         || runtimeRandomCall || runtimeGroupCall || createParticularCall
-        || vaultGuardCall || revivalCall;
+        || vaultGuardCall || revivalCall || statueAnimationCall
+        || figurineAnimationCall;
     if (runtimeCall
         && (!normalized.runtimeContinuation
             || typeof normalized.runtimeContinuation !== 'object')) {
@@ -1452,10 +1475,15 @@ function preflightCreation(ptr, x, y, mmflags, normalized) {
             'runtime creation while an occupation lacks stopOccupation',
         );
     }
-    const shopkeeperCall = state.in_mklev
+    const shopkeeperCall = (state.in_mklev
         && ptr?.pmidx === PM_SHOPKEEPER
         && !randomCoordinates
-        && mmflags === MM_ESHK;
+        && mmflags === MM_ESHK)
+        // montraits() restores a saved shopkeeper through the ordinary
+        // revival shape, outside mklev.  C admits this because the saved
+        // extension is copied before replmon(), rather than treating it as a
+        // fresh shkinit() creation.
+        || (revivalCall && ptr?.pmidx === PM_SHOPKEEPER);
     // trap.c mk_trap_statue() and sp_lev.c create_object() explicitly create
     // temporary inventory donors at random locations. Their rndmonnum_adj()
     // reservoirs can extend beyond the ordinary main-dungeon mklev allowlist;

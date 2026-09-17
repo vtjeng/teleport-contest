@@ -807,7 +807,7 @@ test('a blind hero learns nothing from a wand they cannot see', async () => {
     assert.equal(game.objects[WAN_SLEEP].oc_encountered, 1);
 });
 
-test('a hero who resists sleep stops before the sleep ray is rolled',
+test('a hero who resists sleep keeps the source shield branch without a roll',
     async () => {
     // zap.c:2854-2857. Sleep_resistance is youprop.h:36's plain "either
     // source" test, so an intrinsic alone selects the arm. No race or role the
@@ -817,35 +817,29 @@ test('a hero who resists sleep stops before the sleep ray is rolled',
     typeAtPrompts(HEALER_WAND, SELF_KEY);
     initRng(49);
     enableRngLog();
-    await assert.rejects(
-        () => dozap(game),
-        /shieldeff\(\) and monstseesu\(\) for a sleep-resistant hero/u,
-    );
-    // The refusal precedes the rnd(50), so the arm is chosen before the roll.
+    assert.equal(await dozap(game), ECMD_TIME);
+    // The shield branch precedes the rnd(50), so resistance spends no roll.
     assert.deepEqual(getRngLog(), []);
+    assert.equal(pendingTopLine(), "You don't feel sleepy!");
     // The extrinsic half selects the same arm on its own.
     await heroCarryingWand({ spe: 4 });
     game.u.uprops[SLEEP_RES] = { intrinsic: 0, extrinsic: W_ARMH };
     typeAtPrompts(HEALER_WAND, SELF_KEY);
-    await assert.rejects(
-        () => dozap(game), UnsupportedZapError,
-    );
+    initRng(49);
+    enableRngLog();
+    assert.equal(await dozap(game), ECMD_TIME);
+    assert.deepEqual(getRngLog(), []);
 });
 
-test('a self-zap of anything but sleep stops where C calls impossible',
+test('a self-zap of an unimplemented type records C impossible and returns',
     async () => {
-    // zapyourself()'s `default:` (zap.c:3004-3006). WAN_DIGGING is an
-    // ordinary aimed wand with an arm of its own that this port has not
-    // reached; the refusal names the type so a session that stops here says
-    // which wand it wanted.
+    // zapyourself()'s `default:` (zap.c:3004-3006). WAN_DIGGING has no
+    // self-zap effect; C reports impossible and then completes the command.
     await heroCarryingWand({ otyp: WAN_DIGGING, spe: 4 });
     typeAtPrompts(HEALER_WAND, SELF_KEY);
     initRng(49);
     enableRngLog();
-    await assert.rejects(
-        () => dozap(game),
-        new RegExp(`zapyourself\\(\\) for object type ${WAN_DIGGING}`, 'u'),
-    );
+    assert.equal(await dozap(game), ECMD_TIME);
     assert.deepEqual(getRngLog(), []);
 });
 
@@ -1057,7 +1051,7 @@ test('the discovery matrix zaps a wand whose type is not yet known', () => {
     );
 });
 
-test('every zap refusal names a zap.c function the port has not ported',
+test('every remaining zap refusal names an unported zap.c function',
     () => {
     const source = readFileSync(
         new URL('../js/zap.js', import.meta.url), 'utf8',
@@ -1067,16 +1061,12 @@ test('every zap refusal names a zap.c function the port has not ported',
     // entry is the C function the refusal names, which is the text up to its
     // first parenthesis.
     //
-    // The first four are the `z` command's own, above the ray:
+    // The `z` command's own self-zap switch is now source-complete. Its
+    // discarded helper calls use note_unported() and its default impossible()
+    // arm records a gap without throwing, so neither appears here.
     //
-    // - backfire() and weffects() are two of dozap()'s five effect arms;
-    //   weffects() no longer stops, so only backfire() is left here.
-    // - losehp() is dozap()'s self arm reacting to damage. zapyourself()
-    //   returns 0 for the one object type it handles, so nothing reaches it.
-    // - shieldeff() stands for the Sleep_resistance half of zapyourself()'s
-    //   WAN_SLEEP arm, which also needs monstseesu().
-    // - zapyourself() is that function's `default:`, where C calls
-    //   impossible(); it covers every object type but the two that sleep.
+    // backfire() and weffects() are two of dozap()'s five effect arms;
+    // weffects() no longer stops, so only backfire() is left here.
     //
     // The rest are the ray's, in source order. Ported branches have no
     // refusal inventory entry; calls whose result is discarded remain
@@ -1086,8 +1076,8 @@ test('every zap refusal names a zap.c function the port has not ported',
             /new UnsupportedZapError\(\s*['"`]([^'"`]*)/gu,
         )].map(([, text]) => text.split('(')[0]),
         [
-            // dozap() and zapyourself().
-            'backfire', 'losehp', 'shieldeff', 'zapyourself',
+            // dozap()'s remaining backfire boundary.
+            'backfire',
             // resist(): the still-unported killed-by-damage arms.
             'resist',
             // zhitu(): the still-unported hero damage branches.
