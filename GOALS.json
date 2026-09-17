@@ -57494,8 +57494,8 @@
           "name": "poly_obj",
           "line": 1702,
           "endLine": 1992,
-          "declared": false,
-          "complete": false
+          "declared": true,
+          "complete": true
         }
       ],
       "range": {
@@ -57587,7 +57587,91 @@
             }
           }
         }
-      ]
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "poly_obj",
+            "implementation": "js/zap.js",
+            "symbol": "poly_obj",
+            "sourceReview": "Read zap.c:1702-1989 in full. JavaScript preserves the source allocation and field order, magic-class retry, quantity and inventory-letter handling, MAIL_STRUCTURES, hero-laid egg normalization with random_monster(rn2), charged/BUC/erosion/trap/poison fields, crocodile-corpse boots, leash handling, contents deletion, pre-class merge draw, tool/wand/potion/spellbook/gem adjustments, weight/location/worn-mask order, chain replacement, floor blocking, billing predicates, and final deletion. The in-place inventory sequence now uses invent.c freeinv_core/addinv_core1/addinv_core2 in order and awaits the label-discovery message before worn restoration. Worn-slot masks use worn.c wearslot; object bypass state is cleaned through the canonical worn.c owner. Discarded void calls to sokoban guilt, kill_egg, leash unhook, fracture_rock, shop billing, remove_worn_item and set_wear retain named source gaps; unsupported non-polymorph wand callback families remain at their established caller boundaries. The final correction preserves the egg branch weight update without fabricating timer cleanup, C-initialized zero location fallback, billing short-circuit and Shknam/pline/Norep output, and one unconditional worn-slot tail. Unsupported immediate families retain the pre-existing weffects refusal; no new callback refusal is introduced.",
+            "callers": [
+              {
+                "path": "js/zap.js",
+                "symbol": "bhito",
+                "source": "zap.c:2219 calls poly_obj(obj, STRANGE_OBJECT) after the polymorph object resistance and system-shock branches; js/zap.js bhito awaits the replacement before newsym and learnwand."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/bhit.test.mjs",
+              "scripts/zap-command.test.mjs",
+              "scripts/inventory-substrate.test.mjs"
+            ],
+            "recordings": [
+              "recordings/zap.c/immediate-polymorph-pile-variation.session.json",
+              "recordings/zap.c/immediate-polymorph-pile-gender-variation.session.json"
+            ],
+            "checkedAt": "f9beafa291dbb0f7fa29cdd327f48dce6975524c"
+          }
+        ],
+        "entryPointReview": "The primary recorded entry is the lateral immediate polymorph path through weffects -> bhit -> bhito -> poly_obj; two independently selected pile recipes match C exactly. Supporting system-shock, bypass cleanup, and engraving checks also pass. The source has additional active poly_obj callers that remain explicitly unrecorded here: hero-laid eggs, worn inventory and equipment restoration, polymorph-trap iron shoes (trap.c:2481 and 2508), potion_dip (potion.c:2480), and stone_to_flesh_obj (zap.c:1993). Those caller families are listed with empty recordings rather than being inferred from the lateral wand witness. create_polymon/polyuse and the non-polymorph bhit callbacks remain supporting source work, not whole-function evidence for this primary unit. Orchestrator inspection of both saved pile recordings confirms their final zap includes source-ordered object replacement and subsequent moveloop/gethungry RNG, with no pending More prompt; the function returns and play continues. Direct shop billing output is source-checked but has no new production recording in this span.",
+        "entryPoints": [
+          {
+            "name": "lateral immediate polymorph through a dropped object pile",
+            "functions": [
+              "poly_obj"
+            ],
+            "recordings": [
+              "recordings/zap.c/immediate-polymorph-pile-variation.session.json"
+            ]
+          },
+          {
+            "name": "lateral immediate polymorph with the independent gender variation",
+            "functions": [
+              "poly_obj"
+            ],
+            "recordings": [
+              "recordings/zap.c/immediate-polymorph-pile-gender-variation.session.json"
+            ]
+          },
+          {
+            "name": "hero-laid egg object replacement",
+            "functions": [
+              "poly_obj"
+            ],
+            "recordings": []
+          },
+          {
+            "name": "worn inventory object replacement and slot restoration",
+            "functions": [
+              "poly_obj"
+            ],
+            "recordings": []
+          },
+          {
+            "name": "polymorph trap iron-shoe replacement for hero and monster",
+            "functions": [
+              "poly_obj"
+            ],
+            "recordings": []
+          },
+          {
+            "name": "potion-dip polymorph replacement",
+            "functions": [
+              "poly_obj"
+            ],
+            "recordings": []
+          },
+          {
+            "name": "stone-to-flesh object replacement",
+            "functions": [
+              "poly_obj"
+            ],
+            "recordings": []
+          }
+        ]
+      }
     }
   ]
 }
