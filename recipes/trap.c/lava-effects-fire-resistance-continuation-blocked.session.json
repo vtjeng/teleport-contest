@@ -1,6 +1,6 @@
 {
   "version": 5,
-  "_comment": "Continuation probe for the independent fire-resistance lava_effects() variation. The two appended spaces dismiss the lava and destroyed-spellbook More prompts, then the period asks for the next command. C reaches the cleanup/return boundary before region.c upkeep; the JavaScript replay stops at that source boundary because region upkeep still requires its blockPoint owner. Keep this input-only recipe until that dependency lands; it has no recording.",
+  "_comment": "Continuation probe for the independent fire-resistance lava_effects() variation. Two appended spaces dismiss the lava and destroyed-spellbook More prompts, then the period requests another command. JavaScript stops in monmove.c m_postmove_effect(): a steam vortex calls create_gas_cloud() without the blockPoint callback required during movement planning. The earlier C probe used only one space and remained at the second More prompt, so it does not establish this two-space continuation. Keep this input-only recipe until the separate caller is wired, then record and compare it.",
   "segments": [
     {
       "seed": 810141,
