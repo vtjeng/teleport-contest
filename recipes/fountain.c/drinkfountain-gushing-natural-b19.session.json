@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 5121432,
+      "datetime": "20310203040506",
+      "nethackrc": "OPTIONS=name:FurnB19,role:Valkyrie,race:human,gender:female,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen\nOPTIONS=pettype:dog,!acoustics\n",
+      "moves": "lqy",
+      "comment": "Independent natural-fountain variation selected by scanSeeds over 5120000-5129999 with a Valkyrie on D:1. One step east reaches the scanned fountain; q/y exercises drinkfountain() fate 30 and its source-ordered gushing callback."
+    }
+  ]
+}
