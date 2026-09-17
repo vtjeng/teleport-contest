@@ -73,7 +73,11 @@ import {
 } from './hack.js';
 import { hands_obj, obj_extract_self, stackobj } from './invent.js';
 import { any_light_source } from './light.js';
-import { m_dowear, set_mimic_sym } from './makemon_create.js';
+import {
+    dmonsfree,
+    m_dowear,
+    set_mimic_sym,
+} from './makemon_create.js';
 import { fightm } from './mhitm.js';
 import {
     mattacku,
@@ -2029,6 +2033,14 @@ async function planSimpleMonsterTurn(planned, random, advanceRound) {
                     planning: true,
                 });
             }
+            // C mon.c movemon() calls dmonsfree() after its safe snapshot
+            // scan.  The live pass must remove a monster killed by a passive
+            // retaliation before allmain.c mcalcmove() allocates the next
+            // round; do the same on the planning clone so a dead attacker
+            // cannot remain in the next scan and change its RNG/allocation
+            // count.  The clone owns the list and purge counter, so this does
+            // not touch the retryable live state.
+            dmonsfree(planned);
             somebodyCanMove = Boolean(planned.somebody_can_move);
             // C ref: mon.c movemon()'s tail. Keeping the flag here rather than
             // testing the light source at each place a further scan can follow
