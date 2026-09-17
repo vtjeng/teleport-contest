@@ -63232,6 +63232,127 @@
         "rng": 786211
       },
       "parkedReason": "Whole function is implemented and the span passed combined validation; independent Minetown teleports match, but exceptional transition, portal, terminal, tutorial and endgame entry recordings remain open."
+    },
+    {
+      "id": "port-mhitu-hitmu-seed4500-20260917",
+      "kind": "file-port",
+      "status": "open",
+      "summary": "Complete monster-hit resolution and hidden-attacker discovery.",
+      "cFile": "mhitu.c",
+      "sessions": [
+        "holdout/seed4500-knight-coverage"
+      ],
+      "selectionReason": "Continue holdout/seed4500-knight-coverage at step1629 with185 remaining-screen upper bound, as traced in investigations/holdout/seed4500-knight-coverage.json. Worker A owns this independent continuation; the only other queue entry is blocked on the configuration-path contract.",
+      "detail": "Complete mhitu.c hitmu1143–1267, including hidden-state and exact telepathy sensing, source-ordered feedback and redraw, permanent HP loss and existing damage/passive continuations. Preserve unrecorded entry coverage and canonical live/planning state.",
+      "spans": [
+        {
+          "name": "hitmu",
+          "status": "queued",
+          "closedBy": null,
+          "functions": [
+            "hitmu"
+          ]
+        }
+      ],
+      "openedAt": "b6fc29c328e620cc99c261b9992cec453dac6d25",
+      "openStanding": {
+        "sha": "e2d9bd2c726f9fd575469a859d45e70a0e5b1ba8",
+        "screens": 11211,
+        "rng": 787213
+      },
+      "closedAt": null,
+      "delivered": null,
+      "functions": [
+        {
+          "name": "hitmu",
+          "line": 1144,
+          "endLine": 1272,
+          "declared": true,
+          "complete": false
+        }
+      ],
+      "range": {
+        "from": 1144,
+        "to": 1272
+      },
+      "activeStanding": {
+        "sha": "e2d9bd2c726f9fd575469a859d45e70a0e5b1ba8",
+        "screens": 11211,
+        "rng": 787213
+      },
+      "openMismatches": [
+        {
+          "session": "holdout/seed4500-knight-coverage",
+          "step": 1629,
+          "kind": "stop",
+          "function": null,
+          "functionDeclared": false,
+          "sourceFile": null,
+          "cFile": null,
+          "luaFile": null,
+          "line": null,
+          "message": "simple monster action requires a hit by a monster that was hiding",
+          "unlocatedKinds": [],
+          "recordedSteps": 1814,
+          "remainingScreensUpperBound": 185,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/holdout/seed4500-knight-coverage.json",
+            "result": {
+              "session": "holdout/seed4500-knight-coverage",
+              "remainingScreensUpperBound": 185,
+              "status": "complete",
+              "commit": "e2d9bd2c726f9fd575469a859d45e70a0e5b1ba8",
+              "mismatch": {
+                "session": "holdout/seed4500-knight-coverage",
+                "step": 1629,
+                "kind": "stop",
+                "function": null,
+                "functionDeclared": false,
+                "sourceFile": null,
+                "cFile": null,
+                "luaFile": null,
+                "line": null,
+                "message": "simple monster action requires a hit by a monster that was hiding",
+                "unlocatedKinds": [],
+                "recordedSteps": 1814,
+                "remainingScreensUpperBound": 185
+              },
+              "summary": "Search discovery now passes the former1622 refusal, and canonical planning cleanup removes the allocation exception at1624. The first remaining boundary is a hiding-monster hit at1629, with no earlier screen, cursor or RNG difference. The next source unit is whole mhitu.c hitmu, including its hidden-attacker reveal and permanent-damage branch. Dedicated Warning, repeated-marker, liquid and exceptional transition recordings remain open.",
+              "source": {
+                "file": "mhitu.c",
+                "functions": [
+                  "hitmu"
+                ],
+                "branch": "C hitmu1143–1267 maps an unseen attacker, reveals an undetected hides-under monster or eel, rolls base and midnight damage, applies attack typing and knockback, resolves death, armor and half-damage reduction, permanent HP loss, ordinary damage, passive retaliation and occupation cancellation. JavaScript refuses the hidden-attacker arm and omits permanent HP loss.",
+                "callers": [
+                  "C monmove dochug965–973 calls mattacku; mhitu805–812,823–829 and900–914 call hitmu for successful attacks. JavaScript unported_monster_actions plans the same mattacku entry, whose attack dispatcher reaches hitmu.",
+                  "C hidden-attacker reveal1161–1184 clears mundetected before testing tp_sensemon and Detect_monsters. Both object-dependent output and newsym are inside the negative sensing gate; newsym is outside the object-present condition. Base damage RNG follows at1187."
+                ],
+                "dependencies": [
+                  "Use the exact display.h tp_sensemon predicate: non-mindless plus blind or unblind telepathy. The existing startup_a11y sensesMonsterWithoutDetection also includes MATCH_WARN_OF_MON and cannot substitute for it. Detect_monsters remains a separate condition.",
+                  "The hidden-attacker message uses something for a blind unknown object, the water for a pool while not Underwater, otherwise canonical object naming. Amonnam must use the correct live or cloned display RNG and replace only exact It with Something; preserve live output and planning isolation.",
+                  "Whole hitmu must also implement permdmg1229–1259: retain its initial rn2 draw even when the result is replaced by full damage, integer fractions, form-dependent maximum HP and source lower-limit calculation. Preserve existing mdamageu and passiveum terminal behavior.",
+                  "Accepted mfind0 and Warning wiring now preserve marker memory, coordinate-aware messages, acknowledgement before reveal and source return values. Canonical dmonsfree runs on the planning clone after the monster scan before allmain movement allocation; the previous allocation failure is resolved.",
+                  "Whole goto_level and its supporting cleanup owners are implemented, including the Mines achievement and terminal punishment-ball and fall damage guards. Two independent Minetown level-teleport recordings match; they do not establish trapdoor, portal, endgame, tutorial, terminal or other exceptional entry coverage.",
+                  "mon.c minliquid/minliquid_core and supporting split_mon/cloneu/clone_mon are implemented with source-ordered HP, RNG, death and planning output. Liquid-specific entry recordings, exceptional partial rloc routes and other source callers remain open; trap.c inventory chain calls and mon.c deal_with_overcrowding remain named discarded-call gaps.",
+                  "Separate unresolved coverage: make_stoned/minstapetrify/do_stone_mon stoning gaps; unrecorded hero/monster stoning directions, corpse-weapon entry and attack-triggered stone-golem conversion; passive cold/fire/electricity/paralysis and lethal/recovery families; eating/non-food cleanup; skinback artifact-light radius and rare armor/Eyes-of-the-Overworld cleanup."
+                ]
+              },
+              "goalKind": "file-port",
+              "evidence": [
+                "The passing e2d9bd2c checkpoint and .cache/A33-retry-development-comparison.json establish11211/11405 development screens,42/44 sessions,787213/792838 RNG and11219/11405 cursors. Only Knight changes: seven more matching screens and cursors,1002 more RNG calls; no session loses a match.",
+                ".cache/A33-retry-development-scan.json and .cache/A33-retry-queue.json locate the first boundary at1629, the hitmu hiding-monster refusal. The earlier combined focused replay run-2VTmES also emits1629 screens with divergence:null.",
+                "All363 regression recordings match14234 screens and1840726 RNG calls. The two new explicit-search recordings establish invisible-stalker and mimic discovery through production callers, adding30 screens and5583 RNG calls. Hidden-hider, Warning-only and repeated-marker entries remain unrecorded.",
+                "Whole-source comparison of C mhitu1143–1267 establishes the hidden-state, sensing, object-naming, output and redraw order before base damage, and the separate permanent-HP-loss omission. No hiding-attacker recording is yet claimed.",
+                "The rejected d754cb24 candidate remains preserved as history and is not the score baseline. Its live RNG matched C while planned allocation differed because a passive-dead attacker stayed linked only in the clone; the canonical cleanup correction fixes that state-order defect.",
+                "Supporting potion.c split_mon, mhitu.c cloneu and makemon.c clone_mon now own splitting, runtime clone creation, planning RNG, shopkeeper naming and the C struct-copy fields including mw, EMIN.parentmid and the EDOG goal coordinate. mhitu passiveum, trap rust effects and uhitm pudding splitting use the canonical helpers. Initialized focused checks establish runtime creation and planning isolation; no new liquid-branch production recording is claimed.",
+                "Existing achievement display recordings cover Bell and Candelabrum rows; final disclosure, ascension, relinquished-object wording and female-rank production routes remain open. The liquid functions have ordinary movement caller evidence in bee-eats-royal-jelly-span, but dedicated liquid, swap, fountain and zero-speed distress recordings remain open."
+              ]
+            }
+          }
+        }
+      ]
     }
   ]
 }
