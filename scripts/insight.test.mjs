@@ -88,8 +88,10 @@ import {
     SLT_ENCUMBER,
     UNCHANGING,
     W_AMUL,
+    W_ARTI,
     W_ARMOR,
     W_WEP,
+    TIMEOUT,
     VANQ_ALPHA_SEP,
     VANQ_COUNT_H_L,
     VANQ_COUNT_L_H,
@@ -465,6 +467,43 @@ test('OPTIONS=deaf reports the deafness status', async () => {
             ' You are deaf'),
         ' You are deaf.',
     );
+});
+
+// youprop.h:242-245 defines Lev_at_will as one grouped predicate: either
+// HLevitation has I_SPECIAL or ELevitation has W_ARTI, while all remaining
+// intrinsic/extrinsic bits must be limited to TIMEOUT/W_ARTI. In particular,
+// an unrelated bit in either mask must not be rescued by the other source.
+test('Lev_at_will preserves both source mask restrictions', async () => {
+    const state = await readyGame();
+    const lines = async () => enlightenment(
+        BASICENLIGHTENMENT | MAGICENLIGHTENMENT,
+        ENL_GAMEINPROGRESS,
+        state,
+    );
+
+    state.u.uprops[LEVITATION] = {
+        intrinsic: I_SPECIAL | FROMOUTSIDE,
+        extrinsic: 0,
+        blocked: 0,
+    };
+    assert.ok(!(await lines()).includes(' You are levitating, at will.'),
+        'an extra intrinsic source bit disallows at-will levitation');
+
+    state.u.uprops[LEVITATION] = {
+        intrinsic: I_SPECIAL | TIMEOUT,
+        extrinsic: 0,
+        blocked: 0,
+    };
+    assert.ok((await lines()).includes(' You are levitating, at will.'),
+        'I_SPECIAL plus TIMEOUT remains at-will');
+
+    state.u.uprops[LEVITATION] = {
+        intrinsic: 0,
+        extrinsic: W_ARTI | W_ARMOR,
+        blocked: 0,
+    };
+    assert.ok(!(await lines()).includes(' You are levitating, at will.'),
+        'an extra extrinsic source bit disallows artifact at-will levitation');
 });
 
 // insight.c status_enlightenment(): movement lines precede internal troubles,
