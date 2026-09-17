@@ -43,6 +43,7 @@ import {
     SV7,
     W_BALL,
     W_CHAIN,
+    WARNING,
 } from '../js/const.js';
 import {
     cvt_sdoor_to_door,
@@ -51,6 +52,7 @@ import {
     findit,
     monster_detect,
     UnsupportedSearchError,
+    warnreveal,
 } from '../js/detect.js';
 import { distant_monnam } from '../js/do_name.js';
 import {
@@ -65,6 +67,7 @@ import {
     object_glyph_info,
     remembered_glyph_from_presentation,
     trap_glyph_info,
+    warning_of,
 } from '../js/display.js';
 import { GLYPH_OBJ_OFF } from '../js/glyph_offsets.js';
 import { game } from '../js/gstate.js';
@@ -1411,47 +1414,20 @@ const FOUND_DOOR_EVENTS = Object.freeze([
     'message(9,9,You find a hidden door.)',
 ]);
 
-// C keeps every branch this port cannot finish behind one of dosearch0()'s
-// three `!aflag` tests: mfind0() at detect.c:2064 and the Norep() at 2023
-// that a swallowed hero reaches. The tactile feel_location() arm at 2040 is
-// implemented by display.c's canonical owner and therefore remains active in
-// explicit searches. UnsupportedSearchError belongs to the remaining
-// explicit `s` command gaps, which js/cmd.js failClosedCommand() converts into
-// a retryable command boundary. allmain.c:342-344 drives the automatic arm
-// from moveloop_core(), where no converting wrapper exists, so a refusal that
-// leaked across the aflag split would escape runSegment() and cost the segment
-// every screen it had already matched. Each row proves the split holds on one
-// shared state: explicit refuses before its first draw, then automatic runs
-// the same state to completion.
+// C keeps the remaining unported explicit-search branches behind the same
+// source flag split. The mfind0() discovery arms are implemented below;
+// UnsupportedSearchError belongs to the remaining explicit `s` command gaps,
+// which js/cmd.js failClosedCommand() converts into a retryable boundary.
+// allmain.c:342-344 drives the automatic arm from moveloop_core(), where no
+// converting wrapper exists, so a refusal that leaked across the aflag split
+// would escape runSegment() and cost the segment every screen it matched.
 test('every explicit search refusal leaves the automatic arm intact', async () => {
     const rows = [
-        // detect.c:1969 mfind0()'s three discovery arms, all behind 2064.
-        ['a mimicking monster', (state) => {
-            placeTestMonster(state, 9, 10, { m_ap_type: M_AP_OBJECT });
-        }, /needs seemimic\(\)/, [0], FOUND_DOOR_EVENTS],
-        ['an unspotted monster', (state) => {
-            placeTestMonster(state, 9, 10, { minvis: 1 });
-        }, /needs its own message/, [0], FOUND_DOOR_EVENTS],
-        ['a hidden eel', (state) => {
-            placeTestMonster(state, 9, 10, { mundetected: 1 }, {
-                mlet: S_EEL,
-            });
-        }, /hidden monster/, [0], FOUND_DOOR_EVENTS],
-        ['a ceiling hider', (state) => {
-            placeTestMonster(state, 9, 10, { mundetected: 1 }, {
-                mflags1: M1_HIDE,
-            });
-        }, /hidden monster/, [0], FOUND_DOOR_EVENTS],
-        ['an under-hider', (state) => {
-            placeTestMonster(state, 9, 10, { mundetected: 1 }, {
-                mflags1: M1_CONCEAL,
-            });
-        }, /hidden monster/, [0], FOUND_DOOR_EVENTS],
         // detect.c:2079-2088 is the one block C does not gate on aflag, so the
         // automatic arm reaches the same two unported branches. It refuses
         // them from preflightTrap() as plain Errors, after the rnl(8) that
         // selects the square -- never as UnsupportedSearchError. A miss here
-        // is what lets the row finish; the hit is pinned separately, by
+        // is what lets the automatic row finish; the hit is pinned separately,
         // 'a missed statue search draws before requiring its hit operation'
         // and 'cluttered and hallucinatory trap finds reveal, wait, then
         // redraw'.
@@ -1579,37 +1555,111 @@ test('explicit search redraws an adjacent spotted monster and draws for its trap
     random.done();
 });
 
-test('explicit search refuses every mfind0 discovery arm before any draw', async () => {
+test('explicit search executes every mfind0 discovery arm', async () => {
     const cases = [
-        ['a mimic', { m_ap_type: M_AP_OBJECT }, /needs seemimic\(\)/],
-        ['an unspotted monster', { minvis: 1 }, /needs its own message/],
+        ['a mimic', { m_ap_type: M_AP_OBJECT }],
+        ['an unspotted monster', { minvis: 1 }],
         // is_hider()/hides_under()/S_EEL, the three species tests mfind0()
         // applies to a mundetected monster.
-        ['an eel', { mundetected: 1, mlet: S_EEL }, /hidden monster/],
-        ['a ceiling hider', { mundetected: 1, mflags1: M1_HIDE },
-            /hidden monster/],
-        ['an under-hider', { mundetected: 1, mflags1: M1_CONCEAL },
-            /hidden monster/],
+        ['an eel', { mundetected: 1, mlet: S_EEL }],
+        ['a ceiling hider', { mundetected: 1, mflags1: M1_HIDE }],
+        ['an under-hider', { mundetected: 1, mflags1: M1_CONCEAL }],
     ];
-    for (const [label, overrides, expected] of cases) {
+    for (const [label, overrides] of cases) {
         const state = explicitSearchState();
         const { mlet, mflags1, ...monsterOverrides } = overrides;
-        placeTestMonster(state, 9, 10, monsterOverrides, { mlet, mflags1 });
-        // An adjacent secret door the loop would otherwise draw for.
-        state.level.at(9, 9).typ = SDOOR;
+        const monster = placeTestMonster(
+            state, 9, 10, monsterOverrides, { mlet, mflags1 },
+        );
         const events = [];
         const random = scriptedRandom(events, []);
-
-        await assert.rejects(dosearch0(0, {
+        const result = await dosearch0(0, {
             state,
             random,
             ...recordingOperations(state, events),
             newSym: (x, y) => events.push(`newSym(${x},${y})`),
-        }), expected, label);
-        assert.deepEqual(events, [], label);
-        assert.equal(state.level.at(9, 9).typ, SDOOR, label);
+            exerciseWisdom: () => events.push('exerciseWisdom'),
+            mapInvisible: (x, y) => events.push(`mapInvisible(${x},${y})`),
+        });
+        assert.equal(result, 1, label);
+        assert.equal(Boolean(monster.mundetected), false, label);
+        const expectedEvents = monsterOverrides.minvis
+            ? [
+                'newSym(9,10)',
+                'exerciseWisdom',
+                'mapInvisible(9,10)',
+                'message(9,10,You feel an unseen monster!)',
+            ]
+            : [
+                'newSym(9,10)',
+                'exerciseWisdom',
+                'message(9,10,You find a newt.)',
+            ];
+        assert.deepEqual(events, expectedEvents, label);
         random.done();
     }
+});
+
+test('mfind0 leaves an already marked invisible monster undiscovered', async () => {
+    // detect.c:2000-2002 returns -1 after newsym() when the remembered glyph
+    // is already GLYPH_INVISIBLE.  The search keeps scanning without another
+    // Wisdom draw or the repeated unseen-monster message.
+    const state = explicitSearchState();
+    const monster = placeTestMonster(state, 9, 10, { minvis: 1 });
+    state.level.at(monster.mx, monster.my).remembered_glyph = {
+        glyph: GLYPH_INVISIBLE,
+    };
+    const events = [];
+    const random = scriptedRandom(events, []);
+    assert.equal(await dosearch0(0, {
+        state,
+        random,
+        ...recordingOperations(state, events),
+        newSym: (x, y) => events.push(`newSym(${x},${y})`),
+    }), 1);
+    assert.deepEqual(events, ['newSym(9,10)']);
+    random.done();
+});
+
+test('warning_of matches the source warning predicate and cap', () => {
+    const state = explicitSearchState();
+    state.context.warnlevel = 1;
+    state.u.uprops[WARNING] = { intrinsic: 1, extrinsic: 0 };
+    const monster = placeTestMonster(state, 11, 10, { m_lev: 28 });
+    assert.equal(warning_of(monster, state), 5);
+
+    monster.mpeaceful = true;
+    assert.equal(warning_of(monster, state), 0);
+    monster.mpeaceful = false;
+    state.context.warnlevel = 8;
+    assert.equal(warning_of(monster, state), 0);
+});
+
+test('warnreveal scans the adjacent warning monsters through mfind0', async () => {
+    const state = explicitSearchState();
+    state.u.uprops[WARNING] = { intrinsic: 1, extrinsic: 0 };
+    const monster = placeTestMonster(
+        state,
+        9,
+        10,
+        { m_lev: 8, mundetected: 1 },
+        { mflags1: M1_HIDE },
+    );
+    const events = [];
+    await warnreveal({
+        state,
+        newSym: (x, y) => events.push(`newSym(${x},${y})`),
+        exerciseWisdom: () => events.push('exerciseWisdom'),
+        mapInvisible: (x, y) => events.push(`mapInvisible(${x},${y})`),
+        message: (text, x, y) => events.push(`message(${x},${y},${text})`),
+    });
+    assert.equal(Boolean(monster.mundetected), false);
+    assert.deepEqual(events, [
+        'message(9,10,Your danger sense causes you to take a second look close by.)',
+        'newSym(9,10)',
+        'exerciseWisdom',
+        'message(9,10,You find a newt.)',
+    ]);
 });
 
 test('M_AP_TYPE masks off the display-known flag', () => {
