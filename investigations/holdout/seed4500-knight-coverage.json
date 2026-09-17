@@ -2,55 +2,49 @@
   "session": "holdout/seed4500-knight-coverage",
   "remainingScreensUpperBound": 376,
   "status": "complete",
-  "commit": "3817301c8d0be56cd202174af9f5c5411ce4b5f5",
+  "commit": "2366751b9e74f18018459534f0f66dd658b1d95b",
   "mismatch": {
     "session": "holdout/seed4500-knight-coverage",
     "step": 1438,
-    "kind": "stop",
-    "function": "zapyourself",
+    "kind": "rng",
+    "function": "polyself",
     "functionDeclared": true,
-    "sourceFile": "zap.c",
-    "cFile": "zap.c",
+    "sourceFile": "polyself.c",
+    "cFile": "polyself.c",
     "luaFile": null,
-    "line": null,
-    "message": "unsupported hero command: an unported branch of this command: zapping a wand requires zapyourself() for object type 422",
+    "line": 490,
+    "message": null,
     "unlocatedKinds": [],
     "recordedSteps": 1814,
     "remainingScreensUpperBound": 376
   },
-  "summary": "The valid-target cursor key now matches. The next refusal is a wand of polymorph directed at the hero: complete zap.c zapyourself and wire its canonical polyself caller. The existing uncontrolled polymorph selection remains a downstream gap.",
+  "summary": "Self-directed wand dispatch now reaches the polymorph boundary. The remaining first defect is the named polyself gap: complete the whole controlled, special-form and random selector, wire zapyourself, and preserve its downstream transformation gaps.",
   "source": {
-    "file": "zap.c",
+    "file": "polyself.c",
     "functions": [
-      "zapyourself"
+      "polyself"
     ],
-    "branch": "zap.c zapyourself, WAN_POLYMORPH/SPE_POLYMORPH at 2804–2808: unless Unchanging, set learn_it and call polyself(POLY_NOFLAGS). Select the complete function, including its other self-zap cases and final object learning/damage result.",
+    "branch": "polyself.c:469–731: preserve Unchanging and system-shock guards, controlled candidate retries, were/dragon/vampire direct targets, bounded uniform random selection, sex-change control and final light-source updates.",
     "callers": [
-      "zap.c dozap sends a zero-direction wand to zapyourself; js/zap.js dozap reaches the same self-directed command and currently refuses object type 422 (WAN_POLYMORPH).",
-      "spell.c spelleffects also uses zapyourself for zero-direction spell effects; preserve its source caller and ordinary/self-zap distinction."
+      "zap.c zapyourself WAN_POLYMORPH/SPE_POLYMORPH at 2804–2808 sets learn_it and calls polyself(POLY_NOFLAGS) unless Unchanging; accepted js/zap.js currently records this discarded call as a named gap.",
+      "wizcmds.c wiz_polyself calls polyself(POLY_CONTROLLED); polyself.c dopoly calls polyself(POLY_MONSTER) for vampire forms."
     ],
     "dependencies": [
-      "polyself.c polyself is the canonical polymorph owner. Its current JavaScript random-monster-selection branch throws UnsupportedPolyselfError; wiring zapyourself does not by itself complete this downstream path.",
-      "The complete zapyourself stone-to-flesh inventory loop uses bhito return values. Its zap.c stone_to_flesh_obj dependency uses trap.c animate_statue, which in turn consumes montraits and monster-creation results. These used-return callees require implementations; note_unported cannot substitute for their results.",
-      "Self-zap trap helpers expose result and noticed separately in JavaScript; preserve the C boolean result and learn_it side effect. Save the next inventory object before a mutation-capable bhito call and preserve merged knowledge/message ordering.",
-      "C polyself also requires the Unchanging and system-shock guards, controlled and special-form paths, and the bounded uniform candidate loop. The existing random selection refusal is only one part of the whole source owner."
+      "Existing polyself.c polymon/newman/polyman own the body transition and still have unported branches. Selector completion does not establish their completion.",
+      "Existing skinback at polyself.c:1954–1968 captures arti_light_radius(uskin), restores the armor slot and adjusts artifact light. JavaScript omits that light adjustment; controlled rehumanization can reach it with merged gold dragon scales.",
+      "were.c were_beastie and polyself.c armor_to_dragon return values feed controlled selection; preserve their complete source mappings and canonical owners."
     ]
   },
   "goalKind": "file-port",
   "evidence": [
-    "Passing checkpoint .git/checkpoint-results/bacd6775cf8727b59eb755a882b81388a8f8eb40/run-awI997/summary.json reports 10947/11405 fixed-development screens and 327/327 recordings. Knight screens rise from 1435 to 1438; all other session metrics are unchanged.",
-    "The current saved scan .cache/B20-development-scan.json has no screen/RNG/cursor divergence before the stop at 1438 emitted screens. The reported refusal is zapyourself for object type 422; js/objects.js defines WAN_POLYMORPH as 422.",
-    "Root compared zap.c 2804–2808 and js/polyself.js random-monster selection directly. The first source boundary is the self-zap dispatcher; the downstream uncontrolled selection is separately unported.",
-    "Root and a read-only helper traced stone_to_flesh_obj at zap.c 1993–2111 and animate_statue at trap.c 725–900. The complete self-zap function cannot skip this return-valued chain while claiming whole-source completion.",
-    "The getpos SHOWVALID defect, fountain gushing, and shared sink/fountain pager refinement are resolved. Both independent SHOWVALID recordings now match all seven screens and cursor positions.",
-    "The Knight queue upper bound remains 376 after the accepted poison checkpoint da3c62dd; it is not a predicted gain. That poison checkpoint left 446 actual unmatched screens.",
-    "The downstream polyself implementation also omits source guards before random selection. C polyself.c483–495 returns for Unchanging and tests system shock with rn2(20)>ACURR(A_CON) when uncontrolled and without special forms; failure emits the shudder message, applies rnd(30) damage, exercises constitution downward and returns. JavaScript skips those guards and hardcodes controllable_poly=false. C698–706 then tries up to 200 uniform rn1(SPECIAL_PM-LOW_PM,LOW_PM) candidates, accepting polyok&&!is_placeholder and retaining the final candidate if none qualify; generation/genocide filters do not belong to that loop. Existing mondata.js owners supply both predicates. Completing only random selection would leave other whole-function controlled/special-form and polymon branches unverified.",
-    "Source comparison of the queued self-zap delivery identified four corrections before integration: WAN_MAKE_INVISIBLE confuses BInvis with extrinsic invisibility and omits yname possession; opening/locking reread u.utrap after trap helpers mutate it, violating C short-circuit order; probing treats only boxes as containers and misses bags; swallowed release invokes the partial expels helper without its required operation environment or the source TRUE-message arm. Corrections are queued with the worker; no gains from this delivery have been accepted.",
-    "The queued self-zap cancellation arm also reaches an existing partial cancel_monst hero branch whose Upolyd_cancel tests umonnum>=LOW_PM instead of the canonical current-versus-original-form predicate and omits the C Unchanging/clay-golem handling. This newly reachable caller requires correction or an explicit discarded-call gap before its behavior can be claimed; inventory cancellation remains a separately recorded gap.",
-    "The queued statue dependency also fails required runtime creation contracts: saved-trait animation adds MM_ADJACENTOK outside the admitted revival mask, ordinary/shattered statues lack the spell-only adjacency flag, figurine animation has no admitted runtime caller shape, and saved shopkeepers remain rejected before restoration. The statue message logic uses a sight-only local predicate instead of canonical canspotmon sensing. These source findings are queued for correction with behavioral coverage; inventory extraction, pickup and armor-order sequencing matched the source.",
-    "The accepted poison checkpoint da3c62dd raises total matching development screens to 10959; Knight remains 1438/1814 and its first self-zap boundary is unchanged in .cache/A22-development-scan.json. The pending self-zap correction findings below describe immutable delivery 52379dfa, not accepted game behavior.",
-    "At accepted command-menu checkpoint 3817301c, Knight remains 1438/1814 with the same self-zap stop. Total development matches are 10976/11405, leaving 429 actual unmatched screens; the Knight queue upper bound remains 376. The whole-polyself delivery 90672d6e is queued for source comparison, and the self-zap caller must remove its named polyself gap when the completed owner is integrated.",
-    "Source comparison of queued polyself delivery 90672d6e found incorrect original-role/current-form predicates, a C null-test translated as boolean negation of the JavaScript strstri index, a missing Your prefix in dragon-mail merging, and skipped existing armor-light adjustment. Class retries also discard a candidate and draw twice; a shared direct_change flag loses the C do_shift/do_vampyr goto targets when special-form conditions overlap. These paths need behavioral coverage before integration; the independent controlled-raven recording alone does not reach them. The new were_beastie helper belongs in were.js, armor_to_dragon needs source-pinned result tests, and the completing polyself delivery must wire zapyourself and remove its named gap. No gains from either pending delivery have been accepted."
+    "Saved .cache/B21-development-scan.json at 2366751b places the first RNG mismatch at step 1438, C polyself.c:490. The self-zap refusal is gone, but its named polymorph gap skips the expected system-shock draw. Knight screen matches remain 1438/1814 and cursor matches rise to 1519/1814.",
+    "Source comparison at 2366751b confirms the full zapyourself switch and its required stone-to-flesh/statue/revival return-valued dependencies. Visibility, trap-state short-circuiting, bag probing, cancellation and monster-creation contracts were corrected; remaining discarded unported calls retain named gaps.",
+    "Independent self-sleep recording run-2MozYy reaches C zapyourself at step 19: The sleep ray hits you! You wake up., with rnd(50)=22. It matches 3,329 RNG calls, 21 screens/cursors and 3 animation frames. The original recording selected the wrong inventory letter and never reached this function; it was replaced after that reachability check.",
+    "C polyself.c:483–495 tests Unchanging and system shock before ordinary selection: rn2(20)>ACURR(A_CON), then rnd(30) damage and constitution exercise on failure. The accepted selector lacks these complete guards and hardcodes controllable_poly=false.",
+    "C polyself.c:698–706 tries up to 200 uniform rn1(SPECIAL_PM-LOW_PM,LOW_PM) candidates, accepting polyok&&!is_placeholder. Generation/genocide filtering does not belong in that loop; the final candidate is retained if no candidate qualifies.",
+    "Source comparison of pending selector correction 5347366a verifies original-role/current-form predicates, strstri negative-index semantics, Your dragon-mail wording, armor-light adjustment, class retry ordering and distinct special-form targets. Its canonical self-zap caller removes the named gap. These changes are not yet accepted on main.",
+    "The independent controlled-raven witness at 5347366a reaches C polymon at step 16, prints You turn into a raven!, and matches 3,586 RNG calls and 18 screens/cursors. It does not establish the uncontrolled self-zap, class-retry, were, dragon or vampire entries; those recording families remain open.",
+    "C skinback at 1954–1968 reads the old artifact-light radius before moving uskin back to uarm and invokes maybe_adjust_light afterward when artifact_light(uarm). Existing js/polyself.js skinback clears I_SPECIAL but omits those light operations. Keep this downstream source gap separate from selector completion."
   ],
-  "nextProbe": "Correct the whole self-zap delivery and its required statue dependencies, then correct the dependent whole polyself delivery, preserving source branch targets, RNG order and canonical caller wiring. Validate the behavior and retain unrecorded entry families as open work."
+  "nextProbe": "Integrate the source-checked whole polyself selector and canonical self-zap caller, then replay the Knight session to identify its next body-transition owner. Keep unrecorded entry families and skinback light restoration open."
 }

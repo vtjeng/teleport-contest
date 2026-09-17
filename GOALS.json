@@ -59240,7 +59240,7 @@
     {
       "id": "port-zapyourself-seed4500-20260917",
       "kind": "file-port",
-      "status": "open",
+      "status": "parked",
       "summary": "Port complete self-directed wand and spell effects and their statue dependencies",
       "cFile": "zap.c",
       "sessions": [
@@ -59251,8 +59251,8 @@
       "spans": [
         {
           "name": "zapyourself",
-          "status": "queued",
-          "closedBy": null,
+          "status": "closed",
+          "closedBy": "2366751b9e74f18018459534f0f66dd658b1d95b",
           "functions": [
             "zapyourself"
           ]
@@ -59424,7 +59424,17 @@
             "recordings": []
           }
         ]
-      }
+      },
+      "progressBeforePark": {
+        "screens": 0,
+        "rng": 13
+      },
+      "parkedStanding": {
+        "sha": "2366751b9e74f18018459534f0f66dd658b1d95b",
+        "screens": 10976,
+        "rng": 784612
+      },
+      "parkedReason": "The verified whole zapyourself span and independent self-sleep recording pass at 2366751b. Spell and other self-effect entry families remain unrecorded; resume their coverage when the canonical polyself and remaining named callees support independent matching recipes."
     }
   ]
 }
