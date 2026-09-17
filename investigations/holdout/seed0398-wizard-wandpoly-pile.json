@@ -2,7 +2,7 @@
   "session": "holdout/seed0398-wizard-wandpoly-pile",
   "remainingScreensUpperBound": 39,
   "status": "complete",
-  "commit": "18a56313c56723cde906c27449d0fc2c6c085bf0",
+  "commit": "3cc0dc4286044d818e125700071b2a0c7d95208a",
   "mismatch": {
     "session": "holdout/seed0398-wizard-wandpoly-pile",
     "step": 48,
@@ -18,43 +18,43 @@
     "recordedSteps": 87,
     "remainingScreensUpperBound": 39
   },
-  "summary": "At step 48 the command reaches zap.c weffects()'s IMMEDIATE arm for WAN_POLYMORPH. The old boundary names zapsetup(), but JavaScript still refuses the live weffects() arm before dispatch. The smallest actionable source family is weffects() with zapsetup()/zapwrapup() and the ZAPPED_WAND traversal (bhit(), zap_map(), bhitpile()) plus its bhitm()/bhito() callbacks; this witness reaches bhito() on the polymorph pile, so an annotation helper alone cannot complete the command.",
+  "summary": "Step 48 reaches an unported immediate polymorph wand effect. The required path includes object replacement and system shock, monster polymorph, pile traversal, and delayed feedback. Source comparison also identifies downward engraving replacement, worn-inventory return handling, and turn-scoped bypass cleanup; these are required behavior beyond the lateral pile witness.",
   "source": {
     "file": "zap.c",
-    "branch": "objects.h:1474-1475 marks WAN_POLYMORPH as IMMEDIATE. C weffects() (3431-3475) exercises wisdom, calls zapsetup(), then selects swallowed bhitm(), vertical zap_updown(), or lateral bhit() with rn1(8, 6), ZAPPED_WAND, bhitm and bhito callbacks, and always calls zapwrapup(). The assigned lateral replay enters bhit() (3827-4139), whose ZAPPED_WAND walk calls zap_map() before bhitpile(); bhitpile() calls bhito() for the floor pile and the WAN_POLYMORPH arm of bhito() tests obj_unpolyable()/obj_shudders(), then invokes do_osshock() or poly_obj(). zapwrapup() reports the feedback set by do_osshock() and clears it. The complete responsible scope therefore includes the immediate caller and traversal/callback family, not only zapsetup().",
+    "branch": "WAN_POLYMORPH is IMMEDIATE. weffects() resets obj_zapped, dispatches swallowed, vertical, or lateral effects, and emits delayed shock feedback. Lateral bhit() visits the map, monster, and object pile in source order; bhito() selects object resistance, system shock, or poly_obj(). Port complete poly_obj() with the required object/shock helpers and production caller wiring; retain incomplete callback families and active unrecorded entries as remaining work.",
     "functions": [
+      "poly_obj",
+      "obj_unpolyable",
+      "obj_shudders",
+      "do_osshock",
+      "polyuse",
+      "create_polymon",
       "zapsetup",
-      "zapwrapup",
-      "weffects",
-      "bhit",
-      "zap_map",
-      "bhitpile",
-      "bhitm",
-      "bhito"
+      "zapwrapup"
     ],
     "callers": [
-      "nethack-c/upstream/src/zap.c:weffects() (3431-3475) is the live caller: it calls zapsetup() at 3441, dispatches bhitm()/zap_updown()/bhit() at 3442-3449, and calls zapwrapup() at 3451. js/zap.js:2676-2700 is the production caller and still raises UnsupportedZapError in the IMMEDIATE arm at 2693-2699.",
-      "nethack-c/upstream/src/zap.c:bhit() (3827-4139) is consumed by the lateral weffects() call with ZAPPED_WAND and must admit that call type; it calls zap_map() and bhitpile(), which in turn dispatch bhito() for floor objects and bhitm() for monsters. js/zap.js:1246-1263 currently admits only THROWN_WEAPON and rejects callbacks, so wiring weffects() alone reaches a second refusal.",
-      "nethack-c/upstream/src/cmd.c command table (2004-2005) maps z to dozap(); js/cmd.js:3293-3299 and 5063-5064 dispatch the recorded z command to js/zap.js:674-738 dozap() -> weffects(). This is the assigned production entry point.",
-      "nethack-c/upstream/src/apply.c:do_break_wand() (3950-4050) is the other C caller of zapsetup(), at 4034, after the explosion and before object effects. js/apply.js:1252-1253 still refuses do_break_wand(); it must be included when claiming zapsetup() completion for all callers or remain an explicitly separate blocked caller, rather than being silently treated as wired."
+      "zap.c:3431-3475 weffects(), reached by dozap(), calls zapsetup, bhitm/zap_updown/bhit, and zapwrapup. js/zap.js:3433-3438 still refuses the immediate arm at the examined commit.",
+      "zap.c:3827-4139 bhit() uses zap_map, bhitm, and bhitpile; bhitpile 2428-2506 invokes bhito and then create_polymon. bhito 2119-2426 calls obj_unpolyable, obj_shudders, do_osshock, and poly_obj.",
+      "potion.c:2468-2498 dip handling consumes poly_obj() and checks its possible null return after worn-amulet side effects. zap.c stone-to-flesh also calls poly_obj; these active caller entries need their own completion evidence.",
+      "apply.c do_break_wand() calls zapsetup before its effects; js/apply.js:1261 still refuses that entry. A lateral wand recording does not establish the broken-wand caller."
     ],
     "dependencies": [
-      "nethack-c/upstream/include/decl.h:753 and src/decl.c:614 define and initialize go.obj_zapped. js has no current zapsetup()/zapwrapup() or obj_zapped field; keep the flag in the shared state.go object and reset it before and after every admitted immediate effect.",
-      "nethack-c/upstream/src/zap.c:160-610 bhitm() is the monster callback supplied by weffects(), and zap.c:2119-2426 bhito() is the object callback. The assigned pile path consumes bhito(), while bhitm() remains a required sibling branch of the complete immediate family; do not replace either callback with a fabricated random call or a no-op.",
-      "nethack-c/upstream/src/zap.c:2428-2537 bhitpile() owns floor-pile iteration and mutation-safe next_obj traversal; zap.c:3628-3825 zap_map() runs before each ZAPPED_WAND target. Neither helper is declared in current js/zap.js, so a bhit() call-type check cannot be the endpoint.",
-      "nethack-c/upstream/src/zap.c:1476-1499 obj_shudders(), 1637-1674 do_osshock(), 1678-1683 obj_unpolyable(), and 1702-2426 poly_obj() are consumed by bhito() WAN_POLYMORPH. They account for the assigned step's obj_resists/obj_shudders/mkobj/do_osshock draws and the go.obj_zapped feedback; source-returning or state-changing callees must be ported or explicitly recorded as dependencies before this entry point can match.",
-      "nethack-c/upstream/src/zap.c:3087-3217 zap_steed() and 3219-3410 zap_updown() are sibling weffects() IMMEDIATE branches, while zap.c:2539-3085 zapnodir() and 2419-2537 zap_dig()/their callers cover existing other oc_dir cases. The assigned replay is lateral, but a whole weffects() port must preserve these conditions and their caller contracts.",
-      "The source result of bhit() is discarded by weffects(), but its side effects are the command behavior: gb.bhitpos, zap_map terrain handling, pile callbacks, and the later zapwrapup() message. Skipping the call with note_unported() would leave this session stopped and is not an actionable completion for the assigned boundary."
+      "zap.c:1476-1683 and 1702-1989 define object shock, golem creation, protection, and complete replacement. Hero-laid eggs use include/display.h:186 random_monster(rn2), a uniform rn2(NUMMONS), rather than makemon.c rndmonnum selection.",
+      "zap.c:1905-1949 replaces the object in place, applies invent.c freeinv_core/addinv_core1/addinv_core2, computes wearslot, removes the old worn item, applies slot setters/set_wear, and reads wearmask_to_obj. Existing JS inventory cores are internal helpers; avoiding their chain extraction does not justify dropping their state effects or the possible null result.",
+      "zap.c:3628-3664 zap_map() replaces a non-HEADSTONE engraving for a downward polymorph zap through del_engr, random_engraving, and make_engr_at. The lateral polymorph arm is inert; the downward arm is not.",
+      "zap.c:282-285 bhitm() marks monster inventory through worn.c bypass_obj 1119-1123, which sets both obj.bypass and context.bypasses. worn.c clear_bypasses 1068-1116 clears the object chains and long-worm marker; allmain.c:194 and mon.c movemon call cleanup. js/unported_monster_actions.js still refuses this cleanup contract at the examined commit.",
+      "zap.c:2130-2171 bhito() skips a bypass-marked object only while context.bypasses is active; it clears a stale bit otherwise. Object flags must not persist across turns or suppress later polymorphs.",
+      "zap.c:3087-3137 zap_steed() and 3219-3410 zap_updown() supply mounted, swallowed, upward, and downward sibling entries. Source gaps may remain explicit, but no partial callback or unrecorded active entry establishes whole-function completion."
     ]
   },
   "goalKind": "file-port",
   "evidence": [
-    ".cache/investigate-seed0398-18a563/replay.json records the assigned bounded replay at commit 18a56313c56723cde906c27449d0fc2c6c085bf0: screensEmitted=48, recordedSteps=87, divergence=null, boundary=unsupported hero command ... zapsetup() and the immediate-wand arm of weffects(), key h, command movewest, keyCursor answer, and expected message You feel shuddering vibrations. The replay used only the assigned session.",
-    "sessions/holdout/seed0398-wizard-wandpoly-pile.session.json steps[48] is the first z answer (h) and records rn2(19)=12 at exercise(attrib.c:509), rn2(8)=6 at weffects(zap.c:3448), then obj_resists/obj_shudders/mkobj/poly-object draws including do_osshock(zap.c:1650). Its top line is You feel shuddering vibrations.; this proves the live command needs the immediate traversal and polymorph pile callbacks after the range draw, not only the setup assignment.",
-    "nethack-c/upstream/src/zap.c:3413-3418 defines zapsetup() as go.obj_zapped = FALSE; :3421-3427 defines zapwrapup() and its message/reset; :3431-3475 defines weffects() and its setup, ZAPPED_WAND bhit() dispatch, and wrapup order. nethack-c/upstream/src/zap.c:2119-2426 defines bhito(), :2428-2537 defines bhitpile(), and :3827-4139 defines bhit().",
-    "At the examined commit js/zap.js:2693-2699 refuses the entire IMMEDIATE arm before setup or traversal; js/zap.js:1246-1263 refuses bhit() call types other than THROWN_WEAPON and callback arguments, and no current js/zap.js declarations exist for zap_map(), bhitpile(), bhitm(), bhito(), or zapwrapup(). js/apply.js:1252-1253 independently refuses do_break_wand().",
-    "The parked old-branch commit bd877c7b only adds zapsetup() and its weffects() assignment, then retains the IMMEDIATE refusal; it is not an ancestor of the examined commit and is provenance for the helper shape, not active ownership or runtime completion. The refined scope must therefore carry the live weffects() caller and consumed traversal/callback family.",
-    "The source owner is C zap.c; no Lua program is involved. This cache establishes a file-port goal for the immediate-wand family and names the second do_break_wand() caller as a separate required dependency. It does not claim implementation, matching recordings, or completion of any downstream helper."
+    ".cache/A18-queue.json and its saved scan at 058e1e65 retain the step 48 immediate-wand refusal and 39 remaining screens; report-only 3cc0dc42 has the same game code. The examined current source still refuses before immediate dispatch.",
+    "sessions/holdout/seed0398-wizard-wandpoly-pile.session.json step 48 answers h to z: exercise draws rn2(19), weffects draws rn2(8), then object-resistance/shock/replacement calls precede the shuddering-vibrations message. This requires the complete running path, not only a zapsetup assignment.",
+    "The source-defined lateral order is weffects -> zapsetup -> bhit -> zap_map/bhitm/bhitpile -> bhito -> obj_unpolyable/obj_shudders/do_osshock or poly_obj -> zapwrapup. Shared go.obj_zapped is reset before and after the effect.",
+    "Direct source comparison establishes three additional contracts: zap_map 3650-3664 downward engraving replacement; poly_obj 1905-1949 inventory/worn updates and nullable result, consumed at potion.c2480-2490; and worn.c:1068-1123 bypass lifetime and turn cleanup. These are source requirements, not fixed-session-specific exceptions.",
+    "Whole poly_obj 1702-1989 is a planner-sized primary source unit. Supporting object helpers and required caller changes belong in its delivery; callback families with other wand/spell branches remain partial until those whole functions are implemented. Active golem, worn-item, mounted, vertical, swallowed, and broken-wand entries cannot be classified as build-inactive merely because they lack a matching recording.",
+    "Historical bd877c7b only added setup while retaining the immediate refusal. It cannot establish runtime completion. Worker-branch replays and unaccepted corrections do not replace the accepted-main diagnosis or score."
   ],
-  "nextProbe": "Open a zap.c file-port span for weffects(), zapsetup(), zapwrapup(), and the ZAPPED_WAND bhit()/zap_map()/bhitpile()/bhitm()/bhito() family, carrying the WAN_POLYMORPH object helpers required by the assigned pile path. Wire dozap() -> weffects() in the same span and either include do_break_wand() or keep its second zapsetup() caller explicitly blocked. Replay through the first h, then source-trace any newly exposed object helper; do not close the span after adding only the setup annotation."
+  "nextProbe": "Complete the source-defined object replacement and shock path with production immediate-wand wiring, verify source RNG and bypass lifetime, then replay the original session to identify its next mismatch. Use independent recordings for new entry-point evidence and leave active unrecorded callers open."
 }
