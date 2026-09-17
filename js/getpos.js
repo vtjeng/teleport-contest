@@ -623,15 +623,20 @@ export async function getpos(ccp, force, goal, state = game) {
                 continue;
             }
             const hiliteKey = state.commandBindings.specialKeys?.['getpos.valid'];
-            if (state.getpos_hilitefunc && key === hiliteKey) {
-                if (hiliteState === 1) {
-                    await state.getpos_hilitefunc(false, state);
-                    hiliteState = 0;
-                } else if (!state.iflags?.bgcolors) {
-                    hiliteState = 1;
-                    await state.getpos_hilitefunc(true, state);
-                } else {
-                    hiliteState = 0;
+            // C ref: getpos.c getpos(), NHHKF_GETPOS_SHOWVALID branch. The
+            // key always keeps targeting and restores the goal prompt; the
+            // callback only controls the optional valid-square highlights.
+            if (key === hiliteKey) {
+                if (state.getpos_hilitefunc) {
+                    if (hiliteState === 1) {
+                        await state.getpos_hilitefunc(false, state);
+                        hiliteState = 0;
+                    } else if (!state.iflags?.bgcolors) {
+                        hiliteState = 1;
+                        await state.getpos_hilitefunc(true, state);
+                    } else {
+                        hiliteState = 0;
+                    }
                 }
                 showGoalMessage = true;
                 messageGiven = true;

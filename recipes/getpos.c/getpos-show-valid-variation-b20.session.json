@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 613913,
+      "datetime": "20390129151837",
+      "nethackrc": "OPTIONS=name:ValidVariation,role:Wizard,race:human,gender:male,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen,playmode:debug,pettype:none\n",
+      "moves": " \u0014  $."
+    }
+  ],
+  "comment": "Cheap source-relevant variation of the independent SHOWVALID witness: seed 613913 changes the character to a neutral male Wizard while retaining the same production teleport/getpos input sequence and source continuation."
+}
