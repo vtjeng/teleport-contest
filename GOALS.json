@@ -57939,7 +57939,7 @@
           "line": 1130,
           "endLine": 1593,
           "declared": true,
-          "complete": false
+          "complete": true
         }
       ],
       "range": {
@@ -58092,7 +58092,103 @@
             }
           }
         }
-      ]
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "really_done",
+            "implementation": "js/end.js",
+            "symbol": "really_done",
+            "sourceReview": "Read nethack-c/upstream/src/end.c really_done() 1130-1593 in full. The port covers the gameover and panic cleanup prefix, timed finalization, BURNING/DISSOLVED grave-arise mapping, payment and disclosure gates, inventory identification, grave creation, score and ascension calculation, farewell and valuables output, stopprint raw-print tail, and termination marker. The correction preserves C's direct mons catalog lookup, A_ORIGINAL/A_CURRENT alignment slots, post-farewell valuables order, no-pet single-line escape output, glass-valuables output without a worth suffix, done_stopprint guard before object formatting, and PANICKED gates keyed by how. Discarded filesystem and shutdown operations remain named source gaps in the implementation comments. The final corrections keep the C no-window done_stopprint assignment in the cleanup arm after payment, disclosure, score, and bones work, and use the existing awaited displayPendingTtyMessageWindow owner for WIN_MESSAGE(TRUE) when windows exist; focused fixtures use the source no-prompt disclosure setting so that no-window ordering is exercised without synthetic input. The used pickup.c observe_quantum_cat dependency is source-pinned by the end-really-done and pickup focused tests and remains listed in the caller/dependency trace. Root compared the integrated required chain including the final awaited WIN_MESSAGE cleanup. Supporting helper units outside this selected source range are described as dependencies without separate completion claims.",
+            "callers": [
+              {
+                "path": "js/end.js",
+                "symbol": "done",
+                "source": "end.c done() calls really_done() after the death-state prefix and any lifesaving return."
+              },
+              {
+                "path": "js/hack.js",
+                "symbol": "losehp",
+                "source": "hack.c losehp() reaches done() for lethal damage, including trap.c lava_effects()'s done(BURNING) path."
+              },
+              {
+                "path": "js/end.js",
+                "symbol": "done2",
+                "source": "end.c done2() sets stopprint for the wizard Dump core? q answer before done(QUIT)."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/end-really-done.test.mjs",
+              "scripts/hero-death.test.mjs"
+            ],
+            "recordings": [
+              "recordings/end.c/really-done-stopprint-wizard.session.json",
+              "recordings/end.c/really-done-stopprint-wizard-variation.session.json"
+            ],
+            "checkedAt": "702df7b47dd348f2ff57bd05fb75eaba3e761dad"
+          }
+        ],
+        "entryPointReview": "Read end.c really_done1130-1593 and its required finalization helpers against C. The two independent live-window Wizard quit recordings execute done2 and the stopprint final output; they do not cover the no-window cleanup, which has focused state/output checks. Existing ordinary death recordings execute the same production finalizer. Active exceptional, escape/ascension, quantum-cat and no-window entries remain open; tests do not replace their production recordings. The independent fatal-lava recipe seed810141 reaches C done(BURNING), but its JS replay first differs during inventory burning after More at step47; retain the input-only recipe and no recording. The separate seed812347 attempt never reaches BURNING and first differs in the distfleeck continuation at step65. The accepted lava survival recordings stop before cleanup/return, and their extended probes have a separate postmovement create_gas_cloud blockPoint gap. These are independent coverage blockers, not claimed completion. The required helper implementations fixup_death, get_valuables, sort_valuables, artifact_score and pickup.c observe_quantum_cat were checked in source order; only the primary selected really_done unit is recorded here. Escape/ascension keepdogs remains an explicit discarded-call note_unported gap; external files and process teardown are not substituted with game effects.",
+        "entryPoints": [
+          {
+            "name": "ordinary lethal death finalization",
+            "functions": [
+              "really_done"
+            ],
+            "recordings": [
+              "recordings/end.c/really-done-wait-synch.session.json",
+              "recordings/end.c/death-ray-cleanup.session.json",
+              "recordings/end.c/done-in-by-shopkeeper.session.json"
+            ]
+          },
+          {
+            "name": "wizard quit with stopprint and final raw-print tail",
+            "functions": [
+              "really_done"
+            ],
+            "recordings": [
+              "recordings/end.c/really-done-stopprint-wizard.session.json",
+              "recordings/end.c/really-done-stopprint-wizard-variation.session.json"
+            ]
+          },
+          {
+            "name": "fatal lava and special death/grave-arise finalization",
+            "functions": [
+              "really_done"
+            ],
+            "recordings": []
+          },
+          {
+            "name": "escape and ascension with valuables and pets",
+            "functions": [
+              "really_done"
+            ],
+            "recordings": []
+          },
+          {
+            "name": "inventory disclosure quantum-cat resolution",
+            "functions": [
+              "really_done"
+            ],
+            "recordings": []
+          },
+          {
+            "name": "panic, hangup and no-window finalization",
+            "functions": [
+              "really_done"
+            ],
+            "recordings": []
+          },
+          {
+            "name": "first-move and roleplay-achievement finalization",
+            "functions": [
+              "really_done"
+            ],
+            "recordings": []
+          }
+        ]
+      }
     }
   ]
 }
