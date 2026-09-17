@@ -67,7 +67,6 @@ import {
     OBJ_FLOOR,
     OBJ_INVENT,
     PASSES_WALLS,
-    PARANOID_SWIM,
     PIT,
     ROOM,
     ROWNO,
@@ -1253,18 +1252,6 @@ test('simple hero movement rejects spot effects before mutation', async () => {
             },
         },
         {
-            name: 'lava under pile',
-            reason: 'test_move() door or special terrain movement',
-            setup: ({ destination, x, y }) => {
-                destination.typ = LAVAPOOL;
-                // Clearing paranoid_confirm:Swim selects swim_move_danger()'s
-                // non-warning lava arm, which remains outside this admission
-                // span and keeps the pile refusal atomic.
-                game.flags.paranoia_bits &= ~PARANOID_SWIM;
-                installFloorPile(x, y);
-            },
-        },
-        {
             // ICE is rm.h:88's next type after ALTAR, so it is the terrain
             // just outside IS_FURNITURE()'s range and the one that pins its
             // upper bound. Its own arm of dfeature_at() calls ice_descr(),
@@ -1330,6 +1317,23 @@ test('simple hero movement rejects spot effects before mutation', async () => {
             );
         }
     }
+});
+
+test('levitating movement enters lava with a pile through the walking gate', async () => {
+    const { destination, x, y } = await prepareHeroMoveAdmission();
+    destination.typ = LAVAPOOL;
+    const pile = installFloorPile(x, y);
+    game.u.uprops[LEVITATION].extrinsic = 1;
+    game.context.nopick = 1;
+
+    // hack.c test_move() admits DO_MOVE into liquid. Levitation makes
+    // swim_move_danger() return FALSE and pooleffects() skip burning;
+    // pickup.c pickup() then leaves the pile alone for the m-prefix move.
+    await domove(game);
+
+    assert.deepEqual([game.u.ux, game.u.uy], [x, y]);
+    assert.equal(game.u.umoved, true);
+    assert.equal(game.level.objects[x][y], pile);
 });
 
 // A MARK engraving at the destination no longer stops the hero. pickup()
