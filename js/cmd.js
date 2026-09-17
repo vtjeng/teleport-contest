@@ -2570,7 +2570,7 @@ export async function makemap_prepost(pre, wiztower = false, state = game) {
         state.u.ustuck = null;
         state.u.uswallow = false;
         state.u.uswldtim = 0;
-        set_uinwater(0, state);
+        await set_uinwater(0, state);
         state.u.uundetected = false;
         dmonsfree(state);
         dobjsfree(state);
@@ -2583,7 +2583,7 @@ export async function makemap_prepost(pre, wiztower = false, state = game) {
     vision_reset(state);
     state.vision_full_recalc = 1;
     await cls();
-    u_on_rndspot(
+    await u_on_rndspot(
         (state.u?.uhave?.amulet ? 1 : 0) | (wiztower ? 2 : 0),
         state,
     );

@@ -680,7 +680,7 @@ export async function hurtle_step(arg, x, y) {
     vision_recalc(1, { state });
     await flush_screen(1);
     if (ltyp !== state.level.at(oldX, oldY).typ)
-        switch_terrain(state);
+        await switch_terrain(state);
     await check_special_room(false, state);
 
     if (is_pool(x, y, state) && !state.u.uinwater) {

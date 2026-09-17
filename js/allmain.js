@@ -238,7 +238,7 @@ export async function newgame() {
 
     // C ref: allmain.c newgame() → u_on_upstairs(). In C, room filling above
     // is part of mklev(), so hero placement follows it.
-    u_on_upstairs();
+    await u_on_upstairs();
 
     // C ref: allmain.c newgame(). Vision and room membership must observe the
     // final hero square before an existing monster is displaced and the

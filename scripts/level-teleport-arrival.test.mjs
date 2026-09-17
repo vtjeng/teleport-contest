@@ -271,7 +271,7 @@ test('teleport exclusion zones apply in C source order and direction', () => {
     assert.equal(is_exclusion_zone(LR_DOWNTELE, 16, 5, state), false);
 });
 
-test('u_on_rndspot retries trap and monster squares in exact PRNG order', () => {
+test('u_on_rndspot retries trap and monster squares in exact PRNG order', async () => {
     const state = placementState();
     // ISAAC seed 1 produces <7,14>, <36,7>, <79,4> for the first three
     // rn1(79,1)/rn1(21,0) pairs. Make them respectively trap, monster, clear.
@@ -284,7 +284,7 @@ test('u_on_rndspot retries trap and monster squares in exact PRNG order', () => 
 
     initRng(1);
     enableRngLog();
-    u_on_rndspot(0, state);
+    await u_on_rndspot(0, state);
 
     assert.deepEqual([state.u.ux, state.u.uy], [79, 4]);
     assert.deepEqual(getRngLog(), [
@@ -393,7 +393,7 @@ test('single-level and Wizard tower predicates read their source-owned state',
     });
 
 test('ordinary tower-level arrivals do not use the tower-preservation region',
-    () => {
+    async () => {
         const state = placementState();
         state.u.uz = { dnum: 9, dlevel: 2 };
         state.dndest = {
@@ -404,7 +404,7 @@ test('ordinary tower-level arrivals do not use the tower-preservation region',
         state.level.at(30, 7).typ = ROOM;
 
         initRng(1);
-        u_on_rndspot(0, state);
+        await u_on_rndspot(0, state);
         assert.deepEqual([state.u.ux, state.u.uy], [10, 5]);
     });
 
@@ -440,7 +440,7 @@ test('random arrival prints earth sense before switching terrain', async () => {
     const lines = [];
     const events = [];
 
-    u_on_rndspot(0, state, {
+    await u_on_rndspot(0, state, {
         earthSenseMessage: (line) => {
             events.push('collect');
             lines.push(line);
@@ -483,32 +483,28 @@ test('random arrival prints earth sense before switching terrain', async () => {
     ]);
 });
 
-test('random arrival switches terrain unless its caller defers the effect',
-    () => {
+test('random arrival awaits the source terrain transition',
+    async () => {
         const state = placementState();
         // A one-square region makes <10,8> the selected ROOM without a draw.
         state.dndest = { lx: 10, ly: 8, hx: 10, hy: 8 };
         state.level.at(10, 8).typ = ROOM;
-        // A blocked levitation property makes switch_terrain() observable: its
-        // currently unported unblocking arm throws after u_on_newpos() lands.
+        // A blocked levitation property makes switch_terrain() observable:
+        // leaving the source obstruction clears its transient mask.
         state.u.uprops[LEVITATION].blocked = 1;
 
-        assert.throws(
-            () => u_on_rndspot(0, state),
-            /unblocking levitation or flight/u,
-        );
+        await u_on_rndspot(0, state);
         assert.deepEqual([state.u.ux, state.u.uy], [10, 8]);
+        assert.equal(state.u.uprops[LEVITATION].blocked, 1);
     });
 
-test('random arrival deferral suppresses switch_terrain after placement', () => {
+test('random arrival deferral suppresses switch_terrain after placement', async () => {
     const state = placementState();
     state.dndest = { lx: 10, ly: 8, hx: 10, hy: 8 };
     state.level.at(10, 8).typ = ROOM;
     state.u.uprops[LEVITATION].blocked = 1;
 
-    assert.doesNotThrow(() => u_on_rndspot(0, state, {
-        deferSwitchTerrain: true,
-    }));
+    await u_on_rndspot(0, state, { deferSwitchTerrain: true });
     assert.deepEqual([state.u.ux, state.u.uy], [10, 8]);
 });
 
@@ -540,13 +536,13 @@ test('live placement preflights before changing any position owner', () => {
     }, before);
 });
 
-test('plan-only random placement requires its position preflight', () => {
+test('plan-only random placement requires its position preflight', async () => {
     const state = placementState();
     state.dndest = { lx: 10, ly: 8, hx: 10, hy: 8 };
     state.level.at(10, 8).typ = ROOM;
     const before = [state.u.ux, state.u.uy];
 
-    assert.throws(
+    await assert.rejects(
         () => u_on_rndspot(0, state, { planPositionOnly: true }),
         {
             name: 'TypeError',
@@ -562,9 +558,9 @@ test('random-arrival planning never applies live placement effects',
         initRng(9450611);
         state.dndest = { lx: 10, ly: 8, hx: 10, hy: 8 };
         state.level.at(10, 8).typ = ROOM;
-        // A live switch_terrain() would reject this property state. The
-        // caller-supplied completion proves only the committed placement gets
-        // as far as the deferred switch seam.
+        // The caller-supplied completion proves only the committed placement
+        // gets as far as the deferred switch seam; the live terrain helper is
+        // intentionally not invoked by this planning path.
         state.u.uprops[LEVITATION].blocked = 1;
         const events = [];
 

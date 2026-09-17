@@ -193,7 +193,7 @@ test('u_on_newpos rejects coordinates outside the playable map', () => {
     );
 });
 
-test('u_on_upstairs selects the first upward stair without drawing PRNG', () => {
+test('u_on_upstairs selects the first upward stair without drawing PRNG', async () => {
     const state = initializedState();
     // No initRng(): any accidental draw would fail before this assertion.
     state.stairs = {
@@ -210,12 +210,12 @@ test('u_on_upstairs selects the first upward stair without drawing PRNG', () => 
         },
     };
 
-    u_on_upstairs(state);
+    await u_on_upstairs(state);
 
     assert.deepEqual([state.u.ux, state.u.uy], [21, 9]);
 });
 
-test('u_on_upstairs does not mistake a downward special stair for upward', () => {
+test('u_on_upstairs does not mistake a downward special stair for upward', async () => {
     const state = initializedState();
     state.stairs = {
         sx: 21,
@@ -230,7 +230,7 @@ test('u_on_upstairs does not mistake a downward special stair for upward', () =>
     initRng(0x51a1);
     enableRngLog();
 
-    u_on_upstairs(state);
+    await u_on_upstairs(state);
 
     assert.deepEqual([state.u.ux, state.u.uy], [4, 4]);
     // Every failed attempt draws x and y once; fallback itself draws nothing.
@@ -279,7 +279,7 @@ test('generated first levels place and register the hero in the branch-stair roo
         })();
         assert.ok(upward, `seed ${seed} did not generate the level-one branch stair`);
 
-        u_on_upstairs(state);
+        await u_on_upstairs(state);
         move_update(false, state);
 
         assert.deepEqual(

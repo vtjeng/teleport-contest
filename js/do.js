@@ -366,14 +366,12 @@ export async function finish_random_arrival_effects(
     { message = ttyPline, switchTerrain = switch_terrain } = {},
 ) {
     for (const line of earthSenseMessages) await message(line, state);
-    switchTerrain(state);
+    await switchTerrain(state);
 }
 
-// Async integration seam for do.c goto_level()'s random-arrival arm. `place`,
-// its earthSenseMessage collector, and `switchTerrain` are synchronous like
-// their C owners; only terminal message delivery is awaited. Keeping the
-// deferral flag and its matching completion together makes the C order
-// (earth_sense(), then switch_terrain()) independently testable.
+// Async integration seam for do.c goto_level()'s random-arrival arm. The
+// placement helper and switchTerrain both complete before the next arrival
+// effect, preserving C's earth_sense() then switch_terrain() order.
 export async function place_random_arrival(
     upflag,
     state = game,
@@ -428,13 +426,13 @@ export async function place_random_arrival(
             cloneIsaacContext(state.coreCtx ?? game.coreCtx),
             state,
         );
-        planPlace(upflag, state, {
+        await planPlace(upflag, state, {
             planPositionOnly: true,
             randomOneBased: plannedRandom.rn1,
             preflightPosition: preflightArrival,
         });
     }
-    place(upflag, state, {
+    await place(upflag, state, {
         earthSenseMessage: (line) => earthSenseMessages.push(line),
         deferSwitchTerrain: true,
         preflightPosition: preflightArrival,
@@ -660,7 +658,7 @@ export async function boulder_hits_pool(otmp, rx, ry, pushing = false, rawEnv = 
         }
         if (fillsUp && state.u?.uinwater
             && dist2(rx, ry, state.u.ux, state.u.uy) === 0) {
-            set_uinwater(0, state);
+            await set_uinwater(0, state);
             if (typeof rawEnv.docrt === 'function') await rawEnv.docrt(state);
             else await docrt();
             state.vision_full_recalc = 1;
@@ -1712,7 +1710,7 @@ export async function goto_level(
     reset_utrap(false, state);
     fill_pit(u.ux, u.uy, state);
     set_ustuck(null, state);
-    set_uinwater(false, state);
+    await set_uinwater(false, state);
     u.uundetected = false;
     if (!state.iflags?.nofollowers) {
         keepdogs(false, {
@@ -1803,7 +1801,7 @@ export async function goto_level(
     // closing symbol assignment also keeps customized dark-room rendering in
     // sync with the room symbol.
     reglyph_darkroom(state);
-    set_uinwater(false, state);
+    await set_uinwater(false, state);
     vision_reset(state);
     state.vision_full_recalc = 0;
     await flush_screen(-1); /* ensure all map flushes are postponed */
@@ -1849,7 +1847,7 @@ export async function goto_level(
                 'goto_level() ascending into a new dungeon',
             );
         } else {
-            u_on_dnstairs(state);
+            await u_on_dnstairs(state);
         }
         // do.c:1758-1764. A punished, non-levitating hero announces the
         // extra effort even when verbose mode is off.
@@ -1872,9 +1870,9 @@ export async function goto_level(
         } else if (newdungeon) {
             // u_on_sstairs(0) places the hero on a branch staircase. A
             // same-dungeon descent always makes an up staircase instead.
-            u_on_sstairs(0, state);
+            await u_on_sstairs(0, state);
         } else {
-            u_on_upstairs(state);
+            await u_on_upstairs(state);
         }
         if (!u.dz) {
             /* stayed on same level? (no transit effects) */
