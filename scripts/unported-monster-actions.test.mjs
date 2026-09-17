@@ -51,6 +51,7 @@ import {
     OBJ_MINVENT,
     PLNMSG_HIDE_UNDER,
     PIT,
+    POISON_RES,
     POOL,
     ROOM,
     RLOC_MSG,
@@ -61,6 +62,7 @@ import {
     STRAT_WAITFORU,
     THRONE,
     TIMER_OBJECT,
+    UNCHANGING,
     W_NONDIGGABLE,
     W_NONPASSWALL,
     WEB,
@@ -88,6 +90,7 @@ import {
     PM_GNOME,
     PM_GRID_BUG,
     PM_GREMLIN,
+    PM_HUMAN,
     PM_HEZROU,
     PM_IRON_GOLEM,
     PM_KITTEN,
@@ -99,6 +102,7 @@ import {
     PM_QUANTUM_MECHANIC,
     PM_VAMPIRE_BAT,
     PM_TENGU,
+    PM_WATER_MOCCASIN,
     PM_WATER_NYMPH,
     PM_WOOD_NYMPH,
     PM_WIZARD_OF_YENDOR,
@@ -115,6 +119,7 @@ import {
     UnsupportedSimpleMonsterActionError,
     wieldMonsterItemAgainstMonster,
 } from '../js/unported_monster_actions.js';
+import { MonsterDeathPlanningError } from '../js/mhitu.js';
 import { newMonster } from '../js/monst.js';
 import { newObject } from '../js/obj.js';
 import { ART_STING } from '../js/artifacts.js';
@@ -790,6 +795,86 @@ test('a planned hallucinated hit keeps the live display RNG unchanged',
         await preflightSimpleMonsterActions(game);
 
         assert.deepEqual(game.displayCtx, displayBefore);
+    });
+
+test('planned lethal poison stops before polymorph rehumanization',
+    async () => {
+        // hack.c losehp():4268-4274 subtracts u.mh before rehumanize(). A
+        // monster-turn planning clone must stop at that same lethal boundary;
+        // rehumanize() can call done() for an Unchanging form, whose terminal
+        // query belongs to the live replay and must not consume its input.
+        const target = await prepareSelectedAction({ adjacentHero: true });
+        game.viz_array[target.heroY][target.monsterX] |= IN_SIGHT;
+        const moccasin = game.mons[PM_WATER_MOCCASIN];
+        target.monster.data = {
+            ...moccasin,
+            // Keep hitmu() from entering mhitu.c mdamageu(), whose separate
+            // polymorphed-hero arm is outside this fixture. The AD_DRST arm
+            // still reaches the production monsterMissileEnv poisoned seam.
+            mattk: moccasin.mattk.map((attack, index) => index === 0
+                ? { ...attack, damn: 0, damd: 0 } : attack),
+        };
+        target.monster.mnum = PM_WATER_MOCCASIN;
+        target.monster.m_lev = 5;
+        game.u.umonnum = PM_GRID_BUG;
+        game.u.umonster = PM_HUMAN;
+        game.u.mh = 1;
+        game.u.mhmax = 1;
+        game.youmonst.data = game.mons[PM_GRID_BUG];
+        game.u.uprops[UNCHANGING] = {
+            intrinsic: 1,
+            extrinsic: 0,
+            blocked: 0,
+        };
+        // Keep the magic-negation inventory arm out of this fixture. The
+        // source poison path then reaches the planning death boundary with
+        // the same attack draws as the live turn.
+        game.invent = null;
+        game.u.uprops[POISON_RES] = {
+            intrinsic: 0,
+            extrinsic: 0,
+            blocked: 0,
+        };
+        const planned = planningState(game);
+        const inputBefore = game.nhDisplay.inputQueueLength;
+        const draws = [];
+        const random = {
+            rn2: (bound) => {
+                draws.push(`rn2(${bound})`);
+                return bound === 8 ? 0 : bound === 10 ? 9
+                    : bound === 30 ? 6 : 1;
+            },
+            rnd: (bound) => { draws.push(`rnd(${bound})`); return 1; },
+            d: (n, sides) => {
+                draws.push(`d(${n},${sides})`);
+                return n;
+            },
+            rn1: (_n, base) => { draws.push(`rn1(${base})`); return base; },
+            rne: (bound) => { draws.push(`rne(${bound})`); return 1; },
+            rnl: (bound) => { draws.push(`rnl(${bound})`); return 1; },
+            rnz: (bound) => { draws.push(`rnz(${bound})`); return bound; },
+        };
+
+        let thrown;
+        try {
+            await runSimpleMonsterAction(planned.level.monlist, {
+                state: planned,
+                planning: true,
+                random,
+            });
+        } catch (error) {
+            thrown = error;
+        }
+        assert.ok(thrown instanceof MonsterDeathPlanningError);
+        assert.equal(thrown.monsterId, target.monster.m_id);
+        assert.deepEqual(draws, [
+            'rn2(5)', 'rnd(20)', 'd(0,0)', 'rn2(10)', 'rn2(8)',
+            'rn2(30)', 'rn1(6)',
+        ]);
+        assert.equal(planned.u.mh, -5);
+        assert.equal(game.u.mh, 1);
+        assert.equal(game.program_state.gameover ?? false, false);
+        assert.equal(game.nhDisplay.inputQueueLength, inputBefore);
     });
 
 test('a planned hallucinated pickup uses only the cloned display RNG',

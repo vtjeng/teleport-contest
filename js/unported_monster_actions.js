@@ -1346,13 +1346,17 @@ function monsterMissileEnv(monster, env) {
                         // terminal boundary, so mirror the established
                         // monster-turn handoff used by thitu/zhitu before
                         // invoking losehp() on a planning clone.
-                        if (actionEnv.planning && !Upolyd(target.u)
-                            && n >= target.u.uhp
+                        const polymorphed = Upolyd(target.u);
+                        const currentHitPoints = polymorphed
+                            ? target.u.mh : target.u.uhp;
+                        if (actionEnv.planning
+                            && n >= currentHitPoints
                             && typeof actionEnv.planningDeath === 'function') {
                             end_running(true, target);
                             target.disp ??= {};
                             target.disp.botl = true;
-                            target.u.uhp -= n;
+                            if (polymorphed) target.u.mh -= n;
+                            else target.u.uhp -= n;
                             throw actionEnv.planningDeath(monster);
                         }
                         return losehp(n, knam, kFormat, target,
