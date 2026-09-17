@@ -3832,7 +3832,7 @@ export function merged(otmp, obj, env = {}) {
 // does not execute obfree() until that wait has finished.  Non-waiting merges
 // still complete synchronously so merely scanning incompatible stacks cannot
 // introduce an observable scheduling boundary.
-function mergedRuntime(otmp, obj, env = {}) {
+export function mergedRuntime(otmp, obj, env = {}) {
     const plan = beginMerged(otmp, obj, env);
     if (!plan) return false;
     if (plan.comparisonDiscovered) {

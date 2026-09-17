@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 8210037,
+      "datetime": "20310203040506",
+      "nethackrc": "OPTIONS=name:ZapPoly,role:Valkyrie,race:human,gender:female,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen\nOPTIONS=pettype:none,!acoustics,!autopickup,playmode:debug\n",
+      "moves": ".\u0017wand of polymorph\nze.  .",
+      "comment": "Independent B21 zapyourself WAN_POLYMORPH setup. The source-valid self-zap reaches polyself.c polyself, whose random form-selection owner remains outside this span; keep this recipe without a recording until that callee is ported."
+    }
+  ]
+}

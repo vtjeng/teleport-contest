@@ -5,6 +5,7 @@
 // passiveum(), and gulp_blnd_check().
 
 import {
+    A_DEX,
     AC_VALUE,
     BLINDED,
     CONFLICT,
@@ -29,12 +30,14 @@ import {
     SEE_INVIS,
     IS_WATERWALL,
     TT_PIT,
+    FAST,
     W_AMUL,
     W_ARMOR,
     Upolyd,
     is_pit,
     u_at,
 } from './const.js';
+import { exercise } from './attrib.js';
 // js/unported_monster_actions.js already imports allmain.js across the same
 // cycle and records why it is safe: `stop_occupation` is a hoisted function
 // declaration, initialized before either module body runs, and nothing here
@@ -116,6 +119,20 @@ import { is_pole } from './worn.js';
 import { breamu, spitmu } from './mthrowu.js';
 import { mnexto } from './teleport.js';
 import { poly_gender } from './polyself.js';
+
+// C ref: mhitu.c u_slow_down() (163-171).  The self-zap and monster-action
+// callers share this owner: HFast is cleared in one operation, leaving any
+// extrinsic speed source (such as speed boots) for the second message arm.
+export async function u_slow_down(state = game) {
+    const fast = state.u?.uprops?.[FAST];
+    if (!fast) return;
+    fast.intrinsic = 0;
+    if (!(fast.extrinsic ?? 0))
+        await ttyPline('You slow down.', state);
+    else
+        await ttyPline('Your quickness feels less natural.', state);
+    await exercise(A_DEX, false, state);
+}
 
 // Planning cannot call end.c done_in_by() on its cloned state: the ordinary
 // death entry updates the live terminal and then asks for input. This signal
