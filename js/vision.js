@@ -634,6 +634,56 @@ export function do_clear_area(
     }
 }
 
+// C ref: vision.c do_clear_area().  This async adapter keeps the same
+// row-major callback order for callers whose callback has source-visible
+// asynchronous work.  In particular, a callback can finish changing one
+// square (and consuming its RNG) before the next square is considered.
+// The ordinary synchronous API above remains unchanged for its existing
+// callers.  Fountain gushes are centered on the hero in C; the off-center
+// path below preserves view_from()'s coordinate selection before awaiting
+// each selected callback.
+export async function do_clear_area_async(
+    scol,
+    srow,
+    range,
+    callback,
+    argument = null,
+    state = game,
+) {
+    if (typeof callback !== 'function')
+        throw new TypeError('do_clear_area_async requires a callback');
+    if (range > MAX_RADIUS || range < 1)
+        throw new RangeError(`do_clear_area: illegal range ${range}`);
+
+    if (scol !== state.u.ux || srow !== state.u.uy) {
+        const coordinates = [];
+        do_clear_area(
+            scol,
+            srow,
+            range,
+            (x, y) => coordinates.push([x, y]),
+            null,
+            state,
+        );
+        for (const [x, y] of coordinates)
+            await callback(x, y, argument);
+        return;
+    }
+
+    if (state === game && game.vision_full_recalc) vision_recalc(0);
+    const minY = Math.max(0, srow - range);
+    const maxY = Math.min(ROWNO - 1, srow + range);
+    for (let y = minY; y <= maxY; ++y) {
+        const offset = circle_offset(range, Math.abs(y - srow));
+        const minX = Math.max(1, scol - offset);
+        const maxX = Math.min(COLNO - 1, scol + offset);
+        for (let x = minX; x <= maxX; ++x) {
+            if (couldsee(x, y, state))
+                await callback(x, y, argument);
+        }
+    }
+}
+
 // C ref: vision_recalc(control).  `env` names three of the things C reaches
 // through globals: the game state, its pair of COULD_SEE buffers, and
 // display.c's redraw.  js/unported_monster_actions.js supplies all three so

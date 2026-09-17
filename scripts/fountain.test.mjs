@@ -33,6 +33,7 @@ import {
 } from '../js/const.js';
 import {
     breaksink,
+    dogushforth,
     drinkfountain,
     drinksink,
     dryup,
@@ -52,6 +53,115 @@ import { DILITHIUM_CRYSTAL, LUCKSTONE, POTION_CLASS, POT_SPEED, POT_WATER } from
 import { runSegment } from '../js/jsmain.js';
 import { newMonster } from '../js/monst.js';
 import { d, rn1, rn2, rnd, rne } from '../js/rng.js';
+import { do_clear_area_async } from '../js/vision.js';
+
+test('do_clear_area async callbacks preserve source callback order', async () => {
+    await startedGame();
+    const coordinates = [];
+    let callbackActive = false;
+    await do_clear_area_async(game.u.ux, game.u.uy, 7,
+        async (x, y) => {
+            assert.equal(callbackActive, false);
+            callbackActive = true;
+            coordinates.push([x, y]);
+            await Promise.resolve();
+            callbackActive = false;
+        }, null, game);
+    assert.ok(coordinates.length > 1);
+    assert.deepEqual(coordinates, coordinates.toSorted(
+        (left, right) => left[1] - right[1] || left[0] - right[0],
+    ));
+});
+
+test('dogushforth interleaves candidate RNG with each square effect', async () => {
+    const source = await readFile(
+        new URL('../nethack-c/upstream/src/fountain.c', import.meta.url),
+        'utf8',
+    );
+    assert.match(
+        source,
+        /do_clear_area\(u\.ux, u\.uy, 7, gush,[\s\S]*?staticfn void\s+gush/u,
+    );
+    assert.match(
+        source,
+        /set_levltyp\(x, y, POOL\);[\s\S]*?water_damage_chain\([\s\S]*?\);[\s\S]*?minliquid\(mtmp\)/u,
+    );
+
+    await startedGame();
+    const { ux, uy } = game.u;
+    // Use a clear, fully visible room around the hero so this test exercises
+    // multiple gush callbacks instead of depending on the generated map.
+    for (let y = Math.max(0, uy - 7); y <= Math.min(20, uy + 7); ++y) {
+        for (let x = Math.max(1, ux - 7); x <= Math.min(79, ux + 7); ++x) {
+            game.level.at(x, y).typ = ROOM;
+            game.level.at(x, y).flags = 0;
+            game.viz_array[y][x] = COULD_SEE | IN_SIGHT;
+            game.level.objects[x][y] = null;
+            game.level.monsters[x][y] = null;
+        }
+    }
+    game.level.traps = [];
+    game.level.monlist = null;
+    const messages = [];
+    let candidateDraws = 0;
+    let effectStarted = false;
+    let effectFinished = false;
+    let drawsAtEffect = 0;
+    const random = {
+        rn2(bound) {
+            if (effectStarted && !effectFinished)
+                assert.fail('next square was considered before prior effect');
+            ++candidateDraws;
+            assert.ok(bound > 0);
+            return 0;
+        },
+    };
+    const message = async (line) => {
+        messages.push(line);
+        if (line === 'Water gushes forth from the overflowing fountain!') {
+            effectStarted = true;
+            drawsAtEffect = candidateDraws;
+            await Promise.resolve();
+            effectFinished = true;
+        }
+    };
+    await dogushforth(false, game, { message, random });
+    assert.ok(candidateDraws > drawsAtEffect);
+    assert.deepEqual(messages, [
+        'Water gushes forth from the overflowing fountain!',
+    ]);
+});
+
+test('drinkfountain dispatches fate 30 to gushing before dryup', async () => {
+    await startedGame();
+    game.level.monlist = null;
+    for (const column of game.level.monsters)
+        for (let y = 0; y < column.length; ++y) column[y] = null;
+    const location = game.level.at(game.u.ux, game.u.uy);
+    location.typ = FOUNTAIN;
+    location.horizontal = 0;
+    location.flags = 0;
+    const messages = [];
+    const draws = [];
+    await drinkfountain(game, {
+        message: (line) => messages.push(line),
+        random: {
+            rnd(bound) {
+                assert.equal(bound, 30);
+                draws.push('rnd(30)');
+                return 30;
+            },
+            rn2(bound) {
+                draws.push(`rn2(${bound})`);
+                return bound === 3 ? 1 : 0;
+            },
+        },
+    });
+    assert.deepEqual(draws.at(0), 'rnd(30)');
+    assert.equal(messages.at(0),
+        'Water gushes forth from the overflowing fountain!');
+    assert.equal(location.typ, FOUNTAIN);
+});
 
 // fountain.c drinksink() chooses one of twenty fates, then only its default
 // branch draws temperature choices. The scripted queues check short-circuit
