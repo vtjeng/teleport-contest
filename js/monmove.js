@@ -2374,7 +2374,7 @@ export async function wield_pre_move_weapon(monster, range, rawEnv = {}) {
 // MS_CUSS species is the imp at 4.
 export async function dochug(monster, rawEnv = {}) {
     const state = rawEnv.state ?? game;
-    const random = rawEnv.random ?? { rn2 };
+    const random = rawEnv.random ?? { rn2, rnd };
     const preflight = requireDochugOperation(rawEnv, 'preflight');
     const usePreMoveItems = requireDochugOperation(rawEnv, 'usePreMoveItems');
     const moveMonster = requireDochugOperation(rawEnv, 'moveMonster');
@@ -2552,8 +2552,8 @@ export async function dochug(monster, rawEnv = {}) {
             return res;
     }
 
-    // PHASE THREE: movement.  C's disjunction also carries a leprechaun gold
-    // term between is_wanderer and Conflict.  The Conflict term is live here:
+    // PHASE THREE: movement. C's disjunction also carries a leprechaun gold
+    // term before is_wanderer. The Conflict term is live here:
     // movemon_singlemon() has just let fightm() try a monster-versus-monster
     // attack, and a monster which resists that fight still takes this movement
     // path before the ordinary hero-attack gate.
