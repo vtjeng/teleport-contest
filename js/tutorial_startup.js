@@ -3,7 +3,13 @@
 
 import { get_configfile } from './cfgfiles.js';
 import { LR_DOWNTELE, PICK_ONE } from './const.js';
-import { find_level } from './dungeon.js';
+import {
+    builds_up,
+    dunlev,
+    dunlev_reached,
+    find_level,
+    set_dunlev_reached,
+} from './dungeon.js';
 import { nh_basename } from './files.js';
 import { bot, docrt, flush_screen } from './display.js';
 import { read_engr_at } from './engrave.js';
@@ -163,6 +169,20 @@ export function save_tutorial_gamestate(state = game) {
     return state;
 }
 
+// C ref: do.c goto_level() (1679-1684).  The startup tutorial transition
+// enters its special level without calling the ordinary JS goto_level()
+// wrapper, so it must still record the reached depth before dungeon.c
+// show_overview()/print_mapseen() formats the branch header.
+export function recordTutorialLevelReached(level, state = game) {
+    if (!builds_up(level, state)) {
+        if (dunlev(level) > dunlev_reached(level, state))
+            set_dunlev_reached(level, dunlev(level), state);
+    } else if (dunlev_reached(level, state) === 0
+               || dunlev(level) < dunlev_reached(level, state)) {
+        set_dunlev_reached(level, dunlev(level), state);
+    }
+}
+
 // C refs: allmain.c maybe_do_tutorial(), do.c goto_level(), and
 // nhlib.lua tutorial_enter(). This is intentionally limited to the new-game
 // transition into tut-1 and stops at the ordinary first-command boundary.
@@ -187,6 +207,7 @@ export async function enter_tutorial(target, state = game) {
         state.u.uz = { ...target.level };
         state.u.utolev = { ...target.level };
         state.u.utotype = 0;
+        recordTutorialLevelReached(state.u.uz, state);
         state.updest = {};
         state.dndest = {};
         await mklev({ specialLevelLoader: loadTutorialLevel });
