@@ -41,6 +41,8 @@ import {
 } from './cmd.js';
 import {
     A_CON,
+    A_CURRENT,
+    A_ORIGINAL,
     ACH_BLND,
     ACH_NUDE,
     ACH_UWIN,
@@ -63,6 +65,7 @@ import {
     ENL_GAMEOVERDEAD,
     G_GENOD,
     GENOCIDED,
+    IN_SIGHT,
     isok,
     IS_GRAVE,
     LEAVESTATUE,
@@ -157,6 +160,7 @@ import {
     FIRST_REAL_GEM,
     GEM_CLASS,
     LAST_GLASS_GEM,
+    LAST_AMULET,
     LAST_REAL_GEM,
     SPE_BOOK_OF_THE_DEAD,
 } from './objects.js';
@@ -204,6 +208,7 @@ import { setnotworn } from './worn.js';
 import { set_itimeout } from './potion.js';
 import { rn2 } from './rng.js';
 import { d } from './rng.js';
+import { timet_delta } from './allmain.js';
 
 export class UnsupportedEndOfGameError extends Error {
     constructor(message) {
@@ -1115,8 +1120,15 @@ export function fixup_death(how, state) {
 // end-of-game disclosure against one cloned state.
 export function get_valuables(list, state = game) {
     state.end_valuables ??= {
-        amulets: Array.from({ length: 13 }, () => ({ count: 0, typ: 0 })),
-        gems: Array.from({ length: 23 }, () => ({ count: 0, typ: 0 })),
+        amulets: Array.from(
+            { length: LAST_AMULET - FIRST_AMULET + 1 },
+            () => ({ count: 0, typ: 0 }),
+        ),
+        // The extra gem slot combines all glass after LAST_REAL_GEM.
+        gems: Array.from(
+            { length: LAST_REAL_GEM + 1 - FIRST_REAL_GEM + 1 },
+            () => ({ count: 0, typ: 0 }),
+        ),
     };
     const values = state.end_valuables;
     for (let obj = list; obj; obj = obj.nobj) {
@@ -1213,10 +1225,15 @@ async function really_done(how, state) {
     // finalizer.  Its object cleanup and disclosure are deliberately skipped.
     if (!programState.panicking)
         done_object_cleanup(state);
+    // C clears this even when panic skipped done_object_cleanup().
+    if (state.iflags)
+        state.iflags.perm_invent = false;
 
     const endtime = getnow(state);
     state.urealtime.finish_time = endtime;
-    state.urealtime.realtime += endtime - state.urealtime.start_timing;
+    state.urealtime.realtime += timet_delta(
+        endtime, state.urealtime.start_timing,
+    );
     state.iflags.at_night = night(state);
     state.iflags.at_midnight = midnight(state);
 
@@ -1286,14 +1303,14 @@ async function really_done(how, state) {
     // clearlocks() unlinks on-disk level files; the port holds levels in
     // memory and writes no files, so it has no counterpart.
     const silently = disclosureStopprint(state);
-    const taken = programState.panicking
+    const taken = how === PANICKED
         ? false
         : paybill(how === ESCAPED ? -1 : (how !== QUIT), silently, state);
     if (state._paybill_message) {
         await state._paybill_message;
         delete state._paybill_message;
     }
-    if (!programState.panicking) {
+    if (how !== PANICKED) {
         paygd(silently, state);
         clearpriests(state);
     }
@@ -1303,19 +1320,19 @@ async function really_done(how, state) {
     // for the next disclosure query without consuming another input key.
     if (haveWindows)
         showPendingTtyMessage(state);
-    if (!programState.panicking) {
+    if (how !== PANICKED) {
         await identifyInventoryForDisclosure(state);
     }
     // C: if (strcmp(flags.end_disclose, "none")) disclose(how, taken);
     // The "none" sentinel is a special all-suppress setting.  The option
     // parser above never stores it; the test therefore always passes.
-    if (!programState.panicking)
+    if (how !== PANICKED)
         await disclose(how, taken, state);
 
     // C ref: end.c:1285-1290. formatkiller() builds the same death text that
     // the final dump records, and livelog_printf() keeps the LL_DUMP event in
     // the in-memory Chronicle even though the external dump file is absent.
-    if (!programState.panicking) {
+    if (how !== PANICKED) {
         const deathBuf = formatkiller(how, true, state);
         livelog_printf(LL_DUMP, deathBuf || deaths[how] || '', state);
     }
@@ -1371,33 +1388,13 @@ async function really_done(how, state) {
 
         // Ascension bonus (only when offering to original deity).
         if (how === ASCENDED
-            && state.u.ualign?.type === state.u.ualignbase?.[0]) {
-            tmp = (state.u.ualignbase?.[1] === state.u.ualignbase?.[0])
+            && state.u.ualign?.type === state.u.ualignbase?.[A_ORIGINAL]) {
+            tmp = (state.u.ualignbase?.[A_CURRENT]
+                === state.u.ualignbase?.[A_ORIGINAL])
                 ? state.u.urexp
                 : Math.trunc(state.u.urexp / 2);
             state.u.urexp = nowrap_add(state.u.urexp, tmp);
         }
-    }
-
-    // C ref: end.c:1430-1450.  Escape and ascension score the ordinary
-    // amulets/gems and then artifacts before the final prose is assembled.
-    if (how === ESCAPED || how === ASCENDED) {
-        const values = get_valuables(null, state);
-        for (const entry of [...values.gems, ...values.amulets]) {
-            entry.count = 0;
-            entry.typ = 0;
-        }
-        get_valuables(state.invent, state);
-        for (const entry of [...values.gems, ...values.amulets]) {
-            if (entry.count) {
-                const type = state.objects?.[entry.typ];
-                state.u.urexp = nowrap_add(
-                    state.u.urexp,
-                    entry.count * (type?.oc_cost ?? 0),
-                );
-            }
-        }
-        artifact_score(state.invent, true, state);
     }
 
     // C ref: end.c:1351-1361.  A polymorph death can leave a valid monster
@@ -1406,8 +1403,10 @@ async function really_done(how, state) {
     // saved.  display_nhwindow(WIN_MESSAGE, FALSE) is the nonblocking
     // pending-message handoff used above.
     if (ismnum(state.u.ugrave_arise) && !disclosureStopprint(state)) {
-        const arising = state.mons?.[state.u.ugrave_arise];
-        const species = arising?.data;
+        // monst_globals_init() stores permonst records directly in mons;
+        // live monsters carry their template in .data, but ugrave_arise is a
+        // monster number and indexes this canonical catalog.
+        const species = state.mons?.[state.u.ugrave_arise];
         if (species) {
             const feedback = state.u.ugrave_arise === PM_GREEN_SLIME
                 ? 'revenant persists'
@@ -1484,6 +1483,29 @@ async function really_done(how, state) {
     textLines.push({ text: '' });
 
     if (how === ESCAPED || how === ASCENDED) {
+        // C computes valuables and artifact points only after the farewell
+        // window has been prepared.  Keep this source order: these helpers
+        // can discover objects and therefore are not harmless formatting.
+        const values = get_valuables(null, state);
+        for (const entry of [...values.gems, ...values.amulets]) {
+            entry.count = 0;
+            entry.typ = 0;
+        }
+        get_valuables(state.invent, state);
+        for (const entry of [...values.gems, ...values.amulets]) {
+            if (entry.count) {
+                const type = state.objects?.[entry.typ];
+                state.u.urexp = nowrap_add(
+                    state.u.urexp,
+                    entry.count * (type?.oc_cost ?? 0),
+                );
+            }
+        }
+        artifact_score(state.invent, true, state);
+
+        // C marks the origin cell visible before mon_nam() names pets.
+        if (state.viz_array?.[0])
+            state.viz_array[0][0] |= IN_SIGHT;
         const pets = [];
         for (let mon = state.gm?.mydogs ?? null; mon; mon = mon.nmon) {
             pets.push(mon_nam(mon, state));
@@ -1496,18 +1518,19 @@ async function really_done(how, state) {
             state.u.urexp = nowrap_add(state.u.urexp, d(catLevel, 8));
             pets.push("Schroedinger's cat");
         }
+        if (pets.length) {
+            textLines.push({ text: `You and ${pets.join(' and ')}` });
+        }
         textLines.push({
-            text: pets.length ? `You and ${pets.join(' and ')}` : 'You',
-        });
-        textLines.push({
-            text: `${how === ASCENDED ? 'went to your reward' : 'escaped from the dungeon'}`
+            text: `${pets.length ? '' : 'You '}`
+                + `${how === ASCENDED ? 'went to your reward' : 'escaped from the dungeon'}`
                 + ` with ${state.u.urexp} point${plur(state.u.urexp)},`,
         });
         artifact_score(state.invent, false, state, textLines);
-        const values = state.end_valuables ?? get_valuables(null, state);
         for (const list of [values.gems, values.amulets]) {
             sort_valuables(list);
             for (const entry of list) {
+                if (disclosureStopprint(state)) break;
                 if (!entry.count) continue;
                 const type = state.objects?.[entry.typ];
                 if (!type) continue;
@@ -1523,9 +1546,12 @@ async function really_done(how, state) {
                 } else {
                     name = `worthless piece${entry.count === 1 ? '' : 's'} of colored glass`;
                 }
+                const valueText = type.oc_class !== GEM_CLASS
+                    || entry.typ <= LAST_REAL_GEM
+                    ? ` (worth ${value} ${currency(2, state)}),`
+                    : ',';
                 textLines.push({
-                    text: `${String(entry.count).padStart(8, ' ')} ${name}`
-                        + ` (worth ${value} ${currency(2, state)}),`,
+                    text: `${String(entry.count).padStart(8, ' ')} ${name}${valueText}`,
                 });
             }
         }
