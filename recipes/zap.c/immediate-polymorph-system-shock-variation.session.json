@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 731043,
+      "datetime": "20310917101500",
+      "nethackrc": "OPTIONS=name:ZapShockVar,role:Wizard,race:human,gender:male,align:neutral\nOPTIONS=!autopickup,!verbose,!legacy,!tutorial,!splash_screen\nOPTIONS=pettype:none\nOPTIONS=symset:DECgraphics\nOPTIONS=playmode:debug\n",
+      "moves": " \u0017wand of polymorph (0:30)\ndf\ndg\ndh\ndi\ndj\ndk\nhzol",
+      "comment": "Independent B17 system-shock variation: a distinct seed, clock, and name reach the same immediate pile arm, with obj_shudders selecting do_osshock on one of the dropped objects before the ray continues to a monster."
+    }
+  ]
+}

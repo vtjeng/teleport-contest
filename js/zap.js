@@ -37,6 +37,8 @@ import {
     A_WIS,
     BLINDED,
     BUFSZ,
+    LARGEST_INT,
+    MAX_SPELL_STUDY,
     COLD_RES,
     COLNO,
     CORR,
@@ -109,6 +111,8 @@ import {
     OBJ_AT,
     OBJ_FLOOR,
     OBJ_INVENT,
+    BURIED_TOO,
+    CONTAINED_TOO,
     CORPSTAT_FEMALE,
     CORPSTAT_GENDER,
     CORPSTAT_MALE,
@@ -124,6 +128,7 @@ import {
     NON_PM,
     NOTELL,
     G_GENOD,
+    has_mcorpsenm,
     REFLECTING,
     ROOM,
     ROWNO,
@@ -156,6 +161,7 @@ import {
     WEB,
     W_ACCESSORY,
     W_ART,
+    W_ARTI,
     W_AMUL,
     W_ARMC,
     W_ARM,
@@ -201,6 +207,7 @@ import {
 import {
     christen_monst,
     hliquid,
+    a_monnam,
     Monnam,
     mon_nam,
     monsterCommonName,
@@ -227,24 +234,29 @@ import {
     hold_another_object,
     stackobj,
     prepareHoldDropAdmission,
+    delete_contents,
     update_inventory,
     useupall,
     delobj_core,
 } from './invent.js';
 import { get_obj_location } from './light.js';
-import { monhp_per_lvl } from './makemon.js';
+import { monhp_per_lvl, newmcorpsenm, rndmonnum } from './makemon.js';
 import {
     makemon_revival,
     makemon_runtime,
     newcham_revival,
 } from './makemon_create.js';
 import {
+    can_be_hatched,
     completelyburns,
     attacktype_fordmg,
     defended,
+    dead_species,
     dmgtype_fromattack,
     is_demon,
+    hides_under,
     is_whirly,
+    mindless,
     is_mplayer,
     is_rider,
     is_vampshifter,
@@ -275,21 +287,44 @@ import {
     AT_ENGL,
     LOW_PM,
     PM_CLAY_GOLEM,
+    PM_CROCODILE,
+    PM_FLESH_GOLEM,
+    PM_GLASS_GOLEM,
+    PM_GOLD_GOLEM,
+    PM_IRON_GOLEM,
+    PM_LEATHER_GOLEM,
+    PM_PAPER_GOLEM,
+    PM_ROPE_GOLEM,
+    PM_SKELETON,
+    PM_STONE_GOLEM,
+    PM_STRAW_GOLEM,
+    PM_WOOD_GOLEM,
     PM_DEATH,
     PM_DOPPELGANGER,
     PM_KNIGHT,
     PM_GREMLIN,
+    PM_LONG_WORM,
     S_EEL,
 } from './monsters.js';
 import { discover_object, observe_object } from './o_init.js';
 import { obj_resists } from './bury.js';
 import {
+    carried,
     free_omid,
     free_omonst,
+    erosionMatters,
+    fixup_oil,
+    hasContents,
     is_helmet,
+    isDamageable,
+    is_flammable,
     isBox,
     isMetallic,
+    isCorrodeable,
+    isCrackable,
     is_pick,
+    is_rottable,
+    isRustprone,
     mkobj,
     mksobj,
     mksobj_at,
@@ -299,12 +334,15 @@ import {
     replace_object,
     remove_object,
     rnd_class,
+    set_corpsenm,
     splitobj,
     weight,
 } from './obj.js';
 import { objectGenerationEnv } from './object_generation.js';
 import {
     CORPSE,
+    ARMOR_CLASS,
+    GEM_CLASS,
     AMULET_OF_LIFE_SAVING,
     AMULET_OF_UNCHANGING,
     BOULDER,
@@ -313,7 +351,6 @@ import {
     IMMEDIATE,
     NODIR,
     POTION_CLASS,
-    POT_FULL_HEALING,
     POT_POLYMORPH,
     POT_WATER,
     RING_CLASS,
@@ -326,6 +363,8 @@ import {
     SPE_HEALING,
     SPE_MAGIC_MISSILE,
     SPE_BLANK_PAPER,
+    SPE_NOVEL,
+    SPE_POLYMORPH,
     SPE_SLEEP,
     TOOL_CLASS,
     WAND_CLASS,
@@ -344,8 +383,32 @@ import {
     WAN_SLEEP,
     WAN_TELEPORTATION,
     POT_OIL,
+    POT_GAIN_ABILITY,
+    SCR_MAIL,
     SCR_FIRE,
     SPE_TELEPORT_AWAY,
+    MAGIC_LAMP,
+    MAGIC_MARKER,
+    OIL_LAMP,
+    LOW_BOOTS,
+    EGG,
+    LEASH,
+    UNICORN_HORN,
+    FLESH,
+    PAPER,
+    CLOTH,
+    LEATHER,
+    WOOD,
+    BONE,
+    IRON,
+    METAL,
+    COPPER,
+    SILVER,
+    GOLD,
+    PLATINUM,
+    MITHRIL,
+    GEMSTONE,
+    MINERAL,
     GLASS,
     STRANGE_OBJECT,
 } from './objects.js';
@@ -366,6 +429,7 @@ import {
     shield_simple_name,
     shirt_simple_name,
     simpleonames,
+    isPoisonable,
     suit_simple_name,
     the_unique_pm,
     vtense,
@@ -387,6 +451,9 @@ import {
     replmon,
     seemimic,
     healmon,
+    maybe_unhide_at,
+    m_respond,
+    newcham,
     wakeup,
     xkilled,
 } from './mon.js';
@@ -398,7 +465,14 @@ import {
 } from './monst.js';
 import { mon_reflects, ureflects } from './muse.js';
 import { in_rooms } from './rooms.js';
-import { check_unpaid, inside_shop } from './shk.js';
+import {
+    check_unpaid,
+    contained_cost,
+    costly_spot,
+    inhishop,
+    inside_shop,
+    shop_keeper,
+} from './shk.js';
 import { canSpotMonster, messageAt } from './startup_a11y.js';
 import { S_digbeam } from './symbols.js';
 import { closed_door, dissolve_bars, m_in_air, youHear } from './monmove.js';
@@ -406,14 +480,16 @@ import { stairway_at } from './stairs.js';
 import { is_ice } from './terrain.js';
 import { burnarmor } from './trap_erode_obj.js';
 import {
-    conjoined_pits, delfloortrap, fill_pit, is_lava, is_pool, maketrap,
+    conjoined_pits, delfloortrap, fill_pit, is_lava, is_pool,
+    is_pool_or_lava, maketrap,
     reset_utrap, set_utrap, t_at,
 } from './trap.js';
 import { dotrap, mintrap } from './trap_effects.js';
 import { shade_miss } from './uhitm.js';
 import { enexto, tele } from './teleport.js';
 import {
-    block_point, cansee, canseemon, couldsee, recalc_block_point, unblock_point,
+    block_point, cansee, canseemon, couldsee, does_block,
+    recalc_block_point, unblock_point,
 } from './vision.js';
 import { find_mac, which_armor } from './worn.js';
 import {
@@ -1503,13 +1579,17 @@ function zapObjectEnv(state, random, rawEnv = {}) {
 
 // C ref: obj.h unpolyable() and zap.c obj_unpolyable() (1678-1683).
 // The first four terms are the source macro; obj_resists() is the final
-// ordinary/artifact protection check and is deliberately always evaluated.
+// ordinary/artifact protection check and is evaluated when those terms allow
+// execution to reach it.
 export function obj_unpolyable(obj, state = game, random = { rn2 }) {
     if (!obj || typeof obj !== 'object')
         throw new TypeError('obj_unpolyable requires an object');
     if (obj.otyp === WAN_POLYMORPH
+        || obj.otyp === SPE_POLYMORPH
         || obj.otyp === POT_POLYMORPH
-        || obj.otyp === AMULET_OF_UNCHANGING)
+        || obj.otyp === AMULET_OF_UNCHANGING
+        || obj === state.uball
+        || obj === state.uskin)
         return true;
     return obj_resists(obj, 5, 95, { state, random });
 }
@@ -1532,6 +1612,10 @@ export function obj_shudders(obj, state = game, random = { rn2 }) {
 export function do_osshock(obj, state = game, random = { rn2, rnd }, rawEnv = {}) {
     if (!obj || typeof obj !== 'object')
         throw new TypeError('do_osshock requires an object');
+    // MAIL_STRUCTURES is enabled by the recorder build.  C never shocks a
+    // mail scroll, so this guard must precede the object-zapped flag and all
+    // luck/quantity draws.
+    if (obj.otyp === SCR_MAIL) return;
     state.go ??= {};
     state.gp ??= {};
     state.go.obj_zapped = true;
@@ -1546,8 +1630,22 @@ export function do_osshock(obj, state = game, random = { rn2, rnd }, rawEnv = {}
         }
     }
     if (obj.quan > 1) {
-        obj = splitobj(obj, random.rnd(Math.trunc(obj.quan) - 1),
+        const splitQuantity = obj.quan > LARGEST_INT
+            ? random.rnd(30000)
+            : random.rnd(Math.trunc(obj.quan) - 1);
+        obj = splitobj(obj, splitQuantity,
             zapObjectEnv(state, random, rawEnv));
+    }
+    // do_osshock() is floor-only, but its source still accounts for the
+    // square's shop before deleting the shocked object.  Both billing helpers
+    // are void calls at this site, so retain their exact source boundaries.
+    if (costly_spot(obj.ox, obj.oy, state)) {
+        const roomno = in_rooms(obj.ox, obj.oy, SHOPBASE, state)[0] ?? 0;
+        const shopkeeper = shop_keeper(roomno, state);
+        if (shopkeeper && state.u?.ushops?.[0])
+            note_unported('shk.c addtobill');
+        else
+            note_unported('shk.c stolen_value');
     }
     delobj_core(obj, false, zapObjectEnv(state, random, rawEnv));
 }
@@ -1561,10 +1659,24 @@ export function polyuse(objhdr, material, minwt, state = game,
         const next = current.nexthere;
         if (!(state.context?.bypasses && current.bypass)
             && current !== state.uball && current !== state.uchain
-            && !obj_resists(current, 0, 0, { state, random })) {
+            && !obj_resists(current, 0, 0, { state, random })
+            && current.otyp !== SCR_MAIL) {
             const sameMaterial = objectType(current, state).oc_material
                 === material;
             if (sameMaterial === (random.rn2(minwt + 1) !== 0)) {
+                if (costly_spot(current.ox, current.oy, state)) {
+                    const roomno = in_rooms(
+                        current.ox,
+                        current.oy,
+                        SHOPBASE,
+                        state,
+                    )[0] ?? 0;
+                    const shopkeeper = shop_keeper(roomno, state);
+                    if (shopkeeper && state.u?.ushops?.[0])
+                        note_unported('shk.c addtobill');
+                    else
+                        note_unported('shk.c stolen_value');
+                }
                 minwt = current.quan < 0x7fffffff
                     ? Math.max(0, minwt - Math.trunc(current.quan)) : 0;
                 delobj_core(current, false,
@@ -1581,24 +1693,73 @@ export function polyuse(objhdr, material, minwt, state = game,
 // canonical makemon/polyuse keeps the state contract complete when it does.
 export async function create_polymon(obj, material, state = game,
     random = { rn2 }, rawEnv = {}) {
-    const names = {
-        11: 'iron golem', 12: 'iron golem', 17: 'iron golem',
-        13: 'stone golem', 14: 'stone golem', 15: 'stone golem',
-        16: 'stone golem', 20: 'stone golem', 21: 'stone golem',
-        0: 'flesh golem', 4: 'flesh golem', 8: 'wood golem',
-        7: 'leather golem', 6: 'rope golem', 9: 'skeleton',
-        15: 'gold golem', 19: 'glass golem', 5: 'paper golem',
-    };
-    const wanted = names[material] ?? 'straw golem';
-    const species = state.mons?.find((entry) =>
-        entry?.name === wanted || entry?.pmname === wanted
-        || entry?.mname === wanted);
-    if (!species) {
-        note_unported('zap.c create_polymon golem catalog');
-        return;
+    if (state.context?.bypasses) {
+        // Bypassed objects form the consecutive prefix of the pile in C.
+        // Skip that prefix before deciding whether enough material remains.
+        while (obj?.bypass) obj = obj.nexthere;
     }
-    if ((state.mvitals?.[species.pmidx]?.mvflags ?? 0) & G_GENOD)
-        return;
+    if (!obj || (!obj.nexthere && obj.quan === 1)) return;
+
+    const pileHead = obj;
+    let pmidx;
+    let materialText;
+    switch (material) {
+    case IRON:
+    case METAL:
+    case MITHRIL:
+        pmidx = PM_IRON_GOLEM;
+        materialText = 'metal ';
+        break;
+    case COPPER:
+    case SILVER:
+    case PLATINUM:
+    case GEMSTONE:
+    case MINERAL:
+        // zap.c deliberately uses this draw to choose between its two
+        // closest stone forms; it is before makemon() and polyuse().
+        pmidx = random.rn2(2) ? PM_STONE_GOLEM : PM_CLAY_GOLEM;
+        materialText = 'lithic ';
+        break;
+    case 0: // food has no material, and is treated as flesh
+    case FLESH:
+        pmidx = PM_FLESH_GOLEM;
+        materialText = 'organic ';
+        break;
+    case WOOD:
+        pmidx = PM_WOOD_GOLEM;
+        materialText = 'wood ';
+        break;
+    case LEATHER:
+        pmidx = PM_LEATHER_GOLEM;
+        materialText = 'leather ';
+        break;
+    case CLOTH:
+        pmidx = PM_ROPE_GOLEM;
+        materialText = 'cloth ';
+        break;
+    case BONE:
+        pmidx = PM_SKELETON;
+        materialText = 'bony ';
+        break;
+    case GOLD:
+        pmidx = PM_GOLD_GOLEM;
+        materialText = 'gold ';
+        break;
+    case GLASS:
+        pmidx = PM_GLASS_GOLEM;
+        materialText = 'glassy ';
+        break;
+    case PAPER:
+        pmidx = PM_PAPER_GOLEM;
+        materialText = 'paper ';
+        break;
+    default:
+        pmidx = PM_STRAW_GOLEM;
+        materialText = '';
+        break;
+    }
+    const species = (state.mvitals?.[pmidx]?.mvflags & G_GENOD)
+        ? null : state.mons?.[pmidx] ?? null;
     const env = zapObjectEnv(state, random, rawEnv);
     const monster = makemon_runtime(
         species,
@@ -1609,10 +1770,15 @@ export async function create_polymon(obj, material, state = game,
     );
     const made = monster && typeof monster.then === 'function'
         ? await monster : monster;
-    polyuse(state.level.objects[obj.ox][obj.oy], material,
-        species.cwt ?? 0, state, random, rawEnv);
+    polyuse(pileHead, material,
+        state.mons?.[pmidx]?.cwt ?? 0, state, random, rawEnv);
     if (made && cansee(made.mx, made.my, state)) {
-        await ttyPline(`Some objects meld, and ${mon_nam(made, state)} arises from the pile!`, state);
+        const name = a_monnam(made, { ...rawEnv, state, random });
+        await (rawEnv.message ?? ttyPline)(
+            `Some ${materialText}objects meld, and ${name} arises from the pile!`,
+            state,
+            rawEnv,
+        );
     }
 }
 
@@ -1628,8 +1794,17 @@ export function poly_obj(obj, id, state = game,
     const oldLocation = obj.where;
     let replacement;
 
+    // zap.c keeps Sokoban's guilt accounting even though the terrain owner is
+    // not part of this span.  Keep the discarded call visible rather than
+    // silently changing that source branch.
+    if (obj.otyp === BOULDER)
+        note_unported('sokoban.c sokoban_guilt');
+
     if (id === STRANGE_OBJECT) {
-        const magic = oldType.oc_magic;
+        // A degraded unicorn horn has lost its magic status before the
+        // source's three-attempt preservation loop reads it.
+        const magic = obj.otyp === UNICORN_HORN && obj.obroken
+            ? 0 : oldType.oc_magic;
         let tries = 3;
         do {
             if (replacement)
@@ -1643,16 +1818,105 @@ export function poly_obj(obj, id, state = game,
         if ((obj.otyp === CORPSE || obj.otyp === STATUE
              || obj.otyp === FIGURINE)
             && (id === CORPSE || id === STATUE || id === FIGURINE)) {
-            replacement.corpsenm = obj.corpsenm;
+            set_corpsenm(replacement, obj.corpsenm, env);
         }
     }
 
     replacement.quan = obj.quan;
     replacement.no_charge = obj.no_charge;
     if (oldLocation === OBJ_INVENT) replacement.invlet = obj.invlet;
+    if (obj.otyp === SCR_MAIL) {
+        // MAIL_STRUCTURES is enabled in the reference source.  A mail
+        // scroll remains mail and carries one message when transformed.
+        replacement.otyp = SCR_MAIL;
+        replacement.oclass = SCROLL_CLASS;
+        replacement.spe = 1;
+    }
+    if (obj.otyp === EGG && obj.spe) {
+        // Eggs laid by the hero may not be converted into arbitrary objects.
+        // kill_egg() also removes a hatch timer; no supported immediate-zap
+        // path carries one today, so retain the call as a named discarded
+        // dependency and reset the same object fields here.
+        if (replacement.otyp === EGG)
+            note_unported('timeout.c kill_egg');
+        else
+            replacement.otyp = EGG;
+        replacement.corpsenm = NON_PM;
+        replacement.spe = 0;
+        replacement.timed = 0;
+        let attempts = 100;
+        while (attempts-- > 0) {
+            const mnum = can_be_hatched(
+                rndmonnum(env),
+                env,
+            );
+            if (mnum !== NON_PM && !dead_species(mnum, true, env)) {
+                replacement.spe = 1;
+                set_corpsenm(replacement, mnum, env);
+                break;
+            }
+        }
+    }
     replacement.recharged = obj.recharged;
     replacement.cursed = obj.cursed;
     replacement.blessed = obj.blessed;
+    if (replacement.oclass === WAND_CLASS
+        || replacement.oclass === WEAPON_CLASS
+        || replacement.oclass === ARMOR_CLASS)
+        replacement.spe = obj.spe;
+
+    if (erosionMatters(replacement, state)) {
+        if (is_flammable(replacement, state)
+            || isRustprone(replacement, state)
+            || isCrackable(replacement, state))
+            replacement.oeroded = obj.oeroded;
+        if (isCorrodeable(replacement, state)
+            || is_rottable(replacement, state))
+            replacement.oeroded2 = obj.oeroded2;
+        if (isDamageable(replacement, state))
+            replacement.oerodeproof = obj.oerodeproof;
+    }
+    if (obj.otrapped && isBox(replacement)) replacement.otrapped = true;
+    if (obj.opoisoned && isPoisonable(replacement, state))
+        replacement.opoisoned = true;
+    if (id === STRANGE_OBJECT && obj.otyp === CORPSE
+        && obj.corpsenm === PM_CROCODILE) {
+        replacement.otyp = LOW_BOOTS;
+        replacement.oclass = ARMOR_CLASS;
+        replacement.spe = 0;
+        replacement.oeroded = 0;
+        replacement.oerodeproof = true;
+        replacement.quan = 1;
+        replacement.cursed = false;
+    }
+    if (obj.otyp === LEASH && obj.leashmon) {
+        if (replacement.otyp === LEASH) {
+            replacement.leashmon = obj.leashmon;
+            obj.leashmon = 0;
+        } else {
+            note_unported('steed.c o_unleash');
+        }
+    }
+    if (hasContents(replacement))
+        delete_contents(replacement, env);
+    // C's merge decision is made before the class-specific degradation arms,
+    // so its rn2(1000) must precede any wand, potion, spellbook, or gem roll.
+    if (replacement.quan > 1
+        && (!objectType(replacement, state).oc_merge
+            || (id === STRANGE_OBJECT && replacement.quan > random.rn2(1000)))) {
+        replacement.quan = 1;
+    }
+    // C keeps this adjustment after object-chain handling.  A magic lamp
+    // becomes the best possible oil lamp, while a marker loses one recharge;
+    // other tools leave their charge field alone.
+    if (replacement.oclass === TOOL_CLASS) {
+        if (replacement.otyp === MAGIC_LAMP) {
+            replacement.otyp = OIL_LAMP;
+            replacement.age = 1500;
+        } else if (replacement.otyp === MAGIC_MARKER) {
+            replacement.recharged = 1;
+        }
+    }
     if (replacement.oclass === WAND_CLASS
         && (replacement.otyp === WAN_WISHING
             || replacement.otyp === WAN_POLYMORPH)) {
@@ -1664,21 +1928,117 @@ export function poly_obj(obj, id, state = game,
     if (replacement.oclass === WAND_CLASS
         && replacement.recharged < random.rn2(7))
         replacement.recharged++;
+    while (replacement.oclass === POTION_CLASS
+           && replacement.otyp === POT_POLYMORPH) {
+        replacement.otyp = rnd_class(POT_GAIN_ABILITY, POT_WATER, env);
+    }
     if (replacement.oclass === POTION_CLASS
-        && replacement.otyp === POT_POLYMORPH) {
-        replacement.otyp = rnd_class(POT_FULL_HEALING, POT_WATER, env);
+        && (replacement.otyp === POT_OIL || obj.otyp === POT_OIL)) {
+        fixup_oil(replacement, obj, env);
+    }
+    while (replacement.oclass === SPBOOK_CLASS
+           && replacement.otyp === SPE_POLYMORPH) {
+        const firstSpell = state.svb?.bases?.[SPBOOK_CLASS]
+            ?? SPE_MAGIC_MISSILE;
+        replacement.otyp = rnd_class(firstSpell, SPE_BLANK_PAPER, env);
     }
     if (replacement.oclass === SPBOOK_CLASS
-        && replacement.otyp === SPE_POLYMORPH) {
-        replacement.otyp = rnd_class(SPE_MAGIC_MISSILE, SPE_BLANK_PAPER, env);
+        && replacement.otyp !== SPE_BLANK_PAPER
+        && replacement.otyp !== SPE_NOVEL) {
+        replacement.spestudied = (obj.spestudied ?? obj.usecount ?? 0) + 1;
+        if (replacement.spestudied > MAX_SPELL_STUDY) {
+            replacement.otyp = SPE_BLANK_PAPER;
+            replacement.spestudied = random.rn2(replacement.spestudied);
+        }
     }
-    if (replacement.quan > 1
-        && (!objectType(replacement, state).oc_merge
-            || (id === STRANGE_OBJECT && replacement.quan > random.rn2(1000)))) {
-        replacement.quan = 1;
+    if (replacement.oclass === GEM_CLASS
+        && replacement.quan > random.rnd(4)
+        && oldType.oc_material === MINERAL
+        && objectType(replacement, state).oc_material !== MINERAL) {
+        replacement.otyp = ROCK;
+        replacement.quan = Math.trunc(replacement.quan / 2);
     }
     replacement.owt = weight(replacement, env);
+
+    // C resolves the object's physical location and worn bits before the
+    // chain swap.  Both values remain meaningful after replace_object() has
+    // detached the old node, so keep the source order here.
+    const location = get_obj_location(
+        obj,
+        BURIED_TOO | CONTAINED_TOO,
+        state,
+    );
+    const ox = location?.x ?? obj.ox ?? state.u?.ux ?? 0;
+    const oy = location?.y ?? obj.oy ?? state.u?.uy ?? 0;
+    const oldWornMask = (obj.owornmask ?? 0) & ~(W_ART | W_ARTI);
     replace_object(obj, replacement, env);
+
+    if (oldLocation === OBJ_INVENT) {
+        // freeinv_core/addinv_core1/addinv_core2 are void C helpers.  Their
+        // inventory effects are owned by invent.js; this object replacement
+        // cannot call freeinv() after the in-place chain swap without
+        // extracting the new object twice.  Keep each discarded source call
+        // explicit until that owner supplies an in-place replacement API.
+        note_unported('invent.c freeinv_core');
+        note_unported('invent.c addinv_core1');
+        note_unported('invent.c addinv_core2');
+        if (oldWornMask) {
+            note_unported('steal.c remove_worn_item');
+            note_unported('worn.c wear handling');
+        }
+    } else if (oldLocation === OBJ_FLOOR && location) {
+        if (obj.otyp === BOULDER && replacement.otyp !== BOULDER) {
+            if (!does_block(ox, oy, state.level?.at(ox, oy), state))
+                unblock_point(ox, oy, state);
+        } else if (obj.otyp !== BOULDER && replacement.otyp === BOULDER) {
+            // fracture_rock() is void and remains outside this source span;
+            // preserve its source call as a named gap after the liquid test.
+            if (is_pool_or_lava(ox, oy, state))
+                note_unported('zap.c fracture_rock');
+            if (does_block(ox, oy, state.level?.at(ox, oy), state))
+                block_point(ox, oy, state);
+        }
+    }
+
+    // The billing expression is intentionally after replacement and before
+    // delobj(), just as C uses the replacement's carried status and the old
+    // object's no_charge/unpaid fields.  The actual money/message helpers
+    // remain explicit gaps because their results are discarded here.
+    if (((replacement && !carried(replacement)) || obj.unpaid)
+        && costly_spot(ox, oy, state)) {
+        const roomno = in_rooms(ox, oy, SHOPBASE, state)[0] ?? 0;
+        const shopkeeper = shop_keeper(roomno, state);
+        const contentsCost = hasContents(obj) && shopkeeper
+            ? contained_cost(obj, shopkeeper, 0, false, false, state)
+            : 0;
+        if ((!obj.no_charge || contentsCost !== 0)
+            && inhishop(shopkeeper, state)) {
+            if (shopkeeper.mpeaceful) {
+                const heroRoom = in_rooms(
+                    state.u?.ux,
+                    state.u?.uy,
+                    0,
+                    state,
+                )[0] ?? 0;
+                const keeperRoom = in_rooms(
+                    shopkeeper.mx,
+                    shopkeeper.my,
+                    0,
+                    state,
+                )[0] ?? 0;
+                if (state.u?.ushops?.[0]
+                    && heroRoom === keeperRoom
+                    && !costly_spot(state.u.ux, state.u.uy, state)) {
+                    note_unported('shk.c make_angry_shk');
+                } else {
+                    note_unported('pline.c shopkeeper gets angry');
+                    note_unported('shk.c hot_pursuit');
+                }
+            } else {
+                note_unported('pline.c shopkeeper is furious');
+            }
+        }
+    }
     delobj_core(obj, false, env);
     return replacement;
 }
@@ -1689,13 +2049,21 @@ export function poly_obj(obj, id, state = game,
 export async function bhito(obj, wand, state = game,
     random = { rn2, rnd }, rawEnv = {}) {
     if (obj === wand || obj?.bypass) return 0;
-    if (wand?.otyp !== WAN_POLYMORPH)
+    if (wand?.otyp !== WAN_POLYMORPH && wand?.otyp !== SPE_POLYMORPH)
         throw new UnsupportedBhitError(`bhito() for object type ${wand?.otyp}`);
     if (obj_unpolyable(obj, state, random)) return 0;
 
     state.u ??= {};
     state.u.uconduct ??= {};
+    const firstPolypile = !(state.u.uconduct.polypiles ?? 0);
     state.u.uconduct.polypiles = (state.u.uconduct.polypiles ?? 0) + 1;
+    if (firstPolypile) {
+        livelog_printf(
+            LL_CONDUCT,
+            `polymorphed ${state.flags?.female ? 'her' : 'his'} first object`,
+            state,
+        );
+    }
     if (isBox(obj)) note_unported('lock.c boxlock');
 
     let learn_it = false;
@@ -1705,7 +2073,14 @@ export async function bhito(obj, wand, state = game,
         // Keeping the flag here preserves the object-resistance/deletion
         // order when discovery exercises Wisdom.
         learn_it = cansee(obj.ox, obj.oy, state);
+        const cover = obj === state.level?.objects?.[state.u?.ux]?.[state.u?.uy]
+            && state.u?.uundetected
+            && hides_under(state.youmonst?.data);
         do_osshock(obj, state, random, rawEnv);
+        // C calls hideunder(&youmonst) here for a discarded result.  The
+        // canonical monster helper deliberately has an explicit hero gap, so
+        // retain that boundary rather than invoking its throwing adapter.
+        if (cover) note_unported('mon.c hideunder');
     } else {
         const replacement = poly_obj(obj, STRANGE_OBJECT, state, random, rawEnv);
         newsym(replacement.ox, replacement.oy, state);
@@ -1720,48 +2095,119 @@ export async function bhito(obj, wand, state = game,
 // source boundaries until their own effect families land.
 export async function bhitm(monster, wand, state = game,
     random = { rn2, rnd }, rawEnv = {}) {
-    if (wand?.otyp !== WAN_POLYMORPH)
+    if (wand?.otyp !== WAN_POLYMORPH && wand?.otyp !== SPE_POLYMORPH)
         throw new UnsupportedBhitError(`bhitm() for object type ${wand?.otyp}`);
-    if (resists_magm(monster, state)) {
+    state.gn ??= {};
+    const hit = state.gb?.bhitpos ?? { x: monster.mx, y: monster.my };
+    state.gn.notonhead = monster.mx !== hit.x || monster.my !== hit.y;
+    let learn_it = false;
+    // A long worm which this same zap just changed into must not be hit again
+    // when its tail is traversed later in the ray.
+    if (monster.data === state.mons?.[PM_LONG_WORM]
+        && has_mcorpsenm(monster)) {
+        // C leaves the common wake/reveal/learn tail in place even for this
+        // no-op guard; there is simply no effect to learn.
+    } else if (resists_magm(monster, state)) {
         await shieldeff_mon(monster, { state });
-        return 0;
-    }
-    if (await resist(monster, WAND_CLASS, 0, NOTELL, state, random))
-        return 0;
-    if (monster.cham === NON_PM && !random.rn2(25)) {
-        if (cansee(monster.mx, monster.my, state)) {
-            await ttyPline(`${Monnam(monster, state)} shudders!`, state);
-        }
-        await xkilled(monster, XKILL_GIVEMSG | XKILL_NOCORPSE, state, rawEnv);
+    } else if (await resist(
+        monster,
+        wand.oclass ?? WAND_CLASS,
+        0,
+        NOTELL,
+        state,
+        random,
+    )) {
+        // A resisted zap still wakes the defender below, as in C.
     } else {
-        const ncflags = NC_VIA_WAND_OR_SPELL
-            | (cansee(monster.mx, monster.my, state) ? NC_SHOW_MSG : 0);
-        let changed = await newcham(monster, null, {
-            ...rawEnv, state, random, ncflags,
-        });
-        if (!changed && Number.isInteger(monster.cham)
-            && monster.cham !== NON_PM) {
-            changed = await newcham(
+        const give_msg = !Hallucination(state)
+            && (canseemon(monster, state) || engulfing_u(monster, state));
+        // C marks inventory objects bypassed before changing the monster. The
+        // bypass context is consumed by the shared polymorph cleanup owner.
+        for (let object = monster.minvent; object; object = object.nobj)
+            object.bypass = true;
+
+        if (monster.cham === NON_PM && !random.rn2(25)) {
+            if (canseemon(monster, state)) {
+                await (rawEnv.message ?? ttyPline)(
+                    `${Monnam(monster, state, rawEnv)} shudders!`,
+                    state,
+                    rawEnv,
+                );
+                learn_it = true;
+            }
+            await xkilled(
                 monster,
-                state.mons[monster.cham],
-                { ...rawEnv, state, random, ncflags },
+                XKILL_GIVEMSG | XKILL_NOCORPSE,
+                state,
+                rawEnv,
             );
+        } else {
+            const ncflags = NC_VIA_WAND_OR_SPELL
+                | (give_msg ? NC_SHOW_MSG : 0);
+            let changed = await newcham(monster, null, {
+                ...rawEnv, state, random, ncflags,
+            });
+            if (!changed && Number.isInteger(monster.cham)
+                && monster.cham !== NON_PM) {
+                changed = await newcham(
+                    monster,
+                    state.mons[monster.cham],
+                    { ...rawEnv, state, random, ncflags },
+                );
+            }
+            if (changed && give_msg
+                && (canSpotMonster(monster, state)
+                    || engulfing_u(monster, state)))
+                learn_it = true;
+        }
+
+        // Do this even when polymorph failed: otherwise forcing a long worm
+        // form would be retried when the same zap traverses its new tail.
+        if (monster.mhp >= 1
+            && monster.data === state.mons?.[PM_LONG_WORM]) {
+            if (!has_mcorpsenm(monster)) newmcorpsenm(monster);
+            monster.mextra.mcorpsenm = PM_LONG_WORM;
+            state.context ??= {};
+            state.context.bypasses = true;
         }
     }
+    if (monster.mhp >= 1) {
+        await wakeup(monster, !mindless(monster.data), {
+            ...rawEnv, state, random,
+        });
+        await m_respond(monster, { ...rawEnv, state, random });
+    }
+    if (learn_it) learnwand(wand, state);
     return 0;
 }
 
 // C ref: zap.c bhitpile() (2428-2537).  Every floor callback receives the
 // object successor captured before the callback can replace or delete it.
 export async function bhitpile(wand, tx, ty, state = game,
-    random = { rn2, rnd }, rawEnv = {}) {
+    random = { rn2, rnd }, rawEnv = {}, zz = 0) {
     let object = state.level?.objects?.[tx]?.[ty] ?? null;
     if (!object) return 0;
+    const hidingunder = zz !== 0
+        && state.u?.uundetected
+        && hides_under(state.youmonst?.data);
+    let first = true;
     state.gp ??= {};
     state.gp.poly_zapped = -1;
     let hitanything = 0;
     while (object) {
         const next = object.nexthere;
+        if (hidingunder) {
+            if (first) {
+                first = false;
+                if (zz > 0) {
+                    object = next;
+                    continue;
+                }
+            } else if (zz < 0) {
+                object = next;
+                continue;
+            }
+        }
         if (object.where === OBJ_FLOOR && object.ox === tx && object.oy === ty)
             hitanything += await bhito(object, wand, state, random, rawEnv);
         object = next;
@@ -1776,14 +2222,16 @@ export async function bhitpile(wand, tx, ty, state = game,
         );
     }
     let previous = state.level.objects?.[tx]?.[ty] ?? null;
+    let previousType = BOULDER;
     while (previous) {
-        if (previous.otyp === BOULDER
-            && previous !== state.level.objects[tx][ty]) {
+        if (previous.otyp === BOULDER && previousType !== BOULDER) {
             recreate_pile_at(tx, ty, zapObjectEnv(state, random, rawEnv));
             break;
         }
+        previousType = previous.otyp;
         previous = previous.nexthere;
     }
+    if (hidingunder) maybe_unhide_at(tx, ty, state, rawEnv);
     fill_pit(tx, ty, state);
     return hitanything;
 }
@@ -3781,7 +4229,8 @@ export async function zap_steed(obj, state = game, random = { rn2, rnd }, rawEnv
     state.gb.bhitpos = { x: steed.mx, y: steed.my };
     state.gn ??= {};
     state.gn.notonhead = false;
-    if (obj.otyp !== WAN_POLYMORPH) return false;
+    if (obj.otyp !== WAN_POLYMORPH && obj.otyp !== SPE_POLYMORPH)
+        return false;
     await bhitm(steed, obj, state, random, rawEnv);
     return true;
 }
@@ -3795,13 +4244,16 @@ export async function zap_updown(obj, state = game,
     const y = state.u.uy;
     let disclose = false;
     if (state.u.dz > 0) {
-        await bhitpile(obj, x, y, state, random, rawEnv);
+        await bhitpile(obj, x, y, state, random, rawEnv, state.u.dz);
         zap_map(x, y, obj, state, random);
     } else if (state.u.dz < 0 && state.u.uundetected
-               && state.youmonst?.data?.mlet) {
+               && hides_under(state.youmonst?.data)) {
         const top = state.level?.objects?.[x]?.[y];
         if (top && await bhito(top, obj, state, random, rawEnv)) {
-            state.u.uundetected = false;
+            // C discards hideunder()'s return.  Hero concealment is an
+            // explicit gap in the canonical monster owner, so record it
+            // without running the throwing adapter.
+            note_unported('mon.c hideunder');
             disclose = true;
         }
     }

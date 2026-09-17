@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 731042,
+      "datetime": "20310917101500",
+      "nethackrc": "OPTIONS=name:ZapPileHer,role:Wizard,race:human,gender:female,align:neutral\nOPTIONS=!autopickup,!verbose,!legacy,!tutorial,!splash_screen\nOPTIONS=pettype:none\nOPTIONS=symset:DECgraphics\nOPTIONS=playmode:debug\n",
+      "moves": " \u0017wand of polymorph (0:30)\ndf\ndg\ndh\ndi\ndj\ndk\nhzol",
+      "comment": "Cheap source-relevant B17 variation of the independent pile witness: the same object-arm setup is replayed with a newly named female Wizard, exercising the source conduct message's pronoun and the same immediate pile/monster callers."
+    }
+  ]
+}
