@@ -1601,7 +1601,7 @@ export async function teleds(nux, nuy, teleds_flags, state = game) {
     /* if terrain type changes, levitation or flying might become blocked or
        unblocked; do this after map+vision has been updated */
     if (state.level.at(u.ux, u.uy).typ !== state.level.at(u.ux0, u.uy0).typ)
-        switch_terrain(state);
+        await switch_terrain(state);
     /* possible shop entry message comes after guard's shrill whistle */
     await spoteffects(true, state);
     invocation_message(state);

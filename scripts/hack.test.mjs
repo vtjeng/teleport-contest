@@ -140,8 +140,7 @@ function terrainState(currentTyp, previousTyp = STAIRS) {
     return {
         u: {
             ux: 5, uy: 4, ux0: 4, uy0: 4, uinwater: false,
-            // switch_terrain() refuses a hero whose levitation or flight is
-            // already blocked; an ordinary hero has neither blocked.
+            // C stores BLevitation/BFlying in each property's blocked mask.
             uprops: terrainProperties(),
         },
         level: {
@@ -275,19 +274,19 @@ test('furniture_present checks inclusive bounds and irregular interiors', () => 
     assert.equal(furniture_present(THRONE, roomno, state), false);
 });
 
-test('legal-move terrain switching classifies only at the source gate', () => {
+test('legal-move terrain switching classifies only at the source gate', async () => {
     // botl.c reserves pseudo-type 39 for ordinary floor status.
     const X_FLOOR = 39;
     const fountain = terrainState(FOUNTAIN);
     assert.equal(terrain_changed_under_hero(fountain), true);
-    switch_terrain(fountain);
+    await switch_terrain(fountain);
     assert.equal(fountain.iflags.terrain_typ, FOUNTAIN);
     assert.equal(fountain.disp.botl, true);
 
     const running = terrainState(FOUNTAIN);
     running.context.run = 1;
     assert.equal(terrain_changed_under_hero(running), true);
-    switch_terrain(running);
+    await switch_terrain(running);
     assert.equal(running.iflags.terrain_typ, FOUNTAIN);
     assert.equal(running.disp.botl, false);
 
@@ -301,33 +300,43 @@ test('legal-move terrain switching classifies only at the source gate', () => {
     const forced = terrainState(ROOM, ROOM);
     forced.iflags.terrain_typ = MAX_TYPE;
     assert.equal(terrain_changed_under_hero(forced), true);
-    switch_terrain(forced);
+    await switch_terrain(forced);
     assert.equal(forced.iflags.terrain_typ, X_FLOOR);
     assert.equal(forced.disp.botl, true);
 });
 
-test('switch_terrain refuses both arms that would unblock levitation', () => {
-    // hack.c:3186-3205. Each `else if` unblocks a property and prints a line
-    // this port has no owner for, so each refuses instead of falling through
-    // to the flags.terrainstatus tail. Both are fail-closed guards in front of
-    // unported behaviour, and the fixture terrainState() builds routes around
-    // them.
-    //
-    // rm.h IS_OBSTRUCTED(typ) is `typ < POOL`, so STONE satisfies `blocklev`
-    // and reaches the first arm.
-    assert.throws(() => switch_terrain(terrainState(STONE)),
-                  /blocks levitation/u);
+test('switch_terrain preserves source blocked masks and transition messages', async () => {
+    // hack.c:3178-3217.  The blocked terrain arm records FROMOUTSIDE and
+    // emits one You_cant() line for each currently effective property.
+    assert.match(HACK_SOURCE, /BLevitation \|= FROMOUTSIDE/u);
+    assert.match(HACK_SOURCE, /BFlying \|= FROMOUTSIDE/u);
+    const blocked = terrainState(STONE);
+    blocked.u.uprops[LEVITATION].intrinsic = 1;
+    blocked.u.uprops[FLYING].extrinsic = 1;
+    await switch_terrain(blocked);
+    assert.equal(blocked.u.uprops[LEVITATION].blocked, FROMOUTSIDE);
+    assert.equal(blocked.u.uprops[FLYING].blocked, FROMOUTSIDE);
+    assert.equal(blocked.disp.botl, true);
+    assert.equal(
+        blocked._ttyToplines,
+        "You can't levitate in here.  You can't fly in here.",
+    );
 
-    // The second arm is C's `else if (BLevitation)` / `else if (BFlying)`: it
-    // reads the whole blocked mask, and polyself.c float_vs_flight() is the
-    // only writer this port has, which sets I_SPECIAL in it. Either property
-    // alone reaches the refusal.
-    for (const property of [LEVITATION, FLYING]) {
-        const state = terrainState(FOUNTAIN);
-        state.u.uprops[property].blocked = I_SPECIAL;
-        assert.throws(() => switch_terrain(state),
-                      /unblocking levitation or flight/u);
-    }
+    // Leaving the obstruction clears only FROMOUTSIDE.  A different blocked
+    // reason survives, and the flight branch runs its canonical float check
+    // before its source message.
+    const clear = terrainState(FOUNTAIN);
+    // Keep levitation inactive so float_vs_flight() does not add C's
+    // I_SPECIAL obstruction bit to the flying property.
+    clear.u.uprops[LEVITATION].intrinsic = 0;
+    clear.u.uprops[LEVITATION].blocked = FROMOUTSIDE | 1;
+    clear.u.uprops[FLYING].intrinsic = 1;
+    clear.u.uprops[FLYING].blocked = FROMOUTSIDE;
+    await switch_terrain(clear);
+    assert.equal(clear.u.uprops[LEVITATION].blocked, 1);
+    assert.equal(clear.u.uprops[FLYING].blocked, 0);
+    assert.equal(clear._ttyToplines, 'You start flying.');
+    assert.equal(clear.disp.botl, true);
 });
 
 test('a sink only disturbs active, unblocked levitation', async () => {
@@ -343,11 +352,10 @@ test('a sink only disturbs active, unblocked levitation', async () => {
     assert.equal(active.u.uprops[LEVITATION].intrinsic, FROMOUTSIDE);
 
     for (const field of ['intrinsic', 'extrinsic']) {
-        // A blocked property leaves switch_terrain()'s own refusal ahead of
-        // dosinkfall(). Arriving on a sink from a sink makes
-        // terrain_changed_under_hero() false, so switch_terrain() does not run
-        // and the sink guard is the first thing a blocked hero meets -- and
-        // must not stop, because C's Levitation is false when blocked.
+        // A blocked property makes C's Levitation false for dosinkfall().
+        // Arriving on a sink from a sink makes terrain_changed_under_hero()
+        // false, so switch_terrain() does not run and the sink guard is the
+        // first thing a blocked hero meets -- and must not stop.
         const settled = terrainState(SINK, SINK);
         settled.u.uprops[LEVITATION][field] = 1;
         settled.u.uprops[LEVITATION].blocked = I_SPECIAL;

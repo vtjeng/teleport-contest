@@ -4034,7 +4034,7 @@ export async function zap_over_floor(
                 }
                 if (u_at(x, y, state)) {
                     if (state.u.uinwater) {
-                        set_uinwater(false, state);
+                        await set_uinwater(false, state);
                         state.u.uundetected = 0;
                         if (typeof env.docrt === 'function') env.docrt(state);
                         else note_unported('display.c docrt');
@@ -4112,7 +4112,7 @@ export async function zap_over_floor(
                         `The iron bars ${damgtype === ZT_ACID ? 'corrode away' : 'melt'}.`,
                         state, env,
                     );
-                dissolve_bars(x, y, state);
+                await dissolve_bars(x, y, state);
                 if (in_rooms(x, y, SHOPBASE, state).length) {
                     if (typeof env.addDamage === 'function')
                         await env.addDamage(

@@ -339,27 +339,25 @@ test('maybe_reset_pick keeps context for a carried box and drops the rest',
     assert.equal(state.xlock.box, null);
 });
 
-test('set_uinwater only reaches switch_terrain() when the flag changes', () => {
-    // hack.c:3220-3227. switch_terrain() refuses on this port's map, so an
-    // inert call is the difference between stopping and continuing.
+test('set_uinwater only reaches switch_terrain() when the flag changes', async () => {
+    // hack.c:3220-3227. An inert call leaves the flag alone; a changed call
+    // awaits switch_terrain() before returning to its caller.
     const state = heroState();
     state.u.uinwater = false;
-    set_uinwater(0, state);
+    await set_uinwater(0, state);
     assert.equal(state.u.uinwater, false);
-    set_uinwater(false, state);
+    await set_uinwater(false, state);
     assert.equal(state.u.uinwater, false);
 
     state.u.uinwater = true;
-    set_uinwater(1, state);
+    await set_uinwater(1, state);
     assert.equal(state.u.uinwater, true);
 
-    // A real change calls switch_terrain(), which refuses the blank fixture
-    // map because STONE satisfies IS_OBSTRUCTED(); the throw proves the call
-    // happened, and its absence above proves the inert calls did not make it.
-    assert.throws(
-        () => set_uinwater(1, heroState()),
-        /switch_terrain\(\) onto terrain that blocks levitation/u,
-    );
+    // A changed call reaches the blocked-terrain arm and completes its state
+    // transition even when no effective levitation property is present.
+    const changed = heroState();
+    await set_uinwater(1, changed);
+    assert.equal(changed.u.uinwater, true);
 });
 
 test('check_special_room(TRUE) clears room strings and settles inert shop exit',

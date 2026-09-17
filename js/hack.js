@@ -4793,47 +4793,66 @@ export function hero_tread_disturbs_buried_zombies(state = game) {
 }
 
 // C ref: hack.c switch_terrain() (3178-3217). Terrain that blocks levitation
-// blocks flight as well, and both of those arms refuse here. The first is out
-// of reach because every ported caller admits its destination through
-// requireSimpleHeroDestination() first, which lets no square satisfy
-// `blocklev` through. The second refuses on any nonzero blocked mask, matching
-// C's `else if (BLevitation)` and `else if (BFlying)`; the only writers of
-// those two masks in this port are polyself.c float_vs_flight()'s I_SPECIAL
-// assignments, which need a hero who already has Levitation or Flying, and
-// nothing grants either yet. What is left reachable is the flags.terrainstatus
-// tail.
-export function switch_terrain(state = game) {
+// blocks flight as well.  C records the outside obstruction in BLevitation and
+// BFlying, emits each applicable message, then restores those bits when the
+// hero leaves the obstruction.  `float_up()` has no owner yet and its result
+// is discarded by C, so that call remains an explicit source gap; the masks,
+// status update, and terrain classification remain source-owned here.
+export async function switch_terrain(state = game) {
     const { u } = state;
+    u.uprops ??= [];
     const lev = state.level?.at(u.ux, u.uy);
     const blocklev = Boolean(lev)
         && (IS_OBSTRUCTED(lev.typ) || closed_door(u.ux, u.uy, state)
             || IS_WATERWALL(lev.typ) || lev.typ === LAVAWALL);
+    const wasLevitating = propertyActiveUnblocked(state, LEVITATION);
+    const wasFlying = heroIsFlying(state);
+    const levitation = state.u.uprops[LEVITATION]
+        ?? (state.u.uprops[LEVITATION] = {});
+    const flying = state.u.uprops[FLYING]
+        ?? (state.u.uprops[FLYING] = {});
     if (blocklev) {
-        throw new UnsupportedHeroMoveBoundaryError(
-            'switch_terrain() onto terrain that blocks levitation',
-        );
+        // Called from spoteffects(), C skips float_down() here.  You_cant()
+        // is pline.c's ordinary message formatter with the source prefix.
+        if (propertyActiveUnblocked(state, LEVITATION))
+            await ttyPline("You can't levitate in here.", state);
+        levitation.blocked = (levitation.blocked ?? 0) | FROMOUTSIDE;
+    } else if (levitation.blocked) {
+        levitation.blocked &= ~FROMOUTSIDE;
+        // A remaining blocked bit (for example a buried iron ball) still
+        // reaches C's discarded float_up() call after FROMOUTSIDE clears.
+        if (propertyActiveUnblocked(state, LEVITATION) || levitation.blocked)
+            note_unported('hack.c float_up');
     }
-    if (state.u.uprops[LEVITATION].blocked
-        || state.u.uprops[FLYING].blocked) {
-        throw new UnsupportedHeroMoveBoundaryError(
-            'switch_terrain() unblocking levitation or flight',
-        );
+    if (blocklev) {
+        if (heroIsFlying(state))
+            await ttyPline("You can't fly in here.", state);
+        flying.blocked = (flying.blocked ?? 0) | FROMOUTSIDE;
+    } else if (flying.blocked) {
+        flying.blocked &= ~FROMOUTSIDE;
+        // float_vs_flight() owns the C I_SPECIAL adjustment.  Its return is
+        // discarded, so the synchronous owner can run before the message.
+        float_vs_flight(state);
+        if (heroIsFlying(state)) await ttyPline('You start flying.', state);
     }
-    // Neither Levitation nor Flying can have changed above, so the
-    // disp.botl update at 3212-3213 cannot fire either.
+    if (wasLevitating !== propertyActiveUnblocked(state, LEVITATION)
+        || wasFlying !== heroIsFlying(state)) {
+        state.disp ??= {};
+        state.disp.botl = true;
+    }
     if (state.flags?.terrainstatus) classify_terrain(state);
 }
 
 // C ref: hack.c set_uinwater() (3220-3227), the single owner of u.uinwater.
-// The switch_terrain() call fires only when the flag actually changes, so
-// do.c goto_level()'s set_uinwater(0) for a hero who is not in water is inert.
+// The awaited switch_terrain() call fires only when the flag actually changes,
+// so do.c goto_level()'s set_uinwater(0) for a hero not in water is inert.
 // js/u_init.js stores u.uinwater as a boolean where C stores a one-bit field,
 // so compare and assign booleans here rather than C's 0 and 1.
-export function set_uinwater(in_out, state = game) {
+export async function set_uinwater(in_out, state = game) {
     const value = Boolean(in_out);
     if (value !== Boolean(state.u.uinwater)) {
         state.u.uinwater = value;
-        switch_terrain(state);
+        await switch_terrain(state);
     }
 }
 
@@ -4889,7 +4908,7 @@ export async function pooleffects(newspot, state = game) {
             const wasUnderwater = Boolean(
                 u.uinwater && !Is_waterlevel(u.uz),
             );
-            set_uinwater(false, state);
+            await set_uinwater(false, state);
             if (wasUnderwater) {
                 await docrt({ state });
                 state.vision_full_recalc = 1;
@@ -4968,7 +4987,7 @@ export async function spoteffects(pick, state = game) {
     // C makes it, rather than being written out as the constant 0.
     const trapflag = state.iflags?.failing_untrap ? FAILEDUNTRAP : 0;
     if (await pooleffects(true, state)) return;
-    if (terrain_changed_under_hero(state)) switch_terrain(state);
+    if (terrain_changed_under_hero(state)) await switch_terrain(state);
     await check_special_room(false, state);
     // C ref: hack.c:3353-3354, spoteffects()'s only IS_FURNITURE arm. Nothing
     // in this port grants levitation, so the arm is unreachable today, but

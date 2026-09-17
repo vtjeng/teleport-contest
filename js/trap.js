@@ -1042,7 +1042,7 @@ export async function drown(state = game) {
             note_unported('ball.c placebc');
         }
         vision_recalc(2);
-        set_uinwater(true, state);
+        await set_uinwater(true, state);
         note_unported('vision.c under_water');
         state.vision_full_recalc = 1;
         return false;
@@ -1094,7 +1094,7 @@ export async function drown(state = game) {
         throw new Error('trap.c emergency_disrobe return value is not ported');
     }
 
-    set_uinwater(true, state);
+    await set_uinwater(true, state);
     await ttyUrgentPline('You drown.', state);
     for (let pass = 0; pass < 2; ++pass) {
         const pool = waterbody_name(u.ux, u.uy, state);
@@ -1111,7 +1111,7 @@ export async function drown(state = game) {
         )) break;
         await ttyPline("You're still drowning.", state);
     }
-    if (u.uinwater) set_uinwater(false, state);
+    if (u.uinwater) await set_uinwater(false, state);
     await back_on_ground(true, state);
     return true;
 }
