@@ -133,7 +133,7 @@ import {
 } from './objects.js';
 import { xnameFresh } from './objnam.js';
 import { is_quest_artifact } from './questpgr.js';
-import { d, rn2 } from './rng.js';
+import { d, rn2, rn2_on_display_rng } from './rng.js';
 import {
     canSeeMonster,
     canSpotMonster,
@@ -772,9 +772,17 @@ export async function mattacku(monster, rawEnv = {}) {
     const markInvisible = rawEnv.planning
         ? () => {}
         : (rawEnv.markInvisible ?? map_invisible);
+    // C keeps cosmetic choices on the display stream.  Planning owns a
+    // cloned display context; live callers use the game's display context.
+    // Supplying this explicitly prevents hliquid() in passiveum() from
+    // falling back to the attacker's gameplay random source.
+    const displayRandom = rawEnv.displayRandom
+        ?? (state.displayCtx
+            ? (bound) => rn2_on_display_rng(bound, state)
+            : () => 0);
     const env = {
         ...rawEnv, state, message, urgentMessage, redraw, statusRefresh,
-        markInvisible,
+        markInvisible, displayRandom,
         planningDeath: (subject) => new MonsterDeathPlanningError(subject),
     };
     const mdat = monster.data;
@@ -884,6 +892,10 @@ export async function mattacku(monster, rawEnv = {}) {
     const firstfoundyou = foundyou;
     let skipnonmagc = false;
     const sum = new Array(NATTK).fill(M_ATTK_MISS);
+    // mhitu.c's static mon_currwep is the weapon used by the current attack
+    // slot. It is cleared before getmattk() for every slot, then assigned only
+    // by AT_WEAP; passiveum() reads it for AD_ENCH.
+    let mon_currwep = null;
 
     for (let i = 0; i < NATTK; i++) {
         sum[i] = M_ATTK_MISS;
@@ -900,6 +912,8 @@ export async function mattacku(monster, rawEnv = {}) {
             // calc_mattacku_vars() has just written the hero's own square into
             // bhitpos, so that test is always false and is left out.
         }
+        mon_currwep = null;
+        env.mon_currwep = mon_currwep;
         const mattk = getmattk(monster, state.youmonst, i, sum, env);
         // C skips swallowed non-engulfing attacks, all non-magical attacks
         // after wildmiss(), and a second drain-inventory tentacle when the
@@ -1035,7 +1049,8 @@ export async function mattacku(monster, rawEnv = {}) {
                         break;
                 }
                 if (foundyou) {
-                    const mon_currwep = monster.mw; /* MON_WEP() */
+                    mon_currwep = monster.mw; /* MON_WEP() */
+                    env.mon_currwep = mon_currwep;
                     if (mon_currwep) {
                         const bash = is_pole(mon_currwep, state)
                             && mon_currwep.oartifact !== ART_SNICKERSNEE
@@ -1521,7 +1536,7 @@ export async function mdamageu(mtmp, n, state, env = {}) {
             // lethal boundary back to the live replay instead.
             if (env.planning)
                 throw new MonsterDeathPlanningError(mtmp);
-            await rehumanize(state);
+            await rehumanize(state, env);
         }
         return;
     }
@@ -1703,7 +1718,7 @@ async function passiveum(olduasmon, mtmp, mattk, state, env) {
         return M_ATTK_HIT;
     }
     case M.AD_ENCH: /* KMH -- remove enchantment (disenchanter) */
-        if (mtmp.mw) note_unported('zap.c drain_item');
+        if (env.mon_currwep) note_unported('zap.c drain_item');
         return M_ATTK_HIT;
     default:
         break;
@@ -1717,7 +1732,7 @@ async function passiveum(olduasmon, mtmp, mattk, state, env) {
         case M.AD_PHYS:
             if (oldu_mattk.aatyp === M.AT_BOOM) {
                 await message('You explode!', state, env);
-                await rehumanize(state);
+                await rehumanize(state, env);
                 return assess_dmg(mtmp, tmp, state, env);
             }
             break;
@@ -1741,6 +1756,7 @@ async function passiveum(olduasmon, mtmp, mattk, state, env) {
                         mtmp,
                         'Your gaze is reflected by %s %s.',
                         state,
+                        env,
                     )) {
                         return 1;
                     } else {

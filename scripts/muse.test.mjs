@@ -2,9 +2,12 @@ import assert from 'node:assert/strict';
 import test from 'node:test';
 
 import {
+    BLINDED,
+    DEAF,
     HOLE,
     MFAST,
     OBJ_FLOOR,
+    OBJ_MINVENT,
     POLY_TRAP,
     TELEP_TRAP,
     W_ARMG,
@@ -34,6 +37,7 @@ import {
     mon_has_friends,
     mon_likes_objpile_at,
     use_offensive,
+    use_misc,
     mcould_eat_tin,
     searches_for_item,
     select_fresh_monster_item_action,
@@ -217,6 +221,63 @@ test('find_defensive selects healing for a wounded hostile', () => {
         select_fresh_monster_item_action(monster, { state })?.kind,
         'healing',
     );
+});
+
+test('use_misc paralyzes the monster after a milky potion releases a ghost',
+    async () => {
+    // muse.c:59-98. A milky potion's ghost branch calls paralyze_monst(mon, 3)
+    // after the occupant is created. Use an initialized game and a legal
+    // born count; the injected core stream forces the source chance and keeps
+    // the precheck's first rn2(POTION_OCCUPANT_CHANCE(0)) observable.
+    const state = await offensiveHero();
+    state.mvitals[PM_GHOST].born = 0;
+    // Keep the production mquaffmsg() on its silent path; this test targets
+    // the source occupant draw and the paralyze_monst() call, not tty input.
+    state.u.uprops[BLINDED] = { intrinsic: 1, extrinsic: 0 };
+    state.u.uprops[DEAF] = { intrinsic: 1, extrinsic: 0 };
+    const descrIndex = state.objects[POT_GAIN_LEVEL].oc_descr_idx;
+    state.obj_descr[descrIndex].oc_descr = 'milky';
+    const potion = makeObject(state, POT_GAIN_LEVEL);
+    potion.where = OBJ_MINVENT;
+    const monster = makeMonster(state, PM_GOBLIN, {
+        // Off the visible starting room keeps mquaffmsg() on its silent
+        // branch while still providing a valid map square for enexto().
+        mx: 1,
+        my: 1,
+        mhp: 8,
+        mhpmax: 8,
+        mcanmove: true,
+        mfrozen: 0,
+        minvent: potion,
+    });
+    potion.ocarry = monster;
+    const draws = [];
+    // The C caller is a runtime makemon(MM_NOMSG) creation. The focused
+    // harness does not yet carry that runtime creation marker, so use the
+    // same explicit-square creation in the initialized level-generation
+    // context while exercising the complete precheck/use_misc branch.
+    const wasMklev = state.in_mklev;
+    state.in_mklev = true;
+    let result;
+    try {
+        result = await use_misc(monster, {
+            kind: 'gain level',
+            object: potion,
+        }, state, {
+            message: async () => {},
+            random: { rn2: (bound) => {
+                draws.push(bound);
+                return 0;
+            } },
+        });
+    } finally {
+        state.in_mklev = wasMklev;
+    }
+    assert.equal(result, 2);
+    assert.equal(draws[0], 13);
+    assert.equal(monster.mcanmove, false);
+    assert.equal(monster.mfrozen, 3);
+    assert.equal(state.unported.has('mhitm.c paralyze_monst'), false);
 });
 
 test('find_defensive gives a hole precedence over a teleport trap', () => {

@@ -281,7 +281,7 @@ import {
     YELLOW_DRAGON_SCALES,
 } from './objects.js';
 import * as M from './monsters.js';
-import { rn1, rn2, rnd, rne, rnl, d } from './rng.js';
+import { rn1, rn2, rnd, rne, rnl, d, rn2_on_display_rng } from './rng.js';
 import { getdir, y_n } from './cmd.js';
 import { ubuzz, ubreatheu } from './zap.js';
 import { newpw, rndexp } from './exper.js';
@@ -684,10 +684,14 @@ export function uasmon_maxStr(state = game) {
 
 // ---------- skinback ---------------------------------------------------
 // C ref: polyself.c skinback() (1953-1969). Return merged dragon scales.
-export async function skinback(silently, state = game) {
+export async function skinback(silently, state = game, rawEnv = {}) {
     if (state.uskin) {
-        if (!silently)
-            await ttyPline('Your skin returns to its original form.', state);
+        if (!silently) {
+            const message = rawEnv.message
+                ?? (rawEnv.planning ? async () => {} : ttyPline);
+            await message('Your skin returns to its original form.', state,
+                rawEnv);
+        }
         state.uarm = state.uskin;
         state.uskin = null;
         state.uarm.owornmask &= ~I_SPECIAL;
@@ -1232,8 +1236,12 @@ export async function polymon(mntmp, state = game) {
 //
 // display.c set_mimic_blocking() and end.c dealloc_killer() are unported and
 // C discards both results, so each call records its gap and is skipped.
-async function polyman(fmt, arg, state) {
+async function polyman(fmt, arg, state, rawEnv = {}) {
     const u = state.u;
+    const message = rawEnv.message
+        ?? (rawEnv.planning ? async () => {} : ttyUrgentPline);
+    const redraw = rawEnv.redraw
+        ?? (rawEnv.planning ? () => {} : newsym);
     const sticking = Boolean(sticks(state.youmonst.data) && u.ustuck
                              && !u.uswallow);
     const was_mimicking = (M_AP_TYPE(state.youmonst) !== M_AP_NOTHING);
@@ -1250,7 +1258,7 @@ async function polyman(fmt, arg, state) {
 
     u.mh = u.mhmax = 0;
     u.mtimedone = 0;
-    await skinback(false, state);
+    await skinback(false, state, rawEnv);
     u.uundetected = 0;
 
     if (sticking)
@@ -1263,9 +1271,9 @@ async function polyman(fmt, arg, state) {
         state.youmonst.mappearance = 0;
     }
 
-    newsym(u.ux, u.uy);
+    redraw(u.ux, u.uy, state);
 
-    await ttyUrgentPline(fmt.replace('%s', arg), state);
+    await message(fmt.replace('%s', arg), state, rawEnv);
     /* check whether player foolishly genocided self while poly'd */
     if (ugenocided(state)) {
         /* intervening activity might have clobbered genocide info */
@@ -1294,14 +1302,15 @@ async function polyman(fmt, arg, state) {
     }
     if (was_blind && !Blind(state)) { /* reverting from eyeless */
         set_itimeout(u.uprops[BLINDED], 1);
-        await make_blinded(0, true, state); /* remove blindness */
+        await make_blinded(0, true, state, rawEnv); /* remove blindness */
     }
     await check_strangling(true, state);
 
-    if (!Levitation(state) && !u.ustuck && is_pool_or_lava(u.ux, u.uy, state))
+    if (!Levitation(state) && !u.ustuck && is_pool_or_lava(u.ux, u.uy, state)
+        && !rawEnv.planning)
         await spoteffects(true, state);
 
-    see_monsters(state);
+    see_monsters(state, { redraw });
 }
 
 // ---------- change_sex --------------------------------------------------
@@ -2007,9 +2016,20 @@ export function mbodypart(monster, part) {
 // is dropped; polyman() reverts the form; and a human form with no hit
 // points left dies. polyman() is not ported yet and C discards its result,
 // so that call records a gap.
-export async function rehumanize(state = game) {
+export async function rehumanize(state = game, rawEnv = {}) {
     const u = state.u;
     const was_flying = Flying(state);
+    const message = rawEnv.message
+        ?? (rawEnv.planning ? async () => {} : ttyPline);
+    const displayRandom = rawEnv.displayRandom
+        ?? (state.displayCtx
+            ? (bound) => rn2_on_display_rng(bound, state)
+            : () => 0);
+    const env = {
+        ...rawEnv, state, message, displayRandom,
+        redraw: rawEnv.redraw
+            ?? (rawEnv.planning ? () => {} : newsym),
+    };
 
     /* You can't revert back while unchanging */
     if (Unchanging(state)) {
@@ -2023,10 +2043,9 @@ export async function rehumanize(state = game) {
                be wearing an amulet of life-saving */
             return; /* don't rehumanize after all */
         } else if (state.uamul && state.uamul.otyp === AMULET_OF_UNCHANGING) {
-            await ttyPline(
+            await message(
                 `Your ${simpleonames(state.uamul, state)} `
-                + `${otense(state.uamul, 'fail')}!`,
-                state,
+                + `${otense(state.uamul, 'fail')}!`, state, env,
             );
             observe_object(state.uamul, state);
             // hack.h:1530 makeknown(x) is discover_object(x, TRUE, TRUE, TRUE)
@@ -2041,13 +2060,13 @@ export async function rehumanize(state = game) {
 
     if (emits_light(state.youmonst.data))
         del_light_source(LS_MONSTER, state.youmonst, state);
-    await polyman('You return to %s form!', state.urace.adj, state);
+    await polyman('You return to %s form!', state.urace.adj, state, env);
 
     if (u.uhp < 1) {
         /* can only happen if some bit of code reduces u.uhp
            instead of u.mh while poly'd */
-        await ttyPline(
-            'Your old form was not healthy enough to survive.', state,
+        await message(
+            'Your old form was not healthy enough to survive.', state, env,
         );
         state.killer ??= {};
         state.killer.name = `reverting to unhealthy ${state.urace.adj} form`;
@@ -2059,13 +2078,12 @@ export async function rehumanize(state = game) {
     state.disp ??= {};
     state.disp.botl = true;
     state.vision_full_recalc = 1;
-    await encumber_msg(state);
-    update_inventory({ state });
+    await encumber_msg(state, { message });
+    update_inventory(env);
     if (was_flying && !Flying(state) && u.usteed)
-        await ttyPline(
-            `You and ${monsterCommonName(u.usteed, state)} return gently `
-            + `to the ${surface(u.ux, u.uy, state)}.`,
-            state,
+        await message(
+            `You and ${monsterCommonName(u.usteed, state, 0, env)} return gently `
+            + `to the ${surface(u.ux, u.uy, state)}.`, state, env,
         );
     await retouch_equipment(2, state);
     if (!state.uarmg)

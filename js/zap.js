@@ -4354,14 +4354,14 @@ async function buzzmonst(
         return { hit: false, reflected: false, clearGas: false, stop: false };
     }
 
-    if (await mon_reflects(mon, null, state)) {
+    if (await mon_reflects(mon, null, state, env)) {
         const seen = cansee(mon.mx, mon.my, state);
         if (seen) {
             await hit(flash_str(fltyp, false, state, random), mon,
                 exclam(0), state, env);
             // shieldeff(mon.mx, mon.my) is a visual animation with no game
             // state or RNG effect, so the shared owner has no call here.
-            await mon_reflects(mon, 'But it reflects from %s %s!', state);
+            await mon_reflects(mon, 'But it reflects from %s %s!', state, env);
         }
         return { hit: true, reflected: true, clearGas: seen, stop: false };
     }
@@ -4612,7 +4612,7 @@ export async function dobuzz(
             } else if (u_at(sx, sy, state) && range >= 0) {
                 nomul(0, state);
                 if (state.u.usteed && !random.rn2(3)
-                    && !(await mon_reflects(state.u.usteed, null, state))) {
+                    && !(await mon_reflects(state.u.usteed, null, state, env))) {
                     // C jumps to buzzmonst for the steed. The helper preserves
                     // the exact shared reflection, death, and wakeup path.
                     const steed = state.u.usteed;

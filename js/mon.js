@@ -6360,7 +6360,7 @@ export async function golemeffects(mon, damtype, dam, rawEnv = {}) {
     if (heal && healmon(mon, heal, 0)) {
         if (cansee(mon.mx, mon.my, state)) {
             await monsterMessage(
-                `${Monnam(mon, state)} seems healthier.`,
+                `${Monnam(mon, state, rawEnv)} seems healthier.`,
                 mon,
                 state,
                 rawEnv,

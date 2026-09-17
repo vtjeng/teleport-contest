@@ -62,6 +62,7 @@ import {
     monst_globals_init,
     AD_ACID,
     AD_COLD,
+    AD_ENCH,
     AD_PLYS,
     AD_PHYS,
     AD_SEDU,
@@ -1371,6 +1372,31 @@ test('mattacku lets an armed attacker reach its hand-to-hand arm', async () => {
     assert.equal(await mattacku(rat, armed.env), false);
     // AT_BITE reads no weapon bonus, so the threshold is the bare one.
     assert.deepEqual(armed.lines, ['The sewer rat misses!']);
+});
+
+test('mattacku resets mon_currwep before a nonweapon attack slot', async () => {
+    // mhitu.c:mattacku() clears the static mon_currwep before each getmattk()
+    // slot. A held weapon therefore cannot make a later AD_ENCH passive arm
+    // call zap.c:drain_item when the current attack is not AT_WEAP.
+    const state = await meleeHero();
+    state.u.umonster = PM_HUMAN;
+    state.u.umonnum = PM_RUST_MONSTER;
+    state.youmonst.data = {
+        ...state.mons[PM_RUST_MONSTER],
+        mattk: [{
+            aatyp: AT_NONE,
+            adtyp: AD_ENCH,
+            damn: 1,
+            damd: 1,
+        }],
+    };
+    const bug = meleeAttacker(state, PM_GRID_BUG, 1, 0, { mconf: true });
+    // Keep a stale held-weapon pointer. The current slot is AT_BITE, so C's
+    // per-slot reset must leave the passive AD_ENCH arm with no current weapon.
+    bug.mw = {};
+    const result = meleeEnv(state, [1]);
+    assert.equal(await mattacku(bug, result.env), false);
+    assert.equal(state.unported.has('zap.c drain_item'), false);
 });
 
 test('mattacku reveals an eel the moment it strikes', async () => {
