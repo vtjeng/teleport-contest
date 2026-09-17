@@ -57686,7 +57686,7 @@
     {
       "id": "port-trap-lava-effects-seed0009-20260917",
       "kind": "file-port",
-      "status": "open",
+      "status": "parked",
       "summary": "Port complete lava entry effects and footwear cleanup",
       "cFile": "trap.c",
       "sessions": [
@@ -57697,8 +57697,8 @@
       "spans": [
         {
           "name": "lava_effects",
-          "status": "queued",
-          "closedBy": null,
+          "status": "closed",
+          "closedBy": "bc69002ecb5375f6316ae16e4a47f2ff38a672df",
           "functions": [
             "lava_effects"
           ]
@@ -57891,7 +57891,17 @@
             "recordings": []
           }
         ]
-      }
+      },
+      "progressBeforePark": {
+        "screens": 0,
+        "rng": 0
+      },
+      "parkedStanding": {
+        "sha": "bc69002ecb5375f6316ae16e4a47f2ff38a672df",
+        "screens": 10823,
+        "rng": 771039
+      },
+      "parkedReason": "The lava_effects span passes combined validation and adds two strict 64-screen recordings. Keep fatal/lifesaving, Boots_off, direct float_down, drawbridge, and both cleanup continuations open: really_done is owned by A20, the footwear setup stops in Boots_on, and continuation movement stops at the steam-vortex m_postmove_effect create_gas_cloud callback wiring. No full source-goal completion is claimed."
     }
   ]
 }
