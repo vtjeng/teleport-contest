@@ -174,7 +174,7 @@ import {
     switch_terrain,
     weight_cap,
 } from './hack.js';
-import { distmin, sgn, s_suffix } from './hacklib.js';
+import { distmin, ordin, sgn, s_suffix } from './hacklib.js';
 import {
     addinv,
     addinv_before,
@@ -385,11 +385,11 @@ function propertyHeld(state, property) {
     return Boolean(held?.intrinsic || held?.extrinsic);
 }
 
-// C ref: youprop.h Hallucination, HHalluc && !HHalluc_res.  Resistance is a
+// C ref: youprop.h Hallucination, HHallucination && !Halluc_resistance. Resistance is a
 // separate property from the hallucination source, so it must be checked at
 // the same admission point rather than folded into propertyHeld().
 function hallucinating(state) {
-    return propertyHeld(state, HALLUC)
+    return Boolean(state.u?.uprops?.[HALLUC]?.intrinsic)
         && !propertyHeld(state, HALLUC_RES);
 }
 
@@ -1160,22 +1160,13 @@ export async function dofire(state = game) {
 // C ref: dothrow.c endmultishot() (590-601). If a multi-shot volley is in
 // progress, stop it after the current shot and, for a verbose caller outside
 // monster movement, report which shot or toss was last completed.
-function ordinal(n) {
-    const value = Math.trunc(n);
-    const lastTwo = value % 100;
-    const suffix = lastTwo >= 11 && lastTwo <= 13
-        ? 'th'
-        : ({ 1: 'st', 2: 'nd', 3: 'rd' }[value % 10] ?? 'th');
-    return `${value}${suffix}`;
-}
-
 export async function endmultishot(verbose, state = game) {
     state.m_shot ??= {};
     if ((state.m_shot.i ?? 0) < (state.m_shot.n ?? 0)) {
         if (verbose && !state.context?.mon_moving) {
             await ttyPline(
-                `You stop ${state.m_shot.s ? 'firing' : 'throwing'} after `
-                    + `${ordinal(state.m_shot.i ?? 0)} `
+                `You stop ${state.m_shot.s ? 'firing' : 'throwing'} after the `
+                    + `${state.m_shot.i}${ordin(state.m_shot.i)} `
                     + `${state.m_shot.s ? 'shot' : 'toss'}.`,
                 state,
             );
@@ -1377,6 +1368,7 @@ export async function throw_obj(obj, shotlimit, state = game) {
         }
         freeinv(otmp, { state });
         await throwit(otmp, wep_mask, twoweap, oldslot, state);
+        if (state.program_state?.gameover) return ECMD_TIME;
         await encumber_msg(state);
     }
     state.m_shot.n = 0;
@@ -1507,24 +1499,6 @@ async function return_throw_to_inv(obj, wepMask, twoweap, oldslot, state) {
         if (twoweap && !state.u.twoweap) set_twoweap(true, state);
     }
     await encumber_msg(state);
-    return result;
-}
-
-// C ref: dothrow.c:1721-1728.  The successful horizontal return does not
-// use return_throw_to_inv(): it inserts the object, reports encumbrance, then
-// unquivers and wields it unconditionally before restoring two-weapon mode.
-// Keeping this sequence separate preserves the source's observable ordering
-// and its merge policy for a missile that was not split from a stack.
-async function return_throw_horizontally(obj, twoweap, oldslot, state) {
-    if (!obj) return null;
-    obj.nomerge = 1;
-    let result = addinv_before(obj, oldslot, { state });
-    obj.nomerge = 0;
-    if (!result) result = obj;
-    await encumber_msg(state);
-    if (result.owornmask & W_QUIVER) setuqwep(null, { state });
-    setuwep(result, { state });
-    set_twoweap(twoweap, state);
     return result;
 }
 
@@ -1756,6 +1730,7 @@ export async function throwit(obj, wep_mask, twoweap, oldslot, state = game) {
         mon = await boomhit(
             obj, u.dx, u.dy, state, throwit_mon_hit, endmultishot,
         );
+        if (state.program_state?.gameover) return;
         state.iflags.returning_missile = null;
         if (mon === state.youmonst) {
             await exercise(A_DEX, true, state, { rn2 });
@@ -1852,9 +1827,13 @@ export async function throwit(obj, wep_mask, twoweap, oldslot, state = game) {
                 await ttyPline(
                     `${Tobjnam(obj, 'return', state)} to your hand!`, state,
                 );
-                obj = await return_throw_horizontally(
-                    obj, twoweap, oldslot, state,
-                );
+                // C dothrow.c:1721-1728 uses addinv_before directly here,
+                // then reports encumbrance before restoring weapon slots.
+                obj = await addinv_before(obj, oldslot, { state });
+                await encumber_msg(state);
+                if (obj.owornmask & W_QUIVER) setuqwep(null, { state });
+                setuwep(obj, { state });
+                set_twoweap(twoweap, state);
                 if (cansee(state.gb.bhitpos.x, state.gb.bhitpos.y, state))
                     newsym(state.gb.bhitpos.x, state.gb.bhitpos.y);
             } else {
@@ -1882,12 +1861,14 @@ export async function throwit(obj, wep_mask, twoweap, oldslot, state = game) {
                         await artifact_hit(
                             null, state.youmonst, obj, damagePtr, 0, state,
                         );
+                        if (state.program_state?.gameover) return;
                         damage = damagePtr.value;
                     }
                     await losehp(
                         heroHalfPhysicalDamage(damage, state),
                         killer_xname(obj, state), KILLED_BY, state,
                     );
+                    if (state.program_state?.gameover) return;
                 }
                 if (u.uswallow) {
                     swallowThrownObject(obj, state);

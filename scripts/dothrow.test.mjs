@@ -795,7 +795,7 @@ test('endmultishot() reports the source ordinal for a verbose volley stop', asyn
     assert.equal(firing.m_shot.n, 2);
     assert.equal(
         firing._pending_message,
-        'You stop firing after 2nd shot.',
+        'You stop firing after the 2nd shot.',
     );
 
     const throwing = arena();
@@ -805,7 +805,7 @@ test('endmultishot() reports the source ordinal for a verbose volley stop', asyn
     assert.equal(throwing.m_shot.n, 13);
     assert.equal(
         throwing._pending_message,
-        'You stop throwing after 13th toss.',
+        'You stop throwing after the 13th toss.',
     );
 });
 
@@ -827,7 +827,7 @@ test('boomhit() applies the source self-hit and ends its volley', async () => {
     await boomhit(boomerang, 1, 0, state);
     assert.equal(state.m_shot.n, 1);
     assert.equal(state.u.uhp < 100, true);
-    assert.match(state._ttyToplines, /You stop firing after 1st shot\./u);
+    assert.match(state._ttyToplines, /You stop firing after the 1st shot\./u);
 });
 
 test('throwit() applies the recoil of a weightless throw', async () => {

@@ -59793,7 +59793,7 @@
           "line": 1510,
           "endLine": 1854,
           "declared": true,
-          "complete": false
+          "complete": true
         }
       ],
       "range": {
@@ -59878,7 +59878,112 @@
             }
           }
         }
-      ]
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "throwit",
+            "implementation": "js/dothrow.js",
+            "symbol": "throwit",
+            "sourceReview": "Read complete dothrow.c throwit1510-1849 and compared the slip/stamina preconditions, swallowed and vertical branches, boomerang dispatch, ordinary/ammo/crossbow range arithmetic, tether and attached-ball limits, bhit result handoff, monster-hit gate, autoreturn RNG, return inventory/slot ordering, messages and killer names, breakage/liquid/floor effects, shopkeeper pickup, shipping/stacking and transit cleanup. Required boomhit, bhit, shkcatch and tether_glyph implementations were compared with their C owners and production APIs. The horizontal catch now directly awaits addinv_before, then encumber_msg, quiver removal, setuwep and set_twoweap without the distinct return_throw_to_inv merge override. Hallucination reads the intrinsic timeout and excludes either resistance source. Boomerang self-hit calls dmgval, half-physical damage, canonical thitu and endmultishot in source order; returning artifact damage uses canonical artifact_hit and its mutable damage result. Fatal gameover stops boomhit, throwit and throw_obj where C does not return from done. endmultishot uses canonical ordin and the exact C message, and savelife awaits its cleanup. Remaining discarded callees are explicitly recorded: toss_up, hitfloor, hurtle, sho_obj_return_to_u, potionhit, breakmsg, Soundeffect, snuff_candle, container_impact_dmg, check_shop_obj, drop_ball, hot_pursuit and transient light show/cleanup; no invented RNG/output/state substitutes or new Unsupported refusal stand in for them.",
+            "callers": [
+              {
+                "path": "js/dothrow.js",
+                "symbol": "throw_obj",
+                "source": "dothrow.c:85-286 calls throwit once for each selected missile after direction, canletgo, and inventory splitting."
+              },
+              {
+                "path": "js/dothrow.js",
+                "symbol": "dothrow",
+                "source": "dothrow.c:350-376 validates and dispatches the #throw command through throw_obj()."
+              },
+              {
+                "path": "js/dothrow.js",
+                "symbol": "dofire",
+                "source": "dothrow.c:469-582 selects quivered ammunition and dispatches through throw_obj()."
+              },
+              {
+                "path": "js/polyself.js",
+                "symbol": "dospit",
+                "source": "C polyself.c dospit1450-1478 creates venom and calls throwit(otmp,0,FALSE,NULL); the JS production caller awaits throwit."
+              },
+              {
+                "path": "js/artifacts.js",
+                "symbol": "invoke_fling_poison",
+                "source": "C artifact.c invoke_fling_poison2021-2037 creates venom and calls throwit; the JS artifact invocation caller awaits throwit. This entry remains unrecorded."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/dothrow.test.mjs",
+              "scripts/throw-command.test.mjs",
+              "scripts/bhit.test.mjs",
+              "scripts/tmp-at.test.mjs",
+              "scripts/hero-death.test.mjs"
+            ],
+            "recordings": [
+              "recordings/dothrow.c/throwit-unlaunched-independent.session.json",
+              "recordings/dothrow.c/throwit-unlaunched-variation.session.json"
+            ],
+            "checkedAt": "6c1c1efeff3d010075cfacc48f21381b899ed9fb"
+          }
+        ],
+        "entryPointReview": "The two independent #throw recipes reach the no-launcher ammunition branch and match C strictly. The current recordings do not reach #fire, the boomerang production branch, vertical returns, attached-ball returns, or every bhit early exit, so those active entry families remain open. The source-owned zap.c boomhit() has its curved flight, self-catch thitu() damage, and endmultishot(TRUE) continuation covered by initialized behavioral tests; production recording coverage remains open. scripts/bhit.test.mjs covers thrown and tethered flight cleanup. The new zap.c transient_light_cleanup call is a discarded light.c boundary and does not replace any flight state. Root inspected both independent C recordings: seeds9010102 and9010103 each reach the no-launcher message at step9, including the throw_obj next_ident and landing RNG. Additional active callers are polyself.c dospit and artifact.c invoke_fling_poison; they remain unrecorded. The initialized fatal-boomerang test checks the real death finalization and command return, not a mocked handler. Supporting source checks establish behavior, not production entry recording coverage.",
+        "entryPoints": [
+          {
+            "name": "#throw unlaunched ammunition",
+            "functions": [
+              "throwit"
+            ],
+            "recordings": [
+              "recordings/dothrow.c/throwit-unlaunched-independent.session.json",
+              "recordings/dothrow.c/throwit-unlaunched-variation.session.json"
+            ]
+          },
+          {
+            "name": "#fire quivered ammunition",
+            "functions": [
+              "throwit"
+            ],
+            "recordings": []
+          },
+          {
+            "name": "returning boomerang",
+            "functions": [
+              "throwit"
+            ],
+            "recordings": []
+          },
+          {
+            "name": "vertical thrown and returning objects",
+            "functions": [
+              "throwit"
+            ],
+            "recordings": []
+          },
+          {
+            "name": "attached-ball or swallowed throw",
+            "functions": [
+              "throwit"
+            ],
+            "recordings": []
+          },
+          {
+            "name": "dospit polymorphed hero venom",
+            "functions": [
+              "throwit"
+            ],
+            "recordings": []
+          },
+          {
+            "name": "invoke_fling_poison artifact venom",
+            "functions": [
+              "throwit"
+            ],
+            "recordings": []
+          }
+        ]
+      }
     }
   ]
 }
