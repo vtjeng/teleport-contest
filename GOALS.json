@@ -57914,8 +57914,17 @@
         "holdout/seed0398-wizard-wandpoly-pile"
       ],
       "selectionReason": "Worker A seed continuation after accepted lava_effects: investigations/holdout/seed0009-swimmer-mforce.json records 11 remaining-screen upper bound at step62 owned by end.c really_done. The same whole function owns the seed0398 final stopprint mismatch (1-screen upper bound). Higher-ranked seed4500 pager work remains reserved by worker B; seed2200 has unresolved Q1. Integrate this dependency-ready delivery while other higher-ranked independent queue items await a free worker.",
-      "detail": "Whole really_done1130-1593 with required end.c fixup_death/get_valuables/sort_valuables/artifact_score and pickup.c observe_quantum_cat. Cover source grave-arise reasons, alignment scoring, tombstone and inventory ordering, final message waits and stopprint raw-print tail. Two independent wizard quit recordings cover production finalization; fatal lava, escape/ascension, quantum-cat and other exceptional entry recordings remain open.",
-      "spans": [],
+      "detail": "Whole really_done1130-1593 with required end.c fixup_death/get_valuables/sort_valuables/artifact_score and pickup.c observe_quantum_cat. Cover source grave-arise reasons, alignment scoring, tombstone and inventory ordering, final message waits and stopprint raw-print tail. Two independent wizard quit recordings cover production finalization; fatal lava, escape/ascension, quantum-cat and other exceptional entry recordings remain open. Planning reconciliation: historical port-end-really-done explicitly retained hangup, panic, achievement, special-death/grave-arise and later finalization refusals. Its inherited completion flag is partial evidence, so next-span skipped the required whole-function work. Preserve that historical record and replan really_done with the exported source planner under the current whole-source rule.",
+      "spans": [
+        {
+          "name": "really_done",
+          "status": "queued",
+          "closedBy": null,
+          "functions": [
+            "really_done"
+          ]
+        }
+      ],
       "openedAt": "71dd60c4a0e2352f58f54bebfc8e8b3b34a75b2d",
       "openStanding": {
         "sha": "bc69002ecb5375f6316ae16e4a47f2ff38a672df",
@@ -57930,7 +57939,7 @@
           "line": 1130,
           "endLine": 1593,
           "declared": true,
-          "complete": true
+          "complete": false
         }
       ],
       "range": {
