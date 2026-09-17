@@ -58099,7 +58099,7 @@
             "name": "really_done",
             "implementation": "js/end.js",
             "symbol": "really_done",
-            "sourceReview": "Read nethack-c/upstream/src/end.c really_done() 1130-1593 in full. The port covers the gameover and panic cleanup prefix, timed finalization, BURNING/DISSOLVED grave-arise mapping, payment and disclosure gates, inventory identification, grave creation, score and ascension calculation, farewell and valuables output, stopprint raw-print tail, and termination marker. The correction preserves C's direct mons catalog lookup, A_ORIGINAL/A_CURRENT alignment slots, post-farewell valuables order, no-pet single-line escape output, glass-valuables output without a worth suffix, done_stopprint guard before object formatting, and PANICKED gates keyed by how. Discarded filesystem and shutdown operations remain named source gaps in the implementation comments. The final corrections keep the C no-window done_stopprint assignment in the cleanup arm after payment, disclosure, score, and bones work, and use the existing awaited displayPendingTtyMessageWindow owner for WIN_MESSAGE(TRUE) when windows exist; focused fixtures use the source no-prompt disclosure setting so that no-window ordering is exercised without synthetic input. The used pickup.c observe_quantum_cat dependency is source-pinned by the end-really-done and pickup focused tests and remains listed in the caller/dependency trace. Root compared the integrated required chain including the final awaited WIN_MESSAGE cleanup. Supporting helper units outside this selected source range are described as dependencies without separate completion claims.",
+            "sourceReview": "Read nethack-c/upstream/src/end.c really_done() 1130-1593 in full. The port covers the gameover and panic cleanup prefix, timed finalization, BURNING/DISSOLVED grave-arise mapping, payment and disclosure gates, inventory identification, grave creation, score and ascension calculation, farewell and valuables output, stopprint raw-print tail, and termination marker. The correction preserves C's direct mons catalog lookup, A_ORIGINAL/A_CURRENT alignment slots, post-farewell valuables order, no-pet single-line escape output, glass-valuables output without a worth suffix, done_stopprint guard before object formatting, and PANICKED gates keyed by how. Discarded filesystem and shutdown operations remain named source gaps in the implementation comments. The final corrections keep the C no-window done_stopprint assignment in the cleanup arm after payment, disclosure, score, and bones work, and use the existing awaited displayPendingTtyMessageWindow owner for WIN_MESSAGE(TRUE) when windows exist; focused fixtures use the source no-prompt disclosure setting so that no-window ordering is exercised without synthetic input. The used pickup.c observe_quantum_cat dependency is source-pinned by the end-really-done and pickup focused tests and remains listed in the caller/dependency trace. Root compared the integrated required chain including the final awaited WIN_MESSAGE cleanup. Supporting helper units outside this selected source range are described as dependencies without separate completion claims. Root also checked zap.c maybe_destroy_item/destroy_items after the completed finalizer exposed continued execution: both JavaScript callers now stop on gameover, preserving C really_done NORETURN behavior while allowing lifesaving returns. The lethal spellbook test selects a second stack and rejects post-death RNG or destruction.",
             "callers": [
               {
                 "path": "js/end.js",
@@ -58115,18 +58115,24 @@
                 "path": "js/end.js",
                 "symbol": "done2",
                 "source": "end.c done2() sets stopprint for the wizard Dump core? q answer before done(QUIT)."
+              },
+              {
+                "path": "js/zap_destroy_items.js",
+                "symbol": "maybe_destroy_item",
+                "source": "zap.c maybe_destroy_item calls hack.c losehp for lethal inventory destruction; really_done never returns in C, so the JavaScript callers stop on finalized gameover."
               }
             ],
             "pure": false,
             "tests": [
               "scripts/end-really-done.test.mjs",
-              "scripts/hero-death.test.mjs"
+              "scripts/hero-death.test.mjs",
+              "scripts/zap-destroy-items.test.mjs"
             ],
             "recordings": [
               "recordings/end.c/really-done-stopprint-wizard.session.json",
               "recordings/end.c/really-done-stopprint-wizard-variation.session.json"
             ],
-            "checkedAt": "702df7b47dd348f2ff57bd05fb75eaba3e761dad"
+            "checkedAt": "51905e12508adede1e9e843f94b38622527c6aae"
           }
         ],
         "entryPointReview": "Read end.c really_done1130-1593 and its required finalization helpers against C. The two independent live-window Wizard quit recordings execute done2 and the stopprint final output; they do not cover the no-window cleanup, which has focused state/output checks. Existing ordinary death recordings execute the same production finalizer. Active exceptional, escape/ascension, quantum-cat and no-window entries remain open; tests do not replace their production recordings. The independent fatal-lava recipe seed810141 reaches C done(BURNING), but its JS replay first differs during inventory burning after More at step47; retain the input-only recipe and no recording. The separate seed812347 attempt never reaches BURNING and first differs in the distfleeck continuation at step65. The accepted lava survival recordings stop before cleanup/return, and their extended probes have a separate postmovement create_gas_cloud blockPoint gap. These are independent coverage blockers, not claimed completion. The required helper implementations fixup_death, get_valuables, sort_valuables, artifact_score and pickup.c observe_quantum_cat were checked in source order; only the primary selected really_done unit is recorded here. Escape/ascension keepdogs remains an explicit discarded-call note_unported gap; external files and process teardown are not substituted with game effects.",
