@@ -57906,7 +57906,7 @@
     {
       "id": "port-end-really-done-seed0009-20260917",
       "kind": "file-port",
-      "status": "open",
+      "status": "parked",
       "summary": "Port complete death finalization and stopprint output",
       "cFile": "end.c",
       "sessions": [
@@ -57918,8 +57918,8 @@
       "spans": [
         {
           "name": "really_done",
-          "status": "queued",
-          "closedBy": null,
+          "status": "closed",
+          "closedBy": "8e90f33b3721bd996b79487ffc509a71b7f3c594",
           "functions": [
             "really_done"
           ]
@@ -58195,7 +58195,17 @@
             "recordings": []
           }
         ]
-      }
+      },
+      "progressBeforePark": {
+        "screens": 11,
+        "rng": 0
+      },
+      "parkedStanding": {
+        "sha": "8e90f33b3721bd996b79487ffc509a71b7f3c594",
+        "screens": 10834,
+        "rng": 771039
+      },
+      "parkedReason": "The really_done source span and ordinary death/stopprint recordings pass. Fatal/special-grave-arise, escape/ascension with valuables and pets, quantum-cat disclosure, panic/hangup/no-window and first-move/achievement entry families still lack matching production recordings; preserve those open requirements. The fixed swimmer session now reaches only the independently identified tutorial reached-depth mismatch."
     }
   ]
 }

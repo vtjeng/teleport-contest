@@ -1,49 +1,47 @@
 {
   "session": "holdout/seed0009-swimmer-mforce",
-  "remainingScreensUpperBound": 11,
+  "remainingScreensUpperBound": 4,
   "status": "complete",
-  "commit": "058e1e65c5f55de04dfc0c66f53eb179a085c0af",
+  "commit": "8e90f33b3721bd996b79487ffc509a71b7f3c594",
   "mismatch": {
     "session": "holdout/seed0009-swimmer-mforce",
-    "step": 62,
-    "kind": "stop",
-    "function": "really_done",
-    "functionDeclared": true,
-    "sourceFile": "end.c",
-    "cFile": "end.c",
+    "step": 69,
+    "kind": "screen",
+    "function": null,
+    "functionDeclared": false,
+    "sourceFile": null,
+    "cFile": null,
     "luaFile": null,
     "line": null,
-    "message": "unsupported hero command: an unported branch of this command: really_done() special death or grave-arise state",
+    "message": null,
     "unlocatedKinds": [],
     "recordedSteps": 73,
-    "remainingScreensUpperBound": 11
+    "remainingScreensUpperBound": 4
   },
-  "summary": "Walking into the pool now matches. The next stop is step 62, after the hero enters a wall of lava and reaches end.c really_done() with BURNING. JavaScript rejects special death reasons and grave-arise states; C sets BURNING/DISSOLVED to leave no corpse and continues finalization. Port the whole really_done function and its required dependencies. trap.c lava_effects has separate incomplete branches, including boots removal, but the current recorded stop is the end.c special-death guard.",
+  "summary": "Death finalization now completes. One screen still differs at step 69: the tutorial overview says levels 1 to 0 because startup tutorial entry leaves dunlev_ureached at zero. C reaches do.c goto_level through maybe_do_tutorial and updates that value immediately after assigning u.uz. Share the existing do.js reached-level update with enter_tutorial before level creation; preserve dungeon.c print_mapseen formatting.",
   "source": {
-    "file": "end.c",
+    "file": "do.c",
     "functions": [
-      "really_done"
+      "goto_level"
     ],
-    "branch": "Complete end.c really_done() (1130-1593), including its death-reason and grave-arise handling, rather than merely admitting BURNING at the guard. At 1206-1218 C sets PANICKED to NON_PM-3, BURNING/DISSOLVED to NON_PM-2, STONING to LEAVESTATUE, and TURNED_SLIME to PM_GREEN_SLIME when not genocided, then continues through fixup_death, disclosure, score and final display. Current js/end.js really_done rejects every how other than DIED/QUIT and every nondefault ugrave_arise before those later stages. Preserve all other source branches, caller state and terminal input boundaries.",
+    "branch": "do.c goto_level1679-1684 records the greatest reached depth in ordinary branches, or the smallest depth in an up-building branch, initializing an unvisited branch from zero. js/do.js already implements this block for ordinary transitions, but js/tutorial_startup.js enter_tutorial assigns the tutorial level directly without it. dungeon.c print_mapseen3516-3555 omits the level-range suffix when dunlev_ureached equals entry_lev; the current zero is incorrect source state.",
     "callers": [
-      "C trap.c lava_effects() (6794-6965) enters done(BURNING) on fatal lava damage; js/trap.js lava_effects performs the matching call after its burn message and killer setup.",
-      "C hack.c pooleffects() invokes lava_effects after domove_core commits liquid movement; js/hack.js pooleffects reaches the same owner, now enabled by the accepted walking-admission change.",
-      "C end.c done() (1020-1126) calls really_done after life-saving/wizard recovery declines to return; js/end.js done() passes the same how value. Life-saving and recovery have separate accepted evidence."
+      "allmain.c maybe_do_tutorial567-585 calls schedule_goto/deferred_goto for tut-1 and then redraws; js/jsmain.js dispatches the accepted tutorial target to js/tutorial_startup.js enter_tutorial.",
+      "do.c goto_level assigns u.uz and u.utolev before updating dunlev_reached; ordinary js/do.js goto_level already follows that order.",
+      "dungeon.c show_overview and print_mapseen read the dungeon reached-level field during final overview disclosure; their equal-to-entry formatting branch already matches C."
     ],
     "dependencies": [
-      "C end.c fixup_death and the remaining really_done cleanup, disclosure and scoring helpers must preserve their return values and source order; inventory settlement and final terminal capture already have JavaScript owners to compare.",
-      "C can_make_bones() is called only when how < GENOCIDED; retain that random-call order before grave-arise handling.",
-      "The current really_done implementation also refuses hangup, panic, achievement and first-move cases. Whole-function source completion must account for each rather than claiming the BURNING witness proves them. Unrecorded active entry coverage remains a reason to park the goal.",
-      "trap.c lava_effects still has a separate Boots_off refusal and named inventory/display gaps. Those source defects remain independently actionable; the current step-62 scan specifically attributes the stop to really_done."
+      "Existing dungeon.js builds_up, dunlev, dunlev_reached and set_dunlev_reached provide the source values; reuse their state-scoped owners.",
+      "Keep the shared source block in js/do.js and call it from both ordinary travel and tutorial entry. Preserve ascending, first-unvisited and already-reached cases.",
+      "Existing independent tutorial-entry recipes reach the live startup query and map. They cover entry reachability; the saved fixed session exercises the later overview header."
     ]
   },
-  "goalKind": "file-port",
+  "goalKind": "divergence-fix",
   "evidence": [
-    "Passing checkpoint 058e1e65 run-a4KCVm records 10,785/11,405 development screens and 312/312 matching recordings. Only this session changes: 48 to 62 matching screens, 3647 to 3713 RNG values, and 48 to 62 cursors. The other 43 sessions retain their previous metrics.",
-    "The saved .cache/A18-development-scan.json and .cache/A18-queue.json place the first stop at step62 and name end.c really_done with message unsupported hero command: an unported branch of this command: really_done() special death or grave-arise state; recordedSteps73 yields remainingScreensUpperBound11.",
-    "The assigned recording at step62 enters wall lava and prints You fall into the wall of lava! and You burn to a crisp... before the More input boundary. C end.c1206-1218 explicitly accepts this death reason and sets the no-corpse grave-arise value.",
-    "At 058e1e65 js/end.js really_done has the explicit `(how !== DIED && how !== QUIT) || state.u.ugrave_arise !== NON_PM` refusal. This source guard explains the current scan and is independent of the earlier walking-liquid refusal.",
-    "Retained counter-evidence: the previous test_move admission, m-prefix and decoration barriers are resolved by A18. Do not restore an early liquid/decor refusal or add arrival effects to preflight. The two independent water-walking recordings exercise real entry onto a pool.",
-    "An early worker hypothesis named the separate lava_effects Boots_off gap. The fresh accepted-main scan identifies really_done instead; complete the boots branch when its own source span requires it without calling it the current step62 blocker."
+    "Passing checkpoint 8e90f33b/run-qzFm9S records 10834/11405 development screens and 319/319 regression recordings. This session advances from62 to72/73 screens, retains3713/3713 RNG calls, and now matches73/73 cursors.",
+    "The saved .cache/A20-development-scan.json and .cache/A20-queue.json identify the first screen mismatch at step69 of73, with remainingScreensUpperBound4. Only one screen is actually unmatched; the queue count is an upper bound.",
+    "The completed worker investigation compared the overview text: C shows The Tutorial:, while the unfixed JavaScript shows The Tutorial: levels 1 to 0. Reading do.c1679-1684 and dungeon.c3516-3555 identifies the omitted state update rather than a formatting defect.",
+    "Root compared the current enter_tutorial assignment and mklev sequence with C maybe_do_tutorial and goto_level, and verified that ordinary goto_level already owns the needed branch. The queued correction shares that code and adds ascending/unvisited behavioral coverage.",
+    "The prior really_done special-death refusal at step62 is resolved by this checkpoint. Retain its historical investigation in Git; it is no longer the current mismatch."
   ]
 }
