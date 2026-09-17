@@ -1,48 +1,46 @@
 {
   "session": "holdout/seed4500-knight-coverage",
-  "remainingScreensUpperBound": 485,
+  "remainingScreensUpperBound": 467,
   "status": "complete",
-  "commit": "da13fffda60e1126741e2922fb3a820ffe2444ff",
+  "commit": "d3fa36cf111bc2992c27208018a520d5343579e8",
   "mismatch": {
     "session": "holdout/seed4500-knight-coverage",
-    "step": 1329,
-    "kind": "stop",
+    "step": 1347,
+    "kind": "screen",
     "function": null,
     "functionDeclared": false,
     "sourceFile": null,
     "cFile": null,
     "luaFile": null,
     "line": null,
-    "message": "unsupported hero command: an unported branch of this command: fountain requires gushing-forth fountain effect (fate 30)",
+    "message": null,
     "unlocatedKinds": [],
     "recordedSteps": 1814,
-    "remainingScreensUpperBound": 485
+    "remainingScreensUpperBound": 467
   },
-  "summary": "The pager correction resolves the fountain target description. The next blocker is drinkfountain fate 30: JavaScript refuses gushing before C dogushforth traverses nearby visible squares and gush creates pools. Complete the source-owned dogushforth/gush family and wire the drinking caller; execute each square’s random gate and effects in C traversal order, then dryup.",
+  "summary": "Fountain gushing now matches. The next mismatch is the valid-target key in getpos: C resumes targeting and restores the goal prompt even without a highlighting callback, while JavaScript falls through to terrain-feature lookup.",
   "source": {
-    "file": "fountain.c",
+    "file": "getpos.c",
     "functions": [
-      "dogushforth",
-      "gush"
+      "getpos"
     ],
-    "branch": "fountain.c drinkfountain (case 30, lines 380-382) calls dogushforth(TRUE), followed by dryup at line 389. dogushforth (119-131) traverses radius 7 through vision.c do_clear_area; gush (133-161) gates parity, hero position, rn2 distance, room terrain, boulders and adjacent doors in expression order, removes deletable floor traps, announces the first pool, replaces terrain and flags, removes engraving, damages floor objects, then handles a monster through minliquid or updates its map symbol. If no pool is made, dogushforth chooses its drinking/dipping fallback message.",
+    "branch": "getpos.c getpos(), NHKF_GETPOS_SHOWVALID at lines 955-961: conditionally toggle highlighting, then unconditionally set show_goal_msg and jump to nxtc. JavaScript js/getpos.js currently puts the entire branch behind getpos_hilitefunc.",
     "callers": [
-      "js/fountain.js drinkfountain currently throws in fate 30, where C calls dogushforth(TRUE).",
-      "js/fountain.js dipfountain already calls the partial dogushforth(FALSE); completing the shared owner must preserve this entry too."
+      "teleport.c scrolltele calls getpos for controlled target selection; js/teleport.js scrolltele reaches the same cursor loop through the teleport command.",
+      "pager and other map-targeting callers share getpos and the configured getpos.valid binding; the fix belongs to that common branch."
     ],
     "dependencies": [
-      "vision.c do_clear_area traverses y then x after any required vision recalculation. The existing JavaScript collects all pool squares before applying their effects, which can reorder RNG and monster/liquid state changes. Preserve source order across awaited effects.",
-      "trap.c delfloortrap returns a Boolean used by gush; the canonical js/trap.js implementation already matches its trap-type gate, actor trap-state cleanup and unlinking. Reuse that owner. water_damage_chain has discarded return value and may remain a note_unported call until ported, without a blanket refusal for occupied floor squares.",
-      "mon.c minliquid, display newsym, engrave del_engr_at and rm set_levltyp supply existing source-owned effects; the fountain caller must preserve their per-square order."
+      "Keep optional highlighting and its cleanup within the callback guard, while preserving the unconditional targeting continuation and next-loop goal prompt. No random draw or feature search belongs to this key branch."
     ]
   },
-  "goalKind": "file-port",
+  "goalKind": "divergence-fix",
   "evidence": [
-    "The passing checkpoint .git/checkpoint-results/4e0cff9e1c51feb7ba0094f924613e5f896b0904/run-zXQmp5/summary.json reports the Knight session beyond its former step-1322 pager mismatch; the refreshed saved queue .cache/B18-queue.json identifies step 1329 as the next first mismatch.",
-    "The original C recording selects rnd(30)=30 in drinkfountain. C fountain.c case 30 calls dogushforth(TRUE), but current js/fountain.js case 30 throws UnsupportedFountainError for the gushing-forth effect.",
-    "Source comparison of fountain.c 119-161 and vision.c 2107-2150 establishes per-square traversal and effect order. Current js/fountain.js dogushforth accumulates poolSquares synchronously before its async effect loop, so merely removing the drinking refusal would retain an ordering defect.",
-    "The earlier force-quitchar explanation remains falsified: getpos already continues forced selection after quitchars. The resolved pager mismatch came from shared sink/fountain symbol refinement and must not be addressed with teleport-specific output.",
-    "The remaining-screen count is the mismatch queue upper bound, not a predicted gain; the actual combined development score remains recorded only from the accepted checkpoint.",
-    "A later independent cursor defect is source-confirmed in the current code: getpos.c 955-961 always sets show_goal_msg and continues for NHKF_GETPOS_SHOWVALID, even without getpos_hilitefunc. JavaScript js/getpos.js gates that entire branch on the callback, so a valid-square key without a callback falls into terrain-feature lookup. A post-fountain continuation observed it at Knight step1347; the current published queue remains blocked earlier at fountain fate30, and no downstream gain is claimed."
+    "Passing checkpoint .git/checkpoint-results/d3fa36cf111bc2992c27208018a520d5343579e8/run-1hb9hj/summary.json reports 10944/11405 fixed-development screens and 325/325 recordings. Knight screens rise from 1329 to 1435; other sessions are unchanged.",
+    "The current saved scan .cache/B19-development-scan.json locates the first screen mismatch at segment 0, step 1347, key $. C starts the line with M for Move cursor; JavaScript starts with C for its failed feature-search message. RNG and cursor logs have no divergence before the later refusal.",
+    "Root compared the branch against getpos.c 955-961 and inspected both independent B20 C recordings: the lawful Valkyrie and neutral Wizard each press $ at the teleport target prompt and receive Move cursor to the desired position before picking the current square. Those recordings support the common continuation contract.",
+    "The same current scan later stops at 1438 emitted screens in zapyourself for object type 422. js/objects.js identifies 422 as WAN_POLYMORPH; zap.c 2804-2808 calls polyself(POLY_NOFLAGS) unless Unchanging. This missing whole-function behavior is a separate source port after the cursor defect.",
+    "The existing js/polyself.js random-monster-selection arm still refuses an uncontrolled polymorph, so wiring the self-zap caller alone does not establish that downstream behavior. Preserve the canonical polyself owner and trace that dependency separately.",
+    "Earlier force-quitchar and teleport-specific-output explanations remain falsified. Fountain gushing and shared sink/fountain pager refinement are resolved; the current defect is the callback guard in the shared cursor loop.",
+    "The 467 remaining-screen count is a queue upper bound from the first mismatch, not the actual unmatched total or a projected gain."
   ]
 }

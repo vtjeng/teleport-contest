@@ -58548,7 +58548,7 @@
     {
       "id": "port-fountain-gushforth-seed4500-20260917",
       "kind": "file-port",
-      "status": "open",
+      "status": "parked",
       "summary": "Port fountain gushing callbacks and preserve each square effect before the next random draw.",
       "cFile": "fountain.c",
       "sessions": [
@@ -58559,8 +58559,8 @@
       "spans": [
         {
           "name": "dogushforth..gush",
-          "status": "queued",
-          "closedBy": null,
+          "status": "closed",
+          "closedBy": "d3fa36cf111bc2992c27208018a520d5343579e8",
           "functions": [
             "dogushforth",
             "gush"
@@ -58755,7 +58755,17 @@
             "recordings": []
           }
         ]
-      }
+      },
+      "progressBeforePark": {
+        "screens": 106,
+        "rng": 91
+      },
+      "parkedStanding": {
+        "sha": "d3fa36cf111bc2992c27208018a520d5343579e8",
+        "screens": 10944,
+        "rng": 771130
+      },
+      "parkedReason": "The dogushforth/gush span is source-verified and the natural drinking entry matches. Keep active dipfountain fate 25, no-pool fallback, floor-object water_damage_chain and monster minliquid entry families open until independent recordings reach them; water_damage_chain remains an allowed discarded-result gap. The Knight first mismatch has moved to getpos SHOWVALID at step 1347, so resume this source goal when its coverage dependencies are implemented and queue priority permits."
     }
   ]
 }
