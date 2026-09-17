@@ -99,6 +99,7 @@ import {
     l_monnam,
     mon_nam,
     Monnam,
+    Mgender,
     monsterCommonName,
     monsterPossessive,
     pmname,
@@ -132,7 +133,12 @@ import { will_hurtle } from './dothrow.js';
 // into each other. Both bindings are hoisted function declarations, which an
 // ES module cycle initializes before either module body runs, and nothing here
 // reads them at module scope.
-import { hitmsg, m_next2u, magic_negation } from './mhitu.js';
+import {
+    hitmsg,
+    m_next2u,
+    magic_negation,
+    mpoisons_subj,
+} from './mhitu.js';
 import { abuse_dog } from './dog.js';
 import {
     angry_guards,
@@ -228,12 +234,10 @@ import {
     AD_TLPT,
     AD_WERE,
     AD_WRAP,
-    AT_BITE,
     AT_BUTT,
     AT_CLAW,
     AT_ENGL,
     AT_SPIT,
-    AT_GAZE,
     AT_HUGS,
     AT_KICK,
     AT_NONE,
@@ -457,9 +461,10 @@ export async function mhitm_mgc_atk_negated(
         if (verbosely) {
             if (mdef === state.youmonst) {
                 await message('You avoid harm.', state);
-            } else if (state.gv?.vis && canSpotMonster(mdef, state)) {
+            } else if (state.gv?.vis && canSeeMonster(mdef, state)) {
                 // C uses pline_mon() for a visible monster defender, carrying
-                // its location through set_msg_xy().
+                // its location through set_msg_xy(); canspotmon() is broader
+                // because detection and telepathy also count as sensing.
                 await message(
                     messageAt(
                         `${Monnam(mdef, state, env)} avoids harm.`,
@@ -2679,25 +2684,6 @@ export async function mhitm_ad_elec(
     }
 }
 
-// C ref: uhitm.c mhitm_really_poison() (3098-3119) and
-// mhitm_ad_drst() (3121-3165). The shared magic-cancellation roll is made
-// first, then a landed poison attack spends the 1/8 poison-effect roll. The
-// hero-defender arm delegates the complete attrib.c poisoned() operation to
-// the monster-turn adapter; its planning callback stops a clone before done().
-function monsterPoisonSubject(monster, attack, state = game) {
-    if (attack.aatyp === AT_WEAP) {
-        // mpoisons_subj() reads uwep for the hero and mwep for a monster;
-        // both are distinct C state fields even though this helper serves
-        // all three mhitm_ad_drst() directions.
-        const weapon = monster === state.youmonst ? state.uwep : monster.mw;
-        return weapon?.opoisoned ? 'weapon' : 'attack';
-    }
-    if (attack.aatyp === AT_TUCH) return 'contact';
-    if (attack.aatyp === AT_GAZE) return 'gaze';
-    if (attack.aatyp === AT_BITE) return 'bite';
-    return 'sting';
-}
-
 // C's helper is used only when a poison attack has already passed its own
 // magic-cancellation and chance gates. It deliberately does not spend either
 // gate again. `gv.vis` is the combat visibility result computed by mhitm.c;
@@ -2717,7 +2703,7 @@ export async function mhitm_really_poison(
     if (visible && canSpotMonster(magr, state)) {
         await message(
             `${s_suffix(Monnam(magr, state, env))} `
-                + `${monsterPoisonSubject(magr, mattk, state)} was poisoned!`,
+                + `${mpoisons_subj(magr, mattk, state)} was poisoned!`,
             state,
         );
     }
@@ -2754,7 +2740,7 @@ export async function mhitm_ad_drst(
         /* uhitm */
         if (!negated && !random.rn2(8)) {
             const message = requireAttackOperation(env, 'message');
-            const subject = monsterPoisonSubject(magr, mattk, state);
+            const subject = mpoisons_subj(magr, mattk, state);
             await message(`Your ${subject} was poisoned!`, state);
             if (monster_resists_element(mdef, POISON_RES, state)) {
                 await message(
@@ -2773,13 +2759,13 @@ export async function mhitm_ad_drst(
         await hitmsg(magr, mattk, state, env);
         if (!negated && !random.rn2(8)) {
             const reason = `${s_suffix(Monnam(magr, state, env))} `
-                + `${monsterPoisonSubject(magr, mattk, state)}`;
+                + `${mpoisons_subj(magr, mattk, state)}`;
             const poison = requireAttackOperation(env, 'poisoned');
             await poison(
                 reason,
                 mattk.adtyp === AD_DRDX ? A_DEX
                     : mattk.adtyp === AD_DRCO ? A_CON : A_STR,
-                pmname(magr.data, gender(magr.data)),
+                pmname(magr.data, Mgender(magr, state)),
                 30,
                 false,
                 env,
