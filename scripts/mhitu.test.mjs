@@ -2365,47 +2365,18 @@ test('mdamageu stops at the hero\'s death and not one hit point above it',
     state.invent = state.invent.nobj;
 });
 
-test('planning pass simulates wizard-mode survival instead of throwing',
+test('planning pass stops at a lethal blow for the live death handler',
     async () => {
-    // When the hero is in wizard or discover mode and u.uhp drops below 1,
-    // done() asks "Die? [yn]" and the player answers "n", then savelife()
-    // restores the hero. The planning pass cannot run done() (it needs the
-    // live terminal), so it simulates the survival inline: umortality
-    // increments, HP is restored from the savelife() constitution formula,
-    // and the turn continues.
+    // When a planned monster blow drops u.uhp below one, the live turn must
+    // enter end.c done_in_by()/done() with the actual terminal and input
+    // state. A clone cannot run that asynchronous death handler or simulate
+    // its life-saving query, so it stops at the source death boundary.
     //
-    // C ref: end.c done():1071, :1077, savelife():719-722.
+    // C ref: mhitu.c mdamageu():1902-1927 and end.c done_in_by().
     const state = await meleeHero();
     const bug = meleeAttacker(state, PM_GRID_BUG, 1, 0);
     state.u.uhp = 1;
-    // Set uhpmax above givehp so the formula result is the binding
-    // constraint, not uhpmax itself.
-    state.u.uhpmax = 200;
-
-    // Wizard mode: the planning pass should survive, not throw.
     state.wizard = true;
-    const before = state.u.umortality ?? 0;
-    const wizEnv = meleeEnv(state, [1], { planning: true });
-    assert.equal(await mattacku(bug, wizEnv.env), false);
-    // savelife() formula: givehp = 50 + 10 * floor(CON / 2). This
-    // Valkyrie's ACURR(A_CON) is 18, giving givehp = 50 + 90 = 140.
-    // uhpmax (200) > givehp (140), so uhp = givehp = 140.
-    assert.equal(state.u.uhp, 140, 'HP restored to givehp');
-    assert.equal(state.u.umortality, before + 1, 'mortality incremented');
-    assert.equal(state.context.move, 0, 'context.move cleared');
-    assert.equal(state.multi, -1, 'multi set to -1');
-
-    // Explore mode: same survival path. uhpmax is still 200 from above.
-    state.wizard = false;
-    state.discover = true;
-    state.u.uhp = 1;
-    const exploreEnv = meleeEnv(state, [1], { planning: true });
-    assert.equal(await mattacku(bug, exploreEnv.env), false);
-    assert.equal(state.u.uhp, 140, 'explore mode also restores HP to givehp');
-    assert.equal(state.u.umortality, before + 2, 'mortality incremented again');
-
-    // Non-wizard, non-discover: the internal planning death signal is correct.
-    state.discover = false;
     state.u.uhp = 1;
     await assert.rejects(
         () => mattacku(bug, meleeEnv(state, [1], { planning: true }).env),
@@ -2413,6 +2384,8 @@ test('planning pass simulates wizard-mode survival instead of throwing',
             && error.message === 'the hero dying of a monster attack'
             && error.monsterId === bug.m_id,
     );
+    assert.equal(state.u.uhp, 0);
+    assert.equal(state.u.umortality ?? 0, 0);
 });
 
 test('a thwarted bite leaves the status line alone and a landed one marks it',

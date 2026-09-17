@@ -164,6 +164,7 @@ import {
     ydir,
     dirs_ord,
     UNCHANGING,
+    Ugender,
 } from './const.js';
 import { float_vs_flight, rehumanize } from './polyself.js';
 import { adjalign, acurrstr, acurr, exercise } from './attrib.js';
@@ -210,6 +211,7 @@ import {
     hliquid,
     m_monnam,
     mon_nam,
+    pmname,
     x_monnam,
     y_monnam,
 } from './do_name.js';
@@ -1071,10 +1073,9 @@ export const You_can_move_again = 'You can move again.';
 //
 // C follows the message with a second one for a hero who was life-saved out of
 // green slime, gated on `Upolyd && !strncmpi(gn.nomovemsg, "You survived that
-// ", 18)`. Both halves are unreachable: js/u_init.js is the port's only writer
-// of u.umonnum and sets it equal to u.umonster, and the one C writer of that
-// message is done()'s life-saving arm, which is not ported. It is left out
-// rather than refused because no ported state can reach it to be refused.
+// ", 18)`. savelife() leaves multi negative and allmain.c releases it through
+// unmul(), so this state-dependent message belongs here rather than being
+// treated as unreachable.
 export async function unmul(msg_override, state = game) {
     state.disp ??= {};
     state.disp.botl = true;
@@ -1089,7 +1090,19 @@ export async function unmul(msg_override, state = game) {
     // them, so both compare against null.
     if (msg_override != null) state.nomovemsg = msg_override;
     else if (state.nomovemsg == null) state.nomovemsg = You_can_move_again;
-    if (state.nomovemsg) await ttyPline(state.nomovemsg, state);
+    if (state.nomovemsg) {
+        await ttyPline(state.nomovemsg, state);
+        if (Upolyd(state.u)
+            && state.nomovemsg.toLowerCase().startsWith(
+                'you survived that ',
+            )) {
+            const form = an(pmname(
+                state.mons?.[state.u.umonnum] ?? state.youmonst.data,
+                Ugender(state),
+            ));
+            await ttyPline(`You are ${form}.`, state);
+        }
+    }
     state.nomovemsg = null;
     state.u.usleep = 0;
     state.multi_reason = null;

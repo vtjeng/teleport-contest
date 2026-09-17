@@ -1,0 +1,12 @@
+{
+  "_comment": "Independent end.c done() witness: a debug Wizard wishes an amulet of life saving, wears it with W, wishes a wand of death, and zaps himself. The saved replay reaches done()'s worn-amulet reprieve and savelife() return.",
+  "version": 5,
+  "segments": [
+    {
+      "seed": 917332,
+      "datetime": "20310922101500",
+      "nethackrc": "OPTIONS=name:LifeProbe,role:Wizard,race:human,gender:male,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen\nOPTIONS=pettype:none,!acoustics,!autopickup\n",
+      "moves": " .\u0017amulet of life saving\nWn\u0017wand of death\nzo.   n "
+    }
+  ]
+}

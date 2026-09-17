@@ -6,14 +6,16 @@
 // defaults, the mortality count and the hit-point force, the wizard-and-
 // explore-mode query at 1112 that asks whether the hero really dies, and
 // the survive path (1113-1122) that calls savelife() and returns when the
-// player declines death. The life-saving amulet's earlier reprieve remains
-// refused. really_done() covers the mounted-slip prefix through cleanup, time
+// player declines death. The life-saving amulet reprieve at 1082-1103 is
+// ported too. really_done() covers the mounted-slip prefix through cleanup, time
 // bookkeeping, inventory identification, disclosure, grave creation, score
 // calculation, the Save bones? prompt, and ordinary final-game display.
 //
 // savelife() (end.c:704-756) restores the hero to a viable state after the
-// death is declined in wizard or explore mode. Two of its branches remain
-// refused: expels() (not ported) and make_sick() (not ported).
+// death is declined in wizard or explore mode or after the amulet fires. Its
+// two unported calls are explicit discarded-result gaps. The debug-fuzzer
+// helper fuzzer_savelife() (end.c:945-1016) is also source-ordered here; its
+// discarded potion effects and wizard map rebuild remain named gaps.
 // endmultishot(FALSE) is now ported.
 //
 // done_in_by() (end.c:185-344) sets up the killer string from a monster
@@ -26,17 +28,24 @@
 // edges are safe because their imported bindings are read only inside
 // functions, after module initialization; neither belongs in a module-scope
 // value initializer while the cycle remains.
-import { acurr, minuhpmax, setuhpmax } from './attrib.js';
+import { acurr, adjattrib, minuhpmax, setuhpmax } from './attrib.js';
 import { getnow, midnight, night } from './calendar.js';
 import { can_make_bones, savebones } from './bones.js';
 import { yyyymmdd } from './calendar.js';
-import { paranoid_query, y_n, yn_function } from './cmd.js';
+import {
+    cmdq_add_ec,
+    extcmdRow,
+    paranoid_query,
+    y_n,
+    yn_function,
+} from './cmd.js';
 import {
     A_CON,
     ASCENDED,
     BASICENLIGHTENMENT,
     BURNING,
     CHOKING,
+    CQ_CANNED,
     DIED,
     ECMD_OK,
     DISCLOSE_NO_WITHOUT_PROMPT,
@@ -85,11 +94,12 @@ import {
     NON_PM,
     In_tutorial,
     LL_DUMP,
+    LL_LIFESAVE,
 } from './const.js';
 import { mk_named_object } from './corpstat.js';
 import { bot } from './display.js';
 import { schedule_goto } from './do.js';
-import { m_monnam, pmname } from './do_name.js';
+import { m_monnam, mon_nam, Monnam, pmname } from './do_name.js';
 import { deepest_lev_reached } from './dungeon.js';
 import { game } from './gstate.js';
 import { make_grave } from './grave.js';
@@ -97,8 +107,8 @@ import { clearpriests } from './priest.js';
 import { paybill } from './shk.js';
 import { paygd } from './vault.js';
 import { curs_on_u, nomul } from './hack.js';
-import { zombie_maker } from './mon.js';
-import { gender, is_vampshifter, type_is_pname } from './mondata.js';
+import { unstuck, zombie_maker } from './mon.js';
+import { gender, is_vampshifter, sticks, type_is_pname } from './mondata.js';
 import { G_NOCORPSE } from './monsters.js';
 import {
     G_UNIQ,
@@ -116,12 +126,22 @@ import {
 import { endmultishot } from './dothrow.js';
 import { upstart } from './hacklib.js';
 import {
-    display_inventory, money_cnt, sortloot, stackobj, update_inventory,
+    display_inventory, money_cnt, obfree, sortloot, stackobj, update_inventory,
     useup,
 } from './invent.js';
-import { isContainer, place_object, remove_object } from './obj.js';
+import { bless, isContainer, mksobj, place_object, remove_object }
+    from './obj.js';
 import { discover_object } from './o_init.js';
-import { BAG_OF_TRICKS, CORPSE, LARGE_BOX, STATUE, TIN } from './objects.js';
+import {
+    AMULET_OF_LIFE_SAVING,
+    BAG_OF_TRICKS,
+    CORPSE,
+    LARGE_BOX,
+    POT_RESTORE_ABILITY,
+    POT_WATER,
+    STATUE,
+    TIN,
+} from './objects.js';
 import {
     an, doname_with_price, the, thesimpleoname, the_unique_pm,
     xnameFresh,
@@ -137,7 +157,7 @@ import { select_menu } from './windows.js';
 import {
     displayTtyMenuTextWindow, displayTtyTextWindow,
 } from './tty_menu.js';
-import { canSpotMonster } from './startup_a11y.js';
+import { canSpotMonster, heroIsBlind } from './startup_a11y.js';
 import { formatkiller, topten as toptenDisplay } from './topten.js';
 import { In_endgame, In_quest, Is_astralevel, plur } from './const.js';
 import {
@@ -157,6 +177,10 @@ import { hidden_gold } from './u_init_inventory_attrs.js';
 import { shkname, shkname_is_pname } from './shknam.js';
 import { accessible } from './monmove.js';
 import { note_unported } from './unported.js';
+import { setwornEnv } from './do_wear.js';
+import { setnotworn } from './worn.js';
+import { set_itimeout } from './potion.js';
+import { rn2 } from './rng.js';
 
 export class UnsupportedEndOfGameError extends Error {
     constructor(message) {
@@ -201,9 +225,8 @@ function nowrap_add(a, b) {
 }
 
 // C ref: youprop.h:387 Lifesaved, the extrinsic alone. The amulet of life
-// saving is the only item that confers it. No ported command can put that
-// amulet on: it uses do_wear.c doputon(), and js/cmd.js dispatches no command
-// row to that handler. Lifesaved is therefore FALSE in every reachable game.
+// saving is the only item that confers it; do_wear.c Amulet_on() supplies the
+// worn-slot state that makes this property active.
 function Lifesaved(state) {
     return Boolean(state.u?.uprops?.[LIFESAVED]?.extrinsic);
 }
@@ -220,9 +243,10 @@ function ParanoidDie(state) {
 
 // C ref: end.c savelife() (704-756). Restores the hero to a viable state
 // after being killed, when wizard or explore mode lets the player decline
-// death (or when the amulet of life saving fires, which is not yet ported).
+// death or when the amulet of life saving fires.
 //
-// Two branches remain refused because their targets are not ported:
+// Two calls remain explicit discarded-result gaps because their source
+// functions are not ported on those branches:
 //   expels()             -- only when u.uswallow (hero is engulfed)
 //   make_sick(0L, ...)   -- only when (Sick & TIMEOUT) == 1L (one-turn sick)
 // endmultishot(FALSE) is now ported: it stops a multi-shot volley in progress
@@ -254,10 +278,9 @@ async function savelife(how, state = game) {
     // cure impending doom of sickness hero won't have time to fix
     // C ref: Sick is u.uprops[SICK].intrinsic; TIMEOUT is 0x00FFFFFF.
     if (((u.uprops?.[SICK]?.intrinsic ?? 0) & TIMEOUT) === 1) {
-        // make_sick() lives in eat.c and is not ported.
-        throw new UnsupportedEndOfGameError(
-            'savelife() needs make_sick() for one-turn sickness cure',
-        );
+        // C discards make_sick()'s result. Its cure effects remain an explicit
+        // boundary until eat.c ports that function.
+        note_unported('potion.c make_sick');
     }
 
     state.nomovemsg = 'You survived that attempt on your life.';
@@ -285,18 +308,107 @@ async function savelife(how, state = game) {
         endmultishot(false, state);
     }
     if (u.uswallow) {
-        // might drop hero onto a trap that kills her all over again
-        throw new UnsupportedEndOfGameError(
-            'savelife() needs expels() while hero is engulfed',
-        );
+        // C discards expels()'s result. The TRUE message arm depends on the
+        // unported digestive callers, so retain this source boundary without
+        // inventing its relocation or redraw effects.
+        note_unported('mhitu.c expels');
     } else if (u.ustuck) {
-        // C prints a release message and calls unstuck(). Both message
-        // branches need unported formatters (mon_nam, Monnam, sticks), so
-        // the whole arm is refused.
-        throw new UnsupportedEndOfGameError(
-            'savelife() needs mon_nam()/Monnam() for stuck monster release',
-        );
+        // C prints before unstuck() clears u.ustuck. Keep the holder in a
+        // local so the source call receives the same monster after output.
+        const holder = u.ustuck;
+        if (Upolyd(u) && sticks(state.youmonst.data)) {
+            await ttyPline(
+                `You release ${mon_nam(holder, state, { state })}.`,
+                state,
+            );
+        } else {
+            await ttyPline(
+                `${Monnam(holder, state, { state })} releases you.`,
+                state,
+            );
+        }
+        await unstuck(holder, state, { state });
     }
+}
+
+// C ref: end.c fuzzer_savelife() (945-1016).  The debug fuzzer calls this
+// before done() initializes the killer or mortality fields.  It is a
+// return-valued source helper: TRUE returns from done(), while FALSE lets the
+// ordinary death path continue.  peffects() has a discarded result here and
+// remains a named gap; wiz_makemap() has an unported callback, but its
+// source-required command-queue mutation is retained below.
+async function fuzzer_savelife(how, state = game, source = {}) {
+    const programState = state.program_state ?? {};
+    if (programState.panicking || how === PANICKED || how === TRICKED)
+        return false;
+
+    const random = source.random ?? { rn2 };
+    await savelife(how, state);
+
+    // C compares gd.done_seq with gh.hero_seq before drawing this roll.
+    if (!random.rn2(
+        state.done_seq > (state.hero_seq ?? 0) + 2 ? 2 : 10,
+    )) {
+        const u = state.u;
+        let remedies = 0;
+        let potion;
+
+        // Both peffects() return values are discarded by C.  Its effect
+        // implementation remains an explicit gap, but mksobj/bless/obfree
+        // still execute in source order around that call boundary.
+        if (ismnum(u.ulycn) && !random.rn2(3)) {
+            const objectEnv = source.random
+                ? { state, random: source.random }
+                : { state };
+            potion = mksobj(POT_WATER, true, false, objectEnv);
+            bless(potion);
+            note_unported('potion.c peffects');
+            obfree(potion, null, { state });
+            ++remedies;
+        }
+        if (!remedies || random.rn2(3)) {
+            const objectEnv = source.random
+                ? { state, random: source.random }
+                : { state };
+            potion = mksobj(POT_RESTORE_ABILITY, true, false, objectEnv);
+            bless(potion);
+            note_unported('potion.c peffects');
+            obfree(potion, null, { state });
+            ++remedies;
+        }
+        if (!random.rn2(3 + 3 * remedies)) {
+            for (let propidx = 1; propidx <= 8; ++propidx) {
+                const property = u.uprops[propidx];
+                if (!property.intrinsic && !property.extrinsic) {
+                    const proptim = random.rn2(3);
+                    if (proptim > 0)
+                        set_itimeout(property, 2 * proptim + 1);
+                }
+            }
+            ++remedies;
+        }
+        if (!random.rn2(5 + 5 * remedies)) {
+            // C's empty arm may confer Antimagic or Invulnerable through a
+            // later fuzzer-only implementation; it deliberately has no body.
+        }
+    }
+
+    // C clears the stale killer after the recovery work, before its loop
+    // guard.  done() has initialized this record on every supported caller.
+    state.killer ??= {};
+    state.killer.name = '';
+    state.killer.format = KILLED_BY_AN;
+
+    if (state.done_seq++ > (state.hero_seq ?? 0) + 100) {
+        if (!state.wizard) return false;
+        // end.c:1008-1010. C queues the wizard map rebuild on the canned
+        // command queue, then returns from fuzzer_savelife. The callback's
+        // implementation remains at cmd.c's existing unported dispatch
+        // boundary, but the queue mutation itself is observable state and
+        // must happen before done() returns.
+        cmdq_add_ec(CQ_CANNED, extcmdRow('wizmakemap'), state);
+    }
+    return true;
 }
 
 // C ref: end.c done_in_by() (185-344). Sets up the killer string from the
@@ -545,46 +657,54 @@ export async function done2(state = game) {
 // C's `boolean survive` variable at 1048 tracks whether savelife() ran. The
 // port inlines the survive path: the query's "no" arm at 1113-1116 calls
 // savelife(), clears the killer at 1120-1121, and returns. The life-saving
-// amulet's arm at 1082-1103 still throws, so it cannot set survive.
+// amulet's arm at 1082-1103 performs the same state restoration and returns
+// through the source's `survive` flag for every death through GENOCIDED except
+// a still-genocided hero.
 //
-// gd.done_seq is not carried either. C maintains it at 1053-1054 for exactly
-// two readers: fuzzer_savelife(), which the debug_fuzzer guard below refuses,
-// and the hangup term at 1110, which the done_hup refusal below stands in
-// for. Storing a counter no ported line reads would be a second home for a
-// value the port cannot yet spend.
+// C keeps gd.done_seq alongside gh.hero_seq. done() refreshes it before the
+// debug-fuzzer branch and the HANGUPHANDLING query guard reads/increments it;
+// keep the same state owner so a hangup cannot accidentally ask for input.
 //
+// useup() needs the worn-slot hooks when the life-saving amulet is consumed.
+// The optional caller hooks let a live window supply its own inventory
+// refresh; a no-op keeps this end-of-game mutation valid in the recorder TTY,
+// whose permanent inventory window is not active.
+function lifeSavingInventoryEnv(state, source = {}) {
+    const sourceHooks = source.hooks ?? {};
+    const hooks = {
+        ...sourceHooks,
+        updateInventory: sourceHooks.updateInventory ?? (() => {}),
+        setNotWorn: sourceHooks.setNotWorn ?? ((obj, env) => (
+            setnotworn(obj, setwornEnv(env.state))
+        )),
+    };
+    return { ...source, state, hooks };
+}
+
 // When the player declines death in wizard or explore mode, done() calls
 // savelife() and returns normally. When the player accepts death or quits,
-// done() continues into really_done(). Unsupported special death branches
-// still stop at their source boundary there.
+// done() continues into really_done(), preserving the source call for every
+// killer format and end reason.
 export async function done(how, state = game, source = {}) {
-    if (how === TRICKED) {
-        // 1024-1034. The arm paniclogs the killer and, in wizard mode, prints
-        // "You are a very tricky wizard, it seems." and returns without
-        // ending the game. paniclog() writes a file, which game code may not
-        // do, so the port stops here rather than guessing at the log.
-        // Nothing reaches it today: losehp() is the only ported caller and it
-        // passes DIED.
-        throw new UnsupportedEndOfGameError('done(TRICKED) needs paniclog()');
-    }
+    state.killer ??= { name: '', format: KILLED_BY_AN };
     const killer = state.killer;
     const programState = state.program_state;
-
-    // paranoid_ynq()'s spelled-out input arm can return to done() through a
-    // declined death and savelife(). Detect it before the status paint and
-    // death-state prefix below. The other exclusions are the branches that
-    // stop before end.c:1105 in this port, so they retain their own refusal.
-    if (!state.iflags.debug_fuzzer
-        && !Lifesaved(state)
-        && (state.wizard || state.discover)
-        && how <= GENOCIDED
-        && !programState?.done_hup) {
-        if (ParanoidDie(state)) {
-            throw new UnsupportedEndOfGameError(
-                'paranoid_ynq() reading "yes" or "no" for ParanoidDie',
-            );
+    if (how === TRICKED) {
+        // end.c:1024-1034. paniclog()'s return is discarded by C and its
+        // filesystem side effect has no browser owner, so retain the named
+        // gap while keeping the killer clear and the wizard return branch.
+        if (killer.name) {
+            note_unported('end.c paniclog');
+            killer.name = '';
+        }
+        if (state.wizard) {
+            await ttyPline('You are a very tricky wizard, it seems.', state);
+            killer.format = KILLED_BY_AN;
+            return;
         }
     }
+    let survive = false;
+    state.done_seq ??= 0;
     if (programState?.panicking
         || programState?.done_hup
         || (how === QUIT && programState?.stopprint)) {
@@ -606,13 +726,16 @@ export async function done(how, state = game, source = {}) {
         await bot();
     }
 
-    if (state.iflags.debug_fuzzer) {
-        // 1056-1059. fuzzer_savelife() rebuilds the level and keeps the
-        // fuzzer playing; gd.done_seq, which it reads, has no port. Only
-        // earlyarg.c's command-line switch raises iflags.fuzzerpending, and
-        // runSegment() supplies no command line, so nothing reaches this.
-        throw new UnsupportedEndOfGameError('fuzzer_savelife()');
-    }
+    // C end.c:1044-1046. Refresh the death sequence before the debug-fuzzer
+    // branch; HANGUPHANDLING below compares and increments this value.
+    if (state.done_seq < (state.hero_seq ?? 0))
+        state.done_seq = state.hero_seq ?? 0;
+
+    // end.c:1056-1059. fuzzer_savelife() owns the return used by this branch;
+    // a successful recovery returns from done before killer/mortality work.
+    if (state.iflags.debug_fuzzer
+        && await fuzzer_savelife(how, state, source))
+        return;
 
     if (how === ASCENDED || (!killer.name && how === GENOCIDED))
         killer.format = NO_KILLER_PREFIX;
@@ -636,27 +759,63 @@ export async function done(how, state = game, source = {}) {
         }
     }
     if (Lifesaved(state) && how <= GENOCIDED) {
-        // 1082-1103. "But wait...", the medallion's four lines, useup() of
-        // the amulet, adjattrib(A_CON, -1) and savelife(), then either the
-        // still-genocided line or livelog_printf(LL_LIFESAVE).
-        throw new UnsupportedEndOfGameError('the amulet of life saving');
+        // end.c:1082-1103. Keep discovery, the four messages, object
+        // consumption, constitution adjustment, and savelife() in C order.
+        await ttyPline('But wait...', state);
+        const lifeEnv = lifeSavingInventoryEnv(state, source);
+        discover_object(
+            AMULET_OF_LIFE_SAVING, true, true, true, state, lifeEnv,
+        );
+        await ttyPline(
+            `Your medallion ${heroIsBlind(state)
+                ? 'feels warm' : 'begins to glow'}!`,
+            state,
+        );
+        if (how === CHOKING)
+            await ttyPline('You vomit ...', state);
+        await ttyPline('You feel much better!', state);
+        await ttyPline('The medallion crumbles to dust!', state);
+        if (state.uamul)
+            useup(state.uamul, lifeEnv);
+        const attributeEnv = {
+            ...source,
+            ...(source.random ? { random: source.random } : {}),
+            encumberMessage: source.encumberMessage ?? (async (subject) => {
+                const { encumber_msg } = await import('./pickup.js');
+                return encumber_msg(subject, {
+                    message: source.message ?? ttyPline,
+                });
+            }),
+        };
+        await adjattrib(
+            A_CON, -1, true, state, attributeEnv,
+        );
+        await savelife(how, state);
+        if (how === GENOCIDED) {
+            await ttyPline(
+                'Unfortunately you are still genocided...', state,
+            );
+        } else {
+            const killbuf = formatkiller(how, false, state);
+            livelog_printf(
+                LL_LIFESAVE, `averted death (${killbuf})`, state,
+            );
+            survive = true;
+        }
     }
     /* explore and wizard modes offer player the option to keep playing */
-    if ((state.wizard || state.discover) && how <= GENOCIDED) {
-        if (state.program_state?.done_hup) {
-            // The HANGUPHANDLING term at 1110. Its right conjunct spends
-            // gd.done_seq, which has no port; C evaluates it only for a
-            // hung-up game, and nothing in this port hangs up.
-            throw new UnsupportedEndOfGameError(
-                'gd.done_seq for a hung-up game',
-            );
-        }
-        // Reaching this point means the preflight evaluated ParanoidDie(state)
-        // as false; every path that skipped that evaluation refused before
-        // this call. The supported query therefore uses the single-key arm.
-        // Porting a life-saving path through here must revise that proof and
-        // pass the live bit without moving the refusal below observable work.
-        if (!await paranoid_query(false, 'Die?', state)) {
+    if (!survive && (state.wizard || state.discover) && how <= GENOCIDED) {
+        // end.c:1110-1112. HANGUPHANDLING's post-increment is part of the
+        // condition; when it suppresses the query the source falls through
+        // to really_done() with no input read. paranoid_query() receives the
+        // actual ParanoidDie bit, so its line-reader arm is source-faithful.
+        const skipHungupQuery = Boolean(
+            state.program_state?.done_hup
+            && state.done_seq++ === (state.hero_seq ?? 0),
+        );
+        if (!skipHungupQuery && !await paranoid_query(
+            ParanoidDie(state), 'Die?', state,
+        )) {
             // 1113-1116. "OK, so you don't die/choke.", PLNMSG_OK_DONT_DIE,
             // savelife(), then the survive return path at 1119-1122.
             await ttyPline(
@@ -671,34 +830,17 @@ export async function done(how, state = game, source = {}) {
             return;
         }
     }
-    // steed.c constructs every failed-mount death from this fixed semantic
-    // prefix followed by x_monnam(), so the species and optional given name
-    // are deliberately variable. This slice owns that death source, not one
-    // recorded pony spelling.
-    //
-    // zapyourself() constructs the death-ray killer from uhim(), so the
-    // pronoun varies by gender but the surrounding text is fixed.
-    if (how === QUIT) {
-        await really_done(how, state);
+    if (survive) {
+        // end.c:1118-1122. A life-saving amulet clears the killer only after
+        // savelife() and its optional life-log event have completed.
+        killer.name = '';
+        killer.format = KILLED_BY_AN;
         return;
     }
-    if (how === DIED
-        && killer.format === NO_KILLER_PREFIX
-        && (killer.name.startsWith('slipped while mounting ')
-            || killer.name.endsWith('self with a death ray'))) {
-        await really_done(how, state);
-        return;
-    }
-    if (how === DIED && source.fromMonster
-        && (killer.format === KILLED_BY_AN || killer.format === KILLED_BY)
-        && killer.name) {
-        await really_done(how, state);
-        return;
-    }
-    throw new UnsupportedEndOfGameError(
-        `really_done(${how}) for killer "${killer.name ?? ''}"`
-        + ` in format ${killer.format}`,
-    );
+    // end.c:1124. really_done() is a NORETURN call whose result is discarded;
+    // preserve it for every killer string and game-end reason rather than
+    // filtering admission by the spelling produced by a particular caller.
+    await really_done(how, state);
 }
 
 const DISCLOSURE_OPTIONS = 'iavgco';

@@ -1545,7 +1545,10 @@ function assertStartupBucObject(obj, operation) {
     }
 }
 
-function bless(obj) {
+// C ref: mkobj.c bless() (1745-1765).  The debug-fuzzer's temporary potion
+// path in end.c calls this source owner directly, so expose the same startup
+// BUC mutation to that caller instead of duplicating it there.
+export function bless(obj) {
     if (obj.oclass === COIN_CLASS) return obj;
     assertStartupBucObject(obj, 'bless outside object initialization');
     obj.cursed = false;
