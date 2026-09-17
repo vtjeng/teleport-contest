@@ -59998,7 +59998,7 @@
     {
       "id": "port-worn-m-dowear-seed0399-20260917",
       "kind": "file-port",
-      "status": "open",
+      "status": "parked",
       "summary": "Port complete monster armor selection, worn properties, and runtime equipment delays",
       "cFile": "worn.c",
       "sessions": [
@@ -60131,6 +60131,136 @@
                 "C topl.c update_topl251-304 captures skip before more and dismisses the previous line only when !skip. The accepted correction keeps that snapshot; rereading WIN_STOP after more would contradict C. The independent stopped-death test verifies replacement does not consume another queued key."
               ],
               "nextProbe": "Complete the source-owned m_dowear/m_dowear_type family and both live/planning callers, then replay this session beyond the current equipment boundary. Keep the urgent-message contract separate."
+            }
+          }
+        }
+      ],
+      "progressBeforePark": {
+        "screens": 0,
+        "rng": 0
+      },
+      "parkedStanding": {
+        "sha": "254503a94c48650d434f073e6889afa2a73cad6e",
+        "screens": 11002,
+        "rng": 784683
+      },
+      "parkedReason": "The queued worn.c update_mon_extrinsics..m_dowear_type span is still awaiting corrected production recording and canonical caller wiring from worker B. No game code has been integrated for it; resume this planned span when its corrected delivery is ready, after the independent ready break_armor span is measured."
+    },
+    {
+      "id": "port-polyself-break-armor-seed4500-20260917",
+      "kind": "file-port",
+      "status": "open",
+      "summary": "Port complete polymorph armor removal and preserve fatal callback control flow",
+      "cFile": "polyself.c",
+      "sessions": [
+        "holdout/seed4500-knight-coverage"
+      ],
+      "selectionReason": "The accepted-main queue selects holdout/seed4500-knight-coverage at step1439 with remainingScreensUpperBound375; investigations/holdout/seed4500-knight-coverage.json traces the nohands branch to polyself.c break_armor. Worker A continued that highest-ranked seed and submitted the ready complete-function delivery. Worker B retains the independent worn.c correction; its unintegrated central plan is parked until that delivery is ready. The lower-ranked seed2200 environment-only pathname mismatch remains blocked by Q1.",
+      "detail": "Complete break_armor1156–1302 and required do_wear callbacks, preserving source-order destruction, removal, object ownership, messages, and fatal Boots_off propagation into polymon. The saved controlled-raven recording covers the existing production caller, and source-pinned initialized tests cover destroyed-shirt and fatal-lava transitions. Keep unrecorded breakarm, sliparm, horn, eyewear, and fatal entry coverage open rather than treating unit tests as matching recordings.",
+      "spans": [
+        {
+          "name": "break_armor",
+          "status": "queued",
+          "closedBy": null,
+          "functions": [
+            "break_armor"
+          ]
+        }
+      ],
+      "openedAt": "5faa03a61b787593ab6324c1ded4d523f447838a",
+      "openStanding": {
+        "sha": "254503a94c48650d434f073e6889afa2a73cad6e",
+        "screens": 11002,
+        "rng": 784683
+      },
+      "closedAt": null,
+      "delivered": null,
+      "functions": [
+        {
+          "name": "break_armor",
+          "line": 1157,
+          "endLine": 1304,
+          "declared": true,
+          "complete": false
+        }
+      ],
+      "range": {
+        "from": 1157,
+        "to": 1304
+      },
+      "activeStanding": {
+        "sha": "254503a94c48650d434f073e6889afa2a73cad6e",
+        "screens": 11002,
+        "rng": 784683
+      },
+      "openMismatches": [
+        {
+          "session": "holdout/seed4500-knight-coverage",
+          "step": 1439,
+          "kind": "stop",
+          "function": null,
+          "functionDeclared": false,
+          "sourceFile": null,
+          "cFile": null,
+          "luaFile": null,
+          "line": null,
+          "message": "unsupported hero command: an unported branch of this command: break_armor: nohands/verysmall gloves removal not ported",
+          "unlocatedKinds": [],
+          "recordedSteps": 1814,
+          "remainingScreensUpperBound": 375,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/holdout/seed4500-knight-coverage.json",
+            "result": {
+              "session": "holdout/seed4500-knight-coverage",
+              "remainingScreensUpperBound": 375,
+              "status": "complete",
+              "commit": "0737209af932f58e30ff926172a787f595379498",
+              "mismatch": {
+                "session": "holdout/seed4500-knight-coverage",
+                "step": 1439,
+                "kind": "stop",
+                "function": null,
+                "functionDeclared": false,
+                "sourceFile": null,
+                "cFile": null,
+                "luaFile": null,
+                "line": null,
+                "message": "unsupported hero command: an unported branch of this command: break_armor: nohands/verysmall gloves removal not ported",
+                "unlocatedKinds": [],
+                "recordedSteps": 1814,
+                "remainingScreensUpperBound": 375
+              },
+              "summary": "The whole polyself selector now matches and reaches the next source boundary in break_armor: a polymorph into a nohands/verysmall form must remove gloves, drop the weapon with them, clear glove properties, and continue through the remaining armor checks. The downstream skinback artifact-light adjustment remains an open dependency.",
+              "source": {
+                "file": "polyself.c",
+                "functions": [
+                  "break_armor"
+                ],
+                "branch": "polyself.c:1156-1302: implement the complete armor-transition sequence for breakarm, sliparm, horned, nohands/verysmall, slithy/centaur, and headless forms, preserving source order, messages, worn-slot state, and inventory drops; the current reached branch is :1248-1271.",
+                "callers": [
+                  "polyself.c:886-890 polymon() calls break_armor() after skinback() and before drop_weapon(1), find_ac(), and the post-transformation state updates.",
+                  "Accepted js/polyself.js:721-814 owns break_armor(); js/polyself.js:1046-1050 invokes it from polymon() at the same transformation boundary."
+                ],
+                "dependencies": [
+                  "polyself.c:1121-1154 dropp() is the existing helper boundary: it scans gi.invent before calling dropx(); js/polyself.js:697-715 supplies dropx() with newsym, encumber_msg, and remove_object hooks. Its void result is discarded by break_armor().",
+                  "The reached polyself.c:1248-1258 branch calls drop_weapon(0), Gloves_off(), and dropp() in that order. do_wear.c:645-701 Gloves_off() returns 0 but its result is discarded; its state effects (setworn W_ARMG, glib reset, encumber feedback, and corpse-touch handling) still need a working owner. Accepted js/do_wear.js _doWearInternals exports no Gloves_off().",
+                  "polyself.c:1259-1271 calls Shield_off(), Helmet_off(), and dropp(); do_wear.c:518-756 defines the return-0 takeoff callbacks. Existing js/do_wear.js _doWearInternals has Shield_off() (1914-1923) and Helmet_off() (1786-1814), but their supported-type guards must not refuse valid polymorph removal branches.",
+                  "polyself.c:1273-1285 calls Boots_off() for nohands, verysmall, slithy, or centaur forms; do_wear.c:262-323 defines the return-0 callback and js/do_wear.js:1358-1461 is its existing owner. polyself.c:1210-1219 similarly requires Cloak_off(); js/do_wear.js:1612-1631 owns it with currently limited cloak types.",
+                  "The breakarm body branch at polyself.c:1162-1197 requires end_burn(), Armor_gone(), Cloak_off(), and useup(); Armor_gone() is do_wear.c:938-974 and has no exported JS owner in the accepted commit. The headless branch at polyself.c:1287-1300 requires Blindf_off(NULL), whose do_wear.c:1495-1534 result is discarded and is not exposed through _doWearInternals.",
+                  "Return-valued predicates used by break_armor are existing owners: racial_exception() is used as <1 at polyself.c:1199 and is implemented in js/makemon_create.js:2686-2718; WrappingAllowed() gates mummy wrapping at polyself.c:1176-1178 and :1210-1212 and is implemented in js/obj.js:1347-1358. breakarm(), sliparm(), has_horns(), nohands(), verysmall(), slithy(), is_whirly(), and has_head() are existing mondata/property predicates. No direct return-valued missing callee is needed beyond these existing owners; the missing takeoff callbacks are impure side-effect dependencies despite discarded C return values.",
+                  "Downstream polyself.c:1953-1969 skinback() still needs its artifact-light radius capture and maybe_adjust_light() update when merged dragon scales are restored; js/polyself.js:679-690 retains that known gap separately from break_armor."
+                ]
+              },
+              "goalKind": "file-port",
+              "evidence": [
+                "Saved .cache/B22-queue.json identifies the first boundary at step 1439 with message break_armor: nohands/verysmall gloves removal not ported, recordedSteps 1814, and remainingScreensUpperBound 375.",
+                "Saved .cache/B22-development-scan.json reports holdout/seed4500-knight-coverage.session.json with screensEmitted 1439, divergence null, and the same break_armor boundary; this is a source stop rather than a prior screen/RNG divergence.",
+                "The recorded session reaches polymon() as a brown mold at the preceding transformation screen, then C emits Your armor falls around you! and proceeds to the nohands branch. C polyself.c:1248-1258 emits drop your gloves and weapon!, calls drop_weapon(0), Gloves_off(), and dropp(); accepted js/polyself.js:781-786 instead throws before any of those state transitions.",
+                "C polyself.c:1156-1302 establishes break_armor as one complete static source function. Its only caller is polymon() at :888, while the accepted JS mirrors that owner and caller at js/polyself.js:721 and :1048.",
+                "The accepted selector at commit 0737209af932f58e30ff926172a787f595379498 has superseded the earlier polyself selector mismatch. The actionable remaining source scope is break_armor; the skinback artifact-light omission remains explicitly downstream and unresolved."
+              ],
+              "nextProbe": "Port the complete break_armor() function in polyself.js, beginning with Gloves_off-compatible state removal at polyself.c:1248-1258, then exercise the follow-on shield/helmet/boot paths and the existing sliparm case. Preserve the skinback artifact-light dependency and unrecorded selector entry families until their own recipes reach them."
             }
           }
         }
