@@ -11,13 +11,14 @@ import { game } from './gstate.js';
 export function is_drawbridge_wall(x, y, state = game) {
     if (!isok(x, y)) return -1;
     const location = state.level.at(x, y);
-    if (location.typ !== DOOR && location.typ !== DBWALL) return -1;
+    if (!location || (location.typ !== DOOR && location.typ !== DBWALL)) return -1;
     for (const [dx, dy, direction] of [
         [1, 0, DB_WEST], [-1, 0, DB_EAST],
         [0, -1, DB_SOUTH], [0, 1, DB_NORTH],
     ]) {
         if (!isok(x + dx, y + dy)) continue;
         const neighbor = state.level.at(x + dx, y + dy);
+        if (!neighbor) continue;
         if (IS_DRAWBRIDGE(neighbor.typ)
             && ((neighbor.flags || neighbor.drawbridgemask || 0) & DB_DIR)
                 === direction) return direction;

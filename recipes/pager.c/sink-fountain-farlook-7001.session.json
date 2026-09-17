@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 7001,
+      "datetime": "20310417113000",
+      "nethackrc": "OPTIONS=name:PagerTown7001,role:Wizard,race:dwarf,gender:male,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen,playmode:debug,pettype:none,symset:DECgraphics\n",
+      "moves": " \u0016?\n wjjqy ;.",
+      "comment": "Independent pager.c variation of the debug Minetown route: the male Wizard variant reaches the shared fountain symbol, then direct glance invokes do_screen_description()/lookat() on the current fountain."
+    }
+  ]
+}

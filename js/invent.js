@@ -384,7 +384,7 @@ function iceWaterbodyName(x, y, state) {
     return waterbody_name(x, y, state);
 }
 
-function ice_descr(x, y, state) {
+export function ice_descr(x, y, state) {
     const icetyp = ['solid', 'sturdy', 'steady', 'unsteady', 'thin', 'slushy'];
     state.iflags ??= {};
     state.iflags.ice_rating = -1;
