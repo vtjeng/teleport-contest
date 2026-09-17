@@ -1,0 +1,12 @@
+{
+  "_comment": "Cheap independent stopprint variation: a female debug Wizard with a distinct seed and date takes the same source Dump-core q arm, checking that final raw output does not depend on the default character state.",
+  "version": 5,
+  "segments": [
+    {
+      "seed": 4820615,
+      "datetime": "20380412083000",
+      "nethackrc": "OPTIONS=name:FinalStopAlt,role:Wizard,race:elf,gender:female,align:lawful,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen\nOPTIONS=pettype:none,!acoustics\n",
+      "moves": ".#quit\nyq"
+    }
+  ]
+}

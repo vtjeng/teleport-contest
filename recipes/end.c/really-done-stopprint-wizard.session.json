@@ -1,0 +1,12 @@
+{
+  "_comment": "Independent end.c really_done() stopprint witness: a debug Wizard accepts #quit and answers q to Dump core?, reaching the guarded final text window, wizard topten output, and two raw trailing lines.",
+  "version": 5,
+  "segments": [
+    {
+      "seed": 4820614,
+      "datetime": "20370311073000",
+      "nethackrc": "OPTIONS=name:FinalStop,role:Wizard,race:human,gender:male,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen\nOPTIONS=pettype:none,!acoustics\n",
+      "moves": ".#quit\nyq"
+    }
+  ]
+}
