@@ -58206,6 +58206,232 @@
         "rng": 771039
       },
       "parkedReason": "The really_done source span and ordinary death/stopprint recordings pass. Fatal/special-grave-arise, escape/ascension with valuables and pets, quantum-cat disclosure, panic/hangup/no-window and first-move/achievement entry families still lack matching production recordings; preserve those open requirements. The fixed swimmer session now reaches only the independently identified tutorial reached-depth mismatch."
+    },
+    {
+      "id": "port-pager-lookat-seed4500-20260917",
+      "kind": "file-port",
+      "status": "parked",
+      "summary": "Port complete map inspection result dispatch and source-owned descriptions",
+      "cFile": "pager.c",
+      "sessions": [
+        "holdout/seed4500-knight-coverage"
+      ],
+      "selectionReason": "The current saved queue first differs at step1322 while inspecting a fountain through pager.c do_screen_description; select the complete lookat source function and its required return-valued description dependencies.",
+      "detail": "Whole pager.c lookat657-801, with canonical self/monster/hidden/object/trap/warning/cmap descriptions and buf/monbuf/pm result channels. Source dependencies include vision howmonseen and worm_known, altar and drawbridge predicates, and object naming/live shop-price applicability. Two independent fountain farlook recordings cover ordinary cmap refinement; self/swallowed, monster sensing/hidden, object/trap/warning/invisible/unexplored and remaining cmap entry families remain unrecorded, so park the goal after source span closure.",
+      "spans": [
+        {
+          "name": "lookat",
+          "status": "closed",
+          "closedBy": "4e0cff9e1c51feb7ba0094f924613e5f896b0904",
+          "functions": [
+            "lookat"
+          ]
+        }
+      ],
+      "openedAt": "93cbdddc7521aa6a63128d69a6735d652e7d2eda",
+      "openStanding": {
+        "sha": "8e90f33b3721bd996b79487ffc509a71b7f3c594",
+        "screens": 10834,
+        "rng": 771039
+      },
+      "closedAt": null,
+      "delivered": null,
+      "functions": [
+        {
+          "name": "lookat",
+          "line": 657,
+          "endLine": 806,
+          "declared": true,
+          "complete": true
+        }
+      ],
+      "range": {
+        "from": 657,
+        "to": 806
+      },
+      "activeStanding": {
+        "sha": "8e90f33b3721bd996b79487ffc509a71b7f3c594",
+        "screens": 10834,
+        "rng": 771039
+      },
+      "openMismatches": [
+        {
+          "session": "holdout/seed4500-knight-coverage",
+          "step": 1322,
+          "kind": "screen",
+          "function": null,
+          "functionDeclared": false,
+          "sourceFile": null,
+          "cFile": null,
+          "luaFile": null,
+          "line": null,
+          "message": null,
+          "unlocatedKinds": [],
+          "recordedSteps": 1814,
+          "remainingScreensUpperBound": 492,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/holdout/seed4500-knight-coverage.json",
+            "result": {
+              "session": "holdout/seed4500-knight-coverage",
+              "remainingScreensUpperBound": 492,
+              "status": "complete",
+              "commit": "e0b9b5f47e63e215870c9175b7cb2569fa67a9ae",
+              "mismatch": {
+                "session": "holdout/seed4500-knight-coverage",
+                "step": 1322,
+                "kind": "screen",
+                "function": null,
+                "functionDeclared": false,
+                "sourceFile": null,
+                "cFile": null,
+                "luaFile": null,
+                "line": null,
+                "message": null,
+                "unlocatedKinds": [],
+                "recordedSteps": 1814,
+                "remainingScreensUpperBound": 492
+              },
+              "summary": "At step 1322, the forced Ctrl-T target selector has moved to a fountain but JavaScript leaves the prior chained-Knight description on the top line. The source cause is pager.c symbol refinement: sink and fountain both use the active { byte, so C do_screen_description() calls lookat() and gets fountain from the actual S_fountain cmap index. JavaScript pager.js lookatOrdinaryTerrain() refuses S_sink and S_fountain; getpos.js:auto_describe() catches that refusal, leaving the prior h-prefixed message. The actionable goal is a pager source port that handles these ordinary cmap descriptions through the shared do_screen_description()/lookat path. The later fountain.c fate-30 gushing refusal at step 1329 remains a separate blocker.",
+              "source": {
+                "file": "pager.c",
+                "functions": [
+                  "do_screen_description",
+                  "lookat"
+                ],
+                "branch": "The whole ordinary cmap description branch is relevant. In C pager.c do_screen_description() (1247-1613), the active { byte matches both defsym entries S_sink (index 36) and S_fountain (index 37), so found exceeds one and the looked-at coordinate is refined by lookat(). C lookat() (657-801) handles cmap glyphs with a switch and its default returns defsyms[symidx].explanation, yielding fountain for the actual S_fountain tile. JavaScript pager.js do_screen_description() (854-969) takes the same ambiguous-symbol path, but lookatOrdinaryTerrain() (818-849) omits S_sink and S_fountain from its supported set and throws. auto_describe() catches UnsupportedWhatisError, suppressing the new fountain text and retaining the previous chained-Knight line. Add the missing ordinary cmap behavior with the C default semantics while preserving special context-sensitive branches.",
+                "callers": [
+                  "js/getpos.js:auto_describe() (407-431) invokes pager.js do_screen_description() before each forced target input; the catch of UnsupportedWhatisError is the direct production manifestation.",
+                  "nethack-c/upstream/src/getpos.c:auto_describe() (639-662) invokes pager.c do_screen_description() and emits firstmatch through custompline(), then getpos() (771-1144) refreshes the target loop.",
+                  "nethack-c/upstream/src/teleport.c:scrolltele() (849-915) calls getpos(&cc, TRUE, \"the desired position\") at 892; js/teleport.js:scrolltele() (1381-1440) calls getpos(cc, true, ...) at 1422. tele()/tele() delegate to this production path, entered by step 1320 Ctrl-T.",
+                  "The shared pager implementation is also used by js/cmd.js do_look()/what_is and the C pager callers of do_screen_description(); keep the correction in pager.js rather than adding a teleport-specific message."
+                ],
+                "dependencies": [
+                  "nethack-c/upstream/include/defsym.h:133-137 maps S_sink and S_fountain to the same { byte; JS symbols.js cmap_symbol_byte(), symbol_data.js CMAP_EXPLANATIONS, and getpos.js featureSymbolMatches()/findTerrainFeature() supply the corresponding active symbol and target scan.",
+                  "C pager.c add_cmap_descr() (1131-1241) preserves first match and appends shared-symbol alternatives before lookat(); JS pager.js generic cmap accumulation and appendDescription() must retain this order and then refine the actual tile.",
+                  "C pager.c lookat() defaults ordinary cmap entries to defsyms[symidx].explanation, while JS pager.js lookatOrdinaryTerrain() currently throws for several cmap indices. At minimum S_sink and S_fountain are required for this witness; review the complete ordinary cmap set before removing the fail-closed guard.",
+                  "C getpos.c auto_describe() uses custompline(SUPPRESS_HISTORY | OVERRIDE_MSGTYPE | NO_CURS_ON_U); JS getpos.js currently uses ttyPline(). The first mismatch is explained by the unsupported fountain refinement, but a fix should preserve this message-window contract when completing the pager branch.",
+                  "The later step-1329 refusal is independent fountain.c drinkfountain() fate 30: C fountain.c:243-254 selects the fate and :119-161 dogushforth()/gush(), while js/fountain.js:647-648 still refuses the gushing-forth branch. It remains outside this pager divergence-fix scope."
+                ]
+              },
+              "goalKind": "file-port",
+              "evidence": [
+                "The assigned queue entry in .cache/A17-queue.json fixes the canonical session, first screen mismatch at step 1322 with key {, recordedSteps 1814, and remainingScreensUpperBound 492.",
+                "The saved .cache/A17-development-scan.json row reports C cell ch f versus JavaScript ch h at screen row 0 column 0, with no earlier RNG or cursor divergence; it reports 1329 emitted screens and the later fountain fate-30 boundary.",
+                "sessions/holdout/seed4500-knight-coverage.session.json records the target sequence as Ctrl-T, space, {, . at steps 1320-1323. The C screens are prompt, chained-Knight description, fountain, and fountain plus There is a fountain here., proving the { input is consumed inside forced selection and the mismatch is the automatic description after the fountain target is selected.",
+                "git show e0b9b5f47e63e215870c9175b7cb2569fa67a9ae:js/getpos.js:690-708 confirms the force block is unconditional. It already continues for quitchars, so the earlier force-quitchar diagnosis is false and is not part of this scope.",
+                "Source comparison shows defsym.h entries 36 and 37 both use {, while js/pager.js lookatOrdinaryTerrain() supports S_pool/water/lava/ice but omits S_sink and S_fountain. In the ambiguous-symbol branch, that omission throws UnsupportedWhatisError; js/getpos.js:auto_describe() explicitly catches it, leaving the existing h-prefixed line. C lookat() returns defsyms[S_fountain].explanation, fountain.",
+                "The accepted checkpoint .git/checkpoint-results/e0b9b5f47e63e215870c9175b7cb2569fa67a9ae/run-62WQSa/summary.json records 1326 matching Knight screens and the same tested commit; the target count is the saved A17 queue upper bound, not a predicted fix gain.",
+                "The later fountain gushing-forth refusal at step 1329 has RNG rnd(30)=30 @ drinkfountain(fountain.c:247) and is a separate source owner; it must remain as a later blocker after the pager fix.",
+                "The goal kind is file-port because pager.js contains explicitly partial do_screen_description/lookat behavior and an UnsupportedWhatisError in place of the missing ordinary cmap branches. Select whole source functions or a self-contained family and complete production callers; do not special-case seed, inputs, or screen text."
+              ]
+            }
+          }
+        }
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "lookat",
+            "implementation": "js/pager.js",
+            "symbol": "lookat",
+            "sourceReview": "Read pager.c lookat() in full at lines 657-806 and retained every source arm: self, swallowed, monster, object, trap, warning, invisible, dark, unexplored, and ordinary cmap. The result carries buf, monbuf, and pm together for do_screen_description and do_look. The correction selects the remembered levl glyph only for non-hero locations with hero_memory, uses glyph_at for the hero or no-memory path, and reconstructs object disguises only through object_from_map followed by simpleonames and the C article rule. object_from_map clears an unrelated monster pointer before fake-object naming. look_at_monster delegates both ordinary and hallucinated naming to distant_monnam (with coyotename only for an accurate coyote), so canonical visibility, invisible adjectives, swallower context, and display-RNG order remain in the naming owner. get_cost_of_shop_item now adds contained_cost independently of the outer price predicate, and doname_with_price applies live pricing to floor-contained merchandise. Blind extrinsic telepathy and lazy swallowed-glyph display RNG remain source-pinned. Root verified the source lookat dispatch and result channels, canonical hidden glyph selection, the C article/Mgender rules, direct distant_monnam delegation under hallucination, and get_cost_of_shop_item contents pricing independent of the outer object price. Supporting helpers are dependencies of this selected lookat span, not separate completed entry claims. Combined checkpoint exposed the existing detect.c monster_detect caller omission: detect.c 854-856 enables EDetect_monsters I_SPECIAL during browse_map and clears it before map_redisplay. Root restored that canonical temporary property in js/detect.js, retaining other intrinsic/extrinsic bits and clearing the temporary bit on replay suspension; this lets canonical canSpotMonster and distant_monnam identify detector-mapped monsters outside physical sight. This is a caller-state correction, not a whole monster_detect completion claim.",
+            "callers": [
+              {
+                "path": "js/pager.js",
+                "symbol": "do_screen_description",
+                "source": "pager.c do_screen_description() invokes lookat() for source need_to_look and ambiguity cases; JavaScript consumes all three result channels."
+              },
+              {
+                "path": "js/getpos.js",
+                "symbol": "auto_describe",
+                "source": "getpos.c auto_describe() drives farlook cursor descriptions and the shared fountain recording."
+              },
+              {
+                "path": "js/pager.js",
+                "symbol": "do_look",
+                "source": "pager.c do_look() reaches the interactive map whatis path through getpos and do_screen_description."
+              },
+              {
+                "path": "js/insight.js",
+                "symbol": "mstatusline",
+                "source": "insight.c mstatusline() consumes mhidden_description for status disclosure; the implementation is imported from pager.js."
+              },
+              {
+                "path": "js/startup_a11y.js",
+                "symbol": "describeMonster",
+                "source": "Existing startup and accessibility descriptions consume pager-owned hidden and monster naming through the compatibility export; lightweight unit fixtures provide explicit visibility where a map is absent."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/whatis-command.test.mjs",
+              "scripts/startup-a11y.test.mjs",
+              "scripts/mhidden-description.test.mjs",
+              "scripts/display-symbols.test.mjs",
+              "scripts/shop-floor-pricing.test.mjs",
+              "scripts/detect.test.mjs"
+            ],
+            "recordings": [
+              "recordings/pager.c/sink-fountain-farlook-7001.session.json",
+              "recordings/pager.c/sink-fountain-farlook-7001-female.session.json"
+            ],
+            "checkedAt": "516b5f5c158f9f3d3c76bd6dfbe10819ca66c40d"
+          }
+        ],
+        "entryPointReview": "The independently recorded production path is pager.c do_look() -> getpos.c auto_describe() -> pager.c do_screen_description() -> lookat(), with two strict fountain recordings and a female startup variation. Source-pinned tests cover all result-family dispatches, hero versus monster hidden state, remembered versus live glyph selection, C Mgender versus mondata gender, include_prefix/include_article combinations, canonical is_pool water detection, See_invisible versus Invisible, blind extrinsic telepathy, worm segment ownership, shop applicability and free-container contained_cost behavior, contained merchandise live pricing, and no display-RNG draw before the source self-square short circuit. Active self, swallowed, monster, object, trap, warning, invisible, unexplored, and remaining cmap entry families have no matching production recording in this correction and remain explicitly unrecorded; they are not build-inactive. The later fountain fate behavior belongs to fountain.c.",
+        "entryPoints": [
+          {
+            "name": "ordinary cmap cursor refinement for a fountain on a shared symbol",
+            "functions": [
+              "lookat"
+            ],
+            "recordings": [
+              "recordings/pager.c/sink-fountain-farlook-7001.session.json"
+            ]
+          },
+          {
+            "name": "ordinary cmap cursor refinement with the female startup variation",
+            "functions": [
+              "lookat"
+            ],
+            "recordings": [
+              "recordings/pager.c/sink-fountain-farlook-7001-female.session.json"
+            ]
+          },
+          {
+            "name": "self and swallowed lookat families",
+            "functions": [
+              "lookat"
+            ],
+            "recordings": []
+          },
+          {
+            "name": "monster names, dispositions, status suffixes, hidden descriptions, and sensing side channel",
+            "functions": [
+              "lookat"
+            ],
+            "recordings": []
+          },
+          {
+            "name": "object, trap, warning, invisible, unexplored, and remaining cmap lookat families",
+            "functions": [
+              "lookat"
+            ],
+            "recordings": []
+          }
+        ]
+      },
+      "progressBeforePark": {
+        "screens": 3,
+        "rng": 0
+      },
+      "parkedStanding": {
+        "sha": "488aeab2782faa6b18793bad9166a43d61f38085",
+        "screens": 10837,
+        "rng": 771039
+      },
+      "parkedReason": "The lookat span passes combined validation and moves the Knight first mismatch to fountain.c drinkfountain fate 30. Resume when priority permits recording the active self, swallowed, monster, object, trap, warning, invisible, unexplored and remaining cmap entry families; these remain unrecorded and the source goal is not complete."
     }
   ]
 }
