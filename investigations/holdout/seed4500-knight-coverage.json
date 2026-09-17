@@ -1,50 +1,51 @@
 {
   "session": "holdout/seed4500-knight-coverage",
-  "remainingScreensUpperBound": 376,
+  "remainingScreensUpperBound": 375,
   "status": "complete",
-  "commit": "2366751b9e74f18018459534f0f66dd658b1d95b",
+  "commit": "0737209af932f58e30ff926172a787f595379498",
   "mismatch": {
     "session": "holdout/seed4500-knight-coverage",
-    "step": 1438,
-    "kind": "rng",
-    "function": "polyself",
-    "functionDeclared": true,
-    "sourceFile": "polyself.c",
-    "cFile": "polyself.c",
+    "step": 1439,
+    "kind": "stop",
+    "function": null,
+    "functionDeclared": false,
+    "sourceFile": null,
+    "cFile": null,
     "luaFile": null,
-    "line": 490,
-    "message": null,
+    "line": null,
+    "message": "unsupported hero command: an unported branch of this command: break_armor: nohands/verysmall gloves removal not ported",
     "unlocatedKinds": [],
     "recordedSteps": 1814,
-    "remainingScreensUpperBound": 376
+    "remainingScreensUpperBound": 375
   },
-  "summary": "Self-directed wand dispatch now reaches the polymorph boundary. The remaining first defect is the named polyself gap: complete the whole controlled, special-form and random selector, wire zapyourself, and preserve its downstream transformation gaps.",
+  "summary": "The whole polyself selector now matches and reaches the next source boundary in break_armor: a polymorph into a nohands/verysmall form must remove gloves, drop the weapon with them, clear glove properties, and continue through the remaining armor checks. The downstream skinback artifact-light adjustment remains an open dependency.",
   "source": {
     "file": "polyself.c",
     "functions": [
-      "polyself"
+      "break_armor"
     ],
-    "branch": "polyself.c:469–731: preserve Unchanging and system-shock guards, controlled candidate retries, were/dragon/vampire direct targets, bounded uniform random selection, sex-change control and final light-source updates.",
+    "branch": "polyself.c:1156-1302: implement the complete armor-transition sequence for breakarm, sliparm, horned, nohands/verysmall, slithy/centaur, and headless forms, preserving source order, messages, worn-slot state, and inventory drops; the current reached branch is :1248-1271.",
     "callers": [
-      "zap.c zapyourself WAN_POLYMORPH/SPE_POLYMORPH at 2804–2808 sets learn_it and calls polyself(POLY_NOFLAGS) unless Unchanging; accepted js/zap.js currently records this discarded call as a named gap.",
-      "wizcmds.c wiz_polyself calls polyself(POLY_CONTROLLED); polyself.c dopoly calls polyself(POLY_MONSTER) for vampire forms."
+      "polyself.c:886-890 polymon() calls break_armor() after skinback() and before drop_weapon(1), find_ac(), and the post-transformation state updates.",
+      "Accepted js/polyself.js:721-814 owns break_armor(); js/polyself.js:1046-1050 invokes it from polymon() at the same transformation boundary."
     ],
     "dependencies": [
-      "Existing polyself.c polymon/newman/polyman own the body transition and still have unported branches. Selector completion does not establish their completion.",
-      "Existing skinback at polyself.c:1954–1968 captures arti_light_radius(uskin), restores the armor slot and adjusts artifact light. JavaScript omits that light adjustment; controlled rehumanization can reach it with merged gold dragon scales.",
-      "were.c were_beastie and polyself.c armor_to_dragon return values feed controlled selection; preserve their complete source mappings and canonical owners."
+      "polyself.c:1121-1154 dropp() is the existing helper boundary: it scans gi.invent before calling dropx(); js/polyself.js:697-715 supplies dropx() with newsym, encumber_msg, and remove_object hooks. Its void result is discarded by break_armor().",
+      "The reached polyself.c:1248-1258 branch calls drop_weapon(0), Gloves_off(), and dropp() in that order. do_wear.c:645-701 Gloves_off() returns 0 but its result is discarded; its state effects (setworn W_ARMG, glib reset, encumber feedback, and corpse-touch handling) still need a working owner. Accepted js/do_wear.js _doWearInternals exports no Gloves_off().",
+      "polyself.c:1259-1271 calls Shield_off(), Helmet_off(), and dropp(); do_wear.c:518-756 defines the return-0 takeoff callbacks. Existing js/do_wear.js _doWearInternals has Shield_off() (1914-1923) and Helmet_off() (1786-1814), but their supported-type guards must not refuse valid polymorph removal branches.",
+      "polyself.c:1273-1285 calls Boots_off() for nohands, verysmall, slithy, or centaur forms; do_wear.c:262-323 defines the return-0 callback and js/do_wear.js:1358-1461 is its existing owner. polyself.c:1210-1219 similarly requires Cloak_off(); js/do_wear.js:1612-1631 owns it with currently limited cloak types.",
+      "The breakarm body branch at polyself.c:1162-1197 requires end_burn(), Armor_gone(), Cloak_off(), and useup(); Armor_gone() is do_wear.c:938-974 and has no exported JS owner in the accepted commit. The headless branch at polyself.c:1287-1300 requires Blindf_off(NULL), whose do_wear.c:1495-1534 result is discarded and is not exposed through _doWearInternals.",
+      "Return-valued predicates used by break_armor are existing owners: racial_exception() is used as <1 at polyself.c:1199 and is implemented in js/makemon_create.js:2686-2718; WrappingAllowed() gates mummy wrapping at polyself.c:1176-1178 and :1210-1212 and is implemented in js/obj.js:1347-1358. breakarm(), sliparm(), has_horns(), nohands(), verysmall(), slithy(), is_whirly(), and has_head() are existing mondata/property predicates. No direct return-valued missing callee is needed beyond these existing owners; the missing takeoff callbacks are impure side-effect dependencies despite discarded C return values.",
+      "Downstream polyself.c:1953-1969 skinback() still needs its artifact-light radius capture and maybe_adjust_light() update when merged dragon scales are restored; js/polyself.js:679-690 retains that known gap separately from break_armor."
     ]
   },
   "goalKind": "file-port",
   "evidence": [
-    "Saved .cache/B21-development-scan.json at 2366751b places the first RNG mismatch at step 1438, C polyself.c:490. The self-zap refusal is gone, but its named polymorph gap skips the expected system-shock draw. Knight screen matches remain 1438/1814 and cursor matches rise to 1519/1814.",
-    "Source comparison at 2366751b confirms the full zapyourself switch and its required stone-to-flesh/statue/revival return-valued dependencies. Visibility, trap-state short-circuiting, bag probing, cancellation and monster-creation contracts were corrected; remaining discarded unported calls retain named gaps.",
-    "Independent self-sleep recording run-2MozYy reaches C zapyourself at step 19: The sleep ray hits you! You wake up., with rnd(50)=22. It matches 3,329 RNG calls, 21 screens/cursors and 3 animation frames. The original recording selected the wrong inventory letter and never reached this function; it was replaced after that reachability check.",
-    "C polyself.c:483–495 tests Unchanging and system shock before ordinary selection: rn2(20)>ACURR(A_CON), then rnd(30) damage and constitution exercise on failure. The accepted selector lacks these complete guards and hardcodes controllable_poly=false.",
-    "C polyself.c:698–706 tries up to 200 uniform rn1(SPECIAL_PM-LOW_PM,LOW_PM) candidates, accepting polyok&&!is_placeholder. Generation/genocide filtering does not belong in that loop; the final candidate is retained if no candidate qualifies.",
-    "Source comparison of pending selector correction 5347366a verifies original-role/current-form predicates, strstri negative-index semantics, Your dragon-mail wording, armor-light adjustment, class retry ordering and distinct special-form targets. Its canonical self-zap caller removes the named gap. These changes are not yet accepted on main.",
-    "The independent controlled-raven witness at 5347366a reaches C polymon at step 16, prints You turn into a raven!, and matches 3,586 RNG calls and 18 screens/cursors. It does not establish the uncontrolled self-zap, class-retry, were, dragon or vampire entries; those recording families remain open.",
-    "C skinback at 1954–1968 reads the old artifact-light radius before moving uskin back to uarm and invokes maybe_adjust_light afterward when artifact_light(uarm). Existing js/polyself.js skinback clears I_SPECIAL but omits those light operations. Keep this downstream source gap separate from selector completion."
+    "Saved .cache/B22-queue.json identifies the first boundary at step 1439 with message break_armor: nohands/verysmall gloves removal not ported, recordedSteps 1814, and remainingScreensUpperBound 375.",
+    "Saved .cache/B22-development-scan.json reports holdout/seed4500-knight-coverage.session.json with screensEmitted 1439, divergence null, and the same break_armor boundary; this is a source stop rather than a prior screen/RNG divergence.",
+    "The recorded session reaches polymon() as a brown mold at the preceding transformation screen, then C emits Your armor falls around you! and proceeds to the nohands branch. C polyself.c:1248-1258 emits drop your gloves and weapon!, calls drop_weapon(0), Gloves_off(), and dropp(); accepted js/polyself.js:781-786 instead throws before any of those state transitions.",
+    "C polyself.c:1156-1302 establishes break_armor as one complete static source function. Its only caller is polymon() at :888, while the accepted JS mirrors that owner and caller at js/polyself.js:721 and :1048.",
+    "The accepted selector at commit 0737209af932f58e30ff926172a787f595379498 has superseded the earlier polyself selector mismatch. The actionable remaining source scope is break_armor; the skinback artifact-light omission remains explicitly downstream and unresolved."
   ],
-  "nextProbe": "Integrate the source-checked whole polyself selector and canonical self-zap caller, then replay the Knight session to identify its next body-transition owner. Keep unrecorded entry families and skinback light restoration open."
+  "nextProbe": "Port the complete break_armor() function in polyself.js, beginning with Gloves_off-compatible state removal at polyself.c:1248-1258, then exercise the follow-on shield/helmet/boot paths and the existing sliparm case. Preserve the skinback artifact-light dependency and unrecorded selector entry families until their own recipes reach them."
 }

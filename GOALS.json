@@ -59439,7 +59439,7 @@
     {
       "id": "port-polyself-seed4500-20260917",
       "kind": "file-port",
-      "status": "open",
+      "status": "parked",
       "summary": "Port complete polymorph selection and wire self-directed polymorph effects",
       "cFile": "polyself.c",
       "sessions": [
@@ -59450,8 +59450,8 @@
       "spans": [
         {
           "name": "polyself",
-          "status": "queued",
-          "closedBy": null,
+          "status": "closed",
+          "closedBy": "0737209af932f58e30ff926172a787f595379498",
           "functions": [
             "polyself"
           ]
@@ -59627,7 +59627,17 @@
             "recordings": []
           }
         ]
-      }
+      },
+      "progressBeforePark": {
+        "screens": 1,
+        "rng": -6
+      },
+      "parkedStanding": {
+        "sha": "0737209af932f58e30ff926172a787f595379498",
+        "screens": 10977,
+        "rng": 784606
+      },
+      "parkedReason": "Whole polyself selection and its canonical self-zap caller pass at 0737209a, including the independent controlled-raven recording. Class-retry, lycanthrope, dragon, vampire and uncontrolled self-zap entry families still need independent matching recordings; resume their coverage when downstream body-transition owners, including break_armor, support those recipes."
     }
   ]
 }
