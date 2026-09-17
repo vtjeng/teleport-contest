@@ -78,6 +78,7 @@ import { unmul } from '../js/hack.js';
 import { enlightenment } from '../js/insight.js';
 import { runSegment } from '../js/jsmain.js';
 import { getRngLog } from '../js/rng.js';
+import { planningState } from '../js/unported_monster_actions.js';
 import { cantweararm, has_horns, num_horns } from '../js/mondata.js';
 import {
     MZ_HUGE,
@@ -778,6 +779,56 @@ test('toggle_displacement follows its source visibility guards', async () => {
     assert.equal(game._ttyToplines,
         'You dream that you feel that monsters no longer have difficulty pinpointing your location.');
 });
+
+test('toggle_displacement forwards discovery through a planning environment',
+    async () => {
+    const segment = segmentFor(`${TAKEOFF_KEY}${WEAR_KEY}c`);
+    await setup(segment, OFF);
+    const planned = planningState(game);
+    const type = planned.objects[CLOAK_OF_DISPLACEMENT];
+    type.oc_name_known = 0;
+    type.oc_encountered = 0;
+    planned.initial_don = false;
+    planned.context.takeoff.cancelled_don = false;
+    planned.u.uswallow = false;
+    planned.iflags.perm_invent = true;
+    planned.program_state.in_moveloop = true;
+    for (const index of [BLINDED, DETECT_MONSTERS, DISPLACED, INVIS,
+        SEE_INVIS, TELEPAT]) {
+        planned.u.uprops[index].intrinsic = 0;
+        planned.u.uprops[index].extrinsic = 0;
+        planned.u.uprops[index].blocked = 0;
+    }
+    planned.u.uprops[DETECT_MONSTERS].intrinsic = 1;
+    const draws = [];
+    const refreshes = [];
+    await toggle_displacement(
+        { otyp: CLOAK_OF_DISPLACEMENT },
+        0,
+        true,
+        planned,
+        {
+            planning: true,
+            random: { rn2: (limit) => {
+                draws.push(limit);
+                return 0;
+            } },
+            hooks: {
+                updateInventory: (state) => refreshes.push(state),
+            },
+        },
+    );
+    // o_init.c discover_object() exercises Wisdom exactly once after its
+    // discovery preflight.  The clone receives that draw and inventory hook;
+    // the live game's catalog and display remain untouched.
+    assert.deepEqual(draws, [19]);
+    assert.equal(refreshes.length, 1);
+    assert.equal(refreshes[0], planned);
+    assert.equal(type.oc_name_known, 1);
+    assert.equal(type.oc_encountered, 1);
+    assert.equal(game.objects[CLOAK_OF_DISPLACEMENT].oc_name_known, 0);
+    assert.equal(game._pending_message ?? '', '');
+    });
 
 // The keys scripts/run-wear-armor.mjs records for Cloak_on()'s two acting
 // arms, spelled here so that the segments the tests below replay are located
