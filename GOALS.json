@@ -57459,6 +57459,229 @@
         "screens": 10785,
         "rng": 770865
       }
+    },
+    {
+      "id": "port-zap-immediate-seed0398-20260916",
+      "kind": "file-port",
+      "status": "parked",
+      "summary": "Port complete polymorph object replacement and immediate wand callers",
+      "cFile": "zap.c",
+      "sessions": [
+        "holdout/seed0398-wizard-wandpoly-pile"
+      ],
+      "selectionReason": "Integrate the oldest ready B17 delivery for holdout/seed0398-wizard-wandpoly-pile, remaining-screen upper bound 39, investigation investigations/holdout/seed0398-wizard-wandpoly-pile.json. Source tracing selects whole zap.c poly_obj1702-1989 with required polymorph traversal and object-effect dependencies; the worker began this coherent span under seed continuation and completed it through correction. Knight492 is eligible for the next worker task, seed2200 has unresolved Q1, and A19 lava is a younger pending delivery. Preserve the completed span handoff rather than discard source work based on the refreshed queue.",
+      "detail": "Primary whole poly_obj1702-1989; supporting object effects, traversal, uniform egg draw, in-place inventory intrinsic sequence, worn slots, bypass lifetime and downward engraving. Two independent pile recordings cover lateral wand entry. Active hero-egg, worn inventory, hero and monster polymorph-trap shoes, potion-dip and stone-to-flesh entries remain unrecorded, so park the goal after verified span closure.",
+      "spans": [
+        {
+          "name": "poly_obj",
+          "status": "closed",
+          "closedBy": "615214896810913ba49e0d97d5bdf24e5e067ba0",
+          "functions": [
+            "poly_obj"
+          ]
+        }
+      ],
+      "openedAt": "97eaf365152d011be513d4c3a6b0360ebad72999",
+      "openStanding": {
+        "sha": "058e1e65c5f55de04dfc0c66f53eb179a085c0af",
+        "screens": 10785,
+        "rng": 770865
+      },
+      "closedAt": null,
+      "delivered": null,
+      "functions": [
+        {
+          "name": "poly_obj",
+          "line": 1702,
+          "endLine": 1992,
+          "declared": true,
+          "complete": true
+        }
+      ],
+      "range": {
+        "from": 1702,
+        "to": 1992
+      },
+      "activeStanding": {
+        "sha": "058e1e65c5f55de04dfc0c66f53eb179a085c0af",
+        "screens": 10785,
+        "rng": 770865
+      },
+      "openMismatches": [
+        {
+          "session": "holdout/seed0398-wizard-wandpoly-pile",
+          "step": 48,
+          "kind": "stop",
+          "function": "zapsetup",
+          "functionDeclared": false,
+          "sourceFile": "zap.c",
+          "cFile": "zap.c",
+          "luaFile": null,
+          "line": null,
+          "message": "unsupported hero command: an unported branch of this command: zapping a wand requires zapsetup() and the immediate-wand arm of weffects()",
+          "unlocatedKinds": [],
+          "recordedSteps": 87,
+          "remainingScreensUpperBound": 39,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/holdout/seed0398-wizard-wandpoly-pile.json",
+            "result": {
+              "session": "holdout/seed0398-wizard-wandpoly-pile",
+              "remainingScreensUpperBound": 39,
+              "status": "complete",
+              "commit": "3cc0dc4286044d818e125700071b2a0c7d95208a",
+              "mismatch": {
+                "session": "holdout/seed0398-wizard-wandpoly-pile",
+                "step": 48,
+                "kind": "stop",
+                "function": "zapsetup",
+                "functionDeclared": false,
+                "sourceFile": "zap.c",
+                "cFile": "zap.c",
+                "luaFile": null,
+                "line": null,
+                "message": "unsupported hero command: an unported branch of this command: zapping a wand requires zapsetup() and the immediate-wand arm of weffects()",
+                "unlocatedKinds": [],
+                "recordedSteps": 87,
+                "remainingScreensUpperBound": 39
+              },
+              "summary": "Step 48 reaches an unported immediate polymorph wand effect. The required path includes object replacement and system shock, monster polymorph, pile traversal, and delayed feedback. Source comparison also identifies downward engraving replacement, worn-inventory return handling, and turn-scoped bypass cleanup; these are required behavior beyond the lateral pile witness.",
+              "source": {
+                "file": "zap.c",
+                "branch": "WAN_POLYMORPH is IMMEDIATE. weffects() resets obj_zapped, dispatches swallowed, vertical, or lateral effects, and emits delayed shock feedback. Lateral bhit() visits the map, monster, and object pile in source order; bhito() selects object resistance, system shock, or poly_obj(). Port complete poly_obj() with the required object/shock helpers and production caller wiring; retain incomplete callback families and active unrecorded entries as remaining work.",
+                "functions": [
+                  "poly_obj",
+                  "obj_unpolyable",
+                  "obj_shudders",
+                  "do_osshock",
+                  "polyuse",
+                  "create_polymon",
+                  "zapsetup",
+                  "zapwrapup"
+                ],
+                "callers": [
+                  "zap.c:3431-3475 weffects(), reached by dozap(), calls zapsetup, bhitm/zap_updown/bhit, and zapwrapup. js/zap.js:3433-3438 still refuses the immediate arm at the examined commit.",
+                  "zap.c:3827-4139 bhit() uses zap_map, bhitm, and bhitpile; bhitpile 2428-2506 invokes bhito and then create_polymon. bhito 2119-2426 calls obj_unpolyable, obj_shudders, do_osshock, and poly_obj.",
+                  "potion.c:2468-2498 dip handling consumes poly_obj() and checks its possible null return after worn-amulet side effects. zap.c stone-to-flesh also calls poly_obj; these active caller entries need their own completion evidence.",
+                  "apply.c do_break_wand() calls zapsetup before its effects; js/apply.js:1261 still refuses that entry. A lateral wand recording does not establish the broken-wand caller."
+                ],
+                "dependencies": [
+                  "zap.c:1476-1683 and 1702-1989 define object shock, golem creation, protection, and complete replacement. Hero-laid eggs use include/display.h:186 random_monster(rn2), a uniform rn2(NUMMONS), rather than makemon.c rndmonnum selection.",
+                  "zap.c:1905-1949 replaces the object in place, applies invent.c freeinv_core/addinv_core1/addinv_core2, computes wearslot, removes the old worn item, applies slot setters/set_wear, and reads wearmask_to_obj. Existing JS inventory cores are internal helpers; avoiding their chain extraction does not justify dropping their state effects or the possible null result.",
+                  "zap.c:3628-3664 zap_map() replaces a non-HEADSTONE engraving for a downward polymorph zap through del_engr, random_engraving, and make_engr_at. The lateral polymorph arm is inert; the downward arm is not.",
+                  "zap.c:282-285 bhitm() marks monster inventory through worn.c bypass_obj 1119-1123, which sets both obj.bypass and context.bypasses. worn.c clear_bypasses 1068-1116 clears the object chains and long-worm marker; allmain.c:194 and mon.c movemon call cleanup. js/unported_monster_actions.js still refuses this cleanup contract at the examined commit.",
+                  "zap.c:2130-2171 bhito() skips a bypass-marked object only while context.bypasses is active; it clears a stale bit otherwise. Object flags must not persist across turns or suppress later polymorphs.",
+                  "zap.c:3087-3137 zap_steed() and 3219-3410 zap_updown() supply mounted, swallowed, upward, and downward sibling entries. Source gaps may remain explicit, but no partial callback or unrecorded active entry establishes whole-function completion."
+                ]
+              },
+              "goalKind": "file-port",
+              "evidence": [
+                ".cache/A18-queue.json and its saved scan at 058e1e65 retain the step 48 immediate-wand refusal and 39 remaining screens; report-only 3cc0dc42 has the same game code. The examined current source still refuses before immediate dispatch.",
+                "sessions/holdout/seed0398-wizard-wandpoly-pile.session.json step 48 answers h to z: exercise draws rn2(19), weffects draws rn2(8), then object-resistance/shock/replacement calls precede the shuddering-vibrations message. This requires the complete running path, not only a zapsetup assignment.",
+                "The source-defined lateral order is weffects -> zapsetup -> bhit -> zap_map/bhitm/bhitpile -> bhito -> obj_unpolyable/obj_shudders/do_osshock or poly_obj -> zapwrapup. Shared go.obj_zapped is reset before and after the effect.",
+                "Direct source comparison establishes three additional contracts: zap_map 3650-3664 downward engraving replacement; poly_obj 1905-1949 inventory/worn updates and nullable result, consumed at potion.c2480-2490; and worn.c:1068-1123 bypass lifetime and turn cleanup. These are source requirements, not fixed-session-specific exceptions.",
+                "Whole poly_obj 1702-1989 is a planner-sized primary source unit. Supporting object helpers and required caller changes belong in its delivery; callback families with other wand/spell branches remain partial until those whole functions are implemented. Active golem, worn-item, mounted, vertical, swallowed, and broken-wand entries cannot be classified as build-inactive merely because they lack a matching recording.",
+                "Historical bd877c7b only added setup while retaining the immediate refusal. It cannot establish runtime completion. Worker-branch replays and unaccepted corrections do not replace the accepted-main diagnosis or score."
+              ],
+              "nextProbe": "Complete the source-defined object replacement and shock path with production immediate-wand wiring, verify source RNG and bypass lifetime, then replay the original session to identify its next mismatch. Use independent recordings for new entry-point evidence and leave active unrecorded callers open."
+            }
+          }
+        }
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "poly_obj",
+            "implementation": "js/zap.js",
+            "symbol": "poly_obj",
+            "sourceReview": "Read zap.c:1702-1989 in full. JavaScript preserves the source allocation and field order, magic-class retry, quantity and inventory-letter handling, MAIL_STRUCTURES, hero-laid egg normalization with random_monster(rn2), charged/BUC/erosion/trap/poison fields, crocodile-corpse boots, leash handling, contents deletion, pre-class merge draw, tool/wand/potion/spellbook/gem adjustments, weight/location/worn-mask order, chain replacement, floor blocking, billing predicates, and final deletion. The in-place inventory sequence now uses invent.c freeinv_core/addinv_core1/addinv_core2 in order and awaits the label-discovery message before worn restoration. Worn-slot masks use worn.c wearslot; object bypass state is cleaned through the canonical worn.c owner. Discarded void calls to sokoban guilt, kill_egg, leash unhook, fracture_rock, shop billing, remove_worn_item and set_wear retain named source gaps; unsupported non-polymorph wand callback families remain at their established caller boundaries. The final correction preserves the egg branch weight update without fabricating timer cleanup, C-initialized zero location fallback, billing short-circuit and Shknam/pline/Norep output, and one unconditional worn-slot tail. Unsupported immediate families retain the pre-existing weffects refusal; no new callback refusal is introduced.",
+            "callers": [
+              {
+                "path": "js/zap.js",
+                "symbol": "bhito",
+                "source": "zap.c:2219 calls poly_obj(obj, STRANGE_OBJECT) after the polymorph object resistance and system-shock branches; js/zap.js bhito awaits the replacement before newsym and learnwand."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/bhit.test.mjs",
+              "scripts/zap-command.test.mjs",
+              "scripts/inventory-substrate.test.mjs"
+            ],
+            "recordings": [
+              "recordings/zap.c/immediate-polymorph-pile-variation.session.json",
+              "recordings/zap.c/immediate-polymorph-pile-gender-variation.session.json"
+            ],
+            "checkedAt": "f9beafa291dbb0f7fa29cdd327f48dce6975524c"
+          }
+        ],
+        "entryPointReview": "The primary recorded entry is the lateral immediate polymorph path through weffects -> bhit -> bhito -> poly_obj; two independently selected pile recipes match C exactly. Supporting system-shock, bypass cleanup, and engraving checks also pass. The source has additional active poly_obj callers that remain explicitly unrecorded here: hero-laid eggs, worn inventory and equipment restoration, polymorph-trap iron shoes (trap.c:2481 and 2508), potion_dip (potion.c:2480), and stone_to_flesh_obj (zap.c:1993). Those caller families are listed with empty recordings rather than being inferred from the lateral wand witness. create_polymon/polyuse and the non-polymorph bhit callbacks remain supporting source work, not whole-function evidence for this primary unit. Orchestrator inspection of both saved pile recordings confirms their final zap includes source-ordered object replacement and subsequent moveloop/gethungry RNG, with no pending More prompt; the function returns and play continues. Direct shop billing output is source-checked but has no new production recording in this span.",
+        "entryPoints": [
+          {
+            "name": "lateral immediate polymorph through a dropped object pile",
+            "functions": [
+              "poly_obj"
+            ],
+            "recordings": [
+              "recordings/zap.c/immediate-polymorph-pile-variation.session.json"
+            ]
+          },
+          {
+            "name": "lateral immediate polymorph with the independent gender variation",
+            "functions": [
+              "poly_obj"
+            ],
+            "recordings": [
+              "recordings/zap.c/immediate-polymorph-pile-gender-variation.session.json"
+            ]
+          },
+          {
+            "name": "hero-laid egg object replacement",
+            "functions": [
+              "poly_obj"
+            ],
+            "recordings": []
+          },
+          {
+            "name": "worn inventory object replacement and slot restoration",
+            "functions": [
+              "poly_obj"
+            ],
+            "recordings": []
+          },
+          {
+            "name": "polymorph trap iron-shoe replacement for hero and monster",
+            "functions": [
+              "poly_obj"
+            ],
+            "recordings": []
+          },
+          {
+            "name": "potion-dip polymorph replacement",
+            "functions": [
+              "poly_obj"
+            ],
+            "recordings": []
+          },
+          {
+            "name": "stone-to-flesh object replacement",
+            "functions": [
+              "poly_obj"
+            ],
+            "recordings": []
+          }
+        ]
+      },
+      "progressBeforePark": {
+        "screens": 38,
+        "rng": 174
+      },
+      "parkedStanding": {
+        "sha": "615214896810913ba49e0d97d5bdf24e5e067ba0",
+        "screens": 10823,
+        "rng": 771039
+      },
+      "parkedReason": "Whole poly_obj source and lateral wand caller are verified by two independent recordings and passing combined checkpoint61521489. Active egg, worn-inventory, trap iron-shoe, potion-dip and stone-to-flesh entries remain unrecorded; preserve their open evidence while higher-priority mismatches continue."
     }
   ]
 }
