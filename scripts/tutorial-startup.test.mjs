@@ -1,11 +1,13 @@
 import assert from 'node:assert/strict';
 import { createHash } from 'node:crypto';
+import { readFileSync } from 'node:fs';
 import test from 'node:test';
 
 import { nh_basename, read_sym_file } from '../js/files.js';
 import { GameMap } from '../js/game.js';
 import { game, resetGame } from '../js/gstate.js';
 import { GameDisplay } from '../js/game_display.js';
+import { updateDunlevReached } from '../js/do.js';
 import { PM_HEALER, PM_KNIGHT, PM_MONK } from '../js/monsters.js';
 import {
     LARGE_BOX,
@@ -265,6 +267,60 @@ test('maybe_do_tutorial exposes the transition target without mutating state', a
         action: 'skip',
         reason: 'level-unavailable',
     });
+});
+
+test('tutorial entry records the reached level before dungeon overview', () => {
+    // do.c:1679-1684 updates dunlev_ureached immediately after u.uz changes.
+    // The startup tutorial path has no ordinary goto_level() call, so both
+    // callers share the do.js owner for this state transition.
+    const source = readFileSync(
+        new URL('../nethack-c/upstream/src/do.c', import.meta.url),
+        'utf8',
+    );
+    const update = source.slice(
+        source.indexOf('    if (!builds_up(&u.uz)) {',
+            source.indexOf('\ngoto_level(')),
+        source.indexOf('\n    stairway_free_all();',
+            source.indexOf('\ngoto_level(')),
+    );
+    assert.match(update, /dunlev_reached\(&u\.uz\)/u);
+
+    const state = {
+        dungeons: Array.from({ length: 9 }, (_, dnum) => ({
+            entry_lev: 1,
+            num_dunlevs: dnum === 8 ? 2 : 1,
+            dunlev_ureached: dnum === 8 ? 0 : 1,
+        })),
+        branches: [],
+    };
+    const tutorial = { dnum: 8, dlevel: 1 };
+    updateDunlevReached(tutorial, state);
+    assert.equal(state.dungeons[8].dunlev_ureached, 1);
+
+    // A later entry advances the deepest level; returning to an already
+    // reached shallower level leaves the C value unchanged.
+    updateDunlevReached({ dnum: 8, dlevel: 2 }, state);
+    assert.equal(state.dungeons[8].dunlev_ureached, 2);
+    updateDunlevReached(tutorial, state);
+    assert.equal(state.dungeons[8].dunlev_ureached, 2);
+
+    // Up-building branches use the other C arm: the first unvisited level
+    // establishes the reached value, and later ascending arrivals retain the
+    // shallowest level rather than replacing it with a deeper one.
+    const upBuilding = {
+        dungeons: [{
+            entry_lev: 3,
+            num_dunlevs: 3,
+            dunlev_ureached: 0,
+        }],
+        branches: [],
+    };
+    updateDunlevReached({ dnum: 0, dlevel: 2 }, upBuilding);
+    assert.equal(upBuilding.dungeons[0].dunlev_ureached, 2);
+    updateDunlevReached({ dnum: 0, dlevel: 1 }, upBuilding);
+    assert.equal(upBuilding.dungeons[0].dunlev_ureached, 1);
+    updateDunlevReached({ dnum: 0, dlevel: 3 }, upBuilding);
+    assert.equal(upBuilding.dungeons[0].dunlev_ureached, 1);
 });
 
 // C ref: files.c nh_basename() (198-229).  The reference values come from

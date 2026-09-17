@@ -6,6 +6,7 @@ import { LR_DOWNTELE, PICK_ONE } from './const.js';
 import { find_level } from './dungeon.js';
 import { nh_basename } from './files.js';
 import { bot, docrt, flush_screen } from './display.js';
+import { updateDunlevReached } from './do.js';
 import { read_engr_at } from './engrave.js';
 import { game } from './gstate.js';
 import {
@@ -187,6 +188,7 @@ export async function enter_tutorial(target, state = game) {
         state.u.uz = { ...target.level };
         state.u.utolev = { ...target.level };
         state.u.utotype = 0;
+        updateDunlevReached(state.u.uz, state);
         state.updest = {};
         state.dndest = {};
         await mklev({ specialLevelLoader: loadTutorialLevel });

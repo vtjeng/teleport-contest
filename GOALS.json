@@ -58432,6 +58432,118 @@
         "rng": 771039
       },
       "parkedReason": "The lookat span passes combined validation and moves the Knight first mismatch to fountain.c drinkfountain fate 30. Resume when priority permits recording the active self, swallowed, monster, object, trap, warning, invisible, unexplored and remaining cmap entry families; these remain unrecorded and the source goal is not complete."
+    },
+    {
+      "id": "div-tutorial-overview-reached-seed0009-20260917",
+      "kind": "divergence-fix",
+      "status": "closed",
+      "summary": "Fix the tutorial dungeon reached-depth state used by overview",
+      "cFile": "do.c",
+      "sessions": [],
+      "selectionReason": "Integrate the oldest independent ready delivery A21 under loop merge ordering. The saved investigation investigations/holdout/seed0009-swimmer-mforce.json identifies do.c goto_level reached-depth bookkeeping at step 69 with upper bound 4 and one actual unmatched screen. Higher-ranked Knight fountain work has a later ready B19 delivery; poison work is owned by A22 and other higher-ranked investigations remain queued.",
+      "detail": "At holdout/seed0009-swimmer-mforce segment 0 step 69, overview omits the C Tutorial header because startup enters tut-1 without updating its dungeon dunlev_ureached. C do.c goto_level lines 1679-1684 updates reached depth immediately after assigning u.uz; dungeon.c show_overview/print_mapseen consumes it. Share that existing state-scoped block in js/do.js with js/tutorial_startup.js enter_tutorial immediately after the destination assignment and before mklev. Preserve ascending and first-unvisited branch semantics; no RNG or rendering substitution is needed.",
+      "spans": [
+        {
+          "name": "tutorial-reached-depth",
+          "status": "closed",
+          "closedBy": "da13fffda60e1126741e2922fb3a820ffe2444ff",
+          "functions": [
+            "goto_level"
+          ]
+        }
+      ],
+      "openedAt": "d5787b47d2b80e582555f01ffe636b1a603c4c1d",
+      "openStanding": {
+        "sha": "488aeab2782faa6b18793bad9166a43d61f38085",
+        "screens": 10837,
+        "rng": 771039
+      },
+      "closedAt": "da13fffda60e1126741e2922fb3a820ffe2444ff",
+      "delivered": {
+        "screens": 1,
+        "rng": 0
+      },
+      "function": "goto_level",
+      "session": "holdout/seed0009-swimmer-mforce",
+      "step": 69,
+      "activeStanding": {
+        "sha": "488aeab2782faa6b18793bad9166a43d61f38085",
+        "screens": 10837,
+        "rng": 771039
+      },
+      "openMismatches": [
+        {
+          "session": "holdout/seed0009-swimmer-mforce",
+          "step": 69,
+          "kind": "screen",
+          "function": null,
+          "functionDeclared": false,
+          "sourceFile": null,
+          "cFile": null,
+          "luaFile": null,
+          "line": null,
+          "message": null,
+          "unlocatedKinds": [],
+          "recordedSteps": 73,
+          "remainingScreensUpperBound": 4,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/holdout/seed0009-swimmer-mforce.json",
+            "result": {
+              "session": "holdout/seed0009-swimmer-mforce",
+              "remainingScreensUpperBound": 4,
+              "status": "complete",
+              "commit": "8e90f33b3721bd996b79487ffc509a71b7f3c594",
+              "mismatch": {
+                "session": "holdout/seed0009-swimmer-mforce",
+                "step": 69,
+                "kind": "screen",
+                "function": null,
+                "functionDeclared": false,
+                "sourceFile": null,
+                "cFile": null,
+                "luaFile": null,
+                "line": null,
+                "message": null,
+                "unlocatedKinds": [],
+                "recordedSteps": 73,
+                "remainingScreensUpperBound": 4
+              },
+              "summary": "Death finalization now completes. One screen still differs at step 69: the tutorial overview says levels 1 to 0 because startup tutorial entry leaves dunlev_ureached at zero. C reaches do.c goto_level through maybe_do_tutorial and updates that value immediately after assigning u.uz. Share the existing do.js reached-level update with enter_tutorial before level creation; preserve dungeon.c print_mapseen formatting.",
+              "source": {
+                "file": "do.c",
+                "functions": [
+                  "goto_level"
+                ],
+                "branch": "do.c goto_level1679-1684 records the greatest reached depth in ordinary branches, or the smallest depth in an up-building branch, initializing an unvisited branch from zero. js/do.js already implements this block for ordinary transitions, but js/tutorial_startup.js enter_tutorial assigns the tutorial level directly without it. dungeon.c print_mapseen3516-3555 omits the level-range suffix when dunlev_ureached equals entry_lev; the current zero is incorrect source state.",
+                "callers": [
+                  "allmain.c maybe_do_tutorial567-585 calls schedule_goto/deferred_goto for tut-1 and then redraws; js/jsmain.js dispatches the accepted tutorial target to js/tutorial_startup.js enter_tutorial.",
+                  "do.c goto_level assigns u.uz and u.utolev before updating dunlev_reached; ordinary js/do.js goto_level already follows that order.",
+                  "dungeon.c show_overview and print_mapseen read the dungeon reached-level field during final overview disclosure; their equal-to-entry formatting branch already matches C."
+                ],
+                "dependencies": [
+                  "Existing dungeon.js builds_up, dunlev, dunlev_reached and set_dunlev_reached provide the source values; reuse their state-scoped owners.",
+                  "Keep the shared source block in js/do.js and call it from both ordinary travel and tutorial entry. Preserve ascending, first-unvisited and already-reached cases.",
+                  "Existing independent tutorial-entry recipes reach the live startup query and map. They cover entry reachability; the saved fixed session exercises the later overview header."
+                ]
+              },
+              "goalKind": "divergence-fix",
+              "evidence": [
+                "Passing checkpoint 8e90f33b/run-qzFm9S records 10834/11405 development screens and 319/319 regression recordings. This session advances from62 to72/73 screens, retains3713/3713 RNG calls, and now matches73/73 cursors.",
+                "The saved .cache/A20-development-scan.json and .cache/A20-queue.json identify the first screen mismatch at step69 of73, with remainingScreensUpperBound4. Only one screen is actually unmatched; the queue count is an upper bound.",
+                "The completed worker investigation compared the overview text: C shows The Tutorial:, while the unfixed JavaScript shows The Tutorial: levels 1 to 0. Reading do.c1679-1684 and dungeon.c3516-3555 identifies the omitted state update rather than a formatting defect.",
+                "Root compared the current enter_tutorial assignment and mklev sequence with C maybe_do_tutorial and goto_level, and verified that ordinary goto_level already owns the needed branch. The queued correction shares that code and adds ascending/unvisited behavioral coverage.",
+                "The prior really_done special-death refusal at step62 is resolved by this checkpoint. Retain its historical investigation in Git; it is no longer the current mismatch."
+              ]
+            }
+          }
+        }
+      ],
+      "closeStanding": {
+        "sha": "da13fffda60e1126741e2922fb3a820ffe2444ff",
+        "screens": 10838,
+        "rng": 771039
+      }
     }
   ]
 }
