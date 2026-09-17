@@ -133,12 +133,14 @@ import {
     ledger_no,
     level_difficulty,
     level_info,
+    maxledgerno,
     next_level,
     on_level,
     print_level_annotation,
     recbranch_mapseen,
     prev_level,
     recalc_mapseen,
+    remdun_mapseen,
     set_dunlev_reached,
     u_on_newpos,
     u_on_rndspot,
@@ -219,6 +221,7 @@ import { ok_to_quest, onquest } from './quest.js';
 import { com_pager } from './questpgr.js';
 import { in_out_region, visible_region_at } from './region.js';
 import { getlev } from './restore.js';
+import { delete_levelfile } from './files.js';
 import { cloneIsaacContext, createCoreRandom, d, rn2, rnd } from './rng.js';
 import { check_special_room, move_update } from './rooms.js';
 import { savelev } from './save.js';
@@ -1580,33 +1583,28 @@ export function updateDunlevReached(level, state = game) {
 // C ref: do.c goto_level()'s cant_go_back cleanup (1652-1664). Endgame and
 // tutorial levels are terminal in the dungeon graph, so delete the in-memory
 // level snapshots/files that C discards and mark their map-overview branches
-// as unreachable. The migration list has no JS owner yet; its discarded call
-// remains an explicit source gap below rather than an invented sweep.
+// as unreachable. The file and overview operations stay with their C owners:
+// files.c delete_levelfile() and dungeon.c remdun_mapseen(). The migration
+// list has no JS owner yet; its discarded call remains an explicit source gap.
 function discard_unreachable_levels(state, leavingTutorial) {
     const tutorialDnum = state.tutorial_dnum;
-    const keep = (dnum) => leavingTutorial
-        ? dnum !== tutorialDnum
-        : false;
 
-    for (const key of Object.keys(state._savedLevels ?? {})) {
-        const ledger = Number(key);
-        if (ledger <= 0) continue;
+    // do.c:1656-1659, files.c delete_levelfile(). C counts down from the
+    // maximum ledger and preserves level 0; tutorial departure deletes only
+    // the tutorial dungeon's level files.
+    for (let ledger = maxledgerno(state); ledger > 0; --ledger) {
         const dnum = ledger_to_dnum(ledger, state);
-        if (!keep(dnum)) delete state._savedLevels[key];
-    }
-
-    for (const [key, info] of (state.svl?.level_info ?? []).entries()) {
-        if (!info || key <= 0) continue;
-        const dnum = ledger_to_dnum(Number(key), state);
-        if (!keep(dnum)) info.flags &= ~LFILE_EXISTS;
-    }
-
-    for (const mapseen of state.svm?.mapseenchn ?? []) {
-        const dnum = mapseen?.lev?.dnum;
-        if (dnum === undefined || !keep(dnum)) {
-            mapseen.flags ??= {};
-            mapseen.flags.notreachable = 1;
+        if (!leavingTutorial || dnum === tutorialDnum) {
+            delete_levelfile(ledger, state);
         }
+    }
+
+    // do.c:1660-1662, dungeon.c remdun_mapseen(). Keep the nodes so endgame
+    // disclosure can still inspect their history; only overview reachability
+    // changes.
+    for (let dnum = 0; dnum < (state.dungeons?.length ?? 0); ++dnum) {
+        if (!leavingTutorial || dnum === tutorialDnum)
+            remdun_mapseen(dnum, state);
     }
 
     note_unported('dog.c discard_migrations');
@@ -1737,10 +1735,10 @@ export async function goto_level(
     // every level this port loads and the block is dead.
 
     // do.c:1593-1595, tethered movement. The call's result is discarded;
-    // ball.c remains outside this source span, so record its unavailable
+    // dig.c remains outside this source span, so record its unavailable
     // transition and continue with the level save.
     if (u.utrap && u.utraptype === TT_BURIEDBALL) {
-        note_unported('ball.c buried_ball_to_punishment');
+        note_unported('dig.c buried_ball_to_punishment');
     }
 
     // do.c:1597-1599 calls currentlevel_rewrite(), whose two operations have
@@ -1748,10 +1746,10 @@ export async function goto_level(
     // stdout that changes no cell, and create_levelfile() opens the level file
     // this port does not write, because its levels stay in memory.
     //
-    // The in-memory savelev() owner sets LFILE_EXISTS on this level's ledger,
-    // which is the flag goto_level() reads at 1692 to choose getlev() over
-    // mklev(); returning to a saved level therefore follows the same branch
-    // as C's create_levelfile()/open_levelfile pair.
+    // The WRITING | FREEING savelev() arm sets LFILE_EXISTS on this level's
+    // ledger, which is the flag goto_level() reads at 1692 to choose getlev()
+    // over mklev(); the FREEING arm used for terminal dungeon transitions
+    // deliberately leaves no restorable level file or snapshot.
 
     // The context discard, do.c:1601-1622. It drops what belongs to the level
     // being left and keeps what travels with the hero.
@@ -1811,9 +1809,10 @@ export async function goto_level(
     if (!cant_go_back) {
         update_mlstmv(state);
     } else {
-        note_unported('nhlua.c free_luathemes');
+        note_unported('mklev.c free_luathemes');
     }
-    savelev(ledger_no(u.uz, state), state);
+    savelev(ledger_no(u.uz, state), state,
+        { mode: cant_go_back ? 'FREEING' : 'WRITING|FREEING' });
     if (cant_go_back) discard_unreachable_levels(state, leaving_tutorial);
 
     // do.c:1666-1668. Graphics are selected before u.uz changes, so the
@@ -1979,11 +1978,13 @@ export async function goto_level(
             );
             if (Punished(state)) {
                 await drag_down(state);
+                if (state.program_state?.gameover) return;
                 if (!welded(state.uball, state))
                     await ballrelease(false, state);
             }
             if (u.usteed) {
                 await dismount_steed(DISMOUNT_FELL, state);
+                if (state.program_state?.gameover) return;
             } else {
                 const damage = heroPropertyActive(u, HALF_PHDAM)
                     ? Math.trunc((rnd(3) + 1) / 2)
@@ -1996,6 +1997,7 @@ export async function goto_level(
                     KILLED_BY,
                     state,
                 );
+                if (state.program_state?.gameover) return;
             }
             // trap.c selftouch() returns no value and remains outside this
             // span; preserving the discarded-result call keeps the arrival
@@ -2228,6 +2230,7 @@ export async function goto_level(
     if (do_fall_dmg) {
         const damage = maybeHalfPhysical(d(Math.max(dist, 1), 6), state);
         await losehp(damage, 'falling down a mine shaft', KILLED_BY, state);
+        if (state.program_state?.gameover) return;
     }
 
     await pickup(1, state);

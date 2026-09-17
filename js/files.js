@@ -3,7 +3,7 @@
 
 import { SYMBOL_SET_DEFINITIONS } from './symbol_data.js';
 import { game } from './gstate.js';
-import { LL_NONE } from './const.js';
+import { LFILE_EXISTS, LL_NONE } from './const.js';
 import { note_unported } from './unported.js';
 
 // C ref: files.c nh_basename() (198-229), the non-VMS arm.  The backslash cut
@@ -37,6 +37,23 @@ export function read_sym_file(name) {
     return SYMBOL_SET_DEFINITIONS.some(
         (definition) => definition.name.toLowerCase() === folded,
     );
+}
+
+// C ref: files.c delete_levelfile() (719-730). Level files are in-memory
+// snapshots in this port; clearing LFILE_EXISTS is the corresponding unlink.
+// Level 0 is always considered present by the C owner, even when its row was
+// created by port-specific startup code.
+export function delete_levelfile(ledger, state = game) {
+    const level = Math.trunc(ledger);
+    state.svl ??= {};
+    state.svl.level_info ??= [];
+    const info = state.svl.level_info[level] ??= { flags: 0 };
+    if (level === 0 || (info.flags & LFILE_EXISTS)) {
+        info.flags &= ~LFILE_EXISTS;
+        // The in-memory snapshot is this port's level-file equivalent.  Keep
+        // its lifetime under the same C unlink gate as LFILE_EXISTS.
+        delete state._savedLevels?.[level];
+    }
 }
 
 // C ref: files.c livelog_add() (3667-3719).  sys.c sys_early_init()
