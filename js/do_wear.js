@@ -337,10 +337,14 @@ import { bimanual, setnotworn, setuswapwep, setworn } from './worn.js';
 // repaint seams; C's callbacks do not own the terminal or a second game.
 function wearOperationEnv(rawEnv = {}) {
     const planning = Boolean(rawEnv.planning);
+    const hooks = { ...(rawEnv.hooks ?? {}) };
+    if (planning && typeof hooks.updateInventory !== 'function')
+        hooks.updateInventory = () => {};
     return {
         ...rawEnv,
         message: rawEnv.message ?? (planning ? async () => {} : ttyPline),
         redraw: rawEnv.redraw ?? (planning ? () => {} : newsym),
+        hooks,
     };
 }
 
