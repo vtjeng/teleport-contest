@@ -61201,7 +61201,7 @@
           "line": 940,
           "endLine": 1269,
           "declared": true,
-          "complete": false
+          "complete": true
         }
       ],
       "range": {
@@ -61341,7 +61341,74 @@
             }
           }
         }
-      ]
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "status_enlightenment",
+            "implementation": "js/insight.js",
+            "symbol": "status_enlightenment",
+            "sourceReview": "Read the complete insight.c status_enlightenment() body at lines 940-1266 and checked evaluation order against the port. The implementation preserves transformed/riding status, levitation and flying masks, underwater and water-walking branches, internal troubles, blindness/deafness sources, punishment and trap text, held/swallowed-monster naming and distance, cursed saddle, wounded legs, glib/fumbling/sleepy/hunger causes, hunger and encumbrance counters, weapon status, monk tux penalty, and nudity in the source order. The Lev_at_will correction now follows youprop.h:242-245 as one grouped predicate: HLevitation I_SPECIAL or ELevitation W_ARTI is required, with all other intrinsic/extrinsic bits rejected. It removes the old blanket status refusals. The source-discarded youhiding(TRUE, final) call remains an explicit note_unported gap because enlightenment still rejects a polymorphed hero before status; ENL_GAMEOVERALIVE remains an unrecorded disclosure caller boundary; the existing weapon_insight shield/wet-towel unsupported arms remain pre-existing supporting gaps and are not relabeled as this function's completion. Root and independent read-only comparison confirmed the whole selected body and the pure dxdy_to_dist_descr557–590 dependency. The Lev_at_will correction now applies both mask restrictions to either qualifying intrinsic or artifact source, matching youprop.h242–245.",
+            "callers": [
+              {
+                "path": "js/cmd.js",
+                "symbol": "runAttributesCommand",
+                "source": "cmd.c doextcmd dispatches the attributes command to insight.c doattributes()."
+              },
+              {
+                "path": "js/insight.js",
+                "symbol": "doattributes",
+                "source": "insight.c doattributes() calls enlightenment(), which calls status_enlightenment() after the basic/characteristics sections."
+              },
+              {
+                "path": "js/insight.js",
+                "symbol": "enlightenment",
+                "source": "insight.c enlightenment() invokes status_enlightenment() for both basic and magic enlightenment windows."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/insight.test.mjs"
+            ],
+            "recordings": [
+              "recordings/insight.c/attributes-enlightenment-pilot.session.json",
+              "recordings/insight.c/attributes-enlightenment-wizard-orc.session.json",
+              "recordings/insight.c/attributes-enlightenment-hallucination-independent.session.json",
+              "recordings/insight.c/attributes-enlightenment-deaf-independent.session.json"
+            ],
+            "checkedAt": "b834218623129528040b9066a922e7d7293726ad"
+          }
+        ],
+        "entryPointReview": "The active production entry point is the attributes command (^X/attributes): cmd.js dispatches doattributes, enlightenment builds the window, and status_enlightenment supplies its Status section. The independent hallucination and roleplay-deaf attributes recordings execute that caller path and advance to the Status page; the hallucination recording uses a separate blind setup to keep map rendering out of this status witness. Source branches covered by focused tests include property-order movement/troubles, OPTIONS=deaf, underwater, both Lev_at_will mask restrictions, encumbrance, wizard counters and held-monster distance. The source call to insight.c youhiding is a discarded call behind enlightenment's existing polymorphed-hero admission guard and remains named as unported. ENL_GAMEOVERALIVE disclosure remains an active unrecorded caller boundary. Existing weapon_insight unsupported arms are separate prior gaps. No active status entry point is claimed inactive. Root inspected the saved C screens: the independently chosen hallucination recording has21 screens and explicitly prints You are hallucinating on the Status page; the deaf Priest/elf variation has5 screens and prints You are deaf from birth. A setup-only recording would not establish this page. Ending disclosures, transformed-hero admission and weapon_insight exceptional paths remain unrecorded or blocked, so keep the goal parked after span closure.",
+        "entryPoints": [
+          {
+            "name": "attributes command status window",
+            "functions": [
+              "status_enlightenment"
+            ],
+            "recordings": [
+              "recordings/insight.c/attributes-enlightenment-pilot.session.json",
+              "recordings/insight.c/attributes-enlightenment-wizard-orc.session.json",
+              "recordings/insight.c/attributes-enlightenment-hallucination-independent.session.json",
+              "recordings/insight.c/attributes-enlightenment-deaf-independent.session.json"
+            ]
+          },
+          {
+            "name": "ending disclosure status window, including alive and dead final modes",
+            "functions": [
+              "status_enlightenment"
+            ],
+            "recordings": []
+          },
+          {
+            "name": "polymorphed attributes status window",
+            "functions": [
+              "status_enlightenment"
+            ],
+            "recordings": []
+          }
+        ]
+      }
     }
   ]
 }
