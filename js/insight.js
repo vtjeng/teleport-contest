@@ -2118,7 +2118,7 @@ export function record_achievement(achidx, state = game) {
     }
 }
 
-// C ref: insight.c count_achievements() (2520-2530). The list is zero
+// C ref: insight.c count_achievements() (2494-2501). The list is zero
 // terminated even though its backing array has one spare slot; count only
 // the entries before that sentinel and keep this helper free of side effects.
 export function count_achievements(state = game) {
