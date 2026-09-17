@@ -56835,6 +56835,382 @@
         "screens": 10662,
         "rng": 760877
       }
+    },
+    {
+      "id": "port-end.c-lifesaved-seed0399-20260916",
+      "kind": "file-port",
+      "status": "parked",
+      "summary": "Complete death recovery and one-shot amulet life saving",
+      "cFile": "end.c",
+      "sessions": [
+        "holdout/seed0399-wizard-hallu-actions"
+      ],
+      "selectionReason": "Integrate the next ready worker delivery for seed0399 after A15 closure. The higher-ranked Knight Hellfill scope belongs to worker A; this complete done source family is independently ready.",
+      "detail": "Select whole end.c done1020-1126 with complete savelife and fuzzer_savelife supporting dependencies, canonical amulet consumption, paranoid query and live lethal callers. Three independent recordings cover direct and monster amulet recovery. Active exceptional entry families remain unrecorded; close the verified span then park this goal rather than claim their completion.",
+      "spans": [
+        {
+          "name": "done",
+          "status": "queued",
+          "closedBy": null,
+          "functions": [
+            "done"
+          ]
+        }
+      ],
+      "openedAt": "7ce3dfb6ccbdcd8ee27cb469087be4d61d5e0b1c",
+      "openStanding": {
+        "sha": "1155b6ce37b4fb66db2dba00916ea4a0dd6b8557",
+        "screens": 10662,
+        "rng": 760877
+      },
+      "closedAt": null,
+      "delivered": null,
+      "functions": [
+        {
+          "name": "done",
+          "line": 1020,
+          "endLine": 1129,
+          "declared": true,
+          "complete": false
+        }
+      ],
+      "range": {
+        "from": 1020,
+        "to": 1129
+      },
+      "activeStanding": {
+        "sha": "1155b6ce37b4fb66db2dba00916ea4a0dd6b8557",
+        "screens": 10662,
+        "rng": 760877
+      },
+      "openMismatches": [
+        {
+          "session": "holdout/seed0399-wizard-hallu-actions",
+          "step": 448,
+          "kind": "stop",
+          "function": null,
+          "functionDeclared": false,
+          "sourceFile": null,
+          "cFile": null,
+          "luaFile": null,
+          "line": null,
+          "message": "the amulet of life saving",
+          "unlocatedKinds": [],
+          "recordedSteps": 532,
+          "remainingScreensUpperBound": 84,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/holdout/seed0399-wizard-hallu-actions.json",
+            "result": {
+              "session": "holdout/seed0399-wizard-hallu-actions",
+              "remainingScreensUpperBound": 84,
+              "status": "complete",
+              "commit": "828660e9679142e24baf7f00c26130aa1c6a3207",
+              "mismatch": {
+                "session": "holdout/seed0399-wizard-hallu-actions",
+                "step": 448,
+                "kind": "stop",
+                "function": null,
+                "functionDeclared": false,
+                "sourceFile": null,
+                "cFile": null,
+                "luaFile": null,
+                "line": null,
+                "message": "the amulet of life saving",
+                "unlocatedKinds": [],
+                "recordedSteps": 532,
+                "remainingScreensUpperBound": 84
+              },
+              "summary": "The accepted game still refuses life saving at step 448. The candidate covers amulet recovery and the remaining done() branches, including the debug-fuzzer canned wizmakemap command after repeated deaths. Three independent recordings match; combined validation is pending, and active exceptional death entries still lack production recordings.",
+              "source": {
+                "file": "end.c",
+                "functions": [
+                  "done",
+                  "savelife"
+                ],
+                "branch": "C end.c done()1081-1103 enters when u.uprops[LIFESAVED].extrinsic is true and how <= GENOCIDED, after the status/death bookkeeping has set mortality and HP to zero. In source order it prints \"But wait...\", makeknown(AMULET_OF_LIFE_SAVING), the sight-dependent medallion line, the CHOKING vomit line when applicable, \"You feel much better!\", and the dust line; consumes uamul with useup() when present; calls adjattrib(A_CON, -1, TRUE), then savelife(how). GENOCIDED prints its still-genocided line; every other how formats the killer for LL_LIFESAVE, sets survive, and returns through the killer-clear path instead of really_done(). C savelife()704-756 then restores level/HP, hunger and fatal sickness state, multi/context, lava trap, status/cursor and monster-attachment state in source order. The assigned DIED witness takes this branch before the wizard Die? query. The current JS branch at end.js:638-642 refuses before all side effects.",
+                "callers": [
+                  "C mhitu.c mattacku()491-947 reaches hitmu()1144-1267, mdamageu()1902-1927, and done_in_by()1925; monmove.c dochug()965-972 is the monster-turn caller. JS allmain.js advanceElapsedTurn()1238-1255 runs the same movemon/movemon_singlemon path, js/mhitu.js hitmu()1415 calls mdamageu(), and js/mhitu.js mdamageu()1461-1496 calls done_in_by() on the live pass.",
+                  "C hack.c losehp()4279-4288 is the other direct DIED funnel: after HP drops below one it sets the killer, emits urgent \"You die...\", and calls done(DIED). JS hack.js losehp()1211-1255 preserves that call, so the end.c life-saving arm must be usable from both monster damage and hero-side lethal damage.",
+                  "C end.c done_in_by()185-344 emits the regular \"You die...\", builds svk.killer and calls done() at342; js/end.js done_in_by()327-461 is its production counterpart. The life-saving return must leave this caller alive with the killer reset and without entering really_done().",
+                  "C cmd.c puton dispatches do_wear.c doputon()2454-2469 -> accessory_or_armor_on()2209-2428 -> Amulet_on()963-1087 -> setworn(), which sets the LIFESAVED extrinsic. JS cmd.js admits puton at1812 and dispatches doputon()5098-5099; js/do_wear.js accessory_or_armor_on()2576-2887 reaches Amulet_on(), so the prior end.js comment that no command can equip the amulet is stale. The assigned input includes takeoff/puton before the lethal turn."
+                ],
+                "dependencies": [
+                  "C invent.c useup()1321-1333 -> useupall()1310-1317 -> setnotworn() removes the worn amulet and its LIFESAVED extrinsic before object deallocation. JS invent.js useup()5006-5016 requires a setNotWorn hook for a worn object; wire the do_wear.js setwornEnv()/worn.js setnotworn() contract, including cancelDoff and monsterUnseesProperty hooks, and pass any live inventory-refresh hook required by perm_invent.",
+                  "C hack.h makeknown(x)1530 expands to o_init.c discover_object(x, TRUE, TRUE, TRUE); JS end.js already imports discover_object(). Preserve the source discovery ledger, inventory update and Wisdom exercise draw (rn2(19) when the amulet type is not already known) rather than annotating or inventing a draw.",
+                  "C attrib.c adjattrib()117-199 changes ABASE/AMAX and can draw rn2() below the racial minimum, resets exercise and marks botl; msgflg TRUE suppresses the feeling text. JS attrib.js adjattrib()1137-1234 is asynchronous and requires an encumberMessage operation for an in-moveloop Constitution change, so done() must supply the existing pickup.js encumber_msg() boundary and preserve await order.",
+                  "C end.c savelife() consumes minuhpmax(), setuhpmax(), ACURR(), init_uhunger(), reset_utrap(), curs_on_u(), endmultishot(), expels() and unstuck(). JS end.js savelife()221-300 has the ordinary restoration but still explicitly refuses make_sick() for one-turn sickness, expels() while swallowed, and the stuck-monster release/unstuck arm. Keep those source gaps explicit or carry their callees in the same span; do not silently turn them into completed life-saving behavior.",
+                  "C end.c formatkiller() and livelog_printf(LL_LIFESAVE, \"averted death (%s)\", killbuf) at1098-1101 are consumed after savelife(); JS topten.js formatkiller() and pline.js livelog_printf() already own the equivalent state, so preserve the LL_LIFESAVE chronicle entry and clear killer.name/format only after the survival path is complete.",
+                  "The JS planning caller js/mhitu.js mdamageu()1466-1491 currently simulates every wizard/discover lethal hit as the Die? refusal and raises MonsterDeathPlanningError for other modes. A complete lifesaver path must make the clone/live contract account for uprops[LIFESAVED].extrinsic, consume/clear that one-shot property in the clone, apply the source-defined savelife recovery through clone-compatible canonical owners without terminal operations, and avoid allowing a second planned death to reuse the spent amulet."
+                ]
+              },
+              "goalKind": "file-port",
+              "evidence": [
+                "Bounded focused replay run-GOxTFS, receipt /tmp/teleport-validation-1000/run-GOxTFS/receipt.json, used only sessions/holdout/seed0399-wizard-hallu-actions.session.json at examined commit 828660e9679142e24baf7f00c26130aa1c6a3207. It emitted 448 screens with divergence=null and stopped at the assigned boundary; replay-result is saved at .cache/investigate-seed0399-828660e9/replay-result.json.",
+                "The current A12 queue entry is step448, message \"the amulet of life saving\", recordedSteps532 and remainingScreensUpperBound84. The C boundary screen begins \"You die...  But wait...  Your medallion begins to glow!--More--\"; the next recorded screen begins \"You feel much better!\", proving that C proceeds through the life-saving display rather than refusing at the command.",
+                "The replay result records the assigned seed399, datetime20000110090000, Wizard Trippy configuration and the input through the boundary. Its issued commands include takeoff and puton before the fatal monster turn, and the C step RNG includes rn2(19)=15 at exercise(attrib.c:509); the branch must preserve discovery/exercise and subsequent source order.",
+                "C end.c done()1081-1103 is the exact source path: Lifesaved is checked after mortality/HP-zero bookkeeping, the medallion is identified and consumed, Constitution is adjusted, savelife() runs, and survive suppresses really_done(). C end.c savelife()704-756 supplies the restoration contract and its swallowed/sick/stuck guarded callees.",
+                "At the examined commit, js/end.js Lifesaved()203-209 correctly reads the property but its done() branch638-642 throws before C output, useup(), adjattrib(), savelife(), formatkiller() or livelog_printf(). The existing js/end.js savelife()221-300 therefore cannot make the current branch reachable by itself.",
+                "The assigned caller chain is source-backed in C mhitu.c mdamageu()1902-1927 and end.c done_in_by()185-344, with the second direct funnel in hack.c losehp()4279-4288. JS mhitu.js/hack.js/end.js carry those callers, so implementing only the annotation or only the existing savelife helper would leave the live lethal path stopped.",
+                "Prior count-97 evidence is retained only as counter-evidence: focused comparisons attributed the old missing-dagger/wipe RNG to an un-awaited flooreffects() Promise and found no demonstrated concurrency defect. That old thitmonst/floor-effects diagnosis is not the current count-84 source owner.",
+                "Candidate e48cbd7ae23eab3ada0a575ffaf58ca8b57a8f0a supplies three independent direct-damage and monster-damage recordings (9637 RNG calls and 146 screens/cursors). This is worker evidence, not accepted combined validation; the fixed mismatch remains at 84 remaining screens until a candidate passes the orchestrator checkpoint.",
+                "Source corrections through candidate 4c7f81ec complete done() TRICKED, paranoid confirmation, fuzzer survival, hung-up death and killer-string branches. GENOCIDED still queries the actual ParanoidDie option after life saving; cmd.c paranoid_ynq preserves C prompt bounds, newline truncation and retries. Monster planning stops at the existing lethal boundary instead of approximating amulet consumption, Constitution reduction and recovery RNG. hack.c unmul now prints the current polymorphed form after survival. Source-ordered savelife retains discarded potion.c make_sick and the unported TRUE-message expels arm as explicit gaps. These source corrections remain pending combined validation.",
+                "Source review at candidate 4c7f81ec found that fuzzer_savelife omitted end.c1007–1013 cmdq_add_ec(CQ_CANNED,wiz_makemap) after repeated wizard deaths. Correction 82aada22, included in submitted 09d74ddc, restores the canonical queue node before returning, so rhack consumes it before new input. The callback remains unported at the existing command-dispatch boundary. The source-pinned queue test and all 47 hero-death cases pass; combined acceptance remains pending."
+              ],
+              "nextProbe": "Complete the whole done()/savelife source family and required caller corrections, including the paranoid query, monster planning boundary and polymorphed unmul follow-up. Preserve the three independent matching recordings and add evidence for newly completed entry paths before retrying combined validation."
+            }
+          }
+        }
+      ],
+      "progressBeforePark": {
+        "screens": 0,
+        "rng": 0
+      },
+      "parkedStanding": {
+        "sha": "1155b6ce37b4fb66db2dba00916ea4a0dd6b8557",
+        "screens": 10662,
+        "rng": 760877
+      },
+      "parkedReason": "Combined candidate 9b147c15 failed elapsed-turn movement gates after live monster death recovery; preserved on codex/B16-failed-bc60daaf while worker B corrects continuation. Integrate independent ready Hellfill delivery on accepted main first."
+    },
+    {
+      "id": "port-hellfill-lua-seed4500-20260916",
+      "kind": "lua-port",
+      "status": "parked",
+      "summary": "Port the complete Gehennom filler program and source-ordered terrain and prefab behavior",
+      "luaFile": "hellfill.lua",
+      "sessions": [
+        "holdout/seed4500-knight-coverage"
+      ],
+      "selectionReason": "The highest eligible saved mismatch is holdout/seed4500-knight-coverage step 1278: generator 2 of dat/hellfill.lua is missing, so select the complete Lua program and its terrain and selection dependencies.",
+      "detail": "Whole dat/hellfill.lua: all seven generators, ten prefabs, helper definitions, top-level population, and stair/invocation tail. Supporting sel_set_ter ICE/CLOUD and absolute no-operand selection negate preserve C descriptor semantics. Seven independent generation recordings match; invocation-level production evidence remains open. Planning reconciliation: the historical generator-3 goal explicitly left generators 1, 2, 4 and 6 unsupported; its inherited completion flag does not establish whole-program completion. Preserve its historical evidence and plan hellfill.lua again under the whole-source rule.",
+      "spans": [
+        {
+          "name": "hellfill.lua",
+          "status": "closed",
+          "closedBy": "e0b9b5f47e63e215870c9175b7cb2569fa67a9ae",
+          "functions": [
+            "hellfill.lua"
+          ]
+        }
+      ],
+      "openedAt": "87c1960275f476edaccb2ba48a48c3e41a09e41d",
+      "openStanding": {
+        "sha": "1155b6ce37b4fb66db2dba00916ea4a0dd6b8557",
+        "screens": 10662,
+        "rng": 760877
+      },
+      "closedAt": null,
+      "delivered": null,
+      "functions": [
+        {
+          "name": "hellfill.lua",
+          "line": 1,
+          "endLine": 443,
+          "declared": false,
+          "complete": true
+        }
+      ],
+      "activeStanding": {
+        "sha": "1155b6ce37b4fb66db2dba00916ea4a0dd6b8557",
+        "screens": 10662,
+        "rng": 760877
+      },
+      "openMismatches": [
+        {
+          "session": "holdout/seed4500-knight-coverage",
+          "step": 1278,
+          "kind": "stop",
+          "function": null,
+          "functionDeclared": false,
+          "sourceFile": null,
+          "cFile": null,
+          "luaFile": null,
+          "line": null,
+          "message": "unsupported level change: hellfill generator 2 not ported",
+          "unlocatedKinds": [],
+          "recordedSteps": 1814,
+          "remainingScreensUpperBound": 536,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/holdout/seed4500-knight-coverage.json",
+            "result": {
+              "session": "holdout/seed4500-knight-coverage",
+              "remainingScreensUpperBound": 536,
+              "status": "complete",
+              "commit": "493a6a8b43ecccc0dc0e6b5543a3d951f7c3e16d",
+              "mismatch": {
+                "session": "holdout/seed4500-knight-coverage",
+                "step": 1278,
+                "kind": "stop",
+                "function": null,
+                "functionDeclared": false,
+                "sourceFile": null,
+                "cFile": null,
+                "luaFile": null,
+                "line": null,
+                "message": "unsupported level change: hellfill generator 2 not ported",
+                "unlocatedKinds": [],
+                "recordedSteps": 1814,
+                "remainingScreensUpperBound": 536
+              },
+              "summary": "The blindness cure now matches. At step1278 the Knight enters Gehennom and selects Hell filler generator2, which JavaScript still refuses. Complete the whole hellfill.lua program, including its remaining generators, prefab helpers and top-level population order.",
+              "source": {
+                "file": "hellfill.lua",
+                "functions": [
+                  "hellfill.lua"
+                ],
+                "branch": "C dat/hellfill.lua431 selects hells[2] with rn2(7)=1. That generator initializes solidfill and mazegrid, calls des.mazewalk from coordinate(1,10) east without stocking, derives the protected selection, calls hell_tweaks, and conditionally places a prefab. js/hell_levels.js HELL_GENERATORS[1] throws before maze walking. The next C draw is walkfrom(mkmaze.c1304), but that existing helper is not the missing source owner.",
+                "callers": [
+                  "dungeon_data.js registers Gehennom lvlfill hellfill; mklev.js makelevel and load_special dispatch its registered HELL_LEVEL_LOADERS. This path does not use the empty-prototype procedural makemaz fallback.",
+                  "hellfill top-level selects one of seven generators, creates up/down stairs or the invocation vibrating square, then calls populatemaze; preserve awaited descriptor completion through B15 shared loader wiring."
+                ],
+                "dependencies": [
+                  "Port all hellfill.lua top-level statements and helpers, all seven generators and the complete hell_prefabs table/rnd_hell_prefab loop. Generators1,2,4,6 currently refuse; existing3,5,7 and populatemaze require whole-source verification rather than declaration counting.",
+                  "Reuse and verify canonical mklev.js lspo_level_init mazegrid, lspo_mazewalk and walkfrom, selection operations, and asmodeus_levels.js hell_tweaks. Match Lua numeric-for bounds, shuffle, selection traversal and random draw order.",
+                  "The saved witness does not take generator2's optional prefab arm, but that is a valid source branch and cannot be omitted from the whole Lua port. Keep inputs independent for new entry-point recipes."
+                ]
+              },
+              "goalKind": "lua-port",
+              "evidence": [
+                "Passing checkpoint493a6a8b43ecccc0dc0e6b5543a3d951f7c3e16d/run-P1AZrQ establishes10613/11405screens,760315/792838RNG,10635/11405cursors and293/293recordings. Knight screens advance1204→1278 and RNG90544→90863; all other43 fixed-session metrics are unchanged.",
+                "Saved .cache/A14-development-scan.json has no earlier screen/RNG/cursor divergence and stops at1278 with unsupported level change: hellfill generator2 not ported. The preceding source selector is rn2(7)=1 from hellfill.lua431; the missing next draw belongs to walkfrom.",
+                "The two independent timed-blind extra-healing recordings show A cloud of darkness falls upon you. before the production cure You feel much better. You can see again.; they establish the completed make_blinded transition. The older BUC recordings begin sighted and establish the unchanged-zero call only.",
+                "Historical counter-evidence: a later refusal does not establish the first mismatch. Earlier comparisons emitted1101 screens but first diverged at1063 in the blind pile heading, then1094 in blindness state. Compare screens, cursors and RNG before treating an emitted-screen count as parity.",
+                "Historical tactile recipe counter-evidence: the initial welcome More prompt consumed Ctrl-W in the invalid punishment setup, so the subsequent inventory screen and obj_resists mismatch did not establish a feel_location defect. The corrected sighted punishment recording verifies setup only; it does not reach feel_location. Unrecorded active tactile and beam entry points remain tracked in their parked goals.",
+                "Historical return-contract counter-evidence: feel_location must complete before the wounded-monster continuation is accepted; the earlier source candidate threw inside the incomplete segment and the scorer discarded it. The recovered failure is preserved in checkpoint history and is not a new score gain."
+              ]
+            }
+          }
+        }
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "hellfill.lua",
+            "implementation": "js/hell_levels.js",
+            "symbol": "hellfill",
+            "sourceReview": "Read nethack-c/upstream/dat/hellfill.lua:1-443 in full, including the hellobjects, hellmonsters, helltraps, populatemaze, alignment helpers, ten prefab entries, rnd_hell_prefab, all seven hells generator arms, common stair or invocation trap tail, and top-level population call. The port preserves Lua evaluation order and awaits each descriptor callback in source order. The ten prefab entries now evaluate their explicit halign/valign expressions before des.map(), so centered prefab 4 consumes no alignment draw and the other entries retain the source horizontal-before-vertical order; prefabMap no longer inserts an implicit draw. Read dat/nhlib.lua and nhlua.c nhl_random: math.random(n) is one-based 1 + rn2(n), math.random(a,b) is a + rn2(b-a+1), and shuffle/percent use those bounds; js/hell_levels.js keeps the injected rn2-shaped callback and js/asmodeus_levels.js forwards it through hell_tweaks. Read sp_lev.c lspo_terrain/sel_set_ter: set_levltyp_lit performs the single lighting update, ICE updates icedpool only with splev_init_present, and CLOUD clears engravings after a successful terrain write; js/mklev.js owns those arms and lspo_terrain forwards the source RNG. Read selvar.c selection_new/selection_not and nhlsel.c l_selection_not: selection_new and matching selections use map coordinates, so no-operand selection_negate preserves an absolute frame while relative area constructors remain relative. All seven generator arms, all ten prefabs and their alignment/draw order, common-tail branches, population order, special-level terrain arms, and selection-coordinate behavior are source-pinned. No unported callee, injected substitute, or swallowed refusal remains within this Lua program and its recorded helper scope.",
+            "callers": [
+              {
+                "path": "js/mklev.js",
+                "symbol": "makelevel",
+                "source": "mklev.c makelevel():1251-1274 resolves the dungeon fill_lvl and invokes mkmaze.c makemaz(); js/mklev.js follows this production dispatch."
+              },
+              {
+                "path": "js/mklev.js",
+                "symbol": "makemaz",
+                "source": "mkmaze.c makemaz() resolves the fill protofile and calls load_special() for the selected special-level loader."
+              },
+              {
+                "path": "js/mklev.js",
+                "symbol": "load_special",
+                "source": "sp_lev.c load_special():6454 loads the Lua level program; js/mklev.js load_special resolves HELL_LEVEL_LOADERS.hellfill and executes it through the special-level API."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/hellfill-level-loader.test.mjs",
+              "scripts/asmodeus-level-loader.test.mjs",
+              "scripts/sel-set-ter.test.mjs",
+              "scripts/themerooms-selection.test.mjs"
+            ],
+            "recordings": [
+              "recordings/hellfill.lua/generator-1-independent-82016.session.json",
+              "recordings/hellfill.lua/generator-2-independent-82003.session.json",
+              "recordings/hellfill.lua/generator-3-independent-82005.session.json",
+              "recordings/hellfill.lua/generator-4-independent-82001.session.json",
+              "recordings/hellfill.lua/generator-5-independent-82002.session.json",
+              "recordings/hellfill.lua/generator-6-independent-82028.session.json",
+              "recordings/hellfill.lua/generator-7-independent-82008.session.json"
+            ],
+            "checkedAt": "526fd9b16f0b8e274dd436131cf12d1fce3e69cf"
+          }
+        ],
+        "entryPointReview": "The selected Lua program has seven generator entry points in hells[1] through hells[7]. Each is covered by one independently chosen production recipe and strict C/JavaScript recording under recordings/hellfill.lua/. The recipes vary seed, date/time and character name and each selects the named generator in the patched C recorder; the bounded matrix run-Qq0N19 matches 149608 PRNG calls, 112 screens and 112 cursors across all seven segments. The source-only definitions hellobjects(), hellmonsters(), and helltraps() have no production dat callers and are not claimed as loader entry points; their definitions remain source-pinned in js/hell_levels.js. The descriptor callback test invokes all ten prefab contents functions and asserts placement and random draw order. Orchestrator source comparison verifies rnd_hell_prefab() repeatability, the inclusive [0, nloops * 2] draw, and its six-iteration stopping rule. populatemaze() is reached through the top-level loader in the seven recordings. The common up-stair/down-stair tail is reached by those recordings. The invocation-level vibrating-square branch is an active production feature, but no committed recording currently reaches that level, so it remains listed with an empty recording array. The sel_set_ter ICE/CLOUD arms and one-draw SET_LIT_RANDOM contract are pinned by sel-set-ter.test.mjs, while the selection_new/selection_not absolute-frame contract is pinned by themerooms-selection.test.mjs and the generator-6 recording. Production wiring is traced through mklev.js makelevel -> makemaz -> load_special -> HELL_LEVEL_LOADERS.hellfill.",
+        "entryPoints": [
+          {
+            "name": "Hellfill generator 1 (hells[1] mines with lava)",
+            "functions": [
+              "hellfill.lua"
+            ],
+            "recordings": [
+              "recordings/hellfill.lua/generator-1-independent-82016.session.json"
+            ]
+          },
+          {
+            "name": "Hellfill generator 2 (hells[2] mazegrid with hell_tweaks)",
+            "functions": [
+              "hellfill.lua"
+            ],
+            "recordings": [
+              "recordings/hellfill.lua/generator-2-independent-82003.session.json"
+            ]
+          },
+          {
+            "name": "Hellfill generator 3 (hells[3] random corridor maze)",
+            "functions": [
+              "hellfill.lua"
+            ],
+            "recordings": [
+              "recordings/hellfill.lua/generator-3-independent-82005.session.json"
+            ]
+          },
+          {
+            "name": "Hellfill generator 4 (hells[4] iron or lava maze)",
+            "functions": [
+              "hellfill.lua"
+            ],
+            "recordings": [
+              "recordings/hellfill.lua/generator-4-independent-82001.session.json"
+            ]
+          },
+          {
+            "name": "Hellfill generator 5 (hells[5] thick-wall maze)",
+            "functions": [
+              "hellfill.lua"
+            ],
+            "recordings": [
+              "recordings/hellfill.lua/generator-5-independent-82002.session.json"
+            ]
+          },
+          {
+            "name": "Hellfill generator 6 (hells[6] cold maze)",
+            "functions": [
+              "hellfill.lua"
+            ],
+            "recordings": [
+              "recordings/hellfill.lua/generator-6-independent-82028.session.json"
+            ]
+          },
+          {
+            "name": "Hellfill generator 7 (hells[7] open cavern)",
+            "functions": [
+              "hellfill.lua"
+            ],
+            "recordings": [
+              "recordings/hellfill.lua/generator-7-independent-82008.session.json"
+            ]
+          },
+          {
+            "name": "Hellfill invocation-level vibrating-square tail",
+            "functions": [
+              "hellfill.lua"
+            ],
+            "recordings": []
+          }
+        ]
+      },
+      "progressBeforePark": {
+        "screens": 48,
+        "rng": 9521
+      },
+      "parkedStanding": {
+        "sha": "e0b9b5f47e63e215870c9175b7cb2569fa67a9ae",
+        "screens": 10710,
+        "rng": 770398
+      },
+      "parkedReason": "Whole-program span passed combined validation, with seven matching generator recordings. The active invocation-level vibrating-square entry has no production recording, so retain that completion requirement."
     }
   ]
 }
