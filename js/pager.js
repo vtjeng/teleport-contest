@@ -31,6 +31,7 @@ import {
     I_SPECIAL,
     INFRAVISION,
     INVIS,
+    SEE_INVIS,
     TELEPAT,
     DETECT_MONSTERS,
     MONSEEN_NORMAL,
@@ -41,6 +42,8 @@ import {
     MONSEEN_DETECT,
     MONSEEN_WARNMON,
     M_AP_F_DKNOWN,
+    M_AP_FURNITURE,
+    M_AP_MONSTER,
     M_AP_OBJECT,
     M_AP_TYPMASK,
     ICE,
@@ -67,6 +70,7 @@ import {
     SCORR,
     SDOOR,
     STONE,
+    STRAT_WAITMASK,
     Upolyd,
     Ugender,
     has_mcorpsenm,
@@ -74,7 +78,14 @@ import {
     u_at,
     isok,
 } from './const.js';
-import { hliquid, mon_nam, pmname, rndmonnam, y_monnam } from './do_name.js';
+import {
+    Mgender,
+    hliquid,
+    mon_nam,
+    pmname,
+    rndmonnam,
+    y_monnam,
+} from './do_name.js';
 import { on_level, surface_typ } from './dungeon.js';
 import { is_drawbridge_wall } from './dbridge.js';
 import { altarmask_at } from './pray.js';
@@ -116,7 +127,7 @@ import {
 } from './display.js';
 import { DATA_BASE_ENTRIES } from './data_base_data.js';
 import { engr_at } from './engrave.js';
-import { fruit_from_name, makesingular } from './fruit.js';
+import { fruit_from_name, makeplural, makesingular } from './fruit.js';
 import { LOOK_TRADITIONAL, getpos } from './getpos.js';
 import { game } from './gstate.js';
 import { visible_region_at } from './region.js';
@@ -126,15 +137,16 @@ import { currency, display_inventory } from './invent.js';
 import { tty_yn_function } from './getline.js';
 import { m_at } from './monst.js';
 import {
-    NUMMONS, PM_GNOME, PM_SAMURAI, PM_WIZARD, S_invisible,
+    M2_DEMON, M2_ELF, M2_HUMAN, M2_ORC,
+    NUMMONS, PM_GNOME, PM_SAMURAI, PM_WIZARD, S_EEL, S_MIMIC, S_invisible,
 } from './monsters.js';
 import { ok_to_quest } from './quest.js';
 import {
     an,
     ansimpleoname,
     distant_name,
-    donameFresh,
     doname_with_price,
+    doname_vague_quan,
     singular,
     xnameFresh,
 } from './objnam.js';
@@ -171,6 +183,7 @@ import {
     S_hcdbridge,
     S_ndoor,
     S_pool,
+    S_poisoncloud,
     S_stone,
     S_vodbridge,
     S_water,
@@ -191,8 +204,24 @@ import {
 } from './objects.js';
 import { NO_COLOR } from './terminal.js';
 import { rn2, rn2_on_display_rng } from './rng.js';
-import { describeMonster, heroIsBlind, mhidden_description } from './startup_a11y.js';
-import { sticks } from './mondata.js';
+import {
+    bufferedGlyphSubjectAt,
+    bufferedObjectSubjectAt,
+    describeMonster,
+    furnitureDescription,
+    heroIsBlind,
+    hiddenObjectPhrase,
+    monsterSurfaceDescription,
+    withBufferedObject,
+} from './startup_a11y.js';
+import {
+    gender,
+    hides_under,
+    is_clinger,
+    is_flyer,
+    is_hider,
+    sticks,
+} from './mondata.js';
 import { digests } from './dothrow.js';
 import {
     displayTtyMenuTextWindow,
@@ -203,7 +232,7 @@ import {
 import { ttyPline, ttyPutmixed } from './tty_message.js';
 import { doextversion } from './version.js';
 import { is_lava, is_pool, t_at, trapname, Levitation } from './trap.js';
-import { cansee, couldsee, howmonseen, warningMonsterName } from './vision.js';
+import { cansee, couldsee, howmonseen } from './vision.js';
 import { spot_time_left } from './timeout.js';
 import { getlin, select_menu } from './windows.js';
 import { key2extcmddesc, key2txt, yn_function } from './cmd.js';
@@ -299,6 +328,174 @@ function menuLines(state) {
     return [...items.slice(0, 3), { text: '' }, ...items.slice(3)];
 }
 
+// C ref: pager.c mhidden_description() (186-281).  This helper belongs to
+// pager.c even though monster status-line code also consumes it.  `isYou`
+// preserves the source's special treatment of &gy.youmonst: its coordinates,
+// hidden flag, appearance type, and current glyph all come from u rather than
+// from the synthetic monster record used by some callers.
+export function mhidden_description(
+    monster,
+    state,
+    {
+        includePrefix = true,
+        includeArticle = true,
+        showAlternateMonster = false,
+        forceRegion = false,
+        isYou = monster === state?.youmonst,
+    } = {},
+) {
+    const u = state?.u ?? {};
+    const x = isYou ? u.ux : monster.mx;
+    const y = isYou ? u.uy : monster.my;
+    const appearance = (isYou
+        ? (u.ap_type ?? monster.m_ap_type ?? 0)
+        : (monster.m_ap_type ?? 0)) & M_AP_TYPMASK;
+    const hidden = isYou ? Boolean(u.uundetected) : Boolean(monster.mundetected);
+    const sourceMonster = isYou
+        ? {
+            ...monster,
+            mx: x,
+            my: y,
+            mundetected: hidden,
+            m_ap_type: appearance,
+        }
+        : monster;
+    const currentGlyph = isYou ? glyph_at(x, y, state) : null;
+    let suffix = '';
+    if (appearance === M_AP_FURNITURE) {
+        const what = furnitureDescription(monster.mappearance) ?? 'something';
+        const article = includeArticle ? an(what) : '';
+        suffix = `${includePrefix ? ', mimicking ' : ''}${article}${what}`;
+    } else if (appearance === M_AP_OBJECT) {
+        let what = null;
+        if (isYou) {
+            const resolved = glyph_is_object(currentGlyph)
+                ? object_from_map(currentGlyph, x, y, state) : null;
+            if (resolved?.object) {
+                try {
+                    what = hiddenObjectPhrase(resolved.object, state);
+                } finally {
+                    if (resolved.fakeobj) {
+                        resolved.object.where = OBJ_FREE;
+                        dealloc_obj(resolved.object, { state });
+                    }
+                }
+            }
+        } else {
+            const subject = bufferedObjectSubjectAt(sourceMonster, state);
+            if (subject) {
+                what = withBufferedObject(
+                    subject,
+                    x,
+                    y,
+                    state,
+                    (object) => hiddenObjectPhrase(object, state),
+                );
+            }
+        }
+        if (!what) what = 'something';
+        if (!includeArticle) what = what.replace(/^(?:an?|the) /iu, '');
+        suffix = `${includePrefix ? ', mimicking ' : ''}${what}`;
+    } else if (appearance === M_AP_MONSTER) {
+        const alternate = state.mons?.[monster.mappearance];
+        if (showAlternateMonster && alternate) {
+            const what = pmname(
+                alternate,
+                gender(monster),
+            );
+            const article = includeArticle ? an(what) : '';
+            suffix = `${includePrefix ? ', masquerading as ' : ''}`
+                + `${article}${what}`;
+        }
+    } else if (hidden) {
+        suffix = ', hiding';
+        if (hides_under(sourceMonster.data)) {
+            let what = null;
+            if (isYou) {
+                if (glyph_is_object(currentGlyph)) {
+                    const resolved = object_from_map(
+                        currentGlyph,
+                        x,
+                        y,
+                        state,
+                    );
+                    if (resolved?.object) {
+                        try {
+                            what = hiddenObjectPhrase(resolved.object, state);
+                        } finally {
+                            if (resolved.fakeobj) {
+                                resolved.object.where = OBJ_FREE;
+                                dealloc_obj(resolved.object, { state });
+                            }
+                        }
+                    }
+                }
+            } else {
+                const buffered = bufferedGlyphSubjectAt(sourceMonster, state);
+                what = buffered.subject?.type === 'object'
+                    ? withBufferedObject(
+                        buffered.subject,
+                        x,
+                        y,
+                        state,
+                        (object) => hiddenObjectPhrase(object, state),
+                    )
+                    : buffered.hasSubject
+                        || state.level?.flags?.hero_memory === false
+                        ? null
+                        : state.level?.objects?.[x]?.[y]
+                            ? hiddenObjectPhrase(
+                                state.level.objects[x][y],
+                                state,
+                            )
+                            : null;
+            }
+            suffix += what ? ` under ${what}` : ' under something';
+        } else if (is_hider(sourceMonster.data)) {
+            const ceiling = (is_clinger(sourceMonster.data)
+                    && sourceMonster.data?.mlet !== S_MIMIC)
+                || is_flyer(sourceMonster.data);
+            suffix += ceiling
+                ? ' on the ceiling'
+                : ` on the ${monsterSurfaceDescription(sourceMonster, state)}`;
+        } else if (sourceMonster.data?.mlet === S_EEL
+            && [POOL, MOAT, WATER].includes(
+                state.level?.at(x, y)?.typ,
+            )) {
+            suffix += ' in murky water';
+        }
+    }
+
+    const region = visible_region_at(x, y, state);
+    const range = Math.max(Math.trunc(state.u?.xray_range ?? 0), 1);
+    const regionNear = dist2(x, y, u.ux, u.uy) <= range * (range + 1);
+    if (region && (forceRegion || regionNear)) {
+        suffix += `, in a cloud of ${
+            region.glyph_cmap === S_poisoncloud ? 'poison gas' : 'vapor'
+        }`;
+    }
+    return suffix;
+}
+
+// C ref: pager.c look_at_monster() warning wording (510-538). The sensing
+// mask is owned by vision.c, but the player-facing warning name belongs to
+// this pager source owner.
+function warningDescription(monster, state) {
+    const warning = state.context?.warntype ?? {};
+    const flags = warning.obj | warning.polyd;
+    const monsterFlags = monster?.data?.mflags2 ?? 0;
+    if (flags & M2_HUMAN & monsterFlags) return 'human';
+    if (flags & M2_ELF & monsterFlags) return 'elf';
+    if (flags & M2_ORC & monsterFlags) return 'orc';
+    if (flags & M2_DEMON & monsterFlags) return 'demon';
+    return monster?.data
+        ? pmname(monster.data, Mgender(monster, state)) : 'monster';
+}
+
+function warningMonsterName(monster, state = game) {
+    return makeplural(warningDescription(monster, state));
+}
+
 // C ref: pager.c self_lookat() (108-133). Keep all state-sensitive suffixes
 // in this source owner; the same text is used by lookat() and look_all().
 export function self_lookat(state = game) {
@@ -327,7 +524,10 @@ export function self_lookat(state = game) {
     if (u.uundetected
         || (heroAppearance & M_AP_TYPMASK)
         || visible_region_at(u.ux, u.uy, state)) {
-        description += mhidden_description(heroMonster, state);
+        description += mhidden_description(heroMonster, state, {
+            isYou: true,
+            forceRegion: true,
+        });
     }
     const ball = state.uball || u.uball;
     if (ball)
@@ -344,12 +544,18 @@ export function self_lookat(state = game) {
 // separately, as its caller does.
 function look_at_monster(monster, x, y, state, output = null) {
     const hallucinating = heroHallucinating(state);
-    const name = describeMonster(monster, { state, hallucinating });
+    const name = describeMonster(monster, {
+        state,
+        hallucinating,
+        pagerBase: true,
+    });
     const tail = monster.mx !== x || monster.my !== y;
     const prefix = tail
         ? ((monster.isshk && !hallucinating) ? 'tail of ' : 'tail of a ')
         : '';
-    let detail = prefix + name;
+    const disposition = !hallucinating && monster.mtame
+        ? 'tame ' : !hallucinating && monster.mpeaceful ? 'peaceful ' : '';
+    let detail = prefix + disposition + name;
     if (state.u?.ustuck === monster) {
         if (state.u.uswallow || state.iflags?.save_uswallow) {
             detail += digests(monster.data)
@@ -360,6 +566,29 @@ function look_at_monster(monster, x, y, state, output = null) {
             detail += Upolyd(state.u) && sticks(heroSpecies)
                 ? ', being held' : ', holding you';
         }
+    }
+    if (monster.mfrozen)
+        detail += ", can't move (paralyzed or sleeping or busy)";
+    else if (monster.msleeping)
+        detail += ', asleep';
+    else if (monster.mstrategy & STRAT_WAITMASK)
+        detail += ', meditating';
+    if (monster.mleashed) detail += ', leashed to you';
+    if (monster.mtrapped && cansee(monster.mx, monster.my, state)) {
+        const trap = t_at(monster.mx, monster.my, state);
+        const description = TRAP_DESCRIPTIONS[trap?.ttyp];
+        if (description
+            && ['bear trap', 'pit', 'spiked pit', 'web'].includes(
+                description,
+            )) {
+            detail += `, trapped in ${an(description)}`;
+            trap.tseen = true;
+        }
+    }
+    if (monster.mundetected
+        || (monster.m_ap_type & M_AP_TYPMASK)
+        || visible_region_at(x, y, state)) {
+        detail += mhidden_description(monster, state, { forceRegion: true });
     }
     if (output) {
         output.monbuf = '';
@@ -410,13 +639,17 @@ export function object_from_map(glyph, x, y, state) {
         }
     }
 
-    const monster = m_at(x, y, state);
+    let monster = m_at(x, y, state);
     if (monster
         && ((monster.m_ap_type ?? 0) & M_AP_TYPMASK) === M_AP_OBJECT
         && monster.mappearance === glyphotyp) {
         object = null;
         mimicObj = true;
     }
+    // C clears the temporary monster pointer unless it is the object-shaped
+    // mimic that supplied this glyph.  Its mcorpsenm must never influence an
+    // unrelated fake corpse/statue reconstructed from the map.
+    if (!mimicObj) monster = null;
 
     if (!object || object.otyp !== glyphotyp) {
         const type = state.objects?.[glyphotyp];
@@ -482,19 +715,6 @@ export function object_from_map(glyph, x, y, state) {
     return { object, fakeobj };
 }
 
-// C ref: objnam.c doname_vague_quan(). The only difference from doname() is
-// that an unknown stack is described as "some ..." instead of exposing its
-// exact count. Keeping this adapter here avoids making the pager's C callback
-// contract depend on a second object-naming owner.
-function donameVagueQuantity(object, state) {
-    const name = donameFresh(object, state);
-    if (object.quan !== 1 && !object.dknown
-        && !state.iflags?.override_ID) {
-        return name.replace(/^\d+ /u, 'some ');
-    }
-    return name;
-}
-
 function donameWithPrice(object, state) {
     return doname_with_price(object, state, { currencyName: currency });
 }
@@ -506,8 +726,10 @@ function look_at_object(glyph, x, y, state) {
     let { object, fakeobj } = object_from_map(glyph, x, y, state);
     if (!object) return 'something';
     const location = state.level?.at(x, y);
-    const objectName = object.dknown && costly_spot(x, y, state)
-        ? donameWithPrice : donameVagueQuantity;
+    // C selects by dknown alone (pager.c:390-392); doname_with_price() owns
+    // the no-live-price fallback when the known object is outside a shop.
+    const objectName = object.dknown
+        ? donameWithPrice : doname_vague_quan;
     let result;
     try {
         result = object.otyp === STRANGE_OBJECT
@@ -1058,7 +1280,8 @@ export function lookat(x, y, state = game) {
     let buf = '';
     let monbuf = '';
     let pm = null;
-    const invisible = propertyActive(state, INVIS);
+    const invisible = propertyActive(state, INVIS)
+        && !propertyActive(state, SEE_INVIS);
     const telepathyProperty = state.u?.uprops?.[TELEPAT] ?? {};
     const telepathy = Boolean(telepathyProperty.extrinsic)
         && !telepathyProperty.blocked;
@@ -1069,10 +1292,9 @@ export function lookat(x, y, state = game) {
         || telepathy || detection;
     const selfTerrainAllowed = !state.iflags?.terrainmode
         || (state.iflags.terrainmode & TER_MON) !== 0;
-    const selfGlyph = state.iflags?.save_uswallow && u.ustuck
-        ? mon_to_glyph(u.ustuck, state) : null;
     if (u_at(x, y, state) && canSpotSelf
-        && (!state.iflags?.save_uswallow || glyph !== selfGlyph)
+        && (!state.iflags?.save_uswallow
+            || glyph !== mon_to_glyph(u.ustuck, state))
         && selfTerrainAllowed) {
         buf = self_lookat(state);
         if ((invisible || u.uundetected) && !heroBlind(state)
