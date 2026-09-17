@@ -1,47 +1,46 @@
 {
   "session": "holdout/seed4500-knight-coverage",
-  "remainingScreensUpperBound": 278,
+  "remainingScreensUpperBound": 254,
   "status": "complete",
-  "commit": "c04193106e88a205f3c6341bddcfb193bbe8284f",
+  "commit": "82ef7a6348a995565737d850a74b004963a77965",
   "mismatch": {
     "session": "holdout/seed4500-knight-coverage",
-    "step": 1536,
+    "step": 1560,
     "kind": "stop",
-    "function": "is_edible",
-    "functionDeclared": true,
-    "sourceFile": "eat.c",
-    "cFile": "eat.c",
+    "function": null,
+    "functionDeclared": false,
+    "sourceFile": null,
+    "cFile": null,
     "luaFile": null,
     "line": null,
-    "message": "unsupported hero command: an unported branch of this command: eating requires is_edible() for a polymorphed hero",
+    "message": "simple monster action requires a polymorphed hero's passive counter-attack",
     "unlocatedKinds": [],
     "recordedSteps": 1814,
-    "remainingScreensUpperBound": 278
+    "remainingScreensUpperBound": 254
   },
-  "summary": "Forced polymorph armor removal now matches through the next command sequence. The first remaining stop is eat.c is_edible: JavaScript rejects a polymorphed hero before C applies its form-specific food/material rules. Complete the pure predicate and the source-required eating continuations it admits. The shared monster damage helper is implemented for both hit-point pools; skinback artifact-light restoration remains separately unported.",
+  "summary": "Polymorphed edibility and non-food eating now pass the former boundary. The first remaining stop is the polymorphed passive counterattack in mhitu.c passiveum. Complete its source-ordered elemental, paralysis and petrification effects, the required damage/death helper, and the monster-turn caller; preserve separate unrecorded eating and armor cleanup gaps.",
   "source": {
-    "file": "eat.c",
+    "file": "mhitu.c",
     "functions": [
-      "is_edible"
+      "assess_dmg",
+      "passiveum"
     ],
-    "branch": "eat.c is_edible91–121 first rejects unique object types, then accepts fire-elemental flammable objects, metallivore metallic objects with the rust-monster rust-prone restriction, ghoul non-vegan corpses or eggs, and empty organic objects for a gelatinous cube, before the ordinary FOOD_CLASS fallback. It performs no RNG call, output or game-state mutation.",
+    "branch": "C passiveum2435–2615 selects the first AT_NONE/AT_BOOM hero-form attack and rolls its damage before the acid, petrification and disenchantment branches. After the !Upolyd return, rn2(3) gates physical explosion, paralysis, cold healing/splitting, stun, fire and electricity. JavaScript still refuses this polymorphed tail before the required guard and returns no source effect.",
     "callers": [
-      "C eat.c doeat and floorfood call is_edible before accepting an item; js/eat.js doeat, floorfood and eat_ok already route through this predicate.",
-      "C iactions.c classifies item actions with is_edible; js/iactions.js itemactions imports the same owner."
+      "C hitmu1262 captures the pre-hit hero species and calls passiveum after damage; js/mhitu.js hitmu awaits passiveum after mdamageu through the production mattacku and monster-turn route.",
+      "C passiveum returns assess_dmg after acid and the ordinary passive tail; assess_dmg2355–2368 subtracts monster HP, prints death, calls xkilled and distinguishes death from recovery."
     ],
     "dependencies": [
-      "Use existing source-owned object material predicates, Has_contents, metallivorous, vegan and the canonical monster table. No missing return-valued callee or fabricated RNG/state transition is required.",
-      "C doeat returns doeat_nonfood for an admitted non-food object. Completing the polymorph predicate therefore also requires the return-valued non-food eating owner and the preceding rust-monster/ring branches; a new refusal cannot replace that source continuation.",
-      "Unresolved prior source finding: polyself.c skinback1953–1969 still needs artifact-light radius capture and maybe_adjust_light when merged dragon scales are restored. This is separate from the resolved break_armor mismatch."
+      "Use the canonical resistance, message, reflection, golem, death, equipment and polymorph owners. Complete return-valued attk_protection and mon_reflects dependencies when needed; discarded unported callees must remain named gaps rather than fabricated effects.",
+      "Preserve C draw ordering, integer cold healing, passive damage after rehumanization where specified, and early attack-result returns after paralysis or death. assess_dmg is impure; isolated return-value tests do not establish its lethal production entry.",
+      "Separate unresolved prior findings remain: polyself.c skinback1953–1969 lacks artifact-light radius capture/maybe_adjust_light, and rare armor, Eyes-of-the-Overworld sight-loss and exceptional eating cleanup entries remain unrecorded or unported."
     ]
   },
   "goalKind": "file-port",
   "evidence": [
-    "The passing checkpoint c04193106e88a205f3c6341bddcfb193bbe8284f advances the Knight session from 1439 to 1536 matching screens. The saved A27 scan and queue identify is_edible as the next source stop, with no earlier RNG or screen divergence.",
-    "Read complete nethack-c/upstream/src/eat.c is_edible91–121 and the accepted js/eat.js helper: its polymorphed-hero refusal precedes the form-specific C acceptance rules. Implement the whole pure predicate, not a session-specific food allowance.",
-    "The completed armor fix is independently exercised by the Knight brown-mold and equipped Valkyrie giant-ant recordings under recordings/polyself.c/break-armor-*-a27.session.json. C messages verify forced suit, glove, shield, helmet and boot removal; the older raven recording specifically verifies sliparm cloak removal.",
-    "The independent recordings/mhitu.c/mdamageu-marilith-*-a29.session.json also execute plain suit destruction during marilith polymorph and subsequent nonlethal monster damage. They match C in full with both seed/gender choices. Artifact cloak exceptions, horned-helmet, headless-eyewear and fatal-lava entry coverage remains open; the Eyes-of-the-Overworld sight-loss and skinback artifact-light paths remain separate downstream gaps.",
-    "At d78e57fbe8e4acfee9c35930b6e3c253ff2a110b, mhitu.c mdamageu1902–1927 preserves ordinary and polymorphed damage, display-before-cap ordering and live recovery callbacks. Independent marilith/newt recordings reach the live polymorphed melee branch because that species has six active attack slots, so passiveum returns without its unported tail. This does not change the earlier is_edible mismatch; spell, gaze, falling-monster, passive-reaction and lethal recovery entries remain unrecorded."
+    "Read complete C mhitu.c assess_dmg2355–2368 and passiveum2435–2615 against the current JavaScript partial implementation. The latter already searches passive attacks and consumes their damage dice but ends with a polymorphed-passive refusal instead of preserving the damage and executing the remaining source branches.",
+    "The saved current scan and queue locate the first stop after1560 matching Knight screens, following source-correct is_edible and doeat_nonfood. Independent eat.c fire-elemental recordings cover bullwhip consumption; the gelatinous-cube glass-potion recording rejects eating and prevents claiming the unreachable eatspecial potion arm as completed entry coverage.",
+    "Existing marilith recordings cover polymorphed melee without this tail: all six attack slots are active, so passiveum returns during its search. They do not establish elemental or paralysis passive coverage. Supporting non-food rustproof, poison, coin, paper, accessory, leash, punishment and exceptional cleanup entries still need matching independent recordings."
   ],
-  "nextProbe": "Complete is_edible in source order with pure tests and the non-food eating continuation its caller returns; then replay the production route and trace the next first mismatch. Preserve the separate passiveum, rare armor and skinback gaps."
+  "nextProbe": "Complete the whole passiveum/assess_dmg family and source-required dependencies, then record independent polymorphed passive reactions through the live monster-turn caller, including a cheap form or role variation. Keep lethal recovery and any unrecorded passive families open."
 }

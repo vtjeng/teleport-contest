@@ -59998,13 +59998,13 @@
     {
       "id": "port-worn-m-dowear-seed0399-20260917",
       "kind": "file-port",
-      "status": "parked",
+      "status": "open",
       "summary": "Port complete monster armor selection, worn properties, and runtime equipment delays",
       "cFile": "worn.c",
       "sessions": [
         "holdout/seed0399-wizard-hallu-actions"
       ],
-      "selectionReason": "Continue seed0399 at step 528, remaining-screen upper bound 4, from investigations/holdout/seed0399-wizard-hallu-actions.json. Its source owner is worn.c m_dowear and m_dowear_type with update_mon_extrinsics; include the intervening pure find_mac in C order. Seed continuation permits this independent family while worker A owns the higher-ranked Knight break_armor work and seed2200 remains blocked by the recorded machine-local configuration-path question.",
+      "selectionReason": "Resume the oldest ready independent corrected delivery, B24, at the saved seed0399 equipment mismatch after528 screens. The higher-ranked Knight passiveum delivery A30 is queued behind it; status_enlightenment is being corrected for independent entry recordings, and seed2200 remains blocked by the recorded configuration-path question. Reconcile the original contiguous worn.c range including pure find_mac.",
       "detail": "Complete worn.c update_mon_extrinsics579–712, verify existing find_mac717–738, and complete m_dowear757–797/m_dowear_type799–1002 with creation, runtime and planning callers. Preserve source equipment delays, visibility/discovery, old-artifact cleanup and source-allowed unported saddle-fall handling. Live equipment reassessment requires a production recording through the wearing turn; rare artifact-light and other unrecorded entries remain open.",
       "spans": [
         {
@@ -60032,29 +60032,29 @@
           "name": "update_mon_extrinsics",
           "line": 579,
           "endLine": 716,
-          "declared": false,
-          "complete": false
+          "declared": true,
+          "complete": true
         },
         {
           "name": "find_mac",
           "line": 717,
           "endLine": 756,
           "declared": true,
-          "complete": false
+          "complete": true
         },
         {
           "name": "m_dowear",
           "line": 757,
           "endLine": 798,
           "declared": true,
-          "complete": false
+          "complete": true
         },
         {
           "name": "m_dowear_type",
           "line": 799,
           "endLine": 1005,
           "declared": true,
-          "complete": false
+          "complete": true
         }
       ],
       "range": {
@@ -60062,9 +60062,9 @@
         "to": 1005
       },
       "activeStanding": {
-        "sha": "254503a94c48650d434f073e6889afa2a73cad6e",
-        "screens": 11002,
-        "rng": 784683
+        "sha": "82ef7a6348a995565737d850a74b004963a77965",
+        "screens": 11123,
+        "rng": 785457
       },
       "openMismatches": [
         {
@@ -60144,7 +60144,213 @@
         "screens": 11002,
         "rng": 784683
       },
-      "parkedReason": "The queued worn.c update_mon_extrinsics..m_dowear_type span is still awaiting corrected production recording and canonical caller wiring from worker B. No game code has been integrated for it; resume this planned span when its corrected delivery is ready, after the independent ready break_armor span is measured."
+      "parkedReason": "The queued worn.c update_mon_extrinsics..m_dowear_type span is still awaiting corrected production recording and canonical caller wiring from worker B. No game code has been integrated for it; resume this planned span when its corrected delivery is ready, after the independent ready break_armor span is measured.",
+      "evidence": {
+        "functions": [
+          {
+            "name": "update_mon_extrinsics",
+            "implementation": "js/worn.js",
+            "symbol": "update_mon_extrinsics",
+            "sourceReview": "Read worn.c update_mon_extrinsics() lines 579-712. The port applies primary and alternate properties, resistance retention, FAST recalculation with the caller silence flag, blocking masks, and the C visibility redraw condition; all extraction and equipment callers use this owner.",
+            "callers": [
+              {
+                "path": "js/worn.js",
+                "symbol": "m_dowear_type",
+                "source": "worn.c m_dowear_type() calls update_mon_extrinsics() after removing old gear and after installing replacement gear."
+              },
+              {
+                "path": "js/makemon_create.js",
+                "symbol": "discard_minvent",
+                "source": "mkobj.c discard_minvent() updates a live monster after clearing an equipped object."
+              },
+              {
+                "path": "js/steal.js",
+                "symbol": "mdrop_obj",
+                "source": "steal.c mdrop_obj() calls update_mon_extrinsics(mon,obj,FALSE,TRUE) after floor placement."
+              },
+              {
+                "path": "js/worn.js",
+                "symbol": "extract_from_minvent",
+                "source": "worn.c extract_from_minvent() calls update_mon_extrinsics() for a live equipped object."
+              },
+              {
+                "path": "js/dog.js",
+                "symbol": "put_saddle_on_mon",
+                "source": "steed.c put_saddle_on_mon() updates monster extrinsics after setting the saddle masks."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/makemon-create.test.mjs",
+              "scripts/worn.test.mjs"
+            ],
+            "recordings": [
+              "recordings/worn.c/monster-pickup-armor-independent-b24.session.json"
+            ],
+            "checkedAt": "30a1aa98f34ccb8b88d6d8eb26135e8b87200ddb"
+          },
+          {
+            "name": "find_mac",
+            "implementation": "js/worn.js",
+            "symbol": "find_mac",
+            "sourceReview": "Read complete worn.c find_mac717–737 and the existing js/worn.js implementation. It starts with species AC, walks minvent in order, admits only owornmask intersecting misc_worn_check, subtracts a fixed two for AMULET_OF_GUARDING or the canonical ARM_BONUS for other worn objects, and clamps signed AC at AC_MAX. ARM_BONUS and greatest_erosion read only object/table values. No RNG, output, state mutation, missing return-valued dependency, injected substitute, or obsolete guard occurs in this pure function; no implementation change was needed.",
+            "callers": [
+              {
+                "path": "js/zap.js",
+                "symbol": "buzzmonst",
+                "source": "zap.c dobuzz4872 calls find_mac before zap_hit; the JS beam traversal delegates the same monster-hit decision to buzzmonst."
+              },
+              {
+                "path": "js/exper.js",
+                "symbol": "experience",
+                "source": "exper.c experience93 adds experience for low monster armor class."
+              },
+              {
+                "path": "js/ball.js",
+                "symbol": "dragBallTail",
+                "source": "ball.c drag_ball802 uses the defender's armor class in the ball strike threshold; the JS owner delegates its tail to dragBallTail."
+              },
+              {
+                "path": "js/dothrow.js",
+                "symbol": "thitmonst",
+                "source": "dothrow.c thitmonst2036 computes thrown-object hit chance with find_mac."
+              },
+              {
+                "path": "js/uhitm.js",
+                "symbol": "find_roll_to_hit",
+                "source": "uhitm.c find_roll_to_hit376 includes monster armor class in the hero attack threshold."
+              },
+              {
+                "path": "js/mhitm.js",
+                "symbol": "mattackm",
+                "source": "mhitm.c mattackm321 combines defender armor class with attacker level."
+              },
+              {
+                "path": "js/mthrowu.js",
+                "symbol": "ohitmon",
+                "source": "mthrowu.c ohitmon340 computes projectile versus monster hit chance."
+              },
+              {
+                "path": "js/muse.js",
+                "symbol": "mbhitm",
+                "source": "muse.c mbhitm1637 compares the immediate monster wand roll with armor class."
+              },
+              {
+                "path": "js/trap_effects.js",
+                "symbol": "thitm",
+                "source": "trap.c thitm6724–6726 compares object or trap attack level with monster armor class."
+              },
+              {
+                "path": "js/insight.js",
+                "symbol": "mstatusline",
+                "source": "insight.c mstatusline3397 reports the monster's calculated armor class."
+              }
+            ],
+            "pure": true,
+            "tests": [
+              "scripts/worn.test.mjs"
+            ],
+            "recordings": [],
+            "checkedAt": "30a1aa98f34ccb8b88d6d8eb26135e8b87200ddb"
+          },
+          {
+            "name": "m_dowear",
+            "implementation": "js/worn.js",
+            "symbol": "m_dowear",
+            "sourceReview": "Read worn.c m_dowear() lines 757-797. The port preserves creation guards, C equipment-slot order, the race exception split, and the runtime/planning reassessment path. It awaits each source slot operation where the canonical owner is asynchronous.",
+            "callers": [
+              {
+                "path": "js/makemon_create.js",
+                "symbol": "makemon",
+                "source": "makemon.c calls m_dowear() after initial inventory generation."
+              },
+              {
+                "path": "js/allmain.js",
+                "symbol": "moveElapsedTurnMonster",
+                "source": "mon.c movemon_singlemon() reruns m_dowear() from the I_SPECIAL reassessment path."
+              },
+              {
+                "path": "js/unported_monster_actions.js",
+                "symbol": "preflightSimpleMonsterActions",
+                "source": "The planning scan executes m_dowear() against a cloned state before the live turn."
+              },
+              {
+                "path": "js/themeroom_fill.js",
+                "symbol": "spo_end_moninvent",
+                "source": "sp_lev.c spo_end_moninvent() lets a special-level custom-inventory monster wear completed equipment."
+              },
+              {
+                "path": "js/trap.js",
+                "symbol": "animate_statue",
+                "source": "trap.c animate_statue() invokes monster creation and its m_dowear path."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/makemon-create.test.mjs",
+              "scripts/unported-monster-actions.test.mjs"
+            ],
+            "recordings": [
+              "recordings/worn.c/monster-pickup-armor-independent-b24.session.json"
+            ],
+            "checkedAt": "30a1aa98f34ccb8b88d6d8eb26135e8b87200ddb"
+          },
+          {
+            "name": "m_dowear_type",
+            "implementation": "js/worn.js",
+            "symbol": "m_dowear_type",
+            "sourceReview": "Read worn.c m_dowear_type() lines 799-1002. The port preserves source naming/order, filters, delays, masks, autocurse, extrinsic removal, artifact-light setup, redraws, and sudden-invisibility conditions.",
+            "callers": [
+              {
+                "path": "js/worn.js",
+                "symbol": "m_dowear",
+                "source": "worn.c m_dowear() dispatches m_dowear_type() for each source equipment mask."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/makemon-create.test.mjs",
+              "scripts/mkobj-arti-light-radius.test.mjs"
+            ],
+            "recordings": [
+              "recordings/worn.c/monster-pickup-armor-independent-b24.session.json"
+            ],
+            "checkedAt": "30a1aa98f34ccb8b88d6d8eb26135e8b87200ddb"
+          }
+        ],
+        "entryPointReview": "Active entry points include initial inventory dressing, special-level/custom inventory dressing, live I_SPECIAL reassessment, planning-clone reassessment, direct extraction callers, and artifact-light cleanup. The existing independent monster-pickup recording reaches production reassessment; its state transition is checked in scripts/makemon-create.test.mjs. The new focused delayed W_WEP witness verifies that extraction detaches the object first but does not clear the wielded pointer or set NEED_WEAPON until canonical setmnotwielded finishes. The W_ARM witness registers a real light source and verifies timeout.c end_burn removes it before detachment. Active artifact-light output and special-level, peaceful/tame, bones, minion, mplayer, and trap-polymorph caller families remain unrecorded or outside this correction and stay open for later recipes. mwepgone, setmnotwielded, curse, and racial_exception are supporting source owners for the corrected contract; the retained carried-object curse arms remain explicitly unsupported. Root reconciliation: the planned contiguous range includes the existing pure find_mac, verified from complete source and its source-pinned tests; extra_pref is a supporting dependency outside this range. The pickup recording proves live wearing at search17 and retained gear at18, not initial equipment installation at creation, so creation remains an unrecorded entry. All five immutable delivery commits and their source corrections are required: awaited extraction and destruction, canonical setmnotwielded/end_burn fallback, supplied-state visibility and naming, narrow OBJ_MINVENT/ARMOR_CLASS curse permission, and supplied-state racial_exception callers. Read-only final source recheck found no remaining discrepancy in those corrected paths. Keep the goal parked after the verified span because initial/custom creation, artifact-light output, polymorph and other entry families are unrecorded.",
+        "entryPoints": [
+          {
+            "name": "makemon initial inventory dressing",
+            "functions": [
+              "m_dowear",
+              "m_dowear_type",
+              "update_mon_extrinsics"
+            ],
+            "recordings": []
+          },
+          {
+            "name": "untamed monster pickup equipment reassessment",
+            "functions": [
+              "m_dowear",
+              "m_dowear_type",
+              "update_mon_extrinsics"
+            ],
+            "recordings": [
+              "recordings/worn.c/monster-pickup-armor-independent-b24.session.json"
+            ]
+          },
+          {
+            "name": "planning clone equipment reassessment",
+            "functions": [
+              "m_dowear",
+              "m_dowear_type",
+              "update_mon_extrinsics"
+            ],
+            "recordings": []
+          }
+        ]
+      }
     },
     {
       "id": "port-polyself-break-armor-seed4500-20260917",
@@ -60791,7 +60997,7 @@
     {
       "id": "port-eat-is-edible-seed4500-20260917",
       "kind": "file-port",
-      "status": "open",
+      "status": "parked",
       "summary": "Complete polymorphed object edibility and its non-food eating callers",
       "cFile": "eat.c",
       "sessions": [
@@ -60802,8 +61008,8 @@
       "spans": [
         {
           "name": "is_edible",
-          "status": "queued",
-          "closedBy": null,
+          "status": "closed",
+          "closedBy": "82ef7a6348a995565737d850a74b004963a77965",
           "functions": [
             "is_edible"
           ]
@@ -60947,7 +61153,17 @@
         ],
         "entryPointReview": "is_edible is a pure helper-only source range, with production callers doeat, floorfood, eat_ok and iactions.itemactions and source-pinned tests for each material/form branch. The primary goal does not verify the entire partial doeat owner or claim its unrelated branches complete. Supporting impure entry evidence: independent Wizard and Valkyrie fire-elemental recordings each match43 screens and consume a wished bullwhip through runEatCommand -> doeat -> doeat_nonfood -> eatspecial, with initialized tests confirming form, removed object and cleared victual. The separate gelatinous-cube potion case matches59 screens and2258 RNG and explicitly rejects the glass potion; it disproves the attempted potion-entry recipe and supplies negative admission coverage. The first, shorter input stopped in polymorph More messages and established no eating coverage. Active rustproof/slow-digestion, poisoned non-food, coins, paper, accessory, leash, punishment and exceptional cleanup families still lack matching entry recordings or have named downstream gaps. Keep these supporting coverage gaps in the parked goal; no whole-doeat completion is recorded. Fatal strength-loss regression pins one damage call and no later HP/strength adjustment after gameover; rustproof spit-back pins exactly one rn2(10) and no nutrition.",
         "entryPoints": []
-      }
+      },
+      "progressBeforePark": {
+        "screens": 24,
+        "rng": 491
+      },
+      "parkedStanding": {
+        "sha": "82ef7a6348a995565737d850a74b004963a77965",
+        "screens": 11123,
+        "rng": 785457
+      },
+      "parkedReason": "The pure is_edible span is verified and closes with two independent non-food eating recordings plus a glass-potion rejection recording. Supporting rustproof, slow-digestion, poison, coins, paper, accessory, leash, punishment and exceptional cleanup entries remain unrecorded or have named gaps; do not claim whole-doeat completion. Continue the current Knight passiveum mismatch separately."
     }
   ]
 }
