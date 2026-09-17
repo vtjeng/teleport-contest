@@ -82,13 +82,13 @@ export function stairway_find_special_dir(up, state = game) {
 // C ref: stairs.c u_on_sstairs(). Places the hero on the branch staircase that
 // leads the other way from `upflag`, and falls back to a random spot when this
 // level has none.
-export function u_on_sstairs(upflag, state = game) {
+export async function u_on_sstairs(upflag, state = game) {
     const stway = stairway_find_special_dir(upflag, state);
 
     if (stway)
         u_on_newpos(stway.sx, stway.sy, state);
     else
-        u_on_rndspot(upflag, state);
+        await u_on_rndspot(upflag, state);
 }
 
 // C ref: stairs.c u_on_dnstairs() (137-145). Fallback placement for a hero
@@ -96,25 +96,25 @@ export function u_on_sstairs(upflag, state = game) {
 // level just left, so place her on the downstair. The sstairs fallback
 // passes 1 (moving up) so that stairway_find_special_dir looks for a branch
 // staircase in the upward direction.
-export function u_on_dnstairs(state = game) {
+export async function u_on_dnstairs(state = game) {
     const stway = stairway_find_dir(false, state);
 
     if (stway)
         u_on_newpos(stway.sx, stway.sy, state);
     else
-        u_on_sstairs(1, state); /* destination dnstairs implies moving up */
+        await u_on_sstairs(1, state); /* destination dnstairs implies moving up */
 }
 
 // C ref: stairs.c u_on_upstairs(). allmain.c newgame() places the starting
 // hero with it, and do.c goto_level() uses it for a descent whose destination
 // carries no staircase back to the level just left.
-export function u_on_upstairs(state = game) {
+export async function u_on_upstairs(state = game) {
     const stway = stairway_find_dir(true, state);
 
     if (stway)
         u_on_newpos(stway.sx, stway.sy, state);
     else
-        u_on_sstairs(0, state); /* destination upstairs implies moving down */
+        await u_on_sstairs(0, state); /* destination upstairs implies moving down */
 }
 
 // C ref: stairs.c On_stairs().

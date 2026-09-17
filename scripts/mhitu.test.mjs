@@ -10,6 +10,7 @@ import {
     CQ_CANNED,
     DETECT_MONSTERS,
     DISPLACED,
+    FLYING,
     HALF_PHDAM,
     INVIS,
     M_ATTK_HIT,
@@ -22,9 +23,12 @@ import {
     NO_WEAPON_WANTED,
     PIT,
     PROTECTION,
+    FROMOUTSIDE,
+    ROOM,
     SHOCK_RES,
     SPIKED_PIT,
     STRAT_WAITFORU,
+    STONE,
     TIMEOUT,
     TT_PIT,
     W_AMUL,
@@ -42,6 +46,7 @@ import {
     set_occupation,
 } from '../js/cmd.js';
 import { game } from '../js/gstate.js';
+import { spoteffects } from '../js/hack.js';
 import { runSegment } from '../js/jsmain.js';
 import {
     could_seduce,
@@ -55,6 +60,7 @@ import {
     mswings_verb,
     mtrapped_in_pit,
     ranged_attk_available,
+    expels,
 } from '../js/mhitu.js';
 import { sticks, thick_skinned } from '../js/mondata.js';
 import { newMonster, place_monster } from '../js/monst.js';
@@ -1610,6 +1616,61 @@ test('getmattk separates the two damage types its holder guard names',
     assert.equal(vortexSub.adtyp, AD_COLD);
     assert.equal(vortexSub.damn, 1);
     assert.equal(vortexSub.damd, 6);
+});
+
+test('planned expulsion keeps terrain transition output off the live stream',
+    async () => {
+    // mhitu.c:302-306 calls spoteffects() after relocation.  The planning
+    // clone must carry its display environment through that call, so the
+    // newly reached hack.c switch_terrain() messages do not reach live TTY.
+    const state = await meleeHero(MELEE_DATETIME, 'Wizard');
+    const vortex = meleeAttacker(state, PM_ICE_VORTEX, 1, 0, {
+        m_lev: 5,
+        mhp: 20,
+        mhpmax: 20,
+    });
+    const current = state.level.at(state.u.ux, state.u.uy);
+    const previous = state.level.at(state.u.ux - 1, state.u.uy);
+    assert.ok(current);
+    assert.ok(previous);
+    current.typ = STONE;
+    previous.typ = ROOM;
+    state.iflags.terrain_typ = ROOM;
+    state.u.uprops[FLYING] = { intrinsic: 1, extrinsic: 0, blocked: 0 };
+    state.u.uswallow = 1;
+    state.u.ustuck = vortex;
+    state.u.uswldtim = 0;
+
+    const planned = meleeEnv(state, []);
+    const liveMessage = state.nhDisplay.topMessage;
+    await expels(vortex, {
+        ...planned.env,
+        planning: true,
+    });
+    assert.deepEqual(planned.lines, []);
+    assert.equal(state.nhDisplay.topMessage, liveMessage);
+
+    // Keep the same planning display seam on a direct terrain transition as
+    // the expels() caller does. This reaches the blocked flight branch after
+    // expels() has completed its relocation and proves the state transition
+    // still occurs while its message remains suppressed.
+    state.u.ux0 = state.u.ux - 1;
+    state.u.uy0 = state.u.uy;
+    const postExpelCurrent = state.level.at(state.u.ux, state.u.uy);
+    const postExpelPrevious = state.level.at(state.u.ux0, state.u.uy0);
+    assert.ok(postExpelCurrent);
+    assert.ok(postExpelPrevious);
+    postExpelCurrent.typ = STONE;
+    postExpelPrevious.typ = ROOM;
+    state.iflags.terrain_typ = ROOM;
+    state.u.uprops[FLYING].blocked = 0;
+    await spoteffects(false, state, {
+        planning: true,
+        message: async text => planned.lines.push(text),
+    });
+    assert.equal(state.u.uprops[FLYING].blocked, FROMOUTSIDE);
+    assert.deepEqual(planned.lines, []);
+    assert.equal(state.nhDisplay.topMessage, liveMessage);
 });
 
 // ---- mhitu.c hitmsg(), hitmu(), mdamageu() and passiveum() ----

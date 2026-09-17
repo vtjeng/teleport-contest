@@ -114,7 +114,7 @@ test('goto_level keeps reglyph_darkroom between generation and arrival setup',
     const jsGenerate = jsBody.indexOf('await mklev();');
     const jsReglyph = jsBody.indexOf('reglyph_darkroom(state);');
     const jsArrivalReset = jsBody.indexOf(
-        'set_uinwater(false, state);', jsReglyph,
+        'await set_uinwater(false, state);', jsReglyph,
     );
     assert.ok(jsGenerate >= 0 && jsGenerate < jsReglyph);
     assert.ok(jsReglyph < jsArrivalReset);
@@ -431,8 +431,8 @@ test('goto_level() settles a boulder into the pit it is leaving', async () => {
 
 test('goto_level() takes the hero out of the water she was in', async () => {
     // do.c:1621. A hero who was swimming is no longer swimming on the level
-    // she arrives at. hack.c set_uinwater() reaches switch_terrain() only for
-    // this direction of the flag, so the ordinary descent above cannot show it.
+    // she arrives at. hack.c set_uinwater() completes switch_terrain() for
+    // this direction of the flag before the descent resumes.
     const state = await heroOnDownStairs();
     state.u.uinwater = true;
 

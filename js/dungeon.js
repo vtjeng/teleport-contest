@@ -1162,10 +1162,9 @@ export function u_on_newpos(
 // was_in_W_tower = (upflag & 2)` shows.
 //
 // In live mode, hack.c switch_terrain() closes the function because the hero
-// may have just left solid rock. Every arm of it needs terrain that blocks
-// levitation or flight, or one of those properties already blocked; a hero
-// arriving on a ROOM square with neither reaches only its terrainstatus tail.
-export function u_on_rndspot(
+// may have just left solid rock. Its awaited message/state transition must
+// finish before the caller starts the next arrival effect.
+export async function u_on_rndspot(
     upflag,
     state = game,
     {
@@ -1211,7 +1210,7 @@ export function u_on_rndspot(
                       });
 
     /* might have just left solid rock and unblocked levitation */
-    if (!deferSwitchTerrain && !planPositionOnly) switch_terrain(state);
+    if (!deferSwitchTerrain && !planPositionOnly) await switch_terrain(state);
 }
 
 export class UnsupportedEarthSenseError extends Error {

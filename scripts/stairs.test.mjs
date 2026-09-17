@@ -135,7 +135,7 @@ test('u_on_sstairs places a descending branch arrival on its special stairs',
     // stairs.c u_on_sstairs(0) selects a branch stairway whose direction is
     // opposite to the descent flag. The coordinate is adjacent to the
     // startup hero so the source's u_on_newpos() path remains in bounds.
-    u_on_sstairs(0, state);
+    await u_on_sstairs(0, state);
 
     assert.deepEqual([state.u.ux, state.u.uy], [x, y]);
 });
