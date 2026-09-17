@@ -62294,8 +62294,8 @@
           "name": "show_achievements",
           "line": 2243,
           "endLine": 2406,
-          "declared": false,
-          "complete": false
+          "declared": true,
+          "complete": true
         }
       ],
       "range": {
@@ -62379,7 +62379,79 @@
             }
           }
         }
-      ]
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "show_achievements",
+            "implementation": "js/insight.js",
+            "symbol": "show_achievements",
+            "sourceReview": "Read complete insight.c show_achievements2243–2402, its sole show_conduct caller, and supporting count_achievements2494–2501 and botl.c rank_to_xlev315–329. Preserve spoiler and empty-list gates before window creation, shared-window blank row, original count before ascension list mutation, every achievement switch arm, signed rank gender, possession and final tenses, unexpected-value fallback, and private-window lifecycle. Reuse canonical remove_achievement/record_achievement for mutation; the existing discarded SoundAchievement call remains named. Replace the show_conduct placeholder with its awaited helper call. Supporting pure helper tests pin list sentinel and every rank threshold. The selected primary unit is show_achievements only; no intervening source units are claimed.",
+            "callers": [
+              {
+                "path": "js/insight.js",
+                "symbol": "show_conduct",
+                "source": "insight.c:2230 calls the static helper before its final display/destroy; JavaScript awaits the helper while passing the shared line array."
+              },
+              {
+                "path": "js/end.js",
+                "symbol": "disclose",
+                "source": "end.c disclosure asks for conduct and calls show_conduct with ENL_GAMEOVERALIVE or ENL_GAMEOVERDEAD; this existing caller supplies the final mode."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/insight.test.mjs"
+            ],
+            "recordings": [
+              "recordings/insight.c/achievements-conduct-bell-independent.session.json",
+              "recordings/insight.c/achievements-conduct-candelabrum-variation.session.json"
+            ],
+            "checkedAt": "5ce631143dc4dccf732d1ada1ccb9d9109c160c4"
+          }
+        ],
+        "entryPointReview": "Read the sole C caller show_conduct2230, reached by doconduct2081–2085 and end.c final disclosure. Independent Bell and Candelabrum wish recordings execute the in-progress wizard conduct window, including possession-specific object rows. Final disclosure, ascension reordering, relinquished-object wording and signed female rank production routes remain unrecorded; retain those active coverage gaps and park the goal after the verified span. The private-window path has no separate public command caller and is checked against source. Supporting count_achievements and rank_to_xlev are pure helpers with source-pinned sentinel and threshold tests; no other primary source function is claimed.",
+        "entryPoints": [
+          {
+            "name": "in-progress #conduct caller",
+            "functions": [
+              "show_achievements"
+            ],
+            "recordings": [
+              "recordings/insight.c/achievements-conduct-bell-independent.session.json",
+              "recordings/insight.c/achievements-conduct-candelabrum-variation.session.json"
+            ]
+          },
+          {
+            "name": "final disclosure conduct caller",
+            "functions": [
+              "show_achievements"
+            ],
+            "recordings": []
+          },
+          {
+            "name": "ascension Amulet reorder",
+            "functions": [
+              "show_achievements"
+            ],
+            "recordings": []
+          },
+          {
+            "name": "relinquished-object and final wording",
+            "functions": [
+              "show_achievements"
+            ],
+            "recordings": []
+          },
+          {
+            "name": "female rank title",
+            "functions": [
+              "show_achievements"
+            ],
+            "recordings": []
+          }
+        ]
+      }
     }
   ]
 }
