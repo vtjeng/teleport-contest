@@ -84,17 +84,17 @@ function mapSelection(placed) {
     return result;
 }
 
-function randomPointSelection(des) {
+function randomPointSelection(des, random = rn2) {
     const result = new ThemeroomSelection(null, true);
     const frame = des.frame;
     // selection.set(selection.new()) calls get_location_coord() with an
     // ANY_LOC random coordinate: rn2(xsize), then rn2(ysize).
-    result.set(frame.xstart + rn2(frame.xsize),
-               frame.ystart + rn2(frame.ysize));
+    result.set(frame.xstart + random(frame.xsize),
+               frame.ystart + random(frame.ysize));
     return result;
 }
 
-function randline(x1, y1, x2, y2, rough, rec, result) {
+function randline(x1, y1, x2, y2, rough, rec, result, random = rn2) {
     if (rec < 1 || (x2 === x1 && y2 === y1)) return;
     if (rough > Math.max(Math.abs(x2 - x1), Math.abs(y2 - y1)))
         rough = Math.max(Math.abs(x2 - x1), Math.abs(y2 - y1));
@@ -106,43 +106,45 @@ function randline(x1, y1, x2, y2, rough, rec, result) {
     } else {
         do {
             mx = Math.trunc((x1 + x2) / 2)
-                + rn2(rough) - Math.trunc(rough / 2);
+                + random(rough) - Math.trunc(rough / 2);
             my = Math.trunc((y1 + y2) / 2)
-                + rn2(rough) - Math.trunc(rough / 2);
+                + random(rough) - Math.trunc(rough / 2);
         } while (mx < 0 || mx > 79 || my < 0 || my > 20);
     }
 
     if (!result.get(mx, my)) result.set(mx, my);
     rough = Math.trunc((rough * 2) / 3);
-    randline(x1, y1, mx, my, rough, rec - 1, result);
-    randline(mx, my, x2, y2, rough, rec - 1, result);
+    randline(x1, y1, mx, my, rough, rec - 1, result, random);
+    randline(mx, my, x2, y2, rough, rec - 1, result, random);
     result.set(x2, y2);
 }
 
-function selectionRandline(x1, y1, x2, y2, roughness, frame) {
+function selectionRandline(x1, y1, x2, y2, roughness, frame, random = rn2) {
     const result = new ThemeroomSelection(null, true);
     // l_selection_rndcoord() returns coordinates relative to the current
     // level frame; l_selection_randline() resolves them back to map space.
     randline(
         x1 + frame.xstart, y1 + frame.ystart,
         x2 + frame.xstart, y2 + frame.ystart,
-        roughness, 12, result,
+        roughness, 12, result, random,
     );
     return result;
 }
 
-function randomDirectionSelection(selection, direction) {
+function randomDirectionSelection(selection, direction, random = rn2) {
     const directions = {
         north: W_NORTH,
         south: W_SOUTH,
         east: W_EAST,
         west: W_WEST,
     };
-    return selection.grow(directions[direction], rn2);
+    return selection.grow(directions[direction], random);
 }
 
-function randomDirectionGrow(selection) {
-    return selection.grow([W_NORTH, W_SOUTH, W_EAST, W_WEST][rn2(4)], rn2);
+function randomDirectionGrow(selection, random = rn2) {
+    return selection.grow(
+        [W_NORTH, W_SOUTH, W_EAST, W_WEST][random(4)], random,
+    );
 }
 
 async function selectionIterateRelative(selection, frame, callback) {
@@ -156,7 +158,7 @@ async function selectionIterateRelative(selection, frame, callback) {
 
 // C ref: dat/nhlib.lua hell_tweaks(). The helper is kept here because every
 // Asmodeus-level call to it changes terrain, objects, and the RNG stream.
-export async function hellTweaks(des, protectedArea, state) {
+export async function hellTweaks(des, protectedArea, state, random = rn2) {
     const liquid = 'L';
     const ground = '.';
     const nProtected = protectedArea.numpoints();
@@ -164,34 +166,43 @@ export async function hellTweaks(des, protectedArea, state) {
     const frame = des.frame;
 
     // Random pools.
-    if (rn2(100) < 20 + depth(state.u.uz, state)) {
+    if (random(100) < 20 + depth(state.u.uz, state)) {
         let pools = new ThemeroomSelection(null, true);
-        const maxPools = 5 + (1 + rn2(depth(state.u.uz, state)));
+        const maxPools = 5 + (1 + random(depth(state.u.uz, state)));
         for (let i = 0; i < maxPools; ++i)
-            pools = selectionUnion(pools, randomPointSelection(des));
+            pools = selectionUnion(pools, randomPointSelection(des, random));
         pools = selectionUnion(
             pools,
-            randomDirectionSelection(randomPointSelection(des), 'west'),
+            randomDirectionSelection(
+                randomPointSelection(des, random), 'west', random,
+            ),
         );
         pools = selectionUnion(
             pools,
-            randomDirectionSelection(randomPointSelection(des), 'north'),
+            randomDirectionSelection(
+                randomPointSelection(des, random), 'north', random,
+            ),
         );
-        pools = selectionUnion(pools, randomDirectionGrow(randomPointSelection(des)));
+        pools = selectionUnion(
+            pools,
+            randomDirectionGrow(randomPointSelection(des, random), random),
+        );
         pools = selectionIntersection(pools, protectedComplement);
 
-        if (rn2(100) < 80) {
+        if (random(100) < 80) {
             const poolground = selectionIntersection(
                 pools.grow(), protectedComplement,
             );
-            const percentage = (1 + rn2(8)) * 10;
-            await des.terrain(poolground.percentage(percentage, rn2), ground);
+            const percentage = (1 + random(8)) * 10;
+            await des.terrain(
+                poolground.percentage(percentage, random), ground,
+            );
         }
         await des.terrain(pools, liquid);
     }
 
     // Lava river.
-    if (rn2(100) < 50) {
+    if (random(100) < 50) {
         let rivers = new ThemeroomSelection(null, true);
         const requiredPoints = ((80 * 21) - nProtected) / 12;
         let riverPoints = 0;
@@ -199,17 +210,17 @@ export async function hellTweaks(des, protectedArea, state) {
 
         do {
             const floor = selection_match(ground, state);
-            const a = floor.rndcoord(false, rn2, {
+            const a = floor.rndcoord(false, random, {
                 x: frame.xstart, y: frame.ystart,
             });
-            const b = floor.rndcoord(false, rn2, {
+            const b = floor.rndcoord(false, random, {
                 x: frame.xstart, y: frame.ystart,
             });
             let river = selectionRandline(
-                a.x, a.y, b.x, b.y, 10, frame,
+                a.x, a.y, b.x, b.y, 10, frame, random,
             );
-            if (rn2(100) < 50) river = river.grow(W_NORTH);
-            if (rn2(100) < 50) river = river.grow(W_WEST);
+            if (random(100) < 50) river = river.grow(W_NORTH, random);
+            if (random(100) < 50) river = river.grow(W_WEST, random);
             rivers = selectionIntersection(
                 selectionUnion(rivers, river), protectedComplement,
             );
@@ -217,20 +228,20 @@ export async function hellTweaks(des, protectedArea, state) {
             ++riverTries;
         } while (riverPoints <= requiredPoints && riverTries <= 7);
 
-        if (rn2(100) < 60) {
-            const percentage = (1 + rn2(6)) * 10;
+        if (random(100) < 60) {
+            const percentage = (1 + random(6)) * 10;
             const banks = selectionIntersection(rivers.grow(), protectedComplement);
-            await des.terrain(banks.percentage(percentage, rn2), ground);
+            await des.terrain(banks.percentage(percentage, random), ground);
         }
         await des.terrain(rivers, liquid);
     }
 
     // Replace some walls with boulders.
-    if (rn2(100) < 20) {
-        const amount = 3 * (1 + rn2(8));
+    if (random(100) < 20) {
+        const amount = 3 * (1 + random(8));
         let walls = selectionUnion(
-            selection_match('.w.', state).percentage(amount, rn2),
-            selection_match('.\nw\n.', state).percentage(amount, rn2),
+            selection_match('.w.', state).percentage(amount, random),
+            selection_match('.\nw\n.', state).percentage(amount, random),
         );
         walls = selectionIntersection(walls, protectedComplement);
         await selectionIterateRelative(walls, frame, async (x, y) => {
@@ -240,11 +251,11 @@ export async function hellTweaks(des, protectedArea, state) {
     }
 
     // Replace some walls with iron bars.
-    if (rn2(100) < 20) {
-        const amount = 3 * (1 + rn2(8));
+    if (random(100) < 20) {
+        const amount = 3 * (1 + random(8));
         let walls = selectionUnion(
-            selection_match('.w.', state).percentage(amount, rn2),
-            selection_match('.\nw\n.', state).percentage(amount, rn2),
+            selection_match('.w.', state).percentage(amount, random),
+            selection_match('.\nw\n.', state).percentage(amount, random),
         );
         walls = selectionIntersection(
             walls.grow(), selection_match('w', state),

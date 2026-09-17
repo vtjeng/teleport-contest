@@ -249,6 +249,7 @@ import {
     FILL_NONE, FILL_NORMAL,
     G_GONE,
     ICE, MOAT, POOL, WATER, LAVAPOOL, LAVAWALL,
+    ICED_POOL, ICED_MOAT,
     DBWALL,
     DB_NORTH, DB_SOUTH, DB_EAST, DB_WEST,
     AIR, CLOUD, GRAVE, ACCESSIBLE,
@@ -1214,16 +1215,10 @@ function pick_vibrasquare_location(frame, state) {
 // then fixes up the door, wall, ice, and cloud arms. This is the special-level
 // API's terrain() writer; set_themeroom_map_terrain() above is the same
 // function as called by lspo_map(), whose metadata reset differs. The ice arm
-// (`splev_init_present && ICE` sets icedpool from the coder's icedpools flag)
-// and the cloud arm (del_engr_at()) are not ported; both stop here, ahead of
-// set_levltyp_lit(), so a refused paint changes nothing.
-function sel_set_ter(x, y, typ, lit, state) {
-    if (typ === ICE || typ === CLOUD) {
-        throw new UnsupportedLevelChangeError(
-            `sel_set_ter: ${typ === ICE ? 'ice' : 'cloud'} terrain not ported`,
-        );
-    }
-    if (!set_levltyp(x, y, typ, { state })) return false;
+// records the coder's icedpools choice only while a special level is being
+// initialized. The cloud arm clears engravings after the terrain write.
+function sel_set_ter(x, y, typ, lit, state, frame) {
+    if (!set_levltyp_lit(x, y, typ, lit, state)) return false;
     const location = state.level.at(x, y);
     if (lit !== SET_LIT_NOCHANGE) {
         location.lit = IS_LAVA(typ)
@@ -1236,6 +1231,10 @@ function sel_set_ter(x, y, typ, lit, state) {
             location.horizontal = true;
     } else if (typ === HWALL || typ === IRONBARS) {
         location.horizontal = true;
+    } else if (frame?.splev_init_present && typ === ICE) {
+        location.icedpool = frame.icedpools ? ICED_POOL : ICED_MOAT;
+    } else if (typ === CLOUD) {
+        del_engr_at(x, y, state);
     }
     return true;
 }
@@ -3511,7 +3510,7 @@ export function lspo_terrain(args, env) {
 
     if (sel) {
         selection_iterate(sel, (sx, sy) => {
-            sel_set_ter(sx, sy, tmpterrain.ter, tmpterrain.tlit, state);
+            sel_set_ter(sx, sy, tmpterrain.ter, tmpterrain.tlit, state, frame);
         });
     } else {
         const c = { x, y };
@@ -3519,7 +3518,7 @@ export function lspo_terrain(args, env) {
                            { frame, state });
         if (!isok(c.x, c.y))
             throw new Error('terrain coord not ok');
-        sel_set_ter(c.x, c.y, tmpterrain.ter, tmpterrain.tlit, state);
+        sel_set_ter(c.x, c.y, tmpterrain.ter, tmpterrain.tlit, state, frame);
     }
 }
 

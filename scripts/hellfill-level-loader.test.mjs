@@ -4,8 +4,15 @@ import test from 'node:test';
 
 import {
     HELL_GENERATORS,
+    hell_cold_maze,
+    hell_maze_iron_lava,
+    hell_mazegrid,
+    hell_mines_lava,
     hell_open_cavern,
     hell_random_corridor_maze,
+    makeHellPrefabs,
+    rnd_halign,
+    rnd_valign,
     hellfill,
 } from '../js/hell_levels.js';
 import { ROOM } from '../js/const.js';
@@ -20,6 +27,12 @@ function descriptorLog() {
         },
     });
     return { calls, des };
+}
+
+function noBranchRandom(bound) {
+    // Keep probability checks false while selecting the first member of every
+    // shuffled list.  This is a bounded source test helper, not game RNG.
+    return bound === 100 ? 99 : 0;
 }
 
 // A hellish dungeon of INVOCATION_DUNLEVS levels, with the hero on `dlevel`.
@@ -58,6 +71,44 @@ test('hellfill keeps all seven source generator slots and selects arm 7', () => 
     assert.ok(HELL_GENERATORS.every((generator) => typeof generator === 'function'));
     assert.equal(HELL_GENERATORS[2], hell_random_corridor_maze);
     assert.equal(HELL_GENERATORS[6], hell_open_cavern);
+});
+
+test('all seven hellfill generator arms are callable source branches', async () => {
+    const state = roomState();
+    const generators = [
+        hell_mines_lava,
+        hell_mazegrid,
+        hell_random_corridor_maze,
+        hell_maze_iron_lava,
+        HELL_GENERATORS[4],
+        hell_cold_maze,
+        hell_open_cavern,
+    ];
+    for (const generator of generators) {
+        const { calls, des } = descriptorLog();
+        await assert.doesNotReject(() => generator(des, state, noBranchRandom));
+        assert.ok(calls.length > 0, generator.name);
+    }
+});
+
+test('hellfill implements every prefab and Lua two-argument random range', async () => {
+    const { calls, des } = descriptorLog();
+    const prefabs = makeHellPrefabs(des, roomState(), noBranchRandom);
+    assert.equal(prefabs.length, 10);
+    for (const prefab of prefabs) {
+        if (typeof prefab === 'function') await prefab(false);
+        else await prefab.contents(false);
+    }
+    assert.equal(calls.filter(({ method }) => method === 'map').length, 16);
+    const placed = calls
+        .filter(({ method }) => method === 'map')
+        .map(({ args }) => args[0]);
+    assert.deepEqual(placed.slice(-8).map(({ x, y }) => [x, y]), [
+        [10, 3], [24, 3], [38, 3], [52, 3], [66, 3],
+        [3, 3], [3, 3], [3, 3],
+    ]);
+    assert.equal(rnd_halign(bound => bound - 1), 'half-right');
+    assert.equal(rnd_valign(bound => bound - 1), 'bottom');
 });
 
 // The generator-3 arm is selected when math.random(7) returns 3, which is
