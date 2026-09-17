@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 8820201,
+      "datetime": "20310203040506",
+      "nethackrc": "OPTIONS=name:LossProbe,role:Archeologist,race:human,gender:female,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen\nOPTIONS=playmode:debug,pettype:none,!acoustics\n",
+      "moves": ".#levelchange\n5\n     #levelchange\n2\n               ."
+    }
+  ],
+  "comment": "Independent production witness for wizcmds.c wiz_level_change() lowering through exper.c losexp(), attrib.c adjabil(), and weapon.c lose_weapon_skill(). The level-5 raise crosses the Archeologist stealth entry, then the second command drains three levels and continues to the next wait."
+}

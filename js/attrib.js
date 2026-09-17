@@ -142,7 +142,7 @@ import { ttyPline } from './tty_message.js';
 import { summon_furies } from './makemon.js';
 import { note_unported } from './unported.js';
 import { livelog_printf } from './pline.js';
-import { add_weapon_skill } from './weapon.js';
+import { add_weapon_skill, lose_weapon_skill } from './weapon.js';
 
 const EXERCISE_LIMIT = 50;
 const ATTRIBUTE_NAMES = Object.freeze([
@@ -547,14 +547,10 @@ function postadjabil(propertyIndex, state) {
 // prefix needs Unaware -- gm.multi < 0 with the hero unconscious or fainted --
 // which no path that raises a level can produce.
 //
-// Two outcomes stay fail-closed:
-//
-//   any loss        -> the whole `else if` arm at attrib.c:1054-1062
-//   a lowered level -> weapon.c lose_weapon_skill() with a positive count
-//
-// An unchanged level is not a loss: C calls lose_weapon_skill(0), whose
-// `while (--n >= 0)` body never runs. polyself.c newman() lands there one
-// time in five, so the arm returns quietly instead of refusing.
+// Losses use the same message owner as gains. An unchanged level is not a
+// loss: C calls lose_weapon_skill(0), whose `while (--n >= 0)` body never
+// runs. polyself.c newman() lands there one time in five, so that call remains
+// quiet.
 export async function adjabil(oldlevel, newlevel, state = game, env = {}) {
     const u = state.u;
     let table = role_abil(state.urole?.mnum);
@@ -602,10 +598,22 @@ export async function adjabil(oldlevel, newlevel, state = game, env = {}) {
                 }
             }
         } else if (oldlevel >= entry.ulevel && newlevel < entry.ulevel) {
-            throw new UnsupportedAbilityChangeError(
-                `adjabil() removing property ${entry.ability} below `
-                + `experience level ${entry.ulevel}`,
-            );
+            property.intrinsic &= ~mask;
+            if (!(property.intrinsic & INTRINSIC)) {
+                const text = entry.losestr
+                    ? `You feel ${entry.losestr}!`
+                    : entry.gainstr
+                        ? `You feel less ${entry.gainstr}!`
+                        : null;
+                if (text) {
+                    if (typeof env.message !== 'function') {
+                        throw new TypeError(
+                            'adjabil() needs a message owner to print a loss',
+                        );
+                    }
+                    await env.message(text, state);
+                }
+            }
         }
         if (prevabil !== property.intrinsic) /* it changed */
             postadjabil(entry.ability, state);
@@ -614,9 +622,7 @@ export async function adjabil(oldlevel, newlevel, state = game, env = {}) {
 
     if (oldlevel > 0) {
         if (newlevel > oldlevel) add_weapon_skill(newlevel - oldlevel, state);
-        else if (newlevel < oldlevel)
-            throw new UnsupportedAbilityChangeError('lose_weapon_skill()');
-        /* else lose_weapon_skill(0) runs no iteration */
+        else lose_weapon_skill(oldlevel - newlevel, state);
     }
 }
 
