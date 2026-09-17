@@ -4311,10 +4311,21 @@ function commandMenuResult(state, name, ...args) {
     throw new UnsupportedHeroCommandBoundaryError(`cmd.c ${name}()`);
 }
 
+// C ref: cmd.c doherecmdmenu()/dotherecmdmenu() (4332-4374).  The menu
+// helpers model C's char result as either a JavaScript character string or a
+// numeric byte when a test/platform callback supplies the C-shaped value.
+// NUL means the menu was cancelled without spending a turn; ESC has the same
+// result, while every other nonzero byte is an action that takes time.
+function commandMenuTakesTime(ch) {
+    if (!ch || ch === 0 || ch === '\0' || ch === ESC
+        || ch === String.fromCharCode(ESC)) return false;
+    return true;
+}
+
 // C ref: cmd.c doherecmdmenu() (4328-4340).
 export async function doherecmdmenu(state = game) {
     const ch = await commandMenuResult(state, 'hereCmdMenu');
-    return ch && ch !== ESC ? ECMD_TIME : ECMD_OK;
+    return commandMenuTakesTime(ch) ? ECMD_TIME : ECMD_OK;
 }
 
 // C ref: cmd.c dotherecmdmenu() (4343-4420).
@@ -4333,7 +4344,7 @@ export async function dotherecmdmenu(state = game) {
         state.clicklook_cc.x = -1;
         state.clicklook_cc.y = -1;
         state.iflags.getdir_click = 0;
-        return ch && ch !== ESC ? ECMD_TIME : ECMD_OK;
+        return commandMenuTakesTime(ch) ? ECMD_TIME : ECMD_OK;
     }
     const dir = await getdir(null, state);
     const click = state.iflags.getdir_click;
@@ -4344,7 +4355,7 @@ export async function dotherecmdmenu(state = game) {
             state, 'thereCmdMenu', ux + state.u.dx, uy + state.u.dy, click,
         )
         : await commandMenuResult(state, 'hereCmdMenu');
-    return ch && ch !== ESC ? ECMD_TIME : ECMD_OK;
+    return commandMenuTakesTime(ch) ? ECMD_TIME : ECMD_OK;
 }
 
 // C ref: cmd.c mcmd_addmenu() (4421-4434).  Menu windows are represented by

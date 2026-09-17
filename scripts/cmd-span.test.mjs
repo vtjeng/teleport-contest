@@ -336,6 +336,21 @@ test('direction names, menu selectors, and command-menu result mapping follow C'
     assert.equal(await doherecmdmenu(here), ECMD_TIME);
     assert.equal(await dotherecmdmenu(here), ECMD_TIME);
     assert.deepEqual(here.clicklook_cc, { x: -1, y: -1 });
+
+    // cmd.c:4338-4339 and :4359/:4374 test the C char value.  The JS menu
+    // returns a one-character string, so cancellation must recognize both
+    // representations of NUL and ESC without spending a turn.
+    for (const cancelled of ['\0', 0, '\x1b', 0x1B]) {
+        const state = {
+            iflags: {},
+            clicklook_cc: { x: 3, y: 4 },
+            u: { ux: 3, uy: 4, dx: 0, dy: 0 },
+            hereCmdMenu: () => cancelled,
+        };
+        assert.equal(await doherecmdmenu(state), ECMD_OK);
+        assert.equal(await dotherecmdmenu(state), ECMD_OK);
+        assert.deepEqual(state.clicklook_cc, { x: -1, y: -1 });
+    }
     await assert.rejects(
         doherecmdmenu({}),
         UnsupportedHeroCommandBoundaryError,
