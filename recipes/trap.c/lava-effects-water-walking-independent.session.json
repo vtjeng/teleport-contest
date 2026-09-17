@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "Independent trap.c lava_effects() production coverage. Seed 810141, clock 20450910123456, and the LavaWalker Wizard were selected independently; the debug level-change route reaches a generated Gehennom lava square. The source-supported m-prefix deliberate-liquid move with a water-walking intrinsic reaches the nonfatal lava damage and burn_stuff arm.",
+  "segments": [
+    {
+      "seed": 810141,
+      "datetime": "20450910123456",
+      "nethackrc": "OPTIONS=name:LavaWalker,role:Wizard,race:human,gender:female,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen\nOPTIONS=playmode:debug,pettype:none\n",
+      "moves": " #levelchange\n20\n                    \u0016?\nl .#wizintrinsic\n>h\n mb"
+    }
+  ]
+}

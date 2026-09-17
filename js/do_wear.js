@@ -86,6 +86,7 @@ import {
     INFRAVISION,
     INVIS,
     INTRINSIC,
+    LEVITATION,
     LEFT_HANDED,
     LEFT_RING,
     LEG,
@@ -226,6 +227,7 @@ import {
     DUNCE_CAP,
     DWARVISH_CLOAK,
     DWARVISH_IRON_HELM,
+    ELVEN_BOOTS,
     ELVEN_LEATHER_HELM,
     FAKE_AMULET_OF_YENDOR,
     FEDORA,
@@ -244,6 +246,7 @@ import {
     IRON_SHOES,
     JUMPING_BOOTS,
     KICKING_BOOTS,
+    LEVITATION_BOOTS,
     LEATHER_CLOAK,
     LEATHER_GLOVES,
     LENSES,
@@ -290,6 +293,7 @@ import {
     SPEED_BOOTS,
     TOWEL,
     T_SHIRT,
+    WATER_WALKING_BOOTS,
     WHITE_DRAGON_SCALES,
     WHITE_DRAGON_SCALE_MAIL,
     YELLOW_DRAGON_SCALES,
@@ -1345,7 +1349,7 @@ async function Boots_on(state) {
     return 0;
 }
 
-// C ref: do_wear.c Boots_off() (262-336).  This is an asynchronous owner in
+// C ref: do_wear.c Boots_off() (262-323).  This is an asynchronous owner in
 // the port because the WATER_WALKING_BOOTS arm can enter spoteffects() and the
 // LEVITATION_BOOTS arm can enter float_down(); callers preserve that ordering
 // with await.  In particular, lava_effects() sets in_lava_effects before this
@@ -1368,7 +1372,12 @@ export async function Boots_off(state = game) {
     switch (otyp) {
     case SPEED_BOOTS: {
         const fast = state.u?.uprops?.[FAST] ?? {};
-        if (!(fast.intrinsic || fast.extrinsic) && !takeoff.cancelled_don) {
+        // youprop.h Very_fast preserves non-role/race/outside intrinsic
+        // sources. Removing these boots still prints the slowdown when a
+        // separate non-intrinsic source has not made the hero Very_fast.
+        const veryFast = Boolean(
+            (fast.intrinsic & ~INTRINSIC) || fast.extrinsic);
+        if (!veryFast && !takeoff.cancelled_don) {
             discover_object(otyp, true, true, true, state);
             await ttyPline(
                 `You feel yourself slow down${fast.intrinsic ? ' a bit' : ''}.`,
@@ -1385,7 +1394,9 @@ export async function Boots_off(state = game) {
             && !levitation.blocked,
         );
         const hasFlying = Boolean(
-            (flying.intrinsic || flying.extrinsic) && !flying.blocked,
+            (flying.intrinsic || flying.extrinsic
+                || (state.u?.usteed && is_flyer(state.u.usteed.data)))
+            && !flying.blocked,
         );
         const { is_pool, is_lava } = await import('./trap.js');
         if ((is_pool(state.u.ux, state.u.uy, state)
@@ -1418,14 +1429,13 @@ export async function Boots_off(state = game) {
     }
     case LEVITATION_BOOTS: {
         const levitation = state.u?.uprops?.[LEVITATION] ?? {};
-        const flying = state.u?.uprops?.[FLYING] ?? {};
-        const hasLevitation = Boolean(
-            (levitation.intrinsic || levitation.extrinsic)
-            && !levitation.blocked,
-        );
+        // C tests HLevitation here, deliberately ignoring ELevitation. The
+        // blocked bit is checked separately for its FROMOUTSIDE case, so a
+        // blocked intrinsic source still takes the float_vs_flight() arm.
+        const hasIntrinsicLevitation = Boolean(levitation.intrinsic);
         const fromOutside = Boolean(levitation.blocked & FROMOUTSIDE);
         const cancelled = takeoff.cancelled_don;
-        if (!oldprop && !hasLevitation && !fromOutside && !cancelled) {
+        if (!oldprop && !hasIntrinsicLevitation && !fromOutside && !cancelled) {
             if (!state.iflags?.in_lava_effects) {
                 const { float_down } = await import('./trap.js');
                 await float_down(0, 0, state);
@@ -1435,9 +1445,6 @@ export async function Boots_off(state = game) {
             // polyself.c owns the I_SPECIAL flying/levitation update.
             float_vs_flight(state);
         }
-        // Keep the read above source-shaped; the local is also useful when a
-        // caller supplies a sparse test state without an initialized prop.
-        void flying;
         break;
     }
     case LOW_BOOTS:

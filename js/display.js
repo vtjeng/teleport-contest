@@ -71,6 +71,7 @@ import {
     IS_DOOR, IS_OBSTRUCTED, IS_POOL, IS_ROOM, IS_STWALL,
     isok, u_at, Ugender, Upolyd,
     BEAR_TRAP, NO_TRAP, WEB, is_pit,
+    TT_LAVA,
     In_endgame, In_mines, In_quest, In_sokoban, Is_knox_level,
     MAXTCHARS,
     SV0, SV1, SV2, SV3, SV4, SV5, SV6, SV7,
@@ -4302,6 +4303,8 @@ const STATUS_CONDITION_SPECS = Object.freeze([
         forms: ['Hallu', 'Hal', 'Hl'] },
     { option: 'ice', rank: 20, enabled: false,
         forms: ['Icy', 'Icy', 'Ic'] },
+    { option: 'inlava', rank: 8, enabled: true,
+        forms: ['InLava', 'Lav', 'La'] },
     { option: 'levitate', rank: 10, enabled: true,
         forms: ['Lev', 'Lev', 'Lv'] },
     { option: 'ride', rank: 10, enabled: true,
@@ -4351,6 +4354,12 @@ export function statusConditionActive(option, u) {
             && !_propertyActive(u, HALLUC_RES);
     case 'ice':
         return game.level?.at(u.ux, u.uy)?.typ === ICE;
+    // botl.c bl_inlava is enabled by default and is true only while the
+    // hero's holding-trap type is TT_LAVA. It is distinct from the terrain
+    // word: a fire-resistant hero can remain in lava while the tile itself
+    // is still classified as LAVAPOOL.
+    case 'inlava': return Boolean(u?.utrap)
+        && u.utraptype === TT_LAVA;
     case 'levitate': return _propertyActiveUnblocked(u, LEVITATION);
     case 'ride': return Boolean(u.usteed);
     case 'slime': return _propertyIntrinsic(u, SLIMED);

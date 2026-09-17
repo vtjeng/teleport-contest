@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "Independent cheap property variation for trap.c lava_effects() production coverage. Seed 810141, clock 20450910123456, and the LavaResister Wizard use the same independently selected lava geometry while the fire-resistance intrinsic reaches the nonfatal TT_LAVA trap branch.",
+  "segments": [
+    {
+      "seed": 810141,
+      "datetime": "20450910123456",
+      "nethackrc": "OPTIONS=name:LavaResister,role:Wizard,race:human,gender:female,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen\nOPTIONS=playmode:debug,pettype:none\n",
+      "moves": " #levelchange\n20\n                    \u0016?\nl .#wizintrinsic\n>i\n mb"
+    }
+  ]
+}
