@@ -12,6 +12,7 @@ import {
     CQ_CANNED,
     DIED,
     DISSOLVED,
+    DISCLOSE_NO_WITHOUT_PROMPT,
     DROWNING,
     ESCAPED,
     GENOCIDED,
@@ -166,6 +167,9 @@ async function completeFinalization(how) {
 
 function prepareFinalization() {
     game.iflags.window_inited = false;
+    // C's no-window cleanup sets done_stopprint only after disclosure.  Keep
+    // this fixture prompt-free while allowing the source ordering to run.
+    game.flags.end_disclose.fill(DISCLOSE_NO_WITHOUT_PROMPT);
     game.invent = null;
     game.flags.bones = false;
     game.moves = Math.max(game.moves, 2);

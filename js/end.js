@@ -1298,8 +1298,6 @@ async function really_done(how, state) {
 
     // C ref: end.c:1232 fixup_death().
     fixup_death(how, state);
-    if (!haveWindows)
-        discloseStop(state);
     // clearlocks() unlinks on-disk level files; the port holds levels in
     // memory and writes no files, so it has no counterpart.
     const silently = disclosureStopprint(state);
@@ -1447,9 +1445,20 @@ async function really_done(how, state) {
     // a NHW_TEXT window for the tombstone and farewell text. The port's text
     // window is displayTtyTextWindow.
 
+    // C waits for the pending message and displays WIN_MESSAGE(TRUE) here,
+    // after score, disclosure, and bones work.  With no windows, C sets
+    // done_stopprint in this same cleanup arm; keeping that timing matters
+    // because earlier payment and disclosure code still sees its old value.
+    if (haveWindows)
+        await tty_wait_synch(state);
+    else
+        discloseStop(state);
+
     // C: display_nhwindow(WIN_MESSAGE, TRUE) -- show pending messages.
-    // The port clears the message window state; pending messages were already
-    // displayed during the bones prompt.
+    // Repaint the pending marker after the synchronous wait, matching the
+    // final WIN_MESSAGE display before the tombstone window is created.
+    if (haveWindows)
+        showPendingTtyMessage(state);
 
     // C: if (how < GENOCIDED && flags.tombstone && endwin != WIN_ERR)
     //        outrip(endwin, how, endtime);

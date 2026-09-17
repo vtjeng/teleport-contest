@@ -4,6 +4,7 @@ import test from 'node:test';
 
 import {
     BURNING,
+    DISCLOSE_NO_WITHOUT_PROMPT,
     KILLED_BY_AN,
     NON_PM,
     STONING,
@@ -46,6 +47,10 @@ async function freshGame() {
 function quietFinalization(state) {
     state.iflags.window_inited = false;
     state.flags.bones = false;
+    // The real no-window path reaches disclosure before C sets
+    // done_stopprint in its final cleanup arm.  Suppress its prompts here so
+    // this fixture can exercise that ordering without inventing input.
+    state.flags.end_disclose.fill(DISCLOSE_NO_WITHOUT_PROMPT);
     state.invent = null;
     state.moves = Math.max(state.moves, 2);
     state.killer = { name: 'a test cause', format: KILLED_BY_AN };
@@ -141,5 +146,9 @@ test('source finalizer keeps the stopprint tail after top-ten output', () => {
     assert.match(
         END_C,
         /else if \(how == BURNING \|\| how == DISSOLVED\)[\s\S]*?NON_PM - 2/u,
+    );
+    assert.match(
+        END_C,
+        /if \(have_windows\) \{[\s\S]*?outrip\(endwin, how, endtime\);\s*\} else\s*done_stopprint = 1;/u,
     );
 });
