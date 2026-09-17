@@ -1539,6 +1539,7 @@ export async function losestr(num, knam, k_format, state = game, env = {}) {
             k_format = KILLED_BY;
         }
         await losehp(dmg, knam, k_format);
+        if (state.program_state?.gameover) return;
 
         if (Upolyd(u)) {
             /* when still poly'd, reduce you-as-monst maxHP; never below 1 */
@@ -1571,6 +1572,7 @@ export async function poison_strdmg(
 ) {
     const losehp = requiredOperation(env, 'losehp');
     await losestr(strloss, knam, k_format, state, env);
+    if (state.program_state?.gameover) return;
     await losehp(dmg, knam, k_format);
 }
 

@@ -7,7 +7,9 @@
 import {
     ACID_RES,
     AGGRAVATE_MONSTER,
+    A_CON,
     A_STR,
+    A_WIS,
     BY_COOKIE,
     BLINDED,
     IS_ALTAR,
@@ -32,6 +34,7 @@ import {
     GETOBJ_EXCLUDE_SELECTABLE,
     GETOBJ_NOFLAGS,
     GETOBJ_SUGGEST,
+    Has_contents,
     IRONBARS,
     HEALTHY_TIN,
     HOMEMADE_TIN,
@@ -89,7 +92,8 @@ import {
     BEAR_TRAP,
     NEUTRAL,
 } from './const.js';
-import { adjalign, gainstr, poison_strdmg } from './attrib.js';
+import { adjalign, exercise, gainstr, poison_strdmg } from './attrib.js';
+import { ART_ORB_OF_DETECTION } from './artifacts.js';
 import { set_occupation, yn_function } from './cmd.js';
 import { tinnable } from './apply.js';
 import { on_level, surface } from './dungeon.js';
@@ -113,11 +117,13 @@ import {
     hands_obj,
     obj_extract_self,
     obj_here,
+    stackobj,
     useup,
+    useupall,
     useupf,
     will_feel_cockatrice,
 } from './invent.js';
-import { dropy } from './do.js';
+import { dropy, trycall } from './do.js';
 import { iter_mons_safe, mon_offmap } from './mon.js';
 import {
     acidic,
@@ -179,6 +185,8 @@ import {
     PM_GENETIC_ENGINEER,
     PM_GIANT_BAT,
     PM_GIANT_MIMIC,
+    PM_GELATINOUS_CUBE,
+    PM_GHOUL,
     PM_HOUSECAT,
     PM_HUMAN_WEREJACKAL,
     PM_HUMAN_WERERAT,
@@ -234,23 +242,28 @@ import {
 } from './monsters.js';
 import { change_luck } from './moveloop_preamble.js';
 import {
-    incr_itimeout, make_blinded, make_confused, make_deaf,
+    dopotion, incr_itimeout, make_blinded, make_confused, make_deaf,
 } from './potion.js';
 import {
     carried,
     costly_alteration,
     bcsign,
+    is_flammable,
+    isMetallic,
+    isRustprone,
     is_rottable,
     objectType,
     peek_at_iced_corpse_age,
     remove_object,
+    set_bknown,
     splitobj,
     weight,
     g_at,
     mksobj,
 } from './obj.js';
 import {
-    an, ansimpleoname, corpse_xname, donameFresh, otense, safe_qbuf,
+    an, ansimpleoname, corpse_xname, donameFresh, obj_is_pname,
+    otense, safe_qbuf,
     singular, the, the_unique_pm, xnameFresh,
 } from './objnam.js';
 import {
@@ -269,15 +282,24 @@ import {
     ENORMOUS_MEATBALL,
     EUCALYPTUS_LEAF,
     FAKE_AMULET_OF_YENDOR,
+    BONE,
+    DRAGON_HIDE,
     FLESH,
     FOOD_CLASS,
+    BALL_CLASS,
+    CHAIN_CLASS,
     GEM_CLASS,
     GLASS,
     FOOD_RATION,
     FORTUNE_COOKIE,
     K_RATION,
+    LEATHER,
     LEMBAS_WAFER,
     LUMP_OF_ROYAL_JELLY,
+    PAPER,
+    POTION_CLASS,
+    RING_CLASS,
+    SCROLL_CLASS,
     MEATBALL,
     MEAT_RING,
     MEAT_STICK,
@@ -287,12 +309,20 @@ import {
     RIN_SLOW_DIGESTION,
     SLIME_MOLD,
     SPRIG_OF_WOLFSBANE,
+    TRIDENT,
+    FLINT,
+    LEASH,
+    SCR_MAIL,
+    SCR_SCARE_MONSTER,
     TIN,
     TRIPE_RATION,
     BEARTRAP,
+    WAX,
+    WOOD,
+    WEAPON_CLASS,
 } from './objects.js';
 import { objectGenerationEnv } from './object_generation.js';
-import { discover_object } from './o_init.js';
+import { discover_object, objdescr_is } from './o_init.js';
 import { encumber_msg } from './pickup.js';
 import { body_part } from './polyself.js';
 import { heroIsBlind } from './startup_a11y.js';
@@ -304,6 +334,10 @@ import {
     Levitation, deltrap, is_pool_or_lava, reset_utrap, t_at, unconscious,
 } from './trap.js';
 import { ttyPline } from './tty_message.js';
+import { remove_worn_item } from './steal.js';
+import {
+    uwepgone, uswapwepgone, uqwepgone, welded,
+} from './wield.js';
 
 // C ref: eat.c hu_stat[], indexed by u.uhs and shared with botl.c and
 // insight.c. Every entry is eight columns wide, so a reader that wants the
@@ -504,25 +538,39 @@ export class UnsupportedEatError extends Error {
     }
 }
 
-// C ref: eat.c is_edible() (88-121). Answers whether the possibly polymorphed
-// hero can eat this object.
-//
-// Four of C's five tests read the hero's current form: the fire elemental's
-// is_flammable() arm, the metallivore's is_metallic()/is_rustprone() arm, the
-// ghoul's corpse-and-egg arm and the gelatinous cube's is_organic() arm. Only
-// a polymorphed hero can take any of them -- u_init.c sets u.umonnum to the
-// role's mnum and polyself.c, the one writer that changes it, is unported --
-// so the port stops for a polymorphed hero rather than carry four arms and the
-// four objclass.h material predicates they need, none of which any case can
-// reach. oc_unique and the FOOD_CLASS answer apply to every hero and are here.
+// C ref: eat.c is_edible() (91-121). This is a pure predicate: it reads the
+// current form and object definition but makes no random draw, output, or
+// state change. The form-specific arms intentionally precede FOOD_CLASS just
+// as in C, so a non-food object can be eaten by a compatible polymorph.
 export function is_edible(obj, state = game) {
+    const type = objectType(obj, state);
     /* protect invocation tools but not Rider corpses (handled elsewhere) */
-    if (objectType(obj, state).oc_unique) return false;
+    if (type.oc_unique) return false;
     /* above also prevents the Amulet from being eaten, so we must never
        allow fake amulets to be eaten either [which is already the case] */
 
-    if (Upolyd(state.u))
-        throw new UnsupportedEatError('is_edible() for a polymorphed hero');
+    const species = state.youmonst?.data;
+    if (species === state.mons?.[PM_FIRE_ELEMENTAL]
+        && is_flammable(obj, state))
+        return true;
+
+    if (metallivorous(species) && isMetallic(obj, state)
+        && (species !== state.mons?.[PM_RUST_MONSTER]
+            || isRustprone(obj, state)))
+        return true;
+
+    /* Ghouls only eat non-veggy corpses or eggs (see dogfood()). */
+    if (state.u?.umonnum === PM_GHOUL)
+        return (obj.otyp === CORPSE
+                && !vegan(state.mons?.[obj.corpsenm]))
+            || obj.otyp === EGG;
+
+    if (state.u?.umonnum === PM_GELATINOUS_CUBE
+        && type.oc_material <= WOOD
+        /* g-cubes can eat containers and retain all contents, but a
+           polymorphed player can't do that */
+        && !Has_contents(obj))
+        return true;
 
     return obj.oclass === FOOD_CLASS;
 }
@@ -1122,9 +1170,8 @@ export function eaten_stat(base, obj, env = {}) {
 // worth, which two races read differently for the two foods they were made
 // for. Only start_eating() and bite() call it, and only with nmod negative.
 //
-// C's maybe_polyd(is_elf(gy.youmonst.data), Race_if(PM_ELF)) reduces to the
-// race test while the hero is not polymorphed, which is_edible() has already
-// established by the time any of this runs.
+// C's maybe_polyd(is_elf(gy.youmonst.data), Race_if(PM_ELF)) uses the current
+// form only when the completed food meal reaches this nutrition adjustment.
 export function adj_victual_nutrition(state) {
     const otyp = victual(state).piece.otyp;
     let nut = -victual(state).nmod; /* convert 'nmod' to positive */
@@ -2667,6 +2714,203 @@ export async function floorfood(verb, corpsecheck, state = game) {
     return otmp;
 }
 
+// C ref: eat.c eatspecial() (2414-2486), the common completion tail for an
+// object that doeat_nonfood() admits.  C keeps this helper in eat.c, so its
+// state transitions stay here too. Unported accessory, leash and punishment
+// helpers are recorded at their call sites when those branches are reached.
+async function eatspecial(state, env) {
+    const meal = victual(state);
+    const otmp = meal.piece;
+
+    // lesshungry() checks go.occupation to decide whether choking and the
+    // nearly-full warning are allowed.  This temporary occupation is why the
+    // one-turn non-food action uses the same hunger machinery as a meal.
+    set_occupation(eatfood, 'eating non-food', 0, state);
+    await lesshungry(meal.nmod, state, env);
+    if (state.program_state?.gameover) return;
+    if (state.go) state.go.occupation = null;
+    state.context.victual = zero_victual();
+
+    if (otmp.oclass === COIN_CLASS) {
+        if (carried(otmp))
+            useupall(otmp, env);
+        else
+            await useupf(otmp, otmp.quan, env);
+        // The watcher result is discarded by C. Its source owner is not
+        // ported, so do not invent a shop update for eaten gold.
+        note_unported('vault.c vault_gd_watching');
+        return;
+    }
+
+    const type = objectType(otmp, state);
+    if (type.oc_material === PAPER) {
+        if (otmp.otyp === SCR_MAIL) {
+            await env.message('This junk mail is less than satisfying.', state);
+        } else if (otmp.otyp === SCR_SCARE_MONSTER) {
+            await env.message(`Yuck${otmp.blessed ? '!' : '.'}`, state);
+        } else if (otmp.oclass === SCROLL_CLASS
+            && objdescr_is(otmp, 'YUM YUM', state)) {
+            await env.message(`Yum${otmp.blessed ? '!' : '.'}`, state);
+        } else {
+            await env.message('Needs salt...', state);
+        }
+    }
+
+    if (otmp.oclass === POTION_CLASS) {
+        // C increments first so that dopotion's useup() does not remove the
+        // object before this function's final useup() call.
+        otmp.quan = Math.trunc(otmp.quan ?? 1) + 1;
+        await dopotion(otmp, state);
+        if (state.program_state?.gameover) return;
+    } else if (otmp.oclass === RING_CLASS || otmp.oclass === AMULET_CLASS) {
+        note_unported('eat.c eataccessory');
+    } else if (otmp.otyp === LEASH && otmp.leashmon) {
+        note_unported('dog.c o_unleash');
+    }
+
+    // These two object jokes are fully local to eat.c and their C calls to
+    // exercise() are already implemented.  Awaiting the call preserves its
+    // optional encumbrance message before consuming the object.
+    if (otmp.otyp === TRIDENT && !otmp.cursed) {
+        await env.message(
+            Hallucination(state)
+                ? 'Four out of five dentists agree.'
+                : 'That was pure chewing satisfaction!',
+            state,
+        );
+        await exercise(A_WIS, true, state, { rn2 }, {
+            encumberMessage: encumber_msg,
+        });
+    }
+    if (otmp.otyp === FLINT && !otmp.cursed) {
+        await env.message('Yabba-dabba delicious!', state);
+        await exercise(A_CON, true, state, { rn2 }, {
+            encumberMessage: encumber_msg,
+        });
+    }
+
+    if (otmp === state.uwep && otmp.quan === 1)
+        uwepgone({ state });
+    if (otmp === state.uquiver && otmp.quan === 1)
+        uqwepgone({ state });
+    if (otmp === state.uswapwep && otmp.quan === 1)
+        uswapwepgone({ state });
+
+    if (otmp === state.uball)
+        note_unported('ball.c unpunish');
+    if (otmp === state.uchain) {
+        note_unported('ball.c unpunish');
+    } else if (carried(otmp)) {
+        useup(otmp, env);
+    } else {
+        await useupf(otmp, 1, env);
+    }
+}
+
+// C ref: eat.c doeat_nonfood() (2734-2813).  This is the return-valued
+// dependency of doeat(): a compatible polymorphed form gets exactly one turn
+// of nutrition, conduct updates, poisoned-weapon handling and then the common
+// eatspecial() tail.  Callers pass the same operation seams as ordinary food
+// so death and status output cannot escape a planning clone.
+export async function doeat_nonfood(otmp, state = game, env = {}) {
+    const u = state.u;
+    const meal = victual(state);
+    let nodelicious = false;
+    let ll_conduct = 0;
+    const type = objectType(otmp, state);
+
+    meal.reqtime = 1;
+    meal.piece = otmp;
+    meal.o_id = otmp.o_id;
+    meal.usedtime = 0;
+    meal.canchoke = u.uhs === SATIATED ? 1 : 0;
+
+    let basenutrit;
+    if (otmp.oclass === COIN_CLASS) {
+        basenutrit = otmp.quan > 200000
+            ? 2000 : Math.trunc(otmp.quan / 100);
+    } else if (otmp.oclass === BALL_CLASS || otmp.oclass === CHAIN_CLASS) {
+        basenutrit = weight(otmp, { state });
+    } else {
+        basenutrit = Math.trunc(type.oc_nutrition ?? 0);
+    }
+    if (otmp.otyp === SCR_MAIL) {
+        basenutrit = 0;
+        nodelicious = true;
+    }
+    meal.nmod = basenutrit;
+    meal.eating = 1;
+
+    u.uconduct ??= {};
+    if (!(u.uconduct.food ?? 0)) {
+        ll_conduct++;
+        livelog_printf(
+            LL_CONDUCT,
+            `ate for the first time (${food_xname(otmp, false, state)})`,
+            state,
+        );
+    }
+    u.uconduct.food = Math.trunc(u.uconduct.food ?? 0) + 1;
+
+    const material = type.oc_material;
+    if (material === LEATHER || material === BONE
+        || material === DRAGON_HIDE || material === WAX) {
+        if (!(u.uconduct.unvegan ?? 0) && !ll_conduct) {
+            livelog_printf(
+                LL_CONDUCT,
+                `consumed animal products for the first time, by eating ${an(food_xname(otmp, false, state))}`,
+                state,
+            );
+            ll_conduct++;
+        }
+        u.uconduct.unvegan = Math.trunc(u.uconduct.unvegan ?? 0) + 1;
+        if (material !== WAX) {
+            if (!(u.uconduct.unvegetarian ?? 0) && !ll_conduct)
+                livelog_printf(
+                    LL_CONDUCT,
+                    `tasted meat by-products for the first time, by eating ${an(food_xname(otmp, false, state))}`,
+                    state,
+                );
+            await violated_vegetarian(state);
+        }
+    }
+
+    if (otmp.cursed) {
+        await rottenfood(otmp, state);
+        nodelicious = true;
+    } else if (material === PAPER) {
+        nodelicious = true;
+    }
+
+    if (otmp.oclass === WEAPON_CLASS && otmp.opoisoned) {
+        await env.message('Ecch - that must have been poisonous!', state);
+        if (!propertyActive(state, POISON_RES)) {
+            await poison_strdmg(
+                rnd(4), rnd(15), xnameFresh(otmp, state), KILLED_BY_AN,
+                state,
+                {
+                    losehp: (n, killer, format) =>
+                        losehp(n, killer, format, state, env),
+                    encumberMessage: (target) => encumber_msg(target),
+                },
+            );
+            if (state.program_state?.gameover) return ECMD_TIME;
+        } else {
+            await env.message('You seem unaffected by the poison.', state);
+        }
+    } else if (!nodelicious) {
+        const prefix = obj_is_pname(otmp, state)
+            && (otmp.oartifact ?? 0) < ART_ORB_OF_DETECTION ? '' : 'This ';
+        const name = otmp.oclass === COIN_CLASS
+            ? foodword(otmp, state)
+            : singular(otmp, xnameFresh, state);
+        await env.message(`${prefix}${name} is delicious!`, state);
+    }
+
+    await eatspecial(state, env);
+    return ECMD_TIME;
+}
+
 // C ref: eat.c doeat() (2815-3084), the #eat command. A glob, a tin and a
 // resumed meal each stop at their own arm below, and so does anything the
 // ordinary path cannot reach.
@@ -2734,14 +2978,71 @@ export async function doeat(state = game, env = {}) {
     if (otmp.oartifact)
         throw new UnsupportedEatError('retouch_object() for an artifact');
 
-    // C ref: the rust-monster arm (2876-2907) and the RIN_SLOW_DIGESTION arm
-    // (2909-2916), then `if (otmp->oclass != FOOD_CLASS)
-    // return doeat_nonfood(otmp)`. The rust arm needs
-    // `u.umonnum == PM_RUST_MONSTER`, which is_edible() refuses above; the
-    // other two need a ring or an object outside FOOD_CLASS, which is_edible()
-    // cannot answer true for. Being non-metallic is not what keeps a
-    // comestible out of the rust arm: objects.h:1117 gives the tin METAL, and
-    // objclass.h:194 puts METAL inside is_metallic()'s IRON..MITHRIL range.
+    // C ref: eat.c rust-monster arm (2876-2907).  A rust monster can eat a
+    // rustproof metallic object, but spits it back out without nutrition.
+    // make_stunned() is a discarded void call whose potion.c
+    // owner is not yet ported, so record that source gap at the call site.
+    if (isMetallic(otmp, state)
+        && u.umonnum === PM_RUST_MONSTER && otmp.oerodeproof) {
+        otmp.rknown = true;
+        if ((otmp.quan ?? 1) > 1) {
+            if (!carried(otmp))
+                splitobj(otmp, otmp.quan - 1, { state });
+            else
+                otmp = splitobj(otmp, 1, { state });
+        }
+        await eatEnv.message(
+            `Ulch - that ${xnameFresh(otmp, state)} was rustproofed!`, state,
+        );
+        otmp.oerodeproof = 0;
+        // eat.c evaluates the timeout argument before make_stunned(). This
+        // caller-owned draw remains even while the stun effect is unported.
+        rn2(10);
+        note_unported('potion.c make_stunned');
+        if (welded(otmp, state)
+            || (otmp.cursed
+                && (otmp.owornmask & (W_RINGL | W_RINGR)))) {
+            set_bknown(otmp, 1, { state });
+            await eatEnv.message(
+                `You spit out ${the(xnameFresh(otmp, state), state)}.`, state,
+            );
+        } else {
+            await eatEnv.message(
+                `You spit ${the(xnameFresh(otmp, state), state)} out onto the ${surface(u.ux, u.uy, state)}.`,
+                state,
+            );
+            if (carried(otmp)) {
+                if (otmp.owornmask)
+                    remove_worn_item(otmp, false, state);
+                freeinv(otmp, eatEnv);
+                await dropy(otmp, {
+                    ...eatEnv,
+                    hooks: {
+                        ...eatEnv.hooks,
+                        encumberMessage: encumber_msg,
+                        extractExternalObject: remove_object,
+                        newsym,
+                    },
+                });
+            }
+            stackobj(otmp, eatEnv);
+        }
+        return ECMD_TIME;
+    }
+
+    // C ref: eat.c RIN_SLOW_DIGESTION arm (2909-2916). rottenfood() is
+    // complete; trycall() is the source's identification side effect and is
+    // only reached when the ring was already described to the hero.
+    if (otmp.otyp === RIN_SLOW_DIGESTION) {
+        await eatEnv.message('This ring is indigestible!', state);
+        await rottenfood(otmp, state);
+        if (otmp.dknown)
+            await trycall(otmp, state);
+        return ECMD_TIME;
+    }
+
+    if (otmp.oclass !== FOOD_CLASS)
+        return doeat_nonfood(otmp, state, eatEnv);
 
     if (otmp === victual(state).piece) {
         // A meal interrupted and then resumed, which needs touchfood() against

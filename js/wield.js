@@ -2,7 +2,7 @@
 // asks about a monster's hands.
 // C refs: src/wield.c erodeable_wep(), will_weld(), TWOWEAPOK(), welded(),
 // empty_handed(), mwelded(), wield_tool(), can_twoweapon(), dotwoweapon(),
-// uwepgone(), and uswapwepgone().
+// uwepgone(), uswapwepgone(), and uqwepgone().
 //
 // wield.c set_twoweap() lives in js/worn.js beside setworn() and setnotworn(),
 // the two callers that would otherwise make js/worn.js and this file import
@@ -959,6 +959,16 @@ export function uswapwepgone(env = {}) {
     const state = env.state ?? game;
     if (state.uswapwep) {
         setuswapwep(null, setwornEnv(state));
+        update_inventory({ state });
+    }
+}
+
+// C ref: wield.c uqwepgone() (897-903). Clear the quiver slot after an
+// object disappears, including the explicit refresh after setworn's refresh.
+export function uqwepgone(env = {}) {
+    const state = env.state ?? game;
+    if (state.uquiver) {
+        setuqwep(null, setwornEnv(state));
         update_inventory({ state });
     }
 }
