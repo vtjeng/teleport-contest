@@ -32,7 +32,7 @@ import {
     createCommandBindingModel,
     keyForCommand,
 } from './command_bindings.js';
-import { movecmd, redraw_cmd } from './cmd.js';
+import { directionname, movecmd, redraw_cmd, xytodir } from './cmd.js';
 import {
     back_to_glyph,
     docrt,
@@ -68,6 +68,30 @@ import { clearTtyMessageWindow, ttyPline } from './tty_message.js';
 import { displayTtyMenuTextWindow } from './tty_menu.js';
 import { Invocation_lev } from './dungeon.js';
 import { tty_create_nhwindow, tty_curs } from './wintty.js';
+
+// C ref: getpos.c dxdy_to_dist_descr() (557-590).  This is shared by the
+// status window's held-by-monster line and the farlook helpers; keep the
+// source owner here rather than duplicating the compass formatting in a
+// caller.
+export function dxdy_to_dist_descr(dx, dy, fulldir = true) {
+    if (!dx && !dy) return 'here';
+    const dir = xytodir(dx, dy);
+    if (dir !== -1) return directionname(dir);
+    const dirnames = [
+        ['n', 'north'], ['s', 'south'], ['w', 'west'], ['e', 'east'],
+    ];
+    let result = '';
+    if (dy) {
+        const clipped = Math.min(Math.abs(dy), 9999);
+        result += `${clipped}${dirnames[dy > 0 ? 1 : 0][fulldir ? 1 : 0]}`;
+        if (dx) result += ',';
+    }
+    if (dx) {
+        const clipped = Math.min(Math.abs(dx), 9999);
+        result += `${clipped}${dirnames[dx > 0 ? 3 : 2][fulldir ? 1 : 0]}`;
+    }
+    return result;
+}
 
 export {
     LOOK_ONCE,

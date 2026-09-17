@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 9382007,
+      "datetime": "20371208091011",
+      "nethackrc": "OPTIONS=name:StatusDeaf,role:Priest,race:elf,gender:female,align:chaotic\nOPTIONS=!legacy,!tutorial,!splash_screen,playmode:debug,!autopickup\nOPTIONS=deaf\n",
+      "comment": "Independently chosen Priest/elf debug variation with the source roleplay deaf option; the normal attributes command records the deaf status branch with its own seed, date, role and race.",
+      "moves": "\u001b\u0018 \u001b"
+    }
+  ]
+}

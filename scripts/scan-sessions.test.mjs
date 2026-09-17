@@ -651,19 +651,22 @@ test('input exhaustion is matched only by complete output in that segment', asyn
         rng: ['0 rn2(2)=1'], animFrames: [[{ screen: 'Animation' }]],
     };
     const cases = [
-        ['matching prompt', {}, true],
+        ['matching prompt', {}, true, true],
         ['different screen', { screens: ['Other prompt'] }, false],
         ['extra screen', { screens: ['Prompt', 'Extra'] }, false],
         ['missing screen', { screens: [] }, false],
         ['different cursor', { cursors: [[7, 0, 1]] }, false],
         ['extra cursor', { cursors: [[6, 0, 1], [6, 0, 1]] }, false],
+        ['missing cursor', { cursors: [] }, false],
         ['different RNG', { rng: ['0 rn2(2)=0'] }, false],
         ['extra RNG', { rng: ['0 rn2(2)=1', '1 rn2(2)=0'] }, false],
         ['missing RNG', { rng: [] }, false],
-        ['different animation', { animFrames: [[{ screen: 'Other' }]] }, false],
-        ['missing animation', { animFrames: [[]] }, false],
+        ['different animation', { animFrames: [[{ screen: 'Other' }]] }, false, true],
+        ['missing animation', { animFrames: [[]] }, false, true],
+        ['extra animation', { animFrames: [[{ screen: 'Animation' },
+            { screen: 'Extra' }]] }, false, true],
     ];
-    for (const [name, changed, expected] of cases) {
+    for (const [name, changed, expected, boundaryExpected = false] of cases) {
         await t.test(name, async () => {
             let segment = 0;
             const row = await scanRecordedSession('prompt.session.json',
@@ -682,6 +685,8 @@ test('input exhaustion is matched only by complete output in that segment', asyn
             assert.equal(row.scanError, undefined);
             assert.deepEqual(row.segmentEndStates.map(end => end.recordingMatched),
                 [expected, true]);
+            assert.deepEqual(row.segmentEndStates.map(end => end.inputBoundaryMatched),
+                [boundaryExpected, true]);
             assert.deepEqual(row.segmentEndStates[0].unported, ['trap.c selftouch']);
         });
     }

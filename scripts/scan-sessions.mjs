@@ -66,8 +66,8 @@ const PROMPT_TERMINATORS = new Set(['\r', '\n']);
 
 const EXTENDED_COMMAND_KEY = '#';
 
-// Version 3 compares each complete segment before classifying input exhaustion.
-const SCAN_CACHE_VERSION = 3;
+// Version 4 separates input-boundary agreement from strict animation parity.
+const SCAN_CACHE_VERSION = 4;
 
 function repositoryHead(root) {
     return execFileSync('git', ['rev-parse', 'HEAD'], { cwd: root })
@@ -523,10 +523,7 @@ async function replaySession(file, data, replaySegment) {
         const segmentScreens = segmentScreenList.length;
         const segmentUnported = segmentGame.getUnported?.() ?? [];
         for (const fn of segmentUnported) unported.add(fn);
-        // Recordings can end at an input prompt. Exact agreement with that
-        // segment, including stream lengths, distinguishes its normal end
-        // from input consumed after a skipped callee changed the replay.
-        const recordingMatched = !boundary && compareSessionOutputs(
+        const comparison = compareSessionOutputs(
             { version: 5, segments: [segment] },
             {
                 rng: segmentGame.getRngLog?.() ?? [],
@@ -534,14 +531,22 @@ async function replaySession(file, data, replaySegment) {
                 cursors: segmentGame.getCursors?.() ?? [],
                 animFrames: segmentGame.getAnimationFramesByStep?.() ?? [],
             },
-        ).passed;
+        );
+        // Recordings can end at an input prompt. Exact RNG, screen and cursor
+        // streams, including their lengths, establish that recorded boundary.
+        // Animation differences still fail strict parity but do not establish
+        // that the replay consumed extra input.
+        const inputBoundaryMatched = !boundary && !comparison.error
+            && !comparison.segmentMismatch && !comparison.rngMismatch
+            && !comparison.screenMismatch && !comparison.cursorMismatch;
         // A gap in one game cannot explain input exhaustion in another.
         // Capture both before the next segment resets the game singleton.
         segmentEndStates.push({
             segment: segmentIndex,
             unported: segmentUnported,
             inputExhausted: Boolean(segmentGame.getInputExhausted?.()),
-            recordingMatched,
+            recordingMatched: !boundary && comparison.passed,
+            inputBoundaryMatched,
         });
         const steps = segment.steps || [];
         const contextFor = (inputThroughStop) => ({

@@ -59998,7 +59998,7 @@
     {
       "id": "port-worn-m-dowear-seed0399-20260917",
       "kind": "file-port",
-      "status": "open",
+      "status": "parked",
       "summary": "Port complete monster armor selection, worn properties, and runtime equipment delays",
       "cFile": "worn.c",
       "sessions": [
@@ -60009,8 +60009,8 @@
       "spans": [
         {
           "name": "update_mon_extrinsics..m_dowear_type",
-          "status": "queued",
-          "closedBy": null,
+          "status": "closed",
+          "closedBy": "458502483861dd0a4e9992fbbf4e88db9d84c774",
           "functions": [
             "update_mon_extrinsics",
             "find_mac",
@@ -60136,15 +60136,15 @@
         }
       ],
       "progressBeforePark": {
-        "screens": 0,
-        "rng": 0
+        "screens": 4,
+        "rng": 192
       },
       "parkedStanding": {
-        "sha": "254503a94c48650d434f073e6889afa2a73cad6e",
-        "screens": 11002,
-        "rng": 784683
+        "sha": "458502483861dd0a4e9992fbbf4e88db9d84c774",
+        "screens": 11127,
+        "rng": 785649
       },
-      "parkedReason": "The queued worn.c update_mon_extrinsics..m_dowear_type span is still awaiting corrected production recording and canonical caller wiring from worker B. No game code has been integrated for it; resume this planned span when its corrected delivery is ready, after the independent ready break_armor span is measured.",
+      "parkedReason": "The four-function source span is verified and the independent pickup recording reaches live armor reassessment through the wearing turn. Creation/custom inventory, artifact-light output, polymorph and other caller families remain unrecorded; keep these entry gaps open. The formerly blocked seed0399 now matches all532 screens. Root restored W_ARMH for the existing rnd_offensive_item caller after its Castle fixture exposed the removed import.",
       "evidence": {
         "functions": [
           {
@@ -61164,6 +61164,251 @@
         "rng": 785457
       },
       "parkedReason": "The pure is_edible span is verified and closes with two independent non-food eating recordings plus a glass-potion rejection recording. Supporting rustproof, slow-digestion, poison, coins, paper, accessory, leash, punishment and exceptional cleanup entries remain unrecorded or have named gaps; do not claim whole-doeat completion. Continue the current Knight passiveum mismatch separately."
+    },
+    {
+      "id": "port-insight-status-enlightenment-seed0383-20260917",
+      "kind": "file-port",
+      "status": "open",
+      "summary": "Complete source-ordered status enlightenment for the attributes window",
+      "cFile": "insight.c",
+      "sessions": [
+        "seed0383-wizard-hallucinate",
+        "holdout/seed0002-healer-reflection-drummer"
+      ],
+      "selectionReason": "Integrate the next ready independent corrected delivery B26. Saved investigations identify hallucination at seed0383 step213 and deafness at seed0002 step589. The higher-ranked Knight passiveum delivery needs source corrections queued after worker A current petrification task; seed2200 remains blocked by the recorded machine-local path question.",
+      "detail": "Port complete insight.c status_enlightenment940–1266, canonical getpos.c dxdy_to_dist_descr dependency and source Lev_at_will grouping. Independent hallucination and deafness recordings reach the Status page. Preserve ENL_GAMEOVERALIVE, polymorphed youhiding and existing weapon_insight caller gaps rather than claiming those entries complete.",
+      "spans": [
+        {
+          "name": "status_enlightenment",
+          "status": "queued",
+          "closedBy": null,
+          "functions": [
+            "status_enlightenment"
+          ]
+        }
+      ],
+      "openedAt": "2537ca2493f5f1c45086ff8877785814eba766d6",
+      "openStanding": {
+        "sha": "458502483861dd0a4e9992fbbf4e88db9d84c774",
+        "screens": 11127,
+        "rng": 785649
+      },
+      "closedAt": null,
+      "delivered": null,
+      "functions": [
+        {
+          "name": "status_enlightenment",
+          "line": 940,
+          "endLine": 1269,
+          "declared": true,
+          "complete": true
+        }
+      ],
+      "range": {
+        "from": 940,
+        "to": 1269
+      },
+      "activeStanding": {
+        "sha": "458502483861dd0a4e9992fbbf4e88db9d84c774",
+        "screens": 11127,
+        "rng": 785649
+      },
+      "openMismatches": [
+        {
+          "session": "seed0383-wizard-hallucinate",
+          "step": 213,
+          "kind": "stop",
+          "function": null,
+          "functionDeclared": false,
+          "sourceFile": null,
+          "cFile": null,
+          "luaFile": null,
+          "line": null,
+          "message": "unsupported hero command: an unported branch of this command: the attributes window requires the hallucination status",
+          "unlocatedKinds": [],
+          "recordedSteps": 219,
+          "remainingScreensUpperBound": 6,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/seed0383-wizard-hallucinate.json",
+            "result": {
+              "session": "seed0383-wizard-hallucinate",
+              "remainingScreensUpperBound": 6,
+              "status": "complete",
+              "commit": "fe323c00a944128df256d6561f76d05282718db5",
+              "summary": "Post-move handling advances this session from step 203 to step 213. The next stop is the attributes window: status_enlightenment rejects hallucination instead of emitting the C status line. The next source span must cover the complete status function and its other unported conditions; six screens remain after this stop.",
+              "source": {
+                "file": "insight.c",
+                "functions": [
+                  "status_enlightenment"
+                ],
+                "branch": "The attributes command reaches status_enlightenment with active hallucination. C emits the hallucinating status when HALLUC has an intrinsic timeout and HALLUC_RES is absent, then continues through its other status branches; the current JavaScript explicitly refuses this property.",
+                "callers": [
+                  "C cmd.c attributes dispatch -> insight.c doattributes (2007-2018) -> enlightenment (414-422) -> status_enlightenment (940-1266).",
+                  "JavaScript cmd.js runAttributesCommand -> insight.js doattributes -> enlightenment -> status_enlightenment."
+                ],
+                "dependencies": [
+                  "Whole-source scope includes movement, internal troubles, external states, hunger and encumbrance, weapon status, tuxedo penalty, and nudity in insight.c:940-1266.",
+                  "Source callees include from_what, x_monnam, walking_on_water/surface/is_pool/is_lava, trap_predicament, a_monnam/digests/dmgtype, body_part/mbodypart, which_armor, fingers_or_gloves and weapon_insight; verify existing owners and required return values."
+                ]
+              },
+              "goalKind": "file-port",
+              "evidence": [
+                "The exact candidate fixed scan in .cache/A5-checkpoint-scan-cache.json emits 213 of 219 screens, with divergence:null, then refuses Ctrl-X attributes: the attributes window requires the hallucination status.",
+                "js/insight.js UNPORTED_STATUS_PROPERTIES lists HALLUC; status_enlightenment iterates those properties and throws UnsupportedEnlightenmentError. C insight.c:1055-1058 emits You are hallucinating instead.",
+                "The current generic hasProperty guard accepts intrinsic or extrinsic HALLUC, broader than the C Hallucination predicate in youprop.h:115-120. The completed port must apply the C intrinsic-timeout and resistance condition.",
+                "Existing JavaScript status_enlightenment covers transformed form, sleepiness, hunger, encumbrance, weapon and nudity. Riding, water and flight, internal troubles, punishment, traps, held/swallowed states, wounded legs and tuxedo effects are still explicitly refused, so selection is the whole function, not a session-specific hallucination fix.",
+                "Independent postmov trapped-door recordings use seed6201035 with different setup and acoustics; the original copied witness was rejected and is absent from the regression corpus. Four other postmov entry families remain unverified in GOALS.json.",
+                "Checkpoint fe323c00a944128df256d6561f76d05282718db5 run-38WoMj passes all checks:31/44 sessions,10259/11405 screens,753589/792838 RNG,10281/11405 cursors and269/269 recordings. This postmov span adds10 development screens,31 RNG values and10 cursors; its two independent recordings add550 screens and13882 RNG calls."
+              ],
+              "mismatch": {
+                "session": "seed0383-wizard-hallucinate",
+                "step": 213,
+                "kind": "stop",
+                "function": null,
+                "functionDeclared": false,
+                "sourceFile": null,
+                "cFile": null,
+                "luaFile": null,
+                "line": null,
+                "message": "unsupported hero command: an unported branch of this command: the attributes window requires the hallucination status",
+                "unlocatedKinds": [],
+                "recordedSteps": 219,
+                "remainingScreensUpperBound": 6
+              }
+            }
+          }
+        },
+        {
+          "session": "holdout/seed0002-healer-reflection-drummer",
+          "step": 589,
+          "kind": "stop",
+          "function": null,
+          "functionDeclared": false,
+          "sourceFile": null,
+          "cFile": null,
+          "luaFile": null,
+          "line": null,
+          "message": "unsupported hero command: an unported branch of this command: the attributes window requires the deafness status",
+          "unlocatedKinds": [],
+          "recordedSteps": 595,
+          "remainingScreensUpperBound": 6,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/holdout/seed0002-healer-reflection-drummer.json",
+            "result": {
+              "session": "holdout/seed0002-healer-reflection-drummer",
+              "remainingScreensUpperBound": 6,
+              "status": "complete",
+              "commit": "4e0ebd979c0db0a5dd7a983045fac31199fe09cf",
+              "mismatch": {
+                "session": "holdout/seed0002-healer-reflection-drummer",
+                "step": 589,
+                "kind": "stop",
+                "function": null,
+                "functionDeclared": false,
+                "sourceFile": null,
+                "cFile": null,
+                "luaFile": null,
+                "line": null,
+                "message": "unsupported hero command: an unported branch of this command: the attributes window requires the deafness status",
+                "unlocatedKinds": [],
+                "recordedSteps": 595,
+                "remainingScreensUpperBound": 6
+              },
+              "summary": "Object type aliases now let discoveries finish. The next attributes command stops in the existing partial status_enlightenment on DEAF. C insight.c1073–1074 emits the deafness line through from_what. Complete the whole status_enlightenment unit as a separate future goal; A's current attributes_enlightenment unit does not include it.",
+              "source": {
+                "file": "insight.c",
+                "functions": [
+                  "status_enlightenment"
+                ],
+                "branch": "Whole status_enlightenment940–1266 includes obvious movement, polymorph/riding, ailments including DEAF1073–1074, punishment, traps, held/swallowed hero, wounded legs, transient conditions, hunger, encumbrance, weapon status, suit penalty and nudity. Deaf combines intrinsic, extrinsic and role-play state; the drum established real timed deafness here. This is not a naming defect.",
+                "callers": [
+                  "cmd.c attributes command -> insight.c doattributes:2009 -> enlightenment -> status_enlightenment; JS doattributes/enlightenment reaches the existing status owner in the same order."
+                ],
+                "dependencies": [
+                  "from_what(DEAF) is a consumed naming dependency. Also verify whole status helpers trap_predicament, walking_on_water, weapon_insight and consumed monster/body/equipment naming at their C call sites; no guessed return or seed-specific line is permitted.",
+                  "The source unit is separate from attributes_enlightenment. The pilot starts no new substantial unit after its cutoff; implementation remains future work.",
+                  "The remaining six-screen bound includes the current attributes result and later inputs; it is not a prediction of gain."
+                ]
+              },
+              "goalKind": "file-port",
+              "evidence": [
+                "Combined checkpoint4e0ebd97 completed2026-09-15T01:00:34.132Z with all218regression recordings passing. Fixed workload27/44;9653/11405screens,699110/792838RNG. Post-checkpoint canonical queue confirms first mismatch589 and upper bound6.",
+                "Worker independently replayed the same next stop at immutable33b0b9c. Coordinator read the complete C status_enlightenment body940–1266, the DEAF macro, and existing JavaScript refusal and caller. The independently worked attributes unit is not claimed to implement this separate status unit.",
+                "Naming's first combined checkpoint failed only four older error-boundary fixtures that used an alias refusal. Those tests now use the remaining lit-candle naming refusal; all targeted tests and the second full checkpoint pass. No status implementation is included."
+              ]
+            }
+          }
+        }
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "status_enlightenment",
+            "implementation": "js/insight.js",
+            "symbol": "status_enlightenment",
+            "sourceReview": "Read the complete insight.c status_enlightenment() body at lines 940-1266 and checked evaluation order against the port. The implementation preserves transformed/riding status, levitation and flying masks, underwater and water-walking branches, internal troubles, blindness/deafness sources, punishment and trap text, held/swallowed-monster naming and distance, cursed saddle, wounded legs, glib/fumbling/sleepy/hunger causes, hunger and encumbrance counters, weapon status, monk tux penalty, and nudity in the source order. The Lev_at_will correction now follows youprop.h:242-245 as one grouped predicate: HLevitation I_SPECIAL or ELevitation W_ARTI is required, with all other intrinsic/extrinsic bits rejected. It removes the old blanket status refusals. The source-discarded youhiding(TRUE, final) call remains an explicit note_unported gap because enlightenment still rejects a polymorphed hero before status; ENL_GAMEOVERALIVE remains an unrecorded disclosure caller boundary; the existing weapon_insight shield/wet-towel unsupported arms remain pre-existing supporting gaps and are not relabeled as this function's completion. Root and independent read-only comparison confirmed the whole selected body and the pure dxdy_to_dist_descr557–590 dependency. The Lev_at_will correction now applies both mask restrictions to either qualifying intrinsic or artifact source, matching youprop.h242–245.",
+            "callers": [
+              {
+                "path": "js/cmd.js",
+                "symbol": "runAttributesCommand",
+                "source": "cmd.c doextcmd dispatches the attributes command to insight.c doattributes()."
+              },
+              {
+                "path": "js/insight.js",
+                "symbol": "doattributes",
+                "source": "insight.c doattributes() calls enlightenment(), which calls status_enlightenment() after the basic/characteristics sections."
+              },
+              {
+                "path": "js/insight.js",
+                "symbol": "enlightenment",
+                "source": "insight.c enlightenment() invokes status_enlightenment() for both basic and magic enlightenment windows."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/insight.test.mjs"
+            ],
+            "recordings": [
+              "recordings/insight.c/attributes-enlightenment-pilot.session.json",
+              "recordings/insight.c/attributes-enlightenment-wizard-orc.session.json",
+              "recordings/insight.c/attributes-enlightenment-hallucination-independent.session.json",
+              "recordings/insight.c/attributes-enlightenment-deaf-independent.session.json"
+            ],
+            "checkedAt": "b834218623129528040b9066a922e7d7293726ad"
+          }
+        ],
+        "entryPointReview": "The active production entry point is the attributes command (^X/attributes): cmd.js dispatches doattributes, enlightenment builds the window, and status_enlightenment supplies its Status section. The independent hallucination and roleplay-deaf attributes recordings execute that caller path and advance to the Status page; the hallucination recording uses a separate blind setup to keep map rendering out of this status witness. Source branches covered by focused tests include property-order movement/troubles, OPTIONS=deaf, underwater, both Lev_at_will mask restrictions, encumbrance, wizard counters and held-monster distance. The source call to insight.c youhiding is a discarded call behind enlightenment's existing polymorphed-hero admission guard and remains named as unported. ENL_GAMEOVERALIVE disclosure remains an active unrecorded caller boundary. Existing weapon_insight unsupported arms are separate prior gaps. No active status entry point is claimed inactive. Root inspected the saved C screens: the independently chosen hallucination recording has21 screens and explicitly prints You are hallucinating on the Status page; the deaf Priest/elf variation has5 screens and prints You are deaf from birth. A setup-only recording would not establish this page. Ending disclosures, transformed-hero admission and weapon_insight exceptional paths remain unrecorded or blocked, so keep the goal parked after span closure.",
+        "entryPoints": [
+          {
+            "name": "attributes command status window",
+            "functions": [
+              "status_enlightenment"
+            ],
+            "recordings": [
+              "recordings/insight.c/attributes-enlightenment-pilot.session.json",
+              "recordings/insight.c/attributes-enlightenment-wizard-orc.session.json",
+              "recordings/insight.c/attributes-enlightenment-hallucination-independent.session.json",
+              "recordings/insight.c/attributes-enlightenment-deaf-independent.session.json"
+            ]
+          },
+          {
+            "name": "ending disclosure status window, including alive and dead final modes",
+            "functions": [
+              "status_enlightenment"
+            ],
+            "recordings": []
+          },
+          {
+            "name": "polymorphed attributes status window",
+            "functions": [
+              "status_enlightenment"
+            ],
+            "recordings": []
+          }
+        ]
+      }
     }
   ]
 }

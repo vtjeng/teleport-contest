@@ -48,14 +48,25 @@ describe('checkOverReads', () => {
     test('accepts a matching segment ending at a prompt but retains mismatches', () => {
         const rows = [{ file: 'prompt.session.json', segmentEndStates: [
             { segment: 0, unported: ['trap.c selftouch'],
-                inputExhausted: true, recordingMatched: true },
+                inputExhausted: true, recordingMatched: true,
+                inputBoundaryMatched: true },
             { segment: 1, unported: ['sit.c dosit'],
-                inputExhausted: true, recordingMatched: false },
+                inputExhausted: true, recordingMatched: false,
+                inputBoundaryMatched: false },
         ] }];
         assert.deepEqual(checkOverReads(rows), [{
             session: 'prompt.session.json', segment: 1,
             unported: ['sit.c dosit'],
         }]);
+    });
+
+    test('does not classify animation-only differences as an extra input read', () => {
+        const rows = [{ file: 'animation.session.json', segmentEndStates: [
+            { segment: 0, unported: ['trap.c selftouch'],
+                inputExhausted: true, recordingMatched: false,
+                inputBoundaryMatched: true },
+        ] }];
+        assert.deepEqual(checkOverReads(rows), []);
     });
 
     test('does not combine a gap with another segment\'s input exhaustion', () => {

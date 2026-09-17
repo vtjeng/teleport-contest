@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 9381000,
+      "datetime": "20361107121416",
+      "nethackrc": "OPTIONS=name:StatusHallu,role:Wizard,race:human,gender:male,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen,playmode:debug,!autopickup,blind\n",
+      "comment": "Independently chosen Wizard attributes route: #wizintrinsic selects hallucination, the space dismisses its message, and ^X invokes status_enlightenment while hallucination remains active. OPTIONS=blind keeps the intentionally hallucinatory map hidden so this recording isolates the status branch and ends after advancing the attributes menu to its Status page.",
+      "moves": " #wizintrinsic\nh\n \u0018 "
+    }
+  ]
+}
