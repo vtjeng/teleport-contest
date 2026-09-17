@@ -9,6 +9,37 @@ import {
     A_NEUTRAL,
     A_NONE,
     A_STR,
+    ACH_AMUL,
+    ACH_ASTR,
+    ACH_BELL,
+    ACH_BGRM,
+    ACH_BLND,
+    ACH_BOOK,
+    ACH_CNDL,
+    ACH_ENDG,
+    ACH_HELL,
+    ACH_INVK,
+    ACH_MEDU,
+    ACH_MINE,
+    ACH_MINE_PRIZE,
+    ACH_NOVL,
+    ACH_NUDE,
+    ACH_ORCL,
+    ACH_RNK1,
+    ACH_RNK2,
+    ACH_RNK3,
+    ACH_RNK4,
+    ACH_RNK5,
+    ACH_RNK6,
+    ACH_RNK7,
+    ACH_RNK8,
+    ACH_SHOP,
+    ACH_SOKO,
+    ACH_SOKO_PRIZE,
+    ACH_TMPL,
+    ACH_TOWN,
+    ACH_TUNE,
+    ACH_UWIN,
     ACID_RES,
     BLINDED,
     FLYING,
@@ -25,6 +56,7 @@ import {
     attrval,
     attributes_enlightenment,
     cause_known,
+    count_achievements,
     do_gamelog,
     doconduct,
     dovanquished,
@@ -36,6 +68,7 @@ import {
     set_vanq_order,
     size_str,
     show_gamelog,
+    show_achievements,
     show_conduct,
     sokoban_in_play,
     vanqsort_cmp,
@@ -70,13 +103,9 @@ import {
     LL_ACHIEVE,
     LL_CONDUCT,
     LL_SPOILER,
-    ACH_SOKO,
     G_GENOD,
     G_EXTINCT,
     G_GONE,
-    ACH_BELL,
-    ACH_MINE_PRIZE,
-    ACH_RNK4,
     LIFESAVED,
     MAGICENLIGHTENMENT,
     MOD_ENCUMBER,
@@ -1966,6 +1995,171 @@ test('show_conduct follows source tense and conduct order', async () => {
         ' You have used no wishes.',
     ]]);
 });
+
+test('count_achievements stops at the zero-terminated list sentinel', () => {
+    const state = { u: { uachieved: [ACH_MINE, ACH_TOWN, 0, ACH_SHOP] } };
+    assert.equal(count_achievements(state), 2);
+});
+
+test('show_achievements keeps the C spoiler and empty-list gates', async () => {
+    const windows = [];
+    const state = {
+        wizard: false,
+        u: { uachieved: [ACH_HELL, 0] },
+    };
+    await show_achievements(ENL_GAMEINPROGRESS, state, {
+        displayMenuWindow: (_state, lines) => windows.push(lines),
+    });
+    assert.deepEqual(windows, [], 'ordinary play hides achievement spoilers');
+
+    state.wizard = true;
+    await show_achievements(ENL_GAMEINPROGRESS, state, {
+        displayMenuWindow: (_state, lines) => windows.push(lines),
+    });
+    assert.deepEqual(windows[0].map((line) => line.text), [
+        'Achievement:',
+        ' You have entered Gehennom.',
+    ]);
+
+    windows.length = 0;
+    state.u.uachieved = [0];
+    await show_achievements(ENL_GAMEOVERDEAD, state, {
+        displayMenuWindow: (_state, lines) => windows.push(lines),
+    });
+    assert.deepEqual(windows, [], 'an empty achievement list has no header');
+});
+
+test('show_achievements preserves order, possession tense, ascension order and rank gender',
+    async () => {
+        const windows = [];
+        const role = {
+            mnum: -1,
+            name: { m: 'Hero', f: 'Heroine' },
+            rank: Array.from({ length: 9 }, () => ({ m: null, f: null })),
+        };
+        role.rank[3] = { m: 'Knight', f: 'Dame' };
+        const state = {
+            program_state: { gameover: true },
+            u: {
+                uachieved: [ACH_MINE, ACH_BELL, ACH_HELL, -ACH_RNK4,
+                    ACH_AMUL, ACH_UWIN, 0],
+                uhave: { bell: false, amulet: false },
+                uevent: { ascended: true },
+            },
+            urole: role,
+            flags: { female: true },
+        };
+        await show_achievements(ENL_GAMEOVERDEAD, state, {
+            displayMenuWindow: (_state, lines) => windows.push(lines),
+        });
+        assert.deepEqual(windows[0].map((line) => line.text), [
+            'Achievements:',
+            ' You entered the Gnomish Mines.',
+            ' You handled the Bell of Opening.',
+            ' You entered Gehennom.',
+            ' You attained the rank of Dame.',
+            ' You delivered the Amulet of Yendor.',
+            ' You ascended!',
+        ]);
+        assert.deepEqual(state.u.uachieved, [ACH_MINE, ACH_BELL, ACH_HELL,
+            -ACH_RNK4, ACH_AMUL, ACH_UWIN, 0]);
+    });
+
+// Pin every source switch arm in insight.c:2243-2402. The list includes all
+// valid achievement ids; only the source-mandated ascension reorder changes
+// their order. This keeps the less common achievement descriptions covered
+// even though ordinary play cannot cheaply reach all of them in one recipe.
+test('show_achievements formats every source achievement arm', async () => {
+    const windows = [];
+    const allAchievements = [
+        ACH_BELL, ACH_HELL, ACH_CNDL, ACH_BOOK, ACH_INVK, ACH_AMUL,
+        ACH_ENDG, ACH_ASTR, ACH_UWIN, ACH_MINE_PRIZE, ACH_SOKO_PRIZE,
+        ACH_MEDU, ACH_BLND, ACH_NUDE, ACH_MINE, ACH_TOWN, ACH_SHOP,
+        ACH_TMPL, ACH_ORCL, ACH_NOVL, ACH_SOKO, ACH_BGRM, ACH_RNK1,
+        ACH_RNK2, ACH_RNK3, ACH_RNK4, ACH_RNK5, ACH_RNK6, ACH_RNK7,
+        ACH_RNK8, ACH_TUNE,
+    ];
+    const role = {
+        mnum: -1,
+        name: { m: 'Hero', f: 'Heroine' },
+        rank: Array.from({ length: 9 }, (_, rank) => ({
+            m: `Rank${rank}`, f: `F${rank}`,
+        })),
+    };
+    const state = {
+        program_state: { gameover: true },
+        u: {
+            // C moves the Amulet and ascension rows to the end after it
+            // counts this original zero-terminated list.
+            uachieved: allAchievements.concat(0),
+            uhave: {},
+            uevent: {},
+        },
+        urole: role,
+    };
+    await show_achievements(ENL_GAMEOVERDEAD, state, {
+        displayMenuWindow: (_state, lines) => windows.push(lines),
+    });
+    assert.deepEqual(windows[0].map((line) => line.text), [
+        'Achievements:',
+        ' You handled the Bell of Opening.',
+        ' You entered Gehennom.',
+        ' You handled the Candelabrum of Invocation.',
+        ' You handled the Book of the Dead.',
+        " You gained access to Moloch's Sanctum.",
+        ' You reached the Elemental Planes.',
+        ' You reached the Astral Plane.',
+        ' You completed the Gnomish Mines.',
+        ' You completed Sokoban.',
+        ' You defeated Medusa.',
+        ' You explored without being able to see.',
+        ' You went without any armor.',
+        ' You entered the Gnomish Mines.',
+        ' You entered Minetown.',
+        ' You entered a shop.',
+        ' You entered a temple.',
+        ' You consulted the Oracle of Delphi.',
+        ' You read from a Discworld novel.',
+        ' You entered Sokoban.',
+        ' You entered the Big Room.',
+        ' You attained the rank of Rank1.',
+        ' You attained the rank of Rank2.',
+        ' You attained the rank of Rank3.',
+        ' You attained the rank of Rank4.',
+        ' You attained the rank of Rank5.',
+        ' You attained the rank of Rank6.',
+        ' You attained the rank of Rank7.',
+        ' You attained the rank of Rank8.',
+        " You learned the tune to open and close the Castle's drawbridge.",
+        ' You had obtained the Amulet of Yendor.',
+        ' You ascended!',
+    ]);
+    assert.deepEqual(state.u.uachieved, [1, 2, 3, 4, 5, 7, 8, 10, 11, 12,
+        13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28,
+        29, 30, 31, 6, 9, 0]);
+});
+
+test('show_conduct appends achievements to its shared window before display',
+    async () => {
+        const windows = [];
+        const state = {
+            u: {
+                uconduct: {},
+                uroleplay: {},
+                uachieved: [ACH_HELL, 0],
+            },
+            svm: { mvitals: [] },
+            wizard: false,
+            invent: null,
+        };
+        await show_conduct(ENL_GAMEOVERDEAD, state, {
+            displayMenuWindow: (_state, lines) => windows.push(lines),
+        });
+        const lines = windows[0].map((line) => line.text);
+        assert.equal(lines.at(-2), 'Achievement:');
+        assert.equal(lines.at(-1), ' You entered Gehennom.');
+        assert.equal(lines.at(-3), '');
+    });
 
 test('doconduct invokes the in-progress conduct window and returns ECMD_OK',
     async () => {

@@ -5133,6 +5133,15 @@ export function xlev_to_rank(xlev) {
     return xlev <= 2 ? 0 : xlev <= 30 ? Math.trunc((xlev + 2) / 4) : 8;
 }
 
+// C ref: botl.c rank_to_xlev() (313-329). Return the first experience level
+// represented by a rank; insight.c stores ranks, while rank_of() takes a
+// level. Values outside the documented 0..8 range follow C's conditional
+// boundaries rather than being clamped by a caller.
+export function rank_to_xlev(rank) {
+    return rank < 1 ? 1 : rank < 2 ? 3
+        : rank < 8 ? rank * 4 - 2 : 30;
+}
+
 // C ref: botl.c rank_of() (332-358). The rank title for experience level
 // `lev` in the role whose monster number is `monnum`, or in the hero's own
 // role when no role has that number. Walks down from xlev_to_rank(lev) to
