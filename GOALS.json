@@ -61570,7 +61570,7 @@
           "line": 2435,
           "endLine": 2615,
           "declared": true,
-          "complete": false
+          "complete": true
         }
       ],
       "range": {
@@ -61649,7 +61649,113 @@
             }
           }
         }
-      ]
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "passiveum",
+            "implementation": "js/mhitu.js",
+            "symbol": "passiveum",
+            "sourceReview": "Read nethack-c/upstream/src/mhitu.c:2435-2615 in full. The correction keeps the first hero AT_NONE/AT_BOOM passive-slot search, source-order damage roll, pre-rehumanization AD_ACID/AD_STON/AD_ENCH arms, !Upolyd return, rn2(3)-gated AD_PHYS/AD_PLYS/AD_COLD/AD_STUN/AD_FIRE/AD_ELEC arms, and assess_dmg return. It also preserves mhitu.c's per-attack mon_currwep reset in mattacku, separates hliquid and monster naming display RNG from gameplay RNG in planning, carries the planning message/display environment through rehumanize, mon_reflects, golemeffects, and dobuzz, and calls canonical arti_reflects and paralyze_monst owners. Source-discarded void calls remain named at their actual sites; no note_unported() result is used as game data. The independent recordings reach the production monster-turn dispatcher and AD_STUN arm; acid, cockatrice, disenchanter, exploding physical, floating eye or cube, brown mold or blue jelly, red mold and grid bug entry families remain explicitly open where no matching recording exists. The root comparison also aligns the cold splitting threshold with current gy.youmonst.data->mlevel, while the saved pre-hit form still selects and rolls the passive attack. The central primary span is passiveum2435–2615; assess_dmg2355–2368 and mhitm.c attk_protection/paralyze_monst are supporting owners, and the three intervening #if0 helpers are not claimed complete. Discarded unported calls remain erode_armor, acid_damage, drain_item, shieldeff and split_mon; existing xkilled life-saving recovery remains an explicit separate gap.",
+            "callers": [
+              {
+                "path": "js/mhitu.js",
+                "symbol": "hitmu",
+                "source": "mhitu.c:1262 calls passiveum(olduasmon,mtmp,mattk) after the monster damage path; JS preserves the saved hero form, awaits the returned passive attack result and returns it to mattacku()."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/mhitu.test.mjs",
+              "scripts/mhitm.test.mjs",
+              "scripts/mon-span.test.mjs",
+              "scripts/muse.test.mjs",
+              "scripts/zap-ray.test.mjs"
+            ],
+            "recordings": [
+              "recordings/mhitu.c/passiveum-yellow-mold-independent.session.json",
+              "recordings/mhitu.c/passiveum-yellow-mold-variation.session.json"
+            ],
+            "checkedAt": "9ceaba0db515ee34eaf897a6c15b4a2ba644fa80"
+          }
+        ],
+        "entryPointReview": "The source range's production entry is hitmu() during a monster turn. The two independent recipes use #polyself to select a grounded yellow mold, #wizgenesis to create a newt, and two waits; strict C/JavaScript recordings show the passiveum AD_STUN arm, its assess_dmg nonlethal return, and the enclosing mattacku()/monmove dispatch. Source review also enumerates the active passive forms and branches: acid blob AD_ACID, cockatrice AD_STON, disenchanter AD_ENCH, explosive AD_PHYS, floating-eye and gelatinous-cube AD_PLYS, brown mold or blue jelly AD_COLD, yellow mold AD_STUN, red mold AD_FIRE, and grid bug AD_ELEC. Only yellow mold has a matching A30 recording; the other active form entries remain open. The correction's source-pinned tests cover the per-slot mon_currwep contract, the valid milky-potion paralyze caller state transition, planning display RNG propagation through golemeffects, planning naming/reflection seams, and the artifact reflection return owner. The milky-potion test is initialized in level-generation mode because the existing runtime makemon creation marker is outside this A30 source span; no production recording is claimed for that branch. Monster life-saving and other unrecorded passive entries remain explicit open coverage. Root inspection of the saved C screens finds the AD_STUN stagger message in both independent recordings. The primary source selection excludes the three #if0 ranged helpers between assess_dmg and passiveum; their completion is not inferred from implementing this active family. Supporting attk_protection has source-pinned pure-function tests, while shared-helper entries outside passiveum remain separate unfinished coverage.",
+        "entryPoints": [
+          {
+            "name": "yellow mold AD_STUN passive counterattack",
+            "functions": [
+              "passiveum"
+            ],
+            "recordings": [
+              "recordings/mhitu.c/passiveum-yellow-mold-independent.session.json",
+              "recordings/mhitu.c/passiveum-yellow-mold-variation.session.json"
+            ]
+          },
+          {
+            "name": "acid blob AD_ACID passive counterattack",
+            "functions": [
+              "passiveum"
+            ],
+            "recordings": []
+          },
+          {
+            "name": "cockatrice AD_STON passive counterattack",
+            "functions": [
+              "passiveum"
+            ],
+            "recordings": []
+          },
+          {
+            "name": "disenchanter AD_ENCH passive counterattack",
+            "functions": [
+              "passiveum"
+            ],
+            "recordings": []
+          },
+          {
+            "name": "explosive AT_BOOM/AD_PHYS passive counterattack",
+            "functions": [
+              "passiveum"
+            ],
+            "recordings": []
+          },
+          {
+            "name": "floating-eye AD_PLYS passive counterattack",
+            "functions": [
+              "passiveum"
+            ],
+            "recordings": []
+          },
+          {
+            "name": "gelatinous-cube AD_PLYS passive counterattack",
+            "functions": [
+              "passiveum"
+            ],
+            "recordings": []
+          },
+          {
+            "name": "brown mold or blue jelly AD_COLD passive counterattack",
+            "functions": [
+              "passiveum"
+            ],
+            "recordings": []
+          },
+          {
+            "name": "red mold AD_FIRE passive counterattack",
+            "functions": [
+              "passiveum"
+            ],
+            "recordings": []
+          },
+          {
+            "name": "grid bug AD_ELEC passive counterattack",
+            "functions": [
+              "passiveum"
+            ],
+            "recordings": []
+          }
+        ]
+      }
     }
   ]
 }

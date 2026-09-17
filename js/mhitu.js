@@ -1606,7 +1606,7 @@ export function ranged_attk_available(mtmp, rawEnv = {}) {
 // attk_protection(mattk->aatyp), which decides whether the attacker's gloves
 // saved it from a cockatrice.
 //
-// The three source calls whose results are discarded but whose full owners
+// The source calls whose results are discarded but whose full owners
 // are outside this span remain named at their call sites: erode_armor,
 // acid_damage, drain_item, shieldeff, and split_mon.  Their surrounding
 // source branches still consume the conditional draws before recording the
@@ -1807,7 +1807,7 @@ async function passiveum(olduasmon, mtmp, mattk, state, env) {
             state.u.mh += Math.trunc((tmp + random.rn2(2)) / 2);
             if (state.u.mhmax < state.u.mh)
                 state.u.mhmax = state.u.mh;
-            if (state.u.mhmax > ((olduasmon.mlevel + 1) * 8))
+            if (state.u.mhmax > ((state.youmonst.data.mlevel + 1) * 8))
                 note_unported('mon.c split_mon');
             break;
         case M.AD_STUN:
