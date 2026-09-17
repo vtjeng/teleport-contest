@@ -3,6 +3,8 @@
 // Replay independently chosen level-generation routes through the complete
 // dat/hellfill.lua port.  Each recipe selects a different Hellfill generator
 // in C so this runner verifies the production loader and its random stream.
+// The seeds were selected independently from the bounded range 82001..82028;
+// chunkLimit: 1 keeps each fresh recorder segment bounded.
 
 import { readFileSync } from 'node:fs';
 

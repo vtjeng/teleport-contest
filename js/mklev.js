@@ -1217,7 +1217,7 @@ function pick_vibrasquare_location(frame, state) {
 // function as called by lspo_map(), whose metadata reset differs. The ice arm
 // records the coder's icedpools choice only while a special level is being
 // initialized. The cloud arm clears engravings after the terrain write.
-export function sel_set_ter(x, y, typ, lit, state, frame, random = rn2) {
+function sel_set_ter(x, y, typ, lit, state, frame, random = rn2) {
     if (!set_levltyp_lit(x, y, typ, lit, state, random)) return false;
     const location = state.level.at(x, y);
     if (typ === SDOOR || IS_DOOR(typ)) {
