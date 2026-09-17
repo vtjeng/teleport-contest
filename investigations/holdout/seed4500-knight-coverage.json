@@ -1,38 +1,38 @@
 {
   "session": "holdout/seed4500-knight-coverage",
-  "remainingScreensUpperBound": 185,
+  "remainingScreensUpperBound": 164,
   "status": "complete",
-  "commit": "e2d9bd2c726f9fd575469a859d45e70a0e5b1ba8",
+  "commit": "62822945c35ed4f2144ec30f17bb78d8177f289c",
   "mismatch": {
     "session": "holdout/seed4500-knight-coverage",
-    "step": 1629,
+    "step": 1650,
     "kind": "stop",
-    "function": null,
+    "function": "wiz_where",
     "functionDeclared": false,
-    "sourceFile": null,
-    "cFile": null,
+    "sourceFile": "wizcmds.c",
+    "cFile": "wizcmds.c",
     "luaFile": null,
     "line": null,
-    "message": "simple monster action requires a hit by a monster that was hiding",
+    "message": "unsupported hero command: wiz_where() for the extended command 'wizwhere' is not ported",
     "unlocatedKinds": [],
     "recordedSteps": 1814,
-    "remainingScreensUpperBound": 185
+    "remainingScreensUpperBound": 164
   },
-  "summary": "Search discovery now passes the former1622 refusal, and canonical planning cleanup removes the allocation exception at1624. The first remaining boundary is a hiding-monster hit at1629, with no earlier screen, cursor or RNG difference. The next source unit is whole mhitu.c hitmu, including its hidden-attacker reveal and permanent-damage branch. Dedicated Warning, repeated-marker, liquid and exceptional transition recordings remain open. A separate gap in wizard monster-creation modifiers blocks the independent hidden-attacker setup; read.c owns that dependency.",
+  "summary": "The hidden-attacker hit now passes the former boundary at 1629. The first remaining stop is wizwhere at 1650, with no earlier screen, cursor or RNG difference. C wiz_where calls the non-menu print_dungeon path; JavaScript currently implements only the level-teleport menu. Independent hidden-attacker recording setup still depends on the read.c monster-creation family.",
   "source": {
-    "file": "mhitu.c",
+    "file": "wizcmds.c",
     "functions": [
-      "hitmu"
+      "wiz_where"
     ],
-    "branch": "C hitmu1143–1267 maps an unseen attacker, reveals an undetected hides-under monster or eel, rolls base and midnight damage, applies attack typing and knockback, resolves death, armor and half-damage reduction, permanent HP loss, ordinary damage, passive retaliation and occupation cancellation. JavaScript refuses the hidden-attacker arm and omits permanent HP loss.",
+    "branch": "C wizcmds.c wiz_where218–225 calls print_dungeon(FALSE) in wizard mode, otherwise prints the unavailable-command message, and returns ECMD_OK. The command registry names wiz_where but its JavaScript dispatcher has no implementation.",
     "callers": [
-      "C monmove dochug965–973 calls mattacku; mhitu805–812,823–829 and900–914 call hitmu for successful attacks. JavaScript unported_monster_actions plans the same mattacku entry, whose attack dispatcher reaches hitmu.",
-      "C hidden-attacker reveal1161–1184 clears mundetected before testing tp_sensemon and Detect_monsters. Both object-dependent output and newsym are inside the negative sensing gate; newsym is outside the object-present condition. Base damage RNG follows at1187."
+      "extcmdlist_data.js maps wizwhere to wiz_where; the extended-command dispatcher reaches its unsupported-command boundary. C cmd.c uses the same command registry entry and wizcmds.c owns the implementation.",
+      "The required output is dungeon.c print_dungeon2290–2440, which creates NHW_MENU, emits dungeon/branch/special-level lines with putstr, adds floating branches and invocation or portal coordinates, then displays and destroys the window."
     ],
     "dependencies": [
-      "Use the exact display.h tp_sensemon predicate: non-mindless plus blind or unblind telepathy. The existing startup_a11y sensesMonsterWithoutDetection also includes MATCH_WARN_OF_MON and cannot substitute for it. Detect_monsters remains a separate condition.",
-      "The hidden-attacker message uses something for a blind unknown object, the water for a pool while not Underwater, otherwise canonical object naming. Amonnam must use the correct live or cloned display RNG and replace only exact It with Something; preserve live output and planning isolation.",
-      "Whole hitmu must also implement permdmg1229–1259: retain its initial rn2 draw even when the result is replaced by full damage, integer fractions, form-dependent maximum HP and source lower-limit calculation. Preserve existing mdamageu and passiveum terminal behavior.",
+      "Complete both bymenu branches of whole dungeon.c print_dungeon and print_branch while retaining the existing level-teleport caller. The non-menu branch does not filter dungeons by the hero being in the endgame, does not use selection letters, and uses a blank branch prefix even when the hero is there.",
+      "Preserve source order of dungeon headings, branches before and after each special level, the stronghold tune, and floating branches. Invocation position takes precedence over portal reporting; absent-portal text appears only on the C-listed portal-bearing levels.",
+      "The hitmu port now clears hidden state, uses the exact canonical display.c tp_sensemon predicate, preserves naming/output/redraw order and implements the permanent HP-loss reader. Ordinary production hit recordings already exist; hidden-attacker and nonzero permanent-loss entry recordings remain open because setup and the AD_DETH writer are incomplete.",
       "Accepted mfind0 and Warning wiring now preserve marker memory, coordinate-aware messages, acknowledgement before reveal and source return values. Canonical dmonsfree runs on the planning clone after the monster scan before allmain movement allocation; the previous allocation failure is resolved.",
       "Whole goto_level and its supporting cleanup owners are implemented, including the Mines achievement and terminal punishment-ball and fall damage guards. Two independent Minetown level-teleport recordings match; they do not establish trapdoor, portal, endgame, tutorial, terminal or other exceptional entry coverage.",
       "mon.c minliquid/minliquid_core and supporting split_mon/cloneu/clone_mon are implemented with source-ordered HP, RNG, death and planning output. Liquid-specific entry recordings, exceptional partial rloc routes and other source callers remain open; trap.c inventory chain calls and mon.c deal_with_overcrowding remain named discarded-call gaps.",
@@ -42,9 +42,9 @@
   },
   "goalKind": "file-port",
   "evidence": [
-    ".cache/A33-retry-development-scan.json and .cache/A33-retry-queue.json locate the first boundary at1629, the hitmu hiding-monster refusal. The earlier combined focused replay run-2VTmES also emits1629 screens with divergence:null.",
-    "Whole-source comparison of C mhitu1143–1267 establishes the hidden-state, sensing, object-naming, output and redraw order before base damage, and the separate permanent-HP-loss omission. No hiding-attacker recording is yet claimed.",
-    "The rejected d754cb24 candidate remains preserved as history and is not the score baseline. Its live RNG matched C while planned allocation differed because a passive-dead attacker stayed linked only in the clone; the canonical cleanup correction fixes that state-order defect.",
+    ".cache/A34-development-scan.json and .cache/A34-queue.json locate the wizwhere stop at 1650. The earlier combined focused replay run-lpgqS9 likewise emitted 1650 screens with divergence:null.",
+    "Source comparison traced wizcmds.c wiz_where and the full dungeon.c print_dungeon/print_branch bodies. JavaScript dungeon.js currently supports only bymenu TRUE; its former NHW_TEXT description of the absent branch is inaccurate because C creates NHW_MENU for both modes.",
+    "The existing marilith and yellow-mold production recordings contain hitmu RNG calls and cover ordinary hit resolution. The abandoned plain-eel probes contained no hitmu or mattacku calls; retained hidden/hostile recipes are planned inputs and establish no entry coverage yet.",
     "Supporting potion.c split_mon, mhitu.c cloneu and makemon.c clone_mon now own splitting, runtime clone creation, planning RNG, shopkeeper naming and the C struct-copy fields including mw, EMIN.parentmid and the EDOG goal coordinate. mhitu passiveum, trap rust effects and uhitm pudding splitting use the canonical helpers. Initialized focused checks establish runtime creation and planning isolation; no new liquid-branch production recording is claimed.",
     "Existing achievement display recordings cover Bell and Candelabrum rows; final disclosure, ascension, relinquished-object wording and female-rank production routes remain open. The liquid functions have ordinary movement caller evidence in bee-eats-royal-jelly-span, but dedicated liquid, swap, fountain and zero-speed distress recordings remain open.",
     "C read.c create_particular_parse3169–3206 removes and records the state/gender words and disposition prefix before species parsing. JavaScript read.js GEAR_AND_STATE_WORDS and DISPOSITION_PREFIXES instead raise UnsupportedMonsterRequestError on these inputs. Plain eel creation does not itself prove an adjacent hidden attacker or a hit; a witness must establish those conditions and execute hitmu."

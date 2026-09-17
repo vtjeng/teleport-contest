@@ -63236,7 +63236,7 @@
     {
       "id": "port-mhitu-hitmu-seed4500-20260917",
       "kind": "file-port",
-      "status": "open",
+      "status": "parked",
       "summary": "Complete monster-hit resolution and hidden-attacker discovery.",
       "cFile": "mhitu.c",
       "sessions": [
@@ -63247,8 +63247,8 @@
       "spans": [
         {
           "name": "hitmu",
-          "status": "queued",
-          "closedBy": null,
+          "status": "closed",
+          "closedBy": "62822945c35ed4f2144ec30f17bb78d8177f289c",
           "functions": [
             "hitmu"
           ]
@@ -63417,7 +63417,17 @@
             "recordings": []
           }
         ]
-      }
+      },
+      "progressBeforePark": {
+        "screens": 21,
+        "rng": 1490
+      },
+      "parkedStanding": {
+        "sha": "62822945c35ed4f2144ec30f17bb78d8177f289c",
+        "screens": 11232,
+        "rng": 788703
+      },
+      "parkedReason": "Whole hitmu and canonical tp_sensemon are implemented and the fixed workload loses no matches. Ordinary hit recordings pass, but hidden hider/eel recipes require the read.c creation family and a verified actual hit; nonzero permanent HP loss requires the unported AD_DETH writer. Resume entry recording work when those dependencies land."
     }
   ]
 }
