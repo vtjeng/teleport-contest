@@ -4197,6 +4197,30 @@ test('planning brackets only the monster scan with context.mon_moving',
         assert.notEqual(game.context.mon_moving, true);
     });
 
+test('planning frees a dead monster before the next allocation', async () => {
+    const target = await prepareSelectedAction();
+    game.u.umovement = 0;
+    target.monster.mhp = 0;
+    // xkilled() has already queued this dead monster for the C movemon()
+    // tail. The planning clone must consume the same purge count without
+    // unlinking the live list or advancing the live ISAAC state.
+    game.iflags.purge_monsters = 1;
+    const liveMonster = game.level.monlist;
+    const beforeRandom = rngSnapshot();
+    let plannedMonster;
+    await preflightSimpleMonsterActions(game, {
+        consumeHeroRation: false,
+        advanceRound(planned) {
+            plannedMonster = planned.level.monlist;
+            return true;
+        },
+    });
+    assert.equal(plannedMonster, null);
+    assert.equal(game.level.monlist, liveMonster);
+    assert.equal(game.iflags.purge_monsters, 1);
+    assert.deepEqual(rngSnapshot(), beforeRandom);
+});
+
 test('planning rescans while a monster outruns the hero', async () => {
     const target = await prepareSelectedAction();
     // Two rations for the monster, none for the hero: mon.c sets
