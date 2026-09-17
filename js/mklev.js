@@ -1217,13 +1217,9 @@ function pick_vibrasquare_location(frame, state) {
 // function as called by lspo_map(), whose metadata reset differs. The ice arm
 // records the coder's icedpools choice only while a special level is being
 // initialized. The cloud arm clears engravings after the terrain write.
-function sel_set_ter(x, y, typ, lit, state, frame) {
-    if (!set_levltyp_lit(x, y, typ, lit, state)) return false;
+export function sel_set_ter(x, y, typ, lit, state, frame, random = rn2) {
+    if (!set_levltyp_lit(x, y, typ, lit, state, random)) return false;
     const location = state.level.at(x, y);
-    if (lit !== SET_LIT_NOCHANGE) {
-        location.lit = IS_LAVA(typ)
-            || (lit === SET_LIT_RANDOM ? Boolean(rn2(2)) : Boolean(lit));
-    }
     if (typ === SDOOR || IS_DOOR(typ)) {
         if (typ === SDOOR) location.doormask = D_CLOSED;
         const left = x > 0 ? state.level.at(x - 1, y) : null;
@@ -3472,6 +3468,7 @@ export function lspo_gas_cloud(args, env) {
 // be on the map.
 export function lspo_terrain(args, env) {
     const { state, coder, frame } = env;
+    const random = env.random?.rn2 ?? rn2;
     const tmpterrain = { tlit: SET_LIT_NOCHANGE, ter: INVALID_TYPE };
     let x = 0, y = 0;
     let sel = null;
@@ -3510,7 +3507,9 @@ export function lspo_terrain(args, env) {
 
     if (sel) {
         selection_iterate(sel, (sx, sy) => {
-            sel_set_ter(sx, sy, tmpterrain.ter, tmpterrain.tlit, state, frame);
+            sel_set_ter(
+                sx, sy, tmpterrain.ter, tmpterrain.tlit, state, frame, random,
+            );
         });
     } else {
         const c = { x, y };
@@ -3518,7 +3517,9 @@ export function lspo_terrain(args, env) {
                            { frame, state });
         if (!isok(c.x, c.y))
             throw new Error('terrain coord not ok');
-        sel_set_ter(c.x, c.y, tmpterrain.ter, tmpterrain.tlit, state, frame);
+        sel_set_ter(
+            c.x, c.y, tmpterrain.ter, tmpterrain.tlit, state, frame, random,
+        );
     }
 }
 

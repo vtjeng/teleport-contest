@@ -122,14 +122,7 @@ export function rnd_valign(random = rn2) {
 }
 
 function prefabMap(des, map, random, options = {}, contents = async () => {}) {
-    const positioned = options.x != null || options.y != null
-        || options.coord != null;
-    const alignment = positioned ? {} : {
-        halign: rnd_halign(random),
-        valign: 'center',
-    };
     return des.map({
-        ...alignment,
         ...options,
         map,
         contents,
@@ -152,7 +145,7 @@ export function makeHellPrefabs(des, state, random = rn2) {
                     '......', '......', '......', '......',
                 ),
                 random,
-                { valign: 'center' },
+                { halign: rnd_halign(random), valign: 'center' },
             ),
         },
         {
@@ -171,7 +164,7 @@ export function makeHellPrefabs(des, state, random = rn2) {
                     'xxxxxx.....xxxxxx',
                 ),
                 random,
-                { valign: 'center' },
+                { halign: rnd_halign(random), valign: 'center' },
             ),
         },
         async (coldhell) => prefabMap(
@@ -185,7 +178,7 @@ export function makeHellPrefabs(des, state, random = rn2) {
                 'xxxxxx.xxxxxx',
             ),
             random,
-            { valign: rnd_valign(random) },
+            { halign: rnd_halign(random), valign: rnd_valign(random) },
             async () => {
                 await des.non_diggable(selection_area(2, 2, 10, 8));
                 await des.region(selection_area(4, 4, 8, 6), 'lit');
@@ -239,7 +232,7 @@ export function makeHellPrefabs(des, state, random = rn2) {
                     '.......', '.......', 'x.....x',
                 ),
                 random,
-                { lit: true, valign: rnd_valign(random) },
+                { halign: rnd_halign(random), lit: true, valign: rnd_valign(random) },
             ),
         },
         async () => prefabMap(
@@ -249,7 +242,7 @@ export function makeHellPrefabs(des, state, random = rn2) {
                 'B.....B', 'B.....B', 'BBBBBBB',
             ),
             random,
-            { valign: rnd_valign(random) },
+            { halign: rnd_halign(random), valign: rnd_valign(random) },
             async () => {
                 await des.region({
                     region: [2, 2, 2, 2],
@@ -269,7 +262,7 @@ export function makeHellPrefabs(des, state, random = rn2) {
                 '..........', '..........', '..........',
             ),
             random,
-            { valign: rnd_valign(random) },
+            { halign: rnd_halign(random), valign: rnd_valign(random) },
             async () => {
                 await des.exclusion({ type: 'teleport', region: [4, 4, 5, 5] });
                 const mons = ['Angel', 'D', 'H', 'L'];
@@ -286,7 +279,7 @@ export function makeHellPrefabs(des, state, random = rn2) {
                 '.}}---}}.', '.}}}}}}}.', '.........',
             ),
             random,
-            { valign: rnd_valign(random) },
+            { halign: rnd_halign(random), valign: rnd_valign(random) },
             async () => {
                 await des.exclusion({ type: 'teleport', region: [3, 3, 5, 5] });
                 await des.monster('L', 4, 4);

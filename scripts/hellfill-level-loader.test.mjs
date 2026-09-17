@@ -92,8 +92,24 @@ test('all seven hellfill generator arms are callable source branches', async () 
 });
 
 test('hellfill implements every prefab and Lua two-argument random range', async () => {
-    const { calls, des } = descriptorLog();
-    const prefabs = makeHellPrefabs(des, roomState(), noBranchRandom);
+    const calls = [];
+    const des = new Proxy({}, {
+        get(_target, method) {
+            return async (...args) => {
+                calls.push({ method, args });
+                if (method === 'map' && typeof args[0]?.contents === 'function')
+                    await args[0].contents();
+            };
+        },
+    });
+    const draws = [];
+    let randomThree = 0;
+    const random = (bound) => {
+        draws.push(bound);
+        if (bound === 3) return randomThree++ % 3;
+        return 0;
+    };
+    const prefabs = makeHellPrefabs(des, roomState(), random);
     assert.equal(prefabs.length, 10);
     for (const prefab of prefabs) {
         if (typeof prefab === 'function') await prefab(false);
@@ -106,6 +122,32 @@ test('hellfill implements every prefab and Lua two-argument random range', async
     assert.deepEqual(placed.slice(-8).map(({ x, y }) => [x, y]), [
         [10, 3], [24, 3], [38, 3], [52, 3], [66, 3],
         [3, 3], [3, 3], [3, 3],
+    ]);
+    assert.deepEqual(calls
+        .filter(({ method }) => method === 'map')
+        .slice(0, 8)
+        .map(({ args }) => [args[0].halign, args[0].valign]), [
+        ['half-left', 'center'],
+        ['center', 'center'],
+        ['half-right', 'top'],
+        ['center', 'center'],
+        ['half-left', 'center'],
+        ['half-right', 'top'],
+        ['center', 'bottom'],
+        ['half-left', 'center'],
+    ]);
+    // Lua evaluates each explicit alignment expression before des.map().
+    // Centered prefab 4 consumes no draw, while prefabs 3, 5, 6, 7 and 8
+    // draw horizontal alignment before vertical alignment.
+    assert.deepEqual(draws, [
+        3, 3,
+        3, 3, 4, 3, 2, 4, 3, 2, 5,
+        3, 3,
+        3, 3, 100,
+        3, 3,
+        4, 3, 3,
+        100, 13, 13, 13, 13, 13,
+        73, 73, 73,
     ]);
     assert.equal(rnd_halign(bound => bound - 1), 'half-right');
     assert.equal(rnd_valign(bound => bound - 1), 'bottom');
