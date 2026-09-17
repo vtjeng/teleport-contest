@@ -26,6 +26,12 @@ import { runSegment } from '../js/jsmain.js';
 const END_C = readFileSync(
     new URL('../nethack-c/upstream/src/end.c', import.meta.url), 'utf8',
 );
+const END_JS = readFileSync(
+    new URL('../js/end.js', import.meta.url), 'utf8',
+);
+const PICKUP_JS = readFileSync(
+    new URL('../js/pickup.js', import.meta.url), 'utf8',
+);
 
 const RC = [
     'OPTIONS=name:A20,role:Tourist,race:human,gender:male,align:neutral',
@@ -108,16 +114,20 @@ test('artifact_score counts the source artifact points', async () => {
 test('observe_quantum_cat keeps the live coin flip on the box', async () => {
     const state = await freshGame();
     const box = newObject({ otyp: LARGE_BOX, spe: 1, ox: state.u.ux, oy: state.u.uy });
+    const draws = [];
     await observe_quantum_cat(box, false, false, {
         state,
-        random: { rn2: () => 0 },
+        random: { rn2: (limit) => { draws.push(limit); return 0; } },
     });
     assert.equal(box.spe, 1);
+    assert.deepEqual(draws, [2]);
+    draws.length = 0;
     await observe_quantum_cat(box, false, false, {
         state,
-        random: { rn2: () => 1 },
+        random: { rn2: (limit) => { draws.push(limit); return 1; } },
     });
     assert.equal(box.spe, 0);
+    assert.deepEqual(draws, [2]);
 });
 
 test('really_done maps burning to the no-corpse grave arise and returns',
@@ -138,5 +148,14 @@ test('source finalizer keeps the stopprint tail after top-ten output', () => {
     assert.match(
         END_C,
         /else if \(how == BURNING \|\| how == DISSOLVED\)[\s\S]*?NON_PM - 2/u,
+    );
+    assert.match(END_JS, /state\.mons\?\.\[state\.u\.ugrave_arise\]/u);
+    assert.match(END_JS, /A_ORIGINAL[\s\S]*?A_CURRENT/u);
+    assert.match(END_JS, /if \(pets\.length\) \{[\s\S]*?pets\.length \? '' : 'You '/u);
+    assert.match(END_JS, /disclosureStopprint\(state\)\) break;/u);
+    assert.match(END_JS, /LAST_AMULET - FIRST_AMULET \+ 1/u);
+    assert.match(
+        PICKUP_JS,
+        /const itsalive = !random\.rn2\(2\);[\s\S]*?get_obj_location\(box/u,
     );
 });

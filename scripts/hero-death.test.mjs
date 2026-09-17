@@ -162,7 +162,6 @@ async function completeFinalization(how) {
     prepareFinalization();
     await done(how, game);
     assert.equal(game.program_state.gameover, true);
-    return 'really_done() finalization';
 }
 
 function prepareFinalization() {
@@ -241,7 +240,7 @@ test('deaths[] matches C order and supplies unnamed killers', async () => {
     // reaches the completed really_done() finalization.
     await dyingGame();
     game.killer.name = '';
-    assert.match(await completeFinalization(DIED), /really_done\(\) finalization/u);
+    await completeFinalization(DIED);
 });
 
 test('the status arm forces a full repaint outside the three skip cases',
@@ -251,10 +250,11 @@ test('the status arm forces a full repaint outside the three skip cases',
     // her; the status line still shows the value the last repaint painted.
     game.u.uhp = 0;
     assert.match(statusRow(), STARTING_HP_STATUS);
+    game._renderedStatusLayouts = 'before-death-repaint';
     await completeFinalization(DIED);
     // end.c:1045-1046. bot() ran before really_done() cleared the terminal;
-    // the completed finalizer leaves the game in its terminal state.
-    assert.equal(game.program_state.gameover, true);
+    // its status layout assignment is the observable repaint boundary.
+    assert.notEqual(game._renderedStatusLayouts, 'before-death-repaint');
 });
 
 test('a panicking game skips the status update and clears every flag',
@@ -265,11 +265,15 @@ test('a panicking game skips the status update and clears every flag',
     game.disp.botl = true;
     game.disp.botlx = true;
     game.disp.time_botl = true;
+    game.iflags.perm_invent = true;
+    game._renderedStatusLayouts = 'panic-no-repaint';
     await completeFinalization(DIED);
     // end.c:1042. No bot(); the flags are cleared without a repaint.
     assert.equal(game.disp.botl, false);
     assert.equal(game.disp.botlx, false);
     assert.equal(game.disp.time_botl, false);
+    assert.equal(game.iflags.perm_invent, false);
+    assert.equal(game._renderedStatusLayouts, 'panic-no-repaint');
 });
 
 test('a hung-up game skips the status update too', async () => {
@@ -284,10 +288,12 @@ test('a hung-up game skips the status update too', async () => {
     game.disp.botl = true;
     game.disp.botlx = true;
     game.disp.time_botl = true;
+    game._renderedStatusLayouts = 'hangup-no-repaint';
     await completeFinalization(DIED);
     assert.equal(game.disp.botl, false);
     assert.equal(game.disp.botlx, false);
     assert.equal(game.disp.time_botl, false);
+    assert.equal(game._renderedStatusLayouts, 'hangup-no-repaint');
 });
 
 test('program_state.stopprint skips the status update only for a quit',
@@ -297,8 +303,9 @@ test('program_state.stopprint skips the status update only for a quit',
     // end.c:1039's `how == QUIT && done_stopprint`. DIED is not QUIT, so the
     // conjunction is false and the repaint runs despite the flag.
     game.program_state.stopprint = true;
+    game._renderedStatusLayouts = 'stopprint-died-repaint';
     await completeFinalization(DIED);
-    assert.equal(game.program_state.gameover, true);
+    assert.notEqual(game._renderedStatusLayouts, 'stopprint-died-repaint');
 
     await dyingGame();
     game.u.uhp = 0;
@@ -306,11 +313,13 @@ test('program_state.stopprint skips the status update only for a quit',
     game.disp.botl = true;
     game.disp.botlx = true;
     game.disp.time_botl = true;
+    game._renderedStatusLayouts = 'stopprint-quit-no-repaint';
     await completeFinalization(QUIT);
     // The true side of end.c:1039 clears all three flags and skips bot().
     assert.equal(game.disp.botl, false);
     assert.equal(game.disp.botlx, false);
     assert.equal(game.disp.time_botl, false);
+    assert.equal(game._renderedStatusLayouts, 'stopprint-quit-no-repaint');
 });
 
 test('the forced status update raises disp.botlx before bot() reads it',
@@ -429,8 +438,7 @@ test('an unnamed death takes both format defaults and the deaths[] name',
     // end.c:1061 and 1064 both test `how` as well as the empty name, and DIED
     // is neither ASCENDED, GENOCIDED, STARVING nor BURNING, so the format
     // survives untouched while 1066-1067 supplies the name.
-    assert.equal(await completeFinalization(DIED),
-                 'really_done() finalization');
+    await completeFinalization(DIED);
     assert.deepEqual(game.killer, {
         name: 'died', format: KILLED_BY_AN,
     });
@@ -438,8 +446,7 @@ test('an unnamed death takes both format defaults and the deaths[] name',
     await dyingGame();
     game.killer = { name: '', format: KILLED_BY_AN };
     // end.c:1064's second default, "Avoid killed by \"a\" starvation".
-    assert.equal(await completeFinalization(STARVING),
-                 'really_done() finalization');
+    await completeFinalization(STARVING);
     assert.deepEqual(game.killer, {
         name: 'starvation', format: KILLED_BY,
     });
@@ -452,8 +459,7 @@ test('an unnamed death takes both format defaults and the deaths[] name',
     ]) {
         await dyingGame();
         game.killer = { name: '', format: KILLED_BY_AN };
-        assert.equal(await completeFinalization(how),
-                     'really_done() finalization');
+        await completeFinalization(how);
         assert.deepEqual(game.killer, { name, format });
     }
 });
@@ -463,8 +469,7 @@ test('an ascension resets the format even with a killer already named',
     await dyingGame();
     // end.c:1061's left disjunct ignores svk.killer.name, so a named killer
     // still loses its format here.
-    assert.equal(await completeFinalization(ASCENDED),
-                 'really_done() finalization');
+    await completeFinalization(ASCENDED);
     assert.deepEqual(game.killer, {
         name: 'ascended', format: NO_KILLER_PREFIX,
     });
@@ -478,8 +483,7 @@ test('a how at or above PANICKED renames the killer and skips the death block',
     // end.c:1066's right disjunct: PANICKED and everything above it take the
     // deaths[] row whatever the caller named. end.c:1069 excludes them from
     // the mortality count and the hit-point force.
-    assert.equal(await completeFinalization(PANICKED),
-                 'really_done() finalization');
+    await completeFinalization(PANICKED);
     assert.deepEqual(game.killer, {
         name: 'panic', format: NO_KILLER_PREFIX,
     });
@@ -566,12 +570,10 @@ test('a genocided life-saving hero still receives the ParanoidDie query',
 test('life saving and the query stop above GENOCIDED', async () => {
     await dyingGame();
     game.u.uprops[LIFESAVED].extrinsic = 1;
-    assert.equal(await completeFinalization(PANICKED),
-                 'really_done() finalization');
+    await completeFinalization(PANICKED);
 
     await dyingGame({ playmode: 'debug' });
-    assert.equal(await completeFinalization(PANICKED),
-                 'really_done() finalization');
+    await completeFinalization(PANICKED);
 });
 
 test('the keep-playing query opens for debug mode and for explore mode',
@@ -617,8 +619,7 @@ test('the query covers every how through GENOCIDED and accepts the death',
     await dyingGame({ playmode: 'debug' });
     // 'y' accepts, so C falls past the block into really_done().
     answerQuery('y');
-    assert.equal(await completeFinalization(DIED),
-                 'really_done() finalization');
+    await completeFinalization(DIED);
 });
 
 test('losehp() waits for done() before it returns', async () => {
@@ -632,9 +633,15 @@ test('losehp() waits for done() before it returns', async () => {
     // hack.c losehp():4288. The await carries the completed really_done()
     // continuation back to the command that called losehp().
     prepareFinalization();
-    await losehp(5, 'a bolt of fire', KILLED_BY_AN, game);
+    let resolved = false;
+    const completion = losehp(5, 'a bolt of fire', KILLED_BY_AN, game)
+        .then(() => { resolved = true; });
+    await Promise.resolve();
+    assert.equal(resolved, false, 'losehp remains pending through finalization');
+    await completion;
     assert.equal(game.killer.name, 'a bolt of fire');
     assert.equal(game.u.umortality, 1);
+    assert.equal(game.program_state.in_really_done, false);
 });
 
 test('an ordinary D:1 death reaches the possessions disclosure prompt',
@@ -867,7 +874,7 @@ test('the query stops for a hung-up game and reads ParanoidDie',
      async () => {
     await dyingGame({ playmode: 'debug' });
     game.program_state.done_hup = true;
-    assert.equal(await completeFinalization(DIED), 'really_done() finalization');
+    await completeFinalization(DIED);
 
     await dyingGame({
         playmode: 'debug', options: ['paranoid_confirmation:die'],
@@ -915,8 +922,7 @@ test('the query preserves every earlier death-state arm', async () => {
     await dyingGame({ options: ['paranoid_confirmation:die'] });
     // Ordinary mode never reaches end.c:1105, so the parsed query bit is
     // irrelevant to this done() call and it reaches really_done().
-    assert.equal(await completeFinalization(DIED),
-                 'really_done() finalization');
+    await completeFinalization(DIED);
 
     await dyingGame({
         playmode: 'debug', options: ['paranoid_confirmation:die'],
@@ -941,7 +947,7 @@ test('the query preserves every earlier death-state arm', async () => {
     game.disp.botl = true;
     game.disp.botlx = true;
     game.disp.time_botl = true;
-    assert.equal(await completeFinalization(DIED), 'really_done() finalization');
+    await completeFinalization(DIED);
     // done_hup skips the repaint but still reaches the killer, mortality, and
     // hit-point prefix before end.c:1110 consults gd.done_seq.
     assert.deepEqual(game.killer, { name: 'died', format: KILLED_BY_AN });

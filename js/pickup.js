@@ -1532,13 +1532,15 @@ export async function observe_quantum_cat(box, makecat, givemsg, rawEnv = {}) {
     let deadcat = box?.cobj ?? null;
     let livecat = null;
 
+    // C evaluates the coin flip before locating the box.  Keep that order
+    // even though location normally has no random side effects.
+    const itsalive = !random.rn2(2);
     const location = get_obj_location(box, 0, state);
     if (location) {
         box.ox = location.x;
         box.oy = location.y;
     }
 
-    const itsalive = !random.rn2(2);
     if (itsalive) {
         if (makecat) {
             livecat = makemon(

@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "Independently chosen fatal-lava entry attempt for end.c really_done(). The seed, clock, name, role, and debug level-change inputs are distinct from the accepted water-walking cases. Keep this input-only recipe until the production lava caller can continue past trap.c lava_effects() cleanup; the observed continuation currently stops at region.c create_gas_cloud() from monmove.c m_postmove_effect(). No matching recording is claimed.",
+  "segments": [
+    {
+      "seed": 812347,
+      "datetime": "20470412101623",
+      "nethackrc": "OPTIONS=name:BurningProbe,role:Valkyrie,race:human,gender:male,align:lawful\nOPTIONS=!legacy,!tutorial,!splash_screen\nOPTIONS=playmode:debug,pettype:none\n",
+      "moves": "  #levelchange\n20\n                    \u0016?\nl .#wizintrinsic\n>h\n mn"
+    }
+  ]
+}
