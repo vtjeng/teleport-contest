@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "Continuation probe for the independent water-walking lava_effects() witness. The appended space dismisses the lava message, and the period requests another command. The saved C probe completes lava cleanup and then advances monster movement. JavaScript stops in monmove.c m_postmove_effect(): a steam vortex calls create_gas_cloud() without the blockPoint callback required during movement planning. Keep this input-only recipe until that separate caller is wired; no matching continuation recording is claimed.",
+  "segments": [
+    {
+      "seed": 810141,
+      "datetime": "20450910123456",
+      "nethackrc": "OPTIONS=name:LavaWalker,role:Wizard,race:human,gender:female,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen\nOPTIONS=playmode:debug,pettype:none\n",
+      "moves": " #levelchange\n20\n                    \u0016?\nl .#wizintrinsic\n>h\n mb ."
+    }
+  ]
+}

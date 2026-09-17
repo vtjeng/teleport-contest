@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "Continuation probe for the independent fire-resistance lava_effects() variation. Two appended spaces dismiss the lava and destroyed-spellbook More prompts, then the period requests another command. JavaScript stops in monmove.c m_postmove_effect(): a steam vortex calls create_gas_cloud() without the blockPoint callback required during movement planning. The earlier C probe used only one space and remained at the second More prompt, so it does not establish this two-space continuation. Keep this input-only recipe until the separate caller is wired, then record and compare it.",
+  "segments": [
+    {
+      "seed": 810141,
+      "datetime": "20450910123456",
+      "nethackrc": "OPTIONS=name:LavaResister,role:Wizard,race:human,gender:female,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen\nOPTIONS=playmode:debug,pettype:none\n",
+      "moves": " #levelchange\n20\n                    \u0016?\nl .#wizintrinsic\n>i\n mb  ."
+    }
+  ]
+}

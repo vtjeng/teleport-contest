@@ -3,6 +3,7 @@
 // C ref: trap.c -- t_at(), hole_destination(), maketrap(), deltrap(),
 // conjoined_pits(), clear_conjoined_pits(), adj_nonconjoined_pit(),
 // choose_trapnote(), set_utrap(), reset_utrap(), fill_pit(), float_down(),
+// lava_effects(),
 // trapname(), dountrap(), could_untrap(), untrap_prob(), cnv_trap_obj(),
 // into_vs_onto(), move_into_trap(), try_disarm(), reward_untrap(),
 // disarm_holdingtrap(), disarm_landmine(), unsqueak_ok(),
@@ -80,6 +81,7 @@ import {
     KILLED_BY_AN,
     Is_waterlevel,
     LADDER,
+    LIFESAVED,
     LANDMINE,
     LAVAWALL,
     LEVEL_TELEP,
@@ -151,6 +153,12 @@ import {
     WWALKING,
     WT_TOOMUCH_DIAGONAL,
     W_SADDLE,
+    W_AMUL,
+    W_ARMOR,
+    W_BALL,
+    W_CHAIN,
+    W_TOOL,
+    W_WEAPONS,
     ZAP_POS,
     helpless,
     is_hole,
@@ -162,11 +170,11 @@ import {
 } from './const.js';
 import { is_art, ART_STING, attacks, has_magic_key, Stone_resistance } from './artifacts.js';
 import { exercise, adjalign, acurr, poisoned } from './attrib.js';
-import { unearth_objs } from './bury.js';
+import { obj_resists, unearth_objs } from './bury.js';
 import { getdir, xytodir } from './cmd.js';
 import {
     capitalizedMonsterName, monsterCommonName, mon_pmname,
-    noit_Monnam, y_monnam, rndcolor, hliquid,
+    noit_Monnam, y_monnam, rndcolor, hliquid, hcolor,
 } from './do_name.js';
 import { abuse_dog } from './dog.js';
 import {
@@ -177,7 +185,7 @@ import {
     surface,
 } from './dungeon.js';
 import { done } from './end.js';
-import { rank_of } from './display.js';
+import { feel_newsym, rank_of } from './display.js';
 import { can_reach_floor } from './engrave.js';
 import { more_experienced, newexplevel } from './exper.js';
 import { makeplural } from './fruit.js';
@@ -190,7 +198,8 @@ import {
 } from './hack.js';
 import { sgn, upstart } from './hacklib.js';
 import {
-    stackobj, getobj, useup, consume_obj_charge, delete_contents, delobj,
+    stackobj, getobj, useup, useupall, consume_obj_charge, delete_contents,
+    delobj,
 } from './invent.js';
 import { get_obj_location } from './light.js';
 import { Is_box, stumble_on_door_mimic, ynq } from './lock.js';
@@ -206,7 +215,8 @@ import {
 import { stagger, monstseesu, monstunseesu } from './mondata.js';
 import {
     AD_ELEC, AD_FIRE, AT_BREA, AT_MAGC, S_HUMAN, PM_GELATINOUS_CUBE,
-    MZ_SMALL, PM_IRON_GOLEM, PM_STONE_GOLEM, PM_RANGER, PM_ROGUE,
+    MZ_SMALL, PM_FOG_CLOUD, PM_IRON_GOLEM, PM_STEAM_VORTEX,
+    PM_STONE_GOLEM, PM_RANGER, PM_ROGUE, PM_WATER_ELEMENTAL,
 } from './monsters.js';
 import { m_at } from './monst.js';
 import { observe_object } from './o_init.js';
@@ -222,15 +232,17 @@ import {
 } from './obj.js';
 import { objectGenerationEnv } from './object_generation.js';
 import {
-    an, bare_artifactname, safe_qbuf, ansimpleoname, the, xnameFresh,
+    an, bare_artifactname, safe_qbuf, ansimpleoname, the, The, Yobjnam2,
+    xnameFresh,
     donameFresh, Tobjnam,
 } from './objnam.js';
 import {
     ARROW, BEARTRAP, BOULDER, CAN_OF_GREASE, DART, IRON, LAND_MINE, LEASH,
-    POTION_CLASS, POT_OIL, SCROLL_CLASS, SCR_FIRE, SPBOOK_CLASS, SPE_FIREBALL,
+    POTION_CLASS, POT_OIL, SCROLL_CLASS, SCR_FIRE, SPBOOK_CLASS,
+    SPE_BOOK_OF_THE_DEAD, SPE_FIREBALL, WOOD,
 } from './objects.js';
 import { check_here, encumber_msg } from './pickup.js';
-import { make_hallucinated } from './potion.js';
+import { make_hallucinated, set_itimeout } from './potion.js';
 import { waterbody_name } from './pager.js';
 import { float_vs_flight, body_part, polymon } from './polyself.js';
 import { create_gas_cloud } from './region.js';
@@ -850,6 +862,26 @@ function activeHeroProperty(state, property) {
     return Boolean((value.intrinsic || value.extrinsic) && !value.blocked);
 }
 
+// youprop.h's Fire_resistance and Wwalking are plain intrinsic/extrinsic
+// properties. Wwalking is additionally disabled on the Plane of Water; it
+// does not use the blocked field (that field belongs to Levitation/Flying).
+function heroLavaProperty(state, property) {
+    const value = state.u?.uprops?.[property];
+    return Boolean(value?.intrinsic || value?.extrinsic);
+}
+
+function heroLavaWalking(state) {
+    return heroLavaProperty(state, WWALKING)
+        && !Is_waterlevel(state.u?.uz);
+}
+
+// objclass.h is_organic(): material values through WOOD burn in lava.  Keep
+// this local to trap.c's owner; the same C predicate has separate owners in
+// dogfood and burial and should not become a second shared state value.
+function isOrganic(obj, state) {
+    return objectType(obj, state).oc_material <= WOOD;
+}
+
 function heroSwimming(state) {
     return activeHeroProperty(state, SWIMMING)
         || Boolean(state.u?.usteed && is_swimmer(state.u.usteed.data));
@@ -1056,24 +1088,88 @@ export async function drown(state = game) {
     return true;
 }
 
-// C ref: trap.c lava_effects() (6794-6965), the second boolean dependency of
-// pooleffects(). The return is preserved for every survival and relocation
-// arm; missing void inventory destructors remain explicit gaps.
+// C ref: trap.c lava_effects() (6794-6987), the second boolean dependency of
+// pooleffects().  The C function has one return-valued relocation arm: TRUE
+// means that lifesaving moved the hero and the caller must skip the remaining
+// effects on the old square.  Its item destruction and ignition calls discard
+// their results, but their source calls stay in this owner in source order.
 export async function lava_effects(state = game) {
     const { u } = state;
     const damage = d(6, 6);
-    if (state.iflags?.in_lava_effects) return false;
-    note_unported('display.c feel_newsym');
+    let burncount = 0;
+    let burnmesgcount = 0;
+    state.iflags ??= {};
+    state.iflags.in_lava_effects ??= 0;
+    if (state.iflags.in_lava_effects) {
+        // C's debugpline is output only when debugging; this port has no
+        // debug window owner, so the recursive call is a source-discarded gap.
+        note_unported('trap.c lava_effects recursive call');
+        return false;
+    }
+
+    feel_newsym(u.ux, u.uy, state);
+    // This source call discards its result. The timeout owner still refuses
+    // make_slimed(), so keep the exact gap rather than invoking a partial
+    // implementation and swallowing its refusal.
     note_unported('timeout.c burn_away_slime');
     if (likes_lava(state.youmonst?.data)) return false;
 
-    const fireResistant = activeHeroProperty(state, FIRE_RES);
-    const waterWalking = activeHeroProperty(state, WWALKING);
+    let fireResistant = heroLavaProperty(state, FIRE_RES);
+    let waterWalking = heroLavaWalking(state);
     let survives = fireResistant || (waterWalking && damage < u.uhp);
-    if (!survives) note_unported('trap.c lava inventory premark');
-    if (state.uarmf)
-        throw new Error('trap.c lava_effects Boots_off dependency is not ported');
+    let protectedId = 0;
+    const random = { rn2, rnd, rn1, rne, d };
 
+    // C marks vulnerable inventory before the first message, so a save or
+    // hangup at that message still destroys the same objects.  obj_resists()
+    // is called for every ordinary candidate, including when its chance is 0.
+    if (!survives) {
+        for (let obj = state.invent; obj;) {
+            const next = obj.nobj;
+            if (obj.in_use) {
+                if (!protectedId) {
+                    protectedId = obj.o_id;
+                    obj.in_use = false;
+                } else {
+                    note_unported('trap.c lava_effects impossible in-use object');
+                }
+                obj = next;
+                continue;
+            }
+            const type = objectType(obj, state);
+            if ((isOrganic(obj, state) || obj.oclass === POTION_CLASS)
+                && !obj.oerodeproof
+                && type.oc_oprop !== FIRE_RES
+                && obj.otyp !== SCR_FIRE
+                && obj.otyp !== SPE_FIREBALL
+                && !obj_resists(obj, 0, 0, { state, random })) {
+                obj.in_use = true;
+            }
+            obj = next;
+        }
+    }
+
+    // Boots are burned before the hero's fate is decided, since water-walking
+    // footwear is the source that made this lava entry survivable.
+    if (state.uarmf && (state.uarmf.in_use
+        || (isOrganic(state.uarmf, state) && !state.uarmf.oerodeproof))) {
+        const obj = state.uarmf;
+        await ttyPline(`${Yobjnam2(obj, 'burst', state)} into flame!`, state);
+        state.iflags.in_lava_effects++;
+        const { Boots_off } = await import('./do_wear.js');
+        await Boots_off(state);
+        if (obj.o_id !== protectedId)
+            useup(obj, { state });
+        state.iflags.in_lava_effects--;
+        burncount++;
+        burnmesgcount++;
+    }
+
+    // Boots_off() may remove the only source of either property. C evaluates
+    // these macros again after that callback, while the initial usurvive test
+    // intentionally retains the pre-removal values.
+    fireResistant = heroLavaProperty(state, FIRE_RES);
+    waterWalking = heroLavaWalking(state);
     if (!fireResistant) {
         if (waterWalking) {
             await ttyPline(
@@ -1082,6 +1178,15 @@ export async function lava_effects(state = game) {
             );
             if (survives) {
                 await losehp(damage, 'molten lava', KILLED_BY, state);
+                // C jumps directly to burn_stuff after this water-walking
+                // damage; it does not run the fatal inventory loop.
+                await destroy_items(state.youmonst, AD_FIRE, damage, {
+                    state,
+                    random,
+                });
+                const { ignite_items } = await import('./apply_catch_lit.js');
+                await ignite_items(state.invent, { state, random });
+                return false;
             }
         } else {
             await ttyPline(
@@ -1089,49 +1194,144 @@ export async function lava_effects(state = game) {
                 state,
             );
         }
-        if (!survives) {
-            state.iflags.in_lava_effects =
-                (state.iflags.in_lava_effects ?? 0) + 1;
-            note_unported('trap.c lava inventory destruction');
-            for (let pass = 0; pass < 2; ++pass) {
-                u.uhp = -1;
-                state.killer ??= { name: '', format: KILLED_BY };
-                state.killer.name = 'molten lava';
-                state.killer.format = KILLED_BY;
-                await ttyUrgentPline('You burn to a crisp...', state);
-                await done(BURNING, state);
-                const { safe_teleds } = await import('./teleport.js');
-                if (await safe_teleds(
-                    TELEDS_ALLOW_DRAG | TELEDS_TELEPORT,
-                    state,
-                )) break;
-                await ttyPline("You're still burning.", state);
+
+        survives = Boolean(
+            state.u?.uprops?.[LIFESAVED]?.extrinsic,
+        ) || Boolean(state.discover);
+        if (state.wizard) survives = true;
+        state.iflags.in_lava_effects++;
+
+        for (let obj = state.invent; obj;) {
+            const next = obj.nobj;
+            if (obj.o_id === protectedId) {
+                obj.in_use = true;
+            } else if (obj.otyp === SPE_BOOK_OF_THE_DEAD) {
+                if (survives && !heroIsBlindForLava(state)) {
+                    await ttyPline(
+                        `${The(xnameFresh(obj, state), state)} glows a strange ${hcolor('dark red', state)}, but remains intact.`,
+                        state,
+                    );
+                }
+            } else if (obj.in_use) {
+                if (obj.owornmask) {
+                    if (survives) {
+                        await ttyPline(`${Yobjnam2(obj, 'burst', state)} into flame!`, state);
+                        burnmesgcount++;
+                    }
+                    // C removes every doomed worn item. The message is
+                    // conditional on lifesaving, but remove_worn_item() is
+                    // unconditional before useupall().
+                    // remove_worn_item() is still partial: C discards its
+                    // return, so call it only for the source arms that have
+                    // an implemented owner.  The other C branches are
+                    // recorded as discarded gaps at this call site rather
+                    // than entering a helper that throws a refusal.
+                    const mask = obj.owornmask;
+                    const unsupportedMask = Boolean(mask
+                        & (W_ARMOR | W_AMUL | W_TOOL | W_BALL | W_CHAIN));
+                    const unsupportedQuiver = Boolean(mask & W_WEAPONS)
+                        && obj === state.uquiver;
+                    if (unsupportedMask || unsupportedQuiver) {
+                        note_unported('steal.c remove_worn_item');
+                    } else {
+                        const { remove_worn_item } = await import('./steal.js');
+                        remove_worn_item(obj, true, state);
+                    }
+                }
+                useupall(obj, { state });
+                burncount++;
             }
-            state.iflags.in_lava_effects--;
-            await back_on_ground(true, state);
-            await spoteffects(false, state);
-            return true;
+            obj = next;
         }
+
+        if (survives && burncount > burnmesgcount) {
+            const remaining = burncount - burnmesgcount;
+            await ttyPline(
+                `${burnmesgcount ? (remaining === 1 ? 'Another' : 'Other')
+                    : (remaining === 1 ? 'An' : 'Some')} item${remaining === 1 ? '' : 's'} in your inventory ${remaining === 1 ? 'has' : 'have'} been destroyed.`,
+                state,
+            );
+        }
+
+        const boilAway = u.umonnum === PM_WATER_ELEMENTAL
+            || u.umonnum === PM_STEAM_VORTEX
+            || u.umonnum === PM_FOG_CLOUD;
+        let burnPass = 0;
+        for (; burnPass < 2; ++burnPass) {
+            u.uhp = -1;
+            state.killer ??= {};
+            state.killer.format = KILLED_BY;
+            state.killer.name = 'molten lava';
+            await ttyUrgentPline(
+                `You ${boilAway ? 'boil away' : 'burn to a crisp'}...`,
+                state,
+            );
+            await done(BURNING, state);
+            if (state.program_state?.gameover) {
+                // really_done() is NORETURN in C. The JS owner returns only
+                // because the segment harness represents termination with
+                // gameover; never run safe_teleds() after final death.
+                state.iflags.in_lava_effects--;
+                return false;
+            }
+            const { safe_teleds } = await import('./teleport.js');
+            if (await safe_teleds(
+                TELEDS_ALLOW_DRAG | TELEDS_TELEPORT,
+                state,
+            )) break;
+            await ttyPline("You're still burning.", state);
+        }
+        state.iflags.in_lava_effects--;
+
+        if (burnPass === 2) {
+            if (!heroLavaProperty(state, FIRE_RES))
+                set_itimeout(state.u.uprops[FIRE_RES], 5);
+            if (!heroLavaWalking(state))
+                set_itimeout(state.u.uprops[WWALKING], 5);
+            await destroy_items(state.youmonst, AD_FIRE, damage, {
+                state,
+                random,
+            });
+            const { ignite_items } = await import('./apply_catch_lit.js');
+            await ignite_items(state.invent, { state, random });
+            return false;
+        }
+
+        note_unported('trap.c rescued_from_terrain');
+        await spoteffects(false, state);
+        return true;
     } else if (!waterWalking
         && (!u.utrap || u.utraptype !== TT_LAVA)) {
-        set_utrap(rn1(4, 4) + (rn1(4, 12) << 8), TT_LAVA, state);
-        await ttyPline(
-            `You sink into the ${waterbody_name(u.ux, u.uy, state)}, but it only burns slightly!`,
+        const boilAway = !fireResistant;
+        set_utrap(
+            rn1(4, 4) + ((boilAway ? 2 : rn1(4, 12)) << 8),
+            TT_LAVA,
             state,
         );
-        monstseesu(M_SEEN_FIRE, state);
-        if (u.uhp > 1) await losehp(1, 'molten lava', KILLED_BY, state);
+        await ttyPline(
+            `You sink into the ${waterbody_name(u.ux, u.uy, state)}${boilAway ? ' and are about to be immolated' : ', but it only burns slightly'}!`,
+            state,
+        );
+        if (fireResistant) monstseesu(M_SEEN_FIRE, state);
+        else monstunseesu(M_SEEN_FIRE, state);
+        if (u.uhp > 1)
+            await losehp(boilAway ? Math.trunc(u.uhp / 2) : 1,
+                'molten lava', KILLED_BY, state);
     }
+
     await destroy_items(state.youmonst, AD_FIRE, damage, {
         state,
-        random: { rn2, rn1, rnd, d },
+        random,
     });
     const { ignite_items } = await import('./apply_catch_lit.js');
-    await ignite_items(state.invent, {
-        state,
-        random: { rn2, rn1, rnd, d },
-    });
+    await ignite_items(state.invent, { state, random });
     return false;
+}
+
+function heroIsBlindForLava(state) {
+    const blindness = state.u?.uprops?.[BLINDED];
+    return Boolean((blindness?.intrinsic || blindness?.extrinsic)
+        && !blindness?.blocked);
 }
 
 // C ref: trap.c unconscious() (6775-6786). The larger half of youprop.h:399
