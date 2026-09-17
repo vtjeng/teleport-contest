@@ -2033,8 +2033,8 @@ async function planSimpleMonsterTurn(planned, random, advanceRound) {
                     planning: true,
                 });
             }
-            // C mon.c movemon() calls dmonsfree() after its safe snapshot
-            // scan.  The live pass must remove a monster killed by a passive
+            // C mon.c movemon() calls dmonsfree() after its monster scan.
+            // The live pass must remove a monster killed by a passive
             // retaliation before allmain.c mcalcmove() allocates the next
             // round; do the same on the planning clone so a dead attacker
             // cannot remain in the next scan and change its RNG/allocation
@@ -2049,7 +2049,7 @@ async function planSimpleMonsterTurn(planned, random, advanceRound) {
             // whether the next scan comes from this inner loop or from the
             // allocation after advanceRound.
             // clear_bypasses() has already run on the clone before this scan;
-            // clear_splitobjs() and dmonsfree() touch only discarded state.
+            // clear_splitobjs() touches only discarded state.
             if (any_light_source(planned)) planned.vision_full_recalc = 1;
             if (planned.u.umovement >= NORMAL_SPEED) break;
         } while (somebodyCanMove);
