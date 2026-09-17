@@ -75,6 +75,7 @@ import {
     WAN_FIRE,
     WAN_LIGHTNING,
     WAN_MAGIC_MISSILE,
+    WAN_POLYMORPH,
     WAN_SLEEP,
     WAND_CLASS,
 } from '../js/objects.js';
@@ -965,6 +966,7 @@ function straightThrough() {
         rn1: (x, y) => y,
         rn2: () => 1,
         rnd: (x) => x,
+        rne: (x) => x,
         rnl: () => 1,
     };
 }
@@ -1411,11 +1413,12 @@ test('weffects offers a downward zap to the steed before the ray', async () => {
     // aimed straight down, which is `!u.dx && !u.dy && u.dz > 0`. A zap with
     // no direction at all reaches this function only from a caller other than
     // dozap(), and it must not be handed to the steed.
-    let wand = await aimedWand(0, 0, 1);
+    // A polymorph wand is one of zap_steed()'s source-supported immediate
+    // arms; the old assertion expected the removed placeholder refusal.
+    let wand = await aimedWand(0, 0, 1, WAN_POLYMORPH);
     game.u.usteed = game.level.monlist;
-    await assert.rejects(
+    await assert.doesNotReject(
         () => weffects(wand, game, straightThrough()),
-        /zap_steed\(\) for a downward zap while riding/u,
     );
     wand = await aimedWand(0, 0, 0);
     game.u.usteed = game.level.monlist;
