@@ -60398,7 +60398,7 @@
           "line": 1902,
           "endLine": 1933,
           "declared": true,
-          "complete": false
+          "complete": true
         }
       ],
       "range": {
@@ -60476,7 +60476,94 @@
             }
           }
         }
-      ]
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "mdamageu",
+            "implementation": "js/mhitu.js",
+            "symbol": "mdamageu",
+            "sourceReview": "Read nethack-c/upstream/src/mhitu.c:1902-1927 in full. The owner reports impossible negative damage and continues with n=0, raises disp.botl, then selects the polymorphed u.mh/mhmax or ordinary u.uhp/uhpmax pool. Each arm calls showdamage before its maximum cap; a lethal polymorphed arm calls rehumanize and a lethal ordinary arm calls done_in_by. JavaScript now preserves that order, uses the canonical polyself.c rehumanize owner on the live path, and stops planning clones at the input-bearing lethal boundary without running terminal work on the clone. The discarded impossible diagnostic is recorded as note_unported(pline.c impossible), without an injected production substitute. Root cap-order tests use positive damage and an over-maximum initial pool, so their message assertions observe the pre-cap value. Supporting live rehumanize and done_in_by remain the existing canonical owners; no required return value is fabricated.",
+            "callers": [
+              {
+                "path": "js/mhitu.js",
+                "symbol": "hitmu",
+                "source": "mhitu.c:1201 and :1258 call mdamageu for a monster's landed hero blow; JavaScript awaits the completed owner for both the pre-existing-death and damage arms."
+              },
+              {
+                "path": "js/mhitu.js",
+                "symbol": "gulpmu",
+                "source": "mhitu.c:1560 calls mdamageu after the engulfing damage and before the expulsion/occupation continuation; JavaScript passes the same state and planning/live environment through."
+              },
+              {
+                "path": "js/mhitu.js",
+                "symbol": "mattacku",
+                "source": "mhitu.c mattacku dispatches the hitmu/gulpmu production arms; JavaScript awaits their completed result and stops the attack loop after live terminal finalization."
+              },
+              {
+                "path": "js/mcastu.js",
+                "symbol": "mcast_spell",
+                "source": "C mcastu.c:896 applies remaining psychic-bolt or open-wounds damage with mdamageu; JS mcast_spell awaits env.mdamageu. js/unported_monster_actions.js attackHeroWithMattacku and trySimpleMonsterSpell supply the canonical mhitu.mdamageu callback with the planning/live state."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/mhitu.test.mjs",
+              "scripts/unported-monster-actions.test.mjs",
+              "scripts/mcastu.test.mjs"
+            ],
+            "recordings": [
+              "recordings/mhitu.c/expels-ice-vortex.session.json",
+              "recordings/mhitu.c/mdamageu-marilith-independent-a29.session.json",
+              "recordings/mhitu.c/mdamageu-marilith-variation-a29.session.json"
+            ],
+            "checkedAt": "2a5e74ec41ef1c7a7f046af15d7c69475571ec2e"
+          }
+        ],
+        "entryPointReview": "Whole mhitu.c mdamageu1902–1927 is a shared impure helper. C callers include hitmu1201/1258, gulpmu1560, gazemu1851; mcastu.c castmu303 and mcast_spell896; hack.c domove_core3439; and uhitm.c mhitm_ad_drin3244 and passive5788/5915/5988/6077/6100/6113. Existing implemented hitmu, gulpmu and mcast_spell callbacks retain their canonical production wiring. The independent marilith recipes use six active attack slots (include/monsters.h2970) so passiveum returns after inspecting all slots; a created newt damages u.mh through the live monster turn without reaching its unported passive tail. Both new seed/gender variants match the complete C output and explicitly contain nonzero HP damage messages. Existing expels-ice-vortex covers ordinary engulfing damage only; it does not prove gaze or lethal recovery. Remaining active spell, gaze, falling-piercer, brain-eating, passive-reaction and lethal polymorph entries remain unrecorded or blocked in their callers. Park this source goal after span acceptance; no formal correctness review is required for that parked goal.",
+        "entryPoints": [
+          {
+            "name": "nonlethal polymorphed hero damage through a monster melee attack",
+            "functions": [
+              "mdamageu"
+            ],
+            "recordings": [
+              "recordings/mhitu.c/mdamageu-marilith-independent-a29.session.json",
+              "recordings/mhitu.c/mdamageu-marilith-variation-a29.session.json"
+            ]
+          },
+          {
+            "name": "ordinary hero engulfing damage",
+            "functions": [
+              "mdamageu"
+            ],
+            "recordings": [
+              "recordings/mhitu.c/expels-ice-vortex.session.json"
+            ]
+          },
+          {
+            "name": "monster spells and gaze damage",
+            "functions": [
+              "mdamageu"
+            ],
+            "recordings": []
+          },
+          {
+            "name": "falling piercer, brain-eating and monster passive reactions",
+            "functions": [
+              "mdamageu"
+            ],
+            "recordings": []
+          },
+          {
+            "name": "lethal ordinary damage and polymorphed rehumanization",
+            "functions": [
+              "mdamageu"
+            ],
+            "recordings": []
+          }
+        ]
+      }
     }
   ]
 }
