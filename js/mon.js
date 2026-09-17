@@ -406,6 +406,7 @@ import {
     PM_CHIEFTAIN,
     PM_CLERIC,
     PM_CAVE_DWELLER,
+    PM_COYOTE,
     PM_DWARF,
     PM_ETTIN_MUMMY,
     PM_ETTIN_ZOMBIE,
@@ -463,6 +464,8 @@ import {
     PM_RED_DRAGON,
     PM_ROPE_GOLEM,
     PM_RUST_MONSTER,
+    PM_RABID_RAT,
+    PM_SEWER_RAT,
     PM_SILVER_DRAGON,
     PM_SKELETON,
     PM_SMALL_MIMIC,
@@ -492,6 +495,12 @@ import {
     PM_WHITE_DRAGON,
     PM_WHITE_UNICORN,
     PM_WOLF,
+    PM_WARG,
+    PM_WINTER_WOLF,
+    PM_WINTER_WOLF_CUB,
+    PM_JACKAL,
+    PM_FOX,
+    PM_GIANT_RAT,
     PM_WIZARD,
     PM_WIZARD_OF_YENDOR,
     PM_SANDESTIN,
@@ -3357,6 +3366,33 @@ export function counter_were(mndx) {
         return PM_HUMAN_WERERAT;
     case PM_HUMAN_WERERAT:
         return PM_WERERAT;
+    default:
+        return -1;
+    }
+}
+
+// C ref: were.c were_beastie() (62-84).  This is deliberately a conversion
+// table rather than a broad is_were() test: polyself.c uses it to recognize
+// the animal forms which correspond to each lycanthrope, including ordinary
+// rats, jackals, foxes, coyotes, and the several wolf species.
+export function were_beastie(pm) {
+    switch (pm) {
+    case PM_WERERAT:
+    case PM_SEWER_RAT:
+    case PM_GIANT_RAT:
+    case PM_RABID_RAT:
+        return PM_WERERAT;
+    case PM_WEREJACKAL:
+    case PM_JACKAL:
+    case PM_FOX:
+    case PM_COYOTE:
+        return PM_WEREJACKAL;
+    case PM_WEREWOLF:
+    case PM_WOLF:
+    case PM_WARG:
+    case PM_WINTER_WOLF:
+    case PM_WINTER_WOLF_CUB:
+        return PM_WEREWOLF;
     default:
         return -1;
     }
