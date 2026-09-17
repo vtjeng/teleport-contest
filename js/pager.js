@@ -1,8 +1,9 @@
 // pager.c -- What-is and farlook descriptions.
-// C refs: pager.c self_lookat(), checkfile(), do_screen_description(),
-// do_look(), and dowhatis(). The port covers ordinary hero and terrain map
-// lookups, typed encyclopedia names, carried-item lookups, map lists,
-// repetition, and Escape.
+// C refs: pager.c lookat(), self_lookat(), look_at_monster(),
+// object_from_map(), look_at_object(), checkfile(), do_screen_description(),
+// do_look(), and dowhatis(). The canonical glyph lookup keeps the source
+// description, sensing side channel, and optional permonst together for every
+// hero, swallowed, monster, object, trap, warning, invisible, and cmap arm.
 
 import {
     BLINDED,
@@ -12,14 +13,33 @@ import {
     AM_MASK,
     AM_SANCTUM,
     Amask2align,
+    def_warnsyms,
     D_BROKEN,
+    D_CLOSED,
+    D_LOCKED,
     D_TRAPPED,
+    DB_ICE,
+    DB_UNDER,
+    DOOR,
+    DRAWBRIDGE_UP,
     ECMD_OK,
     GRAVE,
     GPCOORDS_MAP,
     GPCOORDS_NONE,
     HALLUC,
     HALLUC_RES,
+    I_SPECIAL,
+    INFRAVISION,
+    INVIS,
+    TELEPAT,
+    DETECT_MONSTERS,
+    MONSEEN_NORMAL,
+    MONSEEN_SEEINVIS,
+    MONSEEN_INFRAVIS,
+    MONSEEN_TELEPAT,
+    MONSEEN_XRAYVIS,
+    MONSEEN_DETECT,
+    MONSEEN_WARNMON,
     M_AP_F_DKNOWN,
     M_AP_OBJECT,
     M_AP_TYPMASK,
@@ -29,17 +49,24 @@ import {
     Is_waterlevel,
     LAVAPOOL,
     LAVAWALL,
+    MELT_ICE_AWAY,
     MOAT,
     POOL,
     WATER,
     NEUTRAL,
     OBJ_FLOOR,
+    OBJ_BURIED,
     OBJ_FREE,
     PICK_ONE,
     ROWNO,
     SYM_BOULDER,
     TER_OBJ,
     TER_MON,
+    IS_TREE,
+    IS_WALL,
+    SCORR,
+    SDOOR,
+    STONE,
     Upolyd,
     Ugender,
     has_mcorpsenm,
@@ -47,15 +74,19 @@ import {
     u_at,
     isok,
 } from './const.js';
-import { hliquid, pmname } from './do_name.js';
-import { altarmask_at, on_level, surface_typ } from './dungeon.js';
+import { hliquid, mon_nam, pmname, rndmonnam, y_monnam } from './do_name.js';
+import { on_level, surface_typ } from './dungeon.js';
 import { is_drawbridge_wall } from './dbridge.js';
-import { align_str } from './insight.js';
+import { altarmask_at } from './pray.js';
+import { align_str, trap_predicament } from './insight.js';
 import { trapped_chest_at, trapped_door_at } from './detect.js';
 import {
     GLYPH_NOTHING_OFF,
+    GLYPH_WARNING_OFF,
     GLYPH_BODY_OFF,
     GLYPH_BODY_PILETOP_OFF,
+    GLYPH_MON_FEM_OFF,
+    GLYPH_MON_MALE_OFF,
     GLYPH_STATUE_FEM_OFF,
     GLYPH_STATUE_FEM_PILETOP_OFF,
     GLYPH_STATUE_MALE_OFF,
@@ -67,6 +98,9 @@ import {
     cmap_to_glyph,
     glyph_at,
     glyph_is_cmap,
+    glyph_is_warning,
+    glyph_is_invisible,
+    glyph_is_swallow,
     glyph_is_body,
     glyph_is_monster,
     glyph_is_object,
@@ -85,18 +119,22 @@ import { engr_at } from './engrave.js';
 import { fruit_from_name, makesingular } from './fruit.js';
 import { LOOK_TRADITIONAL, getpos } from './getpos.js';
 import { game } from './gstate.js';
+import { visible_region_at } from './region.js';
 import { dist2, mungspaces } from './hacklib.js';
 import { HELP_TEXT_FILES } from './help_data.js';
-import { display_inventory, ice_descr } from './invent.js';
+import { currency, display_inventory } from './invent.js';
 import { tty_yn_function } from './getline.js';
 import { m_at } from './monst.js';
-import { PM_SAMURAI, S_invisible } from './monsters.js';
+import {
+    NUMMONS, PM_GNOME, PM_SAMURAI, PM_WIZARD, S_invisible,
+} from './monsters.js';
 import { ok_to_quest } from './quest.js';
 import {
     an,
     ansimpleoname,
     distant_name,
     donameFresh,
+    doname_with_price,
     singular,
     xnameFresh,
 } from './objnam.js';
@@ -142,7 +180,7 @@ import {
     monster_class_symbol,
     object_class_symbol,
 } from './symbols.js';
-import { dealloc_obj, mkobj, mksobj, sobj_at } from './obj.js';
+import { dealloc_obj, is_treefruit, mkobj, mksobj, sobj_at } from './obj.js';
 import { objectGenerationEnv } from './object_generation.js';
 import { obj_stop_timers } from './timeout.js';
 import { observe_object } from './o_init.js';
@@ -152,8 +190,10 @@ import {
     VENOM_CLASS,
 } from './objects.js';
 import { NO_COLOR } from './terminal.js';
-import { rn2 } from './rng.js';
-import { describeMonster, heroIsBlind } from './startup_a11y.js';
+import { rn2, rn2_on_display_rng } from './rng.js';
+import { describeMonster, heroIsBlind, mhidden_description } from './startup_a11y.js';
+import { sticks } from './mondata.js';
+import { digests } from './dothrow.js';
 import {
     displayTtyMenuTextWindow,
     displayTtyTextWindow,
@@ -162,8 +202,9 @@ import {
 } from './tty_menu.js';
 import { ttyPline, ttyPutmixed } from './tty_message.js';
 import { doextversion } from './version.js';
-import { t_at, trapname } from './trap.js';
-import { couldsee } from './vision.js';
+import { is_lava, is_pool, t_at, trapname, Levitation } from './trap.js';
+import { cansee, couldsee, howmonseen, warningMonsterName } from './vision.js';
+import { spot_time_left } from './timeout.js';
 import { getlin, select_menu } from './windows.js';
 import { key2extcmddesc, key2txt, yn_function } from './cmd.js';
 
@@ -201,6 +242,30 @@ function heroBlind(state) {
         || Boolean(state.u?.uroleplay?.blind);
 }
 
+// pager.c keeps two explanations for the remembered invisible-monster glyph.
+// Active clairvoyance and blindness use the short form, matching the generic
+// symbol pass in do_screen_description(); lookat() itself always returns the
+// longer source string.
+function invisibleGlyphDescription(state) {
+    const detect = state.u?.uprops?.[DETECT_MONSTERS] ?? {};
+    const special = (Number(detect.intrinsic) & I_SPECIAL)
+        || (Number(detect.extrinsic) & I_SPECIAL);
+    return (special || heroBlind(state))
+        ? 'unseen creature' : 'remembered, unseen, creature';
+}
+
+// C ref: display.h mon_to_glyph() (554-556).  The saved-swallow comparison
+// uses this macro's display RNG, including its Hallucination draw; a resolved
+// monster presentation is not interchangeable because it would skip that
+// source draw.
+function mon_to_glyph(monster, state) {
+    const mnum = heroHallucinating(state)
+        ? rn2_on_display_rng(NUMMONS)
+        : monster?.data?.pmidx;
+    if (!Number.isInteger(mnum)) return null;
+    return mnum + (monster?.female ? GLYPH_MON_FEM_OFF : GLYPH_MON_MALE_OFF);
+}
+
 function assertOrdinaryWhatisState(state) {
     if (state.flags?.lootabc)
         throw new UnsupportedWhatisError('the lootabc menu');
@@ -234,38 +299,88 @@ function menuLines(state) {
     return [...items.slice(0, 3), { text: '' }, ...items.slice(3)];
 }
 
-// C ref: pager.c self_lookat() (108-133). The current implementation reaches
-// the unpolymorphed branch, including the punished hero's ball description.
+// C ref: pager.c self_lookat() (108-133). Keep all state-sensitive suffixes
+// in this source owner; the same text is used by lookat() and look_all().
 export function self_lookat(state = game) {
-    if (Upolyd(state.u)
-        || state.u?.usteed
-        || state.u?.utrap
-        || state.u?.uundetected
-        || state.u?.ap_type) {
-        throw new UnsupportedWhatisError('an exceptional hero description');
-    }
-    const species = state.mons?.[state.u?.umonnum]
-        ?? state.youmonst?.data;
+    const u = state.u ?? {};
+    const species = state.mons?.[u.umonnum] ?? state.youmonst?.data;
     if (!species?.pmnames)
         throw new UnsupportedWhatisError('a hero form without monster names');
-    const race = state.urace?.adj;
-    if (!race)
-        throw new UnsupportedWhatisError('a hero race without an adjective');
-    const description = `${race} ${pmname(species, Ugender(state))} called ${state.plname}`;
-    // pager.c:self_lookat() uses Punished (u.uball != 0) and formats the
-    // attached object with ansimpleoname() after the ordinary description.
-    return state.uball
-        ? `${description}, chained to ${ansimpleoname(state.uball, state)}`
-        : description;
+    const telepathyProperty = state.u?.uprops?.[TELEPAT] ?? {};
+    const unblindTelepathy = Boolean(telepathyProperty.extrinsic)
+        && !telepathyProperty.blocked;
+    const invisible = propertyActive(state, INVIS)
+        && (unblindTelepathy
+            || propertyActive(state, DETECT_MONSTERS)
+            || !heroBlind(state));
+    const race = !Upolyd(u) ? (state.urace?.adj ?? '') + ' ' : '';
+    let description = (invisible ? 'invisible ' : '') + race
+        + pmname(species, Ugender(state)) + ' called ' + state.plname;
+    if (u.usteed)
+        description += ', mounted on ' + y_monnam(u.usteed, state);
+    const heroMonster = state.youmonst ?? {
+        mx: u.ux, my: u.uy, data: species, m_ap_type: 0,
+        mundetected: u.uundetected,
+    };
+    const heroAppearance = Upolyd(u)
+        ? (u.ap_type ?? heroMonster.m_ap_type ?? 0) : 0;
+    if (u.uundetected
+        || (heroAppearance & M_AP_TYPMASK)
+        || visible_region_at(u.ux, u.uy, state)) {
+        description += mhidden_description(heroMonster, state);
+    }
+    const ball = state.uball || u.uball;
+    if (ball)
+        description += ', chained to ' + ansimpleoname(ball, state);
+    else if (state.uball || u.uball)
+        description += ', chained to nothing?';
+    if (u.utrap)
+        description += ', ' + trap_predicament(state, false, false);
+    return description;
 }
 
-// C ref: pager.c look_at_monster(), through the ordinary live-monster branch
-// reached by the whatis list commands. startup_a11y.js owns the already-ported
-// distant_monnam() description shared with accessibility notices.
-function look_at_monster(monster, x, y, state) {
-    if (monster.mx !== x || monster.my !== y)
-        throw new UnsupportedWhatisError('a long-worm tail');
-    return describeMonster(monster, { state });
+// C ref: pager.c look_at_monster() (422-552). The optional output receives
+// the C monbuf/howmonseen side channel; lookat() returns the permonst pointer
+// separately, as its caller does.
+function look_at_monster(monster, x, y, state, output = null) {
+    const hallucinating = heroHallucinating(state);
+    const name = describeMonster(monster, { state, hallucinating });
+    const tail = monster.mx !== x || monster.my !== y;
+    const prefix = tail
+        ? ((monster.isshk && !hallucinating) ? 'tail of ' : 'tail of a ')
+        : '';
+    let detail = prefix + name;
+    if (state.u?.ustuck === monster) {
+        if (state.u.uswallow || state.iflags?.save_uswallow) {
+            detail += digests(monster.data)
+                ? ', swallowing you' : ', engulfing you';
+        } else {
+            const heroSpecies = state.youmonst?.data
+                ?? state.mons?.[state.u.umonnum];
+            detail += Upolyd(state.u) && sticks(heroSpecies)
+                ? ', being held' : ', holding you';
+        }
+    }
+    if (output) {
+        output.monbuf = '';
+        const seen = howmonseen(monster, state);
+        if (seen !== 0 && seen !== MONSEEN_NORMAL) {
+            const labels = [];
+            if (seen & MONSEEN_NORMAL) labels.push('normal vision');
+            if (seen & MONSEEN_SEEINVIS) labels.push('see invisible');
+            if (seen & MONSEEN_INFRAVIS) labels.push('infravision');
+            if (seen & MONSEEN_TELEPAT) labels.push('telepathy');
+            if (seen & MONSEEN_XRAYVIS) labels.push('astral vision');
+            if (seen & MONSEEN_DETECT) labels.push('monster detection');
+            if (seen & MONSEEN_WARNMON) {
+                labels.push(heroHallucinating(state)
+                    ? 'paranoid delusion'
+                    : 'warned of ' + warningMonsterName(monster, state));
+            }
+            output.monbuf = labels.join(', ');
+        }
+    }
+    return detail;
 }
 
 // C ref: pager.c object_from_map() (284-380). The C function writes its object
@@ -367,27 +482,65 @@ export function object_from_map(glyph, x, y, state) {
     return { object, fakeobj };
 }
 
-// C ref: pager.c look_at_object(), through ordinary room-floor objects.
-function look_at_object(glyph, x, y, state) {
-    const { object, fakeobj } = object_from_map(glyph, x, y, state);
-    if (!object) return 'something';
-    if (object.quan !== 1 && !object.dknown) {
-        if (fakeobj) {
-            object.where = OBJ_FREE;
-            dealloc_obj(object, { state });
-        }
-        throw new UnsupportedWhatisError(
-            'a distant stack with an unknown quantity',
-        );
+// C ref: objnam.c doname_vague_quan(). The only difference from doname() is
+// that an unknown stack is described as "some ..." instead of exposing its
+// exact count. Keeping this adapter here avoids making the pager's C callback
+// contract depend on a second object-naming owner.
+function donameVagueQuantity(object, state) {
+    const name = donameFresh(object, state);
+    if (object.quan !== 1 && !object.dknown
+        && !state.iflags?.override_ID) {
+        return name.replace(/^\d+ /u, 'some ');
     }
+    return name;
+}
+
+function donameWithPrice(object, state) {
+    return doname_with_price(object, state, { currencyName: currency });
+}
+
+// C ref: pager.c look_at_object() (382-419), through ordinary floor and
+// buried objects. The terrain suffix is part of this source function, after
+// the name callback and before the synthetic object is released.
+function look_at_object(glyph, x, y, state) {
+    let { object, fakeobj } = object_from_map(glyph, x, y, state);
+    if (!object) return 'something';
+    const location = state.level?.at(x, y);
+    const objectName = object.dknown && costly_spot(x, y, state)
+        ? donameWithPrice : donameVagueQuantity;
+    let result;
     try {
-        return distant_name(object, donameFresh, state);
+        result = object.otyp === STRANGE_OBJECT
+            ? state.objects?.[STRANGE_OBJECT]?.oc_name ?? 'strange object'
+            : distant_name(object, objectName, state);
     } finally {
         if (fakeobj) {
             object.where = OBJ_FREE;
             dealloc_obj(object, { state });
+            object = null;
         }
     }
+    if (object && object.where === OBJ_BURIED) {
+        result += ' (buried)';
+    } else if (IS_TREE(location?.typ, state)) {
+        result += ' ' + (object && is_treefruit(object)
+            ? 'dangling in a tree' : 'stuck in a tree');
+    } else if ((location?.typ === STONE || location?.typ === SCORR)
+        && !IS_TREE(location?.typ, state)) {
+        result += ' embedded in stone';
+    } else if (IS_WALL(location?.typ)
+        || location?.typ === SDOOR) {
+        result += ' embedded in a wall';
+    } else if (location?.typ === DOOR
+        && Boolean((location.doormask ?? location.flags ?? 0)
+            & (D_CLOSED | D_LOCKED))) {
+        result += ' embedded in a door';
+    } else if (is_pool(x, y, state)) {
+        result += ' in water';
+    } else if (is_lava(x, y, state)) {
+        result += ' in molten lava';
+    }
+    return result;
 }
 
 // C ref: pager.c do_screen_description()'s monster/object symbol passes. A
@@ -485,9 +638,9 @@ function describe_object_glyph(cc, glyph, state) {
 
     if (found > 4) out = `${prefix}can be many things`;
     if (found > 1 || needToLook) {
-        const detail = look_at_object(glyph, cc.x, cc.y, state);
+        const detail = lookat(cc.x, cc.y, state).buf;
         firstmatch = detail;
-        out += ` (${detail})`;
+        out += ' (' + detail + ')';
         found = 1;
     }
     return { found, out, firstmatch };
@@ -813,9 +966,42 @@ export function waterbody_name(x, y, state = game, env = {}) {
     return 'water';
 }
 
-// C ref: pager.c lookat() (657-801), including the actual cmap refinement
-// reached by the whatis cursor-terrain path. Other glyph families are handled
-// by the source-shaped helpers above before this cmap switch is reached.
+// C ref: pager.c ice_descr() (614-649).  The description also stores
+// iflags.ice_rating for the caller, so it remains beside waterbody_name() in
+// the pager owner rather than in the inventory consumer.
+export function ice_descr(x, y, state = game) {
+    const icetyp = ['solid', 'sturdy', 'steady', 'unsteady', 'thin', 'slushy'];
+    state.iflags ??= {};
+    state.iflags.ice_rating = -1;
+    const location = state.level?.at(x, y);
+    const surfaceIsIce = location?.typ === ICE
+        || (location?.typ === DRAWBRIDGE_UP
+            && ((location.flags ?? 0) & DB_UNDER) === DB_ICE);
+    if (!surfaceIsIce) return `[ice:${location?.typ ?? 0}?]`;
+
+    const range = Math.max(Math.trunc(state.u?.xray_range ?? 0), 2);
+    const nearDistance = range * range * 2 - range;
+    const distant = dist2(x, y, state.u.ux, state.u.uy) > nearDistance;
+    const unseen = !cansee(x, y, state)
+        && (!u_at(x, y, state) || Levitation(state));
+    if ((distant || unseen) && !state.gd?.decor_levitate_override)
+        return waterbody_name(x, y, state);
+
+    let timeLeft = 0;
+    if (state.gt && state.svt)
+        timeLeft = spot_time_left(x, y, MELT_ICE_AWAY, state);
+    const rating = !timeLeft ? 0
+        : timeLeft > 1000 ? 1
+            : timeLeft > 100 ? 2
+                : timeLeft > 50 ? 3
+                    : timeLeft > 14 ? 4 : 5;
+    state.iflags.ice_rating = rating;
+    return `${icetyp[rating]} ${waterbody_name(x, y, state)}`;
+}
+
+// C ref: pager.c lookat() (657-801), the cmap switch arm. The surrounding
+// canonical function owns the other glyph families and this helper only keeps
+// the context-sensitive terrain descriptions in the pager source owner.
 function lookatOrdinaryTerrain(x, y, glyph, state) {
     if (glyph_is_trap(glyph)) {
         return trap_description(glyph_to_trap(glyph), x, y, state);
@@ -862,8 +1048,87 @@ function lookatOrdinaryTerrain(x, y, glyph, state) {
     return CMAP_EXPLANATIONS[index];
 }
 
-// C ref: pager.c do_screen_description() and lookat(), for the ordinary hero
-// and cmap branches exercised by the current whatis goal. The generic list is
+// C ref: pager.c lookat() (657-801). This is the canonical source result:
+// buf is the description, monbuf explains the sensing method, and pm is the
+// returned permonst used by checkfile(). The whatis renderer consumes all
+// three values; the ordinary cmap helper above is only one switch arm.
+export function lookat(x, y, state = game) {
+    const u = state.u ?? {};
+    const glyph = glyph_at(x, y, state);
+    let buf = '';
+    let monbuf = '';
+    let pm = null;
+    const invisible = propertyActive(state, INVIS);
+    const telepathyProperty = state.u?.uprops?.[TELEPAT] ?? {};
+    const telepathy = Boolean(telepathyProperty.extrinsic)
+        && !telepathyProperty.blocked;
+    const detection = propertyActive(state, DETECT_MONSTERS);
+    const canSpotSelf = heroBlind(state)
+        || u.uswallow
+        || (!invisible && !u.uundetected)
+        || telepathy || detection;
+    const selfTerrainAllowed = !state.iflags?.terrainmode
+        || (state.iflags.terrainmode & TER_MON) !== 0;
+    const selfGlyph = state.iflags?.save_uswallow && u.ustuck
+        ? mon_to_glyph(u.ustuck, state) : null;
+    if (u_at(x, y, state) && canSpotSelf
+        && (!state.iflags?.save_uswallow || glyph !== selfGlyph)
+        && selfTerrainAllowed) {
+        buf = self_lookat(state);
+        if ((invisible || u.uundetected) && !heroBlind(state)
+            && !u.uswallow && !state.iflags?.save_uswallow) {
+            const seen = [];
+            if (propertyActive(state, INFRAVISION)) seen.push('infravision');
+            if (telepathy) seen.push('telepathy');
+            if (detection) seen.push('monster detection');
+            if (seen.length) buf += ' [seen: ' + seen.join(', ') + ']';
+        }
+        if (state.urole?.mnum === PM_WIZARD
+            && state.urace?.mnum === PM_GNOME && !Upolyd(u)) {
+            pm = state.mons?.[PM_WIZARD] ?? null;
+        }
+    } else if (u.uswallow) {
+        buf = 'interior of ' + mon_nam(u.ustuck, state);
+        pm = u.ustuck?.data ?? null;
+    } else if (glyph_is_monster(glyph)) {
+        const monster = m_at(x, y, state);
+        if (monster) {
+            const side = {};
+            buf = look_at_monster(monster, x, y, state, side);
+            monbuf = side.monbuf ?? '';
+            pm = monster.data ?? null;
+        } else if (heroHallucinating(state)) {
+            buf = rndmonnam({ state });
+        }
+    } else if (glyph_is_object(glyph)) {
+        buf = look_at_object(glyph, x, y, state);
+    } else if (glyph_is_trap(glyph)) {
+        buf = trap_description(glyph_to_trap(glyph), x, y, state);
+    } else if (glyph_is_warning(glyph)) {
+        const warning = glyph - GLYPH_WARNING_OFF;
+        buf = def_warnsyms[warning]?.desc ?? '';
+    } else if (glyph_is_invisible(glyph)) {
+        buf = 'remembered, unseen, creature';
+    } else if (glyph === GLYPH_NOTHING_OFF) {
+        buf = 'dark part of a room';
+    } else if (glyph === GLYPH_UNEXPLORED_OFF) {
+        buf = state.u?.uinwater && !Is_waterlevel(state.u?.uz)
+            ? (dist2(x, y, state.u?.ux, state.u?.uy) <= 2
+                ? 'land' : 'unknown')
+            : 'unexplored area';
+    } else if (glyph_is_cmap(glyph)) {
+        buf = lookatOrdinaryTerrain(x, y, glyph, state);
+    } else {
+        buf = 'unexplored area';
+    }
+    return {
+        buf,
+        monbuf,
+        pm: pm && !heroHallucinating(state) ? pm : null,
+    };
+}
+
+// C ref: pager.c do_screen_description() and lookat(). The generic list is
 // built in defsym.h order before lookat() refines an ambiguous map symbol.
 export function do_screen_description(cc, looked, sym, state = game) {
     if (!looked || sym)
@@ -871,70 +1136,99 @@ export function do_screen_description(cc, looked, sym, state = game) {
     if (cc.x === state.u.ux && cc.y === state.u.uy) {
         const location = state.level?.at(cc.x, cc.y);
         const displayCharacter = location?.disp_ch ?? '@';
-        if (displayCharacter !== '@')
-            throw new UnsupportedWhatisError('a non-human hero glyph');
-        const detail = self_lookat(state);
-        return {
+        const info = lookat(cc.x, cc.y, state);
+        const result = {
             found: 1,
-            out: `${displayCharacter}        a human or elf (${detail})`,
-            firstmatch: detail,
+            out: displayCharacter + '        a human or elf ('
+                + info.buf + ')',
+            firstmatch: info.buf,
         };
+        if (info.pm) result.supplement = info.pm;
+        return result;
     }
 
     const glyph = glyph_at(cc.x, cc.y, state);
-    // C ref: pager.c:1420-1443. These glyphs are not cmap glyphs.
+    // Object glyphs have their own generic class pass.  Let that path call
+    // lookat() exactly once; object_from_map() may create a synthetic object
+    // and observing or naming it twice would duplicate source side effects.
+    if (glyph_is_object(glyph))
+        return describe_object_glyph(cc, glyph, state);
+
+    const info = lookat(cc.x, cc.y, state);
+    // C ref: pager.c do_screen_description()'s non-cmap results are refined
+    // by lookat() and preserve its exact buf/monbuf/permonst result contract.
     if (glyph === GLYPH_NOTHING_OFF) {
         return {
             found: 1,
             out: '         the dark part of a room',
-            firstmatch: 'dark part of a room',
+            firstmatch: info.buf,
         };
     }
     if (glyph === GLYPH_UNEXPLORED_OFF) {
         return {
             found: 1,
             out: '         unexplored',
-            firstmatch: 'unexplored area',
+            firstmatch: info.buf,
         };
     }
-    // C ref: pager.c lookat()'s monster arm under TER_DETECT|TER_MON. The
-    // detector has painted live monsters into the temporary glyph buffer, so
-    // describe the live monster at the coordinate rather than treating its
-    // non-cmap glyph as an unsupported ordinary map symbol.
-    if (glyph_is_monster(glyph)) {
-        if (state.iflags?.terrainmode
-            && !(state.iflags.terrainmode & TER_MON)) {
-            throw new UnsupportedWhatisError(
-                'monster excluded by terrain browse subset',
-            );
-        }
-        const monster = m_at(cc.x, cc.y, state);
-        if (!monster)
-            throw new UnsupportedWhatisError('a reconstructed monster glyph');
-        const detail = look_at_monster(monster, cc.x, cc.y, state);
-        const location = state.level?.at(cc.x, cc.y);
-        const displayCharacter = location?.disp_ch
-            ?? monster_glyph_info(monster, state).ch;
+    if (glyph_is_warning(glyph)) {
         return {
             found: 1,
-            out: `${displayCharacter}        ${detail}`,
+            out: '         ' + info.buf,
+            firstmatch: info.buf,
+        };
+    }
+    if (glyph_is_invisible(glyph)) {
+        const detail = invisibleGlyphDescription(state);
+        return {
+            found: 1,
+            out: '         ' + detail,
             firstmatch: detail,
         };
     }
-    if (glyph_is_object(glyph))
-        return describe_object_glyph(cc, glyph, state);
-    if (!glyph_is_cmap(glyph))
-        throw new UnsupportedWhatisError('a non-terrain map glyph');
+    if (glyph_is_swallow(glyph)) {
+        const result = {
+            found: 1,
+            out: '         ' + info.buf,
+            firstmatch: info.buf,
+        };
+        if (info.pm) result.supplement = info.pm;
+        return result;
+    }
+    if (glyph_is_monster(glyph)) {
+        if (state.iflags?.terrainmode
+            && !(state.iflags.terrainmode & TER_MON)) {
+            return { found: 0, out: '', firstmatch: 'unknown' };
+        }
+        const monster = m_at(cc.x, cc.y, state);
+        const location = state.level?.at(cc.x, cc.y);
+        const displayCharacter = location?.disp_ch
+            ?? (monster ? monster_glyph_info(monster, state).ch : 'M');
+        const result = {
+            found: 1,
+            out: displayCharacter + '        ' + info.buf
+                + (info.monbuf ? ' [seen: ' + info.monbuf + ']' : ''),
+            firstmatch: info.buf,
+        };
+        if (info.pm) result.supplement = info.pm;
+        return result;
+    }
+    if (!glyph_is_cmap(glyph)) {
+        return {
+            found: info.buf ? 1 : 0,
+            out: info.buf ? '         ' + info.buf : '',
+            firstmatch: info.buf || 'unknown',
+        };
+    }
     const glyphinfo = map_glyphinfo(glyph, state);
     const symbolByte = glyphinfo.ttychar;
     let found = 0;
     let needToLook = false;
     let firstmatch = 'unknown';
-    let out = `${visibleGlyphCharacter(glyphinfo)}        `;
+    let out = visibleGlyphCharacter(glyphinfo) + '        ';
     // C ref: pager.c is_swallow_sym(). A DEC graphics wall can share its
     // active display byte with a swallow boundary; retain that generic
-    // possibility before the cmap explanations, then let lookat() refine it
-    // to the actual wall below.
+    // possibility before let lookat() refine it.
     for (let index = S_sw_tl; index <= S_sw_br; ++index) {
         if (cmap_symbol_byte(index, state) !== symbolByte) continue;
         out += 'the interior of a monster';
@@ -946,8 +1240,6 @@ export function do_screen_description(cc, looked, sym, state = game) {
         const explanation = CMAP_EXPLANATIONS[index];
         if (!explanation || cmap_symbol_byte(index, state) !== symbolByte)
             continue;
-        // pager.c add_cmap_descr() omits drawbridge variants once three
-        // earlier matches already explain this heavily overloaded symbol.
         if (found >= 3 && index >= S_vodbridge && index <= S_hcdbridge)
             continue;
         const described = cmapDescriptionWithArticle(index, explanation);
@@ -973,28 +1265,24 @@ export function do_screen_description(cc, looked, sym, state = game) {
         }
     }
     if (found > 4)
-        out = `${visibleGlyphCharacter(glyphinfo)}        can be many things`;
+        out = visibleGlyphCharacter(glyphinfo) + '        can be many things';
 
     if (found > 1 || needToLook) {
-        let detail = lookatOrdinaryTerrain(cc.x, cc.y, glyph, state);
-        // C ref: pager.c do_screen_description() (1603). This call is made
-        // after lookat() only for an exact "ice" result and updates the
-        // secondary iflags.ice_rating value used by later terrain text.
+        let detail = info.buf;
         if (detail === 'ice') detail = ice_descr(cc.x, cc.y, state);
-        // C ref: pager.c do_screen_description() (1595-1606). A downstairs
-        // staircase on the quest start level remains blocked until the quest
-        // leader has granted access, and the rewritten detail appears in both
-        // firstmatch and the parenthesized whatis output.
         if (detail === 'staircase down'
             && on_level(state.u?.uz, state.qstart_level)
             && !ok_to_quest(state)) {
             detail = 'blocked staircase down';
         }
         firstmatch = detail;
-        out += ` (${detail})`;
+        out += ' (' + detail + ')';
+        if (info.monbuf) out += ' [seen: ' + info.monbuf + ']';
         found = 1;
     }
-    return { found, out, firstmatch };
+    const result = { found, out, firstmatch };
+    if (info.pm) result.supplement = info.pm;
+    return result;
 }
 
 export const CHKFIL_USR_TYPED = 1;
@@ -1278,7 +1566,7 @@ export async function do_look(mode, clickCc = null, state = game) {
             if (description.found === 1
                 && answer === LOOK_TRADITIONAL
                 && state.flags.help) {
-                await checkfile(description.firstmatch, null, 0, state);
+                await checkfile(description.firstmatch, description.supplement ?? null, 0, state);
             }
             if (quick) break;
         }

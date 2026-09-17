@@ -39,7 +39,6 @@ import {
     LEVITATION,
     LR_DOWNTELE,
     LR_UPTELE,
-    MCORPSENM,
     M_AP_FURNITURE,
     M_AP_TYPMASK,
     MAXNROFROOMS,
@@ -64,7 +63,6 @@ import {
     Upolyd,
     VAULT,
     VISITED,
-    has_mcorpsenm,
     isok,
     plur,
 } from './const.js';
@@ -83,7 +81,7 @@ import { within_bounded_area } from './rect.js';
 import { an } from './objnam.js';
 import { formatkiller } from './topten.js';
 import { ldrname } from './questpgr.js';
-import { align_gname } from './pray.js';
+import { align_gname, altarmask_at } from './pray.js';
 // js/rooms.js reaches this file through js/hack.js, which this file already
 // imports. Both sides use the other's exports only inside function bodies, so
 // the cycle resolves.
@@ -2268,22 +2266,6 @@ export function init_mapseen(lev, state = game) {
 
 function incrementMapseenFeature(feat, key) {
     if (feat[key] < 3) feat[key] += 1;
-}
-
-// C ref: pray.c altarmask_at() (2490-2504). The remembered ALTAR type can
-// come from a visible furniture mimic even when the underlying terrain is not
-// an altar, so alignment must follow the mimic's mcorpsenm overlay too.
-export function altarmask_at(x, y, state = game) {
-    const monster = state.level?.monsters?.[x]?.[y] ?? null;
-    if (monster
-        && (monster.m_ap_type & M_AP_TYPMASK) === M_AP_FURNITURE
-        && cmap_to_type(monster.mappearance) === ALTAR) {
-        return has_mcorpsenm(monster) ? MCORPSENM(monster) : 0;
-    }
-    const location = state.level?.at(x, y);
-    return IS_ALTAR(location?.typ)
-        ? location.altarmask ?? location.flags ?? 0
-        : 0;
 }
 
 function count_feat_lastseentyp(mapseen, x, y, state) {
