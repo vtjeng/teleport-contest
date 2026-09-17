@@ -424,6 +424,24 @@ test('direct glance dispatches the quick cursor lookup without a turn',
         assert.equal(game.context.pendingCommand, undefined);
     });
 
+test('blind heroes can use the production quick-glance cursor path',
+    async () => {
+        const replay = await runSegment({
+            seed: 9310601,
+            datetime: '20370106081234',
+            nethackrc: [
+                'OPTIONS=name:BlindGlance,role:Wizard,race:human,gender:female,align:neutral',
+                'OPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,blind',
+            ].join('\n') + '\n',
+            moves: ' ;.',
+        });
+        assert.equal(game.u.uroleplay.blind, true);
+        assert.equal(game._ttyToplines, 'Pick a monster, object or location.');
+        assert.equal(replay.getScreens().length, 4);
+        assert.equal(replay.getCursors().length, 4);
+        assert.equal(game.context.pendingCommand, undefined);
+    });
+
 function terrainDescriptionState(cmap, flags = 0) {
     // The separate hero coordinate keeps pager.c lookat() on its ordinary
     // glyph_is_cmap() branch. D:1 selects the main-dungeon glyph family.

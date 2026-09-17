@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 9310602,
+      "datetime": "20380207102345",
+      "nethackrc": "OPTIONS=name:BlindGlanceVar,role:Healer,race:elf,gender:male,align:chaotic\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,blind\n",
+      "moves": " ;.",
+      "comment": "Cheap independent pager.c do_look variation: a Healer elf with a different date, seed, gender, and alignment reaches the blind quick-glance cursor path through the same production semicolon binding."
+    }
+  ]
+}
