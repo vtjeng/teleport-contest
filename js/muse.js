@@ -137,6 +137,7 @@ import { dist2, distmin, sgn, strsubst } from './hacklib.js';
 import { makemon, mongone } from './makemon_create.js';
 import { grow_up, rndmonst, set_malign } from './makemon.js';
 import { m_next2u } from './mhitu.js';
+import { paralyze_monst } from './mhitm.js';
 import {
     healmon, m_carrying, maybe_unhide_at, mon_offmap, mondead, monkilled,
     seemimic, wakeup, xkilled, is_Vlad, flash_mon,
@@ -199,6 +200,7 @@ import { ttyNorep, ttyPline } from './tty_message.js';
 import { note_unported } from './unported.js';
 import { cansee, canseemon, couldsee, recalc_block_point, unblock_point } from './vision.js';
 import { body_part } from './polyself.js';
+import { arti_reflects } from './artifacts.js';
 import {
     extract_from_minvent, bimanual, find_mac, mon_adjust_speed,
     mon_set_minvis,
@@ -275,15 +277,16 @@ function activeHeroProperty(state, property) {
 // nothing happened, 1 if the monster died, 2 if it was incapacitated.
 async function precheck(mon, obj, state, env = {}) {
     if (!obj) return 0;
+    const random = env.random ?? { rn2 };
     const vis = cansee(mon.mx, mon.my, state);
 
     if (obj.oclass === O.POTION_CLASS) {
         if (objdescr_is(obj, 'milky', state)) {
             if (!(state.mvitals[M.PM_GHOST].mvflags & G_GONE)
-                && !rn2(POTION_OCCUPANT_CHANCE(
+                && !random.rn2(POTION_OCCUPANT_CHANCE(
                     state.mvitals[M.PM_GHOST].born))) {
                 const cc = enexto(mon.mx, mon.my,
-                    state.mons[M.PM_GHOST], { state });
+                    state.mons[M.PM_GHOST], { state, random });
                 if (!cc) return 0;
                 await mquaffmsg(mon, obj, state);
                 await m_useup(mon, obj, { state });
@@ -301,24 +304,29 @@ async function precheck(mon, obj, state, env = {}) {
                         await pline_mon(mon,
                             `As ${monsterCommonName(mon, state)} opens `
                             + `the bottle, an enormous `
-                            + `${Hallucination(state) ? rndmonnam({ state }) : 'ghost'}`
+                            + `${Hallucination(state)
+                                ? rndmonnam({
+                                    state,
+                                    displayRandom: env.displayRandom,
+                                })
+                                : 'ghost'}`
                             + ` emerges!`, state);
                         await ttyPline(
                             `${capitalizedMonsterName(mon, state)} `
                             + `is frightened to death, `
                             + `and unable to move.`, state);
                     }
-                    note_unported('mhitm.c paralyze_monst');
+                    paralyze_monst(mon, 3);
                 }
                 return 2;
             }
         }
         if (objdescr_is(obj, 'smoky', state)
             && !(state.mvitals[M.PM_DJINNI].mvflags & G_GONE)
-            && !rn2(POTION_OCCUPANT_CHANCE(
+            && !random.rn2(POTION_OCCUPANT_CHANCE(
                 state.mvitals[M.PM_DJINNI].born))) {
             const cc = enexto(mon.mx, mon.my,
-                state.mons[M.PM_DJINNI], { state });
+                state.mons[M.PM_DJINNI], { state, random });
             if (!cc) return 0;
             await mquaffmsg(mon, obj, state);
             await m_useup(mon, obj, { state });
@@ -341,7 +349,7 @@ async function precheck(mon, obj, state, env = {}) {
                     `${vis ? capitalizedMonsterName(mtmp, state) : 'Something'} speaks.`,
                     state);
                 // SetVoice() is a no-op in the tty build.
-                if (rn2(2)) {
+                if (random.rn2(2)) {
                     // verbalize("You freed me!") is You_hear('"...')
                     const freed = youHear('"You freed me!"', state);
                     if (freed) await ttyPline(freed, state);
@@ -363,8 +371,9 @@ async function precheck(mon, obj, state, env = {}) {
         }
     }
     if (obj.oclass === O.WAND_CLASS && obj.cursed
-        && !rn2(100 /* WAND_BACKFIRE_CHANCE */)) {
-        const dam = d(obj.spe + 2, 6);
+        && !random.rn2(100 /* WAND_BACKFIRE_CHANCE */)) {
+        const dam = random.d ? random.d(obj.spe + 2, 6)
+            : d(obj.spe + 2, 6);
 
         if (vis) {
             await pline_mon(mon,
@@ -2778,15 +2787,20 @@ export function searches_for_item(monster, obj, state = game) {
 // where applicable. When `str` is null, just returns the boolean.
 //
 // arti_reflects(MON_WEP(mon)) checks whether a wielded artifact weapon
-// reflects. No ported monster wields such an artifact, so the arm is a throw.
-export async function mon_reflects(mon, str, state = game) {
+// reflects. Its boolean return is used here exactly as in C; callers may pass
+// a planning message/display environment so naming stays on the clone.
+export async function mon_reflects(mon, str, state = game, rawEnv = {}) {
+    const message = rawEnv.message
+        ?? (rawEnv.planning ? async () => {} : ttyPline);
     let orefl = which_armor(mon, W_ARMS, state);
 
     if (orefl && orefl.otyp === O.SHIELD_OF_REFLECTION) {
         if (str) {
-            const msg = str.replace('%s', s_suffix(monsterCommonName(mon, state)))
+            const msg = str.replace('%s', s_suffix(monsterCommonName(
+                mon, state, 0, rawEnv,
+            )))
                 .replace('%s', 'shield');
-            await ttyPline(msg, state);
+            await message(msg, state, rawEnv);
             // makeknown(SHIELD_OF_REFLECTION)
             discover_object(O.SHIELD_OF_REFLECTION, true, true, true, state);
         }
@@ -2794,18 +2808,23 @@ export async function mon_reflects(mon, str, state = game) {
     }
     // arti_reflects(MON_WEP(mon)) -- wielded artifact reflection
     const monwep = mon.mw; /* MON_WEP() */
-    if (monwep && monwep.oartifact) {
-        // No ported monster wields an artifact that reflects.
-        throw new Error(
-            'mon_reflects() reached arti_reflects() for a wielded artifact',
-        );
+    if (monwep && arti_reflects(monwep, state)) {
+        if (str) {
+            const msg = str.replace('%s', s_suffix(monsterCommonName(
+                mon, state, 0, rawEnv,
+            ))).replace('%s', 'weapon');
+            await message(msg, state, rawEnv);
+        }
+        return true;
     }
     orefl = which_armor(mon, W_AMUL, state);
     if (orefl && orefl.otyp === O.AMULET_OF_REFLECTION) {
         if (str) {
-            const msg = str.replace('%s', s_suffix(monsterCommonName(mon, state)))
+            const msg = str.replace('%s', s_suffix(monsterCommonName(
+                mon, state, 0, rawEnv,
+            )))
                 .replace('%s', 'amulet');
-            await ttyPline(msg, state);
+            await message(msg, state, rawEnv);
             discover_object(O.AMULET_OF_REFLECTION, true, true, true, state);
         }
         return true;
@@ -2814,9 +2833,11 @@ export async function mon_reflects(mon, str, state = game) {
     if (orefl && (orefl.otyp === O.SILVER_DRAGON_SCALES
                   || orefl.otyp === O.SILVER_DRAGON_SCALE_MAIL)) {
         if (str) {
-            const msg = str.replace('%s', s_suffix(monsterCommonName(mon, state)))
+            const msg = str.replace('%s', s_suffix(monsterCommonName(
+                mon, state, 0, rawEnv,
+            )))
                 .replace('%s', 'armor');
-            await ttyPline(msg, state);
+            await message(msg, state, rawEnv);
         }
         return true;
     }
@@ -2824,9 +2845,11 @@ export async function mon_reflects(mon, str, state = game) {
         || mon.data === state.mons?.[M.PM_CHROMATIC_DRAGON]) {
         /* Silver dragons only reflect when mature; babies do not */
         if (str) {
-            const msg = str.replace('%s', s_suffix(monsterCommonName(mon, state)))
+            const msg = str.replace('%s', s_suffix(monsterCommonName(
+                mon, state, 0, rawEnv,
+            )))
                 .replace('%s', 'scales');
-            await ttyPline(msg, state);
+            await message(msg, state, rawEnv);
         }
         return true;
     }
