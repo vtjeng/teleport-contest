@@ -1,4 +1,5 @@
 import assert from 'node:assert/strict';
+import { readFileSync } from 'node:fs';
 import test from 'node:test';
 
 import {
@@ -43,6 +44,8 @@ import {
     STONE,
     STAIRS,
     STEALTH,
+    TEST_TRAV,
+    TIP_SWIM,
     TRAVP_VALID,
     TRAVP_GUESS,
     TIMER_OBJECT,
@@ -95,6 +98,8 @@ import {
     start_timer,
     timeout_globals_init,
 } from '../js/timeout.js';
+
+const HACK_SOURCE = readFileSync('nethack-c/upstream/src/hack.c', 'utf8');
 
 function buriedObject(otyp, x, y, next = null) {
     return {
@@ -491,11 +496,28 @@ test('a secret door reaches test_move instead of preflight refusal', async () =>
     );
 });
 
-test('liquid admission requires a warning that will stop the move', () => {
+test('liquid admission follows test_move mode and m-prefix source order', async () => {
+    // hack.c test_move():1181-1203 applies the known-liquid filter only to
+    // non-DO_MOVE travel and trap probes. Its ordinary DO_MOVE path returns
+    // TRUE at 1253-1254, after which domove_core() asks swim_move_danger().
+    assert.match(
+        HACK_SOURCE,
+        /if \(svc\.context\.run == 8 && \(mode != DO_MOVE\)/u,
+    );
+    assert.match(HACK_SOURCE, /\/\* OK, it is a legal place to move\. \*\//u);
+
+    const travel = swimDangerState();
+    travel.context.run = 8;
+    assert.equal(
+        await test_move(10, 10, 1, 0, TEST_TRAV, travel),
+        false,
+        'known liquid remains filtered from non-DO_MOVE travel',
+    );
+
     // Each variation follows a FALSE arm of hack.c swim_move_danger(): an
     // unseen pool, a forced m-prefix step, or disabled paranoid_confirm:Swim.
-    // Those moves would reach the unported liquid-arrival effects, so the
-    // admission seam remains closed.
+    // All three must pass the walking admission seam and leave arrival effects
+    // to the committed movement path.
     const cases = [
         ['unseen pool', (state) => { state.level.at(11, 10).seenv = 0; }],
         ['m-prefix', (state) => { state.context.nopick = 1; }],
@@ -506,25 +528,55 @@ test('liquid admission requires a warning that will stop the move', () => {
     for (const [name, change] of cases) {
         const state = swimDangerState();
         change(state);
-        assert.throws(
+        assert.doesNotThrow(
             () => preflightDomoveDestination(11, 10, state),
-            /door or special terrain movement/u,
             name,
         );
+        assert.equal(
+            await test_move(10, 10, 1, 0, DO_MOVE, state),
+            true,
+            name,
+        );
+        assert.equal(await swim_move_danger(11, 10, state), false, name);
     }
 
-    // The same source predicates apply to lava: a visible lava square with
-    // no paranoid warning, or with an unseen square or an m-prefix, reaches
-    // unsupported arrival behavior and remains outside the seam.
+    // The same source predicates apply to lava. The m-prefix path must set
+    // TIP_SWIM and continue without consuming an avoid prompt.
     for (const [name, change] of cases) {
         const state = swimDangerState(LAVAPOOL);
         change(state);
-        assert.throws(
+        assert.doesNotThrow(
             () => preflightDomoveDestination(11, 10, state),
-            /door or special terrain movement/u,
+            `lava ${name}`,
+        );
+        assert.equal(
+            await test_move(10, 10, 1, 0, DO_MOVE, state),
+            true,
+            `lava ${name}`,
+        );
+        assert.equal(
+            await swim_move_danger(11, 10, state),
+            false,
             `lava ${name}`,
         );
     }
+
+    const forced = swimDangerState();
+    forced.context.nopick = 1;
+    await swim_move_danger(11, 10, forced);
+    assert.equal(forced.context.tips & (1 << TIP_SWIM), 1 << TIP_SWIM);
+
+    // pickup.c:702-709 still calls describe_decor() for an autopickup move
+    // carrying context.nopick.  Once pickup.c's owner is admitted, hack.c's
+    // preflight must not reject that source-ordered movement just because the
+    // mention_decor option is enabled.
+    const decoratedNoPick = swimDangerState();
+    decoratedNoPick.context.nopick = 1;
+    decoratedNoPick.flags.mention_decor = true;
+    assert.doesNotThrow(
+        () => preflightDomoveDestination(11, 10, decoratedNoPick),
+        'm-prefix liquid movement keeps C pickup decor order',
+    );
 });
 
 test('air and cloud terrain pass the movement admission seam', () => {

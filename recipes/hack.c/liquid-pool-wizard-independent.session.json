@@ -1,0 +1,10 @@
+{
+  "version": 5,
+  "comment": "Independent hack.c test_move/domove_core liquid witness: seed 9240335, PoolWalk Wizard, and a natural adjacent POOL were chosen independently. #wizintrinsic grants timed water walking; after its More prompt, m+n enters the pool through the source m-prefix DO_MOVE path without drowning.",
+  "segments": [{
+    "seed": 9240335,
+    "datetime": "20370102101112",
+    "nethackrc": "OPTIONS=name:PoolWalk,role:Wizard,race:human,gender:male,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen,playmode:debug,pettype:none,!acoustics\n",
+    "moves": "  #wizintrinsic\n>h\n mn"
+  }]
+}
