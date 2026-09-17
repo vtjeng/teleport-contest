@@ -57463,7 +57463,7 @@
     {
       "id": "port-zap-immediate-seed0398-20260916",
       "kind": "file-port",
-      "status": "open",
+      "status": "parked",
       "summary": "Port complete polymorph object replacement and immediate wand callers",
       "cFile": "zap.c",
       "sessions": [
@@ -57474,8 +57474,8 @@
       "spans": [
         {
           "name": "poly_obj",
-          "status": "queued",
-          "closedBy": null,
+          "status": "closed",
+          "closedBy": "615214896810913ba49e0d97d5bdf24e5e067ba0",
           "functions": [
             "poly_obj"
           ]
@@ -57671,7 +57671,17 @@
             "recordings": []
           }
         ]
-      }
+      },
+      "progressBeforePark": {
+        "screens": 38,
+        "rng": 174
+      },
+      "parkedStanding": {
+        "sha": "615214896810913ba49e0d97d5bdf24e5e067ba0",
+        "screens": 10823,
+        "rng": 771039
+      },
+      "parkedReason": "Whole poly_obj source and lateral wand caller are verified by two independent recordings and passing combined checkpoint61521489. Active egg, worn-inventory, trap iron-shoe, potion-dip and stone-to-flesh entries remain unrecorded; preserve their open evidence while higher-priority mismatches continue."
     }
   ]
 }
