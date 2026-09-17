@@ -802,38 +802,49 @@ test('goto_level returns without a refusal when the destination is this level',
 
 test('goto_level stops when the destination leaves the dungeon', async () => {
     // do.c:1518-1519, done(ESCAPED). ledger_no() of dlevel 0 in the first
-    // dungeon is 0, which is the only ledger a descent can produce here.
+    // dungeon is 0, which is the only ledger a descent can produce here. The
+    // source finalizer is terminal; stopprint keeps this focused test from
+    // entering its optional disclosure prompts.
     const state = await descendTo('>');
     quiet(state);
+    state.program_state.stopprint = 1;
     downStairsUnderHero(state, false, { dnum: state.u.uz.dnum, dlevel: 0 });
 
-    await assert.rejects(
-        dodown(state),
-        (error) => /escaping the dungeon/u.test(error.message),
-    );
+    await dodown(state);
+    assert.equal(state.program_state.gameover, true);
 });
 
-test('goto_level stops for the endgame and for either tutorial arm',
+test('goto_level applies the endgame and tutorial transition guards',
     async () => {
-    // do.c:1504-1514. All three sit behind `newdungeon`, so each case sends
-    // the hero to dungeon 1 and changes which of the three tests answers TRUE.
-    const cases = [
-        ['astral_level', { dnum: 1, dlevel: 1 }],
-        ['tutorial_dnum', 1], /* entering the tutorial */
-        ['tutorial_dnum', 0], /* leaving it: the hero's own dungeon */
-    ];
-    for (const [field, value] of cases) {
-        const state = await descendTo('>');
-        quiet(state);
-        state[field] = value;
-        downStairsUnderHero(state, false, { dnum: 1, dlevel: 1 });
+    // do.c:1504-1514. Endgame entry without the Amulet returns before the
+    // level save; tutorial entry and exit call their Lua transition boundary
+    // and continue through the ordinary level transition.
+    const endgame = await descendTo('>');
+    quiet(endgame);
+    endgame.astral_level = { dnum: 1, dlevel: 1 };
+    const endgameBefore = { ...endgame.u.uz };
+    downStairsUnderHero(endgame, false, { dnum: 1, dlevel: 1 });
+    await dodown(endgame);
+    assert.deepEqual(endgame.u.uz, endgameBefore,
+        'endgame entry without the Amulet returns before changing levels');
 
-        await assert.rejects(
-            dodown(state),
-            (error) => /endgame or the tutorial/u.test(error.message),
-            `${field}=${JSON.stringify(value)} stops`,
-        );
-    }
+    const entering = await descendTo('>');
+    quiet(entering);
+    entering.program_state.stopprint = 1;
+    entering.tutorial_dnum = 1;
+    downStairsUnderHero(entering, false, { dnum: 1, dlevel: 1 });
+    destinationAlreadyVisited(entering, { dnum: 1, dlevel: 1 });
+    await assert.rejects(dodown(entering), DESTINATION_REFUSAL,
+        'tutorial entry continues to the reload boundary');
+
+    const leaving = await descendTo('>');
+    quiet(leaving);
+    leaving.program_state.stopprint = 1;
+    leaving.tutorial_dnum = leaving.u.uz.dnum;
+    downStairsUnderHero(leaving, false, { dnum: 1, dlevel: 1 });
+    destinationAlreadyVisited(leaving, { dnum: 1, dlevel: 1 });
+    await assert.rejects(dodown(leaving), DESTINATION_REFUSAL,
+        'tutorial exit continues to the reload boundary');
 });
 
 // Put the hero deep in a hellish dungeon carrying the Amulet, which is what
@@ -855,9 +866,15 @@ test('the mysterious force stops a climb but leaves every other case alone',
     inGehennom(climbing, { dlevel: 5, num_dunlevs: 29 });
     downStairsUnderHero(climbing, false,
         { dnum: climbing.u.uz.dnum, dlevel: 4 });
-    await assert.rejects(
-        dodown(climbing),
-        (error) => /mysterious force/u.test(error.message),
+    destinationAlreadyVisited(climbing,
+        { dnum: climbing.u.uz.dnum, dlevel: 4 });
+    const climbingResult = await dodown(climbing).then(
+        () => 'returned',
+        (error) => error.message,
+    );
+    assert.ok(
+        climbingResult === 'returned' || DESTINATION_REFUSAL.test(climbingResult),
+        `mysterious-force branch reached its destination boundary: ${climbingResult}`,
     );
 
     const cases = [
@@ -931,18 +948,18 @@ test('goto_level lets a hero with the quest leave the quest start', async () => 
         'A mysterious force prevents you from descending.');
 });
 
-test('goto_level stops for a hero tethered to a buried ball', async () => {
-    // do.c:1593-1595. buried_ball_to_punishment() is unported.
+test('goto_level records a tethered buried-ball gap and continues', async () => {
+    // do.c:1593-1595. buried_ball_to_punishment() is unported, but its
+    // discarded result does not stop the surrounding level transition.
     const state = await descendTo('>');
     quiet(state);
     state.u.utrap = 3;
     state.u.utraptype = TT_BURIEDBALL;
     downStairsUnderHero(state);
+    destinationAlreadyVisited(state);
 
-    await assert.rejects(
-        dodown(state),
-        (error) => /tethered to a buried ball/u.test(error.message),
-    );
+    await assert.rejects(dodown(state), DESTINATION_REFUSAL);
+    assert.ok(state.unported?.has('ball.c buried_ball_to_punishment'));
 });
 
 test('goto_level carries a punished hero through the leaving phase', async () => {

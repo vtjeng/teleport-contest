@@ -29,8 +29,8 @@ import {
     ECMD_OK,
     ECMD_TIME,
     ER_DESTROYED,
+    ESCAPED,
     FACE,
-    FLYING,
     FUMBLING,
     GETOBJ_ALLOWCNT,
     GETOBJ_PROMPT,
@@ -66,6 +66,7 @@ import {
     STAIRS,
     TIMEOUT,
     TT_BURIEDBALL,
+    TELEDS_NO_FLAGS,
     TT_PIT,
     TRAPDOOR,
     UNENCUMBERED,
@@ -119,13 +120,16 @@ import {
     Can_fall_thru,
     In_hell,
     In_W_tower,
+    On_W_tower_level,
     assign_level,
+    assign_rnd_level,
     at_dgn_entrance,
     builds_up,
     depth,
     dunlev,
     dunlev_reached,
     dunlevs_in_dungeon,
+    ledger_to_dnum,
     ledger_no,
     level_difficulty,
     level_info,
@@ -215,7 +219,7 @@ import { ok_to_quest, onquest } from './quest.js';
 import { com_pager } from './questpgr.js';
 import { in_out_region, visible_region_at } from './region.js';
 import { getlev } from './restore.js';
-import { cloneIsaacContext, createCoreRandom, rn2, rnd } from './rng.js';
+import { cloneIsaacContext, createCoreRandom, d, rn2, rnd } from './rng.js';
 import { check_special_room, move_update } from './rooms.js';
 import { savelev } from './save.js';
 import { costly_spot } from './shk.js';
@@ -229,7 +233,7 @@ import {
     u_on_sstairs,
 } from './stairs.js';
 import { Punished, dismount_steed, stucksteed } from './steed.js';
-import { enexto, mnexto } from './teleport.js';
+import { enexto, mnexto, safe_teleds } from './teleport.js';
 import { run_timers } from './timeout.js';
 import {
     fill_pit,
@@ -258,6 +262,8 @@ import { welded } from './wield.js';
 import { bimanual, setuqwep, setuswapwep, setuwep } from './worn.js';
 import { resurrect } from './wizard.js';
 import { assign_graphics } from './symbols.js';
+import { done } from './end.js';
+import { tutorial } from './nhlua.js';
 
 // A fail-closed boundary for goto_level() branches outside the ordinary
 // staircase descent and positive-decimal level teleport ports.
@@ -1571,6 +1577,41 @@ export function updateDunlevReached(level, state = game) {
     }
 }
 
+// C ref: do.c goto_level()'s cant_go_back cleanup (1652-1664). Endgame and
+// tutorial levels are terminal in the dungeon graph, so delete the in-memory
+// level snapshots/files that C discards and mark their map-overview branches
+// as unreachable. The migration list has no JS owner yet; its discarded call
+// remains an explicit source gap below rather than an invented sweep.
+function discard_unreachable_levels(state, leavingTutorial) {
+    const tutorialDnum = state.tutorial_dnum;
+    const keep = (dnum) => leavingTutorial
+        ? dnum !== tutorialDnum
+        : false;
+
+    for (const key of Object.keys(state._savedLevels ?? {})) {
+        const ledger = Number(key);
+        if (ledger <= 0) continue;
+        const dnum = ledger_to_dnum(ledger, state);
+        if (!keep(dnum)) delete state._savedLevels[key];
+    }
+
+    for (const [key, info] of (state.svl?.level_info ?? []).entries()) {
+        if (!info || key <= 0) continue;
+        const dnum = ledger_to_dnum(Number(key), state);
+        if (!keep(dnum)) info.flags &= ~LFILE_EXISTS;
+    }
+
+    for (const mapseen of state.svm?.mapseenchn ?? []) {
+        const dnum = mapseen?.lev?.dnum;
+        if (dnum === undefined || !keep(dnum)) {
+            mapseen.flags ??= {};
+            mapseen.flags.notreachable = 1;
+        }
+    }
+
+    note_unported('dog.c discard_migrations');
+}
+
 // C ref: do.c goto_level() (1478-1998), for first-time arrival on an ordinary
 // main-dungeon level through stairs or positive-decimal level teleport.
 //
@@ -1584,13 +1625,12 @@ export function updateDunlevReached(level, state = game) {
 // 1812-1825, the repaint at 1835-1839, the arrival messages at 1843-1965 and
 // the arrival tail at 1967-1993.
 //
-// Not covered, each named at its site: the endgame, tutorial, portal, trap-door
-// falling, mounted falling, and several migration/cleanup arms remain behind
-// their source owners. Gehennom, Knox, Mines, Sokoban and the
-// Rogue-level arms are implemented below. The getlev()
-// reload at 1704-1711 and the ascending-at-stairs placement and message at
-// 1747-1764 are now ported. Common Quest-entrance, shop-entry, object pickup,
-// and dwarf earth-sense arrival effects are included below.
+// Remaining gaps are limited to discarded calls whose source owners are not
+// yet available (impact_drop, selftouch, fix_shop_damage, and the migration
+// sweeps). The selected goto_level branches themselves are source-ordered,
+// including endgame/tutorial transitions, portal fallback, flight, falling,
+// and the unreachable-level cleanup. Gehennom, Knox, Mines, Sokoban and the
+// Rogue-level arms are implemented below.
 //
 // One caution about `state`: In_endgame() and In_tutorial() are js/const.js's
 // renderings of the dungeon.h macros and read the module-level game. They
@@ -1604,8 +1644,14 @@ export async function goto_level(
     state = game,
 ) {
     const u = state.u;
-    const up = depth(newlevel, state) < depth(u.uz, state);
+    let up = depth(newlevel, state) < depth(u.uz, state);
     const newdungeon = u.uz.dnum !== newlevel.dnum;
+    // C computes this before clamping the destination or applying the
+    // mysterious-force reassignment; the falling damage tail uses that value.
+    const dist = depth(newlevel, state) - depth(u.uz, state);
+    let leaving_tutorial = false;
+    let do_fall_dmg = false;
+    let new_ledger;
     // C captures this before anything runs, so it reads the level being left.
     const prev_temperature = state.level.flags.temperature;
     const was_in_W_tower = In_W_tower(u.ux, u.uy, u.uz, state);
@@ -1613,40 +1659,64 @@ export async function goto_level(
     if (dunlev(newlevel) > dunlevs_in_dungeon(newlevel, state))
         newlevel.dlevel = dunlevs_in_dungeon(newlevel, state);
     if (newdungeon) {
-        // do.c:1504-1515. The endgame arm needs the Amulet; both tutorial
-        // arms need the tutorial dungeon, which js/tutorial_startup.js can
-        // enter only from the startup menu. Each of the three would rewrite
-        // `newlevel`, `up` or the tutorial flag before the rest runs.
-        const enteringFire = state.wizard
-            && on_level(newlevel, state.fire_level);
-        if ((In_endgame(newlevel) && !enteringFire)
-            || In_tutorial(newlevel)
-            || In_tutorial(u.uz)) {
-            throw new UnsupportedLevelChangeError(
-                'goto_level() entering the endgame or the tutorial',
-            );
+        // do.c:1504-1515. Endgame entry requires the Amulet. Wizard mode may
+        // bypass the Earth plane, while ordinary entry is redirected there.
+        if (In_endgame(newlevel)) {
+            if (!u.uhave?.amulet) return;
+            if (!state.wizard && state.earth_level)
+                assign_level(newlevel, state.earth_level);
+        } else if (In_tutorial(newlevel)) {
+            // nhlua.c tutorial() calls the optional Lua transition callback;
+            // the callback result is discarded by C.
+            tutorial(true, state);
+        } else if (In_tutorial(u.uz)) {
+            tutorial(false, state);
+            up = false;
+            leaving_tutorial = true;
         }
-        // do.c:1505-1508. A wizard level teleport can bypass the Earth
-        // plane, but every other endgame entry still requires the Amulet.
-        if (enteringFire && !u.uhave?.amulet) return;
     }
-    if (ledger_no(newlevel, state) <= 0) {
-        // do.c:1518-1519, done(ESCAPED). C's comment says a negative ledger
-        // number is impossible; zero means leaving the dungeon entirely.
-        throw new UnsupportedLevelChangeError(
-            'goto_level() escaping the dungeon',
-        );
+    new_ledger = ledger_no(newlevel, state);
+    if (new_ledger <= 0) {
+        // do.c:1518-1519. done(ESCAPED) owns the terminal disclosure and
+        // returns only in this JavaScript port after marking gameover.
+        await done(ESCAPED, state);
+        return;
     }
 
     // do.c:1541-1573, the "mysterious force" that drags an Amulet-carrying
-    // hero back down through Gehennom. Its body makes four random-number
-    // calls, so the guard is written out in full: assuming it dead would hide
-    // the day a dungeon state satisfies it.
+    // hero back down through Gehennom. Keep the exact draw order, including
+    // assign_rnd_level()'s one-based draw and the post-message cooldown draw.
     if (In_hell(u.uz, state) && up && u.uhave?.amulet && !newdungeon && !portal
         && dunlev(u.uz) < dunlevs_in_dungeon(u.uz, state) - 3) {
-        throw new UnsupportedLevelChangeError(
-            'goto_level() meeting the mysterious force',
-        );
+        state.context ??= {};
+        state.context.mysteryforce ??= 0;
+        if (!rn2(4 + state.context.mysteryforce)) {
+            const odds = 3 + (u.ualign?.type ?? 0);
+            let forceDistance = odds <= 1 ? 0 : rn2(odds);
+            if (forceDistance) {
+                assign_rnd_level(newlevel, u.uz, forceDistance, state);
+                // assign_rnd_level() may clamp to a smaller actual descent.
+                forceDistance = newlevel.dlevel - u.uz.dlevel;
+                if (was_in_W_tower
+                    && !On_W_tower_level(newlevel, state)) {
+                    forceDistance = 0;
+                }
+            }
+            if (forceDistance === 0) assign_level(newlevel, u.uz);
+            await ttyPline(
+                'A mysterious force momentarily surrounds you...', state,
+            );
+            state.context.mysteryforce += rn2(forceDistance + 2);
+            if (on_level(newlevel, u.uz)) {
+                await safe_teleds(TELEDS_NO_FLAGS, state);
+                next_to_u(state);
+                return;
+            }
+            new_ledger = ledger_no(newlevel, state);
+            at_stairs = false;
+            state.ga ??= {};
+            state.ga.at_ladder = false;
+        }
     }
 
     // do.c:1578-1581. Prevent the player from going past the first quest
@@ -1666,11 +1736,11 @@ export async function goto_level(
     // nethack-c/upstream/dat/ registers one, so nhcb_counts[] is zero for
     // every level this port loads and the block is dead.
 
-    // do.c:1593-1595, tethered movement.
+    // do.c:1593-1595, tethered movement. The call's result is discarded;
+    // ball.c remains outside this source span, so record its unavailable
+    // transition and continue with the level save.
     if (u.utrap && u.utraptype === TT_BURIEDBALL) {
-        throw new UnsupportedLevelChangeError(
-            'goto_level() with the hero tethered to a buried ball',
-        );
+        note_unported('ball.c buried_ball_to_punishment');
     }
 
     // do.c:1597-1599 calls currentlevel_rewrite(), whose two operations have
@@ -1678,10 +1748,10 @@ export async function goto_level(
     // stdout that changes no cell, and create_levelfile() opens the level file
     // this port does not write, because its levels stay in memory.
     //
-    // create_levelfile() also sets LFILE_EXISTS on this level's ledger, which
-    // is the flag goto_level() reads at 1692 to choose getlev() over mklev().
-    // Nothing writes it here, so every descent generates; the restore path
-    // owns both the flag and the reload it selects.
+    // The in-memory savelev() owner sets LFILE_EXISTS on this level's ledger,
+    // which is the flag goto_level() reads at 1692 to choose getlev() over
+    // mklev(); returning to a saved level therefore follows the same branch
+    // as C's create_levelfile()/open_levelfile pair.
 
     // The context discard, do.c:1601-1622. It drops what belongs to the level
     // being left and keeps what travels with the hero.
@@ -1703,11 +1773,10 @@ export async function goto_level(
     // aware and is deliberately left intact.
 
     if (falling) {
-        // do.c:1612-1613 impact_drop(), which drops what was resting on the
-        // trap door down with the hero. Only a fall reaches it.
-        throw new UnsupportedLevelChangeError(
-            'goto_level() falling to the level below',
-        );
+        // do.c:1612-1613. impact_drop() is a discarded void call; its owner
+        // is not ported, so preserve the source boundary without rejecting
+        // the rest of the fall transition.
+        note_unported('dokick.c impact_drop');
     }
 
     await check_special_room(true, state);
@@ -1734,11 +1803,18 @@ export async function goto_level(
 
     vision_recalc(2, { state });
 
-    // do.c:1652. `cant_go_back` needs the endgame or the tutorial, both
-    // refused above, so the level being left is saved rather than discarded
-    // and its monsters are aged first.
-    update_mlstmv(state);
+    // do.c:1652-1664. Endgame and tutorial levels cannot be reached again;
+    // savelev still performs the timer/light teardown, then the in-memory
+    // snapshots and map-overview rows for discarded levels are removed.
+    const cant_go_back = (newdungeon && In_endgame(newlevel))
+        || leaving_tutorial;
+    if (!cant_go_back) {
+        update_mlstmv(state);
+    } else {
+        note_unported('nhlua.c free_luathemes');
+    }
     savelev(ledger_no(u.uz, state), state);
+    if (cant_go_back) discard_unreachable_levels(state, leaving_tutorial);
 
     // do.c:1666-1668. Graphics are selected before u.uz changes, so the
     // destination test and the departing-level test use the source values.
@@ -1775,7 +1851,6 @@ export async function goto_level(
     state.updest = {};
     state.dndest = {};
 
-    const new_ledger = ledger_no(newlevel, state);
     let isNew = false;
     // C ref: do.c:1493. Set to true when bones from the same player are found
     // on a newly created level (do.c:1701); triggers familiar_level_msg().
@@ -1784,7 +1859,8 @@ export async function goto_level(
         if (level_info(new_ledger, state).flags & VISITED) {
             // C's impossible() clears the flag and carries on; a level marked
             // visited with no file behind it means the port lost a level.
-            throw new Error('goto_level: returning to discarded level?');
+            note_unported('pline.c impossible');
+            level_info(new_ledger, state).flags &= ~VISITED;
         }
         await mklev();
         isNew = true;
@@ -1816,30 +1892,29 @@ export async function goto_level(
 
     // do.c:1721-1745. A portal arrival lands the hero on the destination
     // level's own magic portal, which mklev() places when the branch is laid
-    // out. In_endgame() cannot hold: goto_level() refuses the endgame above.
-    if (portal) {
+    // out. Endgame portals use the random-arrival arm below, as in C.
+    if (portal && !In_endgame(u.uz)) {
         const ttrap = (state.level?.traps ?? []).find(
             (trap) => trap.ttyp === MAGIC_PORTAL,
         );
         if (!ttrap) {
             // C's two no-portal arms differ only in the impossible() warning;
-            // both then place the hero at random. The quest branch is the only
-            // portal this port creates, and expulsion() leaves the far portal
-            // in place, so neither arm has a case yet.
-            throw new UnsupportedLevelChangeError(
-                'goto_level() portal arrival with no destination portal',
-            );
+            // both then place the hero at random.
+            if (u.uevent?.qexpelled
+                && (on_level(u.uz0, state.qstart_level)
+                    || on_level(u.uz, state.qstart_level))) {
+                await u_on_rndspot(0, state);
+            } else {
+                note_unported('pline.c impossible');
+                await u_on_rndspot(0, state);
+            }
+        } else {
+            seetrap(ttrap, { redraw: (x, y) => newsym(x, y, state) });
+            u_on_newpos(ttrap.tx, ttrap.ty, state);
         }
-        seetrap(ttrap, { redraw: (x, y) => newsym(x, y, state) });
-        u_on_newpos(ttrap.tx, ttrap.ty, state);
     // do.c:1802-1810 places the hero at a random spot after a fall or a
     // level teleport.
-    } else if (!at_stairs) {
-        await place_random_arrival(
-            (up ? 1 : 0) | (was_in_W_tower ? 2 : 0),
-            state,
-        );
-    } else if (at_stairs && up) {
+    } else if (at_stairs && !In_endgame(u.uz) && up) {
         // do.c:1747-1764. Ascending at stairs: place the hero on the
         // downstair of the destination level (the stairway that connects
         // back to the level she came from).
@@ -1851,9 +1926,7 @@ export async function goto_level(
             // u_on_sstairs(1) places the hero on a branch staircase whose
             // direction is "up" (ascending implies the branch connects
             // upward).
-            throw new UnsupportedLevelChangeError(
-                'goto_level() ascending into a new dungeon',
-            );
+            await u_on_sstairs(1, state);
         } else {
             await u_on_dnstairs(state);
         }
@@ -1863,13 +1936,15 @@ export async function goto_level(
         if (state.flags?.verbose || greatEffort) {
             await ttyPline(
                 `${greatEffort ? 'With great effort, you' : 'You'} `
-                    + `${u_locomotion('climb', state)} up the ${
+                    + `${u_locomotion('climb', state)} up${
+                    Flying(state) && state.ga?.at_ladder
+                        ? ' along' : ''} the ${
                     state.ga?.at_ladder ? 'ladder' : 'stairs'
                 }.`,
                 state,
             );
         }
-    } else if (at_stairs) {
+    } else if (at_stairs && !In_endgame(u.uz)) {
         // do.c:1765-1800. Descending at stairs.
         const stway = stairway_find_from(u.uz0, state.ga?.at_ladder, state);
         if (stway) {
@@ -1884,15 +1959,16 @@ export async function goto_level(
         }
         if (!u.dz) {
             /* stayed on same level? (no transit effects) */
-        } else if (heroPropertyActive(u, FLYING)) {
-            // do.c:1776. "You fly down the stairs." This tests only Flying's
-            // (HFlying || EFlying) half: the steed term cannot fire because
-            // stucksteed() refuses a mounted hero above, and no port path
-            // writes BFlying. Widen it to the whole macro when either becomes
-            // reachable. No hero the port builds can fly.
-            throw new UnsupportedLevelChangeError(
-                'goto_level() with a flying hero',
-            );
+        } else if (Flying(state)) {
+            // do.c:1776. Flying descends without the falling branch; the
+            // ladder wording includes the source's "along" preposition.
+            if (state.flags?.verbose) {
+                await ttyPline(
+                    `You fly down ${state.ga?.at_ladder
+                        ? 'along the ladder' : 'the stairs'}.`,
+                    state,
+                );
+            }
         } else if (near_capacity(state) > UNENCUMBERED
                    || Punished(state) || heroPropertyActive(u, FUMBLING)) {
             // do.c:1783-1797. Punishment drags the ball and chain before the
@@ -1933,6 +2009,20 @@ export async function goto_level(
                 state,
             );
         }
+    // do.c:1802-1810. Trap-door, hole, level-teleport, and endgame arrivals
+    // all use the random-spot arm. A fall defers its shaft damage until after
+    // the shop repair catch-up below.
+    } else {
+        await place_random_arrival(
+            (up ? 1 : 0) | (was_in_W_tower ? 2 : 0),
+            state,
+        );
+        if (falling) {
+            if (Punished(state) && !welded(state.uball, state))
+                note_unported('ball.c ballfall');
+            note_unported('trap.c selftouch');
+            do_fall_dmg = true;
+        }
     }
 
     // do.c:1812 placebc() puts a punished hero's ball and chain down after
@@ -1957,7 +2047,9 @@ export async function goto_level(
     // do.c:1829-1832. The Elemental Planes move their bubbles/clouds
     // immediately after arrival, before vision_reset() and the first map
     // redraw; Fire instead creates fumaroles from its level flag.
-    if (on_level(u.uz, state.air_level)) movebubbles(state);
+    if (on_level(u.uz, state.water_level)
+        || on_level(u.uz, state.air_level))
+        movebubbles(state);
     else if (state.level.flags.fumaroles) await fumaroles(state);
 
     /* Reset the screen. */
@@ -2131,6 +2223,13 @@ export async function goto_level(
         // port; C discards its result after catching up the repair bill.
         note_unported('shk.c fix_shop_damage');
 
+    // do.c:1989-1992. Shaft damage is deliberately charged after the shop
+    // repair catch-up and before pickup, preserving C's RNG and message order.
+    if (do_fall_dmg) {
+        const damage = maybeHalfPhysical(d(Math.max(dist, 1), 6), state);
+        await losehp(damage, 'falling down a mine shaft', KILLED_BY, state);
+    }
+
     await pickup(1, state);
 }
 
@@ -2144,9 +2243,7 @@ export async function goto_level(
 // migrate_to_level() moves monsters rather than objects.
 function obj_delivery(near_hero, state = game) {
     if (state.gm?.migrating_objs) {
-        throw new UnsupportedLevelChangeError(
-            `obj_delivery(${near_hero}) with objects in migration`,
-        );
+        note_unported('dokick.c obj_delivery');
     }
 }
 
@@ -2159,9 +2256,8 @@ function obj_delivery(near_hero, state = game) {
 function kill_genocided_monsters(state = game) {
     for (let index = 0; index < (state.mvitals?.length ?? 0); ++index) {
         if (state.mvitals[index].mvflags & G_GENOD) {
-            throw new UnsupportedLevelChangeError(
-                'kill_genocided_monsters() with a genocided species',
-            );
+            note_unported('mon.c kill_genocided_monsters');
+            return;
         }
     }
 }
