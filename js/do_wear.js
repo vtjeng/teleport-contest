@@ -118,6 +118,7 @@ import {
     W_ARMOR,
     W_ARMS,
     W_ARMU,
+    W_QUIVER,
     W_RING,
     W_SWAPWEP,
     W_TOOL,
