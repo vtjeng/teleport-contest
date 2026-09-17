@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 9922,
+      "datetime": "20360415123344",
+      "nethackrc": "OPTIONS=name:TutorialHealer,role:Healer,race:elf,gender:male,align:lawful\nOPTIONS=!legacy,!splash_screen,playmode:debug,pettype:none\n",
+      "moves": " y "
+    }
+  ],
+  "comment": "Cheap independent tutorial variation with a different seed, clock, role, race, gender, alignment, and character name; y enters the same source startup transition."
+}
