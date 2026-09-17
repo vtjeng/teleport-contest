@@ -61423,7 +61423,7 @@
     {
       "id": "div-sleeping-killer-bee-seed0367-20260917",
       "kind": "divergence-fix",
-      "status": "open",
+      "status": "closed",
       "summary": "Admit source-defined sleeping killer-bee turns before the special-action guard",
       "cFile": "monmove.c",
       "sessions": [],
@@ -61432,8 +61432,8 @@
       "spans": [
         {
           "name": "sleeping-killer-bee-admission",
-          "status": "queued",
-          "closedBy": null,
+          "status": "closed",
+          "closedBy": "f083b34a642ad6b16939767e509c2b18a68ac67f",
           "functions": [
             "disturb",
             "dochug"
@@ -61446,8 +61446,11 @@
         "screens": 11139,
         "rng": 785780
       },
-      "closedAt": null,
-      "delivered": null,
+      "closedAt": "f083b34a642ad6b16939767e509c2b18a68ac67f",
+      "delivered": {
+        "screens": 3,
+        "rng": 39
+      },
       "function": "dochug",
       "session": "seed0367-priest-quest-tour",
       "step": 321,
@@ -61525,7 +61528,12 @@
             }
           }
         }
-      ]
+      ],
+      "closeStanding": {
+        "sha": "f083b34a642ad6b16939767e509c2b18a68ac67f",
+        "screens": 11142,
+        "rng": 785819
+      }
     }
   ]
 }
