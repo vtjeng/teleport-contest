@@ -1,52 +1,50 @@
 {
   "session": "holdout/seed4500-knight-coverage",
-  "remainingScreensUpperBound": 241,
+  "remainingScreensUpperBound": 192,
   "status": "complete",
-  "commit": "c91c6bf7201f01aa59eb9facfbc5237e5aaec1b3",
+  "commit": "262186a4032d1a1551e127e5803dcfa912aaf270",
   "mismatch": {
     "session": "holdout/seed4500-knight-coverage",
-    "step": 1573,
-    "kind": "screen",
+    "step": 1622,
+    "kind": "stop",
     "function": null,
     "functionDeclared": false,
     "sourceFile": null,
     "cFile": null,
     "luaFile": null,
     "line": null,
-    "message": null,
+    "message": "unsupported hero command: an unported branch of this command: searching out an unspotted monster needs its own message",
     "unlocatedKinds": [],
     "recordedSteps": 1814,
-    "remainingScreensUpperBound": 241
+    "remainingScreensUpperBound": 192
   },
-  "summary": "The first difference remains the conduct window at step 1573: do.c goto_level omits the Gnomish Mines arrival achievement, plus other destination branches requiring the whole source function. The monster-liquid port now passes the later stranded-eel stop; replay reaches a search refusal at 1622 without an earlier RNG mismatch. detect.c mfind0 still lacks unspotted-monster discovery and reveal branches. Liquid-specific and earlier stoning/passive/eating/polymorph production coverage remains open.",
+  "summary": "The level-transition port fixes the missing Mines achievement, moving the first difference from step1573 to the explicit-search refusal at1622. detect.c mfind0 needs its whole discovery and Warning behavior. Its queued correction also removes dead attackers from the planning clone before movement allocation; a worker replay then reaches the next source gap, a hiding-attacker hit at1629, without an earlier RNG difference. These candidate findings are not accepted score gains.",
   "source": {
-    "file": "do.c",
+    "file": "detect.c",
     "functions": [
-      "goto_level"
+      "mfind0"
     ],
-    "branch": "C goto_level1479 onward records ACH_MINE in the mutually exclusive destination branch when In_mines(&u.uz) and newdungeon are true (1905–1907), after arrival redraw and Gehennom/familiar handling. The JavaScript chain omits the Mines arm, so the persistent achievement list lacks the entry later shown by conduct. Complete the source unit, including the other omitted destination arms and active callers.",
+    "branch": "C detect.c1967–2013 handles mimic and hidden reveals, warning filtering, repeat invisible-marker suppression, Wisdom exercise, coordinate-aware messages and -1/0/1 returns. The accepted JavaScript still refuses unspotted-monster discovery from explicit search.",
     "callers": [
-      "C level-changing commands reach do.c goto_level; its arrival chain calls record_achievement(ACH_MINE) at1907. JavaScript js/do.js goto_level is the canonical arrival owner but currently falls from the Quest arm to ordinary-dungeon handling.",
-      "C insight.c show_conduct2230 calls show_achievements; the completed js/insight.js helper now displays the achievement list it receives. The fixed wizard conduct command exposes the earlier arrival-state omission."
+      "C dosearch0 calls mfind0 at2065–2071 and consumes its return; warnreveal at2107–2119 is the adjacent Warning caller. JavaScript explicit search still reaches preflightSearchMonster, which refuses this source-owned branch.",
+      "C allmain342–346 runs automatic search followed by Warning reveal without applying the Searching gate to Warning. Preserve message-window acknowledgement before clearing hidden state."
     ],
     "dependencies": [
-      "Achievement display and canonical list helpers now exist. Rank achievements are already produced in js/exper.js, Gehennom in js/do.js, and Minetown in js/rooms.js check_special_room. The missing Mines entry is a producer gap; preserve insertion order and the newdungeon predicate rather than synthesizing a display row.",
-      "Whole goto_level coverage also requires its source-owned endgame/tutorial guards and cant_go_back cleanup, done(ESCAPED), mysterious force, buried-ball handling, portal fallback and endgame placement predicates, branch-stair ascent, Flying messages, falling arrival and delayed damage, and Waterlevel bubbles. Existing refusals in this selected function must be replaced by source control flow; only actual discarded calls to unavailable owners may remain named gaps.",
-      "The existing ball.c drag_down dependency also continues after terminal damage in JavaScript: its three losehp calls can proceed into exercise, litter, or another fall draw. C ball.c986–1031 reaches hack.c losehp4256 and end.c done, whose terminal path exits. Preserve life-saving and wizard survival, but stop drag_down and goto_level when the JavaScript end owner returns with program_state.gameover set; this is a source finding, not a measured additional Knight mismatch.",
-      "detect.c mfind01967–2013 must implement mimic/hidden reveals, warning filtering, repeat invisible-marker suppression, Wisdom exercise, message coordinates and the visible/unseen discovery messages. dosearch0 consumes -1/0/1 at2065–2071; warnreveal2119 is the second caller. Existing preflightSearchMonster refuses the source-owned unspotted, hidden and mimic branches.",
+      "The queued search implementation supplies canonical map-invisible memory, Warning filtering and message-window acknowledgement. Its first candidate exposed a planner defect: C movemon removes passive-dead monsters with dmonsfree after the scan, before allmain mcalcmove. The submitted correction applies the same cleanup to the cloned list, preserving live state and RNG.",
+      "The later source boundary is whole mhitu.c hitmu1143–1267. Its hidden-attacker arm clears mundetected, checks exact tp_sensemon and Detect_monsters, names the covering object and attacker, emits discovery output, then calls newsym before base damage RNG. The current generic sensesMonsterWithoutDetection also includes Warning and must not substitute for tp_sensemon.",
+      "Whole goto_level and its supporting cleanup owners are implemented, including the Mines achievement and terminal punishment-ball and fall damage guards. Two independent Minetown level-teleport recordings match; they do not establish trapdoor, portal, endgame, tutorial, terminal or other exceptional entry coverage.",
       "mon.c minliquid/minliquid_core and supporting split_mon/cloneu/clone_mon are implemented with source-ordered HP, RNG, death and planning output. Liquid-specific entry recordings, exceptional partial rloc routes and other source callers remain open; trap.c inventory chain calls and mon.c deal_with_overcrowding remain named discarded-call gaps.",
       "Separate unresolved coverage: make_stoned/minstapetrify/do_stone_mon stoning gaps; unrecorded hero/monster stoning directions, corpse-weapon entry and attack-triggered stone-golem conversion; passive cold/fire/electricity/paralysis and lethal/recovery families; eating/non-food cleanup; skinback artifact-light radius and rare armor/Eyes-of-the-Overworld cleanup."
     ]
   },
   "goalKind": "file-port",
   "evidence": [
-    ".cache/A32-development-scan.json and .cache/A32-queue.json identify the first conduct-screen difference at1573: row18,column52 C t versus JS M, with cursors [42,20,1] versus [42,19,1]. The later eel stop1576 is resolved; the replay emits1622 screens before the explicit search command refuses unspotted-monster discovery. No earlier RNG divergence is reported.",
-    "The C conduct screen at sessions/holdout/seed4500-knight-coverage.session.json step1573 lists seven achievements: four ranks, Gehennom, Gnomish Mines and Minetown. C do.c1905–1907 records the Mines entry on first entry from another dungeon. js/do.js goto_level omits that destination arm. Its existing record_achievement calls cover Gehennom and endgame, but cannot create ACH_MINE.",
-    "C exper.c360 and js/exper.js record the four rank achievements; do.c1872 and js/do.js record Gehennom; hack.c3650 and js/rooms.js check_special_room record Minetown. These source-backed producers narrow the missing row to goto_level rather than achievement formatting.",
-    "C mon.c947–1122 defines liquid effects. The accepted port preserves gremlin splitting, iron-golem rust with unconditional mondied at1001, lava/pool death and relocation, and stranded-eel rn2(mhp)/rn2(8)/monflee ordering. Canonical tele_restrict and rloc callbacks now serve movement, elapsed-turn distress, hack monster-swap and fountain gush; naming receives the planning environment. Do not reopen the former missing callback or naming diagnoses.",
+    "Passing checkpoint262186a4 reports11204/11405 development screens,42/44 sessions,786211/792838 RNG and11212/11405 cursors. Per-session comparison against acceptedc91c6bf7 adds one Knight screen and cursor with no losses. All361 recordings match14204 screens and1835143 RNG calls.",
+    ".cache/B30-development-scan.json and .cache/B30-queue.json locate the current first refusal at1622. The former1573 conduct difference is resolved by source-owned ACH_MINE production; the eel stop remains resolved.",
+    "Saved candidate923eca23 run-L5w6V2 emits1629 Knight screens and reports no RNG divergence before the hiding-attacker refusal. Its first screen difference1573 reflects the worker branch lacking the separately integrated goto_level correction; it is not an accepted-main result.",
+    "Rejected candidate d754cb24 stopped with an allocation-count exception at1624 despite101725 live RNG calls matching C positionally. Source tracing found a passive-dead attacker still linked only in the planning clone; canonical dmonsfree after the cloned scan corrects that causal ordering.",
+    "C mhitu1161–1184 reveals the hiding attacker before damage RNG1187. The production route is monmove dochug through mattacku to hitmu. No matching hiding-attacker recording is yet claimed. The source survey distinguishes display.h tp_sensemon from the broader Warning-aware JavaScript sensing helper.",
     "Supporting potion.c split_mon, mhitu.c cloneu and makemon.c clone_mon now own splitting, runtime clone creation, planning RNG, shopkeeper naming and the C struct-copy fields including mw, EMIN.parentmid and the EDOG goal coordinate. mhitu passiveum, trap rust effects and uhitm pudding splitting use the canonical helpers. Initialized focused checks establish runtime creation and planning isolation; no new liquid-branch production recording is claimed.",
-    "C detect.c1967–2013 reveals a mimic or hidden monster before deciding whether it was newly found. An unspotted monster already marked invisible returns -1 before Wisdom exercise and output; a new discovery maps invisibility and sets message coordinates, or prints the visible monster name. dosearch0 interprets -1 as continue and positive as a completed discovery. This whole source function and its warnreveal caller remain the next search scope.",
-    "Existing achievement display recordings cover Bell and Candelabrum rows; final disclosure, ascension, relinquished-object wording and female-rank production routes remain open. The liquid functions have ordinary movement caller evidence in bee-eats-royal-jelly-span, but dedicated liquid, swap, fountain and zero-speed distress recordings remain open.",
-    "Full comparison of C do.c1479–1998 with the current goto_level confirms omissions beyond the destination achievement chain: broad entry refusals1504–1519, mysterious-force1541–1573, buried-ball1593–1595, discarded-level cleanup1640–1664, portal/endgame placement1722–1745, flight and falling effects1758–1810, Waterlevel bubbles1829–1832 and deferred mine-shaft damage1988–1994. The existing JavaScript return-visit and ordinary stair paths are implemented; preserve their behavior while completing these branches. obj_delivery and kill_genocided_monsters are discarded C calls but their local throw-stubs also block continuation."
+    "Existing achievement display recordings cover Bell and Candelabrum rows; final disclosure, ascension, relinquished-object wording and female-rank production routes remain open. The liquid functions have ordinary movement caller evidence in bee-eats-royal-jelly-span, but dedicated liquid, swap, fountain and zero-speed distress recordings remain open."
   ]
 }

@@ -62751,13 +62751,13 @@
     {
       "id": "port-detect-mfind0-seed4500-20260917",
       "kind": "file-port",
-      "status": "parked",
+      "status": "open",
       "summary": "Complete monster discovery through explicit search and Warning reveal.",
       "cFile": "detect.c",
       "sessions": [
         "holdout/seed4500-knight-coverage"
       ],
-      "selectionReason": "Seed continuation of holdout/seed4500-knight-coverage, 241 remaining-screen upper bound; investigations/holdout/seed4500-knight-coverage.json traces the later step1622 refusal to detect.c mfind0. Worker B owns the first goto_level achievement mismatch and its dependencies; A33 independently completes mfind0 and its search/Warning callers. The only other queued session is the environment pathname question Q1.",
+      "selectionReason": "Resume the queued complete monster discovery implementation with its canonical planning cleanup correction after accepting the independent goto_level span.",
       "detail": "Port complete detect.c mfind0, including mimic and hidden reveals, warning gating and message flush, invisible marker suppression, Wisdom exercise, coordinate-aware output, and -1/0/1 returns. Two independent explicit-search recordings establish stalker and mimic discovery; hidden-hider, Warning-only and repeated-marker entry recordings remain open.",
       "spans": [
         {
@@ -62783,7 +62783,7 @@
           "line": 1965,
           "endLine": 2015,
           "declared": true,
-          "complete": false
+          "complete": true
         }
       ],
       "range": {
@@ -62791,8 +62791,8 @@
         "to": 2015
       },
       "activeStanding": {
-        "sha": "c91c6bf7201f01aa59eb9facfbc5237e5aaec1b3",
-        "screens": 11203,
+        "sha": "262186a4032d1a1551e127e5803dcfa912aaf270",
+        "screens": 11204,
         "rng": 786211
       },
       "openMismatches": [
@@ -62877,12 +62877,93 @@
         "screens": 11203,
         "rng": 786211
       },
-      "parkedReason": "Candidate d754cb24 is preserved on codex/a33-allocation-correction-20260917. It passes automated checkpoint but is rejected by per-session comparison: the newly reached step1624 allocation-count exception discards Knight output. Worker A is repairing the planning continuation; source evidence remains with that candidate until the correction is integrated. Integrate independent B30 from the published baseline meanwhile."
+      "parkedReason": "Candidate d754cb24 is preserved on codex/a33-allocation-correction-20260917. It passes automated checkpoint but is rejected by per-session comparison: the newly reached step1624 allocation-count exception discards Knight output. Worker A is repairing the planning continuation; source evidence remains with that candidate until the correction is integrated. Integrate independent B30 from the published baseline meanwhile.",
+      "evidence": {
+        "functions": [
+          {
+            "name": "mfind0",
+            "implementation": "js/detect.js",
+            "symbol": "mfind0",
+            "sourceReview": "Read nethack-c/upstream/src/detect.c:1967-2013 in full. The port preserves the via_warning warning_of gate and -1 return, M_AP_TYPE mimic reveal through the mon.c seemimic owner, found_something sampling before mundetected clearing, hidden hider/hides_under/eel reveal and warning text, source-order newsym, the already-marked invisible glyph -1 escape before Wisdom/message, exercise(A_WIS, TRUE), map_invisible plus unseen message, sensed-versus-unsensed naming, and 0/1 returns. The Warning caller now preserves detect.c's display_nhwindow(WIN_MESSAGE,FALSE) between the danger-sense line and mundetected/newsym, using the canonical tty_message owner. Live search messages retain pline.c set_msg_xy coordinate formatting; planning searches use a silent message operation. display.c owns map_invisible memory and live painting, with an explicit planning seam for cloned memory. The operation environment carries cloned display, map, message, Wisdom and naming seams without painting the live terminal during planning. Source support is display.c warning_of654–662 and map_invisible369–385, mon.c seemimic4409–4426, and wintty.c tty_display_nhwindow WIN_MESSAGE handling. The pure warning_of helper has source-pinned predicate/threshold/cap tests in scripts/detect.test.mjs; its source body and callers were compared with C. No claim of complete dosearch0 coverage is made. The planning continuation now calls canonical mon.c dmonsfree after each cloned monster scan and before elapsed-turn allocation, removing dead attackers without changing live list or RNG state. The admitted head-insertion and deferred-death paths preserve traversal; migration remains an explicit unported path.",
+            "callers": [
+              {
+                "path": "js/detect.js",
+                "symbol": "dosearch0",
+                "source": "detect.c:2016-2105 calls mfind0() only for explicit searches, returns its positive result, and continues on -1; JS preserves x-major traversal and those return boundaries. The caller remains partial for swallowed Norep, activate_statue_trap, and hallucinatory find_trap arms, which stay explicit named gaps outside this mfind0 delivery."
+              },
+              {
+                "path": "js/detect.js",
+                "symbol": "warnreveal",
+                "source": "detect.c:2107-2119 scans the adjacent x/y square range, filters warning_of() and mundetected monsters, then discards mfind0()'s return; JS awaits the side-effectful helper and preserves the source warning message, canonical WIN_MESSAGE display boundary, and subsequent reveal order."
+              },
+              {
+                "path": "js/allmain.js",
+                "symbol": "finishElapsedTurnAfterTimeout",
+                "source": "allmain.c:342-346 runs automatic search first and the Warning reveal immediately afterward without the Searching/noautosearch/multi gate; JS forwards the live/default or planning/silent operation environment to automatic_search() and warnreveal(), preserving coordinate-aware default messages and clone isolation."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/detect.test.mjs",
+              "scripts/automatic-search.test.mjs",
+              "scripts/explicit-search.test.mjs",
+              "scripts/allmain-turn.test.mjs"
+            ],
+            "recordings": [
+              "recordings/detect.c/mfind0-stalker-independent.session.json",
+              "recordings/detect.c/mfind0-mimic-variation.session.json"
+            ],
+            "checkedAt": "2b65f6d76d330b399907e12a66f2f8ed9e47b4b0"
+          }
+        ],
+        "entryPointReview": "The two independent production recipes reach explicit detect.c mfind0() through a debug-created invisible stalker and a separate lawful Valkyrie small mimic. Their bounded C/JavaScript differential passes compare 5,583 PRNG calls, 30 screens and 30 cursors; the recordings visibly contain “You feel an unseen monster!” for the stalker and “You find a small mimic.” for the mimic. Unit coverage also exercises hidden eel, ceiling-hider and under-hider discovery, Warning warnreveal, the already-marked invisible return -1, and the visible no-discovery return. A live initialized-state Warning test drives the default message and real WIN_MESSAGE acknowledgement: the coordinate-prefixed danger line and hidden monster are captured before the space key, and the monster is revealed only afterward. A planning-clone test confirms map_invisible writes cloned memory without changing the live map or display. The selected source unit is mfind0; dosearch0 and warnreveal are reviewed callers. dosearch0's swallowed Norep, statue-trap activate_statue_trap, and hallucinatory find_trap branches remain explicit source call gaps and are not claimed complete by this delivery. Automatic Warning caller coverage is source-wired but no separate production recording is claimed.",
+        "entryPoints": [
+          {
+            "name": "explicit search discovers an adjacent invisible monster",
+            "functions": [
+              "mfind0"
+            ],
+            "recordings": [
+              "recordings/detect.c/mfind0-stalker-independent.session.json"
+            ]
+          },
+          {
+            "name": "explicit search reveals an adjacent mimic",
+            "functions": [
+              "mfind0"
+            ],
+            "recordings": [
+              "recordings/detect.c/mfind0-mimic-variation.session.json"
+            ]
+          },
+          {
+            "name": "explicit search reveals a hidden hider, under-hider, or eel",
+            "functions": [
+              "mfind0"
+            ],
+            "recordings": []
+          },
+          {
+            "name": "Warning reveal discovers an adjacent hidden monster",
+            "functions": [
+              "mfind0"
+            ],
+            "recordings": []
+          },
+          {
+            "name": "already-marked invisible monster returns -1 without repeated discovery",
+            "functions": [
+              "mfind0"
+            ],
+            "recordings": []
+          }
+        ]
+      }
     },
     {
       "id": "port-do-goto-level-seed4500-20260917",
       "kind": "file-port",
-      "status": "open",
+      "status": "parked",
       "summary": "Complete level-transition control flow, arrival achievements and terminal cleanup.",
       "cFile": "do.c",
       "sessions": [
@@ -62893,8 +62974,8 @@
       "spans": [
         {
           "name": "goto_level",
-          "status": "queued",
-          "closedBy": null,
+          "status": "closed",
+          "closedBy": "262186a4032d1a1551e127e5803dcfa912aaf270",
           "functions": [
             "goto_level"
           ]
@@ -63140,7 +63221,17 @@
             "recordings": []
           }
         ]
-      }
+      },
+      "progressBeforePark": {
+        "screens": 1,
+        "rng": 0
+      },
+      "parkedStanding": {
+        "sha": "262186a4032d1a1551e127e5803dcfa912aaf270",
+        "screens": 11204,
+        "rng": 786211
+      },
+      "parkedReason": "Whole function is implemented and the span passed combined validation; independent Minetown teleports match, but exceptional transition, portal, terminal, tutorial and endgame entry recordings remain open."
     }
   ]
 }
