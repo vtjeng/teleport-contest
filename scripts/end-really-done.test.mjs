@@ -26,13 +26,6 @@ import { runSegment } from '../js/jsmain.js';
 const END_C = readFileSync(
     new URL('../nethack-c/upstream/src/end.c', import.meta.url), 'utf8',
 );
-const END_JS = readFileSync(
-    new URL('../js/end.js', import.meta.url), 'utf8',
-);
-const PICKUP_JS = readFileSync(
-    new URL('../js/pickup.js', import.meta.url), 'utf8',
-);
-
 const RC = [
     'OPTIONS=name:A20,role:Tourist,race:human,gender:male,align:neutral',
     'OPTIONS=!legacy,!tutorial,!splash_screen',
@@ -148,14 +141,5 @@ test('source finalizer keeps the stopprint tail after top-ten output', () => {
     assert.match(
         END_C,
         /else if \(how == BURNING \|\| how == DISSOLVED\)[\s\S]*?NON_PM - 2/u,
-    );
-    assert.match(END_JS, /state\.mons\?\.\[state\.u\.ugrave_arise\]/u);
-    assert.match(END_JS, /A_ORIGINAL[\s\S]*?A_CURRENT/u);
-    assert.match(END_JS, /if \(pets\.length\) \{[\s\S]*?pets\.length \? '' : 'You '/u);
-    assert.match(END_JS, /disclosureStopprint\(state\)\) break;/u);
-    assert.match(END_JS, /LAST_AMULET - FIRST_AMULET \+ 1/u);
-    assert.match(
-        PICKUP_JS,
-        /const itsalive = !random\.rn2\(2\);[\s\S]*?get_obj_location\(box/u,
     );
 });

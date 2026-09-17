@@ -1453,10 +1453,16 @@ async function really_done(how, state) {
 
     // C: if (how < GENOCIDED && flags.tombstone && endwin != WIN_ERR)
     //        outrip(endwin, how, endtime);
-    // C ref: end.c:1402-1415.  This suffix is added after the optional
-    // dumplog formatting and window cleanup, before farewell text.  An
-    // Astral escape with the wrong deity and an escape carrying a fake amulet
-    // have distinct source messages.
+    const textLines = [];
+
+    if (how < GENOCIDED && state.flags.tombstone) {
+        genl_outrip(textLines, how, endtime, state);
+    }
+
+    // C ref: end.c:1402-1415.  This suffix is added after outrip() has
+    // captured the tombstone and before the farewell text.  An Astral escape
+    // with the wrong deity and an escape carrying a fake amulet have distinct
+    // source messages.
     if (state.u.uhave?.amulet) {
         state.killer.name += ' (with the Amulet)';
     } else if (how === ESCAPED) {
@@ -1465,12 +1471,6 @@ async function really_done(how, state) {
         } else if (carrying(FAKE_AMULET_OF_YENDOR, state)) {
             state.killer.name += ' (with a fake Amulet)';
         }
-    }
-
-    const textLines = [];
-
-    if (how < GENOCIDED && state.flags.tombstone) {
-        genl_outrip(textLines, how, endtime, state);
     }
 
     // C ref: end.c:1418-1424. Farewell text.
