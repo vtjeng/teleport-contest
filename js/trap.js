@@ -213,6 +213,7 @@ import { can_reach_floor } from './engrave.js';
 import { more_experienced, newexplevel } from './exper.js';
 import { makeplural } from './fruit.js';
 import { game } from './gstate.js';
+import { canSpotMonster } from './startup_a11y.js';
 import {
     near_capacity, calc_capacity, check_capacity, inv_weight, weight_cap,
     test_move, spoteffects, bad_rock, crawl_destination, set_uinwater,
@@ -2776,7 +2777,11 @@ export async function animate_statue(
         set_malign(monster, state);
     }
 
-    const spotted = canspotmon(monster, state);
+    // C's canspotmon includes both line-of-sight and sensing (telepathy,
+    // warning, and related properties).  Use the canonical display owner so
+    // the statue's message follows the same visibility contract as the rest
+    // of the game.
+    const spotted = canSpotMonster(monster, state);
     const comesToLife = !spotted ? 'disappears'
         : golemXform ? 'turns into flesh'
             : (nonliving(monster.data) || is_vampshifter(monster))

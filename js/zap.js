@@ -312,7 +312,6 @@ import {
     AD_SSEX,
     AD_WRAP,
     AT_ENGL,
-    LOW_PM,
     PM_CLAY_GOLEM,
     PM_CROCODILE,
     PM_FLESH_GOLEM,
@@ -352,6 +351,7 @@ import {
     isDamageable,
     is_flammable,
     isBox,
+    isContainer,
     isMetallic,
     isCorrodeable,
     isCrackable,
@@ -500,6 +500,7 @@ import {
     suit_simple_name,
     the_unique_pm,
     vtense,
+    yname,
     xnameFresh,
 } from './objnam.js';
 import { UnsupportedWishError, readobjnam } from './objnam_readobjnam.js';
@@ -1062,9 +1063,9 @@ async function boxlock_invent(obj, state = game) {
     void obj;
 }
 
-// C ref: zap.c release_hold() (578-606).  The expulsion and unstuck owners
-// keep their own asynchronous redraw/relocation contracts; only the absent
-// unturn/death helper remains a named discarded-call gap below.
+// C ref: zap.c release_hold() (578-606).  The swallowed expels(TRUE) arm is
+// still outside the port; keep that void call as a named source gap rather
+// than invoking expels() with its different FALSE-message contract.
 async function release_hold(state = game) {
     const holder = state.u?.ustuck;
     if (!holder) {
@@ -1081,7 +1082,10 @@ async function release_hold(state = game) {
             else
                 await ttyPline('You feel a sudden rush of air!', state);
         }
-        await expels(holder, { state });
+        // C passes `TRUE` here (zap.c:598), while the current expels owner
+        // implements only its FALSE-message contract.  The return is void,
+        // so preserve the source boundary until that arm is ported.
+        note_unported('mhitu.c expels TRUE');
     } else if (sticks(state.youmonst?.data)) {
         set_ustuck(null, state);
         await ttyPline(`You release ${mon_nam(holder, state)}.`, state);
@@ -1099,7 +1103,7 @@ async function release_hold(state = game) {
 function probe_objchain(head, state = game) {
     for (let item = head; item; item = item.nobj) {
         observe_object(item, state);
-        if (isBox(item) || item.otyp === STATUE) {
+        if (isContainer(item) || item.otyp === STATUE) {
             item.lknown = true;
             // lock.c SchroedingersBox is LARGE_BOX with spe==1.
             if (!(item.otyp === LARGE_BOX && item.spe === 1))
@@ -1122,7 +1126,7 @@ async function unturn_you(state = game) {
             `You feel frightened and ${already ? 'even more ' : ''}stunned.`,
             state,
         );
-        note_unported('timeout.c make_stunned');
+        note_unported('potion.c make_stunned');
     } else {
         await ttyPline('You shudder in dread.', state);
     }
@@ -1267,11 +1271,14 @@ export async function zapyourself(obj, ordinary, state = game) {
         const property = state.u.uprops[INVIS] ??= {
             intrinsic: 0, extrinsic: 0,
         };
+        // C's BInvis is the blocked field (a worn artifact can cancel an
+        // intrinsic or extrinsic invisibility source); it is distinct from
+        // the extrinsic source itself.
         const msg = !property.intrinsic && !heroIsBlind(state)
-            && !property.extrinsic;
-        if (property.extrinsic && state.uarmc?.otyp === MUMMY_WRAPPING) {
+            && !property.blocked;
+        if (property.blocked && state.uarmc?.otyp === MUMMY_WRAPPING) {
             await ttyPline(
-                `You feel rather itchy under ${xnameFresh(state.uarmc, state)}.`,
+                `You feel rather itchy under ${yname(state.uarmc, state)}.`,
                 state,
             );
             break;
@@ -1394,11 +1401,13 @@ export async function zapyourself(obj, ordinary, state = game) {
             learn_it = true;
             note_unported('read.c unpunish');
         }
-        const holding = state.u.utrap
+        // C evaluates u.utrap before openholdingtrap() can clear it.
+        const wasTrapped = Boolean(state.u.utrap);
+        const holding = wasTrapped
             ? await openholdingtrap(state.youmonst, state)
             : { result: false, noticed: false };
         if (holding.noticed) learn_it = true;
-        if (!state.u.utrap || !holding.result) {
+        if (!wasTrapped || !holding.result) {
             await boxlock_invent(obj, state);
             const falling = await openfallingtrap(
                 state.youmonst, true, state,
@@ -1410,11 +1419,14 @@ export async function zapyourself(obj, ordinary, state = game) {
 
     case WAN_LOCKING:
     case SPE_WIZARD_LOCK:
-        const closing = state.u.utrap
+        // Preserve the pre-call C short-circuit; closeholdingtrap() may set
+        // u.utrap while it resolves.
+        const wasTrapped = Boolean(state.u.utrap);
+        const closing = wasTrapped
             ? { result: false, noticed: false }
             : await closeholdingtrap(state.youmonst, state);
         if (closing.noticed) learn_it = true;
-        if (state.u.utrap || !closing.result)
+        if (wasTrapped || !closing.result)
             await boxlock_invent(obj, state);
         break;
 
@@ -2575,7 +2587,7 @@ export async function stone_to_flesh_obj(obj, state = game,
                     ox,
                     oy,
                     NO_MINVENT | MM_NOMSG,
-                    env,
+                    { ...env, _stoneFleshFigurine: true },
                 );
                 if (monster) {
                     if (costly_spot(ox, oy, state)
@@ -5030,8 +5042,33 @@ export async function cancel_monst(
 
     /* now handle special cases */
     if (youdefend) {
-        if (Upolyd_cancel(state.u)) {
-            await rehumanize(state);
+        // C's Upolyd is the current-form comparison, rather than a numeric
+        // umonnum range test.  Cancellation has a special fatal clay-golem
+        // branch before the Unchanging check.
+        if (Upolyd(state.u)) {
+            if (state.u.umonnum === PM_CLAY_GOLEM) {
+                if (!heroIsBlind(state)) {
+                    await ttyPline(
+                        'Some writing vanishes from your head!', state,
+                    );
+                } else {
+                    const hallucinating = Boolean(
+                        state.u?.uprops?.[HALLUC]?.intrinsic,
+                    );
+                    await ttyPline(
+                        `You feel ${hallucinating ? 'dark' : 'light'} headed.`,
+                        state,
+                    );
+                }
+                state.u.mh = 0;
+            }
+            if (heroHasProperty(state, UNCHANGING) && state.u.mh > 0) {
+                await ttyPline(
+                    'Your amulet grows hot for a moment, then cools.', state,
+                );
+            } else {
+                await rehumanize(state);
+            }
         }
     } else {
         mdef.mcan = 1;
@@ -5054,7 +5091,4 @@ export async function cancel_monst(
 function Antimagic_cancel(state) {
     const p = state.u?.uprops?.[ANTIMAGIC];
     return Boolean(p?.intrinsic || p?.extrinsic);
-}
-function Upolyd_cancel(u) {
-    return Boolean(u?.umonnum >= LOW_PM);
 }
