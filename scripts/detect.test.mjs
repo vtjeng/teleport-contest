@@ -20,6 +20,7 @@ import {
     DUST,
     ECMD_TIME,
     ENGRAVE,
+    GPCOORDS_MAP,
     HALLUC,
     IN_SIGHT,
     I_SPECIAL,
@@ -65,6 +66,7 @@ import {
     monster_glyph_info,
     newsym,
     object_glyph_info,
+    map_invisible_planning,
     remembered_glyph_from_presentation,
     trap_glyph_info,
     warning_of,
@@ -73,6 +75,8 @@ import { GLYPH_OBJ_OFF } from '../js/glyph_offsets.js';
 import { game } from '../js/gstate.js';
 import { nomul } from '../js/hack.js';
 import { runSegment } from '../js/jsmain.js';
+import { planningState } from '../js/unported_monster_actions.js';
+import { clearTtyMessageWindow } from '../js/tty_message.js';
 import {
     CHEST,
     CORPSE,
@@ -1651,15 +1655,101 @@ test('warnreveal scans the adjacent warning monsters through mfind0', async () =
         newSym: (x, y) => events.push(`newSym(${x},${y})`),
         exerciseWisdom: () => events.push('exerciseWisdom'),
         mapInvisible: (x, y) => events.push(`mapInvisible(${x},${y})`),
+        displayPendingTtyMessageWindow: () => events.push(
+            'displayPendingTtyMessageWindow',
+        ),
         message: (text, x, y) => events.push(`message(${x},${y},${text})`),
     });
     assert.equal(Boolean(monster.mundetected), false);
     assert.deepEqual(events, [
         'message(9,10,Your danger sense causes you to take a second look close by.)',
+        'displayPendingTtyMessageWindow',
         'newSym(9,10)',
         'exerciseWisdom',
         'message(9,10,You find a newt.)',
     ]);
+});
+
+test('warnreveal uses the live default message and WIN_MESSAGE boundary',
+    async () => {
+    // This reaches the default allmain search environment, rather than the
+    // injected event-only path above.  The real warning line carries the
+    // source set_msg_xy() coordinate prefix, and the hidden monster is still
+    // hidden at the nhgetch boundary which acknowledges WIN_MESSAGE.
+    await runSegment({
+        seed: 2026091702,
+        datetime: '20260917090000',
+        nethackrc: 'OPTIONS=name:WarnLive,role:Wizard,race:human,'
+            + 'gender:female,align:neutral,!legacy,!tutorial,!splash_screen,'
+            + 'accessiblemsg\n',
+        moves: ' ',
+    });
+    clearTtyMessageWindow(game);
+    const x = game.u.ux - 1;
+    const y = game.u.uy;
+    const monster = placeTestMonster(
+        game,
+        x,
+        y,
+        { m_lev: 8, mundetected: 1 },
+        { mflags1: M1_HIDE },
+    );
+    game.u.uprops[WARNING] = { intrinsic: 1, extrinsic: 0 };
+    game.context.warnlevel = 1;
+    game.iflags.getpos_coords = GPCOORDS_MAP;
+
+    let beforeAcknowledgement;
+    const originalHook = game._preNhgetchHook;
+    const originalReadKey = game.nhDisplay.readKey;
+    game._preNhgetchHook = async () => {
+        beforeAcknowledgement = {
+            line: screenRow(game.nhDisplay.grid, 0),
+            hidden: Boolean(monster.mundetected),
+            topline: game.nhDisplay.toplin,
+        };
+        if (originalHook) await originalHook();
+    };
+    game.nhDisplay.readKey = async () => ' '.charCodeAt(0);
+    try {
+        await warnreveal({ state: game });
+    } finally {
+        game.nhDisplay.readKey = originalReadKey;
+        game._preNhgetchHook = originalHook;
+    }
+
+    assert.equal(beforeAcknowledgement.hidden, true);
+    assert.equal(beforeAcknowledgement.topline, 1);
+    assert.match(
+        beforeAcknowledgement.line,
+        new RegExp(`<${x},${y}>: Your danger sense causes you to take a second look close by\\.--More--`),
+    );
+    assert.equal(monster.mundetected, 0);
+});
+
+test('planning map_invisible writes cloned memory without painting live state',
+    async () => {
+    await runSegment({
+        seed: 2026091701,
+        datetime: '20260917090000',
+        nethackrc: 'OPTIONS=name:MapMemory,role:Wizard,race:human,'
+            + 'gender:female,align:neutral,!legacy,!tutorial,!splash_screen',
+        moves: ' ',
+    });
+    const x = game.u.ux + 1;
+    const y = game.u.uy;
+    const liveLocation = game.level.at(x, y);
+    const liveMemory = liveLocation.remembered_glyph;
+    const liveDisplay = liveLocation.disp_ch;
+    const clone = planningState(game);
+
+    // display.c map_invisible() writes levl[].glyph even when its screen half
+    // is suppressed by the planning seam. The clone owns a copied location
+    // grid, so the live marker and presentation must remain unchanged.
+    map_invisible_planning(x, y, clone);
+    assert.equal(clone.level.at(x, y).remembered_glyph.glyph,
+        GLYPH_INVISIBLE);
+    assert.equal(liveLocation.remembered_glyph, liveMemory);
+    assert.equal(liveLocation.disp_ch, liveDisplay);
 });
 
 test('M_AP_TYPE masks off the display-known flag', () => {

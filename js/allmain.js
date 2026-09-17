@@ -957,6 +957,7 @@ async function finishElapsedTurnAfterTimeout(
     const searchEnv = {
         state,
         random,
+        planning,
         // A planning clone must not repaint the live terminal.  The
         // discovery state changes still run on the clone through
         // detect.c's mfind0() and warning reveal path.
@@ -972,7 +973,6 @@ async function finishElapsedTurnAfterTimeout(
     if (propertyActive(state, WARNING)) {
         await warnreveal({
             ...searchEnv,
-            message: (text) => turnMessage(text, state),
         });
     }
     // C ref: allmain.c:351 mkot_trap_warn(). Sense traps near the hero when

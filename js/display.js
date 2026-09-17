@@ -2933,20 +2933,11 @@ export function glyph_is_invisible(glyph) {
  *
  * The two halves land in different places: the memory write goes to the
  * `state` handed in, and show_glyph_cell() below takes no state and paints the
- * module-global `game`. see_nearby_objects() settled what to do about that
- * shape, and this refuses a foreign state for the same reason rather than
- * splitting the two halves silently. It matters here because the once-per-turn
- * planning clone shares its level cells with the live game
- * (js/unported_monster_actions.js planningState()), so a dry run that reached
- * this function would leave a remembered 'I' and a painted cell behind in the
- * running game. The clone never reaches it: js/mhitm.js pre_mm_attack() marks
- * through an injected operation that a planning scan binds to a no-op, the way
- * it binds `redraw`.
+ * module-global `game`. A live call therefore keeps the foreign-state guard,
+ * while the explicit map_invisible_planning() seam below retains the source
+ * memory write for a planning clone without painting the live terminal.
  */
-export function map_invisible(x, y, state = game) {
-    if (state !== game) {
-        throw new TypeError('map_invisible() draws to the global game');
-    }
+function mapInvisibleMemory(x, y, state) {
     if (x === state.u?.ux && y === state.u?.uy) return;
     const location = state.level?.at(x, y);
     if (!location) return;
@@ -2954,7 +2945,28 @@ export function map_invisible(x, y, state = game) {
         location.remembered_glyph
             = rememberedGlyphNumber(GLYPH_INVISIBLE, state);
     }
+    return true;
+}
+
+export function map_invisible(x, y, state = game) {
+    if (state !== game) {
+        throw new TypeError('map_invisible() draws to the global game');
+    }
+    if (!mapInvisibleMemory(x, y, state)) return;
     show_glyph_cell(x, y, map_glyphinfo(GLYPH_INVISIBLE, state));
+}
+
+// C ref: display.c map_invisible()'s levl[].glyph write. The C call also
+// paints the live window, so planningState() uses this explicit seam to keep
+// the memory mutation on its cloned location grid while suppressing that
+// live-only display half.
+export function map_invisible_planning(x, y, state) {
+    if (!state || state === game) {
+        throw new TypeError(
+            'map_invisible_planning() requires a foreign planning state',
+        );
+    }
+    mapInvisibleMemory(x, y, state);
 }
 
 /**
