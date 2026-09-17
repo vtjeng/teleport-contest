@@ -424,8 +424,12 @@ test('direct glance dispatches the quick cursor lookup without a turn',
         assert.equal(game.context.pendingCommand, undefined);
     });
 
-test('blind heroes can use the production quick-glance cursor path',
+test('blind heroes enter the production quick-glance cursor path',
     async () => {
+        // pager.c do_look has no blind admission guard. This initialized
+        // production dispatch test reaches the selected-location description;
+        // strict C recording of that final WIN_MESSAGE boundary remains
+        // blocked by the existing ttyPutmixed owner.
         const replay = await runSegment({
             seed: 9310601,
             datetime: '20370106081234',
@@ -433,12 +437,15 @@ test('blind heroes can use the production quick-glance cursor path',
                 'OPTIONS=name:BlindGlance,role:Wizard,race:human,gender:female,align:neutral',
                 'OPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,blind',
             ].join('\n') + '\n',
-            moves: ' ;.',
+            moves: ';  .',
         });
         assert.equal(game.u.uroleplay.blind, true);
-        assert.equal(game._ttyToplines, 'Pick a monster, object or location.');
-        assert.equal(replay.getScreens().length, 4);
-        assert.equal(replay.getCursors().length, 4);
+        assert.equal(
+            game._ttyToplines,
+            '@        a human or elf (human wizard called BlindGlance)',
+        );
+        assert.equal(replay.getScreens().length, 5);
+        assert.equal(replay.getCursors().length, 5);
         assert.equal(game.context.pendingCommand, undefined);
     });
 
