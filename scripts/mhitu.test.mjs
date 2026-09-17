@@ -49,6 +49,7 @@ import {
     hitmsg,
     magic_negation,
     mattacku,
+    mpoisons_subj,
     MonsterDeathPlanningError,
     mswings_verb,
     mtrapped_in_pit,
@@ -64,6 +65,7 @@ import {
     AD_SITM,
     AD_SSEX,
     AT_BITE,
+    AT_GAZE,
     AT_ENGL,
     AT_BOOM,
     AT_BUTT,
@@ -270,6 +272,31 @@ test('magic_negation evaluates a monster inventory and innate protection', () =>
     monster.minvent = null;
     monster.data = state.mons[PM_ALIGNED_CLERIC];
     assert.equal(magic_negation(monster, state), 1);
+});
+
+test('mpoisons_subj follows the source attack and weapon cases without mutation', () => {
+    // mhitu.c:145-162. C selects uwep for youmonst, MON_WEP for another
+    // monster, and then maps the non-weapon attack types without a draw or
+    // state write.
+    const state = heroState();
+    const heroWeapon = { opoisoned: true };
+    const monsterWeapon = { opoisoned: true };
+    const monster = { mw: monsterWeapon };
+    const weaponAttack = { aatyp: AT_WEAP };
+    assert.equal(mpoisons_subj(state.youmonst, weaponAttack, state), 'attack');
+    state.uwep = heroWeapon;
+    assert.equal(mpoisons_subj(state.youmonst, weaponAttack, state), 'weapon');
+    assert.equal(mpoisons_subj(monster, weaponAttack, state), 'weapon');
+    monsterWeapon.opoisoned = false;
+    assert.equal(mpoisons_subj(monster, weaponAttack, state), 'attack');
+    assert.equal(mpoisons_subj(monster, { aatyp: AT_TUCH }, state), 'contact');
+    assert.equal(mpoisons_subj(monster, { aatyp: AT_GAZE }, state), 'gaze');
+    assert.equal(mpoisons_subj(monster, { aatyp: AT_BITE }, state), 'bite');
+    assert.equal(mpoisons_subj(monster, { aatyp: AT_STNG }, state), 'sting');
+    assert.equal(state.youmonst.data, state.mons[PM_HUMAN]);
+    assert.equal(state.uwep, heroWeapon);
+    assert.equal(monster.mw, monsterWeapon);
+    assert.equal(monsterWeapon.opoisoned, false);
 });
 
 // ---- mhitu.c mattacku() and the helpers it reaches ----

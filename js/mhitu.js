@@ -518,6 +518,19 @@ async function mswings(mtmp, otemp, bash, rawEnv = {}) {
     }
 }
 
+// C ref: mhitu.c mpoisons_subj() (145-162). This pure helper describes how
+// the attack delivered poison. The weapon slot is selected from the attacker
+// exactly as C chooses uwep for youmonst and MON_WEP for another monster.
+export function mpoisons_subj(mtmp, mattk, state = game) {
+    if (mattk.aatyp === M.AT_WEAP) {
+        const mwep = mtmp === state.youmonst ? state.uwep : mtmp.mw;
+        return (!mwep || !mwep.opoisoned) ? 'attack' : 'weapon';
+    }
+    return mattk.aatyp === M.AT_TUCH ? 'contact'
+        : mattk.aatyp === M.AT_GAZE ? 'gaze'
+            : mattk.aatyp === M.AT_BITE ? 'bite' : 'sting';
+}
+
 // C ref: mhitu.c getmattk() (309-444). "select a monster's next attack,
 // possibly substituting for its usual one".
 //

@@ -5,6 +5,7 @@ import test from 'node:test';
 import { moveloop_core } from '../js/allmain.js';
 import {
     ALTAR,
+    DETECT_MONSTERS,
     FOUNTAIN,
     GRAVE,
     ICE,
@@ -17,6 +18,7 @@ import {
     STAIRS,
     STRAT_WAITMASK,
     THRONE,
+    W_ARM,
 } from '../js/const.js';
 import { game } from '../js/gstate.js';
 import { UnsupportedHeroMoveBoundaryError } from '../js/hack.js';
@@ -27,6 +29,8 @@ import { monflee } from '../js/monmove.js';
 import {
     AD_DRST,
     AT_WEAP,
+    PM_DWARF_LEADER,
+    PM_HUMAN,
     PM_KITTEN,
     PM_LITTLE_DOG,
     PM_PONY,
@@ -43,6 +47,7 @@ import {
     SCR_ENCHANT_ARMOR,
     SCR_SCARE_MONSTER,
     SILVER_DAGGER,
+    LEATHER_ARMOR,
 } from '../js/objects.js';
 import { dmgval } from '../js/weapon.js';
 import { enableRngLog, getRngLog, initRng } from '../js/rng.js';
@@ -50,6 +55,7 @@ import { clearTtyMessageWindow } from '../js/tty_message.js';
 import {
     do_attack,
     mhitm_ad_drst,
+    mhitm_mgc_atk_negated,
     mhitm_really_poison,
     shade_miss,
 } from '../js/uhitm.js';
@@ -851,4 +857,85 @@ test('mhitm_ad_drst applies the hero-to-monster poison arm', async () => {
     assert.deepEqual(bounds, ['rn2(10)', 'rn2(8)', 'rn2(10)', 'rn1(10,6)']);
     assert.deepEqual(lines, ['Your attack was poisoned!']);
     assert.equal(mhm.damage, 8);
+});
+
+test('mhitm_ad_drst uses the monster female bit for the poison killer name',
+    async () => {
+    // uhitm.c:3159-3161 and monst.h Mgender(). This is a monster-to-hero
+    // poison call, so Mgender reads the attacker instance's female bit rather
+    // than the species record or the hero's gender.
+    await runSegment({
+        seed: 7710055, datetime: DATETIME, nethackrc: RC, moves: '',
+    });
+    const attacker = {
+        data: game.mons[PM_DWARF_LEADER],
+        female: true,
+        m_id: 92004,
+        mcan: false,
+        mx: game.u.ux + 1,
+        my: game.u.uy,
+    };
+    const killerNames = [];
+    const bounds = [];
+    await mhitm_ad_drst(
+        attacker,
+        { aatyp: AT_WEAP, adtyp: AD_DRST },
+        game.youmonst,
+        { damage: 1 },
+        game,
+        {
+            random: {
+                rn2: (bound) => {
+                    bounds.push(`rn2(${bound})`);
+                    return bound === 10 ? 9 : 0;
+                },
+            },
+            message: async () => {},
+            poisoned: (_reason, _attribute, pkiller) => {
+                killerNames.push(pkiller);
+            },
+        },
+    );
+    assert.deepEqual(bounds, ['rn2(10)', 'rn2(8)']);
+    assert.deepEqual(killerNames, ['dwarf lady']);
+});
+
+test('mhitm_mgc_atk_negated does not message a merely sensed defender',
+    async () => {
+    // uhitm.c:93 uses canseemon(), while canspotmon() also accepts detection
+    // and telepathy. A hidden defender with Detect_monsters is sensed but not
+    // physically seen, so the negation message must remain absent.
+    await runSegment({
+        seed: 7710056, datetime: DATETIME, nethackrc: RC, moves: '',
+    });
+    game.gv = { ...(game.gv ?? {}), vis: true };
+    game.u.uprops[DETECT_MONSTERS] = { intrinsic: 1, extrinsic: 0 };
+    const defender = {
+        data: game.mons[PM_HUMAN],
+        minvent: { otyp: LEATHER_ARMOR, owornmask: W_ARM, nobj: null },
+        minvis: true,
+        mundetected: false,
+        mx: game.u.ux + 1,
+        my: game.u.uy,
+    };
+    const lines = [];
+    const bounds = [];
+    const negated = await mhitm_mgc_atk_negated(
+        { mcan: false },
+        defender,
+        true,
+        game,
+        {
+            random: {
+                rn2: (bound) => {
+                    bounds.push(`rn2(${bound})`);
+                    return 0;
+                },
+            },
+            message: async (line) => { lines.push(line); },
+        },
+    );
+    assert.deepEqual(bounds, ['rn2(10)']);
+    assert.equal(negated, true);
+    assert.deepEqual(lines, []);
 });
