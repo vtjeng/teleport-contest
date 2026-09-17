@@ -235,7 +235,7 @@ import {
     is_flyer, is_whirly, nohands, resists_magm, unsolid, webmaker, sticks,
     bigmonst, is_swimmer, likes_lava, mindless, monster_resists_element,
     touch_petrifies, unique_corpstat, poly_when_stoned, is_golem,
-    is_vampshifter, nonliving,
+    is_vampshifter, nonliving, hides_under,
 } from './mondata.js';
 import { stagger, monstseesu, monstunseesu } from './mondata.js';
 import {
