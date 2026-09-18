@@ -23,6 +23,15 @@ import { rn2 } from './rng.js';
 // C ref: cfgfiles.c default_configfile (126-139), the UNIX arm.
 export const DEFAULT_CONFIGFILE = '.nethackrc';
 
+// The recorder's documented HOME (docs/recording-environment.md) is the
+// process environment used by the C harness.  cfgfiles.c fopen_config_file()
+// stores HOME/.nethackrc in its configfile buffer; keep this one global
+// environment value in the source-owned cfgfiles module so startup and every
+// diagnostic reader use the same path.
+export const RECORDER_HOME =
+    '/Users/davidbau/git/mazesofmenace/teleport/maud/test/comparison/c-harness/results';
+export const RECORDER_CONFIGFILE = `${RECORDER_HOME}/${DEFAULT_CONFIGFILE}`;
+
 // C ref: global.h set_in_sysconf (581).  The JavaScript parser receives the
 // configuration text directly, so this value is used only when a source-shaped
 // fopen_config_file() caller identifies the system configuration path.
@@ -42,14 +51,10 @@ export function get_default_configfile() {
 }
 
 // C ref: cfgfiles.c get_configfile().  set_configfile_name() stores the path
-// fopen_config_file() opened, which on UNIX is "$HOME/.nethackrc".  A segment
-// carries its configuration as text (js/jsmain.js runSegment()), never a path,
-// so nothing here can learn $HOME and the port keeps the bare default name.
-// state.configfile is the one place that path lives, and both of C's readers
-// come through here: js/tutorial_startup.js ask_do_tutorial() prints
-// nh_basename() of it and is unaffected by the missing $HOME, while
-// config_error_done() below prints the whole path and cannot match a
-// recording.
+// fopen_config_file() opened, which on the recorder UNIX build is
+// RECORDER_HOME/.nethackrc.  state.configfile is the one place that path
+// lives, and both of C's readers come through here: tutorial startup takes
+// its basename while config errors and option help print the whole path.
 export function get_configfile(state = game) {
     return state?.configfile ?? get_default_configfile();
 }
@@ -132,10 +137,10 @@ export function fopen_config_file(filename, src, state = game) {
         note_unported('cfgfiles.c fopen');
     }
 
-    // UNIX falls through to $HOME/.nethackrc; without a host HOME value the
-    // text-backed equivalent is the compiled-in basename. There is no FILE*
-    // to return because the segment supplied the text independently.
-    set_configfile_name(get_default_configfile(), state);
+    // UNIX falls through to $HOME/.nethackrc. The segment supplies the
+    // configuration text independently, so there is no FILE* to return, but
+    // preserve the recorder's documented environment path for diagnostics.
+    set_configfile_name(RECORDER_CONFIGFILE, state);
     note_unported('cfgfiles.c fopen');
     return null;
 }

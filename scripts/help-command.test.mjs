@@ -11,7 +11,12 @@ import {
 import { CMDQ_EXTCMD, CMDQ_KEY, CQ_REPEAT } from '../js/const.js';
 import { game } from '../js/gstate.js';
 import { runSegment } from '../js/jsmain.js';
-import { next_opt, optionHelpLines, show_menu_controls } from '../js/options.js';
+import {
+    next_opt,
+    optionHelpLines,
+    show_menu_controls,
+} from '../js/options.js';
+import { RECORDER_CONFIGFILE } from '../js/cfgfiles.js';
 import {
     dowhatdoes_core,
     helpMenuItems,
@@ -158,7 +163,7 @@ test('option help derives its ordinary TTY page from allopt source order',
         assert.equal(lines[1], '                 NetHack Options Help:');
         assert.equal(
             lines[3],
-            'Set options as OPTIONS=<options> in .nethackrc',
+            `Set options as OPTIONS=<options> in ${RECORDER_CONFIGFILE}`,
         );
         // TTY advertises color but not popup dialogs, so the source-order
         // filters retain the former Boolean and omit the latter.

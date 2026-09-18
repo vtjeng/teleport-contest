@@ -8,7 +8,10 @@ import assert from 'node:assert/strict';
 import test from 'node:test';
 
 import {
-    DEFAULT_CONFIGFILE, config_error_done, get_configfile,
+    DEFAULT_CONFIGFILE,
+    RECORDER_CONFIGFILE,
+    config_error_done,
+    get_configfile,
 } from '../js/cfgfiles.js';
 import {
     MENU_COMBINATION,
@@ -48,6 +51,12 @@ import {
 // three could matter.
 const SEED = 4471903;
 const DATETIME = '20030417113000';
+
+function configErrorLine(count) {
+    const plural = count === 1 ? 'error' : 'errors';
+    // tty_raw_print() drops bytes beyond the 80-column terminal edge.
+    return `${count} ${plural} in ${RECORDER_CONFIGFILE}.`.slice(0, 80);
+}
 
 function displayState() {
     return { nhDisplay: new GameDisplay(null) };
@@ -384,9 +393,7 @@ test('a segment with a bad option value reports it and plays on', async () => {
             'OPTIONS=sortloot:zebra',
             " * Line 3: Unknown sortloot parameter 'zebra'.",
             '',
-            // config_error_done() names the configuration file, whose path
-            // this port cannot know; js/cfgfiles.js records why.
-            '1 error in .nethackrc.',
+            configErrorLine(1),
             '',
         ]);
 
@@ -467,7 +474,7 @@ test('a segment with parseoptions errors reports all four and plays on',
                 " * Line 7: Unknown option 'beta:1'.",
                 " * Line 7: Unknown option 'alpha'.",
                 '',
-                '6 errors in .nethackrc.',
+                configErrorLine(6),
                 '',
             ]);
 
@@ -2093,24 +2100,10 @@ test('the role grammar reports each refusal and chooses nothing', () => {
 });
 
 // C ref: cfgfiles.c config_error_done() (1609-1615), which closes a
-// configuration read with
-//     pline("\n%d error%s %s %s.\n", n, plur(n), cmdline ? "on" : "in",
-//           *config_error_data->source ? config_error_data->source
-//                                      : configfile);
-// `configfile` is the absolute path fopen_config_file() opened, which on UNIX
-// is "$HOME/.nethackrc".  A segment carries its configuration as text and no
-// path (js/jsmain.js runSegment()), so nothing in the port can learn $HOME.
-//
-// This test pins an accepted divergence rather than a defect.  No port closes
-// it, because the value C prints is not in the contest's segment input at all.
-// The cost is one cell of one row per affected segment, measured over three
-// fresh differentials at the deferral's commit: seed 3310277 at
-// 19960229180000 matched C on all 3,150 random-number calls, every cursor and
-// every other cell, and diverged only at `Cell row 20, column 13 (ch): C "/",
-// JS "."`, the first character of the path.  cfgfiles.c's other reader,
-// ask_do_tutorial(), prints nh_basename() of the same value and is unaffected,
-// which is why js/tutorial_startup.js already matched.
-test('the config-error summary names the bare rc file C gives an absolute path',
+// configuration read with the path stored by fopen_config_file(). The startup
+// path is the recorder's documented HOME/.nethackrc; a direct state without a
+// configfile still uses the compiled basename helper.
+test('the config-error summary names the recorder config path',
     () => {
         // state.configfile is the one place the path lives, and get_configfile()
         // is the only reader.  Absent it, the port answers with the UNIX
@@ -2121,16 +2114,24 @@ test('the config-error summary names the bare rc file C gives an absolute path',
             'the divergence is exactly the missing directory, so the default '
             + 'spelling must carry no separator');
 
-        // The summary row C would print as "1 error in /home/you/.nethackrc."
+        // Startup supplies RECORDER_CONFIGFILE before this reader runs.
         const oneError = { num_errors: 1, output: [] };
-        assert.equal(config_error_done(oneError, {}), 1);
-        assert.deepEqual(oneError.output, ['\n1 error in .nethackrc.\n']);
+        assert.equal(config_error_done(oneError, {
+            configfile: RECORDER_CONFIGFILE,
+        }), 1);
+        assert.deepEqual(oneError.output, [
+            `\n1 error in ${RECORDER_CONFIGFILE}.\n`,
+        ]);
 
         // hacklib.h plur(x) is "" for one and "s" otherwise, and the count is
         // config_error_done()'s own, so a second error changes both.
         const twoErrors = { num_errors: 2, output: [] };
-        assert.equal(config_error_done(twoErrors, {}), 2);
-        assert.deepEqual(twoErrors.output, ['\n2 errors in .nethackrc.\n']);
+        assert.equal(config_error_done(twoErrors, {
+            configfile: RECORDER_CONFIGFILE,
+        }), 2);
+        assert.deepEqual(twoErrors.output, [
+            `\n2 errors in ${RECORDER_CONFIGFILE}.\n`,
+        ]);
 
         // A read that found nothing prints no summary row at all, which is
         // C's `if (n)` guard rather than an empty string.
@@ -2138,8 +2139,7 @@ test('the config-error summary names the bare rc file C gives an absolute path',
         assert.equal(config_error_done(clean, {}), 0);
         assert.deepEqual(clean.output, []);
 
-        // Should a later port ever learn the path, state.configfile is where
-        // it lands and this row follows it without another change here.
+        // Explicit paths remain authoritative for callers that set them.
         assert.equal(get_configfile({ configfile: '/home/you/.nethackrc' }),
             '/home/you/.nethackrc');
     });

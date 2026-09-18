@@ -95,14 +95,17 @@ export function menuTitleStyle(state = game) {
 // nomux_putch() as a signed char, which ignores everything below 32 and so
 // leaves the shadow cell of a high-bit byte holding whatever the preceding
 // clear left there.
-function writeStyledText(display, column, row, text, color, attr) {
+function writeStyledText(
+    display, column, row, text, color, attr, maxColumn = display.cols,
+) {
     const bytes = encodeUtf8ByteString(text);
-    for (let index = 0; index < bytes.length;) {
+    for (let index = 0;
+        index < bytes.length && column + index < maxColumn;) {
         const spaces = bytes[index] === 0x20;
         let end = index + 1;
         while (end < bytes.length && (bytes[end] === 0x20) === spaces) ++end;
         const compressed = spaces && end - index >= 5;
-        for (; index < end; ++index) {
+        for (; index < end && column + index < maxColumn; ++index) {
             // writeRecorderTtyWindowLine() below keeps both bytes this drops,
             // and it is wrong to. It ports the same loop for a window that
             // process_text_window() draws, where g_putch() takes a high-bit
@@ -242,32 +245,96 @@ async function erase_menu_or_text(state, display, snapshot, baseCursor) {
 // and text data before it measures or stores a line. CO is the live terminal
 // width and BUFSZ bounds the function's static buffer.
 function compressTtyWindowLine(value, columns) {
+    return compressTtyWindowBytes(value, columns).bytes;
+}
+
+// Keep the source-byte position of every retained byte while compress_str()
+// normalizes a line. NHW_TEXT callers attach glyphCells to the original
+// string; those positions must follow dropped leading/repeated spaces and the
+// BUFSZ truncation before tty_putstr() splits the normalized bytes.
+function compressTtyWindowBytes(value, columns) {
     const source = encodeUtf8ByteString(value ?? '');
-    if (source.length < columns && !source.includes(0x0A)) return source;
+    if (source.length < columns && !source.includes(0x0A)) {
+        return {
+            bytes: source,
+            sourceToNormalized: source.map((_, index) => index),
+        };
+    }
 
     const result = [];
+    const sourceToNormalized = source.map(() => -1);
     let wasSpace = true;
-    for (const sourceByte of source) {
+    for (let sourceIndex = 0; sourceIndex < source.length; sourceIndex++) {
+        const sourceByte = source[sourceIndex];
         const byte = sourceByte === 0x0A ? 0x20 : sourceByte;
         if (wasSpace && byte === 0x20) continue;
         if (result.length >= BUFSZ - 1) break;
+        sourceToNormalized[sourceIndex] = result.length;
         result.push(byte);
         wasSpace = byte === 0x20;
     }
-    if ((wasSpace && result.length) || result.length === BUFSZ - 1)
+    if ((wasSpace && result.length) || result.length === BUFSZ - 1) {
+        const removed = result.length - 1;
         result.pop();
-    return result;
+        for (let index = 0; index < sourceToNormalized.length; index++) {
+            if (sourceToNormalized[index] === removed)
+                sourceToNormalized[index] = -1;
+        }
+    }
+    return { bytes: result, sourceToNormalized };
 }
 
 // C ref: win/tty/wintty.c tty_putstr()'s NHW_MENU/NHW_TEXT arm. The width
 // is measured before an over-CO line is split, so a split adds a row without
-// narrowing the eventual window.
-export function ttyMenuTextData(lines, columns) {
+// narrowing the eventual window. `preserveLines` keeps the source line's
+// presentation metadata for NHW_TEXT; menus only need decoded strings.
+function ttyWindowTextData(lines, columns, preserveLines) {
     const stored = [];
     let maxcol = 0;
 
-    const putstr = (line) => {
-        const compressed = compressTtyWindowLine(line, columns);
+    const storedLine = (
+        sourceLine,
+        text,
+        sourceToNormalized,
+        normalizedStart,
+        normalizedLength,
+    ) => {
+        if (!preserveLines) return text;
+        const result = {
+            ...(sourceLine && typeof sourceLine === 'object'
+                ? sourceLine : {}),
+            text,
+        };
+        // Most text-window rows have no glyphCells. If a caller does, map its
+        // original source-byte columns through compress_str() before keeping
+        // cells in each recursive tty_putstr() suffix.
+        if (Array.isArray(sourceLine?.glyphCells)) {
+            result.glyphCells = sourceLine.glyphCells
+                .flatMap((cell) => {
+                    const normalized = sourceToNormalized[cell.column];
+                    if (normalized == null || normalized < normalizedStart
+                        || normalized >= normalizedStart + normalizedLength) {
+                        return [];
+                    }
+                    return [{
+                        ...cell,
+                        column: normalized - normalizedStart,
+                    }];
+                });
+        }
+        return result;
+    };
+
+    const putstr = (
+        line,
+        sourceLine = line,
+        compressedData = null,
+        normalizedStart = 0,
+    ) => {
+        const compressedDataForLine = compressedData
+            ?? compressTtyWindowBytes(line, columns);
+        const { bytes: allCompressed, sourceToNormalized } = compressedDataForLine;
+        const compressed = allCompressed.slice(normalizedStart);
         const n0 = compressed.length + 1;
         maxcol = Math.max(maxcol, n0);
         if (n0 > columns) {
@@ -278,16 +345,41 @@ export function ttyMenuTextData(lines, columns) {
             }
             if (split) {
                 const next = split + 1;
-                stored.push(decodeUtf8ByteString(compressed.slice(0, next)));
-                putstr(decodeUtf8ByteString(compressed.slice(next)));
+                stored.push(storedLine(
+                    sourceLine,
+                    decodeUtf8ByteString(compressed.slice(0, next)),
+                    sourceToNormalized,
+                    normalizedStart,
+                    next,
+                ));
+                putstr(
+                    decodeUtf8ByteString(compressed.slice(next)),
+                    sourceLine,
+                    compressedDataForLine,
+                    normalizedStart + next,
+                );
                 return;
             }
         }
-        stored.push(decodeUtf8ByteString(compressed));
+        stored.push(storedLine(
+            sourceLine,
+            decodeUtf8ByteString(compressed),
+            sourceToNormalized,
+            normalizedStart,
+            compressed.length,
+        ));
     };
 
-    for (const line of lines) putstr(line?.text ?? line);
+    for (const line of lines) putstr(line?.text ?? line, line);
     return { lines: stored, maxcol };
+}
+
+export function ttyMenuTextData(lines, columns) {
+    return ttyWindowTextData(lines, columns, false);
+}
+
+export function ttyTextWindowData(lines, columns) {
+    return ttyWindowTextData(lines, columns, true);
 }
 
 // C refs: tty_display_nhwindow(NHW_MENU) and process_text_window(). A menu
@@ -767,6 +859,8 @@ export async function displayTtyTextWindow(state = game, lines) {
     // cursor capture and must not control this window selection.
     if (display.nomuxRaw)
         display.nomuxRaw.rawprint = 0;
+    const textData = ttyTextWindowData(lines, display.cols);
+    lines = textData.lines;
     const maxrow = lines.length;
     const lastRow = display.rows - 1;
 
@@ -815,19 +909,25 @@ export async function displayTtyTextWindow(state = game, lines) {
         clearRow(display, n);
         writeStyledText(
             display, 0, n, text, line.color ?? NO_COLOR, line.attr ?? 0,
+            // wintty.c process_text_window() increments curx before each
+            // byte and tests curx < cols, so a column-zero NHW_TEXT row
+            // writes at most cols - 1 bytes.
+            display.cols - 1,
         );
         // wintty.c process_text_window() sends putmixed() lines through
         // decode_mixed(). A decoded glyph can use a rendered DEC character
         // that writeStyledText() deliberately drops as a non-ASCII byte, so
         // callers identify those physical cells for direct substitution.
         for (const cell of line.glyphCells ?? []) {
-            display.setCell(
-                cell.column,
-                n,
-                cell.ch,
-                line.color ?? NO_COLOR,
-                line.attr ?? 0,
-            );
+            if (cell.column < display.cols - 1) {
+                display.setCell(
+                    cell.column,
+                    n,
+                    cell.ch,
+                    line.color ?? NO_COLOR,
+                    line.attr ?? 0,
+                );
+            }
         }
         n++;
     }

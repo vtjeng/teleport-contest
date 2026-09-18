@@ -25,7 +25,11 @@ import {
     initoptions_finish,
     parseNethackrc,
 } from './options.js';
-import { config_error_done } from './cfgfiles.js';
+import {
+    config_error_done,
+    RECORDER_CONFIGFILE,
+    set_configfile_name,
+} from './cfgfiles.js';
 import {
     nomux_get_cursor,
     tty_raw_print,
@@ -333,6 +337,12 @@ export class NethackGame {
 
         // Parse nethackrc
         const opts = parseNethackrc(this._nethackrc);
+        // C cfgfiles.c fopen_config_file() stores $HOME/.nethackrc before
+        // option parsing can report errors or option_help() can display its
+        // path. The recorder HOME is a documented global environment value;
+        // keep it in cfgfiles.js and use the canonical setter here so the
+        // fixed BUFSZ truncation contract remains in one place.
+        set_configfile_name(RECORDER_CONFIGFILE, g);
         g.plname = opts.name ?? '';
         g.flags = { ...opts.flags };
         g.iflags = { ...opts.iflags };
