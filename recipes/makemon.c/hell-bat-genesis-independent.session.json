@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "Independent makemon.c makemon() witness: wizard level teleport reaches a Hell level, then wizard genesis creates a vampire bat. The distinct seed, clock, role, and character name exercise the C S_BAT/Inhell speed branch through the normal production creator.",
+  "segments": [
+    {
+      "seed": 9400041,
+      "datetime": "20380918110000",
+      "nethackrc": "OPTIONS=name:HellBatProbe,role:Wizard,race:human,gender:female,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen,playmode:debug,pettype:none,!acoustics,rest_on_space,!safe_wait\n",
+      "moves": " \u001630\n \u0007vampire bat\n"
+    }
+  ]
+}

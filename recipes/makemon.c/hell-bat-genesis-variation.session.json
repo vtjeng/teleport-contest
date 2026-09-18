@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "Independent cheap variation of the Hell vampire-bat makemon.c witness: a different seed, clock, role, and character choice reaches the same S_BAT/Inhell creation branch.",
+  "segments": [
+    {
+      "seed": 9400042,
+      "datetime": "20380918113000",
+      "nethackrc": "OPTIONS=name:BatVariation,role:Valkyrie,race:dwarf,gender:male,align:lawful\nOPTIONS=!legacy,!tutorial,!splash_screen,playmode:debug,pettype:none,!acoustics,rest_on_space,!safe_wait\n",
+      "moves": " \u001630\n \u0007vampire bat\n"
+    }
+  ]
+}
