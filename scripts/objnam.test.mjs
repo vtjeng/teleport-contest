@@ -525,6 +525,52 @@ test('swallowed look_here admission returns before floor object names', () => {
     assert.equal(plan.hasPile, false);
 });
 
+test('look_here admission skips names before blind unreachable return', () => {
+    // invent.c:4218-4235 returns after the tactile reach check. An object
+    // whose ordinary name is still unsupported must not be inspected first.
+    const state = lookState(ROOM, objectOf(namingState(), BAG_OF_TRICKS), {
+        blind: true,
+    });
+    state.iflags.override_ID = 1;
+    state.u.uprops[LEVITATION] = { intrinsic: 1, extrinsic: 0, blocked: 0 };
+
+    const plan = preflight_look_here(0, LOOKHERE_NOFLAGS, state);
+
+    assert.equal(plan.cannotReachObjects, true);
+    assert.equal(plan.otmp.otyp, BAG_OF_TRICKS);
+});
+
+test('look_here admission skips names on inaccessible liquid', () => {
+    // invent.c:4242-4248 returns for lava and an out-of-water pool before any
+    // doname_with_price() call, even when the floor chain is nonempty.
+    const state = lookState(LAVAPOOL,
+        objectOf(namingState(), BAG_OF_TRICKS), { blind: false });
+    state.iflags.override_ID = 1;
+
+    const plan = preflight_look_here(0, LOOKHERE_NOFLAGS, state);
+
+    assert.equal(plan.otmp.otyp, BAG_OF_TRICKS);
+});
+
+test('pile admission stops naming after the first tactile cockatrice', () => {
+    // invent.c:4299-4304 breaks immediately after the ordinary doname() for
+    // the first tactile cockatrice; later pile entries are not priced/named.
+    const built = pileLookState({
+        blind: true,
+        count: 2,
+        first: CORPSE,
+        firstOverrides: { corpsenm: PM_COCKATRICE },
+    });
+    const second = objectOf(built.state, BAG_OF_TRICKS, { bknown: true });
+    built.state.iflags.override_ID = 1;
+    built.head.nexthere = second;
+
+    const plan = preflight_look_here(2, LOOKHERE_NOFLAGS, built.state);
+
+    assert.equal(plan.objectList.length, 2);
+    assert.equal(plan.objectList[1], second);
+});
+
 test('blind single-object look_here awaits each output owner in source order',
     async () => {
         const dart = objectOf(namingState(), DART);
