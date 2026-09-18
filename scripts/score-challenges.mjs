@@ -123,6 +123,36 @@ export function evaluateChallenges(root, relative, batchId = 'v1') {
     return evaluation;
 }
 
+export function runAllBatches(root, outputDir, {
+    batches = readChallengeBatches(root),
+    evaluate = evaluateChallenges,
+    readHead = () => git(root, ['rev-parse', 'HEAD']),
+    stamp = new Date().toISOString().replaceAll(/[-:TZ.]/gu, '').slice(0, 14),
+} = {}) {
+    const expectedHead = readHead();
+    const results = [];
+    const failures = [];
+    for (const selected of batches) {
+        const before = readHead();
+        if (before !== expectedHead)
+            throw new Error('repository HEAD changed during --all; no mixed-batch evaluation is valid');
+        const relative = outputDir.replace(/\/$/u, '') + '/' + stamp + '-' + selected.batch + '.json';
+        try {
+            const result = evaluate(root, relative, selected.batch);
+            if (result.sha !== expectedHead)
+                throw new Error('batch evaluation used a different HEAD: ' + selected.batch);
+            results.push({ batch: selected.batch, relative, result });
+            if (result.status === 'failed')
+                failures.push({ batch: selected.batch, relative, error: result.error ?? 'evaluation failed' });
+        } catch (error) {
+            failures.push({ batch: selected.batch, relative, error: error.message });
+        }
+        if (readHead() !== expectedHead)
+            throw new Error('repository HEAD changed during --all; no mixed-batch evaluation is valid');
+    }
+    return { expectedHead, results, failures };
+}
+
 function main(args) {
     if (args.length === 1 && args[0] === '--help') {
         console.log('score-challenges --output challenges/evaluations/<name>.json\n'
@@ -151,12 +181,12 @@ function main(args) {
     }
     if (all) {
         if (batch !== 'v1' || output || !outputDir) throw new Error('--all requires --output-dir only');
-        const stamp = new Date().toISOString().replaceAll(/[-:TZ.]/gu, '').slice(0, 14);
-        for (const selected of readChallengeBatches(PROJECT_ROOT)) {
-            const relative = outputDir.replace(/\/$/u, '') + '/' + stamp + '-' + selected.batch + '.json';
-            const result = evaluateChallenges(PROJECT_ROOT, relative, selected.batch);
-            console.log(result.status + ': ' + relative + ' at ' + result.sha);
-        }
+        const run = runAllBatches(PROJECT_ROOT, outputDir);
+        for (const item of run.results)
+            console.log(item.result.status + ': ' + item.relative + ' at ' + item.result.sha);
+        for (const failure of run.failures)
+            console.error(failure.batch + ': ' + failure.error + ' (' + failure.relative + ')');
+        if (run.failures.length) process.exitCode = 1;
         return;
     }
     if (!output || outputDir) throw new Error('use --output <new artifact>; see --help');

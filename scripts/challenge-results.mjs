@@ -359,6 +359,8 @@ function stateForBatch(root, batch, allValues, errors) {
         && batch.cases.every(entry => completeCases.get(entry.id)?.recordingSha256 === known.get(entry.id));
     const changedHistory = latest.cases.some(entry =>
         !known.has(entry.id) || known.get(entry.id) !== entry.recordingSha256);
+    const historicalChanged = values.some(({ evaluation }) => evaluation.cases.some(entry =>
+        !known.has(entry.id) || known.get(entry.id) !== entry.recordingSha256));
     let snapshot = null;
     try {
         snapshot = challengeInputSnapshot(root, batch);
@@ -384,6 +386,10 @@ function stateForBatch(root, batch, allValues, errors) {
             result.error = result.error ?? 'replay inputs changed since evaluation';
     } else {
         result.status = 'measured';
+    }
+    if (historicalChanged) {
+        result.status = 'failed';
+        result.error = 'a previously measured challenge was removed or changed; restore it and add a new case';
     }
     const first = new Map();
     for (const { evaluation } of historyCompleted) {
@@ -438,10 +444,13 @@ export function challengeState(root, rows = null, head = null) {
         key, value: states.reduce((sum, state) => sum + state.totals[key].matched, 0),
         total: states.reduce((sum, state) => sum + state.totals[key].total, 0),
     })).map(({ key, value, total }) => [key, { matched: value, total }])) : null;
-    const status = invalidLedger ? 'failed' : ready ? 'ready' : measured ? 'measured' : 'incomplete';
+    const batchFailure = states.some(state => state.status === 'failed');
+    const status = invalidLedger || batchFailure ? 'failed'
+        : ready ? 'ready' : measured ? 'measured' : 'incomplete';
+    const errors = states.map(state => state.error).filter(Boolean);
     return { status, batches: states,
         aggregate: { status,
-            generationReady: ready, totals, head },
+            generationReady: ready, totals, head, error: errors.length ? errors.join('; ') : null },
         generationReady: ready };
 }
 
@@ -450,7 +459,7 @@ export function challengeState(root, rows = null, head = null) {
 export function challengeDashboard(root, rows = null, head = null) {
     const empty = { status: 'unmeasured', sha: null, utc: null, manifestSha256: null,
         totals: null, changes: null, cases: [], history: [], batches: [],
-        aggregate: { status: 'incomplete', generationReady: false, totals: null, head },
+        aggregate: { status: 'incomplete', generationReady: false, totals: null, head, error: null },
         generationReady: false };
     try {
         const state = challengeState(root, rows, head);
@@ -461,7 +470,7 @@ export function challengeDashboard(root, rows = null, head = null) {
             manifestSha256: current.manifestSha256, totals: state.aggregate.totals,
             v1Totals: current.totals, changes: current.changes,
             cases: state.batches.flatMap(batch => batch.cases), history: current.history,
-            error: current.error, freshness: current.freshness, baseline: current.baseline,
+            error: state.aggregate.error ?? current.error, freshness: current.freshness, baseline: current.baseline,
             evaluation: current.evaluation, evaluationPath: current.evaluationPath,
             batches: state.batches, aggregate: state.aggregate,
             generationReady: state.generationReady };

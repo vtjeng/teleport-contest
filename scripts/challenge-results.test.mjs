@@ -7,7 +7,7 @@ import { COLUMNS } from './score-log.mjs';
 import { challengeDashboard, challengeInputSnapshot, challengePath, challengeState,
     compareEvaluations, corpusDigest, digest, evaluationFields, readChallengeBatches,
     readChallenges, saveEvaluation, totalsFor } from './challenge-results.mjs';
-import { measuredCases, recordEvaluation } from './score-challenges.mjs';
+import { measuredCases, recordEvaluation, runAllBatches } from './score-challenges.mjs';
 
 // Distinct complete SHAs distinguish an initial implementation, its successor,
 // and a changed scorer without relying on the repository's mutable history.
@@ -100,7 +100,8 @@ test('first measurements persist; additions are unmeasured until included in a s
     assert.equal(view.history[1].changes.addedScreensMatched, 1);
     assert.equal(view.history[1].changes.screensGained, 2);
 
-    // A report-only HEAD change does not stale replay evidence; input digests govern freshness.\n    assert.equal(challengeDashboard(root, [row, next], FIRST_SHA).status, 'measured');
+    // A report-only HEAD change does not stale replay evidence; input digests govern freshness.
+    assert.equal(challengeDashboard(root, [row, next], FIRST_SHA).status, 'measured');
 });
 
 test('missing, failed and measured zero stay distinct, including ledger evidence', t => {
@@ -130,7 +131,7 @@ test('missing, failed and measured zero stay distinct, including ledger evidence
 
 test('catalog and state keep batches separate and require fresh evidence for readiness', t => {
     const root = fixture(t);
-    const a = entry(root, 'one'), b = entry(root, 'two');
+    const a = entry(root, 'one'), b = entry(root, 'one');
     manifest(root, [a]);
     mkdirSync(join(root, 'challenges/manifests'));
     writeFileSync(join(root, 'challenges/manifests/v2.json'),
@@ -142,6 +143,8 @@ test('catalog and state keep batches separate and require fresh evidence for rea
     const secondEvaluation = fresh(root,
         { ...evaluation([measured(b, 2)]), batch: 'v2',
             manifestPath: 'challenges/manifests/v2.json' }, 'v2');
+    assert.throws(() => saveEvaluation(root, 'challenges/evaluations/bad.json',
+        { ...secondEvaluation, manifestPath: 'challenges/manifest.json' }), /invalid challenge evaluation/u);
     const second = saved(root, 'v2', secondEvaluation);
     const state = challengeState(root, [first, second], NEXT_SHA);
     assert.equal(state.status, 'ready');
@@ -151,6 +154,51 @@ test('catalog and state keep batches separate and require fresh evidence for rea
     const dashboard = challengeDashboard(root, [first, second], NEXT_SHA);
     assert.equal(dashboard.cases.length, 2);
     assert.deepEqual(dashboard.cases.map(caseEntry => caseEntry.batch), ['v1', 'v2']);
+    assert.deepEqual(dashboard.cases.map(caseEntry => caseEntry.id), ['one', 'one']);
+});
+
+test('corrupt ledger evidence and masked historical case changes fail closed', t => {
+    const root = fixture(t);
+    const a = entry(root, 'case');
+    manifest(root, [a]);
+    const oldCase = measured(a, 0);
+    oldCase.recordingSha256 = 'f'.repeat(64);
+    const old = saved(root, 'old', { ...evaluation([oldCase]),
+        manifestSha256: corpusDigest([oldCase]), totals: totalsFor([oldCase]) });
+    const current = saved(root, 'current', fresh(root, evaluation([measured(a, 2)], NEXT_SHA, NEXT_TIME)));
+    const changed = challengeState(root, [old, current], NEXT_SHA);
+    assert.equal(changed.status, 'failed');
+    assert.match(changed.batches[0].error, /removed or changed/u);
+
+    const corrupt = challengeState(root, [current, {
+        event: 'challenge', challenge_evaluation: 'challenges/evaluations/missing.json',
+    }], NEXT_SHA);
+    assert.equal(corrupt.status, 'failed');
+    assert.match(corrupt.aggregate.error, /ENOENT|missing/u);
+    assert.match(challengeDashboard(root, [current, {
+        event: 'challenge', challenge_evaluation: 'challenges/evaluations/missing.json',
+    }], NEXT_SHA).error, /ENOENT|missing/u);
+});
+
+test('all-batch scoring retains failed artifacts and pins one HEAD', () => {
+    const batches = [{ batch: 'v1' }, { batch: 'v2' }];
+    const failed = runAllBatches('/tmp', 'challenges/evaluations', {
+        batches, stamp: 'fixed',
+        readHead: () => FIRST_SHA,
+        evaluate: (root, path, batch) => ({ sha: FIRST_SHA,
+            status: batch === 'v1' ? 'failed' : 'complete',
+            error: batch === 'v1' ? 'runner timeout' : null }),
+    });
+    assert.equal(failed.results.length, 2);
+    assert.deepEqual(failed.failures, [{
+        batch: 'v1', relative: 'challenges/evaluations/fixed-v1.json', error: 'runner timeout',
+    }]);
+    let reads = 0;
+    assert.throws(() => runAllBatches('/tmp', 'challenges/evaluations', {
+        batches: [batches[0]], stamp: 'head-change',
+        readHead: () => reads++ < 2 ? FIRST_SHA : NEXT_SHA,
+        evaluate: () => ({ sha: FIRST_SHA, status: 'complete' }),
+    }), /HEAD changed/u);
 });
 
 test('changed recordings and path escapes are rejected before replay', t => {
