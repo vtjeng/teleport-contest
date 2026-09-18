@@ -317,23 +317,25 @@ test('the interactive arm selects from a second-object menu',
         }.`);
     });
 
-test('the interactive arm refuses the settings it cannot answer for',
+test('the traditional arm picks a single object and menu-on-request shares it',
     async () => {
         // flags.menu_style == MENU_TRADITIONAL without the reqmenu prefix is
-        // pickup.c:793's old-style interface. Startup menustyle parsing can
-        // now reach it; this test keeps its separate fail-closed boundary.
+        // pickup.c:793's old-style interface. A single object takes the
+        // ordinary traditional loop without opening a class query.
         const traditional = await heroOnAnEmptySquare();
-        objectUnderHero(traditional);
+        const object = objectUnderHero(traditional);
         traditional.flags.menu_style = MENU_TRADITIONAL;
-        await assert.rejects(
-            () => dopickup(traditional),
-            (error) => error instanceof UnsupportedPickupError
-                && /traditional interface/u.test(error.message),
-        );
+        assert.equal(await dopickup(traditional), ECMD_TIME);
+        assert.ok(carried(traditional, object));
+
         // pickup.c:759's second disjunct: `m,` reaches the menu arm whatever
         // menustyle says, and a single object still takes the shortcut.
-        traditional.iflags.menu_requested = true;
-        assert.equal(await dopickup(traditional), ECMD_TIME);
+        const requested = await heroOnAnEmptySquare();
+        const requestedObject = objectUnderHero(requested);
+        requested.flags.menu_style = MENU_TRADITIONAL;
+        requested.iflags.menu_requested = true;
+        assert.equal(await dopickup(requested), ECMD_TIME);
+        assert.ok(carried(requested, requestedObject));
 
     });
 

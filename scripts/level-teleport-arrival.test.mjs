@@ -572,28 +572,20 @@ test('random-arrival planning never applies live placement effects',
         assert.deepEqual(events, ['switch']);
     });
 
-test('random arrival refuses a helpless hero before RNG or placement',
+test('conscious immobilization does not prevent random arrival',
     async () => {
+        // pickup.c tests unconscious() together with multi < 0. A conscious
+        // immobilized hero still arrives and later skips taking floor objects.
         const state = placementState();
         initRng(9450610);
-        enableRngLog();
         state.multi = -1;
         state.dndest = { lx: 10, ly: 8, hx: 10, hy: 8 };
         state.level.at(10, 8).typ = ROOM;
-        const before = {
-            position: [state.u.ux, state.u.uy],
-            rng: structuredClone(game.coreCtx),
-            log: [...getRngLog()],
-        };
 
-        await assert.rejects(
-            () => place_random_arrival(0, state),
-            /pickup\(\) while helpless/u,
-        );
+        await place_random_arrival(0, state);
 
-        assert.deepEqual([state.u.ux, state.u.uy], before.position);
-        assert.deepEqual(game.coreCtx, before.rng);
-        assert.deepEqual(getRngLog(), before.log);
+        assert.deepEqual([state.u.ux, state.u.uy], [10, 8]);
+        assert.equal(state.multi, -1);
     });
 
 test('random arrival preflights the complete ordinary pickup transaction',
@@ -779,7 +771,7 @@ test('an entirely autopicked arrival pile skips visible-region description',
         assert.equal(game.level.regions.includes(region), true);
     });
 
-test('random arrival refuses each unsupported ordinary pickup guard atomically',
+test('random-arrival pickup early returns preserve the live state during admission',
     async () => {
         await runSegment({
             seed: 7632401,
@@ -826,7 +818,6 @@ test('random arrival refuses each unsupported ordinary pickup guard atomically',
         const cases = [
             {
                 name: 'unreachable floor',
-                pattern: /cannot reach the floor/u,
                 apply: () => {
                     game.u.uprops[LEVITATION].intrinsic = 1;
                 },
@@ -836,7 +827,6 @@ test('random arrival refuses each unsupported ordinary pickup guard atomically',
             },
             {
                 name: 'no-taking hero form',
-                pattern: /cannot take objects/u,
                 apply: () => {
                     game.youmonst.data = {
                         ...originalSpecies,
@@ -875,11 +865,16 @@ test('random arrival refuses each unsupported ordinary pickup guard atomically',
                 capacity: game.gw.wc,
             };
 
-            await assert.rejects(
-                () => place_random_arrival(0, game),
-                guard.pattern,
-                guard.name,
-            );
+            // Match place_random_arrival's isolated view: pickup admission
+            // may refresh its capacity cache but cannot move or paint live state.
+            preflight_projected_random_arrival_pickup({
+                ...game,
+                u: { ...game.u, ux: destination.x, uy: destination.y },
+                gw: { ...game.gw },
+                gp: { ...game.gp },
+                iflags: { ...game.iflags },
+                context: { ...game.context },
+            });
 
             assert.deepEqual(game.u, before.hero, guard.name);
             assert.equal(game.youmonst.data, before.species, guard.name);

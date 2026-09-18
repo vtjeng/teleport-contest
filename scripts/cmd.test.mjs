@@ -9,7 +9,6 @@ import {
 } from '../js/command_bindings.js';
 import {
     moveloop_core,
-    UnsupportedTurnBoundaryError,
 } from '../js/allmain.js';
 import {
     cmdq_add_ec,
@@ -4399,18 +4398,9 @@ test('movement repeat counts preserve the COLNO sentinel threshold', async () =>
     }
 });
 
-// The refusal both movement backstops convert. pickup.c pickup() reaches
-// engrave.c can_reach_floor() only when the hero's new square holds an object,
-// and that answers FALSE while the hero levitates, where js/pickup.js raises
-// UnsupportedPickupError. That class is one of the four the movement path can
-// reach that js/jsmain.js does not break the segment on, so before the
-// wrappers it escaped runSegment() and cost the segment its matching prefix.
-//
-// The js/hack.js seam guards refuse ahead of domove(), but none of them reads
-// Levitation -- hack.c test_move() does not either, and js/hack.js
-// spoteffects() records that nothing in this port grants the property yet --
-// so the two tests below set it directly. That is what makes them backstop
-// tests rather than repeats of the seam's own admission cases.
+// C pickup.c pickup() returns without taking floor objects when the hero
+// levitates. Exercise that return through both initial and continued movement.
+// An extrinsic property avoids an unrelated levitation timeout on the next turn.
 function installUnreachableFloorObject(x, y) {
     // !autopickup keeps the seam's 'automatic pickup' guard silent, so the
     // object survives as far as pickup()'s can_reach_floor() test.
@@ -4429,55 +4419,23 @@ function installUnreachableFloorObject(x, y) {
     game.u.uprops[LEVITATION].extrinsic = 1;
 }
 
-test('a refusal below domove() reaches the player as a command boundary',
+test('movement over an unreachable floor object completes without pickup',
     async () => {
         const { x, y } = await prepareHeroMoveAdmission();
         installUnreachableFloorObject(x, y);
+        const object = game.level.objects[x][y];
         game.context.move = 0;
         game.context.run = 0;
         game.context.nopick = 0;
         game.domoveAttempting = 0;
-        const moveKey = commandKeyCode('l');
-        game.nhDisplay.pushKey(moveKey);
+        game.nhDisplay.pushKey(commandKeyCode('l'));
 
-        await assert.rejects(
-            () => rhack(0, game),
-            (error) => {
-                assert.ok(
-                    error instanceof UnsupportedHeroCommandBoundaryError,
-                    `${error.constructor.name} is not a command boundary`,
-                );
-                // And the subclass that says the refusal came from below a
-                // dispatched command rather than from the admission seam.
-                // scripts/scan-sessions.mjs isCommandRefusal() reads this to
-                // decide whether the recorded byte can name the behavior the
-                // port stopped on; here it cannot, because `l` is admitted.
-                assert.ok(
-                    error instanceof UnsupportedHeroCommandBranchBoundaryError,
-                    `${error.constructor.name} is not a branch boundary`,
-                );
-                assert.equal(error.key, moveKey);
-                assert.equal(
-                    error.message,
-                    'unsupported hero command: an unported branch of this '
-                    + 'command: unsupported pickup: pickup() by a hero who '
-                    + 'cannot reach the floor',
-                );
-                return true;
-            },
-        );
-        // The wrapper refuses after the step rather than before it: domove()
-        // moved the hero and only then reached pickup(). That is why the
-        // js/hack.js seam guards stay where they are -- they refuse while
-        // nothing has moved, drawn or painted yet.
+        await rhack(0, game);
+
         assert.deepEqual([game.u.ux, game.u.uy], [x, y]);
-        // failClosedCommand() runs resetCommandVars() before it throws, and
-        // that reset deliberately preserves context.pendingCommand. Nothing
-        // serializes pendingCommand, so the retained key outlives the refusal
-        // only inside this segment, which js/jsmain.js then ends.
-        assert.equal(game.context.move, 0);
-        assert.equal(game.multi, 0);
-        assert.equal(game.context.pendingCommand.key, moveKey);
+        assert.equal(game.level.objects[x][y], object);
+        assert.equal(object.where, OBJ_FLOOR);
+        assert.equal(game.context.pendingCommand, undefined);
     });
 
 // Prepares the run the two tests below drive: two ordinary squares east of the
@@ -4511,40 +4469,25 @@ async function takeFirstRunStep(first) {
     assert.equal(game.multi, COLNO);
     assert.equal(game.context.mv, 1);
     // rhack() ran its finally on the way out and dropped the retained
-    // keystroke. That is the premise of the turn boundary the next turn
-    // raises: no key survives here for a command boundary to hand back.
+    // keystroke. The continued move runs without a retained command key.
     assert.equal(game.context.pendingCommand, undefined);
     // Skip the elapsed-turn block, so the next turn is the run step alone.
     game.context.move = 0;
 }
 
-test('a refusal below the run loop reaches the player as a turn boundary',
+test('a continued run crosses an unreachable floor object without pickup',
     async () => {
         const { first, second } = await prepareRunPastTheFirstStep();
         installUnreachableFloorObject(second[0], second[1]);
+        const object = game.level.objects[second[0]][second[1]];
         await takeFirstRunStep(first);
 
-        await assert.rejects(
-            () => moveloop_core(),
-            (error) => {
-                assert.ok(
-                    error instanceof UnsupportedTurnBoundaryError,
-                    `${error.constructor.name} is not a turn boundary`,
-                );
-                assert.equal(
-                    error.message,
-                    'a continued move reached unsupported pickup: pickup() by '
-                    + 'a hero who cannot reach the floor',
-                );
-                // The turn boundary carries no key. rhack() is off the stack
-                // here, its finally has already deleted context.pendingCommand
-                // and no retry could honour one, so this site must not raise
-                // the command boundary the js/cmd.js half raises.
-                assert.equal(error.key, undefined);
-                return true;
-            },
-        );
+        await moveloop_core();
+
         assert.deepEqual([game.u.ux, game.u.uy], second);
+        assert.equal(game.level.objects[second[0]][second[1]], object);
+        assert.equal(object.where, OBJ_FLOOR);
+        assert.equal(game.context.pendingCommand, undefined);
     });
 
 test('the run loop leaves a class outside the refusal list as it found it',
