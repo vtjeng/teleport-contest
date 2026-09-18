@@ -131,8 +131,8 @@ import {
     glyph_to_obj,
     glyph_to_trap,
     engraving_to_glyph,
+    MG_FLAG_NOOVERRIDE,
     map_glyphinfo,
-    stored_monster_class_symbol,
     NO_GLYPH,
     trap_to_glyph,
 } from './display.js';
@@ -1026,11 +1026,12 @@ function visibleGlyphCharacter(glyphinfo) {
     return glyphinfo.ch;
 }
 
-// C pager.c uses the one map_glyphinfo() record for both its raw tty byte and
-// its encoded prefix.  The rendered cell sidecars can contain a DEC/UTF-8
-// character (or null after cls()), so they must not participate in lookup.
-function descriptionDisplayCharacter(glyph, state) {
-    return visibleGlyphCharacter(map_glyphinfo(glyph, state));
+// C pager.c derives its encoded prefix from map_glyphinfo(0,0,glyph), while
+// its lookup byte uses map_glyphinfo(cc.x,cc.y,glyph). The rendered cell
+// sidecars can contain a DEC/UTF-8 character (or null after cls()), so they
+// must not participate in either resolution.
+function descriptionDisplayCharacter(glyphInfo) {
+    return visibleGlyphCharacter(glyphInfo);
 }
 
 // C ref: pager.c waterbody_name() (560-612). `SURFACE_AT()` is the shared
@@ -1241,15 +1242,18 @@ export function do_screen_description(cc, looked, sym, state = game) {
     // latter uses the default defsym tables and has no location glyph to
     // refine; keeping it in this same pass is important for symbol aliases.
     const glyph = looked ? glyph_at(cc.x, cc.y, state) : NO_GLYPH;
+    const prefixGlyphInfo = looked ? map_glyphinfo(glyph, state) : null;
+    const lookupGlyphInfo = looked
+        ? map_glyphinfo(glyph, state, { x: cc.x, y: cc.y }) : null;
     const displayCharacter = looked
-        ? descriptionDisplayCharacter(glyph, state) : null;
+        ? descriptionDisplayCharacter(prefixGlyphInfo) : null;
     let symbolByte = sym;
     if (looked) {
         // C pager.c:map_glyphinfo() supplies the raw tty byte used for every
         // family comparison.  The rendered disp_ch is a DEC/UTF-8 display
         // character and can differ from that byte (for example 0xfe renders
         // as '~'); using it here misclassifies walls as monster classes.
-        symbolByte = map_glyphinfo(glyph, state).ttychar;
+        symbolByte = lookupGlyphInfo.ttychar;
     }
     const prefix = looked
         ? displayCharacter + '        '
@@ -1601,8 +1605,11 @@ export function do_screen_description(cc, looked, sym, state = game) {
                 // monster glyph's real class. Do not consult the current
                 // species or require a live monster: C runs this arm for the
                 // remembered glyph even after the occupant has moved away.
-                const storedSymbol = stored_monster_class_symbol(glyph, state);
-                if (storedSymbol !== null) symbolByte = storedSymbol;
+                symbolByte = map_glyphinfo(
+                    glyph,
+                    state,
+                    { x: cc.x, y: cc.y, mgflags: MG_FLAG_NOOVERRIDE },
+                ).ttychar;
                 checkMonsterClasses(symbolByte);
                 collectObjectsAndTerrain({ resetTrap: true });
             } else if (index === SYM_OFF_X + SYM_HERO_OVERRIDE) {

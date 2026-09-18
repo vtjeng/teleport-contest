@@ -50,6 +50,7 @@ import {
     AM_CHAOTIC, AM_LAWFUL, AM_MASK, AM_NEUTRAL, AM_SANCTUM,
     ACCESSIBLE, BLINDED, CONFUSION, DEAF, DETECT_MONSTERS, FLYING,
     HALLUC, HALLUC_RES,
+    H_IBM, ROGUESET,
     CORPSTAT_FEMALE, CORPSTAT_GENDER,
     HL_BOLD, HL_INVERSE, HL_ULINE, HL_UNDEF,
     LEVITATION, NOT_HUNGRY, SICK, SICK_NONVOMITABLE, SICK_VOMITABLE,
@@ -1750,6 +1751,18 @@ export function glyph_is_monster(glyph) {
     ].some((offset) => glyph >= offset && glyph < offset + NUMMONS);
 }
 
+export function glyph_is_pet(glyph) {
+    assertGlyphNumber(glyph, 'glyph_is_pet');
+    return [GLYPH_PET_MALE_OFF, GLYPH_PET_FEM_OFF]
+        .some((offset) => glyph >= offset && glyph < offset + NUMMONS);
+}
+
+function speciesForGlyph(glyph, state) {
+    const species = state.mons?.[glyph_to_mon(glyph)];
+    if (!species) throw new TypeError(`unknown monster glyph ${glyph}`);
+    return species;
+}
+
 export function glyph_is_object(glyph) {
     assertGlyphNumber(glyph, 'glyph_is_object');
     return glyph_is_normal_object(glyph) || glyph_is_generic_object(glyph)
@@ -1818,6 +1831,7 @@ export function stored_monster_class_symbol(glyph, state = game) {
 // its only writer and `grep -rn MG_INVIS src/ include/ win/` finds no reader,
 // so tty_print_glyph()'s attribute chain never sees it and the marker draws
 // with ATR_NONE. It is carried because C carries it.
+export const MG_HERO = 0x00001;
 export const MG_CORPSE = 0x00002;
 export const MG_INVIS = 0x00004;
 export const MG_DETECT = 0x00008;
@@ -1835,6 +1849,7 @@ export const MG_BW_ENGR = 0x00200;
 export const MG_NOTHING = 0x00400;
 export const MG_MALE = 0x01000;
 export const MG_FEMALE = 0x02000;
+export const MG_FLAG_NOOVERRIDE = 0x01;
 
 /**
  * C ref: win/tty/wintty.c tty_print_glyph() (3923-3937), the ordered chain
@@ -1893,11 +1908,10 @@ export const ALTAR_CUSTOMIZATION_NAMES = Object.freeze([
 ]);
 
 // The glyph ranges map_glyphinfo() has an arm for: GLYPH_NOTHING,
-// GLYPH_UNEXPLORED, every monster and object
-// range, every cmap range (including zap beams), and explosion frames. This is the port's own
-// assertion rather than a ported predicate, and it is deliberately narrower
-// than glyph_is_cmap(): that macro's contiguous span admits the zap range,
-// which zapdir_to_glyph() would have to produce and no ported path does.
+// GLYPH_UNEXPLORED, every monster and object range, every cmap range
+// (including zap beams), and explosion frames. This is the port's own
+// assertion rather than a ported predicate; the C glyph map itself resolves
+// the contiguous zap range even when no gameplay producer is active.
 // The JS map buffer uses `remembered_glyph === undefined` for an unexplored
 // map-memory record, but the live glyph buffer still exposes C's
 // GLYPH_UNEXPLORED sentinel after cls() and before a square is drawn.
@@ -1912,6 +1926,57 @@ function mapGlyphinfoResolves(glyph) {
         || (glyph >= GLYPH_EXPLODE_DARK_OFF
             && glyph < GLYPH_WARNING_OFF)
         || glyph_is_swallow(glyph);
+}
+
+// display.c:2594-2655. The C helper receives the selected coordinates and an
+// optional MG_FLAG_NOOVERRIDE bit in addition to the glyph number. Most JS
+// callers only need the stored glyph presentation, so the coordinate/flag
+// contract is optional and defaults to the ordinary map-glyph case.
+function mapGlyphinfoOptions(options = undefined) {
+    return {
+        x: Number.isInteger(options?.x) ? options.x : undefined,
+        y: Number.isInteger(options?.y) ? options.y : undefined,
+        mgflags: options?.mgflags ?? 0,
+    };
+}
+
+function hasRogueIbmGraphics(state) {
+    const graphics = state.gc?.currentgraphics;
+    const symset = state.gs?.symset?.[ROGUESET];
+    return graphics === ROGUESET
+        && symset?.handling === H_IBM;
+}
+
+function hasRogueColor(state) {
+    return hasRogueIbmGraphics(state)
+        && state.gs?.symset?.[ROGUESET]?.nocolor === 0;
+}
+
+function isRogueLevelForState(state) {
+    const level = state.u?.uz;
+    const rogue = state.rogue_level;
+    return Boolean(rogue && level
+        && rogue.dnum === level.dnum && rogue.dlevel === level.dlevel);
+}
+
+function configuredMiscOverride(index, state) {
+    const arrays = isRogueLevelForState(state)
+        ? state.go?.ov_rogue_syms : state.go?.ov_primary_syms;
+    const absolute = SYM_OFF_X + index;
+    if (!arrays?.[absolute]) return null;
+    // C tests the override table's nonzero byte, then reads the selected
+    // symbol slot. A configured space is still a valid hero override.
+    return misc_symbol(index, state);
+}
+
+function configuredPetOverride(state) {
+    const arrays = isRogueLevelForState(state)
+        ? state.go?.ov_rogue_syms : state.go?.ov_primary_syms;
+    const petOverride = arrays?.[SYM_OFF_X + SYM_PET_OVERRIDE] ?? 0;
+    // display.c reset_glyphmap() intentionally indexes showsyms by the
+    // configured byte here, rather than by S_pet_override's slot.
+    if (state.gs?.showsyms?.[petOverride] === ' '.charCodeAt(0)) return null;
+    return misc_symbol(SYM_PET_OVERRIDE, state);
 }
 
 /**
@@ -1935,26 +2000,26 @@ function mapGlyphinfoResolves(glyph) {
  * explosion and swallow -- have no ported producer, and the guard's bounds
  * stand in for the ones they would otherwise have supplied.
  *
- * Two of C's terms are absent because no ported path can make them true.
- * has_rogue_color needs gc.currentgraphics == ROGUESET with IBM symbol
- * handling, and the GMAP_ROGUELEVEL clamp needs Is_rogue_level(&u.uz); no
- * ported path reaches the rogue level, and js/display.js reglyph_darkroom()
- * already refuses the level for the same reason. The clamp's remaining term,
- * !iflags.use_color, is recorderMapColor()'s mapColorEnabled() test, which
- * also carries C's cmap_color()/wall_color()/altar_color() macros: each is
- * `iflags.use_color ? <table>[n] : NO_COLOR`, so the arms below read the table
- * directly and let the clamp answer for the option.
+ * The optional coordinate/flag arguments below cover map_glyphinfo()'s
+ * coordinate-dependent hero and accessibility overrides. The remaining
+ * color terms use recorderMapColor()'s mapColorEnabled() test, which carries
+ * C's cmap_color()/wall_color()/altar_color() macros through the active tty
+ * state.
  */
-export function map_glyphinfo(glyph, state = game) {
+export function map_glyphinfo(glyph, state = game, options = undefined) {
     if (!mapGlyphinfoResolves(glyph)) {
         throw new TypeError(
             `map_glyphinfo() has no arm for glyph ${glyph}`,
         );
     }
+    const { x, y, mgflags } = mapGlyphinfoOptions(options);
     let offset;
     let symbol;
     let color;
     let glyphflags = 0;
+    const rogueColor = hasRogueColor(state);
+    const isYou = x !== undefined && y !== undefined
+        && u_at(x, y, state) && glyph_is_monster(glyph);
     // The defsym index the arm drew from, for the arms that drew from one.
     let cmap = null;
     let customizationName = null;
@@ -1974,9 +2039,7 @@ export function map_glyphinfo(glyph, state = game) {
         // display.c:2986-3065. The glyph number already contains the
         // species, gender, and presentation family; derive the symbol from
         // it instead of consulting a live monster or rerolling hallucination.
-        const mnum = glyph_to_mon(glyph);
-        const species = state.mons?.[mnum];
-        if (!species) throw new TypeError(`unknown monster glyph ${glyph}`);
+        const species = speciesForGlyph(glyph, state);
         symbol = monster_class_symbol(species.mlet, state);
         color = species.mcolor ?? NO_COLOR;
         if (glyph >= GLYPH_RIDDEN_FEM_OFF
@@ -2002,6 +2065,10 @@ export function map_glyphinfo(glyph, state = game) {
             glyphflags = MG_FEMALE;
         } else {
             glyphflags = MG_MALE;
+        }
+        if (rogueColor) {
+            color = glyph >= GLYPH_MON_MALE_OFF
+                && glyph < GLYPH_MON_FEM_OFF ? CLR_YELLOW : NO_COLOR;
         }
     } else if ((offset = glyph - GLYPH_STATUE_FEM_PILETOP_OFF) >= 0) {
         symbol = statueSymbol(offset, state);
@@ -2032,7 +2099,7 @@ export function map_glyphinfo(glyph, state = game) {
         // map_glyphinfo resolves that stored level without rerolling the
         // hallucinated warning chosen by warningGlyphInfo().
         symbol = symbol_at(SYM_OFF_W + offset, state);
-        color = def_warnsyms[offset]?.color ?? NO_COLOR;
+        color = rogueColor ? NO_COLOR : def_warnsyms[offset]?.color ?? NO_COLOR;
     } else if ((offset = glyph - GLYPH_EXPLODE_FROSTY_OFF) >= 0) {
         // display.c:2843-2862. Explosion glyphs use the same cmap symbol
         // sequence for each color family and choose color from explodecolors.
@@ -2142,6 +2209,50 @@ export function map_glyphinfo(glyph, state = game) {
     if (cmap !== null) {
         symbol = cmap_symbol(cmap, state);
     }
+    // reset_glyphmap() turns colors off for a rogue level without active
+    // Rogue IBM colors, and for the ordinary no-color option. map_glyphinfo()
+    // applies its hero color adjustment after this stored-map stage.
+    if (state.iflags?.wc_color === false
+        || (isRogueLevelForState(state) && !rogueColor)) color = NO_COLOR;
+
+    // reset_glyphmap() installs the pet override in the stored glyph map
+    // before map_glyphinfo() applies coordinate-dependent hero handling.
+    if (accessibilityOverridesEnabled(state) && glyph_is_pet(glyph)) {
+        const petSymbol = configuredPetOverride(state);
+        if (petSymbol) symbol = petSymbol;
+    }
+    if (isYou) {
+        // display.c map_glyphinfo() tweaks only the ordinary, non-polymorphed
+        // hero glyph. A steed/ridden glyph and a polymorphed hero retain the
+        // stored monster color, while showrace uses the human hero color.
+        const heroGlyph = hero_glyph_info(state).glyph;
+        if (glyph === heroGlyph && !Upolyd(state.u)
+            && state.iflags?.wc_color !== false) {
+            if (rogueColor) color = CLR_YELLOW;
+            else if (state.flags?.showrace) color = HI_DOMESTIC;
+        }
+        glyphflags |= MG_HERO;
+        if (accessibilityOverridesEnabled(state)
+            && !(mgflags & MG_FLAG_NOOVERRIDE)) {
+            const arrays = isRogueLevelForState(state)
+                ? state.go?.ov_rogue_syms : state.go?.ov_primary_syms;
+            const absolute = SYM_OFF_X + SYM_HERO_OVERRIDE;
+            if (arrays?.[absolute]) {
+                const override = configuredMiscOverride(
+                    SYM_HERO_OVERRIDE, state,
+                );
+                if (override) symbol = override;
+            }
+        }
+    }
+    if (accessibilityOverridesEnabled(state)
+        && (mgflags & MG_FLAG_NOOVERRIDE) && glyph_is_pet(glyph)) {
+        // display.c:2648-2651. NOOVERRIDE is used by pager.c when it
+        // re-enters the monster-class pass for a pet override. The class is
+        // recovered from the stored glyph species, never from m_at().
+        symbol = monster_class_symbol(speciesForGlyph(glyph, state).mlet, state);
+    }
+
     const presentation = glyphPresentation(
         symbol,
         color,

@@ -40,6 +40,7 @@ import {
     H_UNK,
     HALLUC,
     HALLUC_RES,
+    HI_DOMESTIC,
     HL_BLINK,
     HL_BOLD,
     HL_DIM,
@@ -149,6 +150,7 @@ import {
     hallucinated_statue_glyph_info,
     hero_glyph_info,
     map_glyphinfo,
+    MG_FLAG_NOOVERRIDE,
     map_invisible,
     map_trap,
     MG_CORPSE,
@@ -194,6 +196,8 @@ import {
     GLYPH_CMAP_SOKO_OFF,
     GLYPH_CMAP_STONE_OFF,
     GLYPH_NOTHING_OFF,
+    GLYPH_MON_FEM_OFF,
+    GLYPH_MON_MALE_OFF,
     GLYPH_OBJ_OFF,
     GLYPH_OBJ_PILETOP_OFF,
     GLYPH_PET_MALE_OFF,
@@ -1288,6 +1292,83 @@ test('stored monster glyphs clear overrides from the glyph species', () => {
     assert.equal(
         stored_monster_class_symbol(GLYPH_INVISIBLE, state),
         null,
+    );
+});
+
+test('map_glyphinfo keeps hero prefix and lookup overrides source-distinct', () => {
+    const state = visibleCellState({ x: 7, y: 4, ux: 7, uy: 4 });
+    state.sysopt = { accessibility: 1 };
+    initialize_symbols_from_options(
+        parseNethackrc('SYMBOLS=S_pet_override:!,S_hero_override:?'),
+        state,
+    );
+
+    const heroGlyph = hero_glyph_info(state).glyph;
+    // windows.c encodes the prefix through map_glyphinfo(0,0,glyph), while
+    // pager.c resolves the lookup byte with the selected coordinates. Only
+    // the latter is eligible for the hero accessibility override.
+    const ordinaryHero = map_glyphinfo(
+        heroGlyph, state, { x: 7, y: 4, mgflags: MG_FLAG_NOOVERRIDE },
+    ).ch;
+    assert.equal(map_glyphinfo(heroGlyph, state).ch, ordinaryHero);
+    assert.equal(
+        map_glyphinfo(heroGlyph, state, { x: 7, y: 4 }).ch,
+        '?',
+    );
+    assert.equal(
+        map_glyphinfo(heroGlyph, state, {
+            x: 7, y: 4, mgflags: MG_FLAG_NOOVERRIDE,
+        }).ch,
+        ordinaryHero,
+    );
+
+    // A pet override is a glyph-map presentation and is disabled only by
+    // the source MG_FLAG_NOOVERRIDE re-entry. The stored species remains the
+    // human monster class even though no live monster is consulted.
+    assert.equal(map_glyphinfo(GLYPH_PET_MALE_OFF, state).ch, '!');
+    const ordinaryPet = map_glyphinfo(
+        GLYPH_PET_MALE_OFF, state, { mgflags: MG_FLAG_NOOVERRIDE },
+    ).ch;
+    assert.equal(
+        map_glyphinfo(GLYPH_PET_MALE_OFF, state, {
+            mgflags: MG_FLAG_NOOVERRIDE,
+        }).ch,
+        ordinaryPet,
+    );
+});
+
+test('map_glyphinfo follows Rogue IBM monster and warning colors', () => {
+    const state = visibleCellState();
+    initialize_symbols_from_options(
+        parseNethackrc('OPTIONS=roguesymset:RogueIBM'), state,
+    );
+    assign_graphics(ROGUESET, state);
+    assert.equal(state.gs.symset[ROGUESET].handling, H_IBM);
+    state.gs.symset[ROGUESET].nocolor = 0;
+    assert.equal(map_glyphinfo(GLYPH_MON_MALE_OFF, state).color, CLR_YELLOW);
+    assert.equal(map_glyphinfo(GLYPH_MON_FEM_OFF, state).color, NO_COLOR);
+    assert.equal(map_glyphinfo(GLYPH_WARNING_OFF + 1, state).color, NO_COLOR);
+});
+
+test('map_glyphinfo applies the rogue color clamp before hero showrace', () => {
+    const state = visibleCellState({ x: 7, y: 4, ux: 7, uy: 4 });
+    state.flags = { showrace: true };
+    state.u.umonster = state.u.umonnum;
+    state.sysopt = { accessibility: 1 };
+    initialize_symbols_from_options(
+        parseNethackrc('OPTIONS=roguesymset:RogueIBM'), state,
+    );
+    assign_graphics(ROGUESET, state);
+    // Keep the symbol table color-enabled while removing IBM handling. This
+    // isolates reset_glyphmap()'s rogue-without-IBM clamp from recorderMapColor.
+    state.gs.symset[ROGUESET].handling = H_UNK;
+    state.gs.symset[ROGUESET].nocolor = 0;
+    state.rogue_level = { dnum: 0, dlevel: 1 };
+
+    const heroGlyph = hero_glyph_info(state).glyph;
+    assert.equal(
+        map_glyphinfo(heroGlyph, state, { x: 7, y: 4 }).color,
+        HI_DOMESTIC,
     );
 });
 
