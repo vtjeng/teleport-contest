@@ -66090,6 +66090,116 @@
         "rng": 789270
       },
       "parkedReason": "The complete helper family and menu caller pass the combined checkpoint with five new matching recordings. Monster/object/unexplored/interesting/valid cycles and GFILTER_VIEW lack entry recordings; preserve those open entries while selection follows the new Knight RNG1742 mismatch and later movement refusal."
+    },
+    {
+      "id": "div-plan-monster-list-iteration-seed4500-20260918",
+      "kind": "divergence-fix",
+      "status": "open",
+      "summary": "Match safe monster-list iteration during turn planning",
+      "cFile": "mon.c",
+      "sessions": [],
+      "selectionReason": "Source-traced dependency for pending B38 special-movement/displacement work in holdout/seed4500-knight-coverage, remainingScreensUpperBound72, investigations/holdout/seed4500-knight-coverage.json. Its first RNG1742 actor cause remains partial, but direct comparison proves the projected traversal differs from mon.c movemon and must preserve list mutations and callback termination before new displacement/death paths land. The equally sized seed2200 suffix is machine-local Q1. This independent mon.c caller scope does not overlap worker B monmove.c m_move.",
+      "detail": "C mon.c movemon1330 calls iter_mons_safe4500–4526, snapshotting initial monster identities and stopping when its callback returns true. Live JS mon.js does likewise. JS unported_monster_actions.js planSimpleMonsterTurn2025–2036 follows mutable nmon links directly and discards planSimpleMonsterScan/movemon_singlemon return values. A callback removing or inserting monsters can change subsequent planned actors. Reuse the canonical iterator, propagate stop/gameover semantics, and verify cloned state, deletion/insertion and termination. This source-confirmed planning discrepancy is not yet established as the cause of fixed Knight RNG1742.",
+      "spans": [
+        {
+          "name": "planning-safe-list-iteration",
+          "status": "queued",
+          "closedBy": null,
+          "functions": [
+            "movemon"
+          ]
+        }
+      ],
+      "openedAt": "095593e9b421014010c329c151e34aff671e5fc8",
+      "openStanding": {
+        "sha": "875f40301cb734d3a419e2b291f286b73db785d7",
+        "screens": 11324,
+        "rng": 789270
+      },
+      "closedAt": null,
+      "delivered": null,
+      "function": "movemon",
+      "session": "holdout/seed4500-knight-coverage",
+      "activeStanding": {
+        "sha": "875f40301cb734d3a419e2b291f286b73db785d7",
+        "screens": 11324,
+        "rng": 789270
+      },
+      "openMismatches": [
+        {
+          "session": "holdout/seed4500-knight-coverage",
+          "step": 1742,
+          "kind": "rng",
+          "function": "distfleeck",
+          "functionDeclared": true,
+          "sourceFile": "monmove.c",
+          "cFile": "monmove.c",
+          "luaFile": null,
+          "line": 538,
+          "message": null,
+          "unlocatedKinds": [],
+          "recordedSteps": 1814,
+          "remainingScreensUpperBound": 72,
+          "investigation": {
+            "status": "partial",
+            "path": "investigations/holdout/seed4500-knight-coverage.json",
+            "result": {
+              "session": "holdout/seed4500-knight-coverage",
+              "remainingScreensUpperBound": 72,
+              "status": "partial",
+              "commit": "875f40301cb734d3a419e2b291f286b73db785d7",
+              "mismatch": {
+                "session": "holdout/seed4500-knight-coverage",
+                "step": 1742,
+                "kind": "rng",
+                "function": "distfleeck",
+                "functionDeclared": true,
+                "sourceFile": "monmove.c",
+                "cFile": "monmove.c",
+                "luaFile": null,
+                "line": 538,
+                "message": null,
+                "unlocatedKinds": [],
+                "recordedSteps": 1814,
+                "remainingScreensUpperBound": 72
+              },
+              "summary": "Location cycling now matches. The first mismatch is at step1742: C begins a monster movement sequence with distfleeck rn2(5), while JavaScript has entered distress processing and draws rn2(4) in decide_to_shapeshift for a full-health fog cloud. The missing movement actor and the earlier state/ration cause remain unresolved. A separate source-traced special-movement refusal stops the replay after1757 screens.",
+              "source": {
+                "file": "monmove.c",
+                "functions": [
+                  "dochug",
+                  "m_move"
+                ],
+                "branch": "C dochug calls distfleeck before and after m_move. The first divergent C suffix is distfleeck rn2(5), m_move rn2(3), m_lined_up rn2(25), m_move rn2(20), then distfleeck rn2(5). This is one movement sequence; the rn2(3) branch in m_move1869–1870 restricts the actor to a stalker, bat or light. JS has finished its scan and enters allmain elapsed-turn mcalcdistress, then mon.c decide_to_shapeshift for a fog cloud. Trace monster movement allocation/subtraction and scan continuation before changing either draw bound.",
+                "callers": [
+                  "allmain.c moveloop_core repeatedly calls movemon before distress, movement allocation and region upkeep. JS finishElapsedTurn and the projected monster scan must preserve that ordering and canonical per-monster movement state.",
+                  "mon.c movemon_singlemon1214 and movemon1326 dispatch monmove.c dochug, which calls distfleeck around m_move. The later admission refusal identifies missing special-movement paths in m_move; that source port does not establish the earlier RNG cause."
+                ],
+                "dependencies": [
+                  "Accepted getpos.c collection/cycling now includes menu selection and cancellation, source coordinate descriptions and exact area-filter lifetime. Five independent recordings match. VIEW and other location-family entry recordings remain open in GOALS.json.",
+                  "Accepted pager do_screen_description now collects all source symbol families and uses canonical stored-glyph map_glyphinfo. Its lookup coordinates differ from the encoded-prefix decode at (0,0); pet and hero overrides, Rogue colors and NOOVERRIDE order are verified. getpos_menu, displayed-glyph accessibility, cursor auto-description and clicked lookup recording entries remain open in GOALS.json.",
+                  "Accepted invent.c look_here/dolook now handles tactile floor reach, arbitrary pile inspection, pile counts, cockatrice ordering and message filtering, with canonical force_decor and query_objlist callers. Three independent recordings cover movement menu/count and colon look. Swallowed inventory, blind ICE and the tactile-corpse fallback remain unrecorded entry families in GOALS.json; movement retains its mutation-free unsupported naming/pricing boundary.",
+                  "Accepted allmain region upkeep runs supported callbacks after nh_timeout on cloned state during planning, preserving live output and shared-vision restoration. Harmful gas and unknown callbacks remain explicit boundaries; the region-fix goal remains parked pending its first-mismatch closure criterion.",
+                  "Other unresolved source/coverage defects remain separate: make_stoned/minstapetrify/do_stone_mon; hero/monster stoning directions, corpse-weapon and attack-triggered golem entries; passive cold/fire/electricity/paralysis and lethal recovery; eating/non-food cleanup; skinback artifact-light radius and rare armor/Eyes-of-the-Overworld cleanup.",
+                  "Liquid-specific entry recordings and exceptional partial rloc routes remain open; trap.c inventory-chain calls and mon.c deal_with_overcrowding remain named discarded-call gaps. GOALS.json preserves open print_dungeon, hitmu, mfind0, goto_level, minliquid, creation/flash, pickup and achievement entry families rather than treating supporting unit tests as their completion.",
+                  "Hidden-attacker witnesses require eligible placement on objects or water, actual hidden state and an executed hitmu. Plain or qualified monster creation alone does not establish that entry; independent hidden-trapper and invisible-newt recordings establish creation/flash only.",
+                  "Source review of pending m_move/mdisplacem identifies wrong gb.bhitpos/gn.notonhead ownership, extra postmov effects after unicorn teleportation, missing engulfing/mimic/itsstuck branches, and incomplete production no-teleport wiring. Displacement also drops worm-tail RNG/redraw hooks and can leak mimic/stoning output during planning. These defects remain under correction; existing no-teleport Tengu evidence does not establish permitted relocation or displacement entries.",
+                  "A separate source-confirmed planning dependency is missing: C mon.c movemon1330 calls iter_mons_safe4500–4526, which snapshots the initial monster list and honors callback termination. JS planSimpleMonsterTurn follows mutable nmon links directly and ignores planSimpleMonsterScan's stop result. List mutation during a planned action can change which actors run. Correct that caller before accepting new displacement/death paths; its connection to the fixed RNG1742 mismatch is unproved."
+                ]
+              },
+              "evidence": [
+                "Checkpoint875f4030 and .cache/A38-development-scan.json confirm first screen/RNG mismatch1742, cursor mismatch1751 and special-movement refusal after1757 emitted screens. The queue suffix upper bound72 coincides with the current unmatched Knight screen count but is computed independently.",
+                "Scratch-only trace run-hYPwnn at worker9971efc9 identifies JS RNGindex104705 in decide_to_shapeshift(mon.js3378), fog cloud PM106,m_id728,(16,18),mhp16/16,cham226. The corresponding C shapeshift draw occurs five positions later. These are diagnostic state values, not implementation constants.",
+                "JS preceding actor m_id492,PM129 moves(17,3) to(17,4) and completes its source-matched movement sequence. A second PM129,m_id491,starts at(46,19) with movement12, spends that ration in its own dochug and moves to(46,18); a later scan correctly sees movement0. Trace run-xJbhBi falsifies the claim that this candidate skipped its own action. C RNG annotations contain no actor identity, so the missing C actor and state cause remain unproved.",
+                "Both C and JS distfleeck begin with rn2(5); the JS rn2(4) is now traced to distress shapeshifting, not set_apparxy or track rejection. Two distfleeck calls around m_move describe one actor action, not two. Preserve this counter-evidence.",
+                "Next probe: identify the missing C movement actor using the recorded source-call preconditions, then trace canonical movement state and repeated mon.c movemon scan conditions. Direct comparison of mon.c mcalcmove1126–1171 with JS confirms the same speed arithmetic and unconditional rounding draw; no allocation-formula defect is established. The checked candidate does not prove every scheduling path correct.",
+                "Focused planner tests execute visible harmless vapor expiration through preflightSimpleMonsterActions on both success and later-refusal paths, pin setup RNG and verify clone/live vision isolation. The existing gas-spore recording establishes general elapsed-turn caller reachability only; no matching nonempty-region entry recording is claimed. Accepted scan138b1fd0 confirms the later RNG1742 boundary remains.",
+                "Read-only comparison at accepted875f4030 finds live mon.c movemon_singlemon/movemon aligned with the source order and flags. The independent discrepancy is the projected scan in js/unported_monster_actions.js2025–2036, which does not use the canonical safe iterator or propagate its callback result. This is a concrete implementation dependency, while the missing fixed-recording actor remains unresolved."
+              ]
+            }
+          }
+        }
+      ]
     }
   ]
 }
