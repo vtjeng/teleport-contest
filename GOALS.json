@@ -64422,6 +64422,134 @@
         "rng": 788894
       },
       "parkedReason": "The quick checkfile guard is fixed and two independent selected-location recordings match. Only fixed-session closure remains: the current mismatch at step 1693 is the separate do_screen_description source gap. Resume after that port moves the fixed replay past the selected-location lookup."
+    },
+    {
+      "id": "port-pager-dohelp-wizard-seed4500-20260918",
+      "kind": "file-port",
+      "status": "open",
+      "summary": "Complete help menu filtering, wizard help, and current option-command labels",
+      "cFile": "pager.c",
+      "sessions": [
+        "holdout/seed4500-knight-coverage"
+      ],
+      "selectionReason": "The saved Knight queue has 121 remaining screens in investigations/holdout/seed4500-knight-coverage.json; A37 owns the first description mismatch at step 1693. Source-traced worker continuation run-PhcdY9 reaches the independent dohelp wizard refusal at step 1695. This whole help-function port and its static-data dependency are independent of A37. The other fixed mismatch depends on the unavailable machine-local configuration path.",
+      "detail": "Port whole pager.c dohelp2860-2898 with supporting dispfile_debughelp and setopt_cmd. Preserve source table values through wizard and hideusage filtering, derive the option-command text from current bindings, and generate wizhelp through the existing deterministic help-data pipeline. The recorder Unix build excludes PORT_HELP. Independently recorded debug-help entry and a binding variation establish the new production behavior; the current fixed first mismatch remains the separately owned description gap.",
+      "spans": [
+        {
+          "name": "dohelp",
+          "status": "queued",
+          "closedBy": null,
+          "functions": [
+            "dohelp"
+          ]
+        }
+      ],
+      "openedAt": "83937115704014383f668344922b00b4663af3f9",
+      "openStanding": {
+        "sha": "8b64276a9a90335227044319f7f04d4b89208581",
+        "screens": 11276,
+        "rng": 788894
+      },
+      "closedAt": null,
+      "delivered": null,
+      "functions": [
+        {
+          "name": "dohelp",
+          "line": 2860,
+          "endLine": 2907,
+          "declared": true,
+          "complete": false
+        }
+      ],
+      "range": {
+        "from": 2860,
+        "to": 2907
+      },
+      "activeStanding": {
+        "sha": "8b64276a9a90335227044319f7f04d4b89208581",
+        "screens": 11276,
+        "rng": 788894
+      },
+      "openMismatches": [
+        {
+          "session": "holdout/seed4500-knight-coverage",
+          "step": 1693,
+          "kind": "screen",
+          "function": null,
+          "functionDeclared": false,
+          "sourceFile": null,
+          "cFile": null,
+          "luaFile": null,
+          "line": null,
+          "message": null,
+          "unlocatedKinds": [],
+          "recordedSteps": 1814,
+          "remainingScreensUpperBound": 121,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/holdout/seed4500-knight-coverage.json",
+            "result": {
+              "session": "holdout/seed4500-knight-coverage",
+              "remainingScreensUpperBound": 121,
+              "status": "complete",
+              "commit": "8b64276a9a90335227044319f7f04d4b89208581",
+              "mismatch": {
+                "session": "holdout/seed4500-knight-coverage",
+                "step": 1693,
+                "kind": "screen",
+                "function": null,
+                "functionDeclared": false,
+                "sourceFile": null,
+                "cFile": null,
+                "luaFile": null,
+                "line": null,
+                "message": null,
+                "unlocatedKinds": [],
+                "recordedSteps": 1814,
+                "remainingScreensUpperBound": 121
+              },
+              "summary": "The first remaining mismatch at step 1693 is still the blank stone description: C counts five distinct symbol meanings and reports can be many things (stone), while the partial JavaScript function only counts stone and air. Complete do_screen_description in source order. The separate quick-lookup encyclopedia prompt is fixed and both independent selected-location recordings now match; the later wizard-help port remains open.",
+              "source": {
+                "file": "pager.c",
+                "functions": [
+                  "do_screen_description"
+                ],
+                "branch": "C pager.c do_screen_description1247-1669 accumulates matching active monster, object, misc, cmap, warning and override symbols before refinement. append_str deduplicates case-insensitive substrings. Default blank stone matches five distinct descriptions, triggering found >4 before lookat adds (stone). The current JavaScript glyph-family early returns and cmap-only path omit the cross-family meanings; this is missing behavior requiring a whole-function port.",
+                "callers": [
+                  "C pager.c do_look invokes do_screen_description after getpos. JavaScript do_look reaches the same helper through ordinary and quick cursor selection; blind admission no longer refuses this path.",
+                  "Whole-source completion must account for looked=false, glyph-family special cases, active symbol overrides, terrain modes and source-ordered helper calls, not only the observed blank-symbol case."
+                ],
+                "dependencies": [
+                  "The source-unmatched blind admission refusal is removed. Two matching short recordings verify prompt admission only; the combined fixed-workload replay establishes continuation to the description mismatch. Other do_look gaps remain separate.",
+                  "Complete print_branch/print_dungeon now preserve both menu modes, source output ordering and the canonical Quest-entrance predicate. Two independent informational recordings and the existing Castle menu recording establish ordinary production entry; floating, Invocation and portal diagnostic production recordings remain open.",
+                  "The hitmu port now clears hidden state, uses the exact canonical display.c tp_sensemon predicate, preserves naming/output/redraw order and implements the permanent HP-loss reader. Ordinary production hit recordings already exist; hidden-attacker and nonzero permanent-loss entry recordings remain open because setup and the AD_DETH writer are incomplete.",
+                  "Accepted mfind0 and Warning wiring now preserve marker memory, coordinate-aware messages, acknowledgement before reveal and source return values. Canonical dmonsfree runs on the planning clone after the monster scan before allmain movement allocation; the previous allocation failure is resolved.",
+                  "Whole goto_level and its supporting cleanup owners are implemented, including the Mines achievement and terminal punishment-ball and fall damage guards. Two independent Minetown level-teleport recordings match; they do not establish trapdoor, portal, endgame, tutorial, terminal or other exceptional entry coverage.",
+                  "mon.c minliquid/minliquid_core and supporting split_mon/cloneu/clone_mon are implemented with source-ordered HP, RNG, death and planning output. Liquid-specific entry recordings, exceptional partial rloc routes and other source callers remain open; trap.c inventory chain calls and mon.c deal_with_overcrowding remain named discarded-call gaps.",
+                  "Separate unresolved coverage: make_stoned/minstapetrify/do_stone_mon stoning gaps; unrecorded hero/monster stoning directions, corpse-weapon entry and attack-triggered stone-golem conversion; passive cold/fire/electricity/paralysis and lethal/recovery families; eating/non-food cleanup; skinback artifact-light radius and rare armor/Eyes-of-the-Overworld cleanup.",
+                  "The whole read.c cant_revive/create_particular_parse/create_particular_creation/create_particular family is now implemented. Sleeping and peaceful creation have independent matching recordings. Hidden-attacker witnesses still need eligible placement on objects or water where required, actual hidden state and an executed hitmu; plain or qualified creation alone does not establish the hit entry.",
+                  "Hidden and invisible creation now await complete mon.c flash_mon and display.c flash_glyph_at. The helper uses ordinary mon_to_glyph, preserves display RNG and temporary vision, and isolates planning clones from live painting. Independent hidden-trapper and invisible-newt recordings match 18 screens and 16 animation frames each; monster-reading and detection entries remain unrecorded.",
+                  "The later wizard help boundary belongs to pager.c dohelp2860-2898 and dispfile_debughelp. JavaScript refuses wizard mode and hideusage before menu creation. Complete the menu filtering and dispatch from C, retain source-table identifiers after filtering, and generate dat/wizhelp through the existing help-data generator and freshness check. PORT_HELP must follow the recorder build configuration.",
+                  "The missing !quick condition before checkfile is corrected. Quick dot selection now bypasses the encyclopedia question, while ordinary selected-location lookup still reaches it. Independent Wizard human and Wizard elf blind-description recordings each match five screens and cursors; the display description port remains a separate source gap."
+                ]
+              },
+              "goalKind": "file-port",
+              "evidence": [
+                ".cache/A36-development-scan.json and .cache/A36-queue.json identify the new first mismatch at1693 after blind admission. The C source and current JavaScript collection establish the missing symbol-family passes; a whole do_screen_description port is required.",
+                "Independent wizwhere recordings execute the NHW_MENU informational report. The existing recordings/sp_lev.c/castle-level-teleport.session.json opens the menu with Ctrl-V, question mark and newline, then selects Castle. The numeric ordinary-fresh teleport recording does not call print_dungeon and is not cited as menu evidence.",
+                "The existing marilith and yellow-mold production recordings contain hitmu RNG calls and cover ordinary hit resolution. The abandoned plain-eel probes contained no hitmu or mattacku calls; retained hidden/hostile recipes are planned inputs and establish no entry coverage yet.",
+                "Supporting potion.c split_mon, mhitu.c cloneu and makemon.c clone_mon now own splitting, runtime clone creation, planning RNG, shopkeeper naming and the C struct-copy fields including mw, EMIN.parentmid and the EDOG goal coordinate. mhitu passiveum, trap rust effects and uhitm pudding splitting use the canonical helpers. Initialized focused checks establish runtime creation and planning isolation; no new liquid-branch production recording is claimed.",
+                "Existing achievement display recordings cover Bell and Candelabrum rows; final disclosure, ascension, relinquished-object wording and female-rank production routes remain open. The liquid functions have ordinary movement caller evidence in bee-eats-royal-jelly-span, but dedicated liquid, swap, fountain and zero-speed distress recordings remain open.",
+                "The original short blind-admission recordings stop at the cursor-prompt More boundary and remain admission evidence only. Valid longer Wizard/human and Wizard/elf inputs now have matching selected-location recordings after the quick checkfile guard correction; the original invalid Healer/elf/chaotic options were normalized by C to a neutral human Healer.",
+                "The accepted display animation span adds recordings/read.c/create-particular-hidden.session.json and create-particular-invisible-newt.session.json; fresh runs matched 2344 and3155 RNG values respectively, all36 screens/cursors and32 animation frames. Combined checkpoint evidence is recorded at this commit.",
+                "Read-only bounded probe run-vehews, /tmp/teleport-validation-1000/run-vehews/stdout.log, records the selected-location More call stack through checkfile. run-Q1OmPO records the pending description and top-line cursor. Source comparison confirms the missing quick condition in do_look; raw getScreens output without frozen serialization was not used as screen parity evidence.",
+                "Canonical worker continuation run-KxSdGD records the description mismatch at1693 with matching RNG and cursors. A provisional partial collection patch in run-PhcdY9 advances to the wizard-help refusal with no earlier divergence; it is not accepted completion evidence because other do_screen_description branches remain omitted. Source review of dohelp and generated help-data inputs identifies the subsequent help owner without claiming its implementation.",
+                "The quick-checkfile span adds recordings/pager.c/blind-glance-description-blocked-independent.session.json and blind-glance-description-blocked-variation.session.json. Fresh runs run-lqkdKi and run-RNtLYd match 2164 and 4378 RNG values respectively and all 10 screens/cursors. Meaningful production tests trace checkfile entry for ordinary lookup and its absence for quick lookup; the raw unserialized-screen assertion was removed before combined validation."
+              ]
+            }
+          }
+        }
+      ]
     }
   ]
 }
