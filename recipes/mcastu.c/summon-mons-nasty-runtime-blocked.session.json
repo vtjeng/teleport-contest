@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "Independent A44 summon-mons recipe: a hostile master lich is created through #wizgenesis and waits for its wizard spell dispatcher to choose the summon-nasties effect. BLOCKED after mcastu.c mcast_summon_mons enters wizard.c nasty: the selected nasty makemon() call uses NO_MM_FLAGS at a runtime coordinate, which js/makemon_create.js does not yet admit. Keep this recipe unrecorded until the separate runtime-creation owner lands.",
+  "segments": [
+    {
+      "seed": 940018,
+      "datetime": "20350101120000",
+      "nethackrc": "OPTIONS=name:SummonNastyA,role:Wizard,race:human,gender:male,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen,playmode:debug,pettype:none,!acoustics\n",
+      "moves": " #wizgenesis\nhostile master lich\nmm."
+    }
+  ]
+}
