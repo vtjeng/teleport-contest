@@ -1,11 +1,11 @@
 {
   "session": "holdout/seed4500-knight-coverage",
-  "remainingScreensUpperBound": 53,
-  "status": "complete",
-  "commit": "5a0832fde062f592e2e192ed41b8d86780d16035",
+  "remainingScreensUpperBound": 51,
+  "status": "partial",
+  "commit": "d4f0aacb68614e8d59ea16e4ba23c711942c2d4b",
   "mismatch": {
     "session": "holdout/seed4500-knight-coverage",
-    "step": 1761,
+    "step": 1763,
     "kind": "screen",
     "function": null,
     "functionDeclared": false,
@@ -16,33 +16,32 @@
     "message": null,
     "unlocatedKinds": [],
     "recordedSteps": 1814,
-    "remainingScreensUpperBound": 53
+    "remainingScreensUpperBound": 51
   },
-  "summary": "The step-1761 screen difference is caused by missing waits for spell messages. C completes output before applying damage and rehumanizing the hero; JavaScript castmu and existing effect helpers continued while asynchronous messages were pending. A fresh worker replay with the source-ordered waits moves the first screen difference to step1763, with no preceding RNG divergence. The later effect-17 refusal remains separate.",
+  "summary": "The spell-message waits resolve the step-1761 premature form redraw and add two matching screens. The first remaining screen/cursor difference is step 1763 after Escape: JavaScript leaves the psi-bolt pain line visible while C shows the return to human form and restored sight. RNG and hero-form state agree; the pending terminal-message lifetime is under source investigation. The later summon-spell gap remains separate.",
   "evidence": [
-    "The 5a0832fd saved scan emits 1784/1814 screens and first differs at step 1761; the checkpoint matches 1780/1814 Knight screens and 1783 cursors. These totals differ from the queue upper bound of 53. The whole fixed workload matches 11362/11405 screens; all 398 recordings pass.",
-    "At step 1761 (space input), the differing cell is row 17, column 66: C F/color3 versus JS @/color15. The first cursor difference is step 1763 (Escape): C [53,0,1] versus JS [66,17,1]. The scan has no preceding RNG divergence.",
-    "The later stop is simple monster action requires mcast_spell effect 17 after Monsters appear from nowhere!, on movesouth. That refusal does not explain the earlier screen difference without further source evidence.",
+    "Checkpoint d4f0aacb matches 1782/1814 Knight screens, 1783/1814 cursors and 106837 RNG calls. The fixed workload matches 11364/11405 screens and all 399 recordings pass. Knight has 32 actual unmatched screens; the queue upper bound is 51.",
+    "The first remaining screen and cursor difference is step 1763, Escape input. C shows You return to human form! You can see again.--More-- with cursor [53,0,1]; JS shows Your cap area suddenly aches very painfully! with cursor [66,17,1]. The first cell difference is row 0, column 3; the fresh scan reports no RNG divergence before the later stop.",
+    "The worker probe reaches the same human form after the source psi-bolt damage roll d(12,6)=34. JS pendingMessage still contains the pain message while display.toplines has advanced to Your movements are now unencumbered. This narrows the investigation to terminal pending/stop/reset state or its rehumanization callers; the exact C transition has not yet been established.",
+    "The later stop remains simple monster action requires mcast_spell effect 17 at emitted screen 1784, on movesouth. It does not explain the earlier terminal difference.",
+    "Resolved step 1761: C finishes the casting announcement and effect message before damage. Awaiting the async JS messages and result-valued helpers moves the first difference to 1763 without changing RNG. Independent master-lich recording lich-spell-order-variation matches 2378 RNG calls and 57 screens/cursors; it does not establish clerical effect coverage.",
     "Whole mhitu.c getmattk now handles seduction, disease/hunger, energy, temporary holder, weapon, cold-touch and home-elemental substitutions through mattacku/mattackm. Source-pinned tests establish the pure helper; unported uhitm.c hmonas remains a separate caller gap.",
     "Retained counter-evidence: the earlier cleric fire-trap event had exactly one m_move→postmov→mintrap chain. Cleric2321 lacked minion state and trap knowledge because createMonsterBody skipped mk_roamer. A prior fire trap belonged to actor2334 at(26,7), outside learning range; fire resistance cannot omit the initial C fire-damage draw. The corrected source initialization removes that earlier divergence.",
-    "Retained counter-evidence for the resolved step1742 issue: the bat had spent its movement ration; its two distfleeck calls described one action. Vampire shapechange does not apply the Hell-bat creation-speed adjustment.",
-    "Source inspection: js/mcastu.js castmu invokes message without await before its d() roll; mcast_psi_bolt and mcast_open_wounds return damage before their messages complete, and m_cure_self heals after an unawaited message. C mcastu.c219–243,600–642 and307–318 complete that output first. Worker B41 bounded fresh-process replay run-LupC09 at 85214b2b emits1784 screens and moves the first screen difference from1761 to1763, with no RNG divergence; combined acceptance is pending. Independent run-pGKnTb matches2378 RNG calls and57 screens/cursors through a master-lich spell cast."
+    "Retained counter-evidence for the resolved step1742 issue: the bat had spent its movement ration; its two distfleeck calls described one action. Vampire shapechange does not apply the Hell-bat creation-speed adjustment."
   ],
   "source": {
-    "file": "mcastu.c",
+    "file": "topl.c",
     "functions": [
-      "cursetxt",
-      "castmu",
-      "mcast_psi_bolt",
-      "mcast_open_wounds",
-      "m_cure_self"
+      "update_topl",
+      "more"
     ],
-    "branch": "C castmu completes pline_mon before damage work; mcast_psi_bolt completes its pain message before returning damage to mcast_spell. JS production message adapters return ttyPline Promises, but these existing callers did not await them. Deferred-message tests establish the ordering violation; worker fresh-process replay confirms that awaiting these messages moves the first screen difference past1761 to1763. Source and runtime evidence identify the cause without claiming the remaining1763 difference or the later summon stop resolved.",
+    "branch": "Source owner under investigation: C win/tty/topl.c update_topl/more and win/tty/wintty.c message-window clear/display/putstr transitions, reached from mcast_psi_bolt -> mdamageu -> rehumanize. JS ttyPlineCore, dismissPendingTtyMessage and clearTtyMessageWindow must preserve the same pending line and Escape-stop lifetime. Matching hero form and RNG rule out the original premature damage ordering; they do not yet establish which terminal or caller branch is wrong.",
     "callers": [
-      "C mhitu.c mattacku -> mcastu.c castmu -> mcast_spell -> mcast_psi_bolt and mhitu.c mdamageu.",
-      "JS unported_monster_actions.js castMonsterSpell supplies an async message adapter to castmu and the canonical mdamageu callback; castUndirectedSpell supplies the same async message contract."
+      "C mcastu.c mcast_psi_bolt -> mcast_spell -> mhitu.c mdamageu -> polyself.c rehumanize/polyman -> pline and tty message-window operations.",
+      "JS castmu/mcast_spell now await existing effect messages; investigate tty_message.js pending state through the canonical mdamageu and rehumanize callers."
     ],
     "dependencies": [
+      "Independent clerical spell-effect recordings are blocked by a verified read.c create_particular_creation response-type defect: cmd.js y_n returns numeric byte 121 but the caller compares it with string y, retaining the replacement human zombie. Fixing that creation decision is a prerequisite to validating the new effect helpers; their active entries remain unrecorded.",
       "The complete getmattk helper now replaces substitution refusals through mattacku/mattackm and adds 23 matching screens. The separate unported hmonas caller remains open.",
       "The later MCAST_SUMMON_MONS (effect17) stop belongs to mcast_spell and mcast_summon_mons. Completing the dispatcher also requires its return-valued geyser, fire-pillar, lightning and paralysis effect helpers and matching production recordings.",
       "Lightning also exposes a source defect in muse.c ureflects: C accepts an empty non-null message prefix, while the current JavaScript truthiness test suppresses output and discovery. Its message operation must remain silent during planned turns. zap.c flashburn already has an implementation and must be called with the source rnd(100) duration.",

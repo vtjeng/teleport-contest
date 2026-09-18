@@ -67582,7 +67582,7 @@
     {
       "id": "div-castmu-message-order-seed4500-20260918",
       "kind": "divergence-fix",
-      "status": "open",
+      "status": "closed",
       "summary": "Wait for monster spell messages before damage and form changes",
       "cFile": "mcastu.c",
       "sessions": [],
@@ -67591,8 +67591,8 @@
       "spans": [
         {
           "name": "monster-spell-message-order",
-          "status": "queued",
-          "closedBy": null,
+          "status": "closed",
+          "closedBy": "d4f0aacb68614e8d59ea16e4ba23c711942c2d4b",
           "functions": [
             "cursetxt",
             "castmu",
@@ -67610,8 +67610,11 @@
         "screens": 11362,
         "rng": 791400
       },
-      "closedAt": null,
-      "delivered": null,
+      "closedAt": "d4f0aacb68614e8d59ea16e4ba23c711942c2d4b",
+      "delivered": {
+        "screens": 2,
+        "rng": 0
+      },
       "function": "castmu",
       "session": "holdout/seed4500-knight-coverage",
       "step": 1761,
@@ -67640,7 +67643,12 @@
             "path": "investigations/holdout/seed4500-knight-coverage.json"
           }
         }
-      ]
+      ],
+      "closeStanding": {
+        "sha": "d4f0aacb68614e8d59ea16e4ba23c711942c2d4b",
+        "screens": 11364,
+        "rng": 791400
+      }
     }
   ]
 }
