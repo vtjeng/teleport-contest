@@ -2,7 +2,7 @@
   "session": "seed2200-wizard-quaff-zap-read",
   "remainingScreensUpperBound": 72,
   "status": "complete",
-  "commit": "cc1b4453d14fd4a0e995170e3842ad622790c8a5",
+  "commit": "3d1e737777b51c30e76644437ad06102d47ca245",
   "mismatch": {
     "session": "seed2200-wizard-quaff-zap-read",
     "remainingScreensUpperBound": 72,
@@ -18,11 +18,14 @@
     "unlocatedKinds": [],
     "recordedSteps": 230
   },
-  "summary": "The session reaches the help menu's options-help item at step 158. C options.c option_help() interpolates get_configfile() into its intro line. On UNIX, cfgfiles.c fopen_config_file() chooses $HOME/.nethackrc and records that absolute path, which the C recorder exposes as the visible prefix /Users/davidbau/git/mazesofmenace/teleport/maud/test/comparison/c-harness/resul on a wrapped row. The replay input supplies configuration text only and contains no HOME or configuration-path field. JavaScript therefore keeps the default basename .nethackrc in cfgfiles.js, so its optionHelpLines() puts a period at the first differing cell. The extra C row shifts later pages, accounting for the remaining screen mismatches and the step-165 cursor mismatch. Hardcoding the recorded host path would violate the replay contract; this divergence is machine-local and has no portable gameplay fix.",
+  "summary": "Nine screens differ because option_help() prints the configuration filename and the JavaScript fallback omits the recorder HOME prefix. Upstream commit 2a7b4f212d3e6adeeb0878813250f2f89d899425 documents that fixed environment and explicitly permits reproducing its strings for all inputs; local commit eb090115 reversed that ruling in documentation. Restore the upstream environment contract and initialize the canonical config filename from the documented recorder HOME. No session-specific handling or scoring change is required.",
   "source": {
-    "file": "options.c",
-    "functions": ["option_help", "get_configfile", "fopen_config_file"],
-    "branch": "Normal-play option_help() intro rendering through cfgfiles.c's UNIX HOME/.nethackrc selection; JavaScript's text-backed segment contract has no HOME/path value and intentionally retains .nethackrc.",
+    "file": "cfgfiles.c",
+    "functions": [
+      "get_configfile",
+      "fopen_config_file"
+    ],
+    "branch": "UNIX default configuration selection constructs HOME/.nethackrc; option_help reads the canonical filename. The documented upstream recording environment supplies HOME globally even though the per-segment input does not repeat it.",
     "callers": [
       "nethack-c/upstream/src/cmd.c command table maps '?' to dohelp (lines 1734-1735)",
       "nethack-c/upstream/src/pager.c dohelp() selects option_help() for menu item 7 (lines 2829-2898)",
@@ -33,7 +36,8 @@
       "nethack-c/upstream/src/cfgfiles.c get_configfile()/fopen_config_file() (lines 143-146, 223-370)",
       "js/cfgfiles.js get_configfile()/fopen_config_file() (lines 53-140)",
       "nethack-c/upstream/win/tty/wintty.c tty_putstr()/process_text_window()/tty_display_nhwindow() (lines 1771-1947, 2225-2450)",
-      "js/tty_menu.js ttyMenuTextData()/displayTtyTextWindow() (lines 240-325, 742-824)"
+      "js/tty_menu.js ttyMenuTextData()/displayTtyTextWindow() (lines 240-325, 742-824)",
+      "docs/recording-environment.md at upstream commit 2a7b4f212d3e6adeeb0878813250f2f89d899425 defines the fixed recorder environment and permits reproducing its literal strings."
     ]
   },
   "goalKind": "divergence-fix",
@@ -42,6 +46,8 @@
     ".git/checkpoint-results/cc1b4453d14fd4a0e995170e3842ad622790c8a5/run-cLC7Rj/session-results.json results[session=seed2200-wizard-quaff-zap-read.session.json] records RNG 3018/3018, screens 221/230, cells 221/230, and cursors 229/230 at the assigned commit.",
     "sessions/seed2200-wizard-quaff-zap-read.session.json segments[0] has only seed, datetime, nethackrc, moves, and steps; it contains no HOME or configuration pathname. segments[0].steps[158] contains the C wrapped prefix /Users/davidbau/git/mazesofmenace/teleport/maud/test/comparison/c-harness/resul.",
     "nethack-c/upstream/src/options.c:9461-9549 formats get_configfile() into option_help() output; nethack-c/upstream/src/cfgfiles.c:223-370 constructs and stores $HOME/.nethackrc on UNIX; nethack-c/upstream/win/tty/wintty.c:2225-2450 compresses and splits the over-width line.",
-    "js/options.js:7103-7133 interpolates js/cfgfiles.js:get_configfile(); js/cfgfiles.js:53-140 keeps the text-backed replay's contract-safe .nethackrc basename when no path is supplied."
+    "Upstream commit 2a7b4f212d3e6adeeb0878813250f2f89d899425 is already an ancestor of main. Its recording-environment.md says matching the published environment strings verbatim is allowed. Local eb090115 changed that policy; the user identified the upstream ruling on 2026-09-18 and requested recovering the behavior. The earlier claim that the missing per-segment path prevents a valid fix is superseded.",
+    "The passing checkpoint at 3d1e737777b51c30e76644437ad06102d47ca245 still measures this session at 221/230 screens, 3018/3018 RNG calls and 229/230 cursors. It is the sole remaining fixed-workload mismatch after Kni-goal generation is implemented.",
+    "Keep get_default_configfile() as the C basename and state.configfile as the single selected-path owner. Trace startup initialization before setting the documented environment path; preserve explicit filename setters. Fresh independent C recordings use temporary HOME, which needs consideration in differential evidence without modifying the frozen workload or scorer."
   ]
 }

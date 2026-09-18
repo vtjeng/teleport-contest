@@ -68890,7 +68890,7 @@
     {
       "id": "port-Kni-goal-lua-seed4500-20260918",
       "kind": "lua-port",
-      "status": "open",
+      "status": "closed",
       "summary": "Port the complete Knight quest goal level and register its generation program.",
       "luaFile": "Kni-goal.lua",
       "sessions": [
@@ -68901,8 +68901,8 @@
       "spans": [
         {
           "name": "Kni-goal.lua",
-          "status": "queued",
-          "closedBy": null,
+          "status": "closed",
+          "closedBy": "3d1e737777b51c30e76644437ad06102d47ca245",
           "functions": [
             "Kni-goal.lua"
           ]
@@ -68914,8 +68914,11 @@
         "screens": 11381,
         "rng": 792209
       },
-      "closedAt": null,
-      "delivered": null,
+      "closedAt": "3d1e737777b51c30e76644437ad06102d47ca245",
+      "delivered": {
+        "screens": 15,
+        "rng": 629
+      },
       "functions": [
         {
           "name": "Kni-goal.lua",
@@ -69079,6 +69082,12 @@
             ]
           }
         ]
+      },
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "3d1e737777b51c30e76644437ad06102d47ca245",
+        "screens": 11396,
+        "rng": 792838
       }
     }
   ]
