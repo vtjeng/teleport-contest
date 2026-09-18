@@ -1307,10 +1307,8 @@ test('map_glyphinfo keeps hero prefix and lookup overrides source-distinct', () 
     // windows.c encodes the prefix through map_glyphinfo(0,0,glyph), while
     // pager.c resolves the lookup byte with the selected coordinates. Only
     // the latter is eligible for the hero accessibility override.
-    const ordinaryHero = map_glyphinfo(
-        heroGlyph, state, { x: 7, y: 4, mgflags: MG_FLAG_NOOVERRIDE },
-    ).ch;
-    assert.equal(map_glyphinfo(heroGlyph, state).ch, ordinaryHero);
+    // This fixture's species zero is monsters.h's giant ant, class S_ANT.
+    assert.equal(map_glyphinfo(heroGlyph, state).ch, 'a');
     assert.equal(
         map_glyphinfo(heroGlyph, state, { x: 7, y: 4 }).ch,
         '?',
@@ -1319,22 +1317,36 @@ test('map_glyphinfo keeps hero prefix and lookup overrides source-distinct', () 
         map_glyphinfo(heroGlyph, state, {
             x: 7, y: 4, mgflags: MG_FLAG_NOOVERRIDE,
         }).ch,
-        ordinaryHero,
+        'a',
     );
 
     // A pet override is a glyph-map presentation and is disabled only by
     // the source MG_FLAG_NOOVERRIDE re-entry. The stored species remains the
-    // human monster class even though no live monster is consulted.
+    // ant monster class even though no live monster is consulted.
     assert.equal(map_glyphinfo(GLYPH_PET_MALE_OFF, state).ch, '!');
-    const ordinaryPet = map_glyphinfo(
-        GLYPH_PET_MALE_OFF, state, { mgflags: MG_FLAG_NOOVERRIDE },
-    ).ch;
-    assert.equal(
-        map_glyphinfo(GLYPH_PET_MALE_OFF, state, {
-            mgflags: MG_FLAG_NOOVERRIDE,
-        }).ch,
-        ordinaryPet,
-    );
+    for (const coordinates of [{}, { x: 7, y: 4 }]) {
+        assert.equal(
+            map_glyphinfo(GLYPH_PET_MALE_OFF, state, {
+                ...coordinates, mgflags: MG_FLAG_NOOVERRIDE,
+            }).ch,
+            'a',
+        );
+    }
+
+    // A configured space is nonzero, so C accepts it as a hero override.
+    const heroIndex = SYMBOL_INDEX_BY_NAME.s_hero_override;
+    state.go.ov_primary_syms[heroIndex] = 32;
+    state.gs.showsyms[heroIndex] = 32;
+    assert.equal(map_glyphinfo(heroGlyph, state, { x: 7, y: 4 }).ch, ' ');
+
+    // reset_glyphmap tests showsyms[pet_override], including index zero.
+    const petIndex = SYMBOL_INDEX_BY_NAME.s_pet_override;
+    state.go.ov_primary_syms[petIndex] = 0;
+    state.gs.showsyms[petIndex] = 0;
+    state.gs.showsyms[0] = '#'.charCodeAt(0);
+    assert.equal(map_glyphinfo(GLYPH_PET_MALE_OFF, state).ttychar, 0);
+    state.gs.showsyms[0] = 32;
+    assert.equal(map_glyphinfo(GLYPH_PET_MALE_OFF, state).ch, 'a');
 });
 
 test('map_glyphinfo follows Rogue IBM monster and warning colors', () => {
