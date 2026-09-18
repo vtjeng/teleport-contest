@@ -4136,7 +4136,7 @@ test('hallucinated object notices reconstruct buffered near and far identity', (
             POT_BOOZE,
         );
         const expectedFollowingDraw = rn2_on_display_rng(997);
-        // display.c:map_object() deliberately skips observe_object() while
+        // pager.c:object_from_map() deliberately skips observe_object() while
         // Hallucination is active, even for an adjacent generic object.  The
         // source therefore keeps both notices at the vague potion name.
         const description = 'a potion';

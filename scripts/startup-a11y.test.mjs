@@ -21,6 +21,7 @@ import {
     M_AP_MONSTER,
     M_AP_FURNITURE,
     M_AP_OBJECT,
+    OBJ_FLOOR,
     POOL,
     ROOM,
     ROOMOFFSET,
@@ -675,6 +676,29 @@ test('lookaround filters ordinary liquid glyphs without naming or RNG', () => {
     initRng(0x4a11n);
     const before = rn2(997);
     initRng(0x4a11n);
+    assert.equal(
+        _startupA11yInternals.visibleSubjectAt(x, y, state),
+        null,
+    );
+    assert.equal(rn2(997), before);
+});
+
+test('lookaround ignores a hidden object beneath an ordinary liquid glyph', () => {
+    const state = startupState();
+    const x = state.u.ux + 1;
+    const y = state.u.uy;
+    const location = state.level.at(x, y);
+    location.typ = POOL;
+    state.viz_array[y][x] = IN_SIGHT;
+    location.disp_glyph = { glyph: cmap_to_glyph(S_pool, state) };
+    // The C lookaround filter sees the stored pool glyph before live object
+    // state.  A hidden floor object must not route this square to pager.c's
+    // water naming path or consume a display/gameplay RNG draw.
+    state.level.objects[x][y] = { otyp: CHEST, where: OBJ_FLOOR };
+
+    initRng(0x4a12n);
+    const before = rn2(997);
+    initRng(0x4a12n);
     assert.equal(
         _startupA11yInternals.visibleSubjectAt(x, y, state),
         null,
