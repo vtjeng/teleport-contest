@@ -130,8 +130,9 @@ import { engr_at } from './engrave.js';
 import { fruit_from_name, makeplural, makesingular } from './fruit.js';
 import { LOOK_TRADITIONAL, getpos } from './getpos.js';
 import { game } from './gstate.js';
+import { createCommandBindingModel, keyForCommand } from './command_bindings.js';
 import { visible_region_at } from './region.js';
-import { dist2, mungspaces } from './hacklib.js';
+import { dist2, mungspaces, visctrl } from './hacklib.js';
 import { HELP_TEXT_FILES } from './help_data.js';
 import { currency, display_inventory } from './invent.js';
 import { tty_yn_function } from './getline.js';
@@ -1771,12 +1772,20 @@ export async function doquickwhatis(state = game) {
     return do_look(1, null, state);
 }
 
-// C ref: pager.c setopt_cmd() (2902-2957). The current help boundary has the
-// recorder's compiled-in bindings: #optionsfull has no key, reqmenu is `m`,
-// and the simple options command is `O`. Later binding work must replace this
-// bounded result with cmd_from_func()/cmdname_from_func() lookups.
-export function setopt_cmd() {
-    return "'#optionsfull' or 'm O'";
+// C ref: pager.c setopt_cmd() (2908-2957). Resolve the three commands from
+// the current command-binding model just as cmd_from_func() does. This keeps
+// the help text correct after a BIND option changes any of the keys, while
+// retaining C's extended-command fallbacks when a command has no key.
+export function setopt_cmd(state = game) {
+    const model = state.commandBindings ??= createCommandBindingModel(state);
+    const command = (name) => {
+        const key = keyForCommand(model, name);
+        return key ? visctrl(key) : '#' + name;
+    };
+    const fullKey = keyForCommand(model, 'optionsfull');
+    if (fullKey) return "'" + visctrl(fullKey) + "'";
+    return "'" + command('optionsfull') + "' or '"
+        + command('reqmenu') + " " + command('options') + "'";
 }
 
 // C refs: pager.c dispfile_*(), hmenu_dohistory(), and dohistory(), plus
@@ -1808,6 +1817,12 @@ async function dispfile_optmenu(state) {
 
 async function dispfile_license(state) {
     await display_file('license', state);
+}
+
+// C ref: pager.c dispfile_debughelp() (2778-2781). The Unix recorder build
+// keeps DEBUGHELP as the generated dat/wizhelp text.
+export async function dispfile_debughelp(state = game) {
+    await display_file('wizhelp', state);
 }
 
 async function dispfile_usagehelp(state) {
@@ -1899,48 +1914,52 @@ export async function docontact(state = game) {
     await displayTtyTextWindow(state, lines);
 }
 
-// C ref: pager.c help_menu_items[] (2829-2858). This build has no PORT_HELP
-// row, normal play omits dispfile_debughelp(), and hideusage is off. Keep the
-// numeric value from the source-table index so filtering a future row cannot
-// silently dispatch the wrong handler.
-export function helpMenuItems() {
-    return [
-        { value: 1, selector: 'a', label: 'About NetHack (version information).' },
-        { value: 2, selector: 'b', label: 'Long description of the game and commands.' },
-        { value: 3, selector: 'c', label: 'List of game commands.' },
-        { value: 4, selector: 'd', label: 'Concise history of NetHack.' },
-        { value: 5, selector: 'e', label: 'Info on a character in the game display.' },
-        { value: 6, selector: 'f', label: 'Info on what a given key does.' },
-        { value: 7, selector: 'g', label: 'List of game options.' },
-        { value: 8, selector: 'h', label: 'Longer explanation of game options.' },
-        {
-            value: 9,
-            selector: 'i',
-            label: `Using the ${setopt_cmd()} command to set options.`,
-        },
-        { value: 10, selector: 'j', label: 'Full list of keyboard commands.' },
-        { value: 11, selector: 'k', label: 'List of extended commands.' },
-        { value: 12, selector: 'l', label: 'List menu control keys.' },
-        { value: 13, selector: 'm', label: "Description of NetHack's command line." },
-        { value: 14, selector: 'n', label: 'The NetHack license.' },
-        { value: 15, selector: 'o', label: 'Support information.' },
-    ];
+// C ref: pager.c help_menu_items[] (2829-2854) and dohelp() filtering.
+// The recorder uses unixconf.h, where PORT_HELP is undefined, so source index
+// 16 is the debug-help row. Values retain their source-table indexes when
+// hideusage removes row 13; selectors are reassigned in visible menu order by
+// tty_end_menu(), which is why the row can shift from m to n.
+const HELP_MENU_SOURCE = Object.freeze([
+    { value: 1, label: 'About NetHack (version information).' },
+    { value: 2, label: 'Long description of the game and commands.' },
+    { value: 3, label: 'List of game commands.' },
+    { value: 4, label: 'Concise history of NetHack.' },
+    { value: 5, label: 'Info on a character in the game display.' },
+    { value: 6, label: 'Info on what a given key does.' },
+    { value: 7, label: 'List of game options.' },
+    { value: 8, label: 'Longer explanation of game options.' },
+    { value: 9, label: 'Using the %s command to set options.' },
+    { value: 10, label: 'Full list of keyboard commands.' },
+    { value: 11, label: 'List of extended commands.' },
+    { value: 12, label: 'List menu control keys.' },
+    { value: 13, label: "Description of NetHack's command line." },
+    { value: 14, label: 'The NetHack license.' },
+    { value: 15, label: 'Support information.' },
+    { value: 16, debug: true, label: 'List of wizard-mode commands.' },
+]);
+
+export function helpMenuItems(state = game) {
+    return HELP_MENU_SOURCE
+        .filter((item) => !(item.debug && !state.wizard)
+            && !(item.value === 13 && state.sysopt?.hideusage))
+        .map((item, visibleIndex) => ({
+            value: item.value,
+            selector: String.fromCharCode('a'.charCodeAt(0) + visibleIndex),
+            label: item.value === 9
+                ? 'Using the ' + setopt_cmd(state) + ' command to set options.'
+                : item.label,
+        }));
 }
 
 // C ref: pager.c hmenu_dowhatis() and dohelp() (2802-2805, 2860-2898).
-// Every ordinary help_menu_items[] row dispatches here. The wizard-only row
-// and a menu with sysopt.hideusage set remain excluded before menu creation.
+// Menu rows are filtered before creation, while each selected value remains
+// the original help_menu_items[] source index for post-menu dispatch.
 export async function dohelp(state = game) {
-    if (state.wizard)
-        throw new UnsupportedHelpError('the wizard-mode help row');
-    if (state.sysopt?.hideusage)
-        throw new UnsupportedHelpError('a help menu with usage hidden');
-
     const choice = await select_menu(state, {
         how: PICK_ONE,
         title: 'Select one item:',
         ...menuTitleStyle(state),
-        items: helpMenuItems(),
+        items: helpMenuItems(state),
         overlay: state.iflags?.menu_overlay !== false,
         cancelValue: null,
     });
@@ -2017,6 +2036,10 @@ export async function dohelp(state = game) {
     }
     if (choice === 15) {
         await docontact(state);
+        return ECMD_OK;
+    }
+    if (choice === 16) {
+        await dispfile_debughelp(state);
         return ECMD_OK;
     }
     throw new UnsupportedHelpError(`menu target ${choice}`);
