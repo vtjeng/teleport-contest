@@ -64832,7 +64832,7 @@
     {
       "id": "port-pickup-pickup-seed4500-20260918",
       "kind": "file-port",
-      "status": "open",
+      "status": "parked",
       "summary": "Complete pickup selection, no-take behavior and arrival admission",
       "cFile": "pickup.c",
       "sessions": [
@@ -64843,8 +64843,8 @@
       "spans": [
         {
           "name": "pickup",
-          "status": "queued",
-          "closedBy": null,
+          "status": "closed",
+          "closedBy": "50399d8c3ad4095c61f5b4d1089338b19797d3d9",
           "functions": [
             "pickup"
           ]
@@ -65094,7 +65094,17 @@
             "recordings": []
           }
         ]
-      }
+      },
+      "progressBeforePark": {
+        "screens": 8,
+        "rng": 0
+      },
+      "parkedStanding": {
+        "sha": "50399d8c3ad4095c61f5b4d1089338b19797d3d9",
+        "screens": 11318,
+        "rng": 789036
+      },
+      "parkedReason": "Whole pickup source span passed checkpoint, including ordinary and traditional manual recordings and existing automatic movement recordings. Startup, swallowed-inventory, counted/menu-on-request, dismount landing and projected random-arrival entries retain open recording coverage; later blind object-pile behavior is a separate source family."
     }
   ]
 }
