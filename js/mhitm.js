@@ -73,7 +73,7 @@ import {
     zombie_form,
     defended,
 } from './mondata.js';
-import { closed_door, monnear, youHear } from './monmove.js';
+import { closed_door, itsstuck, monnear, youHear } from './monmove.js';
 import { m_at, place_monster, remove_monster } from './monst.js';
 import { update_monster_region } from './region.js';
 import {
@@ -119,7 +119,7 @@ import {
 import { ART_TROLLSBANE } from './artifacts.js';
 import { objectType } from './obj.js';
 import { SILVER } from './objects.js';
-import { d, rn2, rnd } from './rng.js';
+import { d, rn1, rn2, rnd, rne, rnz } from './rng.js';
 import { canSpotMonster } from './startup_a11y.js';
 import { mhitm_adtyping, mhitm_knockback, shade_miss } from './uhitm.js';
 import { cansee } from './vision.js';
@@ -388,26 +388,6 @@ async function missmm(magr, mdef, mattk, env) {
     }
 }
 
-// C ref: mhitm.c fightm() (106-169).
-//
-// C ref: monmove.c itsstuck() (1053-1061). The hero's sticky form keeps a
-// holding monster from taking the Conflict turn unless the hero is swallowed;
-// the message is the only observable effect of this guard.
-async function itsstuck(mtmp, env) {
-    const { state } = env;
-    if (sticks(state.youmonst?.data)
-        && mtmp === state.u?.ustuck
-        && !state.u?.uswallow) {
-        const message = requireAttackOperation(env, 'message');
-        await message(
-            `${capitalizedMonsterName(mtmp, state)} cannot escape from you!`,
-            state,
-        );
-        return true;
-    }
-    return false;
-}
-
 // C ref: mhitm.c fightm() (106-169). Walk the live monster list in source
 // order, selecting the first living adjacent target. mattackm() owns the
 // ordinary physical attack and returns C's result bitmask; this function owns
@@ -496,10 +476,29 @@ export async function fightm(mtmp, rawEnv = {}) {
 // arm stays here rather than being represented by note_unported().
 export async function mdisplacem(magr, mdef, quietly = false, rawEnv = {}) {
     const state = rawEnv.state ?? game;
-    const random = rawEnv.random ?? { rn2 };
-    const message = rawEnv.message ?? ttyPline;
-    const redraw = rawEnv.redraw ?? newsym;
-    const flush = rawEnv.flushScreen ?? flush_screen;
+    const random = rawEnv.random ?? { d, rn1, rn2, rnd, rne, rnz };
+    // The planning scan passes only { state, random, planning }.  Every
+    // display seam below therefore needs an explicit planning no-op; falling
+    // back to ttyPline/newsym would write the live terminal while the clone
+    // is still being considered.  Live callers retain their injected seams.
+    const planning = Boolean(rawEnv.planning);
+    const message = planning ? async () => {} : (rawEnv.message ?? ttyPline);
+    const redraw = planning ? () => {} : (rawEnv.redraw ?? newsym);
+    const flush = planning ? async () => {} : (rawEnv.flushScreen ?? flush_screen);
+    const operationEnv = {
+        ...rawEnv,
+        state,
+        random,
+        planning,
+        message,
+        redraw,
+        flushScreen: flush,
+        newsym: redraw,
+        hooks: {
+            ...(rawEnv.hooks ?? {}),
+            newsym: redraw,
+        },
+    };
 
     if (!magr || !mdef || magr === mdef) return M_ATTK_MISS;
     const pa = magr.data;
@@ -518,10 +517,10 @@ export async function mdisplacem(magr, mdef, quietly = false, rawEnv = {}) {
 
     if (mdef.mundetected) mdef.mundetected = 0;
     if (M_AP_TYPE(mdef) && M_AP_TYPE(mdef) !== M_AP_MONSTER)
-        seemimic(mdef, state, { ...rawEnv, state, redraw });
+        seemimic(mdef, state, operationEnv);
     mdef.msleeping = 0;
     mdef.mstrategy = (mdef.mstrategy ?? 0) & ~STRAT_WAITMASK;
-    finish_meating(mdef, { ...rawEnv, state, redraw });
+    finish_meating(mdef, operationEnv);
 
     state.gv ??= {};
     state.gv.vis = canSpotMonster(magr, state) && canSpotMonster(mdef, state);
@@ -533,8 +532,7 @@ export async function mdisplacem(magr, mdef, quietly = false, rawEnv = {}) {
         && !which_armor(magr, W_ARMG, state)) {
         if (poly_when_stoned(pa, state)) {
             await mon_to_stone(magr, state, {
-                ...rawEnv,
-                state,
+                ...operationEnv,
                 message,
             });
             return M_ATTK_HIT;
@@ -554,34 +552,28 @@ export async function mdisplacem(magr, mdef, quietly = false, rawEnv = {}) {
                 rawEnv,
             );
         }
-        await monstone(magr, state, { ...rawEnv, state, message });
+        await monstone(magr, state, { ...operationEnv, message });
         if (magr.mhp >= 1) return M_ATTK_HIT;
-        if (magr.mtame && !state.gv.vis && !rawEnv.planning)
-            await message('You have a peculiar feeling for a moment, then it passes.', state, rawEnv);
+        if (magr.mtame && !state.gv.vis && !planning)
+            await message('You have a peculiarly sad feeling for a moment, then it passes.', state, operationEnv);
         return M_ATTK_AGR_DIED;
     }
 
     remove_monster(fx, fy, state);
     if (mdef.wormno) {
-        remove_worm(mdef, {
-            state,
-            redraw,
-        });
+        remove_worm(mdef, operationEnv);
     } else {
         remove_monster(tx, ty, state);
     }
     place_monster(magr, tx, ty, state);
     place_monster(mdef, fx, fy, state);
     if (mdef.wormno) {
-        place_worm_tail_randomly(mdef, fx, fy, {
-            state,
-            redraw,
-        });
+        place_worm_tail_randomly(mdef, fx, fy, operationEnv);
     }
     update_monster_region(magr, state);
     update_monster_region(mdef, state);
 
-    if (state.gv.vis && !quietly && !rawEnv.planning) {
+    if (state.gv.vis && !quietly && !planning) {
         await message(
             `${Monnam(magr, state)} moves ${mon_nam(mdef, state)}`
                 + ` out of ${is_rider(pa) ? 'the' : mhis(magr, { ...rawEnv, state, canSpotMonster })} way!`,
@@ -589,7 +581,7 @@ export async function mdisplacem(magr, mdef, quietly = false, rawEnv = {}) {
             rawEnv,
         );
     }
-    if (!rawEnv.planning) {
+    if (!planning) {
         redraw(fx, fy, state);
         redraw(tx, ty, state);
         await flush(0, state);

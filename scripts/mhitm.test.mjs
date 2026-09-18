@@ -98,6 +98,7 @@ import {
     UNSEEN_PET_FIGHT_QUIET_RC,
     UNSEEN_PET_FIGHT_RC,
 } from './run-unseen-pet-fight.mjs';
+import { planningState } from '../js/unported_monster_actions.js';
 
 // A Valkyrie with no pet on a plain first level. The fixtures below place
 // every combatant themselves, so all the seed has to supply is a lit room
@@ -232,6 +233,57 @@ test('mdisplacem consumes its miss roll and swaps occupied squares',
         assert.equal(m_at(dx, y, game), attacker);
         assert.equal(m_at(ax, y, game), defender);
         assert.equal(messages.length, 1);
+    });
+
+test('planned mdisplacem keeps live map, terminal, and RNG untouched',
+    async () => {
+        await hero(7710052);
+        const { ax, dx, y } = battlefield();
+        const attacker = fixture(PM_DISPLACER_BEAST, ax, y, { mhp: 12 });
+        const defender = fixture(PM_GIANT_RAT, dx, y, { mhp: 7 });
+        const planned = planningState(game);
+        const plannedAttacker = planned.level.monsters[ax][y];
+        const plannedDefender = planned.level.monsters[dx][y];
+        assert.equal(plannedAttacker.m_id, attacker.m_id);
+        assert.equal(plannedDefender.m_id, defender.m_id);
+        const beforeRng = {
+            a: game.coreCtx.a,
+            b: game.coreCtx.b,
+            c: game.coreCtx.c,
+            n: game.coreCtx.n,
+            m: [...game.coreCtx.m],
+            r: [...game.coreCtx.r],
+        };
+        const beforeTopline = game.nhDisplay.toplines;
+        const plannedRolls = scripted([1]);
+        const result = await mdisplacem(
+            plannedAttacker,
+            plannedDefender,
+            false,
+            {
+                state: planned,
+                planning: true,
+                random: plannedRolls.random,
+            },
+        );
+        assert.equal(result, M_ATTK_HIT);
+        assert.equal(plannedRolls.bounds.join(','), 'rn2(7)');
+        assert.equal(game.level.monsters[ax][y], attacker);
+        assert.equal(game.level.monsters[dx][y], defender);
+        assert.equal(attacker.mx, ax);
+        assert.equal(defender.mx, dx);
+        assert.equal(game.nhDisplay.toplines, beforeTopline);
+        assert.deepEqual(
+            {
+                a: game.coreCtx.a,
+                b: game.coreCtx.b,
+                c: game.coreCtx.c,
+                n: game.coreCtx.n,
+                m: [...game.coreCtx.m],
+                r: [...game.coreCtx.r],
+            },
+            beforeRng,
+        );
     });
 
 test('paralyze_monst copies the source frozen state and clears its wait plan',

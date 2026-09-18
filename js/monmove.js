@@ -59,6 +59,7 @@ import {
     DB_UNDER,
     DEAF,
     DISPLACED,
+    engulfing_u,
     DOOR,
     DRAWBRIDGE_UP,
     D_BROKEN,
@@ -109,6 +110,7 @@ import {
     M_AP_MONSTER,
     M_AP_NOTHING,
     M_AP_OBJECT,
+    M_AP_TYPE,
     M_AP_TYPMASK,
     NEED_AXE,
     NEED_HTH_WEAPON,
@@ -372,6 +374,7 @@ import {
     DWARVISH_MATTOCK,
     FEDORA,
     FORTUNE_COOKIE,
+    GOLD_PIECE,
     GEM_CLASS,
     LEASH,
     LEATHER_JACKET,
@@ -396,6 +399,7 @@ import {
     VENOM_CLASS,
     WEAPON_CLASS,
     WOOD,
+    STRANGE_OBJECT,
 } from './objects.js';
 import {
     in_your_sanctuary,
@@ -3524,6 +3528,29 @@ export async function postmov(
     return outcome;
 }
 
+// C ref: monmove.c itsstuck() (1053-1061). A sticky hero prevents the
+// holding monster from taking the Conflict turn unless the hero is swallowed.
+// This helper belongs to monmove.c even though mhitm.c consumes it through
+// fightm().
+export function itsstuck(monster, rawEnv = {}) {
+    const state = rawEnv.state ?? game;
+    if (sticks(state.youmonst?.data)
+        && monster === state.u?.ustuck
+        && !state.u?.uswallow) {
+        const message = rawEnv.message
+            ?? (rawEnv.planning ? async () => {} : ttyPline);
+        const result = message(
+            `${capitalizedMonsterName(monster, state)} cannot escape from you!`,
+            state,
+            rawEnv,
+        );
+        return result && typeof result.then === 'function'
+            ? result.then(() => true)
+            : true;
+    }
+    return false;
+}
+
 // C ref: monmove.c m_move() (1715-2075).  The preceding dochug() owns the
 // covetous tactics() call; this function owns the covetous intruder attack,
 // the special mover dispatches, and the ordinary not_special path through
@@ -3641,8 +3668,10 @@ export async function m_move(monster, rawEnv = {}) {
             ? m_at(targetX, targetY, state) : null;
         if (intruder && intruder !== monster
             && dist2(monster.mx, monster.my, targetX, targetY) <= 2) {
-            state.bhitpos = { x: targetX, y: targetY };
-            state.notonhead = intruder.mx !== targetX
+            state.gb ??= {};
+            state.gb.bhitpos = { x: targetX, y: targetY };
+            state.gn ??= {};
+            state.gn.notonhead = intruder.mx !== targetX
                 || intruder.my !== targetY;
             const attackResult = await mattackm(monster, intruder, env);
             if (attackResult & M_ATTK_AGR_DIED) return MMOVE_DIED;
@@ -3774,7 +3803,7 @@ export async function m_move(monster, rawEnv = {}) {
     let preferredrange_min = 0;
     let preferredrange_max = 0;
 
-    if (monster.mconf) {
+    if (monster.mconf || engulfing_u(monster, state)) {
         approach = 0;
     } else {
         const sourceSquare = state.level.at(oldX, oldY);
@@ -3785,7 +3814,12 @@ export async function m_move(monster, rawEnv = {}) {
         if (!monster.mcansee
             || (shouldSee && activeProperty(state, INVIS)
                 && !perceives(monster.data) && random.rn2(11))
+            || M_AP_TYPE(state.youmonst) === M_AP_OBJECT
+                && state.youmonst.mappearance === STRANGE_OBJECT
             || state.u.uundetected
+            || (M_AP_TYPE(state.youmonst) === M_AP_OBJECT
+                && state.youmonst.mappearance === GOLD_PIECE
+                && !likes_gold(monster.data))
             || (monster.mpeaceful && !monster.isshk)
             || ((monster.data?.pmidx === PM_STALKER
                 || monster.data?.mlet === S_BAT
@@ -3892,7 +3926,13 @@ export async function m_move(monster, rawEnv = {}) {
     }
 
     let avoidLine = false;
-    if (is_unicorn(monster.data) && rawEnv.noTeleportLevel?.(monster)) {
+    const unicornNoTeleport = is_unicorn(monster.data)
+        && (rawEnv.noTeleportLevel
+            ? rawEnv.noTeleportLevel(monster)
+            : env.planning
+                ? noteleport_level(monster, state)
+                : await tele_restrict(monster, state));
+    if (unicornNoTeleport) {
         // C ref: monmove.c:1941-1943, `for (i = 0; i < cnt; i++)`. The bound
         // matters: resetMfndposData() zero-fills all nine info slots, and a
         // zero slot satisfies !(info & NOTONL), so scanning the tail past
@@ -3952,8 +3992,7 @@ export async function m_move(monster, rawEnv = {}) {
     }
     if (moved === MMOVE_NOTHING) {
         // C ref: monmove.c:2067-2071. Unicorns that failed to choose a
-        // candidate may still relocate, and this draw follows worm_nomove's
-        // call exactly.
+        // candidate may still relocate before the discarded worm_nomove call.
         if (is_unicorn(monster.data) && random.rn2(2)) {
             const restricted = rawEnv.teleRestrict
                 ? await rawEnv.teleRestrict(monster, env)
@@ -3962,13 +4001,9 @@ export async function m_move(monster, rawEnv = {}) {
                     : await tele_restrict(monster, state);
             if (!restricted) {
                 await relocate(monster, false);
-                return await postMonsterMove(
-                    monster,
-                    oldX,
-                    oldY,
-                    MMOVE_MOVED,
-                    env,
-                );
+                // C returns MMOVE_MOVED directly here; postmov() belongs to
+                // the ordinary moved branch and would spend extra effects.
+                return MMOVE_MOVED;
             }
         }
         if (monster.wormno)
@@ -3984,6 +4019,15 @@ export async function m_move(monster, rawEnv = {}) {
     // C ref: monmove.c:1987-1988. Wielding a digging tool consumes the whole
     // move, so this returns before the ALLOW_U test below. C:1986's itsstuck()
     // sits between the two and is not dig-specific; it stays unported.
+    if (moved === MMOVE_MOVED
+        && !(nextX === state.u.ux && nextY === state.u.uy)) {
+        const stuck = itsstuck(monster, env);
+        if (stuck && typeof stuck.then === 'function') {
+            if (await stuck) return MMOVE_DONE;
+        } else if (stuck) {
+            return MMOVE_DONE;
+        }
+    }
     if (await m_digweapon_check(monster, nextX, nextY, env)) return MMOVE_DONE;
     if (data.info[chosen] & ALLOW_U) {
         nextX = monster.mux;
@@ -4079,8 +4123,10 @@ async function m_move_aggress(mtmp, x, y, env = {}) {
 
     const mtmp2 = m_at(x, y, state);
     if (mtmp2) {
-        state.bhitpos = { x, y };
-        state.notonhead = (x !== mtmp2.mx || y !== mtmp2.my);
+        state.gb ??= {};
+        state.gb.bhitpos = { x, y };
+        state.gn ??= {};
+        state.gn.notonhead = (x !== mtmp2.mx || y !== mtmp2.my);
         mstatus = await mattackm(mtmp, mtmp2, env);
     }
 
