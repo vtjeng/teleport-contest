@@ -66468,7 +66468,7 @@
       "summary": "Correct special movement dispatch, combat state and projected displacement effects",
       "cFile": "monmove.c",
       "sessions": [],
-      "selectionReason": "Refresh the remaining-work reason for holdout/seed4500-knight-coverage after the Hell-bat dependency moved the first boundary1742→1757; no new implementation is selected. The current57-screen suffix is reserved for wizard.c tactics; Q1 still blocks seed2200.",
+      "selectionReason": "Update the remaining-work reason for holdout/seed4500-knight-coverage, with 57 remaining screens in investigations/holdout/seed4500-knight-coverage.json. The tactics dependency now passes, but the first mismatch remains in unresolved movement/state selection; B is investigating it, and Q1 blocks the higher-ranked seed2200 entry. No new implementation is selected.",
       "detail": "monmove.c m_move1715-2075 and m_move_aggress2088-2120 require canonical gb.bhitpos/gn.notonhead, source dispatch order, direct unicorn relocation results and complete special movement continuation. mhitm.c mdisplacem180-288 supplies the result-bearing displacement path; its output, vision and worm state must remain isolated in planned turns. Updated source evidence and open entries are recorded in port-monmove-m-move-seed4500-20260918.",
       "spans": [
         {
@@ -66496,9 +66496,9 @@
       "function": "m_move",
       "session": "holdout/seed4500-knight-coverage",
       "activeStanding": {
-        "sha": "ac96dd3de6df5f13b75a1af2e7d1bfe06bdcf205",
+        "sha": "40823c47b4e67c4523fd2786899feb3b239ba324",
         "screens": 11339,
-        "rng": 790757
+        "rng": 790898
       },
       "openMismatches": [
         {
@@ -66581,11 +66581,11 @@
         "rng": 0
       },
       "parkedStanding": {
-        "sha": "ac96dd3de6df5f13b75a1af2e7d1bfe06bdcf205",
+        "sha": "40823c47b4e67c4523fd2786899feb3b239ba324",
         "screens": 11339,
-        "rng": 790757
+        "rng": 790898
       },
-      "parkedReason": "Movement dispatch corrections and all394 recordings pass at ac96dd3d; the Hell-bat dependency moves the first Knight boundary to covetous admission1757. Resume after port-wizard-tactics-seed4500-20260918 removes that refusal and the first mismatch passes the remaining movement path. The source goal preserves unrecorded m_move entry families."
+      "parkedReason": "The movement-dispatch span and tactics dependency pass at 40823c47, including all 396 recordings. Knight now reaches a distinct fire-trap mismatch at step 1757: JS aligned cleric2321 moves from24,14 to25,13 while C proceeds to distfleeck. Movement/state selection and C actor correspondence remain unresolved; resume when that investigation establishes whether more correction is required before closure. The source goal retains unrecorded m_move entry families."
     },
     {
       "id": "div-makemon-hell-bat-speed-seed4500-20260918",
@@ -66710,7 +66710,7 @@
     {
       "id": "port-wizard-tactics-seed4500-20260918",
       "kind": "file-port",
-      "status": "open",
+      "status": "parked",
       "summary": "Port covetous artifact targeting, healing and harassment tactics through the production monster turn.",
       "cFile": "wizard.c",
       "sessions": [
@@ -66721,8 +66721,8 @@
       "spans": [
         {
           "name": "which_arti..tactics",
-          "status": "queued",
-          "closedBy": null,
+          "status": "closed",
+          "closedBy": "40823c47b4e67c4523fd2786899feb3b239ba324",
           "functions": [
             "which_arti",
             "mon_has_arti",
@@ -67136,7 +67136,17 @@
             "recordings": []
           }
         ]
-      }
+      },
+      "progressBeforePark": {
+        "screens": 0,
+        "rng": 141
+      },
+      "parkedStanding": {
+        "sha": "40823c47b4e67c4523fd2786899feb3b239ba324",
+        "screens": 11339,
+        "rng": 790898
+      },
+      "parkedReason": "The source span and two harassment recordings pass at40823c47. Healing/stair/tower and hero/floor/other-monster artifact entry recordings remain open, so the source goal cannot close. Knight now reaches a distinct fire-trap mismatch at1757 under movement/state investigation; resume this coverage when it becomes eligible."
     }
   ]
 }
