@@ -68707,8 +68707,8 @@
           "name": "mhitm_ad_legs",
           "line": 4425,
           "endLine": 4491,
-          "declared": false,
-          "complete": false
+          "declared": true,
+          "complete": true
         }
       ],
       "range": {
@@ -68807,7 +68807,75 @@
             }
           }
         }
-      ]
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "mhitm_ad_legs",
+            "implementation": "js/uhitm.js",
+            "symbol": "mhitm_ad_legs",
+            "sourceReview": "Read the complete uhitm.c function. The hero-attacker arm delegates to mhitm_ad_phys and checks mhm.done; the monster-to-hero arm selects right/left before height, cancellation and footwear gates, then uses source message, wound timeout and exercise order; the monster-to-monster arm cancels before delegating physical damage. JS preserves every branch, short-circuit draw and damage-zero return, evaluates Monnam twice in the cancelled pline_mon branch, and uses messageAt only for that coordinate-bearing message. Supporting do.c set_wounded_legs preserves side-bit accumulation, timeout extension, one temporary Dexterity penalty and encumber_msg ordering, with injected clone-local output. Existing mhitm_ad_phys and exercise remain the canonical source owners; there are no new unported return-valued calls or temporary AD_LEGS refusals.",
+            "callers": [
+              {
+                "path": "js/uhitm.js",
+                "symbol": "mhitm_adtyping",
+                "source": "uhitm.c:4782-4832 switch dispatches AD_LEGS from the shared attack-type handler."
+              },
+              {
+                "path": "js/mhitu.js",
+                "symbol": "hitmu",
+                "source": "C mhitu.c hitmu at1191 calls mhitm_adtyping, reached from mattacku; JavaScript mattacku -> hitmu -> uhitm.js mhitm_adtyping dispatches AD_LEGS."
+              },
+              {
+                "path": "js/mhitm.js",
+                "symbol": "mdamagem",
+                "source": "mhitm.c:1059 invokes mhitm_adtyping for monster-to-monster combat."
+              },
+              {
+                "path": "js/uhitm.js",
+                "symbol": "damageum",
+                "source": "uhitm.c:4835-4854 dispatches the hero-attacker arm; ordinary polymorphed hmonas() remains an explicit unported caller."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/mhitu.test.mjs"
+            ],
+            "recordings": [
+              "recordings/uhitm.c/mhitm-ad-legs-hostile-xan-independent.session.json",
+              "recordings/uhitm.c/mhitm-ad-legs-hostile-xan-wizard-variation.session.json"
+            ],
+            "checkedAt": "e9071e146577df5d513021e04c9f5f1e5ee215c4"
+          }
+        ],
+        "entryPointReview": "The active recorded entry is mhitu.c mattacku -> hitmu -> uhitm.c mhitm_adtyping -> mhitm_ad_legs for a hostile Xan attacking the hero; the primary has 39 screens/2601 RNG calls and the independent Wizard variation has 39 screens/2631 RNG calls. The Wizard starts with a different Dexterity and reaches rnd(47/48) rather than the primary rnd(48/49), proving the ACURR(A_DEX) variation. The uhitm.c hero-attacker and mhitm.c monster-to-monster callers are wired and covered by source-pinned tests, but ordinary polymorphed hmonas() remains unported and no independent production recipe forces those directional arms; they remain explicit open caller branches.",
+        "entryPoints": [
+          {
+            "name": "hostile Xan monster-to-hero AD_LEGS attack",
+            "functions": [
+              "mhitm_ad_legs"
+            ],
+            "recordings": [
+              "recordings/uhitm.c/mhitm-ad-legs-hostile-xan-independent.session.json",
+              "recordings/uhitm.c/mhitm-ad-legs-hostile-xan-wizard-variation.session.json"
+            ]
+          },
+          {
+            "name": "hero-attacker AD_LEGS dispatch",
+            "functions": [
+              "mhitm_ad_legs"
+            ],
+            "recordings": []
+          },
+          {
+            "name": "monster-to-monster AD_LEGS dispatch",
+            "functions": [
+              "mhitm_ad_legs"
+            ],
+            "recordings": []
+          }
+        ]
+      }
     }
   ]
 }
