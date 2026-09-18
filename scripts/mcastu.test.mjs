@@ -427,6 +427,63 @@ test('cursetxt: the deaf roleplay option silences the mumbled curse', async () =
         []);
 });
 
+test('castmu awaits the spell announcement before damage work', async () => {
+    const events = [];
+    let release;
+    const gate = new Promise((resolve) => { release = resolve; });
+    const draws = [];
+    let firstMessage = true;
+    const random = {
+        rn2: (bound) => {
+            const value = bound === 7 ? 2 : 50;
+            draws.push(`rn2(${bound})`);
+            events.push(`rn2(${bound})`);
+            return value;
+        },
+        d: (n, sides) => {
+            draws.push(`d(${n},${sides})`);
+            events.push(`d(${n},${sides})`);
+            return 34;
+        },
+    };
+    const pending = castmu(
+        makeCaster(), AD_CLRC_ATTACK, true, true,
+        {
+            state: makeState(),
+            random,
+            unsupported: refuse,
+            message: async (text) => {
+                events.push(`message-start:${text}`);
+                if (firstMessage) {
+                    firstMessage = false;
+                    await gate;
+                }
+                events.push('message-end');
+            },
+        },
+    );
+    await Promise.resolve();
+    await Promise.resolve();
+    assert.deepEqual(events, [
+        'rn2(7)',
+        'rn2(70)',
+        'message-start:Kobold shaman casts a spell!',
+    ]);
+    assert.deepEqual(draws, ['rn2(7)', 'rn2(70)']);
+
+    release();
+    await pending;
+    assert.deepEqual(events.slice(0, 6), [
+        'rn2(7)',
+        'rn2(70)',
+        'message-start:Kobold shaman casts a spell!',
+        'message-end',
+        'd(4,6)',
+        'message-start:The kobold shaman is suddenly moving faster.',
+    ]);
+    assert.deepEqual(draws, ['rn2(7)', 'rn2(70)', 'd(4,6)']);
+});
+
 // -- castmu fumble check -----------------------------------------------
 
 // C ref: mcastu.c:208 rn2(ml * 10) < (mtmp->mconf ? 100 : 20).

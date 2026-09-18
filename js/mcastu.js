@@ -266,7 +266,7 @@ function choose_monster_spell(mtmp, adtyp, env = {}) {
 // ---- cursetxt() ----
 // C ref: mcastu.c cursetxt() (62-85).
 // "feedback when frustrated monster couldn't cast a spell"
-function cursetxt(mtmp, undirected, env = {}) {
+async function cursetxt(mtmp, undirected, env = {}) {
     const state = env.state ?? game;
     const random = env.random ?? { rn2 };
     const message = env.message;
@@ -291,7 +291,7 @@ function cursetxt(mtmp, undirected, env = {}) {
             point_msg = 'at you, then curses';
         }
         if (message) {
-            message(
+            await message(
                 `${env.monsterName?.(mtmp)
                     ?? capitalizedMonsterNameFallback(mtmp, state)
                 } points ${point_msg}.`,
@@ -303,7 +303,7 @@ function cursetxt(mtmp, undirected, env = {}) {
             // C uses Norep() here, which suppresses repeated identical lines.
             // Norep is not ported; plain message is acceptable because this
             // code path runs at most once per spell attempt.
-            message('You hear a mumbled curse.', state);
+            await message('You hear a mumbled curse.', state);
         }
     }
 }
@@ -368,7 +368,7 @@ export async function castmu(
     /* monster unable to cast spells? */
     if (mtmp.mcan || mtmp.mspec_used || !ml
         || m_seenres(mtmp, cvt_adtyp_to_mseenres(mattk.adtyp))) {
-        cursetxt(mtmp, is_undirected_spell(spellnum), env);
+        await cursetxt(mtmp, is_undirected_spell(spellnum), env);
         return M_ATTK_MISS;
     }
 
@@ -386,7 +386,7 @@ export async function castmu(
                 ? (env.monsterName?.(mtmp)
                     ?? capitalizedMonsterNameFallback(mtmp, state))
                 : 'Something';
-            message(`${casterName} casts a spell at thin air!`, state);
+            await message(`${casterName} casts a spell at thin air!`, state);
         }
         return M_ATTK_MISS;
     }
@@ -395,7 +395,7 @@ export async function castmu(
     if (random.rn2(ml * 10) < (mtmp.mconf ? 100 : 20)) {
         /* fumbled attack */
         if (canseemon(mtmp, state) && !Deaf(state) && message) {
-            message(
+            await message(
                 `The air crackles around ${
                     env.monnam?.(mtmp)
                     ?? monnamFallback(mtmp, state)
@@ -425,7 +425,7 @@ export async function castmu(
             } else {
                 target = ' at you';
             }
-            message(`${casterName} casts a spell${target}!`, state);
+            await message(`${casterName} casts a spell${target}!`, state);
         }
     }
 
@@ -638,7 +638,7 @@ export async function buzzmu(mtmp, mattk, rawEnv = {}) {
         return M_ATTK_MISS;
 
     if (mtmp.mcan || m_seenres(mtmp, cvt_adtyp_to_mseenres(mattk.adtyp))) {
-        cursetxt(mtmp, false, env);
+        await cursetxt(mtmp, false, env);
         return M_ATTK_MISS;
     }
     if (lined_up(mtmp, env) && random.rn2(3)) {
