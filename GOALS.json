@@ -67151,7 +67151,7 @@
     {
       "id": "port-priest-mk-roamer-sp-lev-aligned-creation-seed4500-20260918",
       "kind": "file-port",
-      "status": "open",
+      "status": "parked",
       "summary": "Port roaming minion creation and wire explicit-alignment special-level descriptors.",
       "cFile": "priest.c",
       "sessions": [
@@ -67162,8 +67162,8 @@
       "spans": [
         {
           "name": "mk_roamer",
-          "status": "queued",
-          "closedBy": null,
+          "status": "closed",
+          "closedBy": "8064c3be0f79ca81eb2019c1797d9d4aaa7f242f",
           "functions": [
             "mk_roamer"
           ]
@@ -67344,7 +67344,17 @@
             "recordings": []
           }
         ]
-      }
+      },
+      "progressBeforePark": {
+        "screens": 0,
+        "rng": -141
+      },
+      "parkedStanding": {
+        "sha": "8064c3be0f79ca81eb2019c1797d9d4aaa7f242f",
+        "screens": 11339,
+        "rng": 790757
+      },
+      "parkedReason": "mk_roamer span is source-verified and checkpoint-passing at8064c3be. Guardian-angel and Astral descriptor entries remain unimplemented or unrecorded; preserve those active entry gaps while the fixed Knight queue moves to mhitu.c getmattk."
     }
   ]
 }
