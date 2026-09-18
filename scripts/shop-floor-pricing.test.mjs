@@ -321,8 +321,8 @@ test('ordinary movement refuses a debtor reaching the shop edge atomically',
         assertMovementSnapshot(state, target, before, keeper);
     });
 
-test('a visible-region pile menu refuses before movement', async () => {
-    const { keeper, start, state, target } = await generatedShopPile();
+test('a visible region is described before the priced pile menu', async () => {
+    const { lower, start, state, target, upper } = await generatedShopPile();
     const region = create_region([{
         lx: Math.min(start.x, target.x),
         ly: Math.min(start.y, target.y),
@@ -332,14 +332,35 @@ test('a visible-region pile menu refuses before movement', async () => {
     region.visible = true;
     region.hero_inside = true;
     state.level.regions.push(region);
-    const before = movementSnapshot(state, target, keeper);
+    const inputScreens = [];
+    const readKey = state.nhDisplay.readKey.bind(state.nhDisplay);
+    state.nhDisplay.readKey = (options) => {
+        inputScreens.push(state.nhDisplay.grid
+            .map((row) => row.map(({ ch }) => ch).join(''))
+            .join('\n'));
+        return readKey(options);
+    };
+    // Acknowledge the region line before the menu's own input boundary.
+    state.nhDisplay.pushKey(' '.charCodeAt(0));
+    state.nhDisplay.pushKey(' '.charCodeAt(0));
+    try {
+        await domove(state);
+    } finally {
+        state.nhDisplay.readKey = readKey;
+    }
 
-    await assert.rejects(
-        () => domove(state),
-        /visible region over object-pile menu/u,
-    );
-
-    assertMovementSnapshot(state, target, before, keeper);
+    assert.deepEqual([state.u.ux, state.u.uy], [target.x, target.y]);
+    assert.equal(state.level.objects[target.x][target.y], upper);
+    assert.equal(upper.nexthere, lower);
+    assert.equal(upper.where, OBJ_FLOOR);
+    assert.equal(lower.where, OBJ_FLOOR);
+    assert.equal(region.hero_inside, true);
+    assert.match(inputScreens[0], /There is a vapor cloud here\./u);
+    const menuIndex = inputScreens.findIndex(screen =>
+        screen.includes('Things that are here:'));
+    assert.ok(menuIndex > 0, 'the region message precedes the pile menu');
+    assert.match(inputScreens[menuIndex], /darts? \(for sale,/u);
+    assert.match(inputScreens[menuIndex], /food ration \(for sale,/u);
 });
 
 test('plain xname does not apply doname-only shop suffix guards', async () => {

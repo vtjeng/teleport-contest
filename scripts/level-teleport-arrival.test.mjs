@@ -748,13 +748,20 @@ test('an entirely autopicked arrival pile skips visible-region description',
         };
 
         game.flags.pickup = false;
-        await assert.rejects(
-            () => place_random_arrival(0, game),
-            /visible region description/u,
-        );
+        // A retained pile now has a supported region description. Admission
+        // still operates on the projected destination without moving or
+        // naming objects in the live state.
+        const projected = {
+            ...game,
+            gw: { ...game.gw },
+            u: { ...game.u, ux: destination.x, uy: destination.y },
+        };
+        preflight_projected_random_arrival_pickup(projected);
         assert.deepEqual([game.u.ux, game.u.uy], before.position);
         assert.deepEqual(game.coreCtx, before.rng);
         assert.deepEqual(getRngLog(), before.log);
+        assert.equal(apple.where, OBJ_FLOOR);
+        assert.equal(game.level.objects[destination.x][destination.y], apple);
 
         game.flags.pickup = true;
         await place_random_arrival(0, game);

@@ -1469,6 +1469,9 @@ export function requireSimpleHeroDestination(
         try {
             preflight_projected_random_arrival_pickup(projected);
         } catch (error) {
+            if (error instanceof UnsupportedObjectNameError
+                || error instanceof UnsupportedShopError)
+                throw new UnsupportedHeroMoveBoundaryError(error.branch);
             if (!(error instanceof UnsupportedPickupError)) throw error;
             throw new UnsupportedHeroMoveBoundaryError(error.reason);
         }

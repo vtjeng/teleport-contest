@@ -4330,18 +4330,9 @@ test('movement repeat counts preserve the COLNO sentinel threshold', async () =>
     }
 });
 
-// The refusal both movement backstops convert. pickup.c pickup() reaches
-// engrave.c can_reach_floor() only when the hero's new square holds an object,
-// and that answers FALSE while the hero levitates, where js/pickup.js raises
-// UnsupportedPickupError. That class is one of the four the movement path can
-// reach that js/jsmain.js does not break the segment on, so before the
-// wrappers it escaped runSegment() and cost the segment its matching prefix.
-//
-// The js/hack.js seam guards refuse ahead of domove(), but none of them reads
-// Levitation -- hack.c test_move() does not either, and js/hack.js
-// spoteffects() records that nothing in this port grants the property yet --
-// so the two tests below set it directly. That is what makes them backstop
-// tests rather than repeats of the seam's own admission cases.
+// C pickup.c pickup() returns without taking floor objects when the hero
+// levitates. Exercise that return through both initial and continued movement.
+// An extrinsic property avoids an unrelated levitation timeout on the next turn.
 function installUnreachableFloorObject(x, y) {
     // !autopickup keeps the seam's 'automatic pickup' guard silent, so the
     // object survives as far as pickup()'s can_reach_floor() test.
@@ -4360,10 +4351,11 @@ function installUnreachableFloorObject(x, y) {
     game.u.uprops[LEVITATION].extrinsic = 1;
 }
 
-test('a levitating hero reaches the committed square before pickup returns',
+test('movement over an unreachable floor object completes without pickup',
     async () => {
         const { x, y } = await prepareHeroMoveAdmission();
         installUnreachableFloorObject(x, y);
+        const object = game.level.objects[x][y];
         game.context.move = 0;
         game.context.run = 0;
         game.context.nopick = 0;
@@ -4371,8 +4363,10 @@ test('a levitating hero reaches the committed square before pickup returns',
         game.nhDisplay.pushKey(commandKeyCode('l'));
 
         await rhack(0, game);
-        // The movement commits before pickup() applies its no-floor result.
+
         assert.deepEqual([game.u.ux, game.u.uy], [x, y]);
+        assert.equal(game.level.objects[x][y], object);
+        assert.equal(object.where, OBJ_FLOOR);
         assert.equal(game.multi, 0);
         assert.equal(game.context.pendingCommand, undefined);
     });
@@ -4408,21 +4402,25 @@ async function takeFirstRunStep(first) {
     assert.equal(game.multi, COLNO);
     assert.equal(game.context.mv, 1);
     // rhack() ran its finally on the way out and dropped the retained
-    // keystroke. That is the premise of the turn boundary the next turn
-    // raises: no key survives here for a command boundary to hand back.
+    // keystroke. The continued move runs without a retained command key.
     assert.equal(game.context.pendingCommand, undefined);
     // Skip the elapsed-turn block, so the next turn is the run step alone.
     game.context.move = 0;
 }
 
-test('the run loop keeps a levitating pickup return after its move',
+test('a continued run crosses an unreachable floor object without pickup',
     async () => {
         const { first, second } = await prepareRunPastTheFirstStep();
         installUnreachableFloorObject(second[0], second[1]);
+        const object = game.level.objects[second[0]][second[1]];
         await takeFirstRunStep(first);
 
         await moveloop_core();
+
         assert.deepEqual([game.u.ux, game.u.uy], second);
+        assert.equal(game.level.objects[second[0]][second[1]], object);
+        assert.equal(object.where, OBJ_FLOOR);
+        assert.equal(game.context.pendingCommand, undefined);
     });
 
 test('the run loop leaves a class outside the refusal list as it found it',

@@ -1098,9 +1098,8 @@ export function preflight_projected_random_arrival_pickup(state) {
         // engulfer's minvent chain instead of the floor.  With no objects,
         // autopick()/query_objlist() select nothing, the post-pickup floor
         // work is skipped by the still-true u.uswallow, and pickup() returns
-        // 0 without a message or random draw.  A nonempty stomach remains
-        // refused below because its selection and object effects are a
-        // separate behavior slice.
+        // 0 without a message or random draw. A nonempty inventory uses the
+        // same selection and object preflight as the live swallowed branch.
         const head = u.ustuck?.minvent ?? null;
         if (!head) return;
         const plan = planAutomaticPickupAndRefreshCapacityCache(state, {
