@@ -1,6 +1,6 @@
 {
   "version": 5,
-  "comment": "Independent topl.c/wintty.c witness: a debug Wizard turns into a raven, answers that form's More with Escape, then rehumanizes. The new seed, date, name, and command sequence reach polyman's urgent_pline after WIN_STOP is set.",
+  "comment": "Independent topl.c/wintty.c witness: a debug Wizard turns into a raven, answers that form's More with Escape, then reaches polyman's urgent_pline through a later rehumanization command. This recording establishes independent production parity for the urgent caller; the fixed Knight trace and source-pinned tests establish the persistent WIN_STOP branch.",
   "segments": [{
     "seed": 821337,
     "datetime": "20320518091500",
