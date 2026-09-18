@@ -100,6 +100,7 @@ import {
     PM_LONG_WORM,
     PM_LITTLE_DOG,
     PM_MAIL_DAEMON,
+    PM_MASTER_LICH,
     PM_ORC_SHAMAN,
     PM_PONY,
     PM_QUANTUM_MECHANIC,
@@ -134,6 +135,7 @@ import {
     ORCISH_HELM,
     POT_HEALING,
     ROCK,
+    SPE_BOOK_OF_THE_DEAD,
     WAX_CANDLE,
     STATUE,
 } from '../js/objects.js';
@@ -5278,6 +5280,45 @@ test('awake or visible covetous monsters reach tactics', async () => {
         }
     }
 });
+
+// C ref: monmove.c dochug() -> wizard.c tactics() STRAT_GROUND.  This is the
+// production adapter for obj_extract_self(): a floor artifact must leave both
+// the square pile and the level list before mpickobj() gives it to the
+// covetous monster.  A direct tactics() test would miss the external
+// extraction hook supplied by dochug().
+test('covetous floor-artifact pickup uses the production extraction adapter',
+    async () => {
+        const target = await prepareSelectedAction({
+            pmidx: PM_MASTER_LICH,
+        });
+        target.monster.mhp = target.monster.mhpmax;
+        target.monster.msleeping = false;
+        target.monster.mcansee = true;
+        // Keep the fixture at wizard.c tactics() after the pickup; the
+        // downstream substituted attack family is outside this source span.
+        target.monster.data = { ...target.monster.data, mattk: [] };
+        game.viz_array[target.heroY][target.monsterX] |= IN_SIGHT;
+        const book = floorObject(
+            target.monsterX,
+            target.heroY,
+            9701,
+            SPE_BOOK_OF_THE_DEAD,
+        );
+        installObject(target, book);
+
+        await runSimpleMonsterAction(target.monster, {
+            state: game,
+            message: async () => {},
+            redraw: () => {},
+        });
+        assert.equal(target.monster.minvent?.otyp, SPE_BOOK_OF_THE_DEAD);
+        assert.equal(target.monster.minvent?.where, OBJ_MINVENT);
+        assert.equal(
+            game.level.objects[target.monsterX][target.heroY],
+            null,
+        );
+        assert.equal(game.level.objlist, null);
+    });
 
 // C ref: monmove.c dochug() -> wizard.c tactics() -> mon.c mnexto() with
 // RLOC_MSG. This uses the public monster-turn planner rather than calling

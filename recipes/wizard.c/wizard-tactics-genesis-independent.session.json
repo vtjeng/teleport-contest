@@ -1,12 +1,12 @@
 {
   "version": 5,
-  "_comment": "Independent wizard.c tactics witness: debug genesis creates a Wizard of Yendor, then waits through its ordinary covetous turn. The seed, clock, role and input sequence are independently chosen.",
+  "_comment": "Independent wizard.c tactics witness: debug genesis creates a peaceful nonunique master lich with a covetous artifact goal, then uses forced rest turns to reach covetous movement. The seed, clock, role and inputs are independently chosen.",
   "segments": [
     {
-      "seed": 940002,
+      "seed": 940004,
       "datetime": "20350101120000",
-      "nethackrc": "OPTIONS=name:TacticsProbe,role:Wizard,race:human,gender:male,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen,playmode:debug,pettype:none,!acoustics\n",
-      "moves": " #wizgenesis\nwizard of yendor\n...................."
+      "nethackrc": "OPTIONS=name:TacticsProbe2,role:Wizard,race:human,gender:male,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen,playmode:debug,pettype:none,!acoustics\n",
+      "moves": " #wizgenesis\npeaceful master lich\nm.m."
     }
   ]
 }

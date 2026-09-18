@@ -347,6 +347,7 @@ import {
     isCandle,
     isContainer,
     objectType,
+    remove_object,
     sobj_at,
     splitobj,
 } from './obj.js';
@@ -2557,7 +2558,18 @@ export async function dochug(monster, rawEnv = {}) {
             rloc,
             rlocTo: rloc_to,
             mpickobj,
-            objExtractSelf: obj_extract_self,
+            // wizard.c tactics() can take an artifact from the floor.  The
+            // inventory owner deliberately requires mkobj.c's external
+            // extraction hook for that chain, so bind the canonical owner at
+            // this production caller instead of leaving a planning-only
+            // injection to decide whether the object is still on the map.
+            objExtractSelf: (object, actionEnv) => obj_extract_self(object, {
+                ...actionEnv,
+                hooks: {
+                    ...(actionEnv.hooks ?? {}),
+                    extractExternalObject: remove_object,
+                },
+            }),
             healmon,
             monnear,
             noteleportLevel: noteleport_level,
