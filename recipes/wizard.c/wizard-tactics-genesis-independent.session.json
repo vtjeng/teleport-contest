@@ -1,12 +1,12 @@
 {
   "version": 5,
-  "_comment": "Independent wizard.c tactics witness: debug genesis creates a peaceful nonunique master lich with a covetous artifact goal, then uses forced rest turns to reach covetous movement. The seed, clock, role and inputs are independently chosen.",
+  "_comment": "Independent wizard.c tactics witness: an independently chosen Wizard seed first grants timed blindness through #wizintrinsic, then debug genesis creates a peaceful master lich and forced rest reaches the production tactics call while the hero cannot see its message output. The tactics RNG trace is recorded at the final turn.",
   "segments": [
     {
-      "seed": 940004,
+      "seed": 940006,
       "datetime": "20350101120000",
-      "nethackrc": "OPTIONS=name:TacticsProbe2,role:Wizard,race:human,gender:male,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen,playmode:debug,pettype:none,!acoustics\n",
-      "moves": " #wizgenesis\npeaceful master lich\nm.m."
+      "nethackrc": "OPTIONS=name:TacticsBlind,role:Wizard,race:human,gender:male,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen,playmode:debug,pettype:none,!acoustics\n",
+      "moves": " #wizintrinsic\ni\n #wizgenesis\npeaceful master lich\nm.m.m."
     }
   ]
 }
