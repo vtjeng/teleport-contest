@@ -64179,7 +64179,7 @@
     {
       "id": "div-pager-do-look-blind-seed4500-20260917",
       "kind": "divergence-fix",
-      "status": "open",
+      "status": "closed",
       "summary": "Admit blind heroes to the implemented quick-glance cursor path",
       "cFile": "pager.c",
       "sessions": [],
@@ -64188,8 +64188,8 @@
       "spans": [
         {
           "name": "blind-glance-admission",
-          "status": "queued",
-          "closedBy": null,
+          "status": "closed",
+          "closedBy": "8085b0f35e59023ace7dec771cd99239e16bb906",
           "functions": [
             "do_look"
           ]
@@ -64201,8 +64201,11 @@
         "screens": 11267,
         "rng": 788894
       },
-      "closedAt": null,
-      "delivered": null,
+      "closedAt": "8085b0f35e59023ace7dec771cd99239e16bb906",
+      "delivered": {
+        "screens": 9,
+        "rng": 0
+      },
       "function": "do_look",
       "session": "holdout/seed4500-knight-coverage",
       "step": 1685,
@@ -64289,7 +64292,12 @@
             }
           }
         }
-      ]
+      ],
+      "closeStanding": {
+        "sha": "8085b0f35e59023ace7dec771cd99239e16bb906",
+        "screens": 11276,
+        "rng": 788894
+      }
     }
   ]
 }
