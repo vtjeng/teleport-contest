@@ -2,7 +2,7 @@
   "session": "holdout/seed4500-knight-coverage",
   "remainingScreensUpperBound": 51,
   "status": "partial",
-  "commit": "4c1733fc509a9a8e155e93664a04b91399025df1",
+  "commit": "2e2c6c14abae02bf056d0043dd44ae97f8e0a52b",
   "mismatch": {
     "session": "holdout/seed4500-knight-coverage",
     "step": 1763,
