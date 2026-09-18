@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "Independent makemon.c boundary witness: the same production vampire-bat genesis on ordinary D:20 must not receive the Hell-only S_BAT/Inhell permanent-speed adjustment.",
+  "segments": [
+    {
+      "seed": 9400043,
+      "datetime": "20380918120000",
+      "nethackrc": "OPTIONS=name:OrdinaryBat,role:Wizard,race:human,gender:female,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen,playmode:debug,pettype:none,!acoustics,rest_on_space,!safe_wait\n",
+      "moves": " \u001620\n \u0007vampire bat\n"
+    }
+  ]
+}

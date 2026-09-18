@@ -160,6 +160,7 @@ import {
     PM_TROLL,
     PM_UMBER_HULK,
     PM_VAMPIRE,
+    PM_VAMPIRE_BAT,
     PM_VAMPIRE_LEADER,
     PM_WHITE_UNICORN,
     PM_WINGED_GARGOYLE,
@@ -170,6 +171,7 @@ import {
     PM_WUMPUS,
     PM_WATCHMAN,
     PM_ZRUTY,
+    S_BAT,
     S_ELEMENTAL,
     S_LIGHT,
     SPECIAL_PM,
@@ -3078,6 +3080,55 @@ test('makemon starts only stalkers and black lights permanently invisible',
         assert.equal(stalker.mgenmklev, true);
         assert.equal(state.level.monsters[MON_X][MON_Y], stalker);
     });
+
+test('makemon gives Hell bats their permanent creation speed', () => {
+    // C makemon.c:1343-1346 selects the S_BAT arm before the light-source
+    // tail.  Only is_bat() species created on an Inhell level receive the
+    // silent worn.c mon_adjust_speed(mtmp, 2, NULL) adjustment.
+    const hell = initialLevelState();
+    hell.dungeons[hell.u.uz.dnum].flags.hellish = true;
+    const hellRandom = recordingRandom();
+    const vampireBat = makemon(
+        hell.mons[PM_VAMPIRE_BAT],
+        MON_X,
+        MON_Y,
+        MM_NOGRP | MM_NOCOUNTBIRTH | NO_MINVENT,
+        { state: hell, random: hellRandom.random },
+    );
+    assert.equal(vampireBat.data.mlet, S_BAT);
+    assert.equal(vampireBat.permspeed, MFAST);
+    assert.equal(vampireBat.mspeed, MFAST);
+    const expectedCreationCalls = [
+        { kind: 'rnd', args: [2], result: 1 },
+        { kind: 'd', args: [4, 8], result: 4 },
+        { kind: 'rn2', args: [2], result: 1 },
+    ];
+    assert.deepEqual(
+        hellRandom.calls,
+        expectedCreationCalls,
+        'Hell bat speed adjustment adds no RNG after the source creation draws',
+    );
+
+    // The same source arm is level-gated.  A vampire bat on an ordinary
+    // level keeps the catalog's normal speed and does not acquire MFAST.
+    const ordinary = initialLevelState();
+    const ordinaryRandom = recordingRandom();
+    const ordinaryBat = makemon(
+        ordinary.mons[PM_VAMPIRE_BAT],
+        MON_X,
+        MON_Y,
+        MM_NOGRP | MM_NOCOUNTBIRTH | NO_MINVENT,
+        { state: ordinary, random: ordinaryRandom.random },
+    );
+    assert.equal(ordinaryBat.data.mlet, S_BAT);
+    assert.equal(ordinaryBat.permspeed, 0);
+    assert.equal(ordinaryBat.mspeed, 0);
+    assert.deepEqual(
+        ordinaryRandom.calls,
+        expectedCreationCalls,
+        'ordinary bat retains the same source creation draw sequence',
+    );
+});
 
 test('initial chameleon can retain its natural form and inventory gates', () => {
     const state = initialLevelState();

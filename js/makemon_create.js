@@ -160,6 +160,7 @@ import {
     is_male,
     is_mercenary,
     is_ndemon,
+    is_bat,
     is_neuter,
     is_unicorn,
     mindless,
@@ -172,6 +173,7 @@ import {
     newcham_initial,
 } from './mon.js';
 import { shkgone } from './shk.js';
+import { mon_adjust_speed } from './worn.js';
 import {
     m_at,
     newMonster,
@@ -338,6 +340,7 @@ import {
     PM_YEENOGHU,
     SPECIAL_PM,
     S_ANGEL,
+    S_BAT,
     S_CENTAUR,
     S_DEMON,
     S_ELEMENTAL,
@@ -3111,6 +3114,16 @@ export function makemon(ptr, x, y, mmflags = 0, env = {}) {
     } else if (is_unicorn(ptr)
         && Math.sign(state.u.ualign.type) === Math.sign(ptr.maligntyp)) {
         monster.mpeaceful = true;
+    } else if (ptr.mlet === S_BAT
+        && In_hell(state.u.uz, state)
+        && is_bat(ptr)) {
+        // C makemon.c:1343-1346 calls worn.c mon_adjust_speed(mtmp, 2, 0)
+        // for bats created in Gehennom.  The adjust=2 arm is silent and its
+        // return value is discarded by the source caller.
+        void mon_adjust_speed(monster, 2, null, state, {
+            ...normalized,
+            silent: true,
+        });
     }
     // C ref: makemon.c:1398-1403. Demon princes who use the bribe sound
     // start peaceful and permanently invisible, unless the hero wields
