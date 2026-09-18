@@ -67774,6 +67774,232 @@
         "screens": 11364,
         "rng": 791400
       }
+    },
+    {
+      "id": "port-mcastu-mcast-spell-seed4500-20260918",
+      "kind": "file-port",
+      "status": "parked",
+      "summary": "Complete monster spell dispatch and return-valued clerical effects",
+      "cFile": "mcastu.c",
+      "sessions": [
+        "holdout/seed4500-knight-coverage"
+      ],
+      "selectionReason": "Seed continuation for holdout/seed4500-knight-coverage (queue upper bound51; investigations/holdout/seed4500-knight-coverage.json). Higher-ranked seed2200 is blocked on Q1’s unspecified configuration pathname. The first Knight mismatch at1763 is owned by pending B42; independent A42 addresses the verified later mcast_spell effect17 refusal through the whole dispatcher and its required return-valued clerical helpers. Their source reservations and four strict independent production witnesses are complete.",
+      "detail": "Port whole mcastu.c mcast_spell801–897 with required return-valued geyser, fire-pillar, lightning and paralysis helpers. Use canonical reflection, flashburn and planning-isolated item effects; retain discarded void callees as named gaps. Independent Grand Master recordings establish all four helper effects and positive damage through mdamageu.",
+      "spans": [
+        {
+          "name": "mcast_spell",
+          "status": "closed",
+          "closedBy": "cf3624735f3cfac8c4b09d9f6f35c12b29787ead",
+          "functions": [
+            "mcast_spell"
+          ]
+        }
+      ],
+      "openedAt": "fb79515116f08382e7bcecd4436c186513d1b0b3",
+      "openStanding": {
+        "sha": "2e2c6c14abae02bf056d0043dd44ae97f8e0a52b",
+        "screens": 11364,
+        "rng": 791400
+      },
+      "closedAt": null,
+      "delivered": null,
+      "functions": [
+        {
+          "name": "mcast_spell",
+          "line": 801,
+          "endLine": 899,
+          "declared": true,
+          "complete": true
+        }
+      ],
+      "range": {
+        "from": 801,
+        "to": 899
+      },
+      "activeStanding": {
+        "sha": "2e2c6c14abae02bf056d0043dd44ae97f8e0a52b",
+        "screens": 11364,
+        "rng": 791400
+      },
+      "openMismatches": [
+        {
+          "session": "holdout/seed4500-knight-coverage",
+          "step": 1763,
+          "kind": "screen",
+          "function": null,
+          "functionDeclared": false,
+          "sourceFile": null,
+          "cFile": null,
+          "luaFile": null,
+          "line": null,
+          "message": null,
+          "unlocatedKinds": [],
+          "recordedSteps": 1814,
+          "remainingScreensUpperBound": 51,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/holdout/seed4500-knight-coverage.json",
+            "result": {
+              "session": "holdout/seed4500-knight-coverage",
+              "remainingScreensUpperBound": 51,
+              "status": "complete",
+              "commit": "2e2c6c14abae02bf056d0043dd44ae97f8e0a52b",
+              "mismatch": {
+                "session": "holdout/seed4500-knight-coverage",
+                "step": 1763,
+                "kind": "screen",
+                "function": null,
+                "functionDeclared": false,
+                "sourceFile": null,
+                "cFile": null,
+                "luaFile": null,
+                "line": null,
+                "message": null,
+                "unlocatedKinds": [],
+                "recordedSteps": 1814,
+                "remainingScreensUpperBound": 51
+              },
+              "summary": "The step-1763 Escape mismatch is traced to rehumanization message urgency. C polyman uses urgent_pline; JS polyman accepts an ordinary message callback, leaving the form-change line suppressed. A focused correction reaches the expected return-to-human line and cursor. The live urgent terminal path also needs the C-ordered WIN_STOP reset. The separate summon-spell owner is still missing; the force-creation response is fixed and the aligned/high-cleric minion-initialization gap remains open.",
+              "evidence": [
+                "Checkpoint 2e2c6c14 matches 1782/1814 Knight screens, 1783/1814 cursors and 106837 RNG calls, unchanged from d4f0aacb. The fixed workload matches 11364/11405 screens and all 400 recordings pass. Knight has 32 actual unmatched screens; the queue upper bound is 51.",
+                "The first remaining screen and cursor difference is step 1763, Escape input. C shows You return to human form! You can see again.--More-- with cursor [53,0,1]; JS shows Your cap area suddenly aches very painfully! with cursor [66,17,1]. The first cell difference is row 0, column 3; the fresh scan reports no RNG divergence before the later stop.",
+                "The source psi-bolt damage roll d(12,6)=34 produces the same human form in both implementations. C polyself.c polyman calls urgent_pline, but JS polyman prefers rawEnv.message; rehumanize supplies the ordinary message operation even though the monster-attack environment has a separate urgentMessage operation. A bounded corrected replay (run-nktyXU) shows recorded step1763 with You return to human form! You can see again.--More-- and cursor [53,0,1], and reaches the later effect17 boundary. Its diagnostic hook i1764 corresponds to recorded step1763. The corrected code has not yet passed main’s combined checkpoint.",
+                "The later stop remains simple monster action requires mcast_spell effect 17 at emitted screen 1784, on movesouth. It does not explain the earlier terminal difference.",
+                "The read.c create_particular_creation affirmative response is now compared with numeric byte 121, matching cmd.js y_n and restoring the original species after cant_revive. The source-pinned affirmative production test passes; an independent negative-response recording matches 46 screens/cursors and 3185 RNG calls. The affirmative recording is blocked next in makemon.c priest/minion initialization and is retained as a recipe, not completion evidence.",
+                "Resolved step 1761: C finishes the casting announcement and effect message before damage. Awaiting the async JS messages and result-valued helpers moves the first difference to 1763 without changing RNG. Independent master-lich recording lich-spell-order-variation matches 2378 RNG calls and 57 screens/cursors; it does not establish clerical effect coverage.",
+                "Whole mhitu.c getmattk now handles seduction, disease/hunger, energy, temporary holder, weapon, cold-touch and home-elemental substitutions through mattacku/mattackm. Source-pinned tests establish the pure helper; unported uhitm.c hmonas remains a separate caller gap.",
+                "Retained counter-evidence: the earlier cleric fire-trap event had exactly one m_move→postmov→mintrap chain. Cleric2321 lacked minion state and trap knowledge because createMonsterBody skipped mk_roamer. A prior fire trap belonged to actor2334 at(26,7), outside learning range; fire resistance cannot omit the initial C fire-damage draw. The corrected source initialization removes that earlier divergence.",
+                "Retained counter-evidence for the resolved step1742 issue: the bat had spent its movement ration; its two distfleeck calls described one action. Vampire shapechange does not apply the Hell-bat creation-speed adjustment."
+              ],
+              "source": {
+                "file": "polyself.c",
+                "functions": [
+                  "polyman",
+                  "rehumanize"
+                ],
+                "branch": "C polyman announces the restored form with urgent_pline. JS polyman selects rawEnv.message before its ttyUrgentPline fallback, and rehumanize supplies the ordinary message operation. Preserve the urgent callback and planning silence through this caller chain. The terminal update_topl/more state observation is evidence of the symptom; no terminal-engine change is established yet.",
+                "callers": [
+                  "C mcastu.c mcast_psi_bolt -> mcast_spell -> mhitu.c mdamageu -> polyself.c rehumanize -> polyman -> urgent_pline.",
+                  "JS mattacku/castmu/mcast_spell propagate message and urgentMessage through mdamageu and rehumanize; polyman currently chooses the ordinary message callback for the source urgent announcement."
+                ],
+                "dependencies": [
+                  "The read.c create_particular_creation response-type defect is fixed: y_n returns numeric byte 121 and the caller now recognizes it. Independent aligned/high-cleric creation next reaches an unported makemon.c fallback: when neither MM_EPRI nor MM_EMIN was requested, C allocates minion state, draws min_align with rn2(3), derives renegade/peacefulness, then calls set_malign. This remains in recipes/read.c/forced-aligned-cleric-affirmative-blocked.session.json. The mcastu effect helpers still need matching production recordings; an independently selected Grand Master route is being examined without claiming coverage.",
+                  "The complete getmattk helper now replaces substitution refusals through mattacku/mattackm and adds 23 matching screens. The separate unported hmonas caller remains open.",
+                  "The later MCAST_SUMMON_MONS (effect17) stop belongs to mcast_spell and mcast_summon_mons. Completing the dispatcher also requires its return-valued geyser, fire-pillar, lightning and paralysis effect helpers and matching production recordings.",
+                  "Lightning also exposes a source defect in muse.c ureflects: C accepts an empty non-null message prefix, while the current JavaScript truthiness test suppresses output and discovery. Its message operation must remain silent during planned turns. zap.c flashburn already has an implementation and must be called with the source rnd(100) duration.",
+                  "priest.c mk_roamer and the sp_lev explicit-alignment caller are implemented with MM_EMIN allocation, canonical minion state, ALL_TRAPS knowledge and ordinary non-tame action admission. Two independent recordings establish creation and actual roamer movement. Guardian-angel and Astral entry recordings remain open; exceptional relocation restrictions remain with the existing rloc owner.",
+                  "Accepted getpos.c collection/cycling now includes menu selection and cancellation, source coordinate descriptions and exact area-filter lifetime. Five independent recordings match. VIEW and other location-family entry recordings remain open in GOALS.json.",
+                  "Accepted pager do_screen_description now collects all source symbol families and uses canonical stored-glyph map_glyphinfo. Its lookup coordinates differ from the encoded-prefix decode at (0,0); pet and hero overrides, Rogue colors and NOOVERRIDE order are verified. getpos_menu, displayed-glyph accessibility, cursor auto-description and clicked lookup recording entries remain open in GOALS.json.",
+                  "Accepted invent.c look_here/dolook now handles tactile floor reach, arbitrary pile inspection, pile counts, cockatrice ordering and message filtering, with canonical force_decor and query_objlist callers. Three independent recordings cover movement menu/count and colon look. Swallowed inventory, blind ICE and the tactile-corpse fallback remain unrecorded entry families in GOALS.json; movement retains its mutation-free unsupported naming/pricing boundary.",
+                  "Other unresolved source/coverage defects remain separate: make_stoned/minstapetrify/do_stone_mon; hero/monster stoning directions, corpse-weapon and attack-triggered golem entries; passive cold/fire/electricity/paralysis and lethal recovery; eating/non-food cleanup; skinback artifact-light radius and rare armor/Eyes-of-the-Overworld cleanup.",
+                  "Liquid-specific entry recordings and exceptional partial rloc routes remain open; trap.c inventory-chain calls and mon.c deal_with_overcrowding remain named discarded-call gaps. GOALS.json preserves open print_dungeon, hitmu, mfind0, goto_level, minliquid, creation/flash, pickup and achievement entry families rather than treating supporting unit tests as their completion.",
+                  "Hidden-attacker witnesses require eligible placement on objects or water, actual hidden state and an executed hitmu. Plain or qualified monster creation alone does not establish that entry; independent hidden-trapper and invisible-newt recordings establish creation/flash only.",
+                  "The m_move/mdisplacem dispatch, combat state and projected movement corrections have matching Tengu relocation recordings. Displacement, mail, worm and exceptional dedicated-mover entry recordings remain open in GOALS.json. Covetous admission now reaches the complete wizard.c tactics family through dochug.",
+                  "Safe monster scans, deferred-transition continuation and Hell-bat creation speed resolve the earlier step 1742 failure. Region upkeep keeps harmful gas and unknown callbacks explicit; its nonempty-region recording coverage remains separate.",
+                  "The which_arti-through-tactics family and result-bearing relocation dependencies are implemented. Two independent peaceful master-lich recordings reach harassment, including mnexto relocation; healing and hero/floor/other-monster artifact entries remain unrecorded. Relocation preserves action/display RNG and source redraw order. Worm, shop, trap, occupation and attached-hero relocation restrictions and the named-expulsion gap remain explicit.",
+                  "The ordinary ice-vortex expels caller now delegates old/new monster-square redraws to mnexto and redraws only the hero square afterward. Planning suppresses live redraws. This removes the duplicate destination draw introduced when mnexto gained its source relocation core; the fixed hallucination session matches again."
+                ]
+              },
+              "goalKind": "divergence-fix"
+            }
+          }
+        }
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "mcast_spell",
+            "implementation": "js/mcastu.js",
+            "symbol": "mcast_spell",
+            "sourceReview": "Read complete mcastu.c mcast_spell801–899: negative and invalid directed-zero guards, each selected case, damage clearing for void effects, awaited return-valued effects, and final mdamageu. Implemented required whole helpers mcast_geyser523–538, mcast_fire_pillar540–564, mcast_lightning566–598 and mcast_paralyze746–769 in the same span, preserving message/RNG/state order and C integer rounding. Reflection accepts the source empty non-null prefix, lightning calls canonical flashburn after rnd(100), and item-effect messages stay silent on planned clones. Existing psi-bolt/open-wounds/cure waits are preserved from accepted466ab619. Removed the dispatcher UnsupportedSimpleActionError refusal; the following discarded-result callees remain explicit note_unported gaps: mcastu.c mcast_death_touch, mcastu.c mcast_clone_wiz, mcastu.c mcast_summon_mons, wizard.c aggravate, sit.c rndcurse, mcastu.c mcast_destroy_armor, mcastu.c mcast_weaken_you, mcastu.c mcast_disappear, mcastu.c mcast_stun_you, mcastu.c mcast_insects, mcastu.c mcast_blind_you, mcastu.c mcast_confuse_you, zap.c mon_spell_hits_spot, display.c shieldeff. The geyser water_damage_chain block is #if0 in C and is omitted. Independent helper witnesses complete damage application: lightning126→87 with flash blindness, paralysis75→47, geyser125→102 and fire pillar111→75.",
+            "callers": [
+              {
+                "path": "js/mcastu.js",
+                "symbol": "castmu",
+                "source": "mcastu.c castmu dispatches AD_SPEL and AD_CLRC to mcast_spell; the production JS chain is monster movement -> mattacku -> injected castmu callback in unported_monster_actions.js -> castmu -> mcast_spell."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/mcastu.test.mjs"
+            ],
+            "recordings": [
+              "recordings/mcastu.c/grand-master-lightning-independent.session.json",
+              "recordings/mcastu.c/grand-master-paralyze-independent.session.json",
+              "recordings/mcastu.c/grand-master-geyser-independent.session.json",
+              "recordings/mcastu.c/grand-master-fire-pillar-independent.session.json",
+              "recordings/mcastu.c/lich-spell-order-variation.session.json"
+            ],
+            "checkedAt": "3f8dc486930f394689c138a3d065d3bdb0e5be08"
+          }
+        ],
+        "entryPointReview": "The selected source range is the whole mcast_spell dispatcher. AD_SPEL and AD_CLRC monster attacks reach it through castmu. The accepted master-lich recording reaches arcane psi-bolt damage; four new independent Grand Master recordings reach and finish lightning, paralysis, geyser and fire-pillar effects. Required helper source reviews and production records are preserved in the immutable A42 delivery; this goal records the selected dispatcher source unit. The remaining void-effect families still call note_unported and are explicitly open entry coverage, so this goal must remain parked after this span rather than close on supporting tests. Aligned/high-cleric creation has a separate makemon minion-initialization blocker; it is not evidence for a completed entry.",
+        "entryPoints": [
+          {
+            "name": "Grand Master clerical lightning",
+            "functions": [
+              "mcast_spell"
+            ],
+            "recordings": [
+              "recordings/mcastu.c/grand-master-lightning-independent.session.json"
+            ]
+          },
+          {
+            "name": "Grand Master clerical paralyze",
+            "functions": [
+              "mcast_spell"
+            ],
+            "recordings": [
+              "recordings/mcastu.c/grand-master-paralyze-independent.session.json"
+            ]
+          },
+          {
+            "name": "Grand Master clerical geyser",
+            "functions": [
+              "mcast_spell"
+            ],
+            "recordings": [
+              "recordings/mcastu.c/grand-master-geyser-independent.session.json"
+            ]
+          },
+          {
+            "name": "Grand Master clerical fire pillar",
+            "functions": [
+              "mcast_spell"
+            ],
+            "recordings": [
+              "recordings/mcastu.c/grand-master-fire-pillar-independent.session.json"
+            ]
+          },
+          {
+            "name": "Arcane psi-bolt dispatch",
+            "functions": [
+              "mcast_spell"
+            ],
+            "recordings": [
+              "recordings/mcastu.c/lich-spell-order-variation.session.json"
+            ]
+          },
+          {
+            "name": "Remaining void monster-spell effect families",
+            "functions": [
+              "mcast_spell"
+            ],
+            "recordings": []
+          }
+        ]
+      },
+      "progressBeforePark": {
+        "screens": 0,
+        "rng": 18
+      },
+      "parkedStanding": {
+        "sha": "cf3624735f3cfac8c4b09d9f6f35c12b29787ead",
+        "screens": 11364,
+        "rng": 791418
+      },
+      "parkedReason": "Dispatcher span and four required clerical helpers have source and matching production evidence. Remaining void monster-spell effect families, including mcast_summon_mons, remain explicit gaps and have no completed entry recordings; preserve those open entries while integrating the ready terminal-message divergence."
     }
   ]
 }

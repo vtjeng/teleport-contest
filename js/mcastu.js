@@ -2,9 +2,10 @@
 // C ref: mcastu.c -- cursetxt(), choose_monster_spell(), castmu(),
 // is_undirected_spell(), spell_would_be_useless(), and mcast_spell().
 //
-// Individual spell effects (mcast_psi_bolt, mcast_open_wounds, etc.) are
-// ported as the running game exercises them.  Unexercised cases inside
-// mcast_spell() throw unsupported.
+// Individual spell effects (mcast_psi_bolt, mcast_open_wounds, and the
+// return-valued effects below) are ported here. A void helper whose result C
+// discards remains an explicit note_unported gap until its own source span
+// lands; the dispatcher still preserves its source case and damage order.
 
 import {
     ANTIMAGIC,
@@ -14,6 +15,9 @@ import {
     BZ_VALID_ADTYP,
     DEAF,
     DISPLACED,
+    FIRE_RES,
+    FREE_ACTION,
+    HALF_PHDAM,
     HALF_SPDAM,
     HALLUC,
     HALLUC_RES,
@@ -22,9 +26,13 @@ import {
     M_AP_OBJECT,
     M_ATTK_HIT,
     M_ATTK_MISS,
+    M_SEEN_ELEC,
+    M_SEEN_FIRE,
     M_SEEN_MAGR,
+    M_SEEN_REFL,
     MFAST,
     SEE_INVIS,
+    SHOCK_RES,
     u_at,
 } from './const.js';
 import { game } from './gstate.js';
@@ -39,17 +47,25 @@ import {
 } from './mondata.js';
 import {
     AD_CLRC,
+    AD_ELEC,
+    AD_FIRE,
     AD_SPEL,
 } from './monsters.js';
 import { STRANGE_OBJECT } from './objects.js';
 import { body_part } from './polyself.js';
 import { lined_up } from './mthrowu.js';
-import { rn2, d } from './rng.js';
+import { rn2, rnd, d } from './rng.js';
 import { canSpotMonster } from './startup_a11y.js';
 import { couldsee, canseemon } from './vision.js';
 import { has_aggravatables } from './wizard.js';
 import { mon_adjust_speed } from './worn.js';
-import { buzz, flash_str } from './zap.js';
+import { burn_away_slime } from './timeout.js';
+import { burnarmor } from './trap_erode_obj.js';
+import { ignite_items } from './apply_catch_lit.js';
+import { destroy_items } from './zap_destroy_items.js';
+import { ureflects } from './muse.js';
+import { note_unported } from './unported.js';
+import { buzz, flash_str, flashburn } from './zap.js';
 
 // ---- Spell enum (mcastu.h MONSPELL order) ----
 // These must match the C enum values (0-based, order from mcastu.h).
@@ -163,6 +179,11 @@ function requireCastmuOperation(env, name) {
     if (typeof operation !== 'function')
         throw new TypeError(`castmu requires a ${name} operation`);
     return operation;
+}
+
+function recordMcastGap(name, env = {}) {
+    if (typeof env.noteUnported === 'function') env.noteUnported(name);
+    else note_unported(name);
 }
 
 // ---- is_undirected_spell() ----
@@ -336,7 +357,7 @@ export async function castmu(
     rawEnv = {},
 ) {
     const state = rawEnv.state ?? game;
-    const random = rawEnv.random ?? { rn2, d };
+    const random = rawEnv.random ?? { rn2, d, rnd };
     // The unported arms below -- AD_FIRE, AD_COLD and AD_MAGM here, and most
     // spell effects in mcast_spell() -- refuse through this rather than
     // running as a spell that quietly does nothing.
@@ -559,22 +580,166 @@ async function m_cure_self(mtmp, dmg, env = {}) {
     return dmg;
 }
 
+// C ref: mcastu.c mcast_geyser() (523-538).
+async function mcast_geyser(dmg, env = {}) {
+    const state = env.state ?? game;
+    const random = env.random ?? { d };
+    if (typeof env.message === 'function')
+        await env.message('A sudden geyser slams into you from nowhere!', state);
+    dmg = random.d(8, 6);
+    if (heroProperty(state, HALF_PHDAM)) dmg = Math.trunc((dmg + 1) / 2);
+    // C's water_damage_chain block is compiled out for this build.
+    return dmg;
+}
+
+// C ref: mcastu.c mcast_fire_pillar() (540-564).
+async function mcast_fire_pillar(mtmp, dmg, env = {}) {
+    const state = env.state ?? game;
+    const random = env.random ?? { d };
+    const message = env.message;
+    if (typeof message === 'function')
+        await message('A pillar of fire strikes all around you!', state);
+    const origDmg = dmg = random.d(8, 6);
+    if (heroProperty(state, FIRE_RES)) {
+        recordMcastGap('display.c shieldeff', env);
+        monstseesu(M_SEEN_FIRE, state);
+        dmg = 0;
+    } else {
+        monstunseesu(M_SEEN_FIRE, state);
+    }
+    if (heroProperty(state, HALF_SPDAM)) dmg = Math.trunc((dmg + 1) / 2);
+    burn_away_slime(state);
+    // C's item effects mutate the same hero clone and may print through their
+    // own fallback operations.  Planning passes an explicit silent message
+    // operation so those fallbacks cannot write to the live terminal.
+    const effectEnv = {
+        ...env,
+        state,
+        random,
+        message: env.message ?? (env.planning ? async () => {} : undefined),
+    };
+    await burnarmor(state.youmonst, effectEnv);
+    await destroy_items(state.youmonst, AD_FIRE, origDmg, effectEnv);
+    await ignite_items(state.invent, effectEnv);
+    recordMcastGap('zap.c mon_spell_hits_spot', env);
+    return dmg;
+}
+
+// C ref: mcastu.c mcast_lightning() (566-598).
+async function mcast_lightning(mtmp, dmg, env = {}) {
+    const state = env.state ?? game;
+    const random = env.random ?? { d };
+    if (typeof env.message === 'function')
+        await env.message('A bolt of lightning strikes down at you from above!', state);
+    const reflects = typeof env.ureflects === 'function'
+        ? await env.ureflects('It bounces off your %s%s.', '', state, env)
+        : await ureflects('It bounces off your %s%s.', '', state, env);
+    const origDmg = dmg = random.d(8, 6);
+    if (reflects || heroProperty(state, SHOCK_RES)) {
+        recordMcastGap('display.c shieldeff', env);
+        dmg = 0;
+        if (reflects) {
+            monstseesu(M_SEEN_REFL, state);
+            return dmg;
+        }
+        monstunseesu(M_SEEN_REFL, state);
+        monstseesu(M_SEEN_ELEC, state);
+    } else {
+        monstunseesu(M_SEEN_ELEC | M_SEEN_REFL, state);
+    }
+    if (heroProperty(state, HALF_SPDAM)) dmg = Math.trunc((dmg + 1) / 2);
+    const effectEnv = {
+        ...env,
+        state,
+        random,
+        message: env.message ?? (env.planning ? async () => {} : undefined),
+    };
+    await destroy_items(state.youmonst, AD_ELEC, origDmg, effectEnv);
+    recordMcastGap('zap.c mon_spell_hits_spot', env);
+    // mcastu.c evaluates rnd(100) before the canonical zap.c flashburn call.
+    // Keep that draw on the injected gameplay RNG, including in planning.
+    if (typeof random.rnd !== 'function')
+        throw new TypeError('mcast_lightning requires the rnd operation');
+    const duration = random.rnd(100);
+    await flashburn(duration, true, state, effectEnv);
+    return dmg;
+}
+
+// C ref: mcastu.c mcast_paralyze() (746-769).
+async function mcast_paralyze(mtmp, env = {}) {
+    const state = env.state ?? game;
+    const antimagic = heroProperty(state, ANTIMAGIC);
+    const freeAction = heroProperty(state, FREE_ACTION);
+    let dmg = 0;
+    if (antimagic || freeAction) {
+        recordMcastGap('display.c shieldeff', env);
+        monstseesu(M_SEEN_MAGR, state);
+        if ((state.multi ?? 0) >= 0 && typeof env.message === 'function')
+            await env.message('You stiffen briefly.', state);
+        dmg = 1;
+    } else {
+        if ((state.multi ?? 0) >= 0 && typeof env.message === 'function')
+            await env.message('You are frozen in place!', state);
+        dmg = 4 + (mtmp.m_lev ?? 0);
+        if (heroProperty(state, HALF_SPDAM)) dmg = Math.trunc((dmg + 1) / 2);
+        monstunseesu(M_SEEN_MAGR, state);
+    }
+    nomul(-dmg, state);
+    state.multi_reason = 'paralyzed by a monster';
+    state.nomovemsg = null;
+    return dmg;
+}
+
 // ---- mcast_spell() ----
 // C ref: mcastu.c mcast_spell() (800-897).
-// Dispatches to individual spell effects.  Effects are ported as the running
-// game exercises them; unexercised cases throw unsupported.
+// The C dispatcher clears damage for void effects and sends every remaining
+// positive result through mdamageu() after the selected case.
 async function mcast_spell(mtmp, dmg, spellnum, env = {}) {
-    const unsupported = env.unsupported;
+    const state = env.state ?? game;
     const mdamageu = env.mdamageu;
 
-    if (dmg < 0) return; /* impossible() in C */
-    if (dmg === 0 && !is_undirected_spell(spellnum)) return;
+    if (dmg < 0) {
+        recordMcastGap('mcastu.c impossible', env);
+        return;
+    }
+    if (dmg === 0 && !is_undirected_spell(spellnum)) {
+        recordMcastGap('mcastu.c impossible', env);
+        return;
+    }
 
-    // Each case either sets dmg to 0 or returns a new dmg.
-    // The only cases that leave dmg > 0 call mdamageu() at the end.
     let resultDmg = 0;
-
     switch (spellnum) {
+    case MCAST_DEATH_TOUCH:
+        recordMcastGap('mcastu.c mcast_death_touch', env);
+        break;
+    case MCAST_CLONE_WIZ:
+        recordMcastGap('mcastu.c mcast_clone_wiz', env);
+        break;
+    case MCAST_SUMMON_MONS:
+        recordMcastGap('mcastu.c mcast_summon_mons', env);
+        break;
+    case MCAST_AGGRAVATION:
+        if (typeof env.message === 'function')
+            await env.message('You feel that monsters are aware of your presence.', state);
+        recordMcastGap('wizard.c aggravate', env);
+        break;
+    case MCAST_CURSE_ITEMS:
+        if (typeof env.message === 'function')
+            await env.message('You feel as if you need some help.', state);
+        recordMcastGap('sit.c rndcurse', env);
+        break;
+    case MCAST_DESTRY_ARMR:
+        recordMcastGap('mcastu.c mcast_destroy_armor', env);
+        break;
+    case MCAST_WEAKEN_YOU:
+        recordMcastGap('mcastu.c mcast_weaken_you', env);
+        break;
+    case MCAST_DISAPPEAR:
+        recordMcastGap('mcastu.c mcast_disappear', env);
+        break;
+    case MCAST_STUN_YOU:
+        recordMcastGap('mcastu.c mcast_stun_you', env);
+        break;
     case MCAST_PSI_BOLT:
         resultDmg = await mcast_psi_bolt(dmg, env);
         break;
@@ -585,40 +750,39 @@ async function mcast_spell(mtmp, dmg, spellnum, env = {}) {
         resultDmg = await m_cure_self(mtmp, dmg, env);
         break;
     case MCAST_HASTE_SELF:
-        await mon_adjust_speed(mtmp, 1, null, env.state ?? game, env);
-        resultDmg = 0;
+        await mon_adjust_speed(mtmp, 1, null, state, env);
         break;
-    case MCAST_DEATH_TOUCH:
-    case MCAST_CLONE_WIZ:
-    case MCAST_SUMMON_MONS:
-    case MCAST_AGGRAVATION:
-    case MCAST_CURSE_ITEMS:
-    case MCAST_DESTRY_ARMR:
-    case MCAST_WEAKEN_YOU:
-    case MCAST_DISAPPEAR:
-    case MCAST_STUN_YOU:
     case MCAST_GEYSER:
+        resultDmg = await mcast_geyser(dmg, env);
+        break;
     case MCAST_FIRE_PILLAR:
+        resultDmg = await mcast_fire_pillar(mtmp, dmg, env);
+        break;
     case MCAST_LIGHTNING:
+        resultDmg = await mcast_lightning(mtmp, dmg, env);
+        break;
     case MCAST_INSECTS:
+        recordMcastGap('mcastu.c mcast_insects', env);
+        break;
     case MCAST_BLIND_YOU:
+        recordMcastGap('mcastu.c mcast_blind_you', env);
+        break;
     case MCAST_PARALYZE:
+        resultDmg = await mcast_paralyze(mtmp, env);
+        break;
     case MCAST_CONFUSE_YOU:
-        unsupported(`mcast_spell effect ${spellnum}`);
-        resultDmg = 0;
+        recordMcastGap('mcastu.c mcast_confuse_you', env);
         break;
     default:
-        // impossible() in C
-        resultDmg = 0;
+        recordMcastGap('mcastu.c impossible', env);
         break;
     }
 
     if (resultDmg) {
-        if (typeof mdamageu === 'function') {
-            await mdamageu(mtmp, resultDmg);
-        } else {
-            unsupported('mcast_spell mdamageu');
+        if (typeof mdamageu !== 'function') {
+            throw new TypeError('mcast_spell requires the mdamageu operation');
         }
+        await mdamageu(mtmp, resultDmg);
     }
 }
 

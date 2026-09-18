@@ -60,6 +60,9 @@ import {
     SINK,
     STAIRS,
     STONE,
+    STRAT_GOAL,
+    STRAT_NONE,
+    STRAT_PLAYER,
     STRAT_WAITFORU,
     STEALTH,
     THRONE,
@@ -5273,11 +5276,11 @@ test('waiting covetous monster takes the early dochug no-op', async () => {
     assert.equal(target.replay.getScreens().length, screensBefore);
 });
 
-// C ref: monmove.c dochug():726-731 and :782. Once the wizard.c tactics()
-// family is wired, both states reach its source movement path; this fixture
-// then stops at the still-unported directed spell effect, rather than the old
-// blanket special-movement refusal.
-test('awake or visible covetous monsters reach tactics', async () => {
+// C ref: monmove.c dochug():726-731 and :782. The awake/out-of-sight case
+// reaches wizard.c tactics(), which recomputes a stale strategy and goal on
+// the planning clone. A visible sleeping monster remains on the earlier
+// disturb/wait path; both cases must leave the live retry state unchanged.
+test('covetous planning retries safely and recomputes awake tactics state', async () => {
     for (const testCase of [
         // Awake removes the early disturb() return; clearing COULD_SEE checks
         // that sleeping is required in addition to being out of sight.
@@ -5294,21 +5297,36 @@ test('awake or visible covetous monsters reach tactics', async () => {
             game.viz_array[target.heroY][target.monsterX] |= COULD_SEE;
         else
             game.viz_array[target.heroY][target.monsterX] &= ~COULD_SEE;
+        if (!testCase.sleeping && !testCase.visible) {
+            // wizard.c tactics() calls strategy(), whose target_on() calls
+            // clear stale goal coordinates when this full-health Wizard has
+            // no covetous artifact target in the initialized fixture.
+            target.monster.mstrategy = STRAT_PLAYER | STRAT_GOAL;
+            target.monster.mgoal = {
+                x: target.monsterX,
+                y: target.heroY,
+            };
+        }
         const before = completeSecondTurnSnapshot(game, target.replay);
         for (let attempt = 0; attempt < 2; ++attempt) {
-            if (testCase.sleeping) {
-                await assert.doesNotReject(
-                    preflightSimpleMonsterActions(game),
-                    `${testCase.label}, attempt ${attempt + 1}`,
-                );
-            } else {
-                await assert.rejects(
-                    preflightSimpleMonsterActions(game),
-                    (error) => (
-                        error instanceof UnsupportedSimpleMonsterActionError
-                        && error.reason !== 'special monster movement'
-                    ),
-                    `${testCase.label}, attempt ${attempt + 1}`,
+            let plannedTacticsState = null;
+            const result = await preflightSimpleMonsterActions(game, {
+                advanceRound(planned) {
+                    const wizard = planned.level.monlist;
+                    plannedTacticsState = {
+                        mstrategy: wizard.mstrategy,
+                        mgoal: { ...wizard.mgoal },
+                    };
+                    return true;
+                },
+            });
+            assert.equal(result.heroDeath, null,
+                `${testCase.label}, attempt ${attempt + 1}`);
+            if (!testCase.sleeping && !testCase.visible) {
+                assert.deepEqual(
+                    plannedTacticsState,
+                    { mstrategy: STRAT_NONE, mgoal: { x: 0, y: 0 } },
+                    `${testCase.label} recomputes stale tactics state`,
                 );
             }
             assert.deepEqual(

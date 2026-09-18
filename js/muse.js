@@ -2857,38 +2857,44 @@ export async function mon_reflects(mon, str, state = game, rawEnv = {}) {
 }
 
 /* C ref: muse.c 2836-2871 ureflects() */
-export async function ureflects(fmt, str, state = game) {
+export async function ureflects(fmt, str, state = game, rawEnv = {}) {
+    const message = rawEnv.message
+        ?? (rawEnv.planning ? async () => {} : ttyPline);
+    const objectEnv = {
+        ...rawEnv,
+        state,
+    };
     const extrinsic = state.u?.uprops?.[REFLECTING]?.extrinsic ?? 0;
     /* Check from outermost to innermost objects */
     if (extrinsic & W_ARMS) {
-        if (fmt && str) {
-            await ttyPline(fmt.replace('%s', str).replace('%s', 'shield'), state);
-            discover_object(O.SHIELD_OF_REFLECTION, true, true, true, state); /* makeknown */
+        if (fmt != null && str != null) {
+            await message(fmt.replace('%s', str).replace('%s', 'shield'), state, rawEnv);
+            discover_object(O.SHIELD_OF_REFLECTION, true, true, true, state, objectEnv); /* makeknown */
         }
         return true;
     } else if (extrinsic & W_WEP) {
         /* Due to wielded artifact weapon */
-        if (fmt && str) {
-            await ttyPline(fmt.replace('%s', str).replace('%s', 'weapon'), state);
+        if (fmt != null && str != null) {
+            await message(fmt.replace('%s', str).replace('%s', 'weapon'), state, rawEnv);
         }
         return true;
     } else if (extrinsic & W_AMUL) {
-        if (fmt && str) {
-            await ttyPline(fmt.replace('%s', str).replace('%s', 'medallion'), state);
-            discover_object(O.AMULET_OF_REFLECTION, true, true, true, state); /* makeknown */
+        if (fmt != null && str != null) {
+            await message(fmt.replace('%s', str).replace('%s', 'medallion'), state, rawEnv);
+            discover_object(O.AMULET_OF_REFLECTION, true, true, true, state, objectEnv); /* makeknown */
         }
         return true;
     } else if (extrinsic & W_ARM) {
-        if (fmt && str) {
-            await ttyPline(
+        if (fmt != null && str != null) {
+            await message(
                 fmt.replace('%s', str).replace('%s', state.uskin ? 'luster' : 'armor'),
-                state,
+                state, rawEnv,
             );
         }
         return true;
     } else if (state.youmonst?.data === state.mons?.[M.PM_SILVER_DRAGON]) {
-        if (fmt && str) {
-            await ttyPline(fmt.replace('%s', str).replace('%s', 'scales'), state);
+        if (fmt != null && str != null) {
+            await message(fmt.replace('%s', str).replace('%s', 'scales'), state, rawEnv);
         }
         return true;
     }

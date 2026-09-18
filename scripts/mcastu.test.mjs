@@ -3,6 +3,7 @@ import test from 'node:test';
 
 import {
     ANTIMAGIC,
+    BLND_RES,
     BLINDED,
     COULD_SEE,
     IN_SIGHT,
@@ -69,7 +70,7 @@ function refuse(what) {
 
 // A random source that hands out `values` in order and records each draw as
 // `rn2(bound)`; d() records too and answers `dice`.
-function scriptedRandom(values, dice = 6) {
+function scriptedRandom(values, dice = 6, rndValue = 33) {
     const draws = [];
     let index = 0;
     return {
@@ -83,6 +84,10 @@ function scriptedRandom(values, dice = 6) {
         d: (n, s) => {
             draws.push(`d(${n},${s})`);
             return dice;
+        },
+        rnd: (bound) => {
+            draws.push(`rnd(${bound})`);
+            return rndValue;
         },
     };
 }
@@ -302,18 +307,24 @@ test('spell_would_be_useless: MCAST_AGGRAVATION draws nothing when a monster sle
                 mstrategy: 0, nmon: null },
         };
         const refusals = [];
+        const messages = [];
         const result = await castmu(
             makeCaster({ m_lev: 15 }), AD_SPEL_ATTACK, false, false,
             {
-                state, random, message: () => {},
-                unsupported: (what) => refusals.push(what),
+                state, random, message: (message) => messages.push(message),
+                unsupported: refuse,
+                noteUnported: (what) => refusals.push(what),
             },
         );
         // The undirected aggravation spell is chosen and reaches
-        // mcast_spell(), whose MCAST_AGGRAVATION (16) effect is unported.
+        // mcast_spell(), which records the discarded wizard.c aggravate call.
         assert.equal(result, M_ATTK_HIT);
         assert.deepEqual(random.draws, ['rn2(15)', 'rn2(150)']);
-        assert.deepEqual(refusals, ['mcast_spell effect 16']);
+        assert.deepEqual(messages, [
+            'Kobold shaman casts a spell!',
+            'You feel that monsters are aware of your presence.',
+        ]);
+        assert.deepEqual(refusals, ['wizard.c aggravate']);
     });
 
 test('spell_would_be_useless: MCAST_AGGRAVATION draws rn2(100) when nothing sleeps',
@@ -335,12 +346,33 @@ test('spell_would_be_useless: MCAST_AGGRAVATION draws rn2(100) when nothing slee
         assert.deepEqual(random.draws, ['rn2(15)', 'rn2(100)']);
     });
 
+test('mcast_spell dispatches the summon branch and preserves its source gap',
+    async () => {
+        // mcastu.c:821-825.  A level-16 wizard can select the level-15
+        // summon spell; the void nasty() result is deliberately recorded as
+        // an unported discarded-result callee rather than thrown away as a
+        // generic mcast_spell refusal.
+        const random = scriptedRandom([15, 50]);
+        const gaps = [];
+        const result = await castmu(
+            makeCaster({ m_lev: 16 }), AD_SPEL_ATTACK, false, false,
+            {
+                state: makeState(), random, message: () => {},
+                unsupported: refuse,
+                noteUnported: (what) => gaps.push(what),
+            },
+        );
+        assert.equal(result, M_ATTK_HIT);
+        assert.deepEqual(random.draws, ['rn2(16)', 'rn2(160)']);
+        assert.deepEqual(gaps, ['mcastu.c mcast_summon_mons']);
+    });
+
 // C ref: mcastu.c:978 and youprop.h:92. MCAST_BLIND_YOU is useless under
 // `Blinded` (HBlinded && !BBlinded), not under the wider `Blind`. Cleric
 // rn2(7)=6 reaches MCAST_BLIND_YOU (level 6, effect 8) first; when it is
 // rejected, MCAST_PARALYZE (level 4, effect 7) is chosen instead. rn2(70)=50
 // passes the fumble check and d()=6 gives a positive dmg so mcast_spell()
-// reaches the (unported) effect and names it.
+// reaches the source blindness case and records its discarded helper gap.
 
 async function blindYouEffect(blinded) {
     const state = makeState();
@@ -348,7 +380,9 @@ async function blindYouEffect(blinded) {
     const refusals = [];
     await castmu(makeCaster({ m_lev: 7 }), AD_CLRC_ATTACK, true, true, {
         state, random: scriptedRandom([6, 50]), message: () => {},
-        unsupported: (what) => refusals.push(what),
+        unsupported: refuse,
+        noteUnported: (what) => refusals.push(what),
+        mdamageu: () => {},
     });
     return refusals;
 }
@@ -357,7 +391,7 @@ test('spell_would_be_useless: a blindfold does not make MCAST_BLIND_YOU useless'
     async () => {
         // A worn blindfold sets only EBlinded (W_TOOL in extrinsic).
         assert.deepEqual(await blindYouEffect({ intrinsic: 0, extrinsic: 1 }),
-            ['mcast_spell effect 8']);
+            ['mcastu.c mcast_blind_you']);
     });
 
 test('spell_would_be_useless: blocked blindness keeps MCAST_BLIND_YOU useful',
@@ -365,13 +399,12 @@ test('spell_would_be_useless: blocked blindness keeps MCAST_BLIND_YOU useful',
         // Artifact lenses set BBlinded, which defeats HBlinded.
         assert.deepEqual(
             await blindYouEffect({ intrinsic: 1, extrinsic: 0, blocked: 1 }),
-            ['mcast_spell effect 8']);
+            ['mcastu.c mcast_blind_you']);
     });
 
 test('spell_would_be_useless: intrinsic blindness makes MCAST_BLIND_YOU useless',
     async () => {
-        assert.deepEqual(await blindYouEffect({ intrinsic: 1, extrinsic: 0 }),
-            ['mcast_spell effect 7']);
+        assert.deepEqual(await blindYouEffect({ intrinsic: 1, extrinsic: 0 }), []);
     });
 
 // -- cursetxt ----------------------------------------------------------
@@ -792,6 +825,103 @@ test('open_wounds: ANTIMAGIC halves damage and tracks resistance', async () => {
     assert.ok(messages.some(m => m === 'Your skin itches badly for a moment.'),
         `Expected the itch line for dmg=4; got: ${messages.join('; ')}`);
     assert.equal(watcher.seen_resistance, M_SEEN_MAGR);
+});
+
+// -- mcast_spell elemental and paralysis effects ----------------------
+
+// These are production castmu paths, rather than direct helper calls.  The
+// scripted source draws pin the spell selector, fumble gate, damage, and each
+// effect's own RNG in C order.
+test('geyser: production cleric cast applies its own physical damage', async () => {
+    // choose_monster_spell checks geyser once while selecting it and again
+    // after the selection; both rn2(5) calls must be nonzero before castmu's
+    // fumble gate.
+    const random = scriptedRandom([13, 1, 1, 50], 6);
+    const state = makeState({ level: { monlist: null } });
+    const messages = [];
+    let damage = null;
+    const gaps = [];
+    await castmu(makeCaster({ m_lev: 14 }), AD_CLRC_ATTACK, true, true, {
+        state, random, unsupported: refuse,
+        message: (m) => messages.push(m),
+        noteUnported: (gap) => gaps.push(gap),
+        mdamageu: (_mon, value) => { damage = value; },
+    });
+    assert.equal(damage, 6);
+    assert.ok(messages.includes('A sudden geyser slams into you from nowhere!'));
+    assert.deepEqual(random.draws, [
+        'rn2(14)', 'rn2(5)', 'rn2(5)', 'rn2(140)', 'd(8,6)', 'd(8,6)',
+    ]);
+    assert.deepEqual(gaps, []);
+});
+
+test('fire pillar: production cleric cast applies fire damage and item effects', async () => {
+    // rn2(5)=0 rejects geyser, so level 12 selects fire pillar. The next
+    // rn2(5) lets burnarmor take its cloak/armor slot with an empty inventory;
+    // the final rn2(5) is destroy_items' remainder comparison.
+    const random = scriptedRandom([13, 0, 50, 1, 4], 6);
+    const state = makeState({ level: { monlist: null }, invent: null });
+    const messages = [];
+    let damage = null;
+    const gaps = [];
+    await castmu(makeCaster({ m_lev: 14 }), AD_CLRC_ATTACK, true, true, {
+        state, random, unsupported: refuse,
+        message: (m) => messages.push(m),
+        noteUnported: (gap) => gaps.push(gap),
+        mdamageu: (_mon, value) => { damage = value; },
+    });
+    assert.equal(damage, 6);
+    assert.ok(messages.includes('A pillar of fire strikes all around you!'));
+    assert.deepEqual(random.draws, [
+        'rn2(14)', 'rn2(5)', 'rn2(140)', 'd(8,6)', 'd(8,6)',
+        'rn2(5)', 'rn2(5)',
+    ]);
+    assert.deepEqual(gaps, ['zap.c mon_spell_hits_spot']);
+});
+
+test('lightning: production cast preserves rnd(100) before flashburn', async () => {
+    const random = scriptedRandom([11, 50, 4], 6, 33);
+    const mattk = Array.from({ length: 6 }, () => ({ adtyp: 0, aatyp: 0 }));
+    const state = makeState({
+        level: { monlist: null }, invent: null,
+        u: { ux: 4, uy: 5, uprops: {
+            [BLINDED]: { intrinsic: 0, extrinsic: 0, blocked: 0 },
+            [BLND_RES]: { intrinsic: 1, extrinsic: 0, blocked: 0 },
+        } },
+        youmonst: { data: { mlet: 0, mattk } },
+    });
+    const messages = [];
+    let damage = null;
+    const gaps = [];
+    await castmu(makeCaster({ m_lev: 14 }), AD_CLRC_ATTACK, true, true, {
+        state, random, unsupported: refuse,
+        message: (m) => messages.push(m),
+        noteUnported: (gap) => gaps.push(gap),
+        mdamageu: (_mon, value) => { damage = value; },
+    });
+    assert.equal(damage, 6);
+    assert.ok(messages.includes('A bolt of lightning strikes down at you from above!'));
+    assert.deepEqual(random.draws, [
+        'rn2(14)', 'rn2(140)', 'd(8,6)', 'd(8,6)', 'rn2(5)', 'rnd(100)',
+    ]);
+    assert.deepEqual(gaps, ['zap.c mon_spell_hits_spot']);
+});
+
+test('paralyze: production cleric cast applies nomul damage', async () => {
+    const random = scriptedRandom([4, 50, 6], 6);
+    const state = makeState({ level: { monlist: null }, multi: 0 });
+    const messages = [];
+    let damage = null;
+    await castmu(makeCaster({ m_lev: 7 }), AD_CLRC_ATTACK, true, true, {
+        state, random, unsupported: refuse,
+        message: (m) => messages.push(m),
+        mdamageu: (_mon, value) => { damage = value; },
+    });
+    assert.equal(damage, 11);
+    assert.ok(messages.includes('You are frozen in place!'));
+    assert.equal(state.multi, -11);
+    assert.equal(state.multi_reason, 'paralyzed by a monster');
+    assert.deepEqual(random.draws, ['rn2(7)', 'rn2(70)', 'd(4,6)']);
 });
 
 // -- cure_self via castmu ----------------------------------------------
