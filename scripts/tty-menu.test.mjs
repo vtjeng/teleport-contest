@@ -74,13 +74,13 @@ test('selecting a menu clears raw-print waits and preserves recorder mode',
         assert.equal(state.nhDisplay.nomuxRaw.active, true);
     });
 
-test('NHW_MENU text data keeps pre-wrap width and the split space', () => {
+test('NHW_MENU text data keeps pre-wrap width and drops the split space', () => {
     const source = `${'A'.repeat(70)} ${'B'.repeat(20)}`;
     const data = ttyMenuTextData([source], 80);
 
     assert.equal(data.maxcol, source.length + 1);
     assert.deepEqual(data.lines, [
-        `${'A'.repeat(70)} `,
+        'A'.repeat(70),
         'B'.repeat(20),
     ]);
 
@@ -134,7 +134,7 @@ test('NHW_MENU text measures, truncates, and splits recorder bytes', () => {
     assert.deepEqual(
         longData.lines.map((line) => encodeUtf8ByteString(line)),
         [
-            [...encodeUtf8ByteString('\u00e9'.repeat(38)), 0x20],
+            encodeUtf8ByteString('\u00e9'.repeat(38)),
             encodeUtf8ByteString('TAIL'),
         ],
     );
@@ -160,7 +160,7 @@ test('NHW_TEXT reuses source splitting and preserves row metadata', () => {
 
     assert.equal(data.maxcol, source.text.length + 1);
     assert.deepEqual(data.lines.map(({ text }) => text), [
-        `${'A'.repeat(70)} `,
+        'A'.repeat(70),
         'B'.repeat(20),
     ]);
     assert.equal(data.lines[0].color, 6);
@@ -175,8 +175,8 @@ test('NHW_TEXT reuses source splitting and preserves row metadata', () => {
 
     // The source column for the B glyph follows four dropped repeated spaces.
     // Its normalized column is therefore zero in the recursive suffix. A
-    // cell attached to one of those dropped spaces disappears, while the
-    // retained split space stays on the first row.
+    // cell attached to one of those dropped spaces disappears. The split
+    // space itself is also nulled out of the first row by tty_putstr().
     const compressed = ttyTextWindowData([{
         text: `${'A'.repeat(65)}     ${'B'.repeat(20)}`,
         color: 4,
@@ -188,12 +188,10 @@ test('NHW_TEXT reuses source splitting and preserves row metadata', () => {
         ],
     }], 80);
     assert.deepEqual(compressed.lines.map(({ text }) => text), [
-        `${'A'.repeat(65)} `,
+        'A'.repeat(65),
         'B'.repeat(20),
     ]);
-    assert.deepEqual(compressed.lines[0].glyphCells, [
-        { column: 65, ch: ' ' },
-    ]);
+    assert.deepEqual(compressed.lines[0].glyphCells, []);
     assert.deepEqual(compressed.lines[1].glyphCells, [
         { column: 0, ch: 'B' },
     ]);

@@ -345,12 +345,15 @@ function ttyWindowTextData(lines, columns, preserveLines) {
             }
             if (split) {
                 const next = split + 1;
+                // tty_putstr() nulls cw->data[cury - 1][++i] at the
+                // break-space itself. The first row therefore excludes the
+                // split byte and the recursive suffix starts after it.
                 stored.push(storedLine(
                     sourceLine,
-                    decodeUtf8ByteString(compressed.slice(0, next)),
+                    decodeUtf8ByteString(compressed.slice(0, split)),
                     sourceToNormalized,
                     normalizedStart,
-                    next,
+                    split,
                 ));
                 putstr(
                     decodeUtf8ByteString(compressed.slice(next)),

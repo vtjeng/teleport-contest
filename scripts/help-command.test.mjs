@@ -178,6 +178,25 @@ test('option help derives its ordinary TTY page from allopt source order',
         assert.equal(lines.at(-1), 'See NetHack\'s "Guidebook" for details.');
     });
 
+test('a fresh valid config startup initializes the recorder path before help',
+    async () => {
+        // This independently chosen valid configuration exercises the live
+        // startup path and option-help reader without copying seed2200's
+        // invalid-option input or its recorded screen data.
+        const segment = {
+            ...loadHelpOptionRecipe().segments[0],
+            seed: 20260918,
+            nethackrc: 'OPTIONS=name:A48Fresh,role:Wizard,race:human\n',
+            moves: '',
+        };
+        await runSegment(segment);
+        assert.equal(game.configfile, RECORDER_CONFIGFILE);
+        assert.equal(
+            optionHelpLines(game)[3].text,
+            `Set options as OPTIONS=<options> in ${RECORDER_CONFIGFILE}`,
+        );
+    });
+
 test('option help prints the configuration path stored by cfgfiles.c', () => {
     // cfgfiles.c fopen_config_file() passes the path it opened to
     // set_configfile_name(), and options.c option_help() prints the exact
