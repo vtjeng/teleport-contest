@@ -2,7 +2,7 @@
   "session": "holdout/seed4500-knight-coverage",
   "remainingScreensUpperBound": 121,
   "status": "complete",
-  "commit": "8bf5eb6ea82ae4ea74a5ae8521762a0e33b628e7",
+  "commit": "50399d8c3ad4095c61f5b4d1089338b19797d3d9",
   "mismatch": {
     "session": "holdout/seed4500-knight-coverage",
     "step": 1693,
@@ -18,7 +18,7 @@
     "recordedSteps": 1814,
     "remainingScreensUpperBound": 121
   },
-  "summary": "The first remaining mismatch at step 1693 is the blank stone description: C collects five distinct symbol meanings and reports can be many things (stone), while the partial JavaScript function only counts stone and air. Complete do_screen_description and its production callers. Wizard help and the quick-lookup encyclopedia guard are fixed. The later pickup boundary at step 1731 requires whole pickup behavior for a polymorphed hero that cannot take objects.",
+  "summary": "The first remaining mismatch at step 1693 is the blank stone description: C collects five distinct symbol meanings and reports can be many things (stone), while the partial JavaScript function only counts stone and air. Complete do_screen_description and its production callers. Wizard help, quick lookup and the later no-take pickup path are fixed. The Knight session now matches 1736 of 1814 screens; its later stop after 1739 emitted screens is blind object-pile movement admission, owned by invent.c look_here/dolook and the hack.c caller.",
   "source": {
     "file": "pager.c",
     "functions": [
@@ -41,7 +41,8 @@
       "Hidden and invisible creation now await complete mon.c flash_mon and display.c flash_glyph_at. The helper uses ordinary mon_to_glyph, preserves display RNG and temporary vision, and isolates planning clones from live painting. Independent hidden-trapper and invisible-newt recordings match 18 screens and 16 animation frames each; monster-reading and detection entries remain unrecorded.",
       "The missing !quick condition before checkfile is corrected. Quick dot selection now bypasses the encyclopedia question, while ordinary selected-location lookup still reaches it. Independent Wizard human and Wizard elf blind-description recordings each match five screens and cursors; the display description port remains a separate source gap.",
       "The wizard help menu now preserves source-table identifiers through wizard and hideusage filtering, displays generated wizhelp text, and derives setopt_cmd from current command bindings. Independent Wizard and Valkyrie recordings match; a third recording with BIND=x:optionsfull verifies the changed menu label through the production help command.",
-      "Canonical continuation reaches pickup.c pickup at step 1731: its notake branch calls check_here(FALSE), conditionally reports physical incapacity, and returns zero. JavaScript still refuses this path. Whole pickup and required return-valued dependencies must be ported; the earlier description mismatch remains a separate source owner."
+      "The whole pickup function now preserves unconscious, floor-access and no-take early returns; floor and swallowed chains; counted, menu and traditional selection; cleanup and n_tried semantics. Projected arrival mirrors check_here admission, including decor state and exclusion of the punishment chain. trap.c float_down now calls pickup(1) at the existing dismount landing site. Supporting object-level gaps remain explicit, and unrecorded entry families remain open.",
+      "The current canonical scan emits 1739 Knight screens before hack.js refuses a blind object pile. C invent.c look_here controls tactile inspection, floor reach, pile traversal, cockatrice touch order and time consumption; dolook temporarily changes message-type filtering. The blind ICE path also calls pickup.c force_decor(FALSE). This is the next independent source family after the pending description port."
     ]
   },
   "goalKind": "file-port",
@@ -60,6 +61,8 @@
     "Wizard-help fresh run run-4V1Hee matches two independent cases with 12 screens and 8882 RNG values. The added bound-optionsfull differential run-qykmWy matches six screens, six cursors and 2817 RNG values. All three recordings are retained under recordings/pager.c/.",
     "Canonical worker replay run-6eZQ3A preserves the first description mismatch at step 1693. Probe run-q8elks identifies the later pickup refusal at step 1731 and traces C pickup.c723-734; the primary display investigation is not bypassed or treated as resolved.",
     "Review of the pending whole-description port traces pet overrides to display.c map_glyphinfo MG_FLAG_NOOVERRIDE: resolve the stored glyph species without consulting a live monster. cmd.c dolookaround must filter interest through getpos.c gather_locs_interesting before naming terrain; naming during eligibility can consume extra hallucination display RNG. The affected display-symbol tests remain an acceptance requirement, and these corrections are not yet accepted.",
-    "Read-only review of the pending whole-pickup port traces projected arrival admission to pickup.c check_here: a no-take hero still inspects the square; describe_decor may set LOOKHERE_SKIP_DFEATURE before look_here, and the object count excludes uchain. The planning caller must admit the same source path without output or live mutation. Counted selection, traditional prompt defaults and command queuing, and cancellation cleanup were also checked against pickup.c and hack.h. These are implementation review findings, not measured fixed-workload gains."
+    "Read-only review of the pending whole-pickup port traces projected arrival admission to pickup.c check_here: a no-take hero still inspects the square; describe_decor may set LOOKHERE_SKIP_DFEATURE before look_here, and the object count excludes uchain. The planning caller must admit the same source path without output or live mutation. Counted selection, traditional prompt defaults and command queuing, and cancellation cleanup were also checked against pickup.c and hack.h. These are implementation review findings, not measured fixed-workload gains.",
+    "Pickup checkpoint 50399d8c passes all 378 recordings, 14378 screens and 1884584 RNG values. Per-session comparison with accepted 8bf5eb6e shows only Knight gains: eight screens and eight cursors, with unchanged RNG and no losses. The first screen mismatch remains 1693; the saved B35 development scan identifies the later blind-object-pile boundary after 1739 emitted screens.",
+    "Independent ordinary pickup differential run-626ErV matches six screens/cursors and 2595 RNG values; the traditional variation run-o94fNd matches six screens/cursors and 2477 RNG values. Combined focused checks pass 414/414 after obsolete refusal assertions were replaced with source-defined completion and mutation-free admission checks; mount/dismount callers are included. Whole-pickup source evidence retains open startup, swallowed, counted/menu-on-request, landing and projected-arrival recording coverage."
   ]
 }

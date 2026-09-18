@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 42063,
+      "datetime": "20000214101112",
+      "nethackrc": "OPTIONS=name:TypedSymbolC,role:Healer,race:elf,gender:female,align:neutral\nOPTIONS=!autopickup,!legacy,!tutorial,!splash_screen\nOPTIONS=pettype:none,!acoustics,symset:DECgraphics\n",
+      "moves": " /?{\n .",
+      "comment": "Cheap typed-symbol variation using the shared default sink/fountain byte from defsym.h; found=2 takes the common mixed-description output arm without an encyclopedia lookup."
+    }
+  ]
+}

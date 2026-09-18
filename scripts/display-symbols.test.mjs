@@ -40,6 +40,7 @@ import {
     H_UNK,
     HALLUC,
     HALLUC_RES,
+    HI_DOMESTIC,
     HL_BLINK,
     HL_BOLD,
     HL_DIM,
@@ -149,6 +150,7 @@ import {
     hallucinated_statue_glyph_info,
     hero_glyph_info,
     map_glyphinfo,
+    MG_FLAG_NOOVERRIDE,
     map_invisible,
     map_trap,
     MG_CORPSE,
@@ -170,6 +172,7 @@ import {
     see_nearby_objects,
     show_glyph_cell,
     statue_to_glyph,
+    stored_monster_class_symbol,
     timebot,
     trap_glyph_info,
     trap_to_glyph,
@@ -193,6 +196,8 @@ import {
     GLYPH_CMAP_SOKO_OFF,
     GLYPH_CMAP_STONE_OFF,
     GLYPH_NOTHING_OFF,
+    GLYPH_MON_FEM_OFF,
+    GLYPH_MON_MALE_OFF,
     GLYPH_OBJ_OFF,
     GLYPH_OBJ_PILETOP_OFF,
     GLYPH_PET_MALE_OFF,
@@ -268,7 +273,6 @@ import {
     LEATHER_GLOVES,
     LOW_BOOTS,
     NUM_OBJECTS,
-    OBJ_DESCR,
     objects_globals_init,
     POT_BOOZE,
     POTION_CLASS,
@@ -1271,6 +1275,113 @@ test('hero and pet symbol overrides require sysconf accessibility', () => {
     assert.equal(hero_glyph_info(state).ch, '?');
     delete state.sysopt;
     assert.equal(hero_glyph_info(state).ch, 'f');
+});
+
+test('stored monster glyphs clear overrides from the glyph species', () => {
+    // display.c map_glyphinfo(glyph, MG_FLAG_NOOVERRIDE) indexes mons through
+    // glyph_to_mon(). The live monster can be disguised as another species;
+    // source behavior still uses the stored glyph's species class.
+    const state = { mons: [] };
+    initialize_symbols_from_options({ flags: {} }, state);
+    state.mons[0] = { mlet: S_FELINE };
+    const storedPetGlyph = GLYPH_PET_MALE_OFF;
+    assert.equal(
+        stored_monster_class_symbol(storedPetGlyph, state),
+        monster_class_symbol(S_FELINE, state).ttychar,
+    );
+    assert.equal(
+        stored_monster_class_symbol(GLYPH_INVISIBLE, state),
+        null,
+    );
+});
+
+test('map_glyphinfo keeps hero prefix and lookup overrides source-distinct', () => {
+    const state = visibleCellState({ x: 7, y: 4, ux: 7, uy: 4 });
+    state.sysopt = { accessibility: 1 };
+    initialize_symbols_from_options(
+        parseNethackrc('SYMBOLS=S_pet_override:!,S_hero_override:?'),
+        state,
+    );
+
+    const heroGlyph = hero_glyph_info(state).glyph;
+    // windows.c encodes the prefix through map_glyphinfo(0,0,glyph), while
+    // pager.c resolves the lookup byte with the selected coordinates. Only
+    // the latter is eligible for the hero accessibility override.
+    // This fixture's species zero is monsters.h's giant ant, class S_ANT.
+    assert.equal(map_glyphinfo(heroGlyph, state).ch, 'a');
+    assert.equal(
+        map_glyphinfo(heroGlyph, state, { x: 7, y: 4 }).ch,
+        '?',
+    );
+    assert.equal(
+        map_glyphinfo(heroGlyph, state, {
+            x: 7, y: 4, mgflags: MG_FLAG_NOOVERRIDE,
+        }).ch,
+        'a',
+    );
+
+    // A pet override is a glyph-map presentation and is disabled only by
+    // the source MG_FLAG_NOOVERRIDE re-entry. The stored species remains the
+    // ant monster class even though no live monster is consulted.
+    assert.equal(map_glyphinfo(GLYPH_PET_MALE_OFF, state).ch, '!');
+    for (const coordinates of [{}, { x: 7, y: 4 }]) {
+        assert.equal(
+            map_glyphinfo(GLYPH_PET_MALE_OFF, state, {
+                ...coordinates, mgflags: MG_FLAG_NOOVERRIDE,
+            }).ch,
+            'a',
+        );
+    }
+
+    // A configured space is nonzero, so C accepts it as a hero override.
+    const heroIndex = SYMBOL_INDEX_BY_NAME.s_hero_override;
+    state.go.ov_primary_syms[heroIndex] = 32;
+    state.gs.showsyms[heroIndex] = 32;
+    assert.equal(map_glyphinfo(heroGlyph, state, { x: 7, y: 4 }).ch, ' ');
+
+    // reset_glyphmap tests showsyms[pet_override], including index zero.
+    const petIndex = SYMBOL_INDEX_BY_NAME.s_pet_override;
+    state.go.ov_primary_syms[petIndex] = 0;
+    state.gs.showsyms[petIndex] = 0;
+    state.gs.showsyms[0] = '#'.charCodeAt(0);
+    assert.equal(map_glyphinfo(GLYPH_PET_MALE_OFF, state).ttychar, 0);
+    state.gs.showsyms[0] = 32;
+    assert.equal(map_glyphinfo(GLYPH_PET_MALE_OFF, state).ch, 'a');
+});
+
+test('map_glyphinfo follows Rogue IBM monster and warning colors', () => {
+    const state = visibleCellState();
+    initialize_symbols_from_options(
+        parseNethackrc('OPTIONS=roguesymset:RogueIBM'), state,
+    );
+    assign_graphics(ROGUESET, state);
+    assert.equal(state.gs.symset[ROGUESET].handling, H_IBM);
+    state.gs.symset[ROGUESET].nocolor = 0;
+    assert.equal(map_glyphinfo(GLYPH_MON_MALE_OFF, state).color, CLR_YELLOW);
+    assert.equal(map_glyphinfo(GLYPH_MON_FEM_OFF, state).color, NO_COLOR);
+    assert.equal(map_glyphinfo(GLYPH_WARNING_OFF + 1, state).color, NO_COLOR);
+});
+
+test('map_glyphinfo applies the rogue color clamp before hero showrace', () => {
+    const state = visibleCellState({ x: 7, y: 4, ux: 7, uy: 4 });
+    state.flags = { showrace: true };
+    state.u.umonster = state.u.umonnum;
+    state.sysopt = { accessibility: 1 };
+    initialize_symbols_from_options(
+        parseNethackrc('OPTIONS=roguesymset:RogueIBM'), state,
+    );
+    assign_graphics(ROGUESET, state);
+    // Keep the symbol table color-enabled while removing IBM handling. This
+    // isolates reset_glyphmap()'s rogue-without-IBM clamp from recorderMapColor.
+    state.gs.symset[ROGUESET].handling = H_UNK;
+    state.gs.symset[ROGUESET].nocolor = 0;
+    state.rogue_level = { dnum: 0, dlevel: 1 };
+
+    const heroGlyph = hero_glyph_info(state).glyph;
+    assert.equal(
+        map_glyphinfo(heroGlyph, state, { x: 7, y: 4 }).color,
+        HI_DOMESTIC,
+    );
 });
 
 test('UTF-8 misc symbol overrides have no glyph expansion', async () => {
@@ -3804,6 +3915,7 @@ test('glyph updates describe newly revealed objects, traps, and furniture', asyn
         oclass: state.objects[CHEST].oc_class,
         dknown: true,
         quan: 1,
+        where: OBJ_FLOOR,
         ox: x,
         oy: y,
     };
@@ -4117,12 +4229,10 @@ test('hallucinated object notices reconstruct buffered near and far identity', (
             POT_BOOZE,
         );
         const expectedFollowingDraw = rn2_on_display_rng(997);
-        const appearance = OBJ_DESCR(state.objects[POT_BOOZE], state);
-        const description = near
-            ? `${/^[aeiou]/iu.test(appearance) ? 'an' : 'a'} ${
-                appearance
-            } potion`
-            : 'a potion';
+        // pager.c:object_from_map() deliberately skips observe_object() while
+        // Hallucination is active, even for an adjacent generic object.  The
+        // source therefore keeps both notices at the vague potion name.
+        const description = 'a potion';
         assert.ok(
             state._glyphUpdateNotices[0].message.endsWith(`${description}.`),
         );
@@ -4171,11 +4281,11 @@ test('object-shaped mimic notices name buffered object classes and bodies', () =
     const cases = [
         [POT_BOOZE, null, 'a potion', 'a brown potion'],
         [SCR_IDENTIFY, null, 'a scroll', 'a scroll labeled KERNOD WEL'],
-        [GOLD_PIECE, null, 'gold pieces', 'gold pieces'],
+        [GOLD_PIECE, null, 'some gold pieces', '2 gold pieces'],
         // zeroobj has class zero; obj_to_glyph() therefore encodes these
         // generic-by-type disguises as STRANGE_OBJECT, not mappearance.
-        [DIAMOND, null, 'a strange object', 'a strange object'],
-        [SPE_FORCE_BOLT, null, 'a strange object', 'a strange object'],
+        [DIAMOND, null, 'strange object', 'strange object'],
+        [SPE_FORCE_BOLT, null, 'strange object', 'strange object'],
         [CORPSE, PM_GOBLIN, 'a goblin corpse', 'a goblin corpse'],
         [STATUE, PM_GOBLIN, 'a statue of a goblin', 'a statue of a goblin'],
     ];
@@ -4308,7 +4418,9 @@ test('synthetic buffered objects preserve constructor RNG and cleanup', () => {
             ident: 3,
             trace: ['rnd(2)=1'],
             following: 280,
-            message: '(3south,6east): a tool.',
+            // CHEST has the source's non-null dummy OBJ_NAME entry, so
+            // object_from_map() uses mksobj(CHEST), not mkobj(TOOL_CLASS).
+            message: '(3south,6east): a chest.',
             object: (state) => ({
                 otyp: CHEST,
                 oclass: state.objects[CHEST].oc_class,
@@ -4318,14 +4430,9 @@ test('synthetic buffered objects preserve constructor RNG and cleanup', () => {
         {
             name: 'generic',
             seed: 2026072416,
-            ident: 4,
-            trace: [
-                'rnd(1000)=995',
-                'rnd(2)=2',
-                'rn2(4)=0',
-                'rn2(2)=1',
-            ],
-            following: 532,
+            ident: 3,
+            trace: ['rnd(2)=1'],
+            following: 435,
             message: '(3south,6east): a potion.',
             object: (state) => ({
                 otyp: POT_BOOZE,
@@ -4399,14 +4506,14 @@ test('synthetic buffered names retain constructor-selected material and fruit', 
         {
             seed: 2,
             selected: ROCK,
-            trace: ['rnd(1000)=934', 'rnd(2)=1', 'rn2(6)=2'],
-            message: '(3south,6east): some stones.',
+            trace: ['rnd(2)=2'],
+            message: '(3south,6east): a gem.',
         },
         {
             seed: 1,
             selected: WORTHLESS_BLACK_GLASS,
-            trace: ['rnd(1000)=646', 'rnd(2)=1', 'rn2(6)=0'],
-            message: '(3south,6east): some gems.',
+            trace: ['rnd(2)=2'],
+            message: '(3south,6east): a gem.',
         },
     ];
     for (const scenario of gemScenarios) {
@@ -4424,13 +4531,11 @@ test('synthetic buffered names retain constructor-selected material and fruit', 
         show_glyph_cell(x, y, glyph);
 
         assert.deepEqual([...getRngLog()], scenario.trace);
-        assert.equal(state.context.ident, 3);
+        assert.equal(state.context.ident, 4);
         assert.equal(
             state._glyphUpdateNotices[0].message,
             scenario.message,
-            `seed ${scenario.seed} must retain generic ${
-                scenario.selected
-            }'s material identity`,
+            `seed ${scenario.seed} must reconstruct the source-named gem`,
         );
     }
     {
@@ -4828,6 +4933,7 @@ test('glyph update identity ignores pile highlighting', async () => {
     };
     const object = {
         otyp: ARROW,
+        oclass: state.objects[ARROW].oc_class,
         where: OBJ_FLOOR,
         ox: x,
         oy: y,
@@ -4899,8 +5005,8 @@ test('hallucinated monster glyph notices consume rndmonnam display RNG', () => {
     state.u.uprops = [];
     state.u.uprops[HALLUC] = { intrinsic: 1, extrinsic: 0 };
     state.u.uprops[HALLUC_RES] = { intrinsic: 0, extrinsic: 0 };
-    // look_at_monster() delegates to distant_monnam(), which can only name
-    // an invisible hallucinated monster once See invisible makes it visible.
+    // See invisible makes the physically displayed monster visible to
+    // distant_monnam(); the source does not retain an "invisible" prefix.
     state.u.uprops[SEE_INVIS] = { intrinsic: 1, extrinsic: 0 };
     const monster = {
         data: state.mons[PM_TENGU],
@@ -4925,7 +5031,7 @@ test('hallucinated monster glyph notices consume rndmonnam display RNG', () => {
 
     assert.equal(
         state._glyphUpdateNotices?.[0]?.message,
-        `(3south,6east): invisible ${expectedName}.`,
+        `(3south,6east): ${expectedName}.`,
     );
     assert.equal(followingDraw, expectedFollowingDraw);
 });
@@ -6410,10 +6516,11 @@ test('map_glyphinfo resolves each object arm at its own first glyph', () => {
         state.wizard = false;
     }
 
-    // Everything outside the four object families and the cmap ranges is
-    // refused rather than resolved through the arm underneath it. The zap
-    // range is inside glyph_is_cmap()'s contiguous span and now has an arm of
-    // its own, so it belongs above rather than here; the zap-ray tests pin it.
+    // The ranges immediately around the object families are source-defined
+    // monster, warning, and unexplored arms in reset_glyphmap(); they must not
+    // be mistaken for invalid object glyphs merely because they border one.
+    // The zap range is inside glyph_is_cmap()'s contiguous span and has an arm
+    // of its own, so the zap-ray tests pin it separately.
     for (const glyph of [
         GLYPH_BODY_OFF - 1,
         GLYPH_BODY_OFF + NUMMONS,
@@ -6421,9 +6528,8 @@ test('map_glyphinfo resolves each object arm at its own first glyph', () => {
         GLYPH_STATUE_MALE_OFF - 1,
         GLYPH_STATUE_FEM_PILETOP_OFF + NUMMONS,
     ]) {
-        assert.throws(
+        assert.doesNotThrow(
             () => map_glyphinfo(glyph, state),
-            TypeError,
             `${glyph}`,
         );
     }
@@ -9582,11 +9688,11 @@ test('map_glyphinfo resolves GLYPH_NOTHING to the blank the symset gives it',
         { ch: nothing.ch, color: nothing.color, dec: nothing.dec },
         { ch: ' ', color: NO_COLOR, dec: false },
     );
-    // GLYPH_UNEXPLORED sits directly below it and has no ported writer, so it
-    // is refused rather than resolved through the arm underneath.
-    assert.throws(
-        () => map_glyphinfo(GLYPH_UNEXPLORED_OFF, state), TypeError,
-    );
+    // GLYPH_UNEXPLORED is the live glyph-buffer sentinel after cls() and has
+    // its own display.c reset_glyphmap() arm.
+    const unexplored = map_glyphinfo(GLYPH_UNEXPLORED_OFF, state);
+    assert.equal(unexplored.ch, ' ');
+    assert.equal(unexplored.color, NO_COLOR);
 
     // The arm draws from no defsym index, so it takes its accessibility kind
     // directly rather than through the cmap classifier. js/startup_a11y.js

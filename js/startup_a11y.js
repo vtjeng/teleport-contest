@@ -33,6 +33,7 @@ import {
     GPCOORDS_MAP,
     GPCOORDS_NONE,
     GPCOORDS_SCREEN,
+    GLOC_INTERESTING,
     GRAVE,
     HALLUC,
     HALLUC_RES,
@@ -69,7 +70,6 @@ import {
     WARN_OF_MON,
     WATER,
     W_SADDLE,
-    def_warnsyms,
     D_BROKEN,
     D_CLOSED,
     D_ISOPEN,
@@ -82,12 +82,12 @@ import {
 } from './const.js';
 import { cansee } from './vision.js';
 import {
+    do_screen_description,
     mhidden_description,
     waterbody_name,
 } from './pager.js';
 import { is_drawbridge_wall } from './dbridge.js';
-import { engr_at } from './engrave.js';
-import { t_at } from './trap.js';
+import { gather_locs_interesting } from './getpos.js';
 import { visible_region_at } from './region.js';
 import {
     capitalizedMonsterName,
@@ -108,6 +108,11 @@ import { just_an } from './objnam.js';
 import { observe_object } from './o_init.js';
 import { obj_stop_timers } from './timeout.js';
 import { locomotion } from './mondata.js';
+import {
+    glyph_at,
+    glyph_is_cmap,
+    glyph_to_cmap,
+} from './display.js';
 import {
     AMULET_CLASS,
     ARMOR_CLASS,
@@ -964,24 +969,6 @@ export function furnitureDescription(symbol) {
     }
 }
 
-function furnitureIsInteresting(symbol) {
-    return ![
-        S_stone,
-        S_bars,
-        S_tree,
-        S_room,
-        S_darkroom,
-        S_corr,
-        S_litcorr,
-        S_pool,
-        S_ice,
-        S_lava,
-        S_lavawall,
-        S_cloud,
-        S_water,
-    ].includes(symbol);
-}
-
 function drawbridgeMask(location) {
     return location?.flags || location?.drawbridgemask || 0;
 }
@@ -1329,74 +1316,33 @@ function describeObject(object, state) {
 // consume display RNG. queueGlyphUpdateNotice() must call this exactly once
 // while queuing and cache the resulting notice text for later emission.
 function describeGlyphUpdate(glyph, x, y, state) {
-    const subject = glyph?.a11ySubject;
-    switch (subject?.type) {
-    case 'monster':
-        return describeMonster(subject.monster, {
-            state,
-            species: subject.species,
-        });
-    case 'object':
-        return withBufferedObject(
-            subject,
-            x,
-            y,
-            state,
-            (object) => describeObject(object, state),
-        );
-    case 'trap':
-        return TRAP_DESCRIPTIONS[subject.trap?.ttyp]
-            ?? TRAP_DESCRIPTIONS[subject.ttyp]
-            ?? 'trap';
-    case 'warning':
-        return def_warnsyms[subject.index]?.desc ?? null;
-    case 'cmap':
-        return cmapDescription(subject.symbol, x, y, state);
-    default:
-        return glyph?.a11yDescription ?? null;
-    }
-}
-
-function floorCovered(location) {
-    return [POOL, MOAT, WATER, LAVAPOOL, LAVAWALL].includes(location.typ);
+    // display.c show_glyph() asks do_screen_description() for firstmatch
+    // after installing the new glyph. Keep that call single and source-order
+    // aligned so generic aliases and location refinement share the same
+    // object/display-RNG effects as ordinary farlook.
+    const description = do_screen_description(
+        { x, y }, true, 0, state,
+    );
+    return description.found ? description.firstmatch : null;
 }
 
 function visibleSubjectAt(x, y, state) {
     const location = state.level?.at(x, y);
     if (!location || !cansee(x, y, state)) return null;
-    if (visible_region_at(x, y, state)) return null;
+    if (!Number.isInteger(location.disp_glyph?.glyph)) return null;
+    // C cmd.c:dolookaround() filters the displayed glyph through
+    // getpos.c:gather_locs_interesting(), regardless of live objects,
+    // traps, engravings, or monster furniture at the square.  In particular,
+    // a hidden object under water must not force waterbody_name() or display
+    // RNG merely because the live object list is nonempty.
+    if (!gather_locs_interesting(x, y, GLOC_INTERESTING, state)) return null;
 
-    const monster = state.level?.monsters?.[x]?.[y] ?? null;
-    if (monster && !monster.minvis && !monster.mundetected) {
-        const appearance = monster.m_ap_type & M_AP_TYPMASK;
-        if (appearance === M_AP_FURNITURE) {
-            return furnitureIsInteresting(monster.mappearance)
-                ? furnitureDescription(monster.mappearance) : null;
-        }
-        if (appearance === M_AP_OBJECT) {
-            return describeObject({
-                otyp: monster.mappearance,
-                oclass: state.objects?.[monster.mappearance]?.oc_class ?? 0,
-                corpsenm: monster.mextra?.mcorpsenm,
-                dknown: false,
-                quan: 1,
-                ox: x,
-                oy: y,
-            }, state);
-        }
-        return describeMonster(monster, { state });
-    }
-
-    if (!floorCovered(location)) {
-        const object = state.level?.objects?.[x]?.[y] ?? null;
-        if (object) return describeObject(object, state);
-        const trap = t_at(x, y, state);
-        if (trap?.tseen) return TRAP_DESCRIPTIONS[trap.ttyp] ?? 'trap';
-        const engraving = engr_at(x, y, state);
-        if (engraving?.erevealed
-            && [ROOM, ICE, CORR].includes(location.typ)) return 'engraving';
-    }
-    return terrainDescription(location, x, y, state);
+    // cmd.c:dolookaround() asks do_screen_description() for each interesting
+    // square. Keep the visibility and interest filter local to this scan,
+    // then use the pager's complete generic collection and lookat refinement
+    // so this caller cannot drift from the ordinary what-is path.
+    const description = do_screen_description({ x, y }, true, 0, state);
+    return description.found ? description.firstmatch : null;
 }
 
 export function collectLookaroundMessages(state, { includeRoom = true } = {}) {
@@ -1425,8 +1371,16 @@ export function collectLookaroundMessages(state, { includeRoom = true } = {}) {
             if (x === ux && y === uy) continue;
             let description = visibleSubjectAt(x, y, state);
             if (!description && mentionAdjacentCorridors) {
-                const typ = state.level?.at(x, y)?.typ;
-                if (typ === CORR) description = 'corridor';
+                const glyph = glyph_at(x, y, state);
+                const cmap = glyph_is_cmap(glyph)
+                    ? glyph_to_cmap(glyph) : -1;
+                if (cmap === S_corr || cmap === S_litcorr) {
+                    const corridorDescription = do_screen_description(
+                        { x, y }, true, 0, state,
+                    );
+                    description = corridorDescription.found
+                        ? corridorDescription.firstmatch : null;
+                }
             }
             if (description)
                 messages.push(messageAt(`${description}.`, x, y, state, true));
