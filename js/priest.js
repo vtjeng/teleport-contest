@@ -12,6 +12,8 @@ import {
     ALLOW_ROCK,
     AM_SHRINE,
     Amask2align,
+    MM_ADJACENTOK,
+    MM_EMIN,
     ARTICLE_A,
     ARTICLE_NONE,
     ARTICLE_THE,
@@ -307,6 +309,51 @@ export function priestini(lvl, sroom, sx, sy, sanctum, env = {}) {
             }
         }
     }
+}
+
+// C ref: priest.c mk_roamer() (724-753).  Special-level descriptors with an
+// explicit alignment create an ordinary minion, rather than a priest: the
+// EMIN record carries the requested alignment and the new monster already
+// knows every trap type before it can take its first turn.
+export function mk_roamer(
+    ptr,
+    alignment,
+    x,
+    y,
+    peaceful,
+    rawEnv = {},
+) {
+    const state = rawEnv.state ?? game;
+    // C snapshots coalignment before relocating an occupant or creating the
+    // roamer; the later creation hooks must not change this decision.
+    const coaligned = state.u?.ualign?.type === alignment;
+    const blocker = m_at(x, y, state);
+    if (blocker) rloc(blocker, RLOC_NOMSG, { ...rawEnv, state });
+
+    const maybeRoamer = makemon(
+        ptr,
+        x,
+        y,
+        MM_ADJACENTOK | MM_EMIN | MM_NOMSG,
+        { ...rawEnv, state },
+    );
+    const finish = (roamer) => {
+        if (!roamer) return null;
+        const emin = roamer.mextra?.emin;
+        if (!emin)
+            throw new Error('mk_roamer requires makemon MM_EMIN allocation');
+        emin.min_align = alignment;
+        emin.renegade = Boolean(coaligned && !peaceful);
+        roamer.ispriest = false;
+        roamer.isminion = true;
+        mon_learns_traps(roamer, ALL_TRAPS);
+        roamer.mpeaceful = Boolean(peaceful);
+        roamer.msleeping = false;
+        set_malign(roamer, state);
+        return roamer;
+    };
+    return maybeRoamer && typeof maybeRoamer.then === 'function'
+        ? maybeRoamer.then(finish) : finish(maybeRoamer);
 }
 
 // C ref: hacklib.c online2(). True when (x0,y0) and (x1,y1) lie on a

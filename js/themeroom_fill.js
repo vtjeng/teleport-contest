@@ -65,6 +65,7 @@ import {
     AM_SPLEV_RANDOM,
     A_ORIGINAL,
     Align2amask,
+    Amask2align,
     D_CLOSED,
     D_LOCKED,
     IS_DOOR,
@@ -84,6 +85,9 @@ import {
     UnsupportedMonsterCreationError,
 } from './makemon_create.js';
 import { mkclass, set_malign } from './makemon.js';
+import { newsym } from './display.js';
+import { onscary, set_apparxy } from './monmove.js';
+import { mk_roamer } from './priest.js';
 import { your_race } from './mondata.js';
 import { lspo_gas_cloud, lspo_monster } from './mklev.js';
 import { christen_monst } from './do_name.js';
@@ -368,6 +372,15 @@ function themedCreationEnv(env) {
         state: env.state,
         random: env.random,
         hooks: env.hooks,
+        // priest.c mk_roamer() may move an occupant from a scripted square.
+        // rloc() needs the same state-bound redraw, scare, and apparent-hero
+        // operations as an ordinary monster caller; preserve caller seams.
+        newsym: env.newsym ?? env.hooks?.newsym ?? ((x, y, operationEnv) =>
+            newsym(x, y, operationEnv.state)),
+        onscary: env.onscary ?? env.hooks?.onscary ?? ((x, y, monster, operationEnv) =>
+            onscary(x, y, monster, operationEnv.state)),
+        setApparxy: env.setApparxy ?? env.hooks?.setApparxy ?? ((monster, operationEnv) =>
+            set_apparxy(monster, operationEnv)),
     });
 }
 
@@ -522,9 +535,9 @@ function impossible(message, env) {
 // C ref: sp_lev.c create_monster(), from the class lookup through the
 // attribute switch. `m` is the descriptor lspo_monster() fills; the port
 // stores its `class` as the class index rather than the C's class
-// character. Two arms are not ported: an explicit alignment (C: mk_roamer)
-// and a player species (C: mk_mplayer) both fall through to makemon(), and
-// assertSupportedMonsterAppearance() refuses the monster appearance arm
+// character. One arm remains unported: a player species (C: mk_mplayer)
+// falls through to makemon(), and assertSupportedMonsterAppearance() refuses
+// the monster appearance arm
 // before this runs; object and furniture disguises are handled below.
 function createMonsterBody(m, croom, env) {
     const replacement = env.hooks.createMonster;
@@ -541,7 +554,7 @@ function createMonsterBody(m, croom, env) {
     if (cls === MAXMCLASSES)
         throw new Error(`create_monster: unknown monster class '${m.class}'`);
 
-    sp_amask_to_amask(m.sp_amask, env);
+    const amask = sp_amask_to_amask(m.sp_amask, env);
 
     let pm;
     if (!cls) {
@@ -594,13 +607,25 @@ function createMonsterBody(m, croom, env) {
     // for script-placed monsters during mklev, the same way rndmonst-selected
     // species bypass it.
     if (state?.in_mklev) monsterEnv._rndmonMklev = true;
-    const maybeMtmp = makemon(
-        pm,
-        coordinate.x,
-        coordinate.y,
-        m.mm_flags,
-        monsterEnv,
-    );
+    // C sp_lev.c:1983-1984 routes every explicit alignment through
+    // priest.c mk_roamer(). AM_SPLEV_RANDOM alone uses the ordinary
+    // mkclass/mkplayer/makemon arms below.
+    const maybeMtmp = m.sp_amask !== AM_SPLEV_RANDOM
+        ? mk_roamer(
+            pm,
+            Amask2align(amask),
+            coordinate.x,
+            coordinate.y,
+            Boolean(m.peaceful),
+            monsterEnv,
+        )
+        : makemon(
+            pm,
+            coordinate.x,
+            coordinate.y,
+            m.mm_flags,
+            monsterEnv,
+        );
     const finish = (mtmp) => {
         if (!mtmp) return null;
         let pending = null;
