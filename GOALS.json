@@ -66920,7 +66920,7 @@
               "scripts/wizard.test.mjs"
             ],
             "recordings": [],
-            "checkedAt": "44e91c6ab08cda36d7493302ae5cc306231f437b"
+            "checkedAt": "0ab1ec98866f3461f867858981716b2f75ac842f"
           },
           {
             "name": "mon_has_arti",
@@ -66939,7 +66939,7 @@
               "scripts/wizard.test.mjs"
             ],
             "recordings": [],
-            "checkedAt": "44e91c6ab08cda36d7493302ae5cc306231f437b"
+            "checkedAt": "0ab1ec98866f3461f867858981716b2f75ac842f"
           },
           {
             "name": "other_mon_has_arti",
@@ -66958,7 +66958,7 @@
               "scripts/wizard.test.mjs"
             ],
             "recordings": [],
-            "checkedAt": "44e91c6ab08cda36d7493302ae5cc306231f437b"
+            "checkedAt": "0ab1ec98866f3461f867858981716b2f75ac842f"
           },
           {
             "name": "on_ground",
@@ -66977,7 +66977,7 @@
               "scripts/wizard.test.mjs"
             ],
             "recordings": [],
-            "checkedAt": "44e91c6ab08cda36d7493302ae5cc306231f437b"
+            "checkedAt": "0ab1ec98866f3461f867858981716b2f75ac842f"
           },
           {
             "name": "you_have",
@@ -66996,7 +66996,7 @@
               "scripts/wizard.test.mjs"
             ],
             "recordings": [],
-            "checkedAt": "44e91c6ab08cda36d7493302ae5cc306231f437b"
+            "checkedAt": "0ab1ec98866f3461f867858981716b2f75ac842f"
           },
           {
             "name": "target_on",
@@ -67018,7 +67018,7 @@
               "recordings/wizard.c/wizard-tactics-genesis-independent.session.json",
               "recordings/wizard.c/wizard-tactics-genesis-variation.session.json"
             ],
-            "checkedAt": "44e91c6ab08cda36d7493302ae5cc306231f437b"
+            "checkedAt": "0ab1ec98866f3461f867858981716b2f75ac842f"
           },
           {
             "name": "strategy",
@@ -67040,7 +67040,7 @@
               "recordings/wizard.c/wizard-tactics-genesis-independent.session.json",
               "recordings/wizard.c/wizard-tactics-genesis-variation.session.json"
             ],
-            "checkedAt": "44e91c6ab08cda36d7493302ae5cc306231f437b"
+            "checkedAt": "0ab1ec98866f3461f867858981716b2f75ac842f"
           },
           {
             "name": "choose_stairs",
@@ -67059,7 +67059,7 @@
               "scripts/wizard.test.mjs"
             ],
             "recordings": [],
-            "checkedAt": "44e91c6ab08cda36d7493302ae5cc306231f437b"
+            "checkedAt": "0ab1ec98866f3461f867858981716b2f75ac842f"
           },
           {
             "name": "tactics",
@@ -67082,10 +67082,10 @@
               "recordings/wizard.c/wizard-tactics-genesis-independent.session.json",
               "recordings/wizard.c/wizard-tactics-genesis-variation.session.json"
             ],
-            "checkedAt": "44e91c6ab08cda36d7493302ae5cc306231f437b"
+            "checkedAt": "0ab1ec98866f3461f867858981716b2f75ac842f"
           }
         ],
-        "entryPointReview": "Compared complete wizard.c142-473 and monmove.c782-787. The production covetous monster turn selects harassment, injured healing, hero artifact pursuit, floor artifact pickup, or another monster artifact pursuit. The independently chosen peaceful master-lich recipes use timed blindness and forced rest. C tactics(wizard.c:413) executes at step58 in the Wizard-role case (rn2(5)=3), and steps56 and60 in the Valkyrie case (rn2(5)=1 and0); the latter executes mnexto relocation. Earlier prompt-only and two-rest recordings did not establish coverage and have been replaced by the verified independent recordings. Public planner and floor-pickup tests verify caller wiring and clone isolation but do not replace entry recordings. Healing and artifact entry recordings remain open. Relocation wiring preserves action/display RNG, flagged versus unflagged messages, old-square redraw before placement, off-map arrival messages, and set_apparxy. Canonical obj_extract_self uses remove_object through the dochug adapter. Existing worm/shop/trap/occupation/attached-hero relocation refusals and swallowed expels gap remain explicit; no whole-teleport completion is claimed. Master-lich admission reuses the implemented makemon S_LICH inventory arm only for the existing create_particular caller marker; generic generation remains bounded.",
+        "entryPointReview": "Compared complete wizard.c142-468 and monmove.c782-787. The production covetous monster turn selects harassment, injured healing, hero artifact pursuit, floor artifact pickup, or another monster artifact pursuit. The independently chosen peaceful master-lich recipes use timed blindness and forced rest. C tactics(wizard.c:413) executes at step58 in the Wizard-role case (rn2(5)=3), and steps56 and60 in the Valkyrie case (rn2(5)=1 and0); the latter executes mnexto relocation. Earlier prompt-only and two-rest recordings did not establish coverage and have been replaced by the verified independent recordings. Public planner and floor-pickup tests verify caller wiring and clone isolation but do not replace entry recordings. Healing and artifact entry recordings remain open. Relocation wiring preserves action/display RNG, flagged versus unflagged messages, old-square redraw before placement, off-map arrival messages, and set_apparxy. Canonical obj_extract_self uses remove_object through the dochug adapter. Existing worm/shop/trap/occupation/attached-hero relocation refusals and swallowed expels gap remain explicit; no whole-teleport completion is claimed. Master-lich admission reuses the implemented makemon S_LICH inventory arm only for the existing create_particular caller marker; generic generation remains bounded. Supporting mhitu.c expels message=false wiring delegates old/new monster redraws to mnexto/rloc_to_core and then redraws only the hero square; planning suppresses relocation redraws. This replaces the caller-owned destination redraw left by the former relocation placeholder. The existing ice-vortex recording and the fixed hallucination session exercise this dependency; the named-expulsion refusal remains outside that entry.",
         "entryPoints": [
           {
             "name": "covetous monster harassment turn",
