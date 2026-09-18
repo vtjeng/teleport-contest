@@ -64690,7 +64690,7 @@
     {
       "id": "port-pager-do-screen-description-seed4500-20260918",
       "kind": "file-port",
-      "status": "open",
+      "status": "parked",
       "summary": "Complete screen-symbol descriptions and connect their production callers",
       "cFile": "pager.c",
       "sessions": [
@@ -64701,8 +64701,8 @@
       "spans": [
         {
           "name": "do_screen_description",
-          "status": "queued",
-          "closedBy": null,
+          "status": "closed",
+          "closedBy": "edf80cfd0b179e2f313947faaad175c9eef3a68c",
           "functions": [
             "do_screen_description"
           ]
@@ -64819,15 +64819,15 @@
         }
       ],
       "progressBeforePark": {
-        "screens": 0,
+        "screens": 1,
         "rng": 0
       },
       "parkedStanding": {
-        "sha": "8bf5eb6ea82ae4ea74a5ae8521762a0e33b628e7",
-        "screens": 11310,
+        "sha": "edf80cfd0b179e2f313947faaad175c9eef3a68c",
+        "screens": 11319,
         "rng": 789036
       },
-      "parkedReason": "A37 remains under correction for five affected display-symbol failures. Integrate the independent ready pickup delivery while preserving the queued description span.",
+      "parkedReason": "Verified do_screen_description span; getpos_menu, displayed glyph accessibility, cursor auto-description and clicked lookup entries still lack matching recordings. Continue the newly exposed getpos location-cycle source family while preserving those entry gaps.",
       "evidence": {
         "functions": [
           {
