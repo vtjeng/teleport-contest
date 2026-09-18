@@ -1158,7 +1158,10 @@ async function create_particular_creation(d, state = game) {
             const answer = await y_n(
                 `Creating ${replacement} instead; force ${original}?`, state,
             );
-            if (answer === 'y') d.which = firstchoice;
+            // cmd.c y_n() returns the accepted key byte, not a one-character
+            // JavaScript string.  Keep the affirmative force branch aligned
+            // with the numeric response contract used by yn_function().
+            if (answer === 'y'.charCodeAt(0)) d.which = firstchoice;
         }
         whichpm = state.mons[d.which];
     }
