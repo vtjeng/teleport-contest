@@ -59,6 +59,7 @@ import {
     DB_UNDER,
     DEAF,
     DISPLACED,
+    engulfing_u,
     DOOR,
     DRAWBRIDGE_UP,
     D_BROKEN,
@@ -109,6 +110,7 @@ import {
     M_AP_MONSTER,
     M_AP_NOTHING,
     M_AP_OBJECT,
+    M_AP_TYPE,
     M_AP_TYPMASK,
     NEED_AXE,
     NEED_HTH_WEAPON,
@@ -201,9 +203,11 @@ import { dist2, distmin } from './hacklib.js';
 import { delobj, money_cnt } from './invent.js';
 import { picking_lock } from './lock.js';
 import { grow_up } from './makemon.js';
+import { mongone } from './makemon_create.js';
 import { newcham_distress } from './mon.js';
-import { mattackm } from './mhitm.js';
+import { mattackm, mdisplacem } from './mhitm.js';
 import { ranged_attk_available } from './mhitu.js';
+import { verbalize } from './pline.js';
 import {
     angry_guards,
     curr_mon_load,
@@ -242,6 +246,7 @@ import {
     hides_under,
     is_animal,
     is_clinger,
+    is_covetous,
     is_floater,
     is_flyer,
     is_mind_flayer,
@@ -313,6 +318,7 @@ import {
     PM_IRON_GOLEM,
     PM_JABBERWOCK,
     PM_KILLER_BEE,
+    PM_MAIL_DAEMON,
     PM_MINOTAUR,
     PM_QUEEN_BEE,
     PM_LEPRECHAUN,
@@ -368,6 +374,7 @@ import {
     DWARVISH_MATTOCK,
     FEDORA,
     FORTUNE_COOKIE,
+    GOLD_PIECE,
     GEM_CLASS,
     LEASH,
     LEATHER_JACKET,
@@ -392,6 +399,7 @@ import {
     VENOM_CLASS,
     WEAPON_CLASS,
     WOOD,
+    STRANGE_OBJECT,
 } from './objects.js';
 import {
     in_your_sanctuary,
@@ -3520,14 +3528,32 @@ export async function postmov(
     return outcome;
 }
 
-// C ref: monmove.c m_move().  Covers the prologue, the tame dog_move()
-// dispatch, the isshk dispatch (stationary return-0 path), the ordinary
-// not_special path through postmov(), m_move_aggress() for monster-vs-monster
-// combat, leppie_avoidance(), m_balks_at_approaching(), and m_postmove_effect().
-// Not covered: the wormno branch, the is_covetous() tactics branch, the isgd
-// and ispriest dispatches, displacement, boulder breaking, and relocation
-// after a teleport-permitted Tengu turn.
-// Those remain explicit seams until their source owners connect.
+// C ref: monmove.c itsstuck() (1053-1061). A sticky hero prevents the
+// holding monster from taking the Conflict turn unless the hero is swallowed.
+// This helper belongs to monmove.c even though mhitm.c consumes it through
+// fightm().
+export async function itsstuck(monster, rawEnv = {}) {
+    const state = rawEnv.state ?? game;
+    if (sticks(state.youmonst?.data)
+        && monster === state.u?.ustuck
+        && !state.u?.uswallow) {
+        const message = rawEnv.message
+            ?? (rawEnv.planning ? async () => {} : ttyPline);
+        const result = message(
+            `${capitalizedMonsterName(monster, state)} cannot escape from you!`,
+            state,
+            rawEnv,
+        );
+        await result;
+        return true;
+    }
+    return false;
+}
+
+// C ref: monmove.c m_move() (1715-2075).  The preceding dochug() owns the
+// covetous tactics() call; this function owns the covetous intruder attack,
+// the special mover dispatches, and the ordinary not_special path through
+// postmov().  Return-valued special movers keep their C result codes here.
 export async function m_move(monster, rawEnv = {}) {
     const state = rawEnv.state ?? game;
     // The full operation set, matching actionRandom()'s. mintrap() needs rnl
@@ -3543,8 +3569,8 @@ export async function m_move(monster, rawEnv = {}) {
     const movePet = requireMoveOperation(rawEnv, 'movePet');
     const unsupported = requireMoveOperation(rawEnv, 'unsupported');
     const env = { ...rawEnv, state, random };
-    const oldX = monster.mx;
-    const oldY = monster.my;
+    let oldX = monster.mx;
+    let oldY = monster.my;
 
     // C ref: monmove.c:1733-1742, m_move()'s prologue.  mintrap() runs first,
     // then the meating countdown, then the hides_under() early return, then
@@ -3622,11 +3648,40 @@ export async function m_move(monster, rawEnv = {}) {
                 canOpen,
                 moveEnv,
             ));
-    if (monster.mtame) {
+    if (monster.mtame && !monster.wormno) {
         // C: `return postmov(mtmp, ptr, omx, omy, dog_move(mtmp, after), ...)`.
         // dochug() is the only reachable caller and passes after == 0.
         const petStatus = await movePet(monster, false, env);
         return await postMonsterMove(monster, oldX, oldY, petStatus, env);
+    }
+
+    // C ref: monmove.c:1773-1799.  A covetous monster attacks an intruder
+    // standing on its current goal before entering ordinary mfndpos().  The
+    // preceding dochug() tactics() operation is a discarded-return dependency
+    // owned by wizard.c; when it does not move the monster, this branch still
+    // decides the local attack exactly as C does.
+    if (is_covetous(monster.data) && !monster.wormno) {
+        const targetX = monster.mgoal?.x;
+        const targetY = monster.mgoal?.y;
+        const intruder = isok(targetX, targetY)
+            ? m_at(targetX, targetY, state) : null;
+        if (intruder && intruder !== monster
+            && dist2(monster.mx, monster.my, targetX, targetY) <= 2) {
+            state.gb ??= {};
+            state.gb.bhitpos = { x: targetX, y: targetY };
+            state.gn ??= {};
+            state.gn.notonhead = intruder.mx !== targetX
+                || intruder.my !== targetY;
+            const attackResult = await mattackm(monster, intruder, env);
+            if (attackResult & M_ATTK_AGR_DIED) return MMOVE_DIED;
+            return await postMonsterMove(
+                monster,
+                oldX,
+                oldY,
+                MMOVE_MOVED,
+                env,
+            );
+        }
     }
 
     // C ref: monmove.c:1806-1827.  Shopkeepers, guards, and priests use
@@ -3634,20 +3689,20 @@ export async function m_move(monster, rawEnv = {}) {
     // dedicated function returns 0 (didn't move) or 1 (moved), m_move()
     // returns through postmov().  -1 (let m_move do it) falls through to
     // normal movement; -2 means the monster died.
-    if (monster.isshk || monster.isgd || monster.ispriest) {
+    if ((monster.isshk || monster.isgd || monster.ispriest)
+        && !monster.wormno) {
         // shk_move / gd_move / pri_move return: 1 moved, 0 didn't, -1 let
         // m_move do it, -2 died.
-        const xm = monster.ispriest
-            ? pri_move(monster, env)
+        const xm = monster.isshk
+            ? shk_move(monster, state, env)
             : monster.isgd
                 ? await gd_move(monster, env)
-                : shk_move(monster, state, env);
+                : pri_move(monster, env);
         if (xm === -2) return MMOVE_DIED;
         if (xm === -1) {
-            if (monster.isshk)
-                unsupported('shopkeeper following hero outside shop');
-            // For a priest not in their temple, pri_move returns -1: fall
-            // through to normal movement below.
+            // C uses -1 to fall through to ordinary movement.  In particular,
+            // a shopkeeper outside its shop and a priest outside its temple
+            // must not be converted into a hard action refusal here.
         } else {
             // xm === 0 or xm === 1: return through postmov().
             return await postMonsterMove(
@@ -3660,12 +3715,73 @@ export async function m_move(monster, rawEnv = {}) {
         }
     }
 
+    // C ref: monmove.c:1832-1849. MAIL_STRUCTURES is enabled in the C build;
+    // mongone() is a discarded-return lifecycle call, while the audible line
+    // remains an ordinary source message. The wormno goto above skips this
+    // branch just as C does.
+    if (monster.data?.pmidx === PM_MAIL_DAEMON && !monster.wormno) {
+        if (!heroDeaf(state) && canseemon(monster, state)) {
+            // The clone scan must consume the verbalize branch without
+            // writing the live message window.  The live pass keeps the
+            // caller's injected message seam (or ttyPline) exactly as C.
+            const message = env.planning
+                ? async () => {}
+                : (rawEnv.message ?? ttyPline);
+            await verbalize("I'm late!", state, {
+                message,
+            });
+        }
+        // mongone() redraws the vacated square through its creation hooks.
+        // Bind that hook to the same planning/live display seam as the
+        // verbalize call; otherwise a planning clone repaints the live map.
+        const redraw = env.planning
+            ? () => {}
+            : (rawEnv.redraw ?? rawEnv.hooks?.newsym ?? newsym);
+        mongone(monster, {
+            ...env,
+            state,
+            hooks: {
+                ...(rawEnv.hooks ?? {}),
+                newsym: redraw,
+            },
+        });
+        return MMOVE_DIED;
+    }
+
     // C ref: monmove.c:1840-1849. Tengu evaluates its natural teleport roll
     // before tele_restrict(), so a noteleport level still consumes rn2(5) and
     // then falls through to ordinary movement when the restriction applies.
-    // Teleport-permitted relocation remains behind the action boundary until
-    // its rloc()/mnexto() effects have a complete production caller path.
-    if (monster.data?.pmidx === PM_TENGU) {
+    // The relocation callers receive the same planning-safe display and
+    // coordinate operations as the source rloc()/mnexto() paths.
+    const relocate = async (subject, useNext) => {
+        const relocateRandom = rawEnv.rloc ?? ((target, flags) =>
+            rloc(target, flags, {
+                ...env,
+                message: env.planning ? async () => {}
+                    : (rawEnv.message ?? ttyPline),
+                newsym: rawEnv.redraw ?? newsym,
+                onscary: rawEnv.onscary
+                    ?? ((x, y, target) => onscary(x, y, target, state)),
+                setApparxy: rawEnv.setApparxy
+                    ?? ((target, operationEnv) =>
+                        set_apparxy(target, operationEnv)),
+            }));
+        const relocateNextTo = rawEnv.mnexto ?? ((target, flags) =>
+            mnexto(target, flags, {
+                ...env,
+                message: env.planning ? async () => {}
+                    : (rawEnv.message ?? ttyPline),
+                newsym: rawEnv.redraw ?? newsym,
+                onscary: rawEnv.onscary
+                    ?? ((x, y, target) => onscary(x, y, target, state)),
+                setApparxy: rawEnv.setApparxy
+                    ?? ((target, operationEnv) =>
+                        set_apparxy(target, operationEnv)),
+            }));
+        if (useNext) await relocateNextTo(subject, RLOC_MSG);
+        else await relocateRandom(subject, RLOC_MSG);
+    };
+    if (monster.data?.pmidx === PM_TENGU && !monster.wormno) {
         if (!random.rn2(5) && !monster.mcan) {
             const restricted = rawEnv.teleRestrict
                 ? await rawEnv.teleRestrict(monster, env)
@@ -3673,34 +3789,10 @@ export async function m_move(monster, rawEnv = {}) {
                     ? noteleport_level(monster, state)
                     : await tele_restrict(monster, state);
             if (!restricted) {
-                const relocateRandom = rawEnv.rloc ?? ((subject, flags) =>
-                    rloc(subject, flags, {
-                        ...env,
-                        message: env.planning ? async () => {}
-                            : (rawEnv.message ?? ttyPline),
-                        newsym: rawEnv.redraw ?? newsym,
-                        onscary: rawEnv.onscary
-                            ?? ((x, y, target) => onscary(x, y, target, state)),
-                        setApparxy: rawEnv.setApparxy
-                            ?? ((target, operationEnv) =>
-                                set_apparxy(target, operationEnv)),
-                    }));
-                const relocateNextTo = rawEnv.mnexto ?? ((subject, flags) =>
-                    mnexto(subject, flags, {
-                        ...env,
-                        message: env.planning ? async () => {}
-                            : (rawEnv.message ?? ttyPline),
-                        newsym: rawEnv.redraw ?? newsym,
-                        onscary: rawEnv.onscary
-                            ?? ((x, y, target) => onscary(x, y, target, state)),
-                        setApparxy: rawEnv.setApparxy
-                            ?? ((target, operationEnv) =>
-                                set_apparxy(target, operationEnv)),
-                    }));
                 if (monster.mhp < 7 || monster.mpeaceful || random.rn2(2))
-                    await relocateRandom(monster, RLOC_MSG);
+                    await relocate(monster, false);
                 else
-                    await relocateNextTo(monster, RLOC_MSG);
+                    await relocate(monster, true);
                 return await postMonsterMove(
                     monster,
                     oldX,
@@ -3720,6 +3812,11 @@ export async function m_move(monster, rawEnv = {}) {
         && state.u?.ustuck !== monster) {
         return MMOVE_MOVED;
     }
+    // C resets omx/omy at the not_special label after every dedicated mover
+    // that returns -1.  A dedicated helper may have changed the coordinates
+    // before declining ordinary movement, so do not reuse the prologue pair.
+    oldX = monster.mx;
+    oldY = monster.my;
 
     let goalX = monster.mux;
     let goalY = monster.muy;
@@ -3729,7 +3826,7 @@ export async function m_move(monster, rawEnv = {}) {
     let preferredrange_min = 0;
     let preferredrange_max = 0;
 
-    if (monster.mconf) {
+    if (monster.mconf || engulfing_u(monster, state)) {
         approach = 0;
     } else {
         const sourceSquare = state.level.at(oldX, oldY);
@@ -3740,7 +3837,12 @@ export async function m_move(monster, rawEnv = {}) {
         if (!monster.mcansee
             || (shouldSee && activeProperty(state, INVIS)
                 && !perceives(monster.data) && random.rn2(11))
+            || M_AP_TYPE(state.youmonst) === M_AP_OBJECT
+                && state.youmonst.mappearance === STRANGE_OBJECT
             || state.u.uundetected
+            || (M_AP_TYPE(state.youmonst) === M_AP_OBJECT
+                && state.youmonst.mappearance === GOLD_PIECE
+                && !likes_gold(monster.data))
             || (monster.mpeaceful && !monster.isshk)
             || ((monster.data?.pmidx === PM_STALKER
                 || monster.data?.mlet === S_BAT
@@ -3847,7 +3949,15 @@ export async function m_move(monster, rawEnv = {}) {
     }
 
     let avoidLine = false;
-    if (is_unicorn(monster.data) && rawEnv.noTeleportLevel?.(monster)) {
+    // C's monmove.c:1940 uses the pure no-teleport-level predicate only to
+    // choose a line-avoiding candidate.  tele_restrict() belongs to the
+    // actual relocation arms below; calling it here can emit knowledge or
+    // messaging before C has chosen a move.
+    const unicornNoTeleport = is_unicorn(monster.data)
+        && (rawEnv.noTeleportLevel
+            ? rawEnv.noTeleportLevel(monster)
+            : noteleport_level(monster, state));
+    if (unicornNoTeleport) {
         // C ref: monmove.c:1941-1943, `for (i = 0; i < cnt; i++)`. The bound
         // matters: resetMfndposData() zero-fills all nine info slots, and a
         // zero slot satisfies !(info & NOTONL), so scanning the tail past
@@ -3906,6 +4016,23 @@ export async function m_move(monster, rawEnv = {}) {
         }
     }
     if (moved === MMOVE_NOTHING) {
+        // C ref: monmove.c:2067-2071. Unicorns that failed to choose a
+        // candidate may still relocate before the discarded worm_nomove call.
+        if (is_unicorn(monster.data) && random.rn2(2)) {
+            const restricted = rawEnv.teleRestrict
+                ? await rawEnv.teleRestrict(monster, env)
+                : env.planning
+                    ? noteleport_level(monster, state)
+                    : await tele_restrict(monster, state);
+            if (!restricted) {
+                await relocate(monster, false);
+                // C returns MMOVE_MOVED directly here; postmov() belongs to
+                // the ordinary moved branch and would spend extra effects.
+                return MMOVE_MOVED;
+            }
+        }
+        if (monster.wormno)
+            note_unported('worm.c worm_nomove');
         return postMonsterMove(
             monster,
             oldX,
@@ -3916,7 +4043,11 @@ export async function m_move(monster, rawEnv = {}) {
     }
     // C ref: monmove.c:1987-1988. Wielding a digging tool consumes the whole
     // move, so this returns before the ALLOW_U test below. C:1986's itsstuck()
-    // sits between the two and is not dig-specific; it stays unported.
+    // sits between the two and is not dig-specific.
+    if (moved === MMOVE_MOVED
+        && !(nextX === state.u.ux && nextY === state.u.uy)) {
+        if (await itsstuck(monster, env)) return MMOVE_DONE;
+    }
     if (await m_digweapon_check(monster, nextX, nextY, env)) return MMOVE_DONE;
     if (data.info[chosen] & ALLOW_U) {
         nextX = monster.mux;
@@ -3931,8 +4062,21 @@ export async function m_move(monster, rawEnv = {}) {
     if ((data.info[chosen] & ALLOW_M) || attacksImage) {
         return await m_move_aggress(monster, nextX, nextY, env);
     }
-    if (data.info[chosen] & ALLOW_MDISP)
-        unsupported('ordinary monster displacement');
+    if (data.info[chosen] & ALLOW_MDISP) {
+        // C ref: monmove.c:2026-2042.  mdisplacem() returns the same result
+        // mask as mattackm(); m_move() consumes death before movement, then
+        // treats a hit as the completed move and a miss as done-without-move.
+        const displaced = await mdisplacem(
+            monster,
+            m_at(nextX, nextY, state),
+            false,
+            env,
+        );
+        if (displaced & (M_ATTK_AGR_DIED | M_ATTK_DEF_DIED))
+            return MMOVE_DIED;
+        if (displaced & M_ATTK_HIT) return MMOVE_MOVED;
+        return MMOVE_DONE;
+    }
     const mayCrossRegion = rawEnv.mayCrossRegion ?? m_in_out_region;
     // canTunnel travels with the destination because postmov() reads this same
     // local when it decides whether to dig the square (C:1643-1645); the
@@ -3954,6 +4098,8 @@ export async function m_move(monster, rawEnv = {}) {
 
     remove_monster(oldX, oldY, state);
     place_monster(monster, nextX, nextY, state);
+    if (monster.wormno)
+        note_unported('worm.c worm_move');
     // C ref: monmove.c:2053. msg_mon_movement() is async because it may
     // deliver a message. Avoid an unconditional microtask boundary for the
     // common case where the accessibility flag is off or the monster is not
@@ -3997,8 +4143,10 @@ async function m_move_aggress(mtmp, x, y, env = {}) {
 
     const mtmp2 = m_at(x, y, state);
     if (mtmp2) {
-        state.bhitpos = { x, y };
-        state.notonhead = (x !== mtmp2.mx || y !== mtmp2.my);
+        state.gb ??= {};
+        state.gb.bhitpos = { x, y };
+        state.gn ??= {};
+        state.gn.notonhead = (x !== mtmp2.mx || y !== mtmp2.my);
         mstatus = await mattackm(mtmp, mtmp2, env);
     }
 
@@ -4011,8 +4159,10 @@ async function m_move_aggress(mtmp, x, y, env = {}) {
             mtmp2.movement -= NORMAL_SPEED;
         else
             mtmp2.movement = 0;
-        state.bhitpos = { x: mtmp.mx, y: mtmp.my };
-        state.notonhead = false;
+        state.gb ??= {};
+        state.gb.bhitpos = { x: mtmp.mx, y: mtmp.my };
+        state.gn ??= {};
+        state.gn.notonhead = false;
         mstatus = await mattackm(mtmp2, mtmp, env); /* return attack */
         /* note: at this point, defender is the original aggressor */
         if (mstatus & M_ATTK_DEF_DIED)

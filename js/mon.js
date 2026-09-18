@@ -5411,7 +5411,11 @@ export async function monstone(mdef, state = game, env = {}) {
     stackobj(statue, objectGenerationEnv({ ...env, state, random }));
     if (glyph_is_invisible(state.level.at(x, y).glyph))
         unmap_object(x, y, state);
-    if (cansee(x, y, state)) newsym(x, y, state);
+    // monstone() is also reached from mhitm.c's planning displacement pass.
+    // C's redraw is live-only there; the caller supplies a clone-safe no-op
+    // while retaining the ordinary newsym owner for a live state.
+    const redraw = env.redraw ?? (state === game ? newsym : () => {});
+    if (cansee(x, y, state)) redraw(x, y, state);
     if (engulfing_u(mdef, state)) wasinside = true;
     await mondead(mdef, state, env);
     if (wasinside && monsterDigests(mdef.data)) {
@@ -5834,6 +5838,7 @@ export async function mon_to_stone(mtmp, state = game, env = {}) {
 // C ref: mon.c vamp_stone() (3766-3831). A shifted vampire or sandestin
 // resumes its innate form rather than leaving a statue behind.
 export async function vamp_stone(mtmp, state = game, env = {}) {
+    const redraw = env.redraw ?? newsym;
     if (is_vampshifter(mtmp)) {
         const mndx = mtmp.cham;
         const x = mtmp.mx;
@@ -5888,7 +5893,7 @@ export async function vamp_stone(mtmp, state = game, env = {}) {
                     env,
                 );
             }
-            newsym(mtmp.mx, mtmp.my, state);
+            redraw(mtmp.mx, mtmp.my, state);
             return false;
         }
     } else if (ismnum(mtmp.cham)
@@ -5898,7 +5903,7 @@ export async function vamp_stone(mtmp, state = game, env = {}) {
         set_mon_min_mhpmax(mtmp, 10);
         mtmp.mhp = mtmp.mhpmax;
         await newcham(mtmp, state.mons[mtmp.cham], { ...env, state });
-        newsym(mtmp.mx, mtmp.my, state);
+        redraw(mtmp.mx, mtmp.my, state);
         return false;
     }
     return true;

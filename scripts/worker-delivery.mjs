@@ -142,7 +142,22 @@ export function readDelivery(delivery) {
     return packet;
 }
 
-function checkCandidate(root, state, task, commit, visited = new Set()) {
+// Git's usual patch identity includes unchanged context. A conflict resolution
+// can preserve every delivered edit while retaining newer surrounding code.
+function contextFreePatchId(root, commit, cache) {
+    if (!cache.has(commit)) {
+        const patch = git(root, 'show', '--format=', '--no-ext-diff', '--no-textconv',
+            '--no-renames', '--binary', '--unified=0', commit);
+        const result = spawnSync('git', ['patch-id', '--stable'], {
+            input: patch, encoding: 'utf8', timeout: 30_000,
+        });
+        check(result.status === 0, result.error?.message || result.stderr || 'patch-id failed');
+        cache.set(commit, result.stdout.trim().split(' ')[0] || null);
+    }
+    return cache.get(commit);
+}
+
+function checkCandidate(root, state, task, commit, visited = new Set(), patchIds = new Map()) {
     if (visited.has(task.id)) return;
     visited.add(task.id);
     // A correction can be cherry-picked independently of a worker's later task.
@@ -153,14 +168,21 @@ function checkCandidate(root, state, task, commit, visited = new Set()) {
         check(isDeepStrictEqual(deliveryGit(root, delivery.base, delivery.delivery), packet.git), 'delivery Git metadata changed');
         const missing = lines(git(root, 'cherry', commit, delivery.delivery, delivery.base))
             .filter(line => line.startsWith('+'));
-        check(missing.length === 0, `candidate is missing delivered patches from ${sha}`);
+        if (missing.length) {
+            const candidates = lines(git(root, 'rev-list', '--no-merges', `${delivery.base}..${commit}`));
+            const integrated = new Set(candidates.map(sha => contextFreePatchId(root, sha, patchIds)));
+            for (const row of missing) {
+                const patch = contextFreePatchId(root, row.slice(2), patchIds);
+                check(patch && integrated.has(patch), `candidate is missing delivered patches from ${sha}`);
+            }
+        }
         for (const dependency of delivery.dependencies) {
             const required = state.tasks[state.deliveries[dependency]?.task];
             check(required && state.deliveries[required.deliveries.at(-1)]?.acceptedAt,
                 `dependency is not accepted: ${dependency}`);
             // Acceptance of a repair is not enough: this candidate must also
             // contain the repair, including a selectively cherry-picked one.
-            checkCandidate(root, state, required, commit, visited);
+            checkCandidate(root, state, required, commit, visited, patchIds);
         }
     }
 }

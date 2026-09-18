@@ -99,6 +99,7 @@ import {
     PM_LEPRECHAUN,
     PM_LONG_WORM,
     PM_LITTLE_DOG,
+    PM_MAIL_DAEMON,
     PM_ORC_SHAMAN,
     PM_PONY,
     PM_QUANTUM_MECHANIC,
@@ -2478,9 +2479,10 @@ test('simple postmov plans notice state and awaits live notice before redraw',
             },
             redraw: (x, y) => events.push(`redraw:${x},${y}`),
         });
-        // Region admission and postmov each cross an async boundary before
-        // the notice; eight microtasks leave headroom without using a timer.
-        for (let turn = 0; turn < 8 && !events.length; ++turn)
+        // Region admission, itsstuck(), and postmov each cross an async
+        // boundary before the notice; sixteen microtasks leave headroom
+        // without using a timer.
+        for (let turn = 0; turn < 16 && !events.length; ++turn)
             await Promise.resolve();
 
         assert.deepEqual(events, ['message:You see a giant rat.']);
@@ -2516,7 +2518,7 @@ test('simple movement output precedes track update and redraw', async () => {
         },
         redraw: (x, y) => events.push(`redraw:${x},${y}`),
     });
-    for (let turn = 0; turn < 8 && !events.length; ++turn)
+    for (let turn = 0; turn < 16 && !events.length; ++turn)
         await Promise.resolve();
 
     assert.deepEqual(events, ['message:The giant rat moves closer.']);
@@ -2629,29 +2631,6 @@ test('simple preflight rejects every selected excluded action atomically',
                     return target;
                 },
             },
-            // monster aggression case removed: m_move_aggress() is now ported
-            {
-                name: 'monster displacement',
-                reason: 'ordinary monster displacement',
-                prepare: async () => {
-                    const target = await prepareSelectedAction({
-                        pmidx: PM_DISPLACER_BEAST,
-                    });
-                    const defender = ordinaryMonster(
-                        PM_GIANT_RAT,
-                        target.destinationX,
-                        target.heroY,
-                        {
-                            m_id: 9002,
-                            movement: 0,
-                        },
-                    );
-                    target.monster.nmon = defender;
-                    game.level.monsters[target.destinationX][target.heroY]
-                        = defender;
-                    return target;
-                },
-            },
             {
                 name: 'region transition',
                 reason: 'a region transition',
@@ -2730,6 +2709,30 @@ test('simple preflight rejects every selected excluded action atomically',
                 );
             }
         }
+    });
+
+test('simple preflight admits the source monster-displacement handoff',
+    async () => {
+        const target = await prepareSelectedAction({
+            pmidx: PM_DISPLACER_BEAST,
+        });
+        const defender = ordinaryMonster(
+            PM_GIANT_RAT,
+            target.destinationX,
+            target.heroY,
+            {
+                m_id: 9002,
+                movement: 0,
+            },
+        );
+        target.monster.nmon = defender;
+        game.level.monsters[target.destinationX][target.heroY] = defender;
+        const before = completeSecondTurnSnapshot(game, target.replay);
+        await preflightSimpleMonsterActions(game);
+        assert.deepEqual(
+            completeSecondTurnSnapshot(game, target.replay),
+            before,
+        );
     });
 
 test('simple preflight handles each turn-preamble state on its own',
@@ -5138,9 +5141,10 @@ test('sleeping out-of-sight long worm takes the disturb no-op', async () => {
 });
 
 // C ref: monmove.c dochug():726-731 and m_move():1769. An awake or visible
-// long worm can reach its unported wormno movement branch, so the boundary
-// must keep both cases fail-closed.
-test('awake or visible long worms remain fail-closed', async () => {
+// long worm reaches m_move()'s ordinary not_special path. The discarded
+// worm.c worm_move/worm_nomove calls remain named gaps, but m_move itself must
+// not refuse the source branch before it can make that decision.
+test('awake or visible long worms use the ordinary movement path', async () => {
     for (const testCase of [
         // Awake removes dochug()'s early disturb() return.
         { label: 'awake out of sight', sleeping: false, visible: false },
@@ -5156,21 +5160,12 @@ test('awake or visible long worms remain fail-closed', async () => {
         else
             game.viz_array[target.heroY][target.monsterX] &= ~COULD_SEE;
         const before = completeSecondTurnSnapshot(game, target.replay);
-        for (let attempt = 0; attempt < 2; ++attempt) {
-            await assert.rejects(
-                preflightSimpleMonsterActions(game),
-                (error) => (
-                    error instanceof UnsupportedSimpleMonsterActionError
-                    && error.reason === 'special monster movement'
-                ),
-                `${testCase.label}, attempt ${attempt + 1}`,
-            );
-            assert.deepEqual(
-                completeSecondTurnSnapshot(game, target.replay),
-                before,
-                `${testCase.label}, attempt ${attempt + 1}`,
-            );
-        }
+        await preflightSimpleMonsterActions(game);
+        assert.deepEqual(
+            completeSecondTurnSnapshot(game, target.replay),
+            before,
+            testCase.label,
+        );
     }
 });
 
@@ -5276,28 +5271,25 @@ test('awake or visible covetous monsters remain fail-closed', async () => {
     }
 });
 
-test('species guard still blocks Tengu and other leprechaun actions',
+test('species guard still blocks unsupported leprechaun actions',
     async () => {
-        for (const pmidx of [PM_TENGU, PM_LEPRECHAUN]) {
-            const target = await prepareSelectedAction({ pmidx });
-            if (pmidx === PM_LEPRECHAUN)
-                target.monster.msleeping = false;
-            const before = completeSecondTurnSnapshot(game, target.replay);
-            for (let attempt = 0; attempt < 2; ++attempt) {
-                await assert.rejects(
-                    preflightSimpleMonsterActions(game),
-                    (error) => (
-                        error instanceof UnsupportedSimpleMonsterActionError
-                        && error.reason === 'a special monster action'
-                    ),
-                    `pmidx ${pmidx}, attempt ${attempt + 1}`,
-                );
-                assert.deepEqual(
-                    completeSecondTurnSnapshot(game, target.replay),
-                    before,
-                    `pmidx ${pmidx}, attempt ${attempt + 1}`,
-                );
-            }
+        const target = await prepareSelectedAction({ pmidx: PM_LEPRECHAUN });
+        target.monster.msleeping = false;
+        const before = completeSecondTurnSnapshot(game, target.replay);
+        for (let attempt = 0; attempt < 2; ++attempt) {
+            await assert.rejects(
+                preflightSimpleMonsterActions(game),
+                (error) => (
+                    error instanceof UnsupportedSimpleMonsterActionError
+                    && error.reason === 'a special monster action'
+                ),
+                `attempt ${attempt + 1}`,
+            );
+            assert.deepEqual(
+                completeSecondTurnSnapshot(game, target.replay),
+                before,
+                `attempt ${attempt + 1}`,
+            );
         }
     });
 
@@ -5320,6 +5312,49 @@ test('Tengu on a no-teleport level reaches ordinary movement', async () => {
     assert.equal(target.replay.getScreens().length, screensBefore);
     assert.equal(target.monster.movement, NORMAL_SPEED);
 });
+
+// C ref: monmove.c m_move():1829-1837. The clone scan reaches the mail
+// daemon's verbalize plus mongone() path, but both display seams must remain
+// on the planning state. dmonsfree() removes the clone victim before the
+// planner's public round callback; the live victim and retryable output stay
+// untouched for the real pass.
+test('public planned mail-daemon action isolates message and redraw',
+    async () => {
+        const target = await prepareSelectedAction({
+            pmidx: PM_MAIL_DAEMON,
+        });
+        game.viz_array[target.heroY][target.monsterX] |= IN_SIGHT;
+        const before = completeSecondTurnSnapshot(game, target.replay);
+        let cloneVictimPurged = false;
+        let callbackState = null;
+
+        await preflightSimpleMonsterActions(game, {
+            advanceRound(planned) {
+                callbackState = {
+                    hasList: Boolean(planned.level.monlist),
+                    purge: planned.iflags?.purge_monsters ?? null,
+                    movement: planned.u.umovement,
+                };
+                // dmonsfree() resets purge_monsters after unlinking the
+                // dead clone, so the empty list is the post-cleanup marker.
+                cloneVictimPurged = !planned.level.monlist;
+                // The callback stands in for allmain.c's next allocation;
+                // stop after observing the completed clone scan rather than
+                // asking the fixture to synthesize another round.
+                return true;
+            },
+        });
+
+        assert.equal(cloneVictimPurged, true,
+            `the public planner reached mongone on its clone: ${
+                JSON.stringify(callbackState)}`);
+        assert.deepEqual(
+            completeSecondTurnSnapshot(game, target.replay),
+            before,
+        );
+        assert.equal(target.monster.mhp, 5,
+            'the live mail daemon remains for the real movement pass');
+    });
 
 // C ref: monmove.c gelcube_digests():424-434. An empty cube, or one carrying
 // only inorganic material, returns -1 and continues through ordinary dochug();
