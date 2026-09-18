@@ -8,6 +8,11 @@ import {
     GFILTER_NONE,
     GFILTER_VIEW,
     GFILTER_AREA,
+    GPCOORDS_NONE,
+    GPCOORDS_MAP,
+    GPCOORDS_COMPASS,
+    GPCOORDS_COMFULL,
+    GPCOORDS_SCREEN,
     GLOC_DOOR,
     GLOC_EXPLORE,
     GLOC_INTERESTING,
@@ -19,6 +24,7 @@ import {
     MV_RUSH,
     MV_WALK,
     NHW_MAP,
+    PICK_ONE,
     LOOK_ONCE,
     LOOK_QUICK,
     LOOK_TRADITIONAL,
@@ -47,12 +53,13 @@ import {
     glyph_is_cmap,
     glyph_is_monster,
     glyph_is_object,
-    glyph_to_mon,
     glyph_to_obj,
     glyph_to_cmap,
     newsym,
 } from './display.js';
 import {
+    GLYPH_MON_MALE_OFF,
+    GLYPH_MON_FEM_OFF,
     GLYPH_NOTHING_OFF,
     GLYPH_UNEXPLORED_OFF,
 } from './glyph_offsets.js';
@@ -60,9 +67,9 @@ import { game } from './gstate.js';
 import { handle_tip, is_valid_travelpt } from './hack.js';
 import { visctrl } from './hacklib.js';
 import { nhgetch } from './input.js';
+import { an } from './objnam.js';
 import { do_screen_description } from './pager.js';
 import { cansee } from './vision.js';
-import { note_unported } from './unported.js';
 import { BOULDER, ROCK } from './objects.js';
 import { PM_LONG_WORM_TAIL } from './monsters.js';
 import {
@@ -96,7 +103,6 @@ import {
     S_vcdoor,
     S_vodbridge,
     S_vodoor,
-    S_vwall,
     S_water,
 } from './symbols.js';
 import { DEFAULT_PRIMARY_SYMBOLS, SYM_OFF_P } from './symbol_data.js';
@@ -104,6 +110,7 @@ import { clearTtyMessageWindow, ttyPline } from './tty_message.js';
 import { displayTtyMenuTextWindow } from './tty_menu.js';
 import { Invocation_lev } from './dungeon.js';
 import { tty_create_nhwindow, tty_curs } from './wintty.js';
+import { select_menu } from './windows.js';
 
 // C ref: getpos.c dxdy_to_dist_descr() (557-590).  This is shared by the
 // status window's held-by-monster line and the farlook helpers; keep the
@@ -573,7 +580,10 @@ export function gloc_filter_floodfill_matcharea(x, y, state = game) {
     const location = state.level?.at(x, y);
     if (!location?.seenv) return false;
     const glyph = back_to_glyph(x, y, state);
-    const matchGlyph = state._getposFilterMatchGlyph;
+    // C's gg.gloc_filter_floodfill_match_glyph is temporary state shared by
+    // selection_floodfill's callback. Keep the same lifetime under gg rather
+    // than making a second permanent filter object.
+    const matchGlyph = state.gg?.gloc_filter_floodfill_match_glyph;
     return glyph === matchGlyph
         || gloc_filter_classify_glyph(glyph)
             === gloc_filter_classify_glyph(matchGlyph);
@@ -582,8 +592,11 @@ export function gloc_filter_floodfill_matcharea(x, y, state = game) {
 // C ref: getpos.c gloc_filter_floodfill() (382-390). selection_floodfill()
 // uses cardinal neighbors when diagonals is FALSE.
 export function gloc_filter_floodfill(x, y, state = game) {
-    state._getposFilterMap ??= new Set();
-    state._getposFilterMatchGlyph = back_to_glyph(x, y, state);
+    state.gg ??= {};
+    // C's selection_floodfill() always records its valid starting point;
+    // matcharea is consulted only for the cardinal neighbors it enqueues.
+    state.gg.gloc_filter_map ??= new Set();
+    state.gg.gloc_filter_floodfill_match_glyph = back_to_glyph(x, y, state);
     const queue = [{ x, y }];
     const seen = new Set();
     while (queue.length) {
@@ -591,11 +604,14 @@ export function gloc_filter_floodfill(x, y, state = game) {
         const key = `${point.x},${point.y}`;
         if (seen.has(key)) continue;
         seen.add(key);
-        if (!gloc_filter_floodfill_matcharea(point.x, point.y, state))
+        if (!isok(point.x, point.y))
             continue;
-        state._getposFilterMap.add(key);
-        for (const [dx, dy] of [[-1, 0], [1, 0], [0, -1], [0, 1]])
-            queue.push({ x: point.x + dx, y: point.y + dy });
+        const isStart = point.x === x && point.y === y;
+        if (isStart || gloc_filter_floodfill_matcharea(point.x, point.y, state)) {
+            state.gg.gloc_filter_map.add(key);
+            for (const [dx, dy] of [[-1, 0], [1, 0], [0, -1], [0, 1]])
+                queue.push({ x: point.x + dx, y: point.y + dy });
+        }
     }
 }
 
@@ -603,10 +619,11 @@ export function gloc_filter_floodfill(x, y, state = game) {
 // side of a doorway indicated by the hero's direction; a doorway without a
 // direction leaves the allocated selection empty, exactly as C does.
 export function gloc_filter_init(state = game) {
-    delete state._getposFilterMap;
-    delete state._getposFilterMatchGlyph;
+    state.gg ??= {};
+    delete state.gg.gloc_filter_map;
+    delete state.gg.gloc_filter_floodfill_match_glyph;
     if (state.iflags?.getloc_filter !== GFILTER_AREA) return;
-    state._getposFilterMap = new Set();
+    state.gg.gloc_filter_map = new Set();
     const here = state.level?.at(state.u?.ux, state.u?.uy);
     if (here && IS_DOOR(here.typ)) {
         const dx = state.u?.dx ?? 0;
@@ -624,12 +641,16 @@ export function gloc_filter_init(state = game) {
 // C ref: getpos.c gloc_filter_done() (417-425). The selection is temporary
 // for one gather operation.
 export function gloc_filter_done(state = game) {
-    delete state._getposFilterMap;
-    delete state._getposFilterMatchGlyph;
+    if (state.gg?.gloc_filter_map) {
+        // C selection_free(..., TRUE) releases the temporary selection after
+        // every gather pass; dropping the JS Set mirrors that lifetime.
+        delete state.gg.gloc_filter_map;
+    }
+    delete state.gg?.gloc_filter_floodfill_match_glyph;
 }
 
 function sameArea(x, y, state) {
-    return state._getposFilterMap?.has(`${x},${y}`) ?? false;
+    return state.gg?.gloc_filter_map?.has(`${x},${y}`) ?? false;
 }
 
 // C ref: getpos.c gather_locs_interesting() (438-508), GLOC_INTERESTING.
@@ -655,8 +676,10 @@ export function gather_locs_interesting(
         S_vodbridge, S_hodbridge, S_vcdbridge, S_hcdbridge,
     ].includes(sym);
     if (gloc === GLOC_MONS) {
+        const normalMaleTail = GLYPH_MON_MALE_OFF + PM_LONG_WORM_TAIL;
+        const normalFemaleTail = GLYPH_MON_FEM_OFF + PM_LONG_WORM_TAIL;
         return glyph_is_monster(glyph)
-            && glyph_to_mon(glyph) !== PM_LONG_WORM_TAIL;
+            && glyph !== normalMaleTail && glyph !== normalFemaleTail;
     }
     if (gloc === GLOC_OBJS) {
         return glyph_is_object(glyph)
@@ -684,7 +707,7 @@ export function gather_locs_interesting(
     if (gloc !== GLOC_INTERESTING && gloc !== GLOC_VALID) return false;
     const excluded = glyph_is_cmap(glyph)
         && (
-            (sym >= S_vwall && sym <= S_trwall)
+            (sym >= S_stone && sym <= S_trwall)
             || [
                 S_tree, S_bars, S_ice, S_air, S_cloud, S_lava, S_lavawall,
                 S_water, S_pool, S_ndoor, S_room, S_darkroom, S_corr, S_litcorr,
@@ -708,9 +731,8 @@ export async function gather_locs(gloc, state = game) {
         for (let x = 1; x < COLNO; ++x) {
             for (let y = 0; y < ROWNO; ++y) {
                 const matchesHero = x === state.u?.ux && y === state.u?.uy;
-                const interesting = await gather_locs_interesting(
-                    x, y, gloc, state,
-                );
+                const interesting = matchesHero ? false
+                    : await gather_locs_interesting(x, y, gloc, state);
                 if (matchesHero || interesting) ++count;
             }
         }
@@ -719,9 +741,8 @@ export async function gather_locs(gloc, state = game) {
         for (let x = 1; x < COLNO; ++x) {
             for (let y = 0; y < ROWNO; ++y) {
                 const matchesHero = x === state.u?.ux && y === state.u?.uy;
-                const interesting = await gather_locs_interesting(
-                    x, y, gloc, state,
-                );
+                const interesting = matchesHero ? false
+                    : await gather_locs_interesting(x, y, gloc, state);
                 if (matchesHero || interesting)
                     locations[index++] = { x, y };
             }
@@ -731,6 +752,69 @@ export async function gather_locs(gloc, state = game) {
     } finally {
         gloc_filter_done(state);
     }
+}
+
+// C ref: getpos.c coord_desc() (595-645).  getpos_menu() is a return-valued
+// caller of this formatter, so keep the coordinate modes beside its owner
+// instead of silently dropping configured map/screen coordinates.
+function coord_desc(x, y, state) {
+    const mode = state.iflags?.getpos_coords ?? GPCOORDS_NONE;
+    if (mode === GPCOORDS_COMPASS || mode === GPCOORDS_COMFULL) {
+        const full = mode === GPCOORDS_COMFULL;
+        return `(${dxdy_to_dist_descr(
+            x - (state.u?.ux ?? 0), y - (state.u?.uy ?? 0), full,
+        )})`;
+    }
+    if (mode === GPCOORDS_MAP) return `<${x},${y}>`;
+    if (mode === GPCOORDS_SCREEN)
+        return `[${String(y + 2).padStart(2, '0')},${String(x).padStart(2, '0')}]`;
+    return '';
+}
+
+// C ref: getpos.c getpos_menu() (665-725).  The menu is a real
+// return-valued dependency of getpos(): a cancelled menu leaves the cursor
+// untouched, while a selected item writes its coordinate through ccp.
+export async function getpos_menu(ccp, gloc, state = game) {
+    const locations = await gather_locs(gloc, state);
+    if (locations.length < 2) {
+        await ttyPline(
+            `You cannot ${state.iflags?.getloc_filter === GFILTER_VIEW
+                ? 'see' : 'detect'} ${GLOC_DESCR[gloc]?.[0] ?? 'that'}.`,
+            state,
+        );
+        return false;
+    }
+
+    const items = [];
+    for (let index = 1; index < locations.length; ++index) {
+        const point = locations[index];
+        const description = do_screen_description(point, true, 0, state);
+        if (!description?.found) continue;
+        const coordinate = coord_desc(point.x, point.y, state);
+        items.push({
+            label: `${description.firstmatch ?? 'unknown'}${coordinate
+                ? ` ${coordinate}` : ''}`,
+            value: index,
+        });
+    }
+
+    const filter = GLOC_FILTERTXT[state.iflags?.getloc_filter ?? GFILTER_NONE]
+        ?? '';
+    const travel = state.iflags?.getloc_travelmode
+        ? ' for travel destination' : '';
+    const selected = await select_menu(state, {
+        title: `Pick ${an(GLOC_DESCR[gloc]?.[1] ?? 'location')}${filter}${travel}`,
+        items,
+        how: PICK_ONE,
+        cancelValue: null,
+        overlay: state.iflags?.menu_overlay !== false,
+    });
+    if (selected === null || selected === undefined) return false;
+    const point = locations[Number(selected)];
+    if (!point) return false;
+    ccp.x = point.x;
+    ccp.y = point.y;
+    return true;
 }
 
 // C ref: getpos.c getpos() feature-symbol matching (1039-1064). C builds a
@@ -955,11 +1039,12 @@ export async function getpos(ccp, force, goal, state = game) {
             const cycle = locationCycleForKey(key, state);
             if (cycle) {
                 if (state.iflags?.getloc_usemenu) {
-                    // getpos_menu() owns the NHW_MENU presentation and its
-                    // return-valued selection contract. It is outside this
-                    // source span; retain the C caller gap explicitly rather
-                    // than inventing a menu or coordinate.
-                    note_unported('getpos.c getpos_menu');
+                    const menuPoint = { x: cx, y: cy };
+                    if (await getpos_menu(menuPoint, cycle.gloc, state)) {
+                        cx = menuPoint.x;
+                        cy = menuPoint.y;
+                        messageGiven = false;
+                    }
                     state.gg.getposx = cx;
                     state.gg.getposy = cy;
                     cursorAt(cx, cy, state);

@@ -4,10 +4,17 @@ import test from 'node:test';
 
 import {
     GLOC_DOOR,
+    GLOC_INTERESTING,
+    GLOC_MONS,
     GFILTER_NONE,
+    GFILTER_AREA,
     ROOM,
 } from '../js/const.js';
 import { GameMap } from '../js/game.js';
+import {
+    GLYPH_MON_MALE_OFF,
+    GLYPH_PET_MALE_OFF,
+} from '../js/glyph_offsets.js';
 import {
     cmap_to_glyph,
     glyph_at,
@@ -15,6 +22,8 @@ import {
 import {
     cmp_coord_distu,
     gloc_filter_classify_glyph,
+    gloc_filter_init,
+    gloc_filter_done,
     gloc_filter_floodfill_matcharea,
     gather_locs,
     gather_locs_interesting,
@@ -24,12 +33,16 @@ import {
     S_hwall,
     S_hodoor,
     S_room,
+    S_stone,
     S_vodoor,
     S_water,
 } from '../js/symbols.js';
 
 const C_SOURCE = readFileSync(
     new URL('../nethack-c/upstream/src/getpos.c', import.meta.url), 'utf8',
+);
+const SELVAR_SOURCE = readFileSync(
+    new URL('../nethack-c/upstream/src/selvar.c', import.meta.url), 'utf8',
 );
 
 function initializedState() {
@@ -75,12 +88,47 @@ test('getpos pure glyph helpers preserve C classes and seen matching', () => {
     assert.equal(gloc_filter_classify_glyph(room), 1);
     assert.equal(gloc_filter_classify_glyph(wall), 2);
     assert.equal(gloc_filter_classify_glyph(water), 4);
-    state._getposFilterMatchGlyph = room;
+    state.gg = { gloc_filter_floodfill_match_glyph: room };
     state.level.at(5, 5).typ = ROOM;
     assert.equal(gloc_filter_floodfill_matcharea(5, 5, state), true);
     state.level.at(5, 5).seenv = 0;
     assert.equal(gloc_filter_floodfill_matcharea(5, 5, state), false);
     assert.equal(known_vibrating_square_at(5, 5, state), false);
+});
+
+test('selection floodfill keeps its valid start before match checks', () => {
+    const state = initializedState();
+    state.iflags.getloc_filter = GFILTER_AREA;
+    state.level.at(5, 5).seenv = 0;
+    gloc_filter_init(state);
+    assert.equal(state.gg.gloc_filter_map.has('5,5'), true);
+    gloc_filter_done(state);
+    assert.equal(state.gg.gloc_filter_map, undefined);
+    assert.equal(state.gg.gloc_filter_floodfill_match_glyph, undefined);
+});
+
+test('gather_locs short-circuits the hero callback and uses literal tail glyphs', async () => {
+    const state = initializedState();
+    let callbackCalls = 0;
+    state.getpos_getvalid = async () => {
+        callbackCalls += 1;
+        return false;
+    };
+    await gather_locs(5, state);
+    assert.equal(callbackCalls, 2 * (79 * 21 - 1));
+
+    const normalTail = GLYPH_MON_MALE_OFF + 330;
+    const petTail = GLYPH_PET_MALE_OFF + 330;
+    state.level.at(4, 5).disp_glyph = { glyph: normalTail };
+    state.level.at(6, 5).disp_glyph = { glyph: petTail };
+    assert.equal(gather_locs_interesting(4, 5, GLOC_MONS, state), false);
+    assert.equal(gather_locs_interesting(6, 5, GLOC_MONS, state), true);
+});
+
+test('interesting locations exclude the complete C wall range including stone', () => {
+    const state = initializedState();
+    state.level.at(6, 5).disp_glyph = { glyph: cmap_to_glyph(S_stone, state) };
+    assert.equal(gather_locs_interesting(6, 5, GLOC_INTERESTING, state), false);
 });
 
 test('gather_locs includes the hero and sorts door locations', async () => {
@@ -114,4 +162,12 @@ test('getpos source defines the twelve location-cycle bindings and wrap', () => 
     const branch = C_SOURCE.slice(branchStart, branchStart + 2200);
     assert.match(branch, /gidx\[gloc\] = \(gidx\[gloc\] \+ 1\)/);
     assert.match(branch, /if \(--gidx\[gloc\] < 0\)/);
+    const floodfill = SELVAR_SOURCE.slice(
+        SELVAR_SOURCE.indexOf('selection_floodfill('),
+        SELVAR_SOURCE.indexOf('/* McIlroy'),
+    );
+    assert.match(floodfill, /selection_setpoint\(x, y, ov, 1\)/);
+    assert.match(floodfill, /SEL_FLOOD_CHKDIR/);
+    assert.match(C_SOURCE, /getpos_menu\(coord \*ccp, int gloc\)/);
+    assert.match(C_SOURCE, /pick_cnt = select_menu\(tmpwin, PICK_ONE/);
 });
