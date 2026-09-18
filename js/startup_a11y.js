@@ -88,8 +88,6 @@ import {
 } from './pager.js';
 import { is_drawbridge_wall } from './dbridge.js';
 import { gather_locs_interesting } from './getpos.js';
-import { engr_at } from './engrave.js';
-import { t_at } from './trap.js';
 import { visible_region_at } from './region.js';
 import {
     capitalizedMonsterName,
@@ -971,24 +969,6 @@ export function furnitureDescription(symbol) {
     }
 }
 
-function furnitureIsInteresting(symbol) {
-    return ![
-        S_stone,
-        S_bars,
-        S_tree,
-        S_room,
-        S_darkroom,
-        S_corr,
-        S_litcorr,
-        S_pool,
-        S_ice,
-        S_lava,
-        S_lavawall,
-        S_cloud,
-        S_water,
-    ].includes(symbol);
-}
-
 function drawbridgeMask(location) {
     return location?.flags || location?.drawbridgemask || 0;
 }
@@ -1349,28 +1329,13 @@ function describeGlyphUpdate(glyph, x, y, state) {
 function visibleSubjectAt(x, y, state) {
     const location = state.level?.at(x, y);
     if (!location || !cansee(x, y, state)) return null;
-    if (visible_region_at(x, y, state)) return null;
     if (!Number.isInteger(location.disp_glyph?.glyph)) return null;
-
-    const monster = state.level?.monsters?.[x]?.[y] ?? null;
-    if (monster && !monster.minvis && !monster.mundetected) {
-        const appearance = monster.m_ap_type & M_AP_TYPMASK;
-        if (appearance === M_AP_FURNITURE
-            && !furnitureIsInteresting(monster.mappearance)) return null;
-    } else {
-        const object = state.level?.objects?.[x]?.[y] ?? null;
-        const trap = t_at(x, y, state);
-        const engraving = engr_at(x, y, state);
-        const interestingObject = Boolean(object);
-        const interestingTrap = Boolean(trap?.tseen);
-        const interestingEngraving = Boolean(
-            engraving?.erevealed
-            && [ROOM, ICE, CORR].includes(location.typ),
-        );
-        if (!interestingObject && !interestingTrap
-            && !interestingEngraving
-            && !gather_locs_interesting(x, y, GLOC_INTERESTING, state)) return null;
-    }
+    // C cmd.c:dolookaround() filters the displayed glyph through
+    // getpos.c:gather_locs_interesting(), regardless of live objects,
+    // traps, engravings, or monster furniture at the square.  In particular,
+    // a hidden object under water must not force waterbody_name() or display
+    // RNG merely because the live object list is nonempty.
+    if (!gather_locs_interesting(x, y, GLOC_INTERESTING, state)) return null;
 
     // cmd.c:dolookaround() asks do_screen_description() for each interesting
     // square. Keep the visibility and interest filter local to this scan,
