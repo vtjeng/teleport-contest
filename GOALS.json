@@ -68340,7 +68340,7 @@
     {
       "id": "port-mcastu-summon-mons-seed4500-20260918",
       "kind": "file-port",
-      "status": "open",
+      "status": "parked",
       "summary": "Complete monster summon-spell feedback and canonical nasty creation.",
       "cFile": "mcastu.c",
       "sessions": [
@@ -68351,8 +68351,8 @@
       "spans": [
         {
           "name": "mcast_summon_mons",
-          "status": "queued",
-          "closedBy": null,
+          "status": "closed",
+          "closedBy": "82be8fcffc74b25ace3a70bd267a11106ab4a322",
           "functions": [
             "mcast_summon_mons"
           ]
@@ -68531,7 +68531,17 @@
             "recordings": []
           }
         ]
-      }
+      },
+      "progressBeforePark": {
+        "screens": 0,
+        "rng": -18
+      },
+      "parkedStanding": {
+        "sha": "82be8fcffc74b25ace3a70bd267a11106ab4a322",
+        "screens": 11366,
+        "rng": 791400
+      },
+      "parkedReason": "Ordinary monster summon feedback has a strict production witness. Wizard speech, invisible/displaced feedback and the Hell path remain unrecorded; the alternate selection recipe is blocked in tactics. The first Knight stop is now makemon species admission at step1784; correct that source runtime path next."
     }
   ]
 }
