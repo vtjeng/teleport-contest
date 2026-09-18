@@ -203,7 +203,7 @@ function verifyPublicationChanges(root, tested, published) {
         .split('\0').filter(Boolean);
     for (const path of paths) {
         if (BOOKKEEPING_FILES.includes(path)) continue; // executionTree already checked modes.
-        const investigation = /^investigations\/((?:holdout\/)?[A-Za-z0-9][A-Za-z0-9_.-]*)\.json$/u.exec(path);
+        const investigation = /^investigations\/((?:synthetic\/v[1-9][0-9]*\/[a-z0-9][a-z0-9-]*|(?:holdout\/)?[A-Za-z0-9][A-Za-z0-9_.-]*))\.json$/u.exec(path);
         const evaluation = /^challenges\/evaluations\/[a-z0-9][a-z0-9.-]*\.json$/u.test(path);
         check(investigation || evaluation, `published commit has unvalidated changes: ${path}`);
         const entry = git(root, 'ls-tree', '-z', published, '--', path);
@@ -212,11 +212,38 @@ function verifyPublicationChanges(root, tested, published) {
         if (investigation) {
             check(validInvestigation(report, investigation[1]), `invalid investigation report: ${path}`);
             check(isAncestor(root, report.commit, tested), `investigation source commit is outside tested history: ${path}`);
+            if (investigation[1].startsWith('synthetic/')) {
+                const [, batch, caseId] = investigation[1].split('/');
+                const manifestPath = batch === 'v1' ? 'challenges/manifest.json' : `challenges/manifests/${batch}.json`;
+                const manifest = json(root, tested, manifestPath);
+                const entry = manifest.cases.find(entry => entry.id === caseId);
+                check(report.manifestPath === manifestPath
+                    && report.manifestSha256 === corpusDigest(manifest.cases)
+                    && entry && report.recordingSha256 === entry.recordingSha256,
+                `synthetic investigation differs from the tested manifest: ${path}`);
+                check(/^challenges\/evaluations\/[a-z0-9][a-z0-9.-]*\.json$/u.test(report.evaluationPath),
+                    `synthetic investigation needs saved evaluation evidence: ${path}`);
+                const evidence = validateEvaluation(json(root, published, report.evaluationPath));
+                const measured = evidence.cases.find(item => item.id === caseId);
+                check(evidence.status === 'complete' && evidence.sha === report.evaluationCommit
+                    && isAncestor(root, evidence.sha, tested)
+                    && (evidence.batch ?? 'v1') === batch
+                    && evidence.manifestSha256 === report.manifestSha256
+                    && measured?.recordingSha256 === report.recordingSha256
+                    && measured.metrics.screens.total === report.recordedSteps
+                    && measured.metrics.screens.total - measured.metrics.screens.matched === report.remainingScreens,
+                `synthetic investigation differs from its saved evaluation: ${path}`);
+            }
         } else {
             check(!git(root, 'ls-tree', '-z', tested, '--', path), `challenge evaluations are immutable: ${path}`);
             validateEvaluation(report);
             check(report.sha === tested, `challenge evaluation must identify the tested integration: ${path}`);
-            const manifest = json(root, tested, 'challenges/manifest.json');
+            const batch = report.batch ?? 'v1';
+            check(/^v[1-9][0-9]*$/u.test(batch), `invalid challenge batch: ${path}`);
+            const manifestPath = batch === 'v1' ? 'challenges/manifest.json' : `challenges/manifests/${batch}.json`;
+            check((report.manifestPath ?? 'challenges/manifest.json') === manifestPath,
+                `challenge evaluation path differs from its batch: ${path}`);
+            const manifest = json(root, tested, manifestPath);
             check(corpusDigest(manifest.cases) === report.manifestSha256,
                 `challenge evaluation membership differs from the tested manifest: ${path}`);
         }

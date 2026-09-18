@@ -919,7 +919,7 @@ canvas {
       <div id="progressReadout" aria-live="polite"></div>
     </div>
     <div class="history-plot"><h3>Development set</h3><canvas id="developmentChart" class="score-history-canvas" tabindex="0"></canvas></div>
-    <div class="history-plot"><h3>Synthetic local holdout</h3><canvas id="challengeChart" class="score-history-canvas" tabindex="0"></canvas></div>
+    <div id="challengeHistoryPlots"></div>
     <div class="history-navigator">
       <canvas id="progressMinimap" tabindex="0" aria-label="Full history for the development set and synthetic local holdout. Drag the window or its edges. Arrow keys move the window; plus and minus zoom; Home and End jump to the oldest and newest dates."></canvas>
     </div>
@@ -946,6 +946,7 @@ canvas {
 <section class="section" aria-labelledby="challengeTitle">
   <h2 class="section-title" id="challengeTitle">Challenges</h2>
   <div class="chart-wrap" id="challengePanel">
+    <div id="challengeBatches"></div>
     <div id="challengeCards"></div>
     <div class="goal-table-wrap" id="challengeTableWrap">
       <table class="goal-table" id="challengeTable"></table>
@@ -957,7 +958,7 @@ canvas {
   <h2 class="section-title">Diagnostics and history</h2>
 <details class="section" id="queueDisclosure">
   <summary><h3 class="section-title">Mismatch queue<span id="queueCount"></span></h3></summary>
-  <p class="subtitle">Sessions ordered by remaining screens. Work starts with the first completed investigation. Listed screens are upper bounds on recovery.</p>
+  <p class="subtitle">Repair regressions first, then synthetic cases by measured unmatched screens. Fixed-session counts are upper bounds. Work starts with the first eligible completed investigation.</p>
   <div class="chart-wrap" id="queueEntries"></div>
 </details>
 
@@ -1035,12 +1036,13 @@ document.getElementById('stats').innerHTML = [
   ['Synthetic local holdout', { ...challengeData, ...challengeData.totals }],
 ].map(([title, score]) => {
   const value = score.status === 'failed' ? 'Failed'
-    : score.screens ? pct(score.screens.matched, score.screens.total) : 'Unmeasured';
+    : score.screens ? pct(score.screens.matched, score.screens.total)
+    : ['stale', 'incomplete'].includes(score.status) ? 'Needs evaluation' : 'Unmeasured';
   const screens = score.screens
     ? fmtN(score.screens.matched) + '/' + fmtN(score.screens.total) + ' screens matched'
-    : 'No screen measurement';
+    : ['stale', 'incomplete'].includes(score.status) ? 'Current screen total unavailable' : 'No screen measurement';
   const age = score.commitUtc
-    ? 'Commit ' + relativeTime(score.commitUtc) : 'Commit age unavailable';
+    ? (score.commitAgeLabel || 'Commit') + ' ' + relativeTime(score.commitUtc) : 'Commit age unavailable';
   const metrics = [['Sessions', 'sessions'], ['RNG', 'rng'], ['Cursors', 'cursors']]
     .map(([label, key]) => '<div class="score-breakdown-row"><span class="score-breakdown-label">' + label + '</span>'
       + scoreMetric(score[key]) + '</div>').join('');
@@ -1049,6 +1051,7 @@ document.getElementById('stats').innerHTML = [
     + '<div class="stat-detail">' + screens + '</div>'
     + '<div class="score-breakdown">' + metrics + '</div>'
     + '<div class="score-source">' + escScoreText(age) + '</div>'
+    + (score.status === 'stale' ? '<div class="score-source">Earlier measurement; reassessment required.</div>' : '')
     + (score.error ? '<div class="score-source">' + escScoreText(score.error) + '</div>' : '')
     + '</div>';
 }).join('');
@@ -1059,6 +1062,12 @@ document.getElementById('stats').innerHTML = [
   const cards = document.getElementById('challengeCards');
   const esc = text => String(text ?? '').replace(/&/g, '&amp;')
     .replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+  document.getElementById('challengeBatches').innerHTML = (challengeData.batches || []).map(batch => {
+    const screens = batch.totals?.screens;
+    return '<p class="table-note"><strong>' + esc(batch.batch) + '</strong> · '
+      + esc(batch.status) + (screens ? ' · ' + fmtN(screens.matched) + '/' + fmtN(screens.total) + ' screens' : '')
+      + (batch.error ? ' · ' + esc(batch.error) : '') + '</p>';
+  }).join('');
   if (!challengeCases.length) {
     table.innerHTML = '<tbody><tr><td>No challenge cases recorded.</td></tr></tbody>';
     cards.innerHTML = '<p class="table-note">No challenge cases recorded.</p>';
@@ -1084,7 +1093,7 @@ document.getElementById('stats').innerHTML = [
     + '<th>Change</th><th>Source pointers</th></tr></thead><tbody>';
   let cardHtml = '';
   challengeCases.forEach(item => {
-    const title = item.title || item.id;
+    const title = (item.batch ? item.batch + ' · ' : '') + (item.title || item.id);
     const pointers = (item.sourcePointers || []).join(' · ');
     const outcome = item.outcome ? '<div class="challenge-outcome">' + esc(item.outcome) + '</div>' : '';
     const fields = [
@@ -1107,17 +1116,35 @@ document.getElementById('stats').innerHTML = [
   const entries = document.getElementById('queueEntries');
   const count = document.getElementById('queueCount');
   const esc = (text) => String(text).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/"/g, '&quot;');
+  const workQueue = QUEUE?.mode === 'work';
+  const blockers = (QUEUE?.blockers || []).map(item => typeof item === 'string' ? item
+    : (item.batch ? item.batch + ': ' : '') + item.reason);
+  const warning = blockers.length ? '<p class="table-note">Selection blocked: '
+    + blockers.map(esc).join(' · ') + '</p>' : '';
   if (!QUEUE || !QUEUE.sessions || QUEUE.sessions.length === 0) {
-    const message = QUEUE?.roadmapFallbackAllowed === true
+    const message = workQueue ? (QUEUE.generationReady
+      ? 'All admitted synthetic screens match. Generate and baseline the next batch.'
+      : 'Current synthetic evidence is incomplete; completion is unknown.')
+      : QUEUE?.roadmapFallbackAllowed === true
       ? 'Every development session matches.' : 'Mismatch queue unavailable; completion is unknown.';
-    count.textContent = QUEUE?.roadmapFallbackAllowed === true ? 'All sessions match' : 'Unavailable';
-    entries.innerHTML = '<p class="table-note">' + message + '</p>';
+    count.textContent = workQueue ? (QUEUE.generationReady ? 'Next batch ready' : 'Needs evaluation')
+      : QUEUE?.roadmapFallbackAllowed === true ? 'All sessions match' : 'Unavailable';
+    entries.innerHTML = warning + '<p class="table-note">' + message + '</p>';
     return;
   }
   count.textContent = QUEUE.sessions.length + (QUEUE.sessions.length === 1 ? ' session' : ' sessions');
-  let html = '';
+  if (workQueue) {
+    const syntheticRows = QUEUE.sessions.filter(entry => entry.corpus === 'synthetic');
+    if (syntheticRows.length) count.textContent += ' · '
+      + fmtN(syntheticRows.reduce((total, entry) => total + entry.remainingScreens, 0))
+      + ' unmatched synthetic screens' + (blockers.length ? ' in evaluated batches' : '');
+  }
+  let html = warning;
+  if (workQueue && QUEUE.generationReady) html += '<p class="table-note">All admitted synthetic screens match. '
+    + 'Generate the next batch; remaining RNG and cursor defects are listed below.</p>';
   const stepOrder = step => step == null ? Infinity : step;
-  const rows = [...QUEUE.sessions].sort((a, b) => b.remainingScreensUpperBound - a.remainingScreensUpperBound
+  // Work queue order includes regression priority and exact synthetic counts.
+  const rows = workQueue ? QUEUE.sessions : [...QUEUE.sessions].sort((a, b) => b.remainingScreensUpperBound - a.remainingScreensUpperBound
     || stepOrder(a.step) - stepOrder(b.step)
     || a.session.localeCompare(b.session));
   rows.forEach(entry => {
@@ -1126,7 +1153,9 @@ document.getElementById('stats').innerHTML = [
     const investigationState = ({
       complete: { symbol: '☑', label: 'Investigation complete', className: 'complete' },
       partial: { symbol: '◐', label: 'Partial investigation', className: 'partial' },
-      stale: { symbol: '☐', label: 'Needs investigation · remaining-screen count changed', className: 'stale' },
+      stale: { symbol: '☐', label: entry.corpus === 'synthetic'
+        ? 'Needs investigation · count or recording provenance changed'
+        : 'Needs investigation · remaining-screen count changed', className: 'stale' },
       invalid: { symbol: '⚠', label: 'Investigation file incomplete or unreadable', className: 'invalid' },
     })[investigation?.status] || { symbol: '?', label: 'No investigation result', className: 'missing' };
     const status = '<span class="investigation-status status-' + investigationState.className
@@ -1140,14 +1169,19 @@ document.getElementById('stats').innerHTML = [
       ? esc((entry.function ? entry.function + '() in ' : '') + entry.sourceFile
         + (entry.line ? ':' + entry.line : ''))
       : 'unresolved' + (entry.message ? ' · ' + esc(entry.message) : '');
+    const exact = entry.corpus === 'synthetic';
+    const remaining = exact ? entry.remainingScreens : entry.remainingScreensUpperBound;
+    const measured = exact ? 'Exact unmatched screens in the saved evaluation.'
+      : 'Upper bound from the first known divergence; later screens may still match.';
     html += '<details class="queue-entry"><summary>'
       + '<span class="queue-session">' + esc(entry.session) + '</span>'
       + '<span class="queue-overview"><span class="queue-remaining"'
-      + ' title="Upper bound from the first known divergence; later screens may still match.">'
-      + 'at most ' + entry.remainingScreensUpperBound + ' of ' + entry.recordedSteps
+      + ' title="' + measured + '">'
+      + (exact ? '' : 'at most ') + fmtN(remaining) + ' of ' + fmtN(entry.recordedSteps)
       + ' screens unmatched</span>'
       + status + '</span></summary>'
       + '<div class="queue-finding">' + findings
+      + (entry.regression ? '<p class="table-note">Regression: restore previously matched screens first.</p>' : '')
       + '<dl class="queue-mismatch"><div><dt>First mismatch</dt><dd>step ' + (entry.step ?? 'unknown') + '</dd></div>'
       + '<div><dt>Kind</dt><dd>' + esc(entry.kind) + '</dd></div></dl>'
       + '<div class="investigation-source">Mismatch site: ' + where + '</div></div></details>';
@@ -1235,9 +1269,14 @@ document.getElementById('stats').innerHTML = [
   table.innerHTML = html + '</tbody>';
 })();
 
-// --- Two score histories with one time window and navigator ---
+// --- Separate batch histories with one time window and navigator ---
 (function() {
-  const canvasIds = ['developmentChart', 'challengeChart'];
+  const canvasIds = DATA.scoreHistory.map((entry, index) => index === 0 ? 'developmentChart'
+    : index === 1 ? 'challengeChart' : 'challengeChart' + index);
+  document.getElementById('challengeHistoryPlots').innerHTML = DATA.scoreHistory.slice(1)
+    .map((entry, index) => '<div class="history-plot"><h3>' + escScoreText(entry.title)
+      + '</h3><canvas id="' + canvasIds[index + 1]
+      + '" class="score-history-canvas" tabindex="0"></canvas></div>').join('');
   const series = DATA.scoreHistory.map((entry, index) => ({ ...entry,
     canvas: document.getElementById(canvasIds[index]),
     points: entry.points.map(point => ({ ...point, time: Date.parse(point.utc) }))
@@ -1251,7 +1290,7 @@ document.getElementById('stats').innerHTML = [
   const clearPin = document.getElementById('progressClearPin');
   const modes = ['screens', 'percent'].map(id => document.getElementById('progressMode-' + id));
   const DAY = 86400000, HOUR = DAY / 24, MIN_SPAN = 20 * 60000;
-  const MINI_ROW = 44, MINI_H = MINI_ROW * 2 + 20;
+  const MINI_ROW = 44, MINI_H = MINI_ROW * series.length + 20;
   const pad = { left: 52, right: 16, top: 10, bottom: 24 };
   const times = [...new Set(series.flatMap(entry => entry.points.map(point => point.time)))].sort((a, b) => a - b);
   const first = times[0] ?? Date.parse(DATA.summary.generatedAt);

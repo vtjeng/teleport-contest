@@ -325,7 +325,7 @@ test('recipe comparison ignores renamed metadata but not independently chosen mo
     assert.equal(copiedRecipe({ ...fixed, moves: 'jj' }, fixed), false);
 });
 
-function reportPublication(t, withSavedReports = false) {
+function reportPublication(t, withSavedReports = false, batch = 'v1') {
     const f = fixture(t); f.assign(); f.artifacts(); const delivered = f.commit();
     f.success(f.submitArgs, f.workers.A);
     f.event({ type: 'received', task: 'A-1', delivery: delivered });
@@ -333,8 +333,10 @@ function reportPublication(t, withSavedReports = false) {
     // One immutable synthetic case makes membership checks independent of totals.
     const cases = [{ id: 'sample', recordingSha256: 'a'.repeat(64) }];
     mkdirSync(join(f.root, 'challenges'));
-    writeFileSync(join(f.root, 'challenges/manifest.json'), JSON.stringify({ version: 1, cases }));
-    f.git(f.root, 'add', 'challenges/manifest.json'); f.git(f.root, 'commit', '-qm', 'tested challenge fixture');
+    const manifestPath = batch === 'v1' ? 'challenges/manifest.json' : `challenges/manifests/${batch}.json`;
+    mkdirSync(join(f.root, manifestPath, '..'), { recursive: true });
+    writeFileSync(join(f.root, manifestPath), JSON.stringify({ version: 1, cases }));
+    f.git(f.root, 'add', manifestPath); f.git(f.root, 'commit', '-qm', 'tested challenge fixture');
     let tested = f.git(f.root, 'rev-parse', 'HEAD');
     const investigation = {
         session: 'fixed', remainingScreensUpperBound: 1, status: 'partial', commit: tested,
@@ -345,6 +347,7 @@ function reportPublication(t, withSavedReports = false) {
     const count = { matched: 1, total: 1 };
     const evaluation = {
         version: 1, sha: tested, utc: '2026-01-01T00:00:00Z', status: 'complete',
+        ...(batch !== 'v1' ? { batch, manifestPath } : {}),
         manifestSha256: corpusDigest(cases), scorerSha256: 'b'.repeat(64),
         cases: [{ ...cases[0], passed: true, metrics: { screens: count, rng: count, cursors: count } }],
         totals: { sessions: count, screens: count, rng: count, cursors: count },
@@ -398,6 +401,55 @@ test('publication permits refreshing an existing investigation while preserving 
     const f = reportPublication(t, true);
     f.save('investigations/fixed.json', { ...f.investigation, summary: 'Source probe now identifies the next branch.' });
     assert.ok(f.publish().deliveries[f.delivered].publishedAt);
+});
+
+test('publication validates a later batch against its own tested manifest', t => {
+    const f = reportPublication(t, false, 'v2');
+    f.save('challenges/evaluations/v2-baseline.json', f.evaluation);
+    assert.ok(f.publish().deliveries[f.delivered].publishedAt);
+});
+
+test('publication cannot substitute a different manifest for an evaluation batch', t => {
+    const f = reportPublication(t, false, 'v2');
+    f.save('challenges/evaluations/v2-baseline.json', {
+        ...f.evaluation, manifestPath: 'challenges/manifest.json',
+    });
+    assert.throws(f.publish, /batch|manifest|evaluation/i);
+});
+
+function syntheticInvestigation(f) {
+    const session = 'synthetic/v2/sample';
+    return { ...f.investigation, session, corpus: 'synthetic', batch: 'v2', caseId: 'sample',
+        remainingScreens: 0, recordedSteps: 1,
+        mismatch: { session, remainingScreens: 0 },
+        manifestPath: 'challenges/manifests/v2.json', manifestSha256: f.evaluation.manifestSha256,
+        recordingSha256: f.evaluation.cases[0].recordingSha256,
+        evaluationPath: 'challenges/evaluations/v2-baseline.json', evaluationCommit: f.tested,
+    };
+}
+
+test('publication accepts a batch-qualified investigation tied to the tested corpus', t => {
+    const f = reportPublication(t, false, 'v2');
+    f.save('investigations/synthetic/v2/sample.json', syntheticInvestigation(f));
+    f.save('challenges/evaluations/v2-baseline.json', f.evaluation);
+    assert.ok(f.publish().deliveries[f.delivered].publishedAt);
+});
+
+test('publication rejects a synthetic investigation for different recording evidence', t => {
+    const f = reportPublication(t, false, 'v2');
+    f.save('investigations/synthetic/v2/sample.json', {
+        ...syntheticInvestigation(f), recordingSha256: 'e'.repeat(64),
+    });
+    assert.throws(f.publish, /manifest|investigation/i);
+});
+
+test('publication verifies the investigation count against its cited immutable evaluation', t => {
+    const f = reportPublication(t, false, 'v2');
+    const report = syntheticInvestigation(f);
+    f.save('investigations/synthetic/v2/sample.json', { ...report, remainingScreens: 1,
+        mismatch: { ...report.mismatch, remainingScreens: 1 } });
+    f.save('challenges/evaluations/v2-baseline.json', f.evaluation);
+    assert.throws(f.publish, /saved evaluation/i);
 });
 
 test('publication cannot overwrite or delete a saved challenge evaluation', async (t) => {

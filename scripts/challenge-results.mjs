@@ -85,7 +85,7 @@ function readManifest(root, manifestPath, batch, parsed = null) {
 export function readChallengeBatches(root) {
     const batches = existsSync(challengePath(root, 'challenges/manifest.json'))
         ? [readManifest(root, 'challenges/manifest.json', 'v1')] : [];
-    const directory = join(root, 'challenges', 'manifests');
+    const directory = challengePath(root, 'challenges/manifests');
     if (!existsSync(directory)) return batches;
     for (const entry of readdirSync(directory, { withFileTypes: true }).sort((a, b) =>
         a.name.localeCompare(b.name))) {
@@ -257,7 +257,8 @@ function evaluationFromRow(root, row) {
 }
 
 export function compareEvaluations(previous, current) {
-    const oldCases = new Map(previous?.cases.map(entry => [entry.id, entry]) ?? []);
+    const oldCases = new Map(previous && evaluationBatch(previous) === evaluationBatch(current)
+        ? previous.cases.map(entry => [entry.id, entry]) : []);
     const changes = { added: 0, addedScreens: 0, addedScreensMatched: 0, improved: 0,
         regressed: 0, unchanged: 0, uncomparable: 0, screensGained: 0, screensLost: 0 };
     for (const entry of current.cases) {

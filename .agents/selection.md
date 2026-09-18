@@ -11,11 +11,12 @@ cases in the latest valid saved evaluations, across every admitted batch.
 `.agents/scoring.md` defines evaluation freshness and comparison. Workers use
 the saved selected queue and the seed-continuation procedure below.
 
-The orchestrator still runs `node scripts/mismatch-queue.mjs --json` for fixed
-regressions and uses its `sessions` array and investigation records. That
-command currently covers only the fixed 44 sessions; an empty result does not
-establish synthetic parity. See "Tooling support" below before dispatching
-synthetic work. Investigations cover C and Lua sources, partially implemented
+The orchestrator runs `node scripts/mismatch-queue.mjs --work --json` and
+uses its ordered `sessions` array and investigation records for selection.
+Use `--fixed --json` for the separate fixed 44-session diagnostic queue.
+The combined queue retains corpus identity and reports missing, failed, or
+stale synthetic evidence as blockers; an empty fixed queue does not establish
+synthetic parity. Investigations cover C and Lua sources, partially implemented
 functions, defects in existing code, screen and cursor mismatches, and
 unresolved source owners.
 A JavaScript declaration is inventory information, never completion evidence.
@@ -129,6 +130,13 @@ Resolve recorder-environment differences before treating them as game defects.
 Keep recipes, C recordings, and hashes immutable. Preserve `v1` at
 `challenges/manifest.json`; admit the next batch under a new versioned
 manifest, starting with `v2`, without replacing or extending a frozen batch.
+Prepare the next manifest outside `challenges/manifests/`, with case files
+under `challenges/cases/<batch>/` and an independent C replay result in each
+case’s `reproducibility` field. Run
+`node scripts/admit-challenge-batch.mjs --manifest <prepared.json>` after a
+passing HEAD checkpoint; the command verifies screen parity, input hashes,
+recipe/recording consistency, and the next batch number before creating the
+manifest exclusively. It does not filter cases by JavaScript results.
 Commit the batch and save its first evaluation at a committed implementation
 before its JavaScript failures guide fixes. Publish that baseline and resume
 selection from the admitted cases. Retain earlier batches as regression checks
@@ -137,13 +145,17 @@ to report each batch without counting added screens as implementation gains.
 
 ## Tooling support
 
-The existing scan, queue, goal-selection checks, and investigation dashboard
-were built for the fixed workload; the challenge scorer currently reads only
-`challenges/manifest.json`. At loop setup, implement and validate missing
-support in these existing tools before dispatching synthetic goals or using a
-new manifest. Preserve batch-qualified case identities, immutable hashes,
-source investigations, per-batch evaluations, and dashboard status throughout.
-This supporting work is part of the authorized operating mode.
+The combined work queue, goal-selection checks, scorer, and dashboard retain
+batch-qualified identities and immutable recording hashes. Synthetic case IDs
+are `synthetic/<batch>/<case-id>`; keep that full ID in `--sessions` or
+`--session`, worker context, and `investigations/<session>.json`. `v1` remains
+at `challenges/manifest.json`; later manifests live at
+`challenges/manifests/v2.json`, `v3.json`, and so on. Only directly listed
+versioned manifests are admitted batches.
+
+Use current saved evaluations for every admitted batch before selecting work.
+The dashboard reads those evaluations and shows each batch’s history
+separately, so adding a batch does not look like implementation progress.
 
 Do not pass a challenge evaluation as `--development-scan`, move challenges
 into `sessions/`, or overwrite `v1` to satisfy a fixed-workload interface.
@@ -201,7 +213,10 @@ its work.
 Each JSON object contains:
 
 - `session`: canonical session ID.
-- `remainingScreensUpperBound`: the session's queue count when investigated.
+- `remainingScreensUpperBound`: the fixed session’s queue count when investigated.
+  Synthetic records instead use exact `remainingScreens` and `recordedSteps`,
+  and retain `corpus`, `batch`, `caseId`, `manifestPath`, `manifestSha256`,
+  `recordingSha256`, `evaluationPath`, and `evaluationCommit` from the queue.
 - `status`: `partial` until the source owner and actionable scope are established,
   then `complete`.
 - `commit` and `mismatch`: the full examined commit SHA and original session
@@ -239,9 +254,10 @@ history, score attribution, parked-work reasons, source coverage, and
 investigation states. Check the affected dashboard data and rendering when
 changing that contract; routine finding updates do not require a new replay.
 
-After each current scan, compare each session's `remainingScreensUpperBound`
-with its cached value. Invalidate only that session's investigation when the
-count changes. Do not invalidate it for a new commit, changed files, elapsed
+After each current scan or evaluation, compare each fixed session’s
+`remainingScreensUpperBound` or synthetic case’s `remainingScreens` with its
+cached value. Invalidate only that investigation when its count changes, or
+when its synthetic batch, manifest, or recording identity differs. Do not invalidate it for a new commit, changed files, elapsed
 time, a changed annotation or mismatch kind, or another session's progress.
 Do not use the recording's fixed `recordedSteps` total as the invalidation key.
 Sessions absent from the mismatch queue need no investigation or selection;

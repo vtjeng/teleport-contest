@@ -69,6 +69,9 @@ test('growth separates added screens from improvements and regressions on existi
     const unchangedCode = evaluation([...first.cases, measured(c, 2)]);
     assert.equal(compareEvaluations(first, unchangedCode).screensGained, 0);
     assert.equal(compareEvaluations(first, unchangedCode).added, 1);
+    const otherBatch = { ...unchangedCode, batch: 'v2' };
+    assert.equal(compareEvaluations(first, otherBatch).screensGained, 0);
+    assert.equal(compareEvaluations(first, otherBatch).added, otherBatch.cases.length);
     next.scorerSha256 = digest('scorer two');
     assert.equal(compareEvaluations(first, next).uncomparable, 2);
 });
@@ -181,6 +184,7 @@ test('corrupt ledger evidence and masked historical case changes fail closed', t
 });
 
 test('all-batch scoring retains failed artifacts and pins one HEAD', () => {
+    assert.throws(() => runAllBatches('/tmp', 'challenges/evaluations', { batches: [] }), /no admitted/u);
     const batches = [{ batch: 'v1' }, { batch: 'v2' }];
     const failed = runAllBatches('/tmp', 'challenges/evaluations', {
         batches, stamp: 'fixed',
@@ -212,6 +216,10 @@ test('changed recordings and path escapes are rejected before replay', t => {
     // An isolated scratch directory stands in for any prohibited destination;
     // the test never creates or accesses an actual holdout path.
     mkdirSync(join(root, 'outside'));
+    const linked = fixture(t);
+    mkdirSync(join(linked, 'outside'));
+    symlinkSync(join(linked, 'outside'), join(linked, 'challenges/manifests'));
+    assert.throws(() => readChallengeBatches(linked), /symlinks/u);
     symlinkSync(join(root, 'outside'), join(root, 'challenges/link'));
     assert.throws(() => challengePath(root, 'challenges/link/recording.json'), /symlinks/u);
 });

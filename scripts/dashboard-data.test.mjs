@@ -353,6 +353,32 @@ test('score rows expose named development and local holdout measures', () => {
     assert.equal(stale.scores.localHoldout.status, 'stale');
 });
 
+test('synthetic batch histories and duplicate case IDs remain separate in the dashboard', () => {
+    const data = sourceDashboardData();
+    const count = { matched: 2, total: 3 };
+    data.challenges = {
+        status: 'stale', totals: { screens: count },
+        batches: [
+            { batch: 'v1', status: 'stale', totals: { screens: count } },
+            { batch: 'v2', status: 'unmeasured', totals: null },
+        ],
+        cases: ['v1', 'v2'].map(batch => ({ batch, id: 'same-case', title: 'Shared title',
+            first: null, current: null, delta: null })),
+    };
+    data.scoreHistory = [data.scoreHistory[0], ...['v1', 'v2'].map((batch, index) => ({
+        id: 'syntheticHoldout-' + batch, title: 'Synthetic local holdout · ' + batch,
+        points: [{ utc: '2026-01-01T00:00:00Z', screens: index + 1, screensTotal: 3 }],
+    }))];
+    const rendered = renderDashboard(data);
+    assert.match(rendered.get('challengeTable').innerHTML, /v1 · Shared title[\s\S]*v2 · Shared title/u);
+    assert.match(rendered.get('challengeBatches').innerHTML, /v1[\s\S]*stale[\s\S]*2\/3[\s\S]*v2[\s\S]*unmeasured/u);
+    assert.match(rendered.get('stats').innerHTML, /Earlier measurement; reassessment required/u);
+    assert.match(rendered.get('challengeHistoryPlots').innerHTML, /v1[\s\S]*challengeChart[\s\S]*v2[\s\S]*challengeChart2/u);
+    assert.ok(rendered.get('challengeChart').ops.length);
+    assert.ok(rendered.get('challengeChart2').ops.length);
+    assert.equal(rendered.get('progressMinimap').style.height, '152px');
+});
+
 test('the unified queue renders C, Lua, and unresolved source owners in priority order', () => {
     // Synthetic remaining counts order a C blocker, Lua loader, and unknown
     // owner. The unknown step must remain unknown rather than becoming zero.
@@ -440,6 +466,38 @@ test('an unavailable mismatch queue differs from a confirmed empty queue', () =>
     const entries = rendered.get('queueEntries').innerHTML;
     assert.match(entries, /Every development session matches/u);
     assert.doesNotMatch(entries, /unavailable|unknown/u);
+});
+
+test('work queue keeps regression priority and displays exact synthetic screen counts', () => {
+    const row = { step: 1, kind: 'screen', recordedSteps: 20,
+        remainingScreensUpperBound: 19, corpus: 'synthetic', sourceFile: null };
+    const queue = { mode: 'work', generationReady: false, blockers: [], sessions: [
+        { ...row, session: 'synthetic/v1/regression', remainingScreens: 1, regression: true },
+        { ...row, session: 'synthetic/v2/new-case', remainingScreens: 7 },
+    ] };
+    const rendered = renderDashboard(sourceDashboardData(), queue);
+    const html = rendered.get('queueEntries').innerHTML;
+    assert.equal(rendered.get('queueCount').textContent, '2 sessions · 8 unmatched synthetic screens');
+    assert.match(html, /v1\/regression[\s\S]*1 of 20 screens unmatched[\s\S]*v2\/new-case[\s\S]*7 of 20 screens unmatched/u);
+    assert.match(html, /Regression: restore previously matched screens first/u);
+    assert.doesNotMatch(html, /at most|19 of 20/u);
+});
+
+test('work queue distinguishes unavailable measurements from the next batch threshold', () => {
+    const data = sourceDashboardData();
+    const blocked = renderDashboard(data, { mode: 'work', sessions: [], generationReady: false,
+        blockers: ['v2 evaluation missing <artifact>'] });
+    assert.equal(blocked.get('queueCount').textContent, 'Needs evaluation');
+    assert.match(blocked.get('queueEntries').innerHTML, /Selection blocked: v2 evaluation missing &lt;artifact>/u);
+    assert.doesNotMatch(blocked.get('queueEntries').innerHTML, /Every development session matches|Generate and baseline/u);
+    const ready = renderDashboard(data, { mode: 'work', sessions: [], generationReady: true, blockers: [] });
+    assert.equal(ready.get('queueCount').textContent, 'Next batch ready');
+    assert.match(ready.get('queueEntries').innerHTML, /Generate and baseline the next batch/u);
+    const cursor = renderDashboard(data, { mode: 'work', generationReady: true, blockers: [], sessions: [{
+        corpus: 'synthetic', session: 'synthetic/v1/cursor', remainingScreens: 0,
+        recordedSteps: 4, step: 3, kind: 'cursor',
+    }] });
+    assert.match(cursor.get('queueEntries').innerHTML, /remaining RNG and cursor defects[\s\S]*0 of 4 screens unmatched/u);
 });
 
 function sourceFileRows(table) {

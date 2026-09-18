@@ -129,6 +129,7 @@ export function runAllBatches(root, outputDir, {
     readHead = () => git(root, ['rev-parse', 'HEAD']),
     stamp = new Date().toISOString().replaceAll(/[-:TZ.]/gu, '').slice(0, 14),
 } = {}) {
+    if (!batches.length) throw new Error('no admitted challenge batches to evaluate');
     const expectedHead = readHead();
     const results = [];
     const failures = [];

@@ -74,18 +74,21 @@ screens, cursors, RNG calls, and errors with accepted evidence; resolve lost
 screen matches before accepting gains elsewhere.
 
 Synthetic failures now drive goal selection under `.agents/selection.md`.
-Save each new batch's first evaluation before using its JavaScript failures to
-guide fixes. The current commands below evaluate `v1`; implement explicit
-manifest selection before evaluating later versions, as "Tooling support" in
-`.agents/selection.md` requires:
+Save each new batch’s first evaluation before using its JavaScript failures to
+guide fixes. Evaluate one batch explicitly, or all admitted batches together:
 
 ```
-node scripts/score-challenges.mjs --output challenges/evaluations/<new-name>.json
+node scripts/score-challenges.mjs --batch v1 --output challenges/evaluations/<new-name>.json
+node scripts/score-challenges.mjs --all --output-dir challenges/evaluations
 node scripts/score-challenges.mjs --record challenges/evaluations/<new-name>.json
 ```
 
 The evaluator requires committed inputs, refuses to overwrite an artifact, and
-records runner failures without aggregate counts. The import checks evidence
+records runner failures without aggregate counts. The all-batch command prints
+one artifact path per batch; import each separately. New evaluations include
+a replay-input digest: report-only commits leave them current, while changed
+game, scorer, or manifest inputs require reassessment. Legacy artifacts remain
+in history and need a new evaluation before they can authorize selection. The import checks evidence
 and appends one `event=challenge` row, with development and holdout fields empty.
 Import in measurement order and commit the artifact and row together. Do not
 use `--generate-note` for challenges or copy their counts into development

@@ -251,6 +251,14 @@ const scores = {
 const challenges = challengeDashboard(process.cwd(), scoreRows, headFullSha);
 challenges.commitUtc = commitBySha.get(challenges.sha)?.committedAt || null;
 challenges.role = 'synthetic-local-holdout';
+for (const batch of challenges.batches || []) {
+  batch.commitUtc = commitBySha.get(batch.sha)?.committedAt || null;
+}
+if (challenges.batches?.length > 1) {
+  challenges.commitUtc = challenges.batches.every(batch => batch.commitUtc)
+    ? challenges.batches.map(batch => batch.commitUtc).sort()[0] : null;
+  challenges.commitAgeLabel = 'Oldest measured commit';
+}
 
 // Extracts a label from a SCORE note for score-history points and the
 // pre-register timeline fallback.
@@ -885,8 +893,11 @@ if (fixedDevelopmentHistory.length === 0 && fixedDevelopmentScore.screens
 
 const scoreHistory = [
   { id: 'developmentSet', title: 'Development set', points: fixedDevelopmentHistory },
-  { id: 'syntheticHoldout', title: 'Synthetic local holdout', points: challenges.history,
-    error: challenges.status === 'failed' ? challenges.error : null },
+  ...(challenges.batches?.length ? challenges.batches.map(batch => ({
+    id: `syntheticHoldout-${batch.batch}`, title: `Synthetic local holdout · ${batch.batch}`,
+    points: batch.history, error: batch.status === 'failed' ? batch.error : null,
+  })) : [{ id: 'syntheticHoldout', title: 'Synthetic local holdout', points: challenges.history,
+    error: challenges.status === 'failed' ? challenges.error : null }]),
 ];
 
 // --- Standalone audit events (outside goals) ---

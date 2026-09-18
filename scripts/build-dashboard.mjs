@@ -33,11 +33,11 @@ function main() {
     encoding: 'utf8', maxBuffer: 10 * 1024 * 1024,
   });
 
-  // The mismatch queue replays the fixed development workload, which takes about
-  // a quarter of a minute when the scan cache misses.
+  // Fixed regressions and synthetic diagnostics share the work queue. Synthetic
+  // counts come from saved evaluations; building does not record a new score.
   let queueData = 'null';
   try {
-    queueData = execSync('node scripts/mismatch-queue.mjs --json', {
+    queueData = execSync('node scripts/mismatch-queue.mjs --work --json', {
       encoding: 'utf8', timeout: 600000, maxBuffer: 10 * 1024 * 1024,
     });
   } catch {
