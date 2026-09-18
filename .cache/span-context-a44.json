@@ -6,8 +6,7 @@
   "sourceFile": "mcastu.c",
   "cFile": "mcastu.c",
   "functions": [
-    "mcast_summon_mons",
-    "nasty"
+    "mcast_summon_mons"
   ],
   "lineRanges": [
     "mcastu.c:421-448",
@@ -37,6 +36,14 @@
     ".cache/span-context-a44.json",
     ".cache/span-evidence-a44.json",
     ".cache/a44-checks.json"
+  ],
+  "supportingFunctions": [
+    {
+      "cFile": "wizard.c",
+      "functions": [
+        "nasty"
+      ]
+    }
   ],
   "dependency": "B43 owns source:minion.c:msummon and source:makemon.c:makemon admission for MM_EMIN|MM_NOMSG. A44 preserves the Inhell msummon return path and does not edit makemon_create.js; generic NO_MM_FLAGS nasty placement remains an explicit follow-up blocker.",
   "sourceReview": "Read mcastu.c:421-448 and wizard.c:591-727 in full. mcast_summon_mons consumes nasty() count and has distinct wizard, invisible/displaced, singular/plural message branches. nasty() preserves the initial/final monster census, Inhell rn2(10) branch, rnd(u.ulevel/3) outer count, 20-attempt inner loop, ten-try pick retry, difficulty and angel/demon exclusions, enexto placement, direct makemon and null-species fallback, unmakemon rejection, arch-lich/Archon difficulty cap, mspec_used=rnd(4), alignment/count stop and census-based return. Reuse existing pick_nasty, monster_census, enexto, makemon/unmakemon and set_malign; do not port or edit B43 msummon."
