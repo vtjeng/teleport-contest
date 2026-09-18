@@ -125,7 +125,6 @@ import {
     PM_LEPRECHAUN,
     PM_LITTLE_DOG,
     PM_PONY,
-    PM_TENGU,
     S_EEL,
 } from './monsters.js';
 import {
@@ -179,7 +178,7 @@ import {
 } from './startup_a11y.js';
 import { is_ice } from './terrain.js';
 import { is_lava, is_pool, t_at } from './trap.js';
-import { noteleport_level, rloc } from './teleport.js';
+import { rloc } from './teleport.js';
 import { ttyPline, ttyPlineWillWait } from './tty_message.js';
 import { note_unported } from './unported.js';
 import { passive_obj } from './uhitm.js';
@@ -325,15 +324,10 @@ function assertSimpleActionState(monster, state) {
     const waitingCovetous = covetous
         && (!monster.mcanmove || (monster.mstrategy & STRAT_WAITMASK));
     // C ref: monmove.c dochug() checks msleeping before m_move()'s wormno
-    // branch. A long worm outside couldsee() therefore takes the ordinary
-    // disturb() no-op; awake or visible worms still reach unported m_move()
-    // behavior and remain fail-closed.
-    const sleepingOutOfSightWorm = monster.wormno > 0
-        && monster.msleeping
-        && !couldsee(monster.mx, monster.my, state);
-    if ((monster.wormno > 0 && !sleepingOutOfSightWorm) || (covetous
-        && !sleepingOutOfSightCovetous
-        && !waitingCovetous)) {
+    // branch. A long worm outside couldsee() takes the ordinary disturb()
+    // no-op; awake or visible worms now continue through m_move(), whose
+    // wormno path is the same not_special movement path as C.
+    if (covetous && !sleepingOutOfSightCovetous && !waitingCovetous) {
         unsupported('special monster movement');
     }
     // isgd is admitted: m_move() dispatches to gd_move() which handles the
@@ -376,11 +370,10 @@ function assertSimpleActionState(monster, state) {
         monster.data?.pmidx === PM_GELATINOUS_CUBE
         && gelcubeHasDigestibleObject(monster, state);
     // monmove.c m_move() consumes Tengu's natural-teleport roll before
-    // tele_restrict() rejects it on a no-teleport level. A permitted level
-    // reaches rloc()/mnexto(), whose complete action path remains gated.
-    if ((monster.data?.pmidx === PM_TENGU
-        && !noteleport_level(monster, state))
-        || (monster.data?.pmidx === PM_LEPRECHAUN
+    // tele_restrict() rejects it on a no-teleport level. m_move now admits
+    // the permitted relocation path through rloc()/mnexto(); leprechaun,
+    // killer-bee, and digesting-cube actions remain separate boundaries.
+    if ((monster.data?.pmidx === PM_LEPRECHAUN
             && !sleepingOutOfSightLeprechaun)
         || (monster.data?.pmidx === PM_KILLER_BEE
             && !sleepingOutOfWakeRangeKillerBee)

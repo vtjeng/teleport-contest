@@ -24,7 +24,9 @@ import {
     NORMAL_SPEED,
     PASSES_WALLS,
     SLEEP_RES,
+    STONE_RES,
     STRAT_WAITFORU,
+    STRAT_WAITMASK,
     W_ARMC,
     W_ARMF,
     W_ARMG,
@@ -47,6 +49,8 @@ import {
     mon_givit,
     mon_offmap,
     monkilled,
+    mon_to_stone,
+    monstone,
     set_ustuck,
     unstuck,
     zombie_maker,
@@ -54,20 +58,24 @@ import {
 } from './mon.js';
 import {
     is_elf,
+    is_rider,
     is_whirly,
     is_orc,
     mon_hates_silver,
+    mhis,
     passes_walls,
     resist_conflict,
     sticks,
     touch_petrifies,
     unsolid,
+    monster_resists_element,
+    poly_when_stoned,
     zombie_form,
     defended,
-    monster_resists_element,
 } from './mondata.js';
 import { closed_door, monnear, youHear } from './monmove.js';
 import { m_at, place_monster, remove_monster } from './monst.js';
+import { update_monster_region } from './region.js';
 import {
     AD_ACID,
     AD_DGST,
@@ -117,8 +125,10 @@ import { mhitm_adtyping, mhitm_knockback, shade_miss } from './uhitm.js';
 import { cansee } from './vision.js';
 import { breamm, spitmm, thrwmm } from './mthrowu.js';
 import { possibly_unwield } from './weapon.js';
-import { find_mac } from './worn.js';
+import { find_mac, which_armor } from './worn.js';
 import { finish_meating } from './dogmove.js';
+import { place_worm_tail_randomly, remove_worm } from './makemon_create.js';
+import { newsym, flush_screen } from './display.js';
 import { note_unported } from './unported.js';
 import { resist } from './zap.js';
 import { ttyPline } from './tty_message.js';
@@ -478,6 +488,115 @@ export async function fightm(mtmp, rawEnv = {}) {
  *  Attacker has targeted <bhitpos.x,bhitpos.y> rather than
  *  <mdef->mx,mdef->my>; matters for long worms.
  */
+// C ref: mhitm.c mdisplacem() (180-288).  A monster displacement is a
+// movement result, not an attack approximation: C gives the defender's
+// hidden/mimic/eating state its own cleanup, performs the stoning contact
+// check before swapping either map square, then updates both region caches.
+// The return mask is consumed by monmove.c m_move(), so every result-bearing
+// arm stays here rather than being represented by note_unported().
+export async function mdisplacem(magr, mdef, quietly = false, rawEnv = {}) {
+    const state = rawEnv.state ?? game;
+    const random = rawEnv.random ?? { rn2 };
+    const message = rawEnv.message ?? ttyPline;
+    const redraw = rawEnv.redraw ?? newsym;
+    const flush = rawEnv.flushScreen ?? flush_screen;
+
+    if (!magr || !mdef || magr === mdef) return M_ATTK_MISS;
+    const pa = magr.data;
+    const pd = mdef.data;
+    const tx = mdef.mx;
+    const ty = mdef.my;
+    const fx = magr.mx;
+    const fy = magr.my;
+    if (m_at(fx, fy, state) !== magr || m_at(tx, ty, state) !== mdef)
+        return M_ATTK_MISS;
+
+    // C's displacement has the same 1-in-7 failure chance as do_attack().
+    if (!random.rn2(7)) return M_ATTK_MISS;
+    if (pa?.pmidx === PM_GRID_BUG && fx !== tx && fy !== ty)
+        return M_ATTK_MISS;
+
+    if (mdef.mundetected) mdef.mundetected = 0;
+    if (M_AP_TYPE(mdef) && M_AP_TYPE(mdef) !== M_AP_MONSTER)
+        seemimic(mdef, state, { ...rawEnv, state, redraw });
+    mdef.msleeping = 0;
+    mdef.mstrategy = (mdef.mstrategy ?? 0) & ~STRAT_WAITMASK;
+    finish_meating(mdef, { ...rawEnv, state, redraw });
+
+    state.gv ??= {};
+    state.gv.vis = canSpotMonster(magr, state) && canSpotMonster(mdef, state);
+
+    // monst.h resists_ston() is the monster's STONE_RES bitset.  which_armor
+    // is source-owned by worn.c and checks the monster's worn inventory.
+    if (touch_petrifies(pd)
+        && !monster_resists_element(magr, STONE_RES, state)
+        && !which_armor(magr, W_ARMG, state)) {
+        if (poly_when_stoned(pa, state)) {
+            await mon_to_stone(magr, state, {
+                ...rawEnv,
+                state,
+                message,
+            });
+            return M_ATTK_HIT;
+        }
+        if (!quietly && canSpotMonster(magr, state)) {
+            if (state.gv.vis) {
+                await message(
+                    `${Monnam(magr, state)} tries to move ${mon_nam(mdef, state)}`
+                        + ` out of ${is_rider(pa) ? 'the' : mhis(magr, { ...rawEnv, state, canSpotMonster })} way.`,
+                    state,
+                    rawEnv,
+                );
+            }
+            await message(
+                `${Monnam(magr, state)} turns to stone!`,
+                state,
+                rawEnv,
+            );
+        }
+        await monstone(magr, state, { ...rawEnv, state, message });
+        if (magr.mhp >= 1) return M_ATTK_HIT;
+        if (magr.mtame && !state.gv.vis && !rawEnv.planning)
+            await message('You have a peculiar feeling for a moment, then it passes.', state, rawEnv);
+        return M_ATTK_AGR_DIED;
+    }
+
+    remove_monster(fx, fy, state);
+    if (mdef.wormno) {
+        remove_worm(mdef, {
+            state,
+            redraw,
+        });
+    } else {
+        remove_monster(tx, ty, state);
+    }
+    place_monster(magr, tx, ty, state);
+    place_monster(mdef, fx, fy, state);
+    if (mdef.wormno) {
+        place_worm_tail_randomly(mdef, fx, fy, {
+            state,
+            redraw,
+        });
+    }
+    update_monster_region(magr, state);
+    update_monster_region(mdef, state);
+
+    if (state.gv.vis && !quietly && !rawEnv.planning) {
+        await message(
+            `${Monnam(magr, state)} moves ${mon_nam(mdef, state)}`
+                + ` out of ${is_rider(pa) ? 'the' : mhis(magr, { ...rawEnv, state, canSpotMonster })} way!`,
+            state,
+            rawEnv,
+        );
+    }
+    if (!rawEnv.planning) {
+        redraw(fx, fy, state);
+        redraw(tx, ty, state);
+        await flush(0, state);
+    }
+    return M_ATTK_HIT;
+}
+
 // C ref: mhitm.c mattackm() (292-577).
 //
 // The physical melee group is ported: AT_CLAW, AT_KICK, AT_BITE, AT_STNG,

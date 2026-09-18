@@ -30,6 +30,7 @@ import {
     engulf_target,
     fightm,
     mattackm,
+    mdisplacem,
     paralyze_monst,
 } from '../js/mhitm.js';
 import {
@@ -67,9 +68,11 @@ import {
     PM_ACID_BLOB,
     PM_COCKATRICE,
     PM_DISENCHANTER,
+    PM_DISPLACER_BEAST,
     PM_FOG_CLOUD,
     PM_GIANT_ANT,
     PM_GRID_BUG,
+    PM_GIANT_RAT,
     PM_ICE_VORTEX,
     PM_HILL_ORC,
     MZ_HUGE,
@@ -204,6 +207,32 @@ test('attk_protection maps every source attack family', () => {
     for (const aatyp of [AT_BITE, AT_STNG, AT_ENGL, AT_TENT, -2])
         assert.equal(attk_protection(aatyp), 0);
 });
+
+test('mdisplacem consumes its miss roll and swaps occupied squares',
+    async () => {
+        await hero(7710051);
+        const { ax, dx, y } = battlefield();
+        const attacker = fixture(PM_DISPLACER_BEAST, ax, y, { mhp: 12 });
+        const defender = fixture(PM_GIANT_RAT, dx, y, { mhp: 7 });
+        const scriptedRolls = scripted([1]);
+        const messages = [];
+        const result = await mdisplacem(attacker, defender, false, {
+            state: game,
+            random: scriptedRolls.random,
+            message: (line) => { messages.push(line); },
+            redraw: () => {},
+            flushScreen: async () => {},
+        });
+        assert.equal(result, M_ATTK_HIT);
+        assert.deepEqual(scriptedRolls.bounds, ['rn2(7)']);
+        assert.equal(attacker.mx, dx);
+        assert.equal(attacker.my, y);
+        assert.equal(defender.mx, ax);
+        assert.equal(defender.my, y);
+        assert.equal(m_at(dx, y, game), attacker);
+        assert.equal(m_at(ax, y, game), defender);
+        assert.equal(messages.length, 1);
+    });
 
 test('paralyze_monst copies the source frozen state and clears its wait plan',
     () => {

@@ -2629,29 +2629,6 @@ test('simple preflight rejects every selected excluded action atomically',
                     return target;
                 },
             },
-            // monster aggression case removed: m_move_aggress() is now ported
-            {
-                name: 'monster displacement',
-                reason: 'ordinary monster displacement',
-                prepare: async () => {
-                    const target = await prepareSelectedAction({
-                        pmidx: PM_DISPLACER_BEAST,
-                    });
-                    const defender = ordinaryMonster(
-                        PM_GIANT_RAT,
-                        target.destinationX,
-                        target.heroY,
-                        {
-                            m_id: 9002,
-                            movement: 0,
-                        },
-                    );
-                    target.monster.nmon = defender;
-                    game.level.monsters[target.destinationX][target.heroY]
-                        = defender;
-                    return target;
-                },
-            },
             {
                 name: 'region transition',
                 reason: 'a region transition',
@@ -2730,6 +2707,30 @@ test('simple preflight rejects every selected excluded action atomically',
                 );
             }
         }
+    });
+
+test('simple preflight admits the source monster-displacement handoff',
+    async () => {
+        const target = await prepareSelectedAction({
+            pmidx: PM_DISPLACER_BEAST,
+        });
+        const defender = ordinaryMonster(
+            PM_GIANT_RAT,
+            target.destinationX,
+            target.heroY,
+            {
+                m_id: 9002,
+                movement: 0,
+            },
+        );
+        target.monster.nmon = defender;
+        game.level.monsters[target.destinationX][target.heroY] = defender;
+        const before = completeSecondTurnSnapshot(game, target.replay);
+        await preflightSimpleMonsterActions(game);
+        assert.deepEqual(
+            completeSecondTurnSnapshot(game, target.replay),
+            before,
+        );
     });
 
 test('simple preflight handles each turn-preamble state on its own',
@@ -5138,9 +5139,10 @@ test('sleeping out-of-sight long worm takes the disturb no-op', async () => {
 });
 
 // C ref: monmove.c dochug():726-731 and m_move():1769. An awake or visible
-// long worm can reach its unported wormno movement branch, so the boundary
-// must keep both cases fail-closed.
-test('awake or visible long worms remain fail-closed', async () => {
+// long worm reaches m_move()'s ordinary not_special path. The discarded
+// worm.c worm_move/worm_nomove calls remain named gaps, but m_move itself must
+// not refuse the source branch before it can make that decision.
+test('awake or visible long worms use the ordinary movement path', async () => {
     for (const testCase of [
         // Awake removes dochug()'s early disturb() return.
         { label: 'awake out of sight', sleeping: false, visible: false },
@@ -5156,21 +5158,12 @@ test('awake or visible long worms remain fail-closed', async () => {
         else
             game.viz_array[target.heroY][target.monsterX] &= ~COULD_SEE;
         const before = completeSecondTurnSnapshot(game, target.replay);
-        for (let attempt = 0; attempt < 2; ++attempt) {
-            await assert.rejects(
-                preflightSimpleMonsterActions(game),
-                (error) => (
-                    error instanceof UnsupportedSimpleMonsterActionError
-                    && error.reason === 'special monster movement'
-                ),
-                `${testCase.label}, attempt ${attempt + 1}`,
-            );
-            assert.deepEqual(
-                completeSecondTurnSnapshot(game, target.replay),
-                before,
-                `${testCase.label}, attempt ${attempt + 1}`,
-            );
-        }
+        await preflightSimpleMonsterActions(game);
+        assert.deepEqual(
+            completeSecondTurnSnapshot(game, target.replay),
+            before,
+            testCase.label,
+        );
     }
 });
 
@@ -5276,28 +5269,25 @@ test('awake or visible covetous monsters remain fail-closed', async () => {
     }
 });
 
-test('species guard still blocks Tengu and other leprechaun actions',
+test('species guard still blocks unsupported leprechaun actions',
     async () => {
-        for (const pmidx of [PM_TENGU, PM_LEPRECHAUN]) {
-            const target = await prepareSelectedAction({ pmidx });
-            if (pmidx === PM_LEPRECHAUN)
-                target.monster.msleeping = false;
-            const before = completeSecondTurnSnapshot(game, target.replay);
-            for (let attempt = 0; attempt < 2; ++attempt) {
-                await assert.rejects(
-                    preflightSimpleMonsterActions(game),
-                    (error) => (
-                        error instanceof UnsupportedSimpleMonsterActionError
-                        && error.reason === 'a special monster action'
-                    ),
-                    `pmidx ${pmidx}, attempt ${attempt + 1}`,
-                );
-                assert.deepEqual(
-                    completeSecondTurnSnapshot(game, target.replay),
-                    before,
-                    `pmidx ${pmidx}, attempt ${attempt + 1}`,
-                );
-            }
+        const target = await prepareSelectedAction({ pmidx: PM_LEPRECHAUN });
+        target.monster.msleeping = false;
+        const before = completeSecondTurnSnapshot(game, target.replay);
+        for (let attempt = 0; attempt < 2; ++attempt) {
+            await assert.rejects(
+                preflightSimpleMonsterActions(game),
+                (error) => (
+                    error instanceof UnsupportedSimpleMonsterActionError
+                    && error.reason === 'a special monster action'
+                ),
+                `attempt ${attempt + 1}`,
+            );
+            assert.deepEqual(
+                completeSecondTurnSnapshot(game, target.replay),
+                before,
+                `attempt ${attempt + 1}`,
+            );
         }
     });
 
