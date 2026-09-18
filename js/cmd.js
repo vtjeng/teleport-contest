@@ -1861,14 +1861,14 @@ export const ADMITTED_COMMANDS = Object.freeze([
 const ADMITTED_BOUNDARY = 'the repeated-command boundary admits only '
     + `${ADMITTED_COMMANDS.join(', ')}, a one-square walk, a shift-direction `
     + 'run, a ctrl-direction rush, or a byte bound to no command';
-// A positive count before a nonmovement row reaches allmain.c
-// moveloop_core():515-531's repeat arm, which this port does not own. Movement
-// rows take cmd.c rhack()'s MOVEMENTCMD arm directly, so they remain admitted
-// below even while this boundary preserves the refusal for other rows.
+// Movement counts use the implemented MOVEMENTCMD dispatch and movement
+// repetition in allmain.c moveloop_core(). Keep other counted command paths
+// behind their existing boundary until their handler/re-entry contracts are
+// verified; the presence of the shared repeat loop does not establish those.
 const COUNTED_BOUNDARY = 'cmd.c parse() committed a count leaving gm.multi '
     + 'above 0 before a nonmovement row this port will not repeat, which '
     + 'allmain.c moveloop_core():515-531 turns into a repeat of the command; '
-    + 'that nonmovement repeat arm is not ported';
+    + 'that nonmovement command path remains unsupported';
 // context.run values this boundary dispatches. cmd.c set_move_cmd() takes the
 // value from the command the key is bound to: 0 for do_move_<dir>, 1 for
 // do_run_<dir>, which the shift-direction keys use, and 3 for do_rush_<dir>
@@ -5453,15 +5453,14 @@ export async function rhack(key, state = game) {
                 state,
             );
         } else if (state.multi > 0 && command !== null && command !== 'pay'
-            && !MOVEMENT_INTENTS[command]) {
+            && !Object.hasOwn(MOVEMENT_INTENTS, command)) {
             // shk.c dopay:1755 clears multi before its first action, so pay
             // never reaches the repeated-command path refused here.
             // cmd.c's MOVEMENTCMD rows are dispatched below even when gm.multi
             // is positive; their domove() call is the source movement arm and
             // is already wired here. Other rows leave the count for
-            // moveloop_core():515-531 to repeat the command with, and that
-            // nonmovement arm reaches lookaround() and svc.context.mv, which
-            // this port does not drive from a count.
+            // moveloop_core():527-530 to re-enter rhack(). Their individual
+            // repeated-command paths retain the existing refusal.
             // A key bound to no command is exempt: the bad-command path below
             // zeroes gm.multi itself, as cmd.c:3841 does.
             //
