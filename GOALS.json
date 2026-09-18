@@ -65503,7 +65503,7 @@
     {
       "id": "div-allmain-region-upkeep-planning-seed4500-20260918",
       "kind": "divergence-fix",
-      "status": "open",
+      "status": "parked",
       "summary": "Run supported region upkeep on projected elapsed turns",
       "cFile": "allmain.c",
       "sessions": [],
@@ -65512,8 +65512,8 @@
       "spans": [
         {
           "name": "region-upkeep-planning",
-          "status": "queued",
-          "closedBy": null,
+          "status": "closed",
+          "closedBy": "138b1fd0233d2417844e1ed21a8dc292f27c2454",
           "functions": [
             "moveloop_core"
           ]
@@ -65615,7 +65615,471 @@
             }
           }
         }
-      ]
+      ],
+      "progressBeforePark": {
+        "screens": 0,
+        "rng": 234
+      },
+      "parkedStanding": {
+        "sha": "138b1fd0233d2417844e1ed21a8dc292f27c2454",
+        "screens": 11322,
+        "rng": 789270
+      },
+      "parkedReason": "The caller correction passes the full checkpoint and region-upkeep refusal is removed, but first mismatch1698 remains in getpos, before the named1742 owner. Preserve the divergence as unresolved until first-mismatch evidence advances; later RNG1742 and special movement belong to separate source investigation."
+    },
+    {
+      "id": "port-getpos-location-cycles-seed4500-20260918",
+      "kind": "file-port",
+      "status": "open",
+      "summary": "Complete location collection, filtering and cursor cycling",
+      "cFile": "getpos.c",
+      "sessions": [
+        "holdout/seed4500-knight-coverage"
+      ],
+      "selectionReason": "The highest eligible fixed-workload session is holdout/seed4500-knight-coverage, remainingScreensUpperBound116, investigations/holdout/seed4500-knight-coverage.json. Its first mismatch1698 is the previous-door D command, owned by getpos.c collection/cycling. Worker A owns this complete source family; worker B owns later monster movement. Q1 is machine-local and remains separate.",
+      "detail": "Port contiguous getpos.c312–553 cmp_coord_distu through gather_locs and wire getpos1011–1037. Include return-valued getpos_menu665–725 and pure coord_desc595–645 with source-state lifetime and glyph predicates. Five independent records cover previous/next doors, area filtering, menu selection and cancellation. Preserve VIEW and other unrecorded location-family entries as open coverage.",
+      "spans": [
+        {
+          "name": "cmp_coord_distu..gather_locs",
+          "status": "queued",
+          "closedBy": null,
+          "functions": [
+            "cmp_coord_distu",
+            "gloc_filter_classify_glyph",
+            "gloc_filter_floodfill_matcharea",
+            "gloc_filter_floodfill",
+            "gloc_filter_init",
+            "gloc_filter_done",
+            "known_vibrating_square_at",
+            "gather_locs_interesting",
+            "gather_locs"
+          ]
+        }
+      ],
+      "openedAt": "b789c15904cab865fae737ac7475183f9c3dcebf",
+      "openStanding": {
+        "sha": "138b1fd0233d2417844e1ed21a8dc292f27c2454",
+        "screens": 11322,
+        "rng": 789270
+      },
+      "closedAt": null,
+      "delivered": null,
+      "functions": [
+        {
+          "name": "cmp_coord_distu",
+          "line": 312,
+          "endLine": 340,
+          "declared": true,
+          "complete": true
+        },
+        {
+          "name": "gloc_filter_classify_glyph",
+          "line": 341,
+          "endLine": 363,
+          "declared": true,
+          "complete": true
+        },
+        {
+          "name": "gloc_filter_floodfill_matcharea",
+          "line": 364,
+          "endLine": 381,
+          "declared": true,
+          "complete": true
+        },
+        {
+          "name": "gloc_filter_floodfill",
+          "line": 382,
+          "endLine": 390,
+          "declared": true,
+          "complete": true
+        },
+        {
+          "name": "gloc_filter_init",
+          "line": 391,
+          "endLine": 411,
+          "declared": true,
+          "complete": true
+        },
+        {
+          "name": "gloc_filter_done",
+          "line": 412,
+          "endLine": 421,
+          "declared": true,
+          "complete": true
+        },
+        {
+          "name": "known_vibrating_square_at",
+          "line": 422,
+          "endLine": 437,
+          "declared": true,
+          "complete": true
+        },
+        {
+          "name": "gather_locs_interesting",
+          "line": 438,
+          "endLine": 512,
+          "declared": true,
+          "complete": true
+        },
+        {
+          "name": "gather_locs",
+          "line": 513,
+          "endLine": 556,
+          "declared": true,
+          "complete": true
+        }
+      ],
+      "range": {
+        "from": 312,
+        "to": 556
+      },
+      "activeStanding": {
+        "sha": "138b1fd0233d2417844e1ed21a8dc292f27c2454",
+        "screens": 11322,
+        "rng": 789270
+      },
+      "openMismatches": [
+        {
+          "session": "holdout/seed4500-knight-coverage",
+          "step": 1698,
+          "kind": "screen",
+          "function": null,
+          "functionDeclared": false,
+          "sourceFile": null,
+          "cFile": null,
+          "luaFile": null,
+          "line": null,
+          "message": null,
+          "unlocatedKinds": [],
+          "recordedSteps": 1814,
+          "remainingScreensUpperBound": 116,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/holdout/seed4500-knight-coverage.json",
+            "result": {
+              "session": "holdout/seed4500-knight-coverage",
+              "remainingScreensUpperBound": 116,
+              "status": "complete",
+              "commit": "138b1fd0233d2417844e1ed21a8dc292f27c2454",
+              "mismatch": {
+                "session": "holdout/seed4500-knight-coverage",
+                "step": 1698,
+                "kind": "screen",
+                "function": null,
+                "functionDeclared": false,
+                "sourceFile": null,
+                "cFile": null,
+                "luaFile": null,
+                "line": null,
+                "message": null,
+                "unlocatedKinds": [],
+                "recordedSteps": 1814,
+                "remainingScreensUpperBound": 116
+              },
+              "summary": "The first remaining mismatch is the previous-door cursor command at step 1698. C moves to the open door at (63,7), while JavaScript remains at the hero at (25,10): the production getpos handler lacks the location collection and cycling branch. Description, blind-pile inspection and projected region upkeep are fixed. The current replay emits 1757 screens before a special monster-movement refusal; a separate RNG mismatch starts at1742.",
+              "source": {
+                "file": "getpos.c",
+                "functions": [
+                  "cmp_coord_distu",
+                  "gloc_filter_classify_glyph",
+                  "gloc_filter_floodfill_matcharea",
+                  "gloc_filter_floodfill",
+                  "gloc_filter_init",
+                  "gloc_filter_done",
+                  "known_vibrating_square_at",
+                  "gather_locs_interesting",
+                  "gather_locs"
+                ],
+                "branch": "Read getpos.c312–553 and the getpos mMoOdDxX caller at1011–1037. gather_locs always includes the hero, applies the selected location filter, and sorts by Chebyshev distance, then y, then x. The uppercase D command lazily gathers GLOC_DOOR and decrements index zero with wrap to the last entry. JavaScript has the key binding and partial interest predicate but no source-equivalent garr/gidx cycle dispatch. Port the whole contiguous helper family and wire the source caller.",
+                "callers": [
+                  "pager.c do_look selects a map location through getpos; getpos dispatches m/M, o/O, d/D and x/X to its lazily gathered location arrays.",
+                  "getpos_menu, cmd.c dolookaround and pager auto-description also consume location classification or descriptions; preserve their source contracts while adding complete collection."
+                ],
+                "dependencies": [
+                  "Accepted pager do_screen_description now collects all source symbol families and uses canonical stored-glyph map_glyphinfo. Its lookup coordinates differ from the encoded-prefix decode at (0,0); pet and hero overrides, Rogue colors and NOOVERRIDE order are verified. getpos_menu, displayed-glyph accessibility, cursor auto-description and clicked lookup recording entries remain open in GOALS.json.",
+                  "Accepted invent.c look_here/dolook now handles tactile floor reach, arbitrary pile inspection, pile counts, cockatrice ordering and message filtering, with canonical force_decor and query_objlist callers. Three independent recordings cover movement menu/count and colon look. Swallowed inventory, blind ICE and the tactile-corpse fallback remain unrecorded entry families in GOALS.json; movement retains its mutation-free unsupported naming/pricing boundary.",
+                  "Accepted allmain.c moveloop_core region upkeep now runs supported callbacks after nh_timeout on cloned state during planning, preserving live output and shared-vision restoration. The current replay emits1757 screens, first diverges in RNG at1742 (C distfleeck rn2(5), JS rn2(4)), then stops at special monster movement. Harmful gas and unknown callbacks remain explicit unported boundaries. The region-fix goal remains parked because the earlier getpos mismatch prevents its first-mismatch closure criterion.",
+                  "Other unresolved source/coverage defects remain separate: make_stoned/minstapetrify/do_stone_mon; hero/monster stoning directions, corpse-weapon and attack-triggered golem entries; passive cold/fire/electricity/paralysis and lethal recovery; eating/non-food cleanup; skinback artifact-light radius and rare armor/Eyes-of-the-Overworld cleanup.",
+                  "Liquid-specific entry recordings and exceptional partial rloc routes remain open; trap.c inventory-chain calls and mon.c deal_with_overcrowding remain named discarded-call gaps. GOALS.json preserves open print_dungeon, hitmu, mfind0, goto_level, minliquid, creation/flash, pickup and achievement entry families rather than treating supporting unit tests as their completion.",
+                  "Hidden-attacker witnesses require eligible placement on objects or water, actual hidden state and an executed hitmu. Plain or qualified monster creation alone does not establish that entry; independent hidden-trapper and invisible-newt recordings establish creation/flash only.",
+                  "The pending getpos implementation includes whole collection/cycling helpers, the return-valued getpos_menu caller and coord_desc. Independent select/cancel recordings now cover menu outcomes; source checks verify hero short-circuiting, floodfill start points, stone walls, normal tail glyphs and exact filter lifetime. It remains pending combined validation; VIEW and other location-family entry recordings remain open.",
+                  "Source review of pending m_move/mdisplacem identifies wrong gb.bhitpos/gn.notonhead ownership, extra postmov effects after unicorn teleportation, missing engulfing/mimic/itsstuck branches, and incomplete production no-teleport wiring. Displacement also drops worm-tail RNG/redraw hooks and can leak mimic/stoning output during planning. These defects remain under correction; existing no-teleport Tengu evidence does not establish permitted relocation or displacement entries."
+                ]
+              },
+              "goalKind": "file-port",
+              "evidence": [
+                "Passing checkpoint138b1fd0 and .cache/B37-development-scan.json retain first screen/cursor mismatch1698, emit1757 screens and locate the later special-movement refusal. Per-session comparison loses no match; the queue remainingScreensUpperBound116 is the suffix size, not a count of unmatched screens.",
+                "C screens1695–1700 show menu selection, the location prompt, uppercase D producing open door at cursor(63,7), the subsequent backslash no-feature message at that cursor, then Escape returning to(25,10). The scan observes C row0 initial o versus JS P at1698; no exact full JS message is inferred from that single cell.",
+                "Read-only diagnosis .cache/A37-knight-door-prev-diagnosis.json inspected immutable worker1bd245a3, whose corrected code is integrated into accepted edf80cfd and retained in b80879fb. Direct C/JS comparison confirms the missing cycle handler; no session-specific implementation is proposed.",
+                "Pre-acceptance display regressions at41361354 were traced to rendered-cell classification and incorrect override/coordinate contracts. Corrected edf80cfd passes every recording and per-session comparison loses no earlier match. Typed-symbol recordings cover unknown and shared sink/fountain symbols; they do not establish unrecorded accessibility or click entries.",
+                "Original short blind-admission recordings end at the cursor-prompt More boundary and prove admission only. Longer independently chosen Wizard/human and Wizard/elf recordings verify quick selected-location lookup; the original Healer/elf/chaotic probe was normalized by C and is not a valid elf witness.",
+                "Focused planner tests execute visible harmless vapor expiration through preflightSimpleMonsterActions on both success and later-refusal paths, pin setup RNG and verify clone/live vision isolation. The existing gas-spore recording establishes general elapsed-turn caller reachability only; no matching nonempty-region entry recording is claimed. Accepted scan138b1fd0 confirms the later RNG1742 boundary remains.",
+                "Read-only comparison at worker b18a485a confirms both C and JS distfleeck begin with rn2(5). The logged JS rn2(4) has no recorded call site, and set_apparxy and later movement contain valid source-matched rn2(4) branches. Diagnose the runtime caller and deterministic state before attributing a bound error; no separate distfleeck defect is established."
+              ]
+            }
+          }
+        }
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "cmp_coord_distu",
+            "implementation": "js/getpos.js",
+            "symbol": "cmp_coord_distu",
+            "sourceReview": "Compared getpos.c:312-330. The helper computes Chebyshev distance from u.ux/u.uy and breaks equal distances by y then x, with no output, RNG, or state writes. The JavaScript caller is gather_locs, which sorts the two-pass coordinate array after collection.",
+            "callers": [
+              {
+                "path": "js/getpos.js",
+                "symbol": "gather_locs",
+                "source": "getpos.c:548-550 calls qsort(..., cmp_coord_distu) after its second collection pass."
+              }
+            ],
+            "pure": true,
+            "tests": [
+              "scripts/getpos-cycle.test.mjs"
+            ],
+            "recordings": [],
+            "checkedAt": "3652dc598c188573355e48fd9221f65e7e315cfa"
+          },
+          {
+            "name": "gloc_filter_classify_glyph",
+            "implementation": "js/getpos.js",
+            "symbol": "gloc_filter_classify_glyph",
+            "sourceReview": "Compared getpos.c:341-360 and sym.h predicates. Room/furniture, wall/tree, corridor, water, and lava classes retain source order and zero for non-cmap glyphs. The helper has no output, RNG, or state writes.",
+            "callers": [
+              {
+                "path": "js/getpos.js",
+                "symbol": "gloc_filter_floodfill_matcharea",
+                "source": "getpos.c:374-375 compares the class of the remembered glyph with the flood-fill seed."
+              }
+            ],
+            "pure": true,
+            "tests": [
+              "scripts/getpos-cycle.test.mjs"
+            ],
+            "recordings": [
+              "recordings/getpos.c/location-cycle-filter-area-independent.session.json"
+            ],
+            "checkedAt": "3652dc598c188573355e48fd9221f65e7e315cfa"
+          },
+          {
+            "name": "gloc_filter_floodfill_matcharea",
+            "implementation": "js/getpos.js",
+            "symbol": "gloc_filter_floodfill_matcharea",
+            "sourceReview": "Compared getpos.c:363-379. The helper rejects unseen squares, accepts an exact remembered glyph, and otherwise accepts equal source terrain classes. The temporary seed is supplied by gloc_filter_floodfill; no output or RNG is performed.",
+            "callers": [
+              {
+                "path": "js/getpos.js",
+                "symbol": "gloc_filter_floodfill",
+                "source": "getpos.c:386-387 installs gloc_filter_floodfill_matcharea as selection_floodfillchk."
+              }
+            ],
+            "pure": true,
+            "tests": [
+              "scripts/getpos-cycle.test.mjs"
+            ],
+            "recordings": [
+              "recordings/getpos.c/location-cycle-filter-area-independent.session.json"
+            ],
+            "checkedAt": "3652dc598c188573355e48fd9221f65e7e315cfa"
+          },
+          {
+            "name": "gloc_filter_floodfill",
+            "implementation": "js/getpos.js",
+            "symbol": "gloc_filter_floodfill",
+            "sourceReview": "Compared getpos.c:382-390 and selvar.c:395-450. The JavaScript implementation stores gg.gloc_filter_floodfill_match_glyph, adds the valid starting square unconditionally as selection_floodfill does, then tests only cardinal neighbors with the source matcharea predicate. The temporary gg.gloc_filter_map is freed by gloc_filter_done.",
+            "callers": [
+              {
+                "path": "js/getpos.js",
+                "symbol": "gloc_filter_init",
+                "source": "getpos.c:401 and 406 call gloc_filter_floodfill for the directional doorway side or hero square."
+              }
+            ],
+            "pure": false,
+            "tests": [],
+            "recordings": [
+              "recordings/getpos.c/location-cycle-filter-area-independent.session.json"
+            ],
+            "checkedAt": "3652dc598c188573355e48fd9221f65e7e315cfa"
+          },
+          {
+            "name": "gloc_filter_init",
+            "implementation": "js/getpos.js",
+            "symbol": "gloc_filter_init",
+            "sourceReview": "Compared getpos.c:391-414. GFILTER_AREA reuses an existing gg.gloc_filter_map or allocates it once, uses the hero direction for a doorway, leaves a directionless doorway empty, and otherwise starts at the hero square. Non-area initialization leaves gg state untouched. gloc_filter_done frees/nulls only the temporary map after both gather passes; the dedicated GFILTER_AREA recording exercises allocation, reuse, flood-fill, and cleanup.",
+            "callers": [
+              {
+                "path": "js/getpos.js",
+                "symbol": "gather_locs",
+                "source": "getpos.c:530 calls gloc_filter_init before both gather passes."
+              }
+            ],
+            "pure": false,
+            "tests": [],
+            "recordings": [
+              "recordings/getpos.c/location-cycle-doors-independent.session.json",
+              "recordings/getpos.c/location-cycle-doors-variation.session.json",
+              "recordings/getpos.c/location-cycle-filter-area-independent.session.json"
+            ],
+            "checkedAt": "3652dc598c188573355e48fd9221f65e7e315cfa"
+          },
+          {
+            "name": "gloc_filter_done",
+            "implementation": "js/getpos.js",
+            "symbol": "gloc_filter_done",
+            "sourceReview": "Compared getpos.c:417-425. The helper frees and nulls gg.gloc_filter_map after the two gather passes. C does not clear gg.gloc_filter_floodfill_match_glyph here because that state is separate; the pure/state test pins this lifetime.",
+            "callers": [
+              {
+                "path": "js/getpos.js",
+                "symbol": "gather_locs",
+                "source": "getpos.c:553 calls gloc_filter_done after sorting."
+              }
+            ],
+            "pure": false,
+            "tests": [],
+            "recordings": [
+              "recordings/getpos.c/location-cycle-doors-independent.session.json",
+              "recordings/getpos.c/location-cycle-doors-variation.session.json",
+              "recordings/getpos.c/location-cycle-filter-area-independent.session.json"
+            ],
+            "checkedAt": "3652dc598c188573355e48fd9221f65e7e315cfa"
+          },
+          {
+            "name": "known_vibrating_square_at",
+            "implementation": "js/getpos.js",
+            "symbol": "known_vibrating_square_at",
+            "sourceReview": "Compared getpos.c:422-435. Invocation_lev, the invocation coordinate, trap type, and tseen are all checked; fake wizard-created vibrating traps are excluded. The helper only reads state and has no output or RNG.",
+            "callers": [
+              {
+                "path": "js/getpos.js",
+                "symbol": "gather_locs_interesting",
+                "source": "getpos.c:503 includes known_vibrating_square_at in the GLOC_INTERESTING fallback."
+              },
+              {
+                "path": "js/getpos.js",
+                "symbol": "getpos",
+                "source": "getpos.c:1093 checks the genuine vibrating square during feature-symbol search."
+              }
+            ],
+            "pure": true,
+            "tests": [
+              "scripts/getpos-cycle.test.mjs"
+            ],
+            "recordings": [],
+            "checkedAt": "3652dc598c188573355e48fd9221f65e7e315cfa"
+          },
+          {
+            "name": "gather_locs_interesting",
+            "implementation": "js/getpos.js",
+            "symbol": "gather_locs_interesting",
+            "sourceReview": "Compared getpos.c:438-508 in full. View and same-area filters precede glyph_at; monster, object, door, unexplored, valid-callback, and interesting branches preserve source exclusions, literal normal long-worm-tail glyph omissions, unexplored-neighbor checks, the complete is_cmap_wall range including S_stone, and the vibrating-square fallback. The callback result is awaited only for the JS valid-position seam.",
+            "callers": [
+              {
+                "path": "js/getpos.js",
+                "symbol": "gather_locs",
+                "source": "getpos.c:536 calls gather_locs_interesting in both count and fill passes."
+              }
+            ],
+            "pure": true,
+            "tests": [
+              "scripts/getpos-cycle.test.mjs"
+            ],
+            "recordings": [
+              "recordings/getpos.c/location-cycle-doors-independent.session.json",
+              "recordings/getpos.c/location-cycle-doors-variation.session.json",
+              "recordings/getpos.c/location-cycle-filter-area-independent.session.json"
+            ],
+            "checkedAt": "3652dc598c188573355e48fd9221f65e7e315cfa"
+          },
+          {
+            "name": "gather_locs",
+            "implementation": "js/getpos.js",
+            "symbol": "gather_locs",
+            "sourceReview": "Compared getpos.c:513-553. The two passes iterate x then y, short-circuit at the hero square exactly as u_at(x,y)||gather_locs_interesting does, always include that square, sort by cmp_coord_distu, and release the temporary gg filter state.",
+            "callers": [
+              {
+                "path": "js/getpos.js",
+                "symbol": "getpos",
+                "source": "getpos.c:1027 lazily calls gather_locs for each m/M, o/O, d/D, x/X, a/A, and z/Z family."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/getpos-cycle.test.mjs"
+            ],
+            "recordings": [
+              "recordings/getpos.c/location-cycle-doors-independent.session.json",
+              "recordings/getpos.c/location-cycle-doors-variation.session.json",
+              "recordings/getpos.c/location-cycle-filter-area-independent.session.json"
+            ],
+            "checkedAt": "3652dc598c188573355e48fd9221f65e7e315cfa"
+          }
+        ],
+        "entryPointReview": "The selected source range is getpos.c:312-553, with its getpos.c:1011-1037 mMoOdDxX production caller. Five independently chosen recipes reach the ordinary wizard targeting prompt: three gather/cycle cases exercise previous-door D, next-door d, and GFILTER_AREA with different setups, while two whatis_menu cases enter getpos_menu, select the first door with the automatic a accelerator, and cancel with Escape. Their bounded fresh differentials match every C RNG call, screen cell/attribute, cursor and animation stream. Active entry families without a recorded witness remain explicit: monster, object, unexplored, interesting, valid, GFILTER_VIEW. The pure helper tests pin distance ordering, glyph classes, seen matching, literal tail-glyph filtering, wall boundaries, filter reuse/cleanup lifetime, flood-fill start semantics, coordinate modes, and the vibrating-square exclusion.",
+        "entryPoints": [
+          {
+            "name": "getpos previous-door location cycle",
+            "functions": [
+              "gather_locs",
+              "gather_locs_interesting",
+              "cmp_coord_distu"
+            ],
+            "recordings": [
+              "recordings/getpos.c/location-cycle-doors-independent.session.json"
+            ]
+          },
+          {
+            "name": "getpos next-door location cycle variation",
+            "functions": [
+              "gather_locs",
+              "gather_locs_interesting",
+              "cmp_coord_distu"
+            ],
+            "recordings": [
+              "recordings/getpos.c/location-cycle-doors-variation.session.json"
+            ]
+          },
+          {
+            "name": "monster/object/unexplored/interesting/valid location cycles",
+            "functions": [
+              "gather_locs",
+              "gather_locs_interesting"
+            ],
+            "recordings": []
+          },
+          {
+            "name": "GFILTER_AREA collection and flood-fill helpers",
+            "functions": [
+              "gloc_filter_init",
+              "gloc_filter_floodfill",
+              "gloc_filter_floodfill_matcharea",
+              "gloc_filter_done",
+              "gather_locs"
+            ],
+            "recordings": [
+              "recordings/getpos.c/location-cycle-filter-area-independent.session.json"
+            ]
+          },
+          {
+            "name": "GFILTER_VIEW collection branch",
+            "functions": [
+              "gather_locs_interesting",
+              "gather_locs"
+            ],
+            "recordings": []
+          },
+          {
+            "name": "getpos_menu PICK_ONE selection and cancellation",
+            "functions": [
+              "gather_locs"
+            ],
+            "recordings": [
+              "recordings/getpos.c/location-cycle-menu-select-independent.session.json",
+              "recordings/getpos.c/location-cycle-menu-cancel-variation.session.json"
+            ]
+          }
+        ]
+      }
     }
   ]
 }

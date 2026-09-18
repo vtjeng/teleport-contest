@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 731902,
+      "datetime": "20360406070809",
+      "nethackrc": "OPTIONS=name:CycleVariant,role:Wizard,race:dwarf,gender:male,align:lawful\nOPTIONS=!legacy,!tutorial,!splash_screen,!tips,!autopickup,pettype:none,playmode:debug\n",
+      "moves": " \u0014  d."
+    }
+  ],
+  "comment": "Cheap independent getpos.c variation: a distinct seed, date, race, gender and alignment and forward-door key d exercise the same production location collection with the opposite cycle direction."
+}
