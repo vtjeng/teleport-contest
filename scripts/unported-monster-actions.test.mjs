@@ -4218,6 +4218,51 @@ test('planning frees a dead monster before the next allocation', async () => {
     assert.deepEqual(rngSnapshot(), beforeRandom);
 });
 
+test('planning propagates a stopped scan before a second upkeep', async () => {
+    const target = await prepareSelectedAction();
+    const tailMonster = ordinaryMonster(
+        PM_GNOME,
+        target.monsterX,
+        target.heroY + 1,
+        {
+            m_id: target.monster.m_id + 1,
+            movement: 0,
+        },
+    );
+    game.level.at(tailMonster.mx, tailMonster.my).typ = ROOM;
+    target.monster.movement = 0;
+    target.monster.nmon = tailMonster;
+    game.level.monsters[tailMonster.mx][tailMonster.my] = tailMonster;
+    game.u.umovement = 0;
+
+    const before = completeSecondTurnSnapshot(game, target.replay);
+    const beforeRandom = rngSnapshot();
+    let upkeepRounds = 0;
+    await assert.rejects(
+        preflightSimpleMonsterActions(game, {
+            consumeHeroRation: false,
+            advanceRound(planned) {
+                ++upkeepRounds;
+                assert.equal(
+                    upkeepRounds,
+                    1,
+                    'a stopped cloned movemon scan cannot enter another upkeep',
+                );
+                // movemon_singlemon() returns TRUE at its source level-exit
+                // gate. The planning owner converts that deferred transition
+                // to the same retryable boundary as other unsupported tails.
+                planned.u.utotype = 1;
+            },
+        }),
+        (error) => error instanceof UnsupportedSimpleMonsterActionError
+            && error.reason === 'deferred monster cleanup or level transition',
+    );
+
+    assert.equal(upkeepRounds, 1);
+    assert.deepEqual(completeSecondTurnSnapshot(game, target.replay), before);
+    assert.deepEqual(rngSnapshot(), beforeRandom);
+});
+
 test('planning rescans while a monster outruns the hero', async () => {
     const target = await prepareSelectedAction();
     // Two rations for the monster, none for the hero: mon.c sets

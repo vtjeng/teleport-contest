@@ -2061,6 +2061,8 @@ async function planSimpleMonsterTurn(planned, random, advanceRound) {
             // clear_bypasses() has already run on the clone before this scan;
             // clear_splitobjs() touches only discarded state.
             if (any_light_source(planned)) planned.vision_full_recalc = 1;
+            if (scanStopped && planned.u?.utotype)
+                unsupported('deferred monster cleanup or level transition');
             if (scanStopped) break;
             if (planned.u.umovement >= NORMAL_SPEED) break;
         } while (somebodyCanMove);
