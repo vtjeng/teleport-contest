@@ -118,6 +118,7 @@ import {
     S_ndoor,
     S_room,
     S_sink,
+    S_stone,
     S_tree,
     initialize_symbols_from_options,
 } from '../js/symbols.js';
@@ -665,6 +666,25 @@ test('corridor ambiguity uses pager.c many-things truncation', () => {
         found: 1,
         out: '#        can be many things (corridor)',
         firstmatch: 'corridor',
+    });
+});
+
+test('blank stone retains matching monster and misc classes before refinement', () => {
+    // pager.c scans defsym.h's displayed byte classes in order.  With
+    // DECgraphics, stone shares a blank byte with air, the ghost class, and
+    // the default NOTHING/UNEXPLORED symbols, so the five matches use the
+    // many-things summary before lookat() supplies the actual stone detail.
+    const state = terrainDescriptionState(S_stone);
+    state.level.at = (x, y) => (x === 3 && y === 4
+        ? {
+            seenv: 0xff,
+            disp_glyph: { glyph: cmap_to_glyph(S_stone, state) },
+        }
+        : undefined);
+    assert.deepEqual(do_screen_description({ x: 3, y: 4 }, true, 0, state), {
+        found: 1,
+        out: '         can be many things (stone)',
+        firstmatch: 'stone',
     });
 });
 
