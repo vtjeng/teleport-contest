@@ -253,6 +253,7 @@ import {
     PM_GHOST,
     PM_GNOME_RULER,
     PM_GIANT,
+    PM_GRAND_MASTER,
     PM_GIANT_MUMMY,
     PM_GIANT_MIMIC,
     PM_GIANT_SPIDER,
@@ -1321,6 +1322,11 @@ function assertSupportedSpecies(species, env = {}) {
             // has no creation-only helper or inventory branch, so the C
             // makemon() body reaches the already-portable generic lifecycle.
             && species.pmidx !== PM_RED_DRAGON
+            // read.c wiz_genesis() also reaches the generic runtime lifecycle
+            // for a force-confirmed Grand Master. Its clerical attack is
+            // exercised by mcastu.c; it does not take the aligned/high-cleric
+            // priest-minion initialization arm below.
+            && (species.pmidx !== PM_GRAND_MASTER || !createParticular)
             // makemon.c:1147-1509 has no species admission gate. The
             // minotaur's explicit m_initinv() arm is complete, so read.c's
             // create_particular_creation() and sp_lev.c's fill_empty_maze()
