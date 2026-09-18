@@ -170,6 +170,7 @@ import {
     see_nearby_objects,
     show_glyph_cell,
     statue_to_glyph,
+    stored_monster_class_symbol,
     timebot,
     trap_glyph_info,
     trap_to_glyph,
@@ -1271,6 +1272,24 @@ test('hero and pet symbol overrides require sysconf accessibility', () => {
     assert.equal(hero_glyph_info(state).ch, '?');
     delete state.sysopt;
     assert.equal(hero_glyph_info(state).ch, 'f');
+});
+
+test('stored monster glyphs clear overrides from the glyph species', () => {
+    // display.c map_glyphinfo(glyph, MG_FLAG_NOOVERRIDE) indexes mons through
+    // glyph_to_mon(). The live monster can be disguised as another species;
+    // source behavior still uses the stored glyph's species class.
+    const state = { mons: [] };
+    initialize_symbols_from_options({ flags: {} }, state);
+    state.mons[0] = { mlet: S_FELINE };
+    const storedPetGlyph = GLYPH_PET_MALE_OFF;
+    assert.equal(
+        stored_monster_class_symbol(storedPetGlyph, state),
+        monster_class_symbol(S_FELINE, state).ttychar,
+    );
+    assert.equal(
+        stored_monster_class_symbol(GLYPH_INVISIBLE, state),
+        null,
+    );
 });
 
 test('UTF-8 misc symbol overrides have no glyph expansion', async () => {
@@ -3804,6 +3823,7 @@ test('glyph updates describe newly revealed objects, traps, and furniture', asyn
         oclass: state.objects[CHEST].oc_class,
         dknown: true,
         quan: 1,
+        where: OBJ_FLOOR,
         ox: x,
         oy: y,
     };
@@ -4828,6 +4848,7 @@ test('glyph update identity ignores pile highlighting', async () => {
     };
     const object = {
         otyp: ARROW,
+        oclass: state.objects[ARROW].oc_class,
         where: OBJ_FLOOR,
         ox: x,
         oy: y,

@@ -1796,6 +1796,19 @@ export function glyph_to_mon(glyph) {
     return NUMMONS;
 }
 
+// C ref: display.c map_glyphinfo()'s MG_FLAG_NOOVERRIDE arm (2637-2651).
+// A description override is attached to the displayed presentation, while
+// this helper recovers the monster class from the stored glyph number. Reading
+// the species table by glyph index preserves disguised or stale map
+// presentations instead of consulting the live monster at the cell.
+export function stored_monster_class_symbol(glyph, state = game) {
+    if (!glyph_is_monster(glyph)) return null;
+    const mnum = glyph_to_mon(glyph);
+    const species = state.mons?.[mnum];
+    if (!species) return null;
+    return monster_class_symbol(species.mlet, state).ttychar;
+}
+
 // C ref: display.h:995-1013, the glyphflags reset_glyphmap() encodes and
 // map_glyphinfo() passes on. Only the bits the object, monster and
 // invisible-monster arms raise are spelled here; the rest belong with the arms

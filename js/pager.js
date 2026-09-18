@@ -134,6 +134,7 @@ import {
     engraving_to_glyph,
     map_glyphinfo,
     monster_glyph_info,
+    stored_monster_class_symbol,
     NO_GLYPH,
     trap_to_glyph,
 } from './display.js';
@@ -166,6 +167,7 @@ import {
     xnameFresh,
 } from './objnam.js';
 import {
+    BOULDER,
     CHEST,
     COIN_CLASS,
     CORPSE,
@@ -1514,7 +1516,8 @@ export function do_screen_description(cc, looked, sym, state = game) {
         }
     };
 
-    const collectObjectsAndTerrain = () => {
+    const collectObjectsAndTerrain = ({ resetTrap = false } = {}) => {
+        if (resetTrap) hitTrap = false;
         if (!state.iflags?.terrainmode
             || (state.iflags.terrainmode & TER_OBJ) !== 0) {
             const rogue = Is_rogue_level(state.u?.uz);
@@ -1635,23 +1638,18 @@ export function do_screen_description(cc, looked, sym, state = game) {
                 || overrideSymbols[index] !== symbolByte)
                 continue;
             if (index === SYM_OFF_X + SYM_PET_OVERRIDE && looked) {
-                const monster = m_at(cc.x, cc.y, state);
-                if (monster) {
-                    // map_glyphinfo(..., MG_FLAG_NOOVERRIDE) resolves the
-                    // stored monster glyph's real class.  Do not consult the
-                    // current species presentation: a pet may be disguised,
-                    // and the override must be removed from its stored glyph.
-                    symbolByte = monster_class_symbol(
-                        monster.data?.mlet ?? S_HUMAN,
-                        state,
-                    ).ttychar;
-                    checkMonsterClasses(symbolByte);
-                    collectObjectsAndTerrain();
-                }
+                // map_glyphinfo(..., MG_FLAG_NOOVERRIDE) resolves the stored
+                // monster glyph's real class. Do not consult the current
+                // species or require a live monster: C runs this arm for the
+                // remembered glyph even after the occupant has moved away.
+                const storedSymbol = stored_monster_class_symbol(glyph, state);
+                if (storedSymbol !== null) symbolByte = storedSymbol;
+                checkMonsterClasses(symbolByte);
+                collectObjectsAndTerrain({ resetTrap: true });
             } else if (index === SYM_OFF_X + SYM_HERO_OVERRIDE) {
                 symbolByte = monsterSymbol(S_HUMAN);
                 checkMonsterClasses(symbolByte);
-                collectObjectsAndTerrain();
+                collectObjectsAndTerrain({ resetTrap: true });
             }
         }
     }
@@ -1679,13 +1677,13 @@ export function do_screen_description(cc, looked, sym, state = game) {
             ) + ')';
             const room = BUFSZ - 1 - out.length;
             if (room > 0) out += suffix.slice(0, room);
+            found = 1;
         }
         if (info.monbuf) {
             const suffix = ` [seen: ${info.monbuf}]`;
             const room = BUFSZ - 1 - out.length;
             if (room > 0) out += suffix.slice(0, room);
         }
-        found = 1;
     }
     const result = { found, out, firstmatch };
     if (info?.pm) result.supplement = info.pm;

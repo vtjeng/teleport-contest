@@ -43,7 +43,7 @@ import {
     objects_globals_init,
 } from '../js/objects.js';
 import { parseNethackrc } from '../js/options.js';
-import { initRng } from '../js/rng.js';
+import { initRng, rn2 } from '../js/rng.js';
 import {
     M1_FLY,
     MZ_HUGE,
@@ -65,6 +65,7 @@ import { cmap_to_glyph, monster_glyph_info } from '../js/display.js';
 import {
     S_corr,
     S_ndoor,
+    S_pool,
     S_room,
     S_sink,
     S_stone,
@@ -657,6 +658,28 @@ test('lookaround uses the canonical pager for displayed terrain', () => {
         _startupA11yInternals.visibleSubjectAt(x, y, state),
         'sink',
     );
+});
+
+test('lookaround filters ordinary liquid glyphs without naming or RNG', () => {
+    const state = startupState();
+    const x = state.u.ux + 1;
+    const y = state.u.uy;
+    const location = state.level.at(x, y);
+    location.typ = POOL;
+    state.viz_array[y][x] = IN_SIGHT;
+    location.disp_glyph = { glyph: cmap_to_glyph(S_pool, state) };
+
+    // visibleSubjectAt must apply getpos.c's GLOC_INTERESTING filter before
+    // pager.c's waterbody_name(), so this ordinary pool neither names water
+    // nor consumes the gameplay/display RNG stream.
+    initRng(0x4a11n);
+    const before = rn2(997);
+    initRng(0x4a11n);
+    assert.equal(
+        _startupA11yInternals.visibleSubjectAt(x, y, state),
+        null,
+    );
+    assert.equal(rn2(997), before);
 });
 
 test('lookaround object names retain grease and erosion modifier order', () => {
