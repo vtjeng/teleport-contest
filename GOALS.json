@@ -65669,64 +65669,64 @@
           "name": "cmp_coord_distu",
           "line": 312,
           "endLine": 340,
-          "declared": false,
-          "complete": false
+          "declared": true,
+          "complete": true
         },
         {
           "name": "gloc_filter_classify_glyph",
           "line": 341,
           "endLine": 363,
-          "declared": false,
-          "complete": false
+          "declared": true,
+          "complete": true
         },
         {
           "name": "gloc_filter_floodfill_matcharea",
           "line": 364,
           "endLine": 381,
-          "declared": false,
-          "complete": false
+          "declared": true,
+          "complete": true
         },
         {
           "name": "gloc_filter_floodfill",
           "line": 382,
           "endLine": 390,
-          "declared": false,
-          "complete": false
+          "declared": true,
+          "complete": true
         },
         {
           "name": "gloc_filter_init",
           "line": 391,
           "endLine": 411,
-          "declared": false,
-          "complete": false
+          "declared": true,
+          "complete": true
         },
         {
           "name": "gloc_filter_done",
           "line": 412,
           "endLine": 421,
-          "declared": false,
-          "complete": false
+          "declared": true,
+          "complete": true
         },
         {
           "name": "known_vibrating_square_at",
           "line": 422,
           "endLine": 437,
           "declared": true,
-          "complete": false
+          "complete": true
         },
         {
           "name": "gather_locs_interesting",
           "line": 438,
           "endLine": 512,
           "declared": true,
-          "complete": false
+          "complete": true
         },
         {
           "name": "gather_locs",
           "line": 513,
           "endLine": 556,
-          "declared": false,
-          "complete": false
+          "declared": true,
+          "complete": true
         }
       ],
       "range": {
@@ -65819,7 +65819,267 @@
             }
           }
         }
-      ]
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "cmp_coord_distu",
+            "implementation": "js/getpos.js",
+            "symbol": "cmp_coord_distu",
+            "sourceReview": "Compared getpos.c:312-330. The helper computes Chebyshev distance from u.ux/u.uy and breaks equal distances by y then x, with no output, RNG, or state writes. The JavaScript caller is gather_locs, which sorts the two-pass coordinate array after collection.",
+            "callers": [
+              {
+                "path": "js/getpos.js",
+                "symbol": "gather_locs",
+                "source": "getpos.c:548-550 calls qsort(..., cmp_coord_distu) after its second collection pass."
+              }
+            ],
+            "pure": true,
+            "tests": [
+              "scripts/getpos-cycle.test.mjs"
+            ],
+            "recordings": [],
+            "checkedAt": "3652dc598c188573355e48fd9221f65e7e315cfa"
+          },
+          {
+            "name": "gloc_filter_classify_glyph",
+            "implementation": "js/getpos.js",
+            "symbol": "gloc_filter_classify_glyph",
+            "sourceReview": "Compared getpos.c:341-360 and sym.h predicates. Room/furniture, wall/tree, corridor, water, and lava classes retain source order and zero for non-cmap glyphs. The helper has no output, RNG, or state writes.",
+            "callers": [
+              {
+                "path": "js/getpos.js",
+                "symbol": "gloc_filter_floodfill_matcharea",
+                "source": "getpos.c:374-375 compares the class of the remembered glyph with the flood-fill seed."
+              }
+            ],
+            "pure": true,
+            "tests": [
+              "scripts/getpos-cycle.test.mjs"
+            ],
+            "recordings": [
+              "recordings/getpos.c/location-cycle-filter-area-independent.session.json"
+            ],
+            "checkedAt": "3652dc598c188573355e48fd9221f65e7e315cfa"
+          },
+          {
+            "name": "gloc_filter_floodfill_matcharea",
+            "implementation": "js/getpos.js",
+            "symbol": "gloc_filter_floodfill_matcharea",
+            "sourceReview": "Compared getpos.c:363-379. The helper rejects unseen squares, accepts an exact remembered glyph, and otherwise accepts equal source terrain classes. The temporary seed is supplied by gloc_filter_floodfill; no output or RNG is performed.",
+            "callers": [
+              {
+                "path": "js/getpos.js",
+                "symbol": "gloc_filter_floodfill",
+                "source": "getpos.c:386-387 installs gloc_filter_floodfill_matcharea as selection_floodfillchk."
+              }
+            ],
+            "pure": true,
+            "tests": [
+              "scripts/getpos-cycle.test.mjs"
+            ],
+            "recordings": [
+              "recordings/getpos.c/location-cycle-filter-area-independent.session.json"
+            ],
+            "checkedAt": "3652dc598c188573355e48fd9221f65e7e315cfa"
+          },
+          {
+            "name": "gloc_filter_floodfill",
+            "implementation": "js/getpos.js",
+            "symbol": "gloc_filter_floodfill",
+            "sourceReview": "Compared getpos.c:382-390 and selvar.c:395-450. The JavaScript implementation stores gg.gloc_filter_floodfill_match_glyph, adds the valid starting square unconditionally as selection_floodfill does, then tests only cardinal neighbors with the source matcharea predicate. The temporary gg.gloc_filter_map is freed by gloc_filter_done.",
+            "callers": [
+              {
+                "path": "js/getpos.js",
+                "symbol": "gloc_filter_init",
+                "source": "getpos.c:401 and 406 call gloc_filter_floodfill for the directional doorway side or hero square."
+              }
+            ],
+            "pure": false,
+            "tests": [],
+            "recordings": [
+              "recordings/getpos.c/location-cycle-filter-area-independent.session.json"
+            ],
+            "checkedAt": "3652dc598c188573355e48fd9221f65e7e315cfa"
+          },
+          {
+            "name": "gloc_filter_init",
+            "implementation": "js/getpos.js",
+            "symbol": "gloc_filter_init",
+            "sourceReview": "Compared getpos.c:391-414. GFILTER_AREA reuses an existing gg.gloc_filter_map or allocates it once, uses the hero direction for a doorway, leaves a directionless doorway empty, and otherwise starts at the hero square. Non-area initialization leaves gg state untouched. gloc_filter_done frees/nulls only the temporary map after both gather passes; the dedicated GFILTER_AREA recording exercises allocation, reuse, flood-fill, and cleanup.",
+            "callers": [
+              {
+                "path": "js/getpos.js",
+                "symbol": "gather_locs",
+                "source": "getpos.c:530 calls gloc_filter_init before both gather passes."
+              }
+            ],
+            "pure": false,
+            "tests": [],
+            "recordings": [
+              "recordings/getpos.c/location-cycle-doors-independent.session.json",
+              "recordings/getpos.c/location-cycle-doors-variation.session.json",
+              "recordings/getpos.c/location-cycle-filter-area-independent.session.json"
+            ],
+            "checkedAt": "3652dc598c188573355e48fd9221f65e7e315cfa"
+          },
+          {
+            "name": "gloc_filter_done",
+            "implementation": "js/getpos.js",
+            "symbol": "gloc_filter_done",
+            "sourceReview": "Compared getpos.c:417-425. The helper frees and nulls gg.gloc_filter_map after the two gather passes. C does not clear gg.gloc_filter_floodfill_match_glyph here because that state is separate; the pure/state test pins this lifetime.",
+            "callers": [
+              {
+                "path": "js/getpos.js",
+                "symbol": "gather_locs",
+                "source": "getpos.c:553 calls gloc_filter_done after sorting."
+              }
+            ],
+            "pure": false,
+            "tests": [],
+            "recordings": [
+              "recordings/getpos.c/location-cycle-doors-independent.session.json",
+              "recordings/getpos.c/location-cycle-doors-variation.session.json",
+              "recordings/getpos.c/location-cycle-filter-area-independent.session.json"
+            ],
+            "checkedAt": "3652dc598c188573355e48fd9221f65e7e315cfa"
+          },
+          {
+            "name": "known_vibrating_square_at",
+            "implementation": "js/getpos.js",
+            "symbol": "known_vibrating_square_at",
+            "sourceReview": "Compared getpos.c:422-435. Invocation_lev, the invocation coordinate, trap type, and tseen are all checked; fake wizard-created vibrating traps are excluded. The helper only reads state and has no output or RNG.",
+            "callers": [
+              {
+                "path": "js/getpos.js",
+                "symbol": "gather_locs_interesting",
+                "source": "getpos.c:503 includes known_vibrating_square_at in the GLOC_INTERESTING fallback."
+              },
+              {
+                "path": "js/getpos.js",
+                "symbol": "getpos",
+                "source": "getpos.c:1093 checks the genuine vibrating square during feature-symbol search."
+              }
+            ],
+            "pure": true,
+            "tests": [
+              "scripts/getpos-cycle.test.mjs"
+            ],
+            "recordings": [],
+            "checkedAt": "3652dc598c188573355e48fd9221f65e7e315cfa"
+          },
+          {
+            "name": "gather_locs_interesting",
+            "implementation": "js/getpos.js",
+            "symbol": "gather_locs_interesting",
+            "sourceReview": "Compared getpos.c:438-508 in full. View and same-area filters precede glyph_at; monster, object, door, unexplored, valid-callback, and interesting branches preserve source exclusions, literal normal long-worm-tail glyph omissions, unexplored-neighbor checks, the complete is_cmap_wall range including S_stone, and the vibrating-square fallback. The callback result is awaited only for the JS valid-position seam.",
+            "callers": [
+              {
+                "path": "js/getpos.js",
+                "symbol": "gather_locs",
+                "source": "getpos.c:536 calls gather_locs_interesting in both count and fill passes."
+              }
+            ],
+            "pure": true,
+            "tests": [
+              "scripts/getpos-cycle.test.mjs"
+            ],
+            "recordings": [
+              "recordings/getpos.c/location-cycle-doors-independent.session.json",
+              "recordings/getpos.c/location-cycle-doors-variation.session.json",
+              "recordings/getpos.c/location-cycle-filter-area-independent.session.json"
+            ],
+            "checkedAt": "3652dc598c188573355e48fd9221f65e7e315cfa"
+          },
+          {
+            "name": "gather_locs",
+            "implementation": "js/getpos.js",
+            "symbol": "gather_locs",
+            "sourceReview": "Compared getpos.c:513-553. The two passes iterate x then y, short-circuit at the hero square exactly as u_at(x,y)||gather_locs_interesting does, always include that square, sort by cmp_coord_distu, and release the temporary gg filter state.",
+            "callers": [
+              {
+                "path": "js/getpos.js",
+                "symbol": "getpos",
+                "source": "getpos.c:1027 lazily calls gather_locs for each m/M, o/O, d/D, x/X, a/A, and z/Z family."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/getpos-cycle.test.mjs"
+            ],
+            "recordings": [
+              "recordings/getpos.c/location-cycle-doors-independent.session.json",
+              "recordings/getpos.c/location-cycle-doors-variation.session.json",
+              "recordings/getpos.c/location-cycle-filter-area-independent.session.json"
+            ],
+            "checkedAt": "3652dc598c188573355e48fd9221f65e7e315cfa"
+          }
+        ],
+        "entryPointReview": "The selected source range is getpos.c:312-553, with its getpos.c:1011-1037 mMoOdDxX production caller. Five independently chosen recipes reach the ordinary wizard targeting prompt: three gather/cycle cases exercise previous-door D, next-door d, and GFILTER_AREA with different setups, while two whatis_menu cases enter getpos_menu, select the first door with the automatic a accelerator, and cancel with Escape. Their bounded fresh differentials match every C RNG call, screen cell/attribute, cursor and animation stream. Active entry families without a recorded witness remain explicit: monster, object, unexplored, interesting, valid, GFILTER_VIEW. The pure helper tests pin distance ordering, glyph classes, seen matching, literal tail-glyph filtering, wall boundaries, filter reuse/cleanup lifetime, flood-fill start semantics, coordinate modes, and the vibrating-square exclusion.",
+        "entryPoints": [
+          {
+            "name": "getpos previous-door location cycle",
+            "functions": [
+              "gather_locs",
+              "gather_locs_interesting",
+              "cmp_coord_distu"
+            ],
+            "recordings": [
+              "recordings/getpos.c/location-cycle-doors-independent.session.json"
+            ]
+          },
+          {
+            "name": "getpos next-door location cycle variation",
+            "functions": [
+              "gather_locs",
+              "gather_locs_interesting",
+              "cmp_coord_distu"
+            ],
+            "recordings": [
+              "recordings/getpos.c/location-cycle-doors-variation.session.json"
+            ]
+          },
+          {
+            "name": "monster/object/unexplored/interesting/valid location cycles",
+            "functions": [
+              "gather_locs",
+              "gather_locs_interesting"
+            ],
+            "recordings": []
+          },
+          {
+            "name": "GFILTER_AREA collection and flood-fill helpers",
+            "functions": [
+              "gloc_filter_init",
+              "gloc_filter_floodfill",
+              "gloc_filter_floodfill_matcharea",
+              "gloc_filter_done",
+              "gather_locs"
+            ],
+            "recordings": [
+              "recordings/getpos.c/location-cycle-filter-area-independent.session.json"
+            ]
+          },
+          {
+            "name": "GFILTER_VIEW collection branch",
+            "functions": [
+              "gather_locs_interesting",
+              "gather_locs"
+            ],
+            "recordings": []
+          },
+          {
+            "name": "getpos_menu PICK_ONE selection and cancellation",
+            "functions": [
+              "gather_locs"
+            ],
+            "recordings": [
+              "recordings/getpos.c/location-cycle-menu-select-independent.session.json",
+              "recordings/getpos.c/location-cycle-menu-cancel-variation.session.json"
+            ]
+          }
+        ]
+      }
     }
   ]
 }
