@@ -299,8 +299,15 @@ test('pickup counted selection uses the source n-or-more threshold',
         const state = await heroOnAnEmptySquare();
         state.flags.pickup = true;
         const object = objectUnderHero(state);
-        object.quan = 2;
         quiet(state);
+
+        // pickup.c n_or_more excludes a stack smaller than the requested
+        // count before query_objlist can select it.
+        object.quan = 1;
+        assert.equal(await pickup(-2, state), 0);
+        assert.equal(object.where, OBJ_FLOOR);
+        assert.equal(object.quan, 1);
+        object.quan = 2;
 
         assert.equal(await pickup(-1, state), 1);
         // splitobj leaves the unpicked remainder on the floor and links the

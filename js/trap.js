@@ -268,7 +268,7 @@ import {
     POTION_CLASS, POT_OIL, SCROLL_CLASS, SCR_FIRE, SPBOOK_CLASS,
     SPE_BOOK_OF_THE_DEAD, SPE_FIREBALL, WOOD,
 } from './objects.js';
-import { check_here, encumber_msg } from './pickup.js';
+import { encumber_msg, pickup } from './pickup.js';
 import { make_hallucinated, set_itimeout } from './potion.js';
 import { waterbody_name } from './pager.js';
 import { float_vs_flight, body_part, polymon } from './polyself.js';
@@ -1517,9 +1517,9 @@ export async function float_down(hmask, emask, state = game) {
             'float_down() onto a trap',
         );
     }
-    // C ref: pickup(1). js/hack.js spoteffects() documents why check_here()
-    // stands for the whole of pickup() at this boundary.
-    await check_here(false, state);
+    // C ref: trap.c float_down() calls pickup(1) after landing. spoteffects()
+    // suppresses its own pickup while the hero is dismounting.
+    await pickup(1, state);
     return 1;
 }
 
