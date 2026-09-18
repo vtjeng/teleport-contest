@@ -103,7 +103,7 @@ import {
     TOOL_CLASS,
     WAX_CANDLE,
 } from '../js/objects.js';
-import { create_region } from '../js/region.js';
+import { create_gas_cloud, create_region } from '../js/region.js';
 import {
     UnsupportedObjectOperationError,
     newObject,
@@ -113,6 +113,7 @@ import { UnsupportedObjectNameError } from '../js/objnam.js';
 import { preflightSimpleMonsterActions } from '../js/unported_monster_actions.js';
 import { clearTtyMessageWindow, ttyPline } from '../js/tty_message.js';
 import {
+    block_point,
     cansee,
     clear_path,
     does_block,
@@ -1181,6 +1182,139 @@ test('planned region upkeep is replayed on the live tail', async () => {
     assert.equal(callbacks, 1);
     assert.deepEqual(game.level.regions, []);
 });
+
+test('planned visible vapor expiry restores live vision on success and failure',
+    async () => {
+        for (const refuseAfterExpiry of [false, true]) {
+            const replay = await runSegment({
+                seed: 8440102,
+                datetime: '20320415101723',
+                nethackrc: 'OPTIONS=name:RegionIsolation,role:Healer,'
+                    + 'race:human,gender:female,align:neutral,!legacy,'
+                    + '!tutorial,!splash_screen,pettype:none,!acoustics',
+                moves: '',
+            });
+            for (const column of game.level.monsters) column.fill(null);
+            game.level.monlist = null;
+            game.level.regions = [];
+            game.head_engr = null;
+            game.invent = {
+                oclass: TOOL_CLASS,
+                otyp: SACK,
+                owt: weight_cap(game) * 2,
+                nobj: null,
+            };
+            game.go.oldcap = near_capacity(game);
+            game.u.umovement = 0;
+            game.context.move = 1;
+            game.context.seer_turn = 100000;
+            game.context.next_attrib_check = 100000;
+
+            // Create the same harmless visible vapor that region.c creates at
+            // runtime, then make its expiration due on the projected turn.
+            // The clone must remove it and clear its visual block while the
+            // retryable live state keeps the region and shared index.
+            let cloudRandomCalls = 0;
+            const cloud = await create_gas_cloud(
+                game.u.ux,
+                game.u.uy,
+                1,
+                0,
+                {
+                    state: game,
+                    random: {
+                        rn2: (bound) => {
+                            assert.equal(bound, 3);
+                            cloudRandomCalls += 1;
+                            assert.equal(cloudRandomCalls, 1);
+                            return 2;
+                        },
+                    },
+                    blockPoint: (x, y) => block_point(x, y, game),
+                    canSee: (x, y) => cansee(x, y, game),
+                    newsym: () => {},
+                    message: async () => {},
+                },
+            );
+            assert.equal(cloudRandomCalls, 1);
+            cloud.ttl = 0;
+
+            const before = completeSecondTurnSnapshot(game, replay);
+            const sharedIndexBefore = transparencyIndexViews().map(
+                (view) => [...view],
+            );
+            const activeBufferBefore = game.active_buf;
+            const visionBefore = game.viz_array;
+            const guard = freezeLiveState(game);
+            let plannedCloudState = null;
+
+            const run = preflightSimpleMonsterActions(game, {
+                consumeHeroRation: false,
+                advanceRound: async (planned, planningRandom) => {
+                    await finishElapsedTurn(
+                        planned,
+                        planningRandom,
+                        { planning: true },
+                    );
+                    plannedCloudState = {
+                        count: planned.level.regions.length,
+                        ttl: planned.level.regions[0]?.ttl ?? null,
+                        plannedVisionChange: planned._plannedVisionChange,
+                    };
+                    if (refuseAfterExpiry) {
+                        const unsupportedRegion = create_region([{
+                            lx: planned.u.ux,
+                            ly: planned.u.uy,
+                            hx: planned.u.ux,
+                            hy: planned.u.uy,
+                        }]);
+                        unsupportedRegion.inside_f =
+                            'unported-region-callback';
+                        planned.level.regions.push(unsupportedRegion);
+                        await finishElapsedTurn(
+                            planned,
+                            planningRandom,
+                            { planning: true },
+                        );
+                    }
+                    return true;
+                },
+            });
+            if (refuseAfterExpiry) {
+                await assert.rejects(
+                    run,
+                    /unsupported region callback unported-region-callback/u,
+                );
+            } else {
+                await run;
+            }
+
+            guard.assertNoLeak(assert);
+            assert.deepEqual(plannedCloudState, {
+                count: 0,
+                ttl: null,
+                plannedVisionChange: {
+                    x: game.u.ux,
+                    y: game.u.uy,
+                },
+            });
+            assert.deepEqual(
+                completeSecondTurnSnapshot(game, replay),
+                before,
+                refuseAfterExpiry
+                    ? 'later planning refusal leaves live state unchanged'
+                    : 'successful planning leaves live state unchanged',
+            );
+            assert.equal(game.level.regions.includes(cloud), true);
+            assert.equal(cloud.ttl, 0);
+            assert.equal(game.active_buf, activeBufferBefore);
+            assert.strictEqual(game.viz_array, visionBefore);
+            assert.deepEqual(
+                transparencyIndexViews().map((view) => [...view]),
+                sharedIndexBefore,
+            );
+        }
+    });
 
 test('polymorph timeout isolates live callbacks and preserves the capacity snapshot', async () => {
     // polyman releases a mimicked appearance through unmul. The callback may
