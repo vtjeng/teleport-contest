@@ -1,25 +1,27 @@
 {
   "session": "holdout/seed4500-knight-coverage",
-  "remainingScreensUpperBound": 22,
+  "remainingScreensUpperBound": 15,
   "status": "complete",
-  "commit": "3dc05e1cda4be3b759172c2e954941d769166f05",
+  "commit": "88fc87f70796ebe12191db4dffbe3f7d34c88d27",
   "mismatch": {
     "session": "holdout/seed4500-knight-coverage",
-    "step": 1792,
+    "step": 1799,
     "kind": "stop",
-    "function": "mhitm_ad_legs",
+    "function": "Kni-goal.lua",
     "functionDeclared": false,
-    "sourceFile": "uhitm.c",
-    "cFile": "uhitm.c",
-    "luaFile": null,
+    "sourceFile": "Kni-goal.lua",
+    "cFile": null,
+    "luaFile": "Kni-goal.lua",
     "line": null,
-    "message": "simple monster action requires uhitm.c mhitm_ad_legs()",
+    "message": "unsupported level change: makelevel: load_special() has no loader for special level \"Kni-goal\"",
     "unlocatedKinds": [],
     "recordedSteps": 1814,
-    "remainingScreensUpperBound": 22
+    "remainingScreensUpperBound": 15
   },
-  "summary": "The explicit species selected by nasty now complete runtime creation. Knight matches through step1791 and stops at step1792 when the xan leg attack reaches the unported uhitm.c mhitm_ad_legs dispatcher arm. Port the complete source function for all attack directions, including source-ordered side selection, reach and cancellation checks, boot protection, wounded-leg state and exercise; wire its existing damage-type dispatcher.",
+  "summary": "The leg-wounding attack now matches through the Knight continuation. At step 1799, the chosen quest destination reaches makelevel, which refuses the missing Kni-goal special-level loader. The source owner is the complete dat/Kni-goal.lua program, not a defect in generic loading. Port its map, terrain/light regions, staircase, non-diggable area, artifact/random objects, traps and monster placements in source order, and register the loader.",
   "evidence": [
+    "Checkpoint 88fc87f7 matches 11381/11405 development screens (+7), with all 410 recordings passing. Knight advances from 1792 to 1799 matching screens/cursors and from 107470 to 107646 matching RNG calls (+176). The saved A46 scan has no earlier divergence and stops at input B with makelevel: load_special() has no loader for special level Kni-goal. The reference next screen starts the Knight quest-goal arrival message.",
+    "Resolved step 1792: whole uhitm.c mhitm_ad_legs now follows all source attack directions and routes AD_LEGS through mhitm_adtyping. Corrected cancellation preserves both Monnam evaluations and accessible message coordinates. Clone-local wounded-leg output crosses a burden threshold without mutating live state. Two independent monster-to-hero recordings match 78 screens and 5232 RNG calls; the Wizard varies actual Dexterity, producing rnd(47/48) versus the Monk rnd(48/49). Ordinary polymorphed hmonas and monster-to-monster production entry coverage remain open.",
     "Checkpoint 3dc05e1c matches 11374/11405 development screens (+8), with all 408 recordings unchanged and passing. Knight advances from 1784 to 1792 matching screens/cursors and from 106837 to 107470 matching RNG calls (+633). The saved A45 scan has no divergence before its step1792 refusal: simple monster action requires uhitm.c mhitm_ad_legs(). The expected next message identifies the xan pricking the right leg after an orange-dragon hit.",
     "Resolved step1784: preflightCreation now exempts the validated _nasty call shape from the JavaScript species allowlist, following the C explicit-pointer creation path. Source-pinned dragon, giant and lich tests check exact creation draw sequences. The retained ordinary summon recording still matches 42 screens and3408 RNG calls; no new recording or whole-makemon completion is claimed, and NULL fallback/minion admission limitations remain open.",
     "Checkpoint 82be8fcf matches 11366/11405 development screens and all 408 recordings. Knight retains 1784/1814 matching screens and now stops with 1784 matching cursors and 106837 matching RNG calls. Those 106837 calls are exactly the C prefix before step1784. The aggregate loses 18 RNG matches and one cursor compared with f1eb00ec because the earlier version continued after skipping summoning; no development-screen match is lost.",
@@ -35,17 +37,18 @@
     "Retained counter-evidence for the resolved step1742 issue: the bat had spent its movement ration; its two distfleeck calls described one action. Vampire shapechange does not apply the Hell-bat creation-speed adjustment."
   ],
   "source": {
-    "file": "uhitm.c",
+    "file": "Kni-goal.lua",
     "functions": [
-      "mhitm_ad_legs"
+      "Kni-goal.lua"
     ],
-    "branch": "C uhitm.c mhitm_ad_legs4425–4492 handles all three attack directions. Monster-to-hero draws side first, checks height/cancellation, short-circuits boot RNG, emits the appropriate message, then calls set_wounded_legs with rnd(60-ACURR(A_DEX)) and exercises Strength/Dexterity down. Hero-to-monster delegates physical damage; monster-to-monster suppresses damage when cancelled and otherwise delegates physical damage. JS mhitm_adtyping still records/refuses the missing AD_LEGS operation.",
+    "branch": "The whole dat/Kni-goal.lua program defines a 20-row, 76-column map, lit/unlit regions, an up stair at (3,8), a non-diggable area, the blessed Magic Mirror of Merlin at (50,6), 15 coordinate-only and 6 random objects, 3 fixed and 5 random traps, then Ixoth, 16 quasits, 2 imp-class monsters, 8 ochre jellies and 1 jelly-class monster. Current QUEST_LEVEL_LOADERS lacks Kni-goal.",
     "callers": [
-      "C mhitu.c hitmu calls mhitm_adtyping, whose AD_LEGS case calls mhitm_ad_legs; JS mhitu.js mattacku -> hitmu -> uhitm.js mhitm_adtyping reaches the current refusal during live and planned monster actions.",
-      "C mhitm.c mdamagem and uhitm.c damageum also call mhitm_adtyping for monster-to-monster and hero-to-monster combat; retain all source attack directions and establish their production entry evidence separately."
+      "C mklev.c makelevel selects the special level; mkmaze.c makemaz calls sp_lev.c load_special for the Kni-goal.lua program.",
+      "JS mklev.js makelevel checks SPECIAL_LEVEL_LOADERS, populated by ensureSpecialLevelLoaders from quest_levels.js QUEST_LEVEL_LOADERS. Registering and executing the whole program through this path establishes its production entry."
     ],
     "dependencies": [
-      "do.c set_wounded_legs and attrib.c exercise already own injury duration, side bits, temporary Dexterity and exercise state. Preserve their message/planning isolation and RNG order when wiring mhitm_ad_legs; body_part, Monnam, ACURR, flight/levitation and physical-damage dependencies remain canonical.",
+      "Existing createSpecialLevelApi descriptor owners support the Lua argument shapes. Preserve map trailing spaces and default alignment; coordinate-only objects must remain random objects at map-relative coordinates. The named quest object uses MIRROR as its type, not an artifact ID. Monster class i is S_IMP and class j is S_JELLY; retain class selection and peaceful=0 so mkclass and creation draw order remain source-defined.",
+      "do.c set_wounded_legs and attrib.c exercise now preserve injury state and injected clone-local encumbrance output through mhitm_ad_legs. Its ordinary monster-to-hero entry has matching production evidence; hmonas and monster-to-monster entry coverage remain open in GOALS.json.",
       "The create_particular_creation response-byte defect is fixed. Ordinary aligned/high-cleric creation still lacks makemon.c fallback minion allocation and its rn2(3), renegade/peacefulness and set_malign sequence; its affirmative recipe remains blocked. Grand Master creation avoids that unrelated source branch and now has four complete clerical-effect recordings.",
       "The complete getmattk helper now replaces substitution refusals through mattacku/mattackm and adds 23 matching screens. The separate unported hmonas caller remains open.",
       "mcast_summon_mons and nasty use canonical runtime creation; the ordinary summon witness passes and validated _nasty explicit species now bypass the partial JavaScript allowlist. This correction does not complete makemon NULL fallback, minion admission or other unrecorded creation families.",
@@ -63,5 +66,5 @@
       "The ordinary ice-vortex expels caller now delegates old/new monster-square redraws to mnexto and redraws only the hero square afterward. Planning suppresses live redraws. This removes the duplicate destination draw introduced when mnexto gained its source relocation core; the fixed hallucination session matches again."
     ]
   },
-  "goalKind": "file-port"
+  "goalKind": "lua-port"
 }

@@ -68676,7 +68676,7 @@
     {
       "id": "port-uhitm-mhitm-ad-legs-seed4500-20260918",
       "kind": "file-port",
-      "status": "open",
+      "status": "parked",
       "summary": "Port the complete leg-wounding attack and shared combat dispatch.",
       "cFile": "uhitm.c",
       "sessions": [
@@ -68687,8 +68687,8 @@
       "spans": [
         {
           "name": "mhitm_ad_legs",
-          "status": "queued",
-          "closedBy": null,
+          "status": "closed",
+          "closedBy": "88fc87f70796ebe12191db4dffbe3f7d34c88d27",
           "functions": [
             "mhitm_ad_legs"
           ]
@@ -68875,7 +68875,17 @@
             "recordings": []
           }
         ]
-      }
+      },
+      "progressBeforePark": {
+        "screens": 7,
+        "rng": 176
+      },
+      "parkedStanding": {
+        "sha": "88fc87f70796ebe12191db4dffbe3f7d34c88d27",
+        "screens": 11381,
+        "rng": 792209
+      },
+      "parkedReason": "The whole function and monster-to-hero entry are verified by two independent recordings. Ordinary hero-as-xan combat remains blocked by hmonas; monster-to-monster AD_LEGS still lacks a production recording. Resume when those entry witnesses exist and priority permits. The first eligible Knight mismatch is now the missing Kni-goal.lua program at step 1799."
     }
   ]
 }
