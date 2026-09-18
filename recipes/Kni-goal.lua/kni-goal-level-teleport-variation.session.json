@@ -8,5 +8,5 @@
       "moves": "   n#levelchange\n15\n                   \u0016?\n A"
     }
   ],
-  "comment": "A47 source-relevant race variation"
+  "comment": "Independent seed variation of Knight quest goal generation, including random objects, traps and class-selected monsters."
 }

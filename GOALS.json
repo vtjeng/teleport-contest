@@ -68922,7 +68922,7 @@
           "line": 1,
           "endLine": 99,
           "declared": false,
-          "complete": false
+          "complete": true
         }
       ],
       "activeStanding": {
@@ -69020,7 +69020,66 @@
             }
           }
         }
-      ]
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "Kni-goal.lua",
+            "implementation": "js/quest_levels.js",
+            "symbol": "kniGoal",
+            "sourceReview": "Read the complete dat/Kni-goal.lua program. kniGoal preserves every top-level descriptor in source order: solidfill and mazelevel; generated 20-by-76 map; two lighting regions; up stair; non-diggable whole-level selection; MIRROR object with blessed/spe/name fields; fifteen x-major/y-minor coordinate-only objects and six random objects; three fixed spiked pits and five random traps; Ixoth, sixteen quasits, two class-i monsters, eight ochre jellies, and one class-j monster, all with peaceful=0. The map is generated from Lua and checked for stale output. The existing special-level API supplies all des.* handlers and random placement in the loader environment; no unported callee or obsolete refusal remains.",
+            "callers": [
+              {
+                "path": "js/mklev.js",
+                "symbol": "makelevel",
+                "source": "mklev.c makelevel() selects the special proto and calls makemaz(); js/mklev.js makelevel() resolves the current special-level loader and dispatches makemaz() at lines 657-737."
+              },
+              {
+                "path": "js/mklev.js",
+                "symbol": "makemaz",
+                "source": "mkmaze.c makemaz() resolves the protofile and calls load_special(); js/mklev.js makemaz() invokes load_special(protofile, state) and performs the level-generation tail at lines 1805-1838."
+              },
+              {
+                "path": "js/mklev.js",
+                "symbol": "load_special",
+                "source": "sp_lev.c load_special() loads the Lua program through the des.* table and applies post-processing; js/mklev.js load_special() invokes the registered loader and special-level API at lines 1777-1802."
+              },
+              {
+                "path": "js/mklev.js",
+                "symbol": "ensureSpecialLevelLoaders",
+                "source": "The production registry imports QUEST_LEVEL_LOADERS and spreads it into SPECIAL_LEVEL_LOADERS before makelevel dispatch."
+              },
+              {
+                "path": "js/quest_levels.js",
+                "symbol": "QUEST_LEVEL_LOADERS",
+                "source": "Registers kniGoal under the exact proto name 'Kni-goal', wiring the Lua program to load_special()."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/kni-goal-level-generation.test.mjs"
+            ],
+            "recordings": [
+              "recordings/Kni-goal.lua/kni-goal-level-teleport.session.json",
+              "recordings/Kni-goal.lua/kni-goal-level-teleport-variation.session.json"
+            ],
+            "checkedAt": "cf9a720a101dc1d5b1cf44aecedc72f28d1a5f75"
+          }
+        ],
+        "entryPointReview": "The selected whole Lua program has one active production entry point: a Knight wizard-mode level-menu route selects Kni-goal, makelevel() dispatches makemaz('Kni-goal'), load_special() invokes the registered kniGoal descriptor program, and the special-level API completes the map and population. The primary and independent-seed variation independently reach Kni-goal and match complete C PRNG, screen, cursor, and animation traces. The runtime matrix additionally verifies the destination identity, maze flag, eight traps, one stair, non-diggable terrain, named MIRROR, Ixoth, and hostile descriptor population.",
+        "entryPoints": [
+          {
+            "name": "Kni-goal special-level generation",
+            "functions": [
+              "Kni-goal.lua"
+            ],
+            "recordings": [
+              "recordings/Kni-goal.lua/kni-goal-level-teleport.session.json",
+              "recordings/Kni-goal.lua/kni-goal-level-teleport-variation.session.json"
+            ]
+          }
+        ]
+      }
     }
   ]
 }
