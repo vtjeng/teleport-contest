@@ -67778,7 +67778,7 @@
     {
       "id": "port-mcastu-mcast-spell-seed4500-20260918",
       "kind": "file-port",
-      "status": "open",
+      "status": "parked",
       "summary": "Complete monster spell dispatch and return-valued clerical effects",
       "cFile": "mcastu.c",
       "sessions": [
@@ -67789,8 +67789,8 @@
       "spans": [
         {
           "name": "mcast_spell",
-          "status": "queued",
-          "closedBy": null,
+          "status": "closed",
+          "closedBy": "cf3624735f3cfac8c4b09d9f6f35c12b29787ead",
           "functions": [
             "mcast_spell"
           ]
@@ -67989,7 +67989,17 @@
             "recordings": []
           }
         ]
-      }
+      },
+      "progressBeforePark": {
+        "screens": 0,
+        "rng": 18
+      },
+      "parkedStanding": {
+        "sha": "cf3624735f3cfac8c4b09d9f6f35c12b29787ead",
+        "screens": 11364,
+        "rng": 791418
+      },
+      "parkedReason": "Dispatcher span and four required clerical helpers have source and matching production evidence. Remaining void monster-spell effect families, including mcast_summon_mons, remain explicit gaps and have no completed entry recordings; preserve those open entries while integrating the ready terminal-message divergence."
     }
   ]
 }
