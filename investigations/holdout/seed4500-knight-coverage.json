@@ -1,35 +1,36 @@
 {
   "session": "holdout/seed4500-knight-coverage",
   "remainingScreensUpperBound": 57,
-  "status": "partial",
-  "commit": "40823c47b4e67c4523fd2786899feb3b239ba324",
+  "status": "complete",
+  "commit": "8064c3be0f79ca81eb2019c1797d9d4aaa7f242f",
   "mismatch": {
     "session": "holdout/seed4500-knight-coverage",
     "step": 1757,
-    "kind": "rng",
-    "function": "distfleeck",
-    "functionDeclared": true,
-    "sourceFile": "monmove.c",
-    "cFile": "monmove.c",
+    "kind": "stop",
+    "function": null,
+    "functionDeclared": false,
+    "sourceFile": null,
+    "cFile": null,
     "luaFile": null,
-    "line": 538,
-    "message": null,
+    "line": null,
+    "message": "simple monster action requires a substituted monster attack",
     "unlocatedKinds": [],
     "recordedSteps": 1814,
     "remainingScreensUpperBound": 57
   },
-  "summary": "Covetous tactics now runs, but Knight still matches 1757/1814 screens. At step 1757 JavaScript applies fire-trap damage to an aligned cleric while C proceeds to another distfleeck call. The extra damage is a distinct trap hit, not a duplicated invocation; the preceding movement/state discrepancy and corresponding C actor remain unresolved.",
+  "summary": "Roamer initialization now supplies minion state and trap knowledge, removing the extra fire-trap draw. Knight stops at step 1757 in mhitu.c getmattk: a master lich uses cold touch against the cold-resistant brown-mold hero. C substitutes physical 2d6 for cold 3d6; JavaScript refuses the branch. Port the whole attack-selection function and verify its production callers.",
   "source": {
-    "file": "monmove.c",
+    "file": "mhitu.c",
     "functions": [
-      "m_move",
-      "postmov"
+      "getmattk"
     ],
-    "branch": "At RNG index 106318, C calls distfleeck rn2(5)=3 while JS calls trapeffect_fire_trap d(2,4)=6. The JS aligned cleric 2321 moves from (24,14) to (25,13) before one m_move→postmov→mintrap sequence. The movement-state cause is not yet established.",
+    "branch": "A master lich attacks with slot0 AT_TUCH/AD_COLD 3d6. The hero is a brown mold with cold resistance and is not a shade. C mhitu.c416–432 copies the attack, changes AD_COLD to AD_PHYS, and halves the dice count with integer division to 2d6. Current JS getmattk refuses all first-slot cold touches, including this required substitution.",
     "callers": [
-      "monmove.c dochug calls tactics, then distfleeck, then m_move; postmov handles the destination trap. mon.c mfndpos supplies the source candidate-square rules implemented by JS mfndposCore."
+      "mhitu.c mattacku786 → getmattk; JS mhitu.js mattacku calls the same helper through unported_monster_actions.js attackHeroWithMattacku and monmove.js dochug.",
+      "mhitm.c mattackm383 and uhitm.c hmonas5441/5463 also call getmattk. Existing JS monster-to-monster wiring and unported hero-polymorph attack entries need separate completion evidence."
     ],
     "dependencies": [
+      "priest.c mk_roamer and the sp_lev explicit-alignment caller are implemented with MM_EMIN allocation, canonical minion state, ALL_TRAPS knowledge and ordinary non-tame action admission. Two independent recordings establish creation and actual roamer movement. Guardian-angel and Astral entry recordings remain open; exceptional relocation restrictions remain with the existing rloc owner.",
       "Accepted getpos.c collection/cycling now includes menu selection and cancellation, source coordinate descriptions and exact area-filter lifetime. Five independent recordings match. VIEW and other location-family entry recordings remain open in GOALS.json.",
       "Accepted pager do_screen_description now collects all source symbol families and uses canonical stored-glyph map_glyphinfo. Its lookup coordinates differ from the encoded-prefix decode at (0,0); pet and hero overrides, Rogue colors and NOOVERRIDE order are verified. getpos_menu, displayed-glyph accessibility, cursor auto-description and clicked lookup recording entries remain open in GOALS.json.",
       "Accepted invent.c look_here/dolook now handles tactile floor reach, arbitrary pile inspection, pile counts, cockatrice ordering and message filtering, with canonical force_decor and query_objlist callers. Three independent recordings cover movement menu/count and colon look. Swallowed inventory, blind ICE and the tactile-corpse fallback remain unrecorded entry families in GOALS.json; movement retains its mutation-free unsupported naming/pricing boundary.",
@@ -43,11 +44,11 @@
     ]
   },
   "evidence": [
-    "The combined 40823c47 development artifacts preserve all 42 previously passing sessions and 11339 matching screens. Knight gains 141 positional RNG matches (106194→106335), with screens and cursors unchanged at 1757. No new screen gain is claimed.",
-    "The saved candidate scan places the first RNG, screen and cursor divergence at 1757. It emits 1758 screens before the later substituted-monster-attack refusal; that refusal is not the first source cause. The C annotation distfleeck names the next recorded draw rather than proving that function defective.",
-    "Bounded isolated run-WRs3cV and the earlier run-5jHZR8 trace identify JS aligned cleric m_id2321 and fire trap (25,13). There is exactly one m_move→postmov→mintrap→trapeffect_fire_trap chain for this hit. The prior fire-trap draws belong to another actor; deleting a duplicate trap call is a falsified explanation.",
-    "Compare the actor state and candidate-square selection before this move against C monmove.c m_move and mon.c mfndpos, including priest dispatch, trap knowledge and positions changed by earlier tactics. Actual ispriest/shrine/target fields and correspondence to the C actor still need proof; do not infer the owner from the RNG annotation alone.",
-    "C trap.c trapeffect_fire_trap draws d(2,4) before checking fire resistance, so a different resistance value alone cannot explain omission of this initial damage draw.",
-    "Retained counter-evidence for the resolved step 1742 issue: the earlier bat had spent its own movement ration, and the two distfleeck calls described one action. Vampire shapechange does not apply the Hell-bat creation adjustment."
-  ]
+    "The passing 8064c3be combined checkpoint retains 42/44 sessions and 11339/11405 screens, with 398/398 recordings matching. Its saved scan emits 1757 Knight screens with no preceding RNG/screen/cursor divergence, then refuses a substituted monster attack. Knight positional RNG matches fall 106335→106194 because the planning pass now stops before the unimplemented attack turn commits; C consumes exactly106194 draws through the matching1757 screens. The earlier extra fire-trap path is removed; no new screen gain is claimed.",
+    "Isolated /tmp/b40-getmattk-probe/diagnostic-summary.json and scan2.stderr identify attacker m_id2335, PM_MASTER_LICH, at(66,15); hero m_id1, PM_BROWN_MOLD(pmidx159), at(67,16); first attack AT_TUCH/AD_COLD 3d6. The hero has cold intrinsic268435456, cold extrinsic0 and no blocking flag. The call chain is allmain moveElapsedTurnMonster → runSimpleMonsterAction/dochugw → attackHeroWithMattacku → mattacku → getmattk.",
+    "C mhitu.c getmattk309–444 also substitutes repeated disease/hunger attacks, energy drain, temporarily unavailable engulf/hold attacks, certain nonphysical weapon attacks, and home-elemental damage. Port the complete function, preserving catalog identity versus an alternative copy and source branch order. The existing broad weapon and cold-touch refusals are not the complete C predicates.",
+    "Retained counter-evidence: the earlier cleric fire-trap event had exactly one m_move→postmov→mintrap chain. Cleric2321 lacked minion state and trap knowledge because createMonsterBody skipped mk_roamer. A prior fire trap belonged to actor2334 at(26,7), outside learning range; fire resistance cannot omit the initial C fire-damage draw. The corrected source initialization removes that earlier divergence.",
+    "Retained counter-evidence for the resolved step1742 issue: the bat had spent its movement ration; its two distfleeck calls described one action. Vampire shapechange does not apply the Hell-bat creation-speed adjustment."
+  ],
+  "goalKind": "file-port"
 }
