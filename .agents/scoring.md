@@ -88,8 +88,8 @@ records runner failures without aggregate counts. The all-batch command prints
 one artifact path per batch; import each separately. New evaluations include
 a replay-input digest: report-only commits leave them current, while changed
 game, scorer, or manifest inputs require reassessment. Legacy artifacts remain
-in history and need a new evaluation before they can authorize selection. The import checks evidence
-and appends one `event=challenge` row, with development and holdout fields empty.
+in history and need a new evaluation before they can authorize selection.
+The import checks evidence and appends one `event=challenge` row, with development and holdout fields empty.
 Import in measurement order and commit the artifact and row together. Do not
 use `--generate-note` for challenges or copy their counts into development
 fields. Only the main orchestrator records implementation-loop measurements;
@@ -139,7 +139,8 @@ A flat development score can accompany useful behavior beyond the fixed
 sessions. Report newly matching recordings and movement of the relevant
 first mismatch as `.agents/loop.md`, "Reports", specifies. Keep these
 measurements separate from the development totals. Declaration counts are
-inventory, and the mismatch queue's remaining screens are upper bounds.
+inventory. Fixed-queue remaining screens are upper bounds; synthetic counts
+are exact unmatched screens from saved evaluations.
 A gain that restores an earlier regression is recovery, not an additional
 net gain. Preserve that distinction in event notes and progress reports.
 

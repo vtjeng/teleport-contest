@@ -29,11 +29,11 @@ selected batch's current evaluation as its before measurement under
 `.agents/scoring.md`.
 
 Obtain the selected case's mismatch entry: the step, kind, and source owner.
-For fixed-workload cases, reuse current evidence or run
-`node scripts/mismatch-queue.mjs`. For synthetic cases, use the saved batch
-evaluation and replay the immutable recording to locate the first mismatch;
-retain its manifest version and hashes under `.agents/selection.md`.
-The fixed queue does not report synthetic mismatches.
+Use `node scripts/mismatch-queue.mjs --work --json` for the combined queue.
+For a synthetic case, `node scripts/scan-sessions.mjs --json --synthetic
+vN/case-id` replays its admitted recording and retains batch, manifest,
+recording, and replay-input digests in the diagnostic cache. Keep the selected
+evaluation and immutable case identity under `.agents/selection.md`.
 
 ### 2. Confirm and record the divergence
 

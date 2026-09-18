@@ -246,6 +246,27 @@ test('removing a previously measured case cannot improve the expanding set by om
     // Dropping the failing case would report perfect parity without a fix.
     manifest(root, [passing]);
     const next = saved(root, 'next', evaluation([measured(passing, 2)], NEXT_SHA, NEXT_TIME));
-    assert.throws(() => recordEvaluation(root, next.challenge_evaluation), /removed or changed/u);
+    assert.throws(() => recordEvaluation(root, next.challenge_evaluation), /membership is immutable/u);
     assert.equal(challengeDashboard(root, [first], FIRST_SHA).status, 'failed');
+});
+
+test('new imports require complete immutable batch membership while pilot history stays readable', t => {
+    const root = fixture(t);
+    const a = entry(root, 'original'), b = entry(root, 'added');
+    manifest(root, [a]);
+    const first = saved(root, 'first', fresh(root, { ...evaluation([measured(a, 2)]), batch: 'v1' }));
+    recordEvaluation(root, first.challenge_evaluation);
+    manifest(root, [a, b]);
+    const enlarged = saved(root, 'enlarged', fresh(root,
+        { ...evaluation([measured(a, 2), measured(b, 2)], NEXT_SHA, NEXT_TIME), batch: 'v1' }));
+    assert.throws(() => recordEvaluation(root, enlarged.challenge_evaluation), /membership is immutable/u);
+    // Even an externally appended row cannot turn a changed frozen batch into
+    // permission to select goals or generate its successor.
+    const state = challengeState(root, [first, enlarged]);
+    assert.equal(state.generationReady, false);
+    assert.equal(state.batches[0].status, 'failed');
+    assert.match(state.batches[0].error, /membership is immutable/u);
+
+    const partial = saved(root, 'partial', evaluation([measured(a, 2)], NEXT_SHA, NEXT_TIME));
+    assert.throws(() => recordEvaluation(root, partial.challenge_evaluation), /complete admitted batch/u);
 });

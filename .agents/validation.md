@@ -257,8 +257,13 @@ Each of these has produced a wrong conclusion before.
   accessing an unfamiliar field.
 - Use `normalizeSession()` from `frozen/session_loader.mjs` before accessing
   recorded segments. Legacy recordings can have a different top-level shape.
-- mismatch-queue.mjs accepts `--json` and `--scan <path>`, not `--session`.
-  Filter its JSON output when inspecting one development session.
+- Use `mismatch-queue.mjs --work --json` for operational selection and
+  `--fixed --json` for fixed-workload diagnostics. `--scan <path>` supplies
+  fixed-workload scan rows; it does not replace synthetic evidence. Filter
+  the JSON `sessions` array to inspect one entry.
+- Diagnose an admitted synthetic case with `scan-sessions.mjs --json
+  --synthetic vN/case-id`, or use `--recording <admitted-recording-path>`.
+  Each invocation runs in a fresh process and preserves the recording in place.
 - `node scripts/goal-log.mjs --help` lists commands; append `--help` to a
   command for its arguments and prerequisites. Help runs without repository
   state, a C checkout, or subprocesses and needs no sandbox escalation.

@@ -63,6 +63,10 @@ export function recordEvaluation(root, relative) {
     if (rows.some(row => row.challenge_evaluation === relative)) throw new Error('evaluation is already recorded');
     const manifest = readChallengeBatches(root).find(entry => entry.batch === batch);
     if (!manifest) throw new Error('evaluation references an unadmitted challenge batch: ' + batch);
+    if (evaluation.manifestSha256 !== manifest.manifestSha256)
+        throw new Error('evaluation must cover the complete admitted batch');
+    if (previous && previous.manifestSha256 !== manifest.manifestSha256)
+        throw new Error('admitted batch membership is immutable; put new cases in the next batch');
     const known = new Map(manifest.cases.map(entry => [entry.id, entry.recordingSha256]));
     for (const row of rows.filter(row => row.event === 'challenge')) {
         const rowEvaluation = readEvaluation(root, row.challenge_evaluation);

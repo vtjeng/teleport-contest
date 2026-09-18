@@ -362,6 +362,10 @@ function stateForBatch(root, batch, allValues, errors) {
         !known.has(entry.id) || known.get(entry.id) !== entry.recordingSha256);
     const historicalChanged = values.some(({ evaluation }) => evaluation.cases.some(entry =>
         !known.has(entry.id) || known.get(entry.id) !== entry.recordingSha256));
+    // Legacy pilot artifacts predate the frozen batches and remain historical
+    // evidence. Explicitly versioned evaluations pin the whole batch forever.
+    const versionedMembershipChanged = values.some(({ evaluation }) => evaluation.batch
+        && evaluation.manifestSha256 !== batch.manifestSha256);
     let snapshot = null;
     try {
         snapshot = challengeInputSnapshot(root, batch);
@@ -391,6 +395,10 @@ function stateForBatch(root, batch, allValues, errors) {
     if (historicalChanged) {
         result.status = 'failed';
         result.error = 'a previously measured challenge was removed or changed; restore it and add a new case';
+    }
+    if (versionedMembershipChanged) {
+        result.status = 'failed';
+        result.error = 'admitted batch membership is immutable; restore it and use the next batch';
     }
     const first = new Map();
     for (const { evaluation } of historyCompleted) {
