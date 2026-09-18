@@ -67653,7 +67653,7 @@
     {
       "id": "div-read-force-create-response-20260918",
       "kind": "divergence-fix",
-      "status": "open",
+      "status": "closed",
       "summary": "Honor affirmative force-creation responses",
       "cFile": "read.c",
       "sessions": [],
@@ -67662,8 +67662,8 @@
       "spans": [
         {
           "name": "force-creation-response-byte",
-          "status": "queued",
-          "closedBy": null,
+          "status": "closed",
+          "closedBy": "2e2c6c14abae02bf056d0043dd44ae97f8e0a52b",
           "functions": [
             "create_particular_creation"
           ]
@@ -67675,8 +67675,11 @@
         "screens": 11364,
         "rng": 791400
       },
-      "closedAt": null,
-      "delivered": null,
+      "closedAt": "2e2c6c14abae02bf056d0043dd44ae97f8e0a52b",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
       "function": "create_particular_creation",
       "session": "holdout/seed4500-knight-coverage",
       "activeStanding": {
@@ -67765,7 +67768,12 @@
             }
           }
         }
-      ]
+      ],
+      "closeStanding": {
+        "sha": "2e2c6c14abae02bf056d0043dd44ae97f8e0a52b",
+        "screens": 11364,
+        "rng": 791400
+      }
     }
   ]
 }
