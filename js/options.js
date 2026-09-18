@@ -7140,6 +7140,9 @@ export function optionHelpLines(state = game) {
     for (const option of allopt) {
         if (option.opttyp === 'OthrOpt') lines.push(` ${option.name}`);
     }
+    // options.c option_help() emits a separate empty putstr() before it
+    // starts opt_epilog[]; its first entry is another empty row.
+    lines.push('');
     lines.push(...OPT_EPILOG);
     return lines.map((text) => ({ text }));
 }

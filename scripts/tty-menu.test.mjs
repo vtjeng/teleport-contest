@@ -26,6 +26,7 @@ import {
     ttyMenuLayout,
     ttyMenuTextData,
     ttyMenuTextLayout,
+    ttyTextWindowData,
 } from '../js/tty_menu.js';
 import { renderTtyStartupBanner } from '../js/tty_startup.js';
 import { tty_raw_print } from '../js/tty_rawprint.js';
@@ -73,13 +74,13 @@ test('selecting a menu clears raw-print waits and preserves recorder mode',
         assert.equal(state.nhDisplay.nomuxRaw.active, true);
     });
 
-test('NHW_MENU text data keeps pre-wrap width and the split space', () => {
+test('NHW_MENU text data keeps pre-wrap width and drops the split space', () => {
     const source = `${'A'.repeat(70)} ${'B'.repeat(20)}`;
     const data = ttyMenuTextData([source], 80);
 
     assert.equal(data.maxcol, source.length + 1);
     assert.deepEqual(data.lines, [
-        `${'A'.repeat(70)} `,
+        'A'.repeat(70),
         'B'.repeat(20),
     ]);
 
@@ -133,7 +134,7 @@ test('NHW_MENU text measures, truncates, and splits recorder bytes', () => {
     assert.deepEqual(
         longData.lines.map((line) => encodeUtf8ByteString(line)),
         [
-            [...encodeUtf8ByteString('\u00e9'.repeat(38)), 0x20],
+            encodeUtf8ByteString('\u00e9'.repeat(38)),
             encodeUtf8ByteString('TAIL'),
         ],
     );
@@ -146,6 +147,56 @@ test('NHW_MENU text measures, truncates, and splits recorder bytes', () => {
     const retained = encodeUtf8ByteString(truncatedData.lines.join(''));
     assert.equal(retained.length, 254);
     assert.deepEqual(retained.slice(-2), [0x41, 0xE2]);
+});
+
+test('NHW_TEXT reuses source splitting and preserves row metadata', () => {
+    const source = {
+        text: `${'A'.repeat(70)} ${'B'.repeat(20)}`,
+        color: 6,
+        attr: 2,
+        glyphCells: [{ column: 72, ch: 'X' }],
+    };
+    const data = ttyTextWindowData([source], 80);
+
+    assert.equal(data.maxcol, source.text.length + 1);
+    assert.deepEqual(data.lines.map(({ text }) => text), [
+        'A'.repeat(70),
+        'B'.repeat(20),
+    ]);
+    assert.equal(data.lines[0].color, 6);
+    assert.equal(data.lines[0].attr, 2);
+    assert.deepEqual(data.lines[1].glyphCells, [{ column: 1, ch: 'X' }]);
+
+    const unbroken = ttyTextWindowData([{
+        text: 'Z'.repeat(100), color: 3, attr: 1,
+    }], 80);
+    assert.equal(unbroken.lines.length, 1);
+    assert.equal(unbroken.lines[0].text.length, 100);
+
+    // The source column for the B glyph follows four dropped repeated spaces.
+    // Its normalized column is therefore zero in the recursive suffix. A
+    // cell attached to one of those dropped spaces disappears. The split
+    // space itself is also nulled out of the first row by tty_putstr().
+    const compressed = ttyTextWindowData([{
+        text: `${'A'.repeat(65)}     ${'B'.repeat(20)}`,
+        color: 4,
+        attr: 1,
+        glyphCells: [
+            { column: 65, ch: ' ' },
+            { column: 66, ch: 'dropped' },
+            { column: 70, ch: 'B' },
+        ],
+    }], 80);
+    assert.deepEqual(compressed.lines.map(({ text }) => text), [
+        'A'.repeat(65),
+        'B'.repeat(20),
+    ]);
+    assert.deepEqual(compressed.lines[0].glyphCells, []);
+    assert.deepEqual(compressed.lines[1].glyphCells, [
+        { column: 0, ch: 'B' },
+    ]);
+    assert.equal(compressed.lines[1].color, 4);
+    assert.equal(compressed.lines[1].attr, 1);
 });
 
 test('NHW_MENU text uses H2344_BROKEN right-half geometry', () => {

@@ -11,7 +11,12 @@ import {
 import { CMDQ_EXTCMD, CMDQ_KEY, CQ_REPEAT } from '../js/const.js';
 import { game } from '../js/gstate.js';
 import { runSegment } from '../js/jsmain.js';
-import { next_opt, optionHelpLines, show_menu_controls } from '../js/options.js';
+import {
+    next_opt,
+    optionHelpLines,
+    show_menu_controls,
+} from '../js/options.js';
+import { RECORDER_CONFIGFILE } from '../js/cfgfiles.js';
 import {
     dowhatdoes_core,
     helpMenuItems,
@@ -158,7 +163,7 @@ test('option help derives its ordinary TTY page from allopt source order',
         assert.equal(lines[1], '                 NetHack Options Help:');
         assert.equal(
             lines[3],
-            'Set options as OPTIONS=<options> in .nethackrc',
+            `Set options as OPTIONS=<options> in ${RECORDER_CONFIGFILE}`,
         );
         // TTY advertises color but not popup dialogs, so the source-order
         // filters retain the former Boolean and omit the latter.
@@ -171,6 +176,25 @@ test('option help derives its ordinary TTY page from allopt source order',
         assert(lines.includes('Other settings:'));
         // The final opt_epilog[] entry is the Guidebook reference.
         assert.equal(lines.at(-1), 'See NetHack\'s "Guidebook" for details.');
+    });
+
+test('a fresh valid config startup initializes the recorder path before help',
+    async () => {
+        // This independently chosen valid configuration exercises the live
+        // startup path and option-help reader without copying seed2200's
+        // invalid-option input or its recorded screen data.
+        const segment = {
+            ...loadHelpOptionRecipe().segments[0],
+            seed: 20260918,
+            nethackrc: 'OPTIONS=name:A48Fresh,role:Wizard,race:human\n',
+            moves: '',
+        };
+        await runSegment(segment);
+        assert.equal(game.configfile, RECORDER_CONFIGFILE);
+        assert.equal(
+            optionHelpLines(game)[3].text,
+            `Set options as OPTIONS=<options> in ${RECORDER_CONFIGFILE}`,
+        );
     });
 
 test('option help prints the configuration path stored by cfgfiles.c', () => {

@@ -9,6 +9,7 @@ import {
     fopen_config_file,
     get_configfile,
     get_default_configfile,
+    RECORDER_CONFIGFILE,
     SET_IN_SYSCONF,
     set_configfile_name,
 } from '../js/cfgfiles.js';
@@ -50,12 +51,12 @@ test('fopen_config_file preserves source path state and records skipped I/O',
 
         // The JavaScript segment already carries configuration text, so the
         // requested path is observed for the failed attempt and the UNIX
-        // default is selected for the source's fallback attempt.
+        // HOME/.nethackrc fallback is selected for the recorder environment.
         assert.equal(
             fopen_config_file('/home/player/custom.nethackrc', 1, state),
             null,
         );
-        assert.equal(state.configfile, DEFAULT_CONFIGFILE);
+        assert.equal(state.configfile, RECORDER_CONFIGFILE);
         assert.deepEqual([...state.unported], ['cfgfiles.c fopen']);
     });
 
