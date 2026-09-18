@@ -10,6 +10,8 @@ import {
     DUST,
     GP_AVOID_MONPOS,
     GP_CHECKSCARY,
+    HALLUC,
+    HALLUC_RES,
     IN_SIGHT,
     LAVAPOOL,
     MON_FLOOR,
@@ -54,6 +56,7 @@ import {
     random_teleport_level,
     rloc,
     rloc_to,
+    rloc_to_flag,
 } from '../js/teleport.js';
 import { resetGame } from '../js/gstate.js';
 import { enableRngLog, getRngLog, initRng } from '../js/rng.js';
@@ -814,6 +817,65 @@ test('rloc_to places a monster that holds no square', () => {
     // mon_arrive() admits.
     assert.deepEqual([monster.mux, monster.muy], [state.u.ux, state.u.uy]);
 });
+
+test('rloc_to_flag keeps RLOC_MSG separate from unflagged arrival placement',
+    async () => {
+        const state = positionState();
+        state.level.at(10, 11).typ = ROOM;
+        const monster = arrivingMonster(state);
+        monster.mstrategy |= STRAT_APPEARMSG;
+        const messages = [];
+        const calls = [];
+        const result = rloc_to_flag(monster, 10, 11, RLOC_MSG, {
+            state,
+            newsym: () => {},
+            setApparxy: (subject, env) => {
+                calls.push([subject, env.random]);
+            },
+            message: (text) => messages.push(text),
+        });
+        await result;
+        assert.equal(calls.length, 1);
+        assert.equal(calls[0][0], monster);
+        assert.ok(calls[0][1]);
+        assert.equal(messages.length, 1);
+        assert.match(messages[0], /appears/u);
+        assert.equal(state.level.monsters[10][11], monster);
+    });
+
+test('planned hallucinated flagged relocation uses its display RNG seam',
+    async () => {
+        const state = positionState();
+        setupVision(state);
+        state.u.uprops = {
+            [HALLUC]: { intrinsic: 1, extrinsic: 0 },
+            [HALLUC_RES]: { intrinsic: 0, extrinsic: 0 },
+        };
+        state.level.at(10, 11).typ = ROOM;
+        state.level.at(11, 10).typ = ROOM;
+        const monster = newMonster({
+            data: state.mons[PM_SEWER_RAT],
+            mhp: 2,
+            mhpmax: 2,
+            m_id: 92,
+        });
+        place_monster(monster, 10, 11, state);
+        const displayBounds = [];
+        const messages = [];
+        await rloc_to_flag(monster, 11, 10, RLOC_MSG, {
+            planning: true,
+            state,
+            newsym: () => {},
+            displayRandom: (bound) => {
+                displayBounds.push(bound);
+                return 0;
+            },
+            message: async (text) => messages.push(text),
+        });
+        assert.ok(displayBounds.length > 0);
+        assert.equal(state.level.monsters[11][10], monster);
+        assert.equal(messages.length, 1);
+    });
 
 test('rloc_to moves an ordinary on-map monster and refuses extended tails',
     () => {
