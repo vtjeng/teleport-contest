@@ -63980,7 +63980,7 @@
     {
       "id": "port-display-flash-glyph-seed4500-20260917",
       "kind": "file-port",
-      "status": "open",
+      "status": "parked",
       "summary": "Port complete monster reveal animation and its asynchronous production callers",
       "cFile": "display.c",
       "sessions": [
@@ -63991,8 +63991,8 @@
       "spans": [
         {
           "name": "flash_glyph_at",
-          "status": "queued",
-          "closedBy": null,
+          "status": "closed",
+          "closedBy": "4d1c5d627861f33ec5cabe1dabcef1d3d6083672",
           "functions": [
             "flash_glyph_at"
           ]
@@ -64107,11 +64107,11 @@
         "rng": 0
       },
       "parkedStanding": {
-        "sha": "600f75464bef3714aca9373107a0fa64394194a8",
+        "sha": "4d1c5d627861f33ec5cabe1dabcef1d3d6083672",
         "screens": 11267,
         "rng": 788894
       },
-      "parkedReason": "Temporarily refresh the already verified read.c caller evidence changed by this same animation span; resume display integration immediately afterward.",
+      "parkedReason": "The whole animation helper and creation caller pass the combined checkpoint and two independent recordings. Monster-reading telepathy and detect.c findone/detect_obj_traps animation entries remain unrecorded; park rather than claim complete entry coverage.",
       "evidence": {
         "functions": [
           {
