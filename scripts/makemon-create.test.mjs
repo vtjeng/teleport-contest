@@ -17,6 +17,7 @@ import {
     MM_ASLEEP,
     MM_FEMALE,
     MM_MALE,
+    MM_MINVIS,
     MM_NOCOUNTBIRTH,
     MM_NOEXCLAM,
     MM_NOGRP,
@@ -2495,19 +2496,13 @@ test('direct runtime call shapes require an async tail owner before mutation',
         }
     });
 
-// read.c create_particular_creation():3307 is the fourth runtime call shape
-// this file admits, and the only one whose flags vary. Each scenario below is
-// separated from an admitted one by a single term, and the two refusals are
-// told apart by their message: an admitted shape reaches the async-tail test
-// first, an unadmitted one falls through to the mklev test underneath it.
-test('the create_particular call shape admits only the hero square and its '
-    + 'three flag values',
+// read.c create_particular_creation() supplies its runtime caller marker and
+// hero coordinates. Its source flag combinations must reach the async-tail
+// ownership check before any random draw or monster allocation.
+test('particular creation requires its runtime owner for source flag variants',
     () => {
         const heroSquare = { x: MON_X, y: MON_Y };
         for (const scenario of [
-            // The three mmflags values read.c's own expression can build:
-            // MM_NOEXCLAM alone for a name with no gender, and MM_NOEXCLAM
-            // plus the one gender bit d->fem contributes for a name with one.
             { name: 'no gender', flags: MM_NOEXCLAM, admitted: true },
             {
                 name: 'male name', flags: MM_NOEXCLAM | MM_MALE,
@@ -2517,16 +2512,23 @@ test('the create_particular call shape admits only the hero square and its '
                 name: 'female name', flags: MM_NOEXCLAM | MM_FEMALE,
                 admitted: true,
             },
-            // Both gender bits at once is not a value the ternary at
-            // read.c:3288-3289 can produce.
+            // Conflicting explicit gender and gendered names omit
+            // MM_NOEXCLAM; invisibility is independent of that choice.
             {
-                name: 'both genders',
-                flags: MM_NOEXCLAM | MM_MALE | MM_FEMALE,
-                admitted: false,
+                name: 'male name conflict', flags: MM_MALE, admitted: true,
             },
-            // MM_NOEXCLAM is what separates this shape from every other
-            // runtime call with a species and a square.
-            { name: 'no MM_NOEXCLAM', flags: MM_ANGRY, admitted: false },
+            {
+                name: 'invisible female name conflict',
+                flags: MM_FEMALE | MM_MINVIS, admitted: true,
+            },
+            {
+                name: 'invisible without gender',
+                flags: MM_NOEXCLAM | MM_MINVIS, admitted: true,
+            },
+            { name: 'unsupported angry flag', flags: MM_ANGRY,
+                admitted: false },
+            { name: 'missing caller marker', flags: MM_NOEXCLAM,
+                caller: false, admitted: false },
             // create_particular_creation() always passes u.ux, u.uy.
             {
                 name: 'east of the hero', flags: MM_NOEXCLAM,
@@ -2536,10 +2538,10 @@ test('the create_particular call shape admits only the hero square and its '
                 name: 'south of the hero', flags: MM_NOEXCLAM,
                 y: MON_Y + 1, admitted: false,
             },
-            // A null species is the random-selection shape, which carries no
-            // flags at all.
+            // mkclass()/rndmonst() may return null before makemon() performs
+            // its own random selection, with the same creation flags.
             { name: 'no species', flags: MM_NOEXCLAM, ptr: null,
-                admitted: false },
+                admitted: true },
         ]) {
             const state = initialLevelState();
             state.in_mklev = false;
@@ -2554,7 +2556,8 @@ test('the create_particular call shape admits only the hero square and its '
                     scenario.x ?? heroSquare.x,
                     scenario.y ?? heroSquare.y,
                     scenario.flags,
-                    { state, random: random.random },
+                    { state, random: random.random,
+                        _createParticular: scenario.caller !== false },
                 ),
                 scenario.admitted
                     ? /runtime creation without its async tail owner/u

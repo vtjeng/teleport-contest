@@ -37,6 +37,7 @@ import {
     MALE,
     MM_FEMALE,
     MM_EDOG,
+    MM_MINVIS,
     MM_MALE,
     MM_NOMSG,
     MM_NOEXCLAM,
@@ -48,6 +49,7 @@ import {
     LS_OBJECT,
     STRAT_APPEARMSG,
     STRAT_WAITFORU,
+    thats_enough_tries,
     SPE_LIM,
     W_BALL,
     W_CHAIN,
@@ -56,9 +58,11 @@ import {
     Is_waterlevel,
     isok,
     ismnum,
+    OBJ_AT,
     LL_CONDUCT,
 } from './const.js';
 import {
+    NON_PM,
     PM_ALIGNED_CLERIC,
     PM_ANGEL,
     PM_DOPPELGANGER,
@@ -70,10 +74,15 @@ import {
     PM_LONG_WORM,
     PM_LONG_WORM_TAIL,
     PM_SHOPKEEPER,
+    PM_STALKER,
     PM_WIZARD,
     PM_YELLOW_LIGHT,
+    S_EEL,
+    S_MIMIC,
+    S_WORM_TAIL,
+    S_invisible,
 } from './monsters.js';
-import { digit, mungspaces, strstri } from './hacklib.js';
+import { mungspaces, strstri } from './hacklib.js';
 import { game } from './gstate.js';
 import {
     check_capacity,
@@ -89,13 +98,24 @@ import {
     can_chant,
     amorphous,
     is_whirly,
+    hides_under,
+    is_hider,
+    name_to_monclass,
     name_to_monplus,
     unsolid,
     unique_corpstat,
 } from './mondata.js';
-import { initedog } from './dog.js';
-import { makemon_runtime } from './makemon_create.js';
+import {
+    can_saddle,
+    initedog,
+    put_saddle_on_mon,
+    tamedog,
+} from './dog.js';
+import { makemon_runtime, newcham } from './makemon_create.js';
+import { mkclass, rndmonst, set_malign } from './makemon.js';
+import { monster_census } from './minion.js';
 import { Monnam } from './do_name.js';
+import { flash_mon } from './mon.js';
 import { MAXMCLASSES } from './symbols.js';
 import {
     BRASS_LANTERN,
@@ -985,18 +1005,6 @@ export async function seffect_enchant_weapon(scroll, state = game) {
         state.uwep.spe = Math.sign(state.uwep.spe) * SPE_LIM;
 }
 
-// A request the player typed that read.c understands and this port does not.
-// Every raiser is a branch of one of the four functions below, named in the
-// message. js/cmd.js failClosedCommandRefusals() lists the class, because the
-// prompt has already echoed the whole typed line by the time one is raised.
-export class UnsupportedMonsterRequestError extends Error {
-    constructor(operation) {
-        super(`unsupported monster request: ${operation}`);
-        this.name = 'UnsupportedMonsterRequestError';
-        this.operation = operation;
-    }
-}
-
 // C ref: read.c cant_revive() (3111-3134).
 //
 // C answers through an `int *mtype` the caller owns; JavaScript has no such
@@ -1028,39 +1036,24 @@ export function cant_revive(mtype, revival, from_obj, state = game) {
 // command will make is one monster per map cell, (0..ROWNO-1) x (1..COLNO-1).
 const QUAN_LIMIT = ROWNO * (COLNO - 1);
 
-// The six words read.c:3169-3193 searches the whole answer for, in source
-// order. Each sets a request field that decides how the monster arrives, and
-// the arm that finds one blanks the word out of the buffer before the species
-// lookup sees it. "female" is searched for before "male" so that the second
-// search cannot hit the tail of the first.
-const GEAR_AND_STATE_WORDS = Object.freeze([
-    'saddled ', 'sleeping ', 'invisible ', 'hidden ', 'female ', 'male ',
-]);
+// C ref: read.c create_particular_parse() (3137-3251).  The C function edits
+// the answer buffer in place; replacing matched qualifier bytes with spaces
+// preserves the subsequent mungspaces() and name-lookup behavior.
+function blankWord(text, offset, length) {
+    return text.slice(0, offset) + ' '.repeat(length)
+        + text.slice(offset + length);
+}
 
-// The three disposition prefixes at read.c:3197-3206, each of which decides
-// how the created monster feels about the hero.
-const DISPOSITION_PREFIXES = Object.freeze(['tame ', 'peaceful ', 'hostile ']);
-
-// C ref: read.c create_particular_parse() (3136-3249).
-//
-// Covers the plain-monster-name arm and nothing else: the answer reaches
-// name_to_mon() at 3212 and returns at 3230 with `which` set. Every arm that
-// would qualify the request first -- a leading count, the six gear, state and
-// gender words, the three disposition prefixes and the wizard-only "*" -- is
-// refused above it, and so is name_to_monclass() below it, which
-// js/mondata.js:1181 records as unported.
-//
-// C fills a caller-owned struct and answers whether it found a monster. This
-// returns the filled request instead, because the only other answer it can
-// give is the refusal above.
 export function create_particular_parse(str, state = game) {
+    if (typeof str !== 'string')
+        throw new TypeError('monster request must be text');
     let bufp = str;
     const d = {
         quan: 1 + ((state.multi > 0) ? state.multi : 0),
         monclass: MAXMCLASSES,
-        which: state.urole.mnum, /* an arbitrary index into mons[] */
-        fem: -1,            /* gender not specified */
-        genderconf: -1,     /* no confusion on which gender to assign */
+        which: state.urole.mnum,
+        fem: -1,
+        genderconf: -1,
         randmonst: false,
         maketame: false,
         makepeaceful: false,
@@ -1071,160 +1064,180 @@ export function create_particular_parse(str, state = game) {
         hidden: false,
     };
 
-    /* quantity */
-    if (digit(bufp[0])) {
-        throw new UnsupportedMonsterRequestError(
-            'create_particular_parse() count prefix',
-        );
+    const countMatch = bufp.match(/^\d+/u);
+    if (countMatch) {
+        d.quan = Number.parseInt(countMatch[0], 10);
+        bufp = bufp.slice(countMatch[0].length);
+        while (bufp.startsWith(' ')) bufp = bufp.slice(1);
     }
-    // read.c:3165-3166 replaces an out-of-range quantity with however many
-    // monsters the map can still hold, which needs monster_census(). With the
-    // digit arm above refused, gm.multi is the only thing left that can move
-    // the quantity, and it can only raise it, so C's `d->quan < 1` half has
-    // nothing that reaches it here.
-    //
-    // gm.multi cannot reach this line either. js/cmd.js:2128 refuses a
-    // positive count with COUNTED_BOUNDARY before the extended command
-    // dispatches, so `3^G` ends the segment without opening the prompt, and
-    // d.quan is 1 on every call the running game makes. The refusal below,
-    // the creation loop's second and later iterations and its break are all
-    // fail-closed guards mirroring C rather than live branches.
-    if (d.quan > QUAN_LIMIT) {
-        throw new UnsupportedMonsterRequestError('monster_census()');
+    if (d.quan < 1 || d.quan > QUAN_LIMIT)
+        d.quan = QUAN_LIMIT - monster_census(false, { state });
+
+    for (const [word, field] of [
+        ['saddled ', 'saddled'],
+        ['sleeping ', 'sleeping'],
+        ['invisible ', 'invisible'],
+        ['hidden ', 'hidden'],
+        ['female ', 'fem'],
+        ['male ', 'fem'],
+    ]) {
+        const offset = strstri(bufp, word);
+        if (offset < 0) continue;
+        d[field] = field === 'fem'
+            ? word === 'female ' ? FEMALE : MALE
+            : true;
+        bufp = blankWord(bufp, offset, word.length);
     }
-    for (const word of GEAR_AND_STATE_WORDS) {
-        if (strstri(bufp, word) >= 0) {
-            throw new UnsupportedMonsterRequestError(
-                `create_particular_parse() "${word}"`,
-            );
-        }
+    bufp = mungspaces(bufp);
+
+    if (strstri(bufp, 'tame ') === 0) {
+        d.maketame = true;
+        bufp = bufp.slice(5);
+    } else if (strstri(bufp, 'peaceful ') === 0) {
+        d.makepeaceful = true;
+        bufp = bufp.slice(9);
+    } else if (strstri(bufp, 'hostile ') === 0) {
+        d.makehostile = true;
+        bufp = bufp.slice(8);
     }
-    bufp = mungspaces(bufp); /* after potential memset(' ') */
-    /* allow the initial disposition to be specified */
-    for (const prefix of DISPOSITION_PREFIXES) {
-        // C's `!strncmpi(bufp, prefix, strlen(prefix))`: a case-insensitive
-        // search finds the word at offset 0 exactly when it is a prefix.
-        if (strstri(bufp, prefix) === 0) {
-            throw new UnsupportedMonsterRequestError(
-                `create_particular_parse() "${prefix}"`,
-            );
-        }
-    }
-    /* decide whether a valid monster was chosen */
+
     if (state.wizard && (bufp === '*' || bufp === 'random')) {
-        throw new UnsupportedMonsterRequestError(
-            'create_particular_parse() random monster',
-        );
+        d.randmonst = true;
+        return d;
     }
-    // C's `d->which = name_to_mon(bufp, &gender_name_var)`. name_to_mon()
-    // discards name_to_monplus()'s remainder and passes the gender pointer
-    // through, so the port calls name_to_monplus() directly: the gender the
-    // matched name carries is the second half of this line's result, and
-    // js/mondata.js name_to_mon() has no way to hand it back.
-    //
-    // `gender_name_var` starts at NEUTRAL, as read.c:3141 does, rather than at
-    // the -1 js/mondata.js defaults to. The seed is not what makes a neuter
-    // pmname answer NEUTRAL: mondata.c:1078-1082 writes the matched gender
-    // through the pointer whenever a pmname matched at all, and js/mondata.js
-    // mirrors it, so "gas spore" answers NEUTRAL under either seed. The seed
-    // is observable only where no pmname matched and there is no gender to
-    // write -- the title_to_mon() fallback at mondata.c:1074, whose own FIXME
-    // at 1073 says titles carry no gender, and the no-match case. There C
-    // leaves d->fem at the NEUTRAL it started at and an unseeded call would
-    // leave it at -1.
+
     const named = name_to_monplus(bufp, { state, gender: NEUTRAL });
     d.which = named.mnum;
-    /*
-     * With the introduction of male and female monster names
-     * in 5.0, preserve that detail.
-     *
-     * C tests `d->fem == MALE || d->fem == FEMALE` here, which is how an
-     * explicit "male " or "female " word overrides the gender the name
-     * carries and how d->genderconf is raised. Both words are refused above,
-     * so d->fem is still -1 and only C's else arm has an owner.
-     */
-    d.fem = named.gender;
-    if (ismnum(d.which))
-        return d; /* got one */
-    throw new UnsupportedMonsterRequestError('mondata.c name_to_monclass()');
+    if (d.fem === MALE || d.fem === FEMALE) {
+        if (named.gender !== NEUTRAL && d.fem !== named.gender)
+            d.genderconf = named.gender;
+    } else {
+        d.fem = named.gender;
+    }
+    if (ismnum(d.which)) return d;
+
+    const mndxRef = { value: d.which };
+    d.monclass = name_to_monclass(bufp, mndxRef, { state });
+    d.which = mndxRef.value;
+    if (ismnum(d.which)) {
+        d.monclass = MAXMCLASSES;
+        return d;
+    }
+    if (d.monclass === S_invisible) {
+        d.which = PM_STALKER;
+        d.monclass = MAXMCLASSES;
+        return d;
+    }
+    if (d.monclass === S_WORM_TAIL) {
+        d.which = PM_LONG_WORM;
+        d.monclass = MAXMCLASSES;
+        return d;
+    }
+    if (d.monclass > 0) {
+        d.which = state.urole.mnum;
+        return d;
+    }
+    return false;
 }
 
-// C ref: read.c create_particular_creation() (3251-3357).
-//
-// Covers the named-species arm: cant_revive() answering FALSE, one loop
-// iteration whose mmflags is MM_NOEXCLAM plus whatever gender the typed name
-// carried, and makemon() on the hero's own square. Everything the loop does
-// with the monster afterwards -- tamedog(), set_malign(), put_saddle_on_mon(),
-// the mundetected and msleeping assignments and flash_mon() -- is guarded by a
-// request field create_particular_parse() refuses, so none of it has an owner.
+// C ref: read.c create_particular_creation() (3252-3371).  Every requested
+// state change occurs after the awaited makemon() lifecycle has completed.
 async function create_particular_creation(d, state = game) {
     let madeany = false;
-
-    /* d.randmonst is always FALSE: the arm that raises it is refused in parse,
-       so C's `if (!d->randmonst)` guard is always taken. */
-    const firstchoice = d.which;
-    const revived = cant_revive(d.which, false, null, state);
-    if (revived.changed && firstchoice !== PM_LONG_WORM_TAIL) {
-        /* wizard mode can override handling of special monsters */
-        throw new UnsupportedMonsterRequestError(
-            'create_particular_creation() force-the-species prompt',
-        );
-    }
-    d.which = revived.mtype;
-    const whichpm = state.mons[d.which];
-
-    for (let i = 0; i < d.quan; i++) {
-        let mmflags = NO_MM_FLAGS;
-
-        /* d.monclass is always MAXMCLASSES and d.randmonst always FALSE, so
-           mkclass() and rndmonst() never reselect whichpm, and whichpm is
-           never the null C's gender test below guards against. */
-        /* d.genderconf is always -1: the conflict it records needs an explicit
-           gender word, and parse refuses those. */
-        if (d.fem !== -1 && !is_male(whichpm) && !is_female(whichpm)) {
-            mmflags |= (d.fem === FEMALE) ? MM_FEMALE
-                : (d.fem === MALE) ? MM_MALE : 0;
+    let firstchoice = NON_PM;
+    let whichpm = null;
+    if (!d.randmonst) {
+        firstchoice = d.which;
+        const revived = cant_revive(d.which, false, null, state);
+        d.which = revived.mtype;
+        if (revived.changed && firstchoice !== PM_LONG_WORM_TAIL) {
+            const original = state.mons[firstchoice]?.pmnames?.[NEUTRAL]
+                ?? state.mons[firstchoice]?.pmnames?.[MALE] ?? '';
+            const replacement = state.mons[revived.mtype]?.pmnames?.[NEUTRAL]
+                ?? state.mons[revived.mtype]?.pmnames?.[MALE] ?? '';
+            const answer = await y_n(
+                `Creating ${replacement} instead; force ${original}?`, state,
+            );
+            if (answer === 'y') d.which = firstchoice;
         }
-        /* no surprise; "<mon> appears." rather than "<mon> appears!" */
-        mmflags |= MM_NOEXCLAM;
+        whichpm = state.mons[d.which];
+    }
+
+    for (let i = 0; i < d.quan; ++i) {
+        if (d.monclass !== MAXMCLASSES)
+            whichpm = mkclass(d.monclass, 0, { state });
+        else if (d.randmonst)
+            whichpm = rndmonst({ state });
+
+        let mmflags = NO_MM_FLAGS;
+        if (d.genderconf === -1) {
+            if (d.fem !== -1 && (!whichpm
+                || (!is_male(whichpm) && !is_female(whichpm)))) {
+                mmflags |= d.fem === FEMALE ? MM_FEMALE
+                    : d.fem === MALE ? MM_MALE : 0;
+            }
+            mmflags |= MM_NOEXCLAM;
+        } else {
+            mmflags |= d.fem === FEMALE ? MM_FEMALE : MM_MALE;
+        }
+        if (d.invisible) mmflags |= MM_MINVIS;
 
         const mtmp = await makemon_runtime(
-            whichpm, state.u.ux, state.u.uy, mmflags, { state },
+            whichpm, state.u.ux, state.u.uy, mmflags,
+            { state, _createParticular: true },
         );
         if (!mtmp) {
-            /* quit trying if creation failed and is going to repeat. C tests
-               `d->monclass == MAXMCLASSES && !d->randmonst` before breaking
-               and retries otherwise, to give mkclass() or rndmonst() another
-               draw; both terms are constant here, because parse refuses every
-               arm that could move either, so the retry has no owner. */
-            break;
+            if (d.monclass === MAXMCLASSES && !d.randmonst) break;
+            continue;
         }
+        const mx = mtmp.mx;
+        const my = mtmp.my;
+        if (d.maketame) {
+            await tamedog(mtmp, null, false, { state });
+        } else if (d.makepeaceful || d.makehostile) {
+            mtmp.mtame = 0;
+            mtmp.mpeaceful = d.makepeaceful;
+            set_malign(mtmp, state);
+        }
+        if (d.saddled && can_saddle(mtmp) && !which_armor(mtmp, W_SADDLE))
+            await put_saddle_on_mon(null, mtmp, { state });
+        if (d.hidden
+            && ((is_hider(mtmp.data) && mtmp.data.mlet !== S_MIMIC)
+                || (hides_under(mtmp.data) && OBJ_AT(mx, my, state))
+                || (mtmp.data.mlet === S_EEL && is_pool(mx, my, state)))) {
+            mtmp.mundetected = 1;
+        }
+        if (d.sleeping) mtmp.msleeping = 1;
+        if ((d.hidden || d.invisible) && !canSpotMonster(mtmp, state))
+            flash_mon(mtmp, state);
         madeany = true;
-        /* C's newcham() tail turns a doppelganger cant_revive() substituted
-           back into the species the player asked for. It has no owner here:
-           the one substitution parse and the guard above let through is
-           PM_LONG_WORM_TAIL becoming PM_LONG_WORM, and a long worm's
-           mtmp->cham is NON_PM. */
+        if (mtmp.cham !== NON_PM && firstchoice !== NON_PM
+            && mtmp.cham !== firstchoice)
+            await newcham(mtmp, state.mons[firstchoice], { state });
     }
     return madeany;
 }
 
-// C ref: read.c create_particular() (3371-3408).
-//
-// Covers the first pass of C's `do { ... } while (--tryct > 0)` loop and the
-// `return create_particular_creation(&d)` at 3405 that it leaves by. The retry
-// arms at 3390-3403 -- "I've never heard of such monsters." at 3392, "Try
-// again (type * for random, ESC to cancel)." at 3394, the
-// " [type name or symbol]" prompt extension at 3398-3399 and
-// thats_enough_tries at 3403 -- have no owner, because
-// create_particular_parse() refuses an answer it cannot use rather than
-// answering FALSE, so no second pass can start.
+// C ref: read.c create_particular() (3372-3411).  Parse failures return FALSE
+// and are retried with the same prompt growth and diagnostics as the source.
 export async function create_particular(state = game) {
-    const buf = await getlin('Create what kind of monster?', state);
-    const bufp = mungspaces(buf);
-    if (bufp[0] === '\x1B')
-        return false;
-
-    const d = create_particular_parse(bufp, state);
-    return create_particular_creation(d, state);
+    let prompt = 'Create what kind of monster?';
+    let tryct = 5;
+    let altmsg = 0;
+    do {
+        const buf = await getlin(prompt, state);
+        const bufp = mungspaces(buf);
+        if (bufp[0] === '\x1B') return false;
+        const d = create_particular_parse(bufp, state);
+        if (d) return create_particular_creation(d, state);
+        if (bufp || altmsg || tryct < 2)
+            await ttyPline("I've never heard of such monsters.", state);
+        else {
+            await ttyPline('Try again (type * for random, ESC to cancel).', state);
+            ++altmsg;
+        }
+        if (tryct === 5) prompt += ' [type name or symbol]';
+    } while (--tryct > 0);
+    await ttyPline(thats_enough_tries, state);
+    return false;
 }

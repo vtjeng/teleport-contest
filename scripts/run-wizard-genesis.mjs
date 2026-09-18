@@ -132,6 +132,10 @@ export function loadWizardGenesisRecipe() {
             // from the Wizard's starting kit to move the placement draws.
             segment(7710010, `${GENESIS_KEY}newt${NEWLINE}`,
                 { role: 'Barbarian', gender: 'female', align: 'chaotic' }),
+            // Sleeping is a state-only variation in the creation tail and
+            // leaves the ordinary hostile turn to the existing runtime path.
+            segment(7710011, `${GENESIS_KEY}sleeping newt${NEWLINE}`, {
+                role: 'Ranger', gender: 'male', align: 'neutral' }),
         ],
     }, 'wizard genesis recipe');
 }

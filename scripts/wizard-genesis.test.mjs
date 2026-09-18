@@ -1,22 +1,19 @@
 // The ^G monster-creation prompt: wizcmds.c wiz_genesis() and the four read.c
 // functions behind it.
 //
-// scripts/run-wizard-genesis.mjs holds the strict differential evidence: ten
-// segments recorded against the C reference, covering both dispatch routes,
-// both refusals an ordinary hero meets, and four shapes of typed answer. The
-// assertions here pin what those recordings cannot show -- the request fields
-// no screen carries, the refusal class the command seam has to convert, and
-// the parse and creation arms this port leaves unported.
+// scripts/run-wizard-genesis.mjs holds strict differential evidence for the
+// dispatch routes and ordinary named creation. The assertions here pin the
+// request fields that no screen carries and the source branches that need
+// stateful checks: qualifiers, census bounds, and creation-side state.
 
 import assert from 'node:assert/strict';
 import test from 'node:test';
 
 import {
     ADMITTED_COMMANDS,
-    UnsupportedHeroCommandBoundaryError,
     failClosedCommandRefusals,
 } from '../js/cmd.js';
-import { FEMALE, MALE, NEUTRAL } from '../js/const.js';
+import { FEMALE, IN_SIGHT, MALE, NEUTRAL } from '../js/const.js';
 import { WIZMODECMD, extcmdlist } from '../js/extcmdlist_data.js';
 import { game, resetGame } from '../js/gstate.js';
 import { runSegment } from '../js/jsmain.js';
@@ -38,16 +35,18 @@ import {
     PM_MEDUSA,
     PM_MINOTAUR,
     PM_NEWT,
+    PM_PONY,
     PM_SHOPKEEPER,
+    PM_TRAPPER,
     PM_WIZARD,
     monst_globals_init,
 } from '../js/monsters.js';
 import { is_female, is_male } from '../js/mondata.js';
 import {
-    UnsupportedMonsterRequestError,
     cant_revive,
     create_particular_parse,
 } from '../js/read.js';
+import { monster_census } from '../js/minion.js';
 import { roles } from '../js/roles.js';
 import { wiz_genesis } from '../js/wizcmds.js';
 import {
@@ -112,7 +111,7 @@ async function createdBy(segment, moves, options = {}) {
 test('the genesis matrix contains only source-selected inputs', () => {
     const recipe = loadWizardGenesisRecipe();
     assert.equal(recipe.version, 5);
-    assert.equal(recipe.segments.length, 10);
+    assert.equal(recipe.segments.length, 11);
     for (const segment of recipe.segments) {
         assert.equal(Object.hasOwn(segment, 'steps'), false);
         assert.match(segment.nethackrc, /OPTIONS=!legacy,!tutorial/u);
@@ -124,14 +123,14 @@ test('the genesis matrix contains only source-selected inputs', () => {
         // own. The file header says so; this keeps it true.
         assert.notEqual(segment.moves.at(-1), WAIT_KEY);
     }
-    // Eight segments reach the command and two are refused, so exactly eight
+    // Nine segments reach the command and two are refused, so exactly nine
     // set debug mode. cmd.c:1961's "wizgenesis" row carries WIZMODECMD, which
     // can_do_extcmd() and extcmds_match() both read.
     assert.equal(
         recipe.segments.filter(
             ({ nethackrc }) => nethackrc.includes('playmode:debug'),
         ).length,
-        8,
+        9,
     );
     assert.equal(
         extcmdlist.find(({ ef_txt }) => ef_txt === 'wizgenesis').flags
@@ -147,16 +146,14 @@ test('the ^G key reaches the command seam rather than the boundary', () => {
     assert.ok(ADMITTED_COMMANDS.includes('wizgenesis'));
 });
 
-test('the genesis refusal converts at the command seam', () => {
-    // js/cmd.js runGenesisCommand() wraps wiz_genesis() in
-    // failClosedCommand(), and js/jsmain.js breaks a segment only for the
-    // three boundary classes, so a class read.c can raise that the wrapper
-    // does not list escapes as a hard failure and discards the segment's
-    // matching prefix instead of stopping on it. Every refused answer reaches
-    // this one after getlin() has echoed the whole typed name.
-    assert.ok(
-        failClosedCommandRefusals().includes(UnsupportedMonsterRequestError),
-    );
+test('the genesis command seam has no monster-creation refusal class', () => {
+    // read.c create_particular() now owns all valid request parsing and its
+    // retry loop. Unknown text is handled by the source's five attempts and
+    // false return, so the command seam must not convert an obsolete refusal
+    // class into a hard segment boundary.
+    assert.equal(failClosedCommandRefusals().some(
+        (type) => type.name === 'UnsupportedMonsterRequestError',
+    ), false);
 });
 
 test('cant_revive substitutes the species read.c names for each special case',
@@ -301,10 +298,11 @@ test('the quantity read.c derives from gm.multi bounds the request', () => {
         ).quan,
         QUAN_LIMIT,
     );
-    assert.throws(
-        () => create_particular_parse('newt', parseState({ multi: QUAN_LIMIT })),
-        (error) => error instanceof UnsupportedMonsterRequestError
-            && error.operation === 'monster_census()',
+    // An out-of-range initial quantity is replaced by the number of free map
+    // cells. A fresh test level has no live monsters, so the full limit remains.
+    assert.equal(
+        create_particular_parse('newt', parseState({ multi: QUAN_LIMIT })).quan,
+        QUAN_LIMIT,
     );
     // The smallest count that moves the quantity at all, which is what fixes
     // C's `1 +` as an offset rather than a floor.
@@ -316,58 +314,89 @@ test('the quantity read.c derives from gm.multi bounds the request', () => {
     assert.equal(
         create_particular_parse('newt', parseState({ multi: -3 })).quan, 1,
     );
+    // C advances over every source digit before mungspaces(); leading zeroes
+    // must not become part of the monster name.
+    assert.equal(create_particular_parse('002 newt', parseState()).quan, 2);
+    assert.equal(
+        create_particular_parse('002 newt', parseState()).which, PM_NEWT,
+    );
 });
 
-test('every qualifier read.c accepts ahead of the name is refused', () => {
-    for (const [answer, operation] of [
-        // read.c:3154-3161, the leading count.
-        ['2 gas spore', 'create_particular_parse() count prefix'],
-        // read.c:3169-3193, the six words searched for anywhere in the answer.
-        ['saddled pony', 'create_particular_parse() "saddled "'],
-        ['sleeping newt', 'create_particular_parse() "sleeping "'],
-        ['invisible newt', 'create_particular_parse() "invisible "'],
-        ['hidden newt', 'create_particular_parse() "hidden "'],
-        ['female gnome lord', 'create_particular_parse() "female "'],
-        ['male gnome lady', 'create_particular_parse() "male "'],
-        // The search is case-blind and looks anywhere, not just at the front.
-        ['a SLEEPING newt', 'create_particular_parse() "sleeping "'],
-        // read.c:3197-3206, the three disposition prefixes.
-        ['tame jackal', 'create_particular_parse() "tame "'],
-        ['peaceful newt', 'create_particular_parse() "peaceful "'],
-        ['hostile newt', 'create_particular_parse() "hostile "'],
-        // C tests these three with strncmpi() rather than strstri(), so a
-        // disposition word anywhere but the front is part of the name and not
-        // a prefix. This answer falls through to name_to_monclass() and is
-        // what pins the `=== 0` in js/read.js against a `>= 0` that would
-        // refuse it as "tame " instead.
-        ['a tame newt', 'mondata.c name_to_monclass()'],
-        // read.c:3208-3211, the wizard-only random arm.
-        ['*', 'create_particular_parse() random monster'],
-        ['random', 'create_particular_parse() random monster'],
-        // read.c:3231-3246, name_to_monclass() and its four arms.
-        ['zzzz', 'mondata.c name_to_monclass()'],
-        ['dragon', 'mondata.c name_to_monclass()'],
-    ]) {
-        assert.throws(
-            () => create_particular_parse(answer, parseState()),
-            (error) => error instanceof UnsupportedMonsterRequestError
-                && error.operation === operation,
-            `${answer} is refused as ${operation}`,
-        );
+test('read.c accepts qualifiers, disposition prefixes, classes, and random', () => {
+    const cases = [
+        ['saddled pony', { saddled: true, which: PM_PONY }],
+        ['sleeping newt', { sleeping: true, which: PM_NEWT }],
+        ['invisible newt', { invisible: true, which: PM_NEWT }],
+        ['hidden trapper', { hidden: true, which: PM_TRAPPER }],
+        ['a SLEEPING newt', { sleeping: true, which: PM_NEWT }],
+        ['tame jackal', { maketame: true }],
+        ['peaceful newt', { makepeaceful: true }],
+        ['hostile newt', { makehostile: true }],
+    ];
+    for (const [answer, expected] of cases) {
+        const parsed = create_particular_parse(answer, parseState());
+        for (const [field, value] of Object.entries(expected))
+            assert.equal(parsed[field], value, `${answer}: ${field}`);
     }
-    // A disposition word that is not a prefix is not one: C tests the three
-    // with strncmpi() rather than the strstri() it uses for the six above, so
-    // this answer reaches the name lookup and resolves.
+    // A disposition word elsewhere is part of the name, so this resolves the
+    // ordinary newt rather than being treated as a prefix.
     assert.equal(
         create_particular_parse('newt tame', parseState()).which, PM_NEWT,
     );
-    // read.c:3208's `wizard &&`: an ordinary hero's "*" is an unknown name
-    // rather than a request for a random monster. No ported path reaches
-    // create_particular() outside wizard mode, so only this shows the term.
-    assert.throws(
-        () => create_particular_parse('*', parseState({ wizard: false })),
-        (error) => error.operation === 'mondata.c name_to_monclass()',
+
+    const female = create_particular_parse('female gnome lord', parseState());
+    assert.equal(female.fem, FEMALE);
+    assert.equal(female.genderconf, MALE);
+    const male = create_particular_parse('male gnome lady', parseState());
+    assert.equal(male.fem, MALE);
+    assert.equal(male.genderconf, FEMALE);
+
+    const random = create_particular_parse('*', parseState());
+    assert.equal(random.randmonst, true);
+    assert.equal(create_particular_parse('random', parseState()).randmonst, true);
+    assert.equal(create_particular_parse('*', parseState({ wizard: false })), false);
+    assert.equal(create_particular_parse('zzzz', parseState()), false);
+
+    // read.c's class fallback resets which to the role monster; dragon is a
+    // class description, while its ordinary title is not a concrete species.
+    const dragon = create_particular_parse('dragon', parseState());
+    assert.equal(dragon.monclass > 0, true);
+    assert.equal(dragon.which, roles[0].mnum);
+});
+
+test('monster_census filters dead, parked, and unseen monsters', () => {
+    const state = parseState();
+    state.u = { ux: 1, uy: 1, uprops: {} };
+    state.viz_array = Array.from(
+        { length: 21 }, () => Array(80).fill(0),
     );
+    state.viz_array[state.u.uy][state.u.ux] = IN_SIGHT;
+    const spotted = {
+        mhp: 3, mx: state.u.ux, my: state.u.uy, minvis: false,
+        mundetected: false, nmon: null,
+    };
+    const unseen = {
+        mhp: 3, mx: state.u.ux + 1, my: state.u.uy, nmon: null,
+    };
+    const dead = { mhp: 0, mx: state.u.ux, my: state.u.uy, nmon: null };
+    const parked = {
+        mhp: 3, mx: 0, my: 0, isgd: true, nmon: null,
+    };
+    spotted.nmon = unseen;
+    unseen.nmon = dead;
+    dead.nmon = parked;
+    state.level = { monlist: spotted };
+    assert.equal(monster_census(false, { state }), 2);
+    assert.equal(
+        monster_census(true, {
+            state,
+            canSpotMonster: (monster) => monster === spotted,
+        }),
+        1,
+    );
+    // With no injected predicate, C's default canspotmon owner is used. The
+    // hero-square monster is visible on a fresh initialized level.
+    assert.equal(monster_census(true, { state }), 1);
 });
 
 test('^G creates the named monster beside the hero without spending a turn',
@@ -420,6 +449,49 @@ test('^G admits a minotaur through the generic makemon path', async () => {
     assert.equal(minotaurs[0].data.pmidx, PM_MINOTAUR);
     assert.equal(topLine(), 'A minotaur appears next to you.');
 });
+
+test('^G applies hidden, invisible, sleeping, and disposition requests',
+    async () => {
+        const base = {
+            seed: 9631048,
+            datetime: '20340825172133',
+            nethackrc: 'OPTIONS=name:QualifierProbe,role:Ranger,race:human,gender:male,align:neutral\n'
+                + 'OPTIONS=!legacy,!tutorial,!splash_screen,playmode:debug\n'
+                + 'OPTIONS=pettype:none,!acoustics,rest_on_space,!safe_wait\n',
+        };
+        const cases = [
+            ['hidden trapper', (monster) => {
+                assert.equal(monster.mnum, PM_TRAPPER);
+                assert.equal(monster.mundetected, 1);
+            }],
+            ['invisible newt', (monster) => {
+                assert.equal(monster.mnum, PM_NEWT);
+                assert.equal(monster.perminvis, 1);
+                assert.equal(monster.minvis, 1);
+            }],
+            ['sleeping newt', (monster) => {
+                assert.equal(monster.mnum, PM_NEWT);
+                assert.equal(monster.msleeping, 1);
+            }],
+            ['peaceful newt', (monster) => {
+                assert.equal(monster.mnum, PM_NEWT);
+                assert.equal(monster.mpeaceful, true);
+            }],
+        ];
+        for (const [request, check] of cases) {
+            const segment = {
+                ...base,
+                moves: `${WAIT_KEY}${GENESIS_KEY}${request}\n`,
+            };
+            const boundaries = [];
+            const { added } = await createdBy(segment, segment.moves, {
+                onBoundary: (error) => boundaries.push(error),
+            });
+            assert.deepEqual(boundaries, []);
+            assert.equal(added.length, 1, request);
+            check(added[0]);
+        }
+    });
 
 test('^G puts iflags.debug_mongen back after clearing it', async () => {
     // wizcmds.c:206-210 saves the flag, clears it, creates, and restores. A
@@ -504,26 +576,47 @@ test('Escape at the genesis prompt creates nothing', async () => {
     assert.equal(game.context.move, 0);
 });
 
-test('an unported request stops the segment rather than escaping',
+test('create_particular stops after five invalid answers with the source message',
     async () => {
-        // read.c:3260-3272. A shopkeeper is one of the species cant_revive()
-        // substitutes, and wizard mode then offers to force the original
-        // through y_n(); the port refuses at that prompt. End to end, because
-        // what matters is that the refusal converts at the command seam after
-        // getlin() has echoed the name rather than escaping runSegment().
-        const boundaries = [];
+        // read.c:3374-3405 uses CP_TRYLIM=5 and the shared
+        // thats_enough_tries string after the fifth unsuccessful parse.
         const segment = segmentFor(`${GENESIS_KEY}gas spore\n`);
-        const { added } = await createdBy(
-            segment,
-            `${WAIT_KEY}${GENESIS_KEY}shopkeeper\n`,
-            { onBoundary: (error) => boundaries.push(error) },
-        );
+        const prefix = `${WAIT_KEY}${GENESIS_KEY}`;
+        const fourAnswers = prefix + 'zzzz\n '.repeat(4);
+        await runSegment({ ...segment, moves: fourAnswers });
+        assert.equal(topLine(),
+            'Create what kind of monster? [type name or symbol]');
 
-        assert.equal(boundaries.length, 1);
-        assert.ok(boundaries[0] instanceof UnsupportedHeroCommandBoundaryError);
-        assert.match(boundaries[0].message, /force-the-species prompt/u);
+        const boundaries = [];
+        // Spaces acknowledge pending failure messages between answers. The
+        // fifth failure and exhausted-retry message fit on the same line.
+        const { added } = await createdBy(
+            segment, fourAnswers + 'zzzz\n',
+            { onBoundary: error => boundaries.push(error) },
+        );
+        assert.deepEqual(boundaries, []);
         assert.deepEqual(added, []);
+        assert.match(topLine(), /That's enough tries!/u);
+        assert.equal(game.context.move, 0);
     });
+
+test('declining cant_revive keeps the replacement species', async () => {
+    // read.c:3259-3269 mutates d.which through cant_revive() before asking
+    // whether wizard mode should force the original species. Declining must
+    // therefore create the replacement human zombie rather than discard the
+    // request or accidentally restore the shopkeeper.
+    const boundaries = [];
+    const segment = segmentFor(`${GENESIS_KEY}gas spore\n`);
+    const { added } = await createdBy(
+        segment,
+        `${WAIT_KEY}${GENESIS_KEY}shopkeeper\nn`,
+        { onBoundary: (error) => boundaries.push(error) },
+    );
+
+    assert.deepEqual(boundaries, []);
+    assert.equal(added.length, 1);
+    assert.equal(added[0].mnum, PM_HUMAN_ZOMBIE);
+});
 
 test('a species outside the admitted reservoir stops before it is created',
     async () => {
@@ -588,14 +681,9 @@ test('an ordinary hero pressing ^G is told the command is unavailable',
         assert.deepEqual(added, []);
     });
 
-// read.c:3285-3288 skips the gender bit for a species that is_male() or
-// is_female(), because mons[] has already fixed its gender. That skip changes
-// no mmflags this port can build, and this is why: nothing that answers a
-// non-neuter gender through name_to_monplus() is a fixed-gender species, so
-// d->fem is NEUTRAL whenever the skip applies and the ternary it guards
-// contributes nothing either way. Both halves of that claim are checked below,
-// so upstream giving a fixed-gender species a gendered name -- in mons[] or in
-// the alternate-spelling table -- fails here rather than diverging silently.
+// read.c:3285-3288 skips a gender bit for species whose gender is fixed in
+// mons[]. This catalog check covers gender supplied by the monster's name;
+// explicit male/female qualifiers are covered separately above.
 test('nothing that answers a gender is a fixed-gender species', () => {
     const state = parseState();
     const gendered = [];
@@ -619,7 +707,7 @@ test('nothing that answers a gender is a fixed-gender species', () => {
     }
 });
 
-test('the mons[] rows the refusal tests name are the ones read.c names', () => {
+test('the mons[] rows the source rows name are the ones read.c names', () => {
     // The identifiers above are only as good as the catalog behind them, and
     // three of these carry no test elsewhere. NON_PM is what ismnum() rejects.
     const state = parseState();

@@ -363,7 +363,6 @@ import {
 import { UnsupportedExperienceChangeError } from './exper.js';
 import {
     doread,
-    UnsupportedMonsterRequestError,
     UnsupportedReadError,
 } from './read.js';
 import {
@@ -2943,12 +2942,6 @@ export function failClosedCommandRefusals() {
         // reach it, so leaving it out would discard every screen the wish
         // prompt already matched instead of stopping on the last of them.
         UnsupportedWishError,
-        // read.c raises this from every parse and creation arm of
-        // create_particular() this port leaves unported, all of them after
-        // getlin() has echoed the whole typed monster name. Leaving it out
-        // would discard every screen the ^G prompt already matched instead of
-        // stopping on the last of them.
-        UnsupportedMonsterRequestError,
         // zap.c raises this from dozap()'s effect arms and from every arm of
         // the ray below weffects() that this port has not reached. Each one
         // stops after the command has already spent a charge and painted its

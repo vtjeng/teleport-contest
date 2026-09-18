@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "Independent read.c create_particular() variation: wizard.c wiz_genesis() enters create_particular_creation() with a peaceful newt request. The seed, timestamp, Valkyrie character, and input differ from the sleeping case and exercise the set_malign disposition tail.",
+  "segments": [
+    {
+      "seed": 9631049,
+      "datetime": "20340825172133",
+      "nethackrc": "OPTIONS=name:DispositionProbe,role:Valkyrie,race:human,gender:female,align:lawful\nOPTIONS=!legacy,!tutorial,!splash_screen,playmode:debug\nOPTIONS=pettype:none,!acoustics,rest_on_space,!safe_wait\n",
+      "moves": " \u0007peaceful newt\n"
+    }
+  ]
+}

@@ -51,6 +51,7 @@ import {
     MM_ESHK,
     MM_FEMALE,
     MM_MALE,
+    MM_MINVIS,
     MM_NOWAIT,
     MM_NOCOUNTBIRTH,
     MM_NOEXCLAM,
@@ -280,6 +281,7 @@ import {
     PM_MINOTAUR,
     PM_GIANT_EEL,
     PM_GUARD,
+    PM_TRAPPER,
     PM_NAZGUL,
     PM_MORDOR_ORC,
     PM_SMALL_MIMIC,
@@ -576,7 +578,12 @@ import {
 } from './symbols.js';
 import { begin_burn, stop_timer } from './timeout.js';
 import { is_pool, t_at } from './trap.js';
-import { m_dowear, update_mon_extrinsics, which_armor } from './worn.js';
+import {
+    m_dowear,
+    mon_set_minvis,
+    update_mon_extrinsics,
+    which_armor,
+} from './worn.js';
 
 const SUPPORTED_FLAGS = NO_MINVENT
     | MM_NOWAIT
@@ -584,6 +591,7 @@ const SUPPORTED_FLAGS = NO_MINVENT
     | MM_NOTAIL
     | MM_NOMSG
     | MM_NOEXCLAM
+    | MM_MINVIS
     | MM_ANGRY
     | MM_ASLEEP
     | MM_EDOG
@@ -776,9 +784,8 @@ export function redrawSquare(x, y, normalized) {
 function runtimeAppearanceMessage(monster, mmflags, normalized) {
     const { state } = normalized;
     if (mmflags & MM_NOMSG) return null;
-    // C ref: makemon.c:1477. #wizgenesis is the one caller that passes
-    // MM_NOEXCLAM, and read.c create_particular_creation() passes it on every
-    // creation; every other admitted call shape leaves the surprise in.
+    // C ref: makemon.c:1477. read.c create_particular_creation() suppresses
+    // surprise unless an explicit gender conflicts with the typed name.
     let exclaim = !(mmflags & MM_NOEXCLAM);
     const appearance = M_AP_TYPE(monster);
     let name = null;
@@ -1283,6 +1290,10 @@ function assertSupportedSpecies(species) {
             // so the generic makemon() path already builds it.
             && species.pmidx !== PM_GIANT_EEL
             && species.pmidx !== PM_GUARD
+            // read.c create_particular_creation() can request a hidden
+            // hider directly.  PM_TRAPPER is the admitted source species
+            // whose M1_HIDE arm does not need a floor object or pool.
+            && species.pmidx !== PM_TRAPPER
             && species.pmidx !== PM_UMBER_HULK
             // Cobra is the lowest-difficulty AT_SPIT species (difficulty
             // 10, just above the D:5 reservoir ceiling). wiz_genesis()
@@ -1381,19 +1392,16 @@ function preflightCreation(ptr, x, y, mmflags, normalized) {
         && x === state.u?.ux
         && y === state.u?.uy
         && mmflags === MM_NOMSG;
-    // read.c create_particular_creation():3315 names the species the player
-    // typed and places it on the hero's own square, so makemon() reaches the
-    // enexto() arm below. Its mmflags is MM_NOEXCLAM plus at most one gender
-    // bit, and the three values below are the whole of what that expression
-    // can build: MM_MINVIS and a second gender bit both need a parse arm
-    // js/read.js refuses.
+    // read.c create_particular_creation():3315 names or selects a species and
+    // places it on the hero's own square, so makemon() reaches the enexto()
+    // arm below. The parser can add one gender bit and MM_MINVIS, or leave the
+    // species null for mkclass()/rndmonst() to select inside the same source
+    // call.
     const createParticularCall = !state.in_mklev
-        && Boolean(ptr)
+        && normalized._createParticular === true
         && x === state.u?.ux
         && y === state.u?.uy
-        && (mmflags === MM_NOEXCLAM
-            || mmflags === (MM_NOEXCLAM | MM_MALE)
-            || mmflags === (MM_NOEXCLAM | MM_FEMALE));
+        && !(mmflags & ~(MM_NOEXCLAM | MM_MINVIS | MM_MALE | MM_FEMALE));
     // vault.c invault():407 creates a guard at a wall location with MM_EGD
     // and MM_NOMSG.
     const vaultGuardCall = !state.in_mklev
@@ -1506,7 +1514,7 @@ function preflightCreation(ptr, x, y, mmflags, normalized) {
         );
     }
     if (!ptr && !(mmflags & MM_NOGRP) && !state.in_mklev
-        && !runtimeRandomCall) {
+        && !runtimeRandomCall && !createParticularCall) {
         throw new UnsupportedMonsterCreationError('random monster groups');
     }
     if (!Array.isArray(state.mons) || !Array.isArray(state.mvitals))
@@ -3069,6 +3077,10 @@ export function makemon(ptr, x, y, mmflags = 0, env = {}) {
     monster.mpeaceful = (mmflags & MM_ANGRY)
         ? false
         : peace_minded(ptr, normalized);
+    // C makemon.c:1300 calls mon_set_minvis() only after placement, so a
+    // create_particular() MM_MINVIS request updates both the visible glyph
+    // and the monster's permanent-invisibility state in source order.
+    if (mmflags & MM_MINVIS) mon_set_minvis(monster, false, state);
     if (ptr.mlet === S_MIMIC) {
         set_mimic_sym(monster, normalized);
     } else if (ptr.mlet === S_SPIDER || ptr.mlet === S_SNAKE) {
