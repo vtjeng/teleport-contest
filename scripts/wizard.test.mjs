@@ -142,7 +142,16 @@ test('tactics keeps cached tower coordinates for post-relocation healing',
         const calls = [];
         const result = await tactics(monster, {
             state,
-            random: { rn2: () => 0, rnd: () => 1 },
+            random: {
+                rn2(bound) {
+                    calls.push(`rn2(${bound})`);
+                    return 0;
+                },
+                rnd(bound) {
+                    calls.push(`rnd(${bound})`);
+                    return 1;
+                },
+            },
             noteleportLevel: () => false,
             rloc: (subject) => {
                 subject.mx = 10;
@@ -151,7 +160,7 @@ test('tactics keeps cached tower coordinates for post-relocation healing',
             healmon: () => calls.push('heal'),
         });
         assert.equal(result, 1);
-        assert.deepEqual(calls, ['heal']);
+        assert.deepEqual(calls, ['rn2(3)', 'rnd(8)', 'heal']);
     });
 
 test('choose_stairs prefers a regular stair in the requested direction', () => {

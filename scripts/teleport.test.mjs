@@ -6,6 +6,7 @@ import {
     COLNO,
     COULD_SEE,
     D_CLOSED,
+    DETECT_MONSTERS,
     DOOR,
     DUST,
     GP_AVOID_MONPOS,
@@ -821,6 +822,10 @@ test('rloc_to places a monster that holds no square', () => {
 test('rloc_to_flag keeps RLOC_MSG separate from unflagged arrival placement',
     async () => {
         const state = positionState();
+        // teleport.c rloc_to_core() gates departure output on oldx. Monster
+        // detection can sense this off-map arrival, but it has not vanished
+        // from a square and must retain its sudden-appearance message.
+        state.u.uprops = { [DETECT_MONSTERS]: { intrinsic: 1 } };
         state.level.at(10, 11).typ = ROOM;
         const monster = arrivingMonster(state);
         monster.mstrategy |= STRAT_APPEARMSG;
@@ -839,7 +844,8 @@ test('rloc_to_flag keeps RLOC_MSG separate from unflagged arrival placement',
         assert.equal(calls[0][0], monster);
         assert.ok(calls[0][1]);
         assert.equal(messages.length, 1);
-        assert.match(messages[0], /appears/u);
+        assert.match(messages[0], /suddenly appears/u);
+        assert.doesNotMatch(messages[0], /vanishes/u);
         assert.equal(state.level.monsters[10][11], monster);
     });
 
@@ -886,10 +892,23 @@ test('rloc_to moves an ordinary on-map monster and refuses extended tails',
     // ordinary monster standing over the corpse.
     const placed = arrivingMonster(state);
     place_monster(placed, 10, 11, state);
+    const redraws = [];
     assert.equal(
-        rloc_to(placed, 12, 11, { state, newsym: () => {} }),
+        rloc_to(placed, 12, 11, {
+            state,
+            newsym(x, y) {
+                redraws.push([x, y]);
+                if (x === 10) {
+                    assert.equal(state.level.monsters[10][11], null);
+                    assert.equal(state.level.monsters[12][11], null);
+                } else {
+                    assert.equal(state.level.monsters[x][y], placed);
+                }
+            },
+        }),
         placed,
     );
+    assert.deepEqual(redraws, [[10, 11], [12, 11]]);
     assert.equal(state.level.monsters[10][11], null);
     assert.equal(state.level.monsters[12][11], placed);
     state.level.monsters[12][11] = null;

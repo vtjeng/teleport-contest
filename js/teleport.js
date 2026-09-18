@@ -1201,13 +1201,12 @@ function rloc_to_core(monster, x, y, rawEnv = {}) {
     }
 
     if (oldx) {
-        relocate_monster(monster, x, y, state);
+        remove_monster(oldx, oldy, state);
         redraw(oldx, oldy, state);
-    } else {
-        mon_track_clear(monster);
-        place_monster(monster, x, y, state);
-        update_monster_region(monster, state);
     }
+    mon_track_clear(monster);
+    place_monster(monster, x, y, state);
+    update_monster_region(monster, state);
     // maybe_unhide_at(x, y) calls hideunder() for a monster whose mundetected
     // is set; an arriving follower's is clear, because dog.c relmon() cleared
     // it as the monster left the level it came from.
@@ -1250,8 +1249,8 @@ export function rloc_to_flag(monster, x, y, rlocflags = RLOC_NOMSG,
     if (x === oldx && y === oldy && m_at(x, y, state) === monster)
         return monster;
     let telemsg = false;
-    const oldSpotted = canSpotMonster(monster, state);
-    if (oldx && oldSpotted) appearmsg = false;
+    const oldSpotted = Boolean(oldx) && canSpotMonster(monster, state);
+    if (oldSpotted) appearmsg = false;
     const before = oldSpotted
         ? (couldsee(x, y, state) || sensesMonster(monster, state)
             ? (telemsg = true, null)
