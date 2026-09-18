@@ -2,7 +2,7 @@
   "session": "holdout/seed4500-knight-coverage",
   "remainingScreensUpperBound": 51,
   "status": "partial",
-  "commit": "d4f0aacb68614e8d59ea16e4ba23c711942c2d4b",
+  "commit": "2e2c6c14abae02bf056d0043dd44ae97f8e0a52b",
   "mismatch": {
     "session": "holdout/seed4500-knight-coverage",
     "step": 1763,
@@ -18,12 +18,13 @@
     "recordedSteps": 1814,
     "remainingScreensUpperBound": 51
   },
-  "summary": "The spell-message waits resolve the step-1761 premature form redraw and add two matching screens. The first remaining screen/cursor difference is step 1763 after Escape: JavaScript leaves the psi-bolt pain line visible while C shows the return to human form and restored sight. RNG and hero-form state agree; the pending terminal-message lifetime is under source investigation. The later summon-spell gap remains separate.",
+  "summary": "The first remaining screen/cursor difference is still step 1763 after Escape: JavaScript leaves the psi-bolt pain line visible while C shows the return to human form and restored sight. RNG and hero-form state agree; terminal-message lifetime and its rehumanization callers remain under source investigation. The force-creation response fix now restores the requested cleric species, exposing a separate makemon minion-initialization gap in an independent recipe; the later summon-spell gap remains separate.",
   "evidence": [
-    "Checkpoint d4f0aacb matches 1782/1814 Knight screens, 1783/1814 cursors and 106837 RNG calls. The fixed workload matches 11364/11405 screens and all 399 recordings pass. Knight has 32 actual unmatched screens; the queue upper bound is 51.",
+    "Checkpoint 2e2c6c14 matches 1782/1814 Knight screens, 1783/1814 cursors and 106837 RNG calls, unchanged from d4f0aacb. The fixed workload matches 11364/11405 screens and all 400 recordings pass. Knight has 32 actual unmatched screens; the queue upper bound is 51.",
     "The first remaining screen and cursor difference is step 1763, Escape input. C shows You return to human form! You can see again.--More-- with cursor [53,0,1]; JS shows Your cap area suddenly aches very painfully! with cursor [66,17,1]. The first cell difference is row 0, column 3; the fresh scan reports no RNG divergence before the later stop.",
     "The worker probe reaches the same human form after the source psi-bolt damage roll d(12,6)=34. JS pendingMessage still contains the pain message while display.toplines has advanced to Your movements are now unencumbered. This narrows the investigation to terminal pending/stop/reset state or its rehumanization callers; the exact C transition has not yet been established.",
     "The later stop remains simple monster action requires mcast_spell effect 17 at emitted screen 1784, on movesouth. It does not explain the earlier terminal difference.",
+    "The read.c create_particular_creation affirmative response is now compared with numeric byte 121, matching cmd.js y_n and restoring the original species after cant_revive. The source-pinned affirmative production test passes; an independent negative-response recording matches 46 screens/cursors and 3185 RNG calls. The affirmative recording is blocked next in makemon.c priest/minion initialization and is retained as a recipe, not completion evidence.",
     "Resolved step 1761: C finishes the casting announcement and effect message before damage. Awaiting the async JS messages and result-valued helpers moves the first difference to 1763 without changing RNG. Independent master-lich recording lich-spell-order-variation matches 2378 RNG calls and 57 screens/cursors; it does not establish clerical effect coverage.",
     "Whole mhitu.c getmattk now handles seduction, disease/hunger, energy, temporary holder, weapon, cold-touch and home-elemental substitutions through mattacku/mattackm. Source-pinned tests establish the pure helper; unported uhitm.c hmonas remains a separate caller gap.",
     "Retained counter-evidence: the earlier cleric fire-trap event had exactly one m_move→postmov→mintrap chain. Cleric2321 lacked minion state and trap knowledge because createMonsterBody skipped mk_roamer. A prior fire trap belonged to actor2334 at(26,7), outside learning range; fire resistance cannot omit the initial C fire-damage draw. The corrected source initialization removes that earlier divergence.",
@@ -41,7 +42,7 @@
       "JS castmu/mcast_spell now await existing effect messages; investigate tty_message.js pending state through the canonical mdamageu and rehumanize callers."
     ],
     "dependencies": [
-      "Independent clerical spell-effect recordings are blocked by a verified read.c create_particular_creation response-type defect: cmd.js y_n returns numeric byte 121 but the caller compares it with string y, retaining the replacement human zombie. Fixing that creation decision is a prerequisite to validating the new effect helpers; their active entries remain unrecorded.",
+      "The read.c create_particular_creation response-type defect is fixed: y_n returns numeric byte 121 and the caller now recognizes it. Independent aligned/high-cleric creation next reaches an unported makemon.c fallback: when neither MM_EPRI nor MM_EMIN was requested, C allocates minion state, draws min_align with rn2(3), derives renegade/peacefulness, then calls set_malign. This remains in recipes/read.c/forced-aligned-cleric-affirmative-blocked.session.json. The mcastu effect helpers still need matching production recordings; an independently selected Grand Master route is being examined without claiming coverage.",
       "The complete getmattk helper now replaces substitution refusals through mattacku/mattackm and adds 23 matching screens. The separate unported hmonas caller remains open.",
       "The later MCAST_SUMMON_MONS (effect17) stop belongs to mcast_spell and mcast_summon_mons. Completing the dispatcher also requires its return-valued geyser, fire-pillar, lightning and paralysis effect helpers and matching production recordings.",
       "Lightning also exposes a source defect in muse.c ureflects: C accepts an empty non-null message prefix, while the current JavaScript truthiness test suppresses output and discovery. Its message operation must remain silent during planned turns. zap.c flashburn already has an implementation and must be called with the source rnd(100) duration.",
