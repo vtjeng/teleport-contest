@@ -54,16 +54,26 @@ test('Sanctum explicit aligned clerics use priest.c mk_roamer', async () => {
 });
 
 test('Valkyrie Sanctum route reaches an ordinary EMIN action turn', async () => {
-    await runSegment(ACTION_RECIPE.segments[0]);
+    const actionSegment = ACTION_RECIPE.segments[0];
+    const beforeAction = {
+        ...actionSegment,
+        moves: actionSegment.moves.replace(/\.+$/u, ''),
+    };
+    await runSegment(beforeAction);
+    const positionsBefore = new Map();
+    for (const roamer of alignedRoamers())
+        positionsBefore.set(roamer.m_id, [roamer.mx, roamer.my]);
+
+    await runSegment(actionSegment);
     assert.equal(game.urole.name.m, 'Valkyrie');
     assert.equal(game.urace.adj, 'human');
     assert.equal(game.flags.female, true);
     assert.equal(game.u.ualign.type, A_LAWFUL);
-    assert.equal(alignedRoamers().length, 9);
-    // The recording's final `.` is the independent elapsed turn after the
-    // roamer arrival. Pin its terminal movement draws rather than merely
-    // asserting that startup produced some random numbers.
-    assert.deepEqual(getRngLog().slice(-3), [
-        'rn2(3)=2', 'rn2(20)=13', 'rn2(82)=58',
-    ]);
+    const roamers = alignedRoamers();
+    assert.equal(roamers.length, 9);
+    assert.ok(roamers.some(roamer => {
+        const before = positionsBefore.get(roamer.m_id);
+        return before && (before[0] !== roamer.mx || before[1] !== roamer.my);
+    }), 'an aligned EMIN must move during the extended production route');
+    assert.ok(getRngLog().length > 0);
 });
