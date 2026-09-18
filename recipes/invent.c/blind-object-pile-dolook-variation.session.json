@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 6200242,
+      "datetime": "20330809101112",
+      "nethackrc": "OPTIONS=name:BlindPileLook,role:Valkyrie,race:human,gender:female,align:lawful\nOPTIONS=!legacy,!tutorial,!splash_screen\nOPTIONS=pettype:none,!acoustics,!autopickup,blind,pile_limit:5\n",
+      "moves": " k  : "
+    }
+  ],
+  "comment": "Independent B36 dolook witness: a blind Valkyrie reaches the fresh two-object pile, acknowledges its tactile menu, then uses the colon look command on the same square; this exercises the MSGTYP REP/SHOW wrapper through cmd.c."
+}
