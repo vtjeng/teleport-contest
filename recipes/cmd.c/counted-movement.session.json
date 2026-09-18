@@ -26,8 +26,8 @@
       "seed": 840061,
       "datetime": "20260814101500",
       "nethackrc": "OPTIONS=name:CountRush,role:Valkyrie,race:human,gender:female,align:lawful\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none\n",
-      "moves": " 3\b",
-      "comment": "A positive count on the direct control rushwest binding reaches the source MOVEMENTCMD admission with context.run=3."
+      "moves": " 3\u0019",
+      "comment": "A positive count on Ctrl-Y (0x19), cmd.c reset_commands()'s direct rushnorthwest binding, reaches the source MOVEMENTCMD admission with context.run=3."
     }
   ]
 }

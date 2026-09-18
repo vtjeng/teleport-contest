@@ -117,3 +117,29 @@ test('rhack admits an independent counted walk direction', async () => {
     assert.equal(countedState.dispatches, 1);
     assert.equal(game._commandDispatchCount, 4);
 });
+
+test('rhack admits a counted control rush through the source binding', async () => {
+    // cmd.c reset_commands() binds Ctrl-Y (0x19) to the northwest rush row
+    // because the vi direction order puts y at northwest.  parse() spends
+    // one repeat on that MOVEMENTCMD byte, and rhack() must dispatch the
+    // rushnorthwest handler with run=3 rather than treating Ctrl-Y as count
+    // editing or as an unbound control byte.
+    const counted = await runCounted({
+        seed: 840061,
+        name: 'CountRush',
+        role: 'Valkyrie',
+        race: 'human',
+        gender: 'female',
+        align: 'lawful',
+        count: 3,
+        key: '\x19',
+    });
+    assert.equal(game.u.dx, -1);
+    assert.equal(game.u.dy, -1);
+    assert.equal(game._commandDispatchCount, 1);
+    // This independently seeded setup produces the exact source-aligned RNG
+    // prefix and final position for the three rush moves.
+    assert.equal(counted.getRngLog().length, 4683);
+    assert.deepEqual([game.u.ux, game.u.uy], [50, 4]);
+    assert.equal(game.hero_seq, 17);
+});
