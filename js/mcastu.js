@@ -576,13 +576,13 @@ async function mcast_spell(mtmp, dmg, spellnum, env = {}) {
 
     switch (spellnum) {
     case MCAST_PSI_BOLT:
-        resultDmg = mcast_psi_bolt(dmg, env);
+        resultDmg = await mcast_psi_bolt(dmg, env);
         break;
     case MCAST_OPEN_WOUNDS:
-        resultDmg = mcast_open_wounds(dmg, env);
+        resultDmg = await mcast_open_wounds(dmg, env);
         break;
     case MCAST_CURE_SELF:
-        resultDmg = m_cure_self(mtmp, dmg, env);
+        resultDmg = await m_cure_self(mtmp, dmg, env);
         break;
     case MCAST_HASTE_SELF:
         await mon_adjust_speed(mtmp, 1, null, env.state ?? game, env);
