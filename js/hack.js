@@ -287,15 +287,12 @@ import {
 } from './obj.js';
 import {
     an,
-    assertObjectNameable,
-    assertPricedObjectNameable,
     simple_typename,
     The,
     the,
     just_an,
     ansimpleoname,
     donameFresh,
-    UnsupportedObjectNameError,
     xnameFresh,
 } from './objnam.js';
 import {
@@ -759,19 +756,6 @@ export class UnsupportedHeroMoveBoundaryError extends Error {
         super(`unsupported hero move: ${reason}`);
         this.name = 'UnsupportedHeroMoveBoundaryError';
         this.reason = reason;
-    }
-}
-
-function assertMovementFloorObjectNameable(object, withShopPrice, state) {
-    try {
-        if (withShopPrice)
-            assertPricedObjectNameable(object, state);
-        else
-            assertObjectNameable(object, state);
-    } catch (error) {
-        if (!(error instanceof UnsupportedObjectNameError)
-            && !(error instanceof UnsupportedShopError)) throw error;
-        throw new UnsupportedHeroMoveBoundaryError(error.branch);
     }
 }
 
@@ -1472,7 +1456,7 @@ export function requireSimpleHeroDestination(
             );
         }
     }
-    if (floorObject && state.flags?.pickup && !noPickMove) {
+    if (floorObject && !noPickMove) {
         // pickup.c pickup() runs after domove_core() commits the hero
         // position. A late refusal there would leave room-entry writes
         // behind, so dry-run the complete automatic-pickup transaction at
@@ -1488,37 +1472,6 @@ export function requireSimpleHeroDestination(
             if (!(error instanceof UnsupportedPickupError)) throw error;
             throw new UnsupportedHeroMoveBoundaryError(error.reason);
         }
-    }
-    if (floorObject?.nexthere && !noPickMove) {
-        let pileCount = 0;
-        for (let object = floorObject; object; object = object.nexthere)
-            ++pileCount;
-        const skipObjects = state.flags?.pile_limit > 0
-            && pileCount >= state.flags.pile_limit;
-        // C invent.c:look_here() owns the blind tactile pile window after
-        // spoteffects() commits the move.  Do not reject the destination in
-        // hack.c's preflight; the live pickup/check_here caller preserves the
-        // source-ordered heading, menu wait, and cockatrice touch branch.
-        // invent.c look_here() never calls doname_with_price() when the
-        // threshold selects its count line. Keep nameability as a menu-only
-        // preflight so the message path admits every ordinary pile count.
-        if (!skipObjects) {
-            const withShopPrice = costly_spot(x, y, state);
-            for (let object = floorObject; object; object = object.nexthere) {
-                assertMovementFloorObjectNameable(
-                    object,
-                    withShopPrice,
-                    state,
-                );
-            }
-        }
-    }
-    if (floorObject && !floorObject.nexthere && !noPickMove) {
-        assertMovementFloorObjectNameable(
-            floorObject,
-            costly_spot(x, y, state),
-            state,
-        );
     }
     // invent.c look_here() computes dfeature_at() unconditionally and prints
     // it before "You see here" when the square holds exactly one object.

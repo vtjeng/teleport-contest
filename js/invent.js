@@ -2349,7 +2349,8 @@ function Stone_resistance(state) {
 
 // Mutation-free admission for look_here() through its first complete result.
 // `objects` projects the floor chain after an automatic pickup without
-// `obj_cnt` is invent.c's caller-owned parameter, deliberately independent of
+// mutating live level state. `obj_cnt` is invent.c's caller-owned parameter,
+// deliberately independent of
 // the floor chain: check_here() passes its count for pile_limit, while dolook()
 // passes zero even when it inspects the same objects.
 export function preflight_look_here(
@@ -2399,15 +2400,6 @@ export function preflight_look_here(
     // so output can remain source-ordered without mutating the projection.
     const region = !skip_objects ? visible_region_at(ux, uy, state) : null;
     const seenTrap = !skip_objects && trap?.tseen ? trap : null;
-    if (hasPile && !skip_objects) {
-        for (const object of objectList) {
-            if (withShopPrice)
-                assertPricedObjectNameable(object, state);
-            else
-                assertObjectNameable(object, state);
-        }
-    }
-
     let cant_reach;
     let cannotReachObjects;
     if (blind) {
@@ -2418,7 +2410,33 @@ export function preflight_look_here(
         );
     }
 
-    if (otmp && !hasPile && !skip_objects) {
+    // C returns from the blind tactile arm when the floor cannot be reached,
+    // and from the lava/inaccessible-pool arm before naming any object. Keep
+    // those source boundaries ahead of all naming and pricing assertions: an
+    // object on an unreachable or liquid square is not passed to doname().
+    const inaccessibleLiquid = is_lava(ux, uy, state)
+        || (is_pool(ux, uy, state) && !state.u.uinwater);
+    const skipsObjectNaming = inaccessibleLiquid
+        || (blind && cannotReachObjects);
+    if (!skipsObjectNaming && hasPile && !skip_objects) {
+        for (const object of objectList) {
+            const tactileCockatrice = object.otyp === CORPSE
+                && will_feel_cockatrice(object, false, state);
+            // C's pile arm uses ordinary doname() for the first tactile
+            // cockatrice and breaks immediately; later objects are never
+            // named or priced.
+            if (tactileCockatrice) {
+                assertObjectNameable(object, state);
+                break;
+            }
+            if (withShopPrice)
+                assertPricedObjectNameable(object, state);
+            else
+                assertObjectNameable(object, state);
+        }
+    }
+
+    if (!skipsObjectNaming && otmp && !hasPile && !skip_objects) {
         if (withShopPrice)
             assertPricedObjectNameable(otmp, state);
         else
