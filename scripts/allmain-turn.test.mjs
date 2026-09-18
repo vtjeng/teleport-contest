@@ -103,7 +103,7 @@ import {
     TOOL_CLASS,
     WAX_CANDLE,
 } from '../js/objects.js';
-import { create_region } from '../js/region.js';
+import { create_gas_cloud, create_region } from '../js/region.js';
 import {
     UnsupportedObjectOperationError,
     newObject,
@@ -113,6 +113,7 @@ import { UnsupportedObjectNameError } from '../js/objnam.js';
 import { preflightSimpleMonsterActions } from '../js/unported_monster_actions.js';
 import { clearTtyMessageWindow, ttyPline } from '../js/tty_message.js';
 import {
+    block_point,
     cansee,
     clear_path,
     does_block,
@@ -990,8 +991,6 @@ test('delayed-action planning resumes at the outer movement gate', async () => {
             turns: 4, frames: 2, callbacks: 0, noCallback: true },
         { name: 'unburdened callback exhausts ration', movement: 12, multi: -1,
             turns: 2, frames: 1, callbacks: 1, exhaustRation: true },
-        { name: 'unsupported suffix', movement: 12, multi: -1,
-            turns: 1, frames: 1, callbacks: 1, refuseSuffix: true },
     ]) {
         const replay = await runSegment(firstTurnInput({
             // Independent inputs; all scenario differences are constructed
@@ -1028,7 +1027,6 @@ test('delayed-action planning resumes at the outer movement gate', async () => {
         const movesBefore = game.moves;
         let callbacks = 0;
         let frames = 0;
-        let prefixSnapshot;
         game.afternmv = scenario.noCallback ? null : (state) => {
             assert.equal(state, game, scenario.name);
             assert.equal(state.afternmv, null, scenario.name);
@@ -1044,37 +1042,18 @@ test('delayed-action planning resumes at the outer movement gate', async () => {
                     callbacks++;
                 };
             }
-            if (scenario.refuseSuffix) {
-                state.level.regions.push(create_region([{
-                    lx: state.u.ux, ly: state.u.uy,
-                    hx: state.u.ux, hy: state.u.uy,
-                }]));
-                prefixSnapshot = completeSecondTurnSnapshot(state, replay);
-            }
         };
         game._animationFrameHook = () => { frames++; };
         game.nhDisplay.pushKey('.'.charCodeAt(0));
         try {
-            if (scenario.refuseSuffix) {
-                await assert.rejects(moveloop_core(), (error) => (
-                    error instanceof UnsupportedTurnBoundaryError
-                    && error.message.includes('multi-cycle region upkeep')
-                ));
-                // The callback's completed prefix stays committed; the new
-                // unsupported suffix spends no live RNG or state mutation.
-                assert.deepEqual(completeSecondTurnSnapshot(game, replay),
-                    prefixSnapshot);
-            } else {
-                await moveloop_core();
-            }
+            await moveloop_core();
         } finally {
             game._animationFrameHook = null;
         }
         assert.equal(callbacks, scenario.callbacks, scenario.name);
         assert.equal(frames, scenario.frames, scenario.name);
         assert.equal(game.moves, movesBefore + scenario.turns, scenario.name);
-        assert.equal(game.u.umovement, scenario.refuseSuffix ? 3 : 12,
-            scenario.name);
+        assert.equal(game.u.umovement, 12, scenario.name);
         assert.equal(game.multi, 0, scenario.name);
         assert.equal(game.nomovemsg, null, scenario.name);
         assert.equal(game.afternmv, null, scenario.name);
@@ -1158,7 +1137,7 @@ test('live timeout handoff preserves allocation and tail counts', async () => {
     }
 });
 
-test('a refused timeout tail retains only its completed live prefix', async () => {
+test('planned region upkeep is replayed on the live tail', async () => {
     const replay = await runSegment(firstTurnInput({
         seed: 8440101, datetime: '20320415101723', name: 'TimeoutPrefix',
         role: 'Healer', race: 'human', gender: 'female', align: 'neutral',
@@ -1176,6 +1155,7 @@ test('a refused timeout tail retains only its completed live prefix', async () =
     game.level.regions = [create_region([{
         lx: game.u.ux, ly: game.u.uy, hx: game.u.ux, hy: game.u.uy,
     }])];
+    game.level.regions[0].ttl = 2;
     game.u.umovement = NORMAL_SPEED;
     game.u.uprops[HALLUC].intrinsic = 1;
     game.u.ublesscnt = 10;
@@ -1190,23 +1170,151 @@ test('a refused timeout tail retains only its completed live prefix', async () =
     const movesBefore = game.moves;
     initrack(game);
     const tracksBefore = game.track.utcnt;
-    const rngBefore = replay.getRngLog().length;
-    await assert.rejects(moveloop_core(), (error) => (
-        error instanceof UnsupportedTurnBoundaryError
-        && error.message.includes('multi-cycle region upkeep')
-    ));
-    assert.equal(game.moves, movesBefore + 1);
-    assert.equal(game.track.utcnt, tracksBefore + 1);
-    assert.equal(game.u.umovement, 3);
+    game.nhDisplay.pushKey(' '.charCodeAt(0));
+    await moveloop_core();
+    assert.equal(game.moves, movesBefore + 4);
+    assert.equal(game.track.utcnt, tracksBefore + 4);
+    assert.equal(game.u.umovement, 12);
     assert.equal(game.u.uprops[HALLUC].intrinsic, 0);
-    assert.match(game._ttyToplines, /Everything looks SO boring now\./u);
-    assert.equal(game.u.ublesscnt, 10);
-    assert.equal(game.u.uhunger, 900);
-    assert.equal(game.multi, -1);
-    assert.equal(callbacks, 0);
-    assert.equal(replay.getRngLog().slice(rngBefore)
-        .some((entry) => entry.startsWith('rn2(20)')), false);
+    assert.equal(game.u.ublesscnt, 6);
+    assert.equal(game.u.uhunger, 892);
+    assert.equal(game.multi, 0);
+    assert.equal(callbacks, 1);
+    assert.deepEqual(game.level.regions, []);
 });
+
+test('planned visible vapor expiry restores live vision on success and failure',
+    async () => {
+        for (const refuseAfterExpiry of [false, true]) {
+            const replay = await runSegment({
+                seed: 8440102,
+                datetime: '20320415101723',
+                nethackrc: 'OPTIONS=name:RegionIsolation,role:Healer,'
+                    + 'race:human,gender:female,align:neutral,!legacy,'
+                    + '!tutorial,!splash_screen,pettype:none,!acoustics',
+                moves: '',
+            });
+            for (const column of game.level.monsters) column.fill(null);
+            game.level.monlist = null;
+            game.level.regions = [];
+            game.head_engr = null;
+            game.invent = {
+                oclass: TOOL_CLASS,
+                otyp: SACK,
+                owt: weight_cap(game) * 2,
+                nobj: null,
+            };
+            game.go.oldcap = near_capacity(game);
+            game.u.umovement = 0;
+            game.context.move = 1;
+            game.context.seer_turn = 100000;
+            game.context.next_attrib_check = 100000;
+
+            // Create the same harmless visible vapor that region.c creates at
+            // runtime, then make its expiration due on the projected turn.
+            // The clone must remove it and clear its visual block while the
+            // retryable live state keeps the region and shared index.
+            let cloudRandomCalls = 0;
+            const cloud = await create_gas_cloud(
+                game.u.ux,
+                game.u.uy,
+                1,
+                0,
+                {
+                    state: game,
+                    random: {
+                        rn2: (bound) => {
+                            assert.equal(bound, 3);
+                            cloudRandomCalls += 1;
+                            assert.equal(cloudRandomCalls, 1);
+                            return 2;
+                        },
+                    },
+                    blockPoint: (x, y) => block_point(x, y, game),
+                    canSee: (x, y) => cansee(x, y, game),
+                    newsym: () => {},
+                    message: async () => {},
+                },
+            );
+            assert.equal(cloudRandomCalls, 1);
+            cloud.ttl = 0;
+
+            const before = completeSecondTurnSnapshot(game, replay);
+            const sharedIndexBefore = transparencyIndexViews().map(
+                (view) => [...view],
+            );
+            const activeBufferBefore = game.active_buf;
+            const visionBefore = game.viz_array;
+            const guard = freezeLiveState(game);
+            let plannedCloudState = null;
+
+            const run = preflightSimpleMonsterActions(game, {
+                consumeHeroRation: false,
+                advanceRound: async (planned, planningRandom) => {
+                    await finishElapsedTurn(
+                        planned,
+                        planningRandom,
+                        { planning: true },
+                    );
+                    plannedCloudState = {
+                        count: planned.level.regions.length,
+                        ttl: planned.level.regions[0]?.ttl ?? null,
+                        plannedVisionChange: planned._plannedVisionChange,
+                    };
+                    if (refuseAfterExpiry) {
+                        const unsupportedRegion = create_region([{
+                            lx: planned.u.ux,
+                            ly: planned.u.uy,
+                            hx: planned.u.ux,
+                            hy: planned.u.uy,
+                        }]);
+                        unsupportedRegion.inside_f =
+                            'unported-region-callback';
+                        planned.level.regions.push(unsupportedRegion);
+                        await finishElapsedTurn(
+                            planned,
+                            planningRandom,
+                            { planning: true },
+                        );
+                    }
+                    return true;
+                },
+            });
+            if (refuseAfterExpiry) {
+                await assert.rejects(
+                    run,
+                    /unsupported region callback unported-region-callback/u,
+                );
+            } else {
+                await run;
+            }
+
+            guard.assertNoLeak(assert);
+            assert.deepEqual(plannedCloudState, {
+                count: 0,
+                ttl: null,
+                plannedVisionChange: {
+                    x: game.u.ux,
+                    y: game.u.uy,
+                },
+            });
+            assert.deepEqual(
+                completeSecondTurnSnapshot(game, replay),
+                before,
+                refuseAfterExpiry
+                    ? 'later planning refusal leaves live state unchanged'
+                    : 'successful planning leaves live state unchanged',
+            );
+            assert.equal(game.level.regions.includes(cloud), true);
+            assert.equal(cloud.ttl, 0);
+            assert.equal(game.active_buf, activeBufferBefore);
+            assert.strictEqual(game.viz_array, visionBefore);
+            assert.deepEqual(
+                transparencyIndexViews().map((view) => [...view]),
+                sharedIndexBefore,
+            );
+        }
+    });
 
 test('polymorph timeout isolates live callbacks and preserves the capacity snapshot', async () => {
     // polyman releases a mimicked appearance through unmul. The callback may
@@ -1972,24 +2080,11 @@ test('first-complete-turn matrix stays clean and recorder-sized', () => {
     assert.equal(dismissalSegments, 1);
 });
 
-// Row 2 of the third re-audit: both burdened planning stops deleted cleanly
-// with the whole suite green, because the capitulation case only proved they
-// stay silent. These reach them without the turn limit.
-test('burdened multi-cycle upkeep stops before region and search work',
+// The remaining burdened planning stops are source-owned refusals unrelated to
+// region upkeep, which now runs on the projected level before them.
+test('burdened multi-cycle upkeep stops before search and overexertion work',
     async () => {
         for (const [name, reason, install] of [
-            [
-                'region upkeep',
-                'burdened multi-cycle region upkeep',
-                () => {
-                    game.level.regions.push(create_region([{
-                        lx: game.u.ux,
-                        ly: game.u.uy,
-                        hx: game.u.ux,
-                        hy: game.u.uy,
-                    }]));
-                },
-            ],
             [
                 'automatic search',
                 'burdened multi-cycle automatic search',
@@ -2144,13 +2239,16 @@ test('a planned timeout writes no line and reads no key', async () => {
     // The clairvoyance and attribute cadences belong to later turns.
     game.context.seer_turn = 100000;
     game.context.next_attrib_check = 100000;
-    // One region, so the plan stops at the guard directly below nh_timeout.
-    game.level.regions.push(create_region([{
+    // An explicitly unported callback remains a source boundary after
+    // nh_timeout; a callback-free region is now executed during planning.
+    const unsupportedRegion = create_region([{
         lx: game.u.ux,
         ly: game.u.uy,
         hx: game.u.ux,
         hy: game.u.uy,
-    }]));
+    }]);
+    unsupportedRegion.inside_f = 'unported-region-callback';
+    game.level.regions.push(unsupportedRegion);
     game.u.umovement = 0;
     game.context.move = 1;
     // The single key the live turn below spends on that More prompt. The plan
@@ -2163,11 +2261,8 @@ test('a planned timeout writes no line and reads no key', async () => {
         game.context.move = 1;
         await assert.rejects(
             () => moveloop_core(),
-            (error) => (
-                error instanceof UnsupportedTurnBoundaryError
-                && error.message
-                    === 'elapsed turn reached burdened multi-cycle region upkeep'
-            ),
+            (error) => /unsupported region callback unported-region-callback/u
+                .test(error.message),
             `attempt ${attempt}`,
         );
         assert.deepEqual(
@@ -2261,14 +2356,16 @@ test('a planned corpse rot touches neither the live map nor the live queue',
         const square = game.level.at(game.u.ux, game.u.uy);
         square.waslit = !square.lit;
 
-        // One region, so the plan stops at the guard directly below
-        // nh_timeout and the live pass never runs.
-        game.level.regions.push(create_region([{
+        // Keep the unsupported callback as the source boundary; a valid
+        // region now runs on the projected and live tails alike.
+        const unsupportedRegion = create_region([{
             lx: game.u.ux,
             ly: game.u.uy,
             hx: game.u.ux,
             hy: game.u.uy,
-        }]));
+        }]);
+        unsupportedRegion.inside_f = 'unported-region-callback';
+        game.level.regions.push(unsupportedRegion);
         game.u.umovement = 0;
         game.context.move = 1;
 
@@ -2277,9 +2374,8 @@ test('a planned corpse rot touches neither the live map nor the live queue',
             game.context.move = 1;
             await assert.rejects(
                 () => moveloop_core(),
-                (error) => error instanceof UnsupportedTurnBoundaryError
-                    && error.message === 'elapsed turn reached burdened '
-                        + 'multi-cycle region upkeep',
+                (error) => /unsupported region callback unported-region-callback/u
+                    .test(error.message),
                 `attempt ${attempt}`,
             );
             // world.locations and timers.queue are both in the snapshot, so
@@ -2368,13 +2464,16 @@ test('a planned finished meal refreshes no status line', async () => {
     // The clairvoyance and attribute cadences belong to later turns.
     game.context.seer_turn = 100000;
     game.context.next_attrib_check = 100000;
-    // One region, so the plan stops at the guard directly below nh_timeout.
-    game.level.regions.push(create_region([{
+    // Keep the unsupported callback as the source boundary; a valid region
+    // now runs on the projected and live tails alike.
+    const unsupportedRegion = create_region([{
         lx: game.u.ux,
         ly: game.u.uy,
         hx: game.u.ux,
         hy: game.u.uy,
-    }]));
+    }]);
+    unsupportedRegion.inside_f = 'unported-region-callback';
+    game.level.regions.push(unsupportedRegion);
     game.u.umovement = 0;
     game.context.move = 1;
     // The command that just ran left the status line dirty, which is the
@@ -2388,11 +2487,8 @@ test('a planned finished meal refreshes no status line', async () => {
         game.context.move = 1;
         await assert.rejects(
             () => moveloop_core(),
-            (error) => (
-                error instanceof UnsupportedTurnBoundaryError
-                && error.message
-                    === 'elapsed turn reached burdened multi-cycle region upkeep'
-            ),
+                (error) => /unsupported region callback unported-region-callback/u
+                    .test(error.message),
             `attempt ${attempt}`,
         );
         assert.deepEqual(
@@ -2552,12 +2648,14 @@ test('a planned blocking mimic birth restores live vision on every exit',
                     // A genuine later planning refusal exercises the same
                     // finally cleanup after both the index borrow and its
                     // clone-buffer consumer have completed.
-                    planned.level.regions.push(create_region([{
+                    const unsupportedRegion = create_region([{
                         lx: planned.u.ux,
                         ly: planned.u.uy,
                         hx: planned.u.ux,
                         hy: planned.u.uy,
-                    }]));
+                    }]);
+                    unsupportedRegion.inside_f = 'unported-region-callback';
+                    planned.level.regions.push(unsupportedRegion);
                     return finishElapsedTurn(planned, planningRandom, {
                         planning: true,
                         randomMonsterOnly: false,
@@ -2567,9 +2665,8 @@ test('a planned blocking mimic birth restores live vision on every exit',
             if (refuseAfterConsumer) {
                 await assert.rejects(
                     run,
-                    (error) => error instanceof UnsupportedTurnBoundaryError
-                        && error.message === 'elapsed turn reached burdened '
-                            + 'multi-cycle region upkeep',
+                    (error) => /unsupported region callback unported-region-callback/u
+                        .test(error.message),
                 );
             } else {
                 await run;
@@ -2868,12 +2965,14 @@ test('a planned hallucinated appearance advances only cloned display state',
             extrinsic: 0,
             blocked: 0,
         };
-        game.level.regions = [create_region([{
+        const unsupportedRegion = create_region([{
             lx: game.u.ux,
             ly: game.u.uy,
             hx: game.u.ux,
             hy: game.u.uy,
-        }])];
+        }]);
+        unsupportedRegion.inside_f = 'unported-region-callback';
+        game.level.regions = [unsupportedRegion];
         game.context.seer_turn = 100000;
         game.context.next_attrib_check = 100000;
         game.u.umovement = 0;
@@ -2882,11 +2981,11 @@ test('a planned hallucinated appearance advances only cloned display state',
         const before = completeSecondTurnSnapshot(game, replay);
         await assert.rejects(
             () => moveloop_core(),
-            (error) => error instanceof UnsupportedTurnBoundaryError
-                && /burdened multi-cycle region upkeep/u.test(error.message),
+            (error) => /unsupported region callback unported-region-callback/u
+                .test(error.message),
         );
         // The planned constructor reached redraw and hallucinated Amonnam
-        // before the later region refusal.  All state, both RNG streams,
+        // before the unported callback refusal. All state, both RNG streams,
         // terminal output, and queued input remain live and retryable.
         assert.deepEqual(completeSecondTurnSnapshot(game, replay), before);
     });

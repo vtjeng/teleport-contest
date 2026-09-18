@@ -638,12 +638,24 @@ export async function interrupt_multi(message, state, env = {}) {
     if (printing) await env.norepMessage(message, state);
 }
 
-function regionEffectEnv(state, random) {
+function regionEffectEnv(state, random, { planning = false } = {}) {
+    // C's run_regions() mutates the active level even while the elapsed-turn
+    // preflight is running.  A planned turn owns a cloned level, so preserve
+    // those mutations there while suppressing only the terminal operations;
+    // drawing or printing from the clone would consume live output/input
+    // before the real pass replays the same callbacks.
+    const silentDisplay = async () => {};
     return {
         state,
         random,
-        blockPoint: (x, y) => block_point(x, y, state),
-        unblockPoint: (x, y) => unblock_point(x, y, state),
+        blockPoint: (x, y) => {
+            if (planning) admitPlannedVisionChange(x, y, state);
+            return block_point(x, y, state);
+        },
+        unblockPoint: (x, y) => {
+            if (planning) admitPlannedVisionChange(x, y, state);
+            return unblock_point(x, y, state);
+        },
         doesBlock: (x, y, location) => does_block(
             x,
             y,
@@ -651,13 +663,15 @@ function regionEffectEnv(state, random) {
             state,
         ),
         canSee: (x, y) => cansee(x, y, state),
-        newsym: (x, y) => newsym(x, y),
-        message: (message) => ttyPline(message, state),
+        newsym: planning ? () => {} : (x, y) => newsym(x, y),
+        message: planning ? silentDisplay : (message) => ttyPline(message, state),
     };
 }
 
 async function runEveryTurnEffectWithRegionHooks(monster, env) {
-    const regionEnv = regionEffectEnv(env.state, env.random);
+    const regionEnv = regionEffectEnv(env.state, env.random, {
+        planning: env.planning,
+    });
     await m_everyturn_effect(monster, {
         ...env,
         createGasCloud: (x, y, size, damage, effectEnv) =>
@@ -893,12 +907,12 @@ async function finishElapsedTurnAfterTimeout(
     const turnMessage = planning ? silentDisplay : ttyPline;
     const turnNorep = planning ? silentDisplay : ttyNorep;
     const turnStatusRefresh = planning ? silentDisplay : () => bot();
-    const regionEnv = planning ? null : regionEffectEnv(state, random);
-    // Full tail planning also follows a live-only timeout for an unburdened
-    // hero. The existing region guard applies at this source position too.
-    if (planning && state.level.regions.length)
-        elapsedTurnBoundary('burdened multi-cycle region upkeep');
-    if (!planning) await run_regions(regionEnv);
+    // C allmain.c calls run_regions() immediately after nh_timeout() on every
+    // turn. Planned elapsed turns use the same source-ordered callbacks on
+    // their cloned level; regionEffectEnv silences only the clone's drawing
+    // and messages so the live pass remains the first terminal write.
+    const regionEnv = regionEffectEnv(state, random, { planning });
+    await run_regions(regionEnv);
 
     if (state.u.ublesscnt) state.u.ublesscnt--;
     // Both regenerators reach allmain.c interrupt_multi() on the turn they top
