@@ -429,7 +429,7 @@ test('blind heroes enter the production quick-glance cursor path',
         // pager.c do_look has no blind admission guard. This initialized
         // production dispatch test reaches the selected-location description;
         // strict C recording of that final WIN_MESSAGE boundary remains
-        // blocked by the existing ttyPutmixed owner.
+        // blocked by the separate missing !quick condition before checkfile.
         const replay = await runSegment({
             seed: 9310601,
             datetime: '20370106081234',
