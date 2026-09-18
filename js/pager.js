@@ -1918,7 +1918,7 @@ export async function docontact(state = game) {
 // The recorder uses unixconf.h, where PORT_HELP is undefined, so source index
 // 16 is the debug-help row. Values retain their source-table indexes when
 // hideusage removes row 13; selectors are reassigned in visible menu order by
-// tty_end_menu(), which is why the row can shift from m to n.
+// tty_end_menu(), so later rows shift earlier when usage is hidden.
 const HELP_MENU_SOURCE = Object.freeze([
     { value: 1, label: 'About NetHack (version information).' },
     { value: 2, label: 'Long description of the game and commands.' },

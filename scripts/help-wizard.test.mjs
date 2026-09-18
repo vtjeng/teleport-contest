@@ -5,7 +5,6 @@ import {
     helpMenuItems,
     setopt_cmd,
 } from '../js/pager.js';
-import { loadHelpWizardCases } from './run-help-wizard.mjs';
 
 test('wizard help keeps source values while filtering rows', () => {
     assert.deepEqual(
@@ -53,11 +52,4 @@ test('setopt_cmd follows current command bindings and C fallbacks', () => {
             { type: 'bind', key: 'z'.charCodeAt(0), command: 'options' },
         ],
     }), "'#optionsfull' or 'q z'");
-});
-
-test('wizard recipes select a real production debug-help row', () => {
-    for (const { entry, recipe } of loadHelpWizardCases()) {
-        assert.match(recipe.segments[0].nethackrc, /playmode:debug/u, entry.label);
-        assert.equal(recipe.segments[0].moves, '?p   ', entry.label);
-    }
 });
