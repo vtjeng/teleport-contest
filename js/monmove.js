@@ -3721,11 +3721,30 @@ export async function m_move(monster, rawEnv = {}) {
     // branch just as C does.
     if (monster.data?.pmidx === PM_MAIL_DAEMON && !monster.wormno) {
         if (!heroDeaf(state) && canseemon(monster, state)) {
+            // The clone scan must consume the verbalize branch without
+            // writing the live message window.  The live pass keeps the
+            // caller's injected message seam (or ttyPline) exactly as C.
+            const message = env.planning
+                ? async () => {}
+                : (rawEnv.message ?? ttyPline);
             await verbalize("I'm late!", state, {
-                message: rawEnv.message ?? ttyPline,
+                message,
             });
         }
-        mongone(monster, { ...env, state });
+        // mongone() redraws the vacated square through its creation hooks.
+        // Bind that hook to the same planning/live display seam as the
+        // verbalize call; otherwise a planning clone repaints the live map.
+        const redraw = env.planning
+            ? () => {}
+            : (rawEnv.redraw ?? rawEnv.hooks?.newsym ?? newsym);
+        mongone(monster, {
+            ...env,
+            state,
+            hooks: {
+                ...(rawEnv.hooks ?? {}),
+                newsym: redraw,
+            },
+        });
         return MMOVE_DIED;
     }
 

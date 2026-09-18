@@ -99,6 +99,7 @@ import {
     PM_LEPRECHAUN,
     PM_LONG_WORM,
     PM_LITTLE_DOG,
+    PM_MAIL_DAEMON,
     PM_ORC_SHAMAN,
     PM_PONY,
     PM_QUANTUM_MECHANIC,
@@ -5232,6 +5233,49 @@ test('Tengu on a no-teleport level reaches ordinary movement', async () => {
     assert.equal(target.replay.getScreens().length, screensBefore);
     assert.equal(target.monster.movement, NORMAL_SPEED);
 });
+
+// C ref: monmove.c m_move():1829-1837. The clone scan reaches the mail
+// daemon's verbalize plus mongone() path, but both display seams must remain
+// on the planning state. dmonsfree() removes the clone victim before the
+// planner's public round callback; the live victim and retryable output stay
+// untouched for the real pass.
+test('public planned mail-daemon action isolates message and redraw',
+    async () => {
+        const target = await prepareSelectedAction({
+            pmidx: PM_MAIL_DAEMON,
+        });
+        game.viz_array[target.heroY][target.monsterX] |= IN_SIGHT;
+        const before = completeSecondTurnSnapshot(game, target.replay);
+        let cloneVictimPurged = false;
+        let callbackState = null;
+
+        await preflightSimpleMonsterActions(game, {
+            advanceRound(planned) {
+                callbackState = {
+                    hasList: Boolean(planned.level.monlist),
+                    purge: planned.iflags?.purge_monsters ?? null,
+                    movement: planned.u.umovement,
+                };
+                // dmonsfree() resets purge_monsters after unlinking the
+                // dead clone, so the empty list is the post-cleanup marker.
+                cloneVictimPurged = !planned.level.monlist;
+                // The callback stands in for allmain.c's next allocation;
+                // stop after observing the completed clone scan rather than
+                // asking the fixture to synthesize another round.
+                return true;
+            },
+        });
+
+        assert.equal(cloneVictimPurged, true,
+            `the public planner reached mongone on its clone: ${
+                JSON.stringify(callbackState)}`);
+        assert.deepEqual(
+            completeSecondTurnSnapshot(game, target.replay),
+            before,
+        );
+        assert.equal(target.monster.mhp, 5,
+            'the live mail daemon remains for the real movement pass');
+    });
 
 // C ref: monmove.c gelcube_digests():424-434. An empty cube, or one carrying
 // only inorganic material, returns -1 and continues through ordinary dochug();
