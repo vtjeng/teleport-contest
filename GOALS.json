@@ -68542,6 +68542,136 @@
         "rng": 791400
       },
       "parkedReason": "Ordinary monster summon feedback has a strict production witness. Wizard speech, invisible/displaced feedback and the Hell path remain unrecorded; the alternate selection recipe is blocked in tactics. The first Knight stop is now makemon species admission at step1784; correct that source runtime path next."
+    },
+    {
+      "id": "div-makemon-runtime-species-admission-seed4500-20260918",
+      "kind": "divergence-fix",
+      "status": "closed",
+      "summary": "Allow the source-defined explicit monster species selected by nasty through runtime creation.",
+      "cFile": "makemon.c",
+      "sessions": [],
+      "selectionReason": "Seed continuation for holdout/seed4500-knight-coverage, remainingScreensUpperBound 30, investigations/holdout/seed4500-knight-coverage.json: makemon.c makemon owns the explicit-species admission defect. Higher-ranked seed2200 is blocked by Q1 missing configuration-path input. A45 reserves this creation correction.",
+      "detail": "At segment 0 step 1784, nasty reaches makemon with an explicit species pointer and MM_NOMSG near the perceived hero. js/makemon_create.js preflightCreation rejects orange dragon before source creation. C makemon.c makemon accepts the pointer unless genocided and has no species allowlist. Bypass only that JS allowlist for the already validated nasty call shape, preserving the other creation guards and NULL fallback limitations.",
+      "spans": [
+        {
+          "name": "runtime-species-admission",
+          "status": "closed",
+          "closedBy": "3dc05e1cda4be3b759172c2e954941d769166f05",
+          "functions": [
+            "makemon"
+          ]
+        }
+      ],
+      "openedAt": "167930f9a1f3e01d7540748040f0b613b318dd9a",
+      "openStanding": {
+        "sha": "82be8fcffc74b25ace3a70bd267a11106ab4a322",
+        "screens": 11366,
+        "rng": 791400
+      },
+      "closedAt": "3dc05e1cda4be3b759172c2e954941d769166f05",
+      "delivered": {
+        "screens": 8,
+        "rng": 633
+      },
+      "function": "makemon",
+      "session": "holdout/seed4500-knight-coverage",
+      "step": 1784,
+      "activeStanding": {
+        "sha": "82be8fcffc74b25ace3a70bd267a11106ab4a322",
+        "screens": 11366,
+        "rng": 791400
+      },
+      "openMismatches": [
+        {
+          "session": "holdout/seed4500-knight-coverage",
+          "step": 1784,
+          "kind": "stop",
+          "function": "makemon",
+          "functionDeclared": true,
+          "sourceFile": "makemon.c",
+          "cFile": "makemon.c",
+          "luaFile": null,
+          "line": null,
+          "message": "unsupported initial-level monster creation: makemon() monster 148",
+          "unlocatedKinds": [],
+          "recordedSteps": 1814,
+          "remainingScreensUpperBound": 30,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/holdout/seed4500-knight-coverage.json",
+            "result": {
+              "session": "holdout/seed4500-knight-coverage",
+              "remainingScreensUpperBound": 30,
+              "status": "complete",
+              "commit": "82be8fcffc74b25ace3a70bd267a11106ab4a322",
+              "mismatch": {
+                "session": "holdout/seed4500-knight-coverage",
+                "step": 1784,
+                "kind": "stop",
+                "function": "makemon",
+                "functionDeclared": true,
+                "sourceFile": "makemon.c",
+                "cFile": "makemon.c",
+                "luaFile": null,
+                "line": null,
+                "message": "unsupported initial-level monster creation: makemon() monster 148",
+                "unlocatedKinds": [],
+                "recordedSteps": 1814,
+                "remainingScreensUpperBound": 30
+              },
+              "summary": "Monster summoning now reaches its canonical source path, but the Knight stops at step 1784 when makemon runtime creation rejects a selected species. JavaScript assertSupportedSpecies refuses the orange dragon chosen by nasty; C makemon has no equivalent explicit-species allowlist. All 1784 completed screens and their RNG prefix match. Review and admit the source-supported creation families through the existing lifecycle; do not special-case the recorded selection.",
+              "evidence": [
+                "Checkpoint 82be8fcf matches 11366/11405 development screens and all 408 recordings. Knight retains 1784/1814 matching screens and now stops with 1784 matching cursors and 106837 matching RNG calls. Those 106837 calls are exactly the C prefix before step1784. The aggregate loses 18 RNG matches and one cursor compared with f1eb00ec because the earlier version continued after skipping summoning; no development-screen match is lost.",
+                "The saved A44 scan at 82be8fcf reports no divergence through the 1784 emitted screens, then unsupported initial-level monster creation: makemon() monster 148. The current input is j/movesouth, not wizgenesis. Source tracing gives mcastu.c mcast_spell -> mcast_summon_mons -> wizard.c nasty -> makemon_runtime with _nasty -> preflightCreation -> assertSupportedSpecies.",
+                "Resolved step 1763: C polyman uses urgent_pline for the return-to-human announcement. JS now propagates urgentMessage with planning silence, clears WIN_STOP after the source-ordered vision/map flush, and redraws an acknowledged top line without pre-clearing recorder shadow cells. The combined checkpoint moves the first mismatch to step 1784. An independent normal rehumanization recording matches 36 screens and 2697 RNG calls; explicit stopped-message tests and the fixed replay establish the Escape urgency case.",
+                "At C step1784, nasty draws rn2(10)=5 and rnd(5)=5. Its first pick is xan and the next is orange dragon; later selections are Olog-hai, minotaur, silver dragon, winged gargoyle and jabberwock. These recorded species locate the missing creation coverage; the implementation must follow makemon.c1147-1510 and its initialization helpers across valid inputs. A source-based family correction must preserve genocide handling, placement, inventory, groups, flags and creation state rather than using a replay-specific list.",
+                "The new independent master-lich recording completes mcast_summon_mons -> nasty -> makemon and its appearance message, matching 42 screens/cursors and 3408 RNG calls. Its step41 contains the selected creation and final mspec_used draw. A different independently chosen seed reaches a different nasty selection in C but is blocked earlier in tactics; its recipe remains unrecorded. Wizard speech, invisible/displaced feedback, the Hell msummon caller and supporting late-game harassment still lack production witnesses.",
+                "Four independent Grand Master recordings complete lightning, paralysis, geyser and fire-pillar effects through castmu/mcast_spell and mdamageu: 375 screens and 12696 RNG calls match. The dispatcher span is closed and its source goal remains parked with void-effect families open. The corrected covetous-planning test verifies strategy/goal recomputation on a clone while live retries stay unchanged.",
+                "The read.c create_particular_creation affirmative response is now compared with numeric byte 121, matching cmd.js y_n and restoring the original species after cant_revive. The source-pinned affirmative production test passes; an independent negative-response recording matches 46 screens/cursors and 3185 RNG calls. The affirmative recording is blocked next in makemon.c priest/minion initialization and is retained as a recipe, not completion evidence.",
+                "Resolved step 1761: C finishes the casting announcement and effect message before damage. Awaiting the async JS messages and result-valued helpers moves the first difference to 1763 without changing RNG. Independent master-lich recording lich-spell-order-variation matches 2378 RNG calls and 57 screens/cursors; it does not establish clerical effect coverage.",
+                "Whole mhitu.c getmattk now handles seduction, disease/hunger, energy, temporary holder, weapon, cold-touch and home-elemental substitutions through mattacku/mattackm. Source-pinned tests establish the pure helper; unported uhitm.c hmonas remains a separate caller gap.",
+                "Retained counter-evidence: the earlier cleric fire-trap event had exactly one m_move→postmov→mintrap chain. Cleric2321 lacked minion state and trap knowledge because createMonsterBody skipped mk_roamer. A prior fire trap belonged to actor2334 at(26,7), outside learning range; fire resistance cannot omit the initial C fire-damage draw. The corrected source initialization removes that earlier divergence.",
+                "Retained counter-evidence for the resolved step1742 issue: the bat had spent its movement ration; its two distfleeck calls described one action. Vampire shapechange does not apply the Hell-bat creation-speed adjustment."
+              ],
+              "source": {
+                "file": "makemon.c",
+                "functions": [
+                  "makemon"
+                ],
+                "branch": "For an explicit source-selected monster outside level generation, C makemon proceeds through genocide checks and its normal placement, HP, inventory and state initialization; it has no JavaScript-style species allowlist. The nasty caller passes MM_NOMSG near a nonnull summoner’s mux/muy, or NO_MM_FLAGS near the hero for a null summoner. JS now admits those call shapes but assertSupportedSpecies still rejects valid selections before the existing creation body.",
+                "callers": [
+                  "mcastu.c castmu -> mcast_spell MCAST_SUMMON_MONS -> mcast_summon_mons -> wizard.c nasty -> makemon; JavaScript now follows this caller chain until species admission refuses it.",
+                  "nasty uses an explicit species first, then makemon(NULL) for a failed selected creation; preserve both return-valued paths and the source post-creation census/state logic.",
+                  "minion.c msummon also uses canonical runtime creation with MM_EMIN|MM_NOMSG; keep its accepted contract and independent witness intact."
+                ],
+                "dependencies": [
+                  "The create_particular_creation response-byte defect is fixed. Ordinary aligned/high-cleric creation still lacks makemon.c fallback minion allocation and its rn2(3), renegade/peacefulness and set_malign sequence; its affirmative recipe remains blocked. Grand Master creation avoids that unrelated source branch and now has four complete clerical-effect recordings.",
+                  "The complete getmattk helper now replaces substitution refusals through mattacku/mattackm and adds 23 matching screens. The separate unported hmonas caller remains open.",
+                  "mcast_summon_mons and nasty are implemented through canonical castmu/mcast_spell and runtime creation, including the return-valued msummon Hell branch. The ordinary nasty recording matches; _nasty admits source MM_NOMSG/NO_MM_FLAGS call shapes but does not bypass the remaining species gate. C m_initweap and m_initinv, newmonhp, m_dowear, placement and shapechange dependencies must be checked when expanding supported creation families. No separate dependency owner has been established yet.",
+                  "Resolved with the clerical helpers: muse.c ureflects now accepts an empty non-null prefix with planning-isolated messages/discovery; lightning calls canonical flashburn after the source rnd(100) duration. The independent lightning recording finishes damage and blindness; it is not merely a cast-announcement witness.",
+                  "priest.c mk_roamer and the sp_lev explicit-alignment caller are implemented with MM_EMIN allocation, canonical minion state, ALL_TRAPS knowledge and ordinary non-tame action admission. Two independent recordings establish creation and actual roamer movement. Guardian-angel and Astral entry recordings remain open; exceptional relocation restrictions remain with the existing rloc owner.",
+                  "Accepted getpos.c collection/cycling now includes menu selection and cancellation, source coordinate descriptions and exact area-filter lifetime. Five independent recordings match. VIEW and other location-family entry recordings remain open in GOALS.json.",
+                  "Accepted pager do_screen_description now collects all source symbol families and uses canonical stored-glyph map_glyphinfo. Its lookup coordinates differ from the encoded-prefix decode at (0,0); pet and hero overrides, Rogue colors and NOOVERRIDE order are verified. getpos_menu, displayed-glyph accessibility, cursor auto-description and clicked lookup recording entries remain open in GOALS.json.",
+                  "Accepted invent.c look_here/dolook now handles tactile floor reach, arbitrary pile inspection, pile counts, cockatrice ordering and message filtering, with canonical force_decor and query_objlist callers. Three independent recordings cover movement menu/count and colon look. Swallowed inventory, blind ICE and the tactile-corpse fallback remain unrecorded entry families in GOALS.json; movement retains its mutation-free unsupported naming/pricing boundary.",
+                  "Other unresolved source/coverage defects remain separate: make_stoned/minstapetrify/do_stone_mon; hero/monster stoning directions, corpse-weapon and attack-triggered golem entries; passive cold/fire/electricity/paralysis and lethal recovery; eating/non-food cleanup; skinback artifact-light radius and rare armor/Eyes-of-the-Overworld cleanup.",
+                  "Liquid-specific entry recordings and exceptional partial rloc routes remain open; trap.c inventory-chain calls and mon.c deal_with_overcrowding remain named discarded-call gaps. GOALS.json preserves open print_dungeon, hitmu, mfind0, goto_level, minliquid, creation/flash, pickup and achievement entry families rather than treating supporting unit tests as their completion.",
+                  "Hidden-attacker witnesses require eligible placement on objects or water, actual hidden state and an executed hitmu. Plain or qualified monster creation alone does not establish that entry; independent hidden-trapper and invisible-newt recordings establish creation/flash only.",
+                  "The m_move/mdisplacem dispatch, combat state and projected movement corrections have matching Tengu relocation recordings. Displacement, mail, worm and exceptional dedicated-mover entry recordings remain open in GOALS.json. Covetous admission now reaches the complete wizard.c tactics family through dochug.",
+                  "Safe monster scans, deferred-transition continuation and Hell-bat creation speed resolve the earlier step 1742 failure. Region upkeep keeps harmful gas and unknown callbacks explicit; its nonempty-region recording coverage remains separate.",
+                  "The which_arti-through-tactics family and result-bearing relocation dependencies are implemented. Two independent peaceful master-lich recordings reach harassment, including mnexto relocation; healing and hero/floor/other-monster artifact entries remain unrecorded. Relocation preserves action/display RNG and source redraw order. Worm, shop, trap, occupation and attached-hero relocation restrictions and the named-expulsion gap remain explicit.",
+                  "The ordinary ice-vortex expels caller now delegates old/new monster-square redraws to mnexto and redraws only the hero square afterward. Planning suppresses live redraws. This removes the duplicate destination draw introduced when mnexto gained its source relocation core; the fixed hallucination session matches again."
+                ]
+              },
+              "goalKind": "divergence-fix"
+            }
+          }
+        }
+      ],
+      "closeStanding": {
+        "sha": "3dc05e1cda4be3b759172c2e954941d769166f05",
+        "screens": 11374,
+        "rng": 792033
+      }
     }
   ]
 }

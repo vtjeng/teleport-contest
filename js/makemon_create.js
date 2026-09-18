@@ -1588,9 +1588,8 @@ function preflightCreation(ptr, x, y, mmflags, normalized) {
         // allowlist for explicitly placed species but bypass it for
         // rndmonst selections (the _rndmonMklev flag, set in the rndmonst
         // loop).  Outside mklev, ordinary runtime callers keep the allowlist;
-        // source callers with dedicated markers (revival, cloneu, minion, or
-        // wizard.c nasty) bypass it only after their exact creation shape has
-        // been validated above.
+        // The explicit exceptions below bypass it only after their creation
+        // shape has been validated above.
         if (!revivalCall
             && !statueInventoryCall
             && !specialRoomCall
