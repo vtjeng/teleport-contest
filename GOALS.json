@@ -65630,7 +65630,7 @@
     {
       "id": "port-getpos-location-cycles-seed4500-20260918",
       "kind": "file-port",
-      "status": "open",
+      "status": "parked",
       "summary": "Complete location collection, filtering and cursor cycling",
       "cFile": "getpos.c",
       "sessions": [
@@ -65641,8 +65641,8 @@
       "spans": [
         {
           "name": "cmp_coord_distu..gather_locs",
-          "status": "queued",
-          "closedBy": null,
+          "status": "closed",
+          "closedBy": "875f40301cb734d3a419e2b291f286b73db785d7",
           "functions": [
             "cmp_coord_distu",
             "gloc_filter_classify_glyph",
@@ -65839,7 +65839,7 @@
               "scripts/getpos-cycle.test.mjs"
             ],
             "recordings": [],
-            "checkedAt": "3652dc598c188573355e48fd9221f65e7e315cfa"
+            "checkedAt": "875f40301cb734d3a419e2b291f286b73db785d7"
           },
           {
             "name": "gloc_filter_classify_glyph",
@@ -65860,7 +65860,7 @@
             "recordings": [
               "recordings/getpos.c/location-cycle-filter-area-independent.session.json"
             ],
-            "checkedAt": "3652dc598c188573355e48fd9221f65e7e315cfa"
+            "checkedAt": "875f40301cb734d3a419e2b291f286b73db785d7"
           },
           {
             "name": "gloc_filter_floodfill_matcharea",
@@ -65881,7 +65881,7 @@
             "recordings": [
               "recordings/getpos.c/location-cycle-filter-area-independent.session.json"
             ],
-            "checkedAt": "3652dc598c188573355e48fd9221f65e7e315cfa"
+            "checkedAt": "875f40301cb734d3a419e2b291f286b73db785d7"
           },
           {
             "name": "gloc_filter_floodfill",
@@ -65900,13 +65900,13 @@
             "recordings": [
               "recordings/getpos.c/location-cycle-filter-area-independent.session.json"
             ],
-            "checkedAt": "3652dc598c188573355e48fd9221f65e7e315cfa"
+            "checkedAt": "875f40301cb734d3a419e2b291f286b73db785d7"
           },
           {
             "name": "gloc_filter_init",
             "implementation": "js/getpos.js",
             "symbol": "gloc_filter_init",
-            "sourceReview": "Compared getpos.c:391-414. GFILTER_AREA reuses an existing gg.gloc_filter_map or allocates it once, uses the hero direction for a doorway, leaves a directionless doorway empty, and otherwise starts at the hero square. Non-area initialization leaves gg state untouched. gloc_filter_done frees/nulls only the temporary map after both gather passes; the dedicated GFILTER_AREA recording exercises allocation, reuse, flood-fill, and cleanup.",
+            "sourceReview": "Compared getpos.c:391-414. GFILTER_AREA reuses an existing gg.gloc_filter_map or allocates it once, uses the hero direction for a doorway, leaves a directionless doorway empty, and otherwise starts at the hero square. Non-area initialization leaves gg state untouched. gloc_filter_done frees/nulls only the temporary map after both gather passes; the dedicated GFILTER_AREA recording exercises allocation, flood-fill and cleanup, while the focused state test pins reuse.",
             "callers": [
               {
                 "path": "js/getpos.js",
@@ -65921,7 +65921,7 @@
               "recordings/getpos.c/location-cycle-doors-variation.session.json",
               "recordings/getpos.c/location-cycle-filter-area-independent.session.json"
             ],
-            "checkedAt": "3652dc598c188573355e48fd9221f65e7e315cfa"
+            "checkedAt": "875f40301cb734d3a419e2b291f286b73db785d7"
           },
           {
             "name": "gloc_filter_done",
@@ -65942,7 +65942,7 @@
               "recordings/getpos.c/location-cycle-doors-variation.session.json",
               "recordings/getpos.c/location-cycle-filter-area-independent.session.json"
             ],
-            "checkedAt": "3652dc598c188573355e48fd9221f65e7e315cfa"
+            "checkedAt": "875f40301cb734d3a419e2b291f286b73db785d7"
           },
           {
             "name": "known_vibrating_square_at",
@@ -65966,7 +65966,7 @@
               "scripts/getpos-cycle.test.mjs"
             ],
             "recordings": [],
-            "checkedAt": "3652dc598c188573355e48fd9221f65e7e315cfa"
+            "checkedAt": "875f40301cb734d3a419e2b291f286b73db785d7"
           },
           {
             "name": "gather_locs_interesting",
@@ -65989,7 +65989,7 @@
               "recordings/getpos.c/location-cycle-doors-variation.session.json",
               "recordings/getpos.c/location-cycle-filter-area-independent.session.json"
             ],
-            "checkedAt": "3652dc598c188573355e48fd9221f65e7e315cfa"
+            "checkedAt": "875f40301cb734d3a419e2b291f286b73db785d7"
           },
           {
             "name": "gather_locs",
@@ -66012,7 +66012,7 @@
               "recordings/getpos.c/location-cycle-doors-variation.session.json",
               "recordings/getpos.c/location-cycle-filter-area-independent.session.json"
             ],
-            "checkedAt": "3652dc598c188573355e48fd9221f65e7e315cfa"
+            "checkedAt": "875f40301cb734d3a419e2b291f286b73db785d7"
           }
         ],
         "entryPointReview": "The selected source range is getpos.c:312-553, with its getpos.c:1011-1037 mMoOdDxX production caller. Five independently chosen recipes reach the ordinary wizard targeting prompt: three gather/cycle cases exercise previous-door D, next-door d, and GFILTER_AREA with different setups, while two whatis_menu cases enter getpos_menu, select the first door with the automatic a accelerator, and cancel with Escape. Their bounded fresh differentials match every C RNG call, screen cell/attribute, cursor and animation stream. Active entry families without a recorded witness remain explicit: monster, object, unexplored, interesting, valid, GFILTER_VIEW. The pure helper tests pin distance ordering, glyph classes, seen matching, literal tail-glyph filtering, wall boundaries, filter reuse/cleanup lifetime, flood-fill start semantics, coordinate modes, and the vibrating-square exclusion.",
@@ -66079,7 +66079,17 @@
             ]
           }
         ]
-      }
+      },
+      "progressBeforePark": {
+        "screens": 2,
+        "rng": 0
+      },
+      "parkedStanding": {
+        "sha": "875f40301cb734d3a419e2b291f286b73db785d7",
+        "screens": 11324,
+        "rng": 789270
+      },
+      "parkedReason": "The complete helper family and menu caller pass the combined checkpoint with five new matching recordings. Monster/object/unexplored/interesting/valid cycles and GFILTER_VIEW lack entry recordings; preserve those open entries while selection follows the new Knight RNG1742 mismatch and later movement refusal."
     }
   ]
 }
