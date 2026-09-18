@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 7710816,
+      "datetime": "20260918101600",
+      "nethackrc": "OPTIONS=name:RelocateVariant,role:Valkyrie,race:elf,gender:male,align:lawful,playmode:debug,suppress_alert:3.4.3,symset:DECgraphics\nOPTIONS=!autopickup\n",
+      "moves": " \u0007tengu\n....."
+    }
+  ],
+  "comment": "Cheap role/race/gender variation for the independent allowed-Tengu relocation witness. It keeps the same source-supported debug creation and wait route while exercising a distinct character setup."
+}
