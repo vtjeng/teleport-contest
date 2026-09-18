@@ -2478,9 +2478,10 @@ test('simple postmov plans notice state and awaits live notice before redraw',
             },
             redraw: (x, y) => events.push(`redraw:${x},${y}`),
         });
-        // Region admission and postmov each cross an async boundary before
-        // the notice; eight microtasks leave headroom without using a timer.
-        for (let turn = 0; turn < 8 && !events.length; ++turn)
+        // Region admission, itsstuck(), and postmov each cross an async
+        // boundary before the notice; sixteen microtasks leave headroom
+        // without using a timer.
+        for (let turn = 0; turn < 16 && !events.length; ++turn)
             await Promise.resolve();
 
         assert.deepEqual(events, ['message:You see a giant rat.']);
@@ -2516,7 +2517,7 @@ test('simple movement output precedes track update and redraw', async () => {
         },
         redraw: (x, y) => events.push(`redraw:${x},${y}`),
     });
-    for (let turn = 0; turn < 8 && !events.length; ++turn)
+    for (let turn = 0; turn < 16 && !events.length; ++turn)
         await Promise.resolve();
 
     assert.deepEqual(events, ['message:The giant rat moves closer.']);

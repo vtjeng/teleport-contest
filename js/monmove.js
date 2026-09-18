@@ -3532,7 +3532,7 @@ export async function postmov(
 // holding monster from taking the Conflict turn unless the hero is swallowed.
 // This helper belongs to monmove.c even though mhitm.c consumes it through
 // fightm().
-export function itsstuck(monster, rawEnv = {}) {
+export async function itsstuck(monster, rawEnv = {}) {
     const state = rawEnv.state ?? game;
     if (sticks(state.youmonst?.data)
         && monster === state.u?.ustuck
@@ -3544,9 +3544,8 @@ export function itsstuck(monster, rawEnv = {}) {
             state,
             rawEnv,
         );
-        return result && typeof result.then === 'function'
-            ? result.then(() => true)
-            : true;
+        await result;
+        return true;
     }
     return false;
 }
@@ -3931,12 +3930,14 @@ export async function m_move(monster, rawEnv = {}) {
     }
 
     let avoidLine = false;
+    // C's monmove.c:1940 uses the pure no-teleport-level predicate only to
+    // choose a line-avoiding candidate.  tele_restrict() belongs to the
+    // actual relocation arms below; calling it here can emit knowledge or
+    // messaging before C has chosen a move.
     const unicornNoTeleport = is_unicorn(monster.data)
         && (rawEnv.noTeleportLevel
             ? rawEnv.noTeleportLevel(monster)
-            : env.planning
-                ? noteleport_level(monster, state)
-                : await tele_restrict(monster, state));
+            : noteleport_level(monster, state));
     if (unicornNoTeleport) {
         // C ref: monmove.c:1941-1943, `for (i = 0; i < cnt; i++)`. The bound
         // matters: resetMfndposData() zero-fills all nine info slots, and a
@@ -4023,15 +4024,10 @@ export async function m_move(monster, rawEnv = {}) {
     }
     // C ref: monmove.c:1987-1988. Wielding a digging tool consumes the whole
     // move, so this returns before the ALLOW_U test below. C:1986's itsstuck()
-    // sits between the two and is not dig-specific; it stays unported.
+    // sits between the two and is not dig-specific.
     if (moved === MMOVE_MOVED
         && !(nextX === state.u.ux && nextY === state.u.uy)) {
-        const stuck = itsstuck(monster, env);
-        if (stuck && typeof stuck.then === 'function') {
-            if (await stuck) return MMOVE_DONE;
-        } else if (stuck) {
-            return MMOVE_DONE;
-        }
+        if (await itsstuck(monster, env)) return MMOVE_DONE;
     }
     if (await m_digweapon_check(monster, nextX, nextY, env)) return MMOVE_DONE;
     if (data.info[chosen] & ALLOW_U) {
@@ -4144,8 +4140,10 @@ async function m_move_aggress(mtmp, x, y, env = {}) {
             mtmp2.movement -= NORMAL_SPEED;
         else
             mtmp2.movement = 0;
-        state.bhitpos = { x: mtmp.mx, y: mtmp.my };
-        state.notonhead = false;
+        state.gb ??= {};
+        state.gb.bhitpos = { x: mtmp.mx, y: mtmp.my };
+        state.gn ??= {};
+        state.gn.notonhead = false;
         mstatus = await mattackm(mtmp2, mtmp, env); /* return attack */
         /* note: at this point, defender is the original aggressor */
         if (mstatus & M_ATTK_DEF_DIED)
