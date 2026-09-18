@@ -1,0 +1,102 @@
+{
+  "session": "synthetic/v1/sustained-journey",
+  "corpus": "synthetic",
+  "batch": "v1",
+  "caseId": "sustained-journey",
+  "manifestPath": "challenges/manifest.json",
+  "manifestSha256": "a1d989fa6b5159e0b0729150ba765c741a405ec910c1274ad763d29b0a7096fe",
+  "recording": "challenges/cases/sustained-journey.session.json",
+  "recordingPath": "challenges/cases/sustained-journey.session.json",
+  "recordingSha256": "b190d330b5177de86ea2c81412de96a1708faf22ff2a769aa1f558b7646a3eea",
+  "recipe": "challenges/cases/sustained-journey.recipe.json",
+  "recipeSha256": "cb3c86febb1468ccfd39e289b53c00937a407244d5ba3d4fd7a3759ddbd08ed5",
+  "replayInputSha256": "1d82e114cf6028a970890ae3a93f705306dc8faac92e6f51685b97b4a7ea8fc0",
+  "evaluationPath": "challenges/evaluations/20260918192720-v1.json",
+  "evaluationCommit": "2ab3d33c4affb45693cc1cdc56882430c63db58f",
+  "remainingScreens": 197,
+  "recordedSteps": 202,
+  "status": "complete",
+  "commit": "973ed4c61be4e63b24ffcf54f640b3a05990a0f1",
+  "mismatch": {
+    "corpus": "synthetic",
+    "batch": "v1",
+    "caseId": "sustained-journey",
+    "session": "synthetic/v1/sustained-journey",
+    "manifestPath": "challenges/manifest.json",
+    "manifestSha256": "a1d989fa6b5159e0b0729150ba765c741a405ec910c1274ad763d29b0a7096fe",
+    "recording": "challenges/cases/sustained-journey.session.json",
+    "recordingPath": "challenges/cases/sustained-journey.session.json",
+    "recordingSha256": "b190d330b5177de86ea2c81412de96a1708faf22ff2a769aa1f558b7646a3eea",
+    "recipe": "challenges/cases/sustained-journey.recipe.json",
+    "recipeSha256": "cb3c86febb1468ccfd39e289b53c00937a407244d5ba3d4fd7a3759ddbd08ed5",
+    "replayInputSha256": "1d82e114cf6028a970890ae3a93f705306dc8faac92e6f51685b97b4a7ea8fc0",
+    "evaluationPath": "challenges/evaluations/20260918192720-v1.json",
+    "evaluationCommit": "2ab3d33c4affb45693cc1cdc56882430c63db58f",
+    "evaluationArtifact": "challenges/evaluations/20260918192720-v1.json",
+    "evaluationUtc": "2026-09-18T19:27:20.180Z",
+    "remainingScreens": 197,
+    "recordedSteps": 202,
+    "previousScreensMatched": 5,
+    "regression": false,
+    "passed": false,
+    "error": null,
+    "metrics": {
+      "screens": {
+        "matched": 5,
+        "total": 202
+      },
+      "rng": {
+        "matched": 6098,
+        "total": 10396
+      },
+      "cursors": {
+        "matched": 5,
+        "total": 202
+      }
+    },
+    "firstMismatch": {
+      "kind": "stop",
+      "message": "unsupported hero command: cmd.c parse() committed a count leaving gm.multi above 0 before a row this port will not repeat, which allmain.c moveloop_core():515-531 turns into a repeat of the command; that arm is not ported",
+      "step": 5
+    },
+    "step": 5,
+    "kind": "stop",
+    "sourceFile": "cmd.c",
+    "function": "parse",
+    "message": "unsupported hero command: cmd.c parse() committed a count leaving gm.multi above 0 before a row this port will not repeat, which allmain.c moveloop_core():515-531 turns into a repeat of the command; that arm is not ported",
+    "cFile": "cmd.c",
+    "luaFile": null,
+    "line": null
+  },
+  "summary": "At examined commit 973ed4c61be4e63b24ffcf54f640b3a05990a0f1, the saved scan emits 5 of 202 screens and stops on step 5 at the h (movewest) byte after the input prefix ` i 3h`; 197 screens remain. The queue annotation names cmd.c parse(), but the parser is source-aligned: C get_count()/parse() commits 3 and sets gm.multi to 2. The missing behavior is counted movement. C cmd.c rhack() admits a movement row with a positive count, sets svc.context.mv, and calls domove(); allmain.c moveloop_core() then repeats that command through its positive-gm.multi context.mv arm. JavaScript currently reaches js/cmd.js:5453-5474, which rejects any positive count on a non-pay command before movement dispatch, while js/allmain.js:1636-1651 already contains the repeat structure. The smallest independent implementation route is the allmain.c moveloop_core() counted-movement family with its cmd.c rhack() movement admission dependency: exempt movement intents (walk, run, and rush) from the generic count refusal, preserve the parsed multi state, and exercise the existing context.mv repeat caller; leave the non-movement rhack(gc.cmd_key) arm deferred.",
+  "source": {
+    "file": "allmain.c",
+    "branch": "For a positive command count on a movement row, cmd.c parse() leaves gm.multi above zero after the first command, cmd.c rhack() marks svc.context.mv for walk/run/rush, and allmain.c moveloop_core():515-531 performs each remaining repeat by decrementing gm.multi, ending the run at zero, and calling domove(). The current JavaScript command gate rejects this state before the movement dispatch, so this is missing/partial C behavior rather than a parse arithmetic defect. The non-movement positive-multi branch, which decrements and calls rhack(gc.cmd_key), stays out of scope until its command families are ported.",
+    "functions": [
+      "moveloop_core"
+    ],
+    "callers": [
+      "C allmain.c:587-596 moveloop() calls moveloop_core() for each game-loop iteration.",
+      "C allmain.c:515-531 moveloop_core() calls domove() for context.mv repeats and rhack(gc.cmd_key) for the separate non-movement arm.",
+      "C cmd.c:3652-3654 rhack() calls parse() on a fresh input boundary, and cmd.c:3785-3800 admits movement, sets svc.context.mv, and calls domove().",
+      "JS jsmain.js:755-770 runSegment() calls allmain.js moveloop_core() until gameover, input exhaustion, or a boundary.",
+      "JS allmain.js:1636-1651 dispatches positive multi through lookaround(), context.mv, runDomoveAtTurnBoundary(), or rhack(cmdKey); JS cmd.js:1766-1794 parses the count and JS cmd.js:5286-5475 dispatches the command."
+    ],
+    "dependencies": [
+      "cmd.c get_count()/parse() (5018-5156), already implemented in js/cmd.js, owns command_count and gm.multi initialization.",
+      "cmd.c rhack() movement rows (3785-3800) and set_move_cmd() (1386-1399) own movement intent and context.mv state; js/cmd.js:5453-5474 is the current generic refusal to narrow.",
+      "hack.c domove(), cmd.c end_running(), and the existing JS runDomoveAtTurnBoundary() are downstream callees; retain their source order and boundary conversion.",
+      "GOALS.json:2225-2255 records the predecessor counted-command-occupation goal and explicitly identifies allmain.c moveloop_core():515-531 counted movement as the remaining unported arm."
+    ]
+  },
+  "goalKind": "file-port",
+  "evidence": [
+    ".cache/synthetic-scans/v1/sustained-journey.json records screensEmitted=5, recordedSteps=202, remainingScreens=197, first mismatch step=5, key=h, command=movewest, inputThroughStop=` i 3h`, and the exact unsupported-command boundary; divergence is null before the stop.",
+    "challenges/cases/sustained-journey.session.json segment 0 uses seed 90176, datetime 20010822161500, and moves beginning ` i 3h`; its step 4 key is `3` and step 5 key is `h`, establishing a count prefix followed by a west walk rather than an isolated parse failure.",
+    "nethack-c/upstream/src/cmd.c:5018-5089 get_count() and :5096-5156 parse() read the digits, store gc.command_count, then execute `gm.multi = gc.command_count; if (gm.multi) gm.multi--;`; count 3 therefore leaves gm.multi=2 for the first h command.",
+    "nethack-c/upstream/src/cmd.c:3785-3791 is the source movement branch: when DOMOVE_WALK is set and gm.multi is nonzero, it sets svc.context.mv, calls domove(), and returns. The analogous DOMOVE_RUSH branch at :3792-3801 sets the run sentinel and svc.context.mv before domove().",
+    "nethack-c/upstream/src/allmain.c:515-531 is the missing repeat arm: positive gm.multi calls lookaround(), then decrements finite counts, calls end_running(TRUE) at the last repeat, and calls domove() when svc.context.mv is true; only the else arm decrements and calls rhack(gc.cmd_key).",
+    "js/cmd.js:5453-5474 currently throws COUNTED_BOUNDARY for state.multi>0 on every bound command except pay, before the movement dispatch at the later executeMovement() path. js/allmain.js:1636-1651 already mirrors the C positive-multi dispatch and calls runDomoveAtTurnBoundary() for context.mv, so the production seam is present but unreachable for counted movement.",
+    "GOALS.json:2225-2255 closes the predecessor counted-command-occupation goal while explicitly documenting counted movement, lookaround(), end_running(), and svc.context.mv under allmain.c moveloop_core():515-531 as unported."
+  ]
+}

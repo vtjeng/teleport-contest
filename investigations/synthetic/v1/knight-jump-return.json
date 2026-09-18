@@ -1,0 +1,92 @@
+{
+  "session": "synthetic/v1/knight-jump-return",
+  "corpus": "synthetic",
+  "batch": "v1",
+  "caseId": "knight-jump-return",
+  "manifestPath": "challenges/manifest.json",
+  "manifestSha256": "a1d989fa6b5159e0b0729150ba765c741a405ec910c1274ad763d29b0a7096fe",
+  "recordingSha256": "f9498fc22f1cfc696439daea0dcd28c8c411788982d9f942c1a1fc6c3de3500e",
+  "recordingPath": "challenges/cases/knight-jump-return.session.json",
+  "evaluationPath": "challenges/evaluations/20260918192720-v1.json",
+  "evaluationCommit": "2ab3d33c4affb45693cc1cdc56882430c63db58f",
+  "remainingScreens": 2,
+  "recordedSteps": 87,
+  "status": "complete",
+  "commit": "973ed4c61be4e63b24ffcf54f640b3a05990a0f1",
+  "mismatch": {
+    "corpus": "synthetic",
+    "batch": "v1",
+    "caseId": "knight-jump-return",
+    "session": "synthetic/v1/knight-jump-return",
+    "manifestPath": "challenges/manifest.json",
+    "manifestSha256": "a1d989fa6b5159e0b0729150ba765c741a405ec910c1274ad763d29b0a7096fe",
+    "recording": "challenges/cases/knight-jump-return.session.json",
+    "recordingPath": "challenges/cases/knight-jump-return.session.json",
+    "recordingSha256": "f9498fc22f1cfc696439daea0dcd28c8c411788982d9f942c1a1fc6c3de3500e",
+    "recipe": "challenges/cases/knight-jump-return.recipe.json",
+    "recipeSha256": "3e0f5aee7d181dd92de06174d3b653b28035b5296ba89a95c692f43bff15c113",
+    "replayInputSha256": "1d82e114cf6028a970890ae3a93f705306dc8faac92e6f51685b97b4a7ea8fc0",
+    "evaluationPath": "challenges/evaluations/20260918192720-v1.json",
+    "evaluationCommit": "2ab3d33c4affb45693cc1cdc56882430c63db58f",
+    "evaluationArtifact": "challenges/evaluations/20260918192720-v1.json",
+    "evaluationUtc": "2026-09-18T19:27:20.180Z",
+    "remainingScreens": 2,
+    "recordedSteps": 87,
+    "previousScreensMatched": 85,
+    "regression": false,
+    "passed": false,
+    "error": null,
+    "metrics": {
+      "screens": { "matched": 85, "total": 87 },
+      "rng": { "matched": 4126, "total": 4126 },
+      "cursors": { "matched": 85, "total": 87 }
+    },
+    "firstMismatch": {
+      "screen": null,
+      "rng": null,
+      "cursor": {
+        "index": 33,
+        "location": { "segmentIndex": 0, "stepIndex": 33, "key": "\n" },
+        "cCursor": [43, 8, 1],
+        "jsCursor": [45, 10, 1]
+      }
+    },
+    "step": 33,
+    "kind": "cursor",
+    "sourceFile": null,
+    "function": null,
+    "message": null,
+    "cFile": null,
+    "luaFile": null,
+    "line": null
+  },
+  "summary": "At step 33, the second #jump command has identical C and JavaScript screens and all 4126 RNG calls, but C leaves the prompt cursor at the hero [43,8] while JavaScript leaves it at [45,10]. C getpos_sethilite() marks changed valid squares through newsym_force(), and getpos()'s flush_screen(0) leaves the TTY cursor at the last actually flushed glyph, including pre-existing glyph-buffer state. JavaScript forceGetposSelectionRedraw() rescans valid squares, marks every one dirty, and then unconditionally restores to the maximum selected square plus one, which is not the C cursor contract. The first and third jump prompts coincidentally hide the same defect because their pending-buffer cursor outcomes happen to equal the selected-range cursor.",
+  "source": {
+    "file": "getpos.c",
+    "functions": [
+      "getpos_sethilite",
+      "getpos"
+    ],
+    "branch": "During a physical Knight #jump, getpos_sethilite(display_jump_positions, get_valid_jump_position) changes the valid-location callback before getpos() starts. C compares the old and new callback, forces only the changed selection through selvar.c selection_force_newsyms(), then getpos() calls curs(WIN_MAP, cx, cy) and flush_screen(0). The resulting cursor is determined by display.c's pending gbuf ranges and tty_print_glyph() advancement; at the second jump in this recording it remains [43,8]. JS getpos.js instead forces a fresh full valid-square scan and sets cursorAt(lastValid.x + 1, lastValid.y), producing [45,10] despite screen and RNG parity.",
+    "callers": [
+      "nethack-c/upstream/src/apply.c:2058-2064 jump() installs display_jump_positions/get_valid_jump_position and calls getpos(&cc, TRUE, ...); this is the recorded #jump production entry.",
+      "js/apply.js:1139-1151 jump() installs state.getpos_hilitefunc/state.getpos_getvalid and calls getpos(target, true, ...), then clears the callback state in its finally block.",
+      "nethack-c/upstream/src/getpos.c:848-854 getpos() initializes the target cursor and calls flush_screen(0); :1151-1165 exits through getpos_sethilite(NULL, NULL), preserving the source callback lifetime and dirty-buffer transition.",
+      "js/getpos.js:200-224 forceGetposSelectionRedraw() and :921-932 getpos() implement the current full-scan and speculative cursor restoration that diverge from the C TTY behavior."
+    ],
+    "dependencies": [
+      "nethack-c/upstream/src/selvar.c:802-810 selection_force_newsyms() walks the selection in source order and calls newsym_force() only for selected points.",
+      "nethack-c/upstream/src/display.c:1863-1871 newsym_force() updates gbuf_start/gbuf_stop and gnew; :2208-2266 flush_screen(0) prints only pending ranges, and its final cursor is whatever tty_print_glyph() last advanced to.",
+      "js/display.js:5933-6020 flush_screen() rebuilds the complete grid and restores the saved cursor rather than modeling C's sparse gbuf cursor advancement, so getpos.js must not infer a C cursor from the maximum valid target alone."
+    ]
+  },
+  "goalKind": "divergence-fix",
+  "evidence": [
+    ".cache/synthetic-goal-650-queue.json entry synthetic/v1/knight-jump-return records the assigned main provenance 973ed4c61be4e63b24ffcf54f640b3a05990a0f1, exact remainingScreens=2, recordedSteps=87, manifest/recording identity, saved evaluation challenges/evaluations/20260918192720-v1.json, and metrics of 85/87 screens, 4126/4126 RNG calls, and 85/87 cursors.",
+    ".cache/synthetic-scans/v1/knight-jump-return.json reports no screen or RNG divergence, cursor divergence at segment 0 step 33 on newline, C [43,8,1] versus JS [45,10,1], with 87 emitted steps and no refusal or unported path.",
+    "challenges/cases/knight-jump-return.session.json segment 0 shows the same cursor-only pattern across the three physical jumps: step 7 (first #jump) C [34,0,1], step 33 (second #jump) C [43,8,1], and step 74 (third #jump) C [34,11,1]. Only step 33 differs in the saved evaluation, demonstrating that the cursor depends on the actual pending glyph buffer rather than a fixed maximum-valid-target rule.",
+    "nethack-c/upstream/src/getpos.c:41-63 compares the old/new getpos_getvalid callback, calls getpos_getvalids_selection() before and after installing it, and invokes selection_force_newsyms() only when the callback or frame color changes; :848-854 then flushes the pending map with cursor_on_u=0. This is the source contract that the JS full-map redraw bypasses.",
+    "nethack-c/upstream/src/selvar.c:802-810 and display.c:1863-1871/2208-2266 show why C's final cursor is contextual: selected cells update row gbuf bounds and gnew, flush_screen() visits only those pending ranges, and tty_print_glyph() advances the TTY cursor for the last emitted cell. JavaScript instead marks all rescanned cells and manually chooses the selected maximum.",
+    "js/getpos.js:200-224 explicitly computes the selected maximum and js/getpos.js:924-932 applies cursorAt(forcedMapCursor.x + 1, forcedMapCursor.y) after flush_screen(0). That implementation produces [45,10] at the assigned step while the preceding cursorAt(cx, cy) already matches C's [43,8]. The implementation scope is therefore the getpos cursor/dirty-buffer contract, with js/apply.js jump() as the production caller to verify; no gameplay or RNG correction is indicated."
+  ]
+}

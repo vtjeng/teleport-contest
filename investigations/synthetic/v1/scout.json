@@ -1,0 +1,86 @@
+{
+  "session": "synthetic/v1/scout",
+  "corpus": "synthetic",
+  "batch": "v1",
+  "caseId": "scout",
+  "remainingScreens": 7,
+  "recordedSteps": 18,
+  "manifestPath": "challenges/manifest.json",
+  "manifestSha256": "a1d989fa6b5159e0b0729150ba765c741a405ec910c1274ad763d29b0a7096fe",
+  "recordingSha256": "ea31e55f9ebc16379cbefe89702881d1f22cf2ced0f8bfef3c133621bfbea6b5",
+  "evaluationPath": "challenges/evaluations/20260918192720-v1.json",
+  "evaluationCommit": "2ab3d33c4affb45693cc1cdc56882430c63db58f",
+  "status": "complete",
+  "commit": "973ed4c61be4e63b24ffcf54f640b3a05990a0f1",
+  "mismatch": {
+    "corpus": "synthetic",
+    "batch": "v1",
+    "caseId": "scout",
+    "session": "synthetic/v1/scout",
+    "manifestPath": "challenges/manifest.json",
+    "manifestSha256": "a1d989fa6b5159e0b0729150ba765c741a405ec910c1274ad763d29b0a7096fe",
+    "recording": "challenges/cases/scout.session.json",
+    "recordingPath": "challenges/cases/scout.session.json",
+    "recordingSha256": "ea31e55f9ebc16379cbefe89702881d1f22cf2ced0f8bfef3c133621bfbea6b5",
+    "recipe": "challenges/cases/scout.recipe.json",
+    "recipeSha256": "b7c9023cd98eda84dc9893bdd5c24b4655a6823093a008c74d74d7514f08a3ce",
+    "replayInputSha256": "1d82e114cf6028a970890ae3a93f705306dc8faac92e6f51685b97b4a7ea8fc0",
+    "evaluationPath": "challenges/evaluations/20260918192720-v1.json",
+    "evaluationCommit": "2ab3d33c4affb45693cc1cdc56882430c63db58f",
+    "evaluationArtifact": "challenges/evaluations/20260918192720-v1.json",
+    "evaluationUtc": "2026-09-18T19:27:20.180Z",
+    "remainingScreens": 7,
+    "recordedSteps": 18,
+    "previousScreensMatched": 11,
+    "regression": false,
+    "passed": false,
+    "error": null,
+    "metrics": {
+      "screens": { "matched": 11, "total": 18 },
+      "rng": { "matched": 2502, "total": 2502 },
+      "cursors": { "matched": 11, "total": 18 }
+    },
+    "firstMismatch": {
+      "kind": "stop",
+      "message": "unsupported hero command: an unported branch of this command: unsupported level change: doup() at ledger 1 (leaving the dungeon)",
+      "step": 11
+    },
+    "step": 11,
+    "kind": "stop",
+    "sourceFile": "do.c",
+    "function": "doup",
+    "message": "unsupported hero command: an unported branch of this command: unsupported level change: doup() at ledger 1 (leaving the dungeon)",
+    "cFile": "do.c",
+    "luaFile": null,
+    "line": null
+  },
+  "summary": "The 2000-03-15 Scout recording reaches the D:1 up staircase after inventory and two movement commands. At ledger 1, C do.c:doup() asks y_n(\"Beware, there will be no return!  Still climb?\"); the recorded y answer enters dungeon.c:prev_level(TRUE), whose Dungeons-of-Doom level-1 branch calls done(ESCAPED), then C consumes the four negative disclosure answers and final --More--. The JavaScript doup() stops at js/do.js:1549-1555 with UnsupportedLevelChangeError before emitting the confirmation, so all seven remaining screens are lost. RNG already matches exactly (2502/2502).",
+  "source": {
+    "file": "do.c",
+    "branch": "doup() at do.c:1330-1344 when ledger_no(&u.uz) == 1, debug_fuzzer is false, the hero is on an upward staircase and passes rooted, pit, steed, stuck, capacity, and next_to_u checks; y_n accepts 'y', then prev_level(TRUE) reaches dungeon.c:1530-1531 for dnum 0, dlevel 1 without the Amulet and calls done(ESCAPED).",
+    "functions": [
+      "doup"
+    ],
+    "callers": [
+      "js/cmd.js:3396-3398 runUpCommand() calls doup(state) through failClosedCommand(); C cmd.c:1917-1919 registers the '<' row to doup().",
+      "js/cmd.js:5121-5122 doextcmd() dispatches the 'doup' row to runUpCommand(); C cmd.c:3810-3825 applies doup()'s ECMD result and marks a timed successful command.",
+      "js/cmd.js:5289 rhack() reaches the 'up' command result arm and invokes runUpCommand(); queued map/menu routes at js/cmd.js:4673 and 4785-4786 enqueue the same doup handler."
+    ],
+    "dependencies": [
+      "cmd.c y_n()/yn_function() (cmd.c:823-879 in the port): render the two-space D:1 confirmation and consume y/n input with default n.",
+      "dungeon.c prev_level() (1518-1543), especially its level-1 cross-dungeon branch at 1526-1535: mark the stair as traversed and call done(ESCAPED) when the hero has no Amulet.",
+      "end.c done()/really_done() (1020-1593): existing js/end.js ESCAPED handling emits the farewell, escape summary, four disclosure prompts and score screen observed in the recording.",
+      "do.c doup() helpers stairway_at(), set_move_cmd(), u_rooted(), climb_pit(), stucksteed(), u_stuck_cannot_go(), near_capacity(), ledger_no(), next_to_u(): the preconditions are already source-shaped in js/do.js; climb_pit remains a separate unexercised gap.",
+      "js/do.js:1563 prev_level() integration and js/dungeon.js:794-817: the D:1 prev_level branch currently throws instead of calling done(ESCAPED), so implementing only the y_n prompt will still stop before the recorded escape disclosure."
+    ]
+  },
+  "goalKind": "file-port",
+  "evidence": [
+    ".cache/synthetic-scans/v1/scout.json: the assigned immutable replay emits 11 of 18 screens, reports key '<', prompt text \"Beware, there will be no return!  Still climb? [yn] (n)\", boundary at doup() ledger 1, inputThroughStop i\\u001b\\u001bjk<, and no unmatched RNG calls; its behavioral.at is 11.",
+    "challenges/evaluations/20260918192720-v1.json case scout: saved evaluation at commit 2ab3d33c4affb45693cc1cdc56882430c63db58f records screens 11/18, cursors 11/18, RNG 2502/2502, and the same recordingSha256 and manifestSha256 retained above.",
+    "challenges/cases/scout.session.json segment 0: seed 9402101, datetime 20000315120000, moves i\\u001b\\u001bjk<ynnnn ; step 12 is the C confirmation screen, step 13 consumes y, steps 14-17 consume four n answers, and step 18 consumes the final space after the escape disclosure.",
+    "nethack-c/upstream/src/do.c:1296-1344: doup() performs the source-ordered precondition checks, asks y_n at 1330-1334 for ledger 1 unless debug_fuzzer is set, then calls prev_level(TRUE) at 1340-1342. The current js/do.js:1549-1555 replaces exactly this branch with UnsupportedLevelChangeError.",
+    "nethack-c/upstream/src/dungeon.c:1516-1543: prev_level(TRUE) marks the stair traversed; when the current level is Dungeons of Doom level 1 and no Amulet is carried, lines 1526-1531 call done(ESCAPED). js/dungeon.js:804-807 instead throws the unported escape error, although js/end.js already has the ESCAPED finalization path.",
+    "GOALS.json:4339-4368 up-command: the earlier ordinary-ascent recording only exercises ledger_no != 1 and closes the same-dungeon save/restore path; it does not cover doup()'s D:1 confirmation or prev_level()'s done(ESCAPED) branch."
+  ]
+}
