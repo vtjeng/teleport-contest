@@ -3570,8 +3570,8 @@ export async function m_move(monster, rawEnv = {}) {
     const movePet = requireMoveOperation(rawEnv, 'movePet');
     const unsupported = requireMoveOperation(rawEnv, 'unsupported');
     const env = { ...rawEnv, state, random };
-    const oldX = monster.mx;
-    const oldY = monster.my;
+    let oldX = monster.mx;
+    let oldY = monster.my;
 
     // C ref: monmove.c:1733-1742, m_move()'s prologue.  mintrap() runs first,
     // then the meating countdown, then the hides_under() early return, then
@@ -3694,11 +3694,11 @@ export async function m_move(monster, rawEnv = {}) {
         && !monster.wormno) {
         // shk_move / gd_move / pri_move return: 1 moved, 0 didn't, -1 let
         // m_move do it, -2 died.
-        const xm = monster.ispriest
-            ? pri_move(monster, env)
+        const xm = monster.isshk
+            ? shk_move(monster, state, env)
             : monster.isgd
                 ? await gd_move(monster, env)
-                : shk_move(monster, state, env);
+                : pri_move(monster, env);
         if (xm === -2) return MMOVE_DIED;
         if (xm === -1) {
             // C uses -1 to fall through to ordinary movement.  In particular,
@@ -3794,6 +3794,11 @@ export async function m_move(monster, rawEnv = {}) {
         && state.u?.ustuck !== monster) {
         return MMOVE_MOVED;
     }
+    // C resets omx/omy at the not_special label after every dedicated mover
+    // that returns -1.  A dedicated helper may have changed the coordinates
+    // before declining ordinary movement, so do not reuse the prologue pair.
+    oldX = monster.mx;
+    oldY = monster.my;
 
     let goalX = monster.mux;
     let goalY = monster.muy;

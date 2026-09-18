@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 7710815,
+      "datetime": "20260918101500",
+      "nethackrc": "OPTIONS=name:RelocateProbe,role:Wizard,race:human,gender:female,align:neutral,playmode:debug,suppress_alert:3.4.3,symset:DECgraphics\nOPTIONS=!autopickup\n",
+      "moves": " \u0007tengu\n....."
+    }
+  ],
+  "comment": "Independent debug creation of a Tengu on the ordinary first level. The wait turns exercise its permitted monmove.c m_move() teleport branch rather than the Castle no-teleport refusal; the seed, clock, role, gender, and inputs were chosen independently."
+}
