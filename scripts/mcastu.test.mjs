@@ -302,18 +302,24 @@ test('spell_would_be_useless: MCAST_AGGRAVATION draws nothing when a monster sle
                 mstrategy: 0, nmon: null },
         };
         const refusals = [];
+        const messages = [];
         const result = await castmu(
             makeCaster({ m_lev: 15 }), AD_SPEL_ATTACK, false, false,
             {
-                state, random, message: () => {},
-                unsupported: (what) => refusals.push(what),
+                state, random, message: (message) => messages.push(message),
+                unsupported: refuse,
+                noteUnported: (what) => refusals.push(what),
             },
         );
         // The undirected aggravation spell is chosen and reaches
-        // mcast_spell(), whose MCAST_AGGRAVATION (16) effect is unported.
+        // mcast_spell(), which records the discarded wizard.c aggravate call.
         assert.equal(result, M_ATTK_HIT);
         assert.deepEqual(random.draws, ['rn2(15)', 'rn2(150)']);
-        assert.deepEqual(refusals, ['mcast_spell effect 16']);
+        assert.deepEqual(messages, [
+            'Kobold shaman casts a spell!',
+            'You feel that monsters are aware of your presence.',
+        ]);
+        assert.deepEqual(refusals, ['wizard.c aggravate']);
     });
 
 test('spell_would_be_useless: MCAST_AGGRAVATION draws rn2(100) when nothing sleeps',
@@ -335,12 +341,33 @@ test('spell_would_be_useless: MCAST_AGGRAVATION draws rn2(100) when nothing slee
         assert.deepEqual(random.draws, ['rn2(15)', 'rn2(100)']);
     });
 
+test('mcast_spell dispatches the summon branch and preserves its source gap',
+    async () => {
+        // mcastu.c:821-825.  A level-16 wizard can select the level-15
+        // summon spell; the void nasty() result is deliberately recorded as
+        // an unported discarded-result callee rather than thrown away as a
+        // generic mcast_spell refusal.
+        const random = scriptedRandom([15, 50]);
+        const gaps = [];
+        const result = await castmu(
+            makeCaster({ m_lev: 16 }), AD_SPEL_ATTACK, false, false,
+            {
+                state: makeState(), random, message: () => {},
+                unsupported: refuse,
+                noteUnported: (what) => gaps.push(what),
+            },
+        );
+        assert.equal(result, M_ATTK_HIT);
+        assert.deepEqual(random.draws, ['rn2(16)', 'rn2(160)']);
+        assert.deepEqual(gaps, ['mcastu.c mcast_summon_mons']);
+    });
+
 // C ref: mcastu.c:978 and youprop.h:92. MCAST_BLIND_YOU is useless under
 // `Blinded` (HBlinded && !BBlinded), not under the wider `Blind`. Cleric
 // rn2(7)=6 reaches MCAST_BLIND_YOU (level 6, effect 8) first; when it is
 // rejected, MCAST_PARALYZE (level 4, effect 7) is chosen instead. rn2(70)=50
 // passes the fumble check and d()=6 gives a positive dmg so mcast_spell()
-// reaches the (unported) effect and names it.
+// reaches the source blindness case and records its discarded helper gap.
 
 async function blindYouEffect(blinded) {
     const state = makeState();
@@ -348,7 +375,9 @@ async function blindYouEffect(blinded) {
     const refusals = [];
     await castmu(makeCaster({ m_lev: 7 }), AD_CLRC_ATTACK, true, true, {
         state, random: scriptedRandom([6, 50]), message: () => {},
-        unsupported: (what) => refusals.push(what),
+        unsupported: refuse,
+        noteUnported: (what) => refusals.push(what),
+        mdamageu: () => {},
     });
     return refusals;
 }
@@ -357,7 +386,7 @@ test('spell_would_be_useless: a blindfold does not make MCAST_BLIND_YOU useless'
     async () => {
         // A worn blindfold sets only EBlinded (W_TOOL in extrinsic).
         assert.deepEqual(await blindYouEffect({ intrinsic: 0, extrinsic: 1 }),
-            ['mcast_spell effect 8']);
+            ['mcastu.c mcast_blind_you']);
     });
 
 test('spell_would_be_useless: blocked blindness keeps MCAST_BLIND_YOU useful',
@@ -365,13 +394,12 @@ test('spell_would_be_useless: blocked blindness keeps MCAST_BLIND_YOU useful',
         // Artifact lenses set BBlinded, which defeats HBlinded.
         assert.deepEqual(
             await blindYouEffect({ intrinsic: 1, extrinsic: 0, blocked: 1 }),
-            ['mcast_spell effect 8']);
+            ['mcastu.c mcast_blind_you']);
     });
 
 test('spell_would_be_useless: intrinsic blindness makes MCAST_BLIND_YOU useless',
     async () => {
-        assert.deepEqual(await blindYouEffect({ intrinsic: 1, extrinsic: 0 }),
-            ['mcast_spell effect 7']);
+        assert.deepEqual(await blindYouEffect({ intrinsic: 1, extrinsic: 0 }), []);
     });
 
 // -- cursetxt ----------------------------------------------------------
