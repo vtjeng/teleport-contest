@@ -25,7 +25,7 @@ import {
     u_at,
     helpless,
 } from './const.js';
-import { Amonnam } from './do_name.js';
+import { Amonnam, Monnam } from './do_name.js';
 import { In_W_tower, In_hell, builds_up } from './dungeon.js';
 import { game } from './gstate.js';
 import { set_malign } from './makemon.js';
@@ -581,7 +581,7 @@ export async function tactics(monster, rawEnv = {}) {
                 if (!objectAtTarget) return 0;
                 if (cansee(monster.mx, monster.my, state)) {
                     await message(
-                        `${Monnam(monster, state)} picks up `
+                        `${Monnam(monster, state, rawEnv)} picks up `
                         + `${distant_name(objectAtTarget, donameFresh, state)}.`,
                         state,
                         rawEnv,

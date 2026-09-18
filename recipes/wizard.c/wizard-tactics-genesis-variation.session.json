@@ -1,12 +1,12 @@
 {
   "version": 5,
-  "_comment": "Independent cheap wizard.c tactics variation: a different debug genesis seed and Valkyrie start reach the same Wizard of Yendor movement caller with a shorter wait sequence.",
+  "_comment": "Cheap wizard.c tactics variation: a different debug genesis seed and Valkyrie start create a peaceful nonunique master lich and exercise the same covetous movement caller.",
   "segments": [
     {
-      "seed": 940003,
+      "seed": 940005,
       "datetime": "20350101120000",
-      "nethackrc": "OPTIONS=name:TacticsVariation,role:Valkyrie,race:human,gender:female,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen,playmode:debug,pettype:none,!acoustics\n",
-      "moves": " #wizgenesis\nwizard of yendor\n............"
+      "nethackrc": "OPTIONS=name:TacticsVariation2,role:Valkyrie,race:human,gender:female,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen,playmode:debug,pettype:none,!acoustics\n",
+      "moves": " #wizgenesis\npeaceful master lich\nm.m."
     }
   ]
 }
