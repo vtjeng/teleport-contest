@@ -152,7 +152,7 @@ import {
 } from './invent.js';
 import {
     bigmonst, is_rider, nohands, nolimbs, notake, throws_rocks,
-    touch_petrifies,
+    hides_under, touch_petrifies,
 } from './mondata.js';
 import { m_at } from './monst.js';
 import {
@@ -176,9 +176,9 @@ import {
 } from './objects.js';
 import { PM_HOUSECAT } from './monsters.js';
 import {
-    an, Tobjnam, Yname2, Ysimple_name2, assertObjectNameable, donameFresh,
-    doname_with_price, otense, safe_qbuf, the, The, thesimpleoname, xnameFresh, yname,
-    ysimple_name,
+    an, ansimpleoname, Tobjnam, Yname2, Ysimple_name2, assertObjectNameable,
+    donameFresh, doname_with_price, otense, safe_qbuf, the, The, thesimpleoname,
+    xnameFresh, yname, ysimple_name,
 } from './objnam.js';
 import { body_part } from './polyself.js';
 import {
@@ -187,7 +187,10 @@ import {
 } from './shk.js';
 import { menuTitleStyle } from './tty_menu.js';
 import { waterbody_name } from './pager.js';
-import { back_on_ground, is_lava, is_pool, t_at, chest_trap } from './trap.js';
+import {
+    back_on_ground, is_lava, is_pool, t_at, chest_trap, unconscious,
+    uescaped_shaft, uteetering_at_seen_pit,
+} from './trap.js';
 import { clearTtyMessageWindow, ttyNorep, ttyPline } from './tty_message.js';
 import {
     add_menu, add_menu_heading, getlin, select_menu,
@@ -196,6 +199,7 @@ import { touch_artifact } from './artifacts.js';
 import { setwornEnv } from './do_wear.js';
 import { welded } from './wield.js';
 import { setuqwep, setuswapwep, setuwep } from './worn.js';
+import { note_unported } from './unported.js';
 
 const INCREASED_BURDEN_MESSAGES = Object.freeze([
     null,
@@ -451,25 +455,32 @@ export function rider_corpse_revival(obj, remotely, state = game) {
 }
 
 // C ref: pickup.c:56-58 FOLLOW(), whose BY_NEXTHERE bit is hack.h:1243. A
-// floor pile is walked by nexthere; a monster's inventory, which this port
-// refuses, by nobj.
+// floor pile is walked by nexthere; a swallowed monster's inventory is walked
+// by nobj.
 function FOLLOW(obj, qflags) {
     return (qflags & BY_NEXTHERE) ? obj.nexthere : obj.nobj;
 }
 
 // C ref: pickup.c all_but_uchain() (508-512), the query_objlist() callback
-// that dopickup() passes. state.uchain holds the ball and chain only while the
-// hero is punished, which nothing ported does, so this rejects nothing today
-// and every object on the square is counted.
+// that dopickup() passes. state.uchain holds the ball and chain while the
+// hero is punished; pickup_object() still owns the traditional interface's
+// tried-but-not-picked return for that object.
 function all_but_uchain(obj, state) {
     return obj !== (state.uchain ?? null);
+}
+
+// C ref: pickup.c n_or_more() (458-465).  The callback uses the caller's
+// current count threshold and still excludes the punishment chain.
+function n_or_more(obj, state) {
+    return obj !== (state.uchain ?? null)
+        && obj.quan >= Math.trunc(state.gv?.val_for_n_or_more ?? 0);
 }
 
 // C ref: pickup.c query_objlist() (1025-1215). The counting loop and both of
 // its early returns are followed by the bounded full-menu branch: sort the
 // floor pile, group rows by inventory order, and return whole-stack choices
-// from the TTY PICK_ANY menu. The INCLUDE_HERO and engulfer-inventory lists
-// remain refused above because this slice owns only pickup()'s floor caller.
+// from the TTY menu. INCLUDE_HERO remains a separate look-here fake-object
+// caller, while OBJ_MINVENT is walked by pickup()'s swallowed branch.
 //
 // C's `pick_list` and `how` arguments are not parameters. The caller receives
 // the selection as this function's result instead. `title` preserves the
@@ -477,6 +488,7 @@ function all_but_uchain(obj, state) {
 // established default.
 export async function query_objlist(
     olist, qflags, allow, state = game, title = 'Pick up what?',
+    how = PICK_ANY,
 ) {
     if (qflags & INCLUDE_HERO) {
         // 1063-1067 adds the swallowed hero as a fake extra entry.
@@ -496,12 +508,14 @@ export async function query_objlist(
             ++n;
         }
     }
-    if (olist.where === OBJ_MINVENT) {
-        // 1058-1062 clears AUTOSELECT_SINGLE for an engulfer's worn item.
-        throw new UnsupportedPickupError(
-            "query_objlist() over an engulfer's inventory",
-        );
-    }
+    // pickup.c:1058-1062 clears AUTOSELECT_SINGLE for one worn item in an
+    // engulfer's inventory.  The list still proceeds through the same menu;
+    // the selected worn object is rejected after the menu is answered.
+    const engulferMinvent = Boolean(
+        olist.where === OBJ_MINVENT && state.u?.uswallow,
+    );
+    if (engulferMinvent && n === 1 && (olist.owornmask ?? 0))
+        qflags &= ~AUTOSELECT_SINGLE;
 
     if (n === 0) /* nothing to pick here */
         return { n: (qflags & SIGNAL_NOMENU) ? -1 : 0, pick_list };
@@ -611,7 +625,7 @@ export async function query_objlist(
         title,
         ...menuTitleStyle(state),
         items,
-        how: PICK_ANY,
+        how,
         cancelValue: null,
         overlay: state.iflags?.menu_overlay !== false,
     });
@@ -627,6 +641,12 @@ export async function query_objlist(
 
     for (const choice of selected) {
         const curr = choice.value;
+        if (engulferMinvent && (curr.owornmask ?? 0)) {
+            await ttyPline(
+                `You can't pick ${ysimple_name(curr, state)} up.`, state,
+            );
+            continue;
+        }
         const count = choice.count === -1 || choice.count > curr.quan
             ? curr.quan : choice.count;
         pick_list.push({ obj: curr, count });
@@ -801,9 +821,18 @@ export async function query_category(
 function preflightPickupObjects(selected, state) {
     let addedWeight = 0;
     let projectedGold = money_cnt(state.invent);
-    for (const { obj, count } of selected) {
-        if (obj.where !== OBJ_FLOOR || !Number.isInteger(count) || count < 1)
-            throw new UnsupportedPickupError('pickup() malformed floor object');
+    const actionable = selected.filter(({ obj }) =>
+        obj !== state.uchain
+        && !(obj.where === OBJ_MINVENT
+            && obj.owornmask
+            && state.u?.uswallow));
+    for (const { obj, count } of actionable) {
+        if ((obj.where !== OBJ_FLOOR && obj.where !== OBJ_MINVENT)
+            || !Number.isInteger(count) || count < 1) {
+            throw new UnsupportedPickupError(
+                'pickup() malformed floor object or monster object',
+            );
+        }
         // pickup.c:1826 and :1832, the two type arms of pickup_object() that
         // stay refused. touch_artifact() prints and can blast the hero, and
         // the scare-scroll arm rewrites obj->spe or turns the stack to dust.
@@ -857,11 +886,19 @@ function preflightPickupObjects(selected, state) {
             ),
         },
     });
-    const addPlans = preflight_addinv_sequence(
-        selected.map(({ obj }) => obj),
+    const computedPlans = preflight_addinv_sequence(
+        actionable.map(({ obj }) => obj),
         env,
         { observeObjects: !heroIsBlind(state) },
     );
+    const addPlans = [];
+    let planIndex = 0;
+    for (const { obj } of selected) {
+        if (actionable.some((item) => item.obj === obj))
+            addPlans.push(computedPlans[planIndex++]);
+        else
+            addPlans.push(null);
+    }
     // pickup.c lift_object() checks the 52-letter limit in floor order after
     // merge_choice().  Gold consumes no ordinary slot, and a later floor
     // object can merge with an earlier projected pickup.  Reject atomically
@@ -869,15 +906,16 @@ function preflightPickupObjects(selected, state) {
     let projectedSlots = inv_cnt(false, state);
     // Billing changes mergeability after lift_object's decision. For a shop
     // floor, use the live source lift below, not this pre-billing projection.
-    if (!costly_spot(state.u.ux, state.u.uy, state)) {
-        for (const plan of addPlans) {
+    if (selected.every(({ obj }) => obj.where !== OBJ_FLOOR)
+        || !costly_spot(state.u.ux, state.u.uy, state)) {
+        for (const plan of computedPlans) {
             if (!plan.addedOrdinarySlot) continue;
             if (projectedSlots >= 52)
                 throw new UnsupportedPickupError('pickup() with a full pack');
             ++projectedSlots;
         }
     }
-    for (const plan of addPlans) {
+    for (const plan of computedPlans) {
         // pickup.c:1881-1882 raises gm.mrg_to_wielded across pickup_prinv()
         // when the lifted stack merged into the wielded weapon, and
         // objnam.c:1561 reads it to drop the "(weapon in hand)" suffix that
@@ -975,21 +1013,23 @@ export function autopick(olist, follow, state = game, { dryRun = false } = {}) {
 
 // Keep the preflight's result in the same shape used by pickup()'s commit
 // loop, while deriving eligibility through the complete source autopick path.
-function planAutomaticFloorPickupAndRefreshCapacityCache(
+function planAutomaticPickupAndRefreshCapacityCache(
     state,
-    { dryRun = false } = {},
+    { dryRun = false, head = undefined, follow = BY_NEXTHERE } = {},
 ) {
     const { u } = state;
-    const head = state.level.objects[u.ux][u.uy];
+    const sourceHead = head === undefined
+        ? state.level.objects[u.ux][u.uy]
+        : head;
     const { pick_list: selected } = autopick(
-        head,
-        BY_NEXTHERE,
+        sourceHead,
+        follow,
         state,
         { dryRun },
     );
     const selectedObjects = new Set(selected.map(({ obj }) => obj));
     const remaining = [];
-    for (let obj = head; obj; obj = obj.nexthere) {
+    for (let obj = sourceHead; obj; obj = FOLLOW(obj, follow)) {
         if (!selectedObjects.has(obj)) remaining.push(obj);
     }
     return {
@@ -997,6 +1037,10 @@ function planAutomaticFloorPickupAndRefreshCapacityCache(
         remaining,
         selected,
     };
+}
+
+function planAutomaticFloorPickupAndRefreshCapacityCache(state, options = {}) {
+    return planAutomaticPickupAndRefreshCapacityCache(state, options);
 }
 
 // Random arrival commits placement, room entry and its display before
@@ -1012,6 +1056,9 @@ export function preflight_projected_random_arrival_pickup(state) {
         );
     }
     const { u } = state;
+    // pickup.c:680-688 checks the unconscious random-arrival arm before it
+    // selects either the floor chain or an engulfer's inventory.
+    if (Math.trunc(state.multi) < 0 && unconscious(state)) return;
     if (u.uswallow) {
         // pickup.c:741-747 and :754-789.  A swallowed hero walks the
         // engulfer's minvent chain instead of the floor.  With no objects,
@@ -1020,12 +1067,19 @@ export function preflight_projected_random_arrival_pickup(state) {
         // 0 without a message or random draw.  A nonempty stomach remains
         // refused below because its selection and object effects are a
         // separate behavior slice.
-        if (u.ustuck && !u.ustuck.minvent) return;
-        throw new UnsupportedPickupError('pickup() inside a monster');
+        const head = u.ustuck?.minvent ?? null;
+        if (!head) return;
+        const plan = planAutomaticPickupAndRefreshCapacityCache(state, {
+            head,
+            follow: 0,
+            dryRun: true,
+        });
+        // pickup() has no floor redraw or check_here tail while swallowed;
+        // this admission only needs to establish that its selected objects
+        // can complete the same addinv preflight after the arrival commits.
+        void plan;
+        return;
     }
-    if (Math.trunc(state.multi) < 0)
-        throw new UnsupportedPickupError('pickup() while helpless');
-
     const head = state.level?.objects?.[u.ux]?.[u.uy] ?? null;
     const inaccessibleLiquid = [
         is_pool(u.ux, u.uy, state) && !u.uinwater,
@@ -1039,14 +1093,33 @@ export function preflight_projected_random_arrival_pickup(state) {
 
     const trap = t_at(u.ux, u.uy, state);
     if (!can_reach_floor(Boolean(trap && is_pit(trap.ttyp)), state)) {
-        throw new UnsupportedPickupError(
-            'pickup() by a hero who cannot reach the floor',
-        );
+        // The live pickup call describes this square after the movement is
+        // committed; admission must leave the projection output-free.
+        return;
     }
     if (notake(state.youmonst?.data)) {
-        throw new UnsupportedPickupError(
-            'pickup() by a hero who cannot take objects',
-        );
+        // pickup.c routes this arm through check_here(FALSE) before returning;
+        // validate its object-description admission on the isolated arrival
+        // state so a later live look_here() cannot fail after movement.
+        const decorShown = state.flags?.mention_decor
+            && preflight_describe_decor_at(u.ux, u.uy, state);
+        const remaining = [];
+        for (let obj = head; obj; obj = obj.nexthere) {
+            if (obj !== state.uchain) remaining.push(obj);
+        }
+        if (remaining.length) {
+            preflight_look_here(
+                remaining.length,
+                decorShown ? LOOKHERE_SKIP_DFEATURE : LOOKHERE_NOFLAGS,
+                state,
+                {
+                    objects: remaining,
+                    decorTerrain: decorShown
+                        ? state.level.at(u.ux, u.uy)?.typ : null,
+                },
+            );
+        }
+        return;
     }
 
     let remaining;
@@ -1054,7 +1127,9 @@ export function preflight_projected_random_arrival_pickup(state) {
     if ((Math.trunc(state.multi) && !state.context?.run)
         || !state.flags?.pickup) {
         remaining = [];
-        for (let obj = head; obj; obj = obj.nexthere) remaining.push(obj);
+        for (let obj = head; obj; obj = obj.nexthere) {
+            if (obj !== state.uchain) remaining.push(obj);
+        }
     } else {
         const plan = planAutomaticFloorPickupAndRefreshCapacityCache(
             state,
@@ -1084,10 +1159,10 @@ export function preflight_projected_random_arrival_pickup(state) {
 // run at their source sites; pickup_prinv()'s encumbrance-prefix ladder and
 // prinv() remain folded into the final block below.
 //
-// Four of C's five type arms refuse in preflightPickupObjects() before
-// anything moves: uchain has no owner, an engulfer's inventory is rejected by
-// where != OBJ_FLOOR, and artifacts and scare scrolls refuse by type. Only the
-// CORPSE arm can be reached, and only with both helpers answering FALSE.
+// The uchain and worn-engulfer arms return from pickup_object() without an
+// inventory transfer. Artifact and scare-scroll behavior remains at its
+// existing source-attributed preflight boundary; ordinary floor and corpse
+// arms continue through lift_object()/pick_obj().
 //
 // The two lines pickup.c runs around pick_obj() that this port does not:
 // disp.botl for gold, because invent.c addinv_core1() sets the same flag on
@@ -1105,6 +1180,13 @@ async function pickup_object(obj, count, telekinesis, env, plan) {
         );
     }
     observe_pickup_object(obj, state);
+    // pickup.c:1824-1829. The attached punishment chain and an engulfer's
+    // worn item are tried objects, but neither is transferred to inventory.
+    if (obj === state.uchain) return 0;
+    if (obj.where === OBJ_MINVENT && obj.owornmask && state.u.uswallow) {
+        await ttyPline(`You can't pick ${ysimple_name(obj, state)} up.`, state);
+        return 0;
+    }
     if (obj.otyp === CORPSE
         && (fatal_corpse_mistake(obj, telekinesis, state)
             || rider_corpse_revival(obj, telekinesis, state)))
@@ -1141,7 +1223,10 @@ async function pickup_object(obj, count, telekinesis, env, plan) {
 export async function pick_obj(otmp, state = game, env = {}, plan = null) {
     env = objectGenerationEnv({ ...env, state });
     const fromfloor = otmp.where === OBJ_FLOOR;
-    const location = get_obj_location(otmp, 0, state);
+    // C initializes the output coordinates to (0,0) when an OBJ_MINVENT
+    // object belongs to a migrating monster; get_obj_location() returns
+    // FALSE in that case but pick_obj() still proceeds with billing disabled.
+    const location = get_obj_location(otmp, 0, state) ?? { x: 0, y: 0 };
     const { x: ox, y: oy } = location;
     let robshop = !state.u.uswallow && otmp !== state.uball
         && costly_spot(ox, oy, state);
@@ -1163,158 +1248,310 @@ export async function pick_obj(otmp, state = game, env = {}, plan = null) {
     return result;
 }
 
-// C ref: pickup.c pickup() (672-910), autopick(), query_objlist(),
-// pickup_object(), pick_obj() and pickup_prinv(). Beyond the no-object and
-// no-autopickup arms this covers two selections that share one pickup loop:
-// autopick()'s, used by a level teleport arrival, and the `,` command's, for a
-// square holding exactly one object it is allowed to take. Option filters,
-// burden prompts and full packs retain their existing admission checks.
-// Manual menus and autopickup share pickup_object and the billed pick_obj path.
+// C ref: pickup.c pickup() (672-910), including its swallowed, autopickup,
+// menu, traditional, counted and cleanup paths.  The object-level helpers
+// retain their own source names below, while this function preserves C's
+// traversal and return semantics around them.
 export async function pickup(what, state = game) {
     const u = state.u;
     const autopickup = what > 0;
+    const swallowed = Boolean(u.uswallow);
 
-    if (u.uswallow) {
-        // pickup.c:741-747.  The empty engulfer inventory is a complete
-        // no-op: the source walks a null minvent chain, selects nothing, and
-        // returns 0 without output or RNG.  Keep the reset that C performs at
-        // pickup.c:690 before the swallowed-chain selection.
-        state.gp ??= {};
-        state.gp.pickup_encumbrance = 0;
-        if (u.ustuck && !u.ustuck.minvent) return 0;
-        // A nonempty chain reaches autopick()/query_objlist(), then
-        // pickup_object() and pick_obj(); those branches are not floor-only
-        // substitutes and remain fail-closed here.
-        throw new UnsupportedPickupError('pickup() inside a monster');
-    }
-    if (autopickup && Math.trunc(state.multi ?? 0) < 0) {
-        // C's guard is `autopickup && gm.multi < 0 && unconscious()`
-        // (pickup.c:685), whose arm sets iflags.prev_decor = STONE and returns
-        // 0 without checking the square. This port refuses on the first term
-        // alone, which over-approximates: js/trap.js unconscious() also wants
-        // u.usleep or one of trap.c:6783-6785's three coming-round messages,
-        // and the port's one negative-multi state -- js/pray.js dopray()'s
-        // nomul(-3), whose nomovemsg is "You finish your prayer." -- has
-        // neither, so C picks up where this stops. Nothing reaches the
-        // difference: allmain.c moveloop_core() reads no key while the prayer
-        // counts down, so no command calls pickup() then, and refusing costs a
-        // segment its tail rather than a wrong screen. C's own two routes to
-        // the arm are the random teleport and the levitation timeout that
-        // pickup.c:680-684 names; port the arm with whichever lands first.
-        throw new UnsupportedPickupError('pickup() while helpless');
+    if (autopickup && Math.trunc(state.multi ?? 0) < 0
+        && unconscious(state)) {
+        // pickup.c:680-688 deliberately skips all square inspection when a
+        // random arrival finds an unconscious hero.  The sentinel prevents a
+        // second decor report when the hero wakes on a later turn.
+        state.iflags ??= {};
+        state.iflags.prev_decor = STONE;
+        return 0;
     }
     state.gp ??= {};
     state.gp.pickup_encumbrance = 0;
 
-    const objectHere = Boolean(
+    let objectHere = !swallowed && Boolean(
         state.level?.objects?.[u.ux]?.[u.uy] ?? null,
     );
-    if (autopickup
-        && (state.context?.nopick || !objectHere
-            || (is_pool(u.ux, u.uy, state) && !u.uinwater)
-            || is_lava(u.ux, u.uy, state))) {
-        if (state.flags?.mention_decor) {
+    if (!swallowed) {
+        if (autopickup
+            && (state.context?.nopick || !objectHere
+                || (is_pool(u.ux, u.uy, state) && !u.uinwater)
+                || is_lava(u.ux, u.uy, state))) {
+            if (state.flags?.mention_decor)
+                await describe_decor(state);
+            await read_engr_at(u.ux, u.uy, state, {
+                pline: ttyPline,
+                canReachFloor: can_reach_floor,
+            });
+            return 0;
+        }
+
+        const trap = t_at(u.ux, u.uy, state);
+        if (!can_reach_floor(Boolean(trap && is_pit(trap.ttyp)), state)) {
+            // C calls describe_decor() even with mention_decor disabled.  Its
+            // conditional engraving read is the only additional output.
             await describe_decor(state);
+            if ((Math.trunc(state.multi ?? 0) && !state.context?.run)
+                || (autopickup && !state.flags?.pickup)
+                || (trap && (uteetering_at_seen_pit(trap, state)
+                    || uescaped_shaft(trap, state)))) {
+                await read_engr_at(u.ux, u.uy, state, {
+                    pline: ttyPline,
+                    canReachFloor: can_reach_floor,
+                });
+            }
+            return 0;
         }
-        await read_engr_at(u.ux, u.uy, state, {
-            pline: ttyPline,
-            canReachFloor: can_reach_floor,
-        });
-        return 0;
+
+        if (notake(state.youmonst?.data)) {
+            // C performs check_here(FALSE) before testing the pile for the
+            // incapacity message.  Keep that evaluation order after the
+            // movement has committed the hero's location.
+            await check_here(false, state);
+            objectHere = Boolean(
+                state.level?.objects?.[u.ux]?.[u.uy] ?? null,
+            );
+            if (objectHere && (autopickup || state.flags?.pickup)) {
+                await ttyPline(
+                    'You are physically incapable of picking anything up.',
+                    state,
+                );
+            }
+            return 0;
+        }
+        if ((Math.trunc(state.multi ?? 0) && !state.context?.run)
+            || (autopickup && !state.flags?.pickup)) {
+            await check_here(false, state);
+            return 0;
+        }
+
+        if (objectHere && state.context?.run && state.context.run !== 8
+            && !state.context.nopick) {
+            nomul(0, state);
+        }
     }
 
-    const trap = t_at(u.ux, u.uy, state);
-    if (!can_reach_floor(Boolean(trap && is_pit(trap.ttyp)), state)) {
-        // pickup.c:713 calls describe_decor() even when mention_decor is off;
-        // it stores STONE in that mode before the floor-access return.
-        await describe_decor(state);
-        // Reaching the remaining pickup work still needs levitation, a steed
-        // or a pit.
-        throw new UnsupportedPickupError(
-            'pickup() by a hero who cannot reach the floor',
-        );
-    }
+    // C:740-747. The same loop walks nexthere on the floor and nobj inside
+    // the engulfer, so all following selection paths consume the same list.
+    add_valid_menu_class(0, state);
+    const objchain = swallowed ? (u.ustuck?.minvent ?? null)
+        : (state.level?.objects?.[u.ux]?.[u.uy] ?? null);
+    const follow = swallowed ? 0 : BY_NEXTHERE;
 
-    if (notake(state.youmonst?.data)) {
-        throw new UnsupportedPickupError(
-            'pickup() by a hero who cannot take objects',
-        );
-    }
-    if ((Math.trunc(state.multi ?? 0) && !state.context?.run)
-        || (autopickup && !state.flags?.pickup)) {
-        await check_here(false, state);
-        return 0;
-    }
-
-    if (objectHere && state.context?.run && state.context.run !== 8
-        && !state.context.nopick) {
-        nomul(0, state);
-    }
-
-    // C ref: pickup.c:740-747. add_valid_menu_class(0) resets the five menu
-    // filters query_classes() sets; nothing ported writes them, and the port
-    // reaches no menu that would read them. The swallowed arm has already
-    // refused, so BY_NEXTHERE over the floor pile is the only traversal left.
-
-    // pickup.c:754-777, where autopick() and the interactive selection part
-    // company. Both fill pick_list and both then run the loop at 779-789.
-    let selected;
-    let addPlans;
+    let selected = [];
+    let addPlans = [];
     let env;
-    if (autopickup) {
-        ({ addPlans, env, selected }
-            = planAutomaticFloorPickupAndRefreshCapacityCache(state));
-    } else {
-        if (state.flags?.menu_style === MENU_TRADITIONAL
-            && !state.iflags?.menu_requested) {
-            // pickup.c:793-892, the "old style interface": a class query, a
-            // per-object ynaq() and the counted single-object shortcut. For
-            // one object it reaches the same pickup_object() this arm does.
-            // Startup parsing can now select this branch; porting that
-            // traditional interface remains a separate behavior slice.
-            throw new UnsupportedPickupError('pickup() traditional interface');
-        }
-        if (what < 0) {
-            // pickup.c:763-772, "Pick %d of what?" with the n_or_more
-            // selector. parse() collects the count whether or not a prefix
-            // ran, so both `1,` and `m1,` arrive here with what == -1. This
-            // refusal is reachable, and is what keeps C's counted-subset
-            // selector from being silently skipped.
-            throw new UnsupportedPickupError('pickup() of a counted subset');
-        }
-        const traverse_how = BY_NEXTHERE | AUTOSELECT_SINGLE
-            | (state.flags?.sortpack ? INVORDER_SORT : 0);
-        ({ pick_list: selected } = await query_objlist(
-            state.level.objects[u.ux][u.uy],
-            traverse_how | FEEL_COCKATRICE,
-            all_but_uchain,
-            state,
-        ));
-        ({ addPlans, env } = preflightPickupObjects(selected, state));
-    }
-
-    /* menu_pickup: */
-    const n = selected.length;
-    if (n > 0) reset_justpicked(state.invent);
-    const n_tried = n;
+    let n_tried = 0;
     let n_picked = 0;
-    for (let i = 0; i < n; ++i) {
-        const res = await pickup_object(
-            selected[i].obj, selected[i].count, false, env, addPlans[i],
-        );
-        if (res < 0) break; /* can't continue */
-        n_picked += res;
+    let skipFloorTail = false;
+
+    const commitSelection = async (items) => {
+        if (items.length > 0) reset_justpicked(state.invent);
+        const prepared = preflightPickupObjects(items, state);
+        addPlans = prepared.addPlans;
+        env = prepared.env;
+        n_tried = items.length;
+        for (let i = 0; i < items.length; ++i) {
+            const res = await pickup_object(
+                items[i].obj,
+                items[i].count,
+                false,
+                env,
+                addPlans[i],
+            );
+            if (res < 0) break;
+            n_picked += res;
+        }
+    };
+
+    if (autopickup) {
+        const plan = planAutomaticPickupAndRefreshCapacityCache(state, {
+            head: objchain,
+            follow,
+        });
+        selected = plan.selected;
+        // Preserve the source's single preflight before its commit loop.
+        addPlans = plan.addPlans;
+        env = plan.env;
+        if (selected.length > 0) reset_justpicked(state.invent);
+        n_tried = selected.length;
+        for (let i = 0; i < selected.length; ++i) {
+            const res = await pickup_object(
+                selected[i].obj, selected[i].count, false, env, addPlans[i],
+            );
+            if (res < 0) break;
+            n_picked += res;
+        }
+    } else if (state.flags?.menu_style !== MENU_TRADITIONAL
+        || state.iflags?.menu_requested) {
+        let qflags = follow | AUTOSELECT_SINGLE
+            | (state.flags?.sortpack ? INVORDER_SORT : 0);
+        if (what < 0) {
+            state.gv ??= {};
+            state.gv.val_for_n_or_more = -what;
+            const result = await query_objlist(
+                objchain,
+                qflags,
+                n_or_more,
+                state,
+                `Pick ${-what} of what?`,
+                PICK_ONE,
+            );
+            selected = result.pick_list;
+            for (const item of selected) item.count = -what;
+        } else {
+            const result = await query_objlist(
+                objchain,
+                qflags | FEEL_COCKATRICE,
+                all_but_uchain,
+                state,
+            );
+            selected = result.pick_list;
+        }
+        await commitSelection(selected);
+    } else {
+        // pickup.c:793-892, the traditional class/per-object interface.
+        let count = what < 0 ? -what : 0;
+        let allOfType = true;
+        let selective = false;
+        let classes = '';
+        let query = null;
+        let ct = 0;
+        for (let obj = objchain; obj; obj = FOLLOW(obj, follow)) ++ct;
+
+        if (ct === 1 && count) {
+            const obj = objchain;
+            const amount = Math.min(obj.quan, count);
+            n_tried++;
+            reset_justpicked(state.invent);
+            const prepared = preflightPickupObjects(
+                [{ obj, count: amount }], state,
+            );
+            const res = await pickup_object(
+                obj, amount, false, prepared.env, prepared.addPlans[0],
+            );
+            if (res > 0) n_picked++;
+        } else {
+            if (ct >= 2) {
+                await ttyPline(
+                    `There are ${ct <= 10 ? 'several' : 'many'} objects here.`,
+                    state,
+                );
+                query = await query_classes('pick up', objchain, !swallowed, state);
+                if (!query.ok) {
+                    if (!query.menu_on_request) {
+                        // C's `goto pickupdone` bypasses the common floor
+                        // hideunder/newsym/check_here tail on cancellation.
+                        skipFloorTail = true;
+                        query = null;
+                    } else {
+                        let menuFlags = follow;
+                        if (query.one_by_one) menuFlags |= INVORDER_SORT;
+                        const result = await query_objlist(
+                            objchain,
+                            menuFlags,
+                            query.menu_on_request === -2
+                                ? allow_all : allow_category,
+                            state,
+                        );
+                        await commitSelection(result.pick_list);
+                        query = null;
+                    }
+                }
+            } else if (ct === 1) {
+                // With one uncounted object C skips query_classes() and lets
+                // the source loop take the whole object.
+                query = {
+                    ok: true,
+                    one_by_one: false,
+                    allflag: true,
+                    selection: '',
+                };
+            }
+
+            if (query) {
+                selective = query.one_by_one;
+                allOfType = query.allflag;
+                classes = query.selection;
+                const bycat = 'BUCX'.split('').some((sym) =>
+                    state.gv?.valid_menu_classes?.includes(sym));
+                for (let obj = objchain; obj;) {
+                    const next = FOLLOW(obj, follow);
+                    if (bycat ? !allow_category(obj, state)
+                        : (!selective && classes
+                            && !classes.includes(String.fromCharCode(obj.oclass)))) {
+                        obj = next;
+                        continue;
+                    }
+
+                    let amount = -1;
+                    if (!allOfType) {
+                        const qbuf = safe_qbuf(
+                            'Pick up ', '?', obj,
+                            (candidate) => donameFresh(candidate, state),
+                            (candidate) => ansimpleoname(candidate, state),
+                            something,
+                            state,
+                        );
+                        const responses = obj.quan < 2 ? 'ynaq' : 'yn#aq';
+                        const answer = String.fromCharCode(
+                            await yn_function(qbuf, responses, 'y', true, state),
+                        );
+                        if (answer === 'q') break;
+                        if (answer === 'n') {
+                            obj = next;
+                            continue;
+                        }
+                        if (answer === 'a') {
+                            allOfType = true;
+                            if (selective) {
+                                selective = false;
+                                classes = String.fromCharCode(obj.oclass);
+                            }
+                        } else if (answer === '#') {
+                            amount = Math.min(
+                                Math.trunc(state.yn_number ?? 0), obj.quan,
+                            );
+                            if (!amount) {
+                                obj = next;
+                                continue;
+                            }
+                        }
+                    }
+                    if (amount < 0) amount = obj.quan;
+                    if (!n_tried) reset_justpicked(state.invent);
+                    n_tried++;
+                    const prepared = preflightPickupObjects(
+                        [{ obj, count: amount }], state,
+                    );
+                    const res = await pickup_object(
+                        obj,
+                        amount,
+                        false,
+                        prepared.env,
+                        prepared.addPlans[0],
+                    );
+                    if (res < 0) break;
+                    n_picked += res;
+                    obj = next;
+                }
+            }
+        }
     }
 
-    // pickup.c:894-908. hides_under(youmonst.data) at 895 is M1_CONCEAL, which
-    // no role's starting form carries, so hideunder() is unreachable for an
-    // unpolymorphed hero. C's newsym_force() at 900 is newsym() plus glyph
-    // buffer bookkeeping that js/display.js flush_screen() does not consult.
-    if (n_picked) newsym(u.ux, u.uy);
-    /* check if there's anything else here after auto-pickup is done */
-    if (autopickup) await check_here(n_picked > 0, state);
-    /* pickupdone: */
+    if (!swallowed && !skipFloorTail) {
+        // C calls hideunder(&youmonst) for a discarded result.  The existing
+        // hero-concealment owner is still an explicit source gap; keep that
+        // call visible in game.unported rather than fabricating a redraw.
+        if (hides_under(state.youmonst?.data))
+            note_unported('mon.c hideunder');
+        // newsym_force is newsym() plus dirty bookkeeping; the display owner
+        // treats the ordinary redraw as the complete effect here.
+        if (n_picked) newsym(u.ux, u.uy);
+        if (autopickup) await check_here(n_picked > 0, state);
+    }
     state.gp.pickup_encumbrance = 0;
+    add_valid_menu_class(0, state);
     return n_tried > 0 ? 1 : 0;
 }
 

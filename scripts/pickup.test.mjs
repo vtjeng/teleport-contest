@@ -288,14 +288,27 @@ test('pickup answers an empty square without taking anything', async () => {
     // nothing leaves every carried object's pickup_prev alone.
     assert.equal(state.invent.pickup_prev, true);
     // A counted pickup is the other interactive arm, "Pick %d of what?" with
-    // the n_or_more selector, which this port stops at pickup.c:763 instead
-    // of entering.
-    await assert.rejects(
-        () => pickup(-1, state),
-        (error) => error instanceof UnsupportedPickupError
-            && /counted subset/u.test(error.message),
-    );
+    // the n_or_more selector.  An empty list reaches query_objlist()'s source
+    // n == 0 return without resetting the carried pickup_prev flag.
+    assert.equal(await pickup(-1, state), 0);
+    assert.equal(state.invent.pickup_prev, true);
 });
+
+test('pickup counted selection uses the source n-or-more threshold',
+    async () => {
+        const state = await heroOnAnEmptySquare();
+        state.flags.pickup = true;
+        const object = objectUnderHero(state);
+        object.quan = 2;
+        quiet(state);
+
+        assert.equal(await pickup(-1, state), 1);
+        // splitobj leaves the unpicked remainder on the floor and links the
+        // selected one into the inventory.
+        assert.equal(object.where, OBJ_FLOOR);
+        assert.equal(object.quan, 1);
+        assert.equal(state.level.objects[state.u.ux][state.u.uy], object);
+    });
 
 test('pickup describes the traversed D:1 staircase before returning',
     async () => {
@@ -1196,9 +1209,11 @@ test('pickup stops on each state it has no answer for', async () => {
     state.u.uswallow = 0;
     state.u.ustuck = null;
 
-    // multi < 0 is a helpless hero, and only autopickup checks it.
+    // multi < 0 is a helpless hero, but pickup.c only skips the call when the
+    // hero is also unconscious.  A conscious empty square takes its normal
+    // no-object return.
     state.multi = -3;
-    await assert.rejects(() => pickup(1, state), /while helpless/u);
+    assert.equal(await pickup(1, state), 0);
     state.multi = 0;
 
     state.flags.mention_decor = true;
@@ -1216,7 +1231,15 @@ test('pickup stops on each state it has no answer for', async () => {
         data: state.youmonst.data,
         minvent: { where: OBJ_MINVENT },
     };
-    await assert.rejects(() => pickup(1, state), /inside a monster/u);
+    const swallowedObject = objectUnderHero(state);
+    swallowedObject.where = OBJ_MINVENT;
+    swallowedObject.nexthere = null;
+    swallowedObject.nobj = null;
+    swallowedObject.ocarry = state.u.ustuck;
+    state.level.objects[state.u.ux][state.u.uy] = null;
+    state.u.ustuck.minvent = swallowedObject;
+    assert.equal(await pickup(0, state), 1);
+    assert.equal(swallowedObject.where, OBJ_INVENT);
     state.u.uswallow = 0;
     state.u.ustuck = null;
 
@@ -1229,7 +1252,7 @@ test('pickup stops on each state it has no answer for', async () => {
         tx: state.u.ux, ty: state.u.uy, ttyp: PIT, tseen: 1,
     });
     state.iflags.prev_decor = ROOM;
-    await assert.rejects(() => pickup(1, state), /cannot reach the floor/u);
+    assert.equal(await pickup(1, state), 0);
     // pickup.c:713's unconditional describe_decor() resets the terrain
     // sentinel even though mention_decor is disabled on this arm.
     assert.equal(state.iflags.prev_decor, STONE);
@@ -1237,7 +1260,10 @@ test('pickup stops on each state it has no answer for', async () => {
 
     state.youmonst.data = { ...state.youmonst.data };
     state.youmonst.data.mflags1 |= M1_NOTAKE;
-    await assert.rejects(() => pickup(1, state), /cannot take objects/u);
+    state.nhDisplay.pushKey(' '.charCodeAt(0));
+    state.nhDisplay.pushKey(' '.charCodeAt(0));
+    assert.equal(await pickup(1, state), 0);
+    assert.match(state._ttyToplines ?? '', /physically incapable/u);
 });
 
 test('pickup stops a run before it selects anything', async () => {
@@ -1462,9 +1488,9 @@ test('pickup refuses the corpses its helpers cannot carry through',
                 && /petrifying corpse/u.test(error.message),
         );
         assert.equal(cockatrice.where, OBJ_FLOOR);
-        // The refusal is a preflight one, so it lands before
-        // reset_justpicked() and before pickup_object()'s observe_object().
-        assert.equal(petrifying.invent.pickup_prev, true);
+        // The menu arm resets justpicked before its source pickup_object()
+        // dependency reports the unsupported fatal touch.
+        assert.equal(petrifying.invent.pickup_prev, false);
         assert.equal(cockatrice.dknown, false);
         // The same corpse under gloves is the st_gloves term of the live
         // path, and the pickup goes through.
@@ -1489,7 +1515,7 @@ test('pickup refuses the corpses its helpers cannot carry through',
                     .test(error.message),
         );
         assert.equal(death.where, OBJ_FLOOR);
-        assert.equal(rider.invent.pickup_prev, true);
+        assert.equal(rider.invent.pickup_prev, false);
         assert.equal(death.dknown, false);
         // Called directly the way zap.c and dothrow.c call it, with a NULL
         // object and with the remote phrasing.
@@ -1599,7 +1625,7 @@ test('query_objlist returns a whole stack selected from the sorted menu',
         );
     });
 
-test('query_objlist refuses the lists this port does not walk', async () => {
+test('query_objlist walks an engulfer inventory through nobj', async () => {
     const state = await heroOnAnEmptySquare();
     const object = objectUnderHero(state);
     const flags = BY_NEXTHERE | AUTOSELECT_SINGLE;
@@ -1610,13 +1636,11 @@ test('query_objlist refuses the lists this port does not walk', async () => {
             && /engulfed hero/u.test(error.message),
     );
     // An engulfer's inventory is walked by nobj and can clear
-    // AUTOSELECT_SINGLE for a worn item.
+    // AUTOSELECT_SINGLE for a worn item.  A non-worn item remains selectable.
     object.where = OBJ_MINVENT;
-    await assert.rejects(
-        () => query_objlist(object, flags, () => true, state),
-        (error) => error instanceof UnsupportedPickupError
-            && /engulfer's inventory/u.test(error.message),
-    );
+    const result = await query_objlist(object, flags, () => true, state);
+    assert.equal(result.n, 1);
+    assert.equal(result.pick_list[0].obj, object);
 });
 
 // The smallest level shape shk.c costly_spot() calls billable: a shop room
