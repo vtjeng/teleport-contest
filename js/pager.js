@@ -127,13 +127,11 @@ import {
     glyph_is_object,
     glyph_is_statue,
     glyph_is_trap,
-    hero_glyph_info,
     glyph_to_cmap,
     glyph_to_obj,
     glyph_to_trap,
     engraving_to_glyph,
     map_glyphinfo,
-    monster_glyph_info,
     stored_monster_class_symbol,
     NO_GLYPH,
     trap_to_glyph,
@@ -1028,34 +1026,10 @@ function visibleGlyphCharacter(glyphinfo) {
     return glyphinfo.ch;
 }
 
-// C's prefix is the character resolved by map_glyphinfo() for ordinary map
-// glyphs.  Monster glyphs are transient presentations in this port and the
-// unexplored sentinel has no map_glyphinfo arm, so use the same presentation
-// that newsym() would have put in the cell for those two families.
-function descriptionDisplayCharacter(glyph, x, y, state) {
-    const location = state.level?.at?.(x, y);
-    if (location?.disp_browser_ch) return location.disp_browser_ch;
-    if (location?.disp_decgfx)
-        return SCORER_DEC_MAP[location.disp_ch] ?? location.disp_ch;
-    if (location?.disp_ch !== undefined) return location.disp_ch;
-    if (glyph === GLYPH_UNEXPLORED_OFF) {
-        const symbol = misc_symbol(SYM_UNEXPLORED, state);
-        return symbol.displayCh ?? symbol.ch;
-    }
-    if (glyph_is_warning(glyph)) {
-        const index = glyph - GLYPH_WARNING_OFF;
-        const symbol = state.gw?.warnsyms?.[index]
-            ?? def_warnsyms[index];
-        if (typeof symbol === 'number') return String.fromCharCode(symbol);
-        return symbol?.displayCh ?? symbol?.ch ?? '?';
-    }
-    if (glyph_is_monster(glyph)) {
-        const monster = m_at(x, y, state);
-        if (monster) return monster_glyph_info(monster, state).ch;
-        if (x === state.u?.ux && y === state.u?.uy)
-            return hero_glyph_info(state).ch;
-        return 'M';
-    }
+// C pager.c uses the one map_glyphinfo() record for both its raw tty byte and
+// its encoded prefix.  The rendered cell sidecars can contain a DEC/UTF-8
+// character (or null after cls()), so they must not participate in lookup.
+function descriptionDisplayCharacter(glyph, state) {
     return visibleGlyphCharacter(map_glyphinfo(glyph, state));
 }
 
@@ -1268,29 +1242,14 @@ export function do_screen_description(cc, looked, sym, state = game) {
     // refine; keeping it in this same pass is important for symbol aliases.
     const glyph = looked ? glyph_at(cc.x, cc.y, state) : NO_GLYPH;
     const displayCharacter = looked
-        ? descriptionDisplayCharacter(glyph, cc.x, cc.y, state) : null;
-    const locationSymbol = looked
-        ? state.level?.at?.(cc.x, cc.y)?.disp_ch : undefined;
-    const locationByte = typeof locationSymbol === 'string'
-        ? locationSymbol.charCodeAt(0) : locationSymbol;
+        ? descriptionDisplayCharacter(glyph, state) : null;
     let symbolByte = sym;
     if (looked) {
-        if (locationByte !== undefined) {
-            symbolByte = locationByte;
-        } else if (glyph_is_monster(glyph)) {
-            symbolByte = monster_class_symbol(
-                m_at(cc.x, cc.y, state)?.data?.mlet ?? S_HUMAN,
-                state,
-            ).ttychar;
-        } else if (glyph === GLYPH_UNEXPLORED_OFF) {
-            symbolByte = misc_symbol(SYM_UNEXPLORED, state).ttychar;
-        } else if (glyph_is_warning(glyph)) {
-            const warning = glyph - GLYPH_WARNING_OFF;
-            symbolByte = state.gw?.warnsyms?.[warning]
-                ?? def_warnsyms[warning]?.ch?.charCodeAt(0);
-        } else {
-            symbolByte = map_glyphinfo(glyph, state).ttychar;
-        }
+        // C pager.c:map_glyphinfo() supplies the raw tty byte used for every
+        // family comparison.  The rendered disp_ch is a DEC/UTF-8 display
+        // character and can differ from that byte (for example 0xfe renders
+        // as '~'); using it here misclassifies walls as monster classes.
+        symbolByte = map_glyphinfo(glyph, state).ttychar;
     }
     const prefix = looked
         ? displayCharacter + '        '

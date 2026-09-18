@@ -128,6 +128,7 @@ import {
     S_sink,
     S_stone,
     S_tree,
+    S_vwall,
     initialize_symbols_from_options,
 } from '../js/symbols.js';
 import {
@@ -664,6 +665,27 @@ test('room floor retains every dot ambiguity before lookat refinement', () => {
         found: 1,
         out: '·        a doorway or the floor of a room or the dark part of a room or ice (floor of a room)',
         firstmatch: 'floor of a room',
+    });
+});
+
+test('looked descriptions compare the raw tty byte behind DEC graphics', () => {
+    const state = terrainDescriptionState(S_vwall);
+    state.dungeons = [{ flags: { hellish: false } }];
+    const glyph = cmap_to_glyph(S_vwall, state);
+    const glyphInfo = map_glyphinfo(glyph, state);
+    state.level.at = (x, y) => (x === 3 && y === 4
+        ? {
+            // display.c stores the rendered character separately from the
+            // high-bit tty byte that pager.c uses for family matching.
+            disp_glyph: { glyph },
+            disp_ch: glyphInfo.ch,
+            disp_decgfx: glyphInfo.dec,
+        }
+        : undefined);
+    assert.deepEqual(do_screen_description({ x: 3, y: 4 }, true, 0, state), {
+        found: 1,
+        out: '│        the interior of a monster or a wall (wall)',
+        firstmatch: 'wall',
     });
 });
 
