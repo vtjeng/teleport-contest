@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 912363,
+      "datetime": "20380422110912",
+      "nethackrc": "OPTIONS=name:SpellOrderVariation,role:Wizard,race:human,gender:male,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen,playmode:debug,pettype:none,!acoustics\n",
+      "moves": " #wizintrinsic\ni\n #wizgenesis\nmaster lich\nm. m. m. m. m."
+    }
+  ],
+  "_comment": "Cheap source variation: a distinct master-lich seed uses the same monster spell production entry and reaches a source-selected result-valued spell effect, exercising the existing mcastu message-order path independently."
+}
