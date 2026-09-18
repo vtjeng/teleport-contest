@@ -25,6 +25,7 @@ import {
     PROTECTION,
     FROMOUTSIDE,
     ROOM,
+    RIGHT_SIDE,
     SHOCK_RES,
     SPIKED_PIT,
     STRAT_WAITFORU,
@@ -38,6 +39,7 @@ import {
     W_ARMG,
     W_ARMC,
     W_ARMU,
+    WOUNDED_LEGS,
     SEE_INVIS,
 } from '../js/const.js';
 import { midnight } from '../js/calendar.js';
@@ -48,7 +50,7 @@ import {
     set_occupation,
 } from '../js/cmd.js';
 import { game } from '../js/gstate.js';
-import { spoteffects } from '../js/hack.js';
+import { near_capacity, spoteffects, weight_cap } from '../js/hack.js';
 import { runSegment } from '../js/jsmain.js';
 import {
     could_seduce,
@@ -79,6 +81,7 @@ import {
     AD_SSEX,
     AD_DREN,
     AD_DRLI,
+    AD_LEGS,
     AD_PEST,
     AD_STUN,
     AT_BITE,
@@ -156,6 +159,7 @@ import {
     GAUNTLETS_OF_POWER,
     LEATHER_ARMOR,
     LONG_SWORD,
+    LOW_BOOTS,
     ORCISH_DAGGER,
     SILVER_DAGGER,
     objects_globals_init,
@@ -163,10 +167,13 @@ import {
 import {
     mhitm_ad_blnd,
     mhitm_ad_cold,
+    mhitm_ad_legs,
     mhitm_ad_phys,
 } from '../js/uhitm.js';
-import { UnsupportedSimpleMonsterActionError }
-    from '../js/unported_monster_actions.js';
+import {
+    planningState,
+    UnsupportedSimpleMonsterActionError,
+} from '../js/unported_monster_actions.js';
 import { tp_sensemon } from '../js/display.js';
 
 // mhitu.c magic_negation() reads the invent chain, the objects[] catalog,
@@ -2438,7 +2445,185 @@ test('tp_sensemon excludes warning, underwater, and swallowed wrapper gates',
     assert.equal(tp_sensemon(spider, state), true);
 });
 
-// ---- uhitm.c mhitm_ad_phys() ----
+// ---- uhitm.c mhitm_ad_legs() and mhitm_ad_phys() ----
+
+test('mhitm_ad_legs preserves all three source arms and guard order', async () => {
+    // uhitm.c:4425-4490.  The side draw precedes every monster-to-hero
+    // predicate, while hero and monster-to-monster attacks delegate to the
+    // physical arm.  The initialized attack fixture keeps the random and
+    // burden operations observable without using a special-case species.
+    const state = await meleeHero();
+    const goblin = meleeAttacker(state, PM_GOBLIN, -1, 0);
+    const target = meleeAttacker(state, PM_RAVEN, 1, 0);
+    const attack = { aatyp: AT_KICK, adtyp: AD_LEGS, damn: 1, damd: 4 };
+
+    // C's uhitm arm delegates without a new draw and leaves the ordinary
+    // physical damage intact for this unarmed kick.
+    const heroArm = physMhm(5);
+    const heroEnv = meleeEnv(state, []).env;
+    await mhitm_ad_legs(state.youmonst, attack, target, heroArm, state, heroEnv);
+    assert.equal(heroArm.damage, 5);
+
+    // A monster-to-monster cancelled attacker clears damage before the
+    // physical helper, exactly at the source guard.
+    const cancelled = physMhm(5);
+    goblin.mcan = true;
+    const cancelledEnv = meleeEnv(state, []).env;
+    await mhitm_ad_legs(goblin, attack, target, cancelled, state, cancelledEnv);
+    assert.equal(cancelled.damage, 0);
+    goblin.mcan = false;
+
+    // Monster-to-hero, no footwear: rn2(2) chooses the right side, rnd(60-
+    // ACURR(A_DEX)) supplies the timeout, then each exercise call spends its
+    // own rn2(2).  No C call between these writes is discarded.
+    const beforeDex = state.u.atemp[3];
+    const landed = physMhm(5);
+    const landedEnv = meleeEnv(state, [7]);
+    await mhitm_ad_legs(goblin, attack, state.youmonst, landed,
+                        state, landedEnv.env);
+    assert.deepEqual(landedEnv.bounds,
+        ['rn2(2)', 'rnd(50)', 'rn2(2)', 'rn2(2)']);
+    assert.deepEqual(landedEnv.lines, ['The goblin pricks your right leg!']);
+    assert.equal(landed.damage, 5);
+    assert.equal(state.u.atemp[3], beforeDex - 1);
+    assert.equal(state.u.uprops[WOUNDED_LEGS].extrinsic, RIGHT_SIDE);
+
+    // The mounted/flying guard is after the side draw and suppresses the
+    // wound.  A non-flying goblin cannot reach a flying hero.
+    state.u.uprops[FLYING] = { intrinsic: 1, extrinsic: 0, blocked: 0 };
+    const flying = physMhm(5);
+    const flyingEnv = meleeEnv(state, []);
+    await mhitm_ad_legs(goblin, attack, state.youmonst, flying,
+                        state, flyingEnv.env);
+    assert.deepEqual(flyingEnv.bounds, ['rn2(2)']);
+    assert.deepEqual(flyingEnv.lines,
+        ['The goblin tries to reach your right leg!']);
+    assert.equal(flying.damage, 0);
+
+    // Cancellation is tested only after the height guard.  It still spends
+    // the side draw and evaluates Monnam() twice: uhitm.c first initializes
+    // Monst_name and then evaluates it again for pline_mon().  Hallucination
+    // makes those otherwise-identical calls observable on the display RNG.
+    state.u.uprops[FLYING] = { intrinsic: 0, extrinsic: 0, blocked: 0 };
+    goblin.mcan = true;
+    const cancelledHero = physMhm(5);
+    state.u.uprops[HALLUC] = { intrinsic: 1, extrinsic: 0, blocked: 0 };
+    const displayBounds = [];
+    const cancelledHeroEnv = meleeEnv(state, [], {
+        displayRandom: bound => {
+            displayBounds.push(bound);
+            return bound === SPECIAL_PM + 100 - LOW_PM
+                ? PM_GOBLIN - LOW_PM : 0;
+        },
+    });
+    state.a11y = { ...(state.a11y ?? {}), accessiblemsg: true };
+    await mhitm_ad_legs(goblin, attack, state.youmonst, cancelledHero,
+                        state, cancelledHeroEnv.env);
+    assert.deepEqual(cancelledHeroEnv.bounds, ['rn2(2)']);
+    assert.equal(cancelledHeroEnv.lines.length, 1);
+    assert.equal(cancelledHeroEnv.lines[0],
+        '(west): The goblin nuzzles against your right leg!');
+    assert.deepEqual(displayBounds, [
+        SPECIAL_PM + 100 - LOW_PM, 2,
+        SPECIAL_PM + 100 - LOW_PM, 2,
+    ]);
+    assert.equal(cancelledHero.damage, 0);
+    goblin.mcan = false;
+    state.u.uprops[HALLUC] = { intrinsic: 0, extrinsic: 0, blocked: 0 };
+    state.a11y.accessiblemsg = false;
+
+    // Footwear keeps the source's second gate: a low boot with rn2(2)==1
+    // exposes the leg and then reaches the same wound/exercise sequence.
+    state.u.uprops[FLYING] = { intrinsic: 0, extrinsic: 0, blocked: 0 };
+    state.uarmf = { otyp: LOW_BOOTS };
+    const booted = physMhm(5);
+    const bootedEnv = meleeEnv(state, [9]);
+    await mhitm_ad_legs(goblin, attack, state.youmonst, booted,
+                        state, bootedEnv.env);
+    assert.deepEqual(bootedEnv.bounds,
+        ['rn2(2)', 'rn2(2)', 'rnd(51)', 'rn2(2)', 'rn2(2)']);
+    assert.deepEqual(bootedEnv.lines,
+        ['The goblin pricks the exposed part of your right leg!']);
+    assert.equal(booted.damage, 5);
+
+    // A failed exposed-boot roll then evaluates the separate 1/5 gate.  The
+    // scratch return stops before rnd(60-DEX), set_wounded_legs(), or either
+    // exercise call, which pins C's short-circuit order.
+    const scratch = physMhm(5);
+    const scratchEnv = meleeEnv(state, [], {
+        rn2: (() => {
+            const answers = [1, 0, 1];
+            return () => answers.shift();
+        })(),
+    });
+    await mhitm_ad_legs(goblin, attack, state.youmonst, scratch,
+                        state, scratchEnv.env);
+    assert.deepEqual(scratchEnv.bounds, ['rn2(2)', 'rn2(2)', 'rn2(5)']);
+    assert.deepEqual(scratchEnv.lines,
+        ['The goblin scratches your right boot!']);
+    assert.equal(scratch.damage, 0);
+
+    // planningState() owns the wounded-legs and attribute records.  Start a
+    // fresh, previously unwounded clone with inventory just below the next
+    // uninjured half-capacity threshold.  The first leg wound subtracts 100
+    // capacity and therefore crosses that burden threshold, exercising the
+    // injected encumber_msg() seam without writing the live terminal.
+    const burdenState = await meleeHero();
+    const burdenGoblin = meleeAttacker(burdenState, PM_GOBLIN, -1, 0);
+    const uninjuredCapacity = weight_cap(burdenState);
+    // Keep the uninjured clone slightly encumbered, then make the 100-unit
+    // wounded-leg reduction cross C's next half-capacity threshold.
+    burdenState.invent = {
+        owt: uninjuredCapacity + Math.floor(uninjuredCapacity / 2) - 1,
+        nobj: null,
+    };
+    burdenState.go = {
+        ...(burdenState.go ?? {}),
+        oldcap: near_capacity(burdenState),
+    };
+    assert.equal(burdenState.u.uprops[WOUNDED_LEGS].intrinsic, 0);
+    assert.equal(burdenState.u.uprops[WOUNDED_LEGS].extrinsic, 0);
+    assert.equal(near_capacity(burdenState), 1);
+    const liveDex = burdenState.u.atemp[3];
+    const liveWounded = {
+        intrinsic: burdenState.u.uprops[WOUNDED_LEGS].intrinsic,
+        extrinsic: burdenState.u.uprops[WOUNDED_LEGS].extrinsic,
+    };
+    const liveTopline = burdenState._ttyToplines ?? '';
+    const liveBotl = burdenState.disp?.botl;
+    const plannedState = planningState(burdenState);
+    let plannedGoblin = plannedState.level.monlist;
+    while (plannedGoblin && plannedGoblin.m_id !== burdenGoblin.m_id)
+        plannedGoblin = plannedGoblin.nmon;
+    assert.ok(plannedGoblin);
+    const plannedLines = [];
+    const planned = meleeEnv(plannedState, [7], {
+        planning: true,
+        message: async (text) => { plannedLines.push(text); },
+    });
+    await mhitm_ad_legs(
+        plannedGoblin,
+        attack,
+        plannedState.youmonst,
+        physMhm(5),
+        plannedState,
+        planned.env,
+    );
+    assert.equal(burdenState.u.atemp[3], liveDex);
+    assert.deepEqual({
+        intrinsic: burdenState.u.uprops[WOUNDED_LEGS].intrinsic,
+        extrinsic: burdenState.u.uprops[WOUNDED_LEGS].extrinsic,
+    }, liveWounded);
+    assert.equal(burdenState._ttyToplines ?? '', liveTopline);
+    assert.equal(burdenState.disp?.botl, liveBotl);
+    assert.equal(plannedState.u.atemp[3], liveDex - 1);
+    assert.equal(plannedState.u.uprops[WOUNDED_LEGS].extrinsic, RIGHT_SIDE);
+    assert.equal(near_capacity(plannedState), 2);
+    assert.deepEqual(plannedLines, [
+        'The goblin pricks your right leg!',
+        'You rebalance your load.  Movement is difficult.',
+    ]);
+});
 
 // The function called on its own, which is the only way to reach three of its
 // branches. C's `magr == &gy.youmonst` and monster-versus-monster arms have no
