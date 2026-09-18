@@ -2,7 +2,7 @@
   "session": "seed2200-wizard-quaff-zap-read",
   "remainingScreensUpperBound": 72,
   "status": "complete",
-  "commit": "3d1e737777b51c30e76644437ad06102d47ca245",
+  "commit": "f289daf486d3272620300e381e5622585fa1e6c0",
   "mismatch": {
     "session": "seed2200-wizard-quaff-zap-read",
     "remainingScreensUpperBound": 72,
@@ -18,7 +18,7 @@
     "unlocatedKinds": [],
     "recordedSteps": 230
   },
-  "summary": "Nine screens differ because option_help() prints the configuration filename and the JavaScript fallback omits the recorder HOME prefix. Upstream commit 2a7b4f212d3e6adeeb0878813250f2f89d899425 documents that fixed environment and explicitly permits reproducing its strings for all inputs; local commit eb090115 reversed that ruling in documentation. Restore the upstream environment contract and initialize the canonical config filename from the documented recorder HOME. No session-specific handling or scoring change is required.",
+  "summary": "Nine screens differ because option_help() prints the configuration filename and JavaScript startup leaves it unset, causing a basename fallback. Upstream 2a7b4f21 defines the recorder HOME and permits its literal use; that environment policy is now restored locally. Initialize the single canonical filename and apply the existing source-defined long-line splitting in the shared text-window display. The recorded pathname exceeds the terminal width, so filename and wrapping must both match C.",
   "source": {
     "file": "cfgfiles.c",
     "functions": [
@@ -37,7 +37,8 @@
       "js/cfgfiles.js get_configfile()/fopen_config_file() (lines 53-140)",
       "nethack-c/upstream/win/tty/wintty.c tty_putstr()/process_text_window()/tty_display_nhwindow() (lines 1771-1947, 2225-2450)",
       "js/tty_menu.js ttyMenuTextData()/displayTtyTextWindow() (lines 240-325, 742-824)",
-      "docs/recording-environment.md at upstream commit 2a7b4f212d3e6adeeb0878813250f2f89d899425 defines the fixed recorder environment and permits reproducing its literal strings."
+      "docs/recording-environment.md at upstream commit 2a7b4f212d3e6adeeb0878813250f2f89d899425 defines the fixed recorder environment and permits reproducing its literal strings.",
+      "win/tty/wintty.c tty_putstr NHW_TEXT/NHW_MENU arm (2366-2418): retain pre-split width and recursively split long lines. js/tty_menu.js ttyMenuTextData implements splitting, but displayTtyTextWindow currently writes raw logical lines."
     ]
   },
   "goalKind": "divergence-fix",
@@ -48,6 +49,7 @@
     "nethack-c/upstream/src/options.c:9461-9549 formats get_configfile() into option_help() output; nethack-c/upstream/src/cfgfiles.c:223-370 constructs and stores $HOME/.nethackrc on UNIX; nethack-c/upstream/win/tty/wintty.c:2225-2450 compresses and splits the over-width line.",
     "Upstream commit 2a7b4f212d3e6adeeb0878813250f2f89d899425 is already an ancestor of main. Its recording-environment.md says matching the published environment strings verbatim is allowed. Local eb090115 changed that policy; the user identified the upstream ruling on 2026-09-18 and requested recovering the behavior. The earlier claim that the missing per-segment path prevents a valid fix is superseded.",
     "The passing checkpoint at 3d1e737777b51c30e76644437ad06102d47ca245 still measures this session at 221/230 screens, 3018/3018 RNG calls and 229/230 cursors. It is the sole remaining fixed-workload mismatch after Kni-goal generation is implemented.",
-    "Keep get_default_configfile() as the C basename and state.configfile as the single selected-path owner. Trace startup initialization before setting the documented environment path; preserve explicit filename setters. Fresh independent C recordings use temporary HOME, which needs consideration in differential evidence without modifying the frozen workload or scorer."
+    "Keep get_default_configfile() as the C basename and state.configfile as the single selected-path owner. Trace startup initialization before setting the documented environment path; preserve explicit filename setters. Fresh independent C recordings use temporary HOME, which needs consideration in differential evidence without modifying the frozen workload or scorer.",
+    "Review at f289daf486d3272620300e381e5622585fa1e6c0 found displayTtyTextWindow measures lines.length and writes line.text directly, bypassing the existing ttyMenuTextData compression/splitting path. Correct the shared text-window owner for arbitrary lines, preserving styles and glyph-cell placement; do not add an options-help-row-specific splitter."
   ]
 }
