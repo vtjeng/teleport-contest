@@ -1189,6 +1189,39 @@ test('iter_mons_safe stops when its callback returns true', async () => {
     assert.deepEqual(visited, ['first', 'second']);
 });
 
+test('movemon preserves the source snapshot when an action mutates fmon',
+    async () => {
+    const first = { id: 'first' };
+    const removed = { id: 'removed' };
+    const last = { id: 'last' };
+    const inserted = { id: 'inserted' };
+    const state = schedulerState([first, removed, last]);
+    const visited = [];
+
+    await movemon({
+        state,
+        ...schedulerOperations({
+            moveSingleMonster(current) {
+                visited.push(current.id);
+                if (current === first) {
+                    first.nmon = last;
+                    removed.nmon = null;
+                    inserted.nmon = state.level.monlist;
+                    state.level.monlist = inserted;
+                }
+                return false;
+            },
+        }),
+    });
+
+    // mon.c iter_mons_safe() visits the identities captured before the first
+    // callback: the removed original remains in this scan and the inserted
+    // node waits for the next scan. The planning caller reuses this same
+    // production iterator against its clone.
+    assert.deepEqual(visited, ['first', 'removed', 'last']);
+    assert.equal(state.level.monlist, inserted);
+});
+
 test('movemon_singlemon preserves level-exit, guard, and lifecycle gates', async () => {
     const leaving = actionMonster();
     const leavingState = actionState(leaving);

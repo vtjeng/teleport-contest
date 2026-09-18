@@ -63,6 +63,7 @@ import {
     W_RINGL,
 } from '../js/const.js';
 import { set_occupation } from '../js/cmd.js';
+import { schedule_goto } from '../js/do.js';
 import {
     flush_screen,
     remembered_glyph_presentation,
@@ -834,6 +835,37 @@ test('first wait reaches the next prompt through live turn upkeep', async () => 
         .filter((spell) => spell.sp_id !== NO_SPELL);
     assert.ok(knownSpells.length > 0);
     assert.ok(knownSpells.every((spell) => spell.sp_know === 19999));
+});
+
+test('elapsed-turn planning resumes after a live deferred goto', async () => {
+    await runSegment(firstTurnInput({
+        seed: 2026092301,
+        datetime: '20260923120000',
+        name: 'DeferredScan',
+        role: 'Healer',
+        race: 'human',
+        gender: 'female',
+        align: 'neutral',
+        command: '.',
+    }));
+
+    // A deferred goto is consumed by movemon() before its false movement
+    // result reaches allmain.c's once-per-turn gate. Keep the destination on
+    // the current level so this fixture exercises the continuation contract
+    // without requiring a generated destination level.
+    schedule_goto({ ...game.u.uz }, 0, null, null, game);
+    game.context.move = 1;
+    game.u.umovement = 0;
+    set_occupation(() => 1, 'deferred goto continuation', 0, game);
+
+    await moveloop_core();
+
+    assert.equal(game.u.utotype, 0);
+    assert.equal(game.u.umovement, NORMAL_SPEED);
+    // The deferred transition itself returns the source false movement gate;
+    // with no movement left, C completes that transition round and one
+    // ordinary post-goto allocation before the hero can act again.
+    assert.equal(game.moves, 4);
 });
 
 // allmain.c:379-388. Every turn of an immobile wait draws a frame; only the

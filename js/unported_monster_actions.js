@@ -93,6 +93,7 @@ import { whimper } from './sounds.js';
 import {
     adaptMonsterActionToDochugwSignature,
     hideunder,
+    iter_mons_safe,
     minliquid,
     movemon_singlemon,
     restrap,
@@ -1906,16 +1907,14 @@ export async function preflightSimpleMonsterActions(
     state = game,
     { advanceRound = null, consumeHeroRation = true } = {},
 ) {
-    // The two terms are allmain.c moveloop_core()'s own preamble:
-    // `if (svc.context.bypasses) clear_bypasses();` at 193 and the deferred
-    // level transition u.utotype records. A third term named an occupation,
+    // allmain.c moveloop_core()'s own preamble:
+    // `if (svc.context.bypasses) clear_bypasses();` at 193. A deferred level
+    // transition is returned as a planning marker below. A third term named an occupation,
     // which C gates nothing on here -- allmain.c mentions go.occupation only
     // at 332, 485-506 and 684-689, all after this point in the turn -- and it
     // read a field nothing assigns, so it stopped nothing. monmove.c
     // dochugw() carries the per-monster occupation test, and stopOccupation
     // refuses there for the one monster that C would stop the meal for.
-    if (state.u?.utotype)
-        unsupported('deferred monster cleanup or level transition');
     const planned = planningState(state);
     // C's moveloop_core() clears object bypass marks before scanning monsters.
     // The clone owns every object list, so perform that same cleanup here and
@@ -1928,12 +1927,13 @@ export async function preflightSimpleMonsterActions(
     // not at the initial u.umovement -= NORMAL_SPEED statement.
     if (consumeHeroRation) planned.u.umovement -= NORMAL_SPEED;
     let upkeepCount = 0;
+    let deferredGoto = false;
     let heroDeath = null;
     let beforeUnmul = false;
     let beforeTimeout = false;
     try {
         try {
-            upkeepCount = await planSimpleMonsterTurn(
+            const scan = await planSimpleMonsterTurn(
                 planned,
                 random,
                 advanceRound ? async (subject, planningRandom) => {
@@ -1943,6 +1943,8 @@ export async function preflightSimpleMonsterActions(
                     return result;
                 } : null,
             );
+            upkeepCount = scan.upkeepCount;
+            deferredGoto = scan.deferredGoto;
         } catch (error) {
             if (!(error instanceof MonsterDeathPlanningError)) throw error;
             // The live pass must replay the same monster turn against the real
@@ -1978,6 +1980,7 @@ export async function preflightSimpleMonsterActions(
         runsOncePerTurnUpkeep: upkeepCount > 0,
         upkeepCount,
         heroDeath,
+        deferredGoto,
         beforeUnmul,
         beforeTimeout,
     };
@@ -2016,23 +2019,33 @@ async function planSimpleMonsterTurn(planned, random, advanceRound) {
         };
     let somebodyCanMove;
     let upkeepCount = 0;
+    let deferredGoto = false;
     do {
         // C brackets only the monster scan with context.mon_moving, so the
         // once-per-turn upkeep below sees it clear just as the live loop does.
         planned.context.mon_moving = true;
+        let scanStopped = false;
         do {
             planned.somebody_can_move = false;
-            for (let monster = planned.level.monlist;
-                monster;
-                monster = monster.nmon) {
-                if (!assertSimpleScanState(monster, planned)) continue;
-                await planSimpleMonsterScan(monster, {
+            // C movemon() snapshots fmon through iter_mons_safe() before the
+            // first callback. A planned action may unlink its subject or add
+            // another monster, so walking planned.level.monlist directly
+            // would skip an original successor or process a new node during
+            // this scan. Preserve the callback's stop result as live movemon
+            // does; the movemon tail still runs before the outer turn gate.
+            await iter_mons_safe(async (monster) => {
+                if (!assertSimpleScanState(monster, planned)) return false;
+                const stop = await planSimpleMonsterScan(monster, {
                     state: planned,
                     random,
                     displayRandom,
                     planning: true,
                 });
-            }
+                scanStopped = stop || Boolean(
+                    planned.program_state?.gameover,
+                );
+                return scanStopped;
+            }, planned);
             // C mon.c movemon() calls dmonsfree() after its monster scan.
             // The live pass must remove a monster killed by a passive
             // retaliation before allmain.c mcalcmove() allocates the next
@@ -2051,9 +2064,20 @@ async function planSimpleMonsterTurn(planned, random, advanceRound) {
             // clear_bypasses() has already run on the clone before this scan;
             // clear_splitobjs() touches only discarded state.
             if (any_light_source(planned)) planned.vision_full_recalc = 1;
+            // movemon() hands a deferred goto to allmain after the safe scan.
+            // The planning clone cannot run goto_level() without replacing its
+            // level, so return the source boundary to allmain as a marker. The
+            // live pass performs the transition and replans from its new level;
+            // throwing here would incorrectly reject quest expulsion.
+            if (planned.u?.utotype) {
+                deferredGoto = true;
+                break;
+            }
+            if (scanStopped) break;
             if (planned.u.umovement >= NORMAL_SPEED) break;
         } while (somebodyCanMove);
         planned.context.mon_moving = false;
+        if (scanStopped) break;
 
         const runsUpkeep =
             !somebodyCanMove && planned.u.umovement < NORMAL_SPEED;
@@ -2065,5 +2089,5 @@ async function planSimpleMonsterTurn(planned, random, advanceRound) {
         // round to stop after a single allocation.
         if (await advanceRound(planned, random)) break;
     } while (planned.u.umovement < NORMAL_SPEED);
-    return upkeepCount;
+    return { upkeepCount, deferredGoto };
 }
