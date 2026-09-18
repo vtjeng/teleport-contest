@@ -64968,7 +64968,7 @@
             "name": "pickup",
             "implementation": "js/pickup.js",
             "symbol": "pickup",
-            "sourceReview": "Read nethack-c/upstream/src/pickup.c:671-910 together with autopick:975-1003, query_objlist:1025-1215, pickup_object:1803-1888, and check_here:428-456. The implementation now preserves the source guard order for unconscious arrival, no-pick/no-object/liquid, floor access, notake/check_here, and running; walks either nexthere or swallowed nobj chains; supports autopickup, counted PICK_ONE, full menus, traditional query_classes, menu-on-request, cleanup, and n_tried return semantics. Counted menus use the source traversal flags without FEEL_COCKATRICE, traditional yn_function uses y/addcmdq, safe_qbuf names use ansimpleoname, and cancellation reaches pickupdone without the floor tail. The projected-arrival path validates check_here(FALSE) on an isolated state before movement. Artifact/scare and other supporting callback gaps remain source-attributed at their existing pickup_object boundaries; no new callback refusal was added. Integration review replaces the remaining trap.c float_down check_here substitute with pickup(1), preserving the source landing/dismount call. The counted selector test additionally verifies that a smaller stack is excluded. The existing partial pickup_object dependency boundaries remain named; this span does not close their unimplemented branches.",
+            "sourceReview": "Read nethack-c/upstream/src/pickup.c:671-910 together with autopick:975-1003, query_objlist:1025-1215, pickup_object:1803-1888, and check_here:428-456. The implementation now preserves the source guard order for unconscious arrival, no-pick/no-object/liquid, floor access, notake/check_here, and running; walks either nexthere or swallowed nobj chains; supports autopickup, counted PICK_ONE, full menus, traditional query_classes, menu-on-request, cleanup, and n_tried return semantics. Counted menus use the source traversal flags without FEEL_COCKATRICE, traditional yn_function uses y/addcmdq, safe_qbuf names use ansimpleoname, and cancellation reaches pickupdone without the floor tail. The projected-arrival path validates check_here(FALSE) on an isolated state before movement. Artifact/scare and other supporting callback gaps remain source-attributed at their existing pickup_object boundaries; no new callback refusal was added. Integration review replaces the remaining trap.c float_down check_here substitute with pickup(1), preserving the source landing/dismount call. The counted selector test additionally verifies that a smaller stack is excluded. The existing partial pickup_object dependency boundaries remain named; this span does not close their unimplemented branches. Broader caller checks replaced obsolete refusals for conscious immobilization, unreachable floor, and no-take forms with assertions of source-defined completion and mutation-free projected admission.",
             "callers": [
               {
                 "path": "js/hack.js",
@@ -65015,7 +65015,9 @@
               "scripts/hack.test.mjs",
               "scripts/moveloop-preamble.test.mjs",
               "scripts/dismount-steed.test.mjs",
-              "scripts/mount-steed.test.mjs"
+              "scripts/mount-steed.test.mjs",
+              "scripts/cmd.test.mjs",
+              "scripts/level-teleport-arrival.test.mjs"
             ],
             "recordings": [
               "recordings/pickup.c/one-object-independent-b35.session.json",
@@ -65023,7 +65025,7 @@
               "recordings/pickup.c/autopickup-floor-object.session.json",
               "recordings/pickup.c/autopickup-exception-floor-object.session.json"
             ],
-            "checkedAt": "20462bda85a0cf3e56b7632104e77e974bf1ac42"
+            "checkedAt": "ff90fb63302e718dd3e1877868992b4f7cf5c9eb"
           }
         ],
         "entryPointReview": "The independent one-object recording reaches the ordinary manual pickup path and the traditional variation reaches pickup.c's old-style single-object path; both C/JavaScript differentials match PRNG, screens, cursors, and animation frames. Existing autopickup and shop-food pickup recordings remain strict after the source changes. The canonical seed-4500 continuation reaches a separate hack.c blind object-pile movement admission before pickup and is retained as a named dependency rather than copied into a pickup recipe. Artifact, scare-scroll, unsupported burden-prompt, and other active supporting callback branches remain explicit source gaps outside this pickup() owner. The traditional recording establishes the ordinary old-style single-object branch, while the menu-on-request variation has a caller test only. Existing autopickup movement recordings remain cited for their actual source entry. Startup, swallowed-inventory, counted/menu-on-request, dismount landing and projected-arrival entry coverage remain open; direct tests do not replace matching production recordings.",
