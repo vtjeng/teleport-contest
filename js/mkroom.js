@@ -68,8 +68,8 @@ import { game } from './gstate.js';
 import { add_to_container } from './invent.js';
 import { occupied, somexyspace, topologize } from './mklev.js';
 import { makemon, mongets } from './makemon_create.js';
-import { mkclass, mkclass_aligned, set_malign } from './makemon.js';
-import { is_ndemon } from './mondata.js';
+import { mkclass, set_malign } from './makemon.js';
+import { ndemon } from './minion.js';
 import {
     PM_ARCHEOLOGIST,
     PM_BUGBEAR,
@@ -589,12 +589,6 @@ export function squadmon(state = game, random = SOURCE_RANDOM) {
         monsterIndex = squadprob[random.rn2(squadprob.length)].pm;
     if (state.mvitals[monsterIndex].mvflags & G_GONE) return null;
     return state.mons[monsterIndex];
-}
-
-// C ref: minion.c ndemon(). A_NONE means any alignment.
-function ndemon(atyp, state, random) {
-    const ptr = mkclass_aligned(S_DEMON, 0, atyp, { state, random });
-    return (ptr && is_ndemon(ptr)) ? ptr.pmidx : NON_PM;
 }
 
 // C ref: mkobj.c mk_tt_object(). Creates a corpse or statue named after a

@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "Cheap minion.c msummon variation: a lawful female Valkyrie uses a different seed and the same independent water-demon summon route. The production recording remains blocked at the unadmitted MM_EMIN|MM_NOMSG runtime makemon caller (makemon.c preflight outside mklev).",
+  "segments": [
+    {
+      "seed": 940033,
+      "datetime": "20350101120000",
+      "nethackrc": "OPTIONS=name:MinionSummonVariation,role:Valkyrie,race:human,gender:female,align:lawful\nOPTIONS=!legacy,!tutorial,!splash_screen,playmode:debug,pettype:none,!acoustics\n",
+      "moves": " #wizintrinsic\na\n #wizgenesis\nwater demon\nm.m.   \nm. m. m. m. m. m. m. m. m. m. m. m. m. m. m. m. m. m. m."
+    }
+  ]
+}
