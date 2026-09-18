@@ -64690,13 +64690,13 @@
     {
       "id": "port-pager-do-screen-description-seed4500-20260918",
       "kind": "file-port",
-      "status": "parked",
+      "status": "open",
       "summary": "Complete screen-symbol descriptions and connect their production callers",
       "cFile": "pager.c",
       "sessions": [
         "holdout/seed4500-knight-coverage"
       ],
-      "selectionReason": "The first eligible fixed mismatch is Knight step 1693 with 121 remaining screens in investigations/holdout/seed4500-knight-coverage.json. Its completed investigation identifies missing symbol-family collection in pager.c do_screen_description. B35 owns the independent later pickup function; the other session has the recorded machine-local Q1 blocker.",
+      "selectionReason": "Resume the highest-ranked remaining first mismatch at Knight step1693 after independent pickup acceptance; the corrected whole-description delivery now has passing affected display checks.",
       "detail": "Complete the whole source function with supporting add_cmap_descr and append_str contracts, default and active symbol tables, restricted vision, overrides, warning coexistence and location refinement. Wire existing displayed-cell and typed-symbol callers; preserve unrecorded and unimplemented active caller entries as open coverage. Historical port-pager-object-statue-seed4500 evidence explicitly covers the object arm while retaining existing terrain branches, so it cannot establish whole-function completion for this new span. Planning reconciliation uses the source planner to reverify this whole function without rewriting the earlier object-arm evidence or its score history.",
       "spans": [
         {
@@ -64730,8 +64730,8 @@
         "to": 1630
       },
       "activeStanding": {
-        "sha": "8bf5eb6ea82ae4ea74a5ae8521762a0e33b628e7",
-        "screens": 11310,
+        "sha": "50399d8c3ad4095c61f5b4d1089338b19797d3d9",
+        "screens": 11318,
         "rng": 789036
       },
       "openMismatches": [
