@@ -75,6 +75,22 @@ function segmentFor(moves) {
     return found;
 }
 
+function forcedAlignedClericSegment() {
+    return {
+        seed: 7810043,
+        datetime: '20270318143000',
+        nethackrc: [
+            'OPTIONS=name:ForceCleric,role:Valkyrie,race:human,gender:female,align:lawful',
+            'OPTIONS=!legacy,!tutorial,!splash_screen',
+            'OPTIONS=pettype:none,!acoustics,playmode:debug',
+            '',
+        ].join('\n'),
+        // aligned cleric is substituted by cant_revive(), then restored by the
+        // affirmative force response before makemon() runs.
+        moves: `${WAIT_KEY}#wizgenesis\naligned cleric\ny`,
+    };
+}
+
 // The state create_particular_parse() reads: gm.multi for the quantity,
 // gu.urole.mnum for the arbitrary index it starts `which` at, the wizard flag
 // for the "*" arm, and mons[] for name_to_monplus() and unique_corpstat().
@@ -617,6 +633,28 @@ test('declining cant_revive keeps the replacement species', async () => {
     assert.equal(added.length, 1);
     assert.equal(added[0].mnum, PM_HUMAN_ZOMBIE);
 });
+
+test('affirmative cant_revive force response creates the requested aligned cleric',
+    async () => {
+        // read.c:3259-3269 changes d.which to human zombie, then restores the
+        // requested PM_ALIGNED_CLERIC only when y_n() returns the numeric 'y'
+        // byte. This is a production create_particular() path, so it also
+        // exercises the source HP draw in newmonhp().
+        const boundaries = [];
+        const segment = forcedAlignedClericSegment();
+        const { added } = await createdBy(
+            segment,
+            segment.moves,
+            { onBoundary: error => boundaries.push(error) },
+        );
+
+        assert.deepEqual(boundaries, []);
+        assert.equal(added.length, 1);
+        assert.equal(added[0].mnum, PM_ALIGNED_CLERIC);
+        // The source draw is d(11,8); the focused test pins the resulting
+        // positive HP range while the strict C trace records its exact value.
+        assert.ok(added[0].mhpmax >= 11 && added[0].mhpmax <= 88);
+    });
 
 test('a species outside the admitted reservoir stops before it is created',
     async () => {
