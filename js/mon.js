@@ -5411,7 +5411,11 @@ export async function monstone(mdef, state = game, env = {}) {
     stackobj(statue, objectGenerationEnv({ ...env, state, random }));
     if (glyph_is_invisible(state.level.at(x, y).glyph))
         unmap_object(x, y, state);
-    if (cansee(x, y, state)) newsym(x, y, state);
+    // monstone() is also reached from mhitm.c's planning displacement pass.
+    // C's redraw is live-only there; the caller supplies a clone-safe no-op
+    // while retaining the ordinary newsym owner for a live state.
+    const redraw = env.redraw ?? (state === game ? newsym : () => {});
+    if (cansee(x, y, state)) redraw(x, y, state);
     if (engulfing_u(mdef, state)) wasinside = true;
     await mondead(mdef, state, env);
     if (wasinside && monsterDigests(mdef.data)) {
