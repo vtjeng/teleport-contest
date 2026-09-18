@@ -65234,7 +65234,7 @@
     {
       "id": "port-invent-look-here-blind-pile-seed4500-20260918",
       "kind": "file-port",
-      "status": "open",
+      "status": "parked",
       "summary": "Complete tactile floor-pile inspection and the look command",
       "cFile": "invent.c",
       "sessions": [
@@ -65245,8 +65245,8 @@
       "spans": [
         {
           "name": "look_here..dolook",
-          "status": "queued",
-          "closedBy": null,
+          "status": "closed",
+          "closedBy": "b80879fb01d57042110abdaa55dcd004f88793ed",
           "functions": [
             "look_here",
             "dolook"
@@ -65488,7 +65488,17 @@
             "recordings": []
           }
         ]
-      }
+      },
+      "progressBeforePark": {
+        "screens": 3,
+        "rng": 0
+      },
+      "parkedStanding": {
+        "sha": "b80879fb01d57042110abdaa55dcd004f88793ed",
+        "screens": 11322,
+        "rng": 789036
+      },
+      "parkedReason": "Verified look_here and dolook source span with movement-menu, pile-count and colon recordings. Swallowed inventory, blind ICE/force_decor and query_objlist tactile-corpse fallback still lack matching entry recordings; preserve those gaps while integrating the ready region-upkeep fix."
     }
   ]
 }
