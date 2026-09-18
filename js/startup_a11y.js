@@ -69,7 +69,6 @@ import {
     WARN_OF_MON,
     WATER,
     W_SADDLE,
-    def_warnsyms,
     D_BROKEN,
     D_CLOSED,
     D_ISOPEN,
@@ -82,6 +81,7 @@ import {
 } from './const.js';
 import { cansee } from './vision.js';
 import {
+    do_screen_description,
     mhidden_description,
     waterbody_name,
 } from './pager.js';
@@ -1329,32 +1329,14 @@ function describeObject(object, state) {
 // consume display RNG. queueGlyphUpdateNotice() must call this exactly once
 // while queuing and cache the resulting notice text for later emission.
 function describeGlyphUpdate(glyph, x, y, state) {
-    const subject = glyph?.a11ySubject;
-    switch (subject?.type) {
-    case 'monster':
-        return describeMonster(subject.monster, {
-            state,
-            species: subject.species,
-        });
-    case 'object':
-        return withBufferedObject(
-            subject,
-            x,
-            y,
-            state,
-            (object) => describeObject(object, state),
-        );
-    case 'trap':
-        return TRAP_DESCRIPTIONS[subject.trap?.ttyp]
-            ?? TRAP_DESCRIPTIONS[subject.ttyp]
-            ?? 'trap';
-    case 'warning':
-        return def_warnsyms[subject.index]?.desc ?? null;
-    case 'cmap':
-        return cmapDescription(subject.symbol, x, y, state);
-    default:
-        return glyph?.a11yDescription ?? null;
-    }
+    // display.c show_glyph() asks do_screen_description() for firstmatch
+    // after installing the new glyph. Keep that call single and source-order
+    // aligned so generic aliases and location refinement share the same
+    // object/display-RNG effects as ordinary farlook.
+    const description = do_screen_description(
+        { x, y }, true, 0, state,
+    );
+    return description.found ? description.firstmatch : null;
 }
 
 function floorCovered(location) {
@@ -1369,34 +1351,34 @@ function visibleSubjectAt(x, y, state) {
     const monster = state.level?.monsters?.[x]?.[y] ?? null;
     if (monster && !monster.minvis && !monster.mundetected) {
         const appearance = monster.m_ap_type & M_AP_TYPMASK;
-        if (appearance === M_AP_FURNITURE) {
-            return furnitureIsInteresting(monster.mappearance)
-                ? furnitureDescription(monster.mappearance) : null;
-        }
-        if (appearance === M_AP_OBJECT) {
-            return describeObject({
-                otyp: monster.mappearance,
-                oclass: state.objects?.[monster.mappearance]?.oc_class ?? 0,
-                corpsenm: monster.mextra?.mcorpsenm,
-                dknown: false,
-                quan: 1,
-                ox: x,
-                oy: y,
-            }, state);
-        }
-        return describeMonster(monster, { state });
+        if (appearance === M_AP_FURNITURE
+            && !furnitureIsInteresting(monster.mappearance)) return null;
+    } else if (!floorCovered(location)) {
+        const object = state.level?.objects?.[x]?.[y] ?? null;
+        const trap = t_at(x, y, state);
+        const engraving = engr_at(x, y, state);
+        const interestingObject = Boolean(object);
+        const interestingTrap = Boolean(trap?.tseen);
+        const interestingEngraving = Boolean(
+            engraving?.erevealed
+            && [ROOM, ICE, CORR].includes(location.typ),
+        );
+        const terrain = terrainDescription(location, x, y, state);
+        if (!interestingObject && !interestingTrap
+            && !interestingEngraving && !terrain) return null;
     }
 
-    if (!floorCovered(location)) {
-        const object = state.level?.objects?.[x]?.[y] ?? null;
-        if (object) return describeObject(object, state);
-        const trap = t_at(x, y, state);
-        if (trap?.tseen) return TRAP_DESCRIPTIONS[trap.ttyp] ?? 'trap';
-        const engraving = engr_at(x, y, state);
-        if (engraving?.erevealed
-            && [ROOM, ICE, CORR].includes(location.typ)) return 'engraving';
-    }
-    return terrainDescription(location, x, y, state);
+    // cmd.c:dolookaround() asks do_screen_description() for each interesting
+    // square. Keep the visibility and interest filter local to this scan,
+    // then use the pager's complete generic collection and lookat refinement
+    // so this caller cannot drift from the ordinary what-is path.
+    const terrain = terrainDescription(location, x, y, state);
+    // show_glyph()/newsym() installs the logical glyph before this production
+    // scan. A sparse unit fixture without that C display state is not a valid
+    // caller and must not take a second, divergent description implementation.
+    if (!Number.isInteger(location.disp_glyph?.glyph)) return null;
+    const description = do_screen_description({ x, y }, true, 0, state);
+    return description.found ? description.firstmatch : terrain;
 }
 
 export function collectLookaroundMessages(state, { includeRoom = true } = {}) {

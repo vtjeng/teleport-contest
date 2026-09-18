@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 42062,
+      "datetime": "20000213194107",
+      "nethackrc": "OPTIONS=name:TypedSymbolB,role:Valkyrie,race:human,gender:female,align:lawful\nOPTIONS=!autopickup,!legacy,!tutorial,!splash_screen\nOPTIONS=pettype:none,!acoustics,symset:DECgraphics\n",
+      "moves": " /?,\n .",
+      "comment": "Cheap role/gender variation of the typed-symbol no-match route; the comma remains an unknown default symbol and exercises the same source arm with a distinct character setup."
+    }
+  ]
+}
