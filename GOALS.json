@@ -67182,8 +67182,8 @@
           "name": "mk_roamer",
           "line": 724,
           "endLine": 754,
-          "declared": false,
-          "complete": false
+          "declared": true,
+          "complete": true
         }
       ],
       "range": {
@@ -67271,7 +67271,80 @@
             }
           }
         }
-      ]
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "mk_roamer",
+            "implementation": "js/priest.js",
+            "symbol": "mk_roamer",
+            "sourceReview": "Compared priest.c:724-754 in full. The port snapshots coalignment before RLOC_NOMSG, relocates an occupied square, calls makemon with MM_ADJACENTOK|MM_EMIN|MM_NOMSG, handles a possibly asynchronous makemon before reading mextra, writes EMIN min_align/renegade, clears priest status, sets minion/peace/sleep fields, teaches ALL_TRAPS, and calls set_malign in source order. Its sp_lev.c create_monster caller maps explicit sp_amask to the requested alignment; makemon.c's required MM_EMIN/newemin dependency is admitted in EGD,EPRI,ESHK,EMIN,EDOG order. The themed caller supplies the required relocation operations and preserves caller hooks. The existing rloc owner still refuses Wizard, controlled, migrating, zero-id, shop/priest, billed-goods, worm, trapped/hidden/attached-hero and occupation cases; this source span does not establish those exceptional relocation dependencies. RLOC_NOMSG preserves the synchronous ordinary relocation path. The obsolete explicit-alignment fallback and blanket non-tame minion refusal are removed; tame guardian movement and the independent mk_mplayer/appearance gaps remain explicit.",
+            "callers": [
+              {
+                "path": "js/themeroom_fill.js",
+                "symbol": "createMonsterBody",
+                "source": "sp_lev.c:create_monster:1983-1984"
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/mkroom-temple.test.mjs",
+              "scripts/priest.test.mjs",
+              "scripts/themeroom-fill.test.mjs",
+              "scripts/makemon-create.test.mjs",
+              "scripts/unported-monster-actions.test.mjs"
+            ],
+            "recordings": [
+              "recordings/priest.c/roamer-sanctum-gnome-wizard.session.json",
+              "recordings/priest.c/roamer-sanctum-valkyrie-action.session.json"
+            ],
+            "checkedAt": "5a863b60885be3b3de568d834fcdf820f7f05f78"
+          }
+        ],
+        "entryPointReview": "The neutral gnome Wizard creation recording reaches nine explicit noalign Sanctum clerics through sp_lev.c create_monster and priest.c mk_roamer. The lawful female human Valkyrie variation reaches the same creation route and continues through a second post-arrival turn; its C trace contains monmove.c m_move draws, and the production test proves an aligned EMIN position changes between the pre-action and extended routes. The focused occupied-square test reaches mk_roamer's RLOC_NOMSG branch with caller-provided redraw, scare, and apparent-hero operations. The non-tame EMIN action tests cover both peaceful and hostile ordinary movement and preserve known fire-trap avoidance. The recordings strictly match C: the neutral gnome case has 8,276 RNG draws and 44 screens/cursors; the lawful female Valkyrie case has 8,465 RNG draws and 47 screens/cursors. create_monster and makemon changes are supporting caller/dependency evidence for mk_roamer, not claimed whole-source completions. C minion.c lose_guardian_angel491 and gain_guardian_angel525 are active callers but remain unported/unrecorded. Astral Lua descriptors provide peaceful and other-alignment creation variants; the missing Astral loader blocks their recorded entry. Ordinary peaceful non-tame movement has focused coverage only. The source goal must remain parked until these entries have matching production recordings.",
+        "entryPoints": [
+          {
+            "name": "explicitly aligned Sanctum cleric creation",
+            "functions": [
+              "mk_roamer"
+            ],
+            "recordings": [
+              "recordings/priest.c/roamer-sanctum-gnome-wizard.session.json",
+              "recordings/priest.c/roamer-sanctum-valkyrie-action.session.json"
+            ]
+          },
+          {
+            "name": "ordinary non-tame EMIN movement supporting mk_roamer",
+            "functions": [
+              "mk_roamer"
+            ],
+            "recordings": [
+              "recordings/priest.c/roamer-sanctum-valkyrie-action.session.json"
+            ]
+          },
+          {
+            "name": "lose_guardian_angel",
+            "functions": [
+              "mk_roamer"
+            ],
+            "recordings": []
+          },
+          {
+            "name": "gain_guardian_angel",
+            "functions": [
+              "mk_roamer"
+            ],
+            "recordings": []
+          },
+          {
+            "name": "Astral explicit-alignment roamer descriptors",
+            "functions": [
+              "mk_roamer"
+            ],
+            "recordings": []
+          }
+        ]
+      }
     }
   ]
 }
