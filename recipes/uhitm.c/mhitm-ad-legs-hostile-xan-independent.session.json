@@ -1,0 +1,10 @@
+{
+  "version": 5,
+  "comment": "A46 independent hostile Xan AD_LEGS production witness.",
+  "segments": [{
+    "seed": 9714613,
+    "datetime": "20350918121500",
+    "nethackrc": "OPTIONS=name:LegProbe,role:Monk,race:human,gender:male,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen\nOPTIONS=pettype:none,!acoustics,playmode:debug\n",
+    "moves": " #wizgenesis\nhostile xan\ny m. m. m. m."
+  }]
+}
