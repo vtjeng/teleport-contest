@@ -1,7 +1,7 @@
 {
   "session": "holdout/seed4500-knight-coverage",
   "remainingScreensUpperBound": 51,
-  "status": "partial",
+  "status": "complete",
   "commit": "2e2c6c14abae02bf056d0043dd44ae97f8e0a52b",
   "mismatch": {
     "session": "holdout/seed4500-knight-coverage",
@@ -18,11 +18,11 @@
     "recordedSteps": 1814,
     "remainingScreensUpperBound": 51
   },
-  "summary": "The first remaining screen/cursor difference is still step 1763 after Escape: JavaScript leaves the psi-bolt pain line visible while C shows the return to human form and restored sight. Source inspection identifies a concrete urgency defect: C polyman uses urgent_pline, while JS polyman accepts rehumanize’s ordinary message callback. A bounded replay is pending to establish whether that defect causes this first difference. The force-creation response is fixed; separate cleric minion-initialization and later summon-spell gaps remain open.",
+  "summary": "The step-1763 Escape mismatch is traced to rehumanization message urgency. C polyman uses urgent_pline; JS polyman accepts an ordinary message callback, leaving the form-change line suppressed. A focused correction reaches the expected return-to-human line and cursor. The live urgent terminal path also needs the C-ordered WIN_STOP reset. The separate summon-spell owner is still missing; the force-creation response is fixed and the aligned/high-cleric minion-initialization gap remains open.",
   "evidence": [
     "Checkpoint 2e2c6c14 matches 1782/1814 Knight screens, 1783/1814 cursors and 106837 RNG calls, unchanged from d4f0aacb. The fixed workload matches 11364/11405 screens and all 400 recordings pass. Knight has 32 actual unmatched screens; the queue upper bound is 51.",
     "The first remaining screen and cursor difference is step 1763, Escape input. C shows You return to human form! You can see again.--More-- with cursor [53,0,1]; JS shows Your cap area suddenly aches very painfully! with cursor [66,17,1]. The first cell difference is row 0, column 3; the fresh scan reports no RNG divergence before the later stop.",
-    "The worker probe reaches the same human form after the source psi-bolt damage roll d(12,6)=34. JS pendingMessage still contains the pain message while display.toplines has advanced to Your movements are now unencumbered. Source inspection confirms that C polyself.c polyman calls urgent_pline for the form-change announcement, but JS polyman prefers rawEnv.message; rehumanize sets that callback to ordinary ttyPline or propagates the ordinary monster-attack message operation. The caller already carries a separate urgentMessage operation. This establishes a callback contract defect; a bounded replay is still needed to confirm its effect on step 1763.",
+    "The source psi-bolt damage roll d(12,6)=34 produces the same human form in both implementations. C polyself.c polyman calls urgent_pline, but JS polyman prefers rawEnv.message; rehumanize supplies the ordinary message operation even though the monster-attack environment has a separate urgentMessage operation. A bounded corrected replay (run-nktyXU) shows recorded step1763 with You return to human form! You can see again.--More-- and cursor [53,0,1], and reaches the later effect17 boundary. Its diagnostic hook i1764 corresponds to recorded step1763. The corrected code has not yet passed main’s combined checkpoint.",
     "The later stop remains simple monster action requires mcast_spell effect 17 at emitted screen 1784, on movesouth. It does not explain the earlier terminal difference.",
     "The read.c create_particular_creation affirmative response is now compared with numeric byte 121, matching cmd.js y_n and restoring the original species after cant_revive. The source-pinned affirmative production test passes; an independent negative-response recording matches 46 screens/cursors and 3185 RNG calls. The affirmative recording is blocked next in makemon.c priest/minion initialization and is retained as a recipe, not completion evidence.",
     "Resolved step 1761: C finishes the casting announcement and effect message before damage. Awaiting the async JS messages and result-valued helpers moves the first difference to 1763 without changing RNG. Independent master-lich recording lich-spell-order-variation matches 2378 RNG calls and 57 screens/cursors; it does not establish clerical effect coverage.",
@@ -58,5 +58,6 @@
       "The which_arti-through-tactics family and result-bearing relocation dependencies are implemented. Two independent peaceful master-lich recordings reach harassment, including mnexto relocation; healing and hero/floor/other-monster artifact entries remain unrecorded. Relocation preserves action/display RNG and source redraw order. Worm, shop, trap, occupation and attached-hero relocation restrictions and the named-expulsion gap remain explicit.",
       "The ordinary ice-vortex expels caller now delegates old/new monster-square redraws to mnexto and redraws only the hero square afterward. Planning suppresses live redraws. This removes the duplicate destination draw introduced when mnexto gained its source relocation core; the fixed hallucination session matches again."
     ]
-  }
+  },
+  "goalKind": "divergence-fix"
 }
