@@ -68139,7 +68139,7 @@
     {
       "id": "port-minion-msummon-seed4500-20260918",
       "kind": "file-port",
-      "status": "open",
+      "status": "parked",
       "summary": "Port minion summoning and its canonical monster-attack creation path.",
       "cFile": "minion.c",
       "sessions": [
@@ -68150,8 +68150,8 @@
       "spans": [
         {
           "name": "msummon",
-          "status": "queued",
-          "closedBy": null,
+          "status": "closed",
+          "closedBy": "f1eb00ecc2c97fc69690b18858f041af9890f9b2",
           "functions": [
             "msummon"
           ]
@@ -68325,7 +68325,17 @@
             "recordings": []
           }
         ]
-      }
+      },
+      "progressBeforePark": {
+        "screens": 0,
+        "rng": 0
+      },
+      "parkedStanding": {
+        "sha": "f1eb00ecc2c97fc69690b18858f041af9890f9b2",
+        "screens": 11366,
+        "rng": 791418
+      },
+      "parkedReason": "The msummon span and demon-attack entry are verified; Gehennom nasty, throne, and other demon/angel selector entry recordings remain open. Continue mcast_summon_mons/nasty for the unchanged first Knight mismatch at step 1784."
     }
   ]
 }
