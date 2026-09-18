@@ -67649,6 +67649,123 @@
         "screens": 11364,
         "rng": 791400
       }
+    },
+    {
+      "id": "div-read-force-create-response-20260918",
+      "kind": "divergence-fix",
+      "status": "open",
+      "summary": "Honor affirmative force-creation responses",
+      "cFile": "read.c",
+      "sessions": [],
+      "selectionReason": "Source-traced recording prerequisite for the later Knight spell dispatcher: holdout/seed4500-knight-coverage has remainingScreensUpperBound 51 and 32 actual unmatched screens; investigations/holdout/seed4500-knight-coverage.json records the force-response defect. read.c create_particular_creation keeps a replacement zombie because JS compares a numeric y_n byte with string y. This prevents independent clerical effect recordings. B42 owns the first terminal mismatch at 1763; the higher-ranked seed2200 mismatch requires the open Q1 contract decision.",
+      "detail": "An independent forced aligned-cleric recipe ends with an affirmative y response. C read.c 3252–3371 restores firstchoice when y_n returns the y byte, before makemon. JS cmd.js y_n returns numeric 121 but read.js create_particular_creation compared string y, so newmonhp used the replacement human zombie d(3,8) instead of the requested cleric d(11,8). The numeric comparison and production test restore the intended species; fresh affirmative parity then reaches the separate makemon.c 1409–1428 priest-minion initialization gap. A negative-response variation matches 3185 RNG calls and 46 screens/cursors. This divergence fix does not claim complete clerical creation or spell-effect coverage.",
+      "spans": [
+        {
+          "name": "force-creation-response-byte",
+          "status": "queued",
+          "closedBy": null,
+          "functions": [
+            "create_particular_creation"
+          ]
+        }
+      ],
+      "openedAt": "b06fc27d4d82b46a381ab4c521290ffb791a3d08",
+      "openStanding": {
+        "sha": "d4f0aacb68614e8d59ea16e4ba23c711942c2d4b",
+        "screens": 11364,
+        "rng": 791400
+      },
+      "closedAt": null,
+      "delivered": null,
+      "function": "create_particular_creation",
+      "session": "holdout/seed4500-knight-coverage",
+      "activeStanding": {
+        "sha": "d4f0aacb68614e8d59ea16e4ba23c711942c2d4b",
+        "screens": 11364,
+        "rng": 791400
+      },
+      "openMismatches": [
+        {
+          "session": "holdout/seed4500-knight-coverage",
+          "step": 1763,
+          "kind": "screen",
+          "function": null,
+          "functionDeclared": false,
+          "sourceFile": null,
+          "cFile": null,
+          "luaFile": null,
+          "line": null,
+          "message": null,
+          "unlocatedKinds": [],
+          "recordedSteps": 1814,
+          "remainingScreensUpperBound": 51,
+          "investigation": {
+            "status": "partial",
+            "path": "investigations/holdout/seed4500-knight-coverage.json",
+            "result": {
+              "session": "holdout/seed4500-knight-coverage",
+              "remainingScreensUpperBound": 51,
+              "status": "partial",
+              "commit": "d4f0aacb68614e8d59ea16e4ba23c711942c2d4b",
+              "mismatch": {
+                "session": "holdout/seed4500-knight-coverage",
+                "step": 1763,
+                "kind": "screen",
+                "function": null,
+                "functionDeclared": false,
+                "sourceFile": null,
+                "cFile": null,
+                "luaFile": null,
+                "line": null,
+                "message": null,
+                "unlocatedKinds": [],
+                "recordedSteps": 1814,
+                "remainingScreensUpperBound": 51
+              },
+              "summary": "The spell-message waits resolve the step-1761 premature form redraw and add two matching screens. The first remaining screen/cursor difference is step 1763 after Escape: JavaScript leaves the psi-bolt pain line visible while C shows the return to human form and restored sight. RNG and hero-form state agree; the pending terminal-message lifetime is under source investigation. The later summon-spell gap remains separate.",
+              "evidence": [
+                "Checkpoint d4f0aacb matches 1782/1814 Knight screens, 1783/1814 cursors and 106837 RNG calls. The fixed workload matches 11364/11405 screens and all 399 recordings pass. Knight has 32 actual unmatched screens; the queue upper bound is 51.",
+                "The first remaining screen and cursor difference is step 1763, Escape input. C shows You return to human form! You can see again.--More-- with cursor [53,0,1]; JS shows Your cap area suddenly aches very painfully! with cursor [66,17,1]. The first cell difference is row 0, column 3; the fresh scan reports no RNG divergence before the later stop.",
+                "The worker probe reaches the same human form after the source psi-bolt damage roll d(12,6)=34. JS pendingMessage still contains the pain message while display.toplines has advanced to Your movements are now unencumbered. This narrows the investigation to terminal pending/stop/reset state or its rehumanization callers; the exact C transition has not yet been established.",
+                "The later stop remains simple monster action requires mcast_spell effect 17 at emitted screen 1784, on movesouth. It does not explain the earlier terminal difference.",
+                "Resolved step 1761: C finishes the casting announcement and effect message before damage. Awaiting the async JS messages and result-valued helpers moves the first difference to 1763 without changing RNG. Independent master-lich recording lich-spell-order-variation matches 2378 RNG calls and 57 screens/cursors; it does not establish clerical effect coverage.",
+                "Whole mhitu.c getmattk now handles seduction, disease/hunger, energy, temporary holder, weapon, cold-touch and home-elemental substitutions through mattacku/mattackm. Source-pinned tests establish the pure helper; unported uhitm.c hmonas remains a separate caller gap.",
+                "Retained counter-evidence: the earlier cleric fire-trap event had exactly one m_move→postmov→mintrap chain. Cleric2321 lacked minion state and trap knowledge because createMonsterBody skipped mk_roamer. A prior fire trap belonged to actor2334 at(26,7), outside learning range; fire resistance cannot omit the initial C fire-damage draw. The corrected source initialization removes that earlier divergence.",
+                "Retained counter-evidence for the resolved step1742 issue: the bat had spent its movement ration; its two distfleeck calls described one action. Vampire shapechange does not apply the Hell-bat creation-speed adjustment."
+              ],
+              "source": {
+                "file": "topl.c",
+                "functions": [
+                  "update_topl",
+                  "more"
+                ],
+                "branch": "Source owner under investigation: C win/tty/topl.c update_topl/more and win/tty/wintty.c message-window clear/display/putstr transitions, reached from mcast_psi_bolt -> mdamageu -> rehumanize. JS ttyPlineCore, dismissPendingTtyMessage and clearTtyMessageWindow must preserve the same pending line and Escape-stop lifetime. Matching hero form and RNG rule out the original premature damage ordering; they do not yet establish which terminal or caller branch is wrong.",
+                "callers": [
+                  "C mcastu.c mcast_psi_bolt -> mcast_spell -> mhitu.c mdamageu -> polyself.c rehumanize/polyman -> pline and tty message-window operations.",
+                  "JS castmu/mcast_spell now await existing effect messages; investigate tty_message.js pending state through the canonical mdamageu and rehumanize callers."
+                ],
+                "dependencies": [
+                  "Independent clerical spell-effect recordings are blocked by a verified read.c create_particular_creation response-type defect: cmd.js y_n returns numeric byte 121 but the caller compares it with string y, retaining the replacement human zombie. Fixing that creation decision is a prerequisite to validating the new effect helpers; their active entries remain unrecorded.",
+                  "The complete getmattk helper now replaces substitution refusals through mattacku/mattackm and adds 23 matching screens. The separate unported hmonas caller remains open.",
+                  "The later MCAST_SUMMON_MONS (effect17) stop belongs to mcast_spell and mcast_summon_mons. Completing the dispatcher also requires its return-valued geyser, fire-pillar, lightning and paralysis effect helpers and matching production recordings.",
+                  "Lightning also exposes a source defect in muse.c ureflects: C accepts an empty non-null message prefix, while the current JavaScript truthiness test suppresses output and discovery. Its message operation must remain silent during planned turns. zap.c flashburn already has an implementation and must be called with the source rnd(100) duration.",
+                  "priest.c mk_roamer and the sp_lev explicit-alignment caller are implemented with MM_EMIN allocation, canonical minion state, ALL_TRAPS knowledge and ordinary non-tame action admission. Two independent recordings establish creation and actual roamer movement. Guardian-angel and Astral entry recordings remain open; exceptional relocation restrictions remain with the existing rloc owner.",
+                  "Accepted getpos.c collection/cycling now includes menu selection and cancellation, source coordinate descriptions and exact area-filter lifetime. Five independent recordings match. VIEW and other location-family entry recordings remain open in GOALS.json.",
+                  "Accepted pager do_screen_description now collects all source symbol families and uses canonical stored-glyph map_glyphinfo. Its lookup coordinates differ from the encoded-prefix decode at (0,0); pet and hero overrides, Rogue colors and NOOVERRIDE order are verified. getpos_menu, displayed-glyph accessibility, cursor auto-description and clicked lookup recording entries remain open in GOALS.json.",
+                  "Accepted invent.c look_here/dolook now handles tactile floor reach, arbitrary pile inspection, pile counts, cockatrice ordering and message filtering, with canonical force_decor and query_objlist callers. Three independent recordings cover movement menu/count and colon look. Swallowed inventory, blind ICE and the tactile-corpse fallback remain unrecorded entry families in GOALS.json; movement retains its mutation-free unsupported naming/pricing boundary.",
+                  "Other unresolved source/coverage defects remain separate: make_stoned/minstapetrify/do_stone_mon; hero/monster stoning directions, corpse-weapon and attack-triggered golem entries; passive cold/fire/electricity/paralysis and lethal recovery; eating/non-food cleanup; skinback artifact-light radius and rare armor/Eyes-of-the-Overworld cleanup.",
+                  "Liquid-specific entry recordings and exceptional partial rloc routes remain open; trap.c inventory-chain calls and mon.c deal_with_overcrowding remain named discarded-call gaps. GOALS.json preserves open print_dungeon, hitmu, mfind0, goto_level, minliquid, creation/flash, pickup and achievement entry families rather than treating supporting unit tests as their completion.",
+                  "Hidden-attacker witnesses require eligible placement on objects or water, actual hidden state and an executed hitmu. Plain or qualified monster creation alone does not establish that entry; independent hidden-trapper and invisible-newt recordings establish creation/flash only.",
+                  "The m_move/mdisplacem dispatch, combat state and projected movement corrections have matching Tengu relocation recordings. Displacement, mail, worm and exceptional dedicated-mover entry recordings remain open in GOALS.json. Covetous admission now reaches the complete wizard.c tactics family through dochug.",
+                  "Safe monster scans, deferred-transition continuation and Hell-bat creation speed resolve the earlier step 1742 failure. Region upkeep keeps harmful gas and unknown callbacks explicit; its nonempty-region recording coverage remains separate.",
+                  "The which_arti-through-tactics family and result-bearing relocation dependencies are implemented. Two independent peaceful master-lich recordings reach harassment, including mnexto relocation; healing and hero/floor/other-monster artifact entries remain unrecorded. Relocation preserves action/display RNG and source redraw order. Worm, shop, trap, occupation and attached-hero relocation restrictions and the named-expulsion gap remain explicit.",
+                  "The ordinary ice-vortex expels caller now delegates old/new monster-square redraws to mnexto and redraws only the hero square afterward. Planning suppresses live redraws. This removes the duplicate destination draw introduced when mnexto gained its source relocation core; the fixed hallucination session matches again."
+                ]
+              }
+            }
+          }
+        }
+      ]
     }
   ]
 }
