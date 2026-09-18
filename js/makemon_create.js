@@ -1475,11 +1475,20 @@ function preflightCreation(ptr, x, y, mmflags, normalized) {
         && x === state.u?.ux
         && y === state.u?.uy
         && mmflags === (MM_EMIN | MM_NOMSG);
+    // wizard.c nasty() is called both by mcastu.c with a non-null summoner
+    // (MM_NOMSG at enexto(summoner->mux, summoner->muy)) and by the late-game
+    // harassment caller with NULL (NO_MM_FLAGS at the hero square). Keep its
+    // explicit marker separate from the minion MM_EMIN contract.
+    const nastyCall = !state.in_mklev
+        && normalized._nasty === true
+        && !randomCoordinates
+        && (mmflags === MM_NOMSG || mmflags === NO_MM_FLAGS);
     const runtimeCall = startingPetCall || confusedLightCall || djinniBottleCall
         || fountainCreatureCall
         || runtimeRandomCall || runtimeGroupCall || createParticularCall
         || vaultGuardCall || revivalCall || statueAnimationCall
-        || figurineAnimationCall || cloneuCall || minionSummonCall;
+        || figurineAnimationCall || cloneuCall || minionSummonCall
+        || nastyCall;
     if (runtimeCall
         && (!normalized.runtimeContinuation
             || typeof normalized.runtimeContinuation !== 'object')) {

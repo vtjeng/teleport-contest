@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "Independent A44 production witness: seed 940035 creates a hostile master lich, moves the hero away, then ends immediately after mcastu.c mcast_summon_mons calls wizard.c nasty. The recording includes the completed summoned monster message and creation branch.",
+  "segments": [
+    {
+      "seed": 940035,
+      "datetime": "20350101120000",
+      "nethackrc": "OPTIONS=name:SummonAway,role:Wizard,race:human,gender:male,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen,playmode:debug,pettype:none,!acoustics\n",
+      "moves": " #wizgenesis\nhostile master lich\nh m. m. "
+    }
+  ]
+}

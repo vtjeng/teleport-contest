@@ -22,7 +22,6 @@ import {
     STRAT_WAITMASK,
     STRAT_WAITFORU,
     MM_NOMSG,
-    In_endgame,
     isok,
     u_at,
     helpless,
@@ -56,7 +55,7 @@ import {
 import { is_quest_artifact } from './questpgr.js';
 import { stairway_find_type_dir } from './stairs.js';
 import { enexto, enexto_core } from './teleport.js';
-import { monster_census } from './minion.js';
+import { monster_census, msummon } from './minion.js';
 import { makemon_runtime } from './makemon_create.js';
 import { cansee } from './vision.js';
 import { distant_name, donameFresh } from './objnam.js';
@@ -81,6 +80,15 @@ function heroIsDeaf(state) {
         || deafness?.extrinsic
         || state.u?.uroleplay?.deaf,
     );
+}
+
+// C In_endgame() compares the current dungeon number with astral_level.  The
+// shared const.js helper reads the live game object; this local spelling keeps
+// nasty()'s substitute cap clone-local during planning and source-pinned tests.
+function inEndgameState(state) {
+    const level = state.u?.uz;
+    const astral = state.astral_level;
+    return Boolean(level && astral && level.dnum === astral.dnum);
 }
 
 // C ref: wizard.c has_aggravatables() (472-491). "are there any monsters mon
@@ -283,6 +291,7 @@ export async function nasty(summoner, rawEnv = {}) {
     };
     const normalized = { ...rawEnv, state, random };
     const createMonster = rawEnv.makemon ?? makemon_runtime;
+    const summonMinion = rawEnv.msummon ?? msummon;
     const removeMonster = rawEnv.unmakemon
         ?? ((monster, flags) => unmakemon(monster, flags, state));
     const countMonsters = rawEnv.monsterCensus
@@ -297,13 +306,11 @@ export async function nasty(summoner, rawEnv = {}) {
         throw new TypeError('nasty requires rn2 and rnd operations');
     }
 
-    // wizard.c deliberately calls the return-valued minion owner here.  Keep
-    // the dependency explicit until minion.c msummon lands; never turn its
-    // result into a discarded note_unported value.
+    // wizard.c deliberately calls the return-valued minion owner here.  The
+    // injected operation remains useful for source-pinned tests, while live
+    // callers use minion.c's canonical msummon implementation.
     if (!random.rn2(10) && In_hell(state.u?.uz, state)) {
-        if (typeof rawEnv.msummon !== 'function')
-            throw new TypeError('nasty requires the msummon operation in Hell');
-        const summoned = await rawEnv.msummon(null, normalized);
+        const summoned = await summonMinion(null, normalized);
         return summoned
             ? countMonsters(false, { state }) - censusBefore
             : summoned;
@@ -361,6 +368,10 @@ export async function nasty(summoner, rawEnv = {}) {
 
             const creationEnv = {
                 ...normalized,
+                // wizard.c nasty() is a distinct runtime makemon caller. The
+                // marker lets makemon_create.js admit its exact MM_NOMSG or
+                // NO_MM_FLAGS shape without widening ordinary runtime calls.
+                _nasty: true,
                 // MM_NOMSG creation still requires both runtime message
                 // operations.  Planning callers own a silent clone-local
                 // operation; live callers retain makemon_runtime defaults.
@@ -395,7 +406,7 @@ export async function nasty(summoner, rawEnv = {}) {
                     monsterClass = monster.data?.mlet;
                     if ((difcap > 0
                         && (monster.data?.difficulty ?? 0) >= difcap
-                        && random.rn2(In_endgame(state.u?.uz) ? 3 : 7)
+                        && random.rn2(inEndgameState(state) ? 3 : 7)
                         && attacktype(monster.data, AT_MAGC))
                         || (summonerClass === S_DEMON
                             && monsterClass === S_ANGEL)

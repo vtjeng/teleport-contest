@@ -4,9 +4,12 @@ import test from 'node:test';
 import {
     NO_MM_FLAGS,
     RLOC_MSG,
+    ROOM,
     STRAT_HEAL,
     STRAT_PLAYER,
 } from '../js/const.js';
+import { GameMap } from '../js/game.js';
+import { AT_MAGC } from '../js/monsters.js';
 import {
     choose_stairs,
     mon_has_arti,
@@ -276,7 +279,9 @@ test('nasty creates a selected hostile monster in source order', async () => {
         random,
         monsterCensus: () => census,
         makemon: async (species, x, y, flags, env) => {
-            calls.push({ species, x, y, flags, state: env.state });
+            calls.push({
+                species, x, y, flags, state: env.state, nasty: env._nasty,
+            });
             ++census;
             return created;
         },
@@ -293,6 +298,7 @@ test('nasty creates a selected hostile monster in source order', async () => {
         y: state.u.uy,
         flags: NO_MM_FLAGS,
         state,
+        nasty: true,
     }]);
     assert.deepEqual(malign, [[created, state]]);
     assert.equal(created.msleeping, false);
@@ -357,4 +363,70 @@ test('nasty substitutes a random creation after selected creation fails', async 
     ]);
     assert.deepEqual(calls, [state.mons[NASTIES[0]], null]);
     assert.equal(substitute.mspec_used, 1);
+});
+
+test('nasty substitute cap reads the supplied planning dungeon', async () => {
+    for (const endgame of [false, true]) {
+        const state = nastyState(false);
+        state.level = new GameMap();
+        for (let x = 0; x < 80; ++x) {
+            for (let y = 0; y < 21; ++y)
+                state.level.at(x, y).typ = ROOM;
+        }
+        state.astral_level = { dnum: endgame ? 0 : 1 };
+        let substituteReturned = false;
+        let capBound = null;
+        const random = {
+            draws: [],
+            rn2(bound) {
+                if (substituteReturned && capBound === null) capBound = bound;
+                this.draws.push(`rn2(${bound})`);
+                return 0;
+            },
+            rnd(bound) {
+                this.draws.push(`rnd(${bound})`);
+                return 1;
+            },
+            d: () => 1,
+            rn1: () => 1,
+            rne: () => 1,
+            rnz: () => 1,
+        };
+        const summoner = {
+            data: {
+                mlet: 'X',
+                difficulty: 1,
+                maligntyp: 1,
+            },
+            mux: 5,
+            muy: 5,
+        };
+        const substitute = {
+            data: {
+                ...state.mons[NASTIES[1]],
+                difficulty: 1,
+                mattk: [{ aatyp: AT_MAGC }],
+            },
+            mspec_used: 0,
+        };
+        let census = 0;
+        let calls = 0;
+        const result = await nasty(summoner, {
+            state,
+            random,
+            monsterCensus: () => census,
+            makemon: async (species) => {
+                ++calls;
+                if (species) return null;
+                census = 1;
+                substituteReturned = true;
+                return substitute;
+            },
+            setMalign: () => {},
+        });
+
+        assert.equal(result, 1, endgame ? 'endgame' : 'ordinary');
+        assert.equal(calls, 2);
+        assert.equal(capBound, endgame ? 3 : 7);
+    }
 });

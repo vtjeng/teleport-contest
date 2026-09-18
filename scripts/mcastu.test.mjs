@@ -227,6 +227,21 @@ test('mcast_summon_mons uses the Wizard voice wording for plural summons', async
     assert.deepEqual(messages, [['Destroy the thief, my pets!', state]]);
 });
 
+test('mcast_summon_mons uses canonical quoted verbalize output by default', async () => {
+    const state = makeState({ gp: {} });
+    const wizard = makeCaster({ iswiz: true });
+    const messages = [];
+    const result = await mcast_summon_mons(wizard, {
+        state,
+        nasty: async () => 1,
+        message: async (text) => messages.push(text),
+    });
+
+    assert.equal(result, 1);
+    assert.deepEqual(messages, ['"Destroy the thief, my pet!"']);
+    assert.equal(state.gp.pline_flags, 0);
+});
+
 // -- choose_monster_spell RNG sequence ---------------------------------
 
 // C ref: mcastu.c:111-113. rn2(m_lev) picks spellval; when it exceeds the

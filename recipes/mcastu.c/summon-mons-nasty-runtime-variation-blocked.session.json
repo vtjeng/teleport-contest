@@ -1,12 +1,12 @@
 {
   "version": 5,
-  "_comment": "Cheap A44 summon-nasties variation: a distinct Valkyrie start and seed uses the same hostile master-lich production path. BLOCKED at the same source-owned makemon_create.js NO_MM_FLAGS runtime-coordinate admission after wizard.c nasty selects a creature; no recording is claimed.",
+  "_comment": "A44 source-relevant variation: seed 940030 and a moved-away hostile master lich reach mcastu.c mcast_summon_mons and wizard.c nasty with a distinct pick_nasty rn2(44)=5 branch in the C trace. BLOCKED before the completed effect because strict JS/C parity diverges at wizard.c tactics (step 38, C rn2(5)=0; JS stops before the call); leave unrecorded until that source owner lands.",
   "segments": [
     {
-      "seed": 940019,
+      "seed": 940030,
       "datetime": "20350101120000",
-      "nethackrc": "OPTIONS=name:SummonNastyB,role:Valkyrie,race:human,gender:female,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen,playmode:debug,pettype:none,!acoustics\n",
-      "moves": " #wizgenesis\nhostile master lich\nmm."
+      "nethackrc": "OPTIONS=name:SummonAway030,role:Wizard,race:human,gender:male,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen,playmode:debug,pettype:none,!acoustics\n",
+      "moves": " #wizgenesis\nhostile master lich\nh m. m. "
     }
   ]
 }

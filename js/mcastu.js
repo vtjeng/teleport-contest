@@ -66,6 +66,7 @@ import { destroy_items } from './zap_destroy_items.js';
 import { ureflects } from './muse.js';
 import { note_unported } from './unported.js';
 import { buzz, flash_str, flashburn } from './zap.js';
+import { verbalize as plineVerbalize } from './pline.js';
 import { ttyPline } from './tty_message.js';
 
 // ---- Spell enum (mcastu.h MONSPELL order) ----
@@ -704,13 +705,15 @@ export async function mcast_summon_mons(mtmp, rawEnv = {}) {
     // creation tail in nasty(); ordinary callers retain the live tty sink.
     const message = rawEnv.message
         ?? (rawEnv.planning ? async () => {} : ttyPline);
-    const say = rawEnv.verbalize ?? message;
     if (mtmp?.iswiz) {
-        if (typeof say === 'function') {
-            await say(
-                `Destroy the thief, my pet${count === 1 ? '' : 's'}!`,
-                state,
-            );
+        const line = `Destroy the thief, my pet${count === 1 ? '' : 's'}!`;
+        if (typeof rawEnv.verbalize === 'function') {
+            // Tests and callers may inject the already-formatted voice sink.
+            await rawEnv.verbalize(line, state, rawEnv);
+        } else {
+            // C's SetVoice() has no consumer in this build; verbalize() still
+            // owns the quoted output and PLINE_VERBALIZE state bit.
+            await plineVerbalize(line, state, { message });
         }
         return count;
     }
