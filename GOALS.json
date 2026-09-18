@@ -68004,7 +68004,7 @@
     {
       "id": "div-tty-spell-message-escape-seed4500-20260918",
       "kind": "divergence-fix",
-      "status": "open",
+      "status": "closed",
       "summary": "Preserve urgent rehumanization output after Escape and redraw the terminal message in source order.",
       "cFile": "polyself.c",
       "sessions": [],
@@ -68013,8 +68013,8 @@
       "spans": [
         {
           "name": "urgent-rehumanization-message",
-          "status": "queued",
-          "closedBy": null,
+          "status": "closed",
+          "closedBy": "7adee60e598ad36263fc84bd22690a22eb81e279",
           "functions": [
             "polyman",
             "rehumanize",
@@ -68032,8 +68032,11 @@
         "screens": 11364,
         "rng": 791418
       },
-      "closedAt": null,
-      "delivered": null,
+      "closedAt": "7adee60e598ad36263fc84bd22690a22eb81e279",
+      "delivered": {
+        "screens": 2,
+        "rng": 0
+      },
       "function": "polyman",
       "session": "holdout/seed4500-knight-coverage",
       "step": 1763,
@@ -68126,7 +68129,12 @@
             }
           }
         }
-      ]
+      ],
+      "closeStanding": {
+        "sha": "7adee60e598ad36263fc84bd22690a22eb81e279",
+        "screens": 11366,
+        "rng": 791418
+      }
     }
   ]
 }
