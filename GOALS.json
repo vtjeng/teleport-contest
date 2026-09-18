@@ -66749,64 +66749,64 @@
           "name": "which_arti",
           "line": 142,
           "endLine": 164,
-          "declared": false,
-          "complete": false
+          "declared": true,
+          "complete": true
         },
         {
           "name": "mon_has_arti",
           "line": 165,
           "endLine": 183,
-          "declared": false,
-          "complete": false
+          "declared": true,
+          "complete": true
         },
         {
           "name": "other_mon_has_arti",
           "line": 184,
           "endLine": 201,
-          "declared": false,
-          "complete": false
+          "declared": true,
+          "complete": true
         },
         {
           "name": "on_ground",
           "line": 202,
           "endLine": 215,
-          "declared": false,
-          "complete": false
+          "declared": true,
+          "complete": true
         },
         {
           "name": "you_have",
           "line": 216,
           "endLine": 235,
           "declared": true,
-          "complete": false
+          "complete": true
         },
         {
           "name": "target_on",
           "line": 236,
           "endLine": 269,
-          "declared": false,
-          "complete": false
+          "declared": true,
+          "complete": true
         },
         {
           "name": "strategy",
           "line": 270,
           "endLine": 331,
-          "declared": false,
-          "complete": false
+          "declared": true,
+          "complete": true
         },
         {
           "name": "choose_stairs",
           "line": 332,
           "endLine": 368,
-          "declared": false,
-          "complete": false
+          "declared": true,
+          "complete": true
         },
         {
           "name": "tactics",
           "line": 369,
           "endLine": 473,
-          "declared": false,
-          "complete": false
+          "declared": true,
+          "complete": true
         }
       ],
       "range": {
@@ -66900,7 +66900,243 @@
             }
           }
         }
-      ]
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "which_arti",
+            "implementation": "js/wizard.js",
+            "symbol": "which_arti",
+            "sourceReview": "Compared wizard.c:141-153. The five M3_WANTS masks map to the Amulet, Bell, Candelabrum, Book, or zero in source order.",
+            "callers": [
+              {
+                "path": "js/wizard.js",
+                "symbol": "target_on",
+                "source": "wizard.c target_on"
+              }
+            ],
+            "pure": true,
+            "tests": [
+              "scripts/wizard.test.mjs"
+            ],
+            "recordings": [],
+            "checkedAt": "44e91c6ab08cda36d7493302ae5cc306231f437b"
+          },
+          {
+            "name": "mon_has_arti",
+            "implementation": "js/wizard.js",
+            "symbol": "mon_has_arti",
+            "sourceReview": "Compared wizard.c:165-177. The implementation scans linked minvent objects, using an exact object type for invocation items and the artifact/quest-artifact predicate for type zero.",
+            "callers": [
+              {
+                "path": "js/wizard.js",
+                "symbol": "target_on",
+                "source": "wizard.c target_on"
+              }
+            ],
+            "pure": true,
+            "tests": [
+              "scripts/wizard.test.mjs"
+            ],
+            "recordings": [],
+            "checkedAt": "44e91c6ab08cda36d7493302ae5cc306231f437b"
+          },
+          {
+            "name": "other_mon_has_arti",
+            "implementation": "js/wizard.js",
+            "symbol": "other_mon_has_arti",
+            "sourceReview": "Compared wizard.c:182-198. The linked fmon scan skips the subject and returns the first other living-list node carrying the requested artifact; the direct test covers both a hit and an empty scan.",
+            "callers": [
+              {
+                "path": "js/wizard.js",
+                "symbol": "target_on",
+                "source": "wizard.c target_on"
+              }
+            ],
+            "pure": true,
+            "tests": [
+              "scripts/wizard.test.mjs"
+            ],
+            "recordings": [],
+            "checkedAt": "44e91c6ab08cda36d7493302ae5cc306231f437b"
+          },
+          {
+            "name": "on_ground",
+            "implementation": "js/wizard.js",
+            "symbol": "on_ground",
+            "sourceReview": "Compared wizard.c:200-213. The level objlist scan preserves source order and the type-zero quest/artifact predicate.",
+            "callers": [
+              {
+                "path": "js/wizard.js",
+                "symbol": "target_on",
+                "source": "wizard.c target_on"
+              }
+            ],
+            "pure": true,
+            "tests": [
+              "scripts/wizard.test.mjs"
+            ],
+            "recordings": [],
+            "checkedAt": "44e91c6ab08cda36d7493302ae5cc306231f437b"
+          },
+          {
+            "name": "you_have",
+            "implementation": "js/wizard.js",
+            "symbol": "you_have",
+            "sourceReview": "Compared wizard.c:215-233. The five source possession fields are read directly from uhave and return false for an unknown mask.",
+            "callers": [
+              {
+                "path": "js/wizard.js",
+                "symbol": "target_on",
+                "source": "wizard.c target_on"
+              }
+            ],
+            "pure": true,
+            "tests": [
+              "scripts/wizard.test.mjs"
+            ],
+            "recordings": [],
+            "checkedAt": "44e91c6ab08cda36d7493302ae5cc306231f437b"
+          },
+          {
+            "name": "target_on",
+            "implementation": "js/wizard.js",
+            "symbol": "target_on",
+            "sourceReview": "Compared wizard.c:235-267. Hero possession, floor object, and other-monster priority and the Amulet Wizard/priest exclusion preserve source order; mgoal is written at the same target selection points.",
+            "callers": [
+              {
+                "path": "js/wizard.js",
+                "symbol": "strategy",
+                "source": "wizard.c strategy"
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/wizard.test.mjs"
+            ],
+            "recordings": [
+              "recordings/wizard.c/wizard-tactics-genesis-independent.session.json",
+              "recordings/wizard.c/wizard-tactics-genesis-variation.session.json"
+            ],
+            "checkedAt": "44e91c6ab08cda36d7493302ae5cc306231f437b"
+          },
+          {
+            "name": "strategy",
+            "implementation": "js/wizard.js",
+            "symbol": "strategy",
+            "sourceReview": "Compared wizard.c:269-327, including the default STRAT_HEAL case, Wizard ratio fallthrough, invocation priority, and in-shop/in-temple exclusions.",
+            "callers": [
+              {
+                "path": "js/wizard.js",
+                "symbol": "tactics",
+                "source": "wizard.c tactics371 computes strategy before writing mstrategy"
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/wizard.test.mjs"
+            ],
+            "recordings": [
+              "recordings/wizard.c/wizard-tactics-genesis-independent.session.json",
+              "recordings/wizard.c/wizard-tactics-genesis-variation.session.json"
+            ],
+            "checkedAt": "44e91c6ab08cda36d7493302ae5cc306231f437b"
+          },
+          {
+            "name": "choose_stairs",
+            "implementation": "js/wizard.js",
+            "symbol": "choose_stairs",
+            "sourceReview": "Compared whole wizard.c332-365. Read-only stair selection checks builds_up direction, matching stairs then ladder, cross-dungeon fallback, then reversed stairs and ladder in source order. The tactics caller initializes the C output pair to zero; JS returns that pair or the selected stair coordinates. No RNG, output, or game mutation occurs. stairs.c89-96 stairway_find_type_dir preserves the linked-list type-and-direction predicate.",
+            "callers": [
+              {
+                "path": "js/wizard.js",
+                "symbol": "tactics",
+                "source": "wizard.c tactics386 selects stairs with m_id parity"
+              }
+            ],
+            "pure": true,
+            "tests": [
+              "scripts/wizard.test.mjs"
+            ],
+            "recordings": [],
+            "checkedAt": "44e91c6ab08cda36d7493302ae5cc306231f437b"
+          },
+          {
+            "name": "tactics",
+            "implementation": "js/wizard.js",
+            "symbol": "tactics",
+            "sourceReview": "Compared wizard.c:368-468 in full. Strategy mutation, cached tower coordinates, stair/mnearto fallback, heal, STRAT_NONE harassment, hero/ground/monster targets, output, extraction, and source ordering are implemented. The swallowed expels(TRUE) call remains an explicit discarded gap because its return is not consumed and mhitu.c's branch is not ported.",
+            "callers": [
+              {
+                "path": "js/monmove.js",
+                "symbol": "dochug",
+                "source": "monmove.c:782-790"
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/wizard.test.mjs",
+              "scripts/unported-monster-actions.test.mjs"
+            ],
+            "recordings": [
+              "recordings/wizard.c/wizard-tactics-genesis-independent.session.json",
+              "recordings/wizard.c/wizard-tactics-genesis-variation.session.json"
+            ],
+            "checkedAt": "44e91c6ab08cda36d7493302ae5cc306231f437b"
+          }
+        ],
+        "entryPointReview": "Compared complete wizard.c142-473 and monmove.c782-787. The production covetous monster turn selects harassment, injured healing, hero artifact pursuit, floor artifact pickup, or another monster artifact pursuit. The independently chosen peaceful master-lich recipes use timed blindness and forced rest. C tactics(wizard.c:413) executes at step58 in the Wizard-role case (rn2(5)=3), and steps56 and60 in the Valkyrie case (rn2(5)=1 and0); the latter executes mnexto relocation. Earlier prompt-only and two-rest recordings did not establish coverage and have been replaced by the verified independent recordings. Public planner and floor-pickup tests verify caller wiring and clone isolation but do not replace entry recordings. Healing and artifact entry recordings remain open. Relocation wiring preserves action/display RNG, flagged versus unflagged messages, old-square redraw before placement, off-map arrival messages, and set_apparxy. Canonical obj_extract_self uses remove_object through the dochug adapter. Existing worm/shop/trap/occupation/attached-hero relocation refusals and swallowed expels gap remain explicit; no whole-teleport completion is claimed. Master-lich admission reuses the implemented makemon S_LICH inventory arm only for the existing create_particular caller marker; generic generation remains bounded.",
+        "entryPoints": [
+          {
+            "name": "covetous monster harassment turn",
+            "functions": [
+              "target_on",
+              "strategy",
+              "tactics"
+            ],
+            "recordings": [
+              "recordings/wizard.c/wizard-tactics-genesis-independent.session.json",
+              "recordings/wizard.c/wizard-tactics-genesis-variation.session.json"
+            ]
+          },
+          {
+            "name": "injured covetous healing and stair or tower relocation",
+            "functions": [
+              "strategy",
+              "choose_stairs",
+              "tactics"
+            ],
+            "recordings": []
+          },
+          {
+            "name": "hero artifact pursuit",
+            "functions": [
+              "target_on",
+              "strategy",
+              "tactics"
+            ],
+            "recordings": []
+          },
+          {
+            "name": "floor artifact acquisition",
+            "functions": [
+              "target_on",
+              "strategy",
+              "tactics"
+            ],
+            "recordings": []
+          },
+          {
+            "name": "other-monster artifact pursuit",
+            "functions": [
+              "target_on",
+              "strategy",
+              "tactics"
+            ],
+            "recordings": []
+          }
+        ]
+      }
     }
   ]
 }
