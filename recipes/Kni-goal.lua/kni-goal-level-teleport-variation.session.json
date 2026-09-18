@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 920379,
+      "datetime": "20450918112233",
+      "nethackrc": "OPTIONS=name:KniGoalA47G,role:Knight,race:gnome,gender:female,align:lawful\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,playmode:debug,suppress_alert:3.4.3,symset:DECgraphics\n",
+      "moves": "   n#levelchange\n15\n                   \u0016?\n A"
+    }
+  ],
+  "comment": "A47 source-relevant race variation"
+}
