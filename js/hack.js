@@ -293,6 +293,7 @@ import {
     just_an,
     ansimpleoname,
     donameFresh,
+    UnsupportedObjectNameError,
     xnameFresh,
 } from './objnam.js';
 import {
