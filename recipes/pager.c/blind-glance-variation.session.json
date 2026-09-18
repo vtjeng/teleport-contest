@@ -6,7 +6,7 @@
       "datetime": "20380207102345",
       "nethackrc": "OPTIONS=name:BlindGlanceVar,role:Healer,race:elf,gender:male,align:chaotic\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,blind\n",
       "moves": " ;.",
-      "comment": "Abandoned A36 variation retained with its matching recording: C normalizes the invalid Healer/elf/chaotic combination to a neutral human Healer, the leading space is consumed as an unknown command, and the final . remains at the blind quick-glance --More-- boundary. It is admission-only and does not establish a selected location. The valid selected-location variation is retained separately as blind-glance-description-blocked-variation.session.json, blocked by the existing JS ttyPutmixed versus C putmixed(WIN_MESSAGE) owner."
+      "comment": "Admission-only variation retained with its matching recording: C normalizes the invalid Healer/elf/chaotic combination to a neutral human Healer, the leading space is consumed as an unknown command, and the final . remains at the blind quick-glance --More-- boundary. It does not establish a selected location. The valid longer variation is retained separately as blind-glance-description-blocked-variation.session.json; its selected-location continuation now has a matching recording after correcting the !quick condition before checkfile in pager.c do_look."
     }
   ]
 }

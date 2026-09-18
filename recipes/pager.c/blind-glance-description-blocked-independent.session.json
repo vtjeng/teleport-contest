@@ -6,7 +6,7 @@
       "datetime": "20370106081234",
       "nethackrc": "OPTIONS=name:BlindGlance,role:Wizard,race:human,gender:female,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,blind\n",
       "moves": ";  .",
-      "comment": "Valid independent selected-location recipe for pager.c do_look. The two spaces acknowledge the startup and cursor prompt boundaries, and . selects the blind hero square. C reaches its nonstopping putmixed(WIN_MESSAGE) output with the map cursor restored; JS reaches the description through ttyPutmixed but leaves a stopping --More-- marker and the top-line cursor. Keep unrecorded until the existing tty_message.js ttyPutmixed/windows.c putmixed owner is corrected."
+      "comment": "Valid independent selected-location recipe for pager.c do_look. The two spaces acknowledge the quick-look prompt and first-use cursor tip, then . selects the blind hero square. The JavaScript do_look quick guard now matches C: it skips checkfile while preserving the description and message-window cleanup; tty_putmixed itself can wait through tty_putstr/update_topl and was not the cause of the former extra --More--."
     }
   ]
 }

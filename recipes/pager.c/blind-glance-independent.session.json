@@ -6,7 +6,7 @@
       "datetime": "20370106081234",
       "nethackrc": "OPTIONS=name:BlindGlance,role:Wizard,race:human,gender:female,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,blind\n",
       "moves": " ;.",
-      "comment": "Abandoned A36 admission probe retained with its matching recording: the leading space is consumed as an unknown command, then ; reaches the production blind quick-glance prompt, but the final . remains at its --More-- boundary. It does not establish location selection or description parity. The valid selected-location input is retained separately as blind-glance-description-blocked-independent.session.json, blocked by the existing JS ttyPutmixed versus C putmixed(WIN_MESSAGE) owner."
+      "comment": "Admission-only probe retained with its matching recording: the leading space is consumed as an unknown command, then ; reaches the production blind quick-glance prompt, but the final . remains at its --More-- boundary. It does not establish location selection or description parity. The valid longer input is retained separately as blind-glance-description-blocked-independent.session.json; its selected-location continuation now has a matching recording after correcting the !quick condition before checkfile in pager.c do_look."
     }
   ]
 }

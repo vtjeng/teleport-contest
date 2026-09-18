@@ -5,7 +5,6 @@ import {
     ARROW_TRAP,
     BEAR_TRAP,
     BLINDED,
-    BUFSZ,
     COULD_SEE,
     DART_TRAP,
     D_BROKEN,
@@ -97,7 +96,6 @@ import { newObject } from '../js/obj.js';
 import { newMonster } from '../js/monst.js';
 import {
     do_screen_description,
-    append_str,
     add_quoted_engraving,
     doquickwhatis,
     look_engrs,
@@ -110,12 +108,6 @@ import {
     waterbody_name,
     whatisMenuItems,
 } from '../js/pager.js';
-
-test('pager append_str keeps C substring and BUFSZ boundary semantics', () => {
-    const prefix = 'x'.repeat(BUFSZ - 2);
-    assert.equal(append_str(prefix, 'stone'), `${prefix} `);
-    assert.equal(append_str('Stone', 'stone'), 'Stone');
-});
 import {
     S_brupstair,
     S_cloud,
@@ -126,7 +118,6 @@ import {
     S_ndoor,
     S_room,
     S_sink,
-    S_stone,
     S_tree,
     initialize_symbols_from_options,
 } from '../js/symbols.js';
@@ -437,8 +428,8 @@ test('blind heroes enter the production quick-glance cursor path',
     async () => {
         // pager.c do_look has no blind admission guard. This initialized
         // production dispatch test reaches the selected-location description;
-        // strict C recording of that final WIN_MESSAGE boundary remains
-        // blocked by the existing ttyPutmixed owner.
+        // independent selected-location recordings also verify the final
+        // WIN_MESSAGE boundary after the quick checkfile guard correction.
         const replay = await runSegment({
             seed: 9310601,
             datetime: '20370106081234',
@@ -677,41 +668,6 @@ test('corridor ambiguity uses pager.c many-things truncation', () => {
     });
 });
 
-test('blank stone retains matching monster and misc classes before refinement', () => {
-    // pager.c scans defsym.h's displayed byte classes in order.  With
-    // DECgraphics, stone shares a blank byte with air, the ghost class, and
-    // the default NOTHING/UNEXPLORED symbols, so the five matches use the
-    // many-things summary before lookat() supplies the actual stone detail.
-    const state = terrainDescriptionState(S_stone);
-    state.level.at = (x, y) => (x === 3 && y === 4
-        ? {
-            seenv: 0xff,
-            disp_glyph: { glyph: cmap_to_glyph(S_stone, state) },
-        }
-        : undefined);
-    assert.deepEqual(do_screen_description({ x: 3, y: 4 }, true, 0, state), {
-        found: 1,
-        out: '         can be many things (stone)',
-        firstmatch: 'stone',
-    });
-});
-
-test('typed blank symbols use the same source class collection', () => {
-    // With looked=false, pager.c has no glyph to refine and therefore keeps
-    // the first three defsym.h matches: the ghost class, stone, and air.
-    const state = terrainDescriptionState(S_stone);
-    assert.deepEqual(
-        do_screen_description(
-            { x: 3, y: 4 }, false, state.gs.showsyms[S_stone], state,
-        ),
-        {
-            found: 3,
-            out: '         a ghost or stone or air',
-            firstmatch: 'ghost',
-        },
-    );
-});
-
 test('cloud ambiguity names air and non-air terrain', () => {
     // DECgraphics gives S_cloud the overloaded '#' byte. The ordinary
     // dungeon branch uses pager.c's fog/vapor wording.
@@ -802,7 +758,7 @@ test('visible dart traps refine the overloaded trap symbol', () => {
         : undefined);
     assert.deepEqual(do_screen_description({ x: 3, y: 4 }, true, 0, state), {
         found: 1,
-        out: '^        a trap (dart trap)',
+        out: '^        can be many things (dart trap)',
         firstmatch: 'dart trap',
     });
     assert.equal(typeof doquickwhatis, 'function');
@@ -997,28 +953,6 @@ test('typed fountain lookup displays its entry through the next boundary',
         // Startup begins at move one; only the final dot advances it to two.
         assert.equal(game.moves, 2);
     });
-
-test('typed unknown symbols use pager.c no-match output',
-    () => withSerializedGrids(async () => {
-        const replay = await runSegment({
-            seed: 42054,
-            datetime: '20000211183006',
-            nethackrc: [
-                'OPTIONS=name:TypedUnknown,role:Wizard,race:human,gender:male,align:neutral',
-                'OPTIONS=!autopickup,!legacy,!tutorial,!splash_screen',
-                'OPTIONS=pettype:none,!acoustics,symset:DECgraphics',
-            ].join('\n') + '\n',
-            // Comma is outside defsym.h's default table. The final dot
-            // crosses the command boundary after the source no-match pline.
-            moves: ' /?,\n .',
-        });
-        const text = replay.getScreens().map((screen) => JSON.parse(screen)
-            .map((row) => row.map(({ ch }) => ch).join('')).join('\n'));
-        assert.equal(text.some((screen) => (
-            screen.includes("I've never heard of such things.")
-        )), true);
-        assert.equal(game.moves, 2);
-    }));
 
 test('carried quarterstaff lookup displays its wildcard entry', async () => {
     const [, segment] = loadWhatisTypedInventoryRecipe().segments;

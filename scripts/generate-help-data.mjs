@@ -22,6 +22,7 @@ const HELP_FILENAMES = Object.freeze([
     'optmenu',
     'usagehlp',
     'license',
+    'wizhelp',
 ]);
 
 function expandTabs(value) {

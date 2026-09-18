@@ -1,0 +1,1 @@
+{"version":5,"segments":[{"seed":991003,"datetime":"20410904050607","nethackrc":"OPTIONS=name:Cato,role:Wizard,race:human,gender:male,align:neutral\nOPTIONS=!autopickup,!legacy,!tutorial,!splash_screen\nOPTIONS=pettype:none,!acoustics,menu_headings:none,symset:DECgraphics\nOPTIONS=playmode:debug\nBIND=x:optionsfull\n","moves":"?p   "}]}
