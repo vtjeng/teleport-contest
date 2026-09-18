@@ -64458,7 +64458,7 @@
           "line": 2860,
           "endLine": 2907,
           "declared": true,
-          "complete": false
+          "complete": true
         }
       ],
       "range": {
@@ -64549,7 +64549,55 @@
             }
           }
         }
-      ]
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "dohelp",
+            "implementation": "js/pager.js",
+            "symbol": "dohelp",
+            "sourceReview": "Read nethack-c/upstream/src/pager.c:2860-2898 together with the complete help_menu_items table at 2829-2854, dispfile_debughelp at 2778-2781, setopt_cmd at 2908-2957, and the TTY display_file owner at nethack-c/upstream/win/tty/wintty.c:2424-2516. The JavaScript now preserves source-table values through wizard and hideusage filtering, formats the dynamic option-command row from current bindings, destroys the menu before dispatch, returns ECMD_OK for cancellation or completion, and dispatches source value 16 to the generated wizhelp data. The Unix recorder's unixconf.h:99-104 leaves PORT_HELP undefined, so the active table has fifteen ordinary rows and the wizard-only debug row at source index 16. No unported result-bearing callee, invented RNG, or substituted output remains in this selected path; ordinary row handlers and display_file are reused existing owners.",
+            "callers": [
+              {
+                "path": "js/cmd.js",
+                "symbol": "runHelpCommand",
+                "source": "cmd.c:1735 registers dohelp for the '?' help command; js/cmd.js runHelpCommand is the production command wrapper and awaits dohelp(state)."
+              },
+              {
+                "path": "js/cmd.js",
+                "symbol": "rhack",
+                "source": "cmd.c rhack() dispatches the parsed help command; js/cmd.js rhack routes the command table entry to runHelpCommand."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/help-wizard.test.mjs",
+              "scripts/help-command.test.mjs",
+              "scripts/help-data.test.mjs"
+            ],
+            "recordings": [
+              "recordings/pager.c/wizard-help-independent.session.json",
+              "recordings/pager.c/wizard-help-variation.session.json",
+              "recordings/pager.c/wizard-help-bound-optionsfull.session.json"
+            ],
+            "checkedAt": "fb355603749d74b1d042f62592b6c830204998c3"
+          }
+        ],
+        "entryPointReview": "The active entry point is the production '?' command, which constructs the help menu and dispatches a selected source-table row. The two independent wizard-mode recordings enter '?' through cmd.c's help binding, select the wizard-only source value 16 using the visible selector assigned after filtering, and page through dispfile_debughelp/display_file. Their role/race variation changes startup while retaining the same production menu path. A third independent wizard recording binds optionsfull to x and verifies the menu displays the live bound key before selecting the debug row. The source table's PORT_HELP conditional row is excluded by the recorder build: nethack-c/upstream/include/unixconf.h:99-104 documents that Unix has no port-specific help. Normal non-wizard menu filtering, sysopt.hideusage filtering, source-index preservation, dynamic setopt_cmd formatting, and wizhelp generation are covered by source-pinned tests and the same production menu entry. Other help-row handlers are existing source owners outside this span.",
+        "entryPoints": [
+          {
+            "name": "production '?' help command and wizard debug-help dispatch",
+            "functions": [
+              "dohelp"
+            ],
+            "recordings": [
+              "recordings/pager.c/wizard-help-independent.session.json",
+              "recordings/pager.c/wizard-help-variation.session.json",
+              "recordings/pager.c/wizard-help-bound-optionsfull.session.json"
+            ]
+          }
+        ]
+      }
     }
   ]
 }
