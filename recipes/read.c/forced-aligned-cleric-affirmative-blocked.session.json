@@ -1,0 +1,10 @@
+{
+  "version": 5,
+  "_comment": "Blocked read.c create_particular_creation force-confirmation variation: aligned cleric is substituted by cant_revive, then y restores the requested species. C reaches the creation result, but JS next diverges in the existing makemon.c priest minion initialization at rn2(3), before any clerical spell action; keep this replay-only recipe without a recording until that source owner lands.",
+  "segments": [{
+    "seed": 7810043,
+    "datetime": "20270318143000",
+    "nethackrc": "OPTIONS=name:ForceCleric,role:Valkyrie,race:human,gender:female,align:lawful\nOPTIONS=!legacy,!tutorial,!splash_screen\nOPTIONS=pettype:none,!acoustics,playmode:debug\n",
+    "moves": " #polyself\nxorn\n #wizgenesis\naligned cleric\ny"
+  }]
+}

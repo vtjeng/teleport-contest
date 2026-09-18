@@ -1,0 +1,10 @@
+{
+  "version": 5,
+  "_comment": "Independent read.c create_particular_creation force-confirmation variation: aligned cleric is substituted by cant_revive and the explicit negative response keeps the human zombie replacement. The input ends before any clerical action.",
+  "segments": [{
+    "seed": 7810044,
+    "datetime": "20270318143000",
+    "nethackrc": "OPTIONS=name:ForceClericNo,role:Valkyrie,race:human,gender:female,align:lawful\nOPTIONS=!legacy,!tutorial,!splash_screen\nOPTIONS=pettype:none,!acoustics,playmode:debug\n",
+    "moves": " #polyself\nxorn\n #wizgenesis\naligned cleric\nn"
+  }]
+}
