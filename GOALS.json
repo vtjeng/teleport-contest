@@ -66094,7 +66094,7 @@
     {
       "id": "div-plan-monster-list-iteration-seed4500-20260918",
       "kind": "divergence-fix",
-      "status": "open",
+      "status": "parked",
       "summary": "Match safe monster-list iteration during turn planning",
       "cFile": "mon.c",
       "sessions": [],
@@ -66103,8 +66103,8 @@
       "spans": [
         {
           "name": "planning-safe-list-iteration",
-          "status": "queued",
-          "closedBy": null,
+          "status": "closed",
+          "closedBy": "272875b8378b7097d222a87d085cf06fb00a2a09",
           "functions": [
             "movemon"
           ]
@@ -66199,7 +66199,17 @@
             }
           }
         }
-      ]
+      ],
+      "progressBeforePark": {
+        "screens": 0,
+        "rng": 0
+      },
+      "parkedStanding": {
+        "sha": "272875b8378b7097d222a87d085cf06fb00a2a09",
+        "screens": 11324,
+        "rng": 789270
+      },
+      "parkedReason": "The source-traced planner iteration dependency is corrected and the span passes checkpoint, but the fixed first mismatch remains1742. Preserve the unresolved divergence criterion while the independently traced Hell-bat creation omission is integrated."
     }
   ]
 }
