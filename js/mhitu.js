@@ -93,6 +93,7 @@ import { nomul, showdamage, spoteffects } from './hack.js';
 import { dist2, distmin } from './hacklib.js';
 import { is_home_elemental } from './makemon.js';
 import { makemon_runtime } from './makemon_create.js';
+import { msummon } from './minion.js';
 import {
     attk_protection,
     engulf_target,
@@ -970,7 +971,7 @@ export async function mattacku(monster, rawEnv = {}) {
             if (mdat.pmidx !== M.PM_BALROG
                 && mdat.pmidx !== M.PM_AMOROUS_DEMON) {
                 if (!random.rn2(In_hell(u.uz, state) ? 10 : 16)) {
-                    unsupported('a demon summoning help via msummon()');
+                    await msummon(monster, env);
                 }
             }
             // C returns after the demon arm (no demon were-creatures).
