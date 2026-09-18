@@ -8,6 +8,7 @@
 import {
     BLINDED,
     BOLT_LIM,
+    BUFSZ,
     COLNO,
     MAXTCHARS,
     AM_MASK,
@@ -71,10 +72,16 @@ import {
     SDOOR,
     STONE,
     STRAT_WAITMASK,
+    TER_DETECT,
+    TER_MAP,
     SYM_INVISIBLE,
     SYM_NOTHING,
+    SYM_PET_OVERRIDE,
+    SYM_HERO_OVERRIDE,
     SYM_UNEXPLORED,
     WARNCOUNT,
+    VIBRATING_SQUARE,
+    Is_rogue_level,
     Upolyd,
     Ugender,
     has_mcorpsenm,
@@ -115,18 +122,19 @@ import {
     glyph_is_cmap,
     glyph_is_warning,
     glyph_is_invisible,
-    glyph_is_swallow,
     glyph_is_body,
     glyph_is_monster,
     glyph_is_object,
     glyph_is_statue,
     glyph_is_trap,
+    hero_glyph_info,
     glyph_to_cmap,
     glyph_to_obj,
     glyph_to_trap,
     engraving_to_glyph,
     map_glyphinfo,
     monster_glyph_info,
+    NO_GLYPH,
     trap_to_glyph,
 } from './display.js';
 import { DATA_BASE_ENTRIES } from './data_base_data.js';
@@ -169,14 +177,21 @@ import {
 } from './objects.js';
 import {
     CMAP_EXPLANATIONS,
+    DEFAULT_PRIMARY_SYMBOLS,
     MONSTER_CLASS_EXPLANATIONS,
     OBJCLASS_EXPLANATIONS,
+    SYMBOL_INDEX_BY_NAME,
 } from './symbol_data.js';
 import {
     MAXMCLASSES,
     MAXOCLASSES,
     MAXPCHARS,
+    SYM_OFF_M,
+    SYM_OFF_O,
+    SYM_OFF_W,
     SYM_OFF_X,
+    SYM_MAX,
+    S_darkroom,
     S_cloud,
     S_engrcorr,
     S_engroom,
@@ -732,109 +747,6 @@ function look_at_object(glyph, x, y, state) {
     return result;
 }
 
-// C ref: pager.c do_screen_description()'s monster/object symbol passes. A
-// statue uses the monster symbol for its species, so both classes are kept in
-// the generic list before look_at_object() supplies the instance description.
-function describe_object_glyph(cc, glyph, state) {
-    const glyphinfo = map_glyphinfo(glyph, state);
-    const symbolByte = glyphinfo.ttychar;
-    const prefix = `${visibleGlyphCharacter(glyphinfo)}        `;
-    let found = 0;
-    let firstmatch = 'unknown';
-    let out = prefix;
-    let needToLook = false;
-    let skippedVenom = false;
-
-    if (!state.iflags?.terrainmode
-        || (state.iflags.terrainmode & TER_MON) !== 0) {
-        for (let index = 1; index < MAXMCLASSES; ++index) {
-            // S_invisible has no useful generic explanation here and is
-            // deliberately excluded by pager.c.
-            if (index === S_invisible) continue;
-            const explanation = MONSTER_CLASS_EXPLANATIONS[index];
-            if (!explanation
-                || monster_class_symbol(index, state).ttychar !== symbolByte)
-                continue;
-            needToLook = true;
-            const described = an(explanation);
-            if (!found) {
-                out += described;
-                firstmatch = explanation;
-                found = 1;
-            } else {
-                const appended = appendDescription(out, described);
-                if (appended !== out) {
-                    out = appended;
-                    ++found;
-                }
-            }
-        }
-    }
-
-    if (!state.iflags?.terrainmode
-        || (state.iflags.terrainmode & TER_OBJ) !== 0) {
-        const boulderSymbol = state.gs?.showsyms?.[
-            SYM_OFF_X + SYM_BOULDER
-        ] || object_class_symbol(ROCK_CLASS, state).ttychar;
-        for (let index = 1; index < MAXOCLASSES; ++index) {
-            const matches = index === ROCK_CLASS
-                ? (glyph_is_statue(glyph) || symbolByte === boulderSymbol)
-                : object_class_symbol(index, state).ttychar === symbolByte;
-            if (!matches) continue;
-            let explanation = OBJCLASS_EXPLANATIONS[index];
-            if (!explanation) continue;
-            if (index === ROCK_CLASS
-                && explanation === 'boulder or statue') {
-                if (symbolByte === boulderSymbol) explanation = 'boulder';
-                else if (glyph_is_statue(glyph)) explanation = 'statue';
-                else continue;
-            }
-            needToLook = true;
-            if (index === VENOM_CLASS) {
-                skippedVenom = true;
-                continue;
-            }
-            const described = an(explanation);
-            if (!found) {
-                out += described;
-                firstmatch = explanation;
-                found = 1;
-            } else {
-                const appended = appendDescription(out, described);
-                if (appended !== out) {
-                    out = appended;
-                    ++found;
-                }
-            }
-        }
-    }
-
-    if (skippedVenom && found < 2) {
-        const explanation = OBJCLASS_EXPLANATIONS[VENOM_CLASS];
-        const described = an(explanation);
-        if (!found) {
-            out += described;
-            firstmatch = explanation;
-            found = 1;
-        } else {
-            const appended = appendDescription(out, described);
-            if (appended !== out) {
-                out = appended;
-                ++found;
-            }
-        }
-    }
-
-    if (found > 4) out = `${prefix}can be many things`;
-    if (found > 1 || needToLook) {
-        const detail = lookat(cc.x, cc.y, state).buf;
-        firstmatch = detail;
-        out += ' (' + detail + ')';
-        found = 1;
-    }
-    return { found, out, firstmatch };
-}
-
 // C ref: pager.c look_region_nearby(). The x=0 column is not playable, while
 // y=0 is, so the two lower bounds deliberately differ.
 export function look_region_nearby(nearby, state = game) {
@@ -1093,20 +1005,17 @@ export async function look_engrs(nearby, state = game) {
     }
 }
 
-function appendDescription(out, description) {
-    // pager.c append_str() treats a case-insensitive substring as an existing
-    // match. That collapses the eleven wall indices to one "wall" entry.
+// C ref: pager.c append_str() (82-104).  Its return value is one whenever it
+// writes anything, including a partial separator at the BUFSZ boundary.  The
+// collection code below compares the returned string to the old one to retain
+// that count without losing the source's truncation behavior.
+export function append_str(out, description) {
     if (out.toLowerCase().includes(description.toLowerCase())) return out;
-    return `${out} or ${description}`;
-}
-
-function cmapDescriptionWithArticle(index, explanation) {
-    if (index === S_stone || explanation === 'air'
-        || explanation === 'land' || explanation === 'ice') {
-        return explanation;
-    }
-    if (explanation.includes(' of a room')) return `the ${explanation}`;
-    return an(explanation);
+    const spaceLeft = BUFSZ - 1 - out.length;
+    if (spaceLeft <= 0) return out;
+    const separator = ' or ';
+    return out + separator.slice(0, spaceLeft)
+        + description.slice(0, Math.max(0, spaceLeft - separator.length));
 }
 
 function visibleGlyphCharacter(glyphinfo) {
@@ -1114,6 +1023,37 @@ function visibleGlyphCharacter(glyphinfo) {
     if (glyphinfo.dec)
         return SCORER_DEC_MAP[glyphinfo.ch] ?? glyphinfo.ch;
     return glyphinfo.ch;
+}
+
+// C's prefix is the character resolved by map_glyphinfo() for ordinary map
+// glyphs.  Monster glyphs are transient presentations in this port and the
+// unexplored sentinel has no map_glyphinfo arm, so use the same presentation
+// that newsym() would have put in the cell for those two families.
+function descriptionDisplayCharacter(glyph, x, y, state) {
+    const location = state.level?.at?.(x, y);
+    if (location?.disp_browser_ch) return location.disp_browser_ch;
+    if (location?.disp_decgfx)
+        return SCORER_DEC_MAP[location.disp_ch] ?? location.disp_ch;
+    if (location?.disp_ch !== undefined) return location.disp_ch;
+    if (glyph === GLYPH_UNEXPLORED_OFF) {
+        const symbol = misc_symbol(SYM_UNEXPLORED, state);
+        return symbol.displayCh ?? symbol.ch;
+    }
+    if (glyph_is_warning(glyph)) {
+        const index = glyph - GLYPH_WARNING_OFF;
+        const symbol = state.gw?.warnsyms?.[index]
+            ?? def_warnsyms[index];
+        if (typeof symbol === 'number') return String.fromCharCode(symbol);
+        return symbol?.displayCh ?? symbol?.ch ?? '?';
+    }
+    if (glyph_is_monster(glyph)) {
+        const monster = m_at(x, y, state);
+        if (monster) return monster_glyph_info(monster, state).ch;
+        if (x === state.u?.ux && y === state.u?.uy)
+            return hero_glyph_info(state).ch;
+        return 'M';
+    }
+    return visibleGlyphCharacter(map_glyphinfo(glyph, state));
 }
 
 // C ref: pager.c waterbody_name() (560-612). `SURFACE_AT()` is the shared
@@ -1320,102 +1260,45 @@ export function lookat(x, y, state = game) {
 // C ref: pager.c do_screen_description() and lookat(). The generic list is
 // built in defsym.h order before lookat() refines an ambiguous map symbol.
 export function do_screen_description(cc, looked, sym, state = game) {
-    if (!looked || sym)
-        throw new UnsupportedWhatisError('a typed symbol');
-    if (cc.x === state.u.ux && cc.y === state.u.uy) {
-        const location = state.level?.at(cc.x, cc.y);
-        const displayCharacter = location?.disp_ch ?? '@';
-        const info = lookat(cc.x, cc.y, state);
-        const result = {
-            found: 1,
-            out: displayCharacter + '        a human or elf ('
-                + info.buf + ')',
-            firstmatch: info.buf,
-        };
-        if (info.pm) result.supplement = info.pm;
-        return result;
-    }
-
-    const glyph = glyph_at(cc.x, cc.y, state);
-    // Object glyphs have their own generic class pass.  Let that path call
-    // lookat() exactly once; object_from_map() may create a synthetic object
-    // and observing or naming it twice would duplicate source side effects.
-    if (glyph_is_object(glyph))
-        return describe_object_glyph(cc, glyph, state);
-
-    const info = lookat(cc.x, cc.y, state);
-    // C ref: pager.c do_screen_description()'s non-cmap results are refined
-    // by lookat() and preserve its exact buf/monbuf/permonst result contract.
-    if (glyph === GLYPH_NOTHING_OFF) {
-        return {
-            found: 1,
-            out: '         the dark part of a room',
-            firstmatch: info.buf,
-        };
-    }
-    if (glyph === GLYPH_UNEXPLORED_OFF) {
-        return {
-            found: 1,
-            out: '         unexplored',
-            firstmatch: info.buf,
-        };
-    }
-    if (glyph_is_warning(glyph)) {
-        return {
-            found: 1,
-            out: '         ' + info.buf,
-            firstmatch: info.buf,
-        };
-    }
-    if (glyph_is_invisible(glyph)) {
-        const detail = invisibleGlyphDescription(state);
-        return {
-            found: 1,
-            out: '         ' + detail,
-            firstmatch: detail,
-        };
-    }
-    if (glyph_is_swallow(glyph)) {
-        const result = {
-            found: 1,
-            out: '         ' + info.buf,
-            firstmatch: info.buf,
-        };
-        if (info.pm) result.supplement = info.pm;
-        return result;
-    }
-    if (glyph_is_monster(glyph)) {
-        if (state.iflags?.terrainmode
-            && !(state.iflags.terrainmode & TER_MON)) {
-            return { found: 0, out: '', firstmatch: 'unknown' };
+    // pager.c accepts both a screen glyph (`looked`) and a typed symbol.  The
+    // latter uses the default defsym tables and has no location glyph to
+    // refine; keeping it in this same pass is important for symbol aliases.
+    const glyph = looked ? glyph_at(cc.x, cc.y, state) : NO_GLYPH;
+    const displayCharacter = looked
+        ? descriptionDisplayCharacter(glyph, cc.x, cc.y, state) : null;
+    const locationSymbol = looked
+        ? state.level?.at?.(cc.x, cc.y)?.disp_ch : undefined;
+    const locationByte = typeof locationSymbol === 'string'
+        ? locationSymbol.charCodeAt(0) : locationSymbol;
+    let symbolByte = sym;
+    if (looked) {
+        if (locationByte !== undefined) {
+            symbolByte = locationByte;
+        } else if (glyph_is_monster(glyph)) {
+            symbolByte = monster_class_symbol(
+                m_at(cc.x, cc.y, state)?.data?.mlet ?? S_HUMAN,
+                state,
+            ).ttychar;
+        } else if (glyph === GLYPH_UNEXPLORED_OFF) {
+            symbolByte = misc_symbol(SYM_UNEXPLORED, state).ttychar;
+        } else if (glyph_is_warning(glyph)) {
+            const warning = glyph - GLYPH_WARNING_OFF;
+            symbolByte = state.gw?.warnsyms?.[warning]
+                ?? def_warnsyms[warning]?.ch?.charCodeAt(0);
+        } else {
+            symbolByte = map_glyphinfo(glyph, state).ttychar;
         }
-        const monster = m_at(cc.x, cc.y, state);
-        const location = state.level?.at(cc.x, cc.y);
-        const displayCharacter = location?.disp_ch
-            ?? (monster ? monster_glyph_info(monster, state).ch : 'M');
-        const result = {
-            found: 1,
-            out: displayCharacter + '        ' + info.buf
-                + (info.monbuf ? ' [seen: ' + info.monbuf + ']' : ''),
-            firstmatch: info.buf,
-        };
-        if (info.pm) result.supplement = info.pm;
-        return result;
     }
-    if (!glyph_is_cmap(glyph)) {
-        return {
-            found: info.buf ? 1 : 0,
-            out: info.buf ? '         ' + info.buf : '',
-            firstmatch: info.buf || 'unknown',
-        };
-    }
-    const glyphinfo = map_glyphinfo(glyph, state);
-    const symbolByte = glyphinfo.ttychar;
+    const prefix = looked
+        ? displayCharacter + '        '
+        : String.fromCharCode(symbolByte) + '        ';
     let found = 0;
     let needToLook = false;
     let skippedVenom = false;
     let firstmatch = 'unknown';
-    let out = visibleGlyphCharacter(glyphinfo) + '        ';
+    let out = prefix;
+    let stopBeforeGeneric = false;
+    let hitTrap = false;
 
     // pager.c appends every matching symbol class before it asks lookat() for
     // the location-specific refinement.  In particular, the blank stone
@@ -1426,6 +1309,7 @@ export function do_screen_description(cc, looked, sym, state = game) {
         description,
         article = true,
         firstMatch = description,
+        count = true,
     ) => {
         const described = article ? an(description) : description;
         if (!found) {
@@ -1434,26 +1318,192 @@ export function do_screen_description(cc, looked, sym, state = game) {
             found = 1;
             return;
         }
-        const appended = appendDescription(out, described);
+        const appended = append_str(out, described);
         if (appended !== out) {
             out = appended;
-            ++found;
+            if (count) ++found;
         }
     };
 
-    if (!state.iflags?.terrainmode
-        || (state.iflags.terrainmode & TER_MON) !== 0) {
+    // C's extracted add_cmap_descr() owns the unusual cmap aliases and the
+    // trap/drawbridge suppression rules. Keep its return value as the
+    // description count: the pool's second (moat) call deliberately ignores
+    // that return, just as pager.c does.
+    const add_cmap_descr = (index, article, explanation) => {
+        const absoluteIndex = Math.abs(index);
+        let description = explanation;
+        let articleMode = article;
+        let effectiveIndex = index;
+
+        if (!looked) {
+            if (description === 'water') {
+                if (index === S_pool) description = 'pool of water';
+                else if (index === S_water) {
+                    description = Is_waterlevel(state.u?.uz)
+                        ? 'limitless water' : 'wall of water';
+                }
+            }
+            if (absoluteIndex === S_pool) effectiveIndex = S_pool;
+        } else if (absoluteIndex === S_pool || index === S_water
+            || index === S_lava || index === S_lavawall || index === S_ice) {
+            // add_cmap_descr temporarily changes levl[].typ before calling
+            // waterbody_name(); use a one-cell view so the same source
+            // classification and display-RNG call occur without exposing the
+            // temporary terrain to later map logic.
+            const location = state.level?.at?.(cc.x, cc.y);
+            const surface = absoluteIndex === S_pool
+                ? (index === S_pool ? POOL : MOAT)
+                : index === S_water ? WATER
+                    : index === S_lava ? LAVAPOOL
+                        : index === S_lavawall ? LAVAWALL : ICE;
+            const view = location ? { ...location, typ: surface } : location;
+            let viewState = location ? {
+                ...state,
+                level: {
+                    ...state.level,
+                    at: (x, y) => (x === cc.x && y === cc.y
+                        ? view : state.level?.at?.(x, y)),
+                },
+            } : state;
+            // C temporarily sets EHalluc_resistance while the scratch terrain
+            // is named. Mirror that global property through the shared hero
+            // property table, then restore the exact prior record before any
+            // later matching or lookat work can observe it.
+            const properties = viewState.u?.uprops;
+            let savedResistance;
+            let temporaryProperties = false;
+            if (properties) {
+                savedResistance = properties[HALLUC_RES];
+                properties[HALLUC_RES] = {
+                    ...(savedResistance ?? {}),
+                    extrinsic: 1,
+                };
+            } else {
+                temporaryProperties = true;
+                viewState = {
+                    ...viewState,
+                    u: { ...viewState.u, uprops: [] },
+                };
+                viewState.u.uprops[HALLUC_RES] = { extrinsic: 1 };
+            }
+            try {
+                description = waterbody_name(cc.x, cc.y, viewState);
+            } finally {
+                if (temporaryProperties) {
+                    // The temporary view is discarded with no state write.
+                } else if (savedResistance === undefined) {
+                    delete properties[HALLUC_RES];
+                } else {
+                    properties[HALLUC_RES] = savedResistance;
+                }
+            }
+            if (description === 'pool of water') description = 'pool';
+            else if (description === 'molten lava') description = 'lava';
+            articleMode = !(
+                description.startsWith('water')
+                || description.startsWith('ice')
+                || description.startsWith('pool')
+                || description.startsWith('moat')
+                || description.startsWith('lava')
+                || description.startsWith('swamp')
+                || description.startsWith('molten')
+                || description.startsWith('shallow')
+                || description.startsWith('limitless')
+                || description.startsWith('wall of lava')
+                || description.startsWith('wall of water')
+                || description.startsWith('frozen')
+                || / ice$/u.test(description)
+            ) ? 1 : 0;
+            if (absoluteIndex === S_pool) effectiveIndex = S_pool;
+        }
+
+        const cmapTrap = effectiveIndex >= S_arrow_trap
+            && effectiveIndex < S_arrow_trap + MAXTCHARS;
+        const cmapDrawbridge = effectiveIndex >= S_vodbridge
+            && effectiveIndex <= S_hcdbridge;
+        const vibratingSquare = SYMBOL_INDEX_BY_NAME.s_vibrating_square;
+        const isVibrating = effectiveIndex === vibratingSquare;
+        const actualVibratingTrap = looked && glyph_is_trap(glyph)
+            && glyph_to_trap(glyph) === VIBRATING_SQUARE;
+        const inHell = Boolean(
+            state.dungeons?.[state.u?.uz?.dnum]?.flags?.hellish,
+        );
+        if (!found) {
+            if (cmapTrap && effectiveIndex !== vibratingSquare) {
+                out = prefix + 'a trap';
+                firstmatch = description;
+                found = 1;
+                hitTrap = true;
+            } else {
+                const rendered = articleMode === 2
+                    ? `the ${description}`
+                    : articleMode === 1 ? an(description) : description;
+                appendGeneric(rendered, false, description);
+            }
+        } else if (!(hitTrap && cmapTrap)
+            && !(found >= 3 && cmapDrawbridge)
+            && (!isVibrating || inHell || actualVibratingTrap)) {
+            const rendered = articleMode === 2
+                ? `the ${description}`
+                : articleMode === 1 ? an(description) : description;
+            appendGeneric(rendered, false, description);
+            if (cmapTrap && effectiveIndex !== vibratingSquare)
+                hitTrap = true;
+        }
+        return found;
+    };
+
+    // C's restricted-vision arm precedes every generic class.  The swallow
+    // explanation remains in the list and must not reset a prior match.
+    const submerged = Boolean(
+        state.u?.uinwater && !Is_waterlevel(state.u?.uz),
+    );
+    if (looked && (((state.u?.uswallow || submerged)
+            && dist2(cc.x, cc.y, state.u?.ux, state.u?.uy) > 2)
+        || ((state.iflags?.terrainmode & (TER_DETECT | TER_MAP)) === TER_DETECT
+            && glyph === cmap_to_glyph(S_stone, state)))) {
+        appendGeneric('unreconnoitered', false);
+        stopBeforeGeneric = true;
+    } else if (looked) {
+        for (let index = S_sw_tl; index <= S_sw_br; ++index) {
+            if (cmap_symbol_byte(index, state) !== symbolByte) continue;
+            appendGeneric('the interior of a monster', false);
+            needToLook = true;
+            break;
+        }
+    }
+
+    const monsterSymbol = (index) => looked
+        ? monster_class_symbol(index, state).ttychar
+        : DEFAULT_PRIMARY_SYMBOLS[SYM_OFF_M + index];
+    const objectSymbol = (index) => looked
+        ? object_class_symbol(index, state).ttychar
+        : DEFAULT_PRIMARY_SYMBOLS[SYM_OFF_O + index];
+    const cmapSymbol = (index) => looked
+        ? cmap_symbol_byte(index, state)
+        : DEFAULT_PRIMARY_SYMBOLS[index];
+    const warningSymbol = (index) => looked
+        ? state.gw?.warnsyms?.[index]
+            ?? def_warnsyms[index]?.ch?.charCodeAt(0)
+        : DEFAULT_PRIMARY_SYMBOLS[SYM_OFF_W + index];
+
+    const checkMonsterClasses = (currentSymbol) => {
+        if (state.iflags?.terrainmode
+            && (state.iflags.terrainmode & TER_MON) === 0) return;
         for (let index = 1; index < MAXMCLASSES; ++index) {
             if (index === S_invisible) continue;
             const explanation = MONSTER_CLASS_EXPLANATIONS[index];
-            if (!explanation
-                || monster_class_symbol(index, state).ttychar !== symbolByte)
+            if (!explanation || monsterSymbol(index) !== currentSymbol)
                 continue;
             needToLook = true;
             appendGeneric(explanation);
         }
-        if (symbolByte === monster_class_symbol(S_HUMAN, state).ttychar
-            && u_at(cc.x, cc.y, state)
+        const isYou = looked
+            ? currentSymbol === monsterSymbol(S_HUMAN)
+                && u_at(cc.x, cc.y, state)
+            : currentSymbol === monsterSymbol(S_HUMAN)
+                && !state.flags?.showrace;
+        if (isYou
             && !(state.urace?.mnum === PM_HUMAN
                 || state.urace?.mnum === PM_ELF)
             && !Upolyd(state.u)) {
@@ -1461,103 +1511,156 @@ export function do_screen_description(cc, looked, sym, state = game) {
             // the class loop; it is only reachable for a non-human/elf race.
             appendGeneric('you', false);
         }
-    }
+    };
 
-    if (!state.iflags?.terrainmode
-        || (state.iflags.terrainmode & TER_OBJ) !== 0) {
-        const boulderSymbol = state.go?.ov_primary_syms?.[
-            SYM_OFF_X + SYM_BOULDER
-        ] || object_class_symbol(ROCK_CLASS, state).ttychar;
-        for (let index = 1; index < MAXOCLASSES; ++index) {
-            const matches = index === ROCK_CLASS
-                ? (glyph_is_statue(glyph) || symbolByte === boulderSymbol)
-                : object_class_symbol(index, state).ttychar === symbolByte;
-            if (!matches) continue;
-            let explanation = OBJCLASS_EXPLANATIONS[index];
-            if (!explanation) continue;
-            if (index === ROCK_CLASS
-                && explanation === 'boulder or statue') {
-                if (symbolByte === boulderSymbol) explanation = 'boulder';
-                else if (glyph_is_statue(glyph)) explanation = 'statue';
-                else continue;
+    const collectObjectsAndTerrain = () => {
+        if (!state.iflags?.terrainmode
+            || (state.iflags.terrainmode & TER_OBJ) !== 0) {
+            const rogue = Is_rogue_level(state.u?.uz);
+            const boulderSymbols = rogue
+                ? state.go?.ov_rogue_syms : state.go?.ov_primary_syms;
+            // C falls back to def_oc_syms[ROCK_CLASS], independently of the
+            // active object-class customization, when no boulder override is
+            // installed.
+            const configuredBoulderSymbol =
+                boulderSymbols?.[SYM_OFF_X + SYM_BOULDER];
+            const boulderSymbol = configuredBoulderSymbol
+                || DEFAULT_PRIMARY_SYMBOLS[SYM_OFF_O + ROCK_CLASS];
+            for (let index = 1; index < MAXOCLASSES; ++index) {
+                const matches = index === ROCK_CLASS
+                    ? (glyph_is_statue(glyph) || symbolByte === boulderSymbol)
+                    : objectSymbol(index) === symbolByte;
+                if (!matches) continue;
+                let explanation = OBJCLASS_EXPLANATIONS[index];
+                if (!explanation) continue;
+                if (index === ROCK_CLASS
+                    && explanation === 'boulder or statue') {
+                    if (symbolByte === boulderSymbol) explanation = 'boulder';
+                    else if (glyph_is_statue(glyph)) explanation = 'statue';
+                    else if (looked) continue;
+                }
+                needToLook = true;
+                if (looked && index === VENOM_CLASS) {
+                    skippedVenom = true;
+                    continue;
+                }
+                appendGeneric(explanation);
             }
-            needToLook = true;
-            if (index === VENOM_CLASS) {
-                skippedVenom = true;
+        }
+
+        // These checks use the displayed byte as C does, so a cmap glyph can
+        // also be reported as the default NOTHING/UNEXPLORED symbol.  The
+        // glyph tests are independent of the active symbol customization.
+        if (symbolByte === 'I'.charCodeAt(0))
+            appendGeneric(invisibleGlyphDescription(state));
+        if (glyph === GLYPH_NOTHING_OFF
+            || (looked && symbolByte === misc_symbol(SYM_NOTHING, state).ttychar)) {
+            appendGeneric('the dark part of a room', false);
+        }
+        if (glyph === GLYPH_UNEXPLORED_OFF
+            || (looked && symbolByte === misc_symbol(SYM_UNEXPLORED, state).ttychar)) {
+            appendGeneric(
+                state.u?.uinwater && !Is_waterlevel(state.u?.uz)
+                    ? 'land' : 'unexplored',
+                false,
+            );
+        }
+
+        for (let index = 0; index < MAXPCHARS; ++index) {
+            const altIndex = index === S_lava ? S_water
+                : index === S_lavawall ? S_lava
+                    : index === S_water ? S_lavawall : index;
+            const explanation = CMAP_EXPLANATIONS[altIndex];
+            if (!explanation
+                || cmapSymbol(altIndex) !== symbolByte)
                 continue;
+            if (altIndex === S_darkroom && looked
+                && glyph === GLYPH_NOTHING_OFF)
+                continue;
+            if (found >= 3
+                && altIndex >= S_vodbridge && altIndex <= S_hcdbridge)
+                continue;
+            add_cmap_descr(altIndex, explanation.includes(' of a room')
+                ? 2 : (altIndex === S_stone || explanation === 'air'
+                    || explanation === 'land') ? 0 : 1,
+                explanation);
+            const liquid = altIndex === S_water || altIndex === S_lava
+                || altIndex === S_lavawall || altIndex === S_ice;
+            if (altIndex === S_pool) {
+                const savedFound = found;
+                add_cmap_descr(-S_pool, 1, 'moat');
+                found = savedFound;
             }
-            appendGeneric(explanation);
+            if (altIndex === S_pool || altIndex === S_altar || altIndex === S_engroom
+                || altIndex === S_engrcorr || altIndex === S_grave
+                || (altIndex >= S_arrow_trap
+                    && altIndex < S_arrow_trap + MAXTCHARS)
+                || (heroHallucinating(state) && liquid)) {
+                needToLook = true;
+            }
+        }
+
+        // Warning symbols are a separate source table, and are checked after
+        // the cmap pass.  A warning may share a displayed byte with a boulder,
+        // but its text is still appended before final refinement.
+        for (let index = 1; index < WARNCOUNT; ++index) {
+            if (warningSymbol(index) !== symbolByte) continue;
+            appendGeneric(def_warnsyms[index]?.desc ?? 'unknown creature', false);
+            if (looked && sobj_at(BOULDER, cc.x, cc.y, state))
+                out += ' co-located with a boulder';
+            break;
+        }
+
+        if (looked && skippedVenom && found < 2)
+            appendGeneric(OBJCLASS_EXPLANATIONS[VENOM_CLASS]);
+    };
+
+    if (!stopBeforeGeneric) {
+        checkMonsterClasses(symbolByte);
+        collectObjectsAndTerrain();
+    }
+    // Optional symbol overrides are checked after the ordinary passes.  C
+    // re-enters check_monsters for a pet/hero override, preserving any text
+    // already accumulated for the displayed byte.
+    if (!stopBeforeGeneric) {
+        const rogue = Is_rogue_level(state.u?.uz);
+        const overrideSymbols = rogue
+            ? state.go?.ov_rogue_syms : state.go?.ov_primary_syms;
+        for (let index = SYM_OFF_X; index < SYM_MAX; ++index) {
+            if (index === SYM_OFF_X + SYM_INVISIBLE
+                || index === SYM_OFF_X + SYM_BOULDER)
+                continue;
+            if (!overrideSymbols?.[index]
+                || overrideSymbols[index] !== symbolByte)
+                continue;
+            if (index === SYM_OFF_X + SYM_PET_OVERRIDE && looked) {
+                const monster = m_at(cc.x, cc.y, state);
+                if (monster) {
+                    // map_glyphinfo(..., MG_FLAG_NOOVERRIDE) resolves the
+                    // stored monster glyph's real class.  Do not consult the
+                    // current species presentation: a pet may be disguised,
+                    // and the override must be removed from its stored glyph.
+                    symbolByte = monster_class_symbol(
+                        monster.data?.mlet ?? S_HUMAN,
+                        state,
+                    ).ttychar;
+                    checkMonsterClasses(symbolByte);
+                    collectObjectsAndTerrain();
+                }
+            } else if (index === SYM_OFF_X + SYM_HERO_OVERRIDE) {
+                symbolByte = monsterSymbol(S_HUMAN);
+                checkMonsterClasses(symbolByte);
+                collectObjectsAndTerrain();
+            }
         }
     }
 
-    // These checks use the displayed byte as C does, so a cmap glyph can also
-    // be reported as the default NOTHING/UNEXPLORED symbol.  They must run
-    // before the cmap loop and before lookat() refinement.
-    if (symbolByte === misc_symbol(SYM_INVISIBLE, state).ttychar) {
-        appendGeneric(invisibleGlyphDescription(state));
-    }
-    if (symbolByte === misc_symbol(SYM_NOTHING, state).ttychar) {
-        appendGeneric('the dark part of a room', false);
-    }
-    if (symbolByte === misc_symbol(SYM_UNEXPLORED, state).ttychar) {
-        appendGeneric(
-            state.u?.uinwater && !Is_waterlevel(state.u?.uz)
-                ? 'land' : 'unexplored',
-            false,
-        );
-    }
-
-    // C ref: pager.c is_swallow_sym(). A DEC graphics wall can share its
-    // active display byte with a swallow boundary; retain that generic
-    // possibility before let lookat() refine it.
-    for (let index = S_sw_tl; index <= S_sw_br; ++index) {
-        if (cmap_symbol_byte(index, state) !== symbolByte) continue;
-        out += 'the interior of a monster';
-        firstmatch = 'the interior of a monster';
-        found = 1;
-        break;
-    }
-    for (let index = 0; index < MAXPCHARS; ++index) {
-        const altIndex = index === S_lava ? S_water
-            : index === S_lavawall ? S_lava
-                : index === S_water ? S_lavawall : index;
-        const explanation = CMAP_EXPLANATIONS[altIndex];
-        if (!explanation
-            || cmap_symbol_byte(altIndex, state) !== symbolByte)
-            continue;
-        if (found >= 3
-            && altIndex >= S_vodbridge && altIndex <= S_hcdbridge)
-            continue;
-        const described = cmapDescriptionWithArticle(altIndex, explanation);
-        appendGeneric(described, false, explanation);
-        const liquid = altIndex === S_water || altIndex === S_lava
-            || altIndex === S_lavawall || altIndex === S_ice;
-        if (altIndex === S_pool || altIndex === S_altar || altIndex === S_engroom
-            || altIndex === S_engrcorr || altIndex === S_grave
-            || (altIndex >= S_arrow_trap
-                && altIndex < S_arrow_trap + MAXTCHARS)
-            || (heroHallucinating(state) && liquid)) {
-            needToLook = true;
-        }
-    }
-
-    // Warning symbols are a separate source table, and are checked after the
-    // cmap pass.  A warning may share a displayed byte with a boulder, but
-    // its text is still appended before the final refinement.
-    for (let index = 1; index < (state.gw?.warnsyms?.length ?? WARNCOUNT); ++index) {
-        const warningSymbol = state.gw?.warnsyms?.[index]
-            ?? def_warnsyms[index]?.ch?.charCodeAt(0);
-        if (warningSymbol !== symbolByte) continue;
-        appendGeneric(def_warnsyms[index]?.desc ?? 'unknown creature', false);
-        break;
-    }
-
-    if (skippedVenom && found < 2)
-        appendGeneric(OBJCLASS_EXPLANATIONS[VENOM_CLASS]);
     if (found > 4)
-        out = visibleGlyphCharacter(glyphinfo) + '        can be many things';
+        out = prefix + 'can be many things';
 
-    if (found > 1 || needToLook) {
+    let info = null;
+    if (looked && (found > 1 || needToLook)) {
+        info = lookat(cc.x, cc.y, state);
         let detail = info.buf;
         if (detail === 'ice') detail = ice_descr(cc.x, cc.y, state);
         if (detail === 'staircase down'
@@ -1565,13 +1668,26 @@ export function do_screen_description(cc, looked, sym, state = game) {
             && !ok_to_quest(state)) {
             detail = 'blocked staircase down';
         }
-        firstmatch = detail;
-        out += ' (' + detail + ')';
-        if (info.monbuf) out += ' [seen: ' + info.monbuf + ']';
+        // C keeps the previously selected first match when lookat() has no
+        // detail, then appends only when that retained value is nonempty.
+        if (detail !== '') firstmatch = detail;
+        if (firstmatch) {
+            let suffix = ` (${firstmatch}`;
+            suffix = add_quoted_engraving(
+                cc.x, cc.y, suffix, false, state,
+            ) + ')';
+            const room = BUFSZ - 1 - out.length;
+            if (room > 0) out += suffix.slice(0, room);
+        }
+        if (info.monbuf) {
+            const suffix = ` [seen: ${info.monbuf}]`;
+            const room = BUFSZ - 1 - out.length;
+            if (room > 0) out += suffix.slice(0, room);
+        }
         found = 1;
     }
     const result = { found, out, firstmatch };
-    if (info.pm) result.supplement = info.pm;
+    if (info?.pm) result.supplement = info.pm;
     return result;
 }
 
@@ -1804,8 +1920,29 @@ export async function do_look(mode, clickCc = null, state = game) {
         let answer = await getlin('Specify what? (type the word)', state);
         if (answer !== ' ') answer = mungspaces(answer);
         if (!answer || answer.startsWith('\x1b')) return ECMD_OK;
-        if (answer.length === 1)
-            throw new UnsupportedWhatisError('a typed symbol');
+        if (answer.length === 1) {
+            // pager.c treats a one-character answer as a symbol lookup and
+            // falls through to the same description/output path as a screen
+            // lookup.  It uses the default symbol tables because no glyph was
+            // selected, then performs the optional help lookup afterward.
+            const description = do_screen_description(
+                { x: 0, y: 0 }, false, answer.charCodeAt(0), state,
+            );
+            if (description.found) {
+                await ttyPutmixed(description.out, description.out[0], state);
+                if (description.found === 1 && state.flags?.help) {
+                    await checkfile(
+                        description.firstmatch,
+                        description.supplement ?? null,
+                        0,
+                        state,
+                    );
+                }
+            } else {
+                await ttyPline("I've never heard of such things.", state);
+            }
+            return ECMD_OK;
+        }
         await checkfile(
             answer, null, CHKFIL_USR_TYPED | CHKFIL_DONT_ASK, state,
         );

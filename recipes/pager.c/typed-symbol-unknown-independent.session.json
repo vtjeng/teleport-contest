@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 42061,
+      "datetime": "20000212183006",
+      "nethackrc": "OPTIONS=name:TypedSymbolA,role:Wizard,race:human,gender:male,align:neutral\nOPTIONS=!autopickup,!legacy,!tutorial,!splash_screen\nOPTIONS=pettype:none,!acoustics,symset:DECgraphics\n",
+      "moves": " /?,\n .",
+      "comment": "Independent typed-symbol lookup: comma is outside defsym.h's default table and reaches pager.c do_screen_description()'s no-match message after the startup More boundary."
+    }
+  ]
+}

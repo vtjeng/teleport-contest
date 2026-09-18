@@ -5,6 +5,7 @@ import {
     BLINDED,
     COLNO,
     COULD_SEE,
+    CORR,
     DB_WEST,
     DETECT_MONSTERS,
     DOOR,
@@ -42,6 +43,7 @@ import {
     objects_globals_init,
 } from '../js/objects.js';
 import { parseNethackrc } from '../js/options.js';
+import { initRng } from '../js/rng.js';
 import {
     M1_FLY,
     MZ_HUGE,
@@ -59,6 +61,14 @@ import {
     sensesMonster,
     sensesMonsterWithoutDetection,
 } from '../js/startup_a11y.js';
+import { cmap_to_glyph, monster_glyph_info } from '../js/display.js';
+import {
+    S_corr,
+    S_ndoor,
+    S_room,
+    S_sink,
+    S_stone,
+} from '../js/symbols.js';
 
 // Keep the hero away from map edges so room flood-fill and coordinate
 // descriptions can be exercised without boundary effects.
@@ -90,7 +100,14 @@ function startupState(ux = 13, uy = 6) {
 
 function reveal(state, x, y) {
     state.viz_array[y][x] = IN_SIGHT;
-    state.level.at(x, y).remembered_glyph = { ch: '.' };
+    const location = state.level.at(x, y);
+    location.remembered_glyph = { ch: '.' };
+    const cmap = location.typ === ROOM ? S_room
+        : location.typ === DOOR ? S_ndoor
+            : location.typ === CORR ? S_corr
+                : location.typ === SINK ? S_sink : S_stone;
+    const glyph = cmap_to_glyph(cmap, state);
+    if (Number.isInteger(glyph)) location.disp_glyph = { glyph };
 }
 
 test('monster sensing shares swallowed and underwater display gates', () => {
@@ -183,6 +200,7 @@ test('dolookaround describes the room then scans interesting glyphs by row', () 
 
     // These positions force y-major ordering: sink, northwest pet, broken door.
     state.level.at(11, 5).typ = SINK;
+    reveal(state, 11, 5);
     state.level.at(9, 6).typ = DOOR;
     state.level.at(9, 6).flags = D_BROKEN;
     reveal(state, 9, 6);
@@ -196,7 +214,10 @@ test('dolookaround describes the room then scans interesting glyphs by row', () 
         mpeaceful: true,
         m_ap_type: 0,
     };
+    monst_globals_init(state);
+    pet.data = { ...state.mons[PM_GHOST], ...pet.data };
     state.level.monsters[12][5] = pet;
+    state.level.at(12, 5).disp_glyph = monster_glyph_info(pet, state);
 
     assert.deepEqual(collectLookaroundMessages(state), [
         'You are in a rectangular 7 by 3 room.',
@@ -591,7 +612,10 @@ test('monster descriptions format a named ghost as a possessive ghost', () => {
 
 test('lookaround treats an adjacent object mimic as seen up close', () => {
     const state = startupState(20, 10);
+    state.context = { ident: 1 };
+    initRng(1);
     objects_globals_init(state);
+    monst_globals_init(state);
     // Always choosing the first shuffle slot initializes a deterministic
     // catalog; chest is fixed-name, so the choice does not affect its label.
     init_objects(state, () => 0);
@@ -602,6 +626,7 @@ test('lookaround treats an adjacent object mimic as seen up close', () => {
     state.level.at(x, y).typ = ROOM;
     reveal(state, x, y);
     state.level.monsters[x][y] = {
+        data: state.mons[PM_GHOST],
         m_ap_type: M_AP_OBJECT,
         mappearance: CHEST,
         minvis: false,
@@ -609,10 +634,28 @@ test('lookaround treats an adjacent object mimic as seen up close', () => {
         mx: x,
         my: y,
     };
+    state.level.at(x, y).disp_glyph = monster_glyph_info(
+        state.level.monsters[x][y], state,
+    );
 
     assert.equal(
         _startupA11yInternals.visibleSubjectAt(x, y, state),
         'a chest',
+    );
+});
+
+test('lookaround uses the canonical pager for displayed terrain', () => {
+    const state = startupState();
+    const x = state.u.ux + 1;
+    const y = state.u.uy;
+    const location = state.level.at(x, y);
+    location.typ = SINK;
+    reveal(state, x, y);
+    location.disp_glyph = { glyph: cmap_to_glyph(S_sink, state) };
+
+    assert.equal(
+        _startupA11yInternals.visibleSubjectAt(x, y, state),
+        'sink',
     );
 });
 
