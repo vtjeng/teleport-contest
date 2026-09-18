@@ -68371,8 +68371,8 @@
           "name": "mcast_summon_mons",
           "line": 421,
           "endLine": 449,
-          "declared": false,
-          "complete": false
+          "declared": true,
+          "complete": true
         }
       ],
       "range": {
@@ -68468,7 +68468,70 @@
             }
           }
         }
-      ]
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "mcast_summon_mons",
+            "implementation": "js/mcastu.js",
+            "symbol": "mcast_summon_mons",
+            "sourceReview": "Read whole mcastu.c mcast_summon_mons421-447: this void function consumes the wizard.c nasty census delta, selects Wizard verbalize or invisible/displaced/ordinary feedback, and lets mcast_spell discard its result. Read the required wizard.c nasty591-711 owner in full: source-ordered rn2(10), canonical msummon on the Hell branch, outer and inner limits, selection retry and exclusions, enexto around mux/muy, direct and null-species creation, hostility and malign, substitute rejection, difficulty cap, rnd(4), and final census delta. JS uses the canonical runtime creation owner and clone-local output/state. No recipe verifies the supporting Hell or harassment entries.",
+            "callers": [
+              {
+                "path": "js/mcastu.js",
+                "symbol": "mcast_spell",
+                "source": "mcastu.c:mcast_spell MCAST_SUMMON_MONS calls mcast_summon_mons and discards its void result"
+              },
+              {
+                "path": "js/mcastu.js",
+                "symbol": "castmu",
+                "source": "mcastu.c:castmu reaches mcast_spell for AD_SPEL/AD_CLRC"
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/mcastu.test.mjs"
+            ],
+            "recordings": [
+              "recordings/mcastu.c/summon-mons-nasty-runtime-independent.session.json"
+            ],
+            "checkedAt": "ec9fd6a9c683772f27a414748233fa2a8da2899b"
+          }
+        ],
+        "entryPointReview": "Production mhitu.c mattacku calls mcastu.c castmu, then mcast_spell MCAST_SUMMON_MONS calls mcast_summon_mons and its return-valued wizard.c nasty dependency. In the primary independent recording, C step41 executes nasty rn2(10)=7 and rnd(1)=1, pick_nasty rn2(44)=33, makemon/newmonhp/inventory draws and nasty rnd(4)=1, then completes the ordinary appearance message without a More prompt. Strict comparison passes all 42 screens/cursors and 3408 RNG calls. This is ordinary nasty creation, not a Hell msummon witness. A seed940030 variation reaches a different C selection but is blocked by the earlier tactics divergence and is not completion evidence. Wizard speech, invisible/displaced feedback, and the Hell branch remain unrecorded.",
+        "entryPoints": [
+          {
+            "name": "Ordinary appearance feedback from an AD_SPEL caster",
+            "functions": [
+              "mcast_summon_mons"
+            ],
+            "recordings": [
+              "recordings/mcastu.c/summon-mons-nasty-runtime-independent.session.json"
+            ]
+          },
+          {
+            "name": "Wizard of Yendor summon speech",
+            "functions": [
+              "mcast_summon_mons"
+            ],
+            "recordings": []
+          },
+          {
+            "name": "Invisible hero and displaced-image summon feedback",
+            "functions": [
+              "mcast_summon_mons"
+            ],
+            "recordings": []
+          },
+          {
+            "name": "Gehennom summons through the nasty msummon branch",
+            "functions": [
+              "mcast_summon_mons"
+            ],
+            "recordings": []
+          }
+        ]
+      }
     }
   ]
 }
