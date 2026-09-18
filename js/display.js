@@ -1865,15 +1865,9 @@ export const MG_FLAG_NOOVERRIDE = 0x01;
  * same pet with 'hilite_pet' off falls through to the inverse arm and takes
  * ATR_INVERSE from 'wizmgender'.
  *
- * Every caller supplies the glyphflags reset_glyphmap()'s arm for its glyph
- * raises. map_glyphinfo() derives them from a stored glyph number; the monster
- * and hero presentations derive them from the live monster instead, because
- * this port numbers no monster range and needs none. C's own comment at
- * detect.c:2205-2209 states the rule its writers keep: levl[x][y].glyph never
- * holds a monster, only the invisible-monster constant map_invisible()
- * (display.c:382) stores in its place. So a repaint has to re-derive every
- * monster cell whatever the port does, and docrt_flags() (display.c:1709) is
- * where C does it, by re-running newsym() over the level.
+ * Every caller supplies reset_glyphmap()'s flags for its glyph family.
+ * map_glyphinfo() derives them from the stored glyph; the live monster and
+ * hero presentation helpers derive them while selecting that glyph.
  */
 function print_glyph_attr(glyphflags, state) {
     if ((glyphflags & MG_PET) && state.iflags?.wc_hilite_pet)
@@ -1892,8 +1886,8 @@ function print_glyph_attr(glyphflags, state) {
 // C ref: display.h mon_to_glyph() (554-556) and its four siblings, each of
 // which picks the male or female half of its glyph range from mon->female,
 // and display.c reset_glyphmap()'s six monster arms (2986-3065), which turn
-// that choice back into MG_MALE or MG_FEMALE. The two are a round trip, so a
-// port that stores no monster glyph number reads mon->female directly.
+// that choice back into MG_MALE or MG_FEMALE. Live presentation helpers read
+// the same gender value while selecting the glyph number.
 function monsterGenderFlag(female) {
     return female ? MG_FEMALE : MG_MALE;
 }
@@ -1993,12 +1987,11 @@ function configuredPetOverride(state) {
  *
  * C needs no guard here: reset_glyphmap() walks the whole enum and every
  * number lands in some arm. This port resolves a subset, so the guard names
- * that subset -- see mapGlyphinfoResolves() below. C's chain is a single
+ * that subset -- see mapGlyphinfoResolves() above. C's chain is a single
  * descending run and the two families interleave within it: the eight object
  * arms straddle the cmap arms, with GLYPH_OBJ_OFF (2968) and GLYPH_BODY_OFF
- * (3004) below every one of them. The arms C has in between -- warning,
- * explosion and swallow -- have no ported producer, and the guard's bounds
- * stand in for the ones they would otherwise have supplied.
+ * (3004) below every one of them. Monster families are resolved separately
+ * before the remaining descending range checks.
  *
  * The optional coordinate/flag arguments below cover map_glyphinfo()'s
  * coordinate-dependent hero and accessibility overrides. The remaining
@@ -2198,9 +2191,9 @@ export function map_glyphinfo(glyph, state = game, options = undefined) {
         glyphflags = MG_CORPSE;
     } else {
         // display.c:3029-3035, the GLYPH_INVIS_OFF arm. It sits below every
-        // object and cmap arm in C's descending chain and above the pet arms,
-        // which have no port, so the guard above leaves it the only glyph that
-        // reaches here. invis_color() is `color = NO_COLOR` (display.c:2687),
+        // object and cmap arm in C's descending chain and above the pet arms.
+        // The monster arm and guard leave it the only glyph reaching here.
+        // invis_color() is `color = NO_COLOR` (display.c:2687),
         // one of the two arms whose colour never varies.
         symbol = misc_symbol(SYM_INVISIBLE, state);
         color = NO_COLOR;
@@ -2397,9 +2390,8 @@ function withObjectAccessibility(glyph, obj, state) {
 // this returns the resolved presentation, because both consumers take one --
 // show_glyph_cell(), the port's glyph buffer, and tmp_at()'s frame stack in
 // js/zap.js. The number is still there, non-enumerable, on every presentation
-// map_glyphinfo() resolves. The hallucinating arms are the reason this cannot
-// simply be map_glyphinfo(number): a hallucinated statue's number is in the
-// monster ranges, which map_glyphinfo() does not resolve.
+// helper resolves. Hallucinated glyph selection happens before resolution
+// so the required display RNG draws are retained.
 export function obj_to_glyph(obj, state = game, displayRandom = undefined) {
     if (obj.otyp === STATUE) {
         return heroHallucinating(state)
