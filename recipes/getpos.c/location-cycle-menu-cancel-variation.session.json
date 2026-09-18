@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 842739,
+      "datetime": "20370409111213",
+      "nethackrc": "OPTIONS=name:MenuCycleCancel,role:Wizard,race:human,gender:male,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen,!tips,!autopickup,pettype:none,playmode:debug,whatis_menu\n",
+      "moves": " \u0014  D\u001b."
+    }
+  ],
+  "comment": "Cheap getpos.c menu variation: a distinct Wizard setup enters the same whatis_menu door list, cancels it with Escape so the cursor remains unchanged, then completes the original target. This covers the false return path of getpos_menu alongside the independent selection witness."
+}

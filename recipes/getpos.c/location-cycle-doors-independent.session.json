@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 731901,
+      "datetime": "20360405060708",
+      "nethackrc": "OPTIONS=name:CycleProbe,role:Wizard,race:human,gender:female,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen,!tips,!autopickup,pettype:none,playmode:debug\n",
+      "moves": " \u0014  D."
+    }
+  ],
+  "comment": "Independent getpos.c location-cycle recipe: enter wizard teleport targeting on a fresh D:1 map, press the configured previous-door key D, and pick the selected location. This exercises lazy door gathering, distance ordering, and reverse wrap without using a fixed-workload input."
+}

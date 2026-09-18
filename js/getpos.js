@@ -6,20 +6,32 @@ import {
     MAXTCHARS,
     COLNO,
     GFILTER_NONE,
+    GFILTER_VIEW,
+    GFILTER_AREA,
+    GPCOORDS_NONE,
+    GPCOORDS_MAP,
+    GPCOORDS_COMPASS,
+    GPCOORDS_COMFULL,
+    GPCOORDS_SCREEN,
     GLOC_DOOR,
     GLOC_EXPLORE,
     GLOC_INTERESTING,
     GLOC_MONS,
     GLOC_OBJS,
+    GLOC_VALID,
+    NUM_GLOCS,
     MV_RUN,
     MV_RUSH,
     MV_WALK,
     NHW_MAP,
+    PICK_ONE,
     LOOK_ONCE,
     LOOK_QUICK,
     LOOK_TRADITIONAL,
     LOOK_VERBOSE,
     ROWNO,
+    IS_DOOR,
+    isok,
     TER_DETECT,
     TER_MAP,
     TER_MON,
@@ -39,10 +51,15 @@ import {
     flush_screen,
     glyph_at,
     glyph_is_cmap,
+    glyph_is_monster,
+    glyph_is_object,
+    glyph_to_obj,
     glyph_to_cmap,
     newsym,
 } from './display.js';
 import {
+    GLYPH_MON_MALE_OFF,
+    GLYPH_MON_FEM_OFF,
     GLYPH_NOTHING_OFF,
     GLYPH_UNEXPLORED_OFF,
 } from './glyph_offsets.js';
@@ -50,7 +67,11 @@ import { game } from './gstate.js';
 import { handle_tip, is_valid_travelpt } from './hack.js';
 import { visctrl } from './hacklib.js';
 import { nhgetch } from './input.js';
+import { an } from './objnam.js';
 import { do_screen_description } from './pager.js';
+import { cansee } from './vision.js';
+import { BOULDER, ROCK } from './objects.js';
+import { PM_LONG_WORM_TAIL } from './monsters.js';
 import {
     cmap_symbol_byte,
     MAXPCHARS,
@@ -74,13 +95,14 @@ import {
     S_pool,
     S_room,
     S_stone,
+    S_upstair,
+    S_fountain,
     S_tree,
     S_trwall,
     S_vcdbridge,
     S_vcdoor,
     S_vodbridge,
     S_vodoor,
-    S_vwall,
     S_water,
 } from './symbols.js';
 import { DEFAULT_PRIMARY_SYMBOLS, SYM_OFF_P } from './symbol_data.js';
@@ -88,6 +110,7 @@ import { clearTtyMessageWindow, ttyPline } from './tty_message.js';
 import { displayTtyMenuTextWindow } from './tty_menu.js';
 import { Invocation_lev } from './dungeon.js';
 import { tty_create_nhwindow, tty_curs } from './wintty.js';
+import { select_menu } from './windows.js';
 
 // C ref: getpos.c dxdy_to_dist_descr() (557-590).  This is shared by the
 // status window's held-by-monster line and the farlook helpers; keep the
@@ -234,6 +257,34 @@ function pickResultForKey(key, state) {
     for (const [command, result] of PICK_CHAR_RESULTS) {
         if (state.commandBindings.specialKeys?.[command] === key)
             return result;
+    }
+    return null;
+}
+
+// C ref: getpos.c mMoOdDxX_def[] (781-795). Keep the source order because
+// each pair's index selects one GLOC_* family and its case controls forward
+// versus reverse cycling.
+const LOCATION_CYCLE_KEYS = Object.freeze([
+    ['getpos.mon.next', GLOC_MONS, false],
+    ['getpos.mon.prev', GLOC_MONS, true],
+    ['getpos.obj.next', GLOC_OBJS, false],
+    ['getpos.obj.prev', GLOC_OBJS, true],
+    ['getpos.door.next', GLOC_DOOR, false],
+    ['getpos.door.prev', GLOC_DOOR, true],
+    ['getpos.unexplored.next', GLOC_EXPLORE, false],
+    ['getpos.unexplored.prev', GLOC_EXPLORE, true],
+    ['getpos.all.next', GLOC_INTERESTING, false],
+    ['getpos.all.prev', GLOC_INTERESTING, true],
+    ['getpos.valid.next', GLOC_VALID, false],
+    ['getpos.valid.prev', GLOC_VALID, true],
+]);
+
+function locationCycleForKey(key, state) {
+    state.commandBindings ??= createCommandBindingModel(state);
+    for (let index = 0; index < LOCATION_CYCLE_KEYS.length; ++index) {
+        const [name, gloc, reverse] = LOCATION_CYCLE_KEYS[index];
+        if (state.commandBindings.specialKeys?.[name] === key)
+            return { index, gloc, reverse };
     }
     return null;
 }
@@ -490,6 +541,119 @@ export function known_vibrating_square_at(x, y, state) {
     ));
 }
 
+// C ref: getpos.c cmp_coord_distu() (312-330). qsort() uses the hero's
+// current square as the primary key, then source y/x order as tie breakers.
+// The helper is pure; callers pass the state explicitly so planned maps do
+// not accidentally sort against the live hero.
+export function cmp_coord_distu(a, b, state = game) {
+    const distance = (coord) => Math.max(
+        Math.abs((state.u?.ux ?? 0) - coord.x),
+        Math.abs((state.u?.uy ?? 0) - coord.y),
+    );
+    const first = distance(a);
+    const second = distance(b);
+    if (first === second)
+        return a.y !== b.y ? a.y - b.y : a.x - b.x;
+    return first - second;
+}
+
+// C ref: getpos.c gloc_filter_classify_glyph() (343-360). This classifies
+// the terrain family used by the same-area flood fill; matching families are
+// traversable even when their exact glyph differs by wall angle or lighting.
+export function gloc_filter_classify_glyph(glyph) {
+    if (!glyph_is_cmap(glyph)) return 0;
+    const sym = glyph_to_cmap(glyph);
+    if ((sym >= S_room && sym <= S_darkroom)
+        || (sym >= S_upstair && sym <= S_fountain)) return 1;
+    if (sym >= S_stone && sym <= S_trwall || sym === S_tree) return 2;
+    if (sym >= S_corr && sym <= S_litcorr) return 3;
+    if (sym === S_pool || sym === S_water) return 4;
+    if (sym === S_lava || sym === S_lavawall) return 5;
+    return 0;
+}
+
+// C ref: getpos.c gloc_filter_floodfill_matcharea() (363-379). The
+// selection callback reads remembered terrain and seen state, not the
+// transient displayed glyph. `filterMap` is the JS selection equivalent.
+export function gloc_filter_floodfill_matcharea(x, y, state = game) {
+    if (!isok(x, y)) return false;
+    const location = state.level?.at(x, y);
+    if (!location?.seenv) return false;
+    const glyph = back_to_glyph(x, y, state);
+    // C's gg.gloc_filter_floodfill_match_glyph is temporary state shared by
+    // selection_floodfill's callback. Keep the same lifetime under gg rather
+    // than making a second permanent filter object.
+    const matchGlyph = state.gg?.gloc_filter_floodfill_match_glyph;
+    return glyph === matchGlyph
+        || gloc_filter_classify_glyph(glyph)
+            === gloc_filter_classify_glyph(matchGlyph);
+}
+
+// C ref: getpos.c gloc_filter_floodfill() (382-390). selection_floodfill()
+// uses cardinal neighbors when diagonals is FALSE.
+export function gloc_filter_floodfill(x, y, state = game) {
+    state.gg ??= {};
+    // C's selection_floodfill() always records its valid starting point;
+    // matcharea is consulted only for the cardinal neighbors it enqueues.
+    state.gg.gloc_filter_map ??= new Set();
+    state.gg.gloc_filter_floodfill_match_glyph = back_to_glyph(x, y, state);
+    const queue = [{ x, y }];
+    const seen = new Set();
+    while (queue.length) {
+        const point = queue.shift();
+        const key = `${point.x},${point.y}`;
+        if (seen.has(key)) continue;
+        seen.add(key);
+        if (!isok(point.x, point.y))
+            continue;
+        const isStart = point.x === x && point.y === y;
+        if (isStart || gloc_filter_floodfill_matcharea(point.x, point.y, state)) {
+            state.gg.gloc_filter_map.add(key);
+            for (const [dx, dy] of [[-1, 0], [1, 0], [0, -1], [0, 1]])
+                queue.push({ x: point.x + dx, y: point.y + dy });
+        }
+    }
+}
+
+// C ref: getpos.c gloc_filter_init() (393-414). Area filtering starts on the
+// side of a doorway indicated by the hero's direction; a doorway without a
+// direction leaves the allocated selection empty, exactly as C does.
+export function gloc_filter_init(state = game) {
+    state.gg ??= {};
+    if (state.iflags?.getloc_filter !== GFILTER_AREA) return;
+    // C reuses an existing selection object and leaves all filter state
+    // untouched for non-area filters.  In particular, init does not own the
+    // match glyph; gloc_filter_floodfill replaces it when it actually runs.
+    state.gg.gloc_filter_map ??= new Set();
+    const here = state.level?.at(state.u?.ux, state.u?.uy);
+    if (here && IS_DOOR(here.typ)) {
+        const dx = state.u?.dx ?? 0;
+        const dy = state.u?.dy ?? 0;
+        if (dx || dy) {
+            const x = state.u.ux + dx;
+            const y = state.u.uy + dy;
+            if (isok(x, y)) gloc_filter_floodfill(x, y, state);
+        }
+    } else if (isok(state.u?.ux, state.u?.uy)) {
+        gloc_filter_floodfill(state.u.ux, state.u.uy, state);
+    }
+}
+
+// C ref: getpos.c gloc_filter_done() (417-425). The selection map is
+// temporary for one gather operation; C deliberately leaves the flood-fill
+// match glyph alone because it is separate gg state.
+export function gloc_filter_done(state = game) {
+    if (state.gg?.gloc_filter_map) {
+        // C selection_free(..., TRUE) releases the temporary selection after
+        // every gather pass; dropping the JS Set mirrors that lifetime.
+        state.gg.gloc_filter_map = null;
+    }
+}
+
+function sameArea(x, y, state) {
+    return state.gg?.gloc_filter_map?.has(`${x},${y}`) ?? false;
+}
+
 // C ref: getpos.c gather_locs_interesting() (438-508), GLOC_INTERESTING.
 // Keep the interest filter beside the getpos owner: callers must inspect the
 // stored glyph without naming terrain, since waterbody_name() can consume
@@ -497,17 +661,54 @@ export function known_vibrating_square_at(x, y, state) {
 export function gather_locs_interesting(
     x, y, gloc = GLOC_INTERESTING, state = game,
 ) {
+    if (state.iflags?.getloc_filter === GFILTER_VIEW && !cansee(x, y, state))
+        return false;
+    if (state.iflags?.getloc_filter === GFILTER_AREA
+        && !sameArea(x, y, state)
+        && !sameArea(x - 1, y, state)
+        && !sameArea(x, y - 1, state)
+        && !sameArea(x + 1, y, state)
+        && !sameArea(x, y + 1, state)) return false;
+
     const glyph = glyph_at(x, y, state);
     const sym = glyph_is_cmap(glyph) ? glyph_to_cmap(glyph) : -1;
     const isDoor = [
         S_ndoor, S_vodoor, S_hodoor, S_vcdoor, S_hcdoor,
         S_vodbridge, S_hodbridge, S_vcdbridge, S_hcdbridge,
     ].includes(sym);
+    if (gloc === GLOC_MONS) {
+        const normalMaleTail = GLYPH_MON_MALE_OFF + PM_LONG_WORM_TAIL;
+        const normalFemaleTail = GLYPH_MON_FEM_OFF + PM_LONG_WORM_TAIL;
+        return glyph_is_monster(glyph)
+            && glyph !== normalMaleTail && glyph !== normalFemaleTail;
+    }
+    if (gloc === GLOC_OBJS) {
+        return glyph_is_object(glyph)
+            && glyph_to_obj(glyph) !== BOULDER
+            && glyph_to_obj(glyph) !== ROCK;
+    }
     if (gloc === GLOC_DOOR) return isDoor;
-    if (gloc !== GLOC_INTERESTING) return false;
+    if (gloc === GLOC_EXPLORE) {
+        if (!glyph_is_cmap(glyph) || glyph === GLYPH_NOTHING_OFF)
+            return false;
+        if (!(isDoor
+            || (sym >= S_room && sym <= S_darkroom)
+            || (sym >= S_corr && sym <= S_litcorr))) return false;
+        return [
+            [x + 1, y], [x - 1, y], [x, y + 1], [x, y - 1],
+        ].some(([nx, ny]) => {
+            if (!isok(nx, ny)) return false;
+            const neighbor = state.level?.at(nx, ny);
+            return glyph_at(nx, ny, state) === GLYPH_UNEXPLORED_OFF
+                && !neighbor?.seenv;
+        });
+    }
+    if (gloc === GLOC_VALID && state.getpos_getvalid)
+        return state.getpos_getvalid(x, y, state);
+    if (gloc !== GLOC_INTERESTING && gloc !== GLOC_VALID) return false;
     const excluded = glyph_is_cmap(glyph)
         && (
-            (sym >= S_vwall && sym <= S_trwall)
+            (sym >= S_stone && sym <= S_trwall)
             || [
                 S_tree, S_bars, S_ice, S_air, S_cloud, S_lava, S_lavawall,
                 S_water, S_pool, S_ndoor, S_room, S_darkroom, S_corr, S_litcorr,
@@ -516,7 +717,105 @@ export function gather_locs_interesting(
     return isDoor
         || ((!excluded && glyph !== GLYPH_NOTHING_OFF
             && glyph !== GLYPH_UNEXPLORED_OFF)
-            || known_vibrating_square_at(x, y, state));
+        || known_vibrating_square_at(x, y, state));
+}
+
+// C ref: getpos.c gather_locs() (513-553). The two-pass allocation is
+// preserved as a count pass followed by a fill pass; qsort's comparator is
+// the source-owned cmp_coord_distu above. The valid-position callback is
+// asynchronous in the JS jump owner, so this helper is async while all
+// ordinary filters retain their synchronous source contract.
+export async function gather_locs(gloc, state = game) {
+    gloc_filter_init(state);
+    try {
+        let count = 0;
+        for (let x = 1; x < COLNO; ++x) {
+            for (let y = 0; y < ROWNO; ++y) {
+                const matchesHero = x === state.u?.ux && y === state.u?.uy;
+                const interesting = matchesHero ? false
+                    : await gather_locs_interesting(x, y, gloc, state);
+                if (matchesHero || interesting) ++count;
+            }
+        }
+        const locations = new Array(count);
+        let index = 0;
+        for (let x = 1; x < COLNO; ++x) {
+            for (let y = 0; y < ROWNO; ++y) {
+                const matchesHero = x === state.u?.ux && y === state.u?.uy;
+                const interesting = matchesHero ? false
+                    : await gather_locs_interesting(x, y, gloc, state);
+                if (matchesHero || interesting)
+                    locations[index++] = { x, y };
+            }
+        }
+        locations.sort((a, b) => cmp_coord_distu(a, b, state));
+        return locations;
+    } finally {
+        gloc_filter_done(state);
+    }
+}
+
+// C ref: getpos.c coord_desc() (595-645).  getpos_menu() is a return-valued
+// caller of this formatter, so keep the coordinate modes beside its owner
+// instead of silently dropping configured map/screen coordinates.
+export function coord_desc(x, y, state) {
+    const mode = state.iflags?.getpos_coords ?? GPCOORDS_NONE;
+    if (mode === GPCOORDS_COMPASS || mode === GPCOORDS_COMFULL) {
+        const full = mode === GPCOORDS_COMFULL;
+        return `(${dxdy_to_dist_descr(
+            x - (state.u?.ux ?? 0), y - (state.u?.uy ?? 0), full,
+        )})`;
+    }
+    if (mode === GPCOORDS_MAP) return `<${x},${y}>`;
+    if (mode === GPCOORDS_SCREEN)
+        return `[${String(y + 2).padStart(2, '0')},${String(x).padStart(2, '0')}]`;
+    return '';
+}
+
+// C ref: getpos.c getpos_menu() (665-725).  The menu is a real
+// return-valued dependency of getpos(): a cancelled menu leaves the cursor
+// untouched, while a selected item writes its coordinate through ccp.
+export async function getpos_menu(ccp, gloc, state = game) {
+    const locations = await gather_locs(gloc, state);
+    if (locations.length < 2) {
+        await ttyPline(
+            `You cannot ${state.iflags?.getloc_filter === GFILTER_VIEW
+                ? 'see' : 'detect'} ${GLOC_DESCR[gloc]?.[0] ?? 'that'}.`,
+            state,
+        );
+        return false;
+    }
+
+    const items = [];
+    for (let index = 1; index < locations.length; ++index) {
+        const point = locations[index];
+        const description = do_screen_description(point, true, 0, state);
+        if (!description?.found) continue;
+        const coordinate = coord_desc(point.x, point.y, state);
+        items.push({
+            label: `${description.firstmatch ?? 'unknown'}${coordinate
+                ? ` ${coordinate}` : ''}`,
+            value: index,
+        });
+    }
+
+    const filter = GLOC_FILTERTXT[state.iflags?.getloc_filter ?? GFILTER_NONE]
+        ?? '';
+    const travel = state.iflags?.getloc_travelmode
+        ? ' for travel destination' : '';
+    const selected = await select_menu(state, {
+        title: `Pick ${an(GLOC_DESCR[gloc]?.[1] ?? 'location')}${filter}${travel}`,
+        items,
+        how: PICK_ONE,
+        cancelValue: null,
+        overlay: state.iflags?.menu_overlay !== false,
+    });
+    if (selected === null || selected === undefined) return false;
+    const point = locations[Number(selected)];
+    if (!point) return false;
+    ccp.x = point.x;
+    ccp.y = point.y;
+    return true;
 }
 
 // C ref: getpos.c getpos() feature-symbol matching (1039-1064). C builds a
@@ -611,6 +910,10 @@ export async function getpos(ccp, force, goal, state = game) {
     // Build the active special-key table before reading input, matching C's
     // pick_chars derivation immediately before the prompt starts.
     state.commandBindings ??= createCommandBindingModel(state);
+    // C keeps one lazily allocated coordinate array and index per GLOC family
+    // for the duration of this getpos() invocation.
+    const garr = Array(NUM_GLOCS).fill(null);
+    const gidx = Array(NUM_GLOCS).fill(0);
 
     if (state.flags.verbose)
         await ttyPline("(For instructions type a '?')", state);
@@ -732,6 +1035,42 @@ export async function getpos(ccp, force, goal, state = game) {
                 state.gg.getposx = cx;
                 state.gg.getposy = cy;
                 cursorAt(cx, cy, state);
+                continue;
+            }
+            const cycle = locationCycleForKey(key, state);
+            if (cycle) {
+                if (state.iflags?.getloc_usemenu) {
+                    const menuPoint = { x: cx, y: cy };
+                    if (await getpos_menu(menuPoint, cycle.gloc, state)) {
+                        cx = menuPoint.x;
+                        cy = menuPoint.y;
+                        messageGiven = false;
+                    }
+                    state.gg.getposx = cx;
+                    state.gg.getposy = cy;
+                    cursorAt(cx, cy, state);
+                    await flush_screen(0);
+                    continue;
+                }
+                if (!garr[cycle.gloc]) {
+                    garr[cycle.gloc] = await gather_locs(cycle.gloc, state);
+                    gidx[cycle.gloc] = 0;
+                }
+                const locations = garr[cycle.gloc];
+                if (locations.length) {
+                    if (cycle.reverse) {
+                        gidx[cycle.gloc] = (gidx[cycle.gloc] - 1
+                            + locations.length) % locations.length;
+                    } else {
+                        gidx[cycle.gloc] = (gidx[cycle.gloc] + 1)
+                            % locations.length;
+                    }
+                    ({ x: cx, y: cy } = locations[gidx[cycle.gloc]]);
+                    state.gg.getposx = cx;
+                    state.gg.getposy = cy;
+                    cursorAt(cx, cy, state);
+                    await flush_screen(0);
+                }
                 continue;
             }
             // C ref: getpos.c:1039-1116. A non-quitchar can select the next

@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 842731,
+      "datetime": "20370408101112",
+      "nethackrc": "OPTIONS=name:MenuCycleProbe,role:Valkyrie,race:dwarf,gender:female,align:lawful\nOPTIONS=!legacy,!tutorial,!splash_screen,!tips,!autopickup,pettype:none,playmode:debug,whatis_menu\n",
+      "moves": " \u0014  Da."
+    }
+  ],
+  "comment": "Independent getpos.c menu witness: a fresh debug Valkyrie enables whatis_menu, enters wizard teleport targeting, chooses the first displayed door with the automatically assigned menu accelerator a, and completes the target. This exercises getpos_menu's PICK_ONE selection and coordinate write rather than the letter-key cycle."
+}
