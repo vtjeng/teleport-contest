@@ -2,7 +2,7 @@
   "session": "holdout/seed4500-knight-coverage",
   "remainingScreensUpperBound": 121,
   "status": "complete",
-  "commit": "8085b0f35e59023ace7dec771cd99239e16bb906",
+  "commit": "8b64276a9a90335227044319f7f04d4b89208581",
   "mismatch": {
     "session": "holdout/seed4500-knight-coverage",
     "step": 1693,
@@ -18,7 +18,7 @@
     "recordedSteps": 1814,
     "remainingScreensUpperBound": 121
   },
-  "summary": "Blind quick-glance admission now proceeds past1685. The first remaining mismatch at1693 is a blank stone description: C counts ghost, dark-room, unexplored, stone and air meanings and reports can be many things (stone), while the partial JavaScript function only counts stone and air. Complete do_screen_description in source order. Independent selected-location probes also expose a missing !quick condition before the encyclopedia prompt; a later continuation reaches unported wizard help.",
+  "summary": "The first remaining mismatch at step 1693 is still the blank stone description: C counts five distinct symbol meanings and reports can be many things (stone), while the partial JavaScript function only counts stone and air. Complete do_screen_description in source order. The separate quick-lookup encyclopedia prompt is fixed and both independent selected-location recordings now match; the later wizard-help port remains open.",
   "source": {
     "file": "pager.c",
     "functions": [
@@ -39,8 +39,8 @@
       "Separate unresolved coverage: make_stoned/minstapetrify/do_stone_mon stoning gaps; unrecorded hero/monster stoning directions, corpse-weapon entry and attack-triggered stone-golem conversion; passive cold/fire/electricity/paralysis and lethal/recovery families; eating/non-food cleanup; skinback artifact-light radius and rare armor/Eyes-of-the-Overworld cleanup.",
       "The whole read.c cant_revive/create_particular_parse/create_particular_creation/create_particular family is now implemented. Sleeping and peaceful creation have independent matching recordings. Hidden-attacker witnesses still need eligible placement on objects or water where required, actual hidden state and an executed hitmu; plain or qualified creation alone does not establish the hit entry.",
       "Hidden and invisible creation now await complete mon.c flash_mon and display.c flash_glyph_at. The helper uses ordinary mon_to_glyph, preserves display RNG and temporary vision, and isolates planning clones from live painting. Independent hidden-trapper and invisible-newt recordings match 18 screens and 16 animation frames each; monster-reading and detection entries remain unrecorded.",
-      "Independent blind selected-location probes expose a second do_look defect: C pager.c1941-1943 excludes quick mode from the flags.help encyclopedia question, but JavaScript checks help without !quick. The extra More comes from checkfile -> tty_yn_function -> writePendingTtyMessagePrompt, not from a universally nonstopping putmixed contract. A separate moved-cursor text mismatch remains a distinct description investigation.",
-      "The later wizard help boundary belongs to pager.c dohelp2860-2898 and dispfile_debughelp. JavaScript refuses wizard mode and hideusage before menu creation. Complete the menu filtering and dispatch from C, retain source-table identifiers after filtering, and generate dat/wizhelp through the existing help-data generator and freshness check. PORT_HELP must follow the recorder build configuration."
+      "The later wizard help boundary belongs to pager.c dohelp2860-2898 and dispfile_debughelp. JavaScript refuses wizard mode and hideusage before menu creation. Complete the menu filtering and dispatch from C, retain source-table identifiers after filtering, and generate dat/wizhelp through the existing help-data generator and freshness check. PORT_HELP must follow the recorder build configuration.",
+      "The missing !quick condition before checkfile is corrected. Quick dot selection now bypasses the encyclopedia question, while ordinary selected-location lookup still reaches it. Independent Wizard human and Wizard elf blind-description recordings each match five screens and cursors; the display description port remains a separate source gap."
     ]
   },
   "goalKind": "file-port",
@@ -50,9 +50,10 @@
     "The existing marilith and yellow-mold production recordings contain hitmu RNG calls and cover ordinary hit resolution. The abandoned plain-eel probes contained no hitmu or mattacku calls; retained hidden/hostile recipes are planned inputs and establish no entry coverage yet.",
     "Supporting potion.c split_mon, mhitu.c cloneu and makemon.c clone_mon now own splitting, runtime clone creation, planning RNG, shopkeeper naming and the C struct-copy fields including mw, EMIN.parentmid and the EDOG goal coordinate. mhitu passiveum, trap rust effects and uhitm pudding splitting use the canonical helpers. Initialized focused checks establish runtime creation and planning isolation; no new liquid-branch production recording is claimed.",
     "Existing achievement display recordings cover Bell and Candelabrum rows; final disclosure, ascension, relinquished-object wording and female-rank production routes remain open. The liquid functions have ordinary movement caller evidence in bee-eats-royal-jelly-span, but dedicated liquid, swap, fountain and zero-speed distress recordings remain open.",
-    "The original independent blind-admission recordings stop at the cursor-prompt More boundary; they do not establish location selection. The original Healer/elf/chaotic options are normalized by C to a neutral human Healer. Valid longer Wizard/human and Wizard/elf recipes separately reproduce the selected-location output mismatch; no matching recording is claimed for that continuation yet.",
+    "The original short blind-admission recordings stop at the cursor-prompt More boundary and remain admission evidence only. Valid longer Wizard/human and Wizard/elf inputs now have matching selected-location recordings after the quick checkfile guard correction; the original invalid Healer/elf/chaotic options were normalized by C to a neutral human Healer.",
     "The accepted display animation span adds recordings/read.c/create-particular-hidden.session.json and create-particular-invisible-newt.session.json; fresh runs matched 2344 and3155 RNG values respectively, all36 screens/cursors and32 animation frames. Combined checkpoint evidence is recorded at this commit.",
     "Read-only bounded probe run-vehews, /tmp/teleport-validation-1000/run-vehews/stdout.log, records the selected-location More call stack through checkfile. run-Q1OmPO records the pending description and top-line cursor. Source comparison confirms the missing quick condition in do_look; raw getScreens output without frozen serialization was not used as screen parity evidence.",
-    "Canonical worker continuation run-KxSdGD records the description mismatch at1693 with matching RNG and cursors. A provisional partial collection patch in run-PhcdY9 advances to the wizard-help refusal with no earlier divergence; it is not accepted completion evidence because other do_screen_description branches remain omitted. Source review of dohelp and generated help-data inputs identifies the subsequent help owner without claiming its implementation."
+    "Canonical worker continuation run-KxSdGD records the description mismatch at1693 with matching RNG and cursors. A provisional partial collection patch in run-PhcdY9 advances to the wizard-help refusal with no earlier divergence; it is not accepted completion evidence because other do_screen_description branches remain omitted. Source review of dohelp and generated help-data inputs identifies the subsequent help owner without claiming its implementation.",
+    "The quick-checkfile span adds recordings/pager.c/blind-glance-description-blocked-independent.session.json and blind-glance-description-blocked-variation.session.json. Fresh runs run-lqkdKi and run-RNtLYd match 2164 and 4378 RNG values respectively and all 10 screens/cursors. Meaningful production tests trace checkfile entry for ordinary lookup and its absence for quick lookup; the raw unserialized-screen assertion was removed before combined validation."
   ]
 }
