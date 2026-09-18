@@ -45,12 +45,14 @@ missing behavior, then implement from the C source and patches. Preserve the
 recorded files and choose independent inputs for new reproductions. Do not
 special-case a session or its seed, inputs, expected output, or replay position.
 
-The current `challenges/manifest.json` is frozen as synthetic local challenge
-set `v1`. Evaluate it from saved artifacts after implementation changes; keep
-its failures as supplementary diagnostics outside the fixed mismatch queue and
-remote competition evidence. Put future challenge cases in a new
-versioned manifest. Preserve historical Development, Local holdout, and
-Challenges rows and labels; the dashboard combines the historical Development
+The current operating mode prioritizes synthetic local holdout mismatches;
+`.agents/selection.md` defines selection and automatic generation of a new
+batch when no unmatched synthetic screens remain. Keep the 44-session fixed
+workload as a regression check. The current `challenges/manifest.json` remains
+frozen as batch `v1`; new batches use new versioned manifests and retain every
+previous batch and its evaluation history. Synthetic results remain separate
+from fixed-development scores and remote competition evidence. Preserve
+historical Development, Local holdout, and Challenges rows and labels; the dashboard combines the historical Development
 and Local holdout measures into one Development set series and keeps the
 synthetic local challenge measure separate (the dashboard may retain its
 historical “Synthetic local holdout” label).
@@ -82,6 +84,7 @@ Workers select independent next work under the standing permission in
 | --- | --- |
 | Run or resume the implementation loop | `.agents/loop.md` |
 | Choose which goal to open next | `.agents/selection.md` |
+| Generate or admit a new synthetic local holdout batch | `.agents/selection.md`, `.agents/validation.md`, and `.agents/scoring.md` |
 | Implement game behavior | `.agents/glossary.md` and `.agents/validation.md` |
 | Validate game behavior | `.agents/validation.md` |
 | Propose a change to tooling or process | `.agents/proposals.md` |
@@ -333,12 +336,11 @@ every staged path belongs to the commit.
 ### When to stop and ask the user
 
 `.agents/loop.md` describes a loop that alternates implementation and review
-without returning to the user. Stop and ask only for:
-
-- a complete port: every fixed-workload session matches and
-  `node scripts/goal-log.mjs roadmap` lists no unverified C function or Lua
-  program;
-- a decision not covered by this file or any file it references.
+without returning to the user, within any explicit user limit or stop request.
+During an unbounded run, stop and ask only for a decision not covered by this
+file or its references. Matching every fixed or synthetic screen is a milestone,
+not a stop condition: generate the next synthetic batch as
+`.agents/selection.md` specifies.
 
 Report progress when the user asks and when the loop stops. Do not stop merely
 to report, and do not ask for a goal that the loop selects.

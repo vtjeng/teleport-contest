@@ -74,7 +74,10 @@ needs one, say so in your report.
 
 The local-holdout recordings are open and are part of the 44-session fixed
 workload under `AGENTS.md`. Inspect and replay them when the span needs them;
-default scans, mismatch selection, and checkpoint scoring include all 44.
+default fixed scans and checkpoint scoring include all 44. Synthetic local
+holdout failures now drive new work under `.agents/selection.md`; preserve
+the assigned batch identity, recording hashes, and source investigation.
+The orchestrator owns admitting new batches and their aggregate evaluations.
 Leave `scripts/score-holdout.mjs` and aggregate score bookkeeping to the
 orchestrator; implement behavior from the C source. The remote competition
 holdout is outside this workspace.

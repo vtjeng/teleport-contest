@@ -5,22 +5,34 @@ defines the goal kinds; `.agents/loop.md` describes their execution.
 
 ## Choosing a goal
 
-The orchestrator runs `node scripts/mismatch-queue.mjs --json` and uses its
-`sessions` array, including each entry's `investigation` status and result.
-Workers use the saved queue and the seed-continuation procedure below.
-It includes C and Lua sources, partially implemented functions, defects in
-existing code, screen and cursor mismatches, and unresolved source owners.
+Repair regressions in the accepted fixed workload, regression recordings, or
+previously matching synthetic screens first. Otherwise select from unmatched synthetic local holdout
+cases in the latest valid saved evaluations, across every admitted batch.
+`.agents/scoring.md` defines evaluation freshness and comparison. Workers use
+the saved selected queue and the seed-continuation procedure below.
+
+The orchestrator still runs `node scripts/mismatch-queue.mjs --json` for fixed
+regressions and uses its `sessions` array and investigation records. That
+command currently covers only the fixed 44 sessions; an empty result does not
+establish synthetic parity. See "Tooling support" below before dispatching
+synthetic work. Investigations cover C and Lua sources, partially implemented
+functions, defects in existing code, screen and cursor mismatches, and
+unresolved source owners.
 A JavaScript declaration is inventory information, never completion evidence.
 
-Sort sessions by `remainingScreensUpperBound` descending, then by first
-mismatch `step` ascending (unknown steps last), then by canonical session ID.
+Rank synthetic cases by measured unmatched screens (total minus matched)
+descending, then first mismatch step ascending (unknown last), then batch and
+case ID. Keep RNG, cursor, refusal, and runner failures visible; a failed or
+missing evaluation is not a measured zero. For fixed-workload regressions,
+retain `remainingScreensUpperBound` descending, first mismatch step ascending,
+and canonical session ID as the order.
 For a free worker slot, select the first session with a completed, valid
 investigation whose source functions and shared-state contracts are not
 reserved by another worker or pending delivery. Apply the seed-continuation
 rule below before assigning a new session. Use this per-session order even
-when the command's grouped `candidates` order differs. A later blocker can
-consume the entire apparent gain; these counts are not predicted gains or
-measured unmatched-screen counts.
+when the command's grouped `candidates` order differs. Actual unmatched
+counts rank synthetic cases; first-mismatch upper bounds are only diagnostics.
+Neither predicts how many screens a source fix will recover.
 
 Start background investigations for the other uncached or invalidated sessions
 as `.agents/loop.md`, "Background investigations", specifies. Do not wait for a
@@ -49,8 +61,11 @@ Use the selected investigation's source trace to choose the goal kind:
   caller annotation alone does not count as a completed investigation.
 
 Always name the selected session with `--sessions` (or `--session` for a
-divergence fix). When the selected goal differs from the command's highest
-grouped candidate or its annotated owner, supply `--selection-reason` with
+divergence fix). For a synthetic case, retain its batch, manifest digest,
+recording path and digest, and saved evaluation in the handoff and selection
+reason; use a batch-qualified identity throughout goals and investigations.
+When the selected goal differs from the command's highest grouped candidate
+or its annotated owner, supply `--selection-reason` with
 the selected session, remaining-screen count, cache path, and source-traced
 owner. Explain its eligibility under per-session order, seed continuation,
 and source reservations; identify higher-ranked sessions still awaiting
@@ -86,13 +101,54 @@ measurements without claiming completion or adding a score event. Superseded
 plans leave the current queue and cannot be reopened; their replacement owns
 any remaining work. Keep a goal parked when it still has independent work.
 
-Use `node scripts/goal-log.mjs roadmap` for fallback work only when the
-mismatch queue is empty. Complete unverified C function groups and Lua
-programs with reachable callers and useful validation before reference-build
-inactive helpers. The port is complete only when all 44 fixed-workload
-sessions match and all C functions and Lua programs have completion evidence.
-Synthetic local challenge results are reported separately and supplement
-source completion evidence.
+Use `node scripts/goal-log.mjs roadmap` to trace dependencies and choose
+under-exercised behavior for new synthetic missions. An empty fixed queue
+selects synthetic work; exhausting synthetic screens selects batch generation.
+Do not fall back to unrelated source ports merely because a queue is empty.
+Whole-source completion and caller evidence remain required for every port.
+
+## Generating the next synthetic batch
+
+When current, complete evaluations of every admitted batch show zero unmatched
+screens, generate the next batch without asking for another goal. Blocked or
+uninvestigated failures, unavailable results, and stale evaluations do not
+satisfy this condition. Keep outstanding RNG or cursor defects visible across
+the transition. If a new batch already matches, retain its baseline and repeat
+with different behavior coverage.
+
+Plan a small batch of independent missions before inspecting their JavaScript
+results. Use C source and coverage gaps to vary behavior families, action
+histories, and relevant character or state conditions; changing only seeds
+is insufficient. Follow `experiments/generalization/plan.md`, "Expanding
+challenges", and `.agents/validation.md` for C exploration and recording.
+Confirm reproducibility with an independent C replay. Retain every valid,
+reproducible case, including missed missions and cases JavaScript already
+passes; reject only invalid setup or recorder failures with recorded C evidence.
+Resolve recorder-environment differences before treating them as game defects.
+
+Keep recipes, C recordings, and hashes immutable. Preserve `v1` at
+`challenges/manifest.json`; admit the next batch under a new versioned
+manifest, starting with `v2`, without replacing or extending a frozen batch.
+Commit the batch and save its first evaluation at a committed implementation
+before its JavaScript failures guide fixes. Publish that baseline and resume
+selection from the admitted cases. Retain earlier batches as regression checks
+and their original evaluations as history. `.agents/scoring.md` defines how
+to report each batch without counting added screens as implementation gains.
+
+## Tooling support
+
+The existing scan, queue, goal-selection checks, and investigation dashboard
+were built for the fixed workload; the challenge scorer currently reads only
+`challenges/manifest.json`. At loop setup, implement and validate missing
+support in these existing tools before dispatching synthetic goals or using a
+new manifest. Preserve batch-qualified case identities, immutable hashes,
+source investigations, per-batch evaluations, and dashboard status throughout.
+This supporting work is part of the authorized operating mode.
+
+Do not pass a challenge evaluation as `--development-scan`, move challenges
+into `sessions/`, or overwrite `v1` to satisfy a fixed-workload interface.
+Keep the fixed queue and score distinct from the synthetic work queue; an
+empty fixed queue must not hide pending synthetic investigations.
 
 ## Seed continuation
 
@@ -100,7 +156,8 @@ After a delivery, the persistent worker selects its next source-traced goal
 under the standing permission in `.agents/loop.md`. Prefer continuing the same
 seed when a focused replay of its immutable worker base identifies the next
 goal. If that scope is blocked or overlaps another worker, select the
-highest-ranked independent ready goal from the saved fixed-workload queue.
+highest-ranked independent ready goal from the saved selected queue, with
+regression repairs taking priority over further synthetic gains.
 Seed continuity is a scheduling preference, not permission to special-case
 that seed or to skip whole-source completion.
 
@@ -131,7 +188,8 @@ neither dispatch nor integration waits for an entire worker batch.
 
 Store each session's source investigation in
 `investigations/<session>.json`, using the queue's canonical session ID.
-Preserve the `holdout/` prefix as a subdirectory. This tracked cache supplies
+Preserve the `holdout/` prefix as a subdirectory and give synthetic cases a
+separate batch-qualified namespace. This tracked cache supplies
 both worker handoffs and the CI-built dashboard. The orchestrator commits
 completed and partial results by explicit path at the next commit boundary
 that preserves checkpoint ownership, then pushes them. Uncommitted results
@@ -270,6 +328,7 @@ such as `holdout/seed4500-knight-coverage` and explicit paths such as
 `--session`, storing the canonical queue ID with its `holdout/` prefix.
 `--development-scan` takes a saved scan JSON artifact; `--sessions` and
 `--session` take workload identifiers or explicit session paths.
-The upper bounds are not predicted gains. Challenge
-failures are synthetic local challenge diagnostics kept outside queue
-candidates. The remote competition holdout is outside this workspace.
+The upper bounds are not predicted gains. Synthetic failures drive the
+separate work queue under "Choosing a goal"; keep their exact unmatched-screen
+counts and first-failure diagnostics distinct. The remote competition holdout
+is outside this workspace.

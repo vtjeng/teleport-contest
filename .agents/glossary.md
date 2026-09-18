@@ -23,7 +23,7 @@ has the explicit completion evidence defined in `.agents/validation.md`.
 Historical `ported` flags count declarations only.
 
 A **divergence fix** is a goal that repairs a source-traced defect in
-implemented behavior at one fixed-workload session's first mismatch.
+implemented behavior at a fixed-workload or synthetic case's first mismatch.
 `.agents/divergence.md` defines its workflow.
 
 A **span** is the unit of work one worker delivery ports, wires, and lands: for a
@@ -34,7 +34,8 @@ fix touches. Existing partial functions stay in scope.
 `.cache/span-context.json`; `.agents/divergence.md`
 states how a divergence fix queues one. A span closes when its commits pass
 `npm run checkpoint` without the fixed-workload sessions or the recordings losing
-a match.
+a match, and the separate synthetic evaluations pass the acceptance checks
+in `.agents/scoring.md`.
 
 A **gap** is a call to an unported C function that the port records with
 `note_unported()` and skips. `AGENTS.md`, "Port whole source units and wire their callers",
@@ -45,7 +46,9 @@ its recording: on the random-number log, on the screen, or at a refusal the
 port raised. A defect in implemented behavior is a **divergence**; missing or
 partial behavior needs a C or Lua source port. The **mismatch queue** lists
 each fixed-workload session's first mismatch and its source owner when known;
-`node scripts/mismatch-queue.mjs` prints it.
+`node scripts/mismatch-queue.mjs` prints it. The synthetic work queue is
+separate: it selects admitted challenge cases from saved per-batch evaluations
+under `.agents/selection.md`, without changing the fixed workload's denominator.
 
 A **recipe** is a session file holding replay inputs only: seed, date and
 time, options, and keystrokes, with no recorded steps. A **recording** is a

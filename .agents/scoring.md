@@ -66,9 +66,18 @@ that may fail in JavaScript. Keep those failures outside the passing
 evaluations are separate from the fixed workload and the historical local-
 holdout provenance view.
 
-After an implementation goal's checkpoint, reassess synthetic local challenge
-set `v1` at that committed HEAD. Save the evaluation before using its JavaScript
-failures to guide a future, explicitly selected investigation:
+At loop entry, obtain complete saved evaluations for every admitted synthetic
+batch. Reuse an evaluation only when its game, scorer, and manifest inputs are
+unchanged. After each implementation goal's checkpoint, reassess every batch
+at the committed candidate before acceptance. Compare each unchanged case's
+screens, cursors, RNG calls, and errors with accepted evidence; resolve lost
+screen matches before accepting gains elsewhere.
+
+Synthetic failures now drive goal selection under `.agents/selection.md`.
+Save each new batch's first evaluation before using its JavaScript failures to
+guide fixes. The current commands below evaluate `v1`; implement explicit
+manifest selection before evaluating later versions, as "Tooling support" in
+`.agents/selection.md` requires:
 
 ```
 node scripts/score-challenges.mjs --output challenges/evaluations/<new-name>.json
@@ -88,7 +97,11 @@ challenge batch gets a new versioned manifest and its own evaluation history.
 Compare gains and losses only on unchanged cases with the same scorer and
 denominators. Dashboard builds read saved evidence; they do not run challenge
 evaluations. A failed or older measurement retains its failure status or
-measured commit age. Synthetic failures never enter the fixed mismatch queue.
+measured commit age. Synthetic failures have their own implementation queue;
+they never enter the fixed mismatch queue or its score denominator. Publish
+batch identity, current investigations, and remaining synthetic screens on the
+dashboard so an empty fixed queue does not imply that the loop is finished.
+Keep earlier batch results visible after admitting another batch.
 
 The dashboard shows one combined Development set measure: it sums the
 historical public-development and local-holdout measurements, carrying the

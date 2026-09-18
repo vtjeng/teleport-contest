@@ -24,11 +24,16 @@ the function the goal named, or the record is classified `machine-local` or
 
 Establish the before measurement using `.agents/validation.md`, "Routine
 validation". Reuse a qualifying checkpoint summary; otherwise run
-`node scripts/score-development.mjs`.
+`node scripts/score-development.mjs`. For a synthetic goal, also retain the
+selected batch's current evaluation as its before measurement under
+`.agents/scoring.md`.
 
-Obtain the selected session's mismatch-queue entry: the step, the kind,
-and the C function it names. Reuse an entry already established for the
-same code state; otherwise run `node scripts/mismatch-queue.mjs`.
+Obtain the selected case's mismatch entry: the step, kind, and source owner.
+For fixed-workload cases, reuse current evidence or run
+`node scripts/mismatch-queue.mjs`. For synthetic cases, use the saved batch
+evaluation and replay the immutable recording to locate the first mismatch;
+retain its manifest version and hashes under `.agents/selection.md`.
+The fixed queue does not report synthetic mismatches.
 
 ### 2. Confirm and record the divergence
 
@@ -41,13 +46,15 @@ node frozen/ps_test_runner.mjs \
 ```
 
 For an opened local-holdout recording, use its explicit fixed-workload path:
-`sessions/holdout/<name>.session.json`.
+`sessions/holdout/<name>.session.json`. For a synthetic case, use the recording
+path in its admitted manifest without relocating or rewriting the recording.
 
 Queue the goal with `node scripts/goal-log.mjs queue-goal --kind
 divergence-fix`, naming the C file, the function, the session, and the step.
 Put the record in its `--detail`:
 
-- the fixed-workload session, segment, and input step;
+- the fixed-workload session or batch-qualified synthetic case, segment,
+  and input step;
 - whether the first mismatch is screen or RNG, and its position;
 - the exact upstream C file, function, branch, and preconditions;
 - the JavaScript owner suspected of causing the mismatch.

@@ -4,6 +4,16 @@ This guide is for the main orchestrator. Use it when the user asks for
 continuous implementation, within the limits they set. Worker procedures are
 in `.claude/agents/span-worker.md`.
 
+## Operating mode
+
+Climb the synthetic local holdout by fixing its source-traced mismatches while
+preserving accepted fixed-workload and regression-recording matches. When a
+current, complete evaluation contains no unmatched synthetic screens, generate
+and baseline a new versioned batch, then continue on its failures. Follow
+`.agents/selection.md` for priority, batch generation, and required tooling
+support; `.agents/scoring.md` owns measurement and historical comparisons.
+An empty fixed-workload queue does not mean there is no implementation work.
+
 Run two persistent workers, each in its own Git worktree. They implement
 changes, test them, and submit commits. You review those commits, merge them
 into local `main`, run combined checks, and push accepted work. Workers can
@@ -119,7 +129,9 @@ separately from other goals.
    its process handle until completion. Do not change main's HEAD during the
    run. If it fails, preserve the results and reap the run before integrating
    a correction and testing the new candidate.
-5. After a pass, refresh `node scripts/mismatch-queue.mjs --json`. Finish
+5. After a pass, refresh the fixed-workload mismatch queue and evaluate all
+   admitted synthetic batches under `.agents/scoring.md`. Refresh the
+   synthetic work queue from those saved results. Finish
    evidence, scores, and span closure under `.agents/scoring.md` before
    integrating unrelated work. Close a source goal only after its entry
    points are verified, its required challenge evaluation is complete, and
@@ -181,7 +193,7 @@ next eligible investigation from the saved queue. Check that queue before
 leaving a worker idle and during each ten-minute recovery check. These
 checks do not require a new scan.
 
-At loop entry and after refreshing the mismatch queue, identify sessions
+At loop entry and after refreshing either corpus's work queue, identify sessions
 whose investigation is missing, partial, invalid, or stale. You are
 responsible for scheduling their investigation and publishing the results.
 Use `.agents/selection.md` order, exclude sessions already owned by workers
@@ -216,12 +228,15 @@ queue against the published records.
 
 ## Reports
 
-Report once per worker iteration under `/loop`: the closed span, development
-score and first mismatch before and after, newly matching recordings,
-problems, and next work. Include each free worker's next task, dependency
-waits, and merge rework. Mention open questions when they change.
+Report once per worker iteration under `/loop`: the closed span, synthetic
+batch and before/after matched screens, first mismatch, fixed-development
+regression results, newly matching recordings, problems, and next work.
+Separate gains on unchanged cases from screens added by a new batch; report
+per-case losses even when the aggregate improves. Include each free worker's
+next task, dependency waits, and merge rework. Mention open questions when they change.
 
-Use exact combined checkpoint results. Keep recovered regressions separate
+Use exact combined checkpoint results and saved synthetic evaluations. Keep
+recovered regressions separate
 from new gains. Do not present worker-branch totals or queue upper bounds
 as delivered gains. Distinguish ready, integrating, validated, published,
 and CI-complete work. A worker coding during validation is working. Keep
@@ -235,7 +250,7 @@ unfinished branches, commits, and dirty paths, list them in the local task
 scratch file, and report processes still owned. Do not label unfinished work
 complete. Skip new investigations when current work completes a bounded goal.
 
-During an unbounded run, stop only under `AGENTS.md`'s stop conditions. A
-complete port requires all 44 sessions to match and `goal-log.mjs roadmap`
-to show no unverified C or Lua units. A progress report or low context is
-not a reason to stop.
+During an unbounded run, stop only under `AGENTS.md`'s stop conditions.
+Exhausting the current synthetic mismatches triggers batch generation, not
+roadmap-only implementation or a request for another goal. A progress report
+or low context is not a reason to stop.

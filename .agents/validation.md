@@ -174,6 +174,16 @@ When a test uses mocked randomness, assert the draw sequence or call count
 as well as the result; constant random values alone can hide extra draws.
 Keep blocked recipes and revisit their named dependencies when those land.
 
+## Synthetic local holdout validation
+
+Synthetic recordings are immutable development inputs and may be inspected and
+replayed to locate source behavior. Preserve all admitted batches and evaluate
+them separately from the fixed checkpoint, as `.agents/scoring.md` requires.
+The fixed checkpoint alone does not establish synthetic non-regression. New
+batches follow `.agents/selection.md`, "Generating the next synthetic batch";
+source-port entry points still need independent matching recipes and recordings
+under the evidence roots above.
+
 ## Fresh differentials
 
 A fresh differential records a case with the patched C program and replays the
