@@ -3,6 +3,7 @@ import test from 'node:test';
 
 import {
     ANTIMAGIC,
+    BLND_RES,
     BLINDED,
     COULD_SEE,
     IN_SIGHT,
@@ -69,7 +70,7 @@ function refuse(what) {
 
 // A random source that hands out `values` in order and records each draw as
 // `rn2(bound)`; d() records too and answers `dice`.
-function scriptedRandom(values, dice = 6) {
+function scriptedRandom(values, dice = 6, rndValue = 33) {
     const draws = [];
     let index = 0;
     return {
@@ -83,6 +84,10 @@ function scriptedRandom(values, dice = 6) {
         d: (n, s) => {
             draws.push(`d(${n},${s})`);
             return dice;
+        },
+        rnd: (bound) => {
+            draws.push(`rnd(${bound})`);
+            return rndValue;
         },
     };
 }
@@ -820,6 +825,103 @@ test('open_wounds: ANTIMAGIC halves damage and tracks resistance', async () => {
     assert.ok(messages.some(m => m === 'Your skin itches badly for a moment.'),
         `Expected the itch line for dmg=4; got: ${messages.join('; ')}`);
     assert.equal(watcher.seen_resistance, M_SEEN_MAGR);
+});
+
+// -- mcast_spell elemental and paralysis effects ----------------------
+
+// These are production castmu paths, rather than direct helper calls.  The
+// scripted source draws pin the spell selector, fumble gate, damage, and each
+// effect's own RNG in C order.
+test('geyser: production cleric cast applies its own physical damage', async () => {
+    // choose_monster_spell checks geyser once while selecting it and again
+    // after the selection; both rn2(5) calls must be nonzero before castmu's
+    // fumble gate.
+    const random = scriptedRandom([13, 1, 1, 50], 6);
+    const state = makeState({ level: { monlist: null } });
+    const messages = [];
+    let damage = null;
+    const gaps = [];
+    await castmu(makeCaster({ m_lev: 14 }), AD_CLRC_ATTACK, true, true, {
+        state, random, unsupported: refuse,
+        message: (m) => messages.push(m),
+        noteUnported: (gap) => gaps.push(gap),
+        mdamageu: (_mon, value) => { damage = value; },
+    });
+    assert.equal(damage, 6);
+    assert.ok(messages.includes('A sudden geyser slams into you from nowhere!'));
+    assert.deepEqual(random.draws, [
+        'rn2(14)', 'rn2(5)', 'rn2(5)', 'rn2(140)', 'd(8,6)', 'd(8,6)',
+    ]);
+    assert.deepEqual(gaps, []);
+});
+
+test('fire pillar: production cleric cast applies fire damage and item effects', async () => {
+    // rn2(5)=0 rejects geyser, so level 12 selects fire pillar. The next
+    // rn2(5) lets burnarmor take its cloak/armor slot with an empty inventory;
+    // the final rn2(5) is destroy_items' remainder comparison.
+    const random = scriptedRandom([13, 0, 50, 1, 4], 6);
+    const state = makeState({ level: { monlist: null }, invent: null });
+    const messages = [];
+    let damage = null;
+    const gaps = [];
+    await castmu(makeCaster({ m_lev: 14 }), AD_CLRC_ATTACK, true, true, {
+        state, random, unsupported: refuse,
+        message: (m) => messages.push(m),
+        noteUnported: (gap) => gaps.push(gap),
+        mdamageu: (_mon, value) => { damage = value; },
+    });
+    assert.equal(damage, 6);
+    assert.ok(messages.includes('A pillar of fire strikes all around you!'));
+    assert.deepEqual(random.draws, [
+        'rn2(14)', 'rn2(5)', 'rn2(140)', 'd(8,6)', 'd(8,6)',
+        'rn2(5)', 'rn2(5)',
+    ]);
+    assert.deepEqual(gaps, ['zap.c mon_spell_hits_spot']);
+});
+
+test('lightning: production cast preserves rnd(100) before flashburn', async () => {
+    const random = scriptedRandom([11, 50, 4], 6, 33);
+    const mattk = Array.from({ length: 6 }, () => ({ adtyp: 0, aatyp: 0 }));
+    const state = makeState({
+        level: { monlist: null }, invent: null,
+        u: { ux: 4, uy: 5, uprops: {
+            [BLINDED]: { intrinsic: 0, extrinsic: 0, blocked: 0 },
+            [BLND_RES]: { intrinsic: 1, extrinsic: 0, blocked: 0 },
+        } },
+        youmonst: { data: { mlet: 0, mattk } },
+    });
+    const messages = [];
+    let damage = null;
+    const gaps = [];
+    await castmu(makeCaster({ m_lev: 14 }), AD_CLRC_ATTACK, true, true, {
+        state, random, unsupported: refuse,
+        message: (m) => messages.push(m),
+        noteUnported: (gap) => gaps.push(gap),
+        mdamageu: (_mon, value) => { damage = value; },
+    });
+    assert.equal(damage, 6);
+    assert.ok(messages.includes('A bolt of lightning strikes down at you from above!'));
+    assert.deepEqual(random.draws, [
+        'rn2(14)', 'rn2(140)', 'd(8,6)', 'd(8,6)', 'rn2(5)', 'rnd(100)',
+    ]);
+    assert.deepEqual(gaps, ['zap.c mon_spell_hits_spot']);
+});
+
+test('paralyze: production cleric cast applies nomul damage', async () => {
+    const random = scriptedRandom([4, 50, 6], 6);
+    const state = makeState({ level: { monlist: null }, multi: 0 });
+    const messages = [];
+    let damage = null;
+    await castmu(makeCaster({ m_lev: 7 }), AD_CLRC_ATTACK, true, true, {
+        state, random, unsupported: refuse,
+        message: (m) => messages.push(m),
+        mdamageu: (_mon, value) => { damage = value; },
+    });
+    assert.equal(damage, 11);
+    assert.ok(messages.includes('You are frozen in place!'));
+    assert.equal(state.multi, -11);
+    assert.equal(state.multi_reason, 'paralyzed by a monster');
+    assert.deepEqual(random.draws, ['rn2(7)', 'rn2(70)', 'd(4,6)']);
 });
 
 // -- cure_self via castmu ----------------------------------------------

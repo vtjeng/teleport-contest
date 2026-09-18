@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "Blocked mcastu.c effect recipe: an independently chosen xorn plus #wizgenesis high priest and confirmation reaches the creation path, but the current JS diverges at makemon.c newmonhp (C d(24,8), JS d(3,8)) before any clerical spell action. Keep this recipe without a recording until the source owner lands; it does not establish geyser, fire-pillar, lightning, or paralyze coverage.",
+  "segments": [
+    {
+      "seed": 942422,
+      "datetime": "20360101120000",
+      "nethackrc": "OPTIONS=name:EffectProbe,role:Valkyrie,race:human,gender:female,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen,playmode:debug,pettype:none,!acoustics\n",
+      "moves": " #polyself\nxorn\n #wizgenesis\nhigh priest\nym."
+    }
+  ]
+}

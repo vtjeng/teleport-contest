@@ -54,7 +54,7 @@ import {
 import { STRANGE_OBJECT } from './objects.js';
 import { body_part } from './polyself.js';
 import { lined_up } from './mthrowu.js';
-import { rn2, d } from './rng.js';
+import { rn2, rnd, d } from './rng.js';
 import { canSpotMonster } from './startup_a11y.js';
 import { couldsee, canseemon } from './vision.js';
 import { has_aggravatables } from './wizard.js';
@@ -65,7 +65,7 @@ import { ignite_items } from './apply_catch_lit.js';
 import { destroy_items } from './zap_destroy_items.js';
 import { ureflects } from './muse.js';
 import { note_unported } from './unported.js';
-import { buzz, flash_str } from './zap.js';
+import { buzz, flash_str, flashburn } from './zap.js';
 
 // ---- Spell enum (mcastu.h MONSPELL order) ----
 // These must match the C enum values (0-based, order from mcastu.h).
@@ -357,7 +357,7 @@ export async function castmu(
     rawEnv = {},
 ) {
     const state = rawEnv.state ?? game;
-    const random = rawEnv.random ?? { rn2, d };
+    const random = rawEnv.random ?? { rn2, d, rnd };
     // The unported arms below -- AD_FIRE, AD_COLD and AD_MAGM here, and most
     // spell effects in mcast_spell() -- refuse through this rather than
     // running as a spell that quietly does nothing.
@@ -601,7 +601,7 @@ async function mcast_fire_pillar(mtmp, dmg, env = {}) {
         await message('A pillar of fire strikes all around you!', state);
     const origDmg = dmg = random.d(8, 6);
     if (heroProperty(state, FIRE_RES)) {
-        recordMcastGap('zap.c shieldeff', env);
+        recordMcastGap('display.c shieldeff', env);
         monstseesu(M_SEEN_FIRE, state);
         dmg = 0;
     } else {
@@ -609,9 +609,18 @@ async function mcast_fire_pillar(mtmp, dmg, env = {}) {
     }
     if (heroProperty(state, HALF_SPDAM)) dmg = Math.trunc((dmg + 1) / 2);
     burn_away_slime(state);
-    await burnarmor(state.youmonst, { ...env, state, random });
-    await destroy_items(state.youmonst, AD_FIRE, origDmg, { ...env, state, random });
-    await ignite_items(state.invent, { ...env, state, random });
+    // C's item effects mutate the same hero clone and may print through their
+    // own fallback operations.  Planning passes an explicit silent message
+    // operation so those fallbacks cannot write to the live terminal.
+    const effectEnv = {
+        ...env,
+        state,
+        random,
+        message: env.message ?? (env.planning ? async () => {} : undefined),
+    };
+    await burnarmor(state.youmonst, effectEnv);
+    await destroy_items(state.youmonst, AD_FIRE, origDmg, effectEnv);
+    await ignite_items(state.invent, effectEnv);
     recordMcastGap('zap.c mon_spell_hits_spot', env);
     return dmg;
 }
@@ -624,10 +633,10 @@ async function mcast_lightning(mtmp, dmg, env = {}) {
         await env.message('A bolt of lightning strikes down at you from above!', state);
     const reflects = typeof env.ureflects === 'function'
         ? await env.ureflects('It bounces off your %s%s.', '', state, env)
-        : await ureflects('It bounces off your %s%s.', '', state);
+        : await ureflects('It bounces off your %s%s.', '', state, env);
     const origDmg = dmg = random.d(8, 6);
     if (reflects || heroProperty(state, SHOCK_RES)) {
-        recordMcastGap('zap.c shieldeff', env);
+        recordMcastGap('display.c shieldeff', env);
         dmg = 0;
         if (reflects) {
             monstseesu(M_SEEN_REFL, state);
@@ -639,9 +648,20 @@ async function mcast_lightning(mtmp, dmg, env = {}) {
         monstunseesu(M_SEEN_ELEC | M_SEEN_REFL, state);
     }
     if (heroProperty(state, HALF_SPDAM)) dmg = Math.trunc((dmg + 1) / 2);
-    await destroy_items(state.youmonst, AD_ELEC, origDmg, { ...env, state, random });
+    const effectEnv = {
+        ...env,
+        state,
+        random,
+        message: env.message ?? (env.planning ? async () => {} : undefined),
+    };
+    await destroy_items(state.youmonst, AD_ELEC, origDmg, effectEnv);
     recordMcastGap('zap.c mon_spell_hits_spot', env);
-    recordMcastGap('zap.c flashburn', env);
+    // mcastu.c evaluates rnd(100) before the canonical zap.c flashburn call.
+    // Keep that draw on the injected gameplay RNG, including in planning.
+    if (typeof random.rnd !== 'function')
+        throw new TypeError('mcast_lightning requires the rnd operation');
+    const duration = random.rnd(100);
+    await flashburn(duration, true, state, effectEnv);
     return dmg;
 }
 
@@ -652,7 +672,7 @@ async function mcast_paralyze(mtmp, env = {}) {
     const freeAction = heroProperty(state, FREE_ACTION);
     let dmg = 0;
     if (antimagic || freeAction) {
-        recordMcastGap('zap.c shieldeff', env);
+        recordMcastGap('display.c shieldeff', env);
         monstseesu(M_SEEN_MAGR, state);
         if ((state.multi ?? 0) >= 0 && typeof env.message === 'function')
             await env.message('You stiffen briefly.', state);
@@ -706,7 +726,7 @@ async function mcast_spell(mtmp, dmg, spellnum, env = {}) {
     case MCAST_CURSE_ITEMS:
         if (typeof env.message === 'function')
             await env.message('You feel as if you need some help.', state);
-        recordMcastGap('wizard.c rndcurse', env);
+        recordMcastGap('sit.c rndcurse', env);
         break;
     case MCAST_DESTRY_ARMR:
         recordMcastGap('mcastu.c mcast_destroy_armor', env);
@@ -759,8 +779,10 @@ async function mcast_spell(mtmp, dmg, spellnum, env = {}) {
     }
 
     if (resultDmg) {
-        if (typeof mdamageu === 'function') await mdamageu(mtmp, resultDmg);
-        else recordMcastGap('mhitu.c mdamageu', env);
+        if (typeof mdamageu !== 'function') {
+            throw new TypeError('mcast_spell requires the mdamageu operation');
+        }
+        await mdamageu(mtmp, resultDmg);
     }
 }
 

@@ -4304,7 +4304,7 @@ async function disintegrate_mon(mon, type, fltxt, state, random, env) {
 // C ref: zap.c flashburn() (3060-3087). A lightning hit rolls its blindness
 // duration once, reports the flash, then lets potion.c own the silent timer
 // transition and its immediate vision-clear message.
-async function flashburn(duration, viaLightning, state, env = {}) {
+export async function flashburn(duration, viaLightning, state, env = {}) {
     const message = env.message ?? ttyPline;
     if (!resists_blnd(state.youmonst, state)) {
         await message('You are blinded by the flash!', state, env);
