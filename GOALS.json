@@ -65234,7 +65234,7 @@
     {
       "id": "port-invent-look-here-blind-pile-seed4500-20260918",
       "kind": "file-port",
-      "status": "open",
+      "status": "parked",
       "summary": "Complete tactile floor-pile inspection and the look command",
       "cFile": "invent.c",
       "sessions": [
@@ -65245,8 +65245,8 @@
       "spans": [
         {
           "name": "look_here..dolook",
-          "status": "queued",
-          "closedBy": null,
+          "status": "closed",
+          "closedBy": "b80879fb01d57042110abdaa55dcd004f88793ed",
           "functions": [
             "look_here",
             "dolook"
@@ -65488,7 +65488,134 @@
             "recordings": []
           }
         ]
-      }
+      },
+      "progressBeforePark": {
+        "screens": 3,
+        "rng": 0
+      },
+      "parkedStanding": {
+        "sha": "b80879fb01d57042110abdaa55dcd004f88793ed",
+        "screens": 11322,
+        "rng": 789036
+      },
+      "parkedReason": "Verified look_here and dolook source span with movement-menu, pile-count and colon recordings. Swallowed inventory, blind ICE/force_decor and query_objlist tactile-corpse fallback still lack matching entry recordings; preserve those gaps while integrating the ready region-upkeep fix."
+    },
+    {
+      "id": "div-allmain-region-upkeep-planning-seed4500-20260918",
+      "kind": "divergence-fix",
+      "status": "open",
+      "summary": "Run supported region upkeep on projected elapsed turns",
+      "cFile": "allmain.c",
+      "sessions": [],
+      "selectionReason": "Seed continuation for holdout/seed4500-knight-coverage (remaining suffix116): investigations/holdout/seed4500-knight-coverage.json identifies the current later region refusal after1742 screens. The earlier getpos family is reserved by A; this ready independent fix follows accepted blind-pile inspection.",
+      "detail": "Segment0 first screen/cursor mismatch1698 remains getpos; the later input1742 space stops at the planning-only nonempty-region guard. C allmain.c moveloop_core269–277 invokes run_regions after nh_timeout. JS finishElapsedTurnAfterTimeout currently rejects all regions during projection despite the existing region.c414–474 callback implementation. Run it on cloned level/region state, bind planning RNG, register shared-vision changes for restoration, and keep messages/newsym on the live pass. Focused success/later-refusal tests verify complete live-state isolation. This is a caller defect, not whole moveloop_core completion; positive harmful gas and unknown callbacks remain unported. Existing gas-spore recording establishes general caller reachability only. Pending branch replay reaches a distinct RNG mismatch at1742 and later special movement; do not claim that later mismatch resolved.",
+      "spans": [
+        {
+          "name": "region-upkeep-planning",
+          "status": "queued",
+          "closedBy": null,
+          "functions": [
+            "moveloop_core"
+          ]
+        }
+      ],
+      "openedAt": "c34b0fd8fcc78aa6ca255a531324f687ec102de9",
+      "openStanding": {
+        "sha": "b80879fb01d57042110abdaa55dcd004f88793ed",
+        "screens": 11322,
+        "rng": 789036
+      },
+      "closedAt": null,
+      "delivered": null,
+      "function": "moveloop_core",
+      "session": "holdout/seed4500-knight-coverage",
+      "step": 1742,
+      "activeStanding": {
+        "sha": "b80879fb01d57042110abdaa55dcd004f88793ed",
+        "screens": 11322,
+        "rng": 789036
+      },
+      "openMismatches": [
+        {
+          "session": "holdout/seed4500-knight-coverage",
+          "step": 1698,
+          "kind": "screen",
+          "function": null,
+          "functionDeclared": false,
+          "sourceFile": null,
+          "cFile": null,
+          "luaFile": null,
+          "line": null,
+          "message": null,
+          "unlocatedKinds": [],
+          "recordedSteps": 1814,
+          "remainingScreensUpperBound": 116,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/holdout/seed4500-knight-coverage.json",
+            "result": {
+              "session": "holdout/seed4500-knight-coverage",
+              "remainingScreensUpperBound": 116,
+              "status": "complete",
+              "commit": "b80879fb01d57042110abdaa55dcd004f88793ed",
+              "mismatch": {
+                "session": "holdout/seed4500-knight-coverage",
+                "step": 1698,
+                "kind": "screen",
+                "function": null,
+                "functionDeclared": false,
+                "sourceFile": null,
+                "cFile": null,
+                "luaFile": null,
+                "line": null,
+                "message": null,
+                "unlocatedKinds": [],
+                "recordedSteps": 1814,
+                "remainingScreensUpperBound": 116
+              },
+              "summary": "The first remaining mismatch is the previous-door cursor command at step 1698. C moves to the open door at (63,7), while JavaScript remains at the hero at (25,10): the production getpos handler lacks the location collection and cycling branch. The earlier description and later blind-pile inspection are fixed. The current replay emits 1742 screens before the elapsed-turn planner refuses nonempty-region upkeep.",
+              "source": {
+                "file": "getpos.c",
+                "functions": [
+                  "cmp_coord_distu",
+                  "gloc_filter_classify_glyph",
+                  "gloc_filter_floodfill_matcharea",
+                  "gloc_filter_floodfill",
+                  "gloc_filter_init",
+                  "gloc_filter_done",
+                  "known_vibrating_square_at",
+                  "gather_locs_interesting",
+                  "gather_locs"
+                ],
+                "branch": "Read getpos.c312–553 and the getpos mMoOdDxX caller at1011–1037. gather_locs always includes the hero, applies the selected location filter, and sorts by Chebyshev distance, then y, then x. The uppercase D command lazily gathers GLOC_DOOR and decrements index zero with wrap to the last entry. JavaScript has the key binding and partial interest predicate but no source-equivalent garr/gidx cycle dispatch. Port the whole contiguous helper family and wire the source caller.",
+                "callers": [
+                  "pager.c do_look selects a map location through getpos; getpos dispatches m/M, o/O, d/D and x/X to its lazily gathered location arrays.",
+                  "getpos_menu, cmd.c dolookaround and pager auto-description also consume location classification or descriptions; preserve their source contracts while adding complete collection."
+                ],
+                "dependencies": [
+                  "Accepted pager do_screen_description now collects all source symbol families and uses canonical stored-glyph map_glyphinfo. Its lookup coordinates differ from the encoded-prefix decode at (0,0); pet and hero overrides, Rogue colors and NOOVERRIDE order are verified. getpos_menu, displayed-glyph accessibility, cursor auto-description and clicked lookup recording entries remain open in GOALS.json.",
+                  "Accepted invent.c look_here/dolook now handles tactile floor reach, arbitrary pile inspection, pile counts, cockatrice ordering and message filtering, with canonical force_decor and query_objlist callers. Three independent recordings cover movement menu/count and colon look. Swallowed inventory, blind ICE and the tactile-corpse fallback remain unrecorded entry families in GOALS.json; movement retains its mutation-free unsupported naming/pricing boundary.",
+                  "The current scan stops at allmain elapsed-turn region upkeep after 1742 emitted screens. C allmain.c moveloop_core calls run_regions after nh_timeout; JS rejects nonempty regions during planning even though region.c supports harmless effects. Pending correction 90c7bbba runs those effects on the clone and preserves live output and shared-vision restoration. Its fixed Knight replay emits 1757 screens but diverges in RNG at step1742 (C distfleeck rn2(5), JS rn2(4)) and later stops at special monster movement. This is branch evidence, not accepted parity past the current stop. Harmful gas and unknown callbacks remain explicit unported boundaries.",
+                  "Other unresolved source/coverage defects remain separate: make_stoned/minstapetrify/do_stone_mon; hero/monster stoning directions, corpse-weapon and attack-triggered golem entries; passive cold/fire/electricity/paralysis and lethal recovery; eating/non-food cleanup; skinback artifact-light radius and rare armor/Eyes-of-the-Overworld cleanup.",
+                  "Liquid-specific entry recordings and exceptional partial rloc routes remain open; trap.c inventory-chain calls and mon.c deal_with_overcrowding remain named discarded-call gaps. GOALS.json preserves open print_dungeon, hitmu, mfind0, goto_level, minliquid, creation/flash, pickup and achievement entry families rather than treating supporting unit tests as their completion.",
+                  "Hidden-attacker witnesses require eligible placement on objects or water, actual hidden state and an executed hitmu. Plain or qualified monster creation alone does not establish that entry; independent hidden-trapper and invisible-newt recordings establish creation/flash only.",
+                  "The pending getpos correction includes the return-valued getpos_menu helper and source-edge fixes for hero short-circuiting, floodfill start points, stone walls and normal worm-tail glyphs. Menu selection/cancellation recording coverage and exact filter-state lifetime are still under correction; no pending source completion is claimed."
+                ]
+              },
+              "goalKind": "file-port",
+              "evidence": [
+                "The passing b80879fb checkpoint and .cache/B36-development-scan.json retain first screen/cursor mismatch1698 and identify the later elapsed-turn region-upkeep refusal. The queue remainingScreensUpperBound116 is the suffix size, not a count of unmatched screens.",
+                "C screens1695–1700 show menu selection, the location prompt, uppercase D producing open door at cursor(63,7), the subsequent backslash no-feature message at that cursor, then Escape returning to(25,10). The scan observes C row0 initial o versus JS P at1698; no exact full JS message is inferred from that single cell.",
+                "Read-only diagnosis .cache/A37-knight-door-prev-diagnosis.json inspected immutable worker1bd245a3, whose corrected code is integrated into accepted edf80cfd and retained in b80879fb. Direct C/JS comparison confirms the missing cycle handler; no session-specific implementation is proposed.",
+                "Pre-acceptance display regressions at41361354 were traced to rendered-cell classification and incorrect override/coordinate contracts. Corrected edf80cfd passes every recording and per-session comparison loses no earlier match. Typed-symbol recordings cover unknown and shared sink/fountain symbols; they do not establish unrecorded accessibility or click entries.",
+                "Original short blind-admission recordings end at the cursor-prompt More boundary and prove admission only. Longer independently chosen Wizard/human and Wizard/elf recordings verify quick selected-location lookup; the original Healer/elf/chaotic probe was normalized by C and is not a valid elf witness.",
+                "B37 focused planner tests execute visible harmless vapor expiration through preflightSimpleMonsterActions on both success and later-refusal paths, pin the setup RNG draw and verify clone/live vision isolation. The existing gas-spore recording establishes general elapsed-turn caller reachability only; no matching nonempty-region entry recording is claimed. Fixed branch replay run-dTSOAR identifies the later RNG boundary for source investigation.",
+                "Read-only comparison at worker b18a485a confirms both C and JS distfleeck begin with rn2(5). The logged JS rn2(4) has no recorded call site, and set_apparxy and later movement contain valid source-matched rn2(4) branches. Diagnose the runtime caller and deterministic state before attributing a bound error; no separate distfleeck defect is established."
+              ]
+            }
+          }
+        }
+      ]
     }
   ]
 }

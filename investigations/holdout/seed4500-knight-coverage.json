@@ -2,7 +2,7 @@
   "session": "holdout/seed4500-knight-coverage",
   "remainingScreensUpperBound": 116,
   "status": "complete",
-  "commit": "edf80cfd0b179e2f313947faaad175c9eef3a68c",
+  "commit": "b80879fb01d57042110abdaa55dcd004f88793ed",
   "mismatch": {
     "session": "holdout/seed4500-knight-coverage",
     "step": 1698,
@@ -18,7 +18,7 @@
     "recordedSteps": 1814,
     "remainingScreensUpperBound": 116
   },
-  "summary": "The first remaining mismatch is the previous-door cursor command at step 1698. C moves to the open door at (63,7), while JavaScript remains at the hero at (25,10): the production getpos handler lacks the location collection and cycling branch. The earlier blank-stone description now matches. A separate blind-object-pile admission boundary remains after 1739 emitted screens.",
+  "summary": "The first remaining mismatch is the previous-door cursor command at step 1698. C moves to the open door at (63,7), while JavaScript remains at the hero at (25,10): the production getpos handler lacks the location collection and cycling branch. The earlier description and later blind-pile inspection are fixed. The current replay emits 1742 screens before the elapsed-turn planner refuses nonempty-region upkeep.",
   "source": {
     "file": "getpos.c",
     "functions": [
@@ -39,20 +39,22 @@
     ],
     "dependencies": [
       "Accepted pager do_screen_description now collects all source symbol families and uses canonical stored-glyph map_glyphinfo. Its lookup coordinates differ from the encoded-prefix decode at (0,0); pet and hero overrides, Rogue colors and NOOVERRIDE order are verified. getpos_menu, displayed-glyph accessibility, cursor auto-description and clicked lookup recording entries remain open in GOALS.json.",
-      "The accepted scan stops after 1739 emitted screens at blind object-pile movement admission. C invent.c look_here/dolook owns tactile inspection, floor reach, pile traversal, cockatrice order and message filtering; pickup.c force_decor owns blind ICE overrides. Pending delivery 5580d9da completes this family with source-order corrections and three independent matching recordings; it is not yet accepted on main.",
-      "Pending worker commit 90c7bbba (including B36 and B37) removes the later allmain nonempty-region planning refusal. Its fixed Knight replay emits 1757 screens but diverges in RNG at step1742: C distfleeck rn2(5) versus JS rn2(4), then stops at special monster movement. This is branch evidence with the earlier description mismatch still present, not accepted parity beyond the current main boundary. Positive harmful gas and unknown region callbacks remain explicit unported boundaries.",
+      "Accepted invent.c look_here/dolook now handles tactile floor reach, arbitrary pile inspection, pile counts, cockatrice ordering and message filtering, with canonical force_decor and query_objlist callers. Three independent recordings cover movement menu/count and colon look. Swallowed inventory, blind ICE and the tactile-corpse fallback remain unrecorded entry families in GOALS.json; movement retains its mutation-free unsupported naming/pricing boundary.",
+      "The current scan stops at allmain elapsed-turn region upkeep after 1742 emitted screens. C allmain.c moveloop_core calls run_regions after nh_timeout; JS rejects nonempty regions during planning even though region.c supports harmless effects. Pending correction 90c7bbba runs those effects on the clone and preserves live output and shared-vision restoration. Its fixed Knight replay emits 1757 screens but diverges in RNG at step1742 (C distfleeck rn2(5), JS rn2(4)) and later stops at special monster movement. This is branch evidence, not accepted parity past the current stop. Harmful gas and unknown callbacks remain explicit unported boundaries.",
       "Other unresolved source/coverage defects remain separate: make_stoned/minstapetrify/do_stone_mon; hero/monster stoning directions, corpse-weapon and attack-triggered golem entries; passive cold/fire/electricity/paralysis and lethal recovery; eating/non-food cleanup; skinback artifact-light radius and rare armor/Eyes-of-the-Overworld cleanup.",
       "Liquid-specific entry recordings and exceptional partial rloc routes remain open; trap.c inventory-chain calls and mon.c deal_with_overcrowding remain named discarded-call gaps. GOALS.json preserves open print_dungeon, hitmu, mfind0, goto_level, minliquid, creation/flash, pickup and achievement entry families rather than treating supporting unit tests as their completion.",
-      "Hidden-attacker witnesses require eligible placement on objects or water, actual hidden state and an executed hitmu. Plain or qualified monster creation alone does not establish that entry; independent hidden-trapper and invisible-newt recordings establish creation/flash only."
+      "Hidden-attacker witnesses require eligible placement on objects or water, actual hidden state and an executed hitmu. Plain or qualified monster creation alone does not establish that entry; independent hidden-trapper and invisible-newt recordings establish creation/flash only.",
+      "The pending getpos correction includes the return-valued getpos_menu helper and source-edge fixes for hero short-circuiting, floodfill start points, stone walls and normal worm-tail glyphs. Menu selection/cancellation recording coverage and exact filter-state lifetime are still under correction; no pending source completion is claimed."
     ]
   },
   "goalKind": "file-port",
   "evidence": [
-    "The passing edf80cfd checkpoint and saved .cache/A37-corrected-development-scan.json identify first screen/cursor mismatch1698 and the later blind-pile boundary. The queue remainingScreensUpperBound116 is the suffix size, not a count of unmatched screens.",
+    "The passing b80879fb checkpoint and .cache/B36-development-scan.json retain first screen/cursor mismatch1698 and identify the later elapsed-turn region-upkeep refusal. The queue remainingScreensUpperBound116 is the suffix size, not a count of unmatched screens.",
     "C screens1695–1700 show menu selection, the location prompt, uppercase D producing open door at cursor(63,7), the subsequent backslash no-feature message at that cursor, then Escape returning to(25,10). The scan observes C row0 initial o versus JS P at1698; no exact full JS message is inferred from that single cell.",
-    "Read-only diagnosis .cache/A37-knight-door-prev-diagnosis.json inspected immutable worker1bd245a3, whose corrected code is integrated into tested edf80cfd. Direct C/JS comparison confirms the missing cycle handler; no session-specific implementation is proposed.",
+    "Read-only diagnosis .cache/A37-knight-door-prev-diagnosis.json inspected immutable worker1bd245a3, whose corrected code is integrated into accepted edf80cfd and retained in b80879fb. Direct C/JS comparison confirms the missing cycle handler; no session-specific implementation is proposed.",
     "Pre-acceptance display regressions at41361354 were traced to rendered-cell classification and incorrect override/coordinate contracts. Corrected edf80cfd passes every recording and per-session comparison loses no earlier match. Typed-symbol recordings cover unknown and shared sink/fountain symbols; they do not establish unrecorded accessibility or click entries.",
     "Original short blind-admission recordings end at the cursor-prompt More boundary and prove admission only. Longer independently chosen Wizard/human and Wizard/elf recordings verify quick selected-location lookup; the original Healer/elf/chaotic probe was normalized by C and is not a valid elf witness.",
-    "B37 focused planner tests execute visible harmless vapor expiration through preflightSimpleMonsterActions on both success and later-refusal paths, pin the setup RNG draw and verify clone/live vision isolation. The existing gas-spore recording establishes general elapsed-turn caller reachability only; no matching nonempty-region entry recording is claimed. Fixed branch replay run-dTSOAR identifies the later RNG boundary for source investigation."
+    "B37 focused planner tests execute visible harmless vapor expiration through preflightSimpleMonsterActions on both success and later-refusal paths, pin the setup RNG draw and verify clone/live vision isolation. The existing gas-spore recording establishes general elapsed-turn caller reachability only; no matching nonempty-region entry recording is claimed. Fixed branch replay run-dTSOAR identifies the later RNG boundary for source investigation.",
+    "Read-only comparison at worker b18a485a confirms both C and JS distfleeck begin with rn2(5). The logged JS rn2(4) has no recorded call site, and set_apparxy and later movement contain valid source-matched rn2(4) branches. Diagnose the runtime caller and deterministic state before attributing a bound error; no separate distfleeck defect is established."
   ]
 }
