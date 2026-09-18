@@ -131,6 +131,28 @@ test('worker submits durably and starts another task before receipt; snapshots s
     assert.deepEqual(preflight.focusedTests, [addedTest, 'scripts/importer-only.test.mjs', 'scripts/sample.test.mjs']);
 });
 
+test('integration permits changed context only when every delivered edit matches', async (t) => {
+    for (const value of [1, 2]) await t.test(`integrated return ${value}`, t => {
+        const f = fixture(t); f.assign(); f.artifacts(); const head = f.commit();
+        f.success(f.submitArgs, f.workers.A);
+        f.event({ type: 'received', task: 'A-1', delivery: head });
+        const source = result => `export function sample() { return ${result}; }\n`
+            + 'export function caller() { /* accepted context */ return sample(); }\n';
+        writeFileSync(join(f.root, 'js/sample.js'), source(0));
+        f.git(f.root, 'add', 'js/sample.js'); f.git(f.root, 'commit', '-qm', 'new caller context');
+        assert.equal(f.run(['preflight', '--task', 'A-1']).status, 1);
+        writeFileSync(join(f.root, 'js/sample.js'), source(value));
+        f.git(f.root, 'add', 'js/sample.js'); f.git(f.root, 'commit', '-qm', 'resolved delivery');
+        // Even the correct edit has a different ordinary Git patch identity.
+        assert.match(f.git(f.root, 'cherry', 'HEAD', head, f.base), /^\+/);
+        const result = f.run(['preflight', '--task', 'A-1']);
+        assert.equal(JSON.parse(result.stdout).passed, value === 1);
+        const event = { type: 'integrating', task: 'A-1', integration: f.git(f.root, 'rev-parse', 'HEAD') };
+        if (value === 1) f.event(event);
+        else assert.throws(() => f.event(event), /missing delivered patches/);
+    });
+});
+
 test('submission rejects evidence references found only in an uncommitted checkout', (t) => {
     const f = fixture(t); f.assign(); f.artifacts(); f.commit();
     const path = join(f.workers.A, '.cache/evidence.json');
