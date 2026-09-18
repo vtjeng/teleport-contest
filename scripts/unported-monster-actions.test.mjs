@@ -2735,13 +2735,13 @@ test('simple preflight admits the source monster-displacement handoff',
         );
     });
 
-test('simple preflight refuses each turn-preamble state on its own',
+test('simple preflight handles each turn-preamble state on its own',
     async () => {
         // allmain.c moveloop_core() runs `if (svc.context.bypasses)
         // clear_bypasses();` at 193 and resolves a deferred level transition
         // before the monster loop. The planning clone owns every object list,
         // so it performs that cleanup without changing the live context;
-        // only the still-unported level transition is refused.
+        // the deferred level transition is returned as a marker for allmain.
         //
         // The guard used to carry a third term reading game.occupation, a
         // field nothing in js/ assigns. C gates nothing here on go.occupation
@@ -2761,18 +2761,12 @@ test('simple preflight refuses each turn-preamble state on its own',
 
         await prepareSelectedAction();
         game.u.utotype = 1;
-        await assert.rejects(
-            preflightSimpleMonsterActions(game),
-            (error) => (
-                error instanceof UnsupportedSimpleMonsterActionError
-                && error.reason
-                    === 'deferred monster cleanup or level transition'
-            ),
-        );
+        const deferredPlan = await preflightSimpleMonsterActions(game);
+        assert.equal(deferredPlan.deferredGoto, true);
         game.u.utotype = 0;
 
         // With neither pending the same scan runs to completion, which is what
-        // makes the two refusals above attributable to the states they set.
+        // makes the marker above attributable to the state it set.
         const clean = await prepareSelectedAction();
         const before = completeSecondTurnSnapshot(game, clean.replay);
         await preflightSimpleMonsterActions(game);
@@ -4218,6 +4212,91 @@ test('planning frees a dead monster before the next allocation', async () => {
     assert.equal(plannedMonster, null);
     assert.equal(game.level.monlist, liveMonster);
     assert.equal(game.iflags.purge_monsters, 1);
+    assert.deepEqual(rngSnapshot(), beforeRandom);
+});
+
+test('planning propagates a stopped scan before a second upkeep', async () => {
+    const target = await prepareSelectedAction();
+    const tailMonster = ordinaryMonster(
+        PM_GNOME,
+        target.monsterX,
+        target.heroY + 1,
+        {
+            m_id: target.monster.m_id + 1,
+            movement: 0,
+        },
+    );
+    game.level.at(tailMonster.mx, tailMonster.my).typ = ROOM;
+    target.monster.movement = 0;
+    target.monster.nmon = tailMonster;
+    game.level.monsters[tailMonster.mx][tailMonster.my] = tailMonster;
+    game.u.umovement = 0;
+
+    const before = completeSecondTurnSnapshot(game, target.replay);
+    const beforeRandom = rngSnapshot();
+    let upkeepRounds = 0;
+    const plan = await preflightSimpleMonsterActions(game, {
+        consumeHeroRation: false,
+        advanceRound(planned) {
+            ++upkeepRounds;
+            assert.equal(
+                upkeepRounds,
+                1,
+                'a stopped cloned movemon scan cannot enter another upkeep',
+            );
+            // movemon_singlemon() returns TRUE at its source level-exit gate.
+            // The planning owner reports that deferred transition to allmain;
+            // the live pass performs it before planning the destination suffix.
+            planned.u.utotype = 1;
+        },
+    });
+
+    assert.equal(upkeepRounds, 1);
+    assert.equal(plan.deferredGoto, true);
+    assert.equal(plan.upkeepCount, 1);
+    assert.deepEqual(completeSecondTurnSnapshot(game, target.replay), before);
+    assert.deepEqual(rngSnapshot(), beforeRandom);
+});
+
+test('planning detects a deferred transition after an empty monster scan', async () => {
+    await prepareSelectedAction();
+    game.level.monlist = null;
+    game.u.utotype = 1;
+    const beforeRandom = rngSnapshot();
+    const plan = await preflightSimpleMonsterActions(game, {
+        advanceRound() {
+            assert.fail('movemon defers the level change before upkeep');
+        },
+    });
+    // mon.c movemon checks utotype after iteration even when no callback
+    // returns TRUE. The same tail handles departure set by the final actor.
+    assert.equal(plan.deferredGoto, true);
+    assert.equal(plan.upkeepCount, 0);
+    assert.equal(game.u.utotype, 1);
+    assert.deepEqual(rngSnapshot(), beforeRandom);
+});
+
+test('planning after a completed scan reaches upkeep before destination monsters', async () => {
+    const target = await prepareSelectedAction();
+    target.monster.movement = NORMAL_SPEED;
+    game.u.umovement = 0;
+    const before = completeSecondTurnSnapshot(game, target.replay);
+    const beforeRandom = rngSnapshot();
+    const plan = await preflightSimpleMonsterActions(game, {
+        consumeHeroRation: false,
+        afterMonsterScan: true,
+        advanceRound(planned) {
+            // deferred_goto ends movemon with FALSE. allmain.c enters the
+            // allocation gate without spending a destination monster's ration.
+            assert.equal(planned.level.monlist.movement, NORMAL_SPEED);
+            assert.equal(planned.u.umovement, 0);
+            assert.equal(planned.context.mon_moving, false);
+            return true;
+        },
+    });
+    assert.equal(plan.upkeepCount, 1);
+    assert.equal(plan.deferredGoto, false);
+    assert.deepEqual(completeSecondTurnSnapshot(game, target.replay), before);
     assert.deepEqual(rngSnapshot(), beforeRandom);
 });
 
