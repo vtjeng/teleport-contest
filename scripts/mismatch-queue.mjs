@@ -226,6 +226,7 @@ function evaluationCase(batch, evaluation, entry, previous, owners) {
         session: syntheticSessionId(batch.batch, entry.id),
         manifestPath: batch.manifestPath, manifestSha256: batch.manifestSha256,
         recording: batch.caseById.get(entry.id).recording,
+        recordingPath: batch.caseById.get(entry.id).recording,
         recordingSha256: entry.recordingSha256,
         recipe: batch.caseById.get(entry.id).recipe ?? null,
         recipeSha256: batch.caseById.get(entry.id).recipeSha256 ?? null,
@@ -453,6 +454,7 @@ export function buildWorkQueue(fixed, synthetic) {
         sessions: [entry.session], remainingScreens: entry.remainingScreens,
         remainingScreensUpperBound: null, earliestStep: entry.step,
         caseId: entry.caseId, batch: entry.batch,
+        recordingPath: entry.recordingPath ?? entry.recording ?? null,
     }));
     const fixedCandidates = (fixed?.candidates ?? []).map(entry => ({
         ...entry, corpus: 'fixed', regression: true,

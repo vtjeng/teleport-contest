@@ -19,6 +19,7 @@ import {
 } from './c-functions.mjs';
 import { listLuaFiles, luaProgram } from './lua-sources.mjs';
 import { completedFunctionNames, validatePortEvidence } from './port-evidence.mjs';
+import { fixedWorkload } from './fixed-workload.mjs';
 
 export const DEFAULT_PATH = fileURLToPath(new URL('../GOALS.json',
     import.meta.url));
@@ -684,7 +685,15 @@ function readDevelopmentScan(path) {
     const stats = lstatSync(resolved);
     if (!stats.isFile() || stats.isSymbolicLink())
         throw new Error('--development-scan must name a regular file');
-    return JSON.parse(readFileSync(resolved, 'utf8'));
+    const scan = JSON.parse(readFileSync(resolved, 'utf8'));
+    if (!scan || typeof scan !== 'object' || !Array.isArray(scan.rows))
+        throw new Error('--development-scan must contain fixed-workload rows');
+    const fixedFiles = new Set(fixedWorkload(PROJECT_ROOT).scanFiles);
+    for (const row of scan.rows) {
+        if (!row || typeof row.file !== 'string' || !fixedFiles.has(row.file))
+            throw new Error('--development-scan must contain only fixed-workload rows');
+    }
+    return scan;
 }
 
 async function checkSelection(goal, scan) {
@@ -694,14 +703,17 @@ async function checkSelection(goal, scan) {
     // out of admitted synthetic evidence or its blockers.
     const queue = loadWorkQueue({ scan });
     const candidate = assertGoalSelection(queue, goal);
-    if (isSourcePort(goal) && !goal.sessions.length && candidate)
-        goal.sessions = [...candidate.sessions];
+    if (isSourcePort(goal) && !goal.sessions.length && candidate) {
+        const sessions = candidate.sessions ?? (candidate.session ? [candidate.session] : []);
+        goal.sessions = [...sessions];
+    }
     if (candidate?.corpus === 'synthetic') {
         goal.syntheticProvenance ??= {};
         goal.syntheticProvenance[candidate.session] = {
             session: candidate.session, corpus: 'synthetic', batch: candidate.batch,
             caseId: candidate.caseId, manifestPath: candidate.manifestPath,
             manifestSha256: candidate.manifestSha256,
+            recordingPath: candidate.recordingPath ?? candidate.recording ?? null,
             recordingSha256: candidate.recordingSha256,
             evaluationPath: candidate.evaluationPath ?? candidate.evaluationArtifact ?? null,
             evaluationCommit: candidate.evaluationCommit ?? null,
