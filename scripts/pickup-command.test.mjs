@@ -321,7 +321,7 @@ test('the traditional arm picks a single object and menu-on-request shares it',
     async () => {
         // flags.menu_style == MENU_TRADITIONAL without the reqmenu prefix is
         // pickup.c:793's old-style interface. A single object takes the
-        // source count shortcut without opening a class query.
+        // ordinary traditional loop without opening a class query.
         const traditional = await heroOnAnEmptySquare();
         const object = objectUnderHero(traditional);
         traditional.flags.menu_style = MENU_TRADITIONAL;
