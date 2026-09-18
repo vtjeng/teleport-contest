@@ -65503,7 +65503,7 @@
     {
       "id": "div-allmain-region-upkeep-planning-seed4500-20260918",
       "kind": "divergence-fix",
-      "status": "open",
+      "status": "parked",
       "summary": "Run supported region upkeep on projected elapsed turns",
       "cFile": "allmain.c",
       "sessions": [],
@@ -65512,8 +65512,8 @@
       "spans": [
         {
           "name": "region-upkeep-planning",
-          "status": "queued",
-          "closedBy": null,
+          "status": "closed",
+          "closedBy": "138b1fd0233d2417844e1ed21a8dc292f27c2454",
           "functions": [
             "moveloop_core"
           ]
@@ -65615,7 +65615,17 @@
             }
           }
         }
-      ]
+      ],
+      "progressBeforePark": {
+        "screens": 0,
+        "rng": 234
+      },
+      "parkedStanding": {
+        "sha": "138b1fd0233d2417844e1ed21a8dc292f27c2454",
+        "screens": 11322,
+        "rng": 789270
+      },
+      "parkedReason": "The caller correction passes the full checkpoint and region-upkeep refusal is removed, but first mismatch1698 remains in getpos, before the named1742 owner. Preserve the divergence as unresolved until first-mismatch evidence advances; later RNG1742 and special movement belong to separate source investigation."
     }
   ]
 }
