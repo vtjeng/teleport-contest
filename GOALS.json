@@ -69098,7 +69098,7 @@
       "cFile": "cfgfiles.c",
       "sessions": [],
       "selectionReason": "The sole remaining fixed-workload mismatch is seed2200-wizard-quaff-zap-read, upper bound72 and actual9 screens; investigations/seed2200-wizard-quaff-zap-read.json traces cfgfiles initialization. The user supplied upstream 2a7b4f21, whose documented global HOME resolves the previous policy blocker.",
-      "detail": "C cfgfiles.c get_configfile143-146 returns the filename selected by fopen_config_file223-370; options.c option_help9461-9549 prints it. JavaScript startup leaves that state unset and falls back to the compiled basename, producing first screen divergence at step158 and a later cursor difference with all RNG matching. Restore the upstream environment contract and initialize the canonical source-owned filename uniformly for all input values; preserve explicit setters, compiled basename, immutable recordings and scorer.",
+      "detail": "C cfgfiles.c get_configfile returns the filename selected by fopen_config_file; options.c option_help prints it. JavaScript startup leaves that state unset and falls back to the compiled basename, producing the first screen divergence at step 158 with all RNG matching. Initialize the canonical filename from the documented upstream recorder HOME uniformly across inputs, preserve the compiled basename and explicit setters, and route NHW_TEXT through source-owned compression, wrapping and clipping in js/tty_menu.js. Preserve the separate blank putstr before the options-help epilog. This span includes the wintty.c tty_putstr and process_text_window dependency and source-pinned checks for styled rows and glyph columns. Fixed recordings and the scorer remain unchanged.",
       "spans": [
         {
           "name": "reference-config-path",
@@ -69106,7 +69106,10 @@
           "closedBy": null,
           "functions": [
             "get_configfile",
-            "fopen_config_file"
+            "fopen_config_file",
+            "option_help",
+            "tty_putstr",
+            "process_text_window"
           ]
         }
       ],
