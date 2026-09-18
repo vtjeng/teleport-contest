@@ -67355,6 +67355,229 @@
         "rng": 790757
       },
       "parkedReason": "mk_roamer span is source-verified and checkpoint-passing at8064c3be. Guardian-angel and Astral descriptor entries remain unimplemented or unrecorded; preserve those active entry gaps while the fixed Knight queue moves to mhitu.c getmattk."
+    },
+    {
+      "id": "port-mhitu-getmattk-seed4500-20260918",
+      "kind": "file-port",
+      "status": "closed",
+      "summary": "Complete monster attack selection and its source-defined substitutions.",
+      "cFile": "mhitu.c",
+      "sessions": [
+        "holdout/seed4500-knight-coverage"
+      ],
+      "selectionReason": "Seed continuation for holdout/seed4500-knight-coverage, 57 remaining-screen upper bound, investigations/holdout/seed4500-knight-coverage.json. The accepted roamer fix exposes mhitu.c getmattk as the first source owner. Higher-ranked seed2200 remains blocked by Q1 missing runtime configuration-path input; worker A owns this independent attack-selection family.",
+      "detail": "Port whole mhitu.c getmattk309–444 with source-ordered seduction, disease/hunger, energy, temporary hold, weapon, cold-touch and home-elemental substitutions. Preserve catalog identity versus detached attack copies and canonical production mattacku/mattackm wiring; retain the unported hmonas caller as an explicit gap. Historical port-mhitu-wildmiss-mattacku-seed0360 evidence explicitly retains every substitution refusal except the temporary-holder branch. Reverify the whole getmattk function through the source planner rather than treating that older partial evidence as whole-function completion; preserve its historical evidence and score rows.",
+      "spans": [
+        {
+          "name": "getmattk",
+          "status": "closed",
+          "closedBy": "5a0832fde062f592e2e192ed41b8d86780d16035",
+          "functions": [
+            "getmattk"
+          ]
+        }
+      ],
+      "openedAt": "e34d532b6b908df4ae0e3df3b3ac83cb62e9068a",
+      "openStanding": {
+        "sha": "8064c3be0f79ca81eb2019c1797d9d4aaa7f242f",
+        "screens": 11339,
+        "rng": 790757
+      },
+      "closedAt": "5a0832fde062f592e2e192ed41b8d86780d16035",
+      "delivered": {
+        "screens": 23,
+        "rng": 643
+      },
+      "functions": [
+        {
+          "name": "getmattk",
+          "line": 310,
+          "endLine": 447,
+          "declared": true,
+          "complete": true
+        }
+      ],
+      "range": {
+        "from": 310,
+        "to": 447
+      },
+      "activeStanding": {
+        "sha": "8064c3be0f79ca81eb2019c1797d9d4aaa7f242f",
+        "screens": 11339,
+        "rng": 790757
+      },
+      "openMismatches": [
+        {
+          "session": "holdout/seed4500-knight-coverage",
+          "step": 1757,
+          "kind": "stop",
+          "function": null,
+          "functionDeclared": false,
+          "sourceFile": null,
+          "cFile": null,
+          "luaFile": null,
+          "line": null,
+          "message": "simple monster action requires a substituted monster attack",
+          "unlocatedKinds": [],
+          "recordedSteps": 1814,
+          "remainingScreensUpperBound": 57,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/holdout/seed4500-knight-coverage.json",
+            "result": {
+              "session": "holdout/seed4500-knight-coverage",
+              "remainingScreensUpperBound": 57,
+              "status": "complete",
+              "commit": "8064c3be0f79ca81eb2019c1797d9d4aaa7f242f",
+              "mismatch": {
+                "session": "holdout/seed4500-knight-coverage",
+                "step": 1757,
+                "kind": "stop",
+                "function": null,
+                "functionDeclared": false,
+                "sourceFile": null,
+                "cFile": null,
+                "luaFile": null,
+                "line": null,
+                "message": "simple monster action requires a substituted monster attack",
+                "unlocatedKinds": [],
+                "recordedSteps": 1814,
+                "remainingScreensUpperBound": 57
+              },
+              "summary": "Roamer initialization now supplies minion state and trap knowledge, removing the extra fire-trap draw. Knight stops at step 1757 in mhitu.c getmattk: a master lich uses cold touch against the cold-resistant brown-mold hero. C substitutes physical 2d6 for cold 3d6; JavaScript refuses the branch. Port the whole attack-selection function and verify its production callers.",
+              "source": {
+                "file": "mhitu.c",
+                "functions": [
+                  "getmattk"
+                ],
+                "branch": "A master lich attacks with slot0 AT_TUCH/AD_COLD 3d6. The hero is a brown mold with cold resistance and is not a shade. C mhitu.c416–432 copies the attack, changes AD_COLD to AD_PHYS, and halves the dice count with integer division to 2d6. Current JS getmattk refuses all first-slot cold touches, including this required substitution.",
+                "callers": [
+                  "mhitu.c mattacku786 → getmattk; JS mhitu.js mattacku calls the same helper through unported_monster_actions.js attackHeroWithMattacku and monmove.js dochug.",
+                  "mhitm.c mattackm383 and uhitm.c hmonas5441/5463 also call getmattk. Existing JS monster-to-monster wiring and unported hero-polymorph attack entries need separate completion evidence."
+                ],
+                "dependencies": [
+                  "priest.c mk_roamer and the sp_lev explicit-alignment caller are implemented with MM_EMIN allocation, canonical minion state, ALL_TRAPS knowledge and ordinary non-tame action admission. Two independent recordings establish creation and actual roamer movement. Guardian-angel and Astral entry recordings remain open; exceptional relocation restrictions remain with the existing rloc owner.",
+                  "Accepted getpos.c collection/cycling now includes menu selection and cancellation, source coordinate descriptions and exact area-filter lifetime. Five independent recordings match. VIEW and other location-family entry recordings remain open in GOALS.json.",
+                  "Accepted pager do_screen_description now collects all source symbol families and uses canonical stored-glyph map_glyphinfo. Its lookup coordinates differ from the encoded-prefix decode at (0,0); pet and hero overrides, Rogue colors and NOOVERRIDE order are verified. getpos_menu, displayed-glyph accessibility, cursor auto-description and clicked lookup recording entries remain open in GOALS.json.",
+                  "Accepted invent.c look_here/dolook now handles tactile floor reach, arbitrary pile inspection, pile counts, cockatrice ordering and message filtering, with canonical force_decor and query_objlist callers. Three independent recordings cover movement menu/count and colon look. Swallowed inventory, blind ICE and the tactile-corpse fallback remain unrecorded entry families in GOALS.json; movement retains its mutation-free unsupported naming/pricing boundary.",
+                  "Other unresolved source/coverage defects remain separate: make_stoned/minstapetrify/do_stone_mon; hero/monster stoning directions, corpse-weapon and attack-triggered golem entries; passive cold/fire/electricity/paralysis and lethal recovery; eating/non-food cleanup; skinback artifact-light radius and rare armor/Eyes-of-the-Overworld cleanup.",
+                  "Liquid-specific entry recordings and exceptional partial rloc routes remain open; trap.c inventory-chain calls and mon.c deal_with_overcrowding remain named discarded-call gaps. GOALS.json preserves open print_dungeon, hitmu, mfind0, goto_level, minliquid, creation/flash, pickup and achievement entry families rather than treating supporting unit tests as their completion.",
+                  "Hidden-attacker witnesses require eligible placement on objects or water, actual hidden state and an executed hitmu. Plain or qualified monster creation alone does not establish that entry; independent hidden-trapper and invisible-newt recordings establish creation/flash only.",
+                  "The m_move/mdisplacem dispatch, combat state and projected movement corrections have matching Tengu relocation recordings. Displacement, mail, worm and exceptional dedicated-mover entry recordings remain open in GOALS.json. Covetous admission now reaches the complete wizard.c tactics family through dochug.",
+                  "Safe monster scans, deferred-transition continuation and Hell-bat creation speed resolve the earlier step 1742 failure. Region upkeep keeps harmful gas and unknown callbacks explicit; its nonempty-region recording coverage remains separate.",
+                  "The which_arti-through-tactics family and result-bearing relocation dependencies are implemented. Two independent peaceful master-lich recordings reach harassment, including mnexto relocation; healing and hero/floor/other-monster artifact entries remain unrecorded. Relocation preserves action/display RNG and source redraw order. Worm, shop, trap, occupation and attached-hero relocation restrictions and the named-expulsion gap remain explicit.",
+                  "The ordinary ice-vortex expels caller now delegates old/new monster-square redraws to mnexto and redraws only the hero square afterward. Planning suppresses live redraws. This removes the duplicate destination draw introduced when mnexto gained its source relocation core; the fixed hallucination session matches again."
+                ]
+              },
+              "evidence": [
+                "The passing 8064c3be combined checkpoint retains 42/44 sessions and 11339/11405 screens, with 398/398 recordings matching. Its saved scan emits 1757 Knight screens with no preceding RNG/screen/cursor divergence, then refuses a substituted monster attack. Knight positional RNG matches fall 106335→106194 because the planning pass now stops before the unimplemented attack turn commits; C consumes exactly106194 draws through the matching1757 screens. The earlier extra fire-trap path is removed; no new screen gain is claimed.",
+                "Isolated /tmp/b40-getmattk-probe/diagnostic-summary.json and scan2.stderr identify attacker m_id2335, PM_MASTER_LICH, at(66,15); hero m_id1, PM_BROWN_MOLD(pmidx159), at(67,16); first attack AT_TUCH/AD_COLD 3d6. The hero has cold intrinsic268435456, cold extrinsic0 and no blocking flag. The call chain is allmain moveElapsedTurnMonster → runSimpleMonsterAction/dochugw → attackHeroWithMattacku → mattacku → getmattk.",
+                "C mhitu.c getmattk309–444 also substitutes repeated disease/hunger attacks, energy drain, temporarily unavailable engulf/hold attacks, certain nonphysical weapon attacks, and home-elemental damage. Port the complete function, preserving catalog identity versus an alternative copy and source branch order. The existing broad weapon and cold-touch refusals are not the complete C predicates.",
+                "Retained counter-evidence: the earlier cleric fire-trap event had exactly one m_move→postmov→mintrap chain. Cleric2321 lacked minion state and trap knowledge because createMonsterBody skipped mk_roamer. A prior fire trap belonged to actor2334 at(26,7), outside learning range; fire resistance cannot omit the initial C fire-damage draw. The corrected source initialization removes that earlier divergence.",
+                "Retained counter-evidence for the resolved step1742 issue: the bat had spent its movement ration; its two distfleeck calls described one action. Vampire shapechange does not apply the Hell-bat creation-speed adjustment."
+              ],
+              "goalKind": "file-port"
+            }
+          }
+        }
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "getmattk",
+            "implementation": "js/mhitu.js",
+            "symbol": "getmattk",
+            "sourceReview": "Read complete mhitu.c:getmattk() 309-444, including the disabled-seduction c_sa_no table from monst.c:78-79 and monsters.h:2925-2928. The implementation preserves source guard order: SYSOPT_SEDUCE substitution, consecutive disease/pestilence/famine stun, hero-energy drain scaling, mspec_used holder/engulf fallback, cancelled or dangerous nonphysical weapon rewrite with the mattk[1] physical-weapon exception, resistant cold touch reduction excluding shades, then home-elemental damage doubling only when no earlier branch made a detached attack. Catalog attacks remain unchanged; each substitution returns a detached complete attack record. Weapon, cold-resistance, elemental-plane and artifact predicates use existing canonical owners. No random, output, or game-state operation occurs. C callers mattacku and mattackm already pass the selected result through their attack loops. The two uhitm.c:hmonas getmattk callers at lines 5441 and 5463 remain outside this span and are retained as an explicit unported hero-polymorph caller gap.",
+            "callers": [
+              {
+                "path": "js/mhitu.js",
+                "symbol": "mattacku",
+                "source": "mhitu.c:mattacku() 785-786 calls getmattk for each hero-facing attack slot before its attack switch."
+              },
+              {
+                "path": "js/mhitm.js",
+                "symbol": "mattackm",
+                "source": "mhitm.c:mattackm() 383 calls getmattk for each monster-vs-monster attack slot before its attack switch."
+              }
+            ],
+            "pure": true,
+            "tests": [
+              "scripts/mhitu.test.mjs"
+            ],
+            "recordings": [],
+            "checkedAt": "1163b285b82f87bb89cd457c2389589723186a72"
+          }
+        ],
+        "entryPointReview": "This selected range is a pure attack-selector helper. Its production callers are the existing mhitu.js:mattacku and mhitm.js:mattackm loops; no new impure entry point is claimed and no recording is required for the pure function. The source-pinned tests exercise the catalog identity path, the complete c_sa_no table, later-only SSEX substitution, disease guard precedence including the no-hit path, both energy scaling limits including detached unchanged dice, holder fallback including the wimpy zero-dice arm, cancelled/artifact weapon rewrites and the mattk[1] exception, ordinary and master-lich cold reduction against hero and monster targets, shade/unresistant guards, home-elemental doubling, prior-copy suppression, and catalog immutability. The two uhitm.c:hmonas calls at lines 5441 and 5463 are outside this selected source family and remain an explicit unported hero-polymorph caller gap. Root verified the complete source branches, canonical Cold_resistance/Resists_Elem, weapon/artifact and home-elemental predicates, and both existing production attack loops. Additional tests cover an unchanged-dice detached alternative suppressing elemental doubling, missed versus landed disease, the wimpy holder, ordinary lich dice, and monster resistance. The unported hmonas attack family remains separate and is not claimed complete.",
+        "entryPoints": []
+      },
+      "closeMismatches": [
+        {
+          "session": "holdout/seed4500-knight-coverage",
+          "step": 1761,
+          "kind": "screen",
+          "function": null,
+          "functionDeclared": false,
+          "sourceFile": null,
+          "cFile": null,
+          "luaFile": null,
+          "line": null,
+          "message": null,
+          "unlocatedKinds": [],
+          "recordedSteps": 1814,
+          "remainingScreensUpperBound": 53,
+          "investigation": {
+            "status": "partial",
+            "path": "investigations/holdout/seed4500-knight-coverage.json",
+            "result": {
+              "session": "holdout/seed4500-knight-coverage",
+              "remainingScreensUpperBound": 53,
+              "status": "partial",
+              "commit": "5a0832fde062f592e2e192ed41b8d86780d16035",
+              "mismatch": {
+                "session": "holdout/seed4500-knight-coverage",
+                "step": 1761,
+                "kind": "screen",
+                "function": null,
+                "functionDeclared": false,
+                "sourceFile": null,
+                "cFile": null,
+                "luaFile": null,
+                "line": null,
+                "message": null,
+                "unlocatedKinds": [],
+                "recordedSteps": 1814,
+                "remainingScreensUpperBound": 53
+              },
+              "summary": "The complete attack selector adds 23 matching Knight screens. The first remaining difference is now step 1761: C draws the brown-mold hero as a brown F at row 17, column 66, while JavaScript draws a white @. RNG remains aligned. Determine whether hero form state or a display refresh causes this difference before selecting the later unimplemented mcast_spell effect 17.",
+              "evidence": [
+                "The 5a0832fd saved scan emits 1784/1814 screens and first differs at step 1761; the checkpoint matches 1780/1814 Knight screens and 1783 cursors. These totals differ from the queue upper bound of 53. The whole fixed workload matches 11362/11405 screens; all 398 recordings pass.",
+                "At step 1761 (space input), the differing cell is row 17, column 66: C F/color3 versus JS @/color15. The first cursor difference is step 1763 (Escape): C [53,0,1] versus JS [66,17,1]. The scan has no preceding RNG divergence.",
+                "The later stop is simple monster action requires mcast_spell effect 17 after Monsters appear from nowhere!, on movesouth. That refusal does not explain the earlier screen difference without further source evidence.",
+                "Whole mhitu.c getmattk now handles seduction, disease/hunger, energy, temporary holder, weapon, cold-touch and home-elemental substitutions through mattacku/mattackm. Source-pinned tests establish the pure helper; unported uhitm.c hmonas remains a separate caller gap.",
+                "Retained counter-evidence: the earlier cleric fire-trap event had exactly one m_move→postmov→mintrap chain. Cleric2321 lacked minion state and trap knowledge because createMonsterBody skipped mk_roamer. A prior fire trap belonged to actor2334 at(26,7), outside learning range; fire resistance cannot omit the initial C fire-damage draw. The corrected source initialization removes that earlier divergence.",
+                "Retained counter-evidence for the resolved step1742 issue: the bat had spent its movement ration; its two distfleeck calls described one action. Vampire shapechange does not apply the Hell-bat creation-speed adjustment.",
+                "Preserved source and coverage context: priest.c mk_roamer and the sp_lev explicit-alignment caller are implemented with MM_EMIN allocation, canonical minion state, ALL_TRAPS knowledge and ordinary non-tame action admission. Two independent recordings establish creation and actual roamer movement. Guardian-angel and Astral entry recordings remain open; exceptional relocation restrictions remain with the existing rloc owner.",
+                "Preserved source and coverage context: Accepted getpos.c collection/cycling now includes menu selection and cancellation, source coordinate descriptions and exact area-filter lifetime. Five independent recordings match. VIEW and other location-family entry recordings remain open in GOALS.json.",
+                "Preserved source and coverage context: Accepted pager do_screen_description now collects all source symbol families and uses canonical stored-glyph map_glyphinfo. Its lookup coordinates differ from the encoded-prefix decode at (0,0); pet and hero overrides, Rogue colors and NOOVERRIDE order are verified. getpos_menu, displayed-glyph accessibility, cursor auto-description and clicked lookup recording entries remain open in GOALS.json.",
+                "Preserved source and coverage context: Accepted invent.c look_here/dolook now handles tactile floor reach, arbitrary pile inspection, pile counts, cockatrice ordering and message filtering, with canonical force_decor and query_objlist callers. Three independent recordings cover movement menu/count and colon look. Swallowed inventory, blind ICE and the tactile-corpse fallback remain unrecorded entry families in GOALS.json; movement retains its mutation-free unsupported naming/pricing boundary.",
+                "Preserved source and coverage context: Other unresolved source/coverage defects remain separate: make_stoned/minstapetrify/do_stone_mon; hero/monster stoning directions, corpse-weapon and attack-triggered golem entries; passive cold/fire/electricity/paralysis and lethal recovery; eating/non-food cleanup; skinback artifact-light radius and rare armor/Eyes-of-the-Overworld cleanup.",
+                "Preserved source and coverage context: Liquid-specific entry recordings and exceptional partial rloc routes remain open; trap.c inventory-chain calls and mon.c deal_with_overcrowding remain named discarded-call gaps. GOALS.json preserves open print_dungeon, hitmu, mfind0, goto_level, minliquid, creation/flash, pickup and achievement entry families rather than treating supporting unit tests as their completion.",
+                "Preserved source and coverage context: Hidden-attacker witnesses require eligible placement on objects or water, actual hidden state and an executed hitmu. Plain or qualified monster creation alone does not establish that entry; independent hidden-trapper and invisible-newt recordings establish creation/flash only.",
+                "Preserved source and coverage context: The m_move/mdisplacem dispatch, combat state and projected movement corrections have matching Tengu relocation recordings. Displacement, mail, worm and exceptional dedicated-mover entry recordings remain open in GOALS.json. Covetous admission now reaches the complete wizard.c tactics family through dochug.",
+                "Preserved source and coverage context: Safe monster scans, deferred-transition continuation and Hell-bat creation speed resolve the earlier step 1742 failure. Region upkeep keeps harmful gas and unknown callbacks explicit; its nonempty-region recording coverage remains separate.",
+                "Preserved source and coverage context: The which_arti-through-tactics family and result-bearing relocation dependencies are implemented. Two independent peaceful master-lich recordings reach harassment, including mnexto relocation; healing and hero/floor/other-monster artifact entries remain unrecorded. Relocation preserves action/display RNG and source redraw order. Worm, shop, trap, occupation and attached-hero relocation restrictions and the named-expulsion gap remain explicit.",
+                "Preserved source and coverage context: The ordinary ice-vortex expels caller now delegates old/new monster-square redraws to mnexto and redraws only the hero square afterward. Planning suppresses live redraws. This removes the duplicate destination draw introduced when mnexto gained its source relocation core; the fixed hallucination session matches again."
+              ]
+            }
+          }
+        }
+      ],
+      "closeStanding": {
+        "sha": "5a0832fde062f592e2e192ed41b8d86780d16035",
+        "screens": 11362,
+        "rng": 791400
+      }
     }
   ]
 }
