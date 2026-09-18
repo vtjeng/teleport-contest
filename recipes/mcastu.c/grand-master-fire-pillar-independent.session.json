@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 918316,
+      "datetime": "20410619140300",
+      "nethackrc": "OPTIONS=name:GrandSpellProbe,role:Valkyrie,race:human,gender:female,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen,playmode:debug,pettype:none,!acoustics\n",
+      "moves": ".#levelchange\n20\n                   #wizgenesis\nhostile grand master\ny Fy Fu Fk Fh Fl Fb "
+    }
+  ],
+  "_comment": "Independent mcastu.c production witness for the Grand Master fire pillar helper: level 20 survives the physical slots, a forced directional attack reaches AD_CLRC, and the input ends after the first completed effect."
+}
