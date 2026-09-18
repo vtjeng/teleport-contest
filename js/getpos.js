@@ -620,10 +620,11 @@ export function gloc_filter_floodfill(x, y, state = game) {
 // direction leaves the allocated selection empty, exactly as C does.
 export function gloc_filter_init(state = game) {
     state.gg ??= {};
-    delete state.gg.gloc_filter_map;
-    delete state.gg.gloc_filter_floodfill_match_glyph;
     if (state.iflags?.getloc_filter !== GFILTER_AREA) return;
-    state.gg.gloc_filter_map = new Set();
+    // C reuses an existing selection object and leaves all filter state
+    // untouched for non-area filters.  In particular, init does not own the
+    // match glyph; gloc_filter_floodfill replaces it when it actually runs.
+    state.gg.gloc_filter_map ??= new Set();
     const here = state.level?.at(state.u?.ux, state.u?.uy);
     if (here && IS_DOOR(here.typ)) {
         const dx = state.u?.dx ?? 0;
@@ -638,15 +639,15 @@ export function gloc_filter_init(state = game) {
     }
 }
 
-// C ref: getpos.c gloc_filter_done() (417-425). The selection is temporary
-// for one gather operation.
+// C ref: getpos.c gloc_filter_done() (417-425). The selection map is
+// temporary for one gather operation; C deliberately leaves the flood-fill
+// match glyph alone because it is separate gg state.
 export function gloc_filter_done(state = game) {
     if (state.gg?.gloc_filter_map) {
         // C selection_free(..., TRUE) releases the temporary selection after
         // every gather pass; dropping the JS Set mirrors that lifetime.
-        delete state.gg.gloc_filter_map;
+        state.gg.gloc_filter_map = null;
     }
-    delete state.gg?.gloc_filter_floodfill_match_glyph;
 }
 
 function sameArea(x, y, state) {
@@ -757,7 +758,7 @@ export async function gather_locs(gloc, state = game) {
 // C ref: getpos.c coord_desc() (595-645).  getpos_menu() is a return-valued
 // caller of this formatter, so keep the coordinate modes beside its owner
 // instead of silently dropping configured map/screen coordinates.
-function coord_desc(x, y, state) {
+export function coord_desc(x, y, state) {
     const mode = state.iflags?.getpos_coords ?? GPCOORDS_NONE;
     if (mode === GPCOORDS_COMPASS || mode === GPCOORDS_COMFULL) {
         const full = mode === GPCOORDS_COMFULL;

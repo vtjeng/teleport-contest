@@ -8,6 +8,11 @@ import {
     GLOC_MONS,
     GFILTER_NONE,
     GFILTER_AREA,
+    GPCOORDS_NONE,
+    GPCOORDS_COMPASS,
+    GPCOORDS_COMFULL,
+    GPCOORDS_MAP,
+    GPCOORDS_SCREEN,
     ROOM,
 } from '../js/const.js';
 import { GameMap } from '../js/game.js';
@@ -28,6 +33,7 @@ import {
     gather_locs,
     gather_locs_interesting,
     known_vibrating_square_at,
+    coord_desc,
 } from '../js/getpos.js';
 import {
     S_hwall,
@@ -102,9 +108,54 @@ test('selection floodfill keeps its valid start before match checks', () => {
     state.level.at(5, 5).seenv = 0;
     gloc_filter_init(state);
     assert.equal(state.gg.gloc_filter_map.has('5,5'), true);
+    const matchGlyph = state.gg.gloc_filter_floodfill_match_glyph;
     gloc_filter_done(state);
-    assert.equal(state.gg.gloc_filter_map, undefined);
-    assert.equal(state.gg.gloc_filter_floodfill_match_glyph, undefined);
+    assert.equal(state.gg.gloc_filter_map, null);
+    assert.equal(state.gg.gloc_filter_floodfill_match_glyph, matchGlyph);
+});
+
+test('filter initialization reuses area state and leaves non-area state untouched', () => {
+    const state = initializedState();
+    const map = new Set(['old']);
+    state.gg = {
+        gloc_filter_map: map,
+        gloc_filter_floodfill_match_glyph: 12345,
+    };
+    gloc_filter_init(state);
+    assert.equal(state.gg.gloc_filter_map, map);
+    assert.deepEqual([...map], ['old']);
+    assert.equal(state.gg.gloc_filter_floodfill_match_glyph, 12345);
+    state.level.at(5, 5).typ = ROOM;
+    state.iflags.getloc_filter = GFILTER_AREA;
+    gloc_filter_init(state);
+    assert.equal(state.gg.gloc_filter_map, map);
+    assert.equal(state.gg.gloc_filter_floodfill_match_glyph,
+        cmap_to_glyph(S_room, state));
+});
+
+test('coord_desc formats every source coordinate mode', () => {
+    const source = C_SOURCE.slice(
+        C_SOURCE.indexOf('coord_desc(coordxy'),
+        C_SOURCE.indexOf(
+            'RESTORE_WARNING_FORMAT_NONLITERAL',
+            C_SOURCE.indexOf('coord_desc(coordxy'),
+        ),
+    );
+    assert.match(source, /case GPCOORDS_COMFULL:/);
+    assert.match(source, /case GPCOORDS_COMPASS:/);
+    assert.match(source, /case GPCOORDS_MAP:/);
+    assert.match(source, /case GPCOORDS_SCREEN:/);
+    const state = { u: { ux: 5, uy: 5 }, iflags: {} };
+    state.iflags.getpos_coords = GPCOORDS_NONE;
+    assert.equal(coord_desc(7, 5, state), '');
+    state.iflags.getpos_coords = GPCOORDS_COMPASS;
+    assert.equal(coord_desc(7, 5, state), '(2e)');
+    state.iflags.getpos_coords = GPCOORDS_COMFULL;
+    assert.equal(coord_desc(7, 5, state), '(2east)');
+    state.iflags.getpos_coords = GPCOORDS_MAP;
+    assert.equal(coord_desc(7, 5, state), '<7,5>');
+    state.iflags.getpos_coords = GPCOORDS_SCREEN;
+    assert.equal(coord_desc(7, 5, state), '[07,07]');
 });
 
 test('gather_locs short-circuits the hero callback and uses literal tail glyphs', async () => {
