@@ -68546,7 +68546,7 @@
     {
       "id": "div-makemon-runtime-species-admission-seed4500-20260918",
       "kind": "divergence-fix",
-      "status": "open",
+      "status": "closed",
       "summary": "Allow the source-defined explicit monster species selected by nasty through runtime creation.",
       "cFile": "makemon.c",
       "sessions": [],
@@ -68555,8 +68555,8 @@
       "spans": [
         {
           "name": "runtime-species-admission",
-          "status": "queued",
-          "closedBy": null,
+          "status": "closed",
+          "closedBy": "3dc05e1cda4be3b759172c2e954941d769166f05",
           "functions": [
             "makemon"
           ]
@@ -68568,8 +68568,11 @@
         "screens": 11366,
         "rng": 791400
       },
-      "closedAt": null,
-      "delivered": null,
+      "closedAt": "3dc05e1cda4be3b759172c2e954941d769166f05",
+      "delivered": {
+        "screens": 8,
+        "rng": 633
+      },
       "function": "makemon",
       "session": "holdout/seed4500-knight-coverage",
       "step": 1784,
@@ -68663,7 +68666,12 @@
             }
           }
         }
-      ]
+      ],
+      "closeStanding": {
+        "sha": "3dc05e1cda4be3b759172c2e954941d769166f05",
+        "screens": 11374,
+        "rng": 792033
+      }
     }
   ]
 }
