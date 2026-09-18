@@ -69089,6 +69089,117 @@
         "screens": 11396,
         "rng": 792838
       }
+    },
+    {
+      "id": "div-cfgfiles-recording-environment-seed2200-20260918",
+      "kind": "divergence-fix",
+      "status": "open",
+      "summary": "Initialize the configuration filename from the documented recorder environment.",
+      "cFile": "cfgfiles.c",
+      "sessions": [],
+      "selectionReason": "The sole remaining fixed-workload mismatch is seed2200-wizard-quaff-zap-read, upper bound72 and actual9 screens; investigations/seed2200-wizard-quaff-zap-read.json traces cfgfiles initialization. The user supplied upstream 2a7b4f21, whose documented global HOME resolves the previous policy blocker.",
+      "detail": "C cfgfiles.c get_configfile143-146 returns the filename selected by fopen_config_file223-370; options.c option_help9461-9549 prints it. JavaScript startup leaves that state unset and falls back to the compiled basename, producing first screen divergence at step158 and a later cursor difference with all RNG matching. Restore the upstream environment contract and initialize the canonical source-owned filename uniformly for all input values; preserve explicit setters, compiled basename, immutable recordings and scorer.",
+      "spans": [
+        {
+          "name": "reference-config-path",
+          "status": "queued",
+          "closedBy": null,
+          "functions": [
+            "get_configfile",
+            "fopen_config_file"
+          ]
+        }
+      ],
+      "openedAt": "afbf51da964d5e84b0f3b5897cae2054cb2cb428",
+      "openStanding": {
+        "sha": "3d1e737777b51c30e76644437ad06102d47ca245",
+        "screens": 11396,
+        "rng": 792838
+      },
+      "closedAt": null,
+      "delivered": null,
+      "function": "get_configfile",
+      "session": "seed2200-wizard-quaff-zap-read",
+      "step": 158,
+      "activeStanding": {
+        "sha": "3d1e737777b51c30e76644437ad06102d47ca245",
+        "screens": 11396,
+        "rng": 792838
+      },
+      "openMismatches": [
+        {
+          "session": "seed2200-wizard-quaff-zap-read",
+          "step": 158,
+          "kind": "screen",
+          "function": null,
+          "functionDeclared": false,
+          "sourceFile": null,
+          "cFile": null,
+          "luaFile": null,
+          "line": null,
+          "message": null,
+          "unlocatedKinds": [],
+          "recordedSteps": 230,
+          "remainingScreensUpperBound": 72,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/seed2200-wizard-quaff-zap-read.json",
+            "result": {
+              "session": "seed2200-wizard-quaff-zap-read",
+              "remainingScreensUpperBound": 72,
+              "status": "complete",
+              "commit": "3d1e737777b51c30e76644437ad06102d47ca245",
+              "mismatch": {
+                "session": "seed2200-wizard-quaff-zap-read",
+                "remainingScreensUpperBound": 72,
+                "step": 158,
+                "kind": "screen",
+                "function": "option_help",
+                "functionDeclared": true,
+                "sourceFile": "options.c",
+                "cFile": "options.c",
+                "luaFile": null,
+                "line": "9461-9549",
+                "message": "C option_help() wraps an absolute HOME-derived config path; JavaScript renders the contract-safe .nethackrc basename, first differing at row 3, column 36 (C blank, JS period), with RNG aligned.",
+                "unlocatedKinds": [],
+                "recordedSteps": 230
+              },
+              "summary": "Nine screens differ because option_help() prints the configuration filename and the JavaScript fallback omits the recorder HOME prefix. Upstream commit 2a7b4f212d3e6adeeb0878813250f2f89d899425 documents that fixed environment and explicitly permits reproducing its strings for all inputs; local commit eb090115 reversed that ruling in documentation. Restore the upstream environment contract and initialize the canonical config filename from the documented recorder HOME. No session-specific handling or scoring change is required.",
+              "source": {
+                "file": "cfgfiles.c",
+                "functions": [
+                  "get_configfile",
+                  "fopen_config_file"
+                ],
+                "branch": "UNIX default configuration selection constructs HOME/.nethackrc; option_help reads the canonical filename. The documented upstream recording environment supplies HOME globally even though the per-segment input does not repeat it.",
+                "callers": [
+                  "nethack-c/upstream/src/cmd.c command table maps '?' to dohelp (lines 1734-1735)",
+                  "nethack-c/upstream/src/pager.c dohelp() selects option_help() for menu item 7 (lines 2829-2898)",
+                  "js/cmd.js runHelpCommand() dispatches to js/pager.js dohelp() (lines 3256-3259)",
+                  "js/pager.js dohelp() dynamically imports and calls js/options.js option_help() for choice 7 (lines 1274-1322)"
+                ],
+                "dependencies": [
+                  "nethack-c/upstream/src/cfgfiles.c get_configfile()/fopen_config_file() (lines 143-146, 223-370)",
+                  "js/cfgfiles.js get_configfile()/fopen_config_file() (lines 53-140)",
+                  "nethack-c/upstream/win/tty/wintty.c tty_putstr()/process_text_window()/tty_display_nhwindow() (lines 1771-1947, 2225-2450)",
+                  "js/tty_menu.js ttyMenuTextData()/displayTtyTextWindow() (lines 240-325, 742-824)",
+                  "docs/recording-environment.md at upstream commit 2a7b4f212d3e6adeeb0878813250f2f89d899425 defines the fixed recorder environment and permits reproducing its literal strings."
+                ]
+              },
+              "goalKind": "divergence-fix",
+              "evidence": [
+                ".cache/scan-cache.json rows[file=seed2200-wizard-quaff-zap-read.session.json] records screensEmitted=230, first screen divergence at segment 0 step 158 key g row 3 column 36 (C space, JavaScript period), aligned RNG, and a later cursor divergence at step 165 (C [8,23,1], JavaScript [22,10,1]).",
+                ".git/checkpoint-results/cc1b4453d14fd4a0e995170e3842ad622790c8a5/run-cLC7Rj/session-results.json results[session=seed2200-wizard-quaff-zap-read.session.json] records RNG 3018/3018, screens 221/230, cells 221/230, and cursors 229/230 at the assigned commit.",
+                "sessions/seed2200-wizard-quaff-zap-read.session.json segments[0] has only seed, datetime, nethackrc, moves, and steps; it contains no HOME or configuration pathname. segments[0].steps[158] contains the C wrapped prefix /Users/davidbau/git/mazesofmenace/teleport/maud/test/comparison/c-harness/resul.",
+                "nethack-c/upstream/src/options.c:9461-9549 formats get_configfile() into option_help() output; nethack-c/upstream/src/cfgfiles.c:223-370 constructs and stores $HOME/.nethackrc on UNIX; nethack-c/upstream/win/tty/wintty.c:2225-2450 compresses and splits the over-width line.",
+                "Upstream commit 2a7b4f212d3e6adeeb0878813250f2f89d899425 is already an ancestor of main. Its recording-environment.md says matching the published environment strings verbatim is allowed. Local eb090115 changed that policy; the user identified the upstream ruling on 2026-09-18 and requested recovering the behavior. The earlier claim that the missing per-segment path prevents a valid fix is superseded.",
+                "The passing checkpoint at 3d1e737777b51c30e76644437ad06102d47ca245 still measures this session at 221/230 screens, 3018/3018 RNG calls and 229/230 cursors. It is the sole remaining fixed-workload mismatch after Kni-goal generation is implemented.",
+                "Keep get_default_configfile() as the C basename and state.configfile as the single selected-path owner. Trace startup initialization before setting the documented environment path; preserve explicit filename setters. Fresh independent C recordings use temporary HOME, which needs consideration in differential evidence without modifying the frozen workload or scorer."
+              ]
+            }
+          }
+        }
+      ]
     }
   ]
 }
