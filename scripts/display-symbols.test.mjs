@@ -6423,10 +6423,11 @@ test('map_glyphinfo resolves each object arm at its own first glyph', () => {
         state.wizard = false;
     }
 
-    // Everything outside the four object families and the cmap ranges is
-    // refused rather than resolved through the arm underneath it. The zap
-    // range is inside glyph_is_cmap()'s contiguous span and now has an arm of
-    // its own, so it belongs above rather than here; the zap-ray tests pin it.
+    // The ranges immediately around the object families are source-defined
+    // monster, warning, and unexplored arms in reset_glyphmap(); they must not
+    // be mistaken for invalid object glyphs merely because they border one.
+    // The zap range is inside glyph_is_cmap()'s contiguous span and has an arm
+    // of its own, so the zap-ray tests pin it separately.
     for (const glyph of [
         GLYPH_BODY_OFF - 1,
         GLYPH_BODY_OFF + NUMMONS,
@@ -6434,9 +6435,8 @@ test('map_glyphinfo resolves each object arm at its own first glyph', () => {
         GLYPH_STATUE_MALE_OFF - 1,
         GLYPH_STATUE_FEM_PILETOP_OFF + NUMMONS,
     ]) {
-        assert.throws(
+        assert.doesNotThrow(
             () => map_glyphinfo(glyph, state),
-            TypeError,
             `${glyph}`,
         );
     }
@@ -9595,11 +9595,11 @@ test('map_glyphinfo resolves GLYPH_NOTHING to the blank the symset gives it',
         { ch: nothing.ch, color: nothing.color, dec: nothing.dec },
         { ch: ' ', color: NO_COLOR, dec: false },
     );
-    // GLYPH_UNEXPLORED sits directly below it and has no ported writer, so it
-    // is refused rather than resolved through the arm underneath.
-    assert.throws(
-        () => map_glyphinfo(GLYPH_UNEXPLORED_OFF, state), TypeError,
-    );
+    // GLYPH_UNEXPLORED is the live glyph-buffer sentinel after cls() and has
+    // its own display.c reset_glyphmap() arm.
+    const unexplored = map_glyphinfo(GLYPH_UNEXPLORED_OFF, state);
+    assert.equal(unexplored.ch, ' ');
+    assert.equal(unexplored.color, NO_COLOR);
 
     // The arm draws from no defsym index, so it takes its accessibility kind
     // directly rather than through the cmap classifier. js/startup_a11y.js

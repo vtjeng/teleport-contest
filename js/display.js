@@ -1892,24 +1892,23 @@ export const ALTAR_CUSTOMIZATION_NAMES = Object.freeze([
     'G_lawful_altar', 'G_altar_other',
 ]);
 
-// The glyph ranges map_glyphinfo() has an arm for: GLYPH_NOTHING, every object
-// range, every cmap range but the zap beams, and explosion frames. This is the port's own
+// The glyph ranges map_glyphinfo() has an arm for: GLYPH_NOTHING,
+// GLYPH_UNEXPLORED, every monster and object
+// range, every cmap range (including zap beams), and explosion frames. This is the port's own
 // assertion rather than a ported predicate, and it is deliberately narrower
 // than glyph_is_cmap(): that macro's contiguous span admits the zap range,
 // which zapdir_to_glyph() would have to produce and no ported path does.
-// GLYPH_UNEXPLORED is left out on a different footing. mklev.c
-// clear_level_structures() (852) is what fills map memory with it; display.c
-// clear_glyph_buffer() (2107) fills the glyph buffer, which is a separate
-// array. This port encodes "nothing remembered here" as
-// `remembered_glyph === undefined` instead. newsym()'s not-visible path has
-// a final `else` clause that writes a blank cell (space, NO_COLOR) when
-// remembered_glyph is undefined, matching C's show_mem of the unexplored
-// glyph. No path produces the GLYPH_UNEXPLORED number, so this refuses it.
+// The JS map buffer uses `remembered_glyph === undefined` for an unexplored
+// map-memory record, but the live glyph buffer still exposes C's
+// GLYPH_UNEXPLORED sentinel after cls() and before a square is drawn.
 function mapGlyphinfoResolves(glyph) {
-    return glyph === GLYPH_NOTHING_OFF
+    return glyph === GLYPH_NOTHING_OFF || glyph === GLYPH_UNEXPLORED_OFF
         || glyph === GLYPH_INVISIBLE
+        || glyph_is_monster(glyph)
         || glyph_is_object(glyph)
         || glyph_is_cmap(glyph)
+        || (glyph >= GLYPH_WARNING_OFF
+            && glyph < GLYPH_WARNING_OFF + WARNCOUNT)
         || (glyph >= GLYPH_EXPLODE_DARK_OFF
             && glyph < GLYPH_WARNING_OFF)
         || glyph_is_swallow(glyph);
@@ -1967,6 +1966,43 @@ export function map_glyphinfo(glyph, state = game) {
         symbol = misc_symbol(SYM_NOTHING, state);
         color = NO_COLOR;
         glyphflags = MG_NOTHING;
+    } else if (glyph === GLYPH_UNEXPLORED_OFF) {
+        // display.c:2778-2782. The unexplored sentinel uses the active
+        // SYM_UNEXPLORED byte and no color, just like the C glyph map entry.
+        return unexploredGlyphInfo(state);
+    } else if (glyph_is_monster(glyph)) {
+        // display.c:2986-3065. The glyph number already contains the
+        // species, gender, and presentation family; derive the symbol from
+        // it instead of consulting a live monster or rerolling hallucination.
+        const mnum = glyph_to_mon(glyph);
+        const species = state.mons?.[mnum];
+        if (!species) throw new TypeError(`unknown monster glyph ${glyph}`);
+        symbol = monster_class_symbol(species.mlet, state);
+        color = species.mcolor ?? NO_COLOR;
+        if (glyph >= GLYPH_RIDDEN_FEM_OFF
+            && glyph < GLYPH_RIDDEN_FEM_OFF + NUMMONS) {
+            glyphflags = MG_RIDDEN | MG_FEMALE;
+        } else if (glyph >= GLYPH_RIDDEN_MALE_OFF
+                   && glyph < GLYPH_RIDDEN_MALE_OFF + NUMMONS) {
+            glyphflags = MG_RIDDEN | MG_MALE;
+        } else if (glyph >= GLYPH_DETECT_FEM_OFF
+                   && glyph < GLYPH_DETECT_FEM_OFF + NUMMONS) {
+            glyphflags = MG_DETECT | MG_FEMALE;
+        } else if (glyph >= GLYPH_DETECT_MALE_OFF
+                   && glyph < GLYPH_DETECT_MALE_OFF + NUMMONS) {
+            glyphflags = MG_DETECT | MG_MALE;
+        } else if (glyph >= GLYPH_PET_FEM_OFF
+                   && glyph < GLYPH_PET_FEM_OFF + NUMMONS) {
+            glyphflags = MG_PET | MG_FEMALE;
+        } else if (glyph >= GLYPH_PET_MALE_OFF
+                   && glyph < GLYPH_PET_MALE_OFF + NUMMONS) {
+            glyphflags = MG_PET | MG_MALE;
+        } else if (glyph >= GLYPH_MON_FEM_OFF
+                   && glyph < GLYPH_MON_FEM_OFF + NUMMONS) {
+            glyphflags = MG_FEMALE;
+        } else {
+            glyphflags = MG_MALE;
+        }
     } else if ((offset = glyph - GLYPH_STATUE_FEM_PILETOP_OFF) >= 0) {
         symbol = statueSymbol(offset, state);
         color = statueColor(state);
@@ -1991,6 +2027,12 @@ export function map_glyphinfo(glyph, state = game) {
         symbol = statueSymbol(offset, state);
         color = statueColor(state);
         glyphflags = MG_STATUE | MG_MALE;
+    } else if ((offset = glyph - GLYPH_WARNING_OFF) >= 0) {
+        // display.c:2836-2842. Warning glyphs already carry their level;
+        // map_glyphinfo resolves that stored level without rerolling the
+        // hallucinated warning chosen by warningGlyphInfo().
+        symbol = symbol_at(SYM_OFF_W + offset, state);
+        color = def_warnsyms[offset]?.color ?? NO_COLOR;
     } else if ((offset = glyph - GLYPH_EXPLODE_FROSTY_OFF) >= 0) {
         // display.c:2843-2862. Explosion glyphs use the same cmap symbol
         // sequence for each color family and choose color from explodecolors.
