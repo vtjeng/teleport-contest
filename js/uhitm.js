@@ -75,6 +75,9 @@ import {
     STUNNED,
     TIMEOUT,
     TEST_MOVE,
+    LEG,
+    LEFT_SIDE,
+    RIGHT_SIDE,
     W_ARMG,
     W_RINGL,
     W_RINGR,
@@ -334,6 +337,7 @@ import {
     GEM_CLASS,
     HEAVY_IRON_BALL,
     IRON,
+    IRON_SHOES,
     IRON_CHAIN,
     KATANA,
     LOADSTONE,
@@ -347,10 +351,13 @@ import {
     SPBOOK_CLASS,
     VEGGY,
     WEAPON_CLASS,
+    LOW_BOOTS,
     WHACK,
     YA,
     YUMI,
 } from './objects.js';
+import { acurr } from './attrib.js';
+import { set_wounded_legs } from './do.js';
 import { encumber_msg } from './pickup.js';
 import { make_blinded, potionhit } from './potion.js';
 import { d, rn1, rn2, rnl, rnd } from './rng.js';
@@ -3230,6 +3237,113 @@ export async function mhitm_ad_ston(
     }
 }
 
+// C ref: uhitm.c mhitm_ad_legs() (4425-4490).  The three source arms share
+// the same damage object: the hero's arm delegates to physical damage, a
+// monster attacking the hero can wound either leg, and a monster attacking a
+// monster delegates after the cancelled-attacker guard.  The side draw is
+// deliberately before the mounted, cancelled, and footwear predicates.
+export async function mhitm_ad_legs(
+    magr,
+    mattk,
+    mdef,
+    mhm,
+    state = game,
+    env = {},
+) {
+    const random = env.random ?? { rn2, rnd };
+    const message = requireAttackOperation(env, 'message');
+
+    if (magr === state.youmonst) {
+        // uhitm.c:4427-4435.  This arm is the ordinary hero physical blow;
+        // mhitm_ad_phys() owns its source-specific damage and done result.
+        await mhitm_ad_phys(magr, mattk, mdef, mhm, state, env);
+        if (mhm.done) return;
+    } else if (mdef === state.youmonst) {
+        // mhitu.c:4437-4480.  C chooses the side even when the attack is
+        // cancelled or cannot reach a mounted/flying hero.
+        const side = random.rn2(2) ? RIGHT_SIDE : LEFT_SIDE;
+        const sidestr = side === RIGHT_SIDE ? 'right' : 'left';
+        const monsterName = Monnam(magr, state, env);
+        const leg = body_part(LEG, state.youmonst);
+
+        if ((state.u?.usteed || Levitation(state) || Flying(state))
+            && !is_flyer(magr.data)) {
+            await message(
+                `${monsterName} tries to reach your ${sidestr} ${leg}!`,
+                state,
+                env,
+            );
+            mhm.damage = 0;
+        } else if (magr.mcan) {
+            await message(
+                `${monsterName} nuzzles against your ${sidestr} ${leg}!`,
+                state,
+                env,
+            );
+            mhm.damage = 0;
+        } else {
+            const boots = state.uarmf;
+            if (boots) {
+                if (random.rn2(2)
+                    && (boots.otyp === LOW_BOOTS || boots.otyp === IRON_SHOES)) {
+                    await message(
+                        `${monsterName} pricks the exposed part of your `
+                            + `${sidestr} ${leg}!`,
+                        state,
+                        env,
+                    );
+                } else if (!random.rn2(5)) {
+                    await message(
+                        `${monsterName} pricks through your ${sidestr} boot!`,
+                        state,
+                        env,
+                    );
+                } else {
+                    await message(
+                        `${monsterName} scratches your ${sidestr} boot!`,
+                        state,
+                        env,
+                    );
+                    mhm.damage = 0;
+                    return;
+                }
+            } else {
+                await message(
+                    `${monsterName} pricks your ${sidestr} ${leg}!`,
+                    state,
+                    env,
+                );
+            }
+
+            await set_wounded_legs(
+                side,
+                random.rnd(60 - acurr(state, A_DEX)),
+                state,
+                env,
+            );
+            const encumberMessage = env.encumberMessage
+                ?? ((subject) => encumber_msg(subject, {
+                    message: env.message ?? ttyPline,
+                }));
+            await exercise(A_STR, false, state, random, {
+                encumberMessage,
+            });
+            await exercise(A_DEX, false, state, random, {
+                encumberMessage,
+            });
+        }
+    } else {
+        // mhitm.c:4482-4490.  A cancelled attacker loses this effect without
+        // a physical-damage call; otherwise preserve its done/hit flags.
+        if (magr.mcan) {
+            mhm.damage = 0;
+            return;
+        }
+        await mhitm_ad_phys(magr, mattk, mdef, mhm, state, env);
+        if (mhm.done) return;
+    }
+}
+
 // C ref: uhitm.c mhitm_adtyping() (4781-4832). One landed blow's damage type
 // selects the function that applies it. C's switch is written out in full so
 // that the arms this port has not reached name the uhitm.c function a later
@@ -3252,7 +3366,9 @@ export async function mhitm_adtyping(
 
     switch (mattk.adtyp) {
     case AD_STUN: unported('mhitm_ad_stun'); break;
-    case AD_LEGS: unported('mhitm_ad_legs'); break;
+    case AD_LEGS:
+        await mhitm_ad_legs(magr, mattk, mdef, mhm, state, env);
+        break;
     case AD_WERE: unported('mhitm_ad_were'); break;
     case AD_HEAL: unported('mhitm_ad_heal'); break;
     case AD_PHYS:

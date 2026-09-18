@@ -2376,7 +2376,7 @@ export async function legs_in_no_shape(
 // C's comment notes that a mounted hero's steed takes the wound instead and
 // that the caller adjusts its own messages; the hit-point loss is likewise the
 // caller's, not this function's.
-export async function set_wounded_legs(side, timex, state = game) {
+export async function set_wounded_legs(side, timex, state = game, env = {}) {
     const u = state.u;
     const wounded = u.uprops[WOUNDED_LEGS];
     const already = Boolean(wounded.intrinsic || wounded.extrinsic);
@@ -2393,7 +2393,10 @@ export async function set_wounded_legs(side, timex, state = game) {
     // C ref: do.c:2442-2445. Bitwise-OR rather than assignment, so a second
     // wound to the other leg does not heal the first.
     wounded.extrinsic |= side;
-    await encumber_msg(state);
+    // uhitm.c passes through the attack message sink when a leg wound changes
+    // burden.  Keep the optional seam here so planning attacks cannot write to
+    // the live terminal; older callers retain ttyPline by default.
+    await encumber_msg(state, { message: env.message ?? ttyPline });
 }
 
 // C ref: do.c heal_legs() (2448-2486), the how == 0 arm. C's argument picks
