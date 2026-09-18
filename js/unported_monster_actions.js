@@ -72,9 +72,7 @@ import {
     nomul,
 } from './hack.js';
 import { hands_obj, obj_extract_self, stackobj } from './invent.js';
-import { any_light_source } from './light.js';
 import {
-    dmonsfree,
     m_dowear,
     set_mimic_sym,
 } from './makemon_create.js';
@@ -93,7 +91,7 @@ import { whimper } from './sounds.js';
 import {
     adaptMonsterActionToDochugwSignature,
     hideunder,
-    iter_mons_safe,
+    movemon,
     minliquid,
     movemon_singlemon,
     restrap,
@@ -1905,7 +1903,11 @@ async function planSimpleMonsterScan(monster, env) {
 // remain unchanged and retryable.
 export async function preflightSimpleMonsterActions(
     state = game,
-    { advanceRound = null, consumeHeroRation = true } = {},
+    {
+        advanceRound = null,
+        consumeHeroRation = true,
+        afterMonsterScan = false,
+    } = {},
 ) {
     // allmain.c moveloop_core()'s own preamble:
     // `if (svc.context.bypasses) clear_bypasses();` at 193. A deferred level
@@ -1942,6 +1944,7 @@ export async function preflightSimpleMonsterActions(
                     beforeTimeout = Boolean(result?.beforeTimeout);
                     return result;
                 } : null,
+                afterMonsterScan,
             );
             upkeepCount = scan.upkeepCount;
             deferredGoto = scan.deferredGoto;
@@ -2006,7 +2009,9 @@ export async function preflightElapsedTurnTail(state, advanceTail) {
 
 // The body of preflightSimpleMonsterActions()'s scan, split out so that its
 // caller can restore the shared vision buffers on every exit.
-async function planSimpleMonsterTurn(planned, random, advanceRound) {
+async function planSimpleMonsterTurn(
+    planned, random, advanceRound, afterMonsterScan,
+) {
     // The preflight scan executes the same naming branches as the live scan.
     // Hallucinated names draw from rnd.c's display context, so point them at
     // the copy planningState() owns instead of advancing the live stream.
@@ -2023,61 +2028,39 @@ async function planSimpleMonsterTurn(planned, random, advanceRound) {
     do {
         // C brackets only the monster scan with context.mon_moving, so the
         // once-per-turn upkeep below sees it clear just as the live loop does.
-        planned.context.mon_moving = true;
-        let scanStopped = false;
-        do {
-            planned.somebody_can_move = false;
-            // C movemon() snapshots fmon through iter_mons_safe() before the
-            // first callback. A planned action may unlink its subject or add
-            // another monster, so walking planned.level.monlist directly
-            // would skip an original successor or process a new node during
-            // this scan. Preserve the callback's stop result as live movemon
-            // does; the movemon tail still runs before the outer turn gate.
-            await iter_mons_safe(async (monster) => {
-                if (!assertSimpleScanState(monster, planned)) return false;
-                const stop = await planSimpleMonsterScan(monster, {
+        if (afterMonsterScan) {
+            // The live inner movement loop has ended. C next tests upkeep;
+            // in particular, destination monsters after deferred_goto() do
+            // not get another scan before that gate.
+            somebodyCanMove = false;
+            afterMonsterScan = false;
+        } else {
+            planned.context.mon_moving = true;
+            do {
+                // Reuse C's safe iterator and ordered cleanup tail. Only
+                // level generation stays live; report that boundary before
+                // planning any upkeep against the old level.
+                somebodyCanMove = await movemon({
                     state: planned,
-                    random,
-                    displayRandom,
-                    planning: true,
+                    moveSingleMonster: (monster) => {
+                        if (!assertSimpleScanState(monster, planned))
+                            return false;
+                        return planSimpleMonsterScan(monster, {
+                            state: planned,
+                            random,
+                            displayRandom,
+                            planning: true,
+                        });
+                    },
+                    clearBypasses: () => clear_bypasses(planned),
+                    deferredGoto: () => { deferredGoto = true; },
                 });
-                scanStopped = stop || Boolean(
-                    planned.program_state?.gameover,
-                );
-                return scanStopped;
-            }, planned);
-            // C mon.c movemon() calls dmonsfree() after its monster scan.
-            // The live pass must remove a monster killed by a passive
-            // retaliation before allmain.c mcalcmove() allocates the next
-            // round; do the same on the planning clone so a dead attacker
-            // cannot remain in the next scan and change its RNG/allocation
-            // count.  The clone owns the list and purge counter, so this does
-            // not touch the retryable live state.
-            dmonsfree(planned);
-            somebodyCanMove = Boolean(planned.somebody_can_move);
-            // C ref: mon.c movemon()'s tail. Keeping the flag here rather than
-            // testing the light source at each place a further scan can follow
-            // means planSimpleMonsterScan()'s refusing visionRecalc fires
-            // exactly where movemon_singlemon() would rebuild viz_array,
-            // whether the next scan comes from this inner loop or from the
-            // allocation after advanceRound.
-            // clear_bypasses() has already run on the clone before this scan;
-            // clear_splitobjs() touches only discarded state.
-            if (any_light_source(planned)) planned.vision_full_recalc = 1;
-            // movemon() hands a deferred goto to allmain after the safe scan.
-            // The planning clone cannot run goto_level() without replacing its
-            // level, so return the source boundary to allmain as a marker. The
-            // live pass performs the transition and replans from its new level;
-            // throwing here would incorrectly reject quest expulsion.
-            if (planned.u?.utotype) {
-                deferredGoto = true;
-                break;
-            }
-            if (scanStopped) break;
-            if (planned.u.umovement >= NORMAL_SPEED) break;
-        } while (somebodyCanMove);
+                if (deferredGoto || planned.program_state?.gameover
+                    || planned.u.umovement >= NORMAL_SPEED) break;
+            } while (somebodyCanMove);
+        }
         planned.context.mon_moving = false;
-        if (scanStopped) break;
+        if (deferredGoto || planned.program_state?.gameover) break;
 
         const runsUpkeep =
             !somebodyCanMove && planned.u.umovement < NORMAL_SPEED;
