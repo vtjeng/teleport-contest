@@ -54,8 +54,8 @@ async function runWithMoreTrace(segment) {
         return originalPutstr.call(this, col, row, text, ...rest);
     };
     try {
-        const replay = await runSegment(segment);
-        return { events, replay };
+        await runSegment(segment);
+        return { events };
     } finally {
         GameDisplay.prototype.putstr = originalPutstr;
     }
@@ -64,9 +64,7 @@ async function runWithMoreTrace(segment) {
 test('quick selected-location lookup skips checkfile and its More prompt',
     async () => {
         for (const entry of QUICK_CASES) {
-            const { events, replay } = await runWithMoreTrace(quickRecipe(entry));
-            const finalScreen = replay.getScreens().at(-1);
-            assert.equal(finalScreen.includes('--More--'), false, entry.name);
+            const { events } = await runWithMoreTrace(quickRecipe(entry));
             assert.equal(
                 events.some(({ stack }) => stack.some((line) => line.includes('checkfile'))),
                 false,

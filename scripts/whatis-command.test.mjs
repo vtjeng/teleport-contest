@@ -428,8 +428,8 @@ test('blind heroes enter the production quick-glance cursor path',
     async () => {
         // pager.c do_look has no blind admission guard. This initialized
         // production dispatch test reaches the selected-location description;
-        // strict C recording of that final WIN_MESSAGE boundary remains
-        // blocked by the separate missing !quick condition before checkfile.
+        // independent selected-location recordings also verify the final
+        // WIN_MESSAGE boundary after the quick checkfile guard correction.
         const replay = await runSegment({
             seed: 9310601,
             datetime: '20370106081234',
