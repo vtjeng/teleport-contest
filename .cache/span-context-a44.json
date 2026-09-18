@@ -1,0 +1,43 @@
+{
+  "task": "A-20260916-44",
+  "goal": "port-mcastu-summon-mons-seed4500-20260918",
+  "kind": "file-port",
+  "span": "mcastu.c mcast_summon_mons with wizard.c nasty",
+  "sourceFile": "mcastu.c",
+  "cFile": "mcastu.c",
+  "functions": [
+    "mcast_summon_mons",
+    "nasty"
+  ],
+  "lineRanges": [
+    "mcastu.c:421-448",
+    "wizard.c:591-727"
+  ],
+  "cLines": 165,
+  "jsFile": "js/mcastu.js + js/wizard.js",
+  "base": "10f4cb2a535be43e071029ee94210d6d86b70492",
+  "head": "3cd5d3bb",
+  "branch": "codex/loop-worker-a-20260916",
+  "worker": "A",
+  "worktree": "/tmp/teleport-loop-worker-a-r2-20260915",
+  "reservations": [
+    "source:mcastu.c:mcast_summon_mons",
+    "source:wizard.c:nasty",
+    "contract:monster-summon-state"
+  ],
+  "allowedPaths": [
+    "js/mcastu.js",
+    "js/wizard.js",
+    "scripts/mcastu.test.mjs",
+    "scripts/wizard.test.mjs",
+    "recipes/mcastu.c/",
+    "recordings/mcastu.c/",
+    "recipes/wizard.c/",
+    "recordings/wizard.c/",
+    ".cache/span-context-a44.json",
+    ".cache/span-evidence-a44.json",
+    ".cache/a44-checks.json"
+  ],
+  "dependency": "B43 owns source:minion.c:msummon and source:makemon.c:makemon admission for MM_EMIN|MM_NOMSG. A44 preserves the Inhell msummon return path and does not edit makemon_create.js; generic NO_MM_FLAGS nasty placement remains an explicit follow-up blocker.",
+  "sourceReview": "Read mcastu.c:421-448 and wizard.c:591-727 in full. mcast_summon_mons consumes nasty() count and has distinct wizard, invisible/displaced, singular/plural message branches. nasty() preserves the initial/final monster census, Inhell rn2(10) branch, rnd(u.ulevel/3) outer count, 20-attempt inner loop, ten-try pick retry, difficulty and angel/demon exclusions, enexto placement, direct makemon and null-species fallback, unmakemon rejection, arch-lich/Archon difficulty cap, mspec_used=rnd(4), alignment/count stop and census-based return. Reuse existing pick_nasty, monster_census, enexto, makemon/unmakemon and set_malign; do not port or edit B43 msummon."
+}

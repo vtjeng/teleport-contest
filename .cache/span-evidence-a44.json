@@ -1,0 +1,86 @@
+{
+  "version": 5,
+  "task": "A-20260916-44",
+  "goal": "port-mcastu-summon-mons-seed4500-20260918",
+  "kind": "file-port",
+  "base": "10f4cb2a535be43e071029ee94210d6d86b70492",
+  "head": "3cd5d3bb",
+  "functions": [
+    {
+      "name": "mcast_summon_mons",
+      "symbol": "mcast_summon_mons",
+      "implementation": "js/mcastu.js",
+      "pure": false,
+      "sourceReview": "Read mcastu.c:421-448 in full. The helper consumes nasty()'s census-derived count, has the Wizard verbalize branch, and preserves singular/plural invisible-nearby, displaced-image, and from-nowhere messages. Planning callers use a clone-local message sink; live callers retain the tty sink.",
+      "callers": [
+        {
+          "path": "js/mcastu.js",
+          "symbol": "mcast_spell",
+          "source": "mcastu.c:mcast_spell case MCAST_SUMMON_MONS calls mcast_summon_mons and discards its void result"
+        },
+        {
+          "path": "js/mcastu.js",
+          "symbol": "castmu",
+          "source": "mcastu.c:castmu reaches mcast_spell for AD_SPEL and AD_CLRC"
+        }
+      ],
+      "tests": [
+        "scripts/mcastu.test.mjs"
+      ],
+      "recordings": [],
+      "blockedBy": "The independent production recipes enter wizard.c nasty but stop at makemon_create.js runtime NO_MM_FLAGS creation admission; B43 owns the separate makemon/minion runtime contract before this branch can be recorded."
+    },
+    {
+      "name": "nasty",
+      "symbol": "nasty",
+      "implementation": "js/wizard.js",
+      "pure": false,
+      "sourceReview": "Read wizard.c:591-727 in full. The port preserves the initial and final monster census, the Inhell rn2(10) msummon return path, rnd(u.ulevel/3) outer bound, twenty-attempt loop, ten-try pick retry, difficulty and angel/demon exclusions, summoner enexto placement, direct and null-species makemon calls, unmakemon cap, Arch lich/Archon cap, mspec_used=rnd(4), hostility reset, and alignment/count stop conditions.",
+      "callers": [
+        {
+          "path": "js/mcastu.js",
+          "symbol": "mcast_summon_mons",
+          "source": "mcastu.c:mcast_summon_mons calls nasty(mtmp) and uses its count"
+        },
+        {
+          "path": "js/wizard.js",
+          "symbol": "resurrect/intervene caller family",
+          "source": "wizard.c:intervene:case 4 calls nasty(NULL) with a discarded result; that surrounding caller is not yet wired in JS and remains an explicit gap"
+        }
+      ],
+      "tests": [
+        "scripts/wizard.test.mjs"
+      ],
+      "recordings": [],
+      "blockedBy": "Normal runtime NO_MM_FLAGS creation is not yet admitted by js/makemon_create.js for this source caller. The Inhell return-valued msummon dependency is reserved by B43 (source:minion.c:msummon) and remains explicit here."
+    }
+  ],
+  "entryPointReview": "The source entry is mhitu.c:castmu -> mcastu.c:mcast_spell -> mcast_summon_mons -> wizard.c:nasty. Focused tests exercise dispatcher wiring, message branches, direct creation order, substitution, census delta, and the Hell msummon contract. Two independently selected hostile master-lich recipes are committed under recipes/mcastu.c, but both are honestly blocked before a matching recording by the separate runtime NO_MM_FLAGS makemon admission owner. The wizard.c intervene caller is unported and is listed as an open discarded-result caller; no production recording is claimed for it.",
+  "entryPoints": [
+    {
+      "name": "wizard spell summon-nasties",
+      "functions": [
+        "mcast_summon_mons",
+        "nasty"
+      ],
+      "recordings": [],
+      "blockedBy": "makemon.c generic runtime NO_MM_FLAGS admission at the selected nasty creation; B43 separately owns the MM_EMIN|MM_NOMSG msummon creation path"
+    },
+    {
+      "name": "late-game harassment nasty caller",
+      "functions": [
+        "nasty"
+      ],
+      "recordings": [],
+      "blockedBy": "wizard.c intervene() is not wired in the current JS caller graph"
+    }
+  ],
+  "unrecordedGaps": [
+    "minion.c msummon and its demon/angel selector family (B43 dependency)",
+    "makemon.c generic runtime NO_MM_FLAGS creation admission for arbitrary nasty placement",
+    "wizard.c intervene caller that discards nasty()'s result"
+  ],
+  "sourceCompletion": "The selected mcast_summon_mons and nasty function bodies and dispatcher wiring are implemented. Impure production entry recordings remain open because their source-defined creation callers are blocked by the separately reserved makemon/minion owners; the focused tests do not substitute for those recordings.",
+  "context": ".cache/span-context-a44.json",
+  "checks": ".cache/a44-checks.json"
+}
