@@ -64302,7 +64302,7 @@
     {
       "id": "div-pager-do-look-quick-checkfile-seed4500-20260918",
       "kind": "divergence-fix",
-      "status": "open",
+      "status": "parked",
       "summary": "Skip encyclopedia questions during quick selected-location lookups",
       "cFile": "pager.c",
       "sessions": [],
@@ -64311,8 +64311,8 @@
       "spans": [
         {
           "name": "quick-checkfile-gate",
-          "status": "queued",
-          "closedBy": null,
+          "status": "closed",
+          "closedBy": "8b64276a9a90335227044319f7f04d4b89208581",
           "functions": [
             "do_look"
           ]
@@ -64411,7 +64411,17 @@
             }
           }
         }
-      ]
+      ],
+      "progressBeforePark": {
+        "screens": 0,
+        "rng": 0
+      },
+      "parkedStanding": {
+        "sha": "8b64276a9a90335227044319f7f04d4b89208581",
+        "screens": 11276,
+        "rng": 788894
+      },
+      "parkedReason": "The quick checkfile guard is fixed and two independent selected-location recordings match. Only fixed-session closure remains: the current mismatch at step 1693 is the separate do_screen_description source gap. Resume after that port moves the fixed replay past the selected-location lookup."
     }
   ]
 }
