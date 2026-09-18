@@ -1278,6 +1278,7 @@ async function advanceElapsedTurn(state) {
     // post-scan state. Keep this separate from the movement gate: the
     // preflight's false gate is only the result of the early planning exit.
     let pendingDeathReplan = Boolean(preflight.heroDeath);
+    let pendingDeferredGoto = Boolean(preflight.deferredGoto);
     let upkeepCount = 0;
     const replanAfterDeath = async () => {
         const completedUpkeeps = upkeepCount;
@@ -1295,6 +1296,21 @@ async function advanceElapsedTurn(state) {
         };
         pendingDeathReplan = Boolean(resumed.heroDeath);
     };
+    const replanAfterDeferredGoto = async () => {
+        const completedUpkeeps = upkeepCount;
+        const resumed = await planElapsedTurn(state, {
+            // The elapsed turn already paid its hero ration before the
+            // transition. Planning the destination suffix starts at the
+            // post-goto movement count, like the death replan above.
+            consumeHeroRation: false,
+        });
+        preflight = {
+            ...resumed,
+            initialCapacity: preflight.initialCapacity,
+            upkeepCount: completedUpkeeps + resumed.upkeepCount,
+        };
+        pendingDeferredGoto = Boolean(resumed.deferredGoto);
+    };
 
     // C ref: allmain.c moveloop_core().  The outer loop repeats while the hero
     // still cannot move; the inner one runs monsters until either they are out
@@ -1308,6 +1324,8 @@ async function advanceElapsedTurn(state) {
         let monstersCanMove;
         try {
             do {
+                const deferredGotoBeforeScan = pendingDeferredGoto
+                    && Boolean(state.u.utotype);
                 monstersCanMove = await movemon({
                     state,
                     random,
@@ -1330,6 +1348,13 @@ async function advanceElapsedTurn(state) {
                 // the terminal end-game display so replay can capture its
                 // final window; stop only after that completed gameover path.
                 if (state.program_state?.gameover) return;
+                if (deferredGotoBeforeScan && !state.u.utotype) {
+                    // movemon() has now performed deferred_goto() and returned
+                    // the source's false movement gate. Replan only the new
+                    // level suffix; do not spend another hero ration or scan
+                    // the pre-transition list twice.
+                    await replanAfterDeferredGoto();
+                }
                 // A planned death is the one intentional exception to the
                 // ordinary movement comparison below. The live scan has now
                 // replayed the lethal action and completed its canonical
