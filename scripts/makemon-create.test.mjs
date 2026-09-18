@@ -2615,10 +2615,19 @@ test('nasty runtime creation admits explicit species by the C pointer contract',
         // species allowlist; these cases exercise the generic dragon path and
         // the source-specific giant and lich inventory classes without
         // copying the Knight's selected species list into JavaScript policy.
-        for (const [mndx, sourceClass] of [
-            [PM_ORANGE_DRAGON, 'dragon'],
-            [PM_MINOTAUR, 'giant'],
-            [PM_ARCH_LICH, 'lich'],
+        for (const [mndx, sourceClass, expectedCalls] of [
+            [PM_ORANGE_DRAGON, 'dragon', [
+                ['rnd', 2], ['d', 14, 4], ['rn2', 2],
+                ['rn2', 50], ['rn2', 100], ['rn2', 5], ['rn2', 100],
+            ]],
+            [PM_MINOTAUR, 'giant', [
+                ['rnd', 2], ['d', 14, 8], ['rn2', 2], ['rn2', 8],
+                ['rn2', 50], ['rn2', 100], ['rn2', 100],
+            ]],
+            [PM_ARCH_LICH, 'lich', [
+                ['rnd', 2], ['d', 24, 8], ['rn2', 2], ['rn2', 3],
+                ['rn2', 50], ['rn2', 100], ['rn2', 100],
+            ]],
         ]) {
             const state = initialLevelState();
             state.in_mklev = false;
@@ -2644,7 +2653,11 @@ test('nasty runtime creation admits explicit species by the C pointer contract',
             assert.equal(monster.mnum, mndx, sourceClass);
             assert.equal(state.level.monsters[x][y], monster, sourceClass);
             assert.equal(state.mvitals[mndx].born, 1, sourceClass);
-            assert.ok(random.calls.length > 0, `${sourceClass} draws`);
+            assert.deepEqual(
+                random.calls.map(({ kind, args }) => [kind, ...args]),
+                expectedCalls,
+                `${sourceClass} source creation draws`,
+            );
         }
     });
 

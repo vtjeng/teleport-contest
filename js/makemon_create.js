@@ -1587,7 +1587,10 @@ function preflightCreation(ptr, x, y, mmflags, normalized) {
         // dungeon never sees.  On the main dungeon during mklev, keep the
         // allowlist for explicitly placed species but bypass it for
         // rndmonst selections (the _rndmonMklev flag, set in the rndmonst
-        // loop).  Outside mklev the allowlist always applies.
+        // loop).  Outside mklev, ordinary runtime callers keep the allowlist;
+        // source callers with dedicated markers (revival, cloneu, minion, or
+        // wizard.c nasty) bypass it only after their exact creation shape has
+        // been validated above.
         if (!revivalCall
             && !statueInventoryCall
             && !specialRoomCall
