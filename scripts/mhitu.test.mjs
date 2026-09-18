@@ -70,6 +70,7 @@ import {
     monst_globals_init,
     AD_ACID,
     AD_COLD,
+    AD_DISE,
     AD_ENCH,
     AD_PLYS,
     AD_PHYS,
@@ -1150,10 +1151,30 @@ test('getmattk selects source attacks without mutating the catalog',
     assert.deepEqual(airAttack, { aatyp: AT_ENGL, adtyp: AD_PHYS,
         damn: 1, damd: 10 });
 
+    // The energy branch always makes an alternate record, even when neither
+    // threshold changes its dice. That detached record suppresses the later
+    // home-elemental doubling, just as `attk != alt_attk_buf` does in C.
+    const airDrain = meleeAttacker(state, PM_AIR_ELEMENTAL, 3, 0, {
+        data: { ...state.mons[PM_AIR_ELEMENTAL],
+            mattk: state.mons[PM_AIR_ELEMENTAL].mattk.map((attack, i) =>
+                i === 0
+                    ? { ...attack, aatyp: AT_ENGL, adtyp: AD_DREN,
+                        damn: 2, damd: 6 }
+                    : attack) },
+    });
+    state.u.ulevel = 6;
+    state.u.uen = 60;
+    state.u.uenmax = 100;
+    const unchangedDrain = getmattk(airDrain, state.youmonst, 0, sum,
+        { state });
+    assert.notEqual(unchangedDrain, airDrain.data.mattk[0]);
+    assert.deepEqual(unchangedDrain, { aatyp: AT_ENGL, adtyp: AD_DREN,
+        damn: 2, damd: 6 });
+
     // mhitu.c:321-333 and monsters.h:2925-2928. The complete disabled
     // seduction catalog is selected before later guards, and the original
     // generated attack remains unchanged.
-    const demon = meleeAttacker(state, PM_AMOROUS_DEMON, 3, 0);
+    const demon = meleeAttacker(state, PM_AMOROUS_DEMON, -3, 0);
     state.sysopt.seduce = false;
     const noSeduction = getmattk(demon, state.youmonst, 0, sum, { state });
     assert.deepEqual(noSeduction, { aatyp: AT_CLAW, adtyp: AD_PHYS,
@@ -1190,6 +1211,18 @@ test('getmattk selects source attacks without mutating the catalog',
     assert.equal(stunned.damn, pestAttack.damn);
     assert.equal(pestAttack.adtyp, AD_PEST);
 
+    // A disease attack with no landed preceding arm remains the catalog
+    // record; the source guard is conditional on the previous hit result.
+    const disease = meleeAttacker(state, PM_PESTILENCE, 0, -2, {
+        data: { ...state.mons[PM_PESTILENCE],
+            mattk: state.mons[PM_PESTILENCE].mattk.map((attack, i) =>
+                i < 2 ? { ...attack, adtyp: AD_DISE } : attack) },
+    });
+    assert.equal(getmattk(disease, state.youmonst, 1, sum, { state }),
+        disease.data.mattk[1]);
+    assert.equal(getmattk(disease, state.youmonst, 1,
+        [M_ATTK_HIT, M_ATTK_MISS], { state }).adtyp, AD_STUN);
+
     // mhitu.c:350-368. Energy vortex drain is reduced at low energy and
     // increased at high energy, without touching the monster catalog.
     const vortex = meleeAttacker(state, PM_ENERGY_VORTEX, -1, 0);
@@ -1218,6 +1251,16 @@ test('getmattk selects source attacks without mutating the catalog',
     assert.equal(owlSub.damn, 1);
     assert.equal(owlSub.damd, 6);
 
+    // Lichen's zero-dice holder arm is wimpy: C changes the fallback to a
+    // touch with 0d0 instead of the ordinary 1d6 claw.
+    const wimpyHolder = meleeAttacker(state, PM_LICHEN, 3, -1,
+        { mspec_used: 1 });
+    const wimpySub = getmattk(wimpyHolder, state.youmonst, 0, sum, { state });
+    assert.equal(wimpySub.aatyp, AT_TUCH);
+    assert.equal(wimpySub.adtyp, AD_PHYS);
+    assert.equal(wimpySub.damn, 0);
+    assert.equal(wimpySub.damd, 0);
+
     // mhitu.c:395-410. The cancelled barrow wight's non-physical weapon is
     // made physical, but an already physical second weapon suppresses this
     // branch exactly as C does.
@@ -1240,6 +1283,19 @@ test('getmattk selects source attacks without mutating the catalog',
 
     // mhitu.c:412-435. Cold resistance changes a lich's touch to reduced
     // physical damage, while an unresistant defender returns its catalog arm.
+    const normalLich = meleeAttacker(state, PM_LICH, -3, -1);
+    state.u.uprops[COLD_RES] = { intrinsic: 1, extrinsic: 0, blocked: 0 };
+    const normalPhysical = getmattk(normalLich, state.youmonst, 0, sum,
+        { state });
+    assert.deepEqual(normalPhysical, { aatyp: AT_TUCH, adtyp: AD_PHYS,
+        damn: 1, damd: 6 });
+    state.u.uprops[COLD_RES].intrinsic = 0;
+    const resistantMonster = meleeAttacker(state, PM_MASTER_LICH, 3, 2);
+    const monsterPhysical = getmattk(normalLich, resistantMonster, 0, sum,
+        { state });
+    assert.deepEqual(monsterPhysical, { aatyp: AT_TUCH, adtyp: AD_PHYS,
+        damn: 1, damd: 6 });
+
     const lich = meleeAttacker(state, PM_MASTER_LICH, -1, 1);
     state.u.uprops[COLD_RES] = { intrinsic: 1, extrinsic: 0, blocked: 0 };
     const physicalCold = getmattk(lich, state.youmonst, 0, sum, { state });

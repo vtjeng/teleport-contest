@@ -473,11 +473,11 @@ function mattackuStopOccupation(env) {
 // a restored game starts from those values again; this port therefore keeps
 // them on the game state and out of `input.storage`.
 //
-// C's hitmsg_prev is a `struct attack *` into the attacker's own mattk[], and
-// its one reader asks whether this attack sits immediately after it in that
-// array. getmattk() hands back mptr->mattk[indx] itself, so the JavaScript
-// pointer is the same array element and the question is answered by finding it
-// in the current attacker's list.
+// C's hitmsg_prev is a `struct attack *` into the attacker's own mattk[] when
+// no substitution is needed. getmattk() can also hand back the caller-owned
+// alternate record, so the JavaScript adjacency check finds catalog records
+// in the current attacker's list and naturally does not mistake a detached
+// substitution for a catalog slot.
 function hitmsgState(state) {
     state.gh ??= {};
     state.gh.hitmsg_mid ??= 0;
