@@ -173,8 +173,9 @@ import { artifact_exists, artifactTouchable } from './artifacts.js';
 import { night } from './calendar.js';
 import {
     docrt,
+    flash_glyph_at,
     glyph_is_invisible,
-    map_monster_glyph_info,
+    mon_to_glyph,
     newsym,
     see_monsters,
     swallowed,
@@ -6683,13 +6684,13 @@ export async function shieldeff_mon(mtmp, rawEnv = {}) {
     );
 }
 
-// C ref: mon.c flash_mon() (6067-6089). The temporary vision bits make the
+// C ref: mon.c flash_mon() (6067-6079). The temporary vision bits make the
 // monster's square drawable while flash_glyph_at() alternates its glyph; the
 // bits are restored before newsym() redraws the remembered square. The
-// display.c flash_glyph_at() animation is not ported, but its mon_to_glyph()
-// argument is still evaluated because it can consume display-RNG draws under
-// hallucination.
-export function flash_mon(mtmp, state = game) {
+// display.c flash_glyph_at() resolves the alternating frames and waits after
+// each flush. Its mon_to_glyph() argument is evaluated before the animation,
+// because it can consume display-RNG draws under hallucination.
+export async function flash_mon(mtmp, state = game) {
     const mx = mtmp.mx;
     const my = mtmp.my;
     let count = couldsee(mx, my, state) ? 8 : 4;
@@ -6697,9 +6698,11 @@ export function flash_mon(mtmp, state = game) {
 
     if (!state.flags?.sparkle) count = Math.trunc(count / 2);
     state.viz_array[my][mx] |= IN_SIGHT | COULD_SEE;
-    map_monster_glyph_info(mtmp, state); // mon_to_glyph(mtmp, newsym_rn2)
-    void count; // flash_glyph_at() is the recorded display.c gap.
-    note_unported('display.c flash_glyph_at');
+    const glyph = mon_to_glyph(mtmp, state);
+    await flash_glyph_at(mx, my, glyph, count, state);
     state.viz_array[my][mx] = saveviz;
-    newsym(mx, my);
+    // newsym() is a live-game display owner. A planning clone still restores
+    // its temporary vision byte, but must not repaint the live game on return.
+    if (state === game && !state.program_state?.planning)
+        newsym(mx, my);
 }

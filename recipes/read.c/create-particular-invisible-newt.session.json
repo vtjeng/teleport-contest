@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "Independent read.c create_particular() variation: a female Barbarian creates an invisible newt. The MM_MINVIS state reaches mon.c flash_mon() through the production creation tail; its second role and seed are independent of the hidden-trapper witness.",
+  "segments": [
+    {
+      "seed": 9632057,
+      "datetime": "20340910123456",
+      "nethackrc": "OPTIONS=name:FlashProbe,role:Barbarian,race:human,gender:female,align:chaotic\nOPTIONS=!legacy,!tutorial,!splash_screen,playmode:debug\nOPTIONS=pettype:none,!acoustics,rest_on_space,!safe_wait\n",
+      "moves": " \u0007invisible newt\n"
+    }
+  ]
+}
