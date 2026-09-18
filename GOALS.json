@@ -65364,7 +65364,129 @@
             }
           }
         }
-      ]
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "look_here",
+            "implementation": "js/invent.js",
+            "symbol": "look_here",
+            "sourceReview": "Read nethack-c/upstream/src/invent.c:4104-4314 in source order. The port preserves the swallowed-inventory return before any floor-chain admission, region/trap preamble, dfeature and engraving order, blind reach/drift/ICE wording, pile-limit count, single-object naming, arbitrary pile menu, cockatrice tactile check, display window order, and Blind/ECMD_TIME return. The old blind object-pile, pile-size, visible-region, engraving, liquid, and drift refusals are removed. force_decor is called for the ICE arm and its source-owned temporary overrides are cleared; genuinely discarded instapetrify remains named at its existing trap.c boundary. The incremental correction moves floor-object nameability behind C's blind cannot-reach and lava/inaccessible-pool exits, uses ordinary naming for the first tactile cockatrice, stops the pile admission loop at that corpse, and removes hack.c's duplicate object-name assertions so it cannot reject objects that pickup/check_here never names. The queued caller correction also preserves pickup.c query_objlist 1114-1119: it invokes look_here(0, LOOKHERE_NOFLAGS) before returning when a tactile cockatrice aborts the menu. The JS query_objlist now supplies the same tty message and read_engraving owners and returns the C zero result.",
+            "callers": [
+              {
+                "path": "js/pickup.js",
+                "symbol": "check_here",
+                "source": "pickup.c check_here() calls look_here(ct, lhflags) after counting the floor chain; the independent blind-pile recordings reach this production path through movement."
+              },
+              {
+                "path": "js/pickup.js",
+                "symbol": "pickup",
+                "source": "pickup.c pickup() reaches check_here() after movement and pickup admission."
+              },
+              {
+                "path": "js/hack.js",
+                "symbol": "spoteffects",
+                "source": "hack.c spoteffects() reaches pickup(1) after domove_core commits the square."
+              },
+              {
+                "path": "js/pickup.js",
+                "symbol": "query_objlist",
+                "source": "pickup.c query_objlist 1114-1119 destroys its partial menu, calls look_here(0, LOOKHERE_NOFLAGS), and returns 0 when FEEL_COCKATRICE finds a petrifying corpse."
+              },
+              {
+                "path": "js/invent.js",
+                "symbol": "dolook",
+                "source": "invent.c dolook calls look_here(0, LOOKHERE_NOFLAGS); cmd.c extcmd dispatch reaches this wrapper for colon look."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/objnam.test.mjs",
+              "scripts/cmd.test.mjs",
+              "scripts/pickup.test.mjs",
+              "scripts/pickup-command.test.mjs"
+            ],
+            "recordings": [
+              "recordings/invent.c/blind-object-pile-independent.session.json",
+              "recordings/invent.c/blind-object-pile-count-variation.session.json"
+            ],
+            "checkedAt": "748c008bfec81a145c60d140978705ce30f202ad"
+          },
+          {
+            "name": "dolook",
+            "implementation": "js/invent.js",
+            "symbol": "dolook",
+            "sourceReview": "Read nethack-c/upstream/src/invent.c:4319-4330. The wrapper hides only MSGTYP_MASK_REP_SHOW around look_here and restores the message rules in a finally path, preserving the C order and return value. options.c hide_unhide_msgtypes is the canonical supporting owner.",
+            "callers": [
+              {
+                "path": "js/cmd.js",
+                "symbol": "runLookCommand",
+                "source": "cmd.c extcmd row \": look\" dispatches dolook; the command callback supplies the canonical message and engraving owners."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/objnam.test.mjs",
+              "scripts/startup-msgtype.test.mjs"
+            ],
+            "recordings": [
+              "recordings/invent.c/blind-object-pile-dolook-variation.session.json"
+            ],
+            "checkedAt": "748c008bfec81a145c60d140978705ce30f202ad"
+          }
+        ],
+        "entryPointReview": "The active production entry is pickup.c check_here through hack.c domove_core -> spoteffects -> pickup(1): the independent menu recording reaches a blind two-object pile and displays both tactile object names, while the independent variation reaches a three-object pile-limit count and acknowledges its tactile prompt. The active :/look command dispatches cmd.c dolook, covered by focused message-mask and output-order tests and the independent dolook recording reaches the same pile through the colon command. Supporting source owners are pickup.c force_decor (ICE tactile decor, with both overrides reset to FALSE) and options.c hide_unhide_msgtypes (temporary REP/SHOW negation). The correction adds source-pinned admission cases for blind unreachable and inaccessible-liquid floors, plus a pile whose second object is skipped after the first tactile cockatrice; these cases prove the preflight does not invent naming calls. The active pickup.c query_objlist cockatrice fallback has a source-pinned production-caller test, but no matching entry recording was supplied. Swallowed inventory and blind ICE/force_decor behavior also have no supplied matching entry recordings. Keep these entries open and park the goal after span closure; direct tests do not establish runtime entry completion. The incremental correction wires the existing pickup.c query_objlist tactile-corpse caller to look_here and moves the WIN_MESSAGE retirement ahead of all pile naming, with focused tests covering both contracts.",
+        "entryPoints": [
+          {
+            "name": "movement blind pile tactile menu",
+            "functions": [
+              "look_here"
+            ],
+            "recordings": [
+              "recordings/invent.c/blind-object-pile-independent.session.json"
+            ]
+          },
+          {
+            "name": "movement blind pile-limit tactile count",
+            "functions": [
+              "look_here"
+            ],
+            "recordings": [
+              "recordings/invent.c/blind-object-pile-count-variation.session.json"
+            ]
+          },
+          {
+            "name": "colon look command",
+            "functions": [
+              "dolook"
+            ],
+            "recordings": [
+              "recordings/invent.c/blind-object-pile-dolook-variation.session.json"
+            ]
+          },
+          {
+            "name": "swallowed inventory inspection",
+            "functions": [
+              "look_here"
+            ],
+            "recordings": []
+          },
+          {
+            "name": "blind ICE inspection through force_decor",
+            "functions": [
+              "look_here"
+            ],
+            "recordings": []
+          },
+          {
+            "name": "query_objlist tactile cockatrice fallback",
+            "functions": [
+              "look_here"
+            ],
+            "recordings": []
+          }
+        ]
+      }
     }
   ]
 }
