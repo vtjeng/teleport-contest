@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "Cheap wizard.c tactics variation: a distinct Valkyrie seed and character start use the same source-backed blindness setup, create a peaceful master lich, and reach the tactics caller with a different movement count and RNG result. This independently exercises the production branch without relying on the original visible-message boundary.",
+  "segments": [
+    {
+      "seed": 940007,
+      "datetime": "20350101120000",
+      "nethackrc": "OPTIONS=name:TacticsDeaf,role:Valkyrie,race:human,gender:female,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen,playmode:debug,pettype:none,!acoustics\n",
+      "moves": " #wizintrinsic\ni\n #wizgenesis\npeaceful master lich\nm.m.m.m."
+    }
+  ]
+}

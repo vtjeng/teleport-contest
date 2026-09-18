@@ -37,7 +37,6 @@ import {
     STEALTH,
     FIRE_TRAP,
     ANTI_MAGIC,
-    STRAT_WAITMASK,
     Upolyd,
 } from './const.js';
 import { exercise, poisoned } from './attrib.js';
@@ -99,7 +98,6 @@ import {
 } from './mon.js';
 import {
     defended,
-    is_covetous,
     is_swimmer,
     likes_lava,
     monsndx,
@@ -308,28 +306,6 @@ function assertSimpleActionState(monster, state) {
 
     if (monster.mtame || monster.isminion)
         unsupported('minion movement');
-    const covetous = is_covetous(monster.data);
-    // C ref: monmove.c dochug() checks msleeping at :726-731 before its
-    // covetous tactics() call at :782. When couldsee() is false, disturb()
-    // returns 0 without drawing or changing the monster, so this is the one
-    // covetous state that can pass through the existing early return safely.
-    // Keep every other covetous state behind the special-movement boundary.
-    const sleepingOutOfSightCovetous = covetous
-        && monster.msleeping
-        && !couldsee(monster.mx, monster.my, state);
-    // dochug() returns before tactics() when the monster is waiting for the
-    // hero (or otherwise cannot move).  A covetous monster in that early arm
-    // has no special movement to preflight, even when a prior Conflict attack
-    // has cleared its sleeping bit in this scan.
-    const waitingCovetous = covetous
-        && (!monster.mcanmove || (monster.mstrategy & STRAT_WAITMASK));
-    // C ref: monmove.c dochug() checks msleeping before m_move()'s wormno
-    // branch. A long worm outside couldsee() takes the ordinary disturb()
-    // no-op; awake or visible worms now continue through m_move(), whose
-    // wormno path is the same not_special movement path as C.
-    if (covetous && !sleepingOutOfSightCovetous && !waitingCovetous) {
-        unsupported('special monster movement');
-    }
     // isgd is admitted: m_move() dispatches to gd_move() which handles the
     // peaceful escort path and throws on unported branches.
     // isshk and ispriest are admitted: m_move() dispatches to shk_move()

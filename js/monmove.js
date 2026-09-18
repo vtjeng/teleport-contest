@@ -200,11 +200,11 @@ import { sengr_at, wipe_engr_at } from './engrave.js';
 import { makeplural } from './fruit.js';
 import { game } from './gstate.js';
 import { dist2, distmin } from './hacklib.js';
-import { delobj, money_cnt } from './invent.js';
+import { delobj, money_cnt, obj_extract_self } from './invent.js';
 import { picking_lock } from './lock.js';
 import { grow_up } from './makemon.js';
 import { mongone } from './makemon_create.js';
-import { newcham_distress } from './mon.js';
+import { healmon, mnearto, newcham_distress } from './mon.js';
 import { mattackm, mdisplacem } from './mhitm.js';
 import { ranged_attk_available } from './mhitu.js';
 import { verbalize } from './pline.js';
@@ -347,6 +347,7 @@ import {
     isCandle,
     isContainer,
     objectType,
+    remove_object,
     sobj_at,
     splitobj,
 } from './obj.js';
@@ -412,7 +413,7 @@ import { create_gas_cloud, m_in_out_region, visible_region_at } from './region.j
 import { d, rn1, rn2, rnd, rne, rnl, rnz } from './rng.js';
 import { in_rooms } from './rooms.js';
 import { after_shk_move, inhishop, shk_move } from './shk.js';
-import { findgold, mdrop_obj } from './steal.js';
+import { findgold, mdrop_obj, mpickobj } from './steal.js';
 import { stairway_at, stairway_find_dir } from './stairs.js';
 import {
     canSpotMonster,
@@ -434,11 +435,13 @@ import {
     mnexto,
     noteleport_level,
     rloc,
+    rloc_to,
     tele_restrict,
 } from './teleport.js';
 import { ttyNorep, ttyPline } from './tty_message.js';
 import { note_unported } from './unported.js';
 import { gd_move } from './vault.js';
+import { tactics } from './wizard.js';
 import {
     canseemon,
     cansee,
@@ -2373,7 +2376,7 @@ export async function wield_pre_move_weapon(monster, range, rawEnv = {}) {
 // as in C.  Steps C runs that this does not are listed with the source
 // condition that keeps them unreachable behind the current action boundary:
 //   quest_stat_check(), quest_talk()      no quest monster is reachable
-//   is_covetous() tactics                  the boundary rejects covetous forms
+//   is_covetous() tactics                  wired through wizard.js
 //   release_hero(), u.ustuck              wired; no hero-grabbing monster is reachable
 //   Demonic Blackmail                     the boundary rejects demons
 //   watch_on_duty()                       wired
@@ -2540,6 +2543,44 @@ export async function dochug(monster, rawEnv = {}) {
 
     // PHASE TWO: special movements and actions.
     setApparentHero(monster, env);
+    // C ref: monmove.c:782-790. Covetous monsters choose and execute their
+    // wizard.c strategy before range/fear is calculated. Every relocation and
+    // object operation receives this turn's environment so planning clones
+    // cannot redraw or message the live game.
+    if (is_covetous(monster.data)) {
+        await tactics(monster, {
+            ...env,
+            state,
+            random,
+            m_at,
+            mnearto,
+            mnexto,
+            rloc,
+            rlocTo: rloc_to,
+            mpickobj,
+            // wizard.c tactics() can take an artifact from the floor.  The
+            // inventory owner deliberately requires mkobj.c's external
+            // extraction hook for that chain, so bind the canonical owner at
+            // this production caller instead of leaving a planning-only
+            // injection to decide whether the object is still on the map.
+            objExtractSelf: (object, actionEnv) => obj_extract_self(object, {
+                ...actionEnv,
+                hooks: {
+                    ...(actionEnv.hooks ?? {}),
+                    extractExternalObject: remove_object,
+                },
+            }),
+            healmon,
+            monnear,
+            noteleportLevel: noteleport_level,
+            inhishop,
+            inhistemple,
+            newsym: rawEnv.planning ? () => {} : newsym,
+            message: rawEnv.planning ? async () => {} : (rawEnv.message ?? ttyPline),
+        });
+        if (monster.mstate) return 0;
+        setApparentHero(monster, env);
+    }
     let range = await distanceAndFear(monster, { ...env, monFlee });
     if (await usePreMoveItems(monster, env)) return 1;
 

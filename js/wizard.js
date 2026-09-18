@@ -10,14 +10,29 @@ import {
     GP_CHECKSCARY,
     Is_rogue_level,
     NO_MM_FLAGS,
+    RLOC_MSG,
+    STRAT_APPEARMSG,
+    STRAT_GOAL,
+    STRAT_GROUND,
+    STRAT_HEAL,
+    STRAT_MONSTR,
+    STRAT_NONE,
+    STRAT_PLAYER,
+    STRAT_STRATMASK,
+    STRAT_WAITMASK,
     STRAT_WAITFORU,
+    isok,
+    u_at,
     helpless,
 } from './const.js';
-import { Amonnam } from './do_name.js';
-import { In_W_tower, In_hell } from './dungeon.js';
+import { Amonnam, Monnam } from './do_name.js';
+import { In_W_tower, In_hell, builds_up } from './dungeon.js';
 import { game } from './gstate.js';
 import { set_malign } from './makemon.js';
-import { big_to_little } from './mondata.js';
+import {
+    big_to_little,
+    is_covetous,
+} from './mondata.js';
 import { G_HELL, G_NOHELL, PM_WIZARD_OF_YENDOR, monsterClassSymbol } from './monsters.js';
 import { NASTIES } from './nasties_data.js';
 import { ART_ORB_OF_DETECTION } from './artifacts.js';
@@ -25,10 +40,24 @@ import {
     AMULET_OF_YENDOR, BELL_OF_OPENING, CANDELABRUM_OF_INVOCATION,
     SPE_BOOK_OF_THE_DEAD,
 } from './objects.js';
+import { is_quest_artifact } from './questpgr.js';
+import { stairway_find_type_dir } from './stairs.js';
 import { enexto_core } from './teleport.js';
+import { cansee } from './vision.js';
+import { distant_name, donameFresh } from './objnam.js';
 import { messageAt, canSpotMonster } from './startup_a11y.js';
 import { ttyNorep, ttyPline } from './tty_message.js';
 import { vtense } from './objnam.js';
+import { note_unported } from './unported.js';
+import { rn2, rnd } from './rng.js';
+
+// monflag.h M3_WANTS* values. They are kept here with wizard.c's consumers
+// so the strategy bits cannot silently drift from the source masks.
+const M3_WANTSAMUL = 0x0001;
+const M3_WANTSBELL = 0x0002;
+const M3_WANTSBOOK = 0x0004;
+const M3_WANTSCAND = 0x0008;
+const M3_WANTSARTI = 0x0010;
 
 function heroIsDeaf(state) {
     const deafness = state.u?.uprops?.[DEAF];
@@ -253,4 +282,349 @@ export function mon_has_special(monster) {
             return true;
     }
     return false;
+}
+
+// C ref: wizard.c which_arti(), mon_has_arti(), other_mon_has_arti(),
+// on_ground(), and you_have() (141-233).  These small scans are deliberately
+// kept beside strategy() rather than folded into its callers: target_on()
+// relies on the same linked-list order and on the distinction between a
+// quest artifact (otyp 0) and the four invocation objects.
+export function which_arti(mask) {
+    switch (mask) {
+    case M3_WANTSAMUL: return AMULET_OF_YENDOR;
+    case M3_WANTSBELL: return BELL_OF_OPENING;
+    case M3_WANTSCAND: return CANDELABRUM_OF_INVOCATION;
+    case M3_WANTSBOOK: return SPE_BOOK_OF_THE_DEAD;
+    default: return 0;
+    }
+}
+
+export function mon_has_arti(monster, otyp, state = game) {
+    for (let obj = monster?.minvent ?? null; obj; obj = obj.nobj) {
+        if (otyp) {
+            if (obj.otyp === otyp) return true;
+        } else if (obj.oartifact >= ART_ORB_OF_DETECTION
+            || is_quest_artifact(obj, state)) {
+            return true;
+        }
+    }
+    return false;
+}
+
+export function other_mon_has_arti(monster, otyp, state = game) {
+    for (let other = state.level?.monlist ?? null;
+        other;
+        other = other.nmon) {
+        if (other !== monster && mon_has_arti(other, otyp, state))
+            return other;
+    }
+    return null;
+}
+
+export function on_ground(otyp, state = game) {
+    for (let obj = state.level?.objlist ?? null; obj; obj = obj.nobj) {
+        if (otyp) {
+            if (obj.otyp === otyp) return obj;
+        } else if (obj.oartifact >= ART_ORB_OF_DETECTION
+            || is_quest_artifact(obj, state)) {
+            return obj;
+        }
+    }
+    return null;
+}
+
+export function you_have(mask, state = game) {
+    const have = state.u?.uhave ?? {};
+    switch (mask) {
+    case M3_WANTSAMUL: return Boolean(have.amulet);
+    case M3_WANTSBELL: return Boolean(have.bell);
+    case M3_WANTSCAND: return Boolean(have.menorah);
+    case M3_WANTSBOOK: return Boolean(have.book);
+    case M3_WANTSARTI: return Boolean(have.questart);
+    default: return false;
+    }
+}
+
+// C ref: wizard.c target_on() (235-267).  The optional predicates are
+// supplied by monmove.js to avoid making wizard.js depend on the shopkeeper or
+// priest movement modules (both of which depend on the monster runtime).
+export function target_on(mask, monster, state = game, rawEnv = {}) {
+    if (!(monster?.data?.mflags3 & mask)) return STRAT_NONE;
+    const otyp = which_arti(mask);
+    if (!mon_has_arti(monster, otyp, state)) {
+        if (you_have(mask, state)) {
+            monster.mgoal.x = state.u.ux;
+            monster.mgoal.y = state.u.uy;
+            return STRAT_PLAYER | mask;
+        }
+        const floorObject = on_ground(otyp, state);
+        if (floorObject) {
+            monster.mgoal.x = floorObject.ox;
+            monster.mgoal.y = floorObject.oy;
+            return STRAT_GROUND | mask;
+        }
+        const other = other_mon_has_arti(monster, otyp, state);
+        const inTemple = rawEnv.inhistemple
+            ?? (() => false);
+        if (other && (otyp !== AMULET_OF_YENDOR
+            || (!other.iswiz && !inTemple(other, state)))) {
+            monster.mgoal.x = other.mx;
+            monster.mgoal.y = other.my;
+            return STRAT_MONSTR | mask;
+        }
+    }
+    monster.mgoal.x = 0;
+    monster.mgoal.y = 0;
+    return STRAT_NONE;
+}
+
+// C ref: wizard.c strategy() (269-327).  `rawEnv` contains only predicates
+// and state seams; the strategy itself is pure apart from the source-mandated
+// mgoal writes in target_on().
+export function strategy(monster, state = game, rawEnv = {}) {
+    const inShop = rawEnv.inhishop ?? (() => false);
+    const inTemple = rawEnv.inhistemple ?? (() => false);
+    if (!is_covetous(monster?.data)
+        || (monster.isshk && inShop(monster, state))
+        || (monster.ispriest && inTemple(monster, state))) {
+        return STRAT_NONE;
+    }
+
+    const ratio = Math.trunc((monster.mhp * 3) / monster.mhpmax);
+    let defensive;
+    switch (ratio) {
+    default:
+    case 0:
+        return STRAT_HEAL;
+    case 1:
+        if (monster.data?.pmidx !== PM_WIZARD_OF_YENDOR)
+            return STRAT_HEAL;
+        // C falls through for the Wizard.
+        defensive = STRAT_HEAL;
+        break;
+    case 2:
+        defensive = STRAT_HEAL;
+        break;
+    case 3:
+        defensive = STRAT_NONE;
+        break;
+    }
+
+    if (state.context?.made_amulet) {
+        const result = target_on(M3_WANTSAMUL, monster, state, rawEnv);
+        if (result !== STRAT_NONE) return result;
+    }
+    const invoked = Boolean(state.u?.uevent?.invoked);
+    const priorities = invoked
+        ? [M3_WANTSARTI, M3_WANTSBOOK, M3_WANTSBELL, M3_WANTSCAND]
+        : [M3_WANTSBOOK, M3_WANTSBELL, M3_WANTSCAND, M3_WANTSARTI];
+    for (const mask of priorities) {
+        const result = target_on(mask, monster, state, rawEnv);
+        if (result !== STRAT_NONE) return result;
+    }
+    return defensive;
+}
+
+// C ref: wizard.c choose_stairs() (329-364).  C leaves its output pair
+// unchanged when no stairway exists; returning the pair makes that behavior
+// explicit and avoids mutating a caller's temporary coordinate object.
+export function choose_stairs(dir, state = game) {
+    const result = { x: 0, y: 0 };
+    const stdir = builds_up(state.u?.uz, state) ? Boolean(dir) : !dir;
+    let stair = stairway_find_type_dir(false, stdir, state);
+    if (!stair) stair = stairway_find_type_dir(true, stdir, state);
+    if (!stair) {
+        for (let current = state.stairs; current; current = current.next) {
+            if (current.tolev?.dnum !== state.u?.uz?.dnum) {
+                stair = current;
+                break;
+            }
+        }
+        if (!stair) stair = stairway_find_type_dir(false, !stdir, state);
+        if (!stair) stair = stairway_find_type_dir(true, !stdir, state);
+    }
+    if (stair) {
+        result.x = stair.sx;
+        result.y = stair.sy;
+    }
+    return result;
+}
+
+function wizardOperation(rawEnv, name, fallback = null) {
+    return typeof rawEnv[name] === 'function' ? rawEnv[name] : fallback;
+}
+
+// C ref: wizard.c tactics() (368-468).  Relocation, object transfer, and
+// output are operation seams because the same function runs on the live
+// monster and on the planning clone.  The only discarded unavailable callee
+// is the swallowed expels(TRUE) arm; its return is not used by C.
+export async function tactics(monster, rawEnv = {}) {
+    const state = rawEnv.state ?? game;
+    const random = rawEnv.random ?? { rn2, rnd };
+    const noTeleport = wizardOperation(rawEnv, 'noteleportLevel',
+        () => false);
+    const mnearto = wizardOperation(rawEnv, 'mnearto');
+    const rlocTo = wizardOperation(rawEnv, 'rlocTo');
+    const rloc = wizardOperation(rawEnv, 'rloc');
+    const mnexto = wizardOperation(rawEnv, 'mnexto');
+    const healmon = wizardOperation(rawEnv, 'healmon');
+    const message = rawEnv.message ?? ttyPline;
+    const mstrategy = strategy(monster, state, rawEnv);
+    monster.mstrategy = (monster.mstrategy
+        & (STRAT_WAITMASK | STRAT_APPEARMSG)) | mstrategy;
+    let sx = 0;
+    let sy = 0;
+    let mx;
+    let my;
+
+    switch (mstrategy) {
+    case STRAT_HEAL:
+        mx = monster.mx;
+        my = monster.my;
+        if (state.u?.uswallow && state.u.ustuck === monster)
+            note_unported('mhitu.c expels');
+        ({ x: sx, y: sy } = choose_stairs(
+            (monster.m_id ?? 0) % 2,
+            state,
+        ));
+        monster.mavenge = true;
+        if (In_W_tower(mx, my, state.u.uz, state)
+            || (monster.iswiz && !sx && !mon_has_amulet(monster))) {
+            if (!noTeleport(monster, state)
+                && !random.rn2(3 + Math.trunc(monster.mhp / 10))) {
+                if (!rloc) note_unported('teleport.c rloc');
+                else await rloc(monster, RLOC_MSG, {
+                    ...rawEnv,
+                    state,
+                    random,
+                });
+            }
+        } else if (sx && (mx !== sx || my !== sy)) {
+            if (!noTeleport(monster, state)) {
+                if (!mnearto || !rlocTo)
+                    note_unported('mon.c mnearto/teleport.c rloc_to');
+                else if (!await mnearto(monster, sx, sy, true, RLOC_MSG, {
+                    ...rawEnv,
+                    state,
+                    random,
+                })) {
+                    await rlocTo(monster, mx, my, {
+                        ...rawEnv,
+                        state,
+                        random,
+                    });
+                    return 0;
+                }
+            }
+            mx = monster.mx;
+            my = monster.my;
+        }
+        if ((mx - state.u.ux) ** 2
+            + (my - state.u.uy) ** 2 > BOLT_LIM * BOLT_LIM
+            && monster.mhp <= monster.mhpmax - 8) {
+            if (!healmon) note_unported('mon.c healmon');
+            else await healmon(monster, random.rnd(8), 0, {
+                ...rawEnv,
+                state,
+                random,
+            });
+            return 1;
+        }
+        // C falls through from STRAT_HEAL to STRAT_NONE.
+    case STRAT_NONE:
+        if (!noTeleport(monster, state)
+            && !random.rn2(monster.mflee ? 33 : 5)) {
+            if (!mnexto) note_unported('mon.c mnexto');
+            else await mnexto(monster, RLOC_MSG, {
+                ...rawEnv,
+                state,
+                random,
+            });
+        }
+        return 0;
+    default: {
+        const where = mstrategy & STRAT_STRATMASK;
+        const tx = monster.mgoal?.x ?? 0;
+        const ty = monster.mgoal?.y ?? 0;
+        const target = mstrategy & STRAT_GOAL;
+        if (!target || !Number.isInteger(tx) || !Number.isInteger(ty)
+            || !isok(tx, ty))
+            return 0;
+        if (noTeleport(monster, state)
+            && !rawEnv.monnear?.(monster, tx, ty, state)) return 0;
+        if (u_at(tx, ty, state) || where === STRAT_PLAYER) {
+            mx = monster.mx;
+            my = monster.my;
+            if (noTeleport(monster, state) || !mnearto
+                || !await mnearto(monster, tx, ty, false, RLOC_MSG, {
+                    ...rawEnv,
+                    state,
+                    random,
+                })) {
+                if (rlocTo) await rlocTo(monster, mx, my, {
+                    ...rawEnv,
+                    state,
+                    random,
+                });
+            }
+            return 0;
+        }
+        if (where === STRAT_GROUND) {
+            const occupant = rawEnv.m_at?.(tx, ty, state);
+            if (!occupant || (monster.mx === tx && monster.my === ty)) {
+                if (rlocTo) await rlocTo(monster, tx, ty, {
+                    ...rawEnv,
+                    state,
+                    random,
+                });
+                const objectAtTarget = on_ground(which_arti(target), state);
+                if (!objectAtTarget) return 0;
+                if (cansee(monster.mx, monster.my, state)) {
+                    await message(
+                        `${Monnam(monster, state, rawEnv)} picks up `
+                        + `${distant_name(objectAtTarget, donameFresh, state)}.`,
+                        state,
+                        rawEnv,
+                    );
+                }
+                if (rawEnv.objExtractSelf)
+                    rawEnv.objExtractSelf(objectAtTarget, {
+                        ...rawEnv,
+                        state,
+                    });
+                if (rawEnv.mpickobj)
+                    await rawEnv.mpickobj(monster, objectAtTarget, {
+                        ...rawEnv,
+                        state,
+                    });
+                else note_unported('steal.c mpickobj');
+                return 1;
+            }
+            if (!random.rn2(5) && !noTeleport(monster, state)
+                && mnexto) {
+                await mnexto(monster, RLOC_MSG, {
+                    ...rawEnv,
+                    state,
+                    random,
+                });
+            }
+            return 0;
+        }
+        mx = monster.mx;
+        my = monster.my;
+        if (!noTeleport(monster, state) && mnearto
+            && !await mnearto(monster, tx, ty, false, RLOC_MSG, {
+                ...rawEnv,
+                state,
+                random,
+            }) && rlocTo) {
+            await rlocTo(monster, mx, my, {
+                ...rawEnv,
+                state,
+                random,
+            });
+        }
+        return 0;
+    }
+    }
 }

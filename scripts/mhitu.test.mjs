@@ -734,7 +734,12 @@ test('an ice vortex swallows, freezes, and expels an ordinary hero',
     // expiry branch without replaying seven identical turns. expels() also
     // calls unstuck(), whose rehold-prevention check is the final rnd(2).
     state.u.uswldtim = 1;
-    const expelled = meleeEnv(state, []);
+    const expelledPainted = [];
+    const expelled = meleeEnv(state, [], {
+        newsym: (x, y) => expelledPainted.push([x, y]),
+    });
+    const oldVortexSquare = [vortex.mx, vortex.my];
+    const heroSquare = [state.u.ux, state.u.uy];
     assert.equal(await mattacku(vortex, expelled.env), false);
     assert.deepEqual(expelled.lines, [
         'You are freezing to death!',
@@ -749,6 +754,14 @@ test('an ice vortex swallows, freezes, and expels an ordinary hero',
     assert.equal(state.u.uswallow, 0);
     assert.equal(state.u.uswldtim, 0);
     assert.equal(state.u.ustuck, null);
+    // teleport.c rloc_to_core() paints the old and new monster squares, and
+    // mhitu.c expels() then paints only the hero's former stomach square.
+    // A duplicate destination paint would shift the fixed TTY trace.
+    assert.deepEqual(expelledPainted, [
+        oldVortexSquare,
+        [vortex.mx, vortex.my],
+        heroSquare,
+    ]);
     // mon.c:unstuck() raises the flag before docrt(), whose
     // vision_recalc(0) clears it again (vision.c:532).
     assert.equal(state.vision_full_recalc, 0);
@@ -1648,11 +1661,14 @@ test('planned expulsion keeps terrain transition output off the live stream',
 
     const planned = meleeEnv(state, []);
     const liveMessage = state.nhDisplay.topMessage;
+    const plannedPainted = [];
     await expels(vortex, {
         ...planned.env,
         planning: true,
+        newsym: (x, y) => plannedPainted.push([x, y]),
     });
     assert.deepEqual(planned.lines, []);
+    assert.deepEqual(plannedPainted, []);
     assert.equal(state.nhDisplay.topMessage, liveMessage);
 
     // Keep the same planning display seam on a direct terrain transition as

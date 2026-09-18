@@ -65503,11 +65503,11 @@
     {
       "id": "div-allmain-region-upkeep-planning-seed4500-20260918",
       "kind": "divergence-fix",
-      "status": "parked",
+      "status": "closed",
       "summary": "Run supported region upkeep on projected elapsed turns",
       "cFile": "allmain.c",
       "sessions": [],
-      "selectionReason": "Seed continuation for holdout/seed4500-knight-coverage (remaining suffix116): investigations/holdout/seed4500-knight-coverage.json identifies the current later region refusal after1742 screens. The earlier getpos family is reserved by A; this ready independent fix follows accepted blind-pile inspection.",
+      "selectionReason": "Closure-only reconciliation for holdout/seed4500-knight-coverage after accepted dependencies: current scan .cache/A40-development-scan.json matches through1757 screens, beyond the named1742 region-upkeep path. No new implementation or gain is attributed to this reopened interval; covetous tactics owns the next57-screen suffix and Q1 blocks seed2200.",
       "detail": "Segment0 first screen/cursor mismatch1698 remains getpos; the later input1742 space stops at the planning-only nonempty-region guard. C allmain.c moveloop_core269–277 invokes run_regions after nh_timeout. JS finishElapsedTurnAfterTimeout currently rejects all regions during projection despite the existing region.c414–474 callback implementation. Run it on cloned level/region state, bind planning RNG, register shared-vision changes for restoration, and keep messages/newsym on the live pass. Focused success/later-refusal tests verify complete live-state isolation. This is a caller defect, not whole moveloop_core completion; positive harmful gas and unknown callbacks remain unported. Existing gas-spore recording establishes general caller reachability only. Pending branch replay reaches a distinct RNG mismatch at1742 and later special movement; do not claim that later mismatch resolved.",
       "spans": [
         {
@@ -65525,15 +65525,18 @@
         "screens": 11322,
         "rng": 789036
       },
-      "closedAt": null,
-      "delivered": null,
+      "closedAt": "ac96dd3de6df5f13b75a1af2e7d1bfe06bdcf205",
+      "delivered": {
+        "screens": 0,
+        "rng": 234
+      },
       "function": "moveloop_core",
       "session": "holdout/seed4500-knight-coverage",
       "step": 1742,
       "activeStanding": {
-        "sha": "b80879fb01d57042110abdaa55dcd004f88793ed",
-        "screens": 11322,
-        "rng": 789036
+        "sha": "ac96dd3de6df5f13b75a1af2e7d1bfe06bdcf205",
+        "screens": 11339,
+        "rng": 790757
       },
       "openMismatches": [
         {
@@ -65625,7 +65628,12 @@
         "screens": 11322,
         "rng": 789270
       },
-      "parkedReason": "The caller correction passes the full checkpoint and region-upkeep refusal is removed, but first mismatch1698 remains in getpos, before the named1742 owner. Preserve the divergence as unresolved until first-mismatch evidence advances; later RNG1742 and special movement belong to separate source investigation."
+      "parkedReason": "The caller correction passes the full checkpoint and region-upkeep refusal is removed, but first mismatch1698 remains in getpos, before the named1742 owner. Preserve the divergence as unresolved until first-mismatch evidence advances; later RNG1742 and special movement belong to separate source investigation.",
+      "closeStanding": {
+        "sha": "ac96dd3de6df5f13b75a1af2e7d1bfe06bdcf205",
+        "screens": 11339,
+        "rng": 790757
+      }
     },
     {
       "id": "port-getpos-location-cycles-seed4500-20260918",
@@ -66094,11 +66102,11 @@
     {
       "id": "div-plan-monster-list-iteration-seed4500-20260918",
       "kind": "divergence-fix",
-      "status": "parked",
+      "status": "closed",
       "summary": "Match safe monster-list iteration during turn planning",
       "cFile": "mon.c",
       "sessions": [],
-      "selectionReason": "Source-traced dependency for pending B38 special-movement/displacement work in holdout/seed4500-knight-coverage, remainingScreensUpperBound72, investigations/holdout/seed4500-knight-coverage.json. Its first RNG1742 actor cause remains partial, but direct comparison proves the projected traversal differs from mon.c movemon and must preserve list mutations and callback termination before new displacement/death paths land. The equally sized seed2200 suffix is machine-local Q1. This independent mon.c caller scope does not overlap worker B monmove.c m_move.",
+      "selectionReason": "Closure-only reconciliation for holdout/seed4500-knight-coverage: the source-backed Hell-bat dependency has landed and .cache/A40-development-scan.json confirms matching screens and RNG through1757, beyond the previously unresolved1742 scan boundary. No new implementation is selected; the next57-screen suffix belongs to reserved wizard.c tactics and Q1 blocks seed2200.",
       "detail": "C mon.c movemon1330 calls iter_mons_safe4500–4526, snapshotting initial monster identities and stopping when its callback returns true. Live JS mon.js does likewise. JS unported_monster_actions.js planSimpleMonsterTurn2025–2036 follows mutable nmon links directly and discards planSimpleMonsterScan/movemon_singlemon return values. A callback removing or inserting monsters can change subsequent planned actors. Reuse the canonical iterator, propagate stop/gameover semantics, and verify cloned state, deletion/insertion and termination. This source-confirmed planning discrepancy is not yet established as the cause of fixed Knight RNG1742.",
       "spans": [
         {
@@ -66116,14 +66124,17 @@
         "screens": 11324,
         "rng": 789270
       },
-      "closedAt": null,
-      "delivered": null,
+      "closedAt": "ac96dd3de6df5f13b75a1af2e7d1bfe06bdcf205",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
       "function": "movemon",
       "session": "holdout/seed4500-knight-coverage",
       "activeStanding": {
-        "sha": "875f40301cb734d3a419e2b291f286b73db785d7",
-        "screens": 11324,
-        "rng": 789270
+        "sha": "ac96dd3de6df5f13b75a1af2e7d1bfe06bdcf205",
+        "screens": 11339,
+        "rng": 790757
       },
       "openMismatches": [
         {
@@ -66209,7 +66220,12 @@
         "screens": 11324,
         "rng": 789270
       },
-      "parkedReason": "The source-traced planner iteration dependency is corrected and the span passes checkpoint, but the fixed first mismatch remains1742. Preserve the unresolved divergence criterion while the independently traced Hell-bat creation omission is integrated."
+      "parkedReason": "The source-traced planner iteration dependency is corrected and the span passes checkpoint, but the fixed first mismatch remains1742. Preserve the unresolved divergence criterion while the independently traced Hell-bat creation omission is integrated.",
+      "closeStanding": {
+        "sha": "ac96dd3de6df5f13b75a1af2e7d1bfe06bdcf205",
+        "screens": 11339,
+        "rng": 790757
+      }
     },
     {
       "id": "port-monmove-m-move-seed4500-20260918",
@@ -66452,7 +66468,7 @@
       "summary": "Correct special movement dispatch, combat state and projected displacement effects",
       "cFile": "monmove.c",
       "sessions": [],
-      "selectionReason": "Seed continuation: holdout/seed4500-knight-coverage has 72 remaining screens in .cache/A39-development-scan.json; investigations/holdout/seed4500-knight-coverage.json traces the later special-movement refusal to m_move. This oldest ready independent correction follows accepted safe monster iteration; the earlier RNG1742 cause remains unresolved and makemon speed belongs to A40. Q1 blocks seed2200.",
+      "selectionReason": "Update the remaining-work reason for holdout/seed4500-knight-coverage, with 57 remaining screens in investigations/holdout/seed4500-knight-coverage.json. The tactics dependency now passes, but the first mismatch remains in unresolved movement/state selection; B is investigating it, and Q1 blocks the higher-ranked seed2200 entry. No new implementation is selected.",
       "detail": "monmove.c m_move1715-2075 and m_move_aggress2088-2120 require canonical gb.bhitpos/gn.notonhead, source dispatch order, direct unicorn relocation results and complete special movement continuation. mhitm.c mdisplacem180-288 supplies the result-bearing displacement path; its output, vision and worm state must remain isolated in planned turns. Updated source evidence and open entries are recorded in port-monmove-m-move-seed4500-20260918.",
       "spans": [
         {
@@ -66480,9 +66496,9 @@
       "function": "m_move",
       "session": "holdout/seed4500-knight-coverage",
       "activeStanding": {
-        "sha": "ffad99e336a4be7603ef4a34b9cf6ddd86d814e7",
-        "screens": 11324,
-        "rng": 789270
+        "sha": "40823c47b4e67c4523fd2786899feb3b239ba324",
+        "screens": 11339,
+        "rng": 790898
       },
       "openMismatches": [
         {
@@ -66565,16 +66581,16 @@
         "rng": 0
       },
       "parkedStanding": {
-        "sha": "58583fcdfa63da0a0d2acbe2effe3ea1686209ed",
-        "screens": 11324,
-        "rng": 789270
+        "sha": "40823c47b4e67c4523fd2786899feb3b239ba324",
+        "screens": 11339,
+        "rng": 790898
       },
-      "parkedReason": "The validated correction preserves 11324/11405 screens and all 391 recordings, but the first Knight mismatch remains at1742 before distress, so the divergence closure criterion is not yet met. The later refusal isolates awake covetous admission before dochug and wizard.c tactics. Resume after the missing movement action is source-traced and the first mismatch passes this path; unrecorded m_move entry families remain in the source goal."
+      "parkedReason": "The movement-dispatch span and tactics dependency pass at 40823c47, including all 396 recordings. Knight now reaches a distinct fire-trap mismatch at step 1757: JS aligned cleric2321 moves from24,14 to25,13 while C proceeds to distfleeck. Movement/state selection and C actor correspondence remain unresolved; resume when that investigation establishes whether more correction is required before closure. The source goal retains unrecorded m_move entry families."
     },
     {
       "id": "div-makemon-hell-bat-speed-seed4500-20260918",
       "kind": "divergence-fix",
-      "status": "open",
+      "status": "closed",
       "summary": "Apply the source creation speed adjustment to bats created in Hell",
       "cFile": "makemon.c",
       "sessions": [],
@@ -66583,8 +66599,8 @@
       "spans": [
         {
           "name": "hell-bat-creation-speed",
-          "status": "queued",
-          "closedBy": null,
+          "status": "closed",
+          "closedBy": "ac96dd3de6df5f13b75a1af2e7d1bfe06bdcf205",
           "functions": [
             "makemon",
             "mon_adjust_speed"
@@ -66597,8 +66613,11 @@
         "screens": 11324,
         "rng": 789270
       },
-      "closedAt": null,
-      "delivered": null,
+      "closedAt": "ac96dd3de6df5f13b75a1af2e7d1bfe06bdcf205",
+      "delivered": {
+        "screens": 15,
+        "rng": 1487
+      },
       "function": "makemon",
       "session": "holdout/seed4500-knight-coverage",
       "step": 1742,
@@ -66681,7 +66700,453 @@
             }
           }
         }
-      ]
+      ],
+      "closeStanding": {
+        "sha": "ac96dd3de6df5f13b75a1af2e7d1bfe06bdcf205",
+        "screens": 11339,
+        "rng": 790757
+      }
+    },
+    {
+      "id": "port-wizard-tactics-seed4500-20260918",
+      "kind": "file-port",
+      "status": "parked",
+      "summary": "Port covetous artifact targeting, healing and harassment tactics through the production monster turn.",
+      "cFile": "wizard.c",
+      "sessions": [
+        "holdout/seed4500-knight-coverage"
+      ],
+      "selectionReason": "Select holdout/seed4500-knight-coverage, remainingScreensUpperBound57, from investigations/holdout/seed4500-knight-coverage.json. C monmove.c dochug calls the missing wizard.c which_arti-through-tactics family before distance checks. Higher-ranked seed2200 is blocked on Q1 environment-path replay contract. This continues the Knight source path; B39 owns the tactics and relocation contracts, while A40 Hell-bat speed is accepted.",
+      "detail": "Whole wizard.c142-468 family, including choose_stairs, with production dochug wiring and clone-owned relocation RNG/output. Retain unrecorded healing, artifact acquisition, and exceptional relocation entry families as open coverage; two independent peaceful master-lich recordings establish the ordinary monster-turn entry.",
+      "spans": [
+        {
+          "name": "which_arti..tactics",
+          "status": "closed",
+          "closedBy": "40823c47b4e67c4523fd2786899feb3b239ba324",
+          "functions": [
+            "which_arti",
+            "mon_has_arti",
+            "other_mon_has_arti",
+            "on_ground",
+            "you_have",
+            "target_on",
+            "strategy",
+            "choose_stairs",
+            "tactics"
+          ]
+        }
+      ],
+      "openedAt": "651ab1b72f197f3c2abbf9b996132b1082480f1c",
+      "openStanding": {
+        "sha": "ac96dd3de6df5f13b75a1af2e7d1bfe06bdcf205",
+        "screens": 11339,
+        "rng": 790757
+      },
+      "closedAt": null,
+      "delivered": null,
+      "functions": [
+        {
+          "name": "which_arti",
+          "line": 142,
+          "endLine": 164,
+          "declared": true,
+          "complete": true
+        },
+        {
+          "name": "mon_has_arti",
+          "line": 165,
+          "endLine": 183,
+          "declared": true,
+          "complete": true
+        },
+        {
+          "name": "other_mon_has_arti",
+          "line": 184,
+          "endLine": 201,
+          "declared": true,
+          "complete": true
+        },
+        {
+          "name": "on_ground",
+          "line": 202,
+          "endLine": 215,
+          "declared": true,
+          "complete": true
+        },
+        {
+          "name": "you_have",
+          "line": 216,
+          "endLine": 235,
+          "declared": true,
+          "complete": true
+        },
+        {
+          "name": "target_on",
+          "line": 236,
+          "endLine": 269,
+          "declared": true,
+          "complete": true
+        },
+        {
+          "name": "strategy",
+          "line": 270,
+          "endLine": 331,
+          "declared": true,
+          "complete": true
+        },
+        {
+          "name": "choose_stairs",
+          "line": 332,
+          "endLine": 368,
+          "declared": true,
+          "complete": true
+        },
+        {
+          "name": "tactics",
+          "line": 369,
+          "endLine": 473,
+          "declared": true,
+          "complete": true
+        }
+      ],
+      "range": {
+        "from": 142,
+        "to": 473
+      },
+      "activeStanding": {
+        "sha": "ac96dd3de6df5f13b75a1af2e7d1bfe06bdcf205",
+        "screens": 11339,
+        "rng": 790757
+      },
+      "openMismatches": [
+        {
+          "session": "holdout/seed4500-knight-coverage",
+          "step": 1757,
+          "kind": "stop",
+          "function": null,
+          "functionDeclared": false,
+          "sourceFile": null,
+          "cFile": null,
+          "luaFile": null,
+          "line": null,
+          "message": "simple monster action requires special monster movement",
+          "unlocatedKinds": [],
+          "recordedSteps": 1814,
+          "remainingScreensUpperBound": 57,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/holdout/seed4500-knight-coverage.json",
+            "result": {
+              "session": "holdout/seed4500-knight-coverage",
+              "remainingScreensUpperBound": 57,
+              "status": "complete",
+              "commit": "ac96dd3de6df5f13b75a1af2e7d1bfe06bdcf205",
+              "mismatch": {
+                "session": "holdout/seed4500-knight-coverage",
+                "step": 1757,
+                "kind": "stop",
+                "function": null,
+                "functionDeclared": false,
+                "sourceFile": null,
+                "cFile": null,
+                "luaFile": null,
+                "line": null,
+                "message": "simple monster action requires special monster movement",
+                "unlocatedKinds": [],
+                "recordedSteps": 1814,
+                "remainingScreensUpperBound": 57
+              },
+              "summary": "The Hell-bat creation speed fix removes the step-1742 divergence. Knight now matches through 1757 screens and stops at awake covetous-monster admission. The missing owner is wizard.c tactics and its strategy/target selection family, called by dochug before distance and attack checks; 57 screens remain in this session.",
+              "source": {
+                "file": "wizard.c",
+                "functions": [
+                  "which_arti",
+                  "mon_has_arti",
+                  "other_mon_has_arti",
+                  "on_ground",
+                  "you_have",
+                  "target_on",
+                  "strategy",
+                  "choose_stairs",
+                  "tactics"
+                ],
+                "branch": "assertSimpleActionState rejects a covetous monster unless it is asleep out of sight or in an early waiting/immobile state. C monmove.c dochug782 calls tactics for an admitted covetous actor after set_apparxy, returns when tactics sets mstate, then recomputes apparent hero position before distfleeck. wizard.c tactics369-478 selects healing, harassment or artifact acquisition from strategy, preserving relocation restrictions and random-call order.",
+                "callers": [
+                  "allmain elapsed turns call mon.c movemon_singlemon and the JS runSimpleMonsterAction adapter, which currently stops in assertSimpleActionState before dochug.",
+                  "monmove.c dochug calls wizard.c tactics in phase two; JS monmove.js must call its canonical wizard.js owner with the planned/live operation environment. m_move later consumes the same monster.mgoal coordinates for the covetous intruder attack."
+                ],
+                "dependencies": [
+                  "Accepted getpos.c collection/cycling now includes menu selection and cancellation, source coordinate descriptions and exact area-filter lifetime. Five independent recordings match. VIEW and other location-family entry recordings remain open in GOALS.json.",
+                  "Accepted pager do_screen_description now collects all source symbol families and uses canonical stored-glyph map_glyphinfo. Its lookup coordinates differ from the encoded-prefix decode at (0,0); pet and hero overrides, Rogue colors and NOOVERRIDE order are verified. getpos_menu, displayed-glyph accessibility, cursor auto-description and clicked lookup recording entries remain open in GOALS.json.",
+                  "Accepted invent.c look_here/dolook now handles tactile floor reach, arbitrary pile inspection, pile counts, cockatrice ordering and message filtering, with canonical force_decor and query_objlist callers. Three independent recordings cover movement menu/count and colon look. Swallowed inventory, blind ICE and the tactile-corpse fallback remain unrecorded entry families in GOALS.json; movement retains its mutation-free unsupported naming/pricing boundary.",
+                  "Other unresolved source/coverage defects remain separate: make_stoned/minstapetrify/do_stone_mon; hero/monster stoning directions, corpse-weapon and attack-triggered golem entries; passive cold/fire/electricity/paralysis and lethal recovery; eating/non-food cleanup; skinback artifact-light radius and rare armor/Eyes-of-the-Overworld cleanup.",
+                  "Liquid-specific entry recordings and exceptional partial rloc routes remain open; trap.c inventory-chain calls and mon.c deal_with_overcrowding remain named discarded-call gaps. GOALS.json preserves open print_dungeon, hitmu, mfind0, goto_level, minliquid, creation/flash, pickup and achievement entry families rather than treating supporting unit tests as their completion.",
+                  "Hidden-attacker witnesses require eligible placement on objects or water, actual hidden state and an executed hitmu. Plain or qualified monster creation alone does not establish that entry; independent hidden-trapper and invisible-newt recordings establish creation/flash only.",
+                  "Accepted m_move/mdisplacem dispatch, combat state and projected movement corrections have matching Tengu relocation recordings. Displacement, mail, worm, covetous and exceptional dedicated-mover entry recordings remain open in GOALS.json. Covetous admission must be wired through the whole tactics owner, including its strategy and relocation callees.",
+                  "Accepted safe monster scans and deferred-transition continuation now match through step 1756 after the Hell-bat creation speed fix. Region upkeep keeps harmful gas and unknown callbacks explicit; its nonempty-region recording coverage remains separate from the resolved fixed-workload prefix.",
+                  "wizard.c tactics uses stair selection, mnexto/mnearto/rloc/rloc_to, healing, and floor/inventory artifact transfer. Existing mon.js mnearto passes only state to enexto and rloc_to, dropping the action RNG and output environment. rloc_to directly calls global newsym and sets mux/muy to the hero under a dog-arrival assumption. General tactics calls need source set_apparxy behavior and clone-owned RNG, vision, messages and redraws."
+                ]
+              },
+              "goalKind": "file-port",
+              "evidence": [
+                "Checkpoint ac96dd3d passes all394 recordings and raises development from11324 to11339 matching screens. Only Knight changes:1742→1757 screens,104707→106194 RNG calls and1753→1757 cursors. The refreshed scan reports no screen/RNG/cursor divergence before the stop at1757.",
+                "The unique remaining special-monster-movement refusal is js/unported_monster_actions.js assertSimpleActionState330-331, gated by is_covetous, sleeping visibility and STRAT_WAITMASK. C monmove.c782-787 instead runs tactics and checks mstate; wizard.c142-478 contains its source helper family.",
+                "The accepted Hell-bat adjustment follows makemon.c1343-1346 through mon_adjust_speed(mtmp,2,NULL). Source-pinned creation tests assert both speed state and all three RNG draws; independent Hell/ordinary creation recordings match. The fixed replay improvement establishes the correction without identifying the missing C actor.",
+                "Retained counter-evidence: the earlier candidate bat had spent its own movement ration; its own action was not skipped. The two distfleeck calls around m_move described one action. Vampire shapechange does not invoke the Hell-bat creation adjustment, and pre-A40 replay artifacts never measured A40.",
+                "Next implementation: port the whole which_arti-through-tactics family, wire the production dochug caller and result-bearing relocation dependencies, then verify planned/live isolation and independent healing, harassment and artifact-goal entry recordings.",
+                "Relocation source check at ac96dd3d: mon.js mnearto4552-4580 calls enexto with only {state}; teleport.js teleportEnv214-218 defaults absent random to live rn2/rnd. rloc_to1178-1221 draws both squares through global display.newsym and assigns hero coordinates instead of general set_apparxy. The existing clone already copies mgoal and the relevant world state. Verify injected RNG and display isolation through the public planner, not only direct helper tests.",
+                "The harassment dependency also needs repair: JS teleport.js mnexto1225-1302 ignores its relocation flags, directly moves the monster, and assigns hero coordinates under an arrival-only assumption. C mon.c mnexto3959-3992 and mnearto4075 instead call teleport.c rloc_to_flag, while C rloc_to1771 explicitly suppresses messages. Preserve that distinction, the same-square no-op, old-position visibility and STRAT_APPEARMSG rules, and source set_apparxy calls. Existing NOMSG arrival callers are synchronous; the new tactics caller must await any message. Naming during projected relocation must use the supplied display RNG even when output is suppressed."
+              ]
+            }
+          }
+        }
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "which_arti",
+            "implementation": "js/wizard.js",
+            "symbol": "which_arti",
+            "sourceReview": "Compared wizard.c:141-153. The five M3_WANTS masks map to the Amulet, Bell, Candelabrum, Book, or zero in source order.",
+            "callers": [
+              {
+                "path": "js/wizard.js",
+                "symbol": "target_on",
+                "source": "wizard.c target_on"
+              }
+            ],
+            "pure": true,
+            "tests": [
+              "scripts/wizard.test.mjs"
+            ],
+            "recordings": [],
+            "checkedAt": "0ab1ec98866f3461f867858981716b2f75ac842f"
+          },
+          {
+            "name": "mon_has_arti",
+            "implementation": "js/wizard.js",
+            "symbol": "mon_has_arti",
+            "sourceReview": "Compared wizard.c:165-177. The implementation scans linked minvent objects, using an exact object type for invocation items and the artifact/quest-artifact predicate for type zero.",
+            "callers": [
+              {
+                "path": "js/wizard.js",
+                "symbol": "target_on",
+                "source": "wizard.c target_on"
+              }
+            ],
+            "pure": true,
+            "tests": [
+              "scripts/wizard.test.mjs"
+            ],
+            "recordings": [],
+            "checkedAt": "0ab1ec98866f3461f867858981716b2f75ac842f"
+          },
+          {
+            "name": "other_mon_has_arti",
+            "implementation": "js/wizard.js",
+            "symbol": "other_mon_has_arti",
+            "sourceReview": "Compared wizard.c:182-198. The linked fmon scan skips the subject and returns the first other living-list node carrying the requested artifact; the direct test covers both a hit and an empty scan.",
+            "callers": [
+              {
+                "path": "js/wizard.js",
+                "symbol": "target_on",
+                "source": "wizard.c target_on"
+              }
+            ],
+            "pure": true,
+            "tests": [
+              "scripts/wizard.test.mjs"
+            ],
+            "recordings": [],
+            "checkedAt": "0ab1ec98866f3461f867858981716b2f75ac842f"
+          },
+          {
+            "name": "on_ground",
+            "implementation": "js/wizard.js",
+            "symbol": "on_ground",
+            "sourceReview": "Compared wizard.c:200-213. The level objlist scan preserves source order and the type-zero quest/artifact predicate.",
+            "callers": [
+              {
+                "path": "js/wizard.js",
+                "symbol": "target_on",
+                "source": "wizard.c target_on"
+              }
+            ],
+            "pure": true,
+            "tests": [
+              "scripts/wizard.test.mjs"
+            ],
+            "recordings": [],
+            "checkedAt": "0ab1ec98866f3461f867858981716b2f75ac842f"
+          },
+          {
+            "name": "you_have",
+            "implementation": "js/wizard.js",
+            "symbol": "you_have",
+            "sourceReview": "Compared wizard.c:215-233. The five source possession fields are read directly from uhave and return false for an unknown mask.",
+            "callers": [
+              {
+                "path": "js/wizard.js",
+                "symbol": "target_on",
+                "source": "wizard.c target_on"
+              }
+            ],
+            "pure": true,
+            "tests": [
+              "scripts/wizard.test.mjs"
+            ],
+            "recordings": [],
+            "checkedAt": "0ab1ec98866f3461f867858981716b2f75ac842f"
+          },
+          {
+            "name": "target_on",
+            "implementation": "js/wizard.js",
+            "symbol": "target_on",
+            "sourceReview": "Compared wizard.c:235-267. Hero possession, floor object, and other-monster priority and the Amulet Wizard/priest exclusion preserve source order; mgoal is written at the same target selection points.",
+            "callers": [
+              {
+                "path": "js/wizard.js",
+                "symbol": "strategy",
+                "source": "wizard.c strategy"
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/wizard.test.mjs"
+            ],
+            "recordings": [
+              "recordings/wizard.c/wizard-tactics-genesis-independent.session.json",
+              "recordings/wizard.c/wizard-tactics-genesis-variation.session.json"
+            ],
+            "checkedAt": "0ab1ec98866f3461f867858981716b2f75ac842f"
+          },
+          {
+            "name": "strategy",
+            "implementation": "js/wizard.js",
+            "symbol": "strategy",
+            "sourceReview": "Compared wizard.c:269-327, including the default STRAT_HEAL case, Wizard ratio fallthrough, invocation priority, and in-shop/in-temple exclusions.",
+            "callers": [
+              {
+                "path": "js/wizard.js",
+                "symbol": "tactics",
+                "source": "wizard.c tactics371 computes strategy before writing mstrategy"
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/wizard.test.mjs"
+            ],
+            "recordings": [
+              "recordings/wizard.c/wizard-tactics-genesis-independent.session.json",
+              "recordings/wizard.c/wizard-tactics-genesis-variation.session.json"
+            ],
+            "checkedAt": "0ab1ec98866f3461f867858981716b2f75ac842f"
+          },
+          {
+            "name": "choose_stairs",
+            "implementation": "js/wizard.js",
+            "symbol": "choose_stairs",
+            "sourceReview": "Compared whole wizard.c332-365. Read-only stair selection checks builds_up direction, matching stairs then ladder, cross-dungeon fallback, then reversed stairs and ladder in source order. The tactics caller initializes the C output pair to zero; JS returns that pair or the selected stair coordinates. No RNG, output, or game mutation occurs. stairs.c89-96 stairway_find_type_dir preserves the linked-list type-and-direction predicate.",
+            "callers": [
+              {
+                "path": "js/wizard.js",
+                "symbol": "tactics",
+                "source": "wizard.c tactics386 selects stairs with m_id parity"
+              }
+            ],
+            "pure": true,
+            "tests": [
+              "scripts/wizard.test.mjs"
+            ],
+            "recordings": [],
+            "checkedAt": "0ab1ec98866f3461f867858981716b2f75ac842f"
+          },
+          {
+            "name": "tactics",
+            "implementation": "js/wizard.js",
+            "symbol": "tactics",
+            "sourceReview": "Compared wizard.c:368-468 in full. Strategy mutation, cached tower coordinates, stair/mnearto fallback, heal, STRAT_NONE harassment, hero/ground/monster targets, output, extraction, and source ordering are implemented. The swallowed expels(TRUE) call remains an explicit discarded gap because its return is not consumed and mhitu.c's branch is not ported.",
+            "callers": [
+              {
+                "path": "js/monmove.js",
+                "symbol": "dochug",
+                "source": "monmove.c:782-790"
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/wizard.test.mjs",
+              "scripts/unported-monster-actions.test.mjs"
+            ],
+            "recordings": [
+              "recordings/wizard.c/wizard-tactics-genesis-independent.session.json",
+              "recordings/wizard.c/wizard-tactics-genesis-variation.session.json"
+            ],
+            "checkedAt": "0ab1ec98866f3461f867858981716b2f75ac842f"
+          }
+        ],
+        "entryPointReview": "Compared complete wizard.c142-468 and monmove.c782-787. The production covetous monster turn selects harassment, injured healing, hero artifact pursuit, floor artifact pickup, or another monster artifact pursuit. The independently chosen peaceful master-lich recipes use timed blindness and forced rest. C tactics(wizard.c:413) executes at step58 in the Wizard-role case (rn2(5)=3), and steps56 and60 in the Valkyrie case (rn2(5)=1 and0); the latter executes mnexto relocation. Earlier prompt-only and two-rest recordings did not establish coverage and have been replaced by the verified independent recordings. Public planner and floor-pickup tests verify caller wiring and clone isolation but do not replace entry recordings. Healing and artifact entry recordings remain open. Relocation wiring preserves action/display RNG, flagged versus unflagged messages, old-square redraw before placement, off-map arrival messages, and set_apparxy. Canonical obj_extract_self uses remove_object through the dochug adapter. Existing worm/shop/trap/occupation/attached-hero relocation refusals and swallowed expels gap remain explicit; no whole-teleport completion is claimed. Master-lich admission reuses the implemented makemon S_LICH inventory arm only for the existing create_particular caller marker; generic generation remains bounded. Supporting mhitu.c expels message=false wiring delegates old/new monster redraws to mnexto/rloc_to_core and then redraws only the hero square; planning suppresses relocation redraws. This replaces the caller-owned destination redraw left by the former relocation placeholder. The existing ice-vortex recording and the fixed hallucination session exercise this dependency; the named-expulsion refusal remains outside that entry.",
+        "entryPoints": [
+          {
+            "name": "covetous monster harassment turn",
+            "functions": [
+              "target_on",
+              "strategy",
+              "tactics"
+            ],
+            "recordings": [
+              "recordings/wizard.c/wizard-tactics-genesis-independent.session.json",
+              "recordings/wizard.c/wizard-tactics-genesis-variation.session.json"
+            ]
+          },
+          {
+            "name": "injured covetous healing and stair or tower relocation",
+            "functions": [
+              "strategy",
+              "choose_stairs",
+              "tactics"
+            ],
+            "recordings": []
+          },
+          {
+            "name": "hero artifact pursuit",
+            "functions": [
+              "target_on",
+              "strategy",
+              "tactics"
+            ],
+            "recordings": []
+          },
+          {
+            "name": "floor artifact acquisition",
+            "functions": [
+              "target_on",
+              "strategy",
+              "tactics"
+            ],
+            "recordings": []
+          },
+          {
+            "name": "other-monster artifact pursuit",
+            "functions": [
+              "target_on",
+              "strategy",
+              "tactics"
+            ],
+            "recordings": []
+          }
+        ]
+      },
+      "progressBeforePark": {
+        "screens": 0,
+        "rng": 141
+      },
+      "parkedStanding": {
+        "sha": "40823c47b4e67c4523fd2786899feb3b239ba324",
+        "screens": 11339,
+        "rng": 790898
+      },
+      "parkedReason": "The source span and two harassment recordings pass at40823c47. Healing/stair/tower and hero/floor/other-monster artifact entry recordings remain open, so the source goal cannot close. Knight now reaches a distinct fire-trap mismatch at1757 under movement/state investigation; resume this coverage when it becomes eligible."
     }
   ]
 }

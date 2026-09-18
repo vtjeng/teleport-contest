@@ -1220,21 +1220,26 @@ export async function expels(mtmp, rawEnv = {}) {
     // expels() awaits that owner before relocation.
     await unstuck(mtmp, state, { ...rawEnv, state });
 
+    // teleport.c rloc_to_core() owns the old and new monster-square redraws.
+    // Keep the operation seam explicit so a planning clone cannot paint the
+    // live map while mnexto() performs that relocation.
+    const redraw = rawEnv.planning
+        ? () => {}
+        : (rawEnv.newsym ?? rawEnv.redraw ?? newsym);
     const relocated = mnexto(mtmp, RLOC_NOMSG, {
         ...rawEnv,
         state,
+        newsym: redraw,
         dealWithOvercrowding: () =>
             unsupported('expulsion with no adjacent monster square'),
     });
     if (!relocated) return;
 
-    // teleport.c rloc_to_core() paints the new monster square, and expels()
-    // then repaints the hero's former stomach square. mnexto()'s shared
-    // relocation core intentionally has no display side effects, so spell
-    // those two source redraws here; the planning pass keeps both silent.
+    // mhitu.c redraws only the hero's former stomach square after mnexto().
+    // The relocation core has already painted the monster's old and new
+    // squares; repeating the destination paint changes the TTY trace.
     if (!rawEnv.planning) {
-        newsym(mtmp.mx, mtmp.my);
-        newsym(state.u.ux, state.u.uy);
+        redraw(state.u.ux, state.u.uy);
     }
     // mhitu.c:302-304. um_dist() is Chebyshev distance, and the message is
     // emitted only when mnexto() had to leave the monster beyond a neighboring

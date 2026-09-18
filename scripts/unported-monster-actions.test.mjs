@@ -100,6 +100,7 @@ import {
     PM_LONG_WORM,
     PM_LITTLE_DOG,
     PM_MAIL_DAEMON,
+    PM_MASTER_LICH,
     PM_ORC_SHAMAN,
     PM_PONY,
     PM_QUANTUM_MECHANIC,
@@ -134,6 +135,7 @@ import {
     ORCISH_HELM,
     POT_HEALING,
     ROCK,
+    SPE_BOOK_OF_THE_DEAD,
     WAX_CANDLE,
     STATUE,
 } from '../js/objects.js';
@@ -5232,10 +5234,11 @@ test('waiting covetous monster takes the early dochug no-op', async () => {
     assert.equal(target.replay.getScreens().length, screensBefore);
 });
 
-// C ref: monmove.c dochug():726-731 and :782. The guard must reject a
-// covetous monster when it is awake, even outside couldsee(), and when it is
-// sleeping on a visible square, because either state can reach tactics().
-test('awake or visible covetous monsters remain fail-closed', async () => {
+// C ref: monmove.c dochug():726-731 and :782. Once the wizard.c tactics()
+// family is wired, both states reach its source movement path; this fixture
+// then stops at the still-unported directed spell effect, rather than the old
+// blanket special-movement refusal.
+test('awake or visible covetous monsters reach tactics', async () => {
     for (const testCase of [
         // Awake removes the early disturb() return; clearing COULD_SEE checks
         // that sleeping is required in addition to being out of sight.
@@ -5254,14 +5257,21 @@ test('awake or visible covetous monsters remain fail-closed', async () => {
             game.viz_array[target.heroY][target.monsterX] &= ~COULD_SEE;
         const before = completeSecondTurnSnapshot(game, target.replay);
         for (let attempt = 0; attempt < 2; ++attempt) {
-            await assert.rejects(
-                preflightSimpleMonsterActions(game),
-                (error) => (
-                    error instanceof UnsupportedSimpleMonsterActionError
-                    && error.reason === 'special monster movement'
-                ),
-                `${testCase.label}, attempt ${attempt + 1}`,
-            );
+            if (testCase.sleeping) {
+                await assert.doesNotReject(
+                    preflightSimpleMonsterActions(game),
+                    `${testCase.label}, attempt ${attempt + 1}`,
+                );
+            } else {
+                await assert.rejects(
+                    preflightSimpleMonsterActions(game),
+                    (error) => (
+                        error instanceof UnsupportedSimpleMonsterActionError
+                        && error.reason !== 'special monster movement'
+                    ),
+                    `${testCase.label}, attempt ${attempt + 1}`,
+                );
+            }
             assert.deepEqual(
                 completeSecondTurnSnapshot(game, target.replay),
                 before,
@@ -5270,6 +5280,90 @@ test('awake or visible covetous monsters remain fail-closed', async () => {
         }
     }
 });
+
+// C ref: monmove.c dochug() -> wizard.c tactics() STRAT_GROUND.  This is the
+// production adapter for obj_extract_self(): a floor artifact must leave both
+// the square pile and the level list before mpickobj() gives it to the
+// covetous monster.  A direct tactics() test would miss the external
+// extraction hook supplied by dochug().
+test('covetous floor-artifact pickup uses the production extraction adapter',
+    async () => {
+        const target = await prepareSelectedAction({
+            pmidx: PM_MASTER_LICH,
+        });
+        target.monster.mhp = target.monster.mhpmax;
+        target.monster.msleeping = false;
+        target.monster.mcansee = true;
+        // Keep the fixture at wizard.c tactics() after the pickup; the
+        // downstream substituted attack family is outside this source span.
+        target.monster.data = { ...target.monster.data, mattk: [] };
+        game.viz_array[target.heroY][target.monsterX] |= IN_SIGHT;
+        const book = floorObject(
+            target.monsterX,
+            target.heroY,
+            9701,
+            SPE_BOOK_OF_THE_DEAD,
+        );
+        installObject(target, book);
+
+        await runSimpleMonsterAction(target.monster, {
+            state: game,
+            message: async () => {},
+            redraw: () => {},
+        });
+        assert.equal(target.monster.minvent?.otyp, SPE_BOOK_OF_THE_DEAD);
+        assert.equal(target.monster.minvent?.where, OBJ_MINVENT);
+        assert.equal(
+            game.level.objects[target.monsterX][target.heroY],
+            null,
+        );
+        assert.equal(game.level.objlist, null);
+    });
+
+// C ref: monmove.c dochug() -> wizard.c tactics() -> mon.c mnexto() with
+// RLOC_MSG. This uses the public monster-turn planner rather than calling
+// rloc_to_flag() directly: the planned Wizard must move on its clone, while
+// the live position, display context, and display RNG remain untouched until
+// the ordinary live replay.
+test('planned covetous relocation isolates flagged naming and position',
+    async () => {
+        const target = await prepareSelectedAction({
+            pmidx: PM_WIZARD_OF_YENDOR,
+        });
+        target.monster.data = {
+            ...target.monster.data,
+            // Keep the covetous species flags but remove spell slots so this
+            // fixture ends after tactics() and does not enter a later spell
+            // boundary unrelated to the relocation contract.
+            mattk: [],
+        };
+        target.monster.mhp = target.monster.mhpmax;
+        target.monster.mstrategy = 0;
+        target.monster.msleeping = false;
+        target.monster.mcansee = true;
+        game.u.uprops[HALLUC].intrinsic = 1;
+        const livePosition = [target.monster.mx, target.monster.my];
+        const liveDisplay = structuredClone(game.displayCtx);
+        const liveRng = rngSnapshot();
+        let plannedMonster;
+
+        await preflightSimpleMonsterActions(game, {
+            advanceRound(planned) {
+                plannedMonster = planned.level.monlist;
+                assert.notDeepEqual(
+                    [plannedMonster.mx, plannedMonster.my],
+                    livePosition,
+                );
+                assert.notStrictEqual(planned.displayCtx, game.displayCtx);
+                return true;
+            },
+        });
+
+        assert.deepEqual([target.monster.mx, target.monster.my], livePosition);
+        assert.deepEqual(game.displayCtx, liveDisplay);
+        assert.deepEqual(rngSnapshot(), liveRng);
+        assert.ok(plannedMonster);
+    });
 
 test('species guard still blocks unsupported leprechaun actions',
     async () => {
