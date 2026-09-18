@@ -1,54 +1,60 @@
 {
   "session": "holdout/seed4500-knight-coverage",
-  "remainingScreensUpperBound": 72,
-  "status": "partial",
-  "commit": "58583fcdfa63da0a0d2acbe2effe3ea1686209ed",
+  "remainingScreensUpperBound": 57,
+  "status": "complete",
+  "commit": "ac96dd3de6df5f13b75a1af2e7d1bfe06bdcf205",
   "mismatch": {
     "session": "holdout/seed4500-knight-coverage",
-    "step": 1742,
-    "kind": "rng",
-    "function": "distfleeck",
-    "functionDeclared": true,
-    "sourceFile": "monmove.c",
-    "cFile": "monmove.c",
+    "step": 1757,
+    "kind": "stop",
+    "function": null,
+    "functionDeclared": false,
+    "sourceFile": null,
+    "cFile": null,
     "luaFile": null,
-    "line": 538,
-    "message": null,
+    "line": null,
+    "message": "simple monster action requires special monster movement",
     "unlocatedKinds": [],
     "recordedSteps": 1814,
-    "remainingScreensUpperBound": 72
+    "remainingScreensUpperBound": 57
   },
-  "summary": "The first mismatch remains step 1742: C runs another monster movement sequence while JavaScript enters distress shapeshifting. The missing Hell-bat creation speed adjustment is a plausible cause, pending combined replay of its fix; the C actor is still unidentified. Accepted movement corrections preserve the score. The later refusal after 1757 screens now isolates the awake covetous-monster admission gate before dochug.",
+  "summary": "The Hell-bat creation speed fix removes the step-1742 divergence. Knight now matches through 1757 screens and stops at awake covetous-monster admission. The missing owner is wizard.c tactics and its strategy/target selection family, called by dochug before distance and attack checks; 57 screens remain in this session.",
   "source": {
-    "file": "monmove.c",
+    "file": "wizard.c",
     "functions": [
-      "dochug",
-      "m_move"
+      "which_arti",
+      "mon_has_arti",
+      "other_mon_has_arti",
+      "on_ground",
+      "you_have",
+      "target_on",
+      "strategy",
+      "choose_stairs",
+      "tactics"
     ],
-    "branch": "C dochug calls distfleeck before and after m_move. The first divergent C suffix is distfleeck rn2(5), m_move rn2(3), m_lined_up rn2(25), m_move rn2(20), then distfleeck rn2(5). This is one movement sequence; the rn2(3) branch in m_move1869–1870 restricts the actor to a stalker, bat or light. JS has finished its scan and enters allmain elapsed-turn mcalcdistress, then mon.c decide_to_shapeshift for a fog cloud. Trace monster movement allocation/subtraction and scan continuation before changing either draw bound.",
+    "branch": "assertSimpleActionState rejects a covetous monster unless it is asleep out of sight or in an early waiting/immobile state. C monmove.c dochug782 calls tactics for an admitted covetous actor after set_apparxy, returns when tactics sets mstate, then recomputes apparent hero position before distfleeck. wizard.c tactics369-478 selects healing, harassment or artifact acquisition from strategy, preserving relocation restrictions and random-call order.",
     "callers": [
-      "allmain.c moveloop_core repeatedly calls movemon before distress, movement allocation and region upkeep. JS finishElapsedTurn and the projected monster scan must preserve that ordering and canonical per-monster movement state.",
-      "mon.c movemon_singlemon1214 and movemon1326 dispatch monmove.c dochug, which calls distfleeck around m_move. The later admission refusal identifies missing special-movement paths in m_move; that source port does not establish the earlier RNG cause."
+      "allmain elapsed turns call mon.c movemon_singlemon and the JS runSimpleMonsterAction adapter, which currently stops in assertSimpleActionState before dochug.",
+      "monmove.c dochug calls wizard.c tactics in phase two; JS monmove.js must call its canonical wizard.js owner with the planned/live operation environment. m_move later consumes the same monster.mgoal coordinates for the covetous intruder attack."
     ],
     "dependencies": [
       "Accepted getpos.c collection/cycling now includes menu selection and cancellation, source coordinate descriptions and exact area-filter lifetime. Five independent recordings match. VIEW and other location-family entry recordings remain open in GOALS.json.",
       "Accepted pager do_screen_description now collects all source symbol families and uses canonical stored-glyph map_glyphinfo. Its lookup coordinates differ from the encoded-prefix decode at (0,0); pet and hero overrides, Rogue colors and NOOVERRIDE order are verified. getpos_menu, displayed-glyph accessibility, cursor auto-description and clicked lookup recording entries remain open in GOALS.json.",
       "Accepted invent.c look_here/dolook now handles tactile floor reach, arbitrary pile inspection, pile counts, cockatrice ordering and message filtering, with canonical force_decor and query_objlist callers. Three independent recordings cover movement menu/count and colon look. Swallowed inventory, blind ICE and the tactile-corpse fallback remain unrecorded entry families in GOALS.json; movement retains its mutation-free unsupported naming/pricing boundary.",
-      "Accepted allmain region upkeep runs supported callbacks after nh_timeout on cloned state during planning, preserving live output and shared-vision restoration. Harmful gas and unknown callbacks remain explicit boundaries; the region-fix goal remains parked pending its first-mismatch closure criterion.",
       "Other unresolved source/coverage defects remain separate: make_stoned/minstapetrify/do_stone_mon; hero/monster stoning directions, corpse-weapon and attack-triggered golem entries; passive cold/fire/electricity/paralysis and lethal recovery; eating/non-food cleanup; skinback artifact-light radius and rare armor/Eyes-of-the-Overworld cleanup.",
       "Liquid-specific entry recordings and exceptional partial rloc routes remain open; trap.c inventory-chain calls and mon.c deal_with_overcrowding remain named discarded-call gaps. GOALS.json preserves open print_dungeon, hitmu, mfind0, goto_level, minliquid, creation/flash, pickup and achievement entry families rather than treating supporting unit tests as their completion.",
       "Hidden-attacker witnesses require eligible placement on objects or water, actual hidden state and an executed hitmu. Plain or qualified monster creation alone does not establish that entry; independent hidden-trapper and invisible-newt recordings establish creation/flash only.",
-      "Accepted m_move/mdisplacem corrections preserve canonical combat state, unicorn relocation returns and no-teleport predicates, movement dispatch order, and clone isolation for mimic reveals, stoning, worm tails and mail-daemon cleanup. Two independent permitted-Tengu relocation recordings and the combined checkpoint match. Displacement, mail, worm, covetous and exceptional dedicated-mover production entries remain open. The remaining special-movement refusal is the covetous admission gate in unported_monster_actions.js assertSimpleActionState, before dochug; trace wizard.c tactics and its preconditions next.",
-      "Accepted planning now reuses mon.c movemon and its safe snapshot iterator, callback termination and ordered cleanup. Deferred level transitions run live; planning resumes at the actual post-scan upkeep gate without an extra destination scan or hero ration debit. The first fixed mismatch remains1742, so this corrected dependency does not establish its cause.",
-      "Source-confirmed creation defect: makemon.c1343–1346 applies mon_adjust_speed(mtmp,2) when Inhell and is_bat(ptr); js/makemon_create.js omits that S_BAT branch. Hell bats therefore retain normal intrinsic speed in the port. C makes a vampire bat's base speed20 become27 before mcalcmove rounding, whereas the saved JS trace allocates12 to one candidate. This can explain missing extra actions, but the recorded C trace still does not establish the missing actor's identity. The canonical speed arithmetic and set_mon_data slowdown proration match the source; fix the creation caller and verify by replay."
+      "Accepted m_move/mdisplacem dispatch, combat state and projected movement corrections have matching Tengu relocation recordings. Displacement, mail, worm, covetous and exceptional dedicated-mover entry recordings remain open in GOALS.json. Covetous admission must be wired through the whole tactics owner, including its strategy and relocation callees.",
+      "Accepted safe monster scans and deferred-transition continuation now match through step 1756 after the Hell-bat creation speed fix. Region upkeep keeps harmful gas and unknown callbacks explicit; its nonempty-region recording coverage remains separate from the resolved fixed-workload prefix.",
+      "wizard.c tactics uses stair selection, mnexto/mnearto/rloc/rloc_to, healing, and floor/inventory artifact transfer. Trace the canonical mstrategy and mgoal fields and provide clone-owned relocation, vision, message and redraw effects before removing the admission refusal."
     ]
   },
+  "goalKind": "file-port",
   "evidence": [
-    "Checkpoint 58583fcd preserves every fixed-session count and all 391 recordings, including two new Tengu relocation cases. Its scan still reports first screen/RNG mismatch 1742, cursor mismatch 1751 and special-movement refusal after 1757 emitted screens; the queue suffix upper bound remains 72.",
-    "Scratch-only trace run-hYPwnn at worker9971efc9 identifies JS RNGindex104705 in decide_to_shapeshift(mon.js3378), fog cloud PM106,m_id728,(16,18),mhp16/16,cham226. The corresponding C shapeshift draw occurs five positions later. These are diagnostic state values, not implementation constants.",
-    "JS preceding actor m_id492,PM129 moves(17,3) to(17,4) and completes its source-matched movement sequence. A second PM129,m_id491,starts at(46,19) with movement12, spends that ration in its own dochug and moves to(46,18); a later scan correctly sees movement0. Trace run-xJbhBi falsifies the claim that this candidate skipped its own action. C RNG annotations contain no actor identity, so the missing C actor and state cause remain unproved.",
-    "Both C and JS distfleeck begin with rn2(5); the JS rn2(4) is now traced to distress shapeshifting, not set_apparxy or track rejection. Two distfleeck calls around m_move describe one actor action, not two. Preserve this counter-evidence.",
-    "Next probe after the Hell-bat correction is measured: identify the missing movement actor and inspect its creation level, original makemon species, cham and speed state. C makemon.c applies the S_BAT speed adjustment only at creation in Hell; newcham/set_mon_data does not apply it when a vampire later takes bat form. Old shape traces include vampire bat forms with cham=PM_VAMPIRE but do not establish candidate 491 provenance. No post-A40 Knight replay artifact was found, so pre-A40 step-1742 evidence does not measure or falsify that correction.",
-    "Focused planner tests execute visible harmless vapor expiration through preflightSimpleMonsterActions on both success and later-refusal paths, pin setup RNG and verify clone/live vision isolation. The existing gas-spore recording establishes general elapsed-turn caller reachability only; no matching nonempty-region entry recording is claimed. Accepted scan138b1fd0 confirms the later RNG1742 boundary remains."
+    "Checkpoint ac96dd3d passes all394 recordings and raises development from11324 to11339 matching screens. Only Knight changes:1742→1757 screens,104707→106194 RNG calls and1753→1757 cursors. The refreshed scan reports no screen/RNG/cursor divergence before the stop at1757.",
+    "The unique remaining special-monster-movement refusal is js/unported_monster_actions.js assertSimpleActionState330-331, gated by is_covetous, sleeping visibility and STRAT_WAITMASK. C monmove.c782-787 instead runs tactics and checks mstate; wizard.c142-478 contains its source helper family.",
+    "The accepted Hell-bat adjustment follows makemon.c1343-1346 through mon_adjust_speed(mtmp,2,NULL). Source-pinned creation tests assert both speed state and all three RNG draws; independent Hell/ordinary creation recordings match. The fixed replay improvement establishes the correction without identifying the missing C actor.",
+    "Retained counter-evidence: the earlier candidate bat had spent its own movement ration; its own action was not skipped. The two distfleeck calls around m_move described one action. Vampire shapechange does not invoke the Hell-bat creation adjustment, and pre-A40 replay artifacts never measured A40.",
+    "Next implementation: port the whole which_arti-through-tactics family, wire the production dochug caller and result-bearing relocation dependencies, then verify planned/live isolation and independent healing, harassment and artifact-goal entry recordings."
   ]
 }

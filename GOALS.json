@@ -65503,11 +65503,11 @@
     {
       "id": "div-allmain-region-upkeep-planning-seed4500-20260918",
       "kind": "divergence-fix",
-      "status": "parked",
+      "status": "closed",
       "summary": "Run supported region upkeep on projected elapsed turns",
       "cFile": "allmain.c",
       "sessions": [],
-      "selectionReason": "Seed continuation for holdout/seed4500-knight-coverage (remaining suffix116): investigations/holdout/seed4500-knight-coverage.json identifies the current later region refusal after1742 screens. The earlier getpos family is reserved by A; this ready independent fix follows accepted blind-pile inspection.",
+      "selectionReason": "Closure-only reconciliation for holdout/seed4500-knight-coverage after accepted dependencies: current scan .cache/A40-development-scan.json matches through1757 screens, beyond the named1742 region-upkeep path. No new implementation or gain is attributed to this reopened interval; covetous tactics owns the next57-screen suffix and Q1 blocks seed2200.",
       "detail": "Segment0 first screen/cursor mismatch1698 remains getpos; the later input1742 space stops at the planning-only nonempty-region guard. C allmain.c moveloop_core269–277 invokes run_regions after nh_timeout. JS finishElapsedTurnAfterTimeout currently rejects all regions during projection despite the existing region.c414–474 callback implementation. Run it on cloned level/region state, bind planning RNG, register shared-vision changes for restoration, and keep messages/newsym on the live pass. Focused success/later-refusal tests verify complete live-state isolation. This is a caller defect, not whole moveloop_core completion; positive harmful gas and unknown callbacks remain unported. Existing gas-spore recording establishes general caller reachability only. Pending branch replay reaches a distinct RNG mismatch at1742 and later special movement; do not claim that later mismatch resolved.",
       "spans": [
         {
@@ -65525,15 +65525,18 @@
         "screens": 11322,
         "rng": 789036
       },
-      "closedAt": null,
-      "delivered": null,
+      "closedAt": "ac96dd3de6df5f13b75a1af2e7d1bfe06bdcf205",
+      "delivered": {
+        "screens": 0,
+        "rng": 234
+      },
       "function": "moveloop_core",
       "session": "holdout/seed4500-knight-coverage",
       "step": 1742,
       "activeStanding": {
-        "sha": "b80879fb01d57042110abdaa55dcd004f88793ed",
-        "screens": 11322,
-        "rng": 789036
+        "sha": "ac96dd3de6df5f13b75a1af2e7d1bfe06bdcf205",
+        "screens": 11339,
+        "rng": 790757
       },
       "openMismatches": [
         {
@@ -65625,7 +65628,12 @@
         "screens": 11322,
         "rng": 789270
       },
-      "parkedReason": "The caller correction passes the full checkpoint and region-upkeep refusal is removed, but first mismatch1698 remains in getpos, before the named1742 owner. Preserve the divergence as unresolved until first-mismatch evidence advances; later RNG1742 and special movement belong to separate source investigation."
+      "parkedReason": "The caller correction passes the full checkpoint and region-upkeep refusal is removed, but first mismatch1698 remains in getpos, before the named1742 owner. Preserve the divergence as unresolved until first-mismatch evidence advances; later RNG1742 and special movement belong to separate source investigation.",
+      "closeStanding": {
+        "sha": "ac96dd3de6df5f13b75a1af2e7d1bfe06bdcf205",
+        "screens": 11339,
+        "rng": 790757
+      }
     },
     {
       "id": "port-getpos-location-cycles-seed4500-20260918",
@@ -66094,11 +66102,11 @@
     {
       "id": "div-plan-monster-list-iteration-seed4500-20260918",
       "kind": "divergence-fix",
-      "status": "parked",
+      "status": "closed",
       "summary": "Match safe monster-list iteration during turn planning",
       "cFile": "mon.c",
       "sessions": [],
-      "selectionReason": "Source-traced dependency for pending B38 special-movement/displacement work in holdout/seed4500-knight-coverage, remainingScreensUpperBound72, investigations/holdout/seed4500-knight-coverage.json. Its first RNG1742 actor cause remains partial, but direct comparison proves the projected traversal differs from mon.c movemon and must preserve list mutations and callback termination before new displacement/death paths land. The equally sized seed2200 suffix is machine-local Q1. This independent mon.c caller scope does not overlap worker B monmove.c m_move.",
+      "selectionReason": "Closure-only reconciliation for holdout/seed4500-knight-coverage: the source-backed Hell-bat dependency has landed and .cache/A40-development-scan.json confirms matching screens and RNG through1757, beyond the previously unresolved1742 scan boundary. No new implementation is selected; the next57-screen suffix belongs to reserved wizard.c tactics and Q1 blocks seed2200.",
       "detail": "C mon.c movemon1330 calls iter_mons_safe4500–4526, snapshotting initial monster identities and stopping when its callback returns true. Live JS mon.js does likewise. JS unported_monster_actions.js planSimpleMonsterTurn2025–2036 follows mutable nmon links directly and discards planSimpleMonsterScan/movemon_singlemon return values. A callback removing or inserting monsters can change subsequent planned actors. Reuse the canonical iterator, propagate stop/gameover semantics, and verify cloned state, deletion/insertion and termination. This source-confirmed planning discrepancy is not yet established as the cause of fixed Knight RNG1742.",
       "spans": [
         {
@@ -66116,14 +66124,17 @@
         "screens": 11324,
         "rng": 789270
       },
-      "closedAt": null,
-      "delivered": null,
+      "closedAt": "ac96dd3de6df5f13b75a1af2e7d1bfe06bdcf205",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
       "function": "movemon",
       "session": "holdout/seed4500-knight-coverage",
       "activeStanding": {
-        "sha": "875f40301cb734d3a419e2b291f286b73db785d7",
-        "screens": 11324,
-        "rng": 789270
+        "sha": "ac96dd3de6df5f13b75a1af2e7d1bfe06bdcf205",
+        "screens": 11339,
+        "rng": 790757
       },
       "openMismatches": [
         {
@@ -66209,7 +66220,12 @@
         "screens": 11324,
         "rng": 789270
       },
-      "parkedReason": "The source-traced planner iteration dependency is corrected and the span passes checkpoint, but the fixed first mismatch remains1742. Preserve the unresolved divergence criterion while the independently traced Hell-bat creation omission is integrated."
+      "parkedReason": "The source-traced planner iteration dependency is corrected and the span passes checkpoint, but the fixed first mismatch remains1742. Preserve the unresolved divergence criterion while the independently traced Hell-bat creation omission is integrated.",
+      "closeStanding": {
+        "sha": "ac96dd3de6df5f13b75a1af2e7d1bfe06bdcf205",
+        "screens": 11339,
+        "rng": 790757
+      }
     },
     {
       "id": "port-monmove-m-move-seed4500-20260918",
@@ -66452,7 +66468,7 @@
       "summary": "Correct special movement dispatch, combat state and projected displacement effects",
       "cFile": "monmove.c",
       "sessions": [],
-      "selectionReason": "Seed continuation: holdout/seed4500-knight-coverage has 72 remaining screens in .cache/A39-development-scan.json; investigations/holdout/seed4500-knight-coverage.json traces the later special-movement refusal to m_move. This oldest ready independent correction follows accepted safe monster iteration; the earlier RNG1742 cause remains unresolved and makemon speed belongs to A40. Q1 blocks seed2200.",
+      "selectionReason": "Refresh the remaining-work reason for holdout/seed4500-knight-coverage after the Hell-bat dependency moved the first boundary1742→1757; no new implementation is selected. The current57-screen suffix is reserved for wizard.c tactics; Q1 still blocks seed2200.",
       "detail": "monmove.c m_move1715-2075 and m_move_aggress2088-2120 require canonical gb.bhitpos/gn.notonhead, source dispatch order, direct unicorn relocation results and complete special movement continuation. mhitm.c mdisplacem180-288 supplies the result-bearing displacement path; its output, vision and worm state must remain isolated in planned turns. Updated source evidence and open entries are recorded in port-monmove-m-move-seed4500-20260918.",
       "spans": [
         {
@@ -66480,9 +66496,9 @@
       "function": "m_move",
       "session": "holdout/seed4500-knight-coverage",
       "activeStanding": {
-        "sha": "ffad99e336a4be7603ef4a34b9cf6ddd86d814e7",
-        "screens": 11324,
-        "rng": 789270
+        "sha": "ac96dd3de6df5f13b75a1af2e7d1bfe06bdcf205",
+        "screens": 11339,
+        "rng": 790757
       },
       "openMismatches": [
         {
@@ -66565,16 +66581,16 @@
         "rng": 0
       },
       "parkedStanding": {
-        "sha": "58583fcdfa63da0a0d2acbe2effe3ea1686209ed",
-        "screens": 11324,
-        "rng": 789270
+        "sha": "ac96dd3de6df5f13b75a1af2e7d1bfe06bdcf205",
+        "screens": 11339,
+        "rng": 790757
       },
-      "parkedReason": "The validated correction preserves 11324/11405 screens and all 391 recordings, but the first Knight mismatch remains at1742 before distress, so the divergence closure criterion is not yet met. The later refusal isolates awake covetous admission before dochug and wizard.c tactics. Resume after the missing movement action is source-traced and the first mismatch passes this path; unrecorded m_move entry families remain in the source goal."
+      "parkedReason": "Movement dispatch corrections and all394 recordings pass at ac96dd3d; the Hell-bat dependency moves the first Knight boundary to covetous admission1757. Resume after port-wizard-tactics-seed4500-20260918 removes that refusal and the first mismatch passes the remaining movement path. The source goal preserves unrecorded m_move entry families."
     },
     {
       "id": "div-makemon-hell-bat-speed-seed4500-20260918",
       "kind": "divergence-fix",
-      "status": "open",
+      "status": "closed",
       "summary": "Apply the source creation speed adjustment to bats created in Hell",
       "cFile": "makemon.c",
       "sessions": [],
@@ -66583,8 +66599,8 @@
       "spans": [
         {
           "name": "hell-bat-creation-speed",
-          "status": "queued",
-          "closedBy": null,
+          "status": "closed",
+          "closedBy": "ac96dd3de6df5f13b75a1af2e7d1bfe06bdcf205",
           "functions": [
             "makemon",
             "mon_adjust_speed"
@@ -66597,8 +66613,11 @@
         "screens": 11324,
         "rng": 789270
       },
-      "closedAt": null,
-      "delivered": null,
+      "closedAt": "ac96dd3de6df5f13b75a1af2e7d1bfe06bdcf205",
+      "delivered": {
+        "screens": 15,
+        "rng": 1487
+      },
       "function": "makemon",
       "session": "holdout/seed4500-knight-coverage",
       "step": 1742,
@@ -66681,7 +66700,12 @@
             }
           }
         }
-      ]
+      ],
+      "closeStanding": {
+        "sha": "ac96dd3de6df5f13b75a1af2e7d1bfe06bdcf205",
+        "screens": 11339,
+        "rng": 790757
+      }
     }
   ]
 }
