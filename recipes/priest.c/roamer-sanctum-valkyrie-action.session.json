@@ -6,7 +6,7 @@
       "datetime": "20440607143000",
       "nethackrc": "OPTIONS=name:RoamerAction,role:Valkyrie,race:human,gender:female,align:lawful\nOPTIONS=!legacy,!tutorial,!splash_screen\nOPTIONS=pettype:none,!acoustics,!autopickup,playmode:debug,suppress_alert:3.4.3,symset:DECgraphics\n",
       "comment": "Independent priest.c action witness: a lawful female human Valkyrie enters the Sanctum through its explicit noalign cleric descriptors, then dismisses arrival output and takes an ordinary turn so the newly admitted non-tame EMIN movement path is reached. The seed and character differ from the neutral gnome Wizard creation witness.",
-      "moves": ".#levelchange\n20\n                     \u0016?\n>v ."
+      "moves": ".#levelchange\n20\n                     \u0016?\n>v .."
     }
   ]
 }
