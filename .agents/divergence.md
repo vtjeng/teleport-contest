@@ -143,9 +143,10 @@ Mark a divergence `resolved` only when:
 - the session's first mismatch is past the function the goal named;
 - no temporary diagnostics remain in scored code.
 
-Mark a divergence `machine-local` only when the input does not define the
-machine-local value. Document the source of that value and do not hardcode a
-recorded path, banner, or environment-specific value.
+Mark a divergence `machine-local` only when neither the input nor the upstream
+recording environment defines the value. Reproduce environment constants
+permitted by `docs/recording-environment.md` uniformly across inputs; never infer
+them from a particular session's expected output.
 
 Mark a divergence `excluded` when fresh replay or source verification shows
 that missing or partial behavior causes it. Record the reason and the C or

@@ -3,14 +3,13 @@
 Every session is a recording of NetHack 5.0 running in one specific
 environment. Some of what NetHack printed came from that environment
 rather than from the game: a file path, a timezone, a terminal type.
-The values below document the historical recordings. Keep new recipes,
-metadata, and code portable; do not copy the recorder's machine-local
-paths into them. The `verify-rerecord.mjs` check normalizes
-environment-only values when it reruns a recording on another machine.
+To match the recorded screens, your port has to print the same
+strings. Hard-coding them is fine. This page lists the environment
+the recorder ran in.
 
 ## Filesystem
 
-The historical recorder set `HOME` to this harness working directory:
+`HOME` was set to the recording harness's working directory:
 
     /Users/davidbau/git/mazesofmenace/teleport/maud/test/comparison/c-harness/results
 
@@ -19,10 +18,10 @@ to `$HOME/.nethackrc`. NetHack therefore reports its config file as
 
     /Users/davidbau/git/mazesofmenace/teleport/maud/test/comparison/c-harness/results/.nethackrc
 
-and the recorded screens contain that path wherever the game mentions
-the config file location, such as the options help pager. The terminal
-wraps it at column 80, and the wrap point depends on the string's exact
-length. Rerecord comparison normalizes this historical path.
+and prints that path wherever it mentions the config file location,
+such as the options help pager. The terminal wraps it at column 80,
+and the wrap point depends on the string's exact length, so print it
+verbatim.
 
 ## Terminal
 
