@@ -6,7 +6,7 @@
       "datetime": "20380207102345",
       "nethackrc": "OPTIONS=name:BlindGlanceVar,role:Wizard,race:elf,gender:male,align:chaotic\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,blind\n",
       "moves": ";  .",
-      "comment": "Valid cheap selected-location variation for pager.c do_look. The independently chosen Wizard elf setup reaches the blind hero description after the quick-look prompt and cursor-tip acknowledgements. Strict parity is blocked by the same missing !quick condition before checkfile as in the independent recipe; leave this input-only recipe unrecorded until that separate condition is corrected."
+      "comment": "Valid cheap selected-location variation for pager.c do_look. The independently chosen Wizard elf setup reaches the blind hero description after the quick-look prompt and cursor-tip acknowledgements. The JavaScript do_look quick guard now matches C and the production recording covers the selected-location continuation without the extra checkfile prompt."
     }
   ]
 }
