@@ -59,7 +59,13 @@ import { exercise, minuhpmax } from './attrib.js';
 // declaration, initialized before either module body runs, and nothing here
 // reads it at module scope.
 import { stop_occupation } from './allmain.js';
-import { ART_SNICKERSNEE, protects } from './artifacts.js';
+import {
+    ART_SNICKERSNEE,
+    ART_STORMBRINGER,
+    ART_VORPAL_BLADE,
+    is_art,
+    protects,
+} from './artifacts.js';
 import { midnight } from './calendar.js';
 import {
     bot,
@@ -138,6 +144,7 @@ import { place_monster, remove_monster } from './monst.js';
 import {
     AMULET_OF_GUARDING,
     BOULDER,
+    CORPSE,
     PIERCE,
     WEAPON_CLASS,
     getObjects,
@@ -648,88 +655,121 @@ export function mpoisons_subj(mtmp, mattk, state = game) {
             : mattk.aatyp === M.AT_BITE ? 'bite' : 'sting';
 }
 
-// C ref: mhitu.c getmattk() (309-444). "select a monster's next attack,
-// possibly substituting for its usual one".
-//
-// Partial: it covers the answer where no substitution happens, which is
-// mptr->mattk[indx] unchanged, and refuses wherever a substitution guard is
-// TRUE. Every substituted attack would need a mutable copy of a frozen catalog
-// record plus machinery this port does not have -- AD_DREN's energy scaling,
-// the cancelled-weapon and lich-touch rewrites, and is_home_elemental().
-//
-// One guard is left out rather than refused. C's first block substitutes when
-// !SYSOPT_SEDUCE; sys.c:100 sets sysopt.seduce to 1 and the sysconf files ship
-// with the option commented out, so the block is dead in the program this port
-// matches.
+// C ref: mhitu.c getmattk() (309-444). “select a monster's next attack,
+// possibly substituting for its usual one”. The catalog records are mutable
+// copies of the generated C table during play, but a substitution must still
+// use a separate attack record: the C caller supplies `alt_attk_buf`, while
+// JavaScript returns a fresh object for that caller-owned temporary.
+const SEDUCTION_ATTACKS_NO = Object.freeze([
+    Object.freeze({ aatyp: M.AT_CLAW, adtyp: M.AD_PHYS, damn: 1, damd: 3 }),
+    Object.freeze({ aatyp: M.AT_CLAW, adtyp: M.AD_PHYS, damn: 1, damd: 3 }),
+    Object.freeze({ aatyp: M.AT_BITE, adtyp: M.AD_DRLI, damn: 2, damd: 6 }),
+    Object.freeze({ aatyp: M.AT_NONE, adtyp: M.AD_PHYS, damn: 0, damd: 0 }),
+    Object.freeze({ aatyp: M.AT_NONE, adtyp: M.AD_PHYS, damn: 0, damd: 0 }),
+    Object.freeze({ aatyp: M.AT_NONE, adtyp: M.AD_PHYS, damn: 0, damd: 0 }),
+]);
+
 export function getmattk(magr, mdef, indx, prev_result, rawEnv = {}) {
     const state = rawEnv.state ?? game;
-    const unsupported = requireMattackuOperation(rawEnv, 'unsupported');
     const mptr = magr.data;
-    const attk = mptr.mattk[indx];
+    let attk = mptr.mattk[indx];
+    const weap = magr === state.youmonst ? state.uwep : magr.mw;
     const udefend = mdef === state.youmonst;
-    const refuse = () => unsupported("a substituted monster attack");
+    const copyAttack = (source) => ({ ...source });
 
-    /* prevent a monster with two consecutive disease or hunger attacks
-       from hitting with both of them on the same turn; if the first has
-       already hit, switch to a stun attack for the second */
+    // honor SEDUCE=0; sysopt.seduce defaults to on in sys.c. The no-seduction
+    // table is the exact c_sa_no[NATTK] definition from monst.c/monsters.h.
+    if (!(state.sysopt?.seduce ?? true)) {
+        // If the first attack is SSEX, all six attacks are substituted. If it
+        // is not, only the selected SSEX attack changes to drain life.
+        if (mptr.mattk[0].adtyp === M.AD_SSEX) {
+            attk = { ...SEDUCTION_ATTACKS_NO[indx] };
+        } else if (attk.adtyp === M.AD_SSEX) {
+            attk = copyAttack(attk);
+            attk.adtyp = M.AD_DRLI;
+        }
+    }
+
+    // Prevent two consecutive disease, pestilence, or famine attacks from
+    // both applying their special damage on one turn.
     if (indx > 0 && prev_result[indx - 1] > M_ATTK_MISS
         && (attk.adtyp === M.AD_DISE || attk.adtyp === M.AD_PEST
             || attk.adtyp === M.AD_FAMN)
         && attk.adtyp === mptr.mattk[indx - 1].adtyp) {
-        refuse();
+        attk = copyAttack(attk);
+        attk.adtyp = M.AD_STUN;
 
-    /* make drain-energy damage be somewhat in proportion to energy */
+    // Make drain-energy damage proportional to current and maximum energy.
     } else if (attk.adtyp === M.AD_DREN && udefend) {
-        refuse();
+        const ulevel = Math.max(state.u.ulevel, 6);
+        attk = copyAttack(attk);
+        if (state.u.uen <= 5 * ulevel && attk.damn > 1) {
+            attk.damn -= 1;
+            if (state.u.uenmax <= 2 * ulevel && attk.damd > 3)
+                attk.damd -= 3;
+        } else if (state.u.uen > 12 * ulevel) {
+            attk.damn += 1;
+            if (state.u.uenmax > 20 * ulevel)
+                attk.damd += 3;
+        }
 
-    /* holders/engulfers who release the hero have mspec_used set to rnd(2)
-       and can't re-hold/re-engulf until it has been decremented to zero;
-       likewise for transformation by genetic engineer */
-    } else if (magr.mspec_used && (attk.aatyp === M.AT_ENGL
-                                   || attk.aatyp === M.AT_HUGS
-                                   || attk.adtyp === M.AD_STCK
-                                   || attk.adtyp === M.AD_POLY)) {
-        const wimpy = (attk.damd === 0); /* lichen, violet fungus */
-        /* can't re-engulf or re-grab yet; switch to simpler attack */
-        const alt = { aatyp: attk.aatyp, adtyp: attk.adtyp,
-                      damn: attk.damn, damd: attk.damd };
-        if (alt.adtyp === M.AD_ACID || alt.adtyp === M.AD_ELEC
-            || alt.adtyp === M.AD_COLD || alt.adtyp === M.AD_FIRE) {
-            alt.aatyp = M.AT_TUCH;
+    // Holders and engulfers cannot immediately re-grab after releasing the
+    // hero; genetic engineers use the same simpler attack substitution.
+    } else if (magr.mspec_used
+               && (attk.aatyp === M.AT_ENGL || attk.aatyp === M.AT_HUGS
+                   || attk.adtyp === M.AD_STCK || attk.adtyp === M.AD_POLY)) {
+        const wimpy = attk.damd === 0;
+        attk = copyAttack(attk);
+        if (attk.adtyp === M.AD_ACID || attk.adtyp === M.AD_ELEC
+            || attk.adtyp === M.AD_COLD || attk.adtyp === M.AD_FIRE) {
+            attk.aatyp = M.AT_TUCH;
         } else {
-            alt.aatyp = M.AT_CLAW; /* attack message will be "<foo> hits" */
-            alt.adtyp = M.AD_PHYS;
+            attk.aatyp = M.AT_CLAW;
+            attk.adtyp = M.AD_PHYS;
         }
-        alt.damn = 1; /* relatively weak: 1d6 */
-        alt.damd = 6;
-        if (wimpy && alt.aatyp === M.AT_CLAW) {
-            alt.aatyp = M.AT_TUCH;
-            alt.damn = alt.damd = 0;
+        attk.damn = 1;
+        attk.damd = 6;
+        if (wimpy && attk.aatyp === M.AT_CLAW) {
+            attk.aatyp = M.AT_TUCH;
+            attk.damn = 0;
+            attk.damd = 0;
         }
-        return alt;
 
-    /* barrow wight, Nazgul, erinys have weapon attack for non-physical
-       damage; force physical damage if attacker has been cancelled or
-       if weapon is sufficiently interesting */
-    // C narrows this further, with mattk[1] and the attacker's weapon; the
-    // port stops at the damage type, so a monster C would have left alone
-    // stops here too.
+    // Force a cancelled or specially dangerous non-physical weapon attack to
+    // physical damage, except when the second weapon attack already is so.
     } else if (indx === 0 && magr !== state.youmonst
-               && attk.aatyp === M.AT_WEAP && attk.adtyp !== M.AD_PHYS) {
-        refuse();
+               && attk.aatyp === M.AT_WEAP && attk.adtyp !== M.AD_PHYS
+               && !(mptr.mattk[1].aatyp === M.AT_WEAP
+                    && mptr.mattk[1].adtyp === M.AD_PHYS)
+               && (magr.mcan
+                   || (weap && ((weap.otyp === CORPSE
+                                 && touch_petrifies(state.mons[weap.corpsenm]))
+                                || is_art(weap, ART_STORMBRINGER)
+                                || is_art(weap, ART_VORPAL_BLADE))))) {
+        attk = copyAttack(attk);
+        attk.adtyp = M.AD_PHYS;
 
-    /* liches have a touch attack for cold damage and also a spell attack;
-       they won't use the spell for monster vs monster so become impotent
-       against cold resistant foes */
-    // C narrows this with the defender's cold resistance, which the port does
-    // not consult, so a cold-vulnerable defender stops here as well.
+    // A cold-resistant target makes a lich's first cold touch physical, with
+    // the source's reduced dice. Shade is immune to ordinary damage, so it is
+    // excluded from this substitution.
     } else if (indx === 0 && attk.aatyp === M.AT_TUCH
-               && attk.adtyp === M.AD_COLD) {
-        refuse();
+               && attk.adtyp === M.AD_COLD
+               && (udefend
+                   ? Cold_resistance(state)
+                   : monster_resists_element(mdef, COLD_RES, state))
+               && mdef.data !== state.mons[M.PM_SHADE]) {
+        attk = copyAttack(attk);
+        attk.adtyp = M.AD_PHYS;
+        attk.damn = Math.trunc((attk.damn + 1) / 2);
+        if (attk.damd === 10) attk.damd = 6;
     }
 
-    /* elementals on their home plane do double damage */
-    if (is_home_elemental(mptr, state)) refuse();
+    // Home-plane elementals double the selected damage only if no earlier
+    // branch already made a temporary attack record.
+    if (attk === mptr.mattk[indx] && is_home_elemental(mptr, state)) {
+        attk = copyAttack(attk);
+        attk.damn *= 2;
+    }
 
     return attk;
 }

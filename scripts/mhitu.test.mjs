@@ -76,6 +76,10 @@ import {
     AD_SEDU,
     AD_SITM,
     AD_SSEX,
+    AD_DREN,
+    AD_DRLI,
+    AD_PEST,
+    AD_STUN,
     AT_BITE,
     AT_GAZE,
     AT_ENGL,
@@ -94,6 +98,8 @@ import {
     NON_PM,
     PM_ALIGNED_CLERIC,
     PM_AMOROUS_DEMON,
+    PM_AIR_ELEMENTAL,
+    PM_ENERGY_VORTEX,
     PM_BARROW_WIGHT,
     PM_BLACK_PUDDING,
     PM_BLACK_NAGA,
@@ -115,6 +121,8 @@ import {
     PM_JACKAL,
     PM_KI_RIN,
     PM_LICH,
+    PM_MASTER_LICH,
+    PM_SHADE,
     PM_LITTLE_DOG,
     PM_LICHEN,
     PM_OWLBEAR,
@@ -133,7 +141,7 @@ import {
     PM_WERERAT,
 } from '../js/monsters.js';
 import { mksobj } from '../js/obj.js';
-import { init_artifacts } from '../js/artifacts.js';
+import { ART_STORMBRINGER, init_artifacts } from '../js/artifacts.js';
 import {
     AMULET_OF_GUARDING,
     BOULDER,
@@ -1119,63 +1127,135 @@ test('mswings_verb picks its verb from the weapon and the range', async () => {
     );
 });
 
-test('getmattk answers the unchanged attack and refuses each substitution',
+test('getmattk selects source attacks without mutating the catalog',
     async () => {
     const state = await meleeHero();
-    const refuse = {
-        state,
-        unsupported: (reason) => {
-            throw new UnsupportedSimpleMonsterActionError(reason);
-        },
-    };
-    const rat = meleeAttacker(state, PM_SEWER_RAT, 1, 0);
+    state.sysopt ??= {};
     const sum = [M_ATTK_MISS, M_ATTK_MISS];
-    // mhitu.c:309-444 with every guard false: the answer is the catalog
-    // record itself, not a copy.
-    assert.equal(getmattk(rat, state.youmonst, 0, sum, refuse),
-        state.mons[PM_SEWER_RAT].mattk[0]);
 
-    // mhitu.c:339-347, the disease and hunger pair. Only a previous attack
-    // that landed reaches it.
-    const disease = meleeAttacker(state, PM_PESTILENCE, 0, -1);
-    assert.equal(getmattk(disease, state.youmonst, 1, sum, refuse),
-        state.mons[PM_PESTILENCE].mattk[1]);
-    assert.throws(
-        () => getmattk(disease, state.youmonst, 1,
-            [M_ATTK_HIT, M_ATTK_MISS], refuse),
-        (error) => error.reason === 'a substituted monster attack',
-    );
+    // mhitu.c:309-319, :437-444. With no guard active, C returns the
+    // catalog pointer itself. A home-plane elemental gets a writable copy and
+    // doubles only that selected attack's number of dice.
+    const rat = meleeAttacker(state, PM_SEWER_RAT, 1, 0);
+    const ratAttack = state.mons[PM_SEWER_RAT].mattk[0];
+    assert.equal(getmattk(rat, state.youmonst, 0, sum, { state }),
+        ratAttack);
 
-    // mhitu.c:370-393, a holder that has just released the hero. mspec_used
-    // is what makes it re-grab with something simpler.
-    const owlbear = meleeAttacker(state, PM_OWLBEAR, -1, 0);
-    assert.equal(getmattk(owlbear, state.youmonst, 2, sum, refuse),
-        state.mons[PM_OWLBEAR].mattk[2]);
-    // mhitu.c:371-392. When mspec_used is set, the holder's hug attack is
-    // rewritten to a simpler melee attack. The owlbear's AT_HUGS/AD_PHYS
-    // is not elemental, so it becomes AT_CLAW/AD_PHYS with 1d6 damage.
-    owlbear.mspec_used = 1;
-    const owlSub = getmattk(owlbear, state.youmonst, 2, sum, refuse);
-    assert.notEqual(owlSub, state.mons[PM_OWLBEAR].mattk[2]);
+    const air = meleeAttacker(state, PM_AIR_ELEMENTAL, 2, 0);
+    state.air_level = { ...state.u.uz };
+    const airAttack = state.mons[PM_AIR_ELEMENTAL].mattk[0];
+    const home = getmattk(air, state.youmonst, 0, sum, { state });
+    assert.notEqual(home, airAttack);
+    assert.equal(home.damn, airAttack.damn * 2);
+    assert.deepEqual(airAttack, { aatyp: AT_ENGL, adtyp: AD_PHYS,
+        damn: 1, damd: 10 });
+
+    // mhitu.c:321-333 and monsters.h:2925-2928. The complete disabled
+    // seduction catalog is selected before later guards, and the original
+    // generated attack remains unchanged.
+    const demon = meleeAttacker(state, PM_AMOROUS_DEMON, 3, 0);
+    state.sysopt.seduce = false;
+    const noSeduction = getmattk(demon, state.youmonst, 0, sum, { state });
+    assert.deepEqual(noSeduction, { aatyp: AT_CLAW, adtyp: AD_PHYS,
+        damn: 1, damd: 3 });
+    assert.notEqual(noSeduction, state.mons[PM_AMOROUS_DEMON].mattk[0]);
+    assert.equal(state.mons[PM_AMOROUS_DEMON].mattk[0].adtyp, AD_SSEX);
+    const noSeductionTail = getmattk(demon, state.youmonst, 2, sum,
+        { state });
+    assert.deepEqual(noSeductionTail, { aatyp: AT_BITE, adtyp: AD_DRLI,
+        damn: 2, damd: 6 });
+    state.sysopt.seduce = true;
+
+    // When only a later attack is SSEX, C copies that selected catalog attack
+    // and changes just its damage type, leaving the earlier arm untouched.
+    const laterSex = meleeAttacker(state, PM_SEWER_RAT, 4, 0, {
+        data: { ...state.mons[PM_SEWER_RAT], mattk: state.mons[PM_SEWER_RAT].mattk
+            .map((attack, i) => i === 1
+                ? { ...attack, adtyp: AD_SSEX }
+                : attack) },
+    });
+    state.sysopt.seduce = false;
+    const laterSexResult = getmattk(laterSex, state.youmonst, 1, sum, { state });
+    assert.equal(laterSexResult.adtyp, AD_DRLI);
+    assert.equal(laterSex.data.mattk[0].adtyp, AD_PHYS);
+    state.sysopt.seduce = true;
+
+    // mhitu.c:339-347. A landed prior pestilence attack has precedence over
+    // drain and holder rewrites and selects AD_STUN in a fresh record.
+    const pest = meleeAttacker(state, PM_PESTILENCE, 0, 1);
+    const pestAttack = state.mons[PM_PESTILENCE].mattk[1];
+    const stunned = getmattk(pest, state.youmonst, 1,
+        [M_ATTK_HIT, M_ATTK_MISS], { state });
+    assert.equal(stunned.adtyp, AD_STUN);
+    assert.equal(stunned.damn, pestAttack.damn);
+    assert.equal(pestAttack.adtyp, AD_PEST);
+
+    // mhitu.c:350-368. Energy vortex drain is reduced at low energy and
+    // increased at high energy, without touching the monster catalog.
+    const vortex = meleeAttacker(state, PM_ENERGY_VORTEX, -1, 0);
+    const drainAttack = state.mons[PM_ENERGY_VORTEX].mattk[1];
+    state.u.ulevel = 6;
+    state.u.uen = 0;
+    state.u.uenmax = 10;
+    const lowDrain = getmattk(vortex, state.youmonst, 1, sum, { state });
+    assert.deepEqual(lowDrain, { aatyp: drainAttack.aatyp, adtyp: AD_DREN,
+        damn: 1, damd: 3 });
+    state.u.uen = 100;
+    state.u.uenmax = 200;
+    const highDrain = getmattk(vortex, state.youmonst, 1, sum, { state });
+    assert.deepEqual(highDrain, { aatyp: drainAttack.aatyp, adtyp: AD_DREN,
+        damn: 3, damd: 9 });
+    assert.deepEqual(drainAttack, { aatyp: AT_ENGL, adtyp: AD_DREN,
+        damn: 2, damd: 6 });
+
+    // mhitu.c:370-393. A holder with mspec_used is reduced to its simple
+    // attack, including the wimpy zero-dice branch.
+    const owlbear = meleeAttacker(state, PM_OWLBEAR, -2, -1,
+        { mspec_used: 1 });
+    const owlSub = getmattk(owlbear, state.youmonst, 2, sum, { state });
     assert.equal(owlSub.aatyp, AT_CLAW);
     assert.equal(owlSub.adtyp, AD_PHYS);
     assert.equal(owlSub.damn, 1);
     assert.equal(owlSub.damd, 6);
 
-    // mhitu.c:395-410, a weapon attack for non-physical damage. A barrow
-    // wight's AT_WEAP does AD_DRLI, which C may force back to AD_PHYS.
-    const wight = meleeAttacker(state, PM_BARROW_WIGHT, 0, 1);
-    assert.throws(
-        () => getmattk(wight, state.youmonst, 0, sum, refuse),
-        (error) => error.reason === 'a substituted monster attack',
-    );
+    // mhitu.c:395-410. The cancelled barrow wight's non-physical weapon is
+    // made physical, but an already physical second weapon suppresses this
+    // branch exactly as C does.
+    const wight = meleeAttacker(state, PM_BARROW_WIGHT, 0, 2, { mcan: true });
+    const forced = getmattk(wight, state.youmonst, 0, sum, { state });
+    assert.equal(forced.adtyp, AD_PHYS);
+    const artifactWight = meleeAttacker(state, PM_BARROW_WIGHT, 1, 2, {
+        mw: { oartifact: ART_STORMBRINGER, otyp: -1 },
+    });
+    const artifactForced = getmattk(artifactWight, state.youmonst, 0, sum,
+        { state });
+    assert.equal(artifactForced.adtyp, AD_PHYS);
+    const guardedWight = meleeAttacker(state, PM_BARROW_WIGHT, 0, 3,
+        { mcan: true, data: { ...state.mons[PM_BARROW_WIGHT],
+            mattk: state.mons[PM_BARROW_WIGHT].mattk.map((a, i) =>
+                i === 1 ? { ...a, aatyp: AT_WEAP, adtyp: AD_PHYS } : a) } });
+    const unchangedWeapon = getmattk(guardedWight, state.youmonst, 0,
+        sum, { state });
+    assert.equal(unchangedWeapon, guardedWight.data.mattk[0]);
 
-    // mhitu.c:412-431, a lich's cold touch against a resistant defender.
-    const lich = meleeAttacker(state, PM_LICH, -1, 1);
-    assert.throws(
-        () => getmattk(lich, state.youmonst, 0, sum, refuse),
-        (error) => error.reason === 'a substituted monster attack',
-    );
+    // mhitu.c:412-435. Cold resistance changes a lich's touch to reduced
+    // physical damage, while an unresistant defender returns its catalog arm.
+    const lich = meleeAttacker(state, PM_MASTER_LICH, -1, 1);
+    state.u.uprops[COLD_RES] = { intrinsic: 1, extrinsic: 0, blocked: 0 };
+    const physicalCold = getmattk(lich, state.youmonst, 0, sum, { state });
+    assert.deepEqual(physicalCold, { aatyp: AT_TUCH, adtyp: AD_PHYS,
+        damn: 2, damd: 6 });
+    state.u.uprops[COLD_RES].intrinsic = 0;
+    assert.equal(getmattk(lich, state.youmonst, 0, sum, { state }),
+        state.mons[PM_MASTER_LICH].mattk[0]);
+    const shade = meleeAttacker(state, PM_SHADE, 1, 1);
+    assert.equal(getmattk(lich, shade, 0, sum, { state }),
+        state.mons[PM_MASTER_LICH].mattk[0]);
+
+    // The function is pure: every result above is either the catalog record
+    // or a detached attack copy, and none of the source records changed.
+    assert.equal(state.mons[PM_MASTER_LICH].mattk[0].adtyp, AD_COLD);
+    assert.equal(state.mons[PM_BARROW_WIGHT].mattk[0].adtyp, AD_DRLI);
 });
 
 test('mtrapped_in_pit reads the pit under whichever party is asked',
@@ -1596,18 +1676,12 @@ test('mattacku demands a random source that answers all three bounds',
 test('getmattk separates the two damage types its holder guard names',
     async () => {
     const state = await meleeHero();
-    const refuse = {
-        state,
-        unsupported: (reason) => {
-            throw new UnsupportedSimpleMonsterActionError(reason);
-        },
-    };
     const sum = [M_ATTK_MISS, M_ATTK_MISS];
     // A lichen's one attack is AT_TUCH for AD_STCK, which separates both
     // guards that could claim it. mhitu.c:412-413 needs AT_TUCH *and*
     // AD_COLD, so the lichen keeps its attack;
     const lichen = meleeAttacker(state, PM_LICHEN, -1, 0);
-    assert.equal(getmattk(lichen, state.youmonst, 0, sum, refuse),
+    assert.equal(getmattk(lichen, state.youmonst, 0, sum, { state }),
         state.mons[PM_LICHEN].mattk[0]);
     // and mhitu.c:370-373 claims it through the adtyp half (AD_STCK) of
     // its disjunction rather than through AT_ENGL or AT_HUGS.
@@ -1615,7 +1689,7 @@ test('getmattk separates the two damage types its holder guard names',
     // branch fires (AT_CLAW/AD_PHYS), then the wimpy guard converts
     // AT_CLAW to AT_TUCH with 0d0.
     lichen.mspec_used = 1;
-    const lichenSub = getmattk(lichen, state.youmonst, 0, sum, refuse);
+    const lichenSub = getmattk(lichen, state.youmonst, 0, sum, { state });
     assert.notEqual(lichenSub, state.mons[PM_LICHEN].mattk[0]);
     assert.equal(lichenSub.aatyp, AT_TUCH);
     assert.equal(lichenSub.adtyp, AD_PHYS);
@@ -1626,10 +1700,10 @@ test('getmattk separates the two damage types its holder guard names',
     // mhitu.c:380-382: AD_COLD is elemental, so the attack becomes
     // AT_TUCH (not AT_CLAW) and keeps AD_COLD.
     const vortex = meleeAttacker(state, PM_ICE_VORTEX, 1, 0);
-    assert.equal(getmattk(vortex, state.youmonst, 0, sum, refuse).aatyp,
+    assert.equal(getmattk(vortex, state.youmonst, 0, sum, { state }).aatyp,
         AT_ENGL);
     vortex.mspec_used = 1;
-    const vortexSub = getmattk(vortex, state.youmonst, 0, sum, refuse);
+    const vortexSub = getmattk(vortex, state.youmonst, 0, sum, { state });
     assert.equal(vortexSub.aatyp, AT_TUCH);
     assert.equal(vortexSub.adtyp, AD_COLD);
     assert.equal(vortexSub.damn, 1);
