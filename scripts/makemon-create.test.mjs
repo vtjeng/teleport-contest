@@ -144,6 +144,7 @@ import {
     PM_OGRE,
     PM_OGRE_LEADER,
     PM_OGRE_TYRANT,
+    PM_ORANGE_DRAGON,
     PM_PLAINS_CENTAUR,
     PM_PONY,
     PM_ROCK_MOLE,
@@ -2606,6 +2607,59 @@ test('explicit runtime red-dragon creation reaches makemon without a species '
     assert.equal(state.mvitals[PM_RED_DRAGON].born, 1);
     assert.ok(random.calls.length > 0);
 });
+
+test('nasty runtime creation admits explicit species by the C pointer contract',
+    async () => {
+        // wizard.c nasty() passes a selected permonst directly to makemon()
+        // with MM_NOMSG. makemon.c:1200-1204 checks genocide, but has no
+        // species allowlist; these cases exercise the generic dragon path and
+        // the source-specific giant and lich inventory classes without
+        // copying the Knight's selected species list into JavaScript policy.
+        for (const [mndx, sourceClass, expectedCalls] of [
+            [PM_ORANGE_DRAGON, 'dragon', [
+                ['rnd', 2], ['d', 14, 4], ['rn2', 2],
+                ['rn2', 50], ['rn2', 100], ['rn2', 5], ['rn2', 100],
+            ]],
+            [PM_MINOTAUR, 'giant', [
+                ['rnd', 2], ['d', 14, 8], ['rn2', 2], ['rn2', 8],
+                ['rn2', 50], ['rn2', 100], ['rn2', 100],
+            ]],
+            [PM_ARCH_LICH, 'lich', [
+                ['rnd', 2], ['d', 24, 8], ['rn2', 2], ['rn2', 3],
+                ['rn2', 50], ['rn2', 100], ['rn2', 100],
+            ]],
+        ]) {
+            const state = initialLevelState();
+            state.in_mklev = false;
+            const x = MON_X + 8;
+            const y = MON_Y;
+            state.level.at(x, y).typ = ROOM;
+            const random = recordingRandom();
+            const monster = await makemon_runtime(
+                state.mons[mndx],
+                x,
+                y,
+                MM_NOMSG,
+                {
+                    state,
+                    random: random.random,
+                    message: async () => {},
+                    norepMessage: async () => {},
+                    _nasty: true,
+                },
+            );
+
+            assert.equal(monster.data, state.mons[mndx], sourceClass);
+            assert.equal(monster.mnum, mndx, sourceClass);
+            assert.equal(state.level.monsters[x][y], monster, sourceClass);
+            assert.equal(state.mvitals[mndx].born, 1, sourceClass);
+            assert.deepEqual(
+                random.calls.map(({ kind, args }) => [kind, ...args]),
+                expectedCalls,
+                `${sourceClass} source creation draws`,
+            );
+        }
+    });
 
 test('runtime creation validates output owners before RNG or state', async () => {
     for (const owners of [
