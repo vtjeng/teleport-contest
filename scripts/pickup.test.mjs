@@ -9,6 +9,7 @@ import {
     D_BROKEN,
     DOOR,
     EXT_ENCUMBER,
+    FEEL_COCKATRICE,
     FUMBLING,
     HALLUC,
     HVY_ENCUMBER,
@@ -1630,6 +1631,28 @@ test('query_objlist returns a whole stack selected from the sorted menu',
             result.pick_list[0].count,
             result.pick_list[0].obj === first ? 3 : 4,
         );
+    });
+
+test('query_objlist delegates petrifying corpse discovery to look_here',
+    async () => {
+    const state = await heroOnAnEmptySquare();
+    state.u.uprops[BLINDED].intrinsic = 1;
+    const corpse = typedObjectUnderHero(state, CORPSE);
+    corpse.corpsenm = PM_COCKATRICE;
+    // look_here() emits the tactile setup, discovery, and warning lines;
+    // queue ordinary More dismissals for the complete production TTY path.
+    for (let i = 0; i < 4; ++i)
+        state.nhDisplay.pushKey(' '.charCodeAt(0));
+
+    const result = await query_objlist(
+        corpse,
+        BY_NEXTHERE | FEEL_COCKATRICE,
+        () => true,
+        state,
+    );
+
+    assert.deepEqual(result, { n: 0, pick_list: [] });
+    assert.match(state._ttyToplines, /fatal mistake/u);
     });
 
 test('query_objlist walks an engulfer inventory through nobj', async () => {
