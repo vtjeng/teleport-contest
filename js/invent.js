@@ -2628,6 +2628,11 @@ export async function look_here(
     if (otmp.nexthere) {
         if (typeof displayObjectPile !== 'function')
             throw new TypeError('look_here needs an object-pile display owner');
+        // C invent.c look_here() first calls display_nhwindow(WIN_MESSAGE,
+        // FALSE) at 4289, before it formats or names any pile object. On TTY
+        // this retires the logical topline while preserving an already
+        // acknowledged physical line for a corner menu.
+        await displayPendingTtyMessageWindow(state);
         const lines = [];
         if (dfeature && !skip_dfeature) lines.push(fbuf, '');
         // C invent.c:look_here() (4289-4296) formats the prefix and predicate
@@ -2648,10 +2653,6 @@ export async function look_here(
                 break;
             }
         }
-        // C invent.c look_here() first calls display_nhwindow(WIN_MESSAGE,
-        // FALSE) at 4289. On TTY that retires the logical topline while
-        // preserving an already acknowledged physical line for a corner menu.
-        await displayPendingTtyMessageWindow(state);
         await displayObjectPile(lines, state);
         if (feltCockatrice)
             await feel_cockatrice(feltCockatrice, false, state, { message });
