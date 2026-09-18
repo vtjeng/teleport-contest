@@ -162,12 +162,14 @@ function fixture(t) {
     }
     write('scripts/mismatch-queue.mjs', [
         `export { assertGoalSelection } from ${JSON.stringify(QUEUE_MODULE)};`,
-        "import { readFileSync } from 'node:fs';",
+        "import { appendFileSync, readFileSync } from 'node:fs';",
         'export function loadMismatchQueue() {',
         "    return JSON.parse(readFileSync(new URL('../.cache/queue.json', import.meta.url), 'utf8'));",
         '}',
-        'export function loadWorkQueue() {',
+        'export function loadWorkQueue({ scan } = {}) {',
+        "    appendFileSync(new URL('../.cache/queue-requests.jsonl', import.meta.url), JSON.stringify({ scan }) + '\\n');",
         '    const fixed = loadMismatchQueue();',
+        "    if (fixed.mode === 'work') return fixed;",
         "    return { mode: 'work', corpus: 'combined', fixed, synthetic: { sessions: [], blockers: [], generationReady: true },",
         "        sessions: fixed.sessions ?? [], candidates: fixed.candidates ?? [], blockers: [], generationReady: fixed.generationReady ?? false, roadmapFallbackAllowed: false };",
         '}',
@@ -323,6 +325,116 @@ function openC(f) {
     f.cli('open-goal', '--id', 'widget');
     return JSON.parse(f.cli('next-span', '--goal', 'widget'));
 }
+
+function syntheticQueue(f) {
+    const session = 'synthetic/v1/fixture-case';
+    const entry = { session, corpus: 'synthetic', batch: 'v1', caseId: 'fixture-case',
+        sourceFile: 'widget.c', cFile: 'widget.c', function: 'helper', step: 2,
+        remainingScreens: 3, recordedSteps: 10,
+        manifestPath: 'challenges/manifest.json', manifestSha256: '1'.repeat(64),
+        recording: 'challenges/cases/fixture-case.session.json', recordingSha256: '2'.repeat(64),
+        evaluationPath: 'challenges/evaluations/fixture.json', evaluationCommit: f.head(),
+        investigation: { status: 'complete' } };
+    const queue = { mode: 'work', corpus: 'combined', sessions: [entry],
+        candidates: [{ ...entry, sessions: [session] }],
+        fixed: { sessions: [], candidates: [] }, blockers: [], generationReady: false,
+        roadmapFallbackAllowed: false };
+    f.json('.cache/queue.json', queue);
+    const scan = { rows: [
+        ...Array.from({ length: 33 }, (_, index) => `fixture-${index}.session.json`),
+        ...Array.from({ length: 11 }, (_, index) => `holdout/fixture-${index}.session.json`),
+    ].map(file => ({ file, recordedSteps: 10, divergence: null })) };
+    f.json('.cache/fixed-scan.json', scan);
+    return { session, entry, queue, scan };
+}
+
+test('synthetic source goals retain provenance through real CLI selection and span context', t => {
+    const f = fixture(t);
+    const { session, entry, scan } = syntheticQueue(f);
+    f.cli('queue-goal', '--id', 'synthetic-port', '--kind', 'file-port',
+        '--c-file', 'widget.c', '--sessions', session, '--summary', 'Port the synthetic owner',
+        '--development-scan', '.cache/fixed-scan.json');
+    f.cli('open-goal', '--id', 'synthetic-port', '--development-scan', '.cache/fixed-scan.json');
+    const context = JSON.parse(f.cli('next-span', '--goal', 'synthetic-port',
+        '--development-scan', '.cache/fixed-scan.json'));
+    assert.deepEqual(context.sessions, [session]);
+    const provenance = context.syntheticProvenance[0];
+    assert.equal(provenance.session, session);
+    assert.equal(provenance.manifestSha256, entry.manifestSha256);
+    assert.equal(provenance.recordingPath, entry.recording);
+    assert.equal(provenance.recordingSha256, entry.recordingSha256);
+    assert.equal(provenance.evaluationPath, entry.evaluationPath);
+    assert.equal(provenance.evaluationCommit, entry.evaluationCommit);
+    const calls = readFileSync(join(f.root, '.cache/queue-requests.jsonl'), 'utf8')
+        .trim().split('\n').map(line => JSON.parse(line));
+    assert.equal(calls.length, 3);
+    assert.ok(calls.every(call => JSON.stringify(call.scan) === JSON.stringify(scan)));
+});
+
+test('fixed scan overrides cannot bypass synthetic evidence or ranked source selection', t => {
+    const f = fixture(t);
+    const { session, queue } = syntheticQueue(f);
+    const args = ['queue-goal', '--id', 'synthetic-port', '--kind', 'file-port',
+        '--c-file', 'widget.c', '--sessions', session, '--summary', 'Port the synthetic owner',
+        '--development-scan', '.cache/fixed-scan.json'];
+    queue.blockers = [{ batch: 'v2', reason: 'evaluation missing' }];
+    f.json('.cache/queue.json', queue);
+    f.refuses(/synthetic evidence.*blocked/u, ...args);
+    assert.deepEqual(f.goals(), []);
+    queue.blockers = [];
+    queue.candidates.unshift({ sourceFile: 'unrelated.c', sessions: ['fixture-unrelated.c'] });
+    queue.fixed = { sessions: [{ session: 'fixture-unrelated.c', sourceFile: 'unrelated.c' }],
+        candidates: [queue.candidates[0]] };
+    f.json('.cache/queue.json', queue);
+    f.refuses(/highest-ranked candidate/u, ...args);
+    queue.candidates.shift();
+    queue.fixed = { sessions: [], candidates: [] };
+    queue.candidates[0].sourceFile = 'unrelated.c';
+    f.json('.cache/queue.json', queue);
+    f.refuses(/source owner traced/u, ...args);
+    assert.deepEqual(f.goals(), []);
+});
+
+test('synthetic evidence cannot be passed as a fixed development scan', t => {
+    const f = fixture(t);
+    syntheticQueue(f);
+    for (const artifact of [
+        { version: 1, batch: 'v1', cases: [], totals: {} },
+        { rows: [{ file: 'synthetic/v1/fixture-case.session.json', recordedSteps: 10 }] },
+    ]) {
+        f.json('.cache/not-fixed.json', artifact);
+        f.refuses(/fixed-workload rows/u, 'queue-goal', '--id', 'invalid-input',
+            '--kind', 'file-port', '--c-file', 'widget.c', '--summary', 'Reject wrong corpus',
+            '--development-scan', '.cache/not-fixed.json');
+    }
+    assert.deepEqual(f.goals(), []);
+});
+
+test('synthetic divergence closure requires current evidence even with a passing fixed checkpoint', t => {
+    const f = fixture(t);
+    const { session, queue } = syntheticQueue(f);
+    f.cli('queue-goal', '--id', 'synthetic-fix', '--kind', 'divergence-fix',
+        '--c-file', 'widget.c', '--function', 'helper', '--session', session,
+        '--summary', 'Fix the synthetic mismatch');
+    f.cli('open-goal', '--id', 'synthetic-fix');
+    f.checkpoint();
+    queue.blockers = [{ batch: 'v1', reason: 'replay inputs changed since evaluation' }];
+    f.json('.cache/queue.json', queue);
+    for (const options of [[], ['--development-scan', '.cache/fixed-scan.json']])
+        f.refuses(/synthetic evidence.*closure is blocked/u,
+            'close-goal', '--goal', 'synthetic-fix', ...options);
+    assert.equal(f.goals()[0].status, 'open');
+    queue.blockers = [];
+    queue.sessions = [];
+    queue.candidates = [];
+    queue.generationReady = true;
+    f.json('.cache/queue.json', queue);
+    f.cli('close-goal', '--goal', 'synthetic-fix', '--development-scan', '.cache/fixed-scan.json');
+    assert.equal(f.goals()[0].status, 'closed');
+    f.refuses(/no fixed regression or synthetic candidate|generate.*batch/u,
+        'queue-goal', '--id', 'unrelated', '--kind', 'file-port', '--c-file', 'unrelated.c',
+        '--summary', 'An empty queue calls for a new batch');
+});
 
 test('superseding a parked plan preserves its work without replay, closure, or score changes', (t) => {
     const f = fixture(t);
