@@ -67477,7 +67477,37 @@
             }
           }
         }
-      ]
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "getmattk",
+            "implementation": "js/mhitu.js",
+            "symbol": "getmattk",
+            "sourceReview": "Read complete mhitu.c:getmattk() 309-444, including the disabled-seduction c_sa_no table from monst.c:78-79 and monsters.h:2925-2928. The implementation preserves source guard order: SYSOPT_SEDUCE substitution, consecutive disease/pestilence/famine stun, hero-energy drain scaling, mspec_used holder/engulf fallback, cancelled or dangerous nonphysical weapon rewrite with the mattk[1] physical-weapon exception, resistant cold touch reduction excluding shades, then home-elemental damage doubling only when no earlier branch made a detached attack. Catalog attacks remain unchanged; each substitution returns a detached complete attack record. Weapon, cold-resistance, elemental-plane and artifact predicates use existing canonical owners. No random, output, or game-state operation occurs. C callers mattacku and mattackm already pass the selected result through their attack loops. The two uhitm.c:hmonas getmattk callers at lines 5441 and 5463 remain outside this span and are retained as an explicit unported hero-polymorph caller gap.",
+            "callers": [
+              {
+                "path": "js/mhitu.js",
+                "symbol": "mattacku",
+                "source": "mhitu.c:mattacku() 785-786 calls getmattk for each hero-facing attack slot before its attack switch."
+              },
+              {
+                "path": "js/mhitm.js",
+                "symbol": "mattackm",
+                "source": "mhitm.c:mattackm() 383 calls getmattk for each monster-vs-monster attack slot before its attack switch."
+              }
+            ],
+            "pure": true,
+            "tests": [
+              "scripts/mhitu.test.mjs"
+            ],
+            "recordings": [],
+            "checkedAt": "1163b285b82f87bb89cd457c2389589723186a72"
+          }
+        ],
+        "entryPointReview": "This selected range is a pure attack-selector helper. Its production callers are the existing mhitu.js:mattacku and mhitm.js:mattackm loops; no new impure entry point is claimed and no recording is required for the pure function. The source-pinned tests exercise the catalog identity path, the complete c_sa_no table, later-only SSEX substitution, disease guard precedence including the no-hit path, both energy scaling limits including detached unchanged dice, holder fallback including the wimpy zero-dice arm, cancelled/artifact weapon rewrites and the mattk[1] exception, ordinary and master-lich cold reduction against hero and monster targets, shade/unresistant guards, home-elemental doubling, prior-copy suppression, and catalog immutability. The two uhitm.c:hmonas calls at lines 5441 and 5463 are outside this selected source family and remain an explicit unported hero-polymorph caller gap. Root verified the complete source branches, canonical Cold_resistance/Resists_Elem, weapon/artifact and home-elemental predicates, and both existing production attack loops. Additional tests cover an unchanged-dice detached alternative suppressing elemental doubling, missed versus landed disease, the wimpy holder, ordinary lich dice, and monster resistance. The unported hmonas attack family remains separate and is not claimed complete.",
+        "entryPoints": []
+      }
     }
   ]
 }
