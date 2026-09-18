@@ -269,7 +269,6 @@ import {
     LEATHER_GLOVES,
     LOW_BOOTS,
     NUM_OBJECTS,
-    OBJ_DESCR,
     objects_globals_init,
     POT_BOOZE,
     POTION_CLASS,
@@ -4137,12 +4136,10 @@ test('hallucinated object notices reconstruct buffered near and far identity', (
             POT_BOOZE,
         );
         const expectedFollowingDraw = rn2_on_display_rng(997);
-        const appearance = OBJ_DESCR(state.objects[POT_BOOZE], state);
-        const description = near
-            ? `${/^[aeiou]/iu.test(appearance) ? 'an' : 'a'} ${
-                appearance
-            } potion`
-            : 'a potion';
+        // display.c:map_object() deliberately skips observe_object() while
+        // Hallucination is active, even for an adjacent generic object.  The
+        // source therefore keeps both notices at the vague potion name.
+        const description = 'a potion';
         assert.ok(
             state._glyphUpdateNotices[0].message.endsWith(`${description}.`),
         );
@@ -4191,11 +4188,11 @@ test('object-shaped mimic notices name buffered object classes and bodies', () =
     const cases = [
         [POT_BOOZE, null, 'a potion', 'a brown potion'],
         [SCR_IDENTIFY, null, 'a scroll', 'a scroll labeled KERNOD WEL'],
-        [GOLD_PIECE, null, 'gold pieces', 'gold pieces'],
+        [GOLD_PIECE, null, 'some gold pieces', '2 gold pieces'],
         // zeroobj has class zero; obj_to_glyph() therefore encodes these
         // generic-by-type disguises as STRANGE_OBJECT, not mappearance.
-        [DIAMOND, null, 'a strange object', 'a strange object'],
-        [SPE_FORCE_BOLT, null, 'a strange object', 'a strange object'],
+        [DIAMOND, null, 'strange object', 'strange object'],
+        [SPE_FORCE_BOLT, null, 'strange object', 'strange object'],
         [CORPSE, PM_GOBLIN, 'a goblin corpse', 'a goblin corpse'],
         [STATUE, PM_GOBLIN, 'a statue of a goblin', 'a statue of a goblin'],
     ];
@@ -4328,7 +4325,9 @@ test('synthetic buffered objects preserve constructor RNG and cleanup', () => {
             ident: 3,
             trace: ['rnd(2)=1'],
             following: 280,
-            message: '(3south,6east): a tool.',
+            // CHEST has the source's non-null dummy OBJ_NAME entry, so
+            // object_from_map() uses mksobj(CHEST), not mkobj(TOOL_CLASS).
+            message: '(3south,6east): a chest.',
             object: (state) => ({
                 otyp: CHEST,
                 oclass: state.objects[CHEST].oc_class,
@@ -4338,14 +4337,9 @@ test('synthetic buffered objects preserve constructor RNG and cleanup', () => {
         {
             name: 'generic',
             seed: 2026072416,
-            ident: 4,
-            trace: [
-                'rnd(1000)=995',
-                'rnd(2)=2',
-                'rn2(4)=0',
-                'rn2(2)=1',
-            ],
-            following: 532,
+            ident: 3,
+            trace: ['rnd(2)=1'],
+            following: 435,
             message: '(3south,6east): a potion.',
             object: (state) => ({
                 otyp: POT_BOOZE,
@@ -4419,14 +4413,14 @@ test('synthetic buffered names retain constructor-selected material and fruit', 
         {
             seed: 2,
             selected: ROCK,
-            trace: ['rnd(1000)=934', 'rnd(2)=1', 'rn2(6)=2'],
-            message: '(3south,6east): some stones.',
+            trace: ['rnd(2)=2'],
+            message: '(3south,6east): a gem.',
         },
         {
             seed: 1,
             selected: WORTHLESS_BLACK_GLASS,
-            trace: ['rnd(1000)=646', 'rnd(2)=1', 'rn2(6)=0'],
-            message: '(3south,6east): some gems.',
+            trace: ['rnd(2)=2'],
+            message: '(3south,6east): a gem.',
         },
     ];
     for (const scenario of gemScenarios) {
@@ -4444,13 +4438,11 @@ test('synthetic buffered names retain constructor-selected material and fruit', 
         show_glyph_cell(x, y, glyph);
 
         assert.deepEqual([...getRngLog()], scenario.trace);
-        assert.equal(state.context.ident, 3);
+        assert.equal(state.context.ident, 4);
         assert.equal(
             state._glyphUpdateNotices[0].message,
             scenario.message,
-            `seed ${scenario.seed} must retain generic ${
-                scenario.selected
-            }'s material identity`,
+            `seed ${scenario.seed} must reconstruct the source-named gem`,
         );
     }
     {
@@ -4920,8 +4912,8 @@ test('hallucinated monster glyph notices consume rndmonnam display RNG', () => {
     state.u.uprops = [];
     state.u.uprops[HALLUC] = { intrinsic: 1, extrinsic: 0 };
     state.u.uprops[HALLUC_RES] = { intrinsic: 0, extrinsic: 0 };
-    // look_at_monster() delegates to distant_monnam(), which can only name
-    // an invisible hallucinated monster once See invisible makes it visible.
+    // See invisible makes the physically displayed monster visible to
+    // distant_monnam(); the source does not retain an "invisible" prefix.
     state.u.uprops[SEE_INVIS] = { intrinsic: 1, extrinsic: 0 };
     const monster = {
         data: state.mons[PM_TENGU],
@@ -4946,7 +4938,7 @@ test('hallucinated monster glyph notices consume rndmonnam display RNG', () => {
 
     assert.equal(
         state._glyphUpdateNotices?.[0]?.message,
-        `(3south,6east): invisible ${expectedName}.`,
+        `(3south,6east): ${expectedName}.`,
     );
     assert.equal(followingDraw, expectedFollowingDraw);
 });

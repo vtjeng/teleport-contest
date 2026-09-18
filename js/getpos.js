@@ -42,6 +42,10 @@ import {
     glyph_to_cmap,
     newsym,
 } from './display.js';
+import {
+    GLYPH_NOTHING_OFF,
+    GLYPH_UNEXPLORED_OFF,
+} from './glyph_offsets.js';
 import { game } from './gstate.js';
 import { handle_tip, is_valid_travelpt } from './hack.js';
 import { visctrl } from './hacklib.js';
@@ -52,16 +56,32 @@ import {
     MAXPCHARS,
     S_arrow_trap,
     S_corr,
+    S_bars,
     S_darkroom,
     S_engrcorr,
     S_engroom,
     S_hcdoor,
+    S_hcdbridge,
+    S_hodbridge,
+    S_hodoor,
     S_litcorr,
+    S_ice,
+    S_air,
+    S_cloud,
+    S_lava,
+    S_lavawall,
     S_ndoor,
+    S_pool,
     S_room,
     S_stone,
+    S_tree,
     S_trwall,
+    S_vcdbridge,
+    S_vcdoor,
+    S_vodbridge,
     S_vodoor,
+    S_vwall,
+    S_water,
 } from './symbols.js';
 import { DEFAULT_PRIMARY_SYMBOLS, SYM_OFF_P } from './symbol_data.js';
 import { clearTtyMessageWindow, ttyPline } from './tty_message.js';
@@ -468,6 +488,35 @@ export function known_vibrating_square_at(x, y, state) {
         && trap.ttyp === VIBRATING_SQUARE
         && trap.tseen
     ));
+}
+
+// C ref: getpos.c gather_locs_interesting() (438-508), GLOC_INTERESTING.
+// Keep the interest filter beside the getpos owner: callers must inspect the
+// stored glyph without naming terrain, since waterbody_name() can consume
+// display RNG while a square is only being considered for description.
+export function gather_locs_interesting(
+    x, y, gloc = GLOC_INTERESTING, state = game,
+) {
+    const glyph = glyph_at(x, y, state);
+    const sym = glyph_is_cmap(glyph) ? glyph_to_cmap(glyph) : -1;
+    const isDoor = [
+        S_ndoor, S_vodoor, S_hodoor, S_vcdoor, S_hcdoor,
+        S_vodbridge, S_hodbridge, S_vcdbridge, S_hcdbridge,
+    ].includes(sym);
+    if (gloc === GLOC_DOOR) return isDoor;
+    if (gloc !== GLOC_INTERESTING) return false;
+    const excluded = glyph_is_cmap(glyph)
+        && (
+            (sym >= S_vwall && sym <= S_trwall)
+            || [
+                S_tree, S_bars, S_ice, S_air, S_cloud, S_lava, S_lavawall,
+                S_water, S_pool, S_ndoor, S_room, S_darkroom, S_corr, S_litcorr,
+            ].includes(sym)
+        );
+    return isDoor
+        || ((!excluded && glyph !== GLYPH_NOTHING_OFF
+            && glyph !== GLYPH_UNEXPLORED_OFF)
+            || known_vibrating_square_at(x, y, state));
 }
 
 // C ref: getpos.c getpos() feature-symbol matching (1039-1064). C builds a
