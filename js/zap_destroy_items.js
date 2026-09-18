@@ -221,6 +221,8 @@ function destroyedItemName(u_carry, carrier, obj, cnt, quan, state) {
 // that operation; monster carriers never call recharge() in C.
 async function maybe_destroy_item(carrier, obj, dmgtyp, env) {
     const { state, random } = env;
+    const message = env.message
+        ?? (env.planning ? async () => {} : ttyPline);
     const u_carry = carrier === state.youmonst;
     const vis = !u_carry && canSeeMonster(carrier, state);
 
@@ -248,7 +250,7 @@ async function maybe_destroy_item(carrier, obj, dmgtyp, env) {
                 // hallucinating, and rndcolor() draws for one who is; nothing
                 // ported hallucinates and js/zap.js stops a hallucinating hero
                 // several calls above this one.
-                await ttyPline(
+                await message(
                     `${The(
                         u_carry
                             ? xnameFresh(obj, state)
@@ -350,7 +352,7 @@ async function maybe_destroy_item(carrier, obj, dmgtyp, env) {
                 : ((cnt < quan) ? 'Some of ' /* n of N */
                     : (quan === 2) ? 'Both of ' /* 2 of 2 */
                         : 'All of '); /* N of N */
-            await ttyPline(
+            await message(
                 `${mult}${destroyedItemName(
                     u_carry, carrier, obj, cnt, quan, state,
                 )} ${destroy_strings[dindx][cnt > 1 ? 1 : 0]}!`,
@@ -400,7 +402,7 @@ async function maybe_destroy_item(carrier, obj, dmgtyp, env) {
                 return xresist ? 0 : dmg;
             }
             if (xresist) {
-                await ttyPline("You aren't hurt!", state);
+                await message("You aren't hurt!", state);
             } else {
                 let how = destroy_strings[dindx][2];
                 const one = (cnt === 1);
@@ -536,6 +538,8 @@ export async function burn_floor_objects(
         );
     }
 
+    const message = env.message
+        ?? (env.planning ? async () => {} : ttyPline);
     let count = 0;
     for (let obj = env.state.level.objects[x][y]; obj;) {
         const next = obj.nexthere;
@@ -560,7 +564,7 @@ export async function burn_floor_objects(
                     await removeObjectQuantity(obj, destroyed, env);
                 count += destroyed;
                 if (names) {
-                    await ttyPline(
+                    await message(
                         destroyed > 1
                             ? `${destroyed} ${names.plural} burn.`
                             : `${/^[aeiou]/iu.test(names.singular)

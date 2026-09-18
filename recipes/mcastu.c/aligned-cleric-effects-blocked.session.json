@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "Blocked mcastu.c effect variation: an independently chosen xorn plus #wizgenesis aligned cleric and confirmation reaches the caster action, but the current JS stops at the existing mattackm message-operation boundary before the source spell effect. Keep this variation without a recording and do not credit it as production coverage.",
+  "segments": [
+    {
+      "seed": 942423,
+      "datetime": "20360101120000",
+      "nethackrc": "OPTIONS=name:EffectProbeAlt,role:Valkyrie,race:human,gender:female,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen,playmode:debug,pettype:none,!acoustics\n",
+      "moves": " #polyself\nxorn\n #wizgenesis\naligned cleric\nym."
+    }
+  ]
+}

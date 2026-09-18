@@ -10,7 +10,9 @@ import {
     OBJ_MINVENT,
     POLY_TRAP,
     TELEP_TRAP,
+    REFLECTING,
     W_ARMG,
+    W_ARMS,
     W_WEP,
 } from '../js/const.js';
 import {
@@ -42,8 +44,10 @@ import {
     searches_for_item,
     select_fresh_monster_item_action,
     find_misc,
+    ureflects,
 } from '../js/muse.js';
 import { mksobj, place_object, remove_object } from '../js/obj.js';
+import { init_objects } from '../js/o_init.js';
 import { UnsupportedSimpleMonsterActionError }
     from '../js/unported_monster_actions.js';
 import {
@@ -116,6 +120,7 @@ import {
     WAN_STRIKING,
     WAN_TELEPORTATION,
     WAN_UNDEAD_TURNING,
+    SHIELD_OF_REFLECTION,
     objects_globals_init,
 } from '../js/objects.js';
 
@@ -278,6 +283,52 @@ test('use_misc paralyzes the monster after a milky potion releases a ghost',
     assert.equal(monster.mcanmove, false);
     assert.equal(monster.mfrozen, 3);
     assert.equal(state.unported.has('mhitm.c paralyze_monst'), false);
+});
+
+test('ureflects treats an empty suffix as a real C string and stays clone-local',
+    async () => {
+    // muse.c:2836-2871 tests non-null format/string pointers.  The lightning
+    // caller passes an empty suffix, so it still announces the shield and
+    // discovers the reflection object.  Planning supplies the same operation
+    // seam while keeping the message on the clone.
+    const makeReflectionState = () => {
+        const state = makeState();
+        init_objects(state);
+        state.u = {
+            uprops: { [REFLECTING]: { intrinsic: 0, extrinsic: W_ARMS } },
+            uskin: null,
+        };
+        return state;
+    };
+    const live = makeReflectionState();
+    const liveMessages = [];
+    assert.equal(
+        await ureflects('It bounces off your %s%s.', '', live, {
+            message: (text) => liveMessages.push(text),
+        }),
+        true,
+    );
+    assert.deepEqual(liveMessages, ['It bounces off your shield.']);
+    assert.equal(live.objects[SHIELD_OF_REFLECTION].oc_name_known, 1);
+
+    const planning = makeReflectionState();
+    await ureflects('It bounces off your %s%s.', '', planning, {
+        planning: true,
+    });
+    assert.equal(planning.objects[SHIELD_OF_REFLECTION].oc_name_known, 1);
+
+    // An explicit planning sink remains available to callers that want to
+    // collect the clone's message without touching the live terminal.
+    const planningMessages = [];
+    assert.equal(
+        await ureflects('It bounces off your %s%s.', '', planning, {
+            planning: true,
+            message: (text) => planningMessages.push(text),
+        }),
+        true,
+    );
+    assert.deepEqual(planningMessages, ['It bounces off your shield.']);
+    assert.equal(planning.objects[SHIELD_OF_REFLECTION].oc_name_known, 1);
 });
 
 test('find_defensive gives a hole precedence over a teleport trap', () => {
