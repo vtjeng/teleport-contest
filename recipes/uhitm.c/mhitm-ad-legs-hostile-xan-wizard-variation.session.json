@@ -1,0 +1,10 @@
+{
+  "version": 5,
+  "comment": "Independent A46 role variation: a neutral human Wizard starts with a different Dexterity than the primary Monk, then a hostile Xan reaches mhitm_ad_legs. The resulting rnd(47/48) wound duration and status updates cover the source's ACURR(A_DEX) branch without changing the footwear gate.",
+  "segments": [{
+    "seed": 9714637,
+    "datetime": "20350920121500",
+    "nethackrc": "OPTIONS=name:LegProbeW,role:Wizard,race:human,gender:male,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen\nOPTIONS=pettype:none,!acoustics,playmode:debug\n",
+    "moves": " #wizgenesis\nhostile xan\ny m. m. m. m."
+  }]
+}

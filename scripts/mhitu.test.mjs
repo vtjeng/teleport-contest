@@ -50,7 +50,7 @@ import {
     set_occupation,
 } from '../js/cmd.js';
 import { game } from '../js/gstate.js';
-import { spoteffects } from '../js/hack.js';
+import { near_capacity, spoteffects, weight_cap } from '../js/hack.js';
 import { runSegment } from '../js/jsmain.js';
 import {
     could_seduce,
@@ -2501,19 +2501,36 @@ test('mhitm_ad_legs preserves all three source arms and guard order', async () =
     assert.equal(flying.damage, 0);
 
     // Cancellation is tested only after the height guard.  It still spends
-    // the side draw and uses pline_mon's nuzzle line, without touching the
-    // wounded-legs state.
+    // the side draw and evaluates Monnam() twice: uhitm.c first initializes
+    // Monst_name and then evaluates it again for pline_mon().  Hallucination
+    // makes those otherwise-identical calls observable on the display RNG.
     state.u.uprops[FLYING] = { intrinsic: 0, extrinsic: 0, blocked: 0 };
     goblin.mcan = true;
     const cancelledHero = physMhm(5);
-    const cancelledHeroEnv = meleeEnv(state, []);
+    state.u.uprops[HALLUC] = { intrinsic: 1, extrinsic: 0, blocked: 0 };
+    const displayBounds = [];
+    const cancelledHeroEnv = meleeEnv(state, [], {
+        displayRandom: bound => {
+            displayBounds.push(bound);
+            return bound === SPECIAL_PM + 100 - LOW_PM
+                ? PM_GOBLIN - LOW_PM : 0;
+        },
+    });
+    state.a11y = { ...(state.a11y ?? {}), accessiblemsg: true };
     await mhitm_ad_legs(goblin, attack, state.youmonst, cancelledHero,
                         state, cancelledHeroEnv.env);
     assert.deepEqual(cancelledHeroEnv.bounds, ['rn2(2)']);
-    assert.deepEqual(cancelledHeroEnv.lines,
-        ['The goblin nuzzles against your right leg!']);
+    assert.equal(cancelledHeroEnv.lines.length, 1);
+    assert.equal(cancelledHeroEnv.lines[0],
+        '(west): The goblin nuzzles against your right leg!');
+    assert.deepEqual(displayBounds, [
+        SPECIAL_PM + 100 - LOW_PM, 2,
+        SPECIAL_PM + 100 - LOW_PM, 2,
+    ]);
     assert.equal(cancelledHero.damage, 0);
     goblin.mcan = false;
+    state.u.uprops[HALLUC] = { intrinsic: 0, extrinsic: 0, blocked: 0 };
+    state.a11y.accessiblemsg = false;
 
     // Footwear keeps the source's second gate: a low boot with rn2(2)==1
     // exposes the leg and then reaches the same wound/exercise sequence.
@@ -2546,14 +2563,37 @@ test('mhitm_ad_legs preserves all three source arms and guard order', async () =
         ['The goblin scratches your right boot!']);
     assert.equal(scratch.damage, 0);
 
-    // planningState() owns the wounded-legs and attribute records.  Replay
-    // the no-footwear arm on that clone with its own message sink and prove
-    // that the live hero receives neither the wound nor a terminal write.
-    state.uarmf = null;
-    const liveDex = state.u.atemp[3];
-    const plannedState = planningState(state);
+    // planningState() owns the wounded-legs and attribute records.  Start a
+    // fresh, previously unwounded clone with inventory just below the next
+    // uninjured half-capacity threshold.  The first leg wound subtracts 100
+    // capacity and therefore crosses that burden threshold, exercising the
+    // injected encumber_msg() seam without writing the live terminal.
+    const burdenState = await meleeHero();
+    const burdenGoblin = meleeAttacker(burdenState, PM_GOBLIN, -1, 0);
+    const uninjuredCapacity = weight_cap(burdenState);
+    // Keep the uninjured clone slightly encumbered, then make the 100-unit
+    // wounded-leg reduction cross C's next half-capacity threshold.
+    burdenState.invent = {
+        owt: uninjuredCapacity + Math.floor(uninjuredCapacity / 2) - 1,
+        nobj: null,
+    };
+    burdenState.go = {
+        ...(burdenState.go ?? {}),
+        oldcap: near_capacity(burdenState),
+    };
+    assert.equal(burdenState.u.uprops[WOUNDED_LEGS].intrinsic, 0);
+    assert.equal(burdenState.u.uprops[WOUNDED_LEGS].extrinsic, 0);
+    assert.equal(near_capacity(burdenState), 1);
+    const liveDex = burdenState.u.atemp[3];
+    const liveWounded = {
+        intrinsic: burdenState.u.uprops[WOUNDED_LEGS].intrinsic,
+        extrinsic: burdenState.u.uprops[WOUNDED_LEGS].extrinsic,
+    };
+    const liveTopline = burdenState._ttyToplines ?? '';
+    const liveBotl = burdenState.disp?.botl;
+    const plannedState = planningState(burdenState);
     let plannedGoblin = plannedState.level.monlist;
-    while (plannedGoblin && plannedGoblin.m_id !== goblin.m_id)
+    while (plannedGoblin && plannedGoblin.m_id !== burdenGoblin.m_id)
         plannedGoblin = plannedGoblin.nmon;
     assert.ok(plannedGoblin);
     const plannedLines = [];
@@ -2569,9 +2609,20 @@ test('mhitm_ad_legs preserves all three source arms and guard order', async () =
         plannedState,
         planned.env,
     );
-    assert.equal(state.u.atemp[3], liveDex);
-    assert.equal(state.u.uprops[WOUNDED_LEGS].extrinsic, RIGHT_SIDE);
-    assert.equal(plannedLines.length, 1);
+    assert.equal(burdenState.u.atemp[3], liveDex);
+    assert.deepEqual({
+        intrinsic: burdenState.u.uprops[WOUNDED_LEGS].intrinsic,
+        extrinsic: burdenState.u.uprops[WOUNDED_LEGS].extrinsic,
+    }, liveWounded);
+    assert.equal(burdenState._ttyToplines ?? '', liveTopline);
+    assert.equal(burdenState.disp?.botl, liveBotl);
+    assert.equal(plannedState.u.atemp[3], liveDex - 1);
+    assert.equal(plannedState.u.uprops[WOUNDED_LEGS].extrinsic, RIGHT_SIDE);
+    assert.equal(near_capacity(plannedState), 2);
+    assert.deepEqual(plannedLines, [
+        'The goblin pricks your right leg!',
+        'You rebalance your load.  Movement is difficult.',
+    ]);
 });
 
 // The function called on its own, which is the only way to reach three of its

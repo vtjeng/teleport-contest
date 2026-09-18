@@ -3259,7 +3259,7 @@ export async function mhitm_ad_legs(
         await mhitm_ad_phys(magr, mattk, mdef, mhm, state, env);
         if (mhm.done) return;
     } else if (mdef === state.youmonst) {
-        // mhitu.c:4437-4480.  C chooses the side even when the attack is
+        // uhitm.c:4437-4480.  C chooses the side even when the attack is
         // cancelled or cannot reach a mounted/flying hero.
         const side = random.rn2(2) ? RIGHT_SIDE : LEFT_SIDE;
         const sidestr = side === RIGHT_SIDE ? 'right' : 'left';
@@ -3275,8 +3275,18 @@ export async function mhitm_ad_legs(
             );
             mhm.damage = 0;
         } else if (magr.mcan) {
+            // uhitm.c evaluates Monnam() a second time for this pline_mon()
+            // call.  Keep that display-RNG evaluation separate from the
+            // initial Monst_name assignment above, even though the ordinary
+            // (non-hallucinating) text is usually identical.
+            const cancelledName = Monnam(magr, state, env);
             await message(
-                `${monsterName} nuzzles against your ${sidestr} ${leg}!`,
+                messageAt(
+                    `${cancelledName} nuzzles against your ${sidestr} ${leg}!`,
+                    magr.mx,
+                    magr.my,
+                    state,
+                ),
                 state,
                 env,
             );
@@ -3333,7 +3343,7 @@ export async function mhitm_ad_legs(
             });
         }
     } else {
-        // mhitm.c:4482-4490.  A cancelled attacker loses this effect without
+        // uhitm.c:4482-4490.  A cancelled attacker loses this effect without
         // a physical-damage call; otherwise preserve its done/hit flags.
         if (magr.mcan) {
             mhm.damage = 0;
