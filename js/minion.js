@@ -283,7 +283,7 @@ export async function msummon(mon = null, rawEnv = {}) {
             } else if (!env.planning) {
                 // C discards this display helper's return value; the display
                 // animation itself remains an explicitly recorded gap.
-                note_unported('display.c show_transient_light');
+                note_unported('light.c show_transient_light');
             }
         }
         if (count === 0 && seeMonster(created, state)) {
