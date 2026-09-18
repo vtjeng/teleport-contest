@@ -19,6 +19,9 @@ import {
     LAVAPOOL,
     LOOKHERE_NOFLAGS,
     LOOKHERE_PICKED_SOME,
+    MSGTYP_MASK_REP_SHOW,
+    MSGTYP_NOREP,
+    MSGTYP_NOSHOW,
     OBJ_FLOOR,
     OBJ_CONTAINED,
     OBJ_FREE,
@@ -29,6 +32,8 @@ import {
     ROOM,
     ROWNO,
     GLIB,
+    ICE,
+    LEVITATION,
     W_WEP,
     W_AMUL,
     W_ARM,
@@ -41,7 +46,11 @@ import {
     W_QUIVER,
 } from '../js/const.js';
 import { GameMap } from '../js/game.js';
-import { dolook, look_here } from '../js/invent.js';
+import {
+    dolook,
+    look_here,
+    preflight_look_here,
+} from '../js/invent.js';
 import { init_objects } from '../js/o_init.js';
 import { LEFT_HANDED, RIGHT_HANDED } from '../js/u_init.js';
 import { newObject } from '../js/obj.js';
@@ -482,6 +491,40 @@ test('blind single-object look_here uses the source surface and output order',
         }
     });
 
+test('blind ICE forces decor before the tactile line', async () => {
+    const dart = objectOf(namingState(), DART);
+    const state = lookState(ICE, dart, { blind: true });
+    state.flags.mention_decor = false;
+    state.iflags.prev_decor = ROOM;
+    state.decor_fumble_override = true;
+    state.gd = {};
+    state.gd.decor_levitate_override = true;
+    state.u.uprops[LEVITATION] = { intrinsic: 0, extrinsic: 0, blocked: 0 };
+    const events = [];
+    await look_here(0, LOOKHERE_NOFLAGS, state, {
+        message: async (text) => events.push(text),
+        readEngraving: async () => events.push('read engraving'),
+    });
+    assert.ok(events.some((text) => /ice/u.test(text)));
+    assert.ok(events.indexOf('You try to feel what is on it.')
+        > events.findIndex((text) => /ice/u.test(text)));
+    assert.equal(
+        state.level.lastseentyp[state.u.ux][state.u.uy], ICE,
+    );
+    assert.equal(state.decor_fumble_override, false);
+    assert.equal(state.gd.decor_levitate_override, false);
+});
+
+test('swallowed look_here admission returns before floor object names', () => {
+    const { state } = pileLookState({ count: 1 });
+    state.u.uswallow = true;
+    state.u.ustuck = { data: {} };
+    const plan = preflight_look_here(0, LOOKHERE_NOFLAGS, state);
+    assert.deepEqual(plan.objectList, []);
+    assert.equal(plan.otmp, null);
+    assert.equal(plan.hasPile, false);
+});
+
 test('blind single-object look_here awaits each output owner in source order',
     async () => {
         const dart = objectOf(namingState(), DART);
@@ -608,6 +651,32 @@ test('caller obj_cnt keeps dolook and check_here pile limits distinct',
         );
     });
 
+test('dolook hides only REP/SHOW message rules and restores them', async () => {
+    const { state } = pileLookState({ count: 2 });
+    state.gp = {
+        plinemsg_types: {
+            msgtype: MSGTYP_NOREP,
+            next: {
+                msgtype: MSGTYP_NOSHOW,
+                next: { msgtype: 0, next: null },
+            },
+        },
+    };
+    const original = state.gp.plinemsg_types;
+    const events = [];
+    await dolook(state, {
+        message: async (text) => events.push(text),
+        displayObjectPile: async () => events.push('menu'),
+        readEngraving: async () => events.push('engraving'),
+    });
+    assert.ok(events.includes('menu'));
+    assert.equal(original.msgtype, MSGTYP_NOREP);
+    assert.equal(original.next.msgtype, MSGTYP_NOSHOW);
+    assert.equal(original.next.next.msgtype, 0);
+    assert.equal(MSGTYP_MASK_REP_SHOW & (1 << MSGTYP_NOREP),
+        1 << MSGTYP_NOREP);
+});
+
 test('an equal ordinary mention-decor terrain retains the object-pile menu',
     async () => {
         const { state } = pileLookState({ count: 2 });
@@ -731,7 +800,7 @@ test('pile-limit counts bypass names and use source count partitions',
         }
     });
 
-test('object-pile exclusions stop before names, output, or engraving',
+test('object-pile source branches continue through their output owners',
     async () => {
         const cases = [
             {
@@ -741,7 +810,6 @@ test('object-pile exclusions stop before names, output, or engraving',
                 build: () => pileLookState({ count: 2 }),
                 prepare: ({ state }) => { state.flags.pile_limit = 2; },
                 flags: LOOKHERE_PICKED_SOME,
-                expected: /picked-some skipped-pile count/u,
             },
             {
                 name: 'non-triggering five-object pile',
@@ -749,13 +817,11 @@ test('object-pile exclusions stop before names, output, or engraving',
                 // zero disables the count shortcut.
                 build: () => pileLookState({ count: 5 }),
                 prepare: ({ state }) => { state.flags.pile_limit = 0; },
-                expected: /outside the two-to-four-item window/u,
             },
             {
                 name: 'mention-decor pile',
                 build: () => pileLookState(),
                 prepare: ({ state }) => { state.flags.mention_decor = true; },
-                expected: /describe_decor/u,
             },
             {
                 name: 'mention-decor pile-limit count',
@@ -765,7 +831,6 @@ test('object-pile exclusions stop before names, output, or engraving',
                     state.flags.pile_limit = 2;
                     state.iflags.prev_decor = ROOM;
                 },
-                expected: /mention-decor pile-limit/u,
             },
             {
                 // invent.c look_here() (4162-4178) is the only place a trap
@@ -778,7 +843,6 @@ test('object-pile exclusions stop before names, output, or engraving',
                 prepare: ({ state }) => state.level.traps.push({
                     tx: 1, ty: 1, ttyp: PIT, tseen: true,
                 }),
-                expected: /trapname\(\)/u,
             },
             {
                 name: 'visible region over pile',
@@ -790,7 +854,6 @@ test('object-pile exclusions stop before names, output, or engraving',
                     region.visible = true;
                     state.level.regions.push(region);
                 },
-                expected: /visible region description/u,
             },
             {
                 name: 'engraving under pile',
@@ -803,12 +866,10 @@ test('object-pile exclusions stop before names, output, or engraving',
                         nxt_engr: null,
                     };
                 },
-                expected: /engraving after/u,
             },
             {
                 name: 'lava pile',
                 build: () => pileLookState({ typ: LAVAPOOL }),
-                expected: /inaccessible liquid square/u,
             },
         ];
 
@@ -821,8 +882,7 @@ test('object-pile exclusions stop before names, output, or engraving',
             let objectCount = 0;
             for (let object = built.head; object; object = object.nexthere)
                 ++objectCount;
-            await assert.rejects(
-                look_here(
+            await look_here(
                     objectCount,
                     specimen.flags ?? LOOKHERE_NOFLAGS,
                     built.state,
@@ -832,12 +892,8 @@ test('object-pile exclusions stop before names, output, or engraving',
                             events.push(['display', lines]),
                         readEngraving: () => events.push(['engraving']),
                     },
-                ),
-                specimen.expected,
-                specimen.name,
             );
-            assert.deepEqual(events, [], specimen.name);
-            assert.equal(built.head.dknown, false, specimen.name);
+            assert.ok(events.length > 0, specimen.name);
         }
     });
 

@@ -9,7 +9,6 @@ import {
 } from '../js/command_bindings.js';
 import {
     moveloop_core,
-    UnsupportedTurnBoundaryError,
 } from '../js/allmain.js';
 import {
     cmdq_add_ec,
@@ -129,7 +128,6 @@ import {
     M1_NEEDPICK,
     M1_TUNNEL,
     PM_FOG_CLOUD,
-    PM_COCKATRICE,
     PM_LICHEN,
     PM_NEWT,
 } from '../js/monsters.js';
@@ -1087,7 +1085,7 @@ test('a walk reports every ordinary pile-limit count partition without names',
         }
     });
 
-test('a triggering pile inside a visible region is refused before movement',
+test('a triggering pile inside a visible region is described after movement',
     async () => {
         const { x, y } = await prepareHeroMoveAdmission();
         const source = { x: game.u.ux, y: game.u.uy };
@@ -1103,20 +1101,12 @@ test('a triggering pile inside a visible region is refused before movement',
         region.visible = true;
         region.hero_inside = true;
         game.level.regions.push(region);
-        const toplinesBefore = game._ttyToplines;
-
-        await assert.rejects(
-            domove(game),
-            (error) => error instanceof UnsupportedHeroMoveBoundaryError
-                && error.message.includes(
-                    'visible region over skipped-pile count',
-                ),
-        );
-        assert.deepEqual([game.u.ux, game.u.uy], [source.x, source.y]);
-        assert.equal(game._ttyToplines, toplinesBefore);
+        for (let i = 0; i < 20; ++i) game.nhDisplay.pushKey(' '.charCodeAt(0));
+        await domove(game);
+        assert.deepEqual([game.u.ux, game.u.uy], [x, y]);
     });
 
-test('a single object inside an entered visible region refuses atomically',
+test('a single object inside an entered visible region is described',
     async () => {
         const target = await prepareHeroMoveAdmission();
         const source = { x: game.u.ux, y: game.u.uy };
@@ -1133,15 +1123,9 @@ test('a single object inside an entered visible region refuses atomically',
         region.visible = true;
         region.hero_inside = true;
         game.level.regions.push(region);
-        const before = heroMoveAdmissionSnapshot(target.replay);
-
-        await assert.rejects(
-            domove(game),
-            (error) => error instanceof UnsupportedHeroMoveBoundaryError
-                && error.reason
-                    === 'visible region over single-object description',
-        );
-        assert.deepEqual(heroMoveAdmissionSnapshot(target.replay), before);
+        for (let i = 0; i < 20; ++i) game.nhDisplay.pushKey(' '.charCodeAt(0));
+        await domove(game);
+        assert.deepEqual([game.u.ux, game.u.uy], [target.x, target.y]);
     });
 
 test('pile_limit zero leaves a single object on the naming path', async () => {
@@ -1162,59 +1146,6 @@ test('pile_limit zero leaves a single object on the naming path', async () => {
 
 test('simple hero movement rejects spot effects before mutation', async () => {
     const cases = [
-        {
-            name: 'single-object pile-limit count',
-            reason: 'single-object skipped-pile count',
-            setup: ({ x, y }) => {
-                // One is the only threshold which makes a single floor object
-                // enter the count arm that this pile slice excludes.
-                game.flags.pile_limit = 1;
-                game.level.objects[x][y] = {
-                    // The first valid object identity and one ordinary dart
-                    // provide a complete single-node floor chain.
-                    o_id: 1,
-                    otyp: DART,
-                    oclass: WEAPON_CLASS,
-                    quan: 1,
-                    where: OBJ_FLOOR,
-                    nexthere: null,
-                };
-            },
-        },
-        {
-            name: 'non-triggering five-object pile',
-            reason: 'object pile outside the two-to-four-item window',
-            setup: ({ x, y }) => {
-                // Five is the first pile count outside the preceding menu
-                // slice; zero keeps skipping disabled.
-                installFloorPile(x, y, 5);
-                game.flags.pile_limit = 0;
-            },
-        },
-        {
-            name: 'blind cockatrice pile',
-            reason: 'blind object pile',
-            setup: ({ x, y }) => {
-                installFloorPile(x, y, 2, {
-                    otyp: CORPSE,
-                    oclass: FOOD_CLASS,
-                    corpsenm: PM_COCKATRICE,
-                });
-                game.u.uprops[BLINDED].intrinsic = 1;
-            },
-        },
-        {
-            name: 'mention-decor pile-limit count',
-            reason: 'mention-decor pile-limit count',
-            setup: ({ x, y }) => {
-                installFloorPile(x, y);
-                game.flags.mention_decor = true;
-                // An equal threshold selects the deferred count branch after
-                // the ordinary terrain preflight has accepted its memory.
-                game.flags.pile_limit = 2;
-                game.iflags.prev_decor = ROOM;
-            },
-        },
         {
             // STATUE_TRAP still reaches trap.c activate_statue_trap(), which
             // is unported. PIT is admitted now that trap.c handles its hero
@@ -4429,7 +4360,7 @@ function installUnreachableFloorObject(x, y) {
     game.u.uprops[LEVITATION].extrinsic = 1;
 }
 
-test('a refusal below domove() reaches the player as a command boundary',
+test('a levitating hero reaches the committed square before pickup returns',
     async () => {
         const { x, y } = await prepareHeroMoveAdmission();
         installUnreachableFloorObject(x, y);
@@ -4437,47 +4368,13 @@ test('a refusal below domove() reaches the player as a command boundary',
         game.context.run = 0;
         game.context.nopick = 0;
         game.domoveAttempting = 0;
-        const moveKey = commandKeyCode('l');
-        game.nhDisplay.pushKey(moveKey);
+        game.nhDisplay.pushKey(commandKeyCode('l'));
 
-        await assert.rejects(
-            () => rhack(0, game),
-            (error) => {
-                assert.ok(
-                    error instanceof UnsupportedHeroCommandBoundaryError,
-                    `${error.constructor.name} is not a command boundary`,
-                );
-                // And the subclass that says the refusal came from below a
-                // dispatched command rather than from the admission seam.
-                // scripts/scan-sessions.mjs isCommandRefusal() reads this to
-                // decide whether the recorded byte can name the behavior the
-                // port stopped on; here it cannot, because `l` is admitted.
-                assert.ok(
-                    error instanceof UnsupportedHeroCommandBranchBoundaryError,
-                    `${error.constructor.name} is not a branch boundary`,
-                );
-                assert.equal(error.key, moveKey);
-                assert.equal(
-                    error.message,
-                    'unsupported hero command: an unported branch of this '
-                    + 'command: unsupported pickup: pickup() by a hero who '
-                    + 'cannot reach the floor',
-                );
-                return true;
-            },
-        );
-        // The wrapper refuses after the step rather than before it: domove()
-        // moved the hero and only then reached pickup(). That is why the
-        // js/hack.js seam guards stay where they are -- they refuse while
-        // nothing has moved, drawn or painted yet.
+        await rhack(0, game);
+        // The movement commits before pickup() applies its no-floor result.
         assert.deepEqual([game.u.ux, game.u.uy], [x, y]);
-        // failClosedCommand() runs resetCommandVars() before it throws, and
-        // that reset deliberately preserves context.pendingCommand. Nothing
-        // serializes pendingCommand, so the retained key outlives the refusal
-        // only inside this segment, which js/jsmain.js then ends.
-        assert.equal(game.context.move, 0);
         assert.equal(game.multi, 0);
-        assert.equal(game.context.pendingCommand.key, moveKey);
+        assert.equal(game.context.pendingCommand, undefined);
     });
 
 // Prepares the run the two tests below drive: two ordinary squares east of the
@@ -4518,32 +4415,13 @@ async function takeFirstRunStep(first) {
     game.context.move = 0;
 }
 
-test('a refusal below the run loop reaches the player as a turn boundary',
+test('the run loop keeps a levitating pickup return after its move',
     async () => {
         const { first, second } = await prepareRunPastTheFirstStep();
         installUnreachableFloorObject(second[0], second[1]);
         await takeFirstRunStep(first);
 
-        await assert.rejects(
-            () => moveloop_core(),
-            (error) => {
-                assert.ok(
-                    error instanceof UnsupportedTurnBoundaryError,
-                    `${error.constructor.name} is not a turn boundary`,
-                );
-                assert.equal(
-                    error.message,
-                    'a continued move reached unsupported pickup: pickup() by '
-                    + 'a hero who cannot reach the floor',
-                );
-                // The turn boundary carries no key. rhack() is off the stack
-                // here, its finally has already deleted context.pendingCommand
-                // and no retry could honour one, so this site must not raise
-                // the command boundary the js/cmd.js half raises.
-                assert.equal(error.key, undefined);
-                return true;
-            },
-        );
+        await moveloop_core();
         assert.deepEqual([game.u.ux, game.u.uy], second);
     });
 

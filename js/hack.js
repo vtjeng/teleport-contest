@@ -1376,8 +1376,7 @@ function refusedDiagonalDoorway(x, y, state) {
 // the warning or m-prefix continuation before the hero moves. With autopickup
 // disabled, it also admits the sighted object descriptions and, now that
 // js/dungeon.js surface() names every terrain look_here() can feel underfoot,
-// the blind paths with no object or one object. Blind paths that would describe
-// an object pile remain refused.
+// including blind object piles now owned by invent.c:look_here().
 // These checks are a temporary admission seam in front
 // of hack.c:domove_core(); each rejected branch will move to its upstream owner
 // when that behavior is ported.
@@ -1490,43 +1489,16 @@ export function requireSimpleHeroDestination(
             throw new UnsupportedHeroMoveBoundaryError(error.reason);
         }
     }
-    if (floorObject && !noPickMove && !floorObject.nexthere
-        && state.flags?.pile_limit > 0
-        && state.flags.pile_limit <= 1) {
-        throw new UnsupportedHeroMoveBoundaryError(
-            'single-object skipped-pile count',
-        );
-    }
     if (floorObject?.nexthere && !noPickMove) {
         let pileCount = 0;
         for (let object = floorObject; object; object = object.nexthere)
             ++pileCount;
         const skipObjects = state.flags?.pile_limit > 0
             && pileCount >= state.flags.pile_limit;
-        // The count arm deliberately bypasses look_here()'s region line.  A
-        // visible region therefore remains outside this slice even when both
-        // endpoints are already inside it and in_out_region() has no crossing
-        // to report.
-        if (visible_region_at(x, y, state)) {
-            throw new UnsupportedHeroMoveBoundaryError(
-                skipObjects
-                    ? 'visible region over skipped-pile count'
-                    : 'visible region over object-pile menu',
-            );
-        }
-        if (pileCount < 2 || (!skipObjects && pileCount > 4)) {
-            throw new UnsupportedHeroMoveBoundaryError(
-                'object pile outside the two-to-four-item window',
-            );
-        }
-        if (state.flags?.mention_decor && skipObjects) {
-            throw new UnsupportedHeroMoveBoundaryError(
-                'mention-decor pile-limit count',
-            );
-        }
-        if (heroIsBlind(state)) {
-            throw new UnsupportedHeroMoveBoundaryError('blind object pile');
-        }
+        // C invent.c:look_here() owns the blind tactile pile window after
+        // spoteffects() commits the move.  Do not reject the destination in
+        // hack.c's preflight; the live pickup/check_here caller preserves the
+        // source-ordered heading, menu wait, and cockatrice touch branch.
         // invent.c look_here() never calls doname_with_price() when the
         // threshold selects its count line. Keep nameability as a menu-only
         // preflight so the message path admits every ordinary pile count.
@@ -1542,11 +1514,6 @@ export function requireSimpleHeroDestination(
         }
     }
     if (floorObject && !floorObject.nexthere && !noPickMove) {
-        if (visible_region_at(x, y, state)) {
-            throw new UnsupportedHeroMoveBoundaryError(
-                'visible region over single-object description',
-            );
-        }
         assertMovementFloorObjectNameable(
             floorObject,
             costly_spot(x, y, state),

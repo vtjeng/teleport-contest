@@ -415,6 +415,34 @@ export async function describe_decor(state = game, env = {}) {
     return plan.result;
 }
 
+// C ref: pickup.c force_decor(). Probing and blind look_here() must bypass
+// one-turn Fumbling deferral, force describe_decor() to see a transition, and
+// then refresh lastseentyp at the source square. The caller supplies the
+// message owner so isolated look_here tests do not need a live TTY.
+export async function force_decor(
+    viaProbing = false,
+    state = game,
+    env = {},
+) {
+    state.iflags ??= {};
+    state.gd ??= {};
+    const { ux, uy } = state.u;
+    state.decor_fumble_override = true;
+    state.gd.decor_levitate_override = viaProbing;
+    state.iflags.prev_decor = STONE;
+    try {
+        await describe_decor(state, env);
+    } finally {
+        // pickup.c force_decor() always clears both temporary overrides after
+        // describe_decor(), rather than restoring a caller's stale values.
+        state.decor_fumble_override = false;
+        state.gd.decor_levitate_override = false;
+    }
+    state.level.lastseentyp ??= [];
+    state.level.lastseentyp[ux] ??= [];
+    state.level.lastseentyp[ux][uy] = state.level.at(ux, uy)?.typ ?? STONE;
+}
+
 // C ref: pickup.c u_safe_from_fatal_corpse() (272-281). The tests are ORed in
 // source order, so which term answers depends on the hero: a Monk starts in
 // leather gloves (u_init.c:102) and stops at st_gloves, while a bare-handed

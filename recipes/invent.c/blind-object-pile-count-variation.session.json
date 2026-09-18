@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 6231371,
+      "datetime": "20330809101112",
+      "nethackrc": "OPTIONS=name:BlindPileCount,role:Valkyrie,race:human,gender:female,align:lawful\nOPTIONS=!legacy,!tutorial,!splash_screen\nOPTIONS=pettype:none,!acoustics,!autopickup,blind,pile_limit:3\n",
+    "moves": " llkkk. "
+    }
+  ],
+  "comment": "Independent B36 cheap variation: a distinct blind Valkyrie/human seed and route reaches a three-object pile at pile_limit equality, exercising look_here's count arm after its tactile heading."
+}
