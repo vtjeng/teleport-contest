@@ -86,6 +86,7 @@ import {
     waterbody_name,
 } from './pager.js';
 import { is_drawbridge_wall } from './dbridge.js';
+import { known_vibrating_square_at } from './getpos.js';
 import { engr_at } from './engrave.js';
 import { t_at } from './trap.js';
 import { visible_region_at } from './region.js';
@@ -108,6 +109,15 @@ import { just_an } from './objnam.js';
 import { observe_object } from './o_init.js';
 import { obj_stop_timers } from './timeout.js';
 import { locomotion } from './mondata.js';
+import {
+    glyph_at,
+    glyph_is_cmap,
+    glyph_to_cmap,
+} from './display.js';
+import {
+    GLYPH_NOTHING_OFF,
+    GLYPH_UNEXPLORED_OFF,
+} from './glyph_offsets.js';
 import {
     AMULET_CLASS,
     ARMOR_CLASS,
@@ -186,6 +196,8 @@ import {
     S_tree,
     S_upstair,
     S_upladder,
+    S_vwall,
+    S_trwall,
     S_vcdoor,
     S_vcdbridge,
     S_vodbridge,
@@ -1064,6 +1076,30 @@ function terrainDescription(location, x, y, state) {
     }
 }
 
+// C ref: getpos.c gather_locs_interesting(), GLOC_INTERESTING (438-508).
+// This predicate only inspects the already rendered glyph and map/trap state;
+// it must not call terrainDescription(), since waterbody_name() can consume
+// display RNG while merely deciding whether a square is worth describing.
+function glyphIsInterestingForLookaround(x, y, state) {
+    const glyph = glyph_at(x, y, state);
+    const cmap = glyph_is_cmap(glyph) ? glyph_to_cmap(glyph) : -1;
+    const door = [
+        S_ndoor, S_vodoor, S_hodoor, S_vcdoor, S_hcdoor,
+        S_vodbridge, S_hodbridge, S_vcdbridge, S_hcdbridge,
+    ].includes(cmap);
+    if (door) return true;
+    const excludedCmap = cmap >= S_vwall && cmap <= S_trwall
+        || [
+            S_tree, S_bars, S_ice, S_air, S_cloud, S_lava, S_lavawall,
+            S_water, S_pool, S_ndoor, S_room, S_darkroom, S_corr, S_litcorr,
+        ].includes(cmap);
+    const excludedGlyph = glyph === GLYPH_NOTHING_OFF
+        || glyph === GLYPH_UNEXPLORED_OFF;
+    if ((!glyph_is_cmap(glyph) || !excludedCmap) && !excludedGlyph)
+        return true;
+    return known_vibrating_square_at(x, y, state);
+}
+
 function cmapDescription(symbol, x, y, state) {
     const location = state.level?.at(x, y);
     if (symbol === S_altar && location?.typ === ALTAR)
@@ -1339,21 +1375,18 @@ function describeGlyphUpdate(glyph, x, y, state) {
     return description.found ? description.firstmatch : null;
 }
 
-function floorCovered(location) {
-    return [POOL, MOAT, WATER, LAVAPOOL, LAVAWALL].includes(location.typ);
-}
-
 function visibleSubjectAt(x, y, state) {
     const location = state.level?.at(x, y);
     if (!location || !cansee(x, y, state)) return null;
     if (visible_region_at(x, y, state)) return null;
+    if (!Number.isInteger(location.disp_glyph?.glyph)) return null;
 
     const monster = state.level?.monsters?.[x]?.[y] ?? null;
     if (monster && !monster.minvis && !monster.mundetected) {
         const appearance = monster.m_ap_type & M_AP_TYPMASK;
         if (appearance === M_AP_FURNITURE
             && !furnitureIsInteresting(monster.mappearance)) return null;
-    } else if (!floorCovered(location)) {
+    } else {
         const object = state.level?.objects?.[x]?.[y] ?? null;
         const trap = t_at(x, y, state);
         const engraving = engr_at(x, y, state);
@@ -1363,22 +1396,17 @@ function visibleSubjectAt(x, y, state) {
             engraving?.erevealed
             && [ROOM, ICE, CORR].includes(location.typ),
         );
-        const terrain = terrainDescription(location, x, y, state);
         if (!interestingObject && !interestingTrap
-            && !interestingEngraving && !terrain) return null;
+            && !interestingEngraving
+            && !glyphIsInterestingForLookaround(x, y, state)) return null;
     }
 
     // cmd.c:dolookaround() asks do_screen_description() for each interesting
     // square. Keep the visibility and interest filter local to this scan,
     // then use the pager's complete generic collection and lookat refinement
     // so this caller cannot drift from the ordinary what-is path.
-    const terrain = terrainDescription(location, x, y, state);
-    // show_glyph()/newsym() installs the logical glyph before this production
-    // scan. A sparse unit fixture without that C display state is not a valid
-    // caller and must not take a second, divergent description implementation.
-    if (!Number.isInteger(location.disp_glyph?.glyph)) return null;
     const description = do_screen_description({ x, y }, true, 0, state);
-    return description.found ? description.firstmatch : terrain;
+    return description.found ? description.firstmatch : null;
 }
 
 export function collectLookaroundMessages(state, { includeRoom = true } = {}) {
@@ -1407,8 +1435,16 @@ export function collectLookaroundMessages(state, { includeRoom = true } = {}) {
             if (x === ux && y === uy) continue;
             let description = visibleSubjectAt(x, y, state);
             if (!description && mentionAdjacentCorridors) {
-                const typ = state.level?.at(x, y)?.typ;
-                if (typ === CORR) description = 'corridor';
+                const glyph = glyph_at(x, y, state);
+                const cmap = glyph_is_cmap(glyph)
+                    ? glyph_to_cmap(glyph) : -1;
+                if (cmap === S_corr || cmap === S_litcorr) {
+                    const corridorDescription = do_screen_description(
+                        { x, y }, true, 0, state,
+                    );
+                    description = corridorDescription.found
+                        ? corridorDescription.firstmatch : null;
+                }
             }
             if (description)
                 messages.push(messageAt(`${description}.`, x, y, state, true));

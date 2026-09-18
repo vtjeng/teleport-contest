@@ -678,7 +678,7 @@ test('corridor ambiguity uses pager.c many-things truncation', () => {
 });
 
 test('blank stone retains matching monster and misc classes before refinement', () => {
-    // pager.c scans defsym.h's displayed byte classes in order.  With
+    // pager.c scans defsym.h's displayed byte classes in order. With
     // DECgraphics, stone shares a blank byte with air, the ghost class, and
     // the default NOTHING/UNEXPLORED symbols, so the five matches use the
     // many-things summary before lookat() supplies the actual stone detail.
@@ -698,7 +698,7 @@ test('blank stone retains matching monster and misc classes before refinement', 
 
 test('typed blank symbols use the same source class collection', () => {
     // With looked=false, pager.c has no glyph to refine and therefore keeps
-    // the first three defsym.h matches: the ghost class, stone, and air.
+    // the first three defsym.h matches: the ghost, stone, and air classes.
     const state = terrainDescriptionState(S_stone);
     assert.deepEqual(
         do_screen_description(

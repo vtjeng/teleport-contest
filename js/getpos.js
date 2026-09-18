@@ -457,7 +457,8 @@ async function auto_describe(cx, cy, state) {
 // vibrating square is discoverable by '~' only at the invocation position;
 // this excludes wizard-created fake vibrating traps that cannot occur in a
 // normal invocation-level map.
-function known_vibrating_square_at(x, y, state) {
+export function known_vibrating_square_at(x, y, state) {
+    if (!state.u?.uz || !state.dungeons?.[state.u.uz.dnum]) return false;
     if (!Invocation_lev(state.u?.uz, state)
         || state.inv_pos?.x !== x || state.inv_pos?.y !== y) {
         return false;
