@@ -228,9 +228,6 @@ function redrawTtyTopline(state, message, mixedFirstCell = null) {
     const display = state.nhDisplay;
     if (!display) return;
     const lines = wrapTtyTopline(message, display.cols);
-    const oldLines = wrapTtyTopline(state._pending_message ?? '', display.cols);
-    for (let row = 0; row < Math.max(lines.length, oldLines.length); ++row)
-        display.clearRow(row);
     for (let row = 0; row < lines.length; ++row)
         writeRecorderTtyLine(display, row, lines[row]);
     if (mixedFirstCell)
@@ -397,7 +394,7 @@ export function ttyPlineWillWait(message, state = game) {
     const columns = state.nhDisplay?.cols ?? 80;
     const stoppedAtEntry = Boolean(state._ttyMessageStopped);
     const occupied = state._pending_message ?? '';
-    let current = state.nhDisplay?.toplin === TOPLINE_NON_EMPTY
+    const current = state.nhDisplay?.toplin === TOPLINE_NON_EMPTY
         ? '' : occupied;
     const priorTopline = state._ttyToplines ?? current;
     const deathMessage = next.startsWith('You die');
