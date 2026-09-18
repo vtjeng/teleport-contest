@@ -24,6 +24,7 @@ import {
     DUST,
     DOOR,
     FIRE_RES,
+    FIRE_TRAP,
     FOUNTAIN,
     DART_TRAP,
     GRAVE,
@@ -86,6 +87,7 @@ import {
     PM_GIANT_EEL,
     PM_HOMUNCULUS,
     PM_ACID_BLOB,
+    PM_ALIGNED_CLERIC,
     PM_GENETIC_ENGINEER,
     PM_GIANT_RAT,
     PM_GNOME,
@@ -3647,18 +3649,55 @@ test('a starting pony targets at range and later refusal stays retryable',
 
 test('simple preflight separates each altered monster state before movement',
     async () => {
-        // A minion eating dog still throws because the minion guard is
-        // separate from the removed meating guard.  With meating removed,
-        // the minion guard now catches it first as 'minion movement'.
+        // A tame minion eating dog still throws. Non-tame EMIN roamers now
+        // use ordinary m_move(), but guardian-pet movement remains outside
+        // this span.
         const target = await prepareStartingPetAction(PM_LITTLE_DOG);
         target.monster.isminion = true;
         target.monster.meating = 1;
         await assert.rejects(
             preflightSimpleMonsterActions(game),
             (error) => error instanceof UnsupportedSimpleMonsterActionError
-                && error.reason === 'minion movement',
+                && error.reason === 'tame minion movement',
             'minion eating dog',
         );
+    });
+
+test('non-tame EMIN roamers use ordinary movement and avoid known fire traps',
+    async () => {
+        for (const peaceful of [false, true]) {
+            const target = await prepareSelectedAction({
+                pmidx: PM_ALIGNED_CLERIC,
+            });
+            target.monster.isminion = true;
+            target.monster.ispriest = false;
+            target.monster.mpeaceful = peaceful;
+            target.monster.mtame = 0;
+            target.monster.mextra = {
+                emin: { parentmid: 0, min_align: 0, renegade: !peaceful },
+            };
+            // C mk_roamer() teaches every trap before the first ordinary
+            // m_move(). A known fire trap must therefore be avoided rather
+            // than activated while this non-tame EMIN takes its turn.
+            target.monster.mtrapseen = -1;
+            game.level.traps.push({
+                tx: target.destinationX,
+                ty: target.heroY,
+                ttyp: FIRE_TRAP,
+                tseen: true,
+            });
+
+            await assert.doesNotReject(
+                runSimpleMonsterAction(target.monster, { state: game }),
+                `peaceful=${peaceful}`,
+            );
+            assert.deepEqual(
+                [target.monster.mx, target.monster.my],
+                [target.monsterX, target.heroY],
+                `peaceful=${peaceful}: known fire trap was avoided`,
+            );
+            assert.notEqual(game.program_state?.gameover, true);
+        }
     });
 
 test('simple preflight keeps starting-pet owner seams retryable',

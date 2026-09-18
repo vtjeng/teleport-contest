@@ -20,10 +20,13 @@ import { GameMap } from '../js/game.js';
 import { resetGame } from '../js/gstate.js';
 import { init_objects } from '../js/o_init.js';
 import { PM_HUMAN } from '../js/monsters.js';
+import { PM_ALIGNED_CLERIC } from '../js/monsters.js';
 import { monst_globals_init, reset_mvitals } from '../js/monsters.js';
 import { timeout_globals_init } from '../js/timeout.js';
+import { newMonster } from '../js/monst.js';
 import {
     histemple_at,
+    mk_roamer,
     newepri,
     p_coaligned,
     priestini,
@@ -110,6 +113,113 @@ test('newepri does not overwrite an existing extension', () => {
     newepri(monster);
     assert.equal(monster.mextra.epri, existing,
         'should keep the existing epri');
+});
+
+test('mk_roamer allocates an aligned EMIN and teaches every trap', () => {
+    const state = initializedTempleState();
+    state.u.ualign.type = 1;
+    const draws = [];
+    const random = {
+        d: (...args) => { draws.push(['d', ...args]); return 1; },
+        rn1: (...args) => {
+            draws.push(['rn1', ...args]);
+            return args[1];
+        },
+        rn2: (...args) => { draws.push(['rn2', ...args]); return 0; },
+        rnd: (...args) => { draws.push(['rnd', ...args]); return 1; },
+        rne: (...args) => { draws.push(['rne', ...args]); return 1; },
+        rnz: (...args) => { draws.push(['rnz', ...args]); return 1; },
+    };
+    const roamer = mk_roamer(
+        state.mons[PM_ALIGNED_CLERIC],
+        1,
+        7,
+        7,
+        false,
+        { state, random },
+    );
+
+    assert.ok(roamer);
+    assert.equal(roamer.ispriest, false);
+    assert.equal(roamer.isminion, true);
+    assert.deepEqual(roamer.mextra.emin, {
+        // C makemon.c calls newemin() before assigning m_id, so this starts
+        // at the zeroed identifier from newmextra().
+        parentmid: 0,
+        min_align: 1,
+        renegade: true,
+    });
+    assert.equal(roamer.mtrapseen, -1);
+    assert.equal(roamer.mpeaceful, false);
+    assert.equal(roamer.msleeping, false);
+    assert.deepEqual(draws, [
+        ['rnd', 2], ['d', 11, 8], ['rn2', 2], ['rnd', 2],
+        ['rnd', 3], ['rn2', 2], ['rn2', 75], ['rn2', 35],
+        ['rnd', 2], ['rn1', 5, 4], ['rn2', 17], ['rn2', 2],
+        ['rn2', 7], ['rn2', 3], ['rnd', 2], ['rn2', 10],
+        ['rn2', 10], ['rn2', 2], ['rne', 3], ['rn2', 100],
+        ['rn2', 1000], ['rnd', 2], ['rn2', 10], ['rn2', 10],
+        ['rn2', 2], ['rne', 3], ['rn2', 100], ['rn2', 1000],
+        ['rn1', 10, 20], ['rnd', 2], ['rn2', 50], ['rn2', 11],
+        ['rnd', 2], ['rn2', 4], ['rn2', 2], ['rn2', 100],
+        ['rn2', 40], ['rnd', 2], ['rn2', 10], ['rn2', 10],
+        ['rn2', 2], ['rn2', 100],
+    ]);
+});
+
+test('mk_roamer uses caller relocation operations for an occupied square', () => {
+    const state = initializedTempleState();
+    for (let x = 1; x < 80; ++x)
+        for (let y = 0; y < 21; ++y)
+            state.level.at(x, y).typ = ROOM;
+    const blocker = newMonster({
+        data: state.mons[PM_ALIGNED_CLERIC],
+        m_id: 777,
+        mnum: PM_ALIGNED_CLERIC,
+        mx: 7,
+        my: 7,
+        mux: 7,
+        muy: 7,
+        mhp: 10,
+        mhpmax: 10,
+        mcanmove: true,
+        mcansee: true,
+    });
+    state.level.monlist = blocker;
+    state.level.monsters[7][7] = blocker;
+    const random = {
+        d: () => 1,
+        rn1: (_bound, base) => base,
+        rn2: () => 0,
+        rnd: () => 1,
+        rne: () => 1,
+        rnz: () => 1,
+    };
+    const redraws = [];
+
+    const roamer = mk_roamer(
+        state.mons[PM_ALIGNED_CLERIC],
+        1,
+        7,
+        7,
+        false,
+        {
+            state,
+            random,
+            newsym: (x, y) => { redraws.push(['newsym', x, y]); },
+            onscary: () => false,
+            setApparxy: () => { redraws.push(['setApparxy']); },
+        },
+    );
+
+    assert.ok(roamer);
+    assert.equal(state.level.monsters[7][7], roamer);
+    assert.equal(state.level.monsters[1][0], blocker);
+    assert.deepEqual(redraws, [
+        ['newsym', 7, 7],
+        ['newsym', 1, 0],
+        ['setApparxy'],
+    ]);
 });
 
 function nestedTempleState() {

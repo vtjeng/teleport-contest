@@ -48,6 +48,7 @@ import {
     MM_EDOG,
     MM_EGD,
     MM_EPRI,
+    MM_EMIN,
     MM_ESHK,
     MM_FEMALE,
     MM_MALE,
@@ -109,6 +110,7 @@ import {
     artifact_exists,
 } from './artifacts.js';
 import { obj_resists } from './bury.js';
+import { newemin } from './minion.js';
 import { in_town } from './hack.js';
 import {
     can_saddle,
@@ -600,6 +602,7 @@ const SUPPORTED_FLAGS = NO_MINVENT
     | MM_EDOG
     | MM_EGD
     | MM_EPRI
+    | MM_EMIN
     | MM_ESHK
     | MM_ADJACENTOK
     | MM_NOGRP
@@ -3037,8 +3040,9 @@ export function makemon(ptr, x, y, mmflags = 0, env = {}) {
     );
     const monster = newMonster();
     if (mmflags & MM_EGD) newegd(monster);
-    if (mmflags & MM_ESHK) neweshk(monster);
     if (mmflags & MM_EPRI) newepri(monster);
+    if (mmflags & MM_ESHK) neweshk(monster);
+    if (mmflags & MM_EMIN) newemin(monster);
     if (mmflags & MM_EDOG) newedog(monster);
     monster.msleeping = Boolean(mmflags & MM_ASLEEP);
     monster.nmon = state.level.monlist;
