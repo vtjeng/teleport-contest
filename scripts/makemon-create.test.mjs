@@ -3098,6 +3098,16 @@ test('makemon gives Hell bats their permanent creation speed', () => {
     assert.equal(vampireBat.data.mlet, S_BAT);
     assert.equal(vampireBat.permspeed, MFAST);
     assert.equal(vampireBat.mspeed, MFAST);
+    const expectedCreationCalls = [
+        { kind: 'rnd', args: [2], result: 1 },
+        { kind: 'd', args: [4, 8], result: 4 },
+        { kind: 'rn2', args: [2], result: 1 },
+    ];
+    assert.deepEqual(
+        hellRandom.calls,
+        expectedCreationCalls,
+        'Hell bat speed adjustment adds no RNG after the source creation draws',
+    );
 
     // The same source arm is level-gated.  A vampire bat on an ordinary
     // level keeps the catalog's normal speed and does not acquire MFAST.
@@ -3113,6 +3123,11 @@ test('makemon gives Hell bats their permanent creation speed', () => {
     assert.equal(ordinaryBat.data.mlet, S_BAT);
     assert.equal(ordinaryBat.permspeed, 0);
     assert.equal(ordinaryBat.mspeed, 0);
+    assert.deepEqual(
+        ordinaryRandom.calls,
+        expectedCreationCalls,
+        'ordinary bat retains the same source creation draw sequence',
+    );
 });
 
 test('initial chameleon can retain its natural form and inventory gates', () => {
