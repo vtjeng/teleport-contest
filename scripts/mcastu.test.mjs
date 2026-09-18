@@ -447,7 +447,7 @@ test('castmu awaits the spell announcement before damage work', async () => {
         },
     };
     const pending = castmu(
-        makeCaster(), AD_CLRC_ATTACK, true, true,
+        makeCaster(), AD_SPEL_ATTACK, true, true,
         {
             state: makeState(),
             random,
@@ -473,14 +473,88 @@ test('castmu awaits the spell announcement before damage work', async () => {
 
     release();
     await pending;
-    assert.deepEqual(events.slice(0, 6), [
+    assert.deepEqual(events.slice(0, 5), [
         'rn2(7)',
         'rn2(70)',
         'message-start:Kobold shaman casts a spell!',
         'message-end',
         'd(4,6)',
-        'message-start:The kobold shaman is suddenly moving faster.',
     ]);
+    assert.deepEqual(draws, ['rn2(7)', 'rn2(70)', 'd(4,6)']);
+});
+
+
+test('castmu awaits a result-valued effect message before mdamageu', async () => {
+    const events = [];
+    let releaseAnnouncement;
+    let releaseEffect;
+    const announcementGate = new Promise((resolve) => {
+        releaseAnnouncement = resolve;
+    });
+    const effectGate = new Promise((resolve) => { releaseEffect = resolve; });
+    let messageNumber = 0;
+    const draws = [];
+    const random = {
+        rn2: (bound) => {
+            const value = bound === 7 ? 0 : 50;
+            draws.push(`rn2(${bound})`);
+            events.push(`rn2(${bound})`);
+            return value;
+        },
+        d: (n, sides) => {
+            draws.push(`d(${n},${sides})`);
+            events.push(`d(${n},${sides})`);
+            return 34;
+        },
+    };
+    const pending = castmu(
+        makeCaster(), AD_SPEL_ATTACK, true, true,
+        {
+            state: makeState(),
+            random,
+            unsupported: refuse,
+            message: async (text) => {
+                const number = messageNumber++;
+                events.push(`message-start:${text}`);
+                if (number === 0) {
+                    await announcementGate;
+                } else {
+                    await effectGate;
+                }
+                events.push('message-end');
+            },
+            mdamageu: (_monster, damage) => {
+                events.push(`mdamageu:${damage}`);
+            },
+        },
+    );
+    await Promise.resolve();
+    await Promise.resolve();
+    assert.deepEqual(events, [
+        'rn2(7)',
+        'rn2(70)',
+        'message-start:Kobold shaman casts a spell at you!',
+    ]);
+
+    releaseAnnouncement();
+    await Promise.resolve();
+    await Promise.resolve();
+    await Promise.resolve();
+    assert.deepEqual(events.slice(0, 6), [
+        'rn2(7)',
+        'rn2(70)',
+        'message-start:Kobold shaman casts a spell at you!',
+        'message-end',
+        'd(4,6)',
+        'message-start:Your head suddenly aches very painfully!',
+    ]);
+    assert.ok(!events.includes('mdamageu:34'),
+        'effect damage waits for its asynchronous message');
+
+    releaseEffect();
+    await pending;
+    assert.equal(events.at(-2), 'message-end');
+    assert.equal(events.at(-1), 'mdamageu:34');
     assert.deepEqual(draws, ['rn2(7)', 'rn2(70)', 'd(4,6)']);
 });
 
