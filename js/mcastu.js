@@ -57,7 +57,7 @@ import { lined_up } from './mthrowu.js';
 import { rn2, rnd, d } from './rng.js';
 import { canSpotMonster } from './startup_a11y.js';
 import { couldsee, canseemon } from './vision.js';
-import { has_aggravatables } from './wizard.js';
+import { has_aggravatables, nasty } from './wizard.js';
 import { mon_adjust_speed } from './worn.js';
 import { burn_away_slime } from './timeout.js';
 import { burnarmor } from './trap_erode_obj.js';
@@ -66,6 +66,8 @@ import { destroy_items } from './zap_destroy_items.js';
 import { ureflects } from './muse.js';
 import { note_unported } from './unported.js';
 import { buzz, flash_str, flashburn } from './zap.js';
+import { verbalize as plineVerbalize } from './pline.js';
+import { ttyPline } from './tty_message.js';
 
 // ---- Spell enum (mcastu.h MONSPELL order) ----
 // These must match the C enum values (0-based, order from mcastu.h).
@@ -690,6 +692,55 @@ async function mcast_paralyze(mtmp, env = {}) {
     return dmg;
 }
 
+// C ref: mcastu.c mcast_summon_mons() (421-448).  nasty() owns the
+// return-valued creation loop; this helper preserves the source feedback
+// branches after its census result is known.
+export async function mcast_summon_mons(mtmp, rawEnv = {}) {
+    const state = rawEnv.state ?? game;
+    const summonNasty = rawEnv.nasty ?? nasty;
+    const count = await summonNasty(mtmp, { ...rawEnv, state });
+    if (!count) return count;
+
+    // A planning summon keeps every message clone-local just like the
+    // creation tail in nasty(); ordinary callers retain the live tty sink.
+    const message = rawEnv.message
+        ?? (rawEnv.planning ? async () => {} : ttyPline);
+    if (mtmp?.iswiz) {
+        const line = `Destroy the thief, my pet${count === 1 ? '' : 's'}!`;
+        if (typeof rawEnv.verbalize === 'function') {
+            // Tests and callers may inject the already-formatted voice sink.
+            await rawEnv.verbalize(line, state, rawEnv);
+        } else {
+            // C's SetVoice() has no consumer in this build; verbalize() still
+            // owns the quoted output and PLINE_VERBALIZE state bit.
+            await plineVerbalize(line, state, { message });
+        }
+        return count;
+    }
+
+    if (typeof message !== 'function') return count;
+    const one = count === 1;
+    const mappear = one ? 'A monster appears' : 'Monsters appear';
+    const displaced = mtmp?.mux !== state.u?.ux
+        || mtmp?.muy !== state.u?.uy;
+    if (activeHeroProperty(state, INVIS)
+        && !perceives(mtmp?.data)
+        && displaced) {
+        await message(
+            `${mappear} ${one ? 'at' : 'around'} a spot near you!`,
+            state,
+        );
+    } else if (activeHeroProperty(state, DISPLACED) && displaced) {
+        await message(
+            `${mappear} ${one ? 'by' : 'around'} your displaced image!`,
+            state,
+        );
+    } else {
+        await message(`${mappear} from nowhere!`, state);
+    }
+    return count;
+}
+
 // ---- mcast_spell() ----
 // C ref: mcastu.c mcast_spell() (800-897).
 // The C dispatcher clears damage for void effects and sends every remaining
@@ -716,7 +767,7 @@ async function mcast_spell(mtmp, dmg, spellnum, env = {}) {
         recordMcastGap('mcastu.c mcast_clone_wiz', env);
         break;
     case MCAST_SUMMON_MONS:
-        recordMcastGap('mcastu.c mcast_summon_mons', env);
+        await mcast_summon_mons(mtmp, env);
         break;
     case MCAST_AGGRAVATION:
         if (typeof env.message === 'function')

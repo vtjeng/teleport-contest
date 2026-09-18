@@ -7,6 +7,7 @@ import {
     BLINDED,
     COULD_SEE,
     IN_SIGHT,
+    INVIS,
     M_AP_OBJECT,
     M_ATTK_HIT,
     M_ATTK_MISS,
@@ -14,7 +15,7 @@ import {
     MFAST,
     TELEPAT,
 } from '../js/const.js';
-import { buzzmu, castmu } from '../js/mcastu.js';
+import { buzzmu, castmu, mcast_summon_mons } from '../js/mcastu.js';
 import { healmon } from '../js/mon.js';
 import { AD_CLRC, AD_COLD, AD_FIRE, AD_MAGM, AD_SPEL, AT_MAGC } from '../js/monsters.js';
 import { STRANGE_OBJECT } from '../js/objects.js';
@@ -178,6 +179,67 @@ test('has_aggravatables: an awake, mobile level has nothing to wake', () => {
     // An empty level answers FALSE too.
     state.level = { monlist: null };
     assert.equal(has_aggravatables(makeCaster(), state), false);
+});
+
+// C ref: mcastu.c mcast_summon_mons() (421-448).  The message depends on
+// whether the hero is invisible to the caster and whether the caster's
+// remembered target is displaced from the hero's square.
+test('mcast_summon_mons reports an invisible displaced arrival', async () => {
+    const state = makeState({
+        u: {
+            ux: 4,
+            uy: 5,
+            uprops: {
+                [INVIS]: { intrinsic: 1 },
+            },
+        },
+    });
+    const caster = makeCaster({
+        mux: 5,
+        muy: 5,
+        data: { mflags1: 0 },
+    });
+    const messages = [];
+    const result = await mcast_summon_mons(caster, {
+        state,
+        nasty: async () => 1,
+        message: async (text, owner) => messages.push([text, owner]),
+    });
+
+    assert.equal(result, 1);
+    assert.deepEqual(messages, [[
+        'A monster appears at a spot near you!',
+        state,
+    ]]);
+});
+
+test('mcast_summon_mons uses the Wizard voice wording for plural summons', async () => {
+    const state = makeState();
+    const wizard = makeCaster({ iswiz: true });
+    const messages = [];
+    const result = await mcast_summon_mons(wizard, {
+        state,
+        nasty: async () => 2,
+        verbalize: async (text, owner) => messages.push([text, owner]),
+    });
+
+    assert.equal(result, 2);
+    assert.deepEqual(messages, [['Destroy the thief, my pets!', state]]);
+});
+
+test('mcast_summon_mons uses canonical quoted verbalize output by default', async () => {
+    const state = makeState({ gp: {} });
+    const wizard = makeCaster({ iswiz: true });
+    const messages = [];
+    const result = await mcast_summon_mons(wizard, {
+        state,
+        nasty: async () => 1,
+        message: async (text) => messages.push(text),
+    });
+
+    assert.equal(result, 1);
+    assert.deepEqual(messages, ['"Destroy the thief, my pet!"']);
+    assert.equal(state.gp.pline_flags, 0);
 });
 
 // -- choose_monster_spell RNG sequence ---------------------------------
@@ -346,25 +408,31 @@ test('spell_would_be_useless: MCAST_AGGRAVATION draws rn2(100) when nothing slee
         assert.deepEqual(random.draws, ['rn2(15)', 'rn2(100)']);
     });
 
-test('mcast_spell dispatches the summon branch and preserves its source gap',
+test('mcast_spell dispatches the summon branch and its production message',
     async () => {
-        // mcastu.c:821-825.  A level-16 wizard can select the level-15
-        // summon spell; the void nasty() result is deliberately recorded as
-        // an unported discarded-result callee rather than thrown away as a
-        // generic mcast_spell refusal.
+        // mcastu.c:821-825. A level-16 wizard can select the level-15
+        // summon spell; mcast_summon_mons consumes nasty() and emits the
+        // source appearance line without passing a damage result onward.
         const random = scriptedRandom([15, 50]);
         const gaps = [];
+        const messages = [];
         const result = await castmu(
             makeCaster({ m_lev: 16 }), AD_SPEL_ATTACK, false, false,
             {
-                state: makeState(), random, message: () => {},
+                state: makeState(), random,
+                message: (text) => messages.push(text),
+                nasty: async () => 1,
                 unsupported: refuse,
                 noteUnported: (what) => gaps.push(what),
             },
         );
         assert.equal(result, M_ATTK_HIT);
         assert.deepEqual(random.draws, ['rn2(16)', 'rn2(160)']);
-        assert.deepEqual(gaps, ['mcastu.c mcast_summon_mons']);
+        assert.deepEqual(messages, [
+            'Kobold shaman casts a spell!',
+            'A monster appears from nowhere!',
+        ]);
+        assert.deepEqual(gaps, []);
     });
 
 // C ref: mcastu.c:978 and youprop.h:92. MCAST_BLIND_YOU is useless under

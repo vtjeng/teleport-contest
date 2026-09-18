@@ -21,6 +21,7 @@ import {
     STRAT_STRATMASK,
     STRAT_WAITMASK,
     STRAT_WAITFORU,
+    MM_NOMSG,
     isok,
     u_at,
     helpless,
@@ -28,12 +29,23 @@ import {
 import { Amonnam, Monnam } from './do_name.js';
 import { In_W_tower, In_hell, builds_up } from './dungeon.js';
 import { game } from './gstate.js';
-import { set_malign } from './makemon.js';
+import { set_malign, unmakemon } from './makemon.js';
 import {
+    attacktype,
     big_to_little,
     is_covetous,
 } from './mondata.js';
-import { G_HELL, G_NOHELL, PM_WIZARD_OF_YENDOR, monsterClassSymbol } from './monsters.js';
+import {
+    AT_MAGC,
+    G_HELL,
+    G_NOHELL,
+    PM_ARCH_LICH,
+    PM_ARCHON,
+    PM_WIZARD_OF_YENDOR,
+    S_ANGEL,
+    S_DEMON,
+    monsterClassSymbol,
+} from './monsters.js';
 import { NASTIES } from './nasties_data.js';
 import { ART_ORB_OF_DETECTION } from './artifacts.js';
 import {
@@ -42,14 +54,16 @@ import {
 } from './objects.js';
 import { is_quest_artifact } from './questpgr.js';
 import { stairway_find_type_dir } from './stairs.js';
-import { enexto_core } from './teleport.js';
+import { enexto, enexto_core } from './teleport.js';
+import { monster_census, msummon } from './minion.js';
+import { makemon_runtime } from './makemon_create.js';
 import { cansee } from './vision.js';
 import { distant_name, donameFresh } from './objnam.js';
 import { messageAt, canSpotMonster } from './startup_a11y.js';
 import { ttyNorep, ttyPline } from './tty_message.js';
 import { vtense } from './objnam.js';
 import { note_unported } from './unported.js';
-import { rn2, rnd } from './rng.js';
+import { d, rn1, rn2, rnd, rne, rnz } from './rng.js';
 
 // monflag.h M3_WANTS* values. They are kept here with wizard.c's consumers
 // so the strategy bits cannot silently drift from the source masks.
@@ -66,6 +80,15 @@ function heroIsDeaf(state) {
         || deafness?.extrinsic
         || state.u?.uroleplay?.deaf,
     );
+}
+
+// C In_endgame() compares the current dungeon number with astral_level.  The
+// shared const.js helper reads the live game object; this local spelling keeps
+// nasty()'s substitute cap clone-local during planning and source-pinned tests.
+function inEndgameState(state) {
+    const level = state.u?.uz;
+    const astral = state.astral_level;
+    return Boolean(level && astral && level.dnum === astral.dnum);
 }
 
 // C ref: wizard.c has_aggravatables() (472-491). "are there any monsters mon
@@ -255,6 +278,165 @@ export function pick_nasty(difcap, normalized) {
     }
 
     return res;
+}
+
+// C ref: wizard.c nasty() (591-727).  The summon spell and late-game
+// harassment both use this source owner.  Creation is an async operation in
+// JavaScript because makemon_runtime() owns the runtime continuation; the
+// source's selection, retry, census, and post-creation order remain here.
+export async function nasty(summoner, rawEnv = {}) {
+    const state = rawEnv.state ?? game;
+    const random = rawEnv.random ?? {
+        d, rn1, rn2, rnd, rne, rnz,
+    };
+    const normalized = { ...rawEnv, state, random };
+    const createMonster = rawEnv.makemon ?? makemon_runtime;
+    const summonMinion = rawEnv.msummon ?? msummon;
+    const removeMonster = rawEnv.unmakemon
+        ?? ((monster, flags) => unmakemon(monster, flags, state));
+    const countMonsters = rawEnv.monsterCensus
+        ?? ((spotted, censusEnv) => monster_census(spotted, censusEnv));
+    const applyMalign = rawEnv.setMalign
+        ?? ((monster) => set_malign(monster, state));
+    const censusBefore = countMonsters(false, { state });
+    const mmflags = summoner ? MM_NOMSG : NO_MM_FLAGS;
+
+    if (!random || typeof random.rn2 !== 'function'
+        || typeof random.rnd !== 'function') {
+        throw new TypeError('nasty requires rn2 and rnd operations');
+    }
+
+    // wizard.c deliberately calls the return-valued minion owner here.  The
+    // injected operation remains useful for source-pinned tests, while live
+    // callers use minion.c's canonical msummon implementation.
+    if (!random.rn2(10) && In_hell(state.u?.uz, state)) {
+        const summoned = await summonMinion(null, normalized);
+        return summoned
+            ? countMonsters(false, { state }) - censusBefore
+            : summoned;
+    }
+
+    let count = 0;
+    const summonerClass = summoner ? summoner.data?.mlet : 0;
+    let difcap = summoner ? summoner.data?.difficulty ?? 0 : 0;
+    const castalign = summoner
+        ? Math.sign(summoner.data?.maligntyp ?? 0)
+        : 0;
+    let outerLimit = (state.u?.ulevel ?? 0) > 3
+        ? Math.trunc((state.u.ulevel ?? 0) / 3) : 1;
+    const bypos = {
+        x: state.u?.ux ?? 0,
+        y: state.u?.uy ?? 0,
+    };
+    const mons = state.mons ?? [];
+
+    for (let i = random.rnd(outerLimit);
+        i > 0 && count < 10;
+        --i) {
+        for (let j = 0; j < 20; ++j) {
+            let makeindex;
+            let monsterClass;
+            let trylimit = 11;
+            do {
+                if (!--trylimit) break;
+                makeindex = pick_nasty(difcap, normalized);
+                const candidate = mons[makeindex];
+                monsterClass = candidate?.mlet;
+            } while (trylimit > 0
+                && ((difcap > 0
+                    && (mons[makeindex]?.difficulty ?? 0) >= difcap
+                    && attacktype(mons[makeindex], AT_MAGC))
+                    || (summonerClass === S_DEMON
+                        && monsterClass === S_ANGEL)
+                    || (summonerClass === S_ANGEL
+                        && monsterClass === S_DEMON)));
+            if (!trylimit) continue;
+
+            const species = mons[makeindex];
+            if (!species) continue;
+            if (summoner) {
+                const coordinate = enexto(
+                    summoner.mux,
+                    summoner.muy,
+                    species,
+                    normalized,
+                );
+                if (!coordinate) continue;
+                bypos.x = coordinate.x;
+                bypos.y = coordinate.y;
+            }
+
+            const creationEnv = {
+                ...normalized,
+                // wizard.c nasty() is a distinct runtime makemon caller. The
+                // marker lets makemon_create.js admit its exact MM_NOMSG or
+                // NO_MM_FLAGS shape without widening ordinary runtime calls.
+                _nasty: true,
+                // MM_NOMSG creation still requires both runtime message
+                // operations.  Planning callers own a silent clone-local
+                // operation; live callers retain makemon_runtime defaults.
+                ...(rawEnv.planning && !rawEnv.message
+                    ? { message: async () => {} } : {}),
+                ...(rawEnv.planning && !rawEnv.norepMessage
+                    ? { norepMessage: async () => {} } : {}),
+            };
+            let monster = await createMonster(
+                species,
+                bypos.x,
+                bypos.y,
+                mmflags,
+                creationEnv,
+            );
+            if (monster) {
+                monster.msleeping = false;
+                monster.mpeaceful = false;
+                monster.mtame = 0;
+                applyMalign(monster, state);
+            } else {
+                // C's substitute path intentionally asks makemon() for a
+                // random species after a failed selected creation.
+                monster = await createMonster(
+                    null,
+                    bypos.x,
+                    bypos.y,
+                    mmflags,
+                    creationEnv,
+                );
+                if (monster) {
+                    monsterClass = monster.data?.mlet;
+                    if ((difcap > 0
+                        && (monster.data?.difficulty ?? 0) >= difcap
+                        && random.rn2(inEndgameState(state) ? 3 : 7)
+                        && attacktype(monster.data, AT_MAGC))
+                        || (summonerClass === S_DEMON
+                            && monsterClass === S_ANGEL)
+                        || (summonerClass === S_ANGEL
+                            && monsterClass === S_DEMON)) {
+                        monster = removeMonster(monster, NO_MM_FLAGS);
+                    }
+                }
+            }
+
+            if (monster) {
+                if (monster.data === mons[PM_ARCH_LICH]
+                    || monster.data === mons[PM_ARCHON]) {
+                    outerLimit = Math.min(
+                        mons[PM_ARCHON]?.difficulty ?? 0,
+                        mons[PM_ARCH_LICH]?.difficulty ?? 0,
+                    );
+                    if (!difcap || difcap > outerLimit) difcap = outerLimit;
+                }
+                monster.mspec_used = random.rnd(4);
+                ++count;
+                if (count >= 10
+                    || (monster.data?.maligntyp ?? 0) === 0
+                    || Math.sign(monster.data?.maligntyp ?? 0) === castalign)
+                    break;
+            }
+        }
+    }
+
+    return count ? countMonsters(false, { state }) - censusBefore : count;
 }
 
 // C ref: wizard.c mon_has_amulet() (105-114). Pure; do.c goto_level() reaches
