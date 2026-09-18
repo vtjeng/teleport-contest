@@ -14,7 +14,7 @@ import {
 } from './generate-help-data.mjs';
 
 const SOURCE_HASHES = Object.freeze({
-    // These hashes pin all seven tty_display_file() inputs at revision
+    // These hashes pin all eight tty_display_file() inputs at revision
     // 16ff591. A changed source file must be inspected before regeneration.
     help: '3d4fb64efc31a3ad05c5ea850d74ee59094028dcab6ce234027c6d38c57bc836',
     hh: '17fdf371fdeba0eeadec3c97c860518b43c40b4f56aa91b3fc67e2ce4b297b9c',
@@ -23,6 +23,7 @@ const SOURCE_HASHES = Object.freeze({
     optmenu: '5304773c5c9ccd827160a7d4bcf34420c280be2a19b3353785c2362290730e13',
     usagehlp: '8228338c4817f6b0661b2cc98e84e660a365ce24170a02a381fca04ebb1ad5b3',
     license: '93a3ae2cb8dee482daddfaebe53bcffe5b114b603def19b4dca21621cbc5a747',
+    wizhelp: '31a106c909a1cdd8a74deb324f93ae26788116490e4e6fd3e2cae8b329068bde',
 });
 
 const SOURCE_LINE_COUNTS = Object.freeze({
@@ -35,13 +36,14 @@ const SOURCE_LINE_COUNTS = Object.freeze({
     optmenu: 43,
     usagehlp: 139,
     license: 95,
+    wizhelp: 51,
 });
 
 function sha256(value) {
     return createHash('sha256').update(value).digest('hex');
 }
 
-test('generated help text exactly projects the seven pinned data files', () => {
+test('generated help text exactly projects the eight pinned data files', () => {
     for (const [filename, expectedHash] of Object.entries(SOURCE_HASHES)) {
         const source = readFileSync(
             new URL(`../nethack-c/upstream/dat/${filename}`, import.meta.url),
