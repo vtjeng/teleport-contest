@@ -287,7 +287,7 @@ function choose_monster_spell(mtmp, adtyp, env = {}) {
 // ---- cursetxt() ----
 // C ref: mcastu.c cursetxt() (62-85).
 // "feedback when frustrated monster couldn't cast a spell"
-function cursetxt(mtmp, undirected, env = {}) {
+async function cursetxt(mtmp, undirected, env = {}) {
     const state = env.state ?? game;
     const random = env.random ?? { rn2 };
     const message = env.message;
@@ -312,7 +312,7 @@ function cursetxt(mtmp, undirected, env = {}) {
             point_msg = 'at you, then curses';
         }
         if (message) {
-            message(
+            await message(
                 `${env.monsterName?.(mtmp)
                     ?? capitalizedMonsterNameFallback(mtmp, state)
                 } points ${point_msg}.`,
@@ -324,7 +324,7 @@ function cursetxt(mtmp, undirected, env = {}) {
             // C uses Norep() here, which suppresses repeated identical lines.
             // Norep is not ported; plain message is acceptable because this
             // code path runs at most once per spell attempt.
-            message('You hear a mumbled curse.', state);
+            await message('You hear a mumbled curse.', state);
         }
     }
 }
@@ -389,7 +389,7 @@ export async function castmu(
     /* monster unable to cast spells? */
     if (mtmp.mcan || mtmp.mspec_used || !ml
         || m_seenres(mtmp, cvt_adtyp_to_mseenres(mattk.adtyp))) {
-        cursetxt(mtmp, is_undirected_spell(spellnum), env);
+        await cursetxt(mtmp, is_undirected_spell(spellnum), env);
         return M_ATTK_MISS;
     }
 
@@ -407,7 +407,7 @@ export async function castmu(
                 ? (env.monsterName?.(mtmp)
                     ?? capitalizedMonsterNameFallback(mtmp, state))
                 : 'Something';
-            message(`${casterName} casts a spell at thin air!`, state);
+            await message(`${casterName} casts a spell at thin air!`, state);
         }
         return M_ATTK_MISS;
     }
@@ -416,7 +416,7 @@ export async function castmu(
     if (random.rn2(ml * 10) < (mtmp.mconf ? 100 : 20)) {
         /* fumbled attack */
         if (canseemon(mtmp, state) && !Deaf(state) && message) {
-            message(
+            await message(
                 `The air crackles around ${
                     env.monnam?.(mtmp)
                     ?? monnamFallback(mtmp, state)
@@ -446,7 +446,7 @@ export async function castmu(
             } else {
                 target = ' at you';
             }
-            message(`${casterName} casts a spell${target}!`, state);
+            await message(`${casterName} casts a spell${target}!`, state);
         }
     }
 
@@ -498,7 +498,7 @@ function monnamFallback(mtmp, state) {
 // ---- Individual spell effect functions ----
 
 // C ref: mcastu.c mcast_psi_bolt() (600-621).
-function mcast_psi_bolt(dmg, env = {}) {
+async function mcast_psi_bolt(dmg, env = {}) {
     const state = env.state ?? game;
     const message = env.message;
 
@@ -511,19 +511,19 @@ function mcast_psi_bolt(dmg, env = {}) {
     }
     if (message) {
         if (dmg <= 5) {
-            message(
+            await message(
                 `You get a slight ${body_part(HEAD, state.youmonst)}ache.`,
                 state,
             );
         } else if (dmg <= 10) {
-            message('Your brain is on fire!', state);
+            await message('Your brain is on fire!', state);
         } else if (dmg <= 20) {
-            message(
+            await message(
                 `Your ${body_part(HEAD, state.youmonst)} suddenly aches painfully!`,
                 state,
             );
         } else {
-            message(
+            await message(
                 `Your ${body_part(HEAD, state.youmonst)} suddenly aches very painfully!`,
                 state,
             );
@@ -533,7 +533,7 @@ function mcast_psi_bolt(dmg, env = {}) {
 }
 
 // C ref: mcastu.c mcast_open_wounds() (623-642).
-function mcast_open_wounds(dmg, env = {}) {
+async function mcast_open_wounds(dmg, env = {}) {
     const state = env.state ?? game;
     const message = env.message;
 
@@ -546,27 +546,27 @@ function mcast_open_wounds(dmg, env = {}) {
     }
     if (message) {
         if (dmg <= 5) {
-            message('Your skin itches badly for a moment.', state);
+            await message('Your skin itches badly for a moment.', state);
         } else if (dmg <= 10) {
-            message('Wounds appear on your body!', state);
+            await message('Wounds appear on your body!', state);
         } else if (dmg <= 20) {
-            message('Severe wounds appear on your body!', state);
+            await message('Severe wounds appear on your body!', state);
         } else {
-            message('Your body is covered with painful wounds!', state);
+            await message('Your body is covered with painful wounds!', state);
         }
     }
     return dmg;
 }
 
 // C ref: mcastu.c m_cure_self() (307-318).
-function m_cure_self(mtmp, dmg, env = {}) {
+async function m_cure_self(mtmp, dmg, env = {}) {
     const state = env.state ?? game;
     const random = env.random ?? { d };
     const message = env.message;
 
     if (mtmp.mhp < mtmp.mhpmax) {
         if (canseemon(mtmp, state) && message) {
-            message(
+            await message(
                 `${env.monsterName?.(mtmp)
                     ?? capitalizedMonsterNameFallback(mtmp, state)
                 } looks better.`,
@@ -802,7 +802,7 @@ export async function buzzmu(mtmp, mattk, rawEnv = {}) {
         return M_ATTK_MISS;
 
     if (mtmp.mcan || m_seenres(mtmp, cvt_adtyp_to_mseenres(mattk.adtyp))) {
-        cursetxt(mtmp, false, env);
+        await cursetxt(mtmp, false, env);
         return M_ATTK_MISS;
     }
     if (lined_up(mtmp, env) && random.rn2(3)) {
