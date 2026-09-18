@@ -1,0 +1,10 @@
+{
+  "version": 5,
+  "comment": "Independent topl.c/wintty.c witness: a debug Wizard turns into a raven, answers that form's More with Escape, then rehumanizes. The new seed, date, name, and command sequence reach polyman's urgent_pline after WIN_STOP is set.",
+  "segments": [{
+    "seed": 821337,
+    "datetime": "20320518091500",
+    "nethackrc": "OPTIONS=name:B42Probe,role:Wizard,race:human,gender:male,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen\nOPTIONS=pettype:none,!acoustics,playmode:debug\n",
+    "moves": "#polyself\nraven\n\u001b #polyself\nwizard\n"
+  }]
+}
