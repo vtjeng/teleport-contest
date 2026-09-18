@@ -87,6 +87,7 @@ import {
     LOOKHERE_NOFLAGS,
     LOOKHERE_PICKED_SOME,
     LOOKHERE_SKIP_DFEATURE,
+    MSGTYP_MASK_REP_SHOW,
     GETOBJ_ALLOWCNT,
     GETOBJ_NOFLAGS,
     GETOBJ_DOWNPLAY,
@@ -144,6 +145,7 @@ import {
     WORN_HELMET,
     WORN_SHIELD,
     WORN_SHIRT,
+    STOMACH,
     INV_IN_USE,
     INV_SHOW_GOLD,
     LL_CONDUCT,
@@ -169,7 +171,7 @@ import {
     PM_CLERIC,
 } from './monsters.js';
 import { discover_object, observe_object } from './o_init.js';
-import { body_part } from './polyself.js';
+import { body_part, mbodypart } from './polyself.js';
 import {
     displayPendingTtyMessageWindow,
     ttyPline,
@@ -204,13 +206,15 @@ import { visible_region_at } from './region.js';
 import { stairs_description, stairway_at } from './stairs.js';
 import { is_drawbridge_wall } from './dbridge.js';
 import { is_ice } from './terrain.js';
-import { is_lava, is_pool, t_at } from './trap.js';
+import { is_lava, is_pool, t_at, trapname } from './trap.js';
 import { hidden_gold } from './vault.js';
 import { game } from './gstate.js';
 import { itemactions } from './iactions.js';
 import { surface } from './dungeon.js';
 import { ice_descr } from './pager.js';
-import { can_reach_floor, engr_at } from './engrave.js';
+import { can_reach_floor } from './engrave.js';
+import { force_decor } from './pickup.js';
+import { hide_unhide_msgtypes } from './options.js';
 import { displayTtyMenuTextWindow } from './tty_menu.js';
 import { add_menu_heading, getlin, select_menu } from './windows.js';
 import { def_char_to_objclass } from './drawing.js';
@@ -317,7 +321,7 @@ import {
     yname,
     corpse_xname,
 } from './objnam.js';
-import { noit_Monnam } from './do_name.js';
+import { mon_nam, noit_Monnam } from './do_name.js';
 import { in_rooms } from './rooms.js';
 import { ILLOBJ_CLASS, MAXOCLASSES } from './objects.js';
 import { is_quest_artifact } from './questpgr.js';
@@ -2345,25 +2349,41 @@ function Stone_resistance(state) {
 
 // Mutation-free admission for look_here() through its first complete result.
 // `objects` projects the floor chain after an automatic pickup without
-// relinking the live objects. `decorTerrain` projects describe_decor()'s
-// preceding prev_decor write when check_here() has already admitted it.
-// `obj_cnt` is invent.c's caller-owned parameter, deliberately independent of
+// mutating live level state. `obj_cnt` is invent.c's caller-owned parameter,
+// deliberately independent of
 // the floor chain: check_here() passes its count for pile_limit, while dolook()
 // passes zero even when it inspects the same objects.
 export function preflight_look_here(
     obj_cnt,
     lookhere_flags,
     state = game,
-    { objects = null, decorTerrain = null } = {},
+    { objects = null } = {},
 ) {
-    if (state.u.uswallow)
-        throw new UnsupportedFeatureDescriptionError('an engulfer\'s inventory');
-
     const blind = heroIsBlind(state);
     const { ux, uy } = state.u;
     const skip_dfeature = (lookhere_flags & LOOKHERE_SKIP_DFEATURE) !== 0;
     const skip_objects = state.flags.pile_limit > 0
         && obj_cnt >= state.flags.pile_limit;
+    const pickedSome = (lookhere_flags & LOOKHERE_PICKED_SOME) !== 0;
+    // C returns from the swallowed arm before reading the floor object chain,
+    // trap, region, or object names.  Keep admission on that same boundary so
+    // an unrelated floor object cannot reject the monster-inventory display.
+    if (state.u.uswallow) {
+        return {
+            blind,
+            cant_reach: undefined,
+            cannotReachObjects: undefined,
+            hasPile: false,
+            objectList: [],
+            otmp: null,
+            pickedSome,
+            region: null,
+            seenTrap: null,
+            skip_dfeature,
+            skip_objects,
+            withShopPrice: false,
+        };
+    }
     const objectList = objects ?? (() => {
         const result = [];
         for (let object = state.level.objects[ux]?.[uy] ?? null;
@@ -2374,78 +2394,15 @@ export function preflight_look_here(
     const otmp = objectList[0] ?? null;
     const hasPile = objectList.length > 1;
     const withShopPrice = Boolean(otmp) && costly_spot(ux, uy, state);
-    const pickedSome = (lookhere_flags & LOOKHERE_PICKED_SOME) !== 0;
-
-    if (hasPile) {
-        if (!skip_objects && objectList.length > 4) {
-            throw new UnsupportedFeatureDescriptionError(
-                'an object pile outside the two-to-four-item window',
-            );
-        }
-        if (skip_objects && pickedSome) {
-            throw new UnsupportedFeatureDescriptionError(
-                'the picked-some skipped-pile count',
-            );
-        }
-        if (state.flags.mention_decor) {
-            if (skip_objects) {
-                throw new UnsupportedFeatureDescriptionError(
-                    'mention-decor pile-limit count',
-                );
-            }
-            // describe_decor() owns every terrain family, including
-            // furniture and ordinary doorways.  The caller supplies the
-            // terrain it projected before committing movement; only a stale
-            // projection is unsafe for the subsequent object menu.
-            const terrain = state.level.at(ux, uy)?.typ;
-            if ((decorTerrain ?? state.iflags.prev_decor) !== terrain) {
-                throw new UnsupportedFeatureDescriptionError(
-                    'describe_decor() before an object-pile menu',
-                );
-            }
-        }
-        if (engr_at(ux, uy, state)) {
-            throw new UnsupportedFeatureDescriptionError(
-                'an engraving after an object-pile menu',
-            );
-        }
-        if (is_lava(ux, uy, state)
-            || (is_pool(ux, uy, state) && !state.u.uinwater)) {
-            throw new UnsupportedFeatureDescriptionError(
-                'objects on an inaccessible liquid square',
-            );
-        }
-        if (!skip_objects) {
-            for (const object of objectList) {
-                if (withShopPrice)
-                    assertPricedObjectNameable(object, state);
-                else
-                    assertObjectNameable(object, state);
-            }
-        }
-    }
-
     const trap = t_at(ux, uy, state);
-    // C ref: invent.c look_here() (4162-4178). This block is the only place
-    // look_here() names a trap, and dfeature_at() has no trap arm at all, so an
-    // unseen trap under the square changes nothing about what is printed. A
-    // second, wider stop above this one used to refuse any trap beneath an
-    // object pile, seen or not; it kept the hero from ever walking onto a pile
-    // that hid a trap, which is the ordinary way a trap is met.
-    if (!skip_objects) {
-        const reg = visible_region_at(ux, uy, state);
-        if (reg || (trap && trap.tseen)) {
-            throw new UnsupportedFeatureDescriptionError(
-                reg ? 'a visible region description' : 'trapname()',
-            );
-        }
-    }
-
+    // C ref: invent.c look_here() (4162-4178). The live call names only a
+    // visible region and a trap whose tseen bit is set; admission records both
+    // so output can remain source-ordered without mutating the projection.
+    const region = !skip_objects ? visible_region_at(ux, uy, state) : null;
+    const seenTrap = !skip_objects && trap?.tseen ? trap : null;
     let cant_reach;
     let cannotReachObjects;
     if (blind) {
-        if (Is_airlevel(state.u.uz) || Is_waterlevel(state.u.uz))
-            throw new UnsupportedFeatureDescriptionError('a drifting level');
         cant_reach = !can_reach_floor(undefined, state);
         cannotReachObjects = !can_reach_floor(
             Boolean(trap && is_pit(trap.ttyp)),
@@ -2453,12 +2410,33 @@ export function preflight_look_here(
         );
     }
 
-    if (skip_objects && !hasPile) {
-        throw new UnsupportedFeatureDescriptionError(
-            'the single-object skipped-pile count',
-        );
+    // C returns from the blind tactile arm when the floor cannot be reached,
+    // and from the lava/inaccessible-pool arm before naming any object. Keep
+    // those source boundaries ahead of all naming and pricing assertions: an
+    // object on an unreachable or liquid square is not passed to doname().
+    const inaccessibleLiquid = is_lava(ux, uy, state)
+        || (is_pool(ux, uy, state) && !state.u.uinwater);
+    const skipsObjectNaming = inaccessibleLiquid
+        || (blind && cannotReachObjects);
+    if (!skipsObjectNaming && hasPile && !skip_objects) {
+        for (const object of objectList) {
+            const tactileCockatrice = object.otyp === CORPSE
+                && will_feel_cockatrice(object, false, state);
+            // C's pile arm uses ordinary doname() for the first tactile
+            // cockatrice and breaks immediately; later objects are never
+            // named or priced.
+            if (tactileCockatrice) {
+                assertObjectNameable(object, state);
+                break;
+            }
+            if (withShopPrice)
+                assertPricedObjectNameable(object, state);
+            else
+                assertObjectNameable(object, state);
+        }
     }
-    if (otmp && !hasPile && !skip_objects) {
+
+    if (!skipsObjectNaming && otmp && !hasPile && !skip_objects) {
         if (withShopPrice)
             assertPricedObjectNameable(otmp, state);
         else
@@ -2472,6 +2450,8 @@ export function preflight_look_here(
         objectList,
         otmp,
         pickedSome,
+        region,
+        seenTrap,
         skip_dfeature,
         skip_objects,
         withShopPrice,
@@ -2479,13 +2459,10 @@ export function preflight_look_here(
 }
 
 // C ref: invent.c look_here(). Covers a hero standing on an admitted square,
-// sighted or blind: the terrain feature line, the engraving read, and the
-// no-object, single-object, ordinary two-to-four-object menu, or pile-limit
-// count. Visible-region and seen-trap descriptions remain fail-closed before
-// output. A decorated pile includes its dfeature_at() line in either output
-// path; a blind pile uses the source's tactile heading and cockatrice warning.
-// A liquid square, engraving, non-triggering pile outside two through four, or
-// picked-some count likewise stops before output.
+// sighted or blind: swallowed inventory, region/trap preamble, terrain feature
+// line, engraving read, and the no-object, single-object, arbitrary pile, or
+// pile-limit count. A blind pile uses the source tactile heading and
+// cockatrice warning; the admission helper must not reject those source arms.
 //
 // Returns true where C returns ECMD_TIME and false where it returns ECMD_OK,
 // so the caller decides whether the command takes game time.
@@ -2497,6 +2474,7 @@ export async function look_here(
         message,
         readEngraving,
         displayObjectPile = (lines) => displayTtyMenuTextWindow(state, lines),
+        displayMinventory = display_minventory,
     } = {},
 ) {
     if (typeof message !== 'function' || typeof readEngraving !== 'function')
@@ -2513,11 +2491,59 @@ export async function look_here(
         hasPile,
         otmp,
         pickedSome,
+        region,
+        seenTrap,
         skip_objects,
         withShopPrice,
     } = plan;
     const verb = blind ? 'feel' : 'see';
     const { ux, uy } = state.u;
+
+    // C invent.c:look_here() (4121-4158) describes an engulfer's inventory
+    // before it reads the square.  The inventory menu is the same source
+    // owner used by #inventory; callers may inject it only for isolated tests.
+    if (state.u.uswallow) {
+        const mtmp = state.u.ustuck;
+        const contents = `Contents of ${s_suffix(mon_nam(mtmp, state))} `
+            + `${mbodypart(mtmp, STOMACH)}`;
+        await message(
+            `You ${blind ? 'try' : 'look around'} to ${verb} what is lying in `
+            + `${contents.slice(12)}.`,
+            state,
+        );
+        let object = mtmp?.minvent ?? null;
+        if (object) {
+            for (; object; object = object.nobj) {
+                if (object.otyp === CORPSE)
+                    await feel_cockatrice(object, false, state, { message });
+            }
+            const title = blind ? 'You feel:' : `${contents}:`;
+            await displayMinventory(
+                mtmp,
+                MINV_ALL | PICK_NONE,
+                title,
+                state,
+            );
+        } else {
+            await message(`You ${verb} no objects here.`, state);
+        }
+        return blind;
+    }
+
+    // C invent.c:look_here() (4162-4178). This line precedes the terrain
+    // feature and tactile-surface output, and is omitted by the count arm.
+    if (region || seenTrap) {
+        const regionText = region
+            ? `a ${Math.trunc(region.arg ?? 0) ? 'poison gas' : 'vapor'} cloud`
+            : '';
+        const trapText = seenTrap ? an(trapname(seenTrap.ttyp, false, state)) : '';
+        await message(
+            `There is ${regionText}${region && seenTrap ? ' and ' : ''}`
+            + `${trapText ? `${trapText}` : ''} here.`,
+            state,
+        );
+    }
+
     // invent.c look_here() describes the feature before its blind-surface
     // wording. Both helpers can consume display RNG, and dfeature_at() also
     // updates ice_rating; admission must leave these effects to the live call.
@@ -2525,14 +2551,28 @@ export async function look_here(
     if (dfeature === 'pool of water' && state.u.uinwater) dfeature = null;
     let skip_dfeature = plan.skip_dfeature;
     if (blind) {
-        const surf = surface(ux, uy, state);
-        await message(
-            `You try to feel what is ${
-                cant_reach ? 'lying beneath you' : `lying here on the ${surf}`
-            }.`,
-            state,
-        );
-        if (dfeature === surf) skip_dfeature = true;
+        const drift = Is_airlevel(state.u.uz) || Is_waterlevel(state.u.uz);
+        if (dfeature?.startsWith('altar ')) {
+            await message('You try to feel what is here.', state);
+        } else if (is_ice(ux, uy, state)) {
+            if (!state.flags?.mention_decor
+                || state.iflags?.prev_decor === ICE) {
+                await force_decor(false, state, { message });
+            }
+            await message('You try to feel what is on it.', state);
+            skip_dfeature = true;
+        } else {
+            const surf = surface(ux, uy, state);
+            await message(
+                `You try to feel what is ${
+                    drift ? 'floating here'
+                        : cant_reach ? 'lying beneath you'
+                            : `lying here on the ${surf}`
+                }.`,
+                state,
+            );
+            if (dfeature === surf && !drift) skip_dfeature = true;
+        }
         if (cannotReachObjects) {
             await message("But you can't reach it!", state);
             return false;
@@ -2588,6 +2628,11 @@ export async function look_here(
     if (otmp.nexthere) {
         if (typeof displayObjectPile !== 'function')
             throw new TypeError('look_here needs an object-pile display owner');
+        // C invent.c look_here() first calls display_nhwindow(WIN_MESSAGE,
+        // FALSE) at 4289, before it formats or names any pile object. On TTY
+        // this retires the logical topline while preserving an already
+        // acknowledged physical line for a corner menu.
+        await displayPendingTtyMessageWindow(state);
         const lines = [];
         if (dfeature && !skip_dfeature) lines.push(fbuf, '');
         // C invent.c:look_here() (4289-4296) formats the prefix and predicate
@@ -2608,10 +2653,6 @@ export async function look_here(
                 break;
             }
         }
-        // C invent.c look_here() first calls display_nhwindow(WIN_MESSAGE,
-        // FALSE) at 4289. On TTY that retires the logical topline while
-        // preserving an already acknowledged physical line for a corner menu.
-        await displayPendingTtyMessageWindow(state);
         await displayObjectPile(lines, state);
         if (feltCockatrice)
             await feel_cockatrice(feltCockatrice, false, state, { message });
@@ -2632,9 +2673,14 @@ export async function look_here(
 
 // C ref: invent.c dolook(). C hides the norep and noshow message types around
 // the call so a player's MSGTYPE configuration cannot suppress this feedback;
-// no message-type configuration is ported, so only look_here() remains.
+// restore the list even when a look_here() owner reports an error.
 export async function dolook(state = game, hooks = {}) {
-    return look_here(0, LOOKHERE_NOFLAGS, state, hooks);
+    hide_unhide_msgtypes(true, MSGTYP_MASK_REP_SHOW, state);
+    try {
+        return await look_here(0, LOOKHERE_NOFLAGS, state, hooks);
+    } finally {
+        hide_unhide_msgtypes(false, MSGTYP_MASK_REP_SHOW, state);
+    }
 }
 
 function inventoryEnv(env = {}) {

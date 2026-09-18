@@ -287,8 +287,6 @@ import {
 } from './obj.js';
 import {
     an,
-    assertObjectNameable,
-    assertPricedObjectNameable,
     simple_typename,
     The,
     the,
@@ -759,19 +757,6 @@ export class UnsupportedHeroMoveBoundaryError extends Error {
         super(`unsupported hero move: ${reason}`);
         this.name = 'UnsupportedHeroMoveBoundaryError';
         this.reason = reason;
-    }
-}
-
-function assertMovementFloorObjectNameable(object, withShopPrice, state) {
-    try {
-        if (withShopPrice)
-            assertPricedObjectNameable(object, state);
-        else
-            assertObjectNameable(object, state);
-    } catch (error) {
-        if (!(error instanceof UnsupportedObjectNameError)
-            && !(error instanceof UnsupportedShopError)) throw error;
-        throw new UnsupportedHeroMoveBoundaryError(error.branch);
     }
 }
 
@@ -1376,8 +1361,7 @@ function refusedDiagonalDoorway(x, y, state) {
 // the warning or m-prefix continuation before the hero moves. With autopickup
 // disabled, it also admits the sighted object descriptions and, now that
 // js/dungeon.js surface() names every terrain look_here() can feel underfoot,
-// the blind paths with no object or one object. Blind paths that would describe
-// an object pile remain refused.
+// including blind object piles now owned by invent.c:look_here().
 // These checks are a temporary admission seam in front
 // of hack.c:domove_core(); each rejected branch will move to its upstream owner
 // when that behavior is ported.
@@ -1473,7 +1457,7 @@ export function requireSimpleHeroDestination(
             );
         }
     }
-    if (floorObject && state.flags?.pickup && !noPickMove) {
+    if (floorObject && !noPickMove) {
         // pickup.c pickup() runs after domove_core() commits the hero
         // position. A late refusal there would leave room-entry writes
         // behind, so dry-run the complete automatic-pickup transaction at
@@ -1486,72 +1470,12 @@ export function requireSimpleHeroDestination(
         try {
             preflight_projected_random_arrival_pickup(projected);
         } catch (error) {
+            if (error instanceof UnsupportedObjectNameError
+                || error instanceof UnsupportedShopError)
+                throw new UnsupportedHeroMoveBoundaryError(error.branch);
             if (!(error instanceof UnsupportedPickupError)) throw error;
             throw new UnsupportedHeroMoveBoundaryError(error.reason);
         }
-    }
-    if (floorObject && !noPickMove && !floorObject.nexthere
-        && state.flags?.pile_limit > 0
-        && state.flags.pile_limit <= 1) {
-        throw new UnsupportedHeroMoveBoundaryError(
-            'single-object skipped-pile count',
-        );
-    }
-    if (floorObject?.nexthere && !noPickMove) {
-        let pileCount = 0;
-        for (let object = floorObject; object; object = object.nexthere)
-            ++pileCount;
-        const skipObjects = state.flags?.pile_limit > 0
-            && pileCount >= state.flags.pile_limit;
-        // The count arm deliberately bypasses look_here()'s region line.  A
-        // visible region therefore remains outside this slice even when both
-        // endpoints are already inside it and in_out_region() has no crossing
-        // to report.
-        if (visible_region_at(x, y, state)) {
-            throw new UnsupportedHeroMoveBoundaryError(
-                skipObjects
-                    ? 'visible region over skipped-pile count'
-                    : 'visible region over object-pile menu',
-            );
-        }
-        if (pileCount < 2 || (!skipObjects && pileCount > 4)) {
-            throw new UnsupportedHeroMoveBoundaryError(
-                'object pile outside the two-to-four-item window',
-            );
-        }
-        if (state.flags?.mention_decor && skipObjects) {
-            throw new UnsupportedHeroMoveBoundaryError(
-                'mention-decor pile-limit count',
-            );
-        }
-        if (heroIsBlind(state)) {
-            throw new UnsupportedHeroMoveBoundaryError('blind object pile');
-        }
-        // invent.c look_here() never calls doname_with_price() when the
-        // threshold selects its count line. Keep nameability as a menu-only
-        // preflight so the message path admits every ordinary pile count.
-        if (!skipObjects) {
-            const withShopPrice = costly_spot(x, y, state);
-            for (let object = floorObject; object; object = object.nexthere) {
-                assertMovementFloorObjectNameable(
-                    object,
-                    withShopPrice,
-                    state,
-                );
-            }
-        }
-    }
-    if (floorObject && !floorObject.nexthere && !noPickMove) {
-        if (visible_region_at(x, y, state)) {
-            throw new UnsupportedHeroMoveBoundaryError(
-                'visible region over single-object description',
-            );
-        }
-        assertMovementFloorObjectNameable(
-            floorObject,
-            costly_spot(x, y, state),
-            state,
-        );
     }
     // invent.c look_here() computes dfeature_at() unconditionally and prints
     // it before "You see here" when the square holds exactly one object.

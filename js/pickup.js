@@ -415,6 +415,34 @@ export async function describe_decor(state = game, env = {}) {
     return plan.result;
 }
 
+// C ref: pickup.c force_decor(). Probing and blind look_here() must bypass
+// one-turn Fumbling deferral, force describe_decor() to see a transition, and
+// then refresh lastseentyp at the source square. The caller supplies the
+// message owner so isolated look_here tests do not need a live TTY.
+export async function force_decor(
+    viaProbing = false,
+    state = game,
+    env = {},
+) {
+    state.iflags ??= {};
+    state.gd ??= {};
+    const { ux, uy } = state.u;
+    state.decor_fumble_override = true;
+    state.gd.decor_levitate_override = viaProbing;
+    state.iflags.prev_decor = STONE;
+    try {
+        await describe_decor(state, env);
+    } finally {
+        // pickup.c force_decor() always clears both temporary overrides after
+        // describe_decor(), rather than restoring a caller's stale values.
+        state.decor_fumble_override = false;
+        state.gd.decor_levitate_override = false;
+    }
+    state.level.lastseentyp ??= [];
+    state.level.lastseentyp[ux] ??= [];
+    state.level.lastseentyp[ux][uy] = state.level.at(ux, uy)?.typ ?? STONE;
+}
+
 // C ref: pickup.c u_safe_from_fatal_corpse() (272-281). The tests are ORed in
 // source order, so which term answers depends on the hero: a Monk starts in
 // leather gloves (u_init.c:102) and stops at st_gloves, while a bare-handed
@@ -559,14 +587,20 @@ export async function query_objlist(
             if ((qflags & FEEL_COCKATRICE)
                 && curr.otyp === CORPSE
                 && will_feel_cockatrice(curr, false, state)) {
-                // pickup.c destroys the partially built menu, redraws the
-                // square through look_here(), and returns before selection.
-                // The resulting petrifying-corpse path is outside this
-                // ordinary floor-pile slice, so preserve its fail-closed
-                // boundary rather than selecting a dangerous corpse.
-                throw new UnsupportedPickupError(
-                    'query_objlist() touching a petrifying corpse',
-                );
+                // pickup.c destroys the partial menu, calls look_here(0,
+                // LOOKHERE_NOFLAGS), and returns before selection. The
+                // source look_here() owns the warning and any engraving read;
+                // keep those effects in its canonical caller order.
+                await look_here(0, LOOKHERE_NOFLAGS, state, {
+                    message: ttyPline,
+                    readEngraving: () => read_engr_at(
+                        state.u.ux,
+                        state.u.uy,
+                        state,
+                        { pline: ttyPline, canReachFloor: can_reach_floor },
+                    ),
+                });
+                return { n: 0, pick_list };
             }
             if (!allow(curr, state)) continue;
 
