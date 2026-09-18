@@ -13,6 +13,9 @@ const SCRIPT_DIR = dirname(fileURLToPath(import.meta.url));
 
 test('policy CLIs expose successful help without touching their workflows', () => {
     assert.deepEqual(parseMismatchArgs(['--help']), { help: true });
+    assert.deepEqual(parseMismatchArgs(['--work', '--json']), {
+        help: false, json: true, scanPath: null, mode: 'work',
+    });
     assert.deepEqual(parseDevelopmentArgs(['--help']), { help: true });
     assert.deepEqual(parseRecordingArgs(['--help']), { help: true });
     assert.deepEqual(parseEvaluationArgs(['--help']), { help: true });

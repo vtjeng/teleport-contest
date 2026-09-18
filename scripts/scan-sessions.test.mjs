@@ -24,6 +24,7 @@ import {
     isCommandRefusal,
     isSerializeBugMismatch,
     loadScanRows,
+    loadSyntheticScan,
     main,
     recordedTopLine,
     scanRecordedSession,
@@ -197,6 +198,38 @@ function stepAt(row, column, glyph, key = null) {
 test('the default scan uses the development directory', () => {
     // Default development scans retain their historical corpus.
     assert.ok(DEVELOPMENT_DIR.endsWith('/sessions'));
+});
+
+test('synthetic scan cache is qualified and never copies a recording into sessions', async t => {
+    const root = mkdtempSync(join(tmpdir(), 'teleport-synthetic-scan-'));
+    t.after(() => rmSync(root, { recursive: true, force: true }));
+    const recording = { version: 5, segments: [{ seed: 1,
+        datetime: '20260918090000', nethackrc: '', moves: '', steps: [] }] };
+    let replays = 0;
+    const replay = async () => {
+        replays++;
+        return {
+            getScreens: () => [], getCursors: () => [], getRngLog: () => [],
+            getAnimationFramesByStep: () => [], getUnported: () => [],
+        };
+    };
+    const metadata = {
+        root, batch: 'v1', caseId: 'case-one', recording,
+        manifestPath: 'challenges/manifest.json', manifestSha256: 'a'.repeat(64),
+        recordingSha256: 'b'.repeat(64), recipeSha256: 'c'.repeat(64),
+        evaluationPath: 'challenges/evaluations/one.json',
+        evaluationCommit: 'd'.repeat(40), commit: 'e'.repeat(40),
+    };
+    const first = await loadSyntheticScan(metadata, replay);
+    assert.equal(first.session, 'synthetic/v1/case-one');
+    assert.equal(replays, 1);
+    const second = await loadSyntheticScan(metadata, replay);
+    assert.equal(second.inputIdentity.recordingSha256, 'b'.repeat(64));
+    assert.equal(replays, 1, 'same replay input identity reuses the cache');
+    await loadSyntheticScan({ ...metadata, recordingSha256: 'f'.repeat(64) }, replay);
+    assert.equal(replays, 2, 'changed recording identity invalidates diagnostics');
+    assert.equal(existsSync(join(root, 'sessions')), false);
+    assert.equal(existsSync(join(root, '.cache/synthetic-scans/v1/case-one.json')), true);
 });
 
 test('main rejects paths and unknown options', async () => {

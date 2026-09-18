@@ -361,6 +361,22 @@ test('spanContext hands the worker the ranges, size, and JavaScript file', () =>
     assert.equal(apart.cLines, 42);
 });
 
+test('spanContext carries synthetic session provenance into the worker context', () => {
+    const goal = structuredClone(store.goals[1]);
+    goal.sessions = ['synthetic/v1/case-one'];
+    goal.syntheticProvenance = {
+        'synthetic/v1/case-one': {
+            session: 'synthetic/v1/case-one', corpus: 'synthetic', batch: 'v1',
+            caseId: 'case-one', manifestPath: 'challenges/manifest.json',
+            manifestSha256: 'a'.repeat(64), recordingSha256: 'b'.repeat(64),
+            evaluationPath: 'challenges/evaluations/one.json',
+            evaluationCommit: 'c'.repeat(40),
+        },
+    };
+    const context = spanContext(goal, { functions: ['optfn_align'] });
+    assert.deepEqual(context.syntheticProvenance, [goal.syntheticProvenance[goal.sessions[0]]]);
+});
+
 test('the roadmap separates declarations from unverified functions and names their goal', () => {
     const files = [
         { name: 'small.c', text: 'void\nonly(void)\n{\n}\n' },

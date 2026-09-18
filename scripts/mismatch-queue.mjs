@@ -11,14 +11,16 @@ import { boundedMain } from './run-bounded.mjs';
 //   node scripts/mismatch-queue.mjs --scan <path> # reuse a saved scan
 
 import { spawnSync } from 'node:child_process';
-import { readFileSync } from 'node:fs';
+import { existsSync, lstatSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { pathToFileURL } from 'node:url';
 
 import {
     PROJECT_ROOT, cFunctions, functionOwners, jsFunctionNames,
 } from './c-functions.mjs';
-import { readInvestigation } from './investigation-cache.mjs';
+import * as challengeResults from './challenge-results.mjs';
+import { readInvestigation, syntheticSessionParts } from './investigation-cache.mjs';
+import { normalizeSession } from '../frozen/session_loader.mjs';
 
 // Patch 004 adds Lua annotations alongside ordinary `name(file.c:line)`.
 const CALLER = /^(.+)\(([A-Za-z0-9_.-]+\.(c|lua)):(\d+)\)$/u;
@@ -26,11 +28,31 @@ const LUA_PARENT = /^(.+) src=([A-Za-z0-9_.-]+\.lua):(\d+) parent=(.+)$/u;
 const NAMED_FUNCTION = /\b([A-Za-z_][A-Za-z0-9_]*)\(\)/gu;
 const MISSING_LOADER = /\bno loader for (?:special level )?["']([A-Za-z0-9_.-]+)["']/u;
 
-export const USAGE = `Usage: node scripts/mismatch-queue.mjs [--json] [--scan <path>]
+export const USAGE = `Usage: node scripts/mismatch-queue.mjs [--json] [--work|--fixed] [--scan <path>]
 
-Print the fixed 44-session queue and tracked source investigations. Sessions
-sort by remaining screens; select the first with a complete investigation.
-Use --scan with a saved scan artifact to avoid replaying the workload.`;
+Print the combined fixed-regression and synthetic work queue with --work.
+The default remains the fixed 44-session queue for older callers; --fixed is
+explicit. Sessions sort by measured remaining screens; select only entries
+with complete, current investigations. Use --scan with a saved fixed scan.`;
+
+const BATCH = /^v[1-9][0-9]*$/u;
+const CASE_ID = /^[a-z0-9][a-z0-9-]*$/u;
+
+export function syntheticSessionId(batch, caseId) {
+    if (!BATCH.test(batch) || !CASE_ID.test(caseId))
+        throw new Error('synthetic batch and case IDs must be path-safe');
+    return `synthetic/${batch}/${caseId}`;
+}
+
+export function readSyntheticBatches(root = PROJECT_ROOT, { state = null } = {}) {
+    // challengeState validates the admitted catalog, every saved evaluation,
+    // and SCORE.tsv freshness. This queue only consumes that API; it does not
+    // infer a batch by walking challenge directories.
+    const current = state ?? challengeResults.challengeState?.(root);
+    if (!current || !Array.isArray(current.batches))
+        throw new Error('challengeState API is required for the synthetic work queue');
+    return current.batches.filter(batch => batch?.admitted !== false);
+}
 
 export function parseCaller(caller) {
     const match = caller ? CALLER.exec(caller.trim()) : null;
@@ -68,6 +90,182 @@ function refusalOwner(message, owners) {
 
 const knownStep = (step) => Number.isInteger(step) && step >= 0 ? step : null;
 const stepOrder = (step) => step ?? Infinity;
+
+function count(value) {
+    return value && Number.isSafeInteger(value.matched)
+        && Number.isSafeInteger(value.total) && value.matched >= 0
+        && value.total >= value.matched ? value : null;
+}
+
+function recordingSteps(root, entry) {
+    const path = entry.recording && join(root, entry.recording);
+    if (!path || !existsSync(path) || lstatSync(path).isSymbolicLink()) return null;
+    let data;
+    try { data = JSON.parse(readFileSync(path, 'utf8')); }
+    catch { return null; }
+    if (!data) return null;
+    try {
+        return normalizeSession(data).segments.reduce(
+            (sum, segment) => sum + (segment.steps?.length ?? 0), 0);
+    } catch { return null; }
+}
+
+function diagnosticStep(diagnostic) {
+    if (!diagnostic || typeof diagnostic !== 'object') return null;
+    const values = [diagnostic.step, diagnostic.stepIndex, diagnostic.index,
+        diagnostic.screen?.step, diagnostic.screen?.index,
+        diagnostic.cursor?.step, diagnostic.cursor?.index,
+        diagnostic.rng?.stepIndex, diagnostic.rng?.index];
+    return values.map(knownStep).find(value => value !== null) ?? null;
+}
+
+function diagnosticKind(diagnostic, metrics, error) {
+    if (diagnostic?.kind) return diagnostic.kind;
+    if (diagnostic?.rng || metrics.rng.matched < metrics.rng.total) return 'rng';
+    if (diagnostic?.cursor || metrics.cursors.matched < metrics.cursors.total) return 'cursor';
+    if (diagnostic?.screen || metrics.screens.matched < metrics.screens.total) return 'screen';
+    return error ? 'error' : 'unresolved';
+}
+
+function cachedSyntheticDiagnostic(batch, entry) {
+    const path = join(batch.root, '.cache', 'synthetic-scans', batch.batch,
+        `${entry.id}.json`);
+    if (!existsSync(path) || lstatSync(path).isSymbolicLink()) return null;
+    let cached;
+    try { cached = JSON.parse(readFileSync(path, 'utf8')); }
+    catch { return null; }
+    const identity = cached.inputIdentity;
+    if (identity?.corpus !== 'synthetic' || identity.batch !== batch.batch
+        || identity.caseId !== entry.id
+        || identity.manifestPath !== batch.manifestPath
+        || identity.manifestSha256 !== batch.manifestSha256
+        || identity.recordingSha256 !== entry.recordingSha256) return null;
+    return cached.divergence ?? (cached.boundary ? {
+        kind: 'stop', message: cached.boundary, step: cached.screensEmitted,
+    } : null);
+}
+
+function comparableMeasurement(evaluation, entry, previous, previousEntry, recordingSha256) {
+    return previous && previousEntry
+        && previousEntry.recordingSha256 === recordingSha256
+        && (!evaluation.scorerSha256 || !previous.scorerSha256
+            || evaluation.scorerSha256 === previous.scorerSha256)
+        && ['screens', 'rng', 'cursors'].every(key =>
+            entry.metrics?.[key]?.total === previousEntry.metrics?.[key]?.total);
+}
+
+function evaluationCase(batch, evaluation, entry, previous) {
+    const metrics = {
+        screens: count(entry.metrics?.screens),
+        rng: count(entry.metrics?.rng ?? entry.metrics?.rngCalls),
+        cursors: count(entry.metrics?.cursors),
+    };
+    const recordedSteps = recordingSteps(batch.root, batch.caseById.get(entry.id));
+    if (!metrics.screens || !metrics.rng || !metrics.cursors || recordedSteps === null
+        || metrics.screens.total !== recordedSteps || entry.recordingSha256
+            !== batch.caseById.get(entry.id)?.recordingSha256) return {
+        blocked: true, reason: `incomplete synthetic evidence for ${entry.id}`,
+    };
+    const diagnostic = entry.firstMismatch ?? entry.diagnostic ?? entry.divergence
+        ?? entry.mismatch ?? cachedSyntheticDiagnostic(batch, entry);
+    const remainingScreens = metrics.screens.total - metrics.screens.matched;
+    const mismatch = Boolean(entry.error || !entry.passed
+        || metrics.screens.matched < metrics.screens.total
+        || metrics.rng.matched < metrics.rng.total
+        || metrics.cursors.matched < metrics.cursors.total);
+    if (!mismatch) return null;
+    const previousEntry = previous?.cases?.get(entry.id);
+    const comparable = comparableMeasurement(evaluation, entry, previous?.evaluation,
+        previousEntry, entry.recordingSha256);
+    const previousMatched = comparable
+        ? count(previousEntry?.metrics?.screens)?.matched ?? null : null;
+    return {
+        corpus: 'synthetic', batch: batch.batch, caseId: entry.id,
+        session: syntheticSessionId(batch.batch, entry.id),
+        manifestPath: batch.manifestPath, manifestSha256: batch.manifestSha256,
+        recording: batch.caseById.get(entry.id).recording,
+        recordingSha256: entry.recordingSha256,
+        recipe: batch.caseById.get(entry.id).recipe ?? null,
+        recipeSha256: batch.caseById.get(entry.id).recipeSha256 ?? null,
+        evaluationPath: batch.evaluationPath, evaluationCommit: evaluation.sha,
+        evaluationArtifact: batch.evaluationPath,
+        evaluationUtc: evaluation.utc,
+        remainingScreens, recordedSteps,
+        previousScreensMatched: previousMatched,
+        regression: previousMatched !== null && metrics.screens.matched < previousMatched,
+        passed: Boolean(entry.passed), error: entry.error ?? null,
+        metrics, firstMismatch: diagnostic,
+        step: diagnosticStep(diagnostic),
+        kind: diagnosticKind(diagnostic, metrics, entry.error),
+        sourceFile: diagnostic?.sourceFile ?? diagnostic?.cFile ?? diagnostic?.luaFile ?? null,
+        function: diagnostic?.function ?? diagnostic?.owner ?? null,
+        message: diagnostic?.message ?? entry.error ?? null,
+    };
+}
+
+export function buildSyntheticQueue(batches, { root = PROJECT_ROOT } = {}) {
+    const sessions = [];
+    const blockers = [];
+    const normalized = [];
+    for (const source of batches ?? []) {
+        const batch = { ...source, root,
+            caseById: new Map((source.cases ?? []).map(entry => [entry.id, entry])) };
+        // challengeState has already validated evaluation membership, digest,
+        // SCORE.tsv freshness, and the current implementation commit.
+        const state = source.status === 'measured'
+            ? { status: 'complete', evaluation: source.evaluation,
+                previous: source.previous ?? source.previousEvaluation,
+                path: source.evaluationPath }
+            : { status: source.status ?? 'unmeasured', reason: source.error ?? null };
+        const status = state.status;
+        const reason = state.reason;
+        const previous = state.previous ? { evaluation: state.previous,
+            cases: new Map(state.previous.cases.map(entry => [entry.id, entry])) } : null;
+        const evaluation = state.evaluation;
+        const batchView = {
+            corpus: 'synthetic', batch: batch.batch, manifestPath: batch.manifestPath,
+            manifestSha256: batch.manifestSha256, status, reason: reason ?? null,
+            evaluationPath: state.path ?? null, evaluationCommit: evaluation?.sha ?? null,
+            evaluationArtifact: state.path ?? null, generationReady: false,
+        };
+        if (status !== 'complete') {
+            blockers.push({ ...batchView, blocked: true });
+            normalized.push(batchView);
+            continue;
+        }
+        batch.evaluationPath = state.path;
+        for (const result of evaluation.cases) {
+            const entry = evaluationCase(batch, evaluation, result, previous);
+            if (entry?.blocked) {
+                blockers.push({ ...batchView, caseId: result.id, blocked: true, reason: entry.reason });
+                continue;
+            }
+            if (entry) {
+                entry.investigation = readInvestigation(root, entry);
+                sessions.push(entry);
+            }
+        }
+        // A cursor/RNG-only loss remains actionable, but it does not block
+        // generating the next synthetic batch. Generation is blocked only by
+        // screen debt, incomplete evidence, or a stale batch.
+        batchView.generationReady = !sessions.some(entry => entry.batch === batch.batch
+            && entry.remainingScreens > 0);
+        normalized.push(batchView);
+    }
+    const ordered = [...sessions].sort((a, b) => Number(b.regression) - Number(a.regression)
+        || b.remainingScreens - a.remainingScreens
+        || stepOrder(a.step) - stepOrder(b.step)
+        || a.batch.localeCompare(b.batch) || a.caseId.localeCompare(b.caseId));
+    return {
+        mode: 'synthetic', corpus: 'synthetic', batches: normalized,
+        sessions: ordered, blockers,
+        generationReady: blockers.length === 0
+            && normalized.every(batch => batch.generationReady),
+        status: blockers.length ? 'blocked' : ordered.length ? 'actionable' : 'ready',
+        availability: blockers.length ? 'blocked' : 'available',
+        selectionBlocked: blockers.length > 0,
+    };
+}
 
 /**
  * One entry per mismatching session, including mismatches without a step.
@@ -159,9 +357,55 @@ export function buildQueue(scan, owners, declaredCounts, declaredNames = new Set
             || stepOrder(a.step) - stepOrder(b.step)
             || a.session.localeCompare(b.session));
     return {
-        sessions,
+        mode: 'fixed', corpus: 'fixed', sessions: sessions.map(entry => ({
+            ...entry, corpus: 'fixed', regression: true,
+            remainingScreens: null,
+        })),
         candidates: candidateOrder(sessions, declaredCounts),
         roadmapFallbackAllowed: sessions.length === 0,
+        blockers: [], selectionBlocked: false, generationReady: sessions.length === 0,
+        status: sessions.length ? 'actionable' : 'ready', availability: 'available',
+    };
+}
+
+export function buildWorkQueue(fixed, synthetic) {
+    const fixedSessions = fixed?.sessions ?? [];
+    const syntheticSessions = synthetic?.sessions ?? [];
+    const blockers = synthetic?.blockers ?? [];
+    const sessions = [...fixedSessions, ...syntheticSessions].sort((a, b) => {
+        // Fixed regressions and prior synthetic losses are always surfaced
+        // before new synthetic debt; each corpus retains its own ordering.
+        const loss = Number(Boolean(b.regression)) - Number(Boolean(a.regression));
+        if (loss) return loss;
+        if (a.corpus === 'fixed' && b.corpus !== 'fixed') return -1;
+        if (a.corpus !== 'fixed' && b.corpus === 'fixed') return 1;
+        const aRemaining = a.corpus === 'synthetic'
+            ? a.remainingScreens : a.remainingScreensUpperBound;
+        const bRemaining = b.corpus === 'synthetic'
+            ? b.remainingScreens : b.remainingScreensUpperBound;
+        return bRemaining - aRemaining || stepOrder(a.step) - stepOrder(b.step)
+            || a.session.localeCompare(b.session);
+    });
+    const syntheticCandidates = syntheticSessions.map(entry => ({
+        kind: 'synthetic', corpus: 'synthetic', sourceFile: entry.sourceFile,
+        cFile: entry.cFile ?? null, luaFile: entry.luaFile ?? null,
+        sessions: [entry.session], remainingScreens: entry.remainingScreens,
+        remainingScreensUpperBound: null, earliestStep: entry.step,
+        caseId: entry.caseId, batch: entry.batch,
+    }));
+    const fixedCandidates = (fixed?.candidates ?? []).map(entry => ({
+        ...entry, corpus: 'fixed', regression: true,
+    }));
+    return {
+        mode: 'work', corpus: 'combined', fixed, synthetic,
+        sessions, candidates: [...fixedCandidates, ...syntheticCandidates],
+        blockers, selectionBlocked: blockers.length > 0,
+        generationReady: Boolean(synthetic?.generationReady)
+            && blockers.length === 0 && fixedSessions.length === 0,
+        status: blockers.length ? 'blocked' : sessions.length ? 'actionable' : 'ready',
+        availability: blockers.length ? 'blocked' : 'available',
+        roadmapFallbackAllowed: Boolean(fixed?.roadmapFallbackAllowed)
+            && blockers.length === 0 && syntheticSessions.length === 0,
     };
 }
 
@@ -171,6 +415,39 @@ export function buildQueue(scan, owners, declaredCounts, declaredNames = new Set
  * a recorded source-based reason. Unknown owners also need a named session.
  */
 export function assertGoalSelection(queue, goal) {
+    if (queue?.mode === 'work' || queue?.corpus === 'combined') {
+        if (queue.blockers?.length) {
+            throw new Error('synthetic evidence is incomplete, missing, stale, or invalid; '
+                + 'goal selection is blocked');
+        }
+        const synthetic = syntheticSessionParts(goal.session)
+            || syntheticSessionParts(goal.sessions?.[0]);
+        if (synthetic) {
+            const entry = queue.sessions.find(candidate => candidate.session
+                === (goal.session ?? goal.sessions?.[0]));
+            if (!entry || entry.corpus !== 'synthetic')
+                throw new Error('synthetic session is not an actionable work-queue entry');
+            if (entry.investigation?.status !== 'complete')
+                throw new Error(`synthetic investigation is ${entry.investigation?.status
+                ?? 'missing'}; complete it before selecting the goal`);
+            return entry;
+        }
+        // A source-port goal may omit --sessions when its traced owner is the
+        // ranked synthetic entry. Preserve the fixed queue's source-selection
+        // rules when a fixed candidate owns that source instead.
+        if (!goal.session && !(goal.sessions?.length)) {
+            const sourceFile = goal.luaFile ?? goal.cFile;
+            const entry = queue.sessions.find(candidate => candidate.corpus === 'synthetic'
+                && candidate.sourceFile === sourceFile);
+            if (entry) {
+                if (entry.investigation?.status !== 'complete')
+                    throw new Error(`synthetic investigation is ${entry.investigation?.status
+                        ?? 'missing'}; complete it before selecting the goal`);
+                return entry;
+            }
+        }
+        return assertGoalSelection(queue.fixed ?? { ...queue, mode: 'fixed' }, goal);
+    }
     if (queue.sessions.length === 0) return;
     const sourceFile = goal.luaFile ?? goal.cFile;
     const sessions = new Set([goal.session, ...(goal.sessions ?? [])].filter(Boolean));
@@ -210,6 +487,13 @@ export function loadMismatchQueue(scan = runScan()) {
     const queue = buildQueue(scan, functionOwners(), declaredCounts, declaredNames);
     for (const entry of queue.sessions) entry.investigation = readInvestigation(PROJECT_ROOT, entry);
     return queue;
+}
+
+export function loadWorkQueue({ scan = null, root = PROJECT_ROOT } = {}) {
+    const fixed = loadMismatchQueue(scan ?? undefined);
+    const batches = readSyntheticBatches(root);
+    const synthetic = buildSyntheticQueue(batches, { root });
+    return buildWorkQueue(fixed, synthetic);
 }
 
 export function formatQueue(queue) {
@@ -252,19 +536,52 @@ export function formatQueue(queue) {
     return lines.join('\n');
 }
 
+export function formatWorkQueue(queue) {
+    const lines = ['Combined work queue (fixed regressions and synthetic batches):'];
+    if (queue.blockers?.length) {
+        lines.push('  Blocked evidence:');
+        for (const blocker of queue.blockers)
+            lines.push(`    ${blocker.batch ?? blocker.session}: ${blocker.reason}`);
+    }
+    if (!queue.sessions?.length) lines.push('  no measured actionable mismatches');
+    for (const entry of queue.sessions ?? []) {
+        const remaining = entry.corpus === 'synthetic'
+            ? `${entry.remainingScreens} of ${entry.recordedSteps}`
+            : `at most ${entry.remainingScreensUpperBound} of ${entry.recordedSteps}`;
+        lines.push(`  ${entry.session}: ${remaining} remaining screens`
+            + `, step ${entry.step ?? 'unknown'} (${entry.kind})`
+            + (entry.regression ? ', regression' : ''));
+        if (entry.corpus === 'synthetic') {
+            lines.push(`      ${entry.manifestPath} ${entry.caseId}`
+                + `; evaluation ${entry.evaluationCommit ?? 'unknown'}`);
+        }
+        if (entry.message) lines.push(`      ${entry.message}`);
+        const investigation = entry.investigation;
+        lines.push(`      Investigation: ${investigation?.status ?? 'missing'}`);
+    }
+    lines.push('', queue.generationReady
+        ? 'Synthetic generation: ready (all admitted batches measured and matched).'
+        : 'Synthetic generation: blocked until every admitted batch has current complete evidence.');
+    return lines.join('\n');
+}
+
 export function parseArgs(args) {
     let json = false;
     let scanPath = null;
+    let mode = 'fixed';
     for (let index = 0; index < args.length; index += 1) {
         if (args.length === 1 && (args[0] === '--help' || args[0] === '-h'))
             return { help: true };
         if (args[index] === '--json') json = true;
+        else if (args[index] === '--work') mode = 'work';
+        else if (args[index] === '--fixed') mode = 'fixed';
         else if (args[index] === '--scan') {
             scanPath = args[++index];
             if (!scanPath || scanPath.startsWith('--')) throw new Error('--scan requires a path');
         } else throw new Error(`unexpected argument: ${args[index]}`);
     }
-    return { help: false, json, scanPath };
+    if (mode === 'work' && scanPath === null) return { help: false, json, scanPath, mode };
+    return { help: false, json, scanPath, mode };
 }
 
 export function main(args) {
@@ -273,10 +590,16 @@ export function main(args) {
         console.log(USAGE);
         return;
     }
-    const queue = options.scanPath
-        ? loadMismatchQueue(JSON.parse(readFileSync(options.scanPath, 'utf8')))
-        : loadMismatchQueue();
-    console.log(options.json ? JSON.stringify(queue, null, 2) : formatQueue(queue));
+    const queue = options.mode === 'work'
+        ? loadWorkQueue({
+            scan: options.scanPath
+                ? JSON.parse(readFileSync(options.scanPath, 'utf8')) : null,
+        })
+        : options.scanPath
+            ? loadMismatchQueue(JSON.parse(readFileSync(options.scanPath, 'utf8')))
+            : loadMismatchQueue();
+    console.log(options.json ? JSON.stringify(queue, null, 2)
+        : options.mode === 'work' ? formatWorkQueue(queue) : formatQueue(queue));
 }
 
 if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {

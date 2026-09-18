@@ -9,6 +9,7 @@ import { boundedMain } from './run-bounded.mjs';
 // 11 opened local-holdout sessions, preserving holdout/ in each identifier.
 
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
+import { createHash } from 'node:crypto';
 import { execFileSync } from 'node:child_process';
 import { join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -484,6 +485,79 @@ export async function scanRecordedSession(file, data, replaySegment = runSegment
             answers: null, ambiguous: null, unported: [], segmentEndStates: [],
         };
     }
+}
+
+const SYNTHETIC_BATCH = /^v[1-9][0-9]*$/u;
+const SYNTHETIC_CASE = /^[a-z0-9][a-z0-9-]*$/u;
+
+function syntheticCachePath(root, batch, caseId) {
+    if (!SYNTHETIC_BATCH.test(batch) || !SYNTHETIC_CASE.test(caseId))
+        throw new Error('synthetic scan identity is not path-safe');
+    return join(root, '.cache', 'synthetic-scans', batch, `${caseId}.json`);
+}
+
+function recordingDigest(data) {
+    return createHash('sha256').update(JSON.stringify(data)).digest('hex');
+}
+
+function syntheticIdentity(metadata, root, data) {
+    const identity = metadata.inputIdentity ?? {};
+    return {
+        version: 1,
+        corpus: 'synthetic',
+        batch: metadata.batch,
+        caseId: metadata.caseId,
+        manifestPath: metadata.manifestPath ?? null,
+        manifestSha256: metadata.manifestSha256 ?? null,
+        recordingPath: metadata.recordingPath ?? null,
+        recordingSha256: metadata.recordingSha256 ?? recordingDigest(data),
+        recipeSha256: metadata.recipeSha256 ?? null,
+        evaluationPath: metadata.evaluationPath ?? null,
+        evaluationCommit: metadata.evaluationCommit ?? null,
+        replayCommit: metadata.commit ?? repositoryHead(root),
+        ...identity,
+    };
+}
+
+function sameIdentity(left, right) {
+    return JSON.stringify(left) === JSON.stringify(right);
+}
+
+/** Replay one admitted synthetic recording without copying it into sessions/. */
+export async function scanSyntheticSession(metadata, replaySegment = runSegment) {
+    const root = metadata.root ?? PROJECT_ROOT;
+    if (!SYNTHETIC_BATCH.test(metadata.batch ?? '')
+        || !SYNTHETIC_CASE.test(metadata.caseId ?? ''))
+        throw new Error('synthetic scans require a versioned batch and case ID');
+    const raw = metadata.recording ?? JSON.parse(readFileSync(
+        resolve(root, metadata.recordingPath), 'utf8'));
+    const data = normalizeSession(raw);
+    const session = `synthetic/${metadata.batch}/${metadata.caseId}`;
+    const result = await scanRecordedSession(session, data, replaySegment);
+    return {
+        ...result,
+        corpus: 'synthetic', batch: metadata.batch, caseId: metadata.caseId,
+        session, inputIdentity: syntheticIdentity(metadata, root, raw),
+    };
+}
+
+/** Reuse a synthetic diagnostic only when the recording and replay identity match. */
+export async function loadSyntheticScan(metadata, replaySegment = runSegment) {
+    const root = metadata.root ?? PROJECT_ROOT;
+    const path = syntheticCachePath(root, metadata.batch, metadata.caseId);
+    const raw = metadata.recording ?? JSON.parse(readFileSync(
+        resolve(root, metadata.recordingPath), 'utf8'));
+    const identity = syntheticIdentity(metadata, root, raw);
+    if (existsSync(path)) {
+        try {
+            const cached = JSON.parse(readFileSync(path, 'utf8'));
+            if (sameIdentity(cached.inputIdentity, identity)) return cached;
+        } catch { /* replay and replace malformed or stale diagnostics */ }
+    }
+    const result = await scanSyntheticSession({ ...metadata, root, recording: raw }, replaySegment);
+    mkdirSync(join(root, '.cache', 'synthetic-scans', metadata.batch), { recursive: true });
+    writeFileSync(path, `${JSON.stringify(result, null, 2)}\n`);
+    return result;
 }
 
 async function replaySession(file, data, replaySegment) {

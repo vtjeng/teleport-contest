@@ -86,3 +86,36 @@ test('malformed or misassigned results cannot masquerade as completed investigat
     // A missing session must not be coerced into a literal "undefined" ID.
     assert.equal(readInvestigation(root, { ...entry, session: undefined }).status, 'invalid');
 });
+
+test('synthetic investigations use qualified identity and screen debt', t => {
+    const syntheticEntry = {
+        session: 'synthetic/v1/case-one', remainingScreens: 3, recordedSteps: 8,
+        manifestPath: 'challenges/manifest.json', manifestSha256: 'a'.repeat(64),
+        recordingSha256: 'b'.repeat(64), evaluationPath: 'challenges/evaluations/old.json',
+        evaluationCommit: 'c'.repeat(40),
+    };
+    const syntheticRecord = {
+        corpus: 'synthetic', batch: 'v1', caseId: 'case-one', ...syntheticEntry,
+        status: 'complete', commit: 'd'.repeat(40), mismatch: syntheticEntry,
+        summary: 'The selected synthetic case reaches the source branch.',
+        source: { file: 'hack.c', functions: ['test_move'], branch: 'branch',
+            callers: ['hack.c: test_move'], dependencies: [] },
+        goalKind: 'divergence-fix', evidence: ['hack.c: test_move'],
+    };
+    const { root, put } = fixture(t);
+    put(syntheticRecord, 'investigations/synthetic/v1/case-one.json');
+    assert.equal(readInvestigation(root, syntheticEntry).status, 'complete');
+
+    // A replacement evaluation artifact is replay provenance, not source
+    // provenance, so it must not stale the investigation by itself.
+    assert.equal(readInvestigation(root, {
+        ...syntheticEntry, evaluationPath: 'challenges/evaluations/new.json',
+        evaluationCommit: 'e'.repeat(40),
+    }).status, 'complete');
+    assert.equal(readInvestigation(root, {
+        ...syntheticEntry, remainingScreens: 2,
+    }).status, 'stale');
+    assert.equal(readInvestigation(root, {
+        ...syntheticEntry, recordingSha256: 'f'.repeat(64),
+    }).status, 'stale');
+});

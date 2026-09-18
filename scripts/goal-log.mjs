@@ -330,6 +330,9 @@ export function spanContext(goal, span) {
     const entries = span.functions.map(
         (name) => goal.functions.find((entry) => entry.name === name),
     );
+    const synthetic = (goal.sessions ?? [])
+        .filter(session => /^synthetic\/v[1-9][0-9]*\/[a-z0-9][a-z0-9-]*$/u.test(session))
+        .map(session => goal.syntheticProvenance?.[session] ?? { session });
     return {
         goal: goal.id,
         kind: goal.kind,
@@ -342,6 +345,7 @@ export function spanContext(goal, span) {
         ),
         jsFile: goal.luaFile ? null : jsFileFor(goal.cFile),
         sessions: goal.sessions ?? [],
+        ...(synthetic.length ? { syntheticProvenance: synthetic } : {}),
         evidenceRequired: 'whole source, production callers, tests for pure '
             + 'functions, matching recordings for impure functions and entry points',
     };
@@ -674,7 +678,7 @@ function readDevelopmentScan(path) {
     const normalized = resolved.replaceAll('\\', '/');
     const cacheRoot = `${PROJECT_ROOT}/.cache/`;
     if ((!normalized.startsWith('/tmp/') && !normalized.startsWith(cacheRoot))
-        || normalized.includes('/sessions/')) {
+        || normalized.includes('/sessions/') || normalized.includes('/challenges/')) {
         throw new Error('--development-scan must name a saved fixed-workload scan under .cache/ or /tmp');
     }
     const stats = lstatSync(resolved);
@@ -684,11 +688,27 @@ function readDevelopmentScan(path) {
 }
 
 async function checkSelection(goal, scan) {
-    const { assertGoalSelection, loadMismatchQueue } = await import('./mismatch-queue.mjs');
-    const queue = loadMismatchQueue(scan);
+    const { assertGoalSelection, loadMismatchQueue, loadWorkQueue } =
+        await import('./mismatch-queue.mjs');
+    const synthetic = [goal.session, ...(goal.sessions ?? [])]
+        .some(session => /^synthetic\/v[1-9][0-9]*\/[a-z0-9][a-z0-9-]*$/u.test(session ?? ''));
+    if (synthetic && scan)
+        throw new Error('synthetic goals cannot use --development-scan; use the work queue');
+    const queue = scan ? loadMismatchQueue(scan) : loadWorkQueue();
     const candidate = assertGoalSelection(queue, goal);
     if (isSourcePort(goal) && !goal.sessions.length && candidate)
         goal.sessions = [...candidate.sessions];
+    if (candidate?.corpus === 'synthetic') {
+        goal.syntheticProvenance ??= {};
+        goal.syntheticProvenance[candidate.session] = {
+            session: candidate.session, corpus: 'synthetic', batch: candidate.batch,
+            caseId: candidate.caseId, manifestPath: candidate.manifestPath,
+            manifestSha256: candidate.manifestSha256,
+            recordingSha256: candidate.recordingSha256,
+            evaluationPath: candidate.evaluationPath ?? candidate.evaluationArtifact ?? null,
+            evaluationCommit: candidate.evaluationCommit ?? null,
+        };
+    }
     return queue;
 }
 
@@ -952,10 +972,16 @@ async function main(args) {
         assertPortComplete(goal);
         if (isSourcePort(goal)) {
             validatePortEvidence(goal, goal.evidence);
-            const { loadMismatchQueue } = await import('./mismatch-queue.mjs');
+            const { loadMismatchQueue, loadWorkQueue } = await import('./mismatch-queue.mjs');
             const scan = options['development-scan']
                 ? readDevelopmentScan(options['development-scan']) : undefined;
-            goal.closeMismatches = scopedMismatches(goal, loadMismatchQueue(scan));
+            if (scan && [goal.session, ...(goal.sessions ?? [])]
+                .some(session => session?.startsWith('synthetic/')))
+                throw new Error('synthetic goals cannot use --development-scan; use the work queue');
+            const queue = scan ? loadMismatchQueue(scan) : loadWorkQueue();
+            if (!scan && queue.blockers?.length)
+                throw new Error('synthetic evidence is incomplete; goal closure is blocked');
+            goal.closeMismatches = scopedMismatches(goal, queue);
         }
         goal.status = 'closed';
         goal.closedAt = head;

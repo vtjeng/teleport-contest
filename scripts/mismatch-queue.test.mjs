@@ -1,13 +1,14 @@
 import assert from 'node:assert/strict';
 import { spawnSync } from 'node:child_process';
-import { mkdtempSync, rmSync, writeFileSync } from 'node:fs';
+import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import test from 'node:test';
 
 import {
-    assertGoalSelection, buildQueue, formatQueue, parseCaller, queueEntry,
+    assertGoalSelection, buildQueue, buildSyntheticQueue, buildWorkQueue,
+    formatQueue, parseCaller, queueEntry,
 } from './mismatch-queue.mjs';
 
 // These synthetic sessions isolate queue policy from the changing game port.
@@ -245,4 +246,88 @@ test('CLI preserves unresolved mismatches in a saved scan and rejects a missing 
     } finally {
         rmSync(scratch, { recursive: true, force: true });
     }
+});
+
+test('synthetic queue keeps exact screen debt and cursor/RNG losses visible', () => {
+    const root = mkdtempSync(join(tmpdir(), 'synthetic-queue-test-'));
+    try {
+        mkdirSync(join(root, 'challenges/cases'), { recursive: true });
+        const recording = {
+            version: 5, segments: [{ seed: 1, datetime: '20260918090000',
+                nethackrc: '', moves: '', steps: Array.from({ length: 5 }, () => ({})) }],
+        };
+        writeFileSync(join(root, 'challenges/cases/alpha.session.json'),
+            JSON.stringify(recording));
+        writeFileSync(join(root, 'challenges/cases/beta.session.json'),
+            JSON.stringify(recording));
+        const recordingSha256 = 'b'.repeat(64);
+        const cases = [
+            { id: 'alpha', recording: 'challenges/cases/alpha.session.json', recordingSha256 },
+            { id: 'beta', recording: 'challenges/cases/beta.session.json', recordingSha256 },
+        ];
+        const evaluation = {
+            status: 'complete', sha: 'c'.repeat(40), scorerSha256: 'd'.repeat(64),
+            utc: '2026-09-18T09:00:00Z',
+            cases: [
+                { id: 'alpha', recordingSha256, passed: false,
+                    metrics: { screens: { matched: 2, total: 5 }, rng: { matched: 5, total: 5 },
+                        cursors: { matched: 5, total: 5 } } },
+                { id: 'beta', recordingSha256, passed: false, firstMismatch: { step: 3, kind: 'rng' },
+                    metrics: { screens: { matched: 5, total: 5 }, rng: { matched: 4, total: 5 },
+                        cursors: { matched: 5, total: 5 } } },
+            ],
+        };
+        const previous = structuredClone(evaluation);
+        previous.sha = 'e'.repeat(40);
+        previous.utc = '2026-09-17T09:00:00Z';
+        previous.cases[0].metrics.screens.matched = 4;
+        mkdirSync(join(root, '.cache/synthetic-scans/v1'), { recursive: true });
+        writeFileSync(join(root, '.cache/synthetic-scans/v1/alpha.json'), JSON.stringify({
+            inputIdentity: { corpus: 'synthetic', batch: 'v1', caseId: 'alpha',
+                manifestPath: 'challenges/manifest.json', manifestSha256: 'a'.repeat(64),
+                recordingSha256 },
+            divergence: { screen: { index: 2, row: 4, column: 3 } },
+        }));
+        const batch = buildSyntheticQueue([{
+            corpus: 'synthetic', batch: 'v1', manifestPath: 'challenges/manifest.json',
+            manifestSha256: 'a'.repeat(64), cases, status: 'measured',
+            evaluation, evaluationPath: 'challenges/evaluations/one.json',
+            previous,
+        }], { root });
+        assert.deepEqual(batch.sessions.map(entry => [entry.session, entry.remainingScreens]), [
+            ['synthetic/v1/alpha', 3], ['synthetic/v1/beta', 0],
+        ]);
+        assert.equal(batch.sessions[0].kind, 'screen');
+        assert.equal(batch.sessions[0].firstMismatch.screen.index, 2);
+        assert.equal(batch.sessions[1].kind, 'rng');
+        assert.equal(batch.sessions[0].regression, true,
+            'regression compares with the immediately preceding evaluation');
+        assert.equal(batch.generationReady, false, 'screen debt blocks generation');
+        assert.equal(batch.blockers.length, 0);
+
+        const fixed = build([passing]);
+        const work = buildWorkQueue(fixed, batch);
+        assert.equal(work.mode, 'work');
+        assert.equal(work.generationReady, false, 'fixed regressions also block generation');
+        assert.equal(work.sessions[0].session, 'synthetic/v1/alpha');
+    } finally {
+        rmSync(root, { recursive: true, force: true });
+    }
+});
+
+test('synthetic goal selection requires a current investigation', () => {
+    const synthetic = {
+        mode: 'synthetic', corpus: 'synthetic', blockers: [],
+        sessions: [{ corpus: 'synthetic', session: 'synthetic/v1/alpha', batch: 'v1',
+            caseId: 'alpha', remainingScreens: 2,
+            investigation: { status: 'missing' } }],
+    };
+    const queue = buildWorkQueue(build([passing]), synthetic);
+    assert.throws(() => assertGoalSelection(queue, {
+        session: 'synthetic/v1/alpha', sessions: ['synthetic/v1/alpha'],
+    }), /investigation is missing/u);
+    synthetic.sessions[0].investigation = { status: 'complete' };
+    assert.equal(assertGoalSelection(buildWorkQueue(build([passing]), synthetic), {
+        session: 'synthetic/v1/alpha', sessions: ['synthetic/v1/alpha'],
+    }).session, 'synthetic/v1/alpha');
 });
