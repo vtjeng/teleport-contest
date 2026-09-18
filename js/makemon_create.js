@@ -1592,6 +1592,7 @@ function preflightCreation(ptr, x, y, mmflags, normalized) {
             && !statueInventoryCall
             && !specialRoomCall
             && !cloneuCall
+            && !nastyCall
             && (!state.in_mklev || (isMainDungeonLevel(state)
                 && !normalized._rndmonMklev))) {
             assertSupportedSpecies(ptr, normalized);
