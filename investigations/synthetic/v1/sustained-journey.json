@@ -68,35 +68,33 @@
     "luaFile": null,
     "line": null
   },
-  "summary": "At examined commit 973ed4c61be4e63b24ffcf54f640b3a05990a0f1, the saved scan emits 5 of 202 screens and stops on step 5 at the h (movewest) byte after the input prefix ` i 3h`; 197 screens remain. The queue annotation names cmd.c parse(), but the parser is source-aligned: C get_count()/parse() commits 3 and sets gm.multi to 2. The missing behavior is counted movement. C cmd.c rhack() admits a movement row with a positive count, sets svc.context.mv, and calls domove(); allmain.c moveloop_core() then repeats that command through its positive-gm.multi context.mv arm. JavaScript currently reaches js/cmd.js:5453-5474, which rejects any positive count on a non-pay command before movement dispatch, while js/allmain.js:1636-1651 already contains the repeat structure. The smallest independent implementation route is the allmain.c moveloop_core() counted-movement family with its cmd.c rhack() movement admission dependency: exempt movement intents (walk, run, and rush) from the generic count refusal, preserve the parsed multi state, and exercise the existing context.mv repeat caller; leave the non-movement rhack(gc.cmd_key) arm deferred.",
+  "summary": "The step-5 stop is an obsolete positive-count guard in cmd.c rhack(), which rejects movement before the existing executeMovement() path. C rhack() admits counted walk/run/rush, retains multi, and sets context.mv; JavaScript already implements that admission state and the allmain.c moveloop_core() repeat arm. Source comparison, Git history, and independent counted-movement recordings establish an implemented path blocked by the extra guard. Repair movement admission as a divergence fix, retain the non-movement refusal, and keep unrelated missing allmain behavior in its parked source-port goal.",
   "source": {
-    "file": "allmain.c",
-    "branch": "For a positive command count on a movement row, cmd.c parse() leaves gm.multi above zero after the first command, cmd.c rhack() marks svc.context.mv for walk/run/rush, and allmain.c moveloop_core():515-531 performs each remaining repeat by decrementing gm.multi, ending the run at zero, and calling domove(). The current JavaScript command gate rejects this state before the movement dispatch, so this is missing/partial C behavior rather than a parse arithmetic defect. The non-movement positive-multi branch, which decrements and calls rhack(gc.cmd_key), stays out of scope until its command families are ported.",
+    "file": "cmd.c",
     "functions": [
-      "moveloop_core"
+      "rhack"
     ],
+    "branch": "A positive parsed command count on a MOVEMENT_INTENTS row reaches the generic refusal at js/cmd.js:5453-5474 before executeMovement(). C cmd.c:3785-3800 admits walk/rush, preserves multi, and sets context.mv; existing JS executeMovement() at :2713-2768 and allmain.js moveloop_core() at :1636-1651 already implement that movement/repeat path. Allow only movement intents past the obsolete guard; non-movement counts retain their current boundary.",
     "callers": [
-      "C allmain.c:587-596 moveloop() calls moveloop_core() for each game-loop iteration.",
-      "C allmain.c:515-531 moveloop_core() calls domove() for context.mv repeats and rhack(gc.cmd_key) for the separate non-movement arm.",
-      "C cmd.c:3652-3654 rhack() calls parse() on a fresh input boundary, and cmd.c:3785-3800 admits movement, sets svc.context.mv, and calls domove().",
-      "JS jsmain.js:755-770 runSegment() calls allmain.js moveloop_core() until gameover, input exhaustion, or a boundary.",
-      "JS allmain.js:1636-1651 dispatches positive multi through lookaround(), context.mv, runDomoveAtTurnBoundary(), or rhack(cmdKey); JS cmd.js:1766-1794 parses the count and JS cmd.js:5286-5475 dispatches the command."
+      "js/jsmain.js runSegment() -> js/allmain.js moveloop_core() -> js/cmd.js rhack(); C allmain.c:534 calls rhack(0).",
+      "js/cmd.js rhack() -> executeMovement() -> hack.c domove; C cmd.c:3785-3800 is the corresponding movement dispatch.",
+      "Existing js/allmain.js moveloop_core() repeats context.mv through runDomoveAtTurnBoundary(); C allmain.c:515-531 decrements finite counts and calls domove()."
     ],
     "dependencies": [
-      "cmd.c get_count()/parse() (5018-5156), already implemented in js/cmd.js, owns command_count and gm.multi initialization.",
-      "cmd.c rhack() movement rows (3785-3800) and set_move_cmd() (1386-1399) own movement intent and context.mv state; js/cmd.js:5453-5474 is the current generic refusal to narrow.",
-      "hack.c domove(), cmd.c end_running(), and the existing JS runDomoveAtTurnBoundary() are downstream callees; retain their source order and boundary conversion.",
-      "GOALS.json:2225-2255 records the predecessor counted-command-occupation goal and explicitly identifies allmain.c moveloop_core():515-531 counted movement as the remaining unported arm."
+      "cmd.c parse()/get_count() already commit the count and consume its first repetition.",
+      "cmd.c set_move_cmd(), hack.c end_running()/lookaround()/domove(), and the movement intent state are already implemented; preserve their source order and count semantics.",
+      "Other allmain.c omissions are separate source-port work, preserved in port-allmain-moveloop-core-synthetic-20260918; this fix does not establish whole moveloop_core completion."
     ]
   },
-  "goalKind": "file-port",
+  "goalKind": "divergence-fix",
   "evidence": [
     ".cache/synthetic-scans/v1/sustained-journey.json records screensEmitted=5, recordedSteps=202, remainingScreens=197, first mismatch step=5, key=h, command=movewest, inputThroughStop=` i 3h`, and the exact unsupported-command boundary; divergence is null before the stop.",
     "challenges/cases/sustained-journey.session.json segment 0 uses seed 90176, datetime 20010822161500, and moves beginning ` i 3h`; its step 4 key is `3` and step 5 key is `h`, establishing a count prefix followed by a west walk rather than an isolated parse failure.",
     "nethack-c/upstream/src/cmd.c:5018-5089 get_count() and :5096-5156 parse() read the digits, store gc.command_count, then execute `gm.multi = gc.command_count; if (gm.multi) gm.multi--;`; count 3 therefore leaves gm.multi=2 for the first h command.",
-    "nethack-c/upstream/src/cmd.c:3785-3791 is the source movement branch: when DOMOVE_WALK is set and gm.multi is nonzero, it sets svc.context.mv, calls domove(), and returns. The analogous DOMOVE_RUSH branch at :3792-3801 sets the run sentinel and svc.context.mv before domove().",
-    "nethack-c/upstream/src/allmain.c:515-531 is the missing repeat arm: positive gm.multi calls lookaround(), then decrements finite counts, calls end_running(TRUE) at the last repeat, and calls domove() when svc.context.mv is true; only the else arm decrements and calls rhack(gc.cmd_key).",
-    "js/cmd.js:5453-5474 currently throws COUNTED_BOUNDARY for state.multi>0 on every bound command except pay, before the movement dispatch at the later executeMovement() path. js/allmain.js:1636-1651 already mirrors the C positive-multi dispatch and calls runDomoveAtTurnBoundary() for context.mv, so the production seam is present but unreachable for counted movement.",
-    "GOALS.json:2225-2255 closes the predecessor counted-command-occupation goal while explicitly documenting counted movement, lookaround(), end_running(), and svc.context.mv under allmain.c moveloop_core():515-531 as unported."
+    "C cmd.c:3785-3800 sets context.mv and calls domove for counted movement without the generic refusal present at js/cmd.js:5453-5474. Existing js/cmd.js executeMovement() (:2713-2768) already sets the same movement/count state and invokes domove.",
+    "C allmain.c:515-531 and js/allmain.js:1636-1651 have the same positive-multi movement control flow: lookaround, runmode delay, early return if multi clears, finite-count decrement/end_running, and domove. This is behavioral source evidence, not a declaration count.",
+    "Git history: 76109518 added the repeat structure on 2026-07-22; 0d4a4aca added lookaround/runmode control on 2026-07-29; 0bc139cf wired end_running on 2026-09-08. The generic COUNTED_BOUNDARY gate from 4c436631 (2026-08-14) remains despite those implemented movement owners.",
+    "Independent worker C recordings and counted-versus-bare state/RNG tests pass when the gate is removed, and the assigned replay advances from step 5 to a separate eat.c boundary at step 168. These are branch diagnostics, not accepted aggregate gains. The narrowed fix retains the non-movement gate and requires its own combined validation.",
+    "The initial allmain file-port classification was too broad: source review found separate omissions in automatic teleport/polymorph, per-turn hooks and terrain, lava sinking, and status/display upkeep. They do not cause the step-5 guard failure and remain parked rather than claimed complete."
   ]
 }

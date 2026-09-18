@@ -69215,7 +69215,7 @@
     {
       "id": "port-allmain-moveloop-core-synthetic-20260918",
       "kind": "file-port",
-      "status": "open",
+      "status": "parked",
       "summary": "Complete counted movement through the main game loop",
       "cFile": "allmain.c",
       "sessions": [
@@ -69427,6 +69427,223 @@
                 "nethack-c/upstream/src/allmain.c:515-531 is the missing repeat arm: positive gm.multi calls lookaround(), then decrements finite counts, calls end_running(TRUE) at the last repeat, and calls domove() when svc.context.mv is true; only the else arm decrements and calls rhack(gc.cmd_key).",
                 "js/cmd.js:5453-5474 currently throws COUNTED_BOUNDARY for state.multi>0 on every bound command except pay, before the movement dispatch at the later executeMovement() path. js/allmain.js:1636-1651 already mirrors the C positive-multi dispatch and calls runDomoveAtTurnBoundary() for context.mv, so the production seam is present but unreachable for counted movement.",
                 "GOALS.json:2225-2255 closes the predecessor counted-command-occupation goal while explicitly documenting counted movement, lookaround(), end_running(), and svc.context.mv under allmain.c moveloop_core():515-531 as unported."
+              ]
+            }
+          }
+        }
+      ],
+      "progressBeforePark": {
+        "screens": 0,
+        "rng": 0
+      },
+      "parkedStanding": {
+        "sha": "2ab3d33c4affb45693cc1cdc56882430c63db58f",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "parkedReason": "The step-5 failure is an obsolete cmd.c rhack admission guard: existing moveloop_core movement repetition matches source and independent C recordings once reached. Whole allmain work remains separate: automatic teleport/polymorph, turn hooks, elemental terrain, lava sinking, and status/display upkeep are incomplete; preserved worker commits contain unintegrated partial corrections. Resume this port when a ranked source investigation selects one of those missing behaviors, without treating the counted-movement fix as whole-function completion."
+    },
+    {
+      "id": "fix-cmd-counted-movement-synthetic-20260918",
+      "kind": "divergence-fix",
+      "status": "open",
+      "summary": "Remove the obsolete refusal for counted movement",
+      "cFile": "cmd.c",
+      "sessions": [],
+      "selectionReason": "Highest-ranked ready synthetic/v1/sustained-journey has 197 unmatched screens. investigations/synthetic/v1/sustained-journey.json now traces its parser annotation to an obsolete rhack gate blocking an implemented movement/repeat path. Retain batch v1, the frozen manifest and recording hashes, and challenges/evaluations/20260918192720-v1.json as the baseline; keep unrelated whole-allmain work parked.",
+      "detail": "At segment 0 step 5, a parsed movement count reaches the extra positive-multi refusal in js/cmd.js rhack. C cmd.c:3785-3800 admits movement and sets context.mv; JS executeMovement and allmain.c:515-531 repetition already match that path, supported by source/history and independent C witnesses. Allow movement intents only; preserve the nonmovement count boundary. This is a divergence fix, not whole-function completion evidence.",
+      "spans": [
+        {
+          "name": "rhack counted movement admission",
+          "status": "queued",
+          "closedBy": null,
+          "functions": [
+            "rhack"
+          ]
+        }
+      ],
+      "openedAt": "d2d95a45e2b36b0af22391d73870da91f8a480da",
+      "openStanding": {
+        "sha": "2ab3d33c4affb45693cc1cdc56882430c63db58f",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "closedAt": null,
+      "delivered": null,
+      "function": "rhack",
+      "session": "synthetic/v1/sustained-journey",
+      "step": 5,
+      "syntheticProvenance": {
+        "synthetic/v1/sustained-journey": {
+          "session": "synthetic/v1/sustained-journey",
+          "corpus": "synthetic",
+          "batch": "v1",
+          "caseId": "sustained-journey",
+          "manifestPath": "challenges/manifest.json",
+          "manifestSha256": "a1d989fa6b5159e0b0729150ba765c741a405ec910c1274ad763d29b0a7096fe",
+          "recordingPath": "challenges/cases/sustained-journey.session.json",
+          "recordingSha256": "b190d330b5177de86ea2c81412de96a1708faf22ff2a769aa1f558b7646a3eea",
+          "evaluationPath": "challenges/evaluations/20260918192720-v1.json",
+          "evaluationCommit": "2ab3d33c4affb45693cc1cdc56882430c63db58f"
+        }
+      },
+      "activeStanding": {
+        "sha": "2ab3d33c4affb45693cc1cdc56882430c63db58f",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v1",
+          "caseId": "sustained-journey",
+          "session": "synthetic/v1/sustained-journey",
+          "manifestPath": "challenges/manifest.json",
+          "manifestSha256": "a1d989fa6b5159e0b0729150ba765c741a405ec910c1274ad763d29b0a7096fe",
+          "recording": "challenges/cases/sustained-journey.session.json",
+          "recordingPath": "challenges/cases/sustained-journey.session.json",
+          "recordingSha256": "b190d330b5177de86ea2c81412de96a1708faf22ff2a769aa1f558b7646a3eea",
+          "recipe": "challenges/cases/sustained-journey.recipe.json",
+          "recipeSha256": "cb3c86febb1468ccfd39e289b53c00937a407244d5ba3d4fd7a3759ddbd08ed5",
+          "replayInputSha256": "1d82e114cf6028a970890ae3a93f705306dc8faac92e6f51685b97b4a7ea8fc0",
+          "evaluationPath": "challenges/evaluations/20260918192720-v1.json",
+          "evaluationCommit": "2ab3d33c4affb45693cc1cdc56882430c63db58f",
+          "evaluationArtifact": "challenges/evaluations/20260918192720-v1.json",
+          "evaluationUtc": "2026-09-18T19:27:20.180Z",
+          "remainingScreens": 197,
+          "recordedSteps": 202,
+          "previousScreensMatched": 5,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 5,
+              "total": 202
+            },
+            "rng": {
+              "matched": 6098,
+              "total": 10396
+            },
+            "cursors": {
+              "matched": 5,
+              "total": 202
+            }
+          },
+          "firstMismatch": {
+            "kind": "stop",
+            "message": "unsupported hero command: cmd.c parse() committed a count leaving gm.multi above 0 before a row this port will not repeat, which allmain.c moveloop_core():515-531 turns into a repeat of the command; that arm is not ported",
+            "step": 5
+          },
+          "step": 5,
+          "kind": "stop",
+          "sourceFile": "cmd.c",
+          "function": "parse",
+          "message": "unsupported hero command: cmd.c parse() committed a count leaving gm.multi above 0 before a row this port will not repeat, which allmain.c moveloop_core():515-531 turns into a repeat of the command; that arm is not ported",
+          "cFile": "cmd.c",
+          "luaFile": null,
+          "line": null,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v1/sustained-journey.json",
+            "result": {
+              "session": "synthetic/v1/sustained-journey",
+              "corpus": "synthetic",
+              "batch": "v1",
+              "caseId": "sustained-journey",
+              "manifestPath": "challenges/manifest.json",
+              "manifestSha256": "a1d989fa6b5159e0b0729150ba765c741a405ec910c1274ad763d29b0a7096fe",
+              "recording": "challenges/cases/sustained-journey.session.json",
+              "recordingPath": "challenges/cases/sustained-journey.session.json",
+              "recordingSha256": "b190d330b5177de86ea2c81412de96a1708faf22ff2a769aa1f558b7646a3eea",
+              "recipe": "challenges/cases/sustained-journey.recipe.json",
+              "recipeSha256": "cb3c86febb1468ccfd39e289b53c00937a407244d5ba3d4fd7a3759ddbd08ed5",
+              "replayInputSha256": "1d82e114cf6028a970890ae3a93f705306dc8faac92e6f51685b97b4a7ea8fc0",
+              "evaluationPath": "challenges/evaluations/20260918192720-v1.json",
+              "evaluationCommit": "2ab3d33c4affb45693cc1cdc56882430c63db58f",
+              "remainingScreens": 197,
+              "recordedSteps": 202,
+              "status": "complete",
+              "commit": "973ed4c61be4e63b24ffcf54f640b3a05990a0f1",
+              "mismatch": {
+                "corpus": "synthetic",
+                "batch": "v1",
+                "caseId": "sustained-journey",
+                "session": "synthetic/v1/sustained-journey",
+                "manifestPath": "challenges/manifest.json",
+                "manifestSha256": "a1d989fa6b5159e0b0729150ba765c741a405ec910c1274ad763d29b0a7096fe",
+                "recording": "challenges/cases/sustained-journey.session.json",
+                "recordingPath": "challenges/cases/sustained-journey.session.json",
+                "recordingSha256": "b190d330b5177de86ea2c81412de96a1708faf22ff2a769aa1f558b7646a3eea",
+                "recipe": "challenges/cases/sustained-journey.recipe.json",
+                "recipeSha256": "cb3c86febb1468ccfd39e289b53c00937a407244d5ba3d4fd7a3759ddbd08ed5",
+                "replayInputSha256": "1d82e114cf6028a970890ae3a93f705306dc8faac92e6f51685b97b4a7ea8fc0",
+                "evaluationPath": "challenges/evaluations/20260918192720-v1.json",
+                "evaluationCommit": "2ab3d33c4affb45693cc1cdc56882430c63db58f",
+                "evaluationArtifact": "challenges/evaluations/20260918192720-v1.json",
+                "evaluationUtc": "2026-09-18T19:27:20.180Z",
+                "remainingScreens": 197,
+                "recordedSteps": 202,
+                "previousScreensMatched": 5,
+                "regression": false,
+                "passed": false,
+                "error": null,
+                "metrics": {
+                  "screens": {
+                    "matched": 5,
+                    "total": 202
+                  },
+                  "rng": {
+                    "matched": 6098,
+                    "total": 10396
+                  },
+                  "cursors": {
+                    "matched": 5,
+                    "total": 202
+                  }
+                },
+                "firstMismatch": {
+                  "kind": "stop",
+                  "message": "unsupported hero command: cmd.c parse() committed a count leaving gm.multi above 0 before a row this port will not repeat, which allmain.c moveloop_core():515-531 turns into a repeat of the command; that arm is not ported",
+                  "step": 5
+                },
+                "step": 5,
+                "kind": "stop",
+                "sourceFile": "cmd.c",
+                "function": "parse",
+                "message": "unsupported hero command: cmd.c parse() committed a count leaving gm.multi above 0 before a row this port will not repeat, which allmain.c moveloop_core():515-531 turns into a repeat of the command; that arm is not ported",
+                "cFile": "cmd.c",
+                "luaFile": null,
+                "line": null
+              },
+              "summary": "The step-5 stop is an obsolete positive-count guard in cmd.c rhack(), which rejects movement before the existing executeMovement() path. C rhack() admits counted walk/run/rush, retains multi, and sets context.mv; JavaScript already implements that admission state and the allmain.c moveloop_core() repeat arm. Source comparison, Git history, and independent counted-movement recordings establish an implemented path blocked by the extra guard. Repair movement admission as a divergence fix, retain the non-movement refusal, and keep unrelated missing allmain behavior in its parked source-port goal.",
+              "source": {
+                "file": "cmd.c",
+                "functions": [
+                  "rhack"
+                ],
+                "branch": "A positive parsed command count on a MOVEMENT_INTENTS row reaches the generic refusal at js/cmd.js:5453-5474 before executeMovement(). C cmd.c:3785-3800 admits walk/rush, preserves multi, and sets context.mv; existing JS executeMovement() at :2713-2768 and allmain.js moveloop_core() at :1636-1651 already implement that movement/repeat path. Allow only movement intents past the obsolete guard; non-movement counts retain their current boundary.",
+                "callers": [
+                  "js/jsmain.js runSegment() -> js/allmain.js moveloop_core() -> js/cmd.js rhack(); C allmain.c:534 calls rhack(0).",
+                  "js/cmd.js rhack() -> executeMovement() -> hack.c domove; C cmd.c:3785-3800 is the corresponding movement dispatch.",
+                  "Existing js/allmain.js moveloop_core() repeats context.mv through runDomoveAtTurnBoundary(); C allmain.c:515-531 decrements finite counts and calls domove()."
+                ],
+                "dependencies": [
+                  "cmd.c parse()/get_count() already commit the count and consume its first repetition.",
+                  "cmd.c set_move_cmd(), hack.c end_running()/lookaround()/domove(), and the movement intent state are already implemented; preserve their source order and count semantics.",
+                  "Other allmain.c omissions are separate source-port work, preserved in port-allmain-moveloop-core-synthetic-20260918; this fix does not establish whole moveloop_core completion."
+                ]
+              },
+              "goalKind": "divergence-fix",
+              "evidence": [
+                ".cache/synthetic-scans/v1/sustained-journey.json records screensEmitted=5, recordedSteps=202, remainingScreens=197, first mismatch step=5, key=h, command=movewest, inputThroughStop=` i 3h`, and the exact unsupported-command boundary; divergence is null before the stop.",
+                "challenges/cases/sustained-journey.session.json segment 0 uses seed 90176, datetime 20010822161500, and moves beginning ` i 3h`; its step 4 key is `3` and step 5 key is `h`, establishing a count prefix followed by a west walk rather than an isolated parse failure.",
+                "nethack-c/upstream/src/cmd.c:5018-5089 get_count() and :5096-5156 parse() read the digits, store gc.command_count, then execute `gm.multi = gc.command_count; if (gm.multi) gm.multi--;`; count 3 therefore leaves gm.multi=2 for the first h command.",
+                "C cmd.c:3785-3800 sets context.mv and calls domove for counted movement without the generic refusal present at js/cmd.js:5453-5474. Existing js/cmd.js executeMovement() (:2713-2768) already sets the same movement/count state and invokes domove.",
+                "C allmain.c:515-531 and js/allmain.js:1636-1651 have the same positive-multi movement control flow: lookaround, runmode delay, early return if multi clears, finite-count decrement/end_running, and domove. This is behavioral source evidence, not a declaration count.",
+                "Git history: 76109518 added the repeat structure on 2026-07-22; 0d4a4aca added lookaround/runmode control on 2026-07-29; 0bc139cf wired end_running on 2026-09-08. The generic COUNTED_BOUNDARY gate from 4c436631 (2026-08-14) remains despite those implemented movement owners.",
+                "Independent worker C recordings and counted-versus-bare state/RNG tests pass when the gate is removed, and the assigned replay advances from step 5 to a separate eat.c boundary at step 168. These are branch diagnostics, not accepted aggregate gains. The narrowed fix retains the non-movement gate and requires its own combined validation.",
+                "The initial allmain file-port classification was too broad: source review found separate omissions in automatic teleport/polymorph, per-turn hooks and terrain, lava sinking, and status/display upkeep. They do not cause the step-5 guard failure and remain parked rather than claimed complete."
               ]
             }
           }
