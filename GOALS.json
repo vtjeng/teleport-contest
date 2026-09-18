@@ -63438,7 +63438,7 @@
       "sessions": [
         "holdout/seed4500-knight-coverage"
       ],
-      "selectionReason": "Independent recording dependency while A35 owns the Knight wiz_where continuation.",
+      "selectionReason": "Refresh existing read.c create_particular_creation evidence in the same display animation span that changes its caller. Hidden and invisible creation now awaits the source animation and has two matching production recordings; this is supporting evidence for B32, not a separate implementation selection or score.",
       "detail": "Complete the contiguous cant_revive through create_particular family, required monster census and canonical runtime creation flags. Independent sleeping and peaceful creations provide production evidence. Hidden/invisible animation, rare species and other unrecorded entry families remain open.",
       "spans": [
         {
@@ -63496,9 +63496,9 @@
         "to": 3411
       },
       "activeStanding": {
-        "sha": "62822945c35ed4f2144ec30f17bb78d8177f289c",
-        "screens": 11232,
-        "rng": 788703
+        "sha": "600f75464bef3714aca9373107a0fa64394194a8",
+        "screens": 11267,
+        "rng": 788894
       },
       "openMismatches": [
         {
@@ -63635,7 +63635,7 @@
             "name": "create_particular_creation",
             "implementation": "js/read.js",
             "symbol": "create_particular_creation",
-            "sourceReview": "Read nethack-c/upstream/src/read.c:3252-3371 in full. Preserved the non-random firstchoice and cant_revive replacement before the y_n force prompt, then source ordered mkclass()/rndmonst() selection, explicit gender conflict and MM_NOEXCLAM/MM_MINVIS flags, makemon() return and retry behavior, tamedog/set_malign disposition arms, saddle creation after can_saddle/which_armor, hidden tests for M1_HIDE, M1_CONCEAL plus OBJ_AT, and eel plus is_pool, sleeping state, flash_mon() and final newcham() order. The makemon caller is awaited through its runtime continuation; its marker admits both ordinary MM_NOEXCLAM requests and the C gender-conflict arm that has only one gender bit, with optional MM_MINVIS. mon_set_minvis() remains after placement and peace_minded() as in makemon.c:1299-1301. flash_mon() is the canonical mon.c owner; its discarded display.c flash_glyph_at() animation remains an explicit gap for hidden and invisible production entries, with no fabricated frames.",
+            "sourceReview": "Read nethack-c/upstream/src/read.c:3252-3371 in full. Preserved the non-random firstchoice and cant_revive replacement before the y_n force prompt, then source ordered mkclass()/rndmonst() selection, explicit gender conflict and MM_NOEXCLAM/MM_MINVIS flags, makemon() return and retry behavior, tamedog/set_malign disposition arms, saddle creation after can_saddle/which_armor, hidden tests for M1_HIDE, M1_CONCEAL plus OBJ_AT, and eel plus is_pool, sleeping state, flash_mon() and final newcham() order. The makemon caller is awaited through its runtime continuation; its marker admits both ordinary MM_NOEXCLAM requests and the C gender-conflict arm that has only one gender bit, with optional MM_MINVIS. mon_set_minvis() remains after placement and peace_minded() as in makemon.c:1299-1301. The caller now awaits canonical mon.c flash_mon(), which completes the whole display.c flash_glyph_at() animation before creation continues. Independent hidden-trapper and invisible-newt recordings match each source animation frame, final screen, cursor and RNG sequence; the underlying temporary vision, ordinary mon_to_glyph and hero-memory background behavior is recorded with the display.c source goal.",
             "callers": [
               {
                 "path": "js/read.js",
@@ -63649,9 +63649,11 @@
             ],
             "recordings": [
               "recordings/read.c/create-particular-sleeping.session.json",
-              "recordings/read.c/create-particular-peaceful.session.json"
+              "recordings/read.c/create-particular-peaceful.session.json",
+              "recordings/read.c/create-particular-hidden.session.json",
+              "recordings/read.c/create-particular-invisible-newt.session.json"
             ],
-            "checkedAt": "e91a73aacf1bf28b58193b384fa3e993e6a82c74"
+            "checkedAt": "600f75464bef3714aca9373107a0fa64394194a8"
           },
           {
             "name": "create_particular",
@@ -63681,7 +63683,7 @@
             "checkedAt": "e91a73aacf1bf28b58193b384fa3e993e6a82c74"
           }
         ],
-        "entryPointReview": "The selected read.c family has active wizard creation and create-monster scroll/spell entry families. The production wizard-genesis matrix reaches the canonical wiz_genesis() caller and the independent sleeping-newt and peaceful-newt recordings execute create_particular(), create_particular_parse(), create_particular_creation(), makemon_runtime(), and their post-creation state arms with strict C/JavaScript parity. The focused production-state test also reaches hidden and invisible assignment on a PM_TRAPPER and newt, but those calls continue to the existing mon.c flash_mon() owner whose discarded display.c flash_glyph_at() animation is not ported; the hidden recipe is therefore retained as input-only with that named blocker and the invisible branch remains unrecorded. Active class/random, saddle, tame, explicit gender-conflict, force-revival, create_critters() scroll/spell, and bones.c, trap.c and zap.c cant_revive caller families remain listed with empty recording arrays until independent production routes exercise them. The old UnsupportedMonsterRequestError boundary was removed because unknown answers now follow read.c's retry loop. Supporting name_to_monplus/name_to_monclass, makemon, tamedog, set_malign, saddle, newcham and flash_mon owners are reused; display.c flash_glyph_at and any unavailable makemon species-specific setup remain named source gaps rather than fabricated behavior.",
+        "entryPointReview": "The selected read.c family has active wizard creation and create-monster scroll/spell entry families. Independent sleeping-newt and peaceful-newt recordings execute wiz_genesis, create_particular, create_particular_parse, create_particular_creation and runtime creation with strict parity. The later display.c animation span adds independent hidden-trapper and invisible-newt recordings through the same production caller; these verify the awaited flash_mon and flash_glyph_at continuation with 16 matching animation frames each. Active class/random, saddle, tame, explicit gender-conflict, force-revival, create_critters scroll/spell, and bones.c, trap.c and zap.c cant_revive families retain empty recording arrays until their own production routes are exercised. Unknown answers follow the canonical retry loop. Supporting naming, creation, disposition, saddle and shapechange owners remain reused; unavailable species-specific setup remains a named gap.",
         "entryPoints": [
           {
             "name": "wizard named and stateful monster creation",
@@ -63700,7 +63702,10 @@
             "functions": [
               "create_particular_creation"
             ],
-            "recordings": []
+            "recordings": [
+              "recordings/read.c/create-particular-hidden.session.json",
+              "recordings/read.c/create-particular-invisible-newt.session.json"
+            ]
           },
           {
             "name": "wizard class, random, saddle, tame, gender-conflict and force-revival requests",
@@ -63731,11 +63736,11 @@
         "rng": 0
       },
       "parkedStanding": {
-        "sha": "6c085eb26ea182d855a31f4a23d2fb005c3ab97c",
-        "screens": 11232,
-        "rng": 788703
+        "sha": "600f75464bef3714aca9373107a0fa64394194a8",
+        "screens": 11267,
+        "rng": 788894
       },
-      "parkedReason": "The whole creation family and its sleeping/peaceful production entries are verified. Resume for hidden/invisible entry recordings after display.c flash_glyph_at lands, and for class/random/saddle/tame/gender-conflict/forced-species, create-monster scroll/wand/spell and statue/figurine/bones caller recordings when source dependencies permit; the source span is closed without claiming these entry families complete."
+      "parkedReason": "Hidden and invisible creation now have matching animation recordings. Class/random, saddle, tame, explicit gender-conflict, force-revival, create_critters and statue/figurine/bones entry recordings remain incomplete; return to the display animation span."
     },
     {
       "id": "port-dungeon-print-dungeon-seed4500-20260917",
@@ -64006,8 +64011,8 @@
           "name": "flash_glyph_at",
           "line": 1305,
           "endLine": 1331,
-          "declared": false,
-          "complete": false
+          "declared": true,
+          "complete": true
         }
       ],
       "range": {
@@ -64015,7 +64020,7 @@
         "to": 1331
       },
       "activeStanding": {
-        "sha": "3f8f1ca833027a7ab7442789d2c862d14cada76c",
+        "sha": "600f75464bef3714aca9373107a0fa64394194a8",
         "screens": 11267,
         "rng": 788894
       },
@@ -64096,7 +64101,80 @@
             }
           }
         }
-      ]
+      ],
+      "progressBeforePark": {
+        "screens": 0,
+        "rng": 0
+      },
+      "parkedStanding": {
+        "sha": "600f75464bef3714aca9373107a0fa64394194a8",
+        "screens": 11267,
+        "rng": 788894
+      },
+      "parkedReason": "Temporarily refresh the already verified read.c caller evidence changed by this same animation span; resume display integration immediately afterward.",
+      "evidence": {
+        "functions": [
+          {
+            "name": "flash_glyph_at",
+            "implementation": "js/display.js",
+            "symbol": "flash_glyph_at",
+            "sourceReview": "Read nethack-c/upstream/src/display.c:1305-1321 in full. The port doubles rpt before the loop, evaluates the supplied target and the hero-memory remembered glyph or source back_to_glyph in that order, and performs show_glyph, flush_screen(1), nh_delay_output for every alternating frame. The missing-memory case retains C's GLYPH_UNEXPLORED sentinel and configured SYM_UNEXPLORED presentation. All called display helpers are implemented owners; planning clones resolve the pair but skip live terminal mutation.",
+            "callers": [
+              {
+                "path": "js/mon.js",
+                "symbol": "flash_mon",
+                "source": "mon.c:6067-6079; flash_mon computes the couldsee/sparkle count, saves and temporarily raises IN_SIGHT|COULD_SEE, evaluates mon_to_glyph, awaits flash_glyph_at, restores saveviz and redraws the live square."
+              },
+              {
+                "path": "js/read.js",
+                "symbol": "create_particular_creation",
+                "source": "read.c:3343-3347; hidden or invisible particular-monster creation awaits the supporting flash_mon caller after setting the source hiding state."
+              },
+              {
+                "path": "js/muse.js",
+                "symbol": "mreadmsg",
+                "source": "muse.c:278-285; a monster reading with telepathy indicator awaits the supporting flash_mon caller before continuing its message tail."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/zap-ray.test.mjs"
+            ],
+            "recordings": [
+              "recordings/read.c/create-particular-hidden.session.json",
+              "recordings/read.c/create-particular-invisible-newt.session.json"
+            ],
+            "checkedAt": "600f75464bef3714aca9373107a0fa64394194a8"
+          }
+        ],
+        "entryPointReview": "The selected primary unit is display.c flash_glyph_at() (1305-1321), with the complete mon.c flash_mon() caller (6067-6079) and its read.c create_particular_creation() and muse.c mreadmsg() async callers wired in the same delivery. Independently chosen hidden-trapper and invisible-newt wizard-creation recordings reach read.c creation, mon.c flash_mon(), and the 16-frame display animation, and both strictly match C in screens, cursors, PRNG and animation frames. The hidden route covers the ordinary unseen monster arm; the invisible-newt route is a meaningful independent MM_MINVIS variation. The muse telepathic reading entry remains an active source caller with no new recording in this span, and detect.c findone and detect_obj_traps have additional active source calls. JavaScript currently refuses findone discoveries before mutation; the trap-object detection family is not wired to this animation. Those production entries remain open.",
+        "entryPoints": [
+          {
+            "name": "particular-monster hidden or invisible reveal",
+            "functions": [
+              "flash_glyph_at"
+            ],
+            "recordings": [
+              "recordings/read.c/create-particular-hidden.session.json",
+              "recordings/read.c/create-particular-invisible-newt.session.json"
+            ]
+          },
+          {
+            "name": "monster-reading telepathy flash",
+            "functions": [
+              "flash_glyph_at"
+            ],
+            "recordings": []
+          },
+          {
+            "name": "magical detection discovery and trapped-object reveal",
+            "functions": [
+              "flash_glyph_at"
+            ],
+            "recordings": []
+          }
+        ]
+      }
     }
   ]
 }
