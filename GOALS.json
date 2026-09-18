@@ -63740,7 +63740,7 @@
     {
       "id": "port-dungeon-print-dungeon-seed4500-20260917",
       "kind": "file-port",
-      "status": "open",
+      "status": "parked",
       "summary": "Complete informational dungeon layout and preserve the level-teleport menu.",
       "cFile": "dungeon.c",
       "sessions": [
@@ -63751,8 +63751,8 @@
       "spans": [
         {
           "name": "print_branch..print_dungeon",
-          "status": "queued",
-          "closedBy": null,
+          "status": "closed",
+          "closedBy": "3f8f1ca833027a7ab7442789d2c862d14cada76c",
           "functions": [
             "print_branch",
             "print_dungeon"
@@ -63960,7 +63960,17 @@
             "recordings": []
           }
         ]
-      }
+      },
+      "progressBeforePark": {
+        "screens": 35,
+        "rng": 191
+      },
+      "parkedStanding": {
+        "sha": "3f8f1ca833027a7ab7442789d2c862d14cada76c",
+        "screens": 11267,
+        "rng": 788894
+      },
+      "parkedReason": "Both print_dungeon modes and their production callers are source-verified with informational and Castle-menu recordings. Resume for matching floating-branch, Invocation-position and portal/no-portal diagnostic entry recordings when reachable recipes exist; these remain source-reviewed and partly covered by initialized tests, without production completion claims."
     }
   ]
 }
