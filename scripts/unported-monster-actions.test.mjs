@@ -5274,9 +5274,8 @@ test('waiting covetous monster takes the early dochug no-op', async () => {
 });
 
 // C ref: monmove.c dochug():726-731 and :782. Once the wizard.c tactics()
-// family is wired, both states reach its source movement path; this fixture
-// then stops at the still-unported directed spell effect, rather than the old
-// blanket special-movement refusal.
+// family is wired, both states reach its source movement path.  The planning
+// pass must complete the tactics call without changing the live retry state.
 test('awake or visible covetous monsters reach tactics', async () => {
     for (const testCase of [
         // Awake removes the early disturb() return; clearing COULD_SEE checks
@@ -5296,20 +5295,22 @@ test('awake or visible covetous monsters reach tactics', async () => {
             game.viz_array[target.heroY][target.monsterX] &= ~COULD_SEE;
         const before = completeSecondTurnSnapshot(game, target.replay);
         for (let attempt = 0; attempt < 2; ++attempt) {
-            if (testCase.sleeping) {
-                await assert.doesNotReject(
-                    preflightSimpleMonsterActions(game),
-                    `${testCase.label}, attempt ${attempt + 1}`,
-                );
-            } else {
-                await assert.rejects(
-                    preflightSimpleMonsterActions(game),
-                    (error) => (
-                        error instanceof UnsupportedSimpleMonsterActionError
-                        && error.reason !== 'special monster movement'
-                    ),
-                    `${testCase.label}, attempt ${attempt + 1}`,
-                );
+            let plannedTacticsState = null;
+            const result = await preflightSimpleMonsterActions(game, {
+                advanceRound(planned) {
+                    const wizard = planned.level.monlist;
+                    plannedTacticsState = {
+                        mstrategy: wizard.mstrategy,
+                        mgoal: { ...wizard.mgoal },
+                    };
+                    return true;
+                },
+            });
+            assert.equal(result.heroDeath, null,
+                `${testCase.label}, attempt ${attempt + 1}`);
+            if (!testCase.sleeping && !testCase.visible) {
+                assert.ok(plannedTacticsState,
+                    `${testCase.label} reaches the planned tactics/upkeep seam`);
             }
             assert.deepEqual(
                 completeSecondTurnSnapshot(game, target.replay),
