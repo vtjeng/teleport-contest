@@ -33,6 +33,7 @@ import {
     GPCOORDS_MAP,
     GPCOORDS_NONE,
     GPCOORDS_SCREEN,
+    GLOC_INTERESTING,
     GRAVE,
     HALLUC,
     HALLUC_RES,
@@ -86,7 +87,7 @@ import {
     waterbody_name,
 } from './pager.js';
 import { is_drawbridge_wall } from './dbridge.js';
-import { known_vibrating_square_at } from './getpos.js';
+import { gather_locs_interesting } from './getpos.js';
 import { engr_at } from './engrave.js';
 import { t_at } from './trap.js';
 import { visible_region_at } from './region.js';
@@ -114,10 +115,6 @@ import {
     glyph_is_cmap,
     glyph_to_cmap,
 } from './display.js';
-import {
-    GLYPH_NOTHING_OFF,
-    GLYPH_UNEXPLORED_OFF,
-} from './glyph_offsets.js';
 import {
     AMULET_CLASS,
     ARMOR_CLASS,
@@ -196,8 +193,6 @@ import {
     S_tree,
     S_upstair,
     S_upladder,
-    S_vwall,
-    S_trwall,
     S_vcdoor,
     S_vcdbridge,
     S_vodbridge,
@@ -1076,30 +1071,6 @@ function terrainDescription(location, x, y, state) {
     }
 }
 
-// C ref: getpos.c gather_locs_interesting(), GLOC_INTERESTING (438-508).
-// This predicate only inspects the already rendered glyph and map/trap state;
-// it must not call terrainDescription(), since waterbody_name() can consume
-// display RNG while merely deciding whether a square is worth describing.
-function glyphIsInterestingForLookaround(x, y, state) {
-    const glyph = glyph_at(x, y, state);
-    const cmap = glyph_is_cmap(glyph) ? glyph_to_cmap(glyph) : -1;
-    const door = [
-        S_ndoor, S_vodoor, S_hodoor, S_vcdoor, S_hcdoor,
-        S_vodbridge, S_hodbridge, S_vcdbridge, S_hcdbridge,
-    ].includes(cmap);
-    if (door) return true;
-    const excludedCmap = cmap >= S_vwall && cmap <= S_trwall
-        || [
-            S_tree, S_bars, S_ice, S_air, S_cloud, S_lava, S_lavawall,
-            S_water, S_pool, S_ndoor, S_room, S_darkroom, S_corr, S_litcorr,
-        ].includes(cmap);
-    const excludedGlyph = glyph === GLYPH_NOTHING_OFF
-        || glyph === GLYPH_UNEXPLORED_OFF;
-    if ((!glyph_is_cmap(glyph) || !excludedCmap) && !excludedGlyph)
-        return true;
-    return known_vibrating_square_at(x, y, state);
-}
-
 function cmapDescription(symbol, x, y, state) {
     const location = state.level?.at(x, y);
     if (symbol === S_altar && location?.typ === ALTAR)
@@ -1398,7 +1369,7 @@ function visibleSubjectAt(x, y, state) {
         );
         if (!interestingObject && !interestingTrap
             && !interestingEngraving
-            && !glyphIsInterestingForLookaround(x, y, state)) return null;
+            && !gather_locs_interesting(x, y, GLOC_INTERESTING, state)) return null;
     }
 
     // cmd.c:dolookaround() asks do_screen_description() for each interesting
