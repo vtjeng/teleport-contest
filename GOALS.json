@@ -68170,8 +68170,8 @@
           "name": "msummon",
           "line": 59,
           "endLine": 197,
-          "declared": false,
-          "complete": false
+          "declared": true,
+          "complete": true
         }
       ],
       "range": {
@@ -68267,7 +68267,65 @@
             }
           }
         }
-      ]
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "msummon",
+            "implementation": "js/minion.js",
+            "symbol": "msummon",
+            "sourceReview": "Compared minion.c:msummon() 59–197 in full. The demon-prince, demon-lord, bone-devil, non-prince demon, lawful-minion, and angel selector order preserves C's rn2/rn1 draws, group count, G_UNIQ/G_GONE fallback, census delta, MM_EMIN allocation, angel EMIN alignment/renegade mutation, the discarded light.c show_transient_light result, and final visible cloud message. The JS caller uses makemon_runtime with an explicit _msummon marker so the runtime continuation remains source-owned by makemon.c. Supporting dprince, dlord, ndemon, lminion and llord implementations are source-reviewed and source-pinned, but remain unverified source units here because the independent variation has no msummon annotation and the primary annotations do not identify a selector helper.",
+            "callers": [
+              {
+                "path": "js/mhitu.js",
+                "symbol": "mattacku",
+                "source": "mhitu.c:summonmu is reached by mattacku and awaits msummon for the eligible demon arm"
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/minion.test.mjs"
+            ],
+            "recordings": [
+              "recordings/minion.c/msummon-water-demon-independent.session.json"
+            ],
+            "checkedAt": "6df425b2f9c61c77b61e06f72112025d144866b9"
+          }
+        ],
+        "entryPointReview": "Read whole minion.c msummon59–197 and supporting selector definitions dprince through ndemon391–464, together with mhitu.c summonmu and makemon creation flags. The primary water-demon recording has four msummon RNG annotations across steps46 and103 and completes the creation path; the variation has no msummon annotation and establishes only summonmu eligibility behavior. The return-valued selectors are implemented from source but are not marked verified source units here. C nasty calls msummon(NULL) on its Gehennom chance branch for either a monster caster or null-summoner harassment; sit.c calls it three times for the throne effect. Those caller entries and other demon/angel selector paths remain open. The source goal must be parked after this verified primary span, with light.c show_transient_light and transient_light_cleanup retained as named discarded-result gaps.",
+        "entryPoints": [
+          {
+            "name": "demon summon through summonmu",
+            "functions": [
+              "msummon"
+            ],
+            "recordings": [
+              "recordings/minion.c/msummon-water-demon-independent.session.json"
+            ]
+          },
+          {
+            "name": "Gehennom summons through nasty",
+            "functions": [
+              "msummon"
+            ],
+            "recordings": []
+          },
+          {
+            "name": "throne demon summons",
+            "functions": [
+              "msummon"
+            ],
+            "recordings": []
+          },
+          {
+            "name": "Other demon and angel selector paths",
+            "functions": [
+              "msummon"
+            ],
+            "recordings": []
+          }
+        ]
+      }
     }
   ]
 }
