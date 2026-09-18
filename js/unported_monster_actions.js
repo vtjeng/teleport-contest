@@ -93,6 +93,7 @@ import { whimper } from './sounds.js';
 import {
     adaptMonsterActionToDochugwSignature,
     hideunder,
+    iter_mons_safe,
     minliquid,
     movemon_singlemon,
     restrap,
@@ -2020,19 +2021,28 @@ async function planSimpleMonsterTurn(planned, random, advanceRound) {
         // C brackets only the monster scan with context.mon_moving, so the
         // once-per-turn upkeep below sees it clear just as the live loop does.
         planned.context.mon_moving = true;
+        let scanStopped = false;
         do {
             planned.somebody_can_move = false;
-            for (let monster = planned.level.monlist;
-                monster;
-                monster = monster.nmon) {
-                if (!assertSimpleScanState(monster, planned)) continue;
-                await planSimpleMonsterScan(monster, {
+            // C movemon() snapshots fmon through iter_mons_safe() before the
+            // first callback. A planned action may unlink its subject or add
+            // another monster, so walking planned.level.monlist directly
+            // would skip an original successor or process a new node during
+            // this scan. Preserve the callback's stop result as live movemon
+            // does; the movemon tail still runs before the outer turn gate.
+            await iter_mons_safe(async (monster) => {
+                if (!assertSimpleScanState(monster, planned)) return false;
+                const stop = await planSimpleMonsterScan(monster, {
                     state: planned,
                     random,
                     displayRandom,
                     planning: true,
                 });
-            }
+                scanStopped = stop || Boolean(
+                    planned.program_state?.gameover,
+                );
+                return scanStopped;
+            }, planned);
             // C mon.c movemon() calls dmonsfree() after its monster scan.
             // The live pass must remove a monster killed by a passive
             // retaliation before allmain.c mcalcmove() allocates the next
@@ -2051,9 +2061,11 @@ async function planSimpleMonsterTurn(planned, random, advanceRound) {
             // clear_bypasses() has already run on the clone before this scan;
             // clear_splitobjs() touches only discarded state.
             if (any_light_source(planned)) planned.vision_full_recalc = 1;
+            if (scanStopped) break;
             if (planned.u.umovement >= NORMAL_SPEED) break;
         } while (somebodyCanMove);
         planned.context.mon_moving = false;
+        if (scanStopped) break;
 
         const runsUpkeep =
             !somebodyCanMove && planned.u.umovement < NORMAL_SPEED;
