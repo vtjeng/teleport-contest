@@ -11,6 +11,7 @@ import {
     IS_OBSTRUCTED,
     IS_TREE,
     M_AP_FURNITURE,
+    M_AP_MONSTER,
     M_AP_OBJECT,
     M_AP_TYPE,
     M_ATTK_AGR_DIED,
@@ -122,7 +123,7 @@ import { SILVER } from './objects.js';
 import { d, rn1, rn2, rnd, rne, rnz } from './rng.js';
 import { canSpotMonster } from './startup_a11y.js';
 import { mhitm_adtyping, mhitm_knockback, shade_miss } from './uhitm.js';
-import { cansee } from './vision.js';
+import { cansee, unblock_point } from './vision.js';
 import { breamm, spitmm, thrwmm } from './mthrowu.js';
 import { possibly_unwield } from './weapon.js';
 import { find_mac, which_armor } from './worn.js';
@@ -485,6 +486,11 @@ export async function mdisplacem(magr, mdef, quietly = false, rawEnv = {}) {
     const message = planning ? async () => {} : (rawEnv.message ?? ttyPline);
     const redraw = planning ? () => {} : (rawEnv.redraw ?? newsym);
     const flush = planning ? async () => {} : (rawEnv.flushScreen ?? flush_screen);
+    const unblockPoint = rawEnv.unblockPoint ?? ((x, y, targetState) => {
+        if (planning && typeof rawEnv.admitPlannedVisionChange === 'function')
+            rawEnv.admitPlannedVisionChange(x, y, targetState);
+        unblock_point(x, y, targetState);
+    });
     const operationEnv = {
         ...rawEnv,
         state,
@@ -494,6 +500,7 @@ export async function mdisplacem(magr, mdef, quietly = false, rawEnv = {}) {
         redraw,
         flushScreen: flush,
         newsym: redraw,
+        unblockPoint,
         hooks: {
             ...(rawEnv.hooks ?? {}),
             newsym: redraw,

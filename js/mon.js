@@ -5838,6 +5838,7 @@ export async function mon_to_stone(mtmp, state = game, env = {}) {
 // C ref: mon.c vamp_stone() (3766-3831). A shifted vampire or sandestin
 // resumes its innate form rather than leaving a statue behind.
 export async function vamp_stone(mtmp, state = game, env = {}) {
+    const redraw = env.redraw ?? newsym;
     if (is_vampshifter(mtmp)) {
         const mndx = mtmp.cham;
         const x = mtmp.mx;
@@ -5892,7 +5893,7 @@ export async function vamp_stone(mtmp, state = game, env = {}) {
                     env,
                 );
             }
-            newsym(mtmp.mx, mtmp.my, state);
+            redraw(mtmp.mx, mtmp.my, state);
             return false;
         }
     } else if (ismnum(mtmp.cham)
@@ -5902,7 +5903,7 @@ export async function vamp_stone(mtmp, state = game, env = {}) {
         set_mon_min_mhpmax(mtmp, 10);
         mtmp.mhp = mtmp.mhpmax;
         await newcham(mtmp, state.mons[mtmp.cham], { ...env, state });
-        newsym(mtmp.mx, mtmp.my, state);
+        redraw(mtmp.mx, mtmp.my, state);
         return false;
     }
     return true;

@@ -578,6 +578,20 @@ export function planningState(state) {
                 ...region,
                 monsters: [...(region.monsters ?? [])],
             })),
+            // worm.c keeps tail coordinates in level-owned slots. A planned
+            // displacement may remove and place those segments, so the slot
+            // records must be cloned with the rest of the level map rather
+            // than letting place_worm_tail_randomly mutate the live tail.
+            worms: Array.isArray(state.level.worms)
+                ? state.level.worms.map((record) => record
+                    ? {
+                        ...record,
+                        segments: record.segments?.map((segment) => ({
+                            ...segment,
+                        })),
+                    }
+                    : record)
+                : state.level.worms,
             // trap.c seetrap() sets trap->tseen and then repaints the square,
             // and its `if (!trap->tseen)` guard makes the repaint happen once.
             // Sharing the live trap would let the dry run consume that first
@@ -1122,6 +1136,7 @@ async function moveSimpleOrdinary(monster, env) {
         ...doorVisionOperations(env),
         ...monsterWieldOperations(env),
         migrateToLevel: monsterMigrationOperation(env),
+        admitPlannedVisionChange,
         setApparxy: (subject, operationEnv) =>
             set_apparxy(subject, operationEnv),
         mdigTunnel: mdig_tunnel,
@@ -1145,6 +1160,7 @@ async function moveSimplePet(monster, after, env) {
     return dog_move(monster, after, {
         ...env,
         migrateToLevel: monsterMigrationOperation(env),
+        admitPlannedVisionChange,
         setApparxy: (subject, operationEnv) =>
             set_apparxy(subject, operationEnv),
         // dogmove.c:1280-1287 hands an ALLOW_U landing directly to
