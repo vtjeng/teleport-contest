@@ -1542,6 +1542,11 @@ test('mattacku resets mon_currwep before a nonweapon attack slot', async () => {
     const state = await meleeHero();
     state.u.umonster = PM_HUMAN;
     state.u.umonnum = PM_RUST_MONSTER;
+    // A polymorphed hero's passiveum() path reads the form hit-point pool.
+    // meleeHero() starts in human form, so initialize the rust-monster pool
+    // before the nonweapon blow rather than accidentally testing rehumanize.
+    state.u.mh = 10;
+    state.u.mhmax = 10;
     state.youmonst.data = {
         ...state.mons[PM_RUST_MONSTER],
         mattk: [{
@@ -1557,6 +1562,9 @@ test('mattacku resets mon_currwep before a nonweapon attack slot', async () => {
     bug.mw = {};
     const result = meleeEnv(state, [1]);
     assert.equal(await mattacku(bug, result.env), false);
+    // The grid-bug blow reached hitmu() and the polymorphed damage pool; this
+    // keeps the assertion tied to the passive attack path under test.
+    assert.equal(state.u.mh, 9);
     assert.equal(state.unported.has('zap.c drain_item'), false);
 });
 

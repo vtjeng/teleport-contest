@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "Independent minion.c msummon witness: debug intrinsic grants invulnerability, then genesis creates a hostile water demon, then repeated ordinary turns reach summonmu's demon call. The repeated turns are intentionally longer than the one-in-sixteen summon roll so the production caller is exercised rather than only the creation prompt.",
+  "segments": [
+    {
+      "seed": 940032,
+      "datetime": "20350101120000",
+      "nethackrc": "OPTIONS=name:MinionSummon,role:Wizard,race:human,gender:male,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen,playmode:debug,pettype:none,!acoustics\n",
+      "moves": " #wizintrinsic\na\n #wizgenesis\nwater demon\nm.m.   \nm. m. m. m. m. m. m. m. m. m. m. m. m. m. m. m. m. m."
+    }
+  ]
+}

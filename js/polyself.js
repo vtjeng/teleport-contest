@@ -1284,8 +1284,14 @@ export async function polymon(mntmp, state = game, rawEnv = {}) {
 // C discards both results, so each call records its gap and is skipped.
 async function polyman(fmt, arg, state, rawEnv = {}) {
     const u = state.u;
-    const message = rawEnv.message
-        ?? (rawEnv.planning ? async () => {} : ttyUrgentPline);
+    // C polyman() always uses urgent_pline() for the form-change line.  The
+    // urgent tty arm clears WIN_STOP left by an Escape at an earlier More;
+    // ordinary pline() would retain the stop and let a later map flush repaint
+    // the stale pending spell message.  Planning remains silent, and an
+    // explicitly supplied urgent seam keeps clone tests independent of TTY.
+    const message = rawEnv.planning
+        ? (async () => {})
+        : (rawEnv.urgentMessage ?? ttyUrgentPline);
     const redraw = rawEnv.redraw
         ?? (rawEnv.planning ? () => {} : newsym);
     const sticking = Boolean(sticks(state.youmonst.data) && u.ustuck
