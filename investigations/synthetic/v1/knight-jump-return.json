@@ -37,18 +37,39 @@
     "passed": false,
     "error": null,
     "metrics": {
-      "screens": { "matched": 85, "total": 87 },
-      "rng": { "matched": 4126, "total": 4126 },
-      "cursors": { "matched": 85, "total": 87 }
+      "screens": {
+        "matched": 85,
+        "total": 87
+      },
+      "rng": {
+        "matched": 4126,
+        "total": 4126
+      },
+      "cursors": {
+        "matched": 85,
+        "total": 87
+      }
     },
     "firstMismatch": {
       "screen": null,
       "rng": null,
       "cursor": {
         "index": 33,
-        "location": { "segmentIndex": 0, "stepIndex": 33, "key": "\n" },
-        "cCursor": [43, 8, 1],
-        "jsCursor": [45, 10, 1]
+        "location": {
+          "segmentIndex": 0,
+          "stepIndex": 33,
+          "key": "\n"
+        },
+        "cCursor": [
+          43,
+          8,
+          1
+        ],
+        "jsCursor": [
+          45,
+          10,
+          1
+        ]
       }
     },
     "step": 33,
@@ -60,14 +81,14 @@
     "luaFile": null,
     "line": null
   },
-  "summary": "At step 33, the second #jump command has identical C and JavaScript screens and all 4126 RNG calls, but C leaves the prompt cursor at the hero [43,8] while JavaScript leaves it at [45,10]. C getpos_sethilite() marks changed valid squares through newsym_force(), and getpos()'s flush_screen(0) leaves the TTY cursor at the last actually flushed glyph, including pre-existing glyph-buffer state. JavaScript forceGetposSelectionRedraw() rescans valid squares, marks every one dirty, and then unconditionally restores to the maximum selected square plus one, which is not the C cursor contract. The first and third jump prompts coincidentally hide the same defect because their pending-buffer cursor outcomes happen to equal the selected-range cursor.",
+  "summary": "At step 33, the second #jump command has identical C and JavaScript screens and all 4126 RNG calls, but C leaves the prompt cursor at the hero [43,8] while JavaScript leaves it at [45,10]. The actionable ordering defect is that C apply.c calls getpos_sethilite() before entering getpos(); getpos() then runs handle_tip() and the verbose pline before its initial curs/flush_screen(0). Those C messages flush the forced selection with cursor_on_u=1, consuming the dirty glyphs and returning the cursor to the hero. JS getpos.js runs handle_tip/verbose ttyPline first, then forceGetposSelectionRedraw() marks the selection and manually restores to its maximum [45,10].",
   "source": {
     "file": "getpos.c",
     "functions": [
       "getpos_sethilite",
       "getpos"
     ],
-    "branch": "During a physical Knight #jump, getpos_sethilite(display_jump_positions, get_valid_jump_position) changes the valid-location callback before getpos() starts. C compares the old and new callback, forces only the changed selection through selvar.c selection_force_newsyms(), then getpos() calls curs(WIN_MAP, cx, cy) and flush_screen(0). The resulting cursor is determined by display.c's pending gbuf ranges and tty_print_glyph() advancement; at the second jump in this recording it remains [43,8]. JS getpos.js instead forces a fresh full valid-square scan and sets cursorAt(lastValid.x + 1, lastValid.y), producing [45,10] despite screen and RNG parity.",
+    "branch": "During a physical Knight #jump, C apply.c:2058-2063 prints the jump prompt, installs getpos_sethilite(display_jump_positions, get_valid_jump_position), and enters getpos(). C getpos.c:838-847 then handles the one-time GETPOS tip and verbose pline before :848-854 calls curs/flush_screen(0). The callback change has already marked the valid selection, so pline.c:273-274 flushes it with cursor_on_u=1 and leaves the cursor on the hero before getpos's zero-mode flush. JS apply.js installs callback fields, but JS getpos.js:904 and :918 performs handle_tip/verbose ttyPline before :924 forceGetposSelectionRedraw(); the forced selection is therefore marked after the pre-cursor flush and :927-932 moves to its selected maximum, producing [45,10] instead of C [43,8] while screens and RNG remain equal.",
     "callers": [
       "nethack-c/upstream/src/apply.c:2058-2064 jump() installs display_jump_positions/get_valid_jump_position and calls getpos(&cc, TRUE, ...); this is the recorded #jump production entry.",
       "js/apply.js:1139-1151 jump() installs state.getpos_hilitefunc/state.getpos_getvalid and calls getpos(target, true, ...), then clears the callback state in its finally block.",
@@ -76,17 +97,18 @@
     ],
     "dependencies": [
       "nethack-c/upstream/src/selvar.c:802-810 selection_force_newsyms() walks the selection in source order and calls newsym_force() only for selected points.",
-      "nethack-c/upstream/src/display.c:1863-1871 newsym_force() updates gbuf_start/gbuf_stop and gnew; :2208-2266 flush_screen(0) prints only pending ranges, and its final cursor is whatever tty_print_glyph() last advanced to.",
-      "js/display.js:5933-6020 flush_screen() rebuilds the complete grid and restores the saved cursor rather than modeling C's sparse gbuf cursor advancement, so getpos.js must not infer a C cursor from the maximum valid target alone."
+      "nethack-c/upstream/src/display.c:1863-1871 newsym_force() updates gbuf_start/gbuf_stop and gnew; :2208-2266 flush_screen(0) prints only pending ranges, while pline.c:273-274 invokes flush_screen(1) for the pre-cursor messages and explicitly returns the cursor to u.ux/u.uy.",
+      "js/display.js:5933-6020 flush_screen() already preserves the cursor around complete-grid rebuilding; the actionable JS defect is that forceGetposSelectionRedraw() runs after the equivalent pre-cursor ttyPline calls instead of modeling the C callback's earlier dirty-selection installation."
     ]
   },
   "goalKind": "divergence-fix",
   "evidence": [
     ".cache/synthetic-goal-650-queue.json entry synthetic/v1/knight-jump-return records the assigned main provenance 973ed4c61be4e63b24ffcf54f640b3a05990a0f1, exact remainingScreens=2, recordedSteps=87, manifest/recording identity, saved evaluation challenges/evaluations/20260918192720-v1.json, and metrics of 85/87 screens, 4126/4126 RNG calls, and 85/87 cursors.",
     ".cache/synthetic-scans/v1/knight-jump-return.json reports no screen or RNG divergence, cursor divergence at segment 0 step 33 on newline, C [43,8,1] versus JS [45,10,1], with 87 emitted steps and no refusal or unported path.",
-    "challenges/cases/knight-jump-return.session.json segment 0 shows the same cursor-only pattern across the three physical jumps: step 7 (first #jump) C [34,0,1], step 33 (second #jump) C [43,8,1], and step 74 (third #jump) C [34,11,1]. Only step 33 differs in the saved evaluation, demonstrating that the cursor depends on the actual pending glyph buffer rather than a fixed maximum-valid-target rule.",
-    "nethack-c/upstream/src/getpos.c:41-63 compares the old/new getpos_getvalid callback, calls getpos_getvalids_selection() before and after installing it, and invokes selection_force_newsyms() only when the callback or frame color changes; :848-854 then flushes the pending map with cursor_on_u=0. This is the source contract that the JS full-map redraw bypasses.",
-    "nethack-c/upstream/src/selvar.c:802-810 and display.c:1863-1871/2208-2266 show why C's final cursor is contextual: selected cells update row gbuf bounds and gnew, flush_screen() visits only those pending ranges, and tty_print_glyph() advances the TTY cursor for the last emitted cell. JavaScript instead marks all rescanned cells and manually chooses the selected maximum.",
-    "js/getpos.js:200-224 explicitly computes the selected maximum and js/getpos.js:924-932 applies cursorAt(forcedMapCursor.x + 1, forcedMapCursor.y) after flush_screen(0). That implementation produces [45,10] at the assigned step while the preceding cursorAt(cx, cy) already matches C's [43,8]. The implementation scope is therefore the getpos cursor/dirty-buffer contract, with js/apply.js jump() as the production caller to verify; no gameplay or RNG correction is indicated."
+    "challenges/cases/knight-jump-return.session.json segment 0 shows the same cursor-only pattern across the three physical jumps: step 7 (first #jump) C [34,0,1], step 33 (second #jump) C [43,8,1], and step 74 (third #jump) C [34,11,1]. The saved evaluation identifies step 33 as the first cursor mismatch; it does not enumerate every differing cursor.",
+    "nethack-c/upstream/src/getpos.c:41-63 installs the callback and calls selection_force_newsyms() before getpos's own body; :838-847 then runs handle_tip/verbose output before :848-854's curs/flush_screen(0). nethack-c/upstream/src/pline.c:273-274 proves those messages flush with cursor_on_u=1, so the forced selection is consumed and the hero cursor is expected before getpos begins input.",
+    "nethack-c/upstream/src/selvar.c:802-810 and display.c:1863-1871/2208-2266 establish the dirty-selection transition, but the assigned mismatch does not require a general sparse-range cursor model: the source-order preflush already explains why C has [43,8] at step 33.",
+    "challenges/cases/knight-jump-return.session.json step 33's screen begins `Where do you want to jump?  (For instructions type a '?')`, confirming the verbose getpos branch is active at the mismatch; C's cursor is [43,8,1] and JS's is [45,10,1] with no per-step RNG calls.",
+    "js/getpos.js:904,918-932 shows the reversed ordering: handle_tip and verbose ttyPline complete before forceGetposSelectionRedraw() marks cells and then applies cursorAt(forcedMapCursor.x + 1, forcedMapCursor.y). The refined implementation scope is this getpos selection-install/initial-flush ordering, with js/apply.js jump() as the production caller to verify; no gameplay, RNG, or broad renderer correction is indicated."
   ]
 }
