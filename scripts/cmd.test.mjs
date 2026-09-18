@@ -128,7 +128,6 @@ import {
     M1_NEEDPICK,
     M1_TUNNEL,
     PM_FOG_CLOUD,
-    PM_COCKATRICE,
     PM_LICHEN,
     PM_NEWT,
 } from '../js/monsters.js';
@@ -1086,7 +1085,7 @@ test('a walk reports every ordinary pile-limit count partition without names',
         }
     });
 
-test('a triggering pile inside a visible region is refused before movement',
+test('a triggering pile inside a visible region is described after movement',
     async () => {
         const { x, y } = await prepareHeroMoveAdmission();
         const source = { x: game.u.ux, y: game.u.uy };
@@ -1102,20 +1101,12 @@ test('a triggering pile inside a visible region is refused before movement',
         region.visible = true;
         region.hero_inside = true;
         game.level.regions.push(region);
-        const toplinesBefore = game._ttyToplines;
-
-        await assert.rejects(
-            domove(game),
-            (error) => error instanceof UnsupportedHeroMoveBoundaryError
-                && error.message.includes(
-                    'visible region over skipped-pile count',
-                ),
-        );
-        assert.deepEqual([game.u.ux, game.u.uy], [source.x, source.y]);
-        assert.equal(game._ttyToplines, toplinesBefore);
+        for (let i = 0; i < 20; ++i) game.nhDisplay.pushKey(' '.charCodeAt(0));
+        await domove(game);
+        assert.deepEqual([game.u.ux, game.u.uy], [x, y]);
     });
 
-test('a single object inside an entered visible region refuses atomically',
+test('a single object inside an entered visible region is described',
     async () => {
         const target = await prepareHeroMoveAdmission();
         const source = { x: game.u.ux, y: game.u.uy };
@@ -1132,15 +1123,9 @@ test('a single object inside an entered visible region refuses atomically',
         region.visible = true;
         region.hero_inside = true;
         game.level.regions.push(region);
-        const before = heroMoveAdmissionSnapshot(target.replay);
-
-        await assert.rejects(
-            domove(game),
-            (error) => error instanceof UnsupportedHeroMoveBoundaryError
-                && error.reason
-                    === 'visible region over single-object description',
-        );
-        assert.deepEqual(heroMoveAdmissionSnapshot(target.replay), before);
+        for (let i = 0; i < 20; ++i) game.nhDisplay.pushKey(' '.charCodeAt(0));
+        await domove(game);
+        assert.deepEqual([game.u.ux, game.u.uy], [target.x, target.y]);
     });
 
 test('pile_limit zero leaves a single object on the naming path', async () => {
@@ -1161,59 +1146,6 @@ test('pile_limit zero leaves a single object on the naming path', async () => {
 
 test('simple hero movement rejects spot effects before mutation', async () => {
     const cases = [
-        {
-            name: 'single-object pile-limit count',
-            reason: 'single-object skipped-pile count',
-            setup: ({ x, y }) => {
-                // One is the only threshold which makes a single floor object
-                // enter the count arm that this pile slice excludes.
-                game.flags.pile_limit = 1;
-                game.level.objects[x][y] = {
-                    // The first valid object identity and one ordinary dart
-                    // provide a complete single-node floor chain.
-                    o_id: 1,
-                    otyp: DART,
-                    oclass: WEAPON_CLASS,
-                    quan: 1,
-                    where: OBJ_FLOOR,
-                    nexthere: null,
-                };
-            },
-        },
-        {
-            name: 'non-triggering five-object pile',
-            reason: 'object pile outside the two-to-four-item window',
-            setup: ({ x, y }) => {
-                // Five is the first pile count outside the preceding menu
-                // slice; zero keeps skipping disabled.
-                installFloorPile(x, y, 5);
-                game.flags.pile_limit = 0;
-            },
-        },
-        {
-            name: 'blind cockatrice pile',
-            reason: 'blind object pile',
-            setup: ({ x, y }) => {
-                installFloorPile(x, y, 2, {
-                    otyp: CORPSE,
-                    oclass: FOOD_CLASS,
-                    corpsenm: PM_COCKATRICE,
-                });
-                game.u.uprops[BLINDED].intrinsic = 1;
-            },
-        },
-        {
-            name: 'mention-decor pile-limit count',
-            reason: 'mention-decor pile-limit count',
-            setup: ({ x, y }) => {
-                installFloorPile(x, y);
-                game.flags.mention_decor = true;
-                // An equal threshold selects the deferred count branch after
-                // the ordinary terrain preflight has accepted its memory.
-                game.flags.pile_limit = 2;
-                game.iflags.prev_decor = ROOM;
-            },
-        },
         {
             // STATUE_TRAP still reaches trap.c activate_statue_trap(), which
             // is unported. PIT is admitted now that trap.c handles its hero
@@ -4435,6 +4367,7 @@ test('movement over an unreachable floor object completes without pickup',
         assert.deepEqual([game.u.ux, game.u.uy], [x, y]);
         assert.equal(game.level.objects[x][y], object);
         assert.equal(object.where, OBJ_FLOOR);
+        assert.equal(game.multi, 0);
         assert.equal(game.context.pendingCommand, undefined);
     });
 

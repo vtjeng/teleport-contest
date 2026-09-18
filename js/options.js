@@ -277,6 +277,7 @@ import {
 import { choose_classes_menu, getlin, select_menu } from './windows.js';
 import { displayTtyTextWindow } from './tty_menu.js';
 import { note_unported } from './unported.js';
+import { game } from './gstate.js';
 
 const PET_NAME_BYTE_LIMIT = 62; // PL_PSIZ - 1
 const PLAYER_NAME_BYTE_LIMIT = 31; // PL_NSIZ - 1
@@ -6732,6 +6733,20 @@ export function msgtype_type(message, norepeat, state = game) {
         if (regex_match(String(message), rule.regex)) return rule.msgtype;
     }
     return norepeat ? MSGTYP_NOREP : MSGTYP_NORMAL;
+}
+
+// C ref: options.c hide_unhide_msgtypes(). Negative message types are
+// ignored by tty_message's dispatch, so hiding flips only the configured
+// positive REP/SHOW entries; unhide reverses that same subset. Keep the
+// mutation on the per-game gp list because dolook() uses a temporary mask
+// around one look_here() call and must restore the caller's configuration.
+export function hide_unhide_msgtypes(hide, hide_mask, state = game) {
+    for (let rule = state.gp?.plinemsg_types; rule; rule = rule.next) {
+        let msgtype = rule.msgtype;
+        if (!hide) msgtype = -msgtype;
+        if (msgtype > 0 && ((1 << msgtype) & hide_mask))
+            rule.msgtype = -rule.msgtype;
+    }
 }
 
 export function parseNethackrc(rc, random = rn2) {
