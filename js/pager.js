@@ -1748,6 +1748,7 @@ export async function do_look(mode, clickCc = null, state = game) {
             }
             if (description.found === 1
                 && answer === LOOK_TRADITIONAL
+                && !quick
                 && state.flags.help) {
                 await checkfile(description.firstmatch, description.supplement ?? null, 0, state);
             }
