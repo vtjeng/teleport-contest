@@ -1,7 +1,7 @@
 {
   "session": "holdout/seed4500-knight-coverage",
   "remainingScreensUpperBound": 53,
-  "status": "partial",
+  "status": "complete",
   "commit": "5a0832fde062f592e2e192ed41b8d86780d16035",
   "mismatch": {
     "session": "holdout/seed4500-knight-coverage",
@@ -18,7 +18,7 @@
     "recordedSteps": 1814,
     "remainingScreensUpperBound": 53
   },
-  "summary": "The first remaining difference is step 1761: C still draws the brown-mold hero as F while JavaScript shows @; RNG remains aligned. C finishes spell messages before damage, but JavaScript castmu and existing effect helpers drop asynchronous message waits. Verify the pending-message sequence through rehumanization in a fresh replay. The later mcast_spell effect-17 refusal remains a separate missing spell branch.",
+  "summary": "The step-1761 screen difference is caused by missing waits for spell messages. C completes output before applying damage and rehumanizing the hero; JavaScript castmu and existing effect helpers continued while asynchronous messages were pending. A fresh worker replay with the source-ordered waits moves the first screen difference to step1763, with no preceding RNG divergence. The later effect-17 refusal remains separate.",
   "evidence": [
     "The 5a0832fd saved scan emits 1784/1814 screens and first differs at step 1761; the checkpoint matches 1780/1814 Knight screens and 1783 cursors. These totals differ from the queue upper bound of 53. The whole fixed workload matches 11362/11405 screens; all 398 recordings pass.",
     "At step 1761 (space input), the differing cell is row 17, column 66: C F/color3 versus JS @/color15. The first cursor difference is step 1763 (Escape): C [53,0,1] versus JS [66,17,1]. The scan has no preceding RNG divergence.",
@@ -26,7 +26,7 @@
     "Whole mhitu.c getmattk now handles seduction, disease/hunger, energy, temporary holder, weapon, cold-touch and home-elemental substitutions through mattacku/mattackm. Source-pinned tests establish the pure helper; unported uhitm.c hmonas remains a separate caller gap.",
     "Retained counter-evidence: the earlier cleric fire-trap event had exactly one m_move→postmov→mintrap chain. Cleric2321 lacked minion state and trap knowledge because createMonsterBody skipped mk_roamer. A prior fire trap belonged to actor2334 at(26,7), outside learning range; fire resistance cannot omit the initial C fire-damage draw. The corrected source initialization removes that earlier divergence.",
     "Retained counter-evidence for the resolved step1742 issue: the bat had spent its movement ration; its two distfleeck calls described one action. Vampire shapechange does not apply the Hell-bat creation-speed adjustment.",
-    "Source inspection: js/mcastu.js castmu invokes message without await before its d() roll; mcast_psi_bolt and mcast_open_wounds return numeric damage before their messages complete, and m_cure_self heals after an unawaited message. C mcastu.c219–243,600–642 and307–318 complete the corresponding output before these subsequent operations. This establishes an ordering defect; its exact fixed-session impact remains under fresh-replay verification."
+    "Source inspection: js/mcastu.js castmu invokes message without await before its d() roll; mcast_psi_bolt and mcast_open_wounds return damage before their messages complete, and m_cure_self heals after an unawaited message. C mcastu.c219–243,600–642 and307–318 complete that output first. Worker B41 bounded fresh-process replay run-LupC09 at 85214b2b emits1784 screens and moves the first screen difference from1761 to1763, with no RNG divergence; combined acceptance is pending. Independent run-pGKnTb matches2378 RNG calls and57 screens/cursors through a master-lich spell cast."
   ],
   "source": {
     "file": "mcastu.c",
@@ -37,7 +37,7 @@
       "mcast_open_wounds",
       "m_cure_self"
     ],
-    "branch": "C castmu completes pline_mon before damage work, and mcast_psi_bolt completes its pain message before returning damage to mcast_spell. The JavaScript production message adapter is async ttyPline, but these existing callers do not await it. C steps 1761–1762 still show the brown-mold hero and the spell prompt; step1763 announces the return to human form. Source order requires message completion before the following damage and form change; a fresh replay must establish which missing waits cause the observed cell difference.",
+    "branch": "C castmu completes pline_mon before damage work; mcast_psi_bolt completes its pain message before returning damage to mcast_spell. JS production message adapters return ttyPline Promises, but these existing callers did not await them. Deferred-message tests establish the ordering violation; worker fresh-process replay confirms that awaiting these messages moves the first screen difference past1761 to1763. Source and runtime evidence identify the cause without claiming the remaining1763 difference or the later summon stop resolved.",
     "callers": [
       "C mhitu.c mattacku -> mcastu.c castmu -> mcast_spell -> mcast_psi_bolt and mhitu.c mdamageu.",
       "JS unported_monster_actions.js castMonsterSpell supplies an async message adapter to castmu and the canonical mdamageu callback; castUndirectedSpell supplies the same async message contract."

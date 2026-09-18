@@ -67578,6 +67578,69 @@
         "screens": 11362,
         "rng": 791400
       }
+    },
+    {
+      "id": "div-castmu-message-order-seed4500-20260918",
+      "kind": "divergence-fix",
+      "status": "open",
+      "summary": "Wait for monster spell messages before damage and form changes",
+      "cFile": "mcastu.c",
+      "sessions": [],
+      "selectionReason": "Seed continuation for holdout/seed4500-knight-coverage, remainingScreensUpperBound53 (34 actual unmatched screens), from investigations/holdout/seed4500-knight-coverage.json. Missing async waits in castmu and existing result-valued helpers cause the first screen mismatch; worker replay moves it to1763. The higher-ranked seed2200 pathname mismatch requires the open Q1 contract decision. A42 separately owns the later spell dispatcher and its new helpers.",
+      "detail": "At segment0 step1761, space input, the C brown-mold hero remains F/color3 at row17 column66 while JS prematurely shows @/color15. C mcastu.c castmu219–243 completes the announcement before d(), and mcast_psi_bolt600–621 completes its pain message before mcast_spell applies mdamageu and rehumanization. JS castmu, cursetxt and existing effect helpers dropped the async ttyPline promises. Bounded worker replay run-LupC09 reproduces then moves the first difference to1763; RNG remains aligned. Apply awaits in those helpers and their dispatcher/buzzmu callers; broader incomplete spell effects remain separate.",
+      "spans": [
+        {
+          "name": "monster-spell-message-order",
+          "status": "queued",
+          "closedBy": null,
+          "functions": [
+            "cursetxt",
+            "castmu",
+            "m_cure_self",
+            "mcast_psi_bolt",
+            "mcast_open_wounds",
+            "mcast_spell",
+            "buzzmu"
+          ]
+        }
+      ],
+      "openedAt": "3ca53592ce0e034f031e4a6df28a7cde0dcd35bf",
+      "openStanding": {
+        "sha": "5a0832fde062f592e2e192ed41b8d86780d16035",
+        "screens": 11362,
+        "rng": 791400
+      },
+      "closedAt": null,
+      "delivered": null,
+      "function": "castmu",
+      "session": "holdout/seed4500-knight-coverage",
+      "step": 1761,
+      "activeStanding": {
+        "sha": "5a0832fde062f592e2e192ed41b8d86780d16035",
+        "screens": 11362,
+        "rng": 791400
+      },
+      "openMismatches": [
+        {
+          "session": "holdout/seed4500-knight-coverage",
+          "step": 1761,
+          "kind": "screen",
+          "function": null,
+          "functionDeclared": false,
+          "sourceFile": null,
+          "cFile": null,
+          "luaFile": null,
+          "line": null,
+          "message": null,
+          "unlocatedKinds": [],
+          "recordedSteps": 1814,
+          "remainingScreensUpperBound": 53,
+          "investigation": {
+            "status": "invalid",
+            "path": "investigations/holdout/seed4500-knight-coverage.json"
+          }
+        }
+      ]
     }
   ]
 }
