@@ -53,6 +53,26 @@ test('ttyPline redraws a replacement after tty_nhgetch acknowledges More',
         assert.equal(state.nhDisplay.toplin, TOPLINE_NEED_MORE);
     });
 
+test('redotoplin preserves shadow cells for ignored high-bit bytes',
+    async () => {
+        // Recorder patch 006 ignores each signed high-bit byte after the
+        // source putsyms() advances the cursor. Those cells retain their
+        // prior attributes; redotoplin only clears after the new byte prefix.
+        const state = messageState('old message', TOPLINE_NON_EMPTY);
+        state.nhDisplay.setCell(3, 0, 'Z', 7, 4);
+        state.nhDisplay.setCell(4, 0, 'Y', 6, 2);
+
+        await ttyPline('abcéX', state);
+
+        assert.equal(state.nhDisplay.grid[0][3].ch, 'Z');
+        assert.equal(state.nhDisplay.grid[0][3].color, 7);
+        assert.equal(state.nhDisplay.grid[0][3].attr, 4);
+        assert.equal(state.nhDisplay.grid[0][4].ch, 'Y');
+        assert.equal(state.nhDisplay.grid[0][4].color, 6);
+        assert.equal(state.nhDisplay.grid[0][4].attr, 2);
+        assert.equal(state.nhDisplay.grid[0][5].ch, 'X');
+    });
+
 test('Escape More clears the physical row but keeps WIN_STOP history state',
     async () => {
         const state = messageState(
