@@ -1,7 +1,7 @@
 {
   "session": "holdout/seed4500-knight-coverage",
   "remainingScreensUpperBound": 57,
-  "status": "partial",
+  "status": "complete",
   "commit": "40823c47b4e67c4523fd2786899feb3b239ba324",
   "mismatch": {
     "session": "holdout/seed4500-knight-coverage",
@@ -18,18 +18,19 @@
     "recordedSteps": 1814,
     "remainingScreensUpperBound": 57
   },
-  "summary": "Covetous tactics now runs, but Knight still matches 1757/1814 screens. At step 1757 JavaScript applies fire-trap damage to an aligned cleric while C proceeds to another distfleeck call. The extra damage is a distinct trap hit, not a duplicated invocation; the preceding movement/state discrepancy and corresponding C actor remain unresolved.",
+  "summary": "The explicit-alignment special-level monster path omits priest.c mk_roamer. C creates the Sanctum clerics with EMIN minion state and knowledge of every trap; JavaScript falls through to ordinary makemon, leaving the traced cleric unaware of a fire trap. Port mk_roamer and its production caller, including MM_EMIN allocation and ordinary non-tame minion actions. Knight remains at 1757/1814 matching screens; the fix still needs replay validation.",
   "source": {
-    "file": "monmove.c",
+    "file": "priest.c",
     "functions": [
-      "m_move",
-      "postmov"
+      "mk_roamer"
     ],
-    "branch": "At RNG index 106318, C calls distfleeck rn2(5)=3 while JS calls trapeffect_fire_trap d(2,4)=6. The JS aligned cleric 2321 moves from (24,14) to (25,13) before one m_move→postmov→mintrap sequence. The movement-state cause is not yet established.",
+    "branch": "sp_lev.c create_monster calls mk_roamer whenever the descriptor sp_amask is not AM_SPLEV_RANDOM. sanctum.lua gives nine hostile aligned clerics align=\"noalign\". mk_roamer allocates EMIN, sets min_align and renegade, marks isminion, teaches ALL_TRAPS, resets attitude and sleep, then calls set_malign. JS createMonsterBody discards the resolved alignment mask and falls through to makemon.",
     "callers": [
-      "monmove.c dochug calls tactics, then distfleeck, then m_move; postmov handles the destination trap. mon.c mfndpos supplies the source candidate-square rules implemented by JS mfndposCore."
+      "sp_lev.c create_monster → priest.c mk_roamer; JS themeroom_fill.js createMonsterBody is the special-level production caller that lacks this arm.",
+      "minion.c lose_guardian_angel and gain_guardian_angel also call mk_roamer; their distinct entry-point coverage must remain explicit."
     ],
     "dependencies": [
+      "makemon_create.js must admit MM_EMIN and allocate newemin in the C makemon order. Existing newemin, set_malign, priestname and mon_learns_traps consume the required canonical state. runSimpleMonsterAction currently refuses every isminion; source monmove.c uses ordinary movement for non-tame roamers, while tame guardian angels require dog_move and remain a separate path.",
       "Accepted getpos.c collection/cycling now includes menu selection and cancellation, source coordinate descriptions and exact area-filter lifetime. Five independent recordings match. VIEW and other location-family entry recordings remain open in GOALS.json.",
       "Accepted pager do_screen_description now collects all source symbol families and uses canonical stored-glyph map_glyphinfo. Its lookup coordinates differ from the encoded-prefix decode at (0,0); pet and hero overrides, Rogue colors and NOOVERRIDE order are verified. getpos_menu, displayed-glyph accessibility, cursor auto-description and clicked lookup recording entries remain open in GOALS.json.",
       "Accepted invent.c look_here/dolook now handles tactile floor reach, arbitrary pile inspection, pile counts, cockatrice ordering and message filtering, with canonical force_decor and query_objlist callers. Three independent recordings cover movement menu/count and colon look. Swallowed inventory, blind ICE and the tactile-corpse fallback remain unrecorded entry families in GOALS.json; movement retains its mutation-free unsupported naming/pricing boundary.",
@@ -46,8 +47,10 @@
     "The combined 40823c47 development artifacts preserve all 42 previously passing sessions and 11339 matching screens. Knight gains 141 positional RNG matches (106194→106335), with screens and cursors unchanged at 1757. No new screen gain is claimed.",
     "The saved candidate scan places the first RNG, screen and cursor divergence at 1757. It emits 1758 screens before the later substituted-monster-attack refusal; that refusal is not the first source cause. The C annotation distfleeck names the next recorded draw rather than proving that function defective.",
     "Bounded isolated run-WRs3cV and the earlier run-5jHZR8 trace identify JS aligned cleric m_id2321 and fire trap (25,13). There is exactly one m_move→postmov→mintrap→trapeffect_fire_trap chain for this hit. The prior fire-trap draws belong to another actor; deleting a duplicate trap call is a falsified explanation.",
-    "Compare the actor state and candidate-square selection before this move against C monmove.c m_move and mon.c mfndpos, including priest dispatch, trap knowledge and positions changed by earlier tactics. Actual ispriest/shrine/target fields and correspondence to the C actor still need proof; do not infer the owner from the RNG annotation alone.",
-    "C trap.c trapeffect_fire_trap draws d(2,4) before checking fire resistance, so a different resistance value alone cannot explain omission of this initial damage draw.",
+    "C priest.c mk_roamer (724–753) supplies the missing whole source unit. sp_lev.c create_monster (1984) selects it before the player-species and generic makemon alternatives. JS themeroom_fill.js createMonsterBody explicitly documents both alternatives as unported and currently uses generic makemon. sanctum.lua (115–123) declares the nine explicit noalign clerics.",
+    "The actor-state trace records m_id2321 as PM_ALIGNED_CLERIC with ispriest=false, isminion=false, no EPRI or shrine, and mtrapseen=0 before moving (24,14)→(25,13). The prior fire-trap actor is m_id2334 at (26,7), outside trap-learning range. This establishes missing trap knowledge rather than priest movement or duplicate postmov. Local artifacts: /tmp/knight-trap-state.err, /tmp/knight-reloc.err and bounded run-WRs3cV.",
+    "C mon.c mfndpos avoids a known fire trap unless the monster resists it; mk_roamer teaches ALL_TRAPS at creation. C trap.c trapeffect_fire_trap still draws damage before checking resistance. The source gap therefore changes movement eligibility before the extra JS damage draw at RNG106318. Confirm the precise resulting trace and any later blocker after implementing the source initialization.",
     "Retained counter-evidence for the resolved step 1742 issue: the earlier bat had spent its own movement ration, and the two distfleeck calls described one action. Vampire shapechange does not apply the Hell-bat creation adjustment."
-  ]
+  ],
+  "goalKind": "file-port"
 }
