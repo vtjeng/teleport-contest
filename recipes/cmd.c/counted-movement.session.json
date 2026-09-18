@@ -1,0 +1,33 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 840021,
+      "datetime": "20260814101500",
+      "nethackrc": "OPTIONS=name:CountWalkA,role:Healer,race:human,gender:female,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none\n",
+      "moves": " 3h",
+      "comment": "Independent positive count reaches cmd.c rhack()'s MOVEMENTCMD walk arm; the existing moveloop_core repeat caller consumes the remaining two steps."
+    },
+    {
+      "seed": 840031,
+      "datetime": "20260814101500",
+      "nethackrc": "OPTIONS=name:CountWalkB,role:Valkyrie,race:dwarf,gender:male,align:lawful\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none\n",
+      "moves": " 4l",
+      "comment": "Changed role, race, direction, count, and seed independently exercise the same counted walk admission."
+    },
+    {
+      "seed": 840051,
+      "datetime": "20260814101500",
+      "nethackrc": "OPTIONS=name:CountRun,role:Healer,race:human,gender:male,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none\n",
+      "moves": " 3H",
+      "comment": "A positive count on the direct shifted runwest binding reaches the same MOVEMENTCMD admission with context.run=1."
+    },
+    {
+      "seed": 840061,
+      "datetime": "20260814101500",
+      "nethackrc": "OPTIONS=name:CountRush,role:Valkyrie,race:human,gender:female,align:lawful\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none\n",
+      "moves": " 3\b",
+      "comment": "A positive count on the direct control rushwest binding reaches the source MOVEMENTCMD admission with context.run=3."
+    }
+  ]
+}

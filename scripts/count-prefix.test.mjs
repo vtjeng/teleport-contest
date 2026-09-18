@@ -280,7 +280,7 @@ test('a counted row refuses while another occupation is already running',
         rhack(0, game),
         (error) => error instanceof UnsupportedHeroCommandBoundaryError
             && error.key === commandKeyCode('s')
-            && /a row this port will not repeat/u.test(error.message),
+            && /a nonmovement row this port will not repeat/u.test(error.message),
     );
 });
 
