@@ -638,6 +638,7 @@ import {
     goodpos,
     noteleport_level,
     rloc_to,
+    rloc_to_flag,
     tele_restrict,
 } from './teleport.js';
 import {
@@ -4549,35 +4550,63 @@ export function mon_leaving_level(mon, state = game, env = {}) {
 // C ref: mon.c mnearto() (4019-4085). Put a monster at or near the requested
 // coordinate, optionally moving an occupant aside. A failed destination
 // follows C's overcrowding recovery path.
-export function mnearto(monster, x, y, moveOther, rlocflags, state = game) {
+export function mnearto(
+    monster,
+    x,
+    y,
+    moveOther,
+    rlocflags,
+    stateOrEnv = game,
+) {
+    // Existing callers pass the bare game state.  Covetous tactics also runs
+    // on the planning clone, so it passes the full operation environment in
+    // this final position and keeps its redraw/message seams intact.
+    const env = stateOrEnv?.state
+        ? stateOrEnv
+        : { state: stateOrEnv };
+    const state = env.state ?? game;
     if (monster.mx === x && monster.my === y
         && m_at(x, y, state) === monster) return 1;
 
     let other = null;
     if (moveOther) other = m_at(x, y, state);
     if (other) {
-        mon_leaving_level(other, state);
+        mon_leaving_level(other, state, env);
         other.mx = 0;
         other.my = 0;
         other.mstate = (other.mstate ?? 0) | MON_OFFMAP;
     }
 
     let destination = { x, y };
-    if (!goodpos(x, y, monster, 0, { state })) {
-        destination = enexto(x, y, monster.data, { state });
+    if (!goodpos(x, y, monster, 0, env)) {
+        destination = enexto(x, y, monster.data, env);
         if (!destination || !isok(destination.x, destination.y)) {
-            if (other) deal_with_overcrowding(other, state);
+            if (other) deal_with_overcrowding(other, state, env);
             return 0;
         }
     }
-    rloc_to(monster, destination.x, destination.y, { state, rlocflags });
+    const placement = rloc_to_flag(monster, destination.x, destination.y,
+        rlocflags, {
+        ...env,
+        state,
+        rlocflags,
+    });
 
-    if (moveOther && other) {
-        if (!mnearto(other, x, y, false, rlocflags, state))
-            deal_with_overcrowding(other, state);
+    const finish = () => {
+        if (!(moveOther && other)) return 1;
+        const nested = mnearto(other, x, y, false, rlocflags, env);
+        if (nested && typeof nested.then === 'function') {
+            return nested.then((result) => {
+                if (!result) deal_with_overcrowding(other, state, env);
+                return 2;
+            });
+        }
+        if (!nested) deal_with_overcrowding(other, state, env);
         return 2;
-    }
-    return 1;
+    };
+    if (placement && typeof placement.then === 'function')
+        return placement.then(finish);
+    return finish();
 }
 
 // C ref: mon.c m_detach() (2733-2803). "'mtmp' is going away; remove effects

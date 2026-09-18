@@ -1175,11 +1175,14 @@ export function enexto(xx, yy, species, env = {}) {
 // Every message in rloc_to_core() is suppressed by RLOC_NOMSG, and the
 // shopkeeper, shop-goods, occupation and trap tails below the placement each
 // refuse rather than run.
-export function rloc_to(monster, x, y, rawEnv = {}) {
+function rloc_to_core(monster, x, y, rawEnv = {}) {
     const env = teleportEnv(rawEnv);
     const { state } = env;
+    const redraw = env.newsym ?? newsym;
     const oldx = monster.mx;
     const oldy = monster.my;
+    if (x === oldx && y === oldy && m_at(x, y, state) === monster)
+        return monster;
     // The occupation term names state.go.occupation, cmd.c set_occupation()'s
     // home for C's go.occupation, so the tail at teleport.c:1761-1762 refuses
     // instead of being skipped by a field nothing assigns.
@@ -1199,7 +1202,7 @@ export function rloc_to(monster, x, y, rawEnv = {}) {
 
     if (oldx) {
         relocate_monster(monster, x, y, state);
-        newsym(oldx, oldy);
+        redraw(oldx, oldy, state);
     } else {
         mon_track_clear(monster);
         place_monster(monster, x, y, state);
@@ -1209,15 +1212,98 @@ export function rloc_to(monster, x, y, rawEnv = {}) {
     // is set; an arriving follower's is clear, because dog.c relmon() cleared
     // it as the monster left the level it came from.
     maybe_unhide_at(x, y, state);
-    newsym(x, y);
-    // set_apparxy() takes monmove.c:2211's first branch whatever the monster
-    // is: dog.c mon_arrive() has just written the hero's own square into
-    // mux/muy, so its `u_at(mx, my)` clause holds and it returns before
-    // reaching a displacement roll. That assignment is what dog.c:450 calls
-    // keeping mnexto(rloc_to(set_apparxy())) off stale data.
-    monster.mux = state.u.ux;
-    monster.muy = state.u.uy;
+    redraw(x, y, state);
+    // C ends rloc_to_core() with set_apparxy(). Dog-arrival callers already
+    // have the hero square in mux/muy, but wizard.c tactics can relocate an
+    // ordinary monster with stale apparent coordinates; use the caller's
+    // canonical operation whenever it is supplied. The fallback preserves
+    // the two existing arrival-only callers that intentionally pass a bare
+    // state rather than an operation environment.
+    if (typeof env.setApparxy === 'function')
+        env.setApparxy(monster, { ...env, state });
+    else {
+        monster.mux = state.u.ux;
+        monster.muy = state.u.uy;
+    }
     return monster;
+}
+
+// C ref: teleport.c rloc_to_flag().  mnearto() uses this flagged entry point
+// so RLOC_MSG remains distinct from the explicitly unflagged rloc_to() used
+// by restoration/arrival callers.  The placement itself is shared with
+// rloc_to_core(); only the source's optional vanish/arrival messages depend
+// on the flag.
+export function rloc_to_flag(monster, x, y, rlocflags = RLOC_NOMSG,
+    rawEnv = {}) {
+    const env = teleportEnv(rawEnv);
+    const { state } = env;
+    const preventmsg = (rlocflags & RLOC_NOMSG) !== 0;
+    const vanishmsg = (rlocflags & RLOC_MSG) !== 0;
+    let appearmsg = Boolean(monster.mstrategy & STRAT_APPEARMSG);
+    const domsg = !state.in_mklev
+        && (vanishmsg || appearmsg) && !preventmsg;
+    if (!domsg) return rloc_to_core(monster, x, y, env);
+
+    const message = env.message ?? ttyPline;
+    const oldx = monster.mx;
+    const oldy = monster.my;
+    if (x === oldx && y === oldy && m_at(x, y, state) === monster)
+        return monster;
+    let telemsg = false;
+    const oldSpotted = canSpotMonster(monster, state);
+    if (oldx && oldSpotted) appearmsg = false;
+    const before = oldSpotted
+        ? (couldsee(x, y, state) || sensesMonster(monster, state)
+            ? (telemsg = true, null)
+            : message(
+                `${capitalizedMonsterName(monster, state, env)} vanishes!`,
+                state,
+                env,
+            ))
+        : null;
+    const finish = () => {
+        rloc_to_core(monster, x, y, env);
+        if (canSpotMonster(monster, state) || appearmsg) {
+            const distance = dist2(x, y, state.u.ux, state.u.uy);
+            const next = distance <= 2 ? ' next to you' : null;
+            const near = distance <= BOLT_LIM * BOLT_LIM
+                ? ' close by' : null;
+            monster.mstrategy &= ~STRAT_APPEARMSG;
+            if (telemsg
+                && (couldsee(x, y, state) || sensesMonster(monster, state))) {
+                const oldDistance = dist2(oldx, oldy, state.u.ux, state.u.uy);
+                return message(
+                    `${capitalizedMonsterName(monster, state, env)}`
+                    + ' vanishes and reappears'
+                    + `${next ?? near
+                        ?? (oldDistance === distance ? ''
+                            : distance < oldDistance ? ' closer to you'
+                            : ' farther away')}.`,
+                    state,
+                    env,
+                );
+            }
+            const name = appearmsg
+                ? Amonnam(monster, { ...env, state })
+                : capitalizedMonsterName(monster, state, env);
+            return message(
+                `${name} ${appearmsg ? 'suddenly ' : ''}`
+                + `${heroBlind(state) ? 'arrives' : 'appears'}`
+                + `${next ?? near ?? ''}!`,
+                state,
+                env,
+            );
+        }
+        return undefined;
+    };
+    if (before && typeof before.then === 'function')
+        return before.then(finish);
+    return finish();
+}
+
+// C ref: teleport.c rloc_to(), which is rloc_to_core() with RLOC_NOMSG.
+export function rloc_to(monster, x, y, rawEnv = {}) {
+    return rloc_to_core(monster, x, y, rawEnv);
 }
 
 // C ref: mon.c mnexto(). Wizard destination control remains an explicit
@@ -1267,37 +1353,8 @@ export function mnexto(monster, _rlocflags = 0, env = {}) {
             coordinate = selected;
         }
     }
-    const relocated = relocate_monster(
-        monster,
-        coordinate.x,
-        coordinate.y,
-        state,
-    );
-    // C's rloc_to() ends in set_apparxy(). Three ported callers reach this
-    // function, and each takes one of set_apparxy()'s two early returns and
-    // draws nothing, so the pair of assignments below writes what the source
-    // would have written:
-    //
-    // - js/dog.js mon_arrive() has already written the hero's own square into
-    //   mux/muy, so monmove.c:2211's `u_at(mx, my)` clause holds whatever the
-    //   monster is.
-    // - js/allmain.js newgame() moves the monster mklev() left on the arrival
-    //   staircase. That one still carries js/monst.js's `mux: 0`, because
-    //   makemon() skips set_apparxy() while in_mklev is set, so :2211 fails.
-    //   It reaches :2233 instead: makemon() gave it mcansee, the hero is
-    //   neither invisible nor displaced nor underwater, so displ is 0.
-    // - js/do.js u_collide_m() moves a monster off the square the hero landed
-    //   on. One that came down with her passed through mon_arrive() and takes
-    //   :2211; one mklev() left on the staircase takes :2233, exactly as the
-    //   caller above.
-    //
-    // Nothing here enforces that. A caller whose monster is blind, or one
-    // reached while the hero is invisible, displaced or underwater, would take
-    // set_apparxy()'s displacement path and spend an rn2 this stand-in does
-    // not.
-    relocated.mux = state.u.ux;
-    relocated.muy = state.u.uy;
-    return relocated;
+    return rloc_to_flag(monster, coordinate.x, coordinate.y, _rlocflags,
+        normalized);
 }
 
 // ── Hero within-level teleport (C ref: teleport.c teleok/scrolltele/tele) ──

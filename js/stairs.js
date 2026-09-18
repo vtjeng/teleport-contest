@@ -67,6 +67,19 @@ export function stairway_find_dir(up, state = game) {
     return null;
 }
 
+// C ref: stairs.c stairway_find_type_dir().  Wizard tactics needs the
+// distinction between a staircase and a ladder in addition to its direction;
+// stairway_find_dir() deliberately ignores that distinction for hero arrival.
+export function stairway_find_type_dir(isladder, up, state = game) {
+    const wantsLadder = Boolean(isladder);
+    const direction = Boolean(up);
+    for (let stway = state.stairs; stway; stway = stway.next) {
+        if (Boolean(stway.isladder) === wantsLadder
+            && Boolean(stway.up) === direction) return stway;
+    }
+    return null;
+}
+
 // C ref: stairs.c stairway_find_special_dir().
 export function stairway_find_special_dir(up, state = game) {
     const direction = Boolean(up);
