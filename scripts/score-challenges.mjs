@@ -8,8 +8,8 @@ import { pathToFileURL } from 'node:url';
 import { normalizeSession } from '../frozen/session_loader.mjs';
 import { localTmpdir } from './local-tmpdir.mjs';
 import { appendRow, readRows } from './score-log.mjs';
-import { challengePath, corpusDigest, digest, evaluationFields, readChallenges, readEvaluation,
-    saveEvaluation, totalsFor } from './challenge-results.mjs';
+import { challengeInputSnapshot, challengePath, corpusDigest, digest, evaluationBatch,
+    evaluationFields, readChallengeBatches, readEvaluation, saveEvaluation, totalsFor } from './challenge-results.mjs';
 import { PROJECT_ROOT, createScoringWorkspace, parseRunnerBundle, removeScoringWorkspace,
     runScorer } from './scoring-workspace.mjs';
 
@@ -20,15 +20,18 @@ export function scorerIdentity(root) {
     return { files, sha256: digest(JSON.stringify(files)) };
 }
 
-const INPUTS = ['js', 'frozen', 'package.json', 'scripts/score-challenges.mjs',
-    'scripts/challenge-results.mjs', 'scripts/scoring-workspace.mjs', 'challenges/manifest.json', 'challenges/cases'];
 function git(root, args) {
     return execFileSync('git', args, { cwd: root, encoding: 'utf8' }).trim();
 }
-function committedInputs(root) {
-    if (git(root, ['status', '--porcelain', '--untracked-files=all', '--', ...INPUTS]))
+function committedInputs(root, batch) {
+    const snapshot = challengeInputSnapshot(root, batch);
+    const paths = ['js', 'frozen', 'package.json', 'package-lock.json',
+        'scripts/challenge-results.mjs', 'scripts/score-challenges.mjs',
+        'scripts/scoring-workspace.mjs', batch.manifestPath,
+        ...batch.cases.flatMap(entry => [entry.recipe, entry.recording])];
+    if (git(root, ['status', '--porcelain', '--untracked-files=all', '--', ...paths]))
         throw new Error('commit challenge inputs, scorer, and game changes before evaluating');
-    return git(root, ['rev-parse', 'HEAD']);
+    return { sha: git(root, ['rev-parse', 'HEAD']), snapshot };
 }
 
 export function measuredCases(root, manifest, bundle) {
@@ -51,14 +54,20 @@ export function measuredCases(root, manifest, bundle) {
 export function recordEvaluation(root, relative) {
     const evaluation = readEvaluation(root, relative);
     const rows = readRows(join(root, 'SCORE.tsv'));
-    const previous = rows.filter(row => row.event === 'challenge').at(-1);
-    if (previous && Date.parse(readEvaluation(root, previous.challenge_evaluation).utc) > Date.parse(evaluation.utc))
+    const batch = evaluationBatch(evaluation);
+    const previous = rows.filter(row => row.event === 'challenge')
+        .map(row => ({ row, evaluation: readEvaluation(root, row.challenge_evaluation) }))
+        .filter(entry => evaluationBatch(entry.evaluation) === batch).at(-1)?.evaluation;
+    if (previous && Date.parse(previous.utc) > Date.parse(evaluation.utc))
         throw new Error('record evaluations in measurement order so first results remain first');
     if (rows.some(row => row.challenge_evaluation === relative)) throw new Error('evaluation is already recorded');
-    const manifest = readChallenges(root);
+    const manifest = readChallengeBatches(root).find(entry => entry.batch === batch);
+    if (!manifest) throw new Error('evaluation references an unadmitted challenge batch: ' + batch);
     const known = new Map(manifest.cases.map(entry => [entry.id, entry.recordingSha256]));
     for (const row of rows.filter(row => row.event === 'challenge')) {
-        if (readEvaluation(root, row.challenge_evaluation).cases.some(entry => known.get(entry.id) !== entry.recordingSha256))
+        const rowEvaluation = readEvaluation(root, row.challenge_evaluation);
+        if (evaluationBatch(rowEvaluation) !== batch) continue;
+        if (rowEvaluation.cases.some(entry => known.get(entry.id) !== entry.recordingSha256))
             throw new Error('a previously measured challenge was removed or changed; restore it and add a new case');
     }
     if (evaluation.cases.some(entry => known.get(entry.id) !== entry.recordingSha256))
@@ -71,17 +80,22 @@ export function recordEvaluation(root, relative) {
     return appendRow({ ...evaluationFields(relative, evaluation), note }, join(root, 'SCORE.tsv'));
 }
 
-function evaluateChallenges(root, relative) {
-    const sha = committedInputs(root);
-    const manifest = readChallenges(root);
+export function evaluateChallenges(root, relative, batchId = 'v1') {
+    const manifest = readChallengeBatches(root).find(entry => entry.batch === batchId);
+    if (!manifest) throw new Error('unknown challenge batch: ' + batchId);
+    const inputs = committedInputs(root, manifest);
+    const sha = inputs.sha;
     if (!manifest.cases.length) throw new Error('no challenges in the manifest');
     const output = challengePath(root, relative);
     if (!/^challenges\/evaluations\/[a-z0-9][a-z0-9.-]*\.json$/u.test(relative) || existsSync(output))
         throw new Error('choose a new challenges/evaluations/<name>.json path');
     mkdirSync(challengePath(root, 'challenges/evaluations'), { recursive: true });
     const scorer = scorerIdentity(root);
-    const evaluation = { version: 1, sha, utc: new Date().toISOString(), status: 'complete',
+    const evaluation = { version: 1, batch: batchId, manifestPath: manifest.manifestPath,
+        sha, utc: new Date().toISOString(), status: 'complete',
         manifestSha256: manifest.manifestSha256, scorerSha256: scorer.sha256, scorerFiles: scorer.files,
+        inputsSha256: inputs.snapshot.sha256,
+        inputFiles: inputs.snapshot.files.map(entry => entry.path),
         cases: [], totals: null };
     const flat = mkdtempSync(join(localTmpdir(), 'teleport-challenges-'));
     let workspace;
@@ -101,7 +115,9 @@ function evaluateChallenges(root, relative) {
         if (workspace) removeScoringWorkspace(workspace);
         rmSync(flat, { recursive: true, force: true });
     }
-    if (committedInputs(root) !== sha || corpusDigest(readChallenges(root).cases) !== manifest.manifestSha256)
+    const after = committedInputs(root, manifest);
+    if (after.sha !== sha || after.snapshot.sha256 !== inputs.snapshot.sha256
+        || corpusDigest(manifest.cases) !== manifest.manifestSha256)
         throw new Error('inputs changed during scoring; no evidence was saved');
     saveEvaluation(root, relative, evaluation);
     return evaluation;
@@ -110,21 +126,44 @@ function evaluateChallenges(root, relative) {
 function main(args) {
     if (args.length === 1 && args[0] === '--help') {
         console.log('score-challenges --output challenges/evaluations/<name>.json\n'
+            + 'score-challenges --batch vN --output challenges/evaluations/<name>.json\n'
+            + 'score-challenges --all --output-dir challenges/evaluations\n'
             + 'score-challenges --record challenges/evaluations/<name>.json\n'
             + 'Commit inputs before scoring. --record appends saved evidence to SCORE.tsv.');
         return;
     }
-    if (args.length !== 2 || !['--output', '--record'].includes(args[0]))
-        throw new Error('use --output <new artifact> or --record <saved artifact>; see --help');
     if (args[0] === '--record') {
+        if (args.length !== 2) throw new Error('use --record <saved artifact>; see --help');
         const row = recordEvaluation(PROJECT_ROOT, args[1]);
         console.log(row.note);
-    } else {
-        const result = evaluateChallenges(PROJECT_ROOT, args[1]);
-        console.log(`${result.status}: ${args[1]} at ${result.sha}`);
-        if (result.status === 'failed') { console.error(result.error); process.exitCode = 1; }
-        else console.log(JSON.stringify(result.totals));
+        return;
     }
+    let batch = 'v1';
+    let output = null;
+    let outputDir = null;
+    let all = false;
+    for (let index = 0; index < args.length; index++) {
+        if (args[index] === '--batch') batch = args[++index];
+        else if (args[index] === '--output') output = args[++index];
+        else if (args[index] === '--output-dir') outputDir = args[++index];
+        else if (args[index] === '--all') all = true;
+        else throw new Error('unknown option: ' + args[index] + '; see --help');
+    }
+    if (all) {
+        if (batch !== 'v1' || output || !outputDir) throw new Error('--all requires --output-dir only');
+        const stamp = new Date().toISOString().replaceAll(/[-:TZ.]/gu, '').slice(0, 14);
+        for (const selected of readChallengeBatches(PROJECT_ROOT)) {
+            const relative = outputDir.replace(/\/$/u, '') + '/' + stamp + '-' + selected.batch + '.json';
+            const result = evaluateChallenges(PROJECT_ROOT, relative, selected.batch);
+            console.log(result.status + ': ' + relative + ' at ' + result.sha);
+        }
+        return;
+    }
+    if (!output || outputDir) throw new Error('use --output <new artifact>; see --help');
+    const result = evaluateChallenges(PROJECT_ROOT, output, batch);
+    console.log(result.status + ': ' + output + ' at ' + result.sha);
+    if (result.status === 'failed') { console.error(result.error); process.exitCode = 1; }
+    else console.log(JSON.stringify(result.totals));
 }
 if (process.argv[1] && import.meta.url === pathToFileURL(resolve(process.argv[1])).href) {
     try { main(process.argv.slice(2)); }

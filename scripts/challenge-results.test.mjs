@@ -4,8 +4,9 @@ import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { test } from 'node:test';
 import { COLUMNS } from './score-log.mjs';
-import { challengeDashboard, challengePath, compareEvaluations, corpusDigest, digest,
-    evaluationFields, readChallenges, saveEvaluation, totalsFor } from './challenge-results.mjs';
+import { challengeDashboard, challengeInputSnapshot, challengePath, challengeState,
+    compareEvaluations, corpusDigest, digest, evaluationFields, readChallengeBatches,
+    readChallenges, saveEvaluation, totalsFor } from './challenge-results.mjs';
 import { measuredCases, recordEvaluation } from './score-challenges.mjs';
 
 // Distinct complete SHAs distinguish an initial implementation, its successor,
@@ -52,6 +53,11 @@ function saved(root, name, evaluation) {
     saveEvaluation(root, path, evaluation);
     return Object.fromEntries(Object.entries(evaluationFields(path, evaluation)).map(([key, value]) => [key, String(value)]));
 }
+function fresh(root, evaluation, batch = 'v1') {
+    const snapshot = challengeInputSnapshot(root, batch);
+    return { ...evaluation, inputsSha256: snapshot.sha256,
+        inputFiles: snapshot.files.map(file => file.path) };
+}
 
 test('growth separates added screens from improvements and regressions on existing cases', t => {
     const root = fixture(t);
@@ -80,7 +86,8 @@ test('first measurements persist; additions are unmeasured until included in a s
     assert.equal(initialView.status, 'stale');
     assert.equal(initialView.cases[0].first.screens.matched, 0);
     assert.equal(initialView.cases[1].current, null);
-    const next = saved(root, 'next', evaluation([measured(a, 2), measured(b, 1)], NEXT_SHA, NEXT_TIME));
+    const next = saved(root, 'next',
+        fresh(root, evaluation([measured(a, 2), measured(b, 1)], NEXT_SHA, NEXT_TIME)));
     const view = challengeDashboard(root, [row, next], NEXT_SHA);
     assert.equal(view.status, 'measured');
     assert.equal(view.cases[0].first.sha, FIRST_SHA);
@@ -93,7 +100,7 @@ test('first measurements persist; additions are unmeasured until included in a s
     assert.equal(view.history[1].changes.addedScreensMatched, 1);
     assert.equal(view.history[1].changes.screensGained, 2);
 
-    assert.equal(challengeDashboard(root, [row, next], FIRST_SHA).status, 'stale');
+    // A report-only HEAD change does not stale replay evidence; input digests govern freshness.\n    assert.equal(challengeDashboard(root, [row, next], FIRST_SHA).status, 'measured');
 });
 
 test('missing, failed and measured zero stay distinct, including ledger evidence', t => {
@@ -101,7 +108,7 @@ test('missing, failed and measured zero stay distinct, including ledger evidence
     const a = entry(root, 'case');
     manifest(root, [a]);
     assert.equal(challengeDashboard(root, [], FIRST_SHA).status, 'unmeasured');
-    const zero = saved(root, 'zero', evaluation([measured(a, 0)]));
+    const zero = saved(root, 'zero', fresh(root, evaluation([measured(a, 0)])));
     assert.equal(challengeDashboard(root, [zero], FIRST_SHA).totals.screens.matched, 0);
     const failure = { ...evaluation([measured(a, 0)]), status: 'failed', error: 'worker timeout', totals: null,
         cases: [{ id: a.id, recordingSha256: a.recordingSha256 }] };
@@ -119,6 +126,31 @@ test('missing, failed and measured zero stay distinct, including ledger evidence
     assert.throws(() => recordEvaluation(root, failed.challenge_evaluation), /already recorded/u);
     const badRow = { ...zero, challenge_screens_matched: '1' }; // Ledger must agree with saved zero.
     assert.match(challengeDashboard(root, [badRow], FIRST_SHA).error, /differs from SCORE/u);
+});
+
+test('catalog and state keep batches separate and require fresh evidence for readiness', t => {
+    const root = fixture(t);
+    const a = entry(root, 'one'), b = entry(root, 'two');
+    manifest(root, [a]);
+    mkdirSync(join(root, 'challenges/manifests'));
+    writeFileSync(join(root, 'challenges/manifests/v2.json'),
+        JSON.stringify({ version: 1, batch: 'v2', cases: [b] }));
+    mkdirSync(join(root, 'challenges/manifests/nested'));
+    writeFileSync(join(root, 'challenges/manifests/nested/v3.json'), '{}');
+    assert.deepEqual(readChallengeBatches(root).map(batch => batch.batch), ['v1', 'v2']);
+    const first = saved(root, 'v1', fresh(root, evaluation([measured(a, 2)])));
+    const secondEvaluation = fresh(root,
+        { ...evaluation([measured(b, 2)]), batch: 'v2',
+            manifestPath: 'challenges/manifests/v2.json' }, 'v2');
+    const second = saved(root, 'v2', secondEvaluation);
+    const state = challengeState(root, [first, second], NEXT_SHA);
+    assert.equal(state.status, 'ready');
+    assert.equal(state.generationReady, true);
+    assert.equal(state.batches[1].evaluationPath, second.challenge_evaluation);
+    assert.equal(state.aggregate.totals.sessions.total, 2);
+    const dashboard = challengeDashboard(root, [first, second], NEXT_SHA);
+    assert.equal(dashboard.cases.length, 2);
+    assert.deepEqual(dashboard.cases.map(caseEntry => caseEntry.batch), ['v1', 'v2']);
 });
 
 test('changed recordings and path escapes are rejected before replay', t => {
