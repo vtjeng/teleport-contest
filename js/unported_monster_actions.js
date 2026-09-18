@@ -304,8 +304,11 @@ function assertSimpleActionState(monster, state) {
         return;
     }
 
-    if (monster.mtame || monster.isminion)
-        unsupported('minion movement');
+    // C mon.c movemon() sends a non-tame EMIN monster through ordinary
+    // m_move(). Tame guardian angels/minions remain behind the tame guard;
+    // their distinct dog/guardian action is not this source span.
+    if (monster.mtame)
+        unsupported('tame minion movement');
     // isgd is admitted: m_move() dispatches to gd_move() which handles the
     // peaceful escort path and throws on unported branches.
     // isshk and ispriest are admitted: m_move() dispatches to shk_move()

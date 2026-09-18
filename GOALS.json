@@ -67147,6 +67147,214 @@
         "rng": 790898
       },
       "parkedReason": "The source span and two harassment recordings pass at40823c47. Healing/stair/tower and hero/floor/other-monster artifact entry recordings remain open, so the source goal cannot close. Knight now reaches a distinct fire-trap mismatch at1757 under movement/state investigation; resume this coverage when it becomes eligible."
+    },
+    {
+      "id": "port-priest-mk-roamer-sp-lev-aligned-creation-seed4500-20260918",
+      "kind": "file-port",
+      "status": "parked",
+      "summary": "Port roaming minion creation and wire explicit-alignment special-level descriptors.",
+      "cFile": "priest.c",
+      "sessions": [
+        "holdout/seed4500-knight-coverage"
+      ],
+      "selectionReason": "Continue holdout/seed4500-knight-coverage (57 remaining screens) from the completed investigation in investigations/holdout/seed4500-knight-coverage.json: sp_lev.c create_monster omits priest.c mk_roamer, losing EMIN state and ALL_TRAPS knowledge. The higher-ranked seed2200 queue entry is blocked by the replay-contract decision in Q1. Worker B owns the source and shared minion contracts; Worker A provides read-only support.",
+      "detail": "Port whole priest.c mk_roamer724-753 with its explicit-alignment sp_lev.c caller, source-ordered MM_EMIN allocation, and ordinary non-tame roamer action admission. Preserve the independent minion.c guardian-angel caller entries and any unsupported dependencies as open coverage.",
+      "spans": [
+        {
+          "name": "mk_roamer",
+          "status": "closed",
+          "closedBy": "8064c3be0f79ca81eb2019c1797d9d4aaa7f242f",
+          "functions": [
+            "mk_roamer"
+          ]
+        }
+      ],
+      "openedAt": "d34cc30d47f07997bf14a12714f7dde0302cea03",
+      "openStanding": {
+        "sha": "40823c47b4e67c4523fd2786899feb3b239ba324",
+        "screens": 11339,
+        "rng": 790898
+      },
+      "closedAt": null,
+      "delivered": null,
+      "functions": [
+        {
+          "name": "mk_roamer",
+          "line": 724,
+          "endLine": 754,
+          "declared": true,
+          "complete": true
+        }
+      ],
+      "range": {
+        "from": 724,
+        "to": 754
+      },
+      "activeStanding": {
+        "sha": "40823c47b4e67c4523fd2786899feb3b239ba324",
+        "screens": 11339,
+        "rng": 790898
+      },
+      "openMismatches": [
+        {
+          "session": "holdout/seed4500-knight-coverage",
+          "step": 1757,
+          "kind": "rng",
+          "function": "distfleeck",
+          "functionDeclared": true,
+          "sourceFile": "monmove.c",
+          "cFile": "monmove.c",
+          "luaFile": null,
+          "line": 538,
+          "message": null,
+          "unlocatedKinds": [],
+          "recordedSteps": 1814,
+          "remainingScreensUpperBound": 57,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/holdout/seed4500-knight-coverage.json",
+            "result": {
+              "session": "holdout/seed4500-knight-coverage",
+              "remainingScreensUpperBound": 57,
+              "status": "complete",
+              "commit": "40823c47b4e67c4523fd2786899feb3b239ba324",
+              "mismatch": {
+                "session": "holdout/seed4500-knight-coverage",
+                "step": 1757,
+                "kind": "rng",
+                "function": "distfleeck",
+                "functionDeclared": true,
+                "sourceFile": "monmove.c",
+                "cFile": "monmove.c",
+                "luaFile": null,
+                "line": 538,
+                "message": null,
+                "unlocatedKinds": [],
+                "recordedSteps": 1814,
+                "remainingScreensUpperBound": 57
+              },
+              "summary": "The explicit-alignment special-level monster path omits priest.c mk_roamer. C creates the Sanctum clerics with EMIN minion state and knowledge of every trap; JavaScript falls through to ordinary makemon, leaving the traced cleric unaware of a fire trap. Port mk_roamer and its production caller, including MM_EMIN allocation and ordinary non-tame minion actions. Knight remains at 1757/1814 matching screens; the fix still needs replay validation.",
+              "source": {
+                "file": "priest.c",
+                "functions": [
+                  "mk_roamer"
+                ],
+                "branch": "sp_lev.c create_monster calls mk_roamer whenever the descriptor sp_amask is not AM_SPLEV_RANDOM. sanctum.lua gives nine hostile aligned clerics align=\"noalign\". mk_roamer allocates EMIN, sets min_align and renegade, marks isminion, teaches ALL_TRAPS, resets attitude and sleep, then calls set_malign. JS createMonsterBody discards the resolved alignment mask and falls through to makemon.",
+                "callers": [
+                  "sp_lev.c create_monster → priest.c mk_roamer; JS themeroom_fill.js createMonsterBody is the special-level production caller that lacks this arm.",
+                  "minion.c lose_guardian_angel and gain_guardian_angel also call mk_roamer; their distinct entry-point coverage must remain explicit."
+                ],
+                "dependencies": [
+                  "makemon_create.js must admit MM_EMIN and allocate newemin in the C makemon order. Existing newemin, set_malign, priestname and mon_learns_traps consume the required canonical state. runSimpleMonsterAction currently refuses every isminion; source monmove.c uses ordinary movement for non-tame roamers, while tame guardian angels require dog_move and remain a separate path.",
+                  "Accepted getpos.c collection/cycling now includes menu selection and cancellation, source coordinate descriptions and exact area-filter lifetime. Five independent recordings match. VIEW and other location-family entry recordings remain open in GOALS.json.",
+                  "Accepted pager do_screen_description now collects all source symbol families and uses canonical stored-glyph map_glyphinfo. Its lookup coordinates differ from the encoded-prefix decode at (0,0); pet and hero overrides, Rogue colors and NOOVERRIDE order are verified. getpos_menu, displayed-glyph accessibility, cursor auto-description and clicked lookup recording entries remain open in GOALS.json.",
+                  "Accepted invent.c look_here/dolook now handles tactile floor reach, arbitrary pile inspection, pile counts, cockatrice ordering and message filtering, with canonical force_decor and query_objlist callers. Three independent recordings cover movement menu/count and colon look. Swallowed inventory, blind ICE and the tactile-corpse fallback remain unrecorded entry families in GOALS.json; movement retains its mutation-free unsupported naming/pricing boundary.",
+                  "Other unresolved source/coverage defects remain separate: make_stoned/minstapetrify/do_stone_mon; hero/monster stoning directions, corpse-weapon and attack-triggered golem entries; passive cold/fire/electricity/paralysis and lethal recovery; eating/non-food cleanup; skinback artifact-light radius and rare armor/Eyes-of-the-Overworld cleanup.",
+                  "Liquid-specific entry recordings and exceptional partial rloc routes remain open; trap.c inventory-chain calls and mon.c deal_with_overcrowding remain named discarded-call gaps. GOALS.json preserves open print_dungeon, hitmu, mfind0, goto_level, minliquid, creation/flash, pickup and achievement entry families rather than treating supporting unit tests as their completion.",
+                  "Hidden-attacker witnesses require eligible placement on objects or water, actual hidden state and an executed hitmu. Plain or qualified monster creation alone does not establish that entry; independent hidden-trapper and invisible-newt recordings establish creation/flash only.",
+                  "The m_move/mdisplacem dispatch, combat state and projected movement corrections have matching Tengu relocation recordings. Displacement, mail, worm and exceptional dedicated-mover entry recordings remain open in GOALS.json. Covetous admission now reaches the complete wizard.c tactics family through dochug.",
+                  "Safe monster scans, deferred-transition continuation and Hell-bat creation speed resolve the earlier step 1742 failure. Region upkeep keeps harmful gas and unknown callbacks explicit; its nonempty-region recording coverage remains separate.",
+                  "The which_arti-through-tactics family and result-bearing relocation dependencies are implemented. Two independent peaceful master-lich recordings reach harassment, including mnexto relocation; healing and hero/floor/other-monster artifact entries remain unrecorded. Relocation preserves action/display RNG and source redraw order. Worm, shop, trap, occupation and attached-hero relocation restrictions and the named-expulsion gap remain explicit.",
+                  "The ordinary ice-vortex expels caller now delegates old/new monster-square redraws to mnexto and redraws only the hero square afterward. Planning suppresses live redraws. This removes the duplicate destination draw introduced when mnexto gained its source relocation core; the fixed hallucination session matches again."
+                ]
+              },
+              "evidence": [
+                "The combined 40823c47 development artifacts preserve all 42 previously passing sessions and 11339 matching screens. Knight gains 141 positional RNG matches (106194→106335), with screens and cursors unchanged at 1757. No new screen gain is claimed.",
+                "The saved candidate scan places the first RNG, screen and cursor divergence at 1757. It emits 1758 screens before the later substituted-monster-attack refusal; that refusal is not the first source cause. The C annotation distfleeck names the next recorded draw rather than proving that function defective.",
+                "Bounded isolated run-WRs3cV and the earlier run-5jHZR8 trace identify JS aligned cleric m_id2321 and fire trap (25,13). There is exactly one m_move→postmov→mintrap→trapeffect_fire_trap chain for this hit. The prior fire-trap draws belong to another actor; deleting a duplicate trap call is a falsified explanation.",
+                "C priest.c mk_roamer (724–753) supplies the missing whole source unit. sp_lev.c create_monster (1984) selects it before the player-species and generic makemon alternatives. JS themeroom_fill.js createMonsterBody explicitly documents both alternatives as unported and currently uses generic makemon. sanctum.lua (115–123) declares the nine explicit noalign clerics.",
+                "The actor-state trace records m_id2321 as PM_ALIGNED_CLERIC with ispriest=false, isminion=false, no EPRI or shrine, and mtrapseen=0 before moving (24,14)→(25,13). The prior fire-trap actor is m_id2334 at (26,7), outside trap-learning range. This establishes missing trap knowledge rather than priest movement or duplicate postmov. Local artifacts: /tmp/knight-trap-state.err, /tmp/knight-reloc.err and bounded run-WRs3cV.",
+                "C mon.c mfndpos avoids a known fire trap unless the monster resists it; mk_roamer teaches ALL_TRAPS at creation. C trap.c trapeffect_fire_trap still draws damage before checking resistance. The source gap therefore changes movement eligibility before the extra JS damage draw at RNG106318. Confirm the precise resulting trace and any later blocker after implementing the source initialization.",
+                "Retained counter-evidence for the resolved step 1742 issue: the earlier bat had spent its own movement ration, and the two distfleeck calls described one action. Vampire shapechange does not apply the Hell-bat creation adjustment."
+              ],
+              "goalKind": "file-port"
+            }
+          }
+        }
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "mk_roamer",
+            "implementation": "js/priest.js",
+            "symbol": "mk_roamer",
+            "sourceReview": "Compared priest.c:724-754 in full. The port snapshots coalignment before RLOC_NOMSG, relocates an occupied square, calls makemon with MM_ADJACENTOK|MM_EMIN|MM_NOMSG, handles a possibly asynchronous makemon before reading mextra, writes EMIN min_align/renegade, clears priest status, sets minion/peace/sleep fields, teaches ALL_TRAPS, and calls set_malign in source order. Its sp_lev.c create_monster caller maps explicit sp_amask to the requested alignment; makemon.c's required MM_EMIN/newemin dependency is admitted in EGD,EPRI,ESHK,EMIN,EDOG order. The themed caller supplies the required relocation operations and preserves caller hooks. The existing rloc owner still refuses Wizard, controlled, migrating, zero-id, shop/priest, billed-goods, worm, trapped/hidden/attached-hero and occupation cases; this source span does not establish those exceptional relocation dependencies. RLOC_NOMSG preserves the synchronous ordinary relocation path. The obsolete explicit-alignment fallback and blanket non-tame minion refusal are removed; tame guardian movement and the independent mk_mplayer/appearance gaps remain explicit.",
+            "callers": [
+              {
+                "path": "js/themeroom_fill.js",
+                "symbol": "createMonsterBody",
+                "source": "sp_lev.c:create_monster:1983-1984"
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/mkroom-temple.test.mjs",
+              "scripts/priest.test.mjs",
+              "scripts/themeroom-fill.test.mjs",
+              "scripts/makemon-create.test.mjs",
+              "scripts/unported-monster-actions.test.mjs"
+            ],
+            "recordings": [
+              "recordings/priest.c/roamer-sanctum-gnome-wizard.session.json",
+              "recordings/priest.c/roamer-sanctum-valkyrie-action.session.json"
+            ],
+            "checkedAt": "5a863b60885be3b3de568d834fcdf820f7f05f78"
+          }
+        ],
+        "entryPointReview": "The neutral gnome Wizard creation recording reaches nine explicit noalign Sanctum clerics through sp_lev.c create_monster and priest.c mk_roamer. The lawful female human Valkyrie variation reaches the same creation route and continues through a second post-arrival turn; its C trace contains monmove.c m_move draws, and the production test proves an aligned EMIN position changes between the pre-action and extended routes. The focused occupied-square test reaches mk_roamer's RLOC_NOMSG branch with caller-provided redraw, scare, and apparent-hero operations. The non-tame EMIN action tests cover both peaceful and hostile ordinary movement and preserve known fire-trap avoidance. The recordings strictly match C: the neutral gnome case has 8,276 RNG draws and 44 screens/cursors; the lawful female Valkyrie case has 8,465 RNG draws and 47 screens/cursors. create_monster and makemon changes are supporting caller/dependency evidence for mk_roamer, not claimed whole-source completions. C minion.c lose_guardian_angel491 and gain_guardian_angel525 are active callers but remain unported/unrecorded. Astral Lua descriptors provide peaceful and other-alignment creation variants; the missing Astral loader blocks their recorded entry. Ordinary peaceful non-tame movement has focused coverage only. The source goal must remain parked until these entries have matching production recordings.",
+        "entryPoints": [
+          {
+            "name": "explicitly aligned Sanctum cleric creation",
+            "functions": [
+              "mk_roamer"
+            ],
+            "recordings": [
+              "recordings/priest.c/roamer-sanctum-gnome-wizard.session.json",
+              "recordings/priest.c/roamer-sanctum-valkyrie-action.session.json"
+            ]
+          },
+          {
+            "name": "ordinary non-tame EMIN movement supporting mk_roamer",
+            "functions": [
+              "mk_roamer"
+            ],
+            "recordings": [
+              "recordings/priest.c/roamer-sanctum-valkyrie-action.session.json"
+            ]
+          },
+          {
+            "name": "lose_guardian_angel",
+            "functions": [
+              "mk_roamer"
+            ],
+            "recordings": []
+          },
+          {
+            "name": "gain_guardian_angel",
+            "functions": [
+              "mk_roamer"
+            ],
+            "recordings": []
+          },
+          {
+            "name": "Astral explicit-alignment roamer descriptors",
+            "functions": [
+              "mk_roamer"
+            ],
+            "recordings": []
+          }
+        ]
+      },
+      "progressBeforePark": {
+        "screens": 0,
+        "rng": -141
+      },
+      "parkedStanding": {
+        "sha": "8064c3be0f79ca81eb2019c1797d9d4aaa7f242f",
+        "screens": 11339,
+        "rng": 790757
+      },
+      "parkedReason": "mk_roamer span is source-verified and checkpoint-passing at8064c3be. Guardian-angel and Astral descriptor entries remain unimplemented or unrecorded; preserve those active entry gaps while the fixed Knight queue moves to mhitu.c getmattk."
     }
   ]
 }

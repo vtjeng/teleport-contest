@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 9713,
+      "datetime": "20430506081200",
+      "nethackrc": "OPTIONS=name:RoamerProbe,role:Wizard,race:gnome,gender:female,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen\nOPTIONS=pettype:none,!acoustics,!autopickup,playmode:debug,suppress_alert:3.4.3,symset:DECgraphics\n",
+      "comment": "Independent priest.c mk_roamer witness: wizard-mode Sanctum teleport with a gnome female neutral Wizard. The Sanctum's explicit noalign cleric descriptors enter priest.c mk_roamer and then ordinary non-tame EMIN movement; the role/race/alignment and seed differ from the sp_lev route reference.",
+      "moves": ".#levelchange\n20\n                     \u0016?\n>v"
+    }
+  ]
+}
