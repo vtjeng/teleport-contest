@@ -4255,6 +4255,48 @@ test('planning propagates a stopped scan before a second upkeep', async () => {
     assert.deepEqual(rngSnapshot(), beforeRandom);
 });
 
+test('planning detects a deferred transition after an empty monster scan', async () => {
+    await prepareSelectedAction();
+    game.level.monlist = null;
+    game.u.utotype = 1;
+    const beforeRandom = rngSnapshot();
+    const plan = await preflightSimpleMonsterActions(game, {
+        advanceRound() {
+            assert.fail('movemon defers the level change before upkeep');
+        },
+    });
+    // mon.c movemon checks utotype after iteration even when no callback
+    // returns TRUE. The same tail handles departure set by the final actor.
+    assert.equal(plan.deferredGoto, true);
+    assert.equal(plan.upkeepCount, 0);
+    assert.equal(game.u.utotype, 1);
+    assert.deepEqual(rngSnapshot(), beforeRandom);
+});
+
+test('planning after a completed scan reaches upkeep before destination monsters', async () => {
+    const target = await prepareSelectedAction();
+    target.monster.movement = NORMAL_SPEED;
+    game.u.umovement = 0;
+    const before = completeSecondTurnSnapshot(game, target.replay);
+    const beforeRandom = rngSnapshot();
+    const plan = await preflightSimpleMonsterActions(game, {
+        consumeHeroRation: false,
+        afterMonsterScan: true,
+        advanceRound(planned) {
+            // deferred_goto ends movemon with FALSE. allmain.c enters the
+            // allocation gate without spending a destination monster's ration.
+            assert.equal(planned.level.monlist.movement, NORMAL_SPEED);
+            assert.equal(planned.u.umovement, 0);
+            assert.equal(planned.context.mon_moving, false);
+            return true;
+        },
+    });
+    assert.equal(plan.upkeepCount, 1);
+    assert.equal(plan.deferredGoto, false);
+    assert.deepEqual(completeSecondTurnSnapshot(game, target.replay), before);
+    assert.deepEqual(rngSnapshot(), beforeRandom);
+});
+
 test('planning rescans while a monster outruns the hero', async () => {
     const target = await prepareSelectedAction();
     // Two rations for the monster, none for the hero: mon.c sets

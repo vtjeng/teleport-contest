@@ -1180,12 +1180,16 @@ async function moveElapsedTurnMonster(monster, env) {
 
 // Validate a movement prefix without running a due unmul callback. Resuming
 // after that callback must not debit another hero ration.
-async function planElapsedTurn(state, { consumeHeroRation = true } = {}) {
+async function planElapsedTurn(state, {
+    consumeHeroRation = true,
+    afterMonsterScan = false,
+} = {}) {
     const initialCapacity = projected_capacity(state);
     let preflight;
     try {
         preflight = await preflightSimpleMonsterActions(state, {
             consumeHeroRation,
+            afterMonsterScan,
             advanceRound: (planned, planningRandom) => finishElapsedTurn(
                 planned,
                 planningRandom,
@@ -1278,12 +1282,12 @@ async function advanceElapsedTurn(state) {
     // post-scan state. Keep this separate from the movement gate: the
     // preflight's false gate is only the result of the early planning exit.
     let pendingDeathReplan = Boolean(preflight.heroDeath);
-    let pendingDeferredGoto = Boolean(preflight.deferredGoto);
     let upkeepCount = 0;
-    const replanAfterDeath = async () => {
+    const replanContinuation = async ({ afterMonsterScan = false } = {}) => {
         const completedUpkeeps = upkeepCount;
         const resumed = await planElapsedTurn(state, {
             consumeHeroRation: false,
+            afterMonsterScan,
         });
         preflight = {
             ...resumed,
@@ -1295,21 +1299,6 @@ async function advanceElapsedTurn(state) {
             upkeepCount: completedUpkeeps + resumed.upkeepCount,
         };
         pendingDeathReplan = Boolean(resumed.heroDeath);
-    };
-    const replanAfterDeferredGoto = async () => {
-        const completedUpkeeps = upkeepCount;
-        const resumed = await planElapsedTurn(state, {
-            // The elapsed turn already paid its hero ration before the
-            // transition. Planning the destination suffix starts at the
-            // post-goto movement count, like the death replan above.
-            consumeHeroRation: false,
-        });
-        preflight = {
-            ...resumed,
-            initialCapacity: preflight.initialCapacity,
-            upkeepCount: completedUpkeeps + resumed.upkeepCount,
-        };
-        pendingDeferredGoto = Boolean(resumed.deferredGoto);
     };
 
     // C ref: allmain.c moveloop_core().  The outer loop repeats while the hero
@@ -1324,8 +1313,7 @@ async function advanceElapsedTurn(state) {
         let monstersCanMove;
         try {
             do {
-                const deferredGotoBeforeScan = pendingDeferredGoto
-                    && Boolean(state.u.utotype);
+                let completedDeferredGoto = false;
                 monstersCanMove = await movemon({
                     state,
                     random,
@@ -1339,8 +1327,10 @@ async function advanceElapsedTurn(state) {
                     // the live transition and answer nothing the live pass
                     // does not, so this transition is the one part of the
                     // turn whose refusals surface live.
-                    deferredGoto: (env) =>
-                        runDeferredGotoAtTurnBoundary(env.state),
+                    deferredGoto: async (env) => {
+                        await runDeferredGotoAtTurnBoundary(env.state);
+                        completedDeferredGoto = true;
+                    },
                 });
                 // C's terminal death path eventually longjmps out through
                 // really_done(), but done_in_by() itself returns after a
@@ -1348,22 +1338,22 @@ async function advanceElapsedTurn(state) {
                 // the terminal end-game display so replay can capture its
                 // final window; stop only after that completed gameover path.
                 if (state.program_state?.gameover) return;
-                if (deferredGotoBeforeScan && !state.u.utotype) {
-                    // movemon() has now performed deferred_goto() and returned
-                    // the source's false movement gate. Replan only the new
-                    // level suffix; do not spend another hero ration or scan
-                    // the pre-transition list twice.
-                    await replanAfterDeferredGoto();
-                }
-                // A planned death is the one intentional exception to the
-                // ordinary movement comparison below. The live scan has now
-                // replayed the lethal action and completed its canonical
-                // recovery; if another monster scan is due, its source gate
-                // starts at this post-scan state.
-                if (pendingDeathReplan
+                if (completedDeferredGoto || preflight.deferredGoto) {
+                    // Resume at the live scan's source gate. A transition can
+                    // be scheduled by its last actor; a wizard's answer to the
+                    // quest alignment prompt can also avert the transition
+                    // projected by the silent plan. In either case, use the
+                    // live result to decide whether another scan is due.
+                    await replanContinuation({
+                        afterMonsterScan: !monstersCanMove
+                            || state.u.umovement >= NORMAL_SPEED,
+                    });
+                } else if (pendingDeathReplan
                     && monstersCanMove
                     && state.u.umovement < NORMAL_SPEED) {
-                    await replanAfterDeath();
+                    // The live scan replayed the lethal action and completed
+                    // any recovery. Plan the next scan from that state.
+                    await replanContinuation();
                 }
                 if (state.u.umovement >= NORMAL_SPEED) break;
             } while (monstersCanMove);
@@ -1453,7 +1443,7 @@ async function advanceElapsedTurn(state) {
                 upkeepCount = 0;
             }
             if (pendingDeathReplan && state.u.umovement < NORMAL_SPEED) {
-                await replanAfterDeath();
+                await replanContinuation();
             }
         }
     } while (state.u.umovement < NORMAL_SPEED);
