@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 731903,
+      "datetime": "20360407080910",
+      "nethackrc": "OPTIONS=name:AreaProbe,role:Wizard,race:human,gender:female,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen,!tips,!autopickup,pettype:none,playmode:debug,whatis_filter:area\n",
+      "moves": " \u0014  D."
+    }
+  ],
+  "comment": "Independent GFILTER_AREA getpos.c recipe: the source area filter flood-fills from the targeting square before the previous-door cycle. This is a distinct seed and clock from the ordinary door-cycle witness and records the temporary filter helpers through the production getpos caller."
+}
