@@ -219,6 +219,7 @@ test('synthetic scan cache is qualified and never copies a recording into sessio
         recordingSha256: 'b'.repeat(64), recipeSha256: 'c'.repeat(64),
         evaluationPath: 'challenges/evaluations/one.json',
         evaluationCommit: 'd'.repeat(40), commit: 'e'.repeat(40),
+        replayInputSha256: 'i'.repeat(64), diagnosticToolSha256: 't'.repeat(64),
     };
     const first = await loadSyntheticScan(metadata, replay);
     assert.equal(first.session, 'synthetic/v1/case-one');
@@ -228,6 +229,12 @@ test('synthetic scan cache is qualified and never copies a recording into sessio
     assert.equal(replays, 1, 'same replay input identity reuses the cache');
     await loadSyntheticScan({ ...metadata, recordingSha256: 'f'.repeat(64) }, replay);
     assert.equal(replays, 2, 'changed recording identity invalidates diagnostics');
+    await loadSyntheticScan({ ...metadata, recordingSha256: 'f'.repeat(64),
+        replayInputSha256: 'j'.repeat(64) }, replay);
+    assert.equal(replays, 3, 'changed replay-input identity invalidates diagnostics');
+    await loadSyntheticScan({ ...metadata, recordingSha256: 'f'.repeat(64),
+        replayInputSha256: 'j'.repeat(64), diagnosticToolSha256: 'u'.repeat(64) }, replay);
+    assert.equal(replays, 4, 'changed diagnostic-tool identity invalidates diagnostics');
     assert.equal(existsSync(join(root, 'sessions')), false);
     assert.equal(existsSync(join(root, '.cache/synthetic-scans/v1/case-one.json')), true);
 });
@@ -244,6 +251,14 @@ test('main rejects paths and unknown options', async () => {
     await assert.rejects(
         () => main(['--by=screens']),
         /only --json and --debug-full-replay are accepted/,
+    );
+    await assert.rejects(
+        () => main(['--recording', 'challenges/cases/example.session.json']),
+        /--recording\/--synthetic require --json/,
+    );
+    await assert.rejects(
+        () => main(['--json', '--recording', '--debug-full-replay']),
+        /--recording requires a path/,
     );
 });
 

@@ -166,6 +166,11 @@ function fixture(t) {
         'export function loadMismatchQueue() {',
         "    return JSON.parse(readFileSync(new URL('../.cache/queue.json', import.meta.url), 'utf8'));",
         '}',
+        'export function loadWorkQueue() {',
+        '    const fixed = loadMismatchQueue();',
+        "    return { mode: 'work', corpus: 'combined', fixed, synthetic: { sessions: [], blockers: [], generationReady: true },",
+        "        sessions: fixed.sessions ?? [], candidates: fixed.candidates ?? [], blockers: [], generationReady: fixed.generationReady ?? false, roadmapFallbackAllowed: false };",
+        '}',
     ].join('\n'));
     write('.gitignore', '.cache/\n');
     json('js/score-fixture.json', BASELINE);
@@ -521,7 +526,7 @@ test('selection is checked when queueing, opening, and requesting either a new o
     f.refuses(/fixed-corpus mismatches remain/u, 'queue-goal', '--id', 'unrelated',
         '--kind', 'file-port', '--c-file', 'unrelated.c', '--summary', 'Unrelated helper work');
     assert.deepEqual(f.goals(), []);
-    f.queue();
+    f.queue('unrelated.c');
     queueC(f, 'unrelated', 'unrelated.c');
     f.queue('widget.c');
     f.refuses(/fixed-corpus mismatches remain/u, 'open-goal', '--id', 'unrelated');

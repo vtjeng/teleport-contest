@@ -688,13 +688,11 @@ function readDevelopmentScan(path) {
 }
 
 async function checkSelection(goal, scan) {
-    const { assertGoalSelection, loadMismatchQueue, loadWorkQueue } =
+    const { assertGoalSelection, loadWorkQueue } =
         await import('./mismatch-queue.mjs');
-    const synthetic = [goal.session, ...(goal.sessions ?? [])]
-        .some(session => /^synthetic\/v[1-9][0-9]*\/[a-z0-9][a-z0-9-]*$/u.test(session ?? ''));
-    if (synthetic && scan)
-        throw new Error('synthetic goals cannot use --development-scan; use the work queue');
-    const queue = scan ? loadMismatchQueue(scan) : loadWorkQueue();
+    // A saved fixed scan is an input to the combined queue, not a way to opt
+    // out of admitted synthetic evidence or its blockers.
+    const queue = loadWorkQueue({ scan });
     const candidate = assertGoalSelection(queue, goal);
     if (isSourcePort(goal) && !goal.sessions.length && candidate)
         goal.sessions = [...candidate.sessions];
@@ -970,16 +968,17 @@ async function main(args) {
         const closeStanding = checkpointClosingStanding(requireCheckpoint(head), head);
         refreshCompletion(goal, null, store.goals);
         assertPortComplete(goal);
+        const syntheticGoal = [goal.session, ...(goal.sessions ?? [])]
+            .some(session => session?.startsWith('synthetic/'));
         if (isSourcePort(goal)) {
             validatePortEvidence(goal, goal.evidence);
-            const { loadMismatchQueue, loadWorkQueue } = await import('./mismatch-queue.mjs');
+        }
+        if (isSourcePort(goal) || syntheticGoal) {
+            const { loadWorkQueue } = await import('./mismatch-queue.mjs');
             const scan = options['development-scan']
                 ? readDevelopmentScan(options['development-scan']) : undefined;
-            if (scan && [goal.session, ...(goal.sessions ?? [])]
-                .some(session => session?.startsWith('synthetic/')))
-                throw new Error('synthetic goals cannot use --development-scan; use the work queue');
-            const queue = scan ? loadMismatchQueue(scan) : loadWorkQueue();
-            if (!scan && queue.blockers?.length)
+            const queue = loadWorkQueue({ scan });
+            if (queue.blockers?.length)
                 throw new Error('synthetic evidence is incomplete; goal closure is blocked');
             goal.closeMismatches = scopedMismatches(goal, queue);
         }

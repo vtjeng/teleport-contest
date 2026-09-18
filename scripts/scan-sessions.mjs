@@ -30,6 +30,7 @@ import { runSegment } from '../js/jsmain.js';
 import { Terminal } from '../js/terminal.js';
 import { Terminal as FrozenTerminal } from '../frozen/terminal.js';
 import { compareSessionOutputs } from './diff-fresh.mjs';
+import * as challengeResults from './challenge-results.mjs';
 import { PROJECT_ROOT } from './scoring-workspace.mjs';
 import { fixedWorkload } from './fixed-workload.mjs';
 
@@ -69,6 +70,31 @@ const EXTENDED_COMMAND_KEY = '#';
 
 // Version 4 separates input-boundary agreement from strict animation parity.
 const SCAN_CACHE_VERSION = 4;
+
+// Synthetic first-mismatch diagnostics are replay artifacts, so their cache
+// identity includes both the replay-input snapshot and the diagnostic code.
+// The challenge-results module owns the former; keeping this small tool list
+// here makes a scanner/queue edit invalidate an old source attribution too.
+export const DIAGNOSTIC_TOOL_FILES = Object.freeze([
+    'scripts/scan-sessions.mjs',
+    'scripts/diff-fresh.mjs',
+    'scripts/mismatch-queue.mjs',
+    'scripts/c-functions.mjs',
+]);
+
+export function diagnosticToolIdentity(root = PROJECT_ROOT) {
+    const files = [];
+    for (const path of DIAGNOSTIC_TOOL_FILES) {
+        const fullPath = join(root, path);
+        if (!existsSync(fullPath)) return { version: 1, files: [], sha256: null };
+        files.push({ path, sha256: createHash('sha256')
+            .update(readFileSync(fullPath)).digest('hex') });
+    }
+    return {
+        version: 1, files,
+        sha256: createHash('sha256').update(JSON.stringify(files)).digest('hex'),
+    };
+}
 
 function repositoryHead(root) {
     return execFileSync('git', ['rev-parse', 'HEAD'], { cwd: root })
@@ -500,9 +526,60 @@ function recordingDigest(data) {
     return createHash('sha256').update(JSON.stringify(data)).digest('hex');
 }
 
+function challengeBatches(root) {
+    return challengeResults.readChallengeBatches(root);
+}
+
+function challengeCase(root, batchName, caseId) {
+    const batch = challengeBatches(root).find(entry => entry.batch === batchName);
+    const entry = batch?.cases?.find(candidate => candidate.id === caseId);
+    if (!batch || !entry) throw new Error(
+        `no admitted synthetic case ${batchName}/${caseId}`,
+    );
+    const snapshot = challengeResults.challengeInputSnapshot(root, batch);
+    const tool = diagnosticToolIdentity(root);
+    return {
+        root, batch: batch.batch, caseId: entry.id,
+        manifestPath: batch.manifestPath, manifestSha256: batch.manifestSha256,
+        recordingPath: entry.recording, recordingSha256: entry.recordingSha256,
+        recipeSha256: entry.recipeSha256 ?? null,
+        replayInputSha256: snapshot.sha256,
+        diagnosticToolSha256: tool.sha256,
+    };
+}
+
+function relativeChallengePath(root, requested) {
+    const value = String(requested ?? '').replaceAll('\\', '/');
+    const rootPath = resolve(root).replaceAll('\\', '/').replace(/\/$/u, '');
+    const absolute = resolve(root, requested).replaceAll('\\', '/');
+    const prefix = `${rootPath}/`;
+    if (!absolute.startsWith(prefix)) throw new Error(
+        '--recording must name a file in the admitted challenges corpus',
+    );
+    const relative = absolute.slice(prefix.length);
+    return value.startsWith('challenges/') ? value : relative;
+}
+
+export function syntheticMetadataForSelector(root, selector) {
+    const match = /^v([1-9][0-9]*)\/([a-z0-9][a-z0-9-]*)$/u.exec(selector ?? '');
+    if (!match) throw new Error('--synthetic requires vN/case-id');
+    return challengeCase(root, `v${match[1]}`, match[2]);
+}
+
+export function syntheticMetadataForRecording(root, requested) {
+    const relative = relativeChallengePath(root, requested);
+    const found = challengeBatches(root).flatMap(batch => batch.cases
+        .map(entry => ({ batch, entry })))
+        .find(({ entry }) => entry.recording === relative);
+    if (!found) throw new Error('--recording must name an admitted challenge recording');
+    return challengeCase(root, found.batch.batch, found.entry.id);
+}
+
 function syntheticIdentity(metadata, root, data) {
     const identity = metadata.inputIdentity ?? {};
+    const tools = diagnosticToolIdentity(root);
     return {
+        ...identity,
         version: 1,
         corpus: 'synthetic',
         batch: metadata.batch,
@@ -514,8 +591,11 @@ function syntheticIdentity(metadata, root, data) {
         recipeSha256: metadata.recipeSha256 ?? null,
         evaluationPath: metadata.evaluationPath ?? null,
         evaluationCommit: metadata.evaluationCommit ?? null,
-        replayCommit: metadata.commit ?? repositoryHead(root),
-        ...identity,
+        replayInputSha256: metadata.replayInputSha256
+            ?? identity.replayInputSha256 ?? null,
+        diagnosticToolSha256: metadata.diagnosticToolSha256
+            ?? tools.sha256,
+        replayCommit: metadata.commit ?? identity.replayCommit ?? repositoryHead(root),
     };
 }
 
@@ -876,12 +956,16 @@ export async function main(args) {
     if (args.length === 1 && args[0] === '--help') {
         console.log(
             'Usage: node scripts/scan-sessions.mjs [--json] [--debug-full-replay]\n'
+            + '       node scripts/scan-sessions.mjs --json --recording <path>\n'
+            + '       node scripts/scan-sessions.mjs --json --synthetic vN/case-id\n'
             + '\n  --json                   emit per-session rows in'
             + ' machine-readable form.'
             + '\n  --debug-full-replay      force a fresh replay even when'
             + ' .cache/scan-cache.json\n'
             + '                           matches clean replay inputs at HEAD.'
             + ' For debugging only.'
+            + '\n  --recording <path>       diagnose one admitted synthetic recording.'
+            + '\n  --synthetic vN/case-id   diagnose one admitted synthetic case.'
             + '\n\nScans the fixed 44-session workload: direct development sessions and'
             + ' sessions/holdout/.',
         );
@@ -890,12 +974,47 @@ export async function main(args) {
     if (args.includes('--help')) {
         throw new Error('request --help without other arguments');
     }
+    const json = args.includes('--json');
+    let recording = null;
+    let synthetic = null;
+    for (let index = 0; index < args.length; index += 1) {
+        const arg = args[index];
+        if (arg === '--recording') {
+            recording = args[++index];
+            if (!recording || recording.startsWith('--'))
+                throw new Error('--recording requires a path');
+        } else if (arg === '--synthetic') {
+            synthetic = args[++index];
+            if (!synthetic || synthetic.startsWith('--'))
+                throw new Error('--synthetic requires vN/case-id');
+        }
+    }
+    if (recording !== null || synthetic !== null) {
+        if (!json) throw new Error('--recording/--synthetic require --json');
+        if (recording !== null && synthetic !== null)
+            throw new Error('--recording and --synthetic are mutually exclusive');
+        if (args.includes('--debug-full-replay'))
+            throw new Error('diagnostic replay cannot use --debug-full-replay');
+        const unexpected = args.find((arg, index) => {
+            if (arg === '--json' || arg === '--recording' || arg === '--synthetic') return false;
+            if (index > 0 && (args[index - 1] === '--recording'
+                || args[index - 1] === '--synthetic')) return false;
+            return true;
+        });
+        if (unexpected !== undefined) throw new Error(
+            `unexpected argument in diagnostic mode: ${unexpected}`,
+        );
+        const metadata = recording !== null
+            ? syntheticMetadataForRecording(PROJECT_ROOT, recording)
+            : syntheticMetadataForSelector(PROJECT_ROOT, synthetic);
+        console.log(JSON.stringify(await loadSyntheticScan(metadata), null, 2));
+        return undefined;
+    }
     const rejected = args.find((arg) => arg !== '--json'
         && arg !== '--debug-full-replay');
     if (rejected !== undefined) {
         throw new Error('only --json and --debug-full-replay are accepted');
     }
-    const json = args.includes('--json');
     const forceReplay = args.includes('--debug-full-replay');
 
     const rows = await loadAnnotatedRows({ forceReplay });

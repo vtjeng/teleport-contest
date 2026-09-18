@@ -21,6 +21,7 @@ import {
 import * as challengeResults from './challenge-results.mjs';
 import { readInvestigation, syntheticSessionParts } from './investigation-cache.mjs';
 import { normalizeSession } from '../frozen/session_loader.mjs';
+import { diagnosticToolIdentity } from './scan-sessions.mjs';
 
 // Patch 004 adds Lua annotations alongside ordinary `name(file.c:line)`.
 const CALLER = /^(.+)\(([A-Za-z0-9_.-]+\.(c|lua)):(\d+)\)$/u;
@@ -48,10 +49,14 @@ export function readSyntheticBatches(root = PROJECT_ROOT, { state = null } = {})
     // challengeState validates the admitted catalog, every saved evaluation,
     // and SCORE.tsv freshness. This queue only consumes that API; it does not
     // infer a batch by walking challenge directories.
-    const current = state ?? challengeResults.challengeState?.(root);
+    const current = state ?? challengeResults.challengeState(root);
     if (!current || !Array.isArray(current.batches))
         throw new Error('challengeState API is required for the synthetic work queue');
-    return current.batches.filter(batch => batch?.admitted !== false);
+    return current.batches.filter(batch => batch?.admitted !== false).map(batch => ({
+        ...batch,
+        replayInputSha256: batch.replayInputSha256
+            ?? batch.freshness?.expected ?? null,
+    }));
 }
 
 export function parseCaller(caller) {
@@ -135,14 +140,46 @@ function cachedSyntheticDiagnostic(batch, entry) {
     try { cached = JSON.parse(readFileSync(path, 'utf8')); }
     catch { return null; }
     const identity = cached.inputIdentity;
+    const catalog = batch.caseById.get(entry.id);
+    const expectedInput = batch.replayInputSha256 ?? null;
+    const expectedTools = diagnosticToolIdentity(batch.root).sha256;
     if (identity?.corpus !== 'synthetic' || identity.batch !== batch.batch
         || identity.caseId !== entry.id
         || identity.manifestPath !== batch.manifestPath
         || identity.manifestSha256 !== batch.manifestSha256
-        || identity.recordingSha256 !== entry.recordingSha256) return null;
-    return cached.divergence ?? (cached.boundary ? {
-        kind: 'stop', message: cached.boundary, step: cached.screensEmitted,
-    } : null);
+        || identity.recordingPath !== catalog?.recording
+        || identity.recordingSha256 !== entry.recordingSha256
+        || identity.recipeSha256 !== (catalog?.recipeSha256 ?? null)
+        || identity.replayInputSha256 !== expectedInput
+        || identity.diagnosticToolSha256 !== expectedTools) return null;
+    return cached;
+}
+
+function cachedDiagnosticEntry(batch, entry, cached, owners) {
+    if (!cached) return null;
+    const row = {
+        ...cached,
+        file: `synthetic/${batch.batch}/${entry.id}.session.json`,
+    };
+    return queueEntry(row, owners);
+}
+
+// The queue is synchronous, while a synthetic replay may take a full child
+// process. When an evaluated loss has no current diagnostic, ask the scanner
+// CLI to create exactly one admitted-case cache and then read that cache back
+// through the same identity checks. A failed diagnostic replay leaves the loss
+// visible and blocked at source attribution; it never falls back to a fixed
+// session or treats a missing scan as parity.
+function ensureSyntheticDiagnostic(batch, entry) {
+    let cached = cachedSyntheticDiagnostic(batch, entry);
+    if (cached) return cached;
+    const script = join(batch.root, 'scripts', 'scan-sessions.mjs');
+    const run = spawnSync(process.execPath, [script, '--json', '--synthetic',
+        `${batch.batch}/${entry.id}`], {
+        cwd: batch.root, encoding: 'utf8', maxBuffer: 64 * 1024 * 1024,
+    });
+    if (run.status !== 0) return null;
+    return cachedSyntheticDiagnostic(batch, entry);
 }
 
 function comparableMeasurement(evaluation, entry, previous, previousEntry, recordingSha256) {
@@ -154,7 +191,7 @@ function comparableMeasurement(evaluation, entry, previous, previousEntry, recor
             entry.metrics?.[key]?.total === previousEntry.metrics?.[key]?.total);
 }
 
-function evaluationCase(batch, evaluation, entry, previous) {
+function evaluationCase(batch, evaluation, entry, previous, owners) {
     const metrics = {
         screens: count(entry.metrics?.screens),
         rng: count(entry.metrics?.rng ?? entry.metrics?.rngCalls),
@@ -166,14 +203,19 @@ function evaluationCase(batch, evaluation, entry, previous) {
             !== batch.caseById.get(entry.id)?.recordingSha256) return {
         blocked: true, reason: `incomplete synthetic evidence for ${entry.id}`,
     };
-    const diagnostic = entry.firstMismatch ?? entry.diagnostic ?? entry.divergence
-        ?? entry.mismatch ?? cachedSyntheticDiagnostic(batch, entry);
     const remainingScreens = metrics.screens.total - metrics.screens.matched;
     const mismatch = Boolean(entry.error || !entry.passed
         || metrics.screens.matched < metrics.screens.total
         || metrics.rng.matched < metrics.rng.total
         || metrics.cursors.matched < metrics.cursors.total);
     if (!mismatch) return null;
+    const directDiagnostic = entry.firstMismatch ?? entry.diagnostic ?? entry.divergence
+        ?? entry.mismatch ?? null;
+    const cached = directDiagnostic ? null : ensureSyntheticDiagnostic(batch, entry);
+    const attributed = cachedDiagnosticEntry(batch, entry, cached, owners);
+    const diagnostic = directDiagnostic ?? cached?.divergence ?? (cached?.boundary ? {
+        kind: 'stop', message: cached.boundary, step: cached.screensEmitted,
+    } : null);
     const previousEntry = previous?.cases?.get(entry.id);
     const comparable = comparableMeasurement(evaluation, entry, previous?.evaluation,
         previousEntry, entry.recordingSha256);
@@ -187,6 +229,8 @@ function evaluationCase(batch, evaluation, entry, previous) {
         recordingSha256: entry.recordingSha256,
         recipe: batch.caseById.get(entry.id).recipe ?? null,
         recipeSha256: batch.caseById.get(entry.id).recipeSha256 ?? null,
+        replayInputSha256: batch.replayInputSha256
+            ?? batch.inputSnapshotSha256 ?? batch.freshness?.expected ?? null,
         evaluationPath: batch.evaluationPath, evaluationCommit: evaluation.sha,
         evaluationArtifact: batch.evaluationPath,
         evaluationUtc: evaluation.utc,
@@ -200,13 +244,28 @@ function evaluationCase(batch, evaluation, entry, previous) {
         sourceFile: diagnostic?.sourceFile ?? diagnostic?.cFile ?? diagnostic?.luaFile ?? null,
         function: diagnostic?.function ?? diagnostic?.owner ?? null,
         message: diagnostic?.message ?? entry.error ?? null,
+        ...(attributed ? {
+            step: attributed.step,
+            kind: attributed.kind,
+            sourceFile: attributed.sourceFile,
+            function: attributed.function,
+            cFile: attributed.cFile,
+            luaFile: attributed.luaFile,
+            line: attributed.line,
+            ...(attributed.helper ? { helper: attributed.helper } : {}),
+            message: attributed.message ?? diagnostic?.message ?? entry.error ?? null,
+        } : {}),
     };
 }
 
-export function buildSyntheticQueue(batches, { root = PROJECT_ROOT } = {}) {
+export function buildSyntheticQueue(batches, { root = PROJECT_ROOT, owners = null } = {}) {
     const sessions = [];
     const blockers = [];
     const normalized = [];
+    const sourceOwners = owners ?? (() => {
+        try { return functionOwners(); }
+        catch { return new Map(); }
+    })();
     for (const source of batches ?? []) {
         const batch = { ...source, root,
             caseById: new Map((source.cases ?? []).map(entry => [entry.id, entry])) };
@@ -225,6 +284,8 @@ export function buildSyntheticQueue(batches, { root = PROJECT_ROOT } = {}) {
         const batchView = {
             corpus: 'synthetic', batch: batch.batch, manifestPath: batch.manifestPath,
             manifestSha256: batch.manifestSha256, status, reason: reason ?? null,
+            replayInputSha256: batch.replayInputSha256
+                ?? batch.inputSnapshotSha256 ?? batch.freshness?.expected ?? null,
             evaluationPath: state.path ?? null, evaluationCommit: evaluation?.sha ?? null,
             evaluationArtifact: state.path ?? null, generationReady: false,
         };
@@ -235,7 +296,7 @@ export function buildSyntheticQueue(batches, { root = PROJECT_ROOT } = {}) {
         }
         batch.evaluationPath = state.path;
         for (const result of evaluation.cases) {
-            const entry = evaluationCase(batch, evaluation, result, previous);
+            const entry = evaluationCase(batch, evaluation, result, previous, sourceOwners);
             if (entry?.blocked) {
                 blockers.push({ ...batchView, caseId: result.id, blocked: true, reason: entry.reason });
                 continue;
@@ -404,8 +465,10 @@ export function buildWorkQueue(fixed, synthetic) {
             && blockers.length === 0 && fixedSessions.length === 0,
         status: blockers.length ? 'blocked' : sessions.length ? 'actionable' : 'ready',
         availability: blockers.length ? 'blocked' : 'available',
-        roadmapFallbackAllowed: Boolean(fixed?.roadmapFallbackAllowed)
-            && blockers.length === 0 && syntheticSessions.length === 0,
+        // The combined queue is the operational synthetic-first interface.
+        // An empty fixed corpus must not silently turn an unmeasured or empty
+        // synthetic catalog into permission to invent a roadmap goal.
+        roadmapFallbackAllowed: false,
     };
 }
 
@@ -430,6 +493,10 @@ export function assertGoalSelection(queue, goal) {
             if (entry.investigation?.status !== 'complete')
                 throw new Error(`synthetic investigation is ${entry.investigation?.status
                 ?? 'missing'}; complete it before selecting the goal`);
+            const candidate = queue.candidates.find(item =>
+                item.sessions?.includes(entry.session));
+            if (!candidate) throw new Error('synthetic session is not a ranked queue candidate');
+            assertRankedCandidate(candidate, queue.candidates[0], goal);
             return entry;
         }
         // A source-port goal may omit --sessions when its traced owner is the
@@ -442,11 +509,20 @@ export function assertGoalSelection(queue, goal) {
             if (entry) {
                 if (entry.investigation?.status !== 'complete')
                     throw new Error(`synthetic investigation is ${entry.investigation?.status
-                        ?? 'missing'}; complete it before selecting the goal`);
+                    ?? 'missing'}; complete it before selecting the goal`);
+                const candidate = queue.candidates.find(item =>
+                    item.sessions?.includes(entry.session));
+                if (!candidate) throw new Error('synthetic session is not a ranked queue candidate');
+                assertRankedCandidate(candidate, queue.candidates[0], goal);
                 return entry;
             }
         }
-        return assertGoalSelection(queue.fixed ?? { ...queue, mode: 'fixed' }, goal);
+        const fixed = queue.fixed ?? { ...queue, mode: 'fixed' };
+        if (fixed.sessions.length === 0) {
+            throw new Error('fixed-corpus mismatches remain; no fixed regression or '
+                + 'synthetic candidate justifies this goal');
+        }
+        return assertGoalSelection(fixed, goal);
     }
     if (queue.sessions.length === 0) return;
     const sourceFile = goal.luaFile ?? goal.cFile;
@@ -455,13 +531,18 @@ export function assertGoalSelection(queue, goal) {
         ?? queue.candidates.find((entry) => entry.sessions.some((session) => sessions.has(session)));
     if (!candidate) throw new Error('fixed-corpus mismatches remain; select a ranked source '
         + 'or name the mismatching session whose source trace justifies this goal');
+    assertRankedCandidate(candidate, queue.candidates[0], goal);
+    return candidate;
+}
+
+function assertRankedCandidate(candidate, first, goal) {
     const reason = typeof goal.selectionReason === 'string' ? goal.selectionReason.trim() : '';
-    const sameSource = candidate.sourceFile !== null && candidate.sourceFile === sourceFile;
+    const sourceFile = goal.luaFile ?? goal.cFile;
+    const sameSource = candidate.sourceFile != null && candidate.sourceFile === sourceFile;
     if (!sameSource && !reason) throw new Error('selectionReason is required to identify '
         + 'the source owner traced from the named mismatching session');
-    if (candidate !== queue.candidates[0] && !reason) throw new Error('selectionReason is '
-        + 'required to explain the dependency or blocker preventing the highest-ranked candidate');
-    return candidate;
+    if (candidate !== first && !reason) throw new Error('selectionReason is required to '
+        + 'explain the dependency or blocker preventing the highest-ranked candidate');
 }
 
 function runScan() {
@@ -492,7 +573,10 @@ export function loadMismatchQueue(scan = runScan()) {
 export function loadWorkQueue({ scan = null, root = PROJECT_ROOT } = {}) {
     const fixed = loadMismatchQueue(scan ?? undefined);
     const batches = readSyntheticBatches(root);
-    const synthetic = buildSyntheticQueue(batches, { root });
+    let owners;
+    try { owners = functionOwners(); }
+    catch { owners = new Map(); }
+    const synthetic = buildSyntheticQueue(batches, { root, owners });
     return buildWorkQueue(fixed, synthetic);
 }
 

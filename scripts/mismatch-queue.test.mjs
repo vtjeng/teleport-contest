@@ -285,7 +285,9 @@ test('synthetic queue keeps exact screen debt and cursor/RNG losses visible', ()
         writeFileSync(join(root, '.cache/synthetic-scans/v1/alpha.json'), JSON.stringify({
             inputIdentity: { corpus: 'synthetic', batch: 'v1', caseId: 'alpha',
                 manifestPath: 'challenges/manifest.json', manifestSha256: 'a'.repeat(64),
-                recordingSha256 },
+                recordingPath: 'challenges/cases/alpha.session.json', recordingSha256,
+                recipeSha256: null, replayInputSha256: null,
+                diagnosticToolSha256: null },
             divergence: { screen: { index: 2, row: 4, column: 3 } },
         }));
         const batch = buildSyntheticQueue([{
@@ -327,7 +329,77 @@ test('synthetic goal selection requires a current investigation', () => {
         session: 'synthetic/v1/alpha', sessions: ['synthetic/v1/alpha'],
     }), /investigation is missing/u);
     synthetic.sessions[0].investigation = { status: 'complete' };
+    assert.throws(() => assertGoalSelection(buildWorkQueue(build([passing]), synthetic), {
+        session: 'synthetic/v1/alpha', sessions: ['synthetic/v1/alpha'],
+    }), /selectionReason/u);
     assert.equal(assertGoalSelection(buildWorkQueue(build([passing]), synthetic), {
         session: 'synthetic/v1/alpha', sessions: ['synthetic/v1/alpha'],
+        selectionReason: 'The selected synthetic trace identifies this source owner.',
     }).session, 'synthetic/v1/alpha');
+});
+
+test('combined work mode never enables roadmap fallback', () => {
+    const fixed = build([passing]);
+    const work = buildWorkQueue(build([passing]), {
+        mode: 'synthetic', corpus: 'synthetic', blockers: [], sessions: [],
+        generationReady: true,
+    });
+    assert.equal(work.roadmapFallbackAllowed, false);
+    assert.throws(() => assertGoalSelection(work, { cFile: 'sfbase.c' }),
+        /no fixed regression or synthetic candidate/u);
+    assert.equal(fixed.roadmapFallbackAllowed, true);
+});
+
+test('synthetic diagnostics require replay/tool identity and recover source owners', () => {
+    const root = mkdtempSync(join(tmpdir(), 'synthetic-diagnostic-identity-'));
+    try {
+        mkdirSync(join(root, 'challenges/cases'), { recursive: true });
+        mkdirSync(join(root, '.cache/synthetic-scans/v1'), { recursive: true });
+        const recording = { version: 5, segments: [{ seed: 2,
+            datetime: '20260918100000', nethackrc: '', moves: '',
+            steps: Array.from({ length: 4 }, () => ({})) }] };
+        writeFileSync(join(root, 'challenges/cases/owner.session.json'),
+            JSON.stringify(recording));
+        const recordingSha256 = 'b'.repeat(64);
+        writeFileSync(join(root, '.cache/synthetic-scans/v1/owner.json'), JSON.stringify({
+            file: 'synthetic/v1/owner', screensEmitted: 2, recordedSteps: 4,
+            divergence: { rng: { stepIndex: 1, cCaller: 'test_move(hack.c:12)' } },
+            inputIdentity: { corpus: 'synthetic', batch: 'v1', caseId: 'owner',
+                manifestPath: 'challenges/manifest.json', manifestSha256: 'a'.repeat(64),
+                recordingPath: 'challenges/cases/owner.session.json', recordingSha256,
+                recipeSha256: null, replayInputSha256: 'input-a',
+                diagnosticToolSha256: null },
+        }));
+        const evaluation = { status: 'complete', sha: 'c'.repeat(40),
+            scorerSha256: 'd'.repeat(64), utc: '2026-09-18T10:00:00Z', cases: [{
+                id: 'owner', recordingSha256, passed: false,
+                metrics: { screens: { matched: 2, total: 4 }, rng: { matched: 3, total: 4 },
+                    cursors: { matched: 4, total: 4 } },
+            }] };
+        const batch = buildSyntheticQueue([{
+            corpus: 'synthetic', batch: 'v1', manifestPath: 'challenges/manifest.json',
+            manifestSha256: 'a'.repeat(64), replayInputSha256: 'input-a',
+            cases: [{ id: 'owner', recording: 'challenges/cases/owner.session.json',
+                recordingSha256 }], status: 'measured', evaluation,
+            evaluationPath: 'challenges/evaluations/one.json', previous: null,
+        }], { root, owners: new Map([['test_move', 'hack.c']]) });
+        assert.equal(batch.sessions[0].sourceFile, 'hack.c');
+        assert.equal(batch.sessions[0].function, 'test_move');
+        assert.equal(batch.sessions[0].step, 1);
+        assert.equal(batch.sessions[0].kind, 'rng');
+
+        // A changed replay-input snapshot makes the cached row unavailable;
+        // the queue keeps the loss visible but cannot invent an owner.
+        const stale = buildSyntheticQueue([{
+            corpus: 'synthetic', batch: 'v1', manifestPath: 'challenges/manifest.json',
+            manifestSha256: 'a'.repeat(64), replayInputSha256: 'input-b',
+            cases: [{ id: 'owner', recording: 'challenges/cases/owner.session.json',
+                recordingSha256 }], status: 'measured', evaluation,
+            evaluationPath: 'challenges/evaluations/one.json', previous: null,
+        }], { root, owners: new Map([['test_move', 'hack.c']]) });
+        assert.equal(stale.sessions[0].sourceFile, null);
+        assert.equal(stale.sessions[0].step, null);
+    } finally {
+        rmSync(root, { recursive: true, force: true });
+    }
 });
