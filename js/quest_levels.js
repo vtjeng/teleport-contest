@@ -20,12 +20,15 @@ import {
     PM_CHIEFTAIN,
     PM_GIANT_EEL,
     PM_HUMAN_ZOMBIE,
+    PM_IXOTH,
     PM_LORD_CARNARVON,
     PM_MINION_OF_HUHETOTL,
     PM_NALZOK,
+    PM_OCHRE_JELLY,
     PM_OGRE,
     PM_ORACLE,
     PM_PELIAS,
+    PM_QUASIT,
     PM_ROCK_TROLL,
     PM_STUDENT,
     PM_THOTH_AMON,
@@ -46,10 +49,11 @@ import {
 import {
     BULLWHIP, CHAIN_MAIL, CHEST, CRYSTAL_BALL, FEDORA, HELM_OF_BRILLIANCE,
     LUCKSTONE,
-    MACE, ROBE, RUNESWORD, STATUE, TALLOW_CANDLE, WAX_CANDLE,
+    MACE, MIRROR, ROBE, RUNESWORD, STATUE, TALLOW_CANDLE, WAX_CANDLE,
 } from './objects.js';
 import { rn2, rnd } from './rng.js';
 import { selection_area, ThemeroomSelection } from './themerooms.js';
+import { KNI_GOAL_LEVEL_MAP } from './kni_goal_level_data.js';
 
 // C ref: selvar.c selection_do_randline(). Recursive midpoint displacement
 // that draws a random zig-zag path from (x1,y1) to (x2,y2).
@@ -1188,6 +1192,43 @@ async function priLoca(des) {
     // No random monsters - the morgue generation will put them in.
 }
 
+// C ref: dat/Kni-goal.lua. Knight quest goal level — Ixoth guards Merlin's
+// Magic Mirror in a maze-level map with hostile quasits and jellies.
+async function kniGoal(des) {
+    await des.level_init({ style: 'solidfill', fg: ' ' });
+    await des.level_flags('mazelevel');
+    await des.map(KNI_GOAL_LEVEL_MAP);
+
+    await des.region(selection_area(0, 0, 14, 19), 'lit');
+    await des.region(selection_area(15, 0, 75, 19), 'unlit');
+
+    await des.stair({ dir: 'up', coord: [3, 8] });
+    await des.non_diggable(selection_area(0, 0, 75, 19));
+
+    await des.object({
+        id: MIRROR, x: 50, y: 6,
+        buc: 'blessed', spe: 0, name: 'The Magic Mirror of Merlin',
+    });
+    for (let x = 33; x <= 35; ++x)
+        for (let y = 1; y <= 5; ++y)
+            await des.object({ x, y });
+    for (let i = 0; i < 6; ++i) await des.object();
+
+    await des.trap({ type: 'spiked pit', x: 13, y: 7 });
+    await des.trap({ type: 'spiked pit', x: 12, y: 8 });
+    await des.trap({ type: 'spiked pit', x: 12, y: 9 });
+    for (let i = 0; i < 5; ++i) await des.trap();
+
+    await des.monster({ id: PM_IXOTH, x: 50, y: 6, peaceful: 0 });
+    for (let i = 0; i < 16; ++i)
+        await des.monster({ id: PM_QUASIT, peaceful: 0 });
+    await des.monster({ class: 'i', peaceful: 0 });
+    await des.monster({ class: 'i', peaceful: 0 });
+    for (let i = 0; i < 8; ++i)
+        await des.monster({ id: PM_OCHRE_JELLY, peaceful: 0 });
+    await des.monster({ class: 'j', peaceful: 0 });
+}
+
 // C ref: dat/Pri-goal.lua. Priest quest goal level — lava-filled cave with
 // Nalzok guarding the Mitre of Holiness amid human zombies and wraiths.
 async function priGoal(des) {
@@ -1877,6 +1918,7 @@ export const QUEST_LEVEL_LOADERS = {
     'Arc-fila': arcFila,
     'Arc-filb': arcFilb,
     'Arc-goal': arcGoal,
+    'Kni-goal': kniGoal,
     'Pri-strt': priStrt,
     'Pri-loca': priLoca,
     'Pri-goal': priGoal,
