@@ -59,7 +59,6 @@ import {
     PM_WIZARD,
 } from '../js/monsters.js';
 import { bot } from '../js/display.js';
-import { UnsupportedUrgentMessageError } from '../js/tty_message.js';
 import { is_mplayer } from '../js/mondata.js';
 import { game } from '../js/gstate.js';
 import { m_at } from '../js/monst.js';
@@ -546,11 +545,10 @@ test('a slip that kills carries the killer string x_monnam built', async () => {
 });
 
 test('the death message goes out through urgent_pline, not pline', async () => {
-    // hack.c:4287 is urgent_pline("You die..."), and the difference is only
-    // observable through win/tty/wintty.c:2277-2283's WIN_NOSTOP arm: with a
-    // message window the player has already escaped, ttyUrgentPline() refuses
-    // where ttyPline() would print. Swapping the two leaves every other
-    // assertion in this file green, so this is what pins the choice.
+    // hack.c:4287 is urgent_pline("You die..."). The C urgent arm clears
+    // WIN_STOP and replaces an Escape-suppressed line before done() continues
+    // into its next input boundary. This pins the caller to the ATR_URGENT
+    // path rather than relying on update_topl()'s separate death exception.
     const segment = knightSlipSegment();
     const { error } = await mountAfter(segment, (state) => {
         const pony = m_at(state.u.ux, state.u.uy + 1);
@@ -559,7 +557,9 @@ test('the death message goes out through urgent_pline, not pline', async () => {
         state._ttyMessageStopped = true;
         return pony;
     });
-    assert.ok(error instanceof UnsupportedUrgentMessageError, String(error));
+    assert.match(error?.message ?? '', /Input queue empty/u);
+    assert.equal(game._ttyMessageStopped, false);
+    assert.match(topLine(), /^You die/u);
 });
 
 test('a non-Knight spends a point of tameness on every attempt', async () => {

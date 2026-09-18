@@ -394,7 +394,6 @@ import {
     clearTtyMessageWindow,
     ttyNorep,
     ttyPline,
-    UnsupportedUrgentMessageError,
 } from './tty_message.js';
 import { tty_wait_synch } from './tty_rawprint.js';
 import { do_write_config_file } from './cfgfiles.js';
@@ -2893,10 +2892,6 @@ export function failClosedCommandRefusals() {
         // is preflighted before done() paints or mutates, an ordinary death
         // stops above really_done() after the forced status work, and a debug
         // or explore death can draw "Die?" before savelife() refuses.
-        // UnsupportedUrgentMessageError remains the earlier boundary from
-        // hack.c losehp()'s urgent_pline("You die...") when an
-        // Escape-suppressed message window prevents that line.
-        //
         // The third is not a killing blow's. apply_catch_lit.js raises it from
         // zhitu()'s ignite_items() call at zap.c:4437, one guard above the
         // killer block at 4561-4589, for an ignitable object in the hero's own
@@ -2904,7 +2899,6 @@ export function failClosedCommandRefusals() {
         // may not kill at all, so the last screen a segment ending on it
         // matched carries whatever the status line held before the ray.
         UnsupportedEndOfGameError,
-        UnsupportedUrgentMessageError,
         UnsupportedItemIgnitionError,
         UnsupportedArtifactDisplayError,
         UnsupportedDropError,

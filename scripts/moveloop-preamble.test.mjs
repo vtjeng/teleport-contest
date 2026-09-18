@@ -23,7 +23,6 @@ import {
     dismissPendingTtyMessage,
     ttyPline,
     ttyUrgentPline,
-    UnsupportedUrgentMessageError,
 } from '../js/tty_message.js';
 import { CLR_GRAY, NO_COLOR } from '../js/terminal.js';
 
@@ -539,7 +538,7 @@ test('You die clears suppression set while dismissing the prior message', async 
     assert.equal(state._ttyToplines, 'You die from a test.');
 });
 
-test('an urgent message stops where Escape has suppressed the window',
+test('an urgent message clears Escape suppression before replacing the window',
     async () => {
     // pline.c putmesg():72-74 turns urgent_pline()'s URGENT_MESSAGE into
     // tty_putstr()'s ATR_URGENT, and wintty.c:2277-2283 answers it by wiping
@@ -549,14 +548,18 @@ test('an urgent message stops where Escape has suppressed the window',
     //
     // Two 50-byte messages are what set WIN_STOP: the second cannot share the
     // top line with the first, so it raises the --More-- the queued Escape
-    // answers.
+    // answers. The urgent arm then clears the physical window and WIN_STOP.
     const stopped = preambleState('20260129120000', '\x1b');
     await ttyPline('P'.repeat(50), stopped);
     await ttyPline('Q'.repeat(50), stopped);
     assert.equal(stopped._ttyMessageStopped, true);
-    await assert.rejects(
-        () => ttyUrgentPline('You die...', stopped),
-        UnsupportedUrgentMessageError,
+    await ttyUrgentPline('You die...', stopped);
+    assert.equal(stopped._ttyMessageStopped, false);
+    assert.equal(stopped._pending_message, 'You die...');
+    await flush_screen(1);
+    assert.equal(
+        stopped.nhDisplay.grid[0].map((cell) => cell.ch).join('').trimEnd(),
+        'You die...',
     );
 
     // With WIN_STOP clear the arm sets only WIN_NOSTOP, which update_topl():257
