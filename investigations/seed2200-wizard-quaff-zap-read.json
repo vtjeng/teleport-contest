@@ -2,7 +2,7 @@
   "session": "seed2200-wizard-quaff-zap-read",
   "remainingScreensUpperBound": 72,
   "status": "complete",
-  "commit": "f289daf486d3272620300e381e5622585fa1e6c0",
+  "commit": "6efb9553c2ecc45ee3d11b53a18a5a34c9a7ace1",
   "mismatch": {
     "session": "seed2200-wizard-quaff-zap-read",
     "remainingScreensUpperBound": 72,
@@ -14,11 +14,11 @@
     "cFile": "options.c",
     "luaFile": null,
     "line": "9461-9549",
-    "message": "C option_help() wraps an absolute HOME-derived config path; JavaScript renders the contract-safe .nethackrc basename, first differing at row 3, column 36 (C blank, JS period), with RNG aligned.",
+    "message": "Historical mismatch before the correction: C option_help printed the recorder HOME-derived path while JavaScript used only .nethackrc; shared text-window wrapping and an omitted blank row also affected pagination. The validated correction matches this session completely.",
     "unlocatedKinds": [],
     "recordedSteps": 230
   },
-  "summary": "Nine screens differ because option_help() prints the configuration filename and JavaScript startup leaves it unset, causing a basename fallback. Upstream 2a7b4f21 defines the recorder HOME and permits its literal use; that environment policy is now restored locally. Initialize the single canonical filename and apply the existing source-defined long-line splitting in the shared text-window display. The recorded pathname exceeds the terminal width, so filename and wrapping must both match C.",
+  "summary": "Resolved by initializing the canonical configuration filename from the documented upstream recorder HOME and correcting shared NHW_TEXT compression, wrapping and clipping plus the option-help blank row. The combined checkpoint matches all 230 screens and cursors in this session and all 11405 fixed-workload screens. The fixed mismatch queue is empty; opened holdout and frozen synthetic challenge results are unchanged in every case.",
   "source": {
     "file": "cfgfiles.c",
     "functions": [
@@ -50,6 +50,7 @@
     "Upstream commit 2a7b4f212d3e6adeeb0878813250f2f89d899425 is already an ancestor of main. Its recording-environment.md says matching the published environment strings verbatim is allowed. Local eb090115 changed that policy; the user identified the upstream ruling on 2026-09-18 and requested recovering the behavior. The earlier claim that the missing per-segment path prevents a valid fix is superseded.",
     "The passing checkpoint at 3d1e737777b51c30e76644437ad06102d47ca245 still measures this session at 221/230 screens, 3018/3018 RNG calls and 229/230 cursors. It is the sole remaining fixed-workload mismatch after Kni-goal generation is implemented.",
     "Keep get_default_configfile() as the C basename and state.configfile as the single selected-path owner. Trace startup initialization before setting the documented environment path; preserve explicit filename setters. Fresh independent C recordings use temporary HOME, which needs consideration in differential evidence without modifying the frozen workload or scorer.",
-    "Review at f289daf486d3272620300e381e5622585fa1e6c0 found displayTtyTextWindow measures lines.length and writes line.text directly, bypassing the existing ttyMenuTextData compression/splitting path. Correct the shared text-window owner for arbitrary lines, preserving styles and glyph-cell placement; do not add an options-help-row-specific splitter."
+    "Review at f289daf486d3272620300e381e5622585fa1e6c0 found displayTtyTextWindow measures lines.length and writes line.text directly, bypassing the existing ttyMenuTextData compression/splitting path. Correct the shared text-window owner for arbitrary lines, preserving styles and glyph-cell placement; do not add an options-help-row-specific splitter.",
+    "Resolution: .git/checkpoint-results/6efb9553c2ecc45ee3d11b53a18a5a34c9a7ace1/run-2C77AQ/summary.json passes all checks; session-results.json records seed2200 at 230/230 screens and cursors, with 3018/3018 RNG. The refreshed development scan and mismatch queue contain no fixed-workload divergence. Each of the 11 opened holdout sessions and nine frozen synthetic cases retains its previous screen, cursor, RNG and pass/fail metrics; synthetic evidence is challenges/evaluations/20260918-6efb9553-recorder-config-path.json."
   ]
 }

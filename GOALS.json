@@ -69093,17 +69093,17 @@
     {
       "id": "div-cfgfiles-recording-environment-seed2200-20260918",
       "kind": "divergence-fix",
-      "status": "open",
+      "status": "closed",
       "summary": "Initialize the configuration filename from the documented recorder environment.",
       "cFile": "cfgfiles.c",
       "sessions": [],
       "selectionReason": "The sole remaining fixed-workload mismatch is seed2200-wizard-quaff-zap-read, upper bound72 and actual9 screens; investigations/seed2200-wizard-quaff-zap-read.json traces cfgfiles initialization. The user supplied upstream 2a7b4f21, whose documented global HOME resolves the previous policy blocker.",
-      "detail": "C cfgfiles.c get_configfile returns the filename selected by fopen_config_file; options.c option_help prints it. JavaScript startup leaves that state unset and falls back to the compiled basename, producing the first screen divergence at step 158 with all RNG matching. Initialize the canonical filename from the documented upstream recorder HOME uniformly across inputs, preserve the compiled basename and explicit setters, and route NHW_TEXT through source-owned compression, wrapping and clipping in js/tty_menu.js. Preserve the separate blank putstr before the options-help epilog. This span includes the wintty.c tty_putstr and process_text_window dependency and source-pinned checks for styled rows and glyph columns. Fixed recordings and the scorer remain unchanged.",
+      "detail": "C cfgfiles.c get_configfile returns the filename selected by fopen_config_file; options.c option_help prints it. JavaScript startup leaves that state unset and falls back to the compiled basename, producing the first screen divergence at step 158 with all RNG matching. Initialize the canonical filename from the documented upstream recorder HOME uniformly across inputs, preserve the compiled basename and explicit setters, and route NHW_TEXT through source-owned compression, wrapping and clipping in js/tty_menu.js. Preserve the separate blank putstr before the options-help epilog. This span includes the wintty.c tty_putstr and process_text_window dependency and source-pinned checks for styled rows and glyph columns. Fixed recordings and the scorer remain unchanged. Resolved at 6efb9553c2ecc45ee3d11b53a18a5a34c9a7ace1: checkpoint run-2C77AQ passes all 44 sessions (11405/11405 screens and cursors, 792838/792838 RNG) and all 412 regression recordings. The only fixed-workload change is seed2200, from 221 to 230 screens and 229 to 230 cursors. Each of the 11 opened holdout sessions is unchanged (3640/3640 screens and cursors; 182022/182022 RNG), and all nine synthetic cases have identical per-case metrics in challenges/evaluations/20260918-6efb9553-recorder-config-path.json versus 20260918-3d1e7377-kni-goal.json. The refreshed mismatch queue is empty. Source review checked config initialization before parsing, option_help blank rows, tty_putstr attribute-byte indexing and split-space exclusion, normalized glyph columns, and process_text_window clipping. All 4189 affected tests, lint and quality pass. Independent fresh C differential run-150Ypb matches 6/6 screens and cursors and 2194/2194 RNG for valid startup and generic help; the fixed seed2200 replay separately covers the absolute-path display. The current holdout cases do not print that path, so these results do not establish portability for future path-bearing recordings from another HOME.",
       "spans": [
         {
           "name": "reference-config-path",
-          "status": "queued",
-          "closedBy": null,
+          "status": "closed",
+          "closedBy": "6efb9553c2ecc45ee3d11b53a18a5a34c9a7ace1",
           "functions": [
             "get_configfile",
             "fopen_config_file",
@@ -69119,8 +69119,11 @@
         "screens": 11396,
         "rng": 792838
       },
-      "closedAt": null,
-      "delivered": null,
+      "closedAt": "6efb9553c2ecc45ee3d11b53a18a5a34c9a7ace1",
+      "delivered": {
+        "screens": 9,
+        "rng": 0
+      },
       "function": "get_configfile",
       "session": "seed2200-wizard-quaff-zap-read",
       "step": 158,
@@ -69202,7 +69205,12 @@
             }
           }
         }
-      ]
+      ],
+      "closeStanding": {
+        "sha": "6efb9553c2ecc45ee3d11b53a18a5a34c9a7ace1",
+        "screens": 11405,
+        "rng": 792838
+      }
     }
   ]
 }
