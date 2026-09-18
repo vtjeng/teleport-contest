@@ -2,6 +2,7 @@ import assert from 'node:assert/strict';
 import test from 'node:test';
 
 import {
+    NO_MM_FLAGS,
     RLOC_MSG,
     STRAT_HEAL,
     STRAT_PLAYER,
@@ -11,6 +12,7 @@ import {
     mon_has_arti,
     on_ground,
     other_mon_has_arti,
+    nasty,
     strategy,
     tactics,
     target_on,
@@ -21,6 +23,59 @@ import {
     AMULET_OF_YENDOR,
     BELL_OF_OPENING,
 } from '../js/objects.js';
+import { NASTIES } from '../js/nasties_data.js';
+
+function nastyState(hell = false) {
+    const maxNasty = Math.max(...NASTIES);
+    const mons = Array.from({ length: maxNasty + 1 }, (_, pmidx) => ({
+        pmidx,
+        mlet: 'X',
+        difficulty: 1,
+        geno: 0,
+        maligntyp: 0,
+        pmnames: [null, null, 'test monster'],
+        mattk: [],
+    }));
+    const level = { monlist: null, objlist: null, flags: {} };
+    return {
+        context: {},
+        dungeons: [{ num_dunlevs: 2, entry_lev: 2, flags: { hellish: hell } }],
+        branches: [],
+        stairs: null,
+        level,
+        mons,
+        mvitals: mons.map(() => ({ mvflags: 0 })),
+        u: {
+            ux: 10,
+            uy: 11,
+            uz: { dnum: 0, dlevel: hell ? 2 : 1 },
+            ulevel: 3,
+            uhave: {},
+            uevent: { invoked: false },
+            ualign: { type: 0 },
+        },
+    };
+}
+
+function nastyRandom(values) {
+    let index = 0;
+    const draws = [];
+    return {
+        draws,
+        rn2(bound) {
+            draws.push(`rn2(${bound})`);
+            return values[index++] ?? 0;
+        },
+        rnd(bound) {
+            draws.push(`rnd(${bound})`);
+            return values[index++] ?? 1;
+        },
+        d: () => 1,
+        rn1: () => 1,
+        rne: () => 1,
+        rnz: () => 1,
+    };
+}
 
 const M3_WANTSBELL = 0x0002;
 const M3_WANTSARTI = 0x0010;
@@ -198,4 +253,108 @@ test('tactics keeps STRAT_NONE harassment order and relocation flags', async () 
     });
     assert.equal(result, 0);
     assert.deepEqual(calls, [[monster, RLOC_MSG]]);
+});
+
+// C ref: wizard.c nasty() (591-727).  A late-game harassment call skips the
+// Hell msummon arm when rn2(10) is nonzero, creates the selected nasty at the
+// hero square, clears its peaceful/tame state, and returns the census delta.
+test('nasty creates a selected hostile monster in source order', async () => {
+    const state = nastyState(false);
+    const random = nastyRandom([1, 1, 0, 1]);
+    const created = {
+        data: state.mons[NASTIES[0]],
+        msleeping: true,
+        mpeaceful: true,
+        mtame: 7,
+        mspec_used: 0,
+    };
+    let census = 0;
+    const calls = [];
+    const malign = [];
+    const result = await nasty(null, {
+        state,
+        random,
+        monsterCensus: () => census,
+        makemon: async (species, x, y, flags, env) => {
+            calls.push({ species, x, y, flags, state: env.state });
+            ++census;
+            return created;
+        },
+        setMalign: (monster, owner) => malign.push([monster, owner]),
+    });
+
+    assert.equal(result, 1);
+    assert.deepEqual(random.draws, [
+        'rn2(10)', 'rnd(1)', 'rn2(44)', 'rnd(4)',
+    ]);
+    assert.deepEqual(calls, [{
+        species: state.mons[NASTIES[0]],
+        x: state.u.ux,
+        y: state.u.uy,
+        flags: NO_MM_FLAGS,
+        state,
+    }]);
+    assert.deepEqual(malign, [[created, state]]);
+    assert.equal(created.msleeping, false);
+    assert.equal(created.mpeaceful, false);
+    assert.equal(created.mtame, 0);
+    assert.equal(created.mspec_used, 1);
+});
+
+// C ref: wizard.c nasty() (628-633).  The Hell branch consumes the
+// return-valued msummon result and reports the census delta, rather than
+// falling through to ordinary nasty selection.
+test('nasty delegates Hell summoning and preserves its census result', async () => {
+    const state = nastyState(true);
+    const random = nastyRandom([0]);
+    let census = 0;
+    let calledWith = 'unset';
+    const result = await nasty(null, {
+        state,
+        random,
+        monsterCensus: () => census,
+        msummon: async (summoner, env) => {
+            calledWith = { summoner, state: env.state, random: env.random };
+            census = 3;
+            return 3;
+        },
+    });
+
+    assert.equal(result, 3);
+    assert.deepEqual(random.draws, ['rn2(10)']);
+    assert.equal(calledWith.summoner, null);
+    assert.equal(calledWith.state, state);
+    assert.equal(calledWith.random, random);
+});
+
+// C ref: wizard.c nasty() (666-687).  A genocided or otherwise unavailable
+// direct choice falls through to makemon(NULL), then still applies the
+// spellcaster cap and the source mspec_used delay to the substitute.
+test('nasty substitutes a random creation after selected creation fails', async () => {
+    const state = nastyState(false);
+    const random = nastyRandom([1, 1, 0, 1]);
+    const substitute = {
+        data: state.mons[NASTIES[1]],
+        mspec_used: 0,
+    };
+    let census = 0;
+    const calls = [];
+    const result = await nasty(null, {
+        state,
+        random,
+        monsterCensus: () => census,
+        makemon: async (species) => {
+            calls.push(species);
+            if (calls.length === 1) return null;
+            ++census;
+            return substitute;
+        },
+    });
+
+    assert.equal(result, 1);
+    assert.deepEqual(random.draws, [
+        'rn2(10)', 'rnd(1)', 'rn2(44)', 'rnd(4)',
+    ]);
+    assert.deepEqual(calls, [state.mons[NASTIES[0]], null]);
+    assert.equal(substitute.mspec_used, 1);
 });
