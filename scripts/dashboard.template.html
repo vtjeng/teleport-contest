@@ -1142,8 +1142,10 @@ document.getElementById('stats').innerHTML = [
       : 'unresolved' + (entry.message ? ' · ' + esc(entry.message) : '');
     html += '<details class="queue-entry"><summary>'
       + '<span class="queue-session">' + esc(entry.session) + '</span>'
-      + '<span class="queue-overview"><span class="queue-remaining">'
-      + entry.remainingScreensUpperBound + ' of ' + entry.recordedSteps + ' screens remaining</span>'
+      + '<span class="queue-overview"><span class="queue-remaining"'
+      + ' title="Upper bound from the first known divergence; later screens may still match.">'
+      + 'at most ' + entry.remainingScreensUpperBound + ' of ' + entry.recordedSteps
+      + ' screens unmatched</span>'
       + status + '</span></summary>'
       + '<div class="queue-finding">' + findings
       + '<dl class="queue-mismatch"><div><dt>First mismatch</dt><dd>step ' + (entry.step ?? 'unknown') + '</dd></div>'

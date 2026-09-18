@@ -385,7 +385,8 @@ test('the unified queue renders C, Lua, and unresolved source owners in priority
     const summaries = [...entries.matchAll(/<summary>(.*?)<\/summary>/gu)].map(match => match[1]);
     assert.equal(summaries.length, 3);
     assert.ok(summaries.every(summary => summary.includes('No investigation result')));
-    assert.match(summaries[0], /movement[\s\S]*8 of 10 screens remaining/u);
+    assert.match(summaries[0], /movement[\s\S]*at most 8 of 10 screens unmatched/u);
+    assert.match(summaries[0], /Upper bound from the first known divergence; later screens may still match\./u);
     // Rows follow per-session remaining counts even though quest fails earlier.
     assert.match(entries, /movement[\s\S]*quest[\s\S]*unknown-owner/u);
     assert.doesNotMatch(entries, /Every development session matches/u);
