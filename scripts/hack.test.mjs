@@ -8,9 +8,11 @@ import {
     CLOUD,
     COLNO,
     COULD_SEE,
+    D_CLOSED,
     DB_FLOOR,
     DB_ICE,
     DRAWBRIDGE_UP,
+    DOOR,
     M_AP_FURNITURE,
     PROT_FROM_SHAPE_CHANGERS,
     TELEPAT,
@@ -54,6 +56,7 @@ import {
     ZOMBIFY_MON,
 } from '../js/const.js';
 import {
+    crawl_destination,
     cmp_weights,
     disturb_buried_zombies,
     domove,
@@ -341,6 +344,48 @@ test('switch_terrain preserves source blocked masks and transition messages', as
         'You start to float in the air!  You start flying.',
     );
     assert.equal(clear.disp.botl, true);
+});
+
+test('crawl_destination follows the source goodpos and diagonal gates', async () => {
+    assert.match(
+        HACK_SOURCE,
+        /crawl_destination\(coordxy x, coordxy y\)[\s\S]*?if \(!goodpos\(x, y, &gy\.youmonst, 0\)\)[\s\S]*?if \(x == u\.ux \|\| y == u\.uy\)[\s\S]*?if \(NODIAG\(u\.umonnum\)\)[\s\S]*?if \(Passes_walls\)[\s\S]*?block_door\(x, y\)/u,
+    );
+    await runSegment({
+        seed: 840032,
+        datetime: '20310314150927',
+        nethackrc: 'OPTIONS=name:CrawlDestination,role:Healer,race:human,'
+            + 'gender:female,align:neutral,!legacy,!tutorial,'
+            + '!splash_screen,pettype:none,!acoustics',
+        moves: '',
+    });
+    const { ux, uy } = game.u;
+    const east = game.level.at(ux + 1, uy);
+    const northeast = game.level.at(ux + 1, uy - 1);
+    const north = game.level.at(ux, uy - 1);
+    for (const location of [east, northeast, north]) {
+        location.typ = ROOM;
+        location.flags = location.doormask = 0;
+    }
+    game.level.monsters[ux + 1][uy] = null;
+    game.level.monsters[ux + 1][uy - 1] = null;
+    game.level.objects[ux + 1][uy] = null;
+    game.level.objects[ux + 1][uy - 1] = null;
+
+    assert.equal(await crawl_destination(ux + 1, uy, game), true);
+    assert.equal(await crawl_destination(ux + 1, uy - 1, game), true);
+
+    const humanForm = game.u.umonnum;
+    const humanSpecies = game.youmonst.data;
+    game.u.umonnum = PM_GRID_BUG;
+    game.youmonst.data = game.mons[PM_GRID_BUG];
+    assert.equal(await crawl_destination(ux + 1, uy - 1, game), false);
+    game.u.umonnum = humanForm;
+    game.youmonst.data = humanSpecies;
+
+    northeast.typ = DOOR;
+    northeast.flags = northeast.doormask = D_CLOSED;
+    assert.equal(await crawl_destination(ux + 1, uy - 1, game), false);
 });
 
 test('a sink only disturbs active, unblocked levitation', async () => {

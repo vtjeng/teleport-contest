@@ -265,7 +265,12 @@ export function remove_worn_item(obj, unchain_ball, state = game) {
             'remove_worn_item() W_AMUL (Amulet_off)',
         );
     } else if (obj.owornmask & W_RING) {
-        Ring_gone(obj, state);
+        // Ring_gone() reaches trap.c float_down() for levitation rings. The
+        // C helper has no result, but this async arm must finish before theft
+        // continues to transfer the item.
+        return Ring_gone(obj, state).finally(() => {
+            obj.in_use = oldinuse;
+        });
     } else if (obj.owornmask & W_TOOL) {
         throw new UnsupportedStealError(
             'remove_worn_item() W_TOOL (Blindf_off)',
@@ -323,7 +328,7 @@ async function worn_item_removal(mon, obj, state = game, message = ttyPline) {
     await message(`${Some_Monnam(mon, state)} ${verb} ${objbuf}.`, state);
     state.iflags ??= {};
     state.iflags.last_msg = PLNMSG_MON_TAKES_OFF_ITEM;
-    remove_worn_item(obj, true, state);
+    await remove_worn_item(obj, true, state);
 }
 
 export class UnsupportedStealError extends Error {
@@ -535,7 +540,7 @@ export async function steal(mtmp, state = game, env = {}) {
         await worn_item_removal(mtmp, otmp, state, message);
         // if the weapon was also wielded after uchain processing
         if (otmp.owornmask & W_WEAPONS)
-            remove_worn_item(otmp, false, state);
+            await remove_worn_item(otmp, false, state);
     }
 
     // do this before removing it from inventory

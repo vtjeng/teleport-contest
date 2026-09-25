@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 4829347,
+      "datetime": "20390113131415",
+      "nethackrc": "OPTIONS=name:TimeoutLanding,role:Wizard,race:human,gender:female,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen\nOPTIONS=playmode:debug,pettype:none,!acoustics,!autopickup,time\n",
+      "moves": ". #wizintrinsic\n1q\n ."
+    }
+  ],
+  "comment": "Independent levitation-timeout entry-point recipe. The debug intrinsic menu sets levitation's timeout to one turn, then waits once to drive timeout.c:timeout -> float_down without a ring or boots."
+}
