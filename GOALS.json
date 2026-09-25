@@ -69663,16 +69663,20 @@
     {
       "id": "port-trap-float-up-synthetic-v1-20260925",
       "kind": "file-port",
-      "status": "queued",
+      "status": "open",
       "summary": "Port complete levitation rise effects and source callers",
       "cFile": "trap.c",
       "sessions": [
         "synthetic/v1/terrain-transitions"
       ],
-      "selectionReason": "Highest-ranked ready case synthetic/v1/terrain-transitions has 88 unmatched screens; investigations/synthetic/v1/terrain-transitions.json traces the Ring_on refusal to trap.c float_up, not the grouped do_wear.c annotation.",
+      "selectionReason": "synthetic/v1/terrain-transitions has 88 remaining screens at investigations/synthetic/v1/terrain-transitions.json; trap.c float_up owns its first step 49 mismatch and remains the highest ranked ready source task.",
       "detail": "Port trap.c float_up in full and wire source callers, including do_wear.c Ring_on and Boots_on, trap.c reset_utrap, hack.c switch_terrain, potion.c, artifact.c, and eat.c where active. Preserve source order and explicit unported dependencies.",
-      "openedAt": null,
-      "openStanding": null,
+      "openedAt": "633c8284c6aa99208183dd9a17403de924a74e05",
+      "openStanding": {
+        "sha": "bfa9dc95416be7fa5a45d311fae636412a475e17",
+        "screens": 11405,
+        "rng": 792838
+      },
       "closedAt": null,
       "delivered": null,
       "functions": [
@@ -69698,10 +69702,173 @@
           "manifestSha256": "a1d989fa6b5159e0b0729150ba765c741a405ec910c1274ad763d29b0a7096fe",
           "recordingPath": "challenges/cases/terrain-transitions.session.json",
           "recordingSha256": "5491c8fb94f71fe5a5c56498e2c58b6d736e65b221cf0a39d1895abdd6759ec9",
-          "evaluationPath": "challenges/evaluations/20260925150843-v1.json",
-          "evaluationCommit": "b723a5d4aa19568a2c9b0ff5e6629754c306fda7"
+          "evaluationPath": "challenges/evaluations/20260925170757-v1.json",
+          "evaluationCommit": "bfa9dc95416be7fa5a45d311fae636412a475e17"
         }
-      }
+      },
+      "activeStanding": {
+        "sha": "bfa9dc95416be7fa5a45d311fae636412a475e17",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v1",
+          "caseId": "terrain-transitions",
+          "session": "synthetic/v1/terrain-transitions",
+          "manifestPath": "challenges/manifest.json",
+          "manifestSha256": "a1d989fa6b5159e0b0729150ba765c741a405ec910c1274ad763d29b0a7096fe",
+          "recording": "challenges/cases/terrain-transitions.session.json",
+          "recordingPath": "challenges/cases/terrain-transitions.session.json",
+          "recordingSha256": "5491c8fb94f71fe5a5c56498e2c58b6d736e65b221cf0a39d1895abdd6759ec9",
+          "recipe": "challenges/cases/terrain-transitions.recipe.json",
+          "recipeSha256": "a0952cee3b77d907ba080571678b0a1e5e1b82d4dc3b07981e6065806cf49663",
+          "replayInputSha256": "dbdf39f4aad8eea6b47e680af9bb0130f4548ff3c621ed3cefcfe55c45f7eb7a",
+          "evaluationPath": "challenges/evaluations/20260925170757-v1.json",
+          "evaluationCommit": "bfa9dc95416be7fa5a45d311fae636412a475e17",
+          "evaluationArtifact": "challenges/evaluations/20260925170757-v1.json",
+          "evaluationUtc": "2026-09-25T17:07:57.841Z",
+          "remainingScreens": 88,
+          "recordedSteps": 137,
+          "previousScreensMatched": 49,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 49,
+              "total": 137
+            },
+            "rng": {
+              "matched": 2716,
+              "total": 3811
+            },
+            "cursors": {
+              "matched": 49,
+              "total": 137
+            }
+          },
+          "firstMismatch": {
+            "kind": "stop",
+            "message": "unsupported hero command: an unported branch of this command: Ring_on() reached an unported branch: float_up() for otyp 183",
+            "step": 49
+          },
+          "step": 49,
+          "kind": "stop",
+          "sourceFile": "do_wear.c",
+          "function": "Ring_on",
+          "message": "unsupported hero command: an unported branch of this command: Ring_on() reached an unported branch: float_up() for otyp 183",
+          "cFile": "do_wear.c",
+          "luaFile": null,
+          "line": null,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v1/terrain-transitions.json",
+            "result": {
+              "session": "synthetic/v1/terrain-transitions",
+              "corpus": "synthetic",
+              "batch": "v1",
+              "caseId": "terrain-transitions",
+              "manifestPath": "challenges/manifest.json",
+              "manifestSha256": "a1d989fa6b5159e0b0729150ba765c741a405ec910c1274ad763d29b0a7096fe",
+              "recordingSha256": "5491c8fb94f71fe5a5c56498e2c58b6d736e65b221cf0a39d1895abdd6759ec9",
+              "evaluationPath": "challenges/evaluations/20260918192720-v1.json",
+              "evaluationCommit": "2ab3d33c4affb45693cc1cdc56882430c63db58f",
+              "remainingScreens": 88,
+              "recordedSteps": 137,
+              "status": "complete",
+              "commit": "973ed4c61be4e63b24ffcf54f640b3a05990a0f1",
+              "mismatch": {
+                "corpus": "synthetic",
+                "batch": "v1",
+                "caseId": "terrain-transitions",
+                "session": "synthetic/v1/terrain-transitions",
+                "manifestPath": "challenges/manifest.json",
+                "manifestSha256": "a1d989fa6b5159e0b0729150ba765c741a405ec910c1274ad763d29b0a7096fe",
+                "recording": "challenges/cases/terrain-transitions.session.json",
+                "recordingPath": "challenges/cases/terrain-transitions.session.json",
+                "recordingSha256": "5491c8fb94f71fe5a5c56498e2c58b6d736e65b221cf0a39d1895abdd6759ec9",
+                "recipe": "challenges/cases/terrain-transitions.recipe.json",
+                "recipeSha256": "a0952cee3b77d907ba080571678b0a1e5e1b82d4dc3b07981e6065806cf49663",
+                "replayInputSha256": "1d82e114cf6028a970890ae3a93f705306dc8faac92e6f51685b97b4a7ea8fc0",
+                "evaluationPath": "challenges/evaluations/20260918192720-v1.json",
+                "evaluationCommit": "2ab3d33c4affb45693cc1cdc56882430c63db58f",
+                "evaluationArtifact": "challenges/evaluations/20260918192720-v1.json",
+                "evaluationUtc": "2026-09-18T19:27:20.180Z",
+                "remainingScreens": 88,
+                "recordedSteps": 137,
+                "previousScreensMatched": 49,
+                "regression": false,
+                "passed": false,
+                "error": null,
+                "metrics": {
+                  "screens": {
+                    "matched": 49,
+                    "total": 137
+                  },
+                  "rng": {
+                    "matched": 2716,
+                    "total": 3811
+                  },
+                  "cursors": {
+                    "matched": 49,
+                    "total": 137
+                  }
+                },
+                "firstMismatch": {
+                  "kind": "stop",
+                  "message": "unsupported hero command: an unported branch of this command: Ring_on() reached an unported branch: float_up() for otyp 183",
+                  "step": 49
+                },
+                "step": 49,
+                "kind": "stop",
+                "sourceFile": "do_wear.c",
+                "function": "Ring_on",
+                "message": "unsupported hero command: an unported branch of this command: Ring_on() reached an unported branch: float_up() for otyp 183",
+                "cFile": "do_wear.c",
+                "luaFile": null,
+                "line": null
+              },
+              "summary": "At examined commit 973ed4c61be4e63b24ffcf54f640b3a05990a0f1, the synthetic case matches 49 of 137 screens and stops at step 49 with 88 screens remaining. The stop is raised by the partially ported do_wear.c Ring_on() caller only because its RIN_LEVITATION arm reaches the missing trap.c float_up(); the source-backed implementation scope is the complete float_up() function and its production caller wiring. The current step is the ordinary-floor, non-trapped, non-swallowed, non-hallucinating, non-air-level branch that emits C's \"You start to float in the air!\" before the More wait. Later Ring_off() calls in this same recipe will expose the separate partial float_down() owner after this source unit lands.",
+              "source": {
+                "file": "trap.c",
+                "branch": "trap.c float_up() lines 3937-4005. The witnessed preconditions at step 49 are u.utrap == 0, u.uinwater == 0, u.uswallow == 0, no effective Hallucination, and a normal dungeon level, so C takes the final else at 3987-3988 and prints \"You start to float in the air!\". The whole function must preserve the other source branches: pit reset/fill and trapname output, lava or solidified-lava stuck legs, buried-ball lookup and chained feedback, web and bear-trap feedback, underwater spoteffects(TRUE), swallowed animal/non-animal messages, hallucination, air-level control, mounted-steed float/dismount, active-flight feedback, float_vs_flight(), and encumber_msg().",
+                "functions": [
+                  "float_up"
+                ],
+                "callers": [
+                  "do_wear.c Ring_on() 1242-1344, especially RIN_LEVITATION 1306-1314: after setworn(), float_up() runs before learnring() and spoteffects(FALSE). The live JS caller is js/do_wear.js:670-750; its RIN_LEVITATION arm currently throws at lines 730-733, so the refusal's outer owner is not the missing source function.",
+                  "do_wear.c Boots_on() 186-259, LEVITATION_BOOTS 235-248: float_up() precedes spoteffects(FALSE), while the JS accessory_or_armor_on()/Boots_on() path at js/do_wear.js:1399-1530 currently excludes this boot type pending the same helper.",
+                  "trap.c reset_utrap() 1045-1057: when msg is true and levitation resumes, reset_utrap() calls float_up(). js/trap.js:1404-1418 currently stops at UnsupportedHeroMoveBoundaryError('reset_utrap() resuming levitation') instead of reaching the helper.",
+                  "hack.c switch_terrain() 3178-3217: after FROMOUTSIDE clears, a remaining active or blocked levitation calls float_up() at 3191-3196. js/hack.js:4772-4824 still records note_unported('hack.c float_up') at 4799; this gap is retained in GOALS.json goal port-hack-switch-terrain-seed0009-20260917.",
+                  "potion.c peffect_levitation() 1164-1183: when neither Levitation nor BLevitation is active, it seeds HLevitation and calls float_up(). js/potion.js:1126-1129 refuses peffect_levitation(), so this caller remains a later integration path.",
+                  "artifact.c arti_invoke() 2202-2215: the LEVITATION property-on arm calls float_up() then spoteffects(FALSE). js/artifacts.js:2618-2622 records note_unported('hack.c float_up') before its existing spoteffects() call.",
+                  "eat.c cpostfx() 2314-2321: restoring a levitation ring intrinsic after corpse effects can call float_up(). js/eat.js cpostfx() remains fail-closed for several corpse-effect families, so this is a future caller and not evidence that Ring_on() owns the missing behavior."
+                ],
+                "dependencies": [
+                  "polyself.c float_vs_flight() is the final state transition in float_up() and is implemented as js/polyself.js:423-451; preserve its call after the flight message and before encumber_msg().",
+                  "trap.c reset_utrap() and set_utrap() (1030-1057) are present in js/trap.js:1385-1418; float_up() uses reset_utrap(FALSE) in the pit arm, while the msg=true resume path remains a separate caller boundary.",
+                  "trap.c fill_pit() (4010-4021) is declared at js/trap.js:1424-1435 but its flooreffects() path still raises for a boulder, so the float_up() pit branch must retain that dependency rather than silently dropping it.",
+                  "dig.c buried_ball() (1885-1932) supplies the coordinate correction for the TT_BURIEDBALL message; no complete JS buried_ball() owner exists, and the buried-ball branch must remain an explicit dependency/gap until that owner lands.",
+                  "hack.c spoteffects() is implemented at js/hack.js:4960-5010 and is the source caller for the u.uinwater branch and the post-float sink check in Ring_on()/Boots_on(); its existing terrain and trap boundaries must remain source-ordered.",
+                  "steed.c dismount_steed() is called by float_up() for a non-floating, non-flying mount; js/steed.js:562-822 currently refuses DISMOUNT_GENERIC, so mounted float_up() coverage remains blocked by that dependency.",
+                  "trap.c trapname(), dungeon.c surface(), mondata.c is_animal(), do_name.c mon_nam(), do_wear.c body_part(), fruit.c makeplural(), pickup.c encumber_msg(), and their JS owners supply the branch text and capacity/status side effects; no new RNG is introduced by the ordinary step-49 branch."
+                ]
+              },
+              "goalKind": "file-port",
+              "evidence": [
+                "The immutable diagnostic .cache/synthetic-scans/v1/terrain-transitions.json reports screensEmitted 49, recordedSteps 137, behavioral.at 49, boundary \"unsupported hero command: an unported branch of this command: Ring_on() reached an unported branch: float_up() for otyp 183\", and inputThroughStop ending at the first levitation-ring put-on. The saved queue .cache/synthetic-goal-650-queue.json records remainingScreens 88, previousScreensMatched 49, and the same sourceFile/function annotation.",
+                "The immutable C recording challenges/cases/terrain-transitions.session.json has seed 90174, datetime 20010620124500, and at step 49 key q displays \"You start to float in the air!--More--\" after the ring is worn. Step 50 dismisses that More prompt; no RNG is consumed by the ordinary float_up() message itself. This establishes the missing output and wait boundary without replaying or changing the recording.",
+                "nethack-c/upstream/src/do_wear.c:1242-1344 reads the complete Ring_on() switch. Its RIN_LEVITATION arm at 1306-1314 calls float_up(), then learnring() and spoteffects(FALSE); js/do_wear.js:670-750 has the corresponding production dispatch but throws only at the float_up() call site for otyp 183. The source owner therefore belongs to trap.c, with a caller change required in do_wear.c's JS port.",
+                "nethack-c/upstream/src/trap.c:3937-4005 was read in full. The source order is disp.botl, trap-state switch, uinwater/swallow/hallucination/air-level/ordinary message selection, mounted-steed handling, Flying feedback, float_vs_flight(), then encumber_msg(). The complete function range, including the #if 0 water-level arm and all message/state branches, is the actionable file-port span.",
+                "All six other active C callers were enumerated from source: trap.c reset_utrap():1045-1057, do_wear.c Boots_on():186-259, hack.c switch_terrain():3178-3217, potion.c peffect_levitation():1164-1183, artifact.c arti_invoke():2202-2215, and eat.c cpostfx():2314-2321. Their current JS owners either refuse the callee or record note_unported(), while the existing GOALS.json terrain evidence explicitly preserves hack.c's discarded float_up() gap. This prevents treating Ring_on()'s boundary text as a complete diagnosis of the missing source owner.",
+                "The recipe's later inputs independently exercise Ring_off() at steps 57, 79, and 109. do_wear.c Ring_off_or_gone() calls float_down() at 1406-1410, and js/do_wear.js:820-823 still refuses that path; this is a separate downstream trap.c float_down() source unit, recorded here as the next blocker rather than bundled into the float_up() owner."
+              ]
+            }
+          }
+        }
+      ]
     },
     {
       "id": "port-pickup-tip-synthetic-v1-20260925",
