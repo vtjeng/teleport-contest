@@ -709,6 +709,11 @@ function readEvidence(path) {
     return JSON.parse(readFileSync(join(PROJECT_ROOT, path), 'utf8'));
 }
 
+function hasSyntheticRanges(evidence) {
+    return [...(evidence.functions ?? []), ...(evidence.entryPoints ?? [])]
+        .some((entry) => entry.synthetic?.length > 0);
+}
+
 function readDevelopmentScan(path) {
     // This option reads a saved scan artifact. Session identifiers and explicit
     // session paths belong to --sessions/--session, not --development-scan.
@@ -971,8 +976,10 @@ async function main(args) {
         if (goal.status !== 'open' || !isSourcePort(goal))
             throw new Error('record-evidence requires an open C or Lua source port');
         const evidence = validatePortEvidence(goal, readEvidence(options.evidence));
-        const { verifySyntheticRanges } = await import('./synthetic-range-evidence.mjs');
-        await verifySyntheticRanges(evidence);
+        if (hasSyntheticRanges(evidence)) {
+            const { verifySyntheticRanges } = await import('./synthetic-range-evidence.mjs');
+            await verifySyntheticRanges(evidence);
+        }
         recordEvidence(goal, evidence, repositoryHead());
         refreshCompletion(goal, null, store.goals);
         writeGoals(store);
@@ -1041,8 +1048,10 @@ async function main(args) {
             .some(session => session?.startsWith('synthetic/'));
         if (isSourcePort(goal)) {
             validatePortEvidence(goal, goal.evidence);
-            const { verifySyntheticRanges } = await import('./synthetic-range-evidence.mjs');
-            await verifySyntheticRanges(goal.evidence);
+            if (hasSyntheticRanges(goal.evidence)) {
+                const { verifySyntheticRanges } = await import('./synthetic-range-evidence.mjs');
+                await verifySyntheticRanges(goal.evidence);
+            }
         }
         if (isSourcePort(goal) || syntheticGoal) {
             const { loadWorkQueue } = await import('./mismatch-queue.mjs');
