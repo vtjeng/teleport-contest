@@ -72216,6 +72216,56 @@
         "screens": 11405,
         "rng": 792838
       }
+    },
+    {
+      "id": "port-dig-use-pick-axe-synthetic-v4-20260925",
+      "kind": "file-port",
+      "status": "queued",
+      "summary": "Port complete pick-axe application and directional digging entry",
+      "cFile": "dig.c",
+      "sessions": [
+        "synthetic/v4/archeologist-dig-direction-prompt-miss"
+      ],
+      "selectionReason": "The larger v1 terrain-transitions case is owned by A3 float_down and its cached investigation is stale. The v4 Archeologist dig-direction case has 24 unmatched screens and the first completed valid unreserved source investigation at investigations/synthetic/v4/archeologist-dig-direction-prompt-miss.json; A3 confirms it has no js/dig.js edits and will not touch that file before submission.",
+      "detail": "Port dig.c use_pick_axe and use_pick_axe2 in source order, wire apply.c doapply PICK_AXE/DWARVISH_MATTOCK and active hack.c/do.c callers, and preserve return-valued wield_tool, direction, and digging occupation dependencies. See investigations/synthetic/v4/archeologist-dig-direction-prompt-miss.json.",
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": null,
+      "delivered": null,
+      "functions": [
+        {
+          "name": "use_pick_axe",
+          "line": 1092,
+          "endLine": 1161,
+          "declared": false,
+          "complete": false
+        },
+        {
+          "name": "use_pick_axe2",
+          "line": 1162,
+          "endLine": 1361,
+          "declared": false,
+          "complete": false
+        }
+      ],
+      "range": {
+        "from": 1092,
+        "to": 1361
+      },
+      "syntheticProvenance": {
+        "synthetic/v4/archeologist-dig-direction-prompt-miss": {
+          "session": "synthetic/v4/archeologist-dig-direction-prompt-miss",
+          "corpus": "synthetic",
+          "batch": "v4",
+          "caseId": "archeologist-dig-direction-prompt-miss",
+          "manifestPath": "challenges/manifests/v4.json",
+          "manifestSha256": "10777af4c82fc759abf58a870fdd232329bc5c1467c8cf94f46089d0401459a9",
+          "recordingPath": "challenges/cases/v4/archeologist-dig-direction-prompt-miss.session.json",
+          "recordingSha256": "aa672b5b1e26ffd83c332ee298baf2be516c6c332ef22de48c2bd6d4473668d3",
+          "evaluationPath": "challenges/evaluations/20260925210102-v4.json",
+          "evaluationCommit": "4c94668a402c17dd41062fe2ec966453db17c551"
+        }
+      }
     }
   ]
 }
