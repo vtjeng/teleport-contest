@@ -69446,7 +69446,7 @@
     {
       "id": "fix-cmd-counted-movement-synthetic-20260918",
       "kind": "divergence-fix",
-      "status": "open",
+      "status": "parked",
       "summary": "Remove the obsolete refusal for counted movement",
       "cFile": "cmd.c",
       "sessions": [],
@@ -69648,7 +69648,124 @@
             }
           }
         }
-      ]
+      ],
+      "progressBeforePark": {
+        "screens": 0,
+        "rng": 0
+      },
+      "parkedStanding": {
+        "sha": "d6389a3b31e35a27d0659d7a0de79c5279a7781e",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "parkedReason": "Current synthetic/v1/sustained-journey replay advances past rhack counted movement to do.c doup at step 164. Reconcile this divergence with the accepted counted-movement implementation before closure; source completion and score bookkeeping remain."
+    },
+    {
+      "id": "port-trap-float-up-synthetic-v1-20260925",
+      "kind": "file-port",
+      "status": "queued",
+      "summary": "Port complete levitation rise effects and source callers",
+      "cFile": "trap.c",
+      "sessions": [
+        "synthetic/v1/terrain-transitions"
+      ],
+      "selectionReason": "Highest-ranked ready case synthetic/v1/terrain-transitions has 88 unmatched screens; investigations/synthetic/v1/terrain-transitions.json traces the Ring_on refusal to trap.c float_up, not the grouped do_wear.c annotation.",
+      "detail": "Port trap.c float_up in full and wire source callers, including do_wear.c Ring_on and Boots_on, trap.c reset_utrap, hack.c switch_terrain, potion.c, artifact.c, and eat.c where active. Preserve source order and explicit unported dependencies.",
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": null,
+      "delivered": null,
+      "functions": [
+        {
+          "name": "float_up",
+          "line": 3937,
+          "endLine": 4009,
+          "declared": false,
+          "complete": false
+        }
+      ],
+      "range": {
+        "from": 3937,
+        "to": 4009
+      },
+      "syntheticProvenance": {
+        "synthetic/v1/terrain-transitions": {
+          "session": "synthetic/v1/terrain-transitions",
+          "corpus": "synthetic",
+          "batch": "v1",
+          "caseId": "terrain-transitions",
+          "manifestPath": "challenges/manifest.json",
+          "manifestSha256": "a1d989fa6b5159e0b0729150ba765c741a405ec910c1274ad763d29b0a7096fe",
+          "recordingPath": "challenges/cases/terrain-transitions.session.json",
+          "recordingSha256": "5491c8fb94f71fe5a5c56498e2c58b6d736e65b221cf0a39d1895abdd6759ec9",
+          "evaluationPath": "challenges/evaluations/20260925150843-v1.json",
+          "evaluationCommit": "b723a5d4aa19568a2c9b0ff5e6629754c306fda7"
+        }
+      }
+    },
+    {
+      "id": "port-pickup-tip-synthetic-v1-20260925",
+      "kind": "file-port",
+      "status": "queued",
+      "summary": "Port container tipping selection and transfer",
+      "cFile": "pickup.c",
+      "sessions": [
+        "synthetic/v1/containers"
+      ],
+      "selectionReason": "Synthetic/v1/sustained-journey has 38 unmatched screens but its investigation is stale; synthetic/v1/containers is the next ready independent case with 21 unmatched screens. investigations/synthetic/v1/containers.json traces it to pickup.c tip_ok through tipcontainer; trap.c float_up is reserved by another worker.",
+      "detail": "Port the selected pickup.c tipping family in C definition order, wire production inventory and floor callers, and preserve selection, capacity, transfer and output order.",
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": null,
+      "delivered": null,
+      "functions": [
+        {
+          "name": "tip_ok",
+          "line": 3481,
+          "endLine": 3504,
+          "declared": false,
+          "complete": false
+        },
+        {
+          "name": "choose_tip_container_menu",
+          "line": 3505,
+          "endLine": 3561,
+          "declared": false,
+          "complete": false
+        },
+        {
+          "name": "dotip",
+          "line": 3562,
+          "endLine": 3687,
+          "declared": true,
+          "complete": false
+        },
+        {
+          "name": "tipcontainer",
+          "line": 3688,
+          "endLine": 3848,
+          "declared": true,
+          "complete": false
+        }
+      ],
+      "range": {
+        "from": 3481,
+        "to": 3848
+      },
+      "syntheticProvenance": {
+        "synthetic/v1/containers": {
+          "session": "synthetic/v1/containers",
+          "corpus": "synthetic",
+          "batch": "v1",
+          "caseId": "containers",
+          "manifestPath": "challenges/manifest.json",
+          "manifestSha256": "a1d989fa6b5159e0b0729150ba765c741a405ec910c1274ad763d29b0a7096fe",
+          "recordingPath": "challenges/cases/containers.session.json",
+          "recordingSha256": "76ec0faa326e56dcba917ce6e819cd4805fea14a91fb09cc2850063002e8a98d",
+          "evaluationPath": "challenges/evaluations/20260925150843-v1.json",
+          "evaluationCommit": "b723a5d4aa19568a2c9b0ff5e6629754c306fda7"
+        }
+      }
     }
   ]
 }
