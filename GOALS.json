@@ -69766,6 +69766,50 @@
           "evaluationCommit": "b723a5d4aa19568a2c9b0ff5e6629754c306fda7"
         }
       }
+    },
+    {
+      "id": "port-do-doup-synthetic-v1-20260925",
+      "kind": "file-port",
+      "status": "queued",
+      "summary": "Port D:1 ascent confirmation and escape control flow",
+      "cFile": "do.c",
+      "sessions": [
+        "synthetic/v1/sustained-journey",
+        "synthetic/v1/scout"
+      ],
+      "selectionReason": "Synthetic/v1/terrain-transitions has 88 unmatched screens and is owned by worker A. Synthetic/v1/sustained-journey is the next ranked ready case with 38 unmatched screens; investigations/synthetic/v1/sustained-journey.json now traces step 164 to do.c doup. Worker B owns pickup.c tipping for the next independent case.",
+      "detail": "Port whole do.c doup and source callers. Preserve pit/rooted/stair/steed/capacity gates and the D:1 y_n response. Wire dungeon.c prev_level(TRUE) to end.c done(ESCAPED) at the source branch. The same branch blocks synthetic/v1/scout at step 11.",
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": null,
+      "delivered": null,
+      "functions": [
+        {
+          "name": "doup",
+          "line": 1298,
+          "endLine": 1347,
+          "declared": true,
+          "complete": false
+        }
+      ],
+      "range": {
+        "from": 1298,
+        "to": 1347
+      },
+      "syntheticProvenance": {
+        "synthetic/v1/sustained-journey": {
+          "session": "synthetic/v1/sustained-journey",
+          "corpus": "synthetic",
+          "batch": "v1",
+          "caseId": "sustained-journey",
+          "manifestPath": "challenges/manifest.json",
+          "manifestSha256": "a1d989fa6b5159e0b0729150ba765c741a405ec910c1274ad763d29b0a7096fe",
+          "recordingPath": "challenges/cases/sustained-journey.session.json",
+          "recordingSha256": "b190d330b5177de86ea2c81412de96a1708faf22ff2a769aa1f558b7646a3eea",
+          "evaluationPath": "challenges/evaluations/20260925150843-v1.json",
+          "evaluationCommit": "b723a5d4aa19568a2c9b0ff5e6629754c306fda7"
+        }
+      }
     }
   ]
 }
