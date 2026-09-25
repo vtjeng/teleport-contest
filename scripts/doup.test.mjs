@@ -11,15 +11,16 @@ import test from 'node:test';
 
 import {
     ECMD_OK,
+    ECMD_TIME,
     LFILE_EXISTS,
     TT_PIT,
 } from '../js/const.js';
-import { UnsupportedLevelChangeError, doup } from '../js/do.js';
+import { doup } from '../js/do.js';
 import { ledger_no, level_info } from '../js/dungeon.js';
 import { game } from '../js/gstate.js';
 import { runSegment } from '../js/jsmain.js';
+import { AD_DGST, AT_ENGL, AT_HUGS } from '../js/monsters.js';
 import { stairway_add, stairway_at } from '../js/stairs.js';
-import { UnsupportedSteedError } from '../js/steed.js';
 import { clearTtyMessageWindow } from '../js/tty_message.js';
 import { loadDescendRefusalRecipe } from './run-descend-refusal.mjs';
 
@@ -80,18 +81,15 @@ test('doup() refuses when the stairway under the hero is a downstair',
 });
 
 test('doup() defers when the hero is in a pit', async () => {
-    // do.c:1308-1311. u.utrap with TT_PIT calls climb_pit(), which is not
-    // ported. Verify the throw that defers it.
+    // do.c:1308-1311. climb_pit() is void and its result is discarded, so the
+    // named gap is recorded and the command still spends a turn.
     const state = await ascendTo('');
     quiet(state);
     state.u.utrap = 3;
     state.u.utraptype = TT_PIT;
 
-    await assert.rejects(
-        doup(state),
-        (error) => error instanceof UnsupportedLevelChangeError
-            && /climbing out of a pit/u.test(error.message),
-    );
+    assert.equal(await doup(state), ECMD_TIME);
+    assert.ok(state.unported.has('trap.c climb_pit'));
 });
 
 test('doup() refuses when the hero is stuck', async () => {
@@ -101,11 +99,43 @@ test('doup() refuses when the hero is stuck', async () => {
     quiet(state);
     state.u.ustuck = { data: state.youmonst.data };
 
-    await assert.rejects(
-        doup(state),
-        (error) => error instanceof UnsupportedLevelChangeError
-            && /u_stuck_cannot_go\("up"\)/u.test(error.message),
-    );
+    assert.equal(await doup(state), ECMD_TIME);
+    assert.equal(toplines(state), 'You are being held, and cannot go up.');
+});
+
+test('doup() distinguishes swallowed from engulfed holders', async () => {
+    for (const [attacks, condition] of [
+        [[{ aatyp: AT_ENGL, adtyp: AD_DGST }], 'swallowed'],
+        [[], 'engulfed'],
+    ]) {
+        const state = await ascendTo('');
+        quiet(state);
+        state.u.uswallow = 1;
+        state.u.ustuck = {
+            data: { ...state.youmonst.data, mattk: attacks },
+        };
+
+        assert.equal(await doup(state), ECMD_TIME);
+        assert.equal(
+            toplines(state), `You are ${condition}, and cannot go up.`,
+        );
+    }
+});
+
+test('doup() releases a holder when the hero can stick to it', async () => {
+    const state = await ascendTo('');
+    quiet(state);
+    const holder = { data: state.youmonst.data };
+    state.u.ustuck = holder;
+    state.youmonst.data = {
+        ...state.youmonst.data,
+        mattk: [{ aatyp: AT_HUGS, adtyp: 0 }],
+    };
+    state.iflags.debug_fuzzer = 1;
+
+    assert.equal(await doup(state), ECMD_OK);
+    assert.equal(state.u.ustuck, null);
+    assert.match(toplines(state), /^You release /u);
 });
 
 // near_capacity() and next_to_u() are shared with dodown and are tested
@@ -114,19 +144,28 @@ test('doup() refuses when the hero is stuck', async () => {
 // are difficult to exercise in isolation without triggering goto_level's
 // full flow. next_to_u() checks leashed monsters, not tame distance.
 
-test('doup() defers at ledger 1', async () => {
-    // do.c:1330-1335. At ledger 1 (D:1 of the main dungeon), doup asks
-    // "Beware, there will be no return!" which is unported.
+test('doup() declines the D:1 escape prompt by default', async () => {
+    // do.c:1330-1335. y_n() defaults to n; the prompt is still shown.
     const state = await ascendTo('');
     quiet(state);
     // The hero starts on D:1, which IS ledger 1.
     assert.equal(ledger_no(state.u.uz, state), 1);
 
-    await assert.rejects(
-        doup(state),
-        (error) => error instanceof UnsupportedLevelChangeError
-            && /ledger 1/u.test(error.message),
+    state.nhDisplay.pushKey('n'.charCodeAt(0));
+    assert.equal(await doup(state), ECMD_OK);
+    assert.equal(
+        toplines(state),
+        'Beware, there will be no return!  Still climb? [yn] (n) n',
     );
+});
+
+test('doup() skips the D:1 escape prompt under the debug fuzzer', async () => {
+    const state = await ascendTo('');
+    quiet(state);
+    state.iflags.debug_fuzzer = 1;
+
+    assert.equal(await doup(state), ECMD_OK);
+    assert.equal(toplines(state), '');
 });
 
 
@@ -143,10 +182,8 @@ test('doup() sets DIR_UP through set_move_cmd before anything else',
     assert.equal(state.u.dy, 0);
 });
 
-test('doup() stucksteed throws when the steed is immobile', async () => {
-    // do.c:1317-1318. stucksteed(TRUE) for a sleeping steed. The port's
-    // stucksteed() throws UnsupportedSteedError because steed messaging is
-    // not fully ported.
+test('doup() reports when the steed is immobile', async () => {
+    // do.c:1317-1318 and steed.c:876-895. The C message names the steed.
     const state = await ascendTo('');
     quiet(state);
     state.u.uz.dlevel = 2; // avoid ledger_no == 1
@@ -154,10 +191,8 @@ test('doup() stucksteed throws when the steed is immobile', async () => {
     state.u.usteed = { msleeping: 1, mcanmove: 1, meating: 0,
         data: state.youmonst.data };
 
-    await assert.rejects(
-        doup(state),
-        (error) => error instanceof UnsupportedSteedError,
-    );
+    assert.equal(await doup(state), ECMD_OK);
+    assert.match(toplines(state), /won't move!/u);
 });
 
 test('savelev() captures level state and getlev() restores it', async () => {
