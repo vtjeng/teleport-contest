@@ -264,6 +264,7 @@ import {
 } from './hacklib.js';
 import {
     getobj,
+    hands_obj,
     hold_another_object,
     stackobj,
     prepareHoldDropAdmission,
@@ -1931,9 +1932,10 @@ export async function zhitm(
 }
 
 // C ref: zap.c makewish() (6313-6422). The "help" arm at 6348-6352, the
-// MAXWISHTRY retry loop at 6360-6368 and the hands_obj and artifact arms all
-// stop instead; the wishes this port grants take the plain readobjnam() and
-// hold_another_object() path between them, the Escape at 6346-6347 included.
+// MAXWISHTRY retry loop at 6360-6368 and the artifact arm still stop instead;
+// the wishes this port grants take readobjnam() and
+// hold_another_object(), with the wizard-terrain hands_obj return handled
+// between them and Escape at 6346-6347 included.
 //
 // `tries` is 0 on every pass this port reaches, because the MAXWISHTRY loop
 // that raises it starts past the throw. That settles two of the head's tests:
@@ -1998,14 +2000,18 @@ export async function makewish(state = game) {
     // those arms are the ones every other mksobj() caller assembles, so this
     // wish path assembles them the same way rather than a subset of its own.
     const oldwisharti = Math.trunc(state.u.uconduct.wisharti ?? 0);
-    const otmp = readobjnam(buf, nothing, objectGenerationEnv({ state }));
-    // readobjnam() answering null -- the MAXWISHTRY retry loop at 6360-6368 --
-    // and &hands_obj -- wizterrainwish() at 6374-6377 -- are both refused
-    // inside it, so only the two arms below are reachable.
+    const otmp = await readobjnam(buf, nothing, objectGenerationEnv({ state }));
+    // A null readobjnam() answer enters the retry loop at 6360-6368, which
+    // remains an explicit unsupported wish boundary.
     if (otmp === nothing) {
         /* explicitly wished for "nothing", presumably attempting
            to retain wishless conduct */
         livelog_printf(LL_WISH, 'declined to make a wish', state);
+        return;
+    }
+    if (otmp === hands_obj) {
+        // zap.c:6374-6377 records debug-only wish history, then returns for
+        // wizard-mode terrain wishes without livelogging or spending conduct.
         return;
     }
     // wish_history_add() sits inside `#ifdef DEBUG` at zap.c:6229, and no

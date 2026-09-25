@@ -154,8 +154,10 @@ import {
     YELLOW_DRAGON_SCALE_MAIL,
 } from '../js/objects.js';
 import {
-    CORPSTAT_FEMALE, CORPSTAT_MALE, CORPSTAT_RANDOM, NON_PM, SPE_LIM,
+    BEAR_TRAP, CORPSTAT_FEMALE, CORPSTAT_MALE, CORPSTAT_RANDOM, NON_PM,
+    ROOM, SPE_LIM,
 } from '../js/const.js';
+import { hands_obj } from '../js/invent.js';
 import {
     ART_GRAYSWANDIR, ART_STING, ART_VORPAL_BLADE, init_artifacts,
 } from '../js/artifacts.js';
@@ -1514,10 +1516,33 @@ test('readobjnam gives a wizard a disarmed trap object', () => {
     assert.equal(direct.obj.otyp, BEARTRAP);
     assert.equal(direct.draws[0], 'rnd(2)'); // no lookup draw
     assert.equal(wish(state, 'landmine object').obj.otyp, LAND_MINE);
-    // action 5 reaches the unported wiztrap: caller arm; the existing
-    // readobjnam backstop reports that returned action without drawing.
-    assert.equal(wish(state, 'bear trap trap').refusal,
-                 'readobjnam action 5');
+});
+
+test('readobjnam routes action 5 into the wizard terrain trap path', async () => {
+    const state = wishState();
+    const location = { typ: ROOM, flags: 0 };
+    state.u.ux = 4;
+    state.u.uy = 7;
+    state.level = {
+        at: () => location,
+        buriedobjlist: null,
+        flags: {},
+        traps: [],
+    };
+    const draws = [];
+    const messages = [];
+    const result = readobjnam('bear trap trap', NO_WISH, {
+        state,
+        random: recordingRandom(draws),
+        message: (text) => messages.push(text),
+    });
+
+    assert.equal(typeof result?.then, 'function');
+    assert.equal(await result, hands_obj);
+    assert.equal(state.level.traps.length, 1);
+    assert.equal(state.level.traps[0].ttyp, BEAR_TRAP);
+    assert.deepEqual(messages, ['A bear trap.']);
+    assert.deepEqual(draws, []);
 });
 
 test('readobjnam honors the count for a mergeable type', () => {

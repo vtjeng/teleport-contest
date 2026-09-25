@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 553081,
+      "datetime": "20310412091500",
+      "nethackrc": "OPTIONS=name:Wallprobe,role:Archeologist,race:human,gender:female,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen\nOPTIONS=pettype:none,!acoustics,playmode:debug\n",
+      "moves": ".\u0017undiggable wall\n.",
+      "comment": "An independent wizard wish creates a wall with an undiggable qualifier, reaching set_wallprop_from_str() through makewish() and readobjnam()."
+    }
+  ]
+}

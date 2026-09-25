@@ -12,16 +12,29 @@ import {
     artifact_name, nartifact_exist, permapoisoned,
 } from './artifacts.js';
 import {
-    CORPSTAT_FEMALE, CORPSTAT_MALE, CORPSTAT_NEUTER, CORPSTAT_RANDOM,
-    BEAR_TRAP, FEMALE, GOLD_SYM, LANDMINE, LOW_PM, MALE,
-    NEUTRAL, NON_PM, ONAME_WISH, SPE_LIM, ismnum,
+    A_CHAOTIC, A_LAWFUL, A_NEUTRAL, A_NONE, Align2amask,
+    ALTAR, BEAR_TRAP, CLOUD, COLNO, CORPSTAT_FEMALE, CORPSTAT_MALE,
+    CORPSTAT_NEUTER, CORPSTAT_RANDOM, CORR, DB_FLOOR, DB_ICE, DB_LAVA,
+    DB_MOAT, DB_UNDER, DBWALL, D_BROKEN, D_CLOSED, D_ISOPEN, D_LOCKED,
+    D_NODOOR, D_TRAPPED, DOOR, DRAWBRIDGE_DOWN, DRAWBRIDGE_UP, FEMALE,
+    F_LOOTED, FOUNTAIN, GOLD_SYM, HALLUC_RES, HWALL, ICE, ICED_MOAT, ICED_POOL, IRONBARS,
+    LADDER, LANDMINE, LAVAPOOL, LAVAWALL, LOW_PM, MAGIC_PORTAL, MALE,
+    MELT_ICE_AWAY, MOAT, NEUTRAL, NON_PM, NO_TRAP, ONAME_WISH, POOL, ROOM,
+    ROCKTRAP, SCORR, SDOOR, SINK, S_LDWASHER, S_LPUDDING, S_LRING, SPE_LIM,
+    ROWNO, STAIRS, T_LOOTED, THRONE, TREE, TREE_LOOTED, TREE_SWARM, TRAPNUM,
+    TT_LAVA, VWALL, WATER, WM_MASK, W_NONDIGGABLE, W_NONPASSWALL,
+    IS_DOOR, IS_FOUNTAIN, IS_FURNITURE, IS_GRAVE, IS_SINK, IS_WALL,
+    is_hole, isok, ismnum,
 } from './const.js';
 import { lookup_novel, oname } from './do_name.js';
 import { makeplural, makesingular } from './fruit.js';
 import { game } from './gstate.js';
-import { digit, fuzzymatch, lcase, lowc, mungspaces, strstri } from './hacklib.js';
+import {
+    digit, fuzzymatch, lcase, lowc, mungspaces, str_start_is, strstri,
+    upstart,
+} from './hacklib.js';
 import { tin_variety_txt } from './eat.js';
-import { delete_contents } from './invent.js';
+import { delete_contents, hands_obj } from './invent.js';
 import { def_char_to_objclass } from './drawing.js';
 import {
     is_female, is_male, is_neuter, name_to_monplus,
@@ -39,7 +52,10 @@ import {
 } from './obj.js';
 import { is_quest_artifact } from './questpgr.js';
 import { rn1, rn2, rnd } from './rng.js';
-import { trapname } from './trap.js';
+import {
+    Flying, is_pool, is_lava, Levitation, maketrap, reset_utrap, trapname,
+} from './trap.js';
+import { note_unported } from './unported.js';
 import {
     ACID_VENOM,
     AMULET_CLASS,
@@ -423,6 +439,396 @@ function wishRandom(env) {
 // this shows the same string C would.
 function origbp(d) {
     return d.consumed + d.bp;
+}
+
+// C ref: objnam.c set_wallprop_from_str() (3539-3550). The strstr() checks
+// are case-sensitive, and wall_info keeps its existing bits.
+export function set_wallprop_from_str(bp, state = game) {
+    let wallProp = 0;
+    if (bp.includes('undiggable ') || bp.includes('nondiggable '))
+        wallProp |= W_NONDIGGABLE;
+    if (bp.includes('unphaseable ') || bp.includes('nonpasswall '))
+        wallProp |= W_NONPASSWALL;
+    if (wallProp) {
+        const location = state.level.at(state.u.ux, state.u.uy);
+        location.wall_info = (location.wall_info ?? 0) | wallProp;
+    }
+}
+
+// Keep readobjnam()'s no-match result synchronous: its ordinary object-wish
+// callers throw UnsupportedWishError before returning. C's trap-name probe
+// uses trapname(..., TRUE), which bypasses hallucination display RNG.
+function wizterrainwishMatches(d, state) {
+    for (let trap = NO_TRAP + 1; trap < TRAPNUM; ++trap) {
+        if (str_start_is(d.bp, trapname(trap, true, state), true)) return true;
+    }
+    const bp = d.bp;
+    const endsWith = (suffix) => bp.length >= suffix.length
+        && strcmpiEqual(bp.slice(bp.length - suffix.length), suffix);
+    return endsWith('fountain') || endsWith('throne') || endsWith('sink')
+        || endsWith('pool') || endsWith('moat') || endsWith('wall of water')
+        || endsWith('lava') || endsWith('wall of lava') || endsWith('ice')
+        || endsWith('altar') || endsWith('grave') || endsWith('headstone')
+        || endsWith('tree') || endsWith('bars') || endsWith('cloud')
+        || endsWith('door') || (d.doorless && endsWith('doorway'))
+        || (endsWith('wall')
+            && (bp.length === 4 || bp[bp.length - 5] === ' '))
+        || endsWith('secret corridor') || endsWith('room')
+        || endsWith('floor') || endsWith('ground');
+}
+
+// C ref: objnam.c wizterrainwish() (3554-3916). Wizard wishes are parsed
+// after ordinary object lookup, at the hero's current square. Dynamic imports
+// keep this parser out of the static display, terrain and level-generation
+// dependency cycles it calls.
+export function wizterrainwish(d, rawEnv = {}) {
+    const { state } = wishEnv(rawEnv);
+    if (!state.level?.at(state.u.ux, state.u.uy)
+        || !wizterrainwishMatches(d, state)) return null;
+    return apply_wizterrainwish(d, rawEnv);
+}
+
+// Async continuation for wizterrainwish(): C calls synchronous routines, while
+// several of their JavaScript ports are async because they emit game messages.
+async function apply_wizterrainwish(d, rawEnv = {}) {
+    const env = wishEnv(rawEnv);
+    const { state } = env;
+    const random = wishRandom(env);
+    const x = state.u.ux;
+    const y = state.u.uy;
+    const lev = state.level?.at(x, y);
+    if (!lev) return null;
+    const bp = d.bp;
+    const endsWith = (suffix) => bp.length >= suffix.length
+        && strcmpiEqual(bp.slice(bp.length - suffix.length), suffix);
+    const message = async (text) => {
+        const emit = env.message ?? env.hooks?.message
+            ?? (await import('./tty_message.js')).ttyPline;
+        await emit(text, state);
+    };
+    const article = async (text) => {
+        const { an } = await import('./objnam.js');
+        return upstart(an(text));
+    };
+    const addDrawbridgeTerrain = (under) => {
+        // In rm.h this is the drawbridgemask overlay of the single `flags`
+        // union field. `flags` is live in JS; mirror the legacy property for
+        // readers that still accept old state fixtures.
+        const mask = lev.flags || lev.drawbridgemask || 0;
+        lev.flags = (mask & ~DB_UNDER) | under;
+        lev.drawbridgemask = lev.flags;
+    };
+    const oldtyp = lev.typ;
+    const isDbridge = oldtyp === DRAWBRIDGE_DOWN
+        || oldtyp === DRAWBRIDGE_UP;
+    const makeHands = () => hands_obj;
+
+    for (let trap = NO_TRAP + 1; trap < TRAPNUM; ++trap) {
+        let tname = trapname(trap, true, state, random);
+        if (!str_start_is(bp, tname, true)) continue;
+
+        if (is_hole(trap)) {
+            const { Can_fall_thru } = await import('./dungeon.js');
+            if (!Can_fall_thru(state.u.uz, state)) trap = ROCKTRAP;
+        }
+        const t = maketrap(x, y, trap, { ...env, state, random });
+        if (t) {
+            trap = t.ttyp;
+            tname = trapname(trap, true, state, random);
+            await message((await article(tname))
+                + (trap !== MAGIC_PORTAL ? '' : ' to nowhere') + '.');
+        } else {
+            const { an } = await import('./objnam.js');
+            await message('Creation of ' + an(tname) + ' failed.');
+        }
+        return makeHands();
+    }
+
+    // C's common post-mutation tail after a terrain wish.
+    async function finishTerrainWish(madeTerrain, badTerrain) {
+        if (madeTerrain) {
+            const { feel_newsym } = await import('./display.js');
+            feel_newsym(x, y, state);
+
+            if (state.u.uinwater && !is_pool(state.u.ux, state.u.uy, state)) {
+                const { docrt } = await import('./display.js');
+                const { set_uinwater } = await import('./hack.js');
+                await set_uinwater(0, state, env);
+                await docrt({ state });
+            } else {
+                if (state.u.utrap && state.u.utraptype === TT_LAVA
+                    && !is_lava(state.u.ux, state.u.uy, state)) {
+                    reset_utrap(false, state);
+                }
+                const { recalc_block_point } = await import('./vision.js');
+                recalc_block_point(x, y, state);
+            }
+
+            if (IS_FOUNTAIN(oldtyp) || IS_SINK(oldtyp)) {
+                const { count_level_features } = await import('./terrain.js');
+                count_level_features(state);
+            }
+            const { is_ice } = await import('./terrain.js');
+            if (!is_ice(x, y, state)) {
+                const { spot_stop_timers } = await import('./timeout.js');
+                spot_stop_timers(x, y, MELT_ICE_AWAY, state);
+            }
+            if (IS_FOUNTAIN(oldtyp) || IS_GRAVE(oldtyp)
+                || IS_WALL(oldtyp) || oldtyp === IRONBARS
+                || IS_DOOR(oldtyp) || oldtyp === SDOOR) {
+                if (!IS_FOUNTAIN(lev.typ) && !IS_GRAVE(lev.typ)
+                    && !IS_DOOR(lev.typ) && lev.typ !== SDOOR) {
+                    lev.horizontal = false;
+                }
+            }
+            const { switch_terrain } = await import('./hack.js');
+            await switch_terrain(state, env);
+        }
+        return madeTerrain || badTerrain ? makeHands() : null;
+    }
+
+    if (endsWith('fountain')) {
+        lev.typ = FOUNTAIN;
+        if (oldtyp !== FOUNTAIN) state.level.flags.nfountains++;
+        lev.flags = d.looted ? F_LOOTED : 0;
+        lev.horizontal = Boolean(d.blessed || strncmpiIsPrefix(bp, 'magic '));
+        await message('A ' + (lev.horizontal ? 'magic ' : '') + 'fountain.');
+        return finishTerrainWish(true, false);
+    } else if (endsWith('throne')) {
+        lev.typ = THRONE;
+        lev.flags = d.looted ? T_LOOTED : 0;
+        await message('A throne.');
+        return finishTerrainWish(true, false);
+    } else if (endsWith('sink')) {
+        lev.typ = SINK;
+        if (oldtyp !== SINK) state.level.flags.nsinks++;
+        lev.flags = d.looted ? (S_LPUDDING | S_LDWASHER | S_LRING) : 0;
+        await message('A sink.');
+        return finishTerrainWish(true, false);
+    } else if (endsWith('pool') || endsWith('moat')
+        || endsWith('wall of water')) {
+        let newWater;
+        const ltyp = endsWith('pool') ? POOL
+            : endsWith('moat') ? MOAT : WATER;
+        if (!isDbridge) {
+            lev.typ = ltyp;
+            lev.flags = 0;
+        } else {
+            addDrawbridgeTerrain(DB_MOAT);
+        }
+        const { del_engr_at } = await import('./engrave.js');
+        del_engr_at(x, y, state);
+        if (!isDbridge) {
+            const resistance = state.u.uprops[HALLUC_RES]
+                ?? (state.u.uprops[HALLUC_RES] = {});
+            const savedExtrinsic = resistance.extrinsic;
+            resistance.extrinsic = 1;
+            try {
+                const { waterbody_name } = await import('./pager.js');
+                newWater = waterbody_name(x, y, state, env);
+            } finally {
+                resistance.extrinsic = savedExtrinsic;
+            }
+            await message((await article(newWater)) + '.');
+        } else {
+            await dbterrainmesg('Moat', x, y, state, env);
+        }
+        note_unported('trap.c water_damage_chain');
+        return finishTerrainWish(true, false);
+    } else if (endsWith('lava') || endsWith('wall of lava')) {
+        const ltyp = endsWith('wall of lava') ? LAVAWALL : LAVAPOOL;
+        if (!isDbridge) {
+            lev.typ = ltyp;
+            lev.flags = 0;
+        } else {
+            addDrawbridgeTerrain(DB_LAVA);
+        }
+        const { del_engr_at } = await import('./engrave.js');
+        del_engr_at(x, y, state);
+        if (!isDbridge) {
+            await message('A ' + (lev.typ === LAVAPOOL ? 'pool' : 'wall')
+                + ' of molten lava.');
+            if (!(Levitation(state) || Flying(state)) || lev.typ === LAVAWALL) {
+                const { pooleffects } = await import('./hack.js');
+                await pooleffects(false, state, env);
+            }
+        } else {
+            await dbterrainmesg('Lava', x, y, state, env);
+        }
+        note_unported('trap.c fire_damage_chain');
+        return finishTerrainWish(true, false);
+    } else if (endsWith('ice')) {
+        if (!isDbridge) {
+            lev.typ = ICE;
+            lev.icedpool = oldtyp === ROOM ? ICED_POOL : ICED_MOAT;
+        } else {
+            addDrawbridgeTerrain(DB_ICE);
+        }
+        const { del_engr_at } = await import('./engrave.js');
+        del_engr_at(x, y, state);
+        if (strncmpiIsPrefix(bp, 'melting ')) {
+            note_unported('timeout.c start_melt_ice_timeout');
+        }
+        if (!isDbridge) {
+            const { ice_descr } = await import('./pager.js');
+            await message(upstart(ice_descr(x, y, state)) + '.');
+        } else {
+            await dbterrainmesg('Ice', x, y, state, env);
+        }
+        return finishTerrainWish(true, false);
+    } else if (endsWith('altar')) {
+        let alignment;
+        lev.typ = ALTAR;
+        if (strncmpiIsPrefix(bp, 'chaotic ')) alignment = A_CHAOTIC;
+        else if (strncmpiIsPrefix(bp, 'neutral ')) alignment = A_NEUTRAL;
+        else if (strncmpiIsPrefix(bp, 'lawful ')) alignment = A_LAWFUL;
+        else if (strncmpiIsPrefix(bp, 'unaligned ')) alignment = A_NONE;
+        else alignment = !random.rn2(6)
+            ? A_NONE : random.rn2(A_LAWFUL + 2) - 1;
+        lev.altarmask = Align2amask(alignment);
+        const { align_str } = await import('./insight.js');
+        const { an } = await import('./objnam.js');
+        await message(upstart(an(align_str(alignment))) + ' altar.');
+        return finishTerrainWish(true, false);
+    } else if (endsWith('grave') || endsWith('headstone')) {
+        const { make_grave } = await import('./grave.js');
+        await make_grave(x, y, null, { ...env, state, random });
+        if (IS_GRAVE(lev.typ)) {
+            lev.flags = 0;
+            lev.horizontal = Boolean(d.looted);
+            await message('A ' + (lev.horizontal ? 'disturbed ' : '')
+                + 'grave.');
+            return finishTerrainWish(true, false);
+        }
+        await message("Can't place a grave here.");
+        return finishTerrainWish(false, true);
+    } else if (endsWith('tree')) {
+        lev.typ = TREE;
+        lev.flags = d.looted ? (TREE_LOOTED | TREE_SWARM) : 0;
+        set_wallprop_from_str(bp, state);
+        await message('A tree.');
+        return finishTerrainWish(true, false);
+    } else if (endsWith('bars')) {
+        lev.typ = IRONBARS;
+        lev.flags = 0;
+        set_wallprop_from_str(bp, state);
+        await message('Iron bars.');
+        return finishTerrainWish(true, false);
+    } else if (endsWith('cloud')) {
+        lev.typ = CLOUD;
+        lev.flags = 0;
+        const { del_engr_at } = await import('./engrave.js');
+        del_engr_at(x, y, state);
+        await message('A cloud.');
+        return finishTerrainWish(true, false);
+    } else if (endsWith('door')
+        || (d.doorless && endsWith('doorway'))) {
+        const secret = endsWith('secret door');
+        if (lev.typ === DOOR || lev.typ === SDOOR
+            || (IS_WALL(lev.typ) && lev.typ !== DBWALL)
+            || lev.typ === IRONBARS) {
+            const oldWallInfo = lev.typ !== DOOR
+                ? (lev.wall_info ?? 0) : 0;
+            lev.typ = secret ? SDOOR : DOOR;
+            lev.wall_info = 0;
+            if (state.rogue_level
+                && state.u.uz?.dnum === state.rogue_level.dnum
+                && state.u.uz?.dlevel === state.rogue_level.dlevel) {
+                d.doorless = 1;
+                d.locked = d.closed = d.open = d.broken = 0;
+            }
+            lev.doormask = d.locked ? D_LOCKED
+                : (d.doorless || secret) ? D_NODOOR
+                    : d.open ? D_ISOPEN
+                        : d.broken ? D_BROKEN : D_CLOSED;
+            if (secret) lev.wall_info |= oldWallInfo & WM_MASK;
+            if (d.trapped === 2
+                || ((lev.doormask & (D_LOCKED | D_CLOSED)) === 0
+                    && !secret)) {
+                d.trapped = 0;
+            }
+            if (d.trapped) lev.doormask |= D_TRAPPED;
+
+            let doorDescription = '';
+            if (lev.doormask & D_TRAPPED) doorDescription += 'trapped ';
+            if (lev.doormask & D_LOCKED) doorDescription += 'locked ';
+            if (lev.typ === SDOOR) {
+                doorDescription += 'secret door';
+            } else {
+                if (lev.doormask & D_CLOSED) doorDescription += 'closed ';
+                if (lev.doormask & D_ISOPEN) doorDescription += 'open ';
+                if (lev.doormask & D_BROKEN) doorDescription += 'broken ';
+                if ((lev.doormask & ~D_TRAPPED) === D_NODOOR)
+                    doorDescription += 'doorless doorway';
+                else
+                    doorDescription += 'door';
+            }
+            const { an } = await import('./objnam.js');
+            await message(upstart(an(doorDescription)) + '.');
+            return finishTerrainWish(true, false);
+        }
+        const label = secret ? 'secret door' : 'door';
+        await message(upstart(label) + ' requires door or wall location.');
+        return finishTerrainWish(false, true);
+    } else if (endsWith('wall')
+        && (bp.length === 4 || bp[bp.length - 5] === ' ')) {
+        let wall = HWALL;
+        if ((isok(x, y - 1) && IS_WALL(state.level.at(x, y - 1).typ))
+            || (isok(x, y + 1) && IS_WALL(state.level.at(x, y + 1).typ))) {
+            wall = VWALL;
+        }
+        lev.typ = wall;
+        lev.flags = 0;
+        set_wallprop_from_str(bp, state);
+        const { fix_wall_spines } = await import('./mklev.js');
+        fix_wall_spines(Math.max(0, x - 1), Math.max(0, y - 1),
+            Math.min(COLNO, x + 1), Math.min(ROWNO, y + 1), state);
+        await message('A wall.');
+        return finishTerrainWish(true, false);
+    } else if (endsWith('secret corridor')) {
+        if (lev.typ === CORR) {
+            lev.typ = SCORR;
+            await message('Secret corridor.');
+            return finishTerrainWish(true, false);
+        }
+        await message('Secret corridor requires corridor location.');
+        return finishTerrainWish(false, true);
+    } else if (endsWith('room') || endsWith('floor') || endsWith('ground')) {
+        const { is_pool_or_lava, t_at, deltrap } = await import('./trap.js');
+        if (oldtyp === ROOM
+            || (IS_FURNITURE(oldtyp)
+                && (state.iflags?.debug_overwrite_stairs
+                    || (oldtyp !== STAIRS && oldtyp !== LADDER)))
+            || oldtyp === ICE || is_pool_or_lava(x, y, state)) {
+            lev.typ = ROOM;
+            await message('Room floor.');
+            if (IS_FURNITURE(oldtyp)) {
+                const { count_level_features } = await import('./terrain.js');
+                count_level_features(state);
+            }
+            const t = t_at(x, y, state);
+            if (t && t.ttyp !== MAGIC_PORTAL) deltrap(t, state);
+            return finishTerrainWish(true, false);
+        } else if (isDbridge) {
+            addDrawbridgeTerrain(DB_FLOOR);
+            await dbterrainmesg('Floor', x, y, state, env);
+            return finishTerrainWish(true, false);
+        }
+        await message('Room|floor|ground not allowed here.');
+        return finishTerrainWish(false, true);
+    }
+
+    return null;
+}
+
+// C ref: objnam.c dbterrainmesg() (3920-3926).
+export async function dbterrainmesg(newType, x, y, state = game, env = {}) {
+    const emit = env.message ?? env.hooks?.message
+        ?? (await import('./tty_message.js')).ttyPline;
+    await emit(newType + ' '
+        + (state.level.at(x, y).typ === DRAWBRIDGE_UP
+            ? 'in front of' : 'under')
+        + ' the drawbridge.', state);
 }
 
 // C's `!BSTRCMPI(base, eos(base) - n, tail)`: compares the last n characters,
@@ -1659,6 +2065,20 @@ export function readobjnam(bp, no_wish, env = {}) {
         label = readobjnam_lookup(d, normalized);
     }
 
+    if (label === 'wiztrap') {
+        if (state.wizard && !state.program_state?.wizkit_wishing
+            && !d.oclass) {
+            // objnam.c:4976-4980 offers the unmatched line to the terrain
+            // wish parser before the polearm/hammer fallback and null return.
+            const terrainWish = wizterrainwish(d, normalized);
+            if (terrainWish) return terrainWish;
+            throw new UnsupportedWishError(
+                'a wish no lookup resolves', origbp(d),
+            );
+        }
+        throw new UnsupportedWishError('a wish no lookup resolves', origbp(d));
+    }
+
     if (label === 'result')
         return d.otmp;
 
@@ -1691,6 +2111,8 @@ function readobjnam_lookup(d, normalized) {
         return 'result'; /* return d.otmp */
     if (action === 4)
         return 'any'; /* goto any */
+    if (action === 5)
+        return 'wiztrap'; /* goto wiztrap */
     // This refusal stands here rather than at typfnd:, because
     // readobjnam_postparse3() would otherwise draw first for a named monster
     // carrier -- "gnome corpse" spends rn2(1) on CORPSE before its monster
@@ -1717,9 +2139,11 @@ function readobjnam_lookup(d, normalized) {
         /* retry: */
         if (action === 0) /* C breaks out of the switch into retry: */
             action = readobjnam_postparse2(d, normalized);
+        if (action === 5) return 'wiztrap'; /* goto wiztrap */
         /* srch: */
         if (action === 0 || action === 1) /* 1 is C's goto srch: */
             action = readobjnam_postparse3(d, normalized);
+        if (action === 5) return 'wiztrap'; /* goto wiztrap */
         if (action !== 6) break;
         // readobjnam_postparse3()'s ARMOR_CLASS arm has appended " mail" to
         // d.bp and asked for another pass.  C's `goto retry:` re-enters
@@ -1729,13 +2153,9 @@ function readobjnam_lookup(d, normalized) {
         action = 0;
     }
     if (action === 0 && !d.oclass) {
-        // objnam.c:4959-4986 falls past the end of readobjnam_postparse3()
-        // into wiztrap:, where a wizard's line is offered to wizterrainwish(),
-        // then to the "polearm" and "hammer" skill picks, and finally answers
-        // the null pointer at 4992-4993 that makewish() reports with "Nothing
-        // fitting that description exists in the game." and retries.  None of
-        // those is ported.
-        throw new UnsupportedWishError('a wish no lookup resolves', origbp(d));
+        // objnam.c:4959-4986 falls through wiztrap: before the later
+        // polearm/hammer skills and null return.
+        return 'wiztrap';
     }
     if (action === 0) {
         // The same fall-through with a class word set.  wiztrap:'s guard, the

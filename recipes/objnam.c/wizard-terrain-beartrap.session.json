@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 553083,
+      "datetime": "20310413091500",
+      "nethackrc": "OPTIONS=name:Trapprobe,role:Valkyrie,race:human,gender:female,align:lawful\nOPTIONS=!legacy,!tutorial,!splash_screen\nOPTIONS=pettype:none,!acoustics,playmode:debug\n",
+      "moves": ".\u0017bear trap trap\n.",
+      "comment": "The bear trap suffix takes readobjnam_postparse1() action 5 to wiztrap, which must create the armed BEAR_TRAP through wizterrainwish()."
+    }
+  ]
+}
