@@ -72846,6 +72846,49 @@
           "evaluationCommit": "017038c1e14957228ef42eeb319448e71159eb24"
         }
       }
+    },
+    {
+      "id": "port-trap-water-damage-chain-synthetic-v1-20260925",
+      "kind": "file-port",
+      "status": "queued",
+      "summary": "Port water damage chain across pool entry and item owners",
+      "cFile": "trap.c",
+      "sessions": [
+        "synthetic/v1/terrain-transitions"
+      ],
+      "selectionReason": "The refreshed investigation for v1 terrain-transitions is now complete at 49 remaining screens, the first unreserved case in per-session order. Worker A continues the same synthetic seed after A3; B5 owns v4 dig and C7 owns v2 altar. The queued fountain divergence remains lower-ranked.",
+      "detail": "At segment 0 step 87, C trap.c:drown calls water_damage_chain(gi.invent,FALSE), producing six water_damage rn2(20) rolls; JS skips the chain and reaches the later rn2(8) crawl shuffle. Port the whole chain, wire active source callers, and preserve acid context, bhitpos, object order, RNG, messages, and return-discard semantics.",
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": null,
+      "delivered": null,
+      "functions": [
+        {
+          "name": "water_damage_chain",
+          "line": 4855,
+          "endLine": 4896,
+          "declared": false,
+          "complete": false
+        }
+      ],
+      "range": {
+        "from": 4855,
+        "to": 4896
+      },
+      "syntheticProvenance": {
+        "synthetic/v1/terrain-transitions": {
+          "session": "synthetic/v1/terrain-transitions",
+          "corpus": "synthetic",
+          "batch": "v1",
+          "caseId": "terrain-transitions",
+          "manifestPath": "challenges/manifest.json",
+          "manifestSha256": "a1d989fa6b5159e0b0729150ba765c741a405ec910c1274ad763d29b0a7096fe",
+          "recordingPath": "challenges/cases/terrain-transitions.session.json",
+          "recordingSha256": "5491c8fb94f71fe5a5c56498e2c58b6d736e65b221cf0a39d1895abdd6759ec9",
+          "evaluationPath": "challenges/evaluations/20260925214017-v1.json",
+          "evaluationCommit": "017038c1e14957228ef42eeb319448e71159eb24"
+        }
+      }
     }
   ]
 }
