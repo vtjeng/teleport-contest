@@ -1,0 +1,18 @@
+{
+  "commit": "40c4472c",
+  "part": "tests",
+  "setupMs": 832.011726,
+  "allPassed": true,
+  "totalMs": 110163.952915,
+  "checks": [
+    {
+      "label": "full test suite",
+      "passed": true,
+      "command": "npm test",
+      "ms": 109327.784944,
+      "status": 0,
+      "cpuS": 1047.9,
+      "otherCpuS": -35.5
+    }
+  ]
+}

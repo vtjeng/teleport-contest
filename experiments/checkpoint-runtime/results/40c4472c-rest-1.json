@@ -1,0 +1,225 @@
+{
+  "commit": "40c4472c",
+  "part": "rest",
+  "setupMs": 841.404948,
+  "allPassed": true,
+  "totalMs": 116886.320697,
+  "checks": [
+    {
+      "label": "generated data (check:colors)",
+      "passed": true,
+      "command": "npm run check:colors",
+      "ms": 365.79771600000004,
+      "status": 0,
+      "cpuS": 0.4,
+      "otherCpuS": 0.1
+    },
+    {
+      "label": "generated data (check:config-statements)",
+      "passed": true,
+      "command": "npm run check:config-statements",
+      "ms": 421.1912420000001,
+      "status": 0,
+      "cpuS": 0.5,
+      "otherCpuS": 0.1
+    },
+    {
+      "label": "generated data (check:data-base)",
+      "passed": true,
+      "command": "npm run check:data-base",
+      "ms": 142.9046740000001,
+      "status": 0,
+      "cpuS": 0.2,
+      "otherCpuS": 0.1
+    },
+    {
+      "label": "generated data (check:extcmds)",
+      "passed": true,
+      "command": "npm run check:extcmds",
+      "ms": 152.78730399999995,
+      "status": 0,
+      "cpuS": 0.2,
+      "otherCpuS": 0.1
+    },
+    {
+      "label": "generated data (check:glyph-offsets)",
+      "passed": true,
+      "command": "npm run check:glyph-offsets",
+      "ms": 148.362302,
+      "status": 0,
+      "cpuS": 0.2,
+      "otherCpuS": 0.1
+    },
+    {
+      "label": "generated data (check:help-data)",
+      "passed": true,
+      "command": "npm run check:help-data",
+      "ms": 138.48434499999985,
+      "status": 0,
+      "cpuS": 0.2,
+      "otherCpuS": 0
+    },
+    {
+      "label": "generated data (check:monsters)",
+      "passed": true,
+      "command": "npm run check:monsters",
+      "ms": 341.26423699999987,
+      "status": 0,
+      "cpuS": 0.3,
+      "otherCpuS": 0.2
+    },
+    {
+      "label": "generated data (check:nasties)",
+      "passed": true,
+      "command": "npm run check:nasties",
+      "ms": 133.60081800000034,
+      "status": 0,
+      "cpuS": 0.2,
+      "otherCpuS": 0.2
+    },
+    {
+      "label": "generated data (check:objects)",
+      "passed": true,
+      "command": "npm run check:objects",
+      "ms": 327.4729000000002,
+      "status": 0,
+      "cpuS": 0.3,
+      "otherCpuS": 0.1
+    },
+    {
+      "label": "generated data (check:options)",
+      "passed": true,
+      "command": "npm run check:options",
+      "ms": 195.82583699999986,
+      "status": 0,
+      "cpuS": 0.2,
+      "otherCpuS": 0.1
+    },
+    {
+      "label": "generated data (check:shtypes)",
+      "passed": true,
+      "command": "npm run check:shtypes",
+      "ms": 139.1475559999999,
+      "status": 0,
+      "cpuS": 0.2,
+      "otherCpuS": 0.1
+    },
+    {
+      "label": "generated data (check:sound-effects)",
+      "passed": true,
+      "command": "npm run check:sound-effects",
+      "ms": 135.4378039999997,
+      "status": 0,
+      "cpuS": 0.2,
+      "otherCpuS": 0
+    },
+    {
+      "label": "generated data (check:symbols)",
+      "passed": true,
+      "command": "npm run check:symbols",
+      "ms": 146.8094540000002,
+      "status": 0,
+      "cpuS": 0.2,
+      "otherCpuS": 0
+    },
+    {
+      "label": "generated data (check:themerooms)",
+      "passed": true,
+      "command": "npm run check:themerooms",
+      "ms": 131.82933599999978,
+      "status": 0,
+      "cpuS": 0.2,
+      "otherCpuS": 0
+    },
+    {
+      "label": "static sources (check:namespace-members)",
+      "passed": true,
+      "command": "npm run check:namespace-members",
+      "ms": 2166.990534,
+      "status": 0,
+      "cpuS": 2.5,
+      "otherCpuS": 0.8
+    },
+    {
+      "label": "static sources (check:relative-imports)",
+      "passed": true,
+      "command": "npm run check:relative-imports",
+      "ms": 891.8786339999997,
+      "status": 0,
+      "cpuS": 1.1,
+      "otherCpuS": 0.4
+    },
+    {
+      "label": "static sources (check:fixed-datetime)",
+      "passed": true,
+      "command": "npm run check:fixed-datetime",
+      "ms": 1921.6536209999995,
+      "status": 0,
+      "cpuS": 2.1,
+      "otherCpuS": 0.3
+    },
+    {
+      "label": "duplicate symbols (check:duplicate-symbols)",
+      "passed": true,
+      "command": "npm run check:duplicate-symbols",
+      "ms": 2320.393039999999,
+      "status": 0,
+      "cpuS": 2.6,
+      "otherCpuS": 1.1
+    },
+    {
+      "label": "constants vs C headers (check:constants)",
+      "passed": true,
+      "command": "npm run check:constants",
+      "ms": 180.86215100000118,
+      "status": 0,
+      "cpuS": 0.2,
+      "otherCpuS": 0.1
+    },
+    {
+      "label": "review gate",
+      "passed": true,
+      "command": "/home/vtjeng/.nvm/versions/node/v22.23.2/bin/node scripts/quality-status.mjs --check",
+      "ms": 8361.910923,
+      "status": 0,
+      "cpuS": 8.7,
+      "otherCpuS": 4
+    },
+    {
+      "label": "development score",
+      "passed": true,
+      "command": "/home/vtjeng/.nvm/versions/node/v22.23.2/bin/node scripts/score-development.mjs",
+      "ms": 14845.886709000002,
+      "status": 0,
+      "cpuS": 127.7,
+      "otherCpuS": -1.9
+    },
+    {
+      "label": "recordings corpus",
+      "passed": true,
+      "command": "/home/vtjeng/.nvm/versions/node/v22.23.2/bin/node scripts/score-recordings.mjs",
+      "ms": 51012.33296,
+      "status": 0,
+      "cpuS": 468,
+      "otherCpuS": -15.7
+    },
+    {
+      "label": "session scan",
+      "passed": true,
+      "command": "/home/vtjeng/.nvm/versions/node/v22.23.2/bin/node scripts/scan-sessions.mjs --json",
+      "ms": 31379.421279000002,
+      "status": 0,
+      "cpuS": 47.2,
+      "otherCpuS": 6.4
+    },
+    {
+      "label": "end-of-input over-read",
+      "passed": true,
+      "command": "/home/vtjeng/.nvm/versions/node/v22.23.2/bin/node scripts/check-overread.mjs",
+      "ms": 35.60156900000584,
+      "status": 0,
+      "cpuS": 0,
+      "otherCpuS": 0
+    }
+  ]
+}

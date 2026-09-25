@@ -1,0 +1,18 @@
+{
+  "commit": "da68a072",
+  "part": "tests",
+  "setupMs": 827.200858,
+  "allPassed": true,
+  "totalMs": 157212.91588,
+  "checks": [
+    {
+      "label": "full test suite",
+      "passed": true,
+      "command": "npm test",
+      "ms": 156381.93033899998,
+      "status": 0,
+      "cpuS": 1155.8,
+      "otherCpuS": -8
+    }
+  ]
+}
