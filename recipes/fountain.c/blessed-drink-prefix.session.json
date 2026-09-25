@@ -1,0 +1,11 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 31415926,
+      "datetime": "20370408123000",
+      "nethackrc": "OPTIONS=name:C8Fresh,role:Wizard,race:human,gender:female,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen\n",
+      "moves": "\u0017magic fountain\nqy "
+    }
+  ]
+}

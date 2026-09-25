@@ -8,9 +8,11 @@
 
 import {
     ARM,
+    A_MAX,
     A_CON,
     A_WIS,
     DEAF,
+    ENL_GAMEINPROGRESS,
     ER_DESTROYED,
     ER_GREASED,
     ER_NOTHING,
@@ -29,7 +31,9 @@ import {
     LEVITATION,
     MM_NOMSG,
     M_SEEN_FIRE,
+    MAGICENLIGHTENMENT,
     POISON_RES,
+    PICK_NONE,
     POOL,
     ROOM,
     SDOOR,
@@ -39,7 +43,7 @@ import {
     isok,
     nothing_seems_to_happen,
 } from './const.js';
-import { acurr, exercise, poison_strdmg } from './attrib.js';
+import { acurr, adjattrib, exercise, poison_strdmg } from './attrib.js';
 import { monster_detect } from './detect.js';
 import {
     bot, newsym, glyph_at, glyph_is_cmap, glyph_to_cmap,
@@ -75,7 +79,9 @@ import { S_cloud } from './symbols.js';
 import { mintrap } from './trap_effects.js';
 import { t_at, delfloortrap } from './trap.js';
 import { water_damage } from './trap_water_damage.js';
-import { ttyPline } from './tty_message.js';
+import {
+    displayPendingTtyMessageWindow, ttyPline,
+} from './tty_message.js';
 import { fruitname, makeplural } from './fruit.js';
 import { verbalize } from './pline.js';
 import { note_unported } from './unported.js';
@@ -567,7 +573,9 @@ export async function drinkfountain(state = game, env = {}) {
     const message = env.message ?? ttyPline;
     const random = env.random ?? { d, rn1, rn2, rnd, rne };
 
-    const mgkftn = state.level.at(state.u.ux, state.u.uy).horizontal === 1;
+    // C rm.h overlays blessedftn on horizontal for fountain terrain. The
+    // JavaScript map stores this shared field as a boolean for geometry too.
+    const mgkftn = Boolean(state.level.at(state.u.ux, state.u.uy).horizontal);
     const fate = random.rnd(30);
 
     // C ref: fountain.c:249-252. Levitation prevents drinking.
@@ -576,10 +584,49 @@ export async function drinkfountain(state = game, env = {}) {
         return;
     }
 
-    // C ref: fountain.c:254-277. Blessed fountain with positive luck.
+    // C ref: fountain.c:254-277. Restore temporary losses, then attempt one
+    // gain for low luck or a full rotation for natural luck. blessedftn is
+    // overlaid on the map's horizontal field and is consumed after the effect.
     if (mgkftn && (state.u.uluck ?? 0) >= 0 && fate >= 10) {
-        throw new UnsupportedFountainError(
-            'the blessed-fountain ability restoration in drinkfountain()');
+        const littleLuck = (state.u.uluck ?? 0) < 4;
+        await message('Wow!  This makes you feel great!', state);
+        const currentAttributes = state.u.acurr.a;
+        const maximumAttributes = state.u.amax.a;
+        for (let index = 0; index < A_MAX; index++) {
+            if (currentAttributes[index] < maximumAttributes[index]) {
+                currentAttributes[index] = maximumAttributes[index];
+                state.disp.botl = true;
+            }
+        }
+
+        let index = random.rn2(A_MAX);
+        const encumberMessage = env.encumberMessage ?? (async (subject) => {
+            const { encumber_msg } = await import('./pickup.js');
+            await encumber_msg(subject, { message });
+        });
+        for (let count = 0; count < A_MAX; count++) {
+            const changed = await adjattrib(
+                index,
+                1,
+                littleLuck ? -1 : 0,
+                state,
+                {
+                    ...env,
+                    random,
+                    message,
+                    encumberMessage,
+                },
+            );
+            if (changed && littleLuck) break;
+            if (++index >= A_MAX) index = 0;
+        }
+        await displayPendingTtyMessageWindow(state);
+        await message('A wisp of vapor escapes the fountain...', state);
+        await exercise(A_WIS, true, state, random, {
+            encumberMessage: env.encumberMessage,
+        });
+        state.level.at(state.u.ux, state.u.uy).horizontal = 0;
+        return;
     }
 
     if (fate < 10) {
@@ -594,8 +641,28 @@ export async function drinkfountain(state = game, env = {}) {
     } else {
         switch (fate) {
         case 19: // Self-knowledge
-            throw new UnsupportedFountainError(
-                'self-knowledge fountain effect (fate 19)');
+            await message('You feel self-knowledgeable...', state);
+            await displayPendingTtyMessageWindow(state);
+            {
+                const { enlightenment } = await import('./insight.js');
+                const { select_menu } = await import('./windows.js');
+                const lines = await enlightenment(
+                    MAGICENLIGHTENMENT,
+                    ENL_GAMEINPROGRESS,
+                    state,
+                );
+                await select_menu(state, {
+                    lines,
+                    how: PICK_NONE,
+                    cancelValue: null,
+                    overlay: state.iflags?.menu_overlay !== false,
+                });
+            }
+            await exercise(A_WIS, true, state, random, {
+                encumberMessage: env.encumberMessage,
+            });
+            await message('The feeling subsides.', state);
+            break;
         case 20: // Foul water
             // C ref: fountain.c:313-316. eat.js and hack.js are imported
             // here rather than at the top of the file, as newuhs() is above,

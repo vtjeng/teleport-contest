@@ -11,6 +11,8 @@ import test from 'node:test';
 
 import {
     ALTAR,
+    A_DEX,
+    A_MAX,
     COULD_SEE,
     DEAF,
     FIRE_RES,
@@ -57,6 +59,7 @@ import { DILITHIUM_CRYSTAL, LUCKSTONE, POTION_CLASS, POT_SPEED, POT_WATER } from
 import { runSegment } from '../js/jsmain.js';
 import { newMonster } from '../js/monst.js';
 import { d, rn1, rn2, rnd, rne } from '../js/rng.js';
+import { TOPLINE_EMPTY } from '../js/tty_message.js';
 import { do_clear_area_async } from '../js/vision.js';
 
 async function prepareGushingSquares() {
@@ -493,6 +496,66 @@ test('dryup warns through the first visible peaceful watchman', async () => {
     ]);
     assert.equal(location.flags, 2); // F_WARNED; warning returns before drying.
     assert.equal(location.typ, FOUNTAIN);
+});
+
+test('blessed drinkfountain restores losses before its luck-dependent gain', async () => {
+    const source = await readFile(
+        new URL('../nethack-c/upstream/src/fountain.c', import.meta.url),
+        'utf8',
+    );
+    assert.match(source,
+        /if \(mgkftn && u\.uluck >= 0 && fate >= 10\)[\s\S]*?ABASE\(ii\) = AMAX\(ii\);[\s\S]*?i = rn2\(A_MAX\);[\s\S]*?adjattrib\(i, 1, littleluck \? -1 : 0\)[\s\S]*?display_nhwindow\(WIN_MESSAGE, FALSE\);[\s\S]*?exercise\(A_WIS, TRUE\);[\s\S]*?blessedftn = 0;/u);
+
+    for (const { luck, start, expectedChanges } of [
+        { luck: 0, start: A_DEX, expectedChanges: 1 },
+        { luck: 4, start: 5, expectedChanges: A_MAX },
+    ]) {
+        await startedGame();
+        const { ux, uy } = game.u;
+        const location = game.level.at(ux, uy);
+        location.typ = FOUNTAIN;
+        location.horizontal = true;
+        game.nhDisplay.toplin = TOPLINE_EMPTY;
+        game.u.uluck = luck;
+        game.u.acurr.a = new Array(A_MAX).fill(10);
+        game.u.amax.a = new Array(A_MAX).fill(12);
+        game.u.abon = new Array(A_MAX).fill(0);
+        game.u.atemp = new Array(A_MAX).fill(0);
+        const messages = [];
+        const draws = [];
+
+        await drinkfountain(game, {
+            message: (line) => messages.push(line),
+            random: {
+                rnd(bound) {
+                    draws.push(['rnd', bound]);
+                    assert.equal(bound, 30);
+                    return 10;
+                },
+                rn2(bound) {
+                    draws.push(['rn2', bound]);
+                    if (bound === A_MAX) return start;
+                    assert.equal(bound, 19);
+                    return 18;
+                },
+            },
+            encumberMessage: () => {},
+        });
+
+        assert.deepEqual(draws, [
+            ['rnd', 30], ['rn2', A_MAX], ['rn2', 19],
+        ]);
+        assert.equal(messages[0], 'Wow!  This makes you feel great!');
+        assert.equal(messages.at(-1),
+            'A wisp of vapor escapes the fountain...');
+        assert.equal(messages.filter((line) => line.startsWith('You feel ')).length,
+            expectedChanges);
+        assert.equal(game.u.acurr.a.filter((value) => value === 13).length,
+            expectedChanges);
+        assert.equal(game.u.aexe[2], 1);
+        assert.equal(game.disp.botl, true);
+        assert.equal(location.horizontal, 0);
+    }
 });
 
 test('watchman_warn_fountain uses the deaf gesture arm', async () => {
