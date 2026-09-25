@@ -174,7 +174,6 @@ test('save-then-restore round trip produces welcome-back and full-moon messages'
     );
 
     // Verify the welcome-back message appeared on the terminal grid.
-    // js/terminal.js has no serialize(), so read the grid directly.
     // The top line (row 0) should contain the welcome-back message or
     // the full-moon message (depending on which was last displayed).
     // Use the message buffer instead, which is available via the

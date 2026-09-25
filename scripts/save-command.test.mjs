@@ -101,9 +101,7 @@ test('dosave serializes state and ends the segment on Friday 13th', async () => 
         'the saved overview retains its room-state vector');
 
     // Verify the terminal grid contains "Be seeing you..." -- the exit
-    // message written by tty_raw_print. js/terminal.js has no serialize()
-    // method (frozen/terminal.js does), so getScreens() returns empty
-    // strings in the test environment. Read the grid directly instead.
+    // message written by tty_raw_print.
     const grid = game.nhDisplay.terminal.grid;
     const row0 = grid[0].map(c => c.ch).join('');
     assert.ok(

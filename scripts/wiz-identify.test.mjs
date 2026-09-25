@@ -19,10 +19,8 @@ function loadSession(name) {
 
 async function replayAndCompare(name) {
     const recorded = loadSession(name).segments[0];
-    // The fixed terminal implementation is replaced by frozen/terminal.js
-    // during scoring, so local getScreens() strings are intentionally empty.
     // Inspect the live grid at the menu boundary and compare the cursor and
-    // random traces that the unfrozen test runtime exposes.
+    // random traces.
     const prefix = name === 'wizidentify-debug' ? '.#wizidentify\n' : '.\u0009';
     const preview = await runSegment({ ...recorded, moves: prefix });
     const menuLines = gameGridLines();

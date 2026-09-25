@@ -22,7 +22,6 @@ import {
     extendedCommandAt,
     formatReplayContext,
     isCommandRefusal,
-    isSerializeBugMismatch,
     loadScanRows,
     loadSyntheticScan,
     main,
@@ -621,45 +620,6 @@ test('a longer JS RNG log reports only when the session finished', () => {
 // rankCandidates divergence annotations: a session whose screens diverge
 // before its boundary step cannot deliver matched screens for that candidate,
 // so its unlocks contribution is zeroed and the annotation records why.
-
-test('isSerializeBugMismatch detects attr-only mismatch on a space', () => {
-    // Inverse attribute on a space: C has attr=1 (inverse), JS has attr=0.
-    // Both render as space. This is the serialize bug.
-    assert.equal(isSerializeBugMismatch({
-        kind: 'attr',
-        row: 2,
-        column: 20,
-        cCell: { ch: ' ', color: 8, attr: 1, decgfx: 0 },
-        jsCell: { ch: ' ', color: 8, attr: 0, decgfx: 0 },
-    }), true);
-});
-
-test('isSerializeBugMismatch rejects character mismatches', () => {
-    // Different characters are a real rendering bug, not serialize bug.
-    assert.equal(isSerializeBugMismatch({
-        kind: 'ch',
-        row: 3,
-        column: 21,
-        cCell: { ch: ' ', color: 8, attr: 0, decgfx: 0 },
-        jsCell: { ch: '~', color: 4, attr: 0, decgfx: 0 },
-    }), false);
-});
-
-test('isSerializeBugMismatch rejects attr mismatch on non-space', () => {
-    // Attribute mismatch on a non-space character is a real bug.
-    assert.equal(isSerializeBugMismatch({
-        kind: 'attr',
-        row: 5,
-        column: 10,
-        cCell: { ch: 'a', color: 8, attr: 2, decgfx: 0 },
-        jsCell: { ch: 'a', color: 8, attr: 0, decgfx: 0 },
-    }), false);
-});
-
-test('isSerializeBugMismatch returns false for null', () => {
-    assert.equal(isSerializeBugMismatch(null), false);
-});
-
 
 test('fixed scans retain corpus prefixes in one cache', async (t) => {
     const f = scanCacheFixture(t);

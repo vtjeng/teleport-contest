@@ -49,23 +49,17 @@ import {
     rnz,
 } from '../js/rng.js';
 import { vfsWriteFile } from '../js/storage.js';
-import { CLR_BRIGHT_BLUE, Terminal } from '../js/terminal.js';
+import { CLR_BRIGHT_BLUE } from '../js/terminal.js';
+import { withSerializedGrids } from './terminal-grid-capture.mjs';
 
 async function runWithGridCapture(input) {
-    const previous = Terminal.prototype.serialize;
-    Terminal.prototype.serialize = function serializeGridForTest() {
-        return JSON.stringify(this.grid);
-    };
-    try {
+    return withSerializedGrids(async () => {
         const session = await runSegment(input);
         return {
             session,
             grids: session.getScreens().map((screen) => JSON.parse(screen)),
         };
-    } finally {
-        if (previous) Terminal.prototype.serialize = previous;
-        else delete Terminal.prototype.serialize;
-    }
+    });
 }
 
 function sha256(value) {

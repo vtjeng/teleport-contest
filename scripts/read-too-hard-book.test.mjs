@@ -36,8 +36,7 @@ test('uncursed too-hard spellbook aggravation keeps the book', async () => {
     assert.equal(book?.pickup_prev, false);
     assert.equal(book?.in_use, false);
     assert.equal(game.context.spbook.delay, 0);
-    // Local js/terminal.js has no serialize() method; C's logical gt.toplines
-    // is mirrored by the display message buffer and remains available here.
+    // C's logical gt.toplines is mirrored by the display message buffer.
     assert.equal(
         game.nhDisplay.toplines,
         'You feel threatened.  You can move again.',

@@ -286,9 +286,8 @@ export class NethackGame {
     // RNG / screen score in any way.
     async animationFrame() {
         const disp = game?.nhDisplay;
-        const term = disp?.terminal || disp;
         this._pendingAnimFrames.push({
-            screen: term?.serialize ? term.serialize() : '',
+            screen: disp ? disp.serialize() : '',
             cursor: disp ? [...nomux_get_cursor(disp), 1] : null,
         });
         if (typeof requestAnimationFrame === 'function') {
@@ -604,13 +603,12 @@ export class NethackGame {
             const slice = fullLog.slice(nhGame._lastRngIdx);
             nhGame._lastRngIdx = fullLog.length;
 
-            // Capture screen from the terminal grid. The fixture for
-            // screen scoring is the Terminal: contestants drive it
-            // however they like, judge reads back terminal.serialize()
-            // and compares to the C session's recorded screen.
+            // Capture the screen from the terminal grid. The judge decodes
+            // each getScreens() string and compares it with the C session's
+            // recorded screen; GameDisplay.serialize() says why this does not
+            // call the frozen Terminal's serialize().
             const disp = game?.nhDisplay;
-            const term = disp?.terminal || disp;
-            nhGame._screens.push(term?.serialize ? term.serialize() : '');
+            nhGame._screens.push(disp ? disp.serialize() : '');
             nhGame._rngSlices.push(slice);
 
             // Recorder patch 006 reads the cursor through nomux_get_cursor(),

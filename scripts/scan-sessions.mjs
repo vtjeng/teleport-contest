@@ -14,7 +14,7 @@ import { execFileSync } from 'node:child_process';
 import { join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
-import { decodeScreen, renderCell } from '../frozen/screen-decode.mjs';
+import { decodeScreen } from '../frozen/screen-decode.mjs';
 import { normalizeSession } from '../frozen/session_loader.mjs';
 import {
     ADMITTED_COMMANDS,
@@ -27,25 +27,10 @@ import { commandForKey } from '../js/command_bindings.js';
 import { extcmdlist } from '../js/extcmdlist_data.js';
 import { game } from '../js/gstate.js';
 import { runSegment } from '../js/jsmain.js';
-import { Terminal } from '../js/terminal.js';
-import { Terminal as FrozenTerminal } from '../frozen/terminal.js';
 import { compareSessionOutputs } from './diff-fresh.mjs';
 import * as challengeResults from './challenge-results.mjs';
 import { PROJECT_ROOT } from './scoring-workspace.mjs';
 import { fixedWorkload } from './fixed-workload.mjs';
-
-// The judge replaces js/terminal.js with frozen/terminal.js before scoring,
-// and only the frozen copy defines serialize(), the method js/jsmain.js's
-// screen capture calls (`term?.serialize ? term.serialize() : ''`). This scan
-// replays in the working tree, where every captured screen is therefore ''
-// and no screen comparison is possible. Grafting the judge's serializer onto
-// the tree's Terminal reproduces the scoring serialization exactly,
-// including its known defects, which is the point: the divergence report
-// below must agree with the scorer, not improve on it. The two files differ
-// by exactly this one method (`diff js/terminal.js frozen/terminal.js`).
-if (!Terminal.prototype.serialize) {
-    Terminal.prototype.serialize = FrozenTerminal.prototype.serialize;
-}
 
 const SCRIPT_PATH = fileURLToPath(import.meta.url);
 
@@ -429,18 +414,6 @@ export function silentDivergence(replayedSegments, jsOutput, stopped) {
 }
 
 /**
- * Whether a screen mismatch is caused by the serialize bug (davidbau/teleport-contest#18):
- * frozen/terminal.js serialize() drops attributes from leading spaces, so
- * inverse or underline on a space before the first non-space column is lost
- * in the JS screen string while the C recording preserves it.
- */
-export function isSerializeBugMismatch(mismatch) {
-    if (!mismatch || mismatch.kind !== 'attr') return false;
-    return renderCell(mismatch.cCell) === ' '
-        && renderCell(mismatch.jsCell) === ' ';
-}
-
-/**
  * Convert an RNG divergence's per-segment stepIndex to a cumulative step
  * index comparable with behavior.at and screen divergence indices.
  */
@@ -453,9 +426,8 @@ function cumulativeRngStep(rngDiv, replayedSegments) {
 }
 
 /**
- * Enrich a divergence object with cumulative step indices and serialize-bug
- * detection. The raw divergence from silentDivergence() has per-segment RNG
- * locations and does not classify screen mismatches by cause.
+ * Enrich a divergence object with cumulative step indices. The raw divergence
+ * from silentDivergence() has per-segment RNG locations.
  */
 function enrichDivergence(divergence, replayedSegments) {
     if (!divergence) return null;
@@ -465,9 +437,6 @@ function enrichDivergence(divergence, replayedSegments) {
             ...result.rng,
             stepIndex: cumulativeRngStep(result.rng, replayedSegments),
         };
-    }
-    if (result.screen) {
-        result.serializeBug = isSerializeBugMismatch(result.screen);
     }
     return result;
 }
@@ -912,13 +881,12 @@ function reportDivergences(rows) {
         : 'past the recorded steps');
     const rngSide = (value) => value ?? '(log ends)';
     for (const row of divergent) {
-        const { screen, rng, cursor, serializeBug } = row.divergence;
+        const { screen, rng, cursor } = row.divergence;
         const parts = [];
         if (screen) {
-            const bugTag = serializeBug ? ' [serialize bug]' : '';
             parts.push(`screen ${screen.index} of ${row.screensEmitted} `
                 + `replayed (${at(screen.location)}) differs at row `
-                + `${screen.row} column ${screen.column}${bugTag}`);
+                + `${screen.row} column ${screen.column}`);
         }
         if (cursor && (!screen || cursor.index < screen.index)) {
             parts.push(`cursor ${cursor.index} (${at(cursor.location)}) is `

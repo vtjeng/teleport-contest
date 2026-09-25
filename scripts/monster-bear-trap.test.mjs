@@ -861,8 +861,11 @@ test('the pit and metallivore blocks are refused, not ported', async () => {
 const MATRIX_OUTCOME = Object.freeze({
     7000039: { turn: 5, caught: true, killed: false, freed: false },
     // Eight held turns end at step 15 with a roll of zero, which is what
-    // leaves this segment's pony off its trap at the last key.
-    7005082: { turn: 6, caught: true, killed: false, freed: true },
+    // leaves this segment's pony off its trap at the last key. `freedStep`
+    // is that step's index in getScreens(); screen 0 precedes the first key.
+    7005082: {
+        turn: 6, caught: true, killed: false, freed: true, freedStep: 15,
+    },
     7010149: { turn: 9, caught: true, killed: false, freed: false },
     7007646: { turn: 25, caught: true, killed: false, freed: false },
     // The roll empties the pony, so nothing stands on the trap afterwards.
@@ -941,7 +944,8 @@ test('every matrix segment reaches a bear trap and replays to its last key',
              let survivor = null;
              for (let mon = game.level.monlist; mon; mon = mon.nmon)
                  if (mon.mnum === PM_PONY) survivor = mon;
-             // terminal.serialize() strings, the same text the judge compares.
+             // GameDisplay.serialize() strings, the same text the judge
+             // compares.
              const screens = replay.getScreens();
              if (expected.killed) {
                  assert.equal(onTrap, null,
@@ -965,21 +969,19 @@ test('every matrix segment reaches a bear trap and replays to its last key',
                  assert.equal(live.some((trap) => trap.tseen), true,
                               `segment ${segment.seed} leaves the trap seen`);
                  // The escape itself, which the assertions above cannot see:
-                 // the pony is alive and no longer held. Its message is not
-                 // assertable here and no case in the repository asserts it:
-                 // C's line at 3771 needs canseemon(), and this segment's
-                 // pony is out of sight by the turn the roll frees it, so no
-                 // captured screen carries "pulls free" on either side. That
-                 // gap is recorded as a deferral rather than papered over.
+                 // the pony is alive and no longer held, and C's line at 3771,
+                 // which canseemon() gates, is on the screen of the step whose
+                 // roll freed it. The fresh C recording of this segment
+                 // carries the same line on the same screen.
                  assert.ok(survivor,
                            `segment ${segment.seed} keeps its pony alive`);
                  assert.equal(Boolean(survivor.mtrapped), false,
                               `segment ${segment.seed} releases its pony`);
                  assert.ok(
-                     screens.every(
-                         (screen) => !screen.includes('pulls free of the'),
+                     screens[expected.freedStep].includes(
+                         'The saddled pony pulls free of the bear trap.',
                      ),
-                     `segment ${segment.seed} frees its pony unseen`,
+                     `segment ${segment.seed} shows its pony pulling free`,
                  );
                  continue;
              }
