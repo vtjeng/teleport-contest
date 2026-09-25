@@ -70769,6 +70769,49 @@
           "evaluationCommit": "bfa9dc95416be7fa5a45d311fae636412a475e17"
         }
       }
+    },
+    {
+      "id": "port-do-wear-doremring-synthetic-v1-20260925",
+      "kind": "file-port",
+      "status": "queued",
+      "summary": "Port accessory remove command and source-ordered ring removal path",
+      "cFile": "do_wear.c",
+      "sessions": [
+        "synthetic/v1/terrain-transitions"
+      ],
+      "selectionReason": "synthetic/v1/terrain-transitions has 80 remaining screens at investigations/synthetic/v1/terrain-transitions.json; the first step-57 R/remove stop is do_wear.c doremring before dispatch. Wizard study is reserved by B2; this is the highest-ranked independent source task.",
+      "detail": "Port whole do_wear.c doremring and the return-valued and active same-file callees needed for ring removal; wire cmd.c R/remove dispatch. Preserve source branches and exact input order. trap.c float_down is a downstream dependency after Ring_off and must be handled at its source site under the C return-value rule.",
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": null,
+      "delivered": null,
+      "functions": [
+        {
+          "name": "doremring",
+          "line": 1874,
+          "endLine": 1892,
+          "declared": false,
+          "complete": false
+        }
+      ],
+      "range": {
+        "from": 1874,
+        "to": 1892
+      },
+      "syntheticProvenance": {
+        "synthetic/v1/terrain-transitions": {
+          "session": "synthetic/v1/terrain-transitions",
+          "corpus": "synthetic",
+          "batch": "v1",
+          "caseId": "terrain-transitions",
+          "manifestPath": "challenges/manifest.json",
+          "manifestSha256": "a1d989fa6b5159e0b0729150ba765c741a405ec910c1274ad763d29b0a7096fe",
+          "recordingPath": "challenges/cases/terrain-transitions.session.json",
+          "recordingSha256": "5491c8fb94f71fe5a5c56498e2c58b6d736e65b221cf0a39d1895abdd6759ec9",
+          "evaluationPath": "challenges/evaluations/20260925173439-v1.json",
+          "evaluationCommit": "e7623b67450936e27add7de87567f83f84ed1190"
+        }
+      }
     }
   ]
 }
