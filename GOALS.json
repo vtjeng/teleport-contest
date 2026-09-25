@@ -71912,6 +71912,49 @@
         "screens": 11405,
         "rng": 792838
       }
+    },
+    {
+      "id": "port-potion-peffect-polymorph-synthetic-v4-20260925",
+      "kind": "file-port",
+      "status": "queued",
+      "summary": "Port complete polymorph-potion effect and source-ordered controlled transformation entry",
+      "cFile": "potion.c",
+      "sessions": [
+        "synthetic/v4/wizard-controlled-potion-transformation"
+      ],
+      "selectionReason": "The larger v1 terrain-transitions case is reserved to A3 float_down and its investigation is stale after B3; the v4 controlled-potion case is the highest remaining complete source-traced task with free potion.c ownership.",
+      "detail": "",
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": null,
+      "delivered": null,
+      "functions": [
+        {
+          "name": "peffect_polymorph",
+          "line": 1318,
+          "endLine": 1332,
+          "declared": false,
+          "complete": false
+        }
+      ],
+      "range": {
+        "from": 1318,
+        "to": 1332
+      },
+      "syntheticProvenance": {
+        "synthetic/v4/wizard-controlled-potion-transformation": {
+          "session": "synthetic/v4/wizard-controlled-potion-transformation",
+          "corpus": "synthetic",
+          "batch": "v4",
+          "caseId": "wizard-controlled-potion-transformation",
+          "manifestPath": "challenges/manifests/v4.json",
+          "manifestSha256": "10777af4c82fc759abf58a870fdd232329bc5c1467c8cf94f46089d0401459a9",
+          "recordingPath": "challenges/cases/v4/wizard-controlled-potion-transformation.session.json",
+          "recordingSha256": "ed0d1aa3d6329e705657641a30ab21f8c8da3f77080ed4e0d1badc3d143eaacb",
+          "evaluationPath": "challenges/evaluations/20260925202640-v4.json",
+          "evaluationCommit": "df2fff47e89a1e74e3eeef4d20e8bac9982bf291"
+        }
+      }
     }
   ]
 }
