@@ -7,8 +7,20 @@ const PROJECT_ROOT = resolve(SCRIPT_DIR, '..');
 
 export const DEDICATED_TEST_SUITES = Object.freeze({});
 
+// Test files that each run for more than 50 seconds of a checkpoint's test
+// suite. `node --test` starts files in list order, so a long file late in
+// alphabetical order runs on alone after every other file has finished;
+// listing these first lets them overlap the rest. The rest stay alphabetical.
+// A stale entry costs only speed, but a missing file fails suite construction.
+export const LONG_RUNNING_TESTS = Object.freeze([
+    'scripts/goal-log-cli.test.mjs',
+    'scripts/worker-delivery.test.mjs',
+    'scripts/checkpoint-worktree.test.mjs',
+]);
+
 export function buildTestSuites(discovered, dedicated, {
     exists = (path) => existsSync(resolve(PROJECT_ROOT, path)),
+    longRunning = LONG_RUNNING_TESTS,
 } = {}) {
     const suites = {};
     const dedicatedNames = Object.keys(dedicated).sort();
@@ -28,9 +40,15 @@ export function buildTestSuites(discovered, dedicated, {
         }
     }
 
-    suites.default = discovered
-        .filter((path) => !ownerByPath.has(path))
-        .sort();
+    for (const path of longRunning) {
+        if (!exists(path))
+            throw new Error(`long-running test does not exist: ${path}`);
+    }
+    const ordinary = discovered.filter((path) => !ownerByPath.has(path));
+    suites.default = [
+        ...longRunning.filter((path) => ordinary.includes(path)),
+        ...ordinary.filter((path) => !longRunning.includes(path)).sort(),
+    ];
     suites.all = [
         ...suites.default,
         ...dedicatedNames.flatMap((name) => suites[name]),

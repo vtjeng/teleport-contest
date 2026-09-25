@@ -37,6 +37,38 @@ test('the default suite admits ordinary tests and excludes registered suites',
         ]);
     });
 
+test('long-running tests start the default suite and the rest stay alphabetical',
+    () => {
+        // Three ordinary tests, two of them long-running, listed out of
+        // alphabetical order to show that the long-running order is kept and
+        // the remainder is sorted. The dedicated file stays out of default
+        // even when it is also named long-running.
+        const discovered = [
+            'scripts/b.test.mjs',
+            'scripts/z-long.test.mjs',
+            'scripts/a.test.mjs',
+            'scripts/m-long.test.mjs',
+            'scripts/slow.integration.mjs',
+        ];
+        const suites = buildTestSuites(discovered, {
+            lifecycle: ['scripts/slow.integration.mjs'],
+        }, {
+            exists: () => true,
+            longRunning: ['scripts/z-long.test.mjs', 'scripts/m-long.test.mjs',
+                'scripts/slow.integration.mjs'],
+        });
+        assert.deepEqual(suites.default, [
+            'scripts/z-long.test.mjs',
+            'scripts/m-long.test.mjs',
+            'scripts/a.test.mjs',
+            'scripts/b.test.mjs',
+        ]);
+        // A long-running entry that no longer exists fails loudly.
+        assert.throws(() => buildTestSuites([], {}, {
+            exists: () => false, longRunning: ['scripts/gone.test.mjs'],
+        }), /long-running test does not exist/u);
+    });
+
 test('suite registration rejects missing and duplicate dedicated files', () => {
     // The first fixture supplies the same path to two suites; the second marks
     // the one registered path absent from disk.
