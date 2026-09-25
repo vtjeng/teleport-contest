@@ -1,0 +1,116 @@
+{
+  "session": "synthetic/v4/rogue-sink-ring-history",
+  "corpus": "synthetic",
+  "batch": "v4",
+  "caseId": "rogue-sink-ring-history",
+  "manifestPath": "challenges/manifests/v4.json",
+  "manifestSha256": "10777af4c82fc759abf58a870fdd232329bc5c1467c8cf94f46089d0401459a9",
+  "recordingPath": "challenges/cases/v4/rogue-sink-ring-history.session.json",
+  "recordingSha256": "dc0759b7d9dca777d85b82b5e0ee0473ca6ef4debbb2a9f2b2eb2acadf85c557",
+  "evaluationPath": "challenges/evaluations/20260925202640-v4.json",
+  "evaluationCommit": "df2fff47e89a1e74e3eeef4d20e8bac9982bf291",
+  "remainingScreens": 4,
+  "recordedSteps": 51,
+  "status": "complete",
+  "commit": "df2fff47e89a1e74e3eeef4d20e8bac9982bf291",
+  "mismatch": {
+    "corpus": "synthetic",
+    "batch": "v4",
+    "caseId": "rogue-sink-ring-history",
+    "session": "synthetic/v4/rogue-sink-ring-history",
+    "manifestPath": "challenges/manifests/v4.json",
+    "manifestSha256": "10777af4c82fc759abf58a870fdd232329bc5c1467c8cf94f46089d0401459a9",
+    "recording": "challenges/cases/v4/rogue-sink-ring-history.session.json",
+    "recordingPath": "challenges/cases/v4/rogue-sink-ring-history.session.json",
+    "recordingSha256": "dc0759b7d9dca777d85b82b5e0ee0473ca6ef4debbb2a9f2b2eb2acadf85c557",
+    "recipe": "challenges/cases/v4/rogue-sink-ring-history.recipe.json",
+    "recipeSha256": "03afbe0e06c6270ae23a190ae068217d07f9d435868460d734916294d859d868",
+    "replayInputSha256": "df5be6df330fb3a313b4efd88c452e3d805d45d1f22b4b3b475af96bcd3552c9",
+    "evaluationPath": "challenges/evaluations/20260925202640-v4.json",
+    "evaluationCommit": "df2fff47e89a1e74e3eeef4d20e8bac9982bf291",
+    "evaluationArtifact": "challenges/evaluations/20260925202640-v4.json",
+    "evaluationUtc": "2026-09-25T20:26:49.996Z",
+    "remainingScreens": 4,
+    "recordedSteps": 51,
+    "previousScreensMatched": 6,
+    "regression": false,
+    "passed": false,
+    "error": null,
+    "metrics": {
+      "screens": {
+        "matched": 47,
+        "total": 51
+      },
+      "rng": {
+        "matched": 2076,
+        "total": 2076
+      },
+      "cursors": {
+        "matched": 47,
+        "total": 51
+      }
+    },
+    "firstMismatch": {
+      "kind": "stop",
+      "message": "unsupported hero command: an unported branch of this command: unsupported drop: dosinkring()",
+      "step": 47
+    },
+    "step": 47,
+    "kind": "stop",
+    "sourceFile": "do.c",
+    "function": "dosinkring",
+    "message": "unsupported hero command: an unported branch of this command: unsupported drop: dosinkring()",
+    "cFile": "do.c",
+    "luaFile": null,
+    "line": null
+  },
+  "summary": "The v4 sink case now matches 47/51 screens. After three wizard wishes create a sink and two rings, key g at step 47 drops the levitation ring while standing on the sink; JS do.c drop refuses dosinkring(). C prints the down-drain message, then the levitation-ring sink effect. The later input drops a searching ring, whose giveback branch runs in the same source function. Port the complete do.c dosinkring() in C order and wire drop(), including identification, sink changes, object disposal, and the two terminal random draws.",
+  "source": {
+    "file": "do.c",
+    "branch": "A Rogue in wizard mode wishes a sink onto the current square, obtains levitation and searching rings, then drops each on that sink. do.c drop() sees a ring and IS_SINK, calls dosinkring(), and returns ECMD_TIME. At step 47 the selected levitation ring takes the visible quiver path; a later searching ring takes the giveback path.",
+    "functions": [
+      "dosinkring"
+    ],
+    "callers": [
+      "do.c drop() at lines 752-756 calls dosinkring(obj) and returns ECMD_TIME when a ring is dropped on a sink; js/do.js drop() near line 1133 currently throws UnsupportedDropError.",
+      "cmd.c d/drop command reaches do.c dodrop()/drop() through js/cmd.js drop handler; the v4 recording establishes the active sink entry at segment 0 step 47."
+    ],
+    "dependencies": [
+      "The whole dosinkring() function at do.c:498-661 covers audible, visible, hunger, teleportation, polymorph, and giveback ring effects. It consumes teleport_sink() and obj_resists() return values on their reached source paths; port them in the same task if those branches become active.",
+      "Preserve C in_use toggles, trycall(), dropx(), freeinv(), add_to_buried(), useup(), sink terrain changes, and short-circuit random order: rn2(20) only when !nosink, then rn2(5) only when the first branch did not return.",
+      "RIN_SEARCHING and RIN_SLOW_DIGESTION return from giveback before the two terminal random draws; the recording places a searching ring after the levitation ring."
+    ]
+  },
+  "goalKind": "file-port",
+  "evidence": [
+    "Saved challenges/evaluations/20260925202640-v4.json at df2fff47e89a1e74e3eeef4d20e8bac9982bf291 reports 47/51 screens and cursors, with all 2076 RNG calls matched before the step-47 stop. Four screens remain.",
+    "C recording challenges/cases/v4/rogue-sink-ring-history.session.json shows step 46 key d asking what to drop, step 47 key g printing “You drop a diamond ring down the drain.--More--”, and step 48 space printing “The sink quivers upward for a moment.--More--”. A later key h drops the separately wished searching ring.",
+    "nethack-c/upstream/src/do.c:498-661 defines dosinkring(), including RIN_LEVITATION and RIN_SEARCHING branches, identification/giveback, sink effects, and two conditional RNG draws. do.c:752-756 calls it from drop().",
+    "js/do.js near line 1133 explicitly refuses dosinkring() for ring drops on a sink. The terrain wish and ring creation preceding step 47 match after B3."
+  ],
+  "entryPointReview": {
+    "active": [
+      "Drop a levitation ring on a wished sink in synthetic/v4/rogue-sink-ring-history, segment 0 steps 46-48.",
+      "Drop a searching ring on the same sink later in segment 0 steps 49-50 after the levitation-ring branch is admitted."
+    ],
+    "blocked": [
+      "The current do.c drop refusal prevents either sink-ring effect at step 47.",
+      "Whole-function completion needs independent matching recordings for impure branches not covered by the v4 ring pair, including teleportation/polymorph and other ring messages where practical."
+    ]
+  },
+  "plannedWholeFunctionScope": {
+    "primary": {
+      "file": "do.c",
+      "functions": [
+        "dosinkring"
+      ]
+    },
+    "callerWiring": [
+      "do.c drop sink-ring arm in js/do.js"
+    ],
+    "returnValuedDependencies": [
+      "teleport_sink() for RIN_TELEPORTATION",
+      "obj_resists() for RIN_HUNGER"
+    ]
+  }
+}
