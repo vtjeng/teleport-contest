@@ -1,0 +1,11 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 812037,
+      "datetime": "20010423101500",
+      "nethackrc": "OPTIONS=name:Scoutshop-ledger-return,role:Rogue,race:human,gender:male,align:chaotic,!legacy,!tutorial,!splash_screen,showexp,time\n",
+      "moves": " llll\u000fol oljjjhhhhhhhhhhhhhjjjkkjhjhhjjjjj jjjll, #pay\n"
+    }
+  ]
+}
