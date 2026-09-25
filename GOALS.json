@@ -71588,16 +71588,20 @@
     {
       "id": "port-trap-float-down-synthetic-v1-20260925",
       "kind": "file-port",
-      "status": "queued",
+      "status": "open",
       "summary": "Port levitation landing and float_down source callers",
       "cFile": "trap.c",
       "sessions": [
         "synthetic/v1/terrain-transitions"
       ],
-      "selectionReason": "At the current A2 queue, terrain-transitions has 71 unmatched screens and its completed investigation identifies trap.c float_down at step 58; worker B reserves altar terrain wishes, so this is the highest ranked eligible unreserved source task.",
+      "selectionReason": "The refreshed v1 terrain-transitions investigation at investigations/synthetic/v1/terrain-transitions.json has 58 unmatched screens and remains the highest current synthetic case. A3 owns trap.c float_down and its selected ring-removal path, with independent landing recordings and named blocked callers.",
       "detail": "Port all of trap.c float_down (4024-4178), including state, messages, hazards, trap activation, pickup and return values, with return-valued drown() behavior where reached. Wire do_wear.c Ring_off_or_gone levitation removal and other active source callers. Preserve discarded-result gaps only where C discards the result. See investigations/synthetic/v1/terrain-transitions.json.",
-      "openedAt": null,
-      "openStanding": null,
+      "openedAt": "3627982848df09d8bc7e2afdaef0a84a287ce64a",
+      "openStanding": {
+        "sha": "c2796832d22615658a12aaba5095d18067dc4018",
+        "screens": 11405,
+        "rng": 792838
+      },
       "closedAt": null,
       "delivered": null,
       "functions": [
@@ -71623,10 +71627,281 @@
           "manifestSha256": "a1d989fa6b5159e0b0729150ba765c741a405ec910c1274ad763d29b0a7096fe",
           "recordingPath": "challenges/cases/terrain-transitions.session.json",
           "recordingSha256": "5491c8fb94f71fe5a5c56498e2c58b6d736e65b221cf0a39d1895abdd6759ec9",
-          "evaluationPath": "challenges/evaluations/20260925185643-v1.json",
-          "evaluationCommit": "cb5a1d6236d100c62a31e5029cbfa55e55cdfb60"
+          "evaluationPath": "challenges/evaluations/20260925210102-v1.json",
+          "evaluationCommit": "4c94668a402c17dd41062fe2ec966453db17c551"
         }
-      }
+      },
+      "activeStanding": {
+        "sha": "c2796832d22615658a12aaba5095d18067dc4018",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v1",
+          "caseId": "terrain-transitions",
+          "session": "synthetic/v1/terrain-transitions",
+          "manifestPath": "challenges/manifest.json",
+          "manifestSha256": "a1d989fa6b5159e0b0729150ba765c741a405ec910c1274ad763d29b0a7096fe",
+          "recording": "challenges/cases/terrain-transitions.session.json",
+          "recordingPath": "challenges/cases/terrain-transitions.session.json",
+          "recordingSha256": "5491c8fb94f71fe5a5c56498e2c58b6d736e65b221cf0a39d1895abdd6759ec9",
+          "recipe": "challenges/cases/terrain-transitions.recipe.json",
+          "recipeSha256": "a0952cee3b77d907ba080571678b0a1e5e1b82d4dc3b07981e6065806cf49663",
+          "replayInputSha256": "ccc090d302617abc5fd555fa7b5b3786501f4568edd0e9603fd30260995e4acc",
+          "evaluationPath": "challenges/evaluations/20260925210102-v1.json",
+          "evaluationCommit": "4c94668a402c17dd41062fe2ec966453db17c551",
+          "evaluationArtifact": "challenges/evaluations/20260925210102-v1.json",
+          "evaluationUtc": "2026-09-25T21:01:02.206Z",
+          "remainingScreens": 58,
+          "recordedSteps": 137,
+          "previousScreensMatched": 79,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 79,
+              "total": 137
+            },
+            "rng": {
+              "matched": 3182,
+              "total": 3811
+            },
+            "cursors": {
+              "matched": 104,
+              "total": 137
+            }
+          },
+          "firstMismatch": {
+            "screen": {
+              "index": 58,
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 58,
+                "key": "q"
+              },
+              "kind": "ch",
+              "row": 0,
+              "column": 53,
+              "cCell": {
+                "ch": "-",
+                "color": 8,
+                "attr": 0,
+                "decgfx": 0
+              },
+              "jsCell": {
+                "ch": " ",
+                "color": 8,
+                "attr": 0,
+                "decgfx": 0
+              }
+            },
+            "rng": {
+              "index": 3055,
+              "cEntry": "rn2(20)=12",
+              "cCaller": "water_damage(trap.c:4771)",
+              "jsEntry": "rn2(8)=4",
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 87,
+                "key": "h"
+              },
+              "stepIndex": 87
+            },
+            "cursor": {
+              "index": 58,
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 58,
+                "key": "q"
+              },
+              "cCursor": [
+                61,
+                0,
+                1
+              ],
+              "jsCursor": [
+                31,
+                6,
+                1
+              ]
+            }
+          },
+          "step": 58,
+          "kind": "screen",
+          "sourceFile": null,
+          "function": null,
+          "message": null,
+          "cFile": null,
+          "luaFile": null,
+          "line": null,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v1/terrain-transitions.json",
+            "result": {
+              "session": "synthetic/v1/terrain-transitions",
+              "corpus": "synthetic",
+              "batch": "v1",
+              "caseId": "terrain-transitions",
+              "manifestPath": "challenges/manifest.json",
+              "manifestSha256": "a1d989fa6b5159e0b0729150ba765c741a405ec910c1274ad763d29b0a7096fe",
+              "recordingPath": "challenges/cases/terrain-transitions.session.json",
+              "recordingSha256": "5491c8fb94f71fe5a5c56498e2c58b6d736e65b221cf0a39d1895abdd6759ec9",
+              "evaluationPath": "challenges/evaluations/20260925210102-v1.json",
+              "evaluationCommit": "4c94668a402c17dd41062fe2ec966453db17c551",
+              "remainingScreens": 58,
+              "recordedSteps": 137,
+              "status": "complete",
+              "commit": "4c94668a402c17dd41062fe2ec966453db17c551",
+              "mismatch": {
+                "corpus": "synthetic",
+                "batch": "v1",
+                "caseId": "terrain-transitions",
+                "session": "synthetic/v1/terrain-transitions",
+                "manifestPath": "challenges/manifest.json",
+                "manifestSha256": "a1d989fa6b5159e0b0729150ba765c741a405ec910c1274ad763d29b0a7096fe",
+                "recording": "challenges/cases/terrain-transitions.session.json",
+                "recordingPath": "challenges/cases/terrain-transitions.session.json",
+                "recordingSha256": "5491c8fb94f71fe5a5c56498e2c58b6d736e65b221cf0a39d1895abdd6759ec9",
+                "recipe": "challenges/cases/terrain-transitions.recipe.json",
+                "recipeSha256": "a0952cee3b77d907ba080571678b0a1e5e1b82d4dc3b07981e6065806cf49663",
+                "replayInputSha256": "ccc090d302617abc5fd555fa7b5b3786501f4568edd0e9603fd30260995e4acc",
+                "evaluationPath": "challenges/evaluations/20260925210102-v1.json",
+                "evaluationCommit": "4c94668a402c17dd41062fe2ec966453db17c551",
+                "evaluationArtifact": "challenges/evaluations/20260925210102-v1.json",
+                "evaluationUtc": "2026-09-25T21:01:02.206Z",
+                "remainingScreens": 58,
+                "recordedSteps": 137,
+                "previousScreensMatched": 79,
+                "regression": false,
+                "passed": false,
+                "error": null,
+                "metrics": {
+                  "screens": {
+                    "matched": 79,
+                    "total": 137
+                  },
+                  "rng": {
+                    "matched": 3182,
+                    "total": 3811
+                  },
+                  "cursors": {
+                    "matched": 104,
+                    "total": 137
+                  }
+                },
+                "firstMismatch": {
+                  "screen": {
+                    "index": 58,
+                    "location": {
+                      "segmentIndex": 0,
+                      "stepIndex": 58,
+                      "key": "q"
+                    },
+                    "kind": "ch",
+                    "row": 0,
+                    "column": 53,
+                    "cCell": {
+                      "ch": "-",
+                      "color": 8,
+                      "attr": 0,
+                      "decgfx": 0
+                    },
+                    "jsCell": {
+                      "ch": " ",
+                      "color": 8,
+                      "attr": 0,
+                      "decgfx": 0
+                    }
+                  },
+                  "rng": {
+                    "index": 3055,
+                    "cEntry": "rn2(20)=12",
+                    "cCaller": "water_damage(trap.c:4771)",
+                    "jsEntry": "rn2(8)=4",
+                    "location": {
+                      "segmentIndex": 0,
+                      "stepIndex": 87,
+                      "key": "h"
+                    },
+                    "stepIndex": 87
+                  },
+                  "cursor": {
+                    "index": 58,
+                    "location": {
+                      "segmentIndex": 0,
+                      "stepIndex": 58,
+                      "key": "q"
+                    },
+                    "cCursor": [
+                      61,
+                      0,
+                      1
+                    ],
+                    "jsCursor": [
+                      31,
+                      6,
+                      1
+                    ]
+                  }
+                },
+                "step": 58,
+                "kind": "screen",
+                "sourceFile": null,
+                "function": null,
+                "message": null,
+                "cFile": null,
+                "luaFile": null,
+                "line": null
+              },
+              "summary": "The current v1 terrain case matches 79/137 screens, with the first screen and cursor difference still at step 58 when removing the levitation ring. C pages the ring-removal message as trap.c float_down(0,0) begins and then shows the landing message at step 59; JS records the float_down gap and omits those effects. Port the complete float_down() function and wire do_wear.c Ring_off_or_gone(), preserving its source-ordered masks, landing effects, hazards, trap handling, pickup, and return value.",
+              "source": {
+                "file": "trap.c",
+                "branch": "When Ring_off_or_gone() removes the final active levitation source with masks hmask=0 and emask=0, no other Levitation or BLevitation remains, and the hero is on the upstairs tile without flight, engulfing, a punishing ball, a pool/lava hazard, or a blocking trap, float_down() reaches its ordinary landing message. In the recorded case its surface() is “stairs”; the following You() call causes the prior ring message to be paged at step 58, then the landing message appears at step 59.",
+                "functions": [
+                  "float_down"
+                ],
+                "callers": [
+                  "Current reproducer: cmd.c key R dispatches do_wear.c doremring(); the selected ring flows through armor_or_accessory_off()/select_off() to Ring_off() and Ring_off_or_gone(); its RIN_LEVITATION arm calls float_down(0L,0L) at do_wear.c:1406-1414 and discards the return.",
+                  "Other direct C call sites to review when wiring this whole source function: do_wear.c Boots_off() :306; timeout.c LEVITATION timer arm :803; steed.c dismount_steed() :811; hack.c spoteffects() :3367; artifact.c arti_invoke() :2214; do.c drop() :771 and dodown() :1169.",
+                  "Current JS reproducer path: js/cmd.js R/remove dispatch → js/do_wear.js remove handler → armor_or_accessory_off()/select_off() → Ring_off_or_gone() :837-848. That arm currently calls note_unported('trap.c float_down') instead of invoking js/trap.js float_down()."
+                ],
+                "dependencies": [
+                  "js/trap.js float_down() :1538-1618 is partial: its reachable completed behavior is the dismount caller with emask W_SADDLE; it refuses the ordinary landing-message arm used here.",
+                  "C float_down() calls drown() and uses its return in no_msg at trap.c:4104-4105, so confirm the returned value and all reachable return-valued callees before closing a whole-function port. C discards lava_effects() at :4108 and pickup(1) at :4177; apply the repository note_unported rule to any still-unported discarded-result callee.",
+                  "The immediate case depends on existing levitation state, surface(), encumber_msg(), nomul(), trap lookup, and pickup ordering. Keep the return value ignored in Ring_off_or_gone(), as C does."
+                ]
+              },
+              "goalKind": "file-port",
+              "evidence": [
+                "Saved challenges/evaluations/20260925210102-v1.json at 4c94668a402c17dd41062fe2ec966453db17c551 reports terrain-transitions 79/137 matching screens, 3182/3811 RNG calls, and 104/137 cursors, with 58 screens remaining. Its first screen/cursor difference is still segment 0 step 58 on key q.",
+                "The immutable C recording challenges/cases/terrain-transitions.session.json shows step 57 key R asking what to remove, step 58 key q paging “You were wearing a ring of levitation (on left hand).”, and step 59 key space showing “You float gently to the stairs.”",
+                "nethack-c/upstream/src/do_wear.c:1406-1414 calls float_down(0L,0L) after removing the final RIN_LEVITATION source and discards its return. trap.c:4024-4178 defines the complete landing function; its ordinary message branch reaches surface() and then trap and pickup effects.",
+                "js/do_wear.js Ring_off_or_gone() records note_unported for trap.c float_down at the RIN_LEVITATION arm; js/trap.js float_down() remains partial before the integrated A3 delivery. The same source owner explains the unchanged step-58 first mismatch despite earlier downstream gains."
+              ],
+              "entryPointReview": {
+                "active": [
+                  "Removing a levitation ring through capital-R at synthetic/v1/terrain-transitions segment 0 steps 57-59 reaches do_wear.c Ring_off_or_gone() → trap.c float_down(0,0)."
+                ],
+                "blocked": [
+                  "js/do_wear.js Ring_off_or_gone() currently records note_unported('trap.c float_down') instead of applying its effects, so step 58 pager output and the step 59 “float gently to the stairs” message are missing.",
+                  "Other direct float_down() caller paths need separate reachable evidence or named blocked recipes before a whole-function source task can claim their completion: Boots_off, timed levitation expiry, dismount_steed, artifact invoke, drop/Ahriman handling, and spoteffects timeout handling."
+                ],
+                "buildExcluded": [],
+                "exactReplayAttribution": "The current saved v1 evaluation at 4c94668a402c17dd41062fe2ec966453db17c551 first differs at segment 0 step 58 on ring selection. The source trace through do_wear.c Ring_off_or_gone() to trap.c float_down() is unchanged; A3 contains the queued implementation and independently recorded timeout and dismount paths."
+              },
+              "plannedWholeFunctionScope": [
+                "Port trap.c float_down() :4024-4178 as a whole, preserving its intrinsic/extrinsic mask updates, all early returns, landing hazards/messages, encumbrance, trap activation, pickup, and return value.",
+                "Wire the existing Ring_off_or_gone() call instead of note_unported(); keep its float_down() result discarded, matching C.",
+                "Review and wire every active direct production call site listed under source.callers, assigning other source callers to explicit task scope or retaining named blockers.",
+                "Resolve return-valued callees used by float_down(), notably drown() -> no_msg, under the source return-value rule."
+              ]
+            }
+          }
+        }
+      ]
     },
     {
       "id": "port-apply-use-lamp-synthetic-v1-20260925",
