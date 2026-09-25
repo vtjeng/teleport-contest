@@ -1,0 +1,165 @@
+{
+  "session": "synthetic/v4/healer-magic-fountain-drink",
+  "corpus": "synthetic",
+  "batch": "v4",
+  "caseId": "healer-magic-fountain-drink",
+  "manifestPath": "challenges/manifests/v4.json",
+  "manifestSha256": "10777af4c82fc759abf58a870fdd232329bc5c1467c8cf94f46089d0401459a9",
+  "recordingPath": "challenges/cases/v4/healer-magic-fountain-drink.session.json",
+  "recordingSha256": "2775eb19d73cef073a73f80b3687dfa60c9298e61add4ab81027f7d5766678e9",
+  "evaluationPath": "challenges/evaluations/20260925202640-v4.json",
+  "evaluationCommit": "df2fff47e89a1e74e3eeef4d20e8bac9982bf291",
+  "remainingScreens": 13,
+  "recordedSteps": 31,
+  "status": "complete",
+  "commit": "df2fff47e89a1e74e3eeef4d20e8bac9982bf291",
+  "mismatch": {
+    "corpus": "synthetic",
+    "batch": "v4",
+    "caseId": "healer-magic-fountain-drink",
+    "session": "synthetic/v4/healer-magic-fountain-drink",
+    "manifestPath": "challenges/manifests/v4.json",
+    "manifestSha256": "10777af4c82fc759abf58a870fdd232329bc5c1467c8cf94f46089d0401459a9",
+    "recording": "challenges/cases/v4/healer-magic-fountain-drink.session.json",
+    "recordingPath": "challenges/cases/v4/healer-magic-fountain-drink.session.json",
+    "recordingSha256": "2775eb19d73cef073a73f80b3687dfa60c9298e61add4ab81027f7d5766678e9",
+    "recipe": "challenges/cases/v4/healer-magic-fountain-drink.recipe.json",
+    "recipeSha256": "9dda39db9cab371c9dff085805a5ba46a313da47f026103d316f80b828106fc7",
+    "replayInputSha256": "df5be6df330fb3a313b4efd88c452e3d805d45d1f22b4b3b475af96bcd3552c9",
+    "evaluationPath": "challenges/evaluations/20260925202640-v4.json",
+    "evaluationCommit": "df2fff47e89a1e74e3eeef4d20e8bac9982bf291",
+    "evaluationArtifact": "challenges/evaluations/20260925202640-v4.json",
+    "evaluationUtc": "2026-09-25T20:26:49.996Z",
+    "remainingScreens": 13,
+    "recordedSteps": 31,
+    "previousScreensMatched": 16,
+    "regression": false,
+    "passed": false,
+    "error": null,
+    "metrics": {
+      "screens": {
+        "matched": 18,
+        "total": 31
+      },
+      "rng": {
+        "matched": 2752,
+        "total": 2845
+      },
+      "cursors": {
+        "matched": 20,
+        "total": 31
+      }
+    },
+    "firstMismatch": {
+      "screen": {
+        "index": 18,
+        "location": {
+          "segmentIndex": 0,
+          "stepIndex": 18,
+          "key": "y"
+        },
+        "kind": "ch",
+        "row": 0,
+        "column": 0,
+        "cCell": {
+          "ch": "W",
+          "color": 8,
+          "attr": 0,
+          "decgfx": 0
+        },
+        "jsCell": {
+          "ch": "T",
+          "color": 8,
+          "attr": 0,
+          "decgfx": 0
+        }
+      },
+      "rng": {
+        "index": 2742,
+        "cEntry": "rn2(6)=3",
+        "cCaller": "drinkfountain(fountain.c:265)",
+        "jsEntry": "rn2(20)=17",
+        "location": {
+          "segmentIndex": 0,
+          "stepIndex": 18,
+          "key": "y"
+        },
+        "stepIndex": 18
+      },
+      "cursor": {
+        "index": 18,
+        "location": {
+          "segmentIndex": 0,
+          "stepIndex": 18,
+          "key": "y"
+        },
+        "cCursor": [
+          57,
+          0,
+          1
+        ],
+        "jsCursor": [
+          46,
+          0,
+          1
+        ]
+      }
+    },
+    "step": 18,
+    "kind": "rng",
+    "sourceFile": "fountain.c",
+    "function": "drinkfountain",
+    "message": null,
+    "cFile": "fountain.c",
+    "luaFile": null,
+    "line": 265
+  },
+  "summary": "The v4 Healer case matches the magic-fountain wish and the quaff prompt, then diverges on the first confirmed drink at step 18. C drinkfountain() enters its blessed-fountain restoration branch, draws rn2(A_MAX), and raises an attribute. JS stores the blessed fountain flag as boolean true but tests horizontal === 1, so it takes an ordinary-fountain path and draws rn2(20). Correct the shared fountain flag representation and port the complete blessed drinkfountain() branch in source order, including the attribute changes, messages, exercise, and flag reset.",
+  "source": {
+    "file": "fountain.c",
+    "branch": "A wizard-mode Healer wishes \"magic fountain\" onto the current square. On the first q/y drink, the tile has blessedftn=1, luck is nonnegative, and fate=rnd(30) is at least 10; C restores attributes and starts adjattrib() from rn2(A_MAX).",
+    "functions": [
+      "drinkfountain"
+    ],
+    "callers": [
+      "potion.c dodrink() calls fountain.c drinkfountain() after the fountain confirmation; js/potion.js reaches js/fountain.js drinkfountain() at segment 0 step 18.",
+      "objnam.c wizterrainwish() writes lev->blessedftn=1 for a magic fountain; js/objnam_readobjnam.js assigns Boolean(...) to the aliased horizontal field at line 594, while js/fountain.js line 570 tests strict numeric 1."
+    ],
+    "dependencies": [
+      "fountain.c:247-277 draws rnd(30) before the levitation check, then rn2(A_MAX) after the restoration message; the source loops over ABASE/AMAX, calls adjattrib() with its returned boolean, displays the message window, exercises wisdom, and clears blessedftn.",
+      "js/attrib.js already defines adjattrib() and exercise(); wire their source-order state and message effects rather than substituting new attribute logic. Confirm GameMap horizontal and fountain blessedftn use one state value across wish creation, drinking, and reset.",
+      "The same recording drinks again after step 19; retaining correct post-branch blessedftn reset is needed for the ordinary-fountain continuation and RNG sequence."
+    ]
+  },
+  "goalKind": "file-port",
+  "evidence": [
+    "Saved challenges/evaluations/20260925202640-v4.json at df2fff47e89a1e74e3eeef4d20e8bac9982bf291 reports 18/31 screens, 20/31 cursors and 13 remaining screens. At step 18 its first RNG difference is C rn2(6)=3 in fountain.c drinkfountain() versus JS rn2(20)=17.",
+    "C recording challenges/cases/v4/healer-magic-fountain-drink.session.json shows step 16 \"A magic fountain.\", step 17 the drink confirmation, step 18 \"Wow!  This makes you feel great!  You feel agile!\", and step 19 the wisp message; a second q/y drink follows.",
+    "nethack-c/upstream/src/objnam.c:3595 sets blessedftn for \"magic fountain\"; nethack-c/upstream/src/fountain.c:243-277 defines the initial draw, blessed branch, attribute loop, prompt display, and blessed flag reset.",
+    "js/objnam_readobjnam.js:594 stores a boolean in horizontal; js/fountain.js:570 compares it to numeric 1 and :580-583 throws on the blessed branch. Both source-aligned changes are needed; merely changing the comparison reaches the current refusal."
+  ],
+  "entryPointReview": {
+    "active": [
+      "Wish for a magic fountain and drink from it in synthetic/v4/healer-magic-fountain-drink, segment 0 steps 16-21."
+    ],
+    "blocked": [
+      "The flag comparison chooses the ordinary branch at step 18; the source blessed branch is also currently refused.",
+      "Whole drinkfountain() completion needs matching evidence for impure fate branches beyond this blessed path, or an explicit later scope record."
+    ]
+  },
+  "plannedWholeFunctionScope": {
+    "primary": {
+      "file": "fountain.c",
+      "functions": [
+        "drinkfountain"
+      ]
+    },
+    "callerWiring": [
+      "potion.c dodrink fountain confirmation",
+      "objnam.c wizterrainwish blessedftn field used by drinkfountain"
+    ],
+    "returnValuedDependencies": [
+      "attrib.c adjattrib() result in the blessed attribute loop"
+    ]
+  }
+}
