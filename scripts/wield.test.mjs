@@ -12,6 +12,7 @@ import {
     LAST_PROP,
     OBJ_INVENT,
     RIGHT_HANDED,
+    W_ARMOR,
     W_QUIVER,
     W_SWAPWEP,
     W_WEP,
@@ -27,7 +28,7 @@ import {
 } from '../js/objects.js';
 import { monst_globals_init, PM_SAMURAI } from '../js/monsters.js';
 import { roles } from '../js/roles.js';
-import { doquiver_core } from '../js/wield.js';
+import { doquiver_core, wield_tool } from '../js/wield.js';
 import { scanSession } from './scan-sessions.mjs';
 
 function makeState() {
@@ -100,6 +101,15 @@ function pending(state) {
     delete state._pending_message;
     return message;
 }
+
+test('wield_tool uses the You_cant wording for a worn item', async () => {
+    const state = makeState();
+    const dagger = item(state, DAGGER, { owornmask: W_ARMOR });
+
+    // wield.c:697-701 uses You_cant(), whose message begins "You can't".
+    assert.equal(await wield_tool(dagger, 'wield', state), false);
+    assert.equal(pending(state), "You can't wield your dagger while wearing it.");
+});
 
 test('doquiver_core readies an ordinary inventory item', async () => {
     const state = makeState();

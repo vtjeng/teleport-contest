@@ -742,7 +742,7 @@ test('a hero still caught in a pit is not teetering on it', async () => {
     assert.equal(uteetering_at_seen_pit(trap, state), true);
 });
 
-test('autodig with a wielded pick stops before use_pick_axe2()', async () => {
+test('autodig with a wielded pick reaches the unported use_pick_axe2 result', async () => {
     // do.c:1230-1234. flags.autodig parses today, so the wielded weapon is
     // the only term keeping the arm dormant: u_init.c:44 wields the bullwhip
     // that precedes the Archeologist's pick-axe at u_init.c:48.
@@ -754,8 +754,9 @@ test('autodig with a wielded pick stops before use_pick_axe2()', async () => {
 
     await assert.rejects(
         dodown(state),
-        (error) => error instanceof UnsupportedLevelChangeError
-            && /digging down with a wielded pick-axe/u.test(error.message),
+        (error) => error instanceof Error
+            && /dig.c use_pick_axe2\(\) needs the remaining attack and occupation ports/u
+                .test(error.message),
     );
 
     // Each of the other three terms alone puts the refusal back.

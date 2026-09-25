@@ -889,7 +889,7 @@ export async function wield_tool(obj, verb, state = game) {
 
     if (obj.owornmask & (W_ARMOR | W_ACCESSORY)) {
         await ttyPline(
-            `You cannot ${verb} ${yname(obj, state)} while wearing `
+            `You can't ${verb} ${yname(obj, state)} while wearing `
                 + `${moreThanOne ? 'them' : 'it'}.`,
             state,
         );

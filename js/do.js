@@ -99,6 +99,7 @@ import {
 import { reset_trapset } from './apply.js';
 import { bones_include_name } from './bones.js';
 import { obj_resists } from './bury.js';
+import { use_pick_axe2 } from './dig.js';
 import { ballrelease, drag_down, placebc, unplacebc } from './ball.js';
 import { next_to_u } from './apply_next_to_u.js';
 import {
@@ -1471,11 +1472,8 @@ export async function dodown(state = game) {
                    || !Can_fall_thru(u.uz, state) || !trap.tseen) {
             if (state.flags?.autodig && !state.context?.nopick
                 && state.uwep && is_pick(state.uwep, state)) {
-                // do.c:1233. dig.c use_pick_axe2() digs down through the
-                // floor, which digging owns.
-                throw new UnsupportedLevelChangeError(
-                    'dodown() digging down with a wielded pick-axe',
-                );
+                // do.c:1233 returns dig.c use_pick_axe2()'s command result.
+                return use_pick_axe2(state.uwep, state);
             }
             await ttyPline(
                 'You can\'t go down here'
