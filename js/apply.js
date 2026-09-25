@@ -1479,7 +1479,7 @@ export async function doapply(state = game, env = {}) {
         return use_stethoscope(obj, state);
     case PICK_AXE:
     case DWARVISH_MATTOCK:
-        return use_pick_axe(obj, state);
+        return use_pick_axe(obj, state, env);
     case LOCK_PICK:
     case CREDIT_CARD:
     case SKELETON_KEY:
@@ -1545,7 +1545,7 @@ export async function doapply(state = game, env = {}) {
             return ECMD_FAIL;
         }
         if (is_pick(obj, state) || is_axe(obj, state))
-            return use_pick_axe(obj, state);
+            return use_pick_axe(obj, state, env);
         // Every named arm this port has not implemented, plus the default's
         // other unported arms, stays fail-closed.
         // The refusal names the object type so a session says which path it

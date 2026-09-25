@@ -539,7 +539,7 @@ test('an unseen empty square is thin air, not an unknown obstacle', async () => 
 
 // ── hack.c domove_fight_empty(), the arms that stop ──
 
-test('force-fight records the discarded use_pick_axe2 result gap', async () => {
+test('force-fight routes digging tools to use_pick_axe2 and records its callback gap', async () => {
     // hack.c:2302-2305's else. Terrain that is neither remembered nor rock
     // nor a secret door is "an unknown obstacle".
     const unseen = await heroInARoom();
@@ -606,10 +606,10 @@ test('force-fight records the discarded use_pick_axe2 result gap', async () => {
         toplines(visibleStatue), 'You harmlessly attack a statue.',
     );
 
-    // hack.c:2269-2276. C discards use_pick_axe2()'s result, so the incomplete
-    // valid-direction attack and occupation path is recorded as a gap and
-    // skipped. The swings dig_typ() declines are the next test;
-    // scripts/dig.test.mjs pins the answers themselves.
+    // hack.c:2269-2276 calls use_pick_axe2() and discards its result. Its
+    // direction effects run; only the deferred dig() occupation is a gap. The
+    // swings dig_typ() declines are the next test; scripts/dig.test.mjs pins
+    // the answers themselves.
     const DIGGING_ANSWERS = [
         // dig.c:188-190 DIGTYP_ROCK. An axe at the same wall swings instead.
         { otyp: PICK_AXE, typ: VWALL },
@@ -627,8 +627,8 @@ test('force-fight records the discarded use_pick_axe2 result gap', async () => {
         );
         game.unported = new Set();
         await forceFightWest(state);
-        assert.ok(game.unported.has('dig.c use_pick_axe2'));
-        assert.equal(toplines(state), '');
+        assert.ok(game.unported.has('dig.c dig'));
+        assert.match(toplines(state), /^You start /u);
     }
 
     // hack.c:2266's first conjunct is svc.context.forcefight, so a hero who
