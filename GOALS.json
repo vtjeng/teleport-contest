@@ -70730,7 +70730,7 @@
     {
       "id": "port-spell-study-book-synthetic-v2-20260925",
       "kind": "file-port",
-      "status": "open",
+      "status": "parked",
       "summary": "Port complete spellbook study and known-spell refresh paths",
       "cFile": "spell.c",
       "sessions": [
@@ -70923,7 +70923,17 @@
             }
           }
         }
-      ]
+      ],
+      "progressBeforePark": {
+        "screens": 0,
+        "rng": 0
+      },
+      "parkedStanding": {
+        "sha": "4cd1d2f115390c0777339a40051076a330409d54",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "parkedReason": "The selected study_book path matches v2 wizard-spell-memory through step 39 and four independent recordings, but destructive confused-book display/naming and the Death speech setup remain blocked by windows.c display_nhwindow, do.c trycall, and makemon.c makemon; source completion evidence is deferred until active entry paths have matching replay."
     },
     {
       "id": "port-do-wear-doremring-synthetic-v1-20260925",

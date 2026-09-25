@@ -1,0 +1,471 @@
+{
+  "version": 1,
+  "batch": "v1",
+  "manifestPath": "challenges/manifest.json",
+  "sha": "4cd1d2f115390c0777339a40051076a330409d54",
+  "utc": "2026-09-25T18:39:35.774Z",
+  "status": "complete",
+  "manifestSha256": "a1d989fa6b5159e0b0729150ba765c741a405ec910c1274ad763d29b0a7096fe",
+  "scorerSha256": "affaf6935cb627ba42f02c5689605a1dfa6c98ccc862118642c4f961471266d7",
+  "scorerFiles": {
+    "frozen/isaac64.js": "0e6f41b795f49e58f0d410785c8d14c8dd9d68ac9143ae68319bd555ea247d1e",
+    "frozen/playability_runner.mjs": "70fcf202cf555c9adec2b29f5b65ba906aaf15eb164a8e5bec9d9f62ba5743dd",
+    "frozen/ps_test_runner.mjs": "05057f3f4f9c99125ea21dd320804ec7dad3c68f4cc485d622fe4c14b0c5761e",
+    "frozen/screen-decode.mjs": "cb4a0fbfed3dda28c14736e6ae9c8b9eb8c87d75916c50d6df80f40eb0368cbe",
+    "frozen/session_loader.mjs": "fb382efa89c272dae8cb700b7dadd075b926ff039ab3eb17480d84ed65029ce6",
+    "frozen/storage.js": "38804e1048c8b2520d60c2dcbe90f86c47627a6d3094a832b85af8756a07fe6c",
+    "frozen/terminal.js": "10fa540ff6e476421327ecc2f683221cef603565f75e988130992ab8cfd25b76"
+  },
+  "inputsSha256": "57dd80f0fe80242f760f1994e87897f528acc9d77e09a3643a9a758bc9328617",
+  "inputFiles": [
+    "challenges/cases/containers.recipe.json",
+    "challenges/cases/containers.session.json",
+    "challenges/cases/food-quiver-history.recipe.json",
+    "challenges/cases/food-quiver-history.session.json",
+    "challenges/cases/journey.recipe.json",
+    "challenges/cases/journey.session.json",
+    "challenges/cases/knight-jump-return.recipe.json",
+    "challenges/cases/knight-jump-return.session.json",
+    "challenges/cases/monster-transformations.recipe.json",
+    "challenges/cases/monster-transformations.session.json",
+    "challenges/cases/pet-conversations.recipe.json",
+    "challenges/cases/pet-conversations.session.json",
+    "challenges/cases/scout.recipe.json",
+    "challenges/cases/scout.session.json",
+    "challenges/cases/sustained-journey.recipe.json",
+    "challenges/cases/sustained-journey.session.json",
+    "challenges/cases/terrain-transitions.recipe.json",
+    "challenges/cases/terrain-transitions.session.json",
+    "challenges/manifest.json",
+    "frozen/isaac64.js",
+    "frozen/play.sh",
+    "frozen/playability_runner.mjs",
+    "frozen/ps_test_runner.mjs",
+    "frozen/score.sh",
+    "frozen/screen-decode.mjs",
+    "frozen/session_loader.mjs",
+    "frozen/set-category.sh",
+    "frozen/storage.js",
+    "frozen/terminal.js",
+    "js/air_level_data.js",
+    "js/air_levels.js",
+    "js/allmain.js",
+    "js/apply_catch_lit.js",
+    "js/apply_next_to_u.js",
+    "js/apply_splash_lit.js",
+    "js/apply.js",
+    "js/artifacts.js",
+    "js/asmodeus_levels.js",
+    "js/attrib.js",
+    "js/baalz_levels.js",
+    "js/ball.js",
+    "js/bigrm.js",
+    "js/bones.js",
+    "js/bury.js",
+    "js/calendar.js",
+    "js/castle_levels.js",
+    "js/cfgfiles.js",
+    "js/cmd_autocomplete.js",
+    "js/cmd.js",
+    "js/color_data.js",
+    "js/coloratt.js",
+    "js/command_bindings.js",
+    "js/config_statement_data.js",
+    "js/const.js",
+    "js/corpstat.js",
+    "js/data_base_data.js",
+    "js/dbridge.js",
+    "js/detect.js",
+    "js/dig.js",
+    "js/display.js",
+    "js/do_name.js",
+    "js/do_wear.js",
+    "js/do.js",
+    "js/dog.js",
+    "js/dogfood.js",
+    "js/dogmove.js",
+    "js/dokick.js",
+    "js/dothrow.js",
+    "js/drawing.js",
+    "js/dungeon_data.js",
+    "js/dungeon.js",
+    "js/eat.js",
+    "js/end.js",
+    "js/engrave.js",
+    "js/exper.js",
+    "js/explode.js",
+    "js/extcmdlist_data.js",
+    "js/extralev.js",
+    "js/files.js",
+    "js/fire_level_data.js",
+    "js/fire_levels.js",
+    "js/fountain.js",
+    "js/fruit.js",
+    "js/game_display.js",
+    "js/game.js",
+    "js/getline.js",
+    "js/getpos.js",
+    "js/glyph_ids.js",
+    "js/glyph_offsets.js",
+    "js/glyphs.js",
+    "js/grave.js",
+    "js/gstate.js",
+    "js/hack.js",
+    "js/hacklib.js",
+    "js/hell_levels.js",
+    "js/help_data.js",
+    "js/iactions.js",
+    "js/input.js",
+    "js/insight.js",
+    "js/invent.js",
+    "js/isaac64.js",
+    "js/jsmain.js",
+    "js/juiblex_levels.js",
+    "js/kni_goal_level_data.js",
+    "js/legacy_startup.js",
+    "js/light.js",
+    "js/lock.js",
+    "js/makemon_create.js",
+    "js/makemon.js",
+    "js/mcastu.js",
+    "js/mdlib.js",
+    "js/medusa_levels.js",
+    "js/mhitm.js",
+    "js/mhitu.js",
+    "js/mineralize.js",
+    "js/mines_levels.js",
+    "js/minion.js",
+    "js/mklev.js",
+    "js/mkmaze.js",
+    "js/mkroom.js",
+    "js/mktrap.js",
+    "js/mon.js",
+    "js/moncarry.js",
+    "js/mondata.js",
+    "js/monmove.js",
+    "js/monst.js",
+    "js/monster_object.js",
+    "js/monsters.js",
+    "js/moveloop_preamble.js",
+    "js/mthrowu.js",
+    "js/muse.js",
+    "js/music.js",
+    "js/nasties_data.js",
+    "js/nethack.js",
+    "js/nhlua.js",
+    "js/o_init.js",
+    "js/obj.js",
+    "js/object_generation.js",
+    "js/objects.js",
+    "js/objnam_data.js",
+    "js/objnam_readobjnam.js",
+    "js/objnam.js",
+    "js/options_escapes.js",
+    "js/options.js",
+    "js/optlist_data.js",
+    "js/orcus_levels.js",
+    "js/pager.js",
+    "js/pickup.js",
+    "js/player_selection_tty.js",
+    "js/player_selection.js",
+    "js/pline.js",
+    "js/polyself.js",
+    "js/posixregex.js",
+    "js/potion.js",
+    "js/pray.js",
+    "js/priest.js",
+    "js/quest_levels.js",
+    "js/quest_text_data.js",
+    "js/quest.js",
+    "js/questpgr.js",
+    "js/random_engraving.js",
+    "js/random_text_data.js",
+    "js/random_text.js",
+    "js/read.js",
+    "js/rect.js",
+    "js/regen.js",
+    "js/region.js",
+    "js/restore.js",
+    "js/rng.js",
+    "js/role_init.js",
+    "js/role_skills.js",
+    "js/roles.js",
+    "js/room_coordinates.js",
+    "js/room_features.js",
+    "js/rooms.js",
+    "js/sanctum_level_data.js",
+    "js/sanctum_levels.js",
+    "js/save.js",
+    "js/sfbase.js",
+    "js/shk.js",
+    "js/shknam.js",
+    "js/shtypes_data.js",
+    "js/sit.js",
+    "js/sokoban_levels.js",
+    "js/sound_effects_data.js",
+    "js/sounds.js",
+    "js/sp_lev_object.js",
+    "js/spell.js",
+    "js/stairs.js",
+    "js/startup_a11y.js",
+    "js/startup_reroll.js",
+    "js/startup_skills.js",
+    "js/steal.js",
+    "js/steed.js",
+    "js/storage.js",
+    "js/symbol_data.js",
+    "js/symbols.js",
+    "js/teleport.js",
+    "js/terminal.js",
+    "js/terrain.js",
+    "js/themeroom_data.js",
+    "js/themeroom_fill.js",
+    "js/themerooms.js",
+    "js/timeout.js",
+    "js/topten.js",
+    "js/track.js",
+    "js/trap_effects.js",
+    "js/trap_erode_obj.js",
+    "js/trap_names_data.js",
+    "js/trap_water_damage.js",
+    "js/trap.js",
+    "js/tribute_data.js",
+    "js/tty_menu.js",
+    "js/tty_message.js",
+    "js/tty_rawprint.js",
+    "js/tty_startup.js",
+    "js/tutorial_level.js",
+    "js/tutorial_startup.js",
+    "js/u_init_inventory_attrs.js",
+    "js/u_init_inventory_data.js",
+    "js/u_init_inventory_use.js",
+    "js/u_init_inventory.js",
+    "js/u_init.js",
+    "js/uhitm.js",
+    "js/unported_monster_actions.js",
+    "js/unported.js",
+    "js/valley_levels.js",
+    "js/vault.js",
+    "js/version.js",
+    "js/vision.js",
+    "js/weapon.js",
+    "js/were.js",
+    "js/wield.js",
+    "js/windows.js",
+    "js/wintty.js",
+    "js/wizard.js",
+    "js/wizard1_levels.js",
+    "js/wizard2_levels.js",
+    "js/wizcmds.js",
+    "js/worm.js",
+    "js/worn.js",
+    "js/write.js",
+    "js/zap_destroy_items.js",
+    "js/zap.js",
+    "package-lock.json",
+    "package.json",
+    "scripts/challenge-results.mjs",
+    "scripts/score-challenges.mjs",
+    "scripts/scoring-workspace.mjs"
+  ],
+  "cases": [
+    {
+      "id": "scout",
+      "recordingSha256": "ea31e55f9ebc16379cbefe89702881d1f22cf2ced0f8bfef3c133621bfbea6b5",
+      "passed": true,
+      "metrics": {
+        "screens": {
+          "matched": 18,
+          "total": 18
+        },
+        "rng": {
+          "matched": 2502,
+          "total": 2502
+        },
+        "cursors": {
+          "matched": 18,
+          "total": 18
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "journey",
+      "recordingSha256": "3c07e106fe3c51a8899904f75b71a677e32c29f1403055635f6f3908a5548a7d",
+      "passed": true,
+      "metrics": {
+        "screens": {
+          "matched": 57,
+          "total": 57
+        },
+        "rng": {
+          "matched": 6286,
+          "total": 6286
+        },
+        "cursors": {
+          "matched": 57,
+          "total": 57
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "containers",
+      "recordingSha256": "76ec0faa326e56dcba917ce6e819cd4805fea14a91fb09cc2850063002e8a98d",
+      "passed": true,
+      "metrics": {
+        "screens": {
+          "matched": 173,
+          "total": 173
+        },
+        "rng": {
+          "matched": 3106,
+          "total": 3106
+        },
+        "cursors": {
+          "matched": 173,
+          "total": 173
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "knight-jump-return",
+      "recordingSha256": "f9498fc22f1cfc696439daea0dcd28c8c411788982d9f942c1a1fc6c3de3500e",
+      "passed": false,
+      "metrics": {
+        "screens": {
+          "matched": 85,
+          "total": 87
+        },
+        "rng": {
+          "matched": 4126,
+          "total": 4126
+        },
+        "cursors": {
+          "matched": 85,
+          "total": 87
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "food-quiver-history",
+      "recordingSha256": "dd6ec08a74e8b386cba633817515d23e75a29eab26c337a268163db5a61055a5",
+      "passed": true,
+      "metrics": {
+        "screens": {
+          "matched": 50,
+          "total": 50
+        },
+        "rng": {
+          "matched": 2956,
+          "total": 2956
+        },
+        "cursors": {
+          "matched": 50,
+          "total": 50
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "pet-conversations",
+      "recordingSha256": "f2d132f205e01414b634ee694eab39eea9b8c4a88ae03ffefc57e099585cbddb",
+      "passed": true,
+      "metrics": {
+        "screens": {
+          "matched": 113,
+          "total": 113
+        },
+        "rng": {
+          "matched": 4517,
+          "total": 4517
+        },
+        "cursors": {
+          "matched": 113,
+          "total": 113
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "terrain-transitions",
+      "recordingSha256": "5491c8fb94f71fe5a5c56498e2c58b6d736e65b221cf0a39d1895abdd6759ec9",
+      "passed": false,
+      "metrics": {
+        "screens": {
+          "matched": 57,
+          "total": 137
+        },
+        "rng": {
+          "matched": 2784,
+          "total": 3811
+        },
+        "cursors": {
+          "matched": 57,
+          "total": 137
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "monster-transformations",
+      "recordingSha256": "5c7ff94dc1e63dcae559231dbea1843d5206c45d8fdb894d107beed35bff5f6b",
+      "passed": false,
+      "metrics": {
+        "screens": {
+          "matched": 76,
+          "total": 81
+        },
+        "rng": {
+          "matched": 2779,
+          "total": 2779
+        },
+        "cursors": {
+          "matched": 77,
+          "total": 81
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "sustained-journey",
+      "recordingSha256": "b190d330b5177de86ea2c81412de96a1708faf22ff2a769aa1f558b7646a3eea",
+      "passed": false,
+      "metrics": {
+        "screens": {
+          "matched": 187,
+          "total": 202
+        },
+        "rng": {
+          "matched": 9141,
+          "total": 10396
+        },
+        "cursors": {
+          "matched": 187,
+          "total": 202
+        }
+      },
+      "error": null
+    }
+  ],
+  "totals": {
+    "sessions": {
+      "matched": 5,
+      "total": 9
+    },
+    "screens": {
+      "matched": 816,
+      "total": 918
+    },
+    "rng": {
+      "matched": 38197,
+      "total": 40479
+    },
+    "cursors": {
+      "matched": 817,
+      "total": 918
+    }
+  }
+}
