@@ -1,0 +1,11 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 90525078,
+      "datetime": "20420530143000",
+      "nethackrc": "OPTIONS=name:Scouthealer-wand-striking,role:Healer,race:human,gender:female,align:neutral,playmode:debug,!legacy,!tutorial,!splash_screen,showexp,time\n",
+      "moves": "\u0017uncursed wand of striking\n\u0007grid bug\nzlk zlhzlh"
+    }
+  ]
+}

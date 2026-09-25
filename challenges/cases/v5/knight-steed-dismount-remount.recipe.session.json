@@ -1,0 +1,11 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 90525071,
+      "datetime": "20370914090000",
+      "nethackrc": "OPTIONS=name:Scoutknight-steed-dismoun,role:Knight,race:human,gender:female,align:lawful,!legacy,!tutorial,!splash_screen,showexp,time\n",
+      "moves": " #ride\nl#ride\n#ride\nljj#ride\n\u001b"
+    }
+  ]
+}
