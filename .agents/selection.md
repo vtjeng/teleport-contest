@@ -104,7 +104,8 @@ any remaining work. Keep a goal parked when it still has independent work.
 
 Use `node scripts/goal-log.mjs roadmap` to trace dependencies and choose
 under-exercised behavior for new synthetic missions. An empty fixed queue
-selects synthetic work; exhausting synthetic screens selects batch generation.
+selects synthetic work; a shortage of independently assignable tasks selects
+batch preparation or admission under the rule below.
 Do not fall back to unrelated source ports merely because a queue is empty.
 Whole-source completion and caller evidence remain required for every port.
 
@@ -116,6 +117,20 @@ unaccepted preparation task at a time, and resume a parked batch before
 starting a later version. Accepted batches may wait for admission while the
 worker prepares another. Preparation does not require the current
 batch to match.
+
+After each current evaluation and worker handoff, count the independently
+assignable, source-traced implementation tasks in the combined work queue.
+Count a completed, valid investigation only when its source functions and
+shared-state contracts are free of ledger reservations and pending deliveries.
+Count overlapping investigations as one task, even when several sessions point
+to them. Do not count a raw session, an unresolved source owner, or a task
+already assigned to a worker as another available task. Keep background
+investigations running for unmatched sessions that are not yet source-traced.
+Let `implementationSlots` be the number of workers that can take implementation
+tasks next, normally two and at most three. Request or resume preparation when
+the assignable task count falls below `implementationSlots + 1`; keep the one
+unaccepted preparation-task limit. This gives preparation a chance to finish
+before an implementation worker runs out of work.
 
 Plan a small batch of independent missions before inspecting their JavaScript
 results. Use C source and coverage gaps to vary behavior families, action
@@ -138,18 +153,26 @@ admission, the cases do not enter synthetic scoring, the mismatch queue, or
 the dashboard.
 
 Admit the oldest prepared batch when current, complete evaluations of every
-admitted batch show zero unmatched screens. Prepare a batch if none is ready.
-Blocked or uninvestigated failures, unavailable results, and stale evaluations
-do not pass this gate. Keep outstanding RNG or cursor defects visible across
-the transition. Preserve `v1` at `challenges/manifest.json`; admit later
+admitted batch show zero unmatched screens, or when the assignable task count
+falls below `implementationSlots`. Prepare a batch if none is ready. Early
+admission uses the same fresh, complete evaluations and passing fixed-workload
+checkpoint as admission at screen parity. Missing, failed, or stale evaluations
+block both paths. Continue investigating and scheduling older unmatched cases;
+admission does not close or suppress them. Keep outstanding RNG or cursor
+defects visible across the transition. Preserve `v1` at
+`challenges/manifest.json`; admit later
 batches in version order under new manifests, starting with `v2`. Never replace
 or extend an admitted batch.
 
 After a passing HEAD checkpoint, run
 `node scripts/admit-challenge-batch.mjs --delivery <accepted-packet.json>`.
 The command reads the prepared manifest from the immutable delivery packet,
-checks screen parity, input hashes, recipe/recording consistency, and the next
-version number before creating the admitted manifest. It does not filter cases
+checks the evaluation gate, input hashes, recipe/recording consistency, and the
+next version number before creating the admitted manifest. For early admission
+with unmatched screens, append `--ready-tasks <count> --implementation-slots
+<count>` using the count above, and record that count and the ledger
+reservations in the integration handoff. The command requires the ready-task
+count to be lower than the implementation-slot count. It does not filter cases
 by JavaScript results. Commit the manifest and save the batch's first
 evaluation at that committed implementation before selecting its failures.
 Publish that baseline and resume selection from admitted cases. If the batch

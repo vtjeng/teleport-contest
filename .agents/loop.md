@@ -7,9 +7,10 @@ in `.claude/agents/span-worker.md`.
 ## Operating mode
 
 Climb the synthetic local holdout by fixing its source-traced mismatches while
-preserving accepted fixed-workload and regression-recording matches. When a
-current, complete evaluation contains no unmatched synthetic screens, generate
-and baseline a new versioned batch, then continue on its failures. Follow
+preserving accepted fixed-workload and regression-recording matches. Prepare a
+new versioned batch as assignable work runs low; admit and baseline the oldest
+prepared batch at screen parity or when implementation workers would otherwise
+run short of independent tasks. Follow
 `.agents/selection.md` for priority, batch generation, and required tooling
 support; `.agents/scoring.md` owns measurement and historical comparisons.
 An empty fixed-workload queue does not mean there is no implementation work.
@@ -87,6 +88,16 @@ batch or switch to implementation while earlier batches wait for admission.
 Keep each prepared manifest with its immutable delivery evidence. Merge
 accepted main at the clean task boundary before the next task so its delivery
 does not include pending work.
+
+At each handoff, use the current combined queue, investigations, and ledger
+reservations to count independently assignable source tasks as
+`.agents/selection.md` specifies. When that count falls below one more than
+the number of implementation-capable workers, request the next batch from the
+preparation worker if no preparation is in progress. When the count falls
+below the implementation worker count and a batch is ready, integrate and
+admit the oldest prepared batch after the required validation and evaluation
+gates. Continue assigning fixes from older batches by the normal priority
+rules; the new batch adds work without displacing those mismatches.
 
 Before waiting and after a completion, run `worker-state.mjs next`. Handle
 unread deliveries and finished worker turns first. Record a finished turn
@@ -168,7 +179,7 @@ separately from other goals.
    `.agents/validation.md` for new evidence when later commits change inputs
    to the checkpoint. After a challenge preparation task passes, leave its
    case files unadmitted and record no challenge score or mismatch-queue entry.
-   When the batch-generation gate in `.agents/selection.md` later passes, admit
+   When the batch-admission gate in `.agents/selection.md` later passes, admit
    the oldest prepared manifest with the next version number, commit it, and
    save its first evaluation at that committed implementation before selecting
    failures. Do not admit a batch merely because its worker has finished.
@@ -281,6 +292,6 @@ scratch file, and report processes still owned. Do not label unfinished work
 complete. Skip new investigations when current work completes a bounded goal.
 
 During an unbounded run, stop only under `AGENTS.md`'s stop conditions.
-Exhausting the current synthetic mismatches triggers batch generation, not
-roadmap-only implementation or a request for another goal. A progress report
+Exhausting the current synthetic mismatches triggers batch admission or
+preparation, not roadmap-only implementation or a request for another goal. A progress report
 or low context is not a reason to stop.
