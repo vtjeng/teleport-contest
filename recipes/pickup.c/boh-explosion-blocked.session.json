@@ -1,0 +1,10 @@
+{
+  "version": 5,
+  "_comment": "BLOCKED: pickup.c do_boh_explosion() remains skipped at its discarded-result callers in in_container() and tipcontainer(). This independently chosen setup attempts to insert one wished Bag of Holding into another via #loot, but the recorder's Put in what? menu exposes only the food ration; this input sequence does not reach either explosion call. Keep it as an explicit source dependency probe, not as matching entry-point evidence.",
+  "segments": [{
+    "seed": 19760926,
+    "datetime": "20060926142700",
+    "nethackrc": "OPTIONS=name:BagGap,role:Wizard,race:human,gender:male,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen\nOPTIONS=playmode:debug,pettype:none,!acoustics\n",
+    "moves": "  #wizwish\nbag of holding\n#wizwish\nbag of holding\n#wizwish\nfood ration\ndo#loot\nia\npy"
+  }]
+}

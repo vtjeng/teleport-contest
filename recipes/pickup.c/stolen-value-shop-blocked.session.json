@@ -1,0 +1,10 @@
+{
+  "version": 5,
+  "_comment": "BLOCKED: shk.c stolen_value() is reached from pickup.c mbag_item_gone() only when a cursed magic bag loses an unpaid object (held case) or an object on a costly shop square (floor case). This independently chosen wizard setup creates a cursed bag and merchandise, but it cannot establish shop ownership or a live bill without reaching a generated shop; matching play here cannot establish stolen_value() coverage. Keep this recipe until an independently selected generated-shop setup supplies a billed object.",
+  "segments": [{
+    "seed": 19760925,
+    "datetime": "20060925142600",
+    "nethackrc": "OPTIONS=name:ShopBlocked,role:Wizard,race:human,gender:male,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen\nOPTIONS=playmode:debug,pettype:none,!acoustics\n",
+    "moves": "  #wizwish\ncursed bag of holding\n#wizwish\nfood ration\n#wizwish\npotion of water\n#wizwish\nspellbook of force bolt\n"
+  }]
+}

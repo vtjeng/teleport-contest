@@ -1,0 +1,10 @@
+{
+  "version": 5,
+  "_comment": "Independent IA_TIP_CONTAINER entry-point recording. A newly wished bag is selected from the inventory command (invent.c ddoinv -> dispinv_with_action -> iactions.c itemactions), then T queues do_reqmenu, dotip, and the selected inventory letter. Seed and datetime were independently chosen for this context-action path.",
+  "segments": [{
+    "seed": 19760927,
+    "datetime": "20060927142800",
+    "nethackrc": "OPTIONS=name:TipActionProbe,role:Wizard,race:human,gender:male,align:neutral\nOPTIONS=menustyle:traditional,!legacy,!tutorial,!splash_screen,playmode:debug,pettype:none,!acoustics\n",
+    "moves": "  #wizwish\nbag of holding\nioT"
+  }]
+}

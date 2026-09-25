@@ -25,11 +25,13 @@ import {
     CONFUSION,
     ECMD_OK,
     ECMD_TIME,
+    ECMD_CANCEL,
     EXT_ENCUMBER,
     FOOT,
     HALLUC,
     IS_ALTAR,
     GETOBJ_ALLOWCNT,
+    GETOBJ_DOWNPLAY,
     GETOBJ_EXCLUDE,
     GETOBJ_EXCLUDE_SELECTABLE,
     GETOBJ_PROMPT,
@@ -39,6 +41,7 @@ import {
     HAND,
     HVY_ENCUMBER,
     ICE,
+    KILLED_BY_AN,
     INCLUDE_HERO,
     INCLUDE_VENOM,
     INVORDER_SORT,
@@ -46,6 +49,7 @@ import {
     LOOKHERE_NOFLAGS,
     LOOKHERE_PICKED_SOME,
     LOOKHERE_SKIP_DFEATURE,
+    LL_ACHIEVE,
     LOST_DROPPED,
     LOST_EXPLODING,
     LOST_STOLEN,
@@ -67,6 +71,7 @@ import {
     PARANOID_AUTOALL,
     PLNMSG_BACK_ON_GROUND,
     PLNMSG_OBJNAM_ONLY,
+    nothing_happens,
     SIGNAL_NOMENU,
     SIGNAL_ESCAPE,
     SHOPBASE,
@@ -117,6 +122,7 @@ import { upstart } from './hacklib.js';
 import {
     calc_capacity,
     check_capacity,
+    losehp,
     inv_cnt,
     inv_weight,
     max_capacity,
@@ -131,6 +137,7 @@ import {
     freeinv,
     carrying,
     currency,
+    consume_obj_charge,
     count_unpaid,
     tally_BUCX,
     dfeature_at,
@@ -140,7 +147,9 @@ import {
     look_here,
     money_cnt,
     nxtobj,
+    obj_here,
     obj_extract_self,
+    obfree,
     preflight_addinv_sequence,
     preflight_look_here,
     prinv,
@@ -148,6 +157,8 @@ import {
     ckvalidcat,
     askchain,
     update_inventory,
+    useupf,
+    useup,
     will_feel_cockatrice,
 } from './invent.js';
 import {
@@ -156,7 +167,7 @@ import {
 } from './mondata.js';
 import { m_at } from './monst.js';
 import {
-    carried, hasContents, hornoplenty, isBox, isContainer, obj_no_longer_held,
+    carried, hasContents, hornoplenty, isBox, isCandle, isContainer, obj_no_longer_held,
     remove_object, set_bknown, set_corpsenm, splitobj, unsplitobj, weight,
 } from './obj.js';
 import { canSpotMonster } from './startup_a11y.js';
@@ -170,20 +181,23 @@ import { in_rooms } from './rooms.js';
 import { rn2 } from './rng.js';
 import {
     AMULET_OF_YENDOR, BAG_OF_HOLDING, BAG_OF_TRICKS, BELL_OF_OPENING, BOULDER,
-    CANDELABRUM_OF_INVOCATION, COIN_CLASS, CORPSE, GOLD_PIECE,
-    HORN_OF_PLENTY, ICE_BOX, LARGE_BOX, LEASH, LOADSTONE,
-    SCR_SCARE_MONSTER, SPE_BOOK_OF_THE_DEAD, STATUE, VENOM_CLASS,
+    CANDELABRUM_OF_INVOCATION, CAN_OF_GREASE, COIN_CLASS, CORPSE,
+    CRAM_RATION, FOOD_RATION, GOLD_PIECE, HORN_OF_PLENTY, ICE_BOX,
+    LARGE_BOX, LEMBAS_WAFER, LEASH, LOADSTONE, MAGIC_LAMP, OIL_LAMP,
+    POTION_CLASS, POT_OIL, SCR_SCARE_MONSTER, SPE_BOOK_OF_THE_DEAD,
+    STATUE, VENOM_CLASS,
+    WAN_CANCELLATION,
 } from './objects.js';
 import { PM_HOUSECAT } from './monsters.js';
 import {
-    an, ansimpleoname, Tobjnam, Yname2, Ysimple_name2, assertObjectNameable,
+    an, ansimpleoname, Doname2, Tobjnam, Yname2, Ysimple_name2, assertObjectNameable,
     donameFresh, doname_with_price, otense, safe_qbuf, the, The, thesimpleoname,
-    xnameFresh, yname, ysimple_name,
+    vtense, xnameFresh, yname, ysimple_name,
 } from './objnam.js';
 import { body_part } from './polyself.js';
 import {
-    addtobill, check_unpaid_usage, costly_spot, pick_pick, remote_burglary,
-    sellobj_state,
+    addtobill, costly_spot, pick_pick, remote_burglary,
+    sellobj_state, shop_keeper, shk_your, stolen_value, subfrombill,
 } from './shk.js';
 import { menuTitleStyle } from './tty_menu.js';
 import { waterbody_name } from './pager.js';
@@ -191,15 +205,20 @@ import {
     back_on_ground, is_lava, is_pool, t_at, chest_trap, unconscious,
     uescaped_shaft, uteetering_at_seen_pit,
 } from './trap.js';
-import { clearTtyMessageWindow, ttyNorep, ttyPline } from './tty_message.js';
+import {
+    clearTtyMessageWindow, ttyNorep, ttyPline, ttyUrgentPline,
+} from './tty_message.js';
 import {
     add_menu, add_menu_heading, getlin, select_menu,
 } from './windows.js';
 import { touch_artifact } from './artifacts.js';
+import { livelog_printf } from './pline.js';
+import { tiphat } from './sounds.js';
 import { setwornEnv } from './do_wear.js';
 import { welded } from './wield.js';
 import { setuqwep, setuswapwep, setuwep } from './worn.js';
 import { note_unported } from './unported.js';
+import { d } from './rng.js';
 
 const INCREASED_BURDEN_MESSAGES = Object.freeze([
     null,
@@ -1958,11 +1977,28 @@ async function in_or_out_menu(
     return choice ?? defaultChoice;
 }
 
+// C ref: pickup.c:2537-2554. boh_loss(). A cursed magic bag occasionally
+// destroys each contained object and accumulates its shop loss for the caller.
+async function boh_loss(container, held, state) {
+    if (!isMbag(container) || !container.cursed || !hasContents(container))
+        return 0;
+    let loss = 0;
+    for (let current = container.cobj; current;) {
+        const next = current.nobj;
+        if (is_boh_item_gone(state)) {
+            obj_extract_self(current, { state });
+            loss += await mbag_item_gone(held, current, false, state);
+        }
+        current = next;
+    }
+    return loss;
+}
+
 // sellobj_state containerdone cleanup.
 //
 // Not covered: 'o'/'i'/'b'/'r'/'s' (item transfer), otrapped/chest_trap,
-// cursed bag of holding loss, SchroedingersBox/observe_quantum_cat. All
-// refuse with UnsupportedPickupError.
+// and SchroedingersBox/observe_quantum_cat. Those branches keep their named
+// source boundaries.
 export async function use_container(obj, held, more_containers, state) {
     state.ga ??= {};
     state.ga.abort_looting = false;
@@ -2013,9 +2049,18 @@ export async function use_container(obj, held, more_containers, state) {
     // Cursed bag of holding.
     const cursed_mbag = isMbag(obj) && obj.cursed && hasContents(obj);
     if (cursed_mbag) {
-        throw new UnsupportedPickupError(
-            'use_container: cursed bag of holding (boh_loss)',
-        );
+        const loss = await boh_loss(state.gc.current_container, held, state);
+        if (loss) {
+            used = ECMD_TIME;
+            await ttyPline(
+                `You owe ${loss} ${currency(loss, state)} `
+                + 'for lost merchandise.',
+                state,
+            );
+            state.gc.current_container.owt = weight(
+                state.gc.current_container, { state },
+            );
+        }
     }
 
     // Might put something in if carrying anything besides the container.
@@ -2024,11 +2069,10 @@ export async function use_container(obj, held, more_containers, state) {
             || state.invent.nobj));
     // Might take something out if container is not empty.
     const outokay = hasContents(state.gc.current_container);
-    // C ref: pickup.c:3042-3045.  Preformat the empty-container message when
-    // the container has nothing inside.  quantum_cat and cursed_mbag have
-    // already thrown, so the "now " qualifier never applies here.
+    // C ref: pickup.c:3042-3045. Preformat the empty-container message.
     const emptymsg = !outokay
-        ? `${Ysimple_name2(state.gc.current_container, state)} is empty.`
+        ? `${Ysimple_name2(state.gc.current_container, state)} is `
+            + `${quantum_cat || cursed_mbag ? 'now ' : ''}empty.`
         : '';
     // The for(;;) prompt loop.
     let c;
@@ -2223,9 +2267,74 @@ export async function use_container(obj, held, more_containers, state) {
     return used;
 }
 
-// C ref: obj.h Is_mbag(). True for a bag of holding (the only magic bag).
+// C ref: obj.h Is_mbag(). Both bags of holding and bags of tricks are magic
+// bags; pickup.c uses this predicate for both the #loot and #tip paths.
 function isMbag(obj) {
-    return obj.otyp === BAG_OF_HOLDING;
+    return obj.otyp === BAG_OF_HOLDING || obj.otyp === BAG_OF_TRICKS;
+}
+
+// C ref: pickup.c mbag_explodes() (2488-2506). A charged cancellation wand
+// or nonempty magic bag can explode at a depth-dependent chance. The recursive
+// walk spends no random calls after its first positive result.
+function mbag_explodes(obj, depthin, state = game) {
+    if ((obj.otyp === WAN_CANCELLATION || obj.otyp === BAG_OF_TRICKS)
+        && obj.spe <= 0) {
+        return false;
+    }
+    if ((isMbag(obj) || obj.otyp === WAN_CANCELLATION)
+        && rn2(1 << Math.min(depthin, 7), state) <= depthin) {
+        return true;
+    }
+    if (hasContents(obj)) {
+        for (let otmp = obj.cobj; otmp; otmp = otmp.nobj) {
+            if (mbag_explodes(otmp, depthin + 1, state)) return true;
+        }
+    }
+    return false;
+}
+
+// C ref: pickup.c is_boh_item_gone() (2510-2514). Used by cursed magic bags
+// and bags that explode; the one-in-thirteen roll is kept at each call site.
+function is_boh_item_gone(state = game) {
+    return !rn2(13, state);
+}
+
+// C ref: pickup.c mbag_item_gone() (2803-2828). Delete one lost object and
+// return any shop loss that the owning caller now owes. C's shop valuation
+// result is consumed by tipcontainer(), so this awaits the full shk.c port.
+async function mbag_item_gone(held, item, silent, state) {
+    let loss = 0;
+    if (!silent) {
+        if (item.dknown) {
+            await ttyPline(
+                `${Doname2(item, state)} ${otense(item, 'have')} vanished!`,
+                state,
+            );
+        } else {
+            await ttyPline(
+                `You ${heroIsBlind(state) ? 'notice' : 'see'} `
+                + `${donameFresh(item, state)} disappear!`,
+                state,
+            );
+        }
+    }
+    const shops = state.u?.ushops;
+    if (shops?.[0]) {
+        const shkp = shop_keeper(shops[0], state);
+        if (shkp && (held ? item.unpaid
+            : costly_spot(state.u.ux, state.u.uy, state))) {
+            loss = await stolen_value(
+                item,
+                state.u.ux,
+                state.u.uy,
+                Boolean(shkp.mpeaceful),
+                true,
+                state,
+            );
+        }
+    }
+    obfree(item, null, { state });
+    return loss;
 }
 
 // C ref: pickup.c:2202-2209. The Confusion branch calls reverse_loot(),
@@ -2652,9 +2761,8 @@ async function lift_object(obj, container, cnt_p, telekinesis, state) {
 
 // C ref: pickup.c:2558-2712. in_container().
 // Returns: 1 item was put in, 0 item was not put in, -1 stop.
-// Unported sub-paths guarded fail-closed: obj_is_burning/snuff_lit,
-// shop-floor billing (sellobj), icebox age handling, bag-of-holding
-// explosion (mbag_explodes/do_boh_explosion).
+// obj_is_burning/snuff_lit, shop-floor billing (sellobj), and icebox age
+// handling remain guarded at their source sites.
 async function in_container(obj, state) {
     if (!state.gc.current_container) {
         throw new Error('<in> no gc.current_container?');
@@ -2725,8 +2833,6 @@ async function in_container(obj, state) {
     }
 
     // --- Fail-closed guards for unported sub-paths ---
-    // These guards are placed before freeinv() so the item stays in
-    // inventory on an unported path.
     if (obj.lamplit) {
         // obj_is_burning / snuff_lit (C: 2626-2627).
         throw new UnsupportedPickupError(
@@ -2742,16 +2848,50 @@ async function in_container(obj, state) {
         throw new UnsupportedPickupError(
             'in_container: icebox age handling');
     }
-    if (isMbag(state.gc.current_container)) {
-        // Bag-of-holding explosion (C: 2658-2694).
-        throw new UnsupportedPickupError(
-            'in_container: bag of holding (mbag_explodes)');
-    }
-
     freeinv(obj, { state });
 
-    // gc.current_container is always intact here: the bag-of-holding
-    // explosion path (the only one that clears it) is guarded above.
+    // pickup.c:2658-2694. Test every inserted item before linking it into
+    // the bag. The discarded do_boh_explosion() calls remain named gaps.
+    if (isMbag(state.gc.current_container)
+        && mbag_explodes(obj, 0, state)) {
+        livelog_printf(
+            LL_ACHIEVE,
+            'just blew up your bag of holding',
+            state,
+        );
+        await ttyUrgentPline(
+            `As you put ${donameFresh(obj, state)} inside, `
+            + 'you are blasted by a magical explosion!',
+            state,
+        );
+        if (obj.otyp === BAG_OF_HOLDING)
+            note_unported('pickup.c do_boh_explosion');
+        obfree(obj, null, { state });
+        note_unported('pickup.c do_boh_explosion');
+        if (!floor_container) {
+            await useup(state.gc.current_container, { state });
+        } else if (obj_here(
+            state.gc.current_container,
+            state.gc.current_container.ox,
+            state.gc.current_container.oy,
+            state,
+        )) {
+            await useupf(
+                state.gc.current_container,
+                state.gc.current_container.quan,
+                { state },
+            );
+        } else {
+            throw new Error('in_container: bag not found');
+        }
+        await losehp(d(6, 6), 'magical explosion', KILLED_BY_AN, state);
+        state.gc.current_container = null;
+        await bot();
+        return -1;
+    }
+
+    // gc.current_container is intact unless the source explosion path above
+    // consumed it.
     const contName = the(xnameFresh(state.gc.current_container, state));
     await ttyPline(
         `You put ${donameFresh(obj, state)} into ${contName}.`, state);
@@ -3358,11 +3498,6 @@ async function tipcontainer_gettarget(box, state) {
 
 // C ref: pickup.c tipcontainer_checks() (3953-4055). Returns TIPCHECK_OK
 // when the box can be tipped, a non-zero TIPCHECK code otherwise.
-//
-// Handles: lknown discovery (3972-3976), locked message (3978-3980), the
-// charged bag/horn loop (3993-4032), and empty container message
-// (4047-4050). Locked, trapped, shop billing, and Schrodinger branches still
-// stop at their own source subsystem boundaries.
 async function tipcontainer_checks(box, targetbox, allowempty, state) {
     // pickup.c:3962-3967. Undiscovered bag of tricks as destination:
     // apply it once before trying to tip source box.
@@ -3399,8 +3534,6 @@ async function tipcontainer_checks(box, targetbox, allowempty, state) {
     }
 
     // pickup.c:3993-4032. Bag of tricks or horn of plenty tipping loop.
-    // The source handles shop billing around this loop; leave that boundary
-    // before mutating a floor-owned box while carried containers proceed.
     if (box.otyp === BAG_OF_TRICKS || box.otyp === HORN_OF_PLENTY) {
         if (targetbox
             && (await tipcontainer_checks(targetbox, null, true, state))
@@ -3414,20 +3547,19 @@ async function tipcontainer_checks(box, targetbox, allowempty, state) {
         }
         const maybeshopgoods = !carried(box)
             && costly_spot(box.ox, box.oy, state);
-        if (maybeshopgoods && !box.no_charge) {
-            throw new UnsupportedPickupError(
-                'tipcontainer_checks: shop addtobill/subfrombill',
-            );
-        }
+        if (maybeshopgoods && !box.no_charge)
+            await addtobill(box, false, false, true, state);
 
         const oldSpe = box.spe;
         let totalSeen = 0;
         do {
             if (box.otyp === BAG_OF_TRICKS) {
                 const result = await bagotricks(box, true, state);
+                if (!result.moncount) break;
                 totalSeen += result.seecount;
             } else {
-                await hornoplenty(box, true, targetbox, { state });
+                if (!await hornoplenty(box, true, targetbox, { state }))
+                    break;
             }
         } while (box.spe > 0);
 
@@ -3437,18 +3569,31 @@ async function tipcontainer_checks(box, targetbox, allowempty, state) {
             // C restores the count while checking the eventual shop charge,
             // then marks the container empty.
             box.spe = oldSpe;
-            check_unpaid_usage(box, true, state);
+            // The C check_unpaid_usage() call is a no-op unless its source
+            // guard reaches the still-unported billing behavior.
+            if (box.unpaid && state.u?.ushops?.[0]
+                && !(box.spe <= 0
+                    && state.objects[box.otyp].oc_charged)) {
+                note_unported('shk.c check_unpaid_usage');
+            }
             box.spe = 0;
             box.cknown = 1;
+        }
+        if (maybeshopgoods && !box.no_charge) {
+            const roomno = in_rooms(box.ox, box.oy, SHOPBASE, state)[0] ?? 0;
+            subfrombill(box, shop_keeper(roomno, state), state);
         }
         return TIPCHECK_CANNOT;
     }
 
     // pickup.c:4034-4045. Schrodinger's box.
     if (box.otyp === LARGE_BOX && box.spe === 1) {
-        throw new UnsupportedPickupError(
-            'tipcontainer_checks: Schrodinger box (observe_quantum_cat)',
-        );
+        note_unported('pickup.c observe_quantum_cat');
+        if (!hasContents(box))
+            await ttyPline(`${shk_your(box, state)}box is now empty.`, state);
+        box.cknown = 1;
+        return hasContents(box) || allowempty
+            ? TIPCHECK_OK : TIPCHECK_EMPTY;
     }
 
     // pickup.c:4047-4050. Empty container.
@@ -3464,18 +3609,12 @@ async function tipcontainer_checks(box, targetbox, allowempty, state) {
     return TIPCHECK_OK;
 }
 
-// C ref: pickup.c tipcontainer() (3688-3841). Tips the contents of a
-// container onto the floor (or into another container).
-//
-// Covers the floor-spill path with terse and non-terse formatting.
-// Container-to-container tipping, ICE_BOX handling (removed_from_icebox),
-// cursed bag of holding item loss, shop billing (addtobill), hitfloor(),
-// and doaltarobj() throw because their helpers are unported.
+// C ref: pickup.c tipcontainer() (3688-3841). Tips a container onto the
+// floor or into another carried container. Calls to unported void helpers
+// are recorded at the call site and skipped.
 async function tipcontainer(box, state) {
     let ox = state.u.ux;
     let oy = state.u.uy;
-
-    // pickup.c:3698-3699. Update box coordinates.
     const location = get_obj_location(box, 0, state);
     if (location) {
         ox = location.x;
@@ -3484,60 +3623,42 @@ async function tipcontainer(box, state) {
         box.oy = oy;
     }
 
-    // pickup.c:3706-3708. Ask where to tip.
-    const { target: targetbox, cancelled } =
+    let { target: targetbox, cancelled } =
         await tipcontainer_gettarget(box, state);
     if (cancelled) return;
 
-    if (targetbox) {
-        // Container-to-container tipping requires add_to_container with
-        // bag-of-holding explosion handling, which is unported.
-        throw new UnsupportedPickupError(
-            'tipcontainer: container-to-container tipping',
-        );
-    }
-
-    // pickup.c:3722. Shop goods flag.
-    const srcheld = carried(box);
-    const maybeshopgoods = !srcheld
+    const maybeshopgoods = !carried(box)
         && costly_spot(box.ox, box.oy, state);
+    if (await tipcontainer_checks(box, targetbox, false, state)
+        !== TIPCHECK_OK) return;
+    if (targetbox
+        && await tipcontainer_checks(targetbox, null, true, state)
+            !== TIPCHECK_OK) return;
 
-    // pickup.c:3724-3728. Run checks on the source box.
-    if ((await tipcontainer_checks(box, targetbox, false, state))
-        !== TIPCHECK_OK) {
-        return;
-    }
-    // targetbox is null (floor), so the second check at 3726-3728 is
-    // skipped.
-
-    // pickup.c:3730-3741. Determine formatting flags.
-    const highdrop = !can_reach_floor(true, state);
-    const altarizing = IS_ALTAR(state.level.at(ox, oy).typ);
-    const cursed_mbag =
-        (box.otyp === BAG_OF_HOLDING || box.otyp === BAG_OF_TRICKS)
-        && box.cursed;
-
-    if (state.u?.uswallow) {
-        throw new UnsupportedPickupError(
-            'tipcontainer: hero is swallowed',
-        );
-    }
-
+    const srcheld = carried(box);
+    const dstheld = Boolean(targetbox && carried(targetbox));
+    let highdrop = !can_reach_floor(true, state);
+    let altarizing = IS_ALTAR(state.level.at(ox, oy).typ);
+    const cursed_mbag = isMbag(box) && box.cursed;
+    if (state.u.uswallow) highdrop = altarizing = false;
     let terse = !(highdrop || altarizing
         || costly_spot(box.ox, box.oy, state));
     box.cknown = 1;
 
-    // pickup.c:3752-3755. Spill header.
-    const multipleItems = Boolean(box.cobj?.nobj);
-    await ttyPline(
-        `${multipleItems ? 'Objects spill' : 'An object spills'}`
-        + ` out${terse ? ':' : '.'}`,
-        state,
-    );
+    if (targetbox) {
+        await ttyPline(
+            `${box.cobj?.nobj ? 'Objects tumble' : 'An object tumbles'} `
+            + `into ${the(xnameFresh(targetbox, state), state)}.`,
+            state,
+        );
+    } else {
+        await ttyPline(
+            `${box.cobj?.nobj ? 'Objects spill' : 'An object spills'} `
+            + `out${terse ? ':' : '.'}`,
+            state,
+        );
+    }
 
-    // Build the drop-chain environment for dropy(). The hooks match
-    // do.c dropCommandEnv(): newsym for map updates, encumber_msg for
-    // burden, and extractExternalObject for stackobj() merge absorption.
     const tipDropEnv = {
         state,
         hooks: {
@@ -3546,8 +3667,7 @@ async function tipcontainer(box, state) {
             newsym,
         },
     };
-
-    // pickup.c:3757-3829. Spill each item.
+    let loss = 0;
     let nobj;
     for (let otmp = box.cobj; otmp; otmp = nobj) {
         nobj = otmp.nobj;
@@ -3555,90 +3675,154 @@ async function tipcontainer(box, state) {
         otmp.ox = box.ox;
         otmp.oy = box.oy;
 
-        // pickup.c:3762-3763. ICE_BOX corpse thawing.
         if (box.otyp === ICE_BOX) {
-            throw new UnsupportedPickupError(
-                'tipcontainer: ICE_BOX (removed_from_icebox)',
-            );
-        }
-        // pickup.c:3764-3769. Cursed bag of holding item loss.
-        if (cursed_mbag) {
-            throw new UnsupportedPickupError(
-                'tipcontainer: cursed bag of holding item loss',
-            );
-        }
-        // pickup.c:3770-3773. Shop billing.
-        if (maybeshopgoods) {
-            throw new UnsupportedPickupError(
-                'tipcontainer: shop goods (addtobill)',
-            );
-        }
-
-        // pickup.c:3807-3811. Unreachable floor.
-        if (highdrop) {
-            throw new UnsupportedPickupError(
-                'tipcontainer: hitfloor() from unreachable floor',
-            );
-        }
-        // pickup.c:3812-3813. Altar.
-        if (altarizing) {
-            throw new UnsupportedPickupError(
-                'tipcontainer: doaltarobj()',
-            );
-        }
-
-        // pickup.c:3814-3825. Print the item and drop it.
-        if (!terse) {
-            // pickup.c:3815-3816. Verbose per-item message.
-            await ttyPline(
-                `${upstart(donameFresh(otmp, state))} `
-                + `${otense(otmp, 'drop')} to the `
-                + `${surface(ox, oy, state)}.`,
-                state,
-            );
-        } else {
-            // pickup.c:3818-3819. Terse comma-separated list.
-            await ttyPline(
-                `${donameFresh(otmp, state)}${nobj ? ',' : '.'}`,
-                state,
-            );
-            state.iflags.last_msg = PLNMSG_OBJNAM_ONLY;
-        }
-        otmp.how_lost = LOST_DROPPED;
-        await dropy(otmp, tipDropEnv);
-        // pickup.c:3823-3824. Detect if dropy() interrupted terse
-        // formatting by emitting its own message.
-        if (state.iflags.last_msg !== PLNMSG_OBJNAM_ONLY)
+            note_unported('pickup.c removed_from_icebox');
+        } else if (cursed_mbag && is_boh_item_gone(state)) {
+            loss += await mbag_item_gone(srcheld, otmp, false, state);
             terse = false;
+            continue;
+        }
+        if (maybeshopgoods) {
+            await addtobill(otmp, false, false, true, state);
+            state.iflags.suppress_price = (state.iflags.suppress_price ?? 0) + 1;
+        }
+
+        if (targetbox) {
+            if (isMbag(targetbox) && mbag_explodes(otmp, 0, state)) {
+                livelog_printf(
+                    LL_ACHIEVE,
+                    `just blew up your bag of holding via tipping`,
+                    state,
+                );
+                await ttyUrgentPline(
+                    `As ${donameFresh(otmp, state)} `
+                    + `${otense(otmp, 'tumble')} inside, you are blasted `
+                    + `by a magical explosion!`,
+                    state,
+                );
+                if (otmp.otyp === BAG_OF_HOLDING)
+                    note_unported('pickup.c do_boh_explosion');
+                obfree(otmp, null, { state });
+                // C discards do_boh_explosion(targetbox, !dstheld).
+                note_unported('pickup.c do_boh_explosion');
+                if (dstheld) await useup(targetbox, { state });
+                else await useupf(targetbox, targetbox.quan, { state });
+                targetbox = null;
+                nobj = null;
+                await losehp(d(6, 6), 'magical explosion', KILLED_BY_AN, state);
+            } else {
+                add_to_container(targetbox, otmp, { state });
+            }
+        } else if (highdrop) {
+            otmp.how_lost = LOST_DROPPED;
+            note_unported('do.c hitfloor');
+        } else {
+            if (altarizing) {
+                note_unported('pray.c doaltarobj');
+            } else if (!terse) {
+                await ttyPline(
+                    `${upstart(donameFresh(otmp, state))} `
+                    + `${otense(otmp, 'drop')} to the `
+                    + `${surface(ox, oy, state)}.`,
+                    state,
+                );
+            } else {
+                await ttyPline(
+                    `${donameFresh(otmp, state)}${nobj ? ',' : '.'}`,
+                    state,
+                );
+                state.iflags.last_msg = PLNMSG_OBJNAM_ONLY;
+            }
+            otmp.how_lost = LOST_DROPPED;
+            await dropy(otmp, tipDropEnv);
+            if (state.iflags.last_msg !== PLNMSG_OBJNAM_ONLY)
+                terse = false;
+        }
+        if (maybeshopgoods) state.iflags.suppress_price -= 1;
     }
 
-    // pickup.c:3832-3837. Update weights and encumbrance.
+    if (loss)
+        await ttyPline(
+            `You owe ${loss} ${currency(loss, state)} for lost merchandise.`,
+            state,
+        );
     box.owt = weight(box);
-    if (srcheld) {
-        await encumber_msg(state);
-        update_inventory({ state });
-    }
+    if (targetbox) targetbox.owt = weight(targetbox);
+    if (srcheld || dstheld) await encumber_msg(state);
+    if (srcheld || dstheld) update_inventory({ state });
 }
 
 // C ref: hack.h:1330.  ynq(query) = yn_function(query, ynqchars, 'q', TRUE).
-// The addcmdq TRUE tells C to push the answer onto CQ_REPEAT so that a
-// repeated command replays it; CQ_REPEAT is not ported, so passing false is
-// safe. Used by dotip() below; lock.js carries its own copy for doforce().
+// addcmdq is TRUE in C: it consumes the queued 'y' used by cmd.c MCMD_TIP and
+// records interactive answers on CQ_REPEAT for repeated commands.
 const YNQCHARS = 'ynq';
 async function ynq(query, state) {
     const KEY_Q = 'q'.charCodeAt(0);
     const KEY_Y = 'y'.charCodeAt(0);
-    const c = await yn_function(query, YNQCHARS, 'q', false, state);
+    const c = await yn_function(query, YNQCHARS, 'q', true, state);
     if (c === KEY_Y) return 'y';
     if (c === KEY_Q) return 'q';
     return 'n';
 }
 
+// C ref: pickup.c tip_ok() (3395-3410). getobj() excludes coins, suggests
+// containers and discovered horns, and leaves other inventory downplayed.
+export function tip_ok(obj, state = game) {
+    if (!obj || obj.oclass === COIN_CLASS) return GETOBJ_EXCLUDE;
+    if (isContainer(obj)) return GETOBJ_SUGGEST;
+    if (obj.otyp === HORN_OF_PLENTY && obj.dknown
+        && state.objects[obj.otyp].oc_name_known) return GETOBJ_SUGGEST;
+    return GETOBJ_DOWNPLAY;
+}
+
+const TIP_INVENTORY = Symbol('tip something being carried');
+const TIP_MENU_CANCEL = Symbol('tip menu cancelled');
+const TIP_MENU_EMPTY = Symbol('tip menu committed empty');
+
+// C ref: pickup.c choose_tip_container_menu() (3413-3560). A picked floor
+// box tips immediately; the preselected inventory row falls through to getobj.
+async function choose_tip_container_menu(state) {
+    const items = [];
+    let count = 0;
+    for (let obj = state.level.objects[state.u.ux][state.u.uy]; obj;
+        obj = obj.nexthere) {
+        if (!isContainer(obj)) continue;
+        ++count;
+        items.push({ label: donameFresh(obj, state), value: obj });
+    }
+
+    if (state.invent) {
+        items.push('');
+        const inventoryItem = {
+            label: 'tip something being carried',
+            value: TIP_INVENTORY,
+            selected: true,
+        };
+        if (count <= 'i'.charCodeAt(0) - 'a'.charCodeAt(0)
+            && !state.flags.lootabc) inventoryItem.selector = 'i';
+        items.push(inventoryItem);
+    }
+
+    const result = await select_menu(state, {
+        title: 'Tip which container?',
+        ...menuTitleStyle(state),
+        items,
+        how: PICK_ONE,
+        ...(state.invent ? { preselected: TIP_INVENTORY } : {}),
+        cancelValue: TIP_MENU_CANCEL,
+        emptyValue: TIP_MENU_EMPTY,
+        overlay: state.iflags?.menu_overlay !== false,
+    });
+    if (result === TIP_MENU_CANCEL) return ECMD_CANCEL;
+    if (result && result !== TIP_INVENTORY
+        && result !== TIP_MENU_EMPTY) {
+        await tipcontainer(result, state);
+        return ECMD_TIME;
+    }
+    return ECMD_OK;
+}
+
 // C ref: pickup.c dotip() (3562-3677). The #tip extended command.
-// Covers the single-floor-container ynq prompt and the 'y' branch that calls
-// tipcontainer(). The 'q' and 'n' branches cancel without tipping.
-// The inventory-item tipping path (getobj -> tip_ok, pickup.c:3624-3677) and
-// the multi-container menu path (choose_tip_container_menu) are unported.
 export async function dotip(state = game) {
     const cc = { x: state.u.ux, y: state.u.uy };
 
@@ -3658,36 +3842,87 @@ export async function dotip(state = game) {
             && (await able_to_loot(cc.x, cc.y, false, state))
         ) {
             if (boxes > 1) {
-                // pickup.c:3596-3599. Multi-container menu (unported).
-                throw new UnsupportedPickupError(
-                    'dotip: multi-container choose_tip_container_menu',
-                );
+                const result = await choose_tip_container_menu(state);
+                if (result !== ECMD_OK) return result;
             } else {
                 // pickup.c:3601-3617. Single-container for-loop.
-                for (let cobj = state.level.objects[cc.x][cc.y]; cobj;
-                    cobj = cobj.nexthere) {
+                for (let cobj = state.level.objects[cc.x][cc.y]; cobj;) {
+                    const nobj = cobj.nexthere;
                     if (!isContainer(cobj))
-                        continue;
-                    const qbuf = safe_qbuf(
-                        'There is ', ' here, tip it?', cobj,
-                        (o, s) => donameFresh(o, s), null, 'container',
-                        state,
-                    );
-                    const c = await ynq(qbuf, state);
-                    if (c === 'q')
-                        return ECMD_OK;
-                    if (c === 'n')
-                        continue;
-                    // pickup.c:3614-3616. Tip accepted.
-                    await tipcontainer(cobj, state);
-                    return ECMD_TIME;
+                        cobj = nobj;
+                    else {
+                        const qbuf = safe_qbuf(
+                            'There is ', ' here, tip it?', cobj,
+                            (o, s) => donameFresh(o, s), null, 'container',
+                            state,
+                        );
+                        const c = await ynq(qbuf, state);
+                        if (c === 'q') return ECMD_OK;
+                        if (c === 'y') {
+                            await tipcontainer(cobj, state);
+                            return ECMD_TIME;
+                        }
+                        cobj = nobj;
+                    }
                 }
             }
         }
     }
 
-    // pickup.c:3624-3677. Inventory-item tipping (unported).
-    throw new UnsupportedPickupError(
-        'dotip: inventory tipping path (getobj -> tip_ok)',
-    );
+    // pickup.c:3624-3634. Select an inventory object and tip containers.
+    const cobj = await getobj('tip', tip_ok, GETOBJ_PROMPT, state);
+    if (!cobj) return ECMD_CANCEL;
+    if (isContainer(cobj) || cobj.otyp === HORN_OF_PLENTY) {
+        await tipcontainer(cobj, state);
+        return ECMD_TIME;
+    }
+
+    // pickup.c:3635-3659. Identify objects that can spill or burn.
+    let spillage = null;
+    if (isCandle(cobj) && cobj.lamplit) {
+        spillage = 'wax';
+    } else if ((cobj.otyp === POT_OIL && cobj.lamplit)
+        || (cobj.otyp === OIL_LAMP && cobj.age !== 0)
+        || (cobj.otyp === MAGIC_LAMP && cobj.spe !== 0)) {
+        spillage = 'oil';
+    } else if (cobj.otyp === CAN_OF_GREASE && cobj.spe > 0) {
+        spillage = 'grease';
+    } else if ([FOOD_RATION, CRAM_RATION, LEMBAS_WAFER]
+        .includes(cobj.otyp)) {
+        spillage = 'crumbs';
+    } else if (cobj.oclass === VENOM_CLASS) {
+        spillage = 'venom';
+    }
+    if (spillage) {
+        let suffix = '';
+        if (is_pool(cc.x, cc.y, state))
+            suffix = ` and gradually ${vtense(spillage, 'dissipate')}`;
+        else if (is_lava(cc.x, cc.y, state))
+            suffix = ` and immediately ${vtense(spillage, 'burn')} away`;
+        await ttyPline(
+            `Some ${spillage} ${vtense(spillage, 'spill')} onto the `
+            + `${surface(cc.x, cc.y, state)}${suffix}.`,
+            state,
+        );
+        if (cobj.otyp === CAN_OF_GREASE && cobj.spe > 0)
+            consume_obj_charge(cobj, true, { state });
+        return ECMD_TIME;
+    }
+
+    // pickup.c:3660-3677. Objects that cannot be tipped give their source
+    // feedback and do not consume a turn, except tiphat's own answer.
+    if (cobj.oclass === POTION_CLASS) {
+        await ttyPline(
+            `${The(xnameFresh(cobj, state), state)} `
+            + `${otense(cobj, 'are')} securely sealed.`,
+            state,
+        );
+    } else if (state.uarmh && cobj === state.uarmh) {
+        return await tiphat(state) ? ECMD_TIME : ECMD_OK;
+    } else if (cobj.otyp === STATUE) {
+        await ttyPline('Nothing interesting happens.', state);
+    } else {
+        await ttyPline(nothing_happens, state);
+    }
+    return ECMD_OK;
 }

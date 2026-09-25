@@ -1,0 +1,9 @@
+{
+  "version": 5,
+  "segments": [{
+    "seed": 19750321,
+    "datetime": "20050321153100",
+    "nethackrc": "OPTIONS=name:wizard,role:Wizard,race:human,gender:male,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen\nOPTIONS=playmode:debug,pettype:none,!acoustics\n",
+    "moves": "  #wizwish\nchest\n#wizwish\nchest\n#wizwish\nfood ration\ndo#tip\niq"
+  }]
+}
