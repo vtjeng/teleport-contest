@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent potion.c peffect_polymorph recipe for the blessed, base-form branch. Seed 9304147, clock 20380422113729, name PolymorphBene, and the ring, blessed potion, and giant-rat target were selected independently of the admitted v4 case. Wearing polymorph control forces the controlled POLY_CONTROLLED|POLY_LOW_CTRL call; transforming from human also reaches the post-polyself rn2(15) duration cap.",
+  "segments": [
+    {
+      "seed": 9304147,
+      "datetime": "20380422113729",
+      "nethackrc": "OPTIONS=name:PolymorphBene,role:Wizard,race:human,gender:female,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!debug_mongen\n",
+      "moves": "\u0017ring of polymorph control\n\u0017blessed potion of polymorph\nPorqp giant rat\n"
+    }
+  ]
+}

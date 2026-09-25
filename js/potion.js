@@ -18,9 +18,8 @@
 // peffects() dispatches 26 potion types; POT_BOOZE, POT_CONFUSION, POT_SICKNESS,
 // POT_SPEED (with spell alias SPE_HASTE_SELF), POT_HEALING,
 // POT_EXTRA_HEALING, POT_OIL, the POT_FRUIT_JUICE arm of
-// peffect_see_invisible(), and the ordinary POT_PARALYSIS arm are ported. The
-// other arms throw
-// UnsupportedQuaffError.
+// peffect_see_invisible(), the ordinary POT_PARALYSIS arm, and POT_POLYMORPH
+// are ported. Unported arms throw UnsupportedQuaffError.
 //
 // toggle_blindness() is called by Blindf_on() and Blindf_off() when blindness
 // status changes. It forces a full vision rebuild and updates monster display.
@@ -74,12 +73,16 @@ import {
     LEG,
     MM_NOMSG,
     POISON_RES,
+    POLY_CONTROLLED,
+    POLY_LOW_CTRL,
+    POLY_NOFLAGS,
     POTHIT_OTHER_THROW,
     SEE_INVIS,
     SLEEP_RES,
     STRANGLED,
     TELEPAT,
     TIMEOUT,
+    UNCHANGING,
     Upolyd,
     WARN_OF_MON,
     WOUNDED_LEGS,
@@ -124,7 +127,7 @@ import { hard_helmet, inaccessible_equipment } from './do_wear.js';
 import { is_boots, is_gloves } from './obj.js';
 import { discover_object } from './o_init.js';
 import { encumber_msg } from './pickup.js';
-import { body_part, float_vs_flight } from './polyself.js';
+import { body_part, float_vs_flight, polyself } from './polyself.js';
 import { d, rn1, rn2, rnd, rne, rnz } from './rng.js';
 import { canSpotMonster } from './startup_a11y.js';
 import { cloneu } from './mhitu.js';
@@ -187,10 +190,8 @@ export class UnsupportedPotionError extends Error {
 }
 
 // Thrown where dodrink/dopotion/peffects reaches a branch this port has not
-// ported: the 20 potion types besides POT_CONFUSION, POT_SICKNESS, POT_SPEED,
-// POT_OIL, POT_FRUIT_JUICE, and POT_PARALYSIS, and the
-// underwater, worn-potion, milky and smoky
-// branches of dodrink().
+// ported, including unported potion types and dodrink's underwater,
+// worn-potion, milky and smoky branches.
 export class UnsupportedQuaffError extends Error {
     constructor(reason) {
         super(`quaffing requires ${reason}`);
@@ -1060,6 +1061,28 @@ async function peffect_extra_healing(otmp, state = game) {
     }
 }
 
+// C ref: potion.c peffect_polymorph() (1318-1331). The called polyself()
+// result is void and ignored in C; its transformation side effects still
+// complete before this potion effect continues.
+async function peffect_polymorph(otmp, state = game) {
+    await ttyPline(
+        `You feel a little ${Hallucination(state) ? 'normal' : 'strange'}.`,
+        state,
+    );
+
+    const unchanging = state.u.uprops[UNCHANGING];
+    if (unchanging.intrinsic || unchanging.extrinsic)
+        return;
+
+    if (!otmp.blessed || state.u.umonnum !== state.u.umonster) {
+        await polyself(POLY_NOFLAGS, state);
+    } else {
+        await polyself(POLY_CONTROLLED | POLY_LOW_CTRL, state);
+        if (state.u.mtimedone && state.u.umonnum !== state.u.umonster)
+            state.u.mtimedone = Math.min(state.u.mtimedone, rn2(15) + 10);
+    }
+}
+
 // ---------------------------------------------------------------------------
 // peffects / dopotion / dodrink
 // C ref: potion.c peffects() (1333-1425), dopotion() (618-641),
@@ -1191,7 +1214,8 @@ export async function peffects(otmp, state = game) {
     case POT_ACID:
         throw new UnsupportedQuaffError('peffect_acid()');
     case POT_POLYMORPH:
-        throw new UnsupportedQuaffError('peffect_polymorph()');
+        await peffect_polymorph(otmp, state);
+        break;
     default:
         throw new Error(`What a funny potion! (${otmp.otyp})`);
     }
