@@ -152,12 +152,12 @@ materially different C setups fail to reach a difficult target, defer it with
 the observed reason and try another; a cheap source-proven route can justify
 another attempt. Replace deferred targets with different reachable behaviors
 and keep trying to reach 6–9 distinct targets. Do not shrink a batch solely
-because one behavior is rare. If an implementation worker would otherwise
-have no assignable task, submit the valid, independently replayed cases already
-available; a smaller batch is acceptable then. State reached, missed, and
-deferred targets in the handoff, and continue with a later batch. The target
-is not a cap on valid cases. Retain every valid, reproducible case, including
-missed missions and cases JavaScript already passes; reject only invalid setup
+because one behavior is rare. If no plausible alternative reaches six, report
+the source or recorder blockers and park the preparation task with its valid
+recordings. The orchestrator may accept a smaller batch with a recorded reason
+or redirect the search. The target is not a cap on valid cases. Retain every
+valid, reproducible case, including missed missions and cases JavaScript already
+passes; reject only invalid setup
 or recorder failures with recorded C evidence.
 Resolve recorder-environment differences before treating them as game defects.
 

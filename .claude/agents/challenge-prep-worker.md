@@ -33,11 +33,12 @@ Retain valid misses without counting them. After two materially different C
 setups fail to reach a difficult target, record the reason and try another
 unless the source reveals a cheap route. Replace deferred targets with other
 reachable behaviors and keep trying for 6–9 distinct reached targets. Do not
-shrink the batch merely because one target is rare. If the orchestrator reports
-an implementation worker with no assignable task, hand off all valid,
-independently replayed cases available, even if fewer than six targets were
-reached. Include reached, missed, and deferred targets and the remaining
-candidate list in `missionPlan` so the next batch can continue the search.
+shrink the batch merely because one target is rare. If no plausible alternative
+reaches six, park the task and report the source or recorder blockers alongside
+the valid recordings already made. The orchestrator decides whether to accept
+a smaller batch or provide new targets. Do not inspect implementation-worker
+assignments or statuses. Keep reached, missed, and deferred targets and the
+remaining candidate list in `missionPlan` for that decision.
 
 Commit only new case recipes and C recordings under
 `challenges/cases/<batch>/`. Put the prepared manifest and its case hashes in
