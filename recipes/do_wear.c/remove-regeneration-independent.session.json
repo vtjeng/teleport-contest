@@ -1,0 +1,10 @@
+{
+  "_comment": "Independent doremring R-command recording. The Wizard debug wish supplies a single regeneration ring, P wears it, and R removes it without relying on a challenge input. This non-levitation ring avoids the downstream trap.c float_down() gap.",
+  "version": 5,
+  "segments": [{
+    "seed": 7310091,
+    "datetime": "20370102130405",
+    "nethackrc": "OPTIONS=name:RemoveRing,role:Wizard,race:human,gender:female,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,!autopickup\nOPTIONS=pettype:none,!acoustics,time\n",
+    "moves": ". \u0017ring of regeneration\nPorR"
+  }]
+}

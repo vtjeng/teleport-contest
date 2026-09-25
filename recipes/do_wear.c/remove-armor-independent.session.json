@@ -1,0 +1,10 @@
+{
+  "_comment": "Independent doremring R-command recording for its prompted path. A Wizard starts with a cloak; R reaches remove_ok, suggests the armor as downplayed, and removes the selected cloak.",
+  "version": 5,
+  "segments": [{
+    "seed": 7310111,
+    "datetime": "20370104064713",
+    "nethackrc": "OPTIONS=name:RemoveArmor,role:Wizard,race:human,gender:male,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen,!autopickup\nOPTIONS=pettype:none,!acoustics,time\n",
+    "moves": ".Rb"
+  }]
+}
