@@ -72266,6 +72266,49 @@
           "evaluationCommit": "4c94668a402c17dd41062fe2ec966453db17c551"
         }
       }
+    },
+    {
+      "id": "port-objnam-readobjnam-monster-carriers-synthetic-v2-20260925",
+      "kind": "file-port",
+      "status": "queued",
+      "summary": "Port monster-carrier wishes through complete readobjnam source order",
+      "cFile": "objnam.c",
+      "sessions": [
+        "synthetic/v2/altar-rite-history"
+      ],
+      "selectionReason": "The larger v1 terrain-transitions case is owned by A3 and its investigation is stale; the v4 Archeologist dig case is reserved by B5. The v2 altar-rite-history case has 19 unmatched screens and a complete current investigation at investigations/synthetic/v2/altar-rite-history.json, making objnam.c readobjnam the first independent source owner available to C.",
+      "detail": "At segment 0 step 31, a jackal corpse debug wish reaches objnam.c readobjnam object lookup, mksobj, and species assignment. Preserve postparse lookup and random order, remove the premature monster-carrier refusal only with source behavior ported, and cover whole-function branch/caller evidence. See investigations/synthetic/v2/altar-rite-history.json.",
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": null,
+      "delivered": null,
+      "functions": [
+        {
+          "name": "readobjnam",
+          "line": 4910,
+          "endLine": 5402,
+          "declared": true,
+          "complete": false
+        }
+      ],
+      "range": {
+        "from": 4910,
+        "to": 5402
+      },
+      "syntheticProvenance": {
+        "synthetic/v2/altar-rite-history": {
+          "session": "synthetic/v2/altar-rite-history",
+          "corpus": "synthetic",
+          "batch": "v2",
+          "caseId": "altar-rite-history",
+          "manifestPath": "challenges/manifests/v2.json",
+          "manifestSha256": "58739ea9ed6c26e5153c4860b2e5111d08d69792bdea5c39427cf45b8e72cc9c",
+          "recordingPath": "challenges/cases/v2/altar-rite-history.session.json",
+          "recordingSha256": "f3fbc209ee4d556822809c679e9cc73054b48fa85ba5d17864b764f30b4cf048",
+          "evaluationPath": "challenges/evaluations/20260925210102-v2.json",
+          "evaluationCommit": "4c94668a402c17dd41062fe2ec966453db17c551"
+        }
+      }
     }
   ]
 }
