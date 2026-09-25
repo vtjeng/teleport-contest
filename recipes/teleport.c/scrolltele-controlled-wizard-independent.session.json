@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 880312,
+      "datetime": "20410511122334",
+      "nethackrc": "OPTIONS=name:SafeLanding,role:Healer,race:human,gender:female,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen\nOPTIONS=playmode:debug,pettype:none,!acoustics,!autopickup,time\n",
+      "moves": ".\u0017uncursed scroll of teleportation\nrk"
+    }
+  ],
+  "comment": "The debug wish creates an uncursed teleportation scroll, selected as inventory letter k. Its matching recording reaches the read.c:seffects -> teleport.c:scrolltele call; wizard mode selects the controlled-location branch, so it does not reach safe_teleds(). The remaining scrolltele prompt continuation is blocked by the separate read.c/attrib.c exercise replay divergence."
+}

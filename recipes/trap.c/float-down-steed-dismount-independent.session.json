@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 95112025,
+      "datetime": "20421224113527",
+      "nethackrc": "OPTIONS=name:LandingRide,role:Knight,race:human,gender:male,align:lawful\nOPTIONS=!legacy,!tutorial,!splash_screen\nOPTIONS=!acoustics\n",
+      "moves": ".#ride\nj#ride\n."
+    }
+  ],
+  "comment": "Independent steed-dismount entry point for trap.c:float_down. The Knight starts with a saddled pony; the second #ride dismounts through steed.c:dismount_steed -> float_down(0, W_SADDLE), whose saddle mask suppresses only the landing message."
+}

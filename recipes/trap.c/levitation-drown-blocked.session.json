@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 9200104,
+      "datetime": "20410410112233",
+      "nethackrc": "OPTIONS=name:WaterTimeout,role:Wizard,race:human,gender:female,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen\nOPTIONS=playmode:debug,pettype:none,!acoustics,!autopickup,time\n",
+      "moves": ". #wizintrinsic\n1q\n\n#wizwish\npool\n."
+    }
+  ],
+  "comment": "Blocked independent float_down-on-pool recipe. It sets a one-turn levitation timeout, then #wizwish changes the hero's square to a pool; waiting would exercise trap.c:float_down -> drown. C produces 'A pool of water.' at step 34 and the next input starts the landing, but JS stops at the matching prompt boundary on UnsupportedWishError from wizcmds.c:wiz_wish -> zap.c:makewish before objnam.c:wizterrainwish can mutate the terrain, so this remains a blocked recipe rather than runtime evidence."
+}

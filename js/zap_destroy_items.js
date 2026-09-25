@@ -368,7 +368,7 @@ async function maybe_destroy_item(carrier, obj, dmgtyp, env) {
             if (obj.owornmask & W_RING) {
                 // C uses Ring_gone() for a ring leaving the hero's possession;
                 // it performs the same setnotworn transition plus ring effects.
-                Ring_gone(obj, state);
+                await Ring_gone(obj, state);
             } else if (obj.owornmask) {
                 // Other worn items use setnotworn(). Preserve that source
                 // transition even in focused fixtures without optional hooks.

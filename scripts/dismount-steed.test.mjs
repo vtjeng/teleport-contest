@@ -27,7 +27,6 @@ import {
     N_DIRS,
     OBJ_FREE,
     PIT,
-    POOL,
     RIGHT_SIDE,
     ROOM,
     SQKY_BOARD,
@@ -605,15 +604,13 @@ test('fill_pit extracts a boulder only when a pit or hole is present', async () 
     state.level.traps.pop();
 });
 
-test('float_down refuses every arm but the saddled descent', async () => {
-    // trap.c:4024-4177. dismount_steed() passes hmask 0 and emask W_SADDLE.
-    // Without W_SADDLE the whole "float gently" block is live and refuses.
+test('float_down lands normally and suppresses the saddle landing message', async () => {
+    // trap.c:4024-4177. Ordinary ring removal prints the landing message;
+    // dismount_steed() passes emask W_SADDLE and suppresses only that message.
     const state = await mounted();
-    await assert.rejects(
-        float_down(0, 0, state),
-        (error) => error instanceof UnsupportedHeroMoveBoundaryError
-            && /landing messages/u.test(error.message),
-    );
+    assert.equal(await float_down(0, 0, state), 1);
+    assert.match(toplines(), /float gently to the/u);
+    quiet(state);
     // Still levitating after the masks are applied means another source
     // remains, and C returns 0 without touching anything else.
     state.u.uprops[LEVITATION].intrinsic = FROMOUTSIDE;
@@ -1200,11 +1197,10 @@ test('every copy of Flying reads the extrinsic as well as the intrinsic',
         assert.equal(await float_down(0, W_SADDLE, state), 1, `trap ${label}`);
         state.u.uprops[FLYING].intrinsic = 0;
         state.u.uprops[FLYING].extrinsic = 0;
-        await assert.rejects(
-            float_down(0, W_SADDLE, state),
-            (error) => /while held/u.test(error.message),
-            `trap ${label} without the property`,
-        );
+        assert.equal(await float_down(0, W_SADDLE, state), 1,
+                     `trap ${label} without the property`);
+        assert.equal(state.u.ustuck, null,
+                     `trap ${label} releases the holder on landing`);
     }
 });
 
@@ -1243,44 +1239,25 @@ test('a flying steed carries the hero through every copy of Flying',
     state.u.usteed.data = species;
 });
 
-test('float_down refuses each hero state that stops the descent', async () => {
-    // trap.c:4066-4110, one arm at a time. Each needs the hero not flying, so
-    // they are driven from an ordinary mounted state.
+test('float_down handles blocked levitation, flight, engulfing and holding', async () => {
+    // trap.c:4040-4088. Each case verifies its source return boundary or the
+    // state transition that lets the ordinary landing continue.
     const rows = [
-        ['while engulfed', (state) => { state.u.uswallow = 1; }],
-        ['with a punishing ball', (state) => { state.uball = { where: 3 }; }],
-        ['while held', (state) => { state.u.ustuck = state.u.usteed; }],
-        ['into water or lava', (state) => {
-            state.level.at(state.u.ux, state.u.uy).typ = POOL;
-        }],
-        ['on the air or water level', (state) => {
-            state.air_level = { dnum: state.u.uz.dnum,
-                                dlevel: state.u.uz.dlevel };
-        }],
-        ['underwater', (state) => { state.u.uinwater = 1; }],
-        ['onto a trap', (state) => {
-            state.level.traps ??= [];
-            state.level.traps.push({
-                tx: state.u.ux, ty: state.u.uy, ttyp: TT_PIT, tseen: 1,
-            });
-        }],
+        ['while engulfed', (state) => { state.u.uswallow = 1; }, 1],
+        ['while held', (state) => { state.u.ustuck = state.u.usteed; }, 1],
         ['into controlled flight', (state) => {
             state.u.uprops[FLYING].blocked = FROMOUTSIDE;
-        }],
+        }, 1],
         ['with levitation blocked', (state) => {
             state.u.uprops[LEVITATION].blocked = FROMOUTSIDE;
-        }],
+        }, 0],
     ];
-    for (const [reason, mutate] of rows) {
+    for (const [reason, mutate, expected] of rows) {
         const state = await mounted();
         mutate(state);
-        await assert.rejects(
-            float_down(0, W_SADDLE, state),
-            (error) => error instanceof UnsupportedHeroMoveBoundaryError
-                && new RegExp(reason.replaceAll(' ', '\\s'), 'u')
-                    .test(error.message),
-            reason,
-        );
+        assert.equal(await float_down(0, W_SADDLE, state), expected, reason);
+        if (reason === 'while held')
+            assert.equal(state.u.ustuck, null, 'landing clears the hold');
     }
 });
 

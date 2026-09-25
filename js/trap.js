@@ -44,7 +44,6 @@ import {
     DB_MOAT,
     DB_UNDER,
     DISMOUNT_FELL,
-    DISMOUNT_GENERIC,
     DROWNING,
     BURNING,
     DOOR,
@@ -114,6 +113,7 @@ import {
     OBJ_AT,
     NOWEBMSG,
     NO_TRAP,
+    NO_TRAP_FLAGS,
     N_DIRS,
     PASSES_WALLS,
     PIT,
@@ -206,6 +206,8 @@ import {
 import { abuse_dog } from './dog.js';
 import {
     has_ceiling,
+    Can_fall_thru,
+    assign_level,
     on_level,
     level_difficulty,
     u_on_newpos,
@@ -219,7 +221,7 @@ import { makeplural } from './fruit.js';
 import { game } from './gstate.js';
 import { canSpotMonster } from './startup_a11y.js';
 import {
-    near_capacity, calc_capacity, check_capacity, inv_weight, weight_cap,
+    near_capacity, calc_capacity, check_capacity, inv_cnt, inv_weight, weight_cap,
     test_move, spoteffects, bad_rock, crawl_destination, set_uinwater,
     nomul, unmul, losehp, You_can_move_again,
     UnsupportedHeroMoveBoundaryError,
@@ -232,7 +234,7 @@ import {
 import { get_obj_location } from './light.js';
 import { Is_box, stumble_on_door_mimic, ynq } from './lock.js';
 import { set_malign } from './makemon.js';
-import { killed, wake_nearby, wakeup, seemimic } from './mon.js';
+import { killed, set_ustuck, wake_nearby, wakeup, seemimic } from './mon.js';
 import {
     amorphous, amphibious, attacktype, breathless, can_teleport, flaming,
     is_clinger, is_floater,
@@ -247,6 +249,8 @@ import {
     MZ_SMALL, PM_FOG_CLOUD, PM_IRON_GOLEM, PM_STEAM_VORTEX,
     PM_STONE_GOLEM, PM_RANGER, PM_ROGUE, PM_WATER_ELEMENTAL,
     PM_DOPPELGANGER, PM_FLESH_GOLEM, PM_ARCHEOLOGIST, MS_GUARDIAN,
+    PM_GREMLIN,
+    AD_DGST, AT_ENGL,
 } from './monsters.js';
 import { m_at } from './monst.js';
 import { observe_object } from './o_init.js';
@@ -270,7 +274,7 @@ import {
 } from './objnam.js';
 import {
     ARROW, BEARTRAP, BOULDER, CAN_OF_GREASE, DART, IRON, LAND_MINE, LEASH,
-    POTION_CLASS, POT_OIL, SCROLL_CLASS, SCR_FIRE, SPBOOK_CLASS,
+    LOADSTONE, POTION_CLASS, POT_OIL, SCROLL_CLASS, SCR_FIRE, SPBOOK_CLASS,
     SPE_BOOK_OF_THE_DEAD, SPE_FIREBALL, WOOD,
 } from './objects.js';
 import { encumber_msg, pickup } from './pickup.js';
@@ -965,7 +969,7 @@ function numberLeashed(state) {
     return count;
 }
 
-function randomCrawlDestination(state) {
+async function randomCrawlDestination(state) {
     const directions = Array.from({ length: N_DIRS }, (_, index) => index);
     for (let count = N_DIRS; count > 0; --count) {
         const selected = rn2(count);
@@ -976,14 +980,57 @@ function randomCrawlDestination(state) {
     for (const direction of directions) {
         const x = state.u.ux + xdir[direction];
         const y = state.u.uy + ydir[direction];
-        if (crawl_destination(x, y, state)) return { x, y };
+        if (await crawl_destination(x, y, state)) return { x, y };
     }
     return null;
 }
 
-// C ref: trap.c drown() (5059-5200), the boolean dependency pooleffects()
-// consumes. Missing void-only item, leash, punishment, and underwater-display
-// owners are recorded as gaps; none supplies data to this control flow.
+// C ref: trap.c emergency_disrobe() (4897-4944). The return value is used by
+// drown() to decide whether the selected crawl destination is reachable.
+async function emergency_disrobe(lostsome, state = game) {
+    let invc = inv_cnt(true, state);
+    while (near_capacity(state) > (Punished(state)
+        ? UNENCUMBERED
+        : SLT_ENCUMBER)) {
+        let obj = state.invent;
+        let selected = null;
+        let index = invc > 0 ? rn2(invc) : -1;
+        while (obj) {
+            const next = obj.nobj;
+            const undroppable = (obj.otyp === LOADSTONE && obj.cursed)
+                || obj === state.uamul
+                || obj === state.uleft
+                || obj === state.uright
+                || obj === state.ublindf
+                || obj === state.uarm
+                || obj === state.uarmc
+                || obj === state.uarmg
+                || obj === state.uarmf
+                || obj === state.uarmu
+                || (obj.cursed && (obj === state.uarmh || obj === state.uarms))
+                || welded(obj, state)
+                || obj.o_id === (state.gs?.stealoid ?? -1)
+                || obj.in_use;
+            if (!undroppable) selected = obj;
+            if (--index < 0 && selected) break;
+            obj = next;
+        }
+        if (!selected) return false;
+        if (selected.owornmask) {
+            const { remove_worn_item } = await import('./steal.js');
+            await remove_worn_item(selected, false, state);
+        }
+        lostsome.value = true;
+        const { dropx } = await import('./do.js');
+        await dropx(selected, { state });
+        --invc;
+    }
+    return true;
+}
+
+// C ref: trap.c drown() (5059-5200), the boolean dependency float_down()
+// consumes. Return-valued crawl/disrobe/safe-teleport paths stay in source
+// order; source-discarded side-effect owners are explicit gaps.
 export async function drown(state = game) {
     const { u } = state;
     const location = state.level?.at(u.ux, u.uy);
@@ -1018,6 +1065,14 @@ export async function drown(state = game) {
         }
     }
     note_unported('trap.c water_damage_chain');
+    if (u.umonnum === PM_GREMLIN && rn2(3)) {
+        note_unported('mon.c split_mon');
+    } else if (u.umonnum === PM_IRON_GOLEM) {
+        await ttyPline('You rust!', state);
+        const damage = Maybe_Half_Phys(d(2, 6), state);
+        if (u.mhmax > damage) u.mhmax -= damage;
+        await losehp(damage, 'rusting away', KILLED_BY, state);
+    }
     if (inpoolOk) return false;
 
     const leashed = numberLeashed(state);
@@ -1070,7 +1125,10 @@ export async function drown(state = game) {
         }
     }
     if (u.usteed) {
-        await dismount_steed(DISMOUNT_GENERIC, state);
+        // C discards dismount_steed()'s result. Its generic water-displacement
+        // branch is still outside the steed port, so keep the gap at this
+        // source call and continue with drown()'s post-dismount location test.
+        note_unported('steed.c dismount_steed generic');
         if (!is_pool(u.ux, u.uy, state)) return true;
     }
     if (u.usleep) await unmul('Suddenly you wake up!', state);
@@ -1078,16 +1136,21 @@ export async function drown(state = game) {
 
     const destination = (state.multi ?? 0) >= 0
         && state.youmonst?.data?.mmove
-        ? randomCrawlDestination(state)
+        ? await randomCrawlDestination(state)
         : null;
     if (destination) {
-        if (near_capacity(state) <= (Punished(state)
-            ? UNENCUMBERED
-            : SLT_ENCUMBER)) {
-            await ttyPline(
-                `You try to crawl out of the ${hliquid('water', { state })}.`,
-                state,
-            );
+        const lost = { value: false };
+        const success = Is_waterlevel(u.uz)
+            ? true
+            : await emergency_disrobe(lost, state);
+        await ttyPline(
+            `You try to crawl out of the ${hliquid('water', { state })}.`,
+            state,
+        );
+        if (lost.value) {
+            await ttyPline('You dump some of your gear to lose weight...', state);
+        }
+        if (success) {
             await ttyPline('Pheew!  That was close.', state);
             const { teleds } = await import('./teleport.js');
             await teleds(
@@ -1098,7 +1161,7 @@ export async function drown(state = game) {
             );
             return true;
         }
-        throw new Error('trap.c emergency_disrobe return value is not ported');
+        await ttyPline('But in vain.', state);
     }
 
     await set_uinwater(true, state);
@@ -1270,7 +1333,7 @@ export async function lava_effects(state = game) {
                         note_unported('steal.c remove_worn_item');
                     } else {
                         const { remove_worn_item } = await import('./steal.js');
-                        remove_worn_item(obj, true, state);
+                        await remove_worn_item(obj, true, state);
                     }
                 }
                 useupall(obj, { state });
@@ -1528,13 +1591,9 @@ export function fill_pit(x, y, state = game) {
     }
 }
 
-// C ref: trap.c float_down() (4024-4177). dismount_steed() is the only ported
-// caller and passes hmask 0 with emask W_SADDLE, so no levitation source is
-// actually cleared and the whole "float gently to the surface" block at
-// 4109-4146 is suppressed by its `!(emask & W_SADDLE)` guard. What remains
-// reachable is the status-line flag, nomul(0), encumber_msg() and the deferred
-// pickup(1) that dismount_steed() relies on -- spoteffects() skips its own
-// pickup while gi.in_steed_dismounting is set, so this call is the only one.
+// C ref: trap.c float_down() (4024-4177). Its masks clear the matching
+// intrinsic and extrinsic sources before it handles flight, swallowing,
+// punishment, terrain, trap activation, and the final pickup in source order.
 export async function float_down(hmask, emask, state = game) {
     const u = state.u;
     const levitation = u.uprops[LEVITATION];
@@ -1546,74 +1605,145 @@ export async function float_down(hmask, emask, state = game) {
     if (levitation.blocked) {
         // The BLevitation arm gives terrain- or trap-specific feedback and
         // returns before every side effect below it.
-        throw new UnsupportedHeroMoveBoundaryError(
-            'float_down() with levitation blocked',
-        );
+        const trapped = levitation.blocked === I_SPECIAL;
+        float_vs_flight(state);
+        if (trapped && u.utrap) {
+            const reason = u.utraptype === TT_BEARTRAP ? "trap's jaws"
+                : u.utraptype === TT_WEB ? 'web'
+                    : u.utraptype === TT_BURIEDBALL ? 'chain'
+                        : u.utraptype === TT_LAVA ? 'lava' : 'ground';
+            await ttyPline(
+                `You are no longer trying to float up from the ${reason}.`,
+                state,
+            );
+        }
+        await encumber_msg(state);
+        return 0;
     }
     state.disp ??= {};
     state.disp.botl = true;
     nomul(0, state); /* stop running or resting */
     if (u.uprops[FLYING].blocked) {
-        throw new UnsupportedHeroMoveBoundaryError(
-            'float_down() into controlled flight',
-        );
+        float_vs_flight(state);
+        if (Flying(state)) {
+            await ttyPline('You have stopped levitating and are now flying.', state);
+            await encumber_msg(state);
+            return 1;
+        }
     }
     if (u.uswallow) {
-        throw new UnsupportedHeroMoveBoundaryError(
-            'float_down() while engulfed',
+        const digesting = Boolean(u.ustuck?.data?.mattk?.some((attack) =>
+            attack.aatyp === AT_ENGL && attack.adtyp === AD_DGST));
+        await ttyPline(
+            `You float down, but you are still ${digesting ? 'swallowed' : 'engulfed'}.`,
+            state,
         );
+        await encumber_msg(state);
+        return 1;
     }
-    if (state.uball) {
-        // The Punished arm can move the hero onto the ball's square.
-        throw new UnsupportedHeroMoveBoundaryError(
-            'float_down() with a punishing ball',
-        );
+
+    let trap = null;
+    if (Punished(state) && !carried(state.uball)
+        && !m_at(state.uball.ox, state.uball.oy, state)
+        && (is_pool(state.uball.ox, state.uball.oy, state)
+            || ((trap = t_at(state.uball.ox, state.uball.oy, state))
+                && (is_pit(trap.ttyp) || is_hole(trap.ttyp))))) {
+        u.ux0 = u.ux;
+        u.uy0 = u.uy;
+        u.ux = state.uball.ox;
+        u.uy = state.uball.oy;
+        // C movobj() moves the chain object with the ball. The object-map
+        // relocation helper is not ported in this source owner.
+        note_unported('obj.c movobj');
+        newsym(u.ux0, u.uy0, state);
+        state.vision_full_recalc = 1;
     }
+
+    let noMsg = false;
     if (!Flying(state)) {
         if (u.ustuck) {
-            throw new UnsupportedHeroMoveBoundaryError(
-                'float_down() while held',
-            );
+            if (sticks(state.youmonst?.data)) {
+                await ttyPline(
+                    `You aren't able to maintain your hold on ${mon_nam(u.ustuck, state)}.`,
+                    state,
+                );
+            } else {
+                await ttyPline(
+                    `Startled, ${mon_nam(u.ustuck, state)} can no longer hold you!`,
+                    state,
+                );
+            }
+            set_ustuck(null, state);
         }
-        if (is_pool(u.ux, u.uy, state) || is_lava(u.ux, u.uy, state)) {
-            // drown() and lava_effects() own these squares.
-            throw new UnsupportedHeroMoveBoundaryError(
-                'float_down() into water or lava',
-            );
+        if (is_pool(u.ux, u.uy, state) && !heroLavaWalking(state)
+            && !heroSwimming(state) && !u.uinwater) {
+            noMsg = await drown(state);
+        }
+        if (is_lava(u.ux, u.uy, state) && !state.iflags?.in_lava_effects) {
+            // C discards lava_effects()'s result; skip its unported side
+            // effects while retaining float_down()'s source-owned suppression.
+            note_unported('trap.c lava_effects');
+            noMsg = true;
         }
     }
-    const trap = t_at(u.ux, u.uy, state);
+
+    if (!trap) trap = t_at(u.ux, u.uy, state);
     if (Is_airlevel(u.uz) || Is_waterlevel(u.uz)) {
-        // "You begin to tumble in place." is printed even under W_SADDLE.
-        throw new UnsupportedHeroMoveBoundaryError(
-            'float_down() on the air or water level',
-        );
+        if (Is_airlevel(u.uz))
+            await ttyPline('You begin to tumble in place.', state);
+        else if (!noMsg)
+            await ttyPline('You feel heavier.', state);
     }
-    if (u.uinwater) {
-        throw new UnsupportedHeroMoveBoundaryError(
-            'float_down() underwater',
-        );
-    }
-    if (!(emask & W_SADDLE)) {
-        throw new UnsupportedHeroMoveBoundaryError(
-            'float_down() landing messages',
-        );
+    if (!u.uinwater && !noMsg && !(emask & W_SADDLE)) {
+        if (In_sokoban(u.uz) && trap) {
+            if (Hallucination(state))
+                await ttyPline("Bummer!  You've crashed.", state);
+            else
+                await ttyPline('You fall over.', state);
+            await losehp(rnd(2), 'dangerous winds', KILLED_BY, state);
+            if (u.usteed) await dismount_steed(DISMOUNT_FELL, state);
+            note_unported('polyself.c selftouch');
+        } else if (u.usteed
+            && (is_floater(u.usteed.data) || is_flyer(u.usteed.data))) {
+            await ttyPline('You settle more firmly in the saddle.', state);
+        } else if (Hallucination(state)) {
+            const what = is_pool(u.ux, u.uy, state)
+                ? 'splashed down' : 'hit the ground';
+            await ttyPline(`Bummer!  You've ${what}.`, state);
+        } else {
+            await ttyPline(`You float gently to the ${surface(u.ux, u.uy, state)}.`, state);
+        }
     }
 
     /* levitation gives maximum carrying capacity, so having it end
        potentially triggers greater encumbrance */
     await encumber_msg(state);
 
+    const currentDungeonLevel = { dnum: 0, dlevel: 0 };
+    assign_level(currentDungeonLevel, u.uz);
     if (trap) {
-        // The switch here ends in dotrap(), and a HOLE or TRAPDOOR arm can
-        // leave the level before the pickup below runs.
-        throw new UnsupportedHeroMoveBoundaryError(
-            'float_down() onto a trap',
-        );
+        let activate = true;
+        switch (trap.ttyp) {
+        case STATUE_TRAP:
+            activate = false;
+            break;
+        case HOLE:
+        case TRAPDOOR:
+            if (!Can_fall_thru(u.uz, state) || u.ustuck)
+                activate = false;
+            break;
+        default:
+            break;
+        }
+        if (activate && !u.utrap)
+            await dotrap(trap, NO_TRAP_FLAGS, state);
     }
-    // C ref: trap.c float_down() calls pickup(1) after landing. spoteffects()
-    // suppresses its own pickup while the hero is dismounting.
-    await pickup(1, state);
+
+    if (!Is_airlevel(u.uz) && !Is_waterlevel(u.uz) && !u.uswallow
+        && on_level(u.uz, currentDungeonLevel)) {
+        // C discards pickup()'s result. pickup.c owns its behavior.
+        await pickup(1, state);
+    }
     return 1;
 }
 

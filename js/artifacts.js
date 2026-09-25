@@ -2964,7 +2964,7 @@ export async function retouch_object(objp, loseit, state = game) {
        dropping the hero onto a polymorph trap or into water or
        lava and potentially dropping or destroying the item */
     if (obj.owornmask) {
-        remove_worn_item(obj, false, state);
+        await remove_worn_item(obj, false, state);
         let found = false;
         for (let otmp = state.invent; otmp; otmp = otmp.nobj) {
             if (otmp === obj) { found = true; break; }
