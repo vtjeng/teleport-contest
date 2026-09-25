@@ -1192,7 +1192,7 @@ export async function jump(magic = 0, state = game) {
         default:
             throw new Error(`Jumping out of strange trap (${state.u.utraptype})?`);
         }
-        reset_utrap(true, state);
+        await reset_utrap(true, state);
     }
 
     if (u_at(target.x, target.y, state)) {

@@ -144,7 +144,7 @@ import { acurr, uchangealign } from './attrib.js';
 import { cmdq_pop, paranoid_query, yn_function } from './cmd.js';
 import { artifact_light, set_artifact_intrinsic } from './artifacts.js';
 import { game } from './gstate.js';
-import { nomul, unmul } from './hack.js';
+import { nomul, spoteffects, unmul } from './hack.js';
 import { rescham, restartcham } from './mon.js';
 import {
     carrying_stoning_corpse,
@@ -172,7 +172,7 @@ import {
 import { MZ_SMALL, PM_ARCHEOLOGIST, PM_CLERIC, S_CENTAUR } from './monsters.js';
 import { change_luck } from './moveloop_preamble.js';
 import { gulp_blnd_check } from './mhitu.js';
-import { unconscious } from './trap.js';
+import { Levitation, float_up, unconscious } from './trap.js';
 import {
     Is_dragon_armor,
     WrappingAllowed,
@@ -185,6 +185,7 @@ import {
     is_shirt,
     is_suit,
     is_sword,
+    isMetallic,
     objectType,
     erosionMatters,
     isCorrodeable,
@@ -584,6 +585,14 @@ function learnring(ring, observed, state) {
     }
 }
 
+// C ref: do_wear.c hard_helmet() (568-574). A hard helmet is an actual
+// helmet made from metal or glass; falling-rock protection uses this test.
+export function hard_helmet(obj, state = game) {
+    if (!obj || !is_helmet(obj, state))
+        return false;
+    return isMetallic(obj, state) || isCrackable(obj, state);
+}
+
 // C ref: do_wear.c adjust_attrib() (1222-1239). Adjust an attribute bonus and
 // learn the ring's enchantment when the change is observable or the attribute
 // is not at a limit.
@@ -728,9 +737,15 @@ export async function Ring_on(obj, state = game) {
             `self_invis_message() for otyp ${obj.otyp}`,
         );
     case RIN_LEVITATION:
-        throw new UnsupportedRingOnError(
-            `float_up() for otyp ${obj.otyp}`,
-        );
+        if (!maskedOldprop
+            && !state.u.uprops[LEVITATION].intrinsic
+            && !(state.u.uprops[LEVITATION].blocked & FROMOUTSIDE)) {
+            await float_up(state);
+            learnring(obj, true, state);
+            if (Levitation(state)) await spoteffects(false, state);
+        } else {
+            float_vs_flight(state);
+        }
     case RIN_GAIN_STRENGTH:
         adjust_attrib(obj, A_STR, obj.spe, state);
         break;
@@ -1372,7 +1387,7 @@ async function Armor_gone(state, rawEnv = {}) {
 // of PLAIN_HELMETS_ON below.
 const SUPPORTED_BOOTS_ON = new Set([
     LOW_BOOTS, IRON_SHOES, HIGH_BOOTS, JUMPING_BOOTS, KICKING_BOOTS,
-    FUMBLE_BOOTS,
+    WATER_WALKING_BOOTS, ELVEN_BOOTS, FUMBLE_BOOTS, LEVITATION_BOOTS,
 ]);
 
 // C ref: do_wear.c Boots_on() (186-259), the ga.afternmv callback
@@ -1384,26 +1399,25 @@ const SUPPORTED_BOOTS_ON = new Set([
 // on the turn the 'W' is typed: nomul(-2) spends two helpless turns first and
 // allmain.c moveloop_core() reaches the callback through unmul().
 //
-// The types SUPPORTED_BOOTS_ON and SPEED_BOOTS leave out all reach outside
-// do_wear.c. WATER_WALKING_BOOTS calls spoteffects(); ELVEN_BOOTS calls
-// toggle_stealth(); and LEVITATION_BOOTS calls float_up(), spoteffects() and
-// float_vs_flight(). accessory_or_armor_on() hoists their refusal above
-// setworn() for the reason the cloak and helmet refusals give: by the time
-// this callback runs the boots are worn, AC has moved and the two helpless
-// turns are spent.
-//
-// C's `uarmf &&` at 254 is left out, as Helmet_on()'s equivalent guard is.
-// C's own comment at 253 says what it is for: float_up() inside the
-// LEVITATION_BOOTS arm can drop the boots down a sink. That arm is refused and
-// no arm here empties the slot, so port it and the guard comes back with it.
+// Every boots arm is represented here. ELVEN_BOOTS' discarded toggle_stealth()
+// call remains an explicit gap; the other property and terrain effects follow
+// the source order.
 async function Boots_on(state) {
     const otyp = state.uarmf.otyp;
     const type = objectType(state.uarmf, state);
     const oldprop = state.u.uprops[type.oc_oprop].extrinsic & ~WORN_BOOTS;
 
-    if (!SUPPORTED_BOOTS_ON.has(otyp) && otyp !== SPEED_BOOTS)
-        throw new UnsupportedWearError(`Boots_on() for otyp ${otyp}`);
-    if (otyp === SPEED_BOOTS) {
+    if (otyp === LOW_BOOTS || otyp === IRON_SHOES || otyp === HIGH_BOOTS
+        || otyp === JUMPING_BOOTS || otyp === KICKING_BOOTS) {
+        // These boots have no property effect here.
+    } else if (otyp === WATER_WALKING_BOOTS) {
+        if (state.u.uinwater) await spoteffects(true, state);
+        if (state.gw?.wasinwater) {
+            if (!state.u.uinwater)
+                discover_object(WATER_WALKING_BOOTS, true, true, true, state);
+            state.gw.wasinwater = 0;
+        }
+    } else if (otyp === SPEED_BOOTS) {
         const fast = state.u.uprops[FAST];
 
         if (!oldprop && !(fast.intrinsic & TIMEOUT)) {
@@ -1414,14 +1428,30 @@ async function Boots_on(state) {
                 state,
             );
         }
+    } else if (otyp === ELVEN_BOOTS) {
+        note_unported('do_wear.c toggle_stealth');
     } else if (otyp === FUMBLE_BOOTS) {
         // HFumbling is the intrinsic field of FUMBLING. C masks the footwear
         // source from oldprop before checking for another source or timeout.
         const fumbling = state.u.uprops[FUMBLING];
         if (!oldprop && !(fumbling.intrinsic & ~TIMEOUT))
             incr_itimeout(fumbling, rnd(20));
+    } else if (otyp === LEVITATION_BOOTS) {
+        const levitation = state.u.uprops[LEVITATION];
+        if (!oldprop && !levitation.intrinsic
+            && !(levitation.blocked & FROMOUTSIDE)) {
+            state.uarmf.known = true;
+            state.disp.botl = true;
+            discover_object(otyp, true, true, true, state);
+            await float_up(state);
+            if (Levitation(state)) await spoteffects(false, state);
+        } else {
+            float_vs_flight(state);
+        }
+    } else {
+        throw new UnsupportedWearError(`Boots_on() for otyp ${otyp}`);
     }
-    if (!state.uarmf.known) {
+    if (state.uarmf && !state.uarmf.known) {
         /* boots' +/- evident because of status line AC */
         state.uarmf.known = true;
         update_inventory({ state });
@@ -3130,12 +3160,11 @@ async function accessory_or_armor_on(obj, state = game) {
          * ignorant of its enchantment; Armor_on() and Shield_on() above
          * are those actions.
          */
-        // do_wear.c:2375 `gw.wasinwater = u.uinwater` is deliberately not
-        // written. Boots_on() (do_wear.c:210-215) is its only reader, and
-        // that read sits inside the WATER_WALKING_BOOTS arm the W_ARMF
-        // case below refuses by otyp, so copying u.uinwater here would
-        // give that value a second home with nothing to read it. It belongs
-        // with a ported water-walking arm.
+        // C ref: do_wear.c:2375. Boots_on() consumes this snapshot after the
+        // dressing delay to determine whether water-walking boots lifted the
+        // hero out of water.
+        state.gw ??= {};
+        state.gw.wasinwater = Boolean(state.u.uinwater);
 
         // C's chain at 2377-2393 chooses the callback by comparing `obj`
         // against the slot pointers setworn() has just filled. `mask` names
