@@ -225,19 +225,17 @@ When copying a large fixed table from C or Lua, write a script that produces
 the JavaScript table deterministically. Commit the script, the generated file,
 and a check that compares it with freshly generated output.
 
-### Local serialize fix
-
-`frozen/terminal.js` `serialize()` discards attributes (inverse video,
-underline) on leading-space characters. The local copy applies a fix so that
-screens with attributed leading spaces compare correctly. The upstream scorer
-does not have this fix, so local fixed-development and local-holdout provenance
-scores exceed the leaderboard score by a margin that grows with session
-coverage.
-
 ### Keep the game compatible with the scoring system
 
 - Leave `js/isaac64.js`, `js/terminal.js`, and `js/storage.js` unchanged. The
   scorer replaces them with its official versions before scoring.
+- Leave the files under `frozen/` as upstream ships them, so local scores
+  equal the judge's. After `git fetch upstream`,
+  `git diff --stat upstream/main -- frozen/` prints nothing.
+- Capture screens with `GameDisplay.serialize()` in `js/game_display.js`,
+  not `Terminal.serialize()`. The frozen method drops inverse video and
+  underline from spaces before a row's first glyph
+  (davidbau/teleport-contest#18).
 - Submit JavaScript ES modules that run directly in Node 22+ and modern Chrome,
   with no build step. Game code must not perform filesystem or network
   operations, start other programs, load native extensions, create threads, or

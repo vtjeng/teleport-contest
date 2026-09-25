@@ -125,9 +125,11 @@ source record.
 
 Two facts affect how figures compare across rows and against the leaderboard:
 
-- Rows from `7b95457` (2026-08-29T23:15Z) onward were measured with the local
-  `serialize()` fix that "Local serialize fix" in `AGENTS.md` describes, which
-  raises local figures above the leaderboard's.
+- Rows from `7b95457` (2026-08-29T23:15Z) up to `b3bba28f` were measured with
+  a local edit to `frozen/terminal.js` that the judge does not apply. At
+  `150ab469` the edit added 59 screens to the local figure. From `b3bba28f`
+  on, `GameDisplay.serialize()` recovers those screens under the judge's
+  code, so local and leaderboard figures agree.
 - Historical public rows use 33 sessions; operational fixed rows use 44. Do not
   compare their percentages without checking `sessions_total` and the screen
   denominator. The remote competition holdout remains unavailable and is never

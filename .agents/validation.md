@@ -287,8 +287,7 @@ Each of these has produced a wrong conclusion before.
 - `game.rng` does not exist. Count draws through the replay object's
   `getRngLog()`. An assertion on `game.rng?.log?.length ?? 0` compares 0 with 0
   and passes whatever the code does.
-- `js/terminal.js` has no `serialize()`, so outside the scoring workspace every
-  recorded screen is the empty string. Read `display.toplines` (the port of
-  `gt.toplines`), or run inside the workspace that
-  `scripts/score-development.mjs` builds, where `frozen/terminal.js` replaces
-  it.
+- `getScreens()` returns the same strings in a test as in the scorer, because
+  `GameDisplay.serialize()` reads only the terminal grid. To inspect each
+  cell's color and attribute, run the segment inside `withSerializedGrids()`
+  from `scripts/terminal-grid-capture.mjs`.
