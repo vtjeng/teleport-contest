@@ -18,7 +18,7 @@ import { readBaseline } from './score-baseline.mjs';
 test('bookkeeping checks refresh ledgers and history without replaying the game', () => {
     const commands = bookkeepingCommands();
     assert.deepEqual(commands.map(({ label }) => label),
-        ['bookkeeping tests', 'review gate', 'end-of-input over-read']);
+        ['bookkeeping tests', 'review gate', 'session scan', 'end-of-input over-read']);
     // Ledger parsers validate this commit; fixture-only tests cannot do that.
     assert.ok(commands[0].args.includes('scripts/checkpoint-bookkeeping.test.mjs'));
     assert.ok(commands[0].args.includes('scripts/quality-status.test.mjs'));
@@ -123,6 +123,7 @@ test('checkpoint runs full, generated, static, and score', () => {
             'review gate',
             'development score',
             'recordings corpus',
+            'session scan',
             'end-of-input over-read',
         ],
     );

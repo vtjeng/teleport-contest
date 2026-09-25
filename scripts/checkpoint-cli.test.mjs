@@ -125,7 +125,7 @@ test('the real private runner refreshes bookkeeping and retains the execution co
     assert.equal(summary.reusedFrom, join(original.artifacts, 'summary.json'));
     assert.equal(summary.results.find(({ label }) => label === 'bookkeeping tests').passed, true);
     assert.equal(readFileSync(join(f.root, '.cache/checks-run'), 'utf8').trim().split('\n').length,
-        3); // Bookkeeping tests, review status, and cache-sensitive overread only.
+        4); // Bookkeeping tests, review status, the session scan, and the overread only.
     assert.doesNotMatch(result.stdout, /== full test suite ==/u);
 
     const failed = f.run({ CHECKPOINT_FIXTURE_CHECK_FAILURE: 'yes' }, f.root, ['--reuse', reuse]);

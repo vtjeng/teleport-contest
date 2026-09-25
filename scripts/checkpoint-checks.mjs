@@ -138,6 +138,14 @@ export function checkpointCommands() {
             detail: result.stdout.trim().split('\n').at(-1) ?? '',
         }),
     });
+    // check-overread.mjs reads the scan cache that `scan-sessions.mjs --json`
+    // writes, and a fresh checkpoint worktree has none until this runs.
+    commands.push({
+        label: 'session scan',
+        command: process.execPath,
+        args: ['scripts/scan-sessions.mjs', '--json'],
+        capture: true,
+    });
     commands.push({
         label: 'end-of-input over-read',
         command: process.execPath,
@@ -174,7 +182,8 @@ export function bookkeepingCommands() {
         args: ['--test', 'scripts/goal-log.test.mjs', 'scripts/goal-log-cli.test.mjs',
             'scripts/score-log.test.mjs', 'scripts/quality-status.test.mjs',
             'scripts/dashboard-data.test.mjs', 'scripts/checkpoint-bookkeeping.test.mjs'] },
-    ...commands.filter(({ label }) => label === 'review gate' || label === 'end-of-input over-read')];
+    ...commands.filter(({ label }) => ['review gate', 'session scan',
+        'end-of-input over-read'].includes(label))];
 }
 
 export function runCheckpointChecks(commands, {
