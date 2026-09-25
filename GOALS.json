@@ -71270,6 +71270,92 @@
           "evaluationCommit": "4cd1d2f115390c0777339a40051076a330409d54"
         }
       }
+    },
+    {
+      "id": "port-trap-float-down-synthetic-v1-20260925",
+      "kind": "file-port",
+      "status": "queued",
+      "summary": "Port levitation landing and float_down source callers",
+      "cFile": "trap.c",
+      "sessions": [
+        "synthetic/v1/terrain-transitions"
+      ],
+      "selectionReason": "At the current A2 queue, terrain-transitions has 71 unmatched screens and its completed investigation identifies trap.c float_down at step 58; worker B reserves altar terrain wishes, so this is the highest ranked eligible unreserved source task.",
+      "detail": "Port all of trap.c float_down (4024-4178), including state, messages, hazards, trap activation, pickup and return values, with return-valued drown() behavior where reached. Wire do_wear.c Ring_off_or_gone levitation removal and other active source callers. Preserve discarded-result gaps only where C discards the result. See investigations/synthetic/v1/terrain-transitions.json.",
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": null,
+      "delivered": null,
+      "functions": [
+        {
+          "name": "float_down",
+          "line": 4024,
+          "endLine": 4182,
+          "declared": true,
+          "complete": false
+        }
+      ],
+      "range": {
+        "from": 4024,
+        "to": 4182
+      },
+      "syntheticProvenance": {
+        "synthetic/v1/terrain-transitions": {
+          "session": "synthetic/v1/terrain-transitions",
+          "corpus": "synthetic",
+          "batch": "v1",
+          "caseId": "terrain-transitions",
+          "manifestPath": "challenges/manifest.json",
+          "manifestSha256": "a1d989fa6b5159e0b0729150ba765c741a405ec910c1274ad763d29b0a7096fe",
+          "recordingPath": "challenges/cases/terrain-transitions.session.json",
+          "recordingSha256": "5491c8fb94f71fe5a5c56498e2c58b6d736e65b221cf0a39d1895abdd6759ec9",
+          "evaluationPath": "challenges/evaluations/20260925185643-v1.json",
+          "evaluationCommit": "cb5a1d6236d100c62a31e5029cbfa55e55cdfb60"
+        }
+      }
+    },
+    {
+      "id": "port-apply-use-lamp-synthetic-v1-20260925",
+      "kind": "file-port",
+      "status": "queued",
+      "summary": "Port complete oil-lamp apply and burn-state transitions",
+      "cFile": "apply.c",
+      "sessions": [
+        "synthetic/v1/sustained-journey"
+      ],
+      "selectionReason": "After the higher remaining terrain and altar goals were assigned, the complete sustained-journey investigation identifies the independent 15-screen apply.c use_lamp mismatch at segment 0 step 187.",
+      "detail": "Port all apply.c use_lamp branches for oil lamps and candles, including on/off, fuel, underwater, curse, shop and message effects; wire doapply and source return-valued dependencies, preserving begin_burn/end_burn order. See investigations/synthetic/v1/sustained-journey.json.",
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": null,
+      "delivered": null,
+      "functions": [
+        {
+          "name": "use_lamp",
+          "line": 1628,
+          "endLine": 1702,
+          "declared": false,
+          "complete": false
+        }
+      ],
+      "range": {
+        "from": 1628,
+        "to": 1702
+      },
+      "syntheticProvenance": {
+        "synthetic/v1/sustained-journey": {
+          "session": "synthetic/v1/sustained-journey",
+          "corpus": "synthetic",
+          "batch": "v1",
+          "caseId": "sustained-journey",
+          "manifestPath": "challenges/manifest.json",
+          "manifestSha256": "a1d989fa6b5159e0b0729150ba765c741a405ec910c1274ad763d29b0a7096fe",
+          "recordingPath": "challenges/cases/sustained-journey.session.json",
+          "recordingSha256": "b190d330b5177de86ea2c81412de96a1708faf22ff2a769aa1f558b7646a3eea",
+          "evaluationPath": "challenges/evaluations/20260925185643-v1.json",
+          "evaluationCommit": "cb5a1d6236d100c62a31e5029cbfa55e55cdfb60"
+        }
+      }
     }
   ]
 }
