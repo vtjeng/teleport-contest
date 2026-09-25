@@ -71916,7 +71916,7 @@
     {
       "id": "port-potion-peffect-polymorph-synthetic-v4-20260925",
       "kind": "file-port",
-      "status": "open",
+      "status": "closed",
       "summary": "Port complete polymorph-potion effect and source-ordered controlled transformation entry",
       "cFile": "potion.c",
       "sessions": [
@@ -71930,15 +71930,18 @@
         "screens": 11405,
         "rng": 792838
       },
-      "closedAt": null,
-      "delivered": null,
+      "closedAt": "4c94668a402c17dd41062fe2ec966453db17c551",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
       "functions": [
         {
           "name": "peffect_polymorph",
           "line": 1318,
           "endLine": 1332,
-          "declared": false,
-          "complete": false
+          "declared": true,
+          "complete": true
         }
       ],
       "range": {
@@ -72136,7 +72139,83 @@
             }
           }
         }
-      ]
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "peffect_polymorph",
+            "implementation": "js/potion.js",
+            "symbol": "peffect_polymorph",
+            "sourceReview": "Read all of potion.c peffect_polymorph() at lines 1318-1331 and its POT_POLYMORPH dispatch in peffects() at lines 1417-1419. The port keeps the hallucination-sensitive message first, then skips polyself() when Unchanging is active. Otherwise it preserves the blessed/base-form split: POLY_NOFLAGS for every nonblessed potion or an already-polymorphed hero, and POLY_CONTROLLED|POLY_LOW_CTRL for a blessed potion in base form. In that branch it checks the post-polyself u.mtimedone and u.umonnum state before calling rn2(15)+10 and applying C min() order. polyself() is a void callee whose return is discarded, but its state effects are required; the existing js/polyself.js implementation is awaited rather than skipped. Removed the POT_POLYMORPH UnsupportedQuaffError refusal. The controlled prompt and giant-spider transformation matched on both the ordinary and blessed calls; no unported boundary was reached.",
+            "callers": [
+              {
+                "path": "js/potion.js",
+                "symbol": "peffects",
+                "source": "potion.c:1417-1419, peffects() dispatches POT_POLYMORPH to peffect_polymorph(otmp)."
+              },
+              {
+                "path": "js/potion.js",
+                "symbol": "dopotion",
+                "source": "potion.c:624-641, dopotion() invokes peffects(otmp) and continues its potion-use tail after the -1 result."
+              },
+              {
+                "path": "js/potion.js",
+                "symbol": "dodrink",
+                "source": "potion.c:614-615, dodrink() returns dopotion(otmp) after selecting the drink."
+              },
+              {
+                "path": "js/cmd.js",
+                "symbol": "runQuaffCommand",
+                "source": "cmd.c:1809-1810, the 'q' command row names dodrink; runQuaffCommand() dispatches to dodrink(state)."
+              }
+            ],
+            "pure": false,
+            "tests": [],
+            "recordings": [
+              "recordings/potion.c/polymorph-blessed-controlled-independent.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v4",
+                "caseId": "wizard-controlled-potion-transformation",
+                "segment": 0,
+                "fromStep": 53,
+                "throughStep": 80,
+                "source": "cmd.c 'q' -> potion.c dodrink() -> dopotion() -> peffects() POT_POLYMORPH -> peffect_polymorph() -> polyself(POLY_NOFLAGS)"
+              }
+            ],
+            "checkedAt": "4c94668a402c17dd41062fe2ec966453db17c551"
+          }
+        ],
+        "entryPointReview": "The active potion.c entry is quaffing a POT_POLYMORPH through cmd.c's 'q' row and dodrink() -> dopotion() -> peffects(). The admitted v4 recording covers the nonblessed POLY_NOFLAGS call with polymorph control and its prompt; the independent blessed recording covers the base-form POLY_CONTROLLED|POLY_LOW_CTRL call and post-transformation duration cap. The Unchanging early return and hallucination wording are branches of the same source entry, not separate callers; they retain the exact C guards and use the existing Hallucination property helper. The called polyself() is existing partial source code outside this potion.c unit; its controlled path used here matched without reaching a recorded unported boundary.",
+        "entryPoints": [
+          {
+            "name": "Quaff a polymorph potion through the command path while wearing polymorph control",
+            "functions": [
+              "peffect_polymorph"
+            ],
+            "recordings": [
+              "recordings/potion.c/polymorph-blessed-controlled-independent.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v4",
+                "caseId": "wizard-controlled-potion-transformation",
+                "segment": 0,
+                "fromStep": 53,
+                "throughStep": 80,
+                "source": "cmd.c 'q' -> potion.c dodrink() -> dopotion() -> peffects() POT_POLYMORPH -> peffect_polymorph() -> polyself()"
+              }
+            ]
+          }
+        ]
+      },
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "4c94668a402c17dd41062fe2ec966453db17c551",
+        "screens": 11405,
+        "rng": 792838
+      }
     }
   ]
 }
