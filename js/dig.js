@@ -54,6 +54,7 @@ import {
     SDOOR,
     SHOPBASE,
     STONE,
+    TT_BURIEDBALL,
     u_at,
     W_NONDIGGABLE,
 } from './const.js';
@@ -72,6 +73,7 @@ import {
     BANANA,
     BOULDER,
     EUCALYPTUS_LEAF,
+    HEAVY_IRON_BALL,
     ORANGE,
     PEAR,
     ROCK,
@@ -86,7 +88,7 @@ import { rn1, rn2 } from './rng.js';
 import { set_voice } from './sounds.js';
 import { is_lava, is_pool } from './trap.js';
 import { stairway_at } from './stairs.js';
-import { s_suffix } from './hacklib.js';
+import { dist2, s_suffix } from './hacklib.js';
 import { unconscious } from './trap.js';
 import { ttyPline } from './tty_message.js';
 
@@ -603,4 +605,31 @@ export function rot_corpse(arg, timeout, rawEnv = {}) {
         mtmp.mundetected = 0;
     }
     env.hooks.newsym(x, y, env);
+}
+
+// C ref: dig.c buried_ball() (1885-1930). Find a buried iron ball at or near
+// cc. A nearby match updates the caller-owned coordinate; equal-distance
+// matches keep the first ball in buriedobjlist order.
+export function buried_ball(cc, state = game) {
+    let bdist = COLNO;
+    let ball = null;
+
+    if (!state.u.utrap || state.u.utraptype === TT_BURIEDBALL) {
+        for (let obj = state.level.buriedobjlist; obj; obj = obj.nobj) {
+            if (obj.otyp !== HEAVY_IRON_BALL) continue;
+            if (obj.ox === cc.x && obj.oy === cc.y) return obj;
+
+            const odist = dist2(obj.ox, obj.oy, cc.x, cc.y);
+            if (odist <= 8 && (!ball || odist < bdist)) {
+                ball = obj;
+                bdist = odist;
+            }
+        }
+    }
+
+    if (ball) {
+        cc.x = ball.ox;
+        cc.y = ball.oy;
+    }
+    return ball;
 }

@@ -1273,26 +1273,21 @@ test('the pit and thrown-missile arms read their own conditions',
         assert.equal(game.level.monsters[pitted.mx][pitted.my], null);
         assert.equal(game.level.objects[pitted.mx][pitted.my], null);
 
-        // 3515's boulder resting on the square, which sets nocorpse. The flag
-        // is never read: mon_leaving_level() reaches trap.c fill_pit() first,
-        // and that is where the boulder about to fall in stops the kill --
-        // above the drop draw, so the stream is untouched.
+        // 3515's boulder resting on the square sets nocorpse, which skips the
+        // treasure and corpse draws. mon_leaving_level() reaches trap.c
+        // fill_pit() first and detaches the boulder before flooreffects().
         const under = spawn(PM_NEWT, { mhp: 0, mtrapped: 1 });
         maketrap(under.mx, under.my, PIT, { state: game });
         const floorRock = mksobj(BOULDER, false, false, { state: game });
         place_object(floorRock, under.mx, under.my,
             { state: game, hooks: { blockPoint: (bx, by, env) => block_point(bx, by, env.state) } });
-        const covered = killEnv();
-        await refusesAsync(
-            () => killed(under, game, covered),
-            'unsupported hero move: fill_pit() settling a boulder into a pit',
-        );
-        assert.deepEqual(covered.bounds, [], 'stopped above the drop draw');
-        // Teardown: the stopped kill freed the square but left the boulder on
-        // it, and spawn() reuses the first free square beside the hero. The
-        // vision hook is a fixture no-op; nothing below reads block points.
-        remove_object(floorRock,
-                      { state: game, hooks: { recalcBlockPoint() {} } });
+        const covered = killEnv([2, 1]);
+        await killed(under, game, covered);
+        assert.deepEqual(covered.bounds, []);
+        assert.equal(game.level.objects[under.mx][under.my], null);
+        assert.ok(game.unported.has('do.c flooreffects'));
+        // The boulder is already detached; its next slot is reused by the
+        // following fixture's placement.
 
         // 3517's boulder in the monster's pack, which sets burycorpse. Its
         // square is clear, so fill_pit() passes. m_detach()'s relobj() drops

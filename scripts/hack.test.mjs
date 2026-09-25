@@ -336,7 +336,10 @@ test('switch_terrain preserves source blocked masks and transition messages', as
     await switch_terrain(clear);
     assert.equal(clear.u.uprops[LEVITATION].blocked, 1);
     assert.equal(clear.u.uprops[FLYING].blocked, 0);
-    assert.equal(clear._ttyToplines, 'You start flying.');
+    assert.equal(
+        clear._ttyToplines,
+        'You start to float in the air!  You start flying.',
+    );
     assert.equal(clear.disp.botl, true);
 });
 

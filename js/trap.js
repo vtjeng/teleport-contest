@@ -71,6 +71,7 @@ import {
     HALLUC,
     HALLUC_RES,
     HAND,
+    I_SPECIAL,
     HOLE,
     HVY_ENCUMBER,
     IS_AIR,
@@ -87,6 +88,7 @@ import {
     KILLED_BY_AN,
     Is_waterlevel,
     LADDER,
+    LEG,
     LIFESAVED,
     LANDMINE,
     LAVAWALL,
@@ -171,6 +173,7 @@ import {
     W_ARMOR,
     W_BALL,
     W_CHAIN,
+    W_ARTI,
     W_TOOL,
     W_WEAPONS,
     ZAP_POS,
@@ -193,9 +196,10 @@ import {
 import { is_art, ART_STING, attacks, has_magic_key, Stone_resistance } from './artifacts.js';
 import { exercise, adjalign, acurr, poisoned } from './attrib.js';
 import { obj_resists, unearth_objs } from './bury.js';
+import { buried_ball } from './dig.js';
 import { getdir, xytodir } from './cmd.js';
 import {
-    capitalizedMonsterName, monsterCommonName, mon_pmname,
+    Monnam, capitalizedMonsterName, mon_nam, monsterCommonName, mon_pmname,
     noit_Monnam, y_monnam, rndcolor, hliquid, hcolor, rndmonnam,
     a_monnam, christen_monst,
 } from './do_name.js';
@@ -232,7 +236,7 @@ import { killed, wake_nearby, wakeup, seemimic } from './mon.js';
 import {
     amorphous, amphibious, attacktype, breathless, can_teleport, flaming,
     is_clinger, is_floater,
-    is_flyer, is_whirly, nohands, resists_magm, unsolid, webmaker, sticks,
+    is_animal, is_flyer, is_whirly, nohands, resists_magm, unsolid, webmaker, sticks,
     bigmonst, is_swimmer, likes_lava, mindless, monster_resists_element,
     touch_petrifies, unique_corpstat, poly_when_stoned, is_golem,
     is_vampshifter, nonliving, hides_under,
@@ -254,6 +258,7 @@ import {
     is_flammable,
     objectType,
     place_object,
+    remove_object,
     sobj_at,
     weight,
 } from './obj.js';
@@ -286,7 +291,9 @@ import { dotrap, mintrap } from './trap_effects.js';
 import { ttyPline, ttyUrgentPline } from './tty_message.js';
 import { stumble_onto_mimic } from './uhitm.js';
 import { note_unported } from './unported.js';
-import { unblock_point, vision_recalc, cansee, canseemon } from './vision.js';
+import {
+    unblock_point, recalc_block_point, vision_recalc, cansee, canseemon,
+} from './vision.js';
 import { welded } from './wield.js';
 import { bimanual } from './worn.js';
 import { newsym, bot } from './display.js';
@@ -778,7 +785,7 @@ export function deltrap(trap, state = game) {
 // terrain effect consumes, clearing the actor's trap state or a monster's
 // trapped flag before unlinking the trap. Keep the trap IDs from const.js in
 // one owner; callers such as fountain gushes and zap floor effects share it.
-export function delfloortrap(trap, state = game) {
+export async function delfloortrap(trap, state = game) {
     if (trap && (trap.ttyp === SQKY_BOARD || trap.ttyp === BEAR_TRAP
         || trap.ttyp === LANDMINE || trap.ttyp === FIRE_TRAP
         || is_pit(trap.ttyp) || is_hole(trap.ttyp)
@@ -787,7 +794,7 @@ export function delfloortrap(trap, state = game) {
         || trap.ttyp === ANTI_MAGIC)) {
         if (state.u.ux === trap.tx && state.u.uy === trap.ty) {
             if ((state.u.utraptype ?? TT_NONE) !== TT_BURIEDBALL)
-                reset_utrap(true, state);
+                await reset_utrap(true, state);
         } else {
             const monster = m_at(trap.tx, trap.ty, state);
             if (monster) monster.mtrapped = 0;
@@ -1395,42 +1402,129 @@ export function set_utrap(tim, typ, state = game) {
     float_vs_flight(state);
 }
 
-// C ref: trap.c reset_utrap() (1045-1057). Two call sites are ported and they
-// disagree about `msg`: teleport.c teleds() passes FALSE, and hack.c
-// domove_core():2835 passes TRUE for the hero who has just worked free of a
-// bear trap. So float_up() and the "You can fly." line below it are live
-// refusals rather than unreachable ones -- scripts/hero-bear-trap.test.mjs
-// reaches the first of them -- and both stop rather than being dropped.
+// C ref: trap.c reset_utrap() (1045-1057). A resumed levitation calls
+// float_up(); resumed flight reports that the hero can fly. `msg=false`
+// returns synchronously because the C branch has no output in that case.
 export function reset_utrap(msg, state = game) {
     const was_Lev = Levitation(state);
     const was_Fly = Flying(state);
 
     set_utrap(0, 0, state);
 
-    if (msg) {
-        if (!was_Lev && Levitation(state))
-            throw new UnsupportedHeroMoveBoundaryError(
-                'reset_utrap() resuming levitation',
+    if (!msg) return;
+
+    return (async () => {
+        if (!was_Lev && Levitation(state)) await float_up(state);
+        if (!was_Fly && Flying(state)) await ttyPline('You can fly.', state);
+    })();
+}
+
+// C ref: trap.c float_up() (3937-4009). Start the levitation message and
+// resolve any trap, engulfing, steed, flight, and encumbrance effects in C
+// order. C discards dismount_steed()'s return; its unported effect is recorded
+// and skipped at that exact source call.
+export async function float_up(state = game) {
+    const { u } = state;
+    state.disp ??= {};
+    state.disp.botl = true;
+
+    if (u.utrap) {
+        if (u.utraptype === TT_PIT) {
+            await reset_utrap(false, state);
+            await ttyPline(
+                `You float up, out of the ${trapname(PIT, false, state)}!`,
+                state,
             );
-        if (!was_Fly && Flying(state))
-            throw new UnsupportedHeroMoveBoundaryError(
-                'reset_utrap() resuming flight',
+            state.vision_full_recalc = 1;
+            await fill_pit(u.ux, u.uy, state);
+        } else if (u.utraptype === TT_LAVA || u.utraptype === TT_INFLOOR) {
+            await ttyPline(
+                `Your body pulls upward, but your ${makeplural(
+                    body_part(LEG, state.youmonst),
+                )} are still stuck.`,
+                state,
             );
+        } else if (u.utraptype === TT_BURIEDBALL) {
+            const cc = { x: u.ux, y: u.uy };
+            buried_ball(cc, state);
+            await ttyPline(
+                `You feel lighter, but your ${body_part(LEG, state.youmonst)} `
+                    + `is still chained to the ${IS_ROOM(
+                        state.level.at(cc.x, cc.y).typ,
+                    ) ? 'floor' : 'ground'}.`,
+                state,
+            );
+        } else if (u.utraptype === TT_WEB) {
+            await ttyPline(
+                `You float up slightly, but you are still stuck in the ${
+                    trapname(WEB, false, state)
+                }.`,
+                state,
+            );
+        } else {
+            await ttyPline(
+                `You float up slightly, but your ${body_part(
+                    LEG, state.youmonst,
+                )} is still stuck.`,
+                state,
+            );
+        }
+    } else if (u.uinwater) {
+        await spoteffects(true, state);
+    } else if (u.uswallow) {
+        if (is_animal(u.ustuck.data)) {
+            await ttyPline(
+                `You float away from the ${surface(u.ux, u.uy, state)}.`,
+                state,
+            );
+        } else {
+            await ttyPline(`You spiral up into ${mon_nam(u.ustuck, state)}.`, state);
+        }
+    } else if (Hallucination(state)) {
+        await ttyPline("Up, up, and awaaaay!  You're walking on air!", state);
+    } else if (Is_airlevel(u.uz)) {
+        await ttyPline('You gain control over your movements.', state);
+    } else {
+        await ttyPline('You start to float in the air!', state);
     }
+
+    if (u.usteed && !is_floater(u.usteed.data)
+        && !is_flyer(u.usteed.data)) {
+        const levitation = u.uprops[LEVITATION] ?? {};
+        const levAtWill = Boolean(
+            ((levitation.intrinsic & I_SPECIAL)
+                || (levitation.extrinsic & W_ARTI))
+                && !(levitation.intrinsic & ~(I_SPECIAL | TIMEOUT))
+                && !(levitation.extrinsic & ~W_ARTI),
+        );
+        if (levAtWill) {
+            await ttyPline(`${Monnam(u.usteed, state)} magically floats up!`, state);
+        } else {
+            await ttyPline(`You cannot stay on ${mon_nam(u.usteed, state)}.`, state);
+            note_unported('steed.c dismount_steed');
+        }
+    }
+    if (Flying(state))
+        await ttyPline('You are no longer able to control your flight.', state);
+    float_vs_flight(state);
+    await encumber_msg(state);
 }
 
 // C ref: trap.c fill_pit() (4010-4021). A boulder resting on a pit or hole
 // settles into it when the hero leaves the square.
 export function fill_pit(x, y, state = game) {
     const trap = t_at(x, y, state);
-    if (trap && (is_pit(trap.ttyp) || is_hole(trap.ttyp))
-        && sobj_at(BOULDER, x, y, state)) {
-        // obj_extract_self() then flooreffects(otmp, x, y, "settle"), which
-        // fills the pit, may break the boulder and can drown or burn it. None
-        // of flooreffects() is ported.
-        throw new UnsupportedHeroMoveBoundaryError(
-            'fill_pit() settling a boulder into a pit',
-        );
+    const boulder = sobj_at(BOULDER, x, y, state);
+    if (trap && (is_pit(trap.ttyp) || is_hole(trap.ttyp)) && boulder) {
+        obj_extract_self(boulder, {
+            state,
+            hooks: {
+                extractExternalObject: remove_object,
+                recalcBlockPoint: (bx, by, env) =>
+                    recalc_block_point(bx, by, env.state),
+            },
+        });
+        note_unported('do.c flooreffects');
     }
 }
 
@@ -1795,7 +1889,7 @@ function untrap_prob(ttmp, state = game) {
 
 // C ref: trap.c cnv_trap_obj() (5340-5371). Replace trap with object(s);
 // Helge Hafting.
-export function cnv_trap_obj(otyp, cnt, ttmp, bury_it, state = game) {
+export async function cnv_trap_obj(otyp, cnt, ttmp, bury_it, state = game) {
     const otmp = mksobj(otyp, true, false, { state });
     otmp.quan = cnt;
     otmp.owt = weight(otmp, { state });
@@ -1816,7 +1910,7 @@ export function cnv_trap_obj(otyp, cnt, ttmp, bury_it, state = game) {
     }
     newsym(ttmp.tx, ttmp.ty);
     if (state.u.utrap && state.u.ux === ttmp.tx && state.u.uy === ttmp.ty)
-        reset_utrap(true, state);
+        await reset_utrap(true, state);
     const mtmp = m_at(ttmp.tx, ttmp.ty, state);
     if (mtmp && mtmp.mtrapped) mtmp.mtrapped = 0;
     deltrap(ttmp, state);
@@ -1999,7 +2093,7 @@ async function disarm_holdingtrap(ttmp, state = game) {
         await reward_untrap(ttmp, mtmp, state);
     } else if (ttmp.ttyp === BEAR_TRAP) {
         await ttyPline(`You disarm ${which} bear trap.`, state);
-        cnv_trap_obj(BEARTRAP, 1, ttmp, false, state);
+        await cnv_trap_obj(BEARTRAP, 1, ttmp, false, state);
     } else if (ttmp.ttyp === WEB) {
         const uwep = state.uwep;
         const uswapwep = state.uswapwep;
@@ -2027,7 +2121,7 @@ async function disarm_landmine(ttmp, state = game) {
     const fails = await try_disarm(ttmp, false, state);
     if (fails < 2) return fails;
     await ttyPline(`You disarm ${the_your[ttmp.madeby_u ? 1 : 0]} land mine.`, state);
-    cnv_trap_obj(LAND_MINE, 1, ttmp, false, state);
+    await cnv_trap_obj(LAND_MINE, 1, ttmp, false, state);
     return 1;
 }
 
@@ -2078,7 +2172,7 @@ async function disarm_shooting_trap(ttmp, otyp, state = game) {
     const fails = await try_disarm(ttmp, false, state);
     if (fails < 2) return fails;
     await ttyPline(`You disarm ${the_your[ttmp.madeby_u ? 1 : 0]} trap.`, state);
-    cnv_trap_obj(otyp, 50 - rnl(50), ttmp, false, state);
+    await cnv_trap_obj(otyp, 50 - rnl(50), ttmp, false, state);
     return 1;
 }
 
@@ -2531,7 +2625,7 @@ export async function openholdingtrap(mon, state = game) {
             buf = `${noit_Monnam(u.usteed, state)} is`;
         await ttyPline(`${buf} released from ${which}${trapdescr}.`, state);
         state.vision_full_recalc = 1;
-        reset_utrap(true, state);
+        await reset_utrap(true, state);
         if (state.vision_full_recalc)
             vision_recalc(0, { state });
     } else {

@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Blocked C recipe for hack.c:switch_terrain terrain reentry. The patched C path wishes for levitation, wears it, polymorphs into a xorn, and enters rock; C reports “You can’t levitate in here” at step 42. Fresh C/JS stops at the preceding controlled-form transition because polyself.c:polymon has an unported display/turn continuation; no matching recording is claimed.",
+  "segments": [
+    {
+      "seed": 90175,
+      "datetime": "20390917091515",
+      "nethackrc": "OPTIONS=name:TerrainReentry,role:Wizard,race:human,gender:male,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen\nOPTIONS=playmode:debug,pettype:none,!acoustics,!autopickup,time\n",
+      "moves": ". \u0017ring of levitation\nPol #polyself\nxorn\nh     l"
+    }
+  ]
+}

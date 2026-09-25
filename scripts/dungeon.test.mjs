@@ -27,6 +27,7 @@ import {
     M_AP_FURNITURE,
     MAXNROFROOMS,
     MOAT,
+    NATTK,
     OROOM,
     POOL,
     ROOM,
@@ -86,7 +87,9 @@ import {
 } from '../js/dungeon.js';
 import { GameMap } from '../js/game.js';
 import { game, resetGame } from '../js/gstate.js';
-import { PM_DWARF, PM_GNOME } from '../js/monsters.js';
+import {
+    AD_DGST, AD_WRAP, AT_ENGL, M1_ANIMAL, PM_DWARF, PM_GNOME,
+} from '../js/monsters.js';
 import { S_altar } from '../js/symbols.js';
 import { enableRngLog, getRngLog, initRng } from '../js/rng.js';
 import {
@@ -1387,11 +1390,48 @@ test('surface names every terrain in the C branch order', () => {
         'stairs',
     );
 
-    // The engulfed arm is unported. It answers only for the hero's own square,
-    // so an engulfed hero standing elsewhere still reads the terrain.
+    // The engulfed arm applies only on the hero's own square, so an engulfed
+    // hero standing elsewhere still reads the terrain.
     const engulfed = surfaceState(ROOM, { uswallow: true });
     assert.equal(surface(10, 10, engulfed), 'floor');
     engulfed.u.ux = 10;
     engulfed.u.uy = 10;
-    assert.throws(() => surface(10, 10, engulfed), /noun for an engulfer/u);
+    engulfed.u.ustuck = { data: {
+            mflags1: 0,
+        mattk: Array.from({ length: NATTK }, () => ({ adtyp: 0, aatyp: 0 })),
+    } };
+    assert.equal(surface(10, 10, engulfed), 'floor');
+});
+
+test('surface names an animal engulfer with the C digests and enfolds rules', () => {
+    function animalWithAttack(adtyp, aatyp = AT_ENGL) {
+        return {
+            mflags1: M1_ANIMAL,
+            mattk: [
+                { adtyp, aatyp },
+                ...Array.from({ length: NATTK - 1 }, () => ({ adtyp: 0, aatyp: 0 })),
+            ],
+        };
+    }
+    const engulfedBy = (data) => {
+        const state = surfaceState(ROOM, { uswallow: true });
+        state.u.ux = 10;
+        state.u.uy = 10;
+        state.u.ustuck = { data };
+        return state;
+    };
+
+    assert.equal(
+        surface(10, 10, engulfedBy(animalWithAttack(AD_DGST))), 'maw',
+    );
+    assert.equal(
+        surface(10, 10, engulfedBy(animalWithAttack(AD_WRAP))), 'husk',
+    );
+    assert.equal(
+        surface(10, 10, engulfedBy(animalWithAttack(0))), 'nonesuch',
+    );
+    assert.equal(
+        surface(10, 10, engulfedBy(animalWithAttack(AD_DGST, 1))),
+        'nonesuch',
+    );
 });

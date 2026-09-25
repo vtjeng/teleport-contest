@@ -641,7 +641,7 @@ export async function boulder_hits_pool(otmp, rx, ry, pushing = false, rawEnv = 
         const currentTrap = t_at(rx, ry, state);
         if (currentTrap) {
             const { delfloortrap } = await import('./trap.js');
-            delfloortrap(currentTrap, state);
+            await delfloortrap(currentTrap, state);
         }
         // C discards bury_objs()'s result; no JS owner exists yet.
         note_unported('dig.c bury_objs');
@@ -782,7 +782,7 @@ export async function flooreffects(obj, x, y, verb, rawEnv = {}) {
                         state,
                     );
                 } else {
-                    reset_utrap(true, state);
+                    await reset_utrap(true, state);
                 }
             }
             if (verb) {
@@ -809,7 +809,7 @@ export async function flooreffects(obj, x, y, verb, rawEnv = {}) {
             const currentTrap = t_at(x, y, state);
             if (currentTrap) {
                 const { delfloortrap } = await import('./trap.js');
-                delfloortrap(currentTrap, state);
+                await delfloortrap(currentTrap, state);
             }
             await useupf(obj, 1, { ...rawEnv, state });
             note_unported('dig.c bury_objs');

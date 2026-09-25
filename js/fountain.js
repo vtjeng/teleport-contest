@@ -280,7 +280,7 @@ async function gush(x, y, argument, state = game, env = {}) {
     }
     // C ref: fountain.c:144-145. Delete floor trap if possible.
     const ttmp = t_at(x, y, state);
-    if (ttmp && !delfloortrap(ttmp, state)) return;
+    if (ttmp && !await delfloortrap(ttmp, state)) return;
 
     if (!context.madepool++) {
         await message(

@@ -216,7 +216,7 @@ import { cansee, couldsee } from './vision.js';
 import { next_to_u } from './apply_next_to_u.js';
 import { glyph_at, glyph_is_trap, newsym } from './display.js';
 import { losehp, nomul, spoteffects } from './hack.js';
-import { float_down, t_at } from './trap.js';
+import { float_down, float_up, t_at } from './trap.js';
 import { level_tele } from './teleport.js';
 import { align_str, enlightenment } from './insight.js';
 import { carried, Is_dragon_armor, Is_dragon_mail, mksobj, objectType, weight } from './obj.js';
@@ -2617,7 +2617,7 @@ async function arti_invoke(obj, state = game) {
         break;
     case LEVITATION:
         if (on) {
-            note_unported('hack.c float_up');
+            await float_up(state);
             await spoteffects(false, state);
         } else {
             await float_down(I_SPECIAL | TIMEOUT, W_ARTI, state);

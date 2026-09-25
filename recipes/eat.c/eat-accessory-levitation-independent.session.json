@@ -1,0 +1,10 @@
+{
+  "version": 5,
+  "comment": "Independent eat.c eataccessory witness: seed 41 was selected from the source-port scan over seeds 1-100 because it reaches rn2(5)=0 at eataccessory; datetime 20381208091135, Wizard, and a debug Ctrl-W wish for an amulet of guarding were chosen independently. #polyself changes the hero into a xorn, then #eat reaches the metallic accessory path; the final space dismisses C's More prompt so the accessory effect completes.",
+  "segments": [{
+    "seed": 41,
+    "datetime": "20381208091135",
+    "nethackrc": "OPTIONS=name:LevitationRingEater,role:Wizard,race:human,gender:female,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen\nOPTIONS=playmode:debug,pettype:none,!acoustics,!autopickup,time\n",
+    "moves": ".\u0017amulet of guarding\n#polyself\nxorn\n.men "
+  }]
+}

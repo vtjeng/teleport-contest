@@ -25,6 +25,7 @@ import {
     MAX_CARR_CAP,
     MON_STILL_ARRIVING,
     N_DIRS,
+    OBJ_FREE,
     PIT,
     POOL,
     RIGHT_SIDE,
@@ -556,8 +557,7 @@ test('set_utrap flags the status line only when the trap state changes',
     assert.equal(state.u.utraptype, TT_NONE);
 });
 
-test('reset_utrap releases the hero and refuses a resumed levitation',
-    async () => {
+test('reset_utrap releases the hero and reports resumed levitation', async () => {
     // trap.c:1045-1057. teleds() passes msg FALSE, so float_up() and the
     // "You can fly." line below it are unreachable there.
     const state = await mounted();
@@ -567,28 +567,41 @@ test('reset_utrap releases the hero and refuses a resumed levitation',
     assert.equal(state.u.utrap, 0);
     assert.equal(state.u.utraptype, TT_NONE);
 
-    // With msg TRUE and levitation that the trap was blocking, C would call
-    // float_up(); this port stops instead.
+    // With msg TRUE and levitation that the trap was blocking, C calls
+    // float_up() after set_utrap() removes the floor obstruction.
     state.u.utrap = 4;
     state.u.utraptype = TT_WEB;
+    state.u.usteed = null;
     state.u.uprops[LEVITATION].extrinsic = FROMOUTSIDE;
     float_vs_flight(state); // sets BLevitation, so Levitation is FALSE now
-    assert.throws(() => reset_utrap(true, state),
-                  UnsupportedHeroMoveBoundaryError);
+    clearTtyMessageWindow(state);
+    await reset_utrap(true, state);
+    assert.equal(state.u.utrap, 0);
+    assert.equal(state.u.utraptype, TT_NONE);
+    assert.equal(state.u.uprops[LEVITATION].blocked, 0);
+    assert.match(state._ttyToplines, /You start to float in the air!/u);
     state.u.uprops[LEVITATION].extrinsic = 0;
     float_vs_flight(state);
 });
 
-test('fill_pit refuses only a boulder resting on a pit', async () => {
-    // trap.c:4010-4021. Three conjuncts, and the port has an owner for none of
-    // the settling; a square with no trap, or a pit with no boulder, is a
-    // no-op.
+test('fill_pit extracts a boulder only when a pit or hole is present', async () => {
+    // trap.c:4010-4021. C discards flooreffects(), which is recorded as a gap
+    // after obj_extract_self() performs the preceding source state change.
     const state = await mounted();
     const { ux, uy } = state.u;
     fill_pit(ux, uy, state); // no trap here at all
     state.level.traps ??= [];
-    state.level.traps.push({ tx: ux, ty: uy, ttyp: TT_PIT });
+    state.level.traps.push({ tx: ux, ty: uy, ttyp: PIT });
     fill_pit(ux, uy, state); // a trap, but no boulder
+    const boulder = mksobj(BOULDER, false, false, { state });
+    const pileBeforeBoulder = state.level.objects[ux][uy];
+    place_object(boulder, ux, uy, { state, hooks: {
+        blockPoint: (bx, by, env) => block_point(bx, by, env.state),
+    } });
+    fill_pit(ux, uy, state);
+    assert.equal(boulder.where, OBJ_FREE);
+    assert.equal(state.level.objects[ux][uy], pileBeforeBoulder);
+    assert.ok(state.unported.has('do.c flooreffects'));
     state.level.traps.pop();
 });
 
@@ -1271,31 +1284,31 @@ test('float_down refuses each hero state that stops the descent', async () => {
     }
 });
 
-test('fill_pit refuses a hole as well as a pit', async () => {
+test('fill_pit extracts a boulder from both pits and holes', async () => {
     // trap.c:4013's `is_pit(t->ttyp) || is_hole(t->ttyp)`. Both halves need a
     // boulder on the same square before the settling arm is reached.
     const state = await mounted();
     const { ux, uy } = state.u;
-    const boulder = mksobj(BOULDER, false, false, { state });
-    place_object(boulder, ux, uy, { state, hooks: { blockPoint: (bx, by, env) => block_point(bx, by, env.state) } });
     state.level.traps ??= [];
     const trap = { tx: ux, ty: uy, ttyp: PIT };
     state.level.traps.push(trap);
     try {
         for (const ttyp of [PIT, HOLE]) {
             trap.ttyp = ttyp;
-            assert.throws(() => fill_pit(ux, uy, state),
-                          UnsupportedHeroMoveBoundaryError, `ttyp ${ttyp}`);
+            const boulder = mksobj(BOULDER, false, false, { state });
+            place_object(boulder, ux, uy, { state, hooks: {
+                blockPoint: (bx, by, env) => block_point(bx, by, env.state),
+            } });
+            fill_pit(ux, uy, state);
+            assert.equal(state.level.objects[ux][uy], null, `ttyp ${ttyp}`);
         }
         // A trap that is neither, and a pit with no boulder, are both no-ops.
         trap.ttyp = SQKY_BOARD;
         fill_pit(ux, uy, state);
         trap.ttyp = PIT;
-        state.level.objects[ux][uy] = null;
         fill_pit(ux, uy, state);
     } finally {
         state.level.traps.pop();
-        void boulder;
     }
 });
 

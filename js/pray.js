@@ -605,7 +605,7 @@ export async function fix_worst_trouble(trouble, state = game) {
         break;
     case TROUBLE_LAVA:
         if (!await safe_teleds(TELEDS_NO_FLAGS, state))
-            reset_utrap(true, state);
+            await reset_utrap(true, state);
         note_unported('hack.c rescued_from_terrain');
         break;
     case TROUBLE_STARVING:

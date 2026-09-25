@@ -58,6 +58,7 @@ import {
 } from '../js/objects.js';
 import { tinnable } from '../js/apply.js';
 import { game } from '../js/gstate.js';
+import { runSegment } from '../js/jsmain.js';
 
 const EAT_C = readFileSync(
     new URL('../nethack-c/upstream/src/eat.c', import.meta.url), 'utf8',
@@ -910,4 +911,21 @@ test('healthy tins distinguish ghost-class corpses from unsolid wraiths', () => 
         } },
     });
     assert.deepEqual(ghost, { corpsenm: PM_GHOST, spe: -5 });
+});
+
+test('eating a guarding amulet applies its protection effect after More', async () => {
+    const recipe = JSON.parse(readFileSync(
+        new URL(
+            '../recipes/eat.c/eat-accessory-levitation-independent.session.json',
+            import.meta.url,
+        ),
+        'utf8',
+    ));
+    const replay = await runSegment(recipe.segments[0]);
+
+    assert.equal(game.u.ublessed, 2);
+    assert.ok(game.u.uprops[PROTECTION].intrinsic & FROMOUTSIDE);
+    assert.ok(replay.getScreens().some((screen) => screen.includes(
+        'Magic spreads through your body as you digest the amulet.',
+    )));
 });
