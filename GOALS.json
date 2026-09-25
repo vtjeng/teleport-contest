@@ -71217,7 +71217,7 @@
     {
       "id": "port-objnam-wizterrainwish-synthetic-v2-20260925",
       "kind": "file-port",
-      "status": "open",
+      "status": "parked",
       "summary": "Port wizard terrain wishes and source-ordered terrain state changes",
       "cFile": "objnam.c",
       "sessions": [
@@ -71238,21 +71238,21 @@
           "name": "set_wallprop_from_str",
           "line": 3539,
           "endLine": 3553,
-          "declared": false,
-          "complete": false
+          "declared": true,
+          "complete": true
         },
         {
           "name": "wizterrainwish",
           "line": 3554,
           "endLine": 3919,
-          "declared": false,
-          "complete": false
+          "declared": true,
+          "complete": true
         },
         {
           "name": "dbterrainmesg",
           "line": 3920,
           "endLine": 3932,
-          "declared": false,
+          "declared": true,
           "complete": false
         }
       ],
@@ -71428,7 +71428,162 @@
             }
           }
         }
-      ]
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "set_wallprop_from_str",
+            "implementation": "js/objnam_readobjnam.js",
+            "symbol": "set_wallprop_from_str",
+            "sourceReview": "Read the complete objnam.c set_wallprop_from_str() body (3539-3550). Preserved its case-sensitive strstr() spellings, OR of W_NONDIGGABLE and W_NONPASSWALL, and update of the existing wall_info bits. The helper remains a separate source-named function and is called by wizterrainwish() for tree, bars, and wall wishes.",
+            "callers": [
+              {
+                "path": "js/objnam_readobjnam.js",
+                "symbol": "apply_wizterrainwish",
+                "source": "objnam.c wizterrainwish() calls set_wallprop_from_str() at 3721, 3727, and 3832."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/objnam-wizterrainwish.test.mjs"
+            ],
+            "recordings": [
+              "recordings/objnam.c/wizard-terrain-wallprop.session.json"
+            ],
+            "synthetic": [],
+            "checkedAt": "df2fff47e89a1e74e3eeef4d20e8bac9982bf291"
+          },
+          {
+            "name": "wizterrainwish",
+            "implementation": "js/objnam_readobjnam.js",
+            "symbol": "wizterrainwish",
+            "sourceReview": "Read and compared the complete objnam.c wizterrainwish() body (3554-3916), including the trap-name loop, every terrain suffix and validity branch, state updates, message order, random altar alignment draws, and the shared madeterrain/badterrain cleanup tail. The synchronous preflight only preserves readobjnam()'s existing synchronous unmatched-wish refusal; it uses trapname(..., TRUE), which does not consume display RNG, and the matched continuation repeats the C trap scan before any effects. Dynamic imports for dungeon, grave, display, engraving, terrain, timeout, vision, and object-name helpers avoid adding static module cycles; direct static trap exports are existing dependencies. C-discarded calls remain explicit gaps via note_unported('trap.c water_damage_chain'), note_unported('trap.c fire_damage_chain'), and note_unported('timeout.c start_melt_ice_timeout'); no result is used. readobjnam_postparse1() action 5 (the bear/land trap spelling with a trapped prefix or suffix) now follows C’s goto wiztrap; readobjnam_lookup() preserves that label and makewish() awaits the matched terrain result. The source-traced production path is wired through readobjnam() and makewish(), which awaits the recognized terrain result and returns early for hands_obj as zap.c does.",
+            "callers": [
+              {
+                "path": "js/objnam_readobjnam.js",
+                "symbol": "readobjnam",
+                "source": "objnam.c readobjnam() at 4977-4979 calls wizterrainwish() at the wiztrap label after ordinary object lookup."
+              },
+              {
+                "path": "js/zap.js",
+                "symbol": "makewish",
+                "source": "zap.c makewish() at 6360-6378 calls readobjnam() and returns early for &hands_obj."
+              },
+              {
+                "path": "js/wizcmds.js",
+                "symbol": "wiz_wish",
+                "source": "wizcmds.c wiz_wish() calls zap.c makewish() at 41."
+              },
+              {
+                "path": "js/cmd.js",
+                "symbol": "runWishCommand",
+                "source": "cmd.c rhack() and doextcmd() dispatch the wizwish command through the registered wiz_wish handler."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/objnam-wizterrainwish.test.mjs",
+              "scripts/objnam-readobjnam.test.mjs"
+            ],
+            "recordings": [
+              "recordings/objnam.c/wizard-terrain-wallprop.session.json",
+              "recordings/objnam.c/wizard-terrain-trap.session.json",
+              "recordings/objnam.c/wizard-terrain-fountain.session.json",
+              "recordings/objnam.c/wizard-terrain-throne-extcmd.session.json",
+              "recordings/objnam.c/wizard-terrain-beartrap.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v2",
+                "caseId": "altar-rite-history",
+                "segment": 0,
+                "fromStep": 2,
+                "throughStep": 16,
+                "source": "cmd.c C(w) or extcmd dispatch -> wizcmds.c wiz_wish() -> zap.c makewish() -> objnam.c readobjnam() -> objnam.c wizterrainwish()"
+              },
+              {
+                "batch": "v4",
+                "caseId": "rogue-sink-ring-history",
+                "segment": 0,
+                "fromStep": 1,
+                "throughStep": 6,
+                "source": "cmd.c C(w) or extcmd dispatch -> wizcmds.c wiz_wish() -> zap.c makewish() -> objnam.c readobjnam() -> objnam.c wizterrainwish()"
+              },
+              {
+                "batch": "v4",
+                "caseId": "tourist-fountain-dip-history",
+                "segment": 0,
+                "fromStep": 1,
+                "throughStep": 10,
+                "source": "cmd.c C(w) -> wizcmds.c wiz_wish() -> zap.c makewish() -> objnam.c readobjnam() -> objnam.c wizterrainwish()"
+              }
+            ],
+            "checkedAt": "df2fff47e89a1e74e3eeef4d20e8bac9982bf291"
+          }
+        ],
+        "entryPointReview": "Both active wizard-wish dispatch routes are wired: C(w) and typed #wizwish dispatch reach wizcmds.c wiz_wish() -> zap.c makewish() -> objnam.c readobjnam() -> wizterrainwish(). The C(w) path matches the admitted v2 altar-rite-history prefix (segment 0, steps 2-16), v4 rogue-sink-ring-history prefix (segment 0, steps 1-6), and v4 tourist-fountain-dip-history prefix (segment 0, steps 1-10); independent C recordings also cover wall properties, a pit trap, a magic fountain, the action-5 bear-trap route into wiztrap, and the alternate #wizwish dispatcher with a throne. The drawbridge message branch is active and fully wired, but remains without runtime evidence: the blocked Castle recipe records that teleport.c tele_jump_ok() rejects the chosen cross-region destination, then the wand ray fails strict JS/C parity at zap.c weffects() boundary 97 (C rn2(8)=6; JS call missing). Its recipe is not matching evidence; do not mark the helper or drawbridge entry point complete from the direct message test alone.",
+        "entryPoints": [
+          {
+            "name": "debug C(w) wizard terrain wish",
+            "functions": [
+              "wizterrainwish",
+              "set_wallprop_from_str"
+            ],
+            "recordings": [
+              "recordings/objnam.c/wizard-terrain-wallprop.session.json",
+              "recordings/objnam.c/wizard-terrain-trap.session.json",
+              "recordings/objnam.c/wizard-terrain-fountain.session.json",
+              "recordings/objnam.c/wizard-terrain-beartrap.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v2",
+                "caseId": "altar-rite-history",
+                "segment": 0,
+                "fromStep": 2,
+                "throughStep": 16,
+                "source": "cmd.c C(w) or extcmd dispatch -> wizcmds.c wiz_wish() -> zap.c makewish() -> objnam.c readobjnam() -> objnam.c wizterrainwish()"
+              },
+              {
+                "batch": "v4",
+                "caseId": "rogue-sink-ring-history",
+                "segment": 0,
+                "fromStep": 1,
+                "throughStep": 6,
+                "source": "cmd.c C(w) or extcmd dispatch -> wizcmds.c wiz_wish() -> zap.c makewish() -> objnam.c readobjnam() -> objnam.c wizterrainwish()"
+              },
+              {
+                "batch": "v4",
+                "caseId": "tourist-fountain-dip-history",
+                "segment": 0,
+                "fromStep": 1,
+                "throughStep": 10,
+                "source": "cmd.c C(w) -> wizcmds.c wiz_wish() -> zap.c makewish() -> objnam.c readobjnam() -> objnam.c wizterrainwish()"
+              }
+            ]
+          },
+          {
+            "name": "debug #wizwish wizard terrain wish",
+            "functions": [
+              "wizterrainwish"
+            ],
+            "recordings": [
+              "recordings/objnam.c/wizard-terrain-throne-extcmd.session.json"
+            ],
+            "synthetic": []
+          }
+        ]
+      },
+      "progressBeforePark": {
+        "screens": 0,
+        "rng": 0
+      },
+      "parkedStanding": {
+        "sha": "df2fff47e89a1e74e3eeef4d20e8bac9982bf291",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "parkedReason": "set_wallprop_from_str and wizterrainwish have matching C recordings and admitted synthetic prefixes. Keep the active dbterrainmesg drawbridge entry open: the Castle probe cannot reach its tile through teleport.c tele_jump_ok region restrictions, and the wand-of-opening route stops strict JS/C replay at zap.c weffects boundary 97 (C rn2(8)=6, JS missing). Resume when a matching route onto a drawbridge is recorded, then verify dbterrainmesg and close the source goal."
     },
     {
       "id": "port-trap-float-down-synthetic-v1-20260925",
