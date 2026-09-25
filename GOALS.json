@@ -70938,7 +70938,7 @@
     {
       "id": "port-do-wear-doremring-synthetic-v1-20260925",
       "kind": "file-port",
-      "status": "queued",
+      "status": "open",
       "summary": "Port accessory remove command and source-ordered ring removal path",
       "cFile": "do_wear.c",
       "sessions": [
@@ -70946,8 +70946,12 @@
       ],
       "selectionReason": "synthetic/v1/terrain-transitions has 80 remaining screens at investigations/synthetic/v1/terrain-transitions.json; the first step-57 R/remove stop is do_wear.c doremring before dispatch. Wizard study is reserved by B2; this is the highest-ranked independent source task.",
       "detail": "Port whole do_wear.c doremring and the return-valued and active same-file callees needed for ring removal; wire cmd.c R/remove dispatch. Preserve source branches and exact input order. trap.c float_down is a downstream dependency after Ring_off and must be handled at its source site under the C return-value rule.",
-      "openedAt": null,
-      "openStanding": null,
+      "openedAt": "5619e31af35560782b50399bc60eded342cd5074",
+      "openStanding": {
+        "sha": "4cd1d2f115390c0777339a40051076a330409d54",
+        "screens": 11405,
+        "rng": 792838
+      },
       "closedAt": null,
       "delivered": null,
       "functions": [
@@ -70973,10 +70977,232 @@
           "manifestSha256": "a1d989fa6b5159e0b0729150ba765c741a405ec910c1274ad763d29b0a7096fe",
           "recordingPath": "challenges/cases/terrain-transitions.session.json",
           "recordingSha256": "5491c8fb94f71fe5a5c56498e2c58b6d736e65b221cf0a39d1895abdd6759ec9",
-          "evaluationPath": "challenges/evaluations/20260925173439-v1.json",
-          "evaluationCommit": "e7623b67450936e27add7de87567f83f84ed1190"
+          "evaluationPath": "challenges/evaluations/20260925183935-v1.json",
+          "evaluationCommit": "4cd1d2f115390c0777339a40051076a330409d54"
         }
-      }
+      },
+      "activeStanding": {
+        "sha": "4cd1d2f115390c0777339a40051076a330409d54",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v1",
+          "caseId": "terrain-transitions",
+          "session": "synthetic/v1/terrain-transitions",
+          "manifestPath": "challenges/manifest.json",
+          "manifestSha256": "a1d989fa6b5159e0b0729150ba765c741a405ec910c1274ad763d29b0a7096fe",
+          "recording": "challenges/cases/terrain-transitions.session.json",
+          "recordingPath": "challenges/cases/terrain-transitions.session.json",
+          "recordingSha256": "5491c8fb94f71fe5a5c56498e2c58b6d736e65b221cf0a39d1895abdd6759ec9",
+          "recipe": "challenges/cases/terrain-transitions.recipe.json",
+          "recipeSha256": "a0952cee3b77d907ba080571678b0a1e5e1b82d4dc3b07981e6065806cf49663",
+          "replayInputSha256": "57dd80f0fe80242f760f1994e87897f528acc9d77e09a3643a9a758bc9328617",
+          "evaluationPath": "challenges/evaluations/20260925183935-v1.json",
+          "evaluationCommit": "4cd1d2f115390c0777339a40051076a330409d54",
+          "evaluationArtifact": "challenges/evaluations/20260925183935-v1.json",
+          "evaluationUtc": "2026-09-25T18:39:35.774Z",
+          "remainingScreens": 80,
+          "recordedSteps": 137,
+          "previousScreensMatched": 57,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 57,
+              "total": 137
+            },
+            "rng": {
+              "matched": 2784,
+              "total": 3811
+            },
+            "cursors": {
+              "matched": 57,
+              "total": 137
+            }
+          },
+          "firstMismatch": {
+            "kind": "stop",
+            "message": "unsupported hero command: the repeated-command boundary admits only wait, look, inventory, showspells, known, attributes, search, eat, engrave, apply, rub, open, close, down, up, drop, pickup, pay, takeoff, wear, puton, quaff, read, zap, cast, reqmenu, fight, rush, run, repeat, options, autopickup, wizwish, wizidentify, wizlevelport, wizgenesis, wizintrinsic, wizmap, wizwhere, fire, throw, swap, kick, save, wield, quiver, help, whatis, #, loot, force, tip, glance, showgold, seeweapon, seearmor, seerings, seeamulet, seeall, seetools, teleport, overview, chronicle, conduct, vanquished, genocided, inventtype, adjust, altadjust, terrain, travel, dip, invoke, untrap, herecmdmenu, therecmdmenu, a one-square walk, a shift-direction run, a ctrl-direction rush, or a byte bound to no command",
+            "step": 57
+          },
+          "step": 57,
+          "kind": "stop",
+          "sourceFile": null,
+          "function": null,
+          "message": "unsupported hero command: the repeated-command boundary admits only wait, look, inventory, showspells, known, attributes, search, eat, engrave, apply, rub, open, close, down, up, drop, pickup, pay, takeoff, wear, puton, quaff, read, zap, cast, reqmenu, fight, rush, run, repeat, options, autopickup, wizwish, wizidentify, wizlevelport, wizgenesis, wizintrinsic, wizmap, wizwhere, fire, throw, swap, kick, save, wield, quiver, help, whatis, #, loot, force, tip, glance, showgold, seeweapon, seearmor, seerings, seeamulet, seeall, seetools, teleport, overview, chronicle, conduct, vanquished, genocided, inventtype, adjust, altadjust, terrain, travel, dip, invoke, untrap, herecmdmenu, therecmdmenu, a one-square walk, a shift-direction run, a ctrl-direction rush, or a byte bound to no command",
+          "cFile": null,
+          "luaFile": null,
+          "line": null,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v1/terrain-transitions.json",
+            "result": {
+              "session": "synthetic/v1/terrain-transitions",
+              "corpus": "synthetic",
+              "batch": "v1",
+              "caseId": "terrain-transitions",
+              "manifestPath": "challenges/manifest.json",
+              "manifestSha256": "a1d989fa6b5159e0b0729150ba765c741a405ec910c1274ad763d29b0a7096fe",
+              "recordingSha256": "5491c8fb94f71fe5a5c56498e2c58b6d736e65b221cf0a39d1895abdd6759ec9",
+              "evaluationPath": "challenges/evaluations/20260925173439-v1.json",
+              "evaluationCommit": "e7623b67450936e27add7de87567f83f84ed1190",
+              "remainingScreens": 80,
+              "recordedSteps": 137,
+              "status": "complete",
+              "commit": "e7623b67450936e27add7de87567f83f84ed1190",
+              "mismatch": {
+                "corpus": "synthetic",
+                "batch": "v1",
+                "caseId": "terrain-transitions",
+                "session": "synthetic/v1/terrain-transitions",
+                "manifestPath": "challenges/manifest.json",
+                "manifestSha256": "a1d989fa6b5159e0b0729150ba765c741a405ec910c1274ad763d29b0a7096fe",
+                "recording": "challenges/cases/terrain-transitions.session.json",
+                "recordingPath": "challenges/cases/terrain-transitions.session.json",
+                "recordingSha256": "5491c8fb94f71fe5a5c56498e2c58b6d736e65b221cf0a39d1895abdd6759ec9",
+                "recipe": "challenges/cases/terrain-transitions.recipe.json",
+                "recipeSha256": "a0952cee3b77d907ba080571678b0a1e5e1b82d4dc3b07981e6065806cf49663",
+                "replayInputSha256": "019af0a80e7b54489f621844c9f11640ee021eb5315d0b009ba464688402f45e",
+                "evaluationPath": "challenges/evaluations/20260925173439-v1.json",
+                "evaluationCommit": "e7623b67450936e27add7de87567f83f84ed1190",
+                "evaluationArtifact": "challenges/evaluations/20260925173439-v1.json",
+                "evaluationUtc": "2026-09-25T17:34:39.353Z",
+                "diagnosticCommit": "bd4fb5b6a0a6197472855e6c3bcc3ddedbcf4cd0",
+                "diagnosticToolSha256": "227da8323e84aeb754ab1c0dbc9e728e2c613b2ce01027d501027587ddaecfdc",
+                "remainingScreens": 80,
+                "recordedSteps": 137,
+                "previousScreensMatched": 49,
+                "regression": false,
+                "passed": false,
+                "error": null,
+                "metrics": {
+                  "screens": {
+                    "matched": 57,
+                    "total": 137
+                  },
+                  "rng": {
+                    "matched": 2784,
+                    "total": 3811
+                  },
+                  "cursors": {
+                    "matched": 57,
+                    "total": 137
+                  }
+                },
+                "firstMismatch": {
+                  "kind": "stop",
+                  "step": 57,
+                  "message": "unsupported hero command: the repeated-command boundary admits only wait, look, inventory, showspells, known, attributes, search, eat, engrave, apply, rub, open, close, down, up, drop, pickup, pay, takeoff, wear, puton, quaff, read, zap, cast, reqmenu, fight, rush, run, repeat, options, autopickup, wizwish, wizidentify, wizlevelport, wizgenesis, wizintrinsic, wizmap, wizwhere, fire, throw, swap, kick, save, wield, quiver, help, whatis, #, loot, force, tip, glance, showgold, seeweapon, seearmor, seerings, seeamulet, seeall, seetools, teleport, overview, chronicle, conduct, vanquished, genocided, inventtype, adjust, altadjust, terrain, travel, dip, invoke, untrap, herecmdmenu, therecmdmenu, a one-square walk, a shift-direction run, a ctrl-direction rush, or a byte bound to no command"
+                },
+                "step": 57,
+                "kind": "stop",
+                "sourceFile": "do_wear.c",
+                "function": "doremring",
+                "message": "unsupported hero command: the repeated-command boundary admits only wait, look, inventory, showspells, known, attributes, search, eat, engrave, apply, rub, open, close, down, up, drop, pickup, pay, takeoff, wear, puton, quaff, read, zap, cast, reqmenu, fight, rush, run, repeat, options, autopickup, wizwish, wizidentify, wizlevelport, wizgenesis, wizintrinsic, wizmap, wizwhere, fire, throw, swap, kick, save, wield, quiver, help, whatis, #, loot, force, tip, glance, showgold, seeweapon, seearmor, seerings, seeamulet, seeall, seetools, teleport, overview, chronicle, conduct, vanquished, genocided, inventtype, adjust, altadjust, terrain, travel, dip, invoke, untrap, herecmdmenu, therecmdmenu, a one-square walk, a shift-direction run, a ctrl-direction rush, or a byte bound to no command",
+                "cMessage": "What do you want to remove? [pq or ?*]",
+                "cKey": "R",
+                "command": "remove",
+                "commandRefusal": true,
+                "keyCursor": "command",
+                "cFile": "do_wear.c",
+                "luaFile": null,
+                "line": 1874
+              },
+              "summary": "At evaluated commit e7623b67450936e27add7de87567f83f84ed1190, terrain-transitions matches 57/137 screens, leaving 80. The fresh single-case diagnostic at bd4fb5b6a0a6197472855e6c3bcc3ddedbcf4cd0 stops at step 57, key \"R\" (remove), before dispatch: the JS command-admission seam rejects it because “remove” is absent from ADMITTED_COMMANDS. C cmd.c:1820-1821 binds R to do_wear.c:doremring(), whose C screen is “What do you want to remove? [pq or ?*]”. Thus the first source owner is the remove command path in do_wear.c, not trap.c:float_down(); float_down() remains a downstream dependency after Ring_off() is reached. The evaluated and diagnostic commits differ only in GOALS.json and scripts/dodown.test.mjs; game JavaScript is identical.",
+              "source": {
+                "file": "do_wear.c",
+                "branch": "The exact stop is before dispatch of the capital-R remove command. nethack-c/upstream/src/cmd.c:1820-1821 binds R to doremring(). do_wear.c:doremring() (1872-1890) counts worn equipment; if none, prints “Not wearing any accessories or armor.” and returns ECMD_OK; otherwise it prompts through getobj(\"remove\", remove_ok, GETOBJ_NOFLAGS) when accessories are not unique, paranoid removal is enabled, or a canned command exists; cancel returns ECMD_CANCEL; success returns armor_or_accessory_off(otmp). The saved case has one levitation ring, but C still enters getobj because armor and accessory counts make the choice prompt active; C shows “What do you want to remove? [pq or ?*]”. The source-family work needed to complete this end-to-end path is doremring(), remove_ok(), armor_or_accessory_off(), select_off(), and Ring_off()/Ring_off_or_gone(), with the current function bodies compared whole and their active production callers wired. Current JS rejects at cmd.js admitParsedCommand() because ADMITTED_COMMANDS omits remove and has no doremring dispatch. The downstream ring branch then calls trap.c:float_down(0,0), which is a separate source-file dependency and the next known blocker after Ring_off() is wired.",
+                "functions": [
+                  "doremring"
+                ],
+                "callers": [
+                  "cmd.c command table row 1820-1821: key R, command name remove, function doremring. This is the direct production caller and C renders “What do you want to remove? [pq or ?*]” at the stop. The JS binding resolves R to remove, but js/cmd.js admitParsedCommand() throws UnsupportedHeroCommandBoundaryError because remove is absent from ADMITTED_COMMANDS; there is no doremring command dispatch in the JS path.",
+                  "do_wear.c doremring() 1872-1890 calls count_worn_stuff(), getobj(\"remove\", remove_ok, GETOBJ_NOFLAGS), and armor_or_accessory_off(). Current JS has count_worn_stuff() and getobj(), but no remove_ok wrapper or doremring() command path.",
+                  "do_wear.c remove_ok() 3458-3465 calls equip_ok(obj, TRUE, TRUE) as getobj’s callback. js/do_wear.js equip_ok() exists; remove_ok() is not wired as a callback.",
+                  "do_wear.c armor_or_accessory_off() 1771-1829 calls select_off(), then Ring_off() for a selected ring. js/do_wear.js armor_or_accessory_off() is present but its ring/accessory dispatch remains fail-closed.",
+                  "do_wear.c select_off() 2696-2821 validates cursed/inaccessible equipment and sets takeoff.mask. js/do_wear.js select_off() currently throws at its ring checks, before Ring_off().",
+                  "do_wear.c Ring_off_or_gone() 1347-1446 handles RIN_LEVITATION by calling float_down(0,0); Ring_off() 1449-1452 dispatches with gone=false. js/do_wear.js Ring_off_or_gone() still refuses the levitation-ring arm."
+                ],
+                "dependencies": [
+                  "cmd.c command binding/dispatch must admit “remove” only when its matching JS handler is wired; the current admission refusal is a port boundary, not C behavior.",
+                  "count_worn_stuff() is already implemented in js/do_wear.js and returns the equivalent counts and default item together.",
+                  "getobj() is already implemented in js/invent.js; its remove_ok callback needs to preserve the C GETOBJ_SUGGEST, GETOBJ_DOWNPLAY and GETOBJ_EXCLUDE_INACCESS outcomes from equip_ok().",
+                  "equip_ok() is implemented in js/do_wear.js. remove_ok() is a small source wrapper over equip_ok(obj, true, true).",
+                  "armor_or_accessory_off() and select_off() are existing partial JS implementations and must finish the whole C functions for an ordinary worn ring selection.",
+                  "Ring_off_or_gone()/Ring_off() are existing partial JS implementations. The levitation-ring path reaches trap.c float_down(0,0); its current JS owner only supports the W_SADDLE branch. This is downstream of the exact step-57 command-admission stop."
+                ]
+              },
+              "goalKind": "file-port",
+              "evidence": [
+                "Saved evaluation challenges/evaluations/20260925173439-v1.json at e7623b67450936e27add7de87567f83f84ed1190 reports terrain-transitions 57/137 screens, 2784/3811 RNG calls and 57/137 cursors; 80 screens remain.",
+                "Single-case diagnostic .cache/synthetic-scans/v1/terrain-transitions.json at bd4fb5b6a0a6197472855e6c3bcc3ddedbcf4cd0 reports screensEmitted=57, commandRefusal=true, key=\"R\", command=remove, keyCursor=command; C top line: “What do you want to remove? [pq or ?*]”. The diagnostic replay input SHA is 019af0a80e7b54489f621844c9f11640ee021eb5315d0b009ba464688402f45e.",
+                "nethack-c/upstream/src/cmd.c:1820-1821 binds R to command “remove” and function doremring(). This verifies the direct C owner of the step-57 command path; the scanner boundary is the JS admission list, not C behavior.",
+                "nethack-c/upstream/src/do_wear.c:doremring() (1872-1890), remove_ok() (3458-3465), armor_or_accessory_off() (1771-1829), select_off() (2696-2821), and Ring_off_or_gone() (1347-1446) were source-traced as the whole source call chain; Ring_off() (1449-1452) is its entry wrapper.",
+                "js/cmd.js:admitParsedCommand() (1903-1915) rejects commands absent from ADMITTED_COMMANDS; “remove” is absent. The command table maps the key correctly, but there is no doremring dispatch. js/do_wear.js has count_worn_stuff(), equip_ok(), armor_or_accessory_off(), select_off(), and Ring_off_or_gone() partial implementations; the ring path has named refusals.",
+                "The recorded C steps around the downstream levitation path show `R` at 57, `q` at 58, then a C message “You float gently to the stairs.” at step 59. This supports float_down as a later dependency but does not make it the first mismatch owner.",
+                "The diagnostic replay commit bd4fb5b6a0a6197472855e6c3bcc3ddedbcf4cd0 differs from evaluated commit e7623b67450936e27add7de87567f83f84ed1190 only in GOALS.json and scripts/dodown.test.mjs (verified by git diff --name-only); JavaScript game files are identical. B2 source reservations do not overlap do_wear.c or these JS callers."
+              ],
+              "evaluationUtc": "2026-09-25T17:34:39.353Z",
+              "metrics": {
+                "screens": {
+                  "matched": 57,
+                  "total": 137
+                },
+                "rng": {
+                  "matched": 2784,
+                  "total": 3811
+                },
+                "cursors": {
+                  "matched": 57,
+                  "total": 137
+                }
+              },
+              "entryPointReview": {
+                "active": [
+                  "Capital-R remove command: cmd.c command-table R row dispatches doremring(); the admitted synthetic case reaches this command at step 57 and C displays the remove selection prompt."
+                ],
+                "blocked": [
+                  "The JS replay currently rejects “remove” in cmd.js admitParsedCommand() before dispatch because the command is absent from ADMITTED_COMMANDS.",
+                  "After admission, the JS source path still lacks doremring()/remove_ok() and has partial armor_or_accessory_off()/select_off()/Ring_off_or_gone() implementations; the selected levitation ring later reaches trap.c float_down()."
+                ],
+                "buildExcluded": [],
+                "exactReplayAttribution": "Verified. The saved evaluation at e7623b67450936e27add7de87567f83f84ed1190 reports 57/137 screens. The single-case diagnostic at bd4fb5b6a0a6197472855e6c3bcc3ddedbcf4cd0 stops at step 57 on key R with commandRefusal=true, command=remove, keyCursor=command, and the boundary message copied into mismatch.firstMismatch. The game JavaScript tree is identical between the evaluation and diagnostic commits; only GOALS.json and scripts/dodown.test.mjs differ."
+              },
+              "plannedWholeFunctionScope": {
+                "primary": {
+                  "file": "do_wear.c",
+                  "functions": [
+                    "doremring"
+                  ]
+                },
+                "supportingSameFileFunctions": [
+                  "remove_ok",
+                  "armor_or_accessory_off",
+                  "select_off",
+                  "Ring_off",
+                  "Ring_off_or_gone"
+                ],
+                "existingHelpersToVerifyAndReuse": [
+                  "count_worn_stuff",
+                  "equip_ok"
+                ],
+                "callerWiring": [
+                  "cmd.c R/remove dispatch in js/cmd.js"
+                ],
+                "downstreamSourceDependency": {
+                  "file": "trap.c",
+                  "function": "float_down",
+                  "status": "separate source unit; reached after Ring_off is ported"
+                }
+              }
+            }
+          }
+        }
+      ]
     },
     {
       "id": "port-objnam-wizterrainwish-synthetic-v2-20260925",
