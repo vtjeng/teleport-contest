@@ -69706,16 +69706,20 @@
     {
       "id": "port-pickup-tip-synthetic-v1-20260925",
       "kind": "file-port",
-      "status": "queued",
+      "status": "open",
       "summary": "Port container tipping selection and transfer",
       "cFile": "pickup.c",
       "sessions": [
         "synthetic/v1/containers"
       ],
-      "selectionReason": "Synthetic/v1/sustained-journey has 38 unmatched screens but its investigation is stale; synthetic/v1/containers is the next ready independent case with 21 unmatched screens. investigations/synthetic/v1/containers.json traces it to pickup.c tip_ok through tipcontainer; trap.c float_up is reserved by another worker.",
+      "selectionReason": "synthetic/v1/containers has 21 remaining screens at investigations/synthetic/v1/containers.json; pickup.c dotip/tipcontainer owns its step 152 mismatch. Higher-ranked terrain-transitions is reserved by A1; wizard and altar remain independent queued work.",
       "detail": "Port the selected pickup.c tipping family in C definition order, wire production inventory and floor callers, and preserve selection, capacity, transfer and output order.",
-      "openedAt": null,
-      "openStanding": null,
+      "openedAt": "2c3dc5f55a0314b00480a38c4bd9691a6176826d",
+      "openStanding": {
+        "sha": "020e94fb0e15c7c7120349f8a0970e70cdf6bce7",
+        "screens": 11405,
+        "rng": 792838
+      },
       "closedAt": null,
       "delivered": null,
       "functions": [
@@ -69762,10 +69766,176 @@
           "manifestSha256": "a1d989fa6b5159e0b0729150ba765c741a405ec910c1274ad763d29b0a7096fe",
           "recordingPath": "challenges/cases/containers.session.json",
           "recordingSha256": "76ec0faa326e56dcba917ce6e819cd4805fea14a91fb09cc2850063002e8a98d",
-          "evaluationPath": "challenges/evaluations/20260925150843-v1.json",
-          "evaluationCommit": "b723a5d4aa19568a2c9b0ff5e6629754c306fda7"
+          "evaluationPath": "challenges/evaluations/20260925163844-v1.json",
+          "evaluationCommit": "020e94fb0e15c7c7120349f8a0970e70cdf6bce7"
         }
-      }
+      },
+      "activeStanding": {
+        "sha": "020e94fb0e15c7c7120349f8a0970e70cdf6bce7",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v1",
+          "caseId": "containers",
+          "session": "synthetic/v1/containers",
+          "manifestPath": "challenges/manifest.json",
+          "manifestSha256": "a1d989fa6b5159e0b0729150ba765c741a405ec910c1274ad763d29b0a7096fe",
+          "recording": "challenges/cases/containers.session.json",
+          "recordingPath": "challenges/cases/containers.session.json",
+          "recordingSha256": "76ec0faa326e56dcba917ce6e819cd4805fea14a91fb09cc2850063002e8a98d",
+          "recipe": "challenges/cases/containers.recipe.json",
+          "recipeSha256": "2b18a553ddc19b712808b16161b3674b422597c9234bbe89b5cbd93aa5a4df1d",
+          "replayInputSha256": "a097d12206d9c6c1ee961b087aedf759fc6cbd0e9f98abb9dd1c4175d5f799e9",
+          "evaluationPath": "challenges/evaluations/20260925163844-v1.json",
+          "evaluationCommit": "020e94fb0e15c7c7120349f8a0970e70cdf6bce7",
+          "evaluationArtifact": "challenges/evaluations/20260925163844-v1.json",
+          "evaluationUtc": "2026-09-25T16:38:44.129Z",
+          "remainingScreens": 21,
+          "recordedSteps": 173,
+          "previousScreensMatched": 152,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 152,
+              "total": 173
+            },
+            "rng": {
+              "matched": 2997,
+              "total": 3106
+            },
+            "cursors": {
+              "matched": 152,
+              "total": 173
+            }
+          },
+          "firstMismatch": {
+            "kind": "stop",
+            "message": "unsupported hero command: an unported branch of this command: unsupported pickup: dotip: inventory tipping path (getobj -> tip_ok)",
+            "step": 152
+          },
+          "step": 152,
+          "kind": "stop",
+          "sourceFile": null,
+          "function": null,
+          "message": "unsupported hero command: an unported branch of this command: unsupported pickup: dotip: inventory tipping path (getobj -> tip_ok)",
+          "cFile": null,
+          "luaFile": null,
+          "line": null,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v1/containers.json",
+            "result": {
+              "session": "synthetic/v1/containers",
+              "corpus": "synthetic",
+              "batch": "v1",
+              "caseId": "containers",
+              "manifestPath": "challenges/manifest.json",
+              "manifestSha256": "a1d989fa6b5159e0b0729150ba765c741a405ec910c1274ad763d29b0a7096fe",
+              "recordingPath": "challenges/cases/containers.session.json",
+              "recordingSha256": "76ec0faa326e56dcba917ce6e819cd4805fea14a91fb09cc2850063002e8a98d",
+              "evaluationPath": "challenges/evaluations/20260918192720-v1.json",
+              "evaluationCommit": "2ab3d33c4affb45693cc1cdc56882430c63db58f",
+              "recordedSteps": 173,
+              "remainingScreens": 21,
+              "status": "complete",
+              "commit": "973ed4c61be4e63b24ffcf54f640b3a05990a0f1",
+              "mismatch": {
+                "corpus": "synthetic",
+                "batch": "v1",
+                "caseId": "containers",
+                "session": "synthetic/v1/containers",
+                "manifestPath": "challenges/manifest.json",
+                "manifestSha256": "a1d989fa6b5159e0b0729150ba765c741a405ec910c1274ad763d29b0a7096fe",
+                "recording": "challenges/cases/containers.session.json",
+                "recordingPath": "challenges/cases/containers.session.json",
+                "recordingSha256": "76ec0faa326e56dcba917ce6e819cd4805fea14a91fb09cc2850063002e8a98d",
+                "recipe": "challenges/cases/containers.recipe.json",
+                "recipeSha256": "2b18a553ddc19b712808b16161b3674b422597c9234bbe89b5cbd93aa5a4df1d",
+                "replayInputSha256": "1d82e114cf6028a970890ae3a93f705306dc8faac92e6f51685b97b4a7ea8fc0",
+                "evaluationPath": "challenges/evaluations/20260918192720-v1.json",
+                "evaluationCommit": "2ab3d33c4affb45693cc1cdc56882430c63db58f",
+                "evaluationArtifact": "challenges/evaluations/20260918192720-v1.json",
+                "evaluationUtc": "2026-09-18T19:27:20.180Z",
+                "remainingScreens": 21,
+                "recordedSteps": 173,
+                "previousScreensMatched": 152,
+                "regression": false,
+                "passed": false,
+                "error": null,
+                "metrics": {
+                  "screens": {
+                    "matched": 152,
+                    "total": 173
+                  },
+                  "rng": {
+                    "matched": 2997,
+                    "total": 3106
+                  },
+                  "cursors": {
+                    "matched": 152,
+                    "total": 173
+                  }
+                },
+                "firstMismatch": {
+                  "kind": "stop",
+                  "message": "unsupported hero command: an unported branch of this command: unsupported pickup: dotip: inventory tipping path (getobj -> tip_ok)",
+                  "step": 152
+                },
+                "step": 152,
+                "kind": "stop",
+                "sourceFile": null,
+                "function": null,
+                "message": "unsupported hero command: an unported branch of this command: unsupported pickup: dotip: inventory tipping path (getobj -> tip_ok)",
+                "cFile": null,
+                "luaFile": null,
+                "line": null
+              },
+              "summary": "At recorded step 152, the containers case has no usable floor container and enters pickup.c dotip()'s inventory path. The JavaScript dotip() currently throws before getobj() reads the queued p selection. C tip_ok() accepts the carried source bag, tipcontainer_gettarget() then accepts the queued q destination bag, and tipcontainer() transfers the source's three ordinary contents into that carried destination and updates both container weights and inventory. The missing targetbox arm is the continuation after the first stop; it is currently an explicit UnsupportedPickupError in js/pickup.js.",
+              "source": {
+                "file": "pickup.c",
+                "branch": "When #tip is issued with no eligible floor container (the recorded state at step 152), dotip() calls getobj(); tip_ok() suggests carried containers and a discovered horn, downplays other non-coin inventory objects, and excludes coins. For this recording, p selects a carried bag, q selects the preselected destination-menu's other carried bag, and tipcontainer() takes the ordinary targetbox branch. The normal case must preserve the source checks, the \"Objects tumble into the bag.\" message, per-object extraction and add_to_container(), then source/destination weight and inventory refresh; magic-bag explosion and cursed-bag branches remain source dependencies of the same family.",
+                "functions": [
+                  "tip_ok",
+                  "choose_tip_container_menu",
+                  "dotip",
+                  "tipcontainer"
+                ],
+                "callers": [
+                  "cmd.c extcmdlist[] tip row (pickup.c:3562 dotip entry via js/extcmdlist_data.js:139)",
+                  "cmd.c do_reqmenu/MCMD_TIP (cmd.c:4799-4801; js/cmd.js:4679)",
+                  "iactions.c IA_TIP_CONTAINER queues do_reqmenu, dotip, and the inventory letter (iactions.c:234-244; js/iactions.js:336-340)",
+                  "js/cmd.js doextcmd() case dotip (js/cmd.js:5229-5231)"
+                ],
+                "dependencies": [
+                  "invent.c getobj() (pickup.c:3624-3626; live at js/invent.js:983), including GETOBJ_SUGGEST/GETOBJ_DOWNPLAY callback results",
+                  "invent.c merged()/mkobj.c add_to_container() (mkobj.c:2676-2695; live at js/invent.js:3864 and 4981-5005)",
+                  "pickup.c tipcontainer_gettarget() and tipcontainer_checks() (pickup.c:3871-4055; existing partial JS at js/pickup.js:3297-3465)",
+                  "pickup.c mbag_explodes(), do_boh_explosion(), and mbag_item_gone() (pickup.c:2488-2556 and 3769-3805), because tipcontainer() consumes the explosion predicate result",
+                  "obj.c obj_extract_self()/obj_no_longer_held() and weight(), plus invent.c update_inventory()/encumber_msg() for chain ownership and final burden state",
+                  "windows.c select_menu()/getlin() and objnam.c doname()/xname()/otense() for the destination menu, source messages, and non-container dotip outcomes",
+                  "invent.c consume_obj_charge(), sounds.c tiphat(), dungeon.c surface()/is_pool()/is_lava() for dotip()'s spillage, helmet, and non-container arms"
+                ]
+              },
+              "goalKind": "file-port",
+              "evidence": [
+                "Queue provenance: .cache/synthetic-goal-650-queue.json selects synthetic/v1/containers with 21 remaining screens, 173 recorded steps, 152 screens/cursors matched, 2997/3106 RNG calls matched, and the first stop at step 152; .cache/synthetic-scans/v1/containers.json independently records the same boundary and input state.",
+                "Immutable recording challenges/cases/containers.session.json (sha256 76ec0faa326e56dcba917ce6e819cd4805fea14a91fb09cc2850063002e8a98d) shows the step-152 prompt \"What do you want to tip? [pq or ?*]\"; step 153 answers p and C opens \"Where to tip the contents of a bag containing 3 items\", then step 154 answers q and C emits \"Objects tumble into the bag.\".",
+                "The exact C owner is nethack-c/upstream/src/pickup.c:3481-3497 (tip_ok), 3505-3557 (choose_tip_container_menu), and 3562-3677 (dotip). dotip() calls getobj(\"tip\", tip_ok, GETOBJ_PROMPT) at 3624, dispatches containers to tipcontainer() at 3628-3631, and includes the required spillage/potion/helmet/statue fall-through arms through 3677.",
+                "The C continuation is nethack-c/upstream/src/pickup.c:3688-3841: tipcontainer() calls tipcontainer_gettarget(), validates source and target, emits the targetbox tumble header at 3748-3751, then calls add_to_container(targetbox, otmp) at 3805 for each detached source object and refreshes weights/encumbrance at 3832-3841.",
+                "Current JS proves the missing scope: js/pickup.js:3637-3692 ports only the floor-container portion of dotip() and throws \"dotip: inventory tipping path (getobj -> tip_ok)\"; js/pickup.js:3492-3497 separately throws for any non-null targetbox, so fixing only the first stop cannot match steps 153-154.",
+                "Current JS production wiring already reaches the owner: js/cmd.js:4679 queues dotip for MCMD_TIP, js/cmd.js:5229-5231 dispatches the extended command, and js/iactions.js:336-340 queues dotip plus the selected inventory letter. No caller rewrite is needed for this case; the source work is the pickup.c family and its missing targetbox branch.",
+                "Prior GOALS evidence is explicitly bounded: GOALS.json goal tip is closed with dotip-single-container-quit and dotip-tipcontainer-floor-spill slices. Commit 6ed30803 records that inventory getobj/tip_ok and choose_tip_container_menu remained unported; commit 227785625 records that the floor-spill slice ported tipcontainer(), tipcontainer_gettarget(), and tipcontainer_checks() without exercising the y path. The current synthetic case is the first recorded inventory/targetbox continuation beyond that evidence.",
+                "Source-to-JavaScript dependency check: add_to_container() already enforces OBJ_FREE and merges in js/invent.js:4981-5005, while js/pickup.js tipcontainer() currently extracts objects before throwing at the targetbox guard. The implementation must preserve that C ownership order and either port pickup.c mbag_explodes()/do_boh_explosion() or retain an explicit named blocker for their return-dependent explosion branches; it must not invent RNG for the ordinary ration/potion/scroll transfer witnessed here."
+              ]
+            }
+          }
+        }
+      ]
     },
     {
       "id": "port-do-doup-synthetic-v1-20260925",
