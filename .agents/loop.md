@@ -98,6 +98,10 @@ below the implementation worker count and a batch is ready, integrate and
 admit the oldest prepared batch after the required validation and evaluation
 gates. Continue assigning fixes from older batches by the normal priority
 rules; the new batch adds work without displacing those mismatches.
+If no prepared batch is ready at that threshold, ask the preparation worker to
+hand off its valid, independently replayed cases promptly rather than wait to
+reach the 6–9 target. A smaller accepted batch can be followed by another
+version; keep its missed and deferred mission targets in the handoff.
 
 Before waiting and after a completion, run `worker-state.mjs next`. Handle
 unread deliveries and finished worker turns first. Record a finished turn

@@ -15,8 +15,11 @@ Plan 6–9 new, independent C behavior targets before inspecting JavaScript
 results, as `.agents/selection.md` specifies. For each, identify its source
 function or branch, required state and actions, and the C observation that
 will establish reachability. Earlier admitted cases do not count toward this
-target. Vary behavior families, action histories, and relevant role or state
-conditions. Changing only seeds is insufficient.
+target. Prefer reachable gaps drawn from source-traced blockers, parked work,
+the roadmap, and prior missed missions, while leaving room for exploratory
+cases. Choose different source owners where practical. Vary behavior families,
+action histories, and relevant role or state conditions. Changing only seeds
+is insufficient.
 Record every valid case with patched C and confirm it with an independent C
 replay. Keep valid reproducible cases even when the planned event was not
 reached or JavaScript already matches. Reject only invalid setup or recorder
@@ -26,9 +29,14 @@ seed and inputs, special-case a case, or edit prior batches.
 Before submitting, check the mission plan against the C recordings: count only
 distinct targets the C run reached and the independent replay confirmed. Name
 the recording and observed C step for each reached target in `missionPlan`.
-Retain valid misses without counting them. If fewer than six targets were
-reached, develop more independent missions; if a source or recorder blocker
-prevents completion, park the task and report that blocker to the orchestrator.
+Retain valid misses without counting them. After two materially different C
+setups fail to reach a difficult target, record the reason and try another
+unless the source reveals a cheap route. Aim for 6–9 reached targets, but do
+not delay a ready delivery to force a rare path: when implementation work is
+running low, hand off all valid, independently replayed cases available,
+even if fewer than six targets were reached. Include reached, missed, and
+deferred targets and the remaining candidate list in `missionPlan` so the
+orchestrator can commission the next batch.
 
 Commit only new case recipes and C recordings under
 `challenges/cases/<batch>/`. Put the prepared manifest and its case hashes in

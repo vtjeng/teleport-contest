@@ -136,16 +136,26 @@ Plan 6–9 new, independently designed C behavior targets per batch before
 inspecting their JavaScript results. For each target, name the source behavior,
 the state and action history needed to reach it, and the C observation that
 will show it was reached. Earlier admitted cases do not count toward this
-target. Vary behavior families, action histories, and relevant character or
-state conditions; changing only seeds is insufficient. Follow
+target. Draw candidates from current source-traced blockers and parked work,
+the roadmap's under-exercised functions, and earlier missions that missed their
+intended behavior. Prefer targets with a plausible C route and different source
+owners; reserve some missions for less directed exploration. A rare blocker is
+one candidate, not a requirement to hold the whole batch open. Vary behavior
+families, action histories, and relevant character or state conditions;
+changing only seeds is insufficient. Follow
 `experiments/generalization/plan.md`, "Expanding challenges", and
 `.agents/validation.md` for C exploration and recording.
 Before handoff, count distinct targets actually reached in the C recordings
 and confirmed by independent C replay. A valid recording that missed its
-target stays in the batch but does not satisfy the 6–9 target. If fewer than
-six were reached, continue with new missions; if a source or recorder blocker
-prevents that, report it and park the preparation task rather than mark it
-complete. The target is not a cap on valid cases. Retain every valid,
+target stays in the batch but does not satisfy the 6–9 target. After two
+materially different C setups fail to reach a difficult target, defer it with
+the observed reason and try another; a cheap source-proven route can justify
+another attempt. Aim for 6–9 reached targets, but submit the valid, independently
+replayed cases already available when implementation workers need work or the
+remaining targets are costly to reach. A smaller batch is acceptable with its
+reached, missed, and deferred targets stated in the handoff. Continue with a
+later batch rather than waiting on a rare path. The target is not a cap on
+valid cases. Retain every valid,
 reproducible case, including missed missions and cases JavaScript already
 passes; reject only invalid setup or recorder failures with recorded C evidence.
 Resolve recorder-environment differences before treating them as game defects.
