@@ -1036,9 +1036,9 @@ test('a covered piece is refused by armor_or_accessory_off', async () => {
     game.uarmu = null;
 });
 
-test('an accessory reaches the unported half of the command', async () => {
-    // do_wear.c:1806-1826. select_off() stops on a ring one frame earlier,
-    // so an amulet or a blindfold is what arrives here.
+test('an amulet removal records its discarded helper gap', async () => {
+    // do_wear.c:1819. Amulet_off() returns void; until its source body is
+    // ported, the caller records and skips that discarded-result call.
     const segment = segmentFor(TAKEOFF_KEY);
     await runSegment({ ...segment, moves: WAIT });
     const amulet = {
@@ -1046,22 +1046,20 @@ test('an accessory reaches the unported half of the command', async () => {
         cursed: 0,
     };
     game.uamul = amulet;
-    await assert.rejects(
-        () => armor_or_accessory_off(amulet, game),
-        /Ring_off\(\)\/Amulet_off\(\)/,
-    );
+    game.unported = new Set();
+    assert.equal(await armor_or_accessory_off(amulet, game), ECMD_TIME);
+    assert.equal(game.uamul, amulet);
+    assert.equal(game.unported.has('do_wear.c Amulet_off'), true);
     game.uamul = null;
 
     const ring = {
         oclass: RING_CLASS, otyp: RIN_ADORNMENT, owornmask: W_RINGL,
-        cursed: 0,
+        cursed: 0, spe: 0,
     };
     game.uleft = ring;
-    await assert.rejects(
-        () => armor_or_accessory_off(ring, game),
-        /select_off\(\) ring checks/,
-    );
-    game.uleft = null;
+    assert.equal(await armor_or_accessory_off(ring, game), ECMD_TIME);
+    assert.equal(game.uleft, null);
+    assert.equal(ring.owornmask, 0);
 });
 
 test('Blindf_off clears the blindfold slot and toggles blindness', async () => {

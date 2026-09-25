@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 228772,
+      "datetime": "20260922140500",
+      "nethackrc": "OPTIONS=name:LampProbe,role:Archeologist,race:human,gender:female,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen\n",
+      "comment": "Independent C replay from apply.c:use_lamp's ordinary oil-lamp branch. Seed 228772 is chosen from the u_init.c Archeologist Lamp[] inventory selection; `a` applies and the role's oil lamp is selected by its inventory letter `i` to reach use_lamp().",
+      "moves": " ai"
+    }
+  ]
+}

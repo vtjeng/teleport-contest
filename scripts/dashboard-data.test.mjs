@@ -295,11 +295,34 @@ test('score cards share one format and show commit ages without hashes', () => {
     const table = rendered.get('challengeTable').innerHTML;
     assert.match(table, /Nested &lt;box&gt;/u);
     assert.match(table, /container/u);
-    assert.match(table, /title="f{40}">fffffff/u);
-    assert.match(table, /2026-01-01 00:00Z/u);
-    assert.match(table, /invent\.c:12 &lt;tip&gt;/u);
+    assert.match(table, /<th>Initial<\/th><th>Current<\/th><th>Total<\/th><th>Change<\/th>/u);
+    assert.match(table, /<td>2<\/td><td>—<\/td><td>3<\/td><td>—<\/td>/u);
+    assert.doesNotMatch(table, /f{40}|2026-01-01 00:00Z|<time\b/u);
+    assert.doesNotMatch(table + rendered.get('challengeCards').innerHTML,
+        /Source pointers|invent\.c:12|&lt;tip&gt;/u);
     assert.doesNotMatch(table, /<th>Added<\/th>/u);
     assert.doesNotMatch(table, /<box>|<tip>/u);
+});
+
+test('challenge rows and cards show compact counts and comparable change', () => {
+    const data = sourceDashboardData();
+    data.challenges.cases = [
+        { id: 'gain', title: 'Gain', first: { sha: 'a'.repeat(40), utc: '2026-01-01T00:00:00Z',
+            screens: { matched: 2, total: 7 } },
+        current: { sha: 'b'.repeat(40), utc: '2026-01-02T00:00:00Z',
+            screens: { matched: 5, total: 7 } }, delta: 3, sourcePointers: ['hack.c:12'] },
+        { id: 'incomparable', title: 'Incomparable',
+            first: { screens: { matched: 1, total: 7 } },
+            current: { screens: { matched: 4, total: 8 } }, delta: null },
+    ];
+    const rendered = renderDashboard(data);
+    const table = rendered.get('challengeTable').innerHTML;
+    const cards = rendered.get('challengeCards').innerHTML;
+    assert.match(table, /Gain[\s\S]*<td>2<\/td><td>5<\/td><td>7<\/td><td>\+3<\/td>/u);
+    assert.match(table, /Incomparable[\s\S]*<td>1<\/td><td>4<\/td><td>8<\/td><td>—<\/td>/u);
+    assert.match(cards, /<dt>Initial<\/dt><dd>2<\/dd>[\s\S]*<dt>Current<\/dt><dd>5<\/dd>[\s\S]*<dt>Total<\/dt><dd>7<\/dd>[\s\S]*<dt>Change<\/dt><dd>\+3<\/dd>/u);
+    assert.doesNotMatch(table + cards,
+        /2026-01-0|a{40}|b{40}|<time\b|challenge-result-source|Source pointers|hack\.c:12/u);
 });
 
 test('score rows expose named development and local holdout measures', () => {
@@ -389,13 +412,15 @@ test('healthy batch measurements do not repeat above the challenge cases', () =>
 
 test('primary dashboard sections put the queue and challenges before historical detail', () => {
     const template = readFileSync(TEMPLATE, 'utf8');
-    const positions = ['id="stats"', 'id="scoreHistoryTitle"', 'id="queueSummaryTitle"',
-        'id="challengeTitle"', 'class="diagnostics"', 'id="queueDisclosure"',
+    const positions = ['id="stats"', 'id="scoreHistoryTitle"', 'id="queueDisclosure"',
+        'id="queueSummaryTitle"', 'id="challengeTitle"', 'class="diagnostics"',
         'id="sourceWorkDisclosure"', 'id="timeline"', 'id="goalTable"']
         .map(marker => template.indexOf(marker));
     assert.ok(positions.every(position => position >= 0));
     assert.deepEqual(positions, [...positions].sort((a, b) => a - b));
     assert.doesNotMatch(template, /id="currentWork"|id="pausedWork"/u);
+    assert.match(template, /<details class="section" id="queueDisclosure">/u);
+    assert.doesNotMatch(template, /id="queueSummaryLink"|View ranked queue|Ranked mismatch queue/u);
 });
 
 test('the unified queue renders C, Lua, and unresolved source owners in priority order', () => {
@@ -422,7 +447,7 @@ test('the unified queue renders C, Lua, and unresolved source owners in priority
     };
     const rendered = renderDashboard(sourceDashboardData(), queue);
     const entries = rendered.get('queueEntries').innerHTML;
-    assert.equal(rendered.get('queueCount').textContent, '3 sessions');
+    assert.equal(rendered.get('queueMetrics').textContent, '3 sessions');
     assert.match(entries, /Mismatch site: test_move\(\) in hack\.c:42</u);
     assert.match(entries, /Mismatch site: Arc-loca\.lua</u);
     assert.match(entries, /step unknown/u);
@@ -473,7 +498,7 @@ test('an unavailable mismatch queue differs from a confirmed empty queue', () =>
     // without fallback permission also provide no evidence of completion.
     for (const queue of [null, {}, { sessions: [], roadmapFallbackAllowed: false }]) {
         const rendered = renderDashboard(sourceDashboardData(), queue);
-        assert.equal(rendered.get('queueCount').textContent, 'Unavailable');
+        assert.equal(rendered.get('queueHeadline').textContent, 'Queue unavailable');
         const entries = rendered.get('queueEntries').innerHTML;
         assert.match(entries, /Mismatch queue unavailable; completion is unknown/u);
         assert.doesNotMatch(entries, /Every development session matches/u);
@@ -481,7 +506,7 @@ test('an unavailable mismatch queue differs from a confirmed empty queue', () =>
     const rendered = renderDashboard(sourceDashboardData(), {
         sessions: [], candidates: [], roadmapFallbackAllowed: true,
     });
-    assert.equal(rendered.get('queueCount').textContent, 'All sessions match');
+    assert.equal(rendered.get('queueHeadline').textContent, 'No known mismatches');
     const entries = rendered.get('queueEntries').innerHTML;
     assert.match(entries, /Every development session matches/u);
     assert.doesNotMatch(entries, /unavailable|unknown/u);
@@ -496,27 +521,28 @@ test('work queue keeps regression priority and displays exact synthetic screen c
     ] };
     const rendered = renderDashboard(sourceDashboardData(), queue);
     const html = rendered.get('queueEntries').innerHTML;
-    assert.equal(rendered.get('queueCount').textContent, '2 sessions · 8 unmatched synthetic screens');
+    assert.equal(rendered.get('queueHeadline').textContent, 'Known mismatches');
     assert.match(html, /v1\/regression[\s\S]*1 of 20 screens unmatched[\s\S]*v2\/new-case[\s\S]*7 of 20 screens unmatched/u);
     assert.match(html, /Regression: restore previously matched screens first/u);
     assert.doesNotMatch(html, /at most|19 of 20/u);
-    assert.match(rendered.get('queueSummary').innerHTML,
+    assert.match(rendered.get('queueMetrics').textContent,
         /0 fixed sessions · 2 synthetic cases · 8 unmatched synthetic screens · 2 investigations needed/u);
 });
 
 test('queue summary distinguishes incomplete evidence and screen-free mismatches', () => {
     const data = sourceDashboardData();
-    const unavailable = renderDashboard(data, null).get('queueSummary').innerHTML;
-    assert.match(unavailable, /Queue unavailable/u);
-    assert.doesNotMatch(unavailable, /0 unmatched/u);
+    const unavailable = renderDashboard(data, null);
+    assert.equal(unavailable.get('queueHeadline').textContent, 'Queue unavailable');
+    assert.doesNotMatch(unavailable.get('queueMetrics').textContent, /0 unmatched/u);
     const blocked = renderDashboard(data, { mode: 'work', sessions: [], generationReady: false,
-        blockers: ['v2 evaluation missing'] }).get('queueSummary').innerHTML;
-    assert.match(blocked, /Queue incomplete[\s\S]*Current evidence is incomplete/u);
-    assert.doesNotMatch(blocked, /0 unmatched/u);
+        blockers: ['v2 evaluation missing'] });
+    assert.equal(blocked.get('queueHeadline').textContent, 'Queue incomplete');
+    assert.equal(blocked.get('queueMetrics').textContent, 'Current evidence is incomplete.');
+    assert.match(blocked.get('queueSummaryWarning').textContent, /1 blocker/u);
     const trace = renderDashboard(data, { mode: 'work', generationReady: true, blockers: [],
         sessions: [{ corpus: 'synthetic', session: 'synthetic/v1/cursor',
             remainingScreens: 0, investigation: { status: 'complete' } }] });
-    assert.match(trace.get('queueSummary').innerHTML,
+    assert.match(trace.get('queueMetrics').textContent,
         /1 synthetic case · 0 unmatched synthetic screens · 1 case with no screen debt/u);
     assert.match(trace.get('queueEntries').innerHTML, /cursor/u);
 });
@@ -525,11 +551,11 @@ test('work queue distinguishes unavailable measurements from the next batch thre
     const data = sourceDashboardData();
     const blocked = renderDashboard(data, { mode: 'work', sessions: [], generationReady: false,
         blockers: ['v2 evaluation missing <artifact>'] });
-    assert.equal(blocked.get('queueCount').textContent, 'Needs evaluation');
+    assert.equal(blocked.get('queueHeadline').textContent, 'Queue incomplete');
     assert.match(blocked.get('queueEntries').innerHTML, /Selection blocked: v2 evaluation missing &lt;artifact>/u);
     assert.doesNotMatch(blocked.get('queueEntries').innerHTML, /Every development session matches|Generate and baseline/u);
     const ready = renderDashboard(data, { mode: 'work', sessions: [], generationReady: true, blockers: [] });
-    assert.equal(ready.get('queueCount').textContent, 'Next batch ready');
+    assert.equal(ready.get('queueHeadline').textContent, 'No known mismatches');
     assert.match(ready.get('queueEntries').innerHTML, /Generate and baseline the next batch/u);
     const cursor = renderDashboard(data, { mode: 'work', generationReady: true, blockers: [], sessions: [{
         corpus: 'synthetic', session: 'synthetic/v1/cursor', remainingScreens: 0,

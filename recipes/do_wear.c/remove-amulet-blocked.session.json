@@ -1,0 +1,10 @@
+{
+  "_comment": "Blocked R/remove branch: this independently chosen Wizard case wears and removes an amulet. JavaScript records the discarded `do_wear.c Amulet_off` call and skips the effect until that source function is ported, so this recipe has no matching C recording yet.",
+  "version": 5,
+  "segments": [{
+    "seed": 7310103,
+    "datetime": "20370103151922",
+    "nethackrc": "OPTIONS=name:AmuletRemove,role:Wizard,race:human,gender:female,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,!autopickup\nOPTIONS=pettype:none,!acoustics,time\n",
+    "moves": ". \u0017amulet of reflection\nPoR"
+  }]
+}

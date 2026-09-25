@@ -142,7 +142,7 @@ import {
     UnsupportedLevelChangeError,
 } from './do.js';
 import {
-    doputon, dotakeoff, dowear, remarm_swapwep, reset_remarm,
+    doremring, doputon, dotakeoff, dowear, remarm_swapwep, reset_remarm,
     UnsupportedAccessoryOnError, UnsupportedRingOnError,
     UnsupportedTakeOffError, UnsupportedWearError,
 } from './do_wear.js';
@@ -1845,7 +1845,7 @@ export function end_of_input(state = game) {
 export const ADMITTED_COMMANDS = Object.freeze([
     'wait', 'look', 'inventory', 'showspells', 'known', 'attributes', 'search',
     'eat', 'engrave', 'apply', 'rub', 'open', 'close', 'down', 'up', 'drop', 'pickup', 'pay',
-    'takeoff', 'wear',
+    'takeoff', 'remove', 'wear',
     'puton', 'quaff', 'read', 'zap', 'cast', 'reqmenu', 'fight', 'rush', 'run', 'repeat',
     'options', 'autopickup',
     'wizwish', 'wizidentify', 'wizlevelport', 'wizgenesis', 'wizintrinsic', 'wizmap', 'wizwhere', 'fire', 'throw',
@@ -3425,6 +3425,13 @@ async function runLootCommand(key, state) {
 // because getobj() never prompts for one.
 async function runTakeOffCommand(key, state) {
     return failClosedCommand(key, state, () => dotakeoff(state));
+}
+
+// C ref: do_wear.c doremring(), bound to 'R' in cmd.c. Like dotakeoff(), its
+// result is returned to rhack(), which handles ECMD_CANCEL, ECMD_OK and
+// ECMD_TIME in the common command-result path.
+async function runRemoveCommand(key, state) {
+    return failClosedCommand(key, state, () => doremring(state));
 }
 
 // C ref: do_wear.c dowear(). Like dotakeoff() it returns its own ECMD_*
@@ -5828,6 +5835,18 @@ export async function rhack(key, state = game) {
             // domove_attempting tests at 3773-3800 cannot divert it, because
             // cmd.c:1886's "takeoff" row carries no flags at all.
             const res = await runTakeOffCommand(key, state);
+            if (res & (ECMD_CANCEL | ECMD_FAIL)) resetCommandVars(state);
+            else if ((res & (ECMD_OK | ECMD_TIME)) === ECMD_OK)
+                resetCommandVars(state, state.multi < 0);
+            if (res & ECMD_TIME) commandTookTime(state);
+            return;
+        }
+        if (command === 'remove') {
+            // cmd.c:1821 binds 'R' to doremring(), whose getobj prompt can be
+            // cancelled, whose guards return ECMD_OK, and whose successful
+            // removal returns ECMD_TIME. The row carries no flags, so its
+            // result reaches rhack()'s ordinary result handling directly.
+            const res = await runRemoveCommand(key, state);
             if (res & (ECMD_CANCEL | ECMD_FAIL)) resetCommandVars(state);
             else if ((res & (ECMD_OK | ECMD_TIME)) === ECMD_OK)
                 resetCommandVars(state, state.multi < 0);
