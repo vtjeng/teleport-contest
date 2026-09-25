@@ -249,26 +249,28 @@ ${objects}
 // serializable.
 const UNSEEN_OBJECT_PRICE = Number.MAX_SAFE_INTEGER;
 
+// Each alias reads and writes \`this[source]\`, so every entry can share one
+// descriptor. A fresh getter and setter per entry would give each entry its
+// own V8 hidden class, and every read or copy of an entry would take a slow
+// path.
+const OBJCLASS_ALIAS_DESCRIPTORS = Object.fromEntries(Object.entries({
+    oc_bimanual: 'oc_big',
+    oc_bulky: 'oc_big',
+    oc_skill: 'oc_subtyp',
+    oc_armcat: 'oc_subtyp',
+    oc_hitbon: 'oc_oc1',
+    a_ac: 'oc_oc1',
+    a_can: 'oc_oc2',
+    oc_level: 'oc_oc2',
+}).map(([alias, source]) => [alias, {
+    configurable: true,
+    enumerable: false,
+    get() { return this[source]; },
+    set(value) { this[source] = value; },
+}]));
+
 export function defineObjclassAliases(object) {
-    const aliases = {
-        oc_bimanual: 'oc_big',
-        oc_bulky: 'oc_big',
-        oc_skill: 'oc_subtyp',
-        oc_armcat: 'oc_subtyp',
-        oc_hitbon: 'oc_oc1',
-        a_ac: 'oc_oc1',
-        a_can: 'oc_oc2',
-        oc_level: 'oc_oc2',
-    };
-    for (const [alias, source] of Object.entries(aliases)) {
-        Object.defineProperty(object, alias, {
-            configurable: true,
-            enumerable: false,
-            get() { return this[source]; },
-            set(value) { this[source] = value; },
-        });
-    }
-    return object;
+    return Object.defineProperties(object, OBJCLASS_ALIAS_DESCRIPTORS);
 }
 
 // Copy one live objects[] entry, its aliases included. A bare spread loses

@@ -445,34 +445,36 @@ export class UnsupportedObjectOperationError extends Error {
 //   costlyAlteration(obj, COST_DEGRD, env) -> applies shop billing before
 //     an irreversible object degradation
 
+// Each alias reads and writes `this[source]`, so every object can share one
+// descriptor. A fresh getter and setter per object would give each object its
+// own V8 hidden class, and every copy of an object, which the monster-action
+// dry run makes of every object on each turn, would take a slow path.
+const OBJ_ALIAS_DESCRIPTORS = Object.fromEntries(Object.entries({
+    on_ice: 'recharged',
+    orotten: 'oeroded',
+    odiluted: 'oeroded',
+    norevive: 'oeroded2',
+    degraded_horn: 'obroken',
+    opoisoned: 'otrapped',
+    spestudied: 'usecount',
+    wishedfor: 'usecount',
+    leashmon: 'corpsenm',
+    fromsink: 'corpsenm',
+    novelidx: 'corpsenm',
+    migr_species: 'corpsenm',
+    next_boulder: 'corpsenm',
+    nexthere: 'v',
+    ocontainer: 'v',
+    ocarry: 'v',
+}).map(([alias, source]) => [alias, {
+    configurable: true,
+    enumerable: false,
+    get() { return this[source]; },
+    set(value) { this[source] = value; },
+}]));
+
 function defineObjAliases(obj) {
-    const aliases = {
-        on_ice: 'recharged',
-        orotten: 'oeroded',
-        odiluted: 'oeroded',
-        norevive: 'oeroded2',
-        degraded_horn: 'obroken',
-        opoisoned: 'otrapped',
-        spestudied: 'usecount',
-        wishedfor: 'usecount',
-        leashmon: 'corpsenm',
-        fromsink: 'corpsenm',
-        novelidx: 'corpsenm',
-        migr_species: 'corpsenm',
-        next_boulder: 'corpsenm',
-        nexthere: 'v',
-        ocontainer: 'v',
-        ocarry: 'v',
-    };
-    for (const [alias, source] of Object.entries(aliases)) {
-        Object.defineProperty(obj, alias, {
-            configurable: true,
-            enumerable: false,
-            get() { return this[source]; },
-            set(value) { this[source] = value; },
-        });
-    }
-    return obj;
+    return Object.defineProperties(obj, OBJ_ALIAS_DESCRIPTORS);
 }
 
 // C ref: decl.c cg.zeroobj and include/obj.h struct obj. The three location
