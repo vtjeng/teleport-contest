@@ -285,23 +285,15 @@ h1 {
   letter-spacing: -0.01em;
 }
 
-/* Work status uses the existing green rail plus a written label. */
-#currentWorkTitle { font-size: 16px; }
-.work-meta { color: var(--ink-secondary); font-size: 13px; }
-.active-goals { margin-bottom: 20px; }
-.active-work, .paused-goal { padding: 4px 20px; margin-top: 18px; border-left: 3px solid; }
-.active-work { border-color: var(--goal-in-progress); }
-.work-title { font-size: 16px; font-weight: 600; overflow-wrap: anywhere; margin-bottom: 4px; }
-.work-empty { padding: 4px 0 20px; color: var(--ink-secondary); }
-.goal-details { margin-top: 8px; font-size: 12px; color: var(--ink-secondary); overflow-wrap: anywhere; }
+.queue-summary { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
+.queue-summary-status { font-weight: 600; }
+.queue-summary-meta { color: var(--ink-secondary); font-size: 12px; }
+.queue-summary-link { white-space: nowrap; font-size: 12px; }
+.queue-summary-warning { color: var(--investigation-partial); font-size: 12px; }
 summary { cursor: pointer; }
 .diagnostics { border-top: 1px solid var(--border); padding-top: 16px; }
 .diagnostics > .section-title { font-size: 16px; margin-bottom: 24px; }
 summary:focus-visible { outline: 2px solid var(--ink-primary); outline-offset: 4px; }
-.paused-work { border-top: 1px solid var(--border); padding-top: 16px; }
-.work-group > summary { font-size: 13px; font-weight: 500; }
-.paused-goal { border-color: var(--goal-paused); }
-.pause-reason { margin-top: 8px; font-size: 12px; color: var(--ink-secondary); overflow-wrap: anywhere; }
 #sourceWorkTable th, #sourceWorkTable td { padding: 6px clamp(4px, 1vw, 10px); }
 #sourceWorkTable .in-progress td:nth-child(2) { font-weight: 600; }
 #sourceWorkTable .zero { color: var(--ink-secondary); }
@@ -927,20 +919,9 @@ canvas {
   </div>
 </section>
 
-<section class="section" aria-labelledby="currentWorkTitle">
-  <h2 class="section-title" id="currentWorkTitle">Current work</h2>
-  <div id="currentWork"></div>
-  <div id="pausedWork"></div>
-</section>
-
-<section class="section" aria-labelledby="sourceWorkTitle">
-  <h2 class="section-title" id="sourceWorkTitle">Work by source file</h2>
-  <div class="legend" id="sourceWorkLegend"></div>
-  <div class="chart-wrap">
-    <div class="goal-table-wrap">
-      <table class="goal-table" id="sourceWorkTable"></table>
-    </div>
-  </div>
+<section class="section" aria-labelledby="queueSummaryTitle">
+  <h2 class="section-title" id="queueSummaryTitle">Mismatch queue</h2>
+  <div class="chart-wrap queue-summary" id="queueSummary"></div>
 </section>
 
 <section class="section" aria-labelledby="challengeTitle">
@@ -957,9 +938,19 @@ canvas {
 <section class="diagnostics">
   <h2 class="section-title">Diagnostics and history</h2>
 <details class="section" id="queueDisclosure">
-  <summary><h3 class="section-title">Mismatch queue<span id="queueCount"></span></h3></summary>
+  <summary><h3 class="section-title">Ranked mismatch queue<span id="queueCount"></span></h3></summary>
   <p class="subtitle">Repair regressions first, then synthetic cases by measured unmatched screens. Fixed-session counts are upper bounds. Work starts with the first eligible completed investigation.</p>
   <div class="chart-wrap" id="queueEntries"></div>
+</details>
+
+<details class="section" id="sourceWorkDisclosure">
+  <summary><h3 class="section-title">Work by source file</h3></summary>
+  <div class="legend" id="sourceWorkLegend"></div>
+  <div class="chart-wrap">
+    <div class="goal-table-wrap">
+      <table class="goal-table" id="sourceWorkTable"></table>
+    </div>
+  </div>
 </details>
 
 <div class="section">
@@ -1062,7 +1053,10 @@ document.getElementById('stats').innerHTML = [
   const cards = document.getElementById('challengeCards');
   const esc = text => String(text ?? '').replace(/&/g, '&amp;')
     .replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
-  document.getElementById('challengeBatches').innerHTML = (challengeData.batches || []).map(batch => {
+  // Healthy batch measurements already appear in the score cards, charts, and
+  // case table. Keep this space for batches that need attention.
+  document.getElementById('challengeBatches').innerHTML = (challengeData.batches || [])
+    .filter(batch => batch.status !== 'measured').map(batch => {
     const screens = batch.totals?.screens;
     return '<p class="table-note"><strong>' + esc(batch.batch) + '</strong> · '
       + esc(batch.status) + (screens ? ' · ' + fmtN(screens.matched) + '/' + fmtN(screens.total) + ' screens' : '')
@@ -1113,12 +1107,45 @@ document.getElementById('stats').innerHTML = [
 })();
 // --- Mismatch queue ---
 (function() {
+  const summary = document.getElementById('queueSummary');
   const entries = document.getElementById('queueEntries');
   const count = document.getElementById('queueCount');
   const esc = (text) => String(text).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/"/g, '&quot;');
   const workQueue = QUEUE?.mode === 'work';
   const blockers = (QUEUE?.blockers || []).map(item => typeof item === 'string' ? item
     : (item.batch ? item.batch + ': ' : '') + item.reason);
+  const plural = (n, word) => n + ' ' + word + (n === 1 ? '' : 's');
+  let headline = 'Queue unavailable';
+  let metrics = 'Current mismatch status is unknown.';
+  if (workQueue && Array.isArray(QUEUE.sessions)) {
+    const fixed = QUEUE.sessions.filter(entry => entry.corpus === 'fixed');
+    const synthetic = QUEUE.sessions.filter(entry => entry.corpus === 'synthetic');
+    const needsInvestigation = QUEUE.sessions.filter(entry => entry.investigation?.status !== 'complete').length;
+    const traceOnly = synthetic.filter(entry => entry.remainingScreens === 0).length;
+    headline = blockers.length ? 'Queue incomplete' : QUEUE.sessions.length
+      ? 'Known mismatches' : QUEUE.generationReady ? 'No known mismatches' : 'Queue status unknown';
+    if (QUEUE.sessions.length) {
+      metrics = [plural(fixed.length, 'fixed session'), plural(synthetic.length, 'synthetic case'),
+        fmtN(synthetic.reduce((sum, entry) => sum + (entry.remainingScreens || 0), 0))
+          + ' unmatched synthetic screens',
+        ...(traceOnly ? [plural(traceOnly, 'case') + ' with no screen debt'] : []),
+        ...(needsInvestigation ? [plural(needsInvestigation, 'investigation') + ' needed'] : []),
+      ].join(' · ');
+      if (blockers.length) metrics = 'Known evaluated work: ' + metrics;
+    } else {
+      metrics = blockers.length ? 'Current evidence is incomplete.'
+        : QUEUE.generationReady ? 'All admitted synthetic screens currently match.'
+          : 'No complete queue counts available.';
+    }
+  }
+  summary.innerHTML = '<div><p class="queue-summary-status">' + headline + '</p>'
+    + '<p class="queue-summary-meta">' + metrics + '</p>'
+    + (blockers.length ? '<p class="queue-summary-warning">' + plural(blockers.length, 'blocker')
+      + '; counts may be incomplete.</p>' : '') + '</div>'
+    + '<a class="queue-summary-link" id="queueSummaryLink" href="#queueDisclosure">View ranked queue</a>';
+  document.getElementById('queueSummaryLink').addEventListener('click', () => {
+    document.getElementById('queueDisclosure').open = true;
+  });
   const warning = blockers.length ? '<p class="table-note">Selection blocked: '
     + blockers.map(esc).join(' · ') + '</p>' : '';
   if (!QUEUE || !QUEUE.sessions || QUEUE.sessions.length === 0) {
@@ -1189,33 +1216,11 @@ document.getElementById('stats').innerHTML = [
   entries.innerHTML = html;
 })();
 
-// --- Current work and source files ---
-// GOALS.json supplies status for every kind of goal. Commit-derived history
-// is used only by the historical charts below.
+// --- Source file inventory ---
 (function() {
   const work = DATA.workGoals || [];
   const esc = text => String(text).replace(/&/g, '&amp;').replace(/</g, '&lt;')
     .replace(/>/g, '&gt;').replace(/"/g, '&quot;');
-  const active = work.filter(goal => goal.status === 'open');
-  const paused = work.filter(goal => goal.status === 'parked');
-  const kindLabel = kind => ({ 'file-port': 'C implementation', 'lua-port': 'Lua implementation',
-    'divergence-fix': 'Behavior fix', boundary: 'Historical goal' })[kind] || 'Historical goal';
-  const description = goal => '<h3 class="work-title">' + esc(goal.summary || goal.id) + '</h3>'
-    + '<p class="work-meta"><code>' + esc(goal.sourceFile || 'Source pending') + '</code></p>';
-  const goalDetails = goal => '<p class="goal-details">' + esc(kindLabel(goal.kind))
-    + ' · <code>' + esc(goal.id) + '</code></p>';
-  document.getElementById('currentWork').innerHTML = active.length
-    ? '<details class="active-goals work-group" open><summary>' + active.length + ' goal' + (active.length === 1 ? '' : 's')
-      + ' in progress</summary>' + active.map(goal => '<article class="active-work">'
-        + description(goal) + goalDetails(goal) + '</article>').join('') + '</details>'
-    : '<p class="work-empty">0 goals in progress.</p>';
-  document.getElementById('pausedWork').innerHTML = paused.length
-    ? '<details class="paused-work work-group"><summary>' + paused.length + ' paused goal' + (paused.length === 1 ? '' : 's')
-      + '</summary>' + paused.map(goal => '<article class="paused-goal">'
-        + description(goal) + '<p class="pause-reason">' + esc(goal.parkedReason || 'Reason unspecified.')
-        + '</p>' + goalDetails(goal) + '</article>').join('') + '</details>'
-    : '';
-
   const files = new Map();
   work.forEach(goal => {
     if (!goal.sourceFile) return;
