@@ -81,11 +81,9 @@ test('closure recipes reach the first command without executing it', async () =>
 test('closure boundary rejects an appended unsupported command', async () => {
     const segment = loadClosureRecipe(FIRST_COMMAND_CLOSURE_FIXTURES[0])
         .segments[0];
-    // `R` is bound to doremring(), which the port does not own, so it stops at
-    // the admission seam before any dispatch. An unbound byte would not:
-    // rhack()'s bad-command path answers it and returns without taking time,
-    // and neither would `i`, `:` or `s`, whose dispatch the port owns.
-    const appended = `${segment.moves}R`;
+    // `R` now dispatches to doremring(); `X` remains the unported
+    // twoweapon command and stops at the admission seam before dispatch.
+    const appended = `${segment.moves}X`;
     await assert.rejects(
         verifyFirstCommandBoundary({ ...segment, moves: appended }),
         /unsupported gameplay command/u,
