@@ -412,6 +412,7 @@ import {
     back_on_ground,
     drown,
     lava_effects,
+    float_up,
     reset_utrap,
     t_at,
     trapname,
@@ -3975,7 +3976,7 @@ async function domove_core(state = game) {
         if (!u.utrap) {
             state.disp ??= {};
             state.disp.botl = true;
-            reset_utrap(true, state); /* might resume levitation or flight */
+            await reset_utrap(true, state); /* might resume levitation or flight */
         }
         /* might not have escaped, or did escape but remain in the same spot */
         if (!moved) {
@@ -4761,11 +4762,8 @@ export function hero_tread_disturbs_buried_zombies(state = game) {
 }
 
 // C ref: hack.c switch_terrain() (3178-3217). Terrain that blocks levitation
-// blocks flight as well.  C records the outside obstruction in BLevitation and
-// BFlying, emits each applicable message, then restores those bits when the
-// hero leaves the obstruction.  `float_up()` has no owner yet and its result
-// is discarded by C, so that call remains an explicit source gap; the masks,
-// status update, and terrain classification remain source-owned here.
+// blocks flight as well. C records the outside obstruction, calls float_up()
+// after the hero leaves it, restores flight, and updates the status line.
 export async function switch_terrain(state = game, rawEnv = {}) {
     const message = rawEnv.planning
         ? async () => {}
@@ -4793,7 +4791,7 @@ export async function switch_terrain(state = game, rawEnv = {}) {
         // A remaining blocked bit (for example a buried iron ball) still
         // reaches C's discarded float_up() call after FROMOUTSIDE clears.
         if (propertyActiveUnblocked(state, LEVITATION) || levitation.blocked)
-            note_unported('hack.c float_up');
+            await float_up(state);
     }
     if (blocklev) {
         if (heroIsFlying(state))

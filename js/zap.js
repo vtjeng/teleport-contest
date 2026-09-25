@@ -3877,7 +3877,7 @@ export async function zap_over_floor(
             if (seeIt) await norepMessage('A web bursts into flames!', state, env);
             // delfloortrap() owns the trap unlink and actor state transition;
             // its boolean result is discarded by zap_over_floor() in C.
-            delfloortrap(t, state);
+            await delfloortrap(t, state);
             if (seeIt) redrawAt(x, y, state);
         }
         if (is_ice(x, y, state)) {
@@ -4047,7 +4047,7 @@ export async function zap_over_floor(
                             await message(
                                 'You pass through the now-solid rock.', state, env,
                             );
-                            reset_utrap(true, state);
+                            await reset_utrap(true, state);
                         } else {
                             set_utrap(random.rn1(50, 20), TT_INFLOOR, state);
                             await message(

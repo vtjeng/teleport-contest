@@ -73,6 +73,7 @@ import {
     add_to_minv,
     addinv,
     carrying,
+    count_contents,
     count_unpaid,
     currency,
     freeinv,
@@ -155,7 +156,7 @@ import {
 } from './startup_a11y.js';
 import { set_voice } from './sounds.js';
 import { saleable, shkname, Shknam } from './shknam.js';
-import { ttyPline } from './tty_message.js';
+import { ttyNorep, ttyPline } from './tty_message.js';
 import { note_unported } from './unported.js';
 import { findgold, mpickobj, remove_worn_item } from './steal.js';
 import { discover_object, observe_object } from './o_init.js';
@@ -2855,6 +2856,136 @@ export function subfrombill(obj, shkp, state = game, env = {}) {
         if (hasContents(item)) subfrombill(item, shkp, state, env);
         else sub_one_frombill(item, shkp, state, env);
     }
+}
+
+// C ref: shk.c stolen_container() (3713-3751). Add the shop's claim on each
+// nested item, removing billed objects from the bill so the debt is charged
+// exactly once. `ininv` selects the source's unpaid test for carried items.
+function stolen_container(obj, shkp, price, ininv, state) {
+    for (let item = obj.cobj; item; item = item.nobj) {
+        if (item.oclass === COIN_CLASS) continue;
+        let billamt = 0;
+        const owner = { value: shkp };
+        if (!billable(owner, item, shkp.mextra.eshk.shoproom, true, state)) {
+            const bill = onbill(item, owner.value, false);
+            if (!bill) continue;
+            billamt = bill.bquan * bill.price;
+            sub_one_frombill(item, owner.value, state, {});
+        }
+
+        if (billamt) price += billamt;
+        else if (ininv ? item.unpaid : !item.no_charge)
+            price += get_pricing_units(item) * get_cost(item, shkp, state);
+
+        if (hasContents(item))
+            price = stolen_container(item, shkp, price, ininv, state);
+    }
+    return price;
+}
+
+// C ref: shk.c stolen_value() (3754-3891). Return the complete amount that
+// the pickup.c magic-bag loss path charges or records as shop theft.
+export async function stolen_value(
+    obj,
+    x,
+    y,
+    peaceful,
+    silent,
+    state = game,
+) {
+    let value = 0;
+    let gvalue = 0;
+    let billamt = 0;
+    const objowner = find_objowner(obj, x, y, state);
+    const roomno = objowner?.mextra?.eshk?.shoproom
+        ?? in_rooms(x, y, SHOPBASE, state)[0] ?? 0;
+    const wasUnpaid = Boolean(obj.unpaid);
+    const cCount = hasContents(obj)
+        ? count_contents(obj, true, false, true, false, state) : 0;
+    const uCount = hasContents(obj)
+        ? count_contents(obj, true, false, false, false, state) : 0;
+
+    let shkp = null;
+    const owner = { value: shkp };
+    if (!billable(owner, obj, roomno, true, state)) {
+        shkp = owner.value;
+        const bill = onbill(obj, shkp, false);
+        if (bill) {
+            billamt = bill.bquan * bill.price;
+            sub_one_frombill(obj, shkp, state, {});
+        }
+        if (!bill && !uCount) return 0;
+    } else {
+        shkp = owner.value;
+    }
+
+    if (obj.oclass === COIN_CLASS) {
+        gvalue += obj.quan;
+    } else {
+        if (billamt) value += billamt;
+        else if (!obj.no_charge)
+            value += get_pricing_units(obj) * get_cost(obj, shkp, state);
+
+        if (hasContents(obj)) {
+            const ininv = obj.where === OBJ_INVENT || obj.where === OBJ_FREE;
+            value += stolen_container(obj, shkp, 0, ininv, state);
+            if (!ininv) gvalue += contained_gold(obj, true);
+        }
+    }
+
+    if (gvalue + value === 0) return 0;
+    value += gvalue;
+
+    if (peaceful) {
+        const creditUsed = Boolean(shkp.mextra.eshk.credit);
+        value = await check_credit(value, shkp, state, {});
+        if (!NOTANGRY(shkp)) shkp.mextra.eshk.robbed += value;
+        else shkp.mextra.eshk.debit += value;
+
+        if (!silent) {
+            let still = '';
+            if (creditUsed) {
+                if (shkp.mextra.eshk.credit) {
+                    await ttyPline(
+                        `You have ${shkp.mextra.eshk.credit} `
+                        + `${currency(shkp.mextra.eshk.credit, state)} `
+                        + `credit remaining.`,
+                        state,
+                    );
+                    return value;
+                } else if (!value) {
+                    await ttyPline('You have no credit remaining.', state);
+                    return 0;
+                }
+                still = 'still ';
+            }
+            let message = `${still}owe ${shkname(shkp, state)} ${value} `
+                + `${currency(value, state)}`;
+            if (uCount) {
+                message += ` for ${wasUnpaid ? 'it and ' : ''}`
+                    + `${cCount > uCount ? 'some of ' : ''}its contents`;
+            } else if (obj.oclass !== COIN_CLASS) {
+                message += ` for ${obj.quan > 1 ? 'them' : 'it'}`;
+            }
+            await ttyPline(`You ${message}!`, state);
+        }
+    } else {
+        shkp.mextra.eshk.robbed += value;
+        if (!silent) {
+            if (canSeeMonster(shkp, state)) {
+                await ttyNorep(
+                    `${Shknam(shkp, state)} booms: `
+                    + `"${state.plname}, you are a thief!"`,
+                    state,
+                );
+            } else if (!heroIsDeaf(state)) {
+                await ttyNorep('You hear a scream, "Thief!"', state);
+            }
+        }
+        note_unported('shk.c hot_pursuit');
+        await angry_guards(false, { state });
+    }
+    return value;
 }
 
 // C ref: shk.c onshopbill() (1160-1163). Expose only the boolean answer; the

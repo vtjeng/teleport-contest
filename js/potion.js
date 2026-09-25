@@ -49,6 +49,7 @@ import {
     FROMOUTSIDE,
     HALLUC,
     HALLUC_RES,
+    I_SPECIAL,
     GETOBJ_DOWNPLAY,
     GETOBJ_EXCLUDE,
     GETOBJ_EXCLUDE_NONINVENT,
@@ -64,6 +65,7 @@ import {
     IS_SINK,
     Is_airlevel,
     Is_waterlevel,
+    LEVITATION,
     KILLED_BY,
     KILLED_BY_AN,
     FIXED_ABIL,
@@ -102,7 +104,7 @@ import { more_experienced } from './exper.js';
 import { fruitname, makeplural } from './fruit.js';
 import { game } from './gstate.js';
 import {
-    endRunning, losehp, nomul, You_can_move_again,
+    endRunning, losehp, nomul, spoteffects, You_can_move_again,
 } from './hack.js';
 import {
     getobj, hands_obj, learn_unseen_invent, obfree, update_inventory, useup,
@@ -118,17 +120,18 @@ import { s_suffix } from './hacklib.js';
 import {
     Tobjnam, donameFresh, is_plural, short_oname, thesimpleoname, vtense,
 } from './objnam.js';
-import { inaccessible_equipment } from './do_wear.js';
+import { hard_helmet, inaccessible_equipment } from './do_wear.js';
 import { is_boots, is_gloves } from './obj.js';
 import { discover_object } from './o_init.js';
 import { encumber_msg } from './pickup.js';
-import { body_part } from './polyself.js';
+import { body_part, float_vs_flight } from './polyself.js';
 import { d, rn1, rn2, rnd, rne, rnz } from './rng.js';
 import { canSpotMonster } from './startup_a11y.js';
 import { cloneu } from './mhitu.js';
 import { burn_away_slime } from './timeout.js';
-import { Levitation, unconscious } from './trap.js';
-import { surface } from './dungeon.js';
+import { Levitation, float_up, unconscious } from './trap.js';
+import { ceiling, has_ceiling, surface } from './dungeon.js';
+import { stairway_at } from './stairs.js';
 import { cansee, vision_recalc } from './vision.js';
 import { Cold_resistance, Fire_resistance, makewish } from './zap.js';
 import {
@@ -1063,6 +1066,59 @@ async function peffect_extra_healing(otmp, state = game) {
 //        drink_ok() (505-521), dodrink() (526-615).
 // ---------------------------------------------------------------------------
 
+// C ref: potion.c peffect_levitation() (1164-1215). Levitation potions and
+// spells use the same property timeout, cursed ceiling impact, and sink effect.
+async function peffect_levitation(otmp, state) {
+    const { u } = state;
+    const levitation = u.uprops[LEVITATION];
+    state.gp ??= {};
+    state.gp.potion_nothing ??= 0;
+
+    if (!Levitation(state) && !levitation.blocked) {
+        // Give float_up() a live intrinsic before it reports the rise.
+        set_itimeout(levitation, 1);
+        await float_up(state);
+    } else {
+        state.gp.potion_nothing++;
+    }
+
+    if (otmp.cursed) {
+        levitation.intrinsic &= ~I_SPECIAL;
+        if (levitation.blocked) {
+            // BLevitation means the rise is still blocked.
+        } else if (stairway_at(u.ux, u.uy, state)?.up) {
+            note_unported('do.c doup');
+            state.gp.potion_nothing = 0;
+        } else if (has_ceiling(u.uz, state)) {
+            const dmg = rnd(!state.uarmh ? 10
+                : !hard_helmet(state.uarmh, state) ? 6 : 3);
+            await ttyPline(
+                `You hit your ${body_part(HEAD, state.youmonst)} on the ${
+                    ceiling(u.ux, u.uy, state)
+                }.`,
+                state,
+            );
+            await losehp(
+                Maybe_Half_Phys(dmg, state),
+                'colliding with the ceiling',
+                KILLED_BY,
+                state,
+            );
+            state.gp.potion_nothing = 0;
+        }
+    } else if (otmp.blessed) {
+        incr_itimeout(levitation, rn1(50, 250));
+        levitation.intrinsic |= I_SPECIAL;
+    } else {
+        incr_itimeout(levitation, rn1(140, 10));
+    }
+
+    if (Levitation(state)
+        && IS_SINK(state.level.at(u.ux, u.uy).typ))
+        await spoteffects(false, state);
+    float_vs_flight(state);
+}
+
 // C ref: potion.c peffects() (1333-1425). Dispatch the effect of a quaffed
 // potion or spell. Returns >=0 if the effect short-circuits dopotion()'s tail
 // (0 = no time, 1 = time), -1 to continue to the tail.
@@ -1125,7 +1181,8 @@ export async function peffects(otmp, state = game) {
         throw new UnsupportedQuaffError('peffect_full_healing()');
     case POT_LEVITATION:
     case SPE_LEVITATION:
-        throw new UnsupportedQuaffError('peffect_levitation()');
+        await peffect_levitation(otmp, state);
+        break;
     case POT_GAIN_ENERGY:
         throw new UnsupportedQuaffError('peffect_gain_energy()');
     case POT_OIL:

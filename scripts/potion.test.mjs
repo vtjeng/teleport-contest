@@ -1429,6 +1429,49 @@ test('fresh booze recipes consume the potion and finish the delayed action',
         }
     });
 
+test('levitation potion starts the rise before extending its timeout', async () => {
+    await startedGame(771010, 'LevitationRise');
+    const potion = vaporPotion(POT_LEVITATION);
+    const levitation = game.u.uprops[LEVITATION];
+    levitation.intrinsic = 0;
+    levitation.extrinsic = 0;
+    levitation.blocked = 0;
+    game.gp.potion_nothing = 0;
+    clearTopline();
+    enableRngLog();
+
+    await peffects(potion, game);
+    const [call] = getRngLog();
+    const draw = Number(/^rn2\(140\)=(\d+)$/u.exec(call)?.[1]);
+
+    assert.equal(toplines(), 'You start to float in the air!');
+    assert.equal(levitation.intrinsic & TIMEOUT, 11 + draw);
+    assert.equal(game.gp.potion_nothing, 0);
+    assert.deepEqual(getRngLog(), [`rn2(140)=${draw}`]);
+});
+
+test('an already levitating hero records nothing before potion extension',
+    async () => {
+    await startedGame(771011, 'LevitationAgain');
+    const potion = vaporPotion(POT_LEVITATION);
+    const levitation = game.u.uprops[LEVITATION];
+    levitation.intrinsic = 20;
+    levitation.extrinsic = 0;
+    levitation.blocked = 0;
+    game.gp.potion_nothing = 0;
+    clearTopline();
+    enableRngLog();
+
+    await peffects(potion, game);
+    const [call] = getRngLog();
+    const draw = Number(/^rn2\(140\)=(\d+)$/u.exec(call)?.[1]);
+
+    assert.equal(toplines(), '');
+    assert.equal(levitation.intrinsic & TIMEOUT, 30 + draw);
+    assert.equal(game.gp.potion_nothing, 1);
+    assert.deepEqual(getRngLog(), [`rn2(140)=${draw}`]);
+});
+
 test('a sober confusion potion prints its message and draws its timeout',
     async () => {
     await startedGame(771007, 'ConfusionSober');

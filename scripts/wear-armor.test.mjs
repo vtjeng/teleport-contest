@@ -32,6 +32,7 @@ import {
     INVIS,
     INTRINSIC,
     JUMPING,
+    LEVITATION,
     MAGICENLIGHTENMENT,
     POISON_RES,
     SICK_RES,
@@ -67,6 +68,7 @@ import {
     canwearobj,
     dowear,
     equip_ok,
+    hard_helmet,
     select_off,
     set_wear,
     wear_ok,
@@ -177,6 +179,7 @@ import {
     RIN_GAIN_STRENGTH,
     RIN_INCREASE_ACCURACY,
     RIN_INCREASE_DAMAGE,
+    RIN_LEVITATION,
     RIN_PROTECTION,
     RIN_REGENERATION,
     RIN_STEALTH,
@@ -1187,36 +1190,24 @@ test('the five helmets Helmet_on cannot run are refused unwritten',
     }
 });
 
-test('the three boots Boots_on cannot run are refused unwritten', async () => {
-    // do_wear.c:199-249. Five of Boots_on()'s ten labels fall to a bare break;
-    // SPEED_BOOTS and FUMBLE_BOOTS are ported separately below, and the other
-    // three call spoteffects(), toggle_stealth(), or float_up(). Refusing
-    // above setworn() leaves each unsupported branch's state untouched.
-    //
-    // These three retained types remain outside this goal's stated limit and
-    // stay covered by the QUALITY.json deferral wear-magic-boots-stop.
+test('water-walking, elven, and levitation boots reach Boots_on()', async () => {
+    // do_wear.c:199-249. Water walking and levitation are ported; the elven
+    // boots arm records only its discarded toggle_stealth() call.
     const segment = segmentFor(`${TAKEOFF_KEY}${WEAR_KEY}c`);
     for (const otyp of [WATER_WALKING_BOOTS, ELVEN_BOOTS, LEVITATION_BOOTS]) {
         await setup(segment, OFF);
         const obj = armor(otyp, { dknown: 1, spe: 0 });
 
-        await assert.rejects(
-            () => accessory_or_armor_on(obj, game),
-            refusal(UnsupportedWearError, `Boots_on() for otyp ${otyp}`),
-            `otyp ${otyp}`,
-        );
-        assert.equal(game.uarmf ?? null, null, `otyp ${otyp}`);
-        assert.equal(obj.owornmask, 0, `otyp ${otyp}`);
-        assert.equal(game.multi ?? 0, 0, `otyp ${otyp}`);
-
-        // Boots_on() asks the same question again for its other caller.
-        // set_wear() reaches it with whatever u_init.c wore, and there is no
-        // frame above that one to hoist a refusal into.
-        game.uarmf = armor(otyp, { dknown: 1, spe: 0, known: false });
-        await assert.rejects(() => Boots_on(game),
-            refusal(UnsupportedWearError, `Boots_on() for otyp ${otyp}`));
-        assert.equal(game.uarmf.known, false, `otyp ${otyp}`);
-        game.uarmf = null;
+        assert.equal(await accessory_or_armor_on(obj, game), ECMD_TIME,
+            `otyp ${otyp}`);
+        assert.equal(game.uarmf, obj, `otyp ${otyp}`);
+        assert.equal(game.afternmv, Boots_on, `otyp ${otyp}`);
+        await Boots_on(game);
+        assert.equal(obj.known, true, `otyp ${otyp}`);
+        if (otyp === ELVEN_BOOTS)
+            assert.ok(game.unported.has('do_wear.c toggle_stealth'));
+        if (otyp === LEVITATION_BOOTS)
+            assert.match(takePendingTopLine(), /You start to float in the air!/u);
     }
     // The same direct call for a type it carries, which pins C's own
     // `return 0` at do_wear.c:258. Both callers discard the value.
@@ -1548,13 +1539,10 @@ test('set_wear runs the startup callbacks and stops on the slots it cannot',
     game.uarmh = null;
     game.uarms = startingShield;
 
-    // A boot type Boots_on() cannot run still stops set_wear(), which is the
-    // one caller with no frame above it to hoist the question into.
+    // set_wear() reaches the same callback for a startup water-walking boot.
     game.uarmf = armor(WATER_WALKING_BOOTS, { known: false });
-    await assert.rejects(() => set_wear(game),
-        refusal(UnsupportedWearError,
-            `Boots_on() for otyp ${WATER_WALKING_BOOTS}`));
-    assert.equal(game.uarmf.known, false);
+    await set_wear(game);
+    assert.equal(game.uarmf.known, true);
     game.uarmf = null;
 });
 
@@ -2962,6 +2950,19 @@ test('the obj.h armor macros answer for exactly one category each',
     }
 });
 
+test('hard_helmet follows do_wear.c material and category checks', async () => {
+    // do_wear.c:568-574: nulls and non-helmets are false; an iron helmet is
+    // hard, while the leather fedora does not protect against falling rocks.
+    const segment = segmentFor(`${TAKEOFF_KEY}${WEAR_KEY}c`);
+    await setup(segment, WAIT);
+    assert.equal(hard_helmet(null, game), false);
+    assert.equal(hard_helmet(armor(HELMET), game), true);
+    assert.equal(hard_helmet(armor(FEDORA), game), false);
+    assert.equal(hard_helmet({
+        oclass: WEAPON_CLASS, otyp: HELMET, quan: 1,
+    }, game), false);
+});
+
 test('is_sword covers the contiguous run of sword skills', async () => {
     // obj.h:223-226, `oc_skill >= P_SHORT_SWORD && oc_skill <= P_SABER`.
     const segment = segmentFor(`${TAKEOFF_KEY}${WEAR_KEY}c`);
@@ -3298,6 +3299,21 @@ test('Ring_on no-op types do not throw', async () => {
         game.uleft = null;
         ring.owornmask = 0;
     }
+});
+
+test('Ring_on levitation starts floating and reveals the ring effect', async () => {
+    const debug = debugRingSegment('ring of levitation', `${WAIT}`);
+    await setup(debug, debug.moves);
+    const ring = syntheticRing(RIN_LEVITATION, 0);
+    ring.owornmask = W_RINGL;
+    game.uleft = ring;
+    game.u.uprops[LEVITATION].extrinsic = W_RINGL;
+    game.u.uprops[LEVITATION].blocked = 0;
+
+    await Ring_on(ring, game);
+
+    assert.match(takePendingTopLine(), /You start to float in the air!/u);
+    assert.ok(game.disp.botl);
 });
 
 test('Ring_on increase_accuracy adjusts uhitinc', async () => {
