@@ -285,10 +285,8 @@ h1 {
   letter-spacing: -0.01em;
 }
 
-.queue-summary { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
-.queue-summary-status { font-weight: 600; }
+.queue-summary-title { display: flex; align-items: baseline; gap: 12px; flex-wrap: wrap; }
 .queue-summary-meta { color: var(--ink-secondary); font-size: 12px; }
-.queue-summary-link { white-space: nowrap; font-size: 12px; }
 .queue-summary-warning { color: var(--investigation-partial); font-size: 12px; }
 summary { cursor: pointer; }
 .diagnostics { border-top: 1px solid var(--border); padding-top: 16px; }
@@ -803,15 +801,7 @@ canvas {
   outline-offset: 2px;
 }
 #queueDisclosure > summary { min-height: 44px; padding: 12px 0; }
-#queueDisclosure > summary .section-title { display: inline; }
-#queueCount {
-  margin-left: 12px;
-  color: var(--ink-secondary);
-  font-size: 12px;
-  font-weight: 400;
-  text-transform: none;
-  letter-spacing: normal;
-}
+#queueDisclosure > summary .section-title { margin-bottom: 0; }
 #queueDisclosure > .subtitle { margin: 8px 0 16px; }
 #queueEntries { overflow-wrap: anywhere; }
 .queue-entry + .queue-entry { border-top: 1px solid var(--border); }
@@ -919,10 +909,15 @@ canvas {
   </div>
 </section>
 
-<section class="section" aria-labelledby="queueSummaryTitle">
-  <h2 class="section-title" id="queueSummaryTitle">Mismatch queue</h2>
-  <div class="chart-wrap queue-summary" id="queueSummary"></div>
-</section>
+<details class="section" id="queueDisclosure">
+  <summary><h2 class="section-title queue-summary-title" id="queueSummaryTitle">
+    <span id="queueHeadline">Known mismatches</span>
+    <span class="queue-summary-meta" id="queueMetrics"></span>
+    <span class="queue-summary-warning" id="queueSummaryWarning"></span>
+  </h2></summary>
+  <p class="subtitle">Repair regressions first, then synthetic cases by measured unmatched screens. Fixed-session counts are upper bounds. Work starts with the first eligible completed investigation.</p>
+  <div class="chart-wrap" id="queueEntries"></div>
+</details>
 
 <section class="section" aria-labelledby="challengeTitle">
   <h2 class="section-title" id="challengeTitle">Challenges</h2>
@@ -937,12 +932,6 @@ canvas {
 
 <section class="diagnostics">
   <h2 class="section-title">Diagnostics and history</h2>
-<details class="section" id="queueDisclosure">
-  <summary><h3 class="section-title">Ranked mismatch queue<span id="queueCount"></span></h3></summary>
-  <p class="subtitle">Repair regressions first, then synthetic cases by measured unmatched screens. Fixed-session counts are upper bounds. Work starts with the first eligible completed investigation.</p>
-  <div class="chart-wrap" id="queueEntries"></div>
-</details>
-
 <details class="section" id="sourceWorkDisclosure">
   <summary><h3 class="section-title">Work by source file</h3></summary>
   <div class="legend" id="sourceWorkLegend"></div>
@@ -1107,16 +1096,22 @@ document.getElementById('stats').innerHTML = [
 })();
 // --- Mismatch queue ---
 (function() {
-  const summary = document.getElementById('queueSummary');
+  const headlineNode = document.getElementById('queueHeadline');
+  const metricsNode = document.getElementById('queueMetrics');
+  const warningNode = document.getElementById('queueSummaryWarning');
   const entries = document.getElementById('queueEntries');
-  const count = document.getElementById('queueCount');
   const esc = (text) => String(text).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/"/g, '&quot;');
   const workQueue = QUEUE?.mode === 'work';
   const blockers = (QUEUE?.blockers || []).map(item => typeof item === 'string' ? item
     : (item.batch ? item.batch + ': ' : '') + item.reason);
   const plural = (n, word) => n + ' ' + word + (n === 1 ? '' : 's');
-  let headline = 'Queue unavailable';
+  let headline = QUEUE?.roadmapFallbackAllowed === true ? 'No known mismatches' : 'Queue unavailable';
   let metrics = 'Current mismatch status is unknown.';
+  if (QUEUE?.roadmapFallbackAllowed === true) metrics = 'Every development session matches.';
+  if (!workQueue && QUEUE?.sessions?.length) {
+    headline = 'Known mismatches';
+    metrics = plural(QUEUE.sessions.length, 'session');
+  }
   if (workQueue && Array.isArray(QUEUE.sessions)) {
     const fixed = QUEUE.sessions.filter(entry => entry.corpus === 'fixed');
     const synthetic = QUEUE.sessions.filter(entry => entry.corpus === 'synthetic');
@@ -1138,14 +1133,10 @@ document.getElementById('stats').innerHTML = [
           : 'No complete queue counts available.';
     }
   }
-  summary.innerHTML = '<div><p class="queue-summary-status">' + headline + '</p>'
-    + '<p class="queue-summary-meta">' + metrics + '</p>'
-    + (blockers.length ? '<p class="queue-summary-warning">' + plural(blockers.length, 'blocker')
-      + '; counts may be incomplete.</p>' : '') + '</div>'
-    + '<a class="queue-summary-link" id="queueSummaryLink" href="#queueDisclosure">View ranked queue</a>';
-  document.getElementById('queueSummaryLink').addEventListener('click', () => {
-    document.getElementById('queueDisclosure').open = true;
-  });
+  headlineNode.textContent = headline;
+  metricsNode.textContent = metrics;
+  warningNode.textContent = blockers.length ? plural(blockers.length, 'blocker')
+    + '; counts may be incomplete.' : '';
   const warning = blockers.length ? '<p class="table-note">Selection blocked: '
     + blockers.map(esc).join(' · ') + '</p>' : '';
   if (!QUEUE || !QUEUE.sessions || QUEUE.sessions.length === 0) {
@@ -1154,17 +1145,8 @@ document.getElementById('stats').innerHTML = [
       : 'Current synthetic evidence is incomplete; completion is unknown.')
       : QUEUE?.roadmapFallbackAllowed === true
       ? 'Every development session matches.' : 'Mismatch queue unavailable; completion is unknown.';
-    count.textContent = workQueue ? (QUEUE.generationReady ? 'Next batch ready' : 'Needs evaluation')
-      : QUEUE?.roadmapFallbackAllowed === true ? 'All sessions match' : 'Unavailable';
     entries.innerHTML = warning + '<p class="table-note">' + message + '</p>';
     return;
-  }
-  count.textContent = QUEUE.sessions.length + (QUEUE.sessions.length === 1 ? ' session' : ' sessions');
-  if (workQueue) {
-    const syntheticRows = QUEUE.sessions.filter(entry => entry.corpus === 'synthetic');
-    if (syntheticRows.length) count.textContent += ' · '
-      + fmtN(syntheticRows.reduce((total, entry) => total + entry.remainingScreens, 0))
-      + ' unmatched synthetic screens' + (blockers.length ? ' in evaluated batches' : '');
   }
   let html = warning;
   if (workQueue && QUEUE.generationReady) html += '<p class="table-note">All admitted synthetic screens match. '

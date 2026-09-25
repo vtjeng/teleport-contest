@@ -389,13 +389,15 @@ test('healthy batch measurements do not repeat above the challenge cases', () =>
 
 test('primary dashboard sections put the queue and challenges before historical detail', () => {
     const template = readFileSync(TEMPLATE, 'utf8');
-    const positions = ['id="stats"', 'id="scoreHistoryTitle"', 'id="queueSummaryTitle"',
-        'id="challengeTitle"', 'class="diagnostics"', 'id="queueDisclosure"',
+    const positions = ['id="stats"', 'id="scoreHistoryTitle"', 'id="queueDisclosure"',
+        'id="queueSummaryTitle"', 'id="challengeTitle"', 'class="diagnostics"',
         'id="sourceWorkDisclosure"', 'id="timeline"', 'id="goalTable"']
         .map(marker => template.indexOf(marker));
     assert.ok(positions.every(position => position >= 0));
     assert.deepEqual(positions, [...positions].sort((a, b) => a - b));
     assert.doesNotMatch(template, /id="currentWork"|id="pausedWork"/u);
+    assert.match(template, /<details class="section" id="queueDisclosure">/u);
+    assert.doesNotMatch(template, /id="queueSummaryLink"|View ranked queue|Ranked mismatch queue/u);
 });
 
 test('the unified queue renders C, Lua, and unresolved source owners in priority order', () => {
@@ -422,7 +424,7 @@ test('the unified queue renders C, Lua, and unresolved source owners in priority
     };
     const rendered = renderDashboard(sourceDashboardData(), queue);
     const entries = rendered.get('queueEntries').innerHTML;
-    assert.equal(rendered.get('queueCount').textContent, '3 sessions');
+    assert.equal(rendered.get('queueMetrics').textContent, '3 sessions');
     assert.match(entries, /Mismatch site: test_move\(\) in hack\.c:42</u);
     assert.match(entries, /Mismatch site: Arc-loca\.lua</u);
     assert.match(entries, /step unknown/u);
@@ -473,7 +475,7 @@ test('an unavailable mismatch queue differs from a confirmed empty queue', () =>
     // without fallback permission also provide no evidence of completion.
     for (const queue of [null, {}, { sessions: [], roadmapFallbackAllowed: false }]) {
         const rendered = renderDashboard(sourceDashboardData(), queue);
-        assert.equal(rendered.get('queueCount').textContent, 'Unavailable');
+        assert.equal(rendered.get('queueHeadline').textContent, 'Queue unavailable');
         const entries = rendered.get('queueEntries').innerHTML;
         assert.match(entries, /Mismatch queue unavailable; completion is unknown/u);
         assert.doesNotMatch(entries, /Every development session matches/u);
@@ -481,7 +483,7 @@ test('an unavailable mismatch queue differs from a confirmed empty queue', () =>
     const rendered = renderDashboard(sourceDashboardData(), {
         sessions: [], candidates: [], roadmapFallbackAllowed: true,
     });
-    assert.equal(rendered.get('queueCount').textContent, 'All sessions match');
+    assert.equal(rendered.get('queueHeadline').textContent, 'No known mismatches');
     const entries = rendered.get('queueEntries').innerHTML;
     assert.match(entries, /Every development session matches/u);
     assert.doesNotMatch(entries, /unavailable|unknown/u);
@@ -496,27 +498,28 @@ test('work queue keeps regression priority and displays exact synthetic screen c
     ] };
     const rendered = renderDashboard(sourceDashboardData(), queue);
     const html = rendered.get('queueEntries').innerHTML;
-    assert.equal(rendered.get('queueCount').textContent, '2 sessions · 8 unmatched synthetic screens');
+    assert.equal(rendered.get('queueHeadline').textContent, 'Known mismatches');
     assert.match(html, /v1\/regression[\s\S]*1 of 20 screens unmatched[\s\S]*v2\/new-case[\s\S]*7 of 20 screens unmatched/u);
     assert.match(html, /Regression: restore previously matched screens first/u);
     assert.doesNotMatch(html, /at most|19 of 20/u);
-    assert.match(rendered.get('queueSummary').innerHTML,
+    assert.match(rendered.get('queueMetrics').textContent,
         /0 fixed sessions · 2 synthetic cases · 8 unmatched synthetic screens · 2 investigations needed/u);
 });
 
 test('queue summary distinguishes incomplete evidence and screen-free mismatches', () => {
     const data = sourceDashboardData();
-    const unavailable = renderDashboard(data, null).get('queueSummary').innerHTML;
-    assert.match(unavailable, /Queue unavailable/u);
-    assert.doesNotMatch(unavailable, /0 unmatched/u);
+    const unavailable = renderDashboard(data, null);
+    assert.equal(unavailable.get('queueHeadline').textContent, 'Queue unavailable');
+    assert.doesNotMatch(unavailable.get('queueMetrics').textContent, /0 unmatched/u);
     const blocked = renderDashboard(data, { mode: 'work', sessions: [], generationReady: false,
-        blockers: ['v2 evaluation missing'] }).get('queueSummary').innerHTML;
-    assert.match(blocked, /Queue incomplete[\s\S]*Current evidence is incomplete/u);
-    assert.doesNotMatch(blocked, /0 unmatched/u);
+        blockers: ['v2 evaluation missing'] });
+    assert.equal(blocked.get('queueHeadline').textContent, 'Queue incomplete');
+    assert.equal(blocked.get('queueMetrics').textContent, 'Current evidence is incomplete.');
+    assert.match(blocked.get('queueSummaryWarning').textContent, /1 blocker/u);
     const trace = renderDashboard(data, { mode: 'work', generationReady: true, blockers: [],
         sessions: [{ corpus: 'synthetic', session: 'synthetic/v1/cursor',
             remainingScreens: 0, investigation: { status: 'complete' } }] });
-    assert.match(trace.get('queueSummary').innerHTML,
+    assert.match(trace.get('queueMetrics').textContent,
         /1 synthetic case · 0 unmatched synthetic screens · 1 case with no screen debt/u);
     assert.match(trace.get('queueEntries').innerHTML, /cursor/u);
 });
@@ -525,11 +528,11 @@ test('work queue distinguishes unavailable measurements from the next batch thre
     const data = sourceDashboardData();
     const blocked = renderDashboard(data, { mode: 'work', sessions: [], generationReady: false,
         blockers: ['v2 evaluation missing <artifact>'] });
-    assert.equal(blocked.get('queueCount').textContent, 'Needs evaluation');
+    assert.equal(blocked.get('queueHeadline').textContent, 'Queue incomplete');
     assert.match(blocked.get('queueEntries').innerHTML, /Selection blocked: v2 evaluation missing &lt;artifact>/u);
     assert.doesNotMatch(blocked.get('queueEntries').innerHTML, /Every development session matches|Generate and baseline/u);
     const ready = renderDashboard(data, { mode: 'work', sessions: [], generationReady: true, blockers: [] });
-    assert.equal(ready.get('queueCount').textContent, 'Next batch ready');
+    assert.equal(ready.get('queueHeadline').textContent, 'No known mismatches');
     assert.match(ready.get('queueEntries').innerHTML, /Generate and baseline the next batch/u);
     const cursor = renderDashboard(data, { mode: 'work', generationReady: true, blockers: [], sessions: [{
         corpus: 'synthetic', session: 'synthetic/v1/cursor', remainingScreens: 0,
