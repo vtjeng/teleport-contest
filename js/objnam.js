@@ -21,7 +21,7 @@ import {
     CORPSTAT_MALE, CORPSTAT_RANDOM, CXN_ARTICLE, CXN_NOCORPSE, CXN_NORMAL,
     CXN_NO_PFX, CXN_PFX_THE, CXN_SINGULAR, FEMALE, HALLUC, HALLUC_RES, HAND,
     MALE, NEUTRAL, NON_PM,
-    OBJ_CONTAINED, OBJ_FLOOR, OBJ_INVENT, OBJ_MINVENT,
+    OBJ_CONTAINED, OBJ_FLOOR, OBJ_INVENT, OBJ_MINVENT, QBUFSZ,
     P_BOW, W_AMUL, W_ARMOR, W_BALL, W_CHAIN, W_QUIVER, W_RING, W_RINGR,
     W_SADDLE, W_SWAPWEP, W_TOOL, W_WEP,
 } from './const.js';
@@ -920,36 +920,67 @@ export function thesimpleoname(obj, state = game) {
 // The object is not permanently modified.
 export function short_oname(obj, func, altfunc, lenlimit, state = game) {
     let out = func(obj, state);
-    if (out.length <= lenlimit) return out;
+    const byteLength = (value) => encodeUtf8ByteString(value).length;
+    if (byteLength(out) <= lenlimit) return out;
 
-    // C ref: objnam.c:2023-2046. Truncate user-called and object-named strings.
-    // The port does not yet support oc_uname or individual oname strings, so
-    // skip those two truncation steps.
-
-    // C ref: objnam.c:2065-2077. Strip name-lengthening attributes.
-    const save = {
-        bknown: obj.bknown,
-        rknown: obj.rknown,
-        greased: obj.greased,
-        oeroded: obj.oeroded,
-        oeroded2: obj.oeroded2,
-    };
-    obj.bknown = 0;
-    obj.rknown = 0;
-    obj.greased = 0;
-    obj.oeroded = 0;
-    obj.oeroded2 = 0;
+    // C ref: objnam.c:2023-2063. The fixed local buffers hold eight bytes
+    // followed by "...". Both naming locations are restored along with the
+    // object fields before returning, even if a formatter refuses a branch.
+    const type = state.objects?.[obj.otyp];
+    const savedUname = type?.oc_uname;
+    const savedOname = obj.oextra?.oname;
+    const unameShort = typeof savedUname === 'string'
+        && byteLength(savedUname) >= 12
+        ? `${truncateByteString(savedUname, 8)}...` : null;
+    const onameShort = typeof savedOname === 'string'
+        && byteLength(savedOname) >= 12
+        ? `${truncateByteString(savedOname, 8)}...` : null;
+    const savedAttributes = Object.fromEntries(
+        ['bknown', 'rknown', 'greased', 'oeroded', 'oeroded2'].map((key) => [
+            key,
+            { present: Object.hasOwn(obj, key), value: obj[key] },
+        ]),
+    );
+    const fits = (value) => byteLength(value) <= lenlimit;
     try {
+        if (unameShort !== null) {
+            type.oc_uname = unameShort;
+            out = func(obj, state);
+            type.oc_uname = savedUname;
+            if (fits(out)) return out;
+        }
+        if (onameShort !== null) {
+            obj.oextra.oname = onameShort;
+            out = func(obj, state);
+            obj.oextra.oname = savedOname;
+            if (fits(out)) return out;
+        }
+        if (unameShort !== null && onameShort !== null) {
+            type.oc_uname = unameShort;
+            obj.oextra.oname = onameShort;
+            out = func(obj, state);
+            if (fits(out)) return out;
+        }
+
+        // C ref: objnam.c:2065-2077. Strip name-lengthening attributes,
+        // retry the primary formatter, then use the alternate only if needed.
+        obj.bknown = 0;
+        obj.rknown = 0;
+        obj.greased = 0;
+        obj.oeroded = 0;
+        obj.oeroded2 = 0;
         out = func(obj, state);
-        if (altfunc && out.length > lenlimit) {
+        if (altfunc && !fits(out)) {
             out = altfunc(obj, state);
         }
     } finally {
-        obj.bknown = save.bknown;
-        obj.rknown = save.rknown;
-        obj.greased = save.greased;
-        obj.oeroded = save.oeroded;
-        obj.oeroded2 = save.oeroded2;
+        if (type && unameShort !== null) type.oc_uname = savedUname;
+        if (obj.oextra && onameShort !== null)
+            obj.oextra.oname = savedOname;
+        for (const [key, saved] of Object.entries(savedAttributes)) {
+            if (saved.present) obj[key] = saved.value;
+            else delete obj[key];
+        }
     }
     return out;
 }
@@ -1871,12 +1902,36 @@ export function bare_artifactname(obj, state = game) {
 // C ref: objnam.c safe_qbuf() (5624-5698). Builds a prompt string from an
 // optional prefix, an object name, and an optional suffix. The C version
 // guards against QBUFSZ overflow by trying the primary function, then a
-// shorter alternative, then a last-resort literal. JavaScript strings have no
-// fixed-size buffer, so only the first formatting function is tried; the
-// fallback and last resort exist for API fidelity with callers ported from C.
+// shorter alternative, then a last-resort literal. Buffer lengths count
+// encoded C-string bytes, including when output is reused as the next prefix.
 export function safe_qbuf(
     prefix, suffix, obj, func, altfunc, lastR, state = game,
 ) {
-    const mid = func(obj, state);
-    return `${prefix ?? ''}${mid}${suffix ?? ''}`;
+    const limit = QBUFSZ - 1;
+    const qprefix = prefix == null ? '' : String(prefix);
+    const qsuffix = suffix == null ? '' : String(suffix);
+    const fallback = String(lastR);
+    const byteLength = (value) => encodeUtf8ByteString(value).length;
+    let result = truncateByteString(qprefix, limit);
+
+    if (byteLength(result) + byteLength(fallback) + byteLength(qsuffix)
+        > limit) {
+        result += truncateByteString(
+            fallback, Math.max(0, limit - byteLength(result)),
+        );
+        if (byteLength(result) < limit)
+            result += truncateByteString(
+                qsuffix, limit - byteLength(result),
+            );
+        return result;
+    }
+
+    const name = short_oname(
+        obj, func, altfunc,
+        limit - byteLength(result) - byteLength(qsuffix), state,
+    );
+    result += byteLength(result) + byteLength(name) + byteLength(qsuffix)
+        <= limit ? name : fallback;
+    result += qsuffix;
+    return result;
 }
