@@ -14,17 +14,17 @@ import {
 import {
     A_CHAOTIC, A_LAWFUL, A_NEUTRAL, A_NONE, Align2amask,
     ALTAR, BEAR_TRAP, CLOUD, COLNO, CORPSTAT_FEMALE, CORPSTAT_MALE,
-    CORPSTAT_NEUTER, CORPSTAT_RANDOM, CORR, DB_FLOOR, DB_ICE, DB_LAVA,
+    CORPSTAT_HISTORIC, CORPSTAT_NEUTER, CORPSTAT_RANDOM, CORR, DB_FLOOR, DB_ICE, DB_LAVA,
     DB_MOAT, DB_UNDER, DBWALL, D_BROKEN, D_CLOSED, D_ISOPEN, D_LOCKED,
     D_NODOOR, D_TRAPPED, DOOR, DRAWBRIDGE_DOWN, DRAWBRIDGE_UP, FEMALE,
     F_LOOTED, FOUNTAIN, GOLD_SYM, HALLUC_RES, HWALL, ICE, ICED_MOAT, ICED_POOL, IRONBARS,
     LADDER, LANDMINE, LAVAPOOL, LAVAWALL, LOW_PM, MAGIC_PORTAL, MALE,
     MELT_ICE_AWAY, MOAT, NEUTRAL, NON_PM, NO_TRAP, ONAME_WISH, POOL, ROOM,
     ROCKTRAP, SCORR, SDOOR, SINK, S_LDWASHER, S_LPUDDING, S_LRING, SPE_LIM,
-    ROWNO, STAIRS, T_LOOTED, THRONE, TREE, TREE_LOOTED, TREE_SWARM, TRAPNUM,
-    TT_LAVA, VWALL, WATER, WM_MASK, W_NONDIGGABLE, W_NONPASSWALL,
+    ROWNO, STAIRS, T_LOOTED, THRONE, TIMER_OBJECT, TREE, TREE_LOOTED, TREE_SWARM, TRAPNUM,
+    TT_LAVA, VWALL, WATER, WM_MASK, W_NONDIGGABLE, W_NONPASSWALL, ZOMBIFY_MON,
     IS_DOOR, IS_FOUNTAIN, IS_FURNITURE, IS_GRAVE, IS_SINK, IS_WALL,
-    is_hole, isok, ismnum,
+    Has_contents, is_hole, isok, ismnum,
 } from './const.js';
 import { lookup_novel, oname } from './do_name.js';
 import { makeplural, makesingular } from './fruit.js';
@@ -33,18 +33,20 @@ import {
     digit, fuzzymatch, lcase, lowc, mungspaces, str_start_is, strstri,
     upstart,
 } from './hacklib.js';
-import { tin_variety_txt } from './eat.js';
+import { set_tin_variety, tin_variety_txt } from './eat.js';
 import { delete_contents, hands_obj } from './invent.js';
 import { def_char_to_objclass } from './drawing.js';
 import {
-    is_female, is_male, is_neuter, name_to_monplus,
-    name_to_mon,
+    can_be_hatched, dead_species, is_female, is_human, is_male, is_neuter,
+    is_were, name_to_monplus, name_to_mon, verysmall, zombie_form,
 } from './mondata.js';
 import {
-    PM_BLACK_PUDDING, PM_GIANT_MIMIC, PM_GRAY_DRAGON, PM_GRAY_OOZE,
-    PM_LARGE_MIMIC, PM_SMALL_MIMIC,
-    PM_YELLOW_DRAGON,
+    G_NOCORPSE, G_UNIQ, MS_GUARDIAN, PM_BLACK_PUDDING, PM_GRAY_DRAGON,
+    PM_GRAY_OOZE, PM_LONG_WORM, PM_LONG_WORM_TAIL, PM_MAIL_DAEMON,
+    PM_YELLOW_DRAGON, S_PUDDING,
 } from './monsters.js';
+import { counter_were, genus } from './mon.js';
+import { obj_to_any } from './hack.js';
 import { JAPANESE_ITEMS } from './objnam_data.js';
 import {
     curseFreeObject, erosionMatters, mkobj, mksobj, objectType,
@@ -56,6 +58,7 @@ import {
     Flying, is_pool, is_lava, Levitation, maketrap, reset_utrap, trapname,
 } from './trap.js';
 import { note_unported } from './unported.js';
+import { start_timer } from './timeout.js';
 import {
     ACID_VENOM,
     AMULET_CLASS,
@@ -407,14 +410,8 @@ export function wishymatch(u_str, o_str, retry_inverted) {
     return false;
 }
 
-// A wish this port cannot grant yet. Every refusal below names the C line it
-// stands at. Whether a refusal stands before or after its branch's draw
-// follows from whether it has to read the object's type. objnam.c:5037's
-// mkobj() arm settles the type in the draw itself, so the two refusals that
-// read it -- requireSimpleRandomWishedObject() and
-// requireSingleWishedObject() -- stand after that draw, and a wish they refuse
-// has already spent random numbers. Explicit named types are admitted through
-// the wizard quantity arm before mksobj(), as C does.
+// A wish this port cannot grant yet. Each refusal is placed where the needed
+// type or state first exists, preserving any C draw that precedes it.
 export class UnsupportedWishError extends Error {
     constructor(reason, buf) {
         super(`unsupported wish: ${reason}`);
@@ -1868,9 +1865,8 @@ const UNSUPPORTED_WISH_FIELDS = Object.freeze({
     eroded: 0, eroded2: 0, very: 0, unlabeled: 0, ispoisoned: 0,
     trapped: 0, locked: 0, unlocked: 0, broken: 0,
     open: 0, closed: 0, doorless: 0, looted: 0,
-    isgreased: 0, halfeaten: 0, ishistoric: 0, isdiluted: 0,
-    real: 0, fake: 0, gsize: 0, wetness: 0, zombify: false,
-    mgend: -1, contents: TIN_UNDEFINED,
+    isgreased: 0, halfeaten: 0, isdiluted: 0,
+    real: 0, fake: 0, wetness: 0,
 });
 
 // The wish boundary for qualifiers that do not belong to the current port.
@@ -1893,9 +1889,8 @@ function requireSimpleWishQualifiers(d) {
 
 function requireSupportedChestSetup(d) {
     if (d.typ !== CHEST) {
-        // Keep non-chest qualifiers on their original fail-closed paths. In
-        // particular, `tin of spinach` must reach the named-carrier refusal
-        // below rather than being relabelled as a chest setup error.
+        // Keep non-chest lock qualifiers on their original fail-closed paths.
+        // TIN_EMPTY and TIN_SPINACH are handled by the carrier tail.
         for (const field of ['locked', 'unlocked', 'closed']) {
             if (d[field] !== UNSUPPORTED_WISH_FIELDS[field])
                 throw new UnsupportedWishError(`a wish that sets ${field}`,
@@ -1919,33 +1914,8 @@ function requireSupportedChestSetup(d) {
         throw new UnsupportedWishError('a chest setup qualifier', origbp(d));
 }
 
-// The types the typfnd: tail cannot finish.  Each names the fine-tuning block
-// it would reach, and each is refused before mksobj().  A type is not known
-// until readobjnam_postparse3() has matched it, so the one draw that match
-// makes has already happened -- it is the draw C makes, in C's order, and no
-// later one follows it.
-// The stack boundary for a wish that names only a class. objnam.c:5071-5083's
-// wizard arm assigns otmp->quan from d.cnt, so an explicit named type is
-// admitted and receives the requested stack. A class wish still needs the type
-// selected by mkobj() before this guard can inspect oc_merge; its refusal
-// therefore remains after that draw.
-//
-// Both operands have to be read here rather than beside the qualifier guard.
-// d.cnt is not settled until readobjnam_postparse1() has run: "pair of " doubles
-// it at objnam.c:4408 and the makesingular() block at 4423-4433 raises it from 1
-// to 2, so "daggers" and "the daggers" arrive at the earlier guard holding 1.
-// And oc_merge is not knowable until postparse3() has resolved the type.  Both
-// are needed, because the tail leaves quan alone for a type that does not merge:
-// "pair of speed boots" reaches d.cnt 2 and still produces the single pair C
-// produces, so refusing on the count alone would stop a wish C completes.
-//
-function requireSingleWishedObject(d, type, state) {
-    if (d.cnt > 1 && type.oc_merge && state.wizard) {
-        throw new UnsupportedWishError('a wish for more than one object',
-                                       origbp(d));
-    }
-}
-
+// The wizard-only caller takes the same typfnd path for both named and
+// class-selected object types.
 // objnam.c:4999-5023 substitutes for five wizard-only types and refuses an
 // oc_nowish one; wiz_wish() is this port's only caller, so no wish reaches
 // either.  Both arms of objnam.c:5037 pass through here before they draw.
@@ -1956,61 +1926,16 @@ function requireWizardWish(d, state) {
     }
 }
 
-// The other arm of objnam.c:5037, where mkobj() picks the type instead of the
-// player naming one.  Every arm of the spe switch a draw can reach is ported,
-// so the one block left over is the corpsenm switch at objnam.c:5206-5245:
-// its five arms all sit behind ismnum(d.mntmp), which a wish naming a class
-// and a dragon -- "gray dragon food", say -- still delivers.  CORPSE cannot be
-// drawn (objects.h gives it oc_prob 0) and STATUE is ROCK_CLASS, which wrpsym[]
-// does not hold, so only a tin, an egg or a figurine can stop here.
-//
-// Unlike every other refusal in this file this one stands after a draw.
-// Nothing knows the type before mkobj() has answered it, so there is no
-// earlier place to put it.
-function requireSimpleRandomWishedObject(d) {
-    if (!ismnum(d.mntmp)) return;
-    switch (d.typ) {
-    case TIN:
-    case CORPSE:
-    case EGG:
-    case FIGURINE:
-    case STATUE:
-        throw new UnsupportedWishError(
-            'a random wish that drew a monster-carrying type', origbp(d),
-        );
-    default:
-        break;
-    }
-}
-
-function isMimicCorpseSpecies(mndx) {
-    return mndx === PM_SMALL_MIMIC
-        || mndx === PM_LARGE_MIMIC
-        || mndx === PM_GIANT_MIMIC;
-}
-
+// A named slime mold still needs its separate fruit-name behavior. Monster
+// carrier fine-tuning is ported in readobjnam_typfnd() below.
 function requireSimpleWishedObject(d) {
     const refuse = (reason) => {
         throw new UnsupportedWishError(reason, origbp(d));
     };
     switch (d.typ) {
-    /* The five types objnam.c:5206-5245's corpsenm switch owns, plus the slime
-       mold beside them in the spe switch.  Naming one of these is how a wish
-       carries a monster -- "tin of newt", "newt corpse" -- and that arm is
-       unported, so the named forms stay outside the wish boundary until a
-       recorded case drives one.  A drawn tin, egg, figurine or slime mold is
-       inside it: requireSimpleRandomWishedObject() stops the same monster
-       carriers, and the arms of the spe switch below are ported. */
-    case CORPSE:
-        if (isMimicCorpseSpecies(d.mntmp)) break;
-        refuse('a wish for a corpse, statue, figurine, egg or tin');
-        break;
-    case TIN:
+    // Named slime molds still need their separate fruit-name behavior.
     case SLIME_MOLD:
-    case STATUE:
-    case FIGURINE:
-    case EGG:
-        refuse('a wish for a corpse, statue, figurine, egg or tin');
+        refuse('a wish for a named slime mold');
         break;
     default:
         break;
@@ -2098,8 +2023,6 @@ export function readobjnam(bp, no_wish, env = {}) {
 // drives.  Answers the label C jumps to: 'typfnd' for `goto typfnd`, 'any' for
 // falling off the end of readobjnam_postparse3() with a class word set.
 function readobjnam_lookup(d, normalized) {
-    const { state } = normalized;
-
     if (!d.cnt)
         d.cnt = 1; /* will be changed to 2 if makesingular() changes string */
 
@@ -2113,28 +2036,6 @@ function readobjnam_lookup(d, normalized) {
         return 'any'; /* goto any */
     if (action === 5)
         return 'wiztrap'; /* goto wiztrap */
-    // This refusal stands here rather than at typfnd:, because
-    // readobjnam_postparse3() would otherwise draw first for a named monster
-    // carrier -- "gnome corpse" spends rn2(1) on CORPSE before its monster
-    // becomes visible again.  A monster prefix can also precede an ordinary
-    // object name, as in "skeleton key"; that remainder must reach the normal
-    // objects[] lookup instead of being refused as a monster carrier.
-    const carrierRemainder = d.bp === ''
-        || ['corpse', 'statue', 'figurine', 'egg', 'tin'].some((name) =>
-            strcmpiEqual(d.bp, name) || strncmpiIsPrefix(d.bp, `${name} `));
-    if (action !== 2 && d.mntmp >= LOW_PM
-        && !isMimicCorpseSpecies(d.mntmp)
-        && !(d.mntmp >= PM_GRAY_DRAGON && d.mntmp <= PM_YELLOW_DRAGON)
-        && carrierRemainder) {
-        // objnam.c:5026-5030 turns a wished-for pudding corpse into a glob,
-        // and 5206-5245 sets corpsenm for a tin, corpse, egg, figurine or
-        // statue.  The ten dragons pass because the one arm of that block this
-        // port has, `case SCALE_MAIL` at 5246-5251, is theirs; a dragon in
-        // front of a type the tail cannot finish is still refused below, after
-        // the lookup draw C makes in the same place.
-        throw new UnsupportedWishError('a wish naming a monster type',
-                                       origbp(d));
-    }
     for (;;) {
         /* retry: */
         if (action === 0) /* C breaks out of the switch into retry: */
@@ -2186,18 +2087,22 @@ function readobjnam_typfnd(d, normalized) {
         d.oclass = state.objects[d.typ].oc_class;
 
     requireWizardWish(d, state);
-    // The two arms of objnam.c:5037 are screened by different pairs. A wish
-    // that names a type can enter mksobj() immediately. A wish that names only
-    // a class has no type to read until mkobj() has drawn one, so its
-    // requireSingleWishedObject() check runs after the draw, below. There
-    // requireSimpleRandomWishedObject() replaces requireSimpleWishedObject():
-    // the type names the latter refuses -- a container or slime mold -- are
-    // what a player may spell, and a draw needs only the five
-    // monster-carrying types screened.  A drawn slime mold is granted where a
-    // named one is refused.
+    // A named type enters mksobj() directly. A class-only wish lets mkobj()
+    // choose the type; the quantity check then reads the chosen object's
+    // oc_merge field. Both paths continue through the same carrier fine-tuning
+    // below once the type and any parsed monster name are known.
     const named = d.typ !== 0;
     if (named) {
         requireSimpleWishedObject(d);
+    }
+
+    // objnam.c:5026-5030 replaces a requested pudding corpse with its glob
+    // counterpart before object construction; the monster index is no longer
+    // consulted by the tail for that result.
+    if (d.typ === CORPSE && ismnum(d.mntmp)
+        && state.mons[d.mntmp].mlet === S_PUDDING) {
+        d.typ = GLOB_OF_GRAY_OOZE + (d.mntmp - PM_GRAY_OOZE);
+        d.mntmp = NON_PM;
     }
 
     /*
@@ -2208,22 +2113,32 @@ function readobjnam_typfnd(d, normalized) {
         : mkobj(d.oclass, false, normalized);
     d.typ = d.otmp.otyp;
     d.oclass = d.otmp.oclass; /* what we actually got */
-    if (!named) {
-        requireSimpleRandomWishedObject(d);
-        requireSingleWishedObject(d, objectType(d.typ, state), state);
-    }
-
     /* if player specified a reasonable count, maybe honor it */
-    // objnam.c:5042-5070's glob block is left out because d.otmp->globby is
-    // false on both arms of 5037, for two different reasons.  A named glob is
-    // refused in readobjnam_postparse1(), which the mksobj() arm always runs
-    // through.  A drawn one is impossible: objects.h gives all four GLOB_OF_*
-    // rows oc_prob 0, and mkobj()'s cumulative walk stops only where the
-    // remainder runs out, which a row worth 0 cannot do -- so the mkobj() arm
-    // needs no refusal, and does not reach postparse1() to get one.
-    // js/obj.js mksobj() is the port's only writer of globby, at its
-    // isPudding() arm.
-    if (d.cnt > 0) {
+    if (d.otmp.globby) {
+        // objnam.c:5042-5070. Globs always have quantity 1; the requested
+        // count changes their weight. `readobjnam()` is synchronous here, so
+        // the wizard's interactive override prompt remains a precise gap;
+        // its RN1 draw still occurs before that prompt as in C.
+        d.otmp.quan = 1;
+        d.otmp.owt = weight(d.otmp, normalized);
+        if (d.gsize > 1)
+            d.otmp.owt += (5 + (d.gsize - 2) * 10) * d.otmp.owt;
+        if (d.cnt > 1) {
+            let rn1cnt = random.rn1(5, 2);
+            if (rn1cnt > 6 - d.gsize)
+                rn1cnt = 6 - d.gsize;
+            if (d.cnt > rn1cnt && state.wizard
+                && !state.program_state?.wizkit_wishing) {
+                throw new UnsupportedWishError(
+                    'the interactive glob weight override prompt', origbp(d),
+                );
+            }
+            if (d.cnt > rn1cnt)
+                d.cnt = rn1cnt;
+            d.otmp.owt *= d.cnt;
+        }
+        d.cnt = 0;
+    } else if (d.cnt > 0) {
         if (objectType(d.typ, state).oc_merge
             /* quantity isn't restricted when debugging; the three
                alternatives at objnam.c:5077-5083, one of which draws rnd(6),
@@ -2250,12 +2165,12 @@ function readobjnam_typfnd(d, normalized) {
     switch (d.typ) {
     case TIN:
         d.otmp.spe = 0; /* default: not spinach */
-        // objnam.c:5124-5130's two limbs both read d.contents, which
-        // requireSimpleWishQualifiers() refuses, so the assignment above is
-        // the whole arm here -- and it is not a formality.  mksobj() reaches
-        // eat.c set_tin_variety(obj, RANDOM_TIN), whose closing
-        // `obj->spe = -(r + 1)` leaves a negative variety code, and the
-        // `default:` arm below would copy it back out of d.spe.
+        if (d.contents === TIN_EMPTY) {
+            d.otmp.corpsenm = NON_PM;
+        } else if (d.contents === TIN_SPINACH) {
+            d.otmp.corpsenm = NON_PM;
+            d.otmp.spe = 1;
+        }
         break;
     case TOWEL:
         // d.wetness is 0 for every wish this port admits, because
@@ -2288,21 +2203,9 @@ function readobjnam_typfnd(d, normalized) {
     case STATUE: /* otmp->cobj already done in mksobj() */
     case FIGURINE:
     case CORPSE:
-        // objnam.c:5147-5165.  C's P is `&mons[d.mntmp]` when d.mntmp names a
-        // monster, and neither arm that reaches here carries one: a named
-        // statue, figurine or corpse is refused above, and a drawn one is
-        // refused by requireSimpleRandomWishedObject().  So P is 0, the
-        // conditional chain collapses to CORPSTAT_RANDOM, and the `P &&`
-        // re-roll that would draw rn2(2) for a gender does not run.
-        // d.ishistoric is 0 -- UNSUPPORTED_WISH_FIELDS refuses it -- so 5163's
-        // CORPSTAT_HISTORIC bit is not set either.
-        //
-        // The assignment is not a no-op: mksobj() gives each carrier the
-        // gender of the monster it rolled (mkobj.c:1216-1223).  C replaces
-        // that with the requested mimic corpse's gender below; the remaining
-        // reachable random statue/figurine paths have no named monster and
-        // are reset to CORPSTAT_RANDOM.
-        if (isMimicCorpseSpecies(d.mntmp)) {
+        // objnam.c:5147-5165 selects corpse/statue/figurine gender before the
+        // corpsenm tail normalizes a long-worm tail or werecreature.
+        if (ismnum(d.mntmp)) {
             const monster = state.mons[d.mntmp];
             d.otmp.spe = is_neuter(monster) ? CORPSTAT_NEUTER
                 : d.mgend === FEMALE && !is_male(monster)
@@ -2316,6 +2219,8 @@ function readobjnam_typfnd(d, normalized) {
         } else {
             d.otmp.spe = CORPSTAT_RANDOM;
         }
+        if (d.ishistoric && d.typ === STATUE)
+            d.otmp.spe |= CORPSTAT_HISTORIC;
         break;
     /* scroll of mail:  0: delivered in-game via external event (or randomly
        for fake mail); 1: from bones or wishing; 2: written with marker */
@@ -2341,28 +2246,71 @@ function readobjnam_typfnd(d, normalized) {
 
     /* set otmp->corpsenm or dragon scale [mail] */
     if (ismnum(d.mntmp)) {
-        // objnam.c:5195-5203 renames a long worm tail and switches a
-        // werecreature to its human form.  Only the ten dragons reach here,
-        // and none of them is either, so both rewrites are dead.
+        // objnam.c:5195-5203. Keep these rewrites after the carrier gender
+        // branch above: that is the source's observable order.
+        if (d.mntmp === PM_LONG_WORM_TAIL)
+            d.mntmp = PM_LONG_WORM;
+        const monster = state.mons[d.mntmp];
+        if (d.typ !== FIGURINE && is_were(monster)
+            && (state.svm.mvitals[d.mntmp].mvflags & G_NOCORPSE) !== 0) {
+            const humanWere = counter_were(d.mntmp);
+            if (humanWere !== NON_PM)
+                d.mntmp = humanWere;
+        }
+
         switch (d.typ) {
+        case TIN:
+            if (dead_species(d.mntmp, false, normalized)) {
+                d.otmp.corpsenm = NON_PM;
+            } else if ((!(state.mons[d.mntmp].geno & G_UNIQ)
+                        || state.wizard)
+                       && !(state.svm.mvitals[d.mntmp].mvflags & G_NOCORPSE)
+                       && state.mons[d.mntmp].cnutrit !== 0) {
+                d.otmp.corpsenm = d.mntmp;
+            }
+            break;
         case CORPSE:
-            if (isMimicCorpseSpecies(d.mntmp))
+            if ((!(state.mons[d.mntmp].geno & G_UNIQ) || state.wizard)
+                && !(state.svm.mvitals[d.mntmp].mvflags & G_NOCORPSE)) {
+                if (state.mons[d.mntmp].msound === MS_GUARDIAN)
+                    d.mntmp = genus(d.mntmp, 1, state);
                 set_corpsenm(d.otmp, d.mntmp, normalized);
+            }
+            // Preserve C's truth test here: zombie_form() returns NON_PM as
+            // -1, which is truthy in C, while timeout.c's other caller checks
+            // explicitly against NON_PM. This source arm can therefore start
+            // a timer even when the species has no zombie form.
+            if (d.zombify && zombie_form(state.mons[d.mntmp])) {
+                start_timer(
+                    random.rn1(5, 10), TIMER_OBJECT, ZOMBIFY_MON,
+                    obj_to_any(d.otmp, state), state,
+                );
+            }
+            break;
+        case EGG:
+            d.mntmp = can_be_hatched(d.mntmp, normalized);
+            set_corpsenm(d.otmp, d.mntmp, normalized);
+            break;
+        case FIGURINE:
+            if (!(state.mons[d.mntmp].geno & G_UNIQ)
+                && (!is_human(state.mons[d.mntmp])
+                    || is_were(state.mons[d.mntmp]))
+                && d.mntmp !== PM_MAIL_DAEMON) {
+                d.otmp.corpsenm = d.mntmp;
+            }
+            break;
+        case STATUE:
+            d.otmp.corpsenm = d.mntmp;
+            if (Has_contents(d.otmp) && verysmall(state.mons[d.mntmp]))
+                delete_contents(d.otmp, normalized);
             break;
         case SCALE_MAIL:
             /* Dragon mail - depends on the order of objects & dragons. */
-            // Both operands hold for every wish that arrives, because the
-            // refusal above admits no other monster; the test is kept because
-            // C has it, and it starts doing work the moment that widens.
             if (d.mntmp >= PM_GRAY_DRAGON && d.mntmp <= PM_YELLOW_DRAGON)
                 d.otmp.otyp = GRAY_DRAGON_SCALE_MAIL + d.mntmp
                               - PM_GRAY_DRAGON;
             break;
         default:
-            // objnam.c:5206-5245's TIN, CORPSE, EGG, FIGURINE and STATUE arms
-            // belong to types one of the two refusals above stops:
-            // requireSimpleWishedObject() when the player named the type,
-            // requireSimpleRandomWishedObject() when mkobj() drew it.
             break;
         }
     }
@@ -2404,29 +2352,35 @@ function readobjnam_typfnd(d, normalized) {
         d.otmp.recharged = d.rechrg;
     }
 
-    // objnam.c:5292-5341: poisoned, [un]trapped, empty containers, box lock
-    // states, greased and diluted all need a qualifier. The two source paths
-    // admitted by requireSupportedChestSetup() are the named `locked chest`
-    // and `empty unlocked chest` setup wishes used by the forced-chest
-    // witnesses below; all other qualifier combinations remain outside this
-    // wish boundary. 5343's tin variety needs
-    // `d.tvariety >= 0`, and the only line that raises it above RANDOM_TIN is
-    // objnam.c:4381-4387's "tin of ", which sets d.typ to TIN and so meets the
-    // named-tin refusal instead; the test short-circuits before its rn2(4).
+    // objnam.c:5292-5341 still has unsupported poisoned, trapped, lock-state,
+    // greased and diluted qualifiers. Empty-container handling and tin
+    // variety are live below; chest setup is limited by
+    // requireSupportedChestSetup().
 
-    // C ref: objnam.c:5312-5321. mksobj() has already populated a named chest
-    // before the empty qualifier removes those generated contents, and the
-    // container weight is then recomputed from its now-empty cobj chain.
-    if (d.contents === TIN_EMPTY && d.otmp.otyp === CHEST
-        && d.otmp.cobj) {
-        delete_contents(d.otmp, normalized);
-        d.otmp.owt = weight(d.otmp, normalized);
+    // C ref: objnam.c:5312-5321. An empty bag of tricks or horn of plenty
+    // loses its charges; other populated containers lose their contents and
+    // are then reweighed.
+    if (d.contents === TIN_EMPTY) {
+        if (d.otmp.otyp === BAG_OF_TRICKS || d.otmp.otyp === HORN_OF_PLENTY) {
+            if (d.otmp.spe > 0)
+                d.otmp.spe = 0;
+        } else if (Has_contents(d.otmp)) {
+            delete_contents(d.otmp, normalized);
+            d.otmp.owt = weight(d.otmp, normalized);
+        }
     }
-    // C ref: objnam.c:5324-5333. This is the unlocked arm of the same named
-    // chest witness; a broken or locked qualifier is still refused above.
+    // C ref: objnam.c:5324-5333. Non-chest lock qualifiers are still refused
+    // by requireSupportedChestSetup().
     if (d.otmp.otyp === CHEST && d.unlocked) {
         d.otmp.olocked = 0;
         d.otmp.obroken = 0;
+    }
+
+    // C ref: objnam.c:5343 consumes the rn2 before reading wizard mode because
+    // the disjunction is ordered that way in the source.
+    if (d.otmp.otyp === TIN && d.tvariety >= 0
+        && (random.rn2(4) || state.wizard)) {
+        set_tin_variety(d.otmp, d.tvariety, normalized);
     }
 
     if (d.name) {

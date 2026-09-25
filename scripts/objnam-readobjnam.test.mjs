@@ -163,7 +163,8 @@ import {
 } from '../js/artifacts.js';
 import { name_to_monplus } from '../js/mondata.js';
 import {
-    PM_GIANT_MIMIC, PM_GRAY_DRAGON, PM_RED_DRAGON, PM_SMALL_MIMIC,
+    PM_GIANT_MIMIC, PM_GRAY_DRAGON, PM_GRAY_OOZE, PM_JACKAL, PM_RED_DRAGON,
+    PM_SMALL_MIMIC,
     PM_NEWT, PM_YELLOW_DRAGON,
     monst_globals_init, reset_mvitals,
 } from '../js/monsters.js';
@@ -674,6 +675,15 @@ function wishState() {
     return state;
 }
 
+function wishWorldState() {
+    const state = wishState();
+    Object.assign(state, DUNGEON_FIXTURE);
+    state.u.uz = { dnum: 0, dlevel: 1 };
+    reset_mvitals(state);
+    timeout_globals_init(state);
+    return state;
+}
+
 // Records every draw the parse chain makes, so a test can assert both the
 // object and the calls that produced it.  Each stub answers its lowest result,
 // which picks the first candidate rnd_otyp_by_namedesc() collected.
@@ -842,7 +852,8 @@ test('readobjnam refuses a wish outside its boundary without drawing', () => {
     for (const text of [
         // readobjnam_preparse() consumes a qualifier the typfnd: tail cannot
         // apply. Counts for mergeable named types are admitted by the wizard
-        // quantity arm; the class-only count refusal is covered below.
+        // quantity arm; class-only counts are applied after mkobj() resolves
+        // whether its selected type merges.
         'rustproof long sword', 'wet towel', 'partly eaten food ration',
         // One string per remaining UNSUPPORTED_WISH_FIELDS entry with a
         // visible effect, because a field dropped from that object leaves the
@@ -853,11 +864,6 @@ test('readobjnam refuses a wish outside its boundary without drawing', () => {
         'greased long sword', 'poisoned dagger', 'unlabeled scroll of mail',
         'lit brass lantern', 'diluted potion of see invisible',
         'rusty long sword', 'wand of death (3:5)',
-        // A monster name outside the dragon range, which the typfnd: tail
-        // would turn into a corpse.
-        'newt corpse',
-        // Types whose fine tuning is unported.
-        'tin of newt meat',
         // And a name that matches nothing, which C answers by printing
         // "Nothing fitting that description exists in the game." and asking
         // again.
@@ -1017,20 +1023,45 @@ test('readobjnam blesses holy water and curses unholy water', () => {
     assert.equal(unholy.blessed, false);
 });
 
-test('readobjnam refuses a monster name outside the dragon range', () => {
-    const state = wishState();
-    // The typfnd: tail has 5246's `case SCALE_MAIL` and none of the other
-    // arms at 5206-5245, so every non-dragon monster name is still refused --
-    // and refused before readobjnam_postparse3() can draw for the object.
-    const newt = wish(state, 'newt corpse');
-    assert.equal(newt.refusal, 'a wish naming a monster type');
-    assert.deepEqual(newt.draws, []);
-    // A dragon reaches the lookup, so a dragon-named type the tail cannot
-    // finish is refused after the draw C makes in the same place.
-    const corpse = wish(state, 'gray dragon corpse');
-    assert.equal(corpse.refusal,
-                 'a wish for a corpse, statue, figurine, egg or tin');
-    assert.deepEqual(corpse.draws, ['rn2(1)']);
+test('readobjnam resolves monster names into corpse and tin carriers', () => {
+    const state = wishWorldState();
+    const newt = readobjnam('newt corpse', NO_WISH,
+        objectGenerationEnv({ state, random: recordingRandom([]) }));
+    assert.equal(newt.otyp, CORPSE);
+    assert.equal(newt.corpsenm, PM_NEWT);
+    assert.equal(newt.timed, 1);
+
+    const jackal = readobjnam('jackal corpse', NO_WISH,
+        objectGenerationEnv({ state, random: recordingRandom([]) }));
+    assert.equal(jackal.otyp, CORPSE);
+    assert.equal(jackal.corpsenm, PM_JACKAL);
+
+    const tin = readobjnam('tin of newt meat', NO_WISH,
+        objectGenerationEnv({ state, random: recordingRandom([]) }));
+    assert.equal(tin.otyp, TIN);
+    assert.equal(tin.corpsenm, PM_NEWT);
+
+    const dragon = readobjnam('gray dragon corpse', NO_WISH,
+        objectGenerationEnv({ state, random: recordingRandom([]) }));
+    assert.equal(dragon.otyp, CORPSE);
+    assert.equal(dragon.corpsenm, PM_GRAY_DRAGON);
+});
+
+test('a pudding corpse wish becomes a weighted glob', () => {
+    const state = wishWorldState();
+    const small = readobjnam('gray ooze corpse', NO_WISH,
+        objectGenerationEnv({ state, random: recordingRandom([]) }));
+    assert.equal(small.otyp, GLOB_OF_GRAY_OOZE);
+    assert.equal(small.corpsenm, PM_GRAY_OOZE);
+    assert.equal(small.globby, true);
+    assert.equal(small.quan, 1);
+    assert.equal(small.owt, 20);
+
+    const counted = readobjnam('2 gray ooze corpses', NO_WISH,
+        objectGenerationEnv({ state, random: recordingRandom([]) }));
+    assert.equal(counted.otyp, GLOB_OF_GRAY_OOZE);
+    assert.equal(counted.quan, 1);
+    assert.equal(counted.owt, 40);
 });
 
 test('readobjnam makes the named mimic corpse used by pet quickmimic', () => {
@@ -1086,7 +1117,7 @@ test('readobjnam makes the named mimic corpse used by pet quickmimic', () => {
     assert.equal(giant.corpsenm, PM_GIANT_MIMIC);
 });
 
-test('readobjnam admits an explicit named count and retains class refusal', () => {
+test('readobjnam applies counts to named and class-selected mergeable types', () => {
     const state = wishState();
     // objnam.c:5071-5084's wizard arm assigns otmp->quan directly after
     // mksobj(). The explicit scroll name reaches the sole candidate with
@@ -1123,15 +1154,13 @@ test('readobjnam admits an explicit named count and retains class refusal', () =
     for (const text of ['a long sword', 'the long sword', '1 long sword'])
         assert.equal(wish(state, text).obj.otyp, LONG_SWORD, text);
 
-    // The other arm of objnam.c:5037.  "potions" leaves a class word and no
-    // type, so nothing can read oc_merge until mkobj() has drawn one; the same
-    // guard therefore stands after that draw. A refused class wish has already
-    // spent random numbers before the count is inspected.
+    // The other arm of objnam.c:5037. "potions" leaves a class word and no
+    // type, so mkobj() must resolve it before the quantity arm reads oc_merge.
     const drawn = wish(state, '3 potions');
-    assert.equal(drawn.refusal, 'a wish for more than one object');
+    assert.equal(drawn.obj.oclass, POTION_CLASS);
+    assert.equal(drawn.obj.quan, 3);
     assert.notDeepEqual(drawn.draws, []);
-    // A count of one on that same arm is granted, so what the guard turns on
-    // is the count and not the class word.
+    // A count of one on that same arm remains a single potion.
     assert.equal(wish(state, '1 potion').obj.oclass, POTION_CLASS);
 });
 
@@ -1415,7 +1444,7 @@ test('readobjnam returns gold and resolves object class symbols', () => {
     assert.equal(wish(state, ';').refusal, 'a wish no lookup resolves');
 });
 
-test('readobjnam keeps a monster name out of six object names', () => {
+test('readobjnam keeps monster names out of ordinary object names', () => {
     const state = wishState();
     // objnam.c:4396-4401.  Without each exception name_to_monplus() would
     // match a monster or a rank title and truncate the name, which shows up
@@ -1449,23 +1478,10 @@ test('readobjnam keeps a monster name out of six object names', () => {
                  GAUNTLETS_OF_POWER);
     assert.equal(wish(state, 'gloves of ogre power').obj.otyp,
                  GAUNTLETS_OF_POWER);
-    // 4374-4386 takes a tin before the "<foo> of <monster>" split does, so
-    // "tin of newt meat" is a tin rather than a newt.
-    assert.equal(reason('tin of newt meat'),
-                 'a wish for a corpse, statue, figurine, egg or tin');
     // A bare monster name leaves no referent, so 4425-4429 puts the name back
     // and forgets the monster; the lookup then fails on its own.
     assert.equal(reason('newt'),
                  'a wish no lookup resolves');
-    // With a referent the monster stays, and the wish is out of boundary.
-    assert.equal(reason('newt corpse'), 'a wish naming a monster type');
-    // 4425-4429 puts the name back only when nothing else has been parsed:
-    // a " called " or " labeled " phrase counts, so the monster stays.
-    assert.equal(reason('newt called foo'), 'a wish naming a monster type');
-    assert.equal(reason('newt labeled foo'), 'a wish naming a monster type');
-    // monst.c's first monster is the giant ant, whose number is LOW_PM
-    // itself, so it is the one that distinguishes `>= LOW_PM` from `>`.
-    assert.equal(reason('giant ant corpse'), 'a wish naming a monster type');
 });
 
 test('readobjnam leaves the ten class-word exceptions alone', () => {
@@ -1578,18 +1594,17 @@ test('readobjnam canonicalizes each glob spelling', () => {
     }
 });
 
-test('readobjnam refuses the branches that leave the typfnd tail', () => {
-    const state = wishState();
+test('readobjnam keeps glass-gem branches outside the typfnd tail', () => {
+    const state = wishWorldState();
     const reason = (text) => wish(state, text).refusal;
-    // 4374-4386 now parses tins; the typfnd corpsenm switch remains outside
-    // this span and refuses a named tin after that source branch returns 2.
-    assert.equal(reason('tin of spinach'),
-                 'a wish for a corpse, statue, figurine, egg or tin');
     // 4686-4714, a worthless glass gem, remains outside this span.
     assert.equal(reason('worthless piece of blue glass'), 'a glass-gem wish');
-    // 4152-4174's corpse/statue/figurine gender hack.
-    assert.equal(reason('statue of a gnome'),
-                 'a "corpse/statue/figurine of" wish');
+    // objnam.c:5124-5130 applies the spinach tin state after mksobj().
+    const spinach = readobjnam('tin of spinach', NO_WISH,
+        objectGenerationEnv({ state, random: recordingRandom([]) }));
+    assert.equal(spinach.otyp, TIN);
+    assert.equal(spinach.corpsenm, NON_PM);
+    assert.equal(spinach.spe, 1);
 });
 
 // objnam.c readobjnam_postparse3()'s tail (4751-4899) and the typfnd: d.name
@@ -2178,36 +2193,27 @@ test('a drawn figurine loses the gender mksobj() rolled for it', () => {
     assert.notEqual(figurine.corpsenm, NON_PM);
 });
 
-test('a class wish that also names a dragon stops on every drawn carrier', () => {
-    // requireSimpleRandomWishedObject(). objnam.c:5206-5245's corpsenm switch
-    // is unported, and "gray dragon food" is a wish that reaches it: the
-    // dragon passes the monster-type refusal, "food" leaves FOOD_CLASS with no
-    // type, and mkobj() can answer a tin or an egg.  Three of the switch's five
-    // labels are reachable this way and each needs its own draw; CORPSE and
-    // STATUE are not, CORPSE because objects.h gives it oc_prob 0 and STATUE
-    // because it is ROCK_CLASS, which wrpsym[] does not hold.
-    const state = wishState();
-    Object.assign(state, DUNGEON_FIXTURE);
-    state.u.uz = { dnum: 0, dlevel: 1 };
-    reset_mvitals(state);
+test('a class wish that names a monster finishes the drawn carriers', () => {
+    // objnam.c:5195-5253 normalizes a named monster then applies the switch
+    // for whichever carrier mkobj() selected from the requested class.
+    const state = wishWorldState();
     const carriers = [
-        ['gray dragon food', TIN_DRAW],
-        ['gray dragon food', EGG_DRAW],
+        ['gray dragon food', TIN_DRAW, TIN],
+        ['gray dragon food', EGG_DRAW, EGG],
         // A figurine is TOOL_CLASS, so its wish has to name that class.
-        ['gray dragon tool', FIGURINE_DRAW],
+        ['gray dragon tool', FIGURINE_DRAW, FIGURINE],
     ];
-    for (const [text, draw] of carriers) {
-        const stopped = [];
-        assert.throws(() => readobjnam(text, NO_WISH, objectGenerationEnv({
+    for (const [text, draw, expectedType] of carriers) {
+        const draws = [];
+        const obj = readobjnam(text, NO_WISH, objectGenerationEnv({
             state,
-            random: steeredRandom(stopped, { rnd: { 1000: draw } }),
-        })), (error) => error instanceof UnsupportedWishError
-            && error.reason
-                === 'a random wish that drew a monster-carrying type',
-        `${text} at ${draw}`);
+            random: steeredRandom(draws, { rnd: { 1000: draw } }),
+        }));
+        assert.equal(obj.otyp, expectedType, `${text} at ${draw}`);
+        assert.equal(obj.corpsenm, PM_GRAY_DRAGON, `${text} at ${draw}`);
     }
-    // The same wish on a type the corpsenm switch does not name is granted,
-    // which is what keeps the refusal to the three types it is for.
+    // The default arm has no carrier-specific assignment but still keeps the
+    // parsed monster name outside the object's ordinary state.
     const granted = [];
     assert.equal(readobjnam('gray dragon food', NO_WISH, objectGenerationEnv({
         state,
