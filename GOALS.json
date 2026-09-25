@@ -71916,7 +71916,7 @@
     {
       "id": "port-potion-peffect-polymorph-synthetic-v4-20260925",
       "kind": "file-port",
-      "status": "queued",
+      "status": "open",
       "summary": "Port complete polymorph-potion effect and source-ordered controlled transformation entry",
       "cFile": "potion.c",
       "sessions": [
@@ -71924,8 +71924,12 @@
       ],
       "selectionReason": "The larger v1 terrain-transitions case is reserved to A3 float_down and its investigation is stale after B3; the v4 controlled-potion case is the highest remaining complete source-traced task with free potion.c ownership.",
       "detail": "",
-      "openedAt": null,
-      "openStanding": null,
+      "openedAt": "2b851cb8e6f8b3d0d059497155cf66cafec73ac9",
+      "openStanding": {
+        "sha": "df2fff47e89a1e74e3eeef4d20e8bac9982bf291",
+        "screens": 11405,
+        "rng": 792838
+      },
       "closedAt": null,
       "delivered": null,
       "functions": [
@@ -71954,7 +71958,185 @@
           "evaluationPath": "challenges/evaluations/20260925202640-v4.json",
           "evaluationCommit": "df2fff47e89a1e74e3eeef4d20e8bac9982bf291"
         }
-      }
+      },
+      "activeStanding": {
+        "sha": "df2fff47e89a1e74e3eeef4d20e8bac9982bf291",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v4",
+          "caseId": "wizard-controlled-potion-transformation",
+          "session": "synthetic/v4/wizard-controlled-potion-transformation",
+          "manifestPath": "challenges/manifests/v4.json",
+          "manifestSha256": "10777af4c82fc759abf58a870fdd232329bc5c1467c8cf94f46089d0401459a9",
+          "recording": "challenges/cases/v4/wizard-controlled-potion-transformation.session.json",
+          "recordingPath": "challenges/cases/v4/wizard-controlled-potion-transformation.session.json",
+          "recordingSha256": "ed0d1aa3d6329e705657641a30ab21f8c8da3f77080ed4e0d1badc3d143eaacb",
+          "recipe": "challenges/cases/v4/wizard-controlled-potion-transformation.recipe.json",
+          "recipeSha256": "4a4e37bed2ed54adc5dd77396e7870277c1df7e40242968a8427a0c8e5df3686",
+          "replayInputSha256": "df5be6df330fb3a313b4efd88c452e3d805d45d1f22b4b3b475af96bcd3552c9",
+          "evaluationPath": "challenges/evaluations/20260925202640-v4.json",
+          "evaluationCommit": "df2fff47e89a1e74e3eeef4d20e8bac9982bf291",
+          "evaluationArtifact": "challenges/evaluations/20260925202640-v4.json",
+          "evaluationUtc": "2026-09-25T20:26:49.996Z",
+          "remainingScreens": 28,
+          "recordedSteps": 81,
+          "previousScreensMatched": 53,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 53,
+              "total": 81
+            },
+            "rng": {
+              "matched": 2347,
+              "total": 2421
+            },
+            "cursors": {
+              "matched": 53,
+              "total": 81
+            }
+          },
+          "firstMismatch": {
+            "kind": "stop",
+            "message": "unsupported hero command: an unported branch of this command: quaffing requires peffect_polymorph()",
+            "step": 53
+          },
+          "step": 53,
+          "kind": "stop",
+          "sourceFile": "potion.c",
+          "function": "peffect_polymorph",
+          "message": "unsupported hero command: an unported branch of this command: quaffing requires peffect_polymorph()",
+          "cFile": "potion.c",
+          "luaFile": null,
+          "line": null,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v4/wizard-controlled-potion-transformation.json",
+            "result": {
+              "session": "synthetic/v4/wizard-controlled-potion-transformation",
+              "corpus": "synthetic",
+              "batch": "v4",
+              "caseId": "wizard-controlled-potion-transformation",
+              "manifestPath": "challenges/manifests/v4.json",
+              "manifestSha256": "10777af4c82fc759abf58a870fdd232329bc5c1467c8cf94f46089d0401459a9",
+              "recordingPath": "challenges/cases/v4/wizard-controlled-potion-transformation.session.json",
+              "recordingSha256": "ed0d1aa3d6329e705657641a30ab21f8c8da3f77080ed4e0d1badc3d143eaacb",
+              "evaluationPath": "challenges/evaluations/20260925192624-v4.json",
+              "evaluationCommit": "a6d8c67251d422234352882ebc4a4c7a4b134b65",
+              "remainingScreens": 28,
+              "recordedSteps": 81,
+              "status": "complete",
+              "commit": "4151ee7a2286fbfce141545c893e052e0c49a44d",
+              "mismatch": {
+                "corpus": "synthetic",
+                "batch": "v4",
+                "caseId": "wizard-controlled-potion-transformation",
+                "session": "synthetic/v4/wizard-controlled-potion-transformation",
+                "manifestPath": "challenges/manifests/v4.json",
+                "manifestSha256": "10777af4c82fc759abf58a870fdd232329bc5c1467c8cf94f46089d0401459a9",
+                "recording": "challenges/cases/v4/wizard-controlled-potion-transformation.session.json",
+                "recordingPath": "challenges/cases/v4/wizard-controlled-potion-transformation.session.json",
+                "recordingSha256": "ed0d1aa3d6329e705657641a30ab21f8c8da3f77080ed4e0d1badc3d143eaacb",
+                "recipe": "challenges/cases/v4/wizard-controlled-potion-transformation.recipe.json",
+                "recipeSha256": "4a4e37bed2ed54adc5dd77396e7870277c1df7e40242968a8427a0c8e5df3686",
+                "replayInputSha256": "1b3a9ce7ee84fc23e683cc41c87fdc1d21c0586abcc74fc6e30213d099464ee5",
+                "evaluationPath": "challenges/evaluations/20260925192624-v4.json",
+                "evaluationCommit": "a6d8c67251d422234352882ebc4a4c7a4b134b65",
+                "evaluationArtifact": "challenges/evaluations/20260925192624-v4.json",
+                "evaluationUtc": "2026-09-25T19:26:36.497Z",
+                "remainingScreens": 28,
+                "recordedSteps": 81,
+                "previousScreensMatched": null,
+                "regression": false,
+                "passed": false,
+                "error": null,
+                "metrics": {
+                  "screens": {
+                    "matched": 53,
+                    "total": 81
+                  },
+                  "rng": {
+                    "matched": 2347,
+                    "total": 2421
+                  },
+                  "cursors": {
+                    "matched": 53,
+                    "total": 81
+                  }
+                },
+                "firstMismatch": {
+                  "kind": "stop",
+                  "message": "unsupported hero command: an unported branch of this command: quaffing requires peffect_polymorph()",
+                  "step": 53
+                },
+                "step": 53,
+                "kind": "stop",
+                "sourceFile": "potion.c",
+                "function": "peffect_polymorph",
+                "message": "unsupported hero command: an unported branch of this command: quaffing requires peffect_polymorph()",
+                "cFile": "potion.c",
+                "luaFile": null,
+                "line": null
+              },
+              "summary": "At the v4 baseline, the controlled polymorph potion matches 53/81 screens. Key p at step 53 selects the potion and JS refuses potion.c peffect_polymorph before its first message. C displays “You feel a little strange.” and then prompts for a monster at step 54 because the worn polymorph-control ring leads to polyself(POLY_NOFLAGS). Port the whole potion effect and wire the POT_POLYMORPH peffects arm, preserving the existing polyself call and its source-ordered input and RNG behavior.",
+              "source": {
+                "file": "potion.c",
+                "branch": "POT_POLYMORPH is selected in peffects(); the hero wears a polymorph-control ring, is not Unchanging, and drinks a nonblessed potion. peffect_polymorph prints the strange-feeling message and calls polyself(POLY_NOFLAGS), which enters the controlled monster-name prompt.",
+                "functions": [
+                  "peffect_polymorph"
+                ],
+                "callers": [
+                  "potion.c peffects() case POT_POLYMORPH at 1417-1419 calls peffect_polymorph(otmp); the production quaff path in js/potion.js currently throws UnsupportedQuaffError at that case.",
+                  "polyself.c polyself() is invoked by peffect_polymorph() and prompts for a monster under effective Polymorph_control. The existing js/polyself.js polyself() implements this prompt and must be called from the potion path."
+                ],
+                "dependencies": [
+                  "The selected function reads Hallucination and Unchanging and calls polyself(POLY_NOFLAGS) before returning; C discards polyself’s void result. Review existing partial js/polyself.js branches reached by this case and preserve its source-owned gaps if later form transitions are not yet ported.",
+                  "For a blessed potion used while in base form, C instead calls polyself(POLY_CONTROLLED|POLY_LOW_CTRL) and may shorten u.mtimedone with rn2(15)+10 after an actual transformation. Preserve the condition and RNG order even though this recording takes the nonblessed branch."
+                ]
+              },
+              "goalKind": "file-port",
+              "evidence": [
+                "Saved challenges/evaluations/20260925192624-v4.json at a6d8c67251d422234352882ebc4a4c7a4b134b65 reports 53/81 screens, 2347/2421 RNG calls and 53/81 cursors; 28 screens remain.",
+                "Single-case diagnostic .cache/loop-v4-wizard-potion-diagnostic.json at 4151ee7a2286fbfce141545c893e052e0c49a44d stops at segment 0 step 53 on key p with “quaffing requires peffect_polymorph()”.",
+                "C recording challenges/cases/v4/wizard-controlled-potion-transformation.session.json step 52 key q prompts for a drink, step 53 key p displays “You feel a little strange.--More--”, and step 54 space prompts “Become what kind of monster? [type the name]”.",
+                "nethack-c/upstream/src/potion.c peffect_polymorph() lines 1318-1331 emits the message, tests Unchanging and blessing/form, calls polyself with C-selected flags, and conditionally shortens monster duration; peffects() dispatches POT_POLYMORPH at lines 1417-1419.",
+                "js/potion.js peffects() near line 1194 throws UnsupportedQuaffError for POT_POLYMORPH before calling any effect. js/polyself.js polyself() around line 1583 already handles controlled prompting; verify its reached branches rather than duplicating that source function in potion.js."
+              ],
+              "entryPointReview": {
+                "active": [
+                  "Quaff a potion of polymorph while wearing a polymorph-control ring: synthetic/v4/wizard-controlled-potion-transformation segment 0 steps 52-54."
+                ],
+                "blocked": [
+                  "The current peffects POT_POLYMORPH refusal stops before the first peffect message, so no matching source entry range is available until the effect is wired.",
+                  "Later form-transition branches in polyself.js may remain partial after the potion effect is wired; diagnose them from the next replay prefix."
+                ]
+              },
+              "plannedWholeFunctionScope": {
+                "primary": {
+                  "file": "potion.c",
+                  "functions": [
+                    "peffect_polymorph"
+                  ]
+                },
+                "callerWiring": [
+                  "potion.c peffects() POT_POLYMORPH arm in js/potion.js"
+                ],
+                "downstreamSourceDependency": {
+                  "file": "polyself.c",
+                  "function": "polyself",
+                  "status": "existing partial implementation; verify reached controlled path and retain source-owned gaps for unported branches"
+                }
+              }
+            }
+          }
+        }
+      ]
     }
   ]
 }
