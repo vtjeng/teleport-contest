@@ -46,7 +46,6 @@ import { getRngLog } from '../js/rng.js';
 import { normalizeSession } from '../frozen/session_loader.mjs';
 import { stairway_add, stairway_at } from '../js/stairs.js';
 import { S_darkroom, S_room } from '../js/symbols.js';
-import { UnsupportedSteedError } from '../js/steed.js';
 import {
     uescaped_shaft,
     uteetering_at_seen_pit,
@@ -577,16 +576,12 @@ test('a polymorphed hero stops before the ceiling-hider arm', async () => {
 });
 
 test('a held hero stops at u_stuck_cannot_go()', async () => {
-    // do.c:1221. u.ustuck is null on every admitted path, so this is
-    // fabricated from the pet standing beside the hero.
+    // do.c:1221. Fabricate the held state to reach the helper's C message.
     const state = await descendTo('h');
     quiet(state);
     state.u.ustuck = { data: state.youmonst.data };
-    await assert.rejects(
-        dodown(state),
-        (error) => error instanceof UnsupportedLevelChangeError
-            && /u_stuck_cannot_go\("down"\)/u.test(error.message),
-    );
+    assert.equal(await dodown(state), ECMD_TIME);
+    assert.equal(toplines(state), 'You are being held, and cannot go down.');
 });
 
 test('a steed that cannot move stops at stucksteed()', async () => {
@@ -601,11 +596,8 @@ test('a steed that cannot move stops at stucksteed()', async () => {
         const state = await descendTo('h');
         quiet(state);
         state.u.usteed = { ...steed, data: state.youmonst.data };
-        await assert.rejects(
-            dodown(state),
-            (error) => error instanceof UnsupportedSteedError
-                && expected.test(error.message),
-        );
+        assert.equal(await dodown(state), ECMD_OK);
+        assert.match(toplines(state), expected);
     }
     // A steed that is awake, mobile and not eating passes straight through.
     const state = await descendTo('h');

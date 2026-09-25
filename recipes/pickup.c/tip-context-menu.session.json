@@ -1,0 +1,10 @@
+{
+  "version": 5,
+  "_comment": "Independent context-menu tip entry. cmd.c #therecmdmenu -> here_cmd_menu -> MCMD_TIP queues dotip and its y answer; the queued dotip reaches pickup.c tipcontainer_gettarget() and tipcontainer_checks(). Seed and datetime were independently chosen.",
+  "segments": [{
+    "seed": 19760930,
+    "datetime": "20060930143100",
+    "nethackrc": "OPTIONS=name:TipContextProbe,role:Wizard,race:human,gender:male,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen\nOPTIONS=playmode:debug,pettype:none,!acoustics\n",
+    "moves": "  #wizwish\nlarge box\ndo#therecmdmenu\n.d-"
+  }]
+}

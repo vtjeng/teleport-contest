@@ -10,7 +10,8 @@ import { m_at } from '../js/monst.js';
 import { PM_ACID_BLOB, PM_GOBLIN, PM_JACKAL } from '../js/monsters.js';
 import { UnsupportedSimpleMonsterActionError }
     from '../js/unported_monster_actions.js';
-import { UnsupportedSteedError, exercise_steed } from '../js/steed.js';
+import { exercise_steed } from '../js/steed.js';
+import { clearTtyMessageWindow } from '../js/tty_message.js';
 import {
     MOUNTED_MOVE_CASES,
     loadMountedMoveRecipe,
@@ -203,10 +204,10 @@ test('a mounted step the terrain refuses moves and trains nothing',
 
 test('a steed that cannot move stops the step before the hero leaves',
     async () => {
-    // hack.c:2815-2818. stucksteed() reports through do_name.c YMonnam(),
-    // which is unported, so js/steed.js stops there instead; either way the
-    // hero has not moved yet when the answer arrives.
+    // hack.c:2815-2818 and steed.c:876-895. stucksteed() prints the C
+    // do_name.c YMonnam() message and stops before the hero leaves.
     const state = await mounted();
+    clearTtyMessageWindow(state);
     const steed = state.u.usteed;
     const before = { x: state.u.ux, y: state.u.uy };
     state.u.urideturns = 0;
@@ -215,11 +216,8 @@ test('a steed that cannot move stops the step before the hero leaves',
     state.context.move = 1;
     steed.msleeping = 1; // const.js helpless() reads msleeping and mcanmove
 
-    await assert.rejects(
-        domove(state),
-        (error) => error instanceof UnsupportedSteedError
-            && /won't move/u.test(error.message),
-    );
+    await domove(state);
+    assert.match(state.nhDisplay.topMessage, /won't move!/u);
     steed.msleeping = 0;
 
     assert.equal(state.u.ux, before.x);

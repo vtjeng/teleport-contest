@@ -11,7 +11,8 @@ import { readCheckpointResult } from './checkpoint-results.mjs';
 
 const USAGE = 'Usage: node scripts/admit-challenge-batch.mjs --delivery <immutable-packet.json>\n'
     + '   or: node scripts/admit-challenge-batch.mjs --manifest <prepared.json>\n'
-    + 'Requires current complete synthetic screen parity and a passing HEAD checkpoint.\n'
+    + 'Optional early admission: --ready-tasks <unreserved-count> --implementation-slots <1..3>.\n'
+    + 'Requires current complete synthetic evaluations and a passing HEAD checkpoint.\n'
     + 'Writes the next immutable challenges/manifests/vN.json. Commit it, then baseline it with score-challenges.';
 
 function verifyPreparedRecordings(root, manifest, batch) {
@@ -37,11 +38,16 @@ function verifyPreparedRecordings(root, manifest, batch) {
     }
 }
 
-export function admitChallengeBatch(root, prepared) {
+export function admitChallengeBatch(root, prepared, { readyTasks, implementationSlots } = {}) {
     const head = execFileSync('git', ['rev-parse', 'HEAD'], { cwd: root, encoding: 'utf8' }).trim();
     const state = challengeState(root, undefined, head);
-    if (!state.batches?.length || !state.generationReady)
-        throw new Error('every admitted synthetic batch needs current complete measurements with zero unmatched screens');
+    if (!state.batches?.length || state.batches.some(batch => batch.status !== 'measured'))
+        throw new Error('every admitted synthetic batch needs current complete measurements');
+    const earlyAdmission = Number.isSafeInteger(readyTasks) && readyTasks >= 0
+        && Number.isSafeInteger(implementationSlots) && implementationSlots >= 1
+        && implementationSlots <= 3 && readyTasks < implementationSlots;
+    if (!state.generationReady && !earlyAdmission)
+        throw new Error('unmatched screens require fewer unreserved source-traced tasks than implementation slots');
     let checkpoint;
     try { checkpoint = readCheckpointResult(root, head); } catch { /* The error below explains how to recover. */ }
     if (checkpoint?.commit !== head || checkpoint.allPassed !== true
@@ -75,13 +81,18 @@ export function preparedFromDelivery(path) {
 
 export function main(args) {
     if (args.length === 1 && args[0] === '--help') { console.log(USAGE); return; }
-    if (args.length !== 2 || !['--manifest', '--delivery'].includes(args[0]) || args[1].startsWith('-'))
+    if (![2, 6].includes(args.length) || !['--manifest', '--delivery'].includes(args[0])
+        || args[1].startsWith('-') || (args.length === 6
+            && (args[2] !== '--ready-tasks' || args[4] !== '--implementation-slots'
+                || !/^(0|[1-9]\d*)$/u.test(args[3]) || !/^[1-3]$/u.test(args[5]))))
         throw new Error(USAGE);
     const path = resolve(args[1]);
     const prepared = args[0] === '--delivery'
         ? preparedFromDelivery(path)
         : JSON.parse(readFileSync(path, 'utf8'));
-    console.log(JSON.stringify(admitChallengeBatch(process.cwd(), prepared), null, 2));
+    const options = args.length === 6
+        ? { readyTasks: Number(args[3]), implementationSlots: Number(args[5]) } : {};
+    console.log(JSON.stringify(admitChallengeBatch(process.cwd(), prepared, options), null, 2));
 }
 
 if (process.argv[1] && fileURLToPath(import.meta.url) === resolve(process.argv[1])) {
