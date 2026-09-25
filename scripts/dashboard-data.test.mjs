@@ -378,6 +378,26 @@ test('synthetic batch histories and duplicate case IDs remain separate in the da
     assert.equal(rendered.get('progressMinimap').style.height, '152px');
 });
 
+test('healthy batch measurements do not repeat above the challenge cases', () => {
+    const data = sourceDashboardData();
+    data.challenges.batches = [
+        { batch: 'v1', status: 'measured', totals: { screens: { matched: 8, total: 10 } } },
+        { batch: 'v2', status: 'measured', totals: { screens: { matched: 4, total: 5 } } },
+    ];
+    assert.equal(renderDashboard(data).get('challengeBatches').innerHTML, '');
+});
+
+test('primary dashboard sections put the queue and challenges before historical detail', () => {
+    const template = readFileSync(TEMPLATE, 'utf8');
+    const positions = ['id="stats"', 'id="scoreHistoryTitle"', 'id="queueSummaryTitle"',
+        'id="challengeTitle"', 'class="diagnostics"', 'id="queueDisclosure"',
+        'id="sourceWorkDisclosure"', 'id="timeline"', 'id="goalTable"']
+        .map(marker => template.indexOf(marker));
+    assert.ok(positions.every(position => position >= 0));
+    assert.deepEqual(positions, [...positions].sort((a, b) => a - b));
+    assert.doesNotMatch(template, /id="currentWork"|id="pausedWork"/u);
+});
+
 test('the unified queue renders C, Lua, and unresolved source owners in priority order', () => {
     // Synthetic remaining counts order a C blocker, Lua loader, and unknown
     // owner. The unknown step must remain unknown rather than becoming zero.
@@ -480,6 +500,25 @@ test('work queue keeps regression priority and displays exact synthetic screen c
     assert.match(html, /v1\/regression[\s\S]*1 of 20 screens unmatched[\s\S]*v2\/new-case[\s\S]*7 of 20 screens unmatched/u);
     assert.match(html, /Regression: restore previously matched screens first/u);
     assert.doesNotMatch(html, /at most|19 of 20/u);
+    assert.match(rendered.get('queueSummary').innerHTML,
+        /0 fixed sessions · 2 synthetic cases · 8 unmatched synthetic screens · 2 investigations needed/u);
+});
+
+test('queue summary distinguishes incomplete evidence and screen-free mismatches', () => {
+    const data = sourceDashboardData();
+    const unavailable = renderDashboard(data, null).get('queueSummary').innerHTML;
+    assert.match(unavailable, /Queue unavailable/u);
+    assert.doesNotMatch(unavailable, /0 unmatched/u);
+    const blocked = renderDashboard(data, { mode: 'work', sessions: [], generationReady: false,
+        blockers: ['v2 evaluation missing'] }).get('queueSummary').innerHTML;
+    assert.match(blocked, /Queue incomplete[\s\S]*Current evidence is incomplete/u);
+    assert.doesNotMatch(blocked, /0 unmatched/u);
+    const trace = renderDashboard(data, { mode: 'work', generationReady: true, blockers: [],
+        sessions: [{ corpus: 'synthetic', session: 'synthetic/v1/cursor',
+            remainingScreens: 0, investigation: { status: 'complete' } }] });
+    assert.match(trace.get('queueSummary').innerHTML,
+        /1 synthetic case · 0 unmatched synthetic screens · 1 case with no screen debt/u);
+    assert.match(trace.get('queueEntries').innerHTML, /cursor/u);
 });
 
 test('work queue distinguishes unavailable measurements from the next batch threshold', () => {
@@ -536,11 +575,10 @@ test('source ports deduplicate overlapping C units and include whole Lua program
     assert.match(table, /<strong>Listed:<\/strong> distinct C functions or whole Lua programs/u);
 });
 
-test('current work and source rows include fixes, parked goals, and unknown sources', () => {
+test('source inventory includes fixes and parked goals without a live-work panel', () => {
     // A fix shares its file with a closed port and a parked goal; another
     // parked goal lacks a source owner. Status must not depend on goal kind
-    // or on a corresponding Open commit in the historical timeline. The
-    // summary and reason include markup to check HTML escaping.
+    // or on a corresponding Open commit in the historical timeline.
     const work = [
         { id: 'old-port', kind: 'file-port', sourceFile: 'fountain.c', status: 'closed',
             summary: 'Implement fountains', units: [{ name: 'drinkfountain', verified: true }] },
@@ -554,15 +592,6 @@ test('current work and source rows include fixes, parked goals, and unknown sour
             summary: 'Fix pet movement', units: [] },
     ];
     const rendered = renderDashboard(sourceDashboardData(work));
-    const current = rendered.get('currentWork').innerHTML;
-    assert.match(current, /Fix gem discovery &lt;&amp;&gt;/u);
-    assert.match(current, /fountain\.c/u);
-    assert.match(current, /Fix pet movement/u);
-    assert.doesNotMatch(current, /Finish fountains/u);
-    assert.match(current, /<summary>2 goals in progress<\/summary>/u);
-    assert.match(rendered.get('pausedWork').innerHTML, /<summary>2 paused goals<\/summary>/u);
-    assert.match(rendered.get('pausedWork').innerHTML, /Waiting for &lt;caller&gt;/u);
-    assert.match(rendered.get('pausedWork').innerHTML, /Source pending/u);
     const table = rendered.get('sourceWorkTable').innerHTML;
     assert.match(table, /class="in-progress"><td>fountain\.c<\/td>/u);
     assert.deepEqual(sourceFileRows(table).get('fountain.c'), ['1', '1', '1', '1', '1']);
@@ -571,15 +600,12 @@ test('current work and source rows include fixes, parked goals, and unknown sour
     assert.doesNotMatch(rendered.get('stats').innerHTML, /Source-port|Goals closed|Goal selection/u);
 });
 
-test('current work explains an idle snapshot and an empty goal register', () => {
-    // Closed and queued records must not imply that work is in progress.
+test('queued goals remain visible in the source inventory', () => {
     for (const work of [[], [
         { id: 'finished', sourceFile: 'hack.c', status: 'closed', units: [] },
         { id: 'next', sourceFile: 'dog.c', status: 'queued', units: [] },
     ]]) {
         const rendered = renderDashboard(sourceDashboardData(work));
-        assert.match(rendered.get('currentWork').innerHTML, /0 goals in progress/u);
-        assert.equal(rendered.get('pausedWork').innerHTML, '');
         if (work.length) {
             assert.deepEqual(sourceFileRows(rendered.get('sourceWorkTable').innerHTML).get('dog.c'),
                 ['', '', '1', '', '0', '0']); // Only the queued column counts this goal.
@@ -940,9 +966,6 @@ test('superseded plans cannot reappear as open or closed goals through historica
         assert.equal(retired.status, 'superseded');
         assert.equal(retired.supersededBy, 'replacement');
         assert.equal(retired.supersededReason, 'Reclassified source owner.');
-        const rendered = renderDashboard(data);
-        assert.doesNotMatch(rendered.get('pausedWork').innerHTML, /old-plan/u);
-        assert.doesNotMatch(rendered.get('currentWork').innerHTML, /old-plan/u);
     }
 });
 

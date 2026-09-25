@@ -1,0 +1,11 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 10041081,
+      "datetime": "20360705130000",
+      "nethackrc": "OPTIONS=name:Thalor,role:Wizard,race:human,gender:male,align:neutral,playmode:debug,!legacy,!tutorial,!splash_screen,showexp,time\n",
+      "moves": "\u0017ring of polymorph control\n\u0017potion of polymorph\nPor qpnymph\n"
+    }
+  ]
+}
