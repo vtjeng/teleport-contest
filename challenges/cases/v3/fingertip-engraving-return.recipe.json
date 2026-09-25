@@ -1,0 +1,11 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 93816721,
+      "datetime": "20330214091500",
+      "nethackrc": "OPTIONS=name:Ruvella,role:Valkyrie,race:human,gender:female,align:lawful,!legacy,!tutorial,!splash_screen,showexp,time\n",
+      "moves": "E-Elbereth\nlhE-MEMENTO\n"
+    }
+  ]
+}
