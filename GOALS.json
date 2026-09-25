@@ -72769,6 +72769,83 @@
           "evaluationCommit": "4c94668a402c17dd41062fe2ec966453db17c551"
         }
       }
+    },
+    {
+      "id": "port-fountain-drinkfountain-synthetic-v4-20260925",
+      "kind": "file-port",
+      "status": "superseded",
+      "summary": "Port fountain drinking and blessed fountain restoration",
+      "cFile": "fountain.c",
+      "sessions": [
+        "synthetic/v4/healer-magic-fountain-drink"
+      ],
+      "selectionReason": "Selected the first completed independent investigation in the refreshed per-session queue: v1 terrain-transitions (49) is stale after A3 and remains under background source investigation; v4 dig (24) belongs to B5; v2 altar (19) belongs to C7; v2 wizard spell (14) requires B5-reserved zap.c break_statue through bhito; v4 healer fountain (13) is source-traced and unreserved. Worker A will coordinate its objnam blessedftn caller with C7.",
+      "detail": "fountain.c drinkfountain() consumes the numeric blessedftn state set by objnam.c wizterrainwish(); port the complete source function and wire its potion.c caller, with an independently recorded fountain branch and admitted v4 replay evidence.",
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": null,
+      "delivered": null,
+      "functions": [
+        {
+          "name": "drinkfountain",
+          "line": 243,
+          "endLine": 393,
+          "declared": true,
+          "complete": true
+        }
+      ],
+      "range": {
+        "from": 243,
+        "to": 393
+      },
+      "syntheticProvenance": {
+        "synthetic/v4/healer-magic-fountain-drink": {
+          "session": "synthetic/v4/healer-magic-fountain-drink",
+          "corpus": "synthetic",
+          "batch": "v4",
+          "caseId": "healer-magic-fountain-drink",
+          "manifestPath": "challenges/manifests/v4.json",
+          "manifestSha256": "10777af4c82fc759abf58a870fdd232329bc5c1467c8cf94f46089d0401459a9",
+          "recordingPath": "challenges/cases/v4/healer-magic-fountain-drink.session.json",
+          "recordingSha256": "2775eb19d73cef073a73f80b3687dfa60c9298e61add4ab81027f7d5766678e9",
+          "evaluationPath": "challenges/evaluations/20260925214017-v4.json",
+          "evaluationCommit": "017038c1e14957228ef42eeb319448e71159eb24"
+        }
+      },
+      "supersededBy": "div-fountain-blessedftn-synthetic-v4-20260925",
+      "supersededReason": "The earlier drinkfountain source goal is closed with recorded completion; the current mismatch is a source-traced defect in its blessedftn state representation and branch dispatch, so the queued divergence fix replaces this duplicate file-port plan.",
+      "supersededAt": "bd56afabfe56abd342fd46ca726d53cd34cfa17b"
+    },
+    {
+      "id": "div-fountain-blessedftn-synthetic-v4-20260925",
+      "kind": "divergence-fix",
+      "status": "queued",
+      "summary": "Correct magic fountain state and drinking branch",
+      "cFile": "fountain.c",
+      "sessions": [],
+      "selectionReason": "Selected the first completed independent investigation: v1 terrain-transitions (49) is stale under background investigation; v4 dig (24) belongs to B5; v2 altar (19) belongs to C7; v2 wizard spell (14) consumes B5-reserved break_statue through bhito. This fountain case (13) is unreserved. The earlier drinkfountain source goal is closed, so repair its source-traced JS defect as a divergence fix.",
+      "detail": "Admitted synthetic/v4/healer-magic-fountain-drink segment 0 step 18: C fountain.c drinkfountain enters blessedftn restoration and draws rn2(A_MAX), while JS fountain.js takes the ordinary branch and draws rn2(20). objnam.c wizterrainwish writes numeric blessedftn=1; js/objnam_readobjnam.js stores a boolean alias. Correct the shared state and complete the source blessed branch with caller order, attribute changes, messages, exercise, and flag reset.",
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": null,
+      "delivered": null,
+      "function": "drinkfountain",
+      "session": "synthetic/v4/healer-magic-fountain-drink",
+      "step": 18,
+      "syntheticProvenance": {
+        "synthetic/v4/healer-magic-fountain-drink": {
+          "session": "synthetic/v4/healer-magic-fountain-drink",
+          "corpus": "synthetic",
+          "batch": "v4",
+          "caseId": "healer-magic-fountain-drink",
+          "manifestPath": "challenges/manifests/v4.json",
+          "manifestSha256": "10777af4c82fc759abf58a870fdd232329bc5c1467c8cf94f46089d0401459a9",
+          "recordingPath": "challenges/cases/v4/healer-magic-fountain-drink.session.json",
+          "recordingSha256": "2775eb19d73cef073a73f80b3687dfa60c9298e61add4ab81027f7d5766678e9",
+          "evaluationPath": "challenges/evaluations/20260925214017-v4.json",
+          "evaluationCommit": "017038c1e14957228ef42eeb319448e71159eb24"
+        }
+      }
     }
   ]
 }
