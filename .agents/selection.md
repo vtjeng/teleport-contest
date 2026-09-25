@@ -104,7 +104,8 @@ any remaining work. Keep a goal parked when it still has independent work.
 
 Use `node scripts/goal-log.mjs roadmap` to trace dependencies and choose
 under-exercised behavior for new synthetic missions. An empty fixed queue
-selects synthetic work; exhausting synthetic screens selects batch generation.
+selects synthetic work; a shortage of independently assignable tasks selects
+batch preparation or admission under the rule below.
 Do not fall back to unrelated source ports merely because a queue is empty.
 Whole-source completion and caller evidence remain required for every port.
 
@@ -117,15 +118,57 @@ starting a later version. Accepted batches may wait for admission while the
 worker prepares another. Preparation does not require the current
 batch to match.
 
-Plan a small batch of independent missions before inspecting their JavaScript
-results. Use C source and coverage gaps to vary behavior families, action
-histories, and relevant character or state conditions; changing only seeds
-is insufficient. Follow `experiments/generalization/plan.md`, "Expanding
-challenges", and `.agents/validation.md` for C exploration and recording.
-Confirm reproducibility with an independent C replay. Retain every valid,
-reproducible case, including missed missions and cases JavaScript already
-passes; reject only invalid setup or recorder failures with recorded C evidence.
+After each current evaluation and worker handoff, count the independently
+assignable, source-traced implementation tasks in the combined work queue.
+Count a completed, valid investigation only when its source functions and
+shared-state contracts are free of ledger reservations and pending deliveries.
+Count overlapping investigations as one task, even when several sessions point
+to them. Do not count a raw session, an unresolved source owner, or a task
+already assigned to a worker as another available task. Keep background
+investigations running for unmatched sessions that are not yet source-traced.
+Let `implementationSlots` be the number of workers that can take implementation
+tasks next, normally two and at most three. Request or resume preparation when
+the assignable task count falls below `implementationSlots + 1`; keep the one
+unaccepted preparation-task limit. This gives preparation a chance to finish
+before an implementation worker runs out of work.
+
+Plan 6–9 new, independently designed C behavior targets per batch before
+inspecting their JavaScript results. For each target, name the source behavior,
+the state and action history needed to reach it, and the C observation that
+will show it was reached. Earlier admitted cases do not count toward this
+target. Draw candidates from current source-traced blockers and parked work,
+the roadmap's under-exercised functions, and earlier missions that missed their
+intended behavior. Prefer targets with a plausible C route and different source
+owners; reserve some missions for less directed exploration. A rare blocker is
+one candidate, not a requirement to hold the whole batch open. Vary behavior
+families, action histories, and relevant character or state conditions;
+changing only seeds is insufficient. Follow
+`experiments/generalization/plan.md`, "Expanding challenges", and
+`.agents/validation.md` for C exploration and recording.
+Before handoff, count distinct targets actually reached in the C recordings
+and confirmed by independent C replay. A valid recording that missed its
+target stays in the batch but does not satisfy the 6–9 target. After two
+materially different C setups fail to reach a difficult target, defer it with
+the observed reason and try another; a cheap source-proven route can justify
+another attempt. Replace deferred targets with different reachable behaviors
+and keep trying to reach 6–9 distinct targets. Do not shrink a batch solely
+because one behavior is rare. If no plausible alternative reaches six, report
+the source or recorder blockers and park the preparation task with its valid
+recordings. The orchestrator may accept a smaller batch with a recorded reason
+or redirect the search. The target is not a cap on valid cases. Retain every
+valid, reproducible case, including missed missions and cases JavaScript already
+passes; reject only invalid setup
+or recorder failures with recorded C evidence.
 Resolve recorder-environment differences before treating them as game defects.
+
+After a batch's first saved evaluation, fully matching cases remain in its
+manifest but do not count toward a runway of six to nine cases with a mismatch.
+If fewer than six cases in that batch have a mismatch, request preparation of
+the next version from different under-exercised behavior, subject to the one
+unaccepted preparation-task limit. This runway is not an admission requirement.
+Continue to use independently assignable source tasks, not raw case counts,
+for worker scheduling and early admission. Do not filter, replace, or extend
+an admitted batch to fill the target.
 
 The worker submits case recipes and C recordings under
 `challenges/cases/<batch>/`. Keep the manifest in immutable delivery evidence,
@@ -138,18 +181,26 @@ admission, the cases do not enter synthetic scoring, the mismatch queue, or
 the dashboard.
 
 Admit the oldest prepared batch when current, complete evaluations of every
-admitted batch show zero unmatched screens. Prepare a batch if none is ready.
-Blocked or uninvestigated failures, unavailable results, and stale evaluations
-do not pass this gate. Keep outstanding RNG or cursor defects visible across
-the transition. Preserve `v1` at `challenges/manifest.json`; admit later
+admitted batch show zero unmatched screens, or when the assignable task count
+falls below `implementationSlots`. Prepare a batch if none is ready. Early
+admission uses the same fresh, complete evaluations and passing fixed-workload
+checkpoint as admission at screen parity. Missing, failed, or stale evaluations
+block both paths. Continue investigating and scheduling older unmatched cases;
+admission does not close or suppress them. Keep outstanding RNG or cursor
+defects visible across the transition. Preserve `v1` at
+`challenges/manifest.json`; admit later
 batches in version order under new manifests, starting with `v2`. Never replace
 or extend an admitted batch.
 
 After a passing HEAD checkpoint, run
 `node scripts/admit-challenge-batch.mjs --delivery <accepted-packet.json>`.
 The command reads the prepared manifest from the immutable delivery packet,
-checks screen parity, input hashes, recipe/recording consistency, and the next
-version number before creating the admitted manifest. It does not filter cases
+checks the evaluation gate, input hashes, recipe/recording consistency, and the
+next version number before creating the admitted manifest. For early admission
+with unmatched screens, append `--ready-tasks <count> --implementation-slots
+<count>` using the count above, and record that count and the ledger
+reservations in the integration handoff. The command requires the ready-task
+count to be lower than the implementation-slot count. It does not filter cases
 by JavaScript results. Commit the manifest and save the batch's first
 evaluation at that committed implementation before selecting its failures.
 Publish that baseline and resume selection from admitted cases. If the batch
