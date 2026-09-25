@@ -1,0 +1,11 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 10041091,
+      "datetime": "20360806140000",
+      "nethackrc": "OPTIONS=name:Kara,role:Valkyrie,race:human,gender:female,align:lawful,playmode:debug,!legacy,!tutorial,!splash_screen,showexp,time\n",
+      "moves": " \u0017lock pick\n\u0017locked chest\ni df a e . y            #loot\n."
+    }
+  ]
+}

@@ -1,0 +1,11 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 10041071,
+      "datetime": "20360604121500",
+      "nethackrc": "OPTIONS=name:Kestrel,role:Rogue,race:human,gender:female,align:chaotic,playmode:debug,!legacy,!tutorial,!splash_screen,showexp,time\n",
+      "moves": "\u0017sink\n\u0017ring of levitation\n\u0017ring of searching\ndg dh"
+    }
+  ]
+}

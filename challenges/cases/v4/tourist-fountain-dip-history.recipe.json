@@ -1,0 +1,11 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 10041059,
+      "datetime": "20360505114500",
+      "nethackrc": "OPTIONS=name:Mira,role:Tourist,race:human,gender:female,align:neutral,playmode:debug,!legacy,!tutorial,!splash_screen,showexp,time\n",
+      "moves": "\u0017fountain\n\u0017potion of water\n#dip\nmy"
+    }
+  ]
+}
