@@ -1,0 +1,93 @@
+{
+  "session": "synthetic/v2/altar-rite-history",
+  "corpus": "synthetic",
+  "batch": "v2",
+  "caseId": "altar-rite-history",
+  "manifestPath": "challenges/manifests/v2.json",
+  "manifestSha256": "58739ea9ed6c26e5153c4860b2e5111d08d69792bdea5c39427cf45b8e72cc9c",
+  "recordingSha256": "f3fbc209ee4d556822809c679e9cc73054b48fa85ba5d17864b764f30b4cf048",
+  "evaluationPath": "challenges/evaluations/20260925162000-v2.json",
+  "evaluationCommit": "c7912bb5a3867356ba505d81b43ebc309e76744a",
+  "remainingScreens": 34,
+  "recordedSteps": 50,
+  "status": "complete",
+  "commit": "65e8da74fdd35ae64ba12c89237089f53d87e504",
+  "mismatch": {
+    "corpus": "synthetic",
+    "batch": "v2",
+    "caseId": "altar-rite-history",
+    "session": "synthetic/v2/altar-rite-history",
+    "manifestPath": "challenges/manifests/v2.json",
+    "manifestSha256": "58739ea9ed6c26e5153c4860b2e5111d08d69792bdea5c39427cf45b8e72cc9c",
+    "recording": "challenges/cases/v2/altar-rite-history.session.json",
+    "recordingPath": "challenges/cases/v2/altar-rite-history.session.json",
+    "recordingSha256": "f3fbc209ee4d556822809c679e9cc73054b48fa85ba5d17864b764f30b4cf048",
+    "recipe": "challenges/cases/v2/altar-rite-history.recipe.json",
+    "recipeSha256": "b911dc353955f391a0e40bbf9c6c792bec55089eafbe11c9ce82d430b819391d",
+    "replayInputSha256": "3ff6dfb2195398631780ba891a4a6a4a11b40896a1a2aa7331b1c6c0b2ed97ab",
+    "evaluationPath": "challenges/evaluations/20260925162000-v2.json",
+    "evaluationCommit": "c7912bb5a3867356ba505d81b43ebc309e76744a",
+    "evaluationArtifact": "challenges/evaluations/20260925162000-v2.json",
+    "evaluationUtc": "2026-09-25T16:11:39.061Z",
+    "remainingScreens": 34,
+    "recordedSteps": 50,
+    "previousScreensMatched": null,
+    "regression": false,
+    "passed": false,
+    "error": null,
+    "metrics": {
+      "screens": {
+        "matched": 16,
+        "total": 50
+      },
+      "rng": {
+        "matched": 3111,
+        "total": 3169
+      },
+      "cursors": {
+        "matched": 16,
+        "total": 50
+      }
+    },
+    "firstMismatch": {
+      "kind": "stop",
+      "message": "unsupported hero command: an unported branch of this command: unsupported wish: a wish no lookup resolves",
+      "step": 16
+    },
+    "step": 16,
+    "kind": "stop",
+    "sourceFile": null,
+    "function": null,
+    "message": "unsupported hero command: an unported branch of this command: unsupported wish: a wish no lookup resolves",
+    "cFile": null,
+    "luaFile": null,
+    "line": null
+  },
+  "summary": "At the first debug wish for neutral altar, JavaScript stops after 16 matching screens although C creates altar terrain, prints \"A neutral altar.\", and continues. C objnam.c readobjnam() falls through its object searches to wizterrainwish(); the JavaScript readobjnam fallback refuses an unresolved wish before that call. Port the complete wizterrainwish() function and its return-valued readobjnam()/makewish() path, including terrain state, display, and C source order.",
+  "source": {
+    "file": "objnam.c",
+    "functions": [
+      "wizterrainwish",
+      "set_wallprop_from_str",
+      "dbterrainmesg"
+    ],
+    "branch": "objnam.c readobjnam() lines 4975-4993 calls wizterrainwish() when wizard mode is active, WIZKIT startup is not wishing, and no object class was selected. In wizterrainwish() lines 3687-3704, the \"neutral altar\" suffix selects ALTAR, A_NEUTRAL, and Align2amask without an RNG draw, prints \"A neutral altar.\", then performs shared terrain fixups through lines 3872-3915 and returns &hands_obj. The whole wizterrainwish() lines 3554-3915 also handles traps, furniture, water, lava, ice, graves, trees, doors, walls, corridors, and floors.",
+    "callers": [
+      "objnam.c readobjnam() wiztrap label lines 4975-4993; js/objnam_readobjnam.js lines 1729-1755 currently throws \"a wish no lookup resolves\" before the missing terrain call.",
+      "zap.c makewish() lines 6360-6422 treats &hands_obj as a successful non-object wish; js/zap.js makewish() lines 1995 onward currently assumes readobjnam() refuses this arm and must handle its result.",
+      "wizcmds.c wiz_wish() invokes makewish() from the debug command; js/wizcmds.js and js/cmd.js already route this entry."
+    ],
+    "dependencies": [
+      "objnam.c readobjnam() preprocessing and object lookup must precede wizterrainwish() so names shared with objects retain C precedence.",
+      "Terrain mutators, trap creation, water/lava damage, vision, newsym, switch_terrain(), and shared rm flags are needed by the complete function; its return-valued callees must follow the source port rule.",
+      "set_wallprop_from_str() and dbterrainmesg() are same-file helpers called by whole-function branches and belong with objnam.c port."
+    ]
+  },
+  "goalKind": "file-port",
+  "evidence": [
+    "Saved v2 evaluation challenges/evaluations/20260925162000-v2.json at c7912bb5 has altar-rite-history 16/50 matching screens and 16/50 cursors. The immutable C recording is challenges/cases/v2/altar-rite-history.session.json; its SHA-256 is in the queue entry.",
+    ".cache/loop-20260925-v2-altar-scan.json replays 16 screens at examined commit 65e8da74 and stops at segment 0 step 16 with \"unsupported wish: a wish no lookup resolves\" after the typed neutral altar. C prints \"A neutral altar.\" at that boundary.",
+    "nethack-c/upstream/src/objnam.c:3554-3915 defines wizterrainwish() and source-ordered terrain fixups; :3687-3704 is the exact neutral altar arm, and :4975-4993 is readobjnam()'s guarded caller.",
+    "js/objnam_readobjnam.js:1729-1738 documents the missing wiztrap fallthrough and throws; js/zap.js:1995-2007 explicitly assumes &hands_obj is refused. Both production caller sites must be wired with the new source function."
+  ]
+}
