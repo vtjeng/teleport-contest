@@ -69706,7 +69706,7 @@
     {
       "id": "port-pickup-tip-synthetic-v1-20260925",
       "kind": "file-port",
-      "status": "open",
+      "status": "closed",
       "summary": "Port container tipping selection and transfer",
       "cFile": "pickup.c",
       "sessions": [
@@ -69720,36 +69720,39 @@
         "screens": 11405,
         "rng": 792838
       },
-      "closedAt": null,
-      "delivered": null,
+      "closedAt": "bfa9dc95416be7fa5a45d311fae636412a475e17",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
       "functions": [
         {
           "name": "tip_ok",
           "line": 3481,
           "endLine": 3504,
-          "declared": false,
-          "complete": false
+          "declared": true,
+          "complete": true
         },
         {
           "name": "choose_tip_container_menu",
           "line": 3505,
           "endLine": 3561,
-          "declared": false,
-          "complete": false
+          "declared": true,
+          "complete": true
         },
         {
           "name": "dotip",
           "line": 3562,
           "endLine": 3687,
           "declared": true,
-          "complete": false
+          "complete": true
         },
         {
           "name": "tipcontainer",
           "line": 3688,
           "endLine": 3848,
           "declared": true,
-          "complete": false
+          "complete": true
         }
       ],
       "range": {
@@ -69935,7 +69938,185 @@
             }
           }
         }
-      ]
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "tip_ok",
+            "implementation": "js/pickup.js",
+            "symbol": "tip_ok",
+            "sourceReview": "Compared the complete pickup.c tip_ok() body (3481-3498): null/coin exclusion, Is_container suggestion, discovered-horn suggestion, and GETOBJ_DOWNPLAY fallback. The function reads no random state, emits no output, and mutates no game state. scripts/pickup-tip.test.mjs pins each return value from the source branches.",
+            "callers": [
+              {
+                "path": "js/pickup.js",
+                "symbol": "dotip",
+                "source": "pickup.c:3624 calls getobj(\"tip\", tip_ok, GETOBJ_PROMPT)."
+              }
+            ],
+            "pure": true,
+            "tests": [
+              "scripts/pickup-tip.test.mjs"
+            ],
+            "recordings": [],
+            "synthetic": [],
+            "checkedAt": "bfa9dc95416be7fa5a45d311fae636412a475e17"
+          },
+          {
+            "name": "choose_tip_container_menu",
+            "implementation": "js/pickup.js",
+            "symbol": "choose_tip_container_menu",
+            "sourceReview": "Compared the complete pickup.c choose_tip_container_menu() body (3505-3560): adds every floor container in order, includes the preselected inventory row and conditional 'i' selector, interprets PICK_ONE's zero/one/two/cancel results, and returns the same ECMD_* value after tipping or canceling. The floor-menu recipe records multiple floor containers, selects the inventory row, and continues into dotip()'s getobj path.",
+            "callers": [
+              {
+                "path": "js/pickup.js",
+                "symbol": "dotip",
+                "source": "pickup.c:3596-3599 calls choose_tip_container_menu() when more than one floor box is present."
+              }
+            ],
+            "pure": false,
+            "tests": [],
+            "recordings": [
+              "recordings/pickup.c/tip-floor-menu.session.json"
+            ],
+            "synthetic": [],
+            "checkedAt": "bfa9dc95416be7fa5a45d311fae636412a475e17"
+          },
+          {
+            "name": "dotip",
+            "implementation": "js/pickup.js",
+            "symbol": "dotip",
+            "sourceReview": "Compared the complete pickup.c dotip() body (3562-3677) in source order: floor capacity/limb/able_to_loot gate; multi-container selection; one-container y/n/q loop; getobj inventory path; container and horn handling; candle, lamp, grease, ration, wafer, and venom spillage; pool/lava suffix; grease charge use; potion, worn-hat, statue, and default feedback; and exact ECMD_OK/CANCEL/TIME returns. ynq() now passes TRUE as in hack.h's C macro so the queued MCMD_TIP 'y' is consumed. The old multi-container and inventory-path refusals are removed. The named gaps for calls outside this port remain at their source sites.",
+            "callers": [
+              {
+                "path": "js/cmd.js",
+                "symbol": "doextcmd",
+                "source": "cmd.c:1905 binds the 'tip' extcmd row to dotip()."
+              },
+              {
+                "path": "js/iactions.js",
+                "symbol": "itemactions_pushkeys",
+                "source": "iactions.c:234 queues do_reqmenu, dotip, and the selected invlet for IA_TIP_CONTAINER."
+              },
+              {
+                "path": "js/cmd.js",
+                "symbol": "act_on_act",
+                "source": "cmd.c:4799 handles MCMD_TIP by queueing dotip() followed by 'y'."
+              },
+              {
+                "path": "js/cmd.js",
+                "symbol": "rhack",
+                "source": "cmd.c:3642-3657 consumes the queued extcmd function pointer; cmd.js dispatches queued dotip() by ef_funct after the prefix."
+              }
+            ],
+            "pure": false,
+            "tests": [],
+            "recordings": [
+              "recordings/pickup.c/tip-floor-menu.session.json",
+              "recordings/pickup.c/tip-inventory-context.session.json",
+              "recordings/pickup.c/tip-context-menu.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v1",
+                "caseId": "containers",
+                "segment": 0,
+                "fromStep": 152,
+                "throughStep": 172,
+                "source": "cmd.c extcmdlist 'tip' -> pickup.c dotip() -> getobj(tip_ok)"
+              }
+            ],
+            "checkedAt": "bfa9dc95416be7fa5a45d311fae636412a475e17"
+          },
+          {
+            "name": "tipcontainer",
+            "implementation": "js/pickup.js",
+            "symbol": "tipcontainer",
+            "sourceReview": "Compared the complete pickup.c tipcontainer() body (3688-3841): resolves and saves the box location; chooses a target; performs source/target checks; tracks carried source/destination, high-drop, altar, terse and shop states; walks and extracts each content item; handles icebox and cursed-bag loss branches; bills floor contents; handles target-bag explosion, high drop, altar and ordinary drops; then reports losses and updates weights, encumbrance and inventory. Removed the former refusal for the normal inventory target/container branches. Void calls to removed_from_icebox(), hitfloor(), doaltarobj(), and do_boh_explosion() remain explicit note_unported() gaps; do_boh_explosion() results are discarded by C. The explosion and shop-theft branches are not covered by matching runtime evidence yet.",
+            "callers": [
+              {
+                "path": "js/pickup.js",
+                "symbol": "dotip",
+                "source": "pickup.c:3614 and 3630 call tipcontainer() for a confirmed floor container or selected inventory container."
+              },
+              {
+                "path": "js/pickup.js",
+                "symbol": "choose_tip_container_menu",
+                "source": "pickup.c:3552 calls tipcontainer() for a selected floor container."
+              }
+            ],
+            "pure": false,
+            "tests": [],
+            "recordings": [
+              "recordings/pickup.c/tip-inventory-context.session.json",
+              "recordings/pickup.c/tip-context-menu.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v1",
+                "caseId": "containers",
+                "segment": 0,
+                "fromStep": 152,
+                "throughStep": 172,
+                "source": "pickup.c dotip() -> tipcontainer() -> target selection and normal item transfer"
+              }
+            ],
+            "checkedAt": "bfa9dc95416be7fa5a45d311fae636412a475e17"
+          }
+        ],
+        "entryPointReview": "Read pickup.c tip_ok() (3481-3498), choose_tip_container_menu() (3505-3560), dotip() (3562-3677), tipcontainer() (3688-3841), tipcontainer_gettarget() (3871-3948), and tipcontainer_checks() (3954-4055), plus all changed caller sites. Active entries for the selected range are the extcmdlist #tip row in cmd.c (1905), IA_TIP_CONTAINER in iactions.c (234), and MCMD_TIP in cmd.c (4799). JS routes these through cmd.js doextcmd(), iactions.js itemactions_pushkeys() plus cmd.js rhack()'s queued-function dispatch, and cmd.js act_on_act(). The v1 synthetic containers case exercises #tip through dotip() and tipcontainer(); independent matching recordings exercise floor selection, IA_TIP_CONTAINER, and MCMD_TIP. Dependency evidence is recorded separately in supplementalSourceRecords: cursed-bag loss reaches boh_loss()/is_boh_item_gone()/mbag_item_gone() through use_container(); mbag_explodes() is wired at in_container()/tipcontainer() but has no matching recording; stolen_value()/stolen_container() implement the shop return path but have no live-shop recording. These are not selected-range entry points. The independent recipes name both blocked paths. use_container() and in_container() changed at these dependency call sites and are not claimed as whole-function ports. do_boh_explosion() remains a named discarded-result gap at its C call sites.",
+        "entryPoints": [
+          {
+            "name": "#tip extended command",
+            "functions": [
+              "tip_ok",
+              "choose_tip_container_menu",
+              "dotip",
+              "tipcontainer"
+            ],
+            "recordings": [
+              "recordings/pickup.c/tip-floor-menu.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v1",
+                "caseId": "containers",
+                "segment": 0,
+                "fromStep": 152,
+                "throughStep": 172,
+                "source": "cmd.c extcmdlist 'tip' -> pickup.c dotip() -> getobj(tip_ok) -> tipcontainer() -> tipcontainer_gettarget()/tipcontainer_checks()"
+              }
+            ]
+          },
+          {
+            "name": "IA_TIP_CONTAINER inventory action",
+            "functions": [
+              "dotip",
+              "tipcontainer"
+            ],
+            "recordings": [
+              "recordings/pickup.c/tip-inventory-context.session.json"
+            ],
+            "synthetic": []
+          },
+          {
+            "name": "MCMD_TIP context command via #therecmdmenu",
+            "functions": [
+              "dotip",
+              "tipcontainer"
+            ],
+            "recordings": [
+              "recordings/pickup.c/tip-context-menu.session.json"
+            ],
+            "synthetic": []
+          }
+        ]
+      },
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "bfa9dc95416be7fa5a45d311fae636412a475e17",
+        "screens": 11405,
+        "rng": 792838
+      }
     },
     {
       "id": "port-do-doup-synthetic-v1-20260925",
