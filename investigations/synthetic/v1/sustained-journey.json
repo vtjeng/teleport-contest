@@ -10,13 +10,13 @@
   "recordingSha256": "b190d330b5177de86ea2c81412de96a1708faf22ff2a769aa1f558b7646a3eea",
   "recipe": "challenges/cases/sustained-journey.recipe.json",
   "recipeSha256": "cb3c86febb1468ccfd39e289b53c00937a407244d5ba3d4fd7a3759ddbd08ed5",
-  "replayInputSha256": "1d82e114cf6028a970890ae3a93f705306dc8faac92e6f51685b97b4a7ea8fc0",
-  "evaluationPath": "challenges/evaluations/20260918192720-v1.json",
-  "evaluationCommit": "2ab3d33c4affb45693cc1cdc56882430c63db58f",
-  "remainingScreens": 197,
+  "replayInputSha256": "e3e42c5f65da824b237c5a8d83ca94f1d32dbfd894248cc6fa7af56882da9bb1",
+  "evaluationPath": "challenges/evaluations/20260925150843-v1.json",
+  "evaluationCommit": "b723a5d4aa19568a2c9b0ff5e6629754c306fda7",
+  "remainingScreens": 38,
   "recordedSteps": 202,
   "status": "complete",
-  "commit": "973ed4c61be4e63b24ffcf54f640b3a05990a0f1",
+  "commit": "9bc76174415dfecad7ce4596419ac2cced23cace",
   "mismatch": {
     "corpus": "synthetic",
     "batch": "v1",
@@ -29,72 +29,67 @@
     "recordingSha256": "b190d330b5177de86ea2c81412de96a1708faf22ff2a769aa1f558b7646a3eea",
     "recipe": "challenges/cases/sustained-journey.recipe.json",
     "recipeSha256": "cb3c86febb1468ccfd39e289b53c00937a407244d5ba3d4fd7a3759ddbd08ed5",
-    "replayInputSha256": "1d82e114cf6028a970890ae3a93f705306dc8faac92e6f51685b97b4a7ea8fc0",
-    "evaluationPath": "challenges/evaluations/20260918192720-v1.json",
-    "evaluationCommit": "2ab3d33c4affb45693cc1cdc56882430c63db58f",
-    "evaluationArtifact": "challenges/evaluations/20260918192720-v1.json",
-    "evaluationUtc": "2026-09-18T19:27:20.180Z",
-    "remainingScreens": 197,
+    "replayInputSha256": "e3e42c5f65da824b237c5a8d83ca94f1d32dbfd894248cc6fa7af56882da9bb1",
+    "evaluationPath": "challenges/evaluations/20260925150843-v1.json",
+    "evaluationCommit": "b723a5d4aa19568a2c9b0ff5e6629754c306fda7",
+    "evaluationArtifact": "challenges/evaluations/20260925150843-v1.json",
+    "evaluationUtc": "2026-09-25T15:08:43.386Z",
+    "remainingScreens": 38,
     "recordedSteps": 202,
-    "previousScreensMatched": 5,
+    "previousScreensMatched": null,
     "regression": false,
     "passed": false,
     "error": null,
     "metrics": {
       "screens": {
-        "matched": 5,
+        "matched": 164,
         "total": 202
       },
       "rng": {
-        "matched": 6098,
+        "matched": 8240,
         "total": 10396
       },
       "cursors": {
-        "matched": 5,
+        "matched": 164,
         "total": 202
       }
     },
     "firstMismatch": {
       "kind": "stop",
-      "message": "unsupported hero command: cmd.c parse() committed a count leaving gm.multi above 0 before a row this port will not repeat, which allmain.c moveloop_core():515-531 turns into a repeat of the command; that arm is not ported",
-      "step": 5
+      "message": "unsupported hero command: an unported branch of this command: unsupported level change: doup() at ledger 1 (leaving the dungeon)",
+      "step": 164
     },
-    "step": 5,
+    "step": 164,
     "kind": "stop",
-    "sourceFile": "cmd.c",
-    "function": "parse",
-    "message": "unsupported hero command: cmd.c parse() committed a count leaving gm.multi above 0 before a row this port will not repeat, which allmain.c moveloop_core():515-531 turns into a repeat of the command; that arm is not ported",
-    "cFile": "cmd.c",
+    "sourceFile": "do.c",
+    "function": "doup",
+    "message": "unsupported hero command: an unported branch of this command: unsupported level change: doup() at ledger 1 (leaving the dungeon)",
+    "cFile": "do.c",
     "luaFile": null,
     "line": null
   },
-  "summary": "The step-5 stop is an obsolete positive-count guard in cmd.c rhack(), which rejects movement before the existing executeMovement() path. C rhack() admits counted walk/run/rush, retains multi, and sets context.mv; JavaScript already implements that admission state and the allmain.c moveloop_core() repeat arm. Source comparison, Git history, and independent counted-movement recordings establish an implemented path blocked by the extra guard. Repair movement admission as a divergence fix, retain the non-movement refusal, and keep unrelated missing allmain behavior in its parked source-port goal.",
+  "summary": "The counted movement refusal formerly at step 5 has cleared. Current C and JavaScript replay match 164 of 202 screens, then the D:1 up staircase stops in do.c doup() before C asks whether to leave the dungeon. The complete doup() source and its dungeon.c prev_level(TRUE) escape callee are the actionable scope; the same path is already diagnosed for synthetic/v1/scout.",
   "source": {
-    "file": "cmd.c",
+    "file": "do.c",
     "functions": [
-      "rhack"
+      "doup"
     ],
-    "branch": "A positive parsed command count on a MOVEMENT_INTENTS row reaches the generic refusal at js/cmd.js:5453-5474 before executeMovement(). C cmd.c:3785-3800 admits walk/rush, preserves multi, and sets context.mv; existing JS executeMovement() at :2713-2768 and allmain.js moveloop_core() at :1636-1651 already implement that movement/repeat path. Allow only movement intents past the obsolete guard; non-movement counts retain their current boundary.",
+    "branch": "do.c doup() lines 1298-1344 reaches ledger_no(&u.uz)==1 after the staircase, rooted, pit, steed, stuck, and capacity checks. C asks y_n(\"Beware, there will be no return!  Still climb?\"); a yes answer calls dungeon.c prev_level(TRUE), which on the D:1 upward branch calls done(ESCAPED). js/do.js doup() throws before y_n, and js/dungeon.js prev_level() throws at the escape branch.",
     "callers": [
-      "js/jsmain.js runSegment() -> js/allmain.js moveloop_core() -> js/cmd.js rhack(); C allmain.c:534 calls rhack(0).",
-      "js/cmd.js rhack() -> executeMovement() -> hack.c domove; C cmd.c:3785-3800 is the corresponding movement dispatch.",
-      "Existing js/allmain.js moveloop_core() repeats context.mv through runDomoveAtTurnBoundary(); C allmain.c:515-531 decrements finite counts and calls domove()."
+      "C cmd.c command table maps < to do.c doup(); js/cmd.js runUpCommand reaches js/do.js doup() through rhack and the extended command route.",
+      "C do.c doup() calls dungeon.c prev_level(TRUE); js/do.js passes goto_level to js/dungeon.js prev_level()."
     ],
     "dependencies": [
-      "cmd.c parse()/get_count() already commit the count and consume its first repetition.",
-      "cmd.c set_move_cmd(), hack.c end_running()/lookaround()/domove(), and the movement intent state are already implemented; preserve their source order and count semantics.",
-      "Other allmain.c omissions are separate source-port work, preserved in port-allmain-moveloop-core-synthetic-20260918; this fix does not establish whole moveloop_core completion."
+      "cmd.c y_n and its JS owner must display the D:1 confirmation and consume the response in source order.",
+      "dungeon.c prev_level() must mark the stair traversed and call end.c done(ESCAPED) on D:1 without the Amulet; js/end.js implements the escape disclosure path.",
+      "do.c climb_pit() is a return-valued pit branch requiring its own complete source implementation within a whole doup() port."
     ]
   },
-  "goalKind": "divergence-fix",
+  "goalKind": "file-port",
   "evidence": [
-    ".cache/synthetic-scans/v1/sustained-journey.json records screensEmitted=5, recordedSteps=202, remainingScreens=197, first mismatch step=5, key=h, command=movewest, inputThroughStop=` i 3h`, and the exact unsupported-command boundary; divergence is null before the stop.",
-    "challenges/cases/sustained-journey.session.json segment 0 uses seed 90176, datetime 20010822161500, and moves beginning ` i 3h`; its step 4 key is `3` and step 5 key is `h`, establishing a count prefix followed by a west walk rather than an isolated parse failure.",
-    "nethack-c/upstream/src/cmd.c:5018-5089 get_count() and :5096-5156 parse() read the digits, store gc.command_count, then execute `gm.multi = gc.command_count; if (gm.multi) gm.multi--;`; count 3 therefore leaves gm.multi=2 for the first h command.",
-    "C cmd.c:3785-3800 sets context.mv and calls domove for counted movement without the generic refusal present at js/cmd.js:5453-5474. Existing js/cmd.js executeMovement() (:2713-2768) already sets the same movement/count state and invokes domove.",
-    "C allmain.c:515-531 and js/allmain.js:1636-1651 have the same positive-multi movement control flow: lookaround, runmode delay, early return if multi clears, finite-count decrement/end_running, and domove. This is behavioral source evidence, not a declaration count.",
-    "Git history: 76109518 added the repeat structure on 2026-07-22; 0d4a4aca added lookaround/runmode control on 2026-07-29; 0bc139cf wired end_running on 2026-09-08. The generic COUNTED_BOUNDARY gate from 4c436631 (2026-08-14) remains despite those implemented movement owners.",
-    "Independent worker C recordings and counted-versus-bare state/RNG tests pass when the gate is removed, and the assigned replay advances from step 5 to a separate eat.c boundary at step 168. These are branch diagnostics, not accepted aggregate gains. The narrowed fix retains the non-movement gate and requires its own combined validation.",
-    "The initial allmain file-port classification was too broad: source review found separate omissions in automatic teleport/polymorph, per-turn hooks and terrain, lava sinking, and status/display upkeep. They do not cause the step-5 guard failure and remain parked rather than claimed complete."
+    "Current work queue .cache/loop-20260925-work-queue.json records synthetic/v1/sustained-journey at 9bc76174415dfecad7ce4596419ac2cced23cace with 38 remaining screens, first stop step 164, and matching 164/202 screens. The recording identity is b190d330b5177de86ea2c81412de96a1708faf22ff2a769aa1f558b7646a3eea.",
+    "The current JavaScript refusal is js/do.js doup() at the ledger_no==1 branch; C do.c lines 1298-1344 calls y_n then prev_level(TRUE). C dungeon.c lines 1518-1543 sends the D:1 upward branch without the Amulet to done(ESCAPED).",
+    "investigations/synthetic/v1/scout.json independently traces the same C doup() and dungeon.c prev_level() escape sequence for an earlier D:1 ascent.",
+    "The prior investigation at commit 973ed4c61be4e63b24ffcf54f640b3a05990a0f1 identified cmd.c counted movement at step 5; the current replay passes that step and supersedes only its active mismatch diagnosis."
   ]
 }
