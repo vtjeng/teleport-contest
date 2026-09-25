@@ -1113,7 +1113,9 @@ export async function drown(state = game) {
     const teleports = activeHeroProperty(state, TELEPORT)
         || can_teleport(state.youmonst?.data);
     const teleportControl = activeHeroProperty(state, TELEPORT_CONTROL);
-    if (teleports && !unconscious(state)
+    const unaware = Math.trunc(state.multi ?? 0) < 0
+        && (unconscious(state) || u.uhs === FAINTED);
+    if (teleports && !unaware
         && (teleportControl || rn2(3) < (u.uluck ?? 0) + 2)) {
         await ttyPline('You attempt a teleport spell.', state);
         const { noteleport_level, tele } = await import('./teleport.js');
@@ -1182,7 +1184,9 @@ export async function drown(state = game) {
         await ttyPline("You're still drowning.", state);
     }
     if (u.uinwater) await set_uinwater(false, state);
-    await back_on_ground(true, state);
+    // C discards rescued_from_terrain()'s result. Its terrain-specific
+    // feedback and decoration updates remain an explicit unported gap.
+    note_unported('trap.c rescued_from_terrain');
     return true;
 }
 
