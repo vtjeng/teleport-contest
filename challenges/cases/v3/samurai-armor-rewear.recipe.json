@@ -1,0 +1,11 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 80273619,
+      "datetime": "20320403165700",
+      "nethackrc": "OPTIONS=name:Mikado,role:Samurai,race:human,gender:male,align:lawful,!legacy,!tutorial,!splash_screen,showexp,time\n",
+      "moves": "i\u001bTeWe"
+    }
+  ]
+}

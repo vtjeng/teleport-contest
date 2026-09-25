@@ -448,13 +448,14 @@ test('a held hero stops where C would ask to confirm the step', async () => {
     assert.doesNotThrow(() => preflightDomoveDestination(x, y, game, 0));
 });
 
-test('escaping a bear trap while levitating stops at float_up()', async () => {
+test('escaping a bear trap while levitating resumes with float_up()', async () => {
     // hack.c:2833-2836 answers a hero who has just worked free with
     // reset_utrap(TRUE), and TRUE is what lets trap.c:1050-1053 resume a
     // suspended levitation. polyself.c float_vs_flight() suspends it while
     // u.utraptype is anything but TT_PIT, so a hero who gains Levitation
     // inside a bear trap is exactly the case that argument exists for.
-    // float_up() is not ported, so the port stops there.
+    // float_up() reports the restored levitation after the trap releases the
+    // hero, then recomputes flight and encumbrance.
     const [, walkIn] = loadHeroBearTrapRecipe().segments;
     await runSegment({ ...walkIn, moves: 'j ' });
     assert.equal(game.u.utraptype, TT_BEARTRAP);
@@ -472,11 +473,12 @@ test('escaping a bear trap while levitating stops at float_up()', async () => {
     game.context.move = 1;
     game.domoveAttempting = 1;
     clearTtyMessageWindow(game);
-    await assert.rejects(
-        domove(game),
-        (error) => error instanceof UnsupportedHeroMoveBoundaryError
-            && error.reason === 'reset_utrap() resuming levitation',
-    );
+    game.nhDisplay.pushKey(0x20); // dismiss float_up()'s message
+    await domove(game);
+    assert.equal(game.u.utrap, 0);
+    assert.equal(game.u.utraptype, TT_NONE);
+    assert.equal(game.u.uprops[LEVITATION].blocked, 0);
+    assert.match(game._ttyToplines, /You start to float in the air!/u);
 });
 
 test('a hero the bear trap cannot hold is told so and stays free', async () => {

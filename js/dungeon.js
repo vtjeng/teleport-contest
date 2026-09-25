@@ -68,7 +68,9 @@ import {
     isok,
     plur,
 } from './const.js';
-import { PM_DWARF } from './monsters.js';
+import {
+    AD_DGST, AD_WRAP, AT_ENGL, PM_DWARF,
+} from './monsters.js';
 import { SHTYPES } from './shtypes_data.js';
 // js/display.js imports update_lastseentyp() from this file. Both sides use
 // the other's exports only inside function bodies, so the cycle resolves.
@@ -92,6 +94,7 @@ import { in_rooms } from './rooms.js';
 // the other's exports only inside function bodies, so the cycle resolves.
 import { On_stairs, stairway_at, stairway_find_special_dir } from './stairs.js';
 import { is_ice } from './terrain.js';
+import { dmgtype_fromattack, is_animal } from './mondata.js';
 // js/trap.js imports on_level() from this file. Both sides use the other's
 // exports only inside function bodies, so the cycle resolves.
 import { is_lava, is_pool } from './trap.js';
@@ -1744,13 +1747,8 @@ export function ceiling(x, y, state = game) {
     return what;
 }
 
-// C ref: dungeon.c surface() (1749-1788). Every arm but the first is ported.
-// The engulfed arm needs mondata.c digests() and enfolds(), neither of which is
-// ported. It cannot be raised: the only caller is invent.c look_here()'s
-// admission in js/invent.js preflight_look_here(), which refuses u.uswallow
-// before it asks. C reads is_animal(u.ustuck->data) as well, so this stop is
-// wider than the branch it stands for and also covers a non-animal engulfer
-// that C would answer with terrain.
+// C ref: dungeon.c surface() (1749-1788). The first arm calls the mondata.h
+// digests()/enfolds() macros over dmgtype_fromattack().
 //
 // Is_waterlevel() and Is_earthlevel() are spelled out against `state` for the
 // reason has_ceiling() gives above.
@@ -1758,8 +1756,13 @@ export function surface(x, y, state = game) {
     const location = state.level?.at(x, y);
     const levtyp = surface_typ(location);
 
-    if (x === state.u?.ux && y === state.u?.uy && state.u?.uswallow)
-        throw new Error('surface has no noun for an engulfer');
+    if (x === state.u?.ux && y === state.u?.uy && state.u?.uswallow
+        && is_animal(state.u.ustuck.data)) {
+        const species = state.u.ustuck.data;
+        if (dmgtype_fromattack(species, AD_DGST, AT_ENGL)) return 'maw';
+        if (dmgtype_fromattack(species, AD_WRAP, AT_ENGL)) return 'husk';
+        return 'nonesuch';
+    }
     else if (IS_AIR(levtyp))
         return on_level(state.u?.uz, state.water_level) ? 'air bubble'
             : (levtyp === CLOUD) ? 'cloud' : 'air';

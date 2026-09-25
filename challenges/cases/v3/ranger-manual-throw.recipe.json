@@ -1,0 +1,11 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 23068195,
+      "datetime": "20320617100500",
+      "nethackrc": "OPTIONS=name:Taelin,role:Ranger,race:human,gender:female,align:neutral,!legacy,!tutorial,!splash_screen,showexp,time\n",
+      "moves": "i\u001btaltch"
+    }
+  ]
+}

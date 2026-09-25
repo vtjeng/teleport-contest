@@ -7,6 +7,7 @@
 import {
     ACID_RES,
     AGGRAVATE_MONSTER,
+    A_CHA,
     A_CON,
     A_STR,
     A_WIS,
@@ -42,6 +43,7 @@ import {
     HUNGRY,
     HALLUC,
     HALLUC_RES,
+    INVIS,
     Is_airlevel,
     Is_astralevel,
     Is_waterlevel,
@@ -57,11 +59,13 @@ import {
     REGENERATION,
     ROTTEN_TIN,
     SATIATED,
+    SEE_INVIS,
     SHOCK_RES,
     SICK,
     SICK_RES,
     SICK_VOMITABLE,
     SLEEP_RES,
+    SLEEPY,
     SLIMED,
     SLOW_DIGESTION,
     SLT_ENCUMBER,
@@ -92,12 +96,14 @@ import {
     BEAR_TRAP,
     NEUTRAL,
 } from './const.js';
-import { adjalign, exercise, gainstr, poison_strdmg } from './attrib.js';
+import {
+    adjalign, adjattrib, exercise, gainstr, poison_strdmg,
+} from './attrib.js';
 import { ART_ORB_OF_DETECTION } from './artifacts.js';
 import { set_occupation, yn_function } from './cmd.js';
 import { tinnable } from './apply.js';
 import { on_level, surface } from './dungeon.js';
-import { newsym } from './display.js';
+import { newsym, see_monsters } from './display.js';
 import { can_reach_floor } from './engrave.js';
 import { game } from './gstate.js';
 import { note_unported } from './unported.js';
@@ -124,7 +130,7 @@ import {
     will_feel_cockatrice,
 } from './invent.js';
 import { dropy, trycall } from './do.js';
-import { iter_mons_safe, mon_offmap } from './mon.js';
+import { iter_mons_safe, mon_offmap, rescham } from './mon.js';
 import {
     acidic,
     attacktype,
@@ -152,6 +158,7 @@ import {
     is_undead,
     olfaction,
     breathless,
+    perceives,
 } from './mondata.js';
 import { AD_ACID, AD_DISE, AT_BREA } from './monsters.js';
 import { monflee } from './monmove.js';
@@ -269,6 +276,14 @@ import {
 import {
     APPLE,
     AMULET_CLASS,
+    AMULET_OF_CHANGE,
+    AMULET_OF_FLYING,
+    AMULET_OF_GUARDING,
+    AMULET_OF_LIFE_SAVING,
+    AMULET_OF_REFLECTION,
+    AMULET_OF_RESTFUL_SLEEP,
+    AMULET_OF_STRANGULATION,
+    AMULET_OF_UNCHANGING,
     AMULET_OF_YENDOR,
     CANDY_BAR,
     CARROT,
@@ -298,7 +313,18 @@ import {
     LUMP_OF_ROYAL_JELLY,
     PAPER,
     POTION_CLASS,
+    RIN_ADORNMENT,
+    RIN_FREE_ACTION,
+    RIN_GAIN_CONSTITUTION,
+    RIN_GAIN_STRENGTH,
+    RIN_INCREASE_ACCURACY,
+    RIN_INCREASE_DAMAGE,
+    RIN_INVISIBILITY,
+    RIN_LEVITATION,
+    RIN_PROTECTION_FROM_SHAPE_CHAN,
     RING_CLASS,
+    RIN_SEE_INVISIBLE,
+    RIN_SUSTAIN_ABILITY,
     SCROLL_CLASS,
     MEATBALL,
     MEAT_RING,
@@ -322,16 +348,19 @@ import {
     WEAPON_CLASS,
 } from './objects.js';
 import { objectGenerationEnv } from './object_generation.js';
-import { discover_object, objdescr_is } from './o_init.js';
+import {
+    discover_object, observe_object, objdescr_is,
+} from './o_init.js';
 import { encumber_msg } from './pickup.js';
-import { body_part } from './polyself.js';
+import { body_part, change_sex, rehumanize } from './polyself.js';
 import { heroIsBlind } from './startup_a11y.js';
 import { d, rn1, rn2, rnd } from './rng.js';
 import { outrumor } from './random_text.js';
 import { obj_stop_timers } from './timeout.js';
 import {
     Flying,
-    Levitation, deltrap, is_pool_or_lava, reset_utrap, t_at, unconscious,
+    Levitation, deltrap, float_up, is_pool_or_lava, reset_utrap, t_at,
+    unconscious,
 } from './trap.js';
 import { ttyPline } from './tty_message.js';
 import { remove_worn_item } from './steal.js';
@@ -2579,7 +2608,7 @@ export async function floorfood(verb, corpsecheck, state = game) {
                 const c = await yn_function(qbuf, 'ynq', 'n', true, state);
                 if (c === 'y'.charCodeAt(0)) {
                     deltrap(trap, state);
-                    if (uInBeartrap) reset_utrap(true, state);
+                    if (uInBeartrap) await reset_utrap(true, state);
                     const objectEnv = objectGenerationEnv({ state });
                     const beartrap = mksobj(
                         BEARTRAP, true, false, objectEnv,
@@ -2714,10 +2743,219 @@ export async function floorfood(verb, corpsecheck, state = game) {
     return otmp;
 }
 
+// C ref: eat.c bounded_increase() (2222-2255). Keep protection contributed by
+// worn rings in the total while constraining this new accessory's modifier.
+function bounded_increase(old, inc, typ, state = game) {
+    if (state.uright?.otyp === typ && typ !== RIN_PROTECTION)
+        old -= state.uright.spe;
+    if (state.uleft?.otyp === typ && typ !== RIN_PROTECTION)
+        old -= state.uleft.spe;
+
+    const signOld = Math.sign(old);
+    const signInc = Math.sign(inc);
+    let amount = Math.abs(inc);
+    const absOld = Math.abs(old);
+
+    if (amount === 0 || signOld !== signInc || absOld + amount < 10) {
+        // Use inc as-is.
+    } else if (absOld + amount < 20) {
+        amount = rnd(amount);
+        if (absOld + amount < 10) amount = 10 - absOld;
+        inc = signInc * amount;
+    } else if (absOld + amount < 40) {
+        amount = rn2(amount) ? 1 : 0;
+        if (absOld + amount < 20) amount = rnd(20 - absOld);
+        inc = signInc * amount;
+    } else {
+        inc = 0;
+    }
+
+    if (state.uright?.otyp === typ && typ !== RIN_PROTECTION)
+        old += state.uright.spe;
+    if (state.uleft?.otyp === typ && typ !== RIN_PROTECTION)
+        old += state.uleft.spe;
+    return old + inc;
+}
+
+// C ref: eat.c accessory_has_effect() (2258-2262).
+async function accessory_has_effect(otmp, state, env) {
+    await (env.message ?? ttyPline)(
+        `Magic spreads through your body as you digest the ${
+            otmp.oclass === RING_CLASS ? 'ring' : 'amulet'
+        }.`,
+        state,
+    );
+}
+
+// C ref: eat.c eataccessory() (2265-2404). Eating a ring or amulet has the
+// same one-in-three/one-in-five effect roll and property updates as C. Void
+// helpers without a port are recorded at their call sites and skipped.
+async function eataccessory(otmp, state, env) {
+    const typ = otmp.otyp;
+    const type = objectType(otmp, state);
+    const prop = state.u.uprops[type.oc_oprop];
+    const oldprop = prop.intrinsic;
+
+    if (otmp === state.uleft || otmp === state.uright) {
+        // Ring_gone()'s levitation takeoff path is still a boundary. Its
+        // result is discarded in C, so record and skip that void call.
+        note_unported('do_wear.c Ring_gone');
+        if (state.u.uhp <= 0) return;
+    }
+    observe_object(otmp, state);
+    otmp.known = true;
+
+    if (rn2(otmp.oclass === RING_CLASS ? 3 : 5) !== 0) return;
+
+    const message = env.message ?? ttyPline;
+    const effect = () => accessory_has_effect(otmp, state, env);
+    switch (typ) {
+    default:
+        if (!type.oc_oprop) break;
+        if (!(prop.intrinsic & FROMOUTSIDE)) await effect();
+        prop.intrinsic |= FROMOUTSIDE;
+
+        switch (typ) {
+        case RIN_SEE_INVISIBLE: {
+            note_unported('display.c set_mimic_blocking');
+            see_monsters(state);
+            const invis = state.u.uprops[INVIS];
+            const seeInvisible = state.u.uprops[SEE_INVIS];
+            const invisible = Boolean(
+                (invis.intrinsic || invis.extrinsic) && !invis.blocked,
+            );
+            if (invisible && !oldprop && !seeInvisible.extrinsic
+                && !perceives(state.youmonst.data)
+                && !heroIsBlind(state)) {
+                newsym(state.u.ux, state.u.uy, state);
+                await message('Suddenly you can see yourself.', state);
+                discover_object(typ, true, true, true, state);
+            }
+            break;
+        }
+        case RIN_INVISIBILITY: {
+            const invis = state.u.uprops[INVIS];
+            const seeInvisible = state.u.uprops[SEE_INVIS];
+            const seeInvis = Boolean(
+                seeInvisible.intrinsic || seeInvisible.extrinsic,
+            );
+            if (!oldprop && !seeInvisible.extrinsic && !invis.blocked
+                && !seeInvis && !heroIsBlind(state)) {
+                newsym(state.u.ux, state.u.uy, state);
+                await message(
+                    `Your body takes on a ${Hallucination(state)
+                        ? 'normal' : 'strange'} transparency...`,
+                    state,
+                );
+                discover_object(typ, true, true, true, state);
+            }
+            break;
+        }
+        case RIN_PROTECTION_FROM_SHAPE_CHAN:
+            await rescham(state);
+            break;
+        case RIN_LEVITATION:
+            prop.intrinsic = oldprop;
+            if (!Levitation(state)) {
+                await float_up(state);
+                incr_itimeout(prop, d(10, 20));
+                discover_object(typ, true, true, true, state);
+            }
+            break;
+        }
+        break;
+    case RIN_ADORNMENT:
+        await effect();
+        if (await adjattrib(A_CHA, otmp.spe, -1, state))
+            discover_object(typ, true, true, true, state);
+        break;
+    case RIN_GAIN_STRENGTH:
+        await effect();
+        if (await adjattrib(A_STR, otmp.spe, -1, state))
+            discover_object(typ, true, true, true, state);
+        break;
+    case RIN_GAIN_CONSTITUTION:
+        await effect();
+        if (await adjattrib(A_CON, otmp.spe, -1, state))
+            discover_object(typ, true, true, true, state);
+        break;
+    case RIN_INCREASE_ACCURACY:
+        await effect();
+        state.u.uhitinc = bounded_increase(
+            state.u.uhitinc, otmp.spe, RIN_INCREASE_ACCURACY, state,
+        );
+        break;
+    case RIN_INCREASE_DAMAGE:
+        await effect();
+        state.u.udaminc = bounded_increase(
+            state.u.udaminc, otmp.spe, RIN_INCREASE_DAMAGE, state,
+        );
+        break;
+    case RIN_PROTECTION:
+    case AMULET_OF_GUARDING:
+        await effect();
+        state.u.uprops[PROTECTION].intrinsic |= FROMOUTSIDE;
+        state.u.ublessed = bounded_increase(
+            state.u.ublessed,
+            typ === RIN_PROTECTION ? otmp.spe : 2,
+            typ,
+            state,
+        );
+        state.disp.botl = true;
+        break;
+    case RIN_FREE_ACTION: {
+        const sleepResistance = state.u.uprops[SLEEP_RES];
+        if (!(sleepResistance.intrinsic & FROMOUTSIDE)) await effect();
+        if (!(sleepResistance.intrinsic || sleepResistance.extrinsic)
+            || sleepResistance.blocked)
+            await message('You feel wide awake.', state);
+        sleepResistance.intrinsic |= FROMOUTSIDE;
+        break;
+    }
+    case AMULET_OF_CHANGE:
+        await effect();
+        discover_object(typ, true, true, true, state);
+        change_sex(state);
+        await message(
+            `You are suddenly very ${state.flags.female
+                ? 'feminine' : 'masculine'}!`,
+            state,
+        );
+        state.disp.botl = true;
+        break;
+    case AMULET_OF_UNCHANGING:
+        if (!(state.u.uprops[UNCHANGING].intrinsic
+            || state.u.uprops[UNCHANGING].extrinsic) && Upolyd(state.u)) {
+            await effect();
+            discover_object(typ, true, true, true, state);
+            await rehumanize(state);
+        }
+        break;
+    case AMULET_OF_STRANGULATION:
+        note_unported('eat.c choke');
+        break;
+    case AMULET_OF_RESTFUL_SLEEP: {
+        const newnap = rnd(100);
+        const sleepy = state.u.uprops[SLEEPY];
+        const oldnap = sleepy.intrinsic & TIMEOUT;
+        if (!(sleepy.intrinsic & FROMOUTSIDE)) await effect();
+        sleepy.intrinsic |= FROMOUTSIDE;
+        if (newnap < oldnap || oldnap === 0)
+            sleepy.intrinsic = (sleepy.intrinsic & ~TIMEOUT) | newnap;
+        break;
+    }
+    case RIN_SUSTAIN_ABILITY:
+    case AMULET_OF_LIFE_SAVING:
+    case AMULET_OF_FLYING:
+    case AMULET_OF_REFLECTION:
+        break;
+    }
+}
+
 // C ref: eat.c eatspecial() (2414-2486), the common completion tail for an
-// object that doeat_nonfood() admits.  C keeps this helper in eat.c, so its
-// state transitions stay here too. Unported accessory, leash and punishment
-// helpers are recorded at their call sites when those branches are reached.
+// object that doeat_nonfood() admits. C keeps this helper in eat.c, so its
+// state transitions stay here too. Remaining leash and punishment helpers
+// are recorded at their call sites when those branches are reached.
 async function eatspecial(state, env) {
     const meal = victual(state);
     const otmp = meal.piece;
@@ -2763,7 +3001,7 @@ async function eatspecial(state, env) {
         await dopotion(otmp, state);
         if (state.program_state?.gameover) return;
     } else if (otmp.oclass === RING_CLASS || otmp.oclass === AMULET_CLASS) {
-        note_unported('eat.c eataccessory');
+        await eataccessory(otmp, state, env);
     } else if (otmp.otyp === LEASH && otmp.leashmon) {
         note_unported('dog.c o_unleash');
     }
