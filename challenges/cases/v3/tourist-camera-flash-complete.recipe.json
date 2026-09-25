@@ -1,0 +1,11 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 59482063,
+      "datetime": "20330506111500",
+      "nethackrc": "OPTIONS=name:Miriya,role:Tourist,race:human,gender:female,align:neutral,!legacy,!tutorial,!splash_screen,showexp,time\n",
+      "moves": "\ni\u001balk\nkalh"
+    }
+  ]
+}

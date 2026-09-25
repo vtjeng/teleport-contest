@@ -1,0 +1,11 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 36178024,
+      "datetime": "20330408101000",
+      "nethackrc": "OPTIONS=name:Alcyon,role:Archeologist,race:dwarf,gender:female,align:lawful,!legacy,!tutorial,!splash_screen,showexp,time\n",
+      "moves": "\nwe\nwa\n"
+    }
+  ]
+}

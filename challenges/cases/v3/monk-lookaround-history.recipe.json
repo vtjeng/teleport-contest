@@ -1,0 +1,11 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 77431928,
+      "datetime": "20320327121000",
+      "nethackrc": "OPTIONS=name:Sayo,role:Monk,race:human,gender:female,align:neutral,!legacy,!tutorial,!splash_screen,showexp,time\n",
+      "moves": "l#lookaround\nh#lookaround\n"
+    }
+  ]
+}

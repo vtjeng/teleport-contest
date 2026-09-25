@@ -1,0 +1,11 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 66012943,
+      "datetime": "20330110153000",
+      "nethackrc": "OPTIONS=name:Doren,role:Priest,race:human,gender:male,align:lawful,!legacy,!tutorial,!splash_screen,showexp,time\n",
+      "moves": "\nslshshs"
+    }
+  ]
+}

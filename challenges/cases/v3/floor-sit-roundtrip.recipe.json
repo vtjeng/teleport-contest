@@ -1,0 +1,11 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 42673189,
+      "datetime": "20320922114500",
+      "nethackrc": "OPTIONS=name:Krag,role:Rogue,race:human,gender:male,align:chaotic,!legacy,!tutorial,!splash_screen,showexp,time\n",
+      "moves": "h#sit\nl#sit\n"
+    }
+  ]
+}
