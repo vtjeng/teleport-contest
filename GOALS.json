@@ -70938,7 +70938,7 @@
     {
       "id": "port-do-wear-doremring-synthetic-v1-20260925",
       "kind": "file-port",
-      "status": "open",
+      "status": "parked",
       "summary": "Port accessory remove command and source-ordered ring removal path",
       "cFile": "do_wear.c",
       "sessions": [
@@ -71202,7 +71202,17 @@
             }
           }
         }
-      ]
+      ],
+      "progressBeforePark": {
+        "screens": 0,
+        "rng": 0
+      },
+      "parkedStanding": {
+        "sha": "cb5a1d6236d100c62a31e5029cbfa55e55cdfb60",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "parkedReason": "The R/remove command matches independent regeneration-ring and prompted armor recordings, and the v1 terrain case gains nine screens. Source completion remains open: levitation landing at trap.c float_down diverges after the removal prompt, and the reachable amulet branch is blocked by unported do_wear.c Amulet_off; the blocked recipe is retained."
     },
     {
       "id": "port-objnam-wizterrainwish-synthetic-v2-20260925",
