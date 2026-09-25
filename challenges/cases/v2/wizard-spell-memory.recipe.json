@@ -1,0 +1,11 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 812039,
+      "datetime": "20031105083000",
+      "nethackrc": "OPTIONS=name:Scoutwizard-spell-memory,role:Wizard,race:human,gender:male,align:chaotic,!legacy,!tutorial,!splash_screen,showexp,time\n",
+      "moves": "i\u001b#showspells\n\u001brl z a l\u001b#showspells\n\u001bZal\u001b#showspells\n"
+    }
+  ]
+}

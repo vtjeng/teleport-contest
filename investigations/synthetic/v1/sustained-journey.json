@@ -10,13 +10,13 @@
   "recordingSha256": "b190d330b5177de86ea2c81412de96a1708faf22ff2a769aa1f558b7646a3eea",
   "recipe": "challenges/cases/sustained-journey.recipe.json",
   "recipeSha256": "cb3c86febb1468ccfd39e289b53c00937a407244d5ba3d4fd7a3759ddbd08ed5",
-  "replayInputSha256": "1d82e114cf6028a970890ae3a93f705306dc8faac92e6f51685b97b4a7ea8fc0",
-  "evaluationPath": "challenges/evaluations/20260918192720-v1.json",
-  "evaluationCommit": "2ab3d33c4affb45693cc1cdc56882430c63db58f",
-  "remainingScreens": 197,
+  "replayInputSha256": "e3e42c5f65da824b237c5a8d83ca94f1d32dbfd894248cc6fa7af56882da9bb1",
+  "evaluationPath": "challenges/evaluations/20260925163844-v1.json",
+  "evaluationCommit": "020e94fb0e15c7c7120349f8a0970e70cdf6bce7",
+  "remainingScreens": 15,
   "recordedSteps": 202,
   "status": "complete",
-  "commit": "973ed4c61be4e63b24ffcf54f640b3a05990a0f1",
+  "commit": "020e94fb0e15c7c7120349f8a0970e70cdf6bce7",
   "mismatch": {
     "corpus": "synthetic",
     "batch": "v1",
@@ -29,72 +29,66 @@
     "recordingSha256": "b190d330b5177de86ea2c81412de96a1708faf22ff2a769aa1f558b7646a3eea",
     "recipe": "challenges/cases/sustained-journey.recipe.json",
     "recipeSha256": "cb3c86febb1468ccfd39e289b53c00937a407244d5ba3d4fd7a3759ddbd08ed5",
-    "replayInputSha256": "1d82e114cf6028a970890ae3a93f705306dc8faac92e6f51685b97b4a7ea8fc0",
-    "evaluationPath": "challenges/evaluations/20260918192720-v1.json",
-    "evaluationCommit": "2ab3d33c4affb45693cc1cdc56882430c63db58f",
-    "evaluationArtifact": "challenges/evaluations/20260918192720-v1.json",
-    "evaluationUtc": "2026-09-18T19:27:20.180Z",
-    "remainingScreens": 197,
+    "replayInputSha256": "a097d12206d9c6c1ee961b087aedf759fc6cbd0e9f98abb9dd1c4175d5f799e9",
+    "evaluationPath": "challenges/evaluations/20260925163844-v1.json",
+    "evaluationCommit": "020e94fb0e15c7c7120349f8a0970e70cdf6bce7",
+    "evaluationArtifact": "challenges/evaluations/20260925163844-v1.json",
+    "evaluationUtc": "2026-09-25T16:38:44.129Z",
+    "remainingScreens": 15,
     "recordedSteps": 202,
-    "previousScreensMatched": 5,
+    "previousScreensMatched": 164,
     "regression": false,
     "passed": false,
     "error": null,
     "metrics": {
       "screens": {
-        "matched": 5,
+        "matched": 187,
         "total": 202
       },
       "rng": {
-        "matched": 6098,
+        "matched": 9141,
         "total": 10396
       },
       "cursors": {
-        "matched": 5,
+        "matched": 187,
         "total": 202
       }
     },
     "firstMismatch": {
       "kind": "stop",
-      "message": "unsupported hero command: cmd.c parse() committed a count leaving gm.multi above 0 before a row this port will not repeat, which allmain.c moveloop_core():515-531 turns into a repeat of the command; that arm is not ported",
-      "step": 5
+      "message": "unsupported hero command: an unported branch of this command: applying a tool requires doapply()'s arm for object type 227",
+      "step": 187
     },
-    "step": 5,
+    "step": 187,
     "kind": "stop",
-    "sourceFile": "cmd.c",
-    "function": "parse",
-    "message": "unsupported hero command: cmd.c parse() committed a count leaving gm.multi above 0 before a row this port will not repeat, which allmain.c moveloop_core():515-531 turns into a repeat of the command; that arm is not ported",
-    "cFile": "cmd.c",
+    "sourceFile": "apply.c",
+    "function": "doapply",
+    "message": "unsupported hero command: an unported branch of this command: applying a tool requires doapply()'s arm for object type 227",
+    "cFile": "apply.c",
     "luaFile": null,
     "line": null
   },
-  "summary": "The step-5 stop is an obsolete positive-count guard in cmd.c rhack(), which rejects movement before the existing executeMovement() path. C rhack() admits counted walk/run/rush, retains multi, and sets context.mv; JavaScript already implements that admission state and the allmain.c moveloop_core() repeat arm. Source comparison, Git history, and independent counted-movement recordings establish an implemented path blocked by the extra guard. Repair movement admission as a divergence fix, retain the non-movement refusal, and keep unrelated missing allmain behavior in its parked source-port goal.",
+  "summary": "At the C2 integration commit, the sustained journey matches 187 of 202 screens. The next stop is step 187 when applying an oil lamp: C prints \"Your lamp is now on.\" while JavaScript refuses doapply()'s OIL_LAMP arm. The source owner is apply.c use_lamp(), called from doapply() for oil lamps, magic lamps, and brass lanterns. Port its complete on/off, underwater, fuel, cursed, shop, and burn-start branches with the production caller; C2's earlier D:1 ascent path now matches through step 165.",
   "source": {
-    "file": "cmd.c",
+    "file": "apply.c",
     "functions": [
-      "rhack"
+      "use_lamp"
     ],
-    "branch": "A positive parsed command count on a MOVEMENT_INTENTS row reaches the generic refusal at js/cmd.js:5453-5474 before executeMovement(). C cmd.c:3785-3800 admits walk/rush, preserves multi, and sets context.mv; existing JS executeMovement() at :2713-2768 and allmain.js moveloop_core() at :1636-1651 already implement that movement/repeat path. Allow only movement intents past the obsolete guard; non-movement counts retain their current boundary.",
+    "branch": "apply.c doapply() lines 4214-4430 dispatches OIL_LAMP, MAGIC_LAMP, and BRASS_LANTERN to use_lamp() at the lamp switch arm. In use_lamp() lines 1628-1692, the witnessed ordinary oil lamp is unlit, has fuel, is not cursed or underwater, and takes the on branch: check_unpaid(), print the lamp-on message, then begin_burn(obj,FALSE). The complete function also handles already-lit snuffing, underwater refusal, no fuel, cursed failure and oil spill, candle text, and shop billing.",
     "callers": [
-      "js/jsmain.js runSegment() -> js/allmain.js moveloop_core() -> js/cmd.js rhack(); C allmain.c:534 calls rhack(0).",
-      "js/cmd.js rhack() -> executeMovement() -> hack.c domove; C cmd.c:3785-3800 is the corresponding movement dispatch.",
-      "Existing js/allmain.js moveloop_core() repeats context.mv through runDomoveAtTurnBoundary(); C allmain.c:515-531 decrements finite counts and calls domove()."
+      "apply.c doapply() lamp arm around line 4350 calls use_lamp(obj) and retains ECMD_TIME; js/apply.js doapply() lines 1243-1333 currently throws UnsupportedApplyError for object type 227 after selection.",
+      "cmd.c apply command dispatch routes key a to doapply(); the sustained journey reaches that production path before the refusal."
     ],
     "dependencies": [
-      "cmd.c parse()/get_count() already commit the count and consume its first repetition.",
-      "cmd.c set_move_cmd(), hack.c end_running()/lookaround()/domove(), and the movement intent state are already implemented; preserve their source order and count semantics.",
-      "Other allmain.c omissions are separate source-port work, preserved in port-allmain-moveloop-core-synthetic-20260918; this fix does not establish whole moveloop_core completion."
+      "light.c begin_burn() and end_burn() own the timer, light source, and fuel transitions; retain their source ordering and port value-consuming dependencies as needed.",
+      "Shop billing, object naming, blindness and underwater predicates, and glibness from cursed spills are source dependencies of whole use_lamp()."
     ]
   },
-  "goalKind": "divergence-fix",
+  "goalKind": "file-port",
   "evidence": [
-    ".cache/synthetic-scans/v1/sustained-journey.json records screensEmitted=5, recordedSteps=202, remainingScreens=197, first mismatch step=5, key=h, command=movewest, inputThroughStop=` i 3h`, and the exact unsupported-command boundary; divergence is null before the stop.",
-    "challenges/cases/sustained-journey.session.json segment 0 uses seed 90176, datetime 20010822161500, and moves beginning ` i 3h`; its step 4 key is `3` and step 5 key is `h`, establishing a count prefix followed by a west walk rather than an isolated parse failure.",
-    "nethack-c/upstream/src/cmd.c:5018-5089 get_count() and :5096-5156 parse() read the digits, store gc.command_count, then execute `gm.multi = gc.command_count; if (gm.multi) gm.multi--;`; count 3 therefore leaves gm.multi=2 for the first h command.",
-    "C cmd.c:3785-3800 sets context.mv and calls domove for counted movement without the generic refusal present at js/cmd.js:5453-5474. Existing js/cmd.js executeMovement() (:2713-2768) already sets the same movement/count state and invokes domove.",
-    "C allmain.c:515-531 and js/allmain.js:1636-1651 have the same positive-multi movement control flow: lookaround, runmode delay, early return if multi clears, finite-count decrement/end_running, and domove. This is behavioral source evidence, not a declaration count.",
-    "Git history: 76109518 added the repeat structure on 2026-07-22; 0d4a4aca added lookaround/runmode control on 2026-07-29; 0bc139cf wired end_running on 2026-09-08. The generic COUNTED_BOUNDARY gate from 4c436631 (2026-08-14) remains despite those implemented movement owners.",
-    "Independent worker C recordings and counted-versus-bare state/RNG tests pass when the gate is removed, and the assigned replay advances from step 5 to a separate eat.c boundary at step 168. These are branch diagnostics, not accepted aggregate gains. The narrowed fix retains the non-movement gate and requires its own combined validation.",
-    "The initial allmain file-port classification was too broad: source review found separate omissions in automatic teleport/polymorph, per-turn hooks and terrain, lava sinking, and status/display upkeep. They do not cause the step-5 guard failure and remain parked rather than claimed complete."
+    "Saved evaluation challenges/evaluations/20260925163844-v1.json at 020e94fb records sustained-journey 187/202 matching screens, up from 164/202 at the previous accepted C2 baseline; no old matching screen was lost.",
+    ".cache/loop-20260925-C2-next-sustained-scan.json replays 187 emitted screens and stops at segment 0 step 187 with \"applying a tool requires doapply()'s arm for object type 227\"; js/objects.js identifies 227 as OIL_LAMP. The C boundary screen says \"Your lamp is now on.\"",
+    "nethack-c/upstream/src/apply.c:4214-4430 reads doapply()'s selected-tool dispatch, including the OIL_LAMP/MAGIC_LAMP/BRASS_LANTERN arm; :1628-1692 reads the whole use_lamp() function and source-ordered light and shop effects.",
+    "js/apply.js:1243-1333 refuses the selected OIL_LAMP after retouch_object(), before use_lamp() exists. The earlier do.c doup stop was resolved by C2 and is independently cited through v1 sustained-journey step 165 and v1 scout step 16 in its immutable source evidence."
   ]
 }

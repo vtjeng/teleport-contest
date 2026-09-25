@@ -1,0 +1,11 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 812038,
+      "datetime": "20020817143000",
+      "nethackrc": "OPTIONS=name:Scoutaltar-rite-history,role:Priest,race:human,gender:female,align:neutral,playmode:debug,!legacy,!tutorial,!splash_screen,showexp,time\n",
+      "moves": " \u0017neutral altar\n\u0017jackal corpse\n#pray\nnn\n#offer\ni "
+    }
+  ]
+}

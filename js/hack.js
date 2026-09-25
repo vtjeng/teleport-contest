@@ -3945,13 +3945,10 @@ async function domove_core(state = game) {
     // js/hack.js u_rooted() gives: no admitted path polymorphs the hero, so
     // gy.youmonst.data->mmove is never 0.
     //
-    // Both of stucksteed()'s reporting arms refuse in js/steed.js, so FALSE is
-    // the only answer this port produces and the body below never runs. This
-    // call is the live seam for a helpless steed alone: it passes checkfeeding
-    // FALSE, as hack.c:2815 does, so a steed that is still eating walks on
-    // from here. Only do.c dodown() and doup() pass TRUE, and js/steed.js owns
-    // that arm.
-        if ((u.dx || u.dy) && u.usteed && stucksteed(false, state)) {
+    // This site passes checkfeeding FALSE, matching hack.c:2815. The helper
+    // reports an immobile steed, while a steed that is eating can still walk.
+        if ((u.dx || u.dy) && u.usteed
+            && await stucksteed(false, state)) {
             nomul(0, state);
             state.domoveAttempting = 0;
             return;

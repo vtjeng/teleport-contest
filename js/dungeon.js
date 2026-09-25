@@ -22,6 +22,7 @@ import {
     DRAWBRIDGE_UP,
     ECMD_OK,
     ASCENDED,
+    ESCAPED,
     CORR,
     DELPHI,
     FLYING,
@@ -803,8 +804,10 @@ export async function prev_level(at_stairs, state = game, env = {}) {
         // Taking an up dungeon branch.
         if (!state.u.uz.dnum && state.u.uz.dlevel === 1
             && !state.u.uhave?.amulet) {
-            // done(ESCAPED) -- escaping the dungeon. Not ported.
-            throw new Error('prev_level: escaping the dungeon is not ported');
+            const finish = env.done;
+            if (typeof finish !== 'function')
+                throw new TypeError('prev_level requires a done operation');
+            await finish(ESCAPED, state);
         } else {
             return gotoLevel(
                 { dnum: stway.tolev.dnum, dlevel: stway.tolev.dlevel },
