@@ -6,7 +6,8 @@ import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import test from 'node:test';
 import { copiedRecipe } from './worker-delivery.mjs';
-import { corpusDigest } from './challenge-results.mjs';
+import { corpusDigest, digest } from './challenge-results.mjs';
+import { preparedFromDelivery } from './admit-challenge-batch.mjs';
 import { executionTree } from './checkpoint-reuse.mjs';
 
 const SCRIPT = fileURLToPath(new URL('./worker-state.mjs', import.meta.url));
@@ -129,6 +130,63 @@ test('worker submits durably and starts another task before receipt; snapshots s
     const preflight = f.success(['preflight', '--task', 'A-1', '--commit', head]);
     assert.equal(preflight.passed, true); // Reads Git, not the worker's new dirty file.
     assert.deepEqual(preflight.focusedTests, [addedTest, 'scripts/importer-only.test.mjs', 'scripts/sample.test.mjs']);
+});
+
+test('challenge preparation submits C cases while keeping its manifest in delivery evidence', t => {
+    const f = fixture(t);
+    const worker = f.workers.B;
+    f.event({ type: 'assign', task: 'prep-v2', worker: 'B',
+        kind: 'challenge-preparation', seed: null, base: f.base,
+        reservations: ['challenge-batch:v2'], allowedPaths: ['challenges/cases/v2/'] }, worker);
+    const directory = join(worker, 'challenges/cases/v2');
+    mkdirSync(directory, { recursive: true });
+    const segment = { seed: 891, datetime: '20010412120000', nethackrc: '', moves: 'i' };
+    const recipePath = 'challenges/cases/v2/alpha.recipe.json';
+    const recordingPath = 'challenges/cases/v2/alpha.session.json';
+    const recipe = JSON.stringify({ version: 5, segments: [segment] }) + '\n';
+    const recording = JSON.stringify({ version: 5, segments: [{ ...segment,
+        steps: [{ key: '', screen: 'C screen', cursor: [0, 0, 1], rng: [] }] }] }) + '\n';
+    writeFileSync(join(worker, recipePath), recipe);
+    writeFileSync(join(worker, recordingPath), recording);
+    f.git(worker, 'add', recipePath, recordingPath);
+    f.git(worker, 'commit', '-qm', 'prepare C cases');
+    const head = f.git(worker, 'rev-parse', 'HEAD');
+    const manifest = { version: 1, batch: 'v2', cases: [{
+        id: 'alpha', title: 'Inventory from C',
+        reproducibility: 'Independent C replay matched every recorded step.',
+        recipe: recipePath, recipeSha256: digest(recipe),
+        recording: recordingPath, recordingSha256: digest(recording),
+    }] };
+    writeFileSync(join(worker, '.cache/context.json'),
+        JSON.stringify({ kind: 'challenge-preparation', batch: 'v2' }));
+    const evidencePath = join(worker, '.cache/evidence.json');
+    writeFileSync(evidencePath, JSON.stringify({ missionPlan: 'Exercise C inventory startup.',
+        manifest }));
+    const log = join(worker, '.cache/replay.log');
+    writeFileSync(log, 'Independent C replay matched the recorded screen and trace.\n');
+    writeFileSync(join(worker, '.cache/checks.json'), JSON.stringify([{
+        kind: 'fresh', caseId: 'alpha', command: ['fixture-c-replay', recipePath],
+        exitCode: 0, log,
+    }]));
+    const args = ['submit', '--task', 'prep-v2', '--file', f.file,
+        '--context', '.cache/context.json', '--evidence', '.cache/evidence.json',
+        '--checks', '.cache/checks.json'];
+    const bad = { ...manifest, cases: [{ ...manifest.cases[0], recordingSha256: '0'.repeat(64) }] };
+    writeFileSync(evidencePath, JSON.stringify({ missionPlan: 'Exercise C inventory startup.',
+        manifest: bad }));
+    assert.match(f.run(args, worker).stderr, /recording hash differs/);
+    writeFileSync(evidencePath, JSON.stringify({ missionPlan: 'Exercise C inventory startup.',
+        manifest }));
+    const submitted = f.success(args, worker);
+    assert.equal(submitted.deliveries[head].delivery, head);
+    const packet = JSON.parse(readFileSync(submitted.deliveries[head].evidence, 'utf8'));
+    assert.deepEqual(packet.manifest, manifest);
+    assert.deepEqual(preparedFromDelivery(submitted.deliveries[head].evidence), manifest);
+    assert.equal(f.git(worker, 'ls-tree', '-r', '--name-only', head, '--',
+        'challenges/manifests'), '');
+    f.git(f.root, 'cherry-pick', head);
+    const preflight = f.success(['preflight', '--task', 'prep-v2']);
+    assert.equal(preflight.passed, true);
 });
 
 test('integration permits changed context only when every delivered edit matches', async (t) => {

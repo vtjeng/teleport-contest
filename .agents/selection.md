@@ -27,8 +27,8 @@ case ID. Keep RNG, cursor, refusal, and runner failures visible; a failed or
 missing evaluation is not a measured zero. For fixed-workload regressions,
 retain `remainingScreensUpperBound` descending, first mismatch step ascending,
 and canonical session ID as the order.
-For a free worker slot, select the first session with a completed, valid
-investigation whose source functions and shared-state contracts are not
+For a free implementation worker slot, select the first session with a
+completed, valid investigation whose source functions and shared-state contracts are not
 reserved by another worker or pending delivery. Apply the seed-continuation
 rule below before assigning a new session. Use this per-session order even
 when the command's grouped `candidates` order differs. Actual unmatched
@@ -40,15 +40,15 @@ as `.agents/loop.md`, "Background investigations", specifies. Do not wait for a
 higher-ranked session's investigation while a completed, valid investigation
 is available. If none is available, wait for an investigator's completion,
 then select the first ready session in the same order without waiting for the
-rest. Keep an implementation span running until its normal handoff; reconsider
-selection between spans.
+rest. Keep an implementation task running until its normal handoff; reconsider
+selection between tasks.
 
 Use the selected investigation's source trace to choose the goal kind:
 
 - Missing or partial C behavior: open a `file-port` for the responsible whole
   function or self-contained function family. Use `--from-function` and
   `--to-function` for a group, in C definition order. Include required callees
-  and the production caller changes in the same span. Existing declarations
+  and the production caller changes in the same task. Existing declarations
   do not justify skipping incomplete branches.
 - Missing or partial Lua behavior: open a `lua-port` for the responsible
   `dat/*.lua` program. Include its top-level statements, helper functions,
@@ -83,10 +83,10 @@ Keep worker activity and delivery progress in the runtime ledger. Preserve
 goal lifecycle, score boundaries, source-completion evidence, and
 remaining-work reasons.
 
-`queue-goal`, `open-goal`, `next-span`, and a divergence fix's `queue-span`
-still check selection against grouped candidates and the recorded reason.
+`queue-goal`, `open-goal`, and task-context creation still check selection
+against grouped candidates and the recorded reason.
 The orchestrator applies the completed-investigation priority described here.
-Reconsider priority between spans. When an open goal no longer addresses the
+Reconsider priority between tasks. When an open goal no longer addresses the
 first eligible session under these scheduling rules, preserve its work with
 `park-goal --goal <id> --reason "<source-based reason>"` and select again.
 State the remaining source or coverage work and the condition for resuming
@@ -97,7 +97,7 @@ when the condition is met and its priority permits.
 
 When source review shows that another goal replaces a queued or parked plan,
 retire the old plan with `supersede-goal --goal <old-id> --by <replacement-id>
---reason "<source-based reason>"`. This preserves its evidence, spans, and
+--reason "<source-based reason>"`. This preserves its evidence, historical spans, and
 measurements without claiming completion or adding a score event. Superseded
 plans leave the current queue and cannot be reopened; their replacement owns
 any remaining work. Keep a goal parked when it still has independent work.
@@ -110,12 +110,12 @@ Whole-source completion and caller evidence remain required for every port.
 
 ## Generating the next synthetic batch
 
-When current, complete evaluations of every admitted batch show zero unmatched
-screens, generate the next batch without asking for another goal. Blocked or
-uninvestigated failures, unavailable results, and stale evaluations do not
-satisfy this condition. Keep outstanding RNG or cursor defects visible across
-the transition. If a new batch already matches, retain its baseline and repeat
-with different behavior coverage.
+One worker may prepare new batches while implementation workers repair current
+mismatches. Give each preparation task the next unused version number. Keep one
+unaccepted preparation task at a time, and resume a parked batch before
+starting a later version. Accepted batches may wait for admission while the
+worker prepares another. Preparation does not require the current
+batch to match.
 
 Plan a small batch of independent missions before inspecting their JavaScript
 results. Use C source and coverage gaps to vary behavior families, action
@@ -127,21 +127,36 @@ reproducible case, including missed missions and cases JavaScript already
 passes; reject only invalid setup or recorder failures with recorded C evidence.
 Resolve recorder-environment differences before treating them as game defects.
 
-Keep recipes, C recordings, and hashes immutable. Preserve `v1` at
-`challenges/manifest.json`; admit the next batch under a new versioned
-manifest, starting with `v2`, without replacing or extending a frozen batch.
-Prepare the next manifest outside `challenges/manifests/`, with case files
-under `challenges/cases/<batch>/` and an independent C replay result in each
-case’s `reproducibility` field. Run
-`node scripts/admit-challenge-batch.mjs --manifest <prepared.json>` after a
-passing HEAD checkpoint; the command verifies screen parity, input hashes,
-recipe/recording consistency, and the next batch number before creating the
-manifest exclusively. It does not filter cases by JavaScript results.
-Commit the batch and save its first evaluation at a committed implementation
-before its JavaScript failures guide fixes. Publish that baseline and resume
-selection from the admitted cases. Retain earlier batches as regression checks
-and their original evaluations as history. `.agents/scoring.md` defines how
-to report each batch without counting added screens as implementation gains.
+The worker submits case recipes and C recordings under
+`challenges/cases/<batch>/`. Keep the manifest in immutable delivery evidence,
+outside `challenges/manifests/`, with an independent C replay result in each
+case's `reproducibility` field. The orchestrator checks the cases, merges the
+recipes and recordings into `main`, runs the combined checkpoint, and accepts
+the delivery. Keep those files and their hashes unchanged. Neither the worker
+nor the orchestrator selects cases by whether JavaScript passes them. Until
+admission, the cases do not enter synthetic scoring, the mismatch queue, or
+the dashboard.
+
+Admit the oldest prepared batch when current, complete evaluations of every
+admitted batch show zero unmatched screens. Prepare a batch if none is ready.
+Blocked or uninvestigated failures, unavailable results, and stale evaluations
+do not pass this gate. Keep outstanding RNG or cursor defects visible across
+the transition. Preserve `v1` at `challenges/manifest.json`; admit later
+batches in version order under new manifests, starting with `v2`. Never replace
+or extend an admitted batch.
+
+After a passing HEAD checkpoint, run
+`node scripts/admit-challenge-batch.mjs --delivery <accepted-packet.json>`.
+The command reads the prepared manifest from the immutable delivery packet,
+checks screen parity, input hashes, recipe/recording consistency, and the next
+version number before creating the admitted manifest. It does not filter cases
+by JavaScript results. Commit the manifest and save the batch's first
+evaluation at that committed implementation before selecting its failures.
+Publish that baseline and resume selection from admitted cases. If the batch
+already matches, keep its baseline and admit the next prepared batch, or
+prepare one with different behavior coverage. Retain earlier batches and
+their original evaluations as regression history. `.agents/scoring.md`
+explains how to report each batch without counting added screens as fixes.
 
 ## Tooling support
 
@@ -175,7 +190,7 @@ that seed or to skip whole-source completion.
 
 Before editing, check the current runtime ledger and pending scope
 announcements for active and pending-delivery reservations. Prepare the next
-worker-local span context and notify the orchestrator of the base commit,
+worker-local task context and notify the orchestrator of the base commit,
 next mismatch, source scope, dependencies, and write set. Claim that scope
 with an atomic `assign` event as `.claude/agents/span-worker.md`, "Claiming
 and submitting work", specifies, before editing.
@@ -264,11 +279,11 @@ Sessions absent from the mismatch queue need no investigation or selection;
 retain their cache files without scheduling work for them.
 
 A partial entry does not qualify for selection; continue its investigation.
-A complete entry with the same count remains valid across spans and restarts.
+A complete entry with the same count remains valid across tasks and restarts.
 Check the count again before accepting an investigator's result so that a late
 result for an old count cannot replace a current investigation. Pass a valid
-cached investigation to the span worker, which still verifies its source
-claims before implementation. Cache reuse does not establish source completion
+cached investigation to the implementation worker, which still verifies its
+source claims before implementation. Cache reuse does not establish source completion
 or replace validation.
 
 Keep the replay cache's existing freshness checks in `scan-sessions.mjs`.
@@ -307,8 +322,9 @@ Queue a divergence fix with `--kind divergence-fix`, `--c-file`, `--function`,
 A Lua program correction uses `lua-port` so its top-level behavior remains in
 scope. The same source-tracing and replay requirements apply.
 
-Open with `open-goal --id <id>`, then plan with `next-span --goal <id>`.
-A source port plans every unit without recorded completion evidence,
+Write a worker-local task context for the selected scope before implementation;
+the orchestrator opens its central goal at integration. A source port includes
+every unit in its selected range without recorded completion evidence,
 including previously declared functions. Record the evidence as
 `.agents/validation.md`, "Source completion evidence", specifies. Do not
 rewrite historical goal or score rows to make their old name counts verified.

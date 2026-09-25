@@ -67,7 +67,8 @@ competition holdout is outside this workspace.
   active locally for the loop. The orchestrator owns the slot; workers may
   continue focused checks and independent fresh cases using private recorder
   installations. Request an exceptional worker full run rather than starting
-  one concurrently. Release the slot promptly after reaping its handle.
+  one concurrently. Wait for that validation command to finish, then release its
+  slot promptly.
 - Other agents may keep editing or committing in their own worktrees during checkpoint. Its result
   remains attached to the tested commit; advancing HEAD does not make it fail.
   Wait for an existing run of the intended commit rather than launching a
@@ -91,8 +92,8 @@ competition holdout is outside this workspace.
   An older pass alone does not establish that newer code passes.
   Goal closure still requires a passing checkpoint at HEAD.
   If validation failed, inspect its failure logs before choosing the next check.
-- For an entry point the span completes, write a recipe with a newly chosen
-  seed, datetime, options, character, and inputs. Create the output directory
+- For an entry point the implementation task completes, write a recipe with a
+  newly chosen seed, datetime, options, character, and inputs. Create the output directory
   with `mkdir -p recordings/<source-file>` before recording it:
   `node scripts/record-session.mjs recipes/<source-file>/<name>.session.json
   recordings/<source-file>/<name>.session.json`. Verify the fresh differential
@@ -110,19 +111,19 @@ competition holdout is outside this workspace.
 
 A declaration establishes that code exists. Completion also requires a
 whole-source comparison, production wiring, and appropriate execution
-coverage. `goal-log.mjs next-span` skips only units with this evidence; old
+coverage. Task planning skips only units with this evidence; old
 `ported` flags and old goal closures remain historical name counts.
 
-`.cache/span-context.json` and `.cache/span-evidence.json` are untracked
+`.cache/task-context.json` and `.cache/task-evidence.json` are untracked
 handoff files. Do not stage them. The orchestrator records verified evidence
 in GOALS.json.
 
-The worker writes `.cache/span-evidence.json`. The orchestrator reads the
+The worker writes `.cache/task-evidence.json`. The orchestrator reads the
 source and artifacts, verifies the assertions, then records the evidence:
 
 ```
 node scripts/goal-log.mjs record-evidence --goal <id> \
-  --evidence .cache/span-evidence.json
+  --evidence .cache/task-evidence.json
 ```
 
 The JSON object has a `functions` array. Each record describes one C function
@@ -161,10 +162,11 @@ recordings remain available for fixed-workload diagnosis and scoring; evidence
 itself stays under its declared roots. Evidence is stored in `GOALS.json`; keep
 the durable record there.
 
-`close-span` requires evidence for every planned source unit. `close-goal`
-also requires all spans closed and complete entry-point coverage. Both
-require a passing checkpoint at HEAD, including the recordings corpus.
-When a function or its wiring changes, refresh its evidence in the same span.
+`close-goal` requires evidence for every planned source unit, complete
+entry-point coverage, and a passing checkpoint at HEAD, including the
+recordings corpus. Historical open goals with spans retain their recorded
+requirements. When a function or its wiring changes, refresh its evidence
+in the same task.
 Existing declarations that lack evidence remain eligible for implementation
 or verification; do not reimplement correct code merely to change a count.
 
@@ -180,9 +182,14 @@ Synthetic recordings are immutable development inputs and may be inspected and
 replayed to locate source behavior. Preserve all admitted batches and evaluate
 them separately from the fixed checkpoint, as `.agents/scoring.md` requires.
 The fixed checkpoint alone does not establish synthetic non-regression. New
-batches follow `.agents/selection.md`, "Generating the next synthetic batch";
-source-port entry points still need independent matching recipes and recordings
-under the evidence roots above.
+batches follow `.agents/selection.md`, "Generating the next synthetic batch".
+The preparation worker records only C cases, checks recipe and recording
+hashes, and independently replays each C case before submitting. The
+orchestrator verifies those checks, then runs the combined checkpoint before
+accepting the case files. Prepared cases do not enter synthetic evaluations
+or dashboard totals until the orchestrator admits a manifest and saves its
+first evaluation. Source-port entry points still need independent matching
+recipes and recordings under the evidence roots above.
 
 ## Fresh differentials
 

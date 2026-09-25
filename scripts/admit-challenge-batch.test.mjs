@@ -4,7 +4,7 @@ import { mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'nod
 import { tmpdir } from 'node:os';
 import { dirname, join } from 'node:path';
 import test from 'node:test';
-import { admitChallengeBatch } from './admit-challenge-batch.mjs';
+import { admitChallengeBatch, preparedFromDelivery } from './admit-challenge-batch.mjs';
 import { challengeInputSnapshot, corpusDigest, digest, evaluationFields, readChallengeBatches,
     saveEvaluation, totalsFor } from './challenge-results.mjs';
 import { appendRow, COLUMNS } from './score-log.mjs';
@@ -75,6 +75,18 @@ test('admission preserves every prepared C case and freezes the next manifest', 
     const frozen = readFileSync(join(f.root, result.manifestPath), 'utf8');
     assert.throws(() => admitChallengeBatch(f.root, f.prepared), /current complete measurements/);
     assert.equal(readFileSync(join(f.root, result.manifestPath), 'utf8'), frozen);
+});
+
+test('admission reads the hash-verified preparation delivery packet', t => {
+    const f = fixture(t);
+    const contents = JSON.stringify({ context: { kind: 'challenge-preparation', batch: 'v2' },
+        manifest: f.prepared }) + '\n';
+    const path = join(f.root, `${digest(contents)}.json`);
+    writeFileSync(path, contents);
+    assert.deepEqual(preparedFromDelivery(path), f.prepared);
+    assert.equal(admitChallengeBatch(f.root, preparedFromDelivery(path)).cases, 2);
+    writeFileSync(path, `${contents} `);
+    assert.throws(() => preparedFromDelivery(path), /packet hash differs/);
 });
 
 test('admission rejects stale measurements and fixed checkpoint failures', async t => {

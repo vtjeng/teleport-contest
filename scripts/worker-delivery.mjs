@@ -10,6 +10,7 @@ import { validatePortEvidence } from './port-evidence.mjs';
 import { BOOKKEEPING_FILES, executionTree } from './checkpoint-reuse.mjs';
 import { validInvestigation } from './investigation-cache.mjs';
 import { corpusDigest, validateEvaluation } from './challenge-results.mjs';
+import { normalizeSession } from '../frozen/session_loader.mjs';
 
 function check(value, message) {
     if (!value) throw new Error(message);
@@ -53,7 +54,7 @@ function checkScope(task, paths) {
         || (allowed.endsWith('/') && path.startsWith(allowed))), `delivery path is outside assigned scope: ${path}`);
 }
 
-function readChecks(path) {
+function readChecks(path, taskKind) {
     const checks = JSON.parse(readFileSync(path, 'utf8'));
     check(Array.isArray(checks), 'checks file must contain an array');
     const result = checks.map(item => {
@@ -61,19 +62,82 @@ function readChecks(path) {
         check(Array.isArray(item.command) && item.command.length > 0
             && item.command.every(arg => typeof arg === 'string' && arg.length), 'check command must be an argument array');
         check(item.exitCode === 0, 'only successful completed checks qualify for submission');
+        if (item.caseId !== undefined) check(item.kind === 'fresh' && typeof item.caseId === 'string'
+            && /^[a-z0-9][a-z0-9-]*$/u.test(item.caseId), 'caseId requires a fresh C replay check');
         check(typeof item.log === 'string' && isAbsolute(item.log), 'check log must be an absolute path');
         const output = readFileSync(item.log, 'utf8');
         check(output.trim(), 'check log is empty');
-        return { kind: item.kind, command: item.command, exitCode: item.exitCode,
+        return { kind: item.kind, caseId: item.caseId, command: item.command, exitCode: item.exitCode,
             log: item.log, logSha256: digest(output), output };
     });
-    for (const kind of ['focused', 'lint']) check(result.some(item => item.kind === kind), `missing ${kind} check result`);
+    for (const kind of taskKind === 'challenge-preparation' ? ['fresh'] : ['focused', 'lint'])
+        check(result.some(item => item.kind === kind), `missing ${kind} check result`);
     return result;
 }
 
+function committedBlob(root, commit, path) {
+    check(/^challenges\/cases\/v(?:[2-9]|[1-9][0-9]+)\/[a-zA-Z0-9][a-zA-Z0-9._-]*\.json$/u.test(path),
+        `invalid challenge case path: ${path}`);
+    check(git(root, 'ls-tree', commit, '--', path).startsWith('100644 blob '),
+        `challenge case must be a committed regular file: ${path}`);
+    const result = spawnSync('git', ['-C', root, 'show', `${commit}:${path}`],
+        { encoding: null, maxBuffer: 32 * 1024 * 1024, timeout: 30_000 });
+    check(result.status === 0, result.error?.message || result.stderr?.toString() || `cannot read ${path}`);
+    return result.stdout;
+}
+
+function challengeEvidence(root, commit, task, packet) {
+    const batch = task.reservations[0].split(':')[1];
+    check(packet.context?.kind === 'challenge-preparation' && packet.context.batch === batch,
+        'task context names a different challenge batch');
+    check(typeof packet.missionPlan === 'string' && packet.missionPlan.trim(),
+        'challenge delivery needs a C-based mission plan');
+    const manifest = packet.manifest;
+    check(manifest?.version === 1 && manifest.batch === batch
+        && Array.isArray(manifest.cases) && manifest.cases.length > 0,
+    'challenge delivery needs a nonempty prepared manifest');
+    const ids = new Set();
+    const inputs = session => session.segments.map(({ seed, datetime, nethackrc, moves }) =>
+        ({ seed, datetime, nethackrc, moves }));
+    for (const entry of manifest.cases) {
+        check(typeof entry.id === 'string' && /^[a-z0-9][a-z0-9-]*$/u.test(entry.id)
+            && !ids.has(entry.id) && typeof entry.title === 'string',
+        'challenge case IDs must be unique and titled');
+        ids.add(entry.id);
+        check(typeof entry.reproducibility === 'string' && entry.reproducibility.trim(),
+            `${entry.id} needs independent C replay evidence`);
+        const files = ['recipe', 'recording'].map(field => {
+            const path = entry[field];
+            check(typeof path === 'string' && path.startsWith(`challenges/cases/${batch}/`),
+                `${entry.id} ${field} must be in its batch directory`);
+            const bytes = committedBlob(root, commit, path);
+            check(digest(bytes) === entry[`${field}Sha256`], `${entry.id} ${field} hash differs from the commit`);
+            return JSON.parse(bytes.toString('utf8'));
+        });
+        check(files[0].segments?.every(segment => !Object.hasOwn(segment, 'steps')),
+            `${entry.id} recipe must contain inputs only`);
+        const recipe = normalizeSession(files[0]);
+        const recording = normalizeSession(files[1]);
+        check(recording.source !== 'js' && !recording.jsGroundTruth,
+            `${entry.id} needs a C recording`);
+        check(isDeepStrictEqual(inputs(recipe), inputs(recording)),
+            `${entry.id} recipe and recording inputs differ`);
+        check(recording.segments.length > 0 && recording.segments.every(segment => segment.steps.length > 0
+            && segment.steps.every(step => typeof step.screen === 'string'
+                && Array.isArray(step.cursor) && Array.isArray(step.rng))),
+        `${entry.id} needs complete C screens, cursors, and RNG traces`);
+        check(packet.checks.some(item => item.kind === 'fresh' && item.caseId === entry.id),
+            `${entry.id} needs a successful independent C replay check`);
+    }
+    check(packet.checks.filter(item => item.caseId !== undefined).every(item => ids.has(item.caseId)),
+        'replay check refers to a case outside the prepared batch');
+    return { functions: [], cases: [...ids] };
+}
+
 function scopeEvidence(root, commit, task, packet) {
+    if (task.kind === 'challenge-preparation') return challengeEvidence(root, commit, task, packet);
     const context = packet.context;
-    check(context?.goal === task.goal, 'span context names a different goal');
+    check(context?.goal === task.goal, 'task context names a different goal');
     check(Array.isArray(context.functions) && context.functions.length > 0
         && context.functions.every(name => typeof name === 'string'), 'context needs planned source functions');
     check(typeof packet.entryPointReview === 'string' && packet.entryPointReview.trim(), 'missing entryPointReview');
@@ -108,7 +172,7 @@ export function submitDelivery({ root, file, state, taskId, contextPath, evidenc
         : state.deliveries[source.head]?.dependencies ?? Object.values(state.deliveries).filter(delivery => delivery.task !== taskId
             && !delivery.acceptedAt && isAncestor(root, delivery.delivery, source.head)).map(d => d.delivery);
     const packet = { ...JSON.parse(readFileSync(evidencePath, 'utf8')),
-        context: JSON.parse(readFileSync(contextPath, 'utf8')), checks: readChecks(checksPath), git: source };
+        context: JSON.parse(readFileSync(contextPath, 'utf8')), checks: readChecks(checksPath, task.kind), git: source };
     if (source.paths.some(path => path.startsWith('recordings/')))
         check(packet.checks.some(item => item.kind === 'fresh'), 'new or changed recordings need fresh check results');
     scopeEvidence(root, source.head, task, packet);
@@ -330,7 +394,8 @@ export function preflightDelivery({ root, state, taskId, commit = 'HEAD', previo
         checkCandidate(root, state, task, commit);
     });
     let evidence;
-    inspect('source evidence', () => { evidence = scopeEvidence(root, commit, task, packet); });
+    inspect(task.kind === 'challenge-preparation' ? 'prepared C cases' : 'source evidence',
+        () => { evidence = scopeEvidence(root, commit, task, packet); });
     inspect('quality assignments', () => {
         const config = json(root, commit, 'QUALITY.json');
         const assigned = new Set(config.areas.flatMap(area => area.paths));
@@ -338,7 +403,9 @@ export function preflightDelivery({ root, state, taskId, commit = 'HEAD', previo
             && git(root, 'ls-tree', commit, '--', path) && !assigned.has(path));
         check(missing.length === 0, `unassigned files: ${missing.join(', ')}`);
     });
-    const recipes = deliveryPaths.filter(path => path.startsWith('recipes/') && path.endsWith('.session.json'));
+    const recipes = task.kind === 'challenge-preparation'
+        ? (packet.manifest?.cases ?? []).map(entry => entry.recipe)
+        : deliveryPaths.filter(path => path.startsWith('recipes/') && path.endsWith('.session.json'));
     inspect('independent recipes', () => {
         if (recipes.length === 0) return;
         const fixedPaths = lines(git(root, 'ls-tree', '-r', '--name-only', commit, '--', 'sessions'))
@@ -378,7 +445,11 @@ export function preflightDelivery({ root, state, taskId, commit = 'HEAD', previo
     });
     return { task: taskId, delivery: delivery.delivery, commit, passed: issues.length === 0,
         issues, focusedTests: [...focused].sort(), previousFailures,
-        manualReview: ['Compare whole source and production caller paths.',
-            'Verify recordings reach the claimed entry points and inputs were independently chosen.',
-            'Address every previous failure, then run affected focused tests and lint before checkpoint.'] };
+        manualReview: task.kind === 'challenge-preparation'
+            ? ['Verify the mission plan was fixed before inspecting JavaScript results.',
+                'Rerun the independent C replays and compare every committed case with its manifest hashes.',
+                'Keep the manifest outside admitted manifests until the batch admission gate passes.']
+            : ['Compare whole source and production caller paths.',
+                'Verify recordings reach the claimed entry points and inputs were independently chosen.',
+                'Address every previous failure, then run affected focused tests and lint before checkpoint.'] };
 }

@@ -778,6 +778,8 @@ test('dashboard separates closed goals and labels inferred timing', () => {
 
     const rendered = renderDashboard(data);
     const table = rendered.get('goalTable').innerHTML;
+    assert.match(table, /<th>Task<\/th><th>Δ<\/th><th>Start<\/th><th>Total<\/th>/u);
+    assert.doesNotMatch(table, /<th>Spans<\/th>/u);
     const orphanRow = table.split('</tr>').find((row) => row.includes('orphan'));
     const alphaRow = table.split('</tr>').find((row) => row.includes('alpha'));
     const betaRow = table.split('</tr>').find((row) => row.includes('beta'));

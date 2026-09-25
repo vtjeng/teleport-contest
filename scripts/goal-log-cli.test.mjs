@@ -90,6 +90,7 @@ const HELP_COMMANDS = {
         '--from-function', '--to-function', '--function', '--session', '--sessions',
         '--step', '--selection-reason', '--detail', '--development-scan'],
     'open-goal': ['--id', '--selection-reason', '--development-scan', 'queued', 'parked'],
+    'task-context': ['--goal', '--development-scan', '.cache/task-context.json', 'queued', 'open'],
     'next-span': ['--goal', '--development-scan', 'source', '.cache/span-context.json'],
     'queue-span': ['--goal', '--name', '--functions', '--development-scan', 'divergence'],
     'record-evidence': ['--goal', '--evidence', 'open'],
@@ -326,6 +327,24 @@ function openC(f) {
     return JSON.parse(f.cli('next-span', '--goal', 'widget'));
 }
 
+test('new implementation tasks hand off whole scope and close without a span', t => {
+    const f = fixture(t);
+    queueC(f);
+    assert.equal(f.goals()[0].spans, undefined);
+    const context = JSON.parse(f.cli('task-context', '--goal', 'widget'));
+    assert.deepEqual(context.functions, ['helper']);
+    assert.deepEqual(context.lineRanges, ['2-4']);
+    assert.deepEqual(JSON.parse(readFileSync(join(f.root, '.cache/task-context.json'), 'utf8')),
+        context);
+    assert.equal(f.goals()[0].status, 'queued');
+    f.cli('open-goal', '--id', 'widget');
+    f.record('widget');
+    f.checkpoint();
+    f.cli('close-goal', '--goal', 'widget');
+    assert.equal(f.goals()[0].status, 'closed');
+    assert.equal(f.goals()[0].spans, undefined);
+});
+
 function syntheticQueue(f) {
     const session = 'synthetic/v1/fixture-case';
     const entry = { session, corpus: 'synthetic', batch: 'v1', caseId: 'fixture-case',
@@ -348,14 +367,14 @@ function syntheticQueue(f) {
     return { session, entry, queue, scan };
 }
 
-test('synthetic source goals retain provenance through real CLI selection and span context', t => {
+test('synthetic source goals retain provenance through real CLI selection and task context', t => {
     const f = fixture(t);
     const { session, entry, scan } = syntheticQueue(f);
     f.cli('queue-goal', '--id', 'synthetic-port', '--kind', 'file-port',
         '--c-file', 'widget.c', '--sessions', session, '--summary', 'Port the synthetic owner',
         '--development-scan', '.cache/fixed-scan.json');
     f.cli('open-goal', '--id', 'synthetic-port', '--development-scan', '.cache/fixed-scan.json');
-    const context = JSON.parse(f.cli('next-span', '--goal', 'synthetic-port',
+    const context = JSON.parse(f.cli('task-context', '--goal', 'synthetic-port',
         '--development-scan', '.cache/fixed-scan.json'));
     assert.deepEqual(context.sessions, [session]);
     const provenance = context.syntheticProvenance[0];
@@ -647,7 +666,7 @@ test('selection is checked when queueing, opening, and requesting either a new o
     f.cli('open-goal', '--id', 'widget');
     f.queue('unrelated.c');
     f.refuses(/fixed-corpus mismatches remain/u, 'next-span', '--goal', 'widget');
-    assert.deepEqual(f.goals()[1].spans, []);
+    assert.equal(f.goals()[1].spans, undefined);
     f.queue('widget.c');
     f.cli('next-span', '--goal', 'widget');
     f.queue('unrelated.c');
@@ -673,7 +692,7 @@ test('queue-span cannot bypass source planning or divergence selection checks', 
     f.queue('unrelated.c');
     f.refuses(/fixed-corpus mismatches remain/u, 'queue-span',
         '--goal', 'widget-fix', '--name', 'helper-fix', '--functions', 'helper');
-    assert.deepEqual(f.goals()[1].spans, []);
+    assert.equal(f.goals()[1].spans, undefined);
 
     f.queue('widget.c');
     f.cli('queue-span', '--goal', 'widget-fix', '--name', 'helper-fix', '--functions', 'helper');

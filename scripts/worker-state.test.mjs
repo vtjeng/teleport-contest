@@ -246,19 +246,52 @@ test('receipts drain superseded deliveries without changing the accepted repair'
     assert.throws(() => f.send({ type: 'received', task: 'one', delivery: FIRST }), /already received/);
 });
 
-test('a third implementation worker cannot register while two owners remain', () => {
+test('a third worker can register, but a fourth live owner cannot', () => {
     const f = fixture();
-    assert.throws(() => f.send({ type: 'register', worker: 'C', worktree: `${ROOT}/C`,
-        branch: 'worker/C', base: BASE, handle: 'handle-C' }), /two implementation workers/);
+    f.send({ type: 'register', worker: 'C', worktree: `${ROOT}/C`,
+        branch: 'worker/C', base: BASE, handle: 'handle-C' });
+    assert.throws(() => f.send({ type: 'register', worker: 'D', worktree: `${ROOT}/D`,
+        branch: 'worker/D', base: BASE, handle: 'handle-D' }), /three workers/);
 });
 
-test('recovery cannot reactivate a third owner or inherit another handle’s connection', () => {
+test('prepared batch identities stay unique while accepted batches wait for admission', () => {
+    const f = fixture();
+    const prepare = (task, worker, batch) => f.send({ type: 'assign', task, worker,
+        kind: 'challenge-preparation', seed: null, base: BASE,
+        reservations: [`challenge-batch:${batch}`], allowedPaths: [`challenges/cases/${batch}/`] });
+    prepare('batch-v2', 'A', 'v2');
+    assert.throws(() => prepare('batch-v3', 'B', 'v3'), /still pending/);
+    assert.throws(() => f.send({ type: 'scope', task: 'batch-v2',
+        reservations: ['challenge-batch:v2', 'source:sounds.c:domonnoise'],
+        allowedPaths: ['challenges/cases/v2/'] }), /scope is fixed/);
+    f.send({ type: 'ready', task: 'batch-v2', delivery: FIRST, base: BASE,
+        commits: [FIRST], paths: ['challenges/cases/v2/one.json'],
+        evidence: `${ROOT}/batch-v2.json`, dependencies: [] });
+    f.accept('batch-v2');
+    prepare('batch-v3', 'B', 'v3');
+    assert.throws(() => prepare('duplicate-v2', 'A', 'v2'), /identity already used/);
+});
+
+test('a parked preparation task keeps its version until resumed and accepted', () => {
+    const f = fixture();
+    f.send({ type: 'assign', task: 'batch-v2', worker: 'A',
+        kind: 'challenge-preparation', seed: null, base: BASE,
+        reservations: ['challenge-batch:v2'], allowedPaths: ['challenges/cases/v2/'] });
+    f.send({ type: 'park', task: 'batch-v2', reason: 'recorder setup needs repair' });
+    assert.throws(() => f.send({ type: 'assign', task: 'batch-v3', worker: 'B',
+        kind: 'challenge-preparation', seed: null, base: BASE,
+        reservations: ['challenge-batch:v3'], allowedPaths: ['challenges/cases/v3/'] }), /still pending/);
+    assert.equal(f.send({ type: 'resume', task: 'batch-v2' }).tasks['batch-v2'].status, 'working');
+});
+
+test('recovery cannot reactivate a fourth owner or inherit another handle’s connection', () => {
     const f = fixture();
     f.send({ type: 'connect', worker: 'A', handle: 'handle-A' });
     f.send({ type: 'connected', worker: 'A', handle: 'handle-A' });
     const released = f.send({ type: 'observe', worker: 'A', handle: null, processes: [] });
     assert.equal(released.workers.A.connectedAt, undefined);
     f.send({ type: 'register', worker: 'C', worktree: `${ROOT}/C`, branch: 'worker/C', base: BASE, handle: 'handle-C' });
-    assert.throws(() => f.send({ type: 'observe', worker: 'A', handle: 'handle-A', processes: [] }), /two implementation workers/);
+    f.send({ type: 'register', worker: 'D', worktree: `${ROOT}/D`, branch: 'worker/D', base: BASE, handle: 'handle-D' });
+    assert.throws(() => f.send({ type: 'observe', worker: 'A', handle: 'handle-A', processes: [] }), /three workers/);
     assert.throws(() => f.send({ type: 'turn', worker: '__proto__', state: 'idle', reason: null, processes: [] }), /unknown worker/);
 });

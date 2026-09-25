@@ -1,8 +1,8 @@
 # Score recording
 
 Read this file when you append a `SCORE.tsv` row or answer a score question
-from the log. Only the orchestrator appends rows; a span worker states its
-score evidence in its report. The local-holdout recordings are open under
+from the log. Only the orchestrator appends rows; an implementation worker
+states its score evidence in its report. The local-holdout recordings are open under
 `AGENTS.md` and are included in the operational fixed workload.
 Run `node scripts/score-holdout.mjs [--goal <id>]` for the separate historical
 11-session local provenance view; the optional goal is an output label, not a
@@ -19,7 +19,7 @@ the files under `sessions/holdout/`.
 | --- | --- |
 | `utc` | ISO 8601 date and time the script appended the row. `--append` rejects a caller-supplied value. |
 | `sha` | The commit the figures were measured at. |
-| `event` | What prompted the row: `span` (span closure), `goal` (goal closure, of any kind), `holdout` (a separate local-holdout provenance evaluation), `divergence` (a divergence fix committed outside a goal), or `challenge` (a saved challenge evaluation). Rows before 2026-09-05 use `slice` for what is now a span, and rows before 2026-08-27 also use the retired `window` and `candidate` labels; the script no longer appends any of those. |
+| `event` | What prompted the row: `goal` (implementation task closure), `holdout` (a separate local-holdout provenance evaluation), `divergence` (a divergence fix committed outside a goal), or `challenge` (a saved challenge evaluation). Historical `span`, `slice`, `window`, and `candidate` events remain readable but are not written for new tasks. |
 | `sessions_passed`, `sessions_total` | Sessions matching completely, out of the measured development workload. Historical rows before the transition describe 33 public sessions; new operational rows describe all 44 fixed sessions. |
 | `screens_matched`, `screens_total` | Screens matched, out of the screens the C reference recorded. The operational development scorer measures the 44-session fixed workload. |
 | `rng_matched`, `rng_total` | Development random-number values matched, out of those recorded. `frozen/ps_test_runner.mjs` compares the two logs position by position over their whole length, so a segment that stops early scores its next segment's startup calls against C's continuing log, and this count can fall while correctness rises. |
@@ -33,10 +33,11 @@ the files under `sessions/holdout/`.
 
 ## Appending a row
 
-Append a row when a span or goal closes, when a divergence fix is committed
-and scored outside a goal, or when the separate provenance evaluation runs
-outside a goal close.
-A scoring run does not append a row. Challenge evaluations use the explicit
+Append a row when an implementation task's goal closes, when a divergence fix
+is committed and scored outside a goal, or when the separate provenance
+evaluation runs outside a goal close.
+A challenge preparation delivery does not append a score row. A scoring run
+does not append a row. Challenge evaluations use the explicit
 import procedure below.
 
 1. Commit your changes before measuring a new score. Record the commit whose

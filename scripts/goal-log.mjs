@@ -1,10 +1,10 @@
 #!/usr/bin/env node
 
-// Owns GOALS.json, the record of queued, open, parked, closed, and superseded goals and
-// spans. A goal is a C/Lua source port or divergence fix (.agents/glossary.md); the
+// Owns GOALS.json, the record of queued, open, parked, closed, and superseded goals.
+// A goal is a C/Lua source port or divergence fix (.agents/glossary.md); the
 // orchestrator writes it through the subcommands below. Goals recorded before
-// 2026-09-05 carry the retired boundary, forecast, and slices fields. The
-// reader accepts them as history; the writer never produces them.
+// 2026-09-05 carry the retired boundary, forecast, and slices fields. Later
+// historical goals may have spans. New goals use one complete task context.
 
 import { lstatSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { execFileSync } from 'node:child_process';
@@ -24,6 +24,7 @@ import { fixedWorkload } from './fixed-workload.mjs';
 export const DEFAULT_PATH = fileURLToPath(new URL('../GOALS.json',
     import.meta.url));
 export const SPAN_CONTEXT_PATH = join(PROJECT_ROOT, '.cache', 'span-context.json');
+export const TASK_CONTEXT_PATH = join(PROJECT_ROOT, '.cache', 'task-context.json');
 
 export const GOAL_STATUSES = Object.freeze(['queued', 'open', 'parked', 'closed', 'superseded']);
 export const GOAL_KINDS = Object.freeze(['file-port', 'lua-port', 'divergence-fix']);
@@ -352,6 +353,34 @@ export function spanContext(goal, span) {
     };
 }
 
+/** One implementation task covers all unverified units in its selected range. */
+export function taskContext(goal) {
+    const entries = isSourcePort(goal)
+        ? goal.functions.filter(entry => !entry.complete)
+        : cFunctions(goal.cFile).filter(entry => entry.name === goal.function);
+    if (entries.length === 0)
+        throw new Error(`no source functions found for ${goal.id}`);
+    const sessions = goal.sessions?.length ? goal.sessions : goal.session ? [goal.session] : [];
+    const synthetic = sessions
+        .filter(session => /^synthetic\/v[1-9][0-9]*\/[a-z0-9][a-z0-9-]*$/u.test(session))
+        .map(session => goal.syntheticProvenance?.[session] ?? { session });
+    return {
+        goal: goal.id,
+        kind: goal.kind,
+        sourceFile: sourceFile(goal),
+        ...(goal.luaFile ? { luaFile: goal.luaFile } : { cFile: goal.cFile }),
+        functions: entries.map(entry => entry.name),
+        lineRanges: lineRanges(entries),
+        cLines: entries.reduce((sum, entry) => sum + (entry.endLine - entry.line + 1), 0),
+        jsFile: goal.luaFile ? null : jsFileFor(goal.cFile),
+        sessions,
+        ...(goal.step !== undefined ? { step: goal.step } : {}),
+        ...(synthetic.length ? { syntheticProvenance: synthetic } : {}),
+        evidenceRequired: 'whole source, production callers, tests for pure '
+            + 'functions, matching recordings for impure functions and entry points',
+    };
+}
+
 function required(options, keys) {
     for (const key of keys) {
         if (!options[key]?.trim()) throw new Error(`--${key} is required`);
@@ -488,7 +517,8 @@ Optional for all kinds:
   --development-scan <path>  Use a saved fixed-workload scan for selection.
 
 The goal ID must be new. Selection must satisfy the current mismatch queue.
-Queueing does not open the goal; use open-goal before planning a span.`,
+Queueing does not open the goal; use task-context for worker handoff and
+open-goal when integrating the task.`,
     },
     'open-goal': {
         description: 'Open a queued goal or resume a parked goal.',
@@ -497,15 +527,22 @@ Queueing does not open the goal; use open-goal before planning a span.`,
             + '--development-scan may name a saved fixed-workload scan under .cache/ or /tmp.\n'
             + 'Captures the development standing; scoring inputs must be clean.',
     },
+    'task-context': {
+        description: 'Write an implementation task context without opening its goal.',
+        usage: '--goal <id> [--development-scan <path>]',
+        details: 'Requires a queued or open implementation goal and valid current selection.\n'
+            + 'Writes .cache/task-context.json with all unverified units in the selected range.\n'
+            + '--development-scan may name a saved fixed-workload scan under .cache/ or /tmp.',
+    },
     'next-span': {
-        description: 'Plan or resume the next span of a C or Lua source port.',
+        description: 'Plan or resume a span of a historical C or Lua source port.',
         usage: '--goal <id> [--development-scan <path>]',
         details: 'Requires an open source port. Writes .cache/span-context.json\n'
             + '--development-scan may name a saved fixed-workload scan under .cache/ or /tmp.\n'
             + 'for the selected span. For a divergence fix, use queue-span.',
     },
     'queue-span': {
-        description: 'Queue a named span for a divergence fix.',
+        description: 'Queue a named span for a historical divergence fix.',
         usage: '--goal <id> --name <name> [--functions <a,b,...>] [--development-scan <path>]',
         details: 'Requires an open divergence-fix goal, a new span name, and a valid\n'
             + 'current selection. For a C or Lua source port, use next-span.\n'
@@ -518,7 +555,7 @@ Queueing does not open the goal; use open-goal before planning a span.`,
             + 'inside this worktree. The schema is in .agents/validation.md.',
     },
     'close-span': {
-        description: 'Close a queued span of an open goal.',
+        description: 'Close a queued historical span of an open goal.',
         usage: '--goal <id> --name <name>',
         details: 'Source ports require completion evidence for every planned unit\n'
             + 'and a passing checkpoint at HEAD, including the recordings corpus.',
@@ -545,8 +582,8 @@ Queueing does not open the goal; use open-goal before planning a span.`,
         description: 'Close an open goal and record its delivered progress.',
         usage: '--goal <id> [--development-scan <path>]',
         details: 'Requires an open goal and a passing checkpoint for HEAD. Closing figures\n'
-            + 'come from checkpoint; SCORE.tsv remains the event log. Source ports also\n'
-            + 'require closed spans and complete source and entry-point evidence.\n'
+            + 'come from checkpoint; SCORE.tsv remains the event log. Source ports need\n'
+            + 'complete source and entry-point evidence; historical spans must be closed.\n'
             + '--development-scan may name a saved fixed-workload scan under .cache/ or /tmp.\n'
             + 'See .agents/loop.md and .agents/scoring.md for the closure sequence.',
     },
@@ -606,7 +643,6 @@ function newGoal(options) {
         sessions: commaSeparated(options.sessions),
         selectionReason: options['selection-reason'] ?? '',
         detail: options.detail ?? '',
-        spans: [],
         openedAt: null,
         openStanding: null,
         closedAt: null,
@@ -632,12 +668,12 @@ function newGoal(options) {
     return goal;
 }
 
-/** A name inventory, an empty span list, or a unit test alone cannot close a port. */
+/** A name inventory or a unit test alone cannot close a port. */
 export function assertPortComplete(goal) {
     if (!isSourcePort(goal)) return;
     const pending = goal.functions.filter((entry) => !entry.complete);
     if (pending.length) throw new Error(`unverified source units: ${pending.map((entry) => entry.name).join(', ')}`);
-    if (goalSpans(goal).some((span) => span.status !== 'closed'))
+    if (goal.spans && goal.spans.some((span) => span.status !== 'closed'))
         throw new Error('close every span before closing the goal');
     if (!nonempty(goal.evidence?.entryPointReview))
         throw new Error('record an entryPointReview covering every source entry point');
@@ -824,6 +860,23 @@ async function main(args) {
         console.log(formatGoal(goal));
         return;
     }
+    if (mode === 'task-context') {
+        required(options, ['goal']);
+        const store = readGoals();
+        const goal = findGoal(store, options.goal);
+        if (!['queued', 'open'].includes(goal.status))
+            throw new Error(`goal ${goal.id} is ${goal.status}, not queued or open`);
+        const scan = options['development-scan']
+            ? readDevelopmentScan(options['development-scan']) : undefined;
+        await checkSelection(goal, scan);
+        refreshCompletion(goal, null, store.goals);
+        const context = taskContext(goal);
+        writeGoals(store);
+        mkdirSync(join(PROJECT_ROOT, '.cache'), { recursive: true });
+        writeFileSync(TASK_CONTEXT_PATH, `${JSON.stringify(context, null, 2)}\n`);
+        console.log(JSON.stringify(context, null, 2));
+        return;
+    }
     if (mode === 'next-span') {
         required(options, ['goal']);
         const store = readGoals();
@@ -835,6 +888,7 @@ async function main(args) {
         if (goal.status !== 'open') {
             throw new Error(`goal ${goal.id} is ${goal.status}, not open`);
         }
+        goal.spans ??= [];
         let span = goal.spans.find((entry) => entry.status === 'queued');
         if (!span) {
             refreshCompletion(goal, null, store.goals);

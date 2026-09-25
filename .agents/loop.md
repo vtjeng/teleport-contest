@@ -14,12 +14,16 @@ and baseline a new versioned batch, then continue on its failures. Follow
 support; `.agents/scoring.md` owns measurement and historical comparisons.
 An empty fixed-workload queue does not mean there is no implementation work.
 
-Run two persistent workers, each in its own Git worktree. They implement
-changes, test them, and submit commits. You review those commits, merge them
-into local `main`, run combined checks, and push accepted work. Workers can
-start independent work as soon as they submit; they do not wait for a merge
-or for each other. Use one worker when work or resources cannot support two.
-Ask before adding more than two implementation workers.
+Run up to three persistent workers, each in its own Git worktree. Normally two
+work on implementation tasks while the third prepares future synthetic
+batches. The third may instead take an independent implementation task that
+helps clear the current mismatch queue. Finish or park its current task before
+switching; use fewer workers when work or resources cannot support three. Ask
+before adding a fourth worker. Run workers on `gpt-6-luna`, as the project
+`.codex/config.toml` specifies for subagents. Workers test and submit commits;
+you review them, integrate accepted work into local `main`, run combined checks, and
+publish. A worker may start independent work after submitting a task without
+waiting for a merge or for another worker.
 
 ## Worker scheduling
 
@@ -30,15 +34,18 @@ Reuse unfinished code only when its purpose, scope, and remaining checks are
 clear. Otherwise preserve a recoverable copy, remove the abandoned task from
 the queue, and start from validated main.
 
-Give each worker a task: a specific piece of implementation to complete,
-test, and submit. The source planner calls this piece a *span*; its size and
-source-order rules are defined in `.agents/glossary.md` and
-`.agents/selection.md`. Prepare each worker's first `.cache/span-context.json` in its worktree using
-`nextSpan()` and `spanContext()` in `scripts/goal-log.mjs`. Include the task ID,
-absolute worktree path, branch, base commit, allowed edits, dependencies, and
-reserved functions or shared interfaces. Workers prepare later tasks under
-`.agents/selection.md`, “Seed continuation”, without waiting for you to open
-the central goal.
+Give each worker an implementation task or one challenge preparation task to
+complete, test, and submit. For a C file port, choose whole functions in a
+selected C-order range under `.agents/selection.md`; it needs no separate span.
+After queuing the goal in the coordinator checkout, run
+`node scripts/goal-log.mjs task-context --goal <id>` there and copy its
+untracked `.cache/task-context.json` into the assigned worktree. Record the
+task ID, absolute worktree path, branch, base commit,
+allowed edits, dependencies, and reserved functions or shared interfaces in
+the ledger assignment. A preparation task instead names its future batch and
+allowed `challenges/cases/<batch>/` paths. Implementation
+workers prepare later tasks under `.agents/selection.md`, “Seed continuation”,
+without waiting for you to open the central goal.
 
 Check each new worktree before dispatch:
 
@@ -48,7 +55,8 @@ Check each new worktree before dispatch:
    Have it record `connect` from its worktree. Acknowledge the connection
    yourself.
 3. Confirm that it has claimed its task by recording an `assign` event
-   through `worker-state.mjs event --json` before it edits. Workers follow the claim and directory checks in their guide.
+   through `worker-state.mjs event --json` before it edits. Workers follow the
+   claim and directory checks in their guide.
 
 Use `scripts/worker-state.mjs` to record changes as they happen. This shared
 task ledger records who owns work, submitted commits, and acceptance. Use
@@ -65,9 +73,20 @@ Keep recording required transitions and process handles; avoid copying the
 returned state into tracked records or progress messages.
 
 You own `main`, `GOALS.json`, `SCORE.tsv`, quality and review records, aggregate
-checks, and publication. Workers own their code, focused tests, recipes, and
-recordings. Apply their proposed `QUALITY.json` changes yourself. Do not merge
-worker copies of central records.
+checks, batch admission, and publication. Implementation workers own their
+code, focused tests, recipes, and recordings. A preparation worker owns its case
+recipes, C recordings, and prepared manifest in delivery evidence. Apply
+workers' proposed `QUALITY.json` changes yourself. Do not merge worker copies
+of central records.
+
+Keep one unaccepted preparation task at a time. Resume a parked batch before
+starting a later version. Reserve each batch-qualified identity in the ledger
+so no other worker creates the same batch. After a
+preparation delivery is accepted, its worker may prepare the next unreserved
+batch or switch to implementation while earlier batches wait for admission.
+Keep each prepared manifest with its immutable delivery evidence. Merge
+accepted main at the clean task boundary before the next task so its delivery
+does not include pending work.
 
 Before waiting and after a completion, run `worker-state.mjs next`. Handle
 unread deliveries and finished worker turns first. Record a finished turn
@@ -112,12 +131,17 @@ separately from other goals.
 1. Run `node scripts/goal-log.mjs --current --detail` and read its output. Finish or park the
    current integration before opening another. Preserve queued deliveries.
 2. Check the delivery's task, reserved scope, selection reason, and existing
-   completion evidence. Open and plan its goal under `.agents/selection.md`
-   or `.agents/divergence.md`, then commit those records. Reconcile work
-   already completed; do not close unrelated source units.
-3. Integrate the submitted commits. Check whole-source coverage, production
-   callers, and entry-point recordings under `.agents/validation.md`. Record
-   verified source evidence and commit the combined candidate.
+   completion evidence. For implementation work, open its goal under
+   `.agents/selection.md` or `.agents/divergence.md`, then commit those
+   records. Reconcile work already completed; do not close unrelated source
+   units. For challenge preparation, verify the source-based mission plan,
+   hashes, and independent C replays without opening a goal.
+3. Integrate the submitted commits. For implementation work, check whole-source
+   coverage, production callers, and entry-point recordings under
+   `.agents/validation.md`; record verified source evidence. For preparation,
+   integrate only the case recipes and C recordings. Retain the prepared
+   manifest in immutable delivery evidence, outside admitted manifests.
+   Commit the combined candidate.
 4. Run `worker-state.mjs preflight --task <id>` before broad focused testing.
    Resolve its omissions, then run its listed checks, affected focused tests,
    `npm run lint`, and `npm run quality`. Follow `.agents/review.md` to decide
@@ -127,12 +151,12 @@ separately from other goals.
    Run `npm run checkpoint`
    under `.agents/validation.md`. Keep one full-validation owner and retain
    its process handle until completion. Do not change main's HEAD during the
-   run. If it fails, preserve the results and reap the run before integrating
-   a correction and testing the new candidate.
-5. After a pass, refresh the fixed-workload mismatch queue and evaluate all
-   admitted synthetic batches under `.agents/scoring.md`. Refresh the
-   synthetic work queue from those saved results. Finish
-   evidence, scores, and span closure under `.agents/scoring.md` before
+   run. If it fails, preserve the results and wait for the run to finish before
+   integrating a correction and testing the new candidate.
+5. After an implementation task passes, refresh the fixed-workload mismatch
+   queue and evaluate all admitted synthetic batches under `.agents/scoring.md`.
+   Refresh the synthetic work queue from those saved results. Finish
+   evidence, scores, and goal closure under `.agents/scoring.md` before
    integrating unrelated work. Close a source goal only after its entry
    points are verified, its required challenge evaluation is complete, and
    its saved development scan is current. Finish closure commands while HEAD
@@ -142,7 +166,12 @@ separately from other goals.
    in a separately validated delivery. Record only the goal's active
    intervals; park it before measuring another goal. Follow
    `.agents/validation.md` for new evidence when later commits change inputs
-   to the checkpoint.
+   to the checkpoint. After a challenge preparation task passes, leave its
+   case files unadmitted and record no challenge score or mismatch-queue entry.
+   When the batch-generation gate in `.agents/selection.md` later passes, admit
+   the oldest prepared manifest with the next version number, commit it, and
+   save its first evaluation at that committed implementation before selecting
+   failures. Do not admit a batch merely because its worker has finished.
 6. Record acceptance and send `ACCEPTED` with the tested commit and checkpoint
    result. Run `worker-state.mjs sync-main --commit <accepted-commit>` to
    verify local main. Push accepted work to main without asking again, then
@@ -182,7 +211,7 @@ rechecking worker status after every short wait.
 When existing instructions answer a question, state the decision, cite the
 rule, and continue. Otherwise record the question and a provisional decision
 in `.agents/questions.md`. Continue independent work. If the question blocks
-a span, park that span without a worker commit and send a push notification.
+a task, park that task without a worker commit and send a push notification.
 Keep questions open until answered. Ask the user when no authorized next
 step remains.
 
@@ -228,7 +257,7 @@ queue against the published records.
 
 ## Reports
 
-Report once per worker iteration under `/loop`: the closed span, synthetic
+Report once per worker iteration under `/loop`: the completed task, synthetic
 batch and before/after matched screens, first mismatch, fixed-development
 regression results, newly matching recordings, problems, and next work.
 Separate gains on unchanged cases from screens added by a new batch; report

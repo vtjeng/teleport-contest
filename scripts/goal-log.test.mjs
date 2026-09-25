@@ -13,7 +13,7 @@ import { cFunctions, parseCFunctions } from './c-functions.mjs';
 import {
     SPAN_LINE_CAP, checkpointClosingStanding, deliveredSince, formatGoal,
     formatRoadmap, lineRanges, nextSpan, readGoals, roadmapRows,
-    selectFunctionRange, spanContext, validateGoals, refreshCompletion,
+    selectFunctionRange, spanContext, taskContext, validateGoals, refreshCompletion,
     assertPortComplete, recordEvidence, luaRoadmapRows,
 } from './goal-log.mjs';
 
@@ -359,6 +359,31 @@ test('spanContext hands the worker the ranges, size, and JavaScript file', () =>
     const apart = spanContext(goal, { functions: ['optfn_align', 'optfn_color'] });
     assert.deepEqual(apart.lineRanges, ['10-30', '100-120']);
     assert.equal(apart.cLines, 42);
+});
+
+test('taskContext gives one worker all unverified selected C functions without a span', () => {
+    const goal = structuredClone(store.goals[1]);
+    delete goal.spans;
+    goal.sessions = ['seed0108-wizard-extcmd-wishlist'];
+    assert.deepEqual(taskContext(goal), {
+        goal: 'options-c', kind: 'file-port', sourceFile: 'options.c', cFile: 'options.c',
+        functions: ['optfn_align', 'optfn_boulder'], lineRanges: ['10-60'], cLines: 51,
+        jsFile: 'js/options.js', sessions: ['seed0108-wizard-extcmd-wishlist'],
+        evidenceRequired: 'whole source, production callers, tests for pure '
+            + 'functions, matching recordings for impure functions and entry points',
+    });
+    assert.equal(goal.spans, undefined);
+    goal.functions[0].complete = true;
+    assert.deepEqual(taskContext(goal).functions, ['optfn_boulder']);
+});
+
+test('taskContext names the source owner and selected case of a divergence fix', () => {
+    const context = taskContext(store.goals[2]);
+    assert.equal(context.goal, 'fix-dog-move-seed0014');
+    assert.deepEqual(context.functions, ['dog_move']);
+    assert.deepEqual(context.sessions, ['seed0014-dequa-fountain-explore']);
+    assert.equal(context.step, 418);
+    assert.equal(context.lineRanges.length, 1);
 });
 
 test('spanContext carries synthetic session provenance into the worker context', () => {

@@ -1775,7 +1775,7 @@ document.getElementById('stats').innerHTML = [
     return (d.getMonth() + 1) + '/' + d.getDate() + ' ' + d.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: false });
   }
 
-  let html = '<thead><tr><th>Goal</th><th>Δ</th><th>Start</th><th>Spans</th><th>Total</th></tr></thead><tbody>';
+  let html = '<thead><tr><th>Task</th><th>Δ</th><th>Start</th><th>Total</th></tr></thead><tbody>';
 
   goals.forEach((g) => {
     const auditBadge = g.audits.length > 0 ? ' <span class="audit-badge" title="' + g.audits.map(a => a.message).join('\\n').replace(/"/g, '&quot;') + '">audit</span>' : '';
@@ -1791,7 +1791,7 @@ document.getElementById('stats').innerHTML = [
 
     const startCell = fmtDate(g.openTime) + (g.openTime && !observedOpenTime(g) ? ' †' : '');
     const parkedLabel = g.status === 'parked' ? '<span class="parked-label">Parked · </span>' : '';
-    html += '<tr' + trClass + '><td title="' + g.name.replace(/"/g, '&quot;') + '">' + parkedLabel + shownName + auditBadge + '</td><td>' + deltaCell + '</td><td>' + startCell + '</td><td>' + g.sliceCount + '</td><td>' + fmtTiming(g.totalMin, g.totalObserved) + '</td></tr>';
+    html += '<tr' + trClass + '><td title="' + g.name.replace(/"/g, '&quot;') + '">' + parkedLabel + shownName + auditBadge + '</td><td>' + deltaCell + '</td><td>' + startCell + '</td><td>' + fmtTiming(g.totalMin, g.totalObserved) + '</td></tr>';
   });
 
   html += '</tbody>';

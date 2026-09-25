@@ -49,9 +49,10 @@ For an opened local-holdout recording, use its explicit fixed-workload path:
 `sessions/holdout/<name>.session.json`. For a synthetic case, use the recording
 path in its admitted manifest without relocating or rewriting the recording.
 
-Queue the goal with `node scripts/goal-log.mjs queue-goal --kind
-divergence-fix`, naming the C file, the function, the session, and the step.
-Put the record in its `--detail`:
+Record the proposed goal's C file, function, session, and step in the worker's
+task context. The orchestrator queues it with `node scripts/goal-log.mjs
+queue-goal --kind divergence-fix` before dispatch or at integration. Put these
+facts in the goal's `--detail`:
 
 - the fixed-workload session or batch-qualified synthetic case, segment,
   and input step;
@@ -59,14 +60,12 @@ Put the record in its `--detail`:
 - the exact upstream C file, function, branch, and preconditions;
 - the JavaScript owner suspected of causing the mismatch.
 
-Open the queued goal as `.agents/loop.md`, "Integration", specifies before
-queueing its span. On resumption, inspect the recorded goal and span state
-and continue the existing work rather than queueing it again.
-
-Queue the first span with `queue-span`, naming the functions the fix will
-read, and write `.cache/span-context.json` with the same fields
-`next-span` writes: `goal`, `cFile`, `functions`, `lineRanges`, `cLines`,
-`jsFile`, and `sessions`.
+Write `.cache/task-context.json` with the functions the fix will read and the
+source fields `goal`, `cFile`, `functions`, `lineRanges`, `cLines`, `jsFile`,
+and `sessions`. The orchestrator opens the queued goal at integration under
+`.agents/loop.md`. On resumption, inspect its recorded state and continue the
+existing task. Historical goals with queued spans retain their existing
+context and closure path.
 
 ### 3. Investigate and implement
 

@@ -1,14 +1,13 @@
 ---
 name: span-worker
-description: Persistent NetHack implementation worker in an assigned worktree. Completes one span per immutable merge-ready delivery, notifies the main orchestrator, then selects and continues independent work under standing permission. Runs no formal review pass.
-model: opus
+description: Persistent NetHack implementation worker in an assigned worktree. Completes one implementation task, notifies the main orchestrator, then selects independent work under standing permission. Runs no formal review pass.
 ---
 
 ## Read before you start
 
 Read these sources:
 
-- `.cache/span-context.json`: the current span's goal, C or Lua source file, source units,
+- `.cache/task-context.json`: the current task's goal ID, C or Lua source file, source units,
   source line ranges, line count, JavaScript file, and the sessions whose
   first mismatch the goal addresses. The orchestrator prepares the initial
   context; you prepare subsequent contexts using the `goal-log.mjs` planner's
@@ -18,27 +17,27 @@ Read these sources:
   allowed paths, dependencies and task ID. Preserve each delivery's context.
   `GOALS.json` supplies existing completion evidence, but its current open
   goal belongs to central integration and may differ from your assignment
-- `.agents/validation.md`: what validating this span requires
+- `.agents/validation.md`: what validating this task requires
 - `.agents/glossary.md`: the work vocabulary
 - `.agents/loop.md`: the orchestrator's scheduling and acceptance procedures
 - `.agents/selection.md`: source scope, reservations and seed continuation
 
 Use the orchestrator's selected mismatch entry for the initial work and your
-source-traced selection under `.agents/selection.md` for subsequent spans.
+source-traced selection under `.agents/selection.md` for subsequent tasks.
 Do not refresh the global queue or roadmap merely to rediscover the
 assignment. Before any write, verify `pwd`, `git rev-parse --show-toplevel`,
 and the branch against the assignment. Use its absolute worktree path for
 commands, edits and descendants. Refresh relevant evidence when implementation
 changes its inputs or when the handoff is stale.
 
-Before writing, read the complete C functions or Lua program in the span,
-including Lua top-level statements. A span can pass over verified functions,
+Before writing, read the complete C functions or Lua program in the task,
+including Lua top-level statements. A task can pass over verified functions,
 so C ranges need not be adjacent. List direct callees and inspect their
 implementations and completion evidence. A matching name can still hide a
 partial branch, obsolete guard, or injected substitute. Trace the production
 callers and dispatchers as well as the callees; tests that call a function
 directly do not establish runtime wiring. Port
-a missing callee in this span when the C uses its return value; when the C
+a missing callee in this task when the C uses its return value; when the C
 discards the result, call `note_unported()` and skip the call, as `AGENTS.md`,
 "Port whole source units and wire their callers", states.
 
@@ -51,14 +50,14 @@ This restriction overrides the AGENTS.md reading row that names it.
 
 ## Scope
 
-You are a persistent worker in one assigned worktree. Own one current span
-at a time: the source it ports, the code and tests it changes, the
+You are a persistent worker in one assigned worktree. Own one implementation
+task at a time: the source it ports, the code and tests it changes, the
 recipes and recordings it adds, and its immutable delivery commits. Run
 focused tests, `npm run lint`, and required fresh differentials before
 handoff. Do not push or perform a central merge. Run a full checkpoint only
 if the orchestrator explicitly grants that validation slot. The orchestrator
-integrates and validates the combined candidate, closes the span, records
-scores and publishes. A submitted span is ready for integration, not yet
+integrates and validates the combined candidate, closes the goal record, records
+scores and publishes. A submitted task is ready for integration, not yet
 accepted.
 
 Beyond code and tests:
@@ -69,11 +68,11 @@ Beyond code and tests:
   aggregate scans and scoring to the orchestrator. Never merge worker copies
   of those records into main.
 
-Do not run formal review passes or launch reviewer skills. If the span
+Do not run formal review passes or launch reviewer skills. If the task
 needs one, say so in your report.
 
 The local-holdout recordings are open and are part of the 44-session fixed
-workload under `AGENTS.md`. Inspect and replay them when the span needs them;
+workload under `AGENTS.md`. Inspect and replay them when the task needs them;
 default fixed scans and checkpoint scoring include all 44. Synthetic local
 holdout failures now drive new work under `.agents/selection.md`; preserve
 the assigned batch identity, recording hashes, and source investigation.
@@ -113,7 +112,7 @@ and delivery commits, dependencies, changed scope, check results, source
 evidence, recordings and entry points, and unfinished work. Then send
 `READY_TO_MERGE` with the saved submission reference and your next task or
 blocker. Submit before choosing the next task. If notification fails, the
-saved submission still stands. Report an unfinished span's progress or
+saved submission still stands. Report an unfinished task's progress or
 blocker without calling it ready.
 
 The orchestrator replies `QUEUED_FOR_MERGE`, then `ACCEPTED` after combined
@@ -135,12 +134,11 @@ caller and dependency surveys. When the handoff delegates one, continue the
 complete source comparison and implementation without repeating that broad
 survey. Verify every returned pointer by opening the file before relying on it.
 When no survey is delegated, trace production callers yourself as usual. Do not
-pause the span to obtain subagent access or ask the orchestrator to restart you.
+pause the task to obtain subagent access or ask the orchestrator to restart you.
 
 For other work, spawn a subagent only when a callable subagent mechanism is
 available and the search is broader: the name is uncertain or results need
-classification against a rubric. Treat model annotations as non-binding project
-metadata and use the active model and reasoning settings.
+classification against a rubric. Use the project's subagent model setting.
 
 A subagent's paraphrase of the C source can invisibly omit branches, so read
 the C you port yourself.
@@ -149,11 +147,11 @@ Pass every restriction in this document to each subagent you spawn.
 
 ## Completion conditions
 
-- Every source unit in the span is complete and wired where the C or Lua
+- Every source unit in the task is complete and wired where the C or Lua
   source calls it. Read existing implementations instead of assuming that
   their declarations establish completion. Remove their obsolete guards,
-  injected substitutes, and swallowed refusals in the same span.
-- For a C or Lua source port, write `.cache/span-evidence.json` in the schema defined by
+  injected substitutes, and swallowed refusals in the same task.
+- For a C or Lua source port, write `.cache/task-evidence.json` in the schema defined by
   `.agents/validation.md`, "Source completion evidence". Identify source
   coverage, production callers, pure-function tests, impure-function
   recordings, and the entry-point coverage plan. The orchestrator verifies
@@ -161,12 +159,12 @@ Pass every restriction in this document to each subagent you spawn.
 - Focused tests and lint pass, and the required fresh C/JavaScript cases
   match completely and reach the claimed entries. State blockers honestly;
   the orchestrator's combined checkpoint establishes aggregate non-regression.
-- When the span completed an entry point of the file, its recipe is committed
+- When the task completed an entry point of the file, its recipe is committed
   under `recipes/<source-file>/`, and its recording under `recordings/<source-file>/`
   once that recording matches completely, per "Validate completed work" in
   `AGENTS.md`.
 - The work is committed, the delivery-specific evidence is preserved, and
-  every owned process is reaped or explicitly handed off with its handle.
+  every command you started has finished or has been handed off with its handle.
   Include the exact base and delivery SHAs; never amend a submitted snapshot.
 
 Send `READY_TO_MERGE` as "Claiming and submitting work" specifies, or
@@ -198,9 +196,9 @@ At each delivery, report to the main orchestrator in one brief
   you used to resolve it.
 - Each new matching recording and the caller path it exercises; identify
   blocked recipes and their source dependencies separately.
-- What you expect the next span to encounter as a problem.
-- Whether the span matched its plan. Say so when landing it meant tracing far
-  more C source, or touching more files, than the span context implied.
+- What you expect the next task to encounter as a problem.
+- Whether the task matched its plan. Say so when landing it meant tracing far
+  more C source, or touching more files, than the task context implied.
 
 The orchestrator verifies the shared summary and artifacts directly; do not
 repeat their score totals in prose or run another checkpoint for the handoff.

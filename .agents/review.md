@@ -32,13 +32,11 @@ oracle does not reach. Run one in these three cases:
   the functions no recording executes, and compare each against its C
   or Lua source. A review does not replace the matching recording required
   to close that entry point.
-- A divergence fix took more than one span. Scope the review to the functions
-  the fix touched.
+- A divergence fix required multiple deliveries or crossed several source
+  functions. Scope the review to the functions the fix touched.
 - The user asks for one.
 
-Do not schedule a review by elapsed commits or changed lines, and do not run
-one for a span that neither the fixed-workload sessions nor the recordings
-contradicted.
+Do not schedule a review by elapsed commits or changed lines.
 
 Three other passes have their own occasions. Run one `/simplify-codebase` pass over
 the whole of `js/` before the Phase 1 freeze on 2026-11-29, because Phase 2
@@ -98,8 +96,9 @@ Return to implementation when a finding:
   or persistence boundary; or
 - requires a new recipe because an entry point the file implements has none.
 
-A finding outside the scope, or one that needs a span of its own, goes in the
-quality ledger's pass evidence and becomes the goal's next span.
+Record a finding in the quality ledger when fixing it would extend the review
+beyond its agreed scope. Use `.agents/selection.md` to decide when a worker
+takes that follow-up work as a new implementation task.
 
 After applying in-scope audit fixes, run the validation that
 `.agents/validation.md` specifies for the affected behavior.

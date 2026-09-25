@@ -15,8 +15,8 @@ export const USAGE = `Usage (run from the coordinator or assigned worker checkou
   node scripts/worker-state.mjs event --json '<event>' [--file <ledger.json>]
   node scripts/worker-state.mjs status [--file <ledger.json>]
   node scripts/worker-state.mjs next [--file <ledger.json>]
-  node scripts/worker-state.mjs submit --task <id> --context <span-context.json> \\
-    --evidence <span-evidence.json> --checks <checks.json> [--base <revision>] \\
+  node scripts/worker-state.mjs submit --task <id> --context <task-context.json> \\
+    --evidence <task-evidence.json> --checks <checks.json> [--base <revision>] \\
     [--head <revision>] [--dependencies <SHA,...|none>] --file <absolute-shared-ledger.json>
   node scripts/worker-state.mjs preflight --task <id> [--commit <revision>] \\
     [--previous-checkpoint <summary.json>] [--file <ledger.json>]
@@ -36,8 +36,10 @@ by this command, not the caller. Required fields by type:
   connected: worker, handle (coordinator acknowledges that connection)
   turn: worker, state (active, idle or blocked), reason (text or null), processes
   coordinator: handle (string or null), processes (array of live handles)
-  assign: task (unique id), worker, goal, span, seed (string or null), base,
-          reservations, allowedPaths
+  assign: task (unique id), worker, seed (string or null), base,
+          reservations, allowedPaths; optional kind (implementation or
+          challenge-preparation), goal (required for implementation), and
+          span (accepted for historical tasks)
   scope: task, reservations, allowedPaths (expand working scope; include old entries)
   received: task, delivery (exact SHA being acknowledged)
   feedback: task, delivery, reason (queued correction, not an interrupt)
@@ -50,7 +52,7 @@ by this command, not the caller. Required fields by type:
 
 Workers pass --file with the shared ledger path. They may connect, record their
 own turn, claim/expand/resume their own tasks and submit. All other event types
-are coordinator-only. Only two implementation workers may hold live ownership.
+are coordinator-only. Up to three persistent workers may hold live ownership.
 Git resolves revisions and checks registration, assignment, candidate and
 checkpoint identity. Publication is recorded only after local and remote main
 match the accepted commit. sync-main performs a safe local fast-forward only;
@@ -62,11 +64,14 @@ Reports must be regular non-executable files. Other input changes need validatio
 This publication allowance does not broaden checkpoint reuse or rewrite receipts.
 
 submit derives the ready event, commit list, parents and changed paths from Git.
-It copies source evidence, span context and check output into a hash-verified
+It copies task evidence, context and check output into a hash-verified
 immutable file in <ledger>.deliveries. That file remains valid input to
-goal-log record-evidence. checks.json is an array of objects with kind (focused,
-lint or fresh), command (argument array), exitCode (0), and log (absolute path).
-Include focused and lint results, and fresh results when recordings are needed.
+goal-log record-evidence for implementation tasks. checks.json is an array of
+objects with kind (focused, lint or fresh), command (argument array),
+exitCode (0), and log (absolute path). Implementation tasks include focused
+and lint results, plus fresh results when recordings are needed. Challenge
+preparation tasks include one fresh C replay check with caseId per case.
+Their task evidence contains missionPlan and the prepared manifest.
 Logs are preserved, not rerun; the coordinator still verifies the claims.
 Raw ready events are not accepted by the CLI. Retry submit with the same inputs
 and --head SHA to preserve its first submission time even after advancing HEAD.
@@ -84,17 +89,20 @@ direct-importer/changed/source-pinned tests and every prior checkpoint failure.
 Its success is not a test pass or a source review; run the listed tests and lint.
 
 Reservations use exact keys: source:<file.c>:<function>, source:<file.lua>,
-or contract:<shared-state-name>. Use the same key for the same source/contract.
+contract:<shared-state-name>, or challenge-batch:<vN>. Use the same key for the
+same source, contract, or prepared batch.
 assign and resume reject another worker's reservations. ready frees the worker
 to start another task but keeps that delivery's reservations through acceptance.
-Parking releases only that task's reservations. Resuming rechecks ownership;
+Parking releases only that task's active reservations. A batch identity cannot
+be assigned again; resume a parked preparation task before preparing the next
+version. Only one unaccepted preparation task may exist at a time. Resuming rechecks ownership;
 a parked ready delivery returns to ready, and failed validation requires rework
 and a new delivery SHA. Only one task can be integrating/validated at a time.
 Validation events check the supplied summary; they do not run validation.
 
 Example scope announcement (after register):
   {"id":"assign-A-1","type":"assign","worker":"A","task":"A-1",
-   "goal":"sounds-port","span":"noise","seed":null,"base":"<full SHA>",
+   "kind":"implementation","goal":"sounds-port","seed":null,"base":"<full SHA>",
    "reservations":["source:sounds.c:domonnoise"],"allowedPaths":["js/sounds.js"]}
 
 Writes are atomic and guarded by <ledger>.lock. A crash leaves the lock and its
@@ -107,7 +115,7 @@ const FIELDS = {
     connect: ['worker', 'handle'], connected: ['worker', 'handle'],
     turn: ['worker', 'state', 'reason', 'processes'],
     coordinator: ['handle', 'processes'],
-    assign: ['task', 'worker', 'goal', 'span', 'seed', 'base', 'reservations', 'allowedPaths'],
+    assign: ['task', 'worker', 'seed', 'base', 'reservations', 'allowedPaths'],
     scope: ['task', 'reservations', 'allowedPaths'],
     ready: ['task', 'delivery', 'base', 'commits', 'paths', 'evidence', 'dependencies'],
     received: ['task', 'delivery'],
@@ -116,6 +124,7 @@ const FIELDS = {
     validated: ['task', 'passed', 'checkpoint'],
     accepted: ['task'], published: ['task', 'commit'], park: ['task', 'reason'], resume: ['task'],
 };
+const OPTIONAL_FIELDS = { assign: ['kind', 'goal', 'span'] };
 
 function check(condition, message) {
     if (!condition) throw new Error(message);
@@ -141,8 +150,8 @@ function list(value, name, validate = string, empty = false) {
     check(new Set(value).size === value.length, `${name} contains duplicates`);
 }
 function sourceReservation(value) {
-    check(typeof value === 'string' && /^(?:source:[A-Za-z0-9_-]+\.c:[A-Za-z_][A-Za-z0-9_]*|source:[A-Za-z0-9_-]+\.lua|contract:[A-Za-z0-9_.:-]+)$/u.test(value),
-        'reservation must use source:<file.c>:<function>, source:<file.lua>, or contract:<name>');
+    check(typeof value === 'string' && /^(?:source:[A-Za-z0-9_-]+\.c:[A-Za-z_][A-Za-z0-9_]*|source:[A-Za-z0-9_-]+\.lua|contract:[A-Za-z0-9_.:-]+|challenge-batch:v(?:[2-9]|[1-9][0-9]+))$/u.test(value),
+        'reservation must use source:<file.c>:<function>, source:<file.lua>, contract:<name>, or challenge-batch:<vN>');
     check(!value.includes('..') && !value.includes('//'), 'reservation must use a canonical source path');
 }
 function repoPath(value, name) {
@@ -171,6 +180,11 @@ function checkOwnership(state, task) {
         if (other.id === task.id) continue;
         check(!(other.worker === task.worker && other.status === 'working' && task.status === 'working'),
             `worker ${task.worker} is already working on ${other.id}`);
+        if (task.kind === 'challenge-preparation' && other.kind === 'challenge-preparation') {
+            check(task.reservations[0] !== other.reservations[0],
+                `batch identity already used by task ${other.id}`);
+            check(other.status === 'accepted', `preparation task ${other.id} is still pending`);
+        }
         if (other.worker === task.worker || !holdsReservation(other)) continue;
         for (const key of task.reservations) check(!other.reservations.includes(key),
             `${key} is reserved by worker ${other.worker} task ${other.id}`);
@@ -196,16 +210,16 @@ function dependsOnTask(state, deliverySha, taskId, seen = new Set()) {
 function applyEvent(state, event, at) {
     const { type } = event;
     check(Object.hasOwn(FIELDS, type), `unknown event type: ${type}`);
-    const allowed = ['id', 'type', ...FIELDS[type]];
+    const allowed = ['id', 'type', ...FIELDS[type], ...(OPTIONAL_FIELDS[type] ?? [])];
     for (const key of Object.keys(event)) check(allowed.includes(key), `unexpected event field: ${key}`);
-    for (const key of allowed) check(Object.hasOwn(event, key), `missing event field: ${key}`);
+    for (const key of ['id', 'type', ...FIELDS[type]]) check(Object.hasOwn(event, key), `missing event field: ${key}`);
     identifier(event.id, 'event id');
     if (type === 'register') {
         identifier(event.worker, 'worker'); absolute(event.worktree, 'worktree');
         string(event.branch, 'branch'); sha(event.base, 'base'); string(event.handle, 'handle');
         check(!state.workers[event.worker], `worker ${event.worker} already exists`);
-        check(Object.values(state.workers).filter(w => w.handle !== null || w.processes.length).length < 2,
-            'at most two implementation workers may have live ownership');
+        check(Object.values(state.workers).filter(w => w.handle !== null || w.processes.length).length < 3,
+            'at most three workers may have live ownership');
         check(!Object.values(state.workers).some(w => w.worktree === event.worktree || w.branch === event.branch || w.handle === event.handle),
             'worker worktree, branch and handle must each have one owner');
         state.workers[event.worker] = { worker: event.worker, worktree: event.worktree,
@@ -241,8 +255,8 @@ function applyEvent(state, event, at) {
         list(event.processes, 'processes', string, true);
         if (type === 'observe' && (event.handle !== null || event.processes.length)) {
             check(Object.values(state.workers).filter(w => w.worker !== event.worker
-                && (w.handle !== null || w.processes.length)).length < 2,
-            'at most two implementation workers may have live ownership');
+                && (w.handle !== null || w.processes.length)).length < 3,
+            'at most three workers may have live ownership');
         }
         check(!Object.values(state.workers).some(w => w.worker !== event.worker && event.handle !== null && w.handle === event.handle), 'handle already belongs to another worker');
         if (type === 'observe' && state.workers[event.worker].handle !== event.handle) {
@@ -258,11 +272,28 @@ function applyEvent(state, event, at) {
     if (type === 'assign') {
         check(Object.hasOwn(state.workers, event.worker), 'unknown worker');
         check(!Object.hasOwn(state.tasks, event.task), 'task already exists');
-        string(event.goal, 'goal'); string(event.span, 'span'); sha(event.base, 'base');
+        sha(event.base, 'base');
+        check(event.kind === undefined || ['implementation', 'challenge-preparation'].includes(event.kind),
+            'task kind must be implementation or challenge-preparation');
+        if (event.span !== undefined) string(event.span, 'span');
         if (event.seed !== null) string(event.seed, 'seed');
         list(event.reservations, 'reservations', sourceReservation);
         list(event.allowedPaths, 'allowedPaths', repoPath);
-        const task = { ...event, id: event.task, status: 'working', assignedAt: at, deliveries: [] };
+        if (event.kind === 'challenge-preparation') {
+            check(event.reservations.length === 1 && /^challenge-batch:v(?:[2-9]|[1-9][0-9]+)$/u.test(event.reservations[0]),
+                'challenge preparation must reserve exactly one future batch');
+            check(event.goal === undefined, 'challenge preparation does not open a GOALS.json goal');
+            check(event.span === undefined, 'challenge preparation does not have a span');
+            const batch = event.reservations[0].split(':')[1];
+            check(isDeepStrictEqual(event.allowedPaths, [`challenges/cases/${batch}/`]),
+                'challenge preparation may edit only its batch case directory');
+        } else {
+            string(event.goal, 'goal');
+            check(event.reservations.every(key => !key.startsWith('challenge-batch:')),
+                'implementation tasks cannot reserve a challenge batch');
+        }
+        const task = { ...event, kind: event.kind ?? 'implementation', id: event.task,
+            status: 'working', assignedAt: at, deliveries: [] };
         delete task.type;
         checkOwnership(state, task);
         state.tasks[event.task] = task;
@@ -277,6 +308,11 @@ function applyEvent(state, event, at) {
         requireStatus('working');
         list(event.reservations, 'reservations', sourceReservation);
         list(event.allowedPaths, 'allowedPaths', repoPath);
+        if (task.kind === 'challenge-preparation') {
+            check(isDeepStrictEqual(event.reservations, task.reservations)
+                && isDeepStrictEqual(event.allowedPaths, task.allowedPaths),
+            'challenge preparation scope is fixed to its batch');
+        }
         check(task.reservations.every(key => event.reservations.includes(key))
             && task.allowedPaths.every(path => event.allowedPaths.includes(path)),
         'scope may expand; accept or park the task before releasing existing reservations');

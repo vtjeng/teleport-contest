@@ -2,14 +2,15 @@
 // Admit a complete prepared C batch. JS outcomes never filter its membership.
 import { execFileSync } from 'node:child_process';
 import { mkdirSync, readFileSync, writeFileSync } from 'node:fs';
-import { dirname, resolve } from 'node:path';
+import { basename, dirname, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { isDeepStrictEqual } from 'node:util';
 import { normalizeSession } from '../frozen/session_loader.mjs';
-import { challengePath, challengeState, validatePreparedBatch } from './challenge-results.mjs';
+import { challengePath, challengeState, digest, validatePreparedBatch } from './challenge-results.mjs';
 import { readCheckpointResult } from './checkpoint-results.mjs';
 
-const USAGE = 'Usage: node scripts/admit-challenge-batch.mjs --manifest <prepared.json>\n'
+const USAGE = 'Usage: node scripts/admit-challenge-batch.mjs --delivery <immutable-packet.json>\n'
+    + '   or: node scripts/admit-challenge-batch.mjs --manifest <prepared.json>\n'
     + 'Requires current complete synthetic screen parity and a passing HEAD checkpoint.\n'
     + 'Writes the next immutable challenges/manifests/vN.json. Commit it, then baseline it with score-challenges.';
 
@@ -61,11 +62,25 @@ export function admitChallengeBatch(root, prepared) {
     return { batch, manifestPath, cases: prepared.cases.length, baselineRequired: true };
 }
 
+export function preparedFromDelivery(path) {
+    const contents = readFileSync(path, 'utf8');
+    if (basename(path) !== `${digest(contents)}.json`)
+        throw new Error('immutable delivery packet hash differs');
+    const packet = JSON.parse(contents);
+    if (packet.context?.kind !== 'challenge-preparation'
+        || packet.context.batch !== packet.manifest?.batch)
+        throw new Error('delivery packet does not name its prepared challenge batch');
+    return packet.manifest;
+}
+
 export function main(args) {
     if (args.length === 1 && args[0] === '--help') { console.log(USAGE); return; }
-    if (args.length !== 2 || args[0] !== '--manifest' || args[1].startsWith('-'))
+    if (args.length !== 2 || !['--manifest', '--delivery'].includes(args[0]) || args[1].startsWith('-'))
         throw new Error(USAGE);
-    const prepared = JSON.parse(readFileSync(resolve(args[1]), 'utf8'));
+    const path = resolve(args[1]);
+    const prepared = args[0] === '--delivery'
+        ? preparedFromDelivery(path)
+        : JSON.parse(readFileSync(path, 'utf8'));
     console.log(JSON.stringify(admitChallengeBatch(process.cwd(), prepared), null, 2));
 }
 

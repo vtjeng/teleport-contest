@@ -66,29 +66,35 @@ orchestrator.
 ## Read the instructions for your task
 
 Before starting work, find every matching row below and read every listed file.
-Follow all instructions in those files. A **goal** is a C **file port**, a
-**Lua port**, or a **divergence fix**. A file port implements whole C functions,
-a Lua port implements a whole `dat/*.lua` program, and a divergence fix repairs
-a source-traced defect in implemented behavior. A **span** is the unit of work
-one worker delivery lands: for a file port, its unverified functions in C order
-up to a line cap; for a Lua port, the whole program; for a divergence fix, the
-functions the fix touches. The worker (`.claude/agents/span-worker.md`)
-completes one span per delivery and persists across deliveries. The loop
-defaults to one main orchestrator and two workers, each in its own Git
-worktree. Workers notify the orchestrator when a span is ready to merge;
-only the orchestrator integrates, runs combined validation, and publishes.
-Workers select independent next work under the standing permission in
-`.agents/loop.md`, which defines scheduling and merge requests.
+Follow all instructions in those files. A **task** is assigned to one worker.
+An **implementation task** is a C **file port**, a **Lua port**, or a
+**divergence fix**. A file port implements whole C functions in its selected
+range; a Lua port implements a whole `dat/*.lua` program; a divergence fix
+repairs a source-traced defect. `GOALS.json` records implementation tasks as
+**goals** for historical continuity. New implementation tasks define their
+complete scope before work starts and do not require a separate span selection
+or closure. Existing spans and slices remain historical records. A
+**challenge preparation task** creates the next batch's C recipes and
+recordings without admitting or scoring it.
+
+The loop uses one main orchestrator and up to three persistent workers, each
+in its own Git worktree. Two normally work on implementation tasks; the third
+may prepare a future challenge batch or take an independent implementation task.
+Workers notify the orchestrator when a task is ready to merge; only the
+orchestrator integrates, runs combined validation, admits batches, and
+publishes. Workers select independent next work under the standing permission
+in `.agents/loop.md`, which defines scheduling and merge requests.
 
 | Before you... | Read... |
 | --- | --- |
 | Run or resume the implementation loop | `.agents/loop.md` |
-| Choose which goal to open next | `.agents/selection.md` |
+| Choose the next implementation task | `.agents/selection.md` |
 | Generate or admit a new synthetic local holdout batch | `.agents/selection.md`, `.agents/validation.md`, and `.agents/scoring.md` |
 | Implement game behavior | `.agents/glossary.md` and `.agents/validation.md` |
 | Validate game behavior | `.agents/validation.md` |
 | Propose a change to tooling or process | `.agents/proposals.md` |
-| Complete one span as a loop worker | `.claude/agents/span-worker.md` |
+| Complete an implementation task as a loop worker | `.claude/agents/span-worker.md` |
+| Prepare a synthetic challenge batch as a loop worker | `.claude/agents/challenge-prep-worker.md`, `.agents/selection.md`, `.agents/validation.md`, and `.agents/scoring.md` |
 | Commit game implementation | `.agents/validation.md` |
 | Append a `SCORE.tsv` event row or read an aggregate remote-holdout result (orchestrator only) | `.agents/scoring.md` |
 | Record a new C run, compare C and JavaScript behavior, scan many fresh cases, calculate a score, test in a browser, or run a synthetic local challenge evaluation | `.agents/validation.md`, and `.agents/scoring.md` for recording the result |
@@ -168,11 +174,11 @@ the session. Recheck restrictions when the permission profile changes.
    program, including top-level statements. Count a source unit as complete
    after recorded source, caller, and validation evidence establish completion.
 2. Wire each ported function or Lua program where the source calls it, in
-   the same span. Match every JavaScript function and caller to its source site.
+   the same task. Match every JavaScript function and caller to its source site.
    Keep each implementation and caller aligned with a corresponding source
    site.
 3. When a ported function calls a C function that is not ported yet, port the
-   callee in the same span if the C uses its return value. If the C discards
+   callee in the same task if the C uses its return value. If the C discards
    the result, record the gap and skip the call:
    `note_unported('<file.c> <function>')`. Never invent a random-number call,
    message, screen write, or state change to stand in for unported code, and
@@ -185,7 +191,7 @@ the session. Recheck restrictions when the permission profile changes.
    test of its own.
 5. When a ported function replaces a stub, an injected operation, or an
    `Unsupported*Error` refusal that stood in for it, delete the placeholder in
-   the same span.
+   the same task.
 
 ### Keep each game value in one place
 
@@ -210,10 +216,10 @@ Delete both when the path is ported.
   in a comment.
 - `js/unported.js` holds `note_unported()` and the `game.unported` set it
   fills; keep them there. Do not add an `Unsupported*Error` class or throw
-  site. When a span ports a function that throws one, replace the throw with
+  site. When a task ports a function that throws one, replace the throw with
   the ported branch, or with `note_unported()` where that branch's callee is
   still unported. Delete a class once its last throw site is gone.
-- Do not name a file or function after a span, a goal, or the work that added
+- Do not name a file or function after a task, a goal, or the work that added
   it. Those names stop making sense once that work is done.
 - Split a ported file only where the C file has separate groups of functions.
   Name each part for the functions it holds, and name the C file and functions
@@ -261,11 +267,11 @@ entry point is a command, monster action, level feature, or startup path the
 range implements. Commit a recording only when it matches completely.
 When a recipe's recording diverges inside another source file, leave the recipe
 under `recipes/<source-file>/` with a comment naming the blocking function, and
-record it once that function lands. A span that completes an entry point
-records its recipe before closing; a span closes without a new recording when
+record it once that function lands. A task that completes an entry point
+records its recipe before closing; a task closes without a new recording when
 neither the fixed-workload sessions nor the recordings lost a match.
 
-Before closing a source port or one of its spans, record completion evidence with
+Before closing a source task, record completion evidence with
 `goal-log.mjs record-evidence` as `.agents/validation.md`, "Source completion
 evidence", specifies. An isolated test does not establish production wiring.
 A blocked recipe does not establish entry-point completion.
@@ -279,9 +285,9 @@ When choosing new cases:
   object class, and cover the branches those variations reach. The
   source-pinned tests and the file's later divergences cover the branches no
   cheap recipe reaches.
-- When the goal has an explicit limit, run a representative case just outside
-  that limit. If the current goal specifies the result, add a passing test. If
-  the case belongs to a later span or file port and does not yet match the C
+- When the task has an explicit limit, run a representative case just outside
+  that limit. If the current task specifies the result, add a passing test. If
+  the case belongs to a later task or file port and does not yet match the C
   reference, keep it out of the passing test suite and commit its recipe under
   `recipes/<source-file>/` with a comment naming the function that blocks it.
 - Choose inputs independently rather than copying values from an existing
