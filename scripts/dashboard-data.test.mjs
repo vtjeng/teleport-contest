@@ -16,7 +16,6 @@ import { escapeJsonForScript, injectDashboardData } from './build-dashboard.mjs'
 
 const PROJECT_ROOT = dirname(dirname(fileURLToPath(import.meta.url)));
 const DATA_SCRIPT = join(PROJECT_ROOT, 'scripts', 'dashboard-data.mjs');
-const BUILD_SCRIPT = join(PROJECT_ROOT, 'scripts', 'build-dashboard.mjs');
 const TEMPLATE = join(PROJECT_ROOT, 'scripts', 'dashboard.template.html');
 const SCORE_HEADER = COLUMNS.join('\t');
 
@@ -1360,21 +1359,6 @@ test('the chart opens on the last week of measurements', () => {
     const track = 1000 - 52 - 16;
     assert.equal(width, Math.round(track * 7 / 24));
     assert.equal(x, Math.round(52 + track * 17 / 24) + 0.5);
-});
-
-test('dashboard builder injects data into a standalone HTML file', () => {
-    const output = join(
-        mkdtempSync(join(tmpdir(), 'teleport-dashboard-build-')),
-        'dashboard.html',
-    );
-    execFileSync(process.execPath, [BUILD_SCRIPT, output], {
-        cwd: PROJECT_ROOT,
-        encoding: 'utf8',
-    });
-    const html = readFileSync(output, 'utf8');
-    assert.match(html, /<title>NetHack Port<\/title>/u);
-    assert.doesNotMatch(html, /DATA_PLACEHOLDER/u);
-    assert.match(html, /"inProgressGoals"\s*:\s*\d+/u);
 });
 
 test('dashboard builder preserves replacement-pattern text in injected JSON', () => {

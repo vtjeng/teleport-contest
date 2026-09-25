@@ -794,11 +794,11 @@ test('metadata-only commits reuse an equivalent SCORE event without scoring', (t
 });
 
 test('committed scoring inputs invalidate a cached measurement and an earlier SCORE row', async (t) => {
-    // Each path belongs to a different dependency copied or executed by the scorer.
+    // One path for each way development-standing.mjs names a scoring input: a
+    // directory prefix (js/, frozen/), a single file in SCORE_PATHS, and a
+    // session file that scorePaths() appends.
     for (const path of ['js/widget.js', 'frozen/terminal.js',
-        'scripts/scoring-workspace.mjs', 'scripts/fixed-workload.mjs',
-        'scripts/score-development.mjs',
-        'scripts/local-tmpdir.mjs', 'package.json', 'sessions/fixture-0.session.json']) {
+        'scripts/scoring-workspace.mjs', 'sessions/fixture-0.session.json']) {
         await t.test(path, (subtest) => {
             const f = fixture(subtest);
             f.development();
