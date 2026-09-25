@@ -11,7 +11,8 @@
 //        Armor_off() (908-930), fingers_or_gloves() (59-65),
 //        set_wear() (1537-1568), cancel_doff() (1642-1659),
 //        count_worn_stuff() (1731-1766), armor_or_accessory_off()
-//        (1768-1829), dotakeoff() (1831-1855), cursed() (1891-1917),
+//        (1768-1829), dotakeoff() (1831-1855), doremring() (1874-1892),
+//        cursed() (1891-1917),
 //        armoroff() (1919-2008), already_wearing() (2010-2014), canwearobj()
 //        (2029-2206), accessory_or_armor_on() (2208-2428), dowear()
 //        (2430-2450), stuck_ring() (2656-2683), unchanger() (2685-2692),
@@ -48,6 +49,7 @@ import {
     A_WIS,
     ACID_RES,
     CMDQ_KEY,
+    CQ_CANNED,
     DETECT_MONSTERS,
     DISPLACED,
     EF_DESTROY,
@@ -141,7 +143,7 @@ import { HCOLORS } from './random_text_data.js';
 import { has_ceiling, surface } from './dungeon.js';
 import { makeplural } from './fruit.js';
 import { acurr, uchangealign } from './attrib.js';
-import { cmdq_pop, paranoid_query, yn_function } from './cmd.js';
+import { cmdq_peek, cmdq_pop, paranoid_query, yn_function } from './cmd.js';
 import { artifact_light, set_artifact_intrinsic } from './artifacts.js';
 import { game } from './gstate.js';
 import { nomul, spoteffects, unmul } from './hack.js';
@@ -781,10 +783,10 @@ export async function Ring_on(obj, state = game) {
 // mirrors Ring_on() with the inverse operation for each ring type.
 //
 // Arms ported: the sixteen no-op types, protection from shape changers,
-// gain strength/constitution/adornment
-// (adjust_attrib with negative spe), increase accuracy/damage (uhitinc/
-// udaminc), and protection (learnring + find_ac). Unported arms throw
-// UnsupportedTakeOffError so the segment ends cleanly.
+// gain strength/constitution/adornment (adjust_attrib with negative spe),
+// increase accuracy/damage (uhitinc/udaminc), and protection (learnring +
+// find_ac). The levitation arm records its discarded float_down() dependency
+// and continues in source order; other unported effect arms still throw.
 function Ring_off_or_gone(obj, gone, state = game) {
     const mask = obj.owornmask & W_RING;
     takeoffContext(state).mask &= ~mask;
@@ -833,9 +835,17 @@ function Ring_off_or_gone(obj, gone, state = game) {
             `invisibility newsym for Ring_off otyp ${obj.otyp}`,
         );
     case RIN_LEVITATION:
-        throw new UnsupportedTakeOffError(
-            `float_down() for Ring_off otyp ${obj.otyp}`,
-        );
+        if (!(state.u.uprops[LEVITATION].blocked & FROMOUTSIDE)) {
+            // C discards float_down()'s result here. Its landing effects are
+            // still owned by trap.c; preserve this source call as a named gap
+            // and continue with Ring_off_or_gone()'s following discovery test.
+            note_unported('trap.c float_down');
+            if (!Levitation(state))
+                learnring(obj, true, state);
+        } else {
+            float_vs_flight(state);
+        }
+        break;
     case RIN_GAIN_STRENGTH:
         adjust_attrib(obj, A_STR, -obj.spe, state);
         break;
@@ -869,6 +879,13 @@ function Ring_off_or_gone(obj, gone, state = game) {
 // than setworn(null, mask).
 export function Ring_gone(obj, state = game) {
     Ring_off_or_gone(obj, true, state);
+}
+
+// C ref: do_wear.c Ring_off() (1449-1452). Unlike Ring_gone(), ordinary
+// removal clears the worn slot with setworn() and applies the ring's off
+// effects through Ring_off_or_gone().
+function Ring_off(obj, state = game) {
+    Ring_off_or_gone(obj, false, state);
 }
 
 // Raised where Amulet_on() or Blindf_on() reaches a branch this port has not
@@ -2755,10 +2772,8 @@ export function unchanger(state = game) {
     return null;
 }
 
-// The slot-to-mask chain do_wear.c:2786-2812 spells out, restricted to the
-// slots that can reach it: select_off() stops on a ring and on boots above,
-// so their labels would be dead here. Gloves pass through since the
-// glove-check branch is ported.
+// The slot-to-mask chain do_wear.c:2786-2812 spells out the worn-item bits
+// that select_off() commits to context.takeoff.mask.
 function takeoffMaskFor(otmp, state) {
     if (otmp === state.uarm) return WORN_ARMOR;
     if (otmp === state.uarmc) return WORN_CLOAK;
@@ -2766,6 +2781,8 @@ function takeoffMaskFor(otmp, state) {
     if (otmp === state.uarmh) return WORN_HELMET;
     if (otmp === state.uarms) return WORN_SHIELD;
     if (otmp === state.uarmu) return WORN_SHIRT;
+    if (otmp === state.uleft) return LEFT_RING;
+    if (otmp === state.uright) return RIGHT_RING;
     if (otmp === state.uamul) return WORN_AMUL;
     if (otmp === state.ublindf) return WORN_BLINDF;
     // C's remaining labels are uwep, uswapwep and uquiver, which only the 'A'
@@ -2796,9 +2813,30 @@ export async function select_off(otmp, state = game) {
 
     /* special ring checks */
     if (otmp === state.uright || otmp === state.uleft) {
-        // do_wear.c:2703-2726 reads nolimbs(), RING_ON_PRIMARY and Glib
-        // before Ring_off() removes the ring; 'R' owns all of it.
-        throw new UnsupportedTakeOffError('select_off() ring checks');
+        if (nolimbs(state.youmonst?.data)) {
+            await ttyPline('The ring is stuck.', state);
+            return 0;
+        }
+        let why = null; /* the item that prevents ring removal */
+        let buf = '';
+        if (state.uwep && welded(state.uwep, state)
+            && (otmp === RING_ON_PRIMARY(state)
+                || bimanual(state.uwep, state))) {
+            buf = `free a weapon ${body_part(HAND, state.youmonst)}`;
+            why = state.uwep;
+        } else if (state.uarmg
+            && (state.uarmg.cursed || Glib(state))) {
+            buf = `take off your ${Glib(state) ? 'slippery ' : ''}`
+                + gloves_simple_name(state.uarmg, state);
+            // C points at cg.zeroobj when Glib alone blocks removal. Its
+            // bknown write cannot affect the worn glove in that branch.
+            why = state.uarmg.cursed ? state.uarmg : { bknown: false };
+        }
+        if (why) {
+            await ttyPline(`You cannot ${buf} to remove the ring.`, state);
+            set_bknown(why, 1, { state });
+            return 0;
+        }
     }
     /* special glove checks */
     if (otmp === state.uarmg) {
@@ -3356,15 +3394,24 @@ export async function armor_or_accessory_off(obj, state = game) {
 
     if (obj.owornmask & W_ARMOR) {
         await armoroff(obj, state);
+    } else if (obj === state.uright || obj === state.uleft) {
+        // C prints the worn message before removing a ring, so its name still
+        // carries the hand suffix; Ring_off() then clears the slot and effects.
+        await off_msg(obj, state);
+        Ring_off(obj, state);
+    } else if (obj === state.uamul) {
+        // Amulet_off() has no return value; until its C body is ported, retain
+        // the explicit discarded-call gap and skip its effects.
+        note_unported('do_wear.c Amulet_off');
     } else if (obj === state.ublindf) {
         // do_wear.c:1820-1821. Blindf_off does its own off_msg.
         await Blindf_off(obj, state);
     } else {
-        // do_wear.c:1809-1819 dispatches Ring_off() and Amulet_off();
-        // a ring stops one frame earlier inside select_off().
-        throw new UnsupportedTakeOffError(
-            'Ring_off()/Amulet_off()',
-        );
+        // C's remaining arm is an impossible accessory type. Both calls have
+        // discarded results; keep their unported sites explicit.
+        note_unported('pline.c impossible');
+        if (obj.owornmask)
+            note_unported('do_wear.c remove_worn_item');
     }
     return ECMD_TIME;
 }
@@ -3396,6 +3443,33 @@ export async function dotakeoff(state = game) {
     }
     if (counts.Narmorpieces !== 1 || ParanoidRemove(state))
         otmp = await getobj('take off', takeoff_ok, GETOBJ_NOFLAGS, state);
+    if (!otmp)
+        return ECMD_CANCEL;
+
+    return armor_or_accessory_off(otmp, state);
+}
+
+// C ref: do_wear.c remove_ok() (3458-3461), the getobj() filter for the R
+// command. It suggests worn accessories while downplaying armor.
+export async function remove_ok(obj, state = game) {
+    return equip_ok(obj, true, true, state);
+}
+
+// C ref: do_wear.c doremring() (1874-1892), the R command. C keeps the counts
+// in file statics and writes its sole-accessory default through `which`; the
+// paired JavaScript helper returns those values together.
+export async function doremring(state = game) {
+    const counts = count_worn_stuff(true, state);
+    let otmp = counts.which;
+
+    if (!counts.Naccessories && !counts.Narmorpieces) {
+        await ttyPline('Not wearing any accessories or armor.', state);
+        return ECMD_OK;
+    }
+    if (counts.Naccessories !== 1 || ParanoidRemove(state)
+        || cmdq_peek(CQ_CANNED, state)) {
+        otmp = await getobj('remove', remove_ok, GETOBJ_NOFLAGS, state);
+    }
     if (!otmp)
         return ECMD_CANCEL;
 

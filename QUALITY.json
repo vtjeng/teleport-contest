@@ -247,6 +247,7 @@
         "js/trap_erode_obj.js",
         "js/trap_names_data.js",
         "js/trap_water_damage.js",
+        "js/tribute_data.js",
         "js/vision.js"
       ],
       "generatedOutputs": [
@@ -259,6 +260,11 @@
           "path": "js/sound_effects_data.js",
           "generator": "scripts/generate-sound-effects.mjs",
           "check": "node scripts/generate-sound-effects.mjs --check"
+        },
+        {
+          "path": "js/tribute_data.js",
+          "generator": "scripts/generate-tribute-data.mjs",
+          "check": "node scripts/generate-tribute-data.mjs --check"
         }
       ]
     },

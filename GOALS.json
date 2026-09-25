@@ -70730,7 +70730,7 @@
     {
       "id": "port-spell-study-book-synthetic-v2-20260925",
       "kind": "file-port",
-      "status": "queued",
+      "status": "parked",
       "summary": "Port complete spellbook study and known-spell refresh paths",
       "cFile": "spell.c",
       "sessions": [
@@ -70738,8 +70738,12 @@
       ],
       "selectionReason": "After C2 closure, terrain-transitions is owned by worker A. Wizard-spell-memory has 37 unmatched screens and is the next ranked complete unreserved source investigation; worker B owns pickup.c tipping and worker C prepares v3.",
       "detail": "The v2 wizard case stops at read.c doread selecting a Force Bolt spellbook because the JavaScript gate admits only healing refresh. Port whole spell.c study_book with source-ordered known-spell prompt, difficulty, occupation, and return-valued callees; wire read.c doread and all active callers. See investigations/synthetic/v2/wizard-spell-memory.json.",
-      "openedAt": null,
-      "openStanding": null,
+      "openedAt": "1c46c9d55203baf298ef541c96c178ba56bf5331",
+      "openStanding": {
+        "sha": "1c46c9d55203baf298ef541c96c178ba56bf5331",
+        "screens": 11405,
+        "rng": 792838
+      },
       "closedAt": null,
       "delivered": null,
       "functions": [
@@ -70765,8 +70769,505 @@
           "manifestSha256": "58739ea9ed6c26e5153c4860b2e5111d08d69792bdea5c39427cf45b8e72cc9c",
           "recordingPath": "challenges/cases/v2/wizard-spell-memory.session.json",
           "recordingSha256": "4aa25c52bad9f85940224ad16785cacb6b286a4c326c1691e6db54ec260b73cd",
-          "evaluationPath": "challenges/evaluations/20260925170757-v2.json",
-          "evaluationCommit": "bfa9dc95416be7fa5a45d311fae636412a475e17"
+          "evaluationPath": "challenges/evaluations/20260925173439-v2.json",
+          "evaluationCommit": "e7623b67450936e27add7de87567f83f84ed1190"
+        }
+      },
+      "activeStanding": {
+        "sha": "1c46c9d55203baf298ef541c96c178ba56bf5331",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v2",
+          "caseId": "wizard-spell-memory",
+          "session": "synthetic/v2/wizard-spell-memory",
+          "manifestPath": "challenges/manifests/v2.json",
+          "manifestSha256": "58739ea9ed6c26e5153c4860b2e5111d08d69792bdea5c39427cf45b8e72cc9c",
+          "recording": "challenges/cases/v2/wizard-spell-memory.session.json",
+          "recordingPath": "challenges/cases/v2/wizard-spell-memory.session.json",
+          "recordingSha256": "4aa25c52bad9f85940224ad16785cacb6b286a4c326c1691e6db54ec260b73cd",
+          "recipe": "challenges/cases/v2/wizard-spell-memory.recipe.json",
+          "recipeSha256": "7539746442959f2f180fe53b40dd993e7d83aa77d27132210f745425c30cfb26",
+          "replayInputSha256": "4a38734fee16c8f972094ce8bc309525235e7b911087321eeb2028ec6a78cbbf",
+          "evaluationPath": "challenges/evaluations/20260925173439-v2.json",
+          "evaluationCommit": "e7623b67450936e27add7de87567f83f84ed1190",
+          "evaluationArtifact": "challenges/evaluations/20260925173439-v2.json",
+          "evaluationUtc": "2026-09-25T17:34:42.612Z",
+          "remainingScreens": 37,
+          "recordedSteps": 54,
+          "previousScreensMatched": 17,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 17,
+              "total": 54
+            },
+            "rng": {
+              "matched": 2409,
+              "total": 2452
+            },
+            "cursors": {
+              "matched": 17,
+              "total": 54
+            }
+          },
+          "firstMismatch": {
+            "kind": "stop",
+            "message": "unsupported hero command: an unported branch of this command: reading requires the selected readable object branch",
+            "step": 17
+          },
+          "step": 17,
+          "kind": "stop",
+          "sourceFile": null,
+          "function": null,
+          "message": "unsupported hero command: an unported branch of this command: reading requires the selected readable object branch",
+          "cFile": null,
+          "luaFile": null,
+          "line": null,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v2/wizard-spell-memory.json",
+            "result": {
+              "session": "synthetic/v2/wizard-spell-memory",
+              "corpus": "synthetic",
+              "batch": "v2",
+              "caseId": "wizard-spell-memory",
+              "manifestPath": "challenges/manifests/v2.json",
+              "manifestSha256": "58739ea9ed6c26e5153c4860b2e5111d08d69792bdea5c39427cf45b8e72cc9c",
+              "recordingSha256": "4aa25c52bad9f85940224ad16785cacb6b286a4c326c1691e6db54ec260b73cd",
+              "evaluationPath": "challenges/evaluations/20260925162000-v2.json",
+              "evaluationCommit": "c7912bb5a3867356ba505d81b43ebc309e76744a",
+              "remainingScreens": 37,
+              "recordedSteps": 54,
+              "status": "complete",
+              "commit": "65e8da74fdd35ae64ba12c89237089f53d87e504",
+              "mismatch": {
+                "corpus": "synthetic",
+                "batch": "v2",
+                "caseId": "wizard-spell-memory",
+                "session": "synthetic/v2/wizard-spell-memory",
+                "manifestPath": "challenges/manifests/v2.json",
+                "manifestSha256": "58739ea9ed6c26e5153c4860b2e5111d08d69792bdea5c39427cf45b8e72cc9c",
+                "recording": "challenges/cases/v2/wizard-spell-memory.session.json",
+                "recordingPath": "challenges/cases/v2/wizard-spell-memory.session.json",
+                "recordingSha256": "4aa25c52bad9f85940224ad16785cacb6b286a4c326c1691e6db54ec260b73cd",
+                "recipe": "challenges/cases/v2/wizard-spell-memory.recipe.json",
+                "recipeSha256": "7539746442959f2f180fe53b40dd993e7d83aa77d27132210f745425c30cfb26",
+                "replayInputSha256": "3ff6dfb2195398631780ba891a4a6a4a11b40896a1a2aa7331b1c6c0b2ed97ab",
+                "evaluationPath": "challenges/evaluations/20260925162000-v2.json",
+                "evaluationCommit": "c7912bb5a3867356ba505d81b43ebc309e76744a",
+                "evaluationArtifact": "challenges/evaluations/20260925162000-v2.json",
+                "evaluationUtc": "2026-09-25T16:11:39.061Z",
+                "remainingScreens": 37,
+                "recordedSteps": 54,
+                "previousScreensMatched": null,
+                "regression": false,
+                "passed": false,
+                "error": null,
+                "metrics": {
+                  "screens": {
+                    "matched": 17,
+                    "total": 54
+                  },
+                  "rng": {
+                    "matched": 2409,
+                    "total": 2452
+                  },
+                  "cursors": {
+                    "matched": 17,
+                    "total": 54
+                  }
+                },
+                "firstMismatch": {
+                  "kind": "stop",
+                  "message": "unsupported hero command: an unported branch of this command: reading requires the selected readable object branch",
+                  "step": 17
+                },
+                "step": 17,
+                "kind": "stop",
+                "sourceFile": null,
+                "function": null,
+                "message": "unsupported hero command: an unported branch of this command: reading requires the selected readable object branch",
+                "cFile": null,
+                "luaFile": null,
+                "line": null
+              },
+              "summary": "At the first reread of the starting Wizard spellbook, JavaScript stops after 17 matching screens. C takes spell.c study_book()'s already-known spell branch, prints the known-spell message and asks whether to refresh memory. The JavaScript read.c doread() gate permits only the healing-book refresh preflight, so it refuses the Force Bolt book before the implemented spell.c branch runs. Port the whole study_book() source function and wire doread() for all valid spellbooks, preserving its difficulty, confusion, occupation, knowledge, and input order.",
+              "source": {
+                "file": "spell.c",
+                "functions": [
+                  "study_book"
+                ],
+                "branch": "spell.c study_book() lines 468-644: when spellid(i) equals the book type and spellknow(i) > KEEN/10, C prints the already-known message, marks the book known, and asks the refresh question before setting in_use or drawing the difficulty roll. The witnessed ordinary Wizard Force Bolt book takes this branch at step 17. The rest of the same function includes dull-book sleep, resumed study, blank and novel books, difficulty and cursed outcomes, confused books, and occupation installation.",
+                "callers": [
+                  "read.c doread() lines 330-646 selects a spellbook and calls study_book() at line 609; js/read.js doread() lines 473-565 refuses every book except its healing-book refresh or too-hard preflight, before it can call js/spell.js study_book().",
+                  "spell.c study_book() is partially implemented at js/spell.js lines 263-306, including a known-healing prompt and successful ordinary study; its current gate and the doread() caller must be broadened from C source."
+                ],
+                "dependencies": [
+                  "spell.c learn() occupation callback and cursed_book()/confused_book() results determine downstream study behavior; implement return-valued callees needed by the complete function.",
+                  "C spellid(), spellknow(), makeknown(), set_occupation(), check_unpaid(), and tty prompt/message owners supply known-book state and exact wait boundaries."
+                ]
+              },
+              "goalKind": "file-port",
+              "evidence": [
+                "Saved v2 evaluation challenges/evaluations/20260925162000-v2.json at c7912bb5 has wizard-spell-memory 17/54 matching screens and 17/54 cursors. The immutable C recording is challenges/cases/v2/wizard-spell-memory.session.json; its SHA-256 is in the queue entry.",
+                ".cache/loop-20260925-v2-wizard-scan.json replays 17 screens at examined commit 65e8da74 and stops at segment 0 step 17 with \"reading requires the selected readable object branch\". Its input through stop ends with #showspells, read, and the inventory letter l; C's screen says \"You know \\\"force bolt\\\" quite well already.--More--\".",
+                "nethack-c/upstream/src/spell.c:552-575 reads the known-spell test and prints the message before y_n(\"Refresh your memory anyway?\"); lines 468-644 define the whole source function and the other valid arms.",
+                "js/read.js:520-541 restricts knownHealing to study_book_preflight and throws for the selected book at :536; js/spell.js:176-196 restricts that preflight to SPE_HEALING, while :263-306 already has a partial known-book message branch. The source owner is spell.c study_book(), with read.c doread() caller wiring."
+              ]
+            }
+          }
+        }
+      ],
+      "progressBeforePark": {
+        "screens": 0,
+        "rng": 0
+      },
+      "parkedStanding": {
+        "sha": "4cd1d2f115390c0777339a40051076a330409d54",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "parkedReason": "The selected study_book path matches v2 wizard-spell-memory through step 39 and four independent recordings, but destructive confused-book display/naming and the Death speech setup remain blocked by windows.c display_nhwindow, do.c trycall, and makemon.c makemon; source completion evidence is deferred until active entry paths have matching replay."
+    },
+    {
+      "id": "port-do-wear-doremring-synthetic-v1-20260925",
+      "kind": "file-port",
+      "status": "parked",
+      "summary": "Port accessory remove command and source-ordered ring removal path",
+      "cFile": "do_wear.c",
+      "sessions": [
+        "synthetic/v1/terrain-transitions"
+      ],
+      "selectionReason": "synthetic/v1/terrain-transitions has 80 remaining screens at investigations/synthetic/v1/terrain-transitions.json; the first step-57 R/remove stop is do_wear.c doremring before dispatch. Wizard study is reserved by B2; this is the highest-ranked independent source task.",
+      "detail": "Port whole do_wear.c doremring and the return-valued and active same-file callees needed for ring removal; wire cmd.c R/remove dispatch. Preserve source branches and exact input order. trap.c float_down is a downstream dependency after Ring_off and must be handled at its source site under the C return-value rule.",
+      "openedAt": "5619e31af35560782b50399bc60eded342cd5074",
+      "openStanding": {
+        "sha": "4cd1d2f115390c0777339a40051076a330409d54",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "closedAt": null,
+      "delivered": null,
+      "functions": [
+        {
+          "name": "doremring",
+          "line": 1874,
+          "endLine": 1892,
+          "declared": false,
+          "complete": false
+        }
+      ],
+      "range": {
+        "from": 1874,
+        "to": 1892
+      },
+      "syntheticProvenance": {
+        "synthetic/v1/terrain-transitions": {
+          "session": "synthetic/v1/terrain-transitions",
+          "corpus": "synthetic",
+          "batch": "v1",
+          "caseId": "terrain-transitions",
+          "manifestPath": "challenges/manifest.json",
+          "manifestSha256": "a1d989fa6b5159e0b0729150ba765c741a405ec910c1274ad763d29b0a7096fe",
+          "recordingPath": "challenges/cases/terrain-transitions.session.json",
+          "recordingSha256": "5491c8fb94f71fe5a5c56498e2c58b6d736e65b221cf0a39d1895abdd6759ec9",
+          "evaluationPath": "challenges/evaluations/20260925183935-v1.json",
+          "evaluationCommit": "4cd1d2f115390c0777339a40051076a330409d54"
+        }
+      },
+      "activeStanding": {
+        "sha": "4cd1d2f115390c0777339a40051076a330409d54",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v1",
+          "caseId": "terrain-transitions",
+          "session": "synthetic/v1/terrain-transitions",
+          "manifestPath": "challenges/manifest.json",
+          "manifestSha256": "a1d989fa6b5159e0b0729150ba765c741a405ec910c1274ad763d29b0a7096fe",
+          "recording": "challenges/cases/terrain-transitions.session.json",
+          "recordingPath": "challenges/cases/terrain-transitions.session.json",
+          "recordingSha256": "5491c8fb94f71fe5a5c56498e2c58b6d736e65b221cf0a39d1895abdd6759ec9",
+          "recipe": "challenges/cases/terrain-transitions.recipe.json",
+          "recipeSha256": "a0952cee3b77d907ba080571678b0a1e5e1b82d4dc3b07981e6065806cf49663",
+          "replayInputSha256": "57dd80f0fe80242f760f1994e87897f528acc9d77e09a3643a9a758bc9328617",
+          "evaluationPath": "challenges/evaluations/20260925183935-v1.json",
+          "evaluationCommit": "4cd1d2f115390c0777339a40051076a330409d54",
+          "evaluationArtifact": "challenges/evaluations/20260925183935-v1.json",
+          "evaluationUtc": "2026-09-25T18:39:35.774Z",
+          "remainingScreens": 80,
+          "recordedSteps": 137,
+          "previousScreensMatched": 57,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 57,
+              "total": 137
+            },
+            "rng": {
+              "matched": 2784,
+              "total": 3811
+            },
+            "cursors": {
+              "matched": 57,
+              "total": 137
+            }
+          },
+          "firstMismatch": {
+            "kind": "stop",
+            "message": "unsupported hero command: the repeated-command boundary admits only wait, look, inventory, showspells, known, attributes, search, eat, engrave, apply, rub, open, close, down, up, drop, pickup, pay, takeoff, wear, puton, quaff, read, zap, cast, reqmenu, fight, rush, run, repeat, options, autopickup, wizwish, wizidentify, wizlevelport, wizgenesis, wizintrinsic, wizmap, wizwhere, fire, throw, swap, kick, save, wield, quiver, help, whatis, #, loot, force, tip, glance, showgold, seeweapon, seearmor, seerings, seeamulet, seeall, seetools, teleport, overview, chronicle, conduct, vanquished, genocided, inventtype, adjust, altadjust, terrain, travel, dip, invoke, untrap, herecmdmenu, therecmdmenu, a one-square walk, a shift-direction run, a ctrl-direction rush, or a byte bound to no command",
+            "step": 57
+          },
+          "step": 57,
+          "kind": "stop",
+          "sourceFile": null,
+          "function": null,
+          "message": "unsupported hero command: the repeated-command boundary admits only wait, look, inventory, showspells, known, attributes, search, eat, engrave, apply, rub, open, close, down, up, drop, pickup, pay, takeoff, wear, puton, quaff, read, zap, cast, reqmenu, fight, rush, run, repeat, options, autopickup, wizwish, wizidentify, wizlevelport, wizgenesis, wizintrinsic, wizmap, wizwhere, fire, throw, swap, kick, save, wield, quiver, help, whatis, #, loot, force, tip, glance, showgold, seeweapon, seearmor, seerings, seeamulet, seeall, seetools, teleport, overview, chronicle, conduct, vanquished, genocided, inventtype, adjust, altadjust, terrain, travel, dip, invoke, untrap, herecmdmenu, therecmdmenu, a one-square walk, a shift-direction run, a ctrl-direction rush, or a byte bound to no command",
+          "cFile": null,
+          "luaFile": null,
+          "line": null,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v1/terrain-transitions.json",
+            "result": {
+              "session": "synthetic/v1/terrain-transitions",
+              "corpus": "synthetic",
+              "batch": "v1",
+              "caseId": "terrain-transitions",
+              "manifestPath": "challenges/manifest.json",
+              "manifestSha256": "a1d989fa6b5159e0b0729150ba765c741a405ec910c1274ad763d29b0a7096fe",
+              "recordingSha256": "5491c8fb94f71fe5a5c56498e2c58b6d736e65b221cf0a39d1895abdd6759ec9",
+              "evaluationPath": "challenges/evaluations/20260925173439-v1.json",
+              "evaluationCommit": "e7623b67450936e27add7de87567f83f84ed1190",
+              "remainingScreens": 80,
+              "recordedSteps": 137,
+              "status": "complete",
+              "commit": "e7623b67450936e27add7de87567f83f84ed1190",
+              "mismatch": {
+                "corpus": "synthetic",
+                "batch": "v1",
+                "caseId": "terrain-transitions",
+                "session": "synthetic/v1/terrain-transitions",
+                "manifestPath": "challenges/manifest.json",
+                "manifestSha256": "a1d989fa6b5159e0b0729150ba765c741a405ec910c1274ad763d29b0a7096fe",
+                "recording": "challenges/cases/terrain-transitions.session.json",
+                "recordingPath": "challenges/cases/terrain-transitions.session.json",
+                "recordingSha256": "5491c8fb94f71fe5a5c56498e2c58b6d736e65b221cf0a39d1895abdd6759ec9",
+                "recipe": "challenges/cases/terrain-transitions.recipe.json",
+                "recipeSha256": "a0952cee3b77d907ba080571678b0a1e5e1b82d4dc3b07981e6065806cf49663",
+                "replayInputSha256": "019af0a80e7b54489f621844c9f11640ee021eb5315d0b009ba464688402f45e",
+                "evaluationPath": "challenges/evaluations/20260925173439-v1.json",
+                "evaluationCommit": "e7623b67450936e27add7de87567f83f84ed1190",
+                "evaluationArtifact": "challenges/evaluations/20260925173439-v1.json",
+                "evaluationUtc": "2026-09-25T17:34:39.353Z",
+                "diagnosticCommit": "bd4fb5b6a0a6197472855e6c3bcc3ddedbcf4cd0",
+                "diagnosticToolSha256": "227da8323e84aeb754ab1c0dbc9e728e2c613b2ce01027d501027587ddaecfdc",
+                "remainingScreens": 80,
+                "recordedSteps": 137,
+                "previousScreensMatched": 49,
+                "regression": false,
+                "passed": false,
+                "error": null,
+                "metrics": {
+                  "screens": {
+                    "matched": 57,
+                    "total": 137
+                  },
+                  "rng": {
+                    "matched": 2784,
+                    "total": 3811
+                  },
+                  "cursors": {
+                    "matched": 57,
+                    "total": 137
+                  }
+                },
+                "firstMismatch": {
+                  "kind": "stop",
+                  "step": 57,
+                  "message": "unsupported hero command: the repeated-command boundary admits only wait, look, inventory, showspells, known, attributes, search, eat, engrave, apply, rub, open, close, down, up, drop, pickup, pay, takeoff, wear, puton, quaff, read, zap, cast, reqmenu, fight, rush, run, repeat, options, autopickup, wizwish, wizidentify, wizlevelport, wizgenesis, wizintrinsic, wizmap, wizwhere, fire, throw, swap, kick, save, wield, quiver, help, whatis, #, loot, force, tip, glance, showgold, seeweapon, seearmor, seerings, seeamulet, seeall, seetools, teleport, overview, chronicle, conduct, vanquished, genocided, inventtype, adjust, altadjust, terrain, travel, dip, invoke, untrap, herecmdmenu, therecmdmenu, a one-square walk, a shift-direction run, a ctrl-direction rush, or a byte bound to no command"
+                },
+                "step": 57,
+                "kind": "stop",
+                "sourceFile": "do_wear.c",
+                "function": "doremring",
+                "message": "unsupported hero command: the repeated-command boundary admits only wait, look, inventory, showspells, known, attributes, search, eat, engrave, apply, rub, open, close, down, up, drop, pickup, pay, takeoff, wear, puton, quaff, read, zap, cast, reqmenu, fight, rush, run, repeat, options, autopickup, wizwish, wizidentify, wizlevelport, wizgenesis, wizintrinsic, wizmap, wizwhere, fire, throw, swap, kick, save, wield, quiver, help, whatis, #, loot, force, tip, glance, showgold, seeweapon, seearmor, seerings, seeamulet, seeall, seetools, teleport, overview, chronicle, conduct, vanquished, genocided, inventtype, adjust, altadjust, terrain, travel, dip, invoke, untrap, herecmdmenu, therecmdmenu, a one-square walk, a shift-direction run, a ctrl-direction rush, or a byte bound to no command",
+                "cMessage": "What do you want to remove? [pq or ?*]",
+                "cKey": "R",
+                "command": "remove",
+                "commandRefusal": true,
+                "keyCursor": "command",
+                "cFile": "do_wear.c",
+                "luaFile": null,
+                "line": 1874
+              },
+              "summary": "At evaluated commit e7623b67450936e27add7de87567f83f84ed1190, terrain-transitions matches 57/137 screens, leaving 80. The fresh single-case diagnostic at bd4fb5b6a0a6197472855e6c3bcc3ddedbcf4cd0 stops at step 57, key \"R\" (remove), before dispatch: the JS command-admission seam rejects it because “remove” is absent from ADMITTED_COMMANDS. C cmd.c:1820-1821 binds R to do_wear.c:doremring(), whose C screen is “What do you want to remove? [pq or ?*]”. Thus the first source owner is the remove command path in do_wear.c, not trap.c:float_down(); float_down() remains a downstream dependency after Ring_off() is reached. The evaluated and diagnostic commits differ only in GOALS.json and scripts/dodown.test.mjs; game JavaScript is identical.",
+              "source": {
+                "file": "do_wear.c",
+                "branch": "The exact stop is before dispatch of the capital-R remove command. nethack-c/upstream/src/cmd.c:1820-1821 binds R to doremring(). do_wear.c:doremring() (1872-1890) counts worn equipment; if none, prints “Not wearing any accessories or armor.” and returns ECMD_OK; otherwise it prompts through getobj(\"remove\", remove_ok, GETOBJ_NOFLAGS) when accessories are not unique, paranoid removal is enabled, or a canned command exists; cancel returns ECMD_CANCEL; success returns armor_or_accessory_off(otmp). The saved case has one levitation ring, but C still enters getobj because armor and accessory counts make the choice prompt active; C shows “What do you want to remove? [pq or ?*]”. The source-family work needed to complete this end-to-end path is doremring(), remove_ok(), armor_or_accessory_off(), select_off(), and Ring_off()/Ring_off_or_gone(), with the current function bodies compared whole and their active production callers wired. Current JS rejects at cmd.js admitParsedCommand() because ADMITTED_COMMANDS omits remove and has no doremring dispatch. The downstream ring branch then calls trap.c:float_down(0,0), which is a separate source-file dependency and the next known blocker after Ring_off() is wired.",
+                "functions": [
+                  "doremring"
+                ],
+                "callers": [
+                  "cmd.c command table row 1820-1821: key R, command name remove, function doremring. This is the direct production caller and C renders “What do you want to remove? [pq or ?*]” at the stop. The JS binding resolves R to remove, but js/cmd.js admitParsedCommand() throws UnsupportedHeroCommandBoundaryError because remove is absent from ADMITTED_COMMANDS; there is no doremring command dispatch in the JS path.",
+                  "do_wear.c doremring() 1872-1890 calls count_worn_stuff(), getobj(\"remove\", remove_ok, GETOBJ_NOFLAGS), and armor_or_accessory_off(). Current JS has count_worn_stuff() and getobj(), but no remove_ok wrapper or doremring() command path.",
+                  "do_wear.c remove_ok() 3458-3465 calls equip_ok(obj, TRUE, TRUE) as getobj’s callback. js/do_wear.js equip_ok() exists; remove_ok() is not wired as a callback.",
+                  "do_wear.c armor_or_accessory_off() 1771-1829 calls select_off(), then Ring_off() for a selected ring. js/do_wear.js armor_or_accessory_off() is present but its ring/accessory dispatch remains fail-closed.",
+                  "do_wear.c select_off() 2696-2821 validates cursed/inaccessible equipment and sets takeoff.mask. js/do_wear.js select_off() currently throws at its ring checks, before Ring_off().",
+                  "do_wear.c Ring_off_or_gone() 1347-1446 handles RIN_LEVITATION by calling float_down(0,0); Ring_off() 1449-1452 dispatches with gone=false. js/do_wear.js Ring_off_or_gone() still refuses the levitation-ring arm."
+                ],
+                "dependencies": [
+                  "cmd.c command binding/dispatch must admit “remove” only when its matching JS handler is wired; the current admission refusal is a port boundary, not C behavior.",
+                  "count_worn_stuff() is already implemented in js/do_wear.js and returns the equivalent counts and default item together.",
+                  "getobj() is already implemented in js/invent.js; its remove_ok callback needs to preserve the C GETOBJ_SUGGEST, GETOBJ_DOWNPLAY and GETOBJ_EXCLUDE_INACCESS outcomes from equip_ok().",
+                  "equip_ok() is implemented in js/do_wear.js. remove_ok() is a small source wrapper over equip_ok(obj, true, true).",
+                  "armor_or_accessory_off() and select_off() are existing partial JS implementations and must finish the whole C functions for an ordinary worn ring selection.",
+                  "Ring_off_or_gone()/Ring_off() are existing partial JS implementations. The levitation-ring path reaches trap.c float_down(0,0); its current JS owner only supports the W_SADDLE branch. This is downstream of the exact step-57 command-admission stop."
+                ]
+              },
+              "goalKind": "file-port",
+              "evidence": [
+                "Saved evaluation challenges/evaluations/20260925173439-v1.json at e7623b67450936e27add7de87567f83f84ed1190 reports terrain-transitions 57/137 screens, 2784/3811 RNG calls and 57/137 cursors; 80 screens remain.",
+                "Single-case diagnostic .cache/synthetic-scans/v1/terrain-transitions.json at bd4fb5b6a0a6197472855e6c3bcc3ddedbcf4cd0 reports screensEmitted=57, commandRefusal=true, key=\"R\", command=remove, keyCursor=command; C top line: “What do you want to remove? [pq or ?*]”. The diagnostic replay input SHA is 019af0a80e7b54489f621844c9f11640ee021eb5315d0b009ba464688402f45e.",
+                "nethack-c/upstream/src/cmd.c:1820-1821 binds R to command “remove” and function doremring(). This verifies the direct C owner of the step-57 command path; the scanner boundary is the JS admission list, not C behavior.",
+                "nethack-c/upstream/src/do_wear.c:doremring() (1872-1890), remove_ok() (3458-3465), armor_or_accessory_off() (1771-1829), select_off() (2696-2821), and Ring_off_or_gone() (1347-1446) were source-traced as the whole source call chain; Ring_off() (1449-1452) is its entry wrapper.",
+                "js/cmd.js:admitParsedCommand() (1903-1915) rejects commands absent from ADMITTED_COMMANDS; “remove” is absent. The command table maps the key correctly, but there is no doremring dispatch. js/do_wear.js has count_worn_stuff(), equip_ok(), armor_or_accessory_off(), select_off(), and Ring_off_or_gone() partial implementations; the ring path has named refusals.",
+                "The recorded C steps around the downstream levitation path show `R` at 57, `q` at 58, then a C message “You float gently to the stairs.” at step 59. This supports float_down as a later dependency but does not make it the first mismatch owner.",
+                "The diagnostic replay commit bd4fb5b6a0a6197472855e6c3bcc3ddedbcf4cd0 differs from evaluated commit e7623b67450936e27add7de87567f83f84ed1190 only in GOALS.json and scripts/dodown.test.mjs (verified by git diff --name-only); JavaScript game files are identical. B2 source reservations do not overlap do_wear.c or these JS callers."
+              ],
+              "evaluationUtc": "2026-09-25T17:34:39.353Z",
+              "metrics": {
+                "screens": {
+                  "matched": 57,
+                  "total": 137
+                },
+                "rng": {
+                  "matched": 2784,
+                  "total": 3811
+                },
+                "cursors": {
+                  "matched": 57,
+                  "total": 137
+                }
+              },
+              "entryPointReview": {
+                "active": [
+                  "Capital-R remove command: cmd.c command-table R row dispatches doremring(); the admitted synthetic case reaches this command at step 57 and C displays the remove selection prompt."
+                ],
+                "blocked": [
+                  "The JS replay currently rejects “remove” in cmd.js admitParsedCommand() before dispatch because the command is absent from ADMITTED_COMMANDS.",
+                  "After admission, the JS source path still lacks doremring()/remove_ok() and has partial armor_or_accessory_off()/select_off()/Ring_off_or_gone() implementations; the selected levitation ring later reaches trap.c float_down()."
+                ],
+                "buildExcluded": [],
+                "exactReplayAttribution": "Verified. The saved evaluation at e7623b67450936e27add7de87567f83f84ed1190 reports 57/137 screens. The single-case diagnostic at bd4fb5b6a0a6197472855e6c3bcc3ddedbcf4cd0 stops at step 57 on key R with commandRefusal=true, command=remove, keyCursor=command, and the boundary message copied into mismatch.firstMismatch. The game JavaScript tree is identical between the evaluation and diagnostic commits; only GOALS.json and scripts/dodown.test.mjs differ."
+              },
+              "plannedWholeFunctionScope": {
+                "primary": {
+                  "file": "do_wear.c",
+                  "functions": [
+                    "doremring"
+                  ]
+                },
+                "supportingSameFileFunctions": [
+                  "remove_ok",
+                  "armor_or_accessory_off",
+                  "select_off",
+                  "Ring_off",
+                  "Ring_off_or_gone"
+                ],
+                "existingHelpersToVerifyAndReuse": [
+                  "count_worn_stuff",
+                  "equip_ok"
+                ],
+                "callerWiring": [
+                  "cmd.c R/remove dispatch in js/cmd.js"
+                ],
+                "downstreamSourceDependency": {
+                  "file": "trap.c",
+                  "function": "float_down",
+                  "status": "separate source unit; reached after Ring_off is ported"
+                }
+              }
+            }
+          }
+        }
+      ],
+      "progressBeforePark": {
+        "screens": 0,
+        "rng": 0
+      },
+      "parkedStanding": {
+        "sha": "cb5a1d6236d100c62a31e5029cbfa55e55cdfb60",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "parkedReason": "The R/remove command matches independent regeneration-ring and prompted armor recordings, and the v1 terrain case gains nine screens. Source completion remains open: levitation landing at trap.c float_down diverges after the removal prompt, and the reachable amulet branch is blocked by unported do_wear.c Amulet_off; the blocked recipe is retained."
+    },
+    {
+      "id": "port-objnam-wizterrainwish-synthetic-v2-20260925",
+      "kind": "file-port",
+      "status": "queued",
+      "summary": "Port wizard terrain wishes and source-ordered terrain state changes",
+      "cFile": "objnam.c",
+      "sessions": [
+        "synthetic/v2/altar-rite-history"
+      ],
+      "selectionReason": "At the current B2 queue, terrain-transitions (80 unmatched screens) is reserved by A2; altar-rite-history (34) is the highest ranked complete unreserved synthetic source investigation. Wizard-spell-memory (14) needs reinvestigation after B2.",
+      "detail": "Port the complete objnam.c set_wallprop_from_str, wizterrainwish, and dbterrainmesg source range, then wire readobjnam wizard terrain fallback and zap.c makewish handling of hands_obj. Preserve C object lookup precedence, terrain changes and shared fixups, source-ordered RNG and display effects, and return-valued dependencies. See investigations/synthetic/v2/altar-rite-history.json.",
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": null,
+      "delivered": null,
+      "functions": [
+        {
+          "name": "set_wallprop_from_str",
+          "line": 3539,
+          "endLine": 3553,
+          "declared": false,
+          "complete": false
+        },
+        {
+          "name": "wizterrainwish",
+          "line": 3554,
+          "endLine": 3919,
+          "declared": false,
+          "complete": false
+        },
+        {
+          "name": "dbterrainmesg",
+          "line": 3920,
+          "endLine": 3932,
+          "declared": false,
+          "complete": false
+        }
+      ],
+      "range": {
+        "from": 3539,
+        "to": 3932
+      },
+      "syntheticProvenance": {
+        "synthetic/v2/altar-rite-history": {
+          "session": "synthetic/v2/altar-rite-history",
+          "corpus": "synthetic",
+          "batch": "v2",
+          "caseId": "altar-rite-history",
+          "manifestPath": "challenges/manifests/v2.json",
+          "manifestSha256": "58739ea9ed6c26e5153c4860b2e5111d08d69792bdea5c39427cf45b8e72cc9c",
+          "recordingPath": "challenges/cases/v2/altar-rite-history.session.json",
+          "recordingSha256": "f3fbc209ee4d556822809c679e9cc73054b48fa85ba5d17864b764f30b4cf048",
+          "evaluationPath": "challenges/evaluations/20260925183935-v2.json",
+          "evaluationCommit": "4cd1d2f115390c0777339a40051076a330409d54"
         }
       }
     }

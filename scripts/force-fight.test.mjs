@@ -22,7 +22,7 @@ import {
     VWALL,
     WEB,
 } from '../js/const.js';
-import { do_fight, UnsupportedHeroCommandBoundaryError } from '../js/cmd.js';
+import { do_fight } from '../js/cmd.js';
 import {
     back_to_glyph,
     cmap_to_glyph,
@@ -1057,10 +1057,11 @@ test('the prefix check runs before the command it refuses', async () => {
     assert.equal(game.domoveAttempting, 0);
 });
 
-test('the same key without the prefix still reaches its own refusal',
+test('R without the prefix reaches the remove command handler',
     async () => {
-        // `R` alone is what UnsupportedHeroCommandBoundaryError looks like
-        // here. `R` is bound to doremring(), which the port does not own.
+        // R is bound to doremring() in cmd.c:1821. Its handler may return
+        // ECMD_OK or cancel an empty-selection prompt, but admission itself
+        // must no longer refuse the key before dispatch.
         let boundary = null;
         await runSegment({
             seed: 8800004,
@@ -1070,7 +1071,7 @@ test('the same key without the prefix still reaches its own refusal',
                 + '!splash_screen,pettype:none,!acoustics,!autopickup',
             moves: 'R',
         }, { onBoundary: (error) => { boundary = error; } });
-        assert.ok(boundary instanceof UnsupportedHeroCommandBoundaryError);
+        assert.equal(boundary, null);
     });
 
 // cmd.c rhack():3766 is `prefix_seen = tlist`, an assignment rather than a
