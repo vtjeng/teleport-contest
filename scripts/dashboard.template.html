@@ -216,8 +216,8 @@ h1 {
   overflow-wrap: anywhere;
 }
 
-#challengeTable td:nth-child(5),
-#challengeTable th:nth-child(5) {
+#challengeTable td:nth-child(6),
+#challengeTable th:nth-child(6) {
   text-align: left;
   white-space: normal;
 }
@@ -248,21 +248,15 @@ h1 {
 #challengeCards dd { margin: 0; overflow-wrap: anywhere; }
 
 /* Use disclosures once the panel cannot fit the table's minimum width. */
-@container (max-width: 720px) {
+@container (max-width: 640px) {
   #challengeTableWrap { display: none; }
   #challengeCards { display: block; }
 }
 
-#challengeTable { min-width: 720px; }
+#challengeTable { min-width: 640px; }
 
-#challengeTable td:nth-child(5) {
+#challengeTable td:nth-child(6) {
   color: var(--ink-secondary);
-}
-
-.challenge-result-source {
-  color: var(--ink-muted);
-  font-family: 'JetBrains Mono', monospace;
-  font-size: 10px;
 }
 
 .challenge-outcome {
@@ -1056,33 +1050,25 @@ document.getElementById('stats').innerHTML = [
     cards.innerHTML = '<p class="table-note">No challenge cases recorded.</p>';
     return;
   }
-  const resultText = result => {
-    if (!result) return '—';
-    const screens = result.screens
-      ? fmtN(result.screens.matched) + '/' + fmtN(result.screens.total) + ' screens'
-      : 'screens —';
-    const source = result.sha
-      ? '<span title="' + esc(result.sha) + '">' + esc(result.sha.slice(0, 7)) + '</span>'
-      : '';
-    const date = result.utc
-      ? '<time datetime="' + esc(result.utc) + '">' + esc(result.utc.slice(0, 16).replace('T', ' ')) + 'Z</time>'
-      : '';
-    const provenance = source || date
-      ? '<br><span class="challenge-result-source">' + source + (source && date ? ' · ' : '') + date + '</span>'
-      : '';
-    return screens + provenance;
-  };
+  const matchedText = result => result?.screens?.matched == null ? '—' : fmtN(result.screens.matched);
   let html = '<thead><tr><th>Challenge</th><th>Initial</th><th>Current</th>'
-    + '<th>Change</th><th>Source pointers</th></tr></thead><tbody>';
+    + '<th>Total</th><th>Change</th><th>Source pointers</th></tr></thead><tbody>';
   let cardHtml = '';
   challengeCases.forEach(item => {
     const title = (item.batch ? item.batch + ' · ' : '') + (item.title || item.id);
     const pointers = (item.sourcePointers || []).join(' · ');
     const outcome = item.outcome ? '<div class="challenge-outcome">' + esc(item.outcome) + '</div>' : '';
+    const initial = item.first?.screens?.matched;
+    const current = item.current?.screens?.matched;
+    const total = item.current?.screens?.total ?? item.first?.screens?.total ?? item.screenCount;
+    // A null delta marks measurements the evaluator found incomparable.
+    const change = item.delta == null || initial == null || current == null
+      ? '—' : fmtDelta(current - initial);
     const fields = [
-      ['Initial', resultText(item.first)],
-      ['Current', resultText(item.current)],
-      ['Change', item.delta == null ? '—' : fmtDelta(item.delta)],
+      ['Initial', matchedText(item.first)],
+      ['Current', matchedText(item.current)],
+      ['Total', total == null ? '—' : fmtN(total)],
+      ['Change', change],
       ['Source pointers', pointers ? esc(pointers) : '—'],
     ];
     html += '<tr><td title="' + esc(title) + '"><div>' + esc(title) + '</div>' + outcome + '</td>'

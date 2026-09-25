@@ -295,11 +295,32 @@ test('score cards share one format and show commit ages without hashes', () => {
     const table = rendered.get('challengeTable').innerHTML;
     assert.match(table, /Nested &lt;box&gt;/u);
     assert.match(table, /container/u);
-    assert.match(table, /title="f{40}">fffffff/u);
-    assert.match(table, /2026-01-01 00:00Z/u);
+    assert.match(table, /<th>Initial<\/th><th>Current<\/th><th>Total<\/th><th>Change<\/th>/u);
+    assert.match(table, /<td>2<\/td><td>—<\/td><td>3<\/td><td>—<\/td>/u);
+    assert.doesNotMatch(table, /f{40}|2026-01-01 00:00Z|<time\b/u);
     assert.match(table, /invent\.c:12 &lt;tip&gt;/u);
     assert.doesNotMatch(table, /<th>Added<\/th>/u);
     assert.doesNotMatch(table, /<box>|<tip>/u);
+});
+
+test('challenge rows and cards show compact counts and comparable change', () => {
+    const data = sourceDashboardData();
+    data.challenges.cases = [
+        { id: 'gain', title: 'Gain', first: { sha: 'a'.repeat(40), utc: '2026-01-01T00:00:00Z',
+            screens: { matched: 2, total: 7 } },
+        current: { sha: 'b'.repeat(40), utc: '2026-01-02T00:00:00Z',
+            screens: { matched: 5, total: 7 } }, delta: 3, sourcePointers: ['hack.c:12'] },
+        { id: 'incomparable', title: 'Incomparable',
+            first: { screens: { matched: 1, total: 7 } },
+            current: { screens: { matched: 4, total: 8 } }, delta: null },
+    ];
+    const rendered = renderDashboard(data);
+    const table = rendered.get('challengeTable').innerHTML;
+    const cards = rendered.get('challengeCards').innerHTML;
+    assert.match(table, /Gain[\s\S]*<td>2<\/td><td>5<\/td><td>7<\/td><td>\+3<\/td>/u);
+    assert.match(table, /Incomparable[\s\S]*<td>1<\/td><td>4<\/td><td>8<\/td><td>—<\/td>/u);
+    assert.match(cards, /<dt>Initial<\/dt><dd>2<\/dd>[\s\S]*<dt>Current<\/dt><dd>5<\/dd>[\s\S]*<dt>Total<\/dt><dd>7<\/dd>[\s\S]*<dt>Change<\/dt><dd>\+3<\/dd>/u);
+    assert.doesNotMatch(table + cards, /2026-01-0|a{40}|b{40}|<time\b|challenge-result-source/u);
 });
 
 test('score rows expose named development and local holdout measures', () => {
