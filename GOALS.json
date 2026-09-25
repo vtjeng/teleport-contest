@@ -71588,7 +71588,7 @@
     {
       "id": "port-trap-float-down-synthetic-v1-20260925",
       "kind": "file-port",
-      "status": "open",
+      "status": "parked",
       "summary": "Port levitation landing and float_down source callers",
       "cFile": "trap.c",
       "sessions": [
@@ -71610,7 +71610,7 @@
           "line": 4024,
           "endLine": 4182,
           "declared": true,
-          "complete": false
+          "complete": true
         }
       ],
       "range": {
@@ -71901,7 +71901,192 @@
             }
           }
         }
-      ]
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "float_down",
+            "implementation": "js/trap.js",
+            "symbol": "float_down",
+            "sourceReview": "Reviewed all of trap.c:float_down (4024-4182), including levitation-source mask clearing, residual Levitation and BLevitation early returns, flight and swallowing exits, punishment/ball movement, held-monster release, pool and lava ordering, drowned-message suppression, water/air landing messages, Sokoban fall damage, saddle message suppression, encumbrance, level-change detection, trap activation, pickup ordering, and the returned relocation boolean. Ported its return-valued drown() dependency and preserved source order. C discards lava_effects(), obj.c:movobj(), and polyself.c:selftouch() results/effects; the JS records note_unported() at those exact call sites and does not use the result of a gap. The trap activation arm still meets the named trap.c:dotrap blocker in the current production dispatcher. Removed the old float_down refusal on the supported paths. Supporting return-valued helpers drown(), emergency_disrobe(), rnd_nextto_goodpos(), crawl_destination(), and safe_teleds() were also ported under recorded scope expansions; their separate source, caller, purity/test, and blocked-runtime details are in .cache/A3-support-evidence.json. The assigned source goal remains formally limited to float_down.",
+            "callers": [
+              {
+                "path": "js/do_wear.js",
+                "symbol": "Ring_off_or_gone",
+                "source": "do_wear.c:Ring_off_or_gone calls float_down(0, 0) when the last levitation source is removed; cmd.c 'R' dispatches to doremring and Ring_off."
+              },
+              {
+                "path": "js/do_wear.js",
+                "symbol": "Boots_off",
+                "source": "do_wear.c:Boots_off calls float_down(0, 0) after levitation boots cease to provide levitation."
+              },
+              {
+                "path": "js/timeout.js",
+                "symbol": "decrement_property_timeouts",
+                "source": "timeout.c:timeout calls float_down(I_SPECIAL | TIMEOUT, 0) when levitation's timer expires."
+              },
+              {
+                "path": "js/hack.js",
+                "symbol": "spoteffects",
+                "source": "hack.c:spoteffects calls float_down(I_SPECIAL | TIMEOUT, 0) when its trap timeout decision selects the landing arm."
+              },
+              {
+                "path": "js/steed.js",
+                "symbol": "dismount_steed",
+                "source": "steed.c:dismount_steed calls float_down(0, W_SADDLE) after returning the hero to the surface."
+              },
+              {
+                "path": "js/artifacts.js",
+                "symbol": "arti_invoke",
+                "source": "artifact.c:arti_invoke calls float_down(I_SPECIAL | TIMEOUT, W_ARTI) when the invoked levitation artifact expires."
+              },
+              {
+                "path": "js/steal.js",
+                "symbol": "steal",
+                "source": "steal.c removes worn hero equipment through Ring_gone; the awaited caller preserves the possible levitation-ring landing effect."
+              },
+              {
+                "path": "js/zap_destroy_items.js",
+                "symbol": "destroy_items",
+                "source": "zap.c item destruction reaches the worn-item removal path and may call Ring_gone for a levitation ring."
+              },
+              {
+                "path": "js/zap.js",
+                "symbol": "zhitm",
+                "source": "zap.c:zhitm routes affected worn equipment through the asynchronous worn-item removal path."
+              },
+              {
+                "path": "js/eat.js",
+                "symbol": "eataccessory",
+                "source": "eat.c:eataccessory calls Ring_gone when an accessory is consumed; levitation-ring consumption is separately documented as unreachable because RIN_LEVITATION is GEMSTONE."
+              }
+            ],
+            "pure": false,
+            "tests": [],
+            "recordings": [
+              "recordings/trap.c/levitation-timeout-independent.session.json",
+              "recordings/trap.c/float-down-steed-dismount-independent.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v1",
+                "caseId": "terrain-transitions",
+                "segment": 0,
+                "fromStep": 57,
+                "throughStep": 59,
+                "source": "cmd.c 'R' -> do_wear.c:doremring -> Ring_off -> Ring_off_or_gone -> trap.c:float_down"
+              }
+            ],
+            "checkedAt": "017038c1e14957228ef42eeb319448e71159eb24"
+          }
+        ],
+        "entryPointReview": "The assigned source goal is trap.c:float_down. Its active paths are listed individually below: manual R/remove of a levitation ring matches the admitted v1 terrain-transitions replay through step 59; levitation timeout and steed dismount each have independent complete recordings. Blocked active float_down paths retain recipes and empty evidence arrays: Boots_off remains behind UnsupportedTakeOffError; hack.c:spoteffects timeout-before-trap is refused by the unported dotrap preflight; pool landing and the drown/rescue arm stop at the unsupported wizcmds.c:wiz_wish -> zap.c:makewish terrain setup; artifact invocation and do.c:dodown/do.c:drop controlled-artifact paths stop at the earlier artifact-wish mismatch; consuming a levitation ring is impossible because RIN_LEVITATION is GEMSTONE and eat.c:is_edible rejects it for a xorn. A strict scrolltele recording covers only read.c:seffects -> teleport.c:scrolltele controlled wizard behavior and does not execute safe_teleds; that helper gap and the supporting helper ports/tests are in .cache/A3-support-evidence.json. Active Ring_gone production callers in eataccessory, theft, and zap destruction now await the source-mapped removal path; the matching metal-ring eataccessory recording verifies that nonlevitating caller only. dothrow.c worn-object refusal is a separate upstream blocker and was not expanded into this task. C-discarded callees remain explicit note_unported() gaps in float_down; no gap result is used as data.",
+        "entryPoints": [
+          {
+            "name": "R/remove a worn levitation ring",
+            "functions": [
+              "float_down"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v1",
+                "caseId": "terrain-transitions",
+                "segment": 0,
+                "fromStep": 57,
+                "throughStep": 59,
+                "source": "cmd.c 'R' -> do_wear.c:doremring -> Ring_off -> Ring_off_or_gone -> trap.c:float_down"
+              }
+            ]
+          },
+          {
+            "name": "levitation timer expiry",
+            "functions": [
+              "float_down"
+            ],
+            "recordings": [
+              "recordings/trap.c/levitation-timeout-independent.session.json"
+            ],
+            "synthetic": []
+          },
+          {
+            "name": "steed dismount landing",
+            "functions": [
+              "float_down"
+            ],
+            "recordings": [
+              "recordings/trap.c/float-down-steed-dismount-independent.session.json"
+            ],
+            "synthetic": []
+          },
+          {
+            "name": "levitation boots removal",
+            "functions": [
+              "float_down"
+            ],
+            "recordings": [],
+            "synthetic": []
+          },
+          {
+            "name": "spoteffects timeout landing before a trap",
+            "functions": [
+              "float_down"
+            ],
+            "recordings": [],
+            "synthetic": []
+          },
+          {
+            "name": "pool landing, drown, and rescue relocation",
+            "functions": [
+              "float_down"
+            ],
+            "recordings": [],
+            "synthetic": []
+          },
+          {
+            "name": "artifact-controlled levitation expiry",
+            "functions": [
+              "float_down"
+            ],
+            "recordings": [],
+            "synthetic": []
+          },
+          {
+            "name": "do.c:dodown controlled-artifact levitation expiry",
+            "functions": [
+              "float_down"
+            ],
+            "recordings": [],
+            "synthetic": []
+          },
+          {
+            "name": "do.c:drop finesse_ahriman levitation cleanup",
+            "functions": [
+              "float_down"
+            ],
+            "recordings": [],
+            "synthetic": []
+          },
+          {
+            "name": "levitation ring consumed through eataccessory",
+            "functions": [
+              "float_down"
+            ],
+            "recordings": [],
+            "synthetic": []
+          }
+        ]
+      },
+      "progressBeforePark": {
+        "screens": 0,
+        "rng": 0
+      },
+      "parkedStanding": {
+        "sha": "017038c1e14957228ef42eeb319448e71159eb24",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "parkedReason": "float_down is source-verified; remaining entry-point recordings are blocked by Boots_off, spoteffects/dotrap, wish terrain setup, artifact wishes, and do.c callers; trap.c rescued_from_terrain remains an explicit void-callee gap"
     },
     {
       "id": "port-apply-use-lamp-synthetic-v1-20260925",
