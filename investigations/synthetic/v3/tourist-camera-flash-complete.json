@@ -1,0 +1,118 @@
+{
+  "session": "synthetic/v3/tourist-camera-flash-complete",
+  "corpus": "synthetic",
+  "batch": "v3",
+  "caseId": "tourist-camera-flash-complete",
+  "manifestPath": "challenges/manifests/v3.json",
+  "manifestSha256": "922fd19b46005c40283152102ac301035c7f84f82a8e5e9d7caf691f183a2b67",
+  "recordingPath": "challenges/cases/v3/tourist-camera-flash-complete.session.json",
+  "recordingSha256": "a0ff9cf099b0b1cc9df2242ee50959ae619463c2c6165dd249e78b6bd729fc13",
+  "evaluationPath": "challenges/evaluations/20260925200627-v3.json",
+  "evaluationCommit": "933a8a5b9fc4f2072aa8f0b0c3672bc9a3d9f4bc",
+  "remainingScreens": 7,
+  "recordedSteps": 12,
+  "status": "complete",
+  "commit": "933a8a5b9fc4f2072aa8f0b0c3672bc9a3d9f4bc",
+  "mismatch": {
+    "corpus": "synthetic",
+    "batch": "v3",
+    "caseId": "tourist-camera-flash-complete",
+    "session": "synthetic/v3/tourist-camera-flash-complete",
+    "manifestPath": "challenges/manifests/v3.json",
+    "manifestSha256": "922fd19b46005c40283152102ac301035c7f84f82a8e5e9d7caf691f183a2b67",
+    "recording": "challenges/cases/v3/tourist-camera-flash-complete.session.json",
+    "recordingPath": "challenges/cases/v3/tourist-camera-flash-complete.session.json",
+    "recordingSha256": "a0ff9cf099b0b1cc9df2242ee50959ae619463c2c6165dd249e78b6bd729fc13",
+    "recipe": "challenges/cases/v3/tourist-camera-flash-complete.recipe.json",
+    "recipeSha256": "0a3d18cc9656189753dbec6ceedff51bc5e54f9057a631f45d23c514fa5fe268",
+    "replayInputSha256": "9da975188a33c7113a90a0b387d4bc8d31fee5f3a1760ae5176d71fd2739bec4",
+    "evaluationPath": "challenges/evaluations/20260925200627-v3.json",
+    "evaluationCommit": "933a8a5b9fc4f2072aa8f0b0c3672bc9a3d9f4bc",
+    "evaluationArtifact": "challenges/evaluations/20260925200627-v3.json",
+    "evaluationUtc": "2026-09-25T20:06:32.623Z",
+    "remainingScreens": 7,
+    "recordedSteps": 12,
+    "previousScreensMatched": 5,
+    "regression": false,
+    "passed": false,
+    "error": null,
+    "metrics": {
+      "screens": {
+        "matched": 5,
+        "total": 12
+      },
+      "rng": {
+        "matched": 6351,
+        "total": 6426
+      },
+      "cursors": {
+        "matched": 5,
+        "total": 12
+      }
+    },
+    "firstMismatch": {
+      "kind": "stop",
+      "message": "unsupported hero command: an unported branch of this command: applying a tool requires doapply()'s arm for object type 229",
+      "step": 5
+    },
+    "step": 5,
+    "kind": "stop",
+    "sourceFile": "apply.c",
+    "function": "doapply",
+    "message": "unsupported hero command: an unported branch of this command: applying a tool requires doapply()'s arm for object type 229",
+    "cFile": "apply.c",
+    "luaFile": null,
+    "line": null
+  },
+  "summary": "The v3 Tourist camera case matches 5/12 screens. Selecting the starting expensive camera for apply at step 5 reaches the missing apply.c doapply arm in js/apply.js. C use_camera() asks for a direction, consumes one camera charge after the answer, and calls do_blinding_ray() for a horizontal flash. That function uses zap.c bhit(..., FLASHED_LIGHT, ...) and its returned monster pointer. Port the two complete apply.c functions, wire the camera arm, and extend bhit for the source flash path.",
+  "source": {
+    "file": "apply.c",
+    "branch": "A sighted Tourist with a charged expensive camera applies it on dungeon level 1. use_camera() passes its underwater check and asks for a direction at segment 0 step 5; the next input aims north, consuming a charge and tracing a horizontal flash.",
+    "functions": [
+      "do_blinding_ray",
+      "use_camera"
+    ],
+    "callers": [
+      "apply.c doapply() case EXPENSIVE_CAMERA at lines 4352-4353 assigns res = use_camera(obj); js/apply.js doapply() currently throws an unsupported object-type-229 arm.",
+      "apply.c use_camera() at lines 82-111 calls do_blinding_ray(obj) for a horizontal direction after charge and curse handling."
+    ],
+    "dependencies": [
+      "apply.c do_blinding_ray() at lines 61-76 uses zap.c bhit() return value for a flashed-light ray; js/zap.js bhit() currently rejects FLASHED_LIGHT and must gain that source branch, including its monster result.",
+      "C calls flash_hits_mon() when bhit returns a monster and transient_light_cleanup() after the ray; account for source-ordered visible monster, invisible monster, and cleanup paths."
+    ]
+  },
+  "goalKind": "file-port",
+  "evidence": [
+    "Saved challenges/evaluations/20260925191954-v3.json at 7dd208a68ee62546cb117c2d9763f8e1e63fef62 reports 5/12 screens and cursors, 6351/6426 RNG calls, and 7 unmatched screens.",
+    "Current diagnostic .cache/loop-v3-camera-flash-diagnostic.json at 862e6adfbdc966edb79f7b43d9eaf4455de46f3d stops at segment 0 step 5 on inventory letter l, reporting unsupported apply.c doapply object type 229.",
+    "C recording challenges/cases/v3/tourist-camera-flash-complete.session.json shows step 4 key a asking which tool to apply, step 5 key l asking “In what direction?”, and step 6 key k completing a turn after the flash.",
+    "nethack-c/upstream/src/apply.c:79-112 defines use_camera(), including direction prompt, charge consumption, curse/self/vertical/monster branches; apply.c:61-76 defines do_blinding_ray() and uses the bhit return. apply.c:4352-4353 dispatches EXPENSIVE_CAMERA through doapply().",
+    "nethack-c/upstream/src/zap.c:3827-4139 implements bhit() flashed-light transient rendering, monster encounter, and return-value semantics. js/zap.js bhit() around line 3097 rejects that call type; js/apply.js doapply() around line 1332 rejects the camera arm."
+  ],
+  "entryPointReview": {
+    "active": [
+      "Apply the initially carried expensive camera in synthetic/v3/tourist-camera-flash-complete, segment 0 steps 4-6."
+    ],
+    "blocked": [
+      "The unsupported doapply camera arm stops before the C direction prompt; after wiring it, flashed-light bhit behavior must be ported for a horizontal shot.",
+      "Monster-hit, cursed backfire, underwater, vertical, and exhausted-charge entry paths need matching synthetic ranges or independent C recordings before source completion."
+    ]
+  },
+  "plannedWholeFunctionScope": {
+    "primary": {
+      "file": "apply.c",
+      "functions": [
+        "do_blinding_ray",
+        "use_camera"
+      ]
+    },
+    "callerWiring": [
+      "apply.c doapply EXPENSIVE_CAMERA arm in js/apply.js"
+    ],
+    "returnValuedDependency": {
+      "file": "zap.c",
+      "function": "bhit",
+      "status": "FLASHED_LIGHT branch and monster pointer used by do_blinding_ray"
+    }
+  }
+}

@@ -71317,7 +71317,7 @@
     {
       "id": "port-apply-use-lamp-synthetic-v1-20260925",
       "kind": "file-port",
-      "status": "open",
+      "status": "closed",
       "summary": "Port complete oil-lamp apply and burn-state transitions",
       "cFile": "apply.c",
       "sessions": [
@@ -71331,15 +71331,18 @@
         "screens": 11405,
         "rng": 792838
       },
-      "closedAt": null,
-      "delivered": null,
+      "closedAt": "933a8a5b9fc4f2072aa8f0b0c3672bc9a3d9f4bc",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
       "functions": [
         {
           "name": "use_lamp",
           "line": 1628,
           "endLine": 1702,
-          "declared": false,
-          "complete": false
+          "declared": true,
+          "complete": true
         }
       ],
       "range": {
@@ -71515,7 +71518,86 @@
             }
           }
         }
-      ]
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "use_lamp",
+            "implementation": "js/apply.js",
+            "symbol": "use_lamp",
+            "sourceReview": "Compared all of apply.c use_lamp() (1628-1702) in source order: already-lit snuffing precedes the underwater guard; underwater precedes empty fuel; magic-lamp spe==0 shares the no-fuel condition; cursed lighting draws rn2(2), and oil/magic lamps draw rn2(3) only inside the first failed draw before d(2,10) and make_glib(); successful lamps check unpaid then print before begin_burn(); candles use Yname2/s_suffix and only bill when unpaid, costly_spot(), and exact age == 20*oc_cost. The direct doapply() OIL_LAMP/MAGIC_LAMP/BRASS_LANTERN arm is wired with C's unchanged ECMD_TIME result. Its caller's WAX_CANDLE/TALLOW_CANDLE arm is also wired to the whole supporting apply.c use_candle() (1387-1468), including swallowed return, candelabrum lookup, safe_qbuf() question construction, y_n() fallback, splitobj(), temporary end_burn(), candelabrum age/count/light transitions, useupall(), weight(), and inventory refresh. The independent recordings `recordings/apply.c/wax-candle-apply.session.json` and `recordings/apply.c/candelabrum-attach-candle.session.json` reach its fallback and accepted attachment caller paths. Completed objnam.c safe_qbuf() (5624-5698) and short_oname() (2009-2085) support uses C-string byte counts, QBUFSZ fallback order, eight-byte-plus-ellipsis user/object-name shortening, attribute stripping, and guaranteed temporary-state restoration; scripts/apply-lamp.test.mjs pins these pure formatter results. The discarded void light.c obj_merge_light_sources() result in lit-candelabrum attachment is skipped with note_unported('light.c obj_merge_light_sources'). The void check_unpaid() wrapper is attempted, but when its current shk.c check_unpaid_usage() reaches the unsupported billing case, the path records note_unported('shk.c check_unpaid_usage') and continues with C's lamp-lighting flow. No session-specific conditions were introduced and the doapply unsupported default remains only for other unported tool arms.",
+            "callers": [
+              {
+                "path": "js/apply.js",
+                "symbol": "doapply",
+                "source": "apply.c:doapply() switch at 4344-4346 calls use_lamp(obj) for OIL_LAMP, MAGIC_LAMP, and BRASS_LANTERN. js/apply.js doapply() now awaits use_lamp() and returns its initial ECMD_TIME result."
+              },
+              {
+                "path": "js/cmd.js",
+                "symbol": "runApplyCommand",
+                "source": "cmd.c:1678 binds the `a` key to doapply(); cmd.c:4705 and :4751 also queue that handler. js/cmd.js runApplyCommand() at :3292-3297 enters js/apply.js doapply() through failClosedCommand()."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/apply-lamp.test.mjs"
+            ],
+            "recordings": [
+              "recordings/apply.c/oil-lamp-archeologist-probe.session.json",
+              "recordings/apply.c/wax-candle-apply.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v1",
+                "caseId": "sustained-journey",
+                "segment": 0,
+                "fromStep": 186,
+                "throughStep": 187,
+                "source": "cmd.c:1678 `a` command -> apply.c doapply() -> OIL_LAMP switch arm -> apply.c use_lamp()"
+              }
+            ],
+            "checkedAt": "933a8a5b9fc4f2072aa8f0b0c3672bc9a3d9f4bc"
+          }
+        ],
+        "entryPointReview": "Read apply.c:doapply() (4214-4425), including its getobj()/retouch ordering, switch arms, time result, and artifact tail; cmd.c:1678 binds `a` to doapply(), while the `doapply` C entry is also queued from cmd.c:4705 and :4751. The active JavaScript command path is cmd.js runApplyCommand() at :3292-3297 through failClosedCommand() into apply.js doapply(). Direct OIL_LAMP, MAGIC_LAMP, and BRASS_LANTERN selection dispatches to use_lamp(); WAX_CANDLE and TALLOW_CANDLE dispatch to use_candle(), which delegates to use_lamp() when the candelabrum is absent/full or the attach prompt is declined. The admitted v1 sustained-journey range reaches the direct oil-lamp arm. Independent `recordings/apply.c/wax-candle-apply.session.json` reaches the no-candelabrum candle fallback through use_candle() into use_lamp(), and `recordings/apply.c/candelabrum-attach-candle.session.json` reaches the accepted attach/consume path. Supporting use_candle() is ported in the same file and its pure safe_qbuf()/short_oname() dependencies are source-pinned in scripts/apply-lamp.test.mjs. C's void light.c obj_merge_light_sources() result is discarded, so that one lit-candelabrum attachment subpath records note_unported('light.c obj_merge_light_sources') and continues; shk.c check_unpaid_usage() is likewise noted only when its void check_unpaid() wrapper reaches the unresolved shop-billing branch.",
+        "entryPoints": [
+          {
+            "name": "#apply command selects and lights a carried oil lamp",
+            "functions": [
+              "use_lamp"
+            ],
+            "recordings": [
+              "recordings/apply.c/oil-lamp-archeologist-probe.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v1",
+                "caseId": "sustained-journey",
+                "segment": 0,
+                "fromStep": 186,
+                "throughStep": 187,
+                "source": "cmd.c:1678 `a` command -> apply.c doapply() -> OIL_LAMP switch arm -> apply.c use_lamp()"
+              }
+            ]
+          },
+          {
+            "name": "#apply candle delegates to use_lamp when no candelabrum is carried",
+            "functions": [
+              "use_lamp"
+            ],
+            "recordings": [
+              "recordings/apply.c/wax-candle-apply.session.json"
+            ],
+            "synthetic": []
+          }
+        ]
+      },
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "933a8a5b9fc4f2072aa8f0b0c3672bc9a3d9f4bc",
+        "screens": 11405,
+        "rng": 792838
+      }
     }
   ]
 }
