@@ -16,6 +16,7 @@ import {
     COLNO,
     CORR,
     DEAF,
+    CQ_CANNED,
     DB_MOAT,
     DBWALL,
     DB_UNDER,
@@ -25,8 +26,13 @@ import {
     DOOR,
     DRAWBRIDGE_DOWN,
     DRAWBRIDGE_UP,
+    ECMD_CANCEL,
+    ECMD_OK,
+    ECMD_TIME,
     DIGTYP_DOOR,
+    DIGTYP_BOULDER,
     DIGTYP_ROCK,
+    DIGTYP_STATUE,
     DIGTYP_TREE,
     DIGTYP_UNDIGGABLE,
     FAINTED,
@@ -50,6 +56,10 @@ import {
     POOL,
     ROOM,
     ROWNO,
+    N_DIRS_Z,
+    MV_WALK,
+    TT_WEB,
+    TT_PIT,
     SCORR,
     SDOOR,
     SHOPBASE,
@@ -57,12 +67,23 @@ import {
     TT_BURIEDBALL,
     u_at,
     W_NONDIGGABLE,
+    is_pit,
 } from './const.js';
 import { game } from './gstate.js';
 import { objectGenerationEnv } from './object_generation.js';
 // js/hack.js imports dig_typ(); both crossings occur only inside function
 // bodies, so the source-owned in_town() remains safe across the cycle.
 import { in_town } from './hack.js';
+import { can_reach_floor } from './engrave.js';
+import {
+    cmd_from_dir,
+    cmdq_add_ec,
+    cmdq_add_key,
+    dxdy_moveok,
+    extcmdRow,
+    getdir,
+    movecmd,
+} from './cmd.js';
 import { obfree, obj_extract_self } from './invent.js';
 import { hides_under, is_watch } from './mondata.js';
 import { angry_guards, get_iter_mons } from './mon.js';
@@ -77,6 +98,7 @@ import {
     ORANGE,
     PEAR,
     ROCK,
+    STATUE,
 } from './objects.js';
 import { cvt_sdoor_to_door } from './detect.js';
 import { verbalize } from './pline.js';
@@ -86,11 +108,13 @@ import { is_axe, is_pick, mksobj_at, remove_object, sobj_at } from './obj.js';
 import { canseemon, m_canseeu, recalc_block_point, unblock_point } from './vision.js';
 import { rn1, rn2 } from './rng.js';
 import { set_voice } from './sounds.js';
-import { is_lava, is_pool } from './trap.js';
+import { Flying, conjoined_pits, is_lava, is_pool, t_at } from './trap.js';
+import { bimanual } from './worn.js';
 import { stairway_at } from './stairs.js';
 import { dist2, s_suffix } from './hacklib.js';
 import { unconscious } from './trap.js';
 import { ttyPline } from './tty_message.js';
+import { wield_tool } from './wield.js';
 
 // C ref: youprop.h Unaware. The draft-message random roll is skipped while a
 // negative multi represents unconsciousness or fainting.
@@ -99,20 +123,37 @@ function unaware(state) {
         && (unconscious(state) || state.u?.uhs === FAINTED);
 }
 
+// C ref: dig.c pick_can_reach() (141-164). A pick reaches a target in a pit
+// only when the hero's pit links to it; otherwise the hero must be able to
+// reach across with a two-handed tool. Outside a pit, bimanual tools and
+// flying heroes can reach any target, while a one-handed pick cannot reach a
+// target in a known pit.
+export function pick_can_reach(pick, x, y, state = game) {
+    const trap = t_at(x, y, state);
+    const targetInPit = Boolean(trap && is_pit(trap.ttyp) && trap.tseen);
+
+    if (state.u?.utrap && state.u.utraptype === TT_PIT) {
+        if (targetInPit)
+            return conjoined_pits(
+                trap,
+                t_at(state.u.ux, state.u.uy, state),
+                false,
+                state,
+            );
+        return bimanual(pick, state);
+    }
+
+    if (bimanual(pick, state) || Flying(state)) return true;
+    return !targetInPit;
+}
+
 // C ref: dig.c dig_typ() (167-192). Answers what digging into <x,y> with
 // `otmp` would break: a door, a tree, rock, or nothing diggable at all.
 // DIGTYP_UNDIGGABLE is 0, so C's callers spell the question as a plain truth
 // test on the result.
 //
-// The axe arm (177-180) and the pick's door, tree and rock arms (186-191) are
-// ported. The pick's statue arm (182-183) and boulder arm (184-185) are not:
-// each asks sobj_at() and then pick_can_reach(), which needs bimanual(),
-// Flying, u.utrap and trap.c conjoined_pits(). The only caller, hack.c
-// domove_fight_empty(), refuses a square holding a boulder or a statue above
-// the line that asks this question -- js/hack.js does it with a wider test
-// than C's, sobj_at() for both rather than C's glyph reads -- so no call can
-// reach either arm. Porting them belongs with use_pick_axe2(), the caller that
-// can.
+// All source arms are ported, including the two object arms whose reach rule
+// is shared with use_pick_axe2().
 //
 // The order of the pick's remaining arms is what dig.c's own "pick vs tree"
 // comment marks. A tree is answered DIGTYP_UNDIGGABLE before IS_OBSTRUCTED()
@@ -212,12 +253,76 @@ export function dig_typ(otmp, x, y, state = game) {
             : IS_TREE(ltyp, state) ? DIGTYP_TREE /* axe vs tree */
                 : DIGTYP_UNDIGGABLE;
     /*assert(is_pick(otmp));*/
+    const statue = sobj_at(STATUE, x, y, state);
+    if (statue && pick_can_reach(otmp, x, y, state))
+        return DIGTYP_STATUE;
+    const boulder = sobj_at(BOULDER, x, y, state);
+    if (boulder && pick_can_reach(otmp, x, y, state))
+        return DIGTYP_BOULDER;
     return closed_door(x, y, state) ? DIGTYP_DOOR
         : IS_TREE(ltyp, state) ? DIGTYP_UNDIGGABLE /* pick vs tree */
             : (IS_OBSTRUCTED(ltyp)
                && (!state.level.flags.arboreal || IS_WALL(ltyp)))
                 ? DIGTYP_ROCK
                 : DIGTYP_UNDIGGABLE;
+}
+
+// C ref: dig.c use_pick_axe() (1092-1155). Applying a digging tool first
+// equips it when needed, then offers only directions that can reach a
+// diggable target (plus vertical choices that can reach the floor).
+export async function use_pick_axe(obj, state = game) {
+    const ispick = is_pick(obj, state);
+    const verb = ispick ? 'dig' : 'chop';
+    const u = state.u;
+    if (obj !== state.uwep) {
+        if (await wield_tool(obj, 'swing', state)) {
+            cmdq_add_ec(CQ_CANNED, extcmdRow('apply'), state);
+            cmdq_add_key(CQ_CANNED, obj.invlet, state);
+            return ECMD_TIME;
+        }
+        return ECMD_OK;
+    }
+
+    if (u.utrap && u.utraptype === TT_WEB) {
+        await ttyPline(
+            `Unfortunately, you can't ${verb} while entangled in a web.`,
+            state,
+        );
+        return ECMD_OK;
+    }
+
+    const downok = Boolean(can_reach_floor(false, state));
+    const directions = [];
+    for (let dir = 0; dir < N_DIRS_Z; dir++) {
+        const dirch = cmd_from_dir(dir, MV_WALK, state);
+        if (u.uswallow) {
+            // All directions are viable while swallowed.
+        } else if (movecmd(dirch, MV_WALK, state)) {
+            if (!dxdy_moveok(state)) continue;
+            const rx = u.ux + u.dx;
+            const ry = u.uy + u.dy;
+            if (!isok(rx, ry) || dig_typ(obj, rx, ry, state) === DIGTYP_UNDIGGABLE)
+                continue;
+        } else if (Boolean((u.dz > 0) !== downok)) {
+            continue;
+        }
+        directions.push(String.fromCharCode(dirch));
+    }
+    const prompt = `In what direction do you want to ${verb}? `
+        + `[${directions.join('')}]`;
+    if (!await getdir(prompt, state))
+        return ECMD_CANCEL;
+    return use_pick_axe2(obj, state);
+}
+
+// C ref: dig.c use_pick_axe2() (1162-1359). The selected v4 replay cancels
+// at getdir() and does not enter this second stage. Keep later valid-direction
+// use explicit until its return-valued attack and occupation families are
+// ported; callers must not mistake an unimplemented result for ECMD_TIME.
+export function use_pick_axe2(_obj, _state = game) {
+    throw new Error(
+        'dig.c use_pick_axe2() needs the remaining attack and occupation ports',
+    );
 }
 
 // C ref: dbridge.c is_moat() (100-112). is_pool() deliberately remains a

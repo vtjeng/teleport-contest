@@ -77,6 +77,7 @@ import {
     simpleonames,
     vtense,
     xnameFresh,
+    yname,
     Yname2,
 } from './objnam.js';
 import {
@@ -87,7 +88,6 @@ import {
     IRON_CHAIN,
     LENSES,
     LOADSTONE,
-    MAGIC_LAMP,
     SCROLL_CLASS,
     TIN_OPENER,
     WEAPON_CLASS,
@@ -875,55 +875,80 @@ export async function doquiver_core(verb, state = game) {
     return res ? ECMD_TIME : ECMD_OK;
 }
 
-// C ref: wield.c wield_tool() (683-758), restricted to the ordinary unworn,
-// unwelded lamp path reached by apply.c dorub(). The guards below keep the
-// worn, welded, unable-to-wield, shield, quiver, alternate-weapon,
-// self-welding, pushweapon, and two-weapon arms fail-closed before they print
-// or change an equipment slot.
+// C ref: wield.c wield_tool() (683-758). Used by rub and by the apply paths
+// for pick-axes, whips, grappling hooks, and polearms.
 export async function wield_tool(obj, verb, state = game) {
     if (state.uwep && obj === state.uwep)
-        throw new UnsupportedWieldError('wield_tool() with uwep');
-    if (obj.otyp !== MAGIC_LAMP) {
-        throw new UnsupportedWieldError(
-            'wield_tool() with a non-magic lamp',
-        );
-    }
+        return true;
 
     if (!verb) verb = 'wield';
     const what = xnameFresh(obj, state);
-    const moreThanOne = obj.quan > 1
+    let moreThanOne = obj.quan > 1
         || strstri(what, 'pair of ') >= 0
         || strstri(what, 's of ') >= 0;
 
     if (obj.owornmask & (W_ARMOR | W_ACCESSORY)) {
-        throw new UnsupportedWieldError(
-            `wield_tool() ${verb} with a worn ${moreThanOne ? 'stack' : 'item'}`,
+        await ttyPline(
+            `You cannot ${verb} ${yname(obj, state)} while wearing `
+                + `${moreThanOne ? 'them' : 'it'}.`,
+            state,
         );
+        return false;
     }
-    if (state.uwep && will_weld(state.uwep, state))
-        throw new UnsupportedWieldError('wield_tool() with welded uwep');
-    if (cantwield(state.youmonst?.data ?? state.mons[state.u.umonnum]))
-        throw new UnsupportedWieldError('wield_tool() without wielding hands');
-    if (state.uarms && bimanual(obj, state)) {
-        throw new UnsupportedWieldError(
-            'wield_tool() with a two-handed object and shield',
+    if (state.uwep && welded(state.uwep, state)) {
+        if (state.flags.verbose) {
+            let hand = body_part(HAND, state.youmonst);
+            if (bimanual(state.uwep, state)) hand = makeplural(hand);
+            if (strstri(what, 'pair of ') !== -1) moreThanOne = false;
+            await ttyPline(
+                `Since your weapon is welded to your ${hand}, you cannot `
+                    + `${verb} ${moreThanOne ? 'those' : 'that'} ${what}.`,
+                state,
+            );
+        } else {
+            await ttyPline("You can't do that.", state);
+        }
+        return false;
+    }
+    if (cantwield(state.youmonst?.data ?? state.mons[state.u.umonnum])) {
+        await ttyPline(
+            `You can't hold ${moreThanOne ? 'them' : 'it'} strongly enough.`,
+            state,
         );
+        return false;
+    }
+    if (state.uarms && bimanual(obj, state)) {
+        const kind = obj.oclass === WEAPON_CLASS ? 'weapon' : 'tool';
+        await ttyPline(
+            `You cannot ${verb} a two-handed ${kind} while wearing a shield.`,
+            state,
+        );
+        return false;
     }
     if (state.uquiver === obj)
-        throw new UnsupportedWieldError('wield_tool() with uquiver');
-    if (state.uswapwep === obj)
-        throw new UnsupportedWieldError('wield_tool() with uswapwep');
-    if (will_weld(obj, state))
-        throw new UnsupportedWieldError('wield_tool() with a welding object');
+        setuqwep(null, setwornEnv(state));
+    if (state.uswapwep === obj) {
+        await doswapweapon(state);
+        if (state.uswapwep === obj) return false;
+    } else {
+        const oldwep = state.uwep ?? null;
+        if (will_weld(obj, state)) {
+            // C discards ready_weapon()'s turn result here; it only checks
+            // below whether the selected object ended up in the primary slot.
+            await ready_weapon(obj, state);
+        } else {
+            await ttyPline(`You now wield ${donameFresh(obj, state)}.`, state);
+            setuwep(obj, setwornEnv(state));
+        }
+        if (state.flags.pushweapon && oldwep
+            && (state.uwep ?? null) !== oldwep)
+            setuswapwep(oldwep, setwornEnv(state));
+    }
 
-    const oldwep = state.uwep ?? null;
-    if (state.flags.pushweapon && oldwep)
-        throw new UnsupportedWieldError('wield_tool() with pushweapon');
-    if (state.u.twoweap)
-        throw new UnsupportedWieldError('wield_tool() during two-weapon combat');
+    if (state.uwep && state.uwep !== obj)
+        return false;
+    if (state.u.twoweap) await untwoweapon(state);
 
-    await ttyPline(`You now wield ${donameFresh(obj, state)}.`, state);
-    setuwep(obj, setwornEnv(state));
     if (obj.oclass !== WEAPON_CLASS)
         state.unweapon = true;
     return true;
