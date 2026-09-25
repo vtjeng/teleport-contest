@@ -1,0 +1,11 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 10041051,
+      "datetime": "20360503101500",
+      "nethackrc": "OPTIONS=name:Thalen,role:Healer,race:human,gender:male,align:neutral,playmode:debug,!legacy,!tutorial,!splash_screen,showexp,time\n",
+      "moves": "\u0017magic fountain\nqy qy qy qy qy"
+    }
+  ]
+}

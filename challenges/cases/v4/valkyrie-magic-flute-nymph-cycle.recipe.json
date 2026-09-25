@@ -1,0 +1,11 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 10041117,
+      "datetime": "20360812141500",
+      "nethackrc": "OPTIONS=name:Kara,role:Valkyrie,race:human,gender:female,align:lawful,playmode:debug,!legacy,!tutorial,!splash_screen,showexp,time\n",
+      "moves": "\u0017uncursed magic flute (0:10)\n\u0007nymph\naey.aey"
+    }
+  ]
+}

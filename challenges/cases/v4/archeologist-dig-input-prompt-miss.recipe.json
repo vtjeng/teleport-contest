@@ -1,0 +1,11 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 10041029,
+      "datetime": "20360418091500",
+      "nethackrc": "OPTIONS=name:Orlen,role:Archeologist,race:dwarf,gender:male,align:neutral,!legacy,!tutorial,!splash_screen,showexp,time\n",
+      "moves": "i\u001baekkkkkkkkkkkkkkk"
+    }
+  ]
+}

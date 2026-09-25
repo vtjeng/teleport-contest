@@ -1,0 +1,11 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 10041147,
+      "datetime": "20360814161200",
+      "nethackrc": "OPTIONS=name:Orin,role:Monk,race:human,gender:male,align:lawful,playmode:debug,!legacy,!tutorial,!splash_screen,pettype:none,showexp,time\n",
+      "moves": "\u0017uncursed ring of adornment\n\u0007nymph\nlm.m.m.m.m.m.i"
+    }
+  ]
+}

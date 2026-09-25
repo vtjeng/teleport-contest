@@ -1,0 +1,11 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 10041037,
+      "datetime": "20360420104500",
+      "nethackrc": "OPTIONS=name:Vela,role:Archeologist,race:human,gender:female,align:neutral,!legacy,!tutorial,!splash_screen,showexp,time\n",
+      "moves": "i\u001bae kkkkkkkkkkkkk"
+    }
+  ]
+}
