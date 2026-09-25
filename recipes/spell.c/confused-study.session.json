@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 821018,
+      "datetime": "20300714130000",
+      "nethackrc": "OPTIONS=name:ConfusedStudy,role:Knight,race:human,gender:male,align:lawful\nOPTIONS=!legacy,!tutorial,!splash_screen\nOPTIONS=playmode:debug\n",
+      "moves": " #wizintrinsic\ng\n \u0017blessed spellbook of detect monsters\nri "
+    }
+  ],
+  "comment": "Independent wizard-intrinsic recipe for the confused read.c doread() -> spell.c study_book() -> confused_book() path."
+}
