@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 553083,
+      "datetime": "20310414091500",
+      "nethackrc": "OPTIONS=name:Fountainprobe,role:Healer,race:human,gender:male,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen\nOPTIONS=pettype:none,!acoustics,playmode:debug\n",
+      "moves": ".\u0017magic fountain\n.",
+      "comment": "An independent debug wish reaches the fountain terrain mutation and common post-mutation fixup through makewish() and readobjnam()."
+    }
+  ]
+}
