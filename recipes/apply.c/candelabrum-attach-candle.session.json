@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 6200840,
+      "datetime": "20330811122213",
+      "nethackrc": "OPTIONS=name:CandleAttach,role:Rogue,race:human,gender:female,align:chaotic\nOPTIONS=!legacy,!tutorial,!splash_screen\nOPTIONS=playmode:debug,pettype:none,!acoustics,!autopickup,time,showexp\n",
+      "comment": "Independent C replay wishes a candelabrum and one wax candle, accepts apply.c:use_candle()'s attachment query, and exercises safe_qbuf(), split/attach state, candle consumption, and inventory refresh.",
+      "moves": " \u0017candelabrum of invocation\n\u0017wax candle\naiy"
+    }
+  ]
+}

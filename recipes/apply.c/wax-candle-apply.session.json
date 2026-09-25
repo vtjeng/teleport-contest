@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 6200831,
+      "datetime": "20330517113210",
+      "nethackrc": "OPTIONS=name:CandlePort,role:Rogue,race:human,gender:female,align:chaotic\nOPTIONS=!legacy,!tutorial,!splash_screen\nOPTIONS=playmode:debug,pettype:none,!acoustics,!autopickup,time,showexp\n",
+      "comment": "Independent debug-mode C replay wishes one wax candle into the Rogue's pack, then invokes #apply on its selected inventory letter. No candelabrum is wished, so apply.c:use_candle() reaches its ordinary no-candelabrum fallback into use_lamp().",
+      "moves": "\u0017wax candle\nag"
+    }
+  ]
+}
