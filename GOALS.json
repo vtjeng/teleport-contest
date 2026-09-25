@@ -69663,7 +69663,7 @@
     {
       "id": "port-trap-float-up-synthetic-v1-20260925",
       "kind": "file-port",
-      "status": "open",
+      "status": "parked",
       "summary": "Port complete levitation rise effects and source callers",
       "cFile": "trap.c",
       "sessions": [
@@ -69868,7 +69868,17 @@
             }
           }
         }
-      ]
+      ],
+      "progressBeforePark": {
+        "screens": 0,
+        "rng": 0
+      },
+      "parkedStanding": {
+        "sha": "e7623b67450936e27add7de87567f83f84ed1190",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "parkedReason": "float_up implementation and matching Ring_on, Boots_on, and potion paths are integrated at e7623b67, but source completion remains open. Active artifact invocation is blocked before #invoke by wizcmds.c:wiz_wish/zap.c:makewish; terrain reentry is blocked before switch_terrain by polyself.c:polymon; reset_utrap pit-release setup has not reached a trapping pit. Independent blocked recipes are in recipes/trap.c/. Reopen when those dependencies permit matching runtime evidence for every active entry point; synthetic/v1/terrain-transitions now has 80 unmatched screens and requires a refreshed source investigation."
     },
     {
       "id": "port-pickup-tip-synthetic-v1-20260925",
