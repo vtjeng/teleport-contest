@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 9362127,
+      "datetime": "20380918113045",
+      "nethackrc": "OPTIONS=name:DigSelf,role:Archeologist,race:human,gender:male,align:neutral,!legacy,!tutorial,!splash_screen\n",
+      "moves": "ae  ."
+    }
+  ],
+  "comment": "Independent center-direction reproduction for dig.c use_pick_axe2(): apply the Archeologist pick-axe, dismiss its wield feedback, and choose getdir self (.). This reaches the C self-hit arm without scheduling dig(); use it to validate immediate direction handling separately from the blocked dig() occupation callback."
+}

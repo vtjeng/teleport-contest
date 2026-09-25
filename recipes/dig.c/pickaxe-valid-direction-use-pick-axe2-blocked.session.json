@@ -8,5 +8,5 @@
       "moves": "ae  k"
     }
   ],
-  "comment": "Blocked independent valid-direction and occupation attempt for dig.c use_pick_axe2(): the Archeologist applies inventory pick-axe e, clears the wield feedback prompts, then chooses k from the shown direction list. C starts digging and reaches the first occupation callback before this recording boundary. The selected source path still needs uhitm.c do_attack() for a monster target and dig.c dig() plus its dig_check/statue/trap dependencies for a diggable target. Keep this recipe without a recording until that source chain is ported."
+  "comment": "Blocked independent valid-direction reproduction for dig.c use_pick_axe2(): the Archeologist applies inventory pick-axe e, clears wield feedback, then chooses k from the direction list. The immediate use_pick_axe2() branch prints “You start digging.”, but C invokes the return-valued dig.c dig() occupation callback during that same recorded input; JS intentionally leaves that callback open. Monster targets also reach return-valued uhitm.c do_attack(), whose existing port still has unsupported two-weapon-ending and leprechaun-dodge arms. Keep this input-only recipe as a named blocked case; it has no matching recording."
 }

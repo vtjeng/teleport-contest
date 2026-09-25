@@ -321,8 +321,8 @@ test('a raised drawbridge answers for itself rather than as a wall',
 
 // C ref: hack.c:1014-1045. Before its closing "It's solid stone." else, the
 // obstacle arm asks four questions about the hero. Passes_walls, Underwater,
-// and a tunneller follow their C branches; autodig records its discarded
-// dig.c use_pick_axe2() dependency and returns FALSE.
+// and a tunneller follow their C branches; autodig calls dig.c use_pick_axe2()
+// and returns FALSE while its later dig() occupation remains open.
 test('the obstacle arm handles special movement before ordinary refusal',
     async () => {
         // Interior coordinate and an eastward step, as in the wall case above:
@@ -434,9 +434,16 @@ test('the obstacle arm handles special movement before ordinary refusal',
         const digger = obstacleState();
         digger.flags.autodig = true;
         digger.uwep = { oclass: TOOL_CLASS, otyp: PICK_AXE };
+        digger.u.dx = 1;
+        digger.u.dy = 0;
         game.unported = new Set();
-        assert.equal(await step(digger), false);
-        assert.ok(game.unported.has('dig.c use_pick_axe2'));
+        const digLines = [];
+        assert.equal(await test_move(ux, uy, 1, 0, DO_MOVE, digger, {
+            message: (line) => digLines.push(line),
+        }), false);
+        assert.deepEqual(digLines, ['You start digging.']);
+        assert.ok(game.unported.has('dig.c dig'));
+        assert.deepEqual(digger.context.digging.pos, { x: ux + 1, y: uy });
 
         // Each of the other three terms alone returns the arm to its ordinary
         // refusal, which is what keeps the guard from being wider than C.

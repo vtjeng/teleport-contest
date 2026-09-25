@@ -1411,7 +1411,7 @@ async function u_stuck_cannot_go(updn, state = game) {
 // Five of its arms stop rather than run, each named at the throw. What remains
 // is the ordinary answer for a hero standing where there is no way down:
 // "You can't go down here." with no turn spent.
-export async function dodown(state = game) {
+export async function dodown(state = game, env = {}) {
     const u = state.u;
     let trap = null;
 
@@ -1473,7 +1473,7 @@ export async function dodown(state = game) {
             if (state.flags?.autodig && !state.context?.nopick
                 && state.uwep && is_pick(state.uwep, state)) {
                 // do.c:1233 returns dig.c use_pick_axe2()'s command result.
-                return use_pick_axe2(state.uwep, state);
+                return use_pick_axe2(state.uwep, state, env);
             }
             await ttyPline(
                 'You can\'t go down here'
