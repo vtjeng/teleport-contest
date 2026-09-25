@@ -2797,9 +2797,10 @@ async function eataccessory(otmp, state, env) {
     const oldprop = prop.intrinsic;
 
     if (otmp === state.uleft || otmp === state.uright) {
-        // Ring_gone()'s levitation takeoff path is still a boundary. Its
-        // result is discarded in C, so record and skip that void call.
-        note_unported('do_wear.c Ring_gone');
+        // eat.c discards Ring_gone()'s result, but its source-owned side
+        // effects include ending levitation before the eaten ring is observed.
+        const { Ring_gone } = await import('./do_wear.js');
+        await Ring_gone(otmp, state);
         if (state.u.uhp <= 0) return;
     }
     observe_object(otmp, state);
@@ -3251,7 +3252,7 @@ export async function doeat(state = game, env = {}) {
             );
             if (carried(otmp)) {
                 if (otmp.owornmask)
-                    remove_worn_item(otmp, false, state);
+                    await remove_worn_item(otmp, false, state);
                 freeinv(otmp, eatEnv);
                 await dropy(otmp, {
                     ...eatEnv,

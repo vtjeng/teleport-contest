@@ -2570,7 +2570,7 @@ export async function poly_obj(obj, id, state = game,
             const removable = !(oldWornMask
                 & (W_ARMOR | W_AMUL | W_TOOL | W_BALL | W_CHAIN | W_QUIVER));
             if (removable) {
-                remove_worn_item(obj, true, state);
+                await remove_worn_item(obj, true, state);
             } else {
                 note_unported('steal.c remove_worn_item');
             }

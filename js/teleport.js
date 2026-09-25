@@ -50,6 +50,7 @@ import {
     NO_KILLER_PREFIX,
     OBJ_FREE,
     POOL,
+    PASSES_WALLS,
     RLOC_MSG,
     RLOC_NOMSG,
     ROWNO,
@@ -1400,9 +1401,9 @@ function Stunned_prop(state) {
     return Boolean(state.u?.uprops?.[STUNNED]?.intrinsic);
 }
 
-// C ref: teleport.c safe_teleds() (717-770). The ordinary random-candidate
-// path used by the calm scroll read is bounded here; the whole-map candidate
-// fallback remains a later boundary.
+// C ref: teleport.c safe_teleds() (717-770). After forty random safe squares,
+// C searches a shuffled map-wide ring list, preferring non-trap squares and
+// retaining the first acceptable trap square as a last resort.
 export async function safe_teleds(teleds_flags, state = game) {
     for (let tcnt = 0; tcnt < 40; ++tcnt) {
         const nux = rnd(COLNO - 1);
@@ -1413,9 +1414,34 @@ export async function safe_teleds(teleds_flags, state = game) {
         }
     }
 
-    throw new UnsupportedHeroMoveBoundaryError(
-        'safe_teleds() whole-map candidate fallback',
+    let ccFlags = CC_RING_PAIRS | CC_SKIP_MONS;
+    const passesWalls = state.u?.uprops?.[PASSES_WALLS];
+    if (!(passesWalls?.intrinsic || passesWalls?.extrinsic))
+        ccFlags |= CC_SKIP_INACCS;
+    const candidates = collect_coords(
+        state.u.ux,
+        state.u.uy,
+        0,
+        ccFlags,
+        null,
+        { state },
     );
+    let backupspot = null;
+    for (const { x, y } of candidates) {
+        if (await teleok(x, y, false, state)) {
+            await teleds(x, y, teleds_flags, state);
+            return true;
+        }
+        if (!backupspot && t_at(x, y, state)
+            && await teleok(x, y, true, state)) {
+            backupspot = { x, y };
+        }
+    }
+    if (backupspot) {
+        await teleds(backupspot.x, backupspot.y, teleds_flags, state);
+        return true;
+    }
+    return false;
 }
 
 // C ref: teleport.c vault_tele() (771-784). The one-shot teleport trap that

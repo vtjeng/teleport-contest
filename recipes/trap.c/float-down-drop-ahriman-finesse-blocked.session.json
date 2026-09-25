@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 33891007,
+      "datetime": "20390507091515",
+      "nethackrc": "OPTIONS=name:DropLanding,role:Barbarian,race:human,gender:female,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen\nOPTIONS=playmode:debug,pettype:none,!acoustics,!autopickup,time\n",
+      "moves": ". \u0017The Heart of Ahriman\n #invoke\nede  "
+    }
+  ],
+  "comment": "Blocked active caller recipe for do.c:drop's finesse_ahriman branch. After invoking The Heart of Ahriman, dropping it reaches drop()'s levitation cleanup and float_down(I_SPECIAL|TIMEOUT, W_ARTI|W_ART). JavaScript currently stops earlier in wizcmds.c:wiz_wish -> zap.c:makewish on the artifact wish, before #invoke or the drop command; no matching recording is claimed."
+}
