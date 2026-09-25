@@ -70977,6 +70977,63 @@
           "evaluationCommit": "e7623b67450936e27add7de87567f83f84ed1190"
         }
       }
+    },
+    {
+      "id": "port-objnam-wizterrainwish-synthetic-v2-20260925",
+      "kind": "file-port",
+      "status": "queued",
+      "summary": "Port wizard terrain wishes and source-ordered terrain state changes",
+      "cFile": "objnam.c",
+      "sessions": [
+        "synthetic/v2/altar-rite-history"
+      ],
+      "selectionReason": "At the current B2 queue, terrain-transitions (80 unmatched screens) is reserved by A2; altar-rite-history (34) is the highest ranked complete unreserved synthetic source investigation. Wizard-spell-memory (14) needs reinvestigation after B2.",
+      "detail": "Port the complete objnam.c set_wallprop_from_str, wizterrainwish, and dbterrainmesg source range, then wire readobjnam wizard terrain fallback and zap.c makewish handling of hands_obj. Preserve C object lookup precedence, terrain changes and shared fixups, source-ordered RNG and display effects, and return-valued dependencies. See investigations/synthetic/v2/altar-rite-history.json.",
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": null,
+      "delivered": null,
+      "functions": [
+        {
+          "name": "set_wallprop_from_str",
+          "line": 3539,
+          "endLine": 3553,
+          "declared": false,
+          "complete": false
+        },
+        {
+          "name": "wizterrainwish",
+          "line": 3554,
+          "endLine": 3919,
+          "declared": false,
+          "complete": false
+        },
+        {
+          "name": "dbterrainmesg",
+          "line": 3920,
+          "endLine": 3932,
+          "declared": false,
+          "complete": false
+        }
+      ],
+      "range": {
+        "from": 3539,
+        "to": 3932
+      },
+      "syntheticProvenance": {
+        "synthetic/v2/altar-rite-history": {
+          "session": "synthetic/v2/altar-rite-history",
+          "corpus": "synthetic",
+          "batch": "v2",
+          "caseId": "altar-rite-history",
+          "manifestPath": "challenges/manifests/v2.json",
+          "manifestSha256": "58739ea9ed6c26e5153c4860b2e5111d08d69792bdea5c39427cf45b8e72cc9c",
+          "recordingPath": "challenges/cases/v2/altar-rite-history.session.json",
+          "recordingSha256": "f3fbc209ee4d556822809c679e9cc73054b48fa85ba5d17864b764f30b4cf048",
+          "evaluationPath": "challenges/evaluations/20260925183935-v2.json",
+          "evaluationCommit": "4cd1d2f115390c0777339a40051076a330409d54"
+        }
+      }
     }
   ]
 }
