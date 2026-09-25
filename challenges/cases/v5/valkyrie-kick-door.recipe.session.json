@@ -1,0 +1,11 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 90525075,
+      "datetime": "20390219101500",
+      "nethackrc": "OPTIONS=name:Scoutvalkyrie-kick-door,role:Valkyrie,race:human,gender:female,align:neutral,!legacy,!tutorial,!splash_screen,showexp,time\n",
+      "moves": "khj \u0004h\u0004h \u0004h\u0004hhl"
+    }
+  ]
+}

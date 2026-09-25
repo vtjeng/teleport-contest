@@ -1,0 +1,11 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 90525073,
+      "datetime": "20371116123000",
+      "nethackrc": "OPTIONS=name:Scoutranger-level-telepor,role:Ranger,race:human,gender:male,align:chaotic,playmode:debug,!legacy,!tutorial,!splash_screen,showexp,time\n",
+      "moves": "\u0017cursed scroll of teleportation\nrg 2\njjjjl< "
+    }
+  ]
+}

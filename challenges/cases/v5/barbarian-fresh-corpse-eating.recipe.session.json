@@ -1,0 +1,11 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 90525076,
+      "datetime": "20400320163000",
+      "nethackrc": "OPTIONS=name:Scoutbarbarian-fresh-corp,role:Barbarian,race:human,gender:male,align:chaotic,playmode:debug,!legacy,!tutorial,!splash_screen,showexp,time\n",
+      "moves": "\u0007newt\nlll\u0017newt corpse\nee"
+    }
+  ]
+}
