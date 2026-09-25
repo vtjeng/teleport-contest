@@ -13,10 +13,10 @@
   "replayInputSha256": "e3e42c5f65da824b237c5a8d83ca94f1d32dbfd894248cc6fa7af56882da9bb1",
   "evaluationPath": "challenges/evaluations/20260925150843-v1.json",
   "evaluationCommit": "b723a5d4aa19568a2c9b0ff5e6629754c306fda7",
-  "remainingScreens": 38,
+  "remainingScreens": 15,
   "recordedSteps": 202,
   "status": "complete",
-  "commit": "9bc76174415dfecad7ce4596419ac2cced23cace",
+  "commit": "020e94fb0e15c7c7120349f8a0970e70cdf6bce7",
   "mismatch": {
     "corpus": "synthetic",
     "batch": "v1",
@@ -29,67 +29,66 @@
     "recordingSha256": "b190d330b5177de86ea2c81412de96a1708faf22ff2a769aa1f558b7646a3eea",
     "recipe": "challenges/cases/sustained-journey.recipe.json",
     "recipeSha256": "cb3c86febb1468ccfd39e289b53c00937a407244d5ba3d4fd7a3759ddbd08ed5",
-    "replayInputSha256": "e3e42c5f65da824b237c5a8d83ca94f1d32dbfd894248cc6fa7af56882da9bb1",
-    "evaluationPath": "challenges/evaluations/20260925150843-v1.json",
-    "evaluationCommit": "b723a5d4aa19568a2c9b0ff5e6629754c306fda7",
-    "evaluationArtifact": "challenges/evaluations/20260925150843-v1.json",
-    "evaluationUtc": "2026-09-25T15:08:43.386Z",
-    "remainingScreens": 38,
+    "replayInputSha256": "a097d12206d9c6c1ee961b087aedf759fc6cbd0e9f98abb9dd1c4175d5f799e9",
+    "evaluationPath": "challenges/evaluations/20260925163844-v1.json",
+    "evaluationCommit": "020e94fb0e15c7c7120349f8a0970e70cdf6bce7",
+    "evaluationArtifact": "challenges/evaluations/20260925163844-v1.json",
+    "evaluationUtc": "2026-09-25T16:38:44.129Z",
+    "remainingScreens": 15,
     "recordedSteps": 202,
-    "previousScreensMatched": null,
+    "previousScreensMatched": 164,
     "regression": false,
     "passed": false,
     "error": null,
     "metrics": {
       "screens": {
-        "matched": 164,
+        "matched": 187,
         "total": 202
       },
       "rng": {
-        "matched": 8240,
+        "matched": 9141,
         "total": 10396
       },
       "cursors": {
-        "matched": 164,
+        "matched": 187,
         "total": 202
       }
     },
     "firstMismatch": {
       "kind": "stop",
-      "message": "unsupported hero command: an unported branch of this command: unsupported level change: doup() at ledger 1 (leaving the dungeon)",
-      "step": 164
+      "message": "unsupported hero command: an unported branch of this command: applying a tool requires doapply()'s arm for object type 227",
+      "step": 187
     },
-    "step": 164,
+    "step": 187,
     "kind": "stop",
-    "sourceFile": "do.c",
-    "function": "doup",
-    "message": "unsupported hero command: an unported branch of this command: unsupported level change: doup() at ledger 1 (leaving the dungeon)",
-    "cFile": "do.c",
+    "sourceFile": "apply.c",
+    "function": "doapply",
+    "message": "unsupported hero command: an unported branch of this command: applying a tool requires doapply()'s arm for object type 227",
+    "cFile": "apply.c",
     "luaFile": null,
     "line": null
   },
-  "summary": "The counted movement refusal formerly at step 5 has cleared. Current C and JavaScript replay match 164 of 202 screens, then the D:1 up staircase stops in do.c doup() before C asks whether to leave the dungeon. The complete doup() source and its dungeon.c prev_level(TRUE) escape callee are the actionable scope; the same path is already diagnosed for synthetic/v1/scout.",
+  "summary": "At the C2 integration commit, the sustained journey matches 187 of 202 screens. The next stop is step 187 when applying an oil lamp: C prints \"Your lamp is now on.\" while JavaScript refuses doapply()'s OIL_LAMP arm. The source owner is apply.c use_lamp(), called from doapply() for oil lamps, magic lamps, and brass lanterns. Port its complete on/off, underwater, fuel, cursed, shop, and burn-start branches with the production caller; C2's earlier D:1 ascent path now matches through step 165.",
   "source": {
-    "file": "do.c",
+    "file": "apply.c",
     "functions": [
-      "doup"
+      "use_lamp"
     ],
-    "branch": "do.c doup() lines 1298-1344 reaches ledger_no(&u.uz)==1 after the staircase, rooted, pit, steed, stuck, and capacity checks. C asks y_n(\"Beware, there will be no return!  Still climb?\"); a yes answer calls dungeon.c prev_level(TRUE), which on the D:1 upward branch calls done(ESCAPED). js/do.js doup() throws before y_n, and js/dungeon.js prev_level() throws at the escape branch.",
+    "branch": "apply.c doapply() lines 4214-4430 dispatches OIL_LAMP, MAGIC_LAMP, and BRASS_LANTERN to use_lamp() at the lamp switch arm. In use_lamp() lines 1628-1692, the witnessed ordinary oil lamp is unlit, has fuel, is not cursed or underwater, and takes the on branch: check_unpaid(), print the lamp-on message, then begin_burn(obj,FALSE). The complete function also handles already-lit snuffing, underwater refusal, no fuel, cursed failure and oil spill, candle text, and shop billing.",
     "callers": [
-      "C cmd.c command table maps < to do.c doup(); js/cmd.js runUpCommand reaches js/do.js doup() through rhack and the extended command route.",
-      "C do.c doup() calls dungeon.c prev_level(TRUE); js/do.js passes goto_level to js/dungeon.js prev_level()."
+      "apply.c doapply() lamp arm around line 4350 calls use_lamp(obj) and retains ECMD_TIME; js/apply.js doapply() lines 1243-1333 currently throws UnsupportedApplyError for object type 227 after selection.",
+      "cmd.c apply command dispatch routes key a to doapply(); the sustained journey reaches that production path before the refusal."
     ],
     "dependencies": [
-      "cmd.c y_n and its JS owner must display the D:1 confirmation and consume the response in source order.",
-      "dungeon.c prev_level() must mark the stair traversed and call end.c done(ESCAPED) on D:1 without the Amulet; js/end.js implements the escape disclosure path.",
-      "do.c climb_pit() is a return-valued pit branch requiring its own complete source implementation within a whole doup() port."
+      "light.c begin_burn() and end_burn() own the timer, light source, and fuel transitions; retain their source ordering and port value-consuming dependencies as needed.",
+      "Shop billing, object naming, blindness and underwater predicates, and glibness from cursed spills are source dependencies of whole use_lamp()."
     ]
   },
   "goalKind": "file-port",
   "evidence": [
-    "Current work queue .cache/loop-20260925-work-queue.json records synthetic/v1/sustained-journey at 9bc76174415dfecad7ce4596419ac2cced23cace with 38 remaining screens, first stop step 164, and matching 164/202 screens. The recording identity is b190d330b5177de86ea2c81412de96a1708faf22ff2a769aa1f558b7646a3eea.",
-    "The current JavaScript refusal is js/do.js doup() at the ledger_no==1 branch; C do.c lines 1298-1344 calls y_n then prev_level(TRUE). C dungeon.c lines 1518-1543 sends the D:1 upward branch without the Amulet to done(ESCAPED).",
-    "investigations/synthetic/v1/scout.json independently traces the same C doup() and dungeon.c prev_level() escape sequence for an earlier D:1 ascent.",
-    "The prior investigation at commit 973ed4c61be4e63b24ffcf54f640b3a05990a0f1 identified cmd.c counted movement at step 5; the current replay passes that step and supersedes only its active mismatch diagnosis."
+    "Saved evaluation challenges/evaluations/20260925163844-v1.json at 020e94fb records sustained-journey 187/202 matching screens, up from 164/202 at the previous accepted C2 baseline; no old matching screen was lost.",
+    ".cache/loop-20260925-C2-next-sustained-scan.json replays 187 emitted screens and stops at segment 0 step 187 with \"applying a tool requires doapply()'s arm for object type 227\"; js/objects.js identifies 227 as OIL_LAMP. The C boundary screen says \"Your lamp is now on.\"",
+    "nethack-c/upstream/src/apply.c:4214-4430 reads doapply()'s selected-tool dispatch, including the OIL_LAMP/MAGIC_LAMP/BRASS_LANTERN arm; :1628-1692 reads the whole use_lamp() function and source-ordered light and shop effects.",
+    "js/apply.js:1243-1333 refuses the selected OIL_LAMP after retouch_object(), before use_lamp() exists. The earlier do.c doup stop was resolved by C2 and is independently cited through v1 sustained-journey step 165 and v1 scout step 16 in its immutable source evidence."
   ]
 }

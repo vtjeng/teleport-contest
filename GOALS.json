@@ -69770,26 +69770,33 @@
     {
       "id": "port-do-doup-synthetic-v1-20260925",
       "kind": "file-port",
-      "status": "queued",
+      "status": "closed",
       "summary": "Port D:1 ascent confirmation and escape control flow",
       "cFile": "do.c",
       "sessions": [
         "synthetic/v1/sustained-journey",
         "synthetic/v1/scout"
       ],
-      "selectionReason": "Synthetic/v1/terrain-transitions has 88 unmatched screens and is owned by worker A. Synthetic/v1/sustained-journey is the next ranked ready case with 38 unmatched screens; investigations/synthetic/v1/sustained-journey.json now traces step 164 to do.c doup. Worker B owns pickup.c tipping for the next independent case.",
+      "selectionReason": "C2 was assigned from the complete v1 sustained-journey doup investigation before v2 admission and has now passed its integrated checkpoint; the next step 187 is a separate apply.c use_lamp task. Worker A owns higher-ranked terrain, and the delivered doup source unit must be closed before new selection.",
       "detail": "Port whole do.c doup and source callers. Preserve pit/rooted/stair/steed/capacity gates and the D:1 y_n response. Wire dungeon.c prev_level(TRUE) to end.c done(ESCAPED) at the source branch. The same branch blocks synthetic/v1/scout at step 11.",
-      "openedAt": null,
-      "openStanding": null,
-      "closedAt": null,
-      "delivered": null,
+      "openedAt": "020e94fb0e15c7c7120349f8a0970e70cdf6bce7",
+      "openStanding": {
+        "sha": "020e94fb0e15c7c7120349f8a0970e70cdf6bce7",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "closedAt": "020e94fb0e15c7c7120349f8a0970e70cdf6bce7",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
       "functions": [
         {
           "name": "doup",
           "line": 1298,
           "endLine": 1347,
           "declared": true,
-          "complete": false
+          "complete": true
         }
       ],
       "range": {
@@ -69806,9 +69813,390 @@
           "manifestSha256": "a1d989fa6b5159e0b0729150ba765c741a405ec910c1274ad763d29b0a7096fe",
           "recordingPath": "challenges/cases/sustained-journey.session.json",
           "recordingSha256": "b190d330b5177de86ea2c81412de96a1708faf22ff2a769aa1f558b7646a3eea",
-          "evaluationPath": "challenges/evaluations/20260925150843-v1.json",
-          "evaluationCommit": "b723a5d4aa19568a2c9b0ff5e6629754c306fda7"
+          "evaluationPath": "challenges/evaluations/20260925163844-v1.json",
+          "evaluationCommit": "020e94fb0e15c7c7120349f8a0970e70cdf6bce7"
         }
+      },
+      "activeStanding": {
+        "sha": "020e94fb0e15c7c7120349f8a0970e70cdf6bce7",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v1",
+          "caseId": "sustained-journey",
+          "session": "synthetic/v1/sustained-journey",
+          "manifestPath": "challenges/manifest.json",
+          "manifestSha256": "a1d989fa6b5159e0b0729150ba765c741a405ec910c1274ad763d29b0a7096fe",
+          "recording": "challenges/cases/sustained-journey.session.json",
+          "recordingPath": "challenges/cases/sustained-journey.session.json",
+          "recordingSha256": "b190d330b5177de86ea2c81412de96a1708faf22ff2a769aa1f558b7646a3eea",
+          "recipe": "challenges/cases/sustained-journey.recipe.json",
+          "recipeSha256": "cb3c86febb1468ccfd39e289b53c00937a407244d5ba3d4fd7a3759ddbd08ed5",
+          "replayInputSha256": "a097d12206d9c6c1ee961b087aedf759fc6cbd0e9f98abb9dd1c4175d5f799e9",
+          "evaluationPath": "challenges/evaluations/20260925163844-v1.json",
+          "evaluationCommit": "020e94fb0e15c7c7120349f8a0970e70cdf6bce7",
+          "evaluationArtifact": "challenges/evaluations/20260925163844-v1.json",
+          "evaluationUtc": "2026-09-25T16:38:44.129Z",
+          "remainingScreens": 15,
+          "recordedSteps": 202,
+          "previousScreensMatched": 164,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 187,
+              "total": 202
+            },
+            "rng": {
+              "matched": 9141,
+              "total": 10396
+            },
+            "cursors": {
+              "matched": 187,
+              "total": 202
+            }
+          },
+          "firstMismatch": {
+            "kind": "stop",
+            "message": "unsupported hero command: an unported branch of this command: applying a tool requires doapply()'s arm for object type 227",
+            "step": 187
+          },
+          "step": 187,
+          "kind": "stop",
+          "sourceFile": "apply.c",
+          "function": "doapply",
+          "message": "unsupported hero command: an unported branch of this command: applying a tool requires doapply()'s arm for object type 227",
+          "cFile": "apply.c",
+          "luaFile": null,
+          "line": null,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v1/sustained-journey.json",
+            "result": {
+              "session": "synthetic/v1/sustained-journey",
+              "corpus": "synthetic",
+              "batch": "v1",
+              "caseId": "sustained-journey",
+              "manifestPath": "challenges/manifest.json",
+              "manifestSha256": "a1d989fa6b5159e0b0729150ba765c741a405ec910c1274ad763d29b0a7096fe",
+              "recording": "challenges/cases/sustained-journey.session.json",
+              "recordingPath": "challenges/cases/sustained-journey.session.json",
+              "recordingSha256": "b190d330b5177de86ea2c81412de96a1708faf22ff2a769aa1f558b7646a3eea",
+              "recipe": "challenges/cases/sustained-journey.recipe.json",
+              "recipeSha256": "cb3c86febb1468ccfd39e289b53c00937a407244d5ba3d4fd7a3759ddbd08ed5",
+              "replayInputSha256": "e3e42c5f65da824b237c5a8d83ca94f1d32dbfd894248cc6fa7af56882da9bb1",
+              "evaluationPath": "challenges/evaluations/20260925150843-v1.json",
+              "evaluationCommit": "b723a5d4aa19568a2c9b0ff5e6629754c306fda7",
+              "remainingScreens": 15,
+              "recordedSteps": 202,
+              "status": "complete",
+              "commit": "020e94fb0e15c7c7120349f8a0970e70cdf6bce7",
+              "mismatch": {
+                "corpus": "synthetic",
+                "batch": "v1",
+                "caseId": "sustained-journey",
+                "session": "synthetic/v1/sustained-journey",
+                "manifestPath": "challenges/manifest.json",
+                "manifestSha256": "a1d989fa6b5159e0b0729150ba765c741a405ec910c1274ad763d29b0a7096fe",
+                "recording": "challenges/cases/sustained-journey.session.json",
+                "recordingPath": "challenges/cases/sustained-journey.session.json",
+                "recordingSha256": "b190d330b5177de86ea2c81412de96a1708faf22ff2a769aa1f558b7646a3eea",
+                "recipe": "challenges/cases/sustained-journey.recipe.json",
+                "recipeSha256": "cb3c86febb1468ccfd39e289b53c00937a407244d5ba3d4fd7a3759ddbd08ed5",
+                "replayInputSha256": "a097d12206d9c6c1ee961b087aedf759fc6cbd0e9f98abb9dd1c4175d5f799e9",
+                "evaluationPath": "challenges/evaluations/20260925163844-v1.json",
+                "evaluationCommit": "020e94fb0e15c7c7120349f8a0970e70cdf6bce7",
+                "evaluationArtifact": "challenges/evaluations/20260925163844-v1.json",
+                "evaluationUtc": "2026-09-25T16:38:44.129Z",
+                "remainingScreens": 15,
+                "recordedSteps": 202,
+                "previousScreensMatched": 164,
+                "regression": false,
+                "passed": false,
+                "error": null,
+                "metrics": {
+                  "screens": {
+                    "matched": 187,
+                    "total": 202
+                  },
+                  "rng": {
+                    "matched": 9141,
+                    "total": 10396
+                  },
+                  "cursors": {
+                    "matched": 187,
+                    "total": 202
+                  }
+                },
+                "firstMismatch": {
+                  "kind": "stop",
+                  "message": "unsupported hero command: an unported branch of this command: applying a tool requires doapply()'s arm for object type 227",
+                  "step": 187
+                },
+                "step": 187,
+                "kind": "stop",
+                "sourceFile": "apply.c",
+                "function": "doapply",
+                "message": "unsupported hero command: an unported branch of this command: applying a tool requires doapply()'s arm for object type 227",
+                "cFile": "apply.c",
+                "luaFile": null,
+                "line": null
+              },
+              "summary": "At the C2 integration commit, the sustained journey matches 187 of 202 screens. The next stop is step 187 when applying an oil lamp: C prints \"Your lamp is now on.\" while JavaScript refuses doapply()'s OIL_LAMP arm. The source owner is apply.c use_lamp(), called from doapply() for oil lamps, magic lamps, and brass lanterns. Port its complete on/off, underwater, fuel, cursed, shop, and burn-start branches with the production caller; C2's earlier D:1 ascent path now matches through step 165.",
+              "source": {
+                "file": "apply.c",
+                "functions": [
+                  "use_lamp"
+                ],
+                "branch": "apply.c doapply() lines 4214-4430 dispatches OIL_LAMP, MAGIC_LAMP, and BRASS_LANTERN to use_lamp() at the lamp switch arm. In use_lamp() lines 1628-1692, the witnessed ordinary oil lamp is unlit, has fuel, is not cursed or underwater, and takes the on branch: check_unpaid(), print the lamp-on message, then begin_burn(obj,FALSE). The complete function also handles already-lit snuffing, underwater refusal, no fuel, cursed failure and oil spill, candle text, and shop billing.",
+                "callers": [
+                  "apply.c doapply() lamp arm around line 4350 calls use_lamp(obj) and retains ECMD_TIME; js/apply.js doapply() lines 1243-1333 currently throws UnsupportedApplyError for object type 227 after selection.",
+                  "cmd.c apply command dispatch routes key a to doapply(); the sustained journey reaches that production path before the refusal."
+                ],
+                "dependencies": [
+                  "light.c begin_burn() and end_burn() own the timer, light source, and fuel transitions; retain their source ordering and port value-consuming dependencies as needed.",
+                  "Shop billing, object naming, blindness and underwater predicates, and glibness from cursed spills are source dependencies of whole use_lamp()."
+                ]
+              },
+              "goalKind": "file-port",
+              "evidence": [
+                "Saved evaluation challenges/evaluations/20260925163844-v1.json at 020e94fb records sustained-journey 187/202 matching screens, up from 164/202 at the previous accepted C2 baseline; no old matching screen was lost.",
+                ".cache/loop-20260925-C2-next-sustained-scan.json replays 187 emitted screens and stops at segment 0 step 187 with \"applying a tool requires doapply()'s arm for object type 227\"; js/objects.js identifies 227 as OIL_LAMP. The C boundary screen says \"Your lamp is now on.\"",
+                "nethack-c/upstream/src/apply.c:4214-4430 reads doapply()'s selected-tool dispatch, including the OIL_LAMP/MAGIC_LAMP/BRASS_LANTERN arm; :1628-1692 reads the whole use_lamp() function and source-ordered light and shop effects.",
+                "js/apply.js:1243-1333 refuses the selected OIL_LAMP after retouch_object(), before use_lamp() exists. The earlier do.c doup stop was resolved by C2 and is independently cited through v1 sustained-journey step 165 and v1 scout step 16 in its immutable source evidence."
+              ]
+            }
+          }
+        }
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "doup",
+            "implementation": "js/do.js",
+            "symbol": "doup",
+            "sourceReview": "Compared the entire do.c doup() body (1298-1347) with js/do.js doup() in source order: stairway lookup; DIR_UP setup; rooted and pit guards; missing/wrong staircase refusal; stuck-steed and held/swallowed guards; capacity message and turn debit; D:1 debug-fuzzer return; y_n() query with C's exact double space and 'y' comparison; adjacent-pet gate; at_ladder set/clear around prev_level(TRUE); ECMD_TIME return. doup() now records the discarded void climb_pit() call as note_unported('trap.c climb_pit') and keeps C's ECMD_TIME result. Its value-consuming u_stuck_cannot_go() and stucksteed() callees now implement their complete C return and message branches in js/do.js and js/steed.js; the existing helpers u_rooted(), near_capacity(), ledger_no(), and next_to_u() remain wired. Read dungeon.c prev_level() (1518-1543); its D:1 no-Amulet branch awaits injected done(ESCAPED), while existing same-dungeon and branch transitions still use goto_level().",
+            "callers": [
+              {
+                "path": "js/cmd.js",
+                "symbol": "runUpCommand",
+                "source": "cmd.c:1919 binds '<' to doup(); cmd.c:3714 dispatches the '<' key to that handler. js/cmd.js runUpCommand() calls doup(state) through failClosedCommand()."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/doup.test.mjs"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v1",
+                "caseId": "sustained-journey",
+                "segment": 0,
+                "fromStep": 164,
+                "throughStep": 165,
+                "source": "cmd.c '<' command dispatch -> do.c doup(); D:1 warning prompt and declined response"
+              },
+              {
+                "batch": "v1",
+                "caseId": "scout",
+                "segment": 0,
+                "fromStep": 11,
+                "throughStep": 16,
+                "source": "cmd.c '<' command dispatch -> do.c doup() -> dungeon.c prev_level(TRUE) -> end.c done(ESCAPED)"
+              }
+            ],
+            "checkedAt": "020e94fb0e15c7c7120349f8a0970e70cdf6bce7"
+          }
+        ],
+        "entryPointReview": "Read nethack-c/upstream/src/do.c:doup() (1298-1347), including each early return, branch order, source message, and the final prev_level(TRUE) call. The active command entry point is cmd.c extcmdlist's '<' row at 1919 and rhack's command dispatch at 3714; js/cmd.js runUpCommand routes that key through failClosedCommand to doup(). The C helper calls consumed by doup() are u_rooted(), stucksteed(TRUE), u_stuck_cannot_go(), near_capacity(), ledger_no(), and next_to_u(); the first five and next_to_u() already have source-owned ports, and the incomplete stucksteed/u_stuck_cannot_go message branches are now implemented and awaited. climb_pit() is void and its result is discarded, so the pit path records note_unported('trap.c climb_pit') and returns ECMD_TIME. The D:1 yes path calls dungeon.c prev_level(TRUE), whose D:1 branch calls end.c done(ESCAPED); JavaScript passes the existing done() implementation into prev_level(). Other command paths into doup() use the same function-pointer dispatch or queued-command handler in cmd.c.",
+        "entryPoints": [
+          {
+            "name": "< command ascent and D:1 escape",
+            "functions": [
+              "doup"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v1",
+                "caseId": "sustained-journey",
+                "segment": 0,
+                "fromStep": 164,
+                "throughStep": 165,
+                "source": "cmd.c '<' command dispatch -> do.c doup(); ledger_no() == 1, y_n() prompt, and ECMD_OK after n"
+              },
+              {
+                "batch": "v1",
+                "caseId": "scout",
+                "segment": 0,
+                "fromStep": 11,
+                "throughStep": 16,
+                "source": "cmd.c '<' command dispatch -> do.c doup() -> dungeon.c prev_level(TRUE) -> end.c done(ESCAPED)"
+              }
+            ]
+          }
+        ]
+      },
+      "closeMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v1",
+          "caseId": "sustained-journey",
+          "session": "synthetic/v1/sustained-journey",
+          "manifestPath": "challenges/manifest.json",
+          "manifestSha256": "a1d989fa6b5159e0b0729150ba765c741a405ec910c1274ad763d29b0a7096fe",
+          "recording": "challenges/cases/sustained-journey.session.json",
+          "recordingPath": "challenges/cases/sustained-journey.session.json",
+          "recordingSha256": "b190d330b5177de86ea2c81412de96a1708faf22ff2a769aa1f558b7646a3eea",
+          "recipe": "challenges/cases/sustained-journey.recipe.json",
+          "recipeSha256": "cb3c86febb1468ccfd39e289b53c00937a407244d5ba3d4fd7a3759ddbd08ed5",
+          "replayInputSha256": "a097d12206d9c6c1ee961b087aedf759fc6cbd0e9f98abb9dd1c4175d5f799e9",
+          "evaluationPath": "challenges/evaluations/20260925163844-v1.json",
+          "evaluationCommit": "020e94fb0e15c7c7120349f8a0970e70cdf6bce7",
+          "evaluationArtifact": "challenges/evaluations/20260925163844-v1.json",
+          "evaluationUtc": "2026-09-25T16:38:44.129Z",
+          "remainingScreens": 15,
+          "recordedSteps": 202,
+          "previousScreensMatched": 164,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 187,
+              "total": 202
+            },
+            "rng": {
+              "matched": 9141,
+              "total": 10396
+            },
+            "cursors": {
+              "matched": 187,
+              "total": 202
+            }
+          },
+          "firstMismatch": {
+            "kind": "stop",
+            "message": "unsupported hero command: an unported branch of this command: applying a tool requires doapply()'s arm for object type 227",
+            "step": 187
+          },
+          "step": 187,
+          "kind": "stop",
+          "sourceFile": "apply.c",
+          "function": "doapply",
+          "message": "unsupported hero command: an unported branch of this command: applying a tool requires doapply()'s arm for object type 227",
+          "cFile": "apply.c",
+          "luaFile": null,
+          "line": null,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v1/sustained-journey.json",
+            "result": {
+              "session": "synthetic/v1/sustained-journey",
+              "corpus": "synthetic",
+              "batch": "v1",
+              "caseId": "sustained-journey",
+              "manifestPath": "challenges/manifest.json",
+              "manifestSha256": "a1d989fa6b5159e0b0729150ba765c741a405ec910c1274ad763d29b0a7096fe",
+              "recording": "challenges/cases/sustained-journey.session.json",
+              "recordingPath": "challenges/cases/sustained-journey.session.json",
+              "recordingSha256": "b190d330b5177de86ea2c81412de96a1708faf22ff2a769aa1f558b7646a3eea",
+              "recipe": "challenges/cases/sustained-journey.recipe.json",
+              "recipeSha256": "cb3c86febb1468ccfd39e289b53c00937a407244d5ba3d4fd7a3759ddbd08ed5",
+              "replayInputSha256": "e3e42c5f65da824b237c5a8d83ca94f1d32dbfd894248cc6fa7af56882da9bb1",
+              "evaluationPath": "challenges/evaluations/20260925150843-v1.json",
+              "evaluationCommit": "b723a5d4aa19568a2c9b0ff5e6629754c306fda7",
+              "remainingScreens": 15,
+              "recordedSteps": 202,
+              "status": "complete",
+              "commit": "020e94fb0e15c7c7120349f8a0970e70cdf6bce7",
+              "mismatch": {
+                "corpus": "synthetic",
+                "batch": "v1",
+                "caseId": "sustained-journey",
+                "session": "synthetic/v1/sustained-journey",
+                "manifestPath": "challenges/manifest.json",
+                "manifestSha256": "a1d989fa6b5159e0b0729150ba765c741a405ec910c1274ad763d29b0a7096fe",
+                "recording": "challenges/cases/sustained-journey.session.json",
+                "recordingPath": "challenges/cases/sustained-journey.session.json",
+                "recordingSha256": "b190d330b5177de86ea2c81412de96a1708faf22ff2a769aa1f558b7646a3eea",
+                "recipe": "challenges/cases/sustained-journey.recipe.json",
+                "recipeSha256": "cb3c86febb1468ccfd39e289b53c00937a407244d5ba3d4fd7a3759ddbd08ed5",
+                "replayInputSha256": "a097d12206d9c6c1ee961b087aedf759fc6cbd0e9f98abb9dd1c4175d5f799e9",
+                "evaluationPath": "challenges/evaluations/20260925163844-v1.json",
+                "evaluationCommit": "020e94fb0e15c7c7120349f8a0970e70cdf6bce7",
+                "evaluationArtifact": "challenges/evaluations/20260925163844-v1.json",
+                "evaluationUtc": "2026-09-25T16:38:44.129Z",
+                "remainingScreens": 15,
+                "recordedSteps": 202,
+                "previousScreensMatched": 164,
+                "regression": false,
+                "passed": false,
+                "error": null,
+                "metrics": {
+                  "screens": {
+                    "matched": 187,
+                    "total": 202
+                  },
+                  "rng": {
+                    "matched": 9141,
+                    "total": 10396
+                  },
+                  "cursors": {
+                    "matched": 187,
+                    "total": 202
+                  }
+                },
+                "firstMismatch": {
+                  "kind": "stop",
+                  "message": "unsupported hero command: an unported branch of this command: applying a tool requires doapply()'s arm for object type 227",
+                  "step": 187
+                },
+                "step": 187,
+                "kind": "stop",
+                "sourceFile": "apply.c",
+                "function": "doapply",
+                "message": "unsupported hero command: an unported branch of this command: applying a tool requires doapply()'s arm for object type 227",
+                "cFile": "apply.c",
+                "luaFile": null,
+                "line": null
+              },
+              "summary": "At the C2 integration commit, the sustained journey matches 187 of 202 screens. The next stop is step 187 when applying an oil lamp: C prints \"Your lamp is now on.\" while JavaScript refuses doapply()'s OIL_LAMP arm. The source owner is apply.c use_lamp(), called from doapply() for oil lamps, magic lamps, and brass lanterns. Port its complete on/off, underwater, fuel, cursed, shop, and burn-start branches with the production caller; C2's earlier D:1 ascent path now matches through step 165.",
+              "source": {
+                "file": "apply.c",
+                "functions": [
+                  "use_lamp"
+                ],
+                "branch": "apply.c doapply() lines 4214-4430 dispatches OIL_LAMP, MAGIC_LAMP, and BRASS_LANTERN to use_lamp() at the lamp switch arm. In use_lamp() lines 1628-1692, the witnessed ordinary oil lamp is unlit, has fuel, is not cursed or underwater, and takes the on branch: check_unpaid(), print the lamp-on message, then begin_burn(obj,FALSE). The complete function also handles already-lit snuffing, underwater refusal, no fuel, cursed failure and oil spill, candle text, and shop billing.",
+                "callers": [
+                  "apply.c doapply() lamp arm around line 4350 calls use_lamp(obj) and retains ECMD_TIME; js/apply.js doapply() lines 1243-1333 currently throws UnsupportedApplyError for object type 227 after selection.",
+                  "cmd.c apply command dispatch routes key a to doapply(); the sustained journey reaches that production path before the refusal."
+                ],
+                "dependencies": [
+                  "light.c begin_burn() and end_burn() own the timer, light source, and fuel transitions; retain their source ordering and port value-consuming dependencies as needed.",
+                  "Shop billing, object naming, blindness and underwater predicates, and glibness from cursed spills are source dependencies of whole use_lamp()."
+                ]
+              },
+              "goalKind": "file-port",
+              "evidence": [
+                "Saved evaluation challenges/evaluations/20260925163844-v1.json at 020e94fb records sustained-journey 187/202 matching screens, up from 164/202 at the previous accepted C2 baseline; no old matching screen was lost.",
+                ".cache/loop-20260925-C2-next-sustained-scan.json replays 187 emitted screens and stops at segment 0 step 187 with \"applying a tool requires doapply()'s arm for object type 227\"; js/objects.js identifies 227 as OIL_LAMP. The C boundary screen says \"Your lamp is now on.\"",
+                "nethack-c/upstream/src/apply.c:4214-4430 reads doapply()'s selected-tool dispatch, including the OIL_LAMP/MAGIC_LAMP/BRASS_LANTERN arm; :1628-1692 reads the whole use_lamp() function and source-ordered light and shop effects.",
+                "js/apply.js:1243-1333 refuses the selected OIL_LAMP after retouch_object(), before use_lamp() exists. The earlier do.c doup stop was resolved by C2 and is independently cited through v1 sustained-journey step 165 and v1 scout step 16 in its immutable source evidence."
+              ]
+            }
+          }
+        }
+      ],
+      "closeStanding": {
+        "sha": "020e94fb0e15c7c7120349f8a0970e70cdf6bce7",
+        "screens": 11405,
+        "rng": 792838
       }
     }
   ]
