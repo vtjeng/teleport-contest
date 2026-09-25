@@ -2,11 +2,11 @@
   "version": 5,
   "segments": [
     {
-      "seed": 553084,
-      "datetime": "20310415091500",
-      "nethackrc": "OPTIONS=name:Bridgeprobe,role:Wizard,race:human,gender:male,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen\nOPTIONS=pettype:none,!acoustics,playmode:debug\n",
-      "moves": " \u0016?\nj\u0017wall of water\n",
-      "comment": "Blocked for objnam.c dbterrainmesg() evidence: teleport.c level_tele() currently selects the Castle arrival square, not its drawbridge span, so the wizard wish takes the ordinary water branch and never calls dbterrainmesg(). A separate route to a lowered bridge square is needed."
+      "seed": 553088,
+      "datetime": "20310413091500",
+      "nethackrc": "OPTIONS=name:Trapprobe,role:Valkyrie,race:human,gender:female,align:lawful\nOPTIONS=!legacy,!tutorial,!splash_screen\nOPTIONS=pettype:none,!acoustics,playmode:debug\n",
+      "moves": ".\u0016castle\n\u0014  hhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhj.\u0017wand of opening\nzell\u0017moat\n",
+      "comment": "Blocked for objnam.c dbterrainmesg() runtime evidence. In the source-derived Castle route, teleport.c tele_jump_ok() rejects the selected west-side coordinate because it leaves the current up-destination region; tele() then selects a random fallback instead of the bridge. Strict JS/C replay of this route diverges before the terrain wish at the wand ray: zap.c weffects() consumes C rn2(8)=6 at boundary 97 while JS has no corresponding call. The active drawbridge helper is not reached, so this recipe is not matching evidence."
     }
   ]
 }
