@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 553084,
+      "datetime": "20310415091500",
+      "nethackrc": "OPTIONS=name:Bridgeprobe,role:Wizard,race:human,gender:male,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen\nOPTIONS=pettype:none,!acoustics,playmode:debug\n",
+      "moves": " \u0016?\nj\u0017wall of water\n",
+      "comment": "Blocked for objnam.c dbterrainmesg() evidence: teleport.c level_tele() currently selects the Castle arrival square, not its drawbridge span, so the wizard wish takes the ordinary water branch and never calls dbterrainmesg(). A separate route to a lowered bridge square is needed."
+    }
+  ]
+}
