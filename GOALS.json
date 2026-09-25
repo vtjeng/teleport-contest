@@ -70198,6 +70198,49 @@
         "screens": 11405,
         "rng": 792838
       }
+    },
+    {
+      "id": "port-spell-study-book-synthetic-v2-20260925",
+      "kind": "file-port",
+      "status": "queued",
+      "summary": "Port complete spellbook study and known-spell refresh paths",
+      "cFile": "spell.c",
+      "sessions": [
+        "synthetic/v2/wizard-spell-memory"
+      ],
+      "selectionReason": "After C2 closure, terrain-transitions is owned by worker A. Wizard-spell-memory has 37 unmatched screens and is the next ranked complete unreserved source investigation; worker B owns pickup.c tipping and worker C prepares v3.",
+      "detail": "The v2 wizard case stops at read.c doread selecting a Force Bolt spellbook because the JavaScript gate admits only healing refresh. Port whole spell.c study_book with source-ordered known-spell prompt, difficulty, occupation, and return-valued callees; wire read.c doread and all active callers. See investigations/synthetic/v2/wizard-spell-memory.json.",
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": null,
+      "delivered": null,
+      "functions": [
+        {
+          "name": "study_book",
+          "line": 468,
+          "endLine": 645,
+          "declared": true,
+          "complete": false
+        }
+      ],
+      "range": {
+        "from": 468,
+        "to": 645
+      },
+      "syntheticProvenance": {
+        "synthetic/v2/wizard-spell-memory": {
+          "session": "synthetic/v2/wizard-spell-memory",
+          "corpus": "synthetic",
+          "batch": "v2",
+          "caseId": "wizard-spell-memory",
+          "manifestPath": "challenges/manifests/v2.json",
+          "manifestSha256": "58739ea9ed6c26e5153c4860b2e5111d08d69792bdea5c39427cf45b8e72cc9c",
+          "recordingPath": "challenges/cases/v2/wizard-spell-memory.session.json",
+          "recordingSha256": "4aa25c52bad9f85940224ad16785cacb6b286a4c326c1691e6db54ec260b73cd",
+          "evaluationPath": "challenges/evaluations/20260925163844-v2.json",
+          "evaluationCommit": "020e94fb0e15c7c7120349f8a0970e70cdf6bce7"
+        }
+      }
     }
   ]
 }
