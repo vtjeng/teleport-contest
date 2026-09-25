@@ -51,6 +51,7 @@ import {
     uteetering_at_seen_pit,
 } from '../js/trap.js';
 import { clearTtyMessageWindow } from '../js/tty_message.js';
+import { block_point } from '../js/vision.js';
 import {
     DOWN_COMMAND,
     loadDescendRefusalRecipe,
@@ -456,20 +457,23 @@ test('goto_level refreshes and preserves the departing level overview',
 });
 
 test('goto_level() settles a boulder into the pit it is leaving', async () => {
-    // do.c:1619. trap.c fill_pit() drops a boulder resting over a pit once the
-    // thing pinning it leaves, and this port stops at flooreffects(). The pit
+    // do.c:1619. trap.c fill_pit() extracts a boulder resting over a pit once
+    // the thing pinning it leaves. flooreffects() remains an unported call. The pit
     // and the boulder are fabricated: no generated square carries a staircase
     // and a trap at once, so the call site has no recordable case.
     const state = await heroOnDownStairs();
     state.level.traps.push({ tx: state.u.ux, ty: state.u.uy, ttyp: PIT });
     const boulder = mksobj(BOULDER, true, false, { state });
-    boulder.nexthere = null;
-    state.level.objects[state.u.ux][state.u.uy] = boulder;
+    const departingLevel = state.level;
+    const { ux, uy } = state.u;
+    place_object(boulder, ux, uy, {
+        state,
+        hooks: { blockPoint: (x, y, env) => block_point(x, y, env.state) },
+    });
 
-    await assert.rejects(
-        dodown(state),
-        (error) => /fill_pit\(\) settling a boulder/u.test(error.message),
-    );
+    state.nhDisplay.pushKey(' '.charCodeAt(0));
+    await dodown(state);
+    assert.notEqual(departingLevel.objects[ux][uy], boulder);
 });
 
 test('goto_level() takes the hero out of the water she was in', async () => {
