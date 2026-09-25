@@ -70588,8 +70588,8 @@
           "manifestSha256": "58739ea9ed6c26e5153c4860b2e5111d08d69792bdea5c39427cf45b8e72cc9c",
           "recordingPath": "challenges/cases/v2/wizard-spell-memory.session.json",
           "recordingSha256": "4aa25c52bad9f85940224ad16785cacb6b286a4c326c1691e6db54ec260b73cd",
-          "evaluationPath": "challenges/evaluations/20260925163844-v2.json",
-          "evaluationCommit": "020e94fb0e15c7c7120349f8a0970e70cdf6bce7"
+          "evaluationPath": "challenges/evaluations/20260925170757-v2.json",
+          "evaluationCommit": "bfa9dc95416be7fa5a45d311fae636412a475e17"
         }
       }
     }
