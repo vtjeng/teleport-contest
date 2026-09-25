@@ -72730,16 +72730,20 @@
     {
       "id": "port-objnam-readobjnam-monster-carriers-synthetic-v2-20260925",
       "kind": "file-port",
-      "status": "queued",
+      "status": "parked",
       "summary": "Port monster-carrier wishes through complete readobjnam source order",
       "cFile": "objnam.c",
       "sessions": [
         "synthetic/v2/altar-rite-history"
       ],
-      "selectionReason": "The larger v1 terrain-transitions case is owned by A3 and its investigation is stale; the v4 Archeologist dig case is reserved by B5. The v2 altar-rite-history case has 19 unmatched screens and a complete current investigation at investigations/synthetic/v2/altar-rite-history.json, making objnam.c readobjnam the first independent source owner available to C.",
+      "selectionReason": "C7 was selected and assigned at the prior 19-screen altar-rite-history mismatch, before its integrated source commit. The current two-screen mismatch has moved to pray.c:offer_corpse; open the delivered task solely to preserve its partial source progress and park unverified caller paths, without claiming readobjnam completion.",
       "detail": "At segment 0 step 31, a jackal corpse debug wish reaches objnam.c readobjnam object lookup, mksobj, and species assignment. Preserve postparse lookup and random order, remove the premature monster-carrier refusal only with source behavior ported, and cover whole-function branch/caller evidence. See investigations/synthetic/v2/altar-rite-history.json.",
-      "openedAt": null,
-      "openStanding": null,
+      "openedAt": "9df17907e4122a6809ade23228f0930b179bfba6",
+      "openStanding": {
+        "sha": "9df17907e4122a6809ade23228f0930b179bfba6",
+        "screens": 11405,
+        "rng": 792838
+      },
       "closedAt": null,
       "delivered": null,
       "functions": [
@@ -72765,10 +72769,286 @@
           "manifestSha256": "58739ea9ed6c26e5153c4860b2e5111d08d69792bdea5c39427cf45b8e72cc9c",
           "recordingPath": "challenges/cases/v2/altar-rite-history.session.json",
           "recordingSha256": "f3fbc209ee4d556822809c679e9cc73054b48fa85ba5d17864b764f30b4cf048",
-          "evaluationPath": "challenges/evaluations/20260925210102-v2.json",
-          "evaluationCommit": "4c94668a402c17dd41062fe2ec966453db17c551"
+          "evaluationPath": "challenges/evaluations/20260925221225-v2.json",
+          "evaluationCommit": "9df17907e4122a6809ade23228f0930b179bfba6"
         }
-      }
+      },
+      "activeStanding": {
+        "sha": "9df17907e4122a6809ade23228f0930b179bfba6",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v2",
+          "caseId": "altar-rite-history",
+          "session": "synthetic/v2/altar-rite-history",
+          "manifestPath": "challenges/manifests/v2.json",
+          "manifestSha256": "58739ea9ed6c26e5153c4860b2e5111d08d69792bdea5c39427cf45b8e72cc9c",
+          "recording": "challenges/cases/v2/altar-rite-history.session.json",
+          "recordingPath": "challenges/cases/v2/altar-rite-history.session.json",
+          "recordingSha256": "f3fbc209ee4d556822809c679e9cc73054b48fa85ba5d17864b764f30b4cf048",
+          "recipe": "challenges/cases/v2/altar-rite-history.recipe.json",
+          "recipeSha256": "b911dc353955f391a0e40bbf9c6c792bec55089eafbe11c9ce82d430b819391d",
+          "replayInputSha256": "b52a3fd3eb08f77b877df4359db7726758f1b8cd72a88960ecfe969147991e4c",
+          "evaluationPath": "challenges/evaluations/20260925221225-v2.json",
+          "evaluationCommit": "9df17907e4122a6809ade23228f0930b179bfba6",
+          "evaluationArtifact": "challenges/evaluations/20260925221225-v2.json",
+          "evaluationUtc": "2026-09-25T22:12:28.900Z",
+          "remainingScreens": 2,
+          "recordedSteps": 50,
+          "previousScreensMatched": 31,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 48,
+              "total": 50
+            },
+            "rng": {
+              "matched": 3153,
+              "total": 3169
+            },
+            "cursors": {
+              "matched": 49,
+              "total": 50
+            }
+          },
+          "firstMismatch": {
+            "screen": {
+              "index": 48,
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 48,
+                "key": "i"
+              },
+              "kind": "ch",
+              "row": 0,
+              "column": 0,
+              "cCell": {
+                "ch": "Y",
+                "color": 8,
+                "attr": 0,
+                "decgfx": 0
+              },
+              "jsCell": {
+                "ch": "W",
+                "color": 8,
+                "attr": 0,
+                "decgfx": 0
+              }
+            },
+            "rng": {
+              "index": 3143,
+              "cEntry": "rn2(19)=17",
+              "cCaller": "exercise(attrib.c:509)",
+              "jsEntry": "rn2(40)=9",
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 48,
+                "key": "i"
+              },
+              "stepIndex": 48
+            },
+            "cursor": {
+              "index": 48,
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 48,
+                "key": "i"
+              },
+              "cCursor": [
+                55,
+                0,
+                1
+              ],
+              "jsCursor": [
+                53,
+                12,
+                1
+              ]
+            }
+          },
+          "step": 48,
+          "kind": "rng",
+          "sourceFile": "attrib.c",
+          "function": "exercise",
+          "message": null,
+          "cFile": "attrib.c",
+          "luaFile": null,
+          "line": 509,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v2/altar-rite-history.json",
+            "result": {
+              "session": "synthetic/v2/altar-rite-history",
+              "corpus": "synthetic",
+              "batch": "v2",
+              "caseId": "altar-rite-history",
+              "manifestPath": "challenges/manifests/v2.json",
+              "manifestSha256": "58739ea9ed6c26e5153c4860b2e5111d08d69792bdea5c39427cf45b8e72cc9c",
+              "recordingPath": "challenges/cases/v2/altar-rite-history.session.json",
+              "recordingSha256": "f3fbc209ee4d556822809c679e9cc73054b48fa85ba5d17864b764f30b4cf048",
+              "evaluationPath": "challenges/evaluations/20260925221225-v2.json",
+              "evaluationCommit": "9df17907e4122a6809ade23228f0930b179bfba6",
+              "remainingScreens": 2,
+              "recordedSteps": 50,
+              "status": "complete",
+              "commit": "9df17907e4122a6809ade23228f0930b179bfba6",
+              "mismatch": {
+                "corpus": "synthetic",
+                "batch": "v2",
+                "caseId": "altar-rite-history",
+                "session": "synthetic/v2/altar-rite-history",
+                "manifestPath": "challenges/manifests/v2.json",
+                "manifestSha256": "58739ea9ed6c26e5153c4860b2e5111d08d69792bdea5c39427cf45b8e72cc9c",
+                "recording": "challenges/cases/v2/altar-rite-history.session.json",
+                "recordingPath": "challenges/cases/v2/altar-rite-history.session.json",
+                "recordingSha256": "f3fbc209ee4d556822809c679e9cc73054b48fa85ba5d17864b764f30b4cf048",
+                "recipe": "challenges/cases/v2/altar-rite-history.recipe.json",
+                "recipeSha256": "b911dc353955f391a0e40bbf9c6c792bec55089eafbe11c9ce82d430b819391d",
+                "replayInputSha256": "b52a3fd3eb08f77b877df4359db7726758f1b8cd72a88960ecfe969147991e4c",
+                "evaluationPath": "challenges/evaluations/20260925221225-v2.json",
+                "evaluationCommit": "9df17907e4122a6809ade23228f0930b179bfba6",
+                "evaluationArtifact": "challenges/evaluations/20260925221225-v2.json",
+                "evaluationUtc": "2026-09-25T22:12:28.900Z",
+                "remainingScreens": 2,
+                "recordedSteps": 50,
+                "previousScreensMatched": 31,
+                "regression": false,
+                "passed": false,
+                "error": null,
+                "metrics": {
+                  "screens": {
+                    "matched": 48,
+                    "total": 50
+                  },
+                  "rng": {
+                    "matched": 3153,
+                    "total": 3169
+                  },
+                  "cursors": {
+                    "matched": 49,
+                    "total": 50
+                  }
+                },
+                "firstMismatch": {
+                  "screen": {
+                    "index": 48,
+                    "location": {
+                      "segmentIndex": 0,
+                      "stepIndex": 48,
+                      "key": "i"
+                    },
+                    "kind": "ch",
+                    "row": 0,
+                    "column": 0,
+                    "cCell": {
+                      "ch": "Y",
+                      "color": 8,
+                      "attr": 0,
+                      "decgfx": 0
+                    },
+                    "jsCell": {
+                      "ch": "W",
+                      "color": 8,
+                      "attr": 0,
+                      "decgfx": 0
+                    }
+                  },
+                  "rng": {
+                    "index": 3143,
+                    "cEntry": "rn2(19)=17",
+                    "cCaller": "exercise(attrib.c:509)",
+                    "jsEntry": "rn2(40)=9",
+                    "location": {
+                      "segmentIndex": 0,
+                      "stepIndex": 48,
+                      "key": "i"
+                    },
+                    "stepIndex": 48
+                  },
+                  "cursor": {
+                    "index": 48,
+                    "location": {
+                      "segmentIndex": 0,
+                      "stepIndex": 48,
+                      "key": "i"
+                    },
+                    "cCursor": [
+                      55,
+                      0,
+                      1
+                    ],
+                    "jsCursor": [
+                      53,
+                      12,
+                      1
+                    ]
+                  }
+                },
+                "step": 48,
+                "kind": "rng",
+                "sourceFile": "attrib.c",
+                "function": "exercise",
+                "message": null,
+                "cFile": "attrib.c",
+                "luaFile": null,
+                "line": 509
+              },
+              "summary": "After the monster-carrier wish port, altar-rite-history matches 48/50 screens and the debug wish passes through step 31. The remaining divergence occurs after #offer selects the wished-for corpse: C proceeds through pray.c:offer_corpse() and later draws rn2(19) in exercise(), while JS dosacrifice() records an unported offer_corpse gap and advances to a different draw. Port the source offering function and its return-valued evaluation dependencies rather than adding an isolated exercise draw.",
+              "source": {
+                "file": "pray.c",
+                "branch": "The hero is on an altar and selects a CORPSE from floorfood for #offer. pray.c:dosacrifice() calls offer_corpse(otmp, highaltar, altaralign); JS returns after note_unported at that call. C evaluates the corpse and its sacrifice effects before the next command.",
+                "functions": [
+                  "offer_corpse"
+                ],
+                "callers": [
+                  "pray.c:dosacrifice() calls offer_corpse() for CORPSE; js/pray.js:dosacrifice() reaches the corresponding branch and currently calls note_unported instead.",
+                  "The selected admitted v2 case performs #offer after the now-matching jackal-corpse wish, with first post-offering RNG divergence at segment 0 step 48."
+                ],
+                "dependencies": [
+                  "offer_corpse() consumes eval_offering() and other return-valued helpers on its branches; trace and port these in the same task where needed.",
+                  "Its branches also call source-discarded ritual side effects and artifact-gift behavior; preserve ordering and record any unported void callees at exact sites."
+                ]
+              },
+              "goalKind": "file-port",
+              "evidence": [
+                "challenges/evaluations/20260925221225-v2.json at 9df17907e4122a6809ade23228f0930b179bfba6 reports altar-rite-history 48/50 screens, 3153/3169 RNG calls, and 49/50 cursors; two screens remain.",
+                "The admitted recording selects a corpse with #offer before step 48; C records rn2(19)=17 from attrib.c:exercise() at step 48, while JS reaches a later rn2(40)=9 after the offering gap.",
+                "nethack-c/upstream/src/pray.c:1854-1896 routes CORPSE to offer_corpse(); :1959-2125 defines its effects. js/pray.js:dosacrifice() at its corpse arm records note_unported('pray.c offer_corpse') and returns ECMD_TIME.",
+                "The selected earlier objnam.c readobjnam wish is now matched through step 31; its incomplete wizard-kit and Lua callers remain separate source-goal blockers."
+              ],
+              "entryPointReview": {
+                "active": [
+                  "#offer a corpse on an altar after a debug wish in synthetic/v2/altar-rite-history segment 0 steps 41-49."
+                ],
+                "blocked": [
+                  "js/pray.js:dosacrifice() currently skips pray.c offer_corpse(); return-valued offering helpers and later ritual effects need source tracing before closure."
+                ],
+                "buildExcluded": [],
+                "exactReplayAttribution": "The saved C7 evaluation passes the wish construction through step 31 and first diverges in post-offering RNG at segment 0 step 48."
+              },
+              "plannedWholeFunctionScope": [
+                "Port pray.c offer_corpse() as a whole with its return-valued helper dependencies and wire dosacrifice() at the C call site.",
+                "Validate the admitted altar history beyond the #offer confirmation and add independent recorded entry-point evidence where no matching synthetic range covers an impure branch."
+              ]
+            }
+          }
+        }
+      ],
+      "progressBeforePark": {
+        "screens": 0,
+        "rng": 0
+      },
+      "parkedStanding": {
+        "sha": "9df17907e4122a6809ade23228f0930b179bfba6",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "parkedReason": "The admitted wish path matches through step 31 and advances the first mismatch to pray.c:offer_corpse, but readobjnam still has unsupported qualifier/name and interactive glob-weight branches; files.c:proc_wizkit_line and nhlobj.c:Lua obj.new callers lack JS owners and runtime evidence. Preserve this partial source progress without marking the whole function complete."
     },
     {
       "id": "port-fountain-drinkfountain-synthetic-v4-20260925",
