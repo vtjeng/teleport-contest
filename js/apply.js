@@ -3,8 +3,10 @@
 // use_stethoscope(), its_dead(), and reset_trapset().
 //
 // doapply()'s switch has thirty-odd named arms. The live groups are CREAM_PIE,
-// STETHOSCOPE, the LOCK_PICK/CREDIT_CARD/SKELETON_KEY arm that lock.c
-// pick_lock() serves, MAGIC_MARKER which delegates to write.c dowrite() in
+// STETHOSCOPE, OIL_LAMP/MAGIC_LAMP/BRASS_LANTERN through apply.c use_lamp(),
+// WAX_CANDLE/TALLOW_CANDLE through use_candle(), and the
+// LOCK_PICK/CREDIT_CARD/SKELETON_KEY arm that lock.c pick_lock() serves,
+// MAGIC_MARKER which delegates to write.c dowrite() in
 // js/write.js, the container arm (LARGE_BOX/CHEST/ICE_BOX/SACK/BAG_OF_HOLDING/
 // OILSKIN_SACK) which delegates to pickup.c use_container() in js/pickup.js,
 // BAG_OF_TRICKS which delegates to makemon.c bagotricks() in js/makemon.js,
@@ -35,6 +37,7 @@ import {
     ECMD_TIME,
     FACE,
     FORCETRAP,
+    GLIB,
     GETOBJ_DOWNPLAY,
     GETOBJ_EXCLUDE,
     GETOBJ_EXCLUDE_SELECTABLE,
@@ -69,6 +72,7 @@ import {
     LEFT_SIDE,
     PASSES_WALLS,
     RIGHT_SIDE,
+    SHOPBASE,
     TELEDS_NO_FLAGS,
     TOOKPLUNGE,
     TT_BEARTRAP,
@@ -114,16 +118,18 @@ import { Monnam, mon_nam, obj_pmname, pmname, x_monnam } from './do_name.js';
 import { can_reach_floor, freehand } from './engrave.js';
 import { game } from './gstate.js';
 import { check_capacity, losehp, near_capacity, nomul } from './hack.js';
-import { dist2, highc } from './hacklib.js';
+import { dist2, highc, s_suffix, strstri } from './hacklib.js';
 import { mstatusline, ustatusline } from './insight.js';
 import {
     delobj,
+    carrying,
     getobj,
     nxtobj,
     obj_extract_self,
     preflight_obfree,
     preflight_update_inventory,
     update_inventory,
+    useupall,
 } from './invent.js';
 import { pick_lock } from './lock.js';
 import { bagotricks } from './makemon.js';
@@ -148,6 +154,7 @@ import { get_mtraits } from './corpstat.js';
 import { discover_object } from './o_init.js';
 import {
     costly_alteration,
+    bill_dummy_object,
     hornoplenty,
     init_dummyobj,
     is_axe,
@@ -159,12 +166,20 @@ import {
     newObject,
     objectType,
     sobj_at,
+    splitobj,
+    weight,
 } from './obj.js';
 import {
     simple_typename,
     simpleonames,
+    Tobjnam,
     the,
     The,
+    Yname2,
+    otense,
+    safe_qbuf,
+    thesimpleoname,
+    yname,
     xnameFresh,
 } from './objnam.js';
 import {
@@ -216,10 +231,13 @@ import {
     BAG_OF_HOLDING,
     BAG_OF_TRICKS,
     OILSKIN_SACK,
+    CANDELABRUM_OF_INVOCATION,
+    TALLOW_CANDLE,
+    WAX_CANDLE,
 } from './objects.js';
 import { AT_WEAP, MZ_TINY, PM_HEALER } from './monsters.js';
 import { body_part } from './polyself.js';
-import { djinni_from_bottle, make_blinded } from './potion.js';
+import { djinni_from_bottle, make_blinded, make_glib } from './potion.js';
 import { canSpotMonster, heroIsBlind } from './startup_a11y.js';
 import { CMAP_EXPLANATIONS } from './symbol_data.js';
 import { obj_has_timer } from './timeout.js';
@@ -232,13 +250,21 @@ import { dowrite } from './write.js';
 import { use_container } from './pickup.js';
 import { genders } from './roles.js';
 import { d, rn1, rn2, rnd, rne, rnz } from './rng.js';
-import { check_unpaid_usage } from './shk.js';
-import { begin_burn } from './timeout.js';
+import {
+    check_unpaid,
+    check_unpaid_usage,
+    costly_spot,
+    shop_keeper,
+    shk_your,
+    UnsupportedShopError,
+} from './shk.js';
+import { begin_burn, end_burn } from './timeout.js';
 import { wield_tool } from './wield.js';
 import { acurr } from './attrib.js';
 import { known_spell, spe_Fresh, spelleffects } from './spell.js';
 import { stucksteed } from './steed.js';
 import { teleds } from './teleport.js';
+import { fingers_or_gloves } from './do_wear.js';
 import { legs_in_no_shape, set_wounded_legs } from './do.js';
 import { cansee } from './vision.js';
 import { morehungry } from './eat.js';
@@ -247,6 +273,11 @@ import { makeplural } from './fruit.js';
 import { getpos } from './getpos.js';
 import { SPE_JUMPING, BOULDER } from './objects.js';
 import { S_goodpos } from './symbols.js';
+import { in_rooms } from './rooms.js';
+import { set_voice } from './sounds.js';
+import { verbalize } from './pline.js';
+import { y_n } from './cmd.js';
+import { note_unported } from './unported.js';
 
 // C ref: apply.c get_mleash() (880-887). The leash belongs to the hero's
 // inventory, and its leashmon id names the monster; the monster's minvent is
@@ -1225,6 +1256,179 @@ export async function jump(magic = 0, state = game) {
     return ECMD_TIME;
 }
 
+// C ref: apply.c use_lamp() (1628-1702). The branch order is observable:
+// an already-lit object is snuffed before the underwater and empty-fuel
+// checks, and cursed lamps consume the second draw only for oil or magic
+// lamps after the first curse check fails.
+export async function use_lamp(obj, state = game, env = {}) {
+    const candle = obj.otyp === TALLOW_CANDLE || obj.otyp === WAX_CANDLE;
+    const lamp = obj.otyp === OIL_LAMP || obj.otyp === MAGIC_LAMP
+        ? 'lamp' : obj.otyp === BRASS_LANTERN ? 'lantern' : null;
+
+    if (obj.lamplit) {
+        if (lamp) {
+            const owner = shk_your(obj, state);
+            await ttyPline(
+                `${highc(owner[0])}${owner.slice(1)}${lamp} is now off.`,
+                state,
+            );
+        } else {
+            await ttyPline(`You snuff out ${yname(obj, state)}.`, state);
+        }
+        end_burn(obj, true, { ...env, state });
+        return;
+    }
+    if (state.u?.uinwater) {
+        await ttyPline(candle
+            ? 'Sorry, fire and water don\'t mix.'
+            : 'This is not a diving lamp.', state);
+        return;
+    }
+    if ((!candle && obj.age === 0)
+        || (obj.otyp === MAGIC_LAMP && obj.spe === 0)) {
+        if (obj.otyp === BRASS_LANTERN) {
+            await ttyPline(heroIsBlind(state)
+                ? 'Nothing seems to happen.'
+                : 'Your lantern is out of power.', state);
+        } else {
+            await ttyPline(`This ${xnameFresh(obj, state)} has no oil.`, state);
+        }
+        return;
+    }
+
+    if (obj.cursed && rn2(2) === 0) {
+        if ((obj.otyp === OIL_LAMP || obj.otyp === MAGIC_LAMP)
+            && rn2(3) === 0) {
+            await ttyPline(
+                `The lamp spills and covers your ${fingers_or_gloves(true, state)} with oil.`,
+                state,
+            );
+            const glib = state.u?.uprops?.[GLIB]?.intrinsic ?? 0;
+            make_glib((glib & TIMEOUT) + d(2, 10), state, env);
+        } else if (!heroIsBlind(state)) {
+            await ttyPline(
+                `${Tobjnam(obj, 'flicker', state)} for a moment, then ${otense(obj, 'die')}.`,
+                state,
+            );
+        } else {
+            await ttyPline('Nothing seems to happen.', state);
+        }
+    } else if (lamp) {
+        try {
+            check_unpaid(obj, state);
+        } catch (error) {
+            // check_unpaid() is void in C. Its unresolved billing branch is
+            // skipped as a recorded gap while the source continues to light.
+            if (!(error instanceof UnsupportedShopError)) throw error;
+            note_unported('shk.c check_unpaid_usage');
+        }
+        const owner = shk_your(obj, state);
+        await ttyPline(
+            `${highc(owner[0])}${owner.slice(1)}${lamp} is now on.`, state,
+        );
+        begin_burn(obj, false, { ...env, state });
+    } else {
+        const name = Yname2(obj, state);
+        const plural = obj.quan !== 1;
+        await ttyPline(
+            `${s_suffix(name)} flame${plural ? 's' : ''} ${otense(obj, 'burn')}`
+                + `${heroIsBlind(state) ? '.' : ' brightly!'}`,
+            state,
+        );
+        const cost = objectType(obj, state).oc_cost;
+        if (obj.unpaid && costly_spot(state.u.ux, state.u.uy, state)
+            && obj.age === 20 * cost) {
+            const pronoun = obj.quan > 1 ? 'them' : 'it';
+            const rooms = in_rooms(state.u.ux, state.u.uy, SHOPBASE, state);
+            set_voice(shop_keeper(rooms[0] ?? 0, state), 0, 80, 0, state);
+            await verbalize(`You burn ${pronoun}, you bought ${pronoun}!`, state);
+            await bill_dummy_object(obj, { ...env, state });
+        }
+        begin_burn(obj, false, { ...env, state });
+    }
+}
+
+// C ref: apply.c use_candle() (1387-1468). Attaching a candle stack to the
+// carried candelabrum consumes the accepted split, while a negative answer,
+// a missing/full candelabrum, or a swallowed hero delegates to use_lamp().
+export async function use_candle(obj, state = game, env = {}) {
+    if (state.u?.uswallow) {
+        await ttyPline(
+            "You don't have enough elbow-room to maneuver.", state,
+        );
+        return;
+    }
+
+    const candelabrum = carrying(CANDELABRUM_OF_INVOCATION, state);
+    if (!candelabrum || candelabrum.spe === 7) {
+        await use_lamp(obj, state, env);
+        return;
+    }
+
+    let candleNoun = obj.quan !== 1 ? 'candles' : 'candle';
+    const suffix = ` to\x1b${thesimpleoname(candelabrum, state)}?`;
+    let query = safe_qbuf(
+        'Attach ', suffix, obj, yname, thesimpleoname, candleNoun, state,
+    );
+    const marker = strstri(query, ' to\x1b');
+    if (marker >= 0)
+        query = `${query.slice(0, marker)} to `;
+    const attachQuery = safe_qbuf(
+        query, '?', candelabrum, yname, thesimpleoname, 'it', state,
+    );
+    if (await y_n(attachQuery, state) === 'n') {
+        await use_lamp(obj, state, env);
+        return;
+    }
+
+    if (candelabrum.spe + obj.quan > 7) {
+        obj = splitobj(obj, 7 - candelabrum.spe, { ...env, state });
+        candleNoun = obj.quan !== 1 ? 'candles' : 'candle';
+    }
+
+    const wasLit = Boolean(obj.lamplit);
+    if (wasLit)
+        end_burn(obj, true, { ...env, state });
+
+    await ttyPline(
+        `You attach ${obj.quan}${candelabrum.spe ? ' more' : ''} ${candleNoun} to ${the(xnameFresh(candelabrum, state), state)}.`,
+        state,
+    );
+    if (!candelabrum.spe || candelabrum.age > obj.age)
+        candelabrum.age = obj.age;
+    candelabrum.spe += obj.quan;
+    if (candelabrum.lamplit && !wasLit) {
+        const pluralSuffix = candleNoun;
+        await ttyPline(
+            `The new ${pluralSuffix} magically ${pluralSuffix === 'candle' ? 'ignites' : 'ignite'}!`,
+            state,
+        );
+    } else if (!candelabrum.lamplit && wasLit) {
+        await ttyPline(obj.quan > 1 ? 'They go out.' : 'It goes out.', state);
+    }
+    if (obj.unpaid) {
+        const rooms = in_rooms(state.u.ux, state.u.uy, SHOPBASE, state);
+        set_voice(shop_keeper(rooms[0] ?? 0, state), 0, 80, 0, state);
+        const pronoun = obj.quan > 1 ? 'them' : 'it';
+        await verbalize(
+            `You ${candelabrum.lamplit ? 'burn' : 'use'} ${pronoun}, you bought ${pronoun}!`,
+            state,
+        );
+    }
+    if (obj.quan < 7 && candelabrum.spe === 7) {
+        const lit = candelabrum.lamplit ? ' lit' : '';
+        await ttyPline(
+            `${The(xnameFresh(candelabrum, state), state)} now has seven${lit} candles attached.`,
+            state,
+        );
+    }
+    if (candelabrum.lamplit)
+        note_unported('light.c obj_merge_light_sources');
+    useupall(obj, { ...env, state });
+    candelabrum.owt = weight(candelabrum, { ...env, state });
+    update_inventory({ ...env, state });
+}
+
 // C ref: apply.c doapply() (4213-4430), the `a` command.
 //
 // retouch_object(&obj, FALSE) sits between getobj() and the switch, and only
@@ -1289,6 +1493,15 @@ export async function doapply(state = game, env = {}) {
     case BAG_OF_TRICKS:
         // apply.c:4279-4281. (void) bagotricks(obj, FALSE, (int *) 0)
         await bagotricks(obj, false, state);
+        return ECMD_TIME;
+    case WAX_CANDLE:
+    case TALLOW_CANDLE:
+        await use_candle(obj, state, env);
+        return ECMD_TIME;
+    case OIL_LAMP:
+    case MAGIC_LAMP:
+    case BRASS_LANTERN:
+        await use_lamp(obj, state, env);
         return ECMD_TIME;
     case MAGIC_MARKER:
         // apply.c:4361-4362. dowrite() handles the full magic marker flow.

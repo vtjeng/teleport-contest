@@ -1,0 +1,735 @@
+{
+  "version": 1,
+  "batch": "v4",
+  "cases": [
+    {
+      "id": "archeologist-dig-direction-prompt-miss",
+      "title": "Pick-axe direction prompt cancellation",
+      "mission": "Try to apply the starting pick-axe, choose a direction, and dig through a nearby obstacle.",
+      "selectionRationale": "Selected from the C source before any JavaScript outcome inspection. The full valid C history is retained even when it misses the planned event.",
+      "sourcePointers": [
+        "nethack-c/upstream/src/dig.c: use_pick_axe() and use_pick_axe2()"
+      ],
+      "cOutcome": "The Archeologist applied the pick-axe and reached the direction prompt; the recorded spaces canceled the dig before a digging result.",
+      "outcome": "The Archeologist applied the pick-axe and reached the direction prompt; the recorded spaces canceled the dig before a digging result.",
+      "inputs": {
+        "seed": 10041041,
+        "datetime": "20360421110000",
+        "role": "Archeologist",
+        "race": "human",
+        "gender": "female",
+        "alignment": "neutral",
+        "playmode": "",
+        "keyCount": 27,
+        "boundaries": 28
+      },
+      "recipe": "challenges/cases/v4/archeologist-dig-direction-prompt-miss.recipe.json",
+      "recipeSha256": "a2627c75650b336f2787d05576918e601dec1bddd6d06523a5b0d56fc71e5ab9",
+      "recording": "challenges/cases/v4/archeologist-dig-direction-prompt-miss.session.json",
+      "recordingSha256": "aa672b5b1e26ffd83c332ee298baf2be516c6c332ef22de48c2bd6d4473668d3",
+      "reproducibility": "Independent C replay command: node scripts/record-session.mjs challenges/cases/v4/archeologist-dig-direction-prompt-miss.recipe.json .cache/C4-replays/archeologist-dig-direction-prompt-miss.session.json; exit code 0. The complete C recording exactly matched the original byte for byte (SHA-256 aa672b5b1e26ffd83c332ee298baf2be516c6c332ef22de48c2bd6d4473668d3); 28 boundaries. Log: /tmp/teleport-loop-worker-c-20260925/.cache/C4-replay-logs/archeologist-dig-direction-prompt-miss.log."
+    },
+    {
+      "id": "archeologist-dig-input-prompt-miss",
+      "title": "Pick-axe input-menu setup miss",
+      "mission": "Try to apply the starting pick-axe, choose a direction, and dig through a nearby obstacle.",
+      "selectionRationale": "Selected from the C source before any JavaScript outcome inspection. The full valid C history is retained even when it misses the planned event.",
+      "sourcePointers": [
+        "nethack-c/upstream/src/dig.c: use_pick_axe() and use_pick_axe2()"
+      ],
+      "cOutcome": "The valid C play reached the pick-axe application menu but did not choose a completed dig action.",
+      "outcome": "The valid C play reached the pick-axe application menu but did not choose a completed dig action.",
+      "inputs": {
+        "seed": 10041029,
+        "datetime": "20360418091500",
+        "role": "Archeologist",
+        "race": "dwarf",
+        "gender": "male",
+        "alignment": "neutral",
+        "playmode": "",
+        "keyCount": 19,
+        "boundaries": 20
+      },
+      "recipe": "challenges/cases/v4/archeologist-dig-input-prompt-miss.recipe.json",
+      "recipeSha256": "39dbbab41aa30eab2eeeb5d0b7c2b18c0636675a339d6215e1de0aad833fbb2d",
+      "recording": "challenges/cases/v4/archeologist-dig-input-prompt-miss.session.json",
+      "recordingSha256": "459079ffb8a647b4165394194e1aa43aced34cb1fc07885c38afc4dbfb16a3e8",
+      "reproducibility": "Independent C replay command: node scripts/record-session.mjs challenges/cases/v4/archeologist-dig-input-prompt-miss.recipe.json .cache/C4-replays/archeologist-dig-input-prompt-miss.session.json; exit code 0. The complete C recording exactly matched the original byte for byte (SHA-256 459079ffb8a647b4165394194e1aa43aced34cb1fc07885c38afc4dbfb16a3e8); 20 boundaries. Log: /tmp/teleport-loop-worker-c-20260925/.cache/C4-replay-logs/archeologist-dig-input-prompt-miss.log."
+    },
+    {
+      "id": "archeologist-dig-menu-confirmation-miss",
+      "title": "Pick-axe application menu miss",
+      "mission": "Try to apply the starting pick-axe, choose a direction, and dig through a nearby obstacle.",
+      "selectionRationale": "Selected from the C source before any JavaScript outcome inspection. The full valid C history is retained even when it misses the planned event.",
+      "sourcePointers": [
+        "nethack-c/upstream/src/dig.c: use_pick_axe() and use_pick_axe2()"
+      ],
+      "cOutcome": "The valid C play reached the application menu and item descriptions but did not reach a digging result.",
+      "outcome": "The valid C play reached the application menu and item descriptions but did not reach a digging result.",
+      "inputs": {
+        "seed": 10041037,
+        "datetime": "20360420104500",
+        "role": "Archeologist",
+        "race": "human",
+        "gender": "female",
+        "alignment": "neutral",
+        "playmode": "",
+        "keyCount": 18,
+        "boundaries": 19
+      },
+      "recipe": "challenges/cases/v4/archeologist-dig-menu-confirmation-miss.recipe.json",
+      "recipeSha256": "a190691a76858418d17377d8debba030c78a4d9d9878f0a0dfcb700291114061",
+      "recording": "challenges/cases/v4/archeologist-dig-menu-confirmation-miss.session.json",
+      "recordingSha256": "ed6df38ba2980827dbdb1f986a3f599c5eff0d6760bc4b667e9be108ed60e7d2",
+      "reproducibility": "Independent C replay command: node scripts/record-session.mjs challenges/cases/v4/archeologist-dig-menu-confirmation-miss.recipe.json .cache/C4-replays/archeologist-dig-menu-confirmation-miss.session.json; exit code 0. The complete C recording exactly matched the original byte for byte (SHA-256 ed6df38ba2980827dbdb1f986a3f599c5eff0d6760bc4b667e9be108ed60e7d2); 19 boundaries. Log: /tmp/teleport-loop-worker-c-20260925/.cache/C4-replay-logs/archeologist-dig-menu-confirmation-miss.log."
+    },
+    {
+      "id": "archeologist-dig-menu-miss",
+      "title": "Pick-axe menu command miss",
+      "mission": "Try to apply the starting pick-axe, choose a direction, and dig through a nearby obstacle.",
+      "selectionRationale": "Selected from the C source before any JavaScript outcome inspection. The full valid C history is retained even when it misses the planned event.",
+      "sourcePointers": [
+        "nethack-c/upstream/src/dig.c: use_pick_axe() and use_pick_axe2()"
+      ],
+      "cOutcome": "The C play canceled the application menu and continued with an unrelated eat command; no digging result was reached.",
+      "outcome": "The C play canceled the application menu and continued with an unrelated eat command; no digging result was reached.",
+      "inputs": {
+        "seed": 10041031,
+        "datetime": "20360419100000",
+        "role": "Archeologist",
+        "race": "dwarf",
+        "gender": "male",
+        "alignment": "neutral",
+        "playmode": "",
+        "keyCount": 15,
+        "boundaries": 16
+      },
+      "recipe": "challenges/cases/v4/archeologist-dig-menu-miss.recipe.json",
+      "recipeSha256": "266bc1373d31d9fa41437c210586c441fc079d7bf5a48856bf4a5347f405fcf3",
+      "recording": "challenges/cases/v4/archeologist-dig-menu-miss.session.json",
+      "recordingSha256": "9d98a58c2e5f7fd33213ebad5f27d92e1b0a7ef2af95faf92e184ea0c4480610",
+      "reproducibility": "Independent C replay command: node scripts/record-session.mjs challenges/cases/v4/archeologist-dig-menu-miss.recipe.json .cache/C4-replays/archeologist-dig-menu-miss.session.json; exit code 0. The complete C recording exactly matched the original byte for byte (SHA-256 9d98a58c2e5f7fd33213ebad5f27d92e1b0a7ef2af95faf92e184ea0c4480610); 16 boundaries. Log: /tmp/teleport-loop-worker-c-20260925/.cache/C4-replay-logs/archeologist-dig-menu-miss.log."
+    },
+    {
+      "id": "archeologist-dig-through-door",
+      "title": "Pick-axe swing through thin air",
+      "mission": "Try to apply the starting pick-axe, choose a direction, and dig through a nearby obstacle.",
+      "selectionRationale": "Selected from the C source before any JavaScript outcome inspection. The full valid C history is retained even when it misses the planned event.",
+      "sourcePointers": [
+        "nethack-c/upstream/src/dig.c: use_pick_axe() and use_pick_axe2()"
+      ],
+      "cOutcome": "C reached dig.c:use_pick_axe2 and reported “You swing your pick-axe through thin air.” The available direction was through a doorway, so wall or door excavation was not reached.",
+      "outcome": "C reached dig.c:use_pick_axe2 and reported “You swing your pick-axe through thin air.” The available direction was through a doorway, so wall or door excavation was not reached.",
+      "inputs": {
+        "seed": 10041043,
+        "datetime": "20360422103000",
+        "role": "Archeologist",
+        "race": "human",
+        "gender": "female",
+        "alignment": "neutral",
+        "playmode": "",
+        "keyCount": 19,
+        "boundaries": 20
+      },
+      "recipe": "challenges/cases/v4/archeologist-dig-through-door.recipe.json",
+      "recipeSha256": "325baf597a503b5e87ab608c0616220da1516e86f02de2cc763f6f3b27016238",
+      "recording": "challenges/cases/v4/archeologist-dig-through-door.session.json",
+      "recordingSha256": "8ff5096ee8dc76bac145174e422fccb7a991ac20b8b3576a9a7872e08185456f",
+      "reproducibility": "Independent C replay command: node scripts/record-session.mjs challenges/cases/v4/archeologist-dig-through-door.recipe.json .cache/C4-replays/archeologist-dig-through-door.session.json; exit code 0. The complete C recording exactly matched the original byte for byte (SHA-256 8ff5096ee8dc76bac145174e422fccb7a991ac20b8b3576a9a7872e08185456f); 20 boundaries. Log: /tmp/teleport-loop-worker-c-20260925/.cache/C4-replay-logs/archeologist-dig-through-door.log."
+    },
+    {
+      "id": "healer-magic-fountain-drink",
+      "title": "Repeated drinks from a magic fountain",
+      "mission": "Drink repeatedly from the wished fountain and record the actual state-dependent outcomes.",
+      "selectionRationale": "Selected from the C source before any JavaScript outcome inspection. The full valid C history is retained even when it misses the planned event.",
+      "sourcePointers": [
+        "nethack-c/upstream/src/fountain.c: drinkfountain()"
+      ],
+      "cOutcome": "C reached the blessed one-time fountain result (“Wow! This makes you feel great!”), then the vapor message and later tasteless and self-knowledge drink results while using the same fountain.",
+      "outcome": "C reached the blessed one-time fountain result (“Wow! This makes you feel great!”), then the vapor message and later tasteless and self-knowledge drink results while using the same fountain.",
+      "inputs": {
+        "seed": 10041051,
+        "datetime": "20360503101500",
+        "role": "Healer",
+        "race": "human",
+        "gender": "male",
+        "alignment": "neutral",
+        "playmode": "debug",
+        "keyCount": 30,
+        "boundaries": 31
+      },
+      "recipe": "challenges/cases/v4/healer-magic-fountain-drink.recipe.json",
+      "recipeSha256": "9dda39db9cab371c9dff085805a5ba46a313da47f026103d316f80b828106fc7",
+      "recording": "challenges/cases/v4/healer-magic-fountain-drink.session.json",
+      "recordingSha256": "2775eb19d73cef073a73f80b3687dfa60c9298e61add4ab81027f7d5766678e9",
+      "reproducibility": "Independent C replay command: node scripts/record-session.mjs challenges/cases/v4/healer-magic-fountain-drink.recipe.json .cache/C4-replays/healer-magic-fountain-drink.session.json; exit code 0. The complete C recording exactly matched the original byte for byte (SHA-256 2775eb19d73cef073a73f80b3687dfa60c9298e61add4ab81027f7d5766678e9); 31 boundaries. Log: /tmp/teleport-loop-worker-c-20260925/.cache/C4-replay-logs/healer-magic-fountain-drink.log."
+    },
+    {
+      "id": "monk-nymph-pet-interference-miss",
+      "title": "Pet interrupts the generated nymph",
+      "mission": "Create an adjacent nymph, wake it when needed, advance turns, and record its theft outcome.",
+      "selectionRationale": "Selected from the C source before any JavaScript outcome inspection. The full valid C history is retained even when it misses the planned event.",
+      "sourcePointers": [
+        "nethack-c/upstream/src/uhitm.c: AD_SITM dispatch; nethack-c/upstream/src/steal.c: steal()"
+      ],
+      "cOutcome": "A wood nymph appeared next to the Monk, then the starting dog bit it. Ordinary waiting was stopped by C’s safe-wait warning; theft was not reached.",
+      "outcome": "A wood nymph appeared next to the Monk, then the starting dog bit it. Ordinary waiting was stopped by C’s safe-wait warning; theft was not reached.",
+      "inputs": {
+        "seed": 10041131,
+        "datetime": "20360813152500",
+        "role": "Monk",
+        "race": "human",
+        "gender": "male",
+        "alignment": "lawful",
+        "playmode": "debug",
+        "keyCount": 46,
+        "boundaries": 47
+      },
+      "recipe": "challenges/cases/v4/monk-nymph-pet-interference-miss.recipe.json",
+      "recipeSha256": "46d7c828e7df8b5798c55987d4b19acfd3de0bbcd98fd94bf3f38011a34141e9",
+      "recording": "challenges/cases/v4/monk-nymph-pet-interference-miss.session.json",
+      "recordingSha256": "82c65bc6aa799dca5f4caab83333629bf0ece1b51cc3f74c99a9cd8fa643c48a",
+      "reproducibility": "Independent C replay command: node scripts/record-session.mjs challenges/cases/v4/monk-nymph-pet-interference-miss.recipe.json .cache/C4-replays/monk-nymph-pet-interference-miss.session.json; exit code 0. The complete C recording exactly matched the original byte for byte (SHA-256 82c65bc6aa799dca5f4caab83333629bf0ece1b51cc3f74c99a9cd8fa643c48a); 47 boundaries. Log: /tmp/teleport-loop-worker-c-20260925/.cache/C4-replay-logs/monk-nymph-pet-interference-miss.log."
+    },
+    {
+      "id": "monk-nymph-safe-wait-miss",
+      "title": "Safe-wait prevents nymph turns",
+      "mission": "Create an adjacent nymph, wake it when needed, advance turns, and record its theft outcome.",
+      "selectionRationale": "Selected from the C source before any JavaScript outcome inspection. The full valid C history is retained even when it misses the planned event.",
+      "sourcePointers": [
+        "nethack-c/upstream/src/uhitm.c: AD_SITM dispatch; nethack-c/upstream/src/steal.c: steal()"
+      ],
+      "cOutcome": "A water nymph appeared next to the Monk. Ordinary wait commands did not advance through the safe-wait guard, so no theft attempt was recorded.",
+      "outcome": "A water nymph appeared next to the Monk. Ordinary wait commands did not advance through the safe-wait guard, so no theft attempt was recorded.",
+      "inputs": {
+        "seed": 10041147,
+        "datetime": "20360814161200",
+        "role": "Monk",
+        "race": "human",
+        "gender": "male",
+        "alignment": "lawful",
+        "playmode": "debug",
+        "keyCount": 46,
+        "boundaries": 47
+      },
+      "recipe": "challenges/cases/v4/monk-nymph-safe-wait-miss.recipe.json",
+      "recipeSha256": "73d553ed2a0ab189fe3930559602f618f19a1626c1e471aac09e161b461b4f44",
+      "recording": "challenges/cases/v4/monk-nymph-safe-wait-miss.session.json",
+      "recordingSha256": "76c9e641f413632cd0a2c62ceffe76d03cf513ed73eaa11b083768a50c19268e",
+      "reproducibility": "Independent C replay command: node scripts/record-session.mjs challenges/cases/v4/monk-nymph-safe-wait-miss.recipe.json .cache/C4-replays/monk-nymph-safe-wait-miss.session.json; exit code 0. The complete C recording exactly matched the original byte for byte (SHA-256 76c9e641f413632cd0a2c62ceffe76d03cf513ed73eaa11b083768a50c19268e); 47 boundaries. Log: /tmp/teleport-loop-worker-c-20260925/.cache/C4-replay-logs/monk-nymph-safe-wait-miss.log."
+    },
+    {
+      "id": "monk-nymph-theft-recovery",
+      "title": "Water nymph seduction and theft",
+      "mission": "Create an adjacent nymph, wake it when needed, advance turns, and record its theft outcome.",
+      "selectionRationale": "Selected from the C source before any JavaScript outcome inspection. The full valid C history is retained even when it misses the planned event.",
+      "sourcePointers": [
+        "nethack-c/upstream/src/uhitm.c: AD_SITM dispatch; nethack-c/upstream/src/steal.c: steal()"
+      ],
+      "cOutcome": "After the Monk woke the adjacent water nymph, C recorded the seduction and armor doffing, then “The water nymph steals an uncursed +1 robe!” and the nymph vanished.",
+      "outcome": "After the Monk woke the adjacent water nymph, C recorded the seduction and armor doffing, then “The water nymph steals an uncursed +1 robe!” and the nymph vanished.",
+      "inputs": {
+        "seed": 10041147,
+        "datetime": "20360814161200",
+        "role": "Monk",
+        "race": "human",
+        "gender": "male",
+        "alignment": "lawful",
+        "playmode": "debug",
+        "keyCount": 53,
+        "boundaries": 54
+      },
+      "recipe": "challenges/cases/v4/monk-nymph-theft-recovery.recipe.json",
+      "recipeSha256": "2cb16759cfcfbacab93d7adb3004afcdaf77235d49d20f8487c00adc20c8e3c1",
+      "recording": "challenges/cases/v4/monk-nymph-theft-recovery.session.json",
+      "recordingSha256": "12c7091ad75eb0fd4c1604b53961bd3bea6c9a0d555d5f0bd1c35564d82acf3f",
+      "reproducibility": "Independent C replay command: node scripts/record-session.mjs challenges/cases/v4/monk-nymph-theft-recovery.recipe.json .cache/C4-replays/monk-nymph-theft-recovery.session.json; exit code 0. The complete C recording exactly matched the original byte for byte (SHA-256 12c7091ad75eb0fd4c1604b53961bd3bea6c9a0d555d5f0bd1c35564d82acf3f); 54 boundaries. Log: /tmp/teleport-loop-worker-c-20260925/.cache/C4-replay-logs/monk-nymph-theft-recovery.log."
+    },
+    {
+      "id": "monk-nymph-wake-only-miss",
+      "title": "Wake the generated water nymph",
+      "mission": "Create an adjacent nymph, wake it when needed, advance turns, and record its theft outcome.",
+      "selectionRationale": "Selected from the C source before any JavaScript outcome inspection. The full valid C history is retained even when it misses the planned event.",
+      "sourcePointers": [
+        "nethack-c/upstream/src/uhitm.c: AD_SITM dispatch; nethack-c/upstream/src/steal.c: steal()"
+      ],
+      "cOutcome": "The Monk hit the adjacent water nymph once; C reported that it woke up. The More prompt stopped the attempted follow-up before a theft.",
+      "outcome": "The Monk hit the adjacent water nymph once; C reported that it woke up. The More prompt stopped the attempted follow-up before a theft.",
+      "inputs": {
+        "seed": 10041147,
+        "datetime": "20360814161200",
+        "role": "Monk",
+        "race": "human",
+        "gender": "male",
+        "alignment": "lawful",
+        "playmode": "debug",
+        "keyCount": 49,
+        "boundaries": 50
+      },
+      "recipe": "challenges/cases/v4/monk-nymph-wake-only-miss.recipe.json",
+      "recipeSha256": "aff7a3025a7a6097d8b6f31df502c0dfb7575e5032a6d487d1da0ec38ea498d9",
+      "recording": "challenges/cases/v4/monk-nymph-wake-only-miss.session.json",
+      "recordingSha256": "30056757b6aa0a240ac02402693c7b945460ddc99f3e4888b4807223941931f9",
+      "reproducibility": "Independent C replay command: node scripts/record-session.mjs challenges/cases/v4/monk-nymph-wake-only-miss.recipe.json .cache/C4-replays/monk-nymph-wake-only-miss.session.json; exit code 0. The complete C recording exactly matched the original byte for byte (SHA-256 30056757b6aa0a240ac02402693c7b945460ddc99f3e4888b4807223941931f9); 50 boundaries. Log: /tmp/teleport-loop-worker-c-20260925/.cache/C4-replay-logs/monk-nymph-wake-only-miss.log."
+    },
+    {
+      "id": "rogue-sink-ring-history",
+      "title": "Drop a ring into a sink",
+      "mission": "Create a sink and rings, then drop a ring over the sink and retain the ring-specific reaction.",
+      "selectionRationale": "Selected from the C source before any JavaScript outcome inspection. The full valid C history is retained even when it misses the planned event.",
+      "sourcePointers": [
+        "nethack-c/upstream/src/do.c: dosinkring(), called from the drop action"
+      ],
+      "cOutcome": "C reached do.c:dosinkring: the Rogue dropped a diamond ring down the drain and the sink quivered upward for a moment.",
+      "outcome": "C reached do.c:dosinkring: the Rogue dropped a diamond ring down the drain and the sink quivered upward for a moment.",
+      "inputs": {
+        "seed": 10041071,
+        "datetime": "20360604121500",
+        "role": "Rogue",
+        "race": "human",
+        "gender": "female",
+        "alignment": "chaotic",
+        "playmode": "debug",
+        "keyCount": 50,
+        "boundaries": 51
+      },
+      "recipe": "challenges/cases/v4/rogue-sink-ring-history.recipe.json",
+      "recipeSha256": "03afbe0e06c6270ae23a190ae068217d07f9d435868460d734916294d859d868",
+      "recording": "challenges/cases/v4/rogue-sink-ring-history.session.json",
+      "recordingSha256": "dc0759b7d9dca777d85b82b5e0ee0473ca6ef4debbb2a9f2b2eb2acadf85c557",
+      "reproducibility": "Independent C replay command: node scripts/record-session.mjs challenges/cases/v4/rogue-sink-ring-history.recipe.json .cache/C4-replays/rogue-sink-ring-history.session.json; exit code 0. The complete C recording exactly matched the original byte for byte (SHA-256 dc0759b7d9dca777d85b82b5e0ee0473ca6ef4debbb2a9f2b2eb2acadf85c557); 51 boundaries. Log: /tmp/teleport-loop-worker-c-20260925/.cache/C4-replay-logs/rogue-sink-ring-history.log."
+    },
+    {
+      "id": "rogue-sink-ring-setup-inventory-miss",
+      "title": "Sink and ring setup inventory check",
+      "mission": "Create a sink and rings, then drop a ring over the sink and retain the ring-specific reaction.",
+      "selectionRationale": "Selected from the C source before any JavaScript outcome inspection. The full valid C history is retained even when it misses the planned event.",
+      "sourcePointers": [
+        "nethack-c/upstream/src/do.c: dosinkring(), called from the drop action"
+      ],
+      "cOutcome": "The Rogue created the sink and rings and inspected inventory, but did not drop a ring; dosinkring was not reached.",
+      "outcome": "The Rogue created the sink and rings and inspected inventory, but did not drop a ring; dosinkring was not reached.",
+      "inputs": {
+        "seed": 10041071,
+        "datetime": "20360604121500",
+        "role": "Rogue",
+        "race": "human",
+        "gender": "female",
+        "alignment": "chaotic",
+        "playmode": "debug",
+        "keyCount": 27,
+        "boundaries": 28
+      },
+      "recipe": "challenges/cases/v4/rogue-sink-ring-setup-inventory-miss.recipe.json",
+      "recipeSha256": "24159c47c896272855a824f28b34564224e2ba566bcb9956053ad7cd1b58f664",
+      "recording": "challenges/cases/v4/rogue-sink-ring-setup-inventory-miss.session.json",
+      "recordingSha256": "1f37398ff2f1d708a1693b6d52cc8e5f943502157f668f3de6438e21f61714e0",
+      "reproducibility": "Independent C replay command: node scripts/record-session.mjs challenges/cases/v4/rogue-sink-ring-setup-inventory-miss.recipe.json .cache/C4-replays/rogue-sink-ring-setup-inventory-miss.session.json; exit code 0. The complete C recording exactly matched the original byte for byte (SHA-256 1f37398ff2f1d708a1693b6d52cc8e5f943502157f668f3de6438e21f61714e0); 28 boundaries. Log: /tmp/teleport-loop-worker-c-20260925/.cache/C4-replay-logs/rogue-sink-ring-setup-inventory-miss.log."
+    },
+    {
+      "id": "tourist-fountain-dip-history",
+      "title": "Dip a clear potion into a fountain",
+      "mission": "Create a fountain and clear potion, then confirm a potion dip and retain its actual result.",
+      "selectionRationale": "Selected from the C source before any JavaScript outcome inspection. The full valid C history is retained even when it misses the planned event.",
+      "sourcePointers": [
+        "nethack-c/upstream/src/fountain.c: dipfountain()"
+      ],
+      "cOutcome": "C reached fountain.c:dipfountain after confirming a clear potion dip; the fountain reported “Nothing seems to happen.”",
+      "outcome": "C reached fountain.c:dipfountain after confirming a clear potion dip; the fountain reported “Nothing seems to happen.”",
+      "inputs": {
+        "seed": 10041059,
+        "datetime": "20360505114500",
+        "role": "Tourist",
+        "race": "human",
+        "gender": "female",
+        "alignment": "neutral",
+        "playmode": "debug",
+        "keyCount": 34,
+        "boundaries": 35
+      },
+      "recipe": "challenges/cases/v4/tourist-fountain-dip-history.recipe.json",
+      "recipeSha256": "0cb6bb566c35e2bade5c7ff7d599cc4100171c61f19829a94c38deabbeac4a39",
+      "recording": "challenges/cases/v4/tourist-fountain-dip-history.session.json",
+      "recordingSha256": "97950e8b8bf913f1c60eede29de6893a97e9246b3fdfea211c0aa5e7165d0133",
+      "reproducibility": "Independent C replay command: node scripts/record-session.mjs challenges/cases/v4/tourist-fountain-dip-history.recipe.json .cache/C4-replays/tourist-fountain-dip-history.session.json; exit code 0. The complete C recording exactly matched the original byte for byte (SHA-256 97950e8b8bf913f1c60eede29de6893a97e9246b3fdfea211c0aa5e7165d0133); 35 boundaries. Log: /tmp/teleport-loop-worker-c-20260925/.cache/C4-replay-logs/tourist-fountain-dip-history.log."
+    },
+    {
+      "id": "tourist-fountain-dip-setup-inventory-miss",
+      "title": "Fountain dip inventory setup miss",
+      "mission": "Create a fountain and clear potion, then confirm a potion dip and retain its actual result.",
+      "selectionRationale": "Selected from the C source before any JavaScript outcome inspection. The full valid C history is retained even when it misses the planned event.",
+      "sourcePointers": [
+        "nethack-c/upstream/src/fountain.c: dipfountain()"
+      ],
+      "cOutcome": "The Tourist wished a potion of water and inspected inventory but did not issue the dip command; dipfountain was not reached.",
+      "outcome": "The Tourist wished a potion of water and inspected inventory but did not issue the dip command; dipfountain was not reached.",
+      "inputs": {
+        "seed": 10041057,
+        "datetime": "20360504113000",
+        "role": "Tourist",
+        "race": "human",
+        "gender": "female",
+        "alignment": "neutral",
+        "playmode": "debug",
+        "keyCount": 28,
+        "boundaries": 29
+      },
+      "recipe": "challenges/cases/v4/tourist-fountain-dip-setup-inventory-miss.recipe.json",
+      "recipeSha256": "f27acd86557c4524833ee171339ea02a6b3647faed50ba7bd3603dc699e87b42",
+      "recording": "challenges/cases/v4/tourist-fountain-dip-setup-inventory-miss.session.json",
+      "recordingSha256": "75525f4caf9686050f333288d0c96a53e8203dc890c6e693495d708763acd6e4",
+      "reproducibility": "Independent C replay command: node scripts/record-session.mjs challenges/cases/v4/tourist-fountain-dip-setup-inventory-miss.recipe.json .cache/C4-replays/tourist-fountain-dip-setup-inventory-miss.session.json; exit code 0. The complete C recording exactly matched the original byte for byte (SHA-256 75525f4caf9686050f333288d0c96a53e8203dc890c6e693495d708763acd6e4); 29 boundaries. Log: /tmp/teleport-loop-worker-c-20260925/.cache/C4-replay-logs/tourist-fountain-dip-setup-inventory-miss.log."
+    },
+    {
+      "id": "tourist-fountain-puton-command-miss",
+      "title": "Fountain potion put-on command miss",
+      "mission": "Create a fountain and clear potion, then confirm a potion dip and retain its actual result.",
+      "selectionRationale": "Selected from the C source before any JavaScript outcome inspection. The full valid C history is retained even when it misses the planned event.",
+      "sourcePointers": [
+        "nethack-c/upstream/src/fountain.c: dipfountain()"
+      ],
+      "cOutcome": "The Tourist selected the put-on command instead of dipping the potion; C reported that there was nothing else to put on.",
+      "outcome": "The Tourist selected the put-on command instead of dipping the potion; C reported that there was nothing else to put on.",
+      "inputs": {
+        "seed": 10041059,
+        "datetime": "20360505114500",
+        "role": "Tourist",
+        "race": "human",
+        "gender": "female",
+        "alignment": "neutral",
+        "playmode": "debug",
+        "keyCount": 29,
+        "boundaries": 30
+      },
+      "recipe": "challenges/cases/v4/tourist-fountain-puton-command-miss.recipe.json",
+      "recipeSha256": "700d0c63831afed600d19d45c35af2e4300832f206377ce101293ed64321800c",
+      "recording": "challenges/cases/v4/tourist-fountain-puton-command-miss.session.json",
+      "recordingSha256": "868097d8f1a4a413e54072caa5555e9e97ac971069def6e4356df4117321998f",
+      "reproducibility": "Independent C replay command: node scripts/record-session.mjs challenges/cases/v4/tourist-fountain-puton-command-miss.recipe.json .cache/C4-replays/tourist-fountain-puton-command-miss.session.json; exit code 0. The complete C recording exactly matched the original byte for byte (SHA-256 868097d8f1a4a413e54072caa5555e9e97ac971069def6e4356df4117321998f); 30 boundaries. Log: /tmp/teleport-loop-worker-c-20260925/.cache/C4-replay-logs/tourist-fountain-puton-command-miss.log."
+    },
+    {
+      "id": "valkyrie-lockpick-chest-open-menu",
+      "title": "Pick a chest lock and enter the loot menu",
+      "mission": "Create and pick a chest lock, then enter the chest loot interaction.",
+      "selectionRationale": "Selected from the C source before any JavaScript outcome inspection. The full valid C history is retained even when it misses the planned event.",
+      "sourcePointers": [
+        "nethack-c/upstream/src/lock.c: pick_lock(); #loot container interaction"
+      ],
+      "cOutcome": "C reported “You succeed in picking the lock.” The later #loot action opened the chest’s take-out/put-in menu; an item was not retrieved.",
+      "outcome": "C reported “You succeed in picking the lock.” The later #loot action opened the chest’s take-out/put-in menu; an item was not retrieved.",
+      "inputs": {
+        "seed": 10041091,
+        "datetime": "20360806140000",
+        "role": "Valkyrie",
+        "race": "human",
+        "gender": "female",
+        "alignment": "lawful",
+        "playmode": "debug",
+        "keyCount": 49,
+        "boundaries": 50
+      },
+      "recipe": "challenges/cases/v4/valkyrie-lockpick-chest-open-menu.recipe.json",
+      "recipeSha256": "6f1bb8f6f1d4e862a2edc62d0bce5a8fa862f41d447772eadc2df22678021cef",
+      "recording": "challenges/cases/v4/valkyrie-lockpick-chest-open-menu.session.json",
+      "recordingSha256": "2d5176b421d2ad6fb23e6e170bab9bb0f23db29af81cf80c4a7692c7983aa4c4",
+      "reproducibility": "Independent C replay command: node scripts/record-session.mjs challenges/cases/v4/valkyrie-lockpick-chest-open-menu.recipe.json .cache/C4-replays/valkyrie-lockpick-chest-open-menu.session.json; exit code 0. The complete C recording exactly matched the original byte for byte (SHA-256 2d5176b421d2ad6fb23e6e170bab9bb0f23db29af81cf80c4a7692c7983aa4c4); 50 boundaries. Log: /tmp/teleport-loop-worker-c-20260925/.cache/C4-replay-logs/valkyrie-lockpick-chest-open-menu.log."
+    },
+    {
+      "id": "valkyrie-lockpick-chest-stash-return",
+      "title": "Chest lock success followed by a put-in attempt",
+      "mission": "Create and pick a chest lock, then enter the chest loot interaction.",
+      "selectionRationale": "Selected from the C source before any JavaScript outcome inspection. The full valid C history is retained even when it misses the planned event.",
+      "sourcePointers": [
+        "nethack-c/upstream/src/lock.c: pick_lock(); #loot container interaction"
+      ],
+      "cOutcome": "C reached the lock-picking success and chest loot menu, then entered the put-in flow and a later drop prompt. This valid history did not retrieve an item.",
+      "outcome": "C reached the lock-picking success and chest loot menu, then entered the put-in flow and a later drop prompt. This valid history did not retrieve an item.",
+      "inputs": {
+        "seed": 10041091,
+        "datetime": "20360806140000",
+        "role": "Valkyrie",
+        "race": "human",
+        "gender": "female",
+        "alignment": "lawful",
+        "playmode": "debug",
+        "keyCount": 51,
+        "boundaries": 52
+      },
+      "recipe": "challenges/cases/v4/valkyrie-lockpick-chest-stash-return.recipe.json",
+      "recipeSha256": "234ee8b3d1e0760b4a25160196a6429bc12d9812fa1b7a5b60ebb0ab8b43af91",
+      "recording": "challenges/cases/v4/valkyrie-lockpick-chest-stash-return.session.json",
+      "recordingSha256": "5ef54776664d61652644cb1f11b6a5c166f3eb08ea0b53d4f9674e4d72cf72ca",
+      "reproducibility": "Independent C replay command: node scripts/record-session.mjs challenges/cases/v4/valkyrie-lockpick-chest-stash-return.recipe.json .cache/C4-replays/valkyrie-lockpick-chest-stash-return.session.json; exit code 0. The complete C recording exactly matched the original byte for byte (SHA-256 5ef54776664d61652644cb1f11b6a5c166f3eb08ea0b53d4f9674e4d72cf72ca); 52 boundaries. Log: /tmp/teleport-loop-worker-c-20260925/.cache/C4-replay-logs/valkyrie-lockpick-chest-stash-return.log."
+    },
+    {
+      "id": "valkyrie-lockpick-command-spacing-miss",
+      "title": "Chest loot direction spacing miss",
+      "mission": "Create and pick a chest lock, then enter the chest loot interaction.",
+      "selectionRationale": "Selected from the C source before any JavaScript outcome inspection. The full valid C history is retained even when it misses the planned event.",
+      "sourcePointers": [
+        "nethack-c/upstream/src/lock.c: pick_lock(); #loot container interaction"
+      ],
+      "cOutcome": "The C play reached the #loot direction prompt but selected no chest; C reported that there was nothing here to loot.",
+      "outcome": "The C play reached the #loot direction prompt but selected no chest; C reported that there was nothing here to loot.",
+      "inputs": {
+        "seed": 10041091,
+        "datetime": "20360806140000",
+        "role": "Valkyrie",
+        "race": "human",
+        "gender": "female",
+        "alignment": "lawful",
+        "playmode": "debug",
+        "keyCount": 57,
+        "boundaries": 58
+      },
+      "recipe": "challenges/cases/v4/valkyrie-lockpick-command-spacing-miss.recipe.json",
+      "recipeSha256": "35b6d50300d7096117187881315f8b98016db2e6e439722f1f54d8106f2528b1",
+      "recording": "challenges/cases/v4/valkyrie-lockpick-command-spacing-miss.session.json",
+      "recordingSha256": "b05954313fa1121b14a0e392f1417176339538ce05007131560e16f46c63d642",
+      "reproducibility": "Independent C replay command: node scripts/record-session.mjs challenges/cases/v4/valkyrie-lockpick-command-spacing-miss.recipe.json .cache/C4-replays/valkyrie-lockpick-command-spacing-miss.session.json; exit code 0. The complete C recording exactly matched the original byte for byte (SHA-256 b05954313fa1121b14a0e392f1417176339538ce05007131560e16f46c63d642); 58 boundaries. Log: /tmp/teleport-loop-worker-c-20260925/.cache/C4-replay-logs/valkyrie-lockpick-command-spacing-miss.log."
+    },
+    {
+      "id": "valkyrie-lockpick-drop-input-miss",
+      "title": "Chest drop input miss",
+      "mission": "Create and pick a chest lock, then enter the chest loot interaction.",
+      "selectionRationale": "Selected from the C source before any JavaScript outcome inspection. The full valid C history is retained even when it misses the planned event.",
+      "sourcePointers": [
+        "nethack-c/upstream/src/lock.c: pick_lock(); #loot container interaction"
+      ],
+      "cOutcome": "The C play issued #loot without a chest interaction at the selected position; C reported that it found nothing to loot.",
+      "outcome": "The C play issued #loot without a chest interaction at the selected position; C reported that it found nothing to loot.",
+      "inputs": {
+        "seed": 10041091,
+        "datetime": "20360806140000",
+        "role": "Valkyrie",
+        "race": "human",
+        "gender": "female",
+        "alignment": "lawful",
+        "playmode": "debug",
+        "keyCount": 51,
+        "boundaries": 52
+      },
+      "recipe": "challenges/cases/v4/valkyrie-lockpick-drop-input-miss.recipe.json",
+      "recipeSha256": "af7207e5fc6651607e16546970439e143531c6c95f9498a491f6ee23676d5768",
+      "recording": "challenges/cases/v4/valkyrie-lockpick-drop-input-miss.session.json",
+      "recordingSha256": "b37fbd9dc8a95e52d270011c6643f2dbda84000e6b2b5610595dd1d7b9116a2a",
+      "reproducibility": "Independent C replay command: node scripts/record-session.mjs challenges/cases/v4/valkyrie-lockpick-drop-input-miss.recipe.json .cache/C4-replays/valkyrie-lockpick-drop-input-miss.session.json; exit code 0. The complete C recording exactly matched the original byte for byte (SHA-256 b37fbd9dc8a95e52d270011c6643f2dbda84000e6b2b5610595dd1d7b9116a2a); 52 boundaries. Log: /tmp/teleport-loop-worker-c-20260925/.cache/C4-replay-logs/valkyrie-lockpick-drop-input-miss.log."
+    },
+    {
+      "id": "valkyrie-lockpick-initial-greeting-miss",
+      "title": "Chest wish during the initial greeting",
+      "mission": "Create and pick a chest lock, then enter the chest loot interaction.",
+      "selectionRationale": "Selected from the C source before any JavaScript outcome inspection. The full valid C history is retained even when it misses the planned event.",
+      "sourcePointers": [
+        "nethack-c/upstream/src/lock.c: pick_lock(); #loot container interaction"
+      ],
+      "cOutcome": "The C play created a chest but the first lock-pick input was consumed by the initial greeting; lock picking was not reached.",
+      "outcome": "The C play created a chest but the first lock-pick input was consumed by the initial greeting; lock picking was not reached.",
+      "inputs": {
+        "seed": 10041091,
+        "datetime": "20360806140000",
+        "role": "Valkyrie",
+        "race": "human",
+        "gender": "female",
+        "alignment": "lawful",
+        "playmode": "debug",
+        "keyCount": 26,
+        "boundaries": 27
+      },
+      "recipe": "challenges/cases/v4/valkyrie-lockpick-initial-greeting-miss.recipe.json",
+      "recipeSha256": "d0aeac633605e4e1109a57cf1b694154f5dad8e4da41a47788471ea2f1854563",
+      "recording": "challenges/cases/v4/valkyrie-lockpick-initial-greeting-miss.session.json",
+      "recordingSha256": "a14680ece9c843104c461083d15f33546036372d29e3f1505f0b78a6af15ac48",
+      "reproducibility": "Independent C replay command: node scripts/record-session.mjs challenges/cases/v4/valkyrie-lockpick-initial-greeting-miss.recipe.json .cache/C4-replays/valkyrie-lockpick-initial-greeting-miss.session.json; exit code 0. The complete C recording exactly matched the original byte for byte (SHA-256 a14680ece9c843104c461083d15f33546036372d29e3f1505f0b78a6af15ac48); 27 boundaries. Log: /tmp/teleport-loop-worker-c-20260925/.cache/C4-replay-logs/valkyrie-lockpick-initial-greeting-miss.log."
+    },
+    {
+      "id": "valkyrie-magic-flute-nymph-cycle",
+      "title": "Play a charged magic flute twice near a nymph",
+      "mission": "Create a charged magic flute and nearby nymph, play, wait, and play again.",
+      "selectionRationale": "Selected from the C source before any JavaScript outcome inspection. The full valid C history is retained even when it misses the planned event.",
+      "sourcePointers": [
+        "nethack-c/upstream/src/music.c: do_play_instrument(), do_improvisation(), put_monsters_to_sleep()"
+      ],
+      "cOutcome": "C recorded two magic-flute plays, one wait turn between them, and sleep-duration rolls in music.c:put_monsters_to_sleep on both plays.",
+      "outcome": "C recorded two magic-flute plays, one wait turn between them, and sleep-duration rolls in music.c:put_monsters_to_sleep on both plays.",
+      "inputs": {
+        "seed": 10041117,
+        "datetime": "20360812141500",
+        "role": "Valkyrie",
+        "race": "human",
+        "gender": "female",
+        "alignment": "lawful",
+        "playmode": "debug",
+        "keyCount": 43,
+        "boundaries": 44
+      },
+      "recipe": "challenges/cases/v4/valkyrie-magic-flute-nymph-cycle.recipe.json",
+      "recipeSha256": "74d57d5f53810f5c52b9a04973632fd0c6ee909d695c27c1d1563af597332416",
+      "recording": "challenges/cases/v4/valkyrie-magic-flute-nymph-cycle.session.json",
+      "recordingSha256": "549c2a7276a47fc3c8bb2ac9f7f1d1d1c40277c76fe08f560fa17758a2eea204",
+      "reproducibility": "Independent C replay command: node scripts/record-session.mjs challenges/cases/v4/valkyrie-magic-flute-nymph-cycle.recipe.json .cache/C4-replays/valkyrie-magic-flute-nymph-cycle.session.json; exit code 0. The complete C recording exactly matched the original byte for byte (SHA-256 549c2a7276a47fc3c8bb2ac9f7f1d1d1c40277c76fe08f560fa17758a2eea204); 44 boundaries. Log: /tmp/teleport-loop-worker-c-20260925/.cache/C4-replay-logs/valkyrie-magic-flute-nymph-cycle.log."
+    },
+    {
+      "id": "valkyrie-magic-flute-nymph-first-play",
+      "title": "First charged magic-flute play near a nymph",
+      "mission": "Create a charged magic flute and nearby nymph, play, wait, and play again.",
+      "selectionRationale": "Selected from the C source before any JavaScript outcome inspection. The full valid C history is retained even when it misses the planned event.",
+      "sourcePointers": [
+        "nethack-c/upstream/src/music.c: do_play_instrument(), do_improvisation(), put_monsters_to_sleep()"
+      ],
+      "cOutcome": "C reached the magic-flute improvisation branch, produced soft music, and recorded the sleep-duration roll in music.c:put_monsters_to_sleep.",
+      "outcome": "C reached the magic-flute improvisation branch, produced soft music, and recorded the sleep-duration roll in music.c:put_monsters_to_sleep.",
+      "inputs": {
+        "seed": 10041117,
+        "datetime": "20360812141500",
+        "role": "Valkyrie",
+        "race": "human",
+        "gender": "female",
+        "alignment": "lawful",
+        "playmode": "debug",
+        "keyCount": 39,
+        "boundaries": 40
+      },
+      "recipe": "challenges/cases/v4/valkyrie-magic-flute-nymph-first-play.recipe.json",
+      "recipeSha256": "eb18178be122ef38f5c0bfc0eac549e5382c466bd6248653607985d026f17b01",
+      "recording": "challenges/cases/v4/valkyrie-magic-flute-nymph-first-play.session.json",
+      "recordingSha256": "c19aac0139bcc1a82d122ca126291e3fbf7b59935e569efdb01833fb4ace238f",
+      "reproducibility": "Independent C replay command: node scripts/record-session.mjs challenges/cases/v4/valkyrie-magic-flute-nymph-first-play.recipe.json .cache/C4-replays/valkyrie-magic-flute-nymph-first-play.session.json; exit code 0. The complete C recording exactly matched the original byte for byte (SHA-256 c19aac0139bcc1a82d122ca126291e3fbf7b59935e569efdb01833fb4ace238f); 40 boundaries. Log: /tmp/teleport-loop-worker-c-20260925/.cache/C4-replay-logs/valkyrie-magic-flute-nymph-first-play.log."
+    },
+    {
+      "id": "valkyrie-magic-flute-nymph-setup-miss",
+      "title": "Magic-flute setup with an extra blank command",
+      "mission": "Create a charged magic flute and nearby nymph, play, wait, and play again.",
+      "selectionRationale": "Selected from the C source before any JavaScript outcome inspection. The full valid C history is retained even when it misses the planned event.",
+      "sourcePointers": [
+        "nethack-c/upstream/src/music.c: do_play_instrument(), do_improvisation(), put_monsters_to_sleep()"
+      ],
+      "cOutcome": "The valid C setup generated a mountain nymph and showed inventory; its leading blank was an unknown command, and flute play was not reached.",
+      "outcome": "The valid C setup generated a mountain nymph and showed inventory; its leading blank was an unknown command, and flute play was not reached.",
+      "inputs": {
+        "seed": 10041117,
+        "datetime": "20360812141500",
+        "role": "Valkyrie",
+        "race": "human",
+        "gender": "female",
+        "alignment": "lawful",
+        "playmode": "debug",
+        "keyCount": 38,
+        "boundaries": 39
+      },
+      "recipe": "challenges/cases/v4/valkyrie-magic-flute-nymph-setup-miss.recipe.json",
+      "recipeSha256": "4c765377910f57712532fee96eedf3ba1ec53a4e16e581f17ad3df35f7d61c70",
+      "recording": "challenges/cases/v4/valkyrie-magic-flute-nymph-setup-miss.session.json",
+      "recordingSha256": "545cbf21afb84bbdc609f3d122742e7b8987de1b24bae3dbc41fa08f8012dbf6",
+      "reproducibility": "Independent C replay command: node scripts/record-session.mjs challenges/cases/v4/valkyrie-magic-flute-nymph-setup-miss.recipe.json .cache/C4-replays/valkyrie-magic-flute-nymph-setup-miss.session.json; exit code 0. The complete C recording exactly matched the original byte for byte (SHA-256 545cbf21afb84bbdc609f3d122742e7b8987de1b24bae3dbc41fa08f8012dbf6); 39 boundaries. Log: /tmp/teleport-loop-worker-c-20260925/.cache/C4-replay-logs/valkyrie-magic-flute-nymph-setup-miss.log."
+    },
+    {
+      "id": "wizard-controlled-potion-transformation",
+      "title": "Controlled polymorph with a spider follow-up",
+      "mission": "Wear polymorph control, quaff a polymorph potion, choose a form, and try a form-dependent action.",
+      "selectionRationale": "Selected from the C source before any JavaScript outcome inspection. The full valid C history is retained even when it misses the planned event.",
+      "sourcePointers": [
+        "nethack-c/upstream/src/potion.c: dodrink()/peffect_polymorph(); nethack-c/upstream/src/polyself.c: polyself()/polymon()"
+      ],
+      "cOutcome": "C consumed the polymorph potion, prompted for a controlled form, transformed the Wizard into a giant spider, then reached #monster’s web action; the web failed to impede the stairs.",
+      "outcome": "C consumed the polymorph potion, prompted for a controlled form, transformed the Wizard into a giant spider, then reached #monster’s web action; the web failed to impede the stairs.",
+      "inputs": {
+        "seed": 10041081,
+        "datetime": "20360705130000",
+        "role": "Wizard",
+        "race": "human",
+        "gender": "male",
+        "alignment": "neutral",
+        "playmode": "debug",
+        "keyCount": 80,
+        "boundaries": 81
+      },
+      "recipe": "challenges/cases/v4/wizard-controlled-potion-transformation.recipe.json",
+      "recipeSha256": "4a4e37bed2ed54adc5dd77396e7870277c1df7e40242968a8427a0c8e5df3686",
+      "recording": "challenges/cases/v4/wizard-controlled-potion-transformation.session.json",
+      "recordingSha256": "ed0d1aa3d6329e705657641a30ab21f8c8da3f77080ed4e0d1badc3d143eaacb",
+      "reproducibility": "Independent C replay command: node scripts/record-session.mjs challenges/cases/v4/wizard-controlled-potion-transformation.recipe.json .cache/C4-replays/wizard-controlled-potion-transformation.session.json; exit code 0. The complete C recording exactly matched the original byte for byte (SHA-256 ed0d1aa3d6329e705657641a30ab21f8c8da3f77080ed4e0d1badc3d143eaacb); 81 boundaries. Log: /tmp/teleport-loop-worker-c-20260925/.cache/C4-replay-logs/wizard-controlled-potion-transformation.log."
+    },
+    {
+      "id": "wizard-polymorph-control-setup-inventory-miss",
+      "title": "Polymorph potion and ring setup inventory check",
+      "mission": "Wear polymorph control, quaff a polymorph potion, choose a form, and try a form-dependent action.",
+      "selectionRationale": "Selected from the C source before any JavaScript outcome inspection. The full valid C history is retained even when it misses the planned event.",
+      "sourcePointers": [
+        "nethack-c/upstream/src/potion.c: dodrink()/peffect_polymorph(); nethack-c/upstream/src/polyself.c: polyself()/polymon()"
+      ],
+      "cOutcome": "The Wizard wished a polymorph-control ring and potion and inspected inventory; potion use and polymorph were not reached.",
+      "outcome": "The Wizard wished a polymorph-control ring and potion and inspected inventory; potion use and polymorph were not reached.",
+      "inputs": {
+        "seed": 10041081,
+        "datetime": "20360705130000",
+        "role": "Wizard",
+        "race": "human",
+        "gender": "male",
+        "alignment": "neutral",
+        "playmode": "debug",
+        "keyCount": 49,
+        "boundaries": 50
+      },
+      "recipe": "challenges/cases/v4/wizard-polymorph-control-setup-inventory-miss.recipe.json",
+      "recipeSha256": "8ad1e156fd54141662253910cfc513e451af7712a52809bc23c3468f8f98fce7",
+      "recording": "challenges/cases/v4/wizard-polymorph-control-setup-inventory-miss.session.json",
+      "recordingSha256": "a8145fcfb18d6787c2b8dfd0804fa60514e0521d9ecb4cbde5e549e22ebe3e7c",
+      "reproducibility": "Independent C replay command: node scripts/record-session.mjs challenges/cases/v4/wizard-polymorph-control-setup-inventory-miss.recipe.json .cache/C4-replays/wizard-polymorph-control-setup-inventory-miss.session.json; exit code 0. The complete C recording exactly matched the original byte for byte (SHA-256 a8145fcfb18d6787c2b8dfd0804fa60514e0521d9ecb4cbde5e549e22ebe3e7c); 50 boundaries. Log: /tmp/teleport-loop-worker-c-20260925/.cache/C4-replay-logs/wizard-polymorph-control-setup-inventory-miss.log."
+    },
+    {
+      "id": "wizard-polymorph-prompt-miss",
+      "title": "Polymorph form prompt left unanswered",
+      "mission": "Wear polymorph control, quaff a polymorph potion, choose a form, and try a form-dependent action.",
+      "selectionRationale": "Selected from the C source before any JavaScript outcome inspection. The full valid C history is retained even when it misses the planned event.",
+      "sourcePointers": [
+        "nethack-c/upstream/src/potion.c: dodrink()/peffect_polymorph(); nethack-c/upstream/src/polyself.c: polyself()/polymon()"
+      ],
+      "cOutcome": "C consumed the potion and reached “Become what kind of monster?”; the recording ended before selecting a form.",
+      "outcome": "C consumed the potion and reached “Become what kind of monster?”; the recording ended before selecting a form.",
+      "inputs": {
+        "seed": 10041081,
+        "datetime": "20360705130000",
+        "role": "Wizard",
+        "race": "human",
+        "gender": "male",
+        "alignment": "neutral",
+        "playmode": "debug",
+        "keyCount": 60,
+        "boundaries": 61
+      },
+      "recipe": "challenges/cases/v4/wizard-polymorph-prompt-miss.recipe.json",
+      "recipeSha256": "2302d2d8e659275bdcb9f1207707c10a0ad8a0177433f7fcd6de8cefb68f9a2c",
+      "recording": "challenges/cases/v4/wizard-polymorph-prompt-miss.session.json",
+      "recordingSha256": "127d3ac391d83713b8dc5101c7234e1ab60ff4e5c95eb673b66b32344a53ecac",
+      "reproducibility": "Independent C replay command: node scripts/record-session.mjs challenges/cases/v4/wizard-polymorph-prompt-miss.recipe.json .cache/C4-replays/wizard-polymorph-prompt-miss.session.json; exit code 0. The complete C recording exactly matched the original byte for byte (SHA-256 127d3ac391d83713b8dc5101c7234e1ab60ff4e5c95eb673b66b32344a53ecac); 61 boundaries. Log: /tmp/teleport-loop-worker-c-20260925/.cache/C4-replay-logs/wizard-polymorph-prompt-miss.log."
+    },
+    {
+      "id": "wizard-polymorph-quaff-cancel-miss",
+      "title": "Polymorph quaff cancellation",
+      "mission": "Wear polymorph control, quaff a polymorph potion, choose a form, and try a form-dependent action.",
+      "selectionRationale": "Selected from the C source before any JavaScript outcome inspection. The full valid C history is retained even when it misses the planned event.",
+      "sourcePointers": [
+        "nethack-c/upstream/src/potion.c: dodrink()/peffect_polymorph(); nethack-c/upstream/src/polyself.c: polyself()/polymon()"
+      ],
+      "cOutcome": "The Wizard’s attempted quaff was canceled, and later #monster input found no special ability in the normal form; no transformation was reached.",
+      "outcome": "The Wizard’s attempted quaff was canceled, and later #monster input found no special ability in the normal form; no transformation was reached.",
+      "inputs": {
+        "seed": 10041081,
+        "datetime": "20360705130000",
+        "role": "Wizard",
+        "race": "human",
+        "gender": "male",
+        "alignment": "neutral",
+        "playmode": "debug",
+        "keyCount": 82,
+        "boundaries": 83
+      },
+      "recipe": "challenges/cases/v4/wizard-polymorph-quaff-cancel-miss.recipe.json",
+      "recipeSha256": "6b8720817a1bf32c9790a43785a0bc5f6e82d281c64276e937f130052835b00d",
+      "recording": "challenges/cases/v4/wizard-polymorph-quaff-cancel-miss.session.json",
+      "recordingSha256": "7fc671792ca8fe67d54389647bf1edf9c377e0e167e64d02d0b0258b2e11e4ec",
+      "reproducibility": "Independent C replay command: node scripts/record-session.mjs challenges/cases/v4/wizard-polymorph-quaff-cancel-miss.recipe.json .cache/C4-replays/wizard-polymorph-quaff-cancel-miss.session.json; exit code 0. The complete C recording exactly matched the original byte for byte (SHA-256 7fc671792ca8fe67d54389647bf1edf9c377e0e167e64d02d0b0258b2e11e4ec); 83 boundaries. Log: /tmp/teleport-loop-worker-c-20260925/.cache/C4-replay-logs/wizard-polymorph-quaff-cancel-miss.log."
+    }
+  ]
+}

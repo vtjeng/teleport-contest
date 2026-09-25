@@ -1,0 +1,11 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 90525074,
+      "datetime": "20380118134500",
+      "nethackrc": "OPTIONS=name:Scoutsamurai-pet-ration-e,role:Samurai,race:human,gender:male,align:lawful,playmode:debug,!legacy,!tutorial,!splash_screen,showexp,time\n",
+      "moves": "\u0017meat ration\n \u0017food ration\nf i          i\u001bdfk.m.\u0017tripe ration\ni\u001bdg, i\u001btgkh "
+    }
+  ]
+}

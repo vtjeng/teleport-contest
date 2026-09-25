@@ -1,0 +1,348 @@
+{
+  "version": 1,
+  "batch": "v3",
+  "cases": [
+    {
+      "id": "archeologist-weapon-cycle",
+      "title": "Archeologist initial weapon prompt miss",
+      "mission": "Select starting weapons with an ordinary dwarf Archeologist.",
+      "selectionRationale": "Explored the starting wield prompt and item selection from an ordinary Archeologist; retained the valid interaction even though startup More consumed the planned switching history.",
+      "sourcePointers": [
+        "nethack-c/upstream/src/wield.c:dowield"
+      ],
+      "cOutcome": "The startup prompt consumed the first keys. C later reached the wield prompt; choosing the current weapon produced its ordinary already-wielded/item result, and later input was consumed by More. Valid C recording; the planned weapon cycle was missed.",
+      "inputs": {
+        "seed": 95142073,
+        "datetime": "20320829132000",
+        "role": "Archeologist",
+        "race": "dwarf",
+        "gender": "female",
+        "alignment": "neutral",
+        "playmode": "ordinary",
+        "keyCount": 7,
+        "boundaries": 8
+      },
+      "recipe": "challenges/cases/v3/archeologist-weapon-cycle.recipe.json",
+      "recipeSha256": "6c941a92c47b4009df3d0155afc49605a945058fdd294e83512913ff244100bb",
+      "recording": "challenges/cases/v3/archeologist-weapon-cycle.session.json",
+      "recordingSha256": "44ad0e60cbc1e52385690fbd8a37793772588173db7d253cda4ac9602a60119f",
+      "reproducibility": "Independent C replay command: node scripts/record-session.mjs challenges/cases/v3/archeologist-weapon-cycle.recipe.json .cache/C3-replays/archeologist-weapon-cycle.session.json; exit code 0. The independent C recording exactly matched the committed candidate recording byte-for-byte (SHA-256 44ad0e60cbc1e52385690fbd8a37793772588173db7d253cda4ac9602a60119f; 8 boundaries), including screens, cursor positions, RNG traces, and inputs. Log: /tmp/teleport-loop-worker-c-20260925/.cache/C3-logs/archeologist-weapon-cycle-replay.log."
+    },
+    {
+      "id": "archeologist-weapon-cycle-complete",
+      "title": "Archeologist weapon cycle",
+      "mission": "Switch between the starting pick-axe and bullwhip using ordinary wield commands.",
+      "selectionRationale": "A distinct seed and action history explicitly switches from the starting weapon to the pick-axe and back, confirmed by C inventory state.",
+      "sourcePointers": [
+        "nethack-c/upstream/src/wield.c:dowield"
+      ],
+      "cOutcome": "At step 3, C selected the pick-axe and the following inventory output at step 4 listed the bullwhip as alternate and not wielded. At step 6, C selected the bullwhip and step 7 listed the pick-axe as alternate and not wielded, confirming both weapon states.",
+      "inputs": {
+        "seed": 36178024,
+        "datetime": "20330408101000",
+        "role": "Archeologist",
+        "race": "dwarf",
+        "gender": "female",
+        "alignment": "lawful",
+        "playmode": "ordinary",
+        "keyCount": 7,
+        "boundaries": 8
+      },
+      "recipe": "challenges/cases/v3/archeologist-weapon-cycle-complete.recipe.json",
+      "recipeSha256": "c2a80d1fe8d20c709760585c527a43f0446b96f19f93fc56aa4adca2eef20dfb",
+      "recording": "challenges/cases/v3/archeologist-weapon-cycle-complete.session.json",
+      "recordingSha256": "480c81a12fdcd2d7a78e2bbfa6501a8a3090b46361654afc59235a7825a0889c",
+      "reproducibility": "Independent C replay command: node scripts/record-session.mjs challenges/cases/v3/archeologist-weapon-cycle-complete.recipe.json .cache/C3-replays/archeologist-weapon-cycle-complete.session.json; exit code 0. The independent C recording exactly matched the committed candidate recording byte-for-byte (SHA-256 480c81a12fdcd2d7a78e2bbfa6501a8a3090b46361654afc59235a7825a0889c; 8 boundaries), including screens, cursor positions, RNG traces, and inputs. Log: /tmp/teleport-loop-worker-c-20260925/.cache/C3-logs/archeologist-weapon-cycle-complete-replay.log."
+    },
+    {
+      "id": "archeologist-weapon-cycle-retry",
+      "title": "Archeologist partial weapon switch",
+      "mission": "Select the starting pick-axe and bullwhip through the ordinary wield command.",
+      "selectionRationale": "A second C setup put Return before commands so the initial greeting could be dismissed and tested the role-specific wield choices.",
+      "sourcePointers": [
+        "nethack-c/upstream/src/wield.c:dowield"
+      ],
+      "cOutcome": "C reported that the first selected weapon was already wielded, then the later selection displayed the pick-axe as the right-hand weapon. This is retained as a valid partial switch attempt.",
+      "inputs": {
+        "seed": 71432058,
+        "datetime": "20321117101000",
+        "role": "Archeologist",
+        "race": "dwarf",
+        "gender": "female",
+        "alignment": "lawful",
+        "playmode": "ordinary",
+        "keyCount": 6,
+        "boundaries": 7
+      },
+      "recipe": "challenges/cases/v3/archeologist-weapon-cycle-retry.recipe.json",
+      "recipeSha256": "fc0c262aaccb13f152bb9c46be9e4244b20822bb9c02b74ee1684f135a945fa7",
+      "recording": "challenges/cases/v3/archeologist-weapon-cycle-retry.session.json",
+      "recordingSha256": "c1d2ee566996c73d40e43bd73f4476be329b239b6da05b743c8b0d0e7738bad2",
+      "reproducibility": "Independent C replay command: node scripts/record-session.mjs challenges/cases/v3/archeologist-weapon-cycle-retry.recipe.json .cache/C3-replays/archeologist-weapon-cycle-retry.session.json; exit code 0. The independent C recording exactly matched the committed candidate recording byte-for-byte (SHA-256 c1d2ee566996c73d40e43bd73f4476be329b239b6da05b743c8b0d0e7738bad2; 7 boundaries), including screens, cursor positions, RNG traces, and inputs. Log: /tmp/teleport-loop-worker-c-20260925/.cache/C3-logs/archeologist-weapon-cycle-retry-replay.log."
+    },
+    {
+      "id": "fingertip-engraving-return",
+      "title": "Fingertip engraving prompt miss",
+      "mission": "Use the ordinary engraving command with fingers and write a short floor inscription.",
+      "selectionRationale": "A human Valkyrie tests the finger-writing path and movement history from an ordinary floor tile.",
+      "sourcePointers": [
+        "nethack-c/upstream/src/engrave.c:doengrave"
+      ],
+      "cOutcome": "C reached the doengrave instrument prompt at step 14 and accepted fingers at step 15, printing the fingertip message. The following input was consumed by More; the final step still showed the text-entry prompt, so the planned inscription was not completed. Valid partial C outcome, not counted as a reached target.",
+      "inputs": {
+        "seed": 93816721,
+        "datetime": "20330214091500",
+        "role": "Valkyrie",
+        "race": "human",
+        "gender": "female",
+        "alignment": "lawful",
+        "playmode": "ordinary",
+        "keyCount": 23,
+        "boundaries": 24
+      },
+      "recipe": "challenges/cases/v3/fingertip-engraving-return.recipe.json",
+      "recipeSha256": "bcc6451a9b4be2a9babfc871c3c88e6f965e94cbbc470104a30d5bd29d043408",
+      "recording": "challenges/cases/v3/fingertip-engraving-return.session.json",
+      "recordingSha256": "30a6dc31f656961b980c8e9a66c4616d677ba8ac74dbceeac186f25f7b1dde12",
+      "reproducibility": "Independent C replay command: node scripts/record-session.mjs challenges/cases/v3/fingertip-engraving-return.recipe.json .cache/C3-replays/fingertip-engraving-return.session.json; exit code 0. The independent C recording exactly matched the committed candidate recording byte-for-byte (SHA-256 30a6dc31f656961b980c8e9a66c4616d677ba8ac74dbceeac186f25f7b1dde12; 24 boundaries), including screens, cursor positions, RNG traces, and inputs. Log: /tmp/teleport-loop-worker-c-20260925/.cache/C3-logs/fingertip-engraving-return-replay.log."
+    },
+    {
+      "id": "floor-sit-roundtrip",
+      "title": "Rogue floor sitting",
+      "mission": "Use #sit on the starting feature and then on a floor tile after moving.",
+      "selectionRationale": "The Rogue action history exercises two distinct sit surfaces and ordinary movement.",
+      "sourcePointers": [
+        "nethack-c/upstream/src/sit.c:dosit"
+      ],
+      "cOutcome": "C reported sitting on the stairs at step 6, then after movement reported “Having fun sitting on the floor?” at step 12. The floor-sit branch was reached.",
+      "inputs": {
+        "seed": 42673189,
+        "datetime": "20320922114500",
+        "role": "Rogue",
+        "race": "human",
+        "gender": "male",
+        "alignment": "chaotic",
+        "playmode": "ordinary",
+        "keyCount": 12,
+        "boundaries": 13
+      },
+      "recipe": "challenges/cases/v3/floor-sit-roundtrip.recipe.json",
+      "recipeSha256": "efc19b56a4f919e04a8216638efca66e2ae0435e5a37f1c0fc84147eac92d3c3",
+      "recording": "challenges/cases/v3/floor-sit-roundtrip.session.json",
+      "recordingSha256": "29fba24b66d584051fc871e30da45a56831eb27018e922c01c009b451967ae23",
+      "reproducibility": "Independent C replay command: node scripts/record-session.mjs challenges/cases/v3/floor-sit-roundtrip.recipe.json .cache/C3-replays/floor-sit-roundtrip.session.json; exit code 0. The independent C recording exactly matched the committed candidate recording byte-for-byte (SHA-256 29fba24b66d584051fc871e30da45a56831eb27018e922c01c009b451967ae23; 13 boundaries), including screens, cursor positions, RNG traces, and inputs. Log: /tmp/teleport-loop-worker-c-20260925/.cache/C3-logs/floor-sit-roundtrip-replay.log."
+    },
+    {
+      "id": "monk-lookaround-history",
+      "title": "Monk lookaround after startup prompt",
+      "mission": "Use #lookaround from an ordinary room location after moving.",
+      "selectionRationale": "A Monk uses the extended lookaround command after a location change, with a distinct command history and role.",
+      "sourcePointers": [
+        "nethack-c/upstream/src/cmd.c:dolookaround"
+      ],
+      "cOutcome": "The initial greeting More consumed the first planned sequence. After a move, C processed #lookaround at step 26 and described the rectangular room and doorway. The source behavior was reached once; the planned second-location observation was not reached.",
+      "inputs": {
+        "seed": 77431928,
+        "datetime": "20320327121000",
+        "role": "Monk",
+        "race": "human",
+        "gender": "female",
+        "alignment": "neutral",
+        "playmode": "ordinary",
+        "keyCount": 26,
+        "boundaries": 27
+      },
+      "recipe": "challenges/cases/v3/monk-lookaround-history.recipe.json",
+      "recipeSha256": "6d6484dc113602da16d98503911df815337c294e370aaf5c15a1b58213b18ad4",
+      "recording": "challenges/cases/v3/monk-lookaround-history.session.json",
+      "recordingSha256": "56a54fc8d8401b47366760dda18e58ad2a7b225bde51edec0efd65345c8c4cc8",
+      "reproducibility": "Independent C replay command: node scripts/record-session.mjs challenges/cases/v3/monk-lookaround-history.recipe.json .cache/C3-replays/monk-lookaround-history.session.json; exit code 0. The independent C recording exactly matched the committed candidate recording byte-for-byte (SHA-256 56a54fc8d8401b47366760dda18e58ad2a7b225bde51edec0efd65345c8c4cc8; 27 boundaries), including screens, cursor positions, RNG traces, and inputs. Log: /tmp/teleport-loop-worker-c-20260925/.cache/C3-logs/monk-lookaround-history-replay.log."
+    },
+    {
+      "id": "priest-search-walkback",
+      "title": "Priest search startup miss",
+      "mission": "Search while walking through and back across D:1.",
+      "selectionRationale": "An independent ordinary Priest recipe tests repeated search commands around movement.",
+      "sourcePointers": [
+        "nethack-c/upstream/src/detect.c:dosearch"
+      ],
+      "cOutcome": "The initial welcome More remained on screen for every supplied key, so no search command reached C. Valid C recording retained as a miss.",
+      "inputs": {
+        "seed": 52791403,
+        "datetime": "20320512153000",
+        "role": "Priest",
+        "race": "human",
+        "gender": "male",
+        "alignment": "lawful",
+        "playmode": "ordinary",
+        "keyCount": 7,
+        "boundaries": 8
+      },
+      "recipe": "challenges/cases/v3/priest-search-walkback.recipe.json",
+      "recipeSha256": "0ec95a677851b011a47fbba3f2f5f8717f172da94a3dc680bd70e0db71a0c9da",
+      "recording": "challenges/cases/v3/priest-search-walkback.session.json",
+      "recordingSha256": "138a57ced2e9f594aaf164b588af7ca8900fcc8f132d4db2e50d61b9391dc7c5",
+      "reproducibility": "Independent C replay command: node scripts/record-session.mjs challenges/cases/v3/priest-search-walkback.recipe.json .cache/C3-replays/priest-search-walkback.session.json; exit code 0. The independent C recording exactly matched the committed candidate recording byte-for-byte (SHA-256 138a57ced2e9f594aaf164b588af7ca8900fcc8f132d4db2e50d61b9391dc7c5; 8 boundaries), including screens, cursor positions, RNG traces, and inputs. Log: /tmp/teleport-loop-worker-c-20260925/.cache/C3-logs/priest-search-walkback-replay.log."
+    },
+    {
+      "id": "priest-search-walkback-retry",
+      "title": "Priest repeated search",
+      "mission": "Search, move, and search again at another location.",
+      "selectionRationale": "A new seed and a leading Return make the search sequence reachable while retaining the Priest setup and distinct walkback history.",
+      "sourcePointers": [
+        "nethack-c/upstream/src/detect.c:dosearch"
+      ],
+      "cOutcome": "C processed search at step 2, movement at step 3, and another search at step 4. C then reported “You already found a monster. Use m prefix to force another search.” This confirms the search behavior and its already-found-monster branch.",
+      "inputs": {
+        "seed": 66012943,
+        "datetime": "20330110153000",
+        "role": "Priest",
+        "race": "human",
+        "gender": "male",
+        "alignment": "lawful",
+        "playmode": "ordinary",
+        "keyCount": 8,
+        "boundaries": 9
+      },
+      "recipe": "challenges/cases/v3/priest-search-walkback-retry.recipe.json",
+      "recipeSha256": "baffc27724c4964ee7e96518bd78d404f1c980e69c9fb9f0ac7f1a4246cc2395",
+      "recording": "challenges/cases/v3/priest-search-walkback-retry.session.json",
+      "recordingSha256": "124fb2d85cc7a40787a4002b5a0ac4a4c8e6f14e08babce4d45ff04146ceb632",
+      "reproducibility": "Independent C replay command: node scripts/record-session.mjs challenges/cases/v3/priest-search-walkback-retry.recipe.json .cache/C3-replays/priest-search-walkback-retry.session.json; exit code 0. The independent C recording exactly matched the committed candidate recording byte-for-byte (SHA-256 124fb2d85cc7a40787a4002b5a0ac4a4c8e6f14e08babce4d45ff04146ceb632; 9 boundaries), including screens, cursor positions, RNG traces, and inputs. Log: /tmp/teleport-loop-worker-c-20260925/.cache/C3-logs/priest-search-walkback-retry-replay.log."
+    },
+    {
+      "id": "ranger-manual-throw",
+      "title": "Ranger manual missile throw",
+      "mission": "Use t to throw a starting missile manually toward an open direction.",
+      "selectionRationale": "An ordinary Ranger uses the manual throw command rather than quiver fire, testing item and direction selection.",
+      "sourcePointers": [
+        "nethack-c/upstream/src/dothrow.c:dothrow"
+      ],
+      "cOutcome": "C reached the throw prompt at step 3, direction prompt at step 4, and at step 5 reported “Sirius yelps! You kill poor Sirius!” The chosen direction hit the starting dog; this valid result is retained. The following throw inputs were consumed by More.",
+      "inputs": {
+        "seed": 23068195,
+        "datetime": "20320617100500",
+        "role": "Ranger",
+        "race": "human",
+        "gender": "female",
+        "alignment": "neutral",
+        "playmode": "ordinary",
+        "keyCount": 8,
+        "boundaries": 9
+      },
+      "recipe": "challenges/cases/v3/ranger-manual-throw.recipe.json",
+      "recipeSha256": "d237e7dc909161093ced92469ddf3549fe9695f4de1e5759356bda8233258b9a",
+      "recording": "challenges/cases/v3/ranger-manual-throw.session.json",
+      "recordingSha256": "2c1f3579d45f95e3aa9f523fd5dd9f1a78da615095424bb93f233bc3b93c9a98",
+      "reproducibility": "Independent C replay command: node scripts/record-session.mjs challenges/cases/v3/ranger-manual-throw.recipe.json .cache/C3-replays/ranger-manual-throw.session.json; exit code 0. The independent C recording exactly matched the committed candidate recording byte-for-byte (SHA-256 2c1f3579d45f95e3aa9f523fd5dd9f1a78da615095424bb93f233bc3b93c9a98; 9 boundaries), including screens, cursor positions, RNG traces, and inputs. Log: /tmp/teleport-loop-worker-c-20260925/.cache/C3-logs/ranger-manual-throw-replay.log."
+    },
+    {
+      "id": "samurai-armor-rewear",
+      "title": "Samurai armor removal and rewear",
+      "mission": "Take off starting splint mail and wear it again with ordinary W/T commands.",
+      "selectionRationale": "The starting body armor is selected in both takeoff and wear histories, exercising both armor-state transitions.",
+      "sourcePointers": [
+        "nethack-c/upstream/src/do_wear.c:dowear"
+      ],
+      "cOutcome": "C reported finishing the takeoff at step 3 and finishing the dressing maneuver at step 6, with the armor class returning from 10 to 4. The intended movement key between operations was interpreted as eat and reported no food at step 4; the armor cycle itself was reached.",
+      "inputs": {
+        "seed": 80273619,
+        "datetime": "20320403165700",
+        "role": "Samurai",
+        "race": "human",
+        "gender": "male",
+        "alignment": "lawful",
+        "playmode": "ordinary",
+        "keyCount": 6,
+        "boundaries": 7
+      },
+      "recipe": "challenges/cases/v3/samurai-armor-rewear.recipe.json",
+      "recipeSha256": "d509c2e47f531f1aa89fd943dc76997bf7babb00dd45d9e8d359cc910e2c317d",
+      "recording": "challenges/cases/v3/samurai-armor-rewear.session.json",
+      "recordingSha256": "c3e1c3e1ee899d4a7f541562aa7172b5b0cf003497ee8ec0ed8abcffd299e412",
+      "reproducibility": "Independent C replay command: node scripts/record-session.mjs challenges/cases/v3/samurai-armor-rewear.recipe.json .cache/C3-replays/samurai-armor-rewear.session.json; exit code 0. The independent C recording exactly matched the committed candidate recording byte-for-byte (SHA-256 c3e1c3e1ee899d4a7f541562aa7172b5b0cf003497ee8ec0ed8abcffd299e412; 7 boundaries), including screens, cursor positions, RNG traces, and inputs. Log: /tmp/teleport-loop-worker-c-20260925/.cache/C3-logs/samurai-armor-rewear-replay.log."
+    },
+    {
+      "id": "tourist-camera-flash",
+      "title": "Tourist camera startup miss",
+      "mission": "Apply the starting camera twice from an ordinary room.",
+      "selectionRationale": "The Tourist begins with a charged expensive camera; the independent history tests two apply attempts.",
+      "sourcePointers": [
+        "nethack-c/upstream/src/apply.c:doapply",
+        "nethack-c/upstream/src/apply.c:use_camera"
+      ],
+      "cOutcome": "Startup More consumed the inventory attempt. C reached the apply prompt with choices k/l, but the selected f was invalid. Valid C recording retained as a camera-target miss.",
+      "inputs": {
+        "seed": 46820571,
+        "datetime": "20321004111500",
+        "role": "Tourist",
+        "race": "human",
+        "gender": "female",
+        "alignment": "neutral",
+        "playmode": "ordinary",
+        "keyCount": 9,
+        "boundaries": 10
+      },
+      "recipe": "challenges/cases/v3/tourist-camera-flash.recipe.json",
+      "recipeSha256": "868687e19f9f42311fdf304fafcdfd53c55db155553e5ff9b49333d501f18912",
+      "recording": "challenges/cases/v3/tourist-camera-flash.session.json",
+      "recordingSha256": "0a6a24c755d67609c0e8974a63df94e1127c6ef0e4fcc2c09de4787c0cbbcac1",
+      "reproducibility": "Independent C replay command: node scripts/record-session.mjs challenges/cases/v3/tourist-camera-flash.recipe.json .cache/C3-replays/tourist-camera-flash.session.json; exit code 0. The independent C recording exactly matched the committed candidate recording byte-for-byte (SHA-256 0a6a24c755d67609c0e8974a63df94e1127c6ef0e4fcc2c09de4787c0cbbcac1; 10 boundaries), including screens, cursor positions, RNG traces, and inputs. Log: /tmp/teleport-loop-worker-c-20260925/.cache/C3-logs/tourist-camera-flash-replay.log."
+    },
+    {
+      "id": "tourist-camera-flash-complete",
+      "title": "Tourist camera direction actions",
+      "mission": "Apply the charged camera twice toward distinct room directions.",
+      "selectionRationale": "A new seed uses the camera letter established by C inventory, completes two direction prompts, and checks the ordinary no-target outcome.",
+      "sourcePointers": [
+        "nethack-c/upstream/src/apply.c:doapply",
+        "nethack-c/upstream/src/apply.c:use_camera",
+        "nethack-c/upstream/src/apply.c:do_blinding_ray"
+      ],
+      "cOutcome": "C inventory at step 2 identified l as an expensive camera with 89 charges. C reached the camera direction prompt at steps 5 and 10 and accepted directions at steps 6 and 11. The chosen rays crossed empty room tiles, so no monster flash message appeared; the charged-camera path through do_blinding_ray was reached.",
+      "inputs": {
+        "seed": 59482063,
+        "datetime": "20330506111500",
+        "role": "Tourist",
+        "race": "human",
+        "gender": "female",
+        "alignment": "neutral",
+        "playmode": "ordinary",
+        "keyCount": 11,
+        "boundaries": 12
+      },
+      "recipe": "challenges/cases/v3/tourist-camera-flash-complete.recipe.json",
+      "recipeSha256": "0a3d18cc9656189753dbec6ceedff51bc5e54f9057a631f45d23c514fa5fe268",
+      "recording": "challenges/cases/v3/tourist-camera-flash-complete.session.json",
+      "recordingSha256": "a0ff9cf099b0b1cc9df2242ee50959ae619463c2c6165dd249e78b6bd729fc13",
+      "reproducibility": "Independent C replay command: node scripts/record-session.mjs challenges/cases/v3/tourist-camera-flash-complete.recipe.json .cache/C3-replays/tourist-camera-flash-complete.session.json; exit code 0. The independent C recording exactly matched the committed candidate recording byte-for-byte (SHA-256 a0ff9cf099b0b1cc9df2242ee50959ae619463c2c6165dd249e78b6bd729fc13; 12 boundaries), including screens, cursor positions, RNG traces, and inputs. Log: /tmp/teleport-loop-worker-c-20260925/.cache/C3-logs/tourist-camera-flash-complete-replay.log."
+    },
+    {
+      "id": "tourist-camera-flash-retry",
+      "title": "Tourist camera item-key miss",
+      "mission": "Use the starting camera through the apply menu.",
+      "selectionRationale": "A corrected startup sequence opens inventory and tests the C-reported apply choices without changing the role or target behavior.",
+      "sourcePointers": [
+        "nethack-c/upstream/src/apply.c:doapply",
+        "nethack-c/upstream/src/apply.c:use_camera"
+      ],
+      "cOutcome": "C inventory showed the camera at l and the credit card at m. This attempt selected k from the earlier prompt, which C rejected. The valid miss is retained.",
+      "inputs": {
+        "seed": 88620743,
+        "datetime": "20330906111500",
+        "role": "Tourist",
+        "race": "human",
+        "gender": "female",
+        "alignment": "neutral",
+        "playmode": "ordinary",
+        "keyCount": 9,
+        "boundaries": 10
+      },
+      "recipe": "challenges/cases/v3/tourist-camera-flash-retry.recipe.json",
+      "recipeSha256": "2f4069dbb963399afb86fdf542227d64f0318b5bf1c35d49674a581779e58692",
+      "recording": "challenges/cases/v3/tourist-camera-flash-retry.session.json",
+      "recordingSha256": "9e7b0888d945f9e6eceb7cd7f6e97123091b18e4de0a81ac292b38c4586947fe",
+      "reproducibility": "Independent C replay command: node scripts/record-session.mjs challenges/cases/v3/tourist-camera-flash-retry.recipe.json .cache/C3-replays/tourist-camera-flash-retry.session.json; exit code 0. The independent C recording exactly matched the committed candidate recording byte-for-byte (SHA-256 9e7b0888d945f9e6eceb7cd7f6e97123091b18e4de0a81ac292b38c4586947fe; 10 boundaries), including screens, cursor positions, RNG traces, and inputs. Log: /tmp/teleport-loop-worker-c-20260925/.cache/C3-logs/tourist-camera-flash-retry-replay.log."
+    }
+  ]
+}

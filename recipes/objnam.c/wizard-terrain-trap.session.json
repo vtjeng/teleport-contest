@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 553082,
+      "datetime": "20310413091500",
+      "nethackrc": "OPTIONS=name:Trapprobe,role:Valkyrie,race:human,gender:female,align:lawful\nOPTIONS=!legacy,!tutorial,!splash_screen\nOPTIONS=pettype:none,!acoustics,playmode:debug\n",
+      "moves": ".\u0017pit\n.",
+      "comment": "An independent debug wish reaches wizterrainwish()'s trapname and pit creation path through makewish() and readobjnam()."
+    }
+  ]
+}
