@@ -71317,7 +71317,7 @@
     {
       "id": "port-apply-use-lamp-synthetic-v1-20260925",
       "kind": "file-port",
-      "status": "queued",
+      "status": "open",
       "summary": "Port complete oil-lamp apply and burn-state transitions",
       "cFile": "apply.c",
       "sessions": [
@@ -71325,8 +71325,12 @@
       ],
       "selectionReason": "After the higher remaining terrain and altar goals were assigned, the complete sustained-journey investigation identifies the independent 15-screen apply.c use_lamp mismatch at segment 0 step 187.",
       "detail": "Port all apply.c use_lamp branches for oil lamps and candles, including on/off, fuel, underwater, curse, shop and message effects; wire doapply and source return-valued dependencies, preserving begin_burn/end_burn order. See investigations/synthetic/v1/sustained-journey.json.",
-      "openedAt": null,
-      "openStanding": null,
+      "openedAt": "862e6adfbdc966edb79f7b43d9eaf4455de46f3d",
+      "openStanding": {
+        "sha": "d3bcd8d0179bc41c36ce9ca129b625fbe04e7d10",
+        "screens": 11405,
+        "rng": 792838
+      },
       "closedAt": null,
       "delivered": null,
       "functions": [
@@ -71355,7 +71359,163 @@
           "evaluationPath": "challenges/evaluations/20260925185643-v1.json",
           "evaluationCommit": "cb5a1d6236d100c62a31e5029cbfa55e55cdfb60"
         }
-      }
+      },
+      "activeStanding": {
+        "sha": "d3bcd8d0179bc41c36ce9ca129b625fbe04e7d10",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v1",
+          "caseId": "sustained-journey",
+          "session": "synthetic/v1/sustained-journey",
+          "manifestPath": "challenges/manifest.json",
+          "manifestSha256": "a1d989fa6b5159e0b0729150ba765c741a405ec910c1274ad763d29b0a7096fe",
+          "recording": "challenges/cases/sustained-journey.session.json",
+          "recordingPath": "challenges/cases/sustained-journey.session.json",
+          "recordingSha256": "b190d330b5177de86ea2c81412de96a1708faf22ff2a769aa1f558b7646a3eea",
+          "recipe": "challenges/cases/sustained-journey.recipe.json",
+          "recipeSha256": "cb3c86febb1468ccfd39e289b53c00937a407244d5ba3d4fd7a3759ddbd08ed5",
+          "replayInputSha256": "c9375e50321f8e7161d0a7a1b3a09da95a27b316a82444e14ed0a45eecf275ae",
+          "evaluationPath": "challenges/evaluations/20260925185643-v1.json",
+          "evaluationCommit": "cb5a1d6236d100c62a31e5029cbfa55e55cdfb60",
+          "evaluationArtifact": "challenges/evaluations/20260925185643-v1.json",
+          "evaluationUtc": "2026-09-25T18:56:43.136Z",
+          "remainingScreens": 15,
+          "recordedSteps": 202,
+          "previousScreensMatched": 187,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 187,
+              "total": 202
+            },
+            "rng": {
+              "matched": 9141,
+              "total": 10396
+            },
+            "cursors": {
+              "matched": 187,
+              "total": 202
+            }
+          },
+          "firstMismatch": {
+            "kind": "stop",
+            "message": "unsupported hero command: an unported branch of this command: applying a tool requires doapply()'s arm for object type 227",
+            "step": 187
+          },
+          "step": 187,
+          "kind": "stop",
+          "sourceFile": "apply.c",
+          "function": "doapply",
+          "message": "unsupported hero command: an unported branch of this command: applying a tool requires doapply()'s arm for object type 227",
+          "cFile": "apply.c",
+          "luaFile": null,
+          "line": null,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v1/sustained-journey.json",
+            "result": {
+              "session": "synthetic/v1/sustained-journey",
+              "corpus": "synthetic",
+              "batch": "v1",
+              "caseId": "sustained-journey",
+              "manifestPath": "challenges/manifest.json",
+              "manifestSha256": "a1d989fa6b5159e0b0729150ba765c741a405ec910c1274ad763d29b0a7096fe",
+              "recording": "challenges/cases/sustained-journey.session.json",
+              "recordingPath": "challenges/cases/sustained-journey.session.json",
+              "recordingSha256": "b190d330b5177de86ea2c81412de96a1708faf22ff2a769aa1f558b7646a3eea",
+              "recipe": "challenges/cases/sustained-journey.recipe.json",
+              "recipeSha256": "cb3c86febb1468ccfd39e289b53c00937a407244d5ba3d4fd7a3759ddbd08ed5",
+              "replayInputSha256": "e3e42c5f65da824b237c5a8d83ca94f1d32dbfd894248cc6fa7af56882da9bb1",
+              "evaluationPath": "challenges/evaluations/20260925163844-v1.json",
+              "evaluationCommit": "020e94fb0e15c7c7120349f8a0970e70cdf6bce7",
+              "remainingScreens": 15,
+              "recordedSteps": 202,
+              "status": "complete",
+              "commit": "020e94fb0e15c7c7120349f8a0970e70cdf6bce7",
+              "mismatch": {
+                "corpus": "synthetic",
+                "batch": "v1",
+                "caseId": "sustained-journey",
+                "session": "synthetic/v1/sustained-journey",
+                "manifestPath": "challenges/manifest.json",
+                "manifestSha256": "a1d989fa6b5159e0b0729150ba765c741a405ec910c1274ad763d29b0a7096fe",
+                "recording": "challenges/cases/sustained-journey.session.json",
+                "recordingPath": "challenges/cases/sustained-journey.session.json",
+                "recordingSha256": "b190d330b5177de86ea2c81412de96a1708faf22ff2a769aa1f558b7646a3eea",
+                "recipe": "challenges/cases/sustained-journey.recipe.json",
+                "recipeSha256": "cb3c86febb1468ccfd39e289b53c00937a407244d5ba3d4fd7a3759ddbd08ed5",
+                "replayInputSha256": "a097d12206d9c6c1ee961b087aedf759fc6cbd0e9f98abb9dd1c4175d5f799e9",
+                "evaluationPath": "challenges/evaluations/20260925163844-v1.json",
+                "evaluationCommit": "020e94fb0e15c7c7120349f8a0970e70cdf6bce7",
+                "evaluationArtifact": "challenges/evaluations/20260925163844-v1.json",
+                "evaluationUtc": "2026-09-25T16:38:44.129Z",
+                "remainingScreens": 15,
+                "recordedSteps": 202,
+                "previousScreensMatched": 164,
+                "regression": false,
+                "passed": false,
+                "error": null,
+                "metrics": {
+                  "screens": {
+                    "matched": 187,
+                    "total": 202
+                  },
+                  "rng": {
+                    "matched": 9141,
+                    "total": 10396
+                  },
+                  "cursors": {
+                    "matched": 187,
+                    "total": 202
+                  }
+                },
+                "firstMismatch": {
+                  "kind": "stop",
+                  "message": "unsupported hero command: an unported branch of this command: applying a tool requires doapply()'s arm for object type 227",
+                  "step": 187
+                },
+                "step": 187,
+                "kind": "stop",
+                "sourceFile": "apply.c",
+                "function": "doapply",
+                "message": "unsupported hero command: an unported branch of this command: applying a tool requires doapply()'s arm for object type 227",
+                "cFile": "apply.c",
+                "luaFile": null,
+                "line": null
+              },
+              "summary": "At the C2 integration commit, the sustained journey matches 187 of 202 screens. The next stop is step 187 when applying an oil lamp: C prints \"Your lamp is now on.\" while JavaScript refuses doapply()'s OIL_LAMP arm. The source owner is apply.c use_lamp(), called from doapply() for oil lamps, magic lamps, and brass lanterns. Port its complete on/off, underwater, fuel, cursed, shop, and burn-start branches with the production caller; C2's earlier D:1 ascent path now matches through step 165.",
+              "source": {
+                "file": "apply.c",
+                "functions": [
+                  "use_lamp"
+                ],
+                "branch": "apply.c doapply() lines 4214-4430 dispatches OIL_LAMP, MAGIC_LAMP, and BRASS_LANTERN to use_lamp() at the lamp switch arm. In use_lamp() lines 1628-1692, the witnessed ordinary oil lamp is unlit, has fuel, is not cursed or underwater, and takes the on branch: check_unpaid(), print the lamp-on message, then begin_burn(obj,FALSE). The complete function also handles already-lit snuffing, underwater refusal, no fuel, cursed failure and oil spill, candle text, and shop billing.",
+                "callers": [
+                  "apply.c doapply() lamp arm around line 4350 calls use_lamp(obj) and retains ECMD_TIME; js/apply.js doapply() lines 1243-1333 currently throws UnsupportedApplyError for object type 227 after selection.",
+                  "cmd.c apply command dispatch routes key a to doapply(); the sustained journey reaches that production path before the refusal."
+                ],
+                "dependencies": [
+                  "light.c begin_burn() and end_burn() own the timer, light source, and fuel transitions; retain their source ordering and port value-consuming dependencies as needed.",
+                  "Shop billing, object naming, blindness and underwater predicates, and glibness from cursed spills are source dependencies of whole use_lamp()."
+                ]
+              },
+              "goalKind": "file-port",
+              "evidence": [
+                "Saved evaluation challenges/evaluations/20260925163844-v1.json at 020e94fb records sustained-journey 187/202 matching screens, up from 164/202 at the previous accepted C2 baseline; no old matching screen was lost.",
+                ".cache/loop-20260925-C2-next-sustained-scan.json replays 187 emitted screens and stops at segment 0 step 187 with \"applying a tool requires doapply()'s arm for object type 227\"; js/objects.js identifies 227 as OIL_LAMP. The C boundary screen says \"Your lamp is now on.\"",
+                "nethack-c/upstream/src/apply.c:4214-4430 reads doapply()'s selected-tool dispatch, including the OIL_LAMP/MAGIC_LAMP/BRASS_LANTERN arm; :1628-1692 reads the whole use_lamp() function and source-ordered light and shop effects.",
+                "js/apply.js:1243-1333 refuses the selected OIL_LAMP after retouch_object(), before use_lamp() exists. The earlier do.c doup stop was resolved by C2 and is independently cited through v1 sustained-journey step 165 and v1 scout step 16 in its immutable source evidence."
+              ]
+            }
+          }
+        }
+      ]
     }
   ]
 }
