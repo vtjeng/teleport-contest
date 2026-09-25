@@ -70730,7 +70730,7 @@
     {
       "id": "port-spell-study-book-synthetic-v2-20260925",
       "kind": "file-port",
-      "status": "queued",
+      "status": "open",
       "summary": "Port complete spellbook study and known-spell refresh paths",
       "cFile": "spell.c",
       "sessions": [
@@ -70738,8 +70738,12 @@
       ],
       "selectionReason": "After C2 closure, terrain-transitions is owned by worker A. Wizard-spell-memory has 37 unmatched screens and is the next ranked complete unreserved source investigation; worker B owns pickup.c tipping and worker C prepares v3.",
       "detail": "The v2 wizard case stops at read.c doread selecting a Force Bolt spellbook because the JavaScript gate admits only healing refresh. Port whole spell.c study_book with source-ordered known-spell prompt, difficulty, occupation, and return-valued callees; wire read.c doread and all active callers. See investigations/synthetic/v2/wizard-spell-memory.json.",
-      "openedAt": null,
-      "openStanding": null,
+      "openedAt": "1c46c9d55203baf298ef541c96c178ba56bf5331",
+      "openStanding": {
+        "sha": "1c46c9d55203baf298ef541c96c178ba56bf5331",
+        "screens": 11405,
+        "rng": 792838
+      },
       "closedAt": null,
       "delivered": null,
       "functions": [
@@ -70765,10 +70769,161 @@
           "manifestSha256": "58739ea9ed6c26e5153c4860b2e5111d08d69792bdea5c39427cf45b8e72cc9c",
           "recordingPath": "challenges/cases/v2/wizard-spell-memory.session.json",
           "recordingSha256": "4aa25c52bad9f85940224ad16785cacb6b286a4c326c1691e6db54ec260b73cd",
-          "evaluationPath": "challenges/evaluations/20260925170757-v2.json",
-          "evaluationCommit": "bfa9dc95416be7fa5a45d311fae636412a475e17"
+          "evaluationPath": "challenges/evaluations/20260925173439-v2.json",
+          "evaluationCommit": "e7623b67450936e27add7de87567f83f84ed1190"
         }
-      }
+      },
+      "activeStanding": {
+        "sha": "1c46c9d55203baf298ef541c96c178ba56bf5331",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v2",
+          "caseId": "wizard-spell-memory",
+          "session": "synthetic/v2/wizard-spell-memory",
+          "manifestPath": "challenges/manifests/v2.json",
+          "manifestSha256": "58739ea9ed6c26e5153c4860b2e5111d08d69792bdea5c39427cf45b8e72cc9c",
+          "recording": "challenges/cases/v2/wizard-spell-memory.session.json",
+          "recordingPath": "challenges/cases/v2/wizard-spell-memory.session.json",
+          "recordingSha256": "4aa25c52bad9f85940224ad16785cacb6b286a4c326c1691e6db54ec260b73cd",
+          "recipe": "challenges/cases/v2/wizard-spell-memory.recipe.json",
+          "recipeSha256": "7539746442959f2f180fe53b40dd993e7d83aa77d27132210f745425c30cfb26",
+          "replayInputSha256": "4a38734fee16c8f972094ce8bc309525235e7b911087321eeb2028ec6a78cbbf",
+          "evaluationPath": "challenges/evaluations/20260925173439-v2.json",
+          "evaluationCommit": "e7623b67450936e27add7de87567f83f84ed1190",
+          "evaluationArtifact": "challenges/evaluations/20260925173439-v2.json",
+          "evaluationUtc": "2026-09-25T17:34:42.612Z",
+          "remainingScreens": 37,
+          "recordedSteps": 54,
+          "previousScreensMatched": 17,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 17,
+              "total": 54
+            },
+            "rng": {
+              "matched": 2409,
+              "total": 2452
+            },
+            "cursors": {
+              "matched": 17,
+              "total": 54
+            }
+          },
+          "firstMismatch": {
+            "kind": "stop",
+            "message": "unsupported hero command: an unported branch of this command: reading requires the selected readable object branch",
+            "step": 17
+          },
+          "step": 17,
+          "kind": "stop",
+          "sourceFile": null,
+          "function": null,
+          "message": "unsupported hero command: an unported branch of this command: reading requires the selected readable object branch",
+          "cFile": null,
+          "luaFile": null,
+          "line": null,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v2/wizard-spell-memory.json",
+            "result": {
+              "session": "synthetic/v2/wizard-spell-memory",
+              "corpus": "synthetic",
+              "batch": "v2",
+              "caseId": "wizard-spell-memory",
+              "manifestPath": "challenges/manifests/v2.json",
+              "manifestSha256": "58739ea9ed6c26e5153c4860b2e5111d08d69792bdea5c39427cf45b8e72cc9c",
+              "recordingSha256": "4aa25c52bad9f85940224ad16785cacb6b286a4c326c1691e6db54ec260b73cd",
+              "evaluationPath": "challenges/evaluations/20260925162000-v2.json",
+              "evaluationCommit": "c7912bb5a3867356ba505d81b43ebc309e76744a",
+              "remainingScreens": 37,
+              "recordedSteps": 54,
+              "status": "complete",
+              "commit": "65e8da74fdd35ae64ba12c89237089f53d87e504",
+              "mismatch": {
+                "corpus": "synthetic",
+                "batch": "v2",
+                "caseId": "wizard-spell-memory",
+                "session": "synthetic/v2/wizard-spell-memory",
+                "manifestPath": "challenges/manifests/v2.json",
+                "manifestSha256": "58739ea9ed6c26e5153c4860b2e5111d08d69792bdea5c39427cf45b8e72cc9c",
+                "recording": "challenges/cases/v2/wizard-spell-memory.session.json",
+                "recordingPath": "challenges/cases/v2/wizard-spell-memory.session.json",
+                "recordingSha256": "4aa25c52bad9f85940224ad16785cacb6b286a4c326c1691e6db54ec260b73cd",
+                "recipe": "challenges/cases/v2/wizard-spell-memory.recipe.json",
+                "recipeSha256": "7539746442959f2f180fe53b40dd993e7d83aa77d27132210f745425c30cfb26",
+                "replayInputSha256": "3ff6dfb2195398631780ba891a4a6a4a11b40896a1a2aa7331b1c6c0b2ed97ab",
+                "evaluationPath": "challenges/evaluations/20260925162000-v2.json",
+                "evaluationCommit": "c7912bb5a3867356ba505d81b43ebc309e76744a",
+                "evaluationArtifact": "challenges/evaluations/20260925162000-v2.json",
+                "evaluationUtc": "2026-09-25T16:11:39.061Z",
+                "remainingScreens": 37,
+                "recordedSteps": 54,
+                "previousScreensMatched": null,
+                "regression": false,
+                "passed": false,
+                "error": null,
+                "metrics": {
+                  "screens": {
+                    "matched": 17,
+                    "total": 54
+                  },
+                  "rng": {
+                    "matched": 2409,
+                    "total": 2452
+                  },
+                  "cursors": {
+                    "matched": 17,
+                    "total": 54
+                  }
+                },
+                "firstMismatch": {
+                  "kind": "stop",
+                  "message": "unsupported hero command: an unported branch of this command: reading requires the selected readable object branch",
+                  "step": 17
+                },
+                "step": 17,
+                "kind": "stop",
+                "sourceFile": null,
+                "function": null,
+                "message": "unsupported hero command: an unported branch of this command: reading requires the selected readable object branch",
+                "cFile": null,
+                "luaFile": null,
+                "line": null
+              },
+              "summary": "At the first reread of the starting Wizard spellbook, JavaScript stops after 17 matching screens. C takes spell.c study_book()'s already-known spell branch, prints the known-spell message and asks whether to refresh memory. The JavaScript read.c doread() gate permits only the healing-book refresh preflight, so it refuses the Force Bolt book before the implemented spell.c branch runs. Port the whole study_book() source function and wire doread() for all valid spellbooks, preserving its difficulty, confusion, occupation, knowledge, and input order.",
+              "source": {
+                "file": "spell.c",
+                "functions": [
+                  "study_book"
+                ],
+                "branch": "spell.c study_book() lines 468-644: when spellid(i) equals the book type and spellknow(i) > KEEN/10, C prints the already-known message, marks the book known, and asks the refresh question before setting in_use or drawing the difficulty roll. The witnessed ordinary Wizard Force Bolt book takes this branch at step 17. The rest of the same function includes dull-book sleep, resumed study, blank and novel books, difficulty and cursed outcomes, confused books, and occupation installation.",
+                "callers": [
+                  "read.c doread() lines 330-646 selects a spellbook and calls study_book() at line 609; js/read.js doread() lines 473-565 refuses every book except its healing-book refresh or too-hard preflight, before it can call js/spell.js study_book().",
+                  "spell.c study_book() is partially implemented at js/spell.js lines 263-306, including a known-healing prompt and successful ordinary study; its current gate and the doread() caller must be broadened from C source."
+                ],
+                "dependencies": [
+                  "spell.c learn() occupation callback and cursed_book()/confused_book() results determine downstream study behavior; implement return-valued callees needed by the complete function.",
+                  "C spellid(), spellknow(), makeknown(), set_occupation(), check_unpaid(), and tty prompt/message owners supply known-book state and exact wait boundaries."
+                ]
+              },
+              "goalKind": "file-port",
+              "evidence": [
+                "Saved v2 evaluation challenges/evaluations/20260925162000-v2.json at c7912bb5 has wizard-spell-memory 17/54 matching screens and 17/54 cursors. The immutable C recording is challenges/cases/v2/wizard-spell-memory.session.json; its SHA-256 is in the queue entry.",
+                ".cache/loop-20260925-v2-wizard-scan.json replays 17 screens at examined commit 65e8da74 and stops at segment 0 step 17 with \"reading requires the selected readable object branch\". Its input through stop ends with #showspells, read, and the inventory letter l; C's screen says \"You know \\\"force bolt\\\" quite well already.--More--\".",
+                "nethack-c/upstream/src/spell.c:552-575 reads the known-spell test and prints the message before y_n(\"Refresh your memory anyway?\"); lines 468-644 define the whole source function and the other valid arms.",
+                "js/read.js:520-541 restricts knownHealing to study_book_preflight and throws for the selected book at :536; js/spell.js:176-196 restricts that preflight to SPE_HEALING, while :263-306 already has a partial known-book message branch. The source owner is spell.c study_book(), with read.c doread() caller wiring."
+              ]
+            }
+          }
+        }
+      ]
     },
     {
       "id": "port-do-wear-doremring-synthetic-v1-20260925",
