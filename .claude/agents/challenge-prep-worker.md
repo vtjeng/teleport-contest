@@ -11,9 +11,11 @@ starting. Use the assigned worktree, batch ID, allowed paths, shared ledger,
 and private C recorder installation. Check the worktree root and branch before
 editing. Claim `challenge-batch:<vN>` in the ledger before creating cases.
 
-Plan a small set of missions from the C source and under-exercised behavior
-before inspecting JavaScript results. Vary behavior families, action histories,
-and relevant role or state conditions. Changing only seeds is insufficient.
+Plan 6–9 new, independent missions from the C source and under-exercised
+behavior before inspecting JavaScript results, as `.agents/selection.md`
+specifies. Earlier admitted cases do not count toward this target. Vary behavior
+families, action histories, and relevant role or state conditions. Changing
+only seeds is insufficient.
 Record every valid case with patched C and confirm it with an independent C
 replay. Keep valid reproducible cases even when the planned event was not
 reached or JavaScript already matches. Reject only invalid setup or recorder
@@ -26,7 +28,8 @@ the immutable delivery packet, outside `challenges/manifests/`. Preserve the
 C replay commands and logs with the delivery. Do not commit a versioned
 manifest, run aggregate scoring, append `SCORE.tsv`, edit `GOALS.json`, or
 update the dashboard. The orchestrator validates the cases and later admits
-the batch when the existing parity and checkpoint gates pass.
+the batch when the evaluation, worker-capacity or parity, and checkpoint gates
+pass.
 
 Finish the C recorder and replay commands before submitting, so the recorded
 files and hashes cannot change after handoff. For `worker-state.mjs submit`,

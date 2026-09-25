@@ -132,15 +132,26 @@ the assignable task count falls below `implementationSlots + 1`; keep the one
 unaccepted preparation-task limit. This gives preparation a chance to finish
 before an implementation worker runs out of work.
 
-Plan a small batch of independent missions before inspecting their JavaScript
-results. Use C source and coverage gaps to vary behavior families, action
-histories, and relevant character or state conditions; changing only seeds
-is insufficient. Follow `experiments/generalization/plan.md`, "Expanding
-challenges", and `.agents/validation.md` for C exploration and recording.
+Plan 6–9 new, independently designed C missions per batch before inspecting
+their JavaScript results. This is a preparation target, not a cap on valid
+cases. Earlier admitted cases do not count toward it. Use C source and coverage
+gaps to vary behavior families, action histories, and relevant character or
+state conditions; changing only seeds is insufficient. Follow
+`experiments/generalization/plan.md`, "Expanding challenges", and
+`.agents/validation.md` for C exploration and recording.
 Confirm reproducibility with an independent C replay. Retain every valid,
 reproducible case, including missed missions and cases JavaScript already
 passes; reject only invalid setup or recorder failures with recorded C evidence.
 Resolve recorder-environment differences before treating them as game defects.
+
+After a batch's first saved evaluation, fully matching cases remain in its
+manifest but do not count toward a runway of six to nine cases with a mismatch.
+If fewer than six cases in that batch have a mismatch, request preparation of
+the next version from different under-exercised behavior, subject to the one
+unaccepted preparation-task limit. This runway is not an admission requirement.
+Continue to use independently assignable source tasks, not raw case counts,
+for worker scheduling and early admission. Do not filter, replace, or extend
+an admitted batch to fill the target.
 
 The worker submits case recipes and C recordings under
 `challenges/cases/<batch>/`. Keep the manifest in immutable delivery evidence,
