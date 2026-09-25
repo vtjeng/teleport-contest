@@ -1,0 +1,89 @@
+{
+  "version": 1,
+  "batch": "v2",
+  "cases": [
+    {
+      "id": "shop-ledger-return",
+      "title": "Rogue payment command without a shopkeeper",
+      "mission": "Ordinary Rogue explores to locate a shop, inspect stock, pick up and return or retain an affordable item, pay, leave, revisit, and inspect billing state.",
+      "selectionRationale": "Tests the shop payment and billing family from an ordinary Rogue action history, with room and corridor traversal, a monster fight, pet activity, and gold pickup. The generated first-level route was chosen from the C source mission before C play.",
+      "sourcePointers": [
+        "nethack-c/upstream/src/cmd.c: #pay dispatch",
+        "nethack-c/upstream/src/shk.c: dopay(), paybill(), costly_spot()"
+      ],
+      "cOutcome": "The ordinary Rogue left the starting room, crossed a corridor and doorway, fought a kobold, observed pet activity, picked up 7 gold pieces, and invoked #pay. C reported that no shopkeeper was present. No shop was found, so purchase, billing, leaving, and revisiting were not reached. This complete valid no-shop result is retained.",
+      "inputs": {
+        "seed": 812037,
+        "datetime": "20010423101500",
+        "role": "Rogue",
+        "race": "human",
+        "gender": "male",
+        "alignment": "chaotic",
+        "playmode": "ordinary",
+        "keyCount": 55,
+        "boundaries": 56
+      },
+      "recipe": "challenges/cases/v2/shop-ledger-return.recipe.json",
+      "recipeSha256": "6ae2a8698d0349d0280b7e93eb2fb96cef09610873b6705de16604a93dc5967e",
+      "recording": "challenges/cases/v2/shop-ledger-return.session.json",
+      "recordingSha256": "54d86d8c857f8d7948f1e1ac70101d0a0bdb3d9a176f3cf61fa5c9762b740960",
+      "reproducibility": "Independent C replay command: node scripts/record-session.mjs challenges/cases/v2/shop-ledger-return.recipe.json .cache/c-exploration/shop-ledger-return-independent.session.json; exit code 0. The independent C recording exactly matched the exploratory recording, including the complete screens, cursor positions, and RNG traces (56 boundaries). Log: /tmp/teleport-loop-worker-c-20260925/.cache/c-exploration/shop-ledger-return-independent.log."
+    },
+    {
+      "id": "altar-rite-history",
+      "title": "Neutral altar prayer and corpse offering",
+      "mission": "A debug-setup neutral Priest creates a neutral altar and fresh jackal corpse, then invokes prayer without forcing success and offers the corpse.",
+      "selectionRationale": "Varies role and state through a debug-created neutral altar and fresh corpse, then exercises prayer confirmation and the sacrifice/altar result path.",
+      "sourcePointers": [
+        "nethack-c/upstream/src/cmd.c: #pray/#offer dispatch",
+        "nethack-c/upstream/src/pray.c: can_pray(), dopray(), dosacrifice(), offer_corpse()",
+        "nethack-c/upstream/src/objnam.c: wizterrainwish()"
+      ],
+      "cOutcome": "The debug Priest wished a neutral altar and jackal corpse at the current tile, invoked #pray, declined the force-success confirmation, then selected the corpse for #offer. C consumed it in a plume of smoke and reported a hopeful feeling. No prayer success was forced.",
+      "inputs": {
+        "seed": 812038,
+        "datetime": "20020817143000",
+        "role": "Priest",
+        "race": "human",
+        "gender": "female",
+        "alignment": "neutral",
+        "playmode": "debug",
+        "keyCount": 49,
+        "boundaries": 50
+      },
+      "recipe": "challenges/cases/v2/altar-rite-history.recipe.json",
+      "recipeSha256": "b911dc353955f391a0e40bbf9c6c792bec55089eafbe11c9ce82d430b819391d",
+      "recording": "challenges/cases/v2/altar-rite-history.session.json",
+      "recordingSha256": "f3fbc209ee4d556822809c679e9cc73054b48fa85ba5d17864b764f30b4cf048",
+      "reproducibility": "Independent C replay command: node scripts/record-session.mjs challenges/cases/v2/altar-rite-history.recipe.json .cache/c-exploration/altar-rite-history-independent.session.json; exit code 0. The independent C recording exactly matched the exploratory recording, including the complete screens, cursor positions, and RNG traces (50 boundaries). Log: /tmp/teleport-loop-worker-c-20260925/.cache/c-exploration/altar-rite-history-independent.log."
+    },
+    {
+      "id": "wizard-spell-memory",
+      "title": "Wizard starting spells, book reading, and casting",
+      "mission": "An ordinary Wizard inspects known spells, reads the guaranteed starting Force Bolt book, casts at a reachable hostile, then inspects remembered spell state.",
+      "selectionRationale": "Exercises Wizard startup spell state, an already-known spellbook read, the Z casting command, and an independent spell-list inspection in a different ordinary action history.",
+      "sourcePointers": [
+        "nethack-c/upstream/src/u_init.c: Wizard starting inventory and ini_inv_use_obj()",
+        "nethack-c/upstream/src/read.c: doread()",
+        "nethack-c/upstream/src/spell.c: initialspell(), study_book(), docast(), dovspell()"
+      ],
+      "cOutcome": "C showed blessed Force Bolt and uncursed Sleep books, with both spells already known at 100% retention. Reading Force Bolt reported it was already well known. A lowercase-z/spacing attempt led to an eastward movement turn; the proper uppercase-Z command then cast Force Bolt east into a wall, reducing Pw from 6 to 1. #showspells showed both spells at 91%-100% retention. No hostile was reached or targeted.",
+      "inputs": {
+        "seed": 812039,
+        "datetime": "20031105083000",
+        "role": "Wizard",
+        "race": "human",
+        "gender": "male",
+        "alignment": "chaotic",
+        "playmode": "ordinary",
+        "keyCount": 53,
+        "boundaries": 54
+      },
+      "recipe": "challenges/cases/v2/wizard-spell-memory.recipe.json",
+      "recipeSha256": "7539746442959f2f180fe53b40dd993e7d83aa77d27132210f745425c30cfb26",
+      "recording": "challenges/cases/v2/wizard-spell-memory.session.json",
+      "recordingSha256": "4aa25c52bad9f85940224ad16785cacb6b286a4c326c1691e6db54ec260b73cd",
+      "reproducibility": "Independent C replay command: node scripts/record-session.mjs challenges/cases/v2/wizard-spell-memory.recipe.json .cache/c-exploration/wizard-spell-memory-independent.session.json; exit code 0. The independent C recording exactly matched the exploratory recording, including the complete screens, cursor positions, and RNG traces (54 boundaries). Log: /tmp/teleport-loop-worker-c-20260925/.cache/c-exploration/wizard-spell-memory-independent.log."
+    }
+  ]
+}
