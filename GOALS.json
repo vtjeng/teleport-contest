@@ -72680,7 +72680,7 @@
     {
       "id": "port-dig-use-pick-axe-synthetic-v4-20260925",
       "kind": "file-port",
-      "status": "queued",
+      "status": "open",
       "summary": "Port complete pick-axe application and directional digging entry",
       "cFile": "dig.c",
       "sessions": [
@@ -72688,8 +72688,12 @@
       ],
       "selectionReason": "The larger v1 terrain-transitions case is owned by A3 float_down and its cached investigation is stale. The v4 Archeologist dig-direction case has 24 unmatched screens and the first completed valid unreserved source investigation at investigations/synthetic/v4/archeologist-dig-direction-prompt-miss.json; A3 confirms it has no js/dig.js edits and will not touch that file before submission.",
       "detail": "Port dig.c use_pick_axe and use_pick_axe2 in source order, wire apply.c doapply PICK_AXE/DWARVISH_MATTOCK and active hack.c/do.c callers, and preserve return-valued wield_tool, direction, and digging occupation dependencies. See investigations/synthetic/v4/archeologist-dig-direction-prompt-miss.json.",
-      "openedAt": null,
-      "openStanding": null,
+      "openedAt": "031185006c13171950f219f45d4453ac11b8747b",
+      "openStanding": {
+        "sha": "9df17907e4122a6809ade23228f0930b179bfba6",
+        "screens": 11405,
+        "rng": 792838
+      },
       "closedAt": null,
       "delivered": null,
       "functions": [
@@ -72722,10 +72726,192 @@
           "manifestSha256": "10777af4c82fc759abf58a870fdd232329bc5c1467c8cf94f46089d0401459a9",
           "recordingPath": "challenges/cases/v4/archeologist-dig-direction-prompt-miss.session.json",
           "recordingSha256": "aa672b5b1e26ffd83c332ee298baf2be516c6c332ef22de48c2bd6d4473668d3",
-          "evaluationPath": "challenges/evaluations/20260925210102-v4.json",
-          "evaluationCommit": "4c94668a402c17dd41062fe2ec966453db17c551"
+          "evaluationPath": "challenges/evaluations/20260925221225-v4.json",
+          "evaluationCommit": "9df17907e4122a6809ade23228f0930b179bfba6"
         }
-      }
+      },
+      "activeStanding": {
+        "sha": "9df17907e4122a6809ade23228f0930b179bfba6",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v4",
+          "caseId": "archeologist-dig-direction-prompt-miss",
+          "session": "synthetic/v4/archeologist-dig-direction-prompt-miss",
+          "manifestPath": "challenges/manifests/v4.json",
+          "manifestSha256": "10777af4c82fc759abf58a870fdd232329bc5c1467c8cf94f46089d0401459a9",
+          "recording": "challenges/cases/v4/archeologist-dig-direction-prompt-miss.session.json",
+          "recordingPath": "challenges/cases/v4/archeologist-dig-direction-prompt-miss.session.json",
+          "recordingSha256": "aa672b5b1e26ffd83c332ee298baf2be516c6c332ef22de48c2bd6d4473668d3",
+          "recipe": "challenges/cases/v4/archeologist-dig-direction-prompt-miss.recipe.json",
+          "recipeSha256": "a2627c75650b336f2787d05576918e601dec1bddd6d06523a5b0d56fc71e5ab9",
+          "replayInputSha256": "dcfb831d4ae49f941b5b1e1efdbac9564c6449d5d44629def5127b99ab4ac492",
+          "evaluationPath": "challenges/evaluations/20260925221225-v4.json",
+          "evaluationCommit": "9df17907e4122a6809ade23228f0930b179bfba6",
+          "evaluationArtifact": "challenges/evaluations/20260925221225-v4.json",
+          "evaluationUtc": "2026-09-25T22:12:34.845Z",
+          "remainingScreens": 24,
+          "recordedSteps": 28,
+          "previousScreensMatched": 4,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 4,
+              "total": 28
+            },
+            "rng": {
+              "matched": 2446,
+              "total": 2471
+            },
+            "cursors": {
+              "matched": 4,
+              "total": 28
+            }
+          },
+          "firstMismatch": {
+            "kind": "stop",
+            "message": "unsupported hero command: an unported branch of this command: applying a tool requires doapply()'s arm for object type 259",
+            "step": 4
+          },
+          "step": 4,
+          "kind": "stop",
+          "sourceFile": "apply.c",
+          "function": "doapply",
+          "message": "unsupported hero command: an unported branch of this command: applying a tool requires doapply()'s arm for object type 259",
+          "cFile": "apply.c",
+          "luaFile": null,
+          "line": null,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v4/archeologist-dig-direction-prompt-miss.json",
+            "result": {
+              "session": "synthetic/v4/archeologist-dig-direction-prompt-miss",
+              "corpus": "synthetic",
+              "batch": "v4",
+              "caseId": "archeologist-dig-direction-prompt-miss",
+              "manifestPath": "challenges/manifests/v4.json",
+              "manifestSha256": "10777af4c82fc759abf58a870fdd232329bc5c1467c8cf94f46089d0401459a9",
+              "recordingPath": "challenges/cases/v4/archeologist-dig-direction-prompt-miss.session.json",
+              "recordingSha256": "aa672b5b1e26ffd83c332ee298baf2be516c6c332ef22de48c2bd6d4473668d3",
+              "evaluationPath": "challenges/evaluations/20260925192624-v4.json",
+              "evaluationCommit": "a6d8c67251d422234352882ebc4a4c7a4b134b65",
+              "remainingScreens": 24,
+              "recordedSteps": 28,
+              "status": "complete",
+              "commit": "4151ee7a2286fbfce141545c893e052e0c49a44d",
+              "mismatch": {
+                "corpus": "synthetic",
+                "batch": "v4",
+                "caseId": "archeologist-dig-direction-prompt-miss",
+                "session": "synthetic/v4/archeologist-dig-direction-prompt-miss",
+                "manifestPath": "challenges/manifests/v4.json",
+                "manifestSha256": "10777af4c82fc759abf58a870fdd232329bc5c1467c8cf94f46089d0401459a9",
+                "recording": "challenges/cases/v4/archeologist-dig-direction-prompt-miss.session.json",
+                "recordingPath": "challenges/cases/v4/archeologist-dig-direction-prompt-miss.session.json",
+                "recordingSha256": "aa672b5b1e26ffd83c332ee298baf2be516c6c332ef22de48c2bd6d4473668d3",
+                "recipe": "challenges/cases/v4/archeologist-dig-direction-prompt-miss.recipe.json",
+                "recipeSha256": "a2627c75650b336f2787d05576918e601dec1bddd6d06523a5b0d56fc71e5ab9",
+                "replayInputSha256": "1b3a9ce7ee84fc23e683cc41c87fdc1d21c0586abcc74fc6e30213d099464ee5",
+                "evaluationPath": "challenges/evaluations/20260925192624-v4.json",
+                "evaluationCommit": "a6d8c67251d422234352882ebc4a4c7a4b134b65",
+                "evaluationArtifact": "challenges/evaluations/20260925192624-v4.json",
+                "evaluationUtc": "2026-09-25T19:26:36.497Z",
+                "remainingScreens": 24,
+                "recordedSteps": 28,
+                "previousScreensMatched": null,
+                "regression": false,
+                "passed": false,
+                "error": null,
+                "metrics": {
+                  "screens": {
+                    "matched": 4,
+                    "total": 28
+                  },
+                  "rng": {
+                    "matched": 2446,
+                    "total": 2471
+                  },
+                  "cursors": {
+                    "matched": 4,
+                    "total": 28
+                  }
+                },
+                "firstMismatch": {
+                  "kind": "stop",
+                  "message": "unsupported hero command: an unported branch of this command: applying a tool requires doapply()'s arm for object type 259",
+                  "step": 4
+                },
+                "step": 4,
+                "kind": "stop",
+                "sourceFile": "apply.c",
+                "function": "doapply",
+                "message": "unsupported hero command: an unported branch of this command: applying a tool requires doapply()'s arm for object type 259",
+                "cFile": "apply.c",
+                "luaFile": null,
+                "line": null
+              },
+              "summary": "The v4 Archeologist digging case matches 4/28 screens. Applying the starting pick-axe at step 4 reaches an unsupported object-type-259 branch in js/apply.js. C dig.c use_pick_axe() and its return-valued use_pick_axe2() handle the tool, with the already-wielded pick asking for a direction after inventory-message paging; C shows “In what direction do you want to dig? [ln>]” at step 6. Port the complete source functions and wire apply.c doapply, retaining source-ordered direction and digging occupation behavior.",
+              "source": {
+                "file": "dig.c",
+                "branch": "The Archeologist starts with a wielded pick-axe. apply.c doapply selects PICK_AXE and uses the integer result of dig.c use_pick_axe(obj). Because obj == uwep, the function skips wield_tool, computes viable directions with dig_typ/can_reach_floor, prompts through getdir, and returns use_pick_axe2(obj).",
+                "functions": [
+                  "use_pick_axe",
+                  "use_pick_axe2"
+                ],
+                "callers": [
+                  "apply.c doapply() case PICK_AXE/DWARVISH_MATTOCK at lines 4290-4293 assigns res = use_pick_axe(obj); js/apply.js currently falls through to an UnsupportedApplyError for object type 259.",
+                  "dig.c use_pick_axe() calls and returns use_pick_axe2(obj) after getdir. Other direct use_pick_axe2() callers are hack.c at 1046 and 2274 for autodig and do.c at 1233; wire active production paths where those source branches are ported."
+                ],
+                "dependencies": [
+                  "C uses wield_tool() return when the pick is not already wielded; inspect the partial js/wield.js implementation and port its reached return-valued branches in the same task.",
+                  "use_pick_axe() uses can_reach_floor(), movecmd(), dig_typ() and getdir() results when constructing and reading the direction prompt. js/dig.js has dig_typ, but its reachable branches and state/RNG order need source verification.",
+                  "use_pick_axe2() sets dig() as the occupation callback for sustained digging; the callback and source-owned digging state must be implemented for entry points that continue past the direction prompt."
+                ]
+              },
+              "goalKind": "file-port",
+              "evidence": [
+                "Saved challenges/evaluations/20260925192624-v4.json at a6d8c67251d422234352882ebc4a4c7a4b134b65 reports 4/28 screens, with 24 remaining.",
+                "Single-case diagnostic .cache/loop-v4-archeologist-dig-diagnostic.json at 4151ee7a2286fbfce141545c893e052e0c49a44d stops at segment 0 step 4 on selected inventory letter e: applying a tool requires doapply’s arm for object type 259.",
+                "The C recording challenges/cases/v4/archeologist-dig-direction-prompt-miss.session.json shows step 3 key a selecting apply, step 4 key e showing a pick-axe pager, and step 6 displaying “In what direction do you want to dig? [ln>]”. This establishes the production pick-axe entry and prompt, independent of the recipe title’s planned later digging history.",
+                "nethack-c/upstream/src/apply.c:4290-4293 dispatches PICK_AXE/DWARVISH_MATTOCK to use_pick_axe and uses the result. nethack-c/upstream/src/dig.c:1092-1155 defines use_pick_axe and directly returns use_pick_axe2; dig.c:1162-1373 defines use_pick_axe2 and can establish a dig occupation.",
+                "js/apply.js around 1329 documents the unported use_pick_axe redirect and throws for type 259. The first mismatch is the missing source dispatch, before any direction input or later dig outcome."
+              ],
+              "entryPointReview": {
+                "active": [
+                  "Apply the initially wielded pick-axe through a in synthetic/v4/archeologist-dig-direction-prompt-miss, segment 0 steps 3-6."
+                ],
+                "blocked": [
+                  "The current doapply refusal stops at step 4 before the source direction prompt, so this entry lacks a matching prefix until use_pick_axe is wired.",
+                  "Later digging occupation and autodig callers require matching replay ranges or independent recipes before whole-source completion can be claimed."
+                ]
+              },
+              "plannedWholeFunctionScope": {
+                "primary": {
+                  "file": "dig.c",
+                  "functions": [
+                    "use_pick_axe",
+                    "use_pick_axe2"
+                  ]
+                },
+                "callerWiring": [
+                  "apply.c doapply PICK_AXE and DWARVISH_MATTOCK arms in js/apply.js",
+                  "Active hack.c and do.c use_pick_axe2 paths"
+                ],
+                "supportingSourceDependency": {
+                  "file": "dig.c",
+                  "function": "dig",
+                  "status": "occupation callback reached after initiating a dig; verify and port as needed for complete action histories"
+                }
+              }
+            }
+          }
+        }
+      ]
     },
     {
       "id": "port-objnam-readobjnam-monster-carriers-synthetic-v2-20260925",
@@ -73122,8 +73308,8 @@
           "manifestSha256": "10777af4c82fc759abf58a870fdd232329bc5c1467c8cf94f46089d0401459a9",
           "recordingPath": "challenges/cases/v4/healer-magic-fountain-drink.session.json",
           "recordingSha256": "2775eb19d73cef073a73f80b3687dfa60c9298e61add4ab81027f7d5766678e9",
-          "evaluationPath": "challenges/evaluations/20260925214017-v4.json",
-          "evaluationCommit": "017038c1e14957228ef42eeb319448e71159eb24"
+          "evaluationPath": "challenges/evaluations/20260925221225-v4.json",
+          "evaluationCommit": "9df17907e4122a6809ade23228f0930b179bfba6"
         }
       }
     },
