@@ -230,7 +230,10 @@ test('completion evidence is scoped by source and survives later span evidence',
     assert.equal(unrelated.functions[0].complete, false);
 
     goal.evidence.entryPoints = [{ name: 'command', functions: ['first'], recordings: [] }];
-    assert.throws(() => assertPortComplete(goal), /entry point command has no matching recording/u);
+    assert.throws(() => assertPortComplete(goal), /entry point command has no matching recording or synthetic range/u);
+    goal.evidence.entryPoints[0].synthetic = [{ batch: 'v1', caseId: 'scout',
+        segment: 0, fromStep: 5, throughStep: 10, source: 'do.c doup' }];
+    assert.doesNotThrow(() => assertPortComplete(goal));
 });
 
 test('Lua source programs remain visible without loader or completion evidence', () => {
@@ -350,7 +353,7 @@ test('spanContext hands the worker the ranges, size, and JavaScript file', () =>
         jsFile: 'js/options.js',
         sessions: ['seed0108-wizard-extcmd-wishlist'],
         evidenceRequired: 'whole source, production callers, tests for pure '
-            + 'functions, matching recordings for impure functions and entry points',
+            + 'functions, matching recordings or synthetic ranges for impure functions and entry points',
     });
 
     // A span that passed over a ported function lists one range per
@@ -370,7 +373,7 @@ test('taskContext gives one worker all unverified selected C functions without a
         functions: ['optfn_align', 'optfn_boulder'], lineRanges: ['10-60'], cLines: 51,
         jsFile: 'js/options.js', sessions: ['seed0108-wizard-extcmd-wishlist'],
         evidenceRequired: 'whole source, production callers, tests for pure '
-            + 'functions, matching recordings for impure functions and entry points',
+            + 'functions, matching recordings or synthetic ranges for impure functions and entry points',
     });
     assert.equal(goal.spans, undefined);
     goal.functions[0].complete = true;

@@ -139,8 +139,9 @@ Two facts affect how figures compare across rows and against the leaderboard:
 ## Reporting broader coverage
 
 A flat development score can accompany useful behavior beyond the fixed
-sessions. Report newly matching recordings and movement of the relevant
-first mismatch as `.agents/loop.md`, "Reports", specifies. Keep these
+sessions. Report newly verified synthetic ranges or matching recordings and
+movement of the relevant first mismatch as `.agents/loop.md`, "Reports",
+specifies. Keep these
 measurements separate from the development totals. Declaration counts are
 inventory. Fixed-queue remaining screens are upper bounds; synthetic counts
 are exact unmatched screens from saved evaluations.

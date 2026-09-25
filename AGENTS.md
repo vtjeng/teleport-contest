@@ -260,27 +260,28 @@ the recordings corpus under
 `recipes/`. `npm run checkpoint` replays both and fails when a recording stops
 matching.
 
-Every C or Lua source port identifies its entry points and their recipes.
-Before the goal closes, its recipes must reach each entry point in the
-selected source range at least once, and their recordings must match. An
-entry point is a command, monster action, level feature, or startup path the
-range implements. Commit a recording only when it matches completely.
-When a recipe's recording diverges inside another source file, leave the recipe
-under `recipes/<source-file>/` with a comment naming the blocking function, and
-record it once that function lands. A task that completes an entry point
-records its recipe before closing; a task closes without a new recording when
-neither the fixed-workload sessions nor the recordings lost a match.
+Every C or Lua source port identifies its entry points and runtime evidence.
+An entry point is a command, monster action, level feature, or startup path the
+range implements. An admitted synthetic case may provide evidence when its
+recorded replay matches through the cited step range; a later divergence does
+not invalidate that range. Cite the batch, case, segment, zero-based steps,
+and C/Lua source path exercised. The orchestrator verifies the replay prefix
+and source attribution before closing the task. If no matching synthetic range
+covers an entry point or impure function, create an independent recipe and a
+completely matching recording under `recipes/` and `recordings/`. Do not copy
+challenge cases into the regression corpus. Keep blocked recipes with a comment
+naming the source function that blocks their recording.
 
 Before closing a source task, record completion evidence with
 `goal-log.mjs record-evidence` as `.agents/validation.md`, "Source completion
 evidence", specifies. An isolated test does not establish production wiring.
 A blocked recipe does not establish entry-point completion.
 
-When choosing new cases:
+When a new recipe is needed:
 
-- Choose the smallest repeatable set of recipes that reaches each entry point
-  in the goal's source range. Commit each recipe under `recipes/<source-file>/` and its
-  recording under `recordings/<source-file>/`.
+- Choose the smallest repeatable set of recipes that covers entry points and
+  impure functions still missing matching evidence. Commit each recipe under
+  `recipes/<source-file>/` and its recording under `recordings/<source-file>/`.
 - Give each recipe a cheap variation, such as a different role, option, or
   object class, and cover the branches those variations reach. The
   source-pinned tests and the file's later divergences cover the branches no

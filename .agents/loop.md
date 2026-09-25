@@ -137,7 +137,7 @@ separately from other goals.
    units. For challenge preparation, verify the source-based mission plan,
    hashes, and independent C replays without opening a goal.
 3. Integrate the submitted commits. For implementation work, check whole-source
-   coverage, production callers, and entry-point recordings under
+   coverage, production callers, and entry-point replay evidence under
    `.agents/validation.md`; record verified source evidence. For preparation,
    integrate only the case recipes and C recordings. Retain the prepared
    manifest in immutable delivery evidence, outside admitted manifests.
@@ -259,7 +259,8 @@ queue against the published records.
 
 Report once per worker iteration under `/loop`: the completed task, synthetic
 batch and before/after matched screens, first mismatch, fixed-development
-regression results, newly matching recordings, problems, and next work.
+regression results, newly verified synthetic ranges or matching recordings,
+problems, and next work.
 Separate gains on unchanged cases from screens added by a new batch; report
 per-case losses even when the aggregate improves. Include each free worker's
 next task, dependency waits, and merge rework. Mention open questions when they change.

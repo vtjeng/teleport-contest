@@ -1,6 +1,6 @@
 // Completion is a source-review attestation with references to callers, tests,
-// and recordings. These checks establish that the references exist; they do
-// not prove behavioral equivalence, runtime reachability, or a matching replay.
+// recordings, and synthetic replay ranges. Structural checks here do not prove
+// runtime reachability or parity; goal closure verifies cited synthetic ranges.
 
 import { lstatSync, readFileSync } from 'node:fs';
 import { execFileSync } from 'node:child_process';
@@ -43,6 +43,21 @@ function pathList(value, directory, suffix, label) {
     return [...new Set(value.map((path) => safePath(path, directory, suffix, label)))];
 }
 
+function syntheticRanges(value, label) {
+    if (!Array.isArray(value)) throw new Error(`${label} synthetic must be an array`);
+    return value.map((range) => {
+        if (!/^v[1-9][0-9]*$/u.test(range?.batch)
+            || !/^[a-z0-9][a-z0-9-]*$/u.test(range?.caseId))
+            throw new Error(`${label} synthetic needs an admitted batch and case ID`);
+        const { segment, fromStep, throughStep } = range;
+        if (![segment, fromStep, throughStep].every(Number.isSafeInteger)
+            || segment < 0 || fromStep < 0 || throughStep < fromStep)
+            throw new Error(`${label} synthetic needs a valid zero-based step range`);
+        return { batch: range.batch, caseId: range.caseId, segment, fromStep,
+            throughStep, source: text(range.source, `${label} synthetic source trace`) };
+    });
+}
+
 function goalScope(goal) {
     if (!['file-port', 'lua-port'].includes(goal?.kind)
         || !Array.isArray(goal.functions)) {
@@ -76,8 +91,10 @@ function functionEvidence(record, scope) {
     }));
     const tests = pathList(record.tests ?? [], 'scripts', '.test.mjs', `${name} tests`);
     const recordings = pathList(record.recordings ?? [], 'recordings', '.session.json', `${name} recordings`);
+    const synthetic = syntheticRanges(record.synthetic ?? [], name);
     const result = { name, implementation, symbol, sourceReview, callers,
         pure: record.pure, tests, recordings };
+    if (record.synthetic !== undefined) result.synthetic = synthetic;
     if (record.inactiveReason !== undefined) {
         result.inactiveReason = text(record.inactiveReason, `${name} inactiveReason`);
     }
@@ -90,8 +107,8 @@ function functionEvidence(record, scope) {
     if (record.pure && tests.length === 0) {
         throw new Error(`${name} pure function needs a source-pinned test`);
     }
-    if (!record.pure && recordings.length === 0 && !result.inactiveReason) {
-        throw new Error(`${name} impure function needs a matching recording through its caller`);
+    if (!record.pure && recordings.length === 0 && synthetic.length === 0 && !result.inactiveReason) {
+        throw new Error(`${name} impure function needs a matching recording or synthetic range through its caller`);
     }
     return result;
 }
@@ -124,8 +141,11 @@ function evidenceShape(goal, evidence) {
                 if (!scope.names.has(unit)) throw new Error(`entry point ${name} has unknown source unit ${unit}`);
                 return unit;
             });
-            return { name, functions: [...new Set(units)],
-                recordings: pathList(entry.recordings, 'recordings', '.session.json', `${name} recordings`) };
+            const result = { name, functions: [...new Set(units)],
+                recordings: pathList(entry.recordings ?? [], 'recordings', '.session.json', `${name} recordings`) };
+            if (entry.synthetic !== undefined)
+                result.synthetic = syntheticRanges(entry.synthetic, name);
+            return result;
         });
     }
     return { scope, evidence: result };

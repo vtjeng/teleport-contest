@@ -349,7 +349,7 @@ export function spanContext(goal, span) {
         sessions: goal.sessions ?? [],
         ...(synthetic.length ? { syntheticProvenance: synthetic } : {}),
         evidenceRequired: 'whole source, production callers, tests for pure '
-            + 'functions, matching recordings for impure functions and entry points',
+            + 'functions, matching recordings or synthetic ranges for impure functions and entry points',
     };
 }
 
@@ -377,7 +377,7 @@ export function taskContext(goal) {
         ...(goal.step !== undefined ? { step: goal.step } : {}),
         ...(synthetic.length ? { syntheticProvenance: synthetic } : {}),
         evidenceRequired: 'whole source, production callers, tests for pure '
-            + 'functions, matching recordings for impure functions and entry points',
+            + 'functions, matching recordings or synthetic ranges for impure functions and entry points',
     };
 }
 
@@ -552,7 +552,8 @@ open-goal when integrating the task.`,
         description: 'Record verified source completion evidence for a goal.',
         usage: '--goal <id> --evidence <relative-path.json>',
         details: 'Requires an open C or Lua source port and a regular evidence file\n'
-            + 'inside this worktree. The schema is in .agents/validation.md.',
+            + 'inside this worktree. Cited synthetic ranges are replayed through\n'
+            + 'their last cited step. The schema is in .agents/validation.md.',
     },
     'close-span': {
         description: 'Close a queued historical span of an open goal.',
@@ -680,8 +681,8 @@ export function assertPortComplete(goal) {
     if (!Array.isArray(goal.evidence?.entryPoints))
         throw new Error('record the entryPoints list, including an empty list for a helper-only range');
     for (const entry of goal.evidence.entryPoints) {
-        if (!entry.recordings?.length)
-            throw new Error(`entry point ${entry.name} has no matching recording`);
+        if (!entry.recordings?.length && !entry.synthetic?.length)
+            throw new Error(`entry point ${entry.name} has no matching recording or synthetic range`);
     }
 }
 
@@ -970,6 +971,8 @@ async function main(args) {
         if (goal.status !== 'open' || !isSourcePort(goal))
             throw new Error('record-evidence requires an open C or Lua source port');
         const evidence = validatePortEvidence(goal, readEvidence(options.evidence));
+        const { verifySyntheticRanges } = await import('./synthetic-range-evidence.mjs');
+        await verifySyntheticRanges(evidence);
         recordEvidence(goal, evidence, repositoryHead());
         refreshCompletion(goal, null, store.goals);
         writeGoals(store);
@@ -1038,6 +1041,8 @@ async function main(args) {
             .some(session => session?.startsWith('synthetic/'));
         if (isSourcePort(goal)) {
             validatePortEvidence(goal, goal.evidence);
+            const { verifySyntheticRanges } = await import('./synthetic-range-evidence.mjs');
+            await verifySyntheticRanges(goal.evidence);
         }
         if (isSourcePort(goal) || syntheticGoal) {
             const { loadWorkQueue } = await import('./mismatch-queue.mjs');

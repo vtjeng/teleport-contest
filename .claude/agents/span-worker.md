@@ -154,15 +154,18 @@ Pass every restriction in this document to each subagent you spawn.
 - For a C or Lua source port, write `.cache/task-evidence.json` in the schema defined by
   `.agents/validation.md`, "Source completion evidence". Identify source
   coverage, production callers, pure-function tests, impure-function
-  recordings, and the entry-point coverage plan. The orchestrator verifies
-  and records it; do not edit `GOALS.json` yourself.
-- Focused tests and lint pass, and the required fresh C/JavaScript cases
-  match completely and reach the claimed entries. State blockers honestly;
+  recordings or synthetic ranges, and the entry-point coverage plan. The
+  orchestrator verifies and records it; do not edit `GOALS.json` yourself.
+- Focused tests and lint pass, and each cited synthetic case matches through
+  its cited steps. Fresh C/JavaScript cases needed for coverage match completely
+  and reach the claimed entries. State blockers honestly;
   the orchestrator's combined checkpoint establishes aggregate non-regression.
-- When the task completed an entry point of the file, its recipe is committed
-  under `recipes/<source-file>/`, and its recording under `recordings/<source-file>/`
-  once that recording matches completely, per "Validate completed work" in
-  `AGENTS.md`.
+- When a matching admitted synthetic range covers an entry point, cite its
+  batch, case, segment, steps, and source path in the evidence. Run
+  `node scripts/synthetic-range-evidence.mjs .cache/task-evidence.json` before
+  submission and include the result among focused checks. For coverage gaps,
+  commit a new recipe under `recipes/<source-file>/` and its completely matching recording under
+  `recordings/<source-file>/`, per "Validate completed work" in `AGENTS.md`.
 - The work is committed, the delivery-specific evidence is preserved, and
   every command you started has finished or has been handed off with its handle.
   Include the exact base and delivery SHAs; never amend a submitted snapshot.
@@ -194,8 +197,8 @@ At each delivery, report to the main orchestrator in one brief
 - Every bug and surprise you hit, and what you did about it.
 - Each decision the C source did not settle immediately, and the evidence
   you used to resolve it.
-- Each new matching recording and the caller path it exercises; identify
-  blocked recipes and their source dependencies separately.
+- Each cited synthetic range or new matching recording and the caller path it
+  exercises; identify blocked recipes and their source dependencies separately.
 - What you expect the next task to encounter as a problem.
 - Whether the task matched its plan. Say so when landing it meant tracing far
   more C source, or touching more files, than the task context implied.

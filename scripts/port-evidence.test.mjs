@@ -218,6 +218,27 @@ test('entry points may be planned before completion and must name goal source un
     assert.throws(() => validatePortEvidence(goal, evidence, { root }), /unknown/u);
 });
 
+test('synthetic evidence names exact steps and a source trace', (t) => {
+    const { root, goal, evidence } = fixture(t);
+    const range = { batch: 'v1', caseId: 'scout', segment: 0,
+        fromStep: 5, throughStep: 10, source: 'widget.c mutate via driver.c run' };
+    evidence.functions = [{ name: 'mutate', implementation: 'js/widget.js',
+        sourceReview: 'Whole C function reviewed.',
+        callers: [{ path: 'js/driver.js', symbol: 'run', source: 'driver.c run' }],
+        pure: false, recordings: [], synthetic: [range] }];
+    evidence.entryPointReview = 'run reaches mutate.';
+    evidence.entryPoints = [{ name: 'state-changing entry', functions: ['mutate'], synthetic: [range] }];
+    const result = validatePortEvidence(goal, evidence, { root });
+    assert.deepEqual(result.functions[0].synthetic, [range]);
+    assert.deepEqual(result.entryPoints[0].synthetic, [range]);
+    assert.deepEqual(result.entryPoints[0].recordings, []);
+    evidence.functions[0].synthetic[0].throughStep = 4;
+    assert.throws(() => validatePortEvidence(goal, evidence, { root }), /step range/u);
+    evidence.functions[0].synthetic[0].throughStep = 10;
+    evidence.functions[0].synthetic[0].source = '';
+    assert.throws(() => validatePortEvidence(goal, evidence, { root }), /source trace/u);
+});
+
 test('a malformed stored attestation cannot be counted as completed', (t) => {
     const { goal, evidence } = fixture(t);
     goal.evidence = evidence;

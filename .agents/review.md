@@ -27,11 +27,11 @@ recordings under `recordings/` replay on every checkpoint, and a mismatch they
 find goes to the mismatch queue, not to a review. A review reads code the
 oracle does not reach. Run one in these three cases:
 
-- A C or Lua source port is closing and an entry point in scope has no recipe that
-  reaches it (`AGENTS.md`, "Validate completed work"). Scope the review to
-  the functions no recording executes, and compare each against its C
-  or Lua source. A review does not replace the matching recording required
-  to close that entry point.
+- A C or Lua source port is closing and an entry point in scope lacks a
+  matching synthetic range or recording (`AGENTS.md`, "Validate completed
+  work"). Scope the review to functions no cited evidence executes and
+  compare each against its C or Lua source. A review does not replace runtime
+  evidence required to close an active entry point.
 - A divergence fix required multiple deliveries or crossed several source
   functions. Scope the review to the functions the fix touched.
 - The user asks for one.
@@ -94,7 +94,8 @@ Return to implementation when a finding:
 - requires a new upstream function family or branch;
 - changes a state or lifecycle owner, PRNG or rendering behavior, or an input
   or persistence boundary; or
-- requires a new recipe because an entry point the file implements has none.
+- requires a new recipe because an entry point lacks matching synthetic or
+  recording evidence.
 
 Record a finding in the quality ledger when fixing it would extend the review
 beyond its agreed scope. Use `.agents/selection.md` to decide when a worker

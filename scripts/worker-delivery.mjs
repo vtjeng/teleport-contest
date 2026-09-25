@@ -450,6 +450,7 @@ export function preflightDelivery({ root, state, taskId, commit = 'HEAD', previo
                 'Rerun the independent C replays and compare every committed case with its manifest hashes.',
                 'Keep the manifest outside admitted manifests until the batch admission gate passes.']
             : ['Compare whole source and production caller paths.',
-                'Verify recordings reach the claimed entry points and inputs were independently chosen.',
+                'Verify cited synthetic ranges reach the claimed source paths and replay through their last cited steps.',
+                'Verify new recordings reach uncovered entry points and inputs were independently chosen.',
                 'Address every previous failure, then run affected focused tests and lint before checkpoint.'] };
 }

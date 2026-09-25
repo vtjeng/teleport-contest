@@ -92,8 +92,9 @@ competition holdout is outside this workspace.
   An older pass alone does not establish that newer code passes.
   Goal closure still requires a passing checkpoint at HEAD.
   If validation failed, inspect its failure logs before choosing the next check.
-- For an entry point the implementation task completes, write a recipe with a
-  newly chosen seed, datetime, options, character, and inputs. Create the output directory
+- For an entry point or impure function lacking a matching admitted synthetic
+  range, write a recipe with newly chosen seed, datetime, options, character,
+  and inputs. Create the output directory
   with `mkdir -p recordings/<source-file>` before recording it:
   `node scripts/record-session.mjs recipes/<source-file>/<name>.session.json
   recordings/<source-file>/<name>.session.json`. Verify the fresh differential
@@ -137,7 +138,8 @@ or one whole Lua program:
 | `callers` | Array of `{ "path", "symbol", "source" }`: each JavaScript caller or dispatcher and the corresponding C/Lua call site. Trace the running game through that call, including registry or command dispatch. A test calling the function directly is not a production caller. |
 | `pure` | Boolean established by reading the source: no RNG, output, or game-state mutation. |
 | `tests` | Source-pinned `scripts/*.test.mjs` references; required for pure functions. |
-| `recordings` | Matching `recordings/**/*.session.json` references that execute the impure function through its caller; required for impure functions. The same recording may cover multiple functions. |
+| `recordings` | Matching `recordings/**/*.session.json` references that execute the impure function through its caller. The same recording may cover multiple functions. |
+| `synthetic` | Admitted synthetic ranges that execute the function through its caller. Each is `{ "batch": "vN", "caseId": "...", "segment": 0, "fromStep": 5, "throughStep": 10, "source": "C/Lua call path exercised" }`. Segment and step numbers are zero based; step 0 is the initial boundary. An impure function needs a matching recording or synthetic range. |
 | `inactiveReason` | For source excluded by the reference build, identify the build condition and source evidence. A source-pinned test documents an impure helper whose compile-time caller cannot run in the recorder; no production caller or recording is required for that helper. Do not invent a JavaScript function for a C macro invocation. |
 
 The object also records `entryPointReview`, the source-based enumeration of
@@ -147,15 +149,21 @@ recordings. List active entry points in `entryPoints`; document excluded
 caller branches, their build conditions and source call sites, and their
 source-pinned tests in the existing `entryPointReview`. Missing JavaScript
 behavior or a difficult recipe does not make a caller inactive. Each
-entry is `{ "name", "functions", "recordings" }`. A helper-only range uses
+entry is `{ "name", "functions", "recordings", "synthetic" }`. A helper-only range uses
 an empty array and explains its production callers in `entryPointReview`.
-A planned entry point may have an empty recording array while blocked; the
-goal cannot close until every listed entry point has a matching recording.
+A planned entry point may have empty evidence arrays while blocked; the goal
+cannot close until every listed entry point has a matching recording or
+synthetic range. Reuse one range for multiple functions or entry points only
+when the source trace shows that each executes there.
 
 `record-evidence` checks the schema, source and implementation declarations,
-and that caller, test, and recording references exist. These checks establish
-the references; the orchestrator verifies complete behavior, runtime
-reachability, and that the cited recordings execute the claimed functions.
+and that caller, test, and recording references exist. The orchestrator
+verifies runtime reachability and that the cited evidence executes the claimed
+functions. At evidence recording and again before closure, it replays admitted
+synthetic cases through the last cited step, including earlier
+segments. Every screen, cursor, RNG call, and input boundary must match through
+that step. A later mismatch does not invalidate the citation. Saved challenge
+evaluations report case totals, so they cannot by themselves prove a step range.
 Evidence references use regular files within their declared evidence roots and
 the path checks protect provenance and file integrity. The open local-holdout
 recordings remain available for fixed-workload diagnosis and scoring; evidence
@@ -188,8 +196,8 @@ hashes, and independently replays each C case before submitting. The
 orchestrator verifies those checks, then runs the combined checkpoint before
 accepting the case files. Prepared cases do not enter synthetic evaluations
 or dashboard totals until the orchestrator admits a manifest and saves its
-first evaluation. Source-port entry points still need independent matching
-recipes and recordings under the evidence roots above.
+first evaluation. Create independent matching recipes and recordings only for
+source-port paths that lack verified synthetic coverage.
 
 ## Fresh differentials
 
