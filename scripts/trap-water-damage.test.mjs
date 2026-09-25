@@ -8,6 +8,8 @@ import {
     ER_DAMAGED,
     ER_GREASED,
     ER_NOTHING,
+    OBJ_CONTAINED,
+    OBJ_FLOOR,
     OBJ_INVENT,
     OBJ_MINVENT,
     W_ARMH,
@@ -23,6 +25,7 @@ import {
     SCROLL_CLASS,
 } from '../js/objects.js';
 import {
+    water_damage_chain,
     water_damage,
     water_damage_monster_equipment,
 } from '../js/trap_water_damage.js';
@@ -295,3 +298,115 @@ test('ordinary containers send their contents through water_damage_chain',
         assert.equal(chain[0][1], false);
         assert.equal(chain[0][2], env);
     });
+
+test('water_damage_chain saves next links and restores acid context and bhitpos',
+    async () => {
+        const source = await readFile(
+            new URL('../nethack-c/upstream/src/trap.c', import.meta.url),
+            'utf8',
+        );
+        assert.match(
+            source,
+            /save_bhitpos = gb\.bhitpos;[\s\S]*?otmp = here \? obj->nexthere : obj->nobj;[\s\S]*?water_damage\(obj, \(char \*\) 0, FALSE\);/u,
+        );
+
+        const container = { where: OBJ_FLOOR, ox: 12, oy: 8 };
+        const second = { where: OBJ_CONTAINED, ocontainer: container };
+        const first = {
+            where: OBJ_CONTAINED,
+            ocontainer: container,
+            nobj: second,
+        };
+        const acidContext = {
+            dkn_boom: 3,
+            unk_boom: 2,
+            ctx_valid: false,
+        };
+        const state = {
+            ga: { acid_ctx: acidContext },
+            gb: { bhitpos: { x: 4, y: 6 } },
+        };
+        const visited = [];
+        await water_damage_chain(first, false, {
+            state,
+            waterDamage: (obj) => {
+                visited.push(obj);
+                assert.equal(state.ga.acid_ctx.ctx_valid, true);
+                assert.equal(state.ga.acid_ctx.dkn_boom, 0);
+                assert.equal(state.ga.acid_ctx.unk_boom, 0);
+                assert.deepEqual(state.gb.bhitpos, { x: 12, y: 8 });
+                if (obj === first) obj.nobj = null;
+                return ER_DAMAGED;
+            },
+        });
+
+        assert.deepEqual(visited, [first, second]);
+        assert.deepEqual(state.gb.bhitpos, { x: 4, y: 6 });
+        assert.deepEqual(acidContext, {
+            dkn_boom: 0,
+            unk_boom: 0,
+            ctx_valid: false,
+        });
+
+        const floorOther = { where: OBJ_FLOOR, ox: 8, oy: 10 };
+        const floorNext = { where: OBJ_FLOOR, ox: 8, oy: 10 };
+        const floorFirst = {
+            where: OBJ_FLOOR,
+            ox: 8,
+            oy: 10,
+            nobj: floorOther,
+            nexthere: floorNext,
+        };
+        const floorVisited = [];
+        await water_damage_chain(floorFirst, true, {
+            state,
+            waterDamage: (obj) => {
+                floorVisited.push(obj);
+                assert.deepEqual(state.gb.bhitpos, { x: 8, y: 10 });
+            },
+        });
+        assert.deepEqual(floorVisited, [floorFirst, floorNext]);
+        assert.deepEqual(state.gb.bhitpos, { x: 4, y: 6 });
+    });
+
+test('water_damage recurses through real contained items by default', async () => {
+    const state = {
+        ga: { acid_ctx: { dkn_boom: 0, unk_boom: 0, ctx_valid: false } },
+        gb: { bhitpos: { x: 4, y: 6 } },
+        u: { uprops: [], uluck: 0 },
+    };
+    const contents = {
+        oclass: POTION_CLASS,
+        otyp: POT_FRUIT_JUICE,
+        odiluted: 0,
+        blessed: false,
+        cursed: false,
+        dknown: 1,
+        where: OBJ_CONTAINED,
+    };
+    const container = {
+        oclass: 6,
+        otyp: SACK,
+        where: OBJ_FLOOR,
+        ox: 12,
+        oy: 8,
+        cobj: contents,
+    };
+    contents.ocontainer = container;
+
+    await water_damage(container, 'sack', false, {
+        state,
+        message: () => {},
+        random: { rn2: () => 19 },
+        waterDamage: (obj, description, force, env) =>
+            water_damage(obj, 'fruit juice', force, env),
+    });
+
+    assert.equal(contents.odiluted, 1);
+    assert.deepEqual(state.gb.bhitpos, { x: 4, y: 6 });
+    assert.deepEqual(state.ga.acid_ctx, {
+        dkn_boom: 0,
+        unk_boom: 0,
+        ctx_valid: false,
+    });
+});

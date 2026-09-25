@@ -232,6 +232,7 @@ import {
     delobj, obj_extract_self,
 } from './invent.js';
 import { get_obj_location } from './light.js';
+import { water_damage_chain } from './trap_water_damage.js';
 import { Is_box, stumble_on_door_mimic, ynq } from './lock.js';
 import { set_malign } from './makemon.js';
 import { killed, set_ustuck, wake_nearby, wakeup, seemimic } from './mon.js';
@@ -1064,7 +1065,7 @@ export async function drown(state = game) {
             );
         }
     }
-    note_unported('trap.c water_damage_chain');
+    await water_damage_chain(state.invent, false, { state });
     if (u.umonnum === PM_GREMLIN && rn2(3)) {
         note_unported('mon.c split_mon');
     } else if (u.umonnum === PM_IRON_GOLEM) {

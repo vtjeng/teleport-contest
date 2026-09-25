@@ -1827,9 +1827,6 @@ async function planSimpleMonsterScan(monster, env) {
             fireDamageChain: () => note_unported(
                 'trap.c fire_damage_chain',
             ),
-            waterDamageChain: () => note_unported(
-                'trap.c water_damage_chain',
-            ),
             // C ignores this return value. The level-transition body remains
             // outside the selected span, so record its actual discarded call
             // and let the source caller continue.
