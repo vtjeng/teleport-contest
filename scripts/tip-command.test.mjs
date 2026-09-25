@@ -4,7 +4,7 @@ import test from 'node:test';
 import {
     CHEST, DAGGER, LARGE_BOX, WEAPON_CLASS,
 } from '../js/objects.js';
-import { ECMD_OK, ECMD_TIME, OBJ_CONTAINED } from '../js/const.js';
+import { ECMD_CANCEL, ECMD_OK, ECMD_TIME, OBJ_CONTAINED } from '../js/const.js';
 import { dotip } from '../js/pickup.js';
 import { count_contents } from '../js/invent.js';
 import { game } from '../js/gstate.js';
@@ -104,13 +104,12 @@ test('dotip with a single container prompts ynq and quit returns ECMD_OK',
             `expected "here, tip it?" in "${toplines}"`);
     });
 
-test('dotip with a single container and answer n falls through to inventory path',
+test('dotip with a single container and answer n offers inventory selection',
     async () => {
         const state = await heroOnCleanSquare();
 
         // Place a single large box. The player answers 'n' to skip the
-        // floor container, which makes dotip() fall through to the
-        // inventory tipping path (unported), producing an error.
+        // floor container, which makes dotip() fall through to getobj().
         // C ref: pickup.c:3612-3613.
         placeFloorObjects(state, [
             { otyp: LARGE_BOX },
@@ -118,22 +117,13 @@ test('dotip with a single container and answer n falls through to inventory path
 
         clearTtyMessageWindow(state);
 
-        // Push 'n' to decline the floor container.
+        // Decline the floor container, then cancel inventory selection.
         state.nhDisplay.pushKey('n'.charCodeAt(0));
-
-        // The inventory tipping path is unported, so dotip() throws.
-        await assert.rejects(
-            () => dotip(state),
-            (err) => {
-                assert.ok(err.message.includes('inventory tipping'),
-                    `expected "inventory tipping" in "${err.message}"`);
-                return true;
-            },
-            'dotip should throw on the unported inventory tipping path',
-        );
+        state.nhDisplay.pushKey(27);
+        assert.equal(await dotip(state), ECMD_CANCEL);
     });
 
-test('dotip with no floor containers falls through to inventory path',
+test('dotip with no floor containers offers inventory selection',
     async () => {
         const state = await heroOnCleanSquare();
         const { ux, uy } = state.u;
@@ -143,17 +133,9 @@ test('dotip with no floor containers falls through to inventory path',
 
         clearTtyMessageWindow(state);
 
-        // dotip() should skip the floor-container block and reach the
-        // unported inventory tipping path.
-        await assert.rejects(
-            () => dotip(state),
-            (err) => {
-                assert.ok(err.message.includes('inventory tipping'),
-                    `expected "inventory tipping" in "${err.message}"`);
-                return true;
-            },
-            'dotip should throw on the unported inventory tipping path',
-        );
+        // With no floor container, dotip() enters inventory selection.
+        state.nhDisplay.pushKey(27);
+        assert.equal(await dotip(state), ECMD_CANCEL);
     });
 
 // -- count_contents tests --
