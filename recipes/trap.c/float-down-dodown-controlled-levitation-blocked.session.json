@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 33891007,
+      "datetime": "20390507091515",
+      "nethackrc": "OPTIONS=name:ControlledLanding,role:Barbarian,race:human,gender:female,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen\nOPTIONS=playmode:debug,pettype:none,!acoustics,!autopickup,time\n",
+      "moves": ". \u0017The Heart of Ahriman\n #invoke\ne>"
+    }
+  ],
+  "comment": "Blocked active caller recipe for do.c:dodown's controlled-artifact levitation arm. The Heart of Ahriman wish and #invoke activate ELevitation with W_ARTI, then > reaches float_down(I_SPECIAL|TIMEOUT, W_ARTI). C can replay that path; JavaScript diverges earlier in wizcmds.c:wiz_wish -> zap.c:makewish before #invoke, so no matching recording is claimed."
+}

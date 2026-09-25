@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 4829331,
+      "datetime": "20390112121212",
+      "nethackrc": "OPTIONS=name:BootsLanding,role:Wizard,race:human,gender:male,align:chaotic\nOPTIONS=!legacy,!tutorial,!splash_screen\nOPTIONS=playmode:debug,pettype:none,!acoustics,!autopickup,time\n",
+      "moves": ". \u0017levitation boots\nWoTo "
+    }
+  ],
+  "comment": "Blocked C recipe for the Boots_off -> float_down entry point. The seed, date, name, and character gender/alignment vary from the earlier boots-on recipe; this run wishes for levitation boots, equips them, then uses T to remove them. C reaches do_wear.c:select_off's boot-check arm and continues to Boots_off, but the JS caller still throws UnsupportedTakeOffError before that call, so no matching recording is claimed."
+}

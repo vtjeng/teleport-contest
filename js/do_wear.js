@@ -174,7 +174,7 @@ import {
 import { MZ_SMALL, PM_ARCHEOLOGIST, PM_CLERIC, S_CENTAUR } from './monsters.js';
 import { change_luck } from './moveloop_preamble.js';
 import { gulp_blnd_check } from './mhitu.js';
-import { Levitation, float_up, unconscious } from './trap.js';
+import { Levitation, float_down, float_up, unconscious } from './trap.js';
 import {
     Is_dragon_armor,
     WrappingAllowed,
@@ -785,9 +785,9 @@ export async function Ring_on(obj, state = game) {
 // Arms ported: the sixteen no-op types, protection from shape changers,
 // gain strength/constitution/adornment (adjust_attrib with negative spe),
 // increase accuracy/damage (uhitinc/udaminc), and protection (learnring +
-// find_ac). The levitation arm records its discarded float_down() dependency
-// and continues in source order; other unported effect arms still throw.
-function Ring_off_or_gone(obj, gone, state = game) {
+// find_ac). The levitation arm awaits float_down(); other unported effect
+// arms still throw.
+async function Ring_off_or_gone(obj, gone, state = game) {
     const mask = obj.owornmask & W_RING;
     takeoffContext(state).mask &= ~mask;
     if (!(state.u.uprops[objectType(obj, state).oc_oprop]?.extrinsic & mask)) {
@@ -836,10 +836,7 @@ function Ring_off_or_gone(obj, gone, state = game) {
         );
     case RIN_LEVITATION:
         if (!(state.u.uprops[LEVITATION].blocked & FROMOUTSIDE)) {
-            // C discards float_down()'s result here. Its landing effects are
-            // still owned by trap.c; preserve this source call as a named gap
-            // and continue with Ring_off_or_gone()'s following discovery test.
-            note_unported('trap.c float_down');
+            await float_down(0, 0, state);
             if (!Levitation(state))
                 learnring(obj, true, state);
         } else {
@@ -877,15 +874,15 @@ function Ring_off_or_gone(obj, gone, state = game) {
 // C ref: do_wear.c Ring_gone() (1455-1458). Removes a ring that is leaving the
 // hero's possession entirely (theft, destruction); uses setnotworn() rather
 // than setworn(null, mask).
-export function Ring_gone(obj, state = game) {
-    Ring_off_or_gone(obj, true, state);
+export async function Ring_gone(obj, state = game) {
+    await Ring_off_or_gone(obj, true, state);
 }
 
 // C ref: do_wear.c Ring_off() (1449-1452). Unlike Ring_gone(), ordinary
 // removal clears the worn slot with setworn() and applies the ring's off
 // effects through Ring_off_or_gone().
-function Ring_off(obj, state = game) {
-    Ring_off_or_gone(obj, false, state);
+async function Ring_off(obj, state = game) {
+    await Ring_off_or_gone(obj, false, state);
 }
 
 // Raised where Amulet_on() or Blindf_on() reaches a branch this port has not
@@ -3398,7 +3395,7 @@ export async function armor_or_accessory_off(obj, state = game) {
         // C prints the worn message before removing a ring, so its name still
         // carries the hand suffix; Ring_off() then clears the slot and effects.
         await off_msg(obj, state);
-        Ring_off(obj, state);
+        await Ring_off(obj, state);
     } else if (obj === state.uamul) {
         // Amulet_off() has no return value; until its C body is ported, retain
         // the explicit discarded-call gap and skip its effects.

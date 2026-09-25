@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 9200103,
+      "datetime": "20410409112233",
+      "nethackrc": "OPTIONS=name:TrapTimeout,role:Wizard,race:human,gender:female,align:chaotic\nOPTIONS=!legacy,!tutorial,!splash_screen\nOPTIONS=playmode:debug,pettype:none,!acoustics,!autopickup,time\n",
+      "moves": ". #wizmap\nhhhhhhhhhhhhhhhhkhhhhhhhhhhhh#wizintrinsic\n1q\n jy"
+    }
+  ],
+  "comment": "Blocked direct hack.c:spoteffects timeout-before-trap entry-point recipe. C asks 'Really float onto that arrow trap?' at step 58; confirming at step 59 reaches spoteffects' rn2(2) timeout decision and float_down. JS stops before that input because js/hack.js domove_core preflight_dotrap() refuses the unported trap.c:dotrap arrow-trap branch, so no matching recording is claimed."
+}
