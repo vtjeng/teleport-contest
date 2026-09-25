@@ -101,7 +101,9 @@ import { bones_include_name } from './bones.js';
 import { obj_resists } from './bury.js';
 import { ballrelease, drag_down, placebc, unplacebc } from './ball.js';
 import { next_to_u } from './apply_next_to_u.js';
-import { reset_occupations, set_move_cmd, set_occupation } from './cmd.js';
+import {
+    reset_occupations, set_move_cmd, set_occupation, y_n,
+} from './cmd.js';
 import {
     check_gold_symbol,
     describe_level,
@@ -111,7 +113,9 @@ import {
     newsym,
     reglyph_darkroom,
 } from './display.js';
-import { Adjmonnam, Monnam, docall, hliquid, y_monnam } from './do_name.js';
+import {
+    Adjmonnam, Monnam, docall, hliquid, mon_nam, y_monnam,
+} from './do_name.js';
 import { setwornEnv } from './do_wear.js';
 import { keepdogs, losedogs, update_mlstmv } from './dog.js';
 import { can_reach_floor, engr_at } from './engrave.js';
@@ -180,10 +184,12 @@ import { m_into_limbo, mondied, set_ustuck } from './mon.js';
 import { m_at } from './monst.js';
 import { gulp_blnd_check } from './mhitu.js';
 import {
-    is_whirly, olfaction, passes_walls, throws_rocks,
+    is_whirly, olfaction, passes_walls, sticks, throws_rocks,
 } from './mondata.js';
 import { m_in_air, youHear } from './monmove.js';
 import {
+    AD_DGST,
+    AT_ENGL,
     PM_DEATH,
     PM_FAMINE,
     PM_PESTILENCE,
@@ -1376,16 +1382,25 @@ export async function dropz(obj, with_impact, env = {}) {
     await dropzAdmitted(obj, normalized);
 }
 
-// C ref: do.c u_stuck_cannot_go() (1109-1128). Its release arm calls
-// mon.c set_ustuck() and do_name.c mon_nam(); its holding arm needs
-// mondata.c digests(). Neither is written out, because js/mon.js set_ustuck()
-// has one caller in the port, js/teleport.js, and it passes null, so u.ustuck
-// is null on every admitted path and this function always answers FALSE.
-function u_stuck_cannot_go(updn, state = game) {
-    if (state.u?.ustuck) {
-        throw new UnsupportedLevelChangeError(
-            `u_stuck_cannot_go("${updn}") with a hero who is held`,
-        );
+// C ref: do.c u_stuck_cannot_go() (1109-1128). digests() is the
+// mondata.h macro: one engulfing attack must carry AD_DGST.
+async function u_stuck_cannot_go(updn, state = game) {
+    const holder = state.u.ustuck;
+    if (holder) {
+        if (state.u.uswallow || !sticks(state.youmonst.data)) {
+            const digestsHolder = holder.data?.mattk?.some((attack) =>
+                attack.aatyp === AT_ENGL && attack.adtyp === AD_DGST);
+            const condition = !state.u.uswallow
+                ? 'being held'
+                : digestsHolder ? 'swallowed' : 'engulfed';
+            await ttyPline(
+                `You are ${condition}, and cannot go ${updn}.`, state,
+            );
+            return true;
+        }
+
+        set_ustuck(null, state);
+        await ttyPline(`You release ${mon_nam(holder, state)}.`, state);
     }
     return false;
 }
@@ -1403,7 +1418,7 @@ export async function dodown(state = game) {
 
     if (await u_rooted(state)) return ECMD_TIME;
 
-    if (stucksteed(true, state)) return ECMD_OK;
+    if (await stucksteed(true, state)) return ECMD_OK;
 
     let stairs_down = false;
     let ladder_down = false;
@@ -1440,7 +1455,7 @@ export async function dodown(state = game) {
         );
     }
 
-    if (u_stuck_cannot_go('down', state)) return ECMD_TIME;
+    if (await u_stuck_cannot_go('down', state)) return ECMD_TIME;
 
     if (!stairs_down && !ladder_down) {
         trap = t_at(u.ux, u.uy, state);
@@ -1507,8 +1522,6 @@ export async function dodown(state = game) {
 }
 
 // C ref: do.c doup() (1298-1344). The '<' command's staircase ascent.
-// Precondition checks mirror dodown(). The pit arm calls climb_pit(), which
-// is not ported; the witness hero is not in a pit.
 export async function doup(state = game) {
     const u = state.u;
     const stway = stairway_at(u.ux, u.uy, state);
@@ -1519,21 +1532,20 @@ export async function doup(state = game) {
 
     // do.c:1308-1311. "up" to get out of a pit.
     if (u.utrap && u.utraptype === TT_PIT) {
-        // climb_pit() is not ported. Defer.
-        throw new UnsupportedLevelChangeError(
-            'doup() climbing out of a pit',
-        );
+        // C discards climb_pit()'s void result; preserve the gap and debit.
+        note_unported('trap.c climb_pit');
+        return ECMD_TIME;
     }
 
     if (!stway || (stway && !stway.up)) {
         await ttyPline('You can\'t go up here.', state);
         return ECMD_OK;
     }
-    if (stucksteed(true, state)) {
+    if (await stucksteed(true, state)) {
         return ECMD_OK;
     }
 
-    if (u_stuck_cannot_go('up', state)) return ECMD_TIME;
+    if (await u_stuck_cannot_go('up', state)) return ECMD_TIME;
 
     if (near_capacity(state) > SLT_ENCUMBER) {
         /* No levitation check; inv_weight() already allows for it */
@@ -1547,12 +1559,12 @@ export async function doup(state = game) {
         return ECMD_TIME;
     }
     if (ledger_no(u.uz, state) === 1) {
-        // do.c:1331-1335. Leaving the dungeon. y_n("Beware, there will be
-        // no return! Still climb?"). The debug fuzzer returns ECMD_OK; the
-        // y_n answer is unported.
-        throw new UnsupportedLevelChangeError(
-            'doup() at ledger 1 (leaving the dungeon)',
+        // do.c:1331-1335. The debug fuzzer declines without prompting.
+        if (state.iflags?.debug_fuzzer) return ECMD_OK;
+        const answer = await y_n(
+            'Beware, there will be no return!  Still climb?', state,
         );
+        if (answer !== 'y'.charCodeAt(0)) return ECMD_OK;
     }
     if (!next_to_u(state)) {
         await ttyPline('You are held back by your pet!', state);
@@ -1560,7 +1572,7 @@ export async function doup(state = game) {
     }
     state.ga ??= {};
     state.ga.at_ladder = state.level?.at(u.ux, u.uy)?.typ === LADDER;
-    await prev_level(true, state, { gotoLevel: goto_level });
+    await prev_level(true, state, { gotoLevel: goto_level, done });
     state.ga.at_ladder = false;
     return ECMD_TIME;
 }

@@ -932,9 +932,12 @@ test('caller branches precede the closed-door test_move arm', async () => {
     const walkWest = commandKeyCode(base.moves[0]);
 
     const refusals = [
-        ['steed',
-            "an unported branch of this command: unsupported steed action: stucksteed() reporting a steed that won't move",
-            (state) => { state.u.usteed = { mx: 1, my: 1 }; }],
+        ['steed', null,
+            (state) => {
+                state.u.usteed = {
+                    mx: 1, my: 1, data: state.youmonst.data,
+                };
+            }],
         ['held hero', 'held hero movement',
             (state) => { state.u.utrap = 3; }],
         // Not 'monster on a closed door': preflightDomoveDestination()'s
@@ -973,11 +976,16 @@ test('caller branches precede the closed-door test_move arm', async () => {
         apply(game, door);
 
         game.nhDisplay.pushKey(walkWest);
-        await assert.rejects(
-            moveloop_core(),
-            (error) => error.reason === reason,
-            label,
-        );
+        if (label === 'steed') {
+            await moveloop_core();
+            assert.match(game.nhDisplay.topMessage, /won't move!/u, label);
+        } else {
+            await assert.rejects(
+                moveloop_core(),
+                (error) => error.reason === reason,
+                label,
+            );
+        }
         // Refused before the arm ran: no draw, no message, door untouched.
         assert.equal(replay.getRngLog().length, drawsBefore, label);
         assert.equal(cell.flags, D_CLOSED, label);

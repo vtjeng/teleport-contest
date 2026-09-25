@@ -62,6 +62,7 @@ import { dirtocoord, getdir, xytodir, y_n } from './cmd.js';
 import { newsym } from './display.js';
 import { finish_meating } from './dogmove.js';
 import {
+    YMonnam,
     capitalizedMonsterName,
     hliquid,
     monsterCommonName,
@@ -806,26 +807,20 @@ function maybewakesteed(steed) {
 // move at all. do.c dodown() and doup() pass checkfeeding TRUE, so a steed in
 // the middle of a meal stops them too.
 //
-// Both messages need do_name.c YMonnam(), which is unported, so each stops
-// instead of printing. Neither is reachable behind the commands that admit a
-// mounted hero today: steed.c maybewakesteed() clears msleeping and stops on
-// any steed that was immobile when mounted, and js/const.js helpless() reads
-// only msleeping and mcanmove, whose remaining writers are monster creation
-// and mon.c. meating has two writers, js/dog.js and js/dogmove.js, and both
-// clear it.
-export function stucksteed(checkfeeding, state = game) {
+// The reports use the existing do_name.c YMonnam() port.
+// The async wrapper sends C's pline() calls through ttyPline(); all callers
+// await it.
+export async function stucksteed(checkfeeding, state = game) {
     const steed = state.u?.usteed;
 
     if (steed) {
         if (helpless(steed)) {
-            throw new UnsupportedSteedError(
-                "stucksteed() reporting a steed that won't move",
-            );
+            await ttyPline(`${YMonnam(steed, state)} won't move!`, state);
+            return true;
         }
         if (checkfeeding && steed.meating) {
-            throw new UnsupportedSteedError(
-                'stucksteed() reporting a steed that is still eating',
-            );
+            await ttyPline(`${YMonnam(steed, state)} is still eating.`, state);
+            return true;
         }
     }
     return false;
