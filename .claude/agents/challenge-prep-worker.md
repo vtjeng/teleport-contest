@@ -31,12 +31,13 @@ distinct targets the C run reached and the independent replay confirmed. Name
 the recording and observed C step for each reached target in `missionPlan`.
 Retain valid misses without counting them. After two materially different C
 setups fail to reach a difficult target, record the reason and try another
-unless the source reveals a cheap route. Aim for 6–9 reached targets, but do
-not delay a ready delivery to force a rare path: when implementation work is
-running low, hand off all valid, independently replayed cases available,
-even if fewer than six targets were reached. Include reached, missed, and
-deferred targets and the remaining candidate list in `missionPlan` so the
-orchestrator can commission the next batch.
+unless the source reveals a cheap route. Replace deferred targets with other
+reachable behaviors and keep trying for 6–9 distinct reached targets. Do not
+shrink the batch merely because one target is rare. If the orchestrator reports
+an implementation worker with no assignable task, hand off all valid,
+independently replayed cases available, even if fewer than six targets were
+reached. Include reached, missed, and deferred targets and the remaining
+candidate list in `missionPlan` so the next batch can continue the search.
 
 Commit only new case recipes and C recordings under
 `challenges/cases/<batch>/`. Put the prepared manifest and its case hashes in
