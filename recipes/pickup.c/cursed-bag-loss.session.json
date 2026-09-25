@@ -1,0 +1,10 @@
+{
+  "version": 5,
+  "_comment": "Independent cursed magic-bag loss recording for pickup.c use_container() -> boh_loss() -> is_boh_item_gone() -> mbag_item_gone(). The bag wish rolls a random initial contents list; this seed loses one ration when #loot opens the dropped bag. The matching runtime remains inside the #loot caller.",
+  "segments": [{
+    "seed": 19760928,
+    "datetime": "20060928142900",
+    "nethackrc": "OPTIONS=name:BagLossProbe,role:Wizard,race:human,gender:male,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen\nOPTIONS=playmode:debug,pettype:none,!acoustics\n",
+    "moves": "  #wizwish\ncursed bag of holding\n#wizwish\nfood ration\ndo#loot\n"
+  }]
+}

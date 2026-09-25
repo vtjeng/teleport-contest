@@ -334,6 +334,9 @@ function itemactions_pushkeys(otmp, act, state) {
         cmdq_add_key(CQ_CANNED, otmp.invlet, state);
         break;
     case IA_TIP_CONTAINER:
+        // C ref: iactions.c queues function pointers do_reqmenu and dotip,
+        // then the selected object's invlet; cmd.js rhack() must preserve the
+        // queued row's dotip handler rather than dispatching its text label.
         cmdq_add_ec(CQ_CANNED, extcmdRow('reqmenu'), state);
         cmdq_add_ec(CQ_CANNED, extcmdRow('tip'), state);
         cmdq_add_key(CQ_CANNED, otmp.invlet, state);

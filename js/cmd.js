@@ -5313,8 +5313,10 @@ export async function rhack(key, state = game) {
         // newLogicalCommand.
         const queued = cmdq_pop(state);
         let cmdqCommand = null;
+        let queuedExtcmdEntry = null;
         if (queued) {
             if (queued.typ === CMDQ_EXTCMD && queued.ec_entry) {
+                queuedExtcmdEntry = queued.ec_entry;
                 cmdqCommand = queued.ec_entry.ef_txt
                     ?? queued.ec_entry.ef_funct;
             } else {
@@ -5389,13 +5391,16 @@ export async function rhack(key, state = game) {
             if (queuedAfterPrefix) {
                 if (queuedAfterPrefix.typ === CMDQ_EXTCMD
                     && queuedAfterPrefix.ec_entry) {
+                    queuedExtcmdEntry = queuedAfterPrefix.ec_entry;
                     commandAfterPrefix = queuedAfterPrefix.ec_entry.ef_txt
                         ?? queuedAfterPrefix.ec_entry.ef_funct;
                 } else {
+                    queuedExtcmdEntry = null;
                     key = queuedAfterPrefix.typ === CMDQ_KEY
                         ? queuedAfterPrefix.key : 0;
                 }
             } else {
+                queuedExtcmdEntry = null;
                 key = await parseCommand(state);
                 if (firstTime) {
                     state.context.pendingCommand =
@@ -5477,6 +5482,21 @@ export async function rhack(key, state = game) {
                 COUNTED_BOUNDARY,
                 key,
             );
+        }
+        // C ref: iactions.c itemactions_pushkeys() queues do_reqmenu, dotip,
+        // and the chosen inventory letter. cmd.c's queued-extcmd path invokes
+        // the queued function pointer directly; the item-action route must
+        // therefore dispatch dotip() here instead of treating its ef_txt
+        // ("tip") as a key-bound command name.
+        if (queuedExtcmdEntry?.ef_funct === 'dotip') {
+            const res = await failClosedCommand(
+                key, state, () => dotip(state),
+            );
+            if (res & (ECMD_CANCEL | ECMD_FAIL)) resetCommandVars(state);
+            else if ((res & (ECMD_OK | ECMD_TIME)) === ECMD_OK)
+                resetCommandVars(state, state.multi < 0);
+            if (res & ECMD_TIME) commandTookTime(state);
+            return;
         }
         if (command === 'doclicklook' || command === 'domouseaction') {
             const result = command === 'doclicklook'
