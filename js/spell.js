@@ -8,12 +8,22 @@ import {
     A_INT,
     A_STR,
     A_WIS,
+    EYE,
+    FACE,
+    ACH_NOVL,
+    ANTIMAGIC,
     CMDQ_KEY,
     CONFUSION,
+    BLINDED,
+    ERODE_CORRODE,
+    EF_GREASE,
+    EF_VERBOSE,
     ECMD_FAIL,
     ECMD_OK,
     ECMD_TIME,
     HALF_PHDAM,
+    LL_CONDUCT,
+    MAX_SPELL_STUDY,
     NO_KILLER_PREFIX,
     NO_SPELL,
     P_ATTACK_SPELL,
@@ -29,19 +39,25 @@ import {
     P_UNSKILLED,
     PICK_NONE,
     PICK_ONE,
+    POISON_RES,
+    SLEEP_RES,
     STUNNED,
+    TIMEOUT,
     uhim,
 } from './const.js';
 import { acurr, exercise } from './attrib.js';
 import { cmdq_pop, getdir, set_occupation } from './cmd.js';
 import { morehungry } from './eat.js';
+import { more_experienced, newexplevel } from './exper.js';
+import { read_tribute } from './files.js';
+import { makeplural } from './fruit.js';
 import { freehand } from './engrave.js';
 import { game } from './gstate.js';
-import { check_capacity, losehp } from './hack.js';
+import { check_capacity, losehp, nomul } from './hack.js';
 import { isqrt } from './hacklib.js';
-import { obfree, update_inventory } from './invent.js';
-import { can_chant } from './mondata.js';
-import { PM_KNIGHT, PM_WIZARD } from './monsters.js';
+import { obfree, update_inventory, useup } from './invent.js';
+import { can_chant, haseyes } from './mondata.js';
+import { PM_CYCLOPS, PM_FLOATING_EYE, PM_KNIGHT, PM_WIZARD } from './monsters.js';
 import { isMetallic, mksobj, objectType, weight } from './obj.js';
 import { check_unpaid } from './shk.js';
 import {
@@ -69,6 +85,7 @@ import {
     SPE_HASTE_SELF,
     SPE_HEALING,
     SPE_BOOK_OF_THE_DEAD,
+    SPE_BLANK_PAPER,
     SPE_INVISIBILITY,
     SPE_KNOCK,
     SPE_LEVITATION,
@@ -83,19 +100,27 @@ import {
     SPE_TELEPORT_AWAY,
     SPE_TURN_UNDEAD,
     SPE_WIZARD_LOCK,
+    SPE_NOVEL,
+    LENSES,
 } from './objects.js';
-import { rnd } from './rng.js';
+import { rn1, rn2, rnd } from './rng.js';
 import { ttyPline } from './tty_message.js';
+import { livelog_printf } from './pline.js';
 import {
     P_SKILL,
     SPELL_KNOWLEDGE_KEEN,
     num_spells,
     spell_skilltype,
 } from './startup_skills.js';
-import { peffects } from './potion.js';
+import { make_blinded, make_confused, peffects } from './potion.js';
 import { discover_object } from './o_init.js';
 import { use_skill } from './weapon.js';
 import { zapyourself, weffects } from './zap.js';
+import { fall_asleep } from './timeout.js';
+import { erode_obj } from './trap_erode_obj.js';
+import { body_part } from './polyself.js';
+import { noveltitle } from './do_name.js';
+import { note_unported } from './unported.js';
 
 // C ref: spell.c's spellmenu arguments. 0..MAXSPELL-1 double as svs.spl_book[]
 // indices while swapping two spells; SPELLMENU_DUMP (-3) belongs to
@@ -159,38 +184,6 @@ export function spellknow(spell, state = game) {
     return state.svs?.spl_book?.[spell]?.sp_know ?? 0;
 }
 
-// study_book() has already changed the delay and displayed the refresh
-// question when an affirmative answer reaches an unported study path.
-export class UnsupportedSpellStudyError extends Error {
-    constructor(branch) {
-        super(`spellbook study requires ${branch}`);
-        this.name = 'UnsupportedSpellStudyError';
-        this.branch = branch;
-    }
-}
-
-// This preflight lets doread() retain its fail-closed boundary above C's
-// pickup_prev and conduct writes. It admits only the selected source branch:
-// an identified, ordinary healing book with fresh existing knowledge and no
-// interrupted study. study_book() repeats the check before changing delay.
-export function study_book_preflight(
-    spellbook,
-    state = game,
-) {
-    if (!spellbook || spellbook.otyp !== SPE_HEALING
-        || spellbook.cursed || spellbook.in_use) return false;
-    const type = objectType(spellbook, state);
-    if (!type.oc_name_known || OBJ_DESCR(type, state) === 'dull') return false;
-    if (state.context?.spbook?.delay) return false;
-    for (let i = 0; i < MAXSPELL && spellid(i, state) !== NO_SPELL; ++i) {
-        if (spellid(i, state) === spellbook.otyp) {
-            return spellknow(i, state)
-                > Math.trunc(SPELL_KNOWLEDGE_KEEN / 10);
-        }
-    }
-    return false;
-}
-
 function spellStudyDelay(type) {
     const level = Math.trunc(type.oc_level ?? type.oc_oc2 ?? 0);
     if (level === 1 || level === 2) return -type.oc_delay;
@@ -200,23 +193,167 @@ function spellStudyDelay(type) {
     return 0;
 }
 
-// C ref: spell.c learn() (356-463). This occupation callback studies one
-// ordinary spellbook after study_book() has installed its delay and book
-// pointer. The delayed turns increment the negative delay; the completion
-// turn exercises Wisdom, fills the first empty spell slot, makes the book type
-// known, and clears the saved book identity.
-export async function learn(state = game) {
+function spellPropertyActive(property, state) {
+    const value = state.u?.uprops?.[property];
+    return Boolean(value?.intrinsic || value?.extrinsic) && !value?.blocked;
+}
+
+function randomSource(env = {}) {
+    const random = env.random ?? { rn1, rn2, rnd };
+    if (typeof random.rn1 !== 'function'
+        || typeof random.rn2 !== 'function'
+        || typeof random.rnd !== 'function') {
+        throw new TypeError('spell study requires rn1, rn2, and rnd');
+    }
+    return random;
+}
+
+// C ref: spell.c cursed_book() (130-183). Calls whose C return value is
+// discarded but whose source owner is outside this span remain explicit gaps.
+export async function cursed_book(book, state = game, env = {}) {
+    const random = randomSource(env);
+    const message = env.message ?? ttyPline;
+    const level = objectType(book, state).oc_level;
+    const timeout = state.u?.uprops ?? {};
+    let damage;
+    switch (random.rn2(level)) {
+    case 0:
+        await message('You feel a wrenching sensation.', state);
+        if (state === game) note_unported('teleport.c tele');
+        break;
+    case 1:
+        await message('You feel threatened.', state);
+        if (state === game) note_unported('wizard.c aggravate');
+        break;
+    case 2: {
+        const prior = timeout[BLINDED]?.intrinsic ?? 0;
+        await make_blinded(
+            (prior & TIMEOUT) + random.rn1(100, 250), true, state,
+            { message },
+        );
+        break;
+    }
+    case 3:
+        if (state === game) note_unported('steal.c take_gold');
+        break;
+    case 4: {
+        await message('These runes were just too much to comprehend.', state);
+        const prior = timeout[CONFUSION]?.intrinsic ?? 0;
+        await make_confused(
+            (prior & TIMEOUT) + random.rn1(7, 16), false, state,
+            { message },
+        );
+        break;
+    }
+    case 5:
+        await message('The book was coated with contact poison!', state);
+        if (state.uarmg) {
+            await erode_obj(
+                state.uarmg, 'gloves', ERODE_CORRODE,
+                EF_GREASE | EF_VERBOSE,
+                { state, random, message },
+            );
+            break;
+        } else {
+            const wasInUse = book.in_use;
+            book.in_use = false;
+            const resistant = spellPropertyActive(POISON_RES, state);
+            const strengthDamage = resistant
+                ? random.rn1(2, 1) : random.rn1(4, 3);
+            const poisonDamage = random.rnd(resistant ? 6 : 10);
+            if (state === game)
+                note_unported('attrib.c poison_strdmg');
+            void strengthDamage;
+            void poisonDamage;
+            book.in_use = wasInUse;
+            break;
+        }
+    case 6:
+        if (spellPropertyActive(ANTIMAGIC, state)) {
+            if (state === game) note_unported('zap.c shieldeff');
+            await message(
+                'The book radiates explosive energy, but you are unharmed!',
+                state,
+            );
+        } else {
+            await message(
+                `As you read the book, it radiates explosive energy in your ${body_part(FACE, state.youmonst)}!`,
+                state,
+            );
+            damage = 2 * random.rnd(10) + 5;
+            void damage;
+            if (state === game) note_unported('hack.c losehp');
+        }
+        return true;
+    default:
+        if (state === game) note_unported('sit.c rndcurse');
+        break;
+    }
+    return false;
+}
+
+// C ref: spell.c confused_book() (189-211). The true return marks the book
+// consumed by useup(); the caller owns its distinct study-delay updates.
+export async function confused_book(book, state = game, env = {}) {
+    const random = randomSource(env);
+    const message = env.message ?? ttyPline;
+    if (!random.rn2(3) && book.otyp !== SPE_BOOK_OF_THE_DEAD) {
+        book.in_use = true;
+        await message(
+            'Being confused you have difficulties in controlling your actions.',
+            state,
+        );
+        if (state === game) note_unported('windows.c display_nhwindow');
+        await message('You accidentally tear the spellbook to pieces.', state);
+        if (state === game) note_unported('do.c trycall');
+        useup(book, { state, hooks: {} });
+        return true;
+    }
+    const next = state.context?.spbook?.book === book;
+    await message(
+        `You find yourself reading the ${next ? 'next' : 'first'} line over and over again.`,
+        state,
+    );
+    return false;
+}
+
+// C ref: spell.c learn() (356-463). `context.spbook` stores both the C book
+// pointer and saved object id across occupied turns; book-disappearance is
+// owned by the existing inventory lifetime handlers.
+export async function learn(state = game, env = {}) {
+    const random = randomSource(env);
     const spbook = state.context?.spbook ?? {};
     const book = spbook.book;
-    if (!book)
-        throw new UnsupportedSpellStudyError('missing spellbook');
+    if (!book) {
+        if (state === game) note_unported('pline.c impossible');
+        return 0;
+    }
+
+    if (spbook.delay && state.ublindf?.otyp === LENSES
+        && random.rn2(2)) {
+        spbook.delay++;
+    }
+    if (spellPropertyActive(CONFUSION, state)) {
+        await confused_book(book, state, { ...env, random });
+        spbook.book = null;
+        spbook.o_id = 0;
+        nomul(spbook.delay, state);
+        state.multi_reason = 'reading a book';
+        state.nomovemsg = null;
+        spbook.delay = 0;
+        return 0;
+    }
     if (spbook.delay) {
         spbook.delay++;
         return 1;
     }
 
     await exercise(A_WIS, true, state);
-    const booktype = book.otyp;
+    let booktype = book.otyp;
+    if (booktype === SPE_BOOK_OF_THE_DEAD) {
+        if (state === game) note_unported('spell.c deadbook');
+        return 0;
+    }
     const type = objectType(booktype, state);
     const slots = state.svs?.spl_book ?? [];
     let index = 0;
@@ -225,14 +362,40 @@ export async function learn(state = game) {
         if (id === booktype || id === NO_SPELL) break;
     }
 
-    if (index < MAXSPELL && (slots[index]?.sp_id ?? NO_SPELL) === NO_SPELL) {
+    const costly = true;
+    let fadedToBlank = false;
+    const spellText = type.oc_name_known
+        ? `"${OBJ_NAME(type, state)}"`
+        : `the "${OBJ_NAME(type, state)}" spell`;
+    if (index === MAXSPELL) {
+        if (state === game) note_unported('pline.c impossible');
+    } else if ((slots[index]?.sp_id ?? NO_SPELL) === booktype) {
+        if ((book.spestudied ?? 0) > MAX_SPELL_STUDY) {
+            await ttyPline('This spellbook is too faint to be read any more.', state);
+            book.otyp = SPE_BLANK_PAPER;
+            booktype = SPE_BLANK_PAPER;
+            fadedToBlank = true;
+            book.spestudied = random.rn2(book.spestudied);
+        } else {
+            await ttyPline(
+                `Your knowledge of ${spellText} is ${spellknow(index, state) ? 'keener' : 'restored'}.`,
+                state,
+            );
+            slots[index].sp_know = SPELL_KNOWLEDGE_KEEN + 1;
+            book.spestudied = (book.spestudied ?? 0) + 1;
+            await exercise(A_WIS, true, state);
+        }
+    } else if ((book.spestudied ?? 0) >= MAX_SPELL_STUDY) {
+        await ttyPline('This spellbook is too faint to read even once.', state);
+        book.otyp = SPE_BLANK_PAPER;
+        booktype = SPE_BLANK_PAPER;
+        fadedToBlank = true;
+        book.spestudied = random.rn2(book.spestudied);
+    } else {
         slots[index].sp_id = booktype;
         slots[index].sp_lev = type.oc_level;
         slots[index].sp_know = SPELL_KNOWLEDGE_KEEN + 1;
         book.spestudied = (book.spestudied ?? 0) + 1;
-        const spellName = OBJ_NAME(type, state);
-        const spellText = type.oc_name_known
-            ? `"${spellName}"` : `the "${spellName}" spell`;
         if (!index)
             await ttyPline(`You learn ${spellText}.`, state);
         else
@@ -240,66 +403,186 @@ export async function learn(state = game) {
                 `You add ${spellText} to your repertoire, as '${spellet(index)}'.`,
                 state,
             );
-    } else if (index < MAXSPELL) {
-        // A fresh study of an already-known spell is outside this span; the
-        // existing refresh path owns that case before learn() is installed.
-        throw new UnsupportedSpellStudyError('re-reading a known spell');
     }
 
     if (index < MAXSPELL) {
-        // hack.h makeknown() expands to discover_object(..., TRUE, TRUE, TRUE).
         discover_object(booktype, true, true, true, state);
+        if (fadedToBlank) update_inventory({ state, hooks: {} });
     }
-    check_unpaid(book, state);
+    if (book.cursed && await cursed_book(book, state, { ...env, random })) {
+        useup(book, { state, hooks: {} });
+        spbook.book = null;
+        spbook.o_id = 0;
+        return 0;
+    }
+    if (costly) check_unpaid(book, state);
     spbook.book = null;
     spbook.o_id = 0;
     return 0;
 }
 
-// C ref: spell.c study_book() (468-659). The existing healing refresh arm
-// remains source-shaped, and the successful ordinary-book arm is admitted by
-// `env.successfulStudy` after its difficulty roll in read.c. Both arms share
-// the C delay, book identity, and occupation state.
+// C ref: spell.c study_book() (468-659). Study delay, book identity and the
+// occupation callback all live in context.spbook, matching C's shared state.
 export async function study_book(spellbook, state = game, env = {}) {
-    const knownHealing = study_book_preflight(spellbook, state);
-    if (!knownHealing && !env.successfulStudy) {
-        throw new UnsupportedSpellStudyError(
-            'the selected spellbook branch',
-        );
-    }
-    if (typeof env.message !== 'function'
-        || (knownHealing && typeof env.prompt !== 'function')) {
-        throw new TypeError('study_book requires message and prompt owners');
-    }
-
+    const random = randomSource(env);
+    const message = env.message ?? ttyPline;
+    const prompt = env.prompt;
     const booktype = spellbook.otyp;
+    const confused = spellPropertyActive(CONFUSION, state);
     const type = objectType(booktype, state);
+    const level = Math.trunc(type.oc_level ?? type.oc_oc2 ?? 0);
     state.context ??= {};
     state.context.spbook ??= { delay: 0, book: null, o_id: 0 };
-    state.context.spbook.delay = spellStudyDelay(type);
-    if (env.successfulStudy) {
+    const spbook = state.context.spbook;
+
+    if (!confused && !spellPropertyActive(SLEEP_RES, state)
+        && OBJ_DESCR(type, state) === 'dull') {
+        let dullbook = random.rnd(25) - acurr(state, A_WIS);
+        if (spbook.delay && spellbook === spbook.book)
+            dullbook -= random.rnd(level);
+        if (dullbook > 0) {
+            const species = state.youmonst?.data;
+            let eyes = body_part(EYE, state.youmonst);
+            const eyeCount = !species || !haseyes(species) ? 0
+                : species.pmidx === PM_CYCLOPS
+                    || species.pmidx === PM_FLOATING_EYE ? 1 : 2;
+            if (eyeCount > 1) eyes = makeplural(eyes);
+            await message(
+                `This book is so dull that you can't keep your ${eyes} open.`,
+                state,
+            );
+            dullbook += random.rnd(2 * level);
+            await fall_asleep(-dullbook, true, state, env);
+            return 1;
+        }
+    }
+
+    if (spbook.delay && !confused && spellbook === spbook.book
+        && booktype !== SPE_BLANK_PAPER) {
+        await message(
+            `You continue your efforts to ${booktype === SPE_NOVEL
+                ? 'read the novel' : 'memorize the spell'}.`,
+            state,
+        );
+    } else {
+        if (booktype === SPE_BLANK_PAPER) {
+            await message('This spellbook is all blank.', state);
+            discover_object(booktype, true, true, true, state);
+            return 1;
+        }
+        if (booktype === SPE_NOVEL) {
+            const title = noveltitle(spellbook.novelidx, { random });
+            spellbook.novelidx = title.novelidx;
+            if (await read_tribute(
+                'books', title.title, 0, null, 0, spellbook.o_id, state,
+                { ...env, random },
+            )) {
+                state.u.uconduct ??= {};
+                if (!state.u.uconduct.literate++)
+                    livelog_printf(
+                        LL_CONDUCT,
+                        `became literate by reading ${title.title}`,
+                        state,
+                    );
+                check_unpaid(spellbook, state);
+                discover_object(booktype, true, true, true, state);
+                if (!state.u.uevent.read_tribute) {
+                    (await import('./insight.js')).record_achievement(
+                        ACH_NOVL, state,
+                    );
+                    more_experienced(20, 0, state);
+                    await newexplevel(state);
+                    state.u.uevent.read_tribute = 1;
+                }
+            }
+            return 1;
+        }
+
+        spbook.delay = spellStudyDelay(type);
+        let index = 0;
+        for (; index < MAXSPELL; ++index) {
+            if (spellid(index, state) === booktype
+                || spellid(index, state) === NO_SPELL) break;
+        }
+        if (spellid(index, state) === booktype
+            && spellknow(index, state)
+                > Math.trunc(SPELL_KNOWLEDGE_KEEN / 10)) {
+            await message(
+                `You know "${OBJ_NAME(type, state)}" quite well already.`,
+                state,
+            );
+            discover_object(booktype, true, true, true, state);
+            if (typeof prompt !== 'function')
+                throw new TypeError('study_book requires a prompt owner');
+            const answer = await prompt('Refresh your memory anyway?', state);
+            if (answer === 'n' || answer === 'n'.charCodeAt(0)) return 0;
+        }
+
+        spellbook.in_use = true;
+        if (!spellbook.blessed && booktype !== SPE_BOOK_OF_THE_DEAD) {
+            let tooHard = spellbook.cursed;
+            if (!spellbook.cursed) {
+                const readAbility = acurr(state, A_INT) + 4
+                    + Math.trunc(state.u.ulevel / 2) - 2 * level
+                    + (state.ublindf?.otyp === LENSES ? 2 : 0);
+                if (state.urole?.mnum === PM_WIZARD
+                    && readAbility < 20 && !confused) {
+                    if (typeof prompt !== 'function')
+                        throw new TypeError('study_book requires a prompt owner');
+                    const wording = readAbility < 12 ? 'very ' : '';
+                    const answer = await prompt(
+                        `This spellbook is ${wording}difficult to comprehend.  Continue?`,
+                        state,
+                    );
+                    if (answer !== 'y' && answer !== 'y'.charCodeAt(0)) {
+                        spellbook.in_use = false;
+                        return 1;
+                    }
+                }
+                if (random.rnd(20) > readAbility) tooHard = true;
+            }
+            if (tooHard) {
+                const gone = await cursed_book(spellbook, state, {
+                    ...env, random, message,
+                });
+                nomul(spbook.delay, state);
+                state.multi_reason = 'reading a book';
+                state.nomovemsg = null;
+                spbook.delay = 0;
+                if (gone || !random.rn2(3)) {
+                    if (!gone)
+                        await message('The spellbook crumbles to dust!', state);
+                    if (state === game) note_unported('do.c trycall');
+                    useup(spellbook, { state, hooks: {} });
+                } else {
+                    spellbook.in_use = false;
+                }
+                return 1;
+            }
+        }
+        if (confused) {
+            const gone = await confused_book(spellbook, state, {
+                ...env, random, message,
+            });
+            if (!gone) spellbook.in_use = false;
+            nomul(spbook.delay, state);
+            state.multi_reason = 'reading a book';
+            state.nomovemsg = null;
+            spbook.delay = 0;
+            return 1;
+        }
         spellbook.in_use = false;
-        await env.message(
+        await message(
             `You begin to ${booktype === SPE_BOOK_OF_THE_DEAD
                 ? 'recite' : 'memorize'} the runes.`,
             state,
         );
-        state.context.spbook.book = spellbook;
-        state.context.spbook.o_id = spellbook.o_id ?? 0;
-        set_occupation(learn, 'studying', 0, state);
-        return 1;
     }
-    // SPE_HEALING is level 1, so C stores -oc_delay directly.
-    await env.message(
-        `You know "${OBJ_NAME(type, state)}" quite well already.`,
-        state,
-    );
-    discover_object(booktype, true, true, true, state);
-    const answer = await env.prompt('Refresh your memory anyway?', state);
-    if (answer === 'n'.charCodeAt(0)) return 0;
-    throw new UnsupportedSpellStudyError(
-        'refreshing the known spell',
-    );
+
+    spbook.book = spellbook;
+    spbook.o_id = spellbook.o_id ?? 0;
+    set_occupation(learn, 'studying', 0, state);
+    return 1;
 }
 
 // C ref: spell.c spellev(). The spell's level, copied from the book's

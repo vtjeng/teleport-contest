@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 821008,
+      "datetime": "20300714123000",
+      "nethackrc": "OPTIONS=name:CursedStudy,role:Knight,race:human,gender:male,align:lawful\nOPTIONS=!legacy,!tutorial,!splash_screen\nOPTIONS=playmode:debug\n",
+      "moves": " \u0017cursed spellbook of sleep\nri"
+    }
+  ],
+  "comment": "Independent cursed level-three book recipe for read.c doread() -> spell.c study_book() -> cursed_book()."
+}

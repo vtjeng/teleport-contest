@@ -56,7 +56,6 @@ import {
 import { getobj } from '../js/invent.js';
 import { not_fully_identified } from '../js/objnam.js';
 import { initRng } from '../js/rng.js';
-import { UnsupportedSpellStudyError } from '../js/spell.js';
 import {
     READ_MORE as CONFUSED_TELEPORT_MORE,
     confusedTeleportSetupMoves,
@@ -239,23 +238,14 @@ test('read is admitted and selected objects stop before pickup_prev changes',
     assert.ok(ADMITTED_COMMANDS.includes('read'));
     assert.ok(failClosedCommandRefusals().includes(UnsupportedReadError));
 
-    // The opening wait reaches the running game's real inventory. The first
-    // scroll or spellbook is a valid getobj() answer regardless of the
-    // Wizard's shuffled object descriptions.
+    // The opening wait reaches the running game's real inventory. A potion is
+    // a selectable but unsupported answer, so it still checks that doread()
+    // refuses before changing read state.
     const segment = firstSegment();
     await runSegment({ ...segment, moves: WAIT });
     let selected = game.invent;
-    while (selected && selected.oclass !== SCROLL_CLASS
-        && selected.oclass !== SPBOOK_CLASS) selected = selected.nobj;
-    // This fixture can randomize the first suggested scroll into the newly
-    // admitted enchant-weapon branch; choose the next readable object so this
-    // test continues to pin the pre-effect refusal boundary.
-    while (selected && selected.otyp === SCR_ENCHANT_WEAPON) {
-        selected = selected.nobj;
-        while (selected && selected.oclass !== SCROLL_CLASS
-            && selected.oclass !== SPBOOK_CLASS) selected = selected.nobj;
-    }
-    assert.ok(selected, 'the Wizard starts with something readable');
+    while (selected && selected.oclass !== POTION_CLASS) selected = selected.nobj;
+    assert.ok(selected, 'the Wizard starts with a selectable potion');
     selected.pickup_prev = 1;
     game.nhDisplay.pushKey(selected.invlet.charCodeAt(0));
     await assert.rejects(
@@ -650,7 +640,7 @@ test('declining a fresh known healing spellbook refresh takes no turn',
     });
 });
 
-test('accepting a known healing refresh stops before study state', async () => {
+test('accepting a known healing refresh continues through the difficulty roll', async () => {
     const segment = loadReadKnownHealingRecipe().segments[0];
     const replay = await runSegment({
         ...segment,
@@ -668,18 +658,19 @@ test('accepting a known healing refresh stops before study state', async () => {
     game.nhDisplay.pushKey(HEALING_BOOK_LETTER.charCodeAt(0));
     game.nhDisplay.pushKey(HEALING_MESSAGE_MORE.charCodeAt(0));
     game.nhDisplay.pushKey('y'.charCodeAt(0));
-    await assert.rejects(
-        () => doread(game),
-        (error) => error instanceof UnsupportedSpellStudyError
-            && error.branch === 'refreshing the known spell',
-    );
+    assert.equal(await doread(game), ECMD_TIME);
     assert.equal(game.moves, movesBefore);
-    assert.equal(replay.getRngLog().length, rngBefore);
+    assert.ok(replay.getRngLog().length > rngBefore);
     assert.equal(game.u.uconduct.literate, literateBefore + 1);
-    assert.equal(game.context.spbook.delay, -2);
+    assert.equal(game.context.spbook.delay, 0);
     assert.equal(game.context.spbook.book, null);
+    assert.equal(game.context.spbook.o_id, 0);
     assert.equal(book.in_use, false);
     assert.equal(game.go?.occupation ?? null, null);
+    assert.equal(
+        inventorySnapshot().some((obj) => obj.o_id === book.o_id), true,
+    );
+    assert.match(game._pending_message, /wrenching sensation/u);
     // The selected book key precedes the accepted refresh answer in C's
     // repeat queue.
     assert.deepEqual(cmdq_peek(CQ_REPEAT, game), {
@@ -688,7 +679,7 @@ test('accepting a known healing refresh stops before study state', async () => {
     });
 });
 
-test('the command wrapper retains an accepted refresh refusal for retry', async () => {
+test('the command wrapper accepts a known healing refresh', async () => {
     const segment = loadReadKnownHealingRecipe().segments[0];
     let boundary = null;
     const replay = await runSegment({
@@ -699,28 +690,16 @@ test('the command wrapper retains an accepted refresh refusal for retry', async 
     let book = game.invent;
     while (book && book.otyp !== SPE_HEALING) book = book.nobj;
 
-    assert.equal(boundary?.name, 'UnsupportedHeroCommandBoundaryError');
-    assert.match(boundary?.message ?? '', /refreshing the known spell/u);
-    assert.deepEqual(game.context.pendingCommand, {
-        key: HEALING_READ_COMMAND.charCodeAt(0),
-        commandCount: 0,
-        lastCommandCount: 0,
-        multi: 0,
-    });
-    assert.equal(game.context.spbook.delay, -2);
+    assert.equal(boundary, null);
+    assert.equal(game.context.pendingCommand ?? null, null);
+    assert.equal(game.context.spbook.delay, 0);
+    assert.equal(game.context.spbook.book, null);
     assert.equal(book?.in_use, false);
     assert.equal(game.go?.occupation ?? null, null);
-    // failClosedCommand() resets command variables before exposing a
-    // retryable boundary, so the parsed command is retained but its partial
-    // repeat answer is not.
-    assert.equal(cmdq_peek(CQ_REPEAT, game), null);
-    // Startup and the accepted prompt branch add no command-local draw.
-    const acceptedRngCalls = replay.getRngLog().length;
-    const baseline = await runSegment({
-        ...segment,
-        moves: HEALING_READ_WAIT,
-    });
-    assert.equal(acceptedRngCalls, baseline.getRngLog().length);
+    assert.equal(
+        inventorySnapshot().some((obj) => obj.o_id === book?.o_id), true,
+    );
+    assert.ok(replay.getRngLog().some((entry) => entry === 'rn2(20)=12'));
 });
 
 test('magic mapping fails closed on an unsupported special level', async () => {

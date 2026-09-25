@@ -3,6 +3,7 @@
 
 import {
     A_LAWFUL,
+    BUFSZ,
     BLOOD,
     ANY_SHOP,
     BARRACKS,
@@ -186,6 +187,7 @@ import { m_at } from './monst.js';
 import { g_at, is_weptool } from './obj.js';
 import { an, helm_simple_name, vtense } from './objnam.js';
 import { currency, money_cnt, u_have_novel } from './invent.js';
+import { Death_quote } from './files.js';
 import { STATUE, WEAPON_CLASS } from './objects.js';
 import { halu_gname } from './pray.js';
 import { body_part, poly_gender } from './polyself.js';
@@ -1379,7 +1381,13 @@ export async function domonnoise(mtmp, state = game) {
             state.svc.context.tribute ??= {};
             state.svc.context.tribute.Deathnotice = 1;
         } else if (ptr === state.mons?.[PM_DEATH] && rn2(3)) {
-            throw new UnsupportedChatError('files.c Death_quote');
+            const quote = { value: '' };
+            if (await Death_quote(quote, BUFSZ, state))
+                verbalMsg = quote.value;
+            else if (!rn2(10))
+                plineMsg = 'is busy reading a copy of Sandman #8.';
+            else
+                verbalMsg = 'Who do you think you are, War?';
         } else if (ptr === state.mons?.[PM_DEATH] && !rn2(10)) {
             plineMsg = 'is busy reading a copy of Sandman #8.';
         } else {

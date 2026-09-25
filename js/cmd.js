@@ -329,7 +329,6 @@ import {
     spelleffects,
     UnsupportedSpellCastError,
     UnsupportedSpellDisplayError,
-    UnsupportedSpellStudyError,
 } from './spell.js';
 import {
     UnsupportedWeaponSkillError,
@@ -2819,7 +2818,6 @@ export function failClosedCommandRefusals() {
         UnsupportedFeatureDescriptionError,
         UnsupportedObjectNameError,
         UnsupportedSpellDisplayError,
-        UnsupportedSpellStudyError,
         // spell.c spelleffects_check() and spelleffects() raise this from
         // the forgotten-spell, amulet-drain, and non-healing spell paths
         // that this port has not reached.

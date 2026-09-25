@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 821002,
+      "datetime": "20300714122400",
+      "nethackrc": "OPTIONS=name:DeathProbe,role:Wizard,race:human,gender:male,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen\nOPTIONS=pettype:none,!acoustics,playmode:debug\n",
+      "moves": " \u0007Death\ny#chat\ny"
+    }
+  ],
+  "comment": "Blocked independent Death speech recipe: C reaches files.c Death_quote() from sounds.c domonnoise(), but JavaScript stops before confirming the wizard-created Death at makemon.c makemon() monster 311. Keep as a recipe until that setup path is ported."
+}

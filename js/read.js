@@ -17,7 +17,6 @@
 // wizcmds.c wiz_genesis() calls the monster-creation helpers.
 
 import {
-    A_INT,
     A_WIS,
     BLINDED,
     COLNO,
@@ -47,8 +46,6 @@ import {
     ROWNO,
     ROOMOFFSET,
     LS_OBJECT,
-    STRAT_APPEARMSG,
-    STRAT_WAITFORU,
     thats_enough_tries,
     SPE_LIM,
     W_BALL,
@@ -75,7 +72,6 @@ import {
     PM_LONG_WORM_TAIL,
     PM_SHOPKEEPER,
     PM_STALKER,
-    PM_WIZARD,
     PM_YELLOW_LIGHT,
     S_EEL,
     S_MIMIC,
@@ -86,7 +82,6 @@ import { mungspaces, strstri } from './hacklib.js';
 import { game } from './gstate.js';
 import {
     check_capacity,
-    nomul,
     notice_mon_off,
     notice_mon_on,
 } from './hack.js';
@@ -136,9 +131,6 @@ import {
     SCR_PUNISHMENT,
     SCR_REMOVE_CURSE,
     SCR_TELEPORTATION,
-    DUNCE_CAP,
-    LENSES,
-    OBJ_DESCR,
     SPE_BLANK_PAPER,
     SPE_BOOK_OF_THE_DEAD,
     SPE_NOVEL,
@@ -152,9 +144,9 @@ import {
     objectType,
     place_object,
 } from './obj.js';
-import { acurr, exercise } from './attrib.js';
+import { exercise } from './attrib.js';
 import { do_mapping } from './detect.js';
-import { In_W_tower, Is_special } from './dungeon.js';
+import { Is_special } from './dungeon.js';
 import { level_tele, scrolltele } from './teleport.js';
 import { lightdamage } from './zap.js';
 import { discover_object } from './o_init.js';
@@ -166,7 +158,6 @@ import { flooreffects, trycall } from './do.js';
 import { y_n } from './cmd.js';
 import {
     study_book,
-    study_book_preflight,
 } from './spell.js';
 import { destroy_arm, some_armor, setwornEnv } from './do_wear.js';
 import { setworn } from './worn.js';
@@ -245,132 +236,13 @@ function oneWornFlammableArmor(state) {
     return worn.length === 1 && is_flammable(worn[0], state);
 }
 
-// C ref: spell.c study_book() (537-584).  This helper names the small
-// portion of spellbook study that can be admitted without the occupation
-// installed by learn(): an ordinary, non-wizard reader can find an uncursed
-// book too difficult, then take cursed_book()'s aggravation result and keep
-// the book when its final crumble roll is nonzero.
-function spellbookLevel(type) {
-    return Math.trunc(type.oc_level ?? type.oc_oc2 ?? 0);
-}
-
-function hasKnownSpell(otyp, state) {
-    return (state.svs?.spl_book ?? []).some((spell) => spell?.sp_id === otyp);
-}
-
-function tooHardSpellbookPreflight(spellbook, state) {
-    if (!spellbook || spellbook.oclass !== SPBOOK_CLASS
-        || spellbook.blessed || spellbook.cursed || spellbook.in_use
-        || spellbook.otyp === SPE_BLANK_PAPER
-        || spellbook.otyp === SPE_BOOK_OF_THE_DEAD
-        || spellbook.otyp === SPE_NOVEL
-        || state.urole?.mnum === PM_WIZARD
-        || state.uarmh?.otyp === DUNCE_CAP
-        || propertyActive(BLINDED, state)
-        || propertyActive(CONFUSION, state)
-        || state.context?.spbook?.delay
-        || state.context?.spbook?.book
-        || hasKnownSpell(spellbook.otyp, state)) return false;
-
-    const type = objectType(spellbook, state);
-    const level = spellbookLevel(type);
-    if (OBJ_DESCR(type, state) === 'dull' || level < 1 || level > 7) {
-        return false;
-    }
-
-    const readAbility = acurr(state, A_INT)
-        + 4 + Math.trunc(state.u.ulevel / 2) - 2 * level
-        + ((state.ublindf?.otyp === LENSES) ? 2 : 0);
-    return readAbility < 20;
-}
-
-// C ref: wizard.c aggravate() (493-511).  It has no messages.  The tower
-// comparison is retained even though the selected witness is on Dlvl:1: it
-// is part of the state contract for every monster the helper may visit.
-function aggravateMonsters(state) {
-    const heroInTower = In_W_tower(
-        state.u.ux, state.u.uy, state.u.uz, state,
-    );
-    for (let monster = state.level?.monlist ?? null;
-        monster;
-        monster = monster.nmon) {
-        if ((monster.mhp ?? 0) < 1) continue;
-        if (In_W_tower(monster.mx, monster.my, state.u.uz, state)
-            !== heroInTower) continue;
-        monster.mstrategy &= ~(STRAT_WAITFORU | STRAT_APPEARMSG);
-        monster.msleeping = false;
-        if (!monster.mcanmove && !rn2(5)) {
-            monster.mfrozen = 0;
-            monster.mcanmove = true;
-        }
-    }
-}
-
-// C ref: spell.c study_book() (575-619) and cursed_book() (130-183).
-// Successful ordinary study delegates its occupation setup to study_book();
-// the too-hard arm remains limited to cursed_book()'s case 1 and its nonzero
-// crumble result. The random draw is consumed before either outcome, so the
-// boundary remains source-ordered without pretending to implement the
-// teleport, blindness, gold, poison, explosion, or rndcurse arms.
-async function studyTooHardSpellbook(spellbook, state) {
-    if (!tooHardSpellbookPreflight(spellbook, state)) {
-        throw new UnsupportedReadError('the selected spellbook branch');
-    }
-
-    const type = objectType(spellbook, state);
-    const level = spellbookLevel(type);
-    const readAbility = acurr(state, A_INT)
-        + 4 + Math.trunc(state.u.ulevel / 2) - 2 * level
-        + ((state.ublindf?.otyp === LENSES) ? 2 : 0);
-
-    // C sets in_use before the ordinary uncursed-book difficulty roll.
-    spellbook.in_use = true;
-
-    // C's rnd(20) is the ordinary uncursed-book difficulty roll. A successful
-    // study reaches study_book(), which installs learn() as the occupation.
-    if (rnd(20) <= readAbility) {
-        return await study_book(spellbook, state, {
-            successfulStudy: true,
-            message: ttyPline,
-        });
-    }
-
-    state.context ??= {};
-    state.context.spbook ??= { delay: 0, book: null, o_id: 0 };
-    state.context.spbook.delay = level <= 2
-        ? -type.oc_delay
-        : level <= 4
-            ? -(level - 1) * type.oc_delay
-            : level <= 6
-                ? -level * type.oc_delay
-                : level === 7 ? -8 * type.oc_delay : 0;
-    // cursed_book() chooses one of `objects[booktype].oc_level` effects.
-    // Case 1 is the witness branch: it only calls aggravate() after speaking.
-    if (rn2(level) !== 1) {
-        throw new UnsupportedReadError('cursed_book() outcome');
-    }
-    await ttyPline('You feel threatened.', state);
-    aggravateMonsters(state);
-
-    nomul(state.context.spbook.delay, state);
-    state.multi_reason = 'reading a book';
-    state.nomovemsg = null;
-    state.context.spbook.delay = 0;
-
-    // C uses the book only when this draw is nonzero; the zero arm also
-    // needs trycall() and useup(), so it remains fail-closed.
-    if (!rn2(3)) {
-        throw new UnsupportedReadError('cursed_book() spellbook crumble');
-    }
-    spellbook.in_use = false;
-    return true;
-}
-
-// C ref: read.c doread() (347-646), restricted after getobj() to the known,
-// uncursed magic-mapping scroll, an ordinary unknown identify scroll, an
+// C ref: read.c doread() (347-646), with the complete spellbook family routed
+// through spell.c study_book() after getobj() and literacy handling. The
+// scroll arms below retain their source-specific admission checks.
+// The selected scroll paths include the known uncursed magic-mapping scroll, an ordinary unknown identify scroll, an
 // ordinary positive
 // enchant-weapon scroll, the source-reachable solid-human punishment-scroll
-// arms, and the fresh-known healing-book refresh decline.
+// arms. Every spellbook uses the whole source study path.
 // The other admitted paths are a sighted,
 // non-hallucinating wizard reading a blessed teleportation scroll while
 // confused, and the calm ordinary teleportation-scroll path. The former
@@ -514,10 +386,7 @@ export async function doread(state = game) {
         && !state.uwep.oartifact
         && !state.uwep.oeroded && !state.uwep.oeroded2
         && state.uwep.spe <= 5;
-    const knownHealing = scroll.oclass === SPBOOK_CLASS
-        && !propertyActive(BLINDED, state) && !confused
-        && study_book_preflight(scroll, state);
-    const tooHardBook = tooHardSpellbookPreflight(scroll, state);
+    const spellbook = scroll.oclass === SPBOOK_CLASS;
     const confusedTeleport = scroll.oclass === SCROLL_CLASS
         && scroll.otyp === SCR_TELEPORTATION
         && scroll.blessed && !scroll.cursed
@@ -532,7 +401,7 @@ export async function doread(state = game) {
         && can_chant(state.youmonst, state);
     const punishment = punishmentReadAdmitted(scroll, confused, state);
     if (!mapping && !identify && !destroyArmor && !light
-        && !knownHealing && !tooHardBook
+        && !spellbook
         && !enchantWeapon
         && !confusedTeleport && !calmTeleport && !removeCurse
         && !punishment) {
@@ -560,15 +429,11 @@ export async function doread(state = game) {
     }
     state.u.uconduct.literate
         = Math.trunc(state.u.uconduct.literate ?? 0) + 1;
-    if (knownHealing) {
+    if (spellbook) {
         return await study_book(scroll, state, {
             message: ttyPline,
             prompt: y_n,
         }) ? ECMD_TIME : ECMD_OK;
-    }
-    if (tooHardBook) {
-        return await studyTooHardSpellbook(scroll, state)
-            ? ECMD_TIME : ECMD_OK;
     }
     scroll.in_use = true;
     // C ref: read.c doread() (614-626). Some scroll effects describe

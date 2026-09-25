@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 821001,
+      "datetime": "20300714122300",
+      "nethackrc": "OPTIONS=name:StudyProbe,role:Wizard,race:human,gender:female,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen\nOPTIONS=pettype:none,!acoustics,playmode:debug\n",
+      "moves": " .\u0017novel\nro "
+    }
+  ],
+  "comment": "Independent debug-wish novel reading input begins by dismissing the welcome message. The wizard wish produces an independently seeded novel at inventory key o, then the read command opens its tribute passage."
+}

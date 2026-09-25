@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 821004,
+      "datetime": "20300714122600",
+      "nethackrc": "OPTIONS=name:ConfusedStudy,role:Knight,race:human,gender:male,align:lawful\nOPTIONS=!legacy,!tutorial,!splash_screen\nOPTIONS=playmode:debug\n",
+      "moves": " #wizintrinsic\ng\n \u0017blessed spellbook of detect monsters\nri  "
+    }
+  ],
+  "comment": "Blocked destructive confused_book() branch. C waits in windows.c display_nhwindow() after the first message and later calls do.c trycall(); those calls are recorded as unported gaps, so this branch currently has no matching JavaScript recording."
+}
