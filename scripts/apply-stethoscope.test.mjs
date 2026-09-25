@@ -715,14 +715,10 @@ test('doapply refuses every class and arm this slice does not port',
     // stopping. Her lock pick, slot `e`, is tested in
     // scripts/apply-lock-pick.test.mjs.
 
-    // C's default redirects a Knight's slot-b lance to use_pole() and the
-    // seed-fixed Barbarian's slot-b axe to use_pick_axe(). Those functions
-    // remain unported, so neither weapon may acquire armor's unknown-use
-    // answer merely because all three paths share C's default label.
-    for (const [role, letter, otyp] of [
-        ['Knight', 'b', LANCE],
-        ['Barbarian', 'b', AXE],
-    ]) {
+    // C's default redirects a Knight's slot-b lance to use_pole(), which
+    // remains unported. The pick/axe default now enters use_pick_axe() and is
+    // covered by the dig.c command replay.
+    for (const [role, letter, otyp] of [['Knight', 'b', LANCE]]) {
         const weaponSegment = loadApplyPromptRecipe().segments.find(
             ({ nethackrc }) => nethackrc.includes(`role:${role}`),
         );

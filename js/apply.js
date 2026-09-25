@@ -231,6 +231,8 @@ import {
     BAG_OF_HOLDING,
     BAG_OF_TRICKS,
     OILSKIN_SACK,
+    DWARVISH_MATTOCK,
+    PICK_AXE,
     CANDELABRUM_OF_INVOCATION,
     TALLOW_CANDLE,
     WAX_CANDLE,
@@ -248,6 +250,7 @@ import { recalc_block_point, unblock_point } from './vision.js';
 import { is_pole, setnotworn } from './worn.js';
 import { dowrite } from './write.js';
 import { use_container } from './pickup.js';
+import { use_pick_axe } from './dig.js';
 import { genders } from './roles.js';
 import { d, rn1, rn2, rnd, rne, rnz } from './rng.js';
 import {
@@ -1474,6 +1477,9 @@ export async function doapply(state = game, env = {}) {
         return use_cream_pie(obj, state, env);
     case STETHOSCOPE:
         return use_stethoscope(obj, state);
+    case PICK_AXE:
+    case DWARVISH_MATTOCK:
+        return use_pick_axe(obj, state);
     case LOCK_PICK:
     case CREDIT_CARD:
     case SKELETON_KEY:
@@ -1538,8 +1544,10 @@ export async function doapply(state = game, env = {}) {
             await ttyPline("Sorry, I don't know how to use that.", state);
             return ECMD_FAIL;
         }
+        if (is_pick(obj, state) || is_axe(obj, state))
+            return use_pick_axe(obj, state);
         // Every named arm this port has not implemented, plus the default's
-        // unported use_pole() and use_pick_axe() redirects, stays fail-closed.
+        // other unported arms, stays fail-closed.
         // The refusal names the object type so a session says which path it
         // wanted without accidentally executing a partial implementation.
         throw new UnsupportedApplyError(
