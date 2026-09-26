@@ -185,7 +185,7 @@ import { in_out_region } from './region.js';
 import { make_blinded } from './potion.js';
 import { mon_has_amulet } from './wizard.js';
 import { verbalize } from './pline.js';
-import { set_voice } from './sounds.js';
+import { set_voice, yelp } from './sounds.js';
 import { u_left_shop } from './shk.js';
 import { note_unported } from './unported.js';
 import { deltrap, fill_pit, Flying, reset_utrap, t_at, unconscious }
@@ -684,9 +684,35 @@ export async function tele_restrict(mon, state = game, rawEnv = {}) {
     return false;
 }
 
+// C ref: teleport.c teleport_pet() (786-810). The Boolean controls whether
+// its caller continues the monster teleport. Releasing the leash itself is
+// still the void apply.c:m_unleash() operation, so keep that exact gap while
+// preserving teleport_pet's source return value.
+export async function teleport_pet(monster, forceIt, rawEnv = {}) {
+    const env = teleportEnv(rawEnv);
+    const { random, state } = env;
+    if (monster === state.u?.usteed) return false;
+    if (!monster.mleashed) return true;
+
+    const { get_mleash } = await import('./apply.js');
+    const leash = get_mleash(monster, state);
+    if (!leash) {
+        // C emits an impossible() diagnostic without changing game output.
+        note_unported('pline.c impossible');
+    } else if (leash.cursed && !forceIt) {
+        await yelp(monster, state, random);
+        return false;
+    } else {
+        await (env.message ?? ttyPline)('Your leash goes slack.', state, env);
+    }
+
+    note_unported('apply.c m_unleash');
+    return true;
+}
+
 // C ref: teleport.c mtele_trap(), bounded to ordinary fixed or random D:1
-// destinations. Leashed pets and one-shot vault teleportation retain their
-// explicit future owners.
+// destinations. teleport_pet() owns its leash decision; the void m_unleash()
+// call remains an explicit source gap, as does one-shot vault teleportation.
 export async function mtele_trap(
     monster,
     trap,
@@ -697,11 +723,7 @@ export async function mtele_trap(
     const { state } = env;
     if (noteleport_level(monster, state)) return;
     if (monster === state.u?.usteed) return;
-    if (monster.mleashed) {
-        throw new UnsupportedPositionCheckError(
-            'leashed-pet teleportation',
-        );
-    }
+    if (!await teleport_pet(monster, false, env)) return;
     if (trap.once) {
         throw new UnsupportedPositionCheckError(
             'one-shot vault teleportation',
@@ -763,13 +785,7 @@ export async function mlevel_tele_trap(
     const portal = trapType === MAGIC_PORTAL;
     if (monster === state.u?.ustuck) return 'finished';
     if (monster === state.u?.usteed) return 'finished';
-    if (monster.mleashed) {
-        throw new UnsupportedPositionCheckError(
-            forceIt
-                ? 'forced leashed-pet level teleportation'
-                : 'leashed-pet level teleportation',
-        );
-    }
+    if (!await teleport_pet(monster, forceIt, env)) return 'finished';
     if (!portal && trapType !== HOLE && trapType !== TRAPDOOR) {
         throw new UnsupportedPositionCheckError(
             'non-hole monster level teleportation',

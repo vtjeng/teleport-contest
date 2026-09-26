@@ -23,6 +23,7 @@ import {
     WEB,
 } from '../js/const.js';
 import { do_fight } from '../js/cmd.js';
+import { is_digging } from '../js/dig.js';
 import {
     back_to_glyph,
     cmap_to_glyph,
@@ -539,7 +540,7 @@ test('an unseen empty square is thin air, not an unknown obstacle', async () => 
 
 // ── hack.c domove_fight_empty(), the arms that stop ──
 
-test('force-fight routes digging tools to use_pick_axe2 and records its callback gap', async () => {
+test('force-fight routes digging tools to use_pick_axe2 and installs its occupation', async () => {
     // hack.c:2302-2305's else. Terrain that is neither remembered nor rock
     // nor a secret door is "an unknown obstacle".
     const unseen = await heroInARoom();
@@ -607,7 +608,7 @@ test('force-fight routes digging tools to use_pick_axe2 and records its callback
     );
 
     // hack.c:2269-2276 calls use_pick_axe2() and discards its result. Its
-    // direction effects run; only the deferred dig() occupation is a gap. The
+    // direction effects run and install the deferred dig() occupation. The
     // swings dig_typ() declines are the next test; scripts/dig.test.mjs pins
     // the answers themselves.
     const DIGGING_ANSWERS = [
@@ -627,7 +628,7 @@ test('force-fight routes digging tools to use_pick_axe2 and records its callback
         );
         game.unported = new Set();
         await forceFightWest(state);
-        assert.ok(game.unported.has('dig.c dig'));
+        assert.equal(is_digging(state), true);
         assert.match(toplines(state), /^You start /u);
     }
 
