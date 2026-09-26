@@ -74145,7 +74145,7 @@
     {
       "id": "port-zap-weffects-force-bolt-synthetic-v2-20260926",
       "kind": "file-port",
-      "status": "open",
+      "status": "parked",
       "summary": "Port complete zap.c weffects and source-ordered Force Bolt ray behavior",
       "cFile": "zap.c",
       "sessions": [
@@ -74369,7 +74369,17 @@
             }
           }
         }
-      ]
+      ],
+      "progressBeforePark": {
+        "screens": 0,
+        "rng": 0
+      },
+      "parkedStanding": {
+        "sha": "210cd14f1e59abac0764199293de428ee71828fd",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "parkedReason": "Selected wizard Force Bolt and independent wand-of-striking clear rays now match C. Complete weffects source verification remains blocked by active do_break_wand caller, bhit doorlock consumed return, bhitm monster hit and resist death path, bhito object break and statue return chains, bhitpile statue trap result, and vertical, steed, NODIR, and directional spell paths. Resume when those source families and matching entry recordings are available; do not count this prefix as whole-function completion."
     },
     {
       "id": "port-engrave-u-can-engrave-synthetic-v3-20260926",
