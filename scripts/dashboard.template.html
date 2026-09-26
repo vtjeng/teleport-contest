@@ -218,6 +218,9 @@ h1 {
 
 #challengePanel { container-type: inline-size; }
 #challengeCards { display: none; }
+.challenge-filter { display: flex; align-items: center; gap: 6px; margin: 0 0 12px; font-size: 12px; color: var(--ink-secondary); cursor: pointer; }
+.challenge-filter[hidden] { display: none; }
+.challenge-filter input { margin: 0; }
 
 #challengeCards details + details { border-top: 1px solid var(--border); }
 #challengeCards summary {
@@ -907,6 +910,7 @@ canvas {
   <h2 class="section-title" id="challengeTitle">Challenges</h2>
   <div class="chart-wrap" id="challengePanel">
     <div id="challengeBatches"></div>
+    <label class="challenge-filter" id="challengeFilter"><input type="checkbox" id="challengeRemainingOnly">Show remaining only <span id="challengeRemainingCount"></span></label>
     <div id="challengeCards"></div>
     <div class="goal-table-wrap" id="challengeTableWrap">
       <table class="goal-table" id="challengeTable"></table>
@@ -995,6 +999,14 @@ const scoreMetric = metric => metric
   : '<span class="score-breakdown-missing">—</span>';
 const challengeData = DATA.challenges;
 const challengeCases = challengeData.cases || [];
+const challengeCaseMatches = item => {
+  const result = item.current;
+  return result?.passed === true && !result.error
+    && ['screens', 'rng', 'cursors'].every(metric => Number.isFinite(result[metric]?.matched)
+      && Number.isFinite(result[metric]?.total)
+      && result[metric].matched === result[metric].total);
+};
+const remainingChallengeCases = challengeCases.filter(item => !challengeCaseMatches(item));
 document.getElementById('stats').innerHTML = [
   ['Development set', scores.fixedDevelopment],
   ['Synthetic local holdout', { ...challengeData, ...challengeData.totals }],
@@ -1024,6 +1036,9 @@ document.getElementById('stats').innerHTML = [
 (function() {
   const table = document.getElementById('challengeTable');
   const cards = document.getElementById('challengeCards');
+  const remainingOnly = document.getElementById('challengeRemainingOnly');
+  document.getElementById('challengeFilter').hidden = challengeCases.length === 0;
+  document.getElementById('challengeRemainingCount').textContent = '(' + remainingChallengeCases.length + ')';
   const esc = text => String(text ?? '').replace(/&/g, '&amp;')
     .replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
   // Healthy batch measurements already appear in the score cards, charts, and
@@ -1035,38 +1050,44 @@ document.getElementById('stats').innerHTML = [
       + esc(batch.status) + (screens ? ' · ' + fmtN(screens.matched) + '/' + fmtN(screens.total) + ' screens' : '')
       + (batch.error ? ' · ' + esc(batch.error) : '') + '</p>';
   }).join('');
-  if (!challengeCases.length) {
-    table.innerHTML = '<tbody><tr><td>No challenge cases recorded.</td></tr></tbody>';
-    cards.innerHTML = '<p class="table-note">No challenge cases recorded.</p>';
-    return;
-  }
   const matchedText = result => result?.screens?.matched == null ? '—' : fmtN(result.screens.matched);
-  let html = '<thead><tr><th>Challenge</th><th>Initial</th><th>Current</th>'
-    + '<th>Total</th><th>Change</th></tr></thead><tbody>';
-  let cardHtml = '';
-  challengeCases.forEach(item => {
-    const title = (item.batch ? item.batch + ' · ' : '') + (item.title || item.id);
-    const outcome = item.outcome ? '<div class="challenge-outcome">' + esc(item.outcome) + '</div>' : '';
-    const initial = item.first?.screens?.matched;
-    const current = item.current?.screens?.matched;
-    const total = item.current?.screens?.total ?? item.first?.screens?.total ?? item.screenCount;
-    // A null delta marks measurements the evaluator found incomparable.
-    const change = item.delta == null || initial == null || current == null
-      ? '—' : fmtDelta(current - initial);
-    const fields = [
-      ['Initial', matchedText(item.first)],
-      ['Current', matchedText(item.current)],
-      ['Total', total == null ? '—' : fmtN(total)],
-      ['Change', change],
-    ];
-    html += '<tr><td title="' + esc(title) + '"><div>' + esc(title) + '</div>' + outcome + '</td>'
-      + fields.map(([, value]) => '<td>' + value + '</td>').join('') + '</tr>';
-    cardHtml += '<details><summary>' + esc(title) + '</summary>' + outcome
-      + '<dl>' + fields.map(([label, value]) => '<dt>' + label + '</dt><dd>' + value + '</dd>').join('')
-      + '</dl></details>';
-  });
-  cards.innerHTML = cardHtml;
-  table.innerHTML = html + '</tbody>';
+  const renderCases = () => {
+    const cases = remainingOnly.checked ? remainingChallengeCases : challengeCases;
+    if (!cases.length) {
+      const message = remainingOnly.checked ? 'No remaining challenge cases.' : 'No challenge cases recorded.';
+      table.innerHTML = '<tbody><tr><td>' + message + '</td></tr></tbody>';
+      cards.innerHTML = '<p class="table-note">' + message + '</p>';
+      return;
+    }
+    let html = '<thead><tr><th>Challenge</th><th>Initial</th><th>Current</th>'
+      + '<th>Total</th><th>Change</th></tr></thead><tbody>';
+    let cardHtml = '';
+    cases.forEach(item => {
+      const title = (item.batch ? item.batch + ' · ' : '') + (item.title || item.id);
+      const outcome = item.outcome ? '<div class="challenge-outcome">' + esc(item.outcome) + '</div>' : '';
+      const initial = item.first?.screens?.matched;
+      const current = item.current?.screens?.matched;
+      const total = item.current?.screens?.total ?? item.first?.screens?.total ?? item.screenCount;
+      // A null delta marks measurements the evaluator found incomparable.
+      const change = item.delta == null || initial == null || current == null
+        ? '—' : fmtDelta(current - initial);
+      const fields = [
+        ['Initial', matchedText(item.first)],
+        ['Current', matchedText(item.current)],
+        ['Total', total == null ? '—' : fmtN(total)],
+        ['Change', change],
+      ];
+      html += '<tr><td title="' + esc(title) + '"><div>' + esc(title) + '</div>' + outcome + '</td>'
+        + fields.map(([, value]) => '<td>' + value + '</td>').join('') + '</tr>';
+      cardHtml += '<details><summary>' + esc(title) + '</summary>' + outcome
+        + '<dl>' + fields.map(([label, value]) => '<dt>' + label + '</dt><dd>' + value + '</dd>').join('')
+        + '</dl></details>';
+    });
+    cards.innerHTML = cardHtml;
+    table.innerHTML = html + '</tbody>';
+  };
+  remainingOnly.addEventListener('change', renderCases);
+  renderCases();
 })();
 // --- Mismatch queue ---
 (function() {
@@ -1080,37 +1101,23 @@ document.getElementById('stats').innerHTML = [
     : (item.batch ? item.batch + ': ' : '') + item.reason);
   const plural = (n, word) => n + ' ' + word + (n === 1 ? '' : 's');
   let headline = QUEUE?.roadmapFallbackAllowed === true ? 'No known mismatches' : 'Queue unavailable';
-  let metrics = 'Current mismatch status is unknown.';
-  if (QUEUE?.roadmapFallbackAllowed === true) metrics = 'Every development session matches.';
+  let metrics = fmtN(remainingChallengeCases.length) + ' of ' + fmtN(challengeCases.length)
+    + ' challenge cases remaining in saved results';
   if (!workQueue && QUEUE?.sessions?.length) {
     headline = 'Known mismatches';
-    metrics = plural(QUEUE.sessions.length, 'session');
   }
   if (workQueue && Array.isArray(QUEUE.sessions)) {
     const fixed = QUEUE.sessions.filter(entry => entry.corpus === 'fixed');
-    const synthetic = QUEUE.sessions.filter(entry => entry.corpus === 'synthetic');
-    const needsInvestigation = QUEUE.sessions.filter(entry => entry.investigation?.status !== 'complete').length;
-    const traceOnly = synthetic.filter(entry => entry.remainingScreens === 0).length;
     headline = blockers.length ? 'Queue incomplete' : QUEUE.sessions.length
       ? 'Known mismatches' : QUEUE.generationReady ? 'No known mismatches' : 'Queue status unknown';
-    if (QUEUE.sessions.length) {
-      metrics = [plural(fixed.length, 'fixed session'), plural(synthetic.length, 'synthetic case'),
-        fmtN(synthetic.reduce((sum, entry) => sum + (entry.remainingScreens || 0), 0))
-          + ' unmatched synthetic screens',
-        ...(traceOnly ? [plural(traceOnly, 'case') + ' with no screen debt'] : []),
-        ...(needsInvestigation ? [plural(needsInvestigation, 'investigation') + ' needed'] : []),
-      ].join(' · ');
-      if (blockers.length) metrics = 'Known evaluated work: ' + metrics;
-    } else {
-      metrics = blockers.length ? 'Current evidence is incomplete.'
-        : QUEUE.generationReady ? 'All admitted synthetic screens currently match.'
-          : 'No complete queue counts available.';
-    }
+    if (!blockers.length) metrics = fmtN(remainingChallengeCases.length) + ' of '
+      + fmtN(challengeCases.length) + ' challenge cases remaining';
+    if (fixed.length) metrics += ' · ' + plural(fixed.length, 'fixed-session regression');
   }
   headlineNode.textContent = headline;
   metricsNode.textContent = metrics;
   warningNode.textContent = blockers.length ? plural(blockers.length, 'blocker')
-    + '; counts may be incomplete.' : '';
+    + '; ranked queue may be incomplete.' : '';
   const warning = blockers.length ? '<p class="table-note">Selection blocked: '
     + blockers.map(esc).join(' · ') + '</p>' : '';
   if (!QUEUE || !QUEUE.sessions || QUEUE.sessions.length === 0) {

@@ -114,7 +114,10 @@ function renderDashboard(data, queue = null) {
             textContent: '',
             className: '',
             disabled: false,
+            checked: false,
+            hidden: false,
             style: {},
+            listeners: {},
             classList: { add() {}, remove() {} },
             children: [],
             ops,
@@ -128,7 +131,7 @@ function renderDashboard(data, queue = null) {
             },
             getBoundingClientRect: () => ({ width: 1000, left: 0, top: 0, height: 0 }),
             getContext: () => context(ops),
-            addEventListener() {},
+            addEventListener(type, handler) { (this.listeners[type] ||= []).push(handler); },
             setAttribute() {},
             appendChild(child) { this.children.push(child); return child; },
             replaceChildren(...nodes) { this.children = nodes; },
@@ -325,6 +328,59 @@ test('challenge rows and cards show compact counts and comparable change', () =>
         /2026-01-0|a{40}|b{40}|<time\b|challenge-result-source|Source pointers|hack\.c:12/u);
 });
 
+test('remaining challenge filter includes screen and trace mismatches', () => {
+    const data = sourceDashboardData();
+    const screens = { matched: 3, total: 3 };
+    const rng = { matched: 10, total: 10 };
+    const cursors = { matched: 3, total: 3 };
+    data.challenges.cases = [
+        { batch: 'v1', id: 'fixed', title: 'Fixed', current: { passed: true, screens, rng, cursors } },
+        { batch: 'v1', id: 'screen', title: 'Screen mismatch',
+            current: { passed: false, screens: { matched: 2, total: 3 }, rng, cursors } },
+        { batch: 'v2', id: 'trace', title: 'Trace mismatch',
+            current: { passed: false, screens, rng: { matched: 9, total: 10 }, cursors } },
+    ];
+    const queue = { mode: 'work', blockers: [], generationReady: false, sessions: [
+        { corpus: 'synthetic', batch: 'v1', caseId: 'screen', session: 'synthetic/v1/screen',
+            remainingScreens: 1, recordedSteps: 3, kind: 'screen' },
+        { corpus: 'synthetic', batch: 'v2', caseId: 'trace', session: 'synthetic/v2/trace',
+            remainingScreens: 0, recordedSteps: 3, kind: 'rng' },
+    ] };
+    const rendered = renderDashboard(data, queue);
+    assert.equal(rendered.get('queueMetrics').textContent, '2 of 3 challenge cases remaining');
+    assert.equal(rendered.get('challengeRemainingCount').textContent, '(2)');
+    const filter = rendered.get('challengeRemainingOnly');
+    assert.match(rendered.get('challengeTable').innerHTML, /Fixed[\s\S]*Screen mismatch[\s\S]*Trace mismatch/u);
+    filter.checked = true;
+    filter.listeners.change[0]();
+    assert.doesNotMatch(rendered.get('challengeTable').innerHTML, /Fixed/u);
+    assert.match(rendered.get('challengeTable').innerHTML, /Screen mismatch[\s\S]*Trace mismatch/u);
+    assert.doesNotMatch(rendered.get('challengeCards').innerHTML, /Fixed/u);
+    filter.checked = false;
+    filter.listeners.change[0]();
+    assert.match(rendered.get('challengeTable').innerHTML, /Fixed/u);
+});
+
+test('unmeasured challenge cases remain visible in the remaining filter', () => {
+    const data = sourceDashboardData();
+    data.challenges.cases = [
+        { batch: 'v3', id: 'pending', title: 'Pending evaluation',
+            first: null, current: null, delta: null },
+        { batch: 'v3', id: 'partial', title: 'Incomplete metrics',
+            current: { passed: true, screens: { matched: 1, total: 1 }, rng: {},
+                cursors: { matched: 1, total: 1 } } },
+    ];
+    const rendered = renderDashboard(data, { mode: 'work', sessions: [],
+        generationReady: false, blockers: ['v3 evaluation missing'] });
+    assert.equal(rendered.get('queueMetrics').textContent,
+        '2 of 2 challenge cases remaining in saved results');
+    const filter = rendered.get('challengeRemainingOnly');
+    filter.checked = true;
+    filter.listeners.change[0]();
+    assert.match(rendered.get('challengeTable').innerHTML,
+        /Pending evaluation[\s\S]*Incomplete metrics/u);
+});
+
 test('score rows expose named development and local holdout measures', () => {
     const fixture = mkdtempSync(join(tmpdir(), 'teleport-dashboard-scores-'));
     git(fixture, ['init', '--quiet']);
@@ -447,7 +503,6 @@ test('the unified queue renders C, Lua, and unresolved source owners in priority
     };
     const rendered = renderDashboard(sourceDashboardData(), queue);
     const entries = rendered.get('queueEntries').innerHTML;
-    assert.equal(rendered.get('queueMetrics').textContent, '3 sessions');
     assert.match(entries, /Mismatch site: test_move\(\) in hack\.c:42</u);
     assert.match(entries, /Mismatch site: Arc-loca\.lua</u);
     assert.match(entries, /step unknown/u);
@@ -525,25 +580,32 @@ test('work queue keeps regression priority and displays exact synthetic screen c
     assert.match(html, /v1\/regression[\s\S]*1 of 20 screens unmatched[\s\S]*v2\/new-case[\s\S]*7 of 20 screens unmatched/u);
     assert.match(html, /Regression: restore previously matched screens first/u);
     assert.doesNotMatch(html, /at most|19 of 20/u);
-    assert.match(rendered.get('queueMetrics').textContent,
-        /0 fixed sessions · 2 synthetic cases · 8 unmatched synthetic screens · 2 investigations needed/u);
 });
 
 test('queue summary distinguishes incomplete evidence and screen-free mismatches', () => {
     const data = sourceDashboardData();
+    const screens = { matched: 3, total: 3 };
+    const cursors = { matched: 3, total: 3 };
+    data.challenges.cases = [
+        { batch: 'v1', id: 'fixed', current: { passed: true, screens,
+            rng: { matched: 10, total: 10 }, cursors } },
+        { batch: 'v1', id: 'cursor', current: { passed: false, screens,
+            rng: { matched: 9, total: 10 }, cursors } },
+    ];
     const unavailable = renderDashboard(data, null);
     assert.equal(unavailable.get('queueHeadline').textContent, 'Queue unavailable');
-    assert.doesNotMatch(unavailable.get('queueMetrics').textContent, /0 unmatched/u);
+    assert.equal(unavailable.get('queueMetrics').textContent,
+        '1 of 2 challenge cases remaining in saved results');
     const blocked = renderDashboard(data, { mode: 'work', sessions: [], generationReady: false,
         blockers: ['v2 evaluation missing'] });
     assert.equal(blocked.get('queueHeadline').textContent, 'Queue incomplete');
-    assert.equal(blocked.get('queueMetrics').textContent, 'Current evidence is incomplete.');
-    assert.match(blocked.get('queueSummaryWarning').textContent, /1 blocker/u);
+    assert.equal(blocked.get('queueMetrics').textContent,
+        '1 of 2 challenge cases remaining in saved results');
+    assert.match(blocked.get('queueSummaryWarning').textContent, /1 blocker; ranked queue may be incomplete/u);
     const trace = renderDashboard(data, { mode: 'work', generationReady: true, blockers: [],
         sessions: [{ corpus: 'synthetic', session: 'synthetic/v1/cursor',
             remainingScreens: 0, investigation: { status: 'complete' } }] });
-    assert.match(trace.get('queueMetrics').textContent,
-        /1 synthetic case · 0 unmatched synthetic screens · 1 case with no screen debt/u);
+    assert.equal(trace.get('queueMetrics').textContent, '1 of 2 challenge cases remaining');
     assert.match(trace.get('queueEntries').innerHTML, /cursor/u);
 });
 
