@@ -1,8 +1,10 @@
 import assert from 'node:assert/strict';
+import { readFileSync } from 'node:fs';
 import test from 'node:test';
 
 import {
     BLINDED,
+    FAINTED,
     HALLUC,
     HALLUC_RES,
     IN_SIGHT,
@@ -38,6 +40,7 @@ import {
     preflight_mpickobj,
     relobj,
     steal,
+    unresponsive,
     UnsupportedMonsterPickupOperationError,
 } from '../js/steal.js';
 import { runSegment } from '../js/jsmain.js';
@@ -58,6 +61,10 @@ import {
     WEAPON_CLASS,
     objects_globals_init,
 } from '../js/objects.js';
+
+const STEAL_C = readFileSync(
+    new URL('../nethack-c/upstream/src/steal.c', import.meta.url), 'utf8',
+);
 
 // Distinct coordinates make the post-transfer snuff callback observable.
 const CARRIER_X = 7;
@@ -138,6 +145,24 @@ function state(overrides = {}) {
     init_objects(gameState, () => 0);
     return gameState;
 }
+
+test('unresponsive follows steal.c multi, unconscious, fainted, and reason branches', () => {
+    assert.match(STEAL_C,
+        /unresponsive\(void\)[\s\S]*?if \(gm\.multi >= 0\)[\s\S]*?unconscious\(\) \|\| is_fainted\(\)[\s\S]*?strncmp\(gm\.multi_reason, "frozen", 6\)[\s\S]*?strncmp\(gm\.multi_reason, "paralyzed", 9\)/u);
+    assert.equal(unresponsive(state({ multi: 0 })), false);
+    assert.equal(unresponsive(state({ multi: -1 })), false);
+    assert.equal(unresponsive(state({
+        multi: -1, multi_reason: 'frozen by a monster',
+    })), true);
+    assert.equal(unresponsive(state({
+        multi: -1, multi_reason: 'paralyzed by a monster',
+    })), true);
+    assert.equal(unresponsive(state({
+        multi: -1, multi_reason: 'Frozen by a monster',
+    })), false);
+    assert.equal(unresponsive(state({ multi: -1, u: { uhs: FAINTED } })), true);
+    assert.equal(unresponsive(state({ multi: -1, u: { usleep: 1 } })), true);
+});
 
 test('steal sends the worn-item preface and theft line to separate callbacks',
     async () => {

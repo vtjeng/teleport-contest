@@ -21,6 +21,7 @@
 //     translated throw path into a production refusal.
 
 import assert from 'node:assert/strict';
+import { readFileSync } from 'node:fs';
 import test from 'node:test';
 
 import {
@@ -163,6 +164,10 @@ import {
 import { boomhit, skiprange } from '../js/zap.js';
 import { newMonster, place_monster } from '../js/monst.js';
 import { PM_SHOPKEEPER } from '../js/monsters.js';
+
+const DOTHROW_C = readFileSync(
+    new URL('../nethack-c/upstream/src/dothrow.c', import.meta.url), 'utf8',
+);
 
 function makeState() {
     const state = {};
@@ -1287,6 +1292,27 @@ test('throw_obj() refuses the throws C answers with a message', async () => {
     assert.equal(await throw_obj(kept, 0, atSelf), ECMD_OK);
     assert.match(atSelf._ttyToplines, /cannot throw an object at yourself/u);
     assert.equal(atSelf.invent, kept);
+});
+
+test('throw_obj removes a singleton wielded item before freeing it', async () => {
+    assert.match(DOTHROW_C,
+        /if \(otmp->owornmask\)\s*remove_worn_item\(otmp, FALSE\);[\s\S]*?freeinv\(otmp\)/u);
+
+    const state = arena();
+    const weapon = item(state, DAGGER, { owornmask: W_WEP });
+    carry(state, weapon);
+    state.uwep = weapon;
+    state.uquiver = null;
+    aimEast(state);
+
+    assert.equal(await throw_obj(weapon, 0, state), ECMD_TIME);
+    assert.equal(state.uwep, null,
+        'remove_worn_item clears the wielded slot before transfer');
+    assert.equal(weapon.owornmask, 0,
+        'the thrown item is no longer marked worn');
+    assert.equal(weapon.where, OBJ_FLOOR,
+        'the singleton reaches the thrown object landing path');
+    assert.deepEqual(pileAt(state, 9, 4), [weapon]);
 });
 
 test('throw_obj() lets gloves carry a petrifying corpse', async () => {

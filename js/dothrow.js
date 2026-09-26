@@ -361,7 +361,7 @@ import { bhit, boomhit, miss } from './zap.js';
 import { hmon } from './uhitm.js';
 import { m_at } from './monst.js';
 import { setmangry, wake_nearto, wakeup } from './mon.js';
-import { mpickobj } from './steal.js';
+import { mpickobj, remove_worn_item } from './steal.js';
 import { goodpos, rloc, tele_restrict } from './teleport.js';
 import { is_quest_artifact } from './questpgr.js';
 import { align_gname } from './pray.js';
@@ -1359,7 +1359,10 @@ export async function throw_obj(obj, shotlimit, state = game) {
                 setuqwep(null, setwornEnv(state));
                 update_inventory({ state });
             } else if (otmp.owornmask) {
-                throw new UnsupportedThrowError('remove_worn_item()');
+                // dothrow.c:263 removes a singleton worn item before freeinv;
+                // the C call's result is discarded, but its slot effects must
+                // finish before the object leaves the hero's inventory.
+                await remove_worn_item(otmp, false, state);
             }
             oldslot = obj.nobj;
             /* obj will leave inventory and may be freed by throwit */
