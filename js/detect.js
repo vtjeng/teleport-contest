@@ -1055,11 +1055,10 @@ export async function use_crystal_ball(optr, state = game) {
                 await ttyPline(
                     `${Tobjnam(obj, 'damage', state)} your vision!`, state,
                 );
-                const oldBlind = heroBlind(state);
                 const blindTimeout = (state.u.uprops[BLINDED]?.intrinsic ?? 0)
                     & TIMEOUT;
                 await make_blinded(blindTimeout + impairment, false, state);
-                if (!heroBlind(state) && oldBlind)
+                if (!heroBlind(state))
                     await ttyPline('Your vision clears.', state);
             } else {
                 await ttyPline(
@@ -1112,7 +1111,7 @@ export async function use_crystal_ball(optr, state = game) {
                 break;
             case 2:
                 await ttyPline(
-                    `Whoa! Psychedelic colors, ${poly_gender(state) === 1 ? 'babe' : 'dude'}!`,
+                    `Whoa!  Psychedelic colors, ${poly_gender(state) === 1 ? 'babe' : 'dude'}!`,
                     state,
                 );
                 break;
