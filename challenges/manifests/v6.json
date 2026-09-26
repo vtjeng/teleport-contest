@@ -1,0 +1,2598 @@
+{
+  "version": 1,
+  "batch": "v6",
+  "cases": [
+    {
+      "id": "archeologist-down-dig",
+      "title": "Archeologist Down Dig",
+      "mission": "C-first trial for nethack-c/upstream/src/dig.c: use_pick_axe(), use_pick_axe2(); see missionPlan for intended target and observed result.",
+      "selectionRationale": "Designed from C source before JavaScript comparison; retained regardless of whether the intended observation was reached or JavaScript matched.",
+      "sourcePointers": [
+        "nethack-c/upstream/src/dig.c: use_pick_axe(), use_pick_axe2()"
+      ],
+      "cOutcome": "Valid C debug history was recorded; no downward digging result was observed.",
+      "outcome": "Valid C debug history was recorded; no downward digging result was observed.",
+      "inputs": {
+        "seed": 60626013,
+        "datetime": "20260925113000",
+        "role": "Archeologist",
+        "race": "human",
+        "gender": "male",
+        "alignment": "neutral",
+        "playmode": "debug",
+        "keyCount": 2,
+        "boundaries": 3
+      },
+      "recipe": "challenges/cases/v6/archeologist-down-dig.recipe.session.json",
+      "recipeSha256": "7f4fed167d3db76a1c4a920556330b814eee0e7109e463b69fc51602fa3b200d",
+      "recording": "challenges/cases/v6/archeologist-down-dig.session.json",
+      "recordingSha256": "2136c08929088ee92dd84625080f2cae2233ce21e3897da6245d6f2a098e00e3",
+      "reproducibility": "Independent C replay command: node scripts/record-session.mjs challenges/cases/v6/archeologist-down-dig.session.json /tmp/B10-replay-archeologist-down-dig.session.json; exit code 0. Complete recording byte-identical (SHA-256 2136c08929088ee92dd84625080f2cae2233ce21e3897da6245d6f2a098e00e3); 3 boundaries. Log: /tmp/teleport-loop-worker-b-20260925/.cache/B10-replay-archeologist-down-dig.log."
+    },
+    {
+      "id": "archeologist-down-dig-callback",
+      "title": "Archeologist Down Dig Callback",
+      "mission": "C-first trial for nethack-c/upstream/src/dig.c: use_pick_axe(), use_pick_axe2(); see missionPlan for intended target and observed result.",
+      "selectionRationale": "Designed from C source before JavaScript comparison; retained regardless of whether the intended observation was reached or JavaScript matched.",
+      "sourcePointers": [
+        "nethack-c/upstream/src/dig.c: use_pick_axe(), use_pick_axe2()"
+      ],
+      "cOutcome": "Valid C debug history was recorded; no downward digging result was observed.",
+      "outcome": "Valid C debug history was recorded; no downward digging result was observed.",
+      "inputs": {
+        "seed": 60626052,
+        "datetime": "20260925113000",
+        "role": "Archeologist",
+        "race": "human",
+        "gender": "male",
+        "alignment": "neutral",
+        "playmode": "debug",
+        "keyCount": 5,
+        "boundaries": 6
+      },
+      "recipe": "challenges/cases/v6/archeologist-down-dig-callback.recipe.session.json",
+      "recipeSha256": "235ea7db72784bd76457f8c27953d9365da4701cd823540a6ab1ca98716385c0",
+      "recording": "challenges/cases/v6/archeologist-down-dig-callback.session.json",
+      "recordingSha256": "f919f5fa6e34bd86c15d3e69660254d27043612ab9787b64aef37b05f2fe9ba4",
+      "reproducibility": "Independent C replay command: node scripts/record-session.mjs challenges/cases/v6/archeologist-down-dig-callback.session.json /tmp/B10-replay-archeologist-down-dig-callback.session.json; exit code 0. Complete recording byte-identical (SHA-256 f919f5fa6e34bd86c15d3e69660254d27043612ab9787b64aef37b05f2fe9ba4); 6 boundaries. Log: /tmp/teleport-loop-worker-b-20260925/.cache/B10-replay-archeologist-down-dig-callback.log."
+    },
+    {
+      "id": "archeologist-down-dig-dir",
+      "title": "Archeologist Down Dig Dir",
+      "mission": "C-first trial for nethack-c/upstream/src/dig.c: use_pick_axe(), use_pick_axe2(); see missionPlan for intended target and observed result.",
+      "selectionRationale": "Designed from C source before JavaScript comparison; retained regardless of whether the intended observation was reached or JavaScript matched.",
+      "sourcePointers": [
+        "nethack-c/upstream/src/dig.c: use_pick_axe(), use_pick_axe2()"
+      ],
+      "cOutcome": "Valid C debug history was recorded; no downward digging result was observed.",
+      "outcome": "Valid C debug history was recorded; no downward digging result was observed.",
+      "inputs": {
+        "seed": 60626045,
+        "datetime": "20260925113000",
+        "role": "Archeologist",
+        "race": "human",
+        "gender": "male",
+        "alignment": "neutral",
+        "playmode": "debug",
+        "keyCount": 4,
+        "boundaries": 5
+      },
+      "recipe": "challenges/cases/v6/archeologist-down-dig-dir.recipe.session.json",
+      "recipeSha256": "e060d5649176249dec7422b1285a571c43e6e0770cbf668b4c92bb17662581a7",
+      "recording": "challenges/cases/v6/archeologist-down-dig-dir.session.json",
+      "recordingSha256": "1ceaf2e35fe7e7f9f6c78a6a1b607f4724f0b41480a297ca71d1845c63c13a83",
+      "reproducibility": "Independent C replay command: node scripts/record-session.mjs challenges/cases/v6/archeologist-down-dig-dir.session.json /tmp/B10-replay-archeologist-down-dig-dir.session.json; exit code 0. Complete recording byte-identical (SHA-256 1ceaf2e35fe7e7f9f6c78a6a1b607f4724f0b41480a297ca71d1845c63c13a83); 5 boundaries. Log: /tmp/teleport-loop-worker-b-20260925/.cache/B10-replay-archeologist-down-dig-dir.log."
+    },
+    {
+      "id": "archeologist-down-dig-final",
+      "title": "Archeologist Down Dig Final",
+      "mission": "C-first trial for nethack-c/upstream/src/dig.c: use_pick_axe(), use_pick_axe2(); see missionPlan for intended target and observed result.",
+      "selectionRationale": "Designed from C source before JavaScript comparison; retained regardless of whether the intended observation was reached or JavaScript matched.",
+      "sourcePointers": [
+        "nethack-c/upstream/src/dig.c: use_pick_axe(), use_pick_axe2()"
+      ],
+      "cOutcome": "Valid C history began the downward digging occupation; this variant did not reach the floor-pit observation.",
+      "outcome": "Valid C history began the downward digging occupation; this variant did not reach the floor-pit observation.",
+      "inputs": {
+        "seed": 60626052,
+        "datetime": "20260925113000",
+        "role": "Archeologist",
+        "race": "human",
+        "gender": "male",
+        "alignment": "neutral",
+        "playmode": "debug",
+        "keyCount": 6,
+        "boundaries": 7
+      },
+      "recipe": "challenges/cases/v6/archeologist-down-dig-final.recipe.session.json",
+      "recipeSha256": "78e2e5f2ccddd501708083bc4baa93652332afa3bff0ff5284f83c0f78777720",
+      "recording": "challenges/cases/v6/archeologist-down-dig-final.session.json",
+      "recordingSha256": "4534979fef17fa8fa9e66b98f1f3a2d6f5b15c94eb1fa38de3750d06c962b612",
+      "reproducibility": "Independent C replay command: node scripts/record-session.mjs challenges/cases/v6/archeologist-down-dig-final.session.json /tmp/B10-replay-archeologist-down-dig-final.session.json; exit code 0. Complete recording byte-identical (SHA-256 4534979fef17fa8fa9e66b98f1f3a2d6f5b15c94eb1fa38de3750d06c962b612); 7 boundaries. Log: /tmp/teleport-loop-worker-b-20260925/.cache/B10-replay-archeologist-down-dig-final.log."
+    },
+    {
+      "id": "archeologist-down-dig-floor",
+      "title": "Archeologist Down Dig Floor",
+      "mission": "C-first trial for nethack-c/upstream/src/dig.c: use_pick_axe(), use_pick_axe2(); see missionPlan for intended target and observed result.",
+      "selectionRationale": "Designed from C source before JavaScript comparison; retained regardless of whether the intended observation was reached or JavaScript matched.",
+      "sourcePointers": [
+        "nethack-c/upstream/src/dig.c: use_pick_axe(), use_pick_axe2()"
+      ],
+      "cOutcome": "Reached dig.c:use_pick_axe/use_pick_axe2 at segment 0 step 6; observed You dig a pit in the floor.",
+      "outcome": "Reached dig.c:use_pick_axe/use_pick_axe2 at segment 0 step 6; observed You dig a pit in the floor.",
+      "inputs": {
+        "seed": 60626052,
+        "datetime": "20260925113000",
+        "role": "Archeologist",
+        "race": "human",
+        "gender": "male",
+        "alignment": "neutral",
+        "playmode": "debug",
+        "keyCount": 7,
+        "boundaries": 8
+      },
+      "recipe": "challenges/cases/v6/archeologist-down-dig-floor.recipe.session.json",
+      "recipeSha256": "7a44624310a7907c493bc6e6dd893aaf141942878dc86db440ae6c2972c69742",
+      "recording": "challenges/cases/v6/archeologist-down-dig-floor.session.json",
+      "recordingSha256": "8ae44f290808dea580c783add4b5cc12e99a94f4c998441b329325406fa9e9a9",
+      "reproducibility": "Independent C replay command: node scripts/record-session.mjs challenges/cases/v6/archeologist-down-dig-floor.session.json /tmp/B10-replay-archeologist-down-dig-floor.session.json; exit code 0. Complete recording byte-identical (SHA-256 8ae44f290808dea580c783add4b5cc12e99a94f4c998441b329325406fa9e9a9); 8 boundaries. Log: /tmp/teleport-loop-worker-b-20260925/.cache/B10-replay-archeologist-down-dig-floor.log."
+    },
+    {
+      "id": "archeologist-down-dig-page",
+      "title": "Archeologist Down Dig Page",
+      "mission": "C-first trial for nethack-c/upstream/src/dig.c: use_pick_axe(), use_pick_axe2(); see missionPlan for intended target and observed result.",
+      "selectionRationale": "Designed from C source before JavaScript comparison; retained regardless of whether the intended observation was reached or JavaScript matched.",
+      "sourcePointers": [
+        "nethack-c/upstream/src/dig.c: use_pick_axe(), use_pick_axe2()"
+      ],
+      "cOutcome": "Valid C debug history was recorded; no downward digging result was observed.",
+      "outcome": "Valid C debug history was recorded; no downward digging result was observed.",
+      "inputs": {
+        "seed": 60626049,
+        "datetime": "20260925113000",
+        "role": "Archeologist",
+        "race": "human",
+        "gender": "male",
+        "alignment": "neutral",
+        "playmode": "debug",
+        "keyCount": 11,
+        "boundaries": 12
+      },
+      "recipe": "challenges/cases/v6/archeologist-down-dig-page.recipe.session.json",
+      "recipeSha256": "74b0c7b9f1eeb8c8b67518193caffb33d8a57d92ee056857cc8839d0d9547638",
+      "recording": "challenges/cases/v6/archeologist-down-dig-page.session.json",
+      "recordingSha256": "884944918346b475eb8466410163141c25bc4c9a36e397e1af680c77364b17af",
+      "reproducibility": "Independent C replay command: node scripts/record-session.mjs challenges/cases/v6/archeologist-down-dig-page.session.json /tmp/B10-replay-archeologist-down-dig-page.session.json; exit code 0. Complete recording byte-identical (SHA-256 884944918346b475eb8466410163141c25bc4c9a36e397e1af680c77364b17af); 12 boundaries. Log: /tmp/teleport-loop-worker-b-20260925/.cache/B10-replay-archeologist-down-dig-page.log."
+    },
+    {
+      "id": "archeologist-down-dig-reach",
+      "title": "Archeologist Down Dig Reach",
+      "mission": "C-first trial for nethack-c/upstream/src/dig.c: use_pick_axe(), use_pick_axe2(); see missionPlan for intended target and observed result.",
+      "selectionRationale": "Designed from C source before JavaScript comparison; retained regardless of whether the intended observation was reached or JavaScript matched.",
+      "sourcePointers": [
+        "nethack-c/upstream/src/dig.c: use_pick_axe(), use_pick_axe2()"
+      ],
+      "cOutcome": "Valid C debug history was recorded; no downward digging result was observed.",
+      "outcome": "Valid C debug history was recorded; no downward digging result was observed.",
+      "inputs": {
+        "seed": 60626033,
+        "datetime": "20260925113000",
+        "role": "Archeologist",
+        "race": "human",
+        "gender": "male",
+        "alignment": "neutral",
+        "playmode": "debug",
+        "keyCount": 3,
+        "boundaries": 4
+      },
+      "recipe": "challenges/cases/v6/archeologist-down-dig-reach.recipe.session.json",
+      "recipeSha256": "061029e7a3312dd963f4b85e194be6723445905d0851361135b4cb7ba1057a92",
+      "recording": "challenges/cases/v6/archeologist-down-dig-reach.session.json",
+      "recordingSha256": "0bac76e3ffee0b48a7ba3a6d26d4fc8636ecc4be03898de8bf8cd966a8290ac1",
+      "reproducibility": "Independent C replay command: node scripts/record-session.mjs challenges/cases/v6/archeologist-down-dig-reach.session.json /tmp/B10-replay-archeologist-down-dig-reach.session.json; exit code 0. Complete recording byte-identical (SHA-256 0bac76e3ffee0b48a7ba3a6d26d4fc8636ecc4be03898de8bf8cd966a8290ac1); 4 boundaries. Log: /tmp/teleport-loop-worker-b-20260925/.cache/B10-replay-archeologist-down-dig-reach.log."
+    },
+    {
+      "id": "archeologist-pickaxe-inventory",
+      "title": "Archeologist Pickaxe Inventory",
+      "mission": "C-first trial for nethack-c/upstream/src/dig.c: use_pick_axe(); see missionPlan for intended target and observed result.",
+      "selectionRationale": "Designed from C source before JavaScript comparison; retained regardless of whether the intended observation was reached or JavaScript matched.",
+      "sourcePointers": [
+        "nethack-c/upstream/src/dig.c: use_pick_axe()"
+      ],
+      "cOutcome": "Valid C pick-axe inventory/action history recorded; the mission plan identifies whether a dig result was reached.",
+      "outcome": "Valid C pick-axe inventory/action history recorded; the mission plan identifies whether a dig result was reached.",
+      "inputs": {
+        "seed": 60626023,
+        "datetime": "20260925113000",
+        "role": "Archeologist",
+        "race": "human",
+        "gender": "female",
+        "alignment": "neutral",
+        "playmode": "debug",
+        "keyCount": 4,
+        "boundaries": 5
+      },
+      "recipe": "challenges/cases/v6/archeologist-pickaxe-inventory.recipe.session.json",
+      "recipeSha256": "7288ba64d59d4ab2669a5f46b2a512988696ac83de0a3cf2713100e54a010aea",
+      "recording": "challenges/cases/v6/archeologist-pickaxe-inventory.session.json",
+      "recordingSha256": "1ae7293661166f4b0325469521bb8d1a16ebcc0f852c830889d2c2c7bed914e5",
+      "reproducibility": "Independent C replay command: node scripts/record-session.mjs challenges/cases/v6/archeologist-pickaxe-inventory.session.json /tmp/B10-replay-archeologist-pickaxe-inventory.session.json; exit code 0. Complete recording byte-identical (SHA-256 1ae7293661166f4b0325469521bb8d1a16ebcc0f852c830889d2c2c7bed914e5); 5 boundaries. Log: /tmp/teleport-loop-worker-b-20260925/.cache/B10-replay-archeologist-pickaxe-inventory.log."
+    },
+    {
+      "id": "archeologist-sit-ice",
+      "title": "Archeologist Sit Ice",
+      "mission": "C-first trial for nethack-c/upstream/src/sit.c: dosit(); see missionPlan for intended target and observed result.",
+      "selectionRationale": "Designed from C source before JavaScript comparison; retained regardless of whether the intended observation was reached or JavaScript matched.",
+      "sourcePointers": [
+        "nethack-c/upstream/src/sit.c: dosit()"
+      ],
+      "cOutcome": "Reached sit.c:dosit ice feedback at segment 0 step 10; observed The ice feels cold.",
+      "outcome": "Reached sit.c:dosit ice feedback at segment 0 step 10; observed The ice feels cold.",
+      "inputs": {
+        "seed": 60626006,
+        "datetime": "20260925113000",
+        "role": "Archeologist",
+        "race": "human",
+        "gender": "female",
+        "alignment": "neutral",
+        "playmode": "debug",
+        "keyCount": 10,
+        "boundaries": 11
+      },
+      "recipe": "challenges/cases/v6/archeologist-sit-ice.recipe.session.json",
+      "recipeSha256": "cc9b96b1b7d489fe18619295a33897dc90192885ea0d66ecb85067d825a17877",
+      "recording": "challenges/cases/v6/archeologist-sit-ice.session.json",
+      "recordingSha256": "9582ee5c2aa4664baa8e6009bd9c1a2174505d7cd21b85444c611140a55e66c8",
+      "reproducibility": "Independent C replay command: node scripts/record-session.mjs challenges/cases/v6/archeologist-sit-ice.session.json /tmp/B10-replay-archeologist-sit-ice.session.json; exit code 0. Complete recording byte-identical (SHA-256 9582ee5c2aa4664baa8e6009bd9c1a2174505d7cd21b85444c611140a55e66c8); 11 boundaries. Log: /tmp/teleport-loop-worker-b-20260925/.cache/B10-replay-archeologist-sit-ice.log."
+    },
+    {
+      "id": "healer-nymph-no-pet",
+      "title": "Healer Nymph No Pet",
+      "mission": "C-first trial for nethack-c/upstream/src/makemon.c: makemon(); nethack-c/upstream/src/steal.c: steal(); see missionPlan for intended target and observed result.",
+      "selectionRationale": "Designed from C source before JavaScript comparison; retained regardless of whether the intended observation was reached or JavaScript matched.",
+      "sourcePointers": [
+        "nethack-c/upstream/src/makemon.c: makemon()",
+        "nethack-c/upstream/src/steal.c: steal()"
+      ],
+      "cOutcome": "Valid C history reached hostile nymph creation/ring-wear setup; no ring-theft observation was reached.",
+      "outcome": "Valid C history reached hostile nymph creation/ring-wear setup; no ring-theft observation was reached.",
+      "inputs": {
+        "seed": 60626054,
+        "datetime": "20260925113000",
+        "role": "Healer",
+        "race": "human",
+        "gender": "female",
+        "alignment": "neutral",
+        "playmode": "debug",
+        "keyCount": 48,
+        "boundaries": 49
+      },
+      "recipe": "challenges/cases/v6/healer-nymph-no-pet.recipe.session.json",
+      "recipeSha256": "7598a8d290181b727a709e5431686ae26ebbc37311d89bf80c89071d89c25e88",
+      "recording": "challenges/cases/v6/healer-nymph-no-pet.session.json",
+      "recordingSha256": "3bf6b5e178134a356251c23cf9f1a6fe9238a66b5b9bb81755a5de51d4f0b3a5",
+      "reproducibility": "Independent C replay command: node scripts/record-session.mjs challenges/cases/v6/healer-nymph-no-pet.session.json /tmp/B10-replay-healer-nymph-no-pet.session.json; exit code 0. Complete recording byte-identical (SHA-256 3bf6b5e178134a356251c23cf9f1a6fe9238a66b5b9bb81755a5de51d4f0b3a5); 49 boundaries. Log: /tmp/teleport-loop-worker-b-20260925/.cache/B10-replay-healer-nymph-no-pet.log."
+    },
+    {
+      "id": "healer-nymph-ring-theft",
+      "title": "Healer Nymph Ring Theft",
+      "mission": "C-first trial for nethack-c/upstream/src/makemon.c: makemon(); nethack-c/upstream/src/steal.c: steal(); see missionPlan for intended target and observed result.",
+      "selectionRationale": "Designed from C source before JavaScript comparison; retained regardless of whether the intended observation was reached or JavaScript matched.",
+      "sourcePointers": [
+        "nethack-c/upstream/src/makemon.c: makemon()",
+        "nethack-c/upstream/src/steal.c: steal()"
+      ],
+      "cOutcome": "Valid C history reached hostile nymph creation/ring-wear setup; no ring-theft observation was reached.",
+      "outcome": "Valid C history reached hostile nymph creation/ring-wear setup; no ring-theft observation was reached.",
+      "inputs": {
+        "seed": 60626053,
+        "datetime": "20260925113000",
+        "role": "Healer",
+        "race": "human",
+        "gender": "female",
+        "alignment": "neutral",
+        "playmode": "debug",
+        "keyCount": 49,
+        "boundaries": 50
+      },
+      "recipe": "challenges/cases/v6/healer-nymph-ring-theft.recipe.session.json",
+      "recipeSha256": "681634ba2af30181e2325b026966af2ae5a787ea612db91b5721ba509b306874",
+      "recording": "challenges/cases/v6/healer-nymph-ring-theft.session.json",
+      "recordingSha256": "2d831caf03519214aee33e3653b3fab5469b546511d8aee0f54ffa0932f1c56e",
+      "reproducibility": "Independent C replay command: node scripts/record-session.mjs challenges/cases/v6/healer-nymph-ring-theft.session.json /tmp/B10-replay-healer-nymph-ring-theft.session.json; exit code 0. Complete recording byte-identical (SHA-256 2d831caf03519214aee33e3653b3fab5469b546511d8aee0f54ffa0932f1c56e); 50 boundaries. Log: /tmp/teleport-loop-worker-b-20260925/.cache/B10-replay-healer-nymph-ring-theft.log."
+    },
+    {
+      "id": "healer-nymph-ring-theft-final",
+      "title": "Healer Nymph Ring Theft Final",
+      "mission": "C-first trial for nethack-c/upstream/src/makemon.c: makemon(); nethack-c/upstream/src/steal.c: steal(); see missionPlan for intended target and observed result.",
+      "selectionRationale": "Designed from C source before JavaScript comparison; retained regardless of whether the intended observation was reached or JavaScript matched.",
+      "sourcePointers": [
+        "nethack-c/upstream/src/makemon.c: makemon()",
+        "nethack-c/upstream/src/steal.c: steal()"
+      ],
+      "cOutcome": "Valid C history reached hostile nymph creation/ring-wear setup; no ring-theft observation was reached.",
+      "outcome": "Valid C history reached hostile nymph creation/ring-wear setup; no ring-theft observation was reached.",
+      "inputs": {
+        "seed": 60626054,
+        "datetime": "20260925113000",
+        "role": "Healer",
+        "race": "human",
+        "gender": "female",
+        "alignment": "neutral",
+        "playmode": "debug",
+        "keyCount": 49,
+        "boundaries": 50
+      },
+      "recipe": "challenges/cases/v6/healer-nymph-ring-theft-final.recipe.session.json",
+      "recipeSha256": "9aff8f1dfab6ba43fb8503f017074bb623c997376b1e8a0d5012d4a69d691546",
+      "recording": "challenges/cases/v6/healer-nymph-ring-theft-final.session.json",
+      "recordingSha256": "0915d04ac009af33eea7a3a17fb053e6446e4e218325d35a2db59cef00d30dcd",
+      "reproducibility": "Independent C replay command: node scripts/record-session.mjs challenges/cases/v6/healer-nymph-ring-theft-final.session.json /tmp/B10-replay-healer-nymph-ring-theft-final.session.json; exit code 0. Complete recording byte-identical (SHA-256 0915d04ac009af33eea7a3a17fb053e6446e4e218325d35a2db59cef00d30dcd); 50 boundaries. Log: /tmp/teleport-loop-worker-b-20260925/.cache/B10-replay-healer-nymph-ring-theft-final.log."
+    },
+    {
+      "id": "healer-nymph-ring-theft-retry",
+      "title": "Healer Nymph Ring Theft Retry",
+      "mission": "C-first trial for nethack-c/upstream/src/makemon.c: makemon(); nethack-c/upstream/src/steal.c: steal(); see missionPlan for intended target and observed result.",
+      "selectionRationale": "Designed from C source before JavaScript comparison; retained regardless of whether the intended observation was reached or JavaScript matched.",
+      "sourcePointers": [
+        "nethack-c/upstream/src/makemon.c: makemon()",
+        "nethack-c/upstream/src/steal.c: steal()"
+      ],
+      "cOutcome": "Valid C history reached hostile nymph creation/ring-wear setup; no ring-theft observation was reached.",
+      "outcome": "Valid C history reached hostile nymph creation/ring-wear setup; no ring-theft observation was reached.",
+      "inputs": {
+        "seed": 60626054,
+        "datetime": "20260925113000",
+        "role": "Healer",
+        "race": "human",
+        "gender": "female",
+        "alignment": "neutral",
+        "playmode": "debug",
+        "keyCount": 49,
+        "boundaries": 50
+      },
+      "recipe": "challenges/cases/v6/healer-nymph-ring-theft-retry.recipe.session.json",
+      "recipeSha256": "2e545b3e38074aded9a33c697571054d35df57435d2569e1bc08bbefa5541f31",
+      "recording": "challenges/cases/v6/healer-nymph-ring-theft-retry.session.json",
+      "recordingSha256": "00a47c3c10a2b3e7b2ee26e8b73f3e3d7d8c3e851b65e3432e939efbad4bd9a7",
+      "reproducibility": "Independent C replay command: node scripts/record-session.mjs challenges/cases/v6/healer-nymph-ring-theft-retry.session.json /tmp/B10-replay-healer-nymph-ring-theft-retry.session.json; exit code 0. Complete recording byte-identical (SHA-256 00a47c3c10a2b3e7b2ee26e8b73f3e3d7d8c3e851b65e3432e939efbad4bd9a7); 50 boundaries. Log: /tmp/teleport-loop-worker-b-20260925/.cache/B10-replay-healer-nymph-ring-theft-retry.log."
+    },
+    {
+      "id": "healer-stethoscope-newt",
+      "title": "Healer Stethoscope Newt",
+      "mission": "C-first trial for nethack-c/upstream/src/apply.c: use_stethoscope(); see missionPlan for intended target and observed result.",
+      "selectionRationale": "Designed from C source before JavaScript comparison; retained regardless of whether the intended observation was reached or JavaScript matched.",
+      "sourcePointers": [
+        "nethack-c/upstream/src/apply.c: use_stethoscope()"
+      ],
+      "cOutcome": "Valid C stethoscope setup history recorded.",
+      "outcome": "Valid C stethoscope setup history recorded.",
+      "inputs": {
+        "seed": 60626011,
+        "datetime": "20260925113000",
+        "role": "Healer",
+        "race": "human",
+        "gender": "female",
+        "alignment": "neutral",
+        "playmode": "debug",
+        "keyCount": 20,
+        "boundaries": 21
+      },
+      "recipe": "challenges/cases/v6/healer-stethoscope-newt.recipe.session.json",
+      "recipeSha256": "c5114cd0d0bdee9dc66344cb7e083fc84cf53ad6ca6537dda054d1a615301e31",
+      "recording": "challenges/cases/v6/healer-stethoscope-newt.session.json",
+      "recordingSha256": "069c2ed8365414da368ba8239700c0a0720fa2281df7edeadc8cc1246119b216",
+      "reproducibility": "Independent C replay command: node scripts/record-session.mjs challenges/cases/v6/healer-stethoscope-newt.session.json /tmp/B10-replay-healer-stethoscope-newt.session.json; exit code 0. Complete recording byte-identical (SHA-256 069c2ed8365414da368ba8239700c0a0720fa2281df7edeadc8cc1246119b216); 21 boundaries. Log: /tmp/teleport-loop-worker-b-20260925/.cache/B10-replay-healer-stethoscope-newt.log."
+    },
+    {
+      "id": "healer-stethoscope-retry",
+      "title": "Healer Stethoscope Retry",
+      "mission": "C-first trial for nethack-c/upstream/src/apply.c: use_stethoscope(); see missionPlan for intended target and observed result.",
+      "selectionRationale": "Designed from C source before JavaScript comparison; retained regardless of whether the intended observation was reached or JavaScript matched.",
+      "sourcePointers": [
+        "nethack-c/upstream/src/apply.c: use_stethoscope()"
+      ],
+      "cOutcome": "Reached apply.c:use_stethoscope at segment 0 step 22; observed Status of the newt",
+      "outcome": "Reached apply.c:use_stethoscope at segment 0 step 22; observed Status of the newt",
+      "inputs": {
+        "seed": 60626020,
+        "datetime": "20260925113000",
+        "role": "Healer",
+        "race": "human",
+        "gender": "male",
+        "alignment": "neutral",
+        "playmode": "debug",
+        "keyCount": 22,
+        "boundaries": 23
+      },
+      "recipe": "challenges/cases/v6/healer-stethoscope-retry.recipe.session.json",
+      "recipeSha256": "16d5f3eeca3f83d135fc9d57daaa82fecbce01a72c934695e5871db028f86e36",
+      "recording": "challenges/cases/v6/healer-stethoscope-retry.session.json",
+      "recordingSha256": "55af7eeb76904f3c4ea4860a9a99fef503a9e690ff534af0b9efe9eaa87ff6fc",
+      "reproducibility": "Independent C replay command: node scripts/record-session.mjs challenges/cases/v6/healer-stethoscope-retry.session.json /tmp/B10-replay-healer-stethoscope-retry.session.json; exit code 0. Complete recording byte-identical (SHA-256 55af7eeb76904f3c4ea4860a9a99fef503a9e690ff534af0b9efe9eaa87ff6fc); 23 boundaries. Log: /tmp/teleport-loop-worker-b-20260925/.cache/B10-replay-healer-stethoscope-retry.log."
+    },
+    {
+      "id": "priest-sit-altar",
+      "title": "Priest Sit Altar",
+      "mission": "C-first trial for nethack-c/upstream/src/sit.c: dosit(); see missionPlan for intended target and observed result.",
+      "selectionRationale": "Designed from C source before JavaScript comparison; retained regardless of whether the intended observation was reached or JavaScript matched.",
+      "sourcePointers": [
+        "nethack-c/upstream/src/sit.c: dosit()"
+      ],
+      "cOutcome": "Reached sit.c:dosit IS_ALTAR at segment 0 step 12; observed You sit on the altar.",
+      "outcome": "Reached sit.c:dosit IS_ALTAR at segment 0 step 12; observed You sit on the altar.",
+      "inputs": {
+        "seed": 60626005,
+        "datetime": "20260925113000",
+        "role": "Priest",
+        "race": "human",
+        "gender": "male",
+        "alignment": "lawful",
+        "playmode": "debug",
+        "keyCount": 12,
+        "boundaries": 13
+      },
+      "recipe": "challenges/cases/v6/priest-sit-altar.recipe.session.json",
+      "recipeSha256": "e853d234cbcfa1c0dc048881bff1193605e15bab26fc6cec7396a3da0c0662be",
+      "recording": "challenges/cases/v6/priest-sit-altar.session.json",
+      "recordingSha256": "5d63bfff4f6be435a201c1406de9afe54a60eea43cfda97ace579be899e2df1b",
+      "reproducibility": "Independent C replay command: node scripts/record-session.mjs challenges/cases/v6/priest-sit-altar.session.json /tmp/B10-replay-priest-sit-altar.session.json; exit code 0. Complete recording byte-identical (SHA-256 5d63bfff4f6be435a201c1406de9afe54a60eea43cfda97ace579be899e2df1b); 13 boundaries. Log: /tmp/teleport-loop-worker-b-20260925/.cache/B10-replay-priest-sit-altar.log."
+    },
+    {
+      "id": "rogue-nymph-ring-retry",
+      "title": "Rogue Nymph Ring Retry",
+      "mission": "C-first trial for nethack-c/upstream/src/makemon.c: makemon(); nethack-c/upstream/src/steal.c: steal(); see missionPlan for intended target and observed result.",
+      "selectionRationale": "Designed from C source before JavaScript comparison; retained regardless of whether the intended observation was reached or JavaScript matched.",
+      "sourcePointers": [
+        "nethack-c/upstream/src/makemon.c: makemon()",
+        "nethack-c/upstream/src/steal.c: steal()"
+      ],
+      "cOutcome": "Valid C history reached hostile nymph creation/ring-wear setup; no ring-theft observation was reached.",
+      "outcome": "Valid C history reached hostile nymph creation/ring-wear setup; no ring-theft observation was reached.",
+      "inputs": {
+        "seed": 60626021,
+        "datetime": "20260925113000",
+        "role": "Rogue",
+        "race": "human",
+        "gender": "male",
+        "alignment": "chaotic",
+        "playmode": "debug",
+        "keyCount": 37,
+        "boundaries": 38
+      },
+      "recipe": "challenges/cases/v6/rogue-nymph-ring-retry.recipe.session.json",
+      "recipeSha256": "51609efdf7e976293a236e79ea2bcaeef19e8c43588ba0e7cf589ff24c91ef22",
+      "recording": "challenges/cases/v6/rogue-nymph-ring-retry.session.json",
+      "recordingSha256": "5f8a3796b901d3d8ea87aa3a75f40cd6026aa5b00595d2cde87e720270005335",
+      "reproducibility": "Independent C replay command: node scripts/record-session.mjs challenges/cases/v6/rogue-nymph-ring-retry.session.json /tmp/B10-replay-rogue-nymph-ring-retry.session.json; exit code 0. Complete recording byte-identical (SHA-256 5f8a3796b901d3d8ea87aa3a75f40cd6026aa5b00595d2cde87e720270005335); 38 boundaries. Log: /tmp/teleport-loop-worker-b-20260925/.cache/B10-replay-rogue-nymph-ring-retry.log."
+    },
+    {
+      "id": "rogue-nymph-ring-steal",
+      "title": "Rogue Nymph Ring Steal",
+      "mission": "C-first trial for nethack-c/upstream/src/makemon.c: makemon(); nethack-c/upstream/src/steal.c: steal(); see missionPlan for intended target and observed result.",
+      "selectionRationale": "Designed from C source before JavaScript comparison; retained regardless of whether the intended observation was reached or JavaScript matched.",
+      "sourcePointers": [
+        "nethack-c/upstream/src/makemon.c: makemon()",
+        "nethack-c/upstream/src/steal.c: steal()"
+      ],
+      "cOutcome": "Valid C history reached hostile nymph creation/ring-wear setup; no ring-theft observation was reached.",
+      "outcome": "Valid C history reached hostile nymph creation/ring-wear setup; no ring-theft observation was reached.",
+      "inputs": {
+        "seed": 60626044,
+        "datetime": "20260925113000",
+        "role": "Rogue",
+        "race": "human",
+        "gender": "female",
+        "alignment": "chaotic",
+        "playmode": "debug",
+        "keyCount": 41,
+        "boundaries": 42
+      },
+      "recipe": "challenges/cases/v6/rogue-nymph-ring-steal.recipe.session.json",
+      "recipeSha256": "361bc7c8533bf29f94edfdc1caa4e906012d6a2826d36d2a5a8a2df94f1d29b0",
+      "recording": "challenges/cases/v6/rogue-nymph-ring-steal.session.json",
+      "recordingSha256": "fe87b5912dee19c9cf33a410c071c5da6db37d95eaf8a6b7d7f6b621d767e380",
+      "reproducibility": "Independent C replay command: node scripts/record-session.mjs challenges/cases/v6/rogue-nymph-ring-steal.session.json /tmp/B10-replay-rogue-nymph-ring-steal.session.json; exit code 0. Complete recording byte-identical (SHA-256 fe87b5912dee19c9cf33a410c071c5da6db37d95eaf8a6b7d7f6b621d767e380); 42 boundaries. Log: /tmp/teleport-loop-worker-b-20260925/.cache/B10-replay-rogue-nymph-ring-steal.log."
+    },
+    {
+      "id": "rogue-nymph-ring-theft",
+      "title": "Rogue Nymph Ring Theft",
+      "mission": "C-first trial for nethack-c/upstream/src/makemon.c: makemon(); nethack-c/upstream/src/steal.c: steal(); see missionPlan for intended target and observed result.",
+      "selectionRationale": "Designed from C source before JavaScript comparison; retained regardless of whether the intended observation was reached or JavaScript matched.",
+      "sourcePointers": [
+        "nethack-c/upstream/src/makemon.c: makemon()",
+        "nethack-c/upstream/src/steal.c: steal()"
+      ],
+      "cOutcome": "Valid C history reached hostile nymph creation/ring-wear setup; no ring-theft observation was reached.",
+      "outcome": "Valid C history reached hostile nymph creation/ring-wear setup; no ring-theft observation was reached.",
+      "inputs": {
+        "seed": 60626012,
+        "datetime": "20260925113000",
+        "role": "Rogue",
+        "race": "human",
+        "gender": "female",
+        "alignment": "chaotic",
+        "playmode": "debug",
+        "keyCount": 16,
+        "boundaries": 17
+      },
+      "recipe": "challenges/cases/v6/rogue-nymph-ring-theft.recipe.session.json",
+      "recipeSha256": "ae894959a0e8f6c4290faf689ddd557a66e7921eede9d45c4a3bf48264eeccb1",
+      "recording": "challenges/cases/v6/rogue-nymph-ring-theft.session.json",
+      "recordingSha256": "282e89ca0d4a80132d4531348948acee1d39437403dad87e64e475ddb98dabcf",
+      "reproducibility": "Independent C replay command: node scripts/record-session.mjs challenges/cases/v6/rogue-nymph-ring-theft.session.json /tmp/B10-replay-rogue-nymph-ring-theft.session.json; exit code 0. Complete recording byte-identical (SHA-256 282e89ca0d4a80132d4531348948acee1d39437403dad87e64e475ddb98dabcf); 17 boundaries. Log: /tmp/teleport-loop-worker-b-20260925/.cache/B10-replay-rogue-nymph-ring-theft.log."
+    },
+    {
+      "id": "rogue-nymph-ring-wear",
+      "title": "Rogue Nymph Ring Wear",
+      "mission": "C-first trial for nethack-c/upstream/src/makemon.c: makemon(); nethack-c/upstream/src/steal.c: steal(); see missionPlan for intended target and observed result.",
+      "selectionRationale": "Designed from C source before JavaScript comparison; retained regardless of whether the intended observation was reached or JavaScript matched.",
+      "sourcePointers": [
+        "nethack-c/upstream/src/makemon.c: makemon()",
+        "nethack-c/upstream/src/steal.c: steal()"
+      ],
+      "cOutcome": "Valid C history reached hostile nymph creation/ring-wear setup; no ring-theft observation was reached.",
+      "outcome": "Valid C history reached hostile nymph creation/ring-wear setup; no ring-theft observation was reached.",
+      "inputs": {
+        "seed": 60626031,
+        "datetime": "20260925113000",
+        "role": "Rogue",
+        "race": "human",
+        "gender": "female",
+        "alignment": "chaotic",
+        "playmode": "debug",
+        "keyCount": 39,
+        "boundaries": 40
+      },
+      "recipe": "challenges/cases/v6/rogue-nymph-ring-wear.recipe.session.json",
+      "recipeSha256": "861e6f02a88d27971d65d43f48502b825692a463577c60736d23694d37aa41d0",
+      "recording": "challenges/cases/v6/rogue-nymph-ring-wear.session.json",
+      "recordingSha256": "7d07b072c04188ee48fac60ea209f230ee7b3460bf882e70afbaea8328118450",
+      "reproducibility": "Independent C replay command: node scripts/record-session.mjs challenges/cases/v6/rogue-nymph-ring-wear.session.json /tmp/B10-replay-rogue-nymph-ring-wear.session.json; exit code 0. Complete recording byte-identical (SHA-256 7d07b072c04188ee48fac60ea209f230ee7b3460bf882e70afbaea8328118450); 40 boundaries. Log: /tmp/teleport-loop-worker-b-20260925/.cache/B10-replay-rogue-nymph-ring-wear.log."
+    },
+    {
+      "id": "tourist-cookie-eat",
+      "title": "Tourist Cookie Eat",
+      "mission": "C-first trial for nethack-c/upstream/src/eat.c: eatfood(), fpostfx(); nethack-c/upstream/src/rumors.c: outrumor(); see missionPlan for intended target and observed result.",
+      "selectionRationale": "Designed from C source before JavaScript comparison; retained regardless of whether the intended observation was reached or JavaScript matched.",
+      "sourcePointers": [
+        "nethack-c/upstream/src/eat.c: eatfood(), fpostfx()",
+        "nethack-c/upstream/src/rumors.c: outrumor()"
+      ],
+      "cOutcome": "Valid C cookie history recorded; the planned post-effect was not observed.",
+      "outcome": "Valid C cookie history recorded; the planned post-effect was not observed.",
+      "inputs": {
+        "seed": 60626034,
+        "datetime": "20260925113000",
+        "role": "Tourist",
+        "race": "human",
+        "gender": "female",
+        "alignment": "neutral",
+        "playmode": "debug",
+        "keyCount": 18,
+        "boundaries": 19
+      },
+      "recipe": "challenges/cases/v6/tourist-cookie-eat.recipe.session.json",
+      "recipeSha256": "0da142933bea403f10236ce8b7c14289aada2301af02c2d40bf7815dba71f627",
+      "recording": "challenges/cases/v6/tourist-cookie-eat.session.json",
+      "recordingSha256": "9a8562affdc772382db22593f013bde0ddf254d976cdece486f60edf9d965786",
+      "reproducibility": "Independent C replay command: node scripts/record-session.mjs challenges/cases/v6/tourist-cookie-eat.session.json /tmp/B10-replay-tourist-cookie-eat.session.json; exit code 0. Complete recording byte-identical (SHA-256 9a8562affdc772382db22593f013bde0ddf254d976cdece486f60edf9d965786); 19 boundaries. Log: /tmp/teleport-loop-worker-b-20260925/.cache/B10-replay-tourist-cookie-eat.log."
+    },
+    {
+      "id": "tourist-cookie-eat-retry",
+      "title": "Tourist Cookie Eat Retry",
+      "mission": "C-first trial for nethack-c/upstream/src/eat.c: eatfood(), fpostfx(); nethack-c/upstream/src/rumors.c: outrumor(); see missionPlan for intended target and observed result.",
+      "selectionRationale": "Designed from C source before JavaScript comparison; retained regardless of whether the intended observation was reached or JavaScript matched.",
+      "sourcePointers": [
+        "nethack-c/upstream/src/eat.c: eatfood(), fpostfx()",
+        "nethack-c/upstream/src/rumors.c: outrumor()"
+      ],
+      "cOutcome": "Reached eat.c:eatfood/fpostfx at segment 0 step 18; observed fortune cookie is delicious!",
+      "outcome": "Reached eat.c:eatfood/fpostfx at segment 0 step 18; observed fortune cookie is delicious!",
+      "inputs": {
+        "seed": 60626040,
+        "datetime": "20260925113000",
+        "role": "Tourist",
+        "race": "human",
+        "gender": "female",
+        "alignment": "neutral",
+        "playmode": "debug",
+        "keyCount": 18,
+        "boundaries": 19
+      },
+      "recipe": "challenges/cases/v6/tourist-cookie-eat-retry.recipe.session.json",
+      "recipeSha256": "d9cfd48b6638b454f9cab2ba1c1b5edf9f528705640564cdf0fe9c9167876589",
+      "recording": "challenges/cases/v6/tourist-cookie-eat-retry.session.json",
+      "recordingSha256": "dfcb6abdba523b016bd9b05ee263763c3cd538a62f2d8a452d7ae3f49a1e0623",
+      "reproducibility": "Independent C replay command: node scripts/record-session.mjs challenges/cases/v6/tourist-cookie-eat-retry.session.json /tmp/B10-replay-tourist-cookie-eat-retry.session.json; exit code 0. Complete recording byte-identical (SHA-256 dfcb6abdba523b016bd9b05ee263763c3cd538a62f2d8a452d7ae3f49a1e0623); 19 boundaries. Log: /tmp/teleport-loop-worker-b-20260925/.cache/B10-replay-tourist-cookie-eat-retry.log."
+    },
+    {
+      "id": "tourist-cookie-inventory",
+      "title": "Tourist Cookie Inventory",
+      "mission": "C-first trial for nethack-c/upstream/src/eat.c: eatfood(), fpostfx(); nethack-c/upstream/src/rumors.c: outrumor(); see missionPlan for intended target and observed result.",
+      "selectionRationale": "Designed from C source before JavaScript comparison; retained regardless of whether the intended observation was reached or JavaScript matched.",
+      "sourcePointers": [
+        "nethack-c/upstream/src/eat.c: eatfood(), fpostfx()",
+        "nethack-c/upstream/src/rumors.c: outrumor()"
+      ],
+      "cOutcome": "Valid C cookie history recorded; the planned post-effect was not observed.",
+      "outcome": "Valid C cookie history recorded; the planned post-effect was not observed.",
+      "inputs": {
+        "seed": 60626024,
+        "datetime": "20260925113000",
+        "role": "Tourist",
+        "race": "human",
+        "gender": "male",
+        "alignment": "neutral",
+        "playmode": "debug",
+        "keyCount": 19,
+        "boundaries": 20
+      },
+      "recipe": "challenges/cases/v6/tourist-cookie-inventory.recipe.session.json",
+      "recipeSha256": "619953507de19c577f9f22a93da5b69c1618619c42cd3d5a7e34283f96bb0be3",
+      "recording": "challenges/cases/v6/tourist-cookie-inventory.session.json",
+      "recordingSha256": "fc3bdf7127068e0fe36cc9d5196ecf925652a8a8a473db0bfd9d0d492ee3c45d",
+      "reproducibility": "Independent C replay command: node scripts/record-session.mjs challenges/cases/v6/tourist-cookie-inventory.session.json /tmp/B10-replay-tourist-cookie-inventory.session.json; exit code 0. Complete recording byte-identical (SHA-256 fc3bdf7127068e0fe36cc9d5196ecf925652a8a8a473db0bfd9d0d492ee3c45d); 20 boundaries. Log: /tmp/teleport-loop-worker-b-20260925/.cache/B10-replay-tourist-cookie-inventory.log."
+    },
+    {
+      "id": "tourist-fortune-cookie",
+      "title": "Tourist Fortune Cookie",
+      "mission": "C-first trial for nethack-c/upstream/src/eat.c: eatfood(), fpostfx(); nethack-c/upstream/src/rumors.c: outrumor(); see missionPlan for intended target and observed result.",
+      "selectionRationale": "Designed from C source before JavaScript comparison; retained regardless of whether the intended observation was reached or JavaScript matched.",
+      "sourcePointers": [
+        "nethack-c/upstream/src/eat.c: eatfood(), fpostfx()",
+        "nethack-c/upstream/src/rumors.c: outrumor()"
+      ],
+      "cOutcome": "Valid C cookie history recorded; the planned post-effect was not observed.",
+      "outcome": "Valid C cookie history recorded; the planned post-effect was not observed.",
+      "inputs": {
+        "seed": 60626014,
+        "datetime": "20260925113000",
+        "role": "Tourist",
+        "race": "human",
+        "gender": "female",
+        "alignment": "neutral",
+        "playmode": "debug",
+        "keyCount": 17,
+        "boundaries": 18
+      },
+      "recipe": "challenges/cases/v6/tourist-fortune-cookie.recipe.session.json",
+      "recipeSha256": "af58029ac1fe0e110047b875340bb83fb41c1c8c3b9abc8eb6a5d145af5ef0f2",
+      "recording": "challenges/cases/v6/tourist-fortune-cookie.session.json",
+      "recordingSha256": "94fcfdab71db39ffb0382f84c3dd8c34f3c2df09c8b3280792cb6dfa9113c6ba",
+      "reproducibility": "Independent C replay command: node scripts/record-session.mjs challenges/cases/v6/tourist-fortune-cookie.session.json /tmp/B10-replay-tourist-fortune-cookie.session.json; exit code 0. Complete recording byte-identical (SHA-256 94fcfdab71db39ffb0382f84c3dd8c34f3c2df09c8b3280792cb6dfa9113c6ba); 18 boundaries. Log: /tmp/teleport-loop-worker-b-20260925/.cache/B10-replay-tourist-fortune-cookie.log."
+    },
+    {
+      "id": "valkyrie-sit-grave",
+      "title": "Valkyrie Sit Grave",
+      "mission": "C-first trial for nethack-c/upstream/src/sit.c: dosit(); see missionPlan for intended target and observed result.",
+      "selectionRationale": "Designed from C source before JavaScript comparison; retained regardless of whether the intended observation was reached or JavaScript matched.",
+      "sourcePointers": [
+        "nethack-c/upstream/src/sit.c: dosit()"
+      ],
+      "cOutcome": "You sit on the stairs.",
+      "outcome": "You sit on the stairs.",
+      "inputs": {
+        "seed": 60626004,
+        "datetime": "20260925113000",
+        "role": "Valkyrie",
+        "race": "human",
+        "gender": "female",
+        "alignment": "lawful",
+        "playmode": "debug",
+        "keyCount": 12,
+        "boundaries": 13
+      },
+      "recipe": "challenges/cases/v6/valkyrie-sit-grave.recipe.session.json",
+      "recipeSha256": "1ae409b6ed2a96c0bc335673fb78b75e33b303429af47072dfdbe6e19501405c",
+      "recording": "challenges/cases/v6/valkyrie-sit-grave.session.json",
+      "recordingSha256": "eb12c15e0b1202888a1c6c1ff601cf9b01c0950eb910a007f73d413221b0000b",
+      "reproducibility": "Independent C replay command: node scripts/record-session.mjs challenges/cases/v6/valkyrie-sit-grave.session.json /tmp/B10-replay-valkyrie-sit-grave.session.json; exit code 0. Complete recording byte-identical (SHA-256 eb12c15e0b1202888a1c6c1ff601cf9b01c0950eb910a007f73d413221b0000b); 13 boundaries. Log: /tmp/teleport-loop-worker-b-20260925/.cache/B10-replay-valkyrie-sit-grave.log."
+    },
+    {
+      "id": "wizard-beartrap-sit",
+      "title": "Wizard Beartrap Sit",
+      "mission": "C-first trial for nethack-c/upstream/src/sit.c: dosit(); see missionPlan for intended target and observed result.",
+      "selectionRationale": "Designed from C source before JavaScript comparison; retained regardless of whether the intended observation was reached or JavaScript matched.",
+      "sourcePointers": [
+        "nethack-c/upstream/src/sit.c: dosit()"
+      ],
+      "cOutcome": "Valid C history did not reach the TT_BEARTRAP sit branch; trap setup was blocked or interrupted before the trap armed.",
+      "outcome": "Valid C history did not reach the TT_BEARTRAP sit branch; trap setup was blocked or interrupted before the trap armed.",
+      "inputs": {
+        "seed": 60626056,
+        "datetime": "20260925113000",
+        "role": "Wizard",
+        "race": "human",
+        "gender": "female",
+        "alignment": "neutral",
+        "playmode": "debug",
+        "keyCount": 28,
+        "boundaries": 29
+      },
+      "recipe": "challenges/cases/v6/wizard-beartrap-sit.recipe.session.json",
+      "recipeSha256": "efb81f39221e35bfa7aebe8a449151ac826f7294b89a8bbbcf25473881b50b1d",
+      "recording": "challenges/cases/v6/wizard-beartrap-sit.session.json",
+      "recordingSha256": "bbad9fa894d7ef3ed3d073cc7a2d7db39cfdfe5316a95d097bc90c6c7c3dfca5",
+      "reproducibility": "Independent C replay command: node scripts/record-session.mjs challenges/cases/v6/wizard-beartrap-sit.session.json /tmp/B10-replay-wizard-beartrap-sit.session.json; exit code 0. Complete recording byte-identical (SHA-256 bbad9fa894d7ef3ed3d073cc7a2d7db39cfdfe5316a95d097bc90c6c7c3dfca5); 29 boundaries. Log: /tmp/teleport-loop-worker-b-20260925/.cache/B10-replay-wizard-beartrap-sit.log."
+    },
+    {
+      "id": "wizard-beartrap-sit-floor",
+      "title": "Wizard Beartrap Sit Floor",
+      "mission": "C-first trial for nethack-c/upstream/src/sit.c: dosit(); see missionPlan for intended target and observed result.",
+      "selectionRationale": "Designed from C source before JavaScript comparison; retained regardless of whether the intended observation was reached or JavaScript matched.",
+      "sourcePointers": [
+        "nethack-c/upstream/src/sit.c: dosit()"
+      ],
+      "cOutcome": "Valid C history did not reach the TT_BEARTRAP sit branch; trap setup was blocked or interrupted before the trap armed.",
+      "outcome": "Valid C history did not reach the TT_BEARTRAP sit branch; trap setup was blocked or interrupted before the trap armed.",
+      "inputs": {
+        "seed": 60626056,
+        "datetime": "20260925113000",
+        "role": "Wizard",
+        "race": "human",
+        "gender": "female",
+        "alignment": "neutral",
+        "playmode": "debug",
+        "keyCount": 36,
+        "boundaries": 37
+      },
+      "recipe": "challenges/cases/v6/wizard-beartrap-sit-floor.recipe.session.json",
+      "recipeSha256": "d30e1c2f5f189db103808000f1365d1e8f0e4232010742ecfa5f0258b882d4ea",
+      "recording": "challenges/cases/v6/wizard-beartrap-sit-floor.session.json",
+      "recordingSha256": "6ee59baa26322e58c754b794568e1e43c6deb9ef41524175e3db41f0794aa65c",
+      "reproducibility": "Independent C replay command: node scripts/record-session.mjs challenges/cases/v6/wizard-beartrap-sit-floor.session.json /tmp/B10-replay-wizard-beartrap-sit-floor.session.json; exit code 0. Complete recording byte-identical (SHA-256 6ee59baa26322e58c754b794568e1e43c6deb9ef41524175e3db41f0794aa65c); 37 boundaries. Log: /tmp/teleport-loop-worker-b-20260925/.cache/B10-replay-wizard-beartrap-sit-floor.log."
+    },
+    {
+      "id": "wizard-beartrap-wish",
+      "title": "Wizard Beartrap Wish",
+      "mission": "C-first trial for nethack-c/upstream/src/sit.c: dosit(); see missionPlan for intended target and observed result.",
+      "selectionRationale": "Designed from C source before JavaScript comparison; retained regardless of whether the intended observation was reached or JavaScript matched.",
+      "sourcePointers": [
+        "nethack-c/upstream/src/sit.c: dosit()"
+      ],
+      "cOutcome": "Valid C history did not reach the TT_BEARTRAP sit branch; trap setup was blocked or interrupted before the trap armed.",
+      "outcome": "Valid C history did not reach the TT_BEARTRAP sit branch; trap setup was blocked or interrupted before the trap armed.",
+      "inputs": {
+        "seed": 60626056,
+        "datetime": "20260925113000",
+        "role": "Wizard",
+        "race": "human",
+        "gender": "female",
+        "alignment": "neutral",
+        "playmode": "debug",
+        "keyCount": 11,
+        "boundaries": 12
+      },
+      "recipe": "challenges/cases/v6/wizard-beartrap-wish.recipe.session.json",
+      "recipeSha256": "70903ef4c8d0b93d27bb5e283781ad351e2f14f580ff01e4fe6ffd9106affe58",
+      "recording": "challenges/cases/v6/wizard-beartrap-wish.session.json",
+      "recordingSha256": "7efc26779c40122931697cb0782cc5f6e77289a33f399bc4ff03c6efa239021f",
+      "reproducibility": "Independent C replay command: node scripts/record-session.mjs challenges/cases/v6/wizard-beartrap-wish.session.json /tmp/B10-replay-wizard-beartrap-wish.session.json; exit code 0. Complete recording byte-identical (SHA-256 7efc26779c40122931697cb0782cc5f6e77289a33f399bc4ff03c6efa239021f); 12 boundaries. Log: /tmp/teleport-loop-worker-b-20260925/.cache/B10-replay-wizard-beartrap-wish.log."
+    },
+    {
+      "id": "wizard-dip-sword-fountain",
+      "title": "Wizard Dip Sword Fountain",
+      "mission": "C-first trial for nethack-c/upstream/src/fountain.c: dip_into_fountain(); see missionPlan for intended target and observed result.",
+      "selectionRationale": "Designed from C source before JavaScript comparison; retained regardless of whether the intended observation was reached or JavaScript matched.",
+      "sourcePointers": [
+        "nethack-c/upstream/src/fountain.c: dip_into_fountain()"
+      ],
+      "cOutcome": "Valid C fountain/dip history recorded; no weapon-rusting result was observed.",
+      "outcome": "Valid C fountain/dip history recorded; no weapon-rusting result was observed.",
+      "inputs": {
+        "seed": 60626009,
+        "datetime": "20260925113000",
+        "role": "Wizard",
+        "race": "human",
+        "gender": "female",
+        "alignment": "neutral",
+        "playmode": "debug",
+        "keyCount": 26,
+        "boundaries": 27
+      },
+      "recipe": "challenges/cases/v6/wizard-dip-sword-fountain.recipe.session.json",
+      "recipeSha256": "0583dbc1657cab4d98072c256ec7e8e9c1a0f5752c95230bf74970e15e131d3e",
+      "recording": "challenges/cases/v6/wizard-dip-sword-fountain.session.json",
+      "recordingSha256": "6b9e637f38d92f349be14e4e6d596e7e223799ec0c9f471e116117e452831edc",
+      "reproducibility": "Independent C replay command: node scripts/record-session.mjs challenges/cases/v6/wizard-dip-sword-fountain.session.json /tmp/B10-replay-wizard-dip-sword-fountain.session.json; exit code 0. Complete recording byte-identical (SHA-256 6b9e637f38d92f349be14e4e6d596e7e223799ec0c9f471e116117e452831edc); 27 boundaries. Log: /tmp/teleport-loop-worker-b-20260925/.cache/B10-replay-wizard-dip-sword-fountain.log."
+    },
+    {
+      "id": "wizard-engrave-wand",
+      "title": "Wizard Engrave Wand",
+      "mission": "C-first trial for nethack-c/upstream/src/sit.c: dosit(); see missionPlan for intended target and observed result.",
+      "selectionRationale": "Designed from C source before JavaScript comparison; retained regardless of whether the intended observation was reached or JavaScript matched.",
+      "sourcePointers": [
+        "nethack-c/upstream/src/sit.c: dosit()"
+      ],
+      "cOutcome": "Valid C engraving history recorded; this variation did not reach the wand-fire result.",
+      "outcome": "Valid C engraving history recorded; this variation did not reach the wand-fire result.",
+      "inputs": {
+        "seed": 60626015,
+        "datetime": "20260925113000",
+        "role": "Wizard",
+        "race": "human",
+        "gender": "male",
+        "alignment": "neutral",
+        "playmode": "debug",
+        "keyCount": 15,
+        "boundaries": 16
+      },
+      "recipe": "challenges/cases/v6/wizard-engrave-wand.recipe.session.json",
+      "recipeSha256": "2a0f6fa1fc67e4b9c21585fddd799e97870cd23f207b87c819c523054fbb31d8",
+      "recording": "challenges/cases/v6/wizard-engrave-wand.session.json",
+      "recordingSha256": "94d183bdc8e0cc8ea23e82eccc8edd6071e0847c001e6a2940fa1dc9e232fa3d",
+      "reproducibility": "Independent C replay command: node scripts/record-session.mjs challenges/cases/v6/wizard-engrave-wand.session.json /tmp/B10-replay-wizard-engrave-wand.session.json; exit code 0. Complete recording byte-identical (SHA-256 94d183bdc8e0cc8ea23e82eccc8edd6071e0847c001e6a2940fa1dc9e232fa3d); 16 boundaries. Log: /tmp/teleport-loop-worker-b-20260925/.cache/B10-replay-wizard-engrave-wand.log."
+    },
+    {
+      "id": "wizard-engrave-wand-correct",
+      "title": "Wizard Engrave Wand Correct",
+      "mission": "C-first trial for nethack-c/upstream/src/sit.c: dosit(); see missionPlan for intended target and observed result.",
+      "selectionRationale": "Designed from C source before JavaScript comparison; retained regardless of whether the intended observation was reached or JavaScript matched.",
+      "sourcePointers": [
+        "nethack-c/upstream/src/sit.c: dosit()"
+      ],
+      "cOutcome": "C wrote in dust with a potion of oil after the wand menu choice did not select a stylus.",
+      "outcome": "C wrote in dust with a potion of oil after the wand menu choice did not select a stylus.",
+      "inputs": {
+        "seed": 60626047,
+        "datetime": "20260925113000",
+        "role": "Wizard",
+        "race": "human",
+        "gender": "male",
+        "alignment": "neutral",
+        "playmode": "debug",
+        "keyCount": 23,
+        "boundaries": 24
+      },
+      "recipe": "challenges/cases/v6/wizard-engrave-wand-correct.recipe.session.json",
+      "recipeSha256": "45ad6fbdf4d234f2ad32d607c5fa84a69f743cfdf0d84c31bd5c62b92b6ce847",
+      "recording": "challenges/cases/v6/wizard-engrave-wand-correct.session.json",
+      "recordingSha256": "f290232745322344bcec7d61ec11e8e0e40e84f0ade832d76fea765ae337a683",
+      "reproducibility": "Independent C replay command: node scripts/record-session.mjs challenges/cases/v6/wizard-engrave-wand-correct.session.json /tmp/B10-replay-wizard-engrave-wand-correct.session.json; exit code 0. Complete recording byte-identical (SHA-256 f290232745322344bcec7d61ec11e8e0e40e84f0ade832d76fea765ae337a683); 24 boundaries. Log: /tmp/teleport-loop-worker-b-20260925/.cache/B10-replay-wizard-engrave-wand-correct.log."
+    },
+    {
+      "id": "wizard-engrave-wand-final",
+      "title": "Wizard Engrave Wand Final",
+      "mission": "C-first trial for nethack-c/upstream/src/sit.c: dosit(); see missionPlan for intended target and observed result.",
+      "selectionRationale": "Designed from C source before JavaScript comparison; retained regardless of whether the intended observation was reached or JavaScript matched.",
+      "sourcePointers": [
+        "nethack-c/upstream/src/sit.c: dosit()"
+      ],
+      "cOutcome": "Valid C engraving history recorded; this variation did not reach the wand-fire result.",
+      "outcome": "Valid C engraving history recorded; this variation did not reach the wand-fire result.",
+      "inputs": {
+        "seed": 60626047,
+        "datetime": "20260925113000",
+        "role": "Wizard",
+        "race": "human",
+        "gender": "male",
+        "alignment": "neutral",
+        "playmode": "debug",
+        "keyCount": 23,
+        "boundaries": 24
+      },
+      "recipe": "challenges/cases/v6/wizard-engrave-wand-final.recipe.session.json",
+      "recipeSha256": "4420dbec5ff0cfcd41c061cf327fb725d1bcfd1b683210b398b48b8893acf1ad",
+      "recording": "challenges/cases/v6/wizard-engrave-wand-final.session.json",
+      "recordingSha256": "f779fd8a015a755db71ffd28d84fdd56723bb1d41bed5b105ff040849cfb36da",
+      "reproducibility": "Independent C replay command: node scripts/record-session.mjs challenges/cases/v6/wizard-engrave-wand-final.session.json /tmp/B10-replay-wizard-engrave-wand-final.session.json; exit code 0. Complete recording byte-identical (SHA-256 f779fd8a015a755db71ffd28d84fdd56723bb1d41bed5b105ff040849cfb36da); 24 boundaries. Log: /tmp/teleport-loop-worker-b-20260925/.cache/B10-replay-wizard-engrave-wand-final.log."
+    },
+    {
+      "id": "wizard-engrave-wand-finish",
+      "title": "Wizard Engrave Wand Finish",
+      "mission": "C-first trial for nethack-c/upstream/src/sit.c: dosit(); see missionPlan for intended target and observed result.",
+      "selectionRationale": "Designed from C source before JavaScript comparison; retained regardless of whether the intended observation was reached or JavaScript matched.",
+      "sourcePointers": [
+        "nethack-c/upstream/src/sit.c: dosit()"
+      ],
+      "cOutcome": "Reached engrave.c:doengrave at segment 0 step 24; observed Flames fly from the wand.",
+      "outcome": "Reached engrave.c:doengrave at segment 0 step 24; observed Flames fly from the wand.",
+      "inputs": {
+        "seed": 60626047,
+        "datetime": "20260925113000",
+        "role": "Wizard",
+        "race": "human",
+        "gender": "male",
+        "alignment": "neutral",
+        "playmode": "debug",
+        "keyCount": 24,
+        "boundaries": 25
+      },
+      "recipe": "challenges/cases/v6/wizard-engrave-wand-finish.recipe.session.json",
+      "recipeSha256": "3c1b62740d80c4c26047b7ab7d4626b1c8a9ab5f78fa420ff930dee9b29754f4",
+      "recording": "challenges/cases/v6/wizard-engrave-wand-finish.session.json",
+      "recordingSha256": "50622b29b66b16cc75169cd1dab424dd98684ecfcddb80f3a4d323bd6cf967ef",
+      "reproducibility": "Independent C replay command: node scripts/record-session.mjs challenges/cases/v6/wizard-engrave-wand-finish.session.json /tmp/B10-replay-wizard-engrave-wand-finish.session.json; exit code 0. Complete recording byte-identical (SHA-256 50622b29b66b16cc75169cd1dab424dd98684ecfcddb80f3a4d323bd6cf967ef); 25 boundaries. Log: /tmp/teleport-loop-worker-b-20260925/.cache/B10-replay-wizard-engrave-wand-finish.log."
+    },
+    {
+      "id": "wizard-engrave-wand-menu",
+      "title": "Wizard Engrave Wand Menu",
+      "mission": "C-first trial for nethack-c/upstream/src/sit.c: dosit(); see missionPlan for intended target and observed result.",
+      "selectionRationale": "Designed from C source before JavaScript comparison; retained regardless of whether the intended observation was reached or JavaScript matched.",
+      "sourcePointers": [
+        "nethack-c/upstream/src/sit.c: dosit()"
+      ],
+      "cOutcome": "Valid C engraving history recorded; this variation did not reach the wand-fire result.",
+      "outcome": "Valid C engraving history recorded; this variation did not reach the wand-fire result.",
+      "inputs": {
+        "seed": 60626050,
+        "datetime": "20260925113000",
+        "role": "Wizard",
+        "race": "human",
+        "gender": "male",
+        "alignment": "neutral",
+        "playmode": "debug",
+        "keyCount": 16,
+        "boundaries": 17
+      },
+      "recipe": "challenges/cases/v6/wizard-engrave-wand-menu.recipe.session.json",
+      "recipeSha256": "1e62db5279a1ac657eabd1dddfba2f85984af8149cf3fa85053d70ea86070234",
+      "recording": "challenges/cases/v6/wizard-engrave-wand-menu.session.json",
+      "recordingSha256": "a021e50b71c2619c4e37eabaea5c0db3ae643441f1595d6fb8886362de187854",
+      "reproducibility": "Independent C replay command: node scripts/record-session.mjs challenges/cases/v6/wizard-engrave-wand-menu.session.json /tmp/B10-replay-wizard-engrave-wand-menu.session.json; exit code 0. Complete recording byte-identical (SHA-256 a021e50b71c2619c4e37eabaea5c0db3ae643441f1595d6fb8886362de187854); 17 boundaries. Log: /tmp/teleport-loop-worker-b-20260925/.cache/B10-replay-wizard-engrave-wand-menu.log."
+    },
+    {
+      "id": "wizard-engrave-wand-reach",
+      "title": "Wizard Engrave Wand Reach",
+      "mission": "C-first trial for nethack-c/upstream/src/sit.c: dosit(); see missionPlan for intended target and observed result.",
+      "selectionRationale": "Designed from C source before JavaScript comparison; retained regardless of whether the intended observation was reached or JavaScript matched.",
+      "sourcePointers": [
+        "nethack-c/upstream/src/sit.c: dosit()"
+      ],
+      "cOutcome": "Valid C engraving history recorded; this variation did not reach the wand-fire result.",
+      "outcome": "Valid C engraving history recorded; this variation did not reach the wand-fire result.",
+      "inputs": {
+        "seed": 60626035,
+        "datetime": "20260925113000",
+        "role": "Wizard",
+        "race": "human",
+        "gender": "male",
+        "alignment": "neutral",
+        "playmode": "debug",
+        "keyCount": 16,
+        "boundaries": 17
+      },
+      "recipe": "challenges/cases/v6/wizard-engrave-wand-reach.recipe.session.json",
+      "recipeSha256": "6bf933c431fd6c27ae4b4e95d3d736ec4672ce4dd91dc7035da0cb956d015b96",
+      "recording": "challenges/cases/v6/wizard-engrave-wand-reach.session.json",
+      "recordingSha256": "c4126490815e1cc424b723b6dfbb4116966868b640653a6fcb32de6467fcc572",
+      "reproducibility": "Independent C replay command: node scripts/record-session.mjs challenges/cases/v6/wizard-engrave-wand-reach.session.json /tmp/B10-replay-wizard-engrave-wand-reach.session.json; exit code 0. Complete recording byte-identical (SHA-256 c4126490815e1cc424b723b6dfbb4116966868b640653a6fcb32de6467fcc572); 17 boundaries. Log: /tmp/teleport-loop-worker-b-20260925/.cache/B10-replay-wizard-engrave-wand-reach.log."
+    },
+    {
+      "id": "wizard-engrave-wand-retry",
+      "title": "Wizard Engrave Wand Retry",
+      "mission": "C-first trial for nethack-c/upstream/src/sit.c: dosit(); see missionPlan for intended target and observed result.",
+      "selectionRationale": "Designed from C source before JavaScript comparison; retained regardless of whether the intended observation was reached or JavaScript matched.",
+      "sourcePointers": [
+        "nethack-c/upstream/src/sit.c: dosit()"
+      ],
+      "cOutcome": "Valid C engraving history recorded; this variation did not reach the wand-fire result.",
+      "outcome": "Valid C engraving history recorded; this variation did not reach the wand-fire result.",
+      "inputs": {
+        "seed": 60626026,
+        "datetime": "20260925113000",
+        "role": "Wizard",
+        "race": "human",
+        "gender": "male",
+        "alignment": "neutral",
+        "playmode": "debug",
+        "keyCount": 17,
+        "boundaries": 18
+      },
+      "recipe": "challenges/cases/v6/wizard-engrave-wand-retry.recipe.session.json",
+      "recipeSha256": "7d517f80566efa008029d0e750d1c6bb8668dc59883d4c4cf3cfdff4b2f5dc39",
+      "recording": "challenges/cases/v6/wizard-engrave-wand-retry.session.json",
+      "recordingSha256": "f73a7b569933dd9cb8f7aa271288533e1fc30f05395b47010ad81078aacf0894",
+      "reproducibility": "Independent C replay command: node scripts/record-session.mjs challenges/cases/v6/wizard-engrave-wand-retry.session.json /tmp/B10-replay-wizard-engrave-wand-retry.session.json; exit code 0. Complete recording byte-identical (SHA-256 f73a7b569933dd9cb8f7aa271288533e1fc30f05395b47010ad81078aacf0894); 18 boundaries. Log: /tmp/teleport-loop-worker-b-20260925/.cache/B10-replay-wizard-engrave-wand-retry.log."
+    },
+    {
+      "id": "wizard-engrave-wand-retry2",
+      "title": "Wizard Engrave Wand Retry2",
+      "mission": "C-first trial for nethack-c/upstream/src/sit.c: dosit(); see missionPlan for intended target and observed result.",
+      "selectionRationale": "Designed from C source before JavaScript comparison; retained regardless of whether the intended observation was reached or JavaScript matched.",
+      "sourcePointers": [
+        "nethack-c/upstream/src/sit.c: dosit()"
+      ],
+      "cOutcome": "Valid C engraving history recorded; this variation did not reach the wand-fire result.",
+      "outcome": "Valid C engraving history recorded; this variation did not reach the wand-fire result.",
+      "inputs": {
+        "seed": 60626041,
+        "datetime": "20260925113000",
+        "role": "Wizard",
+        "race": "human",
+        "gender": "male",
+        "alignment": "neutral",
+        "playmode": "debug",
+        "keyCount": 18,
+        "boundaries": 19
+      },
+      "recipe": "challenges/cases/v6/wizard-engrave-wand-retry2.recipe.session.json",
+      "recipeSha256": "3ca45cff30e3e4f7371105dc2cfca841176a250f5049a3a520ea3c1c2c9720df",
+      "recording": "challenges/cases/v6/wizard-engrave-wand-retry2.session.json",
+      "recordingSha256": "b9e9c10bc2a7a1a6632f54e704b8386adefe66dcbde4f0e2f575a7b5fb3fc295",
+      "reproducibility": "Independent C replay command: node scripts/record-session.mjs challenges/cases/v6/wizard-engrave-wand-retry2.session.json /tmp/B10-replay-wizard-engrave-wand-retry2.session.json; exit code 0. Complete recording byte-identical (SHA-256 b9e9c10bc2a7a1a6632f54e704b8386adefe66dcbde4f0e2f575a7b5fb3fc295); 19 boundaries. Log: /tmp/teleport-loop-worker-b-20260925/.cache/B10-replay-wizard-engrave-wand-retry2.log."
+    },
+    {
+      "id": "wizard-fountain-dip-confirm",
+      "title": "Wizard Fountain Dip Confirm",
+      "mission": "C-first trial for nethack-c/upstream/src/fountain.c: dip_into_fountain(); see missionPlan for intended target and observed result.",
+      "selectionRationale": "Designed from C source before JavaScript comparison; retained regardless of whether the intended observation was reached or JavaScript matched.",
+      "sourcePointers": [
+        "nethack-c/upstream/src/fountain.c: dip_into_fountain()"
+      ],
+      "cOutcome": "Valid C fountain/dip history recorded; no weapon-rusting result was observed.",
+      "outcome": "Valid C fountain/dip history recorded; no weapon-rusting result was observed.",
+      "inputs": {
+        "seed": 60626029,
+        "datetime": "20260925113000",
+        "role": "Wizard",
+        "race": "human",
+        "gender": "female",
+        "alignment": "neutral",
+        "playmode": "debug",
+        "keyCount": 29,
+        "boundaries": 30
+      },
+      "recipe": "challenges/cases/v6/wizard-fountain-dip-confirm.recipe.session.json",
+      "recipeSha256": "d735348403bc197d19637c0801fb01ac59b561d7f1394d827fb1919bf7384f68",
+      "recording": "challenges/cases/v6/wizard-fountain-dip-confirm.session.json",
+      "recordingSha256": "d6c86f783c69df82c9ab4591cb8d1813325cfd838f1cc249d80e29c6ce77cb4c",
+      "reproducibility": "Independent C replay command: node scripts/record-session.mjs challenges/cases/v6/wizard-fountain-dip-confirm.session.json /tmp/B10-replay-wizard-fountain-dip-confirm.session.json; exit code 0. Complete recording byte-identical (SHA-256 d6c86f783c69df82c9ab4591cb8d1813325cfd838f1cc249d80e29c6ce77cb4c); 30 boundaries. Log: /tmp/teleport-loop-worker-b-20260925/.cache/B10-replay-wizard-fountain-dip-confirm.log."
+    },
+    {
+      "id": "wizard-fountain-dip-retry",
+      "title": "Wizard Fountain Dip Retry",
+      "mission": "C-first trial for nethack-c/upstream/src/fountain.c: dip_into_fountain(); see missionPlan for intended target and observed result.",
+      "selectionRationale": "Designed from C source before JavaScript comparison; retained regardless of whether the intended observation was reached or JavaScript matched.",
+      "sourcePointers": [
+        "nethack-c/upstream/src/fountain.c: dip_into_fountain()"
+      ],
+      "cOutcome": "Valid C fountain/dip history recorded; no weapon-rusting result was observed.",
+      "outcome": "Valid C fountain/dip history recorded; no weapon-rusting result was observed.",
+      "inputs": {
+        "seed": 60626018,
+        "datetime": "20260925113000",
+        "role": "Wizard",
+        "race": "human",
+        "gender": "female",
+        "alignment": "neutral",
+        "playmode": "debug",
+        "keyCount": 28,
+        "boundaries": 29
+      },
+      "recipe": "challenges/cases/v6/wizard-fountain-dip-retry.recipe.session.json",
+      "recipeSha256": "47d6107b48df525988adb08178dc58810a9b2005db37ef326c30a4adce7773cb",
+      "recording": "challenges/cases/v6/wizard-fountain-dip-retry.session.json",
+      "recordingSha256": "209d77ef2be191c7179e68b2ec140f2c065cf76093cc1cb9a20720d9d4b2822d",
+      "reproducibility": "Independent C replay command: node scripts/record-session.mjs challenges/cases/v6/wizard-fountain-dip-retry.session.json /tmp/B10-replay-wizard-fountain-dip-retry.session.json; exit code 0. Complete recording byte-identical (SHA-256 209d77ef2be191c7179e68b2ec140f2c065cf76093cc1cb9a20720d9d4b2822d); 29 boundaries. Log: /tmp/teleport-loop-worker-b-20260925/.cache/B10-replay-wizard-fountain-dip-retry.log."
+    },
+    {
+      "id": "wizard-fountain-dip-yes",
+      "title": "Wizard Fountain Dip Yes",
+      "mission": "C-first trial for nethack-c/upstream/src/fountain.c: dip_into_fountain(); see missionPlan for intended target and observed result.",
+      "selectionRationale": "Designed from C source before JavaScript comparison; retained regardless of whether the intended observation was reached or JavaScript matched.",
+      "sourcePointers": [
+        "nethack-c/upstream/src/fountain.c: dip_into_fountain()"
+      ],
+      "cOutcome": "Valid C fountain/dip history recorded; no weapon-rusting result was observed.",
+      "outcome": "Valid C fountain/dip history recorded; no weapon-rusting result was observed.",
+      "inputs": {
+        "seed": 60626043,
+        "datetime": "20260925113000",
+        "role": "Wizard",
+        "race": "human",
+        "gender": "female",
+        "alignment": "neutral",
+        "playmode": "debug",
+        "keyCount": 29,
+        "boundaries": 30
+      },
+      "recipe": "challenges/cases/v6/wizard-fountain-dip-yes.recipe.session.json",
+      "recipeSha256": "3db4cdf6c8586fc6077a689e7eee78b10dd688edd9edf3fc45177ede42c14e9e",
+      "recording": "challenges/cases/v6/wizard-fountain-dip-yes.session.json",
+      "recordingSha256": "a83839c13a365ff9f68e55bc7719195507eb74a002152b5c24994ffcdea30342",
+      "reproducibility": "Independent C replay command: node scripts/record-session.mjs challenges/cases/v6/wizard-fountain-dip-yes.session.json /tmp/B10-replay-wizard-fountain-dip-yes.session.json; exit code 0. Complete recording byte-identical (SHA-256 a83839c13a365ff9f68e55bc7719195507eb74a002152b5c24994ffcdea30342); 30 boundaries. Log: /tmp/teleport-loop-worker-b-20260925/.cache/B10-replay-wizard-fountain-dip-yes.log."
+    },
+    {
+      "id": "wizard-fountain-dip-yes-retry",
+      "title": "Wizard Fountain Dip Yes Retry",
+      "mission": "C-first trial for nethack-c/upstream/src/fountain.c: dip_into_fountain(); see missionPlan for intended target and observed result.",
+      "selectionRationale": "Designed from C source before JavaScript comparison; retained regardless of whether the intended observation was reached or JavaScript matched.",
+      "sourcePointers": [
+        "nethack-c/upstream/src/fountain.c: dip_into_fountain()"
+      ],
+      "cOutcome": "Reached fountain.c:dip_into_fountain at segment 0 step 29; observed Your long sword rusts!",
+      "outcome": "Reached fountain.c:dip_into_fountain at segment 0 step 29; observed Your long sword rusts!",
+      "inputs": {
+        "seed": 60626026,
+        "datetime": "20260925113000",
+        "role": "Wizard",
+        "race": "human",
+        "gender": "female",
+        "alignment": "neutral",
+        "playmode": "debug",
+        "keyCount": 29,
+        "boundaries": 30
+      },
+      "recipe": "challenges/cases/v6/wizard-fountain-dip-yes-retry.recipe.session.json",
+      "recipeSha256": "02e26e704784e41fd5ce6981df4d0dfbcbd874552764cc642cc20873c030404e",
+      "recording": "challenges/cases/v6/wizard-fountain-dip-yes-retry.session.json",
+      "recordingSha256": "01be712288ab6959d6cd13a5701252f318908ecfda8920d87367546953faf363",
+      "reproducibility": "Independent C replay command: node scripts/record-session.mjs challenges/cases/v6/wizard-fountain-dip-yes-retry.session.json /tmp/B10-replay-wizard-fountain-dip-yes-retry.session.json; exit code 0. Complete recording byte-identical (SHA-256 01be712288ab6959d6cd13a5701252f318908ecfda8920d87367546953faf363); 30 boundaries. Log: /tmp/teleport-loop-worker-b-20260925/.cache/B10-replay-wizard-fountain-dip-yes-retry.log."
+    },
+    {
+      "id": "wizard-grease-hands",
+      "title": "Wizard Grease Hands",
+      "mission": "C-first trial for nethack-c/upstream/src/apply.c: use_grease(); nethack-c/upstream/src/write.c: dowrite(); see missionPlan for intended target and observed result.",
+      "selectionRationale": "Designed from C source before JavaScript comparison; retained regardless of whether the intended observation was reached or JavaScript matched.",
+      "sourcePointers": [
+        "nethack-c/upstream/src/apply.c: use_grease()",
+        "nethack-c/upstream/src/write.c: dowrite()"
+      ],
+      "cOutcome": "Valid C grease setup history recorded; no marker-slip result observed.",
+      "outcome": "Valid C grease setup history recorded; no marker-slip result observed.",
+      "inputs": {
+        "seed": 60626046,
+        "datetime": "20260925113000",
+        "role": "Wizard",
+        "race": "human",
+        "gender": "male",
+        "alignment": "neutral",
+        "playmode": "debug",
+        "keyCount": 20,
+        "boundaries": 21
+      },
+      "recipe": "challenges/cases/v6/wizard-grease-hands.recipe.session.json",
+      "recipeSha256": "38e7a82bf3c3b01c64fbd727348bcd65aee7fc4675b1d8f2fa115a1cf5cedd16",
+      "recording": "challenges/cases/v6/wizard-grease-hands.session.json",
+      "recordingSha256": "c9999b150ebfcd14e6c299397a38a34735404a2aa29621613b0bcb03bdc7d511",
+      "reproducibility": "Independent C replay command: node scripts/record-session.mjs challenges/cases/v6/wizard-grease-hands.session.json /tmp/B10-replay-wizard-grease-hands.session.json; exit code 0. Complete recording byte-identical (SHA-256 c9999b150ebfcd14e6c299397a38a34735404a2aa29621613b0bcb03bdc7d511); 21 boundaries. Log: /tmp/teleport-loop-worker-b-20260925/.cache/B10-replay-wizard-grease-hands.log."
+    },
+    {
+      "id": "wizard-grease-hands-final",
+      "title": "Wizard Grease Hands Final",
+      "mission": "C-first trial for nethack-c/upstream/src/apply.c: use_grease(); nethack-c/upstream/src/write.c: dowrite(); see missionPlan for intended target and observed result.",
+      "selectionRationale": "Designed from C source before JavaScript comparison; retained regardless of whether the intended observation was reached or JavaScript matched.",
+      "sourcePointers": [
+        "nethack-c/upstream/src/apply.c: use_grease()",
+        "nethack-c/upstream/src/write.c: dowrite()"
+      ],
+      "cOutcome": "C applied grease to the fingers and recorded the follow-up item selection.",
+      "outcome": "C applied grease to the fingers and recorded the follow-up item selection.",
+      "inputs": {
+        "seed": 60626051,
+        "datetime": "20260925113000",
+        "role": "Wizard",
+        "race": "human",
+        "gender": "male",
+        "alignment": "neutral",
+        "playmode": "debug",
+        "keyCount": 18,
+        "boundaries": 19
+      },
+      "recipe": "challenges/cases/v6/wizard-grease-hands-final.recipe.session.json",
+      "recipeSha256": "bac400fb9aa453e9dc8ef8318bd4e510d7d3fbb3706559a2a889d40c7513228d",
+      "recording": "challenges/cases/v6/wizard-grease-hands-final.session.json",
+      "recordingSha256": "a22865ca6fd6510f9e8e02a91b816b7862d8257bcedde8f2995d4e702df4d012",
+      "reproducibility": "Independent C replay command: node scripts/record-session.mjs challenges/cases/v6/wizard-grease-hands-final.session.json /tmp/B10-replay-wizard-grease-hands-final.session.json; exit code 0. Complete recording byte-identical (SHA-256 a22865ca6fd6510f9e8e02a91b816b7862d8257bcedde8f2995d4e702df4d012); 19 boundaries. Log: /tmp/teleport-loop-worker-b-20260925/.cache/B10-replay-wizard-grease-hands-final.log."
+    },
+    {
+      "id": "wizard-grease-hands-good",
+      "title": "Wizard Grease Hands Good",
+      "mission": "C-first trial for nethack-c/upstream/src/apply.c: use_grease(); nethack-c/upstream/src/write.c: dowrite(); see missionPlan for intended target and observed result.",
+      "selectionRationale": "Designed from C source before JavaScript comparison; retained regardless of whether the intended observation was reached or JavaScript matched.",
+      "sourcePointers": [
+        "nethack-c/upstream/src/apply.c: use_grease()",
+        "nethack-c/upstream/src/write.c: dowrite()"
+      ],
+      "cOutcome": "Valid C grease setup history recorded; no marker-slip result observed.",
+      "outcome": "Valid C grease setup history recorded; no marker-slip result observed.",
+      "inputs": {
+        "seed": 60626051,
+        "datetime": "20260925113000",
+        "role": "Wizard",
+        "race": "human",
+        "gender": "male",
+        "alignment": "neutral",
+        "playmode": "debug",
+        "keyCount": 18,
+        "boundaries": 19
+      },
+      "recipe": "challenges/cases/v6/wizard-grease-hands-good.recipe.session.json",
+      "recipeSha256": "74b2bab42a87bae9bd7efe6394fcefc09dbafdc6a5bc9ecc91288387124fcee8",
+      "recording": "challenges/cases/v6/wizard-grease-hands-good.session.json",
+      "recordingSha256": "528226e80ce3b4852b1606a834fd132448c6d19be05f9b3e387cc81e5ca9f192",
+      "reproducibility": "Independent C replay command: node scripts/record-session.mjs challenges/cases/v6/wizard-grease-hands-good.session.json /tmp/B10-replay-wizard-grease-hands-good.session.json; exit code 0. Complete recording byte-identical (SHA-256 528226e80ce3b4852b1606a834fd132448c6d19be05f9b3e387cc81e5ca9f192); 19 boundaries. Log: /tmp/teleport-loop-worker-b-20260925/.cache/B10-replay-wizard-grease-hands-good.log."
+    },
+    {
+      "id": "wizard-grease-hands-retry",
+      "title": "Wizard Grease Hands Retry",
+      "mission": "C-first trial for nethack-c/upstream/src/apply.c: use_grease(); nethack-c/upstream/src/write.c: dowrite(); see missionPlan for intended target and observed result.",
+      "selectionRationale": "Designed from C source before JavaScript comparison; retained regardless of whether the intended observation was reached or JavaScript matched.",
+      "sourcePointers": [
+        "nethack-c/upstream/src/apply.c: use_grease()",
+        "nethack-c/upstream/src/write.c: dowrite()"
+      ],
+      "cOutcome": "Valid C grease setup history recorded; no marker-slip result observed.",
+      "outcome": "Valid C grease setup history recorded; no marker-slip result observed.",
+      "inputs": {
+        "seed": 60626048,
+        "datetime": "20260925113000",
+        "role": "Wizard",
+        "race": "human",
+        "gender": "male",
+        "alignment": "neutral",
+        "playmode": "debug",
+        "keyCount": 18,
+        "boundaries": 19
+      },
+      "recipe": "challenges/cases/v6/wizard-grease-hands-retry.recipe.session.json",
+      "recipeSha256": "42d51e315f9268d16d8debcbd3c0c0312063ce003a1bbc792e52a11f019eae4a",
+      "recording": "challenges/cases/v6/wizard-grease-hands-retry.session.json",
+      "recordingSha256": "dbbd060a1792ca98935cabedd0bca1c2f251000a721e27f2e0c8aa0c7442e287",
+      "reproducibility": "Independent C replay command: node scripts/record-session.mjs challenges/cases/v6/wizard-grease-hands-retry.session.json /tmp/B10-replay-wizard-grease-hands-retry.session.json; exit code 0. Complete recording byte-identical (SHA-256 dbbd060a1792ca98935cabedd0bca1c2f251000a721e27f2e0c8aa0c7442e287); 19 boundaries. Log: /tmp/teleport-loop-worker-b-20260925/.cache/B10-replay-wizard-grease-hands-retry.log."
+    },
+    {
+      "id": "wizard-grease-only",
+      "title": "Wizard Grease Only",
+      "mission": "C-first trial for nethack-c/upstream/src/apply.c: use_grease(); nethack-c/upstream/src/write.c: dowrite(); see missionPlan for intended target and observed result.",
+      "selectionRationale": "Designed from C source before JavaScript comparison; retained regardless of whether the intended observation was reached or JavaScript matched.",
+      "sourcePointers": [
+        "nethack-c/upstream/src/apply.c: use_grease()",
+        "nethack-c/upstream/src/write.c: dowrite()"
+      ],
+      "cOutcome": "Valid C grease setup history recorded; no marker-slip result observed.",
+      "outcome": "Valid C grease setup history recorded; no marker-slip result observed.",
+      "inputs": {
+        "seed": 60626038,
+        "datetime": "20260925113000",
+        "role": "Wizard",
+        "race": "human",
+        "gender": "male",
+        "alignment": "neutral",
+        "playmode": "debug",
+        "keyCount": 18,
+        "boundaries": 19
+      },
+      "recipe": "challenges/cases/v6/wizard-grease-only.recipe.session.json",
+      "recipeSha256": "357fedf6f6442fa63ed6d40a8c86d12aa55425f0d8deb5928fa6edb4ccee4665",
+      "recording": "challenges/cases/v6/wizard-grease-only.session.json",
+      "recordingSha256": "9af4fef5d828c481509d962d1bf1160e66cc01ea5f2b15d516e2528ae3af0aa8",
+      "reproducibility": "Independent C replay command: node scripts/record-session.mjs challenges/cases/v6/wizard-grease-only.session.json /tmp/B10-replay-wizard-grease-only.session.json; exit code 0. Complete recording byte-identical (SHA-256 9af4fef5d828c481509d962d1bf1160e66cc01ea5f2b15d516e2528ae3af0aa8); 19 boundaries. Log: /tmp/teleport-loop-worker-b-20260925/.cache/B10-replay-wizard-grease-only.log."
+    },
+    {
+      "id": "wizard-grease-write-retry",
+      "title": "Wizard Grease Write Retry",
+      "mission": "C-first trial for nethack-c/upstream/src/apply.c: use_grease(); nethack-c/upstream/src/write.c: dowrite(); see missionPlan for intended target and observed result.",
+      "selectionRationale": "Designed from C source before JavaScript comparison; retained regardless of whether the intended observation was reached or JavaScript matched.",
+      "sourcePointers": [
+        "nethack-c/upstream/src/apply.c: use_grease()",
+        "nethack-c/upstream/src/write.c: dowrite()"
+      ],
+      "cOutcome": "Valid C grease setup history recorded; no marker-slip result observed.",
+      "outcome": "Valid C grease setup history recorded; no marker-slip result observed.",
+      "inputs": {
+        "seed": 60626019,
+        "datetime": "20260925113000",
+        "role": "Wizard",
+        "race": "human",
+        "gender": "male",
+        "alignment": "chaotic",
+        "playmode": "debug",
+        "keyCount": 35,
+        "boundaries": 36
+      },
+      "recipe": "challenges/cases/v6/wizard-grease-write-retry.recipe.session.json",
+      "recipeSha256": "23bca829476faf71c9e0312858a2c7cf14beee0d11e746d3358be69bae39de2c",
+      "recording": "challenges/cases/v6/wizard-grease-write-retry.session.json",
+      "recordingSha256": "25ff47660bb9c6f5db36e163b9838968d1f631bab0632709f579c5f5a7799d0f",
+      "reproducibility": "Independent C replay command: node scripts/record-session.mjs challenges/cases/v6/wizard-grease-write-retry.session.json /tmp/B10-replay-wizard-grease-write-retry.session.json; exit code 0. Complete recording byte-identical (SHA-256 25ff47660bb9c6f5db36e163b9838968d1f631bab0632709f579c5f5a7799d0f); 36 boundaries. Log: /tmp/teleport-loop-worker-b-20260925/.cache/B10-replay-wizard-grease-write-retry.log."
+    },
+    {
+      "id": "wizard-grease-write-target",
+      "title": "Wizard Grease Write Target",
+      "mission": "C-first trial for nethack-c/upstream/src/apply.c: use_grease(); nethack-c/upstream/src/write.c: dowrite(); see missionPlan for intended target and observed result.",
+      "selectionRationale": "Designed from C source before JavaScript comparison; retained regardless of whether the intended observation was reached or JavaScript matched.",
+      "sourcePointers": [
+        "nethack-c/upstream/src/apply.c: use_grease()",
+        "nethack-c/upstream/src/write.c: dowrite()"
+      ],
+      "cOutcome": "C applied grease to the fingers and recorded the follow-up item selection.",
+      "outcome": "C applied grease to the fingers and recorded the follow-up item selection.",
+      "inputs": {
+        "seed": 60626030,
+        "datetime": "20260925113000",
+        "role": "Wizard",
+        "race": "human",
+        "gender": "male",
+        "alignment": "chaotic",
+        "playmode": "debug",
+        "keyCount": 34,
+        "boundaries": 35
+      },
+      "recipe": "challenges/cases/v6/wizard-grease-write-target.recipe.session.json",
+      "recipeSha256": "84dd3586496d495a643ffeab343c8464e170ba5d6ef6f2b92eb59bfa85f2956b",
+      "recording": "challenges/cases/v6/wizard-grease-write-target.session.json",
+      "recordingSha256": "b9a3a0043a92450cff4bb8ff6317738832b167b771eb23f05ed9d294cf4be021",
+      "reproducibility": "Independent C replay command: node scripts/record-session.mjs challenges/cases/v6/wizard-grease-write-target.session.json /tmp/B10-replay-wizard-grease-write-target.session.json; exit code 0. Complete recording byte-identical (SHA-256 b9a3a0043a92450cff4bb8ff6317738832b167b771eb23f05ed9d294cf4be021); 35 boundaries. Log: /tmp/teleport-loop-worker-b-20260925/.cache/B10-replay-wizard-grease-write-target.log."
+    },
+    {
+      "id": "wizard-greasy-marker",
+      "title": "Wizard Greasy Marker",
+      "mission": "C-first trial for nethack-c/upstream/src/apply.c: use_grease(); nethack-c/upstream/src/write.c: dowrite(); see missionPlan for intended target and observed result.",
+      "selectionRationale": "Designed from C source before JavaScript comparison; retained regardless of whether the intended observation was reached or JavaScript matched.",
+      "sourcePointers": [
+        "nethack-c/upstream/src/apply.c: use_grease()",
+        "nethack-c/upstream/src/write.c: dowrite()"
+      ],
+      "cOutcome": "Valid C grease setup history recorded; no marker-slip result observed.",
+      "outcome": "Valid C grease setup history recorded; no marker-slip result observed.",
+      "inputs": {
+        "seed": 60626008,
+        "datetime": "20260925113000",
+        "role": "Wizard",
+        "race": "human",
+        "gender": "male",
+        "alignment": "neutral",
+        "playmode": "debug",
+        "keyCount": 30,
+        "boundaries": 31
+      },
+      "recipe": "challenges/cases/v6/wizard-greasy-marker.recipe.session.json",
+      "recipeSha256": "1eabb1f570af380e44e9864e9d30235aaab975dea3ea63b832d3a16ce8c8783a",
+      "recording": "challenges/cases/v6/wizard-greasy-marker.session.json",
+      "recordingSha256": "063584eacc9d4139df47b215b9a4ace7fcc4853fcc91fceda0683a5667b7589a",
+      "reproducibility": "Independent C replay command: node scripts/record-session.mjs challenges/cases/v6/wizard-greasy-marker.session.json /tmp/B10-replay-wizard-greasy-marker.session.json; exit code 0. Complete recording byte-identical (SHA-256 063584eacc9d4139df47b215b9a4ace7fcc4853fcc91fceda0683a5667b7589a); 31 boundaries. Log: /tmp/teleport-loop-worker-b-20260925/.cache/B10-replay-wizard-greasy-marker.log."
+    },
+    {
+      "id": "wizard-greasy-write-glib",
+      "title": "Wizard Greasy Write Glib",
+      "mission": "C-first trial for nethack-c/upstream/src/apply.c: use_grease(); nethack-c/upstream/src/write.c: dowrite(); see missionPlan for intended target and observed result.",
+      "selectionRationale": "Designed from C source before JavaScript comparison; retained regardless of whether the intended observation was reached or JavaScript matched.",
+      "sourcePointers": [
+        "nethack-c/upstream/src/apply.c: use_grease()",
+        "nethack-c/upstream/src/write.c: dowrite()"
+      ],
+      "cOutcome": "Valid C grease setup history recorded; no marker-slip result observed.",
+      "outcome": "Valid C grease setup history recorded; no marker-slip result observed.",
+      "inputs": {
+        "seed": 60626058,
+        "datetime": "20260925113000",
+        "role": "Wizard",
+        "race": "human",
+        "gender": "male",
+        "alignment": "neutral",
+        "playmode": "debug",
+        "keyCount": 21,
+        "boundaries": 22
+      },
+      "recipe": "challenges/cases/v6/wizard-greasy-write-glib.recipe.session.json",
+      "recipeSha256": "0ccf18d6ddfa6bd75ef0c57c46a0ae8bd6418b3fafc4a4e9641a518492818911",
+      "recording": "challenges/cases/v6/wizard-greasy-write-glib.session.json",
+      "recordingSha256": "6f8be6114cd1a551dc75940ccc48608c51b6a978950a5f90e639dbbb09f03317",
+      "reproducibility": "Independent C replay command: node scripts/record-session.mjs challenges/cases/v6/wizard-greasy-write-glib.session.json /tmp/B10-replay-wizard-greasy-write-glib.session.json; exit code 0. Complete recording byte-identical (SHA-256 6f8be6114cd1a551dc75940ccc48608c51b6a978950a5f90e639dbbb09f03317); 22 boundaries. Log: /tmp/teleport-loop-worker-b-20260925/.cache/B10-replay-wizard-greasy-write-glib.log."
+    },
+    {
+      "id": "wizard-greasy-write-glib-final",
+      "title": "Wizard Greasy Write Glib Final",
+      "mission": "C-first trial for nethack-c/upstream/src/apply.c: use_grease(); nethack-c/upstream/src/write.c: dowrite(); see missionPlan for intended target and observed result.",
+      "selectionRationale": "Designed from C source before JavaScript comparison; retained regardless of whether the intended observation was reached or JavaScript matched.",
+      "sourcePointers": [
+        "nethack-c/upstream/src/apply.c: use_grease()",
+        "nethack-c/upstream/src/write.c: dowrite()"
+      ],
+      "cOutcome": "Reached write.c:dowrite Glib branch at segment 0 step 21; observed marker slips from your fingers",
+      "outcome": "Reached write.c:dowrite Glib branch at segment 0 step 21; observed marker slips from your fingers",
+      "inputs": {
+        "seed": 60626058,
+        "datetime": "20260925113000",
+        "role": "Wizard",
+        "race": "human",
+        "gender": "male",
+        "alignment": "neutral",
+        "playmode": "debug",
+        "keyCount": 21,
+        "boundaries": 22
+      },
+      "recipe": "challenges/cases/v6/wizard-greasy-write-glib-final.recipe.session.json",
+      "recipeSha256": "a55d0f776ecd5d8a91bc59a3fc708c55e632be4e125a69ffaac720babd87ebdc",
+      "recording": "challenges/cases/v6/wizard-greasy-write-glib-final.session.json",
+      "recordingSha256": "20b60af8d804f9bd6ebd5b1217dae85a6cdad0afcae9d4f98bd6c57d6f3fb6e6",
+      "reproducibility": "Independent C replay command: node scripts/record-session.mjs challenges/cases/v6/wizard-greasy-write-glib-final.session.json /tmp/B10-replay-wizard-greasy-write-glib-final.session.json; exit code 0. Complete recording byte-identical (SHA-256 20b60af8d804f9bd6ebd5b1217dae85a6cdad0afcae9d4f98bd6c57d6f3fb6e6); 22 boundaries. Log: /tmp/teleport-loop-worker-b-20260925/.cache/B10-replay-wizard-greasy-write-glib-final.log."
+    },
+    {
+      "id": "wizard-greasy-write-glib-retry",
+      "title": "Wizard Greasy Write Glib Retry",
+      "mission": "C-first trial for nethack-c/upstream/src/apply.c: use_grease(); nethack-c/upstream/src/write.c: dowrite(); see missionPlan for intended target and observed result.",
+      "selectionRationale": "Designed from C source before JavaScript comparison; retained regardless of whether the intended observation was reached or JavaScript matched.",
+      "sourcePointers": [
+        "nethack-c/upstream/src/apply.c: use_grease()",
+        "nethack-c/upstream/src/write.c: dowrite()"
+      ],
+      "cOutcome": "C applied grease to the fingers and recorded the follow-up item selection.",
+      "outcome": "C applied grease to the fingers and recorded the follow-up item selection.",
+      "inputs": {
+        "seed": 60626058,
+        "datetime": "20260925113000",
+        "role": "Wizard",
+        "race": "human",
+        "gender": "male",
+        "alignment": "neutral",
+        "playmode": "debug",
+        "keyCount": 21,
+        "boundaries": 22
+      },
+      "recipe": "challenges/cases/v6/wizard-greasy-write-glib-retry.recipe.session.json",
+      "recipeSha256": "ecfcfece116d53defd9c10d348de88397df9dda9feafbb1680d8f9a8007ffa84",
+      "recording": "challenges/cases/v6/wizard-greasy-write-glib-retry.session.json",
+      "recordingSha256": "1f5fda2b5444e9bce7c2e066e976b60f62fd7c87ff871fc1ca349d47f8652212",
+      "reproducibility": "Independent C replay command: node scripts/record-session.mjs challenges/cases/v6/wizard-greasy-write-glib-retry.session.json /tmp/B10-replay-wizard-greasy-write-glib-retry.session.json; exit code 0. Complete recording byte-identical (SHA-256 1f5fda2b5444e9bce7c2e066e976b60f62fd7c87ff871fc1ca349d47f8652212); 22 boundaries. Log: /tmp/teleport-loop-worker-b-20260925/.cache/B10-replay-wizard-greasy-write-glib-retry.log."
+    },
+    {
+      "id": "wizard-greasy-write-menu",
+      "title": "Wizard Greasy Write Menu",
+      "mission": "C-first trial for nethack-c/upstream/src/apply.c: use_grease(); nethack-c/upstream/src/write.c: dowrite(); see missionPlan for intended target and observed result.",
+      "selectionRationale": "Designed from C source before JavaScript comparison; retained regardless of whether the intended observation was reached or JavaScript matched.",
+      "sourcePointers": [
+        "nethack-c/upstream/src/apply.c: use_grease()",
+        "nethack-c/upstream/src/write.c: dowrite()"
+      ],
+      "cOutcome": "C applied grease to the fingers and recorded the follow-up item selection.",
+      "outcome": "C applied grease to the fingers and recorded the follow-up item selection.",
+      "inputs": {
+        "seed": 60626058,
+        "datetime": "20260925113000",
+        "role": "Wizard",
+        "race": "human",
+        "gender": "male",
+        "alignment": "neutral",
+        "playmode": "debug",
+        "keyCount": 21,
+        "boundaries": 22
+      },
+      "recipe": "challenges/cases/v6/wizard-greasy-write-menu.recipe.session.json",
+      "recipeSha256": "2fe55dc432699f827a097f742847b77616f9306333a6f810fe53ca0b5e274980",
+      "recording": "challenges/cases/v6/wizard-greasy-write-menu.session.json",
+      "recordingSha256": "8c84d81c639a13c365d5d2a79e68d5cf92c9d25f9d82a474616930c2f582396e",
+      "reproducibility": "Independent C replay command: node scripts/record-session.mjs challenges/cases/v6/wizard-greasy-write-menu.session.json /tmp/B10-replay-wizard-greasy-write-menu.session.json; exit code 0. Complete recording byte-identical (SHA-256 8c84d81c639a13c365d5d2a79e68d5cf92c9d25f9d82a474616930c2f582396e); 22 boundaries. Log: /tmp/teleport-loop-worker-b-20260925/.cache/B10-replay-wizard-greasy-write-menu.log."
+    },
+    {
+      "id": "wizard-read-earth",
+      "title": "Wizard Read Earth",
+      "mission": "C-first trial for nethack-c/upstream/src/read.c: seffects(), SCR_EARTH arm; see missionPlan for intended target and observed result.",
+      "selectionRationale": "Designed from C source before JavaScript comparison; retained regardless of whether the intended observation was reached or JavaScript matched.",
+      "sourcePointers": [
+        "nethack-c/upstream/src/read.c: seffects(), SCR_EARTH arm"
+      ],
+      "cOutcome": "Valid C history recorded; source behavior is identified by its recipe and source pointers.",
+      "outcome": "Valid C history recorded; source behavior is identified by its recipe and source pointers.",
+      "inputs": {
+        "seed": 60626007,
+        "datetime": "20260925113000",
+        "role": "Wizard",
+        "race": "human",
+        "gender": "female",
+        "alignment": "chaotic",
+        "playmode": "debug",
+        "keyCount": 19,
+        "boundaries": 20
+      },
+      "recipe": "challenges/cases/v6/wizard-read-earth.recipe.session.json",
+      "recipeSha256": "3b3bed82b6fd975033426d7a1f86dbd92ca20f658d71d9a5484f894afe9c3dfc",
+      "recording": "challenges/cases/v6/wizard-read-earth.session.json",
+      "recordingSha256": "6ae031f54a66453fc280aac3ade648894c79f3672007e8b22d012e492940b01d",
+      "reproducibility": "Independent C replay command: node scripts/record-session.mjs challenges/cases/v6/wizard-read-earth.session.json /tmp/B10-replay-wizard-read-earth.session.json; exit code 0. Complete recording byte-identical (SHA-256 6ae031f54a66453fc280aac3ade648894c79f3672007e8b22d012e492940b01d); 20 boundaries. Log: /tmp/teleport-loop-worker-b-20260925/.cache/B10-replay-wizard-read-earth.log."
+    },
+    {
+      "id": "wizard-read-earth-reach",
+      "title": "Wizard Read Earth Reach",
+      "mission": "C-first trial for nethack-c/upstream/src/read.c: seffects(), SCR_EARTH arm; see missionPlan for intended target and observed result.",
+      "selectionRationale": "Designed from C source before JavaScript comparison; retained regardless of whether the intended observation was reached or JavaScript matched.",
+      "sourcePointers": [
+        "nethack-c/upstream/src/read.c: seffects(), SCR_EARTH arm"
+      ],
+      "cOutcome": "Reached read.c:seffects SCR_EARTH at segment 0 step 20; observed ceiling rumbles above you",
+      "outcome": "Reached read.c:seffects SCR_EARTH at segment 0 step 20; observed ceiling rumbles above you",
+      "inputs": {
+        "seed": 60626037,
+        "datetime": "20260925113000",
+        "role": "Wizard",
+        "race": "human",
+        "gender": "female",
+        "alignment": "chaotic",
+        "playmode": "debug",
+        "keyCount": 20,
+        "boundaries": 21
+      },
+      "recipe": "challenges/cases/v6/wizard-read-earth-reach.recipe.session.json",
+      "recipeSha256": "47ed050c8aa1166f9a2bc9be29b119b555f5f9ab523b8ee2521dccf0334c03d9",
+      "recording": "challenges/cases/v6/wizard-read-earth-reach.session.json",
+      "recordingSha256": "44d036a62da0fc62080b022f279326a1b309edcb8f4f6e8c3855a8c0555a1a8d",
+      "reproducibility": "Independent C replay command: node scripts/record-session.mjs challenges/cases/v6/wizard-read-earth-reach.session.json /tmp/B10-replay-wizard-read-earth-reach.session.json; exit code 0. Complete recording byte-identical (SHA-256 44d036a62da0fc62080b022f279326a1b309edcb8f4f6e8c3855a8c0555a1a8d); 21 boundaries. Log: /tmp/teleport-loop-worker-b-20260925/.cache/B10-replay-wizard-read-earth-reach.log."
+    },
+    {
+      "id": "wizard-read-earth-retry",
+      "title": "Wizard Read Earth Retry",
+      "mission": "C-first trial for nethack-c/upstream/src/read.c: seffects(), SCR_EARTH arm; see missionPlan for intended target and observed result.",
+      "selectionRationale": "Designed from C source before JavaScript comparison; retained regardless of whether the intended observation was reached or JavaScript matched.",
+      "sourcePointers": [
+        "nethack-c/upstream/src/read.c: seffects(), SCR_EARTH arm"
+      ],
+      "cOutcome": "Valid C history recorded; source behavior is identified by its recipe and source pointers.",
+      "outcome": "Valid C history recorded; source behavior is identified by its recipe and source pointers.",
+      "inputs": {
+        "seed": 60626027,
+        "datetime": "20260925113000",
+        "role": "Wizard",
+        "race": "human",
+        "gender": "female",
+        "alignment": "chaotic",
+        "playmode": "debug",
+        "keyCount": 19,
+        "boundaries": 20
+      },
+      "recipe": "challenges/cases/v6/wizard-read-earth-retry.recipe.session.json",
+      "recipeSha256": "af04affefdcb61a89873a0997b3166dbc6b2150def476bbda8b7bd39c5033026",
+      "recording": "challenges/cases/v6/wizard-read-earth-retry.session.json",
+      "recordingSha256": "b8125c74e7a47cf3ae6583e7528bf012aee720cfb210b2c0791ebbaca6fc981b",
+      "reproducibility": "Independent C replay command: node scripts/record-session.mjs challenges/cases/v6/wizard-read-earth-retry.session.json /tmp/B10-replay-wizard-read-earth-retry.session.json; exit code 0. Complete recording byte-identical (SHA-256 b8125c74e7a47cf3ae6583e7528bf012aee720cfb210b2c0791ebbaca6fc981b); 20 boundaries. Log: /tmp/teleport-loop-worker-b-20260925/.cache/B10-replay-wizard-read-earth-retry.log."
+    },
+    {
+      "id": "wizard-sit-grave-retry",
+      "title": "Wizard Sit Grave Retry",
+      "mission": "C-first trial for nethack-c/upstream/src/sit.c: dosit(); see missionPlan for intended target and observed result.",
+      "selectionRationale": "Designed from C source before JavaScript comparison; retained regardless of whether the intended observation was reached or JavaScript matched.",
+      "sourcePointers": [
+        "nethack-c/upstream/src/sit.c: dosit()"
+      ],
+      "cOutcome": "You sit on the stairs.",
+      "outcome": "You sit on the stairs.",
+      "inputs": {
+        "seed": 60626017,
+        "datetime": "20260925113000",
+        "role": "Wizard",
+        "race": "human",
+        "gender": "male",
+        "alignment": "neutral",
+        "playmode": "debug",
+        "keyCount": 12,
+        "boundaries": 13
+      },
+      "recipe": "challenges/cases/v6/wizard-sit-grave-retry.recipe.session.json",
+      "recipeSha256": "6d5a7d3d8f7c5e4ed7002101ab3c610972e0623fdeda392aac31e25b10bacb7a",
+      "recording": "challenges/cases/v6/wizard-sit-grave-retry.session.json",
+      "recordingSha256": "5941032cd15b1211aa173c9f33d1829910ee990fe0cbfae09bdb4f58820b7c3f",
+      "reproducibility": "Independent C replay command: node scripts/record-session.mjs challenges/cases/v6/wizard-sit-grave-retry.session.json /tmp/B10-replay-wizard-sit-grave-retry.session.json; exit code 0. Complete recording byte-identical (SHA-256 5941032cd15b1211aa173c9f33d1829910ee990fe0cbfae09bdb4f58820b7c3f); 13 boundaries. Log: /tmp/teleport-loop-worker-b-20260925/.cache/B10-replay-wizard-sit-grave-retry.log."
+    },
+    {
+      "id": "wizard-sit-grave-room",
+      "title": "Wizard Sit Grave Room",
+      "mission": "C-first trial for nethack-c/upstream/src/sit.c: dosit(); see missionPlan for intended target and observed result.",
+      "selectionRationale": "Designed from C source before JavaScript comparison; retained regardless of whether the intended observation was reached or JavaScript matched.",
+      "sourcePointers": [
+        "nethack-c/upstream/src/sit.c: dosit()"
+      ],
+      "cOutcome": "You sit on the stairs.",
+      "outcome": "You sit on the stairs.",
+      "inputs": {
+        "seed": 60626028,
+        "datetime": "20260925113000",
+        "role": "Wizard",
+        "race": "human",
+        "gender": "male",
+        "alignment": "neutral",
+        "playmode": "debug",
+        "keyCount": 13,
+        "boundaries": 14
+      },
+      "recipe": "challenges/cases/v6/wizard-sit-grave-room.recipe.session.json",
+      "recipeSha256": "6b2b06a65dd83bed27ea49f843dd00a3581fe86ac4131208d9d10ac879aaaf34",
+      "recording": "challenges/cases/v6/wizard-sit-grave-room.session.json",
+      "recordingSha256": "1706bb901094978303068b683465faa2bf2bd4f6352de4b260b413523f537ae5",
+      "reproducibility": "Independent C replay command: node scripts/record-session.mjs challenges/cases/v6/wizard-sit-grave-room.session.json /tmp/B10-replay-wizard-sit-grave-room.session.json; exit code 0. Complete recording byte-identical (SHA-256 1706bb901094978303068b683465faa2bf2bd4f6352de4b260b413523f537ae5); 14 boundaries. Log: /tmp/teleport-loop-worker-b-20260925/.cache/B10-replay-wizard-sit-grave-room.log."
+    },
+    {
+      "id": "wizard-sit-grave-room-retry",
+      "title": "Wizard Sit Grave Room Retry",
+      "mission": "C-first trial for nethack-c/upstream/src/sit.c: dosit(); see missionPlan for intended target and observed result.",
+      "selectionRationale": "Designed from C source before JavaScript comparison; retained regardless of whether the intended observation was reached or JavaScript matched.",
+      "sourcePointers": [
+        "nethack-c/upstream/src/sit.c: dosit()"
+      ],
+      "cOutcome": "Reached sit.c:dosit IS_GRAVE at segment 0 step 15; observed You sit on the grave.",
+      "outcome": "Reached sit.c:dosit IS_GRAVE at segment 0 step 15; observed You sit on the grave.",
+      "inputs": {
+        "seed": 60626039,
+        "datetime": "20260925113000",
+        "role": "Wizard",
+        "race": "human",
+        "gender": "male",
+        "alignment": "neutral",
+        "playmode": "debug",
+        "keyCount": 15,
+        "boundaries": 16
+      },
+      "recipe": "challenges/cases/v6/wizard-sit-grave-room-retry.recipe.session.json",
+      "recipeSha256": "846ec12f834cc3eeb8eab397e1868d69321b05f6dc47664d9381ccb9b42d00c1",
+      "recording": "challenges/cases/v6/wizard-sit-grave-room-retry.session.json",
+      "recordingSha256": "81482fcc4c3b29336f154795c1a57b03231fae3962f28d6918f9161ed045e4a3",
+      "reproducibility": "Independent C replay command: node scripts/record-session.mjs challenges/cases/v6/wizard-sit-grave-room-retry.session.json /tmp/B10-replay-wizard-sit-grave-room-retry.session.json; exit code 0. Complete recording byte-identical (SHA-256 81482fcc4c3b29336f154795c1a57b03231fae3962f28d6918f9161ed045e4a3); 16 boundaries. Log: /tmp/teleport-loop-worker-b-20260925/.cache/B10-replay-wizard-sit-grave-room-retry.log."
+    },
+    {
+      "id": "wizard-sit-sink",
+      "title": "Wizard Sit Sink",
+      "mission": "C-first trial for nethack-c/upstream/src/sit.c: dosit(); see missionPlan for intended target and observed result.",
+      "selectionRationale": "Designed from C source before JavaScript comparison; retained regardless of whether the intended observation was reached or JavaScript matched.",
+      "sourcePointers": [
+        "nethack-c/upstream/src/sit.c: dosit()"
+      ],
+      "cOutcome": "Reached sit.c:dosit IS_SINK at segment 0 step 11; observed Your rump gets wet.",
+      "outcome": "Reached sit.c:dosit IS_SINK at segment 0 step 11; observed Your rump gets wet.",
+      "inputs": {
+        "seed": 60626003,
+        "datetime": "20260925113000",
+        "role": "Wizard",
+        "race": "human",
+        "gender": "female",
+        "alignment": "neutral",
+        "playmode": "debug",
+        "keyCount": 11,
+        "boundaries": 12
+      },
+      "recipe": "challenges/cases/v6/wizard-sit-sink.recipe.session.json",
+      "recipeSha256": "5aed7d01c1801ed0098cff71fdef59b592306f40cc95dfc424dd8fab07ccbf6a",
+      "recording": "challenges/cases/v6/wizard-sit-sink.session.json",
+      "recordingSha256": "a6e6459af85b668dabeba88ca416c61ce16784fcc18a2cbf38722b0c7d5932b9",
+      "reproducibility": "Independent C replay command: node scripts/record-session.mjs challenges/cases/v6/wizard-sit-sink.session.json /tmp/B10-replay-wizard-sit-sink.session.json; exit code 0. Complete recording byte-identical (SHA-256 a6e6459af85b668dabeba88ca416c61ce16784fcc18a2cbf38722b0c7d5932b9); 12 boundaries. Log: /tmp/teleport-loop-worker-b-20260925/.cache/B10-replay-wizard-sit-sink.log."
+    },
+    {
+      "id": "wizard-sit-throne",
+      "title": "Wizard Sit Throne",
+      "mission": "C-first trial for nethack-c/upstream/src/sit.c: dosit(); see missionPlan for intended target and observed result.",
+      "selectionRationale": "Designed from C source before JavaScript comparison; retained regardless of whether the intended observation was reached or JavaScript matched.",
+      "sourcePointers": [
+        "nethack-c/upstream/src/sit.c: dosit()"
+      ],
+      "cOutcome": "Reached sit.c:dosit IS_THRONE at segment 0 step 13; observed You sit on the opulent throne.",
+      "outcome": "Reached sit.c:dosit IS_THRONE at segment 0 step 13; observed You sit on the opulent throne.",
+      "inputs": {
+        "seed": 60626002,
+        "datetime": "20260925113000",
+        "role": "Wizard",
+        "race": "human",
+        "gender": "male",
+        "alignment": "neutral",
+        "playmode": "debug",
+        "keyCount": 13,
+        "boundaries": 14
+      },
+      "recipe": "challenges/cases/v6/wizard-sit-throne.recipe.session.json",
+      "recipeSha256": "cd87d693cadb26ae0e0dbcbcfaa1d1d7ab123b90dfdef959ebbe54a0deb657cb",
+      "recording": "challenges/cases/v6/wizard-sit-throne.session.json",
+      "recordingSha256": "777f1c5173e1e534cd61383f67d808292deec16b1c30c142e84522218a3204c7",
+      "reproducibility": "Independent C replay command: node scripts/record-session.mjs challenges/cases/v6/wizard-sit-throne.session.json /tmp/B10-replay-wizard-sit-throne.session.json; exit code 0. Complete recording byte-identical (SHA-256 777f1c5173e1e534cd61383f67d808292deec16b1c30c142e84522218a3204c7); 14 boundaries. Log: /tmp/teleport-loop-worker-b-20260925/.cache/B10-replay-wizard-sit-throne.log."
+    },
+    {
+      "id": "wizard-tinning-confirm",
+      "title": "Wizard Tinning Confirm",
+      "mission": "C-first trial for nethack-c/upstream/src/apply.c: use_tinning_kit(); see missionPlan for intended target and observed result.",
+      "selectionRationale": "Designed from C source before JavaScript comparison; retained regardless of whether the intended observation was reached or JavaScript matched.",
+      "sourcePointers": [
+        "nethack-c/upstream/src/apply.c: use_tinning_kit()"
+      ],
+      "cOutcome": "Valid C tinning setup history recorded; no completed newt-meat tin was observed.",
+      "outcome": "Valid C tinning setup history recorded; no completed newt-meat tin was observed.",
+      "inputs": {
+        "seed": 60626032,
+        "datetime": "20260925113000",
+        "role": "Wizard",
+        "race": "human",
+        "gender": "female",
+        "alignment": "neutral",
+        "playmode": "debug",
+        "keyCount": 35,
+        "boundaries": 36
+      },
+      "recipe": "challenges/cases/v6/wizard-tinning-confirm.recipe.session.json",
+      "recipeSha256": "b5b8ef79aa0125808f150311ca3d45e723f5aa8df0dec1418b061d63c8f52ab6",
+      "recording": "challenges/cases/v6/wizard-tinning-confirm.session.json",
+      "recordingSha256": "5375360da74524cb290c791f0cee162af26f3e169f75d1c3a0715f3ce48e42dd",
+      "reproducibility": "Independent C replay command: node scripts/record-session.mjs challenges/cases/v6/wizard-tinning-confirm.session.json /tmp/B10-replay-wizard-tinning-confirm.session.json; exit code 0. Complete recording byte-identical (SHA-256 5375360da74524cb290c791f0cee162af26f3e169f75d1c3a0715f3ce48e42dd); 36 boundaries. Log: /tmp/teleport-loop-worker-b-20260925/.cache/B10-replay-wizard-tinning-confirm.log."
+    },
+    {
+      "id": "wizard-tinning-kit-newt",
+      "title": "Wizard Tinning Kit Newt",
+      "mission": "C-first trial for nethack-c/upstream/src/apply.c: use_tinning_kit(); see missionPlan for intended target and observed result.",
+      "selectionRationale": "Designed from C source before JavaScript comparison; retained regardless of whether the intended observation was reached or JavaScript matched.",
+      "sourcePointers": [
+        "nethack-c/upstream/src/apply.c: use_tinning_kit()"
+      ],
+      "cOutcome": "Valid C tinning setup history recorded; no completed newt-meat tin was observed.",
+      "outcome": "Valid C tinning setup history recorded; no completed newt-meat tin was observed.",
+      "inputs": {
+        "seed": 60626010,
+        "datetime": "20260925113000",
+        "role": "Wizard",
+        "race": "human",
+        "gender": "male",
+        "alignment": "chaotic",
+        "playmode": "debug",
+        "keyCount": 30,
+        "boundaries": 31
+      },
+      "recipe": "challenges/cases/v6/wizard-tinning-kit-newt.recipe.session.json",
+      "recipeSha256": "05b8ded09e0efd3d8cd84dd6f929fd509258e955b9f39f61e6cd5d5ceeda23fe",
+      "recording": "challenges/cases/v6/wizard-tinning-kit-newt.session.json",
+      "recordingSha256": "af72f9e2718b49db82c086cb7c3acccb219ec43e649d6c0c5e0b9b190fc5fe2d",
+      "reproducibility": "Independent C replay command: node scripts/record-session.mjs challenges/cases/v6/wizard-tinning-kit-newt.session.json /tmp/B10-replay-wizard-tinning-kit-newt.session.json; exit code 0. Complete recording byte-identical (SHA-256 af72f9e2718b49db82c086cb7c3acccb219ec43e649d6c0c5e0b9b190fc5fe2d); 31 boundaries. Log: /tmp/teleport-loop-worker-b-20260925/.cache/B10-replay-wizard-tinning-kit-newt.log."
+    },
+    {
+      "id": "wizard-tinning-retry",
+      "title": "Wizard Tinning Retry",
+      "mission": "C-first trial for nethack-c/upstream/src/apply.c: use_tinning_kit(); see missionPlan for intended target and observed result.",
+      "selectionRationale": "Designed from C source before JavaScript comparison; retained regardless of whether the intended observation was reached or JavaScript matched.",
+      "sourcePointers": [
+        "nethack-c/upstream/src/apply.c: use_tinning_kit()"
+      ],
+      "cOutcome": "Valid C tinning setup history recorded; no completed newt-meat tin was observed.",
+      "outcome": "Valid C tinning setup history recorded; no completed newt-meat tin was observed.",
+      "inputs": {
+        "seed": 60626022,
+        "datetime": "20260925113000",
+        "role": "Wizard",
+        "race": "human",
+        "gender": "female",
+        "alignment": "neutral",
+        "playmode": "debug",
+        "keyCount": 33,
+        "boundaries": 34
+      },
+      "recipe": "challenges/cases/v6/wizard-tinning-retry.recipe.session.json",
+      "recipeSha256": "48cff0ab9083247197d58628b2add5fe71e4ffc1ff70eca53e0f0dc0ed39c5a5",
+      "recording": "challenges/cases/v6/wizard-tinning-retry.session.json",
+      "recordingSha256": "137f2cb977a1d661abbc8bd9cdbaafce9b802a39f040ac9c4a1c266359028d85",
+      "reproducibility": "Independent C replay command: node scripts/record-session.mjs challenges/cases/v6/wizard-tinning-retry.session.json /tmp/B10-replay-wizard-tinning-retry.session.json; exit code 0. Complete recording byte-identical (SHA-256 137f2cb977a1d661abbc8bd9cdbaafce9b802a39f040ac9c4a1c266359028d85); 34 boundaries. Log: /tmp/teleport-loop-worker-b-20260925/.cache/B10-replay-wizard-tinning-retry.log."
+    },
+    {
+      "id": "wizard-tinning-yes",
+      "title": "Wizard Tinning Yes",
+      "mission": "C-first trial for nethack-c/upstream/src/apply.c: use_tinning_kit(); see missionPlan for intended target and observed result.",
+      "selectionRationale": "Designed from C source before JavaScript comparison; retained regardless of whether the intended observation was reached or JavaScript matched.",
+      "sourcePointers": [
+        "nethack-c/upstream/src/apply.c: use_tinning_kit()"
+      ],
+      "cOutcome": "Reached apply.c:use_tinning_kit at segment 0 step 34; observed tin of newt meat.",
+      "outcome": "Reached apply.c:use_tinning_kit at segment 0 step 34; observed tin of newt meat.",
+      "inputs": {
+        "seed": 60626042,
+        "datetime": "20260925113000",
+        "role": "Wizard",
+        "race": "human",
+        "gender": "female",
+        "alignment": "neutral",
+        "playmode": "debug",
+        "keyCount": 34,
+        "boundaries": 35
+      },
+      "recipe": "challenges/cases/v6/wizard-tinning-yes.recipe.session.json",
+      "recipeSha256": "83d13d8c336a2f9ea2abcc09d9d28d58ada76fab1645b022e3095cf9085cec6a",
+      "recording": "challenges/cases/v6/wizard-tinning-yes.session.json",
+      "recordingSha256": "20507a35d6d3cb3d7e607038b48b58444b9480f40da0d2bb23e1eabf95f3b72e",
+      "reproducibility": "Independent C replay command: node scripts/record-session.mjs challenges/cases/v6/wizard-tinning-yes.session.json /tmp/B10-replay-wizard-tinning-yes.session.json; exit code 0. Complete recording byte-identical (SHA-256 20507a35d6d3cb3d7e607038b48b58444b9480f40da0d2bb23e1eabf95f3b72e); 35 boundaries. Log: /tmp/teleport-loop-worker-b-20260925/.cache/B10-replay-wizard-tinning-yes.log."
+    },
+    {
+      "id": "wizard-write-marker",
+      "title": "Wizard Write Marker",
+      "mission": "C-first trial for nethack-c/upstream/src/write.c: dowrite(); nethack-c/upstream/src/mkobj.c: next_ident(); see missionPlan for intended target and observed result.",
+      "selectionRationale": "Designed from C source before JavaScript comparison; retained regardless of whether the intended observation was reached or JavaScript matched.",
+      "sourcePointers": [
+        "nethack-c/upstream/src/write.c: dowrite()",
+        "nethack-c/upstream/src/mkobj.c: next_ident()"
+      ],
+      "cOutcome": "Valid C history exercised the marker and writing setup; retained as an exploratory trial.",
+      "outcome": "Valid C history exercised the marker and writing setup; retained as an exploratory trial.",
+      "inputs": {
+        "seed": 60626016,
+        "datetime": "20260925113000",
+        "role": "Wizard",
+        "race": "human",
+        "gender": "female",
+        "alignment": "lawful",
+        "playmode": "debug",
+        "keyCount": 29,
+        "boundaries": 30
+      },
+      "recipe": "challenges/cases/v6/wizard-write-marker.recipe.session.json",
+      "recipeSha256": "a991527d9b73c44e90f9a2562d5923122f0e1db40f7f5ca141fdb3f985273e5c",
+      "recording": "challenges/cases/v6/wizard-write-marker.session.json",
+      "recordingSha256": "987a358ceebc20128e9544f61c632053da89ddfe1654d4f6a621db7fd181bb49",
+      "reproducibility": "Independent C replay command: node scripts/record-session.mjs challenges/cases/v6/wizard-write-marker.session.json /tmp/B10-replay-wizard-write-marker.session.json; exit code 0. Complete recording byte-identical (SHA-256 987a358ceebc20128e9544f61c632053da89ddfe1654d4f6a621db7fd181bb49); 30 boundaries. Log: /tmp/teleport-loop-worker-b-20260925/.cache/B10-replay-wizard-write-marker.log."
+    },
+    {
+      "id": "wizard-write-marker-retry",
+      "title": "Wizard Write Marker Retry",
+      "mission": "C-first trial for nethack-c/upstream/src/write.c: dowrite(); nethack-c/upstream/src/mkobj.c: next_ident(); see missionPlan for intended target and observed result.",
+      "selectionRationale": "Designed from C source before JavaScript comparison; retained regardless of whether the intended observation was reached or JavaScript matched.",
+      "sourcePointers": [
+        "nethack-c/upstream/src/write.c: dowrite()",
+        "nethack-c/upstream/src/mkobj.c: next_ident()"
+      ],
+      "cOutcome": "Valid C history exercised the marker and writing setup; retained as an exploratory trial.",
+      "outcome": "Valid C history exercised the marker and writing setup; retained as an exploratory trial.",
+      "inputs": {
+        "seed": 60626025,
+        "datetime": "20260925113000",
+        "role": "Wizard",
+        "race": "human",
+        "gender": "female",
+        "alignment": "neutral",
+        "playmode": "debug",
+        "keyCount": 31,
+        "boundaries": 32
+      },
+      "recipe": "challenges/cases/v6/wizard-write-marker-retry.recipe.session.json",
+      "recipeSha256": "f308648a117200131e10760ffa26326e73c829fb8b71f20dd384f83aec272928",
+      "recording": "challenges/cases/v6/wizard-write-marker-retry.session.json",
+      "recordingSha256": "bc8da8c21d66cf26404ecfc2a00997d199fce92f99bbcf66978fbcdf124085ac",
+      "reproducibility": "Independent C replay command: node scripts/record-session.mjs challenges/cases/v6/wizard-write-marker-retry.session.json /tmp/B10-replay-wizard-write-marker-retry.session.json; exit code 0. Complete recording byte-identical (SHA-256 bc8da8c21d66cf26404ecfc2a00997d199fce92f99bbcf66978fbcdf124085ac); 32 boundaries. Log: /tmp/teleport-loop-worker-b-20260925/.cache/B10-replay-wizard-write-marker-retry.log."
+    },
+    {
+      "id": "wizard-write-marker-scroll",
+      "title": "Wizard Write Marker Scroll",
+      "mission": "C-first trial for nethack-c/upstream/src/write.c: dowrite(); nethack-c/upstream/src/mkobj.c: next_ident(); see missionPlan for intended target and observed result.",
+      "selectionRationale": "Designed from C source before JavaScript comparison; retained regardless of whether the intended observation was reached or JavaScript matched.",
+      "sourcePointers": [
+        "nethack-c/upstream/src/write.c: dowrite()",
+        "nethack-c/upstream/src/mkobj.c: next_ident()"
+      ],
+      "cOutcome": "Valid C history reached the scroll-writing type prompt, then declined the unavailable scroll type.",
+      "outcome": "Valid C history reached the scroll-writing type prompt, then declined the unavailable scroll type.",
+      "inputs": {
+        "seed": 60626036,
+        "datetime": "20260925113000",
+        "role": "Wizard",
+        "race": "human",
+        "gender": "female",
+        "alignment": "neutral",
+        "playmode": "debug",
+        "keyCount": 50,
+        "boundaries": 51
+      },
+      "recipe": "challenges/cases/v6/wizard-write-marker-scroll.recipe.session.json",
+      "recipeSha256": "d3c7b9cf693f19e7cdb3e2b3891c8f252c40b72a44b28f6bc65bb495ae8c5658",
+      "recording": "challenges/cases/v6/wizard-write-marker-scroll.session.json",
+      "recordingSha256": "e8f78b1b83cf79ac36cd10644ca8004c5cc3237b94a333112f297c20ed16231c",
+      "reproducibility": "Independent C replay command: node scripts/record-session.mjs challenges/cases/v6/wizard-write-marker-scroll.session.json /tmp/B10-replay-wizard-write-marker-scroll.session.json; exit code 0. Complete recording byte-identical (SHA-256 e8f78b1b83cf79ac36cd10644ca8004c5cc3237b94a333112f297c20ed16231c); 51 boundaries. Log: /tmp/teleport-loop-worker-b-20260925/.cache/B10-replay-wizard-write-marker-scroll.log."
+    },
+    {
+      "id": "v6-add-archeologist-eat-ration",
+      "title": "B10 Addendum v6-add-archeologist-eat-ration",
+      "mission": "C-first retry/candidate for eat.c:eatfood / fpostfx; see the correction missionPlan for the frozen plan and observed reachability.",
+      "selectionRationale": "Added after the first B10 review found repeated first-mismatch branches; planned from C source before this case was compared with JavaScript. Every valid recording is retained regardless of target reach or JS result.",
+      "sourcePointers": [
+        "eat.c:eatfood / fpostfx"
+      ],
+      "cOutcome": "Valid C run; the startup welcome --More-- prompt consumed the intended commands before eating.",
+      "outcome": "Valid C run; the startup welcome --More-- prompt consumed the intended commands before eating.",
+      "inputs": {
+        "seed": 60626103,
+        "datetime": "20260926113000",
+        "role": "Archeologist",
+        "race": "human",
+        "gender": "male",
+        "alignment": "neutral",
+        "playmode": "debug",
+        "keyCount": 2,
+        "boundaries": 3
+      },
+      "recipe": "challenges/cases/v6/v6-add-archeologist-eat-ration.recipe.session.json",
+      "recipeSha256": "0d660c3c9ddf2feee8cd19778d5b297e524778afe954269804f0b687c9066c92",
+      "recording": "challenges/cases/v6/v6-add-archeologist-eat-ration.session.json",
+      "recordingSha256": "b19cabaf9da04840736e5062a37ab1a8891572092ee02f78db963b446c1a21c0",
+      "reproducibility": "Independent C replay command: node scripts/record-session.mjs challenges/cases/v6/v6-add-archeologist-eat-ration.session.json /tmp/v6-add-archeologist-eat-ration.replay.session.json; exit code 0. Complete recording byte-identical (SHA-256 b19cabaf9da04840736e5062a37ab1a8891572092ee02f78db963b446c1a21c0); 3 boundaries. Log: /tmp/teleport-loop-worker-b-20260925/.cache/v6-add-archeologist-eat-ration.replay.log."
+    },
+    {
+      "id": "v6-add-archeologist-pickaxe-engrave",
+      "title": "B10 Addendum v6-add-archeologist-pickaxe-engrave",
+      "mission": "C-first retry/candidate for engrave.c:doengrave pick-axe branch; see the correction missionPlan for the frozen plan and observed reachability.",
+      "selectionRationale": "Added after the first B10 review found repeated first-mismatch branches; planned from C source before this case was compared with JavaScript. Every valid recording is retained regardless of target reach or JS result.",
+      "sourcePointers": [
+        "engrave.c:doengrave pick-axe branch"
+      ],
+      "cOutcome": "Valid C run; the startup welcome --More-- prompt consumed the intended commands before engraving.",
+      "outcome": "Valid C run; the startup welcome --More-- prompt consumed the intended commands before engraving.",
+      "inputs": {
+        "seed": 60626104,
+        "datetime": "20260926113000",
+        "role": "Archeologist",
+        "race": "human",
+        "gender": "male",
+        "alignment": "neutral",
+        "playmode": "debug",
+        "keyCount": 8,
+        "boundaries": 9
+      },
+      "recipe": "challenges/cases/v6/v6-add-archeologist-pickaxe-engrave.recipe.session.json",
+      "recipeSha256": "aee5dda359c6467c8c690da3cdaceeb4466194326e43c97a0e2c6e98937c7956",
+      "recording": "challenges/cases/v6/v6-add-archeologist-pickaxe-engrave.session.json",
+      "recordingSha256": "aacd3d76e12848ce434b043e3a1215cf2c5f2e58883350d6b964b4e24f77243c",
+      "reproducibility": "Independent C replay command: node scripts/record-session.mjs challenges/cases/v6/v6-add-archeologist-pickaxe-engrave.session.json /tmp/v6-add-archeologist-pickaxe-engrave.replay.session.json; exit code 0. Complete recording byte-identical (SHA-256 aacd3d76e12848ce434b043e3a1215cf2c5f2e58883350d6b964b4e24f77243c); 9 boundaries. Log: /tmp/teleport-loop-worker-b-20260925/.cache/v6-add-archeologist-pickaxe-engrave.replay.log."
+    },
+    {
+      "id": "v6-add-archeologist-whip-wall",
+      "title": "B10 Addendum v6-add-archeologist-whip-wall",
+      "mission": "C-first retry/candidate for apply.c:use_whip; see the correction missionPlan for the frozen plan and observed reachability.",
+      "selectionRationale": "Added after the first B10 review found repeated first-mismatch branches; planned from C source before this case was compared with JavaScript. Every valid recording is retained regardless of target reach or JS result.",
+      "sourcePointers": [
+        "apply.c:use_whip"
+      ],
+      "cOutcome": "Valid C run; the startup welcome --More-- prompt consumed the intended commands before using the whip.",
+      "outcome": "Valid C run; the startup welcome --More-- prompt consumed the intended commands before using the whip.",
+      "inputs": {
+        "seed": 60626105,
+        "datetime": "20260926113000",
+        "role": "Archeologist",
+        "race": "human",
+        "gender": "male",
+        "alignment": "neutral",
+        "playmode": "debug",
+        "keyCount": 3,
+        "boundaries": 4
+      },
+      "recipe": "challenges/cases/v6/v6-add-archeologist-whip-wall.recipe.session.json",
+      "recipeSha256": "274b2ec202798e23f25068d8ad9766396811526e48e255c79bd6680ca089907c",
+      "recording": "challenges/cases/v6/v6-add-archeologist-whip-wall.session.json",
+      "recordingSha256": "863fde671e09c2a11fa96b76dddee741a7a67f5b0fbca6a1541ded25067d87f5",
+      "reproducibility": "Independent C replay command: node scripts/record-session.mjs challenges/cases/v6/v6-add-archeologist-whip-wall.session.json /tmp/v6-add-archeologist-whip-wall.replay.session.json; exit code 0. Complete recording byte-identical (SHA-256 863fde671e09c2a11fa96b76dddee741a7a67f5b0fbca6a1541ded25067d87f5); 4 boundaries. Log: /tmp/teleport-loop-worker-b-20260925/.cache/v6-add-archeologist-whip-wall.replay.log."
+    },
+    {
+      "id": "v6-add-getpos-help",
+      "title": "B10 Addendum v6-add-getpos-help",
+      "mission": "C-first retry/candidate for pager.c:do_look / getpos.c:getpos and getpos_help; see the correction missionPlan for the frozen plan and observed reachability.",
+      "selectionRationale": "Added after the first B10 review found repeated first-mismatch branches; planned from C source before this case was compared with JavaScript. Every valid recording is retained regardless of target reach or JS result.",
+      "sourcePointers": [
+        "pager.c:do_look / getpos.c:getpos and getpos_help"
+      ],
+      "cOutcome": "Valid C run; the startup welcome --More-- prompt consumed the intended commands before the map query/help target.",
+      "outcome": "Valid C run; the startup welcome --More-- prompt consumed the intended commands before the map query/help target.",
+      "inputs": {
+        "seed": 60626101,
+        "datetime": "20260926113000",
+        "role": "Wizard",
+        "race": "human",
+        "gender": "male",
+        "alignment": "neutral",
+        "playmode": "debug",
+        "keyCount": 5,
+        "boundaries": 6
+      },
+      "recipe": "challenges/cases/v6/v6-add-getpos-help.recipe.session.json",
+      "recipeSha256": "b0913c2f9c371d932dd0c73cfb6f99e84ecabee6883fb620ed3629fbb228cae8",
+      "recording": "challenges/cases/v6/v6-add-getpos-help.session.json",
+      "recordingSha256": "b06e8c75ff1bd4d7782425d9dd13080021baa88eb5e8bb592dca94c035cd4616",
+      "reproducibility": "Independent C replay command: node scripts/record-session.mjs challenges/cases/v6/v6-add-getpos-help.session.json /tmp/v6-add-getpos-help.replay.session.json; exit code 0. Complete recording byte-identical (SHA-256 b06e8c75ff1bd4d7782425d9dd13080021baa88eb5e8bb592dca94c035cd4616); 6 boundaries. Log: /tmp/teleport-loop-worker-b-20260925/.cache/v6-add-getpos-help.replay.log."
+    },
+    {
+      "id": "v6-add-healer-drink-potion",
+      "title": "B10 Addendum v6-add-healer-drink-potion",
+      "mission": "C-first retry/candidate for potion.c:dodrink / dopotion; see the correction missionPlan for the frozen plan and observed reachability.",
+      "selectionRationale": "Added after the first B10 review found repeated first-mismatch branches; planned from C source before this case was compared with JavaScript. Every valid recording is retained regardless of target reach or JS result.",
+      "sourcePointers": [
+        "potion.c:dodrink / dopotion"
+      ],
+      "cOutcome": "Valid C run; the startup welcome --More-- prompt consumed the intended commands before drinking.",
+      "outcome": "Valid C run; the startup welcome --More-- prompt consumed the intended commands before drinking.",
+      "inputs": {
+        "seed": 60626107,
+        "datetime": "20260926113000",
+        "role": "Healer",
+        "race": "human",
+        "gender": "male",
+        "alignment": "neutral",
+        "playmode": "debug",
+        "keyCount": 2,
+        "boundaries": 3
+      },
+      "recipe": "challenges/cases/v6/v6-add-healer-drink-potion.recipe.session.json",
+      "recipeSha256": "578b172267943205c99b358166422a233e2cc6024bef377ef694f0a8f709b567",
+      "recording": "challenges/cases/v6/v6-add-healer-drink-potion.session.json",
+      "recordingSha256": "2b360ff4f24ab791d5c01041feb9df59d75e55d98b66800e9f5475f06187df64",
+      "reproducibility": "Independent C replay command: node scripts/record-session.mjs challenges/cases/v6/v6-add-healer-drink-potion.session.json /tmp/v6-add-healer-drink-potion.replay.session.json; exit code 0. Complete recording byte-identical (SHA-256 2b360ff4f24ab791d5c01041feb9df59d75e55d98b66800e9f5475f06187df64); 3 boundaries. Log: /tmp/teleport-loop-worker-b-20260925/.cache/v6-add-healer-drink-potion.replay.log."
+    },
+    {
+      "id": "v6-add-healer-read-book",
+      "title": "B10 Addendum v6-add-healer-read-book",
+      "mission": "C-first retry/candidate for read.c:doread spellbook path; see the correction missionPlan for the frozen plan and observed reachability.",
+      "selectionRationale": "Added after the first B10 review found repeated first-mismatch branches; planned from C source before this case was compared with JavaScript. Every valid recording is retained regardless of target reach or JS result.",
+      "sourcePointers": [
+        "read.c:doread spellbook path"
+      ],
+      "cOutcome": "Valid C run; the startup welcome --More-- prompt consumed the intended commands before reading.",
+      "outcome": "Valid C run; the startup welcome --More-- prompt consumed the intended commands before reading.",
+      "inputs": {
+        "seed": 60626106,
+        "datetime": "20260926113000",
+        "role": "Healer",
+        "race": "human",
+        "gender": "male",
+        "alignment": "neutral",
+        "playmode": "debug",
+        "keyCount": 2,
+        "boundaries": 3
+      },
+      "recipe": "challenges/cases/v6/v6-add-healer-read-book.recipe.session.json",
+      "recipeSha256": "882c088e9b25db2ee05c5f7beadbfed9595f556aec068228c239b0a2f4887a2b",
+      "recording": "challenges/cases/v6/v6-add-healer-read-book.session.json",
+      "recordingSha256": "16b3c212a1eed62ebe686cbda667b6086cf41d976609fedf476756f3ee0fff81",
+      "reproducibility": "Independent C replay command: node scripts/record-session.mjs challenges/cases/v6/v6-add-healer-read-book.session.json /tmp/v6-add-healer-read-book.replay.session.json; exit code 0. Complete recording byte-identical (SHA-256 16b3c212a1eed62ebe686cbda667b6086cf41d976609fedf476756f3ee0fff81); 3 boundaries. Log: /tmp/teleport-loop-worker-b-20260925/.cache/v6-add-healer-read-book.replay.log."
+    },
+    {
+      "id": "v6-add-healer-stethoscope-floor",
+      "title": "B10 Addendum v6-add-healer-stethoscope-floor",
+      "mission": "C-first retry/candidate for apply.c:use_stethoscope; see the correction missionPlan for the frozen plan and observed reachability.",
+      "selectionRationale": "Added after the first B10 review found repeated first-mismatch branches; planned from C source before this case was compared with JavaScript. Every valid recording is retained regardless of target reach or JS result.",
+      "sourcePointers": [
+        "apply.c:use_stethoscope"
+      ],
+      "cOutcome": "Valid C run; the startup welcome --More-- prompt consumed the intended commands before stethoscope use.",
+      "outcome": "Valid C run; the startup welcome --More-- prompt consumed the intended commands before stethoscope use.",
+      "inputs": {
+        "seed": 60626102,
+        "datetime": "20260926113000",
+        "role": "Healer",
+        "race": "human",
+        "gender": "male",
+        "alignment": "neutral",
+        "playmode": "debug",
+        "keyCount": 3,
+        "boundaries": 4
+      },
+      "recipe": "challenges/cases/v6/v6-add-healer-stethoscope-floor.recipe.session.json",
+      "recipeSha256": "80af5684596bfaa561795e63d1ee173d9d609a8e5c942ee464135db64f3e21f1",
+      "recording": "challenges/cases/v6/v6-add-healer-stethoscope-floor.session.json",
+      "recordingSha256": "f57461952f79e4c0a4af10939002e20ec244304a97b8c4c9b77a884dbf5b7220",
+      "reproducibility": "Independent C replay command: node scripts/record-session.mjs challenges/cases/v6/v6-add-healer-stethoscope-floor.session.json /tmp/v6-add-healer-stethoscope-floor.replay.session.json; exit code 0. Complete recording byte-identical (SHA-256 f57461952f79e4c0a4af10939002e20ec244304a97b8c4c9b77a884dbf5b7220); 4 boundaries. Log: /tmp/teleport-loop-worker-b-20260925/.cache/v6-add-healer-stethoscope-floor.replay.log."
+    },
+    {
+      "id": "v6-add-healer-takeoff-gloves",
+      "title": "B10 Addendum v6-add-healer-takeoff-gloves",
+      "mission": "C-first retry/candidate for do_wear.c:dotakeoff / take_off; see the correction missionPlan for the frozen plan and observed reachability.",
+      "selectionRationale": "Added after the first B10 review found repeated first-mismatch branches; planned from C source before this case was compared with JavaScript. Every valid recording is retained regardless of target reach or JS result.",
+      "sourcePointers": [
+        "do_wear.c:dotakeoff / take_off"
+      ],
+      "cOutcome": "Valid C run; the startup welcome --More-- prompt consumed the intended commands before taking off gloves.",
+      "outcome": "Valid C run; the startup welcome --More-- prompt consumed the intended commands before taking off gloves.",
+      "inputs": {
+        "seed": 60626109,
+        "datetime": "20260926113000",
+        "role": "Healer",
+        "race": "human",
+        "gender": "male",
+        "alignment": "neutral",
+        "playmode": "debug",
+        "keyCount": 2,
+        "boundaries": 3
+      },
+      "recipe": "challenges/cases/v6/v6-add-healer-takeoff-gloves.recipe.session.json",
+      "recipeSha256": "d4050ca4adecb82d82b451f557b00348d6d3b8f56bfca73dcfbf66aa2e6a5c29",
+      "recording": "challenges/cases/v6/v6-add-healer-takeoff-gloves.session.json",
+      "recordingSha256": "2eb7e247d77808937ed2af2b80515205129406bab4612d4565787f6ac59f2faa",
+      "reproducibility": "Independent C replay command: node scripts/record-session.mjs challenges/cases/v6/v6-add-healer-takeoff-gloves.session.json /tmp/v6-add-healer-takeoff-gloves.replay.session.json; exit code 0. Complete recording byte-identical (SHA-256 2eb7e247d77808937ed2af2b80515205129406bab4612d4565787f6ac59f2faa); 3 boundaries. Log: /tmp/teleport-loop-worker-b-20260925/.cache/v6-add-healer-takeoff-gloves.replay.log."
+    },
+    {
+      "id": "v6-add-rogue-lockpick-door",
+      "title": "B10 Addendum v6-add-rogue-lockpick-door",
+      "mission": "C-first retry/candidate for lock.c:pick_lock; see the correction missionPlan for the frozen plan and observed reachability.",
+      "selectionRationale": "Added after the first B10 review found repeated first-mismatch branches; planned from C source before this case was compared with JavaScript. Every valid recording is retained regardless of target reach or JS result.",
+      "sourcePointers": [
+        "lock.c:pick_lock"
+      ],
+      "cOutcome": "Valid C run; the startup welcome --More-- prompt consumed the intended commands before lock-pick use.",
+      "outcome": "Valid C run; the startup welcome --More-- prompt consumed the intended commands before lock-pick use.",
+      "inputs": {
+        "seed": 60626108,
+        "datetime": "20260926113000",
+        "role": "Rogue",
+        "race": "human",
+        "gender": "male",
+        "alignment": "neutral",
+        "playmode": "debug",
+        "keyCount": 3,
+        "boundaries": 4
+      },
+      "recipe": "challenges/cases/v6/v6-add-rogue-lockpick-door.recipe.session.json",
+      "recipeSha256": "d3348457e327a32fb89adaa0be8148d21d02a0bf47c6cae05b8a868740667e74",
+      "recording": "challenges/cases/v6/v6-add-rogue-lockpick-door.session.json",
+      "recordingSha256": "d93c05c15d7d1614ea0515a3f0206e5e8c2f627e07ef637c5c5bbfb279731e38",
+      "reproducibility": "Independent C replay command: node scripts/record-session.mjs challenges/cases/v6/v6-add-rogue-lockpick-door.session.json /tmp/v6-add-rogue-lockpick-door.replay.session.json; exit code 0. Complete recording byte-identical (SHA-256 d93c05c15d7d1614ea0515a3f0206e5e8c2f627e07ef637c5c5bbfb279731e38); 4 boundaries. Log: /tmp/teleport-loop-worker-b-20260925/.cache/v6-add-rogue-lockpick-door.replay.log."
+    },
+    {
+      "id": "v6-add2-archeologist-eat-ration",
+      "title": "B10 Addendum v6-add2-archeologist-eat-ration",
+      "mission": "C-first retry/candidate for eat.c:eatfood / fpostfx food-ration branch; see the correction missionPlan for the frozen plan and observed reachability.",
+      "selectionRationale": "Added after the first B10 review found repeated first-mismatch branches; planned from C source before this case was compared with JavaScript. Every valid recording is retained regardless of target reach or JS result.",
+      "sourcePointers": [
+        "eat.c:eatfood / fpostfx food-ration branch"
+      ],
+      "cOutcome": "C ate one initial ration; the result included “You’re having a hard time getting all of it down.” and the game advanced to T:6.",
+      "outcome": "C ate one initial ration; the result included “You’re having a hard time getting all of it down.” and the game advanced to T:6.",
+      "inputs": {
+        "seed": 60626203,
+        "datetime": "20260926123000",
+        "role": "Archeologist",
+        "race": "human",
+        "gender": "male",
+        "alignment": "neutral",
+        "playmode": "debug",
+        "keyCount": 3,
+        "boundaries": 4
+      },
+      "recipe": "challenges/cases/v6/v6-add2-archeologist-eat-ration.recipe.session.json",
+      "recipeSha256": "37071441a5afd780636cab6279efefedfd3a5fc3f3b283c04f5b3164447862a6",
+      "recording": "challenges/cases/v6/v6-add2-archeologist-eat-ration.session.json",
+      "recordingSha256": "919d5c5ef80c0ba0e49a26223dfda80ede162e12fcf924e6a80df593c9fca4f7",
+      "reproducibility": "Independent C replay command: node scripts/record-session.mjs challenges/cases/v6/v6-add2-archeologist-eat-ration.session.json /tmp/v6-add2-archeologist-eat-ration.replay.session.json; exit code 0. Complete recording byte-identical (SHA-256 919d5c5ef80c0ba0e49a26223dfda80ede162e12fcf924e6a80df593c9fca4f7); 4 boundaries. Log: /tmp/teleport-loop-worker-b-20260925/.cache/v6-add2-archeologist-eat-ration.replay.log."
+    },
+    {
+      "id": "v6-add2-archeologist-pickaxe-engrave",
+      "title": "B10 Addendum v6-add2-archeologist-pickaxe-engrave",
+      "mission": "C-first retry/candidate for engrave.c:doengrave pick-axe branch; see the correction missionPlan for the frozen plan and observed reachability.",
+      "selectionRationale": "Added after the first B10 review found repeated first-mismatch branches; planned from C source before this case was compared with JavaScript. Every valid recording is retained regardless of target reach or JS result.",
+      "sourcePointers": [
+        "engrave.c:doengrave pick-axe branch"
+      ],
+      "cOutcome": "Valid C run; the recipe omitted the startup-dismissal space, so the engraving command was not reached.",
+      "outcome": "Valid C run; the recipe omitted the startup-dismissal space, so the engraving command was not reached.",
+      "inputs": {
+        "seed": 60626204,
+        "datetime": "20260926123000",
+        "role": "Archeologist",
+        "race": "human",
+        "gender": "male",
+        "alignment": "neutral",
+        "playmode": "debug",
+        "keyCount": 9,
+        "boundaries": 10
+      },
+      "recipe": "challenges/cases/v6/v6-add2-archeologist-pickaxe-engrave.recipe.session.json",
+      "recipeSha256": "0893883bc2d148eb06ef1d8d257db5f9908c43722d3d64f030909cf18e875729",
+      "recording": "challenges/cases/v6/v6-add2-archeologist-pickaxe-engrave.session.json",
+      "recordingSha256": "b93e1f849acf6ba5cf654bf515b9eda63851c9eecd363ce13ab32e3466b20c6e",
+      "reproducibility": "Independent C replay command: node scripts/record-session.mjs challenges/cases/v6/v6-add2-archeologist-pickaxe-engrave.session.json /tmp/v6-add2-archeologist-pickaxe-engrave.replay.session.json; exit code 0. Complete recording byte-identical (SHA-256 b93e1f849acf6ba5cf654bf515b9eda63851c9eecd363ce13ab32e3466b20c6e); 10 boundaries. Log: /tmp/teleport-loop-worker-b-20260925/.cache/v6-add2-archeologist-pickaxe-engrave.replay.log."
+    },
+    {
+      "id": "v6-add2-archeologist-whip-wall",
+      "title": "B10 Addendum v6-add2-archeologist-whip-wall",
+      "mission": "C-first retry/candidate for apply.c:use_whip; see the correction missionPlan for the frozen plan and observed reachability.",
+      "selectionRationale": "Added after the first B10 review found repeated first-mismatch branches; planned from C source before this case was compared with JavaScript. Every valid recording is retained regardless of target reach or JS result.",
+      "sourcePointers": [
+        "apply.c:use_whip"
+      ],
+      "cOutcome": "C applied and flicked the initial bullwhip; C printed “Snap!” and advanced to T:2.",
+      "outcome": "C applied and flicked the initial bullwhip; C printed “Snap!” and advanced to T:2.",
+      "inputs": {
+        "seed": 60626205,
+        "datetime": "20260926123000",
+        "role": "Archeologist",
+        "race": "human",
+        "gender": "male",
+        "alignment": "neutral",
+        "playmode": "debug",
+        "keyCount": 4,
+        "boundaries": 5
+      },
+      "recipe": "challenges/cases/v6/v6-add2-archeologist-whip-wall.recipe.session.json",
+      "recipeSha256": "a1a094efa1713ca6d0441ea1c27dd320d9c5da3abcacdaaa9bed3acef583cd11",
+      "recording": "challenges/cases/v6/v6-add2-archeologist-whip-wall.session.json",
+      "recordingSha256": "81e75538553d9197079064b54b06ed99b0c315bcdca8360609ee96c874ed8422",
+      "reproducibility": "Independent C replay command: node scripts/record-session.mjs challenges/cases/v6/v6-add2-archeologist-whip-wall.session.json /tmp/v6-add2-archeologist-whip-wall.replay.session.json; exit code 0. Complete recording byte-identical (SHA-256 81e75538553d9197079064b54b06ed99b0c315bcdca8360609ee96c874ed8422); 5 boundaries. Log: /tmp/teleport-loop-worker-b-20260925/.cache/v6-add2-archeologist-whip-wall.replay.log."
+    },
+    {
+      "id": "v6-add2-getpos-help",
+      "title": "B10 Addendum v6-add2-getpos-help",
+      "mission": "C-first retry/candidate for pager.c:do_look / getpos.c:getpos and getpos_help; see the correction missionPlan for the frozen plan and observed reachability.",
+      "selectionRationale": "Added after the first B10 review found repeated first-mismatch branches; planned from C source before this case was compared with JavaScript. Every valid recording is retained regardless of target reach or JS result.",
+      "sourcePointers": [
+        "pager.c:do_look / getpos.c:getpos and getpos_help"
+      ],
+      "cOutcome": "C opened the / what-is menu, entered verbose cursor selection, displayed the getpos help window, then returned to the map picker.",
+      "outcome": "C opened the / what-is menu, entered verbose cursor selection, displayed the getpos help window, then returned to the map picker.",
+      "inputs": {
+        "seed": 60626201,
+        "datetime": "20260926123000",
+        "role": "Wizard",
+        "race": "human",
+        "gender": "male",
+        "alignment": "neutral",
+        "playmode": "debug",
+        "keyCount": 6,
+        "boundaries": 7
+      },
+      "recipe": "challenges/cases/v6/v6-add2-getpos-help.recipe.session.json",
+      "recipeSha256": "90258e631556719f8894112c1d5a96a144591610521d65b4f9be0885c025b92d",
+      "recording": "challenges/cases/v6/v6-add2-getpos-help.session.json",
+      "recordingSha256": "4c5b9cc1c771ac5cec9cac9b63f2bbb3851d49153020b1b60fdd379f01e314b2",
+      "reproducibility": "Independent C replay command: node scripts/record-session.mjs challenges/cases/v6/v6-add2-getpos-help.session.json /tmp/v6-add2-getpos-help.replay.session.json; exit code 0. Complete recording byte-identical (SHA-256 4c5b9cc1c771ac5cec9cac9b63f2bbb3851d49153020b1b60fdd379f01e314b2); 7 boundaries. Log: /tmp/teleport-loop-worker-b-20260925/.cache/v6-add2-getpos-help.replay.log."
+    },
+    {
+      "id": "v6-add2-healer-drink-potion",
+      "title": "B10 Addendum v6-add2-healer-drink-potion",
+      "mission": "C-first retry/candidate for potion.c:dodrink / dopotion; see the correction missionPlan for the frozen plan and observed reachability.",
+      "selectionRationale": "Added after the first B10 review found repeated first-mismatch branches; planned from C source before this case was compared with JavaScript. Every valid recording is retained regardless of target reach or JS result.",
+      "sourcePointers": [
+        "potion.c:dodrink / dopotion"
+      ],
+      "cOutcome": "C drank the Healer’s initial potion and printed “You feel better.” It reached dodrink’s smoky-bottle check.",
+      "outcome": "C drank the Healer’s initial potion and printed “You feel better.” It reached dodrink’s smoky-bottle check.",
+      "inputs": {
+        "seed": 60626207,
+        "datetime": "20260926123000",
+        "role": "Healer",
+        "race": "human",
+        "gender": "male",
+        "alignment": "neutral",
+        "playmode": "debug",
+        "keyCount": 3,
+        "boundaries": 4
+      },
+      "recipe": "challenges/cases/v6/v6-add2-healer-drink-potion.recipe.session.json",
+      "recipeSha256": "92a5bf266d661167d9b8427da872111436d7b8aa16360f0ffa7c6f4298f135a8",
+      "recording": "challenges/cases/v6/v6-add2-healer-drink-potion.session.json",
+      "recordingSha256": "b679b8751ebcd68682d345457262950cd7ef082e2fb05285b0f1fb290d63fd08",
+      "reproducibility": "Independent C replay command: node scripts/record-session.mjs challenges/cases/v6/v6-add2-healer-drink-potion.session.json /tmp/v6-add2-healer-drink-potion.replay.session.json; exit code 0. Complete recording byte-identical (SHA-256 b679b8751ebcd68682d345457262950cd7ef082e2fb05285b0f1fb290d63fd08); 4 boundaries. Log: /tmp/teleport-loop-worker-b-20260925/.cache/v6-add2-healer-drink-potion.replay.log."
+    },
+    {
+      "id": "v6-add2-healer-read-book",
+      "title": "B10 Addendum v6-add2-healer-read-book",
+      "mission": "C-first retry/candidate for read.c:doread invalid non-book selection path; see the correction missionPlan for the frozen plan and observed reachability.",
+      "selectionRationale": "Added after the first B10 review found repeated first-mismatch branches; planned from C source before this case was compared with JavaScript. Every valid recording is retained regardless of target reach or JS result.",
+      "sourcePointers": [
+        "read.c:doread invalid non-book selection path"
+      ],
+      "cOutcome": "C opened the read-object prompt, but letter g was not a readable object; it printed “That is a silly thing to read.” The planned spellbook study was not reached.",
+      "outcome": "C opened the read-object prompt, but letter g was not a readable object; it printed “That is a silly thing to read.” The planned spellbook study was not reached.",
+      "inputs": {
+        "seed": 60626206,
+        "datetime": "20260926123000",
+        "role": "Healer",
+        "race": "human",
+        "gender": "male",
+        "alignment": "neutral",
+        "playmode": "debug",
+        "keyCount": 3,
+        "boundaries": 4
+      },
+      "recipe": "challenges/cases/v6/v6-add2-healer-read-book.recipe.session.json",
+      "recipeSha256": "bf1ce27278db4380dcdfc164476a9f9e8d9575c905bfd57899449ce943a68fba",
+      "recording": "challenges/cases/v6/v6-add2-healer-read-book.session.json",
+      "recordingSha256": "088e90ce07a2a5de00d8bb6a527cab520362b987d772913efd2c0cc8887dcd78",
+      "reproducibility": "Independent C replay command: node scripts/record-session.mjs challenges/cases/v6/v6-add2-healer-read-book.session.json /tmp/v6-add2-healer-read-book.replay.session.json; exit code 0. Complete recording byte-identical (SHA-256 088e90ce07a2a5de00d8bb6a527cab520362b987d772913efd2c0cc8887dcd78); 4 boundaries. Log: /tmp/teleport-loop-worker-b-20260925/.cache/v6-add2-healer-read-book.replay.log."
+    },
+    {
+      "id": "v6-add2-healer-stethoscope-floor",
+      "title": "B10 Addendum v6-add2-healer-stethoscope-floor",
+      "mission": "C-first retry/candidate for apply.c:use_stethoscope ordinary adjacent floor branch; see the correction missionPlan for the frozen plan and observed reachability.",
+      "selectionRationale": "Added after the first B10 review found repeated first-mismatch branches; planned from C source before this case was compared with JavaScript. Every valid recording is retained regardless of target reach or JS result.",
+      "sourcePointers": [
+        "apply.c:use_stethoscope ordinary adjacent floor branch"
+      ],
+      "cOutcome": "C applied the Healer stethoscope west and printed “You hear nothing special.”",
+      "outcome": "C applied the Healer stethoscope west and printed “You hear nothing special.”",
+      "inputs": {
+        "seed": 60626202,
+        "datetime": "20260926123000",
+        "role": "Healer",
+        "race": "human",
+        "gender": "male",
+        "alignment": "neutral",
+        "playmode": "debug",
+        "keyCount": 4,
+        "boundaries": 5
+      },
+      "recipe": "challenges/cases/v6/v6-add2-healer-stethoscope-floor.recipe.session.json",
+      "recipeSha256": "239221cfc4c45a834df1a13c97d1a625b4f451ae82de72648ee07a65ce9d1abf",
+      "recording": "challenges/cases/v6/v6-add2-healer-stethoscope-floor.session.json",
+      "recordingSha256": "a415891fa5e1dcb7d4a99a6c77288a58881ab71600b108dc9a3eb665e32e6764",
+      "reproducibility": "Independent C replay command: node scripts/record-session.mjs challenges/cases/v6/v6-add2-healer-stethoscope-floor.session.json /tmp/v6-add2-healer-stethoscope-floor.replay.session.json; exit code 0. Complete recording byte-identical (SHA-256 a415891fa5e1dcb7d4a99a6c77288a58881ab71600b108dc9a3eb665e32e6764); 5 boundaries. Log: /tmp/teleport-loop-worker-b-20260925/.cache/v6-add2-healer-stethoscope-floor.replay.log."
+    },
+    {
+      "id": "v6-add2-healer-takeoff-gloves",
+      "title": "B10 Addendum v6-add2-healer-takeoff-gloves",
+      "mission": "C-first retry/candidate for do_wear.c:dotakeoff / take_off; see the correction missionPlan for the frozen plan and observed reachability.",
+      "selectionRationale": "Added after the first B10 review found repeated first-mismatch branches; planned from C source before this case was compared with JavaScript. Every valid recording is retained regardless of target reach or JS result.",
+      "sourcePointers": [
+        "do_wear.c:dotakeoff / take_off"
+      ],
+      "cOutcome": "C removed the Healer’s gloves and printed “You finish taking off your gloves.”",
+      "outcome": "C removed the Healer’s gloves and printed “You finish taking off your gloves.”",
+      "inputs": {
+        "seed": 60626209,
+        "datetime": "20260926123000",
+        "role": "Healer",
+        "race": "human",
+        "gender": "male",
+        "alignment": "neutral",
+        "playmode": "debug",
+        "keyCount": 3,
+        "boundaries": 4
+      },
+      "recipe": "challenges/cases/v6/v6-add2-healer-takeoff-gloves.recipe.session.json",
+      "recipeSha256": "6c12ac36ccf35789b19a085d2890fed00fec31f9e9a31d53dc93bedf9184e88a",
+      "recording": "challenges/cases/v6/v6-add2-healer-takeoff-gloves.session.json",
+      "recordingSha256": "4ae39f1c9f9635d40c237d69a00d8495c1511b0cfd0bc058720f417b03abc09b",
+      "reproducibility": "Independent C replay command: node scripts/record-session.mjs challenges/cases/v6/v6-add2-healer-takeoff-gloves.session.json /tmp/v6-add2-healer-takeoff-gloves.replay.session.json; exit code 0. Complete recording byte-identical (SHA-256 4ae39f1c9f9635d40c237d69a00d8495c1511b0cfd0bc058720f417b03abc09b); 4 boundaries. Log: /tmp/teleport-loop-worker-b-20260925/.cache/v6-add2-healer-takeoff-gloves.replay.log."
+    },
+    {
+      "id": "v6-add2-rogue-lockpick-door",
+      "title": "B10 Addendum v6-add2-rogue-lockpick-door",
+      "mission": "C-first retry/candidate for lock.c:pick_lock; see the correction missionPlan for the frozen plan and observed reachability.",
+      "selectionRationale": "Added after the first B10 review found repeated first-mismatch branches; planned from C source before this case was compared with JavaScript. Every valid recording is retained regardless of target reach or JS result.",
+      "sourcePointers": [
+        "lock.c:pick_lock"
+      ],
+      "cOutcome": "C applied the lock pick toward west and printed “You see no door there.” The pick_lock door arm was not reached.",
+      "outcome": "C applied the lock pick toward west and printed “You see no door there.” The pick_lock door arm was not reached.",
+      "inputs": {
+        "seed": 60626208,
+        "datetime": "20260926123000",
+        "role": "Rogue",
+        "race": "human",
+        "gender": "male",
+        "alignment": "neutral",
+        "playmode": "debug",
+        "keyCount": 4,
+        "boundaries": 5
+      },
+      "recipe": "challenges/cases/v6/v6-add2-rogue-lockpick-door.recipe.session.json",
+      "recipeSha256": "a3351c9607192c1c953c1c74fe0619219dff07b15c5f438a3c429ebfdc9bb17b",
+      "recording": "challenges/cases/v6/v6-add2-rogue-lockpick-door.session.json",
+      "recordingSha256": "061fbbfab773864eec94a4afec9fb4e141391ddfb90825e0105218fc4f43ec7d",
+      "reproducibility": "Independent C replay command: node scripts/record-session.mjs challenges/cases/v6/v6-add2-rogue-lockpick-door.session.json /tmp/v6-add2-rogue-lockpick-door.replay.session.json; exit code 0. Complete recording byte-identical (SHA-256 061fbbfab773864eec94a4afec9fb4e141391ddfb90825e0105218fc4f43ec7d); 5 boundaries. Log: /tmp/teleport-loop-worker-b-20260925/.cache/v6-add2-rogue-lockpick-door.replay.log."
+    },
+    {
+      "id": "v6-add3-archeologist-pickaxe-engrave",
+      "title": "B10 Addendum v6-add3-archeologist-pickaxe-engrave",
+      "mission": "C-first retry/candidate for engrave.c:doengrave pick-axe branch; see the correction missionPlan for the frozen plan and observed reachability.",
+      "selectionRationale": "Added after the first B10 review found repeated first-mismatch branches; planned from C source before this case was compared with JavaScript. Every valid recording is retained regardless of target reach or JS result.",
+      "sourcePointers": [
+        "engrave.c:doengrave pick-axe branch"
+      ],
+      "cOutcome": "C selected the pick-axe and entered the hard-tool dust-engraving branch, then stopped at the separate text prompt after its --More-- result boundary.",
+      "outcome": "C selected the pick-axe and entered the hard-tool dust-engraving branch, then stopped at the separate text prompt after its --More-- result boundary.",
+      "inputs": {
+        "seed": 60626301,
+        "datetime": "20260926133000",
+        "role": "Archeologist",
+        "race": "human",
+        "gender": "male",
+        "alignment": "neutral",
+        "playmode": "debug",
+        "keyCount": 9,
+        "boundaries": 10
+      },
+      "recipe": "challenges/cases/v6/v6-add3-archeologist-pickaxe-engrave.recipe.session.json",
+      "recipeSha256": "1aa2883f92d0b0ce6f366f915325c386a525d89df9554bbb31380a328364745c",
+      "recording": "challenges/cases/v6/v6-add3-archeologist-pickaxe-engrave.session.json",
+      "recordingSha256": "44efafcfbb5af81ac683fd326eaade536d707649eea240828221b0176ce12f32",
+      "reproducibility": "Independent C replay command: node scripts/record-session.mjs challenges/cases/v6/v6-add3-archeologist-pickaxe-engrave.session.json /tmp/v6-add3-archeologist-pickaxe-engrave.replay.session.json; exit code 0. Complete recording byte-identical (SHA-256 44efafcfbb5af81ac683fd326eaade536d707649eea240828221b0176ce12f32); 10 boundaries. Log: /tmp/teleport-loop-worker-b-20260925/.cache/v6-add3-archeologist-pickaxe-engrave.replay.log."
+    },
+    {
+      "id": "v6-add3-healer-read-book",
+      "title": "B10 Addendum v6-add3-healer-read-book",
+      "mission": "C-first retry/candidate for read.c:doread known-spell early return; see the correction missionPlan for the frozen plan and observed reachability.",
+      "selectionRationale": "Added after the first B10 review found repeated first-mismatch branches; planned from C source before this case was compared with JavaScript. Every valid recording is retained regardless of target reach or JS result.",
+      "sourcePointers": [
+        "read.c:doread known-spell early return"
+      ],
+      "cOutcome": "C read the Healing spellbook and took the known-spell early return: “You know \\\"healing\\\" quite well already.” The study branch was not reached.",
+      "outcome": "C read the Healing spellbook and took the known-spell early return: “You know \\\"healing\\\" quite well already.” The study branch was not reached.",
+      "inputs": {
+        "seed": 60626302,
+        "datetime": "20260926133000",
+        "role": "Healer",
+        "race": "human",
+        "gender": "male",
+        "alignment": "neutral",
+        "playmode": "debug",
+        "keyCount": 3,
+        "boundaries": 4
+      },
+      "recipe": "challenges/cases/v6/v6-add3-healer-read-book.recipe.session.json",
+      "recipeSha256": "644a7daa14aec601acb7e06441b908d816c2535f0377f1964a7b30f07a65e93a",
+      "recording": "challenges/cases/v6/v6-add3-healer-read-book.session.json",
+      "recordingSha256": "b050eb406d4f175ded16ad4801fd99661a538eabdcb718f22cb43aed44a5238f",
+      "reproducibility": "Independent C replay command: node scripts/record-session.mjs challenges/cases/v6/v6-add3-healer-read-book.session.json /tmp/v6-add3-healer-read-book.replay.session.json; exit code 0. Complete recording byte-identical (SHA-256 b050eb406d4f175ded16ad4801fd99661a538eabdcb718f22cb43aed44a5238f); 4 boundaries. Log: /tmp/teleport-loop-worker-b-20260925/.cache/v6-add3-healer-read-book.replay.log."
+    },
+    {
+      "id": "v6-add4-archeologist-pickaxe-engrave",
+      "title": "B10 Addendum v6-add4-archeologist-pickaxe-engrave",
+      "mission": "C-first retry/candidate for engrave.c:doengrave DUST per-character randomization; see the correction missionPlan for the frozen plan and observed reachability.",
+      "selectionRationale": "Added after the first B10 review found repeated first-mismatch branches; planned from C source before this case was compared with JavaScript. Every valid recording is retained regardless of target reach or JS result.",
+      "sourcePointers": [
+        "engrave.c:doengrave DUST per-character randomization"
+      ],
+      "cOutcome": "C selected the pick-axe, dismissed the tool-result --More-- prompt, entered “hello”, and reached the DUST engraving mutation/randomization branch.",
+      "outcome": "C selected the pick-axe, dismissed the tool-result --More-- prompt, entered “hello”, and reached the DUST engraving mutation/randomization branch.",
+      "inputs": {
+        "seed": 60626401,
+        "datetime": "20260926143000",
+        "role": "Archeologist",
+        "race": "human",
+        "gender": "male",
+        "alignment": "neutral",
+        "playmode": "debug",
+        "keyCount": 10,
+        "boundaries": 11
+      },
+      "recipe": "challenges/cases/v6/v6-add4-archeologist-pickaxe-engrave.recipe.session.json",
+      "recipeSha256": "c9436760e0d3f02ea51c985d8606574c09724c006941d39b5cdada57b42146b0",
+      "recording": "challenges/cases/v6/v6-add4-archeologist-pickaxe-engrave.session.json",
+      "recordingSha256": "762f4bf6bf840c42cb2f3deff8c03059d49747998c5d1da2e5c535860bf1439f",
+      "reproducibility": "Independent C replay command: node scripts/record-session.mjs challenges/cases/v6/v6-add4-archeologist-pickaxe-engrave.session.json /tmp/v6-add4-archeologist-pickaxe-engrave.replay.session.json; exit code 0. Complete recording byte-identical (SHA-256 762f4bf6bf840c42cb2f3deff8c03059d49747998c5d1da2e5c535860bf1439f); 11 boundaries. Log: /tmp/teleport-loop-worker-b-20260925/.cache/v6-add4-archeologist-pickaxe-engrave.replay.log."
+    },
+    {
+      "id": "v6-add4-healer-read-stone-to-flesh",
+      "title": "B10 Addendum v6-add4-healer-read-stone-to-flesh",
+      "mission": "C-first retry/candidate for read.c:doread known-spell early return; see the correction missionPlan for the frozen plan and observed reachability.",
+      "selectionRationale": "Added after the first B10 review found repeated first-mismatch branches; planned from C source before this case was compared with JavaScript. Every valid recording is retained regardless of target reach or JS result.",
+      "sourcePointers": [
+        "read.c:doread known-spell early return"
+      ],
+      "cOutcome": "C read the Stone to Flesh spellbook and took the known-spell early return: “You know \\\"stone to flesh\\\" quite well already.” The study branch was not reached.",
+      "outcome": "C read the Stone to Flesh spellbook and took the known-spell early return: “You know \\\"stone to flesh\\\" quite well already.” The study branch was not reached.",
+      "inputs": {
+        "seed": 60626402,
+        "datetime": "20260926143000",
+        "role": "Healer",
+        "race": "human",
+        "gender": "male",
+        "alignment": "neutral",
+        "playmode": "debug",
+        "keyCount": 3,
+        "boundaries": 4
+      },
+      "recipe": "challenges/cases/v6/v6-add4-healer-read-stone-to-flesh.recipe.session.json",
+      "recipeSha256": "e33c18d9308864874c467ddf9058c4c0142e2656c2710a85a275df0f36b2ec14",
+      "recording": "challenges/cases/v6/v6-add4-healer-read-stone-to-flesh.session.json",
+      "recordingSha256": "4b50fe377580c90c2e09427948313c0656cb5bc15542c0de58a1d6df6ae0256f",
+      "reproducibility": "Independent C replay command: node scripts/record-session.mjs challenges/cases/v6/v6-add4-healer-read-stone-to-flesh.session.json /tmp/v6-add4-healer-read-stone-to-flesh.replay.session.json; exit code 0. Complete recording byte-identical (SHA-256 4b50fe377580c90c2e09427948313c0656cb5bc15542c0de58a1d6df6ae0256f); 4 boundaries. Log: /tmp/teleport-loop-worker-b-20260925/.cache/v6-add4-healer-read-stone-to-flesh.replay.log."
+    },
+    {
+      "id": "v6-add5-archeologist-whip-no-pet",
+      "title": "B10 Addendum v6-add5-archeologist-whip-no-pet",
+      "mission": "C-first retry/candidate for apply.c:use_whip, no-pet state; see the correction missionPlan for the frozen plan and observed reachability.",
+      "selectionRationale": "Added after the first B10 review found repeated first-mismatch branches; planned from C source before this case was compared with JavaScript. Every valid recording is retained regardless of target reach or JS result.",
+      "sourcePointers": [
+        "apply.c:use_whip, no-pet state"
+      ],
+      "cOutcome": "C reached the Archeologist whip action with pettype:none and printed “Snap!”; the later first JS mismatch is still mon.c:mcalcmove, so this is not counted as a distinct mismatch owner.",
+      "outcome": "C reached the Archeologist whip action with pettype:none and printed “Snap!”; the later first JS mismatch is still mon.c:mcalcmove, so this is not counted as a distinct mismatch owner.",
+      "inputs": {
+        "seed": 60626501,
+        "datetime": "20260926153000",
+        "role": "Archeologist",
+        "race": "human",
+        "gender": "male",
+        "alignment": "neutral",
+        "playmode": "debug",
+        "keyCount": 4,
+        "boundaries": 5
+      },
+      "recipe": "challenges/cases/v6/v6-add5-archeologist-whip-no-pet.recipe.session.json",
+      "recipeSha256": "6a13b6e4430942805fe362299d021d73acee984a34d726303e12cf9d016799d7",
+      "recording": "challenges/cases/v6/v6-add5-archeologist-whip-no-pet.session.json",
+      "recordingSha256": "6419a405f04040b4f57878ec3ba1c0576c9ae84be9a6f2645e1367fe89a2f909",
+      "reproducibility": "Independent C replay command: node scripts/record-session.mjs challenges/cases/v6/v6-add5-archeologist-whip-no-pet.session.json /tmp/v6-add5-archeologist-whip-no-pet.replay.session.json; exit code 0. Complete recording byte-identical (SHA-256 6419a405f04040b4f57878ec3ba1c0576c9ae84be9a6f2645e1367fe89a2f909); 5 boundaries. Log: /tmp/teleport-loop-worker-b-20260925/.cache/v6-add5-archeologist-whip-no-pet.replay.log."
+    },
+    {
+      "id": "v6-add5-rogue-lockpick-door-north",
+      "title": "B10 Addendum v6-add5-rogue-lockpick-door-north",
+      "mission": "C-first retry/candidate for lock.c:pick_lock; see the correction missionPlan for the frozen plan and observed reachability.",
+      "selectionRationale": "Added after the first B10 review found repeated first-mismatch branches; planned from C source before this case was compared with JavaScript. Every valid recording is retained regardless of target reach or JS result.",
+      "sourcePointers": [
+        "lock.c:pick_lock"
+      ],
+      "cOutcome": "C applied the lock pick north and printed “You see no door there.” The pick_lock door arm was not reached.",
+      "outcome": "C applied the lock pick north and printed “You see no door there.” The pick_lock door arm was not reached.",
+      "inputs": {
+        "seed": 60626502,
+        "datetime": "20260926153000",
+        "role": "Rogue",
+        "race": "human",
+        "gender": "male",
+        "alignment": "neutral",
+        "playmode": "debug",
+        "keyCount": 4,
+        "boundaries": 5
+      },
+      "recipe": "challenges/cases/v6/v6-add5-rogue-lockpick-door-north.recipe.session.json",
+      "recipeSha256": "d86df1fda5f843857cc078b2bc053707ac65db15448f48fafcf32671f39a5d86",
+      "recording": "challenges/cases/v6/v6-add5-rogue-lockpick-door-north.session.json",
+      "recordingSha256": "1e559f6d5e81bf2a4c62710a898c135c7a130441b1a05d32fce7e992079221c6",
+      "reproducibility": "Independent C replay command: node scripts/record-session.mjs challenges/cases/v6/v6-add5-rogue-lockpick-door-north.session.json /tmp/v6-add5-rogue-lockpick-door-north.replay.session.json; exit code 0. Complete recording byte-identical (SHA-256 1e559f6d5e81bf2a4c62710a898c135c7a130441b1a05d32fce7e992079221c6); 5 boundaries. Log: /tmp/teleport-loop-worker-b-20260925/.cache/v6-add5-rogue-lockpick-door-north.replay.log."
+    },
+    {
+      "id": "v6-add6-healer-stethoscope-floor-below",
+      "title": "B10 Addendum v6-add6-healer-stethoscope-floor-below",
+      "mission": "C-first retry/candidate for apply.c:use_stethoscope, u.dz down-direction floor branch; see the correction missionPlan for the frozen plan and observed reachability.",
+      "selectionRationale": "Added after the first B10 review found repeated first-mismatch branches; planned from C source before this case was compared with JavaScript. Every valid recording is retained regardless of target reach or JS result.",
+      "sourcePointers": [
+        "apply.c:use_stethoscope, u.dz down-direction floor branch"
+      ],
+      "cOutcome": "C used the stethoscope downward; C reached use_stethoscope’s u.dz > 0 floor branch and printed “The stairs seems healthy enough.”",
+      "outcome": "C used the stethoscope downward; C reached use_stethoscope’s u.dz > 0 floor branch and printed “The stairs seems healthy enough.”",
+      "inputs": {
+        "seed": 60626601,
+        "datetime": "20260926163000",
+        "role": "Healer",
+        "race": "human",
+        "gender": "male",
+        "alignment": "neutral",
+        "playmode": "debug",
+        "keyCount": 4,
+        "boundaries": 5
+      },
+      "recipe": "challenges/cases/v6/v6-add6-healer-stethoscope-floor-below.recipe.session.json",
+      "recipeSha256": "4a62f8ac6eb1e3ede1fdefd4345ef335159adb3bfb040e30e06336c62104b2d3",
+      "recording": "challenges/cases/v6/v6-add6-healer-stethoscope-floor-below.session.json",
+      "recordingSha256": "a59c8d545be1daef5bbd75e215fcd585dd0e1718eb2f70b73ba13499db9c60ea",
+      "reproducibility": "Independent C replay command: node scripts/record-session.mjs challenges/cases/v6/v6-add6-healer-stethoscope-floor-below.session.json /tmp/v6-add6-healer-stethoscope-floor-below.replay.session.json; exit code 0. Complete recording byte-identical (SHA-256 a59c8d545be1daef5bbd75e215fcd585dd0e1718eb2f70b73ba13499db9c60ea); 5 boundaries. Log: /tmp/teleport-loop-worker-b-20260925/.cache/v6-add6-healer-stethoscope-floor-below.replay.log."
+    },
+    {
+      "id": "v6-add6-rogue-call-potion-type",
+      "title": "B10 Addendum v6-add6-rogue-call-potion-type",
+      "mission": "C-first retry/candidate for do_name.c:docallcmd object-type selection menu; see the correction missionPlan for the frozen plan and observed reachability.",
+      "selectionRationale": "Added after the first B10 review found repeated first-mismatch branches; planned from C source before this case was compared with JavaScript. Every valid recording is retained regardless of target reach or JS result.",
+      "sourcePointers": [
+        "do_name.c:docallcmd object-type selection menu"
+      ],
+      "cOutcome": "C reached docallcmd’s name menu and object-type call prompt; an extra space caused the later d to invoke drop, so the call-name update was not reached.",
+      "outcome": "C reached docallcmd’s name menu and object-type call prompt; an extra space caused the later d to invoke drop, so the call-name update was not reached.",
+      "inputs": {
+        "seed": 60626602,
+        "datetime": "20260926163000",
+        "role": "Rogue",
+        "race": "human",
+        "gender": "male",
+        "alignment": "neutral",
+        "playmode": "debug",
+        "keyCount": 13,
+        "boundaries": 14
+      },
+      "recipe": "challenges/cases/v6/v6-add6-rogue-call-potion-type.recipe.session.json",
+      "recipeSha256": "5d3e9be4ea88a53dff76e939cc802e69abc449b98f70755a1e833764f1af7de1",
+      "recording": "challenges/cases/v6/v6-add6-rogue-call-potion-type.session.json",
+      "recordingSha256": "19cb554df424e9e1c54c4832aa814ca6c9257b705e91c410e48ad05671862beb",
+      "reproducibility": "Independent C replay command: node scripts/record-session.mjs challenges/cases/v6/v6-add6-rogue-call-potion-type.session.json /tmp/v6-add6-rogue-call-potion-type.replay.session.json; exit code 0. Complete recording byte-identical (SHA-256 19cb554df424e9e1c54c4832aa814ca6c9257b705e91c410e48ad05671862beb); 14 boundaries. Log: /tmp/teleport-loop-worker-b-20260925/.cache/v6-add6-rogue-call-potion-type.replay.log."
+    },
+    {
+      "id": "v6-add7-rogue-call-potion-type",
+      "title": "B10 Addendum v6-add7-rogue-call-potion-type",
+      "mission": "C-first retry/candidate for do_name.c:docallcmd / docall type-name flow; see the correction missionPlan for the frozen plan and observed reachability.",
+      "selectionRationale": "Added after the first B10 review found repeated first-mismatch branches; planned from C source before this case was compared with JavaScript. Every valid recording is retained regardless of target reach or JS result.",
+      "sourcePointers": [
+        "do_name.c:docallcmd / docall type-name flow"
+      ],
+      "cOutcome": "C selected “object type in inventory”, chose the potion of sickness, entered the call-name “mystery”, and completed the source call path.",
+      "outcome": "C selected “object type in inventory”, chose the potion of sickness, entered the call-name “mystery”, and completed the source call path.",
+      "inputs": {
+        "seed": 60626701,
+        "datetime": "20260926173000",
+        "role": "Rogue",
+        "race": "human",
+        "gender": "male",
+        "alignment": "neutral",
+        "playmode": "debug",
+        "keyCount": 12,
+        "boundaries": 13
+      },
+      "recipe": "challenges/cases/v6/v6-add7-rogue-call-potion-type.recipe.session.json",
+      "recipeSha256": "801df4d0d553325996b4aeb504b28acd2c9248f98a91b9ffc98d6d3b8b27e90a",
+      "recording": "challenges/cases/v6/v6-add7-rogue-call-potion-type.session.json",
+      "recordingSha256": "c187ef83a819123c5480684ae223233a08bbd5d1a0c7f70bc4c27a43e233122b",
+      "reproducibility": "Independent C replay command: node scripts/record-session.mjs challenges/cases/v6/v6-add7-rogue-call-potion-type.session.json /tmp/v6-add7-rogue-call-potion-type.replay.session.json; exit code 0. Complete recording byte-identical (SHA-256 c187ef83a819123c5480684ae223233a08bbd5d1a0c7f70bc4c27a43e233122b); 13 boundaries. Log: /tmp/teleport-loop-worker-b-20260925/.cache/v6-add7-rogue-call-potion-type.replay.log."
+    }
+  ]
+}
