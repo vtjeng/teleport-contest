@@ -4,6 +4,9 @@
 // C ref: src/pray.c critically_low_hp() (116-156), stuck_in_wall() (161-181),
 //        in_trouble() (198-284), worst_cursed_item() (288-346),
 //        angrygods() (704-784), gods_upset() (1436-1443),
+//        consume_offering() (1446-1474), bestow_artifact() (1780-1834),
+//        sacrifice_value() (1838-1850), dosacrifice() (1854-1896),
+//        eval_offering() (1898-1957), offer_corpse() (1959-2122),
 //        blocked_boulder() (2677-2719), can_pray() (2124-2173),
 //        dopray() (2199-2273), prayer_done() (2276-2343),
 //        maybe_turn_mon_iter() (2347-2405), doturn() (2407-2489),
@@ -28,6 +31,8 @@ import {
     AM_SHRINE,
     AM_MASK,
     Amask2align,
+    AGGRAVATE_MONSTER,
+    BLND_RES,
     BLINDED,
     BOLT_LIM,
     CONFUSION,
@@ -36,6 +41,7 @@ import {
     ECMD_TIME,
     EXT_ENCUMBER,
     FAST,
+    FOOT,
     FIXED_ABIL,
     FROMOUTSIDE,
     HALLUC,
@@ -49,7 +55,12 @@ import {
     NOTELL,
     IS_OBSTRUCTED,
     LL_CONDUCT,
+    LL_DIVINEGIFT,
+    LL_ARTIFACT,
+    LUCKMAX,
     nothing_happens,
+    ONAME_GIFT,
+    ONAME_KNOW_ARTI,
     PARANOID_CONFIRM,
     PARANOID_PRAY,
     PASSES_WALLS,
@@ -68,6 +79,7 @@ import {
     TIMEOUT,
     TELEPAT,
     STEALTH,
+    something,
     TT_BURIEDBALL,
     TT_LAVA,
     UNCHANGING,
@@ -82,20 +94,35 @@ import {
     MCORPSENM,
     M_AP_FURNITURE,
     M_AP_TYPMASK,
+    CXN_ARTICLE,
 } from './const.js';
-import { confers_luck, hcolor } from './artifacts.js';
-import { adjalign, adjattrib, exercise, setuhpmax } from './attrib.js';
+import {
+    artifact_origin,
+    artiname,
+    confers_luck,
+    discover_artifact,
+    hcolor,
+    mk_artifact,
+    nartifact_exist,
+} from './artifacts.js';
+import {
+    ALIGNLIM,
+    adjalign,
+    adjattrib,
+    exercise,
+    setuhpmax,
+} from './attrib.js';
 import { paranoid_query, y_n } from './cmd.js';
-import { floorfood } from './eat.js';
+import { eaten_stat, floorfood } from './eat.js';
 import { xlev_to_rank } from './display.js';
-import { heal_legs } from './do.js';
+import { dropy, heal_legs } from './do.js';
 import { stuck_ring, unchanger } from './do_wear.js';
 import { In_hell } from './dungeon.js';
 import { freehand } from './engrave.js';
 import { game } from './gstate.js';
 import { near_capacity, nomul, You_can_move_again } from './hack.js';
 import { livelog_printf } from './pline.js';
-import { dist2 } from './hacklib.js';
+import { dist2, upstart, s_suffix } from './hacklib.js';
 import { change_luck } from './moveloop_preamble.js';
 import {
     attacktype_fordmg,
@@ -103,9 +130,11 @@ import {
     is_demon,
     is_human,
     is_undead,
+    is_unicorn,
     is_vampshifter,
     nohands,
     throws_rocks,
+    your_race,
 } from './mondata.js';
 import { makeplural } from './fruit.js';
 import {
@@ -115,6 +144,8 @@ import {
     PM_CYCLOPS,
     PM_FLOATING_EYE,
     PM_KNIGHT,
+    PM_ACID_BLOB,
+    PM_WRAITH,
     S_GHOST,
     S_LICH,
     S_MUMMY,
@@ -123,7 +154,17 @@ import {
     S_ZOMBIE,
 } from './monsters.js';
 import { Glib } from './wield.js';
-import { is_weptool, set_bknown, sobj_at, uncurse } from './obj.js';
+import {
+    carried,
+    is_weptool,
+    peek_at_iced_corpse_age,
+    remove_object,
+    set_bknown,
+    sobj_at,
+    uncurse,
+} from './obj.js';
+import { obj_stop_timers } from './timeout.js';
+import { get_mtraits } from './corpstat.js';
 import {
     BOULDER,
     AMULET_OF_YENDOR,
@@ -141,7 +182,7 @@ import {
     WEAPON_CLASS,
     SPE_TURN_UNDEAD,
 } from './objects.js';
-import { body_part, rehumanize } from './polyself.js';
+import { body_part, mbodypart, rehumanize } from './polyself.js';
 import {
     make_blinded,
     make_confused,
@@ -173,12 +214,15 @@ import { resist } from './zap.js';
 import { known_spell, spelleffects } from './spell.js';
 import { welded } from './wield.js';
 import { bimanual, which_armor } from './worn.js';
-import { encumber_msg } from './pickup.js';
+import { encumber_msg, rider_corpse_revival } from './pickup.js';
 import { init_uhunger } from './u_init.js';
 import { see_monsters } from './display.js';
-import { update_inventory } from './invent.js';
+import { feel_cockatrice, update_inventory, useup, useupf } from './invent.js';
+import { discover_object, observe_object } from './o_init.js';
+import { unrestrict_weapon_skill, weapon_type } from './startup_skills.js';
 import {
-    an, gloves_simple_name, otense, vtense, yname, Yobjnam2,
+    an, ansimpleoname, bare_artifactname, corpse_xname,
+    gloves_simple_name, otense, vtense, yname, Yobjnam2,
 } from './objnam.js';
 import { verbalize } from './pline.js';
 import { note_unported } from './unported.js';
@@ -300,7 +344,7 @@ export async function dosacrifice(state = game) {
         return ECMD_TIME;
     }
     if (otmp.otyp === CORPSE) {
-        note_unported('pray.c offer_corpse');
+        await offer_corpse(otmp, highaltar, altaralign, state);
         return ECMD_TIME;
     }
 
@@ -308,6 +352,354 @@ export async function dosacrifice(state = game) {
     // this final arm for a directly supplied object that reaches dosacrifice.
     await ttyPline(nothing_happens, state);
     return ECMD_TIME;
+}
+
+// C ref: pray.c:1446-1474 consume_offering(). The offering is consumed before
+// its Wisdom exercise; the order matters because exercise() may draw RNG.
+async function consume_offering(otmp, state) {
+    if (Hallucination(state)) {
+        switch (rn2(3)) {
+        case 0:
+            await ttyPline(
+                'Your sacrifice sprouts wings and a propeller and roars away!',
+                state,
+            );
+            break;
+        case 1:
+            await ttyPline(
+                'Your sacrifice puffs up, swelling bigger and bigger, and pops!',
+                state,
+            );
+            break;
+        case 2:
+            await ttyPline(
+                'Your sacrifice collapses into a cloud of dancing particles '
+                    + 'and fades away!',
+                state,
+            );
+            break;
+        }
+    } else if (Blind(state) && state.u.ualign.type === A_LAWFUL) {
+        await ttyPline('Your sacrifice disappears!', state);
+    } else {
+        const effect = state.u.ualign.type === A_LAWFUL
+            ? 'flash of light'
+            : state.u.ualign.type === A_NEUTRAL
+                ? 'plume of smoke'
+                : 'burst of flame';
+        await ttyPline(`Your sacrifice is consumed in a ${effect}!`, state);
+    }
+
+    // pray.c consume_offering() reaches invent.c useup()/useupf(), then
+    // shk.c obfree() for an inventory corpse or mkobj.c delobj() for a floor
+    // corpse. The former stops timeout.c object timers; the latter removes
+    // the object from the floor list before freeing it.
+    const env = {
+        state,
+        hooks: {
+            extractExternalObject: remove_object,
+            stopObjectTimers: (obj, hookEnv) => {
+                obj_stop_timers(obj, hookEnv.state, hookEnv);
+            },
+        },
+    };
+    if (carried(otmp)) useup(otmp, env);
+    else await useupf(otmp, 1, env);
+    await exercise(A_WIS, true, state);
+}
+
+// C ref: pray.c:1780-1834 bestow_artifact(). The selected alignment-specific
+// mk_artifact() path creates a new gift; the normal-object/A_NONE hook in
+// artifacts.js is a separate caller with different selection rules.
+async function bestow_artifact(maxGiftValue, state) {
+    const { u } = state;
+    const nartifacts = nartifact_exist(state);
+    let doBestow = u.ulevel > 2 && u.uluck >= 0;
+    if (doBestow) {
+        if (state.wizard)
+            doBestow = (await y_n('Gift an artifact?', state)) === 'y';
+        else
+            doBestow = !rn2(6 + (2 * u.ugifts * nartifacts));
+    }
+
+    if (!doBestow) return false;
+
+    const otmp = mk_artifact(
+        null,
+        a_align(u.ux, u.uy, state),
+        maxGiftValue,
+        true,
+        { state },
+    );
+    if (!otmp) return false;
+
+    artifact_origin(otmp, ONAME_GIFT | ONAME_KNOW_ARTI, state);
+    if (otmp.spe < 0) otmp.spe = 0;
+    if (otmp.cursed) await uncurse(otmp, state);
+    otmp.oerodeproof = true;
+
+    const blind = Blind(state);
+    const hallucinating = Hallucination(state);
+    let name = hallucinating
+        ? 'a doodad'
+        : blind
+            ? 'an object'
+            : ansimpleoname(otmp, state);
+    if (!blind) name += ` named ${bare_artifactname(otmp, state)}`;
+    await at_your_feet(upstart(name), state);
+    await dropy(otmp, state);
+    await godvoice(u.ualign.type, 'Use my gift wisely!', state);
+    u.ugifts++;
+    u.ublesscnt = rnz(300 + (50 * nartifacts));
+    await exercise(A_WIS, true, state);
+    livelog_printf(
+        LL_DIVINEGIFT | LL_ARTIFACT,
+        `was bestowed with ${artiname(otmp.oartifact, state)} by `
+            + align_gname(u.ualign.type, state),
+        state,
+    );
+    unrestrict_weapon_skill(weapon_type(otmp, state), state);
+
+    if (!hallucinating && !blind) {
+        observe_object(otmp, state);
+        discover_object(otmp.otyp, true, true, true, state);
+        discover_artifact(otmp.oartifact, state);
+    }
+    return true;
+}
+
+// C ref: pray.c:1838-1850 sacrifice_value(). This reads the corpse's age and
+// partial nutrition without changing game state or consuming RNG.
+export function sacrifice_value(otmp, state = game) {
+    let value = 0;
+    if (otmp.corpsenm === PM_ACID_BLOB
+        || state.moves <= peek_at_iced_corpse_age(otmp, state) + 50) {
+        value = Math.trunc(state.mons[otmp.corpsenm].difficulty) + 1;
+        if (otmp.oeaten)
+            value = eaten_stat(value, otmp, { state });
+    }
+    return value;
+}
+
+// C ref: pray.c:1898-1957 eval_offering(). Its return is the corpse's value
+// after undead and unicorn-specific alignment effects.
+async function eval_offering(otmp, altaralign, state) {
+    let value = sacrifice_value(otmp, state);
+    if (!value) return 0;
+
+    const ptr = state.mons[otmp.corpsenm];
+    if (is_undead(ptr)) {
+        if (state.u.ualign.type !== A_CHAOTIC
+            || (ptr === state.mons[PM_WRAITH]
+                && state.u.uconduct.unvegetarian)) {
+            value += 1;
+        }
+    } else if (is_unicorn(ptr)) {
+        const unicornAlign = Math.sign(ptr.maligntyp);
+        if (unicornAlign === altaralign) {
+            const insult = unicornAlign === A_CHAOTIC
+                ? 'chaos'
+                : unicornAlign ? 'law' : 'balance';
+            await ttyPline(`Such an action is an insult to ${insult}!`, state);
+            await adjattrib(A_WIS, -1, 0, state, { message: ttyPline });
+            return -1;
+        }
+        if (state.u.ualign.type === altaralign) {
+            if (state.u.ualign.record < ALIGNLIM(state)) {
+                await ttyPline(
+                    `You feel appropriately ${align_str(state.u.ualign.type)}.`,
+                    state,
+                );
+            } else {
+                await ttyPline(
+                    'You feel you are thoroughly on the right path.', state,
+                );
+            }
+            adjalign(5, state);
+            value += 3;
+        } else if (unicornAlign === state.u.ualign.type) {
+            state.u.ualign.record = -1;
+            value = 1;
+        } else {
+            value += 3;
+        }
+    }
+    return value;
+}
+
+// C ref: pray.c:1959-2122 offer_corpse(). Unported helpers at these sites are
+// void in C, so their results are discarded exactly where the source does.
+async function offer_corpse(otmp, highaltar, altaralign, state) {
+    const { u } = state;
+    const maxValue = 24;
+    const priorAtheism = Math.trunc(u.uconduct.gnostic ?? 0);
+    u.uconduct.gnostic = priorAtheism + 1;
+    if (!priorAtheism) {
+        livelog_printf(
+            LL_CONDUCT,
+            `rejected atheism by offering ${corpse_xname(otmp, null, CXN_ARTICLE, state)}`
+                + ` on an altar of ${align_gname(altaralign, state)}`,
+            state,
+        );
+    }
+
+    await feel_cockatrice(otmp, true, state);
+    if (await rider_corpse_revival(otmp, false, state)) return;
+
+    const ptr = state.mons[otmp.corpsenm];
+    if (your_race(ptr, state)) {
+        note_unported('pray.c sacrifice_your_race');
+        return;
+    }
+    if (otmp.oextra?.omonst) {
+        const mtmp = get_mtraits(otmp, false, state);
+        if (mtmp?.mtame) {
+            await ttyPline('So this is how you repay loyalty?', state);
+            adjalign(-3, state);
+            u.uprops[AGGRAVATE_MONSTER].intrinsic |= FROMOUTSIDE;
+            note_unported('pray.c offer_negative_valued');
+            return;
+        }
+    }
+
+    let value = await eval_offering(otmp, altaralign, state);
+    if (value === 0) {
+        await ttyPline(nothing_happens, state);
+        return;
+    }
+    if (value < 0) {
+        note_unported('pray.c offer_negative_valued');
+        return;
+    }
+    if (altaralign !== u.ualign.type && highaltar) {
+        note_unported('pray.c desecrate_altar');
+        return;
+    }
+    if (u.ualign.type !== altaralign) {
+        note_unported('pray.c offer_different_alignment_altar');
+        return;
+    }
+
+    await consume_offering(otmp, state);
+    if (u.ugangr) {
+        const savedAnger = u.ugangr;
+        u.ugangr -= Math.trunc(
+            value * (u.ualign.type === A_CHAOTIC ? 2 : 3) / maxValue,
+        );
+        if (u.ugangr < 0) u.ugangr = 0;
+        if (u.ugangr !== savedAnger) {
+            if (u.ugangr) {
+                await ttyPline(
+                    `${u_gname(state)} seems ${Hallucination(state)
+                        ? 'groovy' : 'slightly mollified'}.`,
+                    state,
+                );
+                if (u.uluck < 0) change_luck(1, state);
+            } else {
+                await ttyPline(
+                    `${u_gname(state)} seems ${Hallucination(state)
+                        ? 'cosmic (not a new fact)' : 'mollified'}.`,
+                    state,
+                );
+                if (u.uluck < 0) u.uluck = 0;
+            }
+        } else if (Hallucination(state)) {
+            await ttyPline('The gods seem tall.', state);
+        } else {
+            await ttyPline('You have a feeling of inadequacy.', state);
+        }
+    } else if (u.ualign.record < 0) {
+        if (value > maxValue) value = maxValue;
+        if (value > -u.ualign.record) value = -u.ualign.record;
+        adjalign(value, state);
+        await ttyPline('You feel partially absolved.', state);
+    } else if (u.ublesscnt > 0) {
+        const savedBlesscnt = u.ublesscnt;
+        u.ublesscnt -= Math.trunc(
+            value * (u.ualign.type === A_CHAOTIC ? 500 : 300) / maxValue,
+        );
+        if (u.ublesscnt < 0) u.ublesscnt = 0;
+        if (u.ublesscnt !== savedBlesscnt) {
+            if (u.ublesscnt) {
+                if (Hallucination(state)) {
+                    await ttyPline(
+                        'You realize that the gods are not like you and I.',
+                        state,
+                    );
+                } else {
+                    await ttyPline('You have a hopeful feeling.', state);
+                }
+                if (u.uluck < 0) change_luck(1, state);
+            } else {
+                if (Hallucination(state)) {
+                    await ttyPline(
+                        'Overall, there is a smell of fried onions.', state,
+                    );
+                } else {
+                    await ttyPline('You have a feeling of reconciliation.', state);
+                }
+                if (u.uluck < 0) u.uluck = 0;
+            }
+        }
+    } else {
+        if (await bestow_artifact(value, state)) return;
+
+        const originalLuck = u.uluck;
+        let luckIncrease = Math.trunc(value * LUCKMAX / (maxValue * 2));
+        if (originalLuck > value) luckIncrease = 0;
+        else if (originalLuck + luckIncrease > value)
+            luckIncrease = value - originalLuck;
+
+        change_luck(luckIncrease, state);
+        if (u.uluck < 0) u.uluck = 0;
+        if (u.uluck !== originalLuck) {
+            if (Blind(state)) {
+                await ttyPline(
+                    `You think ${something} brushed your `
+                        + `${makeplural(body_part(FOOT, state.youmonst))}.`,
+                    state,
+                );
+            } else {
+                await ttyPline(
+                    `You ${Hallucination(state)
+                        ? 'see crabgrass' : 'glimpse a four-leaf clover'} at your `
+                        + `${makeplural(body_part(FOOT, state.youmonst))}`
+                        + `${Hallucination(state)
+                            ? '. A funny thing in a dungeon.' : '.'}`,
+                    state,
+                );
+            }
+        }
+    }
+}
+
+// C ref: pray.c:788-803 at_your_feet(), used for a divine artifact gift.
+async function at_your_feet(str, state) {
+    const blind = Blind(state);
+    if (blind) str = 'Something';
+    if (state.u.uswallow) {
+        const captor = state.u.ustuck;
+        await ttyPline(
+            `${str} ${vtense(str, 'drop')} into `
+                + `${s_suffix(Monnam(captor, state))} `
+                + `${mbodypart(captor, STOMACH)}.`,
+            state,
+        );
+    } else {
+        await ttyPline(
+            `${str} ${vtense(str, blind ? 'land' : 'appear')} `
+                + `${Levitation(state) ? 'beneath' : 'at'} your `
+                + `${makeplural(body_part(FOOT, state.youmonst))}!`,
+            state,
+        );
+    }
+}
+
+function Blind(state) {
+    const blinded = state.u?.uprops?.[BLINDED];
+    const resistance = state.u?.uprops?.[BLND_RES];
+    return Boolean(blinded && (blinded.intrinsic || blinded.extrinsic)
+        && !(resistance?.intrinsic || resistance?.extrinsic));
 }
 
 // The intrinsic half of a youprop.h macro. Every trouble test below that reads
