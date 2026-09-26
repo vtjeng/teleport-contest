@@ -80033,6 +80033,160 @@
         "rng": 792838
       },
       "parkedReason": "Hero lethal zap.c resist is source-verified by admitted v5 Healer segment 0 through step 40 and passes combined validation. Monster offensive-wand entry muse.c:mbhitm -> zap.c:resist remains without a fully matching C/JS recording. The independent C recipe reaches resist, but JS first refuses forced PM_SHOPKEEPER creation at makemon.c:makemon preflight after read.c accepts y. Resume after a source-traced makemon.c creation fix makes that recipe match through the monster wand strike; then verify all active entry points and close."
+    },
+    {
+      "id": "port-engrave-stylus-occupation-synthetic-v6-20260926",
+      "kind": "file-port",
+      "status": "queued",
+      "summary": "Port engraving stylus selection, item effects, and occupation continuation",
+      "cFile": "engrave.c",
+      "sessions": [
+        "synthetic/v6/wizard-engrave-wand-finish",
+        "synthetic/v6/v6-add4-archeologist-pickaxe-engrave",
+        "synthetic/v6/wizard-engrave-wand-final",
+        "synthetic/v6/v6-add3-archeologist-pickaxe-engrave",
+        "synthetic/v6/wizard-engrave-wand-correct",
+        "synthetic/v6/wizard-engrave-wand-retry2"
+      ],
+      "selectionReason": "After A10 resolved the higher-ranked Samurai v5 case, wizard-engrave-wand-finish is the highest-ranked completed independent v6 investigation at nine remaining screens. Five related v6 wand, pick-axe, potion, and marker cases share the engrave.c command/occupation owner and are assigned to one worker; grease is independently owned by A.",
+      "detail": "C engrave.c accepts non-hand styluses, runs stylus_ok/u_can_engrave/context and item effects, asks for engraving text, and continues through return-valued occupation engrave(); JS doengrave refuses at the stylus gate. Port the selected contiguous whole-function family and wire cmd.c E dispatch plus allmain.c occupation return contract. Include consumed-output random_engraving text/pristine effects and the return-valued blengr blind-polymorph helper in the same task; retain explicit evidence or a named blocked recipe for uncovered active branches. Preserve RNG, surface, state, message, and screen order across six related admitted v6 cases.",
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": null,
+      "delivered": null,
+      "functions": [
+        {
+          "name": "stylus_ok",
+          "line": 481,
+          "endLine": 502,
+          "declared": true,
+          "complete": false
+        },
+        {
+          "name": "u_can_engrave",
+          "line": 503,
+          "endLine": 544,
+          "declared": true,
+          "complete": true
+        },
+        {
+          "name": "doengrave_ctx_init",
+          "line": 545,
+          "endLine": 582,
+          "declared": false,
+          "complete": false
+        },
+        {
+          "name": "doengrave_sfx_item_WAN",
+          "line": 583,
+          "endLine": 741,
+          "declared": false,
+          "complete": false
+        },
+        {
+          "name": "doengrave_sfx_item",
+          "line": 742,
+          "endLine": 895,
+          "declared": false,
+          "complete": false
+        },
+        {
+          "name": "doengrave_ctx_verb",
+          "line": 896,
+          "endLine": 955,
+          "declared": false,
+          "complete": false
+        },
+        {
+          "name": "doengrave",
+          "line": 956,
+          "endLine": 1266,
+          "declared": true,
+          "complete": false
+        },
+        {
+          "name": "engrave",
+          "line": 1267,
+          "endLine": 1497,
+          "declared": true,
+          "complete": false
+        }
+      ],
+      "range": {
+        "from": 481,
+        "to": 1497
+      },
+      "syntheticProvenance": {
+        "synthetic/v6/wizard-engrave-wand-finish": {
+          "session": "synthetic/v6/wizard-engrave-wand-finish",
+          "corpus": "synthetic",
+          "batch": "v6",
+          "caseId": "wizard-engrave-wand-finish",
+          "manifestPath": "challenges/manifests/v6.json",
+          "manifestSha256": "7523b91e823f4e3906c9acdc9a3d80f8469c27c2caab8fc8fbd6967dbfdcab5f",
+          "recordingPath": "challenges/cases/v6/wizard-engrave-wand-finish.session.json",
+          "recordingSha256": "50622b29b66b16cc75169cd1dab424dd98684ecfcddb80f3a4d323bd6cf967ef",
+          "evaluationPath": "challenges/evaluations/20260926115550-v6.json",
+          "evaluationCommit": "ba790c74ab160dfbb08e5fc9a8bd2d9e74c92c15"
+        }
+      }
+    },
+    {
+      "id": "port-apply-grease-synthetic-v6-20260926",
+      "kind": "file-port",
+      "status": "queued",
+      "summary": "Port can-of-grease application, target filtering, and consumed equipment gate",
+      "cFile": "apply.c",
+      "sessions": [
+        "synthetic/v6/wizard-greasy-write-glib-final",
+        "synthetic/v6/wizard-greasy-write-glib-retry",
+        "synthetic/v6/wizard-greasy-write-menu",
+        "synthetic/v6/wizard-grease-write-target",
+        "synthetic/v6/wizard-grease-hands-final",
+        "synthetic/v6/wizard-grease-hands-good",
+        "synthetic/v6/wizard-grease-only",
+        "synthetic/v6/wizard-greasy-write-glib"
+      ],
+      "selectionReason": "After A10 resolved the v5 Samurai case, the related v6 engraving owner is reserved by B. The highest-ranked independent completed investigation is wizard-greasy-write-glib-final with five remaining screens; the eight related can-of-grease variants share apply.c grease_ok/use_grease and are assigned together to A.",
+      "detail": "C cmd.c apply dispatch enters apply.c doapply CAN_OF_GREASE and use_grease; grease_ok is the return-valued getobj selector. Port both complete source functions and the doapply caller arm, preserving charge, hands/object, slippery, inaccessible equipment, cancel and return-value branches. The post-selection inaccessible_equipment(otmp, grease, FALSE) bool is consumed: include whole do_wear.c inaccessible_equipment in this task and wire active callers. The getobj * menu can return otherwise filtered worn equipment; use an independent C recording for that message arm. Give pure grease_ok a source-pinned test and cover impure entry paths with independent recordings, including blocked recipes for any not yet matching path.",
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": null,
+      "delivered": null,
+      "functions": [
+        {
+          "name": "grease_ok",
+          "line": 2585,
+          "endLine": 2603,
+          "declared": false,
+          "complete": false
+        },
+        {
+          "name": "use_grease",
+          "line": 2604,
+          "endLine": 2657,
+          "declared": false,
+          "complete": false
+        }
+      ],
+      "range": {
+        "from": 2585,
+        "to": 2657
+      },
+      "syntheticProvenance": {
+        "synthetic/v6/wizard-greasy-write-glib-final": {
+          "session": "synthetic/v6/wizard-greasy-write-glib-final",
+          "corpus": "synthetic",
+          "batch": "v6",
+          "caseId": "wizard-greasy-write-glib-final",
+          "manifestPath": "challenges/manifests/v6.json",
+          "manifestSha256": "7523b91e823f4e3906c9acdc9a3d80f8469c27c2caab8fc8fbd6967dbfdcab5f",
+          "recordingPath": "challenges/cases/v6/wizard-greasy-write-glib-final.session.json",
+          "recordingSha256": "20b60af8d804f9bd6ebd5b1217dae85a6cdad0afcae9d4f98bd6c57d6f3fb6e6",
+          "evaluationPath": "challenges/evaluations/20260926115550-v6.json",
+          "evaluationCommit": "ba790c74ab160dfbb08e5fc9a8bd2d9e74c92c15"
+        }
+      }
     }
   ]
 }
