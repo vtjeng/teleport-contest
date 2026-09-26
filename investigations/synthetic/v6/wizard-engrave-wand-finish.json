@@ -1,0 +1,95 @@
+{
+  "session": "synthetic/v6/wizard-engrave-wand-finish",
+  "corpus": "synthetic",
+  "batch": "v6",
+  "caseId": "wizard-engrave-wand-finish",
+  "manifestPath": "challenges/manifests/v6.json",
+  "manifestSha256": "7523b91e823f4e3906c9acdc9a3d80f8469c27c2caab8fc8fbd6967dbfdcab5f",
+  "recordingPath": "challenges/cases/v6/wizard-engrave-wand-finish.session.json",
+  "recordingSha256": "50622b29b66b16cc75169cd1dab424dd98684ecfcddb80f3a4d323bd6cf967ef",
+  "evaluationPath": "challenges/evaluations/20260926075422-v6.json",
+  "evaluationCommit": "cd03ef328d8cf2c6ecdbfb47f4f6bd21f85c6c37",
+  "remainingScreens": 9,
+  "recordedSteps": 25,
+  "status": "complete",
+  "commit": "cd03ef328d8cf2c6ecdbfb47f4f6bd21f85c6c37",
+  "mismatch": {
+    "corpus": "synthetic",
+    "batch": "v6",
+    "caseId": "wizard-engrave-wand-finish",
+    "session": "synthetic/v6/wizard-engrave-wand-finish",
+    "manifestPath": "challenges/manifests/v6.json",
+    "manifestSha256": "7523b91e823f4e3906c9acdc9a3d80f8469c27c2caab8fc8fbd6967dbfdcab5f",
+    "recording": "challenges/cases/v6/wizard-engrave-wand-finish.session.json",
+    "recordingPath": "challenges/cases/v6/wizard-engrave-wand-finish.session.json",
+    "recordingSha256": "50622b29b66b16cc75169cd1dab424dd98684ecfcddb80f3a4d323bd6cf967ef",
+    "recipe": "challenges/cases/v6/wizard-engrave-wand-finish.recipe.session.json",
+    "recipeSha256": "3c1b62740d80c4c26047b7ab7d4626b1c8a9ab5f78fa420ff930dee9b29754f4",
+    "replayInputSha256": "657ea221132407bc3979477fa6cdfb71292d13c467d17c383eb8a5a0467c8ac3",
+    "evaluationPath": "challenges/evaluations/20260926075422-v6.json",
+    "evaluationCommit": "cd03ef328d8cf2c6ecdbfb47f4f6bd21f85c6c37",
+    "evaluationArtifact": "challenges/evaluations/20260926075422-v6.json",
+    "evaluationUtc": "2026-09-26T07:54:38.609Z",
+    "remainingScreens": 9,
+    "recordedSteps": 25,
+    "previousScreensMatched": 16,
+    "regression": false,
+    "passed": false,
+    "error": null,
+    "metrics": {
+      "screens": {
+        "matched": 16,
+        "total": 25
+      },
+      "rng": {
+        "matched": 2684,
+        "total": 2691
+      },
+      "cursors": {
+        "matched": 16,
+        "total": 25
+      }
+    },
+    "firstMismatch": {
+      "kind": "stop",
+      "message": "unsupported hero command: an unported branch of this command: engrave requires bare fingertips",
+      "step": 16
+    },
+    "step": 16,
+    "kind": "stop",
+    "sourceFile": null,
+    "function": null,
+    "message": "unsupported hero command: an unported branch of this command: engrave requires bare fingertips",
+    "cFile": null,
+    "luaFile": null,
+    "line": null
+  },
+  "summary": "The v6 Wizard wishes for a wand of fire, invokes E, and selects that wand at step 16. C engrave.c:doengrave() accepts the wand, runs its WAND special-effect setup, identifies it, prompts for text, and schedules the engrave() occupation. JS doengrave() accepts only bare fingertips and stops as soon as the wand is chosen. The actionable scope is the whole doengrave() function with its context/special-effect helpers and return-valued occupation callback, preserving the source order of identification, messages, text, wand charge, and turns.",
+  "source": {
+    "file": "engrave.c",
+    "branch": "The hero is sighted on stairs with a wished uncursed wand of fire in inventory, chooses E then the wand as stylus. C doengrave() accepts non-hand styluses, WAND_CLASS enters doengrave_sfx_item(), WAN_FIRE selects BURN and a discovery message, then doengrave() prompts and installs engrave() as occupation.",
+    "functions": [
+      "doengrave_ctx_init",
+      "doengrave_sfx_item_WAN",
+      "doengrave_sfx_item",
+      "doengrave_ctx_verb",
+      "doengrave",
+      "engrave"
+    ],
+    "callers": [
+      "cmd.c binds E to doengrave(); js/cmd.js runEngraveCommand invokes js/engrave.js:doengrave().",
+      "C doengrave() calls the return-valued doengrave_sfx_item(), then stores stylus/text/type in svc.context.engraving and installs engrave(); allmain.c moveloop_core invokes the occupation callback and uses its return to continue or stop. JS currently wires the callback only for bare-fingertip DUST."
+    ],
+    "dependencies": [
+      "The selected family lies in engrave.c definition order from doengrave_ctx_init() through engrave(); u_can_engrave(), stylus_ok(), freehand(), can_reach_floor(), zappable(), getobj(), and wand/object naming are return-valued dependencies whose current JS branches must be checked before claiming full source completion.",
+      "The source changes wand charge, object discovery, engraving state, and occupation timing; port these through their existing state owners and remove the bare-fingertip refusal. Later source branches for other wand classes and weapons belong to the same complete function, not a special case for this wand."
+    ]
+  },
+  "goalKind": "file-port",
+  "evidence": [
+    "Saved challenges/evaluations/20260926075422-v6.json at cd03ef328d8cf2c6ecdbfb47f4f6bd21f85c6c37 reports 9 remaining screens, 16/25 matched, and first stop at segment 0 step 16: “engrave requires bare fingertips”.",
+    "Independent C recording challenges/cases/v6/wizard-engrave-wand-finish.session.json has step 15 E open the stylus prompt, step 16 n identify the wand of fire, steps 17–18 burn-into-stairs message and text prompt, and step 24 post-text fire message. The first selected-wand step consumes one exercise() RNG draw after the action; the message and input order precede the later occupation.",
+    "Upstream engrave.c:956–1264 doengrave() accepts a selected wand and calls doengrave_sfx_item() at 1034. Its WAND_CLASS arm at 788–814 checks zappable() and charges, then doengrave_sfx_item_WAN() at 583–740 selects BURN and the wand-of-fire discovery text. The caller stores engraving context and installs engrave() at 1248–1254.",
+    "Current js/engrave.js:doengrave() throws UnsupportedEngraveError when the selected stylus is not handsObject; js/engrave.js:engrave() also refuses every non-hand stylus. Both are partial source implementations. Production js/cmd.js reaches that path; a complete source family and its occupation callback are needed."
+  ]
+}
