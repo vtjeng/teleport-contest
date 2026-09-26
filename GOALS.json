@@ -88191,6 +88191,37 @@
           "evaluationCommit": "ddc331f38f1f2b4e3a998f40005d0ac84f984442"
         }
       }
+    },
+    {
+      "id": "div-eat-fix-petrification-synthetic-v7-20260926",
+      "kind": "divergence-fix",
+      "status": "queued",
+      "summary": "Restore lizard-corpse petrification cure and source-ordered delayed-killer cleanup",
+      "cFile": "eat.c",
+      "sessions": [],
+      "selectionReason": "The current v7 lizard case first stops in eat.c:cprefx after the stoning setup now matches; C calls fix_petrification before the first bite.",
+      "detail": "At start_eating -> cprefx, PM_LIZARD while Stoned invokes eat.c fix_petrification. Port the whole cure helper and wire the lizard and acidic-flesh caller branches, preserving make_stoned state, message choice, RNG order, and delayed-killer cleanup. Audit C callers from potion.c peffect_acid and zap.c zapyourself, including consumed return paths and explicit blockers. Use independent C recipes with varied hallucination and charisma.",
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": null,
+      "delivered": null,
+      "function": "fix_petrification",
+      "session": "synthetic/v7/lizard-corpse-cures-stoning-corrected",
+      "step": 35,
+      "syntheticProvenance": {
+        "synthetic/v7/lizard-corpse-cures-stoning-corrected": {
+          "session": "synthetic/v7/lizard-corpse-cures-stoning-corrected",
+          "corpus": "synthetic",
+          "batch": "v7",
+          "caseId": "lizard-corpse-cures-stoning-corrected",
+          "manifestPath": "challenges/manifests/v7.json",
+          "manifestSha256": "03a861a9d1bc9d813c80681312ee7a0e0f893dbad0536de40a974bd5ec344094",
+          "recordingPath": "challenges/cases/v7/lizard-corpse-cures-stoning-corrected.session.json",
+          "recordingSha256": "6bf1416d9de4abf481689ec1d723ff6775badd518b9222d66c685b3157cc4149",
+          "evaluationPath": "challenges/evaluations/20260926213954-v7.json",
+          "evaluationCommit": "5006247e43a2e93c85f944ecaac4f961cd237826"
+        }
+      }
     }
   ]
 }

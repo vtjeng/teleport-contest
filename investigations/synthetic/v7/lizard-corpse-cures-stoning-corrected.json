@@ -7,12 +7,12 @@
   "manifestSha256": "03a861a9d1bc9d813c80681312ee7a0e0f893dbad0536de40a974bd5ec344094",
   "recordingPath": "challenges/cases/v7/lizard-corpse-cures-stoning-corrected.session.json",
   "recordingSha256": "6bf1416d9de4abf481689ec1d723ff6775badd518b9222d66c685b3157cc4149",
-  "evaluationPath": "challenges/evaluations/20260926122253-v7.json",
-  "evaluationCommit": "f7e48bd93d6827c557c9a40a255a55cbc5fc8fcf",
-  "remainingScreens": 3,
+  "evaluationPath": "challenges/evaluations/20260926213954-v7.json",
+  "evaluationCommit": "5006247e43a2e93c85f944ecaac4f961cd237826",
+  "remainingScreens": 2,
   "recordedSteps": 37,
   "status": "complete",
-  "commit": "47856c2b7f77bc60cb4480d3bff955be061daaef",
+  "commit": "5006247e43a2e93c85f944ecaac4f961cd237826",
   "mismatch": {
     "corpus": "synthetic",
     "batch": "v7",
@@ -25,20 +25,20 @@
     "recordingSha256": "6bf1416d9de4abf481689ec1d723ff6775badd518b9222d66c685b3157cc4149",
     "recipe": "challenges/cases/v7/lizard-corpse-cures-stoning-corrected.recipe.session.json",
     "recipeSha256": "edca66fd45bb62acda508e3cea52f1ca972a918d4bbe4e3f7cb36692e26a50d2",
-    "replayInputSha256": "ba09b30aa45883696a6c2cbbe647b7a100c06ae9b741e0bcdf70fec164041447",
-    "evaluationPath": "challenges/evaluations/20260926122253-v7.json",
-    "evaluationCommit": "f7e48bd93d6827c557c9a40a255a55cbc5fc8fcf",
-    "evaluationArtifact": "challenges/evaluations/20260926122253-v7.json",
-    "evaluationUtc": "2026-09-26T12:23:06.868Z",
-    "remainingScreens": 3,
+    "replayInputSha256": "51424da722e0d7b4541f5b2b92ba2983a8c31266fb7974f0dd577365378728cc",
+    "evaluationPath": "challenges/evaluations/20260926213954-v7.json",
+    "evaluationCommit": "5006247e43a2e93c85f944ecaac4f961cd237826",
+    "evaluationArtifact": "challenges/evaluations/20260926213954-v7.json",
+    "evaluationUtc": "2026-09-26T21:40:23.260Z",
+    "remainingScreens": 2,
     "recordedSteps": 37,
-    "previousScreensMatched": null,
+    "previousScreensMatched": 35,
     "regression": false,
     "passed": false,
     "error": null,
     "metrics": {
       "screens": {
-        "matched": 34,
+        "matched": 35,
         "total": 37
       },
       "rng": {
@@ -46,84 +46,46 @@
         "total": 1951
       },
       "cursors": {
-        "matched": 34,
+        "matched": 35,
         "total": 37
       }
     },
     "firstMismatch": {
-      "screen": {
-        "index": 17,
-        "location": {
-          "segmentIndex": 0,
-          "stepIndex": 17,
-          "key": "\n"
-        },
-        "kind": "ch",
-        "row": 0,
-        "column": 0,
-        "cCell": {
-          "ch": "Y",
-          "color": 8,
-          "attr": 0,
-          "decgfx": 0
-        },
-        "jsCell": {
-          "ch": "T",
-          "color": 8,
-          "attr": 0,
-          "decgfx": 0
-        }
-      },
-      "rng": null,
-      "cursor": {
-        "index": 17,
-        "location": {
-          "segmentIndex": 0,
-          "stepIndex": 17,
-          "key": "\n"
-        },
-        "cCursor": [
-          35,
-          0,
-          1
-        ],
-        "jsCursor": [
-          41,
-          0,
-          1
-        ]
-      }
+      "kind": "stop",
+      "message": "unsupported hero command: an unported branch of this command: eating requires fix_petrification()",
+      "step": 35
     },
-    "step": 17,
-    "kind": "screen",
-    "sourceFile": null,
-    "function": null,
-    "message": null,
-    "cFile": null,
+    "step": 35,
+    "kind": "stop",
+    "sourceFile": "eat.c",
+    "function": "fix_petrification",
+    "message": "unsupported hero command: an unported branch of this command: eating requires fix_petrification()",
+    "cFile": "eat.c",
     "luaFile": null,
     "line": null
   },
-  "summary": "The first mismatch is at the wizintrinsic menu submission (segment 0, step 17), before the lizard corpse is wished for or eaten. The selector correctly chooses STONED, but js/wizcmds.js routes it through generic timeout feedback; C wizcmds.c:wiz_intrinsic() formats “You are turning into stone.” and calls potion.c:make_stoned(). The later eat.c lizard cure is a separate follow-on path, not the first source owner.",
+  "summary": "The STONED setup now matches. At segment 0 step 35, eating the wished lizard corpse reaches eat.c:start_eating() -> cprefx(PM_LIZARD). C calls fix_petrification() before the first bite; JS refuses that branch. The remaining two screens belong to the cure and subsequent eating, while the later acidic-flesh and potion/zap callers need source-ordered wiring.",
   "source": {
-    "file": "wizcmds.c",
-    "branch": "The menu selection is aligned: item b is STONED (named “petrifying”) in the C property ordering and in js/wizcmds.js:WIZ_INTRINSIC_PROPERTIES. In wiz_intrinsic(), C clamps an existing STONED timeout, formats the transition-specific message, and calls make_stoned(newtimeout, buf, KILLED_BY, wizintrinsic) (nethack-c/upstream/src/wizcmds.c:1010-1017, 1044-1047). The current JS function has no STONED arm, so it increments the timeout through the generic branch and prints “Timeout for petrifying set to 30.” For this initial transition both paths show the Stone status, but the message differs at step 17; C also registers the delayed petrification killer through make_stoned().",
+    "file": "eat.c",
+    "branch": "In cprefx(), PM_LIZARD calls fix_petrification() only when Stoned. The default acidic-flesh branch has the same Stoned guard. fix_petrification() chooses the Hallucination message, adding “fine ” when ACURR(A_CHA)>15, then calls make_stoned(0L, buf, 0, NULL) to clear the timeout, status, and delayed killer. start_eating() runs cprefx() before bite().",
     "functions": [
-      "wiz_intrinsic"
+      "fix_petrification",
+      "cprefx"
     ],
     "callers": [
-      "nethack-c/upstream/src/cmd.c:1965-1966 registers #wizintrinsic to wiz_intrinsic(); js/extcmdlist_data.js:165 maps the extended command to wiz_intrinsic, and js/cmd.js:5213-5214 dispatches through runIntrinsicCommand() at js/cmd.js:3497-3498 to js/wizcmds.js:wiz_intrinsic()."
+      "eat.c:start_eating() calls cprefx(corpsenm) for a corpse or glob before bite(); js/eat.js:start_eating() reaches its cprefx().",
+      "potion.c:peffect_acid() and zap.c:zapyourself() also call fix_petrification(); their JS paths still refuse or skip the cure and require caller audit."
     ],
     "dependencies": [
-      "potion.c:make_stoned() at 222-240 is the required C helper for the STONED arm. It sets Stoned, emits the supplied message only when entering or leaving the state, sets disp.botl, and installs or removes the delayed killer. No JS make_stoned() implementation exists; current callers record it as unported or refuse the path.",
-      "The later intended cure is separate: eat.c:cprefx() calls fix_petrification() for PM_LIZARD when Stoned (827-830), and fix_petrification() calls make_stoned(0L, ...) (867-877). js/eat.js:1664-1669 currently guards this lizard branch with UnsupportedEatError. That later gap does not account for the step-17 first mismatch."
+      "potion.c:make_stoned() is ported in js/potion.js and owns STONED timeout, status, message and delayed-killer cleanup. The cure helper uses its void result.",
+      "The Hallucination/Charisma message branch reads ACURR(A_CHA); no core RNG draw occurs in fix_petrification()."
     ]
   },
-  "goalKind": "file-port",
+  "goalKind": "divergence-fix",
   "evidence": [
-    "The saved queue entry and challenges/evaluations/20260926122253-v7.json at evaluation commit f7e48bd93d6827c557c9a40a255a55cbc5fc8fcf report 3 unmatched screens (34/37 matched). The first screen mismatch is segment 0, step 17 on input newline: C cell (row 0, column 0) is “Y”, JS is “T”; C cursor is [35,0,1], JS is [41,0,1], and there is no RNG mismatch at that boundary.",
-    "The immutable C recording challenges/cases/v7/lizard-corpse-cures-stoning-corrected.session.json shows step 15 opens “Which intrinsics?”, step 16 input b selects the second item, and step 17 newline submits it. C displays “You are turning into stone.--More--” and the status line ends in “Stone”. The wish for “lizard corpse” begins later, at steps 24-33; eating is step 35.",
-    "Upstream nethack-c/upstream/src/wizcmds.c:1000-1048 reads the selected property and count, clamps a preexisting STONED timeout at 1010-1017, then has a dedicated STONED branch at 1044-1047 that calls make_stoned() with “You are turning into stone.” for the initial transition. The selected property is therefore correct; this C branch owns the first mismatch.",
-    "At the evaluated implementation commit, js/wizcmds.js:wiz_intrinsic() maps menu value 2 to [STONED, “petrifying”] but has no STONED condition. Its generic fallback calls incr_itimeout() and prints “Timeout for petrifying set to 30.” The current source retains that omission at js/wizcmds.js:344-400. This matches the evaluation’s differing first character and cursor width.",
-    "The source state contract is broader than the message: C potion.c:make_stoned() sets the Stoned timeout and transition status, then records a delayed killer on entry and removes it on cure. The generic JS timeout path sets a timeout/status update but does not register that killer; it also lacks C’s cap against extending an already active STONED timeout. The later corpse cure is a distinct eat.c:cprefx()->fix_petrification() path."
+    "Current saved v7 evaluation challenges/evaluations/20260926213954-v7.json at 5006247e43a2e93c85f944ecaac4f961cd237826 matches 35/37 screens and reports the first stop at segment 0 step 35: eating requires fix_petrification(). The previous step-17 wiz_intrinsic mismatch was resolved by the earlier source port; retain that history in Git rather than attributing it to the current stop.",
+    "nethack-c/upstream/src/eat.c:2020-2044 calls cprefx() before bite(); lines 827-830 guard the PM_LIZARD cure with Stoned, lines 858-860 apply the same cure to acidic flesh, and lines 867-877 format the hallucination/Charisma message and call make_stoned(0L,...).",
+    "js/eat.js:cprefx() currently throws UnsupportedEatError for the PM_LIZARD and acidic-flesh cure branches. C17 already ported potion.c:make_stoned(), so the required state owner and delayed-killer cleanup are available for a source-based repair.",
+    "The C recording has 37 steps; the wizard wishes for the corpse before step 35 and the C cure runs as eating starts. Independent new seed and Hallucination/Charisma variations should verify the runtime path without reusing this challenge input."
   ]
 }
