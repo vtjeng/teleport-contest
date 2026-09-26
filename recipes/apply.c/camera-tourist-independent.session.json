@@ -1,0 +1,11 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 760244321,
+      "datetime": "20311006124500",
+      "nethackrc": "OPTIONS=name:Sora,role:Tourist,race:human,gender:female,align:neutral,!legacy,!tutorial,!splash_screen,showexp,time\n",
+      "moves": "\nalk"
+    }
+  ]
+}

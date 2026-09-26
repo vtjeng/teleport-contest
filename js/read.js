@@ -164,6 +164,7 @@ import { setworn } from './worn.js';
 import { chwepon } from './wield.js';
 import { ART_SUNSWORD, artifact_light } from './artifacts.js';
 import { del_light_source } from './light.js';
+import { light_hits_gremlin } from './uhitm.js';
 import { do_clear_area, vision_recalc } from './vision.js';
 import { canSpotMonster } from './startup_a11y.js';
 import { m_at } from './monst.js';
@@ -713,18 +714,12 @@ async function litroom(on, object, state) {
     }
     state.vision_full_recalc = 1;
 
-    // C drains the temporary gremlin list after the delayed vision pass. The
-    // complete wake/killed-monster lifecycle is owned by uhitm.c; this path
-    // still applies the source damage and removes a dead map occupant.
+    // C drains the temporary gremlin list after the delayed vision pass.
+    // uhitm.c owns the shared wake, death and remembered-invisible effects.
     for (const monster of gremlins) {
         if (monster.mhp < 1) continue;
         const damage = rnd(5);
-        monster.mhp -= damage;
-        if (monster.mhp < 1) {
-            monster.mhp = 0;
-            if (m_at(monster.mx, monster.my, state) === monster)
-                state.level.monsters[monster.mx][monster.my] = null;
-        }
+        await light_hits_gremlin(monster, damage, state);
     }
 }
 

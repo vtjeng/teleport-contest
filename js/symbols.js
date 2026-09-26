@@ -126,6 +126,7 @@ export const S_arrow_trap = requiredCmapSymbol('s_arrow_trap');
 // spaces GLYPH_SWALLOW_OFF by ((S_goodpos - S_digbeam) + 1), so both indices
 // are inputs to js/glyph_offsets.js.
 export const S_digbeam = requiredCmapSymbol('s_digbeam');
+export const S_flashbeam = requiredCmapSymbol('s_flashbeam');
 export const S_goodpos = requiredCmapSymbol('s_goodpos');
 export const S_sw_tl = requiredCmapSymbol('s_sw_tl');
 export const S_sw_tc = requiredCmapSymbol('s_sw_tc');

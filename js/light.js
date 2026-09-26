@@ -13,6 +13,7 @@ import {
     OBJ_BURIED,
     OBJ_CONTAINED,
     OBJ_FLOOR,
+    OBJ_FREE,
     OBJ_INVENT,
     OBJ_MINVENT,
     RANGE_LEVEL,
@@ -21,6 +22,8 @@ import {
 } from './const.js';
 import { artifact_light } from './artifacts.js';
 import { game } from './gstate.js';
+import { dist2 } from './hacklib.js';
+import { note_unported } from './unported.js';
 import {
     BRASS_LANTERN,
     CANDELABRUM_OF_INVOCATION,
@@ -87,8 +90,12 @@ export function new_light_source(x, y, range, type, id, state = game) {
     const globals = lightGlobals(state);
     requireMobileSource(type);
     const radius = Math.trunc(range);
+    // light.c:new_light_core() gives only a camera flash permission to use
+    // radius zero, and that source has an LS_OBJECT union whose a_obj is null.
+    const cameraFlash = radius === 0 && type === LS_OBJECT
+        && id !== null && typeof id === 'object' && id.a_obj === null;
     if (radius < 0 || radius > MAX_RADIUS
-        || (radius === 0 && id != null)) {
+        || (radius === 0 && !cameraFlash)) {
         throw new RangeError(`new_light_source: illegal range ${range}`);
     }
     if (!id || typeof id !== 'object') {
@@ -128,6 +135,112 @@ export function del_light_source(type, id, state = game) {
     else globals.light_base = current.next;
     current.next = null;
     state.vision_full_recalc = 1;
+}
+
+function transientLightOperation(env, name) {
+    const operation = env?.[name];
+    if (typeof operation !== 'function') {
+        throw new TypeError(`transient light requires ${name}`);
+    }
+    return operation;
+}
+
+// C ref: light.c show_transient_light(). A null object is a camera flash and
+// owns a range-zero LS_OBJECT node whose union member is null. The caller
+// supplies display, vision, and object-list operations so light.js does not
+// add a reverse module cycle through vision.js, display.js, or obj.js.
+export async function show_transient_light(obj, x, y, state = game, env = {}) {
+    let source = null;
+    if (!obj) {
+        // C skips a temporary source when permanent terrain already lights
+        // this square. Otherwise each crossed camera square owns one source
+        // until transient_light_cleanup() removes it.
+        if (state.level?.at(x, y)?.lit) return;
+        source = new_light_source(
+            x, y, 0, LS_OBJECT, { a_obj: null }, state,
+        );
+    } else {
+        for (source = state.gl?.light_base ?? null; source;
+            source = source.next) {
+            if (source.type === LS_OBJECT && source.id === obj) break;
+        }
+        if (!source || obj.where !== OBJ_FREE) {
+            if (typeof env.impossible === 'function') {
+                await env.impossible(obj, !source ? 'missing light source' : 'not free');
+            } else {
+                // C discards impossible()'s void result; its diagnostic path
+                // is separate from the transient-light gameplay effects.
+                note_unported('pline.c impossible');
+            }
+            return;
+        }
+    }
+
+    if (obj) {
+        const placeObject = transientLightOperation(env, 'placeObject');
+        const bhitpos = state.gb?.bhitpos;
+        await placeObject(obj, bhitpos?.x ?? x, bhitpos?.y ?? y);
+    } else {
+        // The zeroany.a_obj member is null for camera flashes. `source.x/y`
+        // are the single stored location for this transient source.
+        source.x = x;
+        source.y = y;
+    }
+
+    await transientLightOperation(env, 'visionRecalc')(0);
+    await transientLightOperation(env, 'flushScreen')(0);
+
+    const rangeSquared = source.range * source.range;
+    for (let monster = state.level?.monlist ?? null;
+        monster;
+        monster = monster.nmon) {
+        if (monster.mhp < 1 || (monster.isgd && !monster.mx)) continue;
+        if (dist2(monster.mx, monster.my, x, y) <= rangeSquared
+            && await transientLightOperation(env, 'canSeeMonster')(monster)) {
+            monster.mtemplit = 1;
+        }
+    }
+
+    if (obj) {
+        await transientLightOperation(env, 'delayOutput')();
+        await transientLightOperation(env, 'removeObject')(obj);
+    }
+}
+
+// C ref: light.c transient_light_cleanup() and discard_flashes(). Camera
+// source ids use {a_obj:null}; ordinary object ids remain their direct object
+// identity and are therefore retained by discard_flashes().
+export async function transient_light_cleanup(state = game, env = {}) {
+    discard_flashes(state);
+    if (state.vision_full_recalc)
+        await transientLightOperation(env, 'visionRecalc')(0);
+
+    let temporaryCount = 0;
+    for (let monster = state.level?.monlist ?? null;
+        monster;
+        monster = monster.nmon) {
+        if (monster.mhp < 1) continue;
+        if (!monster.mtemplit) continue;
+        monster.mtemplit = 0;
+        ++temporaryCount;
+        if (!await transientLightOperation(env, 'canSpotMonster')(monster)) {
+            await transientLightOperation(env, 'mapInvisible')(
+                monster.mx, monster.my,
+            );
+        }
+    }
+    if (temporaryCount)
+        await transientLightOperation(env, 'flushScreen')(0);
+}
+
+// C ref: light.c discard_flashes().
+function discard_flashes(state) {
+    for (let source = state.gl?.light_base ?? null; source;) {
+        const next = source.next;
+        if (source.type === LS_OBJECT && source.id?.a_obj === null)
+            del_light_source(source.type, source.id, state);
+        source = next;
+    }
 }
 
 // C ref: light.c save_light_sources(), its release_data() half alone. The
