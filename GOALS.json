@@ -83214,6 +83214,208 @@
         "screens": 11405,
         "rng": 792838
       }
+    },
+    {
+      "id": "port-potion-peffect-blindness-synthetic-v7-20260926",
+      "kind": "file-port",
+      "status": "open",
+      "summary": "Port the blindness potion effect and wire peffects POT_BLINDNESS dispatch",
+      "cFile": "potion.c",
+      "sessions": [
+        "synthetic/v7/unicorn-horn-blindness-corrected"
+      ],
+      "selectionReason": "B15 continues the independently claimed, source-traced v7 unicorn-horn-blindness-corrected case (26 remaining screens in .cache/B14-committed-work-queue.json) at potion.c:peffect_blindness. Higher-ranked blessed-book-undead is reserved by A12; B15 was selected from the same committed evaluation before any code edit.",
+      "detail": "C potion.c:peffects dispatches POT_BLINDNESS into peffect_blindness; JavaScript refused this arm. Complete the effect and retain the later apply.c:use_unicorn_horn as a separate source owner.",
+      "openedAt": "7b0a61f75a124167978ca3ea0870541721490c1e",
+      "openStanding": {
+        "sha": "d0a8041f88dd37cbf631877464c06cf985998274",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "closedAt": null,
+      "delivered": null,
+      "functions": [
+        {
+          "name": "peffect_blindness",
+          "line": 1073,
+          "endLine": 1082,
+          "declared": false,
+          "complete": false
+        }
+      ],
+      "range": {
+        "from": 1073,
+        "to": 1082
+      },
+      "syntheticProvenance": {
+        "synthetic/v7/unicorn-horn-blindness-corrected": {
+          "session": "synthetic/v7/unicorn-horn-blindness-corrected",
+          "corpus": "synthetic",
+          "batch": "v7",
+          "caseId": "unicorn-horn-blindness-corrected",
+          "manifestPath": "challenges/manifests/v7.json",
+          "manifestSha256": "03a861a9d1bc9d813c80681312ee7a0e0f893dbad0536de40a974bd5ec344094",
+          "recordingPath": "challenges/cases/v7/unicorn-horn-blindness-corrected.session.json",
+          "recordingSha256": "7c5dc1f16f6f74865041b570f15399c2d68812a5ba1a083b341f1ddbc90365f7",
+          "evaluationPath": "challenges/evaluations/20260926132731-v7.json",
+          "evaluationCommit": "d0a8041f88dd37cbf631877464c06cf985998274"
+        }
+      },
+      "activeStanding": {
+        "sha": "d0a8041f88dd37cbf631877464c06cf985998274",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v7",
+          "caseId": "unicorn-horn-blindness-corrected",
+          "session": "synthetic/v7/unicorn-horn-blindness-corrected",
+          "manifestPath": "challenges/manifests/v7.json",
+          "manifestSha256": "03a861a9d1bc9d813c80681312ee7a0e0f893dbad0536de40a974bd5ec344094",
+          "recording": "challenges/cases/v7/unicorn-horn-blindness-corrected.session.json",
+          "recordingPath": "challenges/cases/v7/unicorn-horn-blindness-corrected.session.json",
+          "recordingSha256": "7c5dc1f16f6f74865041b570f15399c2d68812a5ba1a083b341f1ddbc90365f7",
+          "recipe": "challenges/cases/v7/unicorn-horn-blindness-corrected.recipe.session.json",
+          "recipeSha256": "62026a1d2af49c192fe9900fa825aec3a8ecbfd10232807f7cec8b687b20a946",
+          "replayInputSha256": "84986fd35fd15cdb83313526fe6e017f5aa525c251e5d4b2ebbff3aa5a163ed8",
+          "evaluationPath": "challenges/evaluations/20260926132731-v7.json",
+          "evaluationCommit": "d0a8041f88dd37cbf631877464c06cf985998274",
+          "evaluationArtifact": "challenges/evaluations/20260926132731-v7.json",
+          "evaluationUtc": "2026-09-26T13:27:59.468Z",
+          "remainingScreens": 26,
+          "recordedSteps": 57,
+          "previousScreensMatched": 31,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 31,
+              "total": 57
+            },
+            "rng": {
+              "matched": 2807,
+              "total": 2826
+            },
+            "cursors": {
+              "matched": 31,
+              "total": 57
+            }
+          },
+          "firstMismatch": {
+            "kind": "stop",
+            "message": "unsupported hero command: an unported branch of this command: quaffing requires peffect_blindness()",
+            "step": 31
+          },
+          "step": 31,
+          "kind": "stop",
+          "sourceFile": "potion.c",
+          "function": "peffect_blindness",
+          "message": "unsupported hero command: an unported branch of this command: quaffing requires peffect_blindness()",
+          "cFile": "potion.c",
+          "luaFile": null,
+          "line": null,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v7/unicorn-horn-blindness-corrected.json",
+            "result": {
+              "session": "synthetic/v7/unicorn-horn-blindness-corrected",
+              "corpus": "synthetic",
+              "batch": "v7",
+              "caseId": "unicorn-horn-blindness-corrected",
+              "manifestPath": "challenges/manifests/v7.json",
+              "manifestSha256": "03a861a9d1bc9d813c80681312ee7a0e0f893dbad0536de40a974bd5ec344094",
+              "recordingPath": "challenges/cases/v7/unicorn-horn-blindness-corrected.session.json",
+              "recordingSha256": "7c5dc1f16f6f74865041b570f15399c2d68812a5ba1a083b341f1ddbc90365f7",
+              "evaluationPath": "challenges/evaluations/20260926122253-v7.json",
+              "evaluationCommit": "f7e48bd93d6827c557c9a40a255a55cbc5fc8fcf",
+              "remainingScreens": 26,
+              "recordedSteps": 57,
+              "status": "complete",
+              "commit": "3543403d092a80dbeacd479a4fb0cb5c2d537413",
+              "mismatch": {
+                "corpus": "synthetic",
+                "batch": "v7",
+                "caseId": "unicorn-horn-blindness-corrected",
+                "session": "synthetic/v7/unicorn-horn-blindness-corrected",
+                "manifestPath": "challenges/manifests/v7.json",
+                "manifestSha256": "03a861a9d1bc9d813c80681312ee7a0e0f893dbad0536de40a974bd5ec344094",
+                "recording": "challenges/cases/v7/unicorn-horn-blindness-corrected.session.json",
+                "recordingPath": "challenges/cases/v7/unicorn-horn-blindness-corrected.session.json",
+                "recordingSha256": "7c5dc1f16f6f74865041b570f15399c2d68812a5ba1a083b341f1ddbc90365f7",
+                "recipe": "challenges/cases/v7/unicorn-horn-blindness-corrected.recipe.session.json",
+                "recipeSha256": "62026a1d2af49c192fe9900fa825aec3a8ecbfd10232807f7cec8b687b20a946",
+                "replayInputSha256": "ba09b30aa45883696a6c2cbbe647b7a100c06ae9b741e0bcdf70fec164041447",
+                "evaluationPath": "challenges/evaluations/20260926122253-v7.json",
+                "evaluationCommit": "f7e48bd93d6827c557c9a40a255a55cbc5fc8fcf",
+                "evaluationArtifact": "challenges/evaluations/20260926122253-v7.json",
+                "evaluationUtc": "2026-09-26T12:23:06.868Z",
+                "remainingScreens": 26,
+                "recordedSteps": 57,
+                "previousScreensMatched": null,
+                "regression": false,
+                "passed": false,
+                "error": null,
+                "metrics": {
+                  "screens": {
+                    "matched": 31,
+                    "total": 57
+                  },
+                  "rng": {
+                    "matched": 2807,
+                    "total": 2826
+                  },
+                  "cursors": {
+                    "matched": 31,
+                    "total": 57
+                  }
+                },
+                "firstMismatch": {
+                  "kind": "stop",
+                  "message": "unsupported hero command: an unported branch of this command: quaffing requires peffect_blindness()",
+                  "step": 31
+                },
+                "step": 31,
+                "kind": "stop",
+                "sourceFile": "potion.c",
+                "function": "peffect_blindness",
+                "message": "unsupported hero command: an unported branch of this command: quaffing requires peffect_blindness()",
+                "cFile": "potion.c",
+                "luaFile": null,
+                "line": null
+              },
+              "summary": "The first stop is the POT_BLINDNESS arm in potion.c:peffect_blindness(). JavaScript peffects() throws at that arm before the C path draws the blindness duration, updates HBlinded, emits the blindness message, and advances the quaff. Port the whole function and wire its existing peffects() case. The recorded mission then reaches a separate apply.c:use_unicorn_horn() path; js/apply.js has no UNICORN_HORN case, so horn curing is a subsequent blocker outside this first-stop scope.",
+              "source": {
+                "file": "potion.c",
+                "branch": "When peffects() receives POT_BLINDNESS for a quaffed potion, peffect_blindness() increments gp.potion_nothing if Blind is already effective or timed blindness is blocked, then calls make_blinded(itimeout_incr(BlindedTimeout, rn1(200, 250 - 125 * bcsign(otmp))), !Blind). For this recorded path the hero is sighted and the potion is uncursed, so bcsign is 0, the recorded rn2(200)=56 makes rn1 return 306, and make_blinded is asked to start blindness with feedback.",
+                "functions": [
+                  "peffect_blindness"
+                ],
+                "callers": [
+                  "nethack-c/upstream/src/potion.c:1333-1425 peffects() dispatches POT_BLINDNESS to peffect_blindness() at 1389-1391; dopotion() calls peffects() at 624 and consumes the result through its potion_nothing, identification, and useup tail.",
+                  "js/potion.js:1148-1223 peffects() is the matching dispatcher, but its POT_BLINDNESS case at 1193-1194 throws UnsupportedQuaffError; js/potion.js:dopotion() calls peffects() at 1241.",
+                  "Runtime command path is js/cmd.js quaff dispatch -> runQuaffCommand() -> js/potion.js:dodrink() -> dopotion() -> peffects(); the selected replay takes this path."
+                ],
+                "dependencies": [
+                  "potion.c:itimeout_incr() at 67-71; the pure timeout helper is already implemented in js/potion.js:378-380 and clamps the incremented timeout to TIMEOUT.",
+                  "potion.c:make_blinded() at 261-331; js/potion.js:466-566 already owns the timed BLINDED property, feedback, and vision transition used by this path."
+                ]
+              },
+              "goalKind": "file-port",
+              "evidence": [
+                "The saved queue entry and challenges/evaluations/20260926122253-v7.json (evaluated at f7e48bd93d6827c557c9a40a255a55cbc5fc8fcf) identify synthetic/v7/unicorn-horn-blindness-corrected with 26 unmatched screens, 31/57 matched screens, and first stop at segment 0 step 31: “quaffing requires peffect_blindness()”.",
+                "challenges/cases/v7/unicorn-horn-blindness-corrected.session.json normalizes to one segment (seed 70727130; moves create a cursed potion of blindness, quaff it, then wish for and apply an uncursed unicorn horn). At step 30 the quaff prompt selects inventory item “o”; step 31 records C rng rn2(200)=56 at peffect_blindness(potion.c:1078), then shows “A cloud of darkness falls upon you.” and a Blind status. This is the runtime reachability evidence for the current first-stop function.",
+                "Upstream nethack-c/upstream/src/potion.c:1072-1080 defines the complete function: conditionally increments gp.potion_nothing, computes a BUC-adjusted 200-turn duration with rn1, adds it to BlindedTimeout through itimeout_incr, and calls make_blinded with talk enabled only when the hero was not already Blind. potion.c:1389-1391 wires it from peffects(); potion.c:624 and 635-641 show dopotion() resets gp.potion_nothing before dispatch and later handles the flag before useup().",
+                "The relevant state contract is in nethack-c/upstream/include/youprop.h:87-103: HBlinded is u.uprops[BLINDED].intrinsic, EBlinded is extrinsic, BBlinded blocks blindness, Blind is effective blindness, and BlindedTimeout is only the TIMEOUT field. JavaScript stores this property at state.u.uprops[BLINDED], and dopotion() resets state.gp.potion_nothing before peffects().",
+                "js/potion.js:1193-1194 is the exact throw that stops replay before the C rn2(200) draw. The called helpers are already implemented at js/potion.js:378-380 and :466-566, so the actionable missing source unit is peffect_blindness() plus replacing the matching dispatcher refusal with its call.",
+                "The mission’s later horn action is a separate source gap: upstream nethack-c/upstream/src/apply.c:2259-2387 implements use_unicorn_horn(), called by doapply() at 4371; js/apply.js:2293-2370 has no UNICORN_HORN arm. This is downstream of the current stop and should be investigated after the potion path is restored."
+              ]
+            }
+          }
+        }
+      ]
     }
   ]
 }
