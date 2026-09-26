@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 55210044,
+      "datetime": "20260926221700",
+      "nethackrc": "OPTIONS=name:StoneCure,role:Wizard,race:human,gender:female,align:neutral,playmode:debug,!legacy,!tutorial,!splash_screen,pettype:none\n",
+      "moves": " #wizintrinsic\nb\n \u0017spellbook of stone to flesh\n#levelchange\n10\n        ro Zc."
+    }
+  ],
+  "comment": "C reaches zap.c:zapyourself -> fix_petrification at step 77 and reports You feel limber!. The strict JS differential is blocked earlier in the study_book setup at step 74: C next draws exercise(attrib.c:509), while JS draws dosounds(sounds.c:213). Keep this recipe as blocked provenance, not a matching recording."
+}

@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 55210042,
+      "datetime": "20260926221600",
+      "nethackrc": "OPTIONS=name:AcidCure,role:Wizard,race:human,gender:female,align:neutral,playmode:debug,!legacy,!tutorial,!splash_screen,pettype:none\n",
+      "moves": " #wizintrinsic\nb\n \u0017blessed potion of acid\nqn "
+    }
+  ],
+  "comment": "Independent C21 entry-path recipe for potion.c:peffects -> peffect_acid -> eat.c:fix_petrification. A blessed dose reaches the protected damage/message branch before curing the timed stoning; this uses a different character and seed from the existing Valkyrie lizard-corpse recording."
+}
