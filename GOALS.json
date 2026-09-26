@@ -77081,17 +77081,21 @@
     {
       "id": "div-lock-pick-chest-query-synthetic-v4-20260926",
       "kind": "divergence-fix",
-      "status": "queued",
+      "status": "open",
       "summary": "Match lock.c pick_lock chest prompt before setting lock knowledge",
       "cFile": "lock.c",
       "sessions": [
         "synthetic/v4/valkyrie-lockpick-chest-open-menu",
         "synthetic/v4/valkyrie-lockpick-chest-stash-return"
       ],
-      "selectionReason": "Each v4 Valkyrie lockpick case has 1 unmatched screen in challenges/evaluations/20260926034749-v4.json; both complete investigations trace the same lock.c pick_lock query order. Higher-ranked v3 food and v4 sink cases are owned by pending B8 and C10 deliveries, and v2 altar by assigned C11. This is the first independent ready source defect for B.",
+      "selectionReason": "B9 was assigned from the ordered v4 queue before v5 admission and submitted its independently validated lock.c pick_lock correction. The higher-ranked v5 Samurai case is owned by A9, v5 Healer/Ranger await available implementation capacity while B prepares v6 under the runway rule, and the earlier C10 sink task is closed. Integrate this ready delivery now without displacing active workers; both v4 lockpick cases trace the same source-order prompt defect.",
       "detail": "lock.c pick_lock builds safe_qbuf from doname before setting otmp->lknown=1; js/lock.js sets lknown before formatting, inserting locked into the chest prompt and moving its cursor. Preserve source autounlock arms and set knowledge after query formatting before ynq.",
-      "openedAt": null,
-      "openStanding": null,
+      "openedAt": "4afd8c01cb8796e8d4a68290b988bce7c17dff7b",
+      "openStanding": {
+        "sha": "a4cca522bb1757073b5cea17ac1d8c2d7c82367f",
+        "screens": 11405,
+        "rng": 792838
+      },
       "closedAt": null,
       "delivered": null,
       "function": "pick_lock",
@@ -77107,10 +77111,503 @@
           "manifestSha256": "10777af4c82fc759abf58a870fdd232329bc5c1467c8cf94f46089d0401459a9",
           "recordingPath": "challenges/cases/v4/valkyrie-lockpick-chest-open-menu.session.json",
           "recordingSha256": "2d5176b421d2ad6fb23e6e170bab9bb0f23db29af81cf80c4a7692c7983aa4c4",
-          "evaluationPath": "challenges/evaluations/20260926034749-v4.json",
-          "evaluationCommit": "c12df7b29cfff0e2b05b59d802a204008912d442"
+          "evaluationPath": "challenges/evaluations/20260926043048-v4.json",
+          "evaluationCommit": "a4cca522bb1757073b5cea17ac1d8c2d7c82367f"
         }
-      }
+      },
+      "activeStanding": {
+        "sha": "a4cca522bb1757073b5cea17ac1d8c2d7c82367f",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v4",
+          "caseId": "valkyrie-lockpick-chest-open-menu",
+          "session": "synthetic/v4/valkyrie-lockpick-chest-open-menu",
+          "manifestPath": "challenges/manifests/v4.json",
+          "manifestSha256": "10777af4c82fc759abf58a870fdd232329bc5c1467c8cf94f46089d0401459a9",
+          "recording": "challenges/cases/v4/valkyrie-lockpick-chest-open-menu.session.json",
+          "recordingPath": "challenges/cases/v4/valkyrie-lockpick-chest-open-menu.session.json",
+          "recordingSha256": "2d5176b421d2ad6fb23e6e170bab9bb0f23db29af81cf80c4a7692c7983aa4c4",
+          "recipe": "challenges/cases/v4/valkyrie-lockpick-chest-open-menu.recipe.json",
+          "recipeSha256": "6f1bb8f6f1d4e862a2edc62d0bce5a8fa862f41d447772eadc2df22678021cef",
+          "replayInputSha256": "c6fac7795097d54f48e457e158e6ae9ccf90608e3d46ddd59533c7a36ae62967",
+          "evaluationPath": "challenges/evaluations/20260926043048-v4.json",
+          "evaluationCommit": "a4cca522bb1757073b5cea17ac1d8c2d7c82367f",
+          "evaluationArtifact": "challenges/evaluations/20260926043048-v4.json",
+          "evaluationUtc": "2026-09-26T04:30:58.332Z",
+          "remainingScreens": 1,
+          "recordedSteps": 50,
+          "previousScreensMatched": 49,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 49,
+              "total": 50
+            },
+            "rng": {
+              "matched": 7838,
+              "total": 7838
+            },
+            "cursors": {
+              "matched": 49,
+              "total": 50
+            }
+          },
+          "firstMismatch": {
+            "screen": {
+              "index": 33,
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 33,
+                "key": "."
+              },
+              "kind": "ch",
+              "row": 0,
+              "column": 11,
+              "cCell": {
+                "ch": "c",
+                "color": 8,
+                "attr": 0,
+                "decgfx": 0
+              },
+              "jsCell": {
+                "ch": "l",
+                "color": 8,
+                "attr": 0,
+                "decgfx": 0
+              }
+            },
+            "rng": null,
+            "cursor": {
+              "index": 33,
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 33,
+                "key": "."
+              },
+              "cCursor": [
+                48,
+                0,
+                1
+              ],
+              "jsCursor": [
+                55,
+                0,
+                1
+              ]
+            }
+          },
+          "step": 33,
+          "kind": "screen",
+          "sourceFile": null,
+          "function": null,
+          "message": null,
+          "cFile": null,
+          "luaFile": null,
+          "line": null,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v4/valkyrie-lockpick-chest-open-menu.json",
+            "result": {
+              "session": "synthetic/v4/valkyrie-lockpick-chest-open-menu",
+              "corpus": "synthetic",
+              "batch": "v4",
+              "caseId": "valkyrie-lockpick-chest-open-menu",
+              "manifestPath": "challenges/manifests/v4.json",
+              "manifestSha256": "10777af4c82fc759abf58a870fdd232329bc5c1467c8cf94f46089d0401459a9",
+              "recordingPath": "challenges/cases/v4/valkyrie-lockpick-chest-open-menu.session.json",
+              "recordingSha256": "2d5176b421d2ad6fb23e6e170bab9bb0f23db29af81cf80c4a7692c7983aa4c4",
+              "evaluationPath": "challenges/evaluations/20260926022427-v4.json",
+              "evaluationCommit": "07377e0c0ad51853b62a4b850c639a10fdb02db1",
+              "remainingScreens": 1,
+              "recordedSteps": 50,
+              "status": "complete",
+              "commit": "620e53a57e1c8949005b02f1d76e31a153e7f2d9",
+              "mismatch": {
+                "corpus": "synthetic",
+                "batch": "v4",
+                "caseId": "valkyrie-lockpick-chest-open-menu",
+                "session": "synthetic/v4/valkyrie-lockpick-chest-open-menu",
+                "manifestPath": "challenges/manifests/v4.json",
+                "manifestSha256": "10777af4c82fc759abf58a870fdd232329bc5c1467c8cf94f46089d0401459a9",
+                "recording": "challenges/cases/v4/valkyrie-lockpick-chest-open-menu.session.json",
+                "recordingPath": "challenges/cases/v4/valkyrie-lockpick-chest-open-menu.session.json",
+                "recordingSha256": "2d5176b421d2ad6fb23e6e170bab9bb0f23db29af81cf80c4a7692c7983aa4c4",
+                "recipe": "challenges/cases/v4/valkyrie-lockpick-chest-open-menu.recipe.json",
+                "recipeSha256": "6f1bb8f6f1d4e862a2edc62d0bce5a8fa862f41d447772eadc2df22678021cef",
+                "replayInputSha256": "3483e03289fd59f6644742e147d1a2579aeb137c057d915aae3d079631bd2596",
+                "evaluationPath": "challenges/evaluations/20260926022427-v4.json",
+                "evaluationCommit": "07377e0c0ad51853b62a4b850c639a10fdb02db1",
+                "evaluationArtifact": "challenges/evaluations/20260926022427-v4.json",
+                "evaluationUtc": "2026-09-26T02:24:37.210Z",
+                "remainingScreens": 1,
+                "recordedSteps": 50,
+                "previousScreensMatched": 49,
+                "regression": false,
+                "passed": false,
+                "error": null,
+                "metrics": {
+                  "screens": {
+                    "matched": 49,
+                    "total": 50
+                  },
+                  "rng": {
+                    "matched": 7838,
+                    "total": 7838
+                  },
+                  "cursors": {
+                    "matched": 49,
+                    "total": 50
+                  }
+                },
+                "firstMismatch": {
+                  "screen": {
+                    "index": 33,
+                    "location": {
+                      "segmentIndex": 0,
+                      "stepIndex": 33,
+                      "key": "."
+                    },
+                    "kind": "ch",
+                    "row": 0,
+                    "column": 11,
+                    "cCell": {
+                      "ch": "c",
+                      "color": 8,
+                      "attr": 0,
+                      "decgfx": 0
+                    },
+                    "jsCell": {
+                      "ch": "l",
+                      "color": 8,
+                      "attr": 0,
+                      "decgfx": 0
+                    }
+                  },
+                  "rng": null,
+                  "cursor": {
+                    "index": 33,
+                    "location": {
+                      "segmentIndex": 0,
+                      "stepIndex": 33,
+                      "key": "."
+                    },
+                    "cCursor": [
+                      48,
+                      0,
+                      1
+                    ],
+                    "jsCursor": [
+                      55,
+                      0,
+                      1
+                    ]
+                  }
+                },
+                "step": 33,
+                "kind": "screen",
+                "sourceFile": null,
+                "function": null,
+                "message": null,
+                "cFile": null,
+                "luaFile": null,
+                "line": null
+              },
+              "summary": "The v4 Valkyrie chest case matches every RNG call and all but the container lock prompt at step 33. C asks “There is a chest here; pick its lock?” while JS asks “There is a locked chest here; pick its lock?”. In lock.c pick_lock, safe_qbuf builds the prompt before otmp->lknown is set; js/lock.js sets lknown first. Preserve that source order and verify the two independent continuation histories.",
+              "source": {
+                "file": "lock.c",
+                "functions": [
+                  "pick_lock"
+                ],
+                "branch": "A Valkyrie applies a lock pick while standing on a locked chest and answers the direction with period. The manual container path in lock.c pick_lock formats its query with safe_qbuf and doname before setting otmp->lknown=1, then calls ynq. The JS path sets lknown=1 before safe_qbuf/donameFresh, so the prompt prematurely describes a locked chest.",
+                "callers": [
+                  "apply.c doapply() dispatches the lock pick to lock.c pick_lock(); js/apply.js reaches js/lock.js pick_lock through the same selected tool.",
+                  "The container loop in lock.c pick_lock at lines 429-550 reaches the ordinary non-autounlock safe_qbuf branch at lines 494-503."
+                ],
+                "dependencies": [
+                  "Preserve otmp->lknown update after safe_qbuf and before ynq in the ordinary manual branch; inspect the separate autounlock and trap-check arms so moving the update does not change their source behavior.",
+                  "Retain C query text and cursor position; the remaining RNG trace is already exact."
+                ]
+              },
+              "goalKind": "divergence-fix",
+              "evidence": [
+                "Saved challenges/evaluations/20260926022427-v4.json at 07377e0c0ad51853b62a4b850c639a10fdb02db1 reports 49/50 screens, 7838/7838 RNG calls, and 49/50 cursors; step 33 is the only mismatch.",
+                "challenges/cases/v4/valkyrie-lockpick-chest-open-menu.session.json segment 0 step 33 records C’s “There is a chest here; pick its lock?” prompt; a direct JS replay at 620e53a57e1c8949005b02f1d76e31a153e7f2d9 prints “There is a locked chest here; pick its lock?”.",
+                "nethack-c/upstream/src/lock.c:494-503 formats safe_qbuf before assigning otmp->lknown=1, then calls ynq; js/lock.js:680-704 assigns otmp.lknown=1 before safe_qbuf/ynq. The seven-column prompt length difference also explains the cursor mismatch.",
+                "The distinct v4 chest-open-menu and chest-stash-return action histories share this first divergence and should be validated separately after the source-order repair."
+              ],
+              "entryPointReview": {
+                "active": [
+                  "Apply a lock pick to a locked chest on the hero square in synthetic/v4/valkyrie-lockpick-chest-open-menu, segment 0 step 33."
+                ],
+                "blocked": [
+                  "The prompt is formatted after lknown has been set in JS; the C order formats first."
+                ]
+              },
+              "plannedWholeFunctionScope": {
+                "primary": {
+                  "file": "lock.c",
+                  "functions": [
+                    "pick_lock"
+                  ]
+                },
+                "callerWiring": [
+                  "apply.c doapply lock-pick arm"
+                ],
+                "returnValuedDependencies": []
+              }
+            }
+          }
+        },
+        {
+          "corpus": "synthetic",
+          "batch": "v4",
+          "caseId": "valkyrie-lockpick-chest-stash-return",
+          "session": "synthetic/v4/valkyrie-lockpick-chest-stash-return",
+          "manifestPath": "challenges/manifests/v4.json",
+          "manifestSha256": "10777af4c82fc759abf58a870fdd232329bc5c1467c8cf94f46089d0401459a9",
+          "recording": "challenges/cases/v4/valkyrie-lockpick-chest-stash-return.session.json",
+          "recordingPath": "challenges/cases/v4/valkyrie-lockpick-chest-stash-return.session.json",
+          "recordingSha256": "5ef54776664d61652644cb1f11b6a5c166f3eb08ea0b53d4f9674e4d72cf72ca",
+          "recipe": "challenges/cases/v4/valkyrie-lockpick-chest-stash-return.recipe.json",
+          "recipeSha256": "234ee8b3d1e0760b4a25160196a6429bc12d9812fa1b7a5b60ebb0ab8b43af91",
+          "replayInputSha256": "c6fac7795097d54f48e457e158e6ae9ccf90608e3d46ddd59533c7a36ae62967",
+          "evaluationPath": "challenges/evaluations/20260926043048-v4.json",
+          "evaluationCommit": "a4cca522bb1757073b5cea17ac1d8c2d7c82367f",
+          "evaluationArtifact": "challenges/evaluations/20260926043048-v4.json",
+          "evaluationUtc": "2026-09-26T04:30:58.332Z",
+          "remainingScreens": 1,
+          "recordedSteps": 52,
+          "previousScreensMatched": 51,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 51,
+              "total": 52
+            },
+            "rng": {
+              "matched": 7838,
+              "total": 7838
+            },
+            "cursors": {
+              "matched": 51,
+              "total": 52
+            }
+          },
+          "firstMismatch": {
+            "screen": {
+              "index": 33,
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 33,
+                "key": "."
+              },
+              "kind": "ch",
+              "row": 0,
+              "column": 11,
+              "cCell": {
+                "ch": "c",
+                "color": 8,
+                "attr": 0,
+                "decgfx": 0
+              },
+              "jsCell": {
+                "ch": "l",
+                "color": 8,
+                "attr": 0,
+                "decgfx": 0
+              }
+            },
+            "rng": null,
+            "cursor": {
+              "index": 33,
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 33,
+                "key": "."
+              },
+              "cCursor": [
+                48,
+                0,
+                1
+              ],
+              "jsCursor": [
+                55,
+                0,
+                1
+              ]
+            }
+          },
+          "step": 33,
+          "kind": "screen",
+          "sourceFile": null,
+          "function": null,
+          "message": null,
+          "cFile": null,
+          "luaFile": null,
+          "line": null,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v4/valkyrie-lockpick-chest-stash-return.json",
+            "result": {
+              "session": "synthetic/v4/valkyrie-lockpick-chest-stash-return",
+              "corpus": "synthetic",
+              "batch": "v4",
+              "caseId": "valkyrie-lockpick-chest-stash-return",
+              "manifestPath": "challenges/manifests/v4.json",
+              "manifestSha256": "10777af4c82fc759abf58a870fdd232329bc5c1467c8cf94f46089d0401459a9",
+              "recordingPath": "challenges/cases/v4/valkyrie-lockpick-chest-stash-return.session.json",
+              "recordingSha256": "5ef54776664d61652644cb1f11b6a5c166f3eb08ea0b53d4f9674e4d72cf72ca",
+              "evaluationPath": "challenges/evaluations/20260926022427-v4.json",
+              "evaluationCommit": "07377e0c0ad51853b62a4b850c639a10fdb02db1",
+              "remainingScreens": 1,
+              "recordedSteps": 52,
+              "status": "complete",
+              "commit": "620e53a57e1c8949005b02f1d76e31a153e7f2d9",
+              "mismatch": {
+                "corpus": "synthetic",
+                "batch": "v4",
+                "caseId": "valkyrie-lockpick-chest-stash-return",
+                "session": "synthetic/v4/valkyrie-lockpick-chest-stash-return",
+                "manifestPath": "challenges/manifests/v4.json",
+                "manifestSha256": "10777af4c82fc759abf58a870fdd232329bc5c1467c8cf94f46089d0401459a9",
+                "recording": "challenges/cases/v4/valkyrie-lockpick-chest-stash-return.session.json",
+                "recordingPath": "challenges/cases/v4/valkyrie-lockpick-chest-stash-return.session.json",
+                "recordingSha256": "5ef54776664d61652644cb1f11b6a5c166f3eb08ea0b53d4f9674e4d72cf72ca",
+                "recipe": "challenges/cases/v4/valkyrie-lockpick-chest-stash-return.recipe.json",
+                "recipeSha256": "234ee8b3d1e0760b4a25160196a6429bc12d9812fa1b7a5b60ebb0ab8b43af91",
+                "replayInputSha256": "3483e03289fd59f6644742e147d1a2579aeb137c057d915aae3d079631bd2596",
+                "evaluationPath": "challenges/evaluations/20260926022427-v4.json",
+                "evaluationCommit": "07377e0c0ad51853b62a4b850c639a10fdb02db1",
+                "evaluationArtifact": "challenges/evaluations/20260926022427-v4.json",
+                "evaluationUtc": "2026-09-26T02:24:37.210Z",
+                "remainingScreens": 1,
+                "recordedSteps": 52,
+                "previousScreensMatched": 51,
+                "regression": false,
+                "passed": false,
+                "error": null,
+                "metrics": {
+                  "screens": {
+                    "matched": 51,
+                    "total": 52
+                  },
+                  "rng": {
+                    "matched": 7838,
+                    "total": 7838
+                  },
+                  "cursors": {
+                    "matched": 51,
+                    "total": 52
+                  }
+                },
+                "firstMismatch": {
+                  "screen": {
+                    "index": 33,
+                    "location": {
+                      "segmentIndex": 0,
+                      "stepIndex": 33,
+                      "key": "."
+                    },
+                    "kind": "ch",
+                    "row": 0,
+                    "column": 11,
+                    "cCell": {
+                      "ch": "c",
+                      "color": 8,
+                      "attr": 0,
+                      "decgfx": 0
+                    },
+                    "jsCell": {
+                      "ch": "l",
+                      "color": 8,
+                      "attr": 0,
+                      "decgfx": 0
+                    }
+                  },
+                  "rng": null,
+                  "cursor": {
+                    "index": 33,
+                    "location": {
+                      "segmentIndex": 0,
+                      "stepIndex": 33,
+                      "key": "."
+                    },
+                    "cCursor": [
+                      48,
+                      0,
+                      1
+                    ],
+                    "jsCursor": [
+                      55,
+                      0,
+                      1
+                    ]
+                  }
+                },
+                "step": 33,
+                "kind": "screen",
+                "sourceFile": null,
+                "function": null,
+                "message": null,
+                "cFile": null,
+                "luaFile": null,
+                "line": null
+              },
+              "summary": "The v4 Valkyrie chest case matches every RNG call and all but the container lock prompt at step 33. C asks “There is a chest here; pick its lock?” while JS asks “There is a locked chest here; pick its lock?”. In lock.c pick_lock, safe_qbuf builds the prompt before otmp->lknown is set; js/lock.js sets lknown first. Preserve that source order and verify the two independent continuation histories.",
+              "source": {
+                "file": "lock.c",
+                "functions": [
+                  "pick_lock"
+                ],
+                "branch": "A Valkyrie applies a lock pick while standing on a locked chest and answers the direction with period. The manual container path in lock.c pick_lock formats its query with safe_qbuf and doname before setting otmp->lknown=1, then calls ynq. The JS path sets lknown=1 before safe_qbuf/donameFresh, so the prompt prematurely describes a locked chest.",
+                "callers": [
+                  "apply.c doapply() dispatches the lock pick to lock.c pick_lock(); js/apply.js reaches js/lock.js pick_lock through the same selected tool.",
+                  "The container loop in lock.c pick_lock at lines 429-550 reaches the ordinary non-autounlock safe_qbuf branch at lines 494-503."
+                ],
+                "dependencies": [
+                  "Preserve otmp->lknown update after safe_qbuf and before ynq in the ordinary manual branch; inspect the separate autounlock and trap-check arms so moving the update does not change their source behavior.",
+                  "Retain C query text and cursor position; the remaining RNG trace is already exact."
+                ]
+              },
+              "goalKind": "divergence-fix",
+              "evidence": [
+                "Saved challenges/evaluations/20260926022427-v4.json at 07377e0c0ad51853b62a4b850c639a10fdb02db1 reports 51/52 screens, 7838/7838 RNG calls, and 51/52 cursors; step 33 is the only mismatch.",
+                "challenges/cases/v4/valkyrie-lockpick-chest-stash-return.session.json segment 0 step 33 records C’s “There is a chest here; pick its lock?” prompt; a direct JS replay at 620e53a57e1c8949005b02f1d76e31a153e7f2d9 prints “There is a locked chest here; pick its lock?”.",
+                "nethack-c/upstream/src/lock.c:494-503 formats safe_qbuf before assigning otmp->lknown=1, then calls ynq; js/lock.js:680-704 assigns otmp.lknown=1 before safe_qbuf/ynq. The seven-column prompt length difference also explains the cursor mismatch.",
+                "The distinct v4 chest-open-menu and chest-stash-return action histories share this first divergence and should be validated separately after the source-order repair."
+              ],
+              "entryPointReview": {
+                "active": [
+                  "Apply a lock pick to a locked chest on the hero square in synthetic/v4/valkyrie-lockpick-chest-stash-return, segment 0 step 33."
+                ],
+                "blocked": [
+                  "The prompt is formatted after lknown has been set in JS; the C order formats first."
+                ]
+              },
+              "plannedWholeFunctionScope": {
+                "primary": {
+                  "file": "lock.c",
+                  "functions": [
+                    "pick_lock"
+                  ]
+                },
+                "callerWiring": [
+                  "apply.c doapply lock-pick arm"
+                ],
+                "returnValuedDependencies": []
+              }
+            }
+          }
+        }
+      ]
     },
     {
       "id": "port-objnam-readobjnam-wish-retry-synthetic-v5-20260926",
