@@ -1,0 +1,10 @@
+{
+  "version": 5,
+  "segments": [{
+    "seed": 60626059,
+    "datetime": "20260926163400",
+    "nethackrc": "OPTIONS=name:TrapProbe,role:Wizard,race:human,gender:female,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen\nOPTIONS=playmode:debug,pettype:none,!acoustics,!autopickup,time,showexp\n",
+    "comment": "Independent apply.c use_trap/set_trap case: wizard-wish a bear trap, apply it on room floor, then spend turns on the trap-setting occupation.",
+    "moves": " h\u0017bear trap\nao........"
+  }]
+}
