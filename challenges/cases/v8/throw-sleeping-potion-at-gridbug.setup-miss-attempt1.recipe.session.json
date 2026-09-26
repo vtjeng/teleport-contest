@@ -1,0 +1,11 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 83015303,
+      "datetime": "20310303123003",
+      "nethackrc": "OPTIONS=name:V8Sleeppotion,role=Wizard,race=human,gender=female,align=neutral,playmode=debug,!legacy,!tutorial,!splash_screen,showexp,time,pettype:none\n",
+      "moves": " \u0007hostile grid bug\n\u0017potion of sleeping\ntoh"
+    }
+  ]
+}

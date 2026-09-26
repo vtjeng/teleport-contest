@@ -1,0 +1,11 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 83015305,
+      "datetime": "20310303123005",
+      "nethackrc": "OPTIONS=name:V8Polywand,role=Wizard,race=human,gender=male,align=neutral,playmode=debug,!legacy,!tutorial,!splash_screen,showexp,time,pettype:none\n",
+      "moves": " \u0007hostile grid bug\n\u0017wand of polymorph\nzoh"
+    }
+  ]
+}
