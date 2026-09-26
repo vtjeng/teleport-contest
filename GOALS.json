@@ -88694,7 +88694,7 @@
     {
       "id": "div-eat-fix-petrification-synthetic-v7-20260926",
       "kind": "divergence-fix",
-      "status": "open",
+      "status": "parked",
       "summary": "Restore lizard-corpse petrification cure and source-ordered delayed-killer cleanup",
       "cFile": "eat.c",
       "sessions": [],
@@ -88877,7 +88877,17 @@
             }
           }
         }
-      ]
+      ],
+      "progressBeforePark": {
+        "screens": 0,
+        "rng": 0
+      },
+      "parkedStanding": {
+        "sha": "e15883c1613d84bf7f47fcd7c2f032e1a001fcd2",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "parkedReason": "Lizard and acidic corpse and potion cure paths are source-ported and independently recorded; the zap.c:zapyourself stone-to-flesh production entry remains without matching runtime evidence because spell.c:study_book diverges before it. Resume after a source-traced spell.c:dowizcast command port supplies an independent matching C recording."
     },
     {
       "id": "port-apply-use-tinning-kit-synthetic-v6-20260926",
