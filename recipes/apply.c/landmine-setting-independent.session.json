@@ -1,0 +1,10 @@
+{
+  "version": 5,
+  "segments": [{
+    "seed": 60626063,
+    "datetime": "20260926164000",
+    "nethackrc": "OPTIONS=name:MineProbe,role:Wizard,race:human,gender:female,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen\nOPTIONS=playmode:debug,pettype:none,!acoustics,!autopickup,time,showexp\n",
+    "comment": "Independent apply.c use_trap/set_trap variation: wizard-wish a land mine, move off the starting stairs, apply it on room floor, and let the setting occupation finish.",
+    "moves": " h\u0017land mine\nan........"
+  }]
+}

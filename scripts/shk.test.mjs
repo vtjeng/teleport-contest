@@ -19,6 +19,7 @@ import {
     objects_globals_init,
     POT_WATER,
     DART,
+    CORPSE,
     CHAIN_MAIL,
     FOOD_RATION,
     POT_HEALING,
@@ -49,10 +50,16 @@ import {
     shop_debt,
     shop_keeper,
     shk_your,
-    UnsupportedShopError,
 } from '../js/shk.js';
 import { hidden_gold } from '../js/vault.js';
-import { PM_TOURIST } from '../js/monsters.js';
+import {
+    monst_globals_init,
+    PM_GOBLIN,
+    PM_MEDUSA,
+    PM_ORACLE,
+    PM_SHOPKEEPER,
+    PM_TOURIST,
+} from '../js/monsters.js';
 
 test('addupbill sums exactly the active bill entries', () => {
     // C ref: shk.c addupbill() (496-507).  billct bounds the pointer walk;
@@ -622,30 +629,37 @@ const SHOP_ROOMNO = ROOMOFFSET;
 function shopState({ has_shop = true } = {}) {
     const location = { roomno: SHOP_ROOMNO, edge: false };
     const shoplevel = { dnum: 0, dlevel: 3 };
-    return {
-        u: { ux: 4, uy: 5, uz: { ...shoplevel } },
-        level: {
-            flags: { has_shop },
-            at: () => location,
-            rooms: [{
-                rtype: SHOPBASE,
-                resident: {
-                    isshk: true,
-                    mx: 4,
-                    my: 5,
-                    mextra: {
-                        eshk: {
-                            shoproom: SHOP_ROOMNO,
-                            shoplevel,
-                            /* the shopkeeper's own post, which is not
-                               "inside" the shop */
-                            shk: { x: 1, y: 1 },
-                        },
-                    },
-                },
-            }],
+    const state = {
+        u: { ux: 4, uy: 5, uz: { ...shoplevel }, uprops: {} },
+        flags: { female: false },
+    };
+    state.mons = monst_globals_init(state);
+    const resident = {
+        isshk: true,
+        data: state.mons[PM_SHOPKEEPER],
+        mnum: PM_SHOPKEEPER,
+        mx: 4,
+        my: 5,
+        female: false,
+        mpeaceful: true,
+        mcanmove: true,
+        mextra: {
+            eshk: {
+                shoproom: SHOP_ROOMNO,
+                shoplevel,
+                shknam: '-Ozzy',
+                /* the shopkeeper's own post, which is not
+                   "inside" the shop */
+                shk: { x: 1, y: 1 },
+            },
         },
     };
+    state.level = {
+        flags: { has_shop },
+        at: () => location,
+        rooms: [{ rtype: SHOPBASE, resident }],
+    };
+    return state;
 }
 
 function shopObject(where, overrides = {}) {
@@ -673,18 +687,30 @@ test('shk_your prefixes what the hero holds and what she does not', () => {
     );
 });
 
-test('shk_your stops on every object shk.c would name an owner for', () => {
+test('shk_your returns the source owner for shop and monster inventories', () => {
     const state = shopState();
-    // shk.c:5890. An unpaid object belongs to the shopkeeper wherever it is,
-    // including in the hero's own pack.
-    assert.throws(() => shk_your(shopObject(OBJ_INVENT, { unpaid: 1 }), state),
-        UnsupportedShopError);
-    // shk.c:5891-5892. A charged shop square owns what lies on it.
-    assert.throws(() => shk_your(shopObject(OBJ_FLOOR), state),
-        UnsupportedShopError);
-    // shk.c:5902. A monster's pack answers through mon_owns() instead.
-    assert.throws(() => shk_your(shopObject(OBJ_MINVENT), state),
-        UnsupportedShopError);
+    // shk.c:5889-5892. Inventory debt and charged floor goods use the
+    // shopkeeper's possessive, with the trailing separator from shk_your().
+    assert.equal(
+        shk_your(shopObject(OBJ_INVENT, { unpaid: 1 }), state), "Ozzy's ",
+    );
+    assert.equal(shk_your(shopObject(OBJ_FLOOR), state), "Ozzy's ");
+
+    // shk.c:5900-5904. Objects in a monster's pack use y_monnam() and then
+    // the same possessive transform.
+    const carrier = {
+        data: state.mons[PM_GOBLIN],
+        mtame: false,
+        mx: 9,
+        my: 5,
+    };
+    // This reduced fixture cannot spot the carrier, so y_monnam() answers
+    // "it" and s_suffix() uses its special possessive.
+    assert.equal(
+        shk_your(shopObject(OBJ_MINVENT, { ocarry: carrier }), state),
+        'its ',
+    );
+
     // shk.c passes locflags 0, so get_obj_location() answers NULL for a
     // contained object even when its container is locatable, and C's whole
     // shopkeeper test sits behind that answer. An unpaid object inside a
@@ -692,4 +718,20 @@ test('shk_your stops on every object shk.c would name an owner for', () => {
     const bagged = shopObject(OBJ_CONTAINED, { unpaid: 1 });
     bagged.ocontainer = shopObject(OBJ_INVENT);
     assert.equal(shk_your(bagged, state), 'the ');
+});
+
+test('shk_your handles personal, unique, and ordinary corpse prefixes', () => {
+    const state = shopState();
+    const corpse = (corpsenm) => newObject({
+        otyp: CORPSE,
+        corpsenm,
+        quan: 1,
+        where: OBJ_INVENT,
+    });
+
+    // shk.c:5865-5870. A personal name keeps its bare name; a unique unnamed
+    // species explicitly gets the definite article before ordinary ownership.
+    assert.equal(shk_your(corpse(PM_MEDUSA), state), '');
+    assert.equal(shk_your(corpse(PM_ORACLE), state), 'the ');
+    assert.equal(shk_your(corpse(PM_GOBLIN), state), 'your ');
 });

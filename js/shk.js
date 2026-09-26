@@ -30,6 +30,7 @@ import {
     G_GONE,
     helpless,
     HUNGRY,
+    ismnum,
     INVIS,
     IS_DOOR,
     isok,
@@ -138,6 +139,7 @@ import {
     mhim,
     pronoun_gender,
     resist_conflict,
+    type_is_pname,
 } from './mondata.js';
 import { Hello } from './role_init.js';
 import { genders } from './roles.js';
@@ -164,7 +166,7 @@ import { Monnam, x_monnam, y_monnam } from './do_name.js';
 import { rn2 } from './rng.js';
 import { obj_stop_timers } from './timeout.js';
 import { ansimpleoname, Doname2, donameFresh, paydoname, safe_qbuf,
-    simpleonames, thesimpleoname, The, the, xnameFresh } from './objnam.js';
+    simpleonames, the_unique_pm, thesimpleoname, The, the, xnameFresh } from './objnam.js';
 import { hidden_gold } from './vault.js';
 import { cansee } from './vision.js';
 import { add_menu_heading, select_menu } from './windows.js';
@@ -2203,42 +2205,49 @@ const the_your = ['the', 'your'];
 
 // C ref: shk.c shk_owns() (5884-5898). C answers the shopkeeper's possessive,
 // or "the" where the shop has no resident, for an unpaid object and for one
-// lying on a charged shop square. The ownership branch remains unported;
-// only its NULL answer is implemented here.
+// lying on a charged shop square.
 function shk_owns(obj, state) {
     const spot = get_obj_location(obj, 0, state);
     if (spot && (obj.unpaid
         || (obj.where === OBJ_FLOOR && !obj.no_charge
             && costly_spot(spot.x, spot.y, state)))) {
-        throw new UnsupportedShopError('shk_owns() naming a shop owner');
+        const shopkeeper = shop_keeper(
+            inside_shop(spot.x, spot.y, state),
+            state,
+        );
+        return shopkeeper
+            ? s_suffix(shkname(shopkeeper, state))
+            : 'the';
     }
     return null;
 }
 
-// C ref: shk.c mon_owns() (5899-5905). The monster-inventory ownership branch
-// remains unported.
-function mon_owns(obj) {
+// C ref: shk.c mon_owns() (5899-5905).
+function mon_owns(obj, state) {
     if (obj.where === OBJ_MINVENT)
-        throw new UnsupportedShopError('mon_owns() naming a carrier');
+        return s_suffix(y_monnam(obj.ocarry, state));
     return null;
 }
 
 // C ref: shk.c shk_your() (5860-5873). Writes the ownership prefix, with its
 // trailing space, that objnam.c yname() and ysimple_name() put in front of an
-// object's name: "your " for what the hero carries and "the " for what she
-// does not.
+// object's name.
 //
-// Its two corpse arms are absent. Both test ismnum(obj->corpsenm), and
-// objnam.c cxname() -- which yname() calls before this -- already stops on a
-// corpse because corpse_xname() is unported.
-//
-// Both owner probes answer NULL for every object this port names, so C's
-// `!shk_owns(...) && !mon_owns(...)` guard is always true here. Each probe is
-// still called, because each stops where C would write an owner's possessive.
+// Personal-name corpses need no prefix, and a unique unnamed corpse gets
+// "the". Other objects try shop ownership, monster ownership, and then the
+// ordinary carried or uncarried prefix in C's short-circuit order.
 export function shk_your(obj, state = game) {
-    shk_owns(obj, state);
-    mon_owns(obj);
-    return `${the_your[carried(obj) ? 1 : 0]} `;
+    const corpseSpecies = obj?.otyp === CORPSE && ismnum(obj.corpsenm)
+        ? state.mons?.[obj.corpsenm] : null;
+    const namedCorpse = Boolean(corpseSpecies);
+    if (namedCorpse && type_is_pname(corpseSpecies)) return '';
+    if (namedCorpse && the_unique_pm(corpseSpecies)) return 'the ';
+
+    const shopOwner = shk_owns(obj, state);
+    if (shopOwner) return shopOwner + ' ';
+    const monsterOwner = mon_owns(obj, state);
+    if (monsterOwner) return monsterOwner + ' ';
+    return the_your[carried(obj) ? 1 : 0] + ' ';
 }
 
 function heroIsInvisible(state) {
