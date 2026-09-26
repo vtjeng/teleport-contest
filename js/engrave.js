@@ -1,15 +1,17 @@
 // Engraving commands, creation, and erosion.
-// C ref: engrave.c doengrave(), engrave(), make_engr_at(), wipe_engr_at(),
-// wipeout_text(), and freehand().
+// C ref: engrave.c doengrave(), u_can_engrave(), engrave(), make_engr_at(),
+// wipe_engr_at(), wipeout_text(), and freehand().
 
 import {
+    ACCESSIBLE,
     A_WIS,
     BLINDED,
     BURN,
     BUFSZ,
+    CLOUD,
     CONFUSION,
-    CORR,
     DUST,
+    ECMD_FAIL,
     ENGRAVE,
     ENGR_BLOOD,
     FLYING,
@@ -25,15 +27,16 @@ import {
     N_ENGRAVE,
     P_BASIC,
     P_RIDING,
-    ROOM,
     STUNNED,
+    IS_AIR,
+    IS_FOUNTAIN,
 } from './const.js';
 import { exercise_nonphysical } from './attrib.js';
-import { on_level, surface } from './dungeon.js';
+import { on_level, surface, surface_typ } from './dungeon.js';
 import { game } from './gstate.js';
 import { decodeUtf8ByteString, encodeUtf8ByteString } from './hacklib.js';
 import { nomul } from './hack.js';
-import { sticks } from './mondata.js';
+import { is_animal, is_whirly, sticks } from './mondata.js';
 import {
     AT_HUGS,
     M1_CLING,
@@ -52,7 +55,13 @@ import {
     WAND_CLASS,
     WEAPON_CLASS,
 } from './objects.js';
-import { t_at, uescaped_shaft, uteetering_at_seen_pit } from './trap.js';
+import {
+    is_lava,
+    is_pool,
+    t_at,
+    uescaped_shaft,
+    uteetering_at_seen_pit,
+} from './trap.js';
 import { welded } from './wield.js';
 import { bimanual } from './worn.js';
 import { livelog_printf } from './pline.js';
@@ -198,20 +207,57 @@ export function stylus_ok(obj) {
     return GETOBJ_DOWNPLAY;
 }
 
-// C ref: engrave.c u_can_engrave(), narrowed to the goal's ordinary floor.
-// The caller supplies C's cantwield() and check_capacity() owners to avoid an
-// engrave.js -> hack.js import cycle.
-export async function u_can_engrave(state, { cantWield, checkCapacity }) {
-    const typ = state.level?.at?.(state.u.ux, state.u.uy)?.typ;
-    if (state.u.uswallow || ![ROOM, CORR].includes(typ)
-        || !can_reach_floor(true, state)) {
-        throw new UnsupportedEngraveError('an accessible ordinary floor');
+// C ref: engrave.c u_can_engrave() (503-541). The caller supplies C's
+// cantwield() and check_capacity() owners to avoid an engrave.js -> hack.js
+// import cycle. Its terrain test is ACCESSIBLE(SURFACE_AT()), while floor
+// reachability belongs later in doengrave(), after a writing implement is
+// selected.
+export async function u_can_engrave(
+    state, { cantWield, checkCapacity, message },
+) {
+    const { u } = state;
+    const levtyp = surface_typ(state.level.at(u.ux, u.uy));
+
+    if (u.uswallow) {
+        if (is_animal(u.ustuck.data)) {
+            await message('What would you write?  "Jonah was here"?', state);
+            return false;
+        } else if (is_whirly(u.ustuck.data)) {
+            await cant_reach_floor(
+                u.ux, u.uy, false, false, false, state,
+                { pline: message },
+            );
+            return false;
+        }
+        // C allows an attempt inside an amorphous engulfer; doengrave()
+        // handles its later jello response after the stylus prompt.
+    } else if (is_lava(u.ux, u.uy, state)) {
+        await message(
+            `You can't write on the ${surface(u.ux, u.uy, state)}!`, state,
+        );
+        return false;
+    } else if (is_pool(u.ux, u.uy, state) || IS_FOUNTAIN(levtyp)) {
+        await message(
+            `You can't write on the ${surface(u.ux, u.uy, state)}!`, state,
+        );
+        return false;
+    } else if (IS_AIR(levtyp)) {
+        await message(
+            `You can't write in ${levtyp === CLOUD ? 'cloud vapor' : 'thin air'}!`,
+            state,
+        );
+        return false;
+    } else if (!ACCESSIBLE(levtyp)) {
+        await message("You can't write here.", state);
+        return false;
     }
-    if (cantWield(state.youmonst?.data ?? state.mons[state.u.umonnum])) {
-        throw new UnsupportedEngraveError('a form that can hold a stylus');
+
+    if (cantWield(state.youmonst.data)) {
+        await message("You can't even hold anything!", state);
+        return false;
     }
     if (await checkCapacity(null, state))
-        throw new UnsupportedEngraveError('an unencumbered hero');
+        return false;
     return true;
 }
 
@@ -257,7 +303,7 @@ export async function engrave(state, { redraw, handsObject }) {
 // C ref: engrave.c doengrave(), narrowed to a sighted, clear-minded hero,
 // bare fingertips, no prior engraving, ordinary dust, and one action.
 export async function doengrave(state, env) {
-    await u_can_engrave(state, env);
+    if (!await u_can_engrave(state, env)) return ECMD_FAIL;
     const impaired = propertyActiveUnblocked(state.u, BLINDED)
         || propertyIntrinsic(state, CONFUSION)
         || propertyIntrinsic(state, STUNNED)
