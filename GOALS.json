@@ -86981,7 +86981,7 @@
     {
       "id": "port-do-wear-armoroff-synthetic-v6-20260926",
       "kind": "file-port",
-      "status": "queued",
+      "status": "open",
       "summary": "Port complete do_wear.c armoroff delayed armor removal and production callbacks",
       "cFile": "do_wear.c",
       "sessions": [
@@ -86989,8 +86989,12 @@
       ],
       "selectionReason": "The current v6 healer takeoff-gloves case has 2 unmatched screens and a complete investigation at investigations/synthetic/v6/v6-add2-healer-takeoff-gloves.json. The only higher-ranked v7 crystal query is reserved by A14. C18 glibr is accepted, releasing do_wear.js; this is the first eligible unreserved source owner in the per-session queue.",
       "detail": "At segment 0 step 2, cmd.c dotakeoff reaches do_wear.c armoroff delayed glove category. Port whole armoroff including all armor categories, occupation delay, nomovemsg, and callback state; wire existing dotakeoff/doremring routes and validate an independent C recording for adjacent active categories. See the source-traced investigation.",
-      "openedAt": null,
-      "openStanding": null,
+      "openedAt": "1df1ccb7c667bcdce6eb474852377ae713ab69b7",
+      "openStanding": {
+        "sha": "580b107974301f1a5c70b1698fd8ccf169c69c57",
+        "screens": 11405,
+        "rng": 792838
+      },
       "closedAt": null,
       "delivered": null,
       "functions": [
@@ -87019,7 +87023,162 @@
           "evaluationPath": "challenges/evaluations/20260926193350-v6.json",
           "evaluationCommit": "7569737cbf0690c981232e6a48d59efadb0aa198"
         }
-      }
+      },
+      "activeStanding": {
+        "sha": "580b107974301f1a5c70b1698fd8ccf169c69c57",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v6",
+          "caseId": "v6-add2-healer-takeoff-gloves",
+          "session": "synthetic/v6/v6-add2-healer-takeoff-gloves",
+          "manifestPath": "challenges/manifests/v6.json",
+          "manifestSha256": "7523b91e823f4e3906c9acdc9a3d80f8469c27c2caab8fc8fbd6967dbfdcab5f",
+          "recording": "challenges/cases/v6/v6-add2-healer-takeoff-gloves.session.json",
+          "recordingPath": "challenges/cases/v6/v6-add2-healer-takeoff-gloves.session.json",
+          "recordingSha256": "4ae39f1c9f9635d40c237d69a00d8495c1511b0cfd0bc058720f417b03abc09b",
+          "recipe": "challenges/cases/v6/v6-add2-healer-takeoff-gloves.recipe.session.json",
+          "recipeSha256": "6c12ac36ccf35789b19a085d2890fed00fec31f9e9a31d53dc93bedf9184e88a",
+          "replayInputSha256": "f6e628436e8f800b46c53b3a835cafeaea0a5fddf5897d5f91568144e2ffe5c5",
+          "evaluationPath": "challenges/evaluations/20260926201323-v6.json",
+          "evaluationCommit": "580b107974301f1a5c70b1698fd8ccf169c69c57",
+          "evaluationArtifact": "challenges/evaluations/20260926201323-v6.json",
+          "evaluationUtc": "2026-09-26T20:13:40.528Z",
+          "remainingScreens": 2,
+          "recordedSteps": 4,
+          "previousScreensMatched": 2,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 2,
+              "total": 4
+            },
+            "rng": {
+              "matched": 2589,
+              "total": 2614
+            },
+            "cursors": {
+              "matched": 2,
+              "total": 4
+            }
+          },
+          "firstMismatch": {
+            "kind": "stop",
+            "message": "unsupported hero command: an unported branch of this command: take off reached an unported branch: armoroff() delayed branch for armor category 3",
+            "step": 2
+          },
+          "step": 2,
+          "kind": "stop",
+          "sourceFile": "do_wear.c",
+          "function": "armoroff",
+          "message": "unsupported hero command: an unported branch of this command: take off reached an unported branch: armoroff() delayed branch for armor category 3",
+          "cFile": "do_wear.c",
+          "luaFile": null,
+          "line": null,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v6/v6-add2-healer-takeoff-gloves.json",
+            "result": {
+              "session": "synthetic/v6/v6-add2-healer-takeoff-gloves",
+              "corpus": "synthetic",
+              "batch": "v6",
+              "caseId": "v6-add2-healer-takeoff-gloves",
+              "manifestPath": "challenges/manifests/v6.json",
+              "manifestSha256": "7523b91e823f4e3906c9acdc9a3d80f8469c27c2caab8fc8fbd6967dbfdcab5f",
+              "recordingSha256": "4ae39f1c9f9635d40c237d69a00d8495c1511b0cfd0bc058720f417b03abc09b",
+              "evaluationPath": "challenges/evaluations/20260926132731-v6.json",
+              "evaluationCommit": "d0a8041f88dd37cbf631877464c06cf985998274",
+              "remainingScreens": 2,
+              "recordedSteps": 4,
+              "status": "complete",
+              "commit": "d0a8041f88dd37cbf631877464c06cf985998274",
+              "mismatch": {
+                "corpus": "synthetic",
+                "batch": "v6",
+                "caseId": "v6-add2-healer-takeoff-gloves",
+                "session": "synthetic/v6/v6-add2-healer-takeoff-gloves",
+                "manifestPath": "challenges/manifests/v6.json",
+                "manifestSha256": "7523b91e823f4e3906c9acdc9a3d80f8469c27c2caab8fc8fbd6967dbfdcab5f",
+                "recording": "challenges/cases/v6/v6-add2-healer-takeoff-gloves.session.json",
+                "recordingPath": "challenges/cases/v6/v6-add2-healer-takeoff-gloves.session.json",
+                "recordingSha256": "4ae39f1c9f9635d40c237d69a00d8495c1511b0cfd0bc058720f417b03abc09b",
+                "recipe": "challenges/cases/v6/v6-add2-healer-takeoff-gloves.recipe.session.json",
+                "recipeSha256": "6c12ac36ccf35789b19a085d2890fed00fec31f9e9a31d53dc93bedf9184e88a",
+                "replayInputSha256": "a3ac3b6872f8e89451d29bdbf73b5215af57c013d215edeaba8f740cc0c5fc4a",
+                "evaluationPath": "challenges/evaluations/20260926132731-v6.json",
+                "evaluationCommit": "d0a8041f88dd37cbf631877464c06cf985998274",
+                "evaluationArtifact": "challenges/evaluations/20260926132731-v6.json",
+                "evaluationUtc": "2026-09-26T13:27:48.505Z",
+                "remainingScreens": 2,
+                "recordedSteps": 4,
+                "previousScreensMatched": 2,
+                "regression": false,
+                "passed": false,
+                "error": null,
+                "metrics": {
+                  "screens": {
+                    "matched": 2,
+                    "total": 4
+                  },
+                  "rng": {
+                    "matched": 2589,
+                    "total": 2614
+                  },
+                  "cursors": {
+                    "matched": 2,
+                    "total": 4
+                  }
+                },
+                "firstMismatch": {
+                  "kind": "stop",
+                  "message": "unsupported hero command: an unported branch of this command: take off reached an unported branch: armoroff() delayed branch for armor category 3",
+                  "step": 2
+                },
+                "step": 2,
+                "kind": "stop",
+                "sourceFile": "do_wear.c",
+                "function": "armoroff",
+                "message": "unsupported hero command: an unported branch of this command: take off reached an unported branch: armoroff() delayed branch for armor category 3",
+                "cFile": "do_wear.c",
+                "luaFile": null,
+                "line": null
+              },
+              "summary": "The stop is in `do_wear.c:armoroff()`'s delayed `ARM_GLOVES` branch. The Healer starts with one worn pair of leather gloves; `T` therefore reaches `armoroff()` directly, where C schedules one disrobing turn and `Gloves_off()` as the completion callback. JS `armoroff()` currently throws for every delayed category except `ARM_SUIT`, before scheduling that state transition.",
+              "source": {
+                "file": "do_wear.c",
+                "branch": "For an uncursed, selectable glove object with nonzero `oc_delay`, `armoroff()` enters its delayed branch; `oc_armcat == ARM_GLOVES` selects the glove-name and `Gloves_off` callback arm. In this recording the Healer has its single starting leather-glove armor item, so `dotakeoff()` bypasses the item prompt and reaches that branch on `T`.",
+                "functions": [
+                  "armoroff"
+                ],
+                "callers": [
+                  "C `cmd.c` binds `T` to `dotakeoff()`; `dotakeoff()` calls `armor_or_accessory_off()`, which calls `select_off()` and then `armoroff()` for armor.",
+                  "JS `cmd.js:runTakeOffCommand()` calls `do_wear.js:dotakeoff()`, which calls `armor_or_accessory_off()` and then `armoroff()` for armor."
+                ],
+                "dependencies": [
+                  "`u_init.c:Healer[]` supplies leather gloves; `objclass.h` defines `ARM_GLOVES` as 3 and `objects.h` gives glove objects delay 1.",
+                  "`select_off()` establishes the `WORN_GLOVES` takeoff selection; `armor_or_accessory_off()` resets that temporary selection and discards `armoroff()`'s return value, so completion is communicated through the delayed game state.",
+                  "C `armoroff()` calls `nomul(-1)`, sets `gm.multi_reason` to `disrobing`, assigns `ga.afternmv = Gloves_off`, and sets `gn.nomovemsg`. `allmain.c:380-387` calls `unmul()` when the delay expires; `hack.c:4177-4206` prints the completion message and invokes the callback.",
+                  "The corresponding JS `Gloves_off()` implementation is already present in `do_wear.js`; the first missing path is `armoroff()`'s category-3 delayed setup, before that callback is scheduled."
+                ]
+              },
+              "goalKind": "divergence-fix",
+              "evidence": [
+                "The saved evaluation `challenges/evaluations/20260926132731-v6.json` reports 2/4 screens matched, 2589/2614 RNG calls matched, and 2/4 cursors matched. The queue's first stop is segment 0 step 2 on `T`: JS raises `unsupported hero command: an unported branch of this command: take off reached an unported branch: armoroff() delayed branch for armor category 3`.",
+                "The recording `challenges/cases/v6/v6-add2-healer-takeoff-gloves.session.json` has inputs ` Tb`; its step 2 is `T`. C records `You finish taking off your gloves.` at that step and its AC changes from 8 to 10; step 3's `b` is the next move after takeoff.",
+                "C `nethack-c/upstream/src/u_init.c:76-81` gives the Healer leather gloves; `include/objects.h:686-688` defines their object delay as 1, and `include/objclass.h:37-44` assigns `ARM_GLOVES` value 3.",
+                "C `nethack-c/upstream/src/do_wear.c:1741-1756,1831-1854` counts the worn armor and bypasses `getobj()` when the sole armor piece is selected; `1771-1808` routes the selected worn armor through `select_off()` into `armoroff()`.",
+                "C `nethack-c/upstream/src/do_wear.c:1920-1972,2006-2007` contains the owner branch and its state contract: the glove arm stores `gloves_simple_name()`, installs `Gloves_off`, keeps the delayed disrobing state, sets the completion message, clears the transient takeoff mask, and returns. `allmain.c:380-387` and `hack.c:4177-4206` show how one immobile turn later runs the callback.",
+                "JS `js/do_wear.js:2972-2995` throws for delayed categories other than `ARM_SUIT` before `nomul()` and the callback/message assignments. `js/do_wear.js:2162-2205` already implements the `Gloves_off()` callback for the normal Healer glove path; the diagnosis is confined to the delayed `armoroff()` arm."
+              ]
+            }
+          }
+        }
+      ]
     },
     {
       "id": "port-dig-occupation-synthetic-v6-20260926",
