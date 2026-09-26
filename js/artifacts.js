@@ -213,11 +213,11 @@ import {
     is_demon, is_dlord, is_dprince, monster_resists_element,
     noncorporeal, nonliving, resists_drli, sticks,
 } from './mondata.js';
-import { In_hell, Invocation_lev, depth, dunlevs_in_dungeon, ledger_no, surface } from './dungeon.js';
+import { In_hell, depth, dunlevs_in_dungeon, ledger_no, surface } from './dungeon.js';
 import { cansee, couldsee } from './vision.js';
 import { next_to_u } from './apply_next_to_u.js';
 import { glyph_at, glyph_is_trap, newsym } from './display.js';
-import { losehp, nomul, spoteffects } from './hack.js';
+import { invocation_pos, losehp, nomul, spoteffects } from './hack.js';
 import { float_down, float_up, t_at } from './trap.js';
 import { level_tele } from './teleport.js';
 import { align_str, enlightenment } from './insight.js';
@@ -2958,7 +2958,8 @@ export async function retouch_object(objp, loseit, state = game) {
 
     /* allow hero in silver-hating form to try to perform invocation ritual */
     if (obj.otyp === BELL_OF_OPENING
-        && invocation_pos(state) && !On_stairs(state.u.ux, state.u.uy, state)) {
+        && invocation_pos(state.u.ux, state.u.uy, state)
+        && !On_stairs(state.u.ux, state.u.uy, state)) {
         return 1;
     }
 
@@ -3040,14 +3041,6 @@ export async function retouch_object(objp, loseit, state = game) {
         objp.obj = obj = null; /* no longer in inventory */
     }
     return 0;
-}
-
-// C ref: artifact.c invocation_pos() check used by retouch_object().
-// hack.c invocation_pos() (982-985): Invocation_lev && x == inv_pos.x && y == inv_pos.y.
-function invocation_pos(state) {
-    return Invocation_lev(state.u.uz, state)
-        && state.u.ux === state.inv_pos?.x
-        && state.u.uy === state.inv_pos?.y;
 }
 
 // obj.h:337 Is_container(o): object type is between LARGE_BOX and BAG_OF_TRICKS.

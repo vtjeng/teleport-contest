@@ -851,6 +851,17 @@ export function iter_mons(vfunc, state = game) {
     }
 }
 
+// Async counterpart for C mon.c iter_mons() callers whose JS callbacks await
+// message or state owners. It keeps C's cached-next order while completing one
+// callback before advancing to the next monster.
+export async function iter_mons_async(vfunc, state = game) {
+    for (let mtmp = state.level?.monlist ?? null; mtmp;) {
+        const next = mtmp.nmon;
+        if (mtmp.mhp >= 1 && !mon_offmap(mtmp)) await vfunc(mtmp);
+        mtmp = next;
+    }
+}
+
 // C ref: mon.c get_iter_mons_xy(). The coordinate pair belongs to the
 // predicate, not to the monster being visited.
 export function get_iter_mons_xy(bfunc, x, y, state = game) {

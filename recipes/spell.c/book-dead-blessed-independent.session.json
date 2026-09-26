@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 920101,
+      "datetime": "20310811122500",
+      "nethackrc": "OPTIONS=name:DeadbookProbe,role:Knight,race:human,gender:male,align:lawful\nOPTIONS=!legacy,!tutorial,!splash_screen\nOPTIONS=playmode:debug\n",
+      "moves": " \u0017blessed Book of the Dead\nri "
+    }
+  ],
+  "comment": "Independent blessed Book of the Dead entry through cmd.c -> read.c:doread() -> spell.c:study_book()/learn()."
+}
