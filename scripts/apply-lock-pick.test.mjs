@@ -34,6 +34,7 @@ import {
 } from '../js/display.js';
 import { game } from '../js/gstate.js';
 import { runSegment } from '../js/jsmain.js';
+import { init_dummyobj, newObject } from '../js/obj.js';
 import {
     PICKLOCK_DID_NOTHING,
     PICKLOCK_DID_SOMETHING,
@@ -46,6 +47,7 @@ import { newMonster } from '../js/monst.js';
 import { M1_NOHANDS, S_FELINE } from '../js/monsters.js';
 import {
     ARROW,
+    CHEST,
     CREDIT_CARD,
     CROSSBOW_BOLT,
     LOCK_PICK,
@@ -277,6 +279,52 @@ test('the hero\'s own square reports no lock when it has no box', async () => {
         "There doesn't seem to be any sort of lock here.",
     );
 });
+
+test('manual chest query formats before lock knowledge changes', async () => {
+    // lock.c:494-503. C calls safe_qbuf(doname) while lknown is still clear,
+    // then sets lknown before asking ynq. The first query for an unknown
+    // locked chest therefore says "chest", not "locked chest".
+    await standBeside(5200108, `l${APPLY_KEY}${LOCK_PICK_SLOT}k`, 'l');
+    const { ux, uy } = game.u;
+    const chest = init_dummyobj(newObject(), CHEST, 1, game);
+    chest.olocked = 1;
+    chest.where = OBJ_FLOOR;
+    chest.ox = ux;
+    chest.oy = uy;
+    game.level.objects[ux][uy] = chest;
+
+    answer(LOCK_PICK_SLOT, '.', 'q');
+    assert.equal(await doapply(game), ECMD_OK);
+    assert.equal(
+        game._ttyPreviousMessage,
+        'There is a chest here; pick its lock? [ynq] (q) ',
+    );
+    assert.equal(chest.lknown, 1, 'C records lknown after formatting');
+});
+
+test('autounlock apply-key query leaves chest lock knowledge unchanged',
+    async () => {
+        // lock.c:493-495 sets lknown only in the ordinary query arm. The
+        // AUTOUNLOCK_APPLY_KEY prompt is a separate branch and returns before
+        // any lock knowledge is recorded.
+        await standBeside(5200108, `l${APPLY_KEY}${LOCK_PICK_SLOT}k`, 'l');
+        const { ux, uy } = game.u;
+        const chest = init_dummyobj(newObject(), CHEST, 1, game);
+        chest.olocked = 1;
+        chest.where = OBJ_FLOOR;
+        chest.ox = ux;
+        chest.oy = uy;
+        game.level.objects[ux][uy] = chest;
+        game.flags ??= {};
+        game.flags.autounlock = AUTOUNLOCK_APPLY_KEY;
+
+        answer('q');
+        assert.equal(
+            await pick_lock(lockPick(), ux, uy, chest, game),
+            PICKLOCK_DID_NOTHING,
+        );
+        assert.equal(chest.lknown, false);
+    });
 
 test('a square with no door is felt rather than picked', async () => {
     // lock.c:578-593. Every case here is recorded in the matrix; the
