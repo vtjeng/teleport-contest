@@ -34,6 +34,7 @@ import {
     OBJ_FREE,
 } from '../js/const.js';
 import { set_move_cmd } from '../js/cmd.js';
+import { is_digging } from '../js/dig.js';
 import { UnsupportedLevelChangeError, dodown, goto_level } from '../js/do.js';
 import { find_mapseen, ledger_no, level_info } from '../js/dungeon.js';
 import { u_rooted } from '../js/hack.js';
@@ -755,7 +756,7 @@ test('autodig with a wielded pick starts the source downward-dig action', async 
     assert.equal(await dodown(state), ECMD_TIME);
     assert.equal(state.context.digging.down, true);
     assert.deepEqual(state.context.digging.pos, { x: state.u.ux, y: state.u.uy });
-    assert.ok(game.unported.has('dig.c dig'));
+    assert.equal(is_digging(state), true);
 
     // Each of the other three terms alone puts the refusal back.
     for (const undo of [
