@@ -3377,8 +3377,8 @@ async function runDipCommand(key, state) {
 
 // C ref: read.c doread(). Like dodrink() it returns its own ECMD_* result:
 // ECMD_OK for the capacity refusal and ECMD_CANCEL for an escaped object
-// prompt. A known uncursed magic-mapping scroll completes; other selected
-// objects stop inside doread() until their effects are ported.
+// prompt. doread() handles the selected object and passes scroll effects to
+// seffects(); unported void effect helpers are recorded at their call sites.
 async function runReadCommand(key, state) {
     return failClosedCommand(key, state, () => doread(state));
 }
