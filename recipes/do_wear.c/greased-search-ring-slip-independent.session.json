@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "Independent C18 Wizard mission: wish and wear a searching ring, then grease bare fingers so the elapsed-turn glibr() drops the ring before the quarterstaff.",
+  "segments": [
+    {
+      "seed": 260926283,
+      "datetime": "20260926184500",
+      "nethackrc": "OPTIONS=name:Velawizard-gr,role:Wizard,race:human,gender:female,align:neutral,playmode:debug,!legacy,!tutorial,!splash_screen,pettype:none,!autopickup\n",
+      "moves": " \u0017ring of searching\nPnr\u0017can of grease\nao- "
+    }
+  ]
+}

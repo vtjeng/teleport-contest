@@ -60,7 +60,7 @@ import { init_objects } from './o_init.js';
 import { maybe_shuffle_customizations } from './glyphs.js';
 import { UnsupportedObjectNameError } from './objnam.js';
 import { UnsupportedPotionError } from './potion.js';
-import { UnsupportedObjectOperationError } from './obj.js';
+import { remove_object, UnsupportedObjectOperationError } from './obj.js';
 import { UnsupportedMonsterPickupOperationError } from './steal.js';
 import { objectGenerationHooks } from './object_generation.js';
 import { reset_mvitals } from './monsters.js';
@@ -81,7 +81,8 @@ import {
 import { reroll_menu } from './startup_reroll.js';
 import { ttyLegacyIntroduction } from './legacy_startup.js';
 import { cmdq_clear, failClosedCommandRefusals, rhack } from './cmd.js';
-import { deferred_goto } from './do.js';
+import { canletgo, deferred_goto, dropx } from './do.js';
+import { glibr } from './do_wear.js';
 import {
     domove,
     endRunning,
@@ -97,6 +98,7 @@ import {
     unmul,
 } from './hack.js';
 import { encumber_msg } from './pickup.js';
+import { Glib } from './wield.js';
 import {
     docrt,
     cls,
@@ -823,7 +825,8 @@ export async function finishElapsedTurn(
     // planSimpleMonsterTurn() treats a truthy advanceRound result as "this
     // single unburdened allocation is fully preflighted" and must not plan a
     // second allocation that the live hero will not need.
-    if (randomMonsterOnly && !nh_timeout_requires_live_state(state)) return true;
+    if (randomMonsterOnly && !Glib(state)
+        && !nh_timeout_requires_live_state(state)) return true;
     u_calc_moveamt(wtcap, state, random.rn2);
     settrack(state);
 
@@ -845,6 +848,29 @@ export async function finishElapsedTurn(
     if (state.flags?.time && !state.context?.run) {
         state.disp ??= {};
         state.disp.time_botl = true;
+    }
+
+    // C ref: allmain.c moveloop_core() calls glibr() after the once-per-turn
+    // hook and before nh_timeout(). The planning copy mutates only its cloned
+    // game state and suppresses display hooks until the live replay.
+    if (Glib(state)) {
+        const silentDisplay = async () => {};
+        const turnMessage = planning ? silentDisplay : ttyPline;
+        await glibr(state, {
+            message: turnMessage,
+            canletgo,
+            dropx: (object) => dropx(object, {
+                state,
+                hooks: {
+                    encumberMessage: (targetState) => encumber_msg(
+                        targetState,
+                        { message: turnMessage },
+                    ),
+                    extractExternalObject: remove_object,
+                    newsym: planning ? () => {} : newsym,
+                },
+            }),
+        });
     }
 
     // The timer queue's refusal is decided twice before this call: here on the
