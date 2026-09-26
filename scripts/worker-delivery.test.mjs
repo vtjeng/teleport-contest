@@ -167,6 +167,45 @@ test('partial source delivery requires an explicit blocker and committed recipe'
     assert.deepEqual(packet.incompleteFunctions, evidence.incompleteFunctions);
 });
 
+test('a partial single-function delivery needs an evidenced entry and fresh replay', (t) => {
+    const f = fixture(t);
+    f.assign();
+    f.artifacts();
+    f.commit();
+    const worker = f.workers.A;
+    const blockedRecipe = 'recipes/sample.c/sample-blocked.session.json';
+    mkdirSync(join(worker, 'recipes/sample.c'), { recursive: true });
+    writeFileSync(join(worker, blockedRecipe), '{"segments":[]}\n');
+    f.git(worker, 'add', blockedRecipe);
+    f.git(worker, 'commit', '-qm', 'preserve blocked source setup');
+
+    const evidencePath = join(worker, '.cache/evidence.json');
+    const evidence = JSON.parse(readFileSync(evidencePath, 'utf8'));
+    evidence.functions = [];
+    evidence.incompleteFunctions = [{ name: 'sample',
+        reason: 'Other source branches are still incomplete.', blockedRecipe }];
+    evidence.entryPoints = [{ name: 'sample caller', functions: ['sample'],
+        recordings: [], synthetic: [] }];
+    writeFileSync(evidencePath, JSON.stringify(evidence));
+    assert.match(f.run(f.submitArgs, worker).stderr, /replay-verified partial entry point/u);
+
+    evidence.entryPoints[0].synthetic = [{ batch: 'v1', caseId: 'sample-caller',
+        segment: 0, fromStep: 0, throughStep: 1, source: 'sample.c caller' }];
+    writeFileSync(evidencePath, JSON.stringify(evidence));
+    assert.match(f.run(f.submitArgs, worker).stderr, /replay-verified partial entry point/u);
+
+    const checksPath = join(worker, '.cache/checks.json');
+    const checks = JSON.parse(readFileSync(checksPath, 'utf8'));
+    checks.push({ kind: 'fresh', command: ['fixture-check', 'fresh'],
+        exitCode: 0, log: join(worker, '.cache/check.log') });
+    writeFileSync(checksPath, JSON.stringify(checks));
+    const submitted = f.success(f.submitArgs, worker);
+    const head = f.git(worker, 'rev-parse', 'HEAD');
+    const packet = JSON.parse(readFileSync(submitted.deliveries[head].evidence, 'utf8'));
+    assert.deepEqual(packet.functions, []);
+    assert.equal(packet.incompleteFunctions[0].name, 'sample');
+});
+
 test('challenge preparation submits C cases while keeping its manifest in delivery evidence', t => {
     const f = fixture(t);
     const worker = f.workers.B;

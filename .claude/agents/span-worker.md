@@ -120,8 +120,9 @@ runtime evidence, keep the full planned function list in the task context.
 Omit each unverified function from `evidence.functions` and put it in
 `evidence.incompleteFunctions` with `name`, a source-based `reason`, and the
 path to a committed `blockedRecipe` under `recipes/<source-file>/`. The
-delivery needs at least one verified function. The orchestrator records only
-verified functions and parks the goal with the remaining entry points named.
+delivery needs either a verified function or a replay-verified entry point
+for one of the incomplete functions. The orchestrator records only verified
+functions and parks the goal with the remaining entry points named.
 
 The orchestrator replies `QUEUED_FOR_MERGE`, then `ACCEPTED` after combined
 validation or `CHANGES_REQUIRED` with findings. Submission frees you to start

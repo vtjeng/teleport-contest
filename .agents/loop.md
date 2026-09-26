@@ -160,8 +160,10 @@ separately from other goals.
 2. Check the delivery's task, reserved scope, selection reason, and existing
    completion evidence. For implementation work, open its goal under
    `.agents/selection.md` or `.agents/divergence.md`, then commit those
-   records. Reconcile work already completed; do not close unrelated source
-   units. For challenge preparation, verify the source-based mission plan,
+   records. A queued synthetic goal retains its source selection when the
+   submitted fix has already resolved that case; opening it still requires
+   complete current synthetic evidence. Reconcile work already completed; do
+   not close unrelated source units. For challenge preparation, verify the source-based mission plan,
    hashes, and independent C replays without opening a goal.
 3. Integrate the submitted commits. For implementation work, check whole-source
    coverage, production callers, and entry-point replay evidence under

@@ -390,6 +390,24 @@ test('synthetic source goals retain provenance through real CLI selection and ta
     assert.ok(calls.every(call => JSON.stringify(call.scan) === JSON.stringify(scan)));
 });
 
+test('a queued synthetic goal can open after its selected case is resolved', t => {
+    const f = fixture(t);
+    const { session, queue } = syntheticQueue(f);
+    f.cli('queue-goal', '--id', 'resolved-fix', '--kind', 'divergence-fix',
+        '--c-file', 'widget.c', '--function', 'helper', '--session', session,
+        '--summary', 'Fix the selected synthetic mismatch');
+    queue.sessions = [];
+    queue.candidates = [];
+    queue.blockers = [{ batch: 'v1', reason: 'evaluation missing' }];
+    f.json('.cache/queue.json', queue);
+    f.refuses(/synthetic evidence.*blocked/u, 'open-goal', '--id', 'resolved-fix');
+    queue.blockers = [];
+    f.json('.cache/queue.json', queue);
+    f.cli('open-goal', '--id', 'resolved-fix');
+    assert.equal(f.goals()[0].status, 'open');
+    assert.equal(f.goals()[0].syntheticProvenance[session].session, session);
+});
+
 test('fixed scan overrides cannot bypass synthetic evidence or ranked source selection', t => {
     const f = fixture(t);
     const { session, queue } = syntheticQueue(f);

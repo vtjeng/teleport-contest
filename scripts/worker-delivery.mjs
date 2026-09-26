@@ -170,7 +170,14 @@ function scopeEvidence(root, commit, task, packet) {
     }
     check(isDeepStrictEqual(context.functions.filter(name => !verified.has(name)).sort(),
         [...blocked].sort()), 'every unverified planned source function needs a blocker record');
-    check(evidence.functions.length > 0, 'delivery needs at least one verified source function');
+    const evidencedEntry = packet.entryPoints.some(entry =>
+        entry.functions?.some(name => blocked.has(name))
+        && ((entry.recordings?.length ?? 0) > 0
+            || (entry.synthetic?.length ?? 0) > 0));
+    const freshReplay = packet.checks.some(item =>
+        item.kind === 'fresh' && item.exitCode === 0);
+    check(evidence.functions.length > 0 || (evidencedEntry && freshReplay),
+        'delivery needs a verified source function or a replay-verified partial entry point');
     return evidence;
 }
 
