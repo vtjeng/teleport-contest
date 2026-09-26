@@ -157,6 +157,7 @@ import {
     HEAVY_IRON_BALL,
     LEATHER_GLOVES,
     LUCKSTONE,
+    LOADSTONE,
     AMULET_OF_ESP,
     AMULET_OF_YENDOR,
     BELL_OF_OPENING,
@@ -1818,6 +1819,21 @@ test('freeinv recalculates moreluck when removing a luckstone', () => {
     // After removing the only luckstone, moreluck returns to 0.
     assert.equal(state.u.moreluck, 0);
     assert.equal(luckstone.where, OBJ_FREE);
+});
+
+test('freeinv curses a released loadstone through mkobj.c curse()', () => {
+    const state = initializedState();
+    const loadstone = instance(LOADSTONE, state, {
+        blessed: true,
+        cursed: false,
+    });
+    addinv(loadstone, { state });
+
+    freeinv(loadstone, { state });
+
+    assert.equal(loadstone.where, OBJ_FREE);
+    assert.equal(loadstone.blessed, false);
+    assert.equal(loadstone.cursed, true);
 });
 
 test('split tracking survives extraction and clears on deallocation', () => {

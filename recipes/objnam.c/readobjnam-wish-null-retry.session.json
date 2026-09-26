@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 8562101,
+      "datetime": "20261001093000",
+      "nethackrc": "OPTIONS=name:WishRetry,role:Wizard,race:human,gender:male,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen\nOPTIONS=pettype:none,!acoustics,playmode:debug\n",
+      "moves": ".\u0017quasar widget\n magic lamp\n."
+    }
+  ],
+  "comment": "An independently chosen wizard wish first receives NULL from readobjnam(), then succeeds on makewish() retry."
+}

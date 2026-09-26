@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "Independent fountain.c:dipfountain() entry-point recording. This variation selects the Valkyrie's starting food ration instead of the wettable spear, so water_damage() returns ER_NOTHING and the source reaches rnd(30); C selects fate 3, and the source-pinned fountain test separately verifies fate 16's full curse() caller branch.",
+  "segments": [
+    {
+      "seed": 7710023,
+      "datetime": "20310203040508",
+      "nethackrc": "OPTIONS=name:WaterRation,role:Valkyrie,race:human,gender:female,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen\nOPTIONS=pettype:none,!acoustics,!autopickup\n",
+      "moves": " y#dip\ndy"
+    }
+  ]
+}

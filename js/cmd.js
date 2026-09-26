@@ -375,7 +375,6 @@ import {
 import {
     dozap,
     UnsupportedBhitError,
-    UnsupportedWishError,
     UnsupportedZapError,
 } from './zap.js';
 import {
@@ -2934,11 +2933,6 @@ export function failClosedCommandRefusals() {
         UnsupportedPositionCheckError,
         UnsupportedMonsterCreationError,
         UnsupportedRegionPlacementError,
-        // zap.c makewish() raises this where readobjnam() stands, after
-        // getlin() has echoed the whole wished-for line. Both #wizwish routes
-        // reach it, so leaving it out would discard every screen the wish
-        // prompt already matched instead of stopping on the last of them.
-        UnsupportedWishError,
         // zap.c raises this from dozap()'s effect arms and from every arm of
         // the ray below weffects() that this port has not reached. Each one
         // stops after the command has already spent a charge and painted its

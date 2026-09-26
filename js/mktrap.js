@@ -77,7 +77,7 @@ import {
     PM_WIZARD,
 } from './monsters.js';
 import {
-    curseFreeObject,
+    curse,
     dealloc_obj,
     mkobj,
     mksobj,
@@ -322,7 +322,7 @@ export function mktrap_victim(trap, rawEnv = {}) {
             break;
         }
         obj = mkobj(objectClass, false, env);
-        curseFreeObject(obj, env);
+        curse(obj, env);
         if (trap.ttyp === PIT && breaktest(obj, env)) {
             dealloc_obj(obj, env);
         } else {
@@ -360,7 +360,7 @@ export function mktrap_victim(trap, rawEnv = {}) {
             );
             obj.quan = 1;
             obj.owt = weight(obj, env);
-            curseFreeObject(obj, env);
+            curse(obj, env);
             place_object(obj, x, y, env);
             if (!state.level.at(x, y).lit)
                 beginGeneratedCandleBurn(obj, env);

@@ -1,0 +1,12 @@
+{
+  "_comment": "Blocked source recipe for the makewish help-and-retry path: C zap.c:makewish calls void zap.c:wishcmdassist(), which prints the assistance menu before retrying. JavaScript records that void gap and continues at retry, so this path intentionally has no matching recording until wishcmdassist is ported.",
+  "version": 5,
+  "segments": [
+    {
+      "seed": 8562105,
+      "datetime": "20261001094500",
+      "nethackrc": "OPTIONS=name:WishHelpRetry,role:Wizard,race:human,gender:male,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen\nOPTIONS=pettype:none,!acoustics,playmode:debug\n",
+      "moves": ".\u0017help\nmagic lamp\n."
+    }
+  ]
+}

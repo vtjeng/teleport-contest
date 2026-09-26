@@ -73,12 +73,7 @@ import {
 import { is_giant, is_mercenary, is_ndemon } from '../js/mondata.js';
 import { newMonster, place_monster } from '../js/monst.js';
 import { init_objects } from '../js/o_init.js';
-import {
-    UnsupportedObjectOperationError,
-    curse,
-    mksobj,
-    weight,
-} from '../js/obj.js';
+import { curse, mksobj, weight } from '../js/obj.js';
 import {
     G_FREQ,
     G_HELL,
@@ -1420,33 +1415,34 @@ test('runtime helmet autocurse preserves the owned-object BUC transition',
         assert.equal(helm.blessed, false);
     });
 
-test('monster-owned curse admits only the source-safe unlit armor arm', () => {
-    // mkobj.c curse() still has bag-weight, figurine-timer, spellbook, and
-    // artifact-light work for other carried objects.  The worn.c helmet path
-    // reaches only the BUC mutation after an unlit armor object is installed.
+test('curse applies its BUC transition to monster-owned items of either class', () => {
+    // mkobj.c curse() has no class or object-location refusal after its coin
+    // early return; worn.c's helmet caller is one source path, while this
+    // weapon verifies that the full helper is not still narrowed to armor.
+    const state = initialLevelState();
     const armor = {
         where: OBJ_MINVENT,
         oclass: ARMOR_CLASS,
+        otyp: HELM_OF_OPPOSITE_ALIGNMENT,
         lamplit: false,
         blessed: true,
         cursed: false,
     };
-    curse(armor);
+    curse(armor, { state });
     assert.equal(armor.blessed, false);
     assert.equal(armor.cursed, true);
 
     const weapon = {
         where: OBJ_MINVENT,
         oclass: WEAPON_CLASS,
+        otyp: 1,
         lamplit: false,
         blessed: true,
         cursed: false,
     };
-    assert.throws(
-        () => curse(weapon),
-        (error) => error instanceof UnsupportedObjectOperationError
-            && error.operation === 'curse outside object initialization',
-    );
+    curse(weapon, { state });
+    assert.equal(weapon.blessed, false);
+    assert.equal(weapon.cursed, true);
 });
 
 test('m_dowear has a canonical runtime owner outside creation', async () => {
