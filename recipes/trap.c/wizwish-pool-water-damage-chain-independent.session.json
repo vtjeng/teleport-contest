@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 9493312,
+      "datetime": "20360201090000",
+      "nethackrc": "OPTIONS=name:PoolWish,role:Valkyrie,race:human,gender:female,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen\nOPTIONS=playmode:debug,pettype:none,!acoustics,!autopickup\n",
+      "moves": "da\u0017pool\n",
+      "comment": "Independent floor-chain recipe for trap.c:water_damage_chain through objnam.c:wizterrainwish. This Valkyrie drops her starting spear on ordinary floor and uses the debug terrain wish to turn that same square into a pool; seed 9493312 and the 2036 timestamp were selected independently of the existing wizard terrain recordings."
+    }
+  ]
+}
