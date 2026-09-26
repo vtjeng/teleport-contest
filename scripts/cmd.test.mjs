@@ -3136,6 +3136,56 @@ test('the direct #version command dispatches the portable text window',
         assert.equal(game.context.pendingCommand, undefined);
     });
 
+test('C and Meta-N direct bindings reach docallcmd from rhack', async () => {
+    // cmd.c binds 'C' to "call" (1687-1688), M('n') to "name"
+    // (1773-1774), and commands_init() also installs the M-N alias. All
+    // three rows call do_name.c docallcmd() directly; admission by itself
+    // would still fall through to rhack()'s unsupported-command arm.
+    const bindings = [
+        { key: commandKeyCode('C'), command: 'call', label: 'C' },
+        { key: commandKeyCode('M-n'), command: 'name', label: 'Meta-n' },
+        { key: commandKeyCode('M-N'), command: 'name', label: 'Meta-N alias' },
+    ];
+    for (const { key, command, label } of bindings) {
+        await runSegment({
+            seed: 840028,
+            datetime: COMMAND_DATETIME,
+            nethackrc: 'OPTIONS=name:CallDispatch,role:Healer,race:human,'
+                + 'gender:female,align:neutral,!legacy,!tutorial,'
+                + '!splash_screen,pettype:none',
+            moves: ' ',
+        });
+        const state = game;
+        assert.equal(
+            commandForKey(createCommandBindingModel(state), key),
+            command,
+            `${label} resolves to the source command row`,
+        );
+        const menusAtInput = [];
+        state._preNhgetchHook = async () => {
+            menusAtInput.push(state.nhDisplay.grid
+                .map((row) => row.map((cell) => cell.ch).join(''))
+                .join('\n'));
+        };
+        const movesBefore = state.moves;
+        const dispatchesBefore = state._commandDispatchCount;
+        state.nhDisplay.pushKey(key);
+        state.nhDisplay.pushKey(0x1B); // cancel docallcmd's menu
+
+        await rhack(0, state);
+
+        assert.ok(
+            menusAtInput.some((frame) =>
+                frame.includes('What do you want to name?')),
+            `${label} painted docallcmd's menu before reading its choice`,
+        );
+        assert.equal(state._commandDispatchCount, dispatchesBefore + 1);
+        assert.equal(state.moves, movesBefore, `${label} spends no turn`);
+        assert.equal(state.context.move, 0, `${label} returns ECMD_OK`);
+        assert.equal(state.multi, 0, `${label} resets repeat state`);
+    }
+});
+
 test('a count ahead of an unadmitted command byte is refused after parse()',
     async () => {
     // cmd.c parse() (5096-5151) runs to completion before rhack() looks at the
