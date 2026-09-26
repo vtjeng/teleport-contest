@@ -23,7 +23,7 @@ import {
     PM_FIRE_ELEMENTAL,
     PM_JACKAL,
 } from '../js/monsters.js';
-import { AMULET_OF_YENDOR } from '../js/objects.js';
+import { AMULET_OF_YENDOR, LEASH } from '../js/objects.js';
 import {
     accessible,
     onscary,
@@ -32,6 +32,7 @@ import {
 import {
     mlevel_tele_trap,
     mtele_trap,
+    teleport_pet,
 } from '../js/teleport.js';
 import {
     preflight_dotrap,
@@ -237,6 +238,30 @@ test('teleport restriction precedes future pet and vault branches',
         }, true);
 
         assert.deepEqual([monster.mx, monster.my], [old.x, old.y]);
+    });
+
+test('teleport_pet preserves the C leash continuation result and names its void gap',
+    async () => {
+        const monster = await initializedMonster(
+            TELEPORT_RESTRICTION_SEED,
+            'PetTeleport',
+        );
+        monster.mleashed = true;
+        game.invent = {
+            otyp: LEASH,
+            leashmon: monster.m_id,
+            cursed: false,
+            nobj: game.invent,
+        };
+        const messages = [];
+
+        assert.equal(await teleport_pet(
+            monster,
+            false,
+            teleportEnv(messages),
+        ), true);
+        assert.deepEqual(messages, ['Your leash goes slack.']);
+        assert.ok(game.unported.has('apply.c m_unleash'));
     });
 
 test('mlevel_tele_trap hands an ordinary hole to dog.c migration',

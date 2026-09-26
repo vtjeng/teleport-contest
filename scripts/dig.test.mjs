@@ -1,10 +1,28 @@
 import assert from 'node:assert/strict';
+import { readFileSync } from 'node:fs';
 import test from 'node:test';
 
 import {
     COLNO,
     CORR,
     DBWALL,
+    ALTAR,
+    BEAR_TRAP,
+    DIGCHECK_FAILED,
+    DIGCHECK_FAIL_AIRLEVEL,
+    DIGCHECK_FAIL_ALTAR,
+    DIGCHECK_FAIL_BOULDER,
+    DIGCHECK_FAIL_CANTDIG,
+    DIGCHECK_FAIL_OBJ_POOL_OR_TRAP,
+    DIGCHECK_FAIL_ONLADDER,
+    DIGCHECK_FAIL_ONSTAIRS,
+    DIGCHECK_FAIL_THRONE,
+    DIGCHECK_FAIL_TOOHARD,
+    DIGCHECK_FAIL_UNDESTROYABLETRAP,
+    DIGCHECK_FAIL_WATERLEVEL,
+    DIGCHECK_PASSED,
+    DIGCHECK_PASSED_DESTROY_TRAP,
+    DIGCHECK_PASSED_PITONLY,
     DIGTYP_BOULDER,
     DIGTYP_DOOR,
     DIGTYP_ROCK,
@@ -19,6 +37,7 @@ import {
     FLYING,
     FOUNTAIN,
     IRONBARS,
+    MAGIC_PORTAL,
     IS_WALL,
     OBJ_DELETED,
     OBJ_INVENT,
@@ -34,10 +53,11 @@ import {
     TREE,
     VWALL,
     W_NONDIGGABLE,
+    THRONE,
 } from '../js/const.js';
 import {
-    adj_pit_checks, dig_typ, fillholetyp, is_digging, mdig_tunnel,
-    pick_can_reach,
+    adj_pit_checks, dig, dig_check, dig_typ, fillholetyp, is_digging,
+    mdig_tunnel, pick_can_reach,
     rot_corpse, unportedRotCorpseReason,
 } from '../js/dig.js';
 import { GameMap } from '../js/game.js';
@@ -87,6 +107,18 @@ function tool(otyp, state) {
 // square isok() accepts and is used only by the bounds case below.
 const X = 10;
 const Y = 5;
+
+function digCheckState() {
+    const state = digState();
+    state.u = { ux: X, uy: Y, uz: { dnum: 0, dlevel: 1 }, uprops: {} };
+    state.youmonst = {};
+    state.dungeons = [{ num_dunlevs: 20, flags: { hellish: false } }];
+    state.air_level = { dnum: 0, dlevel: 9 };
+    state.water_level = { dnum: 0, dlevel: 10 };
+    state.level.at(X, Y).typ = ROOM;
+    state.level.flags.hardfloor = false;
+    return state;
+}
 
 // Each row is one path through dig.c dig_typ() (167-192). `arboreal` sets
 // svl.level.flags.arboreal, which rm.h IS_TREE() and dig.c:189 both read.
@@ -669,15 +701,89 @@ test('mdig_tunnel supplies object hooks for a boulder on stone', async () => {
     assert.ok(boulder, 'digging stone should place the rolled boulder');
 });
 
-// --- is_digging ---
-// C ref: dig.c is_digging() (195-201). Returns true when the hero is
-// performing the dig occupation. The dig() occupation callback is not yet
-// ported, so this always returns false. Pinning that invariant ensures the
-// callers in monmove.c watch_on_duty get the correct sentinel.
+test('digcheck_result values match the C enum and failure alias', () => {
+    const header = readFileSync('nethack-c/upstream/include/hack.h', 'utf8');
+    const sourceEnum = header.match(/enum digcheck_result\s*\{([\s\S]*?)\}/u)?.[1];
+    assert.ok(sourceEnum, 'hack.h defines enum digcheck_result');
+    assert.match(sourceEnum, /DIGCHECK_PASSED\s*=\s*1/u);
+    assert.match(sourceEnum, /DIGCHECK_PASSED_DESTROY_TRAP\s*=\s*2/u);
+    assert.match(sourceEnum, /DIGCHECK_PASSED_PITONLY\s*=\s*3/u);
+    assert.match(sourceEnum, /DIGCHECK_FAIL_ONSTAIRS\s*=\s*DIGCHECK_FAILED/u);
+    assert.deepEqual([
+        DIGCHECK_PASSED,
+        DIGCHECK_PASSED_DESTROY_TRAP,
+        DIGCHECK_PASSED_PITONLY,
+        DIGCHECK_FAILED,
+        DIGCHECK_FAIL_ONSTAIRS,
+        DIGCHECK_FAIL_ONLADDER,
+        DIGCHECK_FAIL_THRONE,
+        DIGCHECK_FAIL_ALTAR,
+        DIGCHECK_FAIL_AIRLEVEL,
+        DIGCHECK_FAIL_WATERLEVEL,
+        DIGCHECK_FAIL_TOOHARD,
+        DIGCHECK_FAIL_UNDESTROYABLETRAP,
+        DIGCHECK_FAIL_CANTDIG,
+        DIGCHECK_FAIL_BOULDER,
+        DIGCHECK_FAIL_OBJ_POOL_OR_TRAP,
+    ], [1, 2, 3, 4, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14]);
+});
 
-test('is_digging returns false because the dig occupation is not ported', () => {
-    // With no occupation active, C also returns false.
-    assert.equal(is_digging(game), false);
-    // Passing any state makes no difference; the function body is a constant.
-    assert.equal(is_digging({}), false);
+test("dig_check follows C's ordered terrain, trap, and actor tests", () => {
+    const state = digCheckState();
+    const location = state.level.at(X, Y);
+    assert.equal(dig_check(state.youmonst, X, Y, state), DIGCHECK_PASSED);
+
+    state.stairs = { sx: X, sy: Y, isladder: false, next: null };
+    assert.equal(dig_check(state.youmonst, X, Y, state), DIGCHECK_FAIL_ONSTAIRS);
+    state.stairs.isladder = true;
+    assert.equal(dig_check(state.youmonst, X, Y, state), DIGCHECK_FAIL_ONLADDER);
+    state.stairs = null;
+
+    location.typ = THRONE;
+    assert.equal(dig_check(state.youmonst, X, Y, state), DIGCHECK_FAIL_THRONE);
+    location.typ = ALTAR;
+    assert.equal(dig_check(state.youmonst, X, Y, state), DIGCHECK_FAIL_ALTAR);
+    assert.equal(dig_check(null, X, Y, state), DIGCHECK_PASSED);
+
+    location.typ = ROOM;
+    state.u.uz = { ...state.air_level };
+    assert.equal(dig_check(state.youmonst, X, Y, state), DIGCHECK_FAIL_AIRLEVEL);
+    state.u.uz = { ...state.water_level };
+    assert.equal(dig_check(state.youmonst, X, Y, state), DIGCHECK_FAIL_WATERLEVEL);
+    state.u.uz = { dnum: 0, dlevel: 1 };
+
+    location.typ = VWALL;
+    location.wall_info = W_NONDIGGABLE;
+    assert.equal(dig_check(state.youmonst, X, Y, state), DIGCHECK_FAIL_TOOHARD);
+    location.typ = ROOM;
+    location.wall_info = 0;
+    state.level.traps.push({ tx: X, ty: Y, ttyp: MAGIC_PORTAL });
+    assert.equal(dig_check(state.youmonst, X, Y, state), DIGCHECK_FAIL_UNDESTROYABLETRAP);
+    state.level.traps.length = 0;
+
+    state.level.flags.hardfloor = true;
+    assert.equal(dig_check(state.youmonst, X, Y, state), DIGCHECK_PASSED_PITONLY);
+    state.level.traps.push({ tx: X, ty: Y, ttyp: BEAR_TRAP });
+    assert.equal(dig_check(state.youmonst, X, Y, state), DIGCHECK_PASSED_DESTROY_TRAP);
+    state.level.traps[0].ttyp = PIT;
+    assert.equal(dig_check(state.youmonst, X, Y, state), DIGCHECK_FAIL_CANTDIG);
+    state.level.traps.length = 0;
+    state.level.flags.hardfloor = false;
+
+    state.level.objects[X][Y] = { otyp: BOULDER, nexthere: null };
+    assert.equal(dig_check(state.youmonst, X, Y, state), DIGCHECK_FAIL_BOULDER);
+    state.level.objects[X][Y] = null;
+    location.typ = POOL;
+    assert.equal(dig_check(null, X, Y, state), DIGCHECK_FAIL_OBJ_POOL_OR_TRAP);
+});
+
+// C ref: dig.c is_digging() (195-201). C compares the occupation pointer with
+// dig(), which is the callback installed by use_pick_axe2().
+test('is_digging compares the active occupation with dig', () => {
+    const state = { go: { occupation: null } };
+    assert.equal(is_digging(state), false);
+    state.go.occupation = dig;
+    assert.equal(is_digging(state), true);
+    state.go.occupation = () => 0;
+    assert.equal(is_digging(state), false);
 });

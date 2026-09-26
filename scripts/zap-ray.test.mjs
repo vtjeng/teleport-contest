@@ -1354,12 +1354,15 @@ test('weffects sends digging and a cast ray to their own arms', async () => {
         assert.notEqual(game.objects[otyp].oc_dir, 2, `IMMEDIATE at ${otyp}`);
         if (ending === null) {
             // Avoid the generated startup stairs so the downward vertical
-            // arm reaches its source dighole() gap without a --More-- line.
+            // arm reaches dig.c:zap_dig()'s discarded-result dighole() call.
             game.u.ux = 10;
             game.u.uy = 10;
             game.stairs = null;
             await weffects(wand, game, straightThrough());
-            assert.ok(game.unported.has('dig.c dighole'), `${otyp}`);
+            assert.equal(game.unported.has('dig.c dighole'), false, `${otyp}`);
+            assert.ok(game.unported.has(
+                'dig.c digactualhole non-hero and hole aftermath',
+            ), `${otyp}`);
         } else {
             await assert.rejects(
                 () => weffects(wand, game, straightThrough()),

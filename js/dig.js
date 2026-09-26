@@ -8,6 +8,7 @@
 // keeps its own name because it also holds zap.c obj_resists().
 
 import {
+    AM_SANCTUM,
     A_CHA,
     A_CON,
     A_DEX,
@@ -16,9 +17,11 @@ import {
     A_WIS,
     COLNO,
     CORR,
+    ALTAR,
     DEAF,
     CQ_CANNED,
     DB_MOAT,
+    DB_LAVA,
     DBWALL,
     DB_UNDER,
     D_BROKEN,
@@ -29,9 +32,26 @@ import {
     DIR_180,
     DRAWBRIDGE_DOWN,
     DRAWBRIDGE_UP,
+    DIGCHECK_FAILED,
+    DIGCHECK_FAIL_AIRLEVEL,
+    DIGCHECK_FAIL_ALTAR,
+    DIGCHECK_FAIL_BOULDER,
+    DIGCHECK_FAIL_CANTDIG,
+    DIGCHECK_FAIL_OBJ_POOL_OR_TRAP,
+    DIGCHECK_FAIL_ONLADDER,
+    DIGCHECK_FAIL_ONSTAIRS,
+    DIGCHECK_FAIL_THRONE,
+    DIGCHECK_FAIL_TOOHARD,
+    DIGCHECK_FAIL_UNDESTROYABLETRAP,
+    DIGCHECK_FAIL_WATERLEVEL,
+    DIGCHECK_PASSED,
+    DIGCHECK_PASSED_DESTROY_TRAP,
+    DIGCHECK_PASSED_PITONLY,
     ECMD_CANCEL,
     ECMD_OK,
     ECMD_TIME,
+    FUMBLING,
+    F_WARNED,
     DIGTYP_DOOR,
     DIGTYP_BOULDER,
     DIGTYP_ROCK,
@@ -49,8 +69,12 @@ import {
     IS_ALTAR,
     IS_DOOR,
     IS_FOUNTAIN,
+    IS_FURNITURE,
+    IS_ROOM,
+    IS_STWALL,
     isok,
     IS_OBSTRUCTED,
+    IS_GRAVE,
     IS_SINK,
     IS_THRONE,
     IS_TREE,
@@ -58,6 +82,9 @@ import {
     LAVAPOOL,
     LAVAWALL,
     MOAT,
+    HOLE,
+    TRAPDOOR,
+    PIT,
     OBJ_AT,
     OBJ_FLOOR,
     POOL,
@@ -74,7 +101,11 @@ import {
     TT_BURIEDBALL,
     u_at,
     W_NONDIGGABLE,
+    Is_earthlevel,
     is_pit,
+    is_hole,
+    undestroyable_trap,
+    is_magical_trap,
     LANDMINE,
     BEAR_TRAP,
     KILLED_BY,
@@ -84,7 +115,7 @@ import { game } from './gstate.js';
 import { objectGenerationEnv } from './object_generation.js';
 // js/hack.js imports dig_typ(); both crossings occur only inside function
 // bodies, so the source-owned in_town() remains safe across the cycle.
-import { in_town } from './hack.js';
+import { in_town, losehp, nomul, spot_checks, switch_terrain } from './hack.js';
 import { can_reach_floor, cant_reach_floor, u_wipe_engr } from './engrave.js';
 import {
     cmd_from_dir,
@@ -95,9 +126,10 @@ import {
     getdir,
     movecmd,
     confdir,
+    set_occupation,
     xytodir,
 } from './cmd.js';
-import { obfree, obj_extract_self } from './invent.js';
+import { delobj, obfree, obj_extract_self } from './invent.js';
 import { hides_under, is_watch } from './mondata.js';
 import { angry_guards, get_iter_mons, wake_nearby } from './mon.js';
 import { closed_door, youHear } from './monmove.js';
@@ -114,28 +146,43 @@ import {
     STATUE,
 } from './objects.js';
 import { cvt_sdoor_to_door } from './detect.js';
+import { newsym } from './display.js';
 import { verbalize } from './pline.js';
 import { in_rooms } from './rooms.js';
 import { acurr } from './attrib.js';
-import { is_axe, is_pick, mksobj_at, remove_object, sobj_at } from './obj.js';
-import { canseemon, m_canseeu, recalc_block_point, unblock_point } from './vision.js';
+import {
+    greatest_erosion,
+    is_axe,
+    is_pick,
+    mksobj_at,
+    remove_object,
+    sobj_at,
+} from './obj.js';
+import { cansee, canseemon, m_canseeu, recalc_block_point, unblock_point } from './vision.js';
 import { d, rn1, rn2, rnd } from './rng.js';
 import { set_voice } from './sounds.js';
 import {
-    Flying, Levitation, conjoined_pits, is_lava, is_pool, is_pool_or_lava,
-    t_at, uteetering_at_seen_pit, uescaped_shaft,
+    Flying, Levitation, conjoined_pits, deltrap, is_lava, is_pool,
+    is_pool_or_lava, maketrap, reset_utrap, set_utrap, t_at, trapname,
+    delfloortrap,
+    uteetering_at_seen_pit, uescaped_shaft,
 } from './trap.js';
+import { feeltrap, seetrap } from './trap_effects.js';
 import { bimanual } from './worn.js';
-import { stairway_at } from './stairs.js';
+import { On_stairs, stairway_at } from './stairs.js';
 import { dist2, s_suffix } from './hacklib.js';
 import { unconscious } from './trap.js';
 import { ttyPline } from './tty_message.js';
 import { wield_tool } from './wield.js';
-import { ceiling, on_level, surface } from './dungeon.js';
-import { losehp, nomul } from './hack.js';
-import { dbon } from './weapon.js';
+import { Can_dig_down, ceiling, on_level, surface } from './dungeon.js';
+import { abon, dbon } from './weapon.js';
 import { yname, yobjnam, Yobjnam2 } from './objnam.js';
+import { altarmask_at } from './pray.js';
 import { note_unported } from './unported.js';
+import { PM_DWARF } from './monsters.js';
+import { dogushforth, dryup, breaksink } from './fountain.js';
+import { find_drawbridge, is_drawbridge_wall } from './dbridge.js';
+import { hliquid } from './do_name.js';
 
 // C ref: youprop.h Unaware. The draft-message random roll is skipped while a
 // negative multi represents unconsciousness or fainting.
@@ -182,13 +229,209 @@ export function pick_can_reach(pick, x, y, state = game) {
 // to dig a tree as rock. The arboreal conjunct beneath it asks a separate
 // question and settles only the obstructed types that are neither walls nor
 // trees, which leaves the two secret ones, SDOOR and SCORR.
-// C ref: dig.c is_digging() (195-201). Returns true when the hero is
-// currently performing the dig occupation. The dig() occupation callback
-// is not yet ported, so this always returns false.
-export function is_digging(_state) {
-    // The dig() occupation callback is not ported to JS, so the hero can
-    // never be in the dig occupation.
-    return false;
+// C ref: dig.c is_digging() (195-201). C compares the occupation function
+// pointer; set_occupation() stores this same callback in state.go.
+export function is_digging(state = game) {
+    return state.go?.occupation === dig;
+}
+
+// C ref: dig.c dig_check() (207-253). `madeby === null` represents C's
+// BY_OBJECT pointer; every non-null actor follows the hero/tool rule. This
+// helper reads terrain, traps and level state only and consumes no RNG.
+export function dig_check(madeby, x, y, state = game) {
+    const trap = t_at(x, y, state);
+    const location = state.level.at(x, y);
+
+    if (On_stairs(x, y, state)) {
+        return stairway_at(x, y, state).isladder
+            ? DIGCHECK_FAIL_ONLADDER : DIGCHECK_FAIL_ONSTAIRS;
+    }
+    if (IS_THRONE(location.typ) && madeby !== null)
+        return DIGCHECK_FAIL_THRONE;
+    if (IS_ALTAR(location.typ)
+        && (madeby !== null
+            || (altarmask_at(x, y, state) & AM_SANCTUM) !== 0)) {
+        return DIGCHECK_FAIL_ALTAR;
+    }
+    if (on_level(state.u?.uz, state.air_level, state))
+        return DIGCHECK_FAIL_AIRLEVEL;
+    if (on_level(state.u?.uz, state.water_level, state))
+        return DIGCHECK_FAIL_WATERLEVEL;
+    if (IS_OBSTRUCTED(location.typ) && location.typ !== SDOOR
+        && (location.wall_info & W_NONDIGGABLE) !== 0) {
+        return DIGCHECK_FAIL_TOOHARD;
+    }
+    if (trap && undestroyable_trap(trap.ttyp))
+        return DIGCHECK_FAIL_UNDESTROYABLETRAP;
+    if (!Can_dig_down(state.u?.uz, state)
+        && !location.candig) {
+        if (trap) {
+            return !is_hole(trap.ttyp) && !is_pit(trap.ttyp)
+                ? DIGCHECK_PASSED_DESTROY_TRAP : DIGCHECK_FAIL_CANTDIG;
+        }
+        return DIGCHECK_PASSED_PITONLY;
+    }
+    if (sobj_at(BOULDER, x, y, state))
+        return DIGCHECK_FAIL_BOULDER;
+    if (madeby === null && (trap || is_pool_or_lava(x, y, state)))
+        return DIGCHECK_FAIL_OBJ_POOL_OR_TRAP;
+    return DIGCHECK_PASSED;
+}
+
+// C ref: dig.c digcheck_fail_message() (255-298). The source helper writes
+// only its selected failure line; hliquid owns display-RNG use on water level.
+export async function digcheck_fail_message(
+    digresult, madeby, x, y, state = game, env = {},
+) {
+    if (digresult < DIGCHECK_FAILED) return;
+    const verb = madeby === state.youmonst && state.uwep
+        && is_axe(state.uwep, state) ? 'chop' : 'dig in';
+    const message = env.message ?? ttyPline;
+    switch (digresult) {
+    case DIGCHECK_FAIL_AIRLEVEL:
+        await message(`You cannot ${verb} thin air.`, state, env);
+        break;
+    case DIGCHECK_FAIL_ALTAR:
+        await message('The altar is too hard to break apart.', state, env);
+        break;
+    case DIGCHECK_FAIL_BOULDER:
+        await message(`There isn't enough room to ${verb} here.`, state, env);
+        break;
+    case DIGCHECK_FAIL_ONLADDER:
+        await message('The ladder resists your effort.', state, env);
+        break;
+    case DIGCHECK_FAIL_ONSTAIRS:
+        await message(`The stairs are too hard to ${verb}.`, state, env);
+        break;
+    case DIGCHECK_FAIL_THRONE:
+        await message('The throne is too hard to break apart.', state, env);
+        break;
+    case DIGCHECK_FAIL_CANTDIG:
+    case DIGCHECK_FAIL_TOOHARD:
+    case DIGCHECK_FAIL_UNDESTROYABLETRAP:
+        await message(`The ${surface(x, y, state)} here is too hard to ${verb}.`, state, env);
+        break;
+    case DIGCHECK_FAIL_WATERLEVEL: {
+        const { hliquid } = await import('./do_name.js');
+        await message(`The ${hliquid('water', { ...env, state })} splashes and subsides.`, state, env);
+        break;
+    }
+    case DIGCHECK_FAIL_OBJ_POOL_OR_TRAP:
+    case DIGCHECK_PASSED:
+    case DIGCHECK_PASSED_PITONLY:
+    case DIGCHECK_PASSED_DESTROY_TRAP:
+        break;
+    default:
+        break;
+    }
+}
+
+function resetDigging(digging) {
+    Object.assign(digging, {
+        down: false,
+        chew: false,
+        warned: false,
+        quiet: false,
+        pos: { x: 0, y: 0 },
+        level: { dnum: 0, dlevel: 0 },
+        effort: 0,
+        lastdigtime: 0,
+    });
+}
+
+// C ref: dig.c dig() (300-570). The downward occupation is source-ported
+// through its pit/hole decision. Lateral rock carving, fumbling weapon damage,
+// and trap-disarm side paths remain explicit source gaps until their callers
+// and effects have matching evidence.
+export async function dig(state = game, rawEnv = {}) {
+    const { u } = state;
+    const digging = state.context?.digging;
+    const random = rawEnv.random ?? { rn1, rn2, rnl: rawEnv.rnl };
+    const message = rawEnv.message ?? ttyPline;
+    const weapon = state.uwep;
+    const ispick = Boolean(weapon && is_pick(weapon, state));
+    const x = digging?.pos?.x;
+    const y = digging?.pos?.y;
+
+    if (u?.uswallow || !weapon
+        || (!ispick && !is_axe(weapon, state))
+        || !on_level(digging?.level, u?.uz, state)
+        || (digging.down
+            ? (x !== u.ux || y !== u.uy)
+            : !(Math.max(Math.abs(x - u.ux), Math.abs(y - u.uy)) <= 1
+                && (x !== u.ux || y !== u.uy)))) {
+        return 0;
+    }
+
+    if (!digging.down) {
+        note_unported('dig.c dig lateral occupation');
+        return 0;
+    }
+
+    const result = dig_check(state.youmonst, u.ux, u.uy, state);
+    if (result >= DIGCHECK_FAILED) {
+        await digcheck_fail_message(
+            result, state.youmonst, u.ux, u.uy, state, { ...rawEnv, message },
+        );
+        return 0;
+    }
+
+    const fumbling = Boolean(u.uprops?.[FUMBLING]?.intrinsic
+        || u.uprops?.[FUMBLING]?.extrinsic);
+    if (fumbling) {
+        note_unported('dig.c dig fumbling occupation branch');
+        return 0;
+    }
+
+    digging.effort = Math.trunc(digging.effort ?? 0)
+        + 10 + random.rn2(5) + abon(state) + Math.trunc(weapon.spe ?? 0)
+        - greatest_erosion(weapon) + Math.trunc(u.udaminc ?? 0);
+    if (state.urace?.mnum === PM_DWARF) digging.effort *= 2;
+
+    const trap = t_at(u.ux, u.uy, state);
+    if (digging.effort > 250 || trap?.ttyp === HOLE) {
+        await dighole(false, false, null, { ...rawEnv, state, message, random });
+        resetDigging(digging);
+        return 0;
+    }
+    if (digging.effort <= 50 || trap?.ttyp === TRAPDOOR
+        || (trap && is_pit(trap.ttyp))) {
+        return 1;
+    }
+    if (trap && (trap.ttyp === LANDMINE
+        || (trap.ttyp === BEAR_TRAP && !u.utrap))) {
+        const { dotrap } = await import('./trap_effects.js');
+        await dotrap(trap, FORCEBUNGLE, state);
+        resetDigging(digging);
+        return 0;
+    }
+    if (trap?.ttyp === BEAR_TRAP && u.utrap) {
+        note_unported('dig.c dig digging-while-caught-in-bear-trap branch');
+        return 0;
+    }
+    if (trap && result === DIGCHECK_PASSED_DESTROY_TRAP) {
+        if (ispick) {
+            const name = trapname(trap.ttyp, false, state);
+            await message(
+                `You destroy ${trap.tseen ? `the ${name}` : `a ${name}`} with ${yobjnam(weapon, null, state)}.`,
+                state,
+            );
+        }
+        deltrap(trap, state);
+        digging.effort = 0;
+        return 0;
+    }
+
+    if (IS_ALTAR(state.level.at(u.ux, u.uy).typ)) {
+        note_unported('pray.c altar_wrath');
+        note_unported('pray.c angry_priest');
+    }
+    if (await dighole(true, false, null, {
+        ...rawEnv, state, message, random,
+    })) {
+        digging.level = { dnum: 0, dlevel: -1 };
+    }
+    return 0;
 }
 
 // C ref: dig.c watchman_canseeu() (1362-1368). The guard must be a watchman,
@@ -337,9 +580,8 @@ export async function use_pick_axe(obj, state = game, env = {}) {
 }
 
 // C ref: dig.c use_pick_axe2() (1162-1359). The immediate direction handling
-// is ported in source order. The later dig() occupation is still a named gap:
-// its callback returns a value consumed by allmain.c, so this function records
-// that gap and does not substitute a guessed callback result or command code.
+// and occupation installation follow source order; allmain.c later consumes
+// dig()'s return to decide whether the occupation continues.
 export async function use_pick_axe2(obj, state = game, env = {}) {
     const { u } = state;
     const ispick = is_pick(obj, state);
@@ -513,7 +755,7 @@ export async function use_pick_axe2(obj, state = game, env = {}) {
                 );
                 digging.chew = false;
             }
-            note_unported('dig.c dig');
+            set_occupation(dig, verbing, 0, state);
         }
     } else if (on_level(u.uz, state.air_level)
         || on_level(u.uz, state.water_level)) {
@@ -570,7 +812,7 @@ export async function use_pick_axe2(obj, state = game, env = {}) {
         }
         state.gd ??= {};
         state.gd.did_dig_msg = false;
-        note_unported('dig.c dig');
+        set_occupation(dig, verbing, 0, state);
     }
     return ECMD_TIME;
 }
@@ -634,6 +876,217 @@ export function fillholetyp(x, y, fillIfAny, state = game, random = { rn2 }) {
         return POOL;
     }
     return ROOM;
+}
+
+// C ref: dig.c furniture_handled() (570-594). Its Boolean is consumed by
+// dighole() and digactualhole(); the bridge destroyer is a void dependency and
+// remains an explicit gap after the coordinate lookup.
+export async function furniture_handled(
+    x, y, madebyU, state = game, rawEnv = {},
+) {
+    const location = state.level.at(x, y);
+    if (IS_FOUNTAIN(location.typ)) {
+        await dogushforth(false, state, rawEnv);
+        location.flags |= F_WARNED;
+        await dryup(x, y, madebyU, state, rawEnv);
+    } else if (IS_SINK(location.typ)) {
+        await breaksink(x, y, state, rawEnv);
+    } else if (location.typ === DRAWBRIDGE_DOWN
+        || is_drawbridge_wall(x, y, state) >= 0) {
+        const position = { x, y };
+        find_drawbridge(position, state);
+        note_unported('dbridge.c destroy_drawbridge');
+    } else {
+        return false;
+    }
+    return true;
+}
+
+// C ref: dig.c digactualhole() (640-832). The hero-created pit arm is ported
+// through trap creation, messages, terrain switching and the hero's pit
+// state. Non-hero migration, hole descent, and special furniture aftermath
+// remain source gaps; this void function never fabricates a return value.
+export async function digactualhole(
+    x, y, madeby, trapType, state = game, rawEnv = {},
+) {
+    const message = rawEnv.message ?? ttyPline;
+    const random = rawEnv.random ?? { rn1, rn2 };
+    const madebyU = madeby === state.youmonst;
+    if (await furniture_handled(x, y, madebyU, state, rawEnv)) return;
+    if (trapType !== PIT || !madebyU || !u_at(x, y, state)) {
+        note_unported('dig.c digactualhole non-hero and hole aftermath');
+        return;
+    }
+
+    const location = state.level.at(x, y);
+    if (!Can_dig_down(state.u.uz, state) && !location.candig) {
+        note_unported('dig.c digactualhole impossible fallback');
+    }
+    const oldType = location.typ;
+    const surfaceType = IS_FURNITURE(oldType)
+        ? (IS_ROOM(oldType) && !Is_earthlevel(state.u.uz) ? 'floor' : 'ground')
+        : surface(x, y, state);
+    const oldObjects = state.level.objects?.[x]?.[y] ?? null;
+    const trap = maketrap(x, y, trapType, { ...rawEnv, state, random });
+    if (!trap) return;
+
+    trap.madeby_u = true;
+    trap.tseen = false;
+    if (cansee(x, y, state))
+        seetrap(trap, { state, redraw: (tx, ty) => newsym(tx, ty, state) });
+    else
+        feeltrap(trap, { state, redraw: (tx, ty) => newsym(tx, ty, state) });
+
+    const name = trapname(trapType, true, state, random);
+    await message(x !== state.u.ux || y !== state.u.uy
+        ? `You dig an adjacent ${name}.`
+        : `You dig a ${name} in the ${surfaceType}.`, state, rawEnv);
+    if (IS_FURNITURE(oldType) && cansee(x, y, state)) {
+        await message(IS_STWALL(oldType)
+            ? `The ${surfaceType} crumbles into a pit.`
+            : `A pit appears in the ${surfaceType}.`, state, rawEnv);
+    }
+
+    if (oldType === ALTAR) {
+        note_unported('pray.c desecrate_altar');
+    }
+    if (in_rooms(x, y, SHOPBASE, state).length)
+        note_unported('shk.c add_damage');
+    await wake_nearby(false, { ...rawEnv, state });
+    await switch_terrain(state, rawEnv);
+    if (Levitation(state) || Flying(state)) {
+        await reset_utrap(true, state);
+    } else {
+        set_utrap(random.rn1(4, 2), TT_PIT, state);
+        state.gv ??= {};
+        state.gv.vision_full_recalc = 1;
+    }
+
+    const newObjects = state.level.objects?.[x]?.[y] ?? null;
+    if (oldObjects !== newObjects) {
+        const { pickup } = await import('./pickup.js');
+        await pickup(1, state);
+    }
+}
+
+// C ref: dig.c dighole() (885-1053). The ordinary down-dig path preserves
+// C's Boolean result and uses the ported pit creation arm. Void effects whose
+// complete source owner is still absent are named at their discarded calls.
+export async function dighole(
+    pitOnly, byMagic, coordinate = null, rawEnv = {},
+) {
+    const state = rawEnv.state ?? game;
+    const message = rawEnv.message ?? ttyPline;
+    const random = rawEnv.random ?? { rn2 };
+    const x = coordinate?.x ?? state.u.ux;
+    const y = coordinate?.y ?? state.u.uy;
+    if (!isok(x, y)) return false;
+
+    const trap = t_at(x, y, state);
+    const location = state.level.at(x, y);
+    const check = dig_check(state.youmonst, x, y, state);
+    const nohole = check === DIGCHECK_FAIL_CANTDIG
+        || check === DIGCHECK_FAIL_TOOHARD;
+    const oldType = location.typ;
+    if ((trap && (undestroyable_trap(trap.ttyp) || nohole))
+        || (IS_OBSTRUCTED(oldType) && oldType !== SDOOR
+            && (location.wall_info & W_NONDIGGABLE))) {
+        await message(
+            `The ${surface(x, y, state)} ${x !== state.u.ux || y !== state.u.uy ? 't' : ''}here is too hard to dig in.`,
+            state, rawEnv,
+        );
+        spot_checks(x, y, oldType, state);
+        return false;
+    }
+    if (trap && is_magical_trap(trap.ttyp)) {
+        note_unported('explode.c explode');
+        await deltrap(trap, state);
+        newsym(x, y, state);
+        spot_checks(x, y, oldType, state);
+        return false;
+    } else if (is_pool_or_lava(x, y, state)) {
+        const liquid = is_lava(x, y, state) ? 'lava' : 'water';
+        await message(`The ${hliquid(liquid, { ...rawEnv, state })} sloshes furiously for a moment, then subsides.`, state, rawEnv);
+        await wake_nearby(false, { ...rawEnv, state });
+        spot_checks(x, y, oldType, state);
+        return false;
+    } else if (oldType === DRAWBRIDGE_DOWN
+        || is_drawbridge_wall(x, y, state) >= 0) {
+        if (pitOnly) {
+            await message('The drawbridge seems too hard to dig through.', state, rawEnv);
+            spot_checks(x, y, oldType, state);
+            return false;
+        } else {
+            const position = { x, y };
+            find_drawbridge(position, state);
+            note_unported('dbridge.c destroy_drawbridge');
+            spot_checks(x, y, oldType, state);
+            return true;
+        }
+        return false;
+    } else if (sobj_at(BOULDER, x, y, state)) {
+        const boulder = sobj_at(BOULDER, x, y, state);
+        if (trap && is_pit(trap.ttyp) && random.rn2(2)) {
+            await message(
+                `The boulder settles into the ${x !== state.u.ux || y !== state.u.uy ? 'adjacent ' : ''}pit.`,
+                state, rawEnv,
+            );
+            trap.ttyp = PIT;
+        } else {
+            await message('KADOOM!  The boulder falls in!', state, rawEnv);
+            await wake_nearby(false, { ...rawEnv, state });
+            await delfloortrap(trap, state);
+        }
+        delobj(boulder, { ...rawEnv, state });
+        spot_checks(x, y, oldType, state);
+        return false;
+    } else if (IS_GRAVE(oldType)) {
+        await digactualhole(x, y, state.youmonst, PIT, state, rawEnv);
+        note_unported('dig.c dig_up_grave');
+        spot_checks(x, y, oldType, state);
+        return true;
+    } else if (oldType === DRAWBRIDGE_UP) {
+        const liquidType = fillholetyp(x, y, false, state, random);
+        if (liquidType === ROOM) {
+            await message(`The ${surface(x, y, state)} ${x !== state.u.ux || y !== state.u.uy ? 't' : ''}here is too hard to dig in.`, state, rawEnv);
+            return false;
+        }
+        location.drawbridgemask &= ~DB_UNDER;
+        location.drawbridgemask |= liquidType === LAVAPOOL
+            ? DB_LAVA : DB_MOAT;
+        note_unported('dig.c liquid_flow');
+        spot_checks(x, y, oldType, state);
+        return true;
+    } else if (IS_THRONE(oldType)) {
+        await message('The throne is too hard to break apart.', state, rawEnv);
+        spot_checks(x, y, oldType, state);
+        return false;
+    } else if (IS_ALTAR(oldType)) {
+        await message('The altar is too hard to break apart.', state, rawEnv);
+        spot_checks(x, y, oldType, state);
+        return false;
+    }
+
+    const liquidType = fillholetyp(x, y, false, state, random);
+    location.flags = 0;
+    if (liquidType !== ROOM) {
+        if (!await furniture_handled(x, y, true, state, rawEnv)) {
+            location.typ = liquidType;
+            note_unported('dig.c liquid_flow');
+        }
+        spot_checks(x, y, oldType, state);
+        return true;
+    }
+    if (byMagic && trap
+        && (trap.ttyp === LANDMINE || trap.ttyp === BEAR_TRAP))
+        note_unported('dig.c cnv_trap_obj');
+
+    const pit = nohole || pitOnly
+        || check === DIGCHECK_PASSED_DESTROY_TRAP
+        || check === DIGCHECK_PASSED_PITONLY;
+    await digactualhole(x, y, state.youmonst, pit ? PIT : HOLE, state, rawEnv);
+    spot_checks(x, y, oldType, state);
+    return true;
 }
 
 // C ref: dig.c adj_pit_checks() (1763-1838). The caller supplies the mutable

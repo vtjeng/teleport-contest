@@ -1997,21 +1997,23 @@ export const DIGTYP_STATUE = 2;
 export const DIGTYP_BOULDER = 3;
 export const DIGTYP_DOOR = 4;
 export const DIGTYP_TREE = 5;
-export const DIGCHECK_PASSED = 0;
-export const DIGCHECK_PASSED_PITONLY = 1;
+// C ref: hack.h enum digcheck_result. Keep the aliases and enum ordering
+// source-valued because callers compare results across DIGCHECK_FAILED.
+export const DIGCHECK_PASSED = 1;
 export const DIGCHECK_PASSED_DESTROY_TRAP = 2;
-export const DIGCHECK_FAILED = 10;
-export const DIGCHECK_FAIL_ONLADDER = 11;
-export const DIGCHECK_FAIL_ONSTAIRS = 12;
-export const DIGCHECK_FAIL_THRONE = 13;
-export const DIGCHECK_FAIL_ALTAR = 14;
-export const DIGCHECK_FAIL_AIRLEVEL = 15;
-export const DIGCHECK_FAIL_WATERLEVEL = 16;
-export const DIGCHECK_FAIL_TOOHARD = 17;
-export const DIGCHECK_FAIL_UNDESTROYABLETRAP = 18;
-export const DIGCHECK_FAIL_CANTDIG = 19;
-export const DIGCHECK_FAIL_BOULDER = 20;
-export const DIGCHECK_FAIL_OBJ_POOL_OR_TRAP = 21;
+export const DIGCHECK_PASSED_PITONLY = 3;
+export const DIGCHECK_FAILED = 4;
+export const DIGCHECK_FAIL_ONSTAIRS = DIGCHECK_FAILED;
+export const DIGCHECK_FAIL_ONLADDER = 5;
+export const DIGCHECK_FAIL_THRONE = 6;
+export const DIGCHECK_FAIL_ALTAR = 7;
+export const DIGCHECK_FAIL_AIRLEVEL = 8;
+export const DIGCHECK_FAIL_WATERLEVEL = 9;
+export const DIGCHECK_FAIL_TOOHARD = 10;
+export const DIGCHECK_FAIL_UNDESTROYABLETRAP = 11;
+export const DIGCHECK_FAIL_CANTDIG = 12;
+export const DIGCHECK_FAIL_BOULDER = 13;
+export const DIGCHECK_FAIL_OBJ_POOL_OR_TRAP = 14;
 
 // Explosion type/source/flag constants (src/explode.c)
 // Runtime fields:
