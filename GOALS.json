@@ -75017,6 +75017,50 @@
           "evaluationCommit": "210cd14f1e59abac0764199293de428ee71828fd"
         }
       }
+    },
+    {
+      "id": "port-music-put-monsters-to-sleep-synthetic-v4-20260926",
+      "kind": "file-port",
+      "status": "queued",
+      "summary": "Port music.c put_monsters_to_sleep and wire the charged magic flute caller",
+      "cFile": "music.c",
+      "sessions": [
+        "synthetic/v4/valkyrie-magic-flute-nymph-cycle",
+        "synthetic/v4/valkyrie-magic-flute-nymph-first-play"
+      ],
+      "selectionReason": "After assigned C9 nymph theft and Ranger throw and B7 camera cases, synthetic/v4/valkyrie-magic-flute-nymph-cycle has four unmatched screens; investigations/synthetic/v4/valkyrie-magic-flute-nymph-cycle.json traces the first RNG mismatch at step 39 to music.c put_monsters_to_sleep. Its first-play sibling has a matching screen prefix but the same RNG gap. This source is independent of the active steal.c and apply.c reservations.",
+      "detail": "v4 manifest digest 10777af4c82fc759abf58a870fdd232329bc5c1467c8cf94f46089d0401459a9; cycle recording challenges/cases/v4/valkyrie-magic-flute-nymph-cycle.session.json digest 549c2a7276a47fc3c8bb2ac9f7f1d1d1c40277c76fe08f560fa17758a2eea204; first-play recording challenges/cases/v4/valkyrie-magic-flute-nymph-first-play.session.json digest c19aac0139bcc1a82d122ca126291e3fbf7b59935e569efdb01833fb4ace238f; saved evaluation challenges/evaluations/20260926021117-v4.json. Implement the complete music.c helper and its do_improvisation MAGIC_FLUTE call, including return-valued mhitm.c sleep_monst.",
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": null,
+      "delivered": null,
+      "functions": [
+        {
+          "name": "put_monsters_to_sleep",
+          "line": 85,
+          "endLine": 104,
+          "declared": false,
+          "complete": false
+        }
+      ],
+      "range": {
+        "from": 85,
+        "to": 104
+      },
+      "syntheticProvenance": {
+        "synthetic/v4/valkyrie-magic-flute-nymph-cycle": {
+          "session": "synthetic/v4/valkyrie-magic-flute-nymph-cycle",
+          "corpus": "synthetic",
+          "batch": "v4",
+          "caseId": "valkyrie-magic-flute-nymph-cycle",
+          "manifestPath": "challenges/manifests/v4.json",
+          "manifestSha256": "10777af4c82fc759abf58a870fdd232329bc5c1467c8cf94f46089d0401459a9",
+          "recordingPath": "challenges/cases/v4/valkyrie-magic-flute-nymph-cycle.session.json",
+          "recordingSha256": "549c2a7276a47fc3c8bb2ac9f7f1d1d1c40277c76fe08f560fa17758a2eea204",
+          "evaluationPath": "challenges/evaluations/20260926021117-v4.json",
+          "evaluationCommit": "d6cf89ae93f57f6153a759eeb24058372448dd46"
+        }
+      }
     }
   ]
 }
