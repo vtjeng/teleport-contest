@@ -83844,7 +83844,7 @@
     {
       "id": "port-spell-deadbook-synthetic-v7-20260926",
       "kind": "file-port",
-      "status": "open",
+      "status": "parked",
       "summary": "Port Book of the Dead reading, undead pacification, and spell learning",
       "cFile": "spell.c",
       "sessions": [
@@ -83865,21 +83865,21 @@
           "name": "deadbook_pacify_undead",
           "line": 211,
           "endLine": 230,
-          "declared": false,
-          "complete": false
+          "declared": true,
+          "complete": true
         },
         {
           "name": "deadbook",
           "line": 231,
           "endLine": 342,
-          "declared": false,
+          "declared": true,
           "complete": false
         },
         {
           "name": "book_cursed",
           "line": 343,
           "endLine": 355,
-          "declared": false,
+          "declared": true,
           "complete": false
         },
         {
@@ -83887,7 +83887,7 @@
           "line": 356,
           "endLine": 467,
           "declared": true,
-          "complete": false
+          "complete": true
         }
       ],
       "range": {
@@ -84162,7 +84162,167 @@
             }
           }
         }
-      ]
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "deadbook_pacify_undead",
+            "implementation": "js/spell.js",
+            "symbol": "deadbook_pacify_undead",
+            "sourceReview": "Reviewed spell.c:211-226 in full. Preserved the undead/vampire-shifter and visibility gates, peaceful state change, alignment and distance test, tame threshold, discarded tamedog() result, and monflee() branch. The C callback is void and mutates monster state; JS awaits the effectful helper operations. The source callback runs through deadbook() in iter_mons() order; js/mon.js iter_mons_async() mirrors cached-next order and is covered by scripts/mon.test.mjs.",
+            "callers": [
+              {
+                "path": "js/spell.js",
+                "symbol": "deadbook",
+                "source": "spell.c:324-325 iter_mons(deadbook_pacify_undead)"
+              }
+            ],
+            "pure": false,
+            "tests": [],
+            "recordings": [
+              "recordings/spell.c/book-dead-blessed-undead-independent.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v7",
+                "caseId": "blessed-book-undead",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 85,
+                "source": "cmd.c 'r' dispatch -> read.c:doread() -> spell.c:study_book()/learn() -> deadbook() -> iter_mons(deadbook_pacify_undead)"
+              }
+            ],
+            "checkedAt": "01f035d6eb4b7d39db01c8dbf18738ea9298e75b"
+          },
+          {
+            "name": "learn",
+            "implementation": "js/spell.js",
+            "symbol": "learn",
+            "sourceReview": "Reviewed spell.c:355-463 in full. Preserved lens RNG and delay, confusion interruption and state reset, continued-study early return, wisdom exercise, Book of the Dead dispatch, spell slot search, repeated/faded/blank outcomes, knowledge and study counters, discovery and inventory refresh, cursed-book consumption, unpaid check, and clearing the stored book identity. The Book of the Dead path delegates to deadbook(); other existing source-mapped spell-learning helpers remain wired in order. The production route is read.c:doread() -> study_book() -> set_occupation(learn) -> allmain occupation callback. A defensive JS missing-book precondition is unreachable through the C caller, which registers learn only with a live spellbook. C discards impossible() at the MAXSPELL boundary; the existing note_unported(\"pline.c impossible\") remains at that source call site and is not used as data.",
+            "callers": [
+              {
+                "path": "js/spell.js",
+                "symbol": "study_book",
+                "source": "read.c:doread() -> spell.c:study_book() -> spell.c:learn() occupation registration at 639 and callback dispatch"
+              }
+            ],
+            "pure": false,
+            "tests": [],
+            "recordings": [
+              "recordings/spell.c/learn-study.session.json",
+              "recordings/spell.c/book-dead-blessed-independent.session.json",
+              "recordings/spell.c/book-dead-blessed-undead-independent.session.json",
+              "recordings/spell.c/book-dead-uncursed-independent.session.json",
+              "recordings/spell.c/book-dead-cursed-independent.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v7",
+                "caseId": "blessed-book-undead",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 85,
+                "source": "cmd.c 'r' dispatch -> read.c:doread() -> spell.c:study_book()/learn() -> deadbook() -> iter_mons(deadbook_pacify_undead)"
+              }
+            ],
+            "checkedAt": "01f035d6eb4b7d39db01c8dbf18738ea9298e75b"
+          }
+        ],
+        "entryPointReview": "Active read.c:doread() entry paths exercised by recordings are ordinary spell study; blessed Book of the Dead without undead; blessed Book of the Dead with a visible ghoul; uncursed Book of the Dead; and cursed Book of the Dead. The assigned v7 blessed-book-undead replay matches through zero-based step 85 and exercises the blessed deadbook/undead callback path. invocation_pos() purity is source-pinned by scripts/hack.test.mjs; async cached-next traversal is pinned by scripts/mon.test.mjs. Cursed raise-dead calls unturn_dead() with its int result cast to void and calls void mkundead(); mkinvokearea() is void. Those remain explicit source-site note_unported() gaps and are not falsely counted as their own completed source units. The active invocation-position Book of the Dead branch is not covered: recipes/spell.c/book-dead-invocation-blocked.session.json independently reaches invocation-level setup, but its controlled wizard teleport first diverges in teleport.c:scrolltele()/getpos.c:getpos() at segment 0 input step 98 (runner display: segment 1, step 99), key period (C continues through 102 boundaries; JS has 98). The hero never reaches deadbook() at the vibration square, so invocation evidence arrays are empty and this source goal must remain open/parked until the named setup path is matched. The newly cursed spellbook during active study path is implemented through mkobj.c:curse() -> spell.c:book_cursed(), but remains blocked for runtime evidence: recipes/spell.c/book-cursed-during-study-blocked.session.json was replayed once and first diverges at boundary 69 while selecting the wished book in read.c:doread() (runner display: segment 1, step 69, key i; C cursor [46,0,1], JS [42,4,1], with a screen-cell mismatch). The study occupation and the lich action are not reached consistently, so book_cursed() has empty recording and synthetic evidence arrays. The invocation entry remains separately blocked at teleport.c:scrolltele()/getpos.c:getpos() as documented above.",
+        "entryPoints": [
+          {
+            "name": "ordinary spellbook study completion",
+            "functions": [
+              "learn"
+            ],
+            "recordings": [
+              "recordings/spell.c/learn-study.session.json"
+            ],
+            "synthetic": []
+          },
+          {
+            "name": "blessed Book of the Dead without nearby undead",
+            "functions": [
+              "learn",
+              "deadbook"
+            ],
+            "recordings": [
+              "recordings/spell.c/book-dead-blessed-independent.session.json"
+            ],
+            "synthetic": []
+          },
+          {
+            "name": "blessed Book of the Dead pacifies visible undead",
+            "functions": [
+              "learn",
+              "deadbook",
+              "deadbook_pacify_undead"
+            ],
+            "recordings": [
+              "recordings/spell.c/book-dead-blessed-undead-independent.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v7",
+                "caseId": "blessed-book-undead",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 85,
+                "source": "cmd.c 'r' dispatch -> read.c:doread() -> spell.c:study_book()/learn() -> deadbook() -> iter_mons(deadbook_pacify_undead)"
+              }
+            ]
+          },
+          {
+            "name": "uncursed Book of the Dead message result",
+            "functions": [
+              "learn",
+              "deadbook"
+            ],
+            "recordings": [
+              "recordings/spell.c/book-dead-uncursed-independent.session.json"
+            ],
+            "synthetic": []
+          },
+          {
+            "name": "cursed Book of the Dead raise-dead branch",
+            "functions": [
+              "learn",
+              "deadbook"
+            ],
+            "recordings": [
+              "recordings/spell.c/book-dead-cursed-independent.session.json"
+            ],
+            "synthetic": []
+          },
+          {
+            "name": "Book of the Dead at the invocation vibration square",
+            "functions": [
+              "learn",
+              "deadbook"
+            ],
+            "recordings": [],
+            "synthetic": []
+          },
+          {
+            "name": "newly cursed spellbook during its study occupation",
+            "functions": [
+              "book_cursed"
+            ],
+            "recordings": [],
+            "synthetic": []
+          }
+        ]
+      },
+      "progressBeforePark": {
+        "screens": 0,
+        "rng": 0
+      },
+      "parkedStanding": {
+        "sha": "01f035d6eb4b7d39db01c8dbf18738ea9298e75b",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "parkedReason": "Validated deadbook_pacify_undead and learn. Keep deadbook invocation-square entry incomplete until teleport.c:scrolltele/getpos.c:getpos setup matches; keep book_cursed live-study transition incomplete until read.c:doread book selection matches. Independent blocked recipes are committed under recipes/spell.c/."
     }
   ]
 }
