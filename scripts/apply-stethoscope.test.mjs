@@ -41,6 +41,7 @@ import {
     STRAT_WAITFORU,
     STUNNED,
     VOMITING,
+    W_TOOL,
     WOUNDED_LEGS,
 } from '../js/const.js';
 import {
@@ -111,6 +112,7 @@ import {
     set_bknown,
 } from '../js/obj.js';
 import { objectGenerationEnv } from '../js/object_generation.js';
+import { _doWearInternals } from '../js/do_wear.js';
 import {
     ARMOR_CLASS,
     APPLE,
@@ -119,6 +121,7 @@ import {
     BALL_CLASS,
     BANANA,
     BATTLE_AXE,
+    BLINDFOLD,
     BULLWHIP,
     CARROT,
     COIN_CLASS,
@@ -144,6 +147,7 @@ import {
     POT_OIL,
     POT_WATER,
     POTION_CLASS,
+    QUARTERSTAFF,
     RIN_PROTECTION,
     ROCK,
     SCALPEL,
@@ -155,6 +159,7 @@ import {
     STETHOSCOPE,
     TIN_OPENER,
     TOOL_CLASS,
+    TOWEL,
     TOUCHSTONE,
     TRIPE_RATION,
     TWO_HANDED_SWORD,
@@ -163,6 +168,7 @@ import {
     WEAPON_CLASS,
     objects_globals_init,
 } from '../js/objects.js';
+import { heroIsBlind } from '../js/startup_a11y.js';
 import { S_altar, S_room } from '../js/symbols.js';
 import { create_region } from '../js/region.js';
 import { start_timer, timeout_globals_init } from '../js/timeout.js';
@@ -743,6 +749,96 @@ test('doapply refuses every class and arm this slice does not port',
     // covers where it stops instead.
     assert.match(await refusal('.ac>'),
         /applying a tool requires listening to the floor or ceiling/u);
+});
+
+test('doapply routes eyewear through its source helpers and keeps its turn result',
+    async () => {
+    const segment = loadApplyPromptRecipe().segments.find(
+        ({ nethackrc }) => nethackrc.includes('role:Wizard'),
+    );
+    assert.ok(segment, 'the matrix carries a Wizard segment');
+    await runSegment({ ...segment, moves: '.' });
+
+    const makeInventoryItem = (otyp) => {
+        const obj = mksobj(otyp, false, false,
+            objectGenerationEnv({ state: game }));
+        addinv_nomerge(obj, { state: game });
+        return obj;
+    };
+    const apply = async (obj, dismissMessage = false) => {
+        if (dismissMessage)
+            game.nhDisplay.pushKey(0x20);
+        game.nhDisplay.pushKey(obj.invlet.charCodeAt(0));
+        return doapply(game);
+    };
+
+    const blindfold = makeInventoryItem(BLINDFOLD);
+    assert.equal(await apply(blindfold), ECMD_TIME);
+    assert.equal(game.ublindf, blindfold,
+        'Blindf_on installs the selected object in ublindf');
+    assert.equal(blindfold.owornmask & W_TOOL, W_TOOL);
+    assert.equal(heroIsBlind(game), true,
+        'the worn blindfold supplies the BLINDED extrinsic');
+
+    const lenses = makeInventoryItem(LENSES);
+    assert.equal(await apply(lenses, true), ECMD_TIME);
+    assert.equal(pendingTopLine(), 'You are already wearing a blindfold.');
+    assert.equal(game.ublindf, blindfold);
+
+    assert.equal(await apply(blindfold, true), ECMD_TIME);
+    assert.equal(game.ublindf, null,
+        'Blindf_off clears the source eyewear slot');
+    assert.equal(heroIsBlind(game), false,
+        'removing the blindfold restores sight');
+
+    assert.equal(await apply(lenses, true), ECMD_TIME);
+    assert.equal(game.ublindf, lenses);
+    assert.equal(heroIsBlind(game), false,
+        'lenses occupy ublindf without supplying blindness');
+    lenses.cursed = 1;
+    assert.equal(await apply(lenses, true), ECMD_TIME);
+    assert.equal(game.ublindf, lenses,
+        'doapply leaves a cursed worn eyewear object on');
+    lenses.cursed = 0;
+    assert.equal(await apply(lenses), ECMD_TIME);
+    assert.equal(game.ublindf, null);
+
+    const towel = makeInventoryItem(TOWEL);
+    // Use the already-ported do_wear.c helper to set up C's active ublindf
+    // state; apply.c has a separate named TOWEL arm and this task does not
+    // port use_towel(). The selected doapply branch only reads that state.
+    game.nhDisplay.pushKey(0x20);
+    await _doWearInternals.Blindf_on(towel, game);
+    assert.equal(game.ublindf, towel);
+    const secondBlindfold = makeInventoryItem(BLINDFOLD);
+    assert.equal(await apply(secondBlindfold, true), ECMD_TIME);
+    assert.equal(pendingTopLine(), 'You are already covered by a towel.');
+    assert.equal(game.ublindf, towel);
+});
+
+test('doapply sends the non-pole quarterstaff to the C generic default',
+    async () => {
+    const segment = loadApplyPromptRecipe().segments.find(
+        ({ nethackrc }) => nethackrc.includes('role:Wizard'),
+    );
+    assert.ok(segment, 'the matrix carries a Wizard segment');
+    await runSegment({ ...segment, moves: '.' });
+    const quarterstaff = mksobj(QUARTERSTAFF, false, false,
+        objectGenerationEnv({ state: game }));
+    addinv_nomerge(quarterstaff, { state: game });
+    assert.equal(quarterstaff.otyp, QUARTERSTAFF);
+    assert.equal(quarterstaff.oclass, WEAPON_CLASS);
+
+    const drawsBefore = (getRngLog() ?? []).length;
+    const turnsBefore = game.moves;
+    game.nhDisplay.pushKey(quarterstaff.invlet.charCodeAt(0));
+    assert.equal(await doapply(game), ECMD_FAIL);
+    assert.equal(
+        pendingTopLine(),
+        "Sorry, I don't know how to use that.",
+    );
+    assert.equal((getRngLog() ?? []).length, drawsBefore);
+    assert.equal(game.moves, turnsBefore);
 });
 
 test('doapply reports that ordinary armor has no use without changing it',

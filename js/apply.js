@@ -246,8 +246,9 @@ import {
     xnameFresh,
 } from './objnam.js';
 import {
-    ARMOR_CLASS,
     BANANA,
+    BELL,
+    BELL_OF_OPENING,
     BLINDFOLD,
     BRASS_LANTERN,
     BULLWHIP,
@@ -259,6 +260,7 @@ import {
     EUCALYPTUS_LEAF,
     FOOD_CLASS,
     GEM_CLASS,
+    GRAPPLING_HOOK,
     HORN_OF_PLENTY,
     BUGLE,
     DRUM_OF_EARTHQUAKE,
@@ -302,6 +304,14 @@ import {
     PICK_AXE,
     CAN_OF_GREASE,
     CANDELABRUM_OF_INVOCATION,
+    FIGURINE,
+    FLINT,
+    LUCKSTONE,
+    LOADSTONE,
+    MAGIC_WHISTLE,
+    MIRROR,
+    TIN_OPENER,
+    TIN_WHISTLE,
     TALLOW_CANDLE,
     UNICORN_HORN,
     WAX_CANDLE,
@@ -360,7 +370,12 @@ import { acurr } from './attrib.js';
 import { known_spell, spe_Fresh, spelleffects } from './spell.js';
 import { stucksteed, use_saddle } from './steed.js';
 import { enexto, teleds } from './teleport.js';
-import { fingers_or_gloves, inaccessible_equipment } from './do_wear.js';
+import {
+    _doWearInternals,
+    Blindf_off,
+    fingers_or_gloves,
+    inaccessible_equipment,
+} from './do_wear.js';
 import { dropx, legs_in_no_shape, set_wounded_legs } from './do.js';
 import { morehungry } from './eat.js';
 import { digests, hurtle_jump, thitmonst, walk_path } from './dothrow.js';
@@ -2452,6 +2467,30 @@ async function use_unicorn_horn(obj, state = game, env = {}) {
 // top of retouch_object() answers 1 as well, so it changes nothing either.
 // Porting the artifact arm needs touch_artifact()'s blast, bane_applies(),
 // losehp() and remove_worn_item().
+// apply.c:doapply() switch cases whose handlers are not ported in this
+// JavaScript slice. Keep them out of the generic default, which C reaches
+// only after every named case has failed to match.
+const DOAPPLY_UNPORTED_NAMED_ARMS = new Set([
+    LUMP_OF_ROYAL_JELLY,
+    GRAPPLING_HOOK,
+    LEASH,
+    MAGIC_WHISTLE,
+    TIN_WHISTLE,
+    EUCALYPTUS_LEAF,
+    MIRROR,
+    BELL,
+    BELL_OF_OPENING,
+    CANDELABRUM_OF_INVOCATION,
+    POT_OIL,
+    TOWEL,
+    TIN_OPENER,
+    FIGURINE,
+    FLINT,
+    LUCKSTONE,
+    LOADSTONE,
+    TOUCHSTONE,
+]);
+
 export async function doapply(state = game, env = {}) {
     if (nohands(state.youmonst.data)) {
         await ttyPline(
@@ -2482,9 +2521,9 @@ export async function doapply(state = game, env = {}) {
     case LENSES:
         if (obj === state.ublindf) {
             if (!obj.cursed)
-                note_unported('do_wear.c Blindf_off');
+                await Blindf_off(obj, state);
         } else if (!state.ublindf) {
-            note_unported('do_wear.c Blindf_on');
+            await _doWearInternals.Blindf_on(obj, state);
         } else {
             const already = state.ublindf.otyp === TOWEL
                 ? 'covered by a towel'
@@ -2590,30 +2629,18 @@ export async function doapply(state = game, env = {}) {
         // BANANA also falls through here when not hallucinating. Those food
         // objects cannot be poles, picks, or axes because the source macros
         // admit only WEAPON_CLASS and TOOL_CLASS.
-        // C names LUMP_OF_ROYAL_JELLY before its default, but that helper is
-        // still unported. CREAM_PIE also has an earlier named arm, which the
-        // switch above handles. Other FOOD_CLASS items, including CARROT,
-        // use the generic result.
-        if (obj.oclass === FOOD_CLASS && obj.otyp !== LUMP_OF_ROYAL_JELLY) {
-            await ttyPline("Sorry, I don't know how to use that.", state);
-            return ECMD_FAIL;
-        }
-        // The same already-ported default result applies to ordinary armor.
-        if (obj.oclass === ARMOR_CLASS) {
-            await ttyPline("Sorry, I don't know how to use that.", state);
-            return ECMD_FAIL;
-        }
+        // The set above preserves each unported named switch arm rather than
+        // mistaking it for a generic refusal.
+        if (DOAPPLY_UNPORTED_NAMED_ARMS.has(obj.otyp))
+            throw new UnsupportedApplyError(
+                `doapply()'s arm for object type ${obj.otyp}`,
+            );
         if (is_pole(obj, state))
             return use_pole(obj, false, state);
         if (is_pick(obj, state) || is_axe(obj, state))
             return use_pick_axe(obj, state, env);
-        // Every named arm this port has not implemented, plus the default's
-        // other unported arms, stays fail-closed.
-        // The refusal names the object type so a session says which path it
-        // wanted without accidentally executing a partial implementation.
-        throw new UnsupportedApplyError(
-            `doapply()'s arm for object type ${obj.otyp}`,
-        );
+        await ttyPline("Sorry, I don't know how to use that.", state);
+        return ECMD_FAIL;
     }
     // C's tail, `if (obj && obj->oartifact) res |= arti_speak(obj)`, has no
     // reachable input: the retouch_object() stop above refuses every artifact
