@@ -11,6 +11,7 @@ import {
     AUTOSELECT_SINGLE,
     ALL_TYPES,
     ALL_TYPES_SELECTED,
+    A_WIS,
     AUTOUNLOCK_APPLY_KEY,
     AUTOUNLOCK_FORCE,
     AUTOUNLOCK_UNTRAP,
@@ -112,7 +113,8 @@ import { autokey, pick_lock } from './lock.js';
 import { bot, flush_screen, newsym, obj_to_glyph } from './display.js';
 import { hliquid } from './do_name.js';
 import { ceiling, surface, surface_typ } from './dungeon.js';
-import { dropy } from './do.js';
+import { dropy, revive_corpse } from './do.js';
+import { exercise } from './attrib.js';
 import { can_reach_floor, freehand, read_engr_at } from './engrave.js';
 import { makesingular } from './fruit.js';
 import { christen_monst, Monnam, oname, rndmonnam } from './do_name.js';
@@ -487,18 +489,20 @@ function fatal_corpse_mistake(obj, remotely, state) {
     );
 }
 
-// C ref: pickup.c rider_corpse_revival() (302-313). Only the FALSE result is
-// ported; the TRUE arm reaches revive_corpse(), which has no owner. No Rider
-// dies on D:1, so the refusal stands in for a corpse that cannot be generated
-// within reach of this command. It names which of C's two phrasings the
-// unported pline() would have used, because `remotely` decides nothing else.
-export function rider_corpse_revival(obj, remotely, state = game) {
+// C ref: pickup.c rider_corpse_revival() (302-313). A Rider's corpse moves,
+// revives through do.c:revive_corpse(), then exercises Wisdom and reports a
+// true result so its caller can stop handling the corpse.
+export async function rider_corpse_revival(obj, remotely, state = game) {
     if (!obj || obj.otyp !== CORPSE || !is_rider(state.mons[obj.corpsenm]))
         return false;
-    throw new UnsupportedPickupError(
-        "a Rider's corpse reviving at your "
-        + `${remotely ? 'attempted acquisition' : 'touch'}`,
+    await ttyPline(
+        `At your ${remotely ? 'attempted acquisition' : 'touch'}, `
+            + 'the corpse suddenly moves...',
+        state,
     );
+    await revive_corpse(obj, state);
+    await exercise(A_WIS, false, state);
+    return true;
 }
 
 // C ref: pickup.c:56-58 FOLLOW(), whose BY_NEXTHERE bit is hack.h:1243. A
@@ -876,6 +880,11 @@ function preflightPickupObjects(selected, state) {
     let projectedGold = money_cnt(state.invent);
     const actionable = selected.filter(({ obj }) =>
         obj !== state.uchain
+        // pickup.c:1830-1831 returns from pickup_object() after the Rider
+        // revival, before any lift or inventory planning. Keep that corpse
+        // out of this port's admission projection; pickup_object() performs
+        // the impure helper at its source position below.
+        && !(obj.otyp === CORPSE && is_rider(state.mons[obj.corpsenm]))
         && !(obj.where === OBJ_MINVENT
             && obj.owornmask
             && state.u?.uswallow));
@@ -896,11 +905,11 @@ function preflightPickupObjects(selected, state) {
                 'pickup() of a scroll of scare monster',
             );
         }
-        // pickup.c:1828-1831. Both helpers answer FALSE here or refuse; the
-        // runtime calls them again where C does.
+        // pickup.c:1828-1829. Fatal corpse handling is checked again at the
+        // source-position caller; Rider corpses are excluded above because
+        // that helper is impure and runs at pickup_object()'s commit point.
         if (obj.otyp === CORPSE) {
             fatal_corpse_mistake(obj, false, state);
-            rider_corpse_revival(obj, false, state);
         }
         assertObjectNameable(obj, state);
         let objectWeight = Math.trunc(obj.owt);
@@ -1241,7 +1250,7 @@ async function pickup_object(obj, count, telekinesis, env, plan) {
     }
     if (obj.otyp === CORPSE
         && (fatal_corpse_mistake(obj, telekinesis, state)
-            || rider_corpse_revival(obj, telekinesis, state)))
+            || await rider_corpse_revival(obj, telekinesis, state)))
         return -1;
 
     const lifted = await lift_object(obj, null, count, telekinesis, state);

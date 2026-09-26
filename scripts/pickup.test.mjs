@@ -1480,7 +1480,7 @@ test('u_safe_from_fatal_corpse reads only the terms its mask names',
         );
     });
 
-test('pickup refuses the corpses its helpers cannot carry through',
+test('pickup handles fatal and reviving Rider corpses',
     async () => {
         // fatal_corpse_mistake(): bare hands on a petrifying corpse reach
         // instapetrify() or a stone-golem polymorph, neither of them ported.
@@ -1507,31 +1507,28 @@ test('pickup refuses the corpses its helpers cannot carry through',
         assert.equal(await pickup(0, petrifying), 1);
         assert.equal(cockatrice.where, OBJ_INVENT);
 
-        // rider_corpse_revival(): a Rider's corpse calls revive_corpse().
-        // The hero's own hands lift it, so the refusal names C's "touch"
-        // phrasing rather than the telekinetic one.
+        // pickup.c rider_corpse_revival() runs before lift_object(). A Rider
+        // corpse revives at the hero's touch and is not transferred.
         const rider = await heroOnAnEmptySquare();
         rider.uarmg = { otyp: LEATHER_GLOVES };
         const death = typedObjectUnderHero(rider, CORPSE);
         death.corpsenm = PM_DEATH;
         death.dknown = false;
         rider.invent.pickup_prev = true;
-        await assert.rejects(
-            () => pickup(0, rider),
-            (error) => error instanceof UnsupportedPickupError
-                && /Rider's corpse reviving at your touch$/u
-                    .test(error.message),
-        );
-        assert.equal(death.where, OBJ_FLOOR);
+        quiet(rider);
+        // revive_corpse() can report both the sudden movement and the
+        // revived Rider; these are the user's acknowledgements of that play.
+        rider.nhDisplay.terminal._inputQueue.push(32, 32, 32, 32);
+        assert.equal(await pickup(0, rider), 1);
+        assert.notEqual(death.where, OBJ_FLOOR);
         assert.equal(rider.invent.pickup_prev, false);
-        assert.equal(death.dknown, false);
-        // Called directly the way zap.c and dothrow.c call it, with a NULL
-        // object and with the remote phrasing.
-        assert.equal(rider_corpse_revival(null, false, rider), false);
-        assert.throws(
-            () => rider_corpse_revival(death, true, rider),
-            /attempted acquisition$/u,
+        assert.match(
+            rider._ttyToplines,
+            /Death rises from the dead in a whirl of spectral skulls/u,
         );
+        // Called directly the way zap.c and dothrow.c call it, with a NULL
+        // object; the source returns FALSE without attempting any revival.
+        assert.equal(await rider_corpse_revival(null, false, rider), false);
     });
 
 test('pickup refuses a stack that would merge into the wielded weapon',

@@ -80,6 +80,8 @@ import {
     W_WEP,
     WARNING,
     WARN_OF_MON,
+    P_BASIC,
+    P_SKILLED,
     A_CON,
     A_WIS,
     D_TRAPPED,
@@ -226,7 +228,7 @@ import { cancel_monst, resist, Fire_resistance, Cold_resistance } from './zap.js
 import { healmon, migrate_mon, set_ustuck, wake_nearto } from './mon.js';
 import { monflee } from './monmove.js';
 import { throwit } from './dothrow.js';
-import { spell_skilltype } from './startup_skills.js';
+import { P_MAX_SKILL, spell_skilltype } from './startup_skills.js';
 import { spelleffects } from './spell.js';
 import { seffects } from './read.js';
 import { charge_ok } from './read.js';
@@ -1240,13 +1242,7 @@ function randomFromEnv(env) {
     return random;
 }
 
-/**
- * Port the existing-object/A_NONE branch of artifact.c:mk_artifact().
- *
- * This is the complete branch used by obj.js during random object creation.
- * Alignment-specific divine gifts create a new object and use role skills;
- * that distinct branch is outside the initial-level object path.
- */
+/** Port artifact.c:mk_artifact(), including existing-object and divine gifts. */
 export function mk_artifact(
     obj,
     alignment = A_NONE,
@@ -1254,48 +1250,102 @@ export function mk_artifact(
     adjustSpe = false,
     env = null,
 ) {
-    if (alignment !== A_NONE) {
-        throw new RangeError(
-            'aligned mk_artifact gifts are not implemented by the object hook',
-        );
-    }
     const state = artifactTables(env);
-    if (!obj) return obj;
-    const objectType = state.objects?.[obj.otyp];
-    if (!objectType)
+    const byAlign = alignment !== A_NONE;
+    const objectType = (!byAlign && obj)
+        ? state.objects?.[obj.otyp]
+        : null;
+    if (!byAlign && obj && !objectType)
         throw new RangeError(`invalid artifact base object type ${obj.otyp}`);
-
-    const unique = Boolean(objectType.oc_unique);
+    const unique = Boolean(!byAlign && obj && objectType.oc_unique);
     const eligible = [];
+    let candidateCount = 0;
+    let fallbackCount = 0;
+    const random = randomFromEnv(env);
+
     for (let index = 1; state.artilist[index].otyp; ++index) {
         const art = state.artilist[index];
         if (state.artiexist[index].exists) continue;
         if ((art.spfx & SPFX_NOGEN) || unique) continue;
         if (art.gift_value > maxGiftValue
-            && art.role !== state.urole?.mnum) {
+            && art.role !== state.urole?.mnum) continue;
+
+        if (!byAlign) {
+            if (obj && art.otyp === obj.otyp)
+                eligible[candidateCount++] = index;
             continue;
         }
-        // Role, race, alignment, SPFX_RESTR, and weapon skill only constrain
-        // the source's by-alignment gift branch, not existing-object conversion.
-        if (art.otyp === obj.otyp) eligible.push(index);
+
+        const species = state.mons?.[art.race];
+        const hostileToRace = art.race !== NON_PM
+            && Boolean((species?.mflags2 ?? 0)
+                & (state.urace?.hatemask ?? 0));
+        if ((art.alignment === alignment || art.alignment === A_NONE)
+            && !hostileToRace) {
+            if (art.role === state.urole?.mnum) {
+                eligible.length = 0;
+                eligible[0] = index;
+                candidateCount = 1;
+                break;
+            }
+
+            let skillCompatibility = P_SKILLED;
+            const type = state.objects?.[art.otyp];
+            if (!type)
+                throw new RangeError(
+                    `invalid artifact base object type ${art.otyp}`,
+                );
+            if (type.oc_class === WEAPON_CLASS) {
+                const skill = Math.trunc(type.oc_skill ?? 0);
+                skillCompatibility = P_MAX_SKILL(Math.abs(skill), state);
+            }
+
+            const alignmentEligible = art.alignment !== A_NONE
+                || state.u?.ugifts > 0
+                || !random(3);
+            const skillEligible = !random(4)
+                || skillCompatibility >= P_SKILLED
+                || (skillCompatibility >= P_BASIC && Boolean(random(2)));
+            if (alignmentEligible && skillEligible) {
+                eligible[candidateCount++] = index;
+            } else if (!candidateCount) {
+                // C writes fallback entries at eligible[altn++] while n is
+                // zero, then uses that prefix only if no regular candidate
+                // passes the randomized gates.
+                eligible[fallbackCount++] = index;
+            }
+        }
     }
 
-    if (eligible.length) {
-        const selected = eligible[randomFromEnv(env)(eligible.length)];
-        if (!Number.isInteger(selected))
-            throw new RangeError('artifact rn2 result was outside its bound');
-        const art = state.artilist[selected];
-        obj.oeroded = 0;
-        obj.oeroded2 = 0;
-        obj = onameArtifact(obj, art.name, state);
-        // oname() normally set both fields already. The source deliberately
-        // repeats them here so preserve that ownership boundary.
-        obj.oartifact = selected;
-        artifact_origin(obj, ONAME_RANDOM, state);
-        if (adjustSpe) {
-            const newSpe = Math.trunc(obj.spe) + art.gen_spe;
-            if (newSpe >= -10 && newSpe < 10) obj.spe = newSpe;
-        }
+    const count = candidateCount || fallbackCount;
+    if (!count) {
+        if (byAlign && obj) dispose_of_orig_obj(obj);
+        if (byAlign) return null;
+        if (obj && permapoisoned(obj)) obj.opoisoned = true;
+        return obj;
+    }
+
+    const selected = eligible[random(count)];
+    if (!Number.isInteger(selected))
+        throw new RangeError('artifact rn2 result was outside its bound');
+    const art = state.artilist[selected];
+
+    if (byAlign) {
+        obj = mksobj(art.otyp, true, false, { ...env, state });
+    }
+    if (!obj)
+        throw new Error('mk_artifact selected a candidate without an object');
+
+    obj.oeroded = 0;
+    obj.oeroded2 = 0;
+    obj = onameArtifact(obj, art.name, state);
+    // C assigns the index and provenance again after oname() has updated the
+    // artifact-existence table; retain that order for both caller branches.
+    obj.oartifact = selected;
+    artifact_origin(obj, ONAME_RANDOM, state);
+    if (adjustSpe) {
+        const newSpe = Math.trunc(obj.spe) + art.gen_spe;
+        if (newSpe >= -10 && newSpe < 10) obj.spe = newSpe;
     }
     if (permapoisoned(obj)) obj.opoisoned = true;
     return obj;
