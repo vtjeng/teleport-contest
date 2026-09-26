@@ -1,0 +1,564 @@
+{
+  "version": 1,
+  "batch": "v7",
+  "cases": [
+    {
+      "id": "blessed-book-undead",
+      "title": "Blessed Book of the Dead turns an elf zombie away",
+      "mission": "C-first source mission for spell.c:deadbook. Setup: Wizard debug setup with a blessed Book of the Dead and nearby undead outside the invocation position. Action history: Read the book, observe nearby undead, relocate, and read again only if the item/state permits. Expected C observation: C records the blessed undead-pacification branch and changed monster hostility/visibility.",
+      "selectionRationale": "Selected from the C source before JavaScript comparison. A distinct Book of the Dead effect rather than v2 spell memory or v6 Book of Earth reading. Prior-batch overlap review: The C book-of-the-dead undead pacification branch is distinct from Scroll of Earth and known-spell read returns; the v5 unmatched pet ration case stops earlier in wish lookup. Same broad read setup only prepares the reached blessed deadbook arm. The final C behavior and causal history are distinct from all reviewed prior cases.",
+      "sourcePointers": [
+        "nethack-c/upstream/src/spell.c: deadbook()"
+      ],
+      "cOutcome": "spell.c:deadbook blessed undead pacification; step 48 shows the elf zombie turning to flee after reading the blessed Book of the Dead. At C step 48: spell.c:deadbook blessed undead pacification; step 48 shows the elf zombie turning to flee after reading the blessed Book of the Dead.",
+      "outcome": "spell.c:deadbook blessed undead pacification; step 48 shows the elf zombie turning to flee after reading the blessed Book of the Dead. At C step 48: spell.c:deadbook blessed undead pacification; step 48 shows the elf zombie turning to flee after reading the blessed Book of the Dead.",
+      "inputs": {
+        "seed": 70726012,
+        "datetime": "20260926203000",
+        "role": null,
+        "race": null,
+        "gender": null,
+        "alignment": null,
+        "playmode": null,
+        "keyCount": 85,
+        "boundaries": 86
+      },
+      "recipe": "challenges/cases/v7/blessed-book-undead.recipe.session.json",
+      "recipeSha256": "66552fd172517ab2995249eac6750f1c1fa1d75a59e47cd2ea7f388bbd2ab2d7",
+      "recording": "challenges/cases/v7/blessed-book-undead.session.json",
+      "recordingSha256": "4a76c8a0c760a975400edb36b600bfa3566e81ca116805fa3c82156baf3bb90e",
+      "reproducibility": "Independent C rerecord command: \"node\" \"scripts/run-bounded.mjs\" \"fresh\" \"--\" \"node\" \"scripts/record-session.mjs\" \"challenges/cases/v7/blessed-book-undead.recipe.session.json\" \"/tmp/C14-final-rerecord-blessed-book-undead.session.json\"; exit code 0. The rerecord at /tmp/C14-final-rerecord-blessed-book-undead.session.json is byte-identical to the committed C recording (SHA-256 4a76c8a0c760a975400edb36b600bfa3566e81ca116805fa3c82156baf3bb90e); 86 boundaries. Log: /tmp/teleport-loop-worker-c-20260925/.cache/C14-final-rerecord-blessed-book-undead.log."
+    },
+    {
+      "id": "crystal-query-reached",
+      "title": "Crystal ball gaze query",
+      "mission": "C-first source mission for detect.c:use_crystal_ball. Setup: Fresh intelligent hero with a charged uncursed crystal ball; a separate valid variant uses a cursed ball. Action history: Gaze from a changed room, repeat after moving, and observe how charge/status affects the second result. Expected C observation: C records the gaze prompt/result, charge use or adverse effect, and map/screen changes.",
+      "selectionRationale": "Selected from the C source before JavaScript comparison. A stateful detection item behavior not present among v6 marker, fountain, tinning, or stethoscope missions. Prior-batch overlap review: Crystal-ball gaze/vision/charge branch is distinct from stethoscope listening at a monster or floor; both are apply actions but the selected C function and conditions differ. The final C behavior and causal history are distinct from all reviewed prior cases.",
+      "sourcePointers": [
+        "nethack-c/upstream/src/detect.c: use_crystal_ball()"
+      ],
+      "cOutcome": "detect.c:use_crystal_ball gaze branch at step 18. At C step 19: use_crystal_ball reached: after applying the glass orb and dismissing the look hint, C asks “What do you look for?” and enters “You peer into the glass orb...”.",
+      "outcome": "detect.c:use_crystal_ball gaze branch at step 18. At C step 19: use_crystal_ball reached: after applying the glass orb and dismissing the look hint, C asks “What do you look for?” and enters “You peer into the glass orb...”.",
+      "inputs": {
+        "seed": 70726005,
+        "datetime": "20260926200000",
+        "role": null,
+        "race": null,
+        "gender": null,
+        "alignment": null,
+        "playmode": null,
+        "keyCount": 19,
+        "boundaries": 20
+      },
+      "recipe": "challenges/cases/v7/crystal-query-reached.recipe.session.json",
+      "recipeSha256": "7438659f6eedd2afdf5949847ba955d4f99fc36755d80f8c1c00380d7374a7c6",
+      "recording": "challenges/cases/v7/crystal-query-reached.session.json",
+      "recordingSha256": "71317422866c0e8eda5ca1c8c0681982f3843bef8e8a3f1ebd98d01890da5b5f",
+      "reproducibility": "Independent C rerecord command: \"node\" \"scripts/run-bounded.mjs\" \"fresh\" \"--\" \"node\" \"scripts/record-session.mjs\" \"challenges/cases/v7/crystal-query-reached.recipe.session.json\" \"/tmp/C14-final-rerecord-crystal-query-reached.session.json\"; exit code 0. The rerecord at /tmp/C14-final-rerecord-crystal-query-reached.session.json is byte-identical to the committed C recording (SHA-256 71317422866c0e8eda5ca1c8c0681982f3843bef8e8a3f1ebd98d01890da5b5f); 20 boundaries. Log: /tmp/teleport-loop-worker-c-20260925/.cache/C14-final-rerecord-crystal-query-reached.log."
+    },
+    {
+      "id": "priest-outside-temple-chat",
+      "title": "Peaceful priest becomes hostile outside the temple",
+      "mission": "C-first source mission for priest.c:priest_talk via sounds.c:domonnoise. Setup: Wizard creates a peaceful aligned cleric with `^G` away from a temple; answer yes to the debug force prompt. Action history: Use `#chat` and choose the adjacent priest direction. The C session also preserves an attempted westward direction that did not target the priest; the eastward direction reaches the intended talk handler. Expected C observation: C sends the non-temple peaceful priest through priest_talk; because inhistemple(priest) is false, it marks the priest hostile and prints `Thou wouldst have words, eh?  I'll give thee a word or two!` at step 34.",
+      "selectionRationale": "Selected from the C source before JavaScript comparison. Distinct from v6 `priest-sit-altar`, whose reached behavior is sitting on a wished altar, and v2 `pray.c:offer_corpse`; no unresolved earlier priest_talk cranky branch is present in the queue. Count only if the first mismatch reaches `priest.c:priest_talk`, not shared wizard-genesis/input handling. Prior-batch overlap review: The actual first mismatch is the aligned-cleric minion initialization branch (newemin/min_align), not generic nymph generation or altar sitting. The C history creates a peaceful aligned priest via forced aligned-cleric wizard creation, then chats outside its temple. The final C behavior and causal history are distinct from all reviewed prior cases.",
+      "sourcePointers": [
+        "nethack-c/upstream/src/makemon.c: makemon() / newemin()",
+        "nethack-c/upstream/src/sounds.c: domonnoise()",
+        "nethack-c/upstream/src/priest.c: priest_talk()"
+      ],
+      "cOutcome": "Wizard-forced peaceful aligned cleric appears; #chat reaches priest_talk outside temple and turns it hostile. At C step 34: `#chat` directed east reaches `priest_talk`; C prints the cranky response and turns the peaceful aligned cleric hostile because the conversation occurs outside its temple.",
+      "outcome": "Wizard-forced peaceful aligned cleric appears; #chat reaches priest_talk outside temple and turns it hostile. At C step 34: `#chat` directed east reaches `priest_talk`; C prints the cranky response and turns the peaceful aligned cleric hostile because the conversation occurs outside its temple.",
+      "inputs": {
+        "seed": 70726174,
+        "datetime": "20260927092000",
+        "role": null,
+        "race": null,
+        "gender": null,
+        "alignment": null,
+        "playmode": null,
+        "keyCount": 34,
+        "boundaries": 35
+      },
+      "recipe": "challenges/cases/v7/priest-outside-temple-chat.recipe.session.json",
+      "recipeSha256": "fef29a43a7857efd0935777eb584af573ec0096aed4e254d3f7deaff8010c4f8",
+      "recording": "challenges/cases/v7/priest-outside-temple-chat.session.json",
+      "recordingSha256": "76f2f565d9ff27f51adb9638e2ee8b3eab7edbe6d8fe058d470d84e89bd861a0",
+      "reproducibility": "Independent C rerecord command: \"node\" \"scripts/run-bounded.mjs\" \"fresh\" \"--\" \"node\" \"scripts/record-session.mjs\" \"challenges/cases/v7/priest-outside-temple-chat.recipe.session.json\" \"/tmp/C14-final-rerecord-priest-outside-temple-chat.session.json\"; exit code 0. The rerecord at /tmp/C14-final-rerecord-priest-outside-temple-chat.session.json is byte-identical to the committed C recording (SHA-256 76f2f565d9ff27f51adb9638e2ee8b3eab7edbe6d8fe058d470d84e89bd861a0); 35 boundaries. Log: /tmp/teleport-loop-worker-c-20260925/.cache/C14-final-rerecord-priest-outside-temple-chat.log."
+    },
+    {
+      "id": "spinach-tin-hunger",
+      "title": "Spinach tin improves strength",
+      "mission": "C-first source mission for eat.c:consume_tin / opentin. Setup: Fresh hungry Tourist or Healer with a spinach tin and tin opener; debug wish is setup-only. Action history: Open the tin, confirm consumption, continue ordinary play until hunger changes again, and inspect strength/status. Expected C observation: C displays tin-opening/eating lines and changes nutrition/strength/inventory in the source order.",
+      "selectionRationale": "Selected from the C source before JavaScript comparison. Tinning kit preparation differs from v6 tinning-kit-on-newt histories. Prior-batch overlap review: C eats an already made spinach tin through eat.c:start_tin and changes strength; prior unresolved tinning cases invoke apply.c:use_tinning_kit and do not reach consume_tin, while cookie eating is a different food type and post-effect. The final C behavior and causal history are distinct from all reviewed prior cases.",
+      "sourcePointers": [
+        "nethack-c/upstream/src/eat.c: start_tin()",
+        "nethack-c/upstream/src/eat.c: consume_tin()"
+      ],
+      "cOutcome": "eat.c:start_tin/consume_tin SPINACH_TIN; C prints the Popeye message and increases Strength. At C step 29: Healer opens a blessed tin of spinach, confirms “Eat it?”, then C prints “This makes you feel like Popeye!” and strength changes from 8 to 9 at T:1.",
+      "outcome": "eat.c:start_tin/consume_tin SPINACH_TIN; C prints the Popeye message and increases Strength. At C step 29: Healer opens a blessed tin of spinach, confirms “Eat it?”, then C prints “This makes you feel like Popeye!” and strength changes from 8 to 9 at T:1.",
+      "inputs": {
+        "seed": 70726112,
+        "datetime": "20260926214000",
+        "role": null,
+        "race": null,
+        "gender": null,
+        "alignment": null,
+        "playmode": null,
+        "keyCount": 29,
+        "boundaries": 30
+      },
+      "recipe": "challenges/cases/v7/spinach-tin-hunger.recipe.session.json",
+      "recipeSha256": "4a79896bef6274b7dc9acff6400cdb9c3efdb13e655c0de896e4fbe5f4ef3c96",
+      "recording": "challenges/cases/v7/spinach-tin-hunger.session.json",
+      "recordingSha256": "6c072a1e716c748312d2ceb758626b200ccb4dc47eaae3884df08f23e8809e74",
+      "reproducibility": "Independent C rerecord command: \"node\" \"scripts/run-bounded.mjs\" \"fresh\" \"--\" \"node\" \"scripts/record-session.mjs\" \"challenges/cases/v7/spinach-tin-hunger.recipe.session.json\" \"/tmp/C14-final-rerecord-spinach-tin-hunger.session.json\"; exit code 0. The rerecord at /tmp/C14-final-rerecord-spinach-tin-hunger.session.json is byte-identical to the committed C recording (SHA-256 6c072a1e716c748312d2ceb758626b200ccb4dc47eaae3884df08f23e8809e74); 30 boundaries. Log: /tmp/teleport-loop-worker-c-20260925/.cache/C14-final-rerecord-spinach-tin-hunger.log."
+    },
+    {
+      "id": "trapdoor-pet-transit",
+      "title": "Trapdoor carries a kitten to the next level",
+      "mission": "C-first source mission for trap.c:fall_through. Setup: Fresh small human with a nearby pet; reach a trap door or hole and vary flight/levitation state. Action history: First approach while unable to fall or with the pet obstructing, alter the condition, then trigger the drop and return by stairs. Expected C observation: C records the refusal or fall message, level change, pet/objects handling, and resulting depth.",
+      "selectionRationale": "Selected from the C source before JavaScript comparison. Trap transit differs from v1 stair ascent/descent and v4 dig-through-door setups. Prior-batch overlap review: The reached C event is a trapdoor fall-through and level/pet transition; prior cases dig a pit or set a bear trap and never enter fall_through/getbones. The final C behavior and causal history are distinct from all reviewed prior cases.",
+      "sourcePointers": [
+        "nethack-c/upstream/src/trap.c: fall_through()",
+        "nethack-c/upstream/src/bones.c: getbones()"
+      ],
+      "cOutcome": "trap.c:fall_through transitions the Rogue and kitten to D:2; post-transition path reaches bones.c:getbones. At C step 16: Rogue enters trap.c:fall_through: after the trap-door message is dismissed, C shows Dlvl:2 at T:4 and the kitten arrives on the new level.",
+      "outcome": "trap.c:fall_through transitions the Rogue and kitten to D:2; post-transition path reaches bones.c:getbones. At C step 16: Rogue enters trap.c:fall_through: after the trap-door message is dismissed, C shows Dlvl:2 at T:4 and the kitten arrives on the new level.",
+      "inputs": {
+        "seed": 70726113,
+        "datetime": "20260926215000",
+        "role": null,
+        "race": null,
+        "gender": null,
+        "alignment": null,
+        "playmode": null,
+        "keyCount": 16,
+        "boundaries": 17
+      },
+      "recipe": "challenges/cases/v7/trapdoor-pet-transit.recipe.session.json",
+      "recipeSha256": "21c6ff25a48a6bc63ca3d4811df3bdfe6cd2ffe12aabc2afd8973aabc546207e",
+      "recording": "challenges/cases/v7/trapdoor-pet-transit.session.json",
+      "recordingSha256": "995f464e33f2d53c6eb4f4e6149db8198273ed137fa0b5517ca62cd65d4e0328",
+      "reproducibility": "Independent C rerecord command: \"node\" \"scripts/run-bounded.mjs\" \"fresh\" \"--\" \"node\" \"scripts/record-session.mjs\" \"challenges/cases/v7/trapdoor-pet-transit.recipe.session.json\" \"/tmp/C14-final-rerecord-trapdoor-pet-transit.session.json\"; exit code 0. The rerecord at /tmp/C14-final-rerecord-trapdoor-pet-transit.session.json is byte-identical to the committed C recording (SHA-256 995f464e33f2d53c6eb4f4e6149db8198273ed137fa0b5517ca62cd65d4e0328); 17 boundaries. Log: /tmp/teleport-loop-worker-c-20260925/.cache/C14-final-rerecord-trapdoor-pet-transit.log."
+    },
+    {
+      "id": "lizard-corpse-cures-stoning-corrected",
+      "title": "Lizard corpse cures active petrification",
+      "mission": "C-first source mission for eat.c:eatcorpse. Setup: Wizard sets a positive STONED timeout through #wizintrinsic, then wishes for a fresh lizard corpse. Action history: Immediately eat the lizard corpse; observe eat.c cprefx() dispatch to the PM_LIZARD branch and fix_petrification() before the timeout expires. Expected C observation: C clears the active petrification timeout and prints “You feel limber!” from eat.c fix_petrification() while consuming the lizard corpse.",
+      "selectionRationale": "Selected from the C source before JavaScript comparison. The unresolved v5 case is a pet eating a thrown tripe ration through dog_eat; v6 covers cookies, rations, and tinning. This is hero-controlled PM_LIZARD cure during active petrification, a separate eat.c cprefx branch and causal history. Prior-batch overlap review: The first mismatching C setup branch is wizcmds.c:wiz_intrinsic setting STONED, which is absent from all prior unresolved source/history families in the crosswalk; the reached lizard cure itself is a distinct hero-controlled eat.c branch, unlike pet ration or tinning. The final C behavior and causal history are distinct from all reviewed prior cases.",
+      "sourcePointers": [
+        "nethack-c/upstream/src/wizcmds.c: wiz_intrinsic()",
+        "nethack-c/upstream/src/eat.c: eatcorpse()",
+        "nethack-c/upstream/src/eat.c: fix_petrification()"
+      ],
+      "cOutcome": "C reaches eat.c:eatcorpse PM_LIZARD -> fix_petrification and prints You feel limber. At C step 35: While the Wizard has the C #wizintrinsic STONED timeout, eating the wished lizard corpse reaches eat.c PM_LIZARD -> fix_petrification(); C prints “You feel limber!” and clears the Stone status.",
+      "outcome": "C reaches eat.c:eatcorpse PM_LIZARD -> fix_petrification and prints You feel limber. At C step 35: While the Wizard has the C #wizintrinsic STONED timeout, eating the wished lizard corpse reaches eat.c PM_LIZARD -> fix_petrification(); C prints “You feel limber!” and clears the Stone status.",
+      "inputs": {
+        "seed": 70727003,
+        "datetime": "20260928102000",
+        "role": "Wizard",
+        "race": "human",
+        "gender": "female",
+        "alignment": "neutral",
+        "playmode": "debug",
+        "keyCount": 36,
+        "boundaries": 37
+      },
+      "recipe": "challenges/cases/v7/lizard-corpse-cures-stoning-corrected.recipe.session.json",
+      "recipeSha256": "edca66fd45bb62acda508e3cea52f1ca972a918d4bbe4e3f7cb36692e26a50d2",
+      "recording": "challenges/cases/v7/lizard-corpse-cures-stoning-corrected.session.json",
+      "recordingSha256": "6bf1416d9de4abf481689ec1d723ff6775badd518b9222d66c685b3157cc4149",
+      "reproducibility": "Independent C rerecord command: \"node\" \"scripts/run-bounded.mjs\" \"fresh\" \"--\" \"node\" \"scripts/record-session.mjs\" \"challenges/cases/v7/lizard-corpse-cures-stoning-corrected.recipe.session.json\" \"/tmp/C14-final-rerecord-lizard-corpse-cures-stoning-corrected.session.json\"; exit code 0. The rerecord at /tmp/C14-final-rerecord-lizard-corpse-cures-stoning-corrected.session.json is byte-identical to the committed C recording (SHA-256 6bf1416d9de4abf481689ec1d723ff6775badd518b9222d66c685b3157cc4149); 37 boundaries. Log: /tmp/teleport-loop-worker-c-20260925/.cache/C14-final-rerecord-lizard-corpse-cures-stoning-corrected.log."
+    },
+    {
+      "id": "monster-detection-potion-select2",
+      "title": "Monster detection potion opens the monster map",
+      "mission": "C-first source mission for potion.c:peffect_monster_detection -> detect.c:monster_detect. Setup: Wizard creates an uncursed potion of monster detection; an active monster already on D:1 ensures monster_detect takes its found-monster path. Action history: Quaff the potion and follow the “monster of interest” browse prompt to observe revealed monsters and the post-detection map. Expected C observation: C reaches monster_detect with an active monster, prints “You sense the presence of monsters.”, enters browse_map, and returns with the consumed potion state.",
+      "selectionRationale": "Selected from the C source before JavaScript comparison. The prior unresolved v6 potion case is djinni_from_bottle after a different potion bottle; this candidate uses the potion detection branch and map browse. Exclude if its first mismatch is shared wish/quaff setup rather than peffect_monster_detection or monster_detect. Prior-batch overlap review: C reaches potion.c:peffect_monster_detection -> detect.c:monster_detect and opens the one-shot monster browse map; v6 cases are djinni-from-bottle and object-type naming, not detection. Earlier nonexistent-scroll/inventory-letter probes remain valid misses outside the manifest. The final C behavior and causal history are distinct from all reviewed prior cases.",
+      "sourcePointers": [
+        "nethack-c/upstream/src/potion.c: peffect_monster_detection()",
+        "nethack-c/upstream/src/detect.c: monster_detect()",
+        "nethack-c/upstream/src/detect.c: browse_map()"
+      ],
+      "cOutcome": "Potion of monster detection invokes detect.c:monster_detect; active monster triggers browse_map(TER_DETECT|TER_MON) at C boundary 53. At C boundary 53: Potion of monster detection invokes detect.c:monster_detect; active monster triggers browse_map(TER_DETECT|TER_MON) at C boundary 53.",
+      "outcome": "Potion of monster detection invokes detect.c:monster_detect; active monster triggers browse_map(TER_DETECT|TER_MON) at C boundary 53. At C boundary 53: Potion of monster detection invokes detect.c:monster_detect; active monster triggers browse_map(TER_DETECT|TER_MON) at C boundary 53.",
+      "inputs": {
+        "seed": 70727120,
+        "datetime": "20260929130000",
+        "role": "Wizard",
+        "race": "human",
+        "gender": "female",
+        "alignment": "neutral",
+        "playmode": "debug",
+        "keyCount": 52,
+        "boundaries": 53
+      },
+      "recipe": "challenges/cases/v7/monster-detection-potion-select2.recipe.session.json",
+      "recipeSha256": "1842723789573a15cb97066c02e69ba34833581490037e45ab107fbf0420bfa4",
+      "recording": "challenges/cases/v7/monster-detection-potion-select2.session.json",
+      "recordingSha256": "77c4b7716462754c10c93173b85b750e21ad92fc9fa323d5f6b4b8c0d0278dd0",
+      "reproducibility": "Independent C rerecord command: \"node\" \"scripts/run-bounded.mjs\" \"fresh\" \"--\" \"node\" \"scripts/record-session.mjs\" \"challenges/cases/v7/monster-detection-potion-select2.recipe.session.json\" \"/tmp/C14-final-rerecord-monster-detection-potion-select2.session.json\"; exit code 0. The rerecord at /tmp/C14-final-rerecord-monster-detection-potion-select2.session.json is byte-identical to the committed C recording (SHA-256 77c4b7716462754c10c93173b85b750e21ad92fc9fa323d5f6b4b8c0d0278dd0); 53 boundaries. Log: /tmp/teleport-loop-worker-c-20260925/.cache/C14-final-rerecord-monster-detection-potion-select2.log."
+    },
+    {
+      "id": "potion-invisibility-corrected2",
+      "title": "Potion of invisibility",
+      "mission": "C-first source mission for potion.c:peffect_invisibility. Setup: Fresh Wizard wishes for an uncursed potion of invisibility. Action history: Quaff once and inspect the visibility status and C message; no preceding status effect is set. Expected C observation: C executes the ordinary invisibility potion branch, updates timed invisibility, and emits the branch-specific message/status screen.",
+      "selectionRationale": "Selected from the C source before JavaScript comparison. Unlike v6 potion.c:djinni_from_bottle, this is the direct potion-effect invisibility branch with no bottle or djinni history. The first mismatch must reach this effect rather than common wish/quaff setup. Prior-batch overlap review: The C effect is the direct timed invisibility potion arm, distinct from a Healer potion triggering djinni_from_bottle and from naming an object type. The final C behavior and causal history are distinct from all reviewed prior cases.",
+      "sourcePointers": [
+        "nethack-c/upstream/src/potion.c: peffect_invisibility()"
+      ],
+      "cOutcome": "C quaffs the wished emerald potion of invisibility and reports that the hero cannot see themself. At C step 36: Gee! All of a sudden, you can't see yourself.",
+      "outcome": "C quaffs the wished emerald potion of invisibility and reports that the hero cannot see themself. At C step 36: Gee! All of a sudden, you can't see yourself.",
+      "inputs": {
+        "seed": 70727116,
+        "datetime": "20260929122000",
+        "role": "Wizard",
+        "race": "human",
+        "gender": "female",
+        "alignment": "neutral",
+        "playmode": "debug",
+        "keyCount": 36,
+        "boundaries": 37
+      },
+      "recipe": "challenges/cases/v7/potion-invisibility-corrected2.recipe.session.json",
+      "recipeSha256": "f0cb63a1fe1223ca0814c81bc0f8f0018bd02561afb61a7da5fe61d92844fcf7",
+      "recording": "challenges/cases/v7/potion-invisibility-corrected2.session.json",
+      "recordingSha256": "03bd2489424a53203f9918744cfe2a9829670fbfcea7df62fad06e7f15e9a22f",
+      "reproducibility": "Independent C rerecord command: \"node\" \"scripts/run-bounded.mjs\" \"fresh\" \"--\" \"node\" \"scripts/record-session.mjs\" \"challenges/cases/v7/potion-invisibility-corrected2.recipe.session.json\" \"/tmp/C14-final-rerecord-potion-invisibility-corrected2.session.json\"; exit code 0. The rerecord at /tmp/C14-final-rerecord-potion-invisibility-corrected2.session.json is byte-identical to the committed C recording (SHA-256 03bd2489424a53203f9918744cfe2a9829670fbfcea7df62fad06e7f15e9a22f); 37 boundaries. Log: /tmp/teleport-loop-worker-c-20260925/.cache/C14-final-rerecord-potion-invisibility-corrected2.log."
+    },
+    {
+      "id": "potion-gain-level",
+      "title": "Potion of gain level",
+      "mission": "C-first source mission for potion.c:peffect_gain_level. Setup: Fresh Wizard wishes for an uncursed potion of gain level. Action history: Quaff and observe level/experience state; the player stays in the same dungeon branch unless C’s potion source says otherwise. Expected C observation: C performs the potion’s level/experience transition and displays its exact gain-level message and updated status.",
+      "selectionRationale": "Selected from the C source before JavaScript comparison. Different source effect/state transition from v5 cursed-teleport level transit and v6 djinni bottle quaff. Count only a first mismatch at gain-level handling, not read/wish/quaff plumbing. Prior-batch overlap review: The C potion updates experience level and invokes newhp; the v5 cursed scroll changes dungeon depth, and v6 potion mismatch is a djinni bottle branch. The final C behavior and causal history are distinct from all reviewed prior cases.",
+      "sourcePointers": [
+        "nethack-c/upstream/src/potion.c: peffect_gain_level()",
+        "nethack-c/upstream/src/attrib.c: newhp()"
+      ],
+      "cOutcome": "C quaffs a potion of gain level and enters experience level 2. At C step 34: C quaffs the wished dark potion and prints “You feel more experienced. Welcome to experience level 2.”",
+      "outcome": "C quaffs a potion of gain level and enters experience level 2. At C step 34: C quaffs the wished dark potion and prints “You feel more experienced. Welcome to experience level 2.”",
+      "inputs": {
+        "seed": 70727103,
+        "datetime": "20260929103000",
+        "role": "Wizard",
+        "race": "human",
+        "gender": "female",
+        "alignment": "neutral",
+        "playmode": "debug",
+        "keyCount": 34,
+        "boundaries": 35
+      },
+      "recipe": "challenges/cases/v7/potion-gain-level.recipe.session.json",
+      "recipeSha256": "d27c513188557e7a7f9c07c4361d3c29aff0aa6d48d5c6beaad475525463c7b4",
+      "recording": "challenges/cases/v7/potion-gain-level.session.json",
+      "recordingSha256": "a4fc9853403ad27a0f5ea53a9ffe6f8fbf4b5b9adb87f29d08d011635c641374",
+      "reproducibility": "Independent C rerecord command: \"node\" \"scripts/run-bounded.mjs\" \"fresh\" \"--\" \"node\" \"scripts/record-session.mjs\" \"challenges/cases/v7/potion-gain-level.recipe.session.json\" \"/tmp/C14-final-rerecord-potion-gain-level.session.json\"; exit code 0. The rerecord at /tmp/C14-final-rerecord-potion-gain-level.session.json is byte-identical to the committed C recording (SHA-256 a4fc9853403ad27a0f5ea53a9ffe6f8fbf4b5b9adb87f29d08d011635c641374); 35 boundaries. Log: /tmp/teleport-loop-worker-c-20260925/.cache/C14-final-rerecord-potion-gain-level.log."
+    },
+    {
+      "id": "saddled-horse-mount-knight-corrected",
+      "title": "Knight saddles the pony",
+      "mission": "C-first source mission for steed.c:doride / use_saddle. Setup: Wizard creates an adjacent tame pony/horse and wishes for a saddle with a clear path to the creature. Action history: Saddle the tame mount, then invoke the ride command and inspect mount state and status. Expected C observation: C reaches the saddle/ride branch, setting the steed pointer and showing mounted movement/status.",
+      "selectionRationale": "Selected from the C source before JavaScript comparison. Different active mount and saddle state from all prior pet feeding, talking, theft, and monster-combat histories. Keep only if C reaches mounting; a failed tame/adjacency setup is a valid miss. Prior-batch overlap review: The reached C behavior is successful saddle application and steed state setup, distinct from pet feeding, nymph theft, and digging. The original Wizard wrong-slot/direction/resistance probes remain provenance. The final C behavior and causal history are distinct from all reviewed prior cases.",
+      "sourcePointers": [
+        "nethack-c/upstream/src/steed.c: use_saddle()",
+        "nethack-c/upstream/src/steed.c: doride()"
+      ],
+      "cOutcome": "Knight wish setup reaches steed.c:use_saddle success, puts a saddle on the adjacent tame pony; ride prompt is reached but mount result needs one more input. At C step 24: You put the saddle on the pony. The ride prompt is reached later, but its outcome is outside the recorded input.",
+      "outcome": "Knight wish setup reaches steed.c:use_saddle success, puts a saddle on the adjacent tame pony; ride prompt is reached but mount result needs one more input. At C step 24: You put the saddle on the pony. The ride prompt is reached later, but its outcome is outside the recorded input.",
+      "inputs": {
+        "seed": 70727129,
+        "datetime": "20260929125000",
+        "role": "Knight",
+        "race": "human",
+        "gender": "female",
+        "alignment": "neutral",
+        "playmode": "debug",
+        "keyCount": 32,
+        "boundaries": 33
+      },
+      "recipe": "challenges/cases/v7/saddled-horse-mount-knight-corrected.recipe.session.json",
+      "recipeSha256": "6b71ebf28f66bcc559245cae6c29eacd48dc8afcfc9d11f3e2cbdb5fe7273177",
+      "recording": "challenges/cases/v7/saddled-horse-mount-knight-corrected.session.json",
+      "recordingSha256": "51bc1d8c879266bcfabe97d5b1603122ed885c3f23cef4f2cd712ebdd1fc3f23",
+      "reproducibility": "Independent C rerecord command: \"node\" \"scripts/run-bounded.mjs\" \"fresh\" \"--\" \"node\" \"scripts/record-session.mjs\" \"challenges/cases/v7/saddled-horse-mount-knight-corrected.recipe.session.json\" \"/tmp/C14-final-rerecord-saddled-horse-mount-knight-corrected.session.json\"; exit code 0. The rerecord at /tmp/C14-final-rerecord-saddled-horse-mount-knight-corrected.session.json is byte-identical to the committed C recording (SHA-256 51bc1d8c879266bcfabe97d5b1603122ed885c3f23cef4f2cd712ebdd1fc3f23); 33 boundaries. Log: /tmp/teleport-loop-worker-c-20260925/.cache/C14-final-rerecord-saddled-horse-mount-knight-corrected.log."
+    },
+    {
+      "id": "throw-blindness-potion-hit-corrected",
+      "title": "Thrown blindness potion hits a grid bug",
+      "mission": "C-first source mission for potion.c:potionhit -> bottlename. Setup: Wizard wishes for a potion of blindness and creates an adjacent hostile grid bug. Action history: Throw the potion at the monster using the single-target direction path and observe the splash/status changes. Expected C observation: C reaches potionhit on the monster and applies the potion’s monster-side blind/status effect.",
+      "selectionRationale": "Selected from the C source before JavaScript comparison. Different from v3 singleton worn-item throw and v5 direct WAN_STRIKING bhitm; the target is potion impact and monster status. Exclude if its first mismatch stays in generic throw/wish setup. Prior-batch overlap review: The C action throws a potion that hits a monster and enters potionhit/bottlename. The unresolved v5 path is direct wand-striking bhitm, v6 is whip apply, and v3 is throwing a singleton worn item. The thrown potion crash branch and random bottle noun are new. The final C behavior and causal history are distinct from all reviewed prior cases.",
+      "sourcePointers": [
+        "nethack-c/upstream/src/dothrow.c: throwit()",
+        "nethack-c/upstream/src/potion.c: potionhit()",
+        "nethack-c/upstream/src/potion.c: bottlename()"
+      ],
+      "cOutcome": "Target reached; the potion crashes on the adjacent grid bug. At C step 43: The carafe crashes on the grid bug's head and breaks into shards.",
+      "outcome": "Target reached; the potion crashes on the adjacent grid bug. At C step 43: The carafe crashes on the grid bug's head and breaks into shards.",
+      "inputs": {
+        "seed": 70727115,
+        "datetime": "20260929121000",
+        "role": "Wizard",
+        "race": "human",
+        "gender": "female",
+        "alignment": "neutral",
+        "playmode": "debug",
+        "keyCount": 43,
+        "boundaries": 44
+      },
+      "recipe": "challenges/cases/v7/throw-blindness-potion-hit-corrected.recipe.session.json",
+      "recipeSha256": "d42188165e9d1ead10fea1c1208dd6f93421f8f241372f0c5e3b7c574f033bd9",
+      "recording": "challenges/cases/v7/throw-blindness-potion-hit-corrected.session.json",
+      "recordingSha256": "008cbc04259cc70ac9489e4657207db7f4aede6892fca9699a4fb934a46446f6",
+      "reproducibility": "Independent C rerecord command: \"node\" \"scripts/run-bounded.mjs\" \"fresh\" \"--\" \"node\" \"scripts/record-session.mjs\" \"challenges/cases/v7/throw-blindness-potion-hit-corrected.recipe.session.json\" \"/tmp/C14-final-rerecord-throw-blindness-potion-hit-corrected.session.json\"; exit code 0. The rerecord at /tmp/C14-final-rerecord-throw-blindness-potion-hit-corrected.session.json is byte-identical to the committed C recording (SHA-256 008cbc04259cc70ac9489e4657207db7f4aede6892fca9699a4fb934a46446f6); 44 boundaries. Log: /tmp/teleport-loop-worker-c-20260925/.cache/C14-final-rerecord-throw-blindness-potion-hit-corrected.log."
+    },
+    {
+      "id": "unicorn-horn-blindness-corrected",
+      "title": "Unicorn horn cures potion blindness",
+      "mission": "C-first source mission for potion.c:peffect_blindness -> apply.c:use_unicorn_horn. Setup: Wizard creates a noncursed unicorn horn and independently induces blindness with a cursed potion. Action history: Apply the horn after blindness has a positive timeout; observe the cure ordering, object blessing/curse state, and final status. Expected C observation: C enters the noncursed unicorn-horn trouble scan, selects blindness as the first curable property under current conditions, clears it, and prints its cure message.",
+      "selectionRationale": "Selected from the C source before JavaScript comparison. v6 application histories are lockpicking, stethoscope, tinning kit and engraving tools. A carried horn curing an induced timed property is a different apply source branch; exclude if first mismatch is shared potion-drink or wish plumbing. Prior-batch overlap review: The first mismatch is a cursed potion of blindness setting its timed state, followed by an apply horn cure. No prior unresolved case reaches peffect_blindness; v6’s only potion mismatch is a Healer djinni-from-bottle case, and the v5 ration case stops in wish lookup. The final C behavior and causal history are distinct from all reviewed prior cases.",
+      "sourcePointers": [
+        "nethack-c/upstream/src/potion.c: peffect_blindness()",
+        "nethack-c/upstream/src/apply.c: use_unicorn_horn()"
+      ],
+      "cOutcome": "C drinks a wished cursed potion of blindness, then applies a unicorn horn; the horn clears blindness. First JS divergence occurs on blindness setup. At C step 56: You can see again.",
+      "outcome": "C drinks a wished cursed potion of blindness, then applies a unicorn horn; the horn clears blindness. First JS divergence occurs on blindness setup. At C step 56: You can see again.",
+      "inputs": {
+        "seed": 70727130,
+        "datetime": "20260929123000",
+        "role": "Wizard",
+        "race": "human",
+        "gender": "female",
+        "alignment": "neutral",
+        "playmode": "debug",
+        "keyCount": 56,
+        "boundaries": 57
+      },
+      "recipe": "challenges/cases/v7/unicorn-horn-blindness-corrected.recipe.session.json",
+      "recipeSha256": "62026a1d2af49c192fe9900fa825aec3a8ecbfd10232807f7cec8b687b20a946",
+      "recording": "challenges/cases/v7/unicorn-horn-blindness-corrected.session.json",
+      "recordingSha256": "7c5dc1f16f6f74865041b570f15399c2d68812a5ba1a083b341f1ddbc90365f7",
+      "reproducibility": "Independent C rerecord command: \"node\" \"scripts/run-bounded.mjs\" \"fresh\" \"--\" \"node\" \"scripts/record-session.mjs\" \"challenges/cases/v7/unicorn-horn-blindness-corrected.recipe.session.json\" \"/tmp/C14-final-rerecord-unicorn-horn-blindness-corrected.session.json\"; exit code 0. The rerecord at /tmp/C14-final-rerecord-unicorn-horn-blindness-corrected.session.json is byte-identical to the committed C recording (SHA-256 7c5dc1f16f6f74865041b570f15399c2d68812a5ba1a083b341f1ddbc90365f7); 57 boundaries. Log: /tmp/teleport-loop-worker-c-20260925/.cache/C14-final-rerecord-unicorn-horn-blindness-corrected.log."
+    },
+    {
+      "id": "boomerang-wall-stop",
+      "title": "Boomerang stops at a wall",
+      "mission": "C-first source mission for dothrow.c:throwit → zap.c:boomhit. Setup: Fresh Ranger with a wished boomerang, retaining a floor plan with a nearby wall or obstruction. Action history: Throw along a C-recorded direction and follow the returning-weapon path until the boomerang hits its wall boundary; inspect the floor object and attempt no unsupported rethrow unless the object is recovered. Expected C observation: C enters boomhit and its obstruction stop: the boomerang drops at the last valid tile rather than reaching the hero. Four source-planned return setups did not produce a catch; this recorded outcome is the reached branch, while catch/rethrow is deferred.",
+      "selectionRationale": "Selected from the C source before JavaScript comparison. Source-observed zap.c:boomhit wall-stop/drop is distinct from v3 dothrow.c:throw_obj singleton worn-item removal; the four return/catch attempts are retained as valid misses in provenance. Prior-batch overlap review: The matched C case reaches zap.c:boomhit wall obstruction and boomerang return/drop behavior; the Ranger case throws a worn singleton and the whip case uses apply.c:use_whip. The reached behavior and history differ. The final C behavior and causal history are distinct from all reviewed prior cases.",
+      "sourcePointers": [
+        "nethack-c/upstream/src/dothrow.c: throwit()",
+        "nethack-c/upstream/src/zap.c: boomhit()"
+      ],
+      "cOutcome": "C reaches a returning boomerang wall-stop and drops it; strict fresh replay passes. At C step 17: C threw a wished boomerang south after moving twice, then the boomerang stopped at a wall and appeared on the floor; no return/catch occurred.",
+      "outcome": "C reaches a returning boomerang wall-stop and drops it; strict fresh replay passes. At C step 17: C threw a wished boomerang south after moving twice, then the boomerang stopped at a wall and appeared on the floor; no return/catch occurred.",
+      "inputs": {
+        "seed": 70726103,
+        "datetime": "20260926212000",
+        "role": null,
+        "race": null,
+        "gender": null,
+        "alignment": null,
+        "playmode": null,
+        "keyCount": 17,
+        "boundaries": 18
+      },
+      "recipe": "challenges/cases/v7/boomerang-wall-stop.recipe.session.json",
+      "recipeSha256": "e0604480dccd9356a9843ced25784a70e83fc2e29b8dcf41fcc5c833e97a6d44",
+      "recording": "challenges/cases/v7/boomerang-wall-stop.session.json",
+      "recordingSha256": "d9fb3600fff589e8eded5e05e40c04471e857852a38bc564bf45e6022790ad45",
+      "reproducibility": "Independent C rerecord command: \"node\" \"scripts/run-bounded.mjs\" \"fresh\" \"--\" \"node\" \"scripts/record-session.mjs\" \"challenges/cases/v7/boomerang-wall-stop.recipe.session.json\" \"/tmp/C14-final-rerecord-boomerang-wall-stop.session.json\"; exit code 0. The rerecord at /tmp/C14-final-rerecord-boomerang-wall-stop.session.json is byte-identical to the committed C recording (SHA-256 d9fb3600fff589e8eded5e05e40c04471e857852a38bc564bf45e6022790ad45); 18 boundaries. Log: /tmp/teleport-loop-worker-c-20260925/.cache/C14-final-rerecord-boomerang-wall-stop.log."
+    },
+    {
+      "id": "hero-polymorph-form",
+      "title": "Potion changes the hero into a quasit",
+      "mission": "C-first source mission for polyself.c:polyself. Setup: Fresh Wizard with an independently wished uncursed potion of polymorph; no starting equipment manipulation is required. Action history: Quaff the potion and inspect the resulting form/status screen; retain the random form observed by C. Expected C observation: C reaches `potion.c:peffect_polymorph` and `polyself`; the emerald potion turns the Wizard into a quasit. The current session has no equipment to drop, so equipment changes are outside this case’s claim.",
+      "selectionRationale": "Selected from the C source before JavaScript comparison. A potion-triggered hero form change differs from v6 `potion.c:djinni_from_bottle` which starts by quaffing a bottle; count only if the first mismatch is in polymorph/form handling, not shared quaff or wish setup. Prior-batch overlap review: C reaches the direct hero polymorph potion effect and changes form; v6 Healer quaff reaches djinni_from_bottle and does not transform the hero. The final C behavior and causal history are distinct from all reviewed prior cases.",
+      "sourcePointers": [
+        "nethack-c/upstream/src/potion.c: peffect_polymorph()",
+        "nethack-c/upstream/src/polyself.c: polyself()"
+      ],
+      "cOutcome": "C changes the hero into a quasit after drinking the wished potion; strict fresh replay passes. At C step 24: C displays “You feel a little strange. You turn into a quasit!” after the potion is selected.",
+      "outcome": "C changes the hero into a quasit after drinking the wished potion; strict fresh replay passes. At C step 24: C displays “You feel a little strange. You turn into a quasit!” after the potion is selected.",
+      "inputs": {
+        "seed": 70726111,
+        "datetime": "20260926213000",
+        "role": null,
+        "race": null,
+        "gender": null,
+        "alignment": null,
+        "playmode": null,
+        "keyCount": 24,
+        "boundaries": 25
+      },
+      "recipe": "challenges/cases/v7/hero-polymorph-form.recipe.session.json",
+      "recipeSha256": "420faeecccdfec33382255f6342bbd70c8e84d45eb290046fdcf8a7316765950",
+      "recording": "challenges/cases/v7/hero-polymorph-form.session.json",
+      "recordingSha256": "52440e2f196c7e4337a518d923e98fb37138b88d8157e3523417c88cc730c8e2",
+      "reproducibility": "Independent C rerecord command: \"node\" \"scripts/run-bounded.mjs\" \"fresh\" \"--\" \"node\" \"scripts/record-session.mjs\" \"challenges/cases/v7/hero-polymorph-form.recipe.session.json\" \"/tmp/C14-final-rerecord-hero-polymorph-form.session.json\"; exit code 0. The rerecord at /tmp/C14-final-rerecord-hero-polymorph-form.session.json is byte-identical to the committed C recording (SHA-256 52440e2f196c7e4337a518d923e98fb37138b88d8157e3523417c88cc730c8e2); 25 boundaries. Log: /tmp/teleport-loop-worker-c-20260925/.cache/C14-final-rerecord-hero-polymorph-form.log."
+    },
+    {
+      "id": "alternate-weapon-swap",
+      "title": "Samurai switches alternate weapons",
+      "mission": "C-first source mission for wield.c:dowield → doswapweapon. Setup: Fresh Samurai with the starting katana and wakizashi in separate wield/alternate slots; `pushweapon` preserves the prior weapon when a new primary is selected. Action history: Select the current secondary weapon through `wield`, dismiss its inventory message, invoke explicit `x` to switch again, then inspect both resulting messages/status. The recorded history reaches both entry call paths; it does not exercise two-weapon combat. Expected C observation: C selects the wakizashi through dowield’s `wep == uswapwep` branch into `doswapweapon`, records the katana as alternate, then explicit `x` calls the same source function and restores the katana. The screen confirms each primary/alternate update.",
+      "selectionRationale": "Selected from the C source before JavaScript comparison. The source-confirmed weapon-slot swap is distinct from unresolved earlier throw/wield histories; count only if its first JavaScript mismatch reaches `wield.c:doswapweapon`, not shared setup or inventory plumbing. Prior-batch overlap review: The C action changes primary/alternate weapon state; earlier inventory and whip cases do not call the weapon-slot swap path. The final C behavior and causal history are distinct from all reviewed prior cases.",
+      "sourcePointers": [
+        "nethack-c/upstream/src/wield.c: dowield()",
+        "nethack-c/upstream/src/wield.c: doswapweapon()"
+      ],
+      "cOutcome": "C swaps the Samurai katana/wakizashi alternate weapon slot; strict fresh replay passes. At C step-range 3–6: Selecting the secondary weapon enters doswapweapon; explicit x switches back.",
+      "outcome": "C swaps the Samurai katana/wakizashi alternate weapon slot; strict fresh replay passes. At C step-range 3–6: Selecting the secondary weapon enters doswapweapon; explicit x switches back.",
+      "inputs": {
+        "seed": 70726131,
+        "datetime": "20260926224000",
+        "role": null,
+        "race": null,
+        "gender": null,
+        "alignment": null,
+        "playmode": null,
+        "keyCount": 6,
+        "boundaries": 7
+      },
+      "recipe": "challenges/cases/v7/alternate-weapon-swap.recipe.session.json",
+      "recipeSha256": "ed45dd851a546be2260bbcb2bc0b71014693db0c6925b0d4c407034926681b45",
+      "recording": "challenges/cases/v7/alternate-weapon-swap.session.json",
+      "recordingSha256": "61433ef9abd32b3d8a57cfece451ed41e0decd0ea172f121fcd2d5cf3f4eccee",
+      "reproducibility": "Independent C rerecord command: \"node\" \"scripts/run-bounded.mjs\" \"fresh\" \"--\" \"node\" \"scripts/record-session.mjs\" \"challenges/cases/v7/alternate-weapon-swap.recipe.session.json\" \"/tmp/C14-final-rerecord-alternate-weapon-swap.session.json\"; exit code 0. The rerecord at /tmp/C14-final-rerecord-alternate-weapon-swap.session.json is byte-identical to the committed C recording (SHA-256 61433ef9abd32b3d8a57cfece451ed41e0decd0ea172f121fcd2d5cf3f4eccee); 7 boundaries. Log: /tmp/teleport-loop-worker-c-20260925/.cache/C14-final-rerecord-alternate-weapon-swap.log."
+    },
+    {
+      "id": "magic-mapping-scroll-effect",
+      "title": "Scroll of magic mapping",
+      "mission": "C-first source mission for detect.c:do_mapping. Setup: Fresh Wizard, use a debug wish only for a scroll of magic mapping if ordinary discovery cannot supply one. Action history: Explore a partial map, read the scroll, navigate using the newly revealed route, and revisit a remembered room. Expected C observation: C redraws newly mapped terrain and updates map memory/secret-door observation; record the changed rows and RNG.",
+      "selectionRationale": "Selected from the C source before JavaScript comparison. A map-memory path from under-exercised detect.c, separate from v6 sit/dig/UI menu histories. Prior-batch overlap review: C reaches the SCR_MAGIC_MAPPING effect; prior Scroll of Earth reaches a distinct earth/boulder seffects arm and known-spell reading does not map the level. Shared read input is only setup. The final C behavior and causal history are distinct from all reviewed prior cases.",
+      "sourcePointers": [
+        "nethack-c/upstream/src/read.c: seffects()",
+        "nethack-c/upstream/src/detect.c: do_mapping()"
+      ],
+      "cOutcome": "C reads the magic-mapping scroll and displays the map-coalesces message; strict fresh replay passes. At C step 28: C used the wished scroll and displayed “As you read the scroll, it disappears. A map coalesces in your mind!” The current recipe performs no prior map exploration; it still reaches the distinct do_mapping effect.",
+      "outcome": "C reads the magic-mapping scroll and displays the map-coalesces message; strict fresh replay passes. At C step 28: C used the wished scroll and displayed “As you read the scroll, it disappears. A map coalesces in your mind!” The current recipe performs no prior map exploration; it still reaches the distinct do_mapping effect.",
+      "inputs": {
+        "seed": 70726011,
+        "datetime": "20260926203000",
+        "role": null,
+        "race": null,
+        "gender": null,
+        "alignment": null,
+        "playmode": null,
+        "keyCount": 28,
+        "boundaries": 29
+      },
+      "recipe": "challenges/cases/v7/magic-mapping-scroll-effect.recipe.session.json",
+      "recipeSha256": "eabe97f0057b2a42adcd87da181916e7e1125bf3468883efba76aeb4032225cb",
+      "recording": "challenges/cases/v7/magic-mapping-scroll-effect.session.json",
+      "recordingSha256": "78a6e41b7fce87082440d0ba86d45b3d987f6bd047401833c70ce6097ca446b1",
+      "reproducibility": "Independent C rerecord command: \"node\" \"scripts/run-bounded.mjs\" \"fresh\" \"--\" \"node\" \"scripts/record-session.mjs\" \"challenges/cases/v7/magic-mapping-scroll-effect.recipe.session.json\" \"/tmp/C14-final-rerecord-magic-mapping-scroll-effect.session.json\"; exit code 0. The rerecord at /tmp/C14-final-rerecord-magic-mapping-scroll-effect.session.json is byte-identical to the committed C recording (SHA-256 78a6e41b7fce87082440d0ba86d45b3d987f6bd047401833c70ce6097ca446b1); 29 boundaries. Log: /tmp/teleport-loop-worker-c-20260925/.cache/C14-final-rerecord-magic-mapping-scroll-effect.log."
+    },
+    {
+      "id": "pet-monster-combat",
+      "title": "Kitten fights an elf zombie",
+      "mission": "C-first source mission for mhitm.c:hitmm. Setup: Wizard debug setup with one tame monster and one hostile monster sharing a reachable corridor. Action history: Let the monsters notice/approach each other, intervene with hero movement, and continue until attack or disengagement. Expected C observation: C records the monster-vs-monster attack message, damage outcome, or precise source condition that prevents it.",
+      "selectionRationale": "Selected from the C source before JavaScript comparison. A monster combat history distinct from the player-versus-nymph theft sequence in v4/v6. Prior-batch overlap review: The C event is monster-versus-monster combat; earlier nymph cases exercise theft and cookie cases exercise feeding, not hitmm. The final C behavior and causal history are distinct from all reviewed prior cases.",
+      "sourcePointers": [
+        "nethack-c/upstream/src/mhitm.c: hitmm()"
+      ],
+      "cOutcome": "C reaches kitten versus elf-zombie combat and records the miss/bite outcomes; strict fresh replay passes. At C step 27: After a wizard-created hostile elf zombie approaches the starting kitten, forced no-op turns show “The kitten misses the elf zombie” and then “The kitten bites the elf zombie. The elf zombie misses the kitten.”",
+      "outcome": "C reaches kitten versus elf-zombie combat and records the miss/bite outcomes; strict fresh replay passes. At C step 27: After a wizard-created hostile elf zombie approaches the starting kitten, forced no-op turns show “The kitten misses the elf zombie” and then “The kitten bites the elf zombie. The elf zombie misses the kitten.”",
+      "inputs": {
+        "seed": 70726130,
+        "datetime": "20260926223000",
+        "role": "Wizard",
+        "race": null,
+        "gender": "female",
+        "alignment": "neutral",
+        "playmode": "debug",
+        "keyCount": 27,
+        "boundaries": 28
+      },
+      "recipe": "challenges/cases/v7/pet-monster-combat.recipe.session.json",
+      "recipeSha256": "4458a55c5eb4c663b5138b939e5c34f65d56ce6963139ff400531b6fef9de4e5",
+      "recording": "challenges/cases/v7/pet-monster-combat.session.json",
+      "recordingSha256": "661d56d90a5253f9ed38045cb56782ab902ba42d767204d44a6da6b2b47c9914",
+      "reproducibility": "Independent C rerecord command: \"node\" \"scripts/run-bounded.mjs\" \"fresh\" \"--\" \"node\" \"scripts/record-session.mjs\" \"challenges/cases/v7/pet-monster-combat.recipe.session.json\" \"/tmp/C14-final-rerecord-pet-monster-combat.session.json\"; exit code 0. The rerecord at /tmp/C14-final-rerecord-pet-monster-combat.session.json is byte-identical to the committed C recording (SHA-256 661d56d90a5253f9ed38045cb56782ab902ba42d767204d44a6da6b2b47c9914); 28 boundaries. Log: /tmp/teleport-loop-worker-c-20260925/.cache/C14-final-rerecord-pet-monster-combat.log."
+    },
+    {
+      "id": "cloak-displacement-samurai-corrected",
+      "title": "Samurai activates cloak displacement",
+      "mission": "C-first source mission for do_wear.c:Cloak_on. Setup: Wizard-mode Samurai without a starting cloak wishes for an uncursed cloak of displacement. Action history: Wear the wished cloak through the inventory letter; observe Cloak_on toggling displacement and the status/glyph update. Expected C observation: C enters the CLOAK_OF_DISPLACEMENT branch, updates EDisplacement extrinsics, then shows or suppresses the monster’s target/attack response based on displacement state.",
+      "selectionRationale": "Selected from the C source before JavaScript comparison. The closest v6 wear history removes Healer gloves; v7 warning-ring uses Ring_on rather than cloak state. Wearing a displacement cloak then testing its combat consequence differs in source condition and action history from takeoff and ring-warning branches. Prior-batch overlap review: C activates a cloak-specific property on wear; the earlier cases remove gloves or wear a ring stolen by a nymph. The corrected case does not share the earlier movement mismatch. The final C behavior and causal history are distinct from all reviewed prior cases.",
+      "sourcePointers": [
+        "nethack-c/upstream/src/do_wear.c: Cloak_on()"
+      ],
+      "cOutcome": "C equips the Samurai cloak of displacement and activates its source property; strict fresh replay passes. At C step 35: You feel that monsters have difficulty pinpointing your location.",
+      "outcome": "C equips the Samurai cloak of displacement and activates its source property; strict fresh replay passes. At C step 35: You feel that monsters have difficulty pinpointing your location.",
+      "inputs": {
+        "seed": 70727012,
+        "datetime": "20260928113000",
+        "role": "Samurai",
+        "race": "human",
+        "gender": "female",
+        "alignment": "lawful",
+        "playmode": "debug",
+        "keyCount": 35,
+        "boundaries": 36
+      },
+      "recipe": "challenges/cases/v7/cloak-displacement-samurai-corrected.recipe.session.json",
+      "recipeSha256": "156d7aa9b6660e48cd199199572dbb7e446764e870af4f95c66097b3ee98fe68",
+      "recording": "challenges/cases/v7/cloak-displacement-samurai-corrected.session.json",
+      "recordingSha256": "ccbdc4578c8c0517c47d886e2a094162bf6e1d06103cbebaf9bf46fcc9d19aaf",
+      "reproducibility": "Independent C rerecord command: \"node\" \"scripts/run-bounded.mjs\" \"fresh\" \"--\" \"node\" \"scripts/record-session.mjs\" \"challenges/cases/v7/cloak-displacement-samurai-corrected.recipe.session.json\" \"/tmp/C14-final-rerecord-cloak-displacement-samurai-corrected.session.json\"; exit code 0. The rerecord at /tmp/C14-final-rerecord-cloak-displacement-samurai-corrected.session.json is byte-identical to the committed C recording (SHA-256 ccbdc4578c8c0517c47d886e2a094162bf6e1d06103cbebaf9bf46fcc9d19aaf); 36 boundaries. Log: /tmp/teleport-loop-worker-c-20260925/.cache/C14-final-rerecord-cloak-displacement-samurai-corrected.log."
+    },
+    {
+      "id": "cursed-wand-self-zap-corrected",
+      "title": "Cursed wand affects its user",
+      "mission": "C-first source mission for zap.c:dozap -> zapyourself. Setup: Wizard wishes for a cursed wand with a source-known self-affecting type, such as wand of speed monster. Action history: Zap at self and observe the cursed self-target branch, resulting property and exact messages. Expected C observation: C enters zapyourself through the self-direction and applies the cursed wand effect.",
+      "selectionRationale": "Selected from the C source before JavaScript comparison. Different from unresolved v5 WAN_STRIKING bhitm (a wand aimed at a grid bug); this uses a self-target path and distinct wand state. Exclude unless the actual first mismatch reaches zapyourself. Prior-batch overlap review: C selects the wand and targets the hero through zapyourself; unresolved v5 fires WAN_STRIKING at a grid bug through bhitm. Both source path and target state differ. The final C behavior and causal history are distinct from all reviewed prior cases.",
+      "sourcePointers": [
+        "nethack-c/upstream/src/zap.c: dozap()",
+        "nethack-c/upstream/src/zap.c: zapyourself()"
+      ],
+      "cOutcome": "C reaches the wished cursed wand self-zap effect and reports sudden speed; strict fresh replay passes. At C step 34: You are suddenly moving much faster.",
+      "outcome": "C reaches the wished cursed wand self-zap effect and reports sudden speed; strict fresh replay passes. At C step 34: You are suddenly moving much faster.",
+      "inputs": {
+        "seed": 70727118,
+        "datetime": "20260929124000",
+        "role": "Wizard",
+        "race": "human",
+        "gender": "female",
+        "alignment": "neutral",
+        "playmode": "debug",
+        "keyCount": 34,
+        "boundaries": 35
+      },
+      "recipe": "challenges/cases/v7/cursed-wand-self-zap-corrected.recipe.session.json",
+      "recipeSha256": "6ece4233d38e7ff745e9efa97ca9efbb02e5eb7857dcf2e9ed90c0f39eefbf27",
+      "recording": "challenges/cases/v7/cursed-wand-self-zap-corrected.session.json",
+      "recordingSha256": "cb2b4725d0259c73710c4b1cc0ed2cf1404de1d0c35e9b6c60efd68faa9c0c8d",
+      "reproducibility": "Independent C rerecord command: \"node\" \"scripts/run-bounded.mjs\" \"fresh\" \"--\" \"node\" \"scripts/record-session.mjs\" \"challenges/cases/v7/cursed-wand-self-zap-corrected.recipe.session.json\" \"/tmp/C14-final-rerecord-cursed-wand-self-zap-corrected.session.json\"; exit code 0. The rerecord at /tmp/C14-final-rerecord-cursed-wand-self-zap-corrected.session.json is byte-identical to the committed C recording (SHA-256 cb2b4725d0259c73710c4b1cc0ed2cf1404de1d0c35e9b6c60efd68faa9c0c8d); 35 boundaries. Log: /tmp/teleport-loop-worker-c-20260925/.cache/C14-final-rerecord-cursed-wand-self-zap-corrected.log."
+    },
+    {
+      "id": "kick-hostile-gridbug-north-corrected",
+      "title": "Kick adjacent hostile grid bug",
+      "mission": "C-first source mission for dokick.c:kick_monster. Setup: Wizard creates a hostile grid bug adjacent to a clear kick direction with no intervening terrain. Action history: Kick toward the monster once and observe hit/miss, damage, and displacement response. Expected C observation: C reaches the kick-versus-monster branch and records the result plus any monster status/position changes.",
+      "selectionRationale": "Selected from the C source before JavaScript comparison. No v6 unresolved session invokes kick_monster; previous weapon/throw cases use other combat entry points and actions. Exclude if C only reaches command parsing or unrelated monster movement. Prior-batch overlap review: The C target is a direct kick at an adjacent monster. Prior cases apply a whip or enter nymph theft, not dokick.c:kick_monster. The final C behavior and causal history are distinct from all reviewed prior cases.",
+      "sourcePointers": [
+        "nethack-c/upstream/src/dokick.c: kick_monster()"
+      ],
+      "cOutcome": "C kicks the adjacent hostile grid bug; strict fresh replay passes. At C step 21: You kick the grid bug.",
+      "outcome": "C kicks the adjacent hostile grid bug; strict fresh replay passes. At C step 21: You kick the grid bug.",
+      "inputs": {
+        "seed": 70727114,
+        "datetime": "20260929120000",
+        "role": "Wizard",
+        "race": "human",
+        "gender": "female",
+        "alignment": "neutral",
+        "playmode": "debug",
+        "keyCount": 21,
+        "boundaries": 22
+      },
+      "recipe": "challenges/cases/v7/kick-hostile-gridbug-north-corrected.recipe.session.json",
+      "recipeSha256": "4899b75ccaece511d12a29d86d990275753c7d3ba5072867f6bc76259b144788",
+      "recording": "challenges/cases/v7/kick-hostile-gridbug-north-corrected.session.json",
+      "recordingSha256": "208d143724e3ef0132520c05ac117a116334a40ae3d3a3ef012cfd6b2fdb9c09",
+      "reproducibility": "Independent C rerecord command: \"node\" \"scripts/run-bounded.mjs\" \"fresh\" \"--\" \"node\" \"scripts/record-session.mjs\" \"challenges/cases/v7/kick-hostile-gridbug-north-corrected.recipe.session.json\" \"/tmp/C14-final-rerecord-kick-hostile-gridbug-north-corrected.session.json\"; exit code 0. The rerecord at /tmp/C14-final-rerecord-kick-hostile-gridbug-north-corrected.session.json is byte-identical to the committed C recording (SHA-256 208d143724e3ef0132520c05ac117a116334a40ae3d3a3ef012cfd6b2fdb9c09); 22 boundaries. Log: /tmp/teleport-loop-worker-c-20260925/.cache/C14-final-rerecord-kick-hostile-gridbug-north-corrected.log."
+    }
+  ]
+}
