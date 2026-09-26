@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Blocked setup: this Wizard wish of a nonpetrifying Rider corpse is accepted into inventory by C invent.c:hold_another_object, but the current JS hold_another_object stops at its broader wished-corpse refusal before apply.c:use_tinning_kit can run. The active use_tinning_kit inventory-Rider arm also consumes do.c:revive_corpse's Boolean result; js/do.js covers only the floor shape and js/zap.js:revive does not yet cover inventory revival coordinates/flags. Keep this recipe unrecorded and the Rider entry point incomplete until both source boundaries are implemented and replayed.",
+  "segments": [
+    {
+      "seed": 81720421,
+      "datetime": "20260818094500",
+      "nethackrc": "OPTIONS=name:TinTester,role:Wizard,race:human,gender:male,align:neutral,playmode:debug,!legacy,!tutorial,!splash_screen,showexp,time\n",
+      "moves": "\u0017tinning kit\n\u0017corpse of Death\nano"
+    }
+  ]
+}
