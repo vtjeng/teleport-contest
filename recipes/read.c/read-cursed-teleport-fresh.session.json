@@ -1,0 +1,11 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 6012398,
+      "datetime": "20391009121130",
+      "nethackrc": "OPTIONS=name:CursedRead,role:Wizard,race:human,gender:female,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen\nOPTIONS=playmode:debug,pettype:none,!autopickup,!debug_mongen\n",
+      "moves": ".\u0017cursed scroll of teleportation\nro 2\n"
+    }
+  ]
+}
