@@ -3,7 +3,7 @@
 // C refs: dog.c newedog(), initedog(), pet_type(), makedog(), mon_leave(),
 // keep_mon_accessible(), keepdogs(), migrate_to_level() and abuse_dog();
 // mon.c relmon(),
-// mon_leaving_level() and see_monster_closeup(); steed.c put_saddle_on_mon();
+// mon_leaving_level() and see_monster_closeup();
 // do_name.c christen_monst().
 
 import {
@@ -36,7 +36,6 @@ import {
     STRAT_WAITFORU,
     TELEPAT,
     Upolyd,
-    W_SADDLE,
     helpless,
     isok,
 } from './const.js';
@@ -52,8 +51,8 @@ import {
 } from './do_name.js';
 import { UnsupportedHeroMoveBoundaryError } from './hack.js';
 import { game } from './gstate.js';
+import { can_saddle, put_saddle_on_mon } from './steed.js';
 import { update_inventory } from './invent.js';
-import { discover_object, observe_object } from './o_init.js';
 import { set_malign } from './makemon.js';
 import { makemon_runtime } from './makemon_create.js';
 import {
@@ -68,17 +67,11 @@ import { monnear } from './monmove.js';
 import { restore_cham, wake_nearto } from './mon.js';
 import { m_at, mon_track_clear, remove_monster } from './monst.js';
 import { livelog_printf } from './pline.js';
-import { update_mon_extrinsics } from './worn.js';
 import {
     AT_WEAP,
-    M1_AMORPHOUS,
-    M1_HUMANOID,
-    M1_UNSOLID,
     M2_DOMESTIC,
     M3_WANTSARTI,
-    MZ_MEDIUM,
     NON_PM,
-    PM_AIR_ELEMENTAL,
     PM_BABY_GOLD_DRAGON,
     PM_BARBARIAN,
     PM_CAVE_DWELLER,
@@ -96,24 +89,15 @@ import {
     PM_SAMURAI,
     PM_SHOCKING_SPHERE,
     S_LIGHT,
-    S_ANGEL,
-    S_CENTAUR,
-    S_DRAGON,
-    S_GHOST,
-    S_JABBERWOCK,
-    S_QUADRUPED,
     S_DOG,
-    S_UNICORN,
-    S_VORTEX,
 } from './monsters.js';
 import { an, donameFresh, the, Tobjnam, xnameFresh } from './objnam.js';
 import { genders } from './roles.js';
 import { picked_container, set_residency } from './shk.js';
-import { mksobj, place_object } from './obj.js';
+import { place_object } from './obj.js';
 import {
     BOULDER,
     EXPENSIVE_CAMERA,
-    SADDLE,
     SCROLL_CLASS,
     SPBOOK_CLASS,
 } from './objects.js';
@@ -134,9 +118,11 @@ import { growl, yelp } from './sounds.js';
 import { ttyPline } from './tty_message.js';
 import { cansee, canseemon } from './vision.js';
 import { note_unported } from './unported.js';
-import { mpickobj } from './steal.js';
 
 export { christen_monst } from './do_name.js';
+// Re-export for existing dog-related callers. The source implementations live
+// in steed.js with the rest of steed.c.
+export { can_saddle, put_saddle_on_mon };
 
 function dogEnv(env = {}) {
     return {
@@ -161,19 +147,6 @@ function propertyBlocked(hero, index) {
 function heroHallucinating(state) {
     return propertyActive(state.u, HALLUC)
         && !propertyActive(state.u, HALLUC_RES);
-}
-
-function canSeeStartingPet(monster, env) {
-    if (typeof env.canseemon === 'function')
-        return Boolean(env.canseemon(monster, env));
-    if (env.state.in_mklev) return false;
-    const hero = env.state.u;
-    const blind = propertyActive(hero, BLINDED)
-        && !propertyBlocked(hero, BLINDED);
-    // makedog() calls put_saddle_on_mon() before initedog(). The ordinary
-    // start path has an adjacent, undisguised pony; callers can inject
-    // canseemon() when invisibility or line of sight matters.
-    return !blind && !monster.minvis;
 }
 
 function carryingType(state, otyp) {
@@ -469,93 +442,6 @@ function defaultDogName(state) {
     case PM_RANGER: return 'Sirius';
     default: return '';
     }
-}
-
-function fullyIdentifyObject(object, state, env) {
-    // C ref: invent.c fully_identify_obj().  makeknown() owns both catalog
-    // flags and the class-local discovery ledger; observe_object() owns
-    // dknown.  A saddle is non-artifact and has no cknown/lknown semantics.
-    discover_object(object.otyp, true, true, true, state, env);
-    observe_object(object, state);
-    object.known = true;
-    object.bknown = true;
-    object.rknown = true;
-    return object;
-}
-
-const SADDLEABLE_CLASSES = new Set([
-    S_QUADRUPED,
-    S_UNICORN,
-    S_ANGEL,
-    S_CENTAUR,
-    S_DRAGON,
-    S_JABBERWOCK,
-]);
-
-// C ref: steed.c can_saddle().  Existing worn saddles are deliberately not
-// part of this predicate; put_saddle_on_mon() performs that separate check.
-export function can_saddle(monster) {
-    const species = monster?.data;
-    if (!species || !SADDLEABLE_CLASSES.has(species.mlet)) return false;
-    const flags = species.mflags1 ?? 0;
-    return species.msize >= MZ_MEDIUM
-        && (!(flags & M1_HUMANOID) || species.mlet === S_CENTAUR)
-        && !(flags & M1_AMORPHOUS)
-        && species.mlet !== S_GHOST
-        && species.mlet !== S_VORTEX
-        && species.pmidx !== PM_AIR_ELEMENTAL
-        && !(flags & M1_UNSOLID);
-}
-
-// C ref: steed.c put_saddle_on_mon(). Saddles have no extrinsic property, so
-// update_mon_extrinsics() is a state-preserving no-op after the worn masks are
-// installed for both starting pets and special-level custom inventories.
-export function put_saddle_on_mon(saddle, monster, env = {}) {
-    const normalized = dogEnv(env);
-    if (!can_saddle(monster)) {
-        if (saddle && typeof normalized.hooks?.impossible === 'function') {
-            normalized.hooks.impossible(
-                'put_saddle_on_mon: saddle obj could get orphaned',
-                normalized,
-            );
-        }
-        return null;
-    }
-    for (let object = monster.minvent; object; object = object.nobj) {
-        if (object.owornmask & W_SADDLE) {
-            if (saddle && typeof normalized.hooks?.impossible === 'function') {
-                normalized.hooks.impossible(
-                    'put_saddle_on_mon: saddle obj could get orphaned',
-                    normalized,
-                );
-            }
-            return null;
-        }
-    }
-    if (!saddle) {
-        saddle = mksobj(SADDLE, true, false, normalized);
-        if (!saddle) return null;
-        fullyIdentifyObject(saddle, normalized.state, normalized);
-    }
-    // steed.c checks mpickobj()'s consumed merge result and panics if it
-    // freed the saddle instead of making it the monster's inventory item.
-    if (mpickobj(monster, saddle, {
-        ...normalized,
-        canSeeMonster: (subject) => canSeeStartingPet(subject, normalized),
-    }))
-        throw new Error('put_saddle_on_mon: merged saddle');
-    monster.misc_worn_check |= W_SADDLE;
-    saddle.owornmask = W_SADDLE;
-    saddle.leashmon = monster.m_id;
-    // steed.c:162 calls update_mon_extrinsics() with silently=FALSE even
-    // though SADDLE has no property arm. Keep the source call at this point so
-    // a future saddle property change cannot silently bypass the owner.
-    update_mon_extrinsics(monster, saddle, true, {
-        ...normalized,
-        state: normalized.state,
-        silent: false,
-    });
-    return saddle;
 }
 
 // C callers set gb.bhitpos and derive gn.notonhead together before recording a
