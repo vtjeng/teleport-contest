@@ -74145,7 +74145,7 @@
     {
       "id": "port-zap-weffects-force-bolt-synthetic-v2-20260926",
       "kind": "file-port",
-      "status": "queued",
+      "status": "open",
       "summary": "Port complete zap.c weffects and source-ordered Force Bolt ray behavior",
       "cFile": "zap.c",
       "sessions": [
@@ -74153,8 +74153,12 @@
       ],
       "selectionReason": "The higher-ranked v4 nymph theft is assigned to C9; the next complete unreserved investigation is v2 wizard spell memory with 14 unmatched screens at the Force Bolt weffects branch.",
       "detail": "At segment 0 step 40, a known Force Bolt cast east reaches zap.c weffects and the current JS refusal. Port whole weffects and its return-valued ray family bhit, bhitm, bhito, bhitpile, doorlock with obstructed and muse.c mbhit caller, and required statue/object-break callees including break_statue, activate_statue_trap, hero_breaks/breaks and their consumed dependencies. Preserve exact C ray, item, door, and monster order; park any unresolved source return path with explicit evidence rather than treating a prefix as whole-function completion. See investigations/synthetic/v2/wizard-spell-memory.json.",
-      "openedAt": null,
-      "openStanding": null,
+      "openedAt": "989f86b9903372599cc99c78474d2d0bf9308ae1",
+      "openStanding": {
+        "sha": "9afcb40d474b714f755d68a9bff96193af5f7e59",
+        "screens": 11405,
+        "rng": 792838
+      },
       "closedAt": null,
       "delivered": null,
       "functions": [
@@ -74180,10 +74184,192 @@
           "manifestSha256": "58739ea9ed6c26e5153c4860b2e5111d08d69792bdea5c39427cf45b8e72cc9c",
           "recordingPath": "challenges/cases/v2/wizard-spell-memory.session.json",
           "recordingSha256": "4aa25c52bad9f85940224ad16785cacb6b286a4c326c1691e6db54ec260b73cd",
-          "evaluationPath": "challenges/evaluations/20260926003150-v2.json",
-          "evaluationCommit": "2d50156e1163b1b497818e5d02bd71131fab2149"
+          "evaluationPath": "challenges/evaluations/20260926011128-v2.json",
+          "evaluationCommit": "9afcb40d474b714f755d68a9bff96193af5f7e59"
         }
-      }
+      },
+      "activeStanding": {
+        "sha": "9afcb40d474b714f755d68a9bff96193af5f7e59",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v2",
+          "caseId": "wizard-spell-memory",
+          "session": "synthetic/v2/wizard-spell-memory",
+          "manifestPath": "challenges/manifests/v2.json",
+          "manifestSha256": "58739ea9ed6c26e5153c4860b2e5111d08d69792bdea5c39427cf45b8e72cc9c",
+          "recording": "challenges/cases/v2/wizard-spell-memory.session.json",
+          "recordingPath": "challenges/cases/v2/wizard-spell-memory.session.json",
+          "recordingSha256": "4aa25c52bad9f85940224ad16785cacb6b286a4c326c1691e6db54ec260b73cd",
+          "recipe": "challenges/cases/v2/wizard-spell-memory.recipe.json",
+          "recipeSha256": "7539746442959f2f180fe53b40dd993e7d83aa77d27132210f745425c30cfb26",
+          "replayInputSha256": "00833e7e417b36aec3924b098e4c048cde1b0a9ff1cefa36350dd32f2619c961",
+          "evaluationPath": "challenges/evaluations/20260926011128-v2.json",
+          "evaluationCommit": "9afcb40d474b714f755d68a9bff96193af5f7e59",
+          "evaluationArtifact": "challenges/evaluations/20260926011128-v2.json",
+          "evaluationUtc": "2026-09-26T01:11:31.875Z",
+          "remainingScreens": 14,
+          "recordedSteps": 54,
+          "previousScreensMatched": 40,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 40,
+              "total": 54
+            },
+            "rng": {
+              "matched": 2419,
+              "total": 2452
+            },
+            "cursors": {
+              "matched": 40,
+              "total": 54
+            }
+          },
+          "firstMismatch": {
+            "kind": "stop",
+            "message": "unsupported hero command: an unported branch of this command: zapping a wand requires bhit() for immediate object type 376",
+            "step": 40
+          },
+          "step": 40,
+          "kind": "stop",
+          "sourceFile": "zap.c",
+          "function": "bhit",
+          "message": "unsupported hero command: an unported branch of this command: zapping a wand requires bhit() for immediate object type 376",
+          "cFile": "zap.c",
+          "luaFile": null,
+          "line": null,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v2/wizard-spell-memory.json",
+            "result": {
+              "session": "synthetic/v2/wizard-spell-memory",
+              "corpus": "synthetic",
+              "batch": "v2",
+              "caseId": "wizard-spell-memory",
+              "manifestPath": "challenges/manifests/v2.json",
+              "manifestSha256": "58739ea9ed6c26e5153c4860b2e5111d08d69792bdea5c39427cf45b8e72cc9c",
+              "recordingPath": "challenges/cases/v2/wizard-spell-memory.session.json",
+              "recordingSha256": "4aa25c52bad9f85940224ad16785cacb6b286a4c326c1691e6db54ec260b73cd",
+              "evaluationPath": "challenges/evaluations/20260925185643-v2.json",
+              "evaluationCommit": "cb5a1d6236d100c62a31e5029cbfa55e55cdfb60",
+              "remainingScreens": 14,
+              "recordedSteps": 54,
+              "status": "complete",
+              "commit": "4151ee7a2286fbfce141545c893e052e0c49a44d",
+              "mismatch": {
+                "corpus": "synthetic",
+                "batch": "v2",
+                "caseId": "wizard-spell-memory",
+                "session": "synthetic/v2/wizard-spell-memory",
+                "manifestPath": "challenges/manifests/v2.json",
+                "manifestSha256": "58739ea9ed6c26e5153c4860b2e5111d08d69792bdea5c39427cf45b8e72cc9c",
+                "recording": "challenges/cases/v2/wizard-spell-memory.session.json",
+                "recordingPath": "challenges/cases/v2/wizard-spell-memory.session.json",
+                "recordingSha256": "4aa25c52bad9f85940224ad16785cacb6b286a4c326c1691e6db54ec260b73cd",
+                "recipe": "challenges/cases/v2/wizard-spell-memory.recipe.json",
+                "recipeSha256": "7539746442959f2f180fe53b40dd993e7d83aa77d27132210f745425c30cfb26",
+                "replayInputSha256": "304faa7f1ed52c7dcf8bd6a5c5b9a2df47ebad9a15a566e91f46417de3b016d9",
+                "evaluationPath": "challenges/evaluations/20260925185643-v2.json",
+                "evaluationCommit": "cb5a1d6236d100c62a31e5029cbfa55e55cdfb60",
+                "evaluationArtifact": "challenges/evaluations/20260925185643-v2.json",
+                "evaluationUtc": "2026-09-25T18:56:48.699Z",
+                "remainingScreens": 14,
+                "recordedSteps": 54,
+                "previousScreensMatched": 40,
+                "regression": false,
+                "passed": false,
+                "error": null,
+                "metrics": {
+                  "screens": {
+                    "matched": 40,
+                    "total": 54
+                  },
+                  "rng": {
+                    "matched": 2419,
+                    "total": 2452
+                  },
+                  "cursors": {
+                    "matched": 40,
+                    "total": 54
+                  }
+                },
+                "firstMismatch": {
+                  "kind": "stop",
+                  "message": "unsupported hero command: an unported branch of this command: zapping a wand requires bhit() for immediate object type 376",
+                  "step": 40
+                },
+                "step": 40,
+                "kind": "stop",
+                "sourceFile": "zap.c",
+                "function": "bhit",
+                "message": "unsupported hero command: an unported branch of this command: zapping a wand requires bhit() for immediate object type 376",
+                "cFile": "zap.c",
+                "luaFile": null,
+                "line": null
+              },
+              "summary": "After spellbook study was ported, wizard-spell-memory matches 40/54 screens. The first remaining stop is step 40: casting Force Bolt east reaches an artificial immediate-effect gate in js/zap.js weffects(), which admits only polymorph and reports “bhit() for immediate object type 376.” C zap.c weffects() sends all IMMEDIATE spell and wand effects through bhit and its monster/object callbacks. Implement the source-defined striking/Force Bolt effect family and callback returns, preserving traversal, door/object/monster effects and RNG order across inputs.",
+              "source": {
+                "file": "zap.c",
+                "branch": "The known Force Bolt spell (SPE_FORCE_BOLT, object type 376) is cast east after spell selection. Its object direction is IMMEDIATE, so zap.c weffects() calls zapsetup(), then bhit() with bhitm and bhito callbacks for an ordinary horizontal ray. JS rejects the type before calling bhit.",
+                "functions": [
+                  "weffects",
+                  "bhit",
+                  "bhitm",
+                  "bhito"
+                ],
+                "callers": [
+                  "spell.c spell casting reaches zap.c weffects() with an SPE_FORCE_BOLT object; the JS cast path reaches js/zap.js weffects() and its explicit polymorph-only IMMEDIATE gate.",
+                  "zap.c weffects() at 3431-3451 calls bhit() with bhitm/bhito and discards the monster-pointer result. bhit() uses callback return values while walking the ray and applies doorlock() for Force Bolt/striking at 4060-4068.",
+                  "zap.c bhitm() at 189-219 handles Force Bolt/striking monster impact, while bhito() at 2275 onward handles rock, statues and other floor objects. js/zap.js currently implements polymorph callback paths only."
+                ],
+                "dependencies": [
+                  "Implement source-defined Force Bolt and striking callback results before removing weffects()’s admission gate; bhit/bhitpile consume those results. Preserve partial source-owned boundaries for other immediate effects.",
+                  "The callback family uses combat resistance, damage, object fracture/breakage, learning, and doorlock helpers. Read their C return values and port required callees where the callback consumes them; keep C-discarded unported effects named rather than substituting behavior."
+                ]
+              },
+              "goalKind": "divergence-fix",
+              "evidence": [
+                "Saved challenges/evaluations/20260925185643-v2.json at cb5a1d6236d100c62a31e5029cbfa55e55cdfb60 reports 40/54 screens and cursors and 2419/2452 RNG calls; 14 screens remain.",
+                "Current diagnostic .cache/loop-v2-wizard-spell-diagnostic.json at 4151ee7a2286fbfce141545c893e052e0c49a44d stops at segment 0 step 40 key l with “zapping a wand requires bhit() for immediate object type 376.” The later inputs in the saved case are outside the matched prefix.",
+                "C recording challenges/cases/v2/wizard-spell-memory.session.json shows step 38 key Z selecting cast, step 39 key a prompting for direction, and step 40 key l producing the completed empty-ray screen. Thus the first missing behavior is the immediate Force Bolt ray, not spellbook study or casting selection.",
+                "nethack-c/upstream/src/zap.c weffects() lines 3431-3451 routes IMMEDIATE effects to bhit() with bhitm/bhito callbacks. Its Force Bolt handling appears in bhitm() lines 189-219, bhito() from 2275, and bhit() door interaction near 4060-4068.",
+                "js/zap.js weffects() around 5165-5173 refuses every IMMEDIATE type except WAN_POLYMORPH and SPE_POLYMORPH before calling its partial bhit() around 3073. The refusal text names bhit but the first exact JS owner is weffects’ admission guard.",
+                "The previously investigated step-17 spell.c study_book/read.c doread boundary is now crossed by the B2 port. Its source goal remains parked in GOALS.json for unrelated destructive confused-book display/naming and Death setup entry evidence; those unresolved source gaps remain separate from the current step-40 Force Bolt stop."
+              ],
+              "entryPointReview": {
+                "active": [
+                  "Cast known Force Bolt east through the Z command: synthetic/v2/wizard-spell-memory segment 0 steps 38-40."
+                ],
+                "blocked": [
+                  "The current weffects immediate-effect guard rejects SPE_FORCE_BOLT before source ray traversal or callback effects.",
+                  "A matching continuation after step 40 may reveal additional ray, door, monster, or object dependencies; verify each C branch rather than special-casing the empty corridor."
+                ]
+              },
+              "plannedSourceScope": {
+                "primary": {
+                  "file": "zap.c",
+                  "function": "weffects",
+                  "branch": "IMMEDIATE SPE_FORCE_BOLT and WAN_STRIKING family"
+                },
+                "supportingSameFileFunctions": [
+                  "bhit",
+                  "bhitm",
+                  "bhito"
+                ],
+                "callerWiring": [
+                  "Spell-cast Force Bolt and wand of striking/other active immediate callers where C uses this family"
+                ]
+              }
+            }
+          }
+        }
+      ]
     },
     {
       "id": "port-engrave-u-can-engrave-synthetic-v3-20260926",
