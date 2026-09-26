@@ -77081,7 +77081,7 @@
     {
       "id": "div-lock-pick-chest-query-synthetic-v4-20260926",
       "kind": "divergence-fix",
-      "status": "open",
+      "status": "closed",
       "summary": "Match lock.c pick_lock chest prompt before setting lock knowledge",
       "cFile": "lock.c",
       "sessions": [
@@ -77096,8 +77096,11 @@
         "screens": 11405,
         "rng": 792838
       },
-      "closedAt": null,
-      "delivered": null,
+      "closedAt": "2fac8449cb8c3bdb4c07996b069aa0f8526b2315",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
       "function": "pick_lock",
       "session": "synthetic/v4/valkyrie-lockpick-chest-open-menu",
       "step": 33,
@@ -77607,7 +77610,13 @@
             }
           }
         }
-      ]
+      ],
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "2fac8449cb8c3bdb4c07996b069aa0f8526b2315",
+        "screens": 11405,
+        "rng": 792838
+      }
     },
     {
       "id": "port-objnam-readobjnam-wish-retry-synthetic-v5-20260926",
