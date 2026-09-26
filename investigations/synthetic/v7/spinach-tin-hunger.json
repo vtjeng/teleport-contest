@@ -1,0 +1,95 @@
+{
+  "session": "synthetic/v7/spinach-tin-hunger",
+  "corpus": "synthetic",
+  "batch": "v7",
+  "caseId": "spinach-tin-hunger",
+  "manifestPath": "challenges/manifests/v7.json",
+  "manifestSha256": "03a861a9d1bc9d813c80681312ee7a0e0f893dbad0536de40a974bd5ec344094",
+  "recordingSha256": "6c072a1e716c748312d2ceb758626b200ccb4dc47eaae3884df08f23e8809e74",
+  "evaluationPath": "challenges/evaluations/20260926122253-v7.json",
+  "evaluationCommit": "f7e48bd93d6827c557c9a40a255a55cbc5fc8fcf",
+  "remainingScreens": 3,
+  "recordedSteps": 30,
+  "status": "complete",
+  "commit": "3543403d092a80dbeacd479a4fb0cb5c2d537413",
+  "mismatch": {
+    "corpus": "synthetic",
+    "batch": "v7",
+    "caseId": "spinach-tin-hunger",
+    "session": "synthetic/v7/spinach-tin-hunger",
+    "manifestPath": "challenges/manifests/v7.json",
+    "manifestSha256": "03a861a9d1bc9d813c80681312ee7a0e0f893dbad0536de40a974bd5ec344094",
+    "recording": "challenges/cases/v7/spinach-tin-hunger.session.json",
+    "recordingPath": "challenges/cases/v7/spinach-tin-hunger.session.json",
+    "recordingSha256": "6c072a1e716c748312d2ceb758626b200ccb4dc47eaae3884df08f23e8809e74",
+    "recipe": "challenges/cases/v7/spinach-tin-hunger.recipe.session.json",
+    "recipeSha256": "4a79896bef6274b7dc9acff6400cdb9c3efdb13e655c0de896e4fbe5f4ef3c96",
+    "replayInputSha256": "ba09b30aa45883696a6c2cbbe647b7a100c06ae9b741e0bcdf70fec164041447",
+    "evaluationPath": "challenges/evaluations/20260926122253-v7.json",
+    "evaluationCommit": "f7e48bd93d6827c557c9a40a255a55cbc5fc8fcf",
+    "evaluationArtifact": "challenges/evaluations/20260926122253-v7.json",
+    "evaluationUtc": "2026-09-26T12:23:06.868Z",
+    "remainingScreens": 3,
+    "recordedSteps": 30,
+    "previousScreensMatched": null,
+    "regression": false,
+    "passed": false,
+    "error": null,
+    "metrics": {
+      "screens": {
+        "matched": 27,
+        "total": 30
+      },
+      "rng": {
+        "matched": 2859,
+        "total": 2861
+      },
+      "cursors": {
+        "matched": 27,
+        "total": 30
+      }
+    },
+    "firstMismatch": {
+      "kind": "stop",
+      "message": "unsupported hero command: an unported branch of this command: eating requires start_tin()",
+      "step": 27
+    },
+    "step": 27,
+    "kind": "stop",
+    "sourceFile": "eat.c",
+    "function": "start_tin",
+    "message": "unsupported hero command: an unported branch of this command: eating requires start_tin()",
+    "cFile": "eat.c",
+    "luaFile": null,
+    "line": null
+  },
+  "summary": "The Healer selects a blessed spinach tin with e, then m. JS refuses the unported eat.c start_tin() path at step 27. C opens it immediately, asks whether to eat it, and applies the spinach effect after y. Port the tin opening and consumption family with occupation state and the doeat caller.",
+  "source": {
+    "file": "eat.c",
+    "branch": "doeat() sees otmp->otyp == TIN after the food selection; the blessed tin takes start_tin() immediate-opening arm when rn2(2) returns zero, then consume_tin() takes SPINACH_TIN, prompts to eat, updates food conduct and strength, consumes the tin, and adjusts hunger.",
+    "functions": [
+      "start_tin",
+      "opentin",
+      "consume_tin",
+      "use_up_tin",
+      "tin_variety",
+      "costly_tin"
+    ],
+    "callers": [
+      "eat.c doeat() dispatches selected TIN to start_tin() and returns ECMD_TIME; js/eat.js doeat() currently throws UnsupportedEatError at this site.",
+      "eat.c use_tin_opener() also calls start_tin(); the port must wire that caller and the occupation callback opentin()."
+    ],
+    "dependencies": [
+      "Preserve svc.context.tin.tin/o_id/usedtime/reqtime as one C tin-opening state and set_occupation(opentin) callback timing.",
+      "consume_tin() uses return values from tin_variety() and costly_tin() and the spinach branch calls gainstr() and lesshungry(); port or wire their consumed results from C source.",
+      "Reachability evidence covers the blessed immediate-open spinach branch; other tin varieties and delayed opening require independent matching evidence or named blocked recipes before source completion."
+    ]
+  },
+  "goalKind": "file-port",
+  "evidence": [
+    "challenges/evaluations/20260926122253-v7.json at f7e48bd93d6827c557c9a40a255a55cbc5fc8fcf: synthetic/v7/spinach-tin-hunger matches 27/30 screens, then stops at segment 0 step 27 with eating requires start_tin().",
+    "challenges/cases/v7/spinach-tin-hunger.session.json: C step 27 after m says The tin opens like magic! It contains spinach.; step 28 asks Eat it?; step 29 after y says This makes you feel like Popeye!.",
+    "nethack-c/upstream/src/eat.c:2955-2959 sends TIN through start_tin(); 1723-1794 handles immediate or occupation opening; 1528-1701 consumes tin contents and processes SPINACH_TIN. js/eat.js:3303-3304 refuses at the corresponding tin arm.",
+    "nethack-c/upstream/src/eat.c:3098-3126 has the tin-opener caller; the same selected function family must handle its production wiring."
+  ]
+}

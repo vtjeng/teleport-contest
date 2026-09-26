@@ -1,0 +1,89 @@
+{
+  "session": "synthetic/v7/potion-gain-level",
+  "corpus": "synthetic",
+  "batch": "v7",
+  "caseId": "potion-gain-level",
+  "manifestPath": "challenges/manifests/v7.json",
+  "manifestSha256": "03a861a9d1bc9d813c80681312ee7a0e0f893dbad0536de40a974bd5ec344094",
+  "recordingSha256": "a4fc9853403ad27a0f5ea53a9ffe6f8fbf4b5b9adb87f29d08d011635c641374",
+  "evaluationPath": "challenges/evaluations/20260926122253-v7.json",
+  "evaluationCommit": "f7e48bd93d6827c557c9a40a255a55cbc5fc8fcf",
+  "remainingScreens": 1,
+  "recordedSteps": 35,
+  "status": "complete",
+  "commit": "3543403d092a80dbeacd479a4fb0cb5c2d537413",
+  "mismatch": {
+    "corpus": "synthetic",
+    "batch": "v7",
+    "caseId": "potion-gain-level",
+    "session": "synthetic/v7/potion-gain-level",
+    "manifestPath": "challenges/manifests/v7.json",
+    "manifestSha256": "03a861a9d1bc9d813c80681312ee7a0e0f893dbad0536de40a974bd5ec344094",
+    "recording": "challenges/cases/v7/potion-gain-level.session.json",
+    "recordingPath": "challenges/cases/v7/potion-gain-level.session.json",
+    "recordingSha256": "a4fc9853403ad27a0f5ea53a9ffe6f8fbf4b5b9adb87f29d08d011635c641374",
+    "recipe": "challenges/cases/v7/potion-gain-level.recipe.session.json",
+    "recipeSha256": "d27c513188557e7a7f9c07c4361d3c29aff0aa6d48d5c6beaad475525463c7b4",
+    "replayInputSha256": "ba09b30aa45883696a6c2cbbe647b7a100c06ae9b741e0bcdf70fec164041447",
+    "evaluationPath": "challenges/evaluations/20260926122253-v7.json",
+    "evaluationCommit": "f7e48bd93d6827c557c9a40a255a55cbc5fc8fcf",
+    "evaluationArtifact": "challenges/evaluations/20260926122253-v7.json",
+    "evaluationUtc": "2026-09-26T12:23:06.868Z",
+    "remainingScreens": 1,
+    "recordedSteps": 35,
+    "previousScreensMatched": null,
+    "regression": false,
+    "passed": false,
+    "error": null,
+    "metrics": {
+      "screens": {
+        "matched": 34,
+        "total": 35
+      },
+      "rng": {
+        "matched": 2523,
+        "total": 2537
+      },
+      "cursors": {
+        "matched": 34,
+        "total": 35
+      }
+    },
+    "firstMismatch": {
+      "kind": "stop",
+      "message": "unsupported hero command: an unported branch of this command: quaffing requires peffect_gain_level()",
+      "step": 34
+    },
+    "step": 34,
+    "kind": "stop",
+    "sourceFile": "potion.c",
+    "function": "peffect_gain_level",
+    "message": "unsupported hero command: an unported branch of this command: quaffing requires peffect_gain_level()",
+    "cFile": "potion.c",
+    "luaFile": null,
+    "line": null
+  },
+  "summary": "Quaffing an uncursed gain-level potion stops at the missing potion.c peffect_gain_level() dispatch. C invokes pluslvl(FALSE) and prints the new experience level; the whole function also handles cursed upstairs travel and blessed experience adjustment.",
+  "source": {
+    "file": "potion.c",
+    "branch": "A Healer wishes for an uncursed POT_GAIN_LEVEL and quaffs it. peffects() enters peffect_gain_level(); because it is not cursed, C calls pluslvl(FALSE), raising level and emitting the experience message.",
+    "functions": [
+      "peffect_gain_level"
+    ],
+    "callers": [
+      "potion.c peffects() POT_GAIN_LEVEL arm at 1393 calls peffect_gain_level(otmp).",
+      "js/potion.js peffects() currently throws UnsupportedQuaffError at the matching POT_GAIN_LEVEL arm; cmd.c quaff dispatch reaches js/potion.js dopotion() then peffects()."
+    ],
+    "dependencies": [
+      "The uncursed branch consumes exper.c pluslvl(FALSE), already implemented in js/exper.js; preserve its state, RNG, and messages.",
+      "The whole peffect_gain_level() also uses return-valued Can_rise_up(), get_level(), and rndexp() on cursed/blessed paths; audit and port missing consumed callees and goto_level() wiring before source completion.",
+      "Preserve gp.potion_unkn on cursed path and the u.uexp adjustment on blessed path."
+    ]
+  },
+  "goalKind": "file-port",
+  "evidence": [
+    "challenges/evaluations/20260926122253-v7.json at f7e48bd93d6827c557c9a40a255a55cbc5fc8fcf: synthetic/v7/potion-gain-level matches 34/35 screens, then stops at segment 0 step 34 with quaffing requires peffect_gain_level().",
+    "challenges/cases/v7/potion-gain-level.session.json: C step 34 after selecting potion o prints You feel more experienced. Welcome to experience level 2.",
+    "nethack-c/upstream/src/potion.c:1083-1113 defines the full cursed, ordinary, and blessed paths; potion.c:1393 dispatches this object type; js/potion.js:1196 refuses before the source effect."
+  ]
+}
