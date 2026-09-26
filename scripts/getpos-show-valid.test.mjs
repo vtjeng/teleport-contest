@@ -15,6 +15,12 @@ const APPLY_SOURCE = readFileSync(
 const PLINE_SOURCE = readFileSync(
     new URL('../nethack-c/upstream/src/pline.c', import.meta.url), 'utf8',
 );
+const DISPLAY_SOURCE = readFileSync(
+    new URL('../nethack-c/upstream/src/display.c', import.meta.url), 'utf8',
+);
+const WINDOWS_SOURCE = readFileSync(
+    new URL('../nethack-c/upstream/src/windows.c', import.meta.url), 'utf8',
+);
 
 const PROBE = Object.freeze({
     seed: 613907,
@@ -122,6 +128,56 @@ test('getpos consumes the caller-installed selection during its initial prompt f
     }
 
     assert.deepEqual(cursorAtFirstInput, [hero.x - 1, hero.y + 1, 1]);
+    assert.equal(game.nhDisplay.inputQueueLength, 0);
+});
+
+test('getpos preserves the final dirty-glyph cursor when no prompt pline follows', async () => {
+    await runSegment({
+        ...PROBE,
+        moves: ' \u0014  $.',
+    });
+    game.iflags.bgcolors = false;
+    game.flags.verbose = false;
+    game.flags.tips = false;
+    const hero = { x: game.u.ux, y: game.u.uy };
+    const lastDirtyGlyph = { x: hero.x + 2, y: hero.y };
+    game.getpos_getvalid = async (x, y) => (
+        x === lastDirtyGlyph.x && y === lastDirtyGlyph.y
+    );
+    game.getpos_hilitefunc = async () => {};
+
+    const flushStart = DISPLAY_SOURCE.indexOf('flush_screen(int cursor_on_u)');
+    const flushBody = DISPLAY_SOURCE.slice(flushStart, flushStart + 2000);
+    const cursStart = WINDOWS_SOURCE.indexOf('hup_curs(winid window UNUSED');
+    const cursBody = WINDOWS_SOURCE.slice(cursStart, cursStart + 180);
+    assert.match(flushBody, /for \(y = 0; y < ROWNO; y\+\+\)[\s\S]*?for \(; x <= gg\.gbuf_stop\[y\];/u);
+    assert.match(cursBody, /\{\s*return;\s*\}/u);
+
+    let cursorAtFirstInput;
+    game._preNhgetchHook = async () => {
+        cursorAtFirstInput = [
+            game.nhDisplay.cursorCol,
+            game.nhDisplay.cursorRow,
+            game.nhDisplay.cursorVisible,
+        ];
+    };
+    game.nhDisplay.pushKey(0x1B);
+    try {
+        assert.equal(
+            await getpos({ x: hero.x, y: hero.y }, true, 'desired position', game),
+            -1,
+        );
+    } finally {
+        delete game._preNhgetchHook;
+        delete game.getpos_getvalid;
+        delete game.getpos_hilitefunc;
+    }
+
+    assert.deepEqual(cursorAtFirstInput, [
+        lastDirtyGlyph.x,
+        lastDirtyGlyph.y + 1,
+        1,
+    ]);
     assert.equal(game.nhDisplay.inputQueueLength, 0);
 });
 
