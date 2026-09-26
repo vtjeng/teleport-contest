@@ -84416,6 +84416,49 @@
         "screens": 11405,
         "rng": 792838
       }
+    },
+    {
+      "id": "port-wizcmds-wiz-intrinsic-stoned-synthetic-v7-20260926",
+      "kind": "file-port",
+      "status": "queued",
+      "summary": "Port wizcmds.c wiz_intrinsic including STONED state transition and delayed killer",
+      "cFile": "wizcmds.c",
+      "sessions": [
+        "synthetic/v7/lizard-corpse-cures-stoning-corrected"
+      ],
+      "selectionReason": "synthetic/v7/lizard-corpse-cures-stoning-corrected has 3 remaining screens at investigations/synthetic/v7/lizard-corpse-cures-stoning-corrected.json; wizcmds.c:wiz_intrinsic is the first eligible source owner after the higher-ranked apply.c sessions reserved by A13 and zap.c session reserved by B17.",
+      "detail": "At segment 0 step 17, #wizintrinsic selects STONED. C wizcmds.c:wiz_intrinsic calls potion.c:make_stoned with transition message and delayed killer; JS uses generic timeout feedback. Port the whole selected C function and required return-valued dependencies, preserve C state and caller order, and independently record active entry paths.",
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": null,
+      "delivered": null,
+      "functions": [
+        {
+          "name": "wiz_intrinsic",
+          "line": 949,
+          "endLine": 1101,
+          "declared": true,
+          "complete": false
+        }
+      ],
+      "range": {
+        "from": 949,
+        "to": 1101
+      },
+      "syntheticProvenance": {
+        "synthetic/v7/lizard-corpse-cures-stoning-corrected": {
+          "session": "synthetic/v7/lizard-corpse-cures-stoning-corrected",
+          "corpus": "synthetic",
+          "batch": "v7",
+          "caseId": "lizard-corpse-cures-stoning-corrected",
+          "manifestPath": "challenges/manifests/v7.json",
+          "manifestSha256": "03a861a9d1bc9d813c80681312ee7a0e0f893dbad0536de40a974bd5ec344094",
+          "recordingPath": "challenges/cases/v7/lizard-corpse-cures-stoning-corrected.session.json",
+          "recordingSha256": "6bf1416d9de4abf481689ec1d723ff6775badd518b9222d66c685b3157cc4149",
+          "evaluationPath": "challenges/evaluations/20260926163920-v7.json",
+          "evaluationCommit": "582db754e6ffe41e254f7673dea995dd124e4946"
+        }
+      }
     }
   ]
 }
