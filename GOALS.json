@@ -87756,7 +87756,7 @@
     {
       "id": "div-apply-eyewear-default-synthetic-v6-20260926",
       "kind": "divergence-fix",
-      "status": "queued",
+      "status": "open",
       "summary": "Port doapply eyewear selection and generic unsupported-item refusal from C",
       "cFile": "apply.c",
       "sessions": [
@@ -87765,8 +87765,12 @@
       ],
       "selectionReason": "C19 owns the higher-ranked healer armoroff case, B19 owns both dig cases and the trapdoor teleport dependency; these three v6 apply cases share doapply as the first unreserved source owner at steps 17 and 20. Group the two blindfold cases and adjacent generic default behavior in one source fix.",
       "detail": "C apply.c:doapply BLINDFOLD/LENSES arm calls do_wear.c:Blindf_on or Blindf_off after getobj; JS rejects object type 233. The generic default checks pole, pick and axe, then prints Sorry, I do not know how to use that and returns ECMD_FAIL for object type 79; JS currently refuses. Port source branches and their sibling conditions, preserve existing apply matches, and verify independent C recordings.",
-      "openedAt": null,
-      "openStanding": null,
+      "openedAt": "d8f7aed6708771cf4f208e284d678da897c8fb5b",
+      "openStanding": {
+        "sha": "e0388bc15d52e074480a86fa725fce059147f671",
+        "screens": 11405,
+        "rng": 792838
+      },
       "closedAt": null,
       "delivered": null,
       "function": "doapply",
@@ -87785,7 +87789,493 @@
           "evaluationPath": "challenges/evaluations/20260926201323-v6.json",
           "evaluationCommit": "580b107974301f1a5c70b1698fd8ccf169c69c57"
         }
-      }
+      },
+      "activeStanding": {
+        "sha": "e0388bc15d52e074480a86fa725fce059147f671",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v6",
+          "caseId": "wizard-grease-hands-good",
+          "session": "synthetic/v6/wizard-grease-hands-good",
+          "manifestPath": "challenges/manifests/v6.json",
+          "manifestSha256": "7523b91e823f4e3906c9acdc9a3d80f8469c27c2caab8fc8fbd6967dbfdcab5f",
+          "recording": "challenges/cases/v6/wizard-grease-hands-good.session.json",
+          "recordingPath": "challenges/cases/v6/wizard-grease-hands-good.session.json",
+          "recordingSha256": "528226e80ce3b4852b1606a834fd132448c6d19be05f9b3e387cc81e5ca9f192",
+          "recipe": "challenges/cases/v6/wizard-grease-hands-good.recipe.session.json",
+          "recipeSha256": "74b2bab42a87bae9bd7efe6394fcefc09dbafdc6a5bc9ecc91288387124fcee8",
+          "replayInputSha256": "6660c2e31d6e20043aac57ddf46afd36a5e4e4fcb5c59e7a548fd3ab61c5137d",
+          "evaluationPath": "challenges/evaluations/20260926213954-v6.json",
+          "evaluationCommit": "5006247e43a2e93c85f944ecaac4f961cd237826",
+          "evaluationArtifact": "challenges/evaluations/20260926213954-v6.json",
+          "evaluationUtc": "2026-09-26T21:40:12.201Z",
+          "remainingScreens": 2,
+          "recordedSteps": 19,
+          "previousScreensMatched": 17,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 17,
+              "total": 19
+            },
+            "rng": {
+              "matched": 2366,
+              "total": 2366
+            },
+            "cursors": {
+              "matched": 19,
+              "total": 19
+            }
+          },
+          "firstMismatch": {
+            "screen": {
+              "index": 17,
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 17,
+                "key": "o"
+              },
+              "kind": "ch",
+              "row": 0,
+              "column": 0,
+              "cCell": {
+                "ch": "Y",
+                "color": 8,
+                "attr": 0,
+                "decgfx": 0
+              },
+              "jsCell": {
+                "ch": "W",
+                "color": 8,
+                "attr": 0,
+                "decgfx": 0
+              }
+            },
+            "rng": null,
+            "cursor": null
+          },
+          "step": 17,
+          "kind": "screen",
+          "sourceFile": null,
+          "function": null,
+          "message": null,
+          "cFile": null,
+          "luaFile": null,
+          "line": null,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v6/wizard-grease-hands-good.json",
+            "result": {
+              "session": "synthetic/v6/wizard-grease-hands-good",
+              "corpus": "synthetic",
+              "batch": "v6",
+              "caseId": "wizard-grease-hands-good",
+              "manifestPath": "challenges/manifests/v6.json",
+              "manifestSha256": "7523b91e823f4e3906c9acdc9a3d80f8469c27c2caab8fc8fbd6967dbfdcab5f",
+              "recordingSha256": "528226e80ce3b4852b1606a834fd132448c6d19be05f9b3e387cc81e5ca9f192",
+              "evaluationPath": "challenges/evaluations/20260926132731-v6.json",
+              "evaluationCommit": "d0a8041f88dd37cbf631877464c06cf985998274",
+              "remainingScreens": 2,
+              "recordedSteps": 19,
+              "status": "complete",
+              "commit": "d0a8041f88dd37cbf631877464c06cf985998274",
+              "mismatch": {
+                "corpus": "synthetic",
+                "batch": "v6",
+                "caseId": "wizard-grease-hands-good",
+                "session": "synthetic/v6/wizard-grease-hands-good",
+                "manifestPath": "challenges/manifests/v6.json",
+                "manifestSha256": "7523b91e823f4e3906c9acdc9a3d80f8469c27c2caab8fc8fbd6967dbfdcab5f",
+                "recording": "challenges/cases/v6/wizard-grease-hands-good.session.json",
+                "recordingPath": "challenges/cases/v6/wizard-grease-hands-good.session.json",
+                "recordingSha256": "528226e80ce3b4852b1606a834fd132448c6d19be05f9b3e387cc81e5ca9f192",
+                "recipe": "challenges/cases/v6/wizard-grease-hands-good.recipe.session.json",
+                "recipeSha256": "74b2bab42a87bae9bd7efe6394fcefc09dbafdc6a5bc9ecc91288387124fcee8",
+                "replayInputSha256": "a3ac3b6872f8e89451d29bdbf73b5215af57c013d215edeaba8f740cc0c5fc4a",
+                "evaluationPath": "challenges/evaluations/20260926132731-v6.json",
+                "evaluationCommit": "d0a8041f88dd37cbf631877464c06cf985998274",
+                "evaluationArtifact": "challenges/evaluations/20260926132731-v6.json",
+                "evaluationUtc": "2026-09-26T13:27:48.505Z",
+                "remainingScreens": 2,
+                "recordedSteps": 19,
+                "previousScreensMatched": 17,
+                "regression": false,
+                "passed": false,
+                "error": null,
+                "metrics": {
+                  "screens": {
+                    "matched": 17,
+                    "total": 19
+                  },
+                  "rng": {
+                    "matched": 2361,
+                    "total": 2366
+                  },
+                  "cursors": {
+                    "matched": 17,
+                    "total": 19
+                  }
+                },
+                "firstMismatch": {
+                  "kind": "stop",
+                  "message": "unsupported hero command: an unported branch of this command: applying a tool requires doapply()'s arm for object type 233",
+                  "step": 17
+                },
+                "step": 17,
+                "kind": "stop",
+                "sourceFile": "apply.c",
+                "function": "doapply",
+                "message": "unsupported hero command: an unported branch of this command: applying a tool requires doapply()'s arm for object type 233",
+                "cFile": "apply.c",
+                "luaFile": null,
+                "line": null
+              },
+              "summary": "Both recordings create a can of grease but do not apply it. After the apply command, key o selects BLINDFOLD (object type 233); the earlier inventory screen lists the can of grease at p. C therefore reaches apply.c doapply()’s BLINDFOLD/LENSES switch arm and calls Blindf_on(), while JS has no matching dispatch and stops in its default unsupported arm. This is the first stop at segment 0 step 17; the missing source owner is the eyewear arm in doapply(), not use_grease().",
+              "source": {
+                "file": "apply.c",
+                "branch": "After getobj() returns a BLINDFOLD or LENSES object that passed apply_ok(), if the selected object is not already ublindf and ublindf is empty, doapply() calls Blindf_on(obj). These recordings enter that branch with the initial blindfold unworn. If the selected item is already ublindf, C may call Blindf_off() unless cursed; if other eyewear is worn, C prints the already-covered message. Those sibling branches are not reached.",
+                "functions": [
+                  "doapply"
+                ],
+                "callers": [
+                  "C cmd.c command table binds key a to doapply(); doapply() calls getobj(\"use or apply\", apply_ok, GETOBJ_NOFLAGS) before its object-type switch.",
+                  "JS cmd.js runApplyCommand() calls doapply(state) for the apply command. The stop is in js/apply.js doapply() after its switch lacks BLINDFOLD/LENSES cases."
+                ],
+                "dependencies": [
+                  "C apply.c apply_ok() suggests TOOL_CLASS objects, and apply.c doapply() obtains the selected item through getobj(); the recorded item key o selects the blindfold, while the preceding screen identifies the can of grease as p.",
+                  "C doapply() calls do_wear.c Blindf_on() for the unworn-eyewear branch. Blindf_on() removes a worn-item mask if needed, sets the object in W_TOOL (ublindf), calls on_msg(), and toggles blindness when the hero becomes blind; its void return is ignored and doapply() keeps its initial ECMD_TIME result.",
+                  "The common C do_wear.c Blindf_on() path is already implemented in js/do_wear.js Blindf_on(); the current first stop is before that helper because js/apply.js doapply() has no BLINDFOLD/LENSES dispatch case."
+                ]
+              },
+              "goalKind": "divergence-fix",
+              "evidence": [
+                "The saved evaluation challenges/evaluations/20260926132731-v6.json reports 17/19 screens, 2361/2366 RNG calls, and 17/19 cursors matched. Its first stop is segment 0 step 17 on key o: JS reports the missing doapply() arm for object type 233.",
+                "The C recording challenges/cases/v6/wizard-grease-hands-good.session.json has seed 60626051 and moves Ctrl-W, can of grease, then ao-. At step 15 the C screen says “p - a can of grease.”; step 16 starts the apply prompt; key o at step 17 produces “You are now wearing a blindfold. You can't see any more.” and status Blind. This evidence rules out the can-of-grease arm as the first divergent branch.",
+                "C nethack-c/upstream/src/apply.c:4150-4212 defines apply_ok() and begins doapply(); apply_ok() suggests TOOL_CLASS objects for getobj(). The BLINDFOLD/LENSES branch at apply.c:4244-4257 calls Blindf_on(obj) when obj != ublindf and ublindf is empty. apply.c:4282 handles CAN_OF_GREASE separately, after the eyewear arm.",
+                "C nethack-c/upstream/src/do_wear.c:1461-1492 owns the common sighted-to-blind transition: Blindf_on() sets W_TOOL, calls on_msg(), detects the blindness transition, then calls toggle_blindness(). JS already implements this common path in js/do_wear.js:1042-1098; js/apply.js:2297-2403 lacks BLINDFOLD/LENSES cases, so execution reaches the unsupported default instead."
+              ]
+            }
+          }
+        },
+        {
+          "corpus": "synthetic",
+          "batch": "v6",
+          "caseId": "wizard-grease-only",
+          "session": "synthetic/v6/wizard-grease-only",
+          "manifestPath": "challenges/manifests/v6.json",
+          "manifestSha256": "7523b91e823f4e3906c9acdc9a3d80f8469c27c2caab8fc8fbd6967dbfdcab5f",
+          "recording": "challenges/cases/v6/wizard-grease-only.session.json",
+          "recordingPath": "challenges/cases/v6/wizard-grease-only.session.json",
+          "recordingSha256": "9af4fef5d828c481509d962d1bf1160e66cc01ea5f2b15d516e2528ae3af0aa8",
+          "recipe": "challenges/cases/v6/wizard-grease-only.recipe.session.json",
+          "recipeSha256": "357fedf6f6442fa63ed6d40a8c86d12aa55425f0d8deb5928fa6edb4ccee4665",
+          "replayInputSha256": "6660c2e31d6e20043aac57ddf46afd36a5e4e4fcb5c59e7a548fd3ab61c5137d",
+          "evaluationPath": "challenges/evaluations/20260926213954-v6.json",
+          "evaluationCommit": "5006247e43a2e93c85f944ecaac4f961cd237826",
+          "evaluationArtifact": "challenges/evaluations/20260926213954-v6.json",
+          "evaluationUtc": "2026-09-26T21:40:12.201Z",
+          "remainingScreens": 2,
+          "recordedSteps": 19,
+          "previousScreensMatched": 17,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 17,
+              "total": 19
+            },
+            "rng": {
+              "matched": 5759,
+              "total": 5759
+            },
+            "cursors": {
+              "matched": 19,
+              "total": 19
+            }
+          },
+          "firstMismatch": {
+            "screen": {
+              "index": 17,
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 17,
+                "key": "o"
+              },
+              "kind": "ch",
+              "row": 0,
+              "column": 0,
+              "cCell": {
+                "ch": "Y",
+                "color": 8,
+                "attr": 0,
+                "decgfx": 0
+              },
+              "jsCell": {
+                "ch": "W",
+                "color": 8,
+                "attr": 0,
+                "decgfx": 0
+              }
+            },
+            "rng": null,
+            "cursor": null
+          },
+          "step": 17,
+          "kind": "screen",
+          "sourceFile": null,
+          "function": null,
+          "message": null,
+          "cFile": null,
+          "luaFile": null,
+          "line": null,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v6/wizard-grease-only.json",
+            "result": {
+              "session": "synthetic/v6/wizard-grease-only",
+              "corpus": "synthetic",
+              "batch": "v6",
+              "caseId": "wizard-grease-only",
+              "manifestPath": "challenges/manifests/v6.json",
+              "manifestSha256": "7523b91e823f4e3906c9acdc9a3d80f8469c27c2caab8fc8fbd6967dbfdcab5f",
+              "recordingSha256": "9af4fef5d828c481509d962d1bf1160e66cc01ea5f2b15d516e2528ae3af0aa8",
+              "evaluationPath": "challenges/evaluations/20260926132731-v6.json",
+              "evaluationCommit": "d0a8041f88dd37cbf631877464c06cf985998274",
+              "remainingScreens": 2,
+              "recordedSteps": 19,
+              "status": "complete",
+              "commit": "d0a8041f88dd37cbf631877464c06cf985998274",
+              "mismatch": {
+                "corpus": "synthetic",
+                "batch": "v6",
+                "caseId": "wizard-grease-only",
+                "session": "synthetic/v6/wizard-grease-only",
+                "manifestPath": "challenges/manifests/v6.json",
+                "manifestSha256": "7523b91e823f4e3906c9acdc9a3d80f8469c27c2caab8fc8fbd6967dbfdcab5f",
+                "recording": "challenges/cases/v6/wizard-grease-only.session.json",
+                "recordingPath": "challenges/cases/v6/wizard-grease-only.session.json",
+                "recordingSha256": "9af4fef5d828c481509d962d1bf1160e66cc01ea5f2b15d516e2528ae3af0aa8",
+                "recipe": "challenges/cases/v6/wizard-grease-only.recipe.session.json",
+                "recipeSha256": "357fedf6f6442fa63ed6d40a8c86d12aa55425f0d8deb5928fa6edb4ccee4665",
+                "replayInputSha256": "a3ac3b6872f8e89451d29bdbf73b5215af57c013d215edeaba8f740cc0c5fc4a",
+                "evaluationPath": "challenges/evaluations/20260926132731-v6.json",
+                "evaluationCommit": "d0a8041f88dd37cbf631877464c06cf985998274",
+                "evaluationArtifact": "challenges/evaluations/20260926132731-v6.json",
+                "evaluationUtc": "2026-09-26T13:27:48.505Z",
+                "remainingScreens": 2,
+                "recordedSteps": 19,
+                "previousScreensMatched": 17,
+                "regression": false,
+                "passed": false,
+                "error": null,
+                "metrics": {
+                  "screens": {
+                    "matched": 17,
+                    "total": 19
+                  },
+                  "rng": {
+                    "matched": 5755,
+                    "total": 5759
+                  },
+                  "cursors": {
+                    "matched": 17,
+                    "total": 19
+                  }
+                },
+                "firstMismatch": {
+                  "kind": "stop",
+                  "message": "unsupported hero command: an unported branch of this command: applying a tool requires doapply()'s arm for object type 233",
+                  "step": 17
+                },
+                "step": 17,
+                "kind": "stop",
+                "sourceFile": "apply.c",
+                "function": "doapply",
+                "message": "unsupported hero command: an unported branch of this command: applying a tool requires doapply()'s arm for object type 233",
+                "cFile": "apply.c",
+                "luaFile": null,
+                "line": null
+              },
+              "summary": "Both recordings create a can of grease but do not apply it. After the apply command, key o selects BLINDFOLD (object type 233); the earlier inventory screen lists the can of grease at p. C therefore reaches apply.c doapply()’s BLINDFOLD/LENSES switch arm and calls Blindf_on(), while JS has no matching dispatch and stops in its default unsupported arm. This is the first stop at segment 0 step 17; the missing source owner is the eyewear arm in doapply(), not use_grease().",
+              "source": {
+                "file": "apply.c",
+                "branch": "After getobj() returns a BLINDFOLD or LENSES object that passed apply_ok(), if the selected object is not already ublindf and ublindf is empty, doapply() calls Blindf_on(obj). These recordings enter that branch with the initial blindfold unworn. If the selected item is already ublindf, C may call Blindf_off() unless cursed; if other eyewear is worn, C prints the already-covered message. Those sibling branches are not reached.",
+                "functions": [
+                  "doapply"
+                ],
+                "callers": [
+                  "C cmd.c command table binds key a to doapply(); doapply() calls getobj(\"use or apply\", apply_ok, GETOBJ_NOFLAGS) before its object-type switch.",
+                  "JS cmd.js runApplyCommand() calls doapply(state) for the apply command. The stop is in js/apply.js doapply() after its switch lacks BLINDFOLD/LENSES cases."
+                ],
+                "dependencies": [
+                  "C apply.c apply_ok() suggests TOOL_CLASS objects, and apply.c doapply() obtains the selected item through getobj(); the recorded item key o selects the blindfold, while the preceding screen identifies the can of grease as p.",
+                  "C doapply() calls do_wear.c Blindf_on() for the unworn-eyewear branch. Blindf_on() removes a worn-item mask if needed, sets the object in W_TOOL (ublindf), calls on_msg(), and toggles blindness when the hero becomes blind; its void return is ignored and doapply() keeps its initial ECMD_TIME result.",
+                  "The common C do_wear.c Blindf_on() path is already implemented in js/do_wear.js Blindf_on(); the current first stop is before that helper because js/apply.js doapply() has no BLINDFOLD/LENSES dispatch case."
+                ]
+              },
+              "goalKind": "divergence-fix",
+              "evidence": [
+                "The saved evaluation challenges/evaluations/20260926132731-v6.json reports 17/19 screens, 5755/5759 RNG calls, and 17/19 cursors matched. Its first stop is segment 0 step 17 on key o: JS reports the missing doapply() arm for object type 233.",
+                "The C recording challenges/cases/v6/wizard-grease-only.session.json has seed 60626038 and moves Ctrl-W, can of grease, then ao-. At step 15 the C screen says “p - a can of grease.”; step 16 starts the apply prompt; key o at step 17 produces “You are now wearing a blindfold. You can't see any more.” and status Blind. This evidence rules out the can-of-grease arm as the first divergent branch.",
+                "C nethack-c/upstream/src/apply.c:4150-4212 defines apply_ok() and begins doapply(); apply_ok() suggests TOOL_CLASS objects for getobj(). The BLINDFOLD/LENSES branch at apply.c:4244-4257 calls Blindf_on(obj) when obj != ublindf and ublindf is empty. apply.c:4282 handles CAN_OF_GREASE separately, after the eyewear arm.",
+                "C nethack-c/upstream/src/do_wear.c:1461-1492 owns the common sighted-to-blind transition: Blindf_on() sets W_TOOL, calls on_msg(), detects the blindness transition, then calls toggle_blindness(). JS already implements this common path in js/do_wear.js:1042-1098; js/apply.js:2297-2403 lacks BLINDFOLD/LENSES cases, so execution reaches the unsupported default instead."
+              ]
+            }
+          }
+        },
+        {
+          "corpus": "synthetic",
+          "batch": "v6",
+          "caseId": "wizard-greasy-write-glib",
+          "session": "synthetic/v6/wizard-greasy-write-glib",
+          "manifestPath": "challenges/manifests/v6.json",
+          "manifestSha256": "7523b91e823f4e3906c9acdc9a3d80f8469c27c2caab8fc8fbd6967dbfdcab5f",
+          "recording": "challenges/cases/v6/wizard-greasy-write-glib.session.json",
+          "recordingPath": "challenges/cases/v6/wizard-greasy-write-glib.session.json",
+          "recordingSha256": "6f8be6114cd1a551dc75940ccc48608c51b6a978950a5f90e639dbbb09f03317",
+          "recipe": "challenges/cases/v6/wizard-greasy-write-glib.recipe.session.json",
+          "recipeSha256": "0ccf18d6ddfa6bd75ef0c57c46a0ae8bd6418b3fafc4a4e9641a518492818911",
+          "replayInputSha256": "6660c2e31d6e20043aac57ddf46afd36a5e4e4fcb5c59e7a548fd3ab61c5137d",
+          "evaluationPath": "challenges/evaluations/20260926213954-v6.json",
+          "evaluationCommit": "5006247e43a2e93c85f944ecaac4f961cd237826",
+          "evaluationArtifact": "challenges/evaluations/20260926213954-v6.json",
+          "evaluationUtc": "2026-09-26T21:40:12.201Z",
+          "remainingScreens": 2,
+          "recordedSteps": 22,
+          "previousScreensMatched": 20,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 20,
+              "total": 22
+            },
+            "rng": {
+              "matched": 2958,
+              "total": 2967
+            },
+            "cursors": {
+              "matched": 20,
+              "total": 22
+            }
+          },
+          "firstMismatch": {
+            "kind": "stop",
+            "message": "unsupported hero command: an unported branch of this command: applying a tool requires doapply()'s arm for object type 79",
+            "step": 20
+          },
+          "step": 20,
+          "kind": "stop",
+          "sourceFile": "apply.c",
+          "function": "doapply",
+          "message": "unsupported hero command: an unported branch of this command: applying a tool requires doapply()'s arm for object type 79",
+          "cFile": "apply.c",
+          "luaFile": null,
+          "line": null,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v6/wizard-greasy-write-glib.json",
+            "result": {
+              "session": "synthetic/v6/wizard-greasy-write-glib",
+              "corpus": "synthetic",
+              "batch": "v6",
+              "caseId": "wizard-greasy-write-glib",
+              "manifestPath": "challenges/manifests/v6.json",
+              "manifestSha256": "7523b91e823f4e3906c9acdc9a3d80f8469c27c2caab8fc8fbd6967dbfdcab5f",
+              "recordingPath": "challenges/cases/v6/wizard-greasy-write-glib.session.json",
+              "recordingSha256": "6f8be6114cd1a551dc75940ccc48608c51b6a978950a5f90e639dbbb09f03317",
+              "evaluationPath": "challenges/evaluations/20260926132731-v6.json",
+              "evaluationCommit": "d0a8041f88dd37cbf631877464c06cf985998274",
+              "remainingScreens": 2,
+              "recordedSteps": 22,
+              "status": "complete",
+              "commit": "d0a8041f88dd37cbf631877464c06cf985998274",
+              "mismatch": {
+                "corpus": "synthetic",
+                "batch": "v6",
+                "caseId": "wizard-greasy-write-glib",
+                "session": "synthetic/v6/wizard-greasy-write-glib",
+                "manifestPath": "challenges/manifests/v6.json",
+                "manifestSha256": "7523b91e823f4e3906c9acdc9a3d80f8469c27c2caab8fc8fbd6967dbfdcab5f",
+                "recording": "challenges/cases/v6/wizard-greasy-write-glib.session.json",
+                "recordingPath": "challenges/cases/v6/wizard-greasy-write-glib.session.json",
+                "recordingSha256": "6f8be6114cd1a551dc75940ccc48608c51b6a978950a5f90e639dbbb09f03317",
+                "recipe": "challenges/cases/v6/wizard-greasy-write-glib.recipe.session.json",
+                "recipeSha256": "0ccf18d6ddfa6bd75ef0c57c46a0ae8bd6418b3fafc4a4e9641a518492818911",
+                "replayInputSha256": "a3ac3b6872f8e89451d29bdbf73b5215af57c013d215edeaba8f740cc0c5fc4a",
+                "evaluationPath": "challenges/evaluations/20260926132731-v6.json",
+                "evaluationCommit": "d0a8041f88dd37cbf631877464c06cf985998274",
+                "evaluationArtifact": "challenges/evaluations/20260926132731-v6.json",
+                "evaluationUtc": "2026-09-26T13:27:48.505Z",
+                "remainingScreens": 2,
+                "recordedSteps": 22,
+                "previousScreensMatched": 20,
+                "regression": false,
+                "passed": false,
+                "error": null,
+                "metrics": {
+                  "screens": {
+                    "matched": 20,
+                    "total": 22
+                  },
+                  "rng": {
+                    "matched": 2958,
+                    "total": 2967
+                  },
+                  "cursors": {
+                    "matched": 20,
+                    "total": 22
+                  }
+                },
+                "firstMismatch": {
+                  "kind": "stop",
+                  "message": "unsupported hero command: an unported branch of this command: applying a tool requires doapply()'s arm for object type 79",
+                  "step": 20
+                },
+                "step": 20,
+                "kind": "stop",
+                "sourceFile": "apply.c",
+                "function": "doapply",
+                "message": "unsupported hero command: an unported branch of this command: applying a tool requires doapply()'s arm for object type 79",
+                "cFile": "apply.c",
+                "luaFile": null,
+                "line": null
+              },
+              "summary": "This case does not reach hand greasing or Glib. After an invalid inventory choice produces a matched \"You don’t have that object\" More prompt, the later apply command reaches object type 79. C apply.c:doapply() falls through its generic default, prints \"Sorry, I don’t know how to use that.\", and returns ECMD_FAIL; JS refuses the branch and evaluation stops at step 20. This first owner is doapply(), not glibr().",
+              "source": {
+                "file": "apply.c",
+                "branch": "At segment 0 step 20, doapply() receives inventory object type 79. No named switch arm handles it; C checks is_pole(), is_pick(), and is_axe() in the generic default, finds none applicable, prints the generic refusal, and returns ECMD_FAIL. This session never selects the grease can’s hand target, so Glib is not activated and glibr() is not reached.",
+                "functions": [
+                  "doapply"
+                ],
+                "callers": [
+                  "C command table cmd.c:1678 maps the a command to apply.c:doapply(); JavaScript js/cmd.js:runApplyCommand dispatches to js/apply.js:doapply().",
+                  "Inside apply.c:doapply(), getobj() supplies the selected object to the switch; object type 79 reaches the generic default at lines 4407-4417 after the named cases."
+                ],
+                "dependencies": [
+                  "Preserve doapply() getobj and retouch ordering, switch dispatch, is_pole/is_pick/is_axe predicates, printed message, and ECMD_FAIL return without spending a turn.",
+                  "js/apply.js handles selected FOOD_CLASS and ARMOR_CLASS defaults and pole/pick/axe branches, but throws UnsupportedApplyError for this remaining object-type-79 path; do not classify it as grease or Glib behavior."
+                ]
+              },
+              "goalKind": "divergence-fix",
+              "evidence": [
+                "Saved challenges/evaluations/20260926132731-v6.json reports 2 remaining screens of 22 and first stop at segment 0 step 20: JS refuses apply.c:doapply() for object type 79. The previous 20 screens match; RNG is 2958/2967.",
+                "C recording challenges/cases/v6/wizard-greasy-write-glib.session.json: step 17 key p yields \"You don’t have that object.--More--\"; step 19 space returns to the apply prompt; step 20 key a produces \"Sorry, I don’t know how to use that.\" before the final n input. The case never chooses the grease can’s hand target.",
+                "nethack-c/upstream/src/apply.c:4407-4417 is the generic default after BANANA: it tries is_pole() and is_pick()/is_axe(), then prints the message and returns ECMD_FAIL. js/apply.js:2375-2403 mirrors some default classes but throws UnsupportedApplyError for object type 79.",
+                "C caller is the a-command table entry in nethack-c/upstream/src/cmd.c:1678; JavaScript caller is js/cmd.js:runApplyCommand -> js/apply.js:doapply(). This path, not do_wear.c:glibr(), owns the first divergence."
+              ]
+            }
+          }
+        }
+      ]
     },
     {
       "id": "div-makemon-aligned-cleric-synthetic-v7-20260926",
