@@ -51,6 +51,7 @@ import {
     ECMD_OK,
     ECMD_TIME,
     FUMBLING,
+    FORCETRAP,
     F_WARNED,
     DIGTYP_DOOR,
     DIGTYP_BOULDER,
@@ -378,8 +379,11 @@ export async function dig(state = game, rawEnv = {}) {
 
     const fumbling = Boolean(u.uprops?.[FUMBLING]?.intrinsic
         || u.uprops?.[FUMBLING]?.extrinsic);
-    if (fumbling) {
-        note_unported('dig.c dig fumbling occupation branch');
+    if (fumbling && !random.rn2(3)) {
+        // C consumes the switch selection before its still-unported outcome
+        // branch. A non-triggering roll continues through ordinary digging.
+        random.rn2(3);
+        note_unported('dig.c dig fumbling outcome switch');
         return 0;
     }
 
@@ -401,7 +405,7 @@ export async function dig(state = game, rawEnv = {}) {
     if (trap && (trap.ttyp === LANDMINE
         || (trap.ttyp === BEAR_TRAP && !u.utrap))) {
         const { dotrap } = await import('./trap_effects.js');
-        await dotrap(trap, FORCEBUNGLE, state);
+        await dotrap(trap, FORCETRAP, state);
         resetDigging(digging);
         return 0;
     }
