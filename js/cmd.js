@@ -1834,16 +1834,19 @@ export function end_of_input(state = game) {
 // this list; a prefixed command the port does not own stops at its own arm
 // below, exactly as the same key does unprefixed.
 //
-// doextcmd() dispatches three commands that are deliberately absent here:
-// '#ride', whose own key is M-R (cmd.c:1833); '#twoweapon', whose own key is
-// 'X' (cmd.c:1913) and which commands_init() binds a second time to M-2
+// The direct C and Meta-N rows are admitted here and dispatch docallcmd() in
+// rhack() below, as well as remaining available by their typed #call/#name
+// names. Three other doextcmd() entries stay deliberately absent: '#ride',
+// whose own key is M-R (cmd.c:1833); '#twoweapon', whose own key is 'X'
+// (cmd.c:1913) and which commands_init() binds a second time to M-2
 // (cmd.c:2776); and '#chat', whose own key is M-c (cmd.c:1691). Reaching
-// doride(), dotwoweapon() or dotalk() from any of those four keystrokes needs
-// rhack()'s arm for each as well as this admission, and nothing in the current
-// goal drives any of them, so all four keys stay on the refusing side while
-// the typed names work.
+// doride(), dotwoweapon() or dotalk() from any of those four keystrokes still
+// needs rhack()'s arm for each as well as admission, and nothing in the
+// current goal drives them, so those four keys stay on the refusing side
+// while the typed names work.
 export const ADMITTED_COMMANDS = Object.freeze([
     'wait', 'look', 'inventory', 'showspells', 'known', 'attributes', 'search',
+    'call', 'name',
     'eat', 'engrave', 'apply', 'rub', 'open', 'close', 'down', 'up', 'drop', 'pickup', 'pay',
     'takeoff', 'remove', 'wear',
     'puton', 'quaff', 'read', 'zap', 'cast', 'reqmenu', 'fight', 'rush', 'run', 'repeat',
@@ -5497,6 +5500,18 @@ export async function rhack(key, state = game) {
             const res = await failClosedCommand(
                 key, state, () => dotip(state),
             );
+            if (res & (ECMD_CANCEL | ECMD_FAIL)) resetCommandVars(state);
+            else if ((res & (ECMD_OK | ECMD_TIME)) === ECMD_OK)
+                resetCommandVars(state, state.multi < 0);
+            if (res & ECMD_TIME) commandTookTime(state);
+            return;
+        }
+        if (command === 'call' || command === 'name') {
+            // C ref: cmd.c's 'C' row (1687-1688) and M('n') row
+            // (1773-1774) both call do_name.c docallcmd(). The command
+            // returns ECMD_OK at do_name.c:600; rhack():3810-3818 therefore
+            // resets command variables without advancing a turn.
+            const res = await docallcmd(state);
             if (res & (ECMD_CANCEL | ECMD_FAIL)) resetCommandVars(state);
             else if ((res & (ECMD_OK | ECMD_TIME)) === ECMD_OK)
                 resetCommandVars(state, state.multi < 0);
