@@ -1,0 +1,91 @@
+{
+  "session": "synthetic/v6/v6-add2-healer-drink-potion",
+  "corpus": "synthetic",
+  "batch": "v6",
+  "caseId": "v6-add2-healer-drink-potion",
+  "manifestPath": "challenges/manifests/v6.json",
+  "manifestSha256": "7523b91e823f4e3906c9acdc9a3d80f8469c27c2caab8fc8fbd6967dbfdcab5f",
+  "recordingSha256": "b679b8751ebcd68682d345457262950cd7ef082e2fb05285b0f1fb290d63fd08",
+  "evaluationPath": "challenges/evaluations/20260926140428-v6.json",
+  "evaluationCommit": "c79e03cbb8b5e5509ef1f09c67f9c94405b25eae",
+  "remainingScreens": 1,
+  "recordedSteps": 4,
+  "status": "complete",
+  "commit": "c79e03cbb8b5e5509ef1f09c67f9c94405b25eae",
+  "mismatch": {
+    "corpus": "synthetic",
+    "batch": "v6",
+    "caseId": "v6-add2-healer-drink-potion",
+    "session": "synthetic/v6/v6-add2-healer-drink-potion",
+    "manifestPath": "challenges/manifests/v6.json",
+    "manifestSha256": "7523b91e823f4e3906c9acdc9a3d80f8469c27c2caab8fc8fbd6967dbfdcab5f",
+    "recording": "challenges/cases/v6/v6-add2-healer-drink-potion.session.json",
+    "recordingPath": "challenges/cases/v6/v6-add2-healer-drink-potion.session.json",
+    "recordingSha256": "b679b8751ebcd68682d345457262950cd7ef082e2fb05285b0f1fb290d63fd08",
+    "recipe": "challenges/cases/v6/v6-add2-healer-drink-potion.recipe.session.json",
+    "recipeSha256": "92a5bf266d661167d9b8427da872111436d7b8aa16360f0ffa7c6f4298f135a8",
+    "replayInputSha256": "08ec9793c4e538aa193f8c9f2480a06224ca1163dff42a0fb1d317bf84e4587a",
+    "evaluationPath": "challenges/evaluations/20260926140428-v6.json",
+    "evaluationCommit": "c79e03cbb8b5e5509ef1f09c67f9c94405b25eae",
+    "evaluationArtifact": "challenges/evaluations/20260926140428-v6.json",
+    "evaluationUtc": "2026-09-26T14:04:45.786Z",
+    "remainingScreens": 1,
+    "recordedSteps": 4,
+    "previousScreensMatched": 3,
+    "regression": false,
+    "passed": false,
+    "error": null,
+    "metrics": {
+      "screens": {
+        "matched": 3,
+        "total": 4
+      },
+      "rng": {
+        "matched": 2267,
+        "total": 2276
+      },
+      "cursors": {
+        "matched": 3,
+        "total": 4
+      }
+    },
+    "firstMismatch": {
+      "kind": "stop",
+      "message": "unsupported hero command: an unported branch of this command: quaffing requires djinni_from_bottle()",
+      "step": 3
+    },
+    "step": 3,
+    "kind": "stop",
+    "sourceFile": "potion.c",
+    "function": "djinni_from_bottle",
+    "message": "unsupported hero command: an unported branch of this command: quaffing requires djinni_from_bottle()",
+    "cFile": "potion.c",
+    "luaFile": null,
+    "line": null
+  },
+  "summary": "The stop is caused by js/potion.js:dodrink() unconditionally rejecting every smoky-description potion at the djinni branch. C consumes the occupant-chance roll first; in this recording the roll is rn2(13)=3, so the djinni is not released and C falls through to dopotion(), which produces “You feel better.” The missing owner is dodrink()’s smoky-potion gate, not djinni_from_bottle(), whose C helper is already represented in JS for the magic-lamp path.",
+  "source": {
+    "file": "potion.c",
+    "branch": "After dodrink() selects a potion whose description is smoky, C checks that PM_DJINNI is not G_GONE and draws rn2(POTION_OCCUPANT_CHANCE(mvitals[PM_DJINNI].born)). It calls djinni_from_bottle() only when that draw is zero; a nonzero draw falls through to dopotion(). In this recording the C log shows rn2(13)=3 at potion.c:609, so Djinni is available with born 0 but the chance fails and the potion effect is processed normally.",
+    "functions": [
+      "dodrink"
+    ],
+    "callers": [
+      "C cmd.c command table binds q to potion.c:dodrink().",
+      "JS cmd.js:runQuaffCommand() calls potion.js:dodrink(state) for the quaff command."
+    ],
+    "dependencies": [
+      "potion.c:drink_ok() and dodrink() use getobj() to select a potion, then objdescr_is() checks the shuffled description; the djinni condition also reads mvitals[PM_DJINNI].mvflags and .born.",
+      "hack.h:POTION_OCCUPANT_CHANCE(n) is 13 + 2*n. The recorded rn2(13) call establishes born 0 and that the not-G_GONE condition passed; the result 3 is nonzero, so dodrink() skips djinni_from_bottle() and returns dopotion(otmp).",
+      "C potion.c:djinni_from_bottle() has return type void. On a successful occupant roll, dodrink() ignores that return, calls useup(otmp), and returns ECMD_TIME. The existing JS potion.js:djinni_from_bottle() returns its monster object for internal state flow, but its live dorub() caller ignores it; a quaff caller must likewise discard it and preserve C’s useup/ECMD_TIME contract.",
+      "For the recorded nonzero roll, C potion.c:dopotion() dispatches through peffects() to peffect_healing(), consumes the potion, and returns ECMD_TIME; the screen and RNG log show this branch rather than a released djinni."
+    ]
+  },
+  "goalKind": "divergence-fix",
+  "evidence": [
+    "The saved evaluation challenges/evaluations/20260926140428-v6.json reports 3/4 screens, 2267/2276 RNG calls, and 3/4 cursors matched. Its first stop is segment 0 step 3 on key d, where JS raises the unsupported quaffing/djinni_from_bottle() error.",
+    "The recording challenges/cases/v6/v6-add2-healer-drink-potion.session.json uses moves “ qd”; key q opens the potion prompt and d selects the item. At segment 0 step 3, C logs “rn2(13)=3 @ dodrink(potion.c:609)” followed by “d(4,4)=10 @ peffect_healing(potion.c:1122)” and displays “You feel better.” Thus the occupant roll was nonzero and the actual C path fell through to dopotion(), rather than calling djinni_from_bottle().",
+    "C nethack-c/upstream/src/potion.c:601-615 gives the owner branch: the smoky-potion case calls djinni_from_bottle(otmp), useup(otmp), and returns ECMD_TIME only when Djinni is not G_GONE and rn2(POTION_OCCUPANT_CHANCE(born)) is zero; otherwise dodrink() reaches return dopotion(otmp). The bound 13 is consistent with born 0 under nethack-c/upstream/include/hack.h:1409, where POTION_OCCUPANT_CHANCE(n) is 13 + 2*n.",
+    "C nethack-c/upstream/src/potion.c:2815-2868 defines djinni_from_bottle() as void. JS already has its shared implementation in js/potion.js:284-357, and js/apply.js calls it for the magic-lamp path. The first stop instead comes from js/potion.js:1365-1374, where dodrink() throws for any smoky description without checking G_GONE or consuming the occupant-chance RNG draw."
+  ]
+}

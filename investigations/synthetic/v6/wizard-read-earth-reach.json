@@ -1,0 +1,139 @@
+{
+  "session": "synthetic/v6/wizard-read-earth-reach",
+  "corpus": "synthetic",
+  "batch": "v6",
+  "caseId": "wizard-read-earth-reach",
+  "manifestPath": "challenges/manifests/v6.json",
+  "manifestSha256": "7523b91e823f4e3906c9acdc9a3d80f8469c27c2caab8fc8fbd6967dbfdcab5f",
+  "recordingPath": "challenges/cases/v6/wizard-read-earth-reach.session.json",
+  "recordingSha256": "44d036a62da0fc62080b022f279326a1b309edcb8f4f6e8c3855a8c0555a1a8d",
+  "evaluationPath": "challenges/evaluations/20260926140428-v6.json",
+  "evaluationCommit": "c79e03cbb8b5e5509ef1f09c67f9c94405b25eae",
+  "remainingScreens": 1,
+  "recordedSteps": 21,
+  "status": "complete",
+  "commit": "c79e03cbb8b5e5509ef1f09c67f9c94405b25eae",
+  "mismatch": {
+    "corpus": "synthetic",
+    "batch": "v6",
+    "caseId": "wizard-read-earth-reach",
+    "session": "synthetic/v6/wizard-read-earth-reach",
+    "manifestPath": "challenges/manifests/v6.json",
+    "manifestSha256": "7523b91e823f4e3906c9acdc9a3d80f8469c27c2caab8fc8fbd6967dbfdcab5f",
+    "recording": "challenges/cases/v6/wizard-read-earth-reach.session.json",
+    "recordingPath": "challenges/cases/v6/wizard-read-earth-reach.session.json",
+    "recordingSha256": "44d036a62da0fc62080b022f279326a1b309edcb8f4f6e8c3855a8c0555a1a8d",
+    "recipe": "challenges/cases/v6/wizard-read-earth-reach.recipe.session.json",
+    "recipeSha256": "47ed050c8aa1166f9a2bc9be29b119b555f5f9ab523b8ee2521dccf0334c03d9",
+    "replayInputSha256": "08ec9793c4e538aa193f8c9f2480a06224ca1163dff42a0fb1d317bf84e4587a",
+    "evaluationPath": "challenges/evaluations/20260926140428-v6.json",
+    "evaluationCommit": "c79e03cbb8b5e5509ef1f09c67f9c94405b25eae",
+    "evaluationArtifact": "challenges/evaluations/20260926140428-v6.json",
+    "evaluationUtc": "2026-09-26T14:04:45.786Z",
+    "remainingScreens": 1,
+    "recordedSteps": 21,
+    "previousScreensMatched": 20,
+    "regression": false,
+    "passed": false,
+    "error": null,
+    "metrics": {
+      "screens": {
+        "matched": 20,
+        "total": 21
+      },
+      "rng": {
+        "matched": 2454,
+        "total": 2457
+      },
+      "cursors": {
+        "matched": 20,
+        "total": 21
+      }
+    },
+    "firstMismatch": {
+      "screen": {
+        "index": 20,
+        "location": {
+          "segmentIndex": 0,
+          "stepIndex": 20,
+          "key": "p"
+        },
+        "kind": "ch",
+        "row": 0,
+        "column": 38,
+        "cCell": {
+          "ch": " ",
+          "color": 8,
+          "attr": 0,
+          "decgfx": 0
+        },
+        "jsCell": {
+          "ch": "-",
+          "color": 8,
+          "attr": 0,
+          "decgfx": 0
+        }
+      },
+      "rng": {
+        "index": 2454,
+        "cEntry": "rnd(2)=2",
+        "cCaller": "next_ident(mkobj.c:521)",
+        "location": {
+          "segmentIndex": 0,
+          "stepIndex": 20,
+          "key": "p"
+        },
+        "stepIndex": 20
+      },
+      "cursor": {
+        "index": 20,
+        "location": {
+          "segmentIndex": 0,
+          "stepIndex": 20,
+          "key": "p"
+        },
+        "cCursor": [
+          78,
+          0,
+          1
+        ],
+        "jsCursor": [
+          46,
+          0,
+          1
+        ]
+      }
+    },
+    "step": 20,
+    "kind": "rng",
+    "sourceFile": "mkobj.c",
+    "function": "next_ident",
+    "message": null,
+    "cFile": "mkobj.c",
+    "luaFile": null,
+    "line": 521
+  },
+  "summary": "The Wizard uses the debug wish command to obtain a scroll of earth, then reads it with 'r' and selects it with 'p'. C dispatches the ordinary, unblessed, uncursed, unconfused scroll to read.c:seffect_earth() on a level with a ceiling, prints the ceiling-rumbling message, marks the scroll known, and creates boulders. JavaScript's read.c seffects() switch currently calls note_unported('read.c seffect_earth'), so the effect message and boulder path are skipped. The three C-only rnd(2) draws reported under mkobj.c:next_ident are downstream object-identity draws from the missing effect, not its source owner.",
+  "source": {
+    "file": "read.c",
+    "branch": "seffect_earth() enters when the level is not a Rogue level, has a ceiling, and is outside the endgame (or is the Earth level). For this recording the scroll is unblessed, uncursed, and the hero is not confused or swallowed: C reports the ceiling rumbling above the hero, marks the effect known, drops boulders on eligible surrounding squares, and drops one on the player.",
+    "functions": [
+      "seffect_earth"
+    ],
+    "callers": [
+      "read.c:doread() calls seffects(), whose SCR_EARTH switch arm calls seffect_earth(); js/read.js:doread() calls js/read.js:seffects(), whose SCR_EARTH arm currently records the unported gap."
+    ],
+    "dependencies": [
+      "read.c:drop_boulder_on_monster() returns a count that seffect_earth() adds to nboulders and tests for the blessed-scroll fallback; include this return-valued callee in the source family.",
+      "read.c:drop_boulder_on_player() creates and places the unblessed player boulder. Its mksobj() object creation reaches mkobj.c:next_ident(), which accounts for the C-only RNG entries at this case’s first mismatch.",
+      "Preserve the effect ordering through gk.known, sokoban_guilt(), object creation/placement, and doread() cleanup and scroll consumption."
+    ]
+  },
+  "goalKind": "file-port",
+  "evidence": [
+    "The saved evaluation challenges/evaluations/20260926140428-v6.json at c79e03cbb8b5e5509ef1f09c67f9c94405b25eae reports one remaining screen at segment 0 step 20 on key \"p\": row 0 column 38 is a space in C and the More-prompt dash in JavaScript; the C cursor is [78,0,1] versus JavaScript [46,0,1]. The C RNG entries at indices 2454–2456 are three rnd(2) calls from mkobj.c:next_ident().",
+    "The recipe challenges/cases/v6/wizard-read-earth-reach.recipe.session.json uses seed 60626037, a chaotic female human Wizard, and moves \" \\u0017scroll of earth\\nrp\". In the recording, the wizard-wish input creates the scroll, key \"r\" opens read selection, and key \"p\" selects it at segment 0 step 20. C prints \"As you read the scroll, it disappears.  The ceiling rumbles above you!--More--\"; the JavaScript gap lets its More prompt begin earlier.",
+    "Upstream nethack-c/upstream/src/read.c seffect_earth() (1919–1970) checks the ceiling and level gates, prints the rumble or avalanche message, sets gk.known, and loops over the eight surrounding squares to call drop_boulder_on_monster(); an unblessed scroll also calls drop_boulder_on_player(). The seffects() SCR_EARTH case dispatches to it (around line 2273).",
+    "At the evaluated implementation, js/read.js seffects() has an SCR_EARTH arm that calls note_unported(\"read.c seffect_earth\") (around line 1302); js/read.js doread() reaches seffects() after printing the read message (around line 845). The screen and next_ident RNG differences are consequences of this skipped C effect; mkobj.c:next_ident() is not the source owner."
+  ]
+}
