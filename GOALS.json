@@ -83535,6 +83535,207 @@
         "screens": 11405,
         "rng": 792838
       }
+    },
+    {
+      "id": "port-apply-use-unicorn-horn-synthetic-v7-20260926",
+      "kind": "file-port",
+      "status": "open",
+      "summary": "Port apply.c use_unicorn_horn and wire doapply for unicorn horns",
+      "cFile": "apply.c",
+      "sessions": [
+        "synthetic/v7/unicorn-horn-blindness-corrected"
+      ],
+      "selectionReason": "The B15 queue leaves one v7 unicorn-horn screen at step 56; refreshed investigation identifies apply.c:use_unicorn_horn, and higher-ranked blessed-book-undead is already A12-owned.",
+      "detail": "The v7 recording has one timed blindness trouble, reached by quaffing then applying a wished uncursed horn. C apply.c:doapply calls void use_unicorn_horn at line 4371 and retains ECMD_TIME. Port the whole use_unicorn_horn function and caller arm; preserve RNG, state and feedback. Existing apply command and inventory item-action routes exercise the horn. B16 immutable delivery 32cffe8099c67694c56e5f4715eeaea8c70f4a7c provides independently recorded cursed typed-apply and uncursed inventory-menu cases. Named skipped void gaps remain potion.c make_sick/make_stunned/make_vomiting, eat.c vomit, rnd.c shuffle_int_array.",
+      "openedAt": "e1d532a58f16b475b76dbe90a8f94ebea670d8fb",
+      "openStanding": {
+        "sha": "c79e03cbb8b5e5509ef1f09c67f9c94405b25eae",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "closedAt": null,
+      "delivered": null,
+      "functions": [
+        {
+          "name": "use_unicorn_horn",
+          "line": 2259,
+          "endLine": 2397,
+          "declared": false,
+          "complete": false
+        }
+      ],
+      "range": {
+        "from": 2259,
+        "to": 2397
+      },
+      "syntheticProvenance": {
+        "synthetic/v7/unicorn-horn-blindness-corrected": {
+          "session": "synthetic/v7/unicorn-horn-blindness-corrected",
+          "corpus": "synthetic",
+          "batch": "v7",
+          "caseId": "unicorn-horn-blindness-corrected",
+          "manifestPath": "challenges/manifests/v7.json",
+          "manifestSha256": "03a861a9d1bc9d813c80681312ee7a0e0f893dbad0536de40a974bd5ec344094",
+          "recordingPath": "challenges/cases/v7/unicorn-horn-blindness-corrected.session.json",
+          "recordingSha256": "7c5dc1f16f6f74865041b570f15399c2d68812a5ba1a083b341f1ddbc90365f7",
+          "evaluationPath": "challenges/evaluations/20260926140428-v7.json",
+          "evaluationCommit": "c79e03cbb8b5e5509ef1f09c67f9c94405b25eae"
+        }
+      },
+      "activeStanding": {
+        "sha": "c79e03cbb8b5e5509ef1f09c67f9c94405b25eae",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v7",
+          "caseId": "unicorn-horn-blindness-corrected",
+          "session": "synthetic/v7/unicorn-horn-blindness-corrected",
+          "manifestPath": "challenges/manifests/v7.json",
+          "manifestSha256": "03a861a9d1bc9d813c80681312ee7a0e0f893dbad0536de40a974bd5ec344094",
+          "recording": "challenges/cases/v7/unicorn-horn-blindness-corrected.session.json",
+          "recordingPath": "challenges/cases/v7/unicorn-horn-blindness-corrected.session.json",
+          "recordingSha256": "7c5dc1f16f6f74865041b570f15399c2d68812a5ba1a083b341f1ddbc90365f7",
+          "recipe": "challenges/cases/v7/unicorn-horn-blindness-corrected.recipe.session.json",
+          "recipeSha256": "62026a1d2af49c192fe9900fa825aec3a8ecbfd10232807f7cec8b687b20a946",
+          "replayInputSha256": "871d8b58478dd70d1251ecc5e6ecbb9b2aea277484c1c6c75a03c8e1a300647e",
+          "evaluationPath": "challenges/evaluations/20260926140428-v7.json",
+          "evaluationCommit": "c79e03cbb8b5e5509ef1f09c67f9c94405b25eae",
+          "evaluationArtifact": "challenges/evaluations/20260926140428-v7.json",
+          "evaluationUtc": "2026-09-26T14:04:55.808Z",
+          "remainingScreens": 1,
+          "recordedSteps": 57,
+          "previousScreensMatched": 31,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 56,
+              "total": 57
+            },
+            "rng": {
+              "matched": 2817,
+              "total": 2826
+            },
+            "cursors": {
+              "matched": 56,
+              "total": 57
+            }
+          },
+          "firstMismatch": {
+            "kind": "stop",
+            "message": "unsupported hero command: an unported branch of this command: applying a tool requires doapply()'s arm for object type 261",
+            "step": 56
+          },
+          "step": 56,
+          "kind": "stop",
+          "sourceFile": "apply.c",
+          "function": "doapply",
+          "message": "unsupported hero command: an unported branch of this command: applying a tool requires doapply()'s arm for object type 261",
+          "cFile": "apply.c",
+          "luaFile": null,
+          "line": null,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v7/unicorn-horn-blindness-corrected.json",
+            "result": {
+              "session": "synthetic/v7/unicorn-horn-blindness-corrected",
+              "corpus": "synthetic",
+              "batch": "v7",
+              "caseId": "unicorn-horn-blindness-corrected",
+              "manifestPath": "challenges/manifests/v7.json",
+              "manifestSha256": "03a861a9d1bc9d813c80681312ee7a0e0f893dbad0536de40a974bd5ec344094",
+              "recordingPath": "challenges/cases/v7/unicorn-horn-blindness-corrected.session.json",
+              "recordingSha256": "7c5dc1f16f6f74865041b570f15399c2d68812a5ba1a083b341f1ddbc90365f7",
+              "evaluationPath": "challenges/evaluations/20260926140428-v7.json",
+              "evaluationCommit": "c79e03cbb8b5e5509ef1f09c67f9c94405b25eae",
+              "remainingScreens": 1,
+              "recordedSteps": 57,
+              "status": "complete",
+              "commit": "c79e03cbb8b5e5509ef1f09c67f9c94405b25eae",
+              "mismatch": {
+                "corpus": "synthetic",
+                "batch": "v7",
+                "caseId": "unicorn-horn-blindness-corrected",
+                "session": "synthetic/v7/unicorn-horn-blindness-corrected",
+                "manifestPath": "challenges/manifests/v7.json",
+                "manifestSha256": "03a861a9d1bc9d813c80681312ee7a0e0f893dbad0536de40a974bd5ec344094",
+                "recording": "challenges/cases/v7/unicorn-horn-blindness-corrected.session.json",
+                "recordingPath": "challenges/cases/v7/unicorn-horn-blindness-corrected.session.json",
+                "recordingSha256": "7c5dc1f16f6f74865041b570f15399c2d68812a5ba1a083b341f1ddbc90365f7",
+                "recipe": "challenges/cases/v7/unicorn-horn-blindness-corrected.recipe.session.json",
+                "recipeSha256": "62026a1d2af49c192fe9900fa825aec3a8ecbfd10232807f7cec8b687b20a946",
+                "replayInputSha256": "871d8b58478dd70d1251ecc5e6ecbb9b2aea277484c1c6c75a03c8e1a300647e",
+                "evaluationPath": "challenges/evaluations/20260926140428-v7.json",
+                "evaluationCommit": "c79e03cbb8b5e5509ef1f09c67f9c94405b25eae",
+                "evaluationArtifact": "challenges/evaluations/20260926140428-v7.json",
+                "evaluationUtc": "2026-09-26T14:04:55.808Z",
+                "remainingScreens": 1,
+                "recordedSteps": 57,
+                "previousScreensMatched": 31,
+                "regression": false,
+                "passed": false,
+                "error": null,
+                "metrics": {
+                  "screens": {
+                    "matched": 56,
+                    "total": 57
+                  },
+                  "rng": {
+                    "matched": 2817,
+                    "total": 2826
+                  },
+                  "cursors": {
+                    "matched": 56,
+                    "total": 57
+                  }
+                },
+                "firstMismatch": {
+                  "kind": "stop",
+                  "message": "unsupported hero command: an unported branch of this command: applying a tool requires doapply()'s arm for object type 261",
+                  "step": 56
+                },
+                "step": 56,
+                "kind": "stop",
+                "sourceFile": "apply.c",
+                "function": "doapply",
+                "message": "unsupported hero command: an unported branch of this command: applying a tool requires doapply()'s arm for object type 261",
+                "cFile": "apply.c",
+                "luaFile": null,
+                "line": null
+              },
+              "summary": "At the current B15 evaluation, the only remaining stop is applying the newly wished, uncursed unicorn horn while the Wizard is still blinded by the earlier cursed potion. C enters apply.c:use_unicorn_horn(), collects timed blindness as the only trouble, draws the uncursed cure limit, calls make_blinded(u.ucreamed, TRUE), and prints 'You can see again.' JavaScript's doapply() has no UNICORN_HORN case and stops in its unsupported default. The prior peffect_blindness stop is resolved and belongs only to the stale 26-screen record.",
+              "source": {
+                "file": "apply.c",
+                "branch": "In use_unicorn_horn(), obj is present and uncursed, so C skips the cursed adverse-effect branch. HBlinded has a timeout greater than u.ucreamed, the hero is not swallowed by an engulfer whose attack sustains blindness, and no other timed trouble qualifies. trouble_count is therefore one (BLINDED); no trouble shuffle is needed. With this unblessed horn, C evaluates rn2(d(2,2)), gets d(2,2)=3 and rn2(3)=2, clamps val_limit to one, and calls make_blinded(u.ucreamed, TRUE). In this recording u.ucreamed is zero, so the timed blindness is cleared and C displays 'You can see again.'",
+                "functions": [
+                  "use_unicorn_horn"
+                ],
+                "callers": [
+                  "apply.c:doapply() dispatches UNICORN_HORN to use_unicorn_horn(&obj) at lines 4370–4371; the void call leaves doapply()’s initial ECMD_TIME result intact.",
+                  "The runtime input path is the apply command, inventory selection of the wished horn, then js/apply.js:doapply(); its switch omits UNICORN_HORN and the default throws for object type 261."
+                ],
+                "dependencies": [
+                  "The reached BLINDED cure delegates to potion.c:make_blinded(), already implemented in js/potion.js; preserve the HBlinded timeout, u.ucreamed threshold, swallowed-engulfer immunity, and feedback ordering.",
+                  "The full C function also needs the multiple-trouble shuffle (shuffle_int_array(), when trouble_count > 1); no JavaScript implementation was found in the targeted source search.",
+                  "Other use_unicorn_horn() branches call make_sick(), make_vomiting(), and make_stunned(), which remain explicit unported gaps in js/timeout.js; make_blinded(), make_confused(), make_hallucinated(), make_deaf(), and vomit() have JavaScript implementations. These branches are outside this case’s uncursed single-blindness path but remain part of a whole-function port."
+                ]
+              },
+              "goalKind": "file-port",
+              "evidence": [
+                "The refreshed queue entry and challenges/evaluations/20260926140428-v7.json tie this record to evaluation commit c79e03cbb8b5e5509ef1f09c67f9c94405b25eae, 1 remaining screen, and 56/57 matched screens. The first and only current stop is segment 0 step 56: applying object type 261 fails because the JavaScript doapply() arm is unsupported. This replaces the stale evaluation 20260926122253-v7.json diagnosis of a step 31 blindness stop at 26 remaining screens.",
+                "The immutable recipe challenges/cases/v7/unicorn-horn-blindness-corrected.recipe.session.json uses seed 70727130 and moves \" \\u0017cursed potion of blindness\\nqo\\u0017uncursed unicorn horn\\nap\": the Wizard wishes for and quaffs the cursed blindness potion, wishes for an uncursed unicorn horn, then applies it. The C recording at step 31 logs rn2(200)=56 in peffect_blindness() and displays \"A cloud of darkness falls upon you.\"; the B15 evaluation matches through the later setup and the horn action is the sole remaining screen.",
+                "At segment 0 step 54 the C recording finishes the uncursed-horn wish; step 55 key \"a\" opens use/apply selection and step 56 key \"p\" selects the horn. C records d(2,2)=3 and rn2(3)=2 in apply.c:use_unicorn_horn(), then displays \"You can see again.\" The remaining seven step 56 RNG entries are ordinary turn processing after the void horn call.",
+                "Upstream nethack-c/upstream/src/apply.c:2259–2387 owns use_unicorn_horn(): its cursed-horn effects are separate; its noncursed path builds a timed trouble list, shuffles only when multiple entries exist, chooses a BUC-dependent number to cure, calls the relevant property helpers, and sets disp.botl after a cure. The BLINDED arm calls make_blinded(u.ucreamed, TRUE) at 2354–2356. nethack-c/upstream/src/apply.c:4370–4371 is the UNICORN_HORN caller.",
+                "At the evaluated implementation, js/apply.js:2297–2403 has no UNICORN_HORN case and its default throws UnsupportedApplyError for object type 261. The already matching blindness transition is handled by js/potion.js:467 make_blinded(). Broader horn paths still need the missing make_sick(), make_vomiting(), make_stunned(), and trouble-list shuffle behavior noted in dependencies."
+              ]
+            }
+          }
+        }
+      ]
     }
   ]
 }
