@@ -1,0 +1,89 @@
+{
+  "session": "synthetic/v6/wizard-write-marker-scroll",
+  "corpus": "synthetic",
+  "batch": "v6",
+  "caseId": "wizard-write-marker-scroll",
+  "manifestPath": "challenges/manifests/v6.json",
+  "manifestSha256": "7523b91e823f4e3906c9acdc9a3d80f8469c27c2caab8fc8fbd6967dbfdcab5f",
+  "recordingSha256": "e8f78b1b83cf79ac36cd10644ca8004c5cc3237b94a333112f297c20ed16231c",
+  "evaluationPath": "challenges/evaluations/20260926071400-v6.json",
+  "evaluationCommit": "3b1e337022043d314860fa14efc520d2600bf194",
+  "remainingScreens": 23,
+  "recordedSteps": 51,
+  "status": "complete",
+  "commit": "3b1e337022043d314860fa14efc520d2600bf194",
+  "mismatch": {
+    "corpus": "synthetic",
+    "batch": "v6",
+    "caseId": "wizard-write-marker-scroll",
+    "session": "synthetic/v6/wizard-write-marker-scroll",
+    "manifestPath": "challenges/manifests/v6.json",
+    "manifestSha256": "7523b91e823f4e3906c9acdc9a3d80f8469c27c2caab8fc8fbd6967dbfdcab5f",
+    "recording": "challenges/cases/v6/wizard-write-marker-scroll.session.json",
+    "recordingPath": "challenges/cases/v6/wizard-write-marker-scroll.session.json",
+    "recordingSha256": "e8f78b1b83cf79ac36cd10644ca8004c5cc3237b94a333112f297c20ed16231c",
+    "recipe": "challenges/cases/v6/wizard-write-marker-scroll.recipe.session.json",
+    "recipeSha256": "d3c7b9cf693f19e7cdb3e2b3891c8f252c40b72a44b28f6bc65bb495ae8c5658",
+    "replayInputSha256": "5586bf2e769a46f32937a006eaf1f8c9625fb2fe1e45fc786b0cdac387819e14",
+    "evaluationPath": "challenges/evaluations/20260926071400-v6.json",
+    "evaluationCommit": "3b1e337022043d314860fa14efc520d2600bf194",
+    "evaluationArtifact": "challenges/evaluations/20260926071400-v6.json",
+    "evaluationUtc": "2026-09-26T07:14:11.583Z",
+    "remainingScreens": 23,
+    "recordedSteps": 51,
+    "previousScreensMatched": null,
+    "regression": false,
+    "passed": false,
+    "error": null,
+    "metrics": {
+      "screens": {
+        "matched": 28,
+        "total": 51
+      },
+      "rng": {
+        "matched": 2454,
+        "total": 2462
+      },
+      "cursors": {
+        "matched": 28,
+        "total": 51
+      }
+    },
+    "firstMismatch": {
+      "kind": "stop",
+      "message": "unsupported hero command: an unported branch of this command: unsupported wish: a wish that sets unlabeled",
+      "step": 28
+    },
+    "step": 28,
+    "kind": "stop",
+    "sourceFile": null,
+    "function": null,
+    "message": "unsupported hero command: an unported branch of this command: unsupported wish: a wish that sets unlabeled",
+    "cFile": null,
+    "luaFile": null,
+    "line": null
+  },
+  "summary": "The wizard’s “blank scroll” wish is a valid unlabeled-object qualifier in C: readobjnam() resolves it to SCR_BLANK_PAPER and returns the object. JavaScript currently rejects the parsed unlabeled flag before its existing blank-scroll lookup branch, so the wish aborts before the following marker-writing commands run.",
+  "source": {
+    "file": "objnam.c",
+    "functions": [
+      "readobjnam"
+    ],
+    "branch": "In wizard mode, a Ctrl-W wish of “blank scroll” leaves d.unlabeled set after preparse and d.bp ending in “scroll”. C readobjnam_postparse1() resolves that qualifier to SCR_BLANK_PAPER and continues to typfnd; it is a valid object result, not an unmatched wish or a write.c:dowrite failure.",
+    "callers": [
+      "cmd.c:2001 routes the wizard wish command to wizcmds.c:wiz_wish(); wiz_wish() at wizcmds.c:32-44 calls zap.c:makewish() at line 38.",
+      "zap.c:makewish() at zap.c:6314-6422 obtains the wish string and calls readobjnam() at 6360. It uses the returned object for the wish and only prints the no-match message and retries when readobjnam() returns null at 6361-6364."
+    ],
+    "dependencies": [
+      "Preserve readobjnam()’s object return through zap.c:makewish(): a successfully resolved blank scroll proceeds to the returned-object path, while only null enters makewish()’s retry branch. The current JS qualifier refusal throws before that contract can run."
+    ]
+  },
+  "goalKind": "file-port",
+  "evidence": [
+    "Saved queue entry synthetic/v6/wizard-write-marker-scroll is from challenges/manifests/v6.json (SHA-256 7523b91e823f4e3906c9acdc9a3d80f8469c27c2caab8fc8fbd6967dbfdcab5f) and challenges/cases/v6/wizard-write-marker-scroll.session.json (SHA-256 e8f78b1b83cf79ac36cd10644ca8004c5cc3237b94a333112f297c20ed16231c). Its saved evaluation challenges/evaluations/20260926071400-v6.json was examined at 3b1e337022043d314860fa14efc520d2600bf194: 28/51 screens and cursors, 2454/2462 RNG calls, 23 screens remaining; first mismatch is a stop at step 28 with “a wish that sets unlabeled”.",
+    "The prepared recipe challenges/cases/v6/wizard-write-marker-scroll.recipe.session.json uses Ctrl-W “magic marker”, then Ctrl-W “blank scroll”, followed by an apply/write sequence. In the C recording, step 28 accepts “blank scroll” and displays “p - an unlabeled scroll”; its RNG includes next_ident(mkobj.c:521), blessorcurse(mkobj.c:1846), and makewish(zap.c:6421), showing C created and returned the wished object before the later writing prompt.",
+    "Upstream objnam.c:3933-3960 initializes d.unlabeled to 0; objnam.c:4029-4033 treats “blank ”, “unlabeled ”, and “unlabelled ” as synonymous and sets it to 1. objnam.c:4514-4516 then recognizes the scroll suffix, sets d.typ = SCR_BLANK_PAPER, and returns the typfnd action.",
+    "Upstream objnam.c:4914-4944 runs preparse and the lookup chain; objnam.c:5037 creates the selected object. The active production caller is zap.c:6360-6364, where a returned object continues the wish while only null prints “Nothing fitting that description exists in the game.” and retries.",
+    "In JS, objnam_readobjnam.js:1128-1131 parses “blank ” into d.unlabeled, and the matching C branch already exists at js/objnam_readobjnam.js:1508-1514. However, js/objnam_readobjnam.js:1870-1895 lists unlabeled as unsupported and readobjnam_lookup() calls requireSimpleWishQualifiers() at 2037 before it calls readobjnam_postparse1() at 2039. That guard order creates the step-28 stop before the existing resolver can return SCR_BLANK_PAPER."
+  ]
+}

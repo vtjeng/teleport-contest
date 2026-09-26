@@ -1,0 +1,89 @@
+{
+  "session": "synthetic/v6/v6-add6-rogue-call-potion-type",
+  "corpus": "synthetic",
+  "batch": "v6",
+  "caseId": "v6-add6-rogue-call-potion-type",
+  "manifestPath": "challenges/manifests/v6.json",
+  "manifestSha256": "7523b91e823f4e3906c9acdc9a3d80f8469c27c2caab8fc8fbd6967dbfdcab5f",
+  "recordingPath": "challenges/cases/v6/v6-add6-rogue-call-potion-type.session.json",
+  "recordingSha256": "19cb554df424e9e1c54c4832aa814ca6c9257b705e91c410e48ad05671862beb",
+  "evaluationPath": "challenges/evaluations/20260926071400-v6.json",
+  "evaluationCommit": "3b1e337022043d314860fa14efc520d2600bf194",
+  "remainingScreens": 12,
+  "recordedSteps": 14,
+  "status": "complete",
+  "commit": "3b1e337022043d314860fa14efc520d2600bf194",
+  "mismatch": {
+    "corpus": "synthetic",
+    "batch": "v6",
+    "caseId": "v6-add6-rogue-call-potion-type",
+    "session": "synthetic/v6/v6-add6-rogue-call-potion-type",
+    "manifestPath": "challenges/manifests/v6.json",
+    "manifestSha256": "7523b91e823f4e3906c9acdc9a3d80f8469c27c2caab8fc8fbd6967dbfdcab5f",
+    "recording": "challenges/cases/v6/v6-add6-rogue-call-potion-type.session.json",
+    "recordingPath": "challenges/cases/v6/v6-add6-rogue-call-potion-type.session.json",
+    "recordingSha256": "19cb554df424e9e1c54c4832aa814ca6c9257b705e91c410e48ad05671862beb",
+    "recipe": "challenges/cases/v6/v6-add6-rogue-call-potion-type.recipe.session.json",
+    "recipeSha256": "5d3e9be4ea88a53dff76e939cc802e69abc449b98f70755a1e833764f1af7de1",
+    "replayInputSha256": "5586bf2e769a46f32937a006eaf1f8c9625fb2fe1e45fc786b0cdac387819e14",
+    "evaluationPath": "challenges/evaluations/20260926071400-v6.json",
+    "evaluationCommit": "3b1e337022043d314860fa14efc520d2600bf194",
+    "evaluationArtifact": "challenges/evaluations/20260926071400-v6.json",
+    "evaluationUtc": "2026-09-26T07:14:11.583Z",
+    "remainingScreens": 12,
+    "recordedSteps": 14,
+    "previousScreensMatched": null,
+    "regression": false,
+    "passed": false,
+    "error": null,
+    "metrics": {
+      "screens": {
+        "matched": 2,
+        "total": 14
+      },
+      "rng": {
+        "matched": 2319,
+        "total": 2319
+      },
+      "cursors": {
+        "matched": 2,
+        "total": 14
+      }
+    },
+    "firstMismatch": {
+      "kind": "stop",
+      "message": "unsupported hero command: the repeated-command boundary admits only wait, look, inventory, showspells, known, attributes, search, eat, engrave, apply, rub, open, close, down, up, drop, pickup, pay, takeoff, remove, wear, puton, quaff, read, zap, cast, reqmenu, fight, rush, run, repeat, options, autopickup, wizwish, wizidentify, wizlevelport, wizgenesis, wizintrinsic, wizmap, wizwhere, fire, throw, swap, kick, save, wield, quiver, help, whatis, #, loot, force, tip, glance, showgold, seeweapon, seearmor, seerings, seeamulet, seeall, seetools, teleport, overview, chronicle, conduct, vanquished, genocided, inventtype, adjust, altadjust, terrain, travel, dip, invoke, untrap, herecmdmenu, therecmdmenu, a one-square walk, a shift-direction run, a ctrl-direction rush, or a byte bound to no command",
+      "step": 2
+    },
+    "step": 2,
+    "kind": "stop",
+    "sourceFile": null,
+    "function": null,
+    "message": "unsupported hero command: the repeated-command boundary admits only wait, look, inventory, showspells, known, attributes, search, eat, engrave, apply, rub, open, close, down, up, drop, pickup, pay, takeoff, remove, wear, puton, quaff, read, zap, cast, reqmenu, fight, rush, run, repeat, options, autopickup, wizwish, wizidentify, wizlevelport, wizgenesis, wizintrinsic, wizmap, wizwhere, fire, throw, swap, kick, save, wield, quiver, help, whatis, #, loot, force, tip, glance, showgold, seeweapon, seearmor, seerings, seeamulet, seeall, seetools, teleport, overview, chronicle, conduct, vanquished, genocided, inventtype, adjust, altadjust, terrain, travel, dip, invoke, untrap, herecmdmenu, therecmdmenu, a one-square walk, a shift-direction run, a ctrl-direction rush, or a byte bound to no command",
+    "cFile": null,
+    "luaFile": null,
+    "line": null
+  },
+  "summary": "At step 2, the Rogue presses C for the #call menu. C cmd.c binds C to do_name.c:docallcmd(), which displays “What do you want to name?”. The JS command binding and docallcmd handler exist, but js/cmd.js omits call from ADMITTED_COMMANDS, so admitParsedCommand() throws before dispatch. Admit the source-bound call command through the shared command gate and verify its menu and follow-on input paths; this case has 12 screens left to compare.",
+  "source": {
+    "file": "cmd.c",
+    "branch": "The parsed key is C with no count or movement prefix; cmd.c’s call command row invokes do_name.c:docallcmd(), which builds the naming menu and returns ECMD_OK after selection or dismissal.",
+    "functions": [
+      "rhack"
+    ],
+    "callers": [
+      "cmd.c parse() returns C to rhack(), which resolves the call row and invokes do_name.c:docallcmd().",
+      "js/cmd.js parses C, resolves commandForKey() to call, rejects it in admitParsedCommand() before its existing docallcmd dispatch in executeCommandHandler(); js/do_name.js:docallcmd() owns the menu."
+    ],
+    "dependencies": [
+      "The same source command has the extended name alias; keep byte binding, repeated-command guard, and handler admission consistent. Later inventory selection and do_name.c:docall() must be evaluated after the first command boundary is opened."
+    ]
+  },
+  "goalKind": "divergence-fix",
+  "evidence": [
+    "Saved v6 evaluation challenges/evaluations/20260926071400-v6.json at 3b1e337022043d314860fa14efc520d2600bf194 reports 2/14 matching screens, all 2319/2319 RNG calls through the stop, and first mismatch step 2: unsupported hero command at the repeated-command admission boundary.",
+    "The independent C recording challenges/cases/v6/v6-add6-rogue-call-potion-type.session.json has step 2 key C, zero RNG calls, and the “What do you want to name?” menu. Step 3 selects o and reaches the inventory-type call prompt.",
+    "Upstream cmd.c command table binds C to do_name.c:docallcmd(); cmd.c:rhack invokes a recognized handler. Upstream do_name.c:docallcmd() constructs the same menu and selects its o arm for an inventory type.",
+    "js/extcmdlist_data.js already binds C and name to docallcmd; js/cmd.js executeCommandHandler() has a docallcmd arm. js/cmd.js ADMITTED_COMMANDS omits call, so admitParsedCommand() throws before either handler or menu can run. Add source-supported command admission and verify later input without tailoring behavior to this recording."
+  ]
+}
