@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 8562104,
+      "datetime": "20261001093000",
+      "nethackrc": "OPTIONS=name:WishRetryMax,role:Wizard,race:human,gender:male,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen\nOPTIONS=pettype:none,!acoustics,playmode:debug\n",
+      "moves": ".\u0017quasar widget\n quasar widget\n quasar widget\n quasar widget\n quasar widget\n ."
+    }
+  ],
+  "comment": "Five independently entered invalid wishes reach zap.c makewish() exhaustion and its readobjnam(NULL,NULL) random-object fallback."
+}

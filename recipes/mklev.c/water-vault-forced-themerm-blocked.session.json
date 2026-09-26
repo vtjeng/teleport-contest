@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 880123,
+      "datetime": "20260926093000",
+      "nethackrc": "OPTIONS=name:VaultTester,role:Wizard,race:human,gender:male,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen\nOPTIONS=pettype:none,!acoustics\nOPTIONS=playmode:debug\n",
+      "moves": " ."
+    }
+  ],
+  "comment": "Blocked diagnostic: C reaches Water-surrounded vault with host environment THEMERM=\"Water-surrounded vault\" and executes obj.new(name) at dat/themerms.lua:793; recipe session inputs cannot carry this host environment and JS themerooms_generate has no matching debug selection input. The forced C/JS comparison first diverges in theme selection before nhlobj.c:l_obj_new_readobjnam. Use the natural matching recipe water-surrounded-vault-natural-samurai-920031 for runtime evidence."
+}

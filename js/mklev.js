@@ -105,6 +105,7 @@ import {
     objectGenerationEnv,
     objectGenerationHooks,
 } from './object_generation.js';
+import { readobjnam } from './objnam_readobjnam.js';
 import {
     SPBOOK_NO_NOVEL,
     dealloc_obj,
@@ -115,7 +116,6 @@ import {
     mksobj_at,
     set_corpsenm,
     sobj_at,
-    objectType,
     weight,
 } from './obj.js';
 import {
@@ -6428,18 +6428,11 @@ function blocked_center_contents(definition, origin, context) {
     );
 }
 
-// C refs: nhlobj.c l_obj_new_readobjnam(); objnam.c readobjnam(). The Water
-// vault uses four exact, wishable names. Their common path is mksobj(...,
-// TRUE, FALSE); a mergeable exact object also evaluates the source rnd(6)
-// quantity guard even though its requested count and generated count are one.
-function new_water_vault_escape_object(otyp, env) {
-    // readobjnam() resolves the unambiguous class-qualified name through
-    // rnd_otyp_by_namedesc(..., xtra_prob=1) before constructing it.
-    env.random.rn2(objectType(otyp, env.state).oc_prob + 1);
-    const obj = mksobj(otyp, true, false, env);
-    if (objectType(otyp, env.state).oc_merge)
-        env.random.rnd(6);
-    return obj;
+// C refs: nhlobj.c l_obj_new_readobjnam(); objnam.c readobjnam(). The Lua
+// vault passes one of four exact names to obj.new(), which parses the string
+// and then constructs the result. Keep the binding's synchronous return.
+function new_water_vault_escape_object(name, env) {
+    return readobjnam(name, null, env);
 }
 
 // C ref: themerms.lua "Water-surrounded vault" map callback.
@@ -6479,14 +6472,14 @@ function water_surrounded_vault_contents(
     ];
     shuffle_core_values(chestSpots, context.random);
 
-    const escapeTypes = [
-        SCR_TELEPORTATION,
-        RIN_TELEPORTATION,
-        WAN_TELEPORTATION,
-        WAN_DIGGING,
+    const escapeNames = [
+        'scroll of teleportation',
+        'ring of teleportation',
+        'wand of teleportation',
+        'wand of digging',
     ];
     const escapeObject = new_water_vault_escape_object(
-        escapeTypes[context.random(escapeTypes.length)],
+        escapeNames[context.random(escapeNames.length)],
         creationEnvironment,
     );
     const firstChestSpec = {

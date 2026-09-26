@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 8562102,
+      "datetime": "20261001093000",
+      "nethackrc": "OPTIONS=name:PolearmWish,role:Wizard,race:human,gender:male,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen\nOPTIONS=pettype:none,!acoustics,playmode:debug\n",
+      "moves": ".\u0017polearm\n."
+    }
+  ],
+  "comment": "An independently chosen wizard wish reaches objnam.c rnd_otyp_by_wpnskill(P_POLEARMS)."
+}
