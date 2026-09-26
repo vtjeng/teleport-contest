@@ -341,6 +341,7 @@ import { an, bare_artifactname, xnameFresh, yname } from './objnam.js';
 import {
     find_defensive, find_offensive, searches_for_item, use_defensive,
 } from './muse.js';
+import { fracture_rock } from './zap.js';
 import {
     bill_dummy_object,
     g_at,
@@ -1031,7 +1032,8 @@ export function m_can_break_boulder(monster) {
 // C ref: monmove.c m_break_boulder() (143-175). A special-ability monster
 // (rider, priest, shopkeeper, quest leader) fractures a boulder in its path.
 // Riders skip the incantation; others spend mspec_used and print a message.
-// fracture_rock() is in zap.c and not ported; it is void so we note_unported.
+// fracture_rock() is owned by zap.c; this source caller preserves the shared
+// rock conversion and map updates after monster-only messaging and billing.
 async function m_break_boulder(mtmp, x, y, env = {}) {
     const state = env.state ?? game;
     const random = env.random ?? { rn1 };
@@ -1063,9 +1065,8 @@ async function m_break_boulder(mtmp, x, y, env = {}) {
         if (otmp.unpaid) {
             await bill_dummy_object(otmp, env);
         }
-        // fracture_rock() changes the boulder into rocks, adjusts the map,
-        // and draws rn1(60,7) for the new rock quantity. It is void.
-        note_unported('zap.c fracture_rock');
+        // fracture_rock() changes the boulder into rocks and adjusts the map.
+        await fracture_rock(otmp, state, random, env);
     }
 }
 

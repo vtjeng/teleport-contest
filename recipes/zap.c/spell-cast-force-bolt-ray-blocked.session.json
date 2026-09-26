@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "Blocked recipe for the active spell-ray entry point. A Wizard starts with force bolt; Z selects cast-spell, a selects force bolt, and l aims east. C enters spell.c:spelleffects -> zap.c:weffects and its SPE ray arm calls zap.c:ubuzz. JavaScript weffects() still refuses that arm with UnsupportedZapError, so this recipe intentionally has no recording until the source path is ported.",
+  "segments": [
+    {
+      "seed": 7316053,
+      "datetime": "20421017114500",
+      "nethackrc": "OPTIONS=name:SpellRayBoundary,role:Wizard,race:human,gender:female,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen,playmode:debug,pettype:none,!acoustics,!autopickup,time\n",
+      "moves": "Zal"
+    }
+  ]
+}

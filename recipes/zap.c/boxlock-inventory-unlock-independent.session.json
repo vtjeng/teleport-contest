@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 8198307,
+      "datetime": "20391002123456",
+      "nethackrc": "OPTIONS=name:BoxInvent,role:Wizard,race:human,gender:female,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen,playmode:debug,pettype:none,!acoustics,!autopickup,time\n",
+      "moves": " \u0017wand of opening\n\u0017large box\nzp."
+    }
+  ],
+  "_comment": "Independent B17 boxlock witness: as a Wizard, wish an opening wand and a large box, then self-zap with the opening wand. This reaches zap.c dozap -> weffects -> zapyourself -> boxlock_invent -> lock.c boxlock; the chosen seed generates a locked box, and C prints \"Klick!\"."
+}
