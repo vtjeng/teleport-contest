@@ -1,0 +1,559 @@
+{
+  "version": 1,
+  "batch": "v3",
+  "manifestPath": "challenges/manifests/v3.json",
+  "sha": "7e18f426e5b6b4030afbc50c1720f1a79e82d57b",
+  "utc": "2026-09-26T05:28:58.787Z",
+  "status": "complete",
+  "manifestSha256": "922fd19b46005c40283152102ac301035c7f84f82a8e5e9d7caf691f183a2b67",
+  "scorerSha256": "affaf6935cb627ba42f02c5689605a1dfa6c98ccc862118642c4f961471266d7",
+  "scorerFiles": {
+    "frozen/isaac64.js": "0e6f41b795f49e58f0d410785c8d14c8dd9d68ac9143ae68319bd555ea247d1e",
+    "frozen/playability_runner.mjs": "70fcf202cf555c9adec2b29f5b65ba906aaf15eb164a8e5bec9d9f62ba5743dd",
+    "frozen/ps_test_runner.mjs": "05057f3f4f9c99125ea21dd320804ec7dad3c68f4cc485d622fe4c14b0c5761e",
+    "frozen/screen-decode.mjs": "cb4a0fbfed3dda28c14736e6ae9c8b9eb8c87d75916c50d6df80f40eb0368cbe",
+    "frozen/session_loader.mjs": "fb382efa89c272dae8cb700b7dadd075b926ff039ab3eb17480d84ed65029ce6",
+    "frozen/storage.js": "38804e1048c8b2520d60c2dcbe90f86c47627a6d3094a832b85af8756a07fe6c",
+    "frozen/terminal.js": "10fa540ff6e476421327ecc2f683221cef603565f75e988130992ab8cfd25b76"
+  },
+  "inputsSha256": "2f28e329884250e07e2d626c9c10bd233f4c0f9623ab5b2b5e90969eeb3d5b5e",
+  "inputFiles": [
+    "challenges/cases/v3/archeologist-weapon-cycle-complete.recipe.json",
+    "challenges/cases/v3/archeologist-weapon-cycle-complete.session.json",
+    "challenges/cases/v3/archeologist-weapon-cycle-retry.recipe.json",
+    "challenges/cases/v3/archeologist-weapon-cycle-retry.session.json",
+    "challenges/cases/v3/archeologist-weapon-cycle.recipe.json",
+    "challenges/cases/v3/archeologist-weapon-cycle.session.json",
+    "challenges/cases/v3/fingertip-engraving-return.recipe.json",
+    "challenges/cases/v3/fingertip-engraving-return.session.json",
+    "challenges/cases/v3/floor-sit-roundtrip.recipe.json",
+    "challenges/cases/v3/floor-sit-roundtrip.session.json",
+    "challenges/cases/v3/monk-lookaround-history.recipe.json",
+    "challenges/cases/v3/monk-lookaround-history.session.json",
+    "challenges/cases/v3/priest-search-walkback-retry.recipe.json",
+    "challenges/cases/v3/priest-search-walkback-retry.session.json",
+    "challenges/cases/v3/priest-search-walkback.recipe.json",
+    "challenges/cases/v3/priest-search-walkback.session.json",
+    "challenges/cases/v3/ranger-manual-throw.recipe.json",
+    "challenges/cases/v3/ranger-manual-throw.session.json",
+    "challenges/cases/v3/samurai-armor-rewear.recipe.json",
+    "challenges/cases/v3/samurai-armor-rewear.session.json",
+    "challenges/cases/v3/tourist-camera-flash-complete.recipe.json",
+    "challenges/cases/v3/tourist-camera-flash-complete.session.json",
+    "challenges/cases/v3/tourist-camera-flash-retry.recipe.json",
+    "challenges/cases/v3/tourist-camera-flash-retry.session.json",
+    "challenges/cases/v3/tourist-camera-flash.recipe.json",
+    "challenges/cases/v3/tourist-camera-flash.session.json",
+    "challenges/manifests/v3.json",
+    "frozen/isaac64.js",
+    "frozen/play.sh",
+    "frozen/playability_runner.mjs",
+    "frozen/ps_test_runner.mjs",
+    "frozen/score.sh",
+    "frozen/screen-decode.mjs",
+    "frozen/session_loader.mjs",
+    "frozen/set-category.sh",
+    "frozen/storage.js",
+    "frozen/terminal.js",
+    "js/air_level_data.js",
+    "js/air_levels.js",
+    "js/allmain.js",
+    "js/apply_catch_lit.js",
+    "js/apply_next_to_u.js",
+    "js/apply_splash_lit.js",
+    "js/apply.js",
+    "js/artifacts.js",
+    "js/asmodeus_levels.js",
+    "js/attrib.js",
+    "js/baalz_levels.js",
+    "js/ball.js",
+    "js/bigrm.js",
+    "js/bones.js",
+    "js/bury.js",
+    "js/calendar.js",
+    "js/castle_levels.js",
+    "js/cfgfiles.js",
+    "js/cmd_autocomplete.js",
+    "js/cmd.js",
+    "js/color_data.js",
+    "js/coloratt.js",
+    "js/command_bindings.js",
+    "js/config_statement_data.js",
+    "js/const.js",
+    "js/corpstat.js",
+    "js/data_base_data.js",
+    "js/dbridge.js",
+    "js/detect.js",
+    "js/dig.js",
+    "js/display.js",
+    "js/do_name.js",
+    "js/do_wear.js",
+    "js/do.js",
+    "js/dog.js",
+    "js/dogfood.js",
+    "js/dogmove.js",
+    "js/dokick.js",
+    "js/dothrow.js",
+    "js/drawing.js",
+    "js/dungeon_data.js",
+    "js/dungeon.js",
+    "js/eat.js",
+    "js/end.js",
+    "js/engrave.js",
+    "js/exper.js",
+    "js/explode.js",
+    "js/extcmdlist_data.js",
+    "js/extralev.js",
+    "js/files.js",
+    "js/fire_level_data.js",
+    "js/fire_levels.js",
+    "js/fountain.js",
+    "js/fruit.js",
+    "js/game_display.js",
+    "js/game.js",
+    "js/getline.js",
+    "js/getpos.js",
+    "js/glyph_ids.js",
+    "js/glyph_offsets.js",
+    "js/glyphs.js",
+    "js/grave.js",
+    "js/gstate.js",
+    "js/hack.js",
+    "js/hacklib.js",
+    "js/hell_levels.js",
+    "js/help_data.js",
+    "js/iactions.js",
+    "js/input.js",
+    "js/insight.js",
+    "js/invent.js",
+    "js/isaac64.js",
+    "js/jsmain.js",
+    "js/juiblex_levels.js",
+    "js/kni_goal_level_data.js",
+    "js/legacy_startup.js",
+    "js/light.js",
+    "js/lock.js",
+    "js/makemon_create.js",
+    "js/makemon.js",
+    "js/mcastu.js",
+    "js/mdlib.js",
+    "js/medusa_levels.js",
+    "js/mhitm.js",
+    "js/mhitu.js",
+    "js/mineralize.js",
+    "js/mines_levels.js",
+    "js/minion.js",
+    "js/mklev.js",
+    "js/mkmaze.js",
+    "js/mkroom.js",
+    "js/mktrap.js",
+    "js/mon.js",
+    "js/moncarry.js",
+    "js/mondata.js",
+    "js/monmove.js",
+    "js/monst.js",
+    "js/monster_object.js",
+    "js/monsters.js",
+    "js/moveloop_preamble.js",
+    "js/mthrowu.js",
+    "js/muse.js",
+    "js/music.js",
+    "js/nasties_data.js",
+    "js/nethack.js",
+    "js/nhlua.js",
+    "js/o_init.js",
+    "js/obj.js",
+    "js/object_generation.js",
+    "js/objects.js",
+    "js/objnam_data.js",
+    "js/objnam_readobjnam.js",
+    "js/objnam.js",
+    "js/options_escapes.js",
+    "js/options.js",
+    "js/optlist_data.js",
+    "js/orcus_levels.js",
+    "js/pager.js",
+    "js/pickup.js",
+    "js/player_selection_tty.js",
+    "js/player_selection.js",
+    "js/pline.js",
+    "js/polyself.js",
+    "js/posixregex.js",
+    "js/potion.js",
+    "js/pray.js",
+    "js/priest.js",
+    "js/quest_levels.js",
+    "js/quest_text_data.js",
+    "js/quest.js",
+    "js/questpgr.js",
+    "js/random_engraving.js",
+    "js/random_text_data.js",
+    "js/random_text.js",
+    "js/read.js",
+    "js/rect.js",
+    "js/regen.js",
+    "js/region.js",
+    "js/restore.js",
+    "js/rng.js",
+    "js/role_init.js",
+    "js/role_skills.js",
+    "js/roles.js",
+    "js/room_coordinates.js",
+    "js/room_features.js",
+    "js/rooms.js",
+    "js/sanctum_level_data.js",
+    "js/sanctum_levels.js",
+    "js/save.js",
+    "js/sfbase.js",
+    "js/shk.js",
+    "js/shknam.js",
+    "js/shtypes_data.js",
+    "js/sit.js",
+    "js/sokoban_levels.js",
+    "js/sound_effects_data.js",
+    "js/sounds.js",
+    "js/sp_lev_object.js",
+    "js/spell.js",
+    "js/stairs.js",
+    "js/startup_a11y.js",
+    "js/startup_reroll.js",
+    "js/startup_skills.js",
+    "js/steal.js",
+    "js/steed.js",
+    "js/storage.js",
+    "js/symbol_data.js",
+    "js/symbols.js",
+    "js/teleport.js",
+    "js/terminal.js",
+    "js/terrain.js",
+    "js/themeroom_data.js",
+    "js/themeroom_fill.js",
+    "js/themerooms.js",
+    "js/timeout.js",
+    "js/topten.js",
+    "js/track.js",
+    "js/trap_effects.js",
+    "js/trap_erode_obj.js",
+    "js/trap_names_data.js",
+    "js/trap_water_damage.js",
+    "js/trap.js",
+    "js/tribute_data.js",
+    "js/tty_menu.js",
+    "js/tty_message.js",
+    "js/tty_rawprint.js",
+    "js/tty_startup.js",
+    "js/tutorial_level.js",
+    "js/tutorial_startup.js",
+    "js/u_init_inventory_attrs.js",
+    "js/u_init_inventory_data.js",
+    "js/u_init_inventory_use.js",
+    "js/u_init_inventory.js",
+    "js/u_init.js",
+    "js/uhitm.js",
+    "js/unported_monster_actions.js",
+    "js/unported.js",
+    "js/valley_levels.js",
+    "js/vault.js",
+    "js/version.js",
+    "js/vision.js",
+    "js/weapon.js",
+    "js/were.js",
+    "js/wield.js",
+    "js/windows.js",
+    "js/wintty.js",
+    "js/wizard.js",
+    "js/wizard1_levels.js",
+    "js/wizard2_levels.js",
+    "js/wizcmds.js",
+    "js/worm.js",
+    "js/worn.js",
+    "js/write.js",
+    "js/zap_destroy_items.js",
+    "js/zap.js",
+    "package-lock.json",
+    "package.json",
+    "scripts/challenge-results.mjs",
+    "scripts/score-challenges.mjs",
+    "scripts/scoring-workspace.mjs"
+  ],
+  "cases": [
+    {
+      "id": "archeologist-weapon-cycle",
+      "recordingSha256": "44ad0e60cbc1e52385690fbd8a37793772588173db7d253cda4ac9602a60119f",
+      "passed": true,
+      "metrics": {
+        "screens": {
+          "matched": 8,
+          "total": 8
+        },
+        "rng": {
+          "matched": 6606,
+          "total": 6606
+        },
+        "cursors": {
+          "matched": 8,
+          "total": 8
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "archeologist-weapon-cycle-complete",
+      "recordingSha256": "480c81a12fdcd2d7a78e2bbfa6501a8a3090b46361654afc59235a7825a0889c",
+      "passed": true,
+      "metrics": {
+        "screens": {
+          "matched": 8,
+          "total": 8
+        },
+        "rng": {
+          "matched": 3491,
+          "total": 3491
+        },
+        "cursors": {
+          "matched": 8,
+          "total": 8
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "archeologist-weapon-cycle-retry",
+      "recordingSha256": "c1d2ee566996c73d40e43bd73f4476be329b239b6da05b743c8b0d0e7738bad2",
+      "passed": true,
+      "metrics": {
+        "screens": {
+          "matched": 7,
+          "total": 7
+        },
+        "rng": {
+          "matched": 2782,
+          "total": 2782
+        },
+        "cursors": {
+          "matched": 7,
+          "total": 7
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "fingertip-engraving-return",
+      "recordingSha256": "30a6dc31f656961b980c8e9a66c4616d677ba8ac74dbceeac186f25f7b1dde12",
+      "passed": true,
+      "metrics": {
+        "screens": {
+          "matched": 24,
+          "total": 24
+        },
+        "rng": {
+          "matched": 3016,
+          "total": 3016
+        },
+        "cursors": {
+          "matched": 24,
+          "total": 24
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "floor-sit-roundtrip",
+      "recordingSha256": "29fba24b66d584051fc871e30da45a56831eb27018e922c01c009b451967ae23",
+      "passed": true,
+      "metrics": {
+        "screens": {
+          "matched": 13,
+          "total": 13
+        },
+        "rng": {
+          "matched": 2178,
+          "total": 2178
+        },
+        "cursors": {
+          "matched": 13,
+          "total": 13
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "monk-lookaround-history",
+      "recordingSha256": "56a54fc8d8401b47366760dda18e58ad2a7b225bde51edec0efd65345c8c4cc8",
+      "passed": true,
+      "metrics": {
+        "screens": {
+          "matched": 27,
+          "total": 27
+        },
+        "rng": {
+          "matched": 3043,
+          "total": 3043
+        },
+        "cursors": {
+          "matched": 27,
+          "total": 27
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "priest-search-walkback",
+      "recordingSha256": "138a57ced2e9f594aaf164b588af7ca8900fcc8f132d4db2e50d61b9391dc7c5",
+      "passed": true,
+      "metrics": {
+        "screens": {
+          "matched": 8,
+          "total": 8
+        },
+        "rng": {
+          "matched": 2667,
+          "total": 2667
+        },
+        "cursors": {
+          "matched": 8,
+          "total": 8
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "priest-search-walkback-retry",
+      "recordingSha256": "124fb2d85cc7a40787a4002b5a0ac4a4c8e6f14e08babce4d45ff04146ceb632",
+      "passed": true,
+      "metrics": {
+        "screens": {
+          "matched": 9,
+          "total": 9
+        },
+        "rng": {
+          "matched": 3455,
+          "total": 3455
+        },
+        "cursors": {
+          "matched": 9,
+          "total": 9
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "ranger-manual-throw",
+      "recordingSha256": "2c1f3579d45f95e3aa9f523fd5dd9f1a78da615095424bb93f233bc3b93c9a98",
+      "passed": true,
+      "metrics": {
+        "screens": {
+          "matched": 9,
+          "total": 9
+        },
+        "rng": {
+          "matched": 3037,
+          "total": 3037
+        },
+        "cursors": {
+          "matched": 9,
+          "total": 9
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "samurai-armor-rewear",
+      "recordingSha256": "c3e1c3e1ee899d4a7f541562aa7172b5b0cf003497ee8ec0ed8abcffd299e412",
+      "passed": true,
+      "metrics": {
+        "screens": {
+          "matched": 7,
+          "total": 7
+        },
+        "rng": {
+          "matched": 2830,
+          "total": 2830
+        },
+        "cursors": {
+          "matched": 7,
+          "total": 7
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "tourist-camera-flash",
+      "recordingSha256": "0a6a24c755d67609c0e8974a63df94e1127c6ef0e4fcc2c09de4787c0cbbcac1",
+      "passed": true,
+      "metrics": {
+        "screens": {
+          "matched": 10,
+          "total": 10
+        },
+        "rng": {
+          "matched": 2473,
+          "total": 2473
+        },
+        "cursors": {
+          "matched": 10,
+          "total": 10
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "tourist-camera-flash-complete",
+      "recordingSha256": "a0ff9cf099b0b1cc9df2242ee50959ae619463c2c6165dd249e78b6bd729fc13",
+      "passed": true,
+      "metrics": {
+        "screens": {
+          "matched": 12,
+          "total": 12
+        },
+        "rng": {
+          "matched": 6426,
+          "total": 6426
+        },
+        "cursors": {
+          "matched": 12,
+          "total": 12
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "tourist-camera-flash-retry",
+      "recordingSha256": "9e7b0888d945f9e6eceb7cd7f6e97123091b18e4de0a81ac292b38c4586947fe",
+      "passed": true,
+      "metrics": {
+        "screens": {
+          "matched": 10,
+          "total": 10
+        },
+        "rng": {
+          "matched": 2326,
+          "total": 2326
+        },
+        "cursors": {
+          "matched": 10,
+          "total": 10
+        }
+      },
+      "error": null
+    }
+  ],
+  "totals": {
+    "sessions": {
+      "matched": 13,
+      "total": 13
+    },
+    "screens": {
+      "matched": 152,
+      "total": 152
+    },
+    "rng": {
+      "matched": 44330,
+      "total": 44330
+    },
+    "cursors": {
+      "matched": 152,
+      "total": 152
+    }
+  }
+}

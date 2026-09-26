@@ -163,20 +163,20 @@ test('dosacrifice preserves source guard order and return values', async () => {
     game.u.uprops[CONFUSION].intrinsic = 0;
 });
 
-test('dosacrifice reaches floorfood offer_ok through the canned selector',
+test('dosacrifice reaches offer_corpse through the canned selector',
     async () => {
     // pray.c:1870-1874. An independently shaped corpse in the inventory is
-    // selected by the same key path itemactions.c uses for #offer; the
-    // offering helper is a discarded return-valued gap, so this pins the
-    // production selector and its ECMD_TIME result without inventing effects.
+    // selected by the same key path itemactions.c uses for #offer, then the
+    // source-owned offering path consumes it and updates conduct.
     await startedGame();
     const here = game.level.at(game.u.ux, game.u.uy);
     const previousType = here.typ;
     const previousMask = here.altarmask;
     const previousInventory = game.invent;
     const previousUnported = new Set(game.unported ?? []);
+    const previousConduct = game.u.uconduct.gnostic;
     here.typ = ALTAR;
-    here.altarmask = 0;
+    here.altarmask = Align2amask(A_LAWFUL);
     const corpse = {
         invlet: 'a',
         otyp: CORPSE,
@@ -188,12 +188,15 @@ test('dosacrifice reaches floorfood offer_ok through the canned selector',
         nexthere: null,
     };
     game.invent = corpse;
+    game.nhDisplay.terminal._inputQueue.push(32, 32, 32, 32);
     cmdq_add_key(CQ_CANNED, 'a', game);
     const before = getRngLog().length;
     try {
         assert.equal(await dosacrifice(game), ECMD_TIME);
-        assert.ok(game.unported.has('pray.c offer_corpse'));
-        assert.equal(getRngLog().length, before);
+        assert.ok(!game.unported.has('pray.c offer_corpse'));
+        assert.notEqual(game.invent, corpse);
+        assert.equal(game.u.uconduct.gnostic, previousConduct + 1);
+        assert.ok(getRngLog().length > before);
     } finally {
         here.typ = previousType;
         here.altarmask = previousMask;

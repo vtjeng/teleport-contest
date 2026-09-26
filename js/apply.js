@@ -1,6 +1,6 @@
 // apply.js -- the `a` command: using a tool.
 // C refs: src/apply.c apply_ok(), doapply(), get_mleash(), use_cream_pie(),
-// use_stethoscope(), its_dead(), and reset_trapset().
+// use_stethoscope(), its_dead(), reset_trapset(), use_trap(), and set_trap().
 //
 // doapply()'s switch has thirty-odd named arms. The live groups are CREAM_PIE,
 // STETHOSCOPE, OIL_LAMP/MAGIC_LAMP/BRASS_LANTERN through apply.c use_lamp(),
@@ -10,9 +10,10 @@
 // js/write.js, the container arm (LARGE_BOX/CHEST/ICE_BOX/SACK/BAG_OF_HOLDING/
 // OILSKIN_SACK) which delegates to pickup.c use_container() in js/pickup.js,
 // BAG_OF_TRICKS which delegates to makemon.c bagotricks() in js/makemon.js,
-// musical instruments through music.c, HORN_OF_PLENTY through mkobj.c,
-// and the ordinary CARROT unknown-use result. Ordinary armor reaches the same
-// switch-default refusal. Every other named arm, the default's weapon
+// musical instruments through music.c, LAND_MINE/BEARTRAP through
+// apply.c use_trap()/set_trap(), HORN_OF_PLENTY through mkobj.c,
+// and the ordinary food and armor unknown-use results. Every other named
+// arm, the default's weapon
 // redirects, and the wand, spellbook and coin shortcuts above the switch stop
 // at a refusal naming the C function they need.
 // use_stethoscope() covers
@@ -25,8 +26,12 @@
 import {
     ACCESSIBLE,
     ARTICLE_A,
+    A_DEX,
     A_STR,
+    AIR,
+    BEAR_TRAP,
     BLINDED,
+    COLNO,
     CQ_CANNED,
     CORR,
     COST_SPLAT,
@@ -35,7 +40,9 @@ import {
     ECMD_FAIL,
     ECMD_OK,
     ECMD_TIME,
+    FLASHED_LIGHT,
     FACE,
+    FUMBLING,
     FORCETRAP,
     GLIB,
     GETOBJ_DOWNPLAY,
@@ -65,7 +72,14 @@ import {
     HALF_PHDAM,
     INTRINSIC,
     IS_DOOR,
+    IS_FURNITURE,
+    IS_OBSTRUCTED,
     IS_STWALL,
+    LANDMINE,
+    P_BASIC,
+    P_RIDING,
+    STOMACH,
+    STUNNED,
     JUMPING,
     LEG,
     LEVITATION,
@@ -75,6 +89,7 @@ import {
     SHOPBASE,
     TELEDS_NO_FLAGS,
     TOOKPLUNGE,
+    CLOUD,
     TT_BEARTRAP,
     TT_BURIEDBALL,
     TT_INFLOOR,
@@ -100,11 +115,16 @@ import {
     confdir,
     extcmdRow,
     getdir,
+    set_occupation,
+    y_n,
 } from './cmd.js';
 import { cvt_sdoor_to_door } from './detect.js';
+import { ceiling, surface } from './dungeon.js';
+import { see_monster_closeup } from './dog.js';
 import {
     cmap_to_glyph,
     feel_newsym,
+    flush_screen,
     glyph_at,
     map_object,
     map_invisible,
@@ -123,6 +143,7 @@ import { mstatusline, ustatusline } from './insight.js';
 import {
     delobj,
     carrying,
+    consume_obj_charge,
     getobj,
     nxtobj,
     obj_extract_self,
@@ -130,6 +151,7 @@ import {
     preflight_update_inventory,
     update_inventory,
     useupall,
+    useup,
 } from './invent.js';
 import { pick_lock } from './lock.js';
 import { bagotricks } from './makemon.js';
@@ -166,6 +188,7 @@ import {
     newObject,
     objectType,
     sobj_at,
+    carried,
     splitobj,
     weight,
 } from './obj.js';
@@ -222,7 +245,6 @@ import {
     TOUCHSTONE,
     WAND_CLASS,
     WEAPON_CLASS,
-    CARROT,
     LARGE_BOX,
     CHEST,
     ICE_BOX,
@@ -231,28 +253,40 @@ import {
     BAG_OF_HOLDING,
     BAG_OF_TRICKS,
     OILSKIN_SACK,
+    EXPENSIVE_CAMERA,
     DWARVISH_MATTOCK,
     PICK_AXE,
     CANDELABRUM_OF_INVOCATION,
     TALLOW_CANDLE,
     WAX_CANDLE,
+    LAND_MINE,
+    BEARTRAP,
 } from './objects.js';
 import { AT_WEAP, MZ_TINY, PM_HEALER } from './monsters.js';
-import { body_part } from './polyself.js';
+import { body_part, mbodypart } from './polyself.js';
 import { djinni_from_bottle, make_blinded, make_glib } from './potion.js';
 import { canSpotMonster, heroIsBlind } from './startup_a11y.js';
+import { P_SKILL } from './startup_skills.js';
 import { CMAP_EXPLANATIONS } from './symbol_data.js';
 import { obj_has_timer } from './timeout.js';
-import { deltrap, reset_utrap, t_at } from './trap.js';
-import { dotrap } from './trap_effects.js';
+import {
+    deltrap, is_lava, is_pool, Levitation, maketrap, reset_utrap, t_at,
+    trapname,
+} from './trap.js';
+import { dotrap, feeltrap } from './trap_effects.js';
 import { ttyPline } from './tty_message.js';
-import { recalc_block_point, unblock_point } from './vision.js';
+import {
+    cansee,
+    recalc_block_point,
+    unblock_point,
+    vision_recalc,
+} from './vision.js';
 import { is_pole, setnotworn } from './worn.js';
 import { dowrite } from './write.js';
 import { use_container } from './pickup.js';
 import { use_pick_axe } from './dig.js';
 import { genders } from './roles.js';
-import { d, rn1, rn2, rnd, rne, rnz } from './rng.js';
+import { d, rn1, rn2, rnd, rne, rnl, rnz } from './rng.js';
 import {
     check_unpaid,
     check_unpaid_usage,
@@ -268,18 +302,20 @@ import { known_spell, spe_Fresh, spelleffects } from './spell.js';
 import { stucksteed } from './steed.js';
 import { teleds } from './teleport.js';
 import { fingers_or_gloves } from './do_wear.js';
-import { legs_in_no_shape, set_wounded_legs } from './do.js';
-import { cansee } from './vision.js';
+import { dropx, legs_in_no_shape, set_wounded_legs } from './do.js';
 import { morehungry } from './eat.js';
-import { hurtle_jump, walk_path } from './dothrow.js';
+import { digests, hurtle_jump, walk_path } from './dothrow.js';
 import { makeplural } from './fruit.js';
 import { getpos } from './getpos.js';
 import { SPE_JUMPING, BOULDER } from './objects.js';
 import { S_goodpos } from './symbols.js';
 import { in_rooms } from './rooms.js';
+import { On_stairs, stairway_at } from './stairs.js';
 import { set_voice } from './sounds.js';
+import { flash_hits_mon } from './uhitm.js';
+import { transient_light_cleanup } from './light.js';
+import { bhit, zapyourself } from './zap.js';
 import { verbalize } from './pline.js';
-import { y_n } from './cmd.js';
 import { note_unported } from './unported.js';
 
 // C ref: apply.c get_mleash() (880-887). The leash belongs to the hero's
@@ -300,6 +336,96 @@ export class UnsupportedApplyError extends Error {
         this.name = 'UnsupportedApplyError';
         this.branch = branch;
     }
+}
+
+function cameraTransientLightEnv(state) {
+    return {
+        visionRecalc: (control) => vision_recalc(control, {
+            state,
+            redraw: (x, y) => newsym(x, y, state),
+        }),
+        flushScreen: (mode) => flush_screen(mode),
+        canSpotMonster: (monster) => canSpotMonster(monster, state),
+        mapInvisible: (x, y) => map_invisible(x, y, state),
+    };
+}
+
+// C ref: apply.c do_blinding_ray() (61-76). zap.c:bhit() returns the first
+// visible monster but handles invisible monsters while continuing the beam;
+// both use the same FLASHED_LIGHT traversal and defer temporary-light cleanup
+// until after this caller has processed the returned target.
+export async function do_blinding_ray(
+    object,
+    state = game,
+    env = {},
+) {
+    const random = env.random ?? { d, rn2, rnd };
+    const monster = await bhit(
+        state.u.dx,
+        state.u.dy,
+        COLNO,
+        FLASHED_LIGHT,
+        null,
+        null,
+        { obj: object },
+        state,
+        random,
+        env,
+    );
+    object.ox = state.u.ux;
+    object.oy = state.u.uy;
+    if (monster) {
+        await flash_hits_mon(monster, object, state, random, env);
+        if (object.otyp === EXPENSIVE_CAMERA) {
+            await see_monster_closeup(monster, true, {
+                ...env,
+                state,
+                observedAt: state.gb.bhitpos,
+            });
+        }
+    }
+    await transient_light_cleanup(state, cameraTransientLightEnv(state));
+}
+
+// C ref: apply.c use_camera() (79-111). A charge is spent after direction
+// selection, before cursed backfire, and the swallowed, vertical, selfie and
+// aimed-ray outcomes are kept in the same source order.
+export async function use_camera(object, state = game, env = {}) {
+    if (state.u?.uinwater) {
+        await ttyPline(
+            'Using your camera underwater would void the warranty.', state,
+        );
+        return ECMD_OK;
+    }
+    if (!await getdir(null, state)) return ECMD_CANCEL;
+
+    if (object.spe <= 0) {
+        await ttyPline(nothing_happens, state);
+        return ECMD_TIME;
+    }
+    consume_obj_charge(object, true, { ...env, state });
+
+    const random = env.random ?? { d, rn2, rnd };
+    if (object.cursed && !random.rn2(2)) {
+        await zapyourself(object, true, state);
+    } else if (state.u.uswallow) {
+        const engulfer = state.u.ustuck;
+        await ttyPline(
+            `You take a picture of ${s_suffix(mon_nam(engulfer, state))} `
+                + `${mbodypart(engulfer, STOMACH)}.`,
+            state,
+        );
+    } else if (state.u.dz) {
+        const location = state.u.dz > 0
+            ? surface(state.u.ux, state.u.uy, state)
+            : ceiling(state.u.ux, state.u.uy, state);
+        await ttyPline(`You take a picture of the ${location}.`, state);
+    } else if (!state.u.dx && !state.u.dy) {
+        await zapyourself(object, true, state);
+    } else {
+        await do_blinding_ray(object, state, { ...env, random });
+    }
+    return ECMD_TIME;
 }
 
 // C ref: apply.c tinnable() (2167-2173). An uneaten corpse can be canned only
@@ -411,18 +537,186 @@ async function use_cream_pie(obj, state = game, rawEnv = {}) {
 }
 
 // C ref: apply.c reset_trapset() (2812-2817), the third of the three clears
-// cmd.c reset_occupations() makes.
-//
-// gt.trapinfo is the trap the hero is arming, carried across the set_trap()
-// occupation that use_trap() starts. C's struct holds tx, ty and time_needed
-// as well; only the two fields this function clears exist here, and this is
-// the only function in the port that reads or writes either, because use_trap()
-// and set_trap() are unported. The pair is therefore always already at its
-// reset value; the function exists so that reset_occupations() clears
-// everything C clears rather than two thirds of it.
+// cmd.c reset_occupations() makes. C resets only the object and bungle flag;
+// the target coordinates and remaining setup time stay in gt.trapinfo.
 export function reset_trapset(state = game) {
     state.gt ??= {};
-    state.gt.trapinfo = { tobj: null, force_bungle: false };
+    state.gt.trapinfo ??= {
+        tobj: null,
+        tx: 0,
+        ty: 0,
+        time_needed: 0,
+        force_bungle: false,
+    };
+    state.gt.trapinfo.tobj = null;
+    state.gt.trapinfo.force_bungle = false;
+}
+
+function trapSettingFumbling(state) {
+    const property = state.u?.uprops?.[FUMBLING];
+    return Boolean(property?.intrinsic || property?.extrinsic);
+}
+
+function trapSettingStunned(state) {
+    return Boolean(state.u?.uprops?.[STUNNED]?.intrinsic);
+}
+
+// C ref: apply.c use_trap() (2821-2911). The caller has already selected a
+// land mine or bear trap in doapply(); this function validates the square,
+// records gt.trapinfo, and installs set_trap() as the turn occupation.
+export async function use_trap(obj, state = game, env = {}) {
+    const random = env.random ?? { rnl };
+    const location = state.level.at(state.u.ux, state.u.uy);
+    const levtyp = location.typ;
+    const trapinfo = state.gt?.trapinfo;
+    let what = null;
+
+    if (nohands(state.youmonst.data))
+        what = 'without hands';
+    else if (trapSettingStunned(state))
+        what = 'while stunned';
+    else if (state.u.uswallow)
+        what = digests(state.u.ustuck?.data)
+            ? 'while swallowed' : 'while engulfed';
+    else if (state.u.uinwater)
+        what = 'underwater';
+    else if (Levitation(state))
+        what = 'while levitating';
+    else if (is_pool(state.u.ux, state.u.uy, state))
+        what = 'in water';
+    else if (is_lava(state.u.ux, state.u.uy, state))
+        what = 'in lava';
+    else if (On_stairs(state.u.ux, state.u.uy, state)) {
+        const stway = stairway_at(state.u.ux, state.u.uy, state);
+        what = stway.isladder ? 'on the ladder' : 'on the stairs';
+    } else if (IS_FURNITURE(levtyp) || IS_OBSTRUCTED(levtyp)
+        || closed_door(state.u.ux, state.u.uy, state)
+        || t_at(state.u.ux, state.u.uy, state)) {
+        what = 'here';
+    } else if (Is_airlevel(state.u.uz) || Is_waterlevel(state.u.uz)) {
+        what = levtyp === AIR ? 'in midair'
+            : levtyp === CLOUD ? 'in a cloud' : 'in this place';
+    }
+
+    if (what) {
+        await ttyPline(`You can't set a trap ${what}!`, state);
+        reset_trapset(state);
+        return;
+    }
+
+    const ttyp = obj.otyp === LAND_MINE ? LANDMINE : BEAR_TRAP;
+    if (obj === trapinfo?.tobj
+        && u_at(trapinfo.tx, trapinfo.ty, state)) {
+        await ttyPline(
+            `You resume setting ${shk_your(obj, state)}${trapname(ttyp, false, state)}.`,
+            state,
+        );
+        set_occupation(set_trap, 'setting the trap', 0, state);
+        return;
+    }
+
+    state.gt ??= {};
+    state.gt.trapinfo ??= {
+        tobj: null,
+        tx: 0,
+        ty: 0,
+        time_needed: 0,
+        force_bungle: false,
+    };
+    const currentTrapInfo = state.gt.trapinfo;
+    currentTrapInfo.tobj = obj;
+    currentTrapInfo.tx = state.u.ux;
+    currentTrapInfo.ty = state.u.uy;
+    let attribute = acurr(state, A_DEX);
+    currentTrapInfo.time_needed = attribute > 17 ? 2
+        : attribute > 12 ? 3 : attribute > 7 ? 4 : 5;
+    if (heroIsBlind(state)) currentTrapInfo.time_needed *= 2;
+    attribute = acurr(state, A_STR);
+    if (ttyp === BEAR_TRAP && attribute < 18) {
+        currentTrapInfo.time_needed += attribute > 12 ? 1
+            : attribute > 7 ? 2 : 4;
+    }
+
+    if (state.u.usteed && P_SKILL(P_RIDING, state) < P_BASIC) {
+        const chance = trapSettingFumbling(state) || obj.cursed
+            ? random.rnl(10) > 3
+            : random.rnl(10) > 5;
+        await ttyPline(
+            `You aren't very skilled at reaching from ${mon_nam(state.u.usteed, state)}.`,
+            state,
+        );
+        const question = `Continue your attempt to set ${the(trapname(ttyp, false, state), state)}?`;
+        if (await y_n(question, state) === 'y') {
+            if (chance) {
+                if (ttyp === LANDMINE) {
+                    currentTrapInfo.time_needed = 0;
+                    currentTrapInfo.force_bungle = true;
+                } else {
+                    reset_trapset(state);
+                    await ttyPline(
+                        `You drop ${the(trapname(ttyp, false, state), state)}!`,
+                        state,
+                    );
+                    await dropx(obj, { ...env, state });
+                    return;
+                }
+            }
+        } else {
+            reset_trapset(state);
+            return;
+        }
+    }
+
+    await ttyPline(
+        `You begin setting ${shk_your(obj, state)}${trapname(ttyp, false, state)}.`,
+        state,
+    );
+    if (obj.unpaid) note_unported('shk.c use_unpaid_trapobj');
+    set_occupation(set_trap, 'setting the trap', 0, state);
+}
+
+// C ref: apply.c set_trap() (2914-2952), the untimed occupation callback.
+// Its integer answer is consumed by allmain.c: a positive answer keeps the
+// occupation, and zero clears it after this turn.
+export async function set_trap(state = game, env = {}) {
+    const trapinfo = state.gt?.trapinfo;
+    const obj = trapinfo?.tobj;
+    if (!obj || !carried(obj) || !u_at(trapinfo.tx, trapinfo.ty, state)) {
+        reset_trapset(state);
+        return 0;
+    }
+
+    if (--trapinfo.time_needed > 0) return 1;
+
+    const ttyp = obj.otyp === LAND_MINE ? LANDMINE : BEAR_TRAP;
+    const trap = maketrap(state.u.ux, state.u.uy, ttyp, { ...env, state });
+    if (trap) {
+        trap.madeby_u = true;
+        feeltrap(trap, {
+            state,
+            redraw: (x, y) => newsym(x, y, state),
+        });
+        if (in_rooms(state.u.ux, state.u.uy, SHOPBASE, state).length)
+            note_unported('shk.c add_damage');
+        if (!trapinfo.force_bungle) {
+            await ttyPline(
+                `You finish arming ${the(trapname(ttyp, false, state), state)}.`,
+                state,
+            );
+        }
+        if (((obj.cursed || trapSettingFumbling(state))
+            && (env.random?.rnl ?? rnl)(10) > 5)
+            || trapinfo.force_bungle) {
+            // C discards dotrap()'s result. Its complete trigger chain is not
+            // in this task, so retain the named gap and skip its partial port.
+            note_unported('trap.c dotrap');
+        }
+    } else {
+        await ttyPline('Your trap setting attempt fails.', state);
+    }
+    await useup(obj, { ...env, state });
+    reset_trapset(state);
+    return 0;
 }
 
 // C ref: apply.c apply_ok() (4149-4210), the getobj() callback for the `a`
@@ -1477,6 +1771,8 @@ export async function doapply(state = game, env = {}) {
         return use_cream_pie(obj, state, env);
     case STETHOSCOPE:
         return use_stethoscope(obj, state);
+    case EXPENSIVE_CAMERA:
+        return use_camera(obj, state, env);
     case PICK_AXE:
     case DWARVISH_MATTOCK:
         return use_pick_axe(obj, state, env);
@@ -1517,6 +1813,12 @@ export async function doapply(state = game, env = {}) {
         // C's res starts as ECMD_TIME; hornoplenty doesn't change it.
         await hornoplenty(obj, false, null, { state });
         return ECMD_TIME;
+    case LAND_MINE:
+    case BEARTRAP:
+        // apply.c:4388-4393. use_trap() is void, so doapply() keeps its
+        // initial ECMD_TIME result while it schedules the occupation.
+        await use_trap(obj, state, env);
+        return ECMD_TIME;
     case WOODEN_FLUTE:
     case MAGIC_FLUTE:
     case TOOLED_HORN:
@@ -1529,17 +1831,29 @@ export async function doapply(state = game, env = {}) {
     case DRUM_OF_EARTHQUAKE:
         // apply.c:4372-4383. All musical instruments share this owner.
         return do_play_instrument(obj, state, env);
+    case BANANA:
+        // apply.c:4401-4403. Hallucinating heroes get the banana's ringing
+        // message and the source's initial ECMD_TIME result; otherwise C
+        // falls through to the generic default arm below.
+        if (heroHallucinating(state)) {
+            await ttyPline("It rings! ... But no-one answers.", state);
+            return ECMD_TIME;
+        }
+        // FALLTHROUGH to the same unknown-use result as the C default.
     default:
-        // apply.c:4407-4417. CARROT is not a named switch arm, and it cannot
-        // be a polearm, pick, or axe because those macros admit only
-        // WEAPON_CLASS and TOOL_CLASS. It therefore reaches C's exact
-        // unknown-use result without spending a turn or changing the object.
-        if (obj.otyp === CARROT) {
+        // apply.c:4407-4417. CARROT and other nonnamed foods use this arm;
+        // BANANA also falls through here when not hallucinating. Those food
+        // objects cannot be poles, picks, or axes because the source macros
+        // admit only WEAPON_CLASS and TOOL_CLASS.
+        // C names LUMP_OF_ROYAL_JELLY before its default, but that helper is
+        // still unported. CREAM_PIE also has an earlier named arm, which the
+        // switch above handles. Other FOOD_CLASS items, including CARROT,
+        // use the generic result.
+        if (obj.oclass === FOOD_CLASS && obj.otyp !== LUMP_OF_ROYAL_JELLY) {
             await ttyPline("Sorry, I don't know how to use that.", state);
             return ECMD_FAIL;
         }
-        // The same already-ported default result applies to ordinary armor;
-        // keep the class-wide behavior separate from this CARROT slice.
+        // The same already-ported default result applies to ordinary armor.
         if (obj.oclass === ARMOR_CLASS) {
             await ttyPline("Sorry, I don't know how to use that.", state);
             return ECMD_FAIL;

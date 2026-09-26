@@ -1,0 +1,12 @@
+{
+  "_comment": "B10 C-first addendum retry; dismiss startup prompt, then exercise Wizard source behavior.",
+  "version": 5,
+  "segments": [
+    {
+      "seed": 60626201,
+      "datetime": "20260926123000",
+      "nethackrc": "OPTIONS=name:C1,role:Wizard,race:human,gender:male,align:neutral,playmode:debug,!legacy,!tutorial,!splash_screen,showexp,time\n",
+      "moves": " /y? ."
+    }
+  ]
+}

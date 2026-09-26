@@ -1,0 +1,11 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 912483607,
+      "datetime": "20361117093000",
+      "nethackrc": "OPTIONS=name:Iris,role:Tourist,race:human,gender:female,align:neutral,!legacy,!tutorial,!splash_screen,showexp,time\n",
+      "moves": "\nall"
+    }
+  ]
+}

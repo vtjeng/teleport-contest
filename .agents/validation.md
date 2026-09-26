@@ -177,6 +177,9 @@ requirements. When a function or its wiring changes, refresh its evidence
 in the same task.
 Existing declarations that lack evidence remain eligible for implementation
 or verification; do not reimplement correct code merely to change a count.
+If a new source trace proves that a closed goal's completion evidence covered
+only part of a function, use `goal-log.mjs invalidate-evidence` to retain that
+history while making the function eligible for a new whole-function task.
 
 For C-to-JavaScript and Lua-to-JavaScript translations, verify evaluation
 order explicitly. Lua numeric-for bounds are evaluated once before the loop.
@@ -191,8 +194,9 @@ replayed to locate source behavior. Preserve all admitted batches and evaluate
 them separately from the fixed checkpoint, as `.agents/scoring.md` requires.
 The fixed checkpoint alone does not establish synthetic non-regression. New
 batches follow `.agents/selection.md`, "Generating the next synthetic batch".
-The preparation worker records only C cases, checks recipe and recording
-hashes, and independently replays each C case before submitting. The
+The preparation worker records C cases, checks recipe and recording hashes,
+and independently replays each C case before submitting. It compares the
+replayed case with JavaScript locally as `.agents/selection.md` specifies. The
 orchestrator verifies those checks, then runs the combined checkpoint before
 accepting the case files. Prepared cases do not enter synthetic evaluations
 or dashboard totals until the orchestrator admits a manifest and saves its

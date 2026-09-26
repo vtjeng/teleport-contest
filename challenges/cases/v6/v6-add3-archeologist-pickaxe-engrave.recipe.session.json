@@ -1,0 +1,12 @@
+{
+  "_comment": "B10 C-first addendum retry from the C prompt/source inventory order; Archeologist role inventory.",
+  "version": 5,
+  "segments": [
+    {
+      "seed": 60626301,
+      "datetime": "20260926133000",
+      "nethackrc": "OPTIONS=name:B1,role:Archeologist,race:human,gender:male,align:neutral,playmode:debug,!legacy,!tutorial,!splash_screen,showexp,time\n",
+      "moves": " Eehello\n"
+    }
+  ]
+}

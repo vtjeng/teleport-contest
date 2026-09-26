@@ -17288,5 +17288,70 @@
       }
     },
     "recordedAt": "2026-09-15T18:23:04.186Z"
+  },
+  {
+    "kind": "review",
+    "head": "c12df7b29cfff0e2b05b59d802a204008912d442",
+    "auditedRange": "9e1d949fb8046291e442b66c1e048cbf744da69a..c12df7b29cfff0e2b05b59d802a204008912d442",
+    "level": "full",
+    "areas": [
+      "commands"
+    ],
+    "outcome": "no-change",
+    "evidence": "Counts: 4 raw, 4 deduplicated, 3 confirmed, 0 applied, 3 deferred, 1 rejected, 0 unverified. Scoped getpos cursor-order review at the frozen A8 correction. Concurrency finder ran because the moved callback work is asynchronous; performance finder was omitted because the delta added no traversal. The confirmed cursor defect changes rendering behavior outside an audit-only fix and needs a new source-traced implementation task. The two test gaps belong with that task. Review noted the HUP comment attribution needs correction. Full readiness checkpoint and quality health passed at the reviewed head.",
+    "auditMetrics": {
+      "wallTimeSeconds": 953,
+      "counts": {
+        "raw": 4,
+        "deduplicated": 4,
+        "confirmed": 3,
+        "applied": 0,
+        "deferred": 3,
+        "rejected": 1,
+        "unverified": 0
+      },
+      "categories": {
+        "production": 1,
+        "tests": 2,
+        "clarity": 0,
+        "simplification": 0,
+        "other": 0
+      },
+      "productionDefects": [
+        {
+          "summary": "getpos initial cursor differs when the verbose help pline is suppressed by a valid MSGTYPE=hide rule; C flushes dirty valid glyphs and JS leaves the cursor at the hero.",
+          "foundBy": [
+            "correctness"
+          ],
+          "resolution": "deferred"
+        }
+      ],
+      "rejections": [
+        {
+          "summary": "Rename forcedMapCursor to indicate a dirty glyph rather than a cursor.",
+          "counterEvidence": "The value has one use, which adds the required +1 to place the terminal cursor after tty_print_glyph; the adjacent comment explains that conversion. Reopen only if a later use obscures which coordinate is stored."
+        }
+      ],
+      "deferrals": [
+        {
+          "summary": "getpos initial cursor differs when the verbose help pline is suppressed by a valid MSGTYPE=hide rule; C flushes dirty valid glyphs and JS leaves the cursor at the hero.",
+          "category": "production"
+        },
+        {
+          "summary": "Add a fresh getpos tip case with a nonempty forced selection and assert the cursor at first input.",
+          "category": "tests"
+        },
+        {
+          "summary": "Add two valid squares with opposite last positions under callback order and C row-major flush order to pin the dirty-glyph cursor.",
+          "category": "tests"
+        }
+      ],
+      "readiness": {
+        "boundary": "Reviewed js/getpos.js forceGetposSelectionRedraw() and getpos() initial prompt/cursor path at c12df7b2; scripts/getpos-show-valid.test.mjs runs both, and v1 Knight jump reaches the production path.",
+        "sourceReview": "Traced C apply.c jump, getpos.c getpos_sethilite/getpos, display.c flush_screen, windows.c HUP curs and TTY glyph drawing, and pline.c suppression and cursor flushing. The delta adds no random draw. The review identified a suppressed-message branch and a source attribution error in the HUP comment; there are no note_unported calls or Unsupported throws in the touched functions.",
+        "completeness": "No note_unported call in the reviewed functions substitutes for a C return value; source completion limitations outside the touched path remain outside this pass."
+      }
+    },
+    "recordedAt": "2026-09-26T05:49:33.979Z"
   }
 ]

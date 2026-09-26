@@ -11,6 +11,7 @@ import {
     GETOBJ_SUGGEST,
     LOST_DROPPED,
     HALLUC,
+    HALLUC_RES,
     LEVITATION,
     OBJ_FLOOR,
     OBJ_INVENT,
@@ -24,14 +25,15 @@ import {
     UnsupportedDropError, _dropInternals, canletgo, dodrop,
 } from '../js/do.js';
 import { game } from '../js/gstate.js';
-import { any_obj_ok } from '../js/invent.js';
+import { addinv, any_obj_ok } from '../js/invent.js';
 import { runSegment } from '../js/jsmain.js';
 import { mksobj, newObject } from '../js/obj.js';
 import { stairway_at } from '../js/stairs.js';
 import { clearTtyMessageWindow } from '../js/tty_message.js';
 import {
-    ELVEN_DAGGER, FOOD_CLASS, GEM_CLASS, LEASH, LOADSTONE, MEAT_RING,
-    CORPSE, RING_CLASS, RIN_PROTECTION, SPEAR, TWO_HANDED_SWORD, WEAPON_CLASS,
+    ELVEN_DAGGER, GEM_CLASS, LEASH, LOADSTONE, MEAT_RING,
+    CORPSE, RIN_SEARCHING, SPEAR,
+    TWO_HANDED_SWORD, WEAPON_CLASS,
 } from '../js/objects.js';
 import { PM_SMALL_MIMIC } from '../js/monsters.js';
 import {
@@ -102,11 +104,48 @@ test('any_obj_ok suggests every object and excludes the hands', () => {
     assert.equal(any_obj_ok(null), GETOBJ_EXCLUDE);
 });
 
+// C ref: youprop.h HHallucination and Hallucination macros (115-120).
+test('sink hallucination checks intrinsic timeout and both resistance sources', () => {
+    const hallucinating = (hallucination, resistance) =>
+        _dropInternals.heroHallucinating({
+            u: {
+                uprops: {
+                    [HALLUC]: hallucination,
+                    [HALLUC_RES]: resistance,
+                },
+            },
+        });
+
+    assert.equal(hallucinating({ intrinsic: 1 }, {}), true);
+    assert.equal(hallucinating({ intrinsic: 0 }, {}), false);
+    assert.equal(hallucinating({ intrinsic: 0, extrinsic: 1 }, {}), false);
+    assert.equal(hallucinating({ intrinsic: 1 }, { intrinsic: 1 }), false);
+    assert.equal(hallucinating({ intrinsic: 1 }, { extrinsic: 1 }), false);
+    // C HHallucination reads only the timeout/intrinsic side of HALLUC.
+    assert.equal(hallucinating({}, {}), false);
+});
+
 // C ref: apply.c reset_trapset() (2812-2817).
-test('reset_trapset clears the armed trap and its bungle flag', () => {
-    const state = { gt: { trapinfo: { tobj: { otyp: 1 }, force_bungle: true } } };
+test('reset_trapset clears only the armed trap and bungle flag', () => {
+    const state = {
+        gt: {
+            trapinfo: {
+                tobj: { otyp: 1 },
+                tx: 8,
+                ty: 9,
+                time_needed: 4,
+                force_bungle: true,
+            },
+        },
+    };
     reset_trapset(state);
-    assert.deepEqual(state.gt.trapinfo, { tobj: null, force_bungle: false });
+    assert.deepEqual(state.gt.trapinfo, {
+        tobj: null,
+        tx: 8,
+        ty: 9,
+        time_needed: 4,
+        force_bungle: false,
+    });
 });
 
 // C ref: cmd.c reset_occupations() (194-200). One assertion per call it makes,
@@ -114,7 +153,15 @@ test('reset_trapset clears the armed trap and its bungle flag', () => {
 test('reset_occupations clears all three interrupted occupations', () => {
     const state = {
         context: { takeoff: { mask: W_ARMS } },
-        gt: { trapinfo: { tobj: { otyp: 1 }, force_bungle: true } },
+        gt: {
+            trapinfo: {
+                tobj: { otyp: 1 },
+                tx: 8,
+                ty: 9,
+                time_needed: 4,
+                force_bungle: true,
+            },
+        },
         // lock.c reset_pick() clears six fields; each is set here so a partial
         // clear is visible.
         xlock: {
@@ -138,7 +185,13 @@ test('reset_occupations clears all three interrupted occupations', () => {
         door: null,
         box: null,
     });
-    assert.deepEqual(state.gt.trapinfo, { tobj: null, force_bungle: false });
+    assert.deepEqual(state.gt.trapinfo, {
+        tobj: null,
+        tx: 8,
+        ty: 9,
+        time_needed: 4,
+        force_bungle: false,
+    });
 });
 
 // C ref: do.c canletgo() (664-711). Every arm is guarded by `if (*word)`, so
@@ -366,9 +419,13 @@ test('a cancelled drop resets the occupations and spends no turn', async () => {
     assert.equal(cancelled.boundary, null);
     assert.equal(cancelled.state.context.takeoff.mask, 0);
     assert.equal(cancelled.state.xlock.usedtime, 0);
-    assert.deepEqual(
-        cancelled.state.gt.trapinfo, { tobj: null, force_bungle: false },
-    );
+    assert.deepEqual(cancelled.state.gt.trapinfo, {
+        tobj: null,
+        tx: 0,
+        ty: 0,
+        time_needed: 0,
+        force_bungle: false,
+    });
     // The cancelled command is free, so the same trailing rest leaves the
     // turn counter where the bare rest did.
     assert.equal(cancelled.state.moves, restedMoves);
@@ -401,7 +458,13 @@ test('a carried object lands on the square with its message', async () => {
     // cancelled case above, which pins the other half of the same `if`.
     assert.equal(state.context.takeoff.mask, 0);
     assert.equal(state.xlock.usedtime, 0);
-    assert.deepEqual(state.gt.trapinfo, { tobj: null, force_bungle: false });
+    assert.deepEqual(state.gt.trapinfo, {
+        tobj: null,
+        tx: 0,
+        ty: 0,
+        time_needed: 0,
+        force_bungle: false,
+    });
 });
 
 test('a grounded blind hero uses the ordinary drop tail', async () => {
@@ -510,8 +573,8 @@ test('a meat ring away from a sink reaches the ordinary drop', async () => {
     const segment = loadDropMeatRingRecipe().segments[0];
     let boundary = null;
     await runSegment(segment, { onBoundary: (error) => { boundary = error; } });
-    // dosinkring() is a refusal, so taking the sink arm here would end the
-    // segment instead of landing the ring.
+    // dosinkring() consumes this ring on a sink, so taking its arm here would
+    // leave no floor object and fail the ordinary-drop assertions below.
     assert.equal(boundary, null);
     assert.equal(game._ttyToplines, 'You drop a meat ring.');
     const pile = pileAt(game, game.u.ux, game.u.uy);
@@ -520,11 +583,10 @@ test('a meat ring away from a sink reaches the ordinary drop', async () => {
     assert.ok(!letters(game).includes('e'));
 });
 
-// C ref: do.c drop() (752-773). Both terrain arms refuse, and each has to
-// refuse for its own reason: taking the wrong one would let a ring reach the
-// square admission instead of dosinkring(), or send a hero who cannot reach
-// the floor through the ordinary drop.
-test('drop refuses the sink and the unreachable floor by square', async () => {
+// C ref: do.c drop() (752-773), dosinkring() (497-661), dropx()/dropz(). A
+// sink intercepts rings but lets ordinary objects reach their normal landing
+// path. The unreachable-floor branch remains a distinct refusal.
+test('drop runs sink-ring effects and permits ordinary sink-floor drops', async () => {
     // A real started game, so can_reach_floor() has the hero form it needs
     // and levl[][] is the map the port generated.
     await runSegment({ ...VALKYRIE_SEGMENT, moves: ' ' });
@@ -549,21 +611,34 @@ test('drop refuses the sink and the unreachable floor by square', async () => {
     // do.c:753's two halves: the class, and the one FOOD_CLASS type that is
     // still a ring.
     state.level.at(ux, uy).typ = SINK;
-    for (const ring of [
-        { otyp: RIN_PROTECTION, oclass: RING_CLASS, owornmask: 0, quan: 1 },
-        { otyp: MEAT_RING, oclass: FOOD_CLASS, owornmask: 0, quan: 1 },
-    ]) {
-        await assert.rejects(
-            () => _dropInternals.drop(ring, state),
-            /dosinkring/u,
+    const ringKnown = state.objects[RIN_SEARCHING].oc_name_known;
+    const previousEmptyQueue = state.nhDisplay.onEmptyQueue;
+    state.objects[RIN_SEARCHING].oc_name_known = true;
+    state.nhDisplay.onEmptyQueue = () => ' '.charCodeAt(0);
+    try {
+        const searchingRing = mksobj(RIN_SEARCHING, true, false, { state });
+        const ordinaryObject = mksobj(ELVEN_DAGGER, true, false, { state });
+        addinv(searchingRing, { state });
+        addinv(ordinaryObject, { state });
+        clearTtyMessageWindow(state);
+
+        assert.equal(
+            await _dropInternals.drop(searchingRing, state), ECMD_TIME,
         );
+        assert.equal(searchingRing.where, OBJ_FLOOR);
+        assert.equal(searchingRing.in_use, false);
+        assert.equal(pileAt(state, ux, uy).includes(searchingRing), true);
+
+        clearTtyMessageWindow(state);
+        assert.equal(
+            await _dropInternals.drop(ordinaryObject, state), ECMD_TIME,
+        );
+        assert.equal(ordinaryObject.where, OBJ_FLOOR);
+        assert.equal(pileAt(state, ux, uy).includes(ordinaryObject), true);
+    } finally {
+        state.objects[RIN_SEARCHING].oc_name_known = ringKnown;
+        state.nhDisplay.onEmptyQueue = previousEmptyQueue;
     }
-    // Anything else on the same square falls past the sink arm and is
-    // refused by the square admission instead.
-    await assert.rejects(
-        () => _dropInternals.drop(plain, state),
-        /non-ordinary terrain/u,
-    );
 
     // do.c:758. A seen pit the hero is standing beside rather than in makes
     // trap.c uteetering_at_seen_pit() true, which is the only thing
