@@ -29,6 +29,7 @@ import {
 import { game } from '../js/gstate.js';
 import { delobj, useupf } from '../js/invent.js';
 import { runSegment } from '../js/jsmain.js';
+import { act_on_act, MCMD, rhack } from '../js/cmd.js';
 import { maybe_unhide_at } from '../js/mon.js';
 import { eggs_in_water, lays_eggs } from '../js/mondata.js';
 import { newMonster } from '../js/monst.js';
@@ -44,6 +45,7 @@ import {
     PM_ACID_BLOB,
     PM_FOX,
     PM_GREMLIN,
+    PM_QUEEN_BEE,
     PM_LICHEN,
     PM_TRAPPER,
     S_DRAGON,
@@ -54,6 +56,7 @@ import { objectGenerationEnv } from '../js/object_generation.js';
 import {
     CORPSE,
     CREAM_PIE,
+    EGG,
     FOOD_RATION,
     GOLD_PIECE,
     LARGE_BOX,
@@ -61,13 +64,14 @@ import {
     SLIME_MOLD,
     TOWEL,
 } from '../js/objects.js';
-import { UnsupportedSitError, dosit } from '../js/sit.js';
+import { dosit } from '../js/sit.js';
 import { canSpotMonster } from '../js/startup_a11y.js';
 import {
     SIT,
     WAIT,
     loadSitCommandDebugRecipes,
     loadSitCommandRecipe,
+    loadSitEggLayingRecipes,
 } from './run-sit-command.mjs';
 
 // gt.toplines, which pline.c writes whether or not the row was repainted. A
@@ -172,11 +176,15 @@ test('the matrix holds replay inputs only', () => {
     const recipes = [
         loadSitCommandRecipe(),
         ...loadSitCommandDebugRecipes(),
+        ...loadSitEggLayingRecipes().map(({ recipe }) => recipe),
     ];
     for (const recipe of recipes) {
         for (const segment of recipe.segments) {
             assert.ok(!('steps' in segment));
-            assert.match(segment.nethackrc, /OPTIONS=name:Sitter,/u);
+            assert.match(
+                segment.nethackrc,
+                /OPTIONS=name:(?:Sitter|EggProbe2?),/u,
+            );
             assert.ok(segment.moves.endsWith(WAIT)
                 || segment.moves.endsWith(`${SIT}:${WAIT}`));
         }
@@ -185,6 +193,12 @@ test('the matrix holds replay inputs only', () => {
     // a save behind, so each debug segment must travel alone.
     for (const recipe of loadSitCommandDebugRecipes())
         assert.equal(recipe.segments.length, 1);
+    const eggRecipes = loadSitEggLayingRecipes();
+    assert.equal(eggRecipes.length, 2);
+    assert.notEqual(
+        eggRecipes[0].recipe.segments[0].seed,
+        eggRecipes[1].recipe.segments[0].seed,
+    );
 });
 
 test('sitting on the stairs spends the turn', async () => {
@@ -212,52 +226,71 @@ test('the extended-command prompt dispatches #sit and spends its turn',
     assert.equal(game.moves, before + 1);
 });
 
-test('the terrain chain reaches its arms in source order', async () => {
-    // sit.c:505-563. Each entry is the square typ that selects one arm and the
-    // reason it stops, in the order the else-if chain tests them. Every arm
-    // must throw at its own condition, before it prints or changes anything.
-    const refused = [
-        [SINK, "dosit()'s sink arm"],
-        [ALTAR, "dosit()'s altar arm"],
-        [GRAVE, "dosit()'s grave arm"],
-        [LADDER, "dosit()'s ladder arm"],
-        [LAVAPOOL, "dosit()'s lava arm"],
-        [ICE, "dosit()'s ice arm"],
-        [DRAWBRIDGE_DOWN, "dosit()'s drawbridge arm"],
-        [THRONE, "dosit()'s throne arm"],
+test('the throne command menu queues dosit through rhack', async () => {
+    // cmd.c act_on_act(MCMD_SIT) queues the dosit function pointer; rhack()
+    // must dispatch that function before it reads another command key.
+    await standOnStairs();
+    heroSquare().typ = THRONE;
+    // The setup replay may leave its last canned key pending; this isolated
+    // caller check starts with the same empty command queues a live menu owns.
+    game.command_queue = [[], []];
+    game.in_doagain = false;
+    const before = game.moves;
+
+    act_on_act(MCMD.SIT, 0, 0, game);
+    assert.equal(game.command_queue[0].at(-1).ec_entry.ef_funct, 'dosit');
+    await rhack(0, game);
+
+    assert.equal(toplines(), 'You sit on the opulent throne.');
+    assert.ok(game.unported.has('sit.c throne_sit_effect'));
+    assert.equal(game.context.move, 1);
+    assert.equal(game.moves, before);
+});
+
+test('the terrain chain runs each selected arm in source order', async () => {
+    // sit.c:527-560. The two void effect functions that remain unported are
+    // skipped at their source call sites after their entry messages.
+    const arms = [
+        [SINK, 'You sit on the sink.', 'Your rump gets wet.'],
+        [ALTAR, 'You sit on the altar.', null],
+        [GRAVE, 'You sit on the grave.', null],
+        [LADDER, 'You sit on the ladder.', null],
+        [LAVAPOOL, 'You sit on the lava.', null],
+        [ICE, 'You sit on the ice.', 'The ice feels cold.'],
+        [DRAWBRIDGE_DOWN, 'You sit on the drawbridge.', null],
+        [THRONE, 'You sit on the opulent throne.', null],
     ];
-    for (const [typ, reason] of refused) {
+    for (const [typ, first, second] of arms) {
         await standOnStairs();
         heroSquare().typ = typ;
-        await assert.rejects(
-            () => dosit(game),
-            (error) => error instanceof UnsupportedSitError
-                && error.message.endsWith(reason),
-            `typ ${typ}`,
-        );
-        assert.equal(toplines(), '', `typ ${typ} printed before stopping`);
+        if (typ === LAVAPOOL) {
+            // The source branch deals real damage; keep this focused branch
+            // test alive so its assertions do not need a post-death answer.
+            game.u.uhpmax = 1000;
+            game.u.uhp = 1000;
+        }
+        assert.equal(await dosit(game), ECMD_TIME, `typ ${typ}`);
+        assert.ok(toplines().includes(first), `typ ${typ}: ${toplines()}`);
+        if (second) assert.ok(toplines().includes(second), `typ ${typ}`);
+        if (typ === ALTAR)
+            assert.ok(game.unported.has('pray.c altar_wrath'));
+        if (typ === LAVAPOOL)
+            assert.ok(game.unported.has('timeout.c burn_away_slime'));
+        if (typ === THRONE)
+            assert.ok(game.unported.has('sit.c throne_sit_effect'));
     }
 });
 
-test('water stops the command at the guard rather than in_water', async () => {
-    // sit.c:430-431. `goto in_water` lands on :511-525, which calls
-    // split_mon(), dryup() and water_damage() over two rn2(10) draws. The
-    // guard is above every other arm, so refusing there is what keeps a
-    // water-walking hero from reaching the object arm below it.
+test('a water square follows the source goto into the shared in_water arm', async () => {
+    // sit.c:430-431 jumps directly to :511-525 before the object-pile arm.
     await standOnStairs();
     heroSquare().typ = MOAT;
-    await assert.rejects(
-        () => dosit(game),
-        (error) => error instanceof UnsupportedSitError
-            && error.message.endsWith("dosit()'s water-walking jump to in_water"),
-    );
-    assert.equal(toplines(), '');
+    assert.equal(await dosit(game), ECMD_TIME);
+    assert.ok(toplines().includes('You sit in the water.'));
 });
 
 test('the gremlin guard reads Upolyd, the species and the square', async () => {
-    // sit.c:432-434. js/u_init.js writes u.umonnum === u.umonster, so Upolyd()
-    // is false in every game this port plays and no recording can reach this
-    // arm; the three terms are pinned from source instead.
+    // sit.c:432-434. The fountain alone does not select the goto.
     await standOnStairs();
     heroSquare().typ = FOUNTAIN;
     // Upolyd is false while umonnum matches umonster, so the fountain alone
@@ -270,36 +303,35 @@ test('the gremlin guard reads Upolyd, the species and the square', async () => {
     await standOnStairs();
     heroSquare().typ = FOUNTAIN;
     game.u.umonnum = PM_GREMLIN;
-    await assert.rejects(
-        () => dosit(game),
-        (error) => error instanceof UnsupportedSitError
-            && error.message.endsWith("dosit()'s gremlin jump to in_water"),
-    );
+    game.youmonst.data = game.mons[PM_GREMLIN];
+    assert.equal(await dosit(game), ECMD_TIME);
+    assert.ok(toplines().includes('You sit in the water.'));
 });
 
-test('an underwater hero stops before the muddy bottom', async () => {
+test('an underwater hero sits on the muddy bottom', async () => {
     // sit.c:505-509, whose second term is mondata.h eggs_in_water().
     await standOnStairs();
     game.u.uinwater = 1;
-    await assert.rejects(
-        () => dosit(game),
-        (error) => error instanceof UnsupportedSitError
-            && error.message.endsWith("dosit()'s underwater arm"),
-    );
+    assert.equal(await dosit(game), ECMD_TIME);
+    assert.equal(toplines(), 'You sit down on the muddy bottom.');
     game.u.uinwater = 0;
 });
 
-test('an egg-laying hero stops before lay_an_egg()', async () => {
-    // sit.c:559-560. No role's species carries M1_OVIPAROUS, so this arm is
-    // reachable only after a polymorph the port cannot perform.
+test('an egg-laying hero returns lay_an_egg() through dosit()', async () => {
+    // sit.c:559-560 and 358-399. Use the real queen-bee record so egg type
+    // selection and hatch timers receive the source species index.
     await standOnStairs();
     heroSquare().typ = ROOM;
-    game.youmonst.data = species({ mflags1: M1_OVIPAROUS });
-    await assert.rejects(
-        () => dosit(game),
-        (error) => error instanceof UnsupportedSitError
-            && error.message.endsWith("dosit()'s egg-laying arm"),
-    );
+    game.u.umonnum = PM_QUEEN_BEE;
+    game.youmonst.data = game.mons[PM_QUEEN_BEE];
+    const before = game.u.uhunger;
+    assert.equal(await dosit(game), ECMD_TIME);
+    assert.ok(toplines().includes('You lay an egg.'));
+    const egg = game.level.objects[game.u.ux][game.u.uy];
+    assert.equal(egg.otyp, EGG);
+    assert.equal(egg.spe, 1);
+    assert.equal(egg.quan, 1);
+    assert.ok(game.u.uhunger < before);
 });
 
 test('lays_eggs and eggs_in_water read the flags mondata.h names', () => {
@@ -388,19 +420,16 @@ test('a holder that is not hugging the hero offers no lap', async () => {
     assert.equal(toplines(), 'It has no lap.');
 
     await standOnStairs();
-    // mhis() is you.h:324 over pronoun_gender(), neither of which is ported,
-    // so the humanoid half stops instead of printing.
+    // mhis() is the existing you.h:324 helper over mondata.c
+    // pronoun_gender(), so the humanoid half names the holder's lap.
     game.u.ustuck = holderBesideHero(
         species({
             pmnames: ['gnome', 'gnome', 'gnome'],
             mflags1: M1_HUMANOID,
         }),
     );
-    await assert.rejects(
-        () => dosit(game),
-        (error) => error instanceof UnsupportedSitError
-            && error.message.includes('mhis()'),
-    );
+    assert.equal(await dosit(game), ECMD_OK);
+    assert.ok(toplines().includes("won't offer his lap."));
     game.u.ustuck = null;
 });
 
@@ -634,11 +663,12 @@ test('the trap arm reads the trap, u.utrap and u.utraptype separately',
     await standOnFloor();
     game.u.utrap = 3;
     game.u.utraptype = TT_LAVA;
-    await assert.rejects(
-        () => dosit(game),
-        (error) => error instanceof UnsupportedSitError
-            && error.message.endsWith("dosit()'s trap arm"),
-    );
+    // Keep the source damage call nonlethal; this test is about the trapped
+    // lava arm and its message, not the later death confirmation path.
+    game.u.uhpmax = 1000;
+    game.u.uhp = 1000;
+    assert.equal(await dosit(game), ECMD_TIME);
+    assert.ok(toplines().includes('You sit in the lava!'));
     game.u.utrap = 0;
 });
 
@@ -646,25 +676,26 @@ test('a seen pit under the pile diverts the command into the trap arm',
     async () => {
     // sit.c:437-439. trap.c uteetering_at_seen_pit() is TRUE for a hero who
     // climbed out of a pit and stands on its edge, and it takes the command
-    // past the object arm into the trap arm, which this port refuses. This is
-    // the case just outside the goal's boundary; the deferred entry
-    // sit-teetering-at-a-seen-pit-has-no-differential holds its recipe.
+    // past the object arm into the trap arm, which records the unported
+    // dotrap() call after its source message. This remains a later dependency.
     await standOnStairs();
     putObject(FOOD_RATION);
     game.level.traps.push({
         tx: game.u.ux, ty: game.u.uy, ttyp: PIT, tseen: 1,
     });
     game.u.utrap = 0;
-    await assert.rejects(
-        () => dosit(game),
-        (error) => error instanceof UnsupportedSitError
-            && error.message.endsWith("dosit()'s trap arm"),
-    );
-    assert.equal(toplines(), '');
+    assert.equal(await dosit(game), ECMD_TIME);
+    assert.ok(toplines().includes('You sit down.'));
+    assert.ok(game.unported.has('trap.c dotrap'));
 
     // A hero still caught in the pit is not teetering, so the object arm runs
-    // even though the trap is there.
-    game._ttyToplines = '';
+    // even though the trap is there. Start a fresh segment to clear the tty
+    // message state before testing this second command.
+    await standOnStairs();
+    putObject(FOOD_RATION);
+    game.level.traps.push({
+        tx: game.u.ux, ty: game.u.uy, ttyp: PIT, tseen: 1,
+    });
     game.u.utrap = 3;
     game.u.utraptype = TT_PIT;
     assert.equal(await dosit(game), ECMD_TIME);

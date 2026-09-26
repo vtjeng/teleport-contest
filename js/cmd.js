@@ -314,7 +314,7 @@ import {
 import { dopay, UnsupportedShopError } from './shk.js';
 import { UnsupportedVaultGuardError } from './vault.js';
 import { dofire, dothrow, UnsupportedThrowError } from './dothrow.js';
-import { dosit, UnsupportedSitError } from './sit.js';
+import { dosit } from './sit.js';
 import {
     clear_kickedloc,
     dokick,
@@ -2992,10 +2992,6 @@ export function failClosedCommandRefusals() {
         // have stopped raising the class, because dropping it early costs the
         // turn-boundary conversion too.
         UnsupportedPrayerError,
-        // sit.c dosit() raises this from the eleven terrain and trap arms it
-        // leaves unported, each at its own condition and so before that arm
-        // has printed anything or changed the hero.
-        UnsupportedSitError,
         // dokick.c raises this from dokick()'s nine guards and five target
         // tests and from kick_nondoor()'s terrain chain, each at its own
         // condition and so before that arm has drawn, printed or written
@@ -5510,6 +5506,18 @@ export async function rhack(key, state = game) {
             const res = await failClosedCommand(
                 key, state, () => dotip(state),
             );
+            if (res & (ECMD_CANCEL | ECMD_FAIL)) resetCommandVars(state);
+            else if ((res & (ECMD_OK | ECMD_TIME)) === ECMD_OK)
+                resetCommandVars(state, state.multi < 0);
+            if (res & ECMD_TIME) commandTookTime(state);
+            return;
+        }
+        // C ref: cmd.c act_on_act() queues dosit's function pointer for
+        // MCMD_SIT, and rhack() dispatches that pointer before reading another
+        // key. The queued row's ef_txt is "sit", so dispatch by its source
+        // function instead of sending it through the unported generic arm.
+        if (queuedExtcmdEntry?.ef_funct === 'dosit') {
+            const res = await dosit(state);
             if (res & (ECMD_CANCEL | ECMD_FAIL)) resetCommandVars(state);
             else if ((res & (ECMD_OK | ECMD_TIME)) === ECMD_OK)
                 resetCommandVars(state, state.multi < 0);

@@ -1,14 +1,12 @@
 #!/usr/bin/env node
 
-// Run the checked-in matrix for the #sit command through fresh C recordings.
-// Every segment contains replay inputs only; runFreshMatrix() records new
-// reference output in an isolated temporary workspace.
+// Run the checked-in #sit recipes through fresh C recordings. Every segment
+// contains replay inputs only; runFreshMatrix() records reference output in
+// an isolated temporary workspace.
 //
-// The command is sit.c dosit(), which cmd.c doextcmd() reaches from the
-// extended-command prompt. Three of its arms are ported: the object pile at
-// sit.c:437-465, the staircase at :535-536, and the final else at :561-563.
-// The steed guard at :406-409 is here too, because it is the one guard a
-// recording can reach.
+// cmd.c doextcmd() reaches sit.c dosit(), which covers the full guard and
+// terrain chain here. The independent egg recipes also reach its return-valued
+// lay_an_egg() helper through the real command dispatcher.
 //
 // Seeds were chosen by generating D:1 with the port and reading the square the
 // case needs, not by copying any recorded session:
@@ -24,7 +22,17 @@
 //     the port does not yet activate traps.
 //   * 5700001 is the first Knight seed whose pony stands due east, so #ride
 //     needs no walk before it.
+//   * 8300002 and 8300010 come from a fresh seed scan for red-dragon
+//     polymorphs. They vary role and seed while both taking #sit into
+//     lay_an_egg() through the extended-command caller.
 
+import assert from 'node:assert/strict';
+import { readFileSync } from 'node:fs';
+
+import { game } from '../js/gstate.js';
+import { runSegment } from '../js/jsmain.js';
+import { PM_RED_DRAGON } from '../js/monsters.js';
+import { EGG } from '../js/objects.js';
 import { validateCleanRecipe } from './diff-fresh.mjs';
 import { runFreshMatrix, runMatrixCli } from './fresh-matrix.mjs';
 
@@ -134,8 +142,48 @@ export function loadSitCommandDebugRecipes() {
     }, `sit command debug recipe ${index + 1}`));
 }
 
+function eggLayingRecipe(filename, label) {
+    const recipe = JSON.parse(readFileSync(
+        new URL(`../recipes/sit.c/${filename}`, import.meta.url), 'utf8',
+    ));
+    return validateCleanRecipe(recipe, label);
+}
+
+export function loadSitEggLayingRecipes() {
+    return [
+        {
+            label: 'sit egg laying',
+            recipe: eggLayingRecipe(
+                'egg-laying-red-dragon-independent.session.json',
+                'sit egg-laying recipe',
+            ),
+        },
+        {
+            label: 'sit egg laying role variation',
+            recipe: eggLayingRecipe(
+                'egg-laying-red-dragon-role-variation.session.json',
+                'sit egg-laying role variation recipe',
+            ),
+        },
+    ];
+}
+
+async function verifyEggLayingSegment(segmentInput) {
+    await runSegment(segmentInput);
+    assert.equal(
+        game.youmonst.data.pmidx,
+        PM_RED_DRAGON,
+        'the independent recipe polymorphs the hero to a red dragon',
+    );
+    let egg = game.level.objects[game.u.ux][game.u.uy];
+    while (egg && egg.otyp !== EGG) egg = egg.nexthere;
+    assert.equal(egg?.otyp, EGG, 'dosit() drops the produced egg at the hero');
+    assert.equal(egg.corpsenm, PM_RED_DRAGON);
+    assert.equal(egg.spe, 1);
+}
+
 export async function runSitCommandMatrix() {
-    return runFreshMatrix({
+    const command = await runFreshMatrix({
         entries: [
             { label: 'sit command', recipe: loadSitCommandRecipe() },
             ...loadSitCommandDebugRecipes().map((recipe, index) => ({
@@ -145,6 +193,13 @@ export async function runSitCommandMatrix() {
         ],
         summaryLabel: 'SIT COMMAND',
         chunkLimit: 8,
+    });
+    if (!command.passed) return command;
+    return runFreshMatrix({
+        entries: loadSitEggLayingRecipes(),
+        summaryLabel: 'SIT EGG LAYING',
+        verifySegment: verifyEggLayingSegment,
+        chunkLimit: 1,
     });
 }
 
