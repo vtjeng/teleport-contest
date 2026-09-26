@@ -84629,6 +84629,49 @@
           "evaluationCommit": "582db754e6ffe41e254f7673dea995dd124e4946"
         }
       }
+    },
+    {
+      "id": "port-detect-use-crystal-ball-synthetic-v7-20260926",
+      "kind": "file-port",
+      "status": "queued",
+      "summary": "Port detect.c use_crystal_ball and its detector result paths",
+      "cFile": "detect.c",
+      "sessions": [
+        "synthetic/v7/crystal-query-reached"
+      ],
+      "selectionReason": "synthetic/v7/crystal-query-reached has 3 remaining screens at investigations/synthetic/v7/crystal-query-reached.json; detect.c:use_crystal_ball is the first eligible unreserved source owner after B17 reserves the higher-ranked v5 zap.c failure.",
+      "detail": "C apply.c:doapply calls detect.c:use_crystal_ball for a charged crystal ball. The v7 case enters its symbol prompt and trap-detection query; port the whole function, consumed detector results, object charge and gaze state, and the doapply caller without case-specific behavior.",
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": null,
+      "delivered": null,
+      "functions": [
+        {
+          "name": "use_crystal_ball",
+          "line": 1206,
+          "endLine": 1371,
+          "declared": false,
+          "complete": false
+        }
+      ],
+      "range": {
+        "from": 1206,
+        "to": 1371
+      },
+      "syntheticProvenance": {
+        "synthetic/v7/crystal-query-reached": {
+          "session": "synthetic/v7/crystal-query-reached",
+          "corpus": "synthetic",
+          "batch": "v7",
+          "caseId": "crystal-query-reached",
+          "manifestPath": "challenges/manifests/v7.json",
+          "manifestSha256": "03a861a9d1bc9d813c80681312ee7a0e0f893dbad0536de40a974bd5ec344094",
+          "recordingPath": "challenges/cases/v7/crystal-query-reached.session.json",
+          "recordingSha256": "71317422866c0e8eda5ca1c8c0681982f3843bef8e8a3f1ebd98d01890da5b5f",
+          "evaluationPath": "challenges/evaluations/20260926180549-v7.json",
+          "evaluationCommit": "27ef57edeff3c341b4c703e10bad99202c2bc7f2"
+        }
+      }
     }
   ]
 }
