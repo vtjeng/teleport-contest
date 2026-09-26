@@ -29296,7 +29296,15 @@
         "sha": "b26545e0945804ea3bc6e777968095e46ec8d2bc",
         "screens": 7062,
         "rng": 519923
-      }
+      },
+      "invalidatedFunctions": [
+        {
+          "name": "doread",
+          "reason": "Historical sourceReview explicitly left other scroll, spellbook, and readable branches fail-closed; the admitted v5 Ranger cursed teleport scroll reaches read.c doread at step 34 and C admits it. Revisit the whole doread function and its return-valued seffects call.",
+          "followupGoal": "port-read-doread-cursed-teleport-synthetic-v5-20260926",
+          "at": "ab521be51689dd72fa428500b05241756e0f22c4"
+        }
+      ]
     },
     {
       "id": "port-wizcmds-wiz-map",
@@ -78015,7 +78023,7 @@
           "line": 330,
           "endLine": 651,
           "declared": true,
-          "complete": true
+          "complete": false
         }
       ],
       "range": {

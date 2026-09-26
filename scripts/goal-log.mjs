@@ -91,6 +91,14 @@ export function validateGoals(store) {
                 );
             }
         }
+        for (const entry of goal.invalidatedFunctions ?? []) {
+            if (!nonempty(entry.name) || !nonempty(entry.reason)
+                || !nonempty(entry.followupGoal)
+                || !/^[a-f0-9]{40}$/u.test(entry.at ?? '')
+                || !goal.evidence?.functions?.some((evidence) => evidence.name === entry.name)) {
+                throw new Error(`goal ${goal.id} has an invalid source-evidence invalidation`);
+            }
+        }
         for (const span of goalSpans(goal)) {
             if (!nonempty(span.name)) {
                 throw new Error(`goal ${goal.id} has a span without a name`);
@@ -534,6 +542,12 @@ open-goal when integrating the task.`,
             + 'Writes .cache/task-context.json with all unverified units in the selected range.\n'
             + '--development-scan may name a saved fixed-workload scan under .cache/ or /tmp.',
     },
+    'invalidate-evidence': {
+        description: 'Retire stale source completion evidence without deleting its history.',
+        usage: '--goal <closed-id> --function <name> --by <queued-id> --reason <source trace>',
+        details: 'Use only when a new source trace proves a completed function was partial.\n'
+            + 'Preserves the old evidence and makes the function eligible for a new whole-function task.',
+    },
     'next-span': {
         description: 'Plan or resume a span of a historical C or Lua source port.',
         usage: '--goal <id> [--development-scan <path>]',
@@ -881,6 +895,35 @@ async function main(args) {
         mkdirSync(join(PROJECT_ROOT, '.cache'), { recursive: true });
         writeFileSync(TASK_CONTEXT_PATH, `${JSON.stringify(context, null, 2)}\n`);
         console.log(JSON.stringify(context, null, 2));
+        return;
+    }
+    if (mode === 'invalidate-evidence') {
+        required(options, ['goal', 'function', 'by', 'reason']);
+        const store = readGoals();
+        const goal = findGoal(store, options.goal);
+        const followup = findGoal(store, options.by);
+        if (goal.status !== 'closed' || !isSourcePort(goal)
+            || !goal.evidence?.functions?.some((entry) => entry.name === options.function)) {
+            throw new Error('invalidate-evidence requires a closed source goal with function evidence');
+        }
+        if (followup.status !== 'queued' || !isSourcePort(followup)
+            || sourceFile(followup) !== sourceFile(goal)
+            || !followup.functions.some((entry) => entry.name === options.function)) {
+            throw new Error('follow-up must be a queued source goal for the same function');
+        }
+        if (goal.invalidatedFunctions?.some((entry) => entry.name === options.function)) {
+            throw new Error(`evidence already invalidated for ${goal.id} ${options.function}`);
+        }
+        goal.invalidatedFunctions ??= [];
+        goal.invalidatedFunctions.push({
+            name: options.function,
+            reason: options.reason,
+            followupGoal: followup.id,
+            at: repositoryHead(),
+        });
+        refreshCompletion(followup, null, store.goals);
+        writeGoals(store);
+        console.log(`INVALIDATED ${goal.id} ${options.function}; follow-up ${followup.id}`);
         return;
     }
     if (mode === 'next-span') {

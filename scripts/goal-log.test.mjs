@@ -9,6 +9,7 @@ import test from 'node:test';
 
 import { COLUMNS } from './score-log.mjs';
 import { cFunctions, parseCFunctions } from './c-functions.mjs';
+import { completedFunctionNames } from './port-evidence.mjs';
 
 import {
     SPAN_LINE_CAP, checkpointClosingStanding, deliveredSince, formatGoal,
@@ -234,6 +235,41 @@ test('completion evidence is scoped by source and survives later span evidence',
     goal.evidence.entryPoints[0].synthetic = [{ batch: 'v1', caseId: 'scout',
         segment: 0, fromStep: 5, throughStep: 10, source: 'do.c doup' }];
     assert.doesNotThrow(() => assertPortComplete(goal));
+});
+
+test('invalidated historical evidence makes a partial source function eligible again', () => {
+    const old = {
+        id: 'old-read', kind: 'file-port', status: 'closed', cFile: 'read.c',
+        summary: 'Historical partial read command',
+        functions: [{ name: 'doread', line: 1, endLine: 10, declared: true, complete: true }],
+        evidence: {
+            functions: [{ name: 'doread', implementation: 'js/read.js', symbol: 'doread',
+                sourceReview: 'The previously exercised scroll branch.',
+                callers: [{ path: 'js/cmd.js', symbol: 'runReadCommand',
+                    source: 'cmd.c dispatches the read command' }],
+                pure: false, recordings: [], synthetic: [{ batch: 'v5',
+                    caseId: 'ranger-level-teleport-return', segment: 0,
+                    fromStep: 0, throughStep: 1, source: 'read.c doread' }] }],
+            entryPointReview: 'The previously exercised scroll command.', entryPoints: [],
+        },
+    };
+    const followup = {
+        id: 'new-read', kind: 'file-port', status: 'queued', cFile: 'read.c',
+        summary: 'Complete read command',
+        functions: [{ name: 'doread', line: 1, endLine: 10, declared: true, complete: false }],
+    };
+    assert.deepEqual([...completedFunctionNames(old)], ['doread']);
+    refreshCompletion(followup, new Set(['doread']), [old, followup]);
+    assert.equal(followup.functions[0].complete, true);
+
+    old.invalidatedFunctions = [{ name: 'doread',
+        reason: 'A new source trace reaches a previously refused branch.',
+        followupGoal: followup.id, at: 'a'.repeat(40) }];
+    assert.deepEqual([...completedFunctionNames(old)], []);
+    refreshCompletion(followup, new Set(['doread']), [old, followup]);
+    assert.equal(followup.functions[0].complete, false);
+    assert.deepEqual(taskContext(followup).functions, ['doread']);
+    assert.doesNotThrow(() => validateGoals({ goals: [old, followup] }));
 });
 
 test('Lua source programs remain visible without loader or completion evidence', () => {
