@@ -79130,14 +79130,18 @@
     {
       "id": "fix-zap-bhitm-hit-shadow-synthetic-v5-20260926",
       "kind": "divergence-fix",
-      "status": "queued",
+      "status": "open",
       "summary": "Repair zap.c bhitm wand-striking hit dispatch",
       "cFile": "zap.c",
       "sessions": [],
       "selectionReason": "After B11, synthetic/v5/samurai-pet-ration-eating remains higher ranked at 63 unmatched screens but A9 owns its readobjnam path. This 48-screen Healer case is the first completed, unreserved source-traced investigation in .cache/B11-work-queue.json; zap.c:bhitm is distinct from A9 zap.c:makewish despite sharing js/zap.js.",
       "detail": "The saved v5 case has 0/48 matched screens and a fresh-process TypeError: hit is not a function before any scored boundary. C zap.c:bhitm WAN_STRIKING/SPE_FORCE_BOLT successful-hit arm calls hit() before resist(); js/zap.js:bhitm shadows that hit() function with a coordinate binding for gb.bhitpos, then calls the binding. Verify source order, rename/repair the general coordinate binding, and replay past this branch; subsequent resistance or kill behavior may require separate source work. See investigations/synthetic/v5/healer-wand-striking-grid-bug.json.",
-      "openedAt": null,
-      "openStanding": null,
+      "openedAt": "ccf417310a430275513a9b1c508a2508774b6b77",
+      "openStanding": {
+        "sha": "ccf417310a430275513a9b1c508a2508774b6b77",
+        "screens": 11405,
+        "rng": 792838
+      },
       "closedAt": null,
       "delivered": null,
       "function": "bhitm",
@@ -79152,10 +79156,162 @@
           "manifestSha256": "5e4430fbd724fe91720f898c02e6f25f9d98e884fa31bd696ca1a63e87abf150",
           "recordingPath": "challenges/cases/v5/healer-wand-striking-grid-bug.session.json",
           "recordingSha256": "97d372dd3a84252d6970271b4d335959cbf6d24c41318fa0b578c7a79446ec32",
-          "evaluationPath": "challenges/evaluations/20260926083803-v5.json",
-          "evaluationCommit": "e0337a3a4ccf6c565622b7fb6eaad1207ecf278c"
+          "evaluationPath": "challenges/evaluations/20260926092216-v5.json",
+          "evaluationCommit": "dcc9c2c2b5761efb0d5649a38edad28a03115464"
         }
-      }
+      },
+      "activeStanding": {
+        "sha": "ccf417310a430275513a9b1c508a2508774b6b77",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v5",
+          "caseId": "healer-wand-striking-grid-bug",
+          "session": "synthetic/v5/healer-wand-striking-grid-bug",
+          "manifestPath": "challenges/manifests/v5.json",
+          "manifestSha256": "5e4430fbd724fe91720f898c02e6f25f9d98e884fa31bd696ca1a63e87abf150",
+          "recording": "challenges/cases/v5/healer-wand-striking-grid-bug.session.json",
+          "recordingPath": "challenges/cases/v5/healer-wand-striking-grid-bug.session.json",
+          "recordingSha256": "97d372dd3a84252d6970271b4d335959cbf6d24c41318fa0b578c7a79446ec32",
+          "recipe": "challenges/cases/v5/healer-wand-striking-grid-bug.recipe.session.json",
+          "recipeSha256": "3a7de6608aa0b6a7b0b18d69aad15580d049445bd3ddc59b353966006f65a39d",
+          "replayInputSha256": "cb4fef7c2d997fb6f5d755c5267e33345831ab7817ae8567e5c47ac44ffcbb48",
+          "evaluationPath": "challenges/evaluations/20260926092216-v5.json",
+          "evaluationCommit": "dcc9c2c2b5761efb0d5649a38edad28a03115464",
+          "evaluationArtifact": "challenges/evaluations/20260926092216-v5.json",
+          "evaluationUtc": "2026-09-26T09:22:30.739Z",
+          "remainingScreens": 48,
+          "recordedSteps": 48,
+          "previousScreensMatched": 0,
+          "regression": false,
+          "passed": false,
+          "error": "hit is not a function",
+          "metrics": {
+            "screens": {
+              "matched": 0,
+              "total": 48
+            },
+            "rng": {
+              "matched": 0,
+              "total": 2743
+            },
+            "cursors": {
+              "matched": 0,
+              "total": 48
+            }
+          },
+          "firstMismatch": {
+            "kind": "stop",
+            "message": "Replay error: hit is not a function",
+            "step": null
+          },
+          "step": null,
+          "kind": "stop",
+          "sourceFile": null,
+          "function": null,
+          "message": "Replay error: hit is not a function",
+          "cFile": null,
+          "luaFile": null,
+          "line": null,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v5/healer-wand-striking-grid-bug.json",
+            "result": {
+              "session": "synthetic/v5/healer-wand-striking-grid-bug",
+              "corpus": "synthetic",
+              "batch": "v5",
+              "caseId": "healer-wand-striking-grid-bug",
+              "manifestPath": "challenges/manifests/v5.json",
+              "manifestSha256": "5e4430fbd724fe91720f898c02e6f25f9d98e884fa31bd696ca1a63e87abf150",
+              "recordingPath": "challenges/cases/v5/healer-wand-striking-grid-bug.session.json",
+              "recordingSha256": "97d372dd3a84252d6970271b4d335959cbf6d24c41318fa0b578c7a79446ec32",
+              "evaluationPath": "challenges/evaluations/20260926040211-v5.json",
+              "evaluationCommit": "d273b8936ba6746f4fa8287bf41668a9776c927c",
+              "remainingScreens": 48,
+              "recordedSteps": 48,
+              "status": "complete",
+              "commit": "d273b8936ba6746f4fa8287bf41668a9776c927c",
+              "mismatch": {
+                "corpus": "synthetic",
+                "batch": "v5",
+                "caseId": "healer-wand-striking-grid-bug",
+                "session": "synthetic/v5/healer-wand-striking-grid-bug",
+                "manifestPath": "challenges/manifests/v5.json",
+                "manifestSha256": "5e4430fbd724fe91720f898c02e6f25f9d98e884fa31bd696ca1a63e87abf150",
+                "recording": "challenges/cases/v5/healer-wand-striking-grid-bug.session.json",
+                "recordingPath": "challenges/cases/v5/healer-wand-striking-grid-bug.session.json",
+                "recordingSha256": "97d372dd3a84252d6970271b4d335959cbf6d24c41318fa0b578c7a79446ec32",
+                "recipe": "challenges/cases/v5/healer-wand-striking-grid-bug.recipe.session.json",
+                "recipeSha256": "3a7de6608aa0b6a7b0b18d69aad15580d049445bd3ddc59b353966006f65a39d",
+                "replayInputSha256": "eec4ab1b95e3c6672a8e7a236bec8ba27ab458268a14ec32ddbc24161c098f73",
+                "evaluationPath": "challenges/evaluations/20260926040211-v5.json",
+                "evaluationCommit": "d273b8936ba6746f4fa8287bf41668a9776c927c",
+                "evaluationArtifact": "challenges/evaluations/20260926040211-v5.json",
+                "evaluationUtc": "2026-09-26T04:02:22.672Z",
+                "remainingScreens": 48,
+                "recordedSteps": 48,
+                "previousScreensMatched": null,
+                "regression": false,
+                "passed": false,
+                "error": "hit is not a function",
+                "metrics": {
+                  "screens": {
+                    "matched": 0,
+                    "total": 48
+                  },
+                  "rng": {
+                    "matched": 0,
+                    "total": 2743
+                  },
+                  "cursors": {
+                    "matched": 0,
+                    "total": 48
+                  }
+                },
+                "firstMismatch": {
+                  "kind": "stop",
+                  "message": "Replay error: hit is not a function",
+                  "step": null
+                },
+                "step": null,
+                "kind": "stop",
+                "sourceFile": null,
+                "function": null,
+                "message": "Replay error: hit is not a function",
+                "cFile": null,
+                "luaFile": null,
+                "line": null
+              },
+              "summary": "The wand-of-striking hit path in zap.c:bhitm is wired, but js/zap.js:bhitm stores gb.bhitpos in a local named hit and then calls that coordinate as if it were zap.c:hit(). Rename the coordinate binding so the existing hit-message function runs; re-evaluate the later resist and kill path independently.",
+              "source": {
+                "file": "zap.c",
+                "branch": "bhitm WAN_STRIKING / SPE_FORCE_BOLT when magical resistance fails and the attack roll hits a monster",
+                "functions": [
+                  "bhitm",
+                  "hit"
+                ],
+                "callers": [
+                  "cmd.c z command -> zap.c dozap -> weffects -> bhit -> bhitm",
+                  "js/cmd.js runZapCommand -> js/zap.js dozap -> weffects -> bhit -> bhitm"
+                ],
+                "dependencies": [
+                  "zap.c resist() is the next called function after hit() and may expose further unported behavior once the collision is fixed"
+                ]
+              },
+              "goalKind": "divergence-fix",
+              "evidence": [
+                "The independently recorded v5/healer-wand-striking-grid-bug case reaches zap.c:bhitm through an immediate WAN_STRIKING ray and has 48 boundaries; the baseline evaluation at d273b893 reports 0/48 screens and Replay error: hit is not a function.",
+                "A direct JS run of this case throws TypeError at js/zap.js:2986 in bhitm; stack continues through bhit (3391), weffects (5308), and dozap (1197).",
+                "C zap.c:160-214 assigns gn.notonhead from gb.bhitpos and, in the successful WAN_STRIKING/SPE_FORCE_BOLT attack arm, calls hit(zap_type_text, mtmp, exclam(dmg)) before resist().",
+                "JS zap.js:2948 declares const hit = state.gb?.bhitpos (a coordinate), then zap.js:2986 awaits hit(...) in the same arm, shadowing the hit() function defined at zap.js:1680. The coordinate is also read for cansee and map_invisible later; rename that binding at all its uses without changing source order or random draws."
+              ]
+            }
+          }
+        }
+      ]
     }
   ]
 }
