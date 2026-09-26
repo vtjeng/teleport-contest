@@ -1,0 +1,11 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 83015306,
+      "datetime": "20310303123006",
+      "nethackrc": "OPTIONS=name:V8Kickdoor,role=Wizard,race=human,gender=female,align=neutral,playmode=debug,!legacy,!tutorial,!splash_screen,showexp,time,pettype:none\n",
+      "moves": "\u0004j"
+    }
+  ]
+}

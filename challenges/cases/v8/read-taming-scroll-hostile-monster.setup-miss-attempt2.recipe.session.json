@@ -1,0 +1,11 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 83015302,
+      "datetime": "20310303123002",
+      "nethackrc": "OPTIONS=name:V8Tamingscroll,role=Wizard,race=human,gender=male,align=neutral,playmode=debug,!legacy,!tutorial,!splash_screen,showexp,time,pettype:none\n",
+      "moves": " \u0007hostile grid bug\n\u0017scroll of taming\n rn"
+    }
+  ]
+}

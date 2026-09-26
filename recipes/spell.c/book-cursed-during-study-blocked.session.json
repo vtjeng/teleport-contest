@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 920141,
+      "datetime": "20310903122500",
+      "nethackrc": "OPTIONS=name:CursedStudyProbe,role:Wizard,race:human,gender:male,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen,playmode:debug,pettype:none,!acoustics\n",
+      "moves": " #wizgenesis\nhostile master lich\n#wizwish\nspellbook of force bolt\nri. . . . . . . . . "
+    }
+  ],
+  "comment": "Bounded A12 source-entry attempt for mkobj.c:curse() -> spell.c:book_cursed(): create a hostile master lich and let it act while the hero studies a newly wished spellbook. The one strict replay diverges at boundary 69 while selecting the wished book in read.c:doread() (runner reports segment 1, step 69, key i; C cursor [46,0,1], JS [42,4,1], and cell row 1 column 39 differs). The read occupation and monster action are not reached consistently, so keep this entry blocked and do not count the isolated test as runtime evidence."
+}

@@ -1,0 +1,11 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 83015403,
+      "datetime": "20310404115403",
+      "nethackrc": "OPTIONS=name:V8MailScroll,role=Wizard,race=human,gender=female,align=neutral,playmode=debug,!legacy,!tutorial,!splash_screen,showexp,time,pettype:none\n",
+      "moves": " \u0017scroll of mail\n ro "
+    }
+  ]
+}

@@ -150,8 +150,34 @@ function scopeEvidence(root, commit, task, packet) {
     const goal = { kind: lua ? 'lua-port' : 'file-port', cFile: context.cFile,
         luaFile: context.luaFile, functions: context.functions.map(name => ({ name })) };
     const evidence = validatePortEvidence(goal, packet, { root, commit });
-    check(isDeepStrictEqual([...context.functions].sort(), evidence.functions.map(f => f.name).sort()),
-        'evidence must cover exactly the planned source functions');
+    const verified = new Set(evidence.functions.map(entry => entry.name));
+    const incomplete = packet.incompleteFunctions ?? [];
+    check(Array.isArray(incomplete), 'incompleteFunctions must be an array');
+    const blocked = new Set();
+    for (const entry of incomplete) {
+        check(typeof entry?.name === 'string' && context.functions.includes(entry.name)
+            && !verified.has(entry.name) && !blocked.has(entry.name),
+        'incomplete function must name one unverified planned source function');
+        check(typeof entry.reason === 'string' && entry.reason.trim(),
+            `${entry.name} needs a source-based blocker reason`);
+        const recipe = entry.blockedRecipe;
+        const recipePrefix = `recipes/${file}/`;
+        check(typeof recipe === 'string' && recipe.startsWith(recipePrefix)
+            && /^[A-Za-z0-9][A-Za-z0-9._-]*\.session\.json$/u.test(recipe.slice(recipePrefix.length))
+            && git(root, 'ls-tree', commit, '--', recipe).startsWith('100644 blob '),
+        `${entry.name} needs a committed blocked recipe under recipes/${file}/`);
+        blocked.add(entry.name);
+    }
+    check(isDeepStrictEqual(context.functions.filter(name => !verified.has(name)).sort(),
+        [...blocked].sort()), 'every unverified planned source function needs a blocker record');
+    const evidencedEntry = packet.entryPoints.some(entry =>
+        entry.functions?.some(name => blocked.has(name))
+        && ((entry.recordings?.length ?? 0) > 0
+            || (entry.synthetic?.length ?? 0) > 0));
+    const freshReplay = packet.checks.some(item =>
+        item.kind === 'fresh' && item.exitCode === 0);
+    check(evidence.functions.length > 0 || (evidencedEntry && freshReplay),
+        'delivery needs a verified source function or a replay-verified partial entry point');
     return evidence;
 }
 

@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 920109,
+      "datetime": "20310817122500",
+      "nethackrc": "OPTIONS=name:DeadbookUncursed,role:Knight,race:human,gender:male,align:lawful\nOPTIONS=!legacy,!tutorial,!splash_screen\nOPTIONS=playmode:debug\n",
+      "moves": " \u0017Book of the Dead\nri "
+    }
+  ],
+  "comment": "Independent uncursed Book of the Dead read through normal startup command dispatch and spell.c:learn()/deadbook()."
+}

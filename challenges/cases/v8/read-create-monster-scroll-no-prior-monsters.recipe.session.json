@@ -1,0 +1,11 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 83015417,
+      "datetime": "20320505121717",
+      "nethackrc": "OPTIONS=name:V8CreateMon,role=Wizard,race=human,gender=female,align=neutral,playmode=debug,!legacy,!tutorial,!splash_screen,showexp,time,pettype:none\n",
+      "moves": " \u0017scroll of create monster\n ri"
+    }
+  ]
+}

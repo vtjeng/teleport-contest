@@ -28,8 +28,8 @@ function fixture(t) {
         git(path, 'config', 'commit.gpgsign', 'false');
     }
     mkdirSync(join(cRoot, 'src'));
-    // One source function and caller are enough to exercise evidence references.
-    writeFileSync(join(cRoot, 'src/sample.c'), 'int\nsample(void)\n{\n    return 1;\n}\n');
+    // A second source function lets partial deliveries keep an honest blocked unit.
+    writeFileSync(join(cRoot, 'src/sample.c'), 'int\nsample(void)\n{\n    return 1;\n}\nint\nother(void)\n{\n    return 2;\n}\n');
     git(cRoot, 'add', 'src/sample.c'); git(cRoot, 'commit', '-qm', 'source fixture');
     git(root, '-c', 'protocol.file.allow=always', 'submodule', 'add', '-q', cRoot, 'nethack-c/upstream');
     for (const dir of ['js', 'scripts', 'sessions']) mkdirSync(join(root, dir));
@@ -130,6 +130,80 @@ test('worker submits durably and starts another task before receipt; snapshots s
     const preflight = f.success(['preflight', '--task', 'A-1', '--commit', head]);
     assert.equal(preflight.passed, true); // Reads Git, not the worker's new dirty file.
     assert.deepEqual(preflight.focusedTests, [addedTest, 'scripts/importer-only.test.mjs', 'scripts/sample.test.mjs']);
+});
+
+test('partial source delivery requires an explicit blocker and committed recipe', (t) => {
+    const f = fixture(t);
+    f.assign('A', 'A-1', ['source:sample.c:sample', 'source:sample.c:other']);
+    f.artifacts();
+    const worker = f.workers.A;
+    const contextPath = join(worker, '.cache/context.json');
+    const context = JSON.parse(readFileSync(contextPath, 'utf8'));
+    context.functions.push('other');
+    writeFileSync(contextPath, JSON.stringify(context));
+    f.commit();
+
+    const evidencePath = join(worker, '.cache/evidence.json');
+    const evidence = JSON.parse(readFileSync(evidencePath, 'utf8'));
+    const blockedRecipe = 'recipes/sample.c/other-blocked.session.json';
+    evidence.incompleteFunctions = [{ name: 'other', reason: 'The caller setup stops before other().',
+        blockedRecipe }];
+    writeFileSync(evidencePath, JSON.stringify(evidence));
+    assert.match(f.run(f.submitArgs, worker).stderr, /committed blocked recipe/u);
+
+    mkdirSync(join(worker, 'recipes/sample.c'), { recursive: true });
+    writeFileSync(join(worker, blockedRecipe), '{"segments":[]}\n');
+    f.git(worker, 'add', blockedRecipe);
+    f.git(worker, 'commit', '-qm', 'preserve blocked source setup');
+    evidence.incompleteFunctions[0].reason = '';
+    writeFileSync(evidencePath, JSON.stringify(evidence));
+    assert.match(f.run(f.submitArgs, worker).stderr, /blocker reason/u);
+    evidence.incompleteFunctions[0].reason = 'The caller setup stops before other().';
+    writeFileSync(evidencePath, JSON.stringify(evidence));
+    const submitted = f.success(f.submitArgs, worker);
+    const head = f.git(worker, 'rev-parse', 'HEAD');
+    const packet = JSON.parse(readFileSync(submitted.deliveries[head].evidence, 'utf8'));
+    assert.deepEqual(packet.functions.map(entry => entry.name), ['sample']);
+    assert.deepEqual(packet.incompleteFunctions, evidence.incompleteFunctions);
+});
+
+test('a partial single-function delivery needs an evidenced entry and fresh replay', (t) => {
+    const f = fixture(t);
+    f.assign();
+    f.artifacts();
+    f.commit();
+    const worker = f.workers.A;
+    const blockedRecipe = 'recipes/sample.c/sample-blocked.session.json';
+    mkdirSync(join(worker, 'recipes/sample.c'), { recursive: true });
+    writeFileSync(join(worker, blockedRecipe), '{"segments":[]}\n');
+    f.git(worker, 'add', blockedRecipe);
+    f.git(worker, 'commit', '-qm', 'preserve blocked source setup');
+
+    const evidencePath = join(worker, '.cache/evidence.json');
+    const evidence = JSON.parse(readFileSync(evidencePath, 'utf8'));
+    evidence.functions = [];
+    evidence.incompleteFunctions = [{ name: 'sample',
+        reason: 'Other source branches are still incomplete.', blockedRecipe }];
+    evidence.entryPoints = [{ name: 'sample caller', functions: ['sample'],
+        recordings: [], synthetic: [] }];
+    writeFileSync(evidencePath, JSON.stringify(evidence));
+    assert.match(f.run(f.submitArgs, worker).stderr, /replay-verified partial entry point/u);
+
+    evidence.entryPoints[0].synthetic = [{ batch: 'v1', caseId: 'sample-caller',
+        segment: 0, fromStep: 0, throughStep: 1, source: 'sample.c caller' }];
+    writeFileSync(evidencePath, JSON.stringify(evidence));
+    assert.match(f.run(f.submitArgs, worker).stderr, /replay-verified partial entry point/u);
+
+    const checksPath = join(worker, '.cache/checks.json');
+    const checks = JSON.parse(readFileSync(checksPath, 'utf8'));
+    checks.push({ kind: 'fresh', command: ['fixture-check', 'fresh'],
+        exitCode: 0, log: join(worker, '.cache/check.log') });
+    writeFileSync(checksPath, JSON.stringify(checks));
+    const submitted = f.success(f.submitArgs, worker);
+    const head = f.git(worker, 'rev-parse', 'HEAD');
+    const packet = JSON.parse(readFileSync(submitted.deliveries[head].evidence, 'utf8'));
+    assert.deepEqual(packet.functions, []);
+    assert.equal(packet.incompleteFunctions[0].name, 'sample');
 });
 
 test('challenge preparation submits C cases while keeping its manifest in delivery evidence', t => {

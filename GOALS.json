@@ -74361,7 +74361,7 @@
     {
       "id": "port-zap-weffects-force-bolt-synthetic-v2-20260926",
       "kind": "file-port",
-      "status": "open",
+      "status": "parked",
       "summary": "Port complete zap.c weffects and source-ordered Force Bolt ray behavior",
       "cFile": "zap.c",
       "sessions": [
@@ -74604,11 +74604,11 @@
         "rng": 0
       },
       "parkedStanding": {
-        "sha": "210cd14f1e59abac0764199293de428ee71828fd",
+        "sha": "fa3aebd3eee0de7cb859e5efeaa4e7dda2b0e735",
         "screens": 11405,
         "rng": 792838
       },
-      "parkedReason": "Selected wizard Force Bolt and independent wand-of-striking clear rays now match C. Complete weffects source verification remains blocked by active do_break_wand caller, bhit doorlock consumed return, bhitm monster hit and resist death path, bhito object break and statue return chains, bhitpile statue trap result, and vertical, steed, NODIR, and directional spell paths. Resume when those source families and matching entry recordings are available; do not count this prefix as whole-function completion."
+      "parkedReason": "The 41-screen v7 blessed-book-undead source goal A12 is ready for integration and has higher priority than this seven-screen v5 Healer wand continuation. B17 is independently implementing the Force Bolt breakage return chain; its bhito revive branch consumes makemon, whose source owner is A12. Park this goal during A12 integration, then resume for B17 delivery after A12 is accepted; keep the original v2 and current v5 entry paths and do not close from the corpse prefix."
     },
     {
       "id": "port-engrave-u-can-engrave-synthetic-v3-20260926",
@@ -83837,6 +83837,582 @@
       "closeMismatches": [],
       "closeStanding": {
         "sha": "fa3aebd3eee0de7cb859e5efeaa4e7dda2b0e735",
+        "screens": 11405,
+        "rng": 792838
+      }
+    },
+    {
+      "id": "port-spell-deadbook-synthetic-v7-20260926",
+      "kind": "file-port",
+      "status": "parked",
+      "summary": "Port Book of the Dead reading, undead pacification, and spell learning",
+      "cFile": "spell.c",
+      "sessions": [
+        "synthetic/v7/blessed-book-undead"
+      ],
+      "selectionReason": "A12 is the highest-ranked ready source task: synthetic/v7/blessed-book-undead has 41 unmatched screens and complete spell.c investigation. B17 continues the parked lower-ranked wand return chain independently. The selected C-order range includes book_cursed between deadbook and learn; integration will require its corrected delivery and will park invocation evidence until the teleport/getpos setup blocker is resolved.",
+      "detail": "Port the selected spell.c functions in C definition order and production read.c:doread→study_book→occupation learn caller path. C deadbook consumes makemon return in cursed raise-dead path; A12 wires fixed-coordinate explicit species creation and async cached-next iter_mons traversal. Blessed, uncursed and cursed book recordings are independently C-recorded. The invocation-square Book of the Dead branch lacks matching entry evidence because independent controlled teleport setup first diverges in teleport.c:scrolltele/getpos.c:getpos before deadbook; retain blocked recipe and park if needed rather than claim that entry complete. C-discarded unturn_dead and void mkundead/mkinvokearea remain named gaps.",
+      "openedAt": "3af959859af6491fcc9edd27641f9bd102e28f2d",
+      "openStanding": {
+        "sha": "fa3aebd3eee0de7cb859e5efeaa4e7dda2b0e735",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "closedAt": null,
+      "delivered": null,
+      "functions": [
+        {
+          "name": "deadbook_pacify_undead",
+          "line": 211,
+          "endLine": 230,
+          "declared": true,
+          "complete": true
+        },
+        {
+          "name": "deadbook",
+          "line": 231,
+          "endLine": 342,
+          "declared": true,
+          "complete": false
+        },
+        {
+          "name": "book_cursed",
+          "line": 343,
+          "endLine": 355,
+          "declared": true,
+          "complete": false
+        },
+        {
+          "name": "learn",
+          "line": 356,
+          "endLine": 467,
+          "declared": true,
+          "complete": true
+        }
+      ],
+      "range": {
+        "from": 211,
+        "to": 467
+      },
+      "syntheticProvenance": {
+        "synthetic/v7/blessed-book-undead": {
+          "session": "synthetic/v7/blessed-book-undead",
+          "corpus": "synthetic",
+          "batch": "v7",
+          "caseId": "blessed-book-undead",
+          "manifestPath": "challenges/manifests/v7.json",
+          "manifestSha256": "03a861a9d1bc9d813c80681312ee7a0e0f893dbad0536de40a974bd5ec344094",
+          "recordingPath": "challenges/cases/v7/blessed-book-undead.session.json",
+          "recordingSha256": "4a76c8a0c760a975400edb36b600bfa3566e81ca116805fa3c82156baf3bb90e",
+          "evaluationPath": "challenges/evaluations/20260926144607-v7.json",
+          "evaluationCommit": "fa3aebd3eee0de7cb859e5efeaa4e7dda2b0e735"
+        }
+      },
+      "activeStanding": {
+        "sha": "fa3aebd3eee0de7cb859e5efeaa4e7dda2b0e735",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v7",
+          "caseId": "blessed-book-undead",
+          "session": "synthetic/v7/blessed-book-undead",
+          "manifestPath": "challenges/manifests/v7.json",
+          "manifestSha256": "03a861a9d1bc9d813c80681312ee7a0e0f893dbad0536de40a974bd5ec344094",
+          "recording": "challenges/cases/v7/blessed-book-undead.session.json",
+          "recordingPath": "challenges/cases/v7/blessed-book-undead.session.json",
+          "recordingSha256": "4a76c8a0c760a975400edb36b600bfa3566e81ca116805fa3c82156baf3bb90e",
+          "recipe": "challenges/cases/v7/blessed-book-undead.recipe.session.json",
+          "recipeSha256": "66552fd172517ab2995249eac6750f1c1fa1d75a59e47cd2ea7f388bbd2ab2d7",
+          "replayInputSha256": "5961f282b40a76f9cc932e4dc8c6f5bb2b6ca22af14d835062a5ccafdf2c55ad",
+          "evaluationPath": "challenges/evaluations/20260926144607-v7.json",
+          "evaluationCommit": "fa3aebd3eee0de7cb859e5efeaa4e7dda2b0e735",
+          "evaluationArtifact": "challenges/evaluations/20260926144607-v7.json",
+          "evaluationUtc": "2026-09-26T14:46:34.313Z",
+          "remainingScreens": 41,
+          "recordedSteps": 86,
+          "previousScreensMatched": 45,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 45,
+              "total": 86
+            },
+            "rng": {
+              "matched": 3019,
+              "total": 3572
+            },
+            "cursors": {
+              "matched": 81,
+              "total": 86
+            }
+          },
+          "firstMismatch": {
+            "screen": {
+              "index": 45,
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 45,
+                "key": "n"
+              },
+              "kind": "ch",
+              "row": 0,
+              "column": 30,
+              "cCell": {
+                "ch": "-",
+                "color": 8,
+                "attr": 0,
+                "decgfx": 0
+              },
+              "jsCell": {
+                "ch": " ",
+                "color": 8,
+                "attr": 0,
+                "decgfx": 0
+              }
+            },
+            "rng": {
+              "index": 3010,
+              "cEntry": "rn2(19)=17",
+              "cCaller": "exercise(attrib.c:509)",
+              "jsEntry": "rn2(5)=0",
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 46,
+                "key": " "
+              },
+              "stepIndex": 46
+            },
+            "cursor": {
+              "index": 45,
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 45,
+                "key": "n"
+              },
+              "cCursor": [
+                38,
+                0,
+                1
+              ],
+              "jsCursor": [
+                5,
+                13,
+                1
+              ]
+            }
+          },
+          "step": 45,
+          "kind": "screen",
+          "sourceFile": null,
+          "function": null,
+          "message": null,
+          "cFile": null,
+          "luaFile": null,
+          "line": null,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v7/blessed-book-undead.json",
+            "result": {
+              "session": "synthetic/v7/blessed-book-undead",
+              "corpus": "synthetic",
+              "batch": "v7",
+              "caseId": "blessed-book-undead",
+              "manifestPath": "challenges/manifests/v7.json",
+              "manifestSha256": "03a861a9d1bc9d813c80681312ee7a0e0f893dbad0536de40a974bd5ec344094",
+              "recordingSha256": "4a76c8a0c760a975400edb36b600bfa3566e81ca116805fa3c82156baf3bb90e",
+              "evaluationPath": "challenges/evaluations/20260926122253-v7.json",
+              "evaluationCommit": "f7e48bd93d6827c557c9a40a255a55cbc5fc8fcf",
+              "remainingScreens": 41,
+              "recordedSteps": 86,
+              "status": "complete",
+              "commit": "3543403d092a80dbeacd479a4fb0cb5c2d537413",
+              "mismatch": {
+                "corpus": "synthetic",
+                "batch": "v7",
+                "caseId": "blessed-book-undead",
+                "session": "synthetic/v7/blessed-book-undead",
+                "manifestPath": "challenges/manifests/v7.json",
+                "manifestSha256": "03a861a9d1bc9d813c80681312ee7a0e0f893dbad0536de40a974bd5ec344094",
+                "recording": "challenges/cases/v7/blessed-book-undead.session.json",
+                "recordingPath": "challenges/cases/v7/blessed-book-undead.session.json",
+                "recordingSha256": "4a76c8a0c760a975400edb36b600bfa3566e81ca116805fa3c82156baf3bb90e",
+                "recipe": "challenges/cases/v7/blessed-book-undead.recipe.session.json",
+                "recipeSha256": "66552fd172517ab2995249eac6750f1c1fa1d75a59e47cd2ea7f388bbd2ab2d7",
+                "replayInputSha256": "ba09b30aa45883696a6c2cbbe647b7a100c06ae9b741e0bcdf70fec164041447",
+                "evaluationPath": "challenges/evaluations/20260926122253-v7.json",
+                "evaluationCommit": "f7e48bd93d6827c557c9a40a255a55cbc5fc8fcf",
+                "evaluationArtifact": "challenges/evaluations/20260926122253-v7.json",
+                "evaluationUtc": "2026-09-26T12:23:06.868Z",
+                "remainingScreens": 41,
+                "recordedSteps": 86,
+                "previousScreensMatched": null,
+                "regression": false,
+                "passed": false,
+                "error": null,
+                "metrics": {
+                  "screens": {
+                    "matched": 45,
+                    "total": 86
+                  },
+                  "rng": {
+                    "matched": 3019,
+                    "total": 3572
+                  },
+                  "cursors": {
+                    "matched": 81,
+                    "total": 86
+                  }
+                },
+                "firstMismatch": {
+                  "screen": {
+                    "index": 45,
+                    "location": {
+                      "segmentIndex": 0,
+                      "stepIndex": 45,
+                      "key": "n"
+                    },
+                    "kind": "ch",
+                    "row": 0,
+                    "column": 30,
+                    "cCell": {
+                      "ch": "-",
+                      "color": 8,
+                      "attr": 0,
+                      "decgfx": 0
+                    },
+                    "jsCell": {
+                      "ch": " ",
+                      "color": 8,
+                      "attr": 0,
+                      "decgfx": 0
+                    }
+                  },
+                  "rng": {
+                    "index": 3010,
+                    "cEntry": "rn2(19)=17",
+                    "cCaller": "exercise(attrib.c:509)",
+                    "jsEntry": "rn2(5)=0",
+                    "location": {
+                      "segmentIndex": 0,
+                      "stepIndex": 46,
+                      "key": " "
+                    },
+                    "stepIndex": 46
+                  },
+                  "cursor": {
+                    "index": 45,
+                    "location": {
+                      "segmentIndex": 0,
+                      "stepIndex": 45,
+                      "key": "n"
+                    },
+                    "cCursor": [
+                      38,
+                      0,
+                      1
+                    ],
+                    "jsCursor": [
+                      5,
+                      13,
+                      1
+                    ]
+                  }
+                },
+                "step": 45,
+                "kind": "screen",
+                "sourceFile": null,
+                "function": null,
+                "message": null,
+                "cFile": null,
+                "luaFile": null,
+                "line": null
+              },
+              "summary": "The case reads a blessed Book of the Dead beside a visible hostile elf zombie. C spell.c:learn() calls deadbook(), whose blessed non-invocation branch runs deadbook_pacify_undead() for visible undead; the callback sets the zombie peaceful and makes it flee because its alignment differs from the neutral hero. JS study_book() installs learn(), but js/spell.js:learn() currently skips the effect at its explicit note_unported(\"spell.c deadbook\") branch. The first saved screen difference is the missing C --More-- marker after “You begin to recite the runes.” at step 45; at step 46 C advances the occupation into the Book of the Dead effect while JS follows a different input boundary. Port the whole learn() Book-of-the-Dead arm and the deadbook()/deadbook_pacify_undead() family, then preserve the message wait and monster state changes through the existing caller chain.",
+              "source": {
+                "file": "spell.c",
+                "branch": "After read.c:doread() selects SPE_BOOK_OF_THE_DEAD, spell.c:study_book() installs learn() as the occupation. Once the study delay reaches zero, learn() reaches its Book-of-the-Dead arm. In this recording the book is blessed, the hero is not on the invocation position, and a visible hostile elf zombie is adjacent; deadbook() takes the blessed branch and the callback makes the zombie peaceful, then sends it fleeing because its alignment sign differs from the neutral hero.",
+                "functions": [
+                  "deadbook_pacify_undead",
+                  "deadbook",
+                  "learn"
+                ],
+                "callers": [
+                  "nethack-c/upstream/src/cmd.c:1816-1817 maps r to read.c:doread(); js/cmd.js:5107 dispatches doread through runReadCommand() at 3379.",
+                  "nethack-c/upstream/src/read.c:609 calls spell.c:study_book(); js/read.js:803 calls js/spell.js:study_book().",
+                  "nethack-c/upstream/src/spell.c:639 installs learn() with set_occupation(); nethack-c/upstream/src/allmain.c:485-509 invokes go.occupation(). JS study_book() installs learn(), and js/allmain.js:1595-1624 invokes the saved occupation.",
+                  "nethack-c/upstream/src/spell.c:385-386 calls deadbook(book) from learn() when booktype is SPE_BOOK_OF_THE_DEAD; js/spell.js:353-355 is the matching branch and currently records note_unported(\"spell.c deadbook\") before returning."
+                ],
+                "dependencies": [
+                  "deadbook() iterates monsters through iter_mons(deadbook_pacify_undead); the blessed arm needs the source behavior of is_undead(), is_vampshifter(), cansee(), sgn(), mdistu(), tamedog(), and monflee(). Preserve the mpeaceful and mtame updates together with the visible-monster and distance/alignment conditions.",
+                  "Port all deadbook() arms, not only the recorded blessed branch: invocation checks and object state use invocation_pos(), On_stairs(), inventory iteration, object known/blessed/cursed state, u.uhave, moves/age, mkinvokearea(), d(), and record_achievement(); the cursed arm calls makemon(), set_malign(), unturn_dead(), and mkundead(). Audit existing JS implementations and record/skip any remaining unported callees under the source rules."
+                ]
+              },
+              "goalKind": "file-port",
+              "evidence": [
+                "challenges/evaluations/20260926122253-v7.json, evaluated at commit f7e48bd93d6827c557c9a40a255a55cbc5fc8fcf, reports 45/86 matching screens and 41 remaining. Its first mismatch is segment 0 step 45 on key n: C has a dash at row 0, column 30 and cursor [38,0,1], while JS has a space and cursor [5,13,1]. The C recording screen at challenges/cases/v7/blessed-book-undead.session.json step 45 reads “You begin to recite the runes.--More--”. At step 46, after space, C displays “You turn the pages of the Book of the Dead...” and records exercise(attrib.c:509); the evaluation records the first RNG difference at that step (C rn2(19)=17 versus JS rn2(5)=0).",
+                "The C recording’s step 43 debug command creates a hostile zombie, yielding an elf zombie next to the hero. Step 44 starts read and shows “[ijkln or ?*]”; step 45 selects n. The C step 48 screen says “The elf zombie turns to flee.” after the blessed Book of the Dead effect.",
+                "Upstream spell.c:211-227 defines deadbook_pacify_undead(): visible undead or vampire shifters become peaceful; aligned nearby monsters are tamed or have their tame value raised, and other eligible monsters flee. spell.c:231-331 defines deadbook(); its non-invocation cursed, blessed, and uncursed arms are source behavior, with the blessed arm calling iter_mons(deadbook_pacify_undead) at line 325. spell.c:356-386 calls deadbook() after exercise(A_WIS) when the occupied book is SPE_BOOK_OF_THE_DEAD.",
+                "The complete execution path is cmd.c:1816-1817 -> read.c:doread() -> read.c:609 study_book() -> spell.c:639 set_occupation(learn) -> allmain.c:485-509 occupation callback -> spell.c:385-386 deadbook(). JS has the corresponding cmd.js -> read.js:doread() -> spell.js:study_book() -> allmain.js occupation path; js/spell.js:353-355 still skips deadbook() through note_unported(). The callback is reached from production wiring, so tests of deadbook() alone cannot establish this path."
+              ]
+            }
+          }
+        }
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "deadbook_pacify_undead",
+            "implementation": "js/spell.js",
+            "symbol": "deadbook_pacify_undead",
+            "sourceReview": "Reviewed spell.c:211-226 in full. Preserved the undead/vampire-shifter and visibility gates, peaceful state change, alignment and distance test, tame threshold, discarded tamedog() result, and monflee() branch. The C callback is void and mutates monster state; JS awaits the effectful helper operations. The source callback runs through deadbook() in iter_mons() order; js/mon.js iter_mons_async() mirrors cached-next order and is covered by scripts/mon.test.mjs.",
+            "callers": [
+              {
+                "path": "js/spell.js",
+                "symbol": "deadbook",
+                "source": "spell.c:324-325 iter_mons(deadbook_pacify_undead)"
+              }
+            ],
+            "pure": false,
+            "tests": [],
+            "recordings": [
+              "recordings/spell.c/book-dead-blessed-undead-independent.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v7",
+                "caseId": "blessed-book-undead",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 85,
+                "source": "cmd.c 'r' dispatch -> read.c:doread() -> spell.c:study_book()/learn() -> deadbook() -> iter_mons(deadbook_pacify_undead)"
+              }
+            ],
+            "checkedAt": "01f035d6eb4b7d39db01c8dbf18738ea9298e75b"
+          },
+          {
+            "name": "learn",
+            "implementation": "js/spell.js",
+            "symbol": "learn",
+            "sourceReview": "Reviewed spell.c:355-463 in full. Preserved lens RNG and delay, confusion interruption and state reset, continued-study early return, wisdom exercise, Book of the Dead dispatch, spell slot search, repeated/faded/blank outcomes, knowledge and study counters, discovery and inventory refresh, cursed-book consumption, unpaid check, and clearing the stored book identity. The Book of the Dead path delegates to deadbook(); other existing source-mapped spell-learning helpers remain wired in order. The production route is read.c:doread() -> study_book() -> set_occupation(learn) -> allmain occupation callback. A defensive JS missing-book precondition is unreachable through the C caller, which registers learn only with a live spellbook. C discards impossible() at the MAXSPELL boundary; the existing note_unported(\"pline.c impossible\") remains at that source call site and is not used as data.",
+            "callers": [
+              {
+                "path": "js/spell.js",
+                "symbol": "study_book",
+                "source": "read.c:doread() -> spell.c:study_book() -> spell.c:learn() occupation registration at 639 and callback dispatch"
+              }
+            ],
+            "pure": false,
+            "tests": [],
+            "recordings": [
+              "recordings/spell.c/learn-study.session.json",
+              "recordings/spell.c/book-dead-blessed-independent.session.json",
+              "recordings/spell.c/book-dead-blessed-undead-independent.session.json",
+              "recordings/spell.c/book-dead-uncursed-independent.session.json",
+              "recordings/spell.c/book-dead-cursed-independent.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v7",
+                "caseId": "blessed-book-undead",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 85,
+                "source": "cmd.c 'r' dispatch -> read.c:doread() -> spell.c:study_book()/learn() -> deadbook() -> iter_mons(deadbook_pacify_undead)"
+              }
+            ],
+            "checkedAt": "01f035d6eb4b7d39db01c8dbf18738ea9298e75b"
+          }
+        ],
+        "entryPointReview": "Active read.c:doread() entry paths exercised by recordings are ordinary spell study; blessed Book of the Dead without undead; blessed Book of the Dead with a visible ghoul; uncursed Book of the Dead; and cursed Book of the Dead. The assigned v7 blessed-book-undead replay matches through zero-based step 85 and exercises the blessed deadbook/undead callback path. invocation_pos() purity is source-pinned by scripts/hack.test.mjs; async cached-next traversal is pinned by scripts/mon.test.mjs. Cursed raise-dead calls unturn_dead() with its int result cast to void and calls void mkundead(); mkinvokearea() is void. Those remain explicit source-site note_unported() gaps and are not falsely counted as their own completed source units. The active invocation-position Book of the Dead branch is not covered: recipes/spell.c/book-dead-invocation-blocked.session.json independently reaches invocation-level setup, but its controlled wizard teleport first diverges in teleport.c:scrolltele()/getpos.c:getpos() at segment 0 input step 98 (runner display: segment 1, step 99), key period (C continues through 102 boundaries; JS has 98). The hero never reaches deadbook() at the vibration square, so invocation evidence arrays are empty and this source goal must remain open/parked until the named setup path is matched. The newly cursed spellbook during active study path is implemented through mkobj.c:curse() -> spell.c:book_cursed(), but remains blocked for runtime evidence: recipes/spell.c/book-cursed-during-study-blocked.session.json was replayed once and first diverges at boundary 69 while selecting the wished book in read.c:doread() (runner display: segment 1, step 69, key i; C cursor [46,0,1], JS [42,4,1], with a screen-cell mismatch). The study occupation and the lich action are not reached consistently, so book_cursed() has empty recording and synthetic evidence arrays. The invocation entry remains separately blocked at teleport.c:scrolltele()/getpos.c:getpos() as documented above.",
+        "entryPoints": [
+          {
+            "name": "ordinary spellbook study completion",
+            "functions": [
+              "learn"
+            ],
+            "recordings": [
+              "recordings/spell.c/learn-study.session.json"
+            ],
+            "synthetic": []
+          },
+          {
+            "name": "blessed Book of the Dead without nearby undead",
+            "functions": [
+              "learn",
+              "deadbook"
+            ],
+            "recordings": [
+              "recordings/spell.c/book-dead-blessed-independent.session.json"
+            ],
+            "synthetic": []
+          },
+          {
+            "name": "blessed Book of the Dead pacifies visible undead",
+            "functions": [
+              "learn",
+              "deadbook",
+              "deadbook_pacify_undead"
+            ],
+            "recordings": [
+              "recordings/spell.c/book-dead-blessed-undead-independent.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v7",
+                "caseId": "blessed-book-undead",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 85,
+                "source": "cmd.c 'r' dispatch -> read.c:doread() -> spell.c:study_book()/learn() -> deadbook() -> iter_mons(deadbook_pacify_undead)"
+              }
+            ]
+          },
+          {
+            "name": "uncursed Book of the Dead message result",
+            "functions": [
+              "learn",
+              "deadbook"
+            ],
+            "recordings": [
+              "recordings/spell.c/book-dead-uncursed-independent.session.json"
+            ],
+            "synthetic": []
+          },
+          {
+            "name": "cursed Book of the Dead raise-dead branch",
+            "functions": [
+              "learn",
+              "deadbook"
+            ],
+            "recordings": [
+              "recordings/spell.c/book-dead-cursed-independent.session.json"
+            ],
+            "synthetic": []
+          },
+          {
+            "name": "Book of the Dead at the invocation vibration square",
+            "functions": [
+              "learn",
+              "deadbook"
+            ],
+            "recordings": [],
+            "synthetic": []
+          },
+          {
+            "name": "newly cursed spellbook during its study occupation",
+            "functions": [
+              "book_cursed"
+            ],
+            "recordings": [],
+            "synthetic": []
+          }
+        ]
+      },
+      "progressBeforePark": {
+        "screens": 0,
+        "rng": 0
+      },
+      "parkedStanding": {
+        "sha": "01f035d6eb4b7d39db01c8dbf18738ea9298e75b",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "parkedReason": "Validated deadbook_pacify_undead and learn. Keep deadbook invocation-square entry incomplete until teleport.c:scrolltele/getpos.c:getpos setup matches; keep book_cursed live-study transition incomplete until read.c:doread book selection matches. Independent blocked recipes are committed under recipes/spell.c/."
+    },
+    {
+      "id": "port-apply-doapply-saddle-synthetic-v7-20260926",
+      "kind": "file-port",
+      "status": "queued",
+      "summary": "Port apply.c doapply with the SADDLE arm and steed.c use_saddle return path",
+      "cFile": "apply.c",
+      "sessions": [
+        "synthetic/v7/saddled-horse-mount-knight-corrected"
+      ],
+      "selectionReason": "Highest ranked unreserved complete synthetic investigation: v7 saddled horse has 10 unmatched screens at doapply SADDLE; v5 Healer wand case is reserved by B17.",
+      "detail": "Port the full apply.c doapply function in C order, including SADDLE selection and common ECMD return handling. Port return-valued steed.c use_saddle and its required can_saddle/put_saddle_on_mon family from source, relocate those helpers from js/dog.js into js/steed.js if safe, and wire the production apply command. Validate the v7 saddle and later ride sequence plus independent C recordings for impure branches. Preserve every existing match and record any unmet entry-point evidence explicitly.",
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": null,
+      "delivered": null,
+      "functions": [
+        {
+          "name": "doapply",
+          "line": 4214,
+          "endLine": 4430,
+          "declared": true,
+          "complete": false
+        }
+      ],
+      "range": {
+        "from": 4214,
+        "to": 4430
+      },
+      "syntheticProvenance": {
+        "synthetic/v7/saddled-horse-mount-knight-corrected": {
+          "session": "synthetic/v7/saddled-horse-mount-knight-corrected",
+          "corpus": "synthetic",
+          "batch": "v7",
+          "caseId": "saddled-horse-mount-knight-corrected",
+          "manifestPath": "challenges/manifests/v7.json",
+          "manifestSha256": "03a861a9d1bc9d813c80681312ee7a0e0f893dbad0536de40a974bd5ec344094",
+          "recordingPath": "challenges/cases/v7/saddled-horse-mount-knight-corrected.session.json",
+          "recordingSha256": "51bc1d8c879266bcfabe97d5b1603122ed885c3f23cef4f2cd712ebdd1fc3f23",
+          "evaluationPath": "challenges/evaluations/20260926154456-v7.json",
+          "evaluationCommit": "01f035d6eb4b7d39db01c8dbf18738ea9298e75b"
+        }
+      }
+    },
+    {
+      "id": "fix-pager-do-look-hidden-map-accelerator-v6-20260926",
+      "kind": "divergence-fix",
+      "status": "closed",
+      "summary": "Match pager.c do_look hidden map accelerator in the whatis menu",
+      "cFile": "pager.c",
+      "sessions": [],
+      "selectionReason": "Highest ranked unreserved complete mismatch after A13 doapply and B17 zap reservations: v6 getpos-help has 4 unmatched screens at pager.c do_look menu selection.",
+      "detail": "At synthetic/v6/v6-add2-getpos-help segment 0 input step 3, key y selects the map item in C because pager.c:do_look adds a hidden y group accelerator when flags.lootabc is false. JS pager.js whatisMenuItems omits that selector and leaves the menu active, causing screen row 0 column 0 and cursor divergence before getpos help. Trace C pager.c:1714-1735 and 1811-1822; use existing tty_menu group selector behavior uniformly across inputs, then replay through the later getpos prompt. Do not special-case this recording.",
+      "openedAt": "9f27e872ecb00ddc4d99d275da03b5832258ce8d",
+      "openStanding": {
+        "sha": "582db754e6ffe41e254f7673dea995dd124e4946",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "closedAt": "9f27e872ecb00ddc4d99d275da03b5832258ce8d",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
+      "function": "do_look",
+      "session": "synthetic/v6/v6-add2-getpos-help",
+      "step": 3,
+      "syntheticProvenance": {
+        "synthetic/v6/v6-add2-getpos-help": {
+          "session": "synthetic/v6/v6-add2-getpos-help",
+          "corpus": "synthetic",
+          "batch": "v6",
+          "caseId": "v6-add2-getpos-help",
+          "manifestPath": "challenges/manifests/v6.json",
+          "manifestSha256": "7523b91e823f4e3906c9acdc9a3d80f8469c27c2caab8fc8fbd6967dbfdcab5f",
+          "recordingPath": "challenges/cases/v6/v6-add2-getpos-help.session.json",
+          "recordingSha256": "4c5b9cc1c771ac5cec9cac9b63f2bbb3851d49153020b1b60fdd379f01e314b2",
+          "evaluationPath": "challenges/evaluations/20260926154456-v6.json",
+          "evaluationCommit": "01f035d6eb4b7d39db01c8dbf18738ea9298e75b"
+        }
+      },
+      "activeStanding": {
+        "sha": "582db754e6ffe41e254f7673dea995dd124e4946",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": [],
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "9f27e872ecb00ddc4d99d275da03b5832258ce8d",
         "screens": 11405,
         "rng": 792838
       }

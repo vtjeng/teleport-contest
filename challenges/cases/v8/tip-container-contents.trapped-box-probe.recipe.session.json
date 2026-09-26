@@ -1,0 +1,11 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 83015107,
+      "datetime": "20310202095107",
+      "nethackrc": "OPTIONS=name:V8Tip2,role=Wizard,race=human,gender=female,align=neutral,playmode=debug,!legacy,!tutorial,!splash_screen,showexp,time,pettype:none\n",
+      "moves": "  #wizwish\nempty unlocked chest\n#wizwish\nfood ration\ndo#loot\ni)\ny#tip\ny"
+    }
+  ]
+}

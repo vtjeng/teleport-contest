@@ -1,0 +1,11 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 83015418,
+      "datetime": "20320606121818",
+      "nethackrc": "OPTIONS=name:V8BlessedEnchant,role=Wizard,race=human,gender=female,align=neutral,playmode=debug,!legacy,!tutorial,!splash_screen,showexp,time,pettype:none\n",
+      "moves": " \u0017blessed scroll of enchant weapon\nrm"
+    }
+  ]
+}

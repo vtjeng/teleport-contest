@@ -1,0 +1,11 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 83015118,
+      "datetime": "20310202095118",
+      "nethackrc": "OPTIONS=name:V8Archmage,role=Barbarian,race=human,gender=female,align=neutral,playmode=debug,!legacy,!tutorial,!splash_screen,showexp,time,pettype:none\n",
+      "moves": " \u0007master lich\nm.m.m.m.m.m.m.m.m.m."
+    }
+  ]
+}

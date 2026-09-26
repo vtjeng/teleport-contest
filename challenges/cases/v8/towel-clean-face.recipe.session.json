@@ -1,0 +1,11 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 83015133,
+      "datetime": "20310202100133",
+      "nethackrc": "OPTIONS=name:V8Towel2,role=Wizard,race=human,gender=female,align=neutral,playmode=debug,!legacy,!tutorial,!splash_screen,showexp,time,pettype:none\n",
+      "moves": " \u0017towel\nap"
+    }
+  ]
+}
