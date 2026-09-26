@@ -49,8 +49,10 @@ import {
     GLIB,
     GETOBJ_DOWNPLAY,
     GETOBJ_EXCLUDE,
+    GETOBJ_EXCLUDE_INACCESS,
     GETOBJ_EXCLUDE_SELECTABLE,
     GETOBJ_NOFLAGS,
+    GETOBJ_PROMPT,
     GETOBJ_SUGGEST,
     HALLUC,
     HALLUC_RES,
@@ -162,6 +164,7 @@ import {
     carrying,
     consume_obj_charge,
     getobj,
+    hands_obj,
     nxtobj,
     obj_extract_self,
     preflight_obfree,
@@ -287,6 +290,7 @@ import {
     EXPENSIVE_CAMERA,
     DWARVISH_MATTOCK,
     PICK_AXE,
+    CAN_OF_GREASE,
     CANDELABRUM_OF_INVOCATION,
     TALLOW_CANDLE,
     WAX_CANDLE,
@@ -336,7 +340,7 @@ import { acurr } from './attrib.js';
 import { known_spell, spe_Fresh, spelleffects } from './spell.js';
 import { stucksteed } from './steed.js';
 import { enexto, teleds } from './teleport.js';
-import { fingers_or_gloves } from './do_wear.js';
+import { fingers_or_gloves, inaccessible_equipment } from './do_wear.js';
 import { dropx, legs_in_no_shape, set_wounded_legs } from './do.js';
 import { morehungry } from './eat.js';
 import { digests, hurtle_jump, thitmonst, walk_path } from './dothrow.js';
@@ -2295,6 +2299,8 @@ export async function doapply(state = game, env = {}) {
         return use_cream_pie(obj, state, env);
     case BULLWHIP:
         return use_whip(obj, state);
+    case CAN_OF_GREASE:
+        return use_grease(obj, state, env);
     case STETHOSCOPE:
         return use_stethoscope(obj, state);
     case EXPENSIVE_CAMERA:
@@ -2399,4 +2405,81 @@ export async function doapply(state = game, env = {}) {
     // C's tail, `if (obj && obj->oartifact) res |= arti_speak(obj)`, has no
     // reachable input: the retouch_object() stop above refuses every artifact
     // before the switch, and no arm here can turn a non-artifact into one.
+}
+
+// C ref: apply.c grease_ok() (2585-2601). The inventory callback is pure:
+// NULL means hands, coins are never candidates, and inaccessible worn gear is
+// excluded while ordinary items remain suggested.
+export function grease_ok(obj, state = game) {
+    if (!obj)
+        return GETOBJ_SUGGEST;
+    if (obj.oclass === COIN_CLASS)
+        return GETOBJ_EXCLUDE;
+    if (inaccessible_equipment(obj, null, false, state))
+        return GETOBJ_EXCLUDE_INACCESS;
+    return GETOBJ_SUGGEST;
+}
+
+// C ref: apply.c use_grease() (2604-2654). The caller consumes the ECMD_*
+// result; charge, drop, target selection, Glib and inventory updates stay in
+// the same order as the source.
+export async function use_grease(obj, state = game, env = {}) {
+    if (applyIsGlib(state)) {
+        await ttyPline(
+            `${Tobjnam(obj, 'slip', state)} from your ${fingers_or_gloves(false, state)}.`,
+            state,
+        );
+        await dropx(obj, { ...env, state });
+        return ECMD_TIME;
+    }
+
+    if (obj.spe > 0) {
+        if ((obj.cursed || applyIsFumbling(state)) && !rn2(2)) {
+            consume_obj_charge(obj, true, { ...env, state });
+            await ttyPline(
+                `${Tobjnam(obj, 'slip', state)} from your ${fingers_or_gloves(false, state)}.`,
+                state,
+            );
+            await dropx(obj, { ...env, state });
+            return ECMD_TIME;
+        }
+
+        const target = await getobj(
+            'grease', grease_ok, GETOBJ_PROMPT, state,
+        );
+        if (!target)
+            return ECMD_CANCEL;
+        if (await inaccessible_equipment(target, 'grease', false, state))
+            return ECMD_OK;
+
+        consume_obj_charge(obj, true, { ...env, state });
+        const oldglib = (state.u?.uprops?.[GLIB]?.intrinsic ?? 0) & TIMEOUT;
+        if (target !== hands_obj) {
+            await ttyPline(
+                `You cover ${yname(target, state)} with a thick layer of grease.`,
+                state,
+            );
+            target.greased = 1;
+            if (obj.cursed && !nohands(state.youmonst.data)) {
+                make_glib(oldglib + rn1(6, 10), state, env);
+                await ttyPline(
+                    `Some of the grease gets all over your ${fingers_or_gloves(true, state)}.`,
+                    state,
+                );
+            }
+        } else {
+            make_glib(oldglib + rn1(11, 5), state, env);
+            await ttyPline(
+                `You coat your ${fingers_or_gloves(true, state)} with grease.`,
+                state,
+            );
+        }
+    } else if (obj.known) {
+        await ttyPline(`${Tobjnam(obj, 'are', state)} empty.`, state);
+    } else {
+        await ttyPline(`${Tobjnam(obj, 'seem', state)} to be empty.`, state);
+    }
+
+    update_inventory({ ...env, state });
+    return ECMD_TIME;
 }
