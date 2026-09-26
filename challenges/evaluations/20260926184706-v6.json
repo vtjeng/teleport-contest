@@ -1,0 +1,2363 @@
+{
+  "version": 1,
+  "batch": "v6",
+  "manifestPath": "challenges/manifests/v6.json",
+  "sha": "5b44c61053818704541250222dad121c9cf86445",
+  "utc": "2026-09-26T18:47:25.940Z",
+  "status": "complete",
+  "manifestSha256": "7523b91e823f4e3906c9acdc9a3d80f8469c27c2caab8fc8fbd6967dbfdcab5f",
+  "scorerSha256": "affaf6935cb627ba42f02c5689605a1dfa6c98ccc862118642c4f961471266d7",
+  "scorerFiles": {
+    "frozen/isaac64.js": "0e6f41b795f49e58f0d410785c8d14c8dd9d68ac9143ae68319bd555ea247d1e",
+    "frozen/playability_runner.mjs": "70fcf202cf555c9adec2b29f5b65ba906aaf15eb164a8e5bec9d9f62ba5743dd",
+    "frozen/ps_test_runner.mjs": "05057f3f4f9c99125ea21dd320804ec7dad3c68f4cc485d622fe4c14b0c5761e",
+    "frozen/screen-decode.mjs": "cb4a0fbfed3dda28c14736e6ae9c8b9eb8c87d75916c50d6df80f40eb0368cbe",
+    "frozen/session_loader.mjs": "fb382efa89c272dae8cb700b7dadd075b926ff039ab3eb17480d84ed65029ce6",
+    "frozen/storage.js": "38804e1048c8b2520d60c2dcbe90f86c47627a6d3094a832b85af8756a07fe6c",
+    "frozen/terminal.js": "10fa540ff6e476421327ecc2f683221cef603565f75e988130992ab8cfd25b76"
+  },
+  "inputsSha256": "f20de03dcd286fcaa5c11df54b7f8fbe760ccd0fa08b95478aa04fd860d007e5",
+  "inputFiles": [
+    "challenges/cases/v6/archeologist-down-dig-callback.recipe.session.json",
+    "challenges/cases/v6/archeologist-down-dig-callback.session.json",
+    "challenges/cases/v6/archeologist-down-dig-dir.recipe.session.json",
+    "challenges/cases/v6/archeologist-down-dig-dir.session.json",
+    "challenges/cases/v6/archeologist-down-dig-final.recipe.session.json",
+    "challenges/cases/v6/archeologist-down-dig-final.session.json",
+    "challenges/cases/v6/archeologist-down-dig-floor.recipe.session.json",
+    "challenges/cases/v6/archeologist-down-dig-floor.session.json",
+    "challenges/cases/v6/archeologist-down-dig-page.recipe.session.json",
+    "challenges/cases/v6/archeologist-down-dig-page.session.json",
+    "challenges/cases/v6/archeologist-down-dig-reach.recipe.session.json",
+    "challenges/cases/v6/archeologist-down-dig-reach.session.json",
+    "challenges/cases/v6/archeologist-down-dig.recipe.session.json",
+    "challenges/cases/v6/archeologist-down-dig.session.json",
+    "challenges/cases/v6/archeologist-pickaxe-inventory.recipe.session.json",
+    "challenges/cases/v6/archeologist-pickaxe-inventory.session.json",
+    "challenges/cases/v6/archeologist-sit-ice.recipe.session.json",
+    "challenges/cases/v6/archeologist-sit-ice.session.json",
+    "challenges/cases/v6/healer-nymph-no-pet.recipe.session.json",
+    "challenges/cases/v6/healer-nymph-no-pet.session.json",
+    "challenges/cases/v6/healer-nymph-ring-theft-final.recipe.session.json",
+    "challenges/cases/v6/healer-nymph-ring-theft-final.session.json",
+    "challenges/cases/v6/healer-nymph-ring-theft-retry.recipe.session.json",
+    "challenges/cases/v6/healer-nymph-ring-theft-retry.session.json",
+    "challenges/cases/v6/healer-nymph-ring-theft.recipe.session.json",
+    "challenges/cases/v6/healer-nymph-ring-theft.session.json",
+    "challenges/cases/v6/healer-stethoscope-newt.recipe.session.json",
+    "challenges/cases/v6/healer-stethoscope-newt.session.json",
+    "challenges/cases/v6/healer-stethoscope-retry.recipe.session.json",
+    "challenges/cases/v6/healer-stethoscope-retry.session.json",
+    "challenges/cases/v6/priest-sit-altar.recipe.session.json",
+    "challenges/cases/v6/priest-sit-altar.session.json",
+    "challenges/cases/v6/rogue-nymph-ring-retry.recipe.session.json",
+    "challenges/cases/v6/rogue-nymph-ring-retry.session.json",
+    "challenges/cases/v6/rogue-nymph-ring-steal.recipe.session.json",
+    "challenges/cases/v6/rogue-nymph-ring-steal.session.json",
+    "challenges/cases/v6/rogue-nymph-ring-theft.recipe.session.json",
+    "challenges/cases/v6/rogue-nymph-ring-theft.session.json",
+    "challenges/cases/v6/rogue-nymph-ring-wear.recipe.session.json",
+    "challenges/cases/v6/rogue-nymph-ring-wear.session.json",
+    "challenges/cases/v6/tourist-cookie-eat-retry.recipe.session.json",
+    "challenges/cases/v6/tourist-cookie-eat-retry.session.json",
+    "challenges/cases/v6/tourist-cookie-eat.recipe.session.json",
+    "challenges/cases/v6/tourist-cookie-eat.session.json",
+    "challenges/cases/v6/tourist-cookie-inventory.recipe.session.json",
+    "challenges/cases/v6/tourist-cookie-inventory.session.json",
+    "challenges/cases/v6/tourist-fortune-cookie.recipe.session.json",
+    "challenges/cases/v6/tourist-fortune-cookie.session.json",
+    "challenges/cases/v6/v6-add-archeologist-eat-ration.recipe.session.json",
+    "challenges/cases/v6/v6-add-archeologist-eat-ration.session.json",
+    "challenges/cases/v6/v6-add-archeologist-pickaxe-engrave.recipe.session.json",
+    "challenges/cases/v6/v6-add-archeologist-pickaxe-engrave.session.json",
+    "challenges/cases/v6/v6-add-archeologist-whip-wall.recipe.session.json",
+    "challenges/cases/v6/v6-add-archeologist-whip-wall.session.json",
+    "challenges/cases/v6/v6-add-getpos-help.recipe.session.json",
+    "challenges/cases/v6/v6-add-getpos-help.session.json",
+    "challenges/cases/v6/v6-add-healer-drink-potion.recipe.session.json",
+    "challenges/cases/v6/v6-add-healer-drink-potion.session.json",
+    "challenges/cases/v6/v6-add-healer-read-book.recipe.session.json",
+    "challenges/cases/v6/v6-add-healer-read-book.session.json",
+    "challenges/cases/v6/v6-add-healer-stethoscope-floor.recipe.session.json",
+    "challenges/cases/v6/v6-add-healer-stethoscope-floor.session.json",
+    "challenges/cases/v6/v6-add-healer-takeoff-gloves.recipe.session.json",
+    "challenges/cases/v6/v6-add-healer-takeoff-gloves.session.json",
+    "challenges/cases/v6/v6-add-rogue-lockpick-door.recipe.session.json",
+    "challenges/cases/v6/v6-add-rogue-lockpick-door.session.json",
+    "challenges/cases/v6/v6-add2-archeologist-eat-ration.recipe.session.json",
+    "challenges/cases/v6/v6-add2-archeologist-eat-ration.session.json",
+    "challenges/cases/v6/v6-add2-archeologist-pickaxe-engrave.recipe.session.json",
+    "challenges/cases/v6/v6-add2-archeologist-pickaxe-engrave.session.json",
+    "challenges/cases/v6/v6-add2-archeologist-whip-wall.recipe.session.json",
+    "challenges/cases/v6/v6-add2-archeologist-whip-wall.session.json",
+    "challenges/cases/v6/v6-add2-getpos-help.recipe.session.json",
+    "challenges/cases/v6/v6-add2-getpos-help.session.json",
+    "challenges/cases/v6/v6-add2-healer-drink-potion.recipe.session.json",
+    "challenges/cases/v6/v6-add2-healer-drink-potion.session.json",
+    "challenges/cases/v6/v6-add2-healer-read-book.recipe.session.json",
+    "challenges/cases/v6/v6-add2-healer-read-book.session.json",
+    "challenges/cases/v6/v6-add2-healer-stethoscope-floor.recipe.session.json",
+    "challenges/cases/v6/v6-add2-healer-stethoscope-floor.session.json",
+    "challenges/cases/v6/v6-add2-healer-takeoff-gloves.recipe.session.json",
+    "challenges/cases/v6/v6-add2-healer-takeoff-gloves.session.json",
+    "challenges/cases/v6/v6-add2-rogue-lockpick-door.recipe.session.json",
+    "challenges/cases/v6/v6-add2-rogue-lockpick-door.session.json",
+    "challenges/cases/v6/v6-add3-archeologist-pickaxe-engrave.recipe.session.json",
+    "challenges/cases/v6/v6-add3-archeologist-pickaxe-engrave.session.json",
+    "challenges/cases/v6/v6-add3-healer-read-book.recipe.session.json",
+    "challenges/cases/v6/v6-add3-healer-read-book.session.json",
+    "challenges/cases/v6/v6-add4-archeologist-pickaxe-engrave.recipe.session.json",
+    "challenges/cases/v6/v6-add4-archeologist-pickaxe-engrave.session.json",
+    "challenges/cases/v6/v6-add4-healer-read-stone-to-flesh.recipe.session.json",
+    "challenges/cases/v6/v6-add4-healer-read-stone-to-flesh.session.json",
+    "challenges/cases/v6/v6-add5-archeologist-whip-no-pet.recipe.session.json",
+    "challenges/cases/v6/v6-add5-archeologist-whip-no-pet.session.json",
+    "challenges/cases/v6/v6-add5-rogue-lockpick-door-north.recipe.session.json",
+    "challenges/cases/v6/v6-add5-rogue-lockpick-door-north.session.json",
+    "challenges/cases/v6/v6-add6-healer-stethoscope-floor-below.recipe.session.json",
+    "challenges/cases/v6/v6-add6-healer-stethoscope-floor-below.session.json",
+    "challenges/cases/v6/v6-add6-rogue-call-potion-type.recipe.session.json",
+    "challenges/cases/v6/v6-add6-rogue-call-potion-type.session.json",
+    "challenges/cases/v6/v6-add7-rogue-call-potion-type.recipe.session.json",
+    "challenges/cases/v6/v6-add7-rogue-call-potion-type.session.json",
+    "challenges/cases/v6/valkyrie-sit-grave.recipe.session.json",
+    "challenges/cases/v6/valkyrie-sit-grave.session.json",
+    "challenges/cases/v6/wizard-beartrap-sit-floor.recipe.session.json",
+    "challenges/cases/v6/wizard-beartrap-sit-floor.session.json",
+    "challenges/cases/v6/wizard-beartrap-sit.recipe.session.json",
+    "challenges/cases/v6/wizard-beartrap-sit.session.json",
+    "challenges/cases/v6/wizard-beartrap-wish.recipe.session.json",
+    "challenges/cases/v6/wizard-beartrap-wish.session.json",
+    "challenges/cases/v6/wizard-dip-sword-fountain.recipe.session.json",
+    "challenges/cases/v6/wizard-dip-sword-fountain.session.json",
+    "challenges/cases/v6/wizard-engrave-wand-correct.recipe.session.json",
+    "challenges/cases/v6/wizard-engrave-wand-correct.session.json",
+    "challenges/cases/v6/wizard-engrave-wand-final.recipe.session.json",
+    "challenges/cases/v6/wizard-engrave-wand-final.session.json",
+    "challenges/cases/v6/wizard-engrave-wand-finish.recipe.session.json",
+    "challenges/cases/v6/wizard-engrave-wand-finish.session.json",
+    "challenges/cases/v6/wizard-engrave-wand-menu.recipe.session.json",
+    "challenges/cases/v6/wizard-engrave-wand-menu.session.json",
+    "challenges/cases/v6/wizard-engrave-wand-reach.recipe.session.json",
+    "challenges/cases/v6/wizard-engrave-wand-reach.session.json",
+    "challenges/cases/v6/wizard-engrave-wand-retry.recipe.session.json",
+    "challenges/cases/v6/wizard-engrave-wand-retry.session.json",
+    "challenges/cases/v6/wizard-engrave-wand-retry2.recipe.session.json",
+    "challenges/cases/v6/wizard-engrave-wand-retry2.session.json",
+    "challenges/cases/v6/wizard-engrave-wand.recipe.session.json",
+    "challenges/cases/v6/wizard-engrave-wand.session.json",
+    "challenges/cases/v6/wizard-fountain-dip-confirm.recipe.session.json",
+    "challenges/cases/v6/wizard-fountain-dip-confirm.session.json",
+    "challenges/cases/v6/wizard-fountain-dip-retry.recipe.session.json",
+    "challenges/cases/v6/wizard-fountain-dip-retry.session.json",
+    "challenges/cases/v6/wizard-fountain-dip-yes-retry.recipe.session.json",
+    "challenges/cases/v6/wizard-fountain-dip-yes-retry.session.json",
+    "challenges/cases/v6/wizard-fountain-dip-yes.recipe.session.json",
+    "challenges/cases/v6/wizard-fountain-dip-yes.session.json",
+    "challenges/cases/v6/wizard-grease-hands-final.recipe.session.json",
+    "challenges/cases/v6/wizard-grease-hands-final.session.json",
+    "challenges/cases/v6/wizard-grease-hands-good.recipe.session.json",
+    "challenges/cases/v6/wizard-grease-hands-good.session.json",
+    "challenges/cases/v6/wizard-grease-hands-retry.recipe.session.json",
+    "challenges/cases/v6/wizard-grease-hands-retry.session.json",
+    "challenges/cases/v6/wizard-grease-hands.recipe.session.json",
+    "challenges/cases/v6/wizard-grease-hands.session.json",
+    "challenges/cases/v6/wizard-grease-only.recipe.session.json",
+    "challenges/cases/v6/wizard-grease-only.session.json",
+    "challenges/cases/v6/wizard-grease-write-retry.recipe.session.json",
+    "challenges/cases/v6/wizard-grease-write-retry.session.json",
+    "challenges/cases/v6/wizard-grease-write-target.recipe.session.json",
+    "challenges/cases/v6/wizard-grease-write-target.session.json",
+    "challenges/cases/v6/wizard-greasy-marker.recipe.session.json",
+    "challenges/cases/v6/wizard-greasy-marker.session.json",
+    "challenges/cases/v6/wizard-greasy-write-glib-final.recipe.session.json",
+    "challenges/cases/v6/wizard-greasy-write-glib-final.session.json",
+    "challenges/cases/v6/wizard-greasy-write-glib-retry.recipe.session.json",
+    "challenges/cases/v6/wizard-greasy-write-glib-retry.session.json",
+    "challenges/cases/v6/wizard-greasy-write-glib.recipe.session.json",
+    "challenges/cases/v6/wizard-greasy-write-glib.session.json",
+    "challenges/cases/v6/wizard-greasy-write-menu.recipe.session.json",
+    "challenges/cases/v6/wizard-greasy-write-menu.session.json",
+    "challenges/cases/v6/wizard-read-earth-reach.recipe.session.json",
+    "challenges/cases/v6/wizard-read-earth-reach.session.json",
+    "challenges/cases/v6/wizard-read-earth-retry.recipe.session.json",
+    "challenges/cases/v6/wizard-read-earth-retry.session.json",
+    "challenges/cases/v6/wizard-read-earth.recipe.session.json",
+    "challenges/cases/v6/wizard-read-earth.session.json",
+    "challenges/cases/v6/wizard-sit-grave-retry.recipe.session.json",
+    "challenges/cases/v6/wizard-sit-grave-retry.session.json",
+    "challenges/cases/v6/wizard-sit-grave-room-retry.recipe.session.json",
+    "challenges/cases/v6/wizard-sit-grave-room-retry.session.json",
+    "challenges/cases/v6/wizard-sit-grave-room.recipe.session.json",
+    "challenges/cases/v6/wizard-sit-grave-room.session.json",
+    "challenges/cases/v6/wizard-sit-sink.recipe.session.json",
+    "challenges/cases/v6/wizard-sit-sink.session.json",
+    "challenges/cases/v6/wizard-sit-throne.recipe.session.json",
+    "challenges/cases/v6/wizard-sit-throne.session.json",
+    "challenges/cases/v6/wizard-tinning-confirm.recipe.session.json",
+    "challenges/cases/v6/wizard-tinning-confirm.session.json",
+    "challenges/cases/v6/wizard-tinning-kit-newt.recipe.session.json",
+    "challenges/cases/v6/wizard-tinning-kit-newt.session.json",
+    "challenges/cases/v6/wizard-tinning-retry.recipe.session.json",
+    "challenges/cases/v6/wizard-tinning-retry.session.json",
+    "challenges/cases/v6/wizard-tinning-yes.recipe.session.json",
+    "challenges/cases/v6/wizard-tinning-yes.session.json",
+    "challenges/cases/v6/wizard-write-marker-retry.recipe.session.json",
+    "challenges/cases/v6/wizard-write-marker-retry.session.json",
+    "challenges/cases/v6/wizard-write-marker-scroll.recipe.session.json",
+    "challenges/cases/v6/wizard-write-marker-scroll.session.json",
+    "challenges/cases/v6/wizard-write-marker.recipe.session.json",
+    "challenges/cases/v6/wizard-write-marker.session.json",
+    "challenges/manifests/v6.json",
+    "frozen/isaac64.js",
+    "frozen/play.sh",
+    "frozen/playability_runner.mjs",
+    "frozen/ps_test_runner.mjs",
+    "frozen/score.sh",
+    "frozen/screen-decode.mjs",
+    "frozen/session_loader.mjs",
+    "frozen/set-category.sh",
+    "frozen/storage.js",
+    "frozen/terminal.js",
+    "js/air_level_data.js",
+    "js/air_levels.js",
+    "js/allmain.js",
+    "js/apply_catch_lit.js",
+    "js/apply_next_to_u.js",
+    "js/apply_splash_lit.js",
+    "js/apply.js",
+    "js/artifacts.js",
+    "js/asmodeus_levels.js",
+    "js/attrib.js",
+    "js/baalz_levels.js",
+    "js/ball.js",
+    "js/bigrm.js",
+    "js/bones.js",
+    "js/bury.js",
+    "js/calendar.js",
+    "js/castle_levels.js",
+    "js/cfgfiles.js",
+    "js/cmd_autocomplete.js",
+    "js/cmd.js",
+    "js/color_data.js",
+    "js/coloratt.js",
+    "js/command_bindings.js",
+    "js/config_statement_data.js",
+    "js/const.js",
+    "js/corpstat.js",
+    "js/data_base_data.js",
+    "js/dbridge.js",
+    "js/detect.js",
+    "js/dig.js",
+    "js/display.js",
+    "js/do_name.js",
+    "js/do_wear.js",
+    "js/do.js",
+    "js/dog.js",
+    "js/dogfood.js",
+    "js/dogmove.js",
+    "js/dokick.js",
+    "js/dothrow.js",
+    "js/drawing.js",
+    "js/dungeon_data.js",
+    "js/dungeon.js",
+    "js/eat.js",
+    "js/end.js",
+    "js/engrave.js",
+    "js/exper.js",
+    "js/explode.js",
+    "js/extcmdlist_data.js",
+    "js/extralev.js",
+    "js/files.js",
+    "js/fire_level_data.js",
+    "js/fire_levels.js",
+    "js/fountain.js",
+    "js/fruit.js",
+    "js/game_display.js",
+    "js/game.js",
+    "js/getline.js",
+    "js/getpos.js",
+    "js/glyph_ids.js",
+    "js/glyph_offsets.js",
+    "js/glyphs.js",
+    "js/grave.js",
+    "js/gstate.js",
+    "js/hack.js",
+    "js/hacklib.js",
+    "js/hell_levels.js",
+    "js/help_data.js",
+    "js/iactions.js",
+    "js/input.js",
+    "js/insight.js",
+    "js/invent.js",
+    "js/isaac64.js",
+    "js/jsmain.js",
+    "js/juiblex_levels.js",
+    "js/kni_goal_level_data.js",
+    "js/legacy_startup.js",
+    "js/light.js",
+    "js/lock.js",
+    "js/makemon_create.js",
+    "js/makemon.js",
+    "js/mcastu.js",
+    "js/mdlib.js",
+    "js/medusa_levels.js",
+    "js/mhitm.js",
+    "js/mhitu.js",
+    "js/mineralize.js",
+    "js/mines_levels.js",
+    "js/minion.js",
+    "js/mklev.js",
+    "js/mkmaze.js",
+    "js/mkroom.js",
+    "js/mktrap.js",
+    "js/mon.js",
+    "js/moncarry.js",
+    "js/mondata.js",
+    "js/monmove.js",
+    "js/monst.js",
+    "js/monster_object.js",
+    "js/monsters.js",
+    "js/moveloop_preamble.js",
+    "js/mthrowu.js",
+    "js/muse.js",
+    "js/music.js",
+    "js/nasties_data.js",
+    "js/nethack.js",
+    "js/nhlua.js",
+    "js/o_init.js",
+    "js/obj.js",
+    "js/object_generation.js",
+    "js/objects.js",
+    "js/objnam_data.js",
+    "js/objnam_readobjnam.js",
+    "js/objnam.js",
+    "js/options_escapes.js",
+    "js/options.js",
+    "js/optlist_data.js",
+    "js/orcus_levels.js",
+    "js/pager.js",
+    "js/pickup.js",
+    "js/player_selection_tty.js",
+    "js/player_selection.js",
+    "js/pline.js",
+    "js/polyself.js",
+    "js/posixregex.js",
+    "js/potion.js",
+    "js/pray.js",
+    "js/priest.js",
+    "js/quest_levels.js",
+    "js/quest_text_data.js",
+    "js/quest.js",
+    "js/questpgr.js",
+    "js/random_engraving.js",
+    "js/random_text_data.js",
+    "js/random_text.js",
+    "js/read.js",
+    "js/rect.js",
+    "js/regen.js",
+    "js/region.js",
+    "js/restore.js",
+    "js/rng.js",
+    "js/role_init.js",
+    "js/role_skills.js",
+    "js/roles.js",
+    "js/room_coordinates.js",
+    "js/room_features.js",
+    "js/rooms.js",
+    "js/sanctum_level_data.js",
+    "js/sanctum_levels.js",
+    "js/save.js",
+    "js/sfbase.js",
+    "js/shk.js",
+    "js/shknam.js",
+    "js/shtypes_data.js",
+    "js/sit.js",
+    "js/sokoban_levels.js",
+    "js/sound_effects_data.js",
+    "js/sounds.js",
+    "js/sp_lev_object.js",
+    "js/spell.js",
+    "js/stairs.js",
+    "js/startup_a11y.js",
+    "js/startup_reroll.js",
+    "js/startup_skills.js",
+    "js/steal.js",
+    "js/steed.js",
+    "js/storage.js",
+    "js/symbol_data.js",
+    "js/symbols.js",
+    "js/teleport.js",
+    "js/terminal.js",
+    "js/terrain.js",
+    "js/themeroom_data.js",
+    "js/themeroom_fill.js",
+    "js/themerooms.js",
+    "js/timeout.js",
+    "js/topten.js",
+    "js/track.js",
+    "js/trap_effects.js",
+    "js/trap_erode_obj.js",
+    "js/trap_names_data.js",
+    "js/trap_water_damage.js",
+    "js/trap.js",
+    "js/tribute_data.js",
+    "js/tty_menu.js",
+    "js/tty_message.js",
+    "js/tty_rawprint.js",
+    "js/tty_startup.js",
+    "js/tutorial_level.js",
+    "js/tutorial_startup.js",
+    "js/u_init_inventory_attrs.js",
+    "js/u_init_inventory_data.js",
+    "js/u_init_inventory_use.js",
+    "js/u_init_inventory.js",
+    "js/u_init.js",
+    "js/uhitm.js",
+    "js/unported_monster_actions.js",
+    "js/unported.js",
+    "js/valley_levels.js",
+    "js/vault.js",
+    "js/version.js",
+    "js/vision.js",
+    "js/weapon.js",
+    "js/were.js",
+    "js/wield.js",
+    "js/windows.js",
+    "js/wintty.js",
+    "js/wizard.js",
+    "js/wizard1_levels.js",
+    "js/wizard2_levels.js",
+    "js/wizcmds.js",
+    "js/worm.js",
+    "js/worn.js",
+    "js/write.js",
+    "js/zap_destroy_items.js",
+    "js/zap.js",
+    "package-lock.json",
+    "package.json",
+    "scripts/challenge-results.mjs",
+    "scripts/score-challenges.mjs",
+    "scripts/scoring-workspace.mjs"
+  ],
+  "cases": [
+    {
+      "id": "archeologist-down-dig",
+      "recordingSha256": "2136c08929088ee92dd84625080f2cae2233ce21e3897da6245d6f2a098e00e3",
+      "passed": true,
+      "metrics": {
+        "screens": {
+          "matched": 3,
+          "total": 3
+        },
+        "rng": {
+          "matched": 2457,
+          "total": 2457
+        },
+        "cursors": {
+          "matched": 3,
+          "total": 3
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "archeologist-down-dig-callback",
+      "recordingSha256": "f919f5fa6e34bd86c15d3e69660254d27043612ab9787b64aef37b05f2fe9ba4",
+      "passed": true,
+      "metrics": {
+        "screens": {
+          "matched": 6,
+          "total": 6
+        },
+        "rng": {
+          "matched": 5988,
+          "total": 5988
+        },
+        "cursors": {
+          "matched": 6,
+          "total": 6
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "archeologist-down-dig-dir",
+      "recordingSha256": "1ceaf2e35fe7e7f9f6c78a6a1b607f4724f0b41480a297ca71d1845c63c13a83",
+      "passed": true,
+      "metrics": {
+        "screens": {
+          "matched": 5,
+          "total": 5
+        },
+        "rng": {
+          "matched": 3042,
+          "total": 3042
+        },
+        "cursors": {
+          "matched": 5,
+          "total": 5
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "archeologist-down-dig-final",
+      "recordingSha256": "4534979fef17fa8fa9e66b98f1f3a2d6f5b15c94eb1fa38de3750d06c962b612",
+      "passed": false,
+      "metrics": {
+        "screens": {
+          "matched": 5,
+          "total": 7
+        },
+        "rng": {
+          "matched": 6000,
+          "total": 6014
+        },
+        "cursors": {
+          "matched": 7,
+          "total": 7
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "archeologist-down-dig-floor",
+      "recordingSha256": "8ae44f290808dea580c783add4b5cc12e99a94f4c998441b329325406fa9e9a9",
+      "passed": false,
+      "metrics": {
+        "screens": {
+          "matched": 6,
+          "total": 8
+        },
+        "rng": {
+          "matched": 6030,
+          "total": 6188
+        },
+        "cursors": {
+          "matched": 8,
+          "total": 8
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "archeologist-down-dig-page",
+      "recordingSha256": "884944918346b475eb8466410163141c25bc4c9a36e397e1af680c77364b17af",
+      "passed": true,
+      "metrics": {
+        "screens": {
+          "matched": 12,
+          "total": 12
+        },
+        "rng": {
+          "matched": 2614,
+          "total": 2614
+        },
+        "cursors": {
+          "matched": 12,
+          "total": 12
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "archeologist-down-dig-reach",
+      "recordingSha256": "0bac76e3ffee0b48a7ba3a6d26d4fc8636ecc4be03898de8bf8cd966a8290ac1",
+      "passed": true,
+      "metrics": {
+        "screens": {
+          "matched": 4,
+          "total": 4
+        },
+        "rng": {
+          "matched": 2443,
+          "total": 2443
+        },
+        "cursors": {
+          "matched": 4,
+          "total": 4
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "archeologist-pickaxe-inventory",
+      "recordingSha256": "1ae7293661166f4b0325469521bb8d1a16ebcc0f852c830889d2c2c7bed914e5",
+      "passed": true,
+      "metrics": {
+        "screens": {
+          "matched": 5,
+          "total": 5
+        },
+        "rng": {
+          "matched": 3065,
+          "total": 3065
+        },
+        "cursors": {
+          "matched": 5,
+          "total": 5
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "archeologist-sit-ice",
+      "recordingSha256": "9582ee5c2aa4664baa8e6009bd9c1a2174505d7cd21b85444c611140a55e66c8",
+      "passed": false,
+      "metrics": {
+        "screens": {
+          "matched": 10,
+          "total": 11
+        },
+        "rng": {
+          "matched": 2877,
+          "total": 2884
+        },
+        "cursors": {
+          "matched": 10,
+          "total": 11
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "healer-nymph-no-pet",
+      "recordingSha256": "3bf6b5e178134a356251c23cf9f1a6fe9238a66b5b9bb81755a5de51d4f0b3a5",
+      "passed": true,
+      "metrics": {
+        "screens": {
+          "matched": 49,
+          "total": 49
+        },
+        "rng": {
+          "matched": 2669,
+          "total": 2669
+        },
+        "cursors": {
+          "matched": 49,
+          "total": 49
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "healer-nymph-ring-theft",
+      "recordingSha256": "2d831caf03519214aee33e3653b3fab5469b546511d8aee0f54ffa0932f1c56e",
+      "passed": true,
+      "metrics": {
+        "screens": {
+          "matched": 50,
+          "total": 50
+        },
+        "rng": {
+          "matched": 2619,
+          "total": 2619
+        },
+        "cursors": {
+          "matched": 50,
+          "total": 50
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "healer-nymph-ring-theft-final",
+      "recordingSha256": "0915d04ac009af33eea7a3a17fb053e6446e4e218325d35a2db59cef00d30dcd",
+      "passed": true,
+      "metrics": {
+        "screens": {
+          "matched": 50,
+          "total": 50
+        },
+        "rng": {
+          "matched": 2706,
+          "total": 2706
+        },
+        "cursors": {
+          "matched": 50,
+          "total": 50
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "healer-nymph-ring-theft-retry",
+      "recordingSha256": "00a47c3c10a2b3e7b2ee26e8b73f3e3d7d8c3e851b65e3432e939efbad4bd9a7",
+      "passed": true,
+      "metrics": {
+        "screens": {
+          "matched": 50,
+          "total": 50
+        },
+        "rng": {
+          "matched": 2610,
+          "total": 2610
+        },
+        "cursors": {
+          "matched": 50,
+          "total": 50
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "healer-stethoscope-newt",
+      "recordingSha256": "069c2ed8365414da368ba8239700c0a0720fa2281df7edeadc8cc1246119b216",
+      "passed": true,
+      "metrics": {
+        "screens": {
+          "matched": 21,
+          "total": 21
+        },
+        "rng": {
+          "matched": 2880,
+          "total": 2880
+        },
+        "cursors": {
+          "matched": 21,
+          "total": 21
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "healer-stethoscope-retry",
+      "recordingSha256": "55af7eeb76904f3c4ea4860a9a99fef503a9e690ff534af0b9efe9eaa87ff6fc",
+      "passed": true,
+      "metrics": {
+        "screens": {
+          "matched": 23,
+          "total": 23
+        },
+        "rng": {
+          "matched": 2820,
+          "total": 2820
+        },
+        "cursors": {
+          "matched": 23,
+          "total": 23
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "priest-sit-altar",
+      "recordingSha256": "5d63bfff4f6be435a201c1406de9afe54a60eea43cfda97ace579be899e2df1b",
+      "passed": false,
+      "metrics": {
+        "screens": {
+          "matched": 12,
+          "total": 13
+        },
+        "rng": {
+          "matched": 2840,
+          "total": 2842
+        },
+        "cursors": {
+          "matched": 12,
+          "total": 13
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "rogue-nymph-ring-retry",
+      "recordingSha256": "5f8a3796b901d3d8ea87aa3a75f40cd6026aa5b00595d2cde87e720270005335",
+      "passed": true,
+      "metrics": {
+        "screens": {
+          "matched": 38,
+          "total": 38
+        },
+        "rng": {
+          "matched": 2588,
+          "total": 2588
+        },
+        "cursors": {
+          "matched": 38,
+          "total": 38
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "rogue-nymph-ring-steal",
+      "recordingSha256": "fe87b5912dee19c9cf33a410c071c5da6db37d95eaf8a6b7d7f6b621d767e380",
+      "passed": true,
+      "metrics": {
+        "screens": {
+          "matched": 42,
+          "total": 42
+        },
+        "rng": {
+          "matched": 2770,
+          "total": 2770
+        },
+        "cursors": {
+          "matched": 42,
+          "total": 42
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "rogue-nymph-ring-theft",
+      "recordingSha256": "282e89ca0d4a80132d4531348948acee1d39437403dad87e64e475ddb98dabcf",
+      "passed": true,
+      "metrics": {
+        "screens": {
+          "matched": 17,
+          "total": 17
+        },
+        "rng": {
+          "matched": 2785,
+          "total": 2785
+        },
+        "cursors": {
+          "matched": 17,
+          "total": 17
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "rogue-nymph-ring-wear",
+      "recordingSha256": "7d07b072c04188ee48fac60ea209f230ee7b3460bf882e70afbaea8328118450",
+      "passed": true,
+      "metrics": {
+        "screens": {
+          "matched": 40,
+          "total": 40
+        },
+        "rng": {
+          "matched": 2907,
+          "total": 2907
+        },
+        "cursors": {
+          "matched": 40,
+          "total": 40
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "tourist-cookie-eat",
+      "recordingSha256": "9a8562affdc772382db22593f013bde0ddf254d976cdece486f60edf9d965786",
+      "passed": true,
+      "metrics": {
+        "screens": {
+          "matched": 19,
+          "total": 19
+        },
+        "rng": {
+          "matched": 2538,
+          "total": 2538
+        },
+        "cursors": {
+          "matched": 19,
+          "total": 19
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "tourist-cookie-eat-retry",
+      "recordingSha256": "dfcb6abdba523b016bd9b05ee263763c3cd538a62f2d8a452d7ae3f49a1e0623",
+      "passed": true,
+      "metrics": {
+        "screens": {
+          "matched": 19,
+          "total": 19
+        },
+        "rng": {
+          "matched": 2628,
+          "total": 2628
+        },
+        "cursors": {
+          "matched": 19,
+          "total": 19
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "tourist-cookie-inventory",
+      "recordingSha256": "fc3bdf7127068e0fe36cc9d5196ecf925652a8a8a473db0bfd9d0d492ee3c45d",
+      "passed": true,
+      "metrics": {
+        "screens": {
+          "matched": 20,
+          "total": 20
+        },
+        "rng": {
+          "matched": 3081,
+          "total": 3081
+        },
+        "cursors": {
+          "matched": 20,
+          "total": 20
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "tourist-fortune-cookie",
+      "recordingSha256": "94fcfdab71db39ffb0382f84c3dd8c34f3c2df09c8b3280792cb6dfa9113c6ba",
+      "passed": true,
+      "metrics": {
+        "screens": {
+          "matched": 18,
+          "total": 18
+        },
+        "rng": {
+          "matched": 3039,
+          "total": 3039
+        },
+        "cursors": {
+          "matched": 18,
+          "total": 18
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "valkyrie-sit-grave",
+      "recordingSha256": "eb12c15e0b1202888a1c6c1ff601cf9b01c0950eb910a007f73d413221b0000b",
+      "passed": true,
+      "metrics": {
+        "screens": {
+          "matched": 13,
+          "total": 13
+        },
+        "rng": {
+          "matched": 2767,
+          "total": 2767
+        },
+        "cursors": {
+          "matched": 13,
+          "total": 13
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "wizard-beartrap-sit",
+      "recordingSha256": "bbad9fa894d7ef3ed3d073cc7a2d7db39cfdfe5316a95d097bc90c6c7c3dfca5",
+      "passed": true,
+      "metrics": {
+        "screens": {
+          "matched": 29,
+          "total": 29
+        },
+        "rng": {
+          "matched": 3029,
+          "total": 3029
+        },
+        "cursors": {
+          "matched": 29,
+          "total": 29
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "wizard-beartrap-sit-floor",
+      "recordingSha256": "6ee59baa26322e58c754b794568e1e43c6deb9ef41524175e3db41f0794aa65c",
+      "passed": true,
+      "metrics": {
+        "screens": {
+          "matched": 37,
+          "total": 37
+        },
+        "rng": {
+          "matched": 3118,
+          "total": 3118
+        },
+        "cursors": {
+          "matched": 37,
+          "total": 37
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "wizard-beartrap-wish",
+      "recordingSha256": "7efc26779c40122931697cb0782cc5f6e77289a33f399bc4ff03c6efa239021f",
+      "passed": true,
+      "metrics": {
+        "screens": {
+          "matched": 12,
+          "total": 12
+        },
+        "rng": {
+          "matched": 2944,
+          "total": 2944
+        },
+        "cursors": {
+          "matched": 12,
+          "total": 12
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "wizard-dip-sword-fountain",
+      "recordingSha256": "6b9e637f38d92f349be14e4e6d596e7e223799ec0c9f471e116117e452831edc",
+      "passed": true,
+      "metrics": {
+        "screens": {
+          "matched": 27,
+          "total": 27
+        },
+        "rng": {
+          "matched": 2497,
+          "total": 2497
+        },
+        "cursors": {
+          "matched": 27,
+          "total": 27
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "wizard-engrave-wand",
+      "recordingSha256": "94d183bdc8e0cc8ea23e82eccc8edd6071e0847c001e6a2940fa1dc9e232fa3d",
+      "passed": true,
+      "metrics": {
+        "screens": {
+          "matched": 16,
+          "total": 16
+        },
+        "rng": {
+          "matched": 3065,
+          "total": 3065
+        },
+        "cursors": {
+          "matched": 16,
+          "total": 16
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "wizard-engrave-wand-correct",
+      "recordingSha256": "f290232745322344bcec7d61ec11e8e0e40e84f0ade832d76fea765ae337a683",
+      "passed": true,
+      "metrics": {
+        "screens": {
+          "matched": 24,
+          "total": 24
+        },
+        "rng": {
+          "matched": 2684,
+          "total": 2684
+        },
+        "cursors": {
+          "matched": 24,
+          "total": 24
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "wizard-engrave-wand-final",
+      "recordingSha256": "f779fd8a015a755db71ffd28d84fdd56723bb1d41bed5b105ff040849cfb36da",
+      "passed": true,
+      "metrics": {
+        "screens": {
+          "matched": 24,
+          "total": 24
+        },
+        "rng": {
+          "matched": 2685,
+          "total": 2685
+        },
+        "cursors": {
+          "matched": 24,
+          "total": 24
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "wizard-engrave-wand-finish",
+      "recordingSha256": "50622b29b66b16cc75169cd1dab424dd98684ecfcddb80f3a4d323bd6cf967ef",
+      "passed": true,
+      "metrics": {
+        "screens": {
+          "matched": 25,
+          "total": 25
+        },
+        "rng": {
+          "matched": 2691,
+          "total": 2691
+        },
+        "cursors": {
+          "matched": 25,
+          "total": 25
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "wizard-engrave-wand-menu",
+      "recordingSha256": "a021e50b71c2619c4e37eabaea5c0db3ae643441f1595d6fb8886362de187854",
+      "passed": false,
+      "metrics": {
+        "screens": {
+          "matched": 16,
+          "total": 17
+        },
+        "rng": {
+          "matched": 2465,
+          "total": 2465
+        },
+        "cursors": {
+          "matched": 16,
+          "total": 17
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "wizard-engrave-wand-reach",
+      "recordingSha256": "c4126490815e1cc424b723b6dfbb4116966868b640653a6fcb32de6467fcc572",
+      "passed": true,
+      "metrics": {
+        "screens": {
+          "matched": 17,
+          "total": 17
+        },
+        "rng": {
+          "matched": 2426,
+          "total": 2426
+        },
+        "cursors": {
+          "matched": 17,
+          "total": 17
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "wizard-engrave-wand-retry",
+      "recordingSha256": "f73a7b569933dd9cb8f7aa271288533e1fc30f05395b47010ad81078aacf0894",
+      "passed": false,
+      "metrics": {
+        "screens": {
+          "matched": 17,
+          "total": 18
+        },
+        "rng": {
+          "matched": 2397,
+          "total": 2397
+        },
+        "cursors": {
+          "matched": 17,
+          "total": 18
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "wizard-engrave-wand-retry2",
+      "recordingSha256": "b9e9c10bc2a7a1a6632f54e704b8386adefe66dcbde4f0e2f575a7b5fb3fc295",
+      "passed": true,
+      "metrics": {
+        "screens": {
+          "matched": 19,
+          "total": 19
+        },
+        "rng": {
+          "matched": 2590,
+          "total": 2590
+        },
+        "cursors": {
+          "matched": 19,
+          "total": 19
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "wizard-fountain-dip-confirm",
+      "recordingSha256": "d6c86f783c69df82c9ab4591cb8d1813325cfd838f1cc249d80e29c6ce77cb4c",
+      "passed": true,
+      "metrics": {
+        "screens": {
+          "matched": 30,
+          "total": 30
+        },
+        "rng": {
+          "matched": 2835,
+          "total": 2835
+        },
+        "cursors": {
+          "matched": 30,
+          "total": 30
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "wizard-fountain-dip-retry",
+      "recordingSha256": "209d77ef2be191c7179e68b2ec140f2c065cf76093cc1cb9a20720d9d4b2822d",
+      "passed": true,
+      "metrics": {
+        "screens": {
+          "matched": 29,
+          "total": 29
+        },
+        "rng": {
+          "matched": 4615,
+          "total": 4615
+        },
+        "cursors": {
+          "matched": 29,
+          "total": 29
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "wizard-fountain-dip-yes",
+      "recordingSha256": "a83839c13a365ff9f68e55bc7719195507eb74a002152b5c24994ffcdea30342",
+      "passed": true,
+      "metrics": {
+        "screens": {
+          "matched": 30,
+          "total": 30
+        },
+        "rng": {
+          "matched": 2726,
+          "total": 2726
+        },
+        "cursors": {
+          "matched": 30,
+          "total": 30
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "wizard-fountain-dip-yes-retry",
+      "recordingSha256": "01be712288ab6959d6cd13a5701252f318908ecfda8920d87367546953faf363",
+      "passed": true,
+      "metrics": {
+        "screens": {
+          "matched": 30,
+          "total": 30
+        },
+        "rng": {
+          "matched": 2409,
+          "total": 2409
+        },
+        "cursors": {
+          "matched": 30,
+          "total": 30
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "wizard-grease-hands",
+      "recordingSha256": "c9999b150ebfcd14e6c299397a38a34735404a2aa29621613b0bcb03bdc7d511",
+      "passed": true,
+      "metrics": {
+        "screens": {
+          "matched": 21,
+          "total": 21
+        },
+        "rng": {
+          "matched": 2652,
+          "total": 2652
+        },
+        "cursors": {
+          "matched": 21,
+          "total": 21
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "wizard-grease-hands-final",
+      "recordingSha256": "a22865ca6fd6510f9e8e02a91b816b7862d8257bcedde8f2995d4e702df4d012",
+      "passed": false,
+      "metrics": {
+        "screens": {
+          "matched": 18,
+          "total": 19
+        },
+        "rng": {
+          "matched": 2365,
+          "total": 2365
+        },
+        "cursors": {
+          "matched": 18,
+          "total": 19
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "wizard-grease-hands-good",
+      "recordingSha256": "528226e80ce3b4852b1606a834fd132448c6d19be05f9b3e387cc81e5ca9f192",
+      "passed": false,
+      "metrics": {
+        "screens": {
+          "matched": 17,
+          "total": 19
+        },
+        "rng": {
+          "matched": 2366,
+          "total": 2366
+        },
+        "cursors": {
+          "matched": 19,
+          "total": 19
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "wizard-grease-hands-retry",
+      "recordingSha256": "dbbd060a1792ca98935cabedd0bca1c2f251000a721e27f2e0c8aa0c7442e287",
+      "passed": true,
+      "metrics": {
+        "screens": {
+          "matched": 19,
+          "total": 19
+        },
+        "rng": {
+          "matched": 2398,
+          "total": 2398
+        },
+        "cursors": {
+          "matched": 19,
+          "total": 19
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "wizard-grease-only",
+      "recordingSha256": "9af4fef5d828c481509d962d1bf1160e66cc01ea5f2b15d516e2528ae3af0aa8",
+      "passed": false,
+      "metrics": {
+        "screens": {
+          "matched": 17,
+          "total": 19
+        },
+        "rng": {
+          "matched": 5759,
+          "total": 5759
+        },
+        "cursors": {
+          "matched": 19,
+          "total": 19
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "wizard-grease-write-retry",
+      "recordingSha256": "25ff47660bb9c6f5db36e163b9838968d1f631bab0632709f579c5f5a7799d0f",
+      "passed": true,
+      "metrics": {
+        "screens": {
+          "matched": 36,
+          "total": 36
+        },
+        "rng": {
+          "matched": 6265,
+          "total": 6265
+        },
+        "cursors": {
+          "matched": 36,
+          "total": 36
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "wizard-grease-write-target",
+      "recordingSha256": "b9a3a0043a92450cff4bb8ff6317738832b167b771eb23f05ed9d294cf4be021",
+      "passed": false,
+      "metrics": {
+        "screens": {
+          "matched": 32,
+          "total": 35
+        },
+        "rng": {
+          "matched": 2638,
+          "total": 2638
+        },
+        "cursors": {
+          "matched": 32,
+          "total": 35
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "wizard-greasy-marker",
+      "recordingSha256": "063584eacc9d4139df47b215b9a4ace7fcc4853fcc91fceda0683a5667b7589a",
+      "passed": true,
+      "metrics": {
+        "screens": {
+          "matched": 31,
+          "total": 31
+        },
+        "rng": {
+          "matched": 2775,
+          "total": 2775
+        },
+        "cursors": {
+          "matched": 31,
+          "total": 31
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "wizard-greasy-write-glib",
+      "recordingSha256": "6f8be6114cd1a551dc75940ccc48608c51b6a978950a5f90e639dbbb09f03317",
+      "passed": false,
+      "metrics": {
+        "screens": {
+          "matched": 20,
+          "total": 22
+        },
+        "rng": {
+          "matched": 2958,
+          "total": 2967
+        },
+        "cursors": {
+          "matched": 20,
+          "total": 22
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "wizard-greasy-write-glib-final",
+      "recordingSha256": "20b60af8d804f9bd6ebd5b1217dae85a6cdad0afcae9d4f98bd6c57d6f3fb6e6",
+      "passed": false,
+      "metrics": {
+        "screens": {
+          "matched": 19,
+          "total": 22
+        },
+        "rng": {
+          "matched": 2968,
+          "total": 2978
+        },
+        "cursors": {
+          "matched": 20,
+          "total": 22
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "wizard-greasy-write-glib-retry",
+      "recordingSha256": "1f5fda2b5444e9bce7c2e066e976b60f62fd7c87ff871fc1ca349d47f8652212",
+      "passed": false,
+      "metrics": {
+        "screens": {
+          "matched": 19,
+          "total": 22
+        },
+        "rng": {
+          "matched": 2974,
+          "total": 3001
+        },
+        "cursors": {
+          "matched": 20,
+          "total": 22
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "wizard-greasy-write-menu",
+      "recordingSha256": "8c84d81c639a13c365d5d2a79e68d5cf92c9d25f9d82a474616930c2f582396e",
+      "passed": false,
+      "metrics": {
+        "screens": {
+          "matched": 20,
+          "total": 22
+        },
+        "rng": {
+          "matched": 2968,
+          "total": 2968
+        },
+        "cursors": {
+          "matched": 21,
+          "total": 22
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "wizard-read-earth",
+      "recordingSha256": "6ae031f54a66453fc280aac3ade648894c79f3672007e8b22d012e492940b01d",
+      "passed": true,
+      "metrics": {
+        "screens": {
+          "matched": 20,
+          "total": 20
+        },
+        "rng": {
+          "matched": 2134,
+          "total": 2134
+        },
+        "cursors": {
+          "matched": 20,
+          "total": 20
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "wizard-read-earth-reach",
+      "recordingSha256": "44d036a62da0fc62080b022f279326a1b309edcb8f4f6e8c3855a8c0555a1a8d",
+      "passed": false,
+      "metrics": {
+        "screens": {
+          "matched": 20,
+          "total": 21
+        },
+        "rng": {
+          "matched": 2454,
+          "total": 2457
+        },
+        "cursors": {
+          "matched": 20,
+          "total": 21
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "wizard-read-earth-retry",
+      "recordingSha256": "b8125c74e7a47cf3ae6583e7528bf012aee720cfb210b2c0791ebbaca6fc981b",
+      "passed": true,
+      "metrics": {
+        "screens": {
+          "matched": 20,
+          "total": 20
+        },
+        "rng": {
+          "matched": 2911,
+          "total": 2911
+        },
+        "cursors": {
+          "matched": 20,
+          "total": 20
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "wizard-sit-grave-retry",
+      "recordingSha256": "5941032cd15b1211aa173c9f33d1829910ee990fe0cbfae09bdb4f58820b7c3f",
+      "passed": true,
+      "metrics": {
+        "screens": {
+          "matched": 13,
+          "total": 13
+        },
+        "rng": {
+          "matched": 2165,
+          "total": 2165
+        },
+        "cursors": {
+          "matched": 13,
+          "total": 13
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "wizard-sit-grave-room",
+      "recordingSha256": "1706bb901094978303068b683465faa2bf2bd4f6352de4b260b413523f537ae5",
+      "passed": true,
+      "metrics": {
+        "screens": {
+          "matched": 14,
+          "total": 14
+        },
+        "rng": {
+          "matched": 2778,
+          "total": 2778
+        },
+        "cursors": {
+          "matched": 14,
+          "total": 14
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "wizard-sit-grave-room-retry",
+      "recordingSha256": "81482fcc4c3b29336f154795c1a57b03231fae3962f28d6918f9161ed045e4a3",
+      "passed": false,
+      "metrics": {
+        "screens": {
+          "matched": 15,
+          "total": 16
+        },
+        "rng": {
+          "matched": 2252,
+          "total": 2275
+        },
+        "cursors": {
+          "matched": 15,
+          "total": 16
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "wizard-sit-sink",
+      "recordingSha256": "a6e6459af85b668dabeba88ca416c61ce16784fcc18a2cbf38722b0c7d5932b9",
+      "passed": false,
+      "metrics": {
+        "screens": {
+          "matched": 11,
+          "total": 12
+        },
+        "rng": {
+          "matched": 2658,
+          "total": 2665
+        },
+        "cursors": {
+          "matched": 11,
+          "total": 12
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "wizard-sit-throne",
+      "recordingSha256": "777f1c5173e1e534cd61383f67d808292deec16b1c30c142e84522218a3204c7",
+      "passed": false,
+      "metrics": {
+        "screens": {
+          "matched": 13,
+          "total": 14
+        },
+        "rng": {
+          "matched": 2729,
+          "total": 2731
+        },
+        "cursors": {
+          "matched": 13,
+          "total": 14
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "wizard-tinning-confirm",
+      "recordingSha256": "5375360da74524cb290c791f0cee162af26f3e169f75d1c3a0715f3ce48e42dd",
+      "passed": false,
+      "metrics": {
+        "screens": {
+          "matched": 34,
+          "total": 36
+        },
+        "rng": {
+          "matched": 2645,
+          "total": 2645
+        },
+        "cursors": {
+          "matched": 35,
+          "total": 36
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "wizard-tinning-kit-newt",
+      "recordingSha256": "af72f9e2718b49db82c086cb7c3acccb219ec43e649d6c0c5e0b9b190fc5fe2d",
+      "passed": true,
+      "metrics": {
+        "screens": {
+          "matched": 31,
+          "total": 31
+        },
+        "rng": {
+          "matched": 4006,
+          "total": 4006
+        },
+        "cursors": {
+          "matched": 31,
+          "total": 31
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "wizard-tinning-retry",
+      "recordingSha256": "137f2cb977a1d661abbc8bd9cdbaafce9b802a39f040ac9c4a1c266359028d85",
+      "passed": false,
+      "metrics": {
+        "screens": {
+          "matched": 33,
+          "total": 34
+        },
+        "rng": {
+          "matched": 3003,
+          "total": 3003
+        },
+        "cursors": {
+          "matched": 33,
+          "total": 34
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "wizard-tinning-yes",
+      "recordingSha256": "20507a35d6d3cb3d7e607038b48b58444b9480f40da0d2bb23e1eabf95f3b72e",
+      "passed": false,
+      "metrics": {
+        "screens": {
+          "matched": 33,
+          "total": 35
+        },
+        "rng": {
+          "matched": 2715,
+          "total": 2726
+        },
+        "cursors": {
+          "matched": 34,
+          "total": 35
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "wizard-write-marker",
+      "recordingSha256": "987a358ceebc20128e9544f61c632053da89ddfe1654d4f6a621db7fd181bb49",
+      "passed": true,
+      "metrics": {
+        "screens": {
+          "matched": 30,
+          "total": 30
+        },
+        "rng": {
+          "matched": 1234,
+          "total": 1234
+        },
+        "cursors": {
+          "matched": 30,
+          "total": 30
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "wizard-write-marker-retry",
+      "recordingSha256": "bc8da8c21d66cf26404ecfc2a00997d199fce92f99bbcf66978fbcdf124085ac",
+      "passed": true,
+      "metrics": {
+        "screens": {
+          "matched": 32,
+          "total": 32
+        },
+        "rng": {
+          "matched": 2375,
+          "total": 2375
+        },
+        "cursors": {
+          "matched": 32,
+          "total": 32
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "wizard-write-marker-scroll",
+      "recordingSha256": "e8f78b1b83cf79ac36cd10644ca8004c5cc3237b94a333112f297c20ed16231c",
+      "passed": true,
+      "metrics": {
+        "screens": {
+          "matched": 51,
+          "total": 51
+        },
+        "rng": {
+          "matched": 2462,
+          "total": 2462
+        },
+        "cursors": {
+          "matched": 51,
+          "total": 51
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "v6-add-archeologist-eat-ration",
+      "recordingSha256": "b19cabaf9da04840736e5062a37ab1a8891572092ee02f78db963b446c1a21c0",
+      "passed": true,
+      "metrics": {
+        "screens": {
+          "matched": 3,
+          "total": 3
+        },
+        "rng": {
+          "matched": 2786,
+          "total": 2786
+        },
+        "cursors": {
+          "matched": 3,
+          "total": 3
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "v6-add-archeologist-pickaxe-engrave",
+      "recordingSha256": "aacd3d76e12848ce434b043e3a1215cf2c5f2e58883350d6b964b4e24f77243c",
+      "passed": true,
+      "metrics": {
+        "screens": {
+          "matched": 9,
+          "total": 9
+        },
+        "rng": {
+          "matched": 2871,
+          "total": 2871
+        },
+        "cursors": {
+          "matched": 9,
+          "total": 9
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "v6-add-archeologist-whip-wall",
+      "recordingSha256": "863fde671e09c2a11fa96b76dddee741a7a67f5b0fbca6a1541ded25067d87f5",
+      "passed": true,
+      "metrics": {
+        "screens": {
+          "matched": 4,
+          "total": 4
+        },
+        "rng": {
+          "matched": 2861,
+          "total": 2861
+        },
+        "cursors": {
+          "matched": 4,
+          "total": 4
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "v6-add-getpos-help",
+      "recordingSha256": "b06e8c75ff1bd4d7782425d9dd13080021baa88eb5e8bb592dca94c035cd4616",
+      "passed": true,
+      "metrics": {
+        "screens": {
+          "matched": 6,
+          "total": 6
+        },
+        "rng": {
+          "matched": 2659,
+          "total": 2659
+        },
+        "cursors": {
+          "matched": 6,
+          "total": 6
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "v6-add-healer-drink-potion",
+      "recordingSha256": "2b360ff4f24ab791d5c01041feb9df59d75e55d98b66800e9f5475f06187df64",
+      "passed": true,
+      "metrics": {
+        "screens": {
+          "matched": 3,
+          "total": 3
+        },
+        "rng": {
+          "matched": 2536,
+          "total": 2536
+        },
+        "cursors": {
+          "matched": 3,
+          "total": 3
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "v6-add-healer-read-book",
+      "recordingSha256": "16b3c212a1eed62ebe686cbda667b6086cf41d976609fedf476756f3ee0fff81",
+      "passed": true,
+      "metrics": {
+        "screens": {
+          "matched": 3,
+          "total": 3
+        },
+        "rng": {
+          "matched": 2948,
+          "total": 2948
+        },
+        "cursors": {
+          "matched": 3,
+          "total": 3
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "v6-add-healer-stethoscope-floor",
+      "recordingSha256": "f57461952f79e4c0a4af10939002e20ec244304a97b8c4c9b77a884dbf5b7220",
+      "passed": true,
+      "metrics": {
+        "screens": {
+          "matched": 4,
+          "total": 4
+        },
+        "rng": {
+          "matched": 2788,
+          "total": 2788
+        },
+        "cursors": {
+          "matched": 4,
+          "total": 4
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "v6-add-healer-takeoff-gloves",
+      "recordingSha256": "2eb7e247d77808937ed2af2b80515205129406bab4612d4565787f6ac59f2faa",
+      "passed": true,
+      "metrics": {
+        "screens": {
+          "matched": 3,
+          "total": 3
+        },
+        "rng": {
+          "matched": 1904,
+          "total": 1904
+        },
+        "cursors": {
+          "matched": 3,
+          "total": 3
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "v6-add-rogue-lockpick-door",
+      "recordingSha256": "d93c05c15d7d1614ea0515a3f0206e5e8c2f627e07ef637c5c5bbfb279731e38",
+      "passed": true,
+      "metrics": {
+        "screens": {
+          "matched": 4,
+          "total": 4
+        },
+        "rng": {
+          "matched": 2667,
+          "total": 2667
+        },
+        "cursors": {
+          "matched": 4,
+          "total": 4
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "v6-add2-archeologist-eat-ration",
+      "recordingSha256": "919d5c5ef80c0ba0e49a26223dfda80ede162e12fcf924e6a80df593c9fca4f7",
+      "passed": true,
+      "metrics": {
+        "screens": {
+          "matched": 4,
+          "total": 4
+        },
+        "rng": {
+          "matched": 2640,
+          "total": 2640
+        },
+        "cursors": {
+          "matched": 4,
+          "total": 4
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "v6-add2-archeologist-pickaxe-engrave",
+      "recordingSha256": "b93e1f849acf6ba5cf654bf515b9eda63851c9eecd363ce13ab32e3466b20c6e",
+      "passed": true,
+      "metrics": {
+        "screens": {
+          "matched": 10,
+          "total": 10
+        },
+        "rng": {
+          "matched": 2823,
+          "total": 2823
+        },
+        "cursors": {
+          "matched": 10,
+          "total": 10
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "v6-add2-archeologist-whip-wall",
+      "recordingSha256": "81e75538553d9197079064b54b06ed99b0c315bcdca8360609ee96c874ed8422",
+      "passed": true,
+      "metrics": {
+        "screens": {
+          "matched": 5,
+          "total": 5
+        },
+        "rng": {
+          "matched": 6281,
+          "total": 6281
+        },
+        "cursors": {
+          "matched": 5,
+          "total": 5
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "v6-add2-getpos-help",
+      "recordingSha256": "4c5b9cc1c771ac5cec9cac9b63f2bbb3851d49153020b1b60fdd379f01e314b2",
+      "passed": true,
+      "metrics": {
+        "screens": {
+          "matched": 7,
+          "total": 7
+        },
+        "rng": {
+          "matched": 2179,
+          "total": 2179
+        },
+        "cursors": {
+          "matched": 7,
+          "total": 7
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "v6-add2-healer-drink-potion",
+      "recordingSha256": "b679b8751ebcd68682d345457262950cd7ef082e2fb05285b0f1fb290d63fd08",
+      "passed": false,
+      "metrics": {
+        "screens": {
+          "matched": 3,
+          "total": 4
+        },
+        "rng": {
+          "matched": 2267,
+          "total": 2276
+        },
+        "cursors": {
+          "matched": 3,
+          "total": 4
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "v6-add2-healer-read-book",
+      "recordingSha256": "088e90ce07a2a5de00d8bb6a527cab520362b987d772913efd2c0cc8887dcd78",
+      "passed": true,
+      "metrics": {
+        "screens": {
+          "matched": 4,
+          "total": 4
+        },
+        "rng": {
+          "matched": 2900,
+          "total": 2900
+        },
+        "cursors": {
+          "matched": 4,
+          "total": 4
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "v6-add2-healer-stethoscope-floor",
+      "recordingSha256": "a415891fa5e1dcb7d4a99a6c77288a58881ab71600b108dc9a3eb665e32e6764",
+      "passed": true,
+      "metrics": {
+        "screens": {
+          "matched": 5,
+          "total": 5
+        },
+        "rng": {
+          "matched": 2598,
+          "total": 2598
+        },
+        "cursors": {
+          "matched": 5,
+          "total": 5
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "v6-add2-healer-takeoff-gloves",
+      "recordingSha256": "4ae39f1c9f9635d40c237d69a00d8495c1511b0cfd0bc058720f417b03abc09b",
+      "passed": false,
+      "metrics": {
+        "screens": {
+          "matched": 2,
+          "total": 4
+        },
+        "rng": {
+          "matched": 2589,
+          "total": 2614
+        },
+        "cursors": {
+          "matched": 2,
+          "total": 4
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "v6-add2-rogue-lockpick-door",
+      "recordingSha256": "061fbbfab773864eec94a4afec9fb4e141391ddfb90825e0105218fc4f43ec7d",
+      "passed": true,
+      "metrics": {
+        "screens": {
+          "matched": 5,
+          "total": 5
+        },
+        "rng": {
+          "matched": 2542,
+          "total": 2542
+        },
+        "cursors": {
+          "matched": 5,
+          "total": 5
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "v6-add3-archeologist-pickaxe-engrave",
+      "recordingSha256": "44efafcfbb5af81ac683fd326eaade536d707649eea240828221b0176ce12f32",
+      "passed": true,
+      "metrics": {
+        "screens": {
+          "matched": 10,
+          "total": 10
+        },
+        "rng": {
+          "matched": 2582,
+          "total": 2582
+        },
+        "cursors": {
+          "matched": 10,
+          "total": 10
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "v6-add3-healer-read-book",
+      "recordingSha256": "b050eb406d4f175ded16ad4801fd99661a538eabdcb718f22cb43aed44a5238f",
+      "passed": true,
+      "metrics": {
+        "screens": {
+          "matched": 4,
+          "total": 4
+        },
+        "rng": {
+          "matched": 2362,
+          "total": 2362
+        },
+        "cursors": {
+          "matched": 4,
+          "total": 4
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "v6-add4-archeologist-pickaxe-engrave",
+      "recordingSha256": "762f4bf6bf840c42cb2f3deff8c03059d49747998c5d1da2e5c535860bf1439f",
+      "passed": true,
+      "metrics": {
+        "screens": {
+          "matched": 11,
+          "total": 11
+        },
+        "rng": {
+          "matched": 2252,
+          "total": 2252
+        },
+        "cursors": {
+          "matched": 11,
+          "total": 11
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "v6-add4-healer-read-stone-to-flesh",
+      "recordingSha256": "4b50fe377580c90c2e09427948313c0656cb5bc15542c0de58a1d6df6ae0256f",
+      "passed": true,
+      "metrics": {
+        "screens": {
+          "matched": 4,
+          "total": 4
+        },
+        "rng": {
+          "matched": 2481,
+          "total": 2481
+        },
+        "cursors": {
+          "matched": 4,
+          "total": 4
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "v6-add5-archeologist-whip-no-pet",
+      "recordingSha256": "6419a405f04040b4f57878ec3ba1c0576c9ae84be9a6f2645e1367fe89a2f909",
+      "passed": true,
+      "metrics": {
+        "screens": {
+          "matched": 5,
+          "total": 5
+        },
+        "rng": {
+          "matched": 2607,
+          "total": 2607
+        },
+        "cursors": {
+          "matched": 5,
+          "total": 5
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "v6-add5-rogue-lockpick-door-north",
+      "recordingSha256": "1e559f6d5e81bf2a4c62710a898c135c7a130441b1a05d32fce7e992079221c6",
+      "passed": true,
+      "metrics": {
+        "screens": {
+          "matched": 5,
+          "total": 5
+        },
+        "rng": {
+          "matched": 2801,
+          "total": 2801
+        },
+        "cursors": {
+          "matched": 5,
+          "total": 5
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "v6-add6-healer-stethoscope-floor-below",
+      "recordingSha256": "a59c8d545be1daef5bbd75e215fcd585dd0e1718eb2f70b73ba13499db9c60ea",
+      "passed": false,
+      "metrics": {
+        "screens": {
+          "matched": 4,
+          "total": 5
+        },
+        "rng": {
+          "matched": 2432,
+          "total": 2432
+        },
+        "cursors": {
+          "matched": 4,
+          "total": 5
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "v6-add6-rogue-call-potion-type",
+      "recordingSha256": "19cb554df424e9e1c54c4832aa814ca6c9257b705e91c410e48ad05671862beb",
+      "passed": true,
+      "metrics": {
+        "screens": {
+          "matched": 14,
+          "total": 14
+        },
+        "rng": {
+          "matched": 2319,
+          "total": 2319
+        },
+        "cursors": {
+          "matched": 14,
+          "total": 14
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "v6-add7-rogue-call-potion-type",
+      "recordingSha256": "c187ef83a819123c5480684ae223233a08bbd5d1a0c7f70bc4c27a43e233122b",
+      "passed": true,
+      "metrics": {
+        "screens": {
+          "matched": 13,
+          "total": 13
+        },
+        "rng": {
+          "matched": 2843,
+          "total": 2843
+        },
+        "cursors": {
+          "matched": 13,
+          "total": 13
+        }
+      },
+      "error": null
+    }
+  ],
+  "totals": {
+    "sessions": {
+      "matched": 71,
+      "total": 95
+    },
+    "screens": {
+      "matched": 1712,
+      "total": 1751
+    },
+    "rng": {
+      "matched": 275064,
+      "total": 275371
+    },
+    "cursors": {
+      "matched": 1725,
+      "total": 1751
+    }
+  }
+}

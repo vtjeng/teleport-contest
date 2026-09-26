@@ -84590,7 +84590,7 @@
     {
       "id": "port-wizcmds-wiz-intrinsic-stoned-synthetic-v7-20260926",
       "kind": "file-port",
-      "status": "open",
+      "status": "parked",
       "summary": "Port wizcmds.c wiz_intrinsic including STONED state transition and delayed killer",
       "cFile": "wizcmds.c",
       "sessions": [
@@ -84862,7 +84862,17 @@
             }
           }
         }
-      ]
+      ],
+      "progressBeforePark": {
+        "screens": 0,
+        "rng": 0
+      },
+      "parkedStanding": {
+        "sha": "5b44c61053818704541250222dad121c9cf86445",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "parkedReason": "Verified #wizintrinsic STONED selection through admitted v7 step 17, delayed killer insertion, and an independent 37-step C/JS setup recording. v7 gains one matching screen without losses. Whole wiz_intrinsic still has unported void make_sick/make_slimed/make_stunned/make_vomiting arms, and the lizard cure cannot reach make_stoned removal in JS until eat.c:cpostfx is ported; retain source completion open."
     },
     {
       "id": "port-detect-use-crystal-ball-synthetic-v7-20260926",
