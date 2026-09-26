@@ -77962,7 +77962,7 @@
     {
       "id": "port-objnam-readobjnam-wish-retry-synthetic-v5-20260926",
       "kind": "file-port",
-      "status": "queued",
+      "status": "open",
       "summary": "Port complete objnam.c readobjnam wizard no-match behavior and wire wish retries",
       "cFile": "objnam.c",
       "sessions": [
@@ -77970,8 +77970,12 @@
       ],
       "selectionReason": "synthetic/v5/samurai-pet-ration-eating has 63 unmatched screens in challenges/evaluations/20260926043048-v5.json, the highest current case. investigations/synthetic/v5/samurai-pet-ration-eating.json traces its first stop to objnam.c readobjnam returning NULL and zap.c makewish retrying. This new current-input goal replaces the parked v2 readobjnam plan, whose selected altar case now mismatches pray.c offer_corpse and is owned by C11.",
       "detail": "C objnam.c readobjnam wizard unmatched-name tail returns NULL for meat ration after wizterrainwish and class/name fallbacks; JS throws. C zap.c makewish consumes NULL to print the failure and retry, while JS refuses that caller path. Port the whole readobjnam function, return-valued rnd_otyp_by_wpnskill callee, and production makewish result handling; retain independent source evidence for other entry points and blocked branches.",
-      "openedAt": null,
-      "openStanding": null,
+      "openedAt": "da8ba9b03ec1b7f478d16ca87b304e155fc15dcf",
+      "openStanding": {
+        "sha": "f0f6bb92fadc0ee1f23944403f684b02c8cdf422",
+        "screens": 11405,
+        "rng": 792838
+      },
       "closedAt": null,
       "delivered": null,
       "functions": [
@@ -77997,10 +78001,164 @@
           "manifestSha256": "5e4430fbd724fe91720f898c02e6f25f9d98e884fa31bd696ca1a63e87abf150",
           "recordingPath": "challenges/cases/v5/samurai-pet-ration-eating.session.json",
           "recordingSha256": "719edf6f87e6d47c9c59b0cbfd8a418269fb55e34f5dfbc93500b61dd472954c",
-          "evaluationPath": "challenges/evaluations/20260926043048-v5.json",
-          "evaluationCommit": "a4cca522bb1757073b5cea17ac1d8c2d7c82367f"
+          "evaluationPath": "challenges/evaluations/20260926083803-v5.json",
+          "evaluationCommit": "e0337a3a4ccf6c565622b7fb6eaad1207ecf278c"
         }
-      }
+      },
+      "activeStanding": {
+        "sha": "f0f6bb92fadc0ee1f23944403f684b02c8cdf422",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v5",
+          "caseId": "samurai-pet-ration-eating",
+          "session": "synthetic/v5/samurai-pet-ration-eating",
+          "manifestPath": "challenges/manifests/v5.json",
+          "manifestSha256": "5e4430fbd724fe91720f898c02e6f25f9d98e884fa31bd696ca1a63e87abf150",
+          "recording": "challenges/cases/v5/samurai-pet-ration-eating.session.json",
+          "recordingPath": "challenges/cases/v5/samurai-pet-ration-eating.session.json",
+          "recordingSha256": "719edf6f87e6d47c9c59b0cbfd8a418269fb55e34f5dfbc93500b61dd472954c",
+          "recipe": "challenges/cases/v5/samurai-pet-ration-eating.recipe.session.json",
+          "recipeSha256": "802b9c54f79a2a88166e3c87c3ea9f3debc686f204ae92537b5deaba48d3b431",
+          "replayInputSha256": "c5caa79295dba7c62cf191d27bc0d860a8e2e7cec07f1c261f182fe49078c1f8",
+          "evaluationPath": "challenges/evaluations/20260926083803-v5.json",
+          "evaluationCommit": "e0337a3a4ccf6c565622b7fb6eaad1207ecf278c",
+          "evaluationArtifact": "challenges/evaluations/20260926083803-v5.json",
+          "evaluationUtc": "2026-09-26T08:38:17.000Z",
+          "remainingScreens": 63,
+          "recordedSteps": 76,
+          "previousScreensMatched": 13,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 13,
+              "total": 76
+            },
+            "rng": {
+              "matched": 2699,
+              "total": 2926
+            },
+            "cursors": {
+              "matched": 13,
+              "total": 76
+            }
+          },
+          "firstMismatch": {
+            "kind": "stop",
+            "message": "unsupported hero command: an unported branch of this command: unsupported wish: a wish no lookup resolves",
+            "step": 13
+          },
+          "step": 13,
+          "kind": "stop",
+          "sourceFile": null,
+          "function": null,
+          "message": "unsupported hero command: an unported branch of this command: unsupported wish: a wish no lookup resolves",
+          "cFile": null,
+          "luaFile": null,
+          "line": null,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v5/samurai-pet-ration-eating.json",
+            "result": {
+              "session": "synthetic/v5/samurai-pet-ration-eating",
+              "corpus": "synthetic",
+              "batch": "v5",
+              "caseId": "samurai-pet-ration-eating",
+              "manifestPath": "challenges/manifests/v5.json",
+              "manifestSha256": "5e4430fbd724fe91720f898c02e6f25f9d98e884fa31bd696ca1a63e87abf150",
+              "recordingPath": "challenges/cases/v5/samurai-pet-ration-eating.session.json",
+              "recordingSha256": "719edf6f87e6d47c9c59b0cbfd8a418269fb55e34f5dfbc93500b61dd472954c",
+              "evaluationPath": "challenges/evaluations/20260926040211-v5.json",
+              "evaluationCommit": "d273b8936ba6746f4fa8287bf41668a9776c927c",
+              "remainingScreens": 63,
+              "recordedSteps": 76,
+              "status": "complete",
+              "commit": "d273b8936ba6746f4fa8287bf41668a9776c927c",
+              "mismatch": {
+                "corpus": "synthetic",
+                "batch": "v5",
+                "caseId": "samurai-pet-ration-eating",
+                "session": "synthetic/v5/samurai-pet-ration-eating",
+                "manifestPath": "challenges/manifests/v5.json",
+                "manifestSha256": "5e4430fbd724fe91720f898c02e6f25f9d98e884fa31bd696ca1a63e87abf150",
+                "recording": "challenges/cases/v5/samurai-pet-ration-eating.session.json",
+                "recordingPath": "challenges/cases/v5/samurai-pet-ration-eating.session.json",
+                "recordingSha256": "719edf6f87e6d47c9c59b0cbfd8a418269fb55e34f5dfbc93500b61dd472954c",
+                "recipe": "challenges/cases/v5/samurai-pet-ration-eating.recipe.session.json",
+                "recipeSha256": "802b9c54f79a2a88166e3c87c3ea9f3debc686f204ae92537b5deaba48d3b431",
+                "replayInputSha256": "eec4ab1b95e3c6672a8e7a236bec8ba27ab458268a14ec32ddbc24161c098f73",
+                "evaluationPath": "challenges/evaluations/20260926040211-v5.json",
+                "evaluationCommit": "d273b8936ba6746f4fa8287bf41668a9776c927c",
+                "evaluationArtifact": "challenges/evaluations/20260926040211-v5.json",
+                "evaluationUtc": "2026-09-26T04:02:22.672Z",
+                "remainingScreens": 63,
+                "recordedSteps": 76,
+                "previousScreensMatched": null,
+                "regression": false,
+                "passed": false,
+                "error": null,
+                "metrics": {
+                  "screens": {
+                    "matched": 13,
+                    "total": 76
+                  },
+                  "rng": {
+                    "matched": 2699,
+                    "total": 2926
+                  },
+                  "cursors": {
+                    "matched": 13,
+                    "total": 76
+                  }
+                },
+                "firstMismatch": {
+                  "kind": "stop",
+                  "message": "unsupported hero command: an unported branch of this command: unsupported wish: a wish no lookup resolves",
+                  "step": 13
+                },
+                "step": 13,
+                "kind": "stop",
+                "sourceFile": null,
+                "function": null,
+                "message": "unsupported hero command: an unported branch of this command: unsupported wish: a wish no lookup resolves",
+                "cFile": null,
+                "luaFile": null,
+                "line": null
+              },
+              "summary": "At step 13, the first Ctrl-W wizard wish asks for “meat ration.” C objnam.c readobjnam() reaches its wizard unmatched-name tail, gets no terrain wish or object class/type, and returns NULL. zap.c makewish() then prints “Nothing fitting that description exists in the game.” and retries; JS instead throws UnsupportedWishError (“a wish no lookup resolves”) from readobjnam(), stopping the segment at 13/76. The actionable first owner is the readobjnam() no-match return, with makewish()’s return-valued failed-wish retry required in the same behavior chain. The later C recipe reaches a tripe-ration throw that Hachi catches and eats at step 73 through dothrow.c to dog.c tamedog() and dogmove.c dog_eat(); that downstream event is not the first mismatch and is not reached by JS before the wish retry is implemented.",
+              "source": {
+                "file": "objnam.c",
+                "functions": [
+                  "readobjnam"
+                ],
+                "branch": "In wizard mode, readobjnam() reaches wiztrap after no object-name lookup succeeds. For the entered “meat ration,” wizterrainwish() returns null, d.bp does not select the polearm or hammer fallback, and d.oclass remains empty; C returns NULL at objnam.c:4992-4993. The JS equivalent throws at that boundary. The active caller zap.c makewish() consumes NULL at 6361-6364 by printing the no-match message, incrementing tries, and retrying the wish prompt.",
+                "callers": [
+                  "C cmd.c:2000 maps Ctrl-W (C('w')) to wiz_wish(); wizcmds.c:wiz_wish() calls zap.c:makewish() at 38; zap.c:makewish() calls objnam.c:readobjnam() and branches on its nullable return at 6360-6364.",
+                  "JS command dispatch reaches js/wizcmds.js:wiz_wish(), then js/zap.js:makewish(), then js/objnam_readobjnam.js:readobjnam(); the current no-match throw escapes before the makewish retry can run."
+                ],
+                "dependencies": [
+                  "zap.c:makewish() is a required return-valued caller dependency: its source retry prints the failed-wish text and asks again while tries < MAXWISHTRY (5). js/zap.js:makewish() currently marks this null-return path as an explicit UnsupportedWishError boundary at lines 2008-2009.",
+                  "wizcmds.c:wiz_wish() temporarily clears flags.verbose around makewish(), restores it, and then calls encumber_msg(); preserve that active wrapper while retrying. The C command route is the wizard-only Ctrl-W row in cmd.c:2000.",
+                  "Downstream intended event only: after a valid tripe-ration wish and throw, dothrow.c:throwit() calls tamedog() (dothrow.c:2269); dog.c:tamedog() places the caught food and calls dogmove.c:dog_eat() at dog.c:1200-1212. The C recording shows “Hachi catches the tripe ration. Hachi eats a tripe ration.” at step 73. This is beyond the first JS stop."
+                ]
+              },
+              "goalKind": "file-port",
+              "evidence": [
+                "The selected provenance is the v5 queue entry for synthetic/v5/samurai-pet-ration-eating: manifest challenges/manifests/v5.json (SHA-256 5e4430fbd724fe91720f898c02e6f25f9d98e884fa31bd696ca1a63e87abf150), recording challenges/cases/v5/samurai-pet-ration-eating.session.json (SHA-256 719edf6f87e6d47c9c59b0cbfd8a418269fb55e34f5dfbc93500b61dd472954c), and saved evaluation challenges/evaluations/20260926040211-v5.json at d273b8936ba6746f4fa8287bf41668a9776c927c. The queue reports 63 remaining screens of 76, 13/76 screens and cursors matched, 2699/2926 RNG calls matched, and a stop at step 13.",
+                "The immutable recipe challenges/cases/v5/samurai-pet-ration-eating.recipe.session.json begins with Ctrl-W, “meat ration”, Enter. In the C recording, step 13 is Enter and its screen begins “Nothing fitting that description exists in the game.--More--”; step 14 is Space and the screen becomes “For what do you wish (enter 'help' for assistance)?”, demonstrating that C reports a failed wish and continues the same makewish call.",
+                "Upstream objnam.c:4910-4993 documents and implements the null result for a failed lookup: the wizard wiztrap branch offers the text to wizterrainwish(), applies the polearm/hammer fallbacks, then returns NULL when d.oclass remains unset. Upstream zap.c:6360-6364 consumes that return by printing the exact recorded message and retrying while tries is below MAXWISHTRY (defined as 5 at zap.c:6160).",
+                "At the examined JS source, js/objnam_readobjnam.js:2000-2011 throws UnsupportedWishError after wizterrainwish() declines the text, instead of returning null. js/zap.js:2007-2009 has the corresponding makewish null/retry path explicitly unported and throws if it receives null. This accounts for the saved evaluation stop before the C retry screen.",
+                "The same C recording later shows the intended pet event at step 73 after the tripe-ration throw. Upstream dothrow.c:2269 -> dog.c:tamedog() (1200-1212) -> dogmove.c:dog_eat() identifies that as a later path; it cannot explain the first stop at step 13."
+              ]
+            }
+          }
+        }
+      ]
     },
     {
       "id": "port-read-doread-cursed-teleport-synthetic-v5-20260926",
