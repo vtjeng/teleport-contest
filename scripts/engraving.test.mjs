@@ -10,6 +10,8 @@ import {
     HEADSTONE,
     MARK,
     FLYING,
+    GETOBJ_DOWNPLAY,
+    GETOBJ_SUGGEST,
     HOLE,
     ICE,
     LEVITATION,
@@ -20,15 +22,30 @@ import {
     TT_PIT,
 } from '../js/const.js';
 import {
+    doengrave_ctx_init,
+    doengrave_ctx_verb,
+    blengr,
     can_reach_floor,
     engr_at,
     engr_can_be_felt,
     make_engr_at,
     read_engr_at,
+    stylus_ok,
     wipe_engr_at,
     wipeout_text,
 } from '../js/engrave.js';
 import { encodeUtf8ByteString } from '../js/hacklib.js';
+import {
+    AMULET_CLASS,
+    GEM_CLASS,
+    MAGIC_MARKER,
+    RING_CLASS,
+    TOOL_CLASS,
+    TOWEL,
+    WAND_CLASS,
+    WEAPON_CLASS,
+} from '../js/objects.js';
+import { M2_DEMON } from '../js/monsters.js';
 import {
     AD_STCK,
     AD_WRAP,
@@ -68,6 +85,127 @@ function noDrawRandom() {
         rnd: (bound) => assert.fail(`unexpected rnd(${bound})`),
     };
 }
+
+test('stylus_ok matches the C getobj recommendation classes', () => {
+    // engrave.c:481-502. The predicate changes prompt ordering only.
+    assert.equal(stylus_ok(null), GETOBJ_SUGGEST);
+    for (const oclass of [WEAPON_CLASS, WAND_CLASS, GEM_CLASS, RING_CLASS])
+        assert.equal(stylus_ok({ oclass }), GETOBJ_SUGGEST);
+    for (const otyp of [TOWEL, MAGIC_MARKER])
+        assert.equal(stylus_ok({ oclass: TOOL_CLASS, otyp }), GETOBJ_SUGGEST);
+    assert.equal(stylus_ok({ oclass: TOOL_CLASS, otyp: -1 }), GETOBJ_DOWNPLAY);
+    assert.equal(stylus_ok({ oclass: AMULET_CLASS }), GETOBJ_DOWNPLAY);
+});
+
+test('doengrave_ctx_init maps source defaults without mutating game state', () => {
+    // engrave.c:545-581. Its writes target only the local struct; the chosen
+    // engraving, hero form, swallow state and terrain are read-only inputs.
+    const map = { at: () => ({ typ: ICE }) };
+    const state = {
+        level: map,
+        u: { ux: 2, uy: 4, uswallow: false },
+        youmonst: { data: { mflags1: 0, mflags2: M2_DEMON, mlet: 0 } },
+    };
+    const before = {
+        coordinates: [state.u.ux, state.u.uy],
+        speciesFlags: state.youmonst.data.mflags2,
+        engravingHead: state.head_engr ?? null,
+    };
+    const context = doengrave_ctx_init(state);
+    assert.deepEqual({
+        coordinates: [state.u.ux, state.u.uy],
+        speciesFlags: state.youmonst.data.mflags2,
+        engravingHead: state.head_engr ?? null,
+    }, before);
+    assert.deepEqual({
+        dengr: context.dengr,
+        doblind: context.doblind,
+        doknown: context.doknown,
+        eow: context.eow,
+        ptext: context.ptext,
+        teleengr: context.teleengr,
+        zapwand: context.zapwand,
+        disprefresh: context.disprefresh,
+        adding: context.adding,
+        ret: context.ret,
+        type: context.type,
+        oetype: context.oetype,
+        otmp: context.otmp,
+        oep: context.oep,
+        buf: context.buf,
+        ebuf: context.ebuf,
+        fbuf: context.fbuf,
+        qbuf: context.qbuf,
+        post_engr_text: context.post_engr_text,
+        writer: context.writer,
+        jello: context.jello,
+        frosted: context.frosted,
+    }, {
+        dengr: false,
+        doblind: false,
+        doknown: false,
+        eow: false,
+        ptext: true,
+        teleengr: false,
+        zapwand: false,
+        disprefresh: false,
+        adding: false,
+        ret: 0,
+        type: ENGR_BLOOD,
+        oetype: 0,
+        otmp: null,
+        oep: null,
+        buf: '',
+        ebuf: '',
+        fbuf: '',
+        qbuf: '',
+        post_engr_text: '',
+        writer: null,
+        jello: false,
+        frosted: true,
+    });
+});
+
+test('doengrave_ctx_verb chooses source labels for every engraving type', () => {
+    // engrave.c:929-954 is a pure local-context switch.
+    const cases = [
+        [0, false, false, 'write strangely on', undefined],
+        [DUST, false, true, 'write in', 'frost'],
+        [DUST, true, false, 'add to the writing in', 'dust'],
+        [HEADSTONE, false, false, 'engrave on', undefined],
+        [HEADSTONE, true, false, 'add to the epitaph on', undefined],
+        [ENGRAVE, false, false, 'engrave in', undefined],
+        [ENGRAVE, true, false, 'add to the engraving in', undefined],
+        [BURN, false, false, 'burn into', undefined],
+        [BURN, false, true, 'melt into', undefined],
+        [BURN, true, false, 'add to the text burned into', undefined],
+        [BURN, true, true, 'add to the text melted into', undefined],
+        [MARK, false, false, 'scribble on', undefined],
+        [MARK, true, false, 'add to the graffiti on', undefined],
+        [ENGR_BLOOD, false, false, 'scrawl on', undefined],
+        [ENGR_BLOOD, true, false, 'add to the scrawl on', undefined],
+    ];
+    for (const [type, adding, frosted, everb, eloc] of cases) {
+        const context = { type, adding, frosted };
+        doengrave_ctx_verb(context);
+        assert.equal(context.everb, everb, `${type}/${adding}/${frosted}`);
+        assert.equal(context.eloc, eloc, `${type}/${adding}/${frosted}`);
+    }
+});
+
+test('blengr performs one source ROLL_FROM draw and returns its selected row', () => {
+    const draws = [];
+    const random = {
+        rn2(bound) {
+            draws.push(bound);
+            assert.equal(bound, 9);
+            return 0;
+        },
+        rnd(bound) { assert.fail(`unexpected rnd(${bound})`); },
+    };
+    assert.equal(blengr(random), 'Dfmibe"E{qemr');
+    assert.deepEqual(draws, [9]);
+});
 
 function nicheWipeScript() {
     return [
