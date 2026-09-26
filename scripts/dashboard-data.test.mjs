@@ -172,44 +172,6 @@ function renderDashboard(data, queue = null) {
     return elements;
 }
 
-// The goal timeline draws one row per local day for the week ending at the
-// build time, so a fixture pins summary.generatedAt near its goals to see
-// them.
-function renderTimeline(data, generatedAt) {
-    return renderDashboard({
-        ...data,
-        summary: { ...data.summary, generatedAt },
-    }).get('timeline').innerHTML;
-}
-
-function timelineBars(timeline) {
-    return [...timeline.matchAll(
-        /<div class="(day-bar[^"]*)" data-goal="(\d+)" style="left:([\d.e+-]+)%;width:([\d.e+-]+)%(?:;top:([\d.]+)px;height:([\d.]+)px)?"/gu,
-    )].map((match) => ({
-        classes: match[1].split(' '),
-        goal: Number(match[2]),
-        left: Number(match[3]),
-        width: Number(match[4]),
-        // Only a bar stacked in a lane carries its own top and height.
-        top: match[5] === undefined ? null : Number(match[5]),
-        height: match[6] === undefined ? null : Number(match[6]),
-    }));
-}
-
-function timelineBar(data, generatedAt, goalName) {
-    return timelineBars(renderTimeline(data, generatedAt))
-        .find((bar) => data.goals[bar.goal].name === goalName);
-}
-
-function assertBarsBounded(bars) {
-    assert.ok(bars.length > 0);
-    for (const { left, width } of bars) {
-        assert.ok(left >= 0);
-        // A bar clipped at midnight ends at 100%, up to rounding.
-        assert.ok(left + width <= 100 + 1e-9);
-    }
-}
-
 function sourceDashboardData(workGoals = []) {
     // No score or timing history is needed to render the queue and source
     // tables. Unit totals keep the unrelated percentage tiles well-defined.
@@ -221,6 +183,7 @@ function sourceDashboardData(workGoals = []) {
             medianTotalMin: null, medianGoalSelectionMin: null,
         },
         goals: [], progress: [], workGoals,
+        developmentSessions: { executionCommit: 'a'.repeat(40), sessions: [] },
         scoreHistory: ['Development set', 'Synthetic local holdout'].map((title, index) => ({
             id: ['developmentSet', 'syntheticHoldout'][index],
             title, points: [],
@@ -299,7 +262,7 @@ test('score cards share one format and show commit ages without hashes', () => {
     assert.match(table, /Nested &lt;box&gt;/u);
     assert.match(table, /container/u);
     assert.match(table, /<th>Initial<\/th><th>Current<\/th><th>Total<\/th><th>Change<\/th>/u);
-    assert.match(table, /<td>2<\/td><td>—<\/td><td>3<\/td><td>—<\/td>/u);
+    assert.match(table, /<td>2<\/td><td>-<\/td><td>3<\/td><td>—<\/td>/u);
     assert.doesNotMatch(table, /f{40}|2026-01-01 00:00Z|<time\b/u);
     assert.doesNotMatch(table + rendered.get('challengeCards').innerHTML,
         /Source pointers|invent\.c:12|&lt;tip&gt;/u);
@@ -347,17 +310,16 @@ test('remaining challenge filter includes screen and trace mismatches', () => {
             remainingScreens: 0, recordedSteps: 3, kind: 'rng' },
     ] };
     const rendered = renderDashboard(data, queue);
-    assert.equal(rendered.get('queueMetrics').textContent, '2 of 3 challenge cases remaining');
-    const filter = rendered.get('challengeRemainingOnly');
-    assert.match(rendered.get('challengeTable').innerHTML, /Fixed[\s\S]*Screen mismatch[\s\S]*Trace mismatch/u);
+    assert.match(rendered.get('sessionSummary').textContent, /2 of 3 synthetic sessions remaining/u);
+    const filter = rendered.get('sessionShowAll');
+    assert.doesNotMatch(rendered.get('challengeTable').innerHTML, /<td>Fixed<\/td>/u);
+    assert.match(rendered.get('challengeTable').innerHTML, /Screen mismatch[\s\S]*Trace mismatch/u);
     filter.checked = true;
     filter.listeners.change[0]();
-    assert.doesNotMatch(rendered.get('challengeTable').innerHTML, /Fixed/u);
-    assert.match(rendered.get('challengeTable').innerHTML, /Screen mismatch[\s\S]*Trace mismatch/u);
-    assert.doesNotMatch(rendered.get('challengeCards').innerHTML, /Fixed/u);
+    assert.match(rendered.get('challengeTable').innerHTML, /Fixed/u);
     filter.checked = false;
     filter.listeners.change[0]();
-    assert.match(rendered.get('challengeTable').innerHTML, /Fixed/u);
+    assert.doesNotMatch(rendered.get('challengeTable').innerHTML, /<td>Fixed<\/td>/u);
 });
 
 test('unmeasured challenge cases remain visible in the remaining filter', () => {
@@ -371,13 +333,10 @@ test('unmeasured challenge cases remain visible in the remaining filter', () => 
     ];
     const rendered = renderDashboard(data, { mode: 'work', sessions: [],
         generationReady: false, blockers: ['v3 evaluation missing'] });
-    assert.equal(rendered.get('queueMetrics').textContent,
-        '2 of 2 challenge cases remaining in saved results');
-    const filter = rendered.get('challengeRemainingOnly');
-    filter.checked = true;
-    filter.listeners.change[0]();
-    assert.match(rendered.get('challengeTable').innerHTML,
-        /Pending evaluation[\s\S]*Incomplete metrics/u);
+    assert.match(rendered.get('sessionSummary').textContent,
+        /2 of 2 synthetic sessions remaining/u);
+    assert.match(rendered.get('challengeTable').innerHTML, /Pending evaluation/u);
+    assert.match(rendered.get('challengeTable').innerHTML, /Incomplete metrics/u);
 });
 
 test('score rows expose named development and local holdout measures', () => {
@@ -447,8 +406,10 @@ test('synthetic batch histories and duplicate case IDs remain separate in the da
         points: [{ utc: '2026-01-01T00:00:00Z', screens: index + 1, screensTotal: 3 }],
     }))];
     const rendered = renderDashboard(data);
-    assert.match(rendered.get('challengeTable').innerHTML, /v1 · Shared title[\s\S]*v2 · Shared title/u);
-    assert.match(rendered.get('challengeBatches').innerHTML, /v1<\/strong> · stale[\s\S]*v2<\/strong> · unmeasured/u);
+    assert.match(rendered.get('challengeTable').innerHTML,
+        /Shared title<\/td><td>Synthetic · v1[\s\S]*Shared title<\/td><td>Synthetic · v2/u);
+    assert.match(rendered.get('challengeBatches').innerHTML,
+        /v1: stale[\s\S]*v2: unmeasured/u);
     assert.match(rendered.get('stats').innerHTML, /Earlier measurement; reassessment required/u);
     assert.match(rendered.get('challengeHistoryPlots').innerHTML, /v1[\s\S]*challengeChart[\s\S]*v2[\s\S]*challengeChart2/u);
     assert.ok(rendered.get('challengeChart').ops.length);
@@ -462,7 +423,8 @@ test('healthy batch measurements do not repeat above the challenge cases', () =>
         { batch: 'v1', status: 'measured', totals: { screens: { matched: 8, total: 10 } } },
         { batch: 'v2', status: 'measured', totals: { screens: { matched: 4, total: 5 } } },
     ];
-    assert.equal(renderDashboard(data).get('challengeBatches').innerHTML, '');
+    assert.equal(renderDashboard(data, { sessions: [], blockers: [] })
+        .get('challengeBatches').innerHTML, '');
 });
 
 test('batch notices group repeated errors without repeating them in the score card', () => {
@@ -474,171 +436,61 @@ test('batch notices group repeated errors without repeating them in the score ca
     data.challenges.error = data.challenges.batches.map(batch => batch.error).join('; ');
     const grouped = renderDashboard(data);
     assert.match(grouped.get('challengeBatches').innerHTML,
-        /<strong>v1, v2<\/strong> · stale · replay inputs changed since evaluation/u);
+        /v1, v2: stale · replay inputs changed since evaluation/u);
     assert.equal((grouped.get('challengeBatches').innerHTML.match(/replay inputs changed/gu) || []).length, 1);
     assert.doesNotMatch(grouped.get('stats').innerHTML, /replay inputs changed/u);
     data.challenges.error = 'aggregate evaluation failed';
     assert.match(renderDashboard(data).get('stats').innerHTML, /aggregate evaluation failed/u);
 });
 
-test('primary dashboard sections put the queue and challenges before historical detail', () => {
+test('primary dashboard sections put sessions before activity and historical detail', () => {
     const template = readFileSync(TEMPLATE, 'utf8');
-    const positions = ['id="stats"', 'id="scoreHistoryTitle"', 'id="queueDisclosure"',
-        'id="queueSummaryTitle"', 'id="challengeTitle"', 'class="diagnostics"',
-        'id="sourceWorkDisclosure"', 'id="timeline"', 'id="goalTable"']
+    const positions = ['id="stats"', 'id="scoreHistoryTitle"', 'id="challengeTitle"',
+        'class="diagnostics"', 'id="sourceWorkDisclosure"', 'id="timeline"',
+        'id="goalTable"', 'id="remainingWorkDisclosure"']
         .map(marker => template.indexOf(marker));
     assert.ok(positions.every(position => position >= 0));
     assert.deepEqual(positions, [...positions].sort((a, b) => a - b));
-    assert.doesNotMatch(template, /id="currentWork"|id="pausedWork"/u);
-    assert.match(template, /<details class="section" id="queueDisclosure">/u);
-    assert.doesNotMatch(template, /id="queueSummaryLink"|View ranked queue|Ranked mismatch queue/u);
+    assert.doesNotMatch(template, /id="queueDisclosure"|Known mismatches|<h2[^>]*>Challenges<\/h2>/u);
 });
 
-test('the unified queue renders C, Lua, and unresolved source owners in priority order', () => {
-    // Synthetic remaining counts order a C blocker, Lua loader, and unknown
-    // owner. The unknown step must remain unknown rather than becoming zero.
-    const queue = {
-        roadmapFallbackAllowed: false,
-        sessions: [
-            { session: 'movement', step: 2, kind: 'stop', sourceFile: 'hack.c',
-                function: 'test_move', line: 42, recordedSteps: 10,
-                remainingScreensUpperBound: 8 },
-            { session: 'quest', step: 1, kind: 'stop', sourceFile: 'Arc-loca.lua',
-                function: null, line: null, recordedSteps: 9,
-                remainingScreensUpperBound: 6 },
-            { session: 'unknown-owner', step: null, kind: 'unresolved', sourceFile: null,
-                message: 'Find <source> & "caller"', recordedSteps: 4,
-                remainingScreensUpperBound: 4 },
-        ],
-        candidates: [
-            { sourceFile: 'hack.c', remainingScreensUpperBound: 8 },
-            { sourceFile: 'Arc-loca.lua', remainingScreensUpperBound: 6 },
-            { sourceFile: null, sessions: ['unknown-owner'], remainingScreensUpperBound: 4 },
-        ],
-    };
-    const rendered = renderDashboard(sourceDashboardData(), queue);
-    const entries = rendered.get('queueEntries').innerHTML;
-    assert.match(entries, /Mismatch site: test_move\(\) in hack\.c:42</u);
-    assert.match(entries, /Mismatch site: Arc-loca\.lua</u);
-    assert.match(entries, /step unknown/u);
-    assert.match(entries, /unresolved · Find &lt;source> &amp; &quot;caller&quot;</u);
-    const summaries = [...entries.matchAll(/<summary>(.*?)<\/summary>/gu)].map(match => match[1]);
-    assert.equal(summaries.length, 3);
-    assert.ok(summaries.every(summary => summary.includes('No investigation result')));
-    assert.match(summaries[0], /movement[\s\S]*at most 8 of 10 screens unmatched/u);
-    assert.match(summaries[0], /Upper bound from the first known divergence; later screens may still match\./u);
-    // Rows follow per-session remaining counts even though quest fails earlier.
-    assert.match(entries, /movement[\s\S]*quest[\s\S]*unknown-owner/u);
-    assert.doesNotMatch(entries, /Every development session matches/u);
-});
-
-test('the queue shows current findings and explicit missing, partial, and stale states', () => {
-    // Decreasing synthetic counts define per-session priority. Deliberately
-    // reverse the source-group order so it cannot silently override that policy.
-    const sessions = ['missing', 'complete', 'partial', 'stale', 'invalid'].map((status, index) => ({
-        session: status, step: index, kind: 'screen', sourceFile: null,
-        remainingScreensUpperBound: 10 - index, recordedSteps: 10,
-        investigation: {
-            status,
-            ...(['complete', 'partial'].includes(status) ? { result: {
-                summary: `${status} finding <tag> & "quote"`,
-                source: { file: 'hack.c', functions: ['test_move'] },
-            } } : {}),
-        },
-    }));
-    const queue = { sessions: [...sessions].reverse(), candidates: [...sessions].reverse()
-        .map(entry => ({ sessions: [entry.session] })) };
-    const entries = renderDashboard(sourceDashboardData(), queue).get('queueEntries').innerHTML;
-    assert.match(entries, /missing[\s\S]*complete[\s\S]*partial[\s\S]*stale[\s\S]*invalid/u);
-    const summaries = [...entries.matchAll(/<summary>(.*?)<\/summary>/gu)].map(match => match[1]);
-    assert.match(summaries[0], /No investigation result/u);
-    assert.match(summaries[1], /aria-label="Investigation complete"[\s\S]*☑/u);
-    assert.match(summaries[2], /aria-label="Partial investigation"[\s\S]*◐/u);
-    assert.match(summaries[3], /aria-label="Needs investigation · remaining-screen count changed"[\s\S]*☐/u);
-    assert.match(summaries[4], /aria-label="Investigation file incomplete or unreadable"[\s\S]*⚠/u);
-    // Findings stay in the expanded body, keeping the queue scannable on phones.
-    assert.ok(summaries.every(summary => !summary.includes('finding')));
-    assert.match(entries, /complete finding &lt;tag> &amp; &quot;quote&quot;/u);
-    assert.match(entries, /Source: hack\.c · test_move/u);
-    assert.doesNotMatch(entries, /<tag>/u);
-});
-
-test('an unavailable mismatch queue differs from a confirmed empty queue', () => {
-    // Null is the builder's failure value; absent sessions and an empty scan
-    // without fallback permission also provide no evidence of completion.
-    for (const queue of [null, {}, { sessions: [], roadmapFallbackAllowed: false }]) {
-        const rendered = renderDashboard(sourceDashboardData(), queue);
-        assert.equal(rendered.get('queueHeadline').textContent, 'Queue unavailable');
-        const entries = rendered.get('queueEntries').innerHTML;
-        assert.match(entries, /Mismatch queue unavailable; completion is unknown/u);
-        assert.doesNotMatch(entries, /Every development session matches/u);
-    }
-    const rendered = renderDashboard(sourceDashboardData(), {
-        sessions: [], candidates: [], roadmapFallbackAllowed: true,
-    });
-    assert.equal(rendered.get('queueHeadline').textContent, 'No known mismatches');
-    const entries = rendered.get('queueEntries').innerHTML;
-    assert.match(entries, /Every development session matches/u);
-    assert.doesNotMatch(entries, /unavailable|unknown/u);
-});
-
-test('work queue keeps regression priority and displays exact synthetic screen counts', () => {
-    const row = { step: 1, kind: 'screen', recordedSteps: 20,
-        remainingScreensUpperBound: 19, corpus: 'synthetic', sourceFile: null };
-    const queue = { mode: 'work', generationReady: false, blockers: [], sessions: [
-        { ...row, session: 'synthetic/v1/regression', remainingScreens: 1, regression: true },
-        { ...row, session: 'synthetic/v2/new-case', remainingScreens: 7 },
-    ] };
-    const rendered = renderDashboard(sourceDashboardData(), queue);
-    const html = rendered.get('queueEntries').innerHTML;
-    assert.equal(rendered.get('queueHeadline').textContent, 'Known mismatches');
-    assert.match(html, /v1\/regression[\s\S]*1 of 20 screens unmatched[\s\S]*v2\/new-case[\s\S]*7 of 20 screens unmatched/u);
-    assert.match(html, /Regression: restore previously matched screens first/u);
-    assert.doesNotMatch(html, /at most|19 of 20/u);
-});
-
-test('queue summary distinguishes incomplete evidence and screen-free mismatches', () => {
+test('one sessions table includes both sets with exact scores and distinct mismatch counts', () => {
     const data = sourceDashboardData();
-    const screens = { matched: 3, total: 3 };
-    const cursors = { matched: 3, total: 3 };
-    data.challenges.cases = [
-        { batch: 'v1', id: 'fixed', current: { passed: true, screens,
-            rng: { matched: 10, total: 10 }, cursors } },
-        { batch: 'v1', id: 'cursor', current: { passed: false, screens,
-            rng: { matched: 9, total: 10 }, cursors } },
+    const full = { matched: 4, total: 4 };
+    data.developmentSessions.sessions = [
+        { session: 'matched', passed: true, error: null,
+            metrics: { screens: full, rng: full, cursors: full } },
+        { session: 'holdout/remaining', passed: false, error: null,
+            metrics: { screens: { matched: 2, total: 4 }, rng: full, cursors: full } },
     ];
-    const unavailable = renderDashboard(data, null);
-    assert.equal(unavailable.get('queueHeadline').textContent, 'Queue unavailable');
-    assert.equal(unavailable.get('queueMetrics').textContent,
-        '1 of 2 challenge cases remaining in saved results');
-    const blocked = renderDashboard(data, { mode: 'work', sessions: [], generationReady: false,
-        blockers: ['v2 evaluation missing'] });
-    assert.equal(blocked.get('queueHeadline').textContent, 'Queue incomplete');
-    assert.equal(blocked.get('queueMetrics').textContent,
-        '1 of 2 challenge cases remaining in saved results');
-    assert.match(blocked.get('queueSummaryWarning').textContent, /1 blocker; ranked queue may be incomplete/u);
-    const trace = renderDashboard(data, { mode: 'work', generationReady: true, blockers: [],
-        sessions: [{ corpus: 'synthetic', session: 'synthetic/v1/cursor',
-            remainingScreens: 0, investigation: { status: 'complete' } }] });
-    assert.equal(trace.get('queueMetrics').textContent, '1 of 2 challenge cases remaining');
-    assert.match(trace.get('queueEntries').innerHTML, /cursor/u);
-});
-
-test('work queue distinguishes unavailable measurements from the next batch threshold', () => {
-    const data = sourceDashboardData();
-    const blocked = renderDashboard(data, { mode: 'work', sessions: [], generationReady: false,
-        blockers: ['v2 evaluation missing <artifact>'] });
-    assert.equal(blocked.get('queueHeadline').textContent, 'Queue incomplete');
-    assert.match(blocked.get('queueEntries').innerHTML, /Selection blocked: v2 evaluation missing &lt;artifact>/u);
-    assert.doesNotMatch(blocked.get('queueEntries').innerHTML, /Every development session matches|Generate and baseline/u);
-    const ready = renderDashboard(data, { mode: 'work', sessions: [], generationReady: true, blockers: [] });
-    assert.equal(ready.get('queueHeadline').textContent, 'No known mismatches');
-    assert.match(ready.get('queueEntries').innerHTML, /Generate and baseline the next batch/u);
-    const cursor = renderDashboard(data, { mode: 'work', generationReady: true, blockers: [], sessions: [{
-        corpus: 'synthetic', session: 'synthetic/v1/cursor', remainingScreens: 0,
-        recordedSteps: 4, step: 3, kind: 'cursor',
-    }] });
-    assert.match(cursor.get('queueEntries').innerHTML, /remaining RNG and cursor defects[\s\S]*0 of 4 screens unmatched/u);
+    data.challenges.cases = [
+        { batch: 'v2', id: 'matched', title: 'Synthetic matched',
+            first: { screens: { matched: 1, total: 4 } },
+            current: { passed: true, screens: full, rng: full, cursors: full }, delta: 3 },
+        { batch: 'v2', id: 'remaining', title: 'Synthetic remaining',
+            first: { screens: { matched: 1, total: 4 } },
+            current: { passed: false, screens: { matched: 2, total: 4 },
+                rng: full, cursors: full }, delta: 1 },
+    ];
+    const queue = { sessions: [
+        { corpus: 'fixed', session: 'holdout/remaining', step: 2, kind: 'screen',
+            remainingScreensUpperBound: 2 },
+        { corpus: 'synthetic', session: 'synthetic/v2/remaining', step: 3,
+            kind: 'screen', remainingScreens: 2 },
+    ], blockers: [] };
+    const rendered = renderDashboard(data, queue);
+    const table = rendered.get('challengeTable');
+    assert.match(rendered.get('sessionSummary').textContent,
+        /1 of 2 development sessions remaining · 1 of 2 synthetic sessions remaining/u);
+    assert.match(table.innerHTML, /holdout\/remaining[\s\S]*Development[\s\S]*<td>0<\/td><td>2<\/td><td>4<\/td><td>\+2<\/td>/u);
+    assert.match(table.innerHTML, /At most 2 later screens may be affected/u);
+    assert.match(table.innerHTML, /Synthetic remaining[\s\S]*2 screens currently unmatched/u);
+    assert.doesNotMatch(table.innerHTML, /Synthetic matched|<summary>matched<\/summary>/u);
+    const showAll = rendered.get('sessionShowAll');
+    showAll.checked = true;
+    showAll.listeners.change[0]();
+    assert.match(table.innerHTML, /Synthetic matched/u);
+    assert.match(table.innerHTML, /<td>matched<\/td><td>Development/u);
 });
 
 function sourceFileRows(table) {
@@ -717,610 +569,6 @@ test('queued goals remain visible in the source inventory', () => {
     }
 });
 
-test('Lua source goals retain their kind in timeline lanes and history stripes', () => {
-    // Two overlapping source goals exercise main's lanes with the Lua kind
-    // introduced by the methodology work. Both finish before the build time.
-    const goal = {
-        status: 'closed', eventType: 'goal', openTimeSource: 'open-commit',
-        openTime: '2026-01-01T01:00:00Z', closeTime: '2026-01-01T02:00:00Z',
-        totalMin: 60, totalObserved: true, goalSelectionMin: 0,
-        goalSelectionObserved: true, sliceCount: 1, audits: [], screensDelta: 0,
-    };
-    const data = {
-        ...sourceDashboardData(),
-        goals: [
-            { ...goal, kind: 'file-port', name: 'port-hack' },
-            { ...goal, kind: 'lua-port', name: 'port-Arc-loca' },
-        ],
-    };
-    const rendered = renderDashboard({
-        ...data, summary: { ...data.summary, generatedAt: '2026-01-01T03:00:00Z' },
-    });
-    const bars = timelineBars(rendered.get('timeline').innerHTML);
-    assert.equal(bars.length, 2); // Both source goals have a bar in their shared day.
-    assert.ok(bars[1].classes.includes('lua-port'));
-    assert.ok(bars[1].top > bars[0].top); // Overlap places Lua in a separate lane.
-    assert.match(rendered.get('goalTable').innerHTML,
-        /class="kind-lua-port"><td title="port-Arc-loca">Arc-loca<\/td>/u);
-    assert.match(rendered.get('timelineLegend').innerHTML, /source port \(C or Lua\)/u);
-    assert.match(rendered.get('tableLegend').innerHTML, /source port \(C or Lua\)/u);
-});
-
-test('dashboard separates closed goals and labels inferred timing', () => {
-    const fixture = mkdtempSync(join(tmpdir(), 'teleport-dashboard-data-'));
-    git(fixture, ['init', '--quiet']);
-    git(fixture, ['config', 'user.name', 'Dashboard Test']);
-    git(fixture, ['config', 'user.email', 'dashboard@example.invalid']);
-    commit(fixture, 'Baseline', '2026-01-01T00:00:00Z');
-    const legacyClose = commit(
-        fixture, 'Close legacy goal', '2026-01-01T00:05:00Z',
-    );
-    commit(fixture, 'Open alpha goal', '2026-01-01T00:10:00Z');
-    commit(fixture, 'Queue alpha slice', '2026-01-01T00:20:00Z');
-    const alphaClose = commit(
-        fixture, 'Close alpha goal', '2026-01-01T00:30:00Z',
-    );
-    commit(fixture, 'Queue orphan slice', '2026-01-01T00:40:00Z');
-    const orphanClose = commit(
-        fixture, 'Close orphan goal', '2026-01-01T00:50:00Z',
-    );
-    commit(fixture, 'Open empty goal', '2026-01-01T01:00:00Z');
-    const emptyClose = commit(
-        fixture, 'Close empty goal', '2026-01-01T01:10:00Z',
-    );
-    commit(fixture, 'Open beta goal', '2026-01-01T01:20:00Z');
-    commit(fixture, 'Queue beta slice', '2026-01-01T01:30:00Z');
-
-    // GOALS.json supplies each goal's kind. alpha is a closed file port with
-    // one of two functions ported; beta is the open file port; orphan is a
-    // divergence fix; legacy and empty have no record and stay `boundary`.
-    writeFileSync(join(fixture, 'GOALS.json'), JSON.stringify({
-        goals: [
-            {
-                id: 'alpha', kind: 'file-port', status: 'closed',
-                summary: 'Port alpha.c', cFile: 'alpha.c',
-                functions: [
-                    { name: 'one', line: 1, endLine: 9, ported: true },
-                    { name: 'two', line: 10, endLine: 20, ported: false },
-                ],
-                spans: [{ name: 'one', status: 'closed', closedBy: alphaClose }],
-                delivered: { screens: 5, rng: 50 },
-            },
-            {
-                id: 'beta', kind: 'file-port', status: 'open',
-                summary: 'Port beta.c', cFile: 'beta.c',
-                functions: [{ name: 'three', line: 1, endLine: 5, ported: false }],
-                spans: [{ name: 'three', status: 'queued', closedBy: null }],
-            },
-            {
-                id: 'orphan', kind: 'divergence-fix', status: 'closed',
-                summary: 'fix', cFile: 'dog.c', function: 'dog_eat',
-                session: 'seed0001-example', spans: [],
-            },
-            {
-                id: 'paused-investigation', kind: 'divergence-fix', status: 'parked',
-                summary: 'Investigate the next mismatch',
-                parkedReason: 'Waiting for source ownership', spans: [],
-            },
-        ],
-    }));
-
-    writeFileSync(join(fixture, 'SCORE.tsv'), [
-        SCORE_HEADER,
-        scoreRow({
-            utc: '2026-01-01',
-            sha: legacyClose,
-            event: 'goal',
-            screens: 5,
-            note: 'legacy closes without precise time.',
-        }),
-        scoreRow({
-            utc: '2026-01-01T00:25:00Z',
-            sha: alphaClose,
-            event: 'slice',
-            screens: 10,
-            note: 'alpha slice closes.',
-        }),
-        scoreRow({
-            utc: '2026-01-01T00:30:00Z',
-            sha: alphaClose,
-            event: 'goal',
-            screens: 10,
-            note: 'alpha closes after one slice.',
-        }),
-        scoreRow({
-            utc: '2026-01-01T00:50:00Z',
-            sha: orphanClose,
-            event: 'goal',
-            screens: 20,
-            note: 'orphan closes after one slice.',
-        }),
-        scoreRow({
-            utc: '2026-01-01T01:10:00Z',
-            sha: emptyClose,
-            event: 'goal',
-            screens: 30,
-            note: 'empty closes without a slice.',
-        }),
-        '',
-    ].join('\n'));
-
-    const data = JSON.parse(execFileSync(process.execPath, [DATA_SCRIPT], {
-        cwd: fixture,
-        encoding: 'utf8',
-    }));
-    assert.equal(data.goals.length, 6); // Five timed goals plus the undated parked record.
-    assert.equal(data.summary.totalGoals, 4);
-    assert.equal(data.summary.inProgressGoals, 1);
-
-    const [legacy, alpha, orphan, empty, beta] = data.goals.filter(goal => goal.status !== 'parked');
-    assert.equal(data.goals.find(goal => goal.name === 'paused-investigation').totalMin, null);
-    assert.equal(legacy.kind, 'boundary');
-    assert.equal(alpha.kind, 'file-port');
-    assert.equal(alpha.cFile, 'alpha.c');
-    assert.equal(alpha.functionsDeclared, 1);
-    assert.equal(alpha.functionsTotal, 2);
-    assert.equal(alpha.functionsVerified, 0); // Historical declarations are not completion evidence.
-    assert.equal(orphan.kind, 'divergence-fix');
-    assert.equal(beta.kind, 'file-port');
-    assert.deepEqual(data.workGoals.map((port) => port.id), ['alpha', 'beta', 'orphan', 'paused-investigation']);
-    assert.deepEqual(data.workGoals[0].units, [
-        { name: 'one', verified: false }, { name: 'two', verified: false },
-    ]); // Historical declarations do not count as verified units.
-    assert.equal(data.workGoals[2].sourceFile, 'dog.c');
-    assert.equal(data.workGoals[2].kind, 'divergence-fix');
-    assert.equal(data.workGoals[3].status, 'parked');
-    assert.equal(data.workGoals[3].parkedReason, 'Waiting for source ownership');
-    assert.equal(data.workGoals[3].sourceFile, null);
-    assert.equal(legacy.closeTimeSource, 'commit');
-    assert.equal(data.progress[0].utcSource, 'commit');
-    assert.equal(data.progress[1].utcSource, 'commit');
-    assert.equal(alpha.openTimeSource, 'open-commit');
-    assert.equal(alpha.goalSelectionMin, 5);
-    assert.equal(alpha.goalSelectionObserved, true);
-    assert.equal(alpha.closeTimeSource, 'commit');
-    // Slice close time comes from the commit SHA (:30), not the SCORE row (:25)
-    assert.equal(alpha.slices[0].closeTimeSource, 'score-slice');
-    assert.equal(alpha.slices[0].closeTime, '2026-01-01T00:30:00.000Z');
-    assert.equal(alpha.slices[0].durationMin, 10);
-    assert.equal(alpha.timingObserved, true);
-    assert.equal(orphan.openTimeSource, 'previous-goal-close-inferred');
-    assert.equal(orphan.slices[0].closeTimeSource, 'goal-close-inferred');
-    assert.equal(orphan.timingObserved, false);
-    assert.equal(empty.sliceCount, 0);
-    assert.equal(empty.timingObserved, false);
-    assert.equal(beta.status, 'in-progress');
-    assert.equal(beta.goalSelectionMin, 10);
-    assert.equal(beta.goalSelectionObserved, true);
-    assert.equal(beta.sliceSelectionMin, 10);
-    assert.equal(beta.sliceSelectionObserved, true);
-    assert.equal(beta.slices[0].closeTimeSource, 'current-time-inferred');
-    // Both alpha (5m) and empty (10m) have observed goal selection now
-    assert.equal(data.summary.medianGoalSelectionMin, 7.5);
-    // Alpha's slice duration is 10m (commit time, not SCORE time)
-    assert.equal(data.summary.medianImplementationMin, 10);
-    // Alpha verification = close(:30) - lastSliceClose(:30) = 0
-    assert.equal(data.summary.medianVerificationMin, 0);
-    // totalMin now measures prevCloseTime → closeTime (includes goal selection)
-    // alpha: (:30 - :05) = 25, empty: (1:10 - :50) = 20, median = 22.5
-    assert.equal(data.summary.medianTotalMin, 22.5);
-
-    const rendered = renderDashboard(data);
-    const table = rendered.get('goalTable').innerHTML;
-    assert.match(table, /<th>Task<\/th><th>Δ<\/th><th>Start<\/th><th>Total<\/th>/u);
-    assert.doesNotMatch(table, /<th>Spans<\/th>/u);
-    const orphanRow = table.split('</tr>').find((row) => row.includes('orphan'));
-    const alphaRow = table.split('</tr>').find((row) => row.includes('alpha'));
-    const betaRow = table.split('</tr>').find((row) => row.includes('beta'));
-    // The row's kind class draws its stripe; the kinds come from GOALS.json:
-    // alpha is a file port, orphan a divergence fix.
-    assert.match(alphaRow, /<tr class="kind-file-port/u);
-    assert.match(orphanRow, /<tr class="kind-divergence-fix/u);
-    // `empty` has no GOALS.json record, so it counts as a boundary stop. (The
-    // legacy goal is hidden from this table: its inferred timing is zero.)
-    const emptyRow = table.split('</tr>').find((row) => row.includes('empty'));
-    assert.match(emptyRow, /<tr class="kind-boundary/u);
-    // Alpha's historical declaration has no completion evidence. Its one
-    // goal is closed, but neither of its two units counts as verified.
-    const sourceWorkTable = rendered.get('sourceWorkTable').innerHTML;
-    assert.deepEqual(sourceFileRows(sourceWorkTable).get('alpha.c'), ['', '', '1', '0', '2']);
-    assert.deepEqual(sourceFileRows(sourceWorkTable).get('beta.c'), ['1', '', '', '0', '1']);
-    // Orphan has inferred timing (†); alpha has observed timing (no †)
-    assert.match(orphanRow, /20m\s†/u);
-    assert.doesNotMatch(alphaRow, /25m\s†/u);
-    assert.doesNotMatch(table, /Goal sel|Goal selection|phase-bar/u);
-
-    // 03:00 on the fixture's day keeps every goal, including the one still
-    // open, inside the timeline's window.
-    const builtAt = '2026-01-01T03:00:00Z';
-    assertBarsBounded(timelineBars(renderTimeline(data, builtAt)));
-    // Orphan's open time is inferred, so its bar takes the lighter fill;
-    // alpha's open commit is recorded, so its bar is solid.
-    assert.ok(timelineBar(data, builtAt, 'orphan').classes.includes('inferred'));
-    assert.ok(!timelineBar(data, builtAt, 'alpha').classes.includes('inferred'));
-    // Alpha ran from :10 to :30, 20 minutes, one 72nd of its day's row, and
-    // shares its time with no other goal, so the stylesheet sizes its bar.
-    assert.ok(Math.abs(timelineBar(data, builtAt, 'alpha').width - 100 / 72) < 1e-9);
-    assert.equal(timelineBar(data, builtAt, 'alpha').top, null);
-    // A goal that shares alpha's time stacks with it: the two split the 16 px
-    // bar height into two 7 px lanes with a 2 px gap, the earlier bar on top.
-    const shift = (iso, minutes) => new Date(new Date(iso).getTime() + minutes * 60000).toISOString();
-    const twin = { ...alpha, name: 'twin', openTime: shift(alpha.openTime, 5), closeTime: shift(alpha.closeTime, 5) };
-    assert.deepEqual(
-        timelineBars(renderTimeline({ ...data, goals: [alpha, twin] }, builtAt))
-            .map((bar) => [bar.goal, bar.top, bar.height]),
-        [[0, 7, 7], [1, 16, 7]],
-    );
-    // One legend explains the measures shared by both score histories.
-    const legend = rendered.get('progressLegend').innerHTML;
-    assert.match(legend, /Matched[\s\S]*Total[\s\S]*Cases added/u);
-    assert.doesNotMatch(legend, /Logged|Commit/u);
-
-    const queueLessBeta = {
-        ...beta,
-        slices: [],
-        sliceCount: 0,
-        sliceSelectionMin: 0,
-        implementationMin: 0,
-    };
-    assertBarsBounded(timelineBars(
-        renderTimeline({ ...data, goals: [queueLessBeta] }, builtAt),
-    ));
-    assertBarsBounded(timelineBars(
-        renderTimeline({ ...data, goals: [alpha] }, builtAt),
-    ));
-});
-
-test('goal lifecycle records suppress score milestones and phantom open goals', () => {
-    const fixture = mkdtempSync(join(tmpdir(), 'teleport-dashboard-lifecycle-'));
-    git(fixture, ['init', '--quiet']);
-    git(fixture, ['config', 'user.name', 'Dashboard Test']);
-    git(fixture, ['config', 'user.email', 'dashboard@example.invalid']);
-    const baseline = commit(fixture, 'Baseline', '2026-01-01T00:00:00Z');
-    commit(fixture, 'Open alpha goal', '2026-01-01T00:05:00Z');
-    const alphaClose = commit(
-        fixture, 'Close alpha goal', '2026-01-01T00:20:00Z',
-    );
-    commit(fixture, 'Open beta goal', '2026-01-01T00:25:00Z');
-    const betaClose = commit(
-        fixture, 'Close beta goal', '2026-01-01T00:35:00Z',
-    );
-    commit(fixture, 'Open running goal', '2026-01-01T00:40:00Z');
-    const noisyScore = commit(
-        fixture, 'Unrelated score measurement', '2026-01-01T00:45:00Z',
-    );
-
-    // openedAt is the standing commit captured immediately before the Open
-    // commit, matching goal-log's lifecycle representation.
-    writeFileSync(join(fixture, 'GOALS.json'), JSON.stringify({
-        goals: [
-            {
-                id: 'alpha', kind: 'file-port', status: 'closed', summary: 'Alpha',
-                openedAt: baseline, closedAt: alphaClose,
-                closeStanding: { screens: 10, rng: 20 }, spans: [],
-            },
-            {
-                id: 'beta', kind: 'divergence-fix', status: 'closed', summary: 'Beta',
-                openedAt: alphaClose, closedAt: betaClose,
-                closeStanding: { screens: 20, rng: 30 }, spans: [],
-            },
-            {
-                id: 'running', kind: 'file-port', status: 'open', summary: 'Running',
-                openedAt: betaClose,
-                openStanding: { screens: 20, rng: 30 }, spans: [],
-            },
-        ],
-    }));
-    writeFileSync(join(fixture, 'SCORE.tsv'), [
-        SCORE_HEADER,
-        scoreRow({
-            utc: '2026-01-01T00:20:00Z', sha: alphaClose, event: 'goal',
-            screens: 10, note: 'Development 10 of 100 screens, 20 of 100 rng.',
-        }),
-        scoreRow({
-            utc: '2026-01-01T00:35:00Z', sha: betaClose, event: 'span',
-            screens: 20, note: 'Development 20 of 100 screens, 30 of 100 rng.',
-        }),
-        scoreRow({
-            utc: '2026-01-01T00:45:00Z', sha: noisyScore, event: 'goal',
-            screens: 20, note: 'Development 20 of 100 screens, 30 of 100 rng.',
-        }),
-        '',
-    ].join('\n'));
-
-    const data = JSON.parse(execFileSync(process.execPath, [DATA_SCRIPT], {
-        cwd: fixture, encoding: 'utf8',
-    }));
-    assert.equal(data.goals.length, 3);
-    assert.equal(data.summary.totalGoals, 2);
-    assert.equal(data.summary.inProgressGoals, 1);
-    assert.deepEqual(data.goals.map(goal => goal.name), ['alpha', 'beta', 'running']);
-    assert.equal(data.goals.filter(goal => goal.status === 'in-progress').length, 1);
-    assert.ok(data.goals.every(goal => !goal.name.startsWith('Development ')));
-    assert.equal(data.goals[1].openTimeSource, 'goal-record');
-    assert.equal(data.goals[1].openTime, '2026-01-01T00:20:00.000Z');
-    assert.equal(data.goals[1].screensDelta, 10);
-});
-
-test('superseded plans cannot reappear as open or closed goals through historical fallback', () => {
-    const fixture = mkdtempSync(join(tmpdir(), 'teleport-dashboard-superseded-'));
-    git(fixture, ['init', '--quiet']);
-    git(fixture, ['config', 'user.name', 'Dashboard Test']);
-    git(fixture, ['config', 'user.email', 'dashboard@example.invalid']);
-    commit(fixture, 'Baseline', '2026-01-01T00:00:00Z');
-    const opening = commit(fixture, 'Open old-plan goal', '2026-01-01T00:05:00Z');
-    const replacement = commit(fixture, 'Replacement accepted', '2026-01-01T00:10:00Z');
-    const register = { goals: [
-        { id: 'old-plan', status: 'superseded', openedAt: opening, spans: [],
-            supersededBy: 'replacement', supersededReason: 'Reclassified source owner.' },
-        // Missing lifecycle fields deliberately select historical fallback.
-        { id: 'replacement', status: 'closed', spans: [] },
-    ] };
-    writeFileSync(join(fixture, 'GOALS.json'), JSON.stringify(register));
-    for (const rows of [[], [scoreRow({ utc: '2026-01-01T00:10:00Z', sha: replacement,
-        event: 'goal', screens: 12, note: 'old-plan closes.' })]]) {
-        writeFileSync(join(fixture, 'SCORE.tsv'), [SCORE_HEADER, ...rows, ''].join('\n'));
-        const data = JSON.parse(execFileSync(process.execPath, [DATA_SCRIPT], {
-            cwd: fixture, encoding: 'utf8',
-        }));
-        assert.ok(!data.goals.some(goal => goal.name === 'old-plan'));
-        assert.equal(data.summary.inProgressGoals, 0);
-        const retired = data.workGoals.find(goal => goal.id === 'old-plan');
-        assert.equal(retired.status, 'superseded');
-        assert.equal(retired.supersededBy, 'replacement');
-        assert.equal(retired.supersededReason, 'Reclassified source owner.');
-    }
-});
-
-test('parked goals retain their work without extending into later goals', () => {
-    const fixture = mkdtempSync(join(tmpdir(), 'teleport-dashboard-parked-'));
-    git(fixture, ['init', '--quiet']);
-    git(fixture, ['config', 'user.name', 'Dashboard Test']);
-    git(fixture, ['config', 'user.email', 'dashboard@example.invalid']);
-    // Cross midnight, then park before a different goal starts. The older
-    // score deliberately predates openedAt, as it can in the real register.
-    const baseline = commit(fixture, 'Baseline', '2026-01-02T22:00:00Z');
-    const opening = commit(fixture, 'Open inventory goal', '2026-01-02T23:40:00Z');
-    commit(fixture, 'Queue inventory span', '2026-01-02T23:45:00Z');
-    const parking = commit(fixture, 'Finish inventory span', '2026-01-03T05:20:00Z');
-    const nextOpen = commit(fixture, 'Open next goal', '2026-01-03T05:30:00Z');
-    const nextClose = commit(fixture, 'Finish next goal', '2026-01-03T06:00:00Z');
-    // Distinct standings detect attribution of the next goal's gains to the
-    // parked goal, and prevent inserting a parked row from changing deltas.
-    const before = { sha: baseline, screens: 10, rng: 20 };
-    const parked = { sha: parking, screens: 25, rng: 40 };
-    const after = { sha: nextClose, screens: 30, rng: 50 };
-    writeFileSync(join(fixture, 'GOALS.json'), JSON.stringify({ goals: [
-        { id: 'inventory', kind: 'file-port', status: 'parked', openedAt: opening,
-            activeStanding: before, openStanding: before, parkedStanding: parked,
-            parkedReason: 'A level transition takes priority.',
-            // One completed span has no Queue commit; the unstarted queued
-            // span must not count as work completed before parking.
-            spans: [{ status: 'closed' }, { status: 'closed' }, { status: 'queued' }] },
-        // Legacy parking has no end boundary. Keep its history row without
-        // inventing an interval or forcing the other goals into score fallback.
-        { id: 'legacy', kind: 'file-port', status: 'parked', openedAt: baseline,
-            spans: [] },
-        { id: 'next', kind: 'divergence-fix', status: 'closed', openedAt: nextOpen,
-            closedAt: nextClose, closeStanding: after, spans: [] },
-        { id: 'running', kind: 'file-port', status: 'open', openedAt: nextClose,
-            spans: [] },
-    ] }));
-    writeFileSync(join(fixture, 'SCORE.tsv'), [SCORE_HEADER,
-        scoreRow({ utc: '2026-01-03T05:20:00Z', ...parked, event: 'span', note: 'inventory span' }),
-        scoreRow({ utc: '2026-01-03T06:00:00Z', ...after, event: 'goal', note: 'next closes.' }),
-        '',
-    ].join('\n'));
-    const data = JSON.parse(execFileSync(process.execPath, [DATA_SCRIPT], {
-        cwd: fixture, encoding: 'utf8',
-    }));
-    const inventory = data.goals.find(goal => goal.name === 'inventory');
-    assert.equal(inventory?.status, 'parked');
-    assert.equal(inventory.openTime, '2026-01-02T23:40:00.000Z');
-    assert.equal(inventory.closeTime, '2026-01-03T05:20:00.000Z');
-    assert.equal(inventory.totalMin, 340); // 20 minutes before midnight plus 5 h 20.
-    assert.equal(inventory.screensDelta, parked.screens - before.screens);
-    assert.equal(inventory.sliceCount, 2); // Both recorded completions, regardless of commit titles.
-    assert.equal(data.goals.find(goal => goal.name === 'next').screensDelta,
-        after.screens - parked.screens);
-    const legacy = data.goals.find(goal => goal.name === 'legacy');
-    assert.equal(legacy.status, 'parked');
-    assert.equal(legacy.closeTime, null);
-    assert.equal(legacy.totalMin, null);
-    assert.equal(data.summary.totalGoals, 1); // Only the closed goal.
-    assert.equal(data.summary.inProgressGoals, 1); // Only the running goal.
-    // Build a day later: the parked interval must remain at its recorded end.
-    data.summary.generatedAt = '2026-01-04T12:00:00Z';
-    const rendered = renderDashboard(data);
-    const bars = timelineBars(rendered.get('timeline').innerHTML)
-        .filter(bar => data.goals[bar.goal].name === 'inventory');
-    assert.ok(bars.length > 0);
-    assert.ok(bars.every(bar => bar.classes.includes('parked')
-        && !bar.classes.includes('in-progress')));
-    // The total visible width across midnight is 340 minutes of a 24-hour row.
-    assert.ok(Math.abs(bars.reduce((sum, bar) => sum + bar.width, 0) - 340 / 1440 * 100) < 1e-9);
-    assert.match(rendered.get('goalTable').innerHTML, /Parked[\s\S]*inventory/u);
-    assert.match(rendered.get('goalTable').innerHTML, /Parked[\s\S]*legacy/u);
-
-    // When only parked records survive in the register, older closed work
-    // still comes from SCORE.tsv. Parking must not suppress that history.
-    const register = JSON.parse(readFileSync(join(fixture, 'GOALS.json'), 'utf8'));
-    register.goals = register.goals.filter(goal => goal.status === 'parked');
-    writeFileSync(join(fixture, 'GOALS.json'), JSON.stringify(register));
-    const historical = JSON.parse(execFileSync(process.execPath, [DATA_SCRIPT], {
-        cwd: fixture, encoding: 'utf8',
-    }));
-    assert.equal(historical.goals.find(goal => goal.name === 'next')?.status, 'closed');
-    assert.equal(historical.goals.find(goal => goal.name === 'inventory')?.status, 'parked');
-});
-
-test('in-progress phase provenance follows each recorded boundary', () => {
-    const fixture = mkdtempSync(join(tmpdir(), 'teleport-dashboard-open-'));
-    git(fixture, ['init', '--quiet']);
-    git(fixture, ['config', 'user.name', 'Dashboard Test']);
-    git(fixture, ['config', 'user.email', 'dashboard@example.invalid']);
-    commit(fixture, 'Baseline', '2026-01-01T00:00:00Z');
-    const closed = commit(
-        fixture, 'Close prior goal', '2026-01-01T00:05:00Z',
-    );
-    commit(fixture, 'Open running goal', '2026-01-01T00:10:00Z');
-    commit(fixture, 'Queue first running slice', '2026-01-01T00:20:00Z');
-    const firstClose = commit(
-        fixture, 'Close first running slice', '2026-01-01T00:30:00Z',
-    );
-    const rows = [
-        SCORE_HEADER,
-        scoreRow({
-            utc: '2026-01-01T00:05:00Z', sha: closed,
-            event: 'goal', screens: 10, note: 'prior closes.',
-        }),
-        // A `span` row, the label .agents/scoring.md uses since 2026-09-05.
-        scoreRow({
-            utc: '2026-01-01T00:30:00Z', sha: firstClose,
-            event: 'span', screens: 15, note: 'first running slice closes.',
-        }),
-        '',
-    ];
-    writeFileSync(join(fixture, 'SCORE.tsv'), rows.join('\n'));
-    const runData = () => JSON.parse(execFileSync(
-        process.execPath, [DATA_SCRIPT], { cwd: fixture, encoding: 'utf8' },
-    ));
-
-    const completed = runData().goals.at(-1);
-    assert.equal(completed.status, 'in-progress');
-    assert.equal(completed.goalSelectionObserved, true);
-    assert.equal(completed.sliceSelectionObserved, true);
-    assert.equal(completed.implementationObserved, true);
-
-    commit(fixture, 'Queue second running slice', '2026-01-01T00:40:00Z');
-    const activeData = runData();
-    const active = activeData.goals.at(-1);
-    assert.equal(active.sliceSelectionMin, 20);
-    assert.equal(active.sliceSelectionObserved, true);
-    assert.equal(active.implementationObserved, false);
-    // The running goal opened at :10 and is still open at the pinned build
-    // time of :45, so its bar is hatched, solid, and 35 minutes wide.
-    const builtAt = '2026-01-01T00:45:00Z';
-    const activeBar = timelineBar(activeData, builtAt, 'running');
-    assert.ok(activeBar.classes.includes('in-progress'));
-    assert.ok(!activeBar.classes.includes('inferred'));
-    assert.ok(Math.abs(activeBar.width - 35 / 1440 * 100) < 1e-9);
-    assertBarsBounded([activeBar]);
-
-    // Date-only UTC in prior goal: its SHA still resolves, so utcSource is
-    // 'commit' and goalSelectionObserved is true.
-    rows[1] = scoreRow({
-        utc: '2026-01-01', sha: closed,
-        event: 'goal', screens: 10, note: 'prior closes.',
-    });
-    writeFileSync(join(fixture, 'SCORE.tsv'), rows.join('\n'));
-    const inferredGoal = runData();
-    assert.equal(inferredGoal.goals.at(-1).goalSelectionObserved, true);
-    assert.equal(inferredGoal.goals.at(-1).sliceSelectionObserved, true);
-    // The running goal's open commit still resolves, so its bar stays solid.
-    assert.ok(!timelineBar(inferredGoal, builtAt, 'running').classes.includes('inferred'));
-    let mixedTableRow = renderDashboard(inferredGoal).get('goalTable')
-        .innerHTML.split('</tr>')
-        .find((candidate) => candidate.includes('running'));
-    assert.ok(mixedTableRow);
-    assert.doesNotMatch(mixedTableRow, /Goal selection|phase-bar/u);
-
-    // Date-only UTC in slice: its SHA still resolves, so utcSource is 'commit'
-    // and sliceSelectionObserved is true.
-    rows[1] = scoreRow({
-        utc: '2026-01-01T00:05:00Z', sha: closed,
-        event: 'goal', screens: 10, note: 'prior closes.',
-    });
-    rows[2] = scoreRow({
-        utc: '2026-01-01', sha: firstClose,
-        event: 'span', screens: 15, note: 'first running slice closes.',
-    });
-    writeFileSync(join(fixture, 'SCORE.tsv'), rows.join('\n'));
-    const inferredSlice = runData();
-    assert.equal(inferredSlice.goals.at(-1).goalSelectionObserved, true);
-    assert.equal(inferredSlice.goals.at(-1).sliceSelectionObserved, true);
-    assert.ok(!timelineBar(inferredSlice, builtAt, 'running').classes.includes('inferred'));
-    mixedTableRow = renderDashboard(inferredSlice).get('goalTable')
-        .innerHTML.split('</tr>')
-        .find((candidate) => candidate.includes('running'));
-    assert.ok(mixedTableRow);
-    assert.doesNotMatch(mixedTableRow, /Goal selection|phase-bar/u);
-
-    // Both prior goal and slice have date-only UTC, but both SHAs resolve,
-    // so all utcSources are 'commit' and everything is observed.
-    rows[1] = scoreRow({
-        utc: '2026-01-01', sha: closed,
-        event: 'goal', screens: 10, note: 'prior closes.',
-    });
-    writeFileSync(join(fixture, 'SCORE.tsv'), rows.join('\n'));
-    const inferredData = runData();
-    const inferred = inferredData.goals.at(-1);
-    assert.equal(inferred.goalSelectionMin, 5);
-    assert.equal(inferred.goalSelectionObserved, true);
-    assert.equal(inferred.sliceSelectionObserved, true);
-    assert.equal(inferred.implementationObserved, false);
-    const rendered = renderDashboard(inferredData);
-    const row = rendered.get('goalTable').innerHTML.split('</tr>')
-        .find((candidate) => candidate.includes('running'));
-    assert.ok(row);
-    assert.doesNotMatch(row, /Goal selection|phase-bar/u);
-    assert.ok(!timelineBar(inferredData, builtAt, 'running').classes.includes('inferred'));
-});
-
-test('verification requires a recorded final slice closure', () => {
-    const fixture = mkdtempSync(join(tmpdir(), 'teleport-dashboard-verif-'));
-    git(fixture, ['init', '--quiet']);
-    git(fixture, ['config', 'user.name', 'Dashboard Test']);
-    git(fixture, ['config', 'user.email', 'dashboard@example.invalid']);
-    commit(fixture, 'Baseline', '2026-01-01T00:00:00Z');
-    commit(fixture, 'Open multi goal', '2026-01-01T00:05:00Z');
-    commit(fixture, 'Queue first slice', '2026-01-01T00:10:00Z');
-    const firstClose = commit(
-        fixture, 'Close first slice', '2026-01-01T00:20:00Z',
-    );
-    commit(fixture, 'Queue second slice', '2026-01-01T00:30:00Z');
-    const secondClose = commit(
-        fixture, 'Close second slice', '2026-01-01T00:40:00Z',
-    );
-    const goalClose = commit(
-        fixture, 'Close multi goal', '2026-01-01T01:00:00Z',
-    );
-    const rows = [
-        SCORE_HEADER,
-        scoreRow({
-            utc: '2026-01-01T00:20:00Z', sha: firstClose,
-            event: 'slice', screens: 10, note: 'first slice closes.',
-        }),
-        scoreRow({
-            utc: '2026-01-01T01:00:00Z', sha: goalClose,
-            event: 'goal', screens: 20, note: 'multi closes after two slices.',
-        }),
-        '',
-    ];
-    writeFileSync(join(fixture, 'SCORE.tsv'), rows.join('\n'));
-
-    const runData = () => JSON.parse(execFileSync(
-        process.execPath, [DATA_SCRIPT], { cwd: fixture, encoding: 'utf8' },
-    ));
-    const inferred = runData();
-    assert.equal(
-        inferred.goals[0].slices[1].closeTimeSource,
-        'goal-close-inferred',
-    );
-    assert.equal(inferred.goals[0].verificationMin, null);
-    assert.equal(inferred.summary.medianVerificationMin, null);
-
-    rows.splice(-1, 0, scoreRow({
-        utc: '2026-01-01T00:40:00Z', sha: secondClose,
-        event: 'slice', screens: 15, note: 'second slice closes.',
-    }));
-    writeFileSync(join(fixture, 'SCORE.tsv'), rows.join('\n'));
-    const observed = runData();
-    assert.equal(observed.goals[0].verificationMin, 20);
-    assert.equal(observed.goals[0].verificationObserved, true);
-    assert.equal(observed.summary.medianVerificationMin, 20);
-});
-
 test('progress points carry what the chart readout shows', () => {
     const fixture = mkdtempSync(join(tmpdir(), 'teleport-dashboard-chart-'));
     git(fixture, ['init', '--quiet']);
@@ -1358,11 +606,7 @@ test('progress points carry what the chart readout shows', () => {
         encoding: 'utf8',
     }));
 
-    // Each point names its goal the same way the goal table does.
-    assert.deepEqual(
-        data.progress.map((point) => point.name),
-        data.goals.map((goal) => goal.name),
-    );
+    // Historical score points retain their original goal labels.
     assert.deepEqual(
         data.progress.map((point) => point.name),
         ['alpha', 'beta', 'gamma'],

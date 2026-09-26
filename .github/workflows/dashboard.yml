@@ -22,7 +22,8 @@ jobs:
     steps:
       - uses: actions/checkout@v7
         with:
-          # dashboard-data.mjs derives timings from the complete Git history.
+          # Score history uses historical commits; worker timing uses the
+          # tracked dashboard-snapshot.json made from the local event ledger.
           fetch-depth: 0
       # The mismatch queue reads the C function index from the NetHack
       # submodule; without it the page shows the queue as unavailable. One
