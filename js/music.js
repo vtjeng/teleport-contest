@@ -27,6 +27,7 @@ import {
 import { incr_itimeout } from './potion.js';
 import { create_gas_cloud } from './region.js';
 import { d, rn1, rn2, rne, rnl, rnd, rnz } from './rng.js';
+import { sleep_monst, slept_monst } from './mhitm.js';
 import { ttyPline } from './tty_message.js';
 import { note_unported } from './unported.js';
 import { block_point, cansee, canseemon, does_block, unblock_point } from './vision.js';
@@ -81,6 +82,25 @@ export async function awaken_monsters(distance, state = game, env = {}) {
         const dist = dist2(mon.mx, mon.my, state.u.ux, state.u.uy);
         if (dist < distance)
             await awaken_scare(mon, dist < Math.trunc(distance / 3), state, env);
+    }
+}
+
+// C ref: music.c put_monsters_to_sleep() (85-104). The source traverses the
+// live fmon chain, draws damage only after the strict range test, and uses
+// sleep_monst()'s boolean before setting the separate msleeping flag.
+export async function put_monsters_to_sleep(distance, state = game, env = {}) {
+    const random = env.random ?? musicRandom;
+    for (let mon = state.level.monlist; mon; mon = mon.nmon) {
+        if (mon.mhp < 1) continue;
+        if (dist2(mon.mx, mon.my, state.u.ux, state.u.uy) < distance
+            && await sleep_monst(mon, random.d(10, 10), TOOL_CLASS, {
+                ...env,
+                state,
+                random,
+            })) {
+            mon.msleeping = true;
+            await slept_monst(mon, { ...env, state });
+        }
     }
 }
 
@@ -151,7 +171,11 @@ export async function do_improvisation(instr, state = game, env = {}) {
     case MAGIC_FLUTE:
         consume_obj_charge(instr, true, { state });
         await message(`You ${!Deaf(state) ? '' : 'seem to '}produce ${Hallucination(state) ? 'piped' : 'soft'}${same ? ', familiar' : ''} music.`, state);
-        note_unported('music.c put_monsters_to_sleep');
+        await put_monsters_to_sleep(state.u.ulevel * 5, state, {
+            ...env,
+            message,
+            random,
+        });
         await exercise(A_DEX, true, state, random);
         break;
     case WOODEN_FLUTE:
