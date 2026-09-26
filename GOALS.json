@@ -88694,14 +88694,18 @@
     {
       "id": "div-eat-fix-petrification-synthetic-v7-20260926",
       "kind": "divergence-fix",
-      "status": "queued",
+      "status": "open",
       "summary": "Restore lizard-corpse petrification cure and source-ordered delayed-killer cleanup",
       "cFile": "eat.c",
       "sessions": [],
       "selectionReason": "The current v7 lizard case first stops in eat.c:cprefx after the stoning setup now matches; C calls fix_petrification before the first bite.",
       "detail": "At start_eating -> cprefx, PM_LIZARD while Stoned invokes eat.c fix_petrification. Port the whole cure helper and wire the lizard and acidic-flesh caller branches, preserving make_stoned state, message choice, RNG order, and delayed-killer cleanup. Audit C callers from potion.c peffect_acid and zap.c zapyourself, including consumed return paths and explicit blockers. Use independent C recipes with varied hallucination and charisma.",
-      "openedAt": null,
-      "openStanding": null,
+      "openedAt": "5f58620fe0b69bce173a096748bdcd3bbebaa2a4",
+      "openStanding": {
+        "sha": "47ed6cb1adb1ea2e3593ca285cba76ea14bc9e79",
+        "screens": 11405,
+        "rng": 792838
+      },
       "closedAt": null,
       "delivered": null,
       "function": "fix_petrification",
@@ -88720,7 +88724,160 @@
           "evaluationPath": "challenges/evaluations/20260926213954-v7.json",
           "evaluationCommit": "5006247e43a2e93c85f944ecaac4f961cd237826"
         }
-      }
+      },
+      "activeStanding": {
+        "sha": "47ed6cb1adb1ea2e3593ca285cba76ea14bc9e79",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v7",
+          "caseId": "lizard-corpse-cures-stoning-corrected",
+          "session": "synthetic/v7/lizard-corpse-cures-stoning-corrected",
+          "manifestPath": "challenges/manifests/v7.json",
+          "manifestSha256": "03a861a9d1bc9d813c80681312ee7a0e0f893dbad0536de40a974bd5ec344094",
+          "recording": "challenges/cases/v7/lizard-corpse-cures-stoning-corrected.session.json",
+          "recordingPath": "challenges/cases/v7/lizard-corpse-cures-stoning-corrected.session.json",
+          "recordingSha256": "6bf1416d9de4abf481689ec1d723ff6775badd518b9222d66c685b3157cc4149",
+          "recipe": "challenges/cases/v7/lizard-corpse-cures-stoning-corrected.recipe.session.json",
+          "recipeSha256": "edca66fd45bb62acda508e3cea52f1ca972a918d4bbe4e3f7cb36692e26a50d2",
+          "replayInputSha256": "404c092a94cae15b68530f09903564ff1b0b7b829320c2b4c051ad7c60753f70",
+          "evaluationPath": "challenges/evaluations/20260926220443-v7.json",
+          "evaluationCommit": "382fb9f460e42198688105ebc81fd2788be20686",
+          "evaluationArtifact": "challenges/evaluations/20260926220443-v7.json",
+          "evaluationUtc": "2026-09-26T22:05:18.983Z",
+          "remainingScreens": 2,
+          "recordedSteps": 37,
+          "previousScreensMatched": 35,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 35,
+              "total": 37
+            },
+            "rng": {
+              "matched": 1919,
+              "total": 1951
+            },
+            "cursors": {
+              "matched": 35,
+              "total": 37
+            }
+          },
+          "firstMismatch": {
+            "kind": "stop",
+            "message": "unsupported hero command: an unported branch of this command: eating requires fix_petrification()",
+            "step": 35
+          },
+          "step": 35,
+          "kind": "stop",
+          "sourceFile": "eat.c",
+          "function": "fix_petrification",
+          "message": "unsupported hero command: an unported branch of this command: eating requires fix_petrification()",
+          "cFile": "eat.c",
+          "luaFile": null,
+          "line": null,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v7/lizard-corpse-cures-stoning-corrected.json",
+            "result": {
+              "session": "synthetic/v7/lizard-corpse-cures-stoning-corrected",
+              "corpus": "synthetic",
+              "batch": "v7",
+              "caseId": "lizard-corpse-cures-stoning-corrected",
+              "manifestPath": "challenges/manifests/v7.json",
+              "manifestSha256": "03a861a9d1bc9d813c80681312ee7a0e0f893dbad0536de40a974bd5ec344094",
+              "recordingPath": "challenges/cases/v7/lizard-corpse-cures-stoning-corrected.session.json",
+              "recordingSha256": "6bf1416d9de4abf481689ec1d723ff6775badd518b9222d66c685b3157cc4149",
+              "evaluationPath": "challenges/evaluations/20260926213954-v7.json",
+              "evaluationCommit": "5006247e43a2e93c85f944ecaac4f961cd237826",
+              "remainingScreens": 2,
+              "recordedSteps": 37,
+              "status": "complete",
+              "commit": "5006247e43a2e93c85f944ecaac4f961cd237826",
+              "mismatch": {
+                "corpus": "synthetic",
+                "batch": "v7",
+                "caseId": "lizard-corpse-cures-stoning-corrected",
+                "session": "synthetic/v7/lizard-corpse-cures-stoning-corrected",
+                "manifestPath": "challenges/manifests/v7.json",
+                "manifestSha256": "03a861a9d1bc9d813c80681312ee7a0e0f893dbad0536de40a974bd5ec344094",
+                "recording": "challenges/cases/v7/lizard-corpse-cures-stoning-corrected.session.json",
+                "recordingPath": "challenges/cases/v7/lizard-corpse-cures-stoning-corrected.session.json",
+                "recordingSha256": "6bf1416d9de4abf481689ec1d723ff6775badd518b9222d66c685b3157cc4149",
+                "recipe": "challenges/cases/v7/lizard-corpse-cures-stoning-corrected.recipe.session.json",
+                "recipeSha256": "edca66fd45bb62acda508e3cea52f1ca972a918d4bbe4e3f7cb36692e26a50d2",
+                "replayInputSha256": "51424da722e0d7b4541f5b2b92ba2983a8c31266fb7974f0dd577365378728cc",
+                "evaluationPath": "challenges/evaluations/20260926213954-v7.json",
+                "evaluationCommit": "5006247e43a2e93c85f944ecaac4f961cd237826",
+                "evaluationArtifact": "challenges/evaluations/20260926213954-v7.json",
+                "evaluationUtc": "2026-09-26T21:40:23.260Z",
+                "remainingScreens": 2,
+                "recordedSteps": 37,
+                "previousScreensMatched": 35,
+                "regression": false,
+                "passed": false,
+                "error": null,
+                "metrics": {
+                  "screens": {
+                    "matched": 35,
+                    "total": 37
+                  },
+                  "rng": {
+                    "matched": 1919,
+                    "total": 1951
+                  },
+                  "cursors": {
+                    "matched": 35,
+                    "total": 37
+                  }
+                },
+                "firstMismatch": {
+                  "kind": "stop",
+                  "message": "unsupported hero command: an unported branch of this command: eating requires fix_petrification()",
+                  "step": 35
+                },
+                "step": 35,
+                "kind": "stop",
+                "sourceFile": "eat.c",
+                "function": "fix_petrification",
+                "message": "unsupported hero command: an unported branch of this command: eating requires fix_petrification()",
+                "cFile": "eat.c",
+                "luaFile": null,
+                "line": null
+              },
+              "summary": "The STONED setup now matches. At segment 0 step 35, eating the wished lizard corpse reaches eat.c:start_eating() -> cprefx(PM_LIZARD). C calls fix_petrification() before the first bite; JS refuses that branch. The remaining two screens belong to the cure and subsequent eating, while the later acidic-flesh and potion/zap callers need source-ordered wiring.",
+              "source": {
+                "file": "eat.c",
+                "branch": "In cprefx(), PM_LIZARD calls fix_petrification() only when Stoned. The default acidic-flesh branch has the same Stoned guard. fix_petrification() chooses the Hallucination message, adding “fine ” when ACURR(A_CHA)>15, then calls make_stoned(0L, buf, 0, NULL) to clear the timeout, status, and delayed killer. start_eating() runs cprefx() before bite().",
+                "functions": [
+                  "fix_petrification",
+                  "cprefx"
+                ],
+                "callers": [
+                  "eat.c:start_eating() calls cprefx(corpsenm) for a corpse or glob before bite(); js/eat.js:start_eating() reaches its cprefx().",
+                  "potion.c:peffect_acid() and zap.c:zapyourself() also call fix_petrification(); their JS paths still refuse or skip the cure and require caller audit."
+                ],
+                "dependencies": [
+                  "potion.c:make_stoned() is ported in js/potion.js and owns STONED timeout, status, message and delayed-killer cleanup. The cure helper uses its void result.",
+                  "The Hallucination/Charisma message branch reads ACURR(A_CHA); no core RNG draw occurs in fix_petrification()."
+                ]
+              },
+              "goalKind": "divergence-fix",
+              "evidence": [
+                "Current saved v7 evaluation challenges/evaluations/20260926213954-v7.json at 5006247e43a2e93c85f944ecaac4f961cd237826 matches 35/37 screens and reports the first stop at segment 0 step 35: eating requires fix_petrification(). The previous step-17 wiz_intrinsic mismatch was resolved by the earlier source port; retain that history in Git rather than attributing it to the current stop.",
+                "nethack-c/upstream/src/eat.c:2020-2044 calls cprefx() before bite(); lines 827-830 guard the PM_LIZARD cure with Stoned, lines 858-860 apply the same cure to acidic flesh, and lines 867-877 format the hallucination/Charisma message and call make_stoned(0L,...).",
+                "js/eat.js:cprefx() currently throws UnsupportedEatError for the PM_LIZARD and acidic-flesh cure branches. C17 already ported potion.c:make_stoned(), so the required state owner and delayed-killer cleanup are available for a source-based repair.",
+                "The C recording has 37 steps; the wizard wishes for the corpse before step 35 and the C cure runs as eating starts. Independent new seed and Hallucination/Charisma variations should verify the runtime path without reusing this challenge input."
+              ]
+            }
+          }
+        }
+      ]
     },
     {
       "id": "port-apply-use-tinning-kit-synthetic-v6-20260926",
