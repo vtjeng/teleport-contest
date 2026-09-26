@@ -477,10 +477,20 @@ test('acid resistance lets an acid potion cure stoning without damage', async ()
     game.u.uprops[ACID_RES].intrinsic = 1;
     await make_stoned(30, null, KILLED_BY, 'test stoning', game);
     game.gp.potion_unkn = 0;
+    const hpBefore = game.u.uhp;
+    const conExerciseBefore = game.u.aexe[A_CON];
+    const acid = vaporPotion(POT_ACID);
     clearTopline();
+    enableRngLog();
 
-    await peffects(vaporPotion(POT_ACID), game);
+    await peffects(acid, game);
 
+    assert.equal(game.u.uhp, hpBefore,
+        'Acid_resistance bypasses potion damage');
+    assert.equal(game.u.aexe[A_CON], conExerciseBefore,
+        'the resistant branch does not exercise Constitution');
+    assert.deepEqual(getRngLog(), [],
+        'the resistant branch makes no damage or exercise RNG calls');
     assert.equal(game.u.uprops[STONED].intrinsic & TIMEOUT, 0);
     assert.equal(find_delayed_killer(STONED, game), null);
     assert.equal(game.gp.potion_unkn, 1);
