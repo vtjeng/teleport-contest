@@ -88721,6 +88721,51 @@
           "evaluationCommit": "5006247e43a2e93c85f944ecaac4f961cd237826"
         }
       }
+    },
+    {
+      "id": "port-apply-use-tinning-kit-synthetic-v6-20260926",
+      "kind": "file-port",
+      "status": "queued",
+      "summary": "Port whole tinning-kit use and its doapply caller across decline, confirm, and retry histories",
+      "cFile": "apply.c",
+      "sessions": [
+        "synthetic/v6/wizard-tinning-confirm",
+        "synthetic/v6/wizard-tinning-yes",
+        "synthetic/v6/wizard-tinning-retry"
+      ],
+      "selectionReason": "Three unresolved v6 Wizard tinning histories share apply.c:use_tinning_kit and distinct answers to its floorfood corpse prompt; A15 has completed the doapply ownership handoff.",
+      "detail": "Implement complete apply.c use_tinning_kit in C order and wire doapply TINNING_KIT. Verify charged kit, corpse selection, decline, create-tin, Rider revival and inventory/floor paths. Port consumed returns, preserve source-named void gaps, and record independent C evidence for uncovered entry paths. Preserve the matching wizard-tinning-kit-newt regression witness.",
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": null,
+      "delivered": null,
+      "functions": [
+        {
+          "name": "use_tinning_kit",
+          "line": 2177,
+          "endLine": 2258,
+          "declared": false,
+          "complete": false
+        }
+      ],
+      "range": {
+        "from": 2177,
+        "to": 2258
+      },
+      "syntheticProvenance": {
+        "synthetic/v6/wizard-tinning-confirm": {
+          "session": "synthetic/v6/wizard-tinning-confirm",
+          "corpus": "synthetic",
+          "batch": "v6",
+          "caseId": "wizard-tinning-confirm",
+          "manifestPath": "challenges/manifests/v6.json",
+          "manifestSha256": "7523b91e823f4e3906c9acdc9a3d80f8469c27c2caab8fc8fbd6967dbfdcab5f",
+          "recordingPath": "challenges/cases/v6/wizard-tinning-confirm.session.json",
+          "recordingSha256": "5375360da74524cb290c791f0cee162af26f3e169f75d1c3a0715f3ce48e42dd",
+          "evaluationPath": "challenges/evaluations/20260926220443-v6.json",
+          "evaluationCommit": "382fb9f460e42198688105ebc81fd2788be20686"
+        }
+      }
     }
   ]
 }
