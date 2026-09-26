@@ -74676,7 +74676,7 @@
     {
       "id": "port-worn-mon-break-armor-synthetic-v1-20260926",
       "kind": "file-port",
-      "status": "queued",
+      "status": "open",
       "summary": "Port monster armor break and drop behavior after transformation",
       "cFile": "worn.c",
       "sessions": [
@@ -74684,8 +74684,12 @@
       ],
       "selectionReason": "The refreshed v4 nymph theft and v2 Force Bolt mismatches are owned by C9 and B6. Both higher v3 camera cases depend on B6 reserved zap.c bhit. The next independent completed investigation is v1 monster-transformations with 5 unmatched screens at worn.c mon_break_armor; the v4 magic flute case has 4.",
       "detail": "Port the whole worn.c mon_break_armor function from C, including its m_lose_armor support, armor destruction/drop, bypass and monster-wear state, messaging, saddle and riding tail, and production mon.c newcham and were.c new_were callers. Preserve return-valued can_saddle/can_ride and other source dependencies. See investigations/synthetic/v1/monster-transformations.json.",
-      "openedAt": null,
-      "openStanding": null,
+      "openedAt": "52a01e7987cf087fde8821870259fa0eb4e1ac8a",
+      "openStanding": {
+        "sha": "210cd14f1e59abac0764199293de428ee71828fd",
+        "screens": 11405,
+        "rng": 792838
+      },
       "closedAt": null,
       "delivered": null,
       "functions": [
@@ -74711,10 +74715,247 @@
           "manifestSha256": "a1d989fa6b5159e0b0729150ba765c741a405ec910c1274ad763d29b0a7096fe",
           "recordingPath": "challenges/cases/monster-transformations.session.json",
           "recordingSha256": "5c7ff94dc1e63dcae559231dbea1843d5206c45d8fdb894d107beed35bff5f6b",
-          "evaluationPath": "challenges/evaluations/20260926011128-v1.json",
-          "evaluationCommit": "9afcb40d474b714f755d68a9bff96193af5f7e59"
+          "evaluationPath": "challenges/evaluations/20260926012822-v1.json",
+          "evaluationCommit": "210cd14f1e59abac0764199293de428ee71828fd"
         }
-      }
+      },
+      "activeStanding": {
+        "sha": "210cd14f1e59abac0764199293de428ee71828fd",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v1",
+          "caseId": "monster-transformations",
+          "session": "synthetic/v1/monster-transformations",
+          "manifestPath": "challenges/manifest.json",
+          "manifestSha256": "a1d989fa6b5159e0b0729150ba765c741a405ec910c1274ad763d29b0a7096fe",
+          "recording": "challenges/cases/monster-transformations.session.json",
+          "recordingPath": "challenges/cases/monster-transformations.session.json",
+          "recordingSha256": "5c7ff94dc1e63dcae559231dbea1843d5206c45d8fdb894d107beed35bff5f6b",
+          "recipe": "challenges/cases/monster-transformations.recipe.json",
+          "recipeSha256": "b3cc9553ecf4aad3dfcceb7118d99b6f191bd2f9d1c53a9786ff0608f466d395",
+          "replayInputSha256": "852f3008da6a126f38bd147b5a787ec1d4d857e43300315d732565a9594c3011",
+          "evaluationPath": "challenges/evaluations/20260926012822-v1.json",
+          "evaluationCommit": "210cd14f1e59abac0764199293de428ee71828fd",
+          "evaluationArtifact": "challenges/evaluations/20260926012822-v1.json",
+          "evaluationUtc": "2026-09-26T01:28:22.325Z",
+          "remainingScreens": 5,
+          "recordedSteps": 81,
+          "previousScreensMatched": 76,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 76,
+              "total": 81
+            },
+            "rng": {
+              "matched": 2779,
+              "total": 2779
+            },
+            "cursors": {
+              "matched": 77,
+              "total": 81
+            }
+          },
+          "firstMismatch": {
+            "screen": {
+              "index": 70,
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 70,
+                "key": "\n"
+              },
+              "kind": "ch",
+              "row": 0,
+              "column": 36,
+              "cCell": {
+                "ch": "-",
+                "color": 8,
+                "attr": 0,
+                "decgfx": 0
+              },
+              "jsCell": {
+                "ch": " ",
+                "color": 8,
+                "attr": 0,
+                "decgfx": 0
+              }
+            },
+            "rng": null,
+            "cursor": {
+              "index": 70,
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 70,
+                "key": "\n"
+              },
+              "cCursor": [
+                44,
+                0,
+                1
+              ],
+              "jsCursor": [
+                40,
+                19,
+                1
+              ]
+            }
+          },
+          "step": 70,
+          "kind": "screen",
+          "sourceFile": null,
+          "function": null,
+          "message": null,
+          "cFile": null,
+          "luaFile": null,
+          "line": null,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v1/monster-transformations.json",
+            "result": {
+              "session": "synthetic/v1/monster-transformations",
+              "corpus": "synthetic",
+              "batch": "v1",
+              "caseId": "monster-transformations",
+              "manifestPath": "challenges/manifest.json",
+              "manifestSha256": "a1d989fa6b5159e0b0729150ba765c741a405ec910c1274ad763d29b0a7096fe",
+              "recordingPath": "challenges/cases/monster-transformations.session.json",
+              "recordingSha256": "5c7ff94dc1e63dcae559231dbea1843d5206c45d8fdb894d107beed35bff5f6b",
+              "evaluationPath": "challenges/evaluations/20260918192720-v1.json",
+              "evaluationCommit": "2ab3d33c4affb45693cc1cdc56882430c63db58f",
+              "remainingScreens": 5,
+              "recordedSteps": 81,
+              "status": "complete",
+              "commit": "973ed4c61be4e63b24ffcf54f640b3a05990a0f1",
+              "mismatch": {
+                "corpus": "synthetic",
+                "batch": "v1",
+                "caseId": "monster-transformations",
+                "session": "synthetic/v1/monster-transformations",
+                "manifestPath": "challenges/manifest.json",
+                "manifestSha256": "a1d989fa6b5159e0b0729150ba765c741a405ec910c1274ad763d29b0a7096fe",
+                "recording": "challenges/cases/monster-transformations.session.json",
+                "recordingPath": "challenges/cases/monster-transformations.session.json",
+                "recordingSha256": "5c7ff94dc1e63dcae559231dbea1843d5206c45d8fdb894d107beed35bff5f6b",
+                "recipe": "challenges/cases/monster-transformations.recipe.json",
+                "recipeSha256": "b3cc9553ecf4aad3dfcceb7118d99b6f191bd2f9d1c53a9786ff0608f466d395",
+                "replayInputSha256": "1d82e114cf6028a970890ae3a93f705306dc8faac92e6f51685b97b4a7ea8fc0",
+                "evaluationPath": "challenges/evaluations/20260918192720-v1.json",
+                "evaluationCommit": "2ab3d33c4affb45693cc1cdc56882430c63db58f",
+                "evaluationArtifact": "challenges/evaluations/20260918192720-v1.json",
+                "evaluationUtc": "2026-09-18T19:27:20.180Z",
+                "remainingScreens": 5,
+                "recordedSteps": 81,
+                "previousScreensMatched": 76,
+                "regression": false,
+                "passed": false,
+                "error": null,
+                "metrics": {
+                  "screens": {
+                    "matched": 76,
+                    "total": 81
+                  },
+                  "rng": {
+                    "matched": 2779,
+                    "total": 2779
+                  },
+                  "cursors": {
+                    "matched": 77,
+                    "total": 81
+                  }
+                },
+                "firstMismatch": {
+                  "screen": {
+                    "index": 70,
+                    "location": {
+                      "segmentIndex": 0,
+                      "stepIndex": 70,
+                      "key": "\\n"
+                    },
+                    "kind": "ch",
+                    "row": 0,
+                    "column": 36,
+                    "cCell": {
+                      "ch": "-",
+                      "color": 8,
+                      "attr": 0,
+                      "decgfx": 0
+                    },
+                    "jsCell": {
+                      "ch": " ",
+                      "color": 8,
+                      "attr": 0,
+                      "decgfx": 0
+                    }
+                  },
+                  "rng": null,
+                  "cursor": {
+                    "index": 70,
+                    "location": {
+                      "segmentIndex": 0,
+                      "stepIndex": 70,
+                      "key": "\\n"
+                    },
+                    "cCursor": [
+                      44,
+                      0,
+                      1
+                    ],
+                    "jsCursor": [
+                      40,
+                      19,
+                      1
+                    ]
+                  },
+                  "serializeBug": false
+                },
+                "step": 70,
+                "kind": "screen",
+                "sourceFile": null,
+                "function": null,
+                "message": null,
+                "cFile": null,
+                "luaFile": null,
+                "line": null
+              },
+              "summary": "At 973ed4c, the synthetic recipe's visible soldier changes into a red dragon at step 70. C mon.c newcham() then runs worn.c mon_break_armor(), which emits and dismisses the suit, shield, helmet, and boots messages across steps 70-74. JavaScript leaves this call as note_unported(), causing five screen mismatches and four cursor mismatches while all 2779 RNG calls still match. Port the complete worn.c m_lose_armor()/mon_break_armor() family and wire it into the existing newcham callers.",
+              "source": {
+                "file": "worn.c",
+                "functions": [
+                  "m_lose_armor",
+                  "mon_break_armor"
+                ],
+                "branch": "After mon.c newcham() changes the visible soldier to PM_RED_DRAGON, worn.c mon_break_armor() takes the breakarm() branch. It consumes ordinary body armor after a cracking message, drops the shield and helmet with their messages, drops the boots with the pushed-off-feet message, and preserves the full saddle/riding tail for other forms. m_lose_armor() must extract the worn item, place it at the monster square, set bypass for wand polymorph, and redraw the square in C order.",
+                "callers": [
+                  "C mon.c newcham() lines 5484-5488 calls mon_break_armor(mtmp, polyspot) after the shape-change message; js/mon.js apply_newcham_steps() lines 2926-2934 currently records note_unported('worn.c mon_break_armor').",
+                  "C were.c new_were() lines 95-138 calls mon_break_armor(mon, FALSE) after a successful were_change(); the JS were-change path in js/mon.js reaches the same missing worn.c operation.",
+                  "The synthetic production caller is the wizard #zap polymorph path: js/zap.js zap_monster() selects the target and awaits js/mon.js newcham_distress(), which owns the same mon.c newcham call boundary."
+                ],
+                "dependencies": [
+                  "worn.c which_armor() lines 1006-1035 is already implemented in js/worn.js and supplies each worn slot from the monster minvent chain.",
+                  "worn.c extract_from_minvent() lines 1375-1417 and mthrowu.c m_useup() lines 1153-1170 remove or consume armor; preserve their existing object-mask, extrinsic, weapon, quantity, and free ordering.",
+                  "mondata.c breakarm(), sliparm(), nohands(), verysmall(), slithy(), has_horns(), and the object predicates Is_dragon_scales(), Is_dragon_mail(), WrappingAllowed(), and is_flimsy() determine each source branch.",
+                  "steed.c can_saddle()/can_ride()/dismount_steed() and trap.c instapetrify() remain their own source owners for the saddle and dismount tail; preserve discarded-call gaps when those branches are not implemented.",
+                  "Use the canonical worn-object message and display owners (pline_mon/You_hear, Monnam/s_suffix, surface, newsym) and retain polyspot bypass behavior without adding RNG."
+                ]
+              },
+              "goalKind": "file-port",
+              "evidence": [
+                "Queue provenance is the v1 challenge evaluation challenges/evaluations/20260918192720-v1.json at evaluation commit 2ab3d33c4affb45693cc1cdc56882430c63db58f; the immutable recording is challenges/cases/monster-transformations.session.json with SHA-256 5c7ff94dc1e63dcae559231dbea1843d5206c45d8fdb894d107beed35bff5f6b. At examined commit 973ed4c, 76/81 screens and 77/81 cursors match, 2779/2779 RNG calls match, and exactly 5 screens remain.",
+                "The saved scan .cache/synthetic-scans/v1/monster-transformations.json identifies the first mismatch at step 70 on the newline after the red-dragon query: C row 0 column 36 is the first '-' of '--More--', JavaScript has a gray space, and C cursor [44,0,1] is still on the message while JavaScript is at [40,19,1]. serializeBug is false.",
+                "The C recording's steps 70-74 are the source-ordered armor sequence: 'The soldier turns into a red dragon!--More--'; 'The red dragon breaks out of its armor!--More--'; 'The red dragon can no longer hold its shield!--More--'; 'The red dragon's helmet falls to the floor!--More--'; and 'The red dragon's boots are pushed off its feet!  The red dragon roars!'. The diagnostic is retained at .cache/investigate-synthetic-v1-monster-transformations/diagnostic.json.",
+                "C mon.c newcham() lines 5460-5475 emits the transformation line and lines 5484-5488 immediately call possibly_unwield(), worn.c mon_break_armor(), and trap.c mselftouch(). C worn.c mon_break_armor() lines 1177-1335 contains every armor, shield, helmet, boots, saddle, and riding branch. JavaScript's explicit note_unported at js/mon.js:2929 skips the entire function; the separate trap.c mselftouch gap is not the cause because this red dragon has no petrifying touch output.",
+                "The actionable scope is a file-port of worn.c m_lose_armor() lines 1038-1051 plus mon_break_armor() lines 1176-1335, with existing helpers wired at their source call sites. The observed branch has no new RNG; the exact RNG parity confirms the defect is the omitted state/output sequence rather than random-state drift."
+              ]
+            }
+          }
+        }
+      ]
     },
     {
       "id": "port-apply-use-camera-synthetic-v3-20260926",
