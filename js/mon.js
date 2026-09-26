@@ -668,7 +668,7 @@ import {
     unblock_point,
     vision_recalc,
 } from './vision.js';
-import { bypass_obj, which_armor } from './worn.js';
+import { bypass_obj, mon_break_armor, which_armor } from './worn.js';
 import { body_part } from './polyself.js';
 import { mon_explodes } from './explode.js';
 
@@ -2927,10 +2927,14 @@ function* apply_newcham_steps(
         monster.cham = pm_to_cham(monsndx(target), state);
     }
 
-    // These C calls discard their result. Keep the explicit source gaps while
-    // allowing the state transition itself to complete for every inventory.
+    // C discards possibly_unwield()'s result. Its complete weapon state change
+    // is still source-blocked, but armor breakage follows it in source order.
     if (monster.mw) note_unported('weapon.c possibly_unwield');
-    note_unported('worn.c mon_break_armor');
+    yield mon_break_armor(monster, polyspot, {
+        ...normalized,
+        state,
+        random,
+    });
     if (!(monster.misc_worn_check & W_ARMG))
         // C discards trap.c mselftouch()'s result.  Its full trap-side effect
         // is not in this source span, so preserve the named source boundary.
@@ -3476,18 +3480,6 @@ function applyNewWereForm(monster, target, state, redrawSquare) {
     return true;
 }
 
-function noteNewWereEquipmentGaps(monster) {
-    let wornObject = Boolean(monster.mw || monster.misc_worn_check);
-    for (let object = monster.minvent; object && !wornObject;
-        object = object.nobj) {
-        wornObject = Boolean(object.owornmask);
-    }
-    if (wornObject)
-        note_unported('worn.c mon_break_armor');
-    if (monster.mw)
-        note_unported('weapon.c possibly_unwield');
-}
-
 function newWereTargetName(target) {
     return is_human(target)
         ? 'human'
@@ -3522,7 +3514,14 @@ export async function new_were(monster, rawEnv = {}) {
         state,
         (x, y, owner) => normalized.redrawSquare(x, y, owner, normalized),
     );
-    noteNewWereEquipmentGaps(monster);
+    await mon_break_armor(monster, false, {
+        ...normalized,
+        state,
+        random: normalized.random,
+    });
+    // C discards possibly_unwield()'s result. Preserve its caller position
+    // after mon_break_armor until weapon.c owns that state transition.
+    if (monster.mw) note_unported('weapon.c possibly_unwield');
 
     const onScary = normalized.onScary ?? onscary;
     const nearMonster = normalized.monNear ?? monnear;
