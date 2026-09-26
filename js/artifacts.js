@@ -100,6 +100,7 @@ import {
     NECK,
 } from './const.js';
 import { game } from './gstate.js';
+import { use_crystal_ball } from './detect.js';
 import { inside_shop } from './shk.js';
 import { HCOLORS } from './random_text_data.js';
 import {
@@ -2598,7 +2599,7 @@ async function arti_invoke(obj, state = game) {
     const oart = get_artifact(obj, state);
     if (oart === state.artilist[ART_NONARTIFACT] || !oart.inv_prop) {
         if (obj.otyp === CRYSTAL_BALL) {
-            note_unported('apply.c use_crystal_ball');
+            await use_crystal_ball({ obj }, state);
         } else {
             await ttyPline(nothing_happens, state);
         }

@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "Independent object-detection no-result branch for detect.c use_crystal_ball/object_detect. Seed 81140282 is retained as a natural case whose ring-class query does not need C browse_map.",
+  "segments": [
+    {
+      "seed": 81140282,
+      "datetime": "20350317121314",
+      "nethackrc": "OPTIONS=name:SourceGazer,role:Wizard,race:human,gender:female,align:neutral,playmode:debug,!legacy,!tutorial,!splash_screen\n",
+      "moves": " \u0017blessed crystal ball\nao =  "
+    }
+  ]
+}

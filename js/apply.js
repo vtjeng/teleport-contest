@@ -137,7 +137,7 @@ import {
     set_occupation,
     y_n,
 } from './cmd.js';
-import { cvt_sdoor_to_door } from './detect.js';
+import { cvt_sdoor_to_door, use_crystal_ball } from './detect.js';
 import { ceiling, surface } from './dungeon.js';
 import { see_monster_closeup } from './dog.js';
 import {
@@ -2495,7 +2495,7 @@ export async function doapply(state = game, env = {}) {
         return ECMD_TIME;
     case CRYSTAL_BALL:
         // apply.c discards use_crystal_ball()'s result.
-        note_unported('detect.c use_crystal_ball');
+        await use_crystal_ball({ obj }, state);
         return ECMD_TIME;
     case TINNING_KIT:
         // apply.c discards use_tinning_kit()'s result.

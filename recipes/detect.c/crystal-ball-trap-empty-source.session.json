@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "Independent detect.c crystal-ball trap-detection no-result path and potion.c strange_feeling caller. A bounded JS prescreen of seeds 81140283-81140332 found zero level traps at 81140283 after six replays; the C recording below independently validates the full source route.",
+  "segments": [
+    {
+      "seed": 81140283,
+      "datetime": "20350317121314",
+      "nethackrc": "OPTIONS=name:SourceGazer,role:Wizard,race:human,gender:female,align:neutral,playmode:debug,!legacy,!tutorial,!splash_screen\n",
+      "moves": " \u0017blessed crystal ball\nao ^  "
+    }
+  ]
+}

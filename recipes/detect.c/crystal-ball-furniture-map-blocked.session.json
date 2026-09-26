@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "Blocked independent detect.c furniture-detection recipe. The up-stair selector reaches furniture_detect(); C then calls detect.c:browse_map() for newly exposed locations, whose farlook input boundary is not yet ported.",
+  "segments": [
+    {
+      "seed": 81140281,
+      "datetime": "20350317121314",
+      "nethackrc": "OPTIONS=name:SourceGazer,role:Wizard,race:human,gender:female,align:neutral,playmode:debug,!legacy,!tutorial,!splash_screen\n",
+      "moves": " \u0017blessed crystal ball\nap <  "
+    }
+  ]
+}

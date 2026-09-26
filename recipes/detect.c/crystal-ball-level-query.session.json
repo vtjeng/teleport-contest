@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "Independent detect.c use_crystal_ball witness for the worm-tail monster-class query, including monster detection and map browsing. A newly wished blessed ball keeps the normal charged query path source-deterministic for a Wizard.",
+  "segments": [
+    {
+      "seed": 81140274,
+      "datetime": "20350317121314",
+      "nethackrc": "OPTIONS=name:SourceGazer,role:Wizard,race:human,gender:female,align:neutral,playmode:debug,!legacy,!tutorial,!splash_screen\n",
+      "moves": " \u0017blessed crystal ball\nao ~  "
+    }
+  ]
+}

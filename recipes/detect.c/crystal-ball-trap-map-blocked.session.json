@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "Blocked independent detect.c trap-map recipe. This reaches detect.c:display_trap_map, whose C source calls the unported void detect.c:browse_map; strict C/JS comparison diverges when C opens farlook browsing after the trap map.",
+  "segments": [
+    {
+      "seed": 81140267,
+      "datetime": "20350317121314",
+      "nethackrc": "OPTIONS=name:SourceGazer,role:Wizard,race:human,gender:female,align:neutral,playmode:debug,!legacy,!tutorial,!splash_screen\n",
+      "moves": " \u0017crystal ball\nan ^  "
+    }
+  ]
+}

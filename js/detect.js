@@ -4,10 +4,14 @@
 
 import {
     A_WIS,
+    A_INT,
+    BEAR_TRAP,
     BLINDED,
+    BURIED_TOO,
     BOLT_LIM,
     COLNO,
     CONFUSION,
+    CONTAINED_TOO,
     CORR,
     DETECT_MONSTERS,
     DOOR,
@@ -26,6 +30,11 @@ import {
     GPCOORDS_SCREEN,
     HALLUC,
     HALLUC_RES,
+    HALF_PHDAM,
+    KILLED_BY_AN,
+    TIMEOUT,
+    SYM_BOULDER,
+    M_AP_OBJECT,
     I_SPECIAL,
     Is_airlevel,
     Is_waterlevel,
@@ -46,14 +55,26 @@ import {
     TER_DETECT,
     TRAPPED_CHEST,
     TRAPPED_DOOR,
+    TOE,
+    Never_mind,
+    quitchars,
+    Has_contents,
+    helpless,
+    has_mcorpsenm,
     SVALL,
     WM_MASK,
     isok,
     u_at,
 } from './const.js';
 import { SPFX_SEARCH } from './artifacts.js';
-import { exercise } from './attrib.js';
-import { cmdSafetyPrevention } from './cmd.js';
+import {
+    DEF_OC_SYMS_NAMES,
+    def_char_is_furniture,
+    def_char_to_monclass,
+    def_char_to_objclass,
+} from './drawing.js';
+import { acurr, exercise } from './attrib.js';
+import { cmdSafetyPrevention, yn_function } from './cmd.js';
 import {
     back_to_glyph,
     cmap_to_glyph,
@@ -72,41 +93,85 @@ import {
     map_invisible_planning,
     warning_of,
     glyph_to_cmap,
+    glyph_to_obj,
     hero_glyph_info,
     map_glyphinfo,
     map_monster_glyph_info,
     map_engraving,
     magic_map_background,
     map_trap,
+    map_object,
     newsym,
     object_glyph_info,
     remembered_glyph_from_presentation,
     show_glyph_cell,
     trap_glyph_info,
     trap_to_glyph,
+    unmap_object,
     unmap_invisible,
     xy_set_wall_state,
     flush_screen,
 } from './display.js';
-import { on_level, room_discovered } from './dungeon.js';
+import { depth, on_level, room_discovered } from './dungeon.js';
 import {
     engr_at,
 } from './engrave.js';
 import { game } from './gstate.js';
 import { getpos } from './getpos.js';
-import { nomul } from './hack.js';
-import { hides_under, is_hider } from './mondata.js';
-import { NUMMONS, S_EEL } from './monsters.js';
+import { get_obj_location } from './light.js';
+import { Is_box } from './lock.js';
+import { losehp, nomul } from './hack.js';
+import { hides_under, is_hider, resists_blnd } from './mondata.js';
+import {
+    NUMMONS,
+    PM_LONG_WORM,
+    PM_TENGU,
+    S_EEL,
+    S_GHOST,
+    S_MIMIC,
+    S_WORM_TAIL,
+} from './monsters.js';
 import { m_at } from './monst.js';
 // seemimic() is the mon.c owner; display.c supplies only the glyph/display
 // helpers it calls.
 import { seemimic as monSeemimic } from './mon.js';
-import { a_monnam, y_monnam } from './do_name.js';
-import { isBox, sobj_at } from './obj.js';
-import { CHEST, LARGE_BOX, LENSES } from './objects.js';
-import { visible_region_at } from './region.js';
-import { rn2, rnl } from './rng.js';
+import { a_monnam, hcolor, y_monnam } from './do_name.js';
+import { xnameFresh, Tobjnam, the } from './objnam.js';
+import { discover_object, observe_object } from './o_init.js';
 import {
+    make_blinded,
+    make_confused,
+    make_hallucinated,
+    strange_feeling,
+} from './potion.js';
+import { poly_gender } from './polyself.js';
+import { body_part } from './polyself.js';
+import { is_quest_artifact } from './questpgr.js';
+import { consume_obj_charge, useup } from './invent.js';
+import { findgold } from './steal.js';
+import { makeplural } from './fruit.js';
+import { note_unported } from './unported.js';
+import { isBox, sobj_at } from './obj.js';
+import {
+    CHEST,
+    COIN_CLASS,
+    CRYSTAL_BALL,
+    GOLD,
+    GOLD_PIECE,
+    LARGE_BOX,
+    LENSES,
+    MAXOCLASSES,
+    POTION_CLASS,
+    ROCK_CLASS,
+    SCROLL_CLASS,
+    SPBOOK_CLASS,
+} from './objects.js';
+import { visible_region_at } from './region.js';
+import { rn2, rnd, rnl } from './rng.js';
+import {
+    MAXMCLASSES,
+    SYM_OFF_M,
+    SYM_OFF_O,
     S_arrow_trap,
     S_cloud,
     S_corr,
@@ -116,7 +181,11 @@ import {
     S_room,
     S_stone,
     S_tree,
+    S_upstair,
+    S_fountain,
+    SYM_OFF_X,
 } from './symbols.js';
+import { DEFAULT_PRIMARY_SYMBOLS } from './symbol_data.js';
 import { canSpotMonster, sensesMonster } from './startup_a11y.js';
 import { t_at, trapname } from './trap.js';
 import {
@@ -148,11 +217,6 @@ export function unconstrain_map(state = game) {
     const constrained = Boolean(
         state.u?.uinwater || state.u?.uburied || state.u?.uswallow,
     );
-    if (constrained) {
-        throw new UnsupportedSearchError(
-            'magic mapping while underwater, buried, or swallowed',
-        );
-    }
     state.iflags ??= {};
     state.iflags.save_uinwater = state.u.uinwater ?? 0;
     state.iflags.save_uburied = state.u.uburied ?? 0;
@@ -160,7 +224,7 @@ export function unconstrain_map(state = game) {
     state.u.uinwater = 0;
     state.u.uburied = 0;
     state.u.uswallow = 0;
-    return false;
+    return constrained;
 }
 
 export function reconstrain_map(state = game) {
@@ -346,6 +410,286 @@ function liveMonsters(state) {
     return result;
 }
 
+// C refs: detect.c o_in()/o_material() (201-247). These recursive searches
+// preserve object-chain order and return the first matching object. The
+// source deliberately treats a Schroedinger's box differently in o_in():
+// its possible cat corpse is not a stable class result until opened.
+export function o_in(obj, oclass, state = game) {
+    if (obj.oclass === oclass) return obj;
+    const schroedingersBox = obj.otyp === LARGE_BOX && obj.spe === 1;
+    if (Has_contents(obj) && !schroedingersBox) {
+        for (let member = obj.cobj; member; member = member.nobj) {
+            if (member.oclass === oclass) return member;
+            if (Has_contents(member)) {
+                const found = o_in(member, oclass, state);
+                if (found) return found;
+            }
+        }
+    }
+    return null;
+}
+
+export function o_material(obj, material, state = game) {
+    if (state.objects[obj.otyp].oc_material === material) return obj;
+    if (Has_contents(obj)) {
+        for (let member = obj.cobj; member; member = member.nobj) {
+            if (state.objects[member.otyp].oc_material === material)
+                return member;
+            if (Has_contents(member)) {
+                const found = o_material(member, material, state);
+                if (found) return found;
+            }
+        }
+    }
+    return null;
+}
+
+export function check_map_spot(x, y, oclass, material, state = game) {
+    const glyph = glyph_at(x, y, state);
+    if (!glyph_is_object(glyph)) return false;
+
+    if (oclass === MAXOCLASSES + 1) {
+        return !state.level.objects?.[x]?.[y]
+            && !(m_at(x, y, state)?.minvent);
+    }
+
+    const shownType = glyph_to_obj(glyph);
+    if (material
+        && state.objects[shownType]?.oc_material === material) {
+        for (let obj = state.level.objects?.[x]?.[y] ?? null;
+            obj; obj = obj.nexthere) {
+            if (o_material(obj, GOLD, state)) return false;
+        }
+        const monster = m_at(x, y, state);
+        for (let obj = monster?.minvent ?? null; obj; obj = obj.nobj) {
+            if (o_material(obj, GOLD, state)) return false;
+        }
+        return true;
+    }
+
+    if (oclass && state.objects[shownType]?.oc_class === oclass) {
+        for (let obj = state.level.objects?.[x]?.[y] ?? null;
+            obj; obj = obj.nexthere) {
+            if (o_in(obj, oclass, state)) return false;
+        }
+        const monster = m_at(x, y, state);
+        for (let obj = monster?.minvent ?? null; obj; obj = obj.nobj) {
+            if (o_in(obj, oclass, state)) return false;
+        }
+        return true;
+    }
+    return false;
+}
+
+function clear_stale_map(oclass, material, state = game) {
+    let changeMade = false;
+    for (let x = 1; x < COLNO; ++x) {
+        for (let y = 0; y < ROWNO; ++y) {
+            if (check_map_spot(x, y, oclass, material, state)) {
+                unmap_object(x, y, state);
+                changeMade = true;
+            }
+        }
+    }
+    return changeMade;
+}
+
+// C ref: detect.c observe_recursively() (249-259).
+function observe_recursively(obj, state = game) {
+    observe_object(obj, state);
+    if (Has_contents(obj)) {
+        for (let member = obj.cobj; member; member = member.nobj)
+            observe_recursively(member, state);
+    }
+}
+
+function heroConfused(state) {
+    const confusion = state.u?.uprops?.[CONFUSION];
+    return Boolean((confusion?.intrinsic || confusion?.extrinsic)
+        && !confusion?.blocked);
+}
+
+// C ref: detect.c object_detect() (603-793). Floor, buried, and monster
+// inventories are scanned in C order; when a contained match is mapped its
+// parent location is copied to the matched object before display.c maps it.
+export async function object_detect(detector = null, objectClass = 0,
+    state = game) {
+    let oclass = objectClass;
+    if (!Number.isInteger(oclass) || oclass < 0 || oclass >= MAXOCLASSES) {
+        await ttyPline(
+            `impossible: object_detect:  illegal class ${oclass}`, state,
+        );
+        oclass = 0;
+    }
+
+    const showSymbols = state.gs?.showsyms ?? [];
+    const classSymbol = oclass
+        ? DEFAULT_PRIMARY_SYMBOLS[SYM_OFF_O + oclass] : 0;
+    const boulder = classSymbol
+        && classSymbol === showSymbols[SYM_OFF_X + SYM_BOULDER]
+        ? ROCK_CLASS : 0;
+    const stuff = heroHallucinating(state)
+        || (heroConfused(state) && oclass === SCROLL_CLASS)
+        ? 'something'
+        : oclass ? DEF_OC_SYMS_NAMES[oclass] : 'objects';
+    const description = boulder && oclass !== ROCK_CLASS
+        ? `${stuff} and/or large stones` : stuff;
+    const detectKnown = Boolean(detector
+        && (detector.oclass === POTION_CLASS
+            || detector.oclass === SPBOOK_CLASS)
+        && detector.blessed);
+    let count = 0;
+    let countHere = 0;
+    const floorObjects = state.level?.objlist ?? null;
+    const buriedObjects = state.level?.buriedobjlist ?? null;
+
+    state.gk ??= {};
+
+    if (detectKnown) {
+        for (let obj = state.invent ?? null; obj; obj = obj.nobj)
+            observe_recursively(obj, state);
+    }
+
+    for (let obj = floorObjects; obj; obj = obj.nobj) {
+        if ((!oclass && !boulder)
+            || o_in(obj, oclass, state)
+            || o_in(obj, boulder, state)) {
+            if (u_at(obj.ox, obj.oy, state)) ++countHere;
+            else ++count;
+        }
+        if (detectKnown) observe_recursively(obj, state);
+    }
+
+    for (let obj = buriedObjects; obj; obj = obj.nobj) {
+        if (!oclass || o_in(obj, oclass, state)) {
+            if (u_at(obj.ox, obj.oy, state)) ++countHere;
+            else ++count;
+        }
+        if (detectKnown) observe_recursively(obj, state);
+    }
+
+    if (state.u.usteed) {
+        state.u.usteed.mx = state.u.ux;
+        state.u.usteed.my = state.u.uy;
+    }
+
+    for (let monster = state.level?.monlist ?? null;
+        monster; monster = monster.nmon) {
+        if (monster.mhp < 1 || (monster.isgd && !monster.mx)) continue;
+        for (let obj = monster.minvent ?? null; obj; obj = obj.nobj) {
+            if ((!oclass && !boulder)
+                || o_in(obj, oclass, state)
+                || o_in(obj, boulder, state)) {
+                ++count;
+            }
+            if (detectKnown) observe_recursively(obj, state);
+        }
+        const mimic = detector?.cursed
+            && M_AP_TYPE(monster) === M_AP_OBJECT
+            && (!oclass
+                || oclass === state.objects[monster.mappearance]?.oc_class);
+        const goldCarrier = findgold(monster.minvent)
+            && (!oclass || oclass === COIN_CLASS);
+        if (mimic || goldCarrier) {
+            ++count;
+            break;
+        }
+    }
+
+    state.gk.known = clear_stale_map(
+        !oclass ? MAXOCLASSES + 1 : oclass, 0, state,
+    );
+
+    if (!state.gk.known && !count) {
+        if (!countHere) {
+            if (detector)
+                await strange_feeling(
+                    detector, 'You feel a lack of something.', state,
+                );
+            return 1;
+        }
+        await ttyPline(`You sense ${description} nearby.`, state);
+        return 0;
+    }
+
+    await cls();
+    unconstrain_map(state);
+    for (let obj = buriedObjects; obj; obj = obj.nobj) {
+        const match = !oclass ? obj : o_in(obj, oclass, state);
+        if (!match) continue;
+        if (oclass && match !== obj) {
+            match.ox = obj.ox;
+            match.oy = obj.oy;
+        }
+        map_object(oclass ? match : obj, 1, state);
+    }
+
+    for (let x = 1; x < COLNO; ++x) {
+        for (let y = 0; y < ROWNO; ++y) {
+            for (let obj = state.level.objects?.[x]?.[y] ?? null;
+                obj; obj = obj.nexthere) {
+                let match = (!oclass && !boulder) ? obj
+                    : o_in(obj, oclass, state)
+                        || o_in(obj, boulder, state);
+                if (!match) continue;
+                if ((oclass || boulder) && match !== obj) {
+                    match.ox = obj.ox;
+                    match.oy = obj.oy;
+                }
+                map_object(match, 1, state);
+                break;
+            }
+        }
+    }
+
+    for (let monster = state.level?.monlist ?? null;
+        monster; monster = monster.nmon) {
+        if (monster.mhp < 1 || (monster.isgd && !monster.mx)) continue;
+        for (let obj = monster.minvent ?? null; obj; obj = obj.nobj) {
+            let match = (!oclass && !boulder) ? obj
+                : o_in(obj, oclass, state) || o_in(obj, boulder, state);
+            if (!match) continue;
+            match.ox = monster.mx;
+            match.oy = monster.my;
+            map_object(match, 1, state);
+            break;
+        }
+        if (detector?.cursed && M_AP_TYPE(monster) === M_AP_OBJECT
+            && (!oclass
+                || oclass === state.objects[monster.mappearance]?.oc_class)) {
+            map_object({
+                otyp: monster.mappearance,
+                quan: 1,
+                ox: monster.mx,
+                oy: monster.my,
+                corpsenm: has_mcorpsenm(monster)
+                    ? monster.mextra.mcorpsenm : PM_TENGU,
+            }, 1, state);
+        } else if (findgold(monster.minvent)
+            && (!oclass || oclass === COIN_CLASS)) {
+            map_object({
+                otyp: GOLD_PIECE,
+                quan: rnd(10),
+                ox: monster.mx,
+                oy: monster.my,
+            }, 1, state);
+        }
+    }
+
+    const currentGlyph = glyph_at(state.u.ux, state.u.uy, state);
+    if (!glyph_is_object(currentGlyph)) {
+        newsym(state.u.ux, state.u.uy);
+    }
+    await ttyPline(
+        `You detect the ${count ? 'presence' : 'absence'} of ${description}.`,
+        state,
+    );
+    if (!count) note_unported('detect.c display_nhwindow');
+    else note_unported('detect.c browse_map');
+    await map_redisplay(state);
+    return 0;
+}
+
 // C ref: detect.c monster_detect() (797-860), restricted to the fountain and
 // other ordinary no-object, all-monster call. Potion/object-specific waking,
 // monster-class filtering, constrained maps, and long-worm tails remain
@@ -358,15 +702,19 @@ export async function monster_detect(
     state = game,
     env = {},
 ) {
-    if (otmp !== null)
-        throw new UnsupportedSearchError(
-            'monster detection with a detecting object',
-        );
-    if (mclass !== 0)
-        throw new UnsupportedSearchError('monster-class detection');
-
     const monsters = liveMonsters(state);
-    if (!monsters.length) return 1;
+    if (!monsters.length) {
+        if (otmp) {
+            await strange_feeling(
+                otmp,
+                heroHallucinating(state)
+                    ? 'You get the heebie jeebies.'
+                    : 'You feel threatened.',
+                state,
+            );
+        }
+        return 1;
+    }
 
     const clearScreen = env.cls ?? cls;
     const unconstraint = env.unconstrainMap ?? unconstrain_map;
@@ -375,45 +723,502 @@ export async function monster_detect(
     const browse = env.browseMap ?? browse_map;
     const redisplay = env.mapRedisplay ?? map_redisplay;
 
-    // C saves u.uswallow before unconstrain_map(). The current supported arm
-    // is ordinary, unconstrained play; retaining the value keeps the source
-    // order visible and lets a future swallowed implementation use it.
     const swallowed = Boolean(state.u?.uswallow);
     await clearScreen();
-    unconstraint(state);
-    for (const monster of monsters)
-        map_monst(monster, state, env);
+    const unconstrained = unconstraint(state);
+    let woken = false;
+    for (const monster of monsters) {
+        if (!mclass || monster.data?.mlet === mclass
+            || (monster.data?.pmidx === PM_LONG_WORM
+                && mclass === S_WORM_TAIL)) {
+            map_monst(monster, state, env);
+        }
+        if (otmp?.cursed && helpless(monster)) {
+            monster.msleeping = 0;
+            monster.mfrozen = 0;
+            monster.mcanmove = 1;
+            woken = true;
+        }
+    }
     if (!swallowed) showSelf(state);
     await message('You sense the presence of monsters.', state);
-    // C detect.c:854-856 makes the mapped monsters perceptible to farlook
-    // only while browsing, using the canonical EDetect_monsters property.
-    const detection = state.u.uprops[DETECT_MONSTERS] ??= {
-        intrinsic: 0,
-        extrinsic: 0,
-    };
-    detection.extrinsic |= I_SPECIAL;
-    try {
-        await browse(TER_DETECT | TER_MON, 'monster of interest', state);
-    } finally {
-        detection.extrinsic &= ~I_SPECIAL;
+    if (woken) await message('Monsters sense the presence of you.', state);
+
+    if (otmp?.blessed && !unconstrained) {
+        note_unported('detect.c display_nhwindow');
+    } else {
+        const detection = state.u.uprops[DETECT_MONSTERS] ??= {
+            intrinsic: 0,
+            extrinsic: 0,
+        };
+        detection.extrinsic |= I_SPECIAL;
+        try {
+            await browse(TER_DETECT | TER_MON, 'monster of interest', state);
+        } finally {
+            detection.extrinsic &= ~I_SPECIAL;
+        }
     }
     await redisplay(state);
     return 0;
 }
 
-// C ref: detect.c map_redisplay() (96-106). The current slice reaches the
-// ordinary unconstrained arm only; the underwater, buried, and swallowed
-// redraws remain fail-closed in unconstrain_map().
+const OTRAP_NONE = 0;
+const OTRAP_HERE = 1;
+const OTRAP_THERE = 2;
+
+// C refs: detect.c sense_trap()/detect_obj_traps()/display_trap_map()
+// (865-1008). Crystal-ball detection reaches the ordinary, sighted, un-cursed
+// map arm. Hallucinated/cursed fake-object feedback and findone()'s optional
+// collection callback are kept explicit boundaries until their source helpers
+// are included in a task that has matching entry evidence.
+function sense_trap(trap, x, y, srcCursed, state = game) {
+    if (trap) {
+        map_trap(trap, 1, state);
+        trap.tseen = true;
+        return;
+    }
+    const dummyTrap = { tx: x, ty: y, ttyp: BEAR_TRAP };
+    map_trap(dummyTrap, 1, state);
+}
+
+function show_sense_trap(trap, x, y, srcCursed, state = game) {
+    if (heroHallucinating(state) || srcCursed) {
+        // This call is void in C; do not invent the random_object()/
+        // random_monster() result that the fake object requires.
+        note_unported('detect.c sense_trap');
+        return;
+    }
+    sense_trap(trap, x, y, srcCursed, state);
+}
+
+function detect_obj_traps(objlist, showThem, how, ft = null, state = game) {
+    let result = OTRAP_NONE;
+    for (let obj = objlist; obj; obj = obj.nobj) {
+        let x = 0, y = 0;
+        if ((Is_box(obj) && obj.otrapped) || Has_contents(obj)) {
+            const location = get_obj_location(
+                obj, BURIED_TOO | CONTAINED_TOO, state,
+            );
+            if (!location || !isok(location.x, location.y)
+                || (ft && (location.x !== ft.ft_cc.x
+                    || location.y !== ft.ft_cc.y))) {
+                continue;
+            }
+            ({ x, y } = location);
+        }
+        if (Is_box(obj) && obj.otrapped) {
+            obj.tknown = true;
+            observe_object(obj, state);
+            result |= u_at(x, y, state) ? OTRAP_HERE : OTRAP_THERE;
+            if (showThem) {
+                const dummyTrap = { tx: x, ty: y, ttyp: TRAPPED_CHEST };
+                show_sense_trap(dummyTrap, x, y, how, state);
+            }
+            if (ft) {
+                // findone() is outside this task's entry points; the C result
+                // still includes this chest, while the optional flash/callback
+                // feedback remains an explicit void gap.
+                note_unported('detect.c detect_obj_traps findone feedback');
+            }
+        }
+        if (Has_contents(obj))
+            result |= detect_obj_traps(obj.cobj, showThem, how, ft, state);
+    }
+    return result;
+}
+
+async function display_trap_map(cursedSource, state = game) {
+    await cls();
+    unconstrain_map(state);
+    detect_obj_traps(state.level?.buriedobjlist ?? null, true,
+        cursedSource, null, state);
+    detect_obj_traps(state.level?.objlist ?? null, true,
+        cursedSource, null, state);
+    for (let monster = state.level?.monlist ?? null;
+        monster; monster = monster.nmon) {
+        if (monster.mhp < 1 || (monster.isgd && !monster.mx)) continue;
+        detect_obj_traps(monster.minvent, true, cursedSource, null, state);
+    }
+    detect_obj_traps(state.invent, true, cursedSource, null, state);
+    for (const trap of state.level?.traps ?? [])
+        show_sense_trap(trap, 0, 0, cursedSource, state);
+
+    for (let index = 0; index < (state.level?.doorindex ?? 0); ++index) {
+        const door = state.level.doors[index];
+        if (state.level.at(door.x, door.y).typ === SDOOR) continue;
+        if (state.level.at(door.x, door.y).doormask & D_TRAPPED) {
+            show_sense_trap({ tx: door.x, ty: door.y, ttyp: TRAPPED_DOOR },
+                door.x, door.y, cursedSource, state);
+        }
+    }
+
+    const currentGlyph = glyph_at(state.u.ux, state.u.uy, state);
+    if (!glyph_is_trap(currentGlyph) && !glyph_is_object(currentGlyph)) {
+        newsym(state.u.ux, state.u.uy);
+    }
+    await ttyPline(cursedSource ? 'You feel very greedy.' : 'You feel entrapped.', state);
+    // C browses all detector map types here. The existing browse_map port is
+    // intentionally narrower, and its result is void at this source site.
+    note_unported('detect.c browse_map');
+    await map_redisplay(state);
+}
+
+// C ref: detect.c trap_detect() (1011-1086); its 1/0 result is consumed by
+// use_crystal_ball().
+async function trap_detect(sobj = null, state = game) {
+    let found = false;
+    const traps = state.level?.traps ?? [];
+    const cursedSource = Boolean(sobj?.cursed);
+    if (state.u.usteed) {
+        state.u.usteed.mx = state.u.ux;
+        state.u.usteed.my = state.u.uy;
+    }
+    for (const trap of traps) {
+        if (trap.tx !== state.u.ux || trap.ty !== state.u.uy) {
+            await display_trap_map(cursedSource, state);
+            return 0;
+        }
+        found = true;
+    }
+    for (const chain of [state.level?.objlist ?? null,
+        state.level?.buriedobjlist ?? null]) {
+        const result = detect_obj_traps(chain, false, 0, null, state);
+        if (result & OTRAP_THERE) {
+            await display_trap_map(cursedSource, state);
+            return 0;
+        }
+        if (result !== OTRAP_NONE) found = true;
+    }
+    for (let monster = state.level?.monlist ?? null;
+        monster; monster = monster.nmon) {
+        if (monster.mhp < 1 || (monster.isgd && !monster.mx)) continue;
+        const result = detect_obj_traps(monster.minvent, false, 0, null, state);
+        if (result & OTRAP_THERE) {
+            await display_trap_map(cursedSource, state);
+            return 0;
+        }
+        if (result !== OTRAP_NONE) found = true;
+    }
+    if (detect_obj_traps(state.invent, false, 0, null, state)
+        !== OTRAP_NONE) found = true;
+    for (let index = 0; index < (state.level?.doorindex ?? 0); ++index) {
+        const door = state.level.doors[index];
+        const location = state.level.at(door.x, door.y);
+        if (location.typ === SDOOR) continue;
+        if (location.doormask & D_TRAPPED) {
+            if (door.x !== state.u.ux || door.y !== state.u.uy) {
+                await display_trap_map(cursedSource, state);
+                return 0;
+            }
+            found = true;
+        }
+    }
+    if (!found) {
+        const message = `Your ${makeplural(body_part(TOE, state.youmonst))} stop itching.`;
+        await strange_feeling(null, message, state);
+        return 1;
+    }
+    await ttyPline(
+        `Your ${makeplural(body_part(TOE, state.youmonst))} itch.`, state,
+    );
+    return 0;
+}
+
+// C ref: detect.c furniture_detect() (1091-1138); this consumes and returns 0.
+async function furniture_detect(state = game) {
+    let found = 0, revealed = 0;
+    unconstrain_map(state);
+    for (let y = 0; y < ROWNO; ++y) {
+        for (let x = 1; x < COLNO; ++x) {
+            const glyph = glyph_at(x, y, state);
+            const symbol = glyph_to_cmap(glyph);
+            const location = state.level.at(x, y);
+            const monster = m_at(x, y, state);
+            if (IS_FURNITURE(location.typ)) {
+                ++found;
+                magic_map_background(x, y, 1, state);
+            } else if (symbol >= S_upstair && symbol <= S_fountain) {
+                ++found;
+                if (monster && M_AP_TYPE(monster) === M_AP_FURNITURE)
+                    monSeemimic(monster, state);
+                if (!monster || !canSpotMonster(monster, state))
+                    map_invisible(x, y, state);
+            }
+            if (glyph_at(x, y, state) !== glyph) ++revealed;
+        }
+    }
+    if (!found) await ttyPline('There seems to be nothing of interest on this level.', state);
+    else if (!revealed)
+        await ttyPline('Your map already shows all relevant locations.', state);
+    if (!revealed) note_unported('detect.c display_nhwindow');
+    else {
+        note_unported('detect.c browse_map');
+    }
+    await map_redisplay(state);
+    return 0;
+}
+
+// C ref: detect.c map_redisplay() (94-103). Restore the saved map constraints
+// before redrawing; display.c's specialized underwater and buried overlays are
+// void callees outside this task and remain named gaps.
 export async function map_redisplay(state = game) {
     if (state !== game)
         throw new TypeError('map_redisplay() redraws the global game');
     reconstrain_map(state);
-    if (state.u.uinwater || state.u.uburied || state.u.uswallow) {
-        throw new UnsupportedSearchError(
-            'terrain redisplay while underwater, buried, or swallowed',
-        );
-    }
     await docrt();
+    if (state.u.uinwater) note_unported('display.c under_water');
+    if (state.u.uburied) note_unported('display.c under_ground');
+}
+
+// C ref: detect.c level_distance() (1142-1173). The two randomized threshold
+// checks are kept under their exact short-circuit conditions.
+export function level_distance(where, state = game, random = { rn2 }) {
+    const distance = depth(state.u.uz, state) - depth(where, state);
+    const sameDungeon = state.u.uz.dnum === where.dnum;
+    let result = '';
+    if (distance < 0) {
+        if (distance < (-8 - random.rn2(3)))
+            result = sameDungeon ? 'far below' : 'far away';
+        else if (distance < -1)
+            result = sameDungeon ? 'below you' : 'away below you';
+        else
+            result = sameDungeon ? 'just below' : 'in the distance';
+    } else if (distance > 0) {
+        if (distance > (8 + random.rn2(3)))
+            result = sameDungeon ? 'far above' : 'far away';
+        else if (distance > 1)
+            result = sameDungeon ? 'above you' : 'away above you';
+        else
+            result = sameDungeon ? 'just above' : 'in the distance';
+    } else {
+        result = sameDungeon ? 'near you' : 'in the distance';
+    }
+    return result;
+}
+
+function heroBlind(state) {
+    const blindness = state.u?.uprops?.[BLINDED];
+    return Boolean((blindness?.intrinsic || blindness?.extrinsic)
+        && !blindness?.blocked);
+}
+
+function heroHallucinating(state) {
+    const hallucination = state.u?.uprops?.[HALLUC];
+    const resistance = state.u?.uprops?.[HALLUC_RES];
+    return Boolean(hallucination?.intrinsic)
+        && !Boolean(resistance?.intrinsic || resistance?.extrinsic);
+}
+
+function halfPhysicalDamage(damage, state) {
+    const half = state.u?.uprops?.[HALF_PHDAM];
+    return half?.intrinsic || half?.extrinsic
+        ? Math.trunc((damage + 1) / 2) : damage;
+}
+
+// C ref: detect.c use_crystal_ball() (1206-1371). `optr` is the JavaScript
+// equivalent of C's `struct obj **`: useup() mutates the inventory chain and
+// this holder is cleared on the two source branches that destroy the ball.
+export async function use_crystal_ball(optr, state = game) {
+    let obj = optr.obj;
+    const charged = obj.spe > 0;
+    if (heroBlind(state)) {
+        await ttyPline(
+            `Too bad you can't see ${the(xnameFresh(obj, state), state)}.`,
+            state,
+        );
+        return;
+    }
+
+    const oops = is_quest_artifact(obj, state) ? 8
+        : obj.blessed ? 16 : 20;
+    if (charged && (obj.cursed || rnd(oops) > acurr(state, A_INT))) {
+        const impairment = rnd(100 - 3 * acurr(state, A_INT));
+        const maxCase = obj.oartifact || obj.blessed ? 4 : 5;
+        switch (rnd(maxCase)) {
+        case 1:
+            await ttyPline(
+                `${Tobjnam(obj, 'are', state)} too much to comprehend!`,
+                state,
+            );
+            break;
+        case 2:
+            await ttyPline(`${Tobjnam(obj, 'confuse', state)} you!`, state);
+            await make_confused(
+                ((state.u.uprops[CONFUSION]?.intrinsic ?? 0) & TIMEOUT)
+                    + impairment,
+                false,
+                state,
+            );
+            break;
+        case 3:
+            if (!resists_blnd(state.youmonst, state)) {
+                await ttyPline(
+                    `${Tobjnam(obj, 'damage', state)} your vision!`, state,
+                );
+                const oldBlind = heroBlind(state);
+                const blindTimeout = (state.u.uprops[BLINDED]?.intrinsic ?? 0)
+                    & TIMEOUT;
+                await make_blinded(blindTimeout + impairment, false, state);
+                if (!heroBlind(state) && oldBlind)
+                    await ttyPline('Your vision clears.', state);
+            } else {
+                await ttyPline(
+                    `${Tobjnam(obj, 'assault', state)} your vision.`, state,
+                );
+                await ttyPline('You are unaffected!', state);
+            }
+            break;
+        case 4:
+            await ttyPline(`${Tobjnam(obj, 'zap', state)} your mind!`, state);
+            await make_hallucinated(
+                ((state.u.uprops[HALLUC]?.intrinsic ?? 0) & TIMEOUT)
+                    + impairment,
+                false,
+                0,
+                state,
+            );
+            break;
+        case 5:
+            await ttyPline(`${Tobjnam(obj, 'explode', state)}!`, state);
+            useup(obj, { state });
+            optr.obj = obj = null;
+            await losehp(
+                halfPhysicalDamage(rnd(30), state),
+                'exploding crystal ball', KILLED_BY_AN, state,
+            );
+            break;
+        }
+        if (obj) consume_obj_charge(obj, true, { state });
+        return;
+    }
+
+    if (heroHallucinating(state)) {
+        nomul(-rnd(charged ? 4 : 2), state);
+        state.multi_reason = 'gazing into a Magic 8-Ball (tm)';
+        state.nomovemsg = '';
+        if (!charged) {
+            await ttyPline(
+                `All you see is funky ${hcolor(null, state)} haze.`, state,
+            );
+            if (obj.spe < 0) {
+                await ttyPline(`${Tobjnam(obj, 'implode', state)}!`, state);
+                useup(obj, { state });
+                optr.obj = null;
+            }
+        } else {
+            switch (rnd(6)) {
+            case 1:
+                await ttyPline('You grok some groovy globs of incandescent lava.', state);
+                break;
+            case 2:
+                await ttyPline(
+                    `Whoa! Psychedelic colors, ${poly_gender(state) === 1 ? 'babe' : 'dude'}!`,
+                    state,
+                );
+                break;
+            case 3:
+                await ttyPline(
+                    `The crystal pulses with sinister ${hcolor(null, state)} light!`,
+                    state,
+                );
+                break;
+            case 4:
+                await ttyPline('You see goldfish swimming above fluorescent rocks.', state);
+                break;
+            case 5:
+                await ttyPline(
+                    'You see tiny snowflakes spinning around a miniature farmhouse.',
+                    state,
+                );
+                break;
+            default:
+                await ttyPline('Oh wow... like a kaleidoscope!', state);
+                break;
+            }
+            consume_obj_charge(obj, true, { state });
+        }
+        return;
+    }
+
+    if (state.flags?.verbose)
+        await ttyPline('You may look for an object, monster, or special map symbol.', state);
+    const answer = await yn_function(
+        'What do you look for?', null, '\0', true, state,
+    );
+    let ch = typeof answer === 'number'
+        ? String.fromCharCode(answer) : String(answer ?? '');
+    const ghostSymbol = String.fromCharCode(
+        DEFAULT_PRIMARY_SYMBOLS[SYM_OFF_M + S_GHOST],
+    );
+    if (ch !== ghostSymbol && quitchars.includes(ch)) {
+        if (state.flags?.verbose) await ttyPline(Never_mind, state);
+        return;
+    }
+
+    await ttyPline(
+        `You peer into ${the(xnameFresh(obj, state), state)}...`, state,
+    );
+    nomul(-rnd(charged ? 10 : 2), state);
+    state.multi_reason = 'gazing into a crystal ball';
+    state.nomovemsg = '';
+    if (!charged) {
+        await ttyPline('The vision is unclear.', state);
+        if (obj.spe < 0) {
+            await ttyPline(`${Tobjnam(obj, 'implode', state)}!`, state);
+            useup(obj, { state });
+            optr.obj = obj = null;
+            return;
+        }
+    } else {
+        let detected = 0;
+        // hack.h makeknown(x) sets both knowledge flags and credits the
+        // Wisdom exercise when this is the first use of a crystal ball. C
+        // calls makeknown before consuming the ball's charge.
+        discover_object(CRYSTAL_BALL, true, true, true, state);
+        consume_obj_charge(obj, true, { state });
+        if (ch === ']') ch = DEFAULT_PRIMARY_SYMBOLS[SYM_OFF_M + S_MIMIC];
+        if (def_char_is_furniture(ch) >= 0) {
+            detected = await furniture_detect(state);
+        } else {
+            const objectClass = def_char_to_objclass(ch);
+            if (objectClass !== MAXOCLASSES) {
+                detected = await object_detect(null, objectClass, state);
+            } else {
+                const monsterClass = def_char_to_monclass(ch);
+                if (monsterClass !== MAXMCLASSES) {
+                    detected = await monster_detect(null, monsterClass, state);
+                } else {
+                    const boulderChar = state.gs?.showsyms?.[
+                        SYM_OFF_X + SYM_BOULDER
+                    ];
+                    if (boulderChar && ch === String.fromCharCode(boulderChar)) {
+                        detected = await object_detect(null, ROCK_CLASS, state);
+                    } else if (ch === '^') {
+                        detected = await trap_detect(null, state);
+                    } else {
+                        const levels = [
+                            ['Delphi', state.oracle_level],
+                            ["Medusa's lair", state.medusa_level],
+                            ['a castle', state.stronghold_level],
+                            ["the Wizard of Yendor's tower", state.wiz1_level],
+                        ];
+                        const [name, where] = levels[rn2(levels.length)];
+                        await ttyPline(
+                            `You see ${name}, ${level_distance(where, state)}.`,
+                            state,
+                        );
+                        detected = 0;
+                    }
+                }
+            }
+        }
+        if (detected) {
+            if (!rn2(100))
+                await ttyPline('You see the Wizard of Yendor gazing out at you.', state);
+            else
+                await ttyPline('The vision is unclear.', state);
+        }
+    }
 }
 
 // C ref: detect.c reveal_terrain() (2356-2413), now through its ordinary
