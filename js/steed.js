@@ -1,5 +1,6 @@
 // steed.js -- Riding a saddled monster.
-// C ref: steed.c -- can_ride(), mount_steed(), exercise_steed(),
+// C ref: steed.c -- can_saddle(), use_saddle(), put_saddle_on_mon(),
+// can_ride(), mount_steed(), exercise_steed(),
 // landing_spot(), dismount_steed(), maybewakesteed(), stucksteed() and
 // doride().
 
@@ -79,7 +80,6 @@ import {
     pmname,
     x_monnam,
 } from './do_name.js';
-import { can_saddle, put_saddle_on_mon } from './dog.js';
 import { game } from './gstate.js';
 import {
     losehp,
@@ -105,25 +105,42 @@ import {
 import { accessible } from './monmove.js';
 import { m_at, place_monster, remove_monster } from './monst.js';
 import {
+    M1_AMORPHOUS,
+    M1_HUMANOID,
+    M1_UNSOLID,
+    MZ_MEDIUM,
+    PM_AIR_ELEMENTAL,
     PM_AMOROUS_DEMON,
     PM_KNIGHT,
     PM_LONG_WORM,
     PM_STONE_GOLEM,
+    S_ANGEL,
+    S_CENTAUR,
+    S_DRAGON,
+    S_GHOST,
+    S_JABBERWOCK,
+    S_QUADRUPED,
+    S_UNICORN,
+    S_VORTEX,
 } from './monsters.js';
-import { greatest_erosion, isMetallic, sobj_at } from './obj.js';
-import { BOULDER } from './objects.js';
+import { greatest_erosion, isMetallic, mksobj, sobj_at } from './obj.js';
+import { BOULDER, SADDLE } from './objects.js';
 import { an } from './objnam.js';
 import { encumber_msg, u_handsy } from './pickup.js';
 import { body_part, polymon, steed_vs_stealth } from './polyself.js';
-import { rn1, rn2, rnd } from './rng.js';
+import { d, rn1, rn2, rnd, rne, rnz } from './rng.js';
 import { teleds } from './teleport.js';
 import { float_down, is_lava, is_pool, t_at } from './trap.js';
 import { ttyPline } from './tty_message.js';
 import { use_skill } from './weapon.js';
-import { is_pole, which_armor } from './worn.js';
-import { freeinv } from './invent.js';
+import {
+    is_pole,
+    update_mon_extrinsics,
+    which_armor,
+} from './worn.js';
+import { freeinv, fully_identify_obj } from './invent.js';
 import { canSpotMonster } from './startup_a11y.js';
-import { remove_worn_item } from './steal.js';
+import { mpickobj, remove_worn_item } from './steal.js';
 import { objdescr_is } from './o_init.js';
 import { P_SKILL } from './startup_skills.js';
 import { exercise } from './attrib.js';
@@ -165,6 +182,93 @@ function Hallucination(state) {
 function Blind(state) {
     const value = state.u?.uprops?.[BLINDED];
     return Boolean(value?.intrinsic || value?.extrinsic) && !value?.blocked;
+}
+
+function saddleEnv(env = {}) {
+    return {
+        ...env,
+        random: env.random ?? { d, rn1, rn2, rnd, rne, rnz },
+        state: env.state ?? game,
+    };
+}
+
+function canSeeStartingPet(monster, env) {
+    if (typeof env.canseemon === 'function')
+        return Boolean(env.canseemon(monster, env));
+    if (env.state.in_mklev) return false;
+    // dog.c:makedog() equips the saddle before initedog(); ordinary startup
+    // pets are adjacent unless blindness or invisibility prevents seeing one.
+    return !Blind(env.state) && !monster.minvis;
+}
+
+const SADDLEABLE_CLASSES = new Set([
+    S_QUADRUPED,
+    S_UNICORN,
+    S_ANGEL,
+    S_CENTAUR,
+    S_DRAGON,
+    S_JABBERWOCK,
+]);
+
+// C ref: steed.c can_saddle() (18-34). dog.js re-exports this binding for
+// its existing command and special-level callers.
+export function can_saddle(monster) {
+    const species = monster?.data;
+    if (!species || !SADDLEABLE_CLASSES.has(species.mlet)) return false;
+    const flags = species.mflags1 ?? 0;
+    return species.msize >= MZ_MEDIUM
+        && (!(flags & M1_HUMANOID) || species.mlet === S_CENTAUR)
+        && !(flags & M1_AMORPHOUS)
+        && species.mlet !== S_GHOST
+        && species.mlet !== S_VORTEX
+        && species.pmidx !== PM_AIR_ELEMENTAL
+        && !(flags & M1_UNSOLID);
+}
+
+// C ref: steed.c put_saddle_on_mon() (141-165). dog.c:makedog() calls this
+// before initedog(); special-level construction can supply a prebuilt saddle.
+export function put_saddle_on_mon(saddle, monster, env = {}) {
+    const normalized = saddleEnv(env);
+    if (!can_saddle(monster)) {
+        if (saddle && typeof normalized.hooks?.impossible === 'function') {
+            normalized.hooks.impossible(
+                'put_saddle_on_mon: saddle obj could get orphaned',
+                normalized,
+            );
+        }
+        return null;
+    }
+    for (let object = monster.minvent; object; object = object.nobj) {
+        if (object.owornmask & W_SADDLE) {
+            if (saddle && typeof normalized.hooks?.impossible === 'function') {
+                normalized.hooks.impossible(
+                    'put_saddle_on_mon: saddle obj could get orphaned',
+                    normalized,
+                );
+            }
+            return null;
+        }
+    }
+    if (!saddle) {
+        saddle = mksobj(SADDLE, true, false, normalized);
+        if (!saddle) return null;
+        fully_identify_obj(saddle, normalized.state);
+    }
+    if (mpickobj(monster, saddle, {
+        ...normalized,
+        canSeeMonster: (subject) => canSeeStartingPet(subject, normalized),
+    }))
+        throw new Error('put_saddle_on_mon: merged saddle');
+    monster.misc_worn_check |= W_SADDLE;
+    saddle.owornmask = W_SADDLE;
+    saddle.leashmon = monster.m_id;
+    // steed.c passes silently=FALSE although a saddle has no extrinsic.
+    update_mon_extrinsics(monster, saddle, true, {
+        ...normalized,
+        state: normalized.state,
+        silent: false,
+    });
+    return saddle;
 }
 
 // youprop.h:210 Stealth. BStealth is written by polyself.c
