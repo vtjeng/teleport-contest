@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "Independent Healer doremring() path: R prompts because there is no worn accessory, then b selects the starting leather gloves and reaches armoroff()'s delayed Gloves_off callback.",
+  "segments": [
+    {
+      "seed": 260926193,
+      "datetime": "20390126092311",
+      "nethackrc": "OPTIONS=name:C19Remove,role:Healer,race:human,gender:male,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen,!autopickup\nOPTIONS=pettype:none,!acoustics,time,showexp\n",
+      "moves": ".Rb"
+    }
+  ]
+}

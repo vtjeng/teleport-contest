@@ -28,6 +28,7 @@ import {
     W_ARMS,
     W_ARMU,
     W_RINGL,
+    W_SWAPWEP,
     W_TOOL,
     W_WEP,
 } from '../js/const.js';
@@ -66,9 +67,13 @@ import {
     AMULET_OF_ESP,
     AMULET_OF_UNCHANGING,
     ARMOR_CLASS,
+    ARM_CLOAK,
     ARM_BOOTS,
     ARM_GLOVES,
     ARM_HELM,
+    ARM_SHIELD,
+    ARM_SHIRT,
+    ARM_SUIT,
     BLINDFOLD,
     CLOAK_OF_DISPLACEMENT,
     CLOAK_OF_MAGIC_RESISTANCE,
@@ -79,6 +84,7 @@ import {
     GRAY_DRAGON_SCALES,
     GRAY_DRAGON_SCALE_MAIL,
     HAWAIIAN_SHIRT,
+    HELMET,
     LEATHER_ARMOR,
     LEATHER_GLOVES,
     LEATHER_JACKET,
@@ -90,6 +96,7 @@ import {
     RING_CLASS,
     RIN_ADORNMENT,
     RIN_LEVITATION,
+    SMALL_SHIELD,
     SPLINT_MAIL,
     TOOL_CLASS,
     WEAPON_CLASS,
@@ -106,8 +113,9 @@ import {
     loadTakeOffRecipe,
 } from './run-take-off-armor.mjs';
 
-const { Armor_off, Cloak_off, reset_remarm,
-    takeoffContext, setwornEnv } = _doWearInternals;
+const { Armor_off, Boots_off, Cloak_off, Gloves_off, Helmet_off,
+    reset_remarm, Shield_off, Shirt_off, takeoffContext, setwornEnv }
+    = _doWearInternals;
 
 function topLine() {
     return game.nhDisplay.grid[0].map(({ ch }) => ch).join('').trimEnd();
@@ -148,16 +156,6 @@ function segmentForRole(role, recipe = loadTakeOffRecipe()) {
     );
     assert.ok(found, `the matrix contains a ${role} segment`);
     return found;
-}
-
-// Replay a matrix segment's character and options with different keys, and
-// report the fail-closed boundary it reached, or null when it reached none.
-async function boundaryFor(segment, moves) {
-    let boundary = null;
-    await runSegment({ ...segment, moves }, {
-        onBoundary: (error) => { boundary = error; },
-    });
-    return boundary;
 }
 
 // The fields a refused <X>_off() arm could rewrite on the item still in its
@@ -1232,49 +1230,97 @@ test('the Samurai spends five turns and then loses the suit', async () => {
     assert.equal(game.multi_reason, null);
 });
 
-test("the delayed branch's other categories stop above nomul()", async () => {
-    // do_wear.c:1933-1965 has an arm for all seven categories; only ARM_SUIT
-    // is ported. A shield, a cloak and a shirt cannot arrive, because
-    // objects.h gives every one of them oc_delay 0, so these three are the
-    // whole of what the guard refuses.
-    const knight = segmentForRole('Knight');
-    const replay = await runSegment({ ...knight, moves: WAIT });
-    const before = refusalWitness(replay);
+test('the delayed branch schedules the C callback for every armor category',
+    async () => {
+        // do_wear.c:1930-1972 has a delayed arm for each of the seven
+        // ARM_* categories. Suits, helms, gloves and boots have nonzero
+        // objects.h delays; the other three stock categories have delay 0,
+        // so give those source arms a temporary delay to pin their mapping.
+        const cases = [
+            [SPLINT_MAIL, ARM_SUIT, W_ARM, 5, Armor_off, 'mail'],
+            [SMALL_SHIELD, ARM_SHIELD, W_ARMS, 1, Shield_off, 'shield'],
+            [HELMET, ARM_HELM, W_ARMH, 1, Helmet_off, 'helm'],
+            [LEATHER_GLOVES, ARM_GLOVES, W_ARMG, 1, Gloves_off, 'gloves'],
+            [LOW_BOOTS, ARM_BOOTS, W_ARMF, 2, Boots_off, 'boots'],
+            [CLOAK_OF_MAGIC_RESISTANCE, ARM_CLOAK, W_ARMC, 1,
+                Cloak_off, 'cloak'],
+            [HAWAIIAN_SHIRT, ARM_SHIRT, W_ARMU, 1, Shirt_off, 'shirt'],
+        ];
 
-    // u_init.c gives the Knight a helmet of oc_delay 1, answered at the
-    // prompt: select_off() lets a helm through, so armoroff() is where it
-    // stops.
-    const boundary = await boundaryFor(knight, `${WAIT}${TAKEOFF_KEY}d`);
-    assert.match(
-        boundary?.message ?? '',
-        new RegExp(
-            `armoroff\\(\\) delayed branch for armor category ${ARM_HELM}`,
-        ),
-    );
+        for (const [otyp, armcat, mask, delay, callback, what] of cases) {
+            const segment = segmentFor(TAKEOFF_KEY);
+            await runSegment({ ...segment, moves: WAIT });
+            const type = game.objects[otyp];
+            const originalDelay = type.oc_delay;
+            try {
+                assert.equal(type.oc_subtyp, armcat, `otyp ${otyp} category`);
+                type.oc_delay = delay;
+                const worn = {
+                    oclass: ARMOR_CLASS, otyp, owornmask: mask,
+                    cursed: 0, quan: 1,
+                };
+                takeoffContext(game).mask = mask;
+                takeoffContext(game).what = W_SWAPWEP;
 
-    // Gloves and boots reach the same guard, but select_off() stops both a
-    // frame earlier, so only a direct call gets here.
-    await runSegment({ ...knight, moves: WAIT });
-    for (const [otyp, armcat] of [[LEATHER_GLOVES, ARM_GLOVES],
-        [LOW_BOOTS, ARM_BOOTS]]) {
-        const worn = {
-            oclass: ARMOR_CLASS, otyp, owornmask: W_ARMG, cursed: 0,
-        };
-        await assert.rejects(
-            () => armoroff(worn, game),
-            new RegExp(
-                `armoroff\\(\\) delayed branch for armor category ${armcat}`,
-            ),
-            `otyp ${otyp}`,
-        );
-        // The guard is above nomul(), so no turn has been bought.
-        assert.equal(game.multi, 0, `otyp ${otyp}`);
-        assert.equal(game.afternmv ?? null, null, `otyp ${otyp}`);
+                assert.equal(await armoroff(worn, game), 1, `otyp ${otyp}`);
+                assert.equal(game.multi, -delay, `otyp ${otyp} turn count`);
+                assert.equal(game.multi_reason, 'disrobing', `otyp ${otyp}`);
+                assert.equal(game.afternmv, callback, `otyp ${otyp} callback`);
+                assert.equal(game.nomovemsg,
+                    `You finish taking off your ${what}.`, `otyp ${otyp}`);
+                assert.equal(takeoffContext(game).mask, 0, `otyp ${otyp}`);
+                assert.equal(takeoffContext(game).what, 0, `otyp ${otyp}`);
+            } finally {
+                type.oc_delay = originalDelay;
+            }
+        }
+    });
+
+test('the immediate branch dispatches all seven armor callbacks', async () => {
+    // The C switch at do_wear.c:1974-2000 also retains every category arm.
+    // Gloves and boots normally have nonzero delays; setting the per-game
+    // object delay to zero reaches those source arms without changing the
+    // production object table or the code under test.
+    const cases = [
+        [LEATHER_JACKET, ARM_SUIT, W_ARM, 'uarm'],
+        [SMALL_SHIELD, ARM_SHIELD, W_ARMS, 'uarms'],
+        [HELMET, ARM_HELM, W_ARMH, 'uarmh'],
+        [LEATHER_GLOVES, ARM_GLOVES, W_ARMG, 'uarmg'],
+        [LOW_BOOTS, ARM_BOOTS, W_ARMF, 'uarmf'],
+        [CLOAK_OF_MAGIC_RESISTANCE, ARM_CLOAK, W_ARMC, 'uarmc'],
+        [HAWAIIAN_SHIRT, ARM_SHIRT, W_ARMU, 'uarmu'],
+    ];
+
+    for (const [otyp, armcat, mask, slot] of cases) {
+        const segment = segmentFor(TAKEOFF_KEY);
+        await runSegment({ ...segment, moves: WAIT });
+        const type = game.objects[otyp];
+        const originalDelay = type.oc_delay;
+        try {
+            assert.equal(type.oc_subtyp, armcat, `otyp ${otyp} category`);
+            type.oc_delay = 0;
+            const worn = {
+                oclass: ARMOR_CLASS, otyp, owornmask: mask,
+                cursed: 0, quan: 1,
+            };
+            game[slot] = worn;
+            takeoffContext(game).mask = mask;
+            takeoffContext(game).what = W_SWAPWEP;
+
+            assert.equal(await armoroff(worn, game), 1, `otyp ${otyp}`);
+            assert.equal(game[slot], null, `otyp ${otyp} slot cleared`);
+            assert.equal(game.multi, 0, `otyp ${otyp} spends no delay`);
+            assert.equal(game.afternmv ?? null, null, `otyp ${otyp}`);
+            assert.equal(game.nomovemsg ?? null, null, `otyp ${otyp}`);
+            assert.equal(takeoffContext(game).mask, 0, `otyp ${otyp}`);
+            assert.equal(takeoffContext(game).what, 0, `otyp ${otyp}`);
+        } finally {
+            type.oc_delay = originalDelay;
+        }
     }
-    assert.deepEqual(refusalWitness(replay), before);
 });
 
-test('the ported cloak arm removes a displacement cloak before later gaps',
+test('cloak removal stays immediate and glove removal runs its delayed callback',
     async () => {
     const segment = segmentFor(TAKEOFF_KEY);
     // A Ranger's cloak of displacement: every cloak carries oc_delay 0, so
@@ -1294,12 +1340,18 @@ test('the ported cloak arm removes a displacement cloak before later gaps',
     assert.equal(game.u.uprops[DISPLACED].extrinsic & W_ARMC, 0,
         'Cloak_off clears the cloak displacement property');
 
-    // A Monk's leather gloves: select_off()'s glove sub-checks (welded, Glib,
-    // cockatrice-corpse prompt) all pass, and the uncursed gloves reach
-    // armoroff()'s delayed branch, which stops on ARM_GLOVES (oc_delay 1).
+    // A Monk's leather gloves: select_off()'s glove checks pass, then the
+    // 'T' command runs armoroff(), spends its one disrobing turn, and reaches
+    // hack.c unmul()'s callback path for Gloves_off().
     const monk = segmentFor(`${TAKEOFF_KEY}b`);
-    const boundary = await boundaryFor(monk, `${WAIT}${TAKEOFF_KEY}a`);
-    assert.match(boundary?.message ?? '', /armoroff\(\) delayed branch/);
+    await runSegment({ ...monk, moves: `${WAIT}${TAKEOFF_KEY}a` });
+    assert.equal(game.uarmg, null, 'Gloves_off clears the starting gloves');
+    assert.equal(game.multi, 0, 'the one-turn delay finished');
+    assert.equal(game.afternmv ?? null, null, 'unmul consumed the callback');
+    assert.equal(game.nomovemsg ?? null, null, 'unmul consumed the message');
+    assert.equal(takeoffContext(game).mask, 0);
+    assert.equal(takeoffContext(game).what, 0);
+    assert.equal(topLine(), 'You finish taking off your gloves.');
 
     // Nothing in the port puts boots on a hero, so the boot frame is only
     // reachable directly.

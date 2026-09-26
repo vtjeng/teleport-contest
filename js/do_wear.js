@@ -30,8 +30,8 @@
 // The 'A' occupation spine -- the other do_takeoff() arms, take_off(), and
 // doddoremarm() -- is not ported. The W_SWAPWEP arm is reached separately by
 // remarm_swapwep(). better_not_take_that_off() is ported for select_off()'s
-// glove checks. armoroff()'s
-// delayed branch at do_wear.c:1930-1972 is ported for a suit only, while
+// glove checks. armoroff()'s delayed and immediate dispatch covers all seven
+// armor categories, while
 // accessory_or_armor_on() fills all seven armor slots. Every refusal below
 // names the C function it stops in front of.
 
@@ -222,6 +222,8 @@ import {
     AMULET_OF_YENDOR,
     AMULET_VERSUS_POISON,
     ARMOR_CLASS,
+    ARM_BOOTS,
+    ARM_GLOVES,
     ARM_SHIELD,
     ARM_SHIRT,
     ARM_SUIT,
@@ -323,12 +325,15 @@ import {
 import { discover_object, observe_object } from './o_init.js';
 import {
     an,
+    boots_simple_name,
     cloak_simple_name,
     donameFresh,
     gloves_simple_name,
     helm_simple_name,
     obj_is_pname,
     otense,
+    shield_simple_name,
+    shirt_simple_name,
     suit_simple_name,
     the,
     thesimpleoname,
@@ -3088,8 +3093,8 @@ export async function select_off(otmp, state = game) {
     return 0;
 }
 
-// C ref: do_wear.c armoroff() (1919-2008). Both branches are ported, the
-// delayed one at 1930-1972 for a suit only.
+// C ref: do_wear.c armoroff() (1920-2007). The delayed and immediate switches
+// retain C's category order and install the same per-slot callback.
 export async function armoroff(otmp, state = game) {
     const delay = -objectType(otmp, state).oc_delay;
 
@@ -3097,21 +3102,6 @@ export async function armoroff(otmp, state = game) {
     /* this used to make assumptions about which types of armor had
        delays and which didn't; now both are handled for all types */
     if (delay) {
-        // C's switch at 1933-1965 carries an arm for all seven categories.
-        // Three of them cannot arrive: objects.h gives every shield, every
-        // cloak and both shirts an oc_delay of 0. Of the four that can,
-        // ARM_HELM would need Helmet_off()'s other nine arms and ARM_GLOVES
-        // and ARM_BOOTS need Gloves_off() (646-732) and Boots_off()
-        // (262-382), none of which is ported. The test sits above nomul() so
-        // that a refused category stops before anything is written; C's own
-        // `default: impossible()` arm cannot be reached, because every
-        // ARMOR_CLASS entry in objects.h carries one of the seven categories.
-        if (objectType(otmp, state).oc_subtyp !== ARM_SUIT) {
-            throw new UnsupportedTakeOffError(
-                'armoroff() delayed branch for armor category '
-                + `${objectType(otmp, state).oc_subtyp}`,
-            );
-        }
         // allmain.c moveloop_core() counts gm.multi back up one turn at a
         // time and calls hack.c unmul() on the turn it reaches zero; unmul()
         // prints gn.nomovemsg and runs the ga.afternmv callback. No segment
@@ -3121,15 +3111,46 @@ export async function armoroff(otmp, state = game) {
         // out of the save file for the same reason.
         nomul(delay, state);
         state.multi_reason = 'disrobing';
-        /* case ARM_SUIT */
-        const what = suit_simple_name(otmp, state);
-
-        state.afternmv = Armor_off;
-        // C guards the two lines below with `if (what)`, which only its
-        // impossible() arm can fail; suit_simple_name() always answers a
-        // string, so the guard is vacuous once ARM_SUIT is the only arm.
-        /* sizeof offdelaybuf == 60; increase it if this becomes longer */
-        state.nomovemsg = `You finish taking off your ${what}.`;
+        let what = null;
+        switch (objectType(otmp, state).oc_subtyp) {
+        case ARM_SUIT:
+            what = suit_simple_name(otmp, state);
+            state.afternmv = Armor_off;
+            break;
+        case ARM_SHIELD:
+            what = shield_simple_name(otmp, state);
+            state.afternmv = Shield_off;
+            break;
+        case ARM_HELM:
+            what = helm_simple_name(otmp, state);
+            state.afternmv = Helmet_off;
+            break;
+        case ARM_GLOVES:
+            what = gloves_simple_name(otmp, state);
+            state.afternmv = Gloves_off;
+            break;
+        case ARM_BOOTS:
+            what = boots_simple_name(otmp, state);
+            state.afternmv = Boots_off;
+            break;
+        case ARM_CLOAK:
+            what = cloak_simple_name(otmp, state);
+            state.afternmv = Cloak_off;
+            break;
+        case ARM_SHIRT:
+            what = shirt_simple_name(otmp, state);
+            state.afternmv = Shirt_off;
+            break;
+        default:
+            // C's impossible() result is discarded; every object in the
+            // reference table belongs to one of the seven armor categories.
+            note_unported('pline.c impossible');
+            break;
+        }
+        if (what) {
+            /* sizeof offdelaybuf == 60; increase it if this becomes longer */
+            state.nomovemsg = `You finish taking off your ${what}.`;
+        }
     } else {
         /* no delay so no '(*afternmv)()' or 'nomovemsg' */
         switch (objectType(otmp, state).oc_subtyp) {
@@ -3142,11 +3163,12 @@ export async function armoroff(otmp, state = game) {
         case ARM_HELM:
             await Helmet_off(state);
             break;
-        // C's ARM_GLOVES and ARM_BOOTS arms at 1985-1990 are absent rather
-        // than stopped. objects.h gives every pair of gloves an oc_delay of 1
-        // and every pair of boots an oc_delay of 2, so the delayed branch
-        // above always takes them first, and select_off() stops on either
-        // slot earlier still.
+        case ARM_GLOVES:
+            await Gloves_off(state);
+            break;
+        case ARM_BOOTS:
+            await Boots_off(state);
+            break;
         case ARM_CLOAK:
             await Cloak_off(state);
             break;
@@ -3154,16 +3176,17 @@ export async function armoroff(otmp, state = game) {
             Shirt_off(state);
             break;
         default:
-            throw new UnsupportedTakeOffError(
-                'armoroff() for armor category '
-                + `${objectType(otmp, state).oc_subtyp}`,
-            );
+            // C's impossible() result is discarded; every object in the
+            // reference table belongs to one of the seven armor categories.
+            note_unported('pline.c impossible');
+            break;
         }
         /* We want off_msg() after removing the item to
            avoid "You were wearing ____ (being worn)." */
         await off_msg(otmp, state);
     }
-    takeoffContext(state).mask = 0;
+    const takeoff = takeoffContext(state);
+    takeoff.mask = takeoff.what = 0;
     return 1;
 }
 
