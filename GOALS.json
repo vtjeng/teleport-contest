@@ -73295,7 +73295,7 @@
     {
       "id": "div-fountain-blessedftn-synthetic-v4-20260925",
       "kind": "divergence-fix",
-      "status": "open",
+      "status": "closed",
       "summary": "Correct magic fountain state and drinking branch",
       "cFile": "fountain.c",
       "sessions": [],
@@ -73307,8 +73307,11 @@
         "screens": 11405,
         "rng": 792838
       },
-      "closedAt": null,
-      "delivered": null,
+      "closedAt": "413f6d2e8a3a48bcc14f0fdd904dd5fda4dbda8a",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
       "function": "drinkfountain",
       "session": "synthetic/v4/healer-magic-fountain-drink",
       "step": 18,
@@ -73602,7 +73605,13 @@
             }
           }
         }
-      ]
+      ],
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "413f6d2e8a3a48bcc14f0fdd904dd5fda4dbda8a",
+        "screens": 11405,
+        "rng": 792838
+      }
     },
     {
       "id": "port-trap-water-damage-chain-synthetic-v1-20260925",
