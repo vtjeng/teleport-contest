@@ -73,7 +73,10 @@ import {
     PM_NALFESHNEE,
     PM_WIZARD,
 } from './monsters.js';
-import { isMetallic, mksobj, objectType, weight } from './obj.js';
+import {
+    isMetallic, mksobj, objectType, set_bknown, weight,
+} from './obj.js';
+import { Tobjnam } from './objnam.js';
 import { check_unpaid } from './shk.js';
 import {
     MAXSPELL,
@@ -410,7 +413,9 @@ async function deadbook(book, state = game, env = {}) {
                 env,
             );
             if (!state.u.uhave.bell) {
-                // Soundeffect() has no captured effect in the tty recorder.
+                // The C tty recorder has no Soundeffect backend. Keep the
+                // discarded source call explicit while omitting its no-op.
+                if (state === game) note_unported('sound.c Soundeffect');
                 const heard = youHear('a faint chime...', state);
                 if (heard) await message(heard, state, env);
             }
@@ -484,6 +489,8 @@ async function deadbook(book, state = game, env = {}) {
     }
 }
 
+// Helper extracted from spell.c deadbook()'s raise_dead label; C has no
+// separate raise_dead function or source unit.
 async function raise_dead(state, env) {
     const { random, message } = env;
     await message('You raised the dead!', state, env);
@@ -532,6 +539,26 @@ async function deadbookMakemonEnv(state, random, env) {
             ...(stopOccupation ? { stopOccupation } : {}),
         },
     };
+}
+
+// C ref: spell.c book_cursed() (343-352). mkobj.c:curse() calls this after a
+// spellbook newly becomes cursed; only a book being read interrupts study.
+// Return synchronously on the no-effect arms so curse() keeps its synchronous
+// result for ordinary object generation.
+export function book_cursed(book, state = game, env = {}) {
+    if (!book.cursed || (state.multi ?? 0) < 0
+        || state.go?.occupation !== learn
+        || state.context?.spbook?.book !== book) {
+        return;
+    }
+
+    const message = env.message ?? ttyPline;
+    return (async () => {
+        await message(`${Tobjnam(book, 'slam', state)} shut!`, state, env);
+        set_bknown(book, 1, { ...env, state });
+        const { stop_occupation } = await import('./allmain.js');
+        await stop_occupation(state, { ...env, message });
+    })();
 }
 
 // C ref: spell.c learn() (356-463). `context.spbook` stores both the C book
