@@ -84327,7 +84327,7 @@
     {
       "id": "port-apply-doapply-saddle-synthetic-v7-20260926",
       "kind": "file-port",
-      "status": "open",
+      "status": "parked",
       "summary": "Port apply.c doapply with the SADDLE arm and steed.c use_saddle return path",
       "cFile": "apply.c",
       "sessions": [
@@ -84525,7 +84525,17 @@
             }
           }
         }
-      ]
+      ],
+      "progressBeforePark": {
+        "screens": 0,
+        "rng": 0
+      },
+      "parkedStanding": {
+        "sha": "27ef57edeff3c341b4c703e10bad99202c2bc7f2",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "parkedReason": "SADDLE arm and steed.c use_saddle now match an independent C recording and the admitted v7 saddle session, but apply.c doapply remains incomplete. Active arms still require retouch_object, do_break_wand, flip_through_book, flip_coin, Blindf_on/off, use_crystal_ball, and use_tinning_kit; the committed broken-light-wand recipe names do_break_wand as a blocker. Resume when those source dependencies or their entry-point evidence become the next eligible work."
     },
     {
       "id": "fix-pager-do-look-hidden-map-accelerator-v6-20260926",
