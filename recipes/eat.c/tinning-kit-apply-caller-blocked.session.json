@@ -1,0 +1,10 @@
+{
+  "version": 5,
+  "comment": "Blocked B18 set_tin_variety caller: apply.c:doapply dispatches to apply.c:use_tinning_kit to tin a corpse, but js/apply.js still refuses that caller with note_unported. This distinct tin-making path is outside B18's eat.c opening family and has no matching recording here.",
+  "segments": [{
+    "seed": 5846117,
+    "datetime": "20271108120945",
+    "nethackrc": "OPTIONS=name:TinKitTrial,role:Barbarian,race:human,gender:female,align:chaotic\nOPTIONS=!legacy,!tutorial,!splash_screen\nOPTIONS=playmode:debug,pettype:none,!acoustics,!autopickup\n",
+    "moves": "\u0017tinning kit\n\u0017corpse of newt\ndpao"
+  }]
+}

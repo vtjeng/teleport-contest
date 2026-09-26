@@ -9,10 +9,13 @@ import {
     AGGRAVATE_MONSTER,
     A_CHA,
     A_CON,
+    A_DEX,
     A_STR,
     A_WIS,
     BY_COOKIE,
     BLINDED,
+    COST_DSTROY,
+    COST_OPEN,
     IS_ALTAR,
     COLD_RES,
     CONFUSION,
@@ -22,11 +25,13 @@ import {
     CXN_SINGULAR,
     DEAF,
     DISINT_RES,
+    ECMD_CANCEL,
     ECMD_OK,
     ECMD_TIME,
     FAINTED,
     FAINTING,
     FIRE_RES,
+    FIXED_ABIL,
     FROMFORM,
     FROMOUTSIDE,
     GETOBJ_DOWNPLAY,
@@ -35,6 +40,7 @@ import {
     GETOBJ_EXCLUDE_SELECTABLE,
     GETOBJ_NOFLAGS,
     GETOBJ_SUGGEST,
+    GLIB,
     Has_contents,
     IRONBARS,
     HEALTHY_TIN,
@@ -55,7 +61,6 @@ import {
     NOT_HUNGRY,
     POISON_RES,
     PROTECTION,
-    RANDOM_TIN,
     REGENERATION,
     ROTTEN_TIN,
     SATIATED,
@@ -97,10 +102,10 @@ import {
     NEUTRAL,
 } from './const.js';
 import {
-    adjalign, adjattrib, exercise, gainstr, poison_strdmg,
+    acurr, acurrstr, adjalign, adjattrib, exercise, gainstr, poison_strdmg,
 } from './attrib.js';
 import { ART_ORB_OF_DETECTION } from './artifacts.js';
-import { set_occupation, yn_function } from './cmd.js';
+import { set_occupation, y_n, yn_function } from './cmd.js';
 import { tinnable } from './apply.js';
 import { on_level, surface } from './dungeon.js';
 import { newsym, see_monsters } from './display.js';
@@ -117,6 +122,7 @@ import { dist2, lcase } from './hacklib.js';
 import {
     INVLET_BASIC,
     addinv_nomerge,
+    carrying,
     feel_cockatrice,
     freeinv,
     getobj,
@@ -129,7 +135,8 @@ import {
     useupf,
     will_feel_cockatrice,
 } from './invent.js';
-import { dropy, trycall } from './do.js';
+import { dropx, dropy, trycall } from './do.js';
+import { makeplural } from './fruit.js';
 import { iter_mons_safe, mon_offmap, rescham } from './mon.js';
 import {
     acidic,
@@ -161,6 +168,7 @@ import {
     perceives,
 } from './mondata.js';
 import { AD_ACID, AD_DISE, AT_BREA } from './monsters.js';
+import { hcolor, rndmonnam } from './do_name.js';
 import { monflee } from './monmove.js';
 import {
     AD_HALU,
@@ -250,6 +258,7 @@ import {
 import { change_luck } from './moveloop_preamble.js';
 import {
     dopotion, incr_itimeout, make_blinded, make_confused, make_deaf,
+    make_glib,
 } from './potion.js';
 import {
     carried,
@@ -340,7 +349,18 @@ import {
     LEASH,
     SCR_MAIL,
     SCR_SCARE_MONSTER,
+    DAGGER,
+    SILVER_DAGGER,
+    ELVEN_DAGGER,
+    ORCISH_DAGGER,
+    ATHAME,
+    KNIFE,
+    STILETTO,
+    CRYSKNIFE,
+    PICK_AXE,
+    AXE,
     TIN,
+    TIN_OPENER,
     TRIPE_RATION,
     BEARTRAP,
     WAX,
@@ -354,6 +374,7 @@ import {
 import { encumber_msg } from './pickup.js';
 import { body_part, change_sex, rehumanize } from './polyself.js';
 import { heroIsBlind } from './startup_a11y.js';
+import { fingers_or_gloves } from './do_wear.js';
 import { d, rn1, rn2, rnd } from './rng.js';
 import { outrumor } from './random_text.js';
 import { obj_stop_timers } from './timeout.js';
@@ -364,8 +385,9 @@ import {
 } from './trap.js';
 import { ttyPline } from './tty_message.js';
 import { remove_worn_item } from './steal.js';
+import { costly_spot } from './shk.js';
 import {
-    uwepgone, uswapwepgone, uqwepgone, welded,
+    cantwield, uwepgone, uswapwepgone, uqwepgone, welded, wield_tool,
 } from './wield.js';
 
 // C ref: eat.c hu_stat[], indexed by u.uhs and shared with botl.c and
@@ -397,6 +419,41 @@ export const TIN_VARIETIES = Object.freeze([
 ]);
 const TIN_VARIETY_COUNT = TIN_VARIETIES.length;
 
+// C ref: eat.c costly_tin() (1389-1402). The one persistent C tin context
+// lives beside victual in state.context; opening, pricing and consuming all
+// share this pointer and object id.
+function tinContext(state = game) {
+    state.context ??= {};
+    state.context.tin ??= {
+        tin: null,
+        o_id: 0,
+        reqtime: 0,
+        usedtime: 0,
+    };
+    return state.context.tin;
+}
+
+function costly_tin(alterType, state = game) {
+    const context = tinContext(state);
+    let tin = context.tin;
+    if (!tin) return tin;
+
+    const needsCharge = carried(tin)
+        ? Boolean(tin.unpaid)
+        : (costly_spot(tin.ox, tin.oy, state) && !tin.no_charge);
+    if (!needsCharge) return tin;
+
+    if ((tin.quan ?? 1) > 1) {
+        tin = splitobj(tin, 1, { state });
+        context.tin = tin;
+        context.o_id = tin.o_id;
+    }
+    // mkobj.c costly_alteration() is a discarded void callee whose billed
+    // shop path still needs its own port. Keep the source gap explicit.
+    note_unported('mkobj.c costly_alteration');
+    return tin;
+}
+
 // C ref: eat.c tin_variety_txt() (1405-1421). Find a known tin variety at
 // the start of a description and return the number of characters consumed,
 // including the following space. The final empty tintxts[] row is a
@@ -425,7 +482,7 @@ function strncmpi(text, prefix) {
         && lcase(text.slice(0, prefix.length)) === lcase(prefix);
 }
 function tinEnv(env = {}) {
-    const random = env.random ?? { rn2 };
+    const random = { rn1, rn2, rnd, ...(env.random ?? {}) };
     if (typeof random.rn2 !== 'function')
         throw new TypeError('tin variety random injection requires rn2');
     return { state: env.state ?? game, random };
@@ -891,26 +948,6 @@ export async function eating_conducts(pd, state = game) {
     }
 }
 
-// C ref: eat.c tin_variety(). `displ` means the caller is only formatting a
-// name, which skips the chance that a homemade tin has gone bad, and with it
-// that branch's rn2() call.
-function tin_variety(obj, env, displ = false) {
-    const { random, state } = env;
-    let variety;
-    if (obj.spe === 1) variety = SPINACH_TIN;
-    else if (obj.cursed) variety = ROTTEN_TIN;
-    else if (obj.spe < 0) variety = -obj.spe - 1;
-    else variety = random.rn2(TIN_VARIETY_COUNT);
-
-    if (!displ && variety === HOMEMADE_TIN && !obj.blessed && !random.rn2(7))
-        variety = ROTTEN_TIN;
-    if (variety === ROTTEN_TIN
-        && nonrotting_corpse(obj.corpsenm, state)) {
-        variety = HOMEMADE_TIN;
-    }
-    return variety;
-}
-
 // C ref: eat.c tin_details(). Appends the contents to a tin's name; the
 // caller supplies the name xname() built so far.
 export function tin_details(obj, mnum, base, env = {}) {
@@ -959,16 +996,378 @@ export function set_tin_variety(obj, forcetype, env = {}) {
         }
     } else if (forcetype >= 0 && forcetype < TIN_VARIETY_COUNT) {
         variety = forcetype;
-    } else if (forcetype === RANDOM_TIN) {
+    } else {
+        // C's final arm covers RANDOM_TIN and every other value outside the
+        // explicit forced varieties; it does not reject an unknown value.
         variety = random.rn2(TIN_VARIETY_COUNT);
         if (variety === ROTTEN_TIN
             && nonrotting_corpse(mnum, state)) {
             variety = HOMEMADE_TIN;
         }
-    } else {
-        throw new RangeError(`unsupported tin variety ${forcetype}`);
     }
     obj.spe = -(variety + 1);
+}
+
+// C ref: eat.c tin_variety() (1489-1510). `displ` means the caller is only
+// formatting a name, which skips the homemade-tin spoilage draw.
+function tin_variety(obj, env, displ = false) {
+    const { random, state } = env;
+    let variety;
+    if (obj.spe === 1) variety = SPINACH_TIN;
+    else if (obj.cursed) variety = ROTTEN_TIN;
+    else if (obj.spe < 0) variety = -obj.spe - 1;
+    else variety = random.rn2(TIN_VARIETY_COUNT);
+
+    if (!displ && variety === HOMEMADE_TIN && !obj.blessed
+        && !random.rn2(7)) {
+        variety = ROTTEN_TIN;
+    }
+    if (variety === ROTTEN_TIN
+        && nonrotting_corpse(obj.corpsenm, state)) {
+        variety = HOMEMADE_TIN;
+    }
+    return variety;
+}
+
+// C ref: eat.c use_up_tin() (1516-1526). This resets only the tin pointer and
+// id; reqtime and usedtime belong to the same persistent svc.context.tin.
+async function use_up_tin(tin, state = game) {
+    if (carried(tin))
+        useup(tin, { state });
+    else
+        await useupf(tin, 1, { state });
+    const context = tinContext(state);
+    context.tin = null;
+    context.o_id = 0;
+}
+
+// C ref: eat.c consume_tin() (1528-1700). `env` supplies the display and
+// hunger-clock operations used by the ordinary #eat caller and its occupation.
+async function consume_tin(mesg, state = game, env = {}) {
+    const context = tinContext(state);
+    let tin = context.tin;
+    const { random } = tinEnv({ ...env, state });
+    const eatEnv = env.message ? env : eatOperations(
+        state, env.statusRefresh, env.message,
+    );
+    const message = eatEnv.message ?? ttyPline;
+    const hero = state.youmonst?.data ?? state.mons?.[state.u?.umonnum];
+    const alwaysEat = metallivorous(hero);
+    const variety = tin_variety(tin, tinEnv({ ...env, state }));
+
+    if (tin.otrapped
+        || (tin.cursed && variety !== HOMEMADE_TIN && !random.rn2(8))) {
+        // trap.c b_trapped() is a discarded void call and remains unported.
+        note_unported('trap.c b_trapped');
+        tin = costly_tin(COST_DSTROY, state);
+        await use_up_tin(tin, state);
+        return;
+    }
+
+    await message(mesg, state);
+    if (variety !== SPINACH_TIN) {
+        const monsterNumber = tin.corpsenm;
+        if (monsterNumber === NON_PM) {
+            if (Hallucination(state)) {
+                await message(`It's full of ${random.rn2(2)
+                    ? 'air elemental souffle' : 'dehydrated water'}.`, state);
+            } else {
+                await message('It turns out to be empty.', state);
+            }
+            observe_object(tin, state);
+            tin.known = true;
+            tin = costly_tin(COST_OPEN, state);
+            await use_up_tin(tin, state);
+            if (alwaysEat) await lesshungry(5, state, eatEnv);
+            return;
+        }
+
+        let what;
+        let which = 0; // 0 pluralizes, 1 leaves a proper name alone, 2 adds the.
+        const monster = state.mons[monsterNumber];
+        if ((monsterNumber === PM_COCKATRICE
+            || monsterNumber === PM_CHICKATRICE)
+            && (propertyActive(state, STONE_RES) || Hallucination(state))) {
+            what = 'chicken';
+            which = 1;
+        } else if (Hallucination(state)) {
+            what = rndmonnam({ state });
+        } else {
+            what = monster.pmnames[NEUTRAL];
+            if (the_unique_pm(monster)) which = 2;
+            else if (type_is_pname(monster)) which = 1;
+        }
+        if (which === 0) what = makeplural(what);
+        else if (which === 2) what = the(what, state);
+
+        if (!alwaysEat) {
+            await message(`It smells like ${what}.`, state);
+            if (await y_n('Eat it?', state) === 'n'.charCodeAt(0)) {
+                if (state.flags?.verbose)
+                    await message('You discard the open tin.', state);
+                if (!Hallucination(state)) {
+                    observe_object(tin, state);
+                    tin.known = true;
+                }
+                tin = costly_tin(COST_OPEN, state);
+                await use_up_tin(tin, state);
+                return;
+            }
+        }
+
+        // C clears the previous victual before corpse effects can install a
+        // new activity or remove the tin from its context.
+        state.context.victual = zero_victual();
+        await message(
+            `You consume ${TIN_VARIETIES[variety].name} ${monster.pmnames[NEUTRAL]}.`,
+            state,
+        );
+        await eating_conducts(monster, state);
+        observe_object(tin, state);
+        tin.known = true;
+        tin = context.tin = costly_tin(COST_OPEN, state);
+        // eat.c discards both void results. These existing same-file helpers
+        // remain partial for species-specific corpse effects, so do not expose
+        // their refusal placeholders from the new tin entry point.
+        note_unported('eat.c cprefx');
+        if (context.tin) note_unported('eat.c cpostfx');
+        if (!context.tin) return;
+
+        if (TIN_VARIETIES[variety].nutrition < 0) {
+            // C evaluates rn1() before calling the still-unported void effect.
+            random.rn1(15, 10);
+            note_unported('potion.c make_vomiting');
+        } else {
+            let nutrition = TIN_VARIETIES[variety].nutrition;
+            if (variety === HOMEMADE_TIN
+                && nutrition > monster.cnutrit) {
+                nutrition = monster.cnutrit;
+            }
+            if (alwaysEat) nutrition += 5;
+            await use_up_tin(tin, state);
+            tin = null;
+            await lesshungry(nutrition, state, eatEnv);
+        }
+
+        if (TIN_VARIETIES[variety].greasy) {
+            const glib = (state.u.uprops[GLIB]?.intrinsic ?? 0) & TIMEOUT;
+            await make_glib(glib + random.rn1(11, 5), state, eatEnv);
+            await message(
+                `Eating ${TIN_VARIETIES[variety].name} food made your `
+                    + `${fingers_or_gloves(true, state)} `
+                    + `${glib ? 'even more' : 'very'} slippery.`,
+                state,
+            );
+        }
+    } else {
+        if (tin.cursed) {
+            const blind = heroIsBlind(state);
+            const color = blind ? '' : ` ${hcolor('green', state)}`;
+            await message(`It contains some decaying${color} substance.`, state);
+        } else {
+            await message('It contains spinach.', state);
+            observe_object(tin, state);
+            tin.known = true;
+        }
+
+        if (!alwaysEat && await y_n('Eat it?', state) === 'n'.charCodeAt(0)) {
+            if (state.flags?.verbose)
+                await message('You discard the open tin.', state);
+            tin = costly_tin(COST_OPEN, state);
+            await use_up_tin(tin, state);
+            return;
+        }
+
+        const conduct = state.u.uconduct ??= {};
+        if (!(conduct.food ?? 0)) {
+            livelog_printf(LL_CONDUCT, 'ate for the first time (spinach)', state);
+        }
+        conduct.food = Math.trunc(conduct.food ?? 0) + 1;
+        if (!tin.cursed) {
+            const fixed = Boolean(state.u.uprops[FIXED_ABIL]?.extrinsic);
+            const feeling = Hallucination(state)
+                ? "Swee'pea"
+                : !fixed ? 'Popeye'
+                    : state.flags?.female ? 'Olive Oyl' : 'Bluto';
+            await message(`This makes you feel like ${feeling}!`, state);
+        }
+        await gainstr(tin, 0, false, state, {
+            message,
+            encumberMessage: (target) => encumber_msg(target, { message }),
+        });
+
+        tin = context.tin = costly_tin(COST_OPEN, state);
+        let nutrition;
+        if (tin.blessed) nutrition = 600;
+        else if (!tin.cursed) nutrition = 400 + random.rnd(200);
+        else nutrition = 200 + random.rnd(400);
+        if (alwaysEat) nutrition += 5;
+        await use_up_tin(tin, state);
+        tin = null;
+        await lesshungry(nutrition, state, eatEnv);
+    }
+
+    if (tin) await use_up_tin(tin, state);
+}
+
+// C ref: eat.c opentin() (1703-1720). Each occupation turn advances usedtime
+// before checking the required delay, and a completed opening clears only the
+// object pointer/id through consume_tin()->use_up_tin().
+async function opentin(state = game, env = {}) {
+    const context = tinContext(state);
+    if (!carried(context.tin)
+        && (!obj_here(context.tin, state.u.ux, state.u.uy, state)
+            || !(await can_reach_floor(true, state)))) {
+        return 0;
+    }
+    if (context.usedtime++ >= 50) {
+        await (env.message ?? ttyPline)(
+            'You give up your attempt to open the tin.', state,
+        );
+        return 0;
+    }
+    if (context.usedtime < context.reqtime) return 1;
+    await consume_tin('You succeed in opening the tin.', state, env);
+    return 0;
+}
+
+// C ref: eat.c start_tin() (1723-1800). Opening time is the C source's
+// weapon-specific delay or its integer-strength unarmed delay. The occupation
+// closure reads the same context object on every later turn.
+async function start_tin(otmp, state = game, env = {}) {
+    const random = tinEnv({ ...env, state }).random;
+    const message = env.message ?? ttyPline;
+    let mesg = null;
+    let tmp;
+    const hero = state.youmonst?.data ?? state.mons?.[state.u.umonnum];
+
+    if (metallivorous(hero)) {
+        mesg = 'You bite right into the metal tin...';
+        tmp = 0;
+    } else if (cantwield(hero)) {
+        await message('You cannot handle the tin properly to open it.', state);
+        return;
+    } else if (otmp.blessed) {
+        tmp = state.uwep?.otyp === TIN_OPENER && state.uwep.blessed
+            ? 0 : random.rn2(2);
+        if (!tmp) mesg = 'The tin opens like magic!';
+        else await message('The tin seems easy to open.', state);
+    } else if (state.uwep) {
+        const opener = state.uwep;
+        switch (opener.otyp) {
+        case TIN_OPENER:
+            mesg = 'You easily open the tin.';
+            tmp = random.rn2(opener.cursed ? 3 : !opener.blessed ? 2 : 1);
+            break;
+        case DAGGER:
+        case SILVER_DAGGER:
+        case ELVEN_DAGGER:
+        case ORCISH_DAGGER:
+        case ATHAME:
+        case KNIFE:
+        case STILETTO:
+        case CRYSKNIFE:
+            tmp = 3;
+            break;
+        case PICK_AXE:
+        case AXE:
+            tmp = 6;
+            break;
+        default:
+            tmp = undefined;
+            break;
+        }
+        if (tmp === undefined) {
+            await message('It is not so easy to open this tin.', state);
+            if (state.u.uprops[GLIB]?.intrinsic) {
+                await message(
+                    `The tin slips from your ${fingers_or_gloves(false, state)}.`,
+                    state,
+                );
+                if ((otmp.quan ?? 1) > 1)
+                    otmp = splitobj(otmp, 1, { state });
+                if (carried(otmp)) await dropx(otmp, { state });
+                else stackobj(otmp, { state });
+                return;
+            }
+            const dexterity = acurr(state, A_DEX);
+            tmp = random.rn1(
+                1 + Math.trunc(500 / (dexterity + acurrstr(state))), 10,
+            );
+        } else {
+            await message(
+                `Using ${xnameFresh(opener, state)} you try to open the tin.`,
+                state,
+            );
+        }
+    } else {
+        await message('It is not so easy to open this tin.', state);
+        if (state.u.uprops[GLIB]?.intrinsic) {
+            await message(
+                `The tin slips from your ${fingers_or_gloves(false, state)}.`,
+                state,
+            );
+            if ((otmp.quan ?? 1) > 1)
+                otmp = splitobj(otmp, 1, { state });
+            if (carried(otmp)) await dropx(otmp, { state });
+            else stackobj(otmp, { state });
+            return;
+        }
+        const dexterity = acurr(state, A_DEX);
+        tmp = random.rn1(
+            1 + Math.trunc(500 / (dexterity + acurrstr(state))), 10,
+        );
+    }
+
+    const context = tinContext(state);
+    context.tin = otmp;
+    context.o_id = otmp.o_id;
+    if (!tmp) {
+        await consume_tin(mesg, state, env);
+    } else {
+        context.reqtime = tmp;
+        context.usedtime = 0;
+        set_occupation((occupationState, occupationEnv = {}) => opentin(
+            occupationState,
+            { ...env, ...occupationEnv, state: occupationState },
+        ), 'opening the tin', 0, state);
+    }
+}
+
+// C ref: eat.c tinopen_ok() (3086-3093). This pure getobj callback accepts a
+// tin and excludes every other inventory object.
+export function tinopen_ok(obj) {
+    return obj?.otyp === TIN ? GETOBJ_SUGGEST : GETOBJ_EXCLUDE;
+}
+
+// C ref: eat.c use_tin_opener() (3098-3127). Its object argument is the
+// TIN_OPENER selected by apply.c doapply(); a second getobj() selects the tin.
+export async function use_tin_opener(obj, state = game, env = {}) {
+    if (!carrying(TIN, state)) {
+        await (env.message ?? ttyPline)('You have no tin to open.', state);
+        return ECMD_OK;
+    }
+
+    let result = ECMD_OK;
+    if (obj !== state.uwep) {
+        if (obj.cursed && obj.bknown) {
+            const qbuf = safe_qbuf(
+                'Really wield ', '?', obj, donameFresh, ansimpleoname,
+                'that', state,
+            );
+            if (await yn_function(qbuf, 'ynq', 'n', true, state)
+                !== 'y'.charCodeAt(0)) {
+                return ECMD_OK;
+            }
+        }
+        if (!await wield_tool(obj, 'use', state)) return ECMD_OK;
+        result = ECMD_TIME;
+    }
+
+    const tin = await getobj('open', tinopen_ok, GETOBJ_NOFLAGS, state);
+    if (!tin) return result | ECMD_CANCEL;
+    await start_tin(tin, state, env);
+    return ECMD_TIME;
 }
 
 // ---------------------------------------------------------------------------
@@ -3300,8 +3699,8 @@ export async function doeat(state = game, env = {}) {
     /* tins are a special case */
     /* tins must also check conduct separately in case they're discarded */
     if (otmp.otyp === TIN) {
-        // start_tin() runs its own opening occupation and svc.context.tin.
-        throw new UnsupportedEatError('start_tin()');
+        await start_tin(otmp, state, eatEnv);
+        return ECMD_TIME;
     }
 
     // C ref: `if (!u.uconduct.food++) livelog_printf(...)`. The chronicle is
