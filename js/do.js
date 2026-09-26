@@ -1,7 +1,7 @@
 // do.js -- Commands that drop, dig into, or descend through the floor, and
 // the up command.
-// C refs: do.c -- dodrop(), flooreffects(), canletgo(), drop(), dropx(),
-// dropy(), dropz(), trycall(), u_stuck_cannot_go(), dodown(), doup(),
+// C refs: do.c -- dodrop(), flooreffects(), canletgo(), drop(), dosinkring(),
+// teleport_sink(), dropx(), dropy(), dropz(), trycall(), u_stuck_cannot_go(), dodown(), doup(),
 // goto_level(), u_collide_m(), temperature_change_msg() and
 // legs_in_no_shape(), set_wounded_legs(); dokick.c obj_delivery(); mon.c
 // kill_genocided_monsters(); questpgr.c deliver_splev_message().
@@ -16,6 +16,7 @@ import {
     A_DEX,
     BOTH_SIDES,
     BLINDED,
+    COLNO,
     DEAF,
     CORR,
     DIR_DOWN,
@@ -62,6 +63,7 @@ import {
     RLOC_NOMSG,
     PRIMARYSET,
     ROGUESET,
+    ROWNO,
     SLT_ENCUMBER,
     STAIRS,
     TIMEOUT,
@@ -84,6 +86,7 @@ import {
     W_ACCESSORY,
     W_ARMOR,
     W_SADDLE,
+    SINK,
     HALLUC,
     HALLUC_RES,
     HOLE,
@@ -115,12 +118,13 @@ import {
     reglyph_darkroom,
 } from './display.js';
 import {
-    Adjmonnam, Monnam, docall, hliquid, mon_nam, y_monnam,
+    Adjmonnam, Monnam, docall, hcolor, hliquid, mon_nam, rndmonnam,
+    y_monnam,
 } from './do_name.js';
 import { setwornEnv } from './do_wear.js';
 import { keepdogs, losedogs, update_mlstmv } from './dog.js';
 import { can_reach_floor, engr_at } from './engrave.js';
-import { makeplural } from './fruit.js';
+import { fruitname, makeplural } from './fruit.js';
 import {
     Can_fall_thru,
     In_hell,
@@ -169,12 +173,15 @@ import {
 } from './hack.js';
 import {
     any_obj_ok,
+    add_to_buried,
+    delobj,
     freeinv,
     getobj,
     mergable,
     obfree,
     preflight_update_inventory,
     stackobj,
+    useup,
     useupf,
 } from './invent.js';
 import { maybe_reset_pick } from './lock.js';
@@ -204,7 +211,8 @@ import {
 } from './obj.js';
 import { oinit } from './o_init.js';
 import {
-    The, Tobjnam, corpse_xname, donameFresh, is_plural, the, vtense, xnameFresh,
+    The, Tobjnam, corpse_xname, donameFresh, is_plural, otense, the, vtense,
+    xnameFresh, yname,
 } from './objnam.js';
 import {
     BOULDER,
@@ -214,7 +222,35 @@ import {
     MEAT_RING,
     POT_OIL,
     POTION_CLASS,
+    RIN_ADORNMENT,
+    RIN_AGGRAVATE_MONSTER,
+    RIN_COLD_RESISTANCE,
+    RIN_CONFLICT,
+    RIN_FREE_ACTION,
+    RIN_GAIN_CONSTITUTION,
+    RIN_GAIN_STRENGTH,
+    RIN_HUNGER,
+    RIN_INCREASE_ACCURACY,
+    RIN_INCREASE_DAMAGE,
+    RIN_INVISIBILITY,
+    RIN_LEVITATION,
+    RIN_POLYMORPH,
+    RIN_POLYMORPH_CONTROL,
+    RIN_POISON_RESISTANCE,
+    RIN_PROTECTION,
+    RIN_PROTECTION_FROM_SHAPE_CHAN,
+    RIN_REGENERATION,
+    RIN_SEARCHING,
+    RIN_SEE_INVISIBLE,
+    RIN_SHOCK_RESISTANCE,
+    RIN_SLOW_DIGESTION,
+    RIN_STEALTH,
+    RIN_SUSTAIN_ABILITY,
+    RIN_TELEPORTATION,
+    RIN_TELEPORT_CONTROL,
     RING_CLASS,
+    RIN_WARNING,
+    RIN_FIRE_RESISTANCE,
 } from './objects.js';
 import { body_part } from './polyself.js';
 import { incr_itimeout, make_blinded, set_itimeout } from './potion.js';
@@ -234,6 +270,7 @@ import { check_special_room, move_update } from './rooms.js';
 import { savelev } from './save.js';
 import { costly_spot } from './shk.js';
 import { ship_object } from './dokick.js';
+import { set_levltyp } from './terrain.js';
 import {
     stairway_at,
     stairway_find_from,
@@ -935,6 +972,265 @@ export async function trycall(obj, state = game) {
         await docall(obj, state);
 }
 
+// C ref: do.c teleport_sink() (459-493). It tries up to 200 room squares in
+// source order, moving the current sink only after finding a square without a
+// trap or engraving that is unseen or more than three squares away.
+function teleport_sink(state = game, random = { rn2, rnd }) {
+    let trycnt = 0;
+
+    do {
+        const cx = 1 + random.rnd(COLNO - 3);
+        const cy = 1 + random.rn2(ROWNO - 2);
+        if (state.level.at(cx, cy).typ === ROOM
+            && !t_at(cx, cy, state)
+            && !engr_at(cx, cy, state)
+            && (!cansee(cx, cy, state)
+                || dist2(cx, cy, state.u.ux, state.u.uy) > 3 * 3)) {
+            const oldSink = state.level.at(state.u.ux, state.u.uy);
+            const alreadylooted = oldSink.looted;
+
+            set_levltyp(state.u.ux, state.u.uy, ROOM, { state });
+            oldSink.looted = 0;
+            newsym(state.u.ux, state.u.uy);
+
+            set_levltyp(cx, cy, SINK, { state });
+            state.level.at(cx, cy).looted = alreadylooted ? 1 : 0;
+            newsym(cx, cy);
+            return true;
+        }
+    } while (++trycnt < 200);
+
+    return false;
+}
+
+function heroHallucinating(state) {
+    const hallucination = state.u?.uprops?.[HALLUC];
+    const resistance = state.u?.uprops?.[HALLUC_RES];
+    return Boolean(hallucination?.intrinsic)
+        && !(resistance?.intrinsic || resistance?.extrinsic);
+}
+
+// C ref: do.c dosinkring() (497-661). The object remains marked in_use through
+// its sink effects so inventory removal cannot identify it early. Calls to
+// Soundeffect() are intentionally omitted: the patched recorder uses the
+// `nosound` backend, where the C macro is a no-op.
+async function dosinkring(obj, state = game, rawEnv = {}) {
+    const random = rawEnv.random ?? { rn2, rnd };
+    let ideed = true;
+    let nosink = false;
+
+    await ttyPline(`You drop ${donameFresh(obj, state)} down the drain.`, state);
+    obj.in_use = true;
+    switch (obj.otyp) {
+    case RIN_SEARCHING:
+        await ttyPline(
+            `You thought ${yname(obj, state)} got lost in the sink, but there it is!`,
+            state,
+        );
+        await sinkRingGiveback(obj, state);
+        return;
+    case RIN_SLOW_DIGESTION:
+        await ttyPline('The ring is regurgitated!', state);
+        await sinkRingGiveback(obj, state);
+        return;
+    case RIN_LEVITATION:
+        await ttyPline('The sink quivers upward for a moment.', state);
+        break;
+    case RIN_POISON_RESISTANCE:
+        await ttyPline(
+            `You smell rotten ${makeplural(fruitname(false, state))}.`,
+            state,
+        );
+        break;
+    case RIN_AGGRAVATE_MONSTER: {
+        const insects = heroHallucinating(state)
+            ? makeplural(rndmonnam({ state })) : 'flies';
+        await ttyPline(
+            `Several ${insects} buzz angrily around the sink.`, state,
+        );
+        break;
+    }
+    case RIN_SHOCK_RESISTANCE:
+        await ttyPline('Static electricity surrounds the sink.', state);
+        break;
+    case RIN_CONFLICT:
+        if (!heroIsDeaf(state))
+            await ttyPline('You hear loud noises coming from the drain.', state);
+        break;
+    case RIN_SUSTAIN_ABILITY:
+        await ttyPline(`The ${hliquid('water', { state })} flow seems fixed.`, state);
+        break;
+    case RIN_GAIN_STRENGTH: {
+        const adjective = obj.spe < 0 ? 'weak' : 'strong';
+        await ttyPline(
+            `The ${hliquid('water', { state })} flow seems ${adjective}er now.`,
+            state,
+        );
+        break;
+    }
+    case RIN_GAIN_CONSTITUTION: {
+        const adjective = obj.spe < 0 ? 'less' : 'great';
+        await ttyPline(
+            `The ${hliquid('water', { state })} flow seems ${adjective}er now.`,
+            state,
+        );
+        break;
+    }
+    case RIN_INCREASE_ACCURACY:
+        await ttyPline(
+            `The ${hliquid('water', { state })} flow ${obj.spe < 0 ? 'misses' : 'hits'} the drain.`,
+            state,
+        );
+        break;
+    case RIN_INCREASE_DAMAGE:
+        await ttyPline(
+            `The water's force seems ${obj.spe < 0 ? 'smaller' : 'greater'} now.`,
+            state,
+        );
+        break;
+    case RIN_HUNGER: {
+        ideed = false;
+        let otmp = state.level.objects[state.u.ux][state.u.uy];
+        while (otmp) {
+            const otmp2 = otmp.nexthere;
+            if (otmp !== state.uball && otmp !== state.uchain
+                && !obj_resists(otmp, 1, 99, { state, random })) {
+                if (!heroIsBlind(state)) {
+                    await ttyPline(
+                        `Suddenly, ${donameFresh(otmp, state)} ${otense(otmp, 'vanish')} from the sink!`,
+                        state,
+                    );
+                    ideed = true;
+                }
+                delobj(otmp, { ...rawEnv, state });
+            }
+            otmp = otmp2;
+        }
+        break;
+    }
+    case MEAT_RING:
+        await ttyPline('Several flies buzz around the sink.', state);
+        break;
+    case RIN_TELEPORTATION:
+        nosink = teleport_sink(state, random);
+        await ttyPline(
+            `The sink ${nosink ? '' : 'momentarily '}vanishes.`, state,
+        );
+        ideed = false;
+        break;
+    case RIN_POLYMORPH:
+        // do.c polymorph_sink() returns void; its unported side effects cannot
+        // influence this caller's result, so record the gap and skip the call.
+        note_unported('do.c polymorph_sink');
+        nosink = true;
+        ideed = state.level.at(state.u.ux, state.u.uy).typ !== ROOM;
+        break;
+    default:
+        ideed = false;
+        break;
+    }
+
+    if (!heroIsBlind(state) && !ideed) {
+        ideed = true;
+        switch (obj.otyp) {
+        case RIN_ADORNMENT:
+            await ttyPline('The faucets flash brightly for a moment.', state);
+            break;
+        case RIN_REGENERATION:
+            await ttyPline('The sink looks as good as new.', state);
+            break;
+        case RIN_INVISIBILITY:
+            await ttyPline("You don't see anything happen to the sink.", state);
+            break;
+        case RIN_FREE_ACTION:
+            await ttyPline('You see the ring slide right down the drain!', state);
+            break;
+        case RIN_SEE_INVISIBLE: {
+            const sinkContents = heroHallucinating(state)
+                ? 'oxygen molecules' : 'air';
+            await ttyPline(`You see some ${sinkContents} in the sink.`, state);
+            break;
+        }
+        case RIN_STEALTH:
+            await ttyPline(
+                'The sink seems to blend into the floor for a moment.', state,
+            );
+            break;
+        case RIN_FIRE_RESISTANCE:
+            await ttyPline(
+                `The hot ${hliquid('water', { state })} faucet flashes brightly for a moment.`,
+                state,
+            );
+            break;
+        case RIN_COLD_RESISTANCE:
+            await ttyPline(
+                `The cold ${hliquid('water', { state })} faucet flashes brightly for a moment.`,
+                state,
+            );
+            break;
+        case RIN_PROTECTION_FROM_SHAPE_CHAN:
+            await ttyPline('The sink looks nothing like a fountain.', state);
+            break;
+        case RIN_PROTECTION:
+            await ttyPline(
+                `The sink glows ${hcolor(obj.spe < 0 ? 'black' : 'silver', state)} for a moment.`,
+                state,
+            );
+            break;
+        case RIN_WARNING:
+            await ttyPline(
+                `The sink glows ${hcolor('white', state)} for a moment.`, state,
+            );
+            break;
+        case RIN_TELEPORT_CONTROL:
+            await ttyPline(
+                'The sink looks like it is being beamed aboard somewhere.',
+                state,
+            );
+            break;
+        case RIN_POLYMORPH_CONTROL:
+            await ttyPline(
+                'The sink momentarily looks like a regularly erupting geyser.',
+                state,
+            );
+            break;
+        default:
+            break;
+        }
+    }
+
+    if (ideed) {
+        await trycall(obj, state);
+    } else if (!nosink && !heroIsDeaf(state)) {
+        await ttyPline('You hear the ring bouncing down the drainpipe.', state);
+    }
+
+    // C evaluates rn2(20) before checking nosink, so even a successful sink
+    // teleport still spends this draw before its condition fails.
+    const backsUp = random.rn2(20) === 0;
+    if (backsUp && !nosink) {
+        await ttyPline(
+            `The sink backs up, leaving ${donameFresh(obj, state)}.`, state,
+        );
+        obj.in_use = false;
+        await dropx(obj, dropCommandEnv(state));
+    } else if (random.rn2(5) === 0) {
+        freeinv(obj, { state });
+        obj.in_use = false;
+        obj.ox = state.u.ux;
+        obj.oy = state.u.uy;
+        add_to_buried(obj, { state });
+    } else {
+        useup(obj, { state });
+    }
+}
+
+async function sinkRingGiveback(obj, state) {
+    obj.in_use = false;
+    await dropx(obj, dropCommandEnv(state));
+    await trycall(obj, state);
+}
+
 // Every branch of the drop chain -- dodrop(), drop() and the
 // dropx()/dropy()/dropz() tail -- that this port has not translated raises
 // this. js/cmd.js failClosedCommandRefusals() lists it, so the segment keeps
@@ -1077,10 +1373,8 @@ export async function canletgo(obj, word, state = game) {
     return true;
 }
 
-// C ref: do.c drop() (713-780), staticfn. Five of its arms stop rather than
-// run, each named at the throw. Four of them can be reached; the weldmsg() one
-// is dead in C as well and says so where it stands. What remains is the hero
-// who is standing on reachable ordinary floor and lets one object go.
+// C ref: do.c drop() (713-780), staticfn. The sink arm delegates to
+// dosinkring(); remaining unsupported conditions are kept at their C branch.
 //
 // C's altar arm is not a stop of its own. do.c:774 only suppresses the message
 // there and falls through to dropx(), whose doaltarobj() is unported, so
@@ -1131,9 +1425,10 @@ async function drop(obj, state = game) {
         const here = state.level.at(state.u.ux, state.u.uy);
         if ((obj.oclass === RING_CLASS || obj.otyp === MEAT_RING)
             && IS_SINK(here.typ)) {
-            // do.c:755 dosinkring() (do.c:534-661), which identifies the ring
-            // by what the sink does and then buries, drops or uses it up.
-            throw new UnsupportedDropError('dosinkring()');
+            // do.c:755 dosinkring() (497-661), including the ring's sink
+            // response and its ordered backup, burial, or consumption.
+            await dosinkring(obj, state, dropCommandEnv(state));
+            return ECMD_TIME;
         }
         if (!can_reach_floor(true, state)) {
             // do.c:758-773, the levitating or trapped hero: finesse_ahriman(),
@@ -1150,13 +1445,15 @@ async function drop(obj, state = game) {
     return ECMD_TIME;
 }
 
-// drop() is staticfn in do.c and its two terrain arms -- the sink at :753-757
-// and the unreachable floor at :758-773 -- refuse rather than run. Neither is
-// reachable from a recorded case: no ported input walks the hero onto a sink,
-// and none leaves her standing on a seen pit or shaft, because js/hack.js
-// ports dotrap()'s bear-trap arm alone and nothing else writes u.utrap. It is
-// exported so a test can hand it those two squares directly.
-export const _dropInternals = Object.freeze({ drop });
+// The sink arm is source-owned above; the unreachable-floor arm at do.c:758-773
+// still refuses because hitfloor() and float_down() are unported. The object
+// exposes its selected arms for source-pinned tests without changing dispatch.
+export const _dropInternals = Object.freeze({
+    drop,
+    dosinkring,
+    heroHallucinating,
+    teleport_sink,
+});
 
 // Complete admission check for the source-inert ground subset below: what
 // dropx()'s ship_object() and doaltarobj(), and dropz()'s flooreffects(),
@@ -1245,7 +1542,7 @@ export function preflight_dropx(obj, env = {}) {
     // Doorways and stairways add no flooreffects() branch when shipping
     // leaves the object on this level.
     if (location.typ !== ROOM && location.typ !== CORR
-        && location.typ !== DOOR && !stway) {
+        && location.typ !== DOOR && location.typ !== SINK && !stway) {
         throw new UnsupportedDropError('non-ordinary terrain');
     }
     if (engr_at(x, y, state))

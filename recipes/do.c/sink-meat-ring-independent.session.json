@@ -1,0 +1,11 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 26092660,
+      "datetime": "20380926124412",
+      "nethackrc": "OPTIONS=name:MeatSink,role:Valkyrie,race:human,gender:female,align:lawful,playmode:debug,!legacy,!tutorial,!splash_screen,!autopickup\n",
+      "moves": "      \u0017sink\n\u0017meat ring\nde \n."
+    }
+  ]
+}
