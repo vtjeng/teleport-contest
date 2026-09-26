@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 55210041,
+      "datetime": "20260926221500",
+      "nethackrc": "OPTIONS=name:LimberWizard,role:Wizard,race:human,gender:male,align:neutral,playmode:debug,!legacy,!tutorial,!splash_screen,pettype:none\n",
+      "moves": " #wizintrinsic\nb\n \u0017lizard corpse\nep "
+    }
+  ],
+  "comment": "Independent C21 variation for eat.c:cprefx -> fix_petrification. Wizard role, new seed/date/name, and a wished lizard corpse vary the prior Valkyrie setup while the timed Stoned intrinsic makes the lizard cure observable before the meal completes."
+}

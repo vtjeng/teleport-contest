@@ -16,9 +16,9 @@
 // worn-potion, and milky/smoky potions are fail-closed;
 // the common path calls getobj() -> dopotion() -> peffects().
 //
-// peffects() dispatches 26 potion types; POT_BOOZE, POT_CONFUSION, POT_SICKNESS,
-// POT_SPEED (with spell alias SPE_HASTE_SELF), POT_BLINDNESS, POT_HEALING,
-// POT_EXTRA_HEALING, POT_OIL, the POT_FRUIT_JUICE arm of
+// peffects() dispatches 26 potion types; POT_ACID, POT_BOOZE, POT_CONFUSION,
+// POT_SICKNESS, POT_SPEED (with spell alias SPE_HASTE_SELF), POT_BLINDNESS,
+// POT_HEALING, POT_EXTRA_HEALING, POT_OIL, the POT_FRUIT_JUICE arm of
 // peffect_see_invisible(), the ordinary POT_PARALYSIS arm, and POT_POLYMORPH
 // are ported. Unported arms throw UnsupportedQuaffError.
 //
@@ -136,6 +136,7 @@ import {
     delayed_killer,
     find_delayed_killer,
 } from './end.js';
+import { fix_petrification } from './eat.js';
 import { d, rn1, rn2, rnd, rne, rnz } from './rng.js';
 import { canSpotMonster } from './startup_a11y.js';
 import { cloneu } from './mhitu.js';
@@ -1187,6 +1188,35 @@ async function peffect_levitation(otmp, state) {
     float_vs_flight(state);
 }
 
+// C ref: potion.c peffect_acid() (1297-1315). A quaffed acid potion can also
+// cure petrification after applying its own acid damage.
+async function peffect_acid(otmp, state = game) {
+    if (Acid_resistance(state)) {
+        await ttyPline(
+            `This tastes ${Hallucination(state) ? 'tangy' : 'sour'}.`, state,
+        );
+    } else {
+        await ttyPline(
+            `This burns${otmp.blessed ? ' a little'
+                : otmp.cursed ? ' a lot' : ' like acid'}!`,
+            state,
+        );
+        const damage = d(otmp.cursed ? 2 : 1, otmp.blessed ? 4 : 8);
+        await losehp(
+            Maybe_Half_Phys(damage, state),
+            'potion of acid',
+            KILLED_BY_AN,
+            state,
+        );
+        await exercise(A_CON, false, state, { rn2 }, {
+            encumberMessage: encumber_msg,
+        });
+    }
+    if (state.u?.uprops?.[STONED]?.intrinsic)
+        await fix_petrification(state);
+    state.gp.potion_unkn++;
+}
+
 // C ref: potion.c peffects() (1333-1425). Dispatch the effect of a quaffed
 // potion or spell. Returns >=0 if the effect short-circuits dopotion()'s tail
 // (0 = no time, 1 = time), -1 to continue to the tail.
@@ -1258,7 +1288,8 @@ export async function peffects(otmp, state = game) {
         await peffect_oil(otmp, state);
         break;
     case POT_ACID:
-        throw new UnsupportedQuaffError('peffect_acid()');
+        await peffect_acid(otmp, state);
+        break;
     case POT_POLYMORPH:
         await peffect_polymorph(otmp, state);
         break;

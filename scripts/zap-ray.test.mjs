@@ -31,8 +31,10 @@ import {
     HALLUC,
     HALLUC_RES,
     IN_SIGHT,
+    KILLED_BY,
     NOTELL,
     OBJ_FLOOR,
+    STONED,
     LAVAPOOL,
     LAVAWALL,
     MOAT,
@@ -42,6 +44,7 @@ import {
     ROOM,
     SYM_UNEXPLORED,
     STONE,
+    TIMEOUT,
     VWALL,
     W_WEP,
 } from '../js/const.js';
@@ -60,6 +63,8 @@ import {
 } from '../js/glyph_offsets.js';
 import { game } from '../js/gstate.js';
 import { runSegment } from '../js/jsmain.js';
+import { find_delayed_killer } from '../js/end.js';
+import { make_stoned } from '../js/potion.js';
 import { relocate_monster } from '../js/monst.js';
 import {
     AD_ACID, AD_COLD, AD_DISN, AD_DRLI, AD_DRST, AD_ELEC, AD_FIRE, AD_PHYS,
@@ -72,9 +77,11 @@ import {
     LEATHER_ARMOR,
     LOW_BOOTS,
     RAY,
+    SPBOOK_CLASS,
     SPE_DIG,
     SPE_FINGER_OF_DEATH,
     SPE_MAGIC_MISSILE,
+    SPE_STONE_TO_FLESH,
     TOOL_CLASS,
     TOWEL,
     WAN_COLD,
@@ -113,6 +120,7 @@ import {
     zap_over_floor,
     zap_hit,
     zaptype,
+    zapyourself,
     zhitm,
     zhituLosehpArguments,
 } from '../js/zap.js';
@@ -147,6 +155,30 @@ function raySegment(index) {
 function topLine() {
     return game.nhDisplay.grid[0].map(({ ch }) => ch).join('').trimEnd();
 }
+
+test('stone-to-flesh self spell uses eat.c fix_petrification', async () => {
+    // zap.c:2974-2977: the spell's self-directed effect marks it learned and
+    // calls fix_petrification() before processing the inventory.
+    await runSegment({
+        seed: 55210044,
+        datetime: '20260926221800',
+        nethackrc: 'OPTIONS=name:StoneSpellCure,role:Wizard,race:human,gender:female,align:neutral\n'
+            + 'OPTIONS=!legacy,!tutorial,!splash_screen\n'
+            + 'OPTIONS=pettype:none,!acoustics,!autopickup,playmode:debug\n',
+        moves: '.',
+    });
+    await make_stoned(30, null, KILLED_BY, 'test stoning', game);
+    game._pending_message = '';
+
+    assert.equal(await zapyourself({
+        otyp: SPE_STONE_TO_FLESH,
+        oclass: SPBOOK_CLASS,
+    }, true, game), 0);
+
+    assert.equal(game.u.uprops[STONED].intrinsic & TIMEOUT, 0);
+    assert.equal(find_delayed_killer(STONED, game), null);
+    assert.match(game._pending_message, /You feel limber!/u);
+});
 
 // The recorder cell the map square <x, y> was drawn into. C keeps the
 // resolved presentation on the location itself, which is the pair

@@ -13,13 +13,14 @@ import test from 'node:test';
 import { failClosedCommandRefusals } from '../js/cmd.js';
 
 import {
-    A_CON, A_DEX, A_WIS, BLINDED, CONFUSION, DEAF, FAST, FREE_ACTION,
+    A_CON, A_DEX, A_WIS, ACID_RES, BLINDED, CONFUSION, DEAF, FAST, FREE_ACTION,
     FROMOUTSIDE, GLIB, HALLUC,
     GETOBJ_DOWNPLAY, GETOBJ_EXCLUDE, GETOBJ_EXCLUDE_INACCESS, GETOBJ_SUGGEST,
     HALLUC_RES, INVIS, LEVITATION, NOT_HUNGRY, POTHIT_MONST_THROW, SEE_INVIS,
     SATIATED, SLEEP_RES, WEAK,
-    TELEPAT, TIMEOUT, WOUNDED_LEGS, W_RINGL,
+    KILLED_BY, STONED, TELEPAT, TIMEOUT, WOUNDED_LEGS, W_RINGL,
 } from '../js/const.js';
+import { find_delayed_killer } from '../js/end.js';
 import { trycall } from '../js/do.js';
 import { docall } from '../js/do_name.js';
 import { game } from '../js/gstate.js';
@@ -68,6 +69,7 @@ import {
     make_blinded,
     make_hallucinated,
     make_glib,
+    make_stoned,
     peffects,
     potionbreathe,
     potionhit,
@@ -469,6 +471,53 @@ function vaporPotion(otyp) {
     obj.dknown = true;
     return obj;
 }
+
+test('acid resistance lets an acid potion cure stoning without damage', async () => {
+    await startedGame(8460119, 'AcidPotionCuresStoning');
+    game.u.uprops[ACID_RES].intrinsic = 1;
+    await make_stoned(30, null, KILLED_BY, 'test stoning', game);
+    game.gp.potion_unkn = 0;
+    const hpBefore = game.u.uhp;
+    const conExerciseBefore = game.u.aexe[A_CON];
+    const acid = vaporPotion(POT_ACID);
+    clearTopline();
+    enableRngLog();
+
+    await peffects(acid, game);
+
+    assert.equal(game.u.uhp, hpBefore,
+        'Acid_resistance bypasses potion damage');
+    assert.equal(game.u.aexe[A_CON], conExerciseBefore,
+        'the resistant branch does not exercise Constitution');
+    assert.deepEqual(getRngLog(), [],
+        'the resistant branch makes no damage or exercise RNG calls');
+    assert.equal(game.u.uprops[STONED].intrinsic & TIMEOUT, 0);
+    assert.equal(find_delayed_killer(STONED, game), null);
+    assert.equal(game.gp.potion_unkn, 1);
+    assert.match(toplines(), /This tastes sour\./u);
+    assert.match(toplines(), /You feel limber!/u);
+});
+
+test('blessed acid preserves its source damage text and clears stoning after damage',
+    async () => {
+        await startedGame(8460123, 'BlessedAcidCuresStoning');
+        game.u.uprops[ACID_RES].intrinsic = 0;
+        await make_stoned(30, null, KILLED_BY, 'test stoning', game);
+        const potion = vaporPotion(POT_ACID);
+        potion.blessed = true;
+        game.gp.potion_unkn = 0;
+        clearTopline();
+        enableRngLog();
+
+        await peffects(potion, game);
+
+        assert.match(toplines(), /This burns a little!/u);
+        assert.match(toplines(), /You feel limber!/u);
+        assert.equal(game.u.uprops[STONED].intrinsic & TIMEOUT, 0);
+        assert.equal(find_delayed_killer(STONED, game), null);
+        assert.equal(game.gp.potion_unkn, 1);
+        assert.match(getRngLog()[0], /^d\(1,4\)=\d+$/u);
+    });
 
 test('blindness potion extends its source-ordered BUC timeout', async () => {
     for (const sign of [-1, 0, 1]) {

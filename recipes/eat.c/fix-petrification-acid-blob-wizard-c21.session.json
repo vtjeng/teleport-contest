@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 55210046,
+      "datetime": "20260926232000",
+      "nethackrc": "OPTIONS=name:AcidCorpseCure,role:Wizard,race:human,gender:female,align:neutral,playmode:debug,!legacy,!tutorial,!splash_screen,pettype:none\n",
+      "moves": " #wizintrinsic\nb\n \u0017acid blob corpse\neo"
+    }
+  ],
+  "comment": "Independent C21 evidence for eat.c:cprefx's acidic default arm. The cursed-stone state is set before an acid blob corpse is wished and eaten, distinguishing this source branch from the admitted lizard arm."
+}
