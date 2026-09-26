@@ -74715,6 +74715,57 @@
           "evaluationCommit": "9afcb40d474b714f755d68a9bff96193af5f7e59"
         }
       }
+    },
+    {
+      "id": "port-apply-use-camera-synthetic-v3-20260926",
+      "kind": "file-port",
+      "status": "queued",
+      "summary": "Port expensive camera flash and its blinding ray",
+      "cFile": "apply.c",
+      "sessions": [
+        "synthetic/v3/tourist-camera-flash-complete",
+        "synthetic/v3/tourist-camera-flash"
+      ],
+      "selectionReason": "The higher v4 nymph theft case is assigned to C9. The two v3 Tourist camera cases are now the highest independent completed investigations at 7 and 6 unmatched screens; B6 bhit reservation is released after acceptance. A6 owns the lower 5-screen monster armor case.",
+      "detail": "Port apply.c do_blinding_ray and use_camera in source order, wire doapply EXPENSIVE_CAMERA, and port the consumed FLASHED_LIGHT bhit monster result with flash_hits_mon and transient_light_cleanup behavior. Preserve charge, cursed, underwater, self, vertical, monster, and empty-ray branches. Use independent C recordings for uncovered active entry paths. See investigations/synthetic/v3/tourist-camera-flash-complete.json and tourist-camera-flash.json.",
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": null,
+      "delivered": null,
+      "functions": [
+        {
+          "name": "do_blinding_ray",
+          "line": 61,
+          "endLine": 78,
+          "declared": false,
+          "complete": false
+        },
+        {
+          "name": "use_camera",
+          "line": 79,
+          "endLine": 111,
+          "declared": false,
+          "complete": false
+        }
+      ],
+      "range": {
+        "from": 61,
+        "to": 111
+      },
+      "syntheticProvenance": {
+        "synthetic/v3/tourist-camera-flash-complete": {
+          "session": "synthetic/v3/tourist-camera-flash-complete",
+          "corpus": "synthetic",
+          "batch": "v3",
+          "caseId": "tourist-camera-flash-complete",
+          "manifestPath": "challenges/manifests/v3.json",
+          "manifestSha256": "922fd19b46005c40283152102ac301035c7f84f82a8e5e9d7caf691f183a2b67",
+          "recordingPath": "challenges/cases/v3/tourist-camera-flash-complete.session.json",
+          "recordingSha256": "a0ff9cf099b0b1cc9df2242ee50959ae619463c2c6165dd249e78b6bd729fc13",
+          "evaluationPath": "challenges/evaluations/20260926012822-v3.json",
+          "evaluationCommit": "210cd14f1e59abac0764199293de428ee71828fd"
+        }
+      }
     }
   ]
 }
