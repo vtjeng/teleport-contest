@@ -1,0 +1,143 @@
+{
+  "session": "synthetic/v7/blessed-book-undead",
+  "corpus": "synthetic",
+  "batch": "v7",
+  "caseId": "blessed-book-undead",
+  "manifestPath": "challenges/manifests/v7.json",
+  "manifestSha256": "03a861a9d1bc9d813c80681312ee7a0e0f893dbad0536de40a974bd5ec344094",
+  "recordingSha256": "4a76c8a0c760a975400edb36b600bfa3566e81ca116805fa3c82156baf3bb90e",
+  "evaluationPath": "challenges/evaluations/20260926122253-v7.json",
+  "evaluationCommit": "f7e48bd93d6827c557c9a40a255a55cbc5fc8fcf",
+  "remainingScreens": 41,
+  "recordedSteps": 86,
+  "status": "complete",
+  "commit": "3543403d092a80dbeacd479a4fb0cb5c2d537413",
+  "mismatch": {
+    "corpus": "synthetic",
+    "batch": "v7",
+    "caseId": "blessed-book-undead",
+    "session": "synthetic/v7/blessed-book-undead",
+    "manifestPath": "challenges/manifests/v7.json",
+    "manifestSha256": "03a861a9d1bc9d813c80681312ee7a0e0f893dbad0536de40a974bd5ec344094",
+    "recording": "challenges/cases/v7/blessed-book-undead.session.json",
+    "recordingPath": "challenges/cases/v7/blessed-book-undead.session.json",
+    "recordingSha256": "4a76c8a0c760a975400edb36b600bfa3566e81ca116805fa3c82156baf3bb90e",
+    "recipe": "challenges/cases/v7/blessed-book-undead.recipe.session.json",
+    "recipeSha256": "66552fd172517ab2995249eac6750f1c1fa1d75a59e47cd2ea7f388bbd2ab2d7",
+    "replayInputSha256": "ba09b30aa45883696a6c2cbbe647b7a100c06ae9b741e0bcdf70fec164041447",
+    "evaluationPath": "challenges/evaluations/20260926122253-v7.json",
+    "evaluationCommit": "f7e48bd93d6827c557c9a40a255a55cbc5fc8fcf",
+    "evaluationArtifact": "challenges/evaluations/20260926122253-v7.json",
+    "evaluationUtc": "2026-09-26T12:23:06.868Z",
+    "remainingScreens": 41,
+    "recordedSteps": 86,
+    "previousScreensMatched": null,
+    "regression": false,
+    "passed": false,
+    "error": null,
+    "metrics": {
+      "screens": {
+        "matched": 45,
+        "total": 86
+      },
+      "rng": {
+        "matched": 3019,
+        "total": 3572
+      },
+      "cursors": {
+        "matched": 81,
+        "total": 86
+      }
+    },
+    "firstMismatch": {
+      "screen": {
+        "index": 45,
+        "location": {
+          "segmentIndex": 0,
+          "stepIndex": 45,
+          "key": "n"
+        },
+        "kind": "ch",
+        "row": 0,
+        "column": 30,
+        "cCell": {
+          "ch": "-",
+          "color": 8,
+          "attr": 0,
+          "decgfx": 0
+        },
+        "jsCell": {
+          "ch": " ",
+          "color": 8,
+          "attr": 0,
+          "decgfx": 0
+        }
+      },
+      "rng": {
+        "index": 3010,
+        "cEntry": "rn2(19)=17",
+        "cCaller": "exercise(attrib.c:509)",
+        "jsEntry": "rn2(5)=0",
+        "location": {
+          "segmentIndex": 0,
+          "stepIndex": 46,
+          "key": " "
+        },
+        "stepIndex": 46
+      },
+      "cursor": {
+        "index": 45,
+        "location": {
+          "segmentIndex": 0,
+          "stepIndex": 45,
+          "key": "n"
+        },
+        "cCursor": [
+          38,
+          0,
+          1
+        ],
+        "jsCursor": [
+          5,
+          13,
+          1
+        ]
+      }
+    },
+    "step": 45,
+    "kind": "screen",
+    "sourceFile": null,
+    "function": null,
+    "message": null,
+    "cFile": null,
+    "luaFile": null,
+    "line": null
+  },
+  "summary": "The case reads a blessed Book of the Dead beside a visible hostile elf zombie. C spell.c:learn() calls deadbook(), whose blessed non-invocation branch runs deadbook_pacify_undead() for visible undead; the callback sets the zombie peaceful and makes it flee because its alignment differs from the neutral hero. JS study_book() installs learn(), but js/spell.js:learn() currently skips the effect at its explicit note_unported(\"spell.c deadbook\") branch. The first saved screen difference is the missing C --More-- marker after “You begin to recite the runes.” at step 45; at step 46 C advances the occupation into the Book of the Dead effect while JS follows a different input boundary. Port the whole learn() Book-of-the-Dead arm and the deadbook()/deadbook_pacify_undead() family, then preserve the message wait and monster state changes through the existing caller chain.",
+  "source": {
+    "file": "spell.c",
+    "branch": "After read.c:doread() selects SPE_BOOK_OF_THE_DEAD, spell.c:study_book() installs learn() as the occupation. Once the study delay reaches zero, learn() reaches its Book-of-the-Dead arm. In this recording the book is blessed, the hero is not on the invocation position, and a visible hostile elf zombie is adjacent; deadbook() takes the blessed branch and the callback makes the zombie peaceful, then sends it fleeing because its alignment sign differs from the neutral hero.",
+    "functions": [
+      "deadbook_pacify_undead",
+      "deadbook",
+      "learn"
+    ],
+    "callers": [
+      "nethack-c/upstream/src/cmd.c:1816-1817 maps r to read.c:doread(); js/cmd.js:5107 dispatches doread through runReadCommand() at 3379.",
+      "nethack-c/upstream/src/read.c:609 calls spell.c:study_book(); js/read.js:803 calls js/spell.js:study_book().",
+      "nethack-c/upstream/src/spell.c:639 installs learn() with set_occupation(); nethack-c/upstream/src/allmain.c:485-509 invokes go.occupation(). JS study_book() installs learn(), and js/allmain.js:1595-1624 invokes the saved occupation.",
+      "nethack-c/upstream/src/spell.c:385-386 calls deadbook(book) from learn() when booktype is SPE_BOOK_OF_THE_DEAD; js/spell.js:353-355 is the matching branch and currently records note_unported(\"spell.c deadbook\") before returning."
+    ],
+    "dependencies": [
+      "deadbook() iterates monsters through iter_mons(deadbook_pacify_undead); the blessed arm needs the source behavior of is_undead(), is_vampshifter(), cansee(), sgn(), mdistu(), tamedog(), and monflee(). Preserve the mpeaceful and mtame updates together with the visible-monster and distance/alignment conditions.",
+      "Port all deadbook() arms, not only the recorded blessed branch: invocation checks and object state use invocation_pos(), On_stairs(), inventory iteration, object known/blessed/cursed state, u.uhave, moves/age, mkinvokearea(), d(), and record_achievement(); the cursed arm calls makemon(), set_malign(), unturn_dead(), and mkundead(). Audit existing JS implementations and record/skip any remaining unported callees under the source rules."
+    ]
+  },
+  "goalKind": "file-port",
+  "evidence": [
+    "challenges/evaluations/20260926122253-v7.json, evaluated at commit f7e48bd93d6827c557c9a40a255a55cbc5fc8fcf, reports 45/86 matching screens and 41 remaining. Its first mismatch is segment 0 step 45 on key n: C has a dash at row 0, column 30 and cursor [38,0,1], while JS has a space and cursor [5,13,1]. The C recording screen at challenges/cases/v7/blessed-book-undead.session.json step 45 reads “You begin to recite the runes.--More--”. At step 46, after space, C displays “You turn the pages of the Book of the Dead...” and records exercise(attrib.c:509); the evaluation records the first RNG difference at that step (C rn2(19)=17 versus JS rn2(5)=0).",
+    "The C recording’s step 43 debug command creates a hostile zombie, yielding an elf zombie next to the hero. Step 44 starts read and shows “[ijkln or ?*]”; step 45 selects n. The C step 48 screen says “The elf zombie turns to flee.” after the blessed Book of the Dead effect.",
+    "Upstream spell.c:211-227 defines deadbook_pacify_undead(): visible undead or vampire shifters become peaceful; aligned nearby monsters are tamed or have their tame value raised, and other eligible monsters flee. spell.c:231-331 defines deadbook(); its non-invocation cursed, blessed, and uncursed arms are source behavior, with the blessed arm calling iter_mons(deadbook_pacify_undead) at line 325. spell.c:356-386 calls deadbook() after exercise(A_WIS) when the occupied book is SPE_BOOK_OF_THE_DEAD.",
+    "The complete execution path is cmd.c:1816-1817 -> read.c:doread() -> read.c:609 study_book() -> spell.c:639 set_occupation(learn) -> allmain.c:485-509 occupation callback -> spell.c:385-386 deadbook(). JS has the corresponding cmd.js -> read.js:doread() -> spell.js:study_book() -> allmain.js occupation path; js/spell.js:353-355 still skips deadbook() through note_unported(). The callback is reached from production wiring, so tests of deadbook() alone cannot establish this path."
+  ]
+}

@@ -80037,7 +80037,7 @@
     {
       "id": "port-engrave-stylus-occupation-synthetic-v6-20260926",
       "kind": "file-port",
-      "status": "queued",
+      "status": "closed",
       "summary": "Port engraving stylus selection, item effects, and occupation continuation",
       "cFile": "engrave.c",
       "sessions": [
@@ -80048,19 +80048,26 @@
         "synthetic/v6/wizard-engrave-wand-correct",
         "synthetic/v6/wizard-engrave-wand-retry2"
       ],
-      "selectionReason": "After A10 resolved the higher-ranked Samurai v5 case, wizard-engrave-wand-finish is the highest-ranked completed independent v6 investigation at nine remaining screens. Five related v6 wand, pick-axe, potion, and marker cases share the engrave.c command/occupation owner and are assigned to one worker; grease is independently owned by A.",
+      "selectionReason": "The completed B14 seed continuation groups six related admitted v6 engraving cases (wizard-engrave-wand-finish 9 remaining screens plus five related variants) in .cache/A11-committed-work-queue.json. B14 reserved engrave.c stylus/occupation source and began before v7 admission; its ready delivery addresses the source-traced engrave.c owner. The higher-ranked v7 blessed-book case is being assigned to A, and v7 unicorn blindness remains for a free implementation worker after this integration. This is the oldest ready dependency-independent delivery.",
       "detail": "C engrave.c accepts non-hand styluses, runs stylus_ok/u_can_engrave/context and item effects, asks for engraving text, and continues through return-valued occupation engrave(); JS doengrave refuses at the stylus gate. Port the selected contiguous whole-function family and wire cmd.c E dispatch plus allmain.c occupation return contract. Include consumed-output random_engraving text/pristine effects and the return-valued blengr blind-polymorph helper in the same task; retain explicit evidence or a named blocked recipe for uncovered active branches. Preserve RNG, surface, state, message, and screen order across six related admitted v6 cases.",
-      "openedAt": null,
-      "openStanding": null,
-      "closedAt": null,
-      "delivered": null,
+      "openedAt": "5eeb034e6e7994a1b784537c92e48ecc3f8b35a8",
+      "openStanding": {
+        "sha": "8d99dfd6d6e715e092a805caacc2e79455a931f1",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "closedAt": "d0a8041f88dd37cbf631877464c06cf985998274",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
       "functions": [
         {
           "name": "stylus_ok",
           "line": 481,
           "endLine": 502,
           "declared": true,
-          "complete": false
+          "complete": true
         },
         {
           "name": "u_can_engrave",
@@ -80073,43 +80080,43 @@
           "name": "doengrave_ctx_init",
           "line": 545,
           "endLine": 582,
-          "declared": false,
-          "complete": false
+          "declared": true,
+          "complete": true
         },
         {
           "name": "doengrave_sfx_item_WAN",
           "line": 583,
           "endLine": 741,
-          "declared": false,
-          "complete": false
+          "declared": true,
+          "complete": true
         },
         {
           "name": "doengrave_sfx_item",
           "line": 742,
           "endLine": 895,
-          "declared": false,
-          "complete": false
+          "declared": true,
+          "complete": true
         },
         {
           "name": "doengrave_ctx_verb",
           "line": 896,
           "endLine": 955,
-          "declared": false,
-          "complete": false
+          "declared": true,
+          "complete": true
         },
         {
           "name": "doengrave",
           "line": 956,
           "endLine": 1266,
           "declared": true,
-          "complete": false
+          "complete": true
         },
         {
           "name": "engrave",
           "line": 1267,
           "endLine": 1497,
           "declared": true,
-          "complete": false
+          "complete": true
         }
       ],
       "range": {
@@ -80126,15 +80133,1416 @@
           "manifestSha256": "7523b91e823f4e3906c9acdc9a3d80f8469c27c2caab8fc8fbd6967dbfdcab5f",
           "recordingPath": "challenges/cases/v6/wizard-engrave-wand-finish.session.json",
           "recordingSha256": "50622b29b66b16cc75169cd1dab424dd98684ecfcddb80f3a4d323bd6cf967ef",
-          "evaluationPath": "challenges/evaluations/20260926115550-v6.json",
-          "evaluationCommit": "ba790c74ab160dfbb08e5fc9a8bd2d9e74c92c15"
+          "evaluationPath": "challenges/evaluations/20260926130636-v6.json",
+          "evaluationCommit": "8d99dfd6d6e715e092a805caacc2e79455a931f1"
         }
+      },
+      "activeStanding": {
+        "sha": "8d99dfd6d6e715e092a805caacc2e79455a931f1",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v6",
+          "caseId": "wizard-engrave-wand-finish",
+          "session": "synthetic/v6/wizard-engrave-wand-finish",
+          "manifestPath": "challenges/manifests/v6.json",
+          "manifestSha256": "7523b91e823f4e3906c9acdc9a3d80f8469c27c2caab8fc8fbd6967dbfdcab5f",
+          "recording": "challenges/cases/v6/wizard-engrave-wand-finish.session.json",
+          "recordingPath": "challenges/cases/v6/wizard-engrave-wand-finish.session.json",
+          "recordingSha256": "50622b29b66b16cc75169cd1dab424dd98684ecfcddb80f3a4d323bd6cf967ef",
+          "recipe": "challenges/cases/v6/wizard-engrave-wand-finish.recipe.session.json",
+          "recipeSha256": "3c1b62740d80c4c26047b7ab7d4626b1c8a9ab5f78fa420ff930dee9b29754f4",
+          "replayInputSha256": "82fa1493fac470e1945a3e485a4ac54d687c468827d79473b0e20a74eb2da0d2",
+          "evaluationPath": "challenges/evaluations/20260926130636-v6.json",
+          "evaluationCommit": "8d99dfd6d6e715e092a805caacc2e79455a931f1",
+          "evaluationArtifact": "challenges/evaluations/20260926130636-v6.json",
+          "evaluationUtc": "2026-09-26T13:06:53.225Z",
+          "remainingScreens": 9,
+          "recordedSteps": 25,
+          "previousScreensMatched": 16,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 16,
+              "total": 25
+            },
+            "rng": {
+              "matched": 2684,
+              "total": 2691
+            },
+            "cursors": {
+              "matched": 16,
+              "total": 25
+            }
+          },
+          "firstMismatch": {
+            "kind": "stop",
+            "message": "unsupported hero command: an unported branch of this command: engrave requires bare fingertips",
+            "step": 16
+          },
+          "step": 16,
+          "kind": "stop",
+          "sourceFile": null,
+          "function": null,
+          "message": "unsupported hero command: an unported branch of this command: engrave requires bare fingertips",
+          "cFile": null,
+          "luaFile": null,
+          "line": null,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v6/wizard-engrave-wand-finish.json",
+            "result": {
+              "session": "synthetic/v6/wizard-engrave-wand-finish",
+              "corpus": "synthetic",
+              "batch": "v6",
+              "caseId": "wizard-engrave-wand-finish",
+              "manifestPath": "challenges/manifests/v6.json",
+              "manifestSha256": "7523b91e823f4e3906c9acdc9a3d80f8469c27c2caab8fc8fbd6967dbfdcab5f",
+              "recordingPath": "challenges/cases/v6/wizard-engrave-wand-finish.session.json",
+              "recordingSha256": "50622b29b66b16cc75169cd1dab424dd98684ecfcddb80f3a4d323bd6cf967ef",
+              "evaluationPath": "challenges/evaluations/20260926075422-v6.json",
+              "evaluationCommit": "cd03ef328d8cf2c6ecdbfb47f4f6bd21f85c6c37",
+              "remainingScreens": 9,
+              "recordedSteps": 25,
+              "status": "complete",
+              "commit": "cd03ef328d8cf2c6ecdbfb47f4f6bd21f85c6c37",
+              "mismatch": {
+                "corpus": "synthetic",
+                "batch": "v6",
+                "caseId": "wizard-engrave-wand-finish",
+                "session": "synthetic/v6/wizard-engrave-wand-finish",
+                "manifestPath": "challenges/manifests/v6.json",
+                "manifestSha256": "7523b91e823f4e3906c9acdc9a3d80f8469c27c2caab8fc8fbd6967dbfdcab5f",
+                "recording": "challenges/cases/v6/wizard-engrave-wand-finish.session.json",
+                "recordingPath": "challenges/cases/v6/wizard-engrave-wand-finish.session.json",
+                "recordingSha256": "50622b29b66b16cc75169cd1dab424dd98684ecfcddb80f3a4d323bd6cf967ef",
+                "recipe": "challenges/cases/v6/wizard-engrave-wand-finish.recipe.session.json",
+                "recipeSha256": "3c1b62740d80c4c26047b7ab7d4626b1c8a9ab5f78fa420ff930dee9b29754f4",
+                "replayInputSha256": "657ea221132407bc3979477fa6cdfb71292d13c467d17c383eb8a5a0467c8ac3",
+                "evaluationPath": "challenges/evaluations/20260926075422-v6.json",
+                "evaluationCommit": "cd03ef328d8cf2c6ecdbfb47f4f6bd21f85c6c37",
+                "evaluationArtifact": "challenges/evaluations/20260926075422-v6.json",
+                "evaluationUtc": "2026-09-26T07:54:38.609Z",
+                "remainingScreens": 9,
+                "recordedSteps": 25,
+                "previousScreensMatched": 16,
+                "regression": false,
+                "passed": false,
+                "error": null,
+                "metrics": {
+                  "screens": {
+                    "matched": 16,
+                    "total": 25
+                  },
+                  "rng": {
+                    "matched": 2684,
+                    "total": 2691
+                  },
+                  "cursors": {
+                    "matched": 16,
+                    "total": 25
+                  }
+                },
+                "firstMismatch": {
+                  "kind": "stop",
+                  "message": "unsupported hero command: an unported branch of this command: engrave requires bare fingertips",
+                  "step": 16
+                },
+                "step": 16,
+                "kind": "stop",
+                "sourceFile": null,
+                "function": null,
+                "message": "unsupported hero command: an unported branch of this command: engrave requires bare fingertips",
+                "cFile": null,
+                "luaFile": null,
+                "line": null
+              },
+              "summary": "The v6 Wizard wishes for a wand of fire, invokes E, and selects that wand at step 16. C engrave.c:doengrave() accepts the wand, runs its WAND special-effect setup, identifies it, prompts for text, and schedules the engrave() occupation. JS doengrave() accepts only bare fingertips and stops as soon as the wand is chosen. The actionable scope is the whole doengrave() function with its context/special-effect helpers and return-valued occupation callback, preserving the source order of identification, messages, text, wand charge, and turns.",
+              "source": {
+                "file": "engrave.c",
+                "branch": "The hero is sighted on stairs with a wished uncursed wand of fire in inventory, chooses E then the wand as stylus. C doengrave() accepts non-hand styluses, WAND_CLASS enters doengrave_sfx_item(), WAN_FIRE selects BURN and a discovery message, then doengrave() prompts and installs engrave() as occupation.",
+                "functions": [
+                  "doengrave_ctx_init",
+                  "doengrave_sfx_item_WAN",
+                  "doengrave_sfx_item",
+                  "doengrave_ctx_verb",
+                  "doengrave",
+                  "engrave"
+                ],
+                "callers": [
+                  "cmd.c binds E to doengrave(); js/cmd.js runEngraveCommand invokes js/engrave.js:doengrave().",
+                  "C doengrave() calls the return-valued doengrave_sfx_item(), then stores stylus/text/type in svc.context.engraving and installs engrave(); allmain.c moveloop_core invokes the occupation callback and uses its return to continue or stop. JS currently wires the callback only for bare-fingertip DUST."
+                ],
+                "dependencies": [
+                  "The selected family lies in engrave.c definition order from doengrave_ctx_init() through engrave(); u_can_engrave(), stylus_ok(), freehand(), can_reach_floor(), zappable(), getobj(), and wand/object naming are return-valued dependencies whose current JS branches must be checked before claiming full source completion.",
+                  "The source changes wand charge, object discovery, engraving state, and occupation timing; port these through their existing state owners and remove the bare-fingertip refusal. Later source branches for other wand classes and weapons belong to the same complete function, not a special case for this wand."
+                ]
+              },
+              "goalKind": "file-port",
+              "evidence": [
+                "Saved challenges/evaluations/20260926075422-v6.json at cd03ef328d8cf2c6ecdbfb47f4f6bd21f85c6c37 reports 9 remaining screens, 16/25 matched, and first stop at segment 0 step 16: “engrave requires bare fingertips”.",
+                "Independent C recording challenges/cases/v6/wizard-engrave-wand-finish.session.json has step 15 E open the stylus prompt, step 16 n identify the wand of fire, steps 17–18 burn-into-stairs message and text prompt, and step 24 post-text fire message. The first selected-wand step consumes one exercise() RNG draw after the action; the message and input order precede the later occupation.",
+                "Upstream engrave.c:956–1264 doengrave() accepts a selected wand and calls doengrave_sfx_item() at 1034. Its WAND_CLASS arm at 788–814 checks zappable() and charges, then doengrave_sfx_item_WAN() at 583–740 selects BURN and the wand-of-fire discovery text. The caller stores engraving context and installs engrave() at 1248–1254.",
+                "Current js/engrave.js:doengrave() throws UnsupportedEngraveError when the selected stylus is not handsObject; js/engrave.js:engrave() also refuses every non-hand stylus. Both are partial source implementations. Production js/cmd.js reaches that path; a complete source family and its occupation callback are needed."
+              ]
+            }
+          }
+        },
+        {
+          "corpus": "synthetic",
+          "batch": "v6",
+          "caseId": "v6-add4-archeologist-pickaxe-engrave",
+          "session": "synthetic/v6/v6-add4-archeologist-pickaxe-engrave",
+          "manifestPath": "challenges/manifests/v6.json",
+          "manifestSha256": "7523b91e823f4e3906c9acdc9a3d80f8469c27c2caab8fc8fbd6967dbfdcab5f",
+          "recording": "challenges/cases/v6/v6-add4-archeologist-pickaxe-engrave.session.json",
+          "recordingPath": "challenges/cases/v6/v6-add4-archeologist-pickaxe-engrave.session.json",
+          "recordingSha256": "762f4bf6bf840c42cb2f3deff8c03059d49747998c5d1da2e5c535860bf1439f",
+          "recipe": "challenges/cases/v6/v6-add4-archeologist-pickaxe-engrave.recipe.session.json",
+          "recipeSha256": "c9436760e0d3f02ea51c985d8606574c09724c006941d39b5cdada57b42146b0",
+          "replayInputSha256": "82fa1493fac470e1945a3e485a4ac54d687c468827d79473b0e20a74eb2da0d2",
+          "evaluationPath": "challenges/evaluations/20260926130636-v6.json",
+          "evaluationCommit": "8d99dfd6d6e715e092a805caacc2e79455a931f1",
+          "evaluationArtifact": "challenges/evaluations/20260926130636-v6.json",
+          "evaluationUtc": "2026-09-26T13:06:53.225Z",
+          "remainingScreens": 8,
+          "recordedSteps": 11,
+          "previousScreensMatched": 3,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 3,
+              "total": 11
+            },
+            "rng": {
+              "matched": 2238,
+              "total": 2252
+            },
+            "cursors": {
+              "matched": 3,
+              "total": 11
+            }
+          },
+          "firstMismatch": {
+            "kind": "stop",
+            "message": "unsupported hero command: an unported branch of this command: engrave requires bare fingertips",
+            "step": 3
+          },
+          "step": 3,
+          "kind": "stop",
+          "sourceFile": null,
+          "function": null,
+          "message": "unsupported hero command: an unported branch of this command: engrave requires bare fingertips",
+          "cFile": null,
+          "luaFile": null,
+          "line": null,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v6/v6-add4-archeologist-pickaxe-engrave.json",
+            "result": {
+              "session": "synthetic/v6/v6-add4-archeologist-pickaxe-engrave",
+              "corpus": "synthetic",
+              "batch": "v6",
+              "caseId": "v6-add4-archeologist-pickaxe-engrave",
+              "manifestPath": "challenges/manifests/v6.json",
+              "manifestSha256": "7523b91e823f4e3906c9acdc9a3d80f8469c27c2caab8fc8fbd6967dbfdcab5f",
+              "recordingPath": "challenges/cases/v6/v6-add4-archeologist-pickaxe-engrave.session.json",
+              "recordingSha256": "762f4bf6bf840c42cb2f3deff8c03059d49747998c5d1da2e5c535860bf1439f",
+              "evaluationPath": "challenges/evaluations/20260926094126-v6.json",
+              "evaluationCommit": "50bbe620897c8fc2e634d14ec672d33a4e44db7e",
+              "remainingScreens": 8,
+              "recordedSteps": 11,
+              "status": "complete",
+              "commit": "50bbe620897c8fc2e634d14ec672d33a4e44db7e",
+              "mismatch": {
+                "corpus": "synthetic",
+                "batch": "v6",
+                "caseId": "v6-add4-archeologist-pickaxe-engrave",
+                "session": "synthetic/v6/v6-add4-archeologist-pickaxe-engrave",
+                "manifestPath": "challenges/manifests/v6.json",
+                "manifestSha256": "7523b91e823f4e3906c9acdc9a3d80f8469c27c2caab8fc8fbd6967dbfdcab5f",
+                "recording": "challenges/cases/v6/v6-add4-archeologist-pickaxe-engrave.session.json",
+                "recordingPath": "challenges/cases/v6/v6-add4-archeologist-pickaxe-engrave.session.json",
+                "recordingSha256": "762f4bf6bf840c42cb2f3deff8c03059d49747998c5d1da2e5c535860bf1439f",
+                "recipe": "challenges/cases/v6/v6-add4-archeologist-pickaxe-engrave.recipe.session.json",
+                "recipeSha256": "c9436760e0d3f02ea51c985d8606574c09724c006941d39b5cdada57b42146b0",
+                "replayInputSha256": "9671c8200bb4617314143efc03b8936dba1c08d5025986a5ef6f245a97c322f9",
+                "evaluationPath": "challenges/evaluations/20260926094126-v6.json",
+                "evaluationCommit": "50bbe620897c8fc2e634d14ec672d33a4e44db7e",
+                "evaluationArtifact": "challenges/evaluations/20260926094126-v6.json",
+                "evaluationUtc": "2026-09-26T09:41:43.460Z",
+                "remainingScreens": 8,
+                "recordedSteps": 11,
+                "previousScreensMatched": 3,
+                "regression": false,
+                "passed": false,
+                "error": null,
+                "metrics": {
+                  "screens": {
+                    "matched": 3,
+                    "total": 11
+                  },
+                  "rng": {
+                    "matched": 2238,
+                    "total": 2252
+                  },
+                  "cursors": {
+                    "matched": 3,
+                    "total": 11
+                  }
+                },
+                "firstMismatch": {
+                  "kind": "stop",
+                  "message": "unsupported hero command: an unported branch of this command: engrave requires bare fingertips",
+                  "step": 3
+                },
+                "step": 3,
+                "kind": "stop",
+                "sourceFile": null,
+                "function": null,
+                "message": "unsupported hero command: an unported branch of this command: engrave requires bare fingertips",
+                "cFile": null,
+                "luaFile": null,
+                "line": null
+              },
+              "summary": "The v6 v6-add4-archeologist-pickaxe-engrave case selects a non-hand engraving stylus at segment 0 step 3. C engrave.c:doengrave() accepts it and reaches TOOL_CLASS pick-axe falls through the default dust engraving type; JS doengrave() refuses all non-hand styluses. Group this case with the other unresolved pick-axe, wand, potion, and marker engraving variants in one whole engrave.c source family, preserving setup, text, occupation, RNG, and object effects.",
+              "source": {
+                "file": "engrave.c",
+                "branch": "A sighted hero chooses a +0 pick-axe (alternate weapon; not wielded) at the doengrave stylus prompt. TOOL_CLASS pick-axe falls through the default dust engraving type; doengrave then continues to text and occupation if the source arm permits.",
+                "functions": [
+                  "doengrave_ctx_init",
+                  "doengrave_sfx_item_WAN",
+                  "doengrave_sfx_item",
+                  "doengrave_ctx_verb",
+                  "doengrave",
+                  "engrave"
+                ],
+                "callers": [
+                  "cmd.c binds E to doengrave(); js/cmd.js engraving command invokes js/engrave.js doengrave().",
+                  "doengrave stores stylus, text, and type in engraving context and installs engrave() as the return-valued occupation callback."
+                ],
+                "dependencies": [
+                  "Return-valued u_can_engrave, stylus_ok, freehand, can_reach_floor, zappable, getobj, and existing object naming/discovery branches must be verified across selected stylus classes.",
+                  "The magic marker and wand variants mutate charge and identification; the pick-axe and potion variants preserve DUST. Occupation callback return controls continuation and needs matching recorded play."
+                ]
+              },
+              "goalKind": "file-port",
+              "evidence": [
+                "Saved challenges/evaluations/20260926094126-v6.json at 50bbe620897c8fc2e634d14ec672d33a4e44db7e reports 8 remaining screen(s), first stop at segment 0 step 3: engrave requires bare fingertips.",
+                "Independent C challenges/cases/v6/v6-add4-archeologist-pickaxe-engrave.session.json at that step displays “a +0 pick-axe (alternate weapon; not wielded)” as the accepted stylus or its identification message.",
+                "Upstream nethack-c/upstream/src/engrave.c:742-895 doengrave_sfx_item TOOL_CLASS default; doengrave() at engrave.c:956-1264 calls the effect helper, prompts for text, and schedules engrave() at 1248-1254.",
+                "Current js/engrave.js:doengrave throws UnsupportedEngraveError for selected !== handsObject, before TOOL_CLASS pick-axe falls through the default dust engraving type. Preserve matching hand engraving while replacing the refusal with complete source behavior."
+              ]
+            }
+          }
+        },
+        {
+          "corpus": "synthetic",
+          "batch": "v6",
+          "caseId": "wizard-engrave-wand-final",
+          "session": "synthetic/v6/wizard-engrave-wand-final",
+          "manifestPath": "challenges/manifests/v6.json",
+          "manifestSha256": "7523b91e823f4e3906c9acdc9a3d80f8469c27c2caab8fc8fbd6967dbfdcab5f",
+          "recording": "challenges/cases/v6/wizard-engrave-wand-final.session.json",
+          "recordingPath": "challenges/cases/v6/wizard-engrave-wand-final.session.json",
+          "recordingSha256": "f779fd8a015a755db71ffd28d84fdd56723bb1d41bed5b105ff040849cfb36da",
+          "recipe": "challenges/cases/v6/wizard-engrave-wand-final.recipe.session.json",
+          "recipeSha256": "4420dbec5ff0cfcd41c061cf327fb725d1bcfd1b683210b398b48b8893acf1ad",
+          "replayInputSha256": "82fa1493fac470e1945a3e485a4ac54d687c468827d79473b0e20a74eb2da0d2",
+          "evaluationPath": "challenges/evaluations/20260926130636-v6.json",
+          "evaluationCommit": "8d99dfd6d6e715e092a805caacc2e79455a931f1",
+          "evaluationArtifact": "challenges/evaluations/20260926130636-v6.json",
+          "evaluationUtc": "2026-09-26T13:06:53.225Z",
+          "remainingScreens": 8,
+          "recordedSteps": 24,
+          "previousScreensMatched": 16,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 16,
+              "total": 24
+            },
+            "rng": {
+              "matched": 2684,
+              "total": 2685
+            },
+            "cursors": {
+              "matched": 16,
+              "total": 24
+            }
+          },
+          "firstMismatch": {
+            "kind": "stop",
+            "message": "unsupported hero command: an unported branch of this command: engrave requires bare fingertips",
+            "step": 16
+          },
+          "step": 16,
+          "kind": "stop",
+          "sourceFile": null,
+          "function": null,
+          "message": "unsupported hero command: an unported branch of this command: engrave requires bare fingertips",
+          "cFile": null,
+          "luaFile": null,
+          "line": null,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v6/wizard-engrave-wand-final.json",
+            "result": {
+              "session": "synthetic/v6/wizard-engrave-wand-final",
+              "corpus": "synthetic",
+              "batch": "v6",
+              "caseId": "wizard-engrave-wand-final",
+              "manifestPath": "challenges/manifests/v6.json",
+              "manifestSha256": "7523b91e823f4e3906c9acdc9a3d80f8469c27c2caab8fc8fbd6967dbfdcab5f",
+              "recordingPath": "challenges/cases/v6/wizard-engrave-wand-final.session.json",
+              "recordingSha256": "f779fd8a015a755db71ffd28d84fdd56723bb1d41bed5b105ff040849cfb36da",
+              "evaluationPath": "challenges/evaluations/20260926094126-v6.json",
+              "evaluationCommit": "50bbe620897c8fc2e634d14ec672d33a4e44db7e",
+              "remainingScreens": 8,
+              "recordedSteps": 24,
+              "status": "complete",
+              "commit": "50bbe620897c8fc2e634d14ec672d33a4e44db7e",
+              "mismatch": {
+                "corpus": "synthetic",
+                "batch": "v6",
+                "caseId": "wizard-engrave-wand-final",
+                "session": "synthetic/v6/wizard-engrave-wand-final",
+                "manifestPath": "challenges/manifests/v6.json",
+                "manifestSha256": "7523b91e823f4e3906c9acdc9a3d80f8469c27c2caab8fc8fbd6967dbfdcab5f",
+                "recording": "challenges/cases/v6/wizard-engrave-wand-final.session.json",
+                "recordingPath": "challenges/cases/v6/wizard-engrave-wand-final.session.json",
+                "recordingSha256": "f779fd8a015a755db71ffd28d84fdd56723bb1d41bed5b105ff040849cfb36da",
+                "recipe": "challenges/cases/v6/wizard-engrave-wand-final.recipe.session.json",
+                "recipeSha256": "4420dbec5ff0cfcd41c061cf327fb725d1bcfd1b683210b398b48b8893acf1ad",
+                "replayInputSha256": "9671c8200bb4617314143efc03b8936dba1c08d5025986a5ef6f245a97c322f9",
+                "evaluationPath": "challenges/evaluations/20260926094126-v6.json",
+                "evaluationCommit": "50bbe620897c8fc2e634d14ec672d33a4e44db7e",
+                "evaluationArtifact": "challenges/evaluations/20260926094126-v6.json",
+                "evaluationUtc": "2026-09-26T09:41:43.460Z",
+                "remainingScreens": 8,
+                "recordedSteps": 24,
+                "previousScreensMatched": 16,
+                "regression": false,
+                "passed": false,
+                "error": null,
+                "metrics": {
+                  "screens": {
+                    "matched": 16,
+                    "total": 24
+                  },
+                  "rng": {
+                    "matched": 2684,
+                    "total": 2685
+                  },
+                  "cursors": {
+                    "matched": 16,
+                    "total": 24
+                  }
+                },
+                "firstMismatch": {
+                  "kind": "stop",
+                  "message": "unsupported hero command: an unported branch of this command: engrave requires bare fingertips",
+                  "step": 16
+                },
+                "step": 16,
+                "kind": "stop",
+                "sourceFile": null,
+                "function": null,
+                "message": "unsupported hero command: an unported branch of this command: engrave requires bare fingertips",
+                "cFile": null,
+                "luaFile": null,
+                "line": null
+              },
+              "summary": "The v6 wizard-engrave-wand-final case selects a non-hand engraving stylus at segment 0 step 16. C engrave.c:doengrave() accepts it and reaches WAND_CLASS wand of fire consumes a charge, becomes BURN, and identifies the wand; JS doengrave() refuses all non-hand styluses. Group this case with the other unresolved pick-axe, wand, potion, and marker engraving variants in one whole engrave.c source family, preserving setup, text, occupation, RNG, and object effects.",
+              "source": {
+                "file": "engrave.c",
+                "branch": "A sighted hero chooses This spiked wand is a wand of fire! at the doengrave stylus prompt. WAND_CLASS wand of fire consumes a charge, becomes BURN, and identifies the wand; doengrave then continues to text and occupation if the source arm permits.",
+                "functions": [
+                  "doengrave_ctx_init",
+                  "doengrave_sfx_item_WAN",
+                  "doengrave_sfx_item",
+                  "doengrave_ctx_verb",
+                  "doengrave",
+                  "engrave"
+                ],
+                "callers": [
+                  "cmd.c binds E to doengrave(); js/cmd.js engraving command invokes js/engrave.js doengrave().",
+                  "doengrave stores stylus, text, and type in engraving context and installs engrave() as the return-valued occupation callback."
+                ],
+                "dependencies": [
+                  "Return-valued u_can_engrave, stylus_ok, freehand, can_reach_floor, zappable, getobj, and existing object naming/discovery branches must be verified across selected stylus classes.",
+                  "The magic marker and wand variants mutate charge and identification; the pick-axe and potion variants preserve DUST. Occupation callback return controls continuation and needs matching recorded play."
+                ]
+              },
+              "goalKind": "file-port",
+              "evidence": [
+                "Saved challenges/evaluations/20260926094126-v6.json at 50bbe620897c8fc2e634d14ec672d33a4e44db7e reports 8 remaining screen(s), first stop at segment 0 step 16: engrave requires bare fingertips.",
+                "Independent C challenges/cases/v6/wizard-engrave-wand-final.session.json at that step displays “This spiked wand is a wand of fire!” as the accepted stylus or its identification message.",
+                "Upstream nethack-c/upstream/src/engrave.c:583-814 doengrave_sfx_item_WAN and doengrave_sfx_item; doengrave() at engrave.c:956-1264 calls the effect helper, prompts for text, and schedules engrave() at 1248-1254.",
+                "Current js/engrave.js:doengrave throws UnsupportedEngraveError for selected !== handsObject, before WAND_CLASS wand of fire consumes a charge, becomes BURN, and identifies the wand. Preserve matching hand engraving while replacing the refusal with complete source behavior."
+              ]
+            }
+          }
+        },
+        {
+          "corpus": "synthetic",
+          "batch": "v6",
+          "caseId": "v6-add3-archeologist-pickaxe-engrave",
+          "session": "synthetic/v6/v6-add3-archeologist-pickaxe-engrave",
+          "manifestPath": "challenges/manifests/v6.json",
+          "manifestSha256": "7523b91e823f4e3906c9acdc9a3d80f8469c27c2caab8fc8fbd6967dbfdcab5f",
+          "recording": "challenges/cases/v6/v6-add3-archeologist-pickaxe-engrave.session.json",
+          "recordingPath": "challenges/cases/v6/v6-add3-archeologist-pickaxe-engrave.session.json",
+          "recordingSha256": "44efafcfbb5af81ac683fd326eaade536d707649eea240828221b0176ce12f32",
+          "recipe": "challenges/cases/v6/v6-add3-archeologist-pickaxe-engrave.recipe.session.json",
+          "recipeSha256": "1aa2883f92d0b0ce6f366f915325c386a525d89df9554bbb31380a328364745c",
+          "replayInputSha256": "82fa1493fac470e1945a3e485a4ac54d687c468827d79473b0e20a74eb2da0d2",
+          "evaluationPath": "challenges/evaluations/20260926130636-v6.json",
+          "evaluationCommit": "8d99dfd6d6e715e092a805caacc2e79455a931f1",
+          "evaluationArtifact": "challenges/evaluations/20260926130636-v6.json",
+          "evaluationUtc": "2026-09-26T13:06:53.225Z",
+          "remainingScreens": 7,
+          "recordedSteps": 10,
+          "previousScreensMatched": 3,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 3,
+              "total": 10
+            },
+            "rng": {
+              "matched": 2582,
+              "total": 2582
+            },
+            "cursors": {
+              "matched": 3,
+              "total": 10
+            }
+          },
+          "firstMismatch": {
+            "kind": "stop",
+            "message": "unsupported hero command: an unported branch of this command: engrave requires bare fingertips",
+            "step": 3
+          },
+          "step": 3,
+          "kind": "stop",
+          "sourceFile": null,
+          "function": null,
+          "message": "unsupported hero command: an unported branch of this command: engrave requires bare fingertips",
+          "cFile": null,
+          "luaFile": null,
+          "line": null,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v6/v6-add3-archeologist-pickaxe-engrave.json",
+            "result": {
+              "session": "synthetic/v6/v6-add3-archeologist-pickaxe-engrave",
+              "corpus": "synthetic",
+              "batch": "v6",
+              "caseId": "v6-add3-archeologist-pickaxe-engrave",
+              "manifestPath": "challenges/manifests/v6.json",
+              "manifestSha256": "7523b91e823f4e3906c9acdc9a3d80f8469c27c2caab8fc8fbd6967dbfdcab5f",
+              "recordingPath": "challenges/cases/v6/v6-add3-archeologist-pickaxe-engrave.session.json",
+              "recordingSha256": "44efafcfbb5af81ac683fd326eaade536d707649eea240828221b0176ce12f32",
+              "evaluationPath": "challenges/evaluations/20260926094126-v6.json",
+              "evaluationCommit": "50bbe620897c8fc2e634d14ec672d33a4e44db7e",
+              "remainingScreens": 7,
+              "recordedSteps": 10,
+              "status": "complete",
+              "commit": "50bbe620897c8fc2e634d14ec672d33a4e44db7e",
+              "mismatch": {
+                "corpus": "synthetic",
+                "batch": "v6",
+                "caseId": "v6-add3-archeologist-pickaxe-engrave",
+                "session": "synthetic/v6/v6-add3-archeologist-pickaxe-engrave",
+                "manifestPath": "challenges/manifests/v6.json",
+                "manifestSha256": "7523b91e823f4e3906c9acdc9a3d80f8469c27c2caab8fc8fbd6967dbfdcab5f",
+                "recording": "challenges/cases/v6/v6-add3-archeologist-pickaxe-engrave.session.json",
+                "recordingPath": "challenges/cases/v6/v6-add3-archeologist-pickaxe-engrave.session.json",
+                "recordingSha256": "44efafcfbb5af81ac683fd326eaade536d707649eea240828221b0176ce12f32",
+                "recipe": "challenges/cases/v6/v6-add3-archeologist-pickaxe-engrave.recipe.session.json",
+                "recipeSha256": "1aa2883f92d0b0ce6f366f915325c386a525d89df9554bbb31380a328364745c",
+                "replayInputSha256": "9671c8200bb4617314143efc03b8936dba1c08d5025986a5ef6f245a97c322f9",
+                "evaluationPath": "challenges/evaluations/20260926094126-v6.json",
+                "evaluationCommit": "50bbe620897c8fc2e634d14ec672d33a4e44db7e",
+                "evaluationArtifact": "challenges/evaluations/20260926094126-v6.json",
+                "evaluationUtc": "2026-09-26T09:41:43.460Z",
+                "remainingScreens": 7,
+                "recordedSteps": 10,
+                "previousScreensMatched": 3,
+                "regression": false,
+                "passed": false,
+                "error": null,
+                "metrics": {
+                  "screens": {
+                    "matched": 3,
+                    "total": 10
+                  },
+                  "rng": {
+                    "matched": 2582,
+                    "total": 2582
+                  },
+                  "cursors": {
+                    "matched": 3,
+                    "total": 10
+                  }
+                },
+                "firstMismatch": {
+                  "kind": "stop",
+                  "message": "unsupported hero command: an unported branch of this command: engrave requires bare fingertips",
+                  "step": 3
+                },
+                "step": 3,
+                "kind": "stop",
+                "sourceFile": null,
+                "function": null,
+                "message": "unsupported hero command: an unported branch of this command: engrave requires bare fingertips",
+                "cFile": null,
+                "luaFile": null,
+                "line": null
+              },
+              "summary": "The v6 v6-add3-archeologist-pickaxe-engrave case selects a non-hand engraving stylus at segment 0 step 3. C engrave.c:doengrave() accepts it and reaches TOOL_CLASS pick-axe falls through the default dust engraving type; JS doengrave() refuses all non-hand styluses. Group this case with the other unresolved pick-axe, wand, potion, and marker engraving variants in one whole engrave.c source family, preserving setup, text, occupation, RNG, and object effects.",
+              "source": {
+                "file": "engrave.c",
+                "branch": "A sighted hero chooses a +0 pick-axe (alternate weapon; not wielded) at the doengrave stylus prompt. TOOL_CLASS pick-axe falls through the default dust engraving type; doengrave then continues to text and occupation if the source arm permits.",
+                "functions": [
+                  "doengrave_ctx_init",
+                  "doengrave_sfx_item_WAN",
+                  "doengrave_sfx_item",
+                  "doengrave_ctx_verb",
+                  "doengrave",
+                  "engrave"
+                ],
+                "callers": [
+                  "cmd.c binds E to doengrave(); js/cmd.js engraving command invokes js/engrave.js doengrave().",
+                  "doengrave stores stylus, text, and type in engraving context and installs engrave() as the return-valued occupation callback."
+                ],
+                "dependencies": [
+                  "Return-valued u_can_engrave, stylus_ok, freehand, can_reach_floor, zappable, getobj, and existing object naming/discovery branches must be verified across selected stylus classes.",
+                  "The magic marker and wand variants mutate charge and identification; the pick-axe and potion variants preserve DUST. Occupation callback return controls continuation and needs matching recorded play."
+                ]
+              },
+              "goalKind": "file-port",
+              "evidence": [
+                "Saved challenges/evaluations/20260926094126-v6.json at 50bbe620897c8fc2e634d14ec672d33a4e44db7e reports 7 remaining screen(s), first stop at segment 0 step 3: engrave requires bare fingertips.",
+                "Independent C challenges/cases/v6/v6-add3-archeologist-pickaxe-engrave.session.json at that step displays “a +0 pick-axe (alternate weapon; not wielded)” as the accepted stylus or its identification message.",
+                "Upstream nethack-c/upstream/src/engrave.c:742-895 doengrave_sfx_item TOOL_CLASS default; doengrave() at engrave.c:956-1264 calls the effect helper, prompts for text, and schedules engrave() at 1248-1254.",
+                "Current js/engrave.js:doengrave throws UnsupportedEngraveError for selected !== handsObject, before TOOL_CLASS pick-axe falls through the default dust engraving type. Preserve matching hand engraving while replacing the refusal with complete source behavior."
+              ]
+            }
+          }
+        },
+        {
+          "corpus": "synthetic",
+          "batch": "v6",
+          "caseId": "wizard-engrave-wand-correct",
+          "session": "synthetic/v6/wizard-engrave-wand-correct",
+          "manifestPath": "challenges/manifests/v6.json",
+          "manifestSha256": "7523b91e823f4e3906c9acdc9a3d80f8469c27c2caab8fc8fbd6967dbfdcab5f",
+          "recording": "challenges/cases/v6/wizard-engrave-wand-correct.session.json",
+          "recordingPath": "challenges/cases/v6/wizard-engrave-wand-correct.session.json",
+          "recordingSha256": "f290232745322344bcec7d61ec11e8e0e40e84f0ade832d76fea765ae337a683",
+          "recipe": "challenges/cases/v6/wizard-engrave-wand-correct.recipe.session.json",
+          "recipeSha256": "45ad6fbdf4d234f2ad32d607c5fa84a69f743cfdf0d84c31bd5c62b92b6ce847",
+          "replayInputSha256": "82fa1493fac470e1945a3e485a4ac54d687c468827d79473b0e20a74eb2da0d2",
+          "evaluationPath": "challenges/evaluations/20260926130636-v6.json",
+          "evaluationCommit": "8d99dfd6d6e715e092a805caacc2e79455a931f1",
+          "evaluationArtifact": "challenges/evaluations/20260926130636-v6.json",
+          "evaluationUtc": "2026-09-26T13:06:53.225Z",
+          "remainingScreens": 6,
+          "recordedSteps": 24,
+          "previousScreensMatched": 18,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 18,
+              "total": 24
+            },
+            "rng": {
+              "matched": 2684,
+              "total": 2684
+            },
+            "cursors": {
+              "matched": 18,
+              "total": 24
+            }
+          },
+          "firstMismatch": {
+            "kind": "stop",
+            "message": "unsupported hero command: an unported branch of this command: engrave requires bare fingertips",
+            "step": 18
+          },
+          "step": 18,
+          "kind": "stop",
+          "sourceFile": null,
+          "function": null,
+          "message": "unsupported hero command: an unported branch of this command: engrave requires bare fingertips",
+          "cFile": null,
+          "luaFile": null,
+          "line": null,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v6/wizard-engrave-wand-correct.json",
+            "result": {
+              "session": "synthetic/v6/wizard-engrave-wand-correct",
+              "corpus": "synthetic",
+              "batch": "v6",
+              "caseId": "wizard-engrave-wand-correct",
+              "manifestPath": "challenges/manifests/v6.json",
+              "manifestSha256": "7523b91e823f4e3906c9acdc9a3d80f8469c27c2caab8fc8fbd6967dbfdcab5f",
+              "recordingPath": "challenges/cases/v6/wizard-engrave-wand-correct.session.json",
+              "recordingSha256": "f290232745322344bcec7d61ec11e8e0e40e84f0ade832d76fea765ae337a683",
+              "evaluationPath": "challenges/evaluations/20260926094126-v6.json",
+              "evaluationCommit": "50bbe620897c8fc2e634d14ec672d33a4e44db7e",
+              "remainingScreens": 6,
+              "recordedSteps": 24,
+              "status": "complete",
+              "commit": "50bbe620897c8fc2e634d14ec672d33a4e44db7e",
+              "mismatch": {
+                "corpus": "synthetic",
+                "batch": "v6",
+                "caseId": "wizard-engrave-wand-correct",
+                "session": "synthetic/v6/wizard-engrave-wand-correct",
+                "manifestPath": "challenges/manifests/v6.json",
+                "manifestSha256": "7523b91e823f4e3906c9acdc9a3d80f8469c27c2caab8fc8fbd6967dbfdcab5f",
+                "recording": "challenges/cases/v6/wizard-engrave-wand-correct.session.json",
+                "recordingPath": "challenges/cases/v6/wizard-engrave-wand-correct.session.json",
+                "recordingSha256": "f290232745322344bcec7d61ec11e8e0e40e84f0ade832d76fea765ae337a683",
+                "recipe": "challenges/cases/v6/wizard-engrave-wand-correct.recipe.session.json",
+                "recipeSha256": "45ad6fbdf4d234f2ad32d607c5fa84a69f743cfdf0d84c31bd5c62b92b6ce847",
+                "replayInputSha256": "9671c8200bb4617314143efc03b8936dba1c08d5025986a5ef6f245a97c322f9",
+                "evaluationPath": "challenges/evaluations/20260926094126-v6.json",
+                "evaluationCommit": "50bbe620897c8fc2e634d14ec672d33a4e44db7e",
+                "evaluationArtifact": "challenges/evaluations/20260926094126-v6.json",
+                "evaluationUtc": "2026-09-26T09:41:43.460Z",
+                "remainingScreens": 6,
+                "recordedSteps": 24,
+                "previousScreensMatched": 18,
+                "regression": false,
+                "passed": false,
+                "error": null,
+                "metrics": {
+                  "screens": {
+                    "matched": 18,
+                    "total": 24
+                  },
+                  "rng": {
+                    "matched": 2684,
+                    "total": 2684
+                  },
+                  "cursors": {
+                    "matched": 18,
+                    "total": 24
+                  }
+                },
+                "firstMismatch": {
+                  "kind": "stop",
+                  "message": "unsupported hero command: an unported branch of this command: engrave requires bare fingertips",
+                  "step": 18
+                },
+                "step": 18,
+                "kind": "stop",
+                "sourceFile": null,
+                "function": null,
+                "message": "unsupported hero command: an unported branch of this command: engrave requires bare fingertips",
+                "cFile": null,
+                "luaFile": null,
+                "line": null
+              },
+              "summary": "The v6 wizard-engrave-wand-correct case selects a non-hand engraving stylus at segment 0 step 18. C engrave.c:doengrave() accepts it and reaches POTION_CLASS potion of oil leaves the initial DUST engraving type; JS doengrave() refuses all non-hand styluses. Group this case with the other unresolved pick-axe, wand, potion, and marker engraving variants in one whole engrave.c source family, preserving setup, text, occupation, RNG, and object effects.",
+              "source": {
+                "file": "engrave.c",
+                "branch": "A sighted hero chooses an uncursed potion of oil at the doengrave stylus prompt. POTION_CLASS potion of oil leaves the initial DUST engraving type; doengrave then continues to text and occupation if the source arm permits.",
+                "functions": [
+                  "doengrave_ctx_init",
+                  "doengrave_sfx_item_WAN",
+                  "doengrave_sfx_item",
+                  "doengrave_ctx_verb",
+                  "doengrave",
+                  "engrave"
+                ],
+                "callers": [
+                  "cmd.c binds E to doengrave(); js/cmd.js engraving command invokes js/engrave.js doengrave().",
+                  "doengrave stores stylus, text, and type in engraving context and installs engrave() as the return-valued occupation callback."
+                ],
+                "dependencies": [
+                  "Return-valued u_can_engrave, stylus_ok, freehand, can_reach_floor, zappable, getobj, and existing object naming/discovery branches must be verified across selected stylus classes.",
+                  "The magic marker and wand variants mutate charge and identification; the pick-axe and potion variants preserve DUST. Occupation callback return controls continuation and needs matching recorded play."
+                ]
+              },
+              "goalKind": "file-port",
+              "evidence": [
+                "Saved challenges/evaluations/20260926094126-v6.json at 50bbe620897c8fc2e634d14ec672d33a4e44db7e reports 6 remaining screen(s), first stop at segment 0 step 18: engrave requires bare fingertips.",
+                "Independent C challenges/cases/v6/wizard-engrave-wand-correct.session.json at that step displays “an uncursed potion of oil” as the accepted stylus or its identification message.",
+                "Upstream nethack-c/upstream/src/engrave.c:742-753 doengrave_sfx_item POTION_CLASS; doengrave() at engrave.c:956-1264 calls the effect helper, prompts for text, and schedules engrave() at 1248-1254.",
+                "Current js/engrave.js:doengrave throws UnsupportedEngraveError for selected !== handsObject, before POTION_CLASS potion of oil leaves the initial DUST engraving type. Preserve matching hand engraving while replacing the refusal with complete source behavior."
+              ]
+            }
+          }
+        },
+        {
+          "corpus": "synthetic",
+          "batch": "v6",
+          "caseId": "wizard-engrave-wand-retry2",
+          "session": "synthetic/v6/wizard-engrave-wand-retry2",
+          "manifestPath": "challenges/manifests/v6.json",
+          "manifestSha256": "7523b91e823f4e3906c9acdc9a3d80f8469c27c2caab8fc8fbd6967dbfdcab5f",
+          "recording": "challenges/cases/v6/wizard-engrave-wand-retry2.session.json",
+          "recordingPath": "challenges/cases/v6/wizard-engrave-wand-retry2.session.json",
+          "recordingSha256": "b9e9c10bc2a7a1a6632f54e704b8386adefe66dcbde4f0e2f575a7b5fb3fc295",
+          "recipe": "challenges/cases/v6/wizard-engrave-wand-retry2.recipe.session.json",
+          "recipeSha256": "3ca45cff30e3e4f7371105dc2cfca841176a250f5049a3a520ea3c1c2c9720df",
+          "replayInputSha256": "82fa1493fac470e1945a3e485a4ac54d687c468827d79473b0e20a74eb2da0d2",
+          "evaluationPath": "challenges/evaluations/20260926130636-v6.json",
+          "evaluationCommit": "8d99dfd6d6e715e092a805caacc2e79455a931f1",
+          "evaluationArtifact": "challenges/evaluations/20260926130636-v6.json",
+          "evaluationUtc": "2026-09-26T13:06:53.225Z",
+          "remainingScreens": 3,
+          "recordedSteps": 19,
+          "previousScreensMatched": 16,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 16,
+              "total": 19
+            },
+            "rng": {
+              "matched": 2590,
+              "total": 2590
+            },
+            "cursors": {
+              "matched": 16,
+              "total": 19
+            }
+          },
+          "firstMismatch": {
+            "kind": "stop",
+            "message": "unsupported hero command: an unported branch of this command: engrave requires bare fingertips",
+            "step": 16
+          },
+          "step": 16,
+          "kind": "stop",
+          "sourceFile": null,
+          "function": null,
+          "message": "unsupported hero command: an unported branch of this command: engrave requires bare fingertips",
+          "cFile": null,
+          "luaFile": null,
+          "line": null,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v6/wizard-engrave-wand-retry2.json",
+            "result": {
+              "session": "synthetic/v6/wizard-engrave-wand-retry2",
+              "corpus": "synthetic",
+              "batch": "v6",
+              "caseId": "wizard-engrave-wand-retry2",
+              "manifestPath": "challenges/manifests/v6.json",
+              "manifestSha256": "7523b91e823f4e3906c9acdc9a3d80f8469c27c2caab8fc8fbd6967dbfdcab5f",
+              "recordingPath": "challenges/cases/v6/wizard-engrave-wand-retry2.session.json",
+              "recordingSha256": "b9e9c10bc2a7a1a6632f54e704b8386adefe66dcbde4f0e2f575a7b5fb3fc295",
+              "evaluationPath": "challenges/evaluations/20260926094126-v6.json",
+              "evaluationCommit": "50bbe620897c8fc2e634d14ec672d33a4e44db7e",
+              "remainingScreens": 3,
+              "recordedSteps": 19,
+              "status": "complete",
+              "commit": "50bbe620897c8fc2e634d14ec672d33a4e44db7e",
+              "mismatch": {
+                "corpus": "synthetic",
+                "batch": "v6",
+                "caseId": "wizard-engrave-wand-retry2",
+                "session": "synthetic/v6/wizard-engrave-wand-retry2",
+                "manifestPath": "challenges/manifests/v6.json",
+                "manifestSha256": "7523b91e823f4e3906c9acdc9a3d80f8469c27c2caab8fc8fbd6967dbfdcab5f",
+                "recording": "challenges/cases/v6/wizard-engrave-wand-retry2.session.json",
+                "recordingPath": "challenges/cases/v6/wizard-engrave-wand-retry2.session.json",
+                "recordingSha256": "b9e9c10bc2a7a1a6632f54e704b8386adefe66dcbde4f0e2f575a7b5fb3fc295",
+                "recipe": "challenges/cases/v6/wizard-engrave-wand-retry2.recipe.session.json",
+                "recipeSha256": "3ca45cff30e3e4f7371105dc2cfca841176a250f5049a3a520ea3c1c2c9720df",
+                "replayInputSha256": "9671c8200bb4617314143efc03b8936dba1c08d5025986a5ef6f245a97c322f9",
+                "evaluationPath": "challenges/evaluations/20260926094126-v6.json",
+                "evaluationCommit": "50bbe620897c8fc2e634d14ec672d33a4e44db7e",
+                "evaluationArtifact": "challenges/evaluations/20260926094126-v6.json",
+                "evaluationUtc": "2026-09-26T09:41:43.460Z",
+                "remainingScreens": 3,
+                "recordedSteps": 19,
+                "previousScreensMatched": 16,
+                "regression": false,
+                "passed": false,
+                "error": null,
+                "metrics": {
+                  "screens": {
+                    "matched": 16,
+                    "total": 19
+                  },
+                  "rng": {
+                    "matched": 2590,
+                    "total": 2590
+                  },
+                  "cursors": {
+                    "matched": 16,
+                    "total": 19
+                  }
+                },
+                "firstMismatch": {
+                  "kind": "stop",
+                  "message": "unsupported hero command: an unported branch of this command: engrave requires bare fingertips",
+                  "step": 16
+                },
+                "step": 16,
+                "kind": "stop",
+                "sourceFile": null,
+                "function": null,
+                "message": "unsupported hero command: an unported branch of this command: engrave requires bare fingertips",
+                "cFile": null,
+                "luaFile": null,
+                "line": null
+              },
+              "summary": "The v6 wizard-engrave-wand-retry2 case selects a non-hand engraving stylus at segment 0 step 16. C engrave.c:doengrave() accepts it and reaches TOOL_CLASS magic marker selects MARK when it still has charges; JS doengrave() refuses all non-hand styluses. Group this case with the other unresolved pick-axe, wand, potion, and marker engraving variants in one whole engrave.c source family, preserving setup, text, occupation, RNG, and object effects.",
+              "source": {
+                "file": "engrave.c",
+                "branch": "A sighted hero chooses a magic marker (0:22) at the doengrave stylus prompt. TOOL_CLASS magic marker selects MARK when it still has charges; doengrave then continues to text and occupation if the source arm permits.",
+                "functions": [
+                  "doengrave_ctx_init",
+                  "doengrave_sfx_item_WAN",
+                  "doengrave_sfx_item",
+                  "doengrave_ctx_verb",
+                  "doengrave",
+                  "engrave"
+                ],
+                "callers": [
+                  "cmd.c binds E to doengrave(); js/cmd.js engraving command invokes js/engrave.js doengrave().",
+                  "doengrave stores stylus, text, and type in engraving context and installs engrave() as the return-valued occupation callback."
+                ],
+                "dependencies": [
+                  "Return-valued u_can_engrave, stylus_ok, freehand, can_reach_floor, zappable, getobj, and existing object naming/discovery branches must be verified across selected stylus classes.",
+                  "The magic marker and wand variants mutate charge and identification; the pick-axe and potion variants preserve DUST. Occupation callback return controls continuation and needs matching recorded play."
+                ]
+              },
+              "goalKind": "file-port",
+              "evidence": [
+                "Saved challenges/evaluations/20260926094126-v6.json at 50bbe620897c8fc2e634d14ec672d33a4e44db7e reports 3 remaining screen(s), first stop at segment 0 step 16: engrave requires bare fingertips.",
+                "Independent C challenges/cases/v6/wizard-engrave-wand-retry2.session.json at that step displays “a magic marker (0:22)” as the accepted stylus or its identification message.",
+                "Upstream nethack-c/upstream/src/engrave.c:851-865 doengrave_sfx_item MAGIC_MARKER; doengrave() at engrave.c:956-1264 calls the effect helper, prompts for text, and schedules engrave() at 1248-1254.",
+                "Current js/engrave.js:doengrave throws UnsupportedEngraveError for selected !== handsObject, before TOOL_CLASS magic marker selects MARK when it still has charges. Preserve matching hand engraving while replacing the refusal with complete source behavior."
+              ]
+            }
+          }
+        }
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "stylus_ok",
+            "implementation": "js/engrave.js",
+            "symbol": "stylus_ok",
+            "sourceReview": "Read the complete engrave.c:481-501 definition. Null returns GETOBJ_SUGGEST; weapons, wands, gems, rings, towels and magic markers return GETOBJ_SUGGEST; all other objects return GETOBJ_DOWNPLAY. The callback only ranks getobj suggestions and has no RNG, output, or game-state mutation; JS preserves the source classes and return values.",
+            "callers": [
+              {
+                "path": "js/engrave.js",
+                "symbol": "doengrave",
+                "source": "engrave.c:doengrave (956-1264) passes stylus_ok as the getobj callback for the 'write with' prompt."
+              }
+            ],
+            "pure": true,
+            "tests": [
+              "scripts/engraving.test.mjs"
+            ],
+            "recordings": [],
+            "checkedAt": "d0a8041f88dd37cbf631877464c06cf985998274"
+          },
+          {
+            "name": "doengrave_ctx_init",
+            "implementation": "js/engrave.js",
+            "symbol": "doengrave_ctx_init",
+            "sourceReview": "Read the complete engrave.c:545-581 initializer and compared every context field. It initializes the local result flags, ECMD_OK and DUST defaults, existing engraving/type, demon/vampire blood writing, swallowed amorphous-engulfer state, and frozen-surface state in source order. All writes target the local context; queried hero, monster and terrain state are unchanged. JS returns the matching context without RNG or output.",
+            "callers": [
+              {
+                "path": "js/engrave.js",
+                "symbol": "doengrave",
+                "source": "engrave.c:doengrave calls doengrave_ctx_init immediately after u_can_engrave succeeds and before resetting move/occupation state."
+              }
+            ],
+            "pure": true,
+            "tests": [
+              "scripts/engraving.test.mjs"
+            ],
+            "recordings": [],
+            "checkedAt": "d0a8041f88dd37cbf631877464c06cf985998274"
+          },
+          {
+            "name": "doengrave_sfx_item_WAN",
+            "implementation": "js/engrave.js",
+            "symbol": "doengrave_sfx_item_WAN",
+            "sourceReview": "Read the full engrave.c:583-740 wand switch. The port preserves each wand arm, Blind/Deaf checks, type and prompt flags, post-effect text, old-engraving deletion/teleport decisions and the WAN_COLD fallthrough into cancellation/make-invisible behavior. The void zapnodir() result is discarded by C, so JS records note_unported('zap.c zapnodir') and does not substitute a result. The visible WAN_POLYMORPH arm consumes random_engraving's returned text/pristine pair; the command caller supplies the same game state and RNG plus the getrumor WIS-exercise callback, preserving rumors.c:175 and attrib.c:509 ordering. The blind arm preserves oetype when present and xcrypts the string returned by the newly ported blengr(); its supplemental source evidence is in supplementalSources because blengr is outside the declared selected range.",
+            "callers": [
+              {
+                "path": "js/engrave.js",
+                "symbol": "doengrave_sfx_item",
+                "source": "engrave.c:doengrave_sfx_item calls doengrave_sfx_item_WAN after zappable() succeeds, unpaid handling and any cursed-wand backfire test."
+              }
+            ],
+            "pure": false,
+            "tests": [],
+            "recordings": [
+              "recordings/engrave.c/polymorph-existing-engraving-independent.session.json",
+              "recordings/engrave.c/blind-polymorph-existing-engraving-independent.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v6",
+                "caseId": "wizard-engrave-wand-finish",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 24,
+                "source": "cmd.c E command -> engrave.c:doengrave -> doengrave_sfx_item -> doengrave_sfx_item_WAN(WAN_FIRE)."
+              },
+              {
+                "batch": "v6",
+                "caseId": "v6-add4-archeologist-pickaxe-engrave",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 10,
+                "source": "cmd.c E command -> engrave.c:doengrave -> doengrave_sfx_item -> doengrave_sfx_item_WAN(WAN_FIRE)."
+              },
+              {
+                "batch": "v6",
+                "caseId": "wizard-engrave-wand-final",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 23,
+                "source": "cmd.c E command -> engrave.c:doengrave -> doengrave_sfx_item -> doengrave_sfx_item_WAN(WAN_FIRE)."
+              },
+              {
+                "batch": "v6",
+                "caseId": "v6-add3-archeologist-pickaxe-engrave",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 9,
+                "source": "cmd.c E command -> engrave.c:doengrave -> doengrave_sfx_item -> doengrave_sfx_item_WAN(WAN_FIRE)."
+              },
+              {
+                "batch": "v6",
+                "caseId": "wizard-engrave-wand-correct",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 23,
+                "source": "cmd.c E command -> engrave.c:doengrave -> doengrave_sfx_item -> doengrave_sfx_item_WAN(WAN_FIRE)."
+              },
+              {
+                "batch": "v6",
+                "caseId": "wizard-engrave-wand-retry2",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 18,
+                "source": "cmd.c E command -> engrave.c:doengrave -> doengrave_sfx_item -> doengrave_sfx_item_WAN(WAN_FIRE)."
+              }
+            ],
+            "checkedAt": "d0a8041f88dd37cbf631877464c06cf985998274"
+          },
+          {
+            "name": "doengrave_sfx_item",
+            "implementation": "js/engrave.js",
+            "symbol": "doengrave_sfx_item",
+            "sourceReview": "Read the full engrave.c:742-894 object-class switch and compared source fallthrough and return order. The JS handles hard gems/rings, boots versus oversized armor/balls/rocks, dirty/frosty food/books/scrolls, wand zappability and backfire, fire-branded/bladed weapons, blindfolds, markers, towels, venom and illegal objects. The boolean false branches for backfire and blindfold stop doengrave at the same point. C-discarded void calls remain named gaps: wand_explode, dry_a_towel and hack.c impossible; no gap result is used as data. zappable() is awaited and its return controls both branch selection and charge use.",
+            "callers": [
+              {
+                "path": "js/engrave.js",
+                "symbol": "doengrave",
+                "source": "engrave.c:doengrave calls doengrave_sfx_item and returns early when its boolean result is false."
+              }
+            ],
+            "pure": false,
+            "tests": [],
+            "recordings": [
+              "recordings/engrave.c/polymorph-existing-engraving-independent.session.json",
+              "recordings/engrave.c/blind-polymorph-existing-engraving-independent.session.json",
+              "recordings/engrave.c/extended-engrave-command-independent.session.json",
+              "recordings/engrave.c/multiturn-finger-occupation-independent.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v6",
+                "caseId": "wizard-engrave-wand-finish",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 24,
+                "source": "cmd.c E command -> engrave.c:doengrave -> doengrave_sfx_item."
+              },
+              {
+                "batch": "v6",
+                "caseId": "v6-add4-archeologist-pickaxe-engrave",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 10,
+                "source": "cmd.c E command -> engrave.c:doengrave -> doengrave_sfx_item."
+              },
+              {
+                "batch": "v6",
+                "caseId": "wizard-engrave-wand-final",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 23,
+                "source": "cmd.c E command -> engrave.c:doengrave -> doengrave_sfx_item."
+              },
+              {
+                "batch": "v6",
+                "caseId": "v6-add3-archeologist-pickaxe-engrave",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 9,
+                "source": "cmd.c E command -> engrave.c:doengrave -> doengrave_sfx_item."
+              },
+              {
+                "batch": "v6",
+                "caseId": "wizard-engrave-wand-correct",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 23,
+                "source": "cmd.c E command -> engrave.c:doengrave -> doengrave_sfx_item."
+              },
+              {
+                "batch": "v6",
+                "caseId": "wizard-engrave-wand-retry2",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 18,
+                "source": "cmd.c E command -> engrave.c:doengrave -> doengrave_sfx_item."
+              }
+            ],
+            "checkedAt": "d0a8041f88dd37cbf631877464c06cf985998274"
+          },
+          {
+            "name": "doengrave_ctx_verb",
+            "implementation": "js/engrave.js",
+            "symbol": "doengrave_ctx_verb",
+            "sourceReview": "Read the complete engrave.c:896-953 context switch. JS preserves default, DUST/frost, HEADSTONE, ENGRAVE, BURN, MARK and ENGR_BLOOD verbs, including append variants and frost-specific wording. It only writes the local context and is pure.",
+            "callers": [
+              {
+                "path": "js/engrave.js",
+                "symbol": "doengrave",
+                "source": "engrave.c:doengrave calls doengrave_ctx_verb after setting the surface and adding/overwrite state, immediately before the writer message and getlin prompt."
+              }
+            ],
+            "pure": true,
+            "tests": [
+              "scripts/engraving.test.mjs"
+            ],
+            "recordings": [],
+            "checkedAt": "d0a8041f88dd37cbf631877464c06cf985998274"
+          },
+          {
+            "name": "doengrave",
+            "implementation": "js/engrave.js",
+            "symbol": "doengrave",
+            "sourceReview": "Read the complete engrave.c:956-1264 implementation from terrain/capacity preflight through doengrave_exit. JS keeps the getobj stylus callback, freehand/jello/reach gates, altar/grave order, item-effects boolean, grave type coercion, identification, teleport/delete engraving effects, polymorph text creation, canceled-wand handling, prompt/overwrite rules, literacy and text-corruption RNG short circuits, occupation setup, post-effect messages and final redraw/return. Return-valued callees u_can_engrave and doengrave_sfx_item are fully implemented; `set_occupation(engrave, ...)` is wired as a callback whose integer return is consumed by the occupation runner. Void C calls that remain deliberately skipped use named note_unported gaps: pray.c altar_wrath, grave.c disturb_grave, engrave.c rloc_engr, zap.c wand_explode/zapnodir, apply.c dry_a_towel, and hack.c impossible. The visible polymorph caller injects random_engraving with state/RNG and WIS exercise to preserve getrumor side effects without introducing an import cycle.",
+            "callers": [
+              {
+                "path": "js/cmd.js",
+                "symbol": "runEngraveCommand",
+                "source": "cmd.c:1714-1715 registers E and the extended name 'engrave' to doengrave; js/cmd.js direct doengrave dispatch and extended-command spelling both call runEngraveCommand."
+              }
+            ],
+            "pure": false,
+            "tests": [],
+            "recordings": [
+              "recordings/engrave.c/polymorph-existing-engraving-independent.session.json",
+              "recordings/engrave.c/blind-polymorph-existing-engraving-independent.session.json",
+              "recordings/engrave.c/extended-engrave-command-independent.session.json",
+              "recordings/engrave.c/multiturn-finger-occupation-independent.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v6",
+                "caseId": "wizard-engrave-wand-finish",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 24,
+                "source": "cmd.c E command -> engrave.c:doengrave and source-selected item-effect family."
+              },
+              {
+                "batch": "v6",
+                "caseId": "v6-add4-archeologist-pickaxe-engrave",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 10,
+                "source": "cmd.c E command -> engrave.c:doengrave and source-selected item-effect family."
+              },
+              {
+                "batch": "v6",
+                "caseId": "wizard-engrave-wand-final",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 23,
+                "source": "cmd.c E command -> engrave.c:doengrave and source-selected item-effect family."
+              },
+              {
+                "batch": "v6",
+                "caseId": "v6-add3-archeologist-pickaxe-engrave",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 9,
+                "source": "cmd.c E command -> engrave.c:doengrave and source-selected item-effect family."
+              },
+              {
+                "batch": "v6",
+                "caseId": "wizard-engrave-wand-correct",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 23,
+                "source": "cmd.c E command -> engrave.c:doengrave and source-selected item-effect family."
+              },
+              {
+                "batch": "v6",
+                "caseId": "wizard-engrave-wand-retry2",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 18,
+                "source": "cmd.c E command -> engrave.c:doengrave and source-selected item-effect family."
+              }
+            ],
+            "checkedAt": "d0a8041f88dd37cbf631877464c06cf985998274"
+          },
+          {
+            "name": "engrave",
+            "implementation": "js/engrave.js",
+            "symbol": "engrave",
+            "sourceReview": "Read the complete engrave.c:1267-1493 occupation callback. JS preserves square/stylus invalidation, first-time/action counter, carving/marker rates, C UTF-8 byte-pointer accounting, split/dull and marker-charge state changes, finish-verb selection, BUFSZ truncation, make_engr_at timing, continuation return 1 and final return 0/context cleanup. The splitobj and hold_another_object return values are consumed; make_engr_at's pointer return and C nhUse(stylus) macro result are discarded/no-op respectively. Only C impossible diagnostics in source-guarded invariant branches remain named note_unported('pline.c impossible') calls; no return data is substituted.",
+            "callers": [
+              {
+                "path": "js/engrave.js",
+                "symbol": "doengrave",
+                "source": "engrave.c:doengrave calls set_occupation(engrave, 'engraving', 0) at line 1244. allmain.c:485-500 calls the callback and clears go.occupation only when its return is zero; JS installs the corresponding callback and returns its integer result."
+              }
+            ],
+            "pure": false,
+            "tests": [],
+            "recordings": [
+              "recordings/engrave.c/multiturn-finger-occupation-independent.session.json",
+              "recordings/engrave.c/extended-engrave-command-independent.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v6",
+                "caseId": "wizard-engrave-wand-finish",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 24,
+                "source": "engrave.c:doengrave installs the occupation and allmain.c occupation loop executes engrave()."
+              },
+              {
+                "batch": "v6",
+                "caseId": "v6-add4-archeologist-pickaxe-engrave",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 10,
+                "source": "engrave.c:doengrave installs the occupation and allmain.c occupation loop executes engrave()."
+              },
+              {
+                "batch": "v6",
+                "caseId": "wizard-engrave-wand-final",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 23,
+                "source": "engrave.c:doengrave installs the occupation and allmain.c occupation loop executes engrave()."
+              },
+              {
+                "batch": "v6",
+                "caseId": "v6-add3-archeologist-pickaxe-engrave",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 9,
+                "source": "engrave.c:doengrave installs the occupation and allmain.c occupation loop executes engrave()."
+              },
+              {
+                "batch": "v6",
+                "caseId": "wizard-engrave-wand-correct",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 23,
+                "source": "engrave.c:doengrave installs the occupation and allmain.c occupation loop executes engrave()."
+              },
+              {
+                "batch": "v6",
+                "caseId": "wizard-engrave-wand-retry2",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 18,
+                "source": "engrave.c:doengrave installs the occupation and allmain.c occupation loop executes engrave()."
+              }
+            ],
+            "checkedAt": "d0a8041f88dd37cbf631877464c06cf985998274"
+          }
+        ],
+        "entryPointReview": "The C command table at cmd.c:1714-1715 registers direct E and the extended name 'engrave' to the same doengrave handler. JS direct dispatch at cmd.js:5094 and extended dispatch at cmd.js:5626 both call runEngraveCommand, which injects the getobj, message, RNG, random_engraving, occupation, and inventory operations. The source then sets the engraving occupation at engrave.c:1244; allmain.c:485-500 invokes it and consumes its 0/1 continuation result. The admitted v6 wand-finish/final/correct/retry and add3/add4 cases exercise the direct E item-effects path; independent recordings separately exercise visible and blind polymorph wands, #engrave dispatch, and multi-action finger occupation. Discarded-result C calls remain explicit named note_unported gaps; none is treated as data. The separate blengr return-valued helper from engrave.c:1765-1768 is carried as supplementalSources because it is outside the declared selected range.",
+        "entryPoints": [
+          {
+            "name": "Direct E engraving command",
+            "functions": [
+              "stylus_ok",
+              "doengrave_ctx_init",
+              "doengrave_sfx_item_WAN",
+              "doengrave_sfx_item",
+              "doengrave_ctx_verb",
+              "doengrave",
+              "engrave"
+            ],
+            "recordings": [
+              "recordings/engrave.c/polymorph-existing-engraving-independent.session.json",
+              "recordings/engrave.c/blind-polymorph-existing-engraving-independent.session.json",
+              "recordings/engrave.c/multiturn-finger-occupation-independent.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v6",
+                "caseId": "wizard-engrave-wand-finish",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 24,
+                "source": "cmd.c E -> engrave.c:doengrave; the command installs and runs engrave occupation."
+              },
+              {
+                "batch": "v6",
+                "caseId": "v6-add4-archeologist-pickaxe-engrave",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 10,
+                "source": "cmd.c E -> engrave.c:doengrave; the command installs and runs engrave occupation."
+              },
+              {
+                "batch": "v6",
+                "caseId": "wizard-engrave-wand-final",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 23,
+                "source": "cmd.c E -> engrave.c:doengrave; the command installs and runs engrave occupation."
+              },
+              {
+                "batch": "v6",
+                "caseId": "v6-add3-archeologist-pickaxe-engrave",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 9,
+                "source": "cmd.c E -> engrave.c:doengrave; the command installs and runs engrave occupation."
+              },
+              {
+                "batch": "v6",
+                "caseId": "wizard-engrave-wand-correct",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 23,
+                "source": "cmd.c E -> engrave.c:doengrave; the command installs and runs engrave occupation."
+              },
+              {
+                "batch": "v6",
+                "caseId": "wizard-engrave-wand-retry2",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 18,
+                "source": "cmd.c E -> engrave.c:doengrave; the command installs and runs engrave occupation."
+              }
+            ]
+          },
+          {
+            "name": "Extended #engrave command",
+            "functions": [
+              "stylus_ok",
+              "doengrave_ctx_init",
+              "doengrave_sfx_item",
+              "doengrave_ctx_verb",
+              "doengrave",
+              "engrave"
+            ],
+            "recordings": [
+              "recordings/engrave.c/extended-engrave-command-independent.session.json"
+            ]
+          },
+          {
+            "name": "Engraving occupation continuation",
+            "functions": [
+              "engrave"
+            ],
+            "recordings": [
+              "recordings/engrave.c/multiturn-finger-occupation-independent.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v6",
+                "caseId": "wizard-engrave-wand-finish",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 24,
+                "source": "engrave.c:doengrave calls set_occupation(engrave); allmain.c:485-500 consumes its continuation return."
+              },
+              {
+                "batch": "v6",
+                "caseId": "v6-add4-archeologist-pickaxe-engrave",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 10,
+                "source": "engrave.c:doengrave calls set_occupation(engrave); allmain.c:485-500 consumes its continuation return."
+              },
+              {
+                "batch": "v6",
+                "caseId": "wizard-engrave-wand-final",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 23,
+                "source": "engrave.c:doengrave calls set_occupation(engrave); allmain.c:485-500 consumes its continuation return."
+              },
+              {
+                "batch": "v6",
+                "caseId": "v6-add3-archeologist-pickaxe-engrave",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 9,
+                "source": "engrave.c:doengrave calls set_occupation(engrave); allmain.c:485-500 consumes its continuation return."
+              },
+              {
+                "batch": "v6",
+                "caseId": "wizard-engrave-wand-correct",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 23,
+                "source": "engrave.c:doengrave calls set_occupation(engrave); allmain.c:485-500 consumes its continuation return."
+              },
+              {
+                "batch": "v6",
+                "caseId": "wizard-engrave-wand-retry2",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 18,
+                "source": "engrave.c:doengrave calls set_occupation(engrave); allmain.c:485-500 consumes its continuation return."
+              }
+            ]
+          }
+        ]
+      },
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "d0a8041f88dd37cbf631877464c06cf985998274",
+        "screens": 11405,
+        "rng": 792838
       }
     },
     {
       "id": "port-apply-grease-synthetic-v6-20260926",
       "kind": "file-port",
-      "status": "queued",
+      "status": "closed",
       "summary": "Port can-of-grease application, target filtering, and consumed equipment gate",
       "cFile": "apply.c",
       "sessions": [
@@ -80147,26 +81555,33 @@
         "synthetic/v6/wizard-grease-only",
         "synthetic/v6/wizard-greasy-write-glib"
       ],
-      "selectionReason": "After A10 resolved the v5 Samurai case, the related v6 engraving owner is reserved by B. The highest-ranked independent completed investigation is wizard-greasy-write-glib-final with five remaining screens; the eight related can-of-grease variants share apply.c grease_ok/use_grease and are assigned together to A.",
+      "selectionReason": "A11 was assigned from the saved v6 queue before v7 admission; its committed source-traced grease delivery is ready to integrate. The six newer v7 investigations remain unassigned and will be selected after this active task boundary.",
       "detail": "C cmd.c apply dispatch enters apply.c doapply CAN_OF_GREASE and use_grease; grease_ok is the return-valued getobj selector. Port both complete source functions and the doapply caller arm, preserving charge, hands/object, slippery, inaccessible equipment, cancel and return-value branches. The post-selection inaccessible_equipment(otmp, grease, FALSE) bool is consumed: include whole do_wear.c inaccessible_equipment in this task and wire active callers. The getobj * menu can return otherwise filtered worn equipment; use an independent C recording for that message arm. Give pure grease_ok a source-pinned test and cover impure entry paths with independent recordings, including blocked recipes for any not yet matching path.",
-      "openedAt": null,
-      "openStanding": null,
-      "closedAt": null,
-      "delivered": null,
+      "openedAt": "772e1f2688e2540a1f8af8161290abce656d0db6",
+      "openStanding": {
+        "sha": "1bed109f6f2ce15ae5609626ce247b1b7a37b5dd",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "closedAt": "8d99dfd6d6e715e092a805caacc2e79455a931f1",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
       "functions": [
         {
           "name": "grease_ok",
           "line": 2585,
           "endLine": 2603,
-          "declared": false,
-          "complete": false
+          "declared": true,
+          "complete": true
         },
         {
           "name": "use_grease",
           "line": 2604,
           "endLine": 2657,
-          "declared": false,
-          "complete": false
+          "declared": true,
+          "complete": true
         }
       ],
       "range": {
@@ -80186,6 +81601,1618 @@
           "evaluationPath": "challenges/evaluations/20260926115550-v6.json",
           "evaluationCommit": "ba790c74ab160dfbb08e5fc9a8bd2d9e74c92c15"
         }
+      },
+      "activeStanding": {
+        "sha": "1bed109f6f2ce15ae5609626ce247b1b7a37b5dd",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v6",
+          "caseId": "wizard-greasy-write-glib-final",
+          "session": "synthetic/v6/wizard-greasy-write-glib-final",
+          "manifestPath": "challenges/manifests/v6.json",
+          "manifestSha256": "7523b91e823f4e3906c9acdc9a3d80f8469c27c2caab8fc8fbd6967dbfdcab5f",
+          "recording": "challenges/cases/v6/wizard-greasy-write-glib-final.session.json",
+          "recordingPath": "challenges/cases/v6/wizard-greasy-write-glib-final.session.json",
+          "recordingSha256": "20b60af8d804f9bd6ebd5b1217dae85a6cdad0afcae9d4f98bd6c57d6f3fb6e6",
+          "recipe": "challenges/cases/v6/wizard-greasy-write-glib-final.recipe.session.json",
+          "recipeSha256": "a55d0f776ecd5d8a91bc59a3fc708c55e632be4e125a69ffaac720babd87ebdc",
+          "replayInputSha256": "93c0f39a909ed29b1d816111fe58ebef08bb6ed793121908e69e895ca372c542",
+          "evaluationPath": "challenges/evaluations/20260926115550-v6.json",
+          "evaluationCommit": "ba790c74ab160dfbb08e5fc9a8bd2d9e74c92c15",
+          "evaluationArtifact": "challenges/evaluations/20260926115550-v6.json",
+          "evaluationUtc": "2026-09-26T11:56:07.336Z",
+          "remainingScreens": 5,
+          "recordedSteps": 22,
+          "previousScreensMatched": 17,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 17,
+              "total": 22
+            },
+            "rng": {
+              "matched": 2958,
+              "total": 2978
+            },
+            "cursors": {
+              "matched": 17,
+              "total": 22
+            }
+          },
+          "firstMismatch": {
+            "kind": "stop",
+            "message": "unsupported hero command: an unported branch of this command: applying a tool requires doapply()'s arm for object type 240",
+            "step": 17
+          },
+          "step": 17,
+          "kind": "stop",
+          "sourceFile": "apply.c",
+          "function": "doapply",
+          "message": "unsupported hero command: an unported branch of this command: applying a tool requires doapply()'s arm for object type 240",
+          "cFile": "apply.c",
+          "luaFile": null,
+          "line": null,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v6/wizard-greasy-write-glib-final.json",
+            "result": {
+              "session": "synthetic/v6/wizard-greasy-write-glib-final",
+              "corpus": "synthetic",
+              "batch": "v6",
+              "caseId": "wizard-greasy-write-glib-final",
+              "manifestPath": "challenges/manifests/v6.json",
+              "manifestSha256": "7523b91e823f4e3906c9acdc9a3d80f8469c27c2caab8fc8fbd6967dbfdcab5f",
+              "recordingPath": "challenges/cases/v6/wizard-greasy-write-glib-final.session.json",
+              "recordingSha256": "20b60af8d804f9bd6ebd5b1217dae85a6cdad0afcae9d4f98bd6c57d6f3fb6e6",
+              "evaluationPath": "challenges/evaluations/20260926094126-v6.json",
+              "evaluationCommit": "50bbe620897c8fc2e634d14ec672d33a4e44db7e",
+              "remainingScreens": 5,
+              "recordedSteps": 22,
+              "status": "complete",
+              "commit": "50bbe620897c8fc2e634d14ec672d33a4e44db7e",
+              "mismatch": {
+                "corpus": "synthetic",
+                "batch": "v6",
+                "caseId": "wizard-greasy-write-glib-final",
+                "session": "synthetic/v6/wizard-greasy-write-glib-final",
+                "manifestPath": "challenges/manifests/v6.json",
+                "manifestSha256": "7523b91e823f4e3906c9acdc9a3d80f8469c27c2caab8fc8fbd6967dbfdcab5f",
+                "recording": "challenges/cases/v6/wizard-greasy-write-glib-final.session.json",
+                "recordingPath": "challenges/cases/v6/wizard-greasy-write-glib-final.session.json",
+                "recordingSha256": "20b60af8d804f9bd6ebd5b1217dae85a6cdad0afcae9d4f98bd6c57d6f3fb6e6",
+                "recipe": "challenges/cases/v6/wizard-greasy-write-glib-final.recipe.session.json",
+                "recipeSha256": "a55d0f776ecd5d8a91bc59a3fc708c55e632be4e125a69ffaac720babd87ebdc",
+                "replayInputSha256": "9671c8200bb4617314143efc03b8936dba1c08d5025986a5ef6f245a97c322f9",
+                "evaluationPath": "challenges/evaluations/20260926094126-v6.json",
+                "evaluationCommit": "50bbe620897c8fc2e634d14ec672d33a4e44db7e",
+                "evaluationArtifact": "challenges/evaluations/20260926094126-v6.json",
+                "evaluationUtc": "2026-09-26T09:41:43.460Z",
+                "remainingScreens": 5,
+                "recordedSteps": 22,
+                "previousScreensMatched": 17,
+                "regression": false,
+                "passed": false,
+                "error": null,
+                "metrics": {
+                  "screens": {
+                    "matched": 17,
+                    "total": 22
+                  },
+                  "rng": {
+                    "matched": 2958,
+                    "total": 2978
+                  },
+                  "cursors": {
+                    "matched": 17,
+                    "total": 22
+                  }
+                },
+                "firstMismatch": {
+                  "kind": "stop",
+                  "message": "unsupported hero command: an unported branch of this command: applying a tool requires doapply()'s arm for object type 240",
+                  "step": 17
+                },
+                "step": 17,
+                "kind": "stop",
+                "sourceFile": "apply.c",
+                "function": "doapply",
+                "message": "unsupported hero command: an unported branch of this command: applying a tool requires doapply()'s arm for object type 240",
+                "cFile": "apply.c",
+                "luaFile": null,
+                "line": null
+              },
+              "summary": "The v6 wizard-greasy-write-glib-final case applies a can of grease at segment 0 step 17. C apply.c:use_grease() asks which object or hands to grease; js/apply.js:doapply() refuses CAN_OF_GREASE before this prompt. Group the unresolved grease and glib variants in one complete grease_ok/use_grease source task with doapply wiring, preserving charge, slipping, target selection, and Glib timing.",
+              "source": {
+                "file": "apply.c",
+                "branch": "The hero applies CAN_OF_GREASE (object type 240) with positive charges and no initial Glib refusal; use_grease reaches getobj(\"grease\", grease_ok, GETOBJ_PROMPT) and C prints the target-selection prompt.",
+                "functions": [
+                  "grease_ok",
+                  "use_grease"
+                ],
+                "callers": [
+                  "cmd.c apply command -> apply.c doapply CAN_OF_GREASE arm at lines 4282-4283, which consumes use_grease return; js/cmd.js command dispatch -> js/apply.js doapply currently refuses that object type."
+                ],
+                "dependencies": [
+                  "Return-valued getobj and inaccessible_equipment determine selection; grease_ok excludes coins and inaccessible equipment. Verify existing JavaScript implementations before marking source completion.",
+                  "invent.c consume_obj_charge and object drop/greased state, make_glib and rn1 on hands or cursed targets, and inventory redraw must preserve C order."
+                ]
+              },
+              "goalKind": "file-port",
+              "evidence": [
+                "Saved challenges/evaluations/20260926094126-v6.json at 50bbe620897c8fc2e634d14ec672d33a4e44db7e reports 5 remaining screen(s), first refusal at segment 0 step 17: unsupported hero command: an unported branch of this command: applying a tool requires doapply()'s arm for object type 240.",
+                "C challenges/cases/v6/wizard-greasy-write-glib-final.session.json at that step prints “What do you want to grease? [- ... or ?*]”, proving use_grease reached its getobj selection after the charged can passed its early branches.",
+                "Upstream nethack-c/upstream/src/apply.c:2586-2654 grease_ok/use_grease handles Glib slipping, cursed/fumbling mishap, charge, object or hand greasing, make_glib, and final inventory update. doapply at 4282-4283 consumes its ECMD_* return.",
+                "Current js/apply.js:doapply refuses CAN_OF_GREASE before use_grease; port the complete helper family and wire its caller. Later intended engraving inputs remain downstream and should not be special-cased."
+              ]
+            }
+          }
+        },
+        {
+          "corpus": "synthetic",
+          "batch": "v6",
+          "caseId": "wizard-greasy-write-glib-retry",
+          "session": "synthetic/v6/wizard-greasy-write-glib-retry",
+          "manifestPath": "challenges/manifests/v6.json",
+          "manifestSha256": "7523b91e823f4e3906c9acdc9a3d80f8469c27c2caab8fc8fbd6967dbfdcab5f",
+          "recording": "challenges/cases/v6/wizard-greasy-write-glib-retry.session.json",
+          "recordingPath": "challenges/cases/v6/wizard-greasy-write-glib-retry.session.json",
+          "recordingSha256": "1f5fda2b5444e9bce7c2e066e976b60f62fd7c87ff871fc1ca349d47f8652212",
+          "recipe": "challenges/cases/v6/wizard-greasy-write-glib-retry.recipe.session.json",
+          "recipeSha256": "ecfcfece116d53defd9c10d348de88397df9dda9feafbb1680d8f9a8007ffa84",
+          "replayInputSha256": "93c0f39a909ed29b1d816111fe58ebef08bb6ed793121908e69e895ca372c542",
+          "evaluationPath": "challenges/evaluations/20260926115550-v6.json",
+          "evaluationCommit": "ba790c74ab160dfbb08e5fc9a8bd2d9e74c92c15",
+          "evaluationArtifact": "challenges/evaluations/20260926115550-v6.json",
+          "evaluationUtc": "2026-09-26T11:56:07.336Z",
+          "remainingScreens": 5,
+          "recordedSteps": 22,
+          "previousScreensMatched": 17,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 17,
+              "total": 22
+            },
+            "rng": {
+              "matched": 2958,
+              "total": 3001
+            },
+            "cursors": {
+              "matched": 17,
+              "total": 22
+            }
+          },
+          "firstMismatch": {
+            "kind": "stop",
+            "message": "unsupported hero command: an unported branch of this command: applying a tool requires doapply()'s arm for object type 240",
+            "step": 17
+          },
+          "step": 17,
+          "kind": "stop",
+          "sourceFile": "apply.c",
+          "function": "doapply",
+          "message": "unsupported hero command: an unported branch of this command: applying a tool requires doapply()'s arm for object type 240",
+          "cFile": "apply.c",
+          "luaFile": null,
+          "line": null,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v6/wizard-greasy-write-glib-retry.json",
+            "result": {
+              "session": "synthetic/v6/wizard-greasy-write-glib-retry",
+              "corpus": "synthetic",
+              "batch": "v6",
+              "caseId": "wizard-greasy-write-glib-retry",
+              "manifestPath": "challenges/manifests/v6.json",
+              "manifestSha256": "7523b91e823f4e3906c9acdc9a3d80f8469c27c2caab8fc8fbd6967dbfdcab5f",
+              "recordingPath": "challenges/cases/v6/wizard-greasy-write-glib-retry.session.json",
+              "recordingSha256": "1f5fda2b5444e9bce7c2e066e976b60f62fd7c87ff871fc1ca349d47f8652212",
+              "evaluationPath": "challenges/evaluations/20260926094126-v6.json",
+              "evaluationCommit": "50bbe620897c8fc2e634d14ec672d33a4e44db7e",
+              "remainingScreens": 5,
+              "recordedSteps": 22,
+              "status": "complete",
+              "commit": "50bbe620897c8fc2e634d14ec672d33a4e44db7e",
+              "mismatch": {
+                "corpus": "synthetic",
+                "batch": "v6",
+                "caseId": "wizard-greasy-write-glib-retry",
+                "session": "synthetic/v6/wizard-greasy-write-glib-retry",
+                "manifestPath": "challenges/manifests/v6.json",
+                "manifestSha256": "7523b91e823f4e3906c9acdc9a3d80f8469c27c2caab8fc8fbd6967dbfdcab5f",
+                "recording": "challenges/cases/v6/wizard-greasy-write-glib-retry.session.json",
+                "recordingPath": "challenges/cases/v6/wizard-greasy-write-glib-retry.session.json",
+                "recordingSha256": "1f5fda2b5444e9bce7c2e066e976b60f62fd7c87ff871fc1ca349d47f8652212",
+                "recipe": "challenges/cases/v6/wizard-greasy-write-glib-retry.recipe.session.json",
+                "recipeSha256": "ecfcfece116d53defd9c10d348de88397df9dda9feafbb1680d8f9a8007ffa84",
+                "replayInputSha256": "9671c8200bb4617314143efc03b8936dba1c08d5025986a5ef6f245a97c322f9",
+                "evaluationPath": "challenges/evaluations/20260926094126-v6.json",
+                "evaluationCommit": "50bbe620897c8fc2e634d14ec672d33a4e44db7e",
+                "evaluationArtifact": "challenges/evaluations/20260926094126-v6.json",
+                "evaluationUtc": "2026-09-26T09:41:43.460Z",
+                "remainingScreens": 5,
+                "recordedSteps": 22,
+                "previousScreensMatched": 17,
+                "regression": false,
+                "passed": false,
+                "error": null,
+                "metrics": {
+                  "screens": {
+                    "matched": 17,
+                    "total": 22
+                  },
+                  "rng": {
+                    "matched": 2958,
+                    "total": 3001
+                  },
+                  "cursors": {
+                    "matched": 17,
+                    "total": 22
+                  }
+                },
+                "firstMismatch": {
+                  "kind": "stop",
+                  "message": "unsupported hero command: an unported branch of this command: applying a tool requires doapply()'s arm for object type 240",
+                  "step": 17
+                },
+                "step": 17,
+                "kind": "stop",
+                "sourceFile": "apply.c",
+                "function": "doapply",
+                "message": "unsupported hero command: an unported branch of this command: applying a tool requires doapply()'s arm for object type 240",
+                "cFile": "apply.c",
+                "luaFile": null,
+                "line": null
+              },
+              "summary": "The v6 wizard-greasy-write-glib-retry case applies a can of grease at segment 0 step 17. C apply.c:use_grease() asks which object or hands to grease; js/apply.js:doapply() refuses CAN_OF_GREASE before this prompt. Group the unresolved grease and glib variants in one complete grease_ok/use_grease source task with doapply wiring, preserving charge, slipping, target selection, and Glib timing.",
+              "source": {
+                "file": "apply.c",
+                "branch": "The hero applies CAN_OF_GREASE (object type 240) with positive charges and no initial Glib refusal; use_grease reaches getobj(\"grease\", grease_ok, GETOBJ_PROMPT) and C prints the target-selection prompt.",
+                "functions": [
+                  "grease_ok",
+                  "use_grease"
+                ],
+                "callers": [
+                  "cmd.c apply command -> apply.c doapply CAN_OF_GREASE arm at lines 4282-4283, which consumes use_grease return; js/cmd.js command dispatch -> js/apply.js doapply currently refuses that object type."
+                ],
+                "dependencies": [
+                  "Return-valued getobj and inaccessible_equipment determine selection; grease_ok excludes coins and inaccessible equipment. Verify existing JavaScript implementations before marking source completion.",
+                  "invent.c consume_obj_charge and object drop/greased state, make_glib and rn1 on hands or cursed targets, and inventory redraw must preserve C order."
+                ]
+              },
+              "goalKind": "file-port",
+              "evidence": [
+                "Saved challenges/evaluations/20260926094126-v6.json at 50bbe620897c8fc2e634d14ec672d33a4e44db7e reports 5 remaining screen(s), first refusal at segment 0 step 17: unsupported hero command: an unported branch of this command: applying a tool requires doapply()'s arm for object type 240.",
+                "C challenges/cases/v6/wizard-greasy-write-glib-retry.session.json at that step prints “What do you want to grease? [- ... or ?*]”, proving use_grease reached its getobj selection after the charged can passed its early branches.",
+                "Upstream nethack-c/upstream/src/apply.c:2586-2654 grease_ok/use_grease handles Glib slipping, cursed/fumbling mishap, charge, object or hand greasing, make_glib, and final inventory update. doapply at 4282-4283 consumes its ECMD_* return.",
+                "Current js/apply.js:doapply refuses CAN_OF_GREASE before use_grease; port the complete helper family and wire its caller. Later intended engraving inputs remain downstream and should not be special-cased."
+              ]
+            }
+          }
+        },
+        {
+          "corpus": "synthetic",
+          "batch": "v6",
+          "caseId": "wizard-greasy-write-menu",
+          "session": "synthetic/v6/wizard-greasy-write-menu",
+          "manifestPath": "challenges/manifests/v6.json",
+          "manifestSha256": "7523b91e823f4e3906c9acdc9a3d80f8469c27c2caab8fc8fbd6967dbfdcab5f",
+          "recording": "challenges/cases/v6/wizard-greasy-write-menu.session.json",
+          "recordingPath": "challenges/cases/v6/wizard-greasy-write-menu.session.json",
+          "recordingSha256": "8c84d81c639a13c365d5d2a79e68d5cf92c9d25f9d82a474616930c2f582396e",
+          "recipe": "challenges/cases/v6/wizard-greasy-write-menu.recipe.session.json",
+          "recipeSha256": "2fe55dc432699f827a097f742847b77616f9306333a6f810fe53ca0b5e274980",
+          "replayInputSha256": "93c0f39a909ed29b1d816111fe58ebef08bb6ed793121908e69e895ca372c542",
+          "evaluationPath": "challenges/evaluations/20260926115550-v6.json",
+          "evaluationCommit": "ba790c74ab160dfbb08e5fc9a8bd2d9e74c92c15",
+          "evaluationArtifact": "challenges/evaluations/20260926115550-v6.json",
+          "evaluationUtc": "2026-09-26T11:56:07.336Z",
+          "remainingScreens": 5,
+          "recordedSteps": 22,
+          "previousScreensMatched": 17,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 17,
+              "total": 22
+            },
+            "rng": {
+              "matched": 2958,
+              "total": 2968
+            },
+            "cursors": {
+              "matched": 17,
+              "total": 22
+            }
+          },
+          "firstMismatch": {
+            "kind": "stop",
+            "message": "unsupported hero command: an unported branch of this command: applying a tool requires doapply()'s arm for object type 240",
+            "step": 17
+          },
+          "step": 17,
+          "kind": "stop",
+          "sourceFile": "apply.c",
+          "function": "doapply",
+          "message": "unsupported hero command: an unported branch of this command: applying a tool requires doapply()'s arm for object type 240",
+          "cFile": "apply.c",
+          "luaFile": null,
+          "line": null,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v6/wizard-greasy-write-menu.json",
+            "result": {
+              "session": "synthetic/v6/wizard-greasy-write-menu",
+              "corpus": "synthetic",
+              "batch": "v6",
+              "caseId": "wizard-greasy-write-menu",
+              "manifestPath": "challenges/manifests/v6.json",
+              "manifestSha256": "7523b91e823f4e3906c9acdc9a3d80f8469c27c2caab8fc8fbd6967dbfdcab5f",
+              "recordingPath": "challenges/cases/v6/wizard-greasy-write-menu.session.json",
+              "recordingSha256": "8c84d81c639a13c365d5d2a79e68d5cf92c9d25f9d82a474616930c2f582396e",
+              "evaluationPath": "challenges/evaluations/20260926094126-v6.json",
+              "evaluationCommit": "50bbe620897c8fc2e634d14ec672d33a4e44db7e",
+              "remainingScreens": 5,
+              "recordedSteps": 22,
+              "status": "complete",
+              "commit": "50bbe620897c8fc2e634d14ec672d33a4e44db7e",
+              "mismatch": {
+                "corpus": "synthetic",
+                "batch": "v6",
+                "caseId": "wizard-greasy-write-menu",
+                "session": "synthetic/v6/wizard-greasy-write-menu",
+                "manifestPath": "challenges/manifests/v6.json",
+                "manifestSha256": "7523b91e823f4e3906c9acdc9a3d80f8469c27c2caab8fc8fbd6967dbfdcab5f",
+                "recording": "challenges/cases/v6/wizard-greasy-write-menu.session.json",
+                "recordingPath": "challenges/cases/v6/wizard-greasy-write-menu.session.json",
+                "recordingSha256": "8c84d81c639a13c365d5d2a79e68d5cf92c9d25f9d82a474616930c2f582396e",
+                "recipe": "challenges/cases/v6/wizard-greasy-write-menu.recipe.session.json",
+                "recipeSha256": "2fe55dc432699f827a097f742847b77616f9306333a6f810fe53ca0b5e274980",
+                "replayInputSha256": "9671c8200bb4617314143efc03b8936dba1c08d5025986a5ef6f245a97c322f9",
+                "evaluationPath": "challenges/evaluations/20260926094126-v6.json",
+                "evaluationCommit": "50bbe620897c8fc2e634d14ec672d33a4e44db7e",
+                "evaluationArtifact": "challenges/evaluations/20260926094126-v6.json",
+                "evaluationUtc": "2026-09-26T09:41:43.460Z",
+                "remainingScreens": 5,
+                "recordedSteps": 22,
+                "previousScreensMatched": 17,
+                "regression": false,
+                "passed": false,
+                "error": null,
+                "metrics": {
+                  "screens": {
+                    "matched": 17,
+                    "total": 22
+                  },
+                  "rng": {
+                    "matched": 2958,
+                    "total": 2968
+                  },
+                  "cursors": {
+                    "matched": 17,
+                    "total": 22
+                  }
+                },
+                "firstMismatch": {
+                  "kind": "stop",
+                  "message": "unsupported hero command: an unported branch of this command: applying a tool requires doapply()'s arm for object type 240",
+                  "step": 17
+                },
+                "step": 17,
+                "kind": "stop",
+                "sourceFile": "apply.c",
+                "function": "doapply",
+                "message": "unsupported hero command: an unported branch of this command: applying a tool requires doapply()'s arm for object type 240",
+                "cFile": "apply.c",
+                "luaFile": null,
+                "line": null
+              },
+              "summary": "The v6 wizard-greasy-write-menu case applies a can of grease at segment 0 step 17. C apply.c:use_grease() asks which object or hands to grease; js/apply.js:doapply() refuses CAN_OF_GREASE before this prompt. Group the unresolved grease and glib variants in one complete grease_ok/use_grease source task with doapply wiring, preserving charge, slipping, target selection, and Glib timing.",
+              "source": {
+                "file": "apply.c",
+                "branch": "The hero applies CAN_OF_GREASE (object type 240) with positive charges and no initial Glib refusal; use_grease reaches getobj(\"grease\", grease_ok, GETOBJ_PROMPT) and C prints the target-selection prompt.",
+                "functions": [
+                  "grease_ok",
+                  "use_grease"
+                ],
+                "callers": [
+                  "cmd.c apply command -> apply.c doapply CAN_OF_GREASE arm at lines 4282-4283, which consumes use_grease return; js/cmd.js command dispatch -> js/apply.js doapply currently refuses that object type."
+                ],
+                "dependencies": [
+                  "Return-valued getobj and inaccessible_equipment determine selection; grease_ok excludes coins and inaccessible equipment. Verify existing JavaScript implementations before marking source completion.",
+                  "invent.c consume_obj_charge and object drop/greased state, make_glib and rn1 on hands or cursed targets, and inventory redraw must preserve C order."
+                ]
+              },
+              "goalKind": "file-port",
+              "evidence": [
+                "Saved challenges/evaluations/20260926094126-v6.json at 50bbe620897c8fc2e634d14ec672d33a4e44db7e reports 5 remaining screen(s), first refusal at segment 0 step 17: unsupported hero command: an unported branch of this command: applying a tool requires doapply()'s arm for object type 240.",
+                "C challenges/cases/v6/wizard-greasy-write-menu.session.json at that step prints “What do you want to grease? [- ... or ?*]”, proving use_grease reached its getobj selection after the charged can passed its early branches.",
+                "Upstream nethack-c/upstream/src/apply.c:2586-2654 grease_ok/use_grease handles Glib slipping, cursed/fumbling mishap, charge, object or hand greasing, make_glib, and final inventory update. doapply at 4282-4283 consumes its ECMD_* return.",
+                "Current js/apply.js:doapply refuses CAN_OF_GREASE before use_grease; port the complete helper family and wire its caller. Later intended engraving inputs remain downstream and should not be special-cased."
+              ]
+            }
+          }
+        },
+        {
+          "corpus": "synthetic",
+          "batch": "v6",
+          "caseId": "wizard-grease-write-target",
+          "session": "synthetic/v6/wizard-grease-write-target",
+          "manifestPath": "challenges/manifests/v6.json",
+          "manifestSha256": "7523b91e823f4e3906c9acdc9a3d80f8469c27c2caab8fc8fbd6967dbfdcab5f",
+          "recording": "challenges/cases/v6/wizard-grease-write-target.session.json",
+          "recordingPath": "challenges/cases/v6/wizard-grease-write-target.session.json",
+          "recordingSha256": "b9a3a0043a92450cff4bb8ff6317738832b167b771eb23f05ed9d294cf4be021",
+          "recipe": "challenges/cases/v6/wizard-grease-write-target.recipe.session.json",
+          "recipeSha256": "84dd3586496d495a643ffeab343c8464e170ba5d6ef6f2b92eb59bfa85f2956b",
+          "replayInputSha256": "93c0f39a909ed29b1d816111fe58ebef08bb6ed793121908e69e895ca372c542",
+          "evaluationPath": "challenges/evaluations/20260926115550-v6.json",
+          "evaluationCommit": "ba790c74ab160dfbb08e5fc9a8bd2d9e74c92c15",
+          "evaluationArtifact": "challenges/evaluations/20260926115550-v6.json",
+          "evaluationUtc": "2026-09-26T11:56:07.336Z",
+          "remainingScreens": 4,
+          "recordedSteps": 35,
+          "previousScreensMatched": 31,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 31,
+              "total": 35
+            },
+            "rng": {
+              "matched": 2632,
+              "total": 2638
+            },
+            "cursors": {
+              "matched": 31,
+              "total": 35
+            }
+          },
+          "firstMismatch": {
+            "kind": "stop",
+            "message": "unsupported hero command: an unported branch of this command: applying a tool requires doapply()'s arm for object type 240",
+            "step": 31
+          },
+          "step": 31,
+          "kind": "stop",
+          "sourceFile": "apply.c",
+          "function": "doapply",
+          "message": "unsupported hero command: an unported branch of this command: applying a tool requires doapply()'s arm for object type 240",
+          "cFile": "apply.c",
+          "luaFile": null,
+          "line": null,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v6/wizard-grease-write-target.json",
+            "result": {
+              "session": "synthetic/v6/wizard-grease-write-target",
+              "corpus": "synthetic",
+              "batch": "v6",
+              "caseId": "wizard-grease-write-target",
+              "manifestPath": "challenges/manifests/v6.json",
+              "manifestSha256": "7523b91e823f4e3906c9acdc9a3d80f8469c27c2caab8fc8fbd6967dbfdcab5f",
+              "recordingPath": "challenges/cases/v6/wizard-grease-write-target.session.json",
+              "recordingSha256": "b9a3a0043a92450cff4bb8ff6317738832b167b771eb23f05ed9d294cf4be021",
+              "evaluationPath": "challenges/evaluations/20260926094126-v6.json",
+              "evaluationCommit": "50bbe620897c8fc2e634d14ec672d33a4e44db7e",
+              "remainingScreens": 4,
+              "recordedSteps": 35,
+              "status": "complete",
+              "commit": "50bbe620897c8fc2e634d14ec672d33a4e44db7e",
+              "mismatch": {
+                "corpus": "synthetic",
+                "batch": "v6",
+                "caseId": "wizard-grease-write-target",
+                "session": "synthetic/v6/wizard-grease-write-target",
+                "manifestPath": "challenges/manifests/v6.json",
+                "manifestSha256": "7523b91e823f4e3906c9acdc9a3d80f8469c27c2caab8fc8fbd6967dbfdcab5f",
+                "recording": "challenges/cases/v6/wizard-grease-write-target.session.json",
+                "recordingPath": "challenges/cases/v6/wizard-grease-write-target.session.json",
+                "recordingSha256": "b9a3a0043a92450cff4bb8ff6317738832b167b771eb23f05ed9d294cf4be021",
+                "recipe": "challenges/cases/v6/wizard-grease-write-target.recipe.session.json",
+                "recipeSha256": "84dd3586496d495a643ffeab343c8464e170ba5d6ef6f2b92eb59bfa85f2956b",
+                "replayInputSha256": "9671c8200bb4617314143efc03b8936dba1c08d5025986a5ef6f245a97c322f9",
+                "evaluationPath": "challenges/evaluations/20260926094126-v6.json",
+                "evaluationCommit": "50bbe620897c8fc2e634d14ec672d33a4e44db7e",
+                "evaluationArtifact": "challenges/evaluations/20260926094126-v6.json",
+                "evaluationUtc": "2026-09-26T09:41:43.460Z",
+                "remainingScreens": 4,
+                "recordedSteps": 35,
+                "previousScreensMatched": 31,
+                "regression": false,
+                "passed": false,
+                "error": null,
+                "metrics": {
+                  "screens": {
+                    "matched": 31,
+                    "total": 35
+                  },
+                  "rng": {
+                    "matched": 2632,
+                    "total": 2638
+                  },
+                  "cursors": {
+                    "matched": 31,
+                    "total": 35
+                  }
+                },
+                "firstMismatch": {
+                  "kind": "stop",
+                  "message": "unsupported hero command: an unported branch of this command: applying a tool requires doapply()'s arm for object type 240",
+                  "step": 31
+                },
+                "step": 31,
+                "kind": "stop",
+                "sourceFile": "apply.c",
+                "function": "doapply",
+                "message": "unsupported hero command: an unported branch of this command: applying a tool requires doapply()'s arm for object type 240",
+                "cFile": "apply.c",
+                "luaFile": null,
+                "line": null
+              },
+              "summary": "The v6 wizard-grease-write-target case applies a can of grease at segment 0 step 31. C apply.c:use_grease() asks which object or hands to grease; js/apply.js:doapply() refuses CAN_OF_GREASE before this prompt. Group the unresolved grease and glib variants in one complete grease_ok/use_grease source task with doapply wiring, preserving charge, slipping, target selection, and Glib timing.",
+              "source": {
+                "file": "apply.c",
+                "branch": "The hero applies CAN_OF_GREASE (object type 240) with positive charges and no initial Glib refusal; use_grease reaches getobj(\"grease\", grease_ok, GETOBJ_PROMPT) and C prints the target-selection prompt.",
+                "functions": [
+                  "grease_ok",
+                  "use_grease"
+                ],
+                "callers": [
+                  "cmd.c apply command -> apply.c doapply CAN_OF_GREASE arm at lines 4282-4283, which consumes use_grease return; js/cmd.js command dispatch -> js/apply.js doapply currently refuses that object type."
+                ],
+                "dependencies": [
+                  "Return-valued getobj and inaccessible_equipment determine selection; grease_ok excludes coins and inaccessible equipment. Verify existing JavaScript implementations before marking source completion.",
+                  "invent.c consume_obj_charge and object drop/greased state, make_glib and rn1 on hands or cursed targets, and inventory redraw must preserve C order."
+                ]
+              },
+              "goalKind": "file-port",
+              "evidence": [
+                "Saved challenges/evaluations/20260926094126-v6.json at 50bbe620897c8fc2e634d14ec672d33a4e44db7e reports 4 remaining screen(s), first refusal at segment 0 step 31: unsupported hero command: an unported branch of this command: applying a tool requires doapply()'s arm for object type 240.",
+                "C challenges/cases/v6/wizard-grease-write-target.session.json at that step prints “What do you want to grease? [- ... or ?*]”, proving use_grease reached its getobj selection after the charged can passed its early branches.",
+                "Upstream nethack-c/upstream/src/apply.c:2586-2654 grease_ok/use_grease handles Glib slipping, cursed/fumbling mishap, charge, object or hand greasing, make_glib, and final inventory update. doapply at 4282-4283 consumes its ECMD_* return.",
+                "Current js/apply.js:doapply refuses CAN_OF_GREASE before use_grease; port the complete helper family and wire its caller. Later intended engraving inputs remain downstream and should not be special-cased."
+              ]
+            }
+          }
+        },
+        {
+          "corpus": "synthetic",
+          "batch": "v6",
+          "caseId": "wizard-grease-hands-final",
+          "session": "synthetic/v6/wizard-grease-hands-final",
+          "manifestPath": "challenges/manifests/v6.json",
+          "manifestSha256": "7523b91e823f4e3906c9acdc9a3d80f8469c27c2caab8fc8fbd6967dbfdcab5f",
+          "recording": "challenges/cases/v6/wizard-grease-hands-final.session.json",
+          "recordingPath": "challenges/cases/v6/wizard-grease-hands-final.session.json",
+          "recordingSha256": "a22865ca6fd6510f9e8e02a91b816b7862d8257bcedde8f2995d4e702df4d012",
+          "recipe": "challenges/cases/v6/wizard-grease-hands-final.recipe.session.json",
+          "recipeSha256": "bac400fb9aa453e9dc8ef8318bd4e510d7d3fbb3706559a2a889d40c7513228d",
+          "replayInputSha256": "93c0f39a909ed29b1d816111fe58ebef08bb6ed793121908e69e895ca372c542",
+          "evaluationPath": "challenges/evaluations/20260926115550-v6.json",
+          "evaluationCommit": "ba790c74ab160dfbb08e5fc9a8bd2d9e74c92c15",
+          "evaluationArtifact": "challenges/evaluations/20260926115550-v6.json",
+          "evaluationUtc": "2026-09-26T11:56:07.336Z",
+          "remainingScreens": 2,
+          "recordedSteps": 19,
+          "previousScreensMatched": 17,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 17,
+              "total": 19
+            },
+            "rng": {
+              "matched": 2361,
+              "total": 2365
+            },
+            "cursors": {
+              "matched": 17,
+              "total": 19
+            }
+          },
+          "firstMismatch": {
+            "kind": "stop",
+            "message": "unsupported hero command: an unported branch of this command: applying a tool requires doapply()'s arm for object type 240",
+            "step": 17
+          },
+          "step": 17,
+          "kind": "stop",
+          "sourceFile": "apply.c",
+          "function": "doapply",
+          "message": "unsupported hero command: an unported branch of this command: applying a tool requires doapply()'s arm for object type 240",
+          "cFile": "apply.c",
+          "luaFile": null,
+          "line": null,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v6/wizard-grease-hands-final.json",
+            "result": {
+              "session": "synthetic/v6/wizard-grease-hands-final",
+              "corpus": "synthetic",
+              "batch": "v6",
+              "caseId": "wizard-grease-hands-final",
+              "manifestPath": "challenges/manifests/v6.json",
+              "manifestSha256": "7523b91e823f4e3906c9acdc9a3d80f8469c27c2caab8fc8fbd6967dbfdcab5f",
+              "recordingPath": "challenges/cases/v6/wizard-grease-hands-final.session.json",
+              "recordingSha256": "a22865ca6fd6510f9e8e02a91b816b7862d8257bcedde8f2995d4e702df4d012",
+              "evaluationPath": "challenges/evaluations/20260926094126-v6.json",
+              "evaluationCommit": "50bbe620897c8fc2e634d14ec672d33a4e44db7e",
+              "remainingScreens": 2,
+              "recordedSteps": 19,
+              "status": "complete",
+              "commit": "50bbe620897c8fc2e634d14ec672d33a4e44db7e",
+              "mismatch": {
+                "corpus": "synthetic",
+                "batch": "v6",
+                "caseId": "wizard-grease-hands-final",
+                "session": "synthetic/v6/wizard-grease-hands-final",
+                "manifestPath": "challenges/manifests/v6.json",
+                "manifestSha256": "7523b91e823f4e3906c9acdc9a3d80f8469c27c2caab8fc8fbd6967dbfdcab5f",
+                "recording": "challenges/cases/v6/wizard-grease-hands-final.session.json",
+                "recordingPath": "challenges/cases/v6/wizard-grease-hands-final.session.json",
+                "recordingSha256": "a22865ca6fd6510f9e8e02a91b816b7862d8257bcedde8f2995d4e702df4d012",
+                "recipe": "challenges/cases/v6/wizard-grease-hands-final.recipe.session.json",
+                "recipeSha256": "bac400fb9aa453e9dc8ef8318bd4e510d7d3fbb3706559a2a889d40c7513228d",
+                "replayInputSha256": "9671c8200bb4617314143efc03b8936dba1c08d5025986a5ef6f245a97c322f9",
+                "evaluationPath": "challenges/evaluations/20260926094126-v6.json",
+                "evaluationCommit": "50bbe620897c8fc2e634d14ec672d33a4e44db7e",
+                "evaluationArtifact": "challenges/evaluations/20260926094126-v6.json",
+                "evaluationUtc": "2026-09-26T09:41:43.460Z",
+                "remainingScreens": 2,
+                "recordedSteps": 19,
+                "previousScreensMatched": 17,
+                "regression": false,
+                "passed": false,
+                "error": null,
+                "metrics": {
+                  "screens": {
+                    "matched": 17,
+                    "total": 19
+                  },
+                  "rng": {
+                    "matched": 2361,
+                    "total": 2365
+                  },
+                  "cursors": {
+                    "matched": 17,
+                    "total": 19
+                  }
+                },
+                "firstMismatch": {
+                  "kind": "stop",
+                  "message": "unsupported hero command: an unported branch of this command: applying a tool requires doapply()'s arm for object type 240",
+                  "step": 17
+                },
+                "step": 17,
+                "kind": "stop",
+                "sourceFile": "apply.c",
+                "function": "doapply",
+                "message": "unsupported hero command: an unported branch of this command: applying a tool requires doapply()'s arm for object type 240",
+                "cFile": "apply.c",
+                "luaFile": null,
+                "line": null
+              },
+              "summary": "The v6 wizard-grease-hands-final case applies a can of grease at segment 0 step 17. C apply.c:use_grease() asks which object or hands to grease; js/apply.js:doapply() refuses CAN_OF_GREASE before this prompt. Group the unresolved grease and glib variants in one complete grease_ok/use_grease source task with doapply wiring, preserving charge, slipping, target selection, and Glib timing.",
+              "source": {
+                "file": "apply.c",
+                "branch": "The hero applies CAN_OF_GREASE (object type 240) with positive charges and no initial Glib refusal; use_grease reaches getobj(\"grease\", grease_ok, GETOBJ_PROMPT) and C prints the target-selection prompt.",
+                "functions": [
+                  "grease_ok",
+                  "use_grease"
+                ],
+                "callers": [
+                  "cmd.c apply command -> apply.c doapply CAN_OF_GREASE arm at lines 4282-4283, which consumes use_grease return; js/cmd.js command dispatch -> js/apply.js doapply currently refuses that object type."
+                ],
+                "dependencies": [
+                  "Return-valued getobj and inaccessible_equipment determine selection; grease_ok excludes coins and inaccessible equipment. Verify existing JavaScript implementations before marking source completion.",
+                  "invent.c consume_obj_charge and object drop/greased state, make_glib and rn1 on hands or cursed targets, and inventory redraw must preserve C order."
+                ]
+              },
+              "goalKind": "file-port",
+              "evidence": [
+                "Saved challenges/evaluations/20260926094126-v6.json at 50bbe620897c8fc2e634d14ec672d33a4e44db7e reports 2 remaining screen(s), first refusal at segment 0 step 17: unsupported hero command: an unported branch of this command: applying a tool requires doapply()'s arm for object type 240.",
+                "C challenges/cases/v6/wizard-grease-hands-final.session.json at that step prints “What do you want to grease? [- ... or ?*]”, proving use_grease reached its getobj selection after the charged can passed its early branches.",
+                "Upstream nethack-c/upstream/src/apply.c:2586-2654 grease_ok/use_grease handles Glib slipping, cursed/fumbling mishap, charge, object or hand greasing, make_glib, and final inventory update. doapply at 4282-4283 consumes its ECMD_* return.",
+                "Current js/apply.js:doapply refuses CAN_OF_GREASE before use_grease; port the complete helper family and wire its caller. Later intended engraving inputs remain downstream and should not be special-cased."
+              ]
+            }
+          }
+        },
+        {
+          "corpus": "synthetic",
+          "batch": "v6",
+          "caseId": "wizard-grease-hands-good",
+          "session": "synthetic/v6/wizard-grease-hands-good",
+          "manifestPath": "challenges/manifests/v6.json",
+          "manifestSha256": "7523b91e823f4e3906c9acdc9a3d80f8469c27c2caab8fc8fbd6967dbfdcab5f",
+          "recording": "challenges/cases/v6/wizard-grease-hands-good.session.json",
+          "recordingPath": "challenges/cases/v6/wizard-grease-hands-good.session.json",
+          "recordingSha256": "528226e80ce3b4852b1606a834fd132448c6d19be05f9b3e387cc81e5ca9f192",
+          "recipe": "challenges/cases/v6/wizard-grease-hands-good.recipe.session.json",
+          "recipeSha256": "74b2bab42a87bae9bd7efe6394fcefc09dbafdc6a5bc9ecc91288387124fcee8",
+          "replayInputSha256": "93c0f39a909ed29b1d816111fe58ebef08bb6ed793121908e69e895ca372c542",
+          "evaluationPath": "challenges/evaluations/20260926115550-v6.json",
+          "evaluationCommit": "ba790c74ab160dfbb08e5fc9a8bd2d9e74c92c15",
+          "evaluationArtifact": "challenges/evaluations/20260926115550-v6.json",
+          "evaluationUtc": "2026-09-26T11:56:07.336Z",
+          "remainingScreens": 2,
+          "recordedSteps": 19,
+          "previousScreensMatched": 17,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 17,
+              "total": 19
+            },
+            "rng": {
+              "matched": 2361,
+              "total": 2366
+            },
+            "cursors": {
+              "matched": 17,
+              "total": 19
+            }
+          },
+          "firstMismatch": {
+            "kind": "stop",
+            "message": "unsupported hero command: an unported branch of this command: applying a tool requires doapply()'s arm for object type 233",
+            "step": 17
+          },
+          "step": 17,
+          "kind": "stop",
+          "sourceFile": "apply.c",
+          "function": "doapply",
+          "message": "unsupported hero command: an unported branch of this command: applying a tool requires doapply()'s arm for object type 233",
+          "cFile": "apply.c",
+          "luaFile": null,
+          "line": null,
+          "investigation": {
+            "status": "missing",
+            "path": "investigations/synthetic/v6/wizard-grease-hands-good.json"
+          }
+        },
+        {
+          "corpus": "synthetic",
+          "batch": "v6",
+          "caseId": "wizard-grease-only",
+          "session": "synthetic/v6/wizard-grease-only",
+          "manifestPath": "challenges/manifests/v6.json",
+          "manifestSha256": "7523b91e823f4e3906c9acdc9a3d80f8469c27c2caab8fc8fbd6967dbfdcab5f",
+          "recording": "challenges/cases/v6/wizard-grease-only.session.json",
+          "recordingPath": "challenges/cases/v6/wizard-grease-only.session.json",
+          "recordingSha256": "9af4fef5d828c481509d962d1bf1160e66cc01ea5f2b15d516e2528ae3af0aa8",
+          "recipe": "challenges/cases/v6/wizard-grease-only.recipe.session.json",
+          "recipeSha256": "357fedf6f6442fa63ed6d40a8c86d12aa55425f0d8deb5928fa6edb4ccee4665",
+          "replayInputSha256": "93c0f39a909ed29b1d816111fe58ebef08bb6ed793121908e69e895ca372c542",
+          "evaluationPath": "challenges/evaluations/20260926115550-v6.json",
+          "evaluationCommit": "ba790c74ab160dfbb08e5fc9a8bd2d9e74c92c15",
+          "evaluationArtifact": "challenges/evaluations/20260926115550-v6.json",
+          "evaluationUtc": "2026-09-26T11:56:07.336Z",
+          "remainingScreens": 2,
+          "recordedSteps": 19,
+          "previousScreensMatched": 17,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 17,
+              "total": 19
+            },
+            "rng": {
+              "matched": 5755,
+              "total": 5759
+            },
+            "cursors": {
+              "matched": 17,
+              "total": 19
+            }
+          },
+          "firstMismatch": {
+            "kind": "stop",
+            "message": "unsupported hero command: an unported branch of this command: applying a tool requires doapply()'s arm for object type 233",
+            "step": 17
+          },
+          "step": 17,
+          "kind": "stop",
+          "sourceFile": "apply.c",
+          "function": "doapply",
+          "message": "unsupported hero command: an unported branch of this command: applying a tool requires doapply()'s arm for object type 233",
+          "cFile": "apply.c",
+          "luaFile": null,
+          "line": null,
+          "investigation": {
+            "status": "missing",
+            "path": "investigations/synthetic/v6/wizard-grease-only.json"
+          }
+        },
+        {
+          "corpus": "synthetic",
+          "batch": "v6",
+          "caseId": "wizard-greasy-write-glib",
+          "session": "synthetic/v6/wizard-greasy-write-glib",
+          "manifestPath": "challenges/manifests/v6.json",
+          "manifestSha256": "7523b91e823f4e3906c9acdc9a3d80f8469c27c2caab8fc8fbd6967dbfdcab5f",
+          "recording": "challenges/cases/v6/wizard-greasy-write-glib.session.json",
+          "recordingPath": "challenges/cases/v6/wizard-greasy-write-glib.session.json",
+          "recordingSha256": "6f8be6114cd1a551dc75940ccc48608c51b6a978950a5f90e639dbbb09f03317",
+          "recipe": "challenges/cases/v6/wizard-greasy-write-glib.recipe.session.json",
+          "recipeSha256": "0ccf18d6ddfa6bd75ef0c57c46a0ae8bd6418b3fafc4a4e9641a518492818911",
+          "replayInputSha256": "93c0f39a909ed29b1d816111fe58ebef08bb6ed793121908e69e895ca372c542",
+          "evaluationPath": "challenges/evaluations/20260926115550-v6.json",
+          "evaluationCommit": "ba790c74ab160dfbb08e5fc9a8bd2d9e74c92c15",
+          "evaluationArtifact": "challenges/evaluations/20260926115550-v6.json",
+          "evaluationUtc": "2026-09-26T11:56:07.336Z",
+          "remainingScreens": 2,
+          "recordedSteps": 22,
+          "previousScreensMatched": 20,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 20,
+              "total": 22
+            },
+            "rng": {
+              "matched": 2958,
+              "total": 2967
+            },
+            "cursors": {
+              "matched": 20,
+              "total": 22
+            }
+          },
+          "firstMismatch": {
+            "kind": "stop",
+            "message": "unsupported hero command: an unported branch of this command: applying a tool requires doapply()'s arm for object type 79",
+            "step": 20
+          },
+          "step": 20,
+          "kind": "stop",
+          "sourceFile": "apply.c",
+          "function": "doapply",
+          "message": "unsupported hero command: an unported branch of this command: applying a tool requires doapply()'s arm for object type 79",
+          "cFile": "apply.c",
+          "luaFile": null,
+          "line": null,
+          "investigation": {
+            "status": "missing",
+            "path": "investigations/synthetic/v6/wizard-greasy-write-glib.json"
+          }
+        }
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "grease_ok",
+            "implementation": "js/apply.js",
+            "symbol": "grease_ok",
+            "sourceReview": "Read complete apply.c:grease_ok() (2585-2601). NULL (the hands sentinel) is GETOBJ_SUGGEST, coins are GETOBJ_EXCLUDE, inaccessible worn equipment is GETOBJ_EXCLUDE_INACCESS, and all remaining targets are GETOBJ_SUGGEST. The silent do_wear.c:inaccessible_equipment() call only reads the object and worn slots, so this callback has no RNG, output, or state mutation. scripts/apply-grease.test.mjs source-pins each source classification and checks the corresponding JS result.",
+            "callers": [
+              {
+                "path": "js/apply.js",
+                "symbol": "use_grease",
+                "source": "apply.c:use_grease() supplies grease_ok() to getobj(\"grease\", ..., GETOBJ_PROMPT) (2622-2623)."
+              }
+            ],
+            "pure": true,
+            "tests": [
+              "scripts/apply-grease.test.mjs"
+            ],
+            "recordings": [],
+            "synthetic": [],
+            "checkedAt": "8d99dfd6d6e715e092a805caacc2e79455a931f1"
+          },
+          {
+            "name": "use_grease",
+            "implementation": "js/apply.js",
+            "symbol": "use_grease",
+            "sourceReview": "Read complete apply.c:use_grease() (2604-2654). Preserved the initial Glib/drop arm; the cursed-or-Fumbling one-half charge slip and drop; target getobj/cancel handling; inaccessible target refusal before charge consumption; charge consumption and old Glib snapshot; distinct object and hands targets; cursed grease spill with rn1(6,10); hands coating with rn1(11,5); empty-can feedback; final update_inventory() and ECMD_* results. All source branches and RNG calls are in the same order. The doapply() CAN_OF_GREASE arm now calls this implementation.",
+            "callers": [
+              {
+                "path": "js/apply.js",
+                "symbol": "doapply",
+                "source": "apply.c:doapply() dispatches CAN_OF_GREASE to use_grease() (4282-4284); the JS switch returns use_grease(obj,state,env)."
+              },
+              {
+                "path": "js/cmd.js",
+                "symbol": "runApplyCommand",
+                "source": "cmd.c's 'a' command-table entry calls doapply() (1678); js/cmd.js:runApplyCommand() dispatches the apply command to doapply()."
+              }
+            ],
+            "pure": false,
+            "tests": [],
+            "recordings": [
+              "recordings/apply.c/grease-inaccessible-ring-independent.session.json"
+            ],
+            "synthetic": [],
+            "checkedAt": "8d99dfd6d6e715e092a805caacc2e79455a931f1"
+          }
+        ],
+        "entryPointReview": "The formal range has one active production entry point: the 'a' apply command dispatches through cmd.c/doapply() and js/cmd.js:runApplyCommand() to apply.c:doapply()'s CAN_OF_GREASE arm, then use_grease(). grease_ok() is reached as the getobj callback. The independent C recording reaches can selection, the pure target filter, ring-under-gloves exclusion, the post-selection inaccessible message, and ECMD_OK before charge use; it then exercises #dip's corresponding message path. C and JS match all 68 boundaries, RNG calls, screens, and cursors. No build-excluded caller exists for this range. The eight v6 recipe replays were checked separately but are not cited as completion evidence: their remaining first divergences are recorded in .cache/A11-case-replays.json, including the end-of-turn topl.c More/input-boundary behavior and paths that stop before use_grease. Supplemental do_wear.c and potion.c changes are recorded below without counting them as completed formal goal units.",
+        "entryPoints": [
+          {
+            "name": "Apply a can of grease and filter an inaccessible worn target",
+            "functions": [
+              "grease_ok",
+              "use_grease"
+            ],
+            "recordings": [
+              "recordings/apply.c/grease-inaccessible-ring-independent.session.json"
+            ],
+            "synthetic": []
+          }
+        ]
+      },
+      "closeMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v6",
+          "caseId": "wizard-greasy-write-glib-final",
+          "session": "synthetic/v6/wizard-greasy-write-glib-final",
+          "manifestPath": "challenges/manifests/v6.json",
+          "manifestSha256": "7523b91e823f4e3906c9acdc9a3d80f8469c27c2caab8fc8fbd6967dbfdcab5f",
+          "recording": "challenges/cases/v6/wizard-greasy-write-glib-final.session.json",
+          "recordingPath": "challenges/cases/v6/wizard-greasy-write-glib-final.session.json",
+          "recordingSha256": "20b60af8d804f9bd6ebd5b1217dae85a6cdad0afcae9d4f98bd6c57d6f3fb6e6",
+          "recipe": "challenges/cases/v6/wizard-greasy-write-glib-final.recipe.session.json",
+          "recipeSha256": "a55d0f776ecd5d8a91bc59a3fc708c55e632be4e125a69ffaac720babd87ebdc",
+          "replayInputSha256": "82fa1493fac470e1945a3e485a4ac54d687c468827d79473b0e20a74eb2da0d2",
+          "evaluationPath": "challenges/evaluations/20260926130636-v6.json",
+          "evaluationCommit": "8d99dfd6d6e715e092a805caacc2e79455a931f1",
+          "evaluationArtifact": "challenges/evaluations/20260926130636-v6.json",
+          "evaluationUtc": "2026-09-26T13:06:53.225Z",
+          "remainingScreens": 3,
+          "recordedSteps": 22,
+          "previousScreensMatched": 17,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 19,
+              "total": 22
+            },
+            "rng": {
+              "matched": 2968,
+              "total": 2978
+            },
+            "cursors": {
+              "matched": 20,
+              "total": 22
+            }
+          },
+          "firstMismatch": {
+            "screen": {
+              "index": 18,
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 18,
+                "key": "-"
+              },
+              "kind": "ch",
+              "row": 0,
+              "column": 34,
+              "cCell": {
+                "ch": "-",
+                "color": 8,
+                "attr": 0,
+                "decgfx": 0
+              },
+              "jsCell": {
+                "ch": " ",
+                "color": 8,
+                "attr": 0,
+                "decgfx": 0
+              }
+            },
+            "rng": null,
+            "cursor": {
+              "index": 18,
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 18,
+                "key": "-"
+              },
+              "cCursor": [
+                42,
+                0,
+                1
+              ],
+              "jsCursor": [
+                25,
+                9,
+                1
+              ]
+            }
+          },
+          "step": 18,
+          "kind": "screen",
+          "sourceFile": null,
+          "function": null,
+          "message": null,
+          "cFile": null,
+          "luaFile": null,
+          "line": null,
+          "investigation": {
+            "status": "stale",
+            "path": "investigations/synthetic/v6/wizard-greasy-write-glib-final.json",
+            "previousRemainingScreens": 5
+          }
+        },
+        {
+          "corpus": "synthetic",
+          "batch": "v6",
+          "caseId": "wizard-greasy-write-glib-retry",
+          "session": "synthetic/v6/wizard-greasy-write-glib-retry",
+          "manifestPath": "challenges/manifests/v6.json",
+          "manifestSha256": "7523b91e823f4e3906c9acdc9a3d80f8469c27c2caab8fc8fbd6967dbfdcab5f",
+          "recording": "challenges/cases/v6/wizard-greasy-write-glib-retry.session.json",
+          "recordingPath": "challenges/cases/v6/wizard-greasy-write-glib-retry.session.json",
+          "recordingSha256": "1f5fda2b5444e9bce7c2e066e976b60f62fd7c87ff871fc1ca349d47f8652212",
+          "recipe": "challenges/cases/v6/wizard-greasy-write-glib-retry.recipe.session.json",
+          "recipeSha256": "ecfcfece116d53defd9c10d348de88397df9dda9feafbb1680d8f9a8007ffa84",
+          "replayInputSha256": "82fa1493fac470e1945a3e485a4ac54d687c468827d79473b0e20a74eb2da0d2",
+          "evaluationPath": "challenges/evaluations/20260926130636-v6.json",
+          "evaluationCommit": "8d99dfd6d6e715e092a805caacc2e79455a931f1",
+          "evaluationArtifact": "challenges/evaluations/20260926130636-v6.json",
+          "evaluationUtc": "2026-09-26T13:06:53.225Z",
+          "remainingScreens": 3,
+          "recordedSteps": 22,
+          "previousScreensMatched": 17,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 19,
+              "total": 22
+            },
+            "rng": {
+              "matched": 2968,
+              "total": 3001
+            },
+            "cursors": {
+              "matched": 20,
+              "total": 22
+            }
+          },
+          "firstMismatch": {
+            "screen": {
+              "index": 18,
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 18,
+                "key": "-"
+              },
+              "kind": "ch",
+              "row": 0,
+              "column": 34,
+              "cCell": {
+                "ch": "-",
+                "color": 8,
+                "attr": 0,
+                "decgfx": 0
+              },
+              "jsCell": {
+                "ch": " ",
+                "color": 8,
+                "attr": 0,
+                "decgfx": 0
+              }
+            },
+            "rng": null,
+            "cursor": {
+              "index": 18,
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 18,
+                "key": "-"
+              },
+              "cCursor": [
+                42,
+                0,
+                1
+              ],
+              "jsCursor": [
+                25,
+                9,
+                1
+              ]
+            }
+          },
+          "step": 18,
+          "kind": "screen",
+          "sourceFile": null,
+          "function": null,
+          "message": null,
+          "cFile": null,
+          "luaFile": null,
+          "line": null,
+          "investigation": {
+            "status": "stale",
+            "path": "investigations/synthetic/v6/wizard-greasy-write-glib-retry.json",
+            "previousRemainingScreens": 5
+          }
+        },
+        {
+          "corpus": "synthetic",
+          "batch": "v6",
+          "caseId": "wizard-grease-write-target",
+          "session": "synthetic/v6/wizard-grease-write-target",
+          "manifestPath": "challenges/manifests/v6.json",
+          "manifestSha256": "7523b91e823f4e3906c9acdc9a3d80f8469c27c2caab8fc8fbd6967dbfdcab5f",
+          "recording": "challenges/cases/v6/wizard-grease-write-target.session.json",
+          "recordingPath": "challenges/cases/v6/wizard-grease-write-target.session.json",
+          "recordingSha256": "b9a3a0043a92450cff4bb8ff6317738832b167b771eb23f05ed9d294cf4be021",
+          "recipe": "challenges/cases/v6/wizard-grease-write-target.recipe.session.json",
+          "recipeSha256": "84dd3586496d495a643ffeab343c8464e170ba5d6ef6f2b92eb59bfa85f2956b",
+          "replayInputSha256": "82fa1493fac470e1945a3e485a4ac54d687c468827d79473b0e20a74eb2da0d2",
+          "evaluationPath": "challenges/evaluations/20260926130636-v6.json",
+          "evaluationCommit": "8d99dfd6d6e715e092a805caacc2e79455a931f1",
+          "evaluationArtifact": "challenges/evaluations/20260926130636-v6.json",
+          "evaluationUtc": "2026-09-26T13:06:53.225Z",
+          "remainingScreens": 3,
+          "recordedSteps": 35,
+          "previousScreensMatched": 31,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 32,
+              "total": 35
+            },
+            "rng": {
+              "matched": 2638,
+              "total": 2638
+            },
+            "cursors": {
+              "matched": 32,
+              "total": 35
+            }
+          },
+          "firstMismatch": {
+            "screen": {
+              "index": 32,
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 32,
+                "key": "-"
+              },
+              "kind": "ch",
+              "row": 0,
+              "column": 34,
+              "cCell": {
+                "ch": "-",
+                "color": 8,
+                "attr": 0,
+                "decgfx": 0
+              },
+              "jsCell": {
+                "ch": " ",
+                "color": 8,
+                "attr": 0,
+                "decgfx": 0
+              }
+            },
+            "rng": null,
+            "cursor": {
+              "index": 32,
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 32,
+                "key": "-"
+              },
+              "cCursor": [
+                42,
+                0,
+                1
+              ],
+              "jsCursor": [
+                7,
+                3,
+                1
+              ]
+            }
+          },
+          "step": 32,
+          "kind": "screen",
+          "sourceFile": null,
+          "function": null,
+          "message": null,
+          "cFile": null,
+          "luaFile": null,
+          "line": null,
+          "investigation": {
+            "status": "stale",
+            "path": "investigations/synthetic/v6/wizard-grease-write-target.json",
+            "previousRemainingScreens": 4
+          }
+        },
+        {
+          "corpus": "synthetic",
+          "batch": "v6",
+          "caseId": "wizard-grease-hands-good",
+          "session": "synthetic/v6/wizard-grease-hands-good",
+          "manifestPath": "challenges/manifests/v6.json",
+          "manifestSha256": "7523b91e823f4e3906c9acdc9a3d80f8469c27c2caab8fc8fbd6967dbfdcab5f",
+          "recording": "challenges/cases/v6/wizard-grease-hands-good.session.json",
+          "recordingPath": "challenges/cases/v6/wizard-grease-hands-good.session.json",
+          "recordingSha256": "528226e80ce3b4852b1606a834fd132448c6d19be05f9b3e387cc81e5ca9f192",
+          "recipe": "challenges/cases/v6/wizard-grease-hands-good.recipe.session.json",
+          "recipeSha256": "74b2bab42a87bae9bd7efe6394fcefc09dbafdc6a5bc9ecc91288387124fcee8",
+          "replayInputSha256": "82fa1493fac470e1945a3e485a4ac54d687c468827d79473b0e20a74eb2da0d2",
+          "evaluationPath": "challenges/evaluations/20260926130636-v6.json",
+          "evaluationCommit": "8d99dfd6d6e715e092a805caacc2e79455a931f1",
+          "evaluationArtifact": "challenges/evaluations/20260926130636-v6.json",
+          "evaluationUtc": "2026-09-26T13:06:53.225Z",
+          "remainingScreens": 2,
+          "recordedSteps": 19,
+          "previousScreensMatched": 17,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 17,
+              "total": 19
+            },
+            "rng": {
+              "matched": 2361,
+              "total": 2366
+            },
+            "cursors": {
+              "matched": 17,
+              "total": 19
+            }
+          },
+          "firstMismatch": {
+            "kind": "stop",
+            "message": "unsupported hero command: an unported branch of this command: applying a tool requires doapply()'s arm for object type 233",
+            "step": 17
+          },
+          "step": 17,
+          "kind": "stop",
+          "sourceFile": "apply.c",
+          "function": "doapply",
+          "message": "unsupported hero command: an unported branch of this command: applying a tool requires doapply()'s arm for object type 233",
+          "cFile": "apply.c",
+          "luaFile": null,
+          "line": null,
+          "investigation": {
+            "status": "missing",
+            "path": "investigations/synthetic/v6/wizard-grease-hands-good.json"
+          }
+        },
+        {
+          "corpus": "synthetic",
+          "batch": "v6",
+          "caseId": "wizard-grease-only",
+          "session": "synthetic/v6/wizard-grease-only",
+          "manifestPath": "challenges/manifests/v6.json",
+          "manifestSha256": "7523b91e823f4e3906c9acdc9a3d80f8469c27c2caab8fc8fbd6967dbfdcab5f",
+          "recording": "challenges/cases/v6/wizard-grease-only.session.json",
+          "recordingPath": "challenges/cases/v6/wizard-grease-only.session.json",
+          "recordingSha256": "9af4fef5d828c481509d962d1bf1160e66cc01ea5f2b15d516e2528ae3af0aa8",
+          "recipe": "challenges/cases/v6/wizard-grease-only.recipe.session.json",
+          "recipeSha256": "357fedf6f6442fa63ed6d40a8c86d12aa55425f0d8deb5928fa6edb4ccee4665",
+          "replayInputSha256": "82fa1493fac470e1945a3e485a4ac54d687c468827d79473b0e20a74eb2da0d2",
+          "evaluationPath": "challenges/evaluations/20260926130636-v6.json",
+          "evaluationCommit": "8d99dfd6d6e715e092a805caacc2e79455a931f1",
+          "evaluationArtifact": "challenges/evaluations/20260926130636-v6.json",
+          "evaluationUtc": "2026-09-26T13:06:53.225Z",
+          "remainingScreens": 2,
+          "recordedSteps": 19,
+          "previousScreensMatched": 17,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 17,
+              "total": 19
+            },
+            "rng": {
+              "matched": 5755,
+              "total": 5759
+            },
+            "cursors": {
+              "matched": 17,
+              "total": 19
+            }
+          },
+          "firstMismatch": {
+            "kind": "stop",
+            "message": "unsupported hero command: an unported branch of this command: applying a tool requires doapply()'s arm for object type 233",
+            "step": 17
+          },
+          "step": 17,
+          "kind": "stop",
+          "sourceFile": "apply.c",
+          "function": "doapply",
+          "message": "unsupported hero command: an unported branch of this command: applying a tool requires doapply()'s arm for object type 233",
+          "cFile": "apply.c",
+          "luaFile": null,
+          "line": null,
+          "investigation": {
+            "status": "missing",
+            "path": "investigations/synthetic/v6/wizard-grease-only.json"
+          }
+        },
+        {
+          "corpus": "synthetic",
+          "batch": "v6",
+          "caseId": "wizard-greasy-write-menu",
+          "session": "synthetic/v6/wizard-greasy-write-menu",
+          "manifestPath": "challenges/manifests/v6.json",
+          "manifestSha256": "7523b91e823f4e3906c9acdc9a3d80f8469c27c2caab8fc8fbd6967dbfdcab5f",
+          "recording": "challenges/cases/v6/wizard-greasy-write-menu.session.json",
+          "recordingPath": "challenges/cases/v6/wizard-greasy-write-menu.session.json",
+          "recordingSha256": "8c84d81c639a13c365d5d2a79e68d5cf92c9d25f9d82a474616930c2f582396e",
+          "recipe": "challenges/cases/v6/wizard-greasy-write-menu.recipe.session.json",
+          "recipeSha256": "2fe55dc432699f827a097f742847b77616f9306333a6f810fe53ca0b5e274980",
+          "replayInputSha256": "82fa1493fac470e1945a3e485a4ac54d687c468827d79473b0e20a74eb2da0d2",
+          "evaluationPath": "challenges/evaluations/20260926130636-v6.json",
+          "evaluationCommit": "8d99dfd6d6e715e092a805caacc2e79455a931f1",
+          "evaluationArtifact": "challenges/evaluations/20260926130636-v6.json",
+          "evaluationUtc": "2026-09-26T13:06:53.225Z",
+          "remainingScreens": 2,
+          "recordedSteps": 22,
+          "previousScreensMatched": 17,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 20,
+              "total": 22
+            },
+            "rng": {
+              "matched": 2968,
+              "total": 2968
+            },
+            "cursors": {
+              "matched": 21,
+              "total": 22
+            }
+          },
+          "firstMismatch": {
+            "screen": {
+              "index": 18,
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 18,
+                "key": "-"
+              },
+              "kind": "ch",
+              "row": 0,
+              "column": 34,
+              "cCell": {
+                "ch": "-",
+                "color": 8,
+                "attr": 0,
+                "decgfx": 0
+              },
+              "jsCell": {
+                "ch": " ",
+                "color": 8,
+                "attr": 0,
+                "decgfx": 0
+              }
+            },
+            "rng": null,
+            "cursor": {
+              "index": 18,
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 18,
+                "key": "-"
+              },
+              "cCursor": [
+                42,
+                0,
+                1
+              ],
+              "jsCursor": [
+                25,
+                9,
+                1
+              ]
+            }
+          },
+          "step": 18,
+          "kind": "screen",
+          "sourceFile": null,
+          "function": null,
+          "message": null,
+          "cFile": null,
+          "luaFile": null,
+          "line": null,
+          "investigation": {
+            "status": "stale",
+            "path": "investigations/synthetic/v6/wizard-greasy-write-menu.json",
+            "previousRemainingScreens": 5
+          }
+        },
+        {
+          "corpus": "synthetic",
+          "batch": "v6",
+          "caseId": "wizard-greasy-write-glib",
+          "session": "synthetic/v6/wizard-greasy-write-glib",
+          "manifestPath": "challenges/manifests/v6.json",
+          "manifestSha256": "7523b91e823f4e3906c9acdc9a3d80f8469c27c2caab8fc8fbd6967dbfdcab5f",
+          "recording": "challenges/cases/v6/wizard-greasy-write-glib.session.json",
+          "recordingPath": "challenges/cases/v6/wizard-greasy-write-glib.session.json",
+          "recordingSha256": "6f8be6114cd1a551dc75940ccc48608c51b6a978950a5f90e639dbbb09f03317",
+          "recipe": "challenges/cases/v6/wizard-greasy-write-glib.recipe.session.json",
+          "recipeSha256": "0ccf18d6ddfa6bd75ef0c57c46a0ae8bd6418b3fafc4a4e9641a518492818911",
+          "replayInputSha256": "82fa1493fac470e1945a3e485a4ac54d687c468827d79473b0e20a74eb2da0d2",
+          "evaluationPath": "challenges/evaluations/20260926130636-v6.json",
+          "evaluationCommit": "8d99dfd6d6e715e092a805caacc2e79455a931f1",
+          "evaluationArtifact": "challenges/evaluations/20260926130636-v6.json",
+          "evaluationUtc": "2026-09-26T13:06:53.225Z",
+          "remainingScreens": 2,
+          "recordedSteps": 22,
+          "previousScreensMatched": 20,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 20,
+              "total": 22
+            },
+            "rng": {
+              "matched": 2958,
+              "total": 2967
+            },
+            "cursors": {
+              "matched": 20,
+              "total": 22
+            }
+          },
+          "firstMismatch": {
+            "kind": "stop",
+            "message": "unsupported hero command: an unported branch of this command: applying a tool requires doapply()'s arm for object type 79",
+            "step": 20
+          },
+          "step": 20,
+          "kind": "stop",
+          "sourceFile": "apply.c",
+          "function": "doapply",
+          "message": "unsupported hero command: an unported branch of this command: applying a tool requires doapply()'s arm for object type 79",
+          "cFile": "apply.c",
+          "luaFile": null,
+          "line": null,
+          "investigation": {
+            "status": "missing",
+            "path": "investigations/synthetic/v6/wizard-greasy-write-glib.json"
+          }
+        },
+        {
+          "corpus": "synthetic",
+          "batch": "v6",
+          "caseId": "wizard-grease-hands-final",
+          "session": "synthetic/v6/wizard-grease-hands-final",
+          "manifestPath": "challenges/manifests/v6.json",
+          "manifestSha256": "7523b91e823f4e3906c9acdc9a3d80f8469c27c2caab8fc8fbd6967dbfdcab5f",
+          "recording": "challenges/cases/v6/wizard-grease-hands-final.session.json",
+          "recordingPath": "challenges/cases/v6/wizard-grease-hands-final.session.json",
+          "recordingSha256": "a22865ca6fd6510f9e8e02a91b816b7862d8257bcedde8f2995d4e702df4d012",
+          "recipe": "challenges/cases/v6/wizard-grease-hands-final.recipe.session.json",
+          "recipeSha256": "bac400fb9aa453e9dc8ef8318bd4e510d7d3fbb3706559a2a889d40c7513228d",
+          "replayInputSha256": "82fa1493fac470e1945a3e485a4ac54d687c468827d79473b0e20a74eb2da0d2",
+          "evaluationPath": "challenges/evaluations/20260926130636-v6.json",
+          "evaluationCommit": "8d99dfd6d6e715e092a805caacc2e79455a931f1",
+          "evaluationArtifact": "challenges/evaluations/20260926130636-v6.json",
+          "evaluationUtc": "2026-09-26T13:06:53.225Z",
+          "remainingScreens": 1,
+          "recordedSteps": 19,
+          "previousScreensMatched": 17,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 18,
+              "total": 19
+            },
+            "rng": {
+              "matched": 2365,
+              "total": 2365
+            },
+            "cursors": {
+              "matched": 18,
+              "total": 19
+            }
+          },
+          "firstMismatch": {
+            "screen": {
+              "index": 18,
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 18,
+                "key": "-"
+              },
+              "kind": "ch",
+              "row": 0,
+              "column": 34,
+              "cCell": {
+                "ch": "-",
+                "color": 8,
+                "attr": 0,
+                "decgfx": 0
+              },
+              "jsCell": {
+                "ch": " ",
+                "color": 8,
+                "attr": 0,
+                "decgfx": 0
+              }
+            },
+            "rng": {
+              "index": 2365,
+              "cCaller": null,
+              "jsEntry": "rn2(20)=13",
+              "stepIndex": null
+            },
+            "cursor": {
+              "index": 18,
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 18,
+                "key": "-"
+              },
+              "cCursor": [
+                42,
+                0,
+                1
+              ],
+              "jsCursor": [
+                64,
+                17,
+                1
+              ]
+            }
+          },
+          "step": 18,
+          "kind": "screen",
+          "sourceFile": null,
+          "function": null,
+          "message": null,
+          "cFile": null,
+          "luaFile": null,
+          "line": null,
+          "investigation": {
+            "status": "stale",
+            "path": "investigations/synthetic/v6/wizard-grease-hands-final.json",
+            "previousRemainingScreens": 2
+          }
+        }
+      ],
+      "closeStanding": {
+        "sha": "8d99dfd6d6e715e092a805caacc2e79455a931f1",
+        "screens": 11405,
+        "rng": 792838
       }
     }
   ]

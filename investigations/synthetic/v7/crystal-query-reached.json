@@ -1,0 +1,90 @@
+{
+  "session": "synthetic/v7/crystal-query-reached",
+  "corpus": "synthetic",
+  "batch": "v7",
+  "caseId": "crystal-query-reached",
+  "manifestPath": "challenges/manifests/v7.json",
+  "manifestSha256": "03a861a9d1bc9d813c80681312ee7a0e0f893dbad0536de40a974bd5ec344094",
+  "recordingSha256": "71317422866c0e8eda5ca1c8c0681982f3843bef8e8a3f1ebd98d01890da5b5f",
+  "evaluationPath": "challenges/evaluations/20260926122253-v7.json",
+  "evaluationCommit": "f7e48bd93d6827c557c9a40a255a55cbc5fc8fcf",
+  "remainingScreens": 3,
+  "recordedSteps": 20,
+  "status": "complete",
+  "commit": "3543403d092a80dbeacd479a4fb0cb5c2d537413",
+  "mismatch": {
+    "corpus": "synthetic",
+    "batch": "v7",
+    "caseId": "crystal-query-reached",
+    "session": "synthetic/v7/crystal-query-reached",
+    "manifestPath": "challenges/manifests/v7.json",
+    "manifestSha256": "03a861a9d1bc9d813c80681312ee7a0e0f893dbad0536de40a974bd5ec344094",
+    "recording": "challenges/cases/v7/crystal-query-reached.session.json",
+    "recordingPath": "challenges/cases/v7/crystal-query-reached.session.json",
+    "recordingSha256": "71317422866c0e8eda5ca1c8c0681982f3843bef8e8a3f1ebd98d01890da5b5f",
+    "recipe": "challenges/cases/v7/crystal-query-reached.recipe.session.json",
+    "recipeSha256": "7438659f6eedd2afdf5949847ba955d4f99fc36755d80f8c1c00380d7374a7c6",
+    "replayInputSha256": "ba09b30aa45883696a6c2cbbe647b7a100c06ae9b741e0bcdf70fec164041447",
+    "evaluationPath": "challenges/evaluations/20260926122253-v7.json",
+    "evaluationCommit": "f7e48bd93d6827c557c9a40a255a55cbc5fc8fcf",
+    "evaluationArtifact": "challenges/evaluations/20260926122253-v7.json",
+    "evaluationUtc": "2026-09-26T12:23:06.868Z",
+    "remainingScreens": 3,
+    "recordedSteps": 20,
+    "previousScreensMatched": null,
+    "regression": false,
+    "passed": false,
+    "error": null,
+    "metrics": {
+      "screens": {
+        "matched": 17,
+        "total": 20
+      },
+      "rng": {
+        "matched": 6293,
+        "total": 6296
+      },
+      "cursors": {
+        "matched": 17,
+        "total": 20
+      }
+    },
+    "firstMismatch": {
+      "kind": "stop",
+      "message": "unsupported hero command: an unported branch of this command: applying a tool requires doapply()'s arm for object type 231",
+      "step": 17
+    },
+    "step": 17,
+    "kind": "stop",
+    "sourceFile": "apply.c",
+    "function": "doapply",
+    "message": "unsupported hero command: an unported branch of this command: applying a tool requires doapply()'s arm for object type 231",
+    "cFile": "apply.c",
+    "luaFile": null,
+    "line": null
+  },
+  "summary": "Applying a wished crystal ball stops at the missing doapply CRYSTAL_BALL arm. C calls detect.c use_crystal_ball(), prompts for a symbol, and enters a trap-detection query. Port the whole crystal-ball function, its consumed detector results, and the doapply caller arm.",
+  "source": {
+    "file": "detect.c",
+    "branch": "A sighted hero applies a crystal ball with charges. apply.c doapply() selects CRYSTAL_BALL and passes the object pointer to use_crystal_ball(); the non-hallucinating branch asks What do you look for?, receives ^, starts gazing, consumes a charge, and calls trap_detect().",
+    "functions": [
+      "use_crystal_ball"
+    ],
+    "callers": [
+      "apply.c doapply() at 4358-4360 invokes detect.c use_crystal_ball(&obj).",
+      "js/apply.js doapply() currently refuses object type 231 before reaching a detect.c equivalent; command dispatch enters through cmd.c apply command."
+    ],
+    "dependencies": [
+      "C use_crystal_ball() consumes the return value of trap_detect() for ^, and also object_detect(), monster_detect(), furniture_detect() for other symbols; port any missing return-valued callee in the same task.",
+      "The function mutates the pointed-to crystal ball when it explodes or implodes, consumes charges, schedules gaze occupation via nomul(), and controls prompt/message order.",
+      "The doapply caller is currently reserved by the active grease task; this investigation is ready for later selection once that reservation is released."
+    ]
+  },
+  "goalKind": "file-port",
+  "evidence": [
+    "challenges/evaluations/20260926122253-v7.json at f7e48bd93d6827c557c9a40a255a55cbc5fc8fcf: synthetic/v7/crystal-query-reached matches 17/20 screens then stops at segment 0 step 17, applying object type 231.",
+    "challenges/cases/v7/crystal-query-reached.session.json: C step 17 after selecting o says You may look for an object, monster, or special map symbol.; step 18 asks What do you look for?; step 19 after ^ says You peer into the glass orb....",
+    "nethack-c/upstream/src/apply.c:4358-4360 sends CRYSTAL_BALL to use_crystal_ball(&obj); detect.c:1206-1363 defines the prompt, state, RNG and detector selection, including ^ -> trap_detect().",
+    "The JS stop occurs at the doapply arm before the C detect.c call, so the first fix needs production caller wiring as well as the whole use_crystal_ball source function."
+  ]
+}

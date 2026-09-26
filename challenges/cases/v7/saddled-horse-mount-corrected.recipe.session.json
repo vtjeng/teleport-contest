@@ -1,0 +1,11 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 70727119,
+      "datetime": "20260929125000",
+      "nethackrc": "OPTIONS=name:MountTwo,role=Wizard,race=human,gender=female,align=neutral,playmode=debug,!legacy,!tutorial,!splash_screen,showexp,time,pettype:none\n",
+      "moves": " \u0007tame pony\n\u0017saddle\nany#ride\ny"
+    }
+  ]
+}

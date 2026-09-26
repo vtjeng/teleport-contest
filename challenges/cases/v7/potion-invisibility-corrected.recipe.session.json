@@ -1,0 +1,11 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 70727116,
+      "datetime": "20260929122000",
+      "nethackrc": "OPTIONS=name:Invisible2,role=Wizard,race=human,gender=female,align=neutral,playmode=debug,!legacy,!tutorial,!splash_screen,showexp,time,pettype:none\n",
+      "moves": " \u0017uncursed potion of invisibility\nqm"
+    }
+  ]
+}

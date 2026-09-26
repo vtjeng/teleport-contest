@@ -1,0 +1,122 @@
+{
+  "session": "synthetic/v7/priest-outside-temple-chat",
+  "corpus": "synthetic",
+  "batch": "v7",
+  "caseId": "priest-outside-temple-chat",
+  "manifestPath": "challenges/manifests/v7.json",
+  "manifestSha256": "03a861a9d1bc9d813c80681312ee7a0e0f893dbad0536de40a974bd5ec344094",
+  "recordingSha256": "76f2f565d9ff27f51adb9638e2ee8b3eab7edbe6d8fe058d470d84e89bd861a0",
+  "evaluationPath": "challenges/evaluations/20260926122253-v7.json",
+  "evaluationCommit": "f7e48bd93d6827c557c9a40a255a55cbc5fc8fcf",
+  "remainingScreens": 2,
+  "recordedSteps": 35,
+  "status": "complete",
+  "commit": "47856c2b7f77bc60cb4480d3bff955be061daaef",
+  "mismatch": {
+    "corpus": "synthetic",
+    "batch": "v7",
+    "caseId": "priest-outside-temple-chat",
+    "session": "synthetic/v7/priest-outside-temple-chat",
+    "manifestPath": "challenges/manifests/v7.json",
+    "manifestSha256": "03a861a9d1bc9d813c80681312ee7a0e0f893dbad0536de40a974bd5ec344094",
+    "recording": "challenges/cases/v7/priest-outside-temple-chat.session.json",
+    "recordingPath": "challenges/cases/v7/priest-outside-temple-chat.session.json",
+    "recordingSha256": "76f2f565d9ff27f51adb9638e2ee8b3eab7edbe6d8fe058d470d84e89bd861a0",
+    "recipe": "challenges/cases/v7/priest-outside-temple-chat.recipe.session.json",
+    "recipeSha256": "fef29a43a7857efd0935777eb584af573ec0096aed4e254d3f7deaff8010c4f8",
+    "replayInputSha256": "ba09b30aa45883696a6c2cbbe647b7a100c06ae9b741e0bcdf70fec164041447",
+    "evaluationPath": "challenges/evaluations/20260926122253-v7.json",
+    "evaluationCommit": "f7e48bd93d6827c557c9a40a255a55cbc5fc8fcf",
+    "evaluationArtifact": "challenges/evaluations/20260926122253-v7.json",
+    "evaluationUtc": "2026-09-26T12:23:06.868Z",
+    "remainingScreens": 2,
+    "recordedSteps": 35,
+    "previousScreensMatched": null,
+    "regression": false,
+    "passed": false,
+    "error": null,
+    "metrics": {
+      "screens": {
+        "matched": 33,
+        "total": 35
+      },
+      "rng": {
+        "matched": 2550,
+        "total": 2586
+      },
+      "cursors": {
+        "matched": 35,
+        "total": 35
+      }
+    },
+    "firstMismatch": {
+      "screen": {
+        "index": 27,
+        "location": {
+          "segmentIndex": 0,
+          "stepIndex": 27,
+          "key": "y"
+        },
+        "kind": "ch",
+        "row": 0,
+        "column": 9,
+        "cCell": {
+          "ch": "o",
+          "color": 8,
+          "attr": 0,
+          "decgfx": 0
+        },
+        "jsCell": {
+          "ch": "a",
+          "color": 8,
+          "attr": 0,
+          "decgfx": 0
+        }
+      },
+      "rng": {
+        "index": 2550,
+        "cEntry": "rn2(3)=1",
+        "cCaller": "makemon(makemon.c:1423)",
+        "jsEntry": "rnd(2)=1",
+        "location": {
+          "segmentIndex": 0,
+          "stepIndex": 27,
+          "key": "y"
+        },
+        "stepIndex": 27
+      },
+      "cursor": null
+    },
+    "step": 27,
+    "kind": "rng",
+    "sourceFile": "makemon.c",
+    "function": "makemon",
+    "message": null,
+    "cFile": "makemon.c",
+    "luaFile": null,
+    "line": 1423
+  },
+  "summary": "The wizard accepts the force prompt for an aligned cleric, so read.c:create_particular_creation() calls makemon() for PM_ALIGNED_CLERIC without MM_EPRI or MM_EMIN. C makemon.c:makemon() then creates EMIN data, marks the monster as a minion, draws its minion alignment and renegade state, sets peacefulness, and calls set_malign(). The corresponding special initialization arm is missing from js/makemon_create.js:makemon(), so the first random call and the appearance text diverge at step 27. The earliest source owner is makemon.c:makemon(); the later chat behavior is downstream of this creation state.",
+  "source": {
+    "file": "makemon.c",
+    "branch": "The recorded ^G request is “peaceful aligned cleric”; create_particular_creation() accepts y to override the human-zombie substitute and restores PM_ALIGNED_CLERIC. It calls makemon() with NO_MM_FLAGS plus MM_NOEXCLAM, so MM_EPRI and MM_EMIN are both absent. makemon() takes the PM_ALIGNED_CLERIC/PM_HIGH_CLERIC arm of its special extended-data condition: newemin(), isminion = 1, min_align = rn2(3) - 1, renegade = (MM_ANGRY ? 1 : !rn2(3)), peacefulness derived from min_align versus hero alignment and renegade, then set_malign(). The source’s alternate angel condition and its random check remain part of the whole makemon() function.",
+    "functions": [
+      "makemon"
+    ],
+    "callers": [
+      "nethack-c/upstream/src/cmd.c:1961-1962 dispatches Ctrl-G to wizcmds.c:wiz_genesis(); js/cmd.js dispatches wiz_genesis to js/wizcmds.js:wiz_genesis().",
+      "nethack-c/upstream/src/wizcmds.c:203-210 calls read.c:create_particular(); js/wizcmds.js:225-231 calls js/read.js:create_particular().",
+      "nethack-c/upstream/src/read.c:3252-3371 implements create_particular_creation(): lines 3260-3273 accept the force answer and lines 3315 onward call makemon(whichpm, u.ux, u.uy, mmflags). js/read.js:1486-1562 mirrors the selection and calls makemon_runtime() at 1529-1532, whose constructor path reaches js/makemon_create.js:makemon()."
+    ],
+    "dependencies": [
+      "The missing arm calls minion.c:newemin() to allocate mextra.emin, then writes monster.isminion, mextra.emin.min_align, mextra.emin.renegade, and monster.mpeaceful before makemon.c:set_malign(). JS already has newemin() in js/minion.js and set_malign() in js/makemon.js; the gap is the source-ordered branch and its two rn2(3) draws in js/makemon_create.js:makemon(). Preserve the prior peace_minded() result only until this branch overwrites it, then let set_malign() read the new minion state."
+    ]
+  },
+  "goalKind": "file-port",
+  "evidence": [
+    "The saved queue entry for synthetic/v7/priest-outside-temple-chat identifies 2 remaining screens and 35 recorded steps. challenges/evaluations/20260926122253-v7.json, evaluated at f7e48bd93d6827c557c9a40a255a55cbc5fc8fcf, reports 33/35 screens matched; its first mismatch is segment 0 step 27 on key y. C and JS differ at row 0, column 9, and the first RNG mismatch is C rn2(3)=1 at makemon.c:1423 versus JS rnd(2)=1 at the same recorded step.",
+    "The C recording challenges/cases/v7/priest-outside-temple-chat.session.json shows step 26 asking “Creating human zombie instead; force aligned cleric? [yn] (n)”; step 27 answers y and C displays “A priest of Thoth appears next to you.” Its RNG trace calls rn2(3)=1 at makemon.c:1423 for min_align and rn2(3)=1 at makemon.c:1424 for renegade before inventory setup.",
+    "Upstream makemon.c:1410-1429 initializes EMIN data for PM_ALIGNED_CLERIC or PM_HIGH_CLERIC when neither MM_EPRI nor MM_EMIN was supplied, marks the monster as a minion, sets min_align/renegade/peacefulness in that order, then calls set_malign(). In JS, makemon_create.js:3075 only allocates EMIN when MM_EMIN is already present; its later default peacefulness path is followed by set_malign() without the aligned-cleric source arm. js/minion.js:newemin() and js/makemon.js:set_malign() provide the state helpers, but the producing branch and its draws are missing.",
+    "Production reachability is cmd.c Ctrl-G -> wiz_genesis() -> read.c:create_particular() -> create_particular_creation() -> makemon(); JS wires the same path through cmd.js, wizcmds.js, read.js, and makemon_create.js:makemon_runtime(). Thus the first mismatch is during source-owned monster creation at makemon.c:1423, before any later chat behavior is an actionable owner for this case."
+  ]
+}

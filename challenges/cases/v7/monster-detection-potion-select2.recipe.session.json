@@ -1,0 +1,11 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 70727120,
+      "datetime": "20260929130000",
+      "nethackrc": "OPTIONS=name:DetectPotion2,role=Wizard,race=human,gender=female,align=neutral,playmode=debug,!legacy,!tutorial,!splash_screen,showexp,time,pettype:none\n",
+      "moves": " \u0007hostile grid bug\n\u0017potion of monster detection\n q?o"
+    }
+  ]
+}

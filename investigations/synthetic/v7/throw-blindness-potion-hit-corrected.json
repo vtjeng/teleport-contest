@@ -1,0 +1,142 @@
+{
+  "session": "synthetic/v7/throw-blindness-potion-hit-corrected",
+  "corpus": "synthetic",
+  "batch": "v7",
+  "caseId": "throw-blindness-potion-hit-corrected",
+  "manifestPath": "challenges/manifests/v7.json",
+  "manifestSha256": "03a861a9d1bc9d813c80681312ee7a0e0f893dbad0536de40a974bd5ec344094",
+  "recordingPath": "challenges/cases/v7/throw-blindness-potion-hit-corrected.session.json",
+  "recordingSha256": "008cbc04259cc70ac9489e4657207db7f4aede6892fca9699a4fb934a46446f6",
+  "evaluationPath": "challenges/evaluations/20260926122253-v7.json",
+  "evaluationCommit": "f7e48bd93d6827c557c9a40a255a55cbc5fc8fcf",
+  "remainingScreens": 1,
+  "recordedSteps": 44,
+  "status": "complete",
+  "commit": "772e1f2688e2540a1f8af8161290abce656d0db6",
+  "mismatch": {
+    "corpus": "synthetic",
+    "batch": "v7",
+    "caseId": "throw-blindness-potion-hit-corrected",
+    "session": "synthetic/v7/throw-blindness-potion-hit-corrected",
+    "manifestPath": "challenges/manifests/v7.json",
+    "manifestSha256": "03a861a9d1bc9d813c80681312ee7a0e0f893dbad0536de40a974bd5ec344094",
+    "recording": "challenges/cases/v7/throw-blindness-potion-hit-corrected.session.json",
+    "recordingPath": "challenges/cases/v7/throw-blindness-potion-hit-corrected.session.json",
+    "recordingSha256": "008cbc04259cc70ac9489e4657207db7f4aede6892fca9699a4fb934a46446f6",
+    "recipe": "challenges/cases/v7/throw-blindness-potion-hit-corrected.recipe.session.json",
+    "recipeSha256": "d42188165e9d1ead10fea1c1208dd6f93421f8f241372f0c5e3b7c574f033bd9",
+    "replayInputSha256": "ba09b30aa45883696a6c2cbbe647b7a100c06ae9b741e0bcdf70fec164041447",
+    "evaluationPath": "challenges/evaluations/20260926122253-v7.json",
+    "evaluationCommit": "f7e48bd93d6827c557c9a40a255a55cbc5fc8fcf",
+    "evaluationArtifact": "challenges/evaluations/20260926122253-v7.json",
+    "evaluationUtc": "2026-09-26T12:23:06.868Z",
+    "remainingScreens": 1,
+    "recordedSteps": 44,
+    "previousScreensMatched": null,
+    "regression": false,
+    "passed": false,
+    "error": null,
+    "metrics": {
+      "screens": {
+        "matched": 43,
+        "total": 44
+      },
+      "rng": {
+        "matched": 2547,
+        "total": 2549
+      },
+      "cursors": {
+        "matched": 43,
+        "total": 44
+      }
+    },
+    "firstMismatch": {
+      "screen": {
+        "index": 43,
+        "location": {
+          "segmentIndex": 0,
+          "stepIndex": 43,
+          "key": "u"
+        },
+        "kind": "ch",
+        "row": 0,
+        "column": 0,
+        "cCell": {
+          "ch": "T",
+          "color": 8,
+          "attr": 0,
+          "decgfx": 0
+        },
+        "jsCell": {
+          "ch": " ",
+          "color": 8,
+          "attr": 0,
+          "decgfx": 0
+        }
+      },
+      "rng": {
+        "index": 2547,
+        "cEntry": "rn2(7)=3",
+        "cCaller": "bottlename(potion.c:1493)",
+        "jsEntry": "rn2(12)=5",
+        "location": {
+          "segmentIndex": 0,
+          "stepIndex": 43,
+          "key": "u"
+        },
+        "stepIndex": 43
+      },
+      "cursor": {
+        "index": 43,
+        "location": {
+          "segmentIndex": 0,
+          "stepIndex": 43,
+          "key": "u"
+        },
+        "cCursor": [
+          73,
+          0,
+          1
+        ],
+        "jsCursor": [
+          10,
+          11,
+          1
+        ]
+      }
+    },
+    "step": 43,
+    "kind": "rng",
+    "sourceFile": "potion.c",
+    "function": "bottlename",
+    "message": null,
+    "cFile": "potion.c",
+    "luaFile": null,
+    "line": 1493
+  },
+  "summary": "At segment 0 step 43, direction u hits the adjacent grid bug with the wished blindness potion. The first divergence is not an incorrect bottlename() implementation: C dothrow.c:thitmonst() calls potion.c:potionhit() on the monster, whose first operation draws bottlename() and then prints the carafe impact message. JavaScript thitmonst() takes the hit branch but records the potionhit gap and returns without invoking the partial monster-target potion handler.",
+  "source": {
+    "file": "potion.c",
+    "branch": "The recorded throw reaches the monster-target branch of potionhit(): dothrow.c:thitmonst() passes the hit monster, potion object, and POTHIT_HERO_THROW after the shared hit roll. potionhit() first calls bottlename(), then for a visible target determines whether the potion hit a saddle and formats the impact location from has_head(mon->data) and gn.notonhead; this case names the grid bug’s head. It next applies the rn2(5) monster damage check, runs the potion-type monster effect when its guards permit, and consumes the object. JavaScript has bottlename() and a partial potionhit(), but that function refuses monster targets; js/dothrow.js:thitmonst() currently skips the call entirely via note_unported().",
+    "functions": [
+      "potionhit"
+    ],
+    "callers": [
+      "C command dispatch: nethack-c/upstream/src/cmd.c:1901-1902 maps t to dothrow(); dothrow.c:throwit_mon_hit() sets gn.notonhead from the impact coordinate, then calls thitmonst(); dothrow.c:2262-2265 calls potionhit(mon, obj, POTHIT_HERO_THROW) on a hit potion and returns 1 to consume it.",
+      "JS command dispatch: js/extcmdlist_data.js:137 maps t to dothrow and js/cmd.js:5917-5933 calls js/dothrow.js:dothrow(). js/dothrow.js:throwit_mon_hit() sets state.gn.notonhead and calls thitmonst(); at js/dothrow.js:2295-2301 its potion hit arm calls note_unported(\"potion.c potionhit\") and returns 1 instead of calling js/potion.js:potionhit()."
+    ],
+    "dependencies": [
+      "potion.c:bottlename() is already ported as js/potion.js:bottlename() (1476-1479), with the source 7-name normal list and hallucination list. The recording has no hallucination state; C rn2(7)=3 selects list entry 3, “carafe”. The JS call is skipped by the caller gap, so this is not a wrong list/index implementation.",
+      "The reachable monster-target state comes from dothrow.c:throwit_mon_hit(): the chosen impact square equals the grid bug coordinates, so gn.notonhead is false and the visible target has a head; there is no saddle hit. thitmonst() has already drawn rnd(20)=11 and passed the dexterity hit test with rnd(25)=10 before the missing call. potionhit() receives POTHIT_HERO_THROW, which sets your_fault for downstream monster effects, and returns no value; thitmonst() owns the consumed-object return, while throwit_mon_hit() clears the thrown-object state when that return indicates consumption.",
+      "For the wished POT_BLINDNESS target effect, potion.c:potionhit() only changes monster blindness when haseyes(mon->data) and !mon_perma_blind(mon); its btmp update writes mon->mblinded (capped at 127) and clears mon->mcansee. Keep those target-state guards in scope when implementing the full monster branch. The saved recording establishes the impact message and rn2(5) check but does not provide a later screen proving the blindness state."
+    ]
+  },
+  "goalKind": "file-port",
+  "evidence": [
+    "The saved queue entry and challenges/evaluations/20260926122253-v7.json at evaluation commit f7e48bd93d6827c557c9a40a255a55cbc5fc8fcf report one unmatched screen (43/44 matched) at segment 0 step 43, input u. C row 0 column 0 is “T” while JS is a space; the cursors differ ([73,0,1] vs [10,11,1]). The first RNG mismatch is at the same step: C rn2(7)=3 @ bottlename(potion.c:1493), JS rn2(12)=5; the saved evaluation does not identify the JS callsite.",
+    "The immutable C recording challenges/cases/v7/throw-blindness-potion-hit-corrected.session.json has one segment. Step 41 selects throw, step 42 selects inventory object o, and step 43 submits direction u. C then displays “The carafe crashes on the grid bug’s head and breaks into shards.--More--” and logs rnd(20)=11 at thitmonst, rnd(25)=10 at thitmonst, rn2(7)=3 at bottlename, and rn2(5)=2 at potionhit.",
+    "The saved v7 manifest identifies the object as a wished potion of blindness and the target as an adjacent hostile grid bug. The RNG trace establishes the C collision route: the first two hit-test draws match before the first missing callee draw; C then selects “carafe” (normal bottle list entry 3) and runs potionhit’s monster damage check. This is evidence for the direct potion hit branch, not for a later blindness status screen.",
+    "Upstream nethack-c/upstream/src/dothrow.c:2262-2265 calls potionhit(mon, obj, POTHIT_HERO_THROW) when the potion-class hit test passes. Upstream nethack-c/upstream/src/potion.c:1623-1677 owns the bottle draw, visible impact message and monster damage check; lines 1727-1904 own the monster-side potion effects and wake state, with POT_BLINDNESS at 1821-1829; lines 1927-1928 consume the object. The caller state that controls the recorded message is set in dothrow.c:1491-1492: direct impact makes gn.notonhead false, so the target has a head rather than a body hit.",
+    "The evaluated/current JS source confirms the missing call: js/dothrow.js:2295-2301 enters the potion hit arm, records note_unported(\"potion.c potionhit\"), and returns 1; js/potion.js:1481-1505 documents that only the hero-target half is ported and refuses a monster target. js/potion.js:1476-1479 already ports bottlename() correctly. Therefore the C bottlename RNG mismatch is the first operation skipped because potionhit() was not called, while the reported JS rn2(12) has no matched semantic role and should be treated as shifted-stream fallout rather than a bottlename defect."
+  ]
+}

@@ -1,0 +1,91 @@
+{
+  "session": "synthetic/v7/trapdoor-pet-transit",
+  "corpus": "synthetic",
+  "batch": "v7",
+  "caseId": "trapdoor-pet-transit",
+  "manifestPath": "challenges/manifests/v7.json",
+  "manifestSha256": "03a861a9d1bc9d813c80681312ee7a0e0f893dbad0536de40a974bd5ec344094",
+  "recordingSha256": "995f464e33f2d53c6eb4f4e6149db8198273ed137fa0b5517ca62cd65d4e0328",
+  "evaluationPath": "challenges/evaluations/20260926122253-v7.json",
+  "evaluationCommit": "f7e48bd93d6827c557c9a40a255a55cbc5fc8fcf",
+  "remainingScreens": 2,
+  "recordedSteps": 17,
+  "status": "complete",
+  "commit": "3543403d092a80dbeacd479a4fb0cb5c2d537413",
+  "mismatch": {
+    "corpus": "synthetic",
+    "batch": "v7",
+    "caseId": "trapdoor-pet-transit",
+    "session": "synthetic/v7/trapdoor-pet-transit",
+    "manifestPath": "challenges/manifests/v7.json",
+    "manifestSha256": "03a861a9d1bc9d813c80681312ee7a0e0f893dbad0536de40a974bd5ec344094",
+    "recording": "challenges/cases/v7/trapdoor-pet-transit.session.json",
+    "recordingPath": "challenges/cases/v7/trapdoor-pet-transit.session.json",
+    "recordingSha256": "995f464e33f2d53c6eb4f4e6149db8198273ed137fa0b5517ca62cd65d4e0328",
+    "recipe": "challenges/cases/v7/trapdoor-pet-transit.recipe.session.json",
+    "recipeSha256": "21c6ff25a48a6bc63ca3d4811df3bdfe6cd2ffe12aabc2afd8973aabc546207e",
+    "replayInputSha256": "ba09b30aa45883696a6c2cbbe647b7a100c06ae9b741e0bcdf70fec164041447",
+    "evaluationPath": "challenges/evaluations/20260926122253-v7.json",
+    "evaluationCommit": "f7e48bd93d6827c557c9a40a255a55cbc5fc8fcf",
+    "evaluationArtifact": "challenges/evaluations/20260926122253-v7.json",
+    "evaluationUtc": "2026-09-26T12:23:06.868Z",
+    "remainingScreens": 2,
+    "recordedSteps": 17,
+    "previousScreensMatched": null,
+    "regression": false,
+    "passed": false,
+    "error": null,
+    "metrics": {
+      "screens": {
+        "matched": 15,
+        "total": 17
+      },
+      "rng": {
+        "matched": 2460,
+        "total": 4671
+      },
+      "cursors": {
+        "matched": 15,
+        "total": 17
+      }
+    },
+    "firstMismatch": {
+      "kind": "stop",
+      "message": "unsupported hero move: trap activation",
+      "step": 15
+    },
+    "step": 15,
+    "kind": "stop",
+    "sourceFile": null,
+    "function": null,
+    "message": "unsupported hero move: trap activation",
+    "cFile": null,
+    "luaFile": null,
+    "line": null
+  },
+  "summary": "Walking onto a wished trap door stops at JS hero movement preflight. C runs trap.c trapeffect_hole() and fall_through(), opens the door, and schedules descent; the next C step reaches goto_level(). Port fall_through and admit the HOLE/TRAPDOOR hero path with the same level-transition contract.",
+  "source": {
+    "file": "trap.c",
+    "branch": "A grounded hero enters a square containing an unseen TRAPDOOR on a level where Can_fall_thru is true. dotrap() reaches trapeffect_hole(); fall_through(TRUE, flags) reveals the trap, emits the opening message, resolves fall prevention including an adjacent pet, computes the destination, and calls schedule_goto().",
+    "functions": [
+      "trapeffect_hole",
+      "fall_through",
+      "clamp_hole_destination"
+    ],
+    "callers": [
+      "trap.c dotrap() calls trapeffect_selector(), which sends TRAPDOOR to trapeffect_hole() and then fall_through(TRUE,...).",
+      "js/hack.js movement preflight calls js/trap_effects.js preflight_dotrap(), which currently rejects TRAPDOOR before dotrap() changes state; js/trap_effects.js trapeffect_hole() also refuses the hero fall_through() branch."
+    ],
+    "dependencies": [
+      "Wire schedule_goto() and the ensuing do.c goto_level() transition, preserving pet movement and random-call order; the C recording reaches level generation after the trap door.",
+      "The parked trap.c monster magic-trap goal includes a historical fall_through declaration, but source completion for the hero trapdoor branch is not established; reconcile that goal before opening a replacement."
+    ]
+  },
+  "goalKind": "file-port",
+  "evidence": [
+    "challenges/evaluations/20260926122253-v7.json at f7e48bd93d6827c557c9a40a255a55cbc5fc8fcf: synthetic/v7/trapdoor-pet-transit matches 15/17 screens, then stops on hero move at segment 0 step 15 with trap activation.",
+    "challenges/cases/v7/trapdoor-pet-transit.session.json: C step 15 after h says A trap door opens up under you!; C RNG then enters getbones() and makelevel(), and step 16 has goto_level() activity after the More prompt.",
+    "nethack-c/upstream/src/trap.c:602-699 fall_through() prints the trap-door line, applies next_to_u() pet retention, computes the destination, and calls schedule_goto(); trap.c:2013-2069 trapeffect_hole() invokes it for the hero.",
+    "js/trap_effects.js:3246-3254 preflight_dotrap() rejects HOLE/TRAPDOOR; js/trap_effects.js:1624-1643 trapeffect_hole() has only the monster arm live and refuses fall_through() for a hero."
+  ]
+}

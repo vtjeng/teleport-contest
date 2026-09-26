@@ -1,0 +1,11 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 70726012,
+      "datetime": "20260926203000",
+      "nethackrc": "OPTIONS=name:Veladbook,role:Wizard,race:human,gender:female,align:neutral,playmode:debug,!legacy,!tutorial,!splash_screen,showexp,time\n",
+      "moves": " \u0017blessed Book of the Dead\n\u0007hostile zombie\nrn . . . . . . . . . . . . . . . . . . . ."
+    }
+  ]
+}

@@ -1,0 +1,11 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 70727104,
+      "datetime": "20260929104000",
+      "nethackrc": "OPTIONS=name:KickBug,role=Wizard,race=human,gender=female,align=neutral,playmode=debug,!legacy,!tutorial,!splash_screen,showexp,time,pettype:none\n",
+      "moves": " \u0007hostile grid bug\ny\u0004j"
+    }
+  ]
+}
