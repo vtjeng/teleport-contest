@@ -5,10 +5,30 @@ import {
     ADMITTED_COMMANDS,
     UnsupportedHeroCommandBoundaryError,
 } from '../js/cmd.js';
-import { DUST, ROOM } from '../js/const.js';
-import { engr_at, make_engr_at, read_engr_at } from '../js/engrave.js';
+import {
+    AIR,
+    CLOUD,
+    DUST,
+    ECMD_FAIL,
+    FOUNTAIN,
+    LAVAPOOL,
+    LEVITATION,
+    POOL,
+    ROOM,
+    STAIRS,
+    STONE,
+} from '../js/const.js';
+import {
+    doengrave,
+    engr_at,
+    make_engr_at,
+    read_engr_at,
+    u_can_engrave,
+} from '../js/engrave.js';
+import { GameMap } from '../js/game.js';
 import { game } from '../js/gstate.js';
 import { runSegment } from '../js/jsmain.js';
+import { M1_ANIMAL, S_VORTEX } from '../js/monsters.js';
 import {
     ENGRAVE_SETUP,
     ENGRAVE_KEY,
@@ -17,6 +37,136 @@ import {
     FINGERTIP_KEY,
     loadEngraveFingertipDustRecipe,
 } from './run-engrave-fingertip-dust.mjs';
+
+function engravingGateState(typ, { swallowed = false, holder = null } = {}) {
+    const level = new GameMap();
+    level.at(10, 10).typ = typ;
+    return {
+        level,
+        u: {
+            ux: 10,
+            uy: 10,
+            uz: { dnum: 0, dlevel: 1 },
+            uswallow: swallowed,
+            ustuck: holder ? { data: holder } : null,
+            uprops: [],
+        },
+        youmonst: { data: { mflags1: 0, mlet: 0, pmidx: 0 } },
+    };
+}
+
+function engravingGateEnv(state, {
+    cantWield = () => false,
+    checkCapacity = async () => false,
+    message = async () => {},
+} = {}) {
+    return { cantWield, checkCapacity, message, state };
+}
+
+test('u_can_engrave follows C terrain, engulfing, and return checks', async () => {
+    for (const [typ, expected] of [
+        [STONE, "You can't write here."],
+        [LAVAPOOL, "You can't write on the lava!"],
+        [POOL, "You can't write on the water!"],
+        [FOUNTAIN, "You can't write on the fountain!"],
+        [CLOUD, "You can't write in cloud vapor!"],
+    ]) {
+        const state = engravingGateState(typ);
+        const messages = [];
+        assert.equal(await u_can_engrave(state, engravingGateEnv(state, {
+            message: async (text) => messages.push(text),
+        })), false, String(typ));
+        assert.deepEqual(messages, [expected], String(typ));
+    }
+
+    const air = engravingGateState(AIR);
+    const airMessages = [];
+    assert.equal(await u_can_engrave(air, engravingGateEnv(air, {
+        message: async (text) => airMessages.push(text),
+    })), false);
+    assert.deepEqual(airMessages, ["You can't write in thin air!"]);
+
+    const animal = engravingGateState(ROOM, {
+        swallowed: true,
+        holder: { mflags1: M1_ANIMAL, mlet: 0, pmidx: 0 },
+    });
+    const animalMessages = [];
+    assert.equal(await u_can_engrave(animal, engravingGateEnv(animal, {
+        message: async (text) => animalMessages.push(text),
+    })), false);
+    assert.deepEqual(animalMessages, ['What would you write?  "Jonah was here"?']);
+
+    const whirly = engravingGateState(ROOM, {
+        swallowed: true,
+        holder: { mflags1: 0, mlet: S_VORTEX, pmidx: 0 },
+    });
+    const whirlyMessages = [];
+    assert.equal(await u_can_engrave(whirly, engravingGateEnv(whirly, {
+        message: async (text) => whirlyMessages.push(text),
+    })), false);
+    assert.deepEqual(whirlyMessages, ["You can't reach the floor."]);
+
+    // C skips terrain checks for an amorphous engulfer, then reaches the
+    // wieldability and carrying-capacity checks.
+    const amorphous = engravingGateState(STONE, {
+        swallowed: true,
+        holder: { mflags1: 0, mlet: 0, pmidx: 0 },
+    });
+    assert.equal(await u_can_engrave(amorphous,
+        engravingGateEnv(amorphous)), true);
+
+    // STAIRS is ACCESSIBLE even though it is outside the former ROOM/CORR
+    // shortcut. Levitation also proves this predicate no longer reads the
+    // later can_reach_floor() rule.
+    const accessible = engravingGateState(STAIRS);
+    accessible.u.uprops[LEVITATION] = { intrinsic: 1 };
+    const order = [];
+    assert.equal(await u_can_engrave(accessible, engravingGateEnv(accessible, {
+        cantWield: (species) => {
+            assert.equal(species, accessible.youmonst.data);
+            order.push('cantwield');
+            return false;
+        },
+        checkCapacity: async (str, checkedState) => {
+            assert.equal(str, null);
+            assert.equal(checkedState, accessible);
+            order.push('check_capacity');
+            return false;
+        },
+    })), true);
+    assert.deepEqual(order, ['cantwield', 'check_capacity']);
+
+    const noHands = engravingGateState(STAIRS);
+    const noHandsMessages = [];
+    let capacityChecked = false;
+    assert.equal(await u_can_engrave(noHands, engravingGateEnv(noHands, {
+        cantWield: () => true,
+        checkCapacity: async () => { capacityChecked = true; return false; },
+        message: async (text) => noHandsMessages.push(text),
+    })), false);
+    assert.equal(capacityChecked, false);
+    assert.deepEqual(noHandsMessages, ["You can't even hold anything!"]);
+
+    const tooHeavy = engravingGateState(STAIRS);
+    assert.equal(await u_can_engrave(tooHeavy, engravingGateEnv(tooHeavy, {
+        checkCapacity: async () => true,
+    })), false);
+});
+
+test('doengrave returns C ECMD_FAIL when its entry predicate refuses', async () => {
+    const state = engravingGateState(CLOUD);
+    const messages = [];
+    let prompted = false;
+    const result = await doengrave(state, {
+        cantWield: () => false,
+        checkCapacity: async () => false,
+        message: async (text) => messages.push(text),
+        getObject: async () => { prompted = true; },
+    });
+    assert.equal(result, ECMD_FAIL);
+    assert.deepEqual(messages, ["You can't write in cloud vapor!"]);
+    assert.equal(prompted, false);
+});
 
 test('bare fingertips write a rate-10 dust engraving in one action',
     async () => {
