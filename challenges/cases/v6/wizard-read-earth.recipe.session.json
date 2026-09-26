@@ -1,0 +1,11 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 60626007,
+      "datetime": "20260925113000",
+      "nethackrc": "OPTIONS=name:Velawizard-rea,role:Wizard,race:human,gender:female,align:chaotic,playmode:debug,!legacy,!tutorial,!splash_screen,showexp,time\n",
+      "moves": "\u0017scroll of earth\nir"
+    }
+  ]
+}

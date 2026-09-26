@@ -1,0 +1,11 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 60626036,
+      "datetime": "20260925113000",
+      "nethackrc": "OPTIONS=name:Velawizard-wr,role:Wizard,race:human,gender:female,align:neutral,playmode:debug,!legacy,!tutorial,!splash_screen,showexp,time\n",
+      "moves": "\u0017magic marker\n\u0017blank scroll\naopscroll of identify\n"
+    }
+  ]
+}
