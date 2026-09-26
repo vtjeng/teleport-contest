@@ -79130,7 +79130,7 @@
     {
       "id": "fix-zap-bhitm-hit-shadow-synthetic-v5-20260926",
       "kind": "divergence-fix",
-      "status": "open",
+      "status": "closed",
       "summary": "Repair zap.c bhitm wand-striking hit dispatch",
       "cFile": "zap.c",
       "sessions": [],
@@ -79142,8 +79142,11 @@
         "screens": 11405,
         "rng": 792838
       },
-      "closedAt": null,
-      "delivered": null,
+      "closedAt": "50bbe620897c8fc2e634d14ec672d33a4e44db7e",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
       "function": "bhitm",
       "session": "synthetic/v5/healer-wand-striking-grid-bug",
       "syntheticProvenance": {
@@ -79311,7 +79314,70 @@
             }
           }
         }
-      ]
+      ],
+      "closeMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v5",
+          "caseId": "healer-wand-striking-grid-bug",
+          "session": "synthetic/v5/healer-wand-striking-grid-bug",
+          "manifestPath": "challenges/manifests/v5.json",
+          "manifestSha256": "5e4430fbd724fe91720f898c02e6f25f9d98e884fa31bd696ca1a63e87abf150",
+          "recording": "challenges/cases/v5/healer-wand-striking-grid-bug.session.json",
+          "recordingPath": "challenges/cases/v5/healer-wand-striking-grid-bug.session.json",
+          "recordingSha256": "97d372dd3a84252d6970271b4d335959cbf6d24c41318fa0b578c7a79446ec32",
+          "recipe": "challenges/cases/v5/healer-wand-striking-grid-bug.recipe.session.json",
+          "recipeSha256": "3a7de6608aa0b6a7b0b18d69aad15580d049445bd3ddc59b353966006f65a39d",
+          "replayInputSha256": "2bd21963cc9fcefed1046fb792ae304cc715fbe5dc32b52d679951cc718f7b18",
+          "evaluationPath": "challenges/evaluations/20260926094126-v5.json",
+          "evaluationCommit": "50bbe620897c8fc2e634d14ec672d33a4e44db7e",
+          "evaluationArtifact": "challenges/evaluations/20260926094126-v5.json",
+          "evaluationUtc": "2026-09-26T09:41:40.582Z",
+          "remainingScreens": 8,
+          "recordedSteps": 48,
+          "previousScreensMatched": 0,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 40,
+              "total": 48
+            },
+            "rng": {
+              "matched": 2681,
+              "total": 2743
+            },
+            "cursors": {
+              "matched": 40,
+              "total": 48
+            }
+          },
+          "firstMismatch": {
+            "kind": "stop",
+            "message": "unsupported hero command: an unported branch of this command: zapping a wand requires resist() killing a monster via damage (m_using / killed path)",
+            "step": 40
+          },
+          "step": 40,
+          "kind": "stop",
+          "sourceFile": "zap.c",
+          "function": "resist",
+          "message": "unsupported hero command: an unported branch of this command: zapping a wand requires resist() killing a monster via damage (m_using / killed path)",
+          "cFile": "zap.c",
+          "luaFile": null,
+          "line": null,
+          "investigation": {
+            "status": "stale",
+            "path": "investigations/synthetic/v5/healer-wand-striking-grid-bug.json",
+            "previousRemainingScreens": 48
+          }
+        }
+      ],
+      "closeStanding": {
+        "sha": "50bbe620897c8fc2e634d14ec672d33a4e44db7e",
+        "screens": 11405,
+        "rng": 792838
+      }
     }
   ]
 }
