@@ -75266,6 +75266,49 @@
           "evaluationCommit": "d6cf89ae93f57f6153a759eeb24058372448dd46"
         }
       }
+    },
+    {
+      "id": "port-do-dosinkring-synthetic-v4-20260926",
+      "kind": "file-port",
+      "status": "queued",
+      "summary": "Port do.c dosinkring and wire the sink-ring drop caller",
+      "cFile": "do.c",
+      "sessions": [
+        "synthetic/v4/rogue-sink-ring-history"
+      ],
+      "selectionReason": "After assigned B7 camera and A7 magic-flute cases, synthetic/v4/rogue-sink-ring-history has four unmatched screens; investigations/synthetic/v4/rogue-sink-ring-history.json traces the first stop at segment 0 step 47 to do.c dosinkring. The source owner is independent of their apply/light and music/mhitm reservations.",
+      "detail": "v4 manifest digest 10777af4c82fc759abf58a870fdd232329bc5c1467c8cf94f46089d0401459a9; recording challenges/cases/v4/rogue-sink-ring-history.session.json digest dc0759b7d9dca777d85b82b5e0ee0473ca6ef4debbb2a9f2b2eb2acadf85c557; saved evaluation challenges/evaluations/20260926022427-v4.json. Port all do.c:dosinkring branches in source order, do.c:drop sink-ring call, and consumed results of teleport_sink and obj_resists on active paths. The admitted recipe exercises levitation and searching rings; independently record other reached effects.",
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": null,
+      "delivered": null,
+      "functions": [
+        {
+          "name": "dosinkring",
+          "line": 498,
+          "endLine": 664,
+          "declared": false,
+          "complete": false
+        }
+      ],
+      "range": {
+        "from": 498,
+        "to": 664
+      },
+      "syntheticProvenance": {
+        "synthetic/v4/rogue-sink-ring-history": {
+          "session": "synthetic/v4/rogue-sink-ring-history",
+          "corpus": "synthetic",
+          "batch": "v4",
+          "caseId": "rogue-sink-ring-history",
+          "manifestPath": "challenges/manifests/v4.json",
+          "manifestSha256": "10777af4c82fc759abf58a870fdd232329bc5c1467c8cf94f46089d0401459a9",
+          "recordingPath": "challenges/cases/v4/rogue-sink-ring-history.session.json",
+          "recordingSha256": "dc0759b7d9dca777d85b82b5e0ee0473ca6ef4debbb2a9f2b2eb2acadf85c557",
+          "evaluationPath": "challenges/evaluations/20260926022427-v4.json",
+          "evaluationCommit": "07377e0c0ad51853b62a4b850c639a10fdb02db1"
+        }
+      }
     }
   ]
 }
