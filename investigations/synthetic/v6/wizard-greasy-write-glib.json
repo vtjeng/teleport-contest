@@ -1,0 +1,90 @@
+{
+  "session": "synthetic/v6/wizard-greasy-write-glib",
+  "corpus": "synthetic",
+  "batch": "v6",
+  "caseId": "wizard-greasy-write-glib",
+  "manifestPath": "challenges/manifests/v6.json",
+  "manifestSha256": "7523b91e823f4e3906c9acdc9a3d80f8469c27c2caab8fc8fbd6967dbfdcab5f",
+  "recordingPath": "challenges/cases/v6/wizard-greasy-write-glib.session.json",
+  "recordingSha256": "6f8be6114cd1a551dc75940ccc48608c51b6a978950a5f90e639dbbb09f03317",
+  "evaluationPath": "challenges/evaluations/20260926132731-v6.json",
+  "evaluationCommit": "d0a8041f88dd37cbf631877464c06cf985998274",
+  "remainingScreens": 2,
+  "recordedSteps": 22,
+  "status": "complete",
+  "commit": "d0a8041f88dd37cbf631877464c06cf985998274",
+  "mismatch": {
+    "corpus": "synthetic",
+    "batch": "v6",
+    "caseId": "wizard-greasy-write-glib",
+    "session": "synthetic/v6/wizard-greasy-write-glib",
+    "manifestPath": "challenges/manifests/v6.json",
+    "manifestSha256": "7523b91e823f4e3906c9acdc9a3d80f8469c27c2caab8fc8fbd6967dbfdcab5f",
+    "recording": "challenges/cases/v6/wizard-greasy-write-glib.session.json",
+    "recordingPath": "challenges/cases/v6/wizard-greasy-write-glib.session.json",
+    "recordingSha256": "6f8be6114cd1a551dc75940ccc48608c51b6a978950a5f90e639dbbb09f03317",
+    "recipe": "challenges/cases/v6/wizard-greasy-write-glib.recipe.session.json",
+    "recipeSha256": "0ccf18d6ddfa6bd75ef0c57c46a0ae8bd6418b3fafc4a4e9641a518492818911",
+    "replayInputSha256": "a3ac3b6872f8e89451d29bdbf73b5215af57c013d215edeaba8f740cc0c5fc4a",
+    "evaluationPath": "challenges/evaluations/20260926132731-v6.json",
+    "evaluationCommit": "d0a8041f88dd37cbf631877464c06cf985998274",
+    "evaluationArtifact": "challenges/evaluations/20260926132731-v6.json",
+    "evaluationUtc": "2026-09-26T13:27:48.505Z",
+    "remainingScreens": 2,
+    "recordedSteps": 22,
+    "previousScreensMatched": 20,
+    "regression": false,
+    "passed": false,
+    "error": null,
+    "metrics": {
+      "screens": {
+        "matched": 20,
+        "total": 22
+      },
+      "rng": {
+        "matched": 2958,
+        "total": 2967
+      },
+      "cursors": {
+        "matched": 20,
+        "total": 22
+      }
+    },
+    "firstMismatch": {
+      "kind": "stop",
+      "message": "unsupported hero command: an unported branch of this command: applying a tool requires doapply()'s arm for object type 79",
+      "step": 20
+    },
+    "step": 20,
+    "kind": "stop",
+    "sourceFile": "apply.c",
+    "function": "doapply",
+    "message": "unsupported hero command: an unported branch of this command: applying a tool requires doapply()'s arm for object type 79",
+    "cFile": "apply.c",
+    "luaFile": null,
+    "line": null
+  },
+  "summary": "This case does not reach hand greasing or Glib. After an invalid inventory choice produces a matched \"You don’t have that object\" More prompt, the later apply command reaches object type 79. C apply.c:doapply() falls through its generic default, prints \"Sorry, I don’t know how to use that.\", and returns ECMD_FAIL; JS refuses the branch and evaluation stops at step 20. This first owner is doapply(), not glibr().",
+  "source": {
+    "file": "apply.c",
+    "branch": "At segment 0 step 20, doapply() receives inventory object type 79. No named switch arm handles it; C checks is_pole(), is_pick(), and is_axe() in the generic default, finds none applicable, prints the generic refusal, and returns ECMD_FAIL. This session never selects the grease can’s hand target, so Glib is not activated and glibr() is not reached.",
+    "functions": [
+      "doapply"
+    ],
+    "callers": [
+      "C command table cmd.c:1678 maps the a command to apply.c:doapply(); JavaScript js/cmd.js:runApplyCommand dispatches to js/apply.js:doapply().",
+      "Inside apply.c:doapply(), getobj() supplies the selected object to the switch; object type 79 reaches the generic default at lines 4407-4417 after the named cases."
+    ],
+    "dependencies": [
+      "Preserve doapply() getobj and retouch ordering, switch dispatch, is_pole/is_pick/is_axe predicates, printed message, and ECMD_FAIL return without spending a turn.",
+      "js/apply.js handles selected FOOD_CLASS and ARMOR_CLASS defaults and pole/pick/axe branches, but throws UnsupportedApplyError for this remaining object-type-79 path; do not classify it as grease or Glib behavior."
+    ]
+  },
+  "goalKind": "divergence-fix",
+  "evidence": [
+    "Saved challenges/evaluations/20260926132731-v6.json reports 2 remaining screens of 22 and first stop at segment 0 step 20: JS refuses apply.c:doapply() for object type 79. The previous 20 screens match; RNG is 2958/2967.",
+    "C recording challenges/cases/v6/wizard-greasy-write-glib.session.json: step 17 key p yields \"You don’t have that object.--More--\"; step 19 space returns to the apply prompt; step 20 key a produces \"Sorry, I don’t know how to use that.\" before the final n input. The case never chooses the grease can’s hand target.",
+    "nethack-c/upstream/src/apply.c:4407-4417 is the generic default after BANANA: it tries is_pole() and is_pick()/is_axe(), then prints the message and returns ECMD_FAIL. js/apply.js:2375-2403 mirrors some default classes but throws UnsupportedApplyError for object type 79.",
+    "C caller is the a-command table entry in nethack-c/upstream/src/cmd.c:1678; JavaScript caller is js/cmd.js:runApplyCommand -> js/apply.js:doapply(). This path, not do_wear.c:glibr(), owns the first divergence."
+  ]
+}

@@ -13,10 +13,12 @@ import test from 'node:test';
 import { failClosedCommandRefusals } from '../js/cmd.js';
 
 import {
-    A_CON, A_DEX, A_WIS, BLINDED, CONFUSION, DEAF, FAST, FREE_ACTION, FROMOUTSIDE, GLIB, HALLUC,
+    A_CON, A_DEX, A_WIS, BLINDED, CONFUSION, DEAF, FAST, FREE_ACTION,
+    FROMOUTSIDE, GLIB, HALLUC,
+    GETOBJ_DOWNPLAY, GETOBJ_EXCLUDE, GETOBJ_EXCLUDE_INACCESS, GETOBJ_SUGGEST,
     HALLUC_RES, INVIS, LEVITATION, NOT_HUNGRY, POTHIT_MONST_THROW, SEE_INVIS,
     SATIATED, SLEEP_RES, WEAK,
-    TELEPAT, TIMEOUT, WOUNDED_LEGS,
+    TELEPAT, TIMEOUT, WOUNDED_LEGS, W_RINGL,
 } from '../js/const.js';
 import { trycall } from '../js/do.js';
 import { docall } from '../js/do_name.js';
@@ -53,11 +55,14 @@ import {
     POT_SPEED,
     POT_WATER,
     TOWEL,
+    COIN_CLASS,
+    RING_CLASS,
 } from '../js/objects.js';
 import {
     UnsupportedPotionError,
     UnsupportedQuaffError,
     bottlename,
+    dip_ok,
     incr_itimeout,
     make_confused,
     make_blinded,
@@ -373,6 +378,47 @@ function potionSource() {
     );
 }
 
+test('peffect_blindness preserves the C condition, duration, and talk order',
+    () => {
+    const source = potionSource();
+    const signature = source.indexOf('peffect_blindness(struct obj *otmp)');
+    assert.ok(signature > 0, 'potion.c still defines peffect_blindness');
+    const start = source.lastIndexOf('staticfn void', signature);
+    const end = source.indexOf('\n}', signature);
+    assert.ok(start >= 0 && end > signature);
+    const body = source.slice(start, end).replace(/\s+/gu, ' ');
+    assert.match(body,
+        /if \(Blind \|\| \(\(HBlinded \|\| EBlinded\) && BBlinded\)\) gp\.potion_nothing\+\+;/u);
+    assert.match(body,
+        /make_blinded\(itimeout_incr\(BlindedTimeout, rn1\(200, 250 - 125 \* bcsign\(otmp\)\)\), \(boolean\) !Blind\);/u);
+});
+
+test('dip_ok matches potion.c classifications and silent accessibility filter', () => {
+    const source = potionSource();
+    const start = source.indexOf('dip_ok(struct obj *obj)');
+    const end = source.indexOf(
+        '/* getobj callback for object to be dipped when hero', start,
+    );
+    assert.ok(start > 0);
+    assert.ok(end > start);
+    const body = source.slice(start, end);
+    assert.match(body, /if \(!obj\)\s*return GETOBJ_DOWNPLAY;/u);
+    assert.match(body, /obj->oclass == COIN_CLASS\)\s*return GETOBJ_EXCLUDE;/u);
+    assert.match(body, /inaccessible_equipment\(obj, \(const char \*\) 0, FALSE\)/u);
+    assert.match(body, /return GETOBJ_EXCLUDE_INACCESS;/u);
+    assert.match(body, /return GETOBJ_SUGGEST;/u);
+
+    assert.equal(dip_ok(null), GETOBJ_DOWNPLAY);
+    assert.equal(dip_ok({ oclass: COIN_CLASS }), GETOBJ_EXCLUDE);
+    const gloves = { cursed: 0, bknown: 0 };
+    const ring = { oclass: RING_CLASS, owornmask: W_RINGL };
+    assert.equal(
+        dip_ok(ring, { uarmg: gloves, uleft: ring }),
+        GETOBJ_EXCLUDE_INACCESS,
+    );
+    assert.equal(dip_ok({ oclass: RING_CLASS }), GETOBJ_SUGGEST);
+});
+
 // The body of potionbreathe()'s switch, from the `switch (` line to the closing
 // brace before the `if (!already_in_use)` tail, split into the code the
 // compiler sees and the block comments it does not. The split is the point:
@@ -423,6 +469,62 @@ function vaporPotion(otyp) {
     obj.dknown = true;
     return obj;
 }
+
+test('blindness potion extends its source-ordered BUC timeout', async () => {
+    for (const sign of [-1, 0, 1]) {
+        await startedGame(8460041, 'BlindnessPotionDuration');
+        const potion = vaporPotion(POT_BLINDNESS);
+        potion.cursed = sign < 0;
+        potion.blessed = sign > 0;
+        const blinded = game.u.uprops[BLINDED];
+        blinded.intrinsic = 0;
+        blinded.extrinsic = 0;
+        blinded.blocked = 0;
+        game.gp.potion_nothing = 0;
+        clearTopline();
+        enableRngLog();
+
+        await peffects(potion, game);
+
+        const draws = getRngLog();
+        assert.equal(draws.length, 1);
+        const draw = /^rn2\(200\)=(\d+)$/u.exec(draws[0]);
+        assert.ok(draw, draws[0]);
+        assert.equal(blinded.intrinsic & TIMEOUT,
+            250 - 125 * sign + Number(draw[1]));
+        assert.equal(game.gp.potion_nothing, 0);
+        assert.equal(toplines(), 'A cloud of darkness falls upon you.');
+    }
+});
+
+test('blindness potion counts existing or blocked blindness as ineffective',
+    async () => {
+    for (const [label, blocked] of [
+        ['already blind', 0],
+        ['timed blindness blocked', 1],
+    ]) {
+        await startedGame(8460042, 'BlindnessPotionNothing');
+        const potion = vaporPotion(POT_BLINDNESS);
+        const blinded = game.u.uprops[BLINDED];
+        blinded.intrinsic = 11;
+        blinded.extrinsic = 0;
+        blinded.blocked = blocked;
+        game.gp.potion_nothing = 0;
+        clearTopline();
+        enableRngLog();
+
+        await peffects(potion, game);
+
+        const draws = getRngLog();
+        assert.equal(draws.length, 1, label);
+        const draw = /^rn2\(200\)=(\d+)$/u.exec(draws[0]);
+        assert.ok(draw, `${label}: ${draws[0]}`);
+        assert.equal(game.gp.potion_nothing, 1, label);
+        assert.equal(blinded.intrinsic & TIMEOUT,
+            11 + 250 + Number(draw[1]), label);
+        assert.equal(toplines(), '', label);
+    }
+});
 
 test('healing potion preserves beatitude dice before Constitution exercise',
     async () => {

@@ -12,7 +12,9 @@
 // BAG_OF_TRICKS delegates to makemon.c bagotricks() in js/makemon.js; musical
 // instruments delegate to music.c; LAND_MINE/BEARTRAP use apply.c
 // use_trap()/set_trap(); and HORN_OF_PLENTY delegates to mkobj.c. Ordinary
-// food and armor return their source unknown-use result. Other named arms,
+// food and armor return their source unknown-use result. The unicorn-horn arm
+// calls apply.c use_unicorn_horn(); its unported void effect helpers remain
+// explicit note_unported gaps. Other named arms,
 // plus the wand, spellbook, and coin shortcuts above the switch, still stop at
 // a refusal naming the C function they need.
 // use_stethoscope() covers
@@ -25,6 +27,7 @@
 import {
     ACCESSIBLE,
     ARTICLE_A,
+    A_CON,
     A_DEX,
     A_STR,
     AIR,
@@ -49,8 +52,10 @@ import {
     GLIB,
     GETOBJ_DOWNPLAY,
     GETOBJ_EXCLUDE,
+    GETOBJ_EXCLUDE_INACCESS,
     GETOBJ_EXCLUDE_SELECTABLE,
     GETOBJ_NOFLAGS,
+    GETOBJ_PROMPT,
     GETOBJ_SUGGEST,
     HALLUC,
     HALLUC_RES,
@@ -64,6 +69,7 @@ import {
     M_AP_OBJECT,
     M_AP_TYPE,
     nothing_happens,
+    nothing_seems_to_happen,
     OBJ_INVENT,
     PRONOUN_NO_IT,
     REVIVE_MON,
@@ -95,6 +101,7 @@ import {
     PASSES_WALLS,
     RIGHT_SIDE,
     SHOPBASE,
+    SICK,
     TELEDS_NO_FLAGS,
     TELEDS_ALLOW_DRAG,
     TOOKPLUNGE,
@@ -107,6 +114,7 @@ import {
     TT_WEB,
     UNENCUMBERED,
     WOUNDED_LEGS,
+    VOMITING,
     NO_KILLER_PREFIX,
     Is_airlevel,
     Is_waterlevel,
@@ -162,6 +170,7 @@ import {
     carrying,
     consume_obj_charge,
     getobj,
+    hands_obj,
     nxtobj,
     obj_extract_self,
     preflight_obfree,
@@ -287,18 +296,28 @@ import {
     EXPENSIVE_CAMERA,
     DWARVISH_MATTOCK,
     PICK_AXE,
+    CAN_OF_GREASE,
     CANDELABRUM_OF_INVOCATION,
     TALLOW_CANDLE,
+    UNICORN_HORN,
     WAX_CANDLE,
     LAND_MINE,
     BEARTRAP,
 } from './objects.js';
 import {
-    AT_WEAP, MZ_TINY, PM_ARCHEOLOGIST, PM_HEALER, PM_HORSE,
-    PM_STONE_GOLEM,
+    AD_BLND, AT_ENGL, AT_WEAP, MZ_TINY, PM_ARCHEOLOGIST, PM_HEALER,
+    PM_HORSE, PM_STONE_GOLEM,
 } from './monsters.js';
 import { body_part, mbodypart, polymon } from './polyself.js';
-import { djinni_from_bottle, make_blinded, make_glib } from './potion.js';
+import { attacktype_fordmg } from './mondata.js';
+import {
+    djinni_from_bottle,
+    make_blinded,
+    make_confused,
+    make_deaf,
+    make_glib,
+    make_hallucinated,
+} from './potion.js';
 import { canSpotMonster, heroIsBlind, sensesMonster } from './startup_a11y.js';
 import { P_SKILL } from './startup_skills.js';
 import { CMAP_EXPLANATIONS } from './symbol_data.js';
@@ -336,7 +355,7 @@ import { acurr } from './attrib.js';
 import { known_spell, spe_Fresh, spelleffects } from './spell.js';
 import { stucksteed } from './steed.js';
 import { enexto, teleds } from './teleport.js';
-import { fingers_or_gloves } from './do_wear.js';
+import { fingers_or_gloves, inaccessible_equipment } from './do_wear.js';
 import { dropx, legs_in_no_shape, set_wounded_legs } from './do.js';
 import { morehungry } from './eat.js';
 import { digests, hurtle_jump, thitmonst, walk_path } from './dothrow.js';
@@ -2250,6 +2269,169 @@ export async function use_candle(obj, state = game, env = {}) {
     update_inventory({ ...env, state });
 }
 
+// C ref: apply.c use_unicorn_horn() (2258-2392). attacktype_fordmg() returns
+// the consumed attack pointer; existing potion helpers own their state
+// transitions. Other missing effect helpers are void or explicitly discarded,
+// so their C call sites remain named gaps. Trouble state is stored in the
+// intrinsic timeout and property flags in u.uprops.
+async function use_unicorn_horn(obj, state = game, env = {}) {
+    const message = env.message ?? ttyPline;
+    const recordGap = (source) => {
+        if (state === game) note_unported(source);
+    };
+    const intrinsic = (property) => state.u?.uprops?.[property]?.intrinsic ?? 0;
+    const timedTrouble = (property) => {
+        const value = intrinsic(property);
+        return value && !(value & ~TIMEOUT) ? value & TIMEOUT : 0;
+    };
+    const hallucinating = () => Boolean(
+        intrinsic(HALLUC)
+        && !(state.u?.uprops?.[HALLUC_RES]?.intrinsic
+            || state.u?.uprops?.[HALLUC_RES]?.extrinsic),
+    );
+    const deaf = () => Boolean(
+        intrinsic(DEAF) || state.u?.uprops?.[DEAF]?.extrinsic
+        || state.u?.uroleplay?.deaf,
+    );
+
+    if (obj?.cursed) {
+        const lcount = rn1(90, 10);
+        switch (Math.trunc(rn2(13) / 2)) {
+        case 0: {
+            const sickTimeout = intrinsic(SICK) & TIMEOUT;
+            // C evaluates the timeout (and its conditional RNG) before xname,
+            // even though potion.c:make_sick() is still unported here.
+            const sicknessDuration = sickTimeout
+                ? Math.trunc(sickTimeout / 3) + 1
+                : rn1(acurr(A_CON, state), 20);
+            xnameFresh(obj, state);
+            recordGap('potion.c make_sick');
+            void sicknessDuration;
+            break;
+        }
+        case 1:
+            await make_blinded(
+                (intrinsic(BLINDED) & TIMEOUT) + lcount,
+                true,
+                state,
+                env,
+            );
+            break;
+        case 2:
+            if (!intrinsic(CONFUSION)) {
+                await message(
+                    `You suddenly feel ${hallucinating() ? 'trippy' : 'confused'}.`,
+                    state,
+                );
+            }
+            await make_confused(
+                (intrinsic(CONFUSION) & TIMEOUT) + lcount,
+                true,
+                state,
+                env,
+            );
+            break;
+        case 3:
+            // make_stunned() returns void; preserve the source call as a gap.
+            recordGap('potion.c make_stunned');
+            break;
+        case 4:
+            if (intrinsic(VOMITING))
+                recordGap('eat.c vomit');
+            else
+                recordGap('potion.c make_vomiting');
+            break;
+        case 5:
+            await make_hallucinated(
+                (intrinsic(HALLUC) & TIMEOUT) + lcount,
+                true,
+                0,
+                state,
+                env,
+            );
+            break;
+        case 6:
+            if (deaf()) await message(nothing_seems_to_happen, state);
+            await make_deaf(
+                (intrinsic(DEAF) & TIMEOUT) + lcount,
+                true,
+                state,
+                env,
+            );
+            break;
+        }
+        return;
+    }
+
+    const troubles = [];
+    if (timedTrouble(SICK)) troubles.push(SICK);
+    if (timedTrouble(BLINDED) > (state.u?.ucreamed ?? 0)
+        && !(state.u?.uswallow
+            && attacktype_fordmg(
+                state.u?.ustuck?.data,
+                AT_ENGL,
+                AD_BLND,
+            ))) {
+        troubles.push(BLINDED);
+    }
+    if (timedTrouble(HALLUC)) troubles.push(HALLUC);
+    if (timedTrouble(VOMITING)) troubles.push(VOMITING);
+    if (timedTrouble(CONFUSION)) troubles.push(CONFUSION);
+    if (timedTrouble(STUNNED)) troubles.push(STUNNED);
+    if (timedTrouble(DEAF)) troubles.push(DEAF);
+
+    if (!troubles.length) {
+        await message(nothing_happens, state);
+        return;
+    }
+    if (troubles.length > 1)
+        recordGap('rnd.c shuffle_int_array');
+
+    let valLimit = rn2(d(2, obj?.blessed ? 4 : 2));
+    if (valLimit > troubles.length) valLimit = troubles.length;
+
+    let didProp = 0;
+    for (let value = 0; value < valLimit; value++) {
+        switch (troubles[value]) {
+        case SICK:
+            recordGap('potion.c make_sick');
+            didProp++;
+            break;
+        case BLINDED:
+            await make_blinded(state.u?.ucreamed ?? 0, true, state, env);
+            didProp++;
+            break;
+        case HALLUC:
+            await make_hallucinated(0, true, 0, state, env);
+            didProp++;
+            break;
+        case VOMITING:
+            recordGap('potion.c make_vomiting');
+            didProp++;
+            break;
+        case CONFUSION:
+            await make_confused(0, true, state, env);
+            didProp++;
+            break;
+        case STUNNED:
+            recordGap('potion.c make_stunned');
+            didProp++;
+            break;
+        case DEAF:
+            await make_deaf(0, true, state, env);
+            didProp++;
+            break;
+        default:
+            break;
+        }
+    }
+
+    if (didProp)
+        state.disp.botl = true;
+    else
+        await message(nothing_seems_to_happen, state);
+}
+
 // C ref: apply.c doapply() (4213-4430), the `a` command.
 //
 // retouch_object(&obj, FALSE) sits between getobj() and the switch, and only
@@ -2295,6 +2477,8 @@ export async function doapply(state = game, env = {}) {
         return use_cream_pie(obj, state, env);
     case BULLWHIP:
         return use_whip(obj, state);
+    case CAN_OF_GREASE:
+        return use_grease(obj, state, env);
     case STETHOSCOPE:
         return use_stethoscope(obj, state);
     case EXPENSIVE_CAMERA:
@@ -2334,6 +2518,11 @@ export async function doapply(state = game, env = {}) {
     case MAGIC_MARKER:
         // apply.c:4361-4362. dowrite() handles the full magic marker flow.
         return dowrite(obj, state);
+    case UNICORN_HORN:
+        // apply.c:4371. use_unicorn_horn() is void; retain doapply's initial
+        // ECMD_TIME while applying its property effects.
+        await use_unicorn_horn(obj, state, env);
+        return ECMD_TIME;
     case HORN_OF_PLENTY:
         // apply.c:4385-4387. Not a musical instrument.
         // C's res starts as ECMD_TIME; hornoplenty doesn't change it.
@@ -2399,4 +2588,81 @@ export async function doapply(state = game, env = {}) {
     // C's tail, `if (obj && obj->oartifact) res |= arti_speak(obj)`, has no
     // reachable input: the retouch_object() stop above refuses every artifact
     // before the switch, and no arm here can turn a non-artifact into one.
+}
+
+// C ref: apply.c grease_ok() (2585-2601). The inventory callback is pure:
+// NULL means hands, coins are never candidates, and inaccessible worn gear is
+// excluded while ordinary items remain suggested.
+export function grease_ok(obj, state = game) {
+    if (!obj)
+        return GETOBJ_SUGGEST;
+    if (obj.oclass === COIN_CLASS)
+        return GETOBJ_EXCLUDE;
+    if (inaccessible_equipment(obj, null, false, state))
+        return GETOBJ_EXCLUDE_INACCESS;
+    return GETOBJ_SUGGEST;
+}
+
+// C ref: apply.c use_grease() (2604-2654). The caller consumes the ECMD_*
+// result; charge, drop, target selection, Glib and inventory updates stay in
+// the same order as the source.
+export async function use_grease(obj, state = game, env = {}) {
+    if (applyIsGlib(state)) {
+        await ttyPline(
+            `${Tobjnam(obj, 'slip', state)} from your ${fingers_or_gloves(false, state)}.`,
+            state,
+        );
+        await dropx(obj, { ...env, state });
+        return ECMD_TIME;
+    }
+
+    if (obj.spe > 0) {
+        if ((obj.cursed || applyIsFumbling(state)) && !rn2(2)) {
+            consume_obj_charge(obj, true, { ...env, state });
+            await ttyPline(
+                `${Tobjnam(obj, 'slip', state)} from your ${fingers_or_gloves(false, state)}.`,
+                state,
+            );
+            await dropx(obj, { ...env, state });
+            return ECMD_TIME;
+        }
+
+        const target = await getobj(
+            'grease', grease_ok, GETOBJ_PROMPT, state,
+        );
+        if (!target)
+            return ECMD_CANCEL;
+        if (await inaccessible_equipment(target, 'grease', false, state))
+            return ECMD_OK;
+
+        consume_obj_charge(obj, true, { ...env, state });
+        const oldglib = (state.u?.uprops?.[GLIB]?.intrinsic ?? 0) & TIMEOUT;
+        if (target !== hands_obj) {
+            await ttyPline(
+                `You cover ${yname(target, state)} with a thick layer of grease.`,
+                state,
+            );
+            target.greased = 1;
+            if (obj.cursed && !nohands(state.youmonst.data)) {
+                make_glib(oldglib + rn1(6, 10), state, env);
+                await ttyPline(
+                    `Some of the grease gets all over your ${fingers_or_gloves(true, state)}.`,
+                    state,
+                );
+            }
+        } else {
+            make_glib(oldglib + rn1(11, 5), state, env);
+            await ttyPline(
+                `You coat your ${fingers_or_gloves(true, state)} with grease.`,
+                state,
+            );
+        }
+    } else if (obj.known) {
+        await ttyPline(`${Tobjnam(obj, 'are', state)} empty.`, state);
+    } else {
+        await ttyPline(`${Tobjnam(obj, 'seem', state)} to be empty.`, state);
+    }
+
+    update_inventory({ ...env, state });
+    return ECMD_TIME;
 }

@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent cmd.c extended-command entry recipe for engrave.c:doengrave. Seed, clock, name, Wizard role and inputs were selected for this run; the #engrave alias reaches the same production command handler as E and writes a one-character finger engraving.",
+  "segments": [
+    {
+      "seed": 4077163,
+      "datetime": "20371203180542",
+      "nethackrc": "OPTIONS=name:ExtendedWriter,role:Wizard,race:human,gender:female,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!debug_mongen\n",
+      "moves": "#engrave\n- x\n"
+    }
+  ]
+}

@@ -16,7 +16,7 @@
 // the common path calls getobj() -> dopotion() -> peffects().
 //
 // peffects() dispatches 26 potion types; POT_BOOZE, POT_CONFUSION, POT_SICKNESS,
-// POT_SPEED (with spell alias SPE_HASTE_SELF), POT_HEALING,
+// POT_SPEED (with spell alias SPE_HASTE_SELF), POT_BLINDNESS, POT_HEALING,
 // POT_EXTRA_HEALING, POT_OIL, the POT_FRUIT_JUICE arm of
 // peffect_see_invisible(), the ordinary POT_PARALYSIS arm, and POT_POLYMORPH
 // are ported. Unported arms throw UnsupportedQuaffError.
@@ -51,6 +51,7 @@ import {
     I_SPECIAL,
     GETOBJ_DOWNPLAY,
     GETOBJ_EXCLUDE,
+    GETOBJ_EXCLUDE_INACCESS,
     GETOBJ_EXCLUDE_NONINVENT,
     GETOBJ_NOFLAGS,
     GETOBJ_PROMPT,
@@ -796,6 +797,25 @@ async function peffect_speed(otmp, state = game) {
     }
 }
 
+// C ref: potion.c peffect_blindness() (1072-1080). A dose always draws and
+// extends HBlinded, even when current blindness or a blocker makes the
+// potion's result seem ineffective.
+async function peffect_blindness(otmp, state = game) {
+    const property = state.u.uprops[BLINDED];
+    const blind = heroIsBlind(state);
+
+    if (blind || ((property.intrinsic || property.extrinsic)
+        && property.blocked)) {
+        state.gp.potion_nothing++;
+    }
+
+    const duration = itimeout_incr(
+        property.intrinsic,
+        rn1(200, 250 - 125 * bcsign(otmp)),
+    );
+    await make_blinded(duration, !blind, state);
+}
+
 // ---------------------------------------------------------------------------
 // peffect_sickness
 // C ref: potion.c peffect_sickness() (964-1012).
@@ -1191,7 +1211,8 @@ export async function peffects(otmp, state = game) {
         await peffect_speed(otmp, state);
         break;
     case POT_BLINDNESS:
-        throw new UnsupportedQuaffError('peffect_blindness()');
+        await peffect_blindness(otmp, state);
+        break;
     case POT_GAIN_LEVEL:
         throw new UnsupportedQuaffError('peffect_gain_level()');
     case POT_HEALING:
@@ -1800,11 +1821,9 @@ export async function dodip(state = game) {
         GETOBJ_PROMPT,
         state);
     if (!obj) return ECMD_CANCEL;
-    // C ref: potion.c:2282-2283. inaccessible_equipment(obj, "dip", FALSE)
-    // prints a message and returns true for covered items. The JS version
-    // of that function throws when verb is passed; use the silent form here
-    // since getobj's dip_ok callback already filters these out.
-    if (inaccessible_equipment(obj, null, false, state)) {
+    // C ref: potion.c:2282-2283. The getobj filter excludes inaccessible
+    // equipment from its suggested choices, but '*' can still select one.
+    if (await inaccessible_equipment(obj, 'dip', false, state)) {
         return ECMD_OK;
     }
 
@@ -1865,10 +1884,11 @@ export async function dodip(state = game) {
 }
 
 // C ref: potion.c dip_ok() (2214-2227). getobj callback for dipping.
-function dip_ok(obj) {
+export function dip_ok(obj, state = game) {
     if (!obj) return GETOBJ_DOWNPLAY;
     if (obj.oclass === COIN_CLASS) return GETOBJ_EXCLUDE;
-    // inaccessible_equipment is checked after getobj returns.
+    if (inaccessible_equipment(obj, null, false, state))
+        return GETOBJ_EXCLUDE_INACCESS;
     return GETOBJ_SUGGEST;
 }
 
@@ -1879,7 +1899,7 @@ function dip_hands_ok(state) {
         if (!obj && (Glib(state) && can_reach_floor(false, state))) {
             return GETOBJ_SUGGEST;
         }
-        return dip_ok(obj);
+        return dip_ok(obj, state);
     };
 }
 

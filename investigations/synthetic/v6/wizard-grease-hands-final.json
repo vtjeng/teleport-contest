@@ -7,12 +7,12 @@
   "manifestSha256": "7523b91e823f4e3906c9acdc9a3d80f8469c27c2caab8fc8fbd6967dbfdcab5f",
   "recordingPath": "challenges/cases/v6/wizard-grease-hands-final.session.json",
   "recordingSha256": "a22865ca6fd6510f9e8e02a91b816b7862d8257bcedde8f2995d4e702df4d012",
-  "evaluationPath": "challenges/evaluations/20260926094126-v6.json",
-  "evaluationCommit": "50bbe620897c8fc2e634d14ec672d33a4e44db7e",
-  "remainingScreens": 2,
+  "evaluationPath": "challenges/evaluations/20260926132731-v6.json",
+  "evaluationCommit": "d0a8041f88dd37cbf631877464c06cf985998274",
+  "remainingScreens": 1,
   "recordedSteps": 19,
   "status": "complete",
-  "commit": "50bbe620897c8fc2e634d14ec672d33a4e44db7e",
+  "commit": "d0a8041f88dd37cbf631877464c06cf985998274",
   "mismatch": {
     "corpus": "synthetic",
     "batch": "v6",
@@ -25,66 +25,110 @@
     "recordingSha256": "a22865ca6fd6510f9e8e02a91b816b7862d8257bcedde8f2995d4e702df4d012",
     "recipe": "challenges/cases/v6/wizard-grease-hands-final.recipe.session.json",
     "recipeSha256": "bac400fb9aa453e9dc8ef8318bd4e510d7d3fbb3706559a2a889d40c7513228d",
-    "replayInputSha256": "9671c8200bb4617314143efc03b8936dba1c08d5025986a5ef6f245a97c322f9",
-    "evaluationPath": "challenges/evaluations/20260926094126-v6.json",
-    "evaluationCommit": "50bbe620897c8fc2e634d14ec672d33a4e44db7e",
-    "evaluationArtifact": "challenges/evaluations/20260926094126-v6.json",
-    "evaluationUtc": "2026-09-26T09:41:43.460Z",
-    "remainingScreens": 2,
+    "replayInputSha256": "a3ac3b6872f8e89451d29bdbf73b5215af57c013d215edeaba8f740cc0c5fc4a",
+    "evaluationPath": "challenges/evaluations/20260926132731-v6.json",
+    "evaluationCommit": "d0a8041f88dd37cbf631877464c06cf985998274",
+    "evaluationArtifact": "challenges/evaluations/20260926132731-v6.json",
+    "evaluationUtc": "2026-09-26T13:27:48.505Z",
+    "remainingScreens": 1,
     "recordedSteps": 19,
-    "previousScreensMatched": 17,
+    "previousScreensMatched": 18,
     "regression": false,
     "passed": false,
     "error": null,
     "metrics": {
       "screens": {
-        "matched": 17,
+        "matched": 18,
         "total": 19
       },
       "rng": {
-        "matched": 2361,
+        "matched": 2365,
         "total": 2365
       },
       "cursors": {
-        "matched": 17,
+        "matched": 18,
         "total": 19
       }
     },
     "firstMismatch": {
-      "kind": "stop",
-      "message": "unsupported hero command: an unported branch of this command: applying a tool requires doapply()'s arm for object type 240",
-      "step": 17
+      "screen": {
+        "index": 18,
+        "location": {
+          "segmentIndex": 0,
+          "stepIndex": 18,
+          "key": "-"
+        },
+        "kind": "ch",
+        "row": 0,
+        "column": 34,
+        "cCell": {
+          "ch": "-",
+          "color": 8,
+          "attr": 0,
+          "decgfx": 0
+        },
+        "jsCell": {
+          "ch": " ",
+          "color": 8,
+          "attr": 0,
+          "decgfx": 0
+        }
+      },
+      "rng": {
+        "index": 2365,
+        "cCaller": null,
+        "jsEntry": "rn2(20)=13",
+        "stepIndex": null
+      },
+      "cursor": {
+        "index": 18,
+        "location": {
+          "segmentIndex": 0,
+          "stepIndex": 18,
+          "key": "-"
+        },
+        "cCursor": [
+          42,
+          0,
+          1
+        ],
+        "jsCursor": [
+          64,
+          17,
+          1
+        ]
+      }
     },
-    "step": 17,
-    "kind": "stop",
-    "sourceFile": "apply.c",
-    "function": "doapply",
-    "message": "unsupported hero command: an unported branch of this command: applying a tool requires doapply()'s arm for object type 240",
-    "cFile": "apply.c",
+    "step": 18,
+    "kind": "screen",
+    "sourceFile": null,
+    "function": null,
+    "message": null,
+    "cFile": null,
     "luaFile": null,
     "line": null
   },
-  "summary": "The v6 wizard-grease-hands-final case applies a can of grease at segment 0 step 17. C apply.c:use_grease() asks which object or hands to grease; js/apply.js:doapply() refuses CAN_OF_GREASE before this prompt. Group the unresolved grease and glib variants in one complete grease_ok/use_grease source task with doapply wiring, preserving charge, slipping, target selection, and Glib timing.",
+  "summary": "After grease is applied to bare hands, C’s allmain.c calls do_wear.c:glibr(), whose quarterstaff slip message triggers --More-- at step 18. JS has the coat message but no More boundary because its elapsed-turn path omits glibr(). The evaluation also reports a JS-only trailing rn2(20)=13 with no step index; keep that later RNG observation separate from this source-attributed first screen mismatch.",
   "source": {
-    "file": "apply.c",
-    "branch": "The hero applies CAN_OF_GREASE (object type 240) with positive charges and no initial Glib refusal; use_grease reaches getobj(\"grease\", grease_ok, GETOBJ_PROMPT) and C prints the target-selection prompt.",
+    "file": "do_wear.c",
+    "branch": "After apply.c:use_grease() activates Glib on bare hands, the paid turn reaches allmain.c:moveloop_core -> glibr(). With no gloves, slipping rings, or offhand weapon, glibr() takes its primary weapon branch for the non-AKLYS, unwelded quarterstaff, prints the slip message, clears uwep, and drops it.",
     "functions": [
-      "grease_ok",
-      "use_grease"
+      "glibr"
     ],
     "callers": [
-      "cmd.c apply command -> apply.c doapply CAN_OF_GREASE arm at lines 4282-4283, which consumes use_grease return; js/cmd.js command dispatch -> js/apply.js doapply currently refuses that object type."
+      "C: allmain.c:moveloop_core calls do_wear.c:glibr() under if (Glib) after turn advancement and before nh_timeout(); wire the equivalent at that source-order boundary in js/allmain.js:finishElapsedTurn.",
+      "State setup: apply.c:doapply -> use_grease() -> potion.c:make_glib() activates hand Glib; the next paid turn reaches allmain.c:moveloop_core -> glibr()."
     ],
     "dependencies": [
-      "Return-valued getobj and inaccessible_equipment determine selection; grease_ok excludes coins and inaccessible equipment. Verify existing JavaScript implementations before marking source completion.",
-      "invent.c consume_obj_charge and object drop/greased state, make_glib and rn1 on hands or cursed targets, and inventory redraw must preserve C order."
+      "Preserve glibr branch order and shared equipment state: uarmg, uleft/uright, u.twoweap, uswapwep, uwep, welded(), bimanual(), canletgo(), Ring_off(), setuswapwep(), and setuwep() determine which items fall.",
+      "The active weapon arm uses do_wear.c naming and tense helpers, clears the wield slot, then calls do.c:dropx(); JavaScript equivalents are in js/wield.js, js/objnam.js, and js/do.js and must retain their state/drop contracts.",
+      "Keep glibr before nh_timeout in elapsed-turn planning and live execution. Its second message must reach the existing TTY path before later upkeep."
     ]
   },
   "goalKind": "file-port",
   "evidence": [
-    "Saved challenges/evaluations/20260926094126-v6.json at 50bbe620897c8fc2e634d14ec672d33a4e44db7e reports 2 remaining screen(s), first refusal at segment 0 step 17: unsupported hero command: an unported branch of this command: applying a tool requires doapply()'s arm for object type 240.",
-    "C challenges/cases/v6/wizard-grease-hands-final.session.json at that step prints “What do you want to grease? [- ... or ?*]”, proving use_grease reached its getobj selection after the charged can passed its early branches.",
-    "Upstream nethack-c/upstream/src/apply.c:2586-2654 grease_ok/use_grease handles Glib slipping, cursed/fumbling mishap, charge, object or hand greasing, make_glib, and final inventory update. doapply at 4282-4283 consumes its ECMD_* return.",
-    "Current js/apply.js:doapply refuses CAN_OF_GREASE before use_grease; port the complete helper family and wire its caller. Later intended engraving inputs remain downstream and should not be special-cased."
+    "The current evaluation reports 1 remaining screen of 19. At segment 0 step 18, key \"-\", the first mismatch is row 0 column 34 (C dash, JS blank), cursor C [42,0,1], JS [64,17,1]. Screens match 18/19 and RNG through 2365/2365; the report separately lists JS-only rn2(20)=13 at RNG index 2365 with no step index.",
+    "C recording challenges/cases/v6/wizard-grease-hands-final.session.json step 18 prints \"You coat your fingers with grease.--More--\"; its RNG includes rn2(11)=8 @ use_grease(apply.c:2643), confirming hand grease succeeded before the More wait.",
+    "Do not attribute the later unlocated RNG entry to glibr without separate evidence."
   ]
 }
