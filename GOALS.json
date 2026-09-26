@@ -87817,6 +87817,60 @@
           "evaluationCommit": "580b107974301f1a5c70b1698fd8ccf169c69c57"
         }
       }
+    },
+    {
+      "id": "port-sit-lay-an-egg-dosit-synthetic-v6-20260926",
+      "kind": "file-port",
+      "status": "queued",
+      "summary": "Port sit.c egg laying and complete dosit command behavior across ice, sink, altar, throne, and grave",
+      "cFile": "sit.c",
+      "sessions": [
+        "synthetic/v6/archeologist-sit-ice",
+        "synthetic/v6/wizard-sit-sink",
+        "synthetic/v6/priest-sit-altar",
+        "synthetic/v6/wizard-sit-throne",
+        "synthetic/v6/wizard-sit-grave-room-retry"
+      ],
+      "selectionReason": "Five unresolved v6 #sit cases share the same sit.c:dosit source owner and distinct level-feature state branches.",
+      "detail": "Port lay_an_egg and dosit in C definition order. Preserve branch, message, RNG, turn and state behavior across ice, sink, altar, throne, grave, traps and egg laying; wire consumed return values and record independent C entry evidence. Keep any unported void effects source-named.",
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": null,
+      "delivered": null,
+      "functions": [
+        {
+          "name": "lay_an_egg",
+          "line": 358,
+          "endLine": 399,
+          "declared": false,
+          "complete": false
+        },
+        {
+          "name": "dosit",
+          "line": 400,
+          "endLine": 568,
+          "declared": true,
+          "complete": false
+        }
+      ],
+      "range": {
+        "from": 358,
+        "to": 568
+      },
+      "syntheticProvenance": {
+        "synthetic/v6/archeologist-sit-ice": {
+          "session": "synthetic/v6/archeologist-sit-ice",
+          "corpus": "synthetic",
+          "batch": "v6",
+          "caseId": "archeologist-sit-ice",
+          "manifestPath": "challenges/manifests/v6.json",
+          "manifestSha256": "7523b91e823f4e3906c9acdc9a3d80f8469c27c2caab8fc8fbd6967dbfdcab5f",
+          "recordingPath": "challenges/cases/v6/archeologist-sit-ice.session.json",
+          "recordingSha256": "9582ee5c2aa4664baa8e6009bd9c1a2174505d7cd21b85444c611140a55e66c8",
+          "evaluationPath": "challenges/evaluations/20260926212551-v6.json",
+          "evaluationCommit": "ddc331f38f1f2b4e3a998f40005d0ac84f984442"
+        }
+      }
     }
   ]
 }
