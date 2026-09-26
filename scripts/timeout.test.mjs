@@ -1,4 +1,5 @@
 import assert from 'node:assert/strict';
+import { readFileSync } from 'node:fs';
 import test from 'node:test';
 import { loadHeroTimeoutRecipes, verifyHeroTimeoutSegment } from './run-hero-timeouts.mjs';
 
@@ -106,6 +107,9 @@ import {
     timeout_globals_init,
 } from '../js/timeout.js';
 
+const C_TIMEOUT = readFileSync('nethack-c/upstream/src/timeout.c', 'utf8');
+const JS_TIMEOUT = readFileSync('js/timeout.js', 'utf8');
+
 function timerState(moves = 10) {
     const state = { moves, gt: { other: true }, svt: { other: true } };
     timeout_globals_init(state);
@@ -189,6 +193,25 @@ test('timeout planning hands live-only expiries off before touching their state'
     assert.equal(nh_timeout_requires_live_state(state), true, 'form expiry is live');
     state.u.uprops[UNCHANGING].extrinsic = 1;
     assert.equal(nh_timeout_requires_live_state(state), false, 'extension uses supplied RNG');
+});
+
+test('timeout.c releases delayed killers when STONED or fatal SICK expires', async () => {
+    assert.match(C_TIMEOUT, /case STONED:[\s\S]*?dealloc_killer\(kptr\);/u);
+    assert.match(C_TIMEOUT, /case SICK:[\s\S]*?dealloc_killer\(kptr\);/u);
+    assert.match(JS_TIMEOUT, /case STONED:[\s\S]*?dealloc_killer\(killer, state\);/u);
+    assert.match(JS_TIMEOUT, /case SICK:[\s\S]*?dealloc_killer\(killer, state\);/u);
+
+    const state = propertyTimeoutState();
+    state.u.uprops[STONED].intrinsic = 1;
+    state.killer = {
+        name: '',
+        format: 0,
+        next: { id: STONED, format: 7, name: 'cockatrice', next: null },
+    };
+    await nh_timeout(state, { planning: true });
+    assert.equal(state.killer.name, 'cockatrice');
+    assert.equal(state.killer.format, 7);
+    assert.equal(state.killer.next, null);
 });
 
 test('confusion expiry tests the intrinsic after clearing and interrupts only then', async () => {
