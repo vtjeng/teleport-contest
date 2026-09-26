@@ -518,7 +518,7 @@ test('extended spellings share the four newly ported direct handlers',
     async () => {
     const base = segmentFor(`${EXTCMD_KEY}wait${NEWLINE_KEY}`);
     for (const [name, expected] of [
-        ['engrave', /engrave requires an accessible ordinary floor/u],
+        ['engrave', /What do you want to write with\?/u],
         ['read', /What do you want to read\?/u],
         ['whatis', /What do you want to look at:/u],
         ['quiver', /What do you want to ready\?/u],
