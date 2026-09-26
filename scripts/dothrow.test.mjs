@@ -31,6 +31,7 @@ import {
     CONFUSION,
     CQ_CANNED,
     DEAF,
+    ECMD_FAIL,
     ECMD_OK,
     ECMD_TIME,
     ECMD_CANCEL,
@@ -195,7 +196,7 @@ function resistDraw(value) {
 const state = makeState();
 
 test('throwing_weapon follows the source missile and blade predicates', () => {
-    // dothrow.c:1430-1441 accepts missiles, spears, non-sword piercing
+    // dothrow.c:1430-1438 accepts missiles, spears, non-sword piercing
     // blades, WAR_HAMMER and AKLYS.  In particular, a scalpel and ordinary
     // sword must stay outside the blade arm.
     // The source comment explicitly excludes ammunition from is_missile().
@@ -1739,9 +1740,8 @@ test('dofire() throws a wielded returning weapon over quivered ammo',
         carry(ammo, aklys, arrows);
         ammo.uquiver = arrows;
         aimEast(ammo);
-        await assert.rejects(
-            () => dofire(ammo), /thrown-and-return weapon/u,
-        );
+        assert.equal(await dofire(ammo), ECMD_TIME);
+        assert.equal(arrows.quan, 5);
         // Quivered daggers are missiles rather than ammo, so the same aklys
         // stays in hand and the daggers fly.
         const missiles = arena();
@@ -1780,7 +1780,8 @@ test('dofire() with an empty quiver reads the hands before complaining',
         const lance = item(polearm, LANCE, { owornmask: W_WEP });
         polearm.uwep = lance;
         carry(polearm, lance);
-        await assert.rejects(() => dofire(polearm), /use_pole/u);
+        assert.equal(await dofire(polearm), ECMD_FAIL);
+        assert.match(polearm._ttyToplines, /Don't know what to hit/u);
         // A polearm in the secondary slot takes the third, which swaps to it
         // and reissues the command rather than spending a turn.
         const swap = arena();
@@ -1823,7 +1824,9 @@ test('dofire() with an empty quiver reads the hands before complaining',
         const bullwhip = item(whip, BULLWHIP, { owornmask: W_WEP });
         whip.uwep = bullwhip;
         carry(whip, bullwhip);
-        await assert.rejects(() => dofire(whip), /use_whip/u);
+        aimEast(whip);
+        assert.equal(await dofire(whip), ECMD_TIME);
+        assert.match(whip._ttyToplines, /Snap!/u);
     });
 
 test('dofire() refills the quiver through doquiver_core()', async () => {
@@ -1868,7 +1871,9 @@ test('dofire() finds a launcher for the quivered ammo', async () => {
     const arrows = item(ammo, ARROW, { quan: 5 });
     carry(ammo, pole, arrows);
     ammo.uquiver = arrows;
-    await assert.rejects(() => dofire(ammo), /use_pole/u);
+    aimEast(ammo);
+    assert.equal(await dofire(ammo), ECMD_TIME);
+    assert.equal(arrows.quan, 4);
     // With fireassist off the whole search is skipped, so the arrows are
     // thrown by hand. dothrow.c:1640-1647 halves the range and continues;
     // it does not require a launcher for this ordinary ammo arm.
@@ -1901,14 +1906,26 @@ test('dofire() finds a launcher for the quivered ammo', async () => {
         assisted.command_queue[CQ_CANNED].map((node) => node.ec_entry.ef_txt),
         ['swap', 'fire'],
     );
-    // :571. A launcher that is neither wielded nor readied has to be wielded
-    // first, which is dowield()'s job.
+    // :571-578. A launcher that is neither wielded nor readied is wielded and
+    // the fire command is queued behind it without spending a turn.
     const packed = arena();
     const loose = item(packed, ARROW, { quan: 5 });
     const spare = item(packed, BOW);
     carry(packed, spare, loose);
     packed.uquiver = loose;
-    await assert.rejects(() => dofire(packed), /dowield/u);
+    assert.equal(await dofire(packed), ECMD_OK);
+    assert.equal(loose.quan, 5);
+    assert.deepEqual(
+        packed.command_queue[CQ_CANNED].map((node) => ({
+            command: node.ec_entry?.ef_txt,
+            key: node.key,
+        })),
+        [
+            { command: 'wield', key: undefined },
+            { command: undefined, key: spare.invlet },
+            { command: 'fire', key: undefined },
+        ],
+    );
 });
 
 // ── the `t` command ──

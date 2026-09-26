@@ -1078,8 +1078,6 @@ test('every remaining zap refusal names an unported zap.c function',
         [
             // dozap()'s remaining backfire boundary.
             'backfire',
-            // resist(): the still-unported killed-by-damage arms.
-            'resist',
             // The immediate callback families keep their unported source
             // branches explicit instead of falling through into polymorph.
             'bhito', 'bhito', 'bhitm',

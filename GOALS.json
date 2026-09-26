@@ -77962,7 +77962,7 @@
     {
       "id": "port-objnam-readobjnam-wish-retry-synthetic-v5-20260926",
       "kind": "file-port",
-      "status": "queued",
+      "status": "parked",
       "summary": "Port complete objnam.c readobjnam wizard no-match behavior and wire wish retries",
       "cFile": "objnam.c",
       "sessions": [
@@ -77970,8 +77970,12 @@
       ],
       "selectionReason": "synthetic/v5/samurai-pet-ration-eating has 63 unmatched screens in challenges/evaluations/20260926043048-v5.json, the highest current case. investigations/synthetic/v5/samurai-pet-ration-eating.json traces its first stop to objnam.c readobjnam returning NULL and zap.c makewish retrying. This new current-input goal replaces the parked v2 readobjnam plan, whose selected altar case now mismatches pray.c offer_corpse and is owned by C11.",
       "detail": "C objnam.c readobjnam wizard unmatched-name tail returns NULL for meat ration after wizterrainwish and class/name fallbacks; JS throws. C zap.c makewish consumes NULL to print the failure and retry, while JS refuses that caller path. Port the whole readobjnam function, return-valued rnd_otyp_by_wpnskill callee, and production makewish result handling; retain independent source evidence for other entry points and blocked branches.",
-      "openedAt": null,
-      "openStanding": null,
+      "openedAt": "da8ba9b03ec1b7f478d16ca87b304e155fc15dcf",
+      "openStanding": {
+        "sha": "f0f6bb92fadc0ee1f23944403f684b02c8cdf422",
+        "screens": 11405,
+        "rng": 792838
+      },
       "closedAt": null,
       "delivered": null,
       "functions": [
@@ -77980,7 +77984,7 @@
           "line": 4910,
           "endLine": 5402,
           "declared": true,
-          "complete": false
+          "complete": true
         }
       ],
       "range": {
@@ -77997,10 +78001,290 @@
           "manifestSha256": "5e4430fbd724fe91720f898c02e6f25f9d98e884fa31bd696ca1a63e87abf150",
           "recordingPath": "challenges/cases/v5/samurai-pet-ration-eating.session.json",
           "recordingSha256": "719edf6f87e6d47c9c59b0cbfd8a418269fb55e34f5dfbc93500b61dd472954c",
-          "evaluationPath": "challenges/evaluations/20260926043048-v5.json",
-          "evaluationCommit": "a4cca522bb1757073b5cea17ac1d8c2d7c82367f"
+          "evaluationPath": "challenges/evaluations/20260926083803-v5.json",
+          "evaluationCommit": "e0337a3a4ccf6c565622b7fb6eaad1207ecf278c"
         }
-      }
+      },
+      "activeStanding": {
+        "sha": "f0f6bb92fadc0ee1f23944403f684b02c8cdf422",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v5",
+          "caseId": "samurai-pet-ration-eating",
+          "session": "synthetic/v5/samurai-pet-ration-eating",
+          "manifestPath": "challenges/manifests/v5.json",
+          "manifestSha256": "5e4430fbd724fe91720f898c02e6f25f9d98e884fa31bd696ca1a63e87abf150",
+          "recording": "challenges/cases/v5/samurai-pet-ration-eating.session.json",
+          "recordingPath": "challenges/cases/v5/samurai-pet-ration-eating.session.json",
+          "recordingSha256": "719edf6f87e6d47c9c59b0cbfd8a418269fb55e34f5dfbc93500b61dd472954c",
+          "recipe": "challenges/cases/v5/samurai-pet-ration-eating.recipe.session.json",
+          "recipeSha256": "802b9c54f79a2a88166e3c87c3ea9f3debc686f204ae92537b5deaba48d3b431",
+          "replayInputSha256": "c5caa79295dba7c62cf191d27bc0d860a8e2e7cec07f1c261f182fe49078c1f8",
+          "evaluationPath": "challenges/evaluations/20260926083803-v5.json",
+          "evaluationCommit": "e0337a3a4ccf6c565622b7fb6eaad1207ecf278c",
+          "evaluationArtifact": "challenges/evaluations/20260926083803-v5.json",
+          "evaluationUtc": "2026-09-26T08:38:17.000Z",
+          "remainingScreens": 63,
+          "recordedSteps": 76,
+          "previousScreensMatched": 13,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 13,
+              "total": 76
+            },
+            "rng": {
+              "matched": 2699,
+              "total": 2926
+            },
+            "cursors": {
+              "matched": 13,
+              "total": 76
+            }
+          },
+          "firstMismatch": {
+            "kind": "stop",
+            "message": "unsupported hero command: an unported branch of this command: unsupported wish: a wish no lookup resolves",
+            "step": 13
+          },
+          "step": 13,
+          "kind": "stop",
+          "sourceFile": null,
+          "function": null,
+          "message": "unsupported hero command: an unported branch of this command: unsupported wish: a wish no lookup resolves",
+          "cFile": null,
+          "luaFile": null,
+          "line": null,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v5/samurai-pet-ration-eating.json",
+            "result": {
+              "session": "synthetic/v5/samurai-pet-ration-eating",
+              "corpus": "synthetic",
+              "batch": "v5",
+              "caseId": "samurai-pet-ration-eating",
+              "manifestPath": "challenges/manifests/v5.json",
+              "manifestSha256": "5e4430fbd724fe91720f898c02e6f25f9d98e884fa31bd696ca1a63e87abf150",
+              "recordingPath": "challenges/cases/v5/samurai-pet-ration-eating.session.json",
+              "recordingSha256": "719edf6f87e6d47c9c59b0cbfd8a418269fb55e34f5dfbc93500b61dd472954c",
+              "evaluationPath": "challenges/evaluations/20260926040211-v5.json",
+              "evaluationCommit": "d273b8936ba6746f4fa8287bf41668a9776c927c",
+              "remainingScreens": 63,
+              "recordedSteps": 76,
+              "status": "complete",
+              "commit": "d273b8936ba6746f4fa8287bf41668a9776c927c",
+              "mismatch": {
+                "corpus": "synthetic",
+                "batch": "v5",
+                "caseId": "samurai-pet-ration-eating",
+                "session": "synthetic/v5/samurai-pet-ration-eating",
+                "manifestPath": "challenges/manifests/v5.json",
+                "manifestSha256": "5e4430fbd724fe91720f898c02e6f25f9d98e884fa31bd696ca1a63e87abf150",
+                "recording": "challenges/cases/v5/samurai-pet-ration-eating.session.json",
+                "recordingPath": "challenges/cases/v5/samurai-pet-ration-eating.session.json",
+                "recordingSha256": "719edf6f87e6d47c9c59b0cbfd8a418269fb55e34f5dfbc93500b61dd472954c",
+                "recipe": "challenges/cases/v5/samurai-pet-ration-eating.recipe.session.json",
+                "recipeSha256": "802b9c54f79a2a88166e3c87c3ea9f3debc686f204ae92537b5deaba48d3b431",
+                "replayInputSha256": "eec4ab1b95e3c6672a8e7a236bec8ba27ab458268a14ec32ddbc24161c098f73",
+                "evaluationPath": "challenges/evaluations/20260926040211-v5.json",
+                "evaluationCommit": "d273b8936ba6746f4fa8287bf41668a9776c927c",
+                "evaluationArtifact": "challenges/evaluations/20260926040211-v5.json",
+                "evaluationUtc": "2026-09-26T04:02:22.672Z",
+                "remainingScreens": 63,
+                "recordedSteps": 76,
+                "previousScreensMatched": null,
+                "regression": false,
+                "passed": false,
+                "error": null,
+                "metrics": {
+                  "screens": {
+                    "matched": 13,
+                    "total": 76
+                  },
+                  "rng": {
+                    "matched": 2699,
+                    "total": 2926
+                  },
+                  "cursors": {
+                    "matched": 13,
+                    "total": 76
+                  }
+                },
+                "firstMismatch": {
+                  "kind": "stop",
+                  "message": "unsupported hero command: an unported branch of this command: unsupported wish: a wish no lookup resolves",
+                  "step": 13
+                },
+                "step": 13,
+                "kind": "stop",
+                "sourceFile": null,
+                "function": null,
+                "message": "unsupported hero command: an unported branch of this command: unsupported wish: a wish no lookup resolves",
+                "cFile": null,
+                "luaFile": null,
+                "line": null
+              },
+              "summary": "At step 13, the first Ctrl-W wizard wish asks for “meat ration.” C objnam.c readobjnam() reaches its wizard unmatched-name tail, gets no terrain wish or object class/type, and returns NULL. zap.c makewish() then prints “Nothing fitting that description exists in the game.” and retries; JS instead throws UnsupportedWishError (“a wish no lookup resolves”) from readobjnam(), stopping the segment at 13/76. The actionable first owner is the readobjnam() no-match return, with makewish()’s return-valued failed-wish retry required in the same behavior chain. The later C recipe reaches a tripe-ration throw that Hachi catches and eats at step 73 through dothrow.c to dog.c tamedog() and dogmove.c dog_eat(); that downstream event is not the first mismatch and is not reached by JS before the wish retry is implemented.",
+              "source": {
+                "file": "objnam.c",
+                "functions": [
+                  "readobjnam"
+                ],
+                "branch": "In wizard mode, readobjnam() reaches wiztrap after no object-name lookup succeeds. For the entered “meat ration,” wizterrainwish() returns null, d.bp does not select the polearm or hammer fallback, and d.oclass remains empty; C returns NULL at objnam.c:4992-4993. The JS equivalent throws at that boundary. The active caller zap.c makewish() consumes NULL at 6361-6364 by printing the no-match message, incrementing tries, and retrying the wish prompt.",
+                "callers": [
+                  "C cmd.c:2000 maps Ctrl-W (C('w')) to wiz_wish(); wizcmds.c:wiz_wish() calls zap.c:makewish() at 38; zap.c:makewish() calls objnam.c:readobjnam() and branches on its nullable return at 6360-6364.",
+                  "JS command dispatch reaches js/wizcmds.js:wiz_wish(), then js/zap.js:makewish(), then js/objnam_readobjnam.js:readobjnam(); the current no-match throw escapes before the makewish retry can run."
+                ],
+                "dependencies": [
+                  "zap.c:makewish() is a required return-valued caller dependency: its source retry prints the failed-wish text and asks again while tries < MAXWISHTRY (5). js/zap.js:makewish() currently marks this null-return path as an explicit UnsupportedWishError boundary at lines 2008-2009.",
+                  "wizcmds.c:wiz_wish() temporarily clears flags.verbose around makewish(), restores it, and then calls encumber_msg(); preserve that active wrapper while retrying. The C command route is the wizard-only Ctrl-W row in cmd.c:2000.",
+                  "Downstream intended event only: after a valid tripe-ration wish and throw, dothrow.c:throwit() calls tamedog() (dothrow.c:2269); dog.c:tamedog() places the caught food and calls dogmove.c:dog_eat() at dog.c:1200-1212. The C recording shows “Hachi catches the tripe ration. Hachi eats a tripe ration.” at step 73. This is beyond the first JS stop."
+                ]
+              },
+              "goalKind": "file-port",
+              "evidence": [
+                "The selected provenance is the v5 queue entry for synthetic/v5/samurai-pet-ration-eating: manifest challenges/manifests/v5.json (SHA-256 5e4430fbd724fe91720f898c02e6f25f9d98e884fa31bd696ca1a63e87abf150), recording challenges/cases/v5/samurai-pet-ration-eating.session.json (SHA-256 719edf6f87e6d47c9c59b0cbfd8a418269fb55e34f5dfbc93500b61dd472954c), and saved evaluation challenges/evaluations/20260926040211-v5.json at d273b8936ba6746f4fa8287bf41668a9776c927c. The queue reports 63 remaining screens of 76, 13/76 screens and cursors matched, 2699/2926 RNG calls matched, and a stop at step 13.",
+                "The immutable recipe challenges/cases/v5/samurai-pet-ration-eating.recipe.session.json begins with Ctrl-W, “meat ration”, Enter. In the C recording, step 13 is Enter and its screen begins “Nothing fitting that description exists in the game.--More--”; step 14 is Space and the screen becomes “For what do you wish (enter 'help' for assistance)?”, demonstrating that C reports a failed wish and continues the same makewish call.",
+                "Upstream objnam.c:4910-4993 documents and implements the null result for a failed lookup: the wizard wiztrap branch offers the text to wizterrainwish(), applies the polearm/hammer fallbacks, then returns NULL when d.oclass remains unset. Upstream zap.c:6360-6364 consumes that return by printing the exact recorded message and retrying while tries is below MAXWISHTRY (defined as 5 at zap.c:6160).",
+                "At the examined JS source, js/objnam_readobjnam.js:2000-2011 throws UnsupportedWishError after wizterrainwish() declines the text, instead of returning null. js/zap.js:2007-2009 has the corresponding makewish null/retry path explicitly unported and throws if it receives null. This accounts for the saved evaluation stop before the C retry screen.",
+                "The same C recording later shows the intended pet event at step 73 after the tripe-ration throw. Upstream dothrow.c:2269 -> dog.c:tamedog() (1200-1212) -> dogmove.c:dog_eat() identifies that as a later path; it cannot explain the first stop at step 13."
+              ]
+            }
+          }
+        }
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "readobjnam",
+            "implementation": "js/objnam_readobjnam.js",
+            "symbol": "readobjnam",
+            "sourceReview": "Reviewed the complete objnam.c:readobjnam() definition, lines 4910-5402, together with its static parser phases readobjnam_init (3933-3964), readobjnam_preparse (3966-4175), readobjnam_parse_charges (4178-4237), readobjnam_postparse1 (4240-4664), readobjnam_postparse2 (4666-4725), and readobjnam_postparse3 (4727-4899). Matched whitespace normalization, identity-only no-wish sentinel handling, parser label/goto ordering, fallback object class RNG, wizard terrain first refusal, weapon-skill choices, object initialization, BUC/quantity/enchantment/naming tails, and returned object/null/hands_obj distinctions. The selected function now has a whole source-backed implementation and uses its consumed results from wizterrainwish() and rnd_otyp_by_wpnskill(); it invokes curse() in source order. The task also wires the active makewish() command and the natural Water-vault Lua object callback. The only deliberately skipped makewish helper is wishcmdassist(), whose void result C discards; its blocked retry recipe names that gap. Supporting implementation detail is reported separately below, not as additional GOALS source units: the parser-phase helper implementations, rnd_otyp_by_wpnskill(), wizterrainwish(), zap.c:makewish(), and mkobj.c:curse().",
+            "callers": [
+              {
+                "path": "js/zap.js",
+                "symbol": "makewish",
+                "source": "cmd.c extcmd dispatch -> wizcmds.c:wiz_wish() and zap.c:makewish(); the whole C makewish() caller obtains wishes through readobjnam(buf,&nothing), retries NULL, then uses readobjnam(NULL,NULL) after MAXWISHTRY."
+              },
+              {
+                "path": "js/mklev.js",
+                "symbol": "new_water_vault_escape_object",
+                "source": "dat/themerms.lua Water-surrounded vault callback -> obj.new(name) -> nhlobj.c:l_obj_new_readobjnam() -> readobjnam(buf,NULL)."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/objnam-readobjnam.test.mjs",
+              "scripts/wizard-wish.test.mjs"
+            ],
+            "recordings": [
+              "recordings/objnam.c/readobjnam-wish-null-retry.session.json",
+              "recordings/objnam.c/readobjnam-cursed-lit-lantern.session.json",
+              "recordings/objnam.c/readobjnam-hammer-wish.session.json",
+              "recordings/objnam.c/readobjnam-polearm-wish.session.json",
+              "recordings/zap.c/makewish-null-retry-exhausted.session.json",
+              "recordings/objnam.c/wizard-terrain-fountain.session.json",
+              "recordings/objnam.c/wizard-terrain-trap.session.json",
+              "recordings/objnam.c/wizard-terrain-throne-extcmd.session.json",
+              "recordings/objnam.c/wizard-terrain-wallprop.session.json",
+              "recordings/mklev.c/water-surrounded-vault-natural-samurai-920031.session.json",
+              "recordings/mklev.c/water-surrounded-vault-natural-wizard-920051.session.json"
+            ],
+            "synthetic": [],
+            "checkedAt": "dcc9c2c2b5761efb0d5649a38edad28a03115464"
+          }
+        ],
+        "entryPointReview": "The A9 formal GOALS source unit is only objnam.c:readobjnam(). Direct active C callers are zap.c:makewish() and nhlobj.c:l_obj_new_readobjnam() through the Water-surrounded vault Lua callback; both have source-mapped JavaScript wiring and independent matching recordings. files.c:proc_wizkit_line() is a third active C reader caller but no JavaScript startup path reads wizard-kit config lines; it is explicitly blocked and not misclassified as build-excluded. The wizard wish command reaches readobjnam through #wizwish and zap.c:makewish(). Terrain trap/fountain/throne/wall-property branches and both natural Water-vault role variations match. The selected v5 Samurai candidate prefix and its later fire-command mismatch are supplemental fresh-differential provenance, not an admitted synthetic range at this task base. Supporting helper units and curse callsite coverage/gaps remain supplemental evidence for coordinator reconciliation; rare active curse callers are listed blocked when the matching source arm has not been proven by a recording.",
+        "entryPoints": [
+          {
+            "name": "ACTIVE: object wish parsing and NULL retry through #wizwish",
+            "functions": [
+              "readobjnam"
+            ],
+            "recordings": [
+              "recordings/objnam.c/readobjnam-wish-null-retry.session.json",
+              "recordings/zap.c/makewish-null-retry-exhausted.session.json",
+              "recordings/objnam.c/readobjnam-hammer-wish.session.json",
+              "recordings/objnam.c/readobjnam-polearm-wish.session.json"
+            ],
+            "synthetic": []
+          },
+          {
+            "name": "ACTIVE: wizard terrain trap/fountain/throne/wall-property wishes",
+            "functions": [
+              "readobjnam"
+            ],
+            "recordings": [
+              "recordings/objnam.c/wizard-terrain-fountain.session.json",
+              "recordings/objnam.c/wizard-terrain-trap.session.json",
+              "recordings/objnam.c/wizard-terrain-throne-extcmd.session.json",
+              "recordings/objnam.c/wizard-terrain-wallprop.session.json"
+            ],
+            "synthetic": []
+          },
+          {
+            "name": "ACTIVE: Water-surrounded vault Lua object creation",
+            "functions": [
+              "readobjnam"
+            ],
+            "recordings": [
+              "recordings/mklev.c/water-surrounded-vault-natural-samurai-920031.session.json",
+              "recordings/mklev.c/water-surrounded-vault-natural-wizard-920051.session.json"
+            ],
+            "synthetic": []
+          },
+          {
+            "name": "ACTIVE: curse wished lit lantern",
+            "functions": [
+              "readobjnam"
+            ],
+            "recordings": [
+              "recordings/objnam.c/readobjnam-cursed-lit-lantern.session.json"
+            ],
+            "synthetic": []
+          },
+          {
+            "name": "BLOCKED: files.c wizard-kit startup readobjnam path; no JS read_wizkit route",
+            "functions": [
+              "readobjnam"
+            ],
+            "recordings": [],
+            "synthetic": []
+          },
+          {
+            "name": "BLOCKED: wizard lava terrain with unported fire_damage_chain side effects",
+            "functions": [
+              "readobjnam"
+            ],
+            "recordings": [],
+            "synthetic": []
+          },
+          {
+            "name": "BLOCKED: melting ice terrain timeout side effect",
+            "functions": [
+              "readobjnam"
+            ],
+            "recordings": [],
+            "synthetic": []
+          }
+        ]
+      },
+      "progressBeforePark": {
+        "screens": 0,
+        "rng": 0
+      },
+      "parkedStanding": {
+        "sha": "dcc9c2c2b5761efb0d5649a38edad28a03115464",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "parkedReason": "The implemented readobjnam path and active wish/vault/curse recordings match, but active entry-point evidence remains incomplete for files.c proc_wizkit_line startup and objnam.c wizterrainwish lava fire_damage_chain and melting-ice timeout effects. Preserve the submitted blocked recipes and evidence; resume when these source dependencies are ported and matching recordings cover the entry points. The selected Samurai case now stops later at dothrow.c dofire/quiver dispatch. Supporting zap.c makewish and mkobj.c curse caller families need separate source-completion goals."
     },
     {
       "id": "port-read-doread-cursed-teleport-synthetic-v5-20260926",
@@ -78336,16 +78620,23 @@
     {
       "id": "fix-cmd-call-admission-synthetic-v6-20260926",
       "kind": "divergence-fix",
-      "status": "queued",
+      "status": "closed",
       "summary": "Admit the source-bound call command through rhack dispatch and preserve naming menu behavior",
       "cFile": "cmd.c",
       "sessions": [],
       "selectionReason": "synthetic/v6/v6-add6-rogue-call-potion-type has 12 unmatched screens and complete source trace in investigations/synthetic/v6/v6-add6-rogue-call-potion-type.json. Higher ranked v5 Samurai and v6 blank-scroll paths are owned by A9; v6 beartrap paths await B investigation and source reservation. This first completed unreserved investigation identifies cmd.c rhack command admission, independent of A9 and B.",
       "detail": "At segment 0 step 2, input C reaches cmd.c rhack call row, which invokes do_name.c docallcmd and paints the naming menu. The v6 C recording has that screen with zero step RNG; JS js/cmd.js admitParsedCommand excludes call from ADMITTED_COMMANDS before its already wired docallcmd handler, causing a stop after 2/14 screens. Source-backed fix should admit the command generally and verify menu and subsequent input, preserving repeated-command handling.",
-      "openedAt": null,
-      "openStanding": null,
-      "closedAt": null,
-      "delivered": null,
+      "openedAt": "64512591728d9a53e65816535a330bd42952c569",
+      "openStanding": {
+        "sha": "64512591728d9a53e65816535a330bd42952c569",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "closedAt": "cd03ef328d8cf2c6ecdbfb47f4f6bd21f85c6c37",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
       "function": "rhack",
       "session": "synthetic/v6/v6-add6-rogue-call-potion-type",
       "step": 2,
@@ -78362,12 +78653,169 @@
           "evaluationPath": "challenges/evaluations/20260926071400-v6.json",
           "evaluationCommit": "3b1e337022043d314860fa14efc520d2600bf194"
         }
+      },
+      "activeStanding": {
+        "sha": "64512591728d9a53e65816535a330bd42952c569",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v6",
+          "caseId": "v6-add6-rogue-call-potion-type",
+          "session": "synthetic/v6/v6-add6-rogue-call-potion-type",
+          "manifestPath": "challenges/manifests/v6.json",
+          "manifestSha256": "7523b91e823f4e3906c9acdc9a3d80f8469c27c2caab8fc8fbd6967dbfdcab5f",
+          "recording": "challenges/cases/v6/v6-add6-rogue-call-potion-type.session.json",
+          "recordingPath": "challenges/cases/v6/v6-add6-rogue-call-potion-type.session.json",
+          "recordingSha256": "19cb554df424e9e1c54c4832aa814ca6c9257b705e91c410e48ad05671862beb",
+          "recipe": "challenges/cases/v6/v6-add6-rogue-call-potion-type.recipe.session.json",
+          "recipeSha256": "5d3e9be4ea88a53dff76e939cc802e69abc449b98f70755a1e833764f1af7de1",
+          "replayInputSha256": "5586bf2e769a46f32937a006eaf1f8c9625fb2fe1e45fc786b0cdac387819e14",
+          "evaluationPath": "challenges/evaluations/20260926071400-v6.json",
+          "evaluationCommit": "3b1e337022043d314860fa14efc520d2600bf194",
+          "evaluationArtifact": "challenges/evaluations/20260926071400-v6.json",
+          "evaluationUtc": "2026-09-26T07:14:11.583Z",
+          "remainingScreens": 12,
+          "recordedSteps": 14,
+          "previousScreensMatched": null,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 2,
+              "total": 14
+            },
+            "rng": {
+              "matched": 2319,
+              "total": 2319
+            },
+            "cursors": {
+              "matched": 2,
+              "total": 14
+            }
+          },
+          "firstMismatch": {
+            "kind": "stop",
+            "message": "unsupported hero command: the repeated-command boundary admits only wait, look, inventory, showspells, known, attributes, search, eat, engrave, apply, rub, open, close, down, up, drop, pickup, pay, takeoff, remove, wear, puton, quaff, read, zap, cast, reqmenu, fight, rush, run, repeat, options, autopickup, wizwish, wizidentify, wizlevelport, wizgenesis, wizintrinsic, wizmap, wizwhere, fire, throw, swap, kick, save, wield, quiver, help, whatis, #, loot, force, tip, glance, showgold, seeweapon, seearmor, seerings, seeamulet, seeall, seetools, teleport, overview, chronicle, conduct, vanquished, genocided, inventtype, adjust, altadjust, terrain, travel, dip, invoke, untrap, herecmdmenu, therecmdmenu, a one-square walk, a shift-direction run, a ctrl-direction rush, or a byte bound to no command",
+            "step": 2
+          },
+          "step": 2,
+          "kind": "stop",
+          "sourceFile": null,
+          "function": null,
+          "message": "unsupported hero command: the repeated-command boundary admits only wait, look, inventory, showspells, known, attributes, search, eat, engrave, apply, rub, open, close, down, up, drop, pickup, pay, takeoff, remove, wear, puton, quaff, read, zap, cast, reqmenu, fight, rush, run, repeat, options, autopickup, wizwish, wizidentify, wizlevelport, wizgenesis, wizintrinsic, wizmap, wizwhere, fire, throw, swap, kick, save, wield, quiver, help, whatis, #, loot, force, tip, glance, showgold, seeweapon, seearmor, seerings, seeamulet, seeall, seetools, teleport, overview, chronicle, conduct, vanquished, genocided, inventtype, adjust, altadjust, terrain, travel, dip, invoke, untrap, herecmdmenu, therecmdmenu, a one-square walk, a shift-direction run, a ctrl-direction rush, or a byte bound to no command",
+          "cFile": null,
+          "luaFile": null,
+          "line": null,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v6/v6-add6-rogue-call-potion-type.json",
+            "result": {
+              "session": "synthetic/v6/v6-add6-rogue-call-potion-type",
+              "corpus": "synthetic",
+              "batch": "v6",
+              "caseId": "v6-add6-rogue-call-potion-type",
+              "manifestPath": "challenges/manifests/v6.json",
+              "manifestSha256": "7523b91e823f4e3906c9acdc9a3d80f8469c27c2caab8fc8fbd6967dbfdcab5f",
+              "recordingPath": "challenges/cases/v6/v6-add6-rogue-call-potion-type.session.json",
+              "recordingSha256": "19cb554df424e9e1c54c4832aa814ca6c9257b705e91c410e48ad05671862beb",
+              "evaluationPath": "challenges/evaluations/20260926071400-v6.json",
+              "evaluationCommit": "3b1e337022043d314860fa14efc520d2600bf194",
+              "remainingScreens": 12,
+              "recordedSteps": 14,
+              "status": "complete",
+              "commit": "3b1e337022043d314860fa14efc520d2600bf194",
+              "mismatch": {
+                "corpus": "synthetic",
+                "batch": "v6",
+                "caseId": "v6-add6-rogue-call-potion-type",
+                "session": "synthetic/v6/v6-add6-rogue-call-potion-type",
+                "manifestPath": "challenges/manifests/v6.json",
+                "manifestSha256": "7523b91e823f4e3906c9acdc9a3d80f8469c27c2caab8fc8fbd6967dbfdcab5f",
+                "recording": "challenges/cases/v6/v6-add6-rogue-call-potion-type.session.json",
+                "recordingPath": "challenges/cases/v6/v6-add6-rogue-call-potion-type.session.json",
+                "recordingSha256": "19cb554df424e9e1c54c4832aa814ca6c9257b705e91c410e48ad05671862beb",
+                "recipe": "challenges/cases/v6/v6-add6-rogue-call-potion-type.recipe.session.json",
+                "recipeSha256": "5d3e9be4ea88a53dff76e939cc802e69abc449b98f70755a1e833764f1af7de1",
+                "replayInputSha256": "5586bf2e769a46f32937a006eaf1f8c9625fb2fe1e45fc786b0cdac387819e14",
+                "evaluationPath": "challenges/evaluations/20260926071400-v6.json",
+                "evaluationCommit": "3b1e337022043d314860fa14efc520d2600bf194",
+                "evaluationArtifact": "challenges/evaluations/20260926071400-v6.json",
+                "evaluationUtc": "2026-09-26T07:14:11.583Z",
+                "remainingScreens": 12,
+                "recordedSteps": 14,
+                "previousScreensMatched": null,
+                "regression": false,
+                "passed": false,
+                "error": null,
+                "metrics": {
+                  "screens": {
+                    "matched": 2,
+                    "total": 14
+                  },
+                  "rng": {
+                    "matched": 2319,
+                    "total": 2319
+                  },
+                  "cursors": {
+                    "matched": 2,
+                    "total": 14
+                  }
+                },
+                "firstMismatch": {
+                  "kind": "stop",
+                  "message": "unsupported hero command: the repeated-command boundary admits only wait, look, inventory, showspells, known, attributes, search, eat, engrave, apply, rub, open, close, down, up, drop, pickup, pay, takeoff, remove, wear, puton, quaff, read, zap, cast, reqmenu, fight, rush, run, repeat, options, autopickup, wizwish, wizidentify, wizlevelport, wizgenesis, wizintrinsic, wizmap, wizwhere, fire, throw, swap, kick, save, wield, quiver, help, whatis, #, loot, force, tip, glance, showgold, seeweapon, seearmor, seerings, seeamulet, seeall, seetools, teleport, overview, chronicle, conduct, vanquished, genocided, inventtype, adjust, altadjust, terrain, travel, dip, invoke, untrap, herecmdmenu, therecmdmenu, a one-square walk, a shift-direction run, a ctrl-direction rush, or a byte bound to no command",
+                  "step": 2
+                },
+                "step": 2,
+                "kind": "stop",
+                "sourceFile": null,
+                "function": null,
+                "message": "unsupported hero command: the repeated-command boundary admits only wait, look, inventory, showspells, known, attributes, search, eat, engrave, apply, rub, open, close, down, up, drop, pickup, pay, takeoff, remove, wear, puton, quaff, read, zap, cast, reqmenu, fight, rush, run, repeat, options, autopickup, wizwish, wizidentify, wizlevelport, wizgenesis, wizintrinsic, wizmap, wizwhere, fire, throw, swap, kick, save, wield, quiver, help, whatis, #, loot, force, tip, glance, showgold, seeweapon, seearmor, seerings, seeamulet, seeall, seetools, teleport, overview, chronicle, conduct, vanquished, genocided, inventtype, adjust, altadjust, terrain, travel, dip, invoke, untrap, herecmdmenu, therecmdmenu, a one-square walk, a shift-direction run, a ctrl-direction rush, or a byte bound to no command",
+                "cFile": null,
+                "luaFile": null,
+                "line": null
+              },
+              "summary": "At step 2, the Rogue presses C for the #call menu. C cmd.c binds C to do_name.c:docallcmd(), which displays “What do you want to name?”. The JS command binding and docallcmd handler exist, but js/cmd.js omits call from ADMITTED_COMMANDS, so admitParsedCommand() throws before dispatch. Admit the source-bound call command through the shared command gate and verify its menu and follow-on input paths; this case has 12 screens left to compare.",
+              "source": {
+                "file": "cmd.c",
+                "branch": "The parsed key is C with no count or movement prefix; cmd.c’s call command row invokes do_name.c:docallcmd(), which builds the naming menu and returns ECMD_OK after selection or dismissal.",
+                "functions": [
+                  "rhack"
+                ],
+                "callers": [
+                  "cmd.c parse() returns C to rhack(), which resolves the call row and invokes do_name.c:docallcmd().",
+                  "js/cmd.js parses C, resolves commandForKey() to call, rejects it in admitParsedCommand() before its existing docallcmd dispatch in executeCommandHandler(); js/do_name.js:docallcmd() owns the menu."
+                ],
+                "dependencies": [
+                  "The same source command has the extended name alias; keep byte binding, repeated-command guard, and handler admission consistent. Later inventory selection and do_name.c:docall() must be evaluated after the first command boundary is opened."
+                ]
+              },
+              "goalKind": "divergence-fix",
+              "evidence": [
+                "Saved v6 evaluation challenges/evaluations/20260926071400-v6.json at 3b1e337022043d314860fa14efc520d2600bf194 reports 2/14 matching screens, all 2319/2319 RNG calls through the stop, and first mismatch step 2: unsupported hero command at the repeated-command admission boundary.",
+                "The independent C recording challenges/cases/v6/v6-add6-rogue-call-potion-type.session.json has step 2 key C, zero RNG calls, and the “What do you want to name?” menu. Step 3 selects o and reaches the inventory-type call prompt.",
+                "Upstream cmd.c command table binds C to do_name.c:docallcmd(); cmd.c:rhack invokes a recognized handler. Upstream do_name.c:docallcmd() constructs the same menu and selects its o arm for an inventory type.",
+                "js/extcmdlist_data.js already binds C and name to docallcmd; js/cmd.js executeCommandHandler() has a docallcmd arm. js/cmd.js ADMITTED_COMMANDS omits call, so admitParsedCommand() throws before either handler or menu can run. Add source-supported command admission and verify later input without tailoring behavior to this recording."
+              ]
+            }
+          }
+        }
+      ],
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "cd03ef328d8cf2c6ecdbfb47f4f6bd21f85c6c37",
+        "screens": 11405,
+        "rng": 792838
       }
     },
     {
       "id": "port-apply-trap-setting-synthetic-v6-20260926",
       "kind": "file-port",
-      "status": "queued",
+      "status": "closed",
       "summary": "Port complete apply.c trap setup and occupation callback for applied traps",
       "cFile": "apply.c",
       "sessions": [
@@ -78375,24 +78823,31 @@
       ],
       "selectionReason": "synthetic/v6/wizard-beartrap-sit-floor has 24 unmatched screens and complete source trace in investigations/synthetic/v6/wizard-beartrap-sit-floor.json. Higher ranked v5 Samurai is owned by A9, while v6 wizard-write-marker-scroll is also in A9 readobjnam scope. This is the first completed unreserved investigation in per-session priority; source family apply.c use_trap/set_trap is independent of A9 and the separately queued cmd.c call admission.",
       "detail": "At segment 0 step 13, applying the wished bear trap reaches C apply.c doapply BEARTRAP arm, which invokes use_trap and installs the return-valued set_trap occupation. JS js/apply.js doapply refuses object type 244. Port use_trap and set_trap in C definition order, wire doapply and trapinfo state/reset contracts; preserve matching prefix and evaluate later behavior. C starts and stops trap setup in this case, so the later sit on stairs does not establish a sit.c beartrap entry point.",
-      "openedAt": null,
-      "openStanding": null,
-      "closedAt": null,
-      "delivered": null,
+      "openedAt": "a07940e669ee7dd6f7788dd450e96be90f5091f4",
+      "openStanding": {
+        "sha": "a07940e669ee7dd6f7788dd450e96be90f5091f4",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "closedAt": "e0337a3a4ccf6c565622b7fb6eaad1207ecf278c",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
       "functions": [
         {
           "name": "use_trap",
           "line": 2821,
           "endLine": 2915,
-          "declared": false,
-          "complete": false
+          "declared": true,
+          "complete": true
         },
         {
           "name": "set_trap",
           "line": 2916,
           "endLine": 2954,
-          "declared": false,
-          "complete": false
+          "declared": true,
+          "complete": true
         }
       ],
       "range": {
@@ -78409,8 +78864,1327 @@
           "manifestSha256": "7523b91e823f4e3906c9acdc9a3d80f8469c27c2caab8fc8fbd6967dbfdcab5f",
           "recordingPath": "challenges/cases/v6/wizard-beartrap-sit-floor.session.json",
           "recordingSha256": "6ee59baa26322e58c754b794568e1e43c6deb9ef41524175e3db41f0794aa65c",
-          "evaluationPath": "challenges/evaluations/20260926071400-v6.json",
-          "evaluationCommit": "3b1e337022043d314860fa14efc520d2600bf194"
+          "evaluationPath": "challenges/evaluations/20260926075422-v6.json",
+          "evaluationCommit": "cd03ef328d8cf2c6ecdbfb47f4f6bd21f85c6c37"
+        }
+      },
+      "activeStanding": {
+        "sha": "a07940e669ee7dd6f7788dd450e96be90f5091f4",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v6",
+          "caseId": "wizard-beartrap-sit-floor",
+          "session": "synthetic/v6/wizard-beartrap-sit-floor",
+          "manifestPath": "challenges/manifests/v6.json",
+          "manifestSha256": "7523b91e823f4e3906c9acdc9a3d80f8469c27c2caab8fc8fbd6967dbfdcab5f",
+          "recording": "challenges/cases/v6/wizard-beartrap-sit-floor.session.json",
+          "recordingPath": "challenges/cases/v6/wizard-beartrap-sit-floor.session.json",
+          "recordingSha256": "6ee59baa26322e58c754b794568e1e43c6deb9ef41524175e3db41f0794aa65c",
+          "recipe": "challenges/cases/v6/wizard-beartrap-sit-floor.recipe.session.json",
+          "recipeSha256": "d30e1c2f5f189db103808000f1365d1e8f0e4232010742ecfa5f0258b882d4ea",
+          "replayInputSha256": "657ea221132407bc3979477fa6cdfb71292d13c467d17c383eb8a5a0467c8ac3",
+          "evaluationPath": "challenges/evaluations/20260926075422-v6.json",
+          "evaluationCommit": "cd03ef328d8cf2c6ecdbfb47f4f6bd21f85c6c37",
+          "evaluationArtifact": "challenges/evaluations/20260926075422-v6.json",
+          "evaluationUtc": "2026-09-26T07:54:38.609Z",
+          "remainingScreens": 24,
+          "recordedSteps": 37,
+          "previousScreensMatched": 13,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 13,
+              "total": 37
+            },
+            "rng": {
+              "matched": 2950,
+              "total": 3118
+            },
+            "cursors": {
+              "matched": 13,
+              "total": 37
+            }
+          },
+          "firstMismatch": {
+            "kind": "stop",
+            "message": "unsupported hero command: an unported branch of this command: applying a tool requires doapply()'s arm for object type 244",
+            "step": 13
+          },
+          "step": 13,
+          "kind": "stop",
+          "sourceFile": "apply.c",
+          "function": "doapply",
+          "message": "unsupported hero command: an unported branch of this command: applying a tool requires doapply()'s arm for object type 244",
+          "cFile": "apply.c",
+          "luaFile": null,
+          "line": null,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v6/wizard-beartrap-sit-floor.json",
+            "result": {
+              "session": "synthetic/v6/wizard-beartrap-sit-floor",
+              "corpus": "synthetic",
+              "batch": "v6",
+              "caseId": "wizard-beartrap-sit-floor",
+              "manifestPath": "challenges/manifests/v6.json",
+              "manifestSha256": "7523b91e823f4e3906c9acdc9a3d80f8469c27c2caab8fc8fbd6967dbfdcab5f",
+              "recordingPath": "challenges/cases/v6/wizard-beartrap-sit-floor.session.json",
+              "recordingSha256": "6ee59baa26322e58c754b794568e1e43c6deb9ef41524175e3db41f0794aa65c",
+              "evaluationPath": "challenges/evaluations/20260926071400-v6.json",
+              "evaluationCommit": "3b1e337022043d314860fa14efc520d2600bf194",
+              "remainingScreens": 24,
+              "recordedSteps": 37,
+              "status": "complete",
+              "commit": "3b1e337022043d314860fa14efc520d2600bf194",
+              "mismatch": {
+                "corpus": "synthetic",
+                "batch": "v6",
+                "caseId": "wizard-beartrap-sit-floor",
+                "session": "synthetic/v6/wizard-beartrap-sit-floor",
+                "manifestPath": "challenges/manifests/v6.json",
+                "manifestSha256": "7523b91e823f4e3906c9acdc9a3d80f8469c27c2caab8fc8fbd6967dbfdcab5f",
+                "recording": "challenges/cases/v6/wizard-beartrap-sit-floor.session.json",
+                "recordingPath": "challenges/cases/v6/wizard-beartrap-sit-floor.session.json",
+                "recordingSha256": "6ee59baa26322e58c754b794568e1e43c6deb9ef41524175e3db41f0794aa65c",
+                "recipe": "challenges/cases/v6/wizard-beartrap-sit-floor.recipe.session.json",
+                "recipeSha256": "d30e1c2f5f189db103808000f1365d1e8f0e4232010742ecfa5f0258b882d4ea",
+                "replayInputSha256": "5586bf2e769a46f32937a006eaf1f8c9625fb2fe1e45fc786b0cdac387819e14",
+                "evaluationPath": "challenges/evaluations/20260926071400-v6.json",
+                "evaluationCommit": "3b1e337022043d314860fa14efc520d2600bf194",
+                "evaluationArtifact": "challenges/evaluations/20260926071400-v6.json",
+                "evaluationUtc": "2026-09-26T07:14:11.583Z",
+                "remainingScreens": 24,
+                "recordedSteps": 37,
+                "previousScreensMatched": null,
+                "regression": false,
+                "passed": false,
+                "error": null,
+                "metrics": {
+                  "screens": {
+                    "matched": 13,
+                    "total": 37
+                  },
+                  "rng": {
+                    "matched": 2950,
+                    "total": 3118
+                  },
+                  "cursors": {
+                    "matched": 13,
+                    "total": 37
+                  }
+                },
+                "firstMismatch": {
+                  "kind": "stop",
+                  "message": "unsupported hero command: an unported branch of this command: applying a tool requires doapply()'s arm for object type 244",
+                  "step": 13
+                },
+                "step": 13,
+                "kind": "stop",
+                "sourceFile": "apply.c",
+                "function": "doapply",
+                "message": "unsupported hero command: an unported branch of this command: applying a tool requires doapply()'s arm for object type 244",
+                "cFile": "apply.c",
+                "luaFile": null,
+                "line": null
+              },
+              "summary": "The saved v6 evaluation matches 13 of 37 screens, then stops at segment 0 step 13 when the Wizard applies a wished bear trap. C dispatches `doapply()`’s BEARTRAP arm to `use_trap()`, which begins trap setting and installs the `set_trap()` occupation. The saved C history then stops that occupation before the trap is armed; its later `#sit` inputs occur on stairs, so this case does not reach the intended `sit.c:dosit()` TT_BEARTRAP branch. The first source gap is the apply.c trap-setting family, not the sit command. A9 owns the matching wizard-wish setup before this stop but not the apply.c family or js/apply.js implementation path.",
+              "source": {
+                "file": "apply.c",
+                "functions": [
+                  "doapply",
+                  "use_trap",
+                  "set_trap"
+                ],
+                "branch": "A debug Wizard wishes a bear trap into inventory, invokes the `a` apply command, and selects the bear trap. On a reachable ordinary floor, `doapply()` dispatches BEARTRAP to `use_trap()`. That helper initializes gt.trapinfo with the object and position, computes setup turns from dexterity/strength/blindness, emits the begin-setting message, and installs set_trap as the occupation callback. In the saved record the occupation is stopped before arming; subsequent #sit commands are on stairs, not inside a bear trap.",
+                "callers": [
+                  "cmd.c:1677-1678 binds the `a` command to doapply(); js/cmd.js:3296-3298 routes the production command to js/apply.js:doapply().",
+                  "apply.c:4388-4393 calls use_trap() for LAND_MINE and BEARTRAP, then sets obj to null when set_trap is the installed occupation so the tail does not speak the still-consumed artifact. The currently ported js/apply.js:doapply() falls into its UnsupportedApplyError default for BEARTRAP (otyp 244).",
+                  "apply.c:2910 installs set_trap with set_occupation(); cmd.c:205-216 stores the occupation, allmain.c:485-500 runs it and clears the callback when it returns 0. cmd.c:194-200 resets trap-setting state through reset_trapset(); js/cmd.js:1922-1925 already routes that reset to js/apply.js:reset_trapset()."
+                ],
+                "dependencies": [
+                  "State contract: C gt.trapinfo owns tobj, tx, ty, time_needed, and force_bungle. js/apply.js:527-530 currently resets only tobj and force_bungle; a full source port must keep the setup coordinates and countdown together with that context.",
+                  "Return-valued callback: apply.c:set_trap() returns 1 while more setup turns remain, and 0 when the object/position is invalid or setup finishes; allmain.c:485-500 consumes that result. js/cmd.js:set_occupation() and js/allmain.js:1583-1613 provide the existing occupation storage and invocation contract.",
+                  "apply.c:set_trap() consumes the trap pointer returned by trap.c:maketrap(); js/trap.js already exports maketrap(). It also consumes in_rooms() for the shop test. Preserve the source call order when wiring these helpers.",
+                  "apply.c:use_trap() calls shk.c:use_unpaid_trapobj() for billing; that C helper returns void and is a no-op for a paid trap. apply.c:set_trap() discards the dotrap() result in the cursed/fumbling/forced-bungle arm; if dotrap() is not ported, keep that branch as a named note_unported gap rather than treating its result as data."
+                ]
+              },
+              "goalKind": "file-port",
+              "evidence": [
+                "Queue/evaluation evidence: `.cache/v6-initial-queue.json` case `synthetic/v6/wizard-beartrap-sit-floor` records 24 remaining screens, 37 steps, and first stop at segment 0 step 13; `challenges/evaluations/20260926071400-v6.json` is evaluated at 3b1e337022043d314860fa14efc520d2600bf194. The queue pins manifest SHA-256 7523b91e823f4e3906c9acdc9a3d80f8469c27c2caab8fc8fbd6967dbfdcab5f and recording SHA-256 6ee59baa26322e58c754b794568e1e43c6deb9ef41524175e3db41f0794aa65c.",
+                "Source/production path: nethack-c/upstream/src/cmd.c:1677-1678 binds `a` to doapply(); nethack-c/upstream/src/apply.c:4388-4393 dispatches BEARTRAP to use_trap() and suppresses the artifact tail if set_trap became the occupation. js/cmd.js:3296-3298 reaches js/apply.js:doapply(), whose current default throws for object type 244. This is the first JS stop identified in the saved evaluation.",
+                "C record: `challenges/cases/v6/wizard-beartrap-sit-floor.session.json`, segment 0, step 13, follows wizard wish input and the inventory selection `o`; C prints “You begin setting your bear trap. You stop setting the trap.” The same recording’s later #sit resolutions at steps 30 and 36 say “You sit on the stairs.” The manifest mission/result states that this valid C history did not reach the TT_BEARTRAP sit branch.",
+                "Setup/state scope: apply.c:2821-2911 contains use_trap(); on the ordinary-floor branch it records the bear trap and coordinates in gt.trapinfo, derives time_needed, calls use_unpaid_trapobj(), then schedules set_trap(). apply.c:2914-2951 defines the callback that decrements that state, creates the trap with maketrap(), consumes the object, and resets setup state. cmd.c:205-216, allmain.c:485-500, and cmd.c:194-200 establish the occupation and reset callers.",
+                "A9 overlap check: the shared ledger reserves A9 for objnam.c:readobjnam/rnd_otyp_by_wpnskill/wizterrainwish and zap.c:makewish, with supporting wish/creation callers. That code supplies the wished object before the first mismatch; the applied BEARTRAP branch is separately owned by apply.c:doapply/use_trap/set_trap and has no overlap with A9’s source reservations."
+              ]
+            }
+          }
+        }
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "use_trap",
+            "implementation": "js/apply.js",
+            "symbol": "use_trap",
+            "sourceReview": "Read the complete apply.c use_trap() body at 2821-2911 and checked every guard in source order: no hands, Stunned, swallowed/engulfed via digests, Underwater, levitation, pool, lava, stairs/ladder, furniture/obstruction/closed door/existing trap, then Air/Water plane terrain. Verified the trap type selection, same-object/same-square resume, DEX thresholds, blindness multiplier, bear-trap STR addition, mounted/unskilled rnl(10) threshold and branch order, refusal reset, begin message, and occupation installation. reset_trapset() clears only tobj and force_bungle while preserving tx/ty/time_needed. The return-valued shk_your() prefix chain is implemented in js/shk.js with shk_owns()/mon_owns() source branches, including corpse, shopkeeper, and monster owner cases; scripts/shk.test.mjs pins these names and prefixes. The C call use_unpaid_trapobj() is void and only has an active effect for unpaid traps; that branch is skipped with note_unported('shk.c use_unpaid_trapobj') rather than simulated. The existing doapply() LAND_MINE/BEARTRAP arm is wired to this function, and the selected admitted case plus both independent recordings execute it through the apply command caller.",
+            "callers": [
+              {
+                "path": "js/apply.js",
+                "symbol": "doapply",
+                "source": "apply.c:4388-4393 doapply() LAND_MINE/BEARTRAP switch arms call use_trap(obj)."
+              },
+              {
+                "path": "js/cmd.js",
+                "symbol": "runApplyCommand",
+                "source": "cmd.c:rhack()/command dispatch reaches doapply() from the a command or #apply; js/cmd.js runApplyCommand dispatches to js/apply.js doapply()."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/apply-trap.test.mjs",
+              "scripts/drop-command.test.mjs",
+              "scripts/shk.test.mjs"
+            ],
+            "recordings": [
+              "recordings/apply.c/beartrap-setting-independent.session.json",
+              "recordings/apply.c/landmine-setting-independent.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v6",
+                "caseId": "wizard-beartrap-sit-floor",
+                "segment": 0,
+                "fromStep": 12,
+                "throughStep": 13,
+                "source": "cmd.c command dispatch -> apply.c doapply() BEARTRAP arm -> apply.c use_trap(); selected admitted case now matches all 37 steps."
+              }
+            ],
+            "checkedAt": "e0337a3a4ccf6c565622b7fb6eaad1207ecf278c"
+          },
+          {
+            "name": "set_trap",
+            "implementation": "js/apply.js",
+            "symbol": "set_trap",
+            "sourceReview": "Read the complete apply.c set_trap() body at 2916-2952. Preserved the early interruption guard/reset and the pre-decrement continuation result (one while time_needed remains positive, zero when the occupation ends); then ported the maketrap result branch, madeby_u assignment, feeltrap call, shop check, completion message, cursed/Fumbling short-circuit rnl(10) order, useup, reset, and final zero return. Existing maketrap(), feeltrap(), in_rooms(), useup(), and rng.rnl() provide the consumed values/operations. The void shk.c add_damage() call in the shop branch is skipped with note_unported('shk.c add_damage'). C discards dotrap()'s integer return, so its conditional trap-trigger call is skipped with note_unported('trap.c dotrap') after preserving the source condition and random draw. Do not treat those two source effects as implemented. The separate shk.c ownership helpers called by use_trap() are fully traced and tested in scripts/shk.test.mjs; their source units remain outside this apply.c file-port evidence scope.",
+            "callers": [
+              {
+                "path": "js/apply.js",
+                "symbol": "use_trap",
+                "source": "apply.c:2864 and :2910 use_trap() installs set_trap() through set_occupation()."
+              },
+              {
+                "path": "js/allmain.js",
+                "symbol": "moveloop_core",
+                "source": "allmain.c:485-509 runs go.occupation once per occupation turn and clears it when set_trap() returns zero."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/apply-trap.test.mjs"
+            ],
+            "recordings": [
+              "recordings/apply.c/beartrap-setting-independent.session.json",
+              "recordings/apply.c/landmine-setting-independent.session.json"
+            ],
+            "checkedAt": "e0337a3a4ccf6c565622b7fb6eaad1207ecf278c"
+          }
+        ],
+        "entryPointReview": "The selected range is reached from the active apply command: cmd.c command dispatch -> js/cmd.js runApplyCommand -> apply.c doapply() LAND_MINE/BEARTRAP cases -> use_trap(). use_trap() installs set_trap() as the untimed occupation; js/allmain.js moveloop_core() invokes the callback on elapsed turns and clears it when it returns zero. The admitted v6 case exercises the bear-trap apply caller at segment 0 steps 12-13 and now matches through all 37 steps. Two independent C recordings exercise full completion for both bear traps and land mines. The trap state helper reset_trapset() is also corrected to preserve tx/ty/time_needed as C does; scripts/apply-trap.test.mjs and scripts/drop-command.test.mjs pin those reset semantics. The required return-valued naming chain shk.c shk_your()/shk_owns()/mon_owns() was included in B11's ledger scope, ported in js/shk.js, and source-tested for corpse, shop-owner, and monster-owner prefixes in scripts/shk.test.mjs; GOALS source evidence is file-scoped to apply.c, so those shk.c helpers are documented here as dependencies rather than misreported as apply.c source units. Remaining active source gaps are conditional: shk.c use_unpaid_trapobj() for unpaid traps; shk.c add_damage() when arming in a shop; and trap.c dotrap() when cursed/Fumbling or force_bungle causes a newly armed trap to trigger. Each skipped call is named with note_unported(), and the delivery does not claim those side effects. These functions/branches are not excluded by the C recorder build; no inactiveReason is asserted.",
+        "entryPoints": [
+          {
+            "name": "Apply a bear trap or land mine and run the setting occupation",
+            "functions": [
+              "use_trap",
+              "set_trap"
+            ],
+            "recordings": [
+              "recordings/apply.c/beartrap-setting-independent.session.json",
+              "recordings/apply.c/landmine-setting-independent.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v6",
+                "caseId": "wizard-beartrap-sit-floor",
+                "segment": 0,
+                "fromStep": 12,
+                "throughStep": 13,
+                "source": "apply.c doapply() BEARTRAP arm calls use_trap(); the independent recording separately verifies set_trap() through completion."
+              }
+            ]
+          }
+        ]
+      },
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "e0337a3a4ccf6c565622b7fb6eaad1207ecf278c",
+        "screens": 11405,
+        "rng": 792838
+      }
+    },
+    {
+      "id": "fix-zap-bhitm-hit-shadow-synthetic-v5-20260926",
+      "kind": "divergence-fix",
+      "status": "closed",
+      "summary": "Repair zap.c bhitm wand-striking hit dispatch",
+      "cFile": "zap.c",
+      "sessions": [],
+      "selectionReason": "After B11, synthetic/v5/samurai-pet-ration-eating remains higher ranked at 63 unmatched screens but A9 owns its readobjnam path. This 48-screen Healer case is the first completed, unreserved source-traced investigation in .cache/B11-work-queue.json; zap.c:bhitm is distinct from A9 zap.c:makewish despite sharing js/zap.js.",
+      "detail": "The saved v5 case has 0/48 matched screens and a fresh-process TypeError: hit is not a function before any scored boundary. C zap.c:bhitm WAN_STRIKING/SPE_FORCE_BOLT successful-hit arm calls hit() before resist(); js/zap.js:bhitm shadows that hit() function with a coordinate binding for gb.bhitpos, then calls the binding. Verify source order, rename/repair the general coordinate binding, and replay past this branch; subsequent resistance or kill behavior may require separate source work. See investigations/synthetic/v5/healer-wand-striking-grid-bug.json.",
+      "openedAt": "ccf417310a430275513a9b1c508a2508774b6b77",
+      "openStanding": {
+        "sha": "ccf417310a430275513a9b1c508a2508774b6b77",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "closedAt": "50bbe620897c8fc2e634d14ec672d33a4e44db7e",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
+      "function": "bhitm",
+      "session": "synthetic/v5/healer-wand-striking-grid-bug",
+      "syntheticProvenance": {
+        "synthetic/v5/healer-wand-striking-grid-bug": {
+          "session": "synthetic/v5/healer-wand-striking-grid-bug",
+          "corpus": "synthetic",
+          "batch": "v5",
+          "caseId": "healer-wand-striking-grid-bug",
+          "manifestPath": "challenges/manifests/v5.json",
+          "manifestSha256": "5e4430fbd724fe91720f898c02e6f25f9d98e884fa31bd696ca1a63e87abf150",
+          "recordingPath": "challenges/cases/v5/healer-wand-striking-grid-bug.session.json",
+          "recordingSha256": "97d372dd3a84252d6970271b4d335959cbf6d24c41318fa0b578c7a79446ec32",
+          "evaluationPath": "challenges/evaluations/20260926092216-v5.json",
+          "evaluationCommit": "dcc9c2c2b5761efb0d5649a38edad28a03115464"
+        }
+      },
+      "activeStanding": {
+        "sha": "ccf417310a430275513a9b1c508a2508774b6b77",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v5",
+          "caseId": "healer-wand-striking-grid-bug",
+          "session": "synthetic/v5/healer-wand-striking-grid-bug",
+          "manifestPath": "challenges/manifests/v5.json",
+          "manifestSha256": "5e4430fbd724fe91720f898c02e6f25f9d98e884fa31bd696ca1a63e87abf150",
+          "recording": "challenges/cases/v5/healer-wand-striking-grid-bug.session.json",
+          "recordingPath": "challenges/cases/v5/healer-wand-striking-grid-bug.session.json",
+          "recordingSha256": "97d372dd3a84252d6970271b4d335959cbf6d24c41318fa0b578c7a79446ec32",
+          "recipe": "challenges/cases/v5/healer-wand-striking-grid-bug.recipe.session.json",
+          "recipeSha256": "3a7de6608aa0b6a7b0b18d69aad15580d049445bd3ddc59b353966006f65a39d",
+          "replayInputSha256": "cb4fef7c2d997fb6f5d755c5267e33345831ab7817ae8567e5c47ac44ffcbb48",
+          "evaluationPath": "challenges/evaluations/20260926092216-v5.json",
+          "evaluationCommit": "dcc9c2c2b5761efb0d5649a38edad28a03115464",
+          "evaluationArtifact": "challenges/evaluations/20260926092216-v5.json",
+          "evaluationUtc": "2026-09-26T09:22:30.739Z",
+          "remainingScreens": 48,
+          "recordedSteps": 48,
+          "previousScreensMatched": 0,
+          "regression": false,
+          "passed": false,
+          "error": "hit is not a function",
+          "metrics": {
+            "screens": {
+              "matched": 0,
+              "total": 48
+            },
+            "rng": {
+              "matched": 0,
+              "total": 2743
+            },
+            "cursors": {
+              "matched": 0,
+              "total": 48
+            }
+          },
+          "firstMismatch": {
+            "kind": "stop",
+            "message": "Replay error: hit is not a function",
+            "step": null
+          },
+          "step": null,
+          "kind": "stop",
+          "sourceFile": null,
+          "function": null,
+          "message": "Replay error: hit is not a function",
+          "cFile": null,
+          "luaFile": null,
+          "line": null,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v5/healer-wand-striking-grid-bug.json",
+            "result": {
+              "session": "synthetic/v5/healer-wand-striking-grid-bug",
+              "corpus": "synthetic",
+              "batch": "v5",
+              "caseId": "healer-wand-striking-grid-bug",
+              "manifestPath": "challenges/manifests/v5.json",
+              "manifestSha256": "5e4430fbd724fe91720f898c02e6f25f9d98e884fa31bd696ca1a63e87abf150",
+              "recordingPath": "challenges/cases/v5/healer-wand-striking-grid-bug.session.json",
+              "recordingSha256": "97d372dd3a84252d6970271b4d335959cbf6d24c41318fa0b578c7a79446ec32",
+              "evaluationPath": "challenges/evaluations/20260926040211-v5.json",
+              "evaluationCommit": "d273b8936ba6746f4fa8287bf41668a9776c927c",
+              "remainingScreens": 48,
+              "recordedSteps": 48,
+              "status": "complete",
+              "commit": "d273b8936ba6746f4fa8287bf41668a9776c927c",
+              "mismatch": {
+                "corpus": "synthetic",
+                "batch": "v5",
+                "caseId": "healer-wand-striking-grid-bug",
+                "session": "synthetic/v5/healer-wand-striking-grid-bug",
+                "manifestPath": "challenges/manifests/v5.json",
+                "manifestSha256": "5e4430fbd724fe91720f898c02e6f25f9d98e884fa31bd696ca1a63e87abf150",
+                "recording": "challenges/cases/v5/healer-wand-striking-grid-bug.session.json",
+                "recordingPath": "challenges/cases/v5/healer-wand-striking-grid-bug.session.json",
+                "recordingSha256": "97d372dd3a84252d6970271b4d335959cbf6d24c41318fa0b578c7a79446ec32",
+                "recipe": "challenges/cases/v5/healer-wand-striking-grid-bug.recipe.session.json",
+                "recipeSha256": "3a7de6608aa0b6a7b0b18d69aad15580d049445bd3ddc59b353966006f65a39d",
+                "replayInputSha256": "eec4ab1b95e3c6672a8e7a236bec8ba27ab458268a14ec32ddbc24161c098f73",
+                "evaluationPath": "challenges/evaluations/20260926040211-v5.json",
+                "evaluationCommit": "d273b8936ba6746f4fa8287bf41668a9776c927c",
+                "evaluationArtifact": "challenges/evaluations/20260926040211-v5.json",
+                "evaluationUtc": "2026-09-26T04:02:22.672Z",
+                "remainingScreens": 48,
+                "recordedSteps": 48,
+                "previousScreensMatched": null,
+                "regression": false,
+                "passed": false,
+                "error": "hit is not a function",
+                "metrics": {
+                  "screens": {
+                    "matched": 0,
+                    "total": 48
+                  },
+                  "rng": {
+                    "matched": 0,
+                    "total": 2743
+                  },
+                  "cursors": {
+                    "matched": 0,
+                    "total": 48
+                  }
+                },
+                "firstMismatch": {
+                  "kind": "stop",
+                  "message": "Replay error: hit is not a function",
+                  "step": null
+                },
+                "step": null,
+                "kind": "stop",
+                "sourceFile": null,
+                "function": null,
+                "message": "Replay error: hit is not a function",
+                "cFile": null,
+                "luaFile": null,
+                "line": null
+              },
+              "summary": "The wand-of-striking hit path in zap.c:bhitm is wired, but js/zap.js:bhitm stores gb.bhitpos in a local named hit and then calls that coordinate as if it were zap.c:hit(). Rename the coordinate binding so the existing hit-message function runs; re-evaluate the later resist and kill path independently.",
+              "source": {
+                "file": "zap.c",
+                "branch": "bhitm WAN_STRIKING / SPE_FORCE_BOLT when magical resistance fails and the attack roll hits a monster",
+                "functions": [
+                  "bhitm",
+                  "hit"
+                ],
+                "callers": [
+                  "cmd.c z command -> zap.c dozap -> weffects -> bhit -> bhitm",
+                  "js/cmd.js runZapCommand -> js/zap.js dozap -> weffects -> bhit -> bhitm"
+                ],
+                "dependencies": [
+                  "zap.c resist() is the next called function after hit() and may expose further unported behavior once the collision is fixed"
+                ]
+              },
+              "goalKind": "divergence-fix",
+              "evidence": [
+                "The independently recorded v5/healer-wand-striking-grid-bug case reaches zap.c:bhitm through an immediate WAN_STRIKING ray and has 48 boundaries; the baseline evaluation at d273b893 reports 0/48 screens and Replay error: hit is not a function.",
+                "A direct JS run of this case throws TypeError at js/zap.js:2986 in bhitm; stack continues through bhit (3391), weffects (5308), and dozap (1197).",
+                "C zap.c:160-214 assigns gn.notonhead from gb.bhitpos and, in the successful WAN_STRIKING/SPE_FORCE_BOLT attack arm, calls hit(zap_type_text, mtmp, exclam(dmg)) before resist().",
+                "JS zap.js:2948 declares const hit = state.gb?.bhitpos (a coordinate), then zap.js:2986 awaits hit(...) in the same arm, shadowing the hit() function defined at zap.js:1680. The coordinate is also read for cansee and map_invisible later; rename that binding at all its uses without changing source order or random draws."
+              ]
+            }
+          }
+        }
+      ],
+      "closeMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v5",
+          "caseId": "healer-wand-striking-grid-bug",
+          "session": "synthetic/v5/healer-wand-striking-grid-bug",
+          "manifestPath": "challenges/manifests/v5.json",
+          "manifestSha256": "5e4430fbd724fe91720f898c02e6f25f9d98e884fa31bd696ca1a63e87abf150",
+          "recording": "challenges/cases/v5/healer-wand-striking-grid-bug.session.json",
+          "recordingPath": "challenges/cases/v5/healer-wand-striking-grid-bug.session.json",
+          "recordingSha256": "97d372dd3a84252d6970271b4d335959cbf6d24c41318fa0b578c7a79446ec32",
+          "recipe": "challenges/cases/v5/healer-wand-striking-grid-bug.recipe.session.json",
+          "recipeSha256": "3a7de6608aa0b6a7b0b18d69aad15580d049445bd3ddc59b353966006f65a39d",
+          "replayInputSha256": "2bd21963cc9fcefed1046fb792ae304cc715fbe5dc32b52d679951cc718f7b18",
+          "evaluationPath": "challenges/evaluations/20260926094126-v5.json",
+          "evaluationCommit": "50bbe620897c8fc2e634d14ec672d33a4e44db7e",
+          "evaluationArtifact": "challenges/evaluations/20260926094126-v5.json",
+          "evaluationUtc": "2026-09-26T09:41:40.582Z",
+          "remainingScreens": 8,
+          "recordedSteps": 48,
+          "previousScreensMatched": 0,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 40,
+              "total": 48
+            },
+            "rng": {
+              "matched": 2681,
+              "total": 2743
+            },
+            "cursors": {
+              "matched": 40,
+              "total": 48
+            }
+          },
+          "firstMismatch": {
+            "kind": "stop",
+            "message": "unsupported hero command: an unported branch of this command: zapping a wand requires resist() killing a monster via damage (m_using / killed path)",
+            "step": 40
+          },
+          "step": 40,
+          "kind": "stop",
+          "sourceFile": "zap.c",
+          "function": "resist",
+          "message": "unsupported hero command: an unported branch of this command: zapping a wand requires resist() killing a monster via damage (m_using / killed path)",
+          "cFile": "zap.c",
+          "luaFile": null,
+          "line": null,
+          "investigation": {
+            "status": "stale",
+            "path": "investigations/synthetic/v5/healer-wand-striking-grid-bug.json",
+            "previousRemainingScreens": 48
+          }
+        }
+      ],
+      "closeStanding": {
+        "sha": "50bbe620897c8fc2e634d14ec672d33a4e44db7e",
+        "screens": 11405,
+        "rng": 792838
+      }
+    },
+    {
+      "id": "port-dothrow-fireassist-samurai-synthetic-v5-20260926",
+      "kind": "file-port",
+      "status": "closed",
+      "summary": "Port complete fire command ammo selection, launcher retry, and quiver setup",
+      "cFile": "dothrow.c",
+      "sessions": [
+        "synthetic/v5/samurai-pet-ration-eating"
+      ],
+      "selectionReason": "Seed continuation: synthetic/v5/samurai-pet-ration-eating ranks first with 48 unmatched screens and step-28 fire stop in .cache/B12-work-queue.json. The refreshed complete investigation investigations/synthetic/v5/samurai-pet-ration-eating.json traces C dothrow.c:dofire as the caller that queues dowield; the queue annotation names that missing callee, but the whole fire command owns the source branch. B owns the separate Healer zap.c path and C prepares v7.",
+      "detail": "At segment 0 step 28, C dothrow.c dofire selects Samurai ammo, find_launcher returns yumi, and the command queues doswapweapon/dowield/invlet/dofire in source order. JS dofire refuses the dowield queue. Port autoquiver, find_launcher, and dofire in C definition order. Verify existing doquiver_core and throw_obj return contracts; include complete return-valued apply.c use_whip and use_pole callees and active doapply callers in the same task, plus any further consumed return dependencies. Preserve the selected matching wish prefix and independent C entry recordings; see the refreshed investigation.",
+      "openedAt": "34d6dfc4f3435c57cc42d8ac7efe13bbe70031e7",
+      "openStanding": {
+        "sha": "8f72bd4d234c80cda41bc806e647a3594b1d82a9",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "closedAt": "ba790c74ab160dfbb08e5fc9a8bd2d9e74c92c15",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
+      "functions": [
+        {
+          "name": "autoquiver",
+          "line": 381,
+          "endLine": 446,
+          "declared": true,
+          "complete": true
+        },
+        {
+          "name": "find_launcher",
+          "line": 447,
+          "endLine": 468,
+          "declared": true,
+          "complete": true
+        },
+        {
+          "name": "dofire",
+          "line": 469,
+          "endLine": 589,
+          "declared": true,
+          "complete": true
+        }
+      ],
+      "range": {
+        "from": 381,
+        "to": 589
+      },
+      "syntheticProvenance": {
+        "synthetic/v5/samurai-pet-ration-eating": {
+          "session": "synthetic/v5/samurai-pet-ration-eating",
+          "corpus": "synthetic",
+          "batch": "v5",
+          "caseId": "samurai-pet-ration-eating",
+          "manifestPath": "challenges/manifests/v5.json",
+          "manifestSha256": "5e4430fbd724fe91720f898c02e6f25f9d98e884fa31bd696ca1a63e87abf150",
+          "recordingPath": "challenges/cases/v5/samurai-pet-ration-eating.session.json",
+          "recordingSha256": "719edf6f87e6d47c9c59b0cbfd8a418269fb55e34f5dfbc93500b61dd472954c",
+          "evaluationPath": "challenges/evaluations/20260926113516-v5.json",
+          "evaluationCommit": "8f72bd4d234c80cda41bc806e647a3594b1d82a9"
+        }
+      },
+      "activeStanding": {
+        "sha": "8f72bd4d234c80cda41bc806e647a3594b1d82a9",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v5",
+          "caseId": "samurai-pet-ration-eating",
+          "session": "synthetic/v5/samurai-pet-ration-eating",
+          "manifestPath": "challenges/manifests/v5.json",
+          "manifestSha256": "5e4430fbd724fe91720f898c02e6f25f9d98e884fa31bd696ca1a63e87abf150",
+          "recording": "challenges/cases/v5/samurai-pet-ration-eating.session.json",
+          "recordingPath": "challenges/cases/v5/samurai-pet-ration-eating.session.json",
+          "recordingSha256": "719edf6f87e6d47c9c59b0cbfd8a418269fb55e34f5dfbc93500b61dd472954c",
+          "recipe": "challenges/cases/v5/samurai-pet-ration-eating.recipe.session.json",
+          "recipeSha256": "802b9c54f79a2a88166e3c87c3ea9f3debc686f204ae92537b5deaba48d3b431",
+          "replayInputSha256": "450244a793193987d9e9c2e706ebc251a4fdb9f7ac73fed626e806f7b14e9de8",
+          "evaluationPath": "challenges/evaluations/20260926113516-v5.json",
+          "evaluationCommit": "8f72bd4d234c80cda41bc806e647a3594b1d82a9",
+          "evaluationArtifact": "challenges/evaluations/20260926113516-v5.json",
+          "evaluationUtc": "2026-09-26T11:35:30.970Z",
+          "remainingScreens": 48,
+          "recordedSteps": 76,
+          "previousScreensMatched": 28,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 28,
+              "total": 76
+            },
+            "rng": {
+              "matched": 2703,
+              "total": 2926
+            },
+            "cursors": {
+              "matched": 28,
+              "total": 76
+            }
+          },
+          "firstMismatch": {
+            "kind": "stop",
+            "message": "unsupported hero command: an unported branch of this command: dothrow.c reached dowield()",
+            "step": 28
+          },
+          "step": 28,
+          "kind": "stop",
+          "sourceFile": "wield.c",
+          "function": "dowield",
+          "message": "unsupported hero command: an unported branch of this command: dothrow.c reached dowield()",
+          "cFile": "wield.c",
+          "luaFile": null,
+          "line": null,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v5/samurai-pet-ration-eating.json",
+            "result": {
+              "session": "synthetic/v5/samurai-pet-ration-eating",
+              "corpus": "synthetic",
+              "batch": "v5",
+              "caseId": "samurai-pet-ration-eating",
+              "manifestPath": "challenges/manifests/v5.json",
+              "manifestSha256": "5e4430fbd724fe91720f898c02e6f25f9d98e884fa31bd696ca1a63e87abf150",
+              "recordingPath": "challenges/cases/v5/samurai-pet-ration-eating.session.json",
+              "recordingSha256": "719edf6f87e6d47c9c59b0cbfd8a418269fb55e34f5dfbc93500b61dd472954c",
+              "evaluationPath": "challenges/evaluations/20260926094126-v5.json",
+              "evaluationCommit": "50bbe620897c8fc2e634d14ec672d33a4e44db7e",
+              "remainingScreens": 48,
+              "recordedSteps": 76,
+              "status": "complete",
+              "commit": "50bbe620897c8fc2e634d14ec672d33a4e44db7e",
+              "mismatch": {
+                "corpus": "synthetic",
+                "batch": "v5",
+                "caseId": "samurai-pet-ration-eating",
+                "session": "synthetic/v5/samurai-pet-ration-eating",
+                "manifestPath": "challenges/manifests/v5.json",
+                "manifestSha256": "5e4430fbd724fe91720f898c02e6f25f9d98e884fa31bd696ca1a63e87abf150",
+                "recording": "challenges/cases/v5/samurai-pet-ration-eating.session.json",
+                "recordingPath": "challenges/cases/v5/samurai-pet-ration-eating.session.json",
+                "recordingSha256": "719edf6f87e6d47c9c59b0cbfd8a418269fb55e34f5dfbc93500b61dd472954c",
+                "recipe": "challenges/cases/v5/samurai-pet-ration-eating.recipe.session.json",
+                "recipeSha256": "802b9c54f79a2a88166e3c87c3ea9f3debc686f204ae92537b5deaba48d3b431",
+                "replayInputSha256": "2bd21963cc9fcefed1046fb792ae304cc715fbe5dc32b52d679951cc718f7b18",
+                "evaluationPath": "challenges/evaluations/20260926094126-v5.json",
+                "evaluationCommit": "50bbe620897c8fc2e634d14ec672d33a4e44db7e",
+                "evaluationArtifact": "challenges/evaluations/20260926094126-v5.json",
+                "evaluationUtc": "2026-09-26T09:41:40.582Z",
+                "remainingScreens": 48,
+                "recordedSteps": 76,
+                "previousScreensMatched": 28,
+                "regression": false,
+                "passed": false,
+                "error": null,
+                "metrics": {
+                  "screens": {
+                    "matched": 28,
+                    "total": 76
+                  },
+                  "rng": {
+                    "matched": 2703,
+                    "total": 2926
+                  },
+                  "cursors": {
+                    "matched": 28,
+                    "total": 76
+                  }
+                },
+                "firstMismatch": {
+                  "kind": "stop",
+                  "message": "unsupported hero command: an unported branch of this command: dothrow.c reached dowield()",
+                  "step": 28
+                },
+                "step": 28,
+                "kind": "stop",
+                "sourceFile": "wield.c",
+                "function": "dowield",
+                "message": "unsupported hero command: an unported branch of this command: dothrow.c reached dowield()",
+                "cFile": "wield.c",
+                "luaFile": null,
+                "line": null
+              },
+              "summary": "After the matching wizard-wish retry, the Samurai reaches fire at step 28. C dothrow.c:dofire() selects ammo, finds the yumi launcher, queues the source-ordered swap/wield/inventory-key/fire retry, and returns without taking a turn. JS dofire() refuses the queued dowield() branch before throwing any projectile. Port the complete autoquiver/find_launcher/dofire family and required return-valued apply.c use_pole/use_whip dependencies; the later recorded Hachi feeding event remains downstream.",
+              "source": {
+                "file": "dothrow.c",
+                "functions": [
+                  "autoquiver",
+                  "find_launcher",
+                  "dofire"
+                ],
+                "branch": "At segment 0 step 28, a Samurai with unlaunched quivered ammunition invokes f. fireassist finds a yumi in inventory while neither wielded weapon matches the ammo. C queues doswapweapon when needed, dowield, the yumi inventory letter, then dofire, returning ECMD_OK without advancing time; JS throws at its unported dowield queue path.",
+                "callers": [
+                  "cmd.c:1724-1725 maps f to dofire(); js/cmd.js fire dispatch calls js/dothrow.js:dofire().",
+                  "dothrow.c:dofire() calls autoquiver() when quiver is empty and the option is on, consumes find_launcher() for launcher selection, and consumes doquiver_core() and throw_obj() results on other active branches.",
+                  "dothrow.c:dofire() directly returns apply.c:use_pole() and use_whip() results on reachable polearm and bullwhip arms; both require implementation in the same task and production doapply wiring."
+                ],
+                "dependencies": [
+                  "apply.c:use_pole() and use_whip() are active return-valued callees absent in JS; port their whole source bodies and their doapply callers, expanding for any further consumed returns.",
+                  "dothrow.c:autoquiver() mutates the quiver when selected; port its whole inventory priority order and setuqwep effect.",
+                  "wield.c:doquiver_core() and dothrow.c:throw_obj() already have JS implementations; verify the reached contracts and source order before reuse.",
+                  "The later C pet catch/eat at step 73 is beyond this first stop; preserve that target as a later source task rather than treating it as dofire evidence."
+                ]
+              },
+              "goalKind": "file-port",
+              "evidence": [
+                "Current saved v5 evaluation challenges/evaluations/20260926094126-v5.json at 50bbe620897c8fc2e634d14ec672d33a4e44db7e reports 28/76 matched screens, 2703/2926 RNG, and first stop at segment 0 step 28. The manifest and recording digests are pinned in this record.",
+                "An independent replay of the immutable v5 recipe after A9 matches the wish and inventory prefix, then stops at fire: C has 76 boundaries and 2926 RNG calls; JS emits 28 boundaries and 2703 RNG calls. The first missing C screen is boundary 29 on f; the next missing RNG comes from mon.c:mcalcmove after that input.",
+                "C cmd.c:1724-1725 dispatches fire to dothrow.c:dofire() at 469-582. In the selected state, dothrow.c:find_launcher() returns the yumi and dofire() queues doswapweapon as needed, dowield, the launcher invlet, and dofire. js/dothrow.js:dofire() throws UnsupportedThrowError for dowield at approximately line 1149 instead of following that queue.",
+                "C dothrow.c:381-466 defines autoquiver() and find_launcher() immediately before dofire(); the former changes quiver state and the latter returns a launcher. C dofire() also returns the results of apply.c:use_pole() and use_whip() on active branches; these unported return-valued dependencies prevent a narrow branch-only completion.",
+                "Earlier readobjnam/makewish diagnosis is superseded by A9 at dcc9c2c2b5761efb0d5649a38edad28a03115464; the C recording’s pet catch and eat at step 73 remains an intended downstream event, not the current first owner."
+              ]
+            }
+          }
+        }
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "autoquiver",
+            "implementation": "js/dothrow.js",
+            "symbol": "autoquiver",
+            "sourceReview": "Reviewed complete dothrow.c:autoquiver() (381-441): preserve the linked inventory scan order; skip worn, artifact, and unknown items; distinguish sling rocks, known flint/glass, launch-matched ammo, missiles, and ordinary throwing weapons; retain last candidate per category; select categories in C priority order; and call setuqwep() only for the final choice. JS also uses the same-task throwing_weapon() predicate. The function mutates quiver state but makes no RNG call or output.",
+            "callers": [
+              {
+                "path": "js/dothrow.js",
+                "symbol": "dofire",
+                "source": "dothrow.c:dofire() calls autoquiver() when the quiver is empty and flags.autoquiver is enabled (530-542)."
+              }
+            ],
+            "pure": false,
+            "tests": [],
+            "recordings": [
+              "recordings/dothrow.c/dofire-autoquiver-ranger.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v5",
+                "caseId": "samurai-pet-ration-eating",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 32,
+                "source": "cmd.c fire dispatch -> dothrow.c:dofire -> autoquiver/find_launcher -> queued swap/wield/fire and throw_obj direction path"
+              }
+            ],
+            "checkedAt": "ba790c74ab160dfbb08e5fc9a8bd2d9e74c92c15"
+          },
+          {
+            "name": "find_launcher",
+            "implementation": "js/dothrow.js",
+            "symbol": "find_launcher",
+            "sourceReview": "Reviewed complete dothrow.c:find_launcher() (443-462): return null for no ammo; traverse hero inventory in linked order; skip known-cursed launchers; return the first known-BUC match immediately; otherwise retain only the first unknown-BUC match. C reads the inventory and returns a pointer without RNG, output, or state writes, so the JS function is pure. scripts/dothrow.test.mjs pins known/unknown curse priority, missing matches, sling mismatch, and null ammo.",
+            "callers": [
+              {
+                "path": "js/dothrow.js",
+                "symbol": "dofire",
+                "source": "dothrow.c:dofire() consumes find_launcher() after the wielded and swap-slot launcher tests (568-581)."
+              }
+            ],
+            "pure": true,
+            "tests": [
+              "scripts/dothrow.test.mjs"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v5",
+                "caseId": "samurai-pet-ration-eating",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 32,
+                "source": "cmd.c fire dispatch -> dothrow.c:dofire -> autoquiver/find_launcher -> queued swap/wield/fire and throw_obj direction path"
+              }
+            ],
+            "checkedAt": "ba790c74ab160dfbb08e5fc9a8bd2d9e74c92c15"
+          },
+          {
+            "name": "dofire",
+            "implementation": "js/dothrow.js",
+            "symbol": "dofire",
+            "sourceReview": "Reviewed complete dothrow.c:dofire() (468-586) and matched branch/evaluation order: ok_to_throw first; thrown-and-return weapon and Mjollnir strength gate; empty-quiver autoquiver-off pole/whip/secondary-polearm/failure arms; autoquiver selection and prinv; doquiver_core result handling; fireassist ammo checks; polearm autohit; held/swap launcher checks; find_launcher; source-ordered swap, wield, inventory-key, and fire queue; then throw_obj and result propagation. All result-valued calls in this path are implemented or reused as source-complete helpers, including same-task apply.c:use_pole/use_whip. No placeholder refusal remains in these arms.",
+            "callers": [
+              {
+                "path": "js/cmd.js",
+                "symbol": "rhack",
+                "source": "cmd.c command dispatch maps the fire command to dofire(); js/cmd.js:rhack() handles command === fire and awaits js/dothrow.js:dofire()."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/dothrow.test.mjs",
+              "scripts/fire-command.test.mjs",
+              "scripts/apply-pole-whip.test.mjs"
+            ],
+            "recordings": [
+              "recordings/dothrow.c/dofire-autoquiver-ranger.session.json",
+              "recordings/dothrow.c/dofire-wielded-whip-entry.session.json",
+              "recordings/dothrow.c/dofire-wielded-polearm-entry.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v5",
+                "caseId": "samurai-pet-ration-eating",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 32,
+                "source": "cmd.c fire dispatch -> dothrow.c:dofire -> autoquiver/find_launcher -> queued swap/wield/fire and throw_obj direction path"
+              }
+            ],
+            "checkedAt": "ba790c74ab160dfbb08e5fc9a8bd2d9e74c92c15"
+          }
+        ],
+        "entryPointReview": "The selected dothrow.c range has one active command entry point, #fire/dofire(), reached through cmd.c dispatch and js/cmd.js:rhack(). The three static helpers are reached from that command. Recorded independent paths cover the Samurai selected fire/launcher retry, Ranger autoquiver plus secondary bow and completed volley, a wielded bullwhip, and a secondary lance swapped into the hand then passed to use_pole(autohit=TRUE). The v5 selected recording now matches through step 32, including the completed fire command; later steps were also replayed through step 75 and matched but are not cited as dothrow evidence. Supporting apply.c work is supplemental to the formal task range: js/apply.js:doapply() dispatches both BULLWHIP to use_whip() and polearms to use_pole(); independent recordings cover direct bullwhip Snap and Knight target selection, and scripts/apply-pole-whip.test.mjs checks those states. use_whip() retains only explicit source-site note_unported gaps for discarded results of trap.c:fire_damage, steed.c:kick_steed, weapon.c:possibly_unwield, and trap.c:instapetrify. No caller is build-excluded.",
+        "entryPoints": [
+          {
+            "name": "fire command: autoquiver, launcher selection, and Samurai retry",
+            "functions": [
+              "autoquiver",
+              "find_launcher",
+              "dofire"
+            ],
+            "recordings": [
+              "recordings/dothrow.c/dofire-autoquiver-ranger.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v5",
+                "caseId": "samurai-pet-ration-eating",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 32,
+                "source": "cmd.c fire dispatch -> dothrow.c:dofire -> autoquiver/find_launcher -> queued swap/wield/fire and throw_obj direction path"
+              }
+            ]
+          },
+          {
+            "name": "fire command: wielded bullwhip fallback",
+            "functions": [
+              "dofire"
+            ],
+            "recordings": [
+              "recordings/dothrow.c/dofire-wielded-whip-entry.session.json"
+            ],
+            "synthetic": []
+          },
+          {
+            "name": "fire command: secondary polearm swap and autohit",
+            "functions": [
+              "dofire"
+            ],
+            "recordings": [
+              "recordings/dothrow.c/dofire-wielded-polearm-entry.session.json"
+            ],
+            "synthetic": []
+          }
+        ]
+      },
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "ba790c74ab160dfbb08e5fc9a8bd2d9e74c92c15",
+        "screens": 11405,
+        "rng": 792838
+      }
+    },
+    {
+      "id": "port-zap-resist-lethal-synthetic-v5-20260926",
+      "kind": "file-port",
+      "status": "parked",
+      "summary": "Port complete zap.c resist lethal monster damage and death dispatch",
+      "cFile": "zap.c",
+      "sessions": [
+        "synthetic/v5/healer-wand-striking-grid-bug"
+      ],
+      "selectionReason": "Admitted v5 healer wand striking stops at zap.c resist lethal damage; source-traced hero branch and monster-item caller are the selected unit.",
+      "detail": "At segment 0 step 40, C zap.c resist calculates wand resistance, deducts lethal damage from a tame kitten, and calls killed because gm.m_using is false. JS mirrors the calculation then refuses before death dispatch. Port whole resist, preserve boolean return and RNG, exercise existing mon.c death owner, and add any consumed return dependencies if discovered. See the refreshed investigation.",
+      "openedAt": "505d961857564319fd3c151bd87cf93145a4b7f1",
+      "openStanding": {
+        "sha": "b055ce41370d97dedc1249f8673cef82545b31a5",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "closedAt": null,
+      "delivered": null,
+      "functions": [
+        {
+          "name": "resist",
+          "line": 6100,
+          "endLine": 6164,
+          "declared": true,
+          "complete": true
+        }
+      ],
+      "range": {
+        "from": 6100,
+        "to": 6164
+      },
+      "syntheticProvenance": {
+        "synthetic/v5/healer-wand-striking-grid-bug": {
+          "session": "synthetic/v5/healer-wand-striking-grid-bug",
+          "corpus": "synthetic",
+          "batch": "v5",
+          "caseId": "healer-wand-striking-grid-bug",
+          "manifestPath": "challenges/manifests/v5.json",
+          "manifestSha256": "5e4430fbd724fe91720f898c02e6f25f9d98e884fa31bd696ca1a63e87abf150",
+          "recordingPath": "challenges/cases/v5/healer-wand-striking-grid-bug.session.json",
+          "recordingSha256": "97d372dd3a84252d6970271b4d335959cbf6d24c41318fa0b578c7a79446ec32",
+          "evaluationPath": "challenges/evaluations/20260926094126-v5.json",
+          "evaluationCommit": "50bbe620897c8fc2e634d14ec672d33a4e44db7e"
+        }
+      },
+      "activeStanding": {
+        "sha": "b055ce41370d97dedc1249f8673cef82545b31a5",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v5",
+          "caseId": "healer-wand-striking-grid-bug",
+          "session": "synthetic/v5/healer-wand-striking-grid-bug",
+          "manifestPath": "challenges/manifests/v5.json",
+          "manifestSha256": "5e4430fbd724fe91720f898c02e6f25f9d98e884fa31bd696ca1a63e87abf150",
+          "recording": "challenges/cases/v5/healer-wand-striking-grid-bug.session.json",
+          "recordingPath": "challenges/cases/v5/healer-wand-striking-grid-bug.session.json",
+          "recordingSha256": "97d372dd3a84252d6970271b4d335959cbf6d24c41318fa0b578c7a79446ec32",
+          "recipe": "challenges/cases/v5/healer-wand-striking-grid-bug.recipe.session.json",
+          "recipeSha256": "3a7de6608aa0b6a7b0b18d69aad15580d049445bd3ddc59b353966006f65a39d",
+          "replayInputSha256": "2bd21963cc9fcefed1046fb792ae304cc715fbe5dc32b52d679951cc718f7b18",
+          "evaluationPath": "challenges/evaluations/20260926094126-v5.json",
+          "evaluationCommit": "50bbe620897c8fc2e634d14ec672d33a4e44db7e",
+          "evaluationArtifact": "challenges/evaluations/20260926094126-v5.json",
+          "evaluationUtc": "2026-09-26T09:41:40.582Z",
+          "remainingScreens": 8,
+          "recordedSteps": 48,
+          "previousScreensMatched": 0,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 40,
+              "total": 48
+            },
+            "rng": {
+              "matched": 2681,
+              "total": 2743
+            },
+            "cursors": {
+              "matched": 40,
+              "total": 48
+            }
+          },
+          "firstMismatch": {
+            "kind": "stop",
+            "message": "unsupported hero command: an unported branch of this command: zapping a wand requires resist() killing a monster via damage (m_using / killed path)",
+            "step": 40
+          },
+          "step": 40,
+          "kind": "stop",
+          "sourceFile": "zap.c",
+          "function": "resist",
+          "message": "unsupported hero command: an unported branch of this command: zapping a wand requires resist() killing a monster via damage (m_using / killed path)",
+          "cFile": "zap.c",
+          "luaFile": null,
+          "line": null,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v5/healer-wand-striking-grid-bug.json",
+            "result": {
+              "session": "synthetic/v5/healer-wand-striking-grid-bug",
+              "corpus": "synthetic",
+              "batch": "v5",
+              "caseId": "healer-wand-striking-grid-bug",
+              "manifestPath": "challenges/manifests/v5.json",
+              "manifestSha256": "5e4430fbd724fe91720f898c02e6f25f9d98e884fa31bd696ca1a63e87abf150",
+              "recordingPath": "challenges/cases/v5/healer-wand-striking-grid-bug.session.json",
+              "recordingSha256": "97d372dd3a84252d6970271b4d335959cbf6d24c41318fa0b578c7a79446ec32",
+              "evaluationPath": "challenges/evaluations/20260926094126-v5.json",
+              "evaluationCommit": "50bbe620897c8fc2e634d14ec672d33a4e44db7e",
+              "remainingScreens": 8,
+              "recordedSteps": 48,
+              "status": "complete",
+              "commit": "50bbe620897c8fc2e634d14ec672d33a4e44db7e",
+              "mismatch": {
+                "corpus": "synthetic",
+                "batch": "v5",
+                "caseId": "healer-wand-striking-grid-bug",
+                "session": "synthetic/v5/healer-wand-striking-grid-bug",
+                "manifestPath": "challenges/manifests/v5.json",
+                "manifestSha256": "5e4430fbd724fe91720f898c02e6f25f9d98e884fa31bd696ca1a63e87abf150",
+                "recording": "challenges/cases/v5/healer-wand-striking-grid-bug.session.json",
+                "recordingPath": "challenges/cases/v5/healer-wand-striking-grid-bug.session.json",
+                "recordingSha256": "97d372dd3a84252d6970271b4d335959cbf6d24c41318fa0b578c7a79446ec32",
+                "recipe": "challenges/cases/v5/healer-wand-striking-grid-bug.recipe.session.json",
+                "recipeSha256": "3a7de6608aa0b6a7b0b18d69aad15580d049445bd3ddc59b353966006f65a39d",
+                "replayInputSha256": "2bd21963cc9fcefed1046fb792ae304cc715fbe5dc32b52d679951cc718f7b18",
+                "evaluationPath": "challenges/evaluations/20260926094126-v5.json",
+                "evaluationCommit": "50bbe620897c8fc2e634d14ec672d33a4e44db7e",
+                "evaluationArtifact": "challenges/evaluations/20260926094126-v5.json",
+                "evaluationUtc": "2026-09-26T09:41:40.582Z",
+                "remainingScreens": 8,
+                "recordedSteps": 48,
+                "previousScreensMatched": 0,
+                "regression": false,
+                "passed": false,
+                "error": null,
+                "metrics": {
+                  "screens": {
+                    "matched": 40,
+                    "total": 48
+                  },
+                  "rng": {
+                    "matched": 2681,
+                    "total": 2743
+                  },
+                  "cursors": {
+                    "matched": 40,
+                    "total": 48
+                  }
+                },
+                "firstMismatch": {
+                  "kind": "stop",
+                  "message": "unsupported hero command: an unported branch of this command: zapping a wand requires resist() killing a monster via damage (m_using / killed path)",
+                  "step": 40
+                },
+                "step": 40,
+                "kind": "stop",
+                "sourceFile": "zap.c",
+                "function": "resist",
+                "message": "unsupported hero command: an unported branch of this command: zapping a wand requires resist() killing a monster via damage (m_using / killed path)",
+                "cFile": "zap.c",
+                "luaFile": null,
+                "line": null
+              },
+              "summary": "The v5 Healer wand-striking ray reaches zap.c:resist() at segment 0 step 40 after the bhitm hit-message fix. JS calculates resistance and lethal damage, then refuses before C calls killed() for the hero zap. Port the whole resist() function and exercise the tame kitten death path through its existing mon.c owner; preserve RNG, HP, resistance return, and death side effects.",
+              "source": {
+                "file": "zap.c",
+                "branch": "WAN_STRIKING bhitm calls resist(mtmp, WAND_CLASS, dmg, TELL); damage drops a tame kitten to zero HP while gm.m_using is false, so resist calls killed(mtmp), then returns its resisted boolean.",
+                "functions": [
+                  "resist"
+                ],
+                "callers": [
+                  "cmd.c z -> zap.c dozap -> weffects -> bhit -> bhitm; bhitm discards the resist return on this attack path.",
+                  "Other zap.c callers consume resist() return; preserve its boolean and the already wired JS call contracts."
+                ],
+                "dependencies": [
+                  "mon.c shieldeff_mon, killed, and monkilled are void callees; existing JS owners are partial. Exercise killed -> xkilled -> mondead/mondied for the tame kitten and reserve any source function whose incomplete branch blocks the witness.",
+                  "mondata.c is_mplayer is a pure boolean dependency; muse.c gm.m_using governs killed versus monkilled, and the hero zap has it false."
+                ]
+              },
+              "goalKind": "file-port",
+              "evidence": [
+                "Saved challenges/evaluations/20260926094126-v5.json at 50bbe620897c8fc2e634d14ec672d33a4e44db7e reports 40/48 screens and 2681/2743 RNG, with first refusal at segment 0 step 40: resist() killing a monster via damage.",
+                "Upstream nethack-c/upstream/src/zap.c:6100-6157 resist() computes attack/defense levels and rn2 resistance, halves resisted damage, subtracts HP, then calls monkilled for gm.m_using or killed otherwise; the return is resisted.",
+                "Current js/zap.js:resist mirrors level clamps and resistance RNG, then throws UnsupportedZapError when mhp < 1 before invoking the source death handler. This is missing behavior, not a change to the resistance roll.",
+                "The independent B12 nonlethal C recording matched 48/48 screens/cursors and 2968/2968 RNG through resist calculation; the admitted Healer case witnesses the lethal tail. Verify its tame and peaceful side effects and any corpse or experience changes through strict replay."
+              ]
+            }
+          }
+        }
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "resist",
+            "implementation": "js/zap.js",
+            "symbol": "resist",
+            "sourceReview": "Read and compared the complete zap.c resist() definition at lines 6100-6158. The fake-player Conflict early return precedes all draws; attack level follows the exact class switch; defense level is capped at 50 or floored to the player level only for a monster player and otherwise to 1; then one rn2(100 + alev - dlev) comparison decides resistance. A resisted hit calls shieldeff_mon only when tell is true and rounds positive damage upward with (damage + 1) / 2. Damage is then subtracted, and lethal damage dispatches to monkilled(mtmp, \"\", AD_RBRE) only while gm.m_using is true, otherwise killed(mtmp); both calls discard their void result. The JS port preserves this order, uses the caller's RNG/environment bundle for death side effects, removes the former UnsupportedZapError refusal, and returns the resistance result. Existing killed/monkilled owners are invoked; no return-valued callee is substituted or skipped.",
+            "callers": [
+              {
+                "path": "js/zap.js",
+                "symbol": "bhitm",
+                "source": "zap.c:160-212; successful hero wand/Force Bolt hit calls resist(mtmp, otmp->oclass, dmg, TELL) and discards the result."
+              },
+              {
+                "path": "js/zap.js",
+                "symbol": "zhitm",
+                "source": "zap.c:4238-4391; monster ray effects use resist() for their source resistance branches, including the final wand/spell damage save."
+              },
+              {
+                "path": "js/zap.js",
+                "symbol": "cancel_monst",
+                "source": "zap.c:3150-3160; cancellation tests monster resistance and consumes its boolean result."
+              },
+              {
+                "path": "js/muse.js",
+                "symbol": "mbhitm",
+                "source": "muse.c:1597-1704; monster wand striking calls resist() at 1640 and undead turning calls it at 1684, discarding the return. The JS caller now passes its complete RNG/environment bundle; this task does not claim whole mbhitm source completion."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/zap-resist.test.mjs",
+              "scripts/muse-bhitm-resist.test.mjs"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v5",
+                "caseId": "healer-wand-striking-grid-bug",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 40,
+                "source": "zap.c:bhitm, reached from the hero wand command through the ray callback after a successful striking hit; the range includes lethal resist() damage to the tame kitten."
+              }
+            ],
+            "checkedAt": "8f72bd4d234c80cda41bc806e647a3594b1d82a9"
+          }
+        ],
+        "entryPointReview": "The hero's wand-strike entry through zap.c:bhitm is matched by the admitted v5 prefix through segment 0 step 40; this range includes lethal resist() damage to the tame kitten. The earlier independent recipe named resist-tame-kitten-independent was removed because its 31-step recording ends with the wand missing the little dog and contains no resist(zap.c) RNG call. The newly wired monster-item route is use_offensive() -> muse.c:mbhitm -> resist(), with gm.m_using=true. scripts/muse-bhitm-resist.test.mjs verifies the JS production caller and lethal monkilled side effects, but no fully matching C/JS recording is available. The blocked recipe recipes/zap.c/resist-monster-wand-blocked.session.json reaches resist() in C (the diagnostic C recording is retained only under .cache). Its strict differential (run-TezEEs, exit 1) first diverges at segment 1 step 61/key y. read.c:create_particular_creation() correctly accepts y and keeps PM_SHOPKEEPER. C then follows makemon.c:makemon's by-hero enexto_core() placement path (lines 1179-1183), whose first missing call is rn2(8)=6 @ collect_coords(teleport.c:700); the screen says ‘A shopkeeper appears close by.’ and cursor is [33,6,1]. JavaScript emits no matching boundary: js/makemon_create.js:preflightCreation() marks createParticularCall as a runtime call, but assertSupportedSpecies() rejects PM_SHOPKEEPER, and its shopkeeperCall exception only admits mklev/MM_ESHK and revival shapes. Totals at the stop are C 3446 RNG calls/95 boundaries and JS 2856/60. This is a makemon.c:makemon creation/admission blocker, not a read.c prompt blocker. A second ordinary-monster cohort had source-driven wand initialization but no use_offensive()/mbhitm()/resist() call. This is an evidence blocker, not an inactive production caller; do not close the source goal until a matching replay covers the monster-item entry. The other existing resist callers remain source-wired through zap.c:zhitm and zap.c:cancel_monst; this task does not claim their whole source functions.",
+        "entryPoints": [
+          {
+            "name": "Hero wand strike causing lethal monster damage",
+            "functions": [
+              "resist"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v5",
+                "caseId": "healer-wand-striking-grid-bug",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 40,
+                "source": "zap.c:bhitm, through the successful wand-strike callback and lethal resist() damage."
+              }
+            ]
+          },
+          {
+            "name": "Monster offensive wand striking a monster",
+            "functions": [
+              "resist"
+            ],
+            "recordings": [],
+            "synthetic": []
+          }
+        ]
+      },
+      "progressBeforePark": {
+        "screens": 0,
+        "rng": 0
+      },
+      "parkedStanding": {
+        "sha": "8f72bd4d234c80cda41bc806e647a3594b1d82a9",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "parkedReason": "Hero lethal zap.c resist is source-verified by admitted v5 Healer segment 0 through step 40 and passes combined validation. Monster offensive-wand entry muse.c:mbhitm -> zap.c:resist remains without a fully matching C/JS recording. The independent C recipe reaches resist, but JS first refuses forced PM_SHOPKEEPER creation at makemon.c:makemon preflight after read.c accepts y. Resume after a source-traced makemon.c creation fix makes that recipe match through the monster wand strike; then verify all active entry points and close."
+    },
+    {
+      "id": "port-engrave-stylus-occupation-synthetic-v6-20260926",
+      "kind": "file-port",
+      "status": "queued",
+      "summary": "Port engraving stylus selection, item effects, and occupation continuation",
+      "cFile": "engrave.c",
+      "sessions": [
+        "synthetic/v6/wizard-engrave-wand-finish",
+        "synthetic/v6/v6-add4-archeologist-pickaxe-engrave",
+        "synthetic/v6/wizard-engrave-wand-final",
+        "synthetic/v6/v6-add3-archeologist-pickaxe-engrave",
+        "synthetic/v6/wizard-engrave-wand-correct",
+        "synthetic/v6/wizard-engrave-wand-retry2"
+      ],
+      "selectionReason": "After A10 resolved the higher-ranked Samurai v5 case, wizard-engrave-wand-finish is the highest-ranked completed independent v6 investigation at nine remaining screens. Five related v6 wand, pick-axe, potion, and marker cases share the engrave.c command/occupation owner and are assigned to one worker; grease is independently owned by A.",
+      "detail": "C engrave.c accepts non-hand styluses, runs stylus_ok/u_can_engrave/context and item effects, asks for engraving text, and continues through return-valued occupation engrave(); JS doengrave refuses at the stylus gate. Port the selected contiguous whole-function family and wire cmd.c E dispatch plus allmain.c occupation return contract. Include consumed-output random_engraving text/pristine effects and the return-valued blengr blind-polymorph helper in the same task; retain explicit evidence or a named blocked recipe for uncovered active branches. Preserve RNG, surface, state, message, and screen order across six related admitted v6 cases.",
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": null,
+      "delivered": null,
+      "functions": [
+        {
+          "name": "stylus_ok",
+          "line": 481,
+          "endLine": 502,
+          "declared": true,
+          "complete": false
+        },
+        {
+          "name": "u_can_engrave",
+          "line": 503,
+          "endLine": 544,
+          "declared": true,
+          "complete": true
+        },
+        {
+          "name": "doengrave_ctx_init",
+          "line": 545,
+          "endLine": 582,
+          "declared": false,
+          "complete": false
+        },
+        {
+          "name": "doengrave_sfx_item_WAN",
+          "line": 583,
+          "endLine": 741,
+          "declared": false,
+          "complete": false
+        },
+        {
+          "name": "doengrave_sfx_item",
+          "line": 742,
+          "endLine": 895,
+          "declared": false,
+          "complete": false
+        },
+        {
+          "name": "doengrave_ctx_verb",
+          "line": 896,
+          "endLine": 955,
+          "declared": false,
+          "complete": false
+        },
+        {
+          "name": "doengrave",
+          "line": 956,
+          "endLine": 1266,
+          "declared": true,
+          "complete": false
+        },
+        {
+          "name": "engrave",
+          "line": 1267,
+          "endLine": 1497,
+          "declared": true,
+          "complete": false
+        }
+      ],
+      "range": {
+        "from": 481,
+        "to": 1497
+      },
+      "syntheticProvenance": {
+        "synthetic/v6/wizard-engrave-wand-finish": {
+          "session": "synthetic/v6/wizard-engrave-wand-finish",
+          "corpus": "synthetic",
+          "batch": "v6",
+          "caseId": "wizard-engrave-wand-finish",
+          "manifestPath": "challenges/manifests/v6.json",
+          "manifestSha256": "7523b91e823f4e3906c9acdc9a3d80f8469c27c2caab8fc8fbd6967dbfdcab5f",
+          "recordingPath": "challenges/cases/v6/wizard-engrave-wand-finish.session.json",
+          "recordingSha256": "50622b29b66b16cc75169cd1dab424dd98684ecfcddb80f3a4d323bd6cf967ef",
+          "evaluationPath": "challenges/evaluations/20260926115550-v6.json",
+          "evaluationCommit": "ba790c74ab160dfbb08e5fc9a8bd2d9e74c92c15"
+        }
+      }
+    },
+    {
+      "id": "port-apply-grease-synthetic-v6-20260926",
+      "kind": "file-port",
+      "status": "queued",
+      "summary": "Port can-of-grease application, target filtering, and consumed equipment gate",
+      "cFile": "apply.c",
+      "sessions": [
+        "synthetic/v6/wizard-greasy-write-glib-final",
+        "synthetic/v6/wizard-greasy-write-glib-retry",
+        "synthetic/v6/wizard-greasy-write-menu",
+        "synthetic/v6/wizard-grease-write-target",
+        "synthetic/v6/wizard-grease-hands-final",
+        "synthetic/v6/wizard-grease-hands-good",
+        "synthetic/v6/wizard-grease-only",
+        "synthetic/v6/wizard-greasy-write-glib"
+      ],
+      "selectionReason": "After A10 resolved the v5 Samurai case, the related v6 engraving owner is reserved by B. The highest-ranked independent completed investigation is wizard-greasy-write-glib-final with five remaining screens; the eight related can-of-grease variants share apply.c grease_ok/use_grease and are assigned together to A.",
+      "detail": "C cmd.c apply dispatch enters apply.c doapply CAN_OF_GREASE and use_grease; grease_ok is the return-valued getobj selector. Port both complete source functions and the doapply caller arm, preserving charge, hands/object, slippery, inaccessible equipment, cancel and return-value branches. The post-selection inaccessible_equipment(otmp, grease, FALSE) bool is consumed: include whole do_wear.c inaccessible_equipment in this task and wire active callers. The getobj * menu can return otherwise filtered worn equipment; use an independent C recording for that message arm. Give pure grease_ok a source-pinned test and cover impure entry paths with independent recordings, including blocked recipes for any not yet matching path.",
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": null,
+      "delivered": null,
+      "functions": [
+        {
+          "name": "grease_ok",
+          "line": 2585,
+          "endLine": 2603,
+          "declared": false,
+          "complete": false
+        },
+        {
+          "name": "use_grease",
+          "line": 2604,
+          "endLine": 2657,
+          "declared": false,
+          "complete": false
+        }
+      ],
+      "range": {
+        "from": 2585,
+        "to": 2657
+      },
+      "syntheticProvenance": {
+        "synthetic/v6/wizard-greasy-write-glib-final": {
+          "session": "synthetic/v6/wizard-greasy-write-glib-final",
+          "corpus": "synthetic",
+          "batch": "v6",
+          "caseId": "wizard-greasy-write-glib-final",
+          "manifestPath": "challenges/manifests/v6.json",
+          "manifestSha256": "7523b91e823f4e3906c9acdc9a3d80f8469c27c2caab8fc8fbd6967dbfdcab5f",
+          "recordingPath": "challenges/cases/v6/wizard-greasy-write-glib-final.session.json",
+          "recordingSha256": "20b60af8d804f9bd6ebd5b1217dae85a6cdad0afcae9d4f98bd6c57d6f3fb6e6",
+          "evaluationPath": "challenges/evaluations/20260926115550-v6.json",
+          "evaluationCommit": "ba790c74ab160dfbb08e5fc9a8bd2d9e74c92c15"
         }
       }
     }

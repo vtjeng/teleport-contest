@@ -2382,7 +2382,7 @@ test('Water vault retains the random chest lock despite source olocked typo', as
     assert.equal(chest.olocked, true);
 });
 
-test('Water vault reaches every escape item and nasty-undead variant', async () => {
+test('Water vault parses each source-named escape item through readobjnam', async () => {
     const cases = [
         [1, WAN_TELEPORTATION, PM_GIANT_ZOMBIE, false],
         [2, WAN_DIGGING, PM_ETTIN_ZOMBIE, true],

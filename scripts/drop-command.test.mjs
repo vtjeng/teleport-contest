@@ -126,10 +126,26 @@ test('sink hallucination checks intrinsic timeout and both resistance sources', 
 });
 
 // C ref: apply.c reset_trapset() (2812-2817).
-test('reset_trapset clears the armed trap and its bungle flag', () => {
-    const state = { gt: { trapinfo: { tobj: { otyp: 1 }, force_bungle: true } } };
+test('reset_trapset clears only the armed trap and bungle flag', () => {
+    const state = {
+        gt: {
+            trapinfo: {
+                tobj: { otyp: 1 },
+                tx: 8,
+                ty: 9,
+                time_needed: 4,
+                force_bungle: true,
+            },
+        },
+    };
     reset_trapset(state);
-    assert.deepEqual(state.gt.trapinfo, { tobj: null, force_bungle: false });
+    assert.deepEqual(state.gt.trapinfo, {
+        tobj: null,
+        tx: 8,
+        ty: 9,
+        time_needed: 4,
+        force_bungle: false,
+    });
 });
 
 // C ref: cmd.c reset_occupations() (194-200). One assertion per call it makes,
@@ -137,7 +153,15 @@ test('reset_trapset clears the armed trap and its bungle flag', () => {
 test('reset_occupations clears all three interrupted occupations', () => {
     const state = {
         context: { takeoff: { mask: W_ARMS } },
-        gt: { trapinfo: { tobj: { otyp: 1 }, force_bungle: true } },
+        gt: {
+            trapinfo: {
+                tobj: { otyp: 1 },
+                tx: 8,
+                ty: 9,
+                time_needed: 4,
+                force_bungle: true,
+            },
+        },
         // lock.c reset_pick() clears six fields; each is set here so a partial
         // clear is visible.
         xlock: {
@@ -161,7 +185,13 @@ test('reset_occupations clears all three interrupted occupations', () => {
         door: null,
         box: null,
     });
-    assert.deepEqual(state.gt.trapinfo, { tobj: null, force_bungle: false });
+    assert.deepEqual(state.gt.trapinfo, {
+        tobj: null,
+        tx: 8,
+        ty: 9,
+        time_needed: 4,
+        force_bungle: false,
+    });
 });
 
 // C ref: do.c canletgo() (664-711). Every arm is guarded by `if (*word)`, so
@@ -389,9 +419,13 @@ test('a cancelled drop resets the occupations and spends no turn', async () => {
     assert.equal(cancelled.boundary, null);
     assert.equal(cancelled.state.context.takeoff.mask, 0);
     assert.equal(cancelled.state.xlock.usedtime, 0);
-    assert.deepEqual(
-        cancelled.state.gt.trapinfo, { tobj: null, force_bungle: false },
-    );
+    assert.deepEqual(cancelled.state.gt.trapinfo, {
+        tobj: null,
+        tx: 0,
+        ty: 0,
+        time_needed: 0,
+        force_bungle: false,
+    });
     // The cancelled command is free, so the same trailing rest leaves the
     // turn counter where the bare rest did.
     assert.equal(cancelled.state.moves, restedMoves);
@@ -424,7 +458,13 @@ test('a carried object lands on the square with its message', async () => {
     // cancelled case above, which pins the other half of the same `if`.
     assert.equal(state.context.takeoff.mask, 0);
     assert.equal(state.xlock.usedtime, 0);
-    assert.deepEqual(state.gt.trapinfo, { tobj: null, force_bungle: false });
+    assert.deepEqual(state.gt.trapinfo, {
+        tobj: null,
+        tx: 0,
+        ty: 0,
+        time_needed: 0,
+        force_bungle: false,
+    });
 });
 
 test('a grounded blind hero uses the ordinary drop tail', async () => {

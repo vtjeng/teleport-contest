@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 920051,
+      "datetime": "20260910101500",
+      "nethackrc": "OPTIONS=name:VaultSearchA,role:Wizard,race:human,gender:male,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen\nOPTIONS=pettype:none,!acoustics,playmode:debug\n",
+      "moves": " "
+    }
+  ],
+  "comment": "A second natural Water-surrounded vault selection from the read-only collector (room-selection ordinal 3); C recording verifies dat/themerms.lua:793 obj.new(name) -> nhlobj.c:l_obj_new_readobjnam() -> objnam.c:readobjnam. No THEMERM override."
+}

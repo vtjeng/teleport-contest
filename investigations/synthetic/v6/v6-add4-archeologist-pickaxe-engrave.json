@@ -1,0 +1,95 @@
+{
+  "session": "synthetic/v6/v6-add4-archeologist-pickaxe-engrave",
+  "corpus": "synthetic",
+  "batch": "v6",
+  "caseId": "v6-add4-archeologist-pickaxe-engrave",
+  "manifestPath": "challenges/manifests/v6.json",
+  "manifestSha256": "7523b91e823f4e3906c9acdc9a3d80f8469c27c2caab8fc8fbd6967dbfdcab5f",
+  "recordingPath": "challenges/cases/v6/v6-add4-archeologist-pickaxe-engrave.session.json",
+  "recordingSha256": "762f4bf6bf840c42cb2f3deff8c03059d49747998c5d1da2e5c535860bf1439f",
+  "evaluationPath": "challenges/evaluations/20260926094126-v6.json",
+  "evaluationCommit": "50bbe620897c8fc2e634d14ec672d33a4e44db7e",
+  "remainingScreens": 8,
+  "recordedSteps": 11,
+  "status": "complete",
+  "commit": "50bbe620897c8fc2e634d14ec672d33a4e44db7e",
+  "mismatch": {
+    "corpus": "synthetic",
+    "batch": "v6",
+    "caseId": "v6-add4-archeologist-pickaxe-engrave",
+    "session": "synthetic/v6/v6-add4-archeologist-pickaxe-engrave",
+    "manifestPath": "challenges/manifests/v6.json",
+    "manifestSha256": "7523b91e823f4e3906c9acdc9a3d80f8469c27c2caab8fc8fbd6967dbfdcab5f",
+    "recording": "challenges/cases/v6/v6-add4-archeologist-pickaxe-engrave.session.json",
+    "recordingPath": "challenges/cases/v6/v6-add4-archeologist-pickaxe-engrave.session.json",
+    "recordingSha256": "762f4bf6bf840c42cb2f3deff8c03059d49747998c5d1da2e5c535860bf1439f",
+    "recipe": "challenges/cases/v6/v6-add4-archeologist-pickaxe-engrave.recipe.session.json",
+    "recipeSha256": "c9436760e0d3f02ea51c985d8606574c09724c006941d39b5cdada57b42146b0",
+    "replayInputSha256": "9671c8200bb4617314143efc03b8936dba1c08d5025986a5ef6f245a97c322f9",
+    "evaluationPath": "challenges/evaluations/20260926094126-v6.json",
+    "evaluationCommit": "50bbe620897c8fc2e634d14ec672d33a4e44db7e",
+    "evaluationArtifact": "challenges/evaluations/20260926094126-v6.json",
+    "evaluationUtc": "2026-09-26T09:41:43.460Z",
+    "remainingScreens": 8,
+    "recordedSteps": 11,
+    "previousScreensMatched": 3,
+    "regression": false,
+    "passed": false,
+    "error": null,
+    "metrics": {
+      "screens": {
+        "matched": 3,
+        "total": 11
+      },
+      "rng": {
+        "matched": 2238,
+        "total": 2252
+      },
+      "cursors": {
+        "matched": 3,
+        "total": 11
+      }
+    },
+    "firstMismatch": {
+      "kind": "stop",
+      "message": "unsupported hero command: an unported branch of this command: engrave requires bare fingertips",
+      "step": 3
+    },
+    "step": 3,
+    "kind": "stop",
+    "sourceFile": null,
+    "function": null,
+    "message": "unsupported hero command: an unported branch of this command: engrave requires bare fingertips",
+    "cFile": null,
+    "luaFile": null,
+    "line": null
+  },
+  "summary": "The v6 v6-add4-archeologist-pickaxe-engrave case selects a non-hand engraving stylus at segment 0 step 3. C engrave.c:doengrave() accepts it and reaches TOOL_CLASS pick-axe falls through the default dust engraving type; JS doengrave() refuses all non-hand styluses. Group this case with the other unresolved pick-axe, wand, potion, and marker engraving variants in one whole engrave.c source family, preserving setup, text, occupation, RNG, and object effects.",
+  "source": {
+    "file": "engrave.c",
+    "branch": "A sighted hero chooses a +0 pick-axe (alternate weapon; not wielded) at the doengrave stylus prompt. TOOL_CLASS pick-axe falls through the default dust engraving type; doengrave then continues to text and occupation if the source arm permits.",
+    "functions": [
+      "doengrave_ctx_init",
+      "doengrave_sfx_item_WAN",
+      "doengrave_sfx_item",
+      "doengrave_ctx_verb",
+      "doengrave",
+      "engrave"
+    ],
+    "callers": [
+      "cmd.c binds E to doengrave(); js/cmd.js engraving command invokes js/engrave.js doengrave().",
+      "doengrave stores stylus, text, and type in engraving context and installs engrave() as the return-valued occupation callback."
+    ],
+    "dependencies": [
+      "Return-valued u_can_engrave, stylus_ok, freehand, can_reach_floor, zappable, getobj, and existing object naming/discovery branches must be verified across selected stylus classes.",
+      "The magic marker and wand variants mutate charge and identification; the pick-axe and potion variants preserve DUST. Occupation callback return controls continuation and needs matching recorded play."
+    ]
+  },
+  "goalKind": "file-port",
+  "evidence": [
+    "Saved challenges/evaluations/20260926094126-v6.json at 50bbe620897c8fc2e634d14ec672d33a4e44db7e reports 8 remaining screen(s), first stop at segment 0 step 3: engrave requires bare fingertips.",
+    "Independent C challenges/cases/v6/v6-add4-archeologist-pickaxe-engrave.session.json at that step displays “a +0 pick-axe (alternate weapon; not wielded)” as the accepted stylus or its identification message.",
+    "Upstream nethack-c/upstream/src/engrave.c:742-895 doengrave_sfx_item TOOL_CLASS default; doengrave() at engrave.c:956-1264 calls the effect helper, prompts for text, and schedules engrave() at 1248-1254.",
+    "Current js/engrave.js:doengrave throws UnsupportedEngraveError for selected !== handsObject, before TOOL_CLASS pick-axe falls through the default dust engraving type. Preserve matching hand engraving while replacing the refusal with complete source behavior."
+  ]
+}

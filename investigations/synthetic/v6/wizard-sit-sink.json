@@ -1,0 +1,89 @@
+{
+  "session": "synthetic/v6/wizard-sit-sink",
+  "corpus": "synthetic",
+  "batch": "v6",
+  "caseId": "wizard-sit-sink",
+  "manifestPath": "challenges/manifests/v6.json",
+  "manifestSha256": "7523b91e823f4e3906c9acdc9a3d80f8469c27c2caab8fc8fbd6967dbfdcab5f",
+  "recordingPath": "challenges/cases/v6/wizard-sit-sink.session.json",
+  "recordingSha256": "a6e6459af85b668dabeba88ca416c61ce16784fcc18a2cbf38722b0c7d5932b9",
+  "evaluationPath": "challenges/evaluations/20260926094126-v6.json",
+  "evaluationCommit": "50bbe620897c8fc2e634d14ec672d33a4e44db7e",
+  "remainingScreens": 1,
+  "recordedSteps": 12,
+  "status": "complete",
+  "commit": "50bbe620897c8fc2e634d14ec672d33a4e44db7e",
+  "mismatch": {
+    "corpus": "synthetic",
+    "batch": "v6",
+    "caseId": "wizard-sit-sink",
+    "session": "synthetic/v6/wizard-sit-sink",
+    "manifestPath": "challenges/manifests/v6.json",
+    "manifestSha256": "7523b91e823f4e3906c9acdc9a3d80f8469c27c2caab8fc8fbd6967dbfdcab5f",
+    "recording": "challenges/cases/v6/wizard-sit-sink.session.json",
+    "recordingPath": "challenges/cases/v6/wizard-sit-sink.session.json",
+    "recordingSha256": "a6e6459af85b668dabeba88ca416c61ce16784fcc18a2cbf38722b0c7d5932b9",
+    "recipe": "challenges/cases/v6/wizard-sit-sink.recipe.session.json",
+    "recipeSha256": "5aed7d01c1801ed0098cff71fdef59b592306f40cc95dfc424dd8fab07ccbf6a",
+    "replayInputSha256": "9671c8200bb4617314143efc03b8936dba1c08d5025986a5ef6f245a97c322f9",
+    "evaluationPath": "challenges/evaluations/20260926094126-v6.json",
+    "evaluationCommit": "50bbe620897c8fc2e634d14ec672d33a4e44db7e",
+    "evaluationArtifact": "challenges/evaluations/20260926094126-v6.json",
+    "evaluationUtc": "2026-09-26T09:41:43.460Z",
+    "remainingScreens": 1,
+    "recordedSteps": 12,
+    "previousScreensMatched": 11,
+    "regression": false,
+    "passed": false,
+    "error": null,
+    "metrics": {
+      "screens": {
+        "matched": 11,
+        "total": 12
+      },
+      "rng": {
+        "matched": 2658,
+        "total": 2665
+      },
+      "cursors": {
+        "matched": 11,
+        "total": 12
+      }
+    },
+    "firstMismatch": {
+      "kind": "stop",
+      "message": "unsupported hero command: an unported branch of this command: sitting reached an unported branch: dosit()'s sink arm",
+      "step": 11
+    },
+    "step": 11,
+    "kind": "stop",
+    "sourceFile": "sit.c",
+    "function": "dosit",
+    "message": "unsupported hero command: an unported branch of this command: sitting reached an unported branch: dosit()'s sink arm",
+    "cFile": "sit.c",
+    "luaFile": null,
+    "line": null
+  },
+  "summary": "The v6 wizard-sit-sink case reaches sit.c:dosit()'s sink branch, while js/sit.js refuses that branch. Port the entire dosit() command and its source-called dependencies, using all five v6 sit recordings for distinct terrain and feature states; preserve branch order, messages, return/time behavior, RNG, and side effects.",
+  "source": {
+    "file": "sit.c",
+    "branch": "The hero issues #sit while IS_SINK(typ) is true after the object, trap, and water arms are false. C executes the sink branch and returns ECMD_TIME.",
+    "functions": [
+      "dosit"
+    ],
+    "callers": [
+      "cmd.c #sit command invokes sit.c dosit(); js/cmd.js command dispatch invokes js/sit.js dosit()."
+    ],
+    "dependencies": [
+      "Whole dosit() also calls altar_wrath, throne_sit_effect, dotrap, lay_an_egg, water_damage, losehp, and other state handlers on separate branches. Audit return-valued lay_an_egg and active feature side effects before claiming source completion.",
+      "Related unresolved v6 sit witnesses: archeologist-sit-ice, wizard-sit-sink, priest-sit-altar, wizard-sit-throne, wizard-sit-grave-room-retry."
+    ]
+  },
+  "goalKind": "file-port",
+  "evidence": [
+    "Saved challenges/evaluations/20260926094126-v6.json at 50bbe620897c8fc2e634d14ec672d33a4e44db7e reports one remaining screen, first stop at segment 0 step 11: unsupported hero command: an unported branch of this command: sitting reached an unported branch: dosit()'s sink arm.",
+    "challenges/cases/v6/wizard-sit-sink.session.json: The C step 11 screen says “You sit on the sink.  Your rump gets wet.”; humanoid form selects rump.",
+    "Upstream nethack-c/upstream/src/sit.c:525-528 uses IS_SINK(typ); current js/sit.js:dosit throws UnsupportedSitError for the sink arm instead of executing it.",
+    "The five sit cases are different terrain or level-feature branches of the same dosit() source function; one whole-function port should cover them together. A matching range in each recording is still required before closing the source task."
+  ]
+}

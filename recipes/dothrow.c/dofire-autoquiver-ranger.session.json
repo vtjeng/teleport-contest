@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 730263,
+      "datetime": "20320417111500",
+      "nethackrc": "OPTIONS=name:QuiverRoute,role:Ranger,race:human,gender:female,align:chaotic\nOPTIONS=!legacy,!tutorial,!splash_screen\nOPTIONS=pettype:none,!acoustics,!autopickup,time,autoquiver\n",
+      "comment": "Independent C recording for dothrow.c:dofire's autoquiver selection and fireassist launcher swap. The Ranger starts with bow and arrows; `f` readies arrows and queues the secondary bow, two spaces dismiss the swap feedback, and `l` completes the queued shot to the east.",
+      "moves": ".f  l"
+    }
+  ]
+}

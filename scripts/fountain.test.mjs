@@ -38,12 +38,14 @@ import {
 import {
     breaksink,
     dogushforth,
+    dipfountain,
     drinkfountain,
     drinksink,
     dryup,
     watchman_warn_fountain,
 } from '../js/fountain.js';
 import { game } from '../js/gstate.js';
+import { addinv } from '../js/invent.js';
 import { UnsupportedEatError, vomit } from '../js/eat.js';
 import {
     PM_ACID_BLOB,
@@ -55,7 +57,11 @@ import {
     PM_YELLOW_DRAGON,
     PM_WATCHMAN,
 } from '../js/monsters.js';
-import { DILITHIUM_CRYSTAL, LUCKSTONE, POTION_CLASS, POT_SPEED, POT_WATER } from '../js/objects.js';
+import { mksobj } from '../js/obj.js';
+import {
+    DILITHIUM_CRYSTAL, LOADSTONE, LUCKSTONE, POTION_CLASS, POT_SPEED,
+    POT_WATER,
+} from '../js/objects.js';
 import { runSegment } from '../js/jsmain.js';
 import { newMonster } from '../js/monst.js';
 import { d, rn1, rn2, rnd, rne } from '../js/rng.js';
@@ -449,6 +455,37 @@ async function startedGame() {
     });
     return game;
 }
+
+test('dipfountain curses a carried non-coin through mkobj.c curse()', async () => {
+    await startedGame();
+    const { ux, uy } = game.u;
+    game.level.at(ux, uy).typ = FOUNTAIN;
+    const loadstone = mksobj(LOADSTONE, false, false, { state: game });
+    loadstone.blessed = true;
+    addinv(loadstone, { state: game });
+    const draws = [];
+
+    await dipfountain(loadstone, game, {
+        message: async () => {},
+        random: {
+            rnd(bound) {
+                assert.equal(bound, 30);
+                draws.push('rnd(30)');
+                return 16;
+            },
+            rn2(bound) {
+                assert.equal(bound, 3);
+                draws.push('rn2(3)');
+                return 1; // The source dryup() leaves the fountain in place.
+            },
+        },
+        canSeeSquare: () => false,
+    });
+
+    assert.deepEqual(draws, ['rnd(30)', 'rn2(3)']);
+    assert.equal(loadstone.blessed, false);
+    assert.equal(loadstone.cursed, true);
+});
 
 function watchman(overrides = {}) {
     return newMonster({

@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 730271,
+      "datetime": "20320417141500",
+      "nethackrc": "OPTIONS=name:PoleProbe,role:Knight,race:human,gender:male,align:lawful\nOPTIONS=!legacy,!tutorial,!splash_screen\nOPTIONS=pettype:none,!acoustics,!autopickup,time,number_pad:1\n",
+      "comment": "Independent C recording for apply.c:doapply() selecting the Knight's lance, which is wielded and re-applied; after the wield and inventory messages, getpos moves two cells east and selects an in-range square.",
+      "moves": "ab    66."
+    }
+  ]
+}

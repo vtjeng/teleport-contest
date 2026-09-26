@@ -1,0 +1,92 @@
+{
+  "session": "synthetic/v6/wizard-beartrap-sit",
+  "corpus": "synthetic",
+  "batch": "v6",
+  "caseId": "wizard-beartrap-sit",
+  "manifestPath": "challenges/manifests/v6.json",
+  "manifestSha256": "7523b91e823f4e3906c9acdc9a3d80f8469c27c2caab8fc8fbd6967dbfdcab5f",
+  "recordingPath": "challenges/cases/v6/wizard-beartrap-sit.session.json",
+  "recordingSha256": "bbad9fa894d7ef3ed3d073cc7a2d7db39cfdfe5316a95d097bc90c6c7c3dfca5",
+  "evaluationPath": "challenges/evaluations/20260926075422-v6.json",
+  "evaluationCommit": "cd03ef328d8cf2c6ecdbfb47f4f6bd21f85c6c37",
+  "remainingScreens": 17,
+  "recordedSteps": 29,
+  "status": "complete",
+  "commit": "cd03ef328d8cf2c6ecdbfb47f4f6bd21f85c6c37",
+  "mismatch": {
+    "corpus": "synthetic",
+    "batch": "v6",
+    "caseId": "wizard-beartrap-sit",
+    "session": "synthetic/v6/wizard-beartrap-sit",
+    "manifestPath": "challenges/manifests/v6.json",
+    "manifestSha256": "7523b91e823f4e3906c9acdc9a3d80f8469c27c2caab8fc8fbd6967dbfdcab5f",
+    "recording": "challenges/cases/v6/wizard-beartrap-sit.session.json",
+    "recordingPath": "challenges/cases/v6/wizard-beartrap-sit.session.json",
+    "recordingSha256": "bbad9fa894d7ef3ed3d073cc7a2d7db39cfdfe5316a95d097bc90c6c7c3dfca5",
+    "recipe": "challenges/cases/v6/wizard-beartrap-sit.recipe.session.json",
+    "recipeSha256": "efb81f39221e35bfa7aebe8a449151ac826f7294b89a8bbbcf25473881b50b1d",
+    "replayInputSha256": "657ea221132407bc3979477fa6cdfb71292d13c467d17c383eb8a5a0467c8ac3",
+    "evaluationPath": "challenges/evaluations/20260926075422-v6.json",
+    "evaluationCommit": "cd03ef328d8cf2c6ecdbfb47f4f6bd21f85c6c37",
+    "evaluationArtifact": "challenges/evaluations/20260926075422-v6.json",
+    "evaluationUtc": "2026-09-26T07:54:38.609Z",
+    "remainingScreens": 17,
+    "recordedSteps": 29,
+    "previousScreensMatched": 12,
+    "regression": false,
+    "passed": false,
+    "error": null,
+    "metrics": {
+      "screens": {
+        "matched": 12,
+        "total": 29
+      },
+      "rng": {
+        "matched": 2944,
+        "total": 3029
+      },
+      "cursors": {
+        "matched": 12,
+        "total": 29
+      }
+    },
+    "firstMismatch": {
+      "kind": "stop",
+      "message": "unsupported hero command: an unported branch of this command: applying a tool requires doapply()'s arm for object type 244",
+      "step": 12
+    },
+    "step": 12,
+    "kind": "stop",
+    "sourceFile": "apply.c",
+    "function": "doapply",
+    "message": "unsupported hero command: an unported branch of this command: applying a tool requires doapply()'s arm for object type 244",
+    "cFile": "apply.c",
+    "luaFile": null,
+    "line": null
+  },
+  "summary": "At step 12 the Wizard applies a wished bear trap while standing on stairs. C apply.c:doapply() calls use_trap(), whose On_stairs branch prints “You can’t set a trap on the stairs!”, resets trap setup, and returns. JS doapply() refuses BEARTRAP before that state check. This is the same whole apply.c trap-setting family already assigned to B11 for the higher-ranked floor case; it independently exercises the refusal branch and does not reach sit.c bear-trap behavior.",
+  "source": {
+    "file": "apply.c",
+    "branch": "The player is standing on stairs and selects a BEARTRAP from inventory through the apply command; doapply() dispatches to use_trap(), whose On_stairs test precedes setting a trap or installing an occupation.",
+    "functions": [
+      "doapply",
+      "use_trap",
+      "reset_trapset"
+    ],
+    "callers": [
+      "cmd.c binds a to doapply(); apply.c:doapply() dispatches BEARTRAP to use_trap().",
+      "js/cmd.js routes a to js/apply.js:doapply(), which currently throws for BEARTRAP before use_trap() can check the stairs."
+    ],
+    "dependencies": [
+      "use_trap() calls reset_trapset() on the refusal path. The same selected source family and gt.trapinfo state contract are reserved by B11 for synthetic/v6/wizard-beartrap-sit-floor.",
+      "On_stairs() and stairway_at() supply the source distinction between ladder and stairs; preserve that branch without a session-specific condition."
+    ]
+  },
+  "goalKind": "file-port",
+  "evidence": [
+    "Saved challenges/evaluations/20260926075422-v6.json at cd03ef328d8cf2c6ecdbfb47f4f6bd21f85c6c37 reports 17 remaining screens of 29 and first stop at segment 0 step 12, selecting object o for the apply command; js/apply.js refuses object type 244.",
+    "Independent C recording challenges/cases/v6/wizard-beartrap-sit.session.json shows the apply prompt at step 11 and “You can’t set a trap on the stairs!” at step 12. The same step has ordinary turn RNG after the refusal; it creates no trap and installs no occupation.",
+    "Upstream apply.c:4388–4393 dispatches BEARTRAP to use_trap(). In apply.c:2821–2862, use_trap() evaluates physical and terrain constraints in order, chooses “on the stairs” from On_stairs() and stairway_at(), calls reset_trapset(), and returns before ttyp or occupation setup.",
+    "This case shares B11’s doapply/use_trap/reset_trapset source and js/apply.js ownership; it supplies an independent branch observation while the higher-ranked floor case supplies occupation setup evidence."
+  ]
+}

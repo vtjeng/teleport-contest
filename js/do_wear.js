@@ -197,6 +197,7 @@ import {
     is_rottable,
     isRustprone,
     set_bknown,
+    curse,
 } from './obj.js';
 import {
     ALCHEMY_SMOCK,
@@ -1900,6 +1901,7 @@ const PLAIN_HELMETS_ON = new Set([
 // runs a turn after the slot and the status line have already moved.
 function helmetOnPorted(otyp) {
     return otyp === FEDORA || otyp === HELM_OF_OPPOSITE_ALIGNMENT
+        || otyp === DUNCE_CAP
         || PLAIN_HELMETS_ON.has(otyp);
 }
 
@@ -1907,8 +1909,8 @@ function helmetOnPorted(otyp) {
 // callback accessory_or_armor_on() installs for the helmet slot and once per
 // new game from set_wear() below.
 //
-// The FEDORA arm is the only <X>_on() arm this port carries that does anything
-// beyond revealing an enchantment, and change_luck(1) is invisible until a
+// The FEDORA and DUNCE_CAP arms are the <X>_on() arms this port carries that do
+// anything beyond revealing an enchantment, and change_luck(1) is invisible until a
 // caller asks rnd.c rnl() for a range over 15: at 15 or below rnl() folds the
 // adjustment to (abs(Luck) + 1) / 3 * sgn(Luck), which is 0 for a single
 // point. lock.c doopen_indir():904 asks for rnl(20), so an Archeologist who
@@ -1941,6 +1943,9 @@ async function Helmet_on(state) {
         // FALLTHROUGH into the shared DUNCE_CAP path
         await helmetOnCursePath(state);
         break;
+    case DUNCE_CAP:
+        await helmetOnCursePath(state);
+        break;
     default: /* PLAIN_HELMETS_ON, C's bare-break labels at 441-446 */
         break;
     }
@@ -1957,10 +1962,9 @@ async function Helmet_on(state) {
 // HELM_OF_OPPOSITE_ALIGNMENT fallthrough. Curses the helm, prints a message,
 // and reveals the helm type.
 //
-// C's full curse() (mkobj.c:1783-1820) has side effects beyond setting
-// blessed/cursed: it adjusts luck for luckstones, resets remarm for
-// bimanual weapons, drops twoweap, and manages figurine and spellbook
-// timers. Those effects are not ported; the call is recorded as a gap.
+// C's full curse() (mkobj.c:1783-1820) owns the BUC transition and its item
+// side effects. Await it before Helmet_on() continues to reveal the item or
+// update the status line, as C finishes the call before those statements.
 async function helmetOnCursePath(state) {
     if (state.uarmh && !state.uarmh.cursed) {
         if (heroIsBlind(state))
@@ -1971,7 +1975,7 @@ async function helmetOnCursePath(state) {
             await ttyPline(
                 `${Tobjnam(state.uarmh, 'glow', state)} ${hcolor('black', state)} for a moment.`,
                 state);
-        note_unported('mkobj.c curse');
+        await curse(state.uarmh, { state });
         /* curse() doesn't touch bknown so doesn't update persistent
            inventory; do so now [set_bknown() calls update_inventory()] */
         if (heroIsBlind(state))
