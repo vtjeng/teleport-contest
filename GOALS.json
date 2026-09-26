@@ -79382,7 +79382,7 @@
     {
       "id": "port-dothrow-fireassist-samurai-synthetic-v5-20260926",
       "kind": "file-port",
-      "status": "queued",
+      "status": "open",
       "summary": "Port complete fire command ammo selection, launcher retry, and quiver setup",
       "cFile": "dothrow.c",
       "sessions": [
@@ -79390,8 +79390,12 @@
       ],
       "selectionReason": "Seed continuation: synthetic/v5/samurai-pet-ration-eating ranks first with 48 unmatched screens and step-28 fire stop in .cache/B12-work-queue.json. The refreshed complete investigation investigations/synthetic/v5/samurai-pet-ration-eating.json traces C dothrow.c:dofire as the caller that queues dowield; the queue annotation names that missing callee, but the whole fire command owns the source branch. B owns the separate Healer zap.c path and C prepares v7.",
       "detail": "At segment 0 step 28, C dothrow.c dofire selects Samurai ammo, find_launcher returns yumi, and the command queues doswapweapon/dowield/invlet/dofire in source order. JS dofire refuses the dowield queue. Port autoquiver, find_launcher, and dofire in C definition order. Verify existing doquiver_core and throw_obj return contracts; include complete return-valued apply.c use_whip and use_pole callees and active doapply callers in the same task, plus any further consumed return dependencies. Preserve the selected matching wish prefix and independent C entry recordings; see the refreshed investigation.",
-      "openedAt": null,
-      "openStanding": null,
+      "openedAt": "34d6dfc4f3435c57cc42d8ac7efe13bbe70031e7",
+      "openStanding": {
+        "sha": "8f72bd4d234c80cda41bc806e647a3594b1d82a9",
+        "screens": 11405,
+        "rng": 792838
+      },
       "closedAt": null,
       "delivered": null,
       "functions": [
@@ -79431,10 +79435,168 @@
           "manifestSha256": "5e4430fbd724fe91720f898c02e6f25f9d98e884fa31bd696ca1a63e87abf150",
           "recordingPath": "challenges/cases/v5/samurai-pet-ration-eating.session.json",
           "recordingSha256": "719edf6f87e6d47c9c59b0cbfd8a418269fb55e34f5dfbc93500b61dd472954c",
-          "evaluationPath": "challenges/evaluations/20260926094126-v5.json",
-          "evaluationCommit": "50bbe620897c8fc2e634d14ec672d33a4e44db7e"
+          "evaluationPath": "challenges/evaluations/20260926113516-v5.json",
+          "evaluationCommit": "8f72bd4d234c80cda41bc806e647a3594b1d82a9"
         }
-      }
+      },
+      "activeStanding": {
+        "sha": "8f72bd4d234c80cda41bc806e647a3594b1d82a9",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v5",
+          "caseId": "samurai-pet-ration-eating",
+          "session": "synthetic/v5/samurai-pet-ration-eating",
+          "manifestPath": "challenges/manifests/v5.json",
+          "manifestSha256": "5e4430fbd724fe91720f898c02e6f25f9d98e884fa31bd696ca1a63e87abf150",
+          "recording": "challenges/cases/v5/samurai-pet-ration-eating.session.json",
+          "recordingPath": "challenges/cases/v5/samurai-pet-ration-eating.session.json",
+          "recordingSha256": "719edf6f87e6d47c9c59b0cbfd8a418269fb55e34f5dfbc93500b61dd472954c",
+          "recipe": "challenges/cases/v5/samurai-pet-ration-eating.recipe.session.json",
+          "recipeSha256": "802b9c54f79a2a88166e3c87c3ea9f3debc686f204ae92537b5deaba48d3b431",
+          "replayInputSha256": "450244a793193987d9e9c2e706ebc251a4fdb9f7ac73fed626e806f7b14e9de8",
+          "evaluationPath": "challenges/evaluations/20260926113516-v5.json",
+          "evaluationCommit": "8f72bd4d234c80cda41bc806e647a3594b1d82a9",
+          "evaluationArtifact": "challenges/evaluations/20260926113516-v5.json",
+          "evaluationUtc": "2026-09-26T11:35:30.970Z",
+          "remainingScreens": 48,
+          "recordedSteps": 76,
+          "previousScreensMatched": 28,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 28,
+              "total": 76
+            },
+            "rng": {
+              "matched": 2703,
+              "total": 2926
+            },
+            "cursors": {
+              "matched": 28,
+              "total": 76
+            }
+          },
+          "firstMismatch": {
+            "kind": "stop",
+            "message": "unsupported hero command: an unported branch of this command: dothrow.c reached dowield()",
+            "step": 28
+          },
+          "step": 28,
+          "kind": "stop",
+          "sourceFile": "wield.c",
+          "function": "dowield",
+          "message": "unsupported hero command: an unported branch of this command: dothrow.c reached dowield()",
+          "cFile": "wield.c",
+          "luaFile": null,
+          "line": null,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v5/samurai-pet-ration-eating.json",
+            "result": {
+              "session": "synthetic/v5/samurai-pet-ration-eating",
+              "corpus": "synthetic",
+              "batch": "v5",
+              "caseId": "samurai-pet-ration-eating",
+              "manifestPath": "challenges/manifests/v5.json",
+              "manifestSha256": "5e4430fbd724fe91720f898c02e6f25f9d98e884fa31bd696ca1a63e87abf150",
+              "recordingPath": "challenges/cases/v5/samurai-pet-ration-eating.session.json",
+              "recordingSha256": "719edf6f87e6d47c9c59b0cbfd8a418269fb55e34f5dfbc93500b61dd472954c",
+              "evaluationPath": "challenges/evaluations/20260926094126-v5.json",
+              "evaluationCommit": "50bbe620897c8fc2e634d14ec672d33a4e44db7e",
+              "remainingScreens": 48,
+              "recordedSteps": 76,
+              "status": "complete",
+              "commit": "50bbe620897c8fc2e634d14ec672d33a4e44db7e",
+              "mismatch": {
+                "corpus": "synthetic",
+                "batch": "v5",
+                "caseId": "samurai-pet-ration-eating",
+                "session": "synthetic/v5/samurai-pet-ration-eating",
+                "manifestPath": "challenges/manifests/v5.json",
+                "manifestSha256": "5e4430fbd724fe91720f898c02e6f25f9d98e884fa31bd696ca1a63e87abf150",
+                "recording": "challenges/cases/v5/samurai-pet-ration-eating.session.json",
+                "recordingPath": "challenges/cases/v5/samurai-pet-ration-eating.session.json",
+                "recordingSha256": "719edf6f87e6d47c9c59b0cbfd8a418269fb55e34f5dfbc93500b61dd472954c",
+                "recipe": "challenges/cases/v5/samurai-pet-ration-eating.recipe.session.json",
+                "recipeSha256": "802b9c54f79a2a88166e3c87c3ea9f3debc686f204ae92537b5deaba48d3b431",
+                "replayInputSha256": "2bd21963cc9fcefed1046fb792ae304cc715fbe5dc32b52d679951cc718f7b18",
+                "evaluationPath": "challenges/evaluations/20260926094126-v5.json",
+                "evaluationCommit": "50bbe620897c8fc2e634d14ec672d33a4e44db7e",
+                "evaluationArtifact": "challenges/evaluations/20260926094126-v5.json",
+                "evaluationUtc": "2026-09-26T09:41:40.582Z",
+                "remainingScreens": 48,
+                "recordedSteps": 76,
+                "previousScreensMatched": 28,
+                "regression": false,
+                "passed": false,
+                "error": null,
+                "metrics": {
+                  "screens": {
+                    "matched": 28,
+                    "total": 76
+                  },
+                  "rng": {
+                    "matched": 2703,
+                    "total": 2926
+                  },
+                  "cursors": {
+                    "matched": 28,
+                    "total": 76
+                  }
+                },
+                "firstMismatch": {
+                  "kind": "stop",
+                  "message": "unsupported hero command: an unported branch of this command: dothrow.c reached dowield()",
+                  "step": 28
+                },
+                "step": 28,
+                "kind": "stop",
+                "sourceFile": "wield.c",
+                "function": "dowield",
+                "message": "unsupported hero command: an unported branch of this command: dothrow.c reached dowield()",
+                "cFile": "wield.c",
+                "luaFile": null,
+                "line": null
+              },
+              "summary": "After the matching wizard-wish retry, the Samurai reaches fire at step 28. C dothrow.c:dofire() selects ammo, finds the yumi launcher, queues the source-ordered swap/wield/inventory-key/fire retry, and returns without taking a turn. JS dofire() refuses the queued dowield() branch before throwing any projectile. Port the complete autoquiver/find_launcher/dofire family and required return-valued apply.c use_pole/use_whip dependencies; the later recorded Hachi feeding event remains downstream.",
+              "source": {
+                "file": "dothrow.c",
+                "functions": [
+                  "autoquiver",
+                  "find_launcher",
+                  "dofire"
+                ],
+                "branch": "At segment 0 step 28, a Samurai with unlaunched quivered ammunition invokes f. fireassist finds a yumi in inventory while neither wielded weapon matches the ammo. C queues doswapweapon when needed, dowield, the yumi inventory letter, then dofire, returning ECMD_OK without advancing time; JS throws at its unported dowield queue path.",
+                "callers": [
+                  "cmd.c:1724-1725 maps f to dofire(); js/cmd.js fire dispatch calls js/dothrow.js:dofire().",
+                  "dothrow.c:dofire() calls autoquiver() when quiver is empty and the option is on, consumes find_launcher() for launcher selection, and consumes doquiver_core() and throw_obj() results on other active branches.",
+                  "dothrow.c:dofire() directly returns apply.c:use_pole() and use_whip() results on reachable polearm and bullwhip arms; both require implementation in the same task and production doapply wiring."
+                ],
+                "dependencies": [
+                  "apply.c:use_pole() and use_whip() are active return-valued callees absent in JS; port their whole source bodies and their doapply callers, expanding for any further consumed returns.",
+                  "dothrow.c:autoquiver() mutates the quiver when selected; port its whole inventory priority order and setuqwep effect.",
+                  "wield.c:doquiver_core() and dothrow.c:throw_obj() already have JS implementations; verify the reached contracts and source order before reuse.",
+                  "The later C pet catch/eat at step 73 is beyond this first stop; preserve that target as a later source task rather than treating it as dofire evidence."
+                ]
+              },
+              "goalKind": "file-port",
+              "evidence": [
+                "Current saved v5 evaluation challenges/evaluations/20260926094126-v5.json at 50bbe620897c8fc2e634d14ec672d33a4e44db7e reports 28/76 matched screens, 2703/2926 RNG, and first stop at segment 0 step 28. The manifest and recording digests are pinned in this record.",
+                "An independent replay of the immutable v5 recipe after A9 matches the wish and inventory prefix, then stops at fire: C has 76 boundaries and 2926 RNG calls; JS emits 28 boundaries and 2703 RNG calls. The first missing C screen is boundary 29 on f; the next missing RNG comes from mon.c:mcalcmove after that input.",
+                "C cmd.c:1724-1725 dispatches fire to dothrow.c:dofire() at 469-582. In the selected state, dothrow.c:find_launcher() returns the yumi and dofire() queues doswapweapon as needed, dowield, the launcher invlet, and dofire. js/dothrow.js:dofire() throws UnsupportedThrowError for dowield at approximately line 1149 instead of following that queue.",
+                "C dothrow.c:381-466 defines autoquiver() and find_launcher() immediately before dofire(); the former changes quiver state and the latter returns a launcher. C dofire() also returns the results of apply.c:use_pole() and use_whip() on active branches; these unported return-valued dependencies prevent a narrow branch-only completion.",
+                "Earlier readobjnam/makewish diagnosis is superseded by A9 at dcc9c2c2b5761efb0d5649a38edad28a03115464; the C recording’s pet catch and eat at step 73 remains an intended downstream event, not the current first owner."
+              ]
+            }
+          }
+        }
+      ]
     },
     {
       "id": "port-zap-resist-lethal-synthetic-v5-20260926",
