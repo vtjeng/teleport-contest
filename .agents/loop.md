@@ -130,6 +130,15 @@ Integrate exact submitted commits rather than a moving branch tip. Merge
 only when every included commit belongs in the delivery; otherwise
 cherry-pick the required commits.
 
+While the current candidate's checkpoint runs, inspect the next queued
+delivery's immutable packet, diff, reservations, source evidence, and likely
+conflicts. This read-only preview can identify corrections or missing evidence
+before the validation slot frees up. Keep the checkpoint process handle and
+collect its result promptly. Do not change `main`, start another aggregate
+check, or begin the next goal until the current candidate's evaluation and
+closure finish. Recheck the preview against the newly accepted `main` before
+integrating that delivery.
+
 Ask for corrections with `CHANGES_REQUIRED` and specific findings. Let the
 worker finish or deliberately park its current task before starting the
 correction. Corrections use new commits; submitted commits remain unchanged.
@@ -169,8 +178,10 @@ separately from other goals.
    Run `npm run checkpoint`
    under `.agents/validation.md`. Keep one full-validation owner and retain
    its process handle until completion. Do not change main's HEAD during the
-   run. If it fails, preserve the results and wait for the run to finish before
-   integrating a correction and testing the new candidate.
+   run. Use its running time for the read-only next-delivery preview above
+   when a delivery is queued. If it fails, preserve the results and wait for
+   the run to finish before integrating a correction and testing the new
+   candidate.
 5. After an implementation task passes, refresh the fixed-workload mismatch
    queue and evaluate all admitted synthetic batches under `.agents/scoring.md`.
    Refresh the synthetic work queue from those saved results. Finish
@@ -193,9 +204,17 @@ separately from other goals.
 6. Record acceptance and send `ACCEPTED` with the tested commit and checkpoint
    result. Run `worker-state.mjs sync-main --commit <accepted-commit>` to
    verify local main. Push accepted work to main without asking again, then
-   record `published` after the push succeeds. Watch each relevant CI run
-   once, identified by commit and run ID. Investigate failures and validate
-   corrections; report CI success only after it finishes successfully.
+   record `published` after the push succeeds. Discover relevant CI run IDs for
+   the published commit and keep pending commits and run IDs in the untracked
+   `.cache/loop-ci-pending.json`; a commit with no run yet stays pending for
+   discovery. At each handoff and before another push, make a one-shot status
+   check for pending runs, then continue the merge queue while CI runs. Remove
+   an entry only after all its relevant runs pass. Do not block the next
+   delivery with `gh run watch`. Reconcile the pending list after a restart
+   against published commits in the worker-state ledger and their CI runs. If
+   CI fails, finish an active checkpoint, then investigate and validate a
+   correction before further publication. Report CI success only after the
+   relevant runs finish successfully.
 
 Before treating an old test failure as an ongoing blocker, check whether
 current main and saved results already establish the fix. If they do,
