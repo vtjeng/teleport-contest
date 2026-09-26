@@ -32,11 +32,16 @@ import { GameMap } from '../js/game.js';
 import {
     UnsupportedBhitError,
     bhit,
+    bhitm,
     zap_map,
     weffects,
 } from '../js/zap.js';
 import { initialize_symbols_from_options } from '../js/symbols.js';
-import { PM_SHADE, monst_globals_init } from '../js/monsters.js';
+import { PM_KOBOLD, PM_SHADE, monst_globals_init } from '../js/monsters.js';
+import { newMonster, place_monster } from '../js/monst.js';
+import { accessible } from '../js/monmove.js';
+import { game } from '../js/gstate.js';
+import { runSegment } from '../js/jsmain.js';
 import { newObject } from '../js/obj.js';
 import { init_objects } from '../js/o_init.js';
 import { objects_globals_init } from '../js/objects.js';
@@ -191,6 +196,56 @@ test('zap_map changes only a downward non-headstone engraving', () => {
     assert.deepEqual(state.head_engr.engr_txt, [
         'headstone', 'headstone', 'headstone',
     ]);
+});
+
+test('bhitm keeps its ray position separate from zap.c hit()', async () => {
+    // zap.c:160-214 calls hit() in the successful striking arm after using
+    // gb.bhitpos for visibility; the local JS coordinate must not shadow it.
+    await runSegment({
+        seed: 71592644,
+        datetime: '20390626104512',
+        nethackrc: 'OPTIONS=name:Raycheck,role:Healer,race:human,gender:male,align:neutral\n'
+            + 'OPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!acoustics\n',
+        moves: '',
+    });
+    const [x, y] = [[1, 0], [-1, 0], [0, 1], [0, -1]]
+        .map(([dx, dy]) => [game.u.ux + dx, game.u.uy + dy])
+        .find(([mx, my]) => accessible(mx, my, game));
+    assert.ok(Number.isInteger(x) && Number.isInteger(y));
+    const monster = newMonster({
+        data: game.mons[PM_KOBOLD],
+        mnum: PM_KOBOLD,
+        m_id: 9001,
+        mx: x,
+        my: y,
+        mhp: 30,
+        mhpmax: 30,
+        m_lev: 1,
+        mcanmove: true,
+        mcansee: true,
+    });
+    place_monster(monster, x, y, game);
+    monster.nmon = game.level.monlist;
+    game.level.monlist = monster;
+    game.gb ??= {};
+    game.gb.bhitpos = { x, y };
+    const wand = missile(game, WAN_STRIKING);
+    const messages = [];
+    const random = {
+        rnd: () => 1,
+        d: () => 2,
+        rn2: (bound) => bound - 1,
+    };
+
+    assert.equal(
+        await bhitm(monster, wand, game, random, {
+            message: async (line) => messages.push(line),
+        }),
+        0,
+    );
+    assert.ok(messages.some((line) => line.startsWith('The wand hits ')));
+    assert.equal(game.gn.notonhead, false);
+    assert.equal(monster.mhp, 28);
 });
 
 test('weffects sends immediate effects through the source ray callback walk',
