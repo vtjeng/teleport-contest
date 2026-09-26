@@ -78531,7 +78531,7 @@
     {
       "id": "port-apply-trap-setting-synthetic-v6-20260926",
       "kind": "file-port",
-      "status": "queued",
+      "status": "open",
       "summary": "Port complete apply.c trap setup and occupation callback for applied traps",
       "cFile": "apply.c",
       "sessions": [
@@ -78539,8 +78539,12 @@
       ],
       "selectionReason": "synthetic/v6/wizard-beartrap-sit-floor has 24 unmatched screens and complete source trace in investigations/synthetic/v6/wizard-beartrap-sit-floor.json. Higher ranked v5 Samurai is owned by A9, while v6 wizard-write-marker-scroll is also in A9 readobjnam scope. This is the first completed unreserved investigation in per-session priority; source family apply.c use_trap/set_trap is independent of A9 and the separately queued cmd.c call admission.",
       "detail": "At segment 0 step 13, applying the wished bear trap reaches C apply.c doapply BEARTRAP arm, which invokes use_trap and installs the return-valued set_trap occupation. JS js/apply.js doapply refuses object type 244. Port use_trap and set_trap in C definition order, wire doapply and trapinfo state/reset contracts; preserve matching prefix and evaluate later behavior. C starts and stops trap setup in this case, so the later sit on stairs does not establish a sit.c beartrap entry point.",
-      "openedAt": null,
-      "openStanding": null,
+      "openedAt": "a07940e669ee7dd6f7788dd450e96be90f5091f4",
+      "openStanding": {
+        "sha": "a07940e669ee7dd6f7788dd450e96be90f5091f4",
+        "screens": 11405,
+        "rng": 792838
+      },
       "closedAt": null,
       "delivered": null,
       "functions": [
@@ -78573,10 +78577,168 @@
           "manifestSha256": "7523b91e823f4e3906c9acdc9a3d80f8469c27c2caab8fc8fbd6967dbfdcab5f",
           "recordingPath": "challenges/cases/v6/wizard-beartrap-sit-floor.session.json",
           "recordingSha256": "6ee59baa26322e58c754b794568e1e43c6deb9ef41524175e3db41f0794aa65c",
-          "evaluationPath": "challenges/evaluations/20260926071400-v6.json",
-          "evaluationCommit": "3b1e337022043d314860fa14efc520d2600bf194"
+          "evaluationPath": "challenges/evaluations/20260926075422-v6.json",
+          "evaluationCommit": "cd03ef328d8cf2c6ecdbfb47f4f6bd21f85c6c37"
         }
-      }
+      },
+      "activeStanding": {
+        "sha": "a07940e669ee7dd6f7788dd450e96be90f5091f4",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v6",
+          "caseId": "wizard-beartrap-sit-floor",
+          "session": "synthetic/v6/wizard-beartrap-sit-floor",
+          "manifestPath": "challenges/manifests/v6.json",
+          "manifestSha256": "7523b91e823f4e3906c9acdc9a3d80f8469c27c2caab8fc8fbd6967dbfdcab5f",
+          "recording": "challenges/cases/v6/wizard-beartrap-sit-floor.session.json",
+          "recordingPath": "challenges/cases/v6/wizard-beartrap-sit-floor.session.json",
+          "recordingSha256": "6ee59baa26322e58c754b794568e1e43c6deb9ef41524175e3db41f0794aa65c",
+          "recipe": "challenges/cases/v6/wizard-beartrap-sit-floor.recipe.session.json",
+          "recipeSha256": "d30e1c2f5f189db103808000f1365d1e8f0e4232010742ecfa5f0258b882d4ea",
+          "replayInputSha256": "657ea221132407bc3979477fa6cdfb71292d13c467d17c383eb8a5a0467c8ac3",
+          "evaluationPath": "challenges/evaluations/20260926075422-v6.json",
+          "evaluationCommit": "cd03ef328d8cf2c6ecdbfb47f4f6bd21f85c6c37",
+          "evaluationArtifact": "challenges/evaluations/20260926075422-v6.json",
+          "evaluationUtc": "2026-09-26T07:54:38.609Z",
+          "remainingScreens": 24,
+          "recordedSteps": 37,
+          "previousScreensMatched": 13,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 13,
+              "total": 37
+            },
+            "rng": {
+              "matched": 2950,
+              "total": 3118
+            },
+            "cursors": {
+              "matched": 13,
+              "total": 37
+            }
+          },
+          "firstMismatch": {
+            "kind": "stop",
+            "message": "unsupported hero command: an unported branch of this command: applying a tool requires doapply()'s arm for object type 244",
+            "step": 13
+          },
+          "step": 13,
+          "kind": "stop",
+          "sourceFile": "apply.c",
+          "function": "doapply",
+          "message": "unsupported hero command: an unported branch of this command: applying a tool requires doapply()'s arm for object type 244",
+          "cFile": "apply.c",
+          "luaFile": null,
+          "line": null,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v6/wizard-beartrap-sit-floor.json",
+            "result": {
+              "session": "synthetic/v6/wizard-beartrap-sit-floor",
+              "corpus": "synthetic",
+              "batch": "v6",
+              "caseId": "wizard-beartrap-sit-floor",
+              "manifestPath": "challenges/manifests/v6.json",
+              "manifestSha256": "7523b91e823f4e3906c9acdc9a3d80f8469c27c2caab8fc8fbd6967dbfdcab5f",
+              "recordingPath": "challenges/cases/v6/wizard-beartrap-sit-floor.session.json",
+              "recordingSha256": "6ee59baa26322e58c754b794568e1e43c6deb9ef41524175e3db41f0794aa65c",
+              "evaluationPath": "challenges/evaluations/20260926071400-v6.json",
+              "evaluationCommit": "3b1e337022043d314860fa14efc520d2600bf194",
+              "remainingScreens": 24,
+              "recordedSteps": 37,
+              "status": "complete",
+              "commit": "3b1e337022043d314860fa14efc520d2600bf194",
+              "mismatch": {
+                "corpus": "synthetic",
+                "batch": "v6",
+                "caseId": "wizard-beartrap-sit-floor",
+                "session": "synthetic/v6/wizard-beartrap-sit-floor",
+                "manifestPath": "challenges/manifests/v6.json",
+                "manifestSha256": "7523b91e823f4e3906c9acdc9a3d80f8469c27c2caab8fc8fbd6967dbfdcab5f",
+                "recording": "challenges/cases/v6/wizard-beartrap-sit-floor.session.json",
+                "recordingPath": "challenges/cases/v6/wizard-beartrap-sit-floor.session.json",
+                "recordingSha256": "6ee59baa26322e58c754b794568e1e43c6deb9ef41524175e3db41f0794aa65c",
+                "recipe": "challenges/cases/v6/wizard-beartrap-sit-floor.recipe.session.json",
+                "recipeSha256": "d30e1c2f5f189db103808000f1365d1e8f0e4232010742ecfa5f0258b882d4ea",
+                "replayInputSha256": "5586bf2e769a46f32937a006eaf1f8c9625fb2fe1e45fc786b0cdac387819e14",
+                "evaluationPath": "challenges/evaluations/20260926071400-v6.json",
+                "evaluationCommit": "3b1e337022043d314860fa14efc520d2600bf194",
+                "evaluationArtifact": "challenges/evaluations/20260926071400-v6.json",
+                "evaluationUtc": "2026-09-26T07:14:11.583Z",
+                "remainingScreens": 24,
+                "recordedSteps": 37,
+                "previousScreensMatched": null,
+                "regression": false,
+                "passed": false,
+                "error": null,
+                "metrics": {
+                  "screens": {
+                    "matched": 13,
+                    "total": 37
+                  },
+                  "rng": {
+                    "matched": 2950,
+                    "total": 3118
+                  },
+                  "cursors": {
+                    "matched": 13,
+                    "total": 37
+                  }
+                },
+                "firstMismatch": {
+                  "kind": "stop",
+                  "message": "unsupported hero command: an unported branch of this command: applying a tool requires doapply()'s arm for object type 244",
+                  "step": 13
+                },
+                "step": 13,
+                "kind": "stop",
+                "sourceFile": "apply.c",
+                "function": "doapply",
+                "message": "unsupported hero command: an unported branch of this command: applying a tool requires doapply()'s arm for object type 244",
+                "cFile": "apply.c",
+                "luaFile": null,
+                "line": null
+              },
+              "summary": "The saved v6 evaluation matches 13 of 37 screens, then stops at segment 0 step 13 when the Wizard applies a wished bear trap. C dispatches `doapply()`’s BEARTRAP arm to `use_trap()`, which begins trap setting and installs the `set_trap()` occupation. The saved C history then stops that occupation before the trap is armed; its later `#sit` inputs occur on stairs, so this case does not reach the intended `sit.c:dosit()` TT_BEARTRAP branch. The first source gap is the apply.c trap-setting family, not the sit command. A9 owns the matching wizard-wish setup before this stop but not the apply.c family or js/apply.js implementation path.",
+              "source": {
+                "file": "apply.c",
+                "functions": [
+                  "doapply",
+                  "use_trap",
+                  "set_trap"
+                ],
+                "branch": "A debug Wizard wishes a bear trap into inventory, invokes the `a` apply command, and selects the bear trap. On a reachable ordinary floor, `doapply()` dispatches BEARTRAP to `use_trap()`. That helper initializes gt.trapinfo with the object and position, computes setup turns from dexterity/strength/blindness, emits the begin-setting message, and installs set_trap as the occupation callback. In the saved record the occupation is stopped before arming; subsequent #sit commands are on stairs, not inside a bear trap.",
+                "callers": [
+                  "cmd.c:1677-1678 binds the `a` command to doapply(); js/cmd.js:3296-3298 routes the production command to js/apply.js:doapply().",
+                  "apply.c:4388-4393 calls use_trap() for LAND_MINE and BEARTRAP, then sets obj to null when set_trap is the installed occupation so the tail does not speak the still-consumed artifact. The currently ported js/apply.js:doapply() falls into its UnsupportedApplyError default for BEARTRAP (otyp 244).",
+                  "apply.c:2910 installs set_trap with set_occupation(); cmd.c:205-216 stores the occupation, allmain.c:485-500 runs it and clears the callback when it returns 0. cmd.c:194-200 resets trap-setting state through reset_trapset(); js/cmd.js:1922-1925 already routes that reset to js/apply.js:reset_trapset()."
+                ],
+                "dependencies": [
+                  "State contract: C gt.trapinfo owns tobj, tx, ty, time_needed, and force_bungle. js/apply.js:527-530 currently resets only tobj and force_bungle; a full source port must keep the setup coordinates and countdown together with that context.",
+                  "Return-valued callback: apply.c:set_trap() returns 1 while more setup turns remain, and 0 when the object/position is invalid or setup finishes; allmain.c:485-500 consumes that result. js/cmd.js:set_occupation() and js/allmain.js:1583-1613 provide the existing occupation storage and invocation contract.",
+                  "apply.c:set_trap() consumes the trap pointer returned by trap.c:maketrap(); js/trap.js already exports maketrap(). It also consumes in_rooms() for the shop test. Preserve the source call order when wiring these helpers.",
+                  "apply.c:use_trap() calls shk.c:use_unpaid_trapobj() for billing; that C helper returns void and is a no-op for a paid trap. apply.c:set_trap() discards the dotrap() result in the cursed/fumbling/forced-bungle arm; if dotrap() is not ported, keep that branch as a named note_unported gap rather than treating its result as data."
+                ]
+              },
+              "goalKind": "file-port",
+              "evidence": [
+                "Queue/evaluation evidence: `.cache/v6-initial-queue.json` case `synthetic/v6/wizard-beartrap-sit-floor` records 24 remaining screens, 37 steps, and first stop at segment 0 step 13; `challenges/evaluations/20260926071400-v6.json` is evaluated at 3b1e337022043d314860fa14efc520d2600bf194. The queue pins manifest SHA-256 7523b91e823f4e3906c9acdc9a3d80f8469c27c2caab8fc8fbd6967dbfdcab5f and recording SHA-256 6ee59baa26322e58c754b794568e1e43c6deb9ef41524175e3db41f0794aa65c.",
+                "Source/production path: nethack-c/upstream/src/cmd.c:1677-1678 binds `a` to doapply(); nethack-c/upstream/src/apply.c:4388-4393 dispatches BEARTRAP to use_trap() and suppresses the artifact tail if set_trap became the occupation. js/cmd.js:3296-3298 reaches js/apply.js:doapply(), whose current default throws for object type 244. This is the first JS stop identified in the saved evaluation.",
+                "C record: `challenges/cases/v6/wizard-beartrap-sit-floor.session.json`, segment 0, step 13, follows wizard wish input and the inventory selection `o`; C prints “You begin setting your bear trap. You stop setting the trap.” The same recording’s later #sit resolutions at steps 30 and 36 say “You sit on the stairs.” The manifest mission/result states that this valid C history did not reach the TT_BEARTRAP sit branch.",
+                "Setup/state scope: apply.c:2821-2911 contains use_trap(); on the ordinary-floor branch it records the bear trap and coordinates in gt.trapinfo, derives time_needed, calls use_unpaid_trapobj(), then schedules set_trap(). apply.c:2914-2951 defines the callback that decrements that state, creates the trap with maketrap(), consumes the object, and resets setup state. cmd.c:205-216, allmain.c:485-500, and cmd.c:194-200 establish the occupation and reset callers.",
+                "A9 overlap check: the shared ledger reserves A9 for objnam.c:readobjnam/rnd_otyp_by_wpnskill/wizterrainwish and zap.c:makewish, with supporting wish/creation callers. That code supplies the wished object before the first mismatch; the applied BEARTRAP branch is separately owned by apply.c:doapply/use_trap/set_trap and has no overlap with A9’s source reservations."
+              ]
+            }
+          }
+        }
+      ]
     }
   ]
 }
