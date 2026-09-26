@@ -78027,7 +78027,7 @@
           "line": 330,
           "endLine": 651,
           "declared": true,
-          "complete": false
+          "complete": true
         }
       ],
       "range": {
@@ -78259,7 +78259,70 @@
             }
           }
         }
-      ]
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "doread",
+            "implementation": "js/read.js",
+            "symbol": "doread",
+            "sourceReview": "Read the complete read.c:doread definition in the assigned range 330-651 (body through line 646) and preserved source order: capacity/getobj, pickup_prev clear, special readable objects, class and blindness guards, mail confirmation, conduct, study_book early return, scroll in_use/message ordering, seffects, discovery/call, and final in_use/useup handling. Removed the command-level selected-object refusal. Added the six source text helpers used by these branches: erode_obj_text, tshirt_text, hawaiian_motif, hawaiian_design, apron_text, and candy_wrapper_text; their C-backed table/hash outputs are pinned in scripts/read-doread.test.mjs. The whole return-valued read.c:seffects definition at 2194-2290 is implemented in the same module: it preserves the magical-object Wisdom exercise before the source switch, the pointer/null consumption result, delayed update_inventory after a consumed object, and the returned 0/1 contract consumed by doread. Cursed teleportation reaches seffect_teleportation and level_tele. SCR_BLANK_PAPER is implemented inline. Existing effect helpers are called only in their supported source slices; remaining void effect callees/branches are explicitly recorded with note_unported and are not represented by fabricated state or output: seffect_mail (MAIL_STRUCTURES build), seffect_enchant_armor, seffect_confuse_monster, seffect_scare_monster, seffect_create_monster, seffect_taming, seffect_genocide, seffect_gold_detection, seffect_food_detection, seffect_charging, seffect_amnesia, seffect_fire, seffect_earth, and seffect_stinking_cloud, plus uncovered branches of destroy_armor, remove_curse, identify, magic_mapping, enchant_weapon, and punishment. The C helpers are void, so these gaps do not replace a return-valued dependency. Source text helpers and dispatch were compared with upstream, including RNG and scroll-pointer ordering.",
+            "callers": [
+              {
+                "path": "js/cmd.js",
+                "symbol": "runReadCommand",
+                "source": "cmd.c:1816 registers the 'r' read row with doread; js/cmd.js:3382 wraps doread, cmd.js:5111 dispatches the doread handler, and cmd.js:5729-5735 handles the read command result"
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/read-doread.test.mjs",
+              "scripts/read-command.test.mjs",
+              "scripts/read-teleport.test.mjs",
+              "scripts/read-too-hard-book.test.mjs",
+              "scripts/read-tribute.test.mjs",
+              "scripts/read-destroy-armor.test.mjs",
+              "scripts/read-remove-curse.test.mjs"
+            ],
+            "recordings": [
+              "recordings/read.c/read-cursed-teleport-fresh.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v5",
+                "caseId": "ranger-level-teleport-return",
+                "segment": 0,
+                "fromStep": 34,
+                "throughStep": 37,
+                "source": "cmd.c read row -> read.c:doread -> read.c:seffects -> read.c:seffect_teleportation -> teleport.c:level_tele; the cited steps consume the read selection, enter the level prompt, accept D:2, and show materialization"
+              }
+            ],
+            "checkedAt": "2f4b2d62f7c61cb55b83a9c48cd3dd190ac1f688"
+          }
+        ],
+        "entryPointReview": "The selected doread source unit has one active entry point: cmd.c:1816 maps the 'r' row to doread, then cmd.c:3810-3818 consumes doread's ECMD result; JavaScript follows cmd.js:5111 to runReadCommand at 3382 and processes its result at 5729-5738. The new independent debug-Wizard recipe wishes a cursed teleportation scroll, selects it through the read prompt, supplies level 2, and reaches materialization; the fresh C/JS differential matches all 39 screens, cursor positions and 4,888 PRNG calls. The admitted v5 Ranger recording independently exercises the same source branch from step 34 through step 37. The supporting whole seffects function also has C callers artifact.c:1775, trap.c:4443, sit.c:321 and spell.c:1530; outside doread the current JS caller is artifacts.js:2276 for invoke_taming, whose C seffect_taming callee is explicitly recorded as a void gap. trap_effects.js likewise retains its explicit gap for the remove-curse spell path. Those other effect entry points are not claimed as completed by this doread goal. All active doread entry evidence is matching; the listed effect-helper gaps are separate source-family work, not a read-command admission gate.",
+        "entryPoints": [
+          {
+            "name": "Read command selecting a cursed teleportation scroll",
+            "functions": [
+              "doread"
+            ],
+            "recordings": [
+              "recordings/read.c/read-cursed-teleport-fresh.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v5",
+                "caseId": "ranger-level-teleport-return",
+                "segment": 0,
+                "fromStep": 34,
+                "throughStep": 37,
+                "source": "cmd.c 'r' -> read.c:doread -> read.c:seffects -> read.c:seffect_teleportation -> teleport.c:level_tele"
+              }
+            ]
+          }
+        ]
+      }
     }
   ]
 }
