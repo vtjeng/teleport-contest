@@ -66,6 +66,7 @@ import {
     furniture_present,
     hero_tread_disturbs_buried_zombies,
     in_town,
+    invocation_pos,
     long_to_any,
     lookaround,
     maybe_smudge_engr,
@@ -104,6 +105,28 @@ import {
 } from '../js/timeout.js';
 
 const HACK_SOURCE = readFileSync('nethack-c/upstream/src/hack.c', 'utf8');
+
+test('invocation_pos matches the C level and coordinate predicate', () => {
+    assert.match(
+        HACK_SOURCE,
+        /invocation_pos\(coordxy x, coordxy y\)[\s\S]*?Invocation_lev\(&u\.uz\)[\s\S]*?x == svi\.inv_pos\.x && y == svi\.inv_pos\.y/,
+    );
+    const state = {
+        u: { uz: { dnum: 0, dlevel: 9 } },
+        dungeons: [{ flags: { hellish: true }, num_dunlevs: 10 }],
+        inv_pos: { x: 31, y: 12 },
+    };
+    assert.equal(invocation_pos(31, 12, state), true);
+    assert.equal(invocation_pos(30, 12, state), false);
+    assert.equal(invocation_pos(31, 11, state), false);
+
+    const nonInvocationLevel = {
+        ...state,
+        u: { uz: { dnum: 0, dlevel: 8 } },
+    };
+    assert.equal(invocation_pos(31, 12, nonInvocationLevel), false);
+    assert.equal(invocation_pos(31, 12, { ...state, inv_pos: null }), false);
+});
 
 function buriedObject(otyp, x, y, next = null) {
     return {

@@ -283,6 +283,7 @@ import {
     PM_LONG_WORM,
     PM_MANES,
     PM_MASTER_LICH,
+    PM_NALFESHNEE,
     PM_MINOTAUR,
     PM_GIANT_EEL,
     PM_GUARD,
@@ -1420,6 +1421,14 @@ function preflightCreation(ptr, x, y, mmflags, normalized) {
         && x === state.u?.ux
         && y === state.u?.uy
         && !(mmflags & ~(MM_NOEXCLAM | MM_MINVIS | MM_MALE | MM_FEMALE));
+    // spell.c deadbook() tries these two explicitly named adversaries at the
+    // hero's square, with NO_MINVENT, and consumes the first makemon result.
+    const deadbookCall = !state.in_mklev
+        && normalized._deadbook === true
+        && (ptr?.pmidx === PM_MASTER_LICH || ptr?.pmidx === PM_NALFESHNEE)
+        && x === state.u?.ux
+        && y === state.u?.uy
+        && mmflags === NO_MINVENT;
     // vault.c invault():407 creates a guard at a wall location with MM_EGD
     // and MM_NOMSG.
     const vaultGuardCall = !state.in_mklev
@@ -1486,7 +1495,7 @@ function preflightCreation(ptr, x, y, mmflags, normalized) {
     const runtimeCall = startingPetCall || confusedLightCall || djinniBottleCall
         || fountainCreatureCall
         || runtimeRandomCall || runtimeGroupCall || createParticularCall
-        || vaultGuardCall || revivalCall || statueAnimationCall
+        || deadbookCall || vaultGuardCall || revivalCall || statueAnimationCall
         || figurineAnimationCall || cloneuCall || minionSummonCall
         || nastyCall;
     if (runtimeCall
@@ -1543,7 +1552,7 @@ function preflightCreation(ptr, x, y, mmflags, normalized) {
     // monsters; level templates position eels on water and other species on
     // terrain the template chose.  Guards are placed at wall positions that
     // invault() converts to doors immediately after creation.
-    if (!state.in_mklev && !startingPetCall && !randomCoordinates
+    if (!state.in_mklev && !startingPetCall && !deadbookCall && !randomCoordinates
         && !vaultGuardCall
         && (!isok(x, y) || !ACCESSIBLE(state.level?.at(x, y)?.typ))) {
         throw new UnsupportedMonsterCreationError(
@@ -1594,6 +1603,7 @@ function preflightCreation(ptr, x, y, mmflags, normalized) {
             && !statueInventoryCall
             && !specialRoomCall
             && !cloneuCall
+            && !deadbookCall
             && !nastyCall
             && (!state.in_mklev || (isMainDungeonLevel(state)
                 && !normalized._rndmonMklev))) {

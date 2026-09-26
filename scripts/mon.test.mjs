@@ -32,6 +32,7 @@ import {
     decide_to_shapeshift,
     is_Vlad,
     iter_mons_safe,
+    iter_mons_async,
     m_carrying,
     mcalcdistress,
     mcalcmove,
@@ -616,6 +617,38 @@ test('mcalcdistress calls wereChange for each live monster', async () => {
     // were_change() returns immediately for an ordinary monster, but C still
     // crosses that call boundary after decide_to_shapeshift().
     assert.deepEqual(calls, [[live, state]]);
+});
+
+test('iter_mons_async awaits callbacks and advances through cached nmon links', async () => {
+    let releaseFirst;
+    const waitForFirst = new Promise((resolve) => {
+        releaseFirst = resolve;
+    });
+    const last = { mhp: 1, mstate: MON_FLOOR, nmon: null };
+    const middle = { mhp: 1, mstate: MON_FLOOR, nmon: last };
+    const first = { mhp: 1, mstate: MON_FLOOR, nmon: middle };
+    const state = { level: { monlist: first } };
+    const events = [];
+
+    const pending = iter_mons_async(async (monster) => {
+        events.push(`start:${monster === first ? 'first' : monster === middle ? 'middle' : 'last'}`);
+        if (monster === first) {
+            // C saves mtmp->nmon before the callback, so unlinking the current
+            // monster cannot skip the next list node.
+            first.nmon = null;
+            await waitForFirst;
+        }
+        events.push(`end:${monster === first ? 'first' : monster === middle ? 'middle' : 'last'}`);
+    }, state);
+
+    assert.deepEqual(events, ['start:first']);
+    releaseFirst();
+    await pending;
+    assert.deepEqual(events, [
+        'start:first', 'end:first',
+        'start:middle', 'end:middle',
+        'start:last', 'end:last',
+    ]);
 });
 
 test('mcalcdistress skips dead and off-map list entries', async () => {
