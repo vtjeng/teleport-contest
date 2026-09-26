@@ -38,7 +38,7 @@ import {
     W_WEP,
 } from '../js/const.js';
 import {
-    eatfood, eating_dangerous_corpse, gethungry, offer_ok,
+    eatfood, eating_dangerous_corpse, gethungry, is_fainted, offer_ok,
     set_tin_variety, temp_resist, tin_ok,
 } from '../js/eat.js';
 import {
@@ -94,6 +94,15 @@ function state() {
     monst_globals_init(result);
     return result;
 }
+
+test('is_fainted follows eat.c hunger-status equality', () => {
+    assert.match(EAT_C,
+        /is_fainted\(void\)[\s\S]*?return \(boolean\) \(u\.uhs == FAINTED\);/u);
+    assert.equal(is_fainted({ u: { uhs: FAINTED } }), true);
+    for (const uhs of [undefined, 0, FAINTED - 1, FAINTED + 1])
+        assert.equal(is_fainted({ u: { uhs } }), false, String(uhs));
+    assert.equal(is_fainted({}), false);
+});
 
 test('offer_ok follows eat.c corpse and amulet alignment', () => {
     // eat.c:3539-3567. The callback suggests corpses off Astral and amulets

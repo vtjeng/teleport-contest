@@ -5,17 +5,23 @@
 import {
     ADORNED,
     BLINDED,
+    CONFLICT,
+    LEFT_HANDED,
     LEFT_RING,
     LOST_DROPPED,
     LOST_NONE,
     LOST_STOLEN,
     LOST_THROWN,
+    OBJ_DELETED,
     PLNMSG_MON_TAKES_OFF_ITEM,
+    RLOC_MSG,
     RIGHT_RING,
     SHOPBASE,
+    TT_BURIEDBALL,
     W_ACCESSORY,
     W_AMUL,
     W_ARMOR,
+    W_ARMG,
     W_BALL,
     W_CHAIN,
     W_RING,
@@ -25,14 +31,32 @@ import {
 } from './const.js';
 import { newsym } from './display.js';
 import { flooreffects } from './do.js';
-import { Ring_gone } from './do_wear.js';
 import {
+    Armor_off,
+    Blindf_off,
+    Boots_off,
+    cancel_don,
+    Cloak_off,
+    doffing,
+    donning,
+    Gloves_off,
+    Helmet_off,
+    Ring_gone,
+    Shirt_off,
+    Shield_off,
+    stop_donning,
+    setwornEnv,
+} from './do_wear.js';
+import {
+    Adjmonnam,
     capitalizedMonsterName,
+    Monnam,
     Some_Monnam,
 } from './do_name.js';
 import { droppables } from './dogmove.js';
 import { game } from './gstate.js';
-import { inv_cnt } from './hack.js';
+import { inv_cnt, nomul } from './hack.js';
+import { dist2 } from './hacklib.js';
 import {
     add_to_minv,
     carry_obj_effects,
@@ -42,15 +66,40 @@ import {
     stackobj,
 } from './invent.js';
 import { obj_sheds_light } from './light.js';
-import { attacktype, dead_species, is_animal } from './mondata.js';
-import { AT_ENGL, S_NYMPH } from './monsters.js';
+import {
+    attacktype,
+    dead_species,
+    dmgtype,
+    is_animal,
+    touch_petrifies,
+    throws_rocks,
+} from './mondata.js';
+import { AD_SITM, AT_ENGL, S_NYMPH } from './monsters.js';
+import { can_carry } from './moncarry.js';
 import { objectType, place_object, unknow_object } from './obj.js';
 import { objectGenerationEnv } from './object_generation.js';
-import { ARMOR_CLASS, AMULET_CLASS, COIN_CLASS, FOOD_CLASS, GOLD_PIECE, RING_CLASS, TOOL_CLASS } from './objects.js';
-import { distant_name, donameFresh, doname_with_price, yname } from './objnam.js';
+import {
+    ARMOR_CLASS,
+    AMULET_CLASS,
+    BOULDER,
+    COIN_CLASS,
+    CORPSE,
+    FOOD_CLASS,
+    GOLD_PIECE,
+    LEASH,
+    RING_CLASS,
+    TOOL_CLASS,
+} from './objects.js';
+import {
+    armor_simple_name,
+    distant_name,
+    donameFresh,
+    doname_with_price,
+    yname,
+} from './objnam.js';
 import { encumber_msg } from './pickup.js';
 import { in_rooms } from './rooms.js';
-import { rn2 } from './rng.js';
+import { rn2, rnd } from './rng.js';
 import { costly_spot, find_objowner, shop_keeper, subfrombill } from './shk.js';
 import {
     canSeeMonster as canSeeMonsterOnMap,
@@ -60,15 +109,26 @@ import {
 import { attach_fig_transform_timeout } from './timeout.js';
 import { ttyPline, ttyUrgentPline } from './tty_message.js';
 import { cansee } from './vision.js';
+import { openholdingtrap, unconscious } from './trap.js';
+import { is_fainted, maybe_finished_meal } from './eat.js';
 import {
     extract_from_minvent,
     setnotworn,
+    setworn,
+    bimanual,
     update_mon_extrinsics,
 } from './worn.js';
-import { uwepgone, uswapwepgone } from './wield.js';
-import { monnear } from './monmove.js';
+import { uqwepgone, uwepgone, uswapwepgone, welded } from './wield.js';
+import {
+    monflee,
+    monnear,
+    onscary,
+    set_apparxy,
+} from './monmove.js';
 import { stop_occupation } from './allmain.js';
 import { mwepgone } from './weapon.js';
+import { rloc, tele_restrict } from './teleport.js';
+import { note_unported } from './unported.js';
 
 export class UnsupportedMonsterPickupOperationError extends Error {
     constructor(operation, obj = null) {
@@ -242,63 +302,179 @@ export function mpickobj(monster, obj, rawEnv = {}, prepared = null) {
 }
 
 // C ref: steal.c remove_worn_item() (213-290). Strips a worn item from the
-// hero. Called by worn_item_removal() and by steal()'s W_WEAPONS path.
-//
-// Ported arms: W_RING (Ring_gone), W_WEAPONS (uwepgone/uswapwepgone).
-// Unported arms (W_ARMOR individual slots, W_AMUL, W_TOOL, W_BALL|W_CHAIN)
-// throw so the segment ends cleanly.
-export function remove_worn_item(obj, unchain_ball, state = game) {
-    // C: if (donning(obj)) cancel_don(); -- donning/cancel_don not ported.
-    // In the steal path the hero is not actively putting on armor, so this
-    // is inert.
+// hero. The callback operations that can print or trigger landing effects are
+// awaited so they finish before the caller transfers or destroys the object.
+export async function remove_worn_item(obj, unchain_ball, state = game, env = {}) {
+    if (donning(obj, state)) cancel_don(state);
     if (!obj.owornmask) return;
 
     const oldinuse = obj.in_use ?? 0;
     obj.in_use = 1;
-
-    if (obj.owornmask & W_ARMOR) {
-        throw new UnsupportedStealError(
-            `remove_worn_item() W_ARMOR for otyp ${obj.otyp}`,
-        );
-    } else if (obj.owornmask & W_AMUL) {
-        throw new UnsupportedStealError(
-            'remove_worn_item() W_AMUL (Amulet_off)',
-        );
-    } else if (obj.owornmask & W_RING) {
-        // Ring_gone() reaches trap.c float_down() for levitation rings. The
-        // C helper has no result, but this async arm must finish before theft
-        // continues to transfer the item.
-        return Ring_gone(obj, state).finally(() => {
-            obj.in_use = oldinuse;
-        });
-    } else if (obj.owornmask & W_TOOL) {
-        throw new UnsupportedStealError(
-            'remove_worn_item() W_TOOL (Blindf_off)',
-        );
-    } else if (obj.owornmask & W_WEAPONS) {
-        if (obj === state.uwep) uwepgone({ state });
-        if (obj === state.uswapwep) uswapwepgone({ state });
-        if (obj === state.uquiver) {
-            throw new UnsupportedStealError(
-                'remove_worn_item() W_WEAPONS uqwepgone()',
-            );
+    try {
+        if (obj.owornmask & W_ARMOR) {
+            if (obj === state.uskin) {
+                note_unported('pline.c impossible');
+                const { skinback } = await import('./polyself.js');
+                await skinback(true, state);
+            }
+            if (obj === state.uarm)
+                await Armor_off(state);
+            else if (obj === state.uarmc)
+                await Cloak_off(state, { ...env, state });
+            else if (obj === state.uarmf)
+                await Boots_off(state);
+            else if (obj === state.uarmg)
+                await Gloves_off(state);
+            else if (obj === state.uarmh)
+                await Helmet_off(state);
+            else if (obj === state.uarms)
+                await Shield_off(state);
+            else if (obj === state.uarmu)
+                await Shirt_off(state);
+            else
+                setworn(null, obj.owornmask & W_ARMOR, setwornEnv(state));
+        } else if (obj.owornmask & W_AMUL) {
+            // do_wear.c Amulet_off() has no port yet; C discards its result.
+            note_unported('do_wear.c Amulet_off');
+        } else if (obj.owornmask & W_RING) {
+            await Ring_gone(obj, state);
+        } else if (obj.owornmask & W_TOOL) {
+            await Blindf_off(obj, state);
+        } else if (obj.owornmask & W_WEAPONS) {
+            if (obj === state.uwep) uwepgone({ state });
+            if (obj === state.uswapwep) uswapwepgone({ state });
+            if (obj === state.uquiver) uqwepgone({ state });
         }
+
+        if (obj.owornmask & (W_BALL | W_CHAIN)) {
+            if (unchain_ball)
+                note_unported('ball.c unpunish');
+        } else if (obj.owornmask) {
+            setnotworn(obj, { state });
+        }
+
+        if (obj.where === OBJ_DELETED)
+            note_unported('pline.c debugpline1');
+    } finally {
+        obj.in_use = oldinuse;
+    }
+}
+
+// C ref: steal.c thiefdead() (120-129). mon.c:m_detach() calls this when the
+// monster identified by gs.stealmid goes away during a delayed armor theft.
+export function thiefdead(state = game) {
+    state.gs ??= {};
+    state.gs.stealmid = 0;
+    if (state.afternmv === stealarm) {
+        state.afternmv = unstolenarm;
+        state.nomovemsg = null;
+    }
+}
+
+// C ref: steal.c unresponsive() (132-142). The message-prefix tests match the
+// first bytes C compares and are intentionally independent of the cause of a
+// negative multi-turn count.
+export function unresponsive(state = game) {
+    if ((state.multi ?? 0) >= 0) return false;
+    const reason = state.multi_reason ?? '';
+    return Boolean(unconscious(state)
+        || is_fainted(state)
+        || reason.startsWith('frozen')
+        || reason.startsWith('paralyzed'));
+}
+
+// C ref: steal.c unstolenarm() (146-161). Called when the delayed thief has
+// died before the hero finishes removing the item.
+async function unstolenarm(state = game) {
+    let obj = state.invent;
+    const stealoid = state.gs?.stealoid ?? 0;
+    while (obj && obj.o_id !== stealoid) obj = obj.nobj;
+    state.gs ??= {};
+    state.gs.stealoid = 0;
+    if (obj)
+        await ttyPline(
+            `You finish taking off your ${armor_simple_name(obj, state)}.`,
+            state,
+        );
+    return 0;
+}
+
+// C ref: steal.c stealarm() (164-208). The function runs as afternmv after
+// the hero finishes taking off the selected armor.
+async function stealarm(state = game, rawEnv = {}) {
+    const gs = state.gs ?? {};
+    let obj = state.invent;
+    if (!gs.stealoid || !gs.stealmid) {
+        gs.stealoid = 0;
+        gs.stealmid = 0;
+        state.gs = gs;
+        return 0;
     }
 
-    // W_BALL | W_CHAIN
-    if (obj.owornmask & (W_BALL | W_CHAIN)) {
-        if (unchain_ball) {
-            throw new UnsupportedStealError(
-                'remove_worn_item() unpunish()',
-            );
+    while (obj) {
+        const nextObj = obj.nobj;
+        if (obj.o_id === gs.stealoid) {
+            let monster = state.level?.monlist ?? null;
+            while (monster && monster.m_id !== gs.stealmid)
+                monster = monster.nmon;
+            if (monster) {
+                if ((monster.mhp ?? 0) < 1) {
+                    note_unported('pline.c impossible');
+                } else if (!dmgtype(monster.data, AD_SITM)
+                    || dist2(monster.mx, monster.my,
+                        state.u.ux, state.u.uy) > 2) {
+                    break;
+                } else {
+                    if (obj.unpaid)
+                        subfrombill(
+                            obj,
+                            shop_keeper(state.u.ushops?.[0], state),
+                            state,
+                            rawEnv,
+                        );
+                    freeinv(obj, { state });
+                    await ttyPline(
+                        `${Monnam(monster, state)} steals `
+                            + `${donameFresh(obj, state)}!`,
+                        state,
+                    );
+                    // C discards mpickobj()'s freed-object result; its object
+                    // transfer side effects still run in source order.
+                    mpickobj(monster, obj, { state });
+                    await monflee(monster, 0, false, false, {
+                        ...rawEnv,
+                        state,
+                    });
+                    if (!(await tele_restrict(monster, state, rawEnv))) {
+                        const random = {
+                            rn2,
+                            rnd,
+                            ...(rawEnv.random ?? {}),
+                        };
+                        await rloc(monster, RLOC_MSG, {
+                            ...rawEnv,
+                            state,
+                            random,
+                            newsym,
+                            onscary: (x, y, mon, env) =>
+                                onscary(x, y, mon, env.state),
+                            setApparxy: set_apparxy,
+                            message: rawEnv.message ?? ttyPline,
+                        });
+                    }
+                    break;
+                }
+            }
+            break;
         }
-    } else if (obj.owornmask) {
-        // catchall
-        setnotworn(obj, { state });
+        obj = nextObj;
     }
 
-    // C: if (obj->where == OBJ_DELETED) debugpline; not needed
-    obj.in_use = oldinuse;
+    // C clears both ids even when one callback was interrupted independently.
+    gs.stealoid = 0;
+    gs.stealmid = 0;
+    state.gs = gs;
+    return 0;
 }
 
 // C ref: steal.c worn_item_removal() (292-334). Message prefacing the removal
@@ -331,20 +507,9 @@ async function worn_item_removal(mon, obj, state = game, message = ttyPline) {
     await remove_worn_item(obj, true, state);
 }
 
-export class UnsupportedStealError extends Error {
-    constructor(what) {
-        super(`steal reached an unported branch: ${what}`);
-        this.name = 'UnsupportedStealError';
-    }
-}
-
 // C ref: steal.c steal() (342-614). Returns 1 when something was stolen,
 // -1 if the monster died, 0 otherwise. `objnambuf` is filled with the name
 // of the stolen item for use by the caller's message.
-//
-// Ported paths: nymph stealing a ring (RING_CLASS worn_item_removal) or
-// unworn item. The armor-delay branch (stealarm callback) and monkey_business
-// paths that need can_carry() or cursed-item checks throw UnsupportedStealError.
 export async function steal(mtmp, state = game, env = {}) {
     // C's worn_item_removal() uses ordinary pline(), while the final theft
     // line uses urgent_pline(). Keep the two display operations separate so
@@ -356,24 +521,32 @@ export async function steal(mtmp, state = game, env = {}) {
 
     const monkey_business = is_animal(mtmp.data);
     const seen = canSpotMonster(mtmp, state);
+    const was_punished = Boolean(state.uball);
 
     let objnambuf = '';
 
     // The following is true if successful on first of two attacks.
     if (!monnear(mtmp, state.u.ux, state.u.uy, state)) return 0;
 
-    const Monnambuf = Some_Monnam(mtmp, state);
+    let Monnambuf = Some_Monnam(mtmp, state);
 
     // C: if (go.occupation) maybe_finished_meal(FALSE);
-    // Eating occupation is not commonly active during a nymph attack;
-    // the port does not have go.occupation integrated. Skip.
+    if (state.go?.occupation)
+        await maybe_finished_meal(false, state, { ...env, message });
 
     const icnt = inv_cnt(false, state);
-    if (!icnt || (icnt === 1 && state.uskin)) {
-        // nothing_to_steal:
-        // Punished/buried ball arms are unported.
-        if (state.u.uprops?.[BLINDED]?.intrinsic
-            || state.u.uprops?.[BLINDED]?.extrinsic) {
+    const nothingToSteal = async () => {
+        // C's attached chain is removed without giving an object to the thief.
+        // remove_worn_item() records the still-unported void unpunish() call.
+        if (state.uball && !monkey_business && random(4)) {
+            await worn_item_removal(mtmp, state.uchain, state, message);
+        } else if (state.u.utrap && state.u.utraptype === TT_BURIEDBALL
+            && !monkey_business && !random(4)) {
+            await message(`${Monnambuf} takes off your unseen chain.`, state);
+            // C discards openholdingtrap()'s struct result; this ported owner
+            // is awaited for its release and display effects.
+            await openholdingtrap(state.youmonst, state);
+        } else if (heroIsBlind(state)) {
             await message(
                 'Somebody tries to rob you, but finds nothing to steal.',
                 state,
@@ -390,6 +563,25 @@ export async function steal(mtmp, state = game, env = {}) {
             );
         }
         return 1;
+    };
+    const cantTake = async (obj) => {
+        const how = ['steal', 'snatch', 'grab', 'take'];
+        const verb = how[random(how.length)];
+        const armor = (obj.owornmask & W_ARMOR) !== 0;
+        await message(
+            `${Monnambuf} tries to ${verb} `
+                + `${armor ? 'your ' : ''}`
+                + `${armor ? armor_simple_name(obj, state)
+                    : yname(obj, state)} but gives up.`,
+            state,
+        );
+        return random(Math.trunc(inv_cnt(false, state) / 5) + 2) === 0
+            ? 1 : 0;
+    };
+
+    if (!icnt || (icnt === 1 && state.uskin)) {
+        // nothing_to_steal:
+        return await nothingToSteal();
     }
 
     let otmp = null;
@@ -409,7 +601,6 @@ export async function steal(mtmp, state = game, env = {}) {
     }
 
     let retrycnt = 0;
-
     if (!goGotobj) {
         // retry:
         for (;;) {
@@ -421,19 +612,7 @@ export async function steal(mtmp, state = game, env = {}) {
             }
             if (!tmp) {
                 // nothing_to_steal
-                if (state.u.uprops?.[BLINDED]?.intrinsic
-                    || state.u.uprops?.[BLINDED]?.extrinsic) {
-                    await message(
-                        'Somebody tries to rob you, but finds nothing to steal.',
-                        state,
-                    );
-                } else {
-                    await message(
-                        `${Monnambuf} tries to rob you, but there is nothing to steal!`,
-                        state,
-                    );
-                }
-                return 1;
+                return await nothingToSteal();
             }
             tmp = random(tmp);
             for (let o = state.invent; o; o = o.nobj) {
@@ -468,34 +647,54 @@ export async function steal(mtmp, state = game, env = {}) {
                 return 0;
 
             // Boulder check: animals can't lift boulders
-            if (otmp.otyp === 616 /* BOULDER */
-                && !monkey_business /* throws_rocks unported */) {
+            if (otmp.otyp === BOULDER && !throws_rocks(mtmp.data)) {
                 if (!retrycnt++) continue;
                 // cant_take: fall through to the message below
-                throw new UnsupportedStealError('boulder steal cant_take');
+                return await cantTake(otmp);
             }
 
-            // animals can't overcome curse stickiness
+            // C's monkey_business arm checks both curse stickiness and the
+            // monster's actual carrying capacity before it reaches cant_take.
             if (monkey_business) {
-                throw new UnsupportedStealError(
-                    'monkey_business cursed/carry checks',
-                );
+                const ringOnPrimary = state.u.uhandedness === LEFT_HANDED
+                    ? state.uleft : state.uright;
+                const ringOnSecondary = state.u.uhandedness === LEFT_HANDED
+                    ? state.uright : state.uleft;
+                let stuck;
+                if (otmp === state.uball) {
+                    stuck = true;
+                } else if (otmp === state.uquiver
+                    || (otmp === state.uswapwep && !state.u.twoweap)) {
+                    stuck = false;
+                } else {
+                    stuck = Boolean((otmp.cursed && otmp.owornmask)
+                        || (otmp === ringOnPrimary && welded(state.uwep, state))
+                        || (otmp === ringOnSecondary && welded(state.uwep, state)
+                            && bimanual(state.uwep, state)));
+                }
+                if (stuck || can_carry(mtmp, otmp, {
+                    ...env,
+                    state,
+                    random: env.random ?? { rn2: random },
+                }) === 0) {
+                    return await cantTake(otmp);
+                }
             }
-
             break; // exit retry loop
         }
     }
 
-    // C: if (otmp->otyp == LEASH && otmp->leashmon) { ... o_unleash(otmp); }
-    // Leash with attached pet needs o_unleash(). Not commonly exercised.
-    if (otmp.otyp === 236 /* LEASH */ && otmp.leashmon) {
-        throw new UnsupportedStealError('leash steal o_unleash');
+    if (otmp.otyp === LEASH && otmp.leashmon) {
+        if (monkey_business && otmp.cursed) {
+            return await cantTake(otmp);
+        }
+        // apply.c o_unleash() is void; leave its source gap explicit.
+        note_unported('apply.c o_unleash');
     }
 
-    // C: was_doffing = doffing(otmp); olddelay = stop_donning(otmp);
-    // donning/doffing not ported; the hero is not putting on armor during
-    // a monster's attack turn.
-    await stop_occupation(state, env);
+    const was_doffing = doffing(otmp, state);
+    const olddelay = await stop_donning(otmp, state);
+    await stop_occupation(state, { ...env, message });
 
     let named = 0;
 
@@ -508,36 +707,71 @@ export async function steal(mtmp, state = game, env = {}) {
             await worn_item_removal(mtmp, otmp, state, message);
             break;
         case ARMOR_CLASS: {
-            // The armor-delay charming branch is complex and needs
-            // stealarm() callback, nomul, afternmv. Throw for now.
-            const armordelay = objectType(otmp, state).oc_delay ?? 0;
-            if (monkey_business) {
-                throw new UnsupportedStealError(
-                    'animal armor steal attempt',
-                );
+            let armordelay = objectType(otmp, state).oc_delay ?? 0;
+            if (olddelay > 0 && olddelay < armordelay)
+                armordelay = olddelay;
+            if (monkey_business || unresponsive(state)) {
+                if (armordelay >= 1 && !olddelay && random(10)) {
+                    return await cantTake(otmp);
+                }
+                await worn_item_removal(mtmp, otmp, state, message);
+            } else {
+                const curssv = otmp.cursed;
+                let slowly;
+                otmp.cursed = 0;
+                slowly = armordelay >= 1 || (state.multi ?? 0) < 0;
+                const armorName = armor_simple_name(otmp, state);
+                if (state.flags?.female) {
+                    const subject = !seen ? 'She' : Monnambuf;
+                    const action = curssv ? 'let her take'
+                        : !slowly ? 'hand over'
+                            : was_doffing ? 'continue removing'
+                                : 'start removing';
+                    await urgentMessage(
+                        `${subject} charms you.  You gladly ${action} `
+                            + `your ${armorName}.`,
+                        state,
+                    );
+                } else {
+                    const subject = !seen
+                        ? 'She' : Adjmonnam(mtmp, 'beautiful', state);
+                    const action = curssv ? 'helps you to take'
+                        : !slowly ? 'you take'
+                            : was_doffing ? 'you continue taking'
+                                : 'you start taking';
+                    await urgentMessage(
+                        `${subject} seduces you and ${action} off your `
+                            + `${armorName}.`,
+                        state,
+                    );
+                }
+                named++;
+                nomul(-armordelay, state);
+                state.multi_reason = 'taking off clothes';
+                state.nomovemsg = null;
+                await remove_worn_item(otmp, true, state);
+                otmp.cursed = curssv;
+                if ((state.multi ?? 0) < 0) {
+                    state.gs ??= {};
+                    state.gs.stealoid = otmp.o_id;
+                    state.gs.stealmid = mtmp.m_id;
+                    state.afternmv = stealarm;
+                    return 0;
+                }
             }
-            // Nymph armor steal with charming message and delay
-            throw new UnsupportedStealError(
-                `nymph armor steal (delay=${armordelay})`,
-            );
+            break;
         }
         default:
             // impossible
             break;
         }
         // hero's blindfold might have just been stolen
-        if (!seen && canSpotMonster(mtmp, state)) {
-            // Monnambuf would be updated, but it's a const; the only use
-            // below is for the "stole" message where 'named' controls it.
-        }
+        if (!seen && canSpotMonster(mtmp, state))
+            Monnambuf = Monnam(mtmp, state);
     } else if (otmp.owornmask) {
         // weapon or ball&chain
-        if (otmp === state.uball) {
-            throw new UnsupportedStealError(
-                'steal uball/uchain removal',
-            );
-        }
-        await worn_item_removal(mtmp, otmp, state, message);
+        const item = otmp === state.uball ? state.uchain : otmp;
+        await worn_item_removal(mtmp, item, state, message);
         // if the weapon was also wielded after uchain processing
         if (otmp.owornmask & W_WEAPONS)
             await remove_worn_item(otmp, false, state);
@@ -547,7 +781,11 @@ export async function steal(mtmp, state = game, env = {}) {
     objnambuf = yname(otmp, state);
 
     // set mavenge so knights won't suffer alignment penalty
-    mtmp.mavenge = 1;
+    const conflict = state.u.uprops?.[CONFLICT];
+    const punished = Boolean(state.uball);
+    if (!(conflict?.intrinsic || conflict?.extrinsic)
+        && !(was_punished && !punished))
+        mtmp.mavenge = 1;
 
     if (otmp.unpaid)
         subfrombill(otmp, shop_keeper(state.u.ushops[0], state), state, env);
@@ -561,15 +799,23 @@ export async function steal(mtmp, state = game, env = {}) {
     await urgentMessage(
         `${named ? 'She' : Monnambuf} stole ${donameFresh(otmp, state)}.`, state,
     );
-    await encumber_msg(state);
+    await encumber_msg(state, { message });
 
     // Petrification check for stolen corpses
-    // touch_petrifies not commonly exercised; skip for now.
+    const couldPetrify = otmp.otyp === CORPSE
+        && touch_petrifies(state.mons?.[otmp.corpsenm]);
 
     otmp.how_lost = LOST_STOLEN;
     mpickobj(mtmp, otmp, { state });
 
-    return (state.gm?.multi ?? 0) < 0 ? 0 : 1;
+    if (couldPetrify && !(mtmp.misc_worn_check & W_ARMG)) {
+        // mon.c minstapetrify() is void and remains unported; keep the call
+        // boundary explicit while preserving steal()'s -1 result.
+        note_unported('mon.c minstapetrify');
+        return -1;
+    }
+
+    return (state.multi ?? 0) < 0 ? 0 : 1;
 }
 
 function dropEnv(rawEnv = {}) {
