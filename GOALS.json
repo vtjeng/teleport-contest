@@ -78005,7 +78005,7 @@
     {
       "id": "port-read-doread-cursed-teleport-synthetic-v5-20260926",
       "kind": "file-port",
-      "status": "open",
+      "status": "closed",
       "summary": "Port read.c doread and required seffects dispatch for cursed teleport scrolls",
       "cFile": "read.c",
       "sessions": [
@@ -78019,8 +78019,11 @@
         "screens": 11405,
         "rng": 792838
       },
-      "closedAt": null,
-      "delivered": null,
+      "closedAt": "298151a898ba90c8589002ee83317077061a1f08",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
       "functions": [
         {
           "name": "doread",
@@ -78322,6 +78325,12 @@
             ]
           }
         ]
+      },
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "77119c805481a00f4425a5f2b903f5677a51e28c",
+        "screens": 11405,
+        "rng": 792838
       }
     }
   ]
