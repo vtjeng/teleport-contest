@@ -87267,7 +87267,7 @@
     {
       "id": "port-dig-occupation-synthetic-v6-20260926",
       "kind": "file-port",
-      "status": "open",
+      "status": "parked",
       "summary": "Port dig.c dig occupation with stairs refusal and floor pit creation",
       "cFile": "dig.c",
       "sessions": [
@@ -87741,7 +87741,17 @@
             }
           }
         }
-      ]
+      ],
+      "progressBeforePark": {
+        "screens": 0,
+        "rng": 0
+      },
+      "parkedStanding": {
+        "sha": "ddc331f38f1f2b4e3a998f40005d0ac84f984442",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "parkedReason": "B19 matches the downward stairs and independent pit paths, but dig.c:dig still lacks lateral carving, triggered fumbling effects, caught bear trap, altar wrath, and horizontal terrain branches; digactualhole HOLE descent and teleport_pet leash caller also lack matching production evidence."
     },
     {
       "id": "div-apply-eyewear-default-synthetic-v6-20260926",
