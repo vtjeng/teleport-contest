@@ -1,0 +1,130 @@
+{
+  "session": "synthetic/v6/v6-add2-getpos-help",
+  "corpus": "synthetic",
+  "batch": "v6",
+  "caseId": "v6-add2-getpos-help",
+  "manifestPath": "challenges/manifests/v6.json",
+  "manifestSha256": "7523b91e823f4e3906c9acdc9a3d80f8469c27c2caab8fc8fbd6967dbfdcab5f",
+  "recordingSha256": "4c5b9cc1c771ac5cec9cac9b63f2bbb3851d49153020b1b60fdd379f01e314b2",
+  "evaluationPath": "challenges/evaluations/20260926132731-v6.json",
+  "evaluationCommit": "d0a8041f88dd37cbf631877464c06cf985998274",
+  "remainingScreens": 4,
+  "recordedSteps": 7,
+  "status": "complete",
+  "commit": "d0a8041f88dd37cbf631877464c06cf985998274",
+  "mismatch": {
+    "corpus": "synthetic",
+    "batch": "v6",
+    "caseId": "v6-add2-getpos-help",
+    "session": "synthetic/v6/v6-add2-getpos-help",
+    "manifestPath": "challenges/manifests/v6.json",
+    "manifestSha256": "7523b91e823f4e3906c9acdc9a3d80f8469c27c2caab8fc8fbd6967dbfdcab5f",
+    "recording": "challenges/cases/v6/v6-add2-getpos-help.session.json",
+    "recordingPath": "challenges/cases/v6/v6-add2-getpos-help.session.json",
+    "recordingSha256": "4c5b9cc1c771ac5cec9cac9b63f2bbb3851d49153020b1b60fdd379f01e314b2",
+    "recipe": "challenges/cases/v6/v6-add2-getpos-help.recipe.session.json",
+    "recipeSha256": "90258e631556719f8894112c1d5a96a144591610521d65b4f9be0885c025b92d",
+    "replayInputSha256": "a3ac3b6872f8e89451d29bdbf73b5215af57c013d215edeaba8f740cc0c5fc4a",
+    "evaluationPath": "challenges/evaluations/20260926132731-v6.json",
+    "evaluationCommit": "d0a8041f88dd37cbf631877464c06cf985998274",
+    "evaluationArtifact": "challenges/evaluations/20260926132731-v6.json",
+    "evaluationUtc": "2026-09-26T13:27:48.505Z",
+    "remainingScreens": 4,
+    "recordedSteps": 7,
+    "previousScreensMatched": 3,
+    "regression": false,
+    "passed": false,
+    "error": null,
+    "metrics": {
+      "screens": {
+        "matched": 3,
+        "total": 7
+      },
+      "rng": {
+        "matched": 2179,
+        "total": 2179
+      },
+      "cursors": {
+        "matched": 3,
+        "total": 7
+      }
+    },
+    "firstMismatch": {
+      "screen": {
+        "index": 3,
+        "location": {
+          "segmentIndex": 0,
+          "stepIndex": 3,
+          "key": "y"
+        },
+        "kind": "ch",
+        "row": 0,
+        "column": 0,
+        "cCell": {
+          "ch": "P",
+          "color": 8,
+          "attr": 0,
+          "decgfx": 0
+        },
+        "jsCell": {
+          "ch": " ",
+          "color": 8,
+          "attr": 0,
+          "decgfx": 0
+        }
+      },
+      "rng": null,
+      "cursor": {
+        "index": 3,
+        "location": {
+          "segmentIndex": 0,
+          "stepIndex": 3,
+          "key": "y"
+        },
+        "cCursor": [
+          64,
+          0,
+          1
+        ],
+        "jsCursor": [
+          46,
+          14,
+          1
+        ]
+      }
+    },
+    "step": 3,
+    "kind": "screen",
+    "sourceFile": null,
+    "function": null,
+    "message": null,
+    "cFile": null,
+    "luaFile": null,
+    "line": null
+  },
+  "summary": "With `lootabc` false, C gives the ordinary `/` whatis menu's map item a hidden `y` accelerator, so pressing `y` selects `/` and enters cursor-based map lookup. JS supplies only the visible `/` selector, so `y` leaves the selection menu active; the first divergence is in `do_look()` menu construction, before `getpos()` help is reached.",
+  "source": {
+    "file": "pager.c",
+    "branch": "In ordinary `dowhatis()` mode when `flags.lootabc` is false, `do_look()` registers hidden accelerator `y` for the map item; selecting it takes the same screen-coordinate branch as `/`.",
+    "functions": [
+      "do_look"
+    ],
+    "callers": [
+      "C `cmd.c` binds `/` to `dowhatis()`, and `pager.c:dowhatis()` calls `do_look(0, NULL)`.",
+      "JS `cmd.js:runWhatisCommand()` calls `pager.js:dowhatis()`, which calls `do_look(0, null, state)`."
+    ],
+    "dependencies": [
+      "C `add_menu()` records the item group accelerator and `select_menu(PICK_ONE)` returns the chosen item's `/` identifier for the hidden `y` key.",
+      "JS `pager.js:whatisMenuItems()` omits `groupSelector`; `tty_menu.js:pickOneGroupChoices()` and `selectOneTtyMenu()` already resolve a unique `groupSelector` to that item's value.",
+      "After the `y`/`/` choice, C `do_look()` prompts and calls `getpos()`; this downstream path is not entered by JS at the first mismatch."
+    ]
+  },
+  "goalKind": "divergence-fix",
+  "evidence": [
+    "The saved evaluation `challenges/evaluations/20260926132731-v6.json` records 3/7 screens matched, 2179/2179 RNG calls matched, and 3/7 cursors matched. The queued first mismatch at segment 0 step 3 (`y`) has C row 0 column 0 `P` versus JS blank and C cursor [64,0,1] versus JS [46,14,1].",
+    "The recording `challenges/cases/v6/v6-add2-getpos-help.session.json` inputs are ` /y? .`; step 2 opens the `What do you want to look at:` menu and step 3 presses `y`.",
+    "C `nethack-c/upstream/src/pager.c:1714-1735` documents the legacy `y`/`n` accelerators and passes `y` for the map item when `lootabc` is false; lines 1811-1822 route both `y` and `/` into screen lookup, and lines 1902-1911 display the location prompt and call `getpos()`.",
+    "JS `js/pager.js:327-340` builds the visible menu selectors without a hidden group selector; `do_look()` passes those items to `select_menu()` at lines 1824-1830 and only accepts `/` for the cursor path at lines 1930-1944. The step 3 failure is before the later `?`/help input handled by `getpos()`.",
+    "JS `js/tty_menu.js:1064-1077, 1207-1214` already maps a unique `groupSelector` to its item's `value`; the missing compatibility data belongs in the `pager.c`/`js/pager.js` `do_look()` menu source unit, not in `getpos.c`."
+  ]
+}
