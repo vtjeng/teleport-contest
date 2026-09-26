@@ -87267,7 +87267,7 @@
     {
       "id": "port-dig-occupation-synthetic-v6-20260926",
       "kind": "file-port",
-      "status": "queued",
+      "status": "parked",
       "summary": "Port dig.c dig occupation with stairs refusal and floor pit creation",
       "cFile": "dig.c",
       "sessions": [
@@ -87276,8 +87276,12 @@
       ],
       "selectionReason": "The fresh queue has two related 2-screen Archeologist down-dig cases with complete investigations at investigations/synthetic/v6/archeologist-down-dig-final.json and investigations/synthetic/v6/archeologist-down-dig-floor.json. Higher-ranked crystal detection is reserved by A14; the preceding healer glove case is queued for C19. Both Archeologist cases share the same first missing dig.c dig occupation and are the next eligible independent source family.",
       "detail": "C apply.c doapply -> dig.c use_pick_axe2 installs dig as an occupation; allmain.c invokes it. The stairs case consumes dig_check and emits digcheck_fail_message; floor digging consumes dighole return and reaches digactualhole pit state. Implement whole dig and required source callees, preserve call and RNG order, and record independent C entry evidence. Caller edits to apply.js and allmain.js require coordination with A14 or existing generic occupation wiring.",
-      "openedAt": null,
-      "openStanding": null,
+      "openedAt": "a2ef6a4021e6699946e035dd294393f1e6ba282d",
+      "openStanding": {
+        "sha": "5f40b6037988123b4df4343160550886a3e929c9",
+        "screens": 11405,
+        "rng": 792838
+      },
       "closedAt": null,
       "delivered": null,
       "functions": [
@@ -87306,12 +87310,453 @@
           "evaluationPath": "challenges/evaluations/20260926193350-v6.json",
           "evaluationCommit": "7569737cbf0690c981232e6a48d59efadb0aa198"
         }
-      }
+      },
+      "activeStanding": {
+        "sha": "5f40b6037988123b4df4343160550886a3e929c9",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v6",
+          "caseId": "archeologist-down-dig-final",
+          "session": "synthetic/v6/archeologist-down-dig-final",
+          "manifestPath": "challenges/manifests/v6.json",
+          "manifestSha256": "7523b91e823f4e3906c9acdc9a3d80f8469c27c2caab8fc8fbd6967dbfdcab5f",
+          "recording": "challenges/cases/v6/archeologist-down-dig-final.session.json",
+          "recordingPath": "challenges/cases/v6/archeologist-down-dig-final.session.json",
+          "recordingSha256": "4534979fef17fa8fa9e66b98f1f3a2d6f5b15c94eb1fa38de3750d06c962b612",
+          "recipe": "challenges/cases/v6/archeologist-down-dig-final.recipe.session.json",
+          "recipeSha256": "78e2e5f2ccddd501708083bc4baa93652332afa3bff0ff5284f83c0f78777720",
+          "replayInputSha256": "44ba67218c0db5c2d950077a199fd1198317a5673102d9a291ab65b8033f97e9",
+          "evaluationPath": "challenges/evaluations/20260926203335-v6.json",
+          "evaluationCommit": "5f40b6037988123b4df4343160550886a3e929c9",
+          "evaluationArtifact": "challenges/evaluations/20260926203335-v6.json",
+          "evaluationUtc": "2026-09-26T20:33:52.814Z",
+          "remainingScreens": 2,
+          "recordedSteps": 7,
+          "previousScreensMatched": 5,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 5,
+              "total": 7
+            },
+            "rng": {
+              "matched": 6000,
+              "total": 6014
+            },
+            "cursors": {
+              "matched": 7,
+              "total": 7
+            }
+          },
+          "firstMismatch": {
+            "screen": {
+              "index": 5,
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 5,
+                "key": ">"
+              },
+              "kind": "ch",
+              "row": 0,
+              "column": 29,
+              "cCell": {
+                "ch": "T",
+                "color": 8,
+                "attr": 0,
+                "decgfx": 0
+              },
+              "jsCell": {
+                "ch": " ",
+                "color": 8,
+                "attr": 0,
+                "decgfx": 0
+              }
+            },
+            "rng": {
+              "index": 6000,
+              "cEntry": "rn2(5)=3",
+              "cCaller": "distfleeck(monmove.c:538)",
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 6,
+                "key": "."
+              },
+              "stepIndex": 6
+            },
+            "cursor": null
+          },
+          "step": 5,
+          "kind": "screen",
+          "sourceFile": null,
+          "function": null,
+          "message": null,
+          "cFile": null,
+          "luaFile": null,
+          "line": null,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v6/archeologist-down-dig-final.json",
+            "result": {
+              "session": "synthetic/v6/archeologist-down-dig-final",
+              "corpus": "synthetic",
+              "batch": "v6",
+              "caseId": "archeologist-down-dig-final",
+              "manifestPath": "challenges/manifests/v6.json",
+              "manifestSha256": "7523b91e823f4e3906c9acdc9a3d80f8469c27c2caab8fc8fbd6967dbfdcab5f",
+              "recordingSha256": "4534979fef17fa8fa9e66b98f1f3a2d6f5b15c94eb1fa38de3750d06c962b612",
+              "evaluationPath": "challenges/evaluations/20260926132731-v6.json",
+              "evaluationCommit": "d0a8041f88dd37cbf631877464c06cf985998274",
+              "remainingScreens": 2,
+              "recordedSteps": 7,
+              "status": "complete",
+              "commit": "d0a8041f88dd37cbf631877464c06cf985998274",
+              "mismatch": {
+                "corpus": "synthetic",
+                "batch": "v6",
+                "caseId": "archeologist-down-dig-final",
+                "session": "synthetic/v6/archeologist-down-dig-final",
+                "manifestPath": "challenges/manifests/v6.json",
+                "manifestSha256": "7523b91e823f4e3906c9acdc9a3d80f8469c27c2caab8fc8fbd6967dbfdcab5f",
+                "recording": "challenges/cases/v6/archeologist-down-dig-final.session.json",
+                "recordingPath": "challenges/cases/v6/archeologist-down-dig-final.session.json",
+                "recordingSha256": "4534979fef17fa8fa9e66b98f1f3a2d6f5b15c94eb1fa38de3750d06c962b612",
+                "recipe": "challenges/cases/v6/archeologist-down-dig-final.recipe.session.json",
+                "recipeSha256": "78e2e5f2ccddd501708083bc4baa93652332afa3bff0ff5284f83c0f78777720",
+                "replayInputSha256": "a3ac3b6872f8e89451d29bdbf73b5215af57c013d215edeaba8f740cc0c5fc4a",
+                "evaluationPath": "challenges/evaluations/20260926132731-v6.json",
+                "evaluationCommit": "d0a8041f88dd37cbf631877464c06cf985998274",
+                "evaluationArtifact": "challenges/evaluations/20260926132731-v6.json",
+                "evaluationUtc": "2026-09-26T13:27:48.505Z",
+                "remainingScreens": 2,
+                "recordedSteps": 7,
+                "previousScreensMatched": 5,
+                "regression": false,
+                "passed": false,
+                "error": null,
+                "metrics": {
+                  "screens": {
+                    "matched": 5,
+                    "total": 7
+                  },
+                  "rng": {
+                    "matched": 6000,
+                    "total": 6014
+                  },
+                  "cursors": {
+                    "matched": 7,
+                    "total": 7
+                  }
+                },
+                "firstMismatch": {
+                  "screen": {
+                    "index": 5,
+                    "location": {
+                      "segmentIndex": 0,
+                      "stepIndex": 5,
+                      "key": ">"
+                    },
+                    "kind": "ch",
+                    "row": 0,
+                    "column": 29,
+                    "cCell": {
+                      "ch": "T",
+                      "color": 8,
+                      "attr": 0,
+                      "decgfx": 0
+                    },
+                    "jsCell": {
+                      "ch": " ",
+                      "color": 8,
+                      "attr": 0,
+                      "decgfx": 0
+                    }
+                  },
+                  "rng": {
+                    "index": 6000,
+                    "cEntry": "rn2(5)=3",
+                    "cCaller": "distfleeck(monmove.c:538)",
+                    "location": {
+                      "segmentIndex": 0,
+                      "stepIndex": 6,
+                      "key": "."
+                    },
+                    "stepIndex": 6
+                  },
+                  "cursor": null
+                },
+                "step": 5,
+                "kind": "screen",
+                "sourceFile": null,
+                "function": null,
+                "message": null,
+                "cFile": null,
+                "luaFile": null,
+                "line": null
+              },
+              "summary": "The first mismatch is the missing downward-dig occupation callback at `dig.c:dig()`. On stairs, `dig()` calls `dig_check()`, receives `DIGCHECK_FAIL_ONSTAIRS`, and prints the failure through `digcheck_fail_message()`; JS stops after the initial downward-start message because `use_pick_axe2()` records `note_unported('dig.c dig')` instead of installing/running the occupation.",
+              "source": {
+                "file": "dig.c",
+                "branch": "When `svc.context.digging.down` is set and the hero stands on stairs, `dig()` calls `dig_check(BY_YOU, u.ux, u.uy)`; the stairs branch returns `DIGCHECK_FAIL_ONSTAIRS`, the failure-message helper prints that stairs are too hard to dig in, and `dig()` returns 0 to end the occupation.",
+                "functions": [
+                  "dig"
+                ],
+                "callers": [
+                  "C `apply.c:doapply()` selects the pick-axe arm and calls `use_pick_axe()`; `dig.c:use_pick_axe2()` sets `dig()` as the occupation, which `allmain.c:moveloop_core()` invokes.",
+                  "JS `cmd.js`'s apply-command dispatcher calls `apply.js:doapply()`; its pick-axe arm calls `dig.js:use_pick_axe()` and `use_pick_axe2()`, where the missing occupation is recorded as `note_unported('dig.c dig')`."
+                ],
+                "dependencies": [
+                  "`dig_check()` returns a value consumed by `dig()`; its `On_stairs()` branch returns `DIGCHECK_FAIL_ONSTAIRS`.",
+                  "`digcheck_fail_message()` is a void output callee of `dig()`; its `DIGCHECK_FAIL_ONSTAIRS` arm emits the missing message. Both helpers belong in the source task that ports `dig()` for this case.",
+                  "C `use_pick_axe2()` installs `dig()` with `set_occupation()`, and `allmain.c` invokes the occupation and clears it when the callback returns 0."
+                ]
+              },
+              "goalKind": "divergence-fix",
+              "evidence": [
+                "The saved evaluation `challenges/evaluations/20260926132731-v6.json` reports 5/7 screens matched, 6000/6014 RNG calls matched, and 7/7 cursors matched. The queue's first mismatch is segment 0 step 5 (`>`), row 0 column 29: C has `T`, JS is blank; a later RNG mismatch is reported on step 6.",
+                "The recording `challenges/cases/v6/archeologist-down-dig-final.session.json` inputs are `ae  >.`. On step 5 C displays `You start digging downward. The stairs are too hard to dig in.`; the missing text begins at the queued `T` cell.",
+                "C `nethack-c/upstream/src/dig.c:317-322` calls `dig_check()` and the failure-message helper from the downward occupation; `dig.c:211-216,255-279` identifies stairs and emits `The stairs are too hard to dig in.`. The occupation returns 0 at that branch.",
+                "C `dig.c:1341-1357` sets the down-dig state and installs `dig()` as occupation; `allmain.c:485-500` executes it. JS `js/dig.js:553-575` records the same initial state and message but calls `note_unported('dig.c dig')`; `is_digging()` at `js/dig.js:185-191` confirms the occupation callback is absent.",
+                "The companion `archeologist-down-dig-floor` case reaches the same unported `dig()` occupation but its non-stair path goes on to pit creation, so both findings can be covered by one `dig()` source task with different dependent branches."
+              ]
+            }
+          }
+        },
+        {
+          "corpus": "synthetic",
+          "batch": "v6",
+          "caseId": "archeologist-down-dig-floor",
+          "session": "synthetic/v6/archeologist-down-dig-floor",
+          "manifestPath": "challenges/manifests/v6.json",
+          "manifestSha256": "7523b91e823f4e3906c9acdc9a3d80f8469c27c2caab8fc8fbd6967dbfdcab5f",
+          "recording": "challenges/cases/v6/archeologist-down-dig-floor.session.json",
+          "recordingPath": "challenges/cases/v6/archeologist-down-dig-floor.session.json",
+          "recordingSha256": "8ae44f290808dea580c783add4b5cc12e99a94f4c998441b329325406fa9e9a9",
+          "recipe": "challenges/cases/v6/archeologist-down-dig-floor.recipe.session.json",
+          "recipeSha256": "7a44624310a7907c493bc6e6dd893aaf141942878dc86db440ae6c2972c69742",
+          "replayInputSha256": "44ba67218c0db5c2d950077a199fd1198317a5673102d9a291ab65b8033f97e9",
+          "evaluationPath": "challenges/evaluations/20260926203335-v6.json",
+          "evaluationCommit": "5f40b6037988123b4df4343160550886a3e929c9",
+          "evaluationArtifact": "challenges/evaluations/20260926203335-v6.json",
+          "evaluationUtc": "2026-09-26T20:33:52.814Z",
+          "remainingScreens": 2,
+          "recordedSteps": 8,
+          "previousScreensMatched": 6,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 6,
+              "total": 8
+            },
+            "rng": {
+              "matched": 6030,
+              "total": 6188
+            },
+            "cursors": {
+              "matched": 8,
+              "total": 8
+            }
+          },
+          "firstMismatch": {
+            "screen": {
+              "index": 6,
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 6,
+                "key": ">"
+              },
+              "kind": "ch",
+              "row": 0,
+              "column": 29,
+              "cCell": {
+                "ch": "Y",
+                "color": 8,
+                "attr": 0,
+                "decgfx": 0
+              },
+              "jsCell": {
+                "ch": " ",
+                "color": 8,
+                "attr": 0,
+                "decgfx": 0
+              }
+            },
+            "rng": {
+              "index": 6027,
+              "cEntry": "rn2(5)=1",
+              "cCaller": "distfleeck(monmove.c:538)",
+              "jsEntry": "rn2(4)=1",
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 6,
+                "key": ">"
+              },
+              "stepIndex": 6
+            },
+            "cursor": null
+          },
+          "step": 6,
+          "kind": "rng",
+          "sourceFile": "monmove.c",
+          "function": "distfleeck",
+          "message": null,
+          "cFile": "monmove.c",
+          "luaFile": null,
+          "line": 538,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v6/archeologist-down-dig-floor.json",
+            "result": {
+              "session": "synthetic/v6/archeologist-down-dig-floor",
+              "corpus": "synthetic",
+              "batch": "v6",
+              "caseId": "archeologist-down-dig-floor",
+              "manifestPath": "challenges/manifests/v6.json",
+              "manifestSha256": "7523b91e823f4e3906c9acdc9a3d80f8469c27c2caab8fc8fbd6967dbfdcab5f",
+              "recordingSha256": "8ae44f290808dea580c783add4b5cc12e99a94f4c998441b329325406fa9e9a9",
+              "evaluationPath": "challenges/evaluations/20260926132731-v6.json",
+              "evaluationCommit": "d0a8041f88dd37cbf631877464c06cf985998274",
+              "remainingScreens": 2,
+              "recordedSteps": 8,
+              "status": "complete",
+              "commit": "d0a8041f88dd37cbf631877464c06cf985998274",
+              "mismatch": {
+                "corpus": "synthetic",
+                "batch": "v6",
+                "caseId": "archeologist-down-dig-floor",
+                "session": "synthetic/v6/archeologist-down-dig-floor",
+                "manifestPath": "challenges/manifests/v6.json",
+                "manifestSha256": "7523b91e823f4e3906c9acdc9a3d80f8469c27c2caab8fc8fbd6967dbfdcab5f",
+                "recording": "challenges/cases/v6/archeologist-down-dig-floor.session.json",
+                "recordingPath": "challenges/cases/v6/archeologist-down-dig-floor.session.json",
+                "recordingSha256": "8ae44f290808dea580c783add4b5cc12e99a94f4c998441b329325406fa9e9a9",
+                "recipe": "challenges/cases/v6/archeologist-down-dig-floor.recipe.session.json",
+                "recipeSha256": "7a44624310a7907c493bc6e6dd893aaf141942878dc86db440ae6c2972c69742",
+                "replayInputSha256": "a3ac3b6872f8e89451d29bdbf73b5215af57c013d215edeaba8f740cc0c5fc4a",
+                "evaluationPath": "challenges/evaluations/20260926132731-v6.json",
+                "evaluationCommit": "d0a8041f88dd37cbf631877464c06cf985998274",
+                "evaluationArtifact": "challenges/evaluations/20260926132731-v6.json",
+                "evaluationUtc": "2026-09-26T13:27:48.505Z",
+                "remainingScreens": 2,
+                "recordedSteps": 8,
+                "previousScreensMatched": 6,
+                "regression": false,
+                "passed": false,
+                "error": null,
+                "metrics": {
+                  "screens": {
+                    "matched": 6,
+                    "total": 8
+                  },
+                  "rng": {
+                    "matched": 6030,
+                    "total": 6188
+                  },
+                  "cursors": {
+                    "matched": 8,
+                    "total": 8
+                  }
+                },
+                "firstMismatch": {
+                  "screen": {
+                    "index": 6,
+                    "location": {
+                      "segmentIndex": 0,
+                      "stepIndex": 6,
+                      "key": ">"
+                    },
+                    "kind": "ch",
+                    "row": 0,
+                    "column": 29,
+                    "cCell": {
+                      "ch": "Y",
+                      "color": 8,
+                      "attr": 0,
+                      "decgfx": 0
+                    },
+                    "jsCell": {
+                      "ch": " ",
+                      "color": 8,
+                      "attr": 0,
+                      "decgfx": 0
+                    }
+                  },
+                  "rng": {
+                    "index": 6027,
+                    "cEntry": "rn2(5)=1",
+                    "cCaller": "distfleeck(monmove.c:538)",
+                    "jsEntry": "rn2(4)=1",
+                    "location": {
+                      "segmentIndex": 0,
+                      "stepIndex": 6,
+                      "key": ">"
+                    },
+                    "stepIndex": 6
+                  },
+                  "cursor": null
+                },
+                "step": 6,
+                "kind": "rng",
+                "sourceFile": "monmove.c",
+                "function": "distfleeck",
+                "message": null,
+                "cFile": "monmove.c",
+                "luaFile": null,
+                "line": 538
+              },
+              "summary": "The first mismatch is the same missing `dig.c:dig()` downward occupation callback as the companion case. On ordinary floor, the callback's effort branch reaches `dighole(TRUE, FALSE, NULL)`, which creates a pit through `digactualhole()`; JS records the gap instead of running that callback, so the pit and `You dig a pit in the floor.` output are absent.",
+              "source": {
+                "file": "dig.c",
+                "branch": "When downward digging starts on ordinary floor and the occupation's accumulated effort reaches the pit-only interval (over 50 and not over 250), `dig()` calls `dighole(TRUE, FALSE, NULL)`; it consumes that Boolean result to mark the digging level complete. `dighole()` reaches `digactualhole(..., PIT)`, which mutates the floor and emits the pit message.",
+                "functions": [
+                  "dig"
+                ],
+                "callers": [
+                  "C `apply.c:doapply()` selects the pick-axe arm and calls `use_pick_axe()`; `dig.c:use_pick_axe2()` sets `dig()` as the occupation, which `allmain.c:moveloop_core()` invokes.",
+                  "JS `cmd.js`'s apply-command dispatcher calls `apply.js:doapply()`; its pick-axe arm calls `dig.js:use_pick_axe()` and `use_pick_axe2()`, where the missing occupation is recorded as `note_unported('dig.c dig')`."
+                ],
+                "dependencies": [
+                  "The floor path shares the missing `dig()` occupation owner with `archeologist-down-dig-final`; a single source task can cover both case branches.",
+                  "`dig_check()`'s result is consumed by `dig()` to distinguish blocked, pit-only, and hole paths.",
+                  "`dighole()` returns a Boolean consumed by `dig()`; its pit-only path calls `digactualhole()` for the trap, terrain, screen, and post-trap effects. `fillholetyp()` is another consumed dependency of `dighole()` and already has a JS source counterpart.",
+                  "C `use_pick_axe2()` installs the occupation; `allmain.c` drives the repeated `dig()` callback. JS `use_pick_axe2()` currently records the unported callback and does not execute the occupation."
+                ]
+              },
+              "goalKind": "divergence-fix",
+              "evidence": [
+                "The saved evaluation `challenges/evaluations/20260926132731-v6.json` reports 6/8 screens matched, 6030/6188 RNG calls matched, and 8/8 cursors matched. The queue's first mismatch is segment 0 step 6 (`>`), row 0 column 29: C has `Y`, JS is blank; the queue also notes an RNG divergence during that same action at `monmove.c:distfleeck()`.",
+                "The recording `challenges/cases/v6/archeologist-down-dig-floor.session.json` inputs are `lae  >.`. At step 6, C displays `You start digging downward. You dig a pit in the floor.`; the queued `Y` cell begins the second sentence. Step 7 is the later `.` input.",
+                "C `nethack-c/upstream/src/dig.c:365-437` advances effort for the down-dig occupation and, in the recorded pit branch, calls `dighole(TRUE, FALSE, NULL)`; that call's result is consumed to end digging and mark the level sentinel.",
+                "C `dig.c:991-1023` sends the pit-only branch to `digactualhole(..., PIT)` and returns success; `digactualhole()` at `dig.c:701-707` emits `You dig a pit in the floor.` while creating the pit and updating the map.",
+                "C `dig.c:1341-1357` starts the occupation; `allmain.c:485-500` invokes it. JS `js/dig.js:553-575` initializes down-dig state but ends in `note_unported('dig.c dig')`, so neither the effort/pit branch nor its map change runs. The RNG mismatch reported in `monmove.c` is downstream of this missing occupation behavior, not the owner of the first screen difference.",
+                "The companion `archeologist-down-dig-final` case reaches the same missing callback but exits through the stairs failure branch; both cases share `dig()` as the source owner and can share a source task, while this case additionally requires the return-consuming `dighole()` path."
+              ]
+            }
+          }
+        }
+      ],
+      "progressBeforePark": {
+        "screens": 0,
+        "rng": 0
+      },
+      "parkedStanding": {
+        "sha": "ddc331f38f1f2b4e3a998f40005d0ac84f984442",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "parkedReason": "B19 matches the downward stairs and independent pit paths, but dig.c:dig still lacks lateral carving, triggered fumbling effects, caught bear trap, altar wrath, and horizontal terrain branches; digactualhole HOLE descent and teleport_pet leash caller also lack matching production evidence."
     },
     {
       "id": "div-apply-eyewear-default-synthetic-v6-20260926",
       "kind": "divergence-fix",
-      "status": "queued",
+      "status": "closed",
       "summary": "Port doapply eyewear selection and generic unsupported-item refusal from C",
       "cFile": "apply.c",
       "sessions": [
@@ -87320,10 +87765,17 @@
       ],
       "selectionReason": "C19 owns the higher-ranked healer armoroff case, B19 owns both dig cases and the trapdoor teleport dependency; these three v6 apply cases share doapply as the first unreserved source owner at steps 17 and 20. Group the two blindfold cases and adjacent generic default behavior in one source fix.",
       "detail": "C apply.c:doapply BLINDFOLD/LENSES arm calls do_wear.c:Blindf_on or Blindf_off after getobj; JS rejects object type 233. The generic default checks pole, pick and axe, then prints Sorry, I do not know how to use that and returns ECMD_FAIL for object type 79; JS currently refuses. Port source branches and their sibling conditions, preserve existing apply matches, and verify independent C recordings.",
-      "openedAt": null,
-      "openStanding": null,
-      "closedAt": null,
-      "delivered": null,
+      "openedAt": "d8f7aed6708771cf4f208e284d678da897c8fb5b",
+      "openStanding": {
+        "sha": "e0388bc15d52e074480a86fa725fce059147f671",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "closedAt": "382fb9f460e42198688105ebc81fd2788be20686",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
       "function": "doapply",
       "session": "synthetic/v6/wizard-grease-hands-good",
       "step": 17,
@@ -87340,21 +87792,520 @@
           "evaluationPath": "challenges/evaluations/20260926201323-v6.json",
           "evaluationCommit": "580b107974301f1a5c70b1698fd8ccf169c69c57"
         }
+      },
+      "activeStanding": {
+        "sha": "e0388bc15d52e074480a86fa725fce059147f671",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v6",
+          "caseId": "wizard-grease-hands-good",
+          "session": "synthetic/v6/wizard-grease-hands-good",
+          "manifestPath": "challenges/manifests/v6.json",
+          "manifestSha256": "7523b91e823f4e3906c9acdc9a3d80f8469c27c2caab8fc8fbd6967dbfdcab5f",
+          "recording": "challenges/cases/v6/wizard-grease-hands-good.session.json",
+          "recordingPath": "challenges/cases/v6/wizard-grease-hands-good.session.json",
+          "recordingSha256": "528226e80ce3b4852b1606a834fd132448c6d19be05f9b3e387cc81e5ca9f192",
+          "recipe": "challenges/cases/v6/wizard-grease-hands-good.recipe.session.json",
+          "recipeSha256": "74b2bab42a87bae9bd7efe6394fcefc09dbafdc6a5bc9ecc91288387124fcee8",
+          "replayInputSha256": "6660c2e31d6e20043aac57ddf46afd36a5e4e4fcb5c59e7a548fd3ab61c5137d",
+          "evaluationPath": "challenges/evaluations/20260926213954-v6.json",
+          "evaluationCommit": "5006247e43a2e93c85f944ecaac4f961cd237826",
+          "evaluationArtifact": "challenges/evaluations/20260926213954-v6.json",
+          "evaluationUtc": "2026-09-26T21:40:12.201Z",
+          "remainingScreens": 2,
+          "recordedSteps": 19,
+          "previousScreensMatched": 17,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 17,
+              "total": 19
+            },
+            "rng": {
+              "matched": 2366,
+              "total": 2366
+            },
+            "cursors": {
+              "matched": 19,
+              "total": 19
+            }
+          },
+          "firstMismatch": {
+            "screen": {
+              "index": 17,
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 17,
+                "key": "o"
+              },
+              "kind": "ch",
+              "row": 0,
+              "column": 0,
+              "cCell": {
+                "ch": "Y",
+                "color": 8,
+                "attr": 0,
+                "decgfx": 0
+              },
+              "jsCell": {
+                "ch": "W",
+                "color": 8,
+                "attr": 0,
+                "decgfx": 0
+              }
+            },
+            "rng": null,
+            "cursor": null
+          },
+          "step": 17,
+          "kind": "screen",
+          "sourceFile": null,
+          "function": null,
+          "message": null,
+          "cFile": null,
+          "luaFile": null,
+          "line": null,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v6/wizard-grease-hands-good.json",
+            "result": {
+              "session": "synthetic/v6/wizard-grease-hands-good",
+              "corpus": "synthetic",
+              "batch": "v6",
+              "caseId": "wizard-grease-hands-good",
+              "manifestPath": "challenges/manifests/v6.json",
+              "manifestSha256": "7523b91e823f4e3906c9acdc9a3d80f8469c27c2caab8fc8fbd6967dbfdcab5f",
+              "recordingSha256": "528226e80ce3b4852b1606a834fd132448c6d19be05f9b3e387cc81e5ca9f192",
+              "evaluationPath": "challenges/evaluations/20260926132731-v6.json",
+              "evaluationCommit": "d0a8041f88dd37cbf631877464c06cf985998274",
+              "remainingScreens": 2,
+              "recordedSteps": 19,
+              "status": "complete",
+              "commit": "d0a8041f88dd37cbf631877464c06cf985998274",
+              "mismatch": {
+                "corpus": "synthetic",
+                "batch": "v6",
+                "caseId": "wizard-grease-hands-good",
+                "session": "synthetic/v6/wizard-grease-hands-good",
+                "manifestPath": "challenges/manifests/v6.json",
+                "manifestSha256": "7523b91e823f4e3906c9acdc9a3d80f8469c27c2caab8fc8fbd6967dbfdcab5f",
+                "recording": "challenges/cases/v6/wizard-grease-hands-good.session.json",
+                "recordingPath": "challenges/cases/v6/wizard-grease-hands-good.session.json",
+                "recordingSha256": "528226e80ce3b4852b1606a834fd132448c6d19be05f9b3e387cc81e5ca9f192",
+                "recipe": "challenges/cases/v6/wizard-grease-hands-good.recipe.session.json",
+                "recipeSha256": "74b2bab42a87bae9bd7efe6394fcefc09dbafdc6a5bc9ecc91288387124fcee8",
+                "replayInputSha256": "a3ac3b6872f8e89451d29bdbf73b5215af57c013d215edeaba8f740cc0c5fc4a",
+                "evaluationPath": "challenges/evaluations/20260926132731-v6.json",
+                "evaluationCommit": "d0a8041f88dd37cbf631877464c06cf985998274",
+                "evaluationArtifact": "challenges/evaluations/20260926132731-v6.json",
+                "evaluationUtc": "2026-09-26T13:27:48.505Z",
+                "remainingScreens": 2,
+                "recordedSteps": 19,
+                "previousScreensMatched": 17,
+                "regression": false,
+                "passed": false,
+                "error": null,
+                "metrics": {
+                  "screens": {
+                    "matched": 17,
+                    "total": 19
+                  },
+                  "rng": {
+                    "matched": 2361,
+                    "total": 2366
+                  },
+                  "cursors": {
+                    "matched": 17,
+                    "total": 19
+                  }
+                },
+                "firstMismatch": {
+                  "kind": "stop",
+                  "message": "unsupported hero command: an unported branch of this command: applying a tool requires doapply()'s arm for object type 233",
+                  "step": 17
+                },
+                "step": 17,
+                "kind": "stop",
+                "sourceFile": "apply.c",
+                "function": "doapply",
+                "message": "unsupported hero command: an unported branch of this command: applying a tool requires doapply()'s arm for object type 233",
+                "cFile": "apply.c",
+                "luaFile": null,
+                "line": null
+              },
+              "summary": "Both recordings create a can of grease but do not apply it. After the apply command, key o selects BLINDFOLD (object type 233); the earlier inventory screen lists the can of grease at p. C therefore reaches apply.c doapply()’s BLINDFOLD/LENSES switch arm and calls Blindf_on(), while JS has no matching dispatch and stops in its default unsupported arm. This is the first stop at segment 0 step 17; the missing source owner is the eyewear arm in doapply(), not use_grease().",
+              "source": {
+                "file": "apply.c",
+                "branch": "After getobj() returns a BLINDFOLD or LENSES object that passed apply_ok(), if the selected object is not already ublindf and ublindf is empty, doapply() calls Blindf_on(obj). These recordings enter that branch with the initial blindfold unworn. If the selected item is already ublindf, C may call Blindf_off() unless cursed; if other eyewear is worn, C prints the already-covered message. Those sibling branches are not reached.",
+                "functions": [
+                  "doapply"
+                ],
+                "callers": [
+                  "C cmd.c command table binds key a to doapply(); doapply() calls getobj(\"use or apply\", apply_ok, GETOBJ_NOFLAGS) before its object-type switch.",
+                  "JS cmd.js runApplyCommand() calls doapply(state) for the apply command. The stop is in js/apply.js doapply() after its switch lacks BLINDFOLD/LENSES cases."
+                ],
+                "dependencies": [
+                  "C apply.c apply_ok() suggests TOOL_CLASS objects, and apply.c doapply() obtains the selected item through getobj(); the recorded item key o selects the blindfold, while the preceding screen identifies the can of grease as p.",
+                  "C doapply() calls do_wear.c Blindf_on() for the unworn-eyewear branch. Blindf_on() removes a worn-item mask if needed, sets the object in W_TOOL (ublindf), calls on_msg(), and toggles blindness when the hero becomes blind; its void return is ignored and doapply() keeps its initial ECMD_TIME result.",
+                  "The common C do_wear.c Blindf_on() path is already implemented in js/do_wear.js Blindf_on(); the current first stop is before that helper because js/apply.js doapply() has no BLINDFOLD/LENSES dispatch case."
+                ]
+              },
+              "goalKind": "divergence-fix",
+              "evidence": [
+                "The saved evaluation challenges/evaluations/20260926132731-v6.json reports 17/19 screens, 2361/2366 RNG calls, and 17/19 cursors matched. Its first stop is segment 0 step 17 on key o: JS reports the missing doapply() arm for object type 233.",
+                "The C recording challenges/cases/v6/wizard-grease-hands-good.session.json has seed 60626051 and moves Ctrl-W, can of grease, then ao-. At step 15 the C screen says “p - a can of grease.”; step 16 starts the apply prompt; key o at step 17 produces “You are now wearing a blindfold. You can't see any more.” and status Blind. This evidence rules out the can-of-grease arm as the first divergent branch.",
+                "C nethack-c/upstream/src/apply.c:4150-4212 defines apply_ok() and begins doapply(); apply_ok() suggests TOOL_CLASS objects for getobj(). The BLINDFOLD/LENSES branch at apply.c:4244-4257 calls Blindf_on(obj) when obj != ublindf and ublindf is empty. apply.c:4282 handles CAN_OF_GREASE separately, after the eyewear arm.",
+                "C nethack-c/upstream/src/do_wear.c:1461-1492 owns the common sighted-to-blind transition: Blindf_on() sets W_TOOL, calls on_msg(), detects the blindness transition, then calls toggle_blindness(). JS already implements this common path in js/do_wear.js:1042-1098; js/apply.js:2297-2403 lacks BLINDFOLD/LENSES cases, so execution reaches the unsupported default instead."
+              ]
+            }
+          }
+        },
+        {
+          "corpus": "synthetic",
+          "batch": "v6",
+          "caseId": "wizard-grease-only",
+          "session": "synthetic/v6/wizard-grease-only",
+          "manifestPath": "challenges/manifests/v6.json",
+          "manifestSha256": "7523b91e823f4e3906c9acdc9a3d80f8469c27c2caab8fc8fbd6967dbfdcab5f",
+          "recording": "challenges/cases/v6/wizard-grease-only.session.json",
+          "recordingPath": "challenges/cases/v6/wizard-grease-only.session.json",
+          "recordingSha256": "9af4fef5d828c481509d962d1bf1160e66cc01ea5f2b15d516e2528ae3af0aa8",
+          "recipe": "challenges/cases/v6/wizard-grease-only.recipe.session.json",
+          "recipeSha256": "357fedf6f6442fa63ed6d40a8c86d12aa55425f0d8deb5928fa6edb4ccee4665",
+          "replayInputSha256": "6660c2e31d6e20043aac57ddf46afd36a5e4e4fcb5c59e7a548fd3ab61c5137d",
+          "evaluationPath": "challenges/evaluations/20260926213954-v6.json",
+          "evaluationCommit": "5006247e43a2e93c85f944ecaac4f961cd237826",
+          "evaluationArtifact": "challenges/evaluations/20260926213954-v6.json",
+          "evaluationUtc": "2026-09-26T21:40:12.201Z",
+          "remainingScreens": 2,
+          "recordedSteps": 19,
+          "previousScreensMatched": 17,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 17,
+              "total": 19
+            },
+            "rng": {
+              "matched": 5759,
+              "total": 5759
+            },
+            "cursors": {
+              "matched": 19,
+              "total": 19
+            }
+          },
+          "firstMismatch": {
+            "screen": {
+              "index": 17,
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 17,
+                "key": "o"
+              },
+              "kind": "ch",
+              "row": 0,
+              "column": 0,
+              "cCell": {
+                "ch": "Y",
+                "color": 8,
+                "attr": 0,
+                "decgfx": 0
+              },
+              "jsCell": {
+                "ch": "W",
+                "color": 8,
+                "attr": 0,
+                "decgfx": 0
+              }
+            },
+            "rng": null,
+            "cursor": null
+          },
+          "step": 17,
+          "kind": "screen",
+          "sourceFile": null,
+          "function": null,
+          "message": null,
+          "cFile": null,
+          "luaFile": null,
+          "line": null,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v6/wizard-grease-only.json",
+            "result": {
+              "session": "synthetic/v6/wizard-grease-only",
+              "corpus": "synthetic",
+              "batch": "v6",
+              "caseId": "wizard-grease-only",
+              "manifestPath": "challenges/manifests/v6.json",
+              "manifestSha256": "7523b91e823f4e3906c9acdc9a3d80f8469c27c2caab8fc8fbd6967dbfdcab5f",
+              "recordingSha256": "9af4fef5d828c481509d962d1bf1160e66cc01ea5f2b15d516e2528ae3af0aa8",
+              "evaluationPath": "challenges/evaluations/20260926132731-v6.json",
+              "evaluationCommit": "d0a8041f88dd37cbf631877464c06cf985998274",
+              "remainingScreens": 2,
+              "recordedSteps": 19,
+              "status": "complete",
+              "commit": "d0a8041f88dd37cbf631877464c06cf985998274",
+              "mismatch": {
+                "corpus": "synthetic",
+                "batch": "v6",
+                "caseId": "wizard-grease-only",
+                "session": "synthetic/v6/wizard-grease-only",
+                "manifestPath": "challenges/manifests/v6.json",
+                "manifestSha256": "7523b91e823f4e3906c9acdc9a3d80f8469c27c2caab8fc8fbd6967dbfdcab5f",
+                "recording": "challenges/cases/v6/wizard-grease-only.session.json",
+                "recordingPath": "challenges/cases/v6/wizard-grease-only.session.json",
+                "recordingSha256": "9af4fef5d828c481509d962d1bf1160e66cc01ea5f2b15d516e2528ae3af0aa8",
+                "recipe": "challenges/cases/v6/wizard-grease-only.recipe.session.json",
+                "recipeSha256": "357fedf6f6442fa63ed6d40a8c86d12aa55425f0d8deb5928fa6edb4ccee4665",
+                "replayInputSha256": "a3ac3b6872f8e89451d29bdbf73b5215af57c013d215edeaba8f740cc0c5fc4a",
+                "evaluationPath": "challenges/evaluations/20260926132731-v6.json",
+                "evaluationCommit": "d0a8041f88dd37cbf631877464c06cf985998274",
+                "evaluationArtifact": "challenges/evaluations/20260926132731-v6.json",
+                "evaluationUtc": "2026-09-26T13:27:48.505Z",
+                "remainingScreens": 2,
+                "recordedSteps": 19,
+                "previousScreensMatched": 17,
+                "regression": false,
+                "passed": false,
+                "error": null,
+                "metrics": {
+                  "screens": {
+                    "matched": 17,
+                    "total": 19
+                  },
+                  "rng": {
+                    "matched": 5755,
+                    "total": 5759
+                  },
+                  "cursors": {
+                    "matched": 17,
+                    "total": 19
+                  }
+                },
+                "firstMismatch": {
+                  "kind": "stop",
+                  "message": "unsupported hero command: an unported branch of this command: applying a tool requires doapply()'s arm for object type 233",
+                  "step": 17
+                },
+                "step": 17,
+                "kind": "stop",
+                "sourceFile": "apply.c",
+                "function": "doapply",
+                "message": "unsupported hero command: an unported branch of this command: applying a tool requires doapply()'s arm for object type 233",
+                "cFile": "apply.c",
+                "luaFile": null,
+                "line": null
+              },
+              "summary": "Both recordings create a can of grease but do not apply it. After the apply command, key o selects BLINDFOLD (object type 233); the earlier inventory screen lists the can of grease at p. C therefore reaches apply.c doapply()’s BLINDFOLD/LENSES switch arm and calls Blindf_on(), while JS has no matching dispatch and stops in its default unsupported arm. This is the first stop at segment 0 step 17; the missing source owner is the eyewear arm in doapply(), not use_grease().",
+              "source": {
+                "file": "apply.c",
+                "branch": "After getobj() returns a BLINDFOLD or LENSES object that passed apply_ok(), if the selected object is not already ublindf and ublindf is empty, doapply() calls Blindf_on(obj). These recordings enter that branch with the initial blindfold unworn. If the selected item is already ublindf, C may call Blindf_off() unless cursed; if other eyewear is worn, C prints the already-covered message. Those sibling branches are not reached.",
+                "functions": [
+                  "doapply"
+                ],
+                "callers": [
+                  "C cmd.c command table binds key a to doapply(); doapply() calls getobj(\"use or apply\", apply_ok, GETOBJ_NOFLAGS) before its object-type switch.",
+                  "JS cmd.js runApplyCommand() calls doapply(state) for the apply command. The stop is in js/apply.js doapply() after its switch lacks BLINDFOLD/LENSES cases."
+                ],
+                "dependencies": [
+                  "C apply.c apply_ok() suggests TOOL_CLASS objects, and apply.c doapply() obtains the selected item through getobj(); the recorded item key o selects the blindfold, while the preceding screen identifies the can of grease as p.",
+                  "C doapply() calls do_wear.c Blindf_on() for the unworn-eyewear branch. Blindf_on() removes a worn-item mask if needed, sets the object in W_TOOL (ublindf), calls on_msg(), and toggles blindness when the hero becomes blind; its void return is ignored and doapply() keeps its initial ECMD_TIME result.",
+                  "The common C do_wear.c Blindf_on() path is already implemented in js/do_wear.js Blindf_on(); the current first stop is before that helper because js/apply.js doapply() has no BLINDFOLD/LENSES dispatch case."
+                ]
+              },
+              "goalKind": "divergence-fix",
+              "evidence": [
+                "The saved evaluation challenges/evaluations/20260926132731-v6.json reports 17/19 screens, 5755/5759 RNG calls, and 17/19 cursors matched. Its first stop is segment 0 step 17 on key o: JS reports the missing doapply() arm for object type 233.",
+                "The C recording challenges/cases/v6/wizard-grease-only.session.json has seed 60626038 and moves Ctrl-W, can of grease, then ao-. At step 15 the C screen says “p - a can of grease.”; step 16 starts the apply prompt; key o at step 17 produces “You are now wearing a blindfold. You can't see any more.” and status Blind. This evidence rules out the can-of-grease arm as the first divergent branch.",
+                "C nethack-c/upstream/src/apply.c:4150-4212 defines apply_ok() and begins doapply(); apply_ok() suggests TOOL_CLASS objects for getobj(). The BLINDFOLD/LENSES branch at apply.c:4244-4257 calls Blindf_on(obj) when obj != ublindf and ublindf is empty. apply.c:4282 handles CAN_OF_GREASE separately, after the eyewear arm.",
+                "C nethack-c/upstream/src/do_wear.c:1461-1492 owns the common sighted-to-blind transition: Blindf_on() sets W_TOOL, calls on_msg(), detects the blindness transition, then calls toggle_blindness(). JS already implements this common path in js/do_wear.js:1042-1098; js/apply.js:2297-2403 lacks BLINDFOLD/LENSES cases, so execution reaches the unsupported default instead."
+              ]
+            }
+          }
+        },
+        {
+          "corpus": "synthetic",
+          "batch": "v6",
+          "caseId": "wizard-greasy-write-glib",
+          "session": "synthetic/v6/wizard-greasy-write-glib",
+          "manifestPath": "challenges/manifests/v6.json",
+          "manifestSha256": "7523b91e823f4e3906c9acdc9a3d80f8469c27c2caab8fc8fbd6967dbfdcab5f",
+          "recording": "challenges/cases/v6/wizard-greasy-write-glib.session.json",
+          "recordingPath": "challenges/cases/v6/wizard-greasy-write-glib.session.json",
+          "recordingSha256": "6f8be6114cd1a551dc75940ccc48608c51b6a978950a5f90e639dbbb09f03317",
+          "recipe": "challenges/cases/v6/wizard-greasy-write-glib.recipe.session.json",
+          "recipeSha256": "0ccf18d6ddfa6bd75ef0c57c46a0ae8bd6418b3fafc4a4e9641a518492818911",
+          "replayInputSha256": "6660c2e31d6e20043aac57ddf46afd36a5e4e4fcb5c59e7a548fd3ab61c5137d",
+          "evaluationPath": "challenges/evaluations/20260926213954-v6.json",
+          "evaluationCommit": "5006247e43a2e93c85f944ecaac4f961cd237826",
+          "evaluationArtifact": "challenges/evaluations/20260926213954-v6.json",
+          "evaluationUtc": "2026-09-26T21:40:12.201Z",
+          "remainingScreens": 2,
+          "recordedSteps": 22,
+          "previousScreensMatched": 20,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 20,
+              "total": 22
+            },
+            "rng": {
+              "matched": 2958,
+              "total": 2967
+            },
+            "cursors": {
+              "matched": 20,
+              "total": 22
+            }
+          },
+          "firstMismatch": {
+            "kind": "stop",
+            "message": "unsupported hero command: an unported branch of this command: applying a tool requires doapply()'s arm for object type 79",
+            "step": 20
+          },
+          "step": 20,
+          "kind": "stop",
+          "sourceFile": "apply.c",
+          "function": "doapply",
+          "message": "unsupported hero command: an unported branch of this command: applying a tool requires doapply()'s arm for object type 79",
+          "cFile": "apply.c",
+          "luaFile": null,
+          "line": null,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v6/wizard-greasy-write-glib.json",
+            "result": {
+              "session": "synthetic/v6/wizard-greasy-write-glib",
+              "corpus": "synthetic",
+              "batch": "v6",
+              "caseId": "wizard-greasy-write-glib",
+              "manifestPath": "challenges/manifests/v6.json",
+              "manifestSha256": "7523b91e823f4e3906c9acdc9a3d80f8469c27c2caab8fc8fbd6967dbfdcab5f",
+              "recordingPath": "challenges/cases/v6/wizard-greasy-write-glib.session.json",
+              "recordingSha256": "6f8be6114cd1a551dc75940ccc48608c51b6a978950a5f90e639dbbb09f03317",
+              "evaluationPath": "challenges/evaluations/20260926132731-v6.json",
+              "evaluationCommit": "d0a8041f88dd37cbf631877464c06cf985998274",
+              "remainingScreens": 2,
+              "recordedSteps": 22,
+              "status": "complete",
+              "commit": "d0a8041f88dd37cbf631877464c06cf985998274",
+              "mismatch": {
+                "corpus": "synthetic",
+                "batch": "v6",
+                "caseId": "wizard-greasy-write-glib",
+                "session": "synthetic/v6/wizard-greasy-write-glib",
+                "manifestPath": "challenges/manifests/v6.json",
+                "manifestSha256": "7523b91e823f4e3906c9acdc9a3d80f8469c27c2caab8fc8fbd6967dbfdcab5f",
+                "recording": "challenges/cases/v6/wizard-greasy-write-glib.session.json",
+                "recordingPath": "challenges/cases/v6/wizard-greasy-write-glib.session.json",
+                "recordingSha256": "6f8be6114cd1a551dc75940ccc48608c51b6a978950a5f90e639dbbb09f03317",
+                "recipe": "challenges/cases/v6/wizard-greasy-write-glib.recipe.session.json",
+                "recipeSha256": "0ccf18d6ddfa6bd75ef0c57c46a0ae8bd6418b3fafc4a4e9641a518492818911",
+                "replayInputSha256": "a3ac3b6872f8e89451d29bdbf73b5215af57c013d215edeaba8f740cc0c5fc4a",
+                "evaluationPath": "challenges/evaluations/20260926132731-v6.json",
+                "evaluationCommit": "d0a8041f88dd37cbf631877464c06cf985998274",
+                "evaluationArtifact": "challenges/evaluations/20260926132731-v6.json",
+                "evaluationUtc": "2026-09-26T13:27:48.505Z",
+                "remainingScreens": 2,
+                "recordedSteps": 22,
+                "previousScreensMatched": 20,
+                "regression": false,
+                "passed": false,
+                "error": null,
+                "metrics": {
+                  "screens": {
+                    "matched": 20,
+                    "total": 22
+                  },
+                  "rng": {
+                    "matched": 2958,
+                    "total": 2967
+                  },
+                  "cursors": {
+                    "matched": 20,
+                    "total": 22
+                  }
+                },
+                "firstMismatch": {
+                  "kind": "stop",
+                  "message": "unsupported hero command: an unported branch of this command: applying a tool requires doapply()'s arm for object type 79",
+                  "step": 20
+                },
+                "step": 20,
+                "kind": "stop",
+                "sourceFile": "apply.c",
+                "function": "doapply",
+                "message": "unsupported hero command: an unported branch of this command: applying a tool requires doapply()'s arm for object type 79",
+                "cFile": "apply.c",
+                "luaFile": null,
+                "line": null
+              },
+              "summary": "This case does not reach hand greasing or Glib. After an invalid inventory choice produces a matched \"You don’t have that object\" More prompt, the later apply command reaches object type 79. C apply.c:doapply() falls through its generic default, prints \"Sorry, I don’t know how to use that.\", and returns ECMD_FAIL; JS refuses the branch and evaluation stops at step 20. This first owner is doapply(), not glibr().",
+              "source": {
+                "file": "apply.c",
+                "branch": "At segment 0 step 20, doapply() receives inventory object type 79. No named switch arm handles it; C checks is_pole(), is_pick(), and is_axe() in the generic default, finds none applicable, prints the generic refusal, and returns ECMD_FAIL. This session never selects the grease can’s hand target, so Glib is not activated and glibr() is not reached.",
+                "functions": [
+                  "doapply"
+                ],
+                "callers": [
+                  "C command table cmd.c:1678 maps the a command to apply.c:doapply(); JavaScript js/cmd.js:runApplyCommand dispatches to js/apply.js:doapply().",
+                  "Inside apply.c:doapply(), getobj() supplies the selected object to the switch; object type 79 reaches the generic default at lines 4407-4417 after the named cases."
+                ],
+                "dependencies": [
+                  "Preserve doapply() getobj and retouch ordering, switch dispatch, is_pole/is_pick/is_axe predicates, printed message, and ECMD_FAIL return without spending a turn.",
+                  "js/apply.js handles selected FOOD_CLASS and ARMOR_CLASS defaults and pole/pick/axe branches, but throws UnsupportedApplyError for this remaining object-type-79 path; do not classify it as grease or Glib behavior."
+                ]
+              },
+              "goalKind": "divergence-fix",
+              "evidence": [
+                "Saved challenges/evaluations/20260926132731-v6.json reports 2 remaining screens of 22 and first stop at segment 0 step 20: JS refuses apply.c:doapply() for object type 79. The previous 20 screens match; RNG is 2958/2967.",
+                "C recording challenges/cases/v6/wizard-greasy-write-glib.session.json: step 17 key p yields \"You don’t have that object.--More--\"; step 19 space returns to the apply prompt; step 20 key a produces \"Sorry, I don’t know how to use that.\" before the final n input. The case never chooses the grease can’s hand target.",
+                "nethack-c/upstream/src/apply.c:4407-4417 is the generic default after BANANA: it tries is_pole() and is_pick()/is_axe(), then prints the message and returns ECMD_FAIL. js/apply.js:2375-2403 mirrors some default classes but throws UnsupportedApplyError for object type 79.",
+                "C caller is the a-command table entry in nethack-c/upstream/src/cmd.c:1678; JavaScript caller is js/cmd.js:runApplyCommand -> js/apply.js:doapply(). This path, not do_wear.c:glibr(), owns the first divergence."
+              ]
+            }
+          }
+        }
+      ],
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "382fb9f460e42198688105ebc81fd2788be20686",
+        "screens": 11405,
+        "rng": 792838
       }
     },
     {
       "id": "div-makemon-aligned-cleric-synthetic-v7-20260926",
       "kind": "divergence-fix",
-      "status": "queued",
+      "status": "closed",
       "summary": "Initialize aligned-cleric minion state before monster alignment",
       "cFile": "makemon.c",
       "sessions": [],
       "selectionReason": "C19 and B19 own the higher-ranked armor and dig cases; trapdoor teleport is in B19 scope, and A15 owns the earlier apply.c doapply cases. This v7 priest case is the next independent source-traced two-screen candidate.",
       "detail": "C makemon.c:makemon lines 1410-1426 initializes EMIN on aligned and high clerics without MM_EPRI/MM_EMIN, sets isminion and random min_align/renegade/peacefulness before set_malign. JS makemon_create.js lacks the arm. Trace full function siblings and preserve RNG order; validate the Ctrl-G production path and independent C recording.",
-      "openedAt": null,
-      "openStanding": null,
-      "closedAt": null,
-      "delivered": null,
+      "openedAt": "df3e0fef593d3196c7fe0cb34f4f9bd661894f9f",
+      "openStanding": {
+        "sha": "ddc331f38f1f2b4e3a998f40005d0ac84f984442",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "closedAt": "e0388bc15d52e074480a86fa725fce059147f671",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
       "function": "makemon",
       "session": "synthetic/v7/priest-outside-temple-chat",
       "step": 27,
@@ -87370,6 +88321,449 @@
           "recordingSha256": "76f2f565d9ff27f51adb9638e2ee8b3eab7edbe6d8fe058d470d84e89bd861a0",
           "evaluationPath": "challenges/evaluations/20260926201323-v7.json",
           "evaluationCommit": "580b107974301f1a5c70b1698fd8ccf169c69c57"
+        }
+      },
+      "activeStanding": {
+        "sha": "ddc331f38f1f2b4e3a998f40005d0ac84f984442",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v7",
+          "caseId": "priest-outside-temple-chat",
+          "session": "synthetic/v7/priest-outside-temple-chat",
+          "manifestPath": "challenges/manifests/v7.json",
+          "manifestSha256": "03a861a9d1bc9d813c80681312ee7a0e0f893dbad0536de40a974bd5ec344094",
+          "recording": "challenges/cases/v7/priest-outside-temple-chat.session.json",
+          "recordingPath": "challenges/cases/v7/priest-outside-temple-chat.session.json",
+          "recordingSha256": "76f2f565d9ff27f51adb9638e2ee8b3eab7edbe6d8fe058d470d84e89bd861a0",
+          "recipe": "challenges/cases/v7/priest-outside-temple-chat.recipe.session.json",
+          "recipeSha256": "fef29a43a7857efd0935777eb584af573ec0096aed4e254d3f7deaff8010c4f8",
+          "replayInputSha256": "27bdb18b364cb9adec902f0e6b311a417547242ce822371d4d8214c81511c2e9",
+          "evaluationPath": "challenges/evaluations/20260926212551-v7.json",
+          "evaluationCommit": "ddc331f38f1f2b4e3a998f40005d0ac84f984442",
+          "evaluationArtifact": "challenges/evaluations/20260926212551-v7.json",
+          "evaluationUtc": "2026-09-26T21:26:19.198Z",
+          "remainingScreens": 2,
+          "recordedSteps": 35,
+          "previousScreensMatched": 33,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 33,
+              "total": 35
+            },
+            "rng": {
+              "matched": 2550,
+              "total": 2586
+            },
+            "cursors": {
+              "matched": 35,
+              "total": 35
+            }
+          },
+          "firstMismatch": {
+            "screen": {
+              "index": 27,
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 27,
+                "key": "y"
+              },
+              "kind": "ch",
+              "row": 0,
+              "column": 9,
+              "cCell": {
+                "ch": "o",
+                "color": 8,
+                "attr": 0,
+                "decgfx": 0
+              },
+              "jsCell": {
+                "ch": "a",
+                "color": 8,
+                "attr": 0,
+                "decgfx": 0
+              }
+            },
+            "rng": {
+              "index": 2550,
+              "cEntry": "rn2(3)=1",
+              "cCaller": "makemon(makemon.c:1423)",
+              "jsEntry": "rnd(2)=1",
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 27,
+                "key": "y"
+              },
+              "stepIndex": 27
+            },
+            "cursor": null
+          },
+          "step": 27,
+          "kind": "rng",
+          "sourceFile": "makemon.c",
+          "function": "makemon",
+          "message": null,
+          "cFile": "makemon.c",
+          "luaFile": null,
+          "line": 1423,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v7/priest-outside-temple-chat.json",
+            "result": {
+              "session": "synthetic/v7/priest-outside-temple-chat",
+              "corpus": "synthetic",
+              "batch": "v7",
+              "caseId": "priest-outside-temple-chat",
+              "manifestPath": "challenges/manifests/v7.json",
+              "manifestSha256": "03a861a9d1bc9d813c80681312ee7a0e0f893dbad0536de40a974bd5ec344094",
+              "recordingSha256": "76f2f565d9ff27f51adb9638e2ee8b3eab7edbe6d8fe058d470d84e89bd861a0",
+              "evaluationPath": "challenges/evaluations/20260926122253-v7.json",
+              "evaluationCommit": "f7e48bd93d6827c557c9a40a255a55cbc5fc8fcf",
+              "remainingScreens": 2,
+              "recordedSteps": 35,
+              "status": "complete",
+              "commit": "47856c2b7f77bc60cb4480d3bff955be061daaef",
+              "mismatch": {
+                "corpus": "synthetic",
+                "batch": "v7",
+                "caseId": "priest-outside-temple-chat",
+                "session": "synthetic/v7/priest-outside-temple-chat",
+                "manifestPath": "challenges/manifests/v7.json",
+                "manifestSha256": "03a861a9d1bc9d813c80681312ee7a0e0f893dbad0536de40a974bd5ec344094",
+                "recording": "challenges/cases/v7/priest-outside-temple-chat.session.json",
+                "recordingPath": "challenges/cases/v7/priest-outside-temple-chat.session.json",
+                "recordingSha256": "76f2f565d9ff27f51adb9638e2ee8b3eab7edbe6d8fe058d470d84e89bd861a0",
+                "recipe": "challenges/cases/v7/priest-outside-temple-chat.recipe.session.json",
+                "recipeSha256": "fef29a43a7857efd0935777eb584af573ec0096aed4e254d3f7deaff8010c4f8",
+                "replayInputSha256": "ba09b30aa45883696a6c2cbbe647b7a100c06ae9b741e0bcdf70fec164041447",
+                "evaluationPath": "challenges/evaluations/20260926122253-v7.json",
+                "evaluationCommit": "f7e48bd93d6827c557c9a40a255a55cbc5fc8fcf",
+                "evaluationArtifact": "challenges/evaluations/20260926122253-v7.json",
+                "evaluationUtc": "2026-09-26T12:23:06.868Z",
+                "remainingScreens": 2,
+                "recordedSteps": 35,
+                "previousScreensMatched": null,
+                "regression": false,
+                "passed": false,
+                "error": null,
+                "metrics": {
+                  "screens": {
+                    "matched": 33,
+                    "total": 35
+                  },
+                  "rng": {
+                    "matched": 2550,
+                    "total": 2586
+                  },
+                  "cursors": {
+                    "matched": 35,
+                    "total": 35
+                  }
+                },
+                "firstMismatch": {
+                  "screen": {
+                    "index": 27,
+                    "location": {
+                      "segmentIndex": 0,
+                      "stepIndex": 27,
+                      "key": "y"
+                    },
+                    "kind": "ch",
+                    "row": 0,
+                    "column": 9,
+                    "cCell": {
+                      "ch": "o",
+                      "color": 8,
+                      "attr": 0,
+                      "decgfx": 0
+                    },
+                    "jsCell": {
+                      "ch": "a",
+                      "color": 8,
+                      "attr": 0,
+                      "decgfx": 0
+                    }
+                  },
+                  "rng": {
+                    "index": 2550,
+                    "cEntry": "rn2(3)=1",
+                    "cCaller": "makemon(makemon.c:1423)",
+                    "jsEntry": "rnd(2)=1",
+                    "location": {
+                      "segmentIndex": 0,
+                      "stepIndex": 27,
+                      "key": "y"
+                    },
+                    "stepIndex": 27
+                  },
+                  "cursor": null
+                },
+                "step": 27,
+                "kind": "rng",
+                "sourceFile": "makemon.c",
+                "function": "makemon",
+                "message": null,
+                "cFile": "makemon.c",
+                "luaFile": null,
+                "line": 1423
+              },
+              "summary": "The wizard accepts the force prompt for an aligned cleric, so read.c:create_particular_creation() calls makemon() for PM_ALIGNED_CLERIC without MM_EPRI or MM_EMIN. C makemon.c:makemon() then creates EMIN data, marks the monster as a minion, draws its minion alignment and renegade state, sets peacefulness, and calls set_malign(). The corresponding special initialization arm is missing from js/makemon_create.js:makemon(), so the first random call and the appearance text diverge at step 27. The earliest source owner is makemon.c:makemon(); the later chat behavior is downstream of this creation state.",
+              "source": {
+                "file": "makemon.c",
+                "branch": "The recorded ^G request is “peaceful aligned cleric”; create_particular_creation() accepts y to override the human-zombie substitute and restores PM_ALIGNED_CLERIC. It calls makemon() with NO_MM_FLAGS plus MM_NOEXCLAM, so MM_EPRI and MM_EMIN are both absent. makemon() takes the PM_ALIGNED_CLERIC/PM_HIGH_CLERIC arm of its special extended-data condition: newemin(), isminion = 1, min_align = rn2(3) - 1, renegade = (MM_ANGRY ? 1 : !rn2(3)), peacefulness derived from min_align versus hero alignment and renegade, then set_malign(). The source’s alternate angel condition and its random check remain part of the whole makemon() function.",
+                "functions": [
+                  "makemon"
+                ],
+                "callers": [
+                  "nethack-c/upstream/src/cmd.c:1961-1962 dispatches Ctrl-G to wizcmds.c:wiz_genesis(); js/cmd.js dispatches wiz_genesis to js/wizcmds.js:wiz_genesis().",
+                  "nethack-c/upstream/src/wizcmds.c:203-210 calls read.c:create_particular(); js/wizcmds.js:225-231 calls js/read.js:create_particular().",
+                  "nethack-c/upstream/src/read.c:3252-3371 implements create_particular_creation(): lines 3260-3273 accept the force answer and lines 3315 onward call makemon(whichpm, u.ux, u.uy, mmflags). js/read.js:1486-1562 mirrors the selection and calls makemon_runtime() at 1529-1532, whose constructor path reaches js/makemon_create.js:makemon()."
+                ],
+                "dependencies": [
+                  "The missing arm calls minion.c:newemin() to allocate mextra.emin, then writes monster.isminion, mextra.emin.min_align, mextra.emin.renegade, and monster.mpeaceful before makemon.c:set_malign(). JS already has newemin() in js/minion.js and set_malign() in js/makemon.js; the gap is the source-ordered branch and its two rn2(3) draws in js/makemon_create.js:makemon(). Preserve the prior peace_minded() result only until this branch overwrites it, then let set_malign() read the new minion state."
+                ]
+              },
+              "goalKind": "file-port",
+              "evidence": [
+                "The saved queue entry for synthetic/v7/priest-outside-temple-chat identifies 2 remaining screens and 35 recorded steps. challenges/evaluations/20260926122253-v7.json, evaluated at f7e48bd93d6827c557c9a40a255a55cbc5fc8fcf, reports 33/35 screens matched; its first mismatch is segment 0 step 27 on key y. C and JS differ at row 0, column 9, and the first RNG mismatch is C rn2(3)=1 at makemon.c:1423 versus JS rnd(2)=1 at the same recorded step.",
+                "The C recording challenges/cases/v7/priest-outside-temple-chat.session.json shows step 26 asking “Creating human zombie instead; force aligned cleric? [yn] (n)”; step 27 answers y and C displays “A priest of Thoth appears next to you.” Its RNG trace calls rn2(3)=1 at makemon.c:1423 for min_align and rn2(3)=1 at makemon.c:1424 for renegade before inventory setup.",
+                "Upstream makemon.c:1410-1429 initializes EMIN data for PM_ALIGNED_CLERIC or PM_HIGH_CLERIC when neither MM_EPRI nor MM_EMIN was supplied, marks the monster as a minion, sets min_align/renegade/peacefulness in that order, then calls set_malign(). In JS, makemon_create.js:3075 only allocates EMIN when MM_EMIN is already present; its later default peacefulness path is followed by set_malign() without the aligned-cleric source arm. js/minion.js:newemin() and js/makemon.js:set_malign() provide the state helpers, but the producing branch and its draws are missing.",
+                "Production reachability is cmd.c Ctrl-G -> wiz_genesis() -> read.c:create_particular() -> create_particular_creation() -> makemon(); JS wires the same path through cmd.js, wizcmds.js, read.js, and makemon_create.js:makemon_runtime(). Thus the first mismatch is during source-owned monster creation at makemon.c:1423, before any later chat behavior is an actionable owner for this case."
+              ]
+            }
+          }
+        }
+      ],
+      "closeMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v7",
+          "caseId": "priest-outside-temple-chat",
+          "session": "synthetic/v7/priest-outside-temple-chat",
+          "manifestPath": "challenges/manifests/v7.json",
+          "manifestSha256": "03a861a9d1bc9d813c80681312ee7a0e0f893dbad0536de40a974bd5ec344094",
+          "recording": "challenges/cases/v7/priest-outside-temple-chat.session.json",
+          "recordingPath": "challenges/cases/v7/priest-outside-temple-chat.session.json",
+          "recordingSha256": "76f2f565d9ff27f51adb9638e2ee8b3eab7edbe6d8fe058d470d84e89bd861a0",
+          "recipe": "challenges/cases/v7/priest-outside-temple-chat.recipe.session.json",
+          "recipeSha256": "fef29a43a7857efd0935777eb584af573ec0096aed4e254d3f7deaff8010c4f8",
+          "replayInputSha256": "51424da722e0d7b4541f5b2b92ba2983a8c31266fb7974f0dd577365378728cc",
+          "evaluationPath": "challenges/evaluations/20260926213954-v7.json",
+          "evaluationCommit": "5006247e43a2e93c85f944ecaac4f961cd237826",
+          "evaluationArtifact": "challenges/evaluations/20260926213954-v7.json",
+          "evaluationUtc": "2026-09-26T21:40:23.260Z",
+          "remainingScreens": 1,
+          "recordedSteps": 35,
+          "previousScreensMatched": 33,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 34,
+              "total": 35
+            },
+            "rng": {
+              "matched": 2579,
+              "total": 2586
+            },
+            "cursors": {
+              "matched": 35,
+              "total": 35
+            }
+          },
+          "firstMismatch": {
+            "screen": {
+              "index": 34,
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 34,
+                "key": "l"
+              },
+              "kind": "ch",
+              "row": 0,
+              "column": 0,
+              "cCell": {
+                "ch": "\"",
+                "color": 8,
+                "attr": 0,
+                "decgfx": 0
+              },
+              "jsCell": {
+                "ch": " ",
+                "color": 8,
+                "attr": 0,
+                "decgfx": 0
+              }
+            },
+            "rng": {
+              "index": 2572,
+              "cEntry": "rn2(3)=0",
+              "cCaller": "priest_talk(priest.c:599)",
+              "jsEntry": "rn2(12)=6",
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 34,
+                "key": "l"
+              },
+              "stepIndex": 34
+            },
+            "cursor": null
+          },
+          "step": 34,
+          "kind": "rng",
+          "sourceFile": "priest.c",
+          "function": "priest_talk",
+          "message": null,
+          "cFile": "priest.c",
+          "luaFile": null,
+          "line": 599,
+          "investigation": {
+            "status": "stale",
+            "path": "investigations/synthetic/v7/priest-outside-temple-chat.json",
+            "previousRemainingScreens": 2
+          }
+        }
+      ],
+      "closeStanding": {
+        "sha": "e0388bc15d52e074480a86fa725fce059147f671",
+        "screens": 11405,
+        "rng": 792838
+      }
+    },
+    {
+      "id": "port-sit-lay-an-egg-dosit-synthetic-v6-20260926",
+      "kind": "file-port",
+      "status": "queued",
+      "summary": "Port sit.c egg laying and complete dosit command behavior across ice, sink, altar, throne, and grave",
+      "cFile": "sit.c",
+      "sessions": [
+        "synthetic/v6/archeologist-sit-ice",
+        "synthetic/v6/wizard-sit-sink",
+        "synthetic/v6/priest-sit-altar",
+        "synthetic/v6/wizard-sit-throne",
+        "synthetic/v6/wizard-sit-grave-room-retry"
+      ],
+      "selectionReason": "Five unresolved v6 #sit cases share the same sit.c:dosit source owner and distinct level-feature state branches.",
+      "detail": "Port lay_an_egg and dosit in C definition order. Preserve branch, message, RNG, turn and state behavior across ice, sink, altar, throne, grave, traps and egg laying; wire consumed return values and record independent C entry evidence. Keep any unported void effects source-named.",
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": null,
+      "delivered": null,
+      "functions": [
+        {
+          "name": "lay_an_egg",
+          "line": 358,
+          "endLine": 399,
+          "declared": false,
+          "complete": false
+        },
+        {
+          "name": "dosit",
+          "line": 400,
+          "endLine": 568,
+          "declared": true,
+          "complete": false
+        }
+      ],
+      "range": {
+        "from": 358,
+        "to": 568
+      },
+      "syntheticProvenance": {
+        "synthetic/v6/archeologist-sit-ice": {
+          "session": "synthetic/v6/archeologist-sit-ice",
+          "corpus": "synthetic",
+          "batch": "v6",
+          "caseId": "archeologist-sit-ice",
+          "manifestPath": "challenges/manifests/v6.json",
+          "manifestSha256": "7523b91e823f4e3906c9acdc9a3d80f8469c27c2caab8fc8fbd6967dbfdcab5f",
+          "recordingPath": "challenges/cases/v6/archeologist-sit-ice.session.json",
+          "recordingSha256": "9582ee5c2aa4664baa8e6009bd9c1a2174505d7cd21b85444c611140a55e66c8",
+          "evaluationPath": "challenges/evaluations/20260926212551-v6.json",
+          "evaluationCommit": "ddc331f38f1f2b4e3a998f40005d0ac84f984442"
+        }
+      }
+    },
+    {
+      "id": "div-eat-fix-petrification-synthetic-v7-20260926",
+      "kind": "divergence-fix",
+      "status": "queued",
+      "summary": "Restore lizard-corpse petrification cure and source-ordered delayed-killer cleanup",
+      "cFile": "eat.c",
+      "sessions": [],
+      "selectionReason": "The current v7 lizard case first stops in eat.c:cprefx after the stoning setup now matches; C calls fix_petrification before the first bite.",
+      "detail": "At start_eating -> cprefx, PM_LIZARD while Stoned invokes eat.c fix_petrification. Port the whole cure helper and wire the lizard and acidic-flesh caller branches, preserving make_stoned state, message choice, RNG order, and delayed-killer cleanup. Audit C callers from potion.c peffect_acid and zap.c zapyourself, including consumed return paths and explicit blockers. Use independent C recipes with varied hallucination and charisma.",
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": null,
+      "delivered": null,
+      "function": "fix_petrification",
+      "session": "synthetic/v7/lizard-corpse-cures-stoning-corrected",
+      "step": 35,
+      "syntheticProvenance": {
+        "synthetic/v7/lizard-corpse-cures-stoning-corrected": {
+          "session": "synthetic/v7/lizard-corpse-cures-stoning-corrected",
+          "corpus": "synthetic",
+          "batch": "v7",
+          "caseId": "lizard-corpse-cures-stoning-corrected",
+          "manifestPath": "challenges/manifests/v7.json",
+          "manifestSha256": "03a861a9d1bc9d813c80681312ee7a0e0f893dbad0536de40a974bd5ec344094",
+          "recordingPath": "challenges/cases/v7/lizard-corpse-cures-stoning-corrected.session.json",
+          "recordingSha256": "6bf1416d9de4abf481689ec1d723ff6775badd518b9222d66c685b3157cc4149",
+          "evaluationPath": "challenges/evaluations/20260926213954-v7.json",
+          "evaluationCommit": "5006247e43a2e93c85f944ecaac4f961cd237826"
+        }
+      }
+    },
+    {
+      "id": "port-apply-use-tinning-kit-synthetic-v6-20260926",
+      "kind": "file-port",
+      "status": "queued",
+      "summary": "Port whole tinning-kit use and its doapply caller across decline, confirm, and retry histories",
+      "cFile": "apply.c",
+      "sessions": [
+        "synthetic/v6/wizard-tinning-confirm",
+        "synthetic/v6/wizard-tinning-yes",
+        "synthetic/v6/wizard-tinning-retry"
+      ],
+      "selectionReason": "Three unresolved v6 Wizard tinning histories share apply.c:use_tinning_kit and distinct answers to its floorfood corpse prompt; A15 has completed the doapply ownership handoff.",
+      "detail": "Implement complete apply.c use_tinning_kit in C order and wire doapply TINNING_KIT. Verify charged kit, corpse selection, decline, create-tin, Rider revival and inventory/floor paths. Port consumed returns, preserve source-named void gaps, and record independent C evidence for uncovered entry paths. Preserve the matching wizard-tinning-kit-newt regression witness.",
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": null,
+      "delivered": null,
+      "functions": [
+        {
+          "name": "use_tinning_kit",
+          "line": 2177,
+          "endLine": 2258,
+          "declared": false,
+          "complete": false
+        }
+      ],
+      "range": {
+        "from": 2177,
+        "to": 2258
+      },
+      "syntheticProvenance": {
+        "synthetic/v6/wizard-tinning-confirm": {
+          "session": "synthetic/v6/wizard-tinning-confirm",
+          "corpus": "synthetic",
+          "batch": "v6",
+          "caseId": "wizard-tinning-confirm",
+          "manifestPath": "challenges/manifests/v6.json",
+          "manifestSha256": "7523b91e823f4e3906c9acdc9a3d80f8469c27c2caab8fc8fbd6967dbfdcab5f",
+          "recordingPath": "challenges/cases/v6/wizard-tinning-confirm.session.json",
+          "recordingSha256": "5375360da74524cb290c791f0cee162af26f3e169f75d1c3a0715f3ce48e42dd",
+          "evaluationPath": "challenges/evaluations/20260926220443-v6.json",
+          "evaluationCommit": "382fb9f460e42198688105ebc81fd2788be20686"
         }
       }
     }

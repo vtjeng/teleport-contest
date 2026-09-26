@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "Blocked C20 sibling-branch provenance for makemon.c:makemon's one-third default Angel EMIN path through the same wizard creation caller. C reaches the Angel gate and emits its source minion state, but strict replay has no JS boundary after the affirmative response because the current species-admission/runtime path stops before teleport.c:collect_coords. This probe is excluded from recordings until that caller path is ported.",
+  "segments": [
+    {
+      "seed": 20594741,
+      "datetime": "20420917130600",
+      "nethackrc": "OPTIONS=name:AngelProbe,role:Valkyrie,race:human,gender:female,align:lawful\nOPTIONS=!legacy,!tutorial,!splash_screen,playmode:debug\nOPTIONS=pettype:none,!acoustics,rest_on_space,!safe_wait\n",
+      "moves": " \u0007angel\ny"
+    }
+  ]
+}

@@ -642,7 +642,7 @@ test('affirmative cant_revive force response creates the requested aligned cleri
         // exercises the source HP draw in newmonhp().
         const boundaries = [];
         const segment = forcedAlignedClericSegment();
-        const { added } = await createdBy(
+        const { added, replay } = await createdBy(
             segment,
             segment.moves,
             { onBoundary: error => boundaries.push(error) },
@@ -650,10 +650,35 @@ test('affirmative cant_revive force response creates the requested aligned cleri
 
         assert.deepEqual(boundaries, []);
         assert.equal(added.length, 1);
-        assert.equal(added[0].mnum, PM_ALIGNED_CLERIC);
+        const cleric = added[0];
+        assert.equal(cleric.mnum, PM_ALIGNED_CLERIC);
         // The source draw is d(11,8); the focused test pins the resulting
         // positive HP range while the strict C trace records its exact value.
-        assert.ok(added[0].mhpmax >= 11 && added[0].mhpmax <= 88);
+        assert.ok(cleric.mhpmax >= 11 && cleric.mhpmax <= 88);
+
+        // makemon.c:1414-1427 creates default EMIN state when neither
+        // MM_EPRI nor MM_EMIN was passed by create_particular_creation(). The
+        // source draws alignment and then renegade after the gender roll.
+        assert.equal(cleric.isminion, true);
+        assert.equal(cleric.mextra.emin.parentmid, cleric.m_id);
+        const log = replay.getRngLog();
+        const hpDraw = log.findIndex((entry) => entry.startsWith('d(11,8)='));
+        assert.notEqual(hpDraw, -1);
+        const sourceOrder = log.slice(hpDraw, hpDraw + 4);
+        assert.deepEqual(
+            sourceOrder.map((entry) => entry.slice(0, entry.indexOf('='))),
+            ['d(11,8)', 'rn2(2)', 'rn2(3)', 'rn2(3)'],
+        );
+        const alignmentRoll = Number(sourceOrder[2].split('=')[1]);
+        const renegadeRoll = Number(sourceOrder[3].split('=')[1]);
+        assert.equal(cleric.mextra.emin.min_align, alignmentRoll - 1);
+        assert.equal(cleric.mextra.emin.renegade, renegadeRoll === 0);
+        assert.equal(
+            cleric.mpeaceful,
+            cleric.mextra.emin.min_align === game.u.ualign.type
+                ? !cleric.mextra.emin.renegade
+                : cleric.mextra.emin.renegade,
+        );
     });
 
 test('a species outside the admitted reservoir stops before it is created',
