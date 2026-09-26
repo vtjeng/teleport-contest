@@ -79378,6 +79378,63 @@
         "screens": 11405,
         "rng": 792838
       }
+    },
+    {
+      "id": "port-dothrow-fireassist-samurai-synthetic-v5-20260926",
+      "kind": "file-port",
+      "status": "queued",
+      "summary": "Port complete fire command ammo selection, launcher retry, and quiver setup",
+      "cFile": "dothrow.c",
+      "sessions": [
+        "synthetic/v5/samurai-pet-ration-eating"
+      ],
+      "selectionReason": "Seed continuation: synthetic/v5/samurai-pet-ration-eating ranks first with 48 unmatched screens and step-28 fire stop in .cache/B12-work-queue.json. The refreshed complete investigation investigations/synthetic/v5/samurai-pet-ration-eating.json traces C dothrow.c:dofire as the caller that queues dowield; the queue annotation names that missing callee, but the whole fire command owns the source branch. B owns the separate Healer zap.c path and C prepares v7.",
+      "detail": "At segment 0 step 28, C dothrow.c dofire selects Samurai ammo, find_launcher returns yumi, and the command queues doswapweapon/dowield/invlet/dofire in source order. JS dofire refuses the dowield queue. Port autoquiver, find_launcher, and dofire in C definition order. Verify existing doquiver_core and throw_obj return contracts; include complete return-valued apply.c use_whip and use_pole callees and active doapply callers in the same task, plus any further consumed return dependencies. Preserve the selected matching wish prefix and independent C entry recordings; see the refreshed investigation.",
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": null,
+      "delivered": null,
+      "functions": [
+        {
+          "name": "autoquiver",
+          "line": 381,
+          "endLine": 446,
+          "declared": false,
+          "complete": false
+        },
+        {
+          "name": "find_launcher",
+          "line": 447,
+          "endLine": 468,
+          "declared": true,
+          "complete": false
+        },
+        {
+          "name": "dofire",
+          "line": 469,
+          "endLine": 589,
+          "declared": true,
+          "complete": false
+        }
+      ],
+      "range": {
+        "from": 381,
+        "to": 589
+      },
+      "syntheticProvenance": {
+        "synthetic/v5/samurai-pet-ration-eating": {
+          "session": "synthetic/v5/samurai-pet-ration-eating",
+          "corpus": "synthetic",
+          "batch": "v5",
+          "caseId": "samurai-pet-ration-eating",
+          "manifestPath": "challenges/manifests/v5.json",
+          "manifestSha256": "5e4430fbd724fe91720f898c02e6f25f9d98e884fa31bd696ca1a63e87abf150",
+          "recordingPath": "challenges/cases/v5/samurai-pet-ration-eating.session.json",
+          "recordingSha256": "719edf6f87e6d47c9c59b0cbfd8a418269fb55e34f5dfbc93500b61dd472954c",
+          "evaluationPath": "challenges/evaluations/20260926094126-v5.json",
+          "evaluationCommit": "50bbe620897c8fc2e634d14ec672d33a4e44db7e"
+        }
+      }
     }
   ]
 }
