@@ -1080,13 +1080,15 @@ test('every remaining zap refusal names an unported zap.c function',
             'backfire',
             // resist(): the still-unported killed-by-damage arms.
             'resist',
+            // The immediate callback families keep their unported source
+            // branches explicit instead of falling through into polymorph.
+            'bhito', 'bhito', 'bhitm',
             // zhitu(): the still-unported hero damage branches.
             'zhitu', 'zhitu',
-            // zapnodir() and weffects() retain their source defaults for
-            // directionless or unsupported caller families. The immediate
-            // wand gate is the existing weffects() caller boundary for
-            // object callbacks this span has not ported.
-            'zapnodir', 'bhit', 'ubuzz', 'weffects',
+            // zapnodir() remains limited to its supported wand. weffects()
+            // now sends IMMEDIATE objects through bhit(); its remaining
+            // refusal is the unexpected directional object-type default.
+            'zapnodir', 'ubuzz', 'weffects',
         ],
     );
 });
