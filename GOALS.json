@@ -75175,7 +75175,7 @@
     {
       "id": "port-apply-use-camera-synthetic-v3-20260926",
       "kind": "file-port",
-      "status": "open",
+      "status": "parked",
       "summary": "Port expensive camera flash and its blinding ray",
       "cFile": "apply.c",
       "sessions": [
@@ -75197,15 +75197,15 @@
           "name": "do_blinding_ray",
           "line": 61,
           "endLine": 78,
-          "declared": false,
-          "complete": false
+          "declared": true,
+          "complete": true
         },
         {
           "name": "use_camera",
           "line": 79,
           "endLine": 111,
-          "declared": false,
-          "complete": false
+          "declared": true,
+          "complete": true
         }
       ],
       "range": {
@@ -75570,7 +75570,113 @@
             }
           }
         }
-      ]
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "do_blinding_ray",
+            "implementation": "js/apply.js",
+            "symbol": "do_blinding_ray",
+            "sourceReview": "Read the complete apply.c:do_blinding_ray() definition (61-76). It calls bhit(u.dx,u.dy,COLNO,FLASHED_LIGHT, ..., obj), stores the hero coordinates in obj->ox/oy only after bhit returns, calls flash_hits_mon() for the returned monster, and then calls transient_light_cleanup() because FLASHED_LIGHT cleanup is deliberately deferred by zap.c:bhit_done(). The JS follows that order and preserves the returned monster value. The FLASHED_LIGHT branch of zap.c:bhit and the required flash_hits_mon, show_transient_light, transient_light_cleanup, and discard_flashes behavior were source-traced and wired. The general bhit call-type family remains partial outside this branch. The separate WAN_LIGHT result path added in bhitm is reached by apply.c:do_break_wand -> broken_wand_explode; JS doapply still refuses that caller before the explosion, so recipes/apply.c/broken-light-wand-blocked.session.json remains blocked and this unrelated entry path is not claimed complete.",
+            "callers": [
+              {
+                "path": "js/apply.js",
+                "symbol": "use_camera",
+                "source": "apply.c:use_camera() calls do_blinding_ray(obj) on the ordinary aimed-camera branch (106)."
+              }
+            ],
+            "pure": false,
+            "tests": [],
+            "recordings": [
+              "recordings/apply.c/camera-tourist-independent.session.json",
+              "recordings/apply.c/camera-flash-monster-independent.session.json",
+              "recordings/apply.c/camera-gremlin-hit-independent.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v3",
+                "caseId": "tourist-camera-flash-complete",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 11,
+                "source": "cmd.c command table 'a' -> apply.c:doapply() EXPENSIVE_CAMERA arm -> use_camera() -> do_blinding_ray() -> zap.c:bhit(FLASHED_LIGHT) -> uhitm.c:flash_hits_mon()"
+              }
+            ],
+            "checkedAt": "74bd31c01631a92d835ba988cdb3a0ed892ec87b"
+          },
+          {
+            "name": "use_camera",
+            "implementation": "js/apply.js",
+            "symbol": "use_camera",
+            "sourceReview": "Read the complete apply.c:use_camera() definition (79-111). The water guard precedes direction selection; cancellation returns ECMD_CANCEL; an empty camera prints nothing_happens and returns ECMD_TIME; a charge is consumed before cursed backfire; swallowed and vertical targets print their source descriptions; a zero direction takes the selfie path; otherwise the function calls do_blinding_ray. The JS preserves those branches and order, including the expensive-camera close-up after flash_hits_mon and the final transient-light cleanup in do_blinding_ray. The C EXPENSIVE_CAMERA arm in doapply (4353) is wired to use_camera, and the existing 'a' command dispatcher reaches doapply. The separate v3 tourist-camera-flash case stops at the pre-existing doapply default arm for object type 264 before the camera arm; it is not evidence for this source range. The unrelated WAN_LIGHT/broken-wand caller remains explicitly blocked as described above.",
+            "callers": [
+              {
+                "path": "js/apply.js",
+                "symbol": "doapply",
+                "source": "apply.c:doapply() EXPENSIVE_CAMERA case calls use_camera(obj) (4352-4353)."
+              },
+              {
+                "path": "js/cmd.js",
+                "symbol": "runApplyCommand",
+                "source": "cmd.c command-table entry 'a' dispatches doapply (1677-1678); JS rhack routes the apply command through runApplyCommand()."
+              }
+            ],
+            "pure": false,
+            "tests": [],
+            "recordings": [
+              "recordings/apply.c/camera-tourist-independent.session.json",
+              "recordings/apply.c/camera-flash-monster-independent.session.json",
+              "recordings/apply.c/camera-gremlin-hit-independent.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v3",
+                "caseId": "tourist-camera-flash-complete",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 11,
+                "source": "cmd.c command table 'a' -> apply.c:doapply() EXPENSIVE_CAMERA arm -> use_camera() -> do_blinding_ray() -> zap.c:bhit(FLASHED_LIGHT)"
+              }
+            ],
+            "checkedAt": "74bd31c01631a92d835ba988cdb3a0ed892ec87b"
+          }
+        ],
+        "entryPointReview": "The selected apply.c range has one active production entry: the 'a' command-table entry in cmd.c (1677-1678) dispatches doapply, whose EXPENSIVE_CAMERA arm calls use_camera; its ordinary aimed branch calls do_blinding_ray. That whole path matches in v3 tourist-camera-flash-complete through segment 0, step 11 and in the three independent camera recordings. The other selected v3 case, tourist-camera-flash, first stops at doapply's default arm for object type 264 (step 4) and does not reach use_camera; that separate gap is not represented as camera evidence. The code also adds zap.c:bhitm(WAN_LIGHT), but its active C caller is apply.c:do_break_wand -> broken_wand_explode -> bhitm; JavaScript still refuses before that explosion, and the retained blocked recipe names this dependency. The minion.c:msummon caller was wired to the transient-light helpers, but its changed Angel-only branch has no matching runtime recording; the existing water-demon msummon recording does not exercise that branch. Preserve these cross-file gaps for integration review rather than treating them as verified source units.",
+        "entryPoints": [
+          {
+            "name": "apply command using an expensive camera",
+            "functions": [
+              "use_camera",
+              "do_blinding_ray"
+            ],
+            "recordings": [
+              "recordings/apply.c/camera-tourist-independent.session.json",
+              "recordings/apply.c/camera-flash-monster-independent.session.json",
+              "recordings/apply.c/camera-gremlin-hit-independent.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v3",
+                "caseId": "tourist-camera-flash-complete",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 11,
+                "source": "cmd.c command table 'a' -> apply.c:doapply() EXPENSIVE_CAMERA arm -> use_camera() -> do_blinding_ray()"
+              }
+            ]
+          }
+        ]
+      },
+      "progressBeforePark": {
+        "screens": 0,
+        "rng": 0
+      },
+      "parkedStanding": {
+        "sha": "74bd31c01631a92d835ba988cdb3a0ed892ec87b",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "parkedReason": "The selected apply.c do_blinding_ray and use_camera functions have verified source and recorded camera entry-point evidence, and the v3 complete camera case now matches. Keep the expanded cross-file work open: zap.c bhitm(WAN_LIGHT) is blocked by apply.c do_break_wand before the broken_wand_explode caller, as the retained blocked recipe shows; minion.c msummon Angel-only flash branch lacks matching runtime evidence. The separate v3 tourist-camera-flash case still stops in apply.c doapply default for food object 264 before any camera arm and is queued as independent follow-up."
     },
     {
       "id": "port-music-put-monsters-to-sleep-synthetic-v4-20260926",
