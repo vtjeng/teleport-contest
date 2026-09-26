@@ -5,8 +5,10 @@ import {
     COLNO,
     CORR,
     DBWALL,
+    DIGTYP_BOULDER,
     DIGTYP_DOOR,
     DIGTYP_ROCK,
+    DIGTYP_STATUE,
     DIGTYP_TREE,
     DIGTYP_UNDIGGABLE,
     DOOR,
@@ -14,6 +16,7 @@ import {
     D_LOCKED,
     D_NODOOR,
     DRAWBRIDGE_DOWN,
+    FLYING,
     FOUNTAIN,
     IRONBARS,
     IS_WALL,
@@ -22,16 +25,19 @@ import {
     POOL,
     MOAT,
     LAVAPOOL,
+    PIT,
     ROOM,
     ROWNO,
     SDOOR,
     STONE,
+    TT_PIT,
     TREE,
     VWALL,
     W_NONDIGGABLE,
 } from '../js/const.js';
 import {
     adj_pit_checks, dig_typ, fillholetyp, is_digging, mdig_tunnel,
+    pick_can_reach,
     rot_corpse, unportedRotCorpseReason,
 } from '../js/dig.js';
 import { GameMap } from '../js/game.js';
@@ -54,6 +60,7 @@ import {
     LONG_SWORD,
     PICK_AXE,
     ROCK,
+    STATUE,
     objects_globals_init,
 } from '../js/objects.js';
 import { timeout_globals_init } from '../js/timeout.js';
@@ -221,6 +228,67 @@ test('dig_typ answers undiggable for a square off the map', () => {
     assert.equal(
         dig_typ(tool(PICK_AXE, state), 0, Y, state), DIGTYP_UNDIGGABLE,
     );
+});
+
+test('pick_can_reach follows pit, bimanual, and flight rules', () => {
+    const state = digState();
+    const pick = tool(PICK_AXE, state);
+    const mattock = tool(DWARVISH_MATTOCK, state);
+    const target = { tx: X + 1, ty: Y, ttyp: PIT, tseen: false, conjoined: 0 };
+    const heroPit = { tx: X, ty: Y, ttyp: PIT, tseen: true, conjoined: 0 };
+    state.level.traps = [target, heroPit];
+    state.u = {
+        ux: X, uy: Y, utrap: 0, utraptype: 0,
+        uprops: { [FLYING]: { intrinsic: 0, extrinsic: 0, blocked: 0 } },
+    };
+
+    assert.equal(pick_can_reach(pick, X + 1, Y, state), true,
+        'a grounded one-handed pick reaches a statue outside a pit');
+    target.tseen = true;
+    assert.equal(pick_can_reach(pick, X + 1, Y, {
+        ...state,
+        level: { ...state.level, traps: [target] },
+    }), false, 'a one-handed pick cannot reach into a known pit');
+    assert.equal(pick_can_reach(mattock, X + 1, Y, {
+        ...state,
+        level: { ...state.level, traps: [target] },
+    }), true, 'a two-handed mattock reaches into a pit from outside');
+    assert.equal(pick_can_reach(pick, X + 1, Y, {
+        ...state,
+        u: {
+            ...state.u,
+            uprops: {
+                [FLYING]: { intrinsic: 1, extrinsic: 0, blocked: 0 },
+            },
+        },
+        level: { ...state.level, traps: [target] },
+    }), true, 'a flying hero can reach a target in a known pit');
+
+    state.u.utrap = 1;
+    state.u.utraptype = TT_PIT;
+    assert.equal(pick_can_reach(pick, X + 1, Y, state), false,
+        'two unjoined pits cannot be reached through');
+    heroPit.conjoined = 1 << 4;
+    target.conjoined = 1 << 0;
+    assert.equal(pick_can_reach(pick, X + 1, Y, state), true,
+        'conjoined pits permit reaching through');
+});
+
+test('dig_typ prefers reachable statues and boulders before terrain', () => {
+    const state = digState();
+    state.u = {
+        ux: X, uy: Y, utrap: 0, utraptype: 0,
+        uprops: { [FLYING]: { intrinsic: 0, extrinsic: 0, blocked: 0 } },
+    };
+    const pick = tool(PICK_AXE, state);
+    const pile = { otyp: STATUE, nexthere: null };
+    state.level.objects[X][Y] = pile;
+    assert.equal(dig_typ(pick, X, Y, state), DIGTYP_STATUE);
+
+    pile.otyp = BOULDER;
+    assert.equal(dig_typ(pick, X, Y, state), DIGTYP_BOULDER);
+    state.level.at(X, Y).typ = VWALL;
+    assert.equal(dig_typ(pick, X, Y, state), DIGTYP_BOULDER);
 });
 
 test('fillholetyp preserves liquid counts, weighting and draw order', () => {

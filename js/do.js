@@ -99,6 +99,7 @@ import {
 import { reset_trapset } from './apply.js';
 import { bones_include_name } from './bones.js';
 import { obj_resists } from './bury.js';
+import { use_pick_axe2 } from './dig.js';
 import { ballrelease, drag_down, placebc, unplacebc } from './ball.js';
 import { next_to_u } from './apply_next_to_u.js';
 import {
@@ -1410,7 +1411,7 @@ async function u_stuck_cannot_go(updn, state = game) {
 // Five of its arms stop rather than run, each named at the throw. What remains
 // is the ordinary answer for a hero standing where there is no way down:
 // "You can't go down here." with no turn spent.
-export async function dodown(state = game) {
+export async function dodown(state = game, env = {}) {
     const u = state.u;
     let trap = null;
 
@@ -1471,11 +1472,8 @@ export async function dodown(state = game) {
                    || !Can_fall_thru(u.uz, state) || !trap.tseen) {
             if (state.flags?.autodig && !state.context?.nopick
                 && state.uwep && is_pick(state.uwep, state)) {
-                // do.c:1233. dig.c use_pick_axe2() digs down through the
-                // floor, which digging owns.
-                throw new UnsupportedLevelChangeError(
-                    'dodown() digging down with a wielded pick-axe',
-                );
+                // do.c:1233 returns dig.c use_pick_axe2()'s command result.
+                return use_pick_axe2(state.uwep, state, env);
             }
             await ttyPline(
                 'You can\'t go down here'

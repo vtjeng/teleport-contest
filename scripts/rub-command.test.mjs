@@ -349,20 +349,17 @@ for (const {
     });
 }
 
-test('wield_tool keeps other lamp types outside this slice', async () => {
+test('wield_tool handles oil lamps through the common C path', async () => {
     await runSegment(segmentThroughWish());
     const lamp = inventoryObject(MAGIC_LAMP);
     assert.ok(lamp, 'the debug wish created the lamp used for this boundary');
-    // apply.c routes oil lamps through the same wield_tool() call, but the
-    // queued slice explicitly leaves oil and brass lamp behavior unported.
-    // Reusing the wished tool with OIL_LAMP's source type selects that case
-    // without adding a second debug wish or another input sequence.
+    // apply.c routes every lamp through wield_tool(). wield.c:683-758 has no
+    // lamp-type exclusion: an ordinary oil lamp reaches its common wield,
+    // slot update and successful return.
     lamp.otyp = OIL_LAMP;
-    await assert.rejects(
-        () => wield_tool(lamp, 'rub', game),
-        /wield_tool\(\) with a non-magic lamp/u,
-    );
-    assert.notEqual(game.uwep, lamp);
+    assert.equal(await wield_tool(lamp, 'rub', game), true);
+    assert.equal(game.uwep, lamp);
+    assert.match(game._pending_message, /You now wield a lamp\.$/u);
 });
 
 test('dorub refuses a form without hands before prompting', async () => {
