@@ -84323,6 +84323,49 @@
         "rng": 792838
       },
       "parkedReason": "Validated deadbook_pacify_undead and learn. Keep deadbook invocation-square entry incomplete until teleport.c:scrolltele/getpos.c:getpos setup matches; keep book_cursed live-study transition incomplete until read.c:doread book selection matches. Independent blocked recipes are committed under recipes/spell.c/."
+    },
+    {
+      "id": "port-apply-doapply-saddle-synthetic-v7-20260926",
+      "kind": "file-port",
+      "status": "queued",
+      "summary": "Port apply.c doapply with the SADDLE arm and steed.c use_saddle return path",
+      "cFile": "apply.c",
+      "sessions": [
+        "synthetic/v7/saddled-horse-mount-knight-corrected"
+      ],
+      "selectionReason": "Highest ranked unreserved complete synthetic investigation: v7 saddled horse has 10 unmatched screens at doapply SADDLE; v5 Healer wand case is reserved by B17.",
+      "detail": "Port the full apply.c doapply function in C order, including SADDLE selection and common ECMD return handling. Port return-valued steed.c use_saddle and its required can_saddle/put_saddle_on_mon family from source, relocate those helpers from js/dog.js into js/steed.js if safe, and wire the production apply command. Validate the v7 saddle and later ride sequence plus independent C recordings for impure branches. Preserve every existing match and record any unmet entry-point evidence explicitly.",
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": null,
+      "delivered": null,
+      "functions": [
+        {
+          "name": "doapply",
+          "line": 4214,
+          "endLine": 4430,
+          "declared": true,
+          "complete": false
+        }
+      ],
+      "range": {
+        "from": 4214,
+        "to": 4430
+      },
+      "syntheticProvenance": {
+        "synthetic/v7/saddled-horse-mount-knight-corrected": {
+          "session": "synthetic/v7/saddled-horse-mount-knight-corrected",
+          "corpus": "synthetic",
+          "batch": "v7",
+          "caseId": "saddled-horse-mount-knight-corrected",
+          "manifestPath": "challenges/manifests/v7.json",
+          "manifestSha256": "03a861a9d1bc9d813c80681312ee7a0e0f893dbad0536de40a974bd5ec344094",
+          "recordingPath": "challenges/cases/v7/saddled-horse-mount-knight-corrected.session.json",
+          "recordingSha256": "51bc1d8c879266bcfabe97d5b1603122ed885c3f23cef4f2cd712ebdd1fc3f23",
+          "evaluationPath": "challenges/evaluations/20260926154456-v7.json",
+          "evaluationCommit": "01f035d6eb4b7d39db01c8dbf18738ea9298e75b"
+        }
+      }
     }
   ]
 }
