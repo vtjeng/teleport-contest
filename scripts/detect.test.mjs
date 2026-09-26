@@ -47,14 +47,20 @@ import {
     WARNING,
 } from '../js/const.js';
 import {
+    check_map_spot,
     cvt_sdoor_to_door,
     dosearch,
     dosearch0,
     findit,
     monster_detect,
+    o_in,
+    o_material,
+    reconstrain_map,
     UnsupportedSearchError,
+    unconstrain_map,
     warnreveal,
 } from '../js/detect.js';
+import { def_char_is_furniture } from '../js/drawing.js';
 import { distant_monnam } from '../js/do_name.js';
 import {
     back_to_glyph,
@@ -67,6 +73,7 @@ import {
     newsym,
     object_glyph_info,
     map_invisible_planning,
+    objnum_to_glyph,
     remembered_glyph_from_presentation,
     trap_glyph_info,
     warning_of,
@@ -81,8 +88,13 @@ import {
     CHEST,
     CORPSE,
     FOOD_CLASS,
+    GOLD,
+    IRON,
+    LARGE_BOX,
     LENSES,
+    TOOL_CLASS,
 } from '../js/objects.js';
+import { DEFAULT_PRIMARY_SYMBOLS } from '../js/symbol_data.js';
 import {
     M1_CONCEAL,
     M1_HIDE,
@@ -142,6 +154,92 @@ function searchState() {
         },
     };
 }
+
+test('detect.c object-chain searches preserve class, material, and Schrödinger order', () => {
+    const match = { oclass: TOOL_CLASS, otyp: 3, cobj: null, nobj: null };
+    const nested = { oclass: FOOD_CLASS, otyp: 4, cobj: match, nobj: null };
+    const root = { oclass: FOOD_CLASS, otyp: 5, cobj: nested, nobj: null };
+    const state = {
+        objects: [
+            {}, {}, {}, { oc_material: IRON }, { oc_material: GOLD },
+            { oc_material: 0 },
+        ],
+    };
+
+    assert.equal(o_in(root, TOOL_CLASS, state), match);
+    assert.equal(o_material(root, IRON, state), match);
+    assert.equal(o_material(root, GOLD, state), nested);
+
+    const unresolvedBox = {
+        oclass: 0,
+        otyp: LARGE_BOX,
+        spe: 1,
+        cobj: match,
+    };
+    assert.equal(o_in(unresolvedBox, TOOL_CLASS, state), null);
+});
+
+test('detect.c check_map_spot preserves the stale-gold map exception', () => {
+    const x = 2;
+    const y = 3;
+    const location = { disp_glyph: { glyph: objnum_to_glyph(3) } };
+    const objects = Array.from({ length: 5 }, () => ({}));
+    objects[3] = { oc_class: TOOL_CLASS, oc_material: GOLD };
+    objects[4] = { oc_material: IRON };
+
+    function spotState(floorObject = null) {
+        const levelObjects = [];
+        if (floorObject) {
+            levelObjects[x] = [];
+            levelObjects[x][y] = floorObject;
+        }
+        return {
+            objects,
+            level: {
+                objects: levelObjects,
+                monsters: [],
+                at: () => location,
+            },
+        };
+    }
+
+    assert.equal(check_map_spot(x, y, TOOL_CLASS, 0, spotState()), true);
+    assert.equal(check_map_spot(
+        x, y, TOOL_CLASS, GOLD, spotState({ otyp: 4, cobj: null }),
+    ), true);
+    const goldObjects = Array.from({ length: 5 }, () => ({}));
+    goldObjects[3] = { oc_class: TOOL_CLASS, oc_material: GOLD };
+    goldObjects[4] = { oc_material: GOLD };
+    const carryingGold = spotState({ otyp: 4, cobj: null });
+    carryingGold.objects = goldObjects;
+    assert.equal(check_map_spot(x, y, TOOL_CLASS, GOLD, carryingGold), false);
+});
+
+test('drawing.c furniture lookup uses the compiled symbol table', () => {
+    const upStair = String.fromCharCode(DEFAULT_PRIMARY_SYMBOLS[25]);
+    assert.equal(upStair, '<');
+    assert.equal(def_char_is_furniture(upStair), 25);
+    assert.equal(def_char_is_furniture('#'), -1);
+});
+
+test('detect.c unconstrain/reconstrain saves and restores every constraint', () => {
+    const state = {
+        u: { uinwater: 2, uburied: 1, uswallow: 0 },
+        iflags: {},
+    };
+    assert.equal(unconstrain_map(state), true);
+    assert.deepEqual(
+        [state.u.uinwater, state.u.uburied, state.u.uswallow], [0, 0, 0],
+    );
+    reconstrain_map(state);
+    assert.deepEqual(
+        [state.u.uinwater, state.u.uburied, state.u.uswallow], [2, 1, 0],
+    );
+    assert.deepEqual(
+        [state.iflags.save_uinwater, state.iflags.save_uburied,
+            state.iflags.save_uswallow], [0, 0, 0],
+    );
+});
 
 function monsterDetectionFixture() {
     const state = searchState();

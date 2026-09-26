@@ -84877,7 +84877,7 @@
     {
       "id": "port-detect-use-crystal-ball-synthetic-v7-20260926",
       "kind": "file-port",
-      "status": "queued",
+      "status": "parked",
       "summary": "Port detect.c use_crystal_ball and its detector result paths",
       "cFile": "detect.c",
       "sessions": [
@@ -84885,8 +84885,12 @@
       ],
       "selectionReason": "synthetic/v7/crystal-query-reached has 3 remaining screens at investigations/synthetic/v7/crystal-query-reached.json; detect.c:use_crystal_ball is the first eligible unreserved source owner after B17 reserves the higher-ranked v5 zap.c failure.",
       "detail": "C apply.c:doapply calls detect.c:use_crystal_ball for a charged crystal ball. The v7 case enters its symbol prompt and trap-detection query; port the whole function, consumed detector results, object charge and gaze state, and the doapply caller without case-specific behavior.",
-      "openedAt": null,
-      "openStanding": null,
+      "openedAt": "6785d49ebfdd746b011f0adab19256b3aad2655c",
+      "openStanding": {
+        "sha": "7569737cbf0690c981232e6a48d59efadb0aa198",
+        "screens": 11405,
+        "rng": 792838
+      },
       "closedAt": null,
       "delivered": null,
       "functions": [
@@ -84894,8 +84898,8 @@
           "name": "use_crystal_ball",
           "line": 1206,
           "endLine": 1371,
-          "declared": false,
-          "complete": false
+          "declared": true,
+          "complete": true
         }
       ],
       "range": {
@@ -84915,7 +84919,336 @@
           "evaluationPath": "challenges/evaluations/20260926180549-v7.json",
           "evaluationCommit": "27ef57edeff3c341b4c703e10bad99202c2bc7f2"
         }
-      }
+      },
+      "activeStanding": {
+        "sha": "7569737cbf0690c981232e6a48d59efadb0aa198",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v7",
+          "caseId": "crystal-query-reached",
+          "session": "synthetic/v7/crystal-query-reached",
+          "manifestPath": "challenges/manifests/v7.json",
+          "manifestSha256": "03a861a9d1bc9d813c80681312ee7a0e0f893dbad0536de40a974bd5ec344094",
+          "recording": "challenges/cases/v7/crystal-query-reached.session.json",
+          "recordingPath": "challenges/cases/v7/crystal-query-reached.session.json",
+          "recordingSha256": "71317422866c0e8eda5ca1c8c0681982f3843bef8e8a3f1ebd98d01890da5b5f",
+          "recipe": "challenges/cases/v7/crystal-query-reached.recipe.session.json",
+          "recipeSha256": "7438659f6eedd2afdf5949847ba955d4f99fc36755d80f8c1c00380d7374a7c6",
+          "replayInputSha256": "78d0ff22b6eed4cf57ceaf6420b8bd2f22ca29c74fcfa62ffdf0302c53aa4a8b",
+          "evaluationPath": "challenges/evaluations/20260926193350-v7.json",
+          "evaluationCommit": "7569737cbf0690c981232e6a48d59efadb0aa198",
+          "evaluationArtifact": "challenges/evaluations/20260926193350-v7.json",
+          "evaluationUtc": "2026-09-26T19:34:22.026Z",
+          "remainingScreens": 3,
+          "recordedSteps": 20,
+          "previousScreensMatched": 17,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 17,
+              "total": 20
+            },
+            "rng": {
+              "matched": 6293,
+              "total": 6296
+            },
+            "cursors": {
+              "matched": 17,
+              "total": 20
+            }
+          },
+          "firstMismatch": {
+            "screen": {
+              "index": 17,
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 17,
+                "key": "o"
+              },
+              "kind": "ch",
+              "row": 0,
+              "column": 0,
+              "cCell": {
+                "ch": "Y",
+                "color": 8,
+                "attr": 0,
+                "decgfx": 0
+              },
+              "jsCell": {
+                "ch": "W",
+                "color": 8,
+                "attr": 0,
+                "decgfx": 0
+              }
+            },
+            "rng": {
+              "index": 6293,
+              "cEntry": "rnd(20)=11",
+              "cCaller": "use_crystal_ball(detect.c:1218)",
+              "jsEntry": "rn2(12)=2",
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 17,
+                "key": "o"
+              },
+              "stepIndex": 17
+            },
+            "cursor": {
+              "index": 17,
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 17,
+                "key": "o"
+              },
+              "cCursor": [
+                67,
+                0,
+                1
+              ],
+              "jsCursor": [
+                13,
+                13,
+                1
+              ]
+            }
+          },
+          "step": 17,
+          "kind": "rng",
+          "sourceFile": "detect.c",
+          "function": "use_crystal_ball",
+          "message": null,
+          "cFile": "detect.c",
+          "luaFile": null,
+          "line": 1218,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v7/crystal-query-reached.json",
+            "result": {
+              "session": "synthetic/v7/crystal-query-reached",
+              "corpus": "synthetic",
+              "batch": "v7",
+              "caseId": "crystal-query-reached",
+              "manifestPath": "challenges/manifests/v7.json",
+              "manifestSha256": "03a861a9d1bc9d813c80681312ee7a0e0f893dbad0536de40a974bd5ec344094",
+              "recordingSha256": "71317422866c0e8eda5ca1c8c0681982f3843bef8e8a3f1ebd98d01890da5b5f",
+              "evaluationPath": "challenges/evaluations/20260926122253-v7.json",
+              "evaluationCommit": "f7e48bd93d6827c557c9a40a255a55cbc5fc8fcf",
+              "remainingScreens": 3,
+              "recordedSteps": 20,
+              "status": "complete",
+              "commit": "3543403d092a80dbeacd479a4fb0cb5c2d537413",
+              "mismatch": {
+                "corpus": "synthetic",
+                "batch": "v7",
+                "caseId": "crystal-query-reached",
+                "session": "synthetic/v7/crystal-query-reached",
+                "manifestPath": "challenges/manifests/v7.json",
+                "manifestSha256": "03a861a9d1bc9d813c80681312ee7a0e0f893dbad0536de40a974bd5ec344094",
+                "recording": "challenges/cases/v7/crystal-query-reached.session.json",
+                "recordingPath": "challenges/cases/v7/crystal-query-reached.session.json",
+                "recordingSha256": "71317422866c0e8eda5ca1c8c0681982f3843bef8e8a3f1ebd98d01890da5b5f",
+                "recipe": "challenges/cases/v7/crystal-query-reached.recipe.session.json",
+                "recipeSha256": "7438659f6eedd2afdf5949847ba955d4f99fc36755d80f8c1c00380d7374a7c6",
+                "replayInputSha256": "ba09b30aa45883696a6c2cbbe647b7a100c06ae9b741e0bcdf70fec164041447",
+                "evaluationPath": "challenges/evaluations/20260926122253-v7.json",
+                "evaluationCommit": "f7e48bd93d6827c557c9a40a255a55cbc5fc8fcf",
+                "evaluationArtifact": "challenges/evaluations/20260926122253-v7.json",
+                "evaluationUtc": "2026-09-26T12:23:06.868Z",
+                "remainingScreens": 3,
+                "recordedSteps": 20,
+                "previousScreensMatched": null,
+                "regression": false,
+                "passed": false,
+                "error": null,
+                "metrics": {
+                  "screens": {
+                    "matched": 17,
+                    "total": 20
+                  },
+                  "rng": {
+                    "matched": 6293,
+                    "total": 6296
+                  },
+                  "cursors": {
+                    "matched": 17,
+                    "total": 20
+                  }
+                },
+                "firstMismatch": {
+                  "kind": "stop",
+                  "message": "unsupported hero command: an unported branch of this command: applying a tool requires doapply()'s arm for object type 231",
+                  "step": 17
+                },
+                "step": 17,
+                "kind": "stop",
+                "sourceFile": "apply.c",
+                "function": "doapply",
+                "message": "unsupported hero command: an unported branch of this command: applying a tool requires doapply()'s arm for object type 231",
+                "cFile": "apply.c",
+                "luaFile": null,
+                "line": null
+              },
+              "summary": "Applying a wished crystal ball stops at the missing doapply CRYSTAL_BALL arm. C calls detect.c use_crystal_ball(), prompts for a symbol, and enters a trap-detection query. Port the whole crystal-ball function, its consumed detector results, and the doapply caller arm.",
+              "source": {
+                "file": "detect.c",
+                "branch": "A sighted hero applies a crystal ball with charges. apply.c doapply() selects CRYSTAL_BALL and passes the object pointer to use_crystal_ball(); the non-hallucinating branch asks What do you look for?, receives ^, starts gazing, consumes a charge, and calls trap_detect().",
+                "functions": [
+                  "use_crystal_ball"
+                ],
+                "callers": [
+                  "apply.c doapply() at 4358-4360 invokes detect.c use_crystal_ball(&obj).",
+                  "js/apply.js doapply() currently refuses object type 231 before reaching a detect.c equivalent; command dispatch enters through cmd.c apply command."
+                ],
+                "dependencies": [
+                  "C use_crystal_ball() consumes the return value of trap_detect() for ^, and also object_detect(), monster_detect(), furniture_detect() for other symbols; port any missing return-valued callee in the same task.",
+                  "The function mutates the pointed-to crystal ball when it explodes or implodes, consumes charges, schedules gaze occupation via nomul(), and controls prompt/message order.",
+                  "The doapply caller is currently reserved by the active grease task; this investigation is ready for later selection once that reservation is released."
+                ]
+              },
+              "goalKind": "file-port",
+              "evidence": [
+                "challenges/evaluations/20260926122253-v7.json at f7e48bd93d6827c557c9a40a255a55cbc5fc8fcf: synthetic/v7/crystal-query-reached matches 17/20 screens then stops at segment 0 step 17, applying object type 231.",
+                "challenges/cases/v7/crystal-query-reached.session.json: C step 17 after selecting o says You may look for an object, monster, or special map symbol.; step 18 asks What do you look for?; step 19 after ^ says You peer into the glass orb....",
+                "nethack-c/upstream/src/apply.c:4358-4360 sends CRYSTAL_BALL to use_crystal_ball(&obj); detect.c:1206-1363 defines the prompt, state, RNG and detector selection, including ^ -> trap_detect().",
+                "The JS stop occurs at the doapply arm before the C detect.c call, so the first fix needs production caller wiring as well as the whole use_crystal_ball source function."
+              ]
+            }
+          }
+        }
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "use_crystal_ball",
+            "implementation": "js/detect.js",
+            "symbol": "use_crystal_ball",
+            "sourceReview": "Compared the complete detect.c:use_crystal_ball() definition at 1206-1371. The implementation preserves Blind refusal, artifact/blessed comprehension thresholds, impairment RNG and all five source message/effect arms, hallucination text and charge handling, quitchars/ghost exception, nomul and multi state, makeknown before charge consumption, the ']' mimic alias, furniture/object/monster/boulder/trap/level dispatch order, consumed detector return values, random level selection, and the follow-up Wizard-vision chance. makeknown maps to discover_object(CRYSTAL_BALL, true, true, true), matching hack.h's Wisdom-exercise flag. Production callers are wired through apply.c:doapply and artifact.c:arti_invoke. Return-valued detector callees are implemented in source order; their discarded void display callees remain explicit note_unported gaps (detect.c:browse_map, detect.c:display_nhwindow, display.c:under_water, display.c:under_ground). No note_unported return is used as data. Matching records cover apply's monster-class, object-empty and no-trap paths and the regular-ball artifact-invoke level-clue path. Positive remote-object/trap and furniture-map paths remain blocked at detect.c:browse_map and have named recipes; the admitted v7 citation is only the matching shared charged-query prefix through the makeknown/Wisdom-exercise boundary.",
+            "callers": [
+              {
+                "path": "js/apply.js",
+                "symbol": "doapply",
+                "source": "apply.c:doapply() CRYSTAL_BALL arm calls use_crystal_ball(&obj) and discards its result."
+              },
+              {
+                "path": "js/artifacts.js",
+                "symbol": "arti_invoke",
+                "source": "artifact.c:arti_invoke() calls use_crystal_ball(&obj) for a regular crystal ball in its non-artifact/no-inv_prop arm, then returns ECMD_TIME."
+              }
+            ],
+            "pure": false,
+            "tests": [],
+            "recordings": [
+              "recordings/detect.c/crystal-ball-level-query.session.json",
+              "recordings/detect.c/crystal-ball-invoke-source.session.json",
+              "recordings/detect.c/crystal-ball-object-empty-source.session.json",
+              "recordings/detect.c/crystal-ball-trap-empty-source.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v7",
+                "caseId": "crystal-query-reached",
+                "segment": 0,
+                "fromStep": 17,
+                "throughStep": 19,
+                "source": "cmd.c apply dispatch -> apply.c:doapply() CRYSTAL_BALL arm -> detect.c:use_crystal_ball() through charged query selection and makeknown/Wisdom exercise"
+              }
+            ],
+            "checkedAt": "580b107974301f1a5c70b1698fd8ccf169c69c57"
+          }
+        ],
+        "entryPointReview": "Enumerated both active production callers: the 'a' apply command reaches apply.c:doapply() and its CRYSTAL_BALL arm; the #invoke command reaches artifact.c:doinvoke() -> arti_invoke(), whose regular-ball/no-inv_prop arm calls use_crystal_ball(). Independent complete records cover apply with a worm-tail monster query, an absent ring-class query, and a no-trap query; another complete record covers #invoke's unknown-symbol level clue and level_distance RNG. The admitted v7 case matches only the shared apply/charged-query prefix at segment 0 steps 17-19; it stops before a complete trap-result/browser interaction and is not used to claim that result branch. Active remote object-result, remote trap-map, and furniture-reveal routes were attempted with independent recipes but remain uncovered because C invokes the void detect.c:browse_map() farlook path, while the existing JS helper records that gap. Recipes crystal-ball-object-map-blocked, crystal-ball-trap-map-blocked, and crystal-ball-furniture-map-blocked preserve those source blockers. The blank evidence entries below are intentionally not completion claims. No source caller is build-excluded.",
+        "entryPoints": [
+          {
+            "name": "Apply charged crystal ball and query worm-tail monsters",
+            "functions": [
+              "use_crystal_ball"
+            ],
+            "recordings": [
+              "recordings/detect.c/crystal-ball-level-query.session.json"
+            ],
+            "synthetic": []
+          },
+          {
+            "name": "Invoke regular crystal ball and request a level clue",
+            "functions": [
+              "use_crystal_ball"
+            ],
+            "recordings": [
+              "recordings/detect.c/crystal-ball-invoke-source.session.json"
+            ],
+            "synthetic": []
+          },
+          {
+            "name": "Apply charged crystal ball and query an absent ring class",
+            "functions": [
+              "use_crystal_ball"
+            ],
+            "recordings": [
+              "recordings/detect.c/crystal-ball-object-empty-source.session.json"
+            ],
+            "synthetic": []
+          },
+          {
+            "name": "Apply charged crystal ball when trap detection finds no traps",
+            "functions": [
+              "use_crystal_ball"
+            ],
+            "recordings": [
+              "recordings/detect.c/crystal-ball-trap-empty-source.session.json"
+            ],
+            "synthetic": []
+          },
+          {
+            "name": "Apply charged crystal ball and enter the remote-trap query path",
+            "functions": [
+              "use_crystal_ball"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v7",
+                "caseId": "crystal-query-reached",
+                "segment": 0,
+                "fromStep": 17,
+                "throughStep": 19,
+                "source": "cmd.c apply dispatch -> apply.c:doapply() CRYSTAL_BALL arm -> detect.c:use_crystal_ball() charged query prefix"
+              }
+            ]
+          },
+          {
+            "name": "Apply charged crystal ball when detected objects require map browsing",
+            "functions": [
+              "use_crystal_ball"
+            ],
+            "recordings": [],
+            "synthetic": []
+          },
+          {
+            "name": "Apply charged crystal ball and reveal furniture locations",
+            "functions": [
+              "use_crystal_ball"
+            ],
+            "recordings": [],
+            "synthetic": []
+          }
+        ]
+      },
+      "progressBeforePark": {
+        "screens": 0,
+        "rng": 0
+      },
+      "parkedStanding": {
+        "sha": "580b107974301f1a5c70b1698fd8ccf169c69c57",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "parkedReason": "use_crystal_ball is source-reviewed and the v7 crystal case now matches completely, but positive remote object, trap, and furniture detections call detect.c:browse_map before the map can be fully replayed. Retain the three blocked independent recipes and resume after browse_map supports these map types; do not claim those entry points complete."
     },
     {
       "id": "port-do-wear-glibr-synthetic-v6-20260926",
@@ -86648,7 +86981,7 @@
     {
       "id": "port-do-wear-armoroff-synthetic-v6-20260926",
       "kind": "file-port",
-      "status": "queued",
+      "status": "closed",
       "summary": "Port complete do_wear.c armoroff delayed armor removal and production callbacks",
       "cFile": "do_wear.c",
       "sessions": [
@@ -86656,17 +86989,24 @@
       ],
       "selectionReason": "The current v6 healer takeoff-gloves case has 2 unmatched screens and a complete investigation at investigations/synthetic/v6/v6-add2-healer-takeoff-gloves.json. The only higher-ranked v7 crystal query is reserved by A14. C18 glibr is accepted, releasing do_wear.js; this is the first eligible unreserved source owner in the per-session queue.",
       "detail": "At segment 0 step 2, cmd.c dotakeoff reaches do_wear.c armoroff delayed glove category. Port whole armoroff including all armor categories, occupation delay, nomovemsg, and callback state; wire existing dotakeoff/doremring routes and validate an independent C recording for adjacent active categories. See the source-traced investigation.",
-      "openedAt": null,
-      "openStanding": null,
-      "closedAt": null,
-      "delivered": null,
+      "openedAt": "1df1ccb7c667bcdce6eb474852377ae713ab69b7",
+      "openStanding": {
+        "sha": "580b107974301f1a5c70b1698fd8ccf169c69c57",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "closedAt": "5f40b6037988123b4df4343160550886a3e929c9",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
       "functions": [
         {
           "name": "armoroff",
           "line": 1920,
           "endLine": 2010,
           "declared": true,
-          "complete": false
+          "complete": true
         }
       ],
       "range": {
@@ -86686,6 +87026,242 @@
           "evaluationPath": "challenges/evaluations/20260926193350-v6.json",
           "evaluationCommit": "7569737cbf0690c981232e6a48d59efadb0aa198"
         }
+      },
+      "activeStanding": {
+        "sha": "580b107974301f1a5c70b1698fd8ccf169c69c57",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v6",
+          "caseId": "v6-add2-healer-takeoff-gloves",
+          "session": "synthetic/v6/v6-add2-healer-takeoff-gloves",
+          "manifestPath": "challenges/manifests/v6.json",
+          "manifestSha256": "7523b91e823f4e3906c9acdc9a3d80f8469c27c2caab8fc8fbd6967dbfdcab5f",
+          "recording": "challenges/cases/v6/v6-add2-healer-takeoff-gloves.session.json",
+          "recordingPath": "challenges/cases/v6/v6-add2-healer-takeoff-gloves.session.json",
+          "recordingSha256": "4ae39f1c9f9635d40c237d69a00d8495c1511b0cfd0bc058720f417b03abc09b",
+          "recipe": "challenges/cases/v6/v6-add2-healer-takeoff-gloves.recipe.session.json",
+          "recipeSha256": "6c12ac36ccf35789b19a085d2890fed00fec31f9e9a31d53dc93bedf9184e88a",
+          "replayInputSha256": "f6e628436e8f800b46c53b3a835cafeaea0a5fddf5897d5f91568144e2ffe5c5",
+          "evaluationPath": "challenges/evaluations/20260926201323-v6.json",
+          "evaluationCommit": "580b107974301f1a5c70b1698fd8ccf169c69c57",
+          "evaluationArtifact": "challenges/evaluations/20260926201323-v6.json",
+          "evaluationUtc": "2026-09-26T20:13:40.528Z",
+          "remainingScreens": 2,
+          "recordedSteps": 4,
+          "previousScreensMatched": 2,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 2,
+              "total": 4
+            },
+            "rng": {
+              "matched": 2589,
+              "total": 2614
+            },
+            "cursors": {
+              "matched": 2,
+              "total": 4
+            }
+          },
+          "firstMismatch": {
+            "kind": "stop",
+            "message": "unsupported hero command: an unported branch of this command: take off reached an unported branch: armoroff() delayed branch for armor category 3",
+            "step": 2
+          },
+          "step": 2,
+          "kind": "stop",
+          "sourceFile": "do_wear.c",
+          "function": "armoroff",
+          "message": "unsupported hero command: an unported branch of this command: take off reached an unported branch: armoroff() delayed branch for armor category 3",
+          "cFile": "do_wear.c",
+          "luaFile": null,
+          "line": null,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v6/v6-add2-healer-takeoff-gloves.json",
+            "result": {
+              "session": "synthetic/v6/v6-add2-healer-takeoff-gloves",
+              "corpus": "synthetic",
+              "batch": "v6",
+              "caseId": "v6-add2-healer-takeoff-gloves",
+              "manifestPath": "challenges/manifests/v6.json",
+              "manifestSha256": "7523b91e823f4e3906c9acdc9a3d80f8469c27c2caab8fc8fbd6967dbfdcab5f",
+              "recordingSha256": "4ae39f1c9f9635d40c237d69a00d8495c1511b0cfd0bc058720f417b03abc09b",
+              "evaluationPath": "challenges/evaluations/20260926132731-v6.json",
+              "evaluationCommit": "d0a8041f88dd37cbf631877464c06cf985998274",
+              "remainingScreens": 2,
+              "recordedSteps": 4,
+              "status": "complete",
+              "commit": "d0a8041f88dd37cbf631877464c06cf985998274",
+              "mismatch": {
+                "corpus": "synthetic",
+                "batch": "v6",
+                "caseId": "v6-add2-healer-takeoff-gloves",
+                "session": "synthetic/v6/v6-add2-healer-takeoff-gloves",
+                "manifestPath": "challenges/manifests/v6.json",
+                "manifestSha256": "7523b91e823f4e3906c9acdc9a3d80f8469c27c2caab8fc8fbd6967dbfdcab5f",
+                "recording": "challenges/cases/v6/v6-add2-healer-takeoff-gloves.session.json",
+                "recordingPath": "challenges/cases/v6/v6-add2-healer-takeoff-gloves.session.json",
+                "recordingSha256": "4ae39f1c9f9635d40c237d69a00d8495c1511b0cfd0bc058720f417b03abc09b",
+                "recipe": "challenges/cases/v6/v6-add2-healer-takeoff-gloves.recipe.session.json",
+                "recipeSha256": "6c12ac36ccf35789b19a085d2890fed00fec31f9e9a31d53dc93bedf9184e88a",
+                "replayInputSha256": "a3ac3b6872f8e89451d29bdbf73b5215af57c013d215edeaba8f740cc0c5fc4a",
+                "evaluationPath": "challenges/evaluations/20260926132731-v6.json",
+                "evaluationCommit": "d0a8041f88dd37cbf631877464c06cf985998274",
+                "evaluationArtifact": "challenges/evaluations/20260926132731-v6.json",
+                "evaluationUtc": "2026-09-26T13:27:48.505Z",
+                "remainingScreens": 2,
+                "recordedSteps": 4,
+                "previousScreensMatched": 2,
+                "regression": false,
+                "passed": false,
+                "error": null,
+                "metrics": {
+                  "screens": {
+                    "matched": 2,
+                    "total": 4
+                  },
+                  "rng": {
+                    "matched": 2589,
+                    "total": 2614
+                  },
+                  "cursors": {
+                    "matched": 2,
+                    "total": 4
+                  }
+                },
+                "firstMismatch": {
+                  "kind": "stop",
+                  "message": "unsupported hero command: an unported branch of this command: take off reached an unported branch: armoroff() delayed branch for armor category 3",
+                  "step": 2
+                },
+                "step": 2,
+                "kind": "stop",
+                "sourceFile": "do_wear.c",
+                "function": "armoroff",
+                "message": "unsupported hero command: an unported branch of this command: take off reached an unported branch: armoroff() delayed branch for armor category 3",
+                "cFile": "do_wear.c",
+                "luaFile": null,
+                "line": null
+              },
+              "summary": "The stop is in `do_wear.c:armoroff()`'s delayed `ARM_GLOVES` branch. The Healer starts with one worn pair of leather gloves; `T` therefore reaches `armoroff()` directly, where C schedules one disrobing turn and `Gloves_off()` as the completion callback. JS `armoroff()` currently throws for every delayed category except `ARM_SUIT`, before scheduling that state transition.",
+              "source": {
+                "file": "do_wear.c",
+                "branch": "For an uncursed, selectable glove object with nonzero `oc_delay`, `armoroff()` enters its delayed branch; `oc_armcat == ARM_GLOVES` selects the glove-name and `Gloves_off` callback arm. In this recording the Healer has its single starting leather-glove armor item, so `dotakeoff()` bypasses the item prompt and reaches that branch on `T`.",
+                "functions": [
+                  "armoroff"
+                ],
+                "callers": [
+                  "C `cmd.c` binds `T` to `dotakeoff()`; `dotakeoff()` calls `armor_or_accessory_off()`, which calls `select_off()` and then `armoroff()` for armor.",
+                  "JS `cmd.js:runTakeOffCommand()` calls `do_wear.js:dotakeoff()`, which calls `armor_or_accessory_off()` and then `armoroff()` for armor."
+                ],
+                "dependencies": [
+                  "`u_init.c:Healer[]` supplies leather gloves; `objclass.h` defines `ARM_GLOVES` as 3 and `objects.h` gives glove objects delay 1.",
+                  "`select_off()` establishes the `WORN_GLOVES` takeoff selection; `armor_or_accessory_off()` resets that temporary selection and discards `armoroff()`'s return value, so completion is communicated through the delayed game state.",
+                  "C `armoroff()` calls `nomul(-1)`, sets `gm.multi_reason` to `disrobing`, assigns `ga.afternmv = Gloves_off`, and sets `gn.nomovemsg`. `allmain.c:380-387` calls `unmul()` when the delay expires; `hack.c:4177-4206` prints the completion message and invokes the callback.",
+                  "The corresponding JS `Gloves_off()` implementation is already present in `do_wear.js`; the first missing path is `armoroff()`'s category-3 delayed setup, before that callback is scheduled."
+                ]
+              },
+              "goalKind": "divergence-fix",
+              "evidence": [
+                "The saved evaluation `challenges/evaluations/20260926132731-v6.json` reports 2/4 screens matched, 2589/2614 RNG calls matched, and 2/4 cursors matched. The queue's first stop is segment 0 step 2 on `T`: JS raises `unsupported hero command: an unported branch of this command: take off reached an unported branch: armoroff() delayed branch for armor category 3`.",
+                "The recording `challenges/cases/v6/v6-add2-healer-takeoff-gloves.session.json` has inputs ` Tb`; its step 2 is `T`. C records `You finish taking off your gloves.` at that step and its AC changes from 8 to 10; step 3's `b` is the next move after takeoff.",
+                "C `nethack-c/upstream/src/u_init.c:76-81` gives the Healer leather gloves; `include/objects.h:686-688` defines their object delay as 1, and `include/objclass.h:37-44` assigns `ARM_GLOVES` value 3.",
+                "C `nethack-c/upstream/src/do_wear.c:1741-1756,1831-1854` counts the worn armor and bypasses `getobj()` when the sole armor piece is selected; `1771-1808` routes the selected worn armor through `select_off()` into `armoroff()`.",
+                "C `nethack-c/upstream/src/do_wear.c:1920-1972,2006-2007` contains the owner branch and its state contract: the glove arm stores `gloves_simple_name()`, installs `Gloves_off`, keeps the delayed disrobing state, sets the completion message, clears the transient takeoff mask, and returns. `allmain.c:380-387` and `hack.c:4177-4206` show how one immobile turn later runs the callback.",
+                "JS `js/do_wear.js:2972-2995` throws for delayed categories other than `ARM_SUIT` before `nomul()` and the callback/message assignments. `js/do_wear.js:2162-2205` already implements the `Gloves_off()` callback for the normal Healer glove path; the diagnosis is confined to the delayed `armoroff()` arm."
+              ]
+            }
+          }
+        }
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "armoroff",
+            "implementation": "js/do_wear.js",
+            "symbol": "armoroff",
+            "sourceReview": "Read the complete do_wear.c:armoroff() at 1920-2008. The JS computes delay as the negated object delay, calls the existing return-valued cursed() guard first, and retains C category order for both delayed and immediate paths. Delayed removal calls nomul(), sets disrobing reason, selects the simple-name helper and callback for all seven armor categories, and sets the completion message only when a name exists. Immediate removal invokes the matching category callback and then off_msg(). Both paths clear takeoff.mask and takeoff.what together before returning success. All return-valued callees are existing ports: cursed() and the category simple-name helpers. C discards impossible() in the two default arms; JS records that void gap as note_unported('pline.c impossible') without using its result. The task adds no new source unit for callback implementations.",
+            "callers": [
+              {
+                "path": "js/do_wear.js",
+                "symbol": "armor_or_accessory_off",
+                "source": "do_wear.c:armor_or_accessory_off:1807-1808"
+              },
+              {
+                "path": "js/do_wear.js",
+                "symbol": "dotakeoff",
+                "source": "do_wear.c:dotakeoff:1833-1854 -> armor_or_accessory_off:1854"
+              },
+              {
+                "path": "js/do_wear.js",
+                "symbol": "doremring",
+                "source": "do_wear.c:doremring:1874-1888 -> armor_or_accessory_off:1888"
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/take-off-armor.test.mjs"
+            ],
+            "recordings": [
+              "recordings/do_wear.c/healer-remove-gloves-r-independent.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v6",
+                "caseId": "v6-add2-healer-takeoff-gloves",
+                "segment": 0,
+                "fromStep": 2,
+                "throughStep": 3,
+                "source": "cmd.c:rhack T dispatch -> do_wear.c:dotakeoff -> armor_or_accessory_off -> armoroff; delayed ARM_GLOVES schedules Gloves_off and the callback completes through hack.c:unmul"
+              }
+            ],
+            "checkedAt": "5f40b6037988123b4df4343160550886a3e929c9"
+          }
+        ],
+        "entryPointReview": "The common active source entry is do_wear.c:armor_or_accessory_off(), called by dotakeoff() for T and doremring() for R. JS wires those command handlers through cmd.js:runTakeOffCommand and runRemoveCommand into rhack() result handling; a negative multi count keeps reading keys suspended until allmain.c:moveloop_core() releases it through hack.c:unmul(), which emits nomovemsg, clears the callback slot, and invokes the selected off callback. The admitted v6 Healer case matches on its complete segment and exercises T through the delayed gloves branch (segment 0, steps 2-3). A separate independently chosen Healer recipe exercises R selecting starting leather gloves and has a fully matching C/JS recording. Unit tests pin all seven category mappings in both delayed and immediate switches; for source categories with stock oc_delay zero, they set only the test game object delay to reach that C arm. The upstream select_off() boot check remains outside this task and blocks a command-driven boots entry before armoroff(); direct source-pinned switch tests cover its armoroff category arm. Invalid category defaults remain C impossible() gaps, represented with note_unported as their result is discarded.",
+        "entryPoints": [
+          {
+            "name": "T takeoff command removes worn Healer gloves",
+            "functions": [
+              "armoroff"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v6",
+                "caseId": "v6-add2-healer-takeoff-gloves",
+                "segment": 0,
+                "fromStep": 2,
+                "throughStep": 3,
+                "source": "cmd.c:rhack -> do_wear.c:dotakeoff -> armor_or_accessory_off -> armoroff -> hack.c:unmul -> Gloves_off"
+              }
+            ]
+          },
+          {
+            "name": "R remove command selects and removes worn Healer gloves",
+            "functions": [
+              "armoroff"
+            ],
+            "recordings": [
+              "recordings/do_wear.c/healer-remove-gloves-r-independent.session.json"
+            ],
+            "synthetic": []
+          }
+        ]
+      },
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "5f40b6037988123b4df4343160550886a3e929c9",
+        "screens": 11405,
+        "rng": 792838
       }
     },
     {
@@ -86729,6 +87305,71 @@
           "recordingSha256": "4534979fef17fa8fa9e66b98f1f3a2d6f5b15c94eb1fa38de3750d06c962b612",
           "evaluationPath": "challenges/evaluations/20260926193350-v6.json",
           "evaluationCommit": "7569737cbf0690c981232e6a48d59efadb0aa198"
+        }
+      }
+    },
+    {
+      "id": "div-apply-eyewear-default-synthetic-v6-20260926",
+      "kind": "divergence-fix",
+      "status": "queued",
+      "summary": "Port doapply eyewear selection and generic unsupported-item refusal from C",
+      "cFile": "apply.c",
+      "sessions": [
+        "synthetic/v6/wizard-grease-only",
+        "synthetic/v6/wizard-greasy-write-glib"
+      ],
+      "selectionReason": "C19 owns the higher-ranked healer armoroff case, B19 owns both dig cases and the trapdoor teleport dependency; these three v6 apply cases share doapply as the first unreserved source owner at steps 17 and 20. Group the two blindfold cases and adjacent generic default behavior in one source fix.",
+      "detail": "C apply.c:doapply BLINDFOLD/LENSES arm calls do_wear.c:Blindf_on or Blindf_off after getobj; JS rejects object type 233. The generic default checks pole, pick and axe, then prints Sorry, I do not know how to use that and returns ECMD_FAIL for object type 79; JS currently refuses. Port source branches and their sibling conditions, preserve existing apply matches, and verify independent C recordings.",
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": null,
+      "delivered": null,
+      "function": "doapply",
+      "session": "synthetic/v6/wizard-grease-hands-good",
+      "step": 17,
+      "syntheticProvenance": {
+        "synthetic/v6/wizard-grease-hands-good": {
+          "session": "synthetic/v6/wizard-grease-hands-good",
+          "corpus": "synthetic",
+          "batch": "v6",
+          "caseId": "wizard-grease-hands-good",
+          "manifestPath": "challenges/manifests/v6.json",
+          "manifestSha256": "7523b91e823f4e3906c9acdc9a3d80f8469c27c2caab8fc8fbd6967dbfdcab5f",
+          "recordingPath": "challenges/cases/v6/wizard-grease-hands-good.session.json",
+          "recordingSha256": "528226e80ce3b4852b1606a834fd132448c6d19be05f9b3e387cc81e5ca9f192",
+          "evaluationPath": "challenges/evaluations/20260926201323-v6.json",
+          "evaluationCommit": "580b107974301f1a5c70b1698fd8ccf169c69c57"
+        }
+      }
+    },
+    {
+      "id": "div-makemon-aligned-cleric-synthetic-v7-20260926",
+      "kind": "divergence-fix",
+      "status": "queued",
+      "summary": "Initialize aligned-cleric minion state before monster alignment",
+      "cFile": "makemon.c",
+      "sessions": [],
+      "selectionReason": "C19 and B19 own the higher-ranked armor and dig cases; trapdoor teleport is in B19 scope, and A15 owns the earlier apply.c doapply cases. This v7 priest case is the next independent source-traced two-screen candidate.",
+      "detail": "C makemon.c:makemon lines 1410-1426 initializes EMIN on aligned and high clerics without MM_EPRI/MM_EMIN, sets isminion and random min_align/renegade/peacefulness before set_malign. JS makemon_create.js lacks the arm. Trace full function siblings and preserve RNG order; validate the Ctrl-G production path and independent C recording.",
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": null,
+      "delivered": null,
+      "function": "makemon",
+      "session": "synthetic/v7/priest-outside-temple-chat",
+      "step": 27,
+      "syntheticProvenance": {
+        "synthetic/v7/priest-outside-temple-chat": {
+          "session": "synthetic/v7/priest-outside-temple-chat",
+          "corpus": "synthetic",
+          "batch": "v7",
+          "caseId": "priest-outside-temple-chat",
+          "manifestPath": "challenges/manifests/v7.json",
+          "manifestSha256": "03a861a9d1bc9d813c80681312ee7a0e0f893dbad0536de40a974bd5ec344094",
+          "recordingPath": "challenges/cases/v7/priest-outside-temple-chat.session.json",
+          "recordingSha256": "76f2f565d9ff27f51adb9638e2ee8b3eab7edbe6d8fe058d470d84e89bd861a0",
+          "evaluationPath": "challenges/evaluations/20260926201323-v7.json",
+          "evaluationCommit": "580b107974301f1a5c70b1698fd8ccf169c69c57"
         }
       }
     }

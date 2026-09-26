@@ -526,12 +526,7 @@ export async function make_blinded(xtime, talk, state = game, env = {}) {
         if (count !== 1) result = makeplural(result);
         return result;
     };
-    const strangeFeeling = () => {
-        // C's strange_feeling(NULL, NULL) has a discarded return and belongs
-        // to potion.c. Keep the source call visible without using a refusal
-        // as a substitute operation; its message owner is outside this span.
-        if (state === game) note_unported('potion.c strange_feeling');
-    };
+    const strangeFeeling = async () => strange_feeling(null, null, state);
 
     if (canSeeNow && !uCouldSee) {
         if (talk) {
@@ -547,7 +542,7 @@ export async function make_blinded(xtime, talk, state = game, env = {}) {
         // a blindfold, permanent blindness, or eyeless form in charge.
         if (talk) {
             if (!haseyes(state.youmonst?.data) || permaBlind) {
-                strangeFeeling();
+                await strangeFeeling();
             } else if (blindfolded) {
                 const name = eyes();
                 await message(`Your ${name} momentarily ${vtense(name, 'itch')}.`, state);
@@ -577,7 +572,7 @@ export async function make_blinded(xtime, talk, state = game, env = {}) {
     } else if (!old && xtime) {
         if (talk) {
             if (!haseyes(state.youmonst?.data) || permaBlind) {
-                strangeFeeling();
+                await strangeFeeling();
             } else if (blindfolded) {
                 const name = eyes();
                 await message(`Your ${name} momentarily ${vtense(name, 'twitch')}.`, state);
@@ -1280,6 +1275,21 @@ function Hallucination(state) {
     const resistance = state.u?.uprops?.[HALLUC_RES];
     return Boolean(prop?.intrinsic
         && !(resistance?.intrinsic || resistance?.extrinsic));
+}
+
+// C ref: potion.c strange_feeling() (1461-1475). An absent object is used by
+// crystal-ball trap detection and make_blinded(); otherwise a known object can
+// be called and the selected object is consumed after that prompt completes.
+export async function strange_feeling(obj, txt, state = game) {
+    const message = state.flags?.beginner || !txt
+        ? `You have a ${Hallucination(state) ? 'normal' : 'strange'}`
+            + ' feeling for a moment, then it passes.'
+        : txt;
+    await ttyPline(message, state);
+
+    if (!obj) return;
+    if (obj.dknown) await trycall(obj, state);
+    useup(obj, { state });
 }
 
 // C ref: potion.c dopotion() (618-641). Called by dodrink() after the potion
