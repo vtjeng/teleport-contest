@@ -1,7 +1,8 @@
-// Hero worn-object and weapon-slot primitives, plus the monster-inventory
-// extraction that shares them.
+// Hero worn-object and weapon-slot primitives, plus monster armor breakage
+// and inventory extraction.
 // C refs: src/worn.c setworn(), setnotworn(), recalc_telepat_range(),
-//         find_mac(), which_armor(), extract_from_minvent();
+//         find_mac(), which_armor(), m_lose_armor(), mon_break_armor(),
+//         extract_from_minvent();
 //         src/wield.c setuwep(), setuswapwep(), and setuqwep().
 
 import {
@@ -63,12 +64,14 @@ import {
     ART_OGRESMASHER,
     ART_SNICKERSNEE,
     artifact_light,
+    Stone_resistance,
 } from './artifacts.js';
 import { game } from './gstate.js';
 import { newsym } from './display.js';
 import { Monnam, mon_nam, hcolor } from './do_name.js';
 import { obj_extract_self, update_inventory } from './invent.js';
 import { check_gear_next_turn } from './mon.js';
+import { can_saddle } from './dog.js';
 import {
     M1_ANIMAL,
     M1_MINDLESS,
@@ -85,6 +88,10 @@ import {
 } from './monsters.js';
 import {
     ARM_BONUS,
+    Dragon_mail_to_pm,
+    Dragon_scales_to_pm,
+    Is_dragon_mail,
+    Is_dragon_scales,
     WrappingAllowed,
     curse,
     is_flimsy,
@@ -94,8 +101,22 @@ import {
     is_weptool,
     obj_no_longer_held,
     objectType,
+    place_object,
 } from './obj.js';
-import { cantweararm, has_horns, raceptr } from './mondata.js';
+import {
+    breakarm,
+    cantweararm,
+    has_horns,
+    mhim,
+    mhis,
+    nohands,
+    raceptr,
+    sliparm,
+    slithy,
+    touch_petrifies,
+    verysmall,
+    is_whirly,
+} from './mondata.js';
 import { s_suffix, strsubst, strncmpi } from './hacklib.js';
 import {
     AMULET_OF_GUARDING,
@@ -142,11 +163,17 @@ import { cansee, canseemon, vision_recalc } from './vision.js';
 import { arti_light_description } from './light.js';
 import { objectGenerationEnv } from './object_generation.js';
 import { begin_burn, end_burn } from './timeout.js';
+import { can_ride } from './steed.js';
+import { m_useup } from './mthrowu.js';
+import { surface } from './dungeon.js';
+import { youHear } from './monmove.js';
+import { rnl } from './rng.js';
 import { discover_object } from './o_init.js';
 import { note_unported } from './unported.js';
 import {
     distant_name,
     donameFresh,
+    cloak_simple_name,
     simpleonames,
     otense,
     Yname2,
@@ -1045,6 +1072,18 @@ export async function extract_from_minvent(
     return finish();
 }
 
+// C ref: worn.c m_lose_armor() (1038-1051). Remove worn monster armor,
+// place it at the monster's square, mark polymorph drops for bypass, then
+// redraw the occupied square in source order.
+async function m_lose_armor(monster, obj, polyspot, rawEnv = {}) {
+    const env = wornEnv(rawEnv);
+    const { state } = env;
+    await extract_from_minvent(monster, obj, true, false, env);
+    place_object(obj, monster.mx, monster.my, env);
+    if (polyspot) bypass_obj(obj, state);
+    newsym(monster.mx, monster.my, state);
+}
+
 export function bimanual(obj, state = game) {
     return (obj.oclass === WEAPON_CLASS || obj.oclass === TOOL_CLASS)
         && Boolean(objectType(obj, state).oc_bimanual);
@@ -1128,6 +1167,201 @@ export function bypass_obj(obj, state = game) {
     obj.bypass = true;
     state.context ??= {};
     state.context.bypasses = true;
+}
+
+// C ref: worn.c mon_break_armor() (1177-1338). Armor that a changed monster
+// cannot wear is destroyed or dropped in source order. The fall-specific
+// steed and petrification calls remain named gaps because their source owners
+// are not complete in this port.
+export async function mon_break_armor(monster, polyspot, rawEnv = {}) {
+    const env = wornEnv(rawEnv);
+    const { state } = env;
+    const message = env.message ?? ttyPline;
+    const random = { rnl, ...(env.random ?? {}) };
+    const data = monster.data;
+    const visible = cansee(monster.mx, monster.my, state);
+    const handlessOrTiny = nohands(data) || verysmall(data);
+    const pronoun = mhim(monster, { ...env, state });
+    const possessive = mhis(monster, { ...env, state });
+    const say = async (text) => message(
+        messageAt(text, monster.mx, monster.my, state), state, env,
+    );
+    const hear = async (text) => {
+        const heard = youHear(text, state);
+        if (heard) await message(heard, state, env);
+    };
+
+    if (breakarm(data)) {
+        let obj = which_armor(monster, W_ARM, state);
+        if (obj) {
+            if (!((Is_dragon_scales(obj)
+                    && data === Dragon_scales_to_pm(obj, state))
+                || (Is_dragon_mail(obj)
+                    && data === Dragon_mail_to_pm(obj, state)))) {
+                if (visible) {
+                    await say(`${Monnam(monster, state)} breaks out of `
+                        + `${possessive} armor!`);
+                } else {
+                    await hear('a cracking sound.');
+                }
+            }
+            // Soundeffect(se_cracking_sound, 100) is empty in the tty build.
+            await m_useup(monster, obj, env);
+        }
+
+        obj = which_armor(monster, W_ARMC, state);
+        if (obj && (obj.otyp !== MUMMY_WRAPPING || !WrappingAllowed(data))) {
+            if (obj.oartifact) {
+                if (visible) {
+                    await say(`${s_suffix(Monnam(monster, state))} `
+                        + `${cloak_simple_name(obj, state)} falls off!`);
+                }
+                await m_lose_armor(monster, obj, polyspot, env);
+            } else {
+                if (visible) {
+                    await say(`${s_suffix(Monnam(monster, state))} `
+                        + `${cloak_simple_name(obj, state)} tears apart!`);
+                } else {
+                    await hear('a ripping sound.');
+                }
+                // Soundeffect(se_ripping_sound, 100) is empty in tty.
+                await m_useup(monster, obj, env);
+            }
+        }
+
+        obj = which_armor(monster, W_ARMU, state);
+        if (obj) {
+            if (visible) {
+                await say(`${s_suffix(Monnam(monster, state))} shirt rips `
+                    + 'to shreds!');
+            } else {
+                await hear('a ripping sound.');
+            }
+            await m_useup(monster, obj, env);
+        }
+    } else if (sliparm(data)) {
+        const passesThroughClothes = !(data.msize <= MZ_SMALL);
+        let obj = which_armor(monster, W_ARM, state);
+        if (obj) {
+            if (visible) {
+                await say(`${s_suffix(Monnam(monster, state))} armor falls `
+                    + `around ${pronoun}!`);
+            } else {
+                await hear('a thud.');
+            }
+            // Soundeffect(se_thud, 50) is empty in tty.
+            await m_lose_armor(monster, obj, polyspot, env);
+        }
+
+        obj = which_armor(monster, W_ARMC, state);
+        if (obj && (obj.otyp !== MUMMY_WRAPPING || !WrappingAllowed(data))) {
+            if (visible) {
+                const cloakName = cloak_simple_name(obj, state);
+                if (is_whirly(data)) {
+                    await say(`${s_suffix(Monnam(monster, state))} ${cloakName}`
+                        + ' falls, unsupported!');
+                } else {
+                    await say(`${Monnam(monster, state)} shrinks out of `
+                        + `${possessive} ${cloakName}!`);
+                }
+            }
+            await m_lose_armor(monster, obj, polyspot, env);
+        }
+
+        obj = which_armor(monster, W_ARMU, state);
+        if (obj) {
+            if (visible) {
+                if (passesThroughClothes) {
+                    await say(`${Monnam(monster, state)} seeps right through `
+                        + `${possessive} shirt!`);
+                } else {
+                    await say(`${Monnam(monster, state)} becomes much too `
+                        + `small for ${possessive} shirt!`);
+                }
+            }
+            await m_lose_armor(monster, obj, polyspot, env);
+        }
+    }
+
+    if (handlessOrTiny) {
+        let obj = which_armor(monster, W_ARMG, state);
+        if (obj) {
+            if (visible) {
+                await say(`${Monnam(monster, state)} drops ${possessive} `
+                    + `gloves${monster.mw ? ' and weapon' : ''}!`);
+            }
+            await m_lose_armor(monster, obj, polyspot, env);
+        }
+
+        obj = which_armor(monster, W_ARMS, state);
+        if (obj) {
+            if (visible) {
+                await say(`${Monnam(monster, state)} can no longer hold `
+                    + `${possessive} shield!`);
+            } else {
+                await hear('a clank.');
+            }
+            // Soundeffect(se_clank, 50) is empty in tty.
+            await m_lose_armor(monster, obj, polyspot, env);
+        }
+    }
+
+    if (handlessOrTiny || has_horns(data)) {
+        const obj = which_armor(monster, W_ARMH, state);
+        if (obj && (handlessOrTiny || !is_flimsy(obj, state))) {
+            if (visible) {
+                await say(`${s_suffix(Monnam(monster, state))} helmet falls `
+                    + `to the ${surface(monster.mx, monster.my, state)}!`);
+            } else {
+                await hear('a clank.');
+            }
+            await m_lose_armor(monster, obj, polyspot, env);
+        }
+    }
+
+    if (handlessOrTiny || slithy(data) || data.mlet === S_CENTAUR) {
+        const obj = which_armor(monster, W_ARMF, state);
+        if (obj) {
+            if (visible) {
+                if (is_whirly(data)) {
+                    await say(`${s_suffix(Monnam(monster, state))} boots fall `
+                        + 'away!');
+                } else {
+                    await say(`${s_suffix(Monnam(monster, state))} boots `
+                        + `${verysmall(data) ? 'slide' : 'are pushed'} off `
+                        + `${possessive} feet!`);
+                }
+            }
+            await m_lose_armor(monster, obj, polyspot, env);
+        }
+    }
+
+    let noride = false;
+    if (!can_saddle(monster)) {
+        const saddle = which_armor(monster, W_SADDLE, state);
+        if (saddle) {
+            await m_lose_armor(monster, saddle, polyspot, env);
+            if (visible) {
+                await say(`${s_suffix(Monnam(monster, state))} saddle falls off.`);
+            }
+        }
+        if (monster === state.u.usteed) noride = true;
+    }
+
+    if (noride || (monster === state.u.usteed && !can_ride(monster, state))) {
+        await message(
+            `You can no longer ride ${mon_nam(monster, state)}.`, state, env,
+        );
+        const steed = state.u.usteed;
+        if (touch_petrifies(steed.data) && !Stone_resistance(state)
+            && random.rnl(3)) {
+            await message(`You touch ${mon_nam(steed, state)}.`, state, env);
+            note_unported('trap.c instapetrify');
+        }
+        // steed.c dismount_steed(DISMOUNT_FELL) discards no value, but its
+        // fall damage and wounded-leg path are still source-blocked here.
+        note_unported('steed.c dismount_steed DISMOUNT_FELL');
+    }
 }
 
 function clearMonsterObjectLists(monsters, state, resetLongWorm) {
