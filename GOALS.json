@@ -74188,7 +74188,7 @@
     {
       "id": "port-engrave-u-can-engrave-synthetic-v3-20260926",
       "kind": "file-port",
-      "status": "queued",
+      "status": "open",
       "summary": "Port engrave.c u_can_engrave and correct the doengrave entry call",
       "cFile": "engrave.c",
       "sessions": [
@@ -74196,8 +74196,12 @@
       ],
       "selectionReason": "The higher-ranked v4 nymph theft and v2 wizard spell memory cases are assigned to C9 and B6; v3 fingertip engraving is the next complete independent investigation with 10 unmatched screens.",
       "detail": "Port the whole u_can_engrave predicate from engrave.c and its doengrave caller using source terrain, swallowing, wield, and capacity tests in C order. Remove early JS floor reachability refusal and preserve the later doengrave stylus and floor checks. Diagnose any next repeat-engraving mismatch separately. See investigations/synthetic/v3/fingertip-engraving-return.json.",
-      "openedAt": null,
-      "openStanding": null,
+      "openedAt": "5a05a71488f78dfd08225f79588acd974b5a2a95",
+      "openStanding": {
+        "sha": "2d50156e1163b1b497818e5d02bd71131fab2149",
+        "screens": 11405,
+        "rng": 792838
+      },
       "closedAt": null,
       "delivered": null,
       "functions": [
@@ -74226,7 +74230,185 @@
           "evaluationPath": "challenges/evaluations/20260926003150-v3.json",
           "evaluationCommit": "2d50156e1163b1b497818e5d02bd71131fab2149"
         }
-      }
+      },
+      "activeStanding": {
+        "sha": "2d50156e1163b1b497818e5d02bd71131fab2149",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v3",
+          "caseId": "fingertip-engraving-return",
+          "session": "synthetic/v3/fingertip-engraving-return",
+          "manifestPath": "challenges/manifests/v3.json",
+          "manifestSha256": "922fd19b46005c40283152102ac301035c7f84f82a8e5e9d7caf691f183a2b67",
+          "recording": "challenges/cases/v3/fingertip-engraving-return.session.json",
+          "recordingPath": "challenges/cases/v3/fingertip-engraving-return.session.json",
+          "recordingSha256": "30a6dc31f656961b980c8e9a66c4616d677ba8ac74dbceeac186f25f7b1dde12",
+          "recipe": "challenges/cases/v3/fingertip-engraving-return.recipe.json",
+          "recipeSha256": "bcc6451a9b4be2a9babfc871c3c88e6f965e94cbbc470104a30d5bd29d043408",
+          "replayInputSha256": "c49122daad54598b53f5d530f6b50440a714d4c9d4f2ceaf9bbc357475b3a473",
+          "evaluationPath": "challenges/evaluations/20260926003150-v3.json",
+          "evaluationCommit": "2d50156e1163b1b497818e5d02bd71131fab2149",
+          "evaluationArtifact": "challenges/evaluations/20260926003150-v3.json",
+          "evaluationUtc": "2026-09-26T00:31:55.815Z",
+          "remainingScreens": 10,
+          "recordedSteps": 24,
+          "previousScreensMatched": 14,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 14,
+              "total": 24
+            },
+            "rng": {
+              "matched": 3016,
+              "total": 3016
+            },
+            "cursors": {
+              "matched": 14,
+              "total": 24
+            }
+          },
+          "firstMismatch": {
+            "kind": "stop",
+            "message": "unsupported hero command: an unported branch of this command: engrave requires an accessible ordinary floor",
+            "step": 14
+          },
+          "step": 14,
+          "kind": "stop",
+          "sourceFile": null,
+          "function": null,
+          "message": "unsupported hero command: an unported branch of this command: engrave requires an accessible ordinary floor",
+          "cFile": null,
+          "luaFile": null,
+          "line": null,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v3/fingertip-engraving-return.json",
+            "result": {
+              "session": "synthetic/v3/fingertip-engraving-return",
+              "corpus": "synthetic",
+              "batch": "v3",
+              "caseId": "fingertip-engraving-return",
+              "manifestPath": "challenges/manifests/v3.json",
+              "manifestSha256": "922fd19b46005c40283152102ac301035c7f84f82a8e5e9d7caf691f183a2b67",
+              "recordingPath": "challenges/cases/v3/fingertip-engraving-return.session.json",
+              "recordingSha256": "30a6dc31f656961b980c8e9a66c4616d677ba8ac74dbceeac186f25f7b1dde12",
+              "evaluationPath": "challenges/evaluations/20260925191954-v3.json",
+              "evaluationCommit": "7dd208a68ee62546cb117c2d9763f8e1e63fef62",
+              "remainingScreens": 10,
+              "recordedSteps": 24,
+              "status": "complete",
+              "commit": "4151ee7a2286fbfce141545c893e052e0c49a44d",
+              "mismatch": {
+                "corpus": "synthetic",
+                "batch": "v3",
+                "caseId": "fingertip-engraving-return",
+                "session": "synthetic/v3/fingertip-engraving-return",
+                "manifestPath": "challenges/manifests/v3.json",
+                "manifestSha256": "922fd19b46005c40283152102ac301035c7f84f82a8e5e9d7caf691f183a2b67",
+                "recording": "challenges/cases/v3/fingertip-engraving-return.session.json",
+                "recordingPath": "challenges/cases/v3/fingertip-engraving-return.session.json",
+                "recordingSha256": "30a6dc31f656961b980c8e9a66c4616d677ba8ac74dbceeac186f25f7b1dde12",
+                "recipe": "challenges/cases/v3/fingertip-engraving-return.recipe.json",
+                "recipeSha256": "bcc6451a9b4be2a9babfc871c3c88e6f965e94cbbc470104a30d5bd29d043408",
+                "replayInputSha256": "797b8ad4066ed0823165d5c09e817c1d11d155c36c3e08fd33e214cd1a8a90d1",
+                "evaluationPath": "challenges/evaluations/20260925191954-v3.json",
+                "evaluationCommit": "7dd208a68ee62546cb117c2d9763f8e1e63fef62",
+                "evaluationArtifact": "challenges/evaluations/20260925191954-v3.json",
+                "evaluationUtc": "2026-09-25T19:20:02.424Z",
+                "remainingScreens": 10,
+                "recordedSteps": 24,
+                "previousScreensMatched": null,
+                "regression": false,
+                "passed": false,
+                "error": null,
+                "metrics": {
+                  "screens": {
+                    "matched": 14,
+                    "total": 24
+                  },
+                  "rng": {
+                    "matched": 3016,
+                    "total": 3016
+                  },
+                  "cursors": {
+                    "matched": 14,
+                    "total": 24
+                  }
+                },
+                "firstMismatch": {
+                  "kind": "stop",
+                  "message": "unsupported hero command: an unported branch of this command: engrave requires an accessible ordinary floor",
+                  "step": 14
+                },
+                "step": 14,
+                "kind": "stop",
+                "sourceFile": null,
+                "function": null,
+                "message": "unsupported hero command: an unported branch of this command: engrave requires an accessible ordinary floor",
+                "cFile": null,
+                "luaFile": null,
+                "line": null
+              },
+              "summary": "The v3 engraving case matches 14/24 screens. After walking away from and back to the starting square, key E at step 14 is refused by js/engrave.js u_can_engrave() because it admits only ROOM/CORR and checks floor reachability before the stylus prompt. C engrave.c u_can_engrave() tests the source terrain categories with ACCESSIBLE() and does not test floor reachability there; C asks “What do you want to write with? [- ab or ?*]”. Port the whole source predicate and let doengrave apply later floor/stylus rules in their C order.",
+              "source": {
+                "file": "engrave.c",
+                "branch": "A sighted Valkyrie returns to her initial square after east/west movement and invokes E/engrave. C u_can_engrave() finds the square accessible, the hero able to wield and within capacity, then doengrave() prompts for a stylus. JS rejects before the prompt because its u_can_engrave() subset requires ROOM or CORR and can_reach_floor() at entry.",
+                "functions": [
+                  "u_can_engrave"
+                ],
+                "callers": [
+                  "engrave.c doengrave() at lines 956-968 calls u_can_engrave() and returns ECMD_FAIL only when it returns false; js/engrave.js doengrave() calls the partial predicate before selecting a writing implement.",
+                  "cmd.c E/engrave dispatch reaches doengrave(); the v3 recording proves this path at segment 0 step 14."
+                ],
+                "dependencies": [
+                  "Match C SURFACE_AT/ACCESSIBLE terrain test, engulfed animal/whirly text, lava/pool/fountain/air/solid rejection, cantwield() and check_capacity() return values. Do not move the later can_reach_floor() rule from doengrave() into the early predicate.",
+                  "The later bare-fingertip repeat-engraving path is still guarded by js/engrave.js doengrave() when an engraving exists; after the first predicate fix, replay may expose that separate source-owned branch."
+                ]
+              },
+              "goalKind": "file-port",
+              "evidence": [
+                "Saved challenges/evaluations/20260925191954-v3.json at 7dd208a68ee62546cb117c2d9763f8e1e63fef62 reports 14/24 screens and cursors, 3016/3016 RNG calls, and 10 unmatched screens.",
+                "Current diagnostic .cache/loop-v3-fingertip-engraving-diagnostic.json at 4151ee7a2286fbfce141545c893e052e0c49a44d stops at segment 0 step 14 key E with “engrave requires an accessible ordinary floor”; C asks for the writing implement instead.",
+                "C recording challenges/cases/v3/fingertip-engraving-return.session.json shows step 12 east, step 13 west, step 14 E prompting “What do you want to write with? [- ab or ?*]”, and step 15 key - writing in dust. This is a repeated engraving after returning to the initial square.",
+                "nethack-c/upstream/src/engrave.c u_can_engrave() at 503-541 tests swallowed, lava, pool/fountain, air and !ACCESSIBLE() terrain, then cantwield and check_capacity. It does not limit terrain to ROOM/CORR or call can_reach_floor at this point; doengrave() calls it at line 963 and tests can_reach_floor later after choosing a stylus.",
+                "js/engrave.js u_can_engrave() near line 204 throws when typ is outside ROOM/CORR or can_reach_floor() is false, before doengrave() can prompt. Its doengrave() remains a documented partial bare-fingertip implementation with a separate existing-engraving guard."
+              ],
+              "entryPointReview": {
+                "active": [
+                  "E/engrave after returning to the initial square: synthetic/v3/fingertip-engraving-return segment 0 steps 12-15."
+                ],
+                "blocked": [
+                  "The current u_can_engrave() rejects the source-accepted square at step 14 before the writing-implement prompt.",
+                  "After the predicate is ported, js/engrave.js doengrave() may reject the already-inscribed square; diagnose that later source branch from the new first replay difference."
+                ]
+              },
+              "plannedWholeFunctionScope": {
+                "primary": {
+                  "file": "engrave.c",
+                  "functions": [
+                    "u_can_engrave"
+                  ]
+                },
+                "callerWiring": [
+                  "doengrave() entry predicate in js/engrave.js"
+                ],
+                "downstreamSourceDependency": {
+                  "file": "engrave.c",
+                  "function": "doengrave",
+                  "status": "existing partial repeat-engraving branch; evaluate after the predicate reaches the C prompt"
+                }
+              }
+            }
+          }
+        }
+      ]
     }
   ]
 }
