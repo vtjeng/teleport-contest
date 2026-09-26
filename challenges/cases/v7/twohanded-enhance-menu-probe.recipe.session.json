@@ -1,0 +1,11 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 70726184,
+      "datetime": "20260927114500",
+      "nethackrc": "OPTIONS=name:BraggarShatter,role=Barbarian,race=human,gender=male,align=chaotic,playmode=debug,!legacy,!tutorial,!splash_screen,showexp,time\n",
+      "moves": " #levelchange\n20\n                   #enhance\ny"
+    }
+  ]
+}

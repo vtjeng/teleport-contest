@@ -1,0 +1,11 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 70726174,
+      "datetime": "20260927092000",
+      "nethackrc": "OPTIONS=name:MiraCanticle,role:Wizard,race:human,gender:female,align:neutral,playmode:debug,!legacy,!tutorial,!splash_screen,showexp,time\n",
+      "moves": " \u0007peaceful aligned cleric\ny#chat\nl"
+    }
+  ]
+}

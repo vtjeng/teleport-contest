@@ -1,0 +1,11 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 70726178,
+      "datetime": "20260927102000",
+      "nethackrc": "OPTIONS=name:BraggarShatter,role=Barbarian,race=human,gender=male,align=chaotic,playmode=debug,!legacy,!tutorial,!splash_screen,showexp,time\n",
+      "moves": " 3\u0007hostile soldier\nFlFyFb"
+    }
+  ]
+}

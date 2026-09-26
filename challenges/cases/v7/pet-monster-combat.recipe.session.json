@@ -1,0 +1,11 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 70726130,
+      "datetime": "20260926223000",
+      "nethackrc": "OPTIONS=name:VelaFight,role=Wizard,race:human,gender=female,align=neutral,playmode=debug,!legacy,!tutorial,!splash_screen,showexp,time\n",
+      "moves": " \u0007hostile elf zombie\nm.m.m."
+    }
+  ]
+}

@@ -325,6 +325,7 @@ import {
     thesimpleoname,
     Tobjnam,
     xnameFresh,
+    yname,
 } from './objnam.js';
 import { encumber_msg, u_safe_from_fatal_corpse } from './pickup.js';
 import { body_part, float_vs_flight } from './polyself.js';
@@ -336,6 +337,7 @@ import { find_ac } from './u_init_inventory_attrs.js';
 import { note_unported } from './unported.js';
 import { Glib, welded } from './wield.js';
 import { bimanual, setnotworn, setuswapwep, setworn } from './worn.js';
+import { shk_your } from './shk.js';
 
 // The armor callbacks can run during a planning polymorph.  Keep the live
 // defaults in one place while allowing that caller to supply its message and
@@ -2396,9 +2398,9 @@ export function count_worn_stuff(accessorizing, state = game) {
     return { which, Narmorpieces, Naccessories };
 }
 
-// C ref: do_wear.c inaccessible_equipment() (3338-3400). equip_ok() is the
-// only ported caller and passes a null `verb`, so C's three message arms have
-// no input; dip and grease, which supply one, are unported.
+// C ref: do_wear.c inaccessible_equipment() (3338-3400). Silent getobj
+// filters need its boolean synchronously; when C supplies a verb, the message
+// arm returns a promise so callers can preserve the same result and output.
 export function inaccessible_equipment(
     obj,
     verb,
@@ -2407,25 +2409,45 @@ export function inaccessible_equipment(
 ) {
     const anycovering = !only_if_known_cursed; /* more comprehensible... */
     const blocksaccess = (x) => anycovering || Boolean(x.cursed && x.bknown);
-
-    if (verb)
-        throw new UnsupportedTakeOffError('inaccessible_equipment() messages');
+    const blocked = (makeOuter) => {
+        if (!verb)
+            return true;
+        const outer = makeOuter();
+        return ttyPline(
+            `You need to take off ${outer} to ${verb} ${yname(obj, state)}.`,
+            state,
+        ).then(() => true);
+    };
     if (!obj || !obj.owornmask)
         return false; /* not inaccessible */
 
     /* check for suit covered by cloak */
     if (obj === state.uarm && state.uarmc && blocksaccess(state.uarmc))
-        return true;
+        return blocked(() => yname(state.uarmc, state));
     /* check for shirt covered by suit and/or cloak */
     if (obj === state.uarmu
-        && ((state.uarm && blocksaccess(state.uarm))
+            && ((state.uarm && blocksaccess(state.uarm))
             || (state.uarmc && blocksaccess(state.uarmc)))) {
-        return true;
+        return blocked(() => {
+            const sameprefix = Boolean(
+                state.uarm && state.uarmc
+                && shk_your(state.uarmc, state) === shk_your(state.uarm, state),
+            );
+            let outer = '';
+            if (state.uarmc)
+                outer += yname(state.uarmc, state);
+            if (state.uarm && state.uarmc)
+                outer += ' and ';
+            if (state.uarm)
+                outer += sameprefix
+                    ? xnameFresh(state.uarm, state) : yname(state.uarm, state);
+            return outer;
+        });
     }
     /* check for ring covered by gloves */
     if ((obj === state.uleft || obj === state.uright)
         && state.uarmg && blocksaccess(state.uarmg)) {
-        return true;
+        return blocked(() => yname(state.uarmg, state));
     }
     /* item is not inaccessible */
     return false;
