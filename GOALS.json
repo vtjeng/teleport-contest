@@ -74067,7 +74067,7 @@
     {
       "id": "port-steal-nymph-armor-delay-synthetic-v4-20260925",
       "kind": "file-port",
-      "status": "open",
+      "status": "parked",
       "summary": "Port nymph armor theft and delayed removal through the complete steal.c source family",
       "cFile": "steal.c",
       "sessions": [
@@ -74335,7 +74335,17 @@
             }
           }
         }
-      ]
+      ],
+      "progressBeforePark": {
+        "screens": 0,
+        "rng": 0
+      },
+      "parkedStanding": {
+        "sha": "07377e0c0ad51853b62a4b850c639a10fdb02db1",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "parkedReason": "Integrated source-ordered nymph delayed armor theft, ordinary worn-item removal, and dothrow singleton-worn caller; v4 nymph and v3 Ranger cases now match fully. Whole steal.c source-family completion remains blocked by the active thiefdead -> unstolenarm callback: two independent C setups did not reach mid-theft death, and no matching synthetic range or recording exercises unstolenarm. mon.c m_detach is wired only for the thief identity arm; its other active branches remain outside this task."
     },
     {
       "id": "port-zap-weffects-force-bolt-synthetic-v2-20260926",
