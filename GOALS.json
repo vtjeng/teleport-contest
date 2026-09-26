@@ -78005,7 +78005,7 @@
     {
       "id": "port-read-doread-cursed-teleport-synthetic-v5-20260926",
       "kind": "file-port",
-      "status": "queued",
+      "status": "open",
       "summary": "Port read.c doread and required seffects dispatch for cursed teleport scrolls",
       "cFile": "read.c",
       "sessions": [
@@ -78013,8 +78013,12 @@
       ],
       "selectionReason": "C12 seed continuation after C11: synthetic/v5/ranger-level-teleport-return has 11 unmatched screens and complete investigation at investigations/synthetic/v5/ranger-level-teleport-return.json; higher-ranked Samurai 63 is reserved by A9 and Healer 48 overlaps A9 js/zap.js. First stop step 34 belongs to read.c doread; no read.c reservation exists. v5 manifest 5e4430fbd724fe91720f898c02e6f25f9d98e884fa31bd696ca1a63e87abf150, recording 5e5b09826e4e3dd2e5689e72dd4093ba492baeae7718ff040c43dec8ba14b5f3, evaluation challenges/evaluations/20260926052853-v5.json.",
       "detail": "C read.c doread lines 330-646 admits sighted unconfused cursed teleport scroll; its return-valued seffects call requires porting the whole read.c seffects dispatch lines 2194-2290 in the same task. seffect_teleportation already routes cursed scrolls to level_tele. Wire source callers and retain independent entry evidence for all impure source paths.",
-      "openedAt": null,
-      "openStanding": null,
+      "openedAt": "efe8428b3390c871fc3c6b63afb6c172e844c254",
+      "openStanding": {
+        "sha": "efe8428b3390c871fc3c6b63afb6c172e844c254",
+        "screens": 11405,
+        "rng": 792838
+      },
       "closedAt": null,
       "delivered": null,
       "functions": [
@@ -78043,7 +78047,219 @@
           "evaluationPath": "challenges/evaluations/20260926052853-v5.json",
           "evaluationCommit": "7e18f426e5b6b4030afbc50c1720f1a79e82d57b"
         }
-      }
+      },
+      "activeStanding": {
+        "sha": "efe8428b3390c871fc3c6b63afb6c172e844c254",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v5",
+          "caseId": "ranger-level-teleport-return",
+          "session": "synthetic/v5/ranger-level-teleport-return",
+          "manifestPath": "challenges/manifests/v5.json",
+          "manifestSha256": "5e4430fbd724fe91720f898c02e6f25f9d98e884fa31bd696ca1a63e87abf150",
+          "recording": "challenges/cases/v5/ranger-level-teleport-return.session.json",
+          "recordingPath": "challenges/cases/v5/ranger-level-teleport-return.session.json",
+          "recordingSha256": "5e5b09826e4e3dd2e5689e72dd4093ba492baeae7718ff040c43dec8ba14b5f3",
+          "recipe": "challenges/cases/v5/ranger-level-teleport-return.recipe.session.json",
+          "recipeSha256": "fd03fdbf723176a81c357f3e735e7971148fdaaa46f90b3be4f095169a63bef7",
+          "replayInputSha256": "2abc643c9fb036ef71054531de6068b0f706e6fcf2cf15cfeb9e48aeaee5b0c5",
+          "evaluationPath": "challenges/evaluations/20260926052853-v5.json",
+          "evaluationCommit": "7e18f426e5b6b4030afbc50c1720f1a79e82d57b",
+          "evaluationArtifact": "challenges/evaluations/20260926052853-v5.json",
+          "evaluationUtc": "2026-09-26T05:29:08.589Z",
+          "remainingScreens": 11,
+          "recordedSteps": 45,
+          "previousScreensMatched": 34,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 34,
+              "total": 45
+            },
+            "rng": {
+              "matched": 2744,
+              "total": 5703
+            },
+            "cursors": {
+              "matched": 34,
+              "total": 45
+            }
+          },
+          "firstMismatch": {
+            "kind": "stop",
+            "message": "unsupported hero command: an unported branch of this command: reading requires the selected readable object branch",
+            "step": 34
+          },
+          "step": 34,
+          "kind": "stop",
+          "sourceFile": null,
+          "function": null,
+          "message": "unsupported hero command: an unported branch of this command: reading requires the selected readable object branch",
+          "cFile": null,
+          "luaFile": null,
+          "line": null,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v5/ranger-level-teleport-return.json",
+            "result": {
+              "session": "synthetic/v5/ranger-level-teleport-return",
+              "corpus": "synthetic",
+              "batch": "v5",
+              "caseId": "ranger-level-teleport-return",
+              "manifestPath": "challenges/manifests/v5.json",
+              "manifestSha256": "5e4430fbd724fe91720f898c02e6f25f9d98e884fa31bd696ca1a63e87abf150",
+              "recordingPath": "challenges/cases/v5/ranger-level-teleport-return.session.json",
+              "recordingSha256": "5e5b09826e4e3dd2e5689e72dd4093ba492baeae7718ff040c43dec8ba14b5f3",
+              "evaluationPath": "challenges/evaluations/20260926040211-v5.json",
+              "evaluationCommit": "d273b8936ba6746f4fa8287bf41668a9776c927c",
+              "remainingScreens": 11,
+              "recordedSteps": 45,
+              "status": "complete",
+              "commit": "d273b8936ba6746f4fa8287bf41668a9776c927c",
+              "mismatch": {
+                "corpus": "synthetic",
+                "batch": "v5",
+                "caseId": "ranger-level-teleport-return",
+                "session": "synthetic/v5/ranger-level-teleport-return",
+                "manifestPath": "challenges/manifests/v5.json",
+                "manifestSha256": "5e4430fbd724fe91720f898c02e6f25f9d98e884fa31bd696ca1a63e87abf150",
+                "recording": "challenges/cases/v5/ranger-level-teleport-return.session.json",
+                "recordingPath": "challenges/cases/v5/ranger-level-teleport-return.session.json",
+                "recordingSha256": "5e5b09826e4e3dd2e5689e72dd4093ba492baeae7718ff040c43dec8ba14b5f3",
+                "recipe": "challenges/cases/v5/ranger-level-teleport-return.recipe.session.json",
+                "recipeSha256": "fd03fdbf723176a81c357f3e735e7971148fdaaa46f90b3be4f095169a63bef7",
+                "replayInputSha256": "eec4ab1b95e3c6672a8e7a236bec8ba27ab458268a14ec32ddbc24161c098f73",
+                "evaluationPath": "challenges/evaluations/20260926040211-v5.json",
+                "evaluationCommit": "d273b8936ba6746f4fa8287bf41668a9776c927c",
+                "evaluationArtifact": "challenges/evaluations/20260926040211-v5.json",
+                "evaluationUtc": "2026-09-26T04:02:22.672Z",
+                "remainingScreens": 11,
+                "recordedSteps": 45,
+                "previousScreensMatched": null,
+                "regression": false,
+                "passed": false,
+                "error": null,
+                "metrics": {
+                  "screens": {
+                    "matched": 34,
+                    "total": 45
+                  },
+                  "rng": {
+                    "matched": 2744,
+                    "total": 5703
+                  },
+                  "cursors": {
+                    "matched": 34,
+                    "total": 45
+                  }
+                },
+                "firstMismatch": {
+                  "kind": "stop",
+                  "message": "unsupported hero command: an unported branch of this command: reading requires the selected readable object branch",
+                  "step": 34
+                },
+                "step": 34,
+                "kind": "stop",
+                "sourceFile": null,
+                "function": null,
+                "message": "unsupported hero command: an unported branch of this command: reading requires the selected readable object branch",
+                "cFile": null,
+                "luaFile": null,
+                "line": null
+              },
+              "summary": "The v5 evaluation matches 34/45 screens, then stops at segment 0 step 34 when the Ranger selects a wished cursed scroll of teleportation with `r`, `g`. C accepts the scroll, reports that it disappears, and reaches the controlled level-teleport prompt on the next screen. `read.c:doread()` has no cursed-scroll rejection for a sighted hero; it calls `seffects()`, whose teleportation arm calls `level_tele()` for a cursed scroll. JS `read.js:doread()` rejects this valid case because `calmTeleport` requires an uncursed scroll and `confusedTeleport` only admits a blessed, noncursed scroll while confused. JS already has the cursed `seffect_teleportation()` → `level_tele()` arm, so the first missing branch is the `doread()` admission path. The remaining post-teleport movement and return-to-level inputs have not been replayed past this stop and are not claimed as matching evidence.",
+              "source": {
+                "file": "read.c",
+                "functions": [
+                  "doread"
+                ],
+                "branch": "A debug-mode Ranger wishes for a cursed teleportation scroll, then reads it while sighted and not confused. read.c:doread() passes the readable scroll through its generic scroll path; read.c:seffects() dispatches SCR_TELEPORTATION to seffect_teleportation(), which calls level_tele() because the scroll is cursed. The recipe then supplies level 2 at the controlled prompt. The saved C recording shows “As you read the scroll, it disappears.” at step 34, the level prompt at step 35, and “You materialize on a different level!” at step 37.",
+                "callers": [
+                  "cmd.c:1817 binds the `r` command to doread(). js/cmd.js:runReadCommand() calls js/read.js:doread(), and the `doread` dispatcher routes that result back through the command loop.",
+                  "read.c:doread() obtains an object through getobj(\"read\", read_ok, GETOBJ_PROMPT); C read_ok() suggests scrolls and spellbooks. The read-object selection prompt at case step 33 already matches.",
+                  "read.c:doread() calls seffects(scroll) for ordinary scrolls and consumes its integer return to decide discovery and scroll cleanup. js/read.js currently calls its partial seffects() for the same source site.",
+                  "read.c:seffects() dispatches SCR_TELEPORTATION to seffect_teleportation(&sobj); that helper chooses level_tele() for cursed or confused scrolls. The JS seffects() and seffect_teleportation() contain this source branch."
+                ],
+                "dependencies": [
+                  "For a whole doread() port, hack.c:check_capacity() returns the early ECMD_OK decision, invent.c:getobj() returns the selected scroll or cancellation, spell.c:study_book() returns whether reading spent a turn, and read.c:seffects() returns whether the scroll was consumed; those are all consumed return values. check_capacity(), getobj(), and study_book() already have JS implementations, but seffects() is explicitly partial and currently covers only a subset of read.c switch arms. The source-compliant whole-function scope must complete that return-valued seffects() dependency, not treat note_unported() as its result.",
+                  "The selected seffects() arm calls read.c:seffect_teleportation(), a void helper. C read.c:2015-2032 and JS read.js:534-545 both route a cursed scroll to level_tele() and set gk.known; JS seffects() returns 0 so doread() retains responsibility for discovery and useup().",
+                  "The selected level_tele() path is controlled because wizard mode is active: it consumes getlin() input \"2\", then consumes the boolean from apply.c:next_to_u() on the common tail before scheduling a goto. JS teleport.js has the corresponding call, and apply_next_to_u.js returns true for the case with no leashed companions or steed; its pet and mount branches remain explicit refusals, but are not reached by this recipe. The evaluation stops before JS executes level_tele(), so replay evidence is still needed.",
+                  "The case continues with movement and an up-stairs command after arriving on level 2. Those later do.c movement/stair callers have not been diagnosed because the JS replay stops at the read branch."
+                ]
+              },
+              "goalKind": "file-port",
+              "evidence": [
+                "The current saved queue .cache/v5-baseline-mismatch-queue.json identifies this case at evaluation d273b8936ba6746f4fa8287bf41668a9776c927c as 34/45 screens and cursors, 2744/5703 RNG calls, 11 unmatched screens; the first stop is step 34 with the selected-readable-object refusal.",
+                "The independent recipe challenges/cases/v5/ranger-level-teleport-return.recipe.session.json uses seed 90525073 and debug Ranger options. Its recorded inputs wish `cursed scroll of teleportation`, then read it with `r`, `g`, answer `2` to level_tele(), and continue with `jjjjl< `.",
+                "The C recording challenges/cases/v5/ranger-level-teleport-return.session.json has key `g` at segment 0 step 34 and screen text “As you read the scroll, it disappears.”; step 35 asks “To what level do you want to teleport?”; step 37 reports “You materialize on a different level!” and status level 2.",
+                "nethack-c/upstream/src/read.c:330-646 admits the selected sighted scroll, sets pickup_prev, and reaches seffects(scroll) without requiring !cursed. read.c:2015-2032 routes the cursed scroll to level_tele(); read.c:2194-2290 returns whether seffects consumed the scroll.",
+                "js/read.js:346-458 has the failing admission gate: ordinaryScroll requires !scroll.cursed, calmTeleport depends on ordinaryScroll, and confusedTeleport is limited to blessed, noncursed confused teleportation scrolls. The resulting UnsupportedReadError is emitted before scroll.pickup_prev changes.",
+                "cmd.c:1817 and js/cmd.js:3382, 5110-5111 wire the `r` entry to doread(). Existing JS seffect_teleportation() handles cursed scrolls at read.js:534-545, but the selected record does not reach it."
+              ],
+              "entryPointReview": {
+                "active": [
+                  "Read a cursed teleportation scroll while sighted and not confused: synthetic/v5/ranger-level-teleport-return, segment 0 step 34; C then takes read.c:doread() → seffects() → seffect_teleportation() → teleport.c:level_tele()."
+                ],
+                "blocked": [
+                  "The JS doread() gate refuses every cursed teleportation scroll before C’s generic scroll path, so no JS replay evidence currently covers the cursed read or controlled level-teleport caller.",
+                  "The recorded inputs after arrival on level 2 (jjjjl<) have not been source-attributed in a matching JS replay; diagnose their first difference after the read path is enabled."
+                ],
+                "buildExcluded": [],
+                "exactReplayAttribution": "Saved evaluation 20260926040211-v5.json at d273b8936ba6746f4fa8287bf41668a9776c927c reports 34/45 screens and cursors and stops at step 34 with the exact UnsupportedReadError message. The C recording shows the cursed scroll read at step 34, the controlled level prompt at step 35, and arrival on level 2 at step 37."
+              },
+              "plannedWholeFunctionScope": {
+                "primary": {
+                  "file": "read.c",
+                  "functions": [
+                    "doread"
+                  ]
+                },
+                "callerWiring": [
+                  "cmd.c `r` command → doread(); JS cmd.js runReadCommand() → read.js doread()."
+                ],
+                "returnValuedDependencies": [
+                  {
+                    "file": "hack.c",
+                    "function": "check_capacity",
+                    "status": "existing JS implementation; doread() consumes its return value."
+                  },
+                  {
+                    "file": "invent.c",
+                    "function": "getobj",
+                    "status": "existing JS implementation; doread() consumes its returned object or cancellation."
+                  },
+                  {
+                    "file": "spell.c",
+                    "function": "study_book",
+                    "status": "existing whole JS implementation; doread() consumes its return value."
+                  },
+                  {
+                    "file": "read.c",
+                    "function": "seffects",
+                    "status": "partial JS implementation; whole function required because doread() consumes its return value."
+                  },
+                  {
+                    "file": "apply.c",
+                    "function": "next_to_u",
+                    "status": "existing partial JS helper called by level_tele(); the selected no-pet/no-steed return is implemented, with other branches explicitly refused."
+                  }
+                ],
+                "sourceTrace": [
+                  "read.c:doread() → read.c:seffects() → read.c:seffect_teleportation() → teleport.c:level_tele() for this cursed scroll.",
+                  "The selected teleporter branch in level_tele() consumes the controlled destination input and the boolean result from apply.c:next_to_u() before scheduling the level change."
+                ],
+                "scopeNote": "This is missing behavior inside a partial source port, so selection policy calls for a file-port of the whole read.c:doread() function, not a divergence fix scoped only to its cursed-scroll admission gate. Whole doread() also requires its consumed return-valued seffects() dependency to be completed; the present seffects() implementation covers only selected scroll effects."
+              }
+            }
+          }
+        }
+      ]
     }
   ]
 }
