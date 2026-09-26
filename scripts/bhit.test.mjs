@@ -31,7 +31,6 @@ import {
 import { GameMap } from '../js/game.js';
 import {
     UnsupportedBhitError,
-    UnsupportedZapError,
     bhit,
     zap_map,
     weffects,
@@ -194,7 +193,7 @@ test('zap_map changes only a downward non-headstone engraving', () => {
     ]);
 });
 
-test('weffects keeps unsupported immediate wand effects at its caller boundary',
+test('weffects sends immediate effects through the source ray callback walk',
     async () => {
         const state = corridor();
         const wand = missile(state, WAN_POLYMORPH);
@@ -211,10 +210,10 @@ test('weffects keeps unsupported immediate wand effects at its caller boundary',
             }),
         );
 
-        const unsupported = missile(state, WAN_STRIKING);
-        state.objects[unsupported.otyp].oc_dir = IMMEDIATE;
-        await assert.rejects(
-            () => weffects(unsupported, state, {
+        const striking = missile(state, WAN_STRIKING);
+        state.objects[striking.otyp].oc_dir = IMMEDIATE;
+        await assert.doesNotReject(
+            () => weffects(striking, state, {
                 d: () => 1,
                 rn1: () => 1,
                 rn2: () => 1,
@@ -223,7 +222,6 @@ test('weffects keeps unsupported immediate wand effects at its caller boundary',
                 rnl: () => 1,
                 rnz: () => 1,
             }),
-            UnsupportedZapError,
         );
     });
 

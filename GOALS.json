@@ -74063,6 +74063,709 @@
         "rng": 792838
       },
       "parkedReason": "The whole trap.c water_damage_chain function is source-verified; v1 terrain transitions and two independent wizard pool-wish recordings match. Active entry-point evidence remains absent for a nonempty fountain-gush floor chain and a qualifying monster entering water with nonempty inventory. dig.c liquid_flow still stops at the landmine-fill caller; its water-chain entry cannot be claimed until that function is ported. Preserve the matched cases and complete those caller recordings before source-goal closure."
+    },
+    {
+      "id": "port-steal-nymph-armor-delay-synthetic-v4-20260925",
+      "kind": "file-port",
+      "status": "queued",
+      "summary": "Port nymph armor theft and delayed removal through the complete steal.c source family",
+      "cFile": "steal.c",
+      "sessions": [
+        "synthetic/v4/monk-nymph-theft-recovery"
+      ],
+      "selectionReason": "The refreshed v4 Monk nymph theft case is the highest remaining investigated synthetic mismatch at 15 screens and is assigned to C9; A4 terrain and C8 fountain now match.",
+      "detail": "Port steal.c unresponsive through steal in definition order, including remove_worn_item and worn_item_removal, with do_wear.c stop_donning and eat.c is_fainted return-valued dependencies. Preserve delayed stealarm state, production callers, and source-ordered inventory and armor effects. See investigations/synthetic/v4/monk-nymph-theft-recovery.json.",
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": null,
+      "delivered": null,
+      "functions": [
+        {
+          "name": "unresponsive",
+          "line": 133,
+          "endLine": 146,
+          "declared": false,
+          "complete": false
+        },
+        {
+          "name": "unstolenarm",
+          "line": 147,
+          "endLine": 164,
+          "declared": false,
+          "complete": false
+        },
+        {
+          "name": "stealarm",
+          "line": 165,
+          "endLine": 212,
+          "declared": false,
+          "complete": false
+        },
+        {
+          "name": "remove_worn_item",
+          "line": 213,
+          "endLine": 293,
+          "declared": true,
+          "complete": false
+        },
+        {
+          "name": "worn_item_removal",
+          "line": 294,
+          "endLine": 342,
+          "declared": true,
+          "complete": false
+        },
+        {
+          "name": "steal",
+          "line": 343,
+          "endLine": 617,
+          "declared": true,
+          "complete": false
+        }
+      ],
+      "range": {
+        "from": 133,
+        "to": 617
+      },
+      "syntheticProvenance": {
+        "synthetic/v4/monk-nymph-theft-recovery": {
+          "session": "synthetic/v4/monk-nymph-theft-recovery",
+          "corpus": "synthetic",
+          "batch": "v4",
+          "caseId": "monk-nymph-theft-recovery",
+          "manifestPath": "challenges/manifests/v4.json",
+          "manifestSha256": "10777af4c82fc759abf58a870fdd232329bc5c1467c8cf94f46089d0401459a9",
+          "recordingPath": "challenges/cases/v4/monk-nymph-theft-recovery.session.json",
+          "recordingSha256": "12c7091ad75eb0fd4c1604b53961bd3bea6c9a0d555d5f0bd1c35564d82acf3f",
+          "evaluationPath": "challenges/evaluations/20260926003150-v4.json",
+          "evaluationCommit": "2d50156e1163b1b497818e5d02bd71131fab2149"
+        }
+      }
+    },
+    {
+      "id": "port-zap-weffects-force-bolt-synthetic-v2-20260926",
+      "kind": "file-port",
+      "status": "parked",
+      "summary": "Port complete zap.c weffects and source-ordered Force Bolt ray behavior",
+      "cFile": "zap.c",
+      "sessions": [
+        "synthetic/v2/wizard-spell-memory"
+      ],
+      "selectionReason": "The higher-ranked v4 nymph theft is assigned to C9; the next complete unreserved investigation is v2 wizard spell memory with 14 unmatched screens at the Force Bolt weffects branch.",
+      "detail": "At segment 0 step 40, a known Force Bolt cast east reaches zap.c weffects and the current JS refusal. Port whole weffects and its return-valued ray family bhit, bhitm, bhito, bhitpile, doorlock with obstructed and muse.c mbhit caller, and required statue/object-break callees including break_statue, activate_statue_trap, hero_breaks/breaks and their consumed dependencies. Preserve exact C ray, item, door, and monster order; park any unresolved source return path with explicit evidence rather than treating a prefix as whole-function completion. See investigations/synthetic/v2/wizard-spell-memory.json.",
+      "openedAt": "989f86b9903372599cc99c78474d2d0bf9308ae1",
+      "openStanding": {
+        "sha": "9afcb40d474b714f755d68a9bff96193af5f7e59",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "closedAt": null,
+      "delivered": null,
+      "functions": [
+        {
+          "name": "weffects",
+          "line": 3431,
+          "endLine": 3479,
+          "declared": true,
+          "complete": false
+        }
+      ],
+      "range": {
+        "from": 3431,
+        "to": 3479
+      },
+      "syntheticProvenance": {
+        "synthetic/v2/wizard-spell-memory": {
+          "session": "synthetic/v2/wizard-spell-memory",
+          "corpus": "synthetic",
+          "batch": "v2",
+          "caseId": "wizard-spell-memory",
+          "manifestPath": "challenges/manifests/v2.json",
+          "manifestSha256": "58739ea9ed6c26e5153c4860b2e5111d08d69792bdea5c39427cf45b8e72cc9c",
+          "recordingPath": "challenges/cases/v2/wizard-spell-memory.session.json",
+          "recordingSha256": "4aa25c52bad9f85940224ad16785cacb6b286a4c326c1691e6db54ec260b73cd",
+          "evaluationPath": "challenges/evaluations/20260926011128-v2.json",
+          "evaluationCommit": "9afcb40d474b714f755d68a9bff96193af5f7e59"
+        }
+      },
+      "activeStanding": {
+        "sha": "9afcb40d474b714f755d68a9bff96193af5f7e59",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v2",
+          "caseId": "wizard-spell-memory",
+          "session": "synthetic/v2/wizard-spell-memory",
+          "manifestPath": "challenges/manifests/v2.json",
+          "manifestSha256": "58739ea9ed6c26e5153c4860b2e5111d08d69792bdea5c39427cf45b8e72cc9c",
+          "recording": "challenges/cases/v2/wizard-spell-memory.session.json",
+          "recordingPath": "challenges/cases/v2/wizard-spell-memory.session.json",
+          "recordingSha256": "4aa25c52bad9f85940224ad16785cacb6b286a4c326c1691e6db54ec260b73cd",
+          "recipe": "challenges/cases/v2/wizard-spell-memory.recipe.json",
+          "recipeSha256": "7539746442959f2f180fe53b40dd993e7d83aa77d27132210f745425c30cfb26",
+          "replayInputSha256": "00833e7e417b36aec3924b098e4c048cde1b0a9ff1cefa36350dd32f2619c961",
+          "evaluationPath": "challenges/evaluations/20260926011128-v2.json",
+          "evaluationCommit": "9afcb40d474b714f755d68a9bff96193af5f7e59",
+          "evaluationArtifact": "challenges/evaluations/20260926011128-v2.json",
+          "evaluationUtc": "2026-09-26T01:11:31.875Z",
+          "remainingScreens": 14,
+          "recordedSteps": 54,
+          "previousScreensMatched": 40,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 40,
+              "total": 54
+            },
+            "rng": {
+              "matched": 2419,
+              "total": 2452
+            },
+            "cursors": {
+              "matched": 40,
+              "total": 54
+            }
+          },
+          "firstMismatch": {
+            "kind": "stop",
+            "message": "unsupported hero command: an unported branch of this command: zapping a wand requires bhit() for immediate object type 376",
+            "step": 40
+          },
+          "step": 40,
+          "kind": "stop",
+          "sourceFile": "zap.c",
+          "function": "bhit",
+          "message": "unsupported hero command: an unported branch of this command: zapping a wand requires bhit() for immediate object type 376",
+          "cFile": "zap.c",
+          "luaFile": null,
+          "line": null,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v2/wizard-spell-memory.json",
+            "result": {
+              "session": "synthetic/v2/wizard-spell-memory",
+              "corpus": "synthetic",
+              "batch": "v2",
+              "caseId": "wizard-spell-memory",
+              "manifestPath": "challenges/manifests/v2.json",
+              "manifestSha256": "58739ea9ed6c26e5153c4860b2e5111d08d69792bdea5c39427cf45b8e72cc9c",
+              "recordingPath": "challenges/cases/v2/wizard-spell-memory.session.json",
+              "recordingSha256": "4aa25c52bad9f85940224ad16785cacb6b286a4c326c1691e6db54ec260b73cd",
+              "evaluationPath": "challenges/evaluations/20260925185643-v2.json",
+              "evaluationCommit": "cb5a1d6236d100c62a31e5029cbfa55e55cdfb60",
+              "remainingScreens": 14,
+              "recordedSteps": 54,
+              "status": "complete",
+              "commit": "4151ee7a2286fbfce141545c893e052e0c49a44d",
+              "mismatch": {
+                "corpus": "synthetic",
+                "batch": "v2",
+                "caseId": "wizard-spell-memory",
+                "session": "synthetic/v2/wizard-spell-memory",
+                "manifestPath": "challenges/manifests/v2.json",
+                "manifestSha256": "58739ea9ed6c26e5153c4860b2e5111d08d69792bdea5c39427cf45b8e72cc9c",
+                "recording": "challenges/cases/v2/wizard-spell-memory.session.json",
+                "recordingPath": "challenges/cases/v2/wizard-spell-memory.session.json",
+                "recordingSha256": "4aa25c52bad9f85940224ad16785cacb6b286a4c326c1691e6db54ec260b73cd",
+                "recipe": "challenges/cases/v2/wizard-spell-memory.recipe.json",
+                "recipeSha256": "7539746442959f2f180fe53b40dd993e7d83aa77d27132210f745425c30cfb26",
+                "replayInputSha256": "304faa7f1ed52c7dcf8bd6a5c5b9a2df47ebad9a15a566e91f46417de3b016d9",
+                "evaluationPath": "challenges/evaluations/20260925185643-v2.json",
+                "evaluationCommit": "cb5a1d6236d100c62a31e5029cbfa55e55cdfb60",
+                "evaluationArtifact": "challenges/evaluations/20260925185643-v2.json",
+                "evaluationUtc": "2026-09-25T18:56:48.699Z",
+                "remainingScreens": 14,
+                "recordedSteps": 54,
+                "previousScreensMatched": 40,
+                "regression": false,
+                "passed": false,
+                "error": null,
+                "metrics": {
+                  "screens": {
+                    "matched": 40,
+                    "total": 54
+                  },
+                  "rng": {
+                    "matched": 2419,
+                    "total": 2452
+                  },
+                  "cursors": {
+                    "matched": 40,
+                    "total": 54
+                  }
+                },
+                "firstMismatch": {
+                  "kind": "stop",
+                  "message": "unsupported hero command: an unported branch of this command: zapping a wand requires bhit() for immediate object type 376",
+                  "step": 40
+                },
+                "step": 40,
+                "kind": "stop",
+                "sourceFile": "zap.c",
+                "function": "bhit",
+                "message": "unsupported hero command: an unported branch of this command: zapping a wand requires bhit() for immediate object type 376",
+                "cFile": "zap.c",
+                "luaFile": null,
+                "line": null
+              },
+              "summary": "After spellbook study was ported, wizard-spell-memory matches 40/54 screens. The first remaining stop is step 40: casting Force Bolt east reaches an artificial immediate-effect gate in js/zap.js weffects(), which admits only polymorph and reports “bhit() for immediate object type 376.” C zap.c weffects() sends all IMMEDIATE spell and wand effects through bhit and its monster/object callbacks. Implement the source-defined striking/Force Bolt effect family and callback returns, preserving traversal, door/object/monster effects and RNG order across inputs.",
+              "source": {
+                "file": "zap.c",
+                "branch": "The known Force Bolt spell (SPE_FORCE_BOLT, object type 376) is cast east after spell selection. Its object direction is IMMEDIATE, so zap.c weffects() calls zapsetup(), then bhit() with bhitm and bhito callbacks for an ordinary horizontal ray. JS rejects the type before calling bhit.",
+                "functions": [
+                  "weffects",
+                  "bhit",
+                  "bhitm",
+                  "bhito"
+                ],
+                "callers": [
+                  "spell.c spell casting reaches zap.c weffects() with an SPE_FORCE_BOLT object; the JS cast path reaches js/zap.js weffects() and its explicit polymorph-only IMMEDIATE gate.",
+                  "zap.c weffects() at 3431-3451 calls bhit() with bhitm/bhito and discards the monster-pointer result. bhit() uses callback return values while walking the ray and applies doorlock() for Force Bolt/striking at 4060-4068.",
+                  "zap.c bhitm() at 189-219 handles Force Bolt/striking monster impact, while bhito() at 2275 onward handles rock, statues and other floor objects. js/zap.js currently implements polymorph callback paths only."
+                ],
+                "dependencies": [
+                  "Implement source-defined Force Bolt and striking callback results before removing weffects()’s admission gate; bhit/bhitpile consume those results. Preserve partial source-owned boundaries for other immediate effects.",
+                  "The callback family uses combat resistance, damage, object fracture/breakage, learning, and doorlock helpers. Read their C return values and port required callees where the callback consumes them; keep C-discarded unported effects named rather than substituting behavior."
+                ]
+              },
+              "goalKind": "divergence-fix",
+              "evidence": [
+                "Saved challenges/evaluations/20260925185643-v2.json at cb5a1d6236d100c62a31e5029cbfa55e55cdfb60 reports 40/54 screens and cursors and 2419/2452 RNG calls; 14 screens remain.",
+                "Current diagnostic .cache/loop-v2-wizard-spell-diagnostic.json at 4151ee7a2286fbfce141545c893e052e0c49a44d stops at segment 0 step 40 key l with “zapping a wand requires bhit() for immediate object type 376.” The later inputs in the saved case are outside the matched prefix.",
+                "C recording challenges/cases/v2/wizard-spell-memory.session.json shows step 38 key Z selecting cast, step 39 key a prompting for direction, and step 40 key l producing the completed empty-ray screen. Thus the first missing behavior is the immediate Force Bolt ray, not spellbook study or casting selection.",
+                "nethack-c/upstream/src/zap.c weffects() lines 3431-3451 routes IMMEDIATE effects to bhit() with bhitm/bhito callbacks. Its Force Bolt handling appears in bhitm() lines 189-219, bhito() from 2275, and bhit() door interaction near 4060-4068.",
+                "js/zap.js weffects() around 5165-5173 refuses every IMMEDIATE type except WAN_POLYMORPH and SPE_POLYMORPH before calling its partial bhit() around 3073. The refusal text names bhit but the first exact JS owner is weffects’ admission guard.",
+                "The previously investigated step-17 spell.c study_book/read.c doread boundary is now crossed by the B2 port. Its source goal remains parked in GOALS.json for unrelated destructive confused-book display/naming and Death setup entry evidence; those unresolved source gaps remain separate from the current step-40 Force Bolt stop."
+              ],
+              "entryPointReview": {
+                "active": [
+                  "Cast known Force Bolt east through the Z command: synthetic/v2/wizard-spell-memory segment 0 steps 38-40."
+                ],
+                "blocked": [
+                  "The current weffects immediate-effect guard rejects SPE_FORCE_BOLT before source ray traversal or callback effects.",
+                  "A matching continuation after step 40 may reveal additional ray, door, monster, or object dependencies; verify each C branch rather than special-casing the empty corridor."
+                ]
+              },
+              "plannedSourceScope": {
+                "primary": {
+                  "file": "zap.c",
+                  "function": "weffects",
+                  "branch": "IMMEDIATE SPE_FORCE_BOLT and WAN_STRIKING family"
+                },
+                "supportingSameFileFunctions": [
+                  "bhit",
+                  "bhitm",
+                  "bhito"
+                ],
+                "callerWiring": [
+                  "Spell-cast Force Bolt and wand of striking/other active immediate callers where C uses this family"
+                ]
+              }
+            }
+          }
+        }
+      ],
+      "progressBeforePark": {
+        "screens": 0,
+        "rng": 0
+      },
+      "parkedStanding": {
+        "sha": "210cd14f1e59abac0764199293de428ee71828fd",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "parkedReason": "Selected wizard Force Bolt and independent wand-of-striking clear rays now match C. Complete weffects source verification remains blocked by active do_break_wand caller, bhit doorlock consumed return, bhitm monster hit and resist death path, bhito object break and statue return chains, bhitpile statue trap result, and vertical, steed, NODIR, and directional spell paths. Resume when those source families and matching entry recordings are available; do not count this prefix as whole-function completion."
+    },
+    {
+      "id": "port-engrave-u-can-engrave-synthetic-v3-20260926",
+      "kind": "file-port",
+      "status": "closed",
+      "summary": "Port engrave.c u_can_engrave and correct the doengrave entry call",
+      "cFile": "engrave.c",
+      "sessions": [
+        "synthetic/v3/fingertip-engraving-return"
+      ],
+      "selectionReason": "The higher-ranked v4 nymph theft and v2 wizard spell memory cases are assigned to C9 and B6; v3 fingertip engraving is the next complete independent investigation with 10 unmatched screens.",
+      "detail": "Port the whole u_can_engrave predicate from engrave.c and its doengrave caller using source terrain, swallowing, wield, and capacity tests in C order. Remove early JS floor reachability refusal and preserve the later doengrave stylus and floor checks. Diagnose any next repeat-engraving mismatch separately. See investigations/synthetic/v3/fingertip-engraving-return.json.",
+      "openedAt": "5a05a71488f78dfd08225f79588acd974b5a2a95",
+      "openStanding": {
+        "sha": "2d50156e1163b1b497818e5d02bd71131fab2149",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "closedAt": "9afcb40d474b714f755d68a9bff96193af5f7e59",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
+      "functions": [
+        {
+          "name": "u_can_engrave",
+          "line": 503,
+          "endLine": 544,
+          "declared": true,
+          "complete": true
+        }
+      ],
+      "range": {
+        "from": 503,
+        "to": 544
+      },
+      "syntheticProvenance": {
+        "synthetic/v3/fingertip-engraving-return": {
+          "session": "synthetic/v3/fingertip-engraving-return",
+          "corpus": "synthetic",
+          "batch": "v3",
+          "caseId": "fingertip-engraving-return",
+          "manifestPath": "challenges/manifests/v3.json",
+          "manifestSha256": "922fd19b46005c40283152102ac301035c7f84f82a8e5e9d7caf691f183a2b67",
+          "recordingPath": "challenges/cases/v3/fingertip-engraving-return.session.json",
+          "recordingSha256": "30a6dc31f656961b980c8e9a66c4616d677ba8ac74dbceeac186f25f7b1dde12",
+          "evaluationPath": "challenges/evaluations/20260926003150-v3.json",
+          "evaluationCommit": "2d50156e1163b1b497818e5d02bd71131fab2149"
+        }
+      },
+      "activeStanding": {
+        "sha": "2d50156e1163b1b497818e5d02bd71131fab2149",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v3",
+          "caseId": "fingertip-engraving-return",
+          "session": "synthetic/v3/fingertip-engraving-return",
+          "manifestPath": "challenges/manifests/v3.json",
+          "manifestSha256": "922fd19b46005c40283152102ac301035c7f84f82a8e5e9d7caf691f183a2b67",
+          "recording": "challenges/cases/v3/fingertip-engraving-return.session.json",
+          "recordingPath": "challenges/cases/v3/fingertip-engraving-return.session.json",
+          "recordingSha256": "30a6dc31f656961b980c8e9a66c4616d677ba8ac74dbceeac186f25f7b1dde12",
+          "recipe": "challenges/cases/v3/fingertip-engraving-return.recipe.json",
+          "recipeSha256": "bcc6451a9b4be2a9babfc871c3c88e6f965e94cbbc470104a30d5bd29d043408",
+          "replayInputSha256": "c49122daad54598b53f5d530f6b50440a714d4c9d4f2ceaf9bbc357475b3a473",
+          "evaluationPath": "challenges/evaluations/20260926003150-v3.json",
+          "evaluationCommit": "2d50156e1163b1b497818e5d02bd71131fab2149",
+          "evaluationArtifact": "challenges/evaluations/20260926003150-v3.json",
+          "evaluationUtc": "2026-09-26T00:31:55.815Z",
+          "remainingScreens": 10,
+          "recordedSteps": 24,
+          "previousScreensMatched": 14,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 14,
+              "total": 24
+            },
+            "rng": {
+              "matched": 3016,
+              "total": 3016
+            },
+            "cursors": {
+              "matched": 14,
+              "total": 24
+            }
+          },
+          "firstMismatch": {
+            "kind": "stop",
+            "message": "unsupported hero command: an unported branch of this command: engrave requires an accessible ordinary floor",
+            "step": 14
+          },
+          "step": 14,
+          "kind": "stop",
+          "sourceFile": null,
+          "function": null,
+          "message": "unsupported hero command: an unported branch of this command: engrave requires an accessible ordinary floor",
+          "cFile": null,
+          "luaFile": null,
+          "line": null,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v3/fingertip-engraving-return.json",
+            "result": {
+              "session": "synthetic/v3/fingertip-engraving-return",
+              "corpus": "synthetic",
+              "batch": "v3",
+              "caseId": "fingertip-engraving-return",
+              "manifestPath": "challenges/manifests/v3.json",
+              "manifestSha256": "922fd19b46005c40283152102ac301035c7f84f82a8e5e9d7caf691f183a2b67",
+              "recordingPath": "challenges/cases/v3/fingertip-engraving-return.session.json",
+              "recordingSha256": "30a6dc31f656961b980c8e9a66c4616d677ba8ac74dbceeac186f25f7b1dde12",
+              "evaluationPath": "challenges/evaluations/20260925191954-v3.json",
+              "evaluationCommit": "7dd208a68ee62546cb117c2d9763f8e1e63fef62",
+              "remainingScreens": 10,
+              "recordedSteps": 24,
+              "status": "complete",
+              "commit": "4151ee7a2286fbfce141545c893e052e0c49a44d",
+              "mismatch": {
+                "corpus": "synthetic",
+                "batch": "v3",
+                "caseId": "fingertip-engraving-return",
+                "session": "synthetic/v3/fingertip-engraving-return",
+                "manifestPath": "challenges/manifests/v3.json",
+                "manifestSha256": "922fd19b46005c40283152102ac301035c7f84f82a8e5e9d7caf691f183a2b67",
+                "recording": "challenges/cases/v3/fingertip-engraving-return.session.json",
+                "recordingPath": "challenges/cases/v3/fingertip-engraving-return.session.json",
+                "recordingSha256": "30a6dc31f656961b980c8e9a66c4616d677ba8ac74dbceeac186f25f7b1dde12",
+                "recipe": "challenges/cases/v3/fingertip-engraving-return.recipe.json",
+                "recipeSha256": "bcc6451a9b4be2a9babfc871c3c88e6f965e94cbbc470104a30d5bd29d043408",
+                "replayInputSha256": "797b8ad4066ed0823165d5c09e817c1d11d155c36c3e08fd33e214cd1a8a90d1",
+                "evaluationPath": "challenges/evaluations/20260925191954-v3.json",
+                "evaluationCommit": "7dd208a68ee62546cb117c2d9763f8e1e63fef62",
+                "evaluationArtifact": "challenges/evaluations/20260925191954-v3.json",
+                "evaluationUtc": "2026-09-25T19:20:02.424Z",
+                "remainingScreens": 10,
+                "recordedSteps": 24,
+                "previousScreensMatched": null,
+                "regression": false,
+                "passed": false,
+                "error": null,
+                "metrics": {
+                  "screens": {
+                    "matched": 14,
+                    "total": 24
+                  },
+                  "rng": {
+                    "matched": 3016,
+                    "total": 3016
+                  },
+                  "cursors": {
+                    "matched": 14,
+                    "total": 24
+                  }
+                },
+                "firstMismatch": {
+                  "kind": "stop",
+                  "message": "unsupported hero command: an unported branch of this command: engrave requires an accessible ordinary floor",
+                  "step": 14
+                },
+                "step": 14,
+                "kind": "stop",
+                "sourceFile": null,
+                "function": null,
+                "message": "unsupported hero command: an unported branch of this command: engrave requires an accessible ordinary floor",
+                "cFile": null,
+                "luaFile": null,
+                "line": null
+              },
+              "summary": "The v3 engraving case matches 14/24 screens. After walking away from and back to the starting square, key E at step 14 is refused by js/engrave.js u_can_engrave() because it admits only ROOM/CORR and checks floor reachability before the stylus prompt. C engrave.c u_can_engrave() tests the source terrain categories with ACCESSIBLE() and does not test floor reachability there; C asks “What do you want to write with? [- ab or ?*]”. Port the whole source predicate and let doengrave apply later floor/stylus rules in their C order.",
+              "source": {
+                "file": "engrave.c",
+                "branch": "A sighted Valkyrie returns to her initial square after east/west movement and invokes E/engrave. C u_can_engrave() finds the square accessible, the hero able to wield and within capacity, then doengrave() prompts for a stylus. JS rejects before the prompt because its u_can_engrave() subset requires ROOM or CORR and can_reach_floor() at entry.",
+                "functions": [
+                  "u_can_engrave"
+                ],
+                "callers": [
+                  "engrave.c doengrave() at lines 956-968 calls u_can_engrave() and returns ECMD_FAIL only when it returns false; js/engrave.js doengrave() calls the partial predicate before selecting a writing implement.",
+                  "cmd.c E/engrave dispatch reaches doengrave(); the v3 recording proves this path at segment 0 step 14."
+                ],
+                "dependencies": [
+                  "Match C SURFACE_AT/ACCESSIBLE terrain test, engulfed animal/whirly text, lava/pool/fountain/air/solid rejection, cantwield() and check_capacity() return values. Do not move the later can_reach_floor() rule from doengrave() into the early predicate.",
+                  "The later bare-fingertip repeat-engraving path is still guarded by js/engrave.js doengrave() when an engraving exists; after the first predicate fix, replay may expose that separate source-owned branch."
+                ]
+              },
+              "goalKind": "file-port",
+              "evidence": [
+                "Saved challenges/evaluations/20260925191954-v3.json at 7dd208a68ee62546cb117c2d9763f8e1e63fef62 reports 14/24 screens and cursors, 3016/3016 RNG calls, and 10 unmatched screens.",
+                "Current diagnostic .cache/loop-v3-fingertip-engraving-diagnostic.json at 4151ee7a2286fbfce141545c893e052e0c49a44d stops at segment 0 step 14 key E with “engrave requires an accessible ordinary floor”; C asks for the writing implement instead.",
+                "C recording challenges/cases/v3/fingertip-engraving-return.session.json shows step 12 east, step 13 west, step 14 E prompting “What do you want to write with? [- ab or ?*]”, and step 15 key - writing in dust. This is a repeated engraving after returning to the initial square.",
+                "nethack-c/upstream/src/engrave.c u_can_engrave() at 503-541 tests swallowed, lava, pool/fountain, air and !ACCESSIBLE() terrain, then cantwield and check_capacity. It does not limit terrain to ROOM/CORR or call can_reach_floor at this point; doengrave() calls it at line 963 and tests can_reach_floor later after choosing a stylus.",
+                "js/engrave.js u_can_engrave() near line 204 throws when typ is outside ROOM/CORR or can_reach_floor() is false, before doengrave() can prompt. Its doengrave() remains a documented partial bare-fingertip implementation with a separate existing-engraving guard."
+              ],
+              "entryPointReview": {
+                "active": [
+                  "E/engrave after returning to the initial square: synthetic/v3/fingertip-engraving-return segment 0 steps 12-15."
+                ],
+                "blocked": [
+                  "The current u_can_engrave() rejects the source-accepted square at step 14 before the writing-implement prompt.",
+                  "After the predicate is ported, js/engrave.js doengrave() may reject the already-inscribed square; diagnose that later source branch from the new first replay difference."
+                ]
+              },
+              "plannedWholeFunctionScope": {
+                "primary": {
+                  "file": "engrave.c",
+                  "functions": [
+                    "u_can_engrave"
+                  ]
+                },
+                "callerWiring": [
+                  "doengrave() entry predicate in js/engrave.js"
+                ],
+                "downstreamSourceDependency": {
+                  "file": "engrave.c",
+                  "function": "doengrave",
+                  "status": "existing partial repeat-engraving branch; evaluate after the predicate reaches the C prompt"
+                }
+              }
+            }
+          }
+        }
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "u_can_engrave",
+            "implementation": "js/engrave.js",
+            "symbol": "u_can_engrave",
+            "sourceReview": "Read the complete engrave.c:503-541 body. The function computes SURFACE_AT first; the swallowed-animal refusal precedes the swallowed-whirly floor message, while amorphous engulfers bypass terrain checks. The non-swallowed order is lava, pool or fountain, air, then !ACCESSIBLE. It then checks cantwield before check_capacity and returns the boolean result. The JS port preserves that branch and callback order, exact messages, and uses surface_typ() for SURFACE_AT. Direct callees are the is_animal/is_whirly macros, is_lava(), is_pool(), surface(), IS_FOUNTAIN, IS_AIR, ACCESSIBLE, cant_reach_floor(), cantwield(), and check_capacity(); each is already ported and none is replaced with note_unported(). The source function can emit text and surface() can draw through hallucinated hliquid(), so it is impure. engrave.c:doengrave() checks the returned false and returns ECMD_FAIL; js/engrave.js now does the same before any prompt.",
+            "callers": [
+              {
+                "path": "js/engrave.js",
+                "symbol": "doengrave",
+                "source": "engrave.c:956-965 calls u_can_engrave() first and returns ECMD_FAIL when it is false."
+              },
+              {
+                "path": "js/cmd.js",
+                "symbol": "runEngraveCommand",
+                "source": "cmd.c:1714-1715 binds the E/engrave command to doengrave(); runEngraveCommand supplies the production cantwield, check_capacity, and tty message callbacks before rhack dispatches the command."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/engrave-command.test.mjs"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v3",
+                "caseId": "fingertip-engraving-return",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 23,
+                "source": "cmd.c command-table E/engrave -> doengrave() -> u_can_engrave(); the matched replay executes the terrain gate at step 14 through the production JS command dispatcher."
+              }
+            ],
+            "checkedAt": "9afcb40d474b714f755d68a9bff96193af5f7e59"
+          }
+        ],
+        "entryPointReview": "The selected function has one active source entry point: cmd.c's E/engrave command-table row calls doengrave(), which calls u_can_engrave(). The JS rhack dispatcher routes E through runEngraveCommand(); the extended command name uses the same wrapper. The admitted fingertip-engraving-return synthetic recording reaches E at segment 0 step 14 and now matches through segment 0 step 23, including the production caller path. No caller branch in the reference recorder build is excluded or blocked.",
+        "entryPoints": [
+          {
+            "name": "E/engrave",
+            "functions": [
+              "u_can_engrave"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v3",
+                "caseId": "fingertip-engraving-return",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 23,
+                "source": "cmd.c E/engrave -> engrave.c doengrave() -> u_can_engrave(); JS cmd.js runEngraveCommand() production route."
+              }
+            ]
+          }
+        ]
+      },
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "9afcb40d474b714f755d68a9bff96193af5f7e59",
+        "screens": 11405,
+        "rng": 792838
+      }
+    },
+    {
+      "id": "port-worn-mon-break-armor-synthetic-v1-20260926",
+      "kind": "file-port",
+      "status": "queued",
+      "summary": "Port monster armor break and drop behavior after transformation",
+      "cFile": "worn.c",
+      "sessions": [
+        "synthetic/v1/monster-transformations"
+      ],
+      "selectionReason": "The refreshed v4 nymph theft and v2 Force Bolt mismatches are owned by C9 and B6. Both higher v3 camera cases depend on B6 reserved zap.c bhit. The next independent completed investigation is v1 monster-transformations with 5 unmatched screens at worn.c mon_break_armor; the v4 magic flute case has 4.",
+      "detail": "Port the whole worn.c mon_break_armor function from C, including its m_lose_armor support, armor destruction/drop, bypass and monster-wear state, messaging, saddle and riding tail, and production mon.c newcham and were.c new_were callers. Preserve return-valued can_saddle/can_ride and other source dependencies. See investigations/synthetic/v1/monster-transformations.json.",
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": null,
+      "delivered": null,
+      "functions": [
+        {
+          "name": "mon_break_armor",
+          "line": 1177,
+          "endLine": 1338,
+          "declared": false,
+          "complete": false
+        }
+      ],
+      "range": {
+        "from": 1177,
+        "to": 1338
+      },
+      "syntheticProvenance": {
+        "synthetic/v1/monster-transformations": {
+          "session": "synthetic/v1/monster-transformations",
+          "corpus": "synthetic",
+          "batch": "v1",
+          "caseId": "monster-transformations",
+          "manifestPath": "challenges/manifest.json",
+          "manifestSha256": "a1d989fa6b5159e0b0729150ba765c741a405ec910c1274ad763d29b0a7096fe",
+          "recordingPath": "challenges/cases/monster-transformations.session.json",
+          "recordingSha256": "5c7ff94dc1e63dcae559231dbea1843d5206c45d8fdb894d107beed35bff5f6b",
+          "evaluationPath": "challenges/evaluations/20260926011128-v1.json",
+          "evaluationCommit": "9afcb40d474b714f755d68a9bff96193af5f7e59"
+        }
+      }
+    },
+    {
+      "id": "port-apply-use-camera-synthetic-v3-20260926",
+      "kind": "file-port",
+      "status": "queued",
+      "summary": "Port expensive camera flash and its blinding ray",
+      "cFile": "apply.c",
+      "sessions": [
+        "synthetic/v3/tourist-camera-flash-complete",
+        "synthetic/v3/tourist-camera-flash"
+      ],
+      "selectionReason": "The higher v4 nymph theft case is assigned to C9. The two v3 Tourist camera cases are now the highest independent completed investigations at 7 and 6 unmatched screens; B6 bhit reservation is released after acceptance. A6 owns the lower 5-screen monster armor case.",
+      "detail": "Port apply.c do_blinding_ray and use_camera in source order, wire doapply EXPENSIVE_CAMERA, and port the consumed FLASHED_LIGHT bhit monster result with flash_hits_mon and transient_light_cleanup behavior. Preserve charge, cursed, underwater, self, vertical, monster, and empty-ray branches. Use independent C recordings for uncovered active entry paths. See investigations/synthetic/v3/tourist-camera-flash-complete.json and tourist-camera-flash.json.",
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": null,
+      "delivered": null,
+      "functions": [
+        {
+          "name": "do_blinding_ray",
+          "line": 61,
+          "endLine": 78,
+          "declared": false,
+          "complete": false
+        },
+        {
+          "name": "use_camera",
+          "line": 79,
+          "endLine": 111,
+          "declared": false,
+          "complete": false
+        }
+      ],
+      "range": {
+        "from": 61,
+        "to": 111
+      },
+      "syntheticProvenance": {
+        "synthetic/v3/tourist-camera-flash-complete": {
+          "session": "synthetic/v3/tourist-camera-flash-complete",
+          "corpus": "synthetic",
+          "batch": "v3",
+          "caseId": "tourist-camera-flash-complete",
+          "manifestPath": "challenges/manifests/v3.json",
+          "manifestSha256": "922fd19b46005c40283152102ac301035c7f84f82a8e5e9d7caf691f183a2b67",
+          "recordingPath": "challenges/cases/v3/tourist-camera-flash-complete.session.json",
+          "recordingSha256": "a0ff9cf099b0b1cc9df2242ee50959ae619463c2c6165dd249e78b6bd729fc13",
+          "evaluationPath": "challenges/evaluations/20260926012822-v3.json",
+          "evaluationCommit": "210cd14f1e59abac0764199293de428ee71828fd"
+        }
+      }
     }
   ]
 }
