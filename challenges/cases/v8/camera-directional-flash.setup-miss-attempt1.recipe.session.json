@@ -1,0 +1,11 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 83015003,
+      "datetime": "20310101085003",
+      "nethackrc": "OPTIONS=name:V8Camera,role=Wizard,race=human,gender=female,align=neutral,playmode=debug,!legacy,!tutorial,!splash_screen,showexp,time,pettype:none\n",
+      "moves": " \u0007hostile grid bug\n\u0017expensive camera\naol"
+    }
+  ]
+}

@@ -1,0 +1,11 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 83015128,
+      "datetime": "20310202100128",
+      "nethackrc": "OPTIONS=name:V8NymphThrow,role=Wizard,race=human,gender=female,align=neutral,playmode=debug,!legacy,!tutorial,!splash_screen,showexp,time,pettype:none\n",
+      "moves": " .\u0007wood nymph\n\u0017gold pieces\nt$b m.m.m.m.m.m."
+    }
+  ]
+}

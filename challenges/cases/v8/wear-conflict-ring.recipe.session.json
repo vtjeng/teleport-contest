@@ -1,0 +1,11 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 83015309,
+      "datetime": "20310303123009",
+      "nethackrc": "OPTIONS=name:V8Confring,role=Wizard,race=human,gender=male,align=neutral,playmode=debug,!legacy,!tutorial,!splash_screen,showexp,time,pettype:none\n",
+      "moves": " \u0007tame dog\n\u0007hostile grid bug\n\u0017ring of conflict\nPorm."
+    }
+  ]
+}

@@ -1,0 +1,11 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 83015401,
+      "datetime": "20310404115401",
+      "nethackrc": "OPTIONS=name:V8ConfuseScroll,role=Wizard,race=human,gender=female,align=neutral,playmode=debug,!legacy,!tutorial,!splash_screen,showexp,time,pettype:none\n",
+      "moves": " \u0007hostile grid bug\n\u0017scroll of confuse monster\n ro "
+    }
+  ]
+}

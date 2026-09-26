@@ -1,0 +1,11 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 83015304,
+      "datetime": "20310303123004",
+      "nethackrc": "OPTIONS=name:V8Whistle,role=Ranger,race=human,gender=male,align=neutral,playmode=debug,!legacy,!tutorial,!splash_screen,showexp,time,pettype:none\n",
+      "moves": " \u0007tame dog\n\u0017magic whistle\nao"
+    }
+  ]
+}

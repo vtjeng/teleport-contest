@@ -1,0 +1,11 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 83015432,
+      "datetime": "20321011123145",
+      "nethackrc": "OPTIONS=name:V8RubStone,role=Wizard,race=human,gender=female,align=neutral,playmode=debug,!legacy,!tutorial,!splash_screen,showexp,time,pettype:none\n",
+      "moves": " \u0017blessed touchstone\n \u0017uncursed ruby\ni a"
+    }
+  ]
+}

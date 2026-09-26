@@ -1,0 +1,11 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 83015119,
+      "datetime": "20310202095119",
+      "nethackrc": "OPTIONS=name:V8GnomeKing,role=Ranger,race=human,gender=female,align=neutral,playmode=debug,!legacy,!tutorial,!splash_screen,showexp,time,pettype:none\n",
+      "moves": " .\u0007gnome king\nm.m.m.m.m.m.m.m.m."
+    }
+  ]
+}

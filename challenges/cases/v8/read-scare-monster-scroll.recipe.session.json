@@ -1,0 +1,11 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 83015402,
+      "datetime": "20310404115402",
+      "nethackrc": "OPTIONS=name:V8ScareScroll,role=Wizard,race=human,gender=female,align=neutral,playmode=debug,!legacy,!tutorial,!splash_screen,showexp,time,pettype:none\n",
+      "moves": " \u0007hostile grid bug\n\u0017scroll of scare monster\n rp "
+    }
+  ]
+}

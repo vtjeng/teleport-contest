@@ -1,0 +1,11 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 83015420,
+      "datetime": "20320808122020",
+      "nethackrc": "OPTIONS=name:V8Charging,role=Wizard,race=human,gender=female,align=neutral,playmode=debug,!legacy,!tutorial,!splash_screen,showexp,time,pettype:none\n",
+      "moves": " \u0017scroll of charging\n r"
+    }
+  ]
+}

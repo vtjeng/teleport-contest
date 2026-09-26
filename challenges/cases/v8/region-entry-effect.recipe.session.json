@@ -1,0 +1,11 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 83015017,
+      "datetime": "20310101085017",
+      "nethackrc": "OPTIONS=name:V8Region,role=Wizard,race=human,gender=female,align=neutral,playmode=debug,!legacy,!tutorial,!splash_screen,showexp,time,pettype:none\n",
+      "moves": " .#wizlocate\nhell\n.m.m."
+    }
+  ]
+}

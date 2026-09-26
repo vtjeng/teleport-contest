@@ -1,0 +1,11 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 83015010,
+      "datetime": "20310101085010",
+      "nethackrc": "OPTIONS=name:V8Giant,role=Wizard,race=human,gender=female,align=neutral,playmode=debug,!legacy,!tutorial,!splash_screen,showexp,time,pettype:none\n",
+      "moves": " .\u0007stone giant\n.m.m.m.m.m.m.m."
+    }
+  ]
+}
