@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "Independent artifact.c arti_invoke witness using the source-documented #invoke synonym for a regular crystal ball, followed by the unknown-symbol level-distance query.",
+  "segments": [
+    {
+      "seed": 81140278,
+      "datetime": "20350317121314",
+      "nethackrc": "OPTIONS=name:InvokeGazer,role:Wizard,race:human,gender:female,align:neutral,playmode:debug,!legacy,!tutorial,!splash_screen\n",
+      "moves": " \u0017blessed crystal ball\n#invoke\nn - "
+    }
+  ]
+}

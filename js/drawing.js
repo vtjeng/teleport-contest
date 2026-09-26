@@ -10,11 +10,41 @@
 
 import { MAXOCLASSES } from './objects.js';
 import {
+    CMAP_EXPLANATIONS,
     DEFAULT_PRIMARY_SYMBOLS,
     SYM_OFF_M,
     SYM_OFF_O,
     SYM_OFF_W,
 } from './symbol_data.js';
+
+// C ref: drawing.c def_oc_syms[].name. object_detect() uses these plural
+// labels for its feedback; they are separate from the singular explanations
+// used by do_look().
+export const DEF_OC_SYMS_NAMES = Object.freeze([
+    '', 'illegal objects', 'weapons', 'armor', 'rings', 'amulets', 'tools',
+    'food', 'potions', 'scrolls', 'spellbooks', 'wands', 'coins', 'rocks',
+    'large stones', 'iron balls', 'chains', 'venoms',
+]);
+
+// C ref: drawing.c def_char_is_furniture(). The returned value is an index
+// into defsyms, whose furniture entries begin at the first "stair" cmap
+// description and end at "fountain". Like the object and monster lookups
+// above, this uses compiled-in ASCII symbols, not the active graphics set.
+export function def_char_is_furniture(ch) {
+    const byte = typeof ch === 'number'
+        ? ch & 0xFF : String(ch).charCodeAt(0);
+    let furniture = false;
+    for (let i = 0; i < CMAP_EXPLANATIONS.length; ++i) {
+        const explanation = CMAP_EXPLANATIONS[i];
+        if (!furniture && explanation.startsWith('stair'))
+            furniture = true;
+        if (furniture) {
+            if (DEFAULT_PRIMARY_SYMBOLS[i] === byte) return i;
+            if (explanation === 'fountain') break;
+        }
+    }
+    return -1;
+}
 
 const MAXMCLASSES = SYM_OFF_W - SYM_OFF_M;
 

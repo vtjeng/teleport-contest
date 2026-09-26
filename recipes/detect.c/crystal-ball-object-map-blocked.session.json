@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "Blocked independent detect.c object-detection recipe. It reaches object_detect() and reports rings, then the C source calls detect.c:browse_map() to open farlook; the JavaScript path records that void callee gap, so the final browsing boundary cannot match.",
+  "segments": [
+    {
+      "seed": 81140281,
+      "datetime": "20350317121314",
+      "nethackrc": "OPTIONS=name:SourceGazer,role:Wizard,race:human,gender:female,align:neutral,playmode:debug,!legacy,!tutorial,!splash_screen\n",
+      "moves": " \u0017blessed crystal ball\nap =  "
+    }
+  ]
+}
