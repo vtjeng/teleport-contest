@@ -74361,7 +74361,7 @@
     {
       "id": "port-zap-weffects-force-bolt-synthetic-v2-20260926",
       "kind": "file-port",
-      "status": "open",
+      "status": "parked",
       "summary": "Port complete zap.c weffects and source-ordered Force Bolt ray behavior",
       "cFile": "zap.c",
       "sessions": [
@@ -74604,11 +74604,11 @@
         "rng": 0
       },
       "parkedStanding": {
-        "sha": "fa3aebd3eee0de7cb859e5efeaa4e7dda2b0e735",
+        "sha": "ad2f3f5f793817d00d647fb176ace1cb303510ed",
         "screens": 11405,
         "rng": 792838
       },
-      "parkedReason": "The 41-screen v7 blessed-book-undead source goal A12 is ready for integration and has higher priority than this seven-screen v5 Healer wand continuation. B17 is independently implementing the Force Bolt breakage return chain; its bhito revive branch consumes makemon, whose source owner is A12. Park this goal during A12 integration, then resume for B17 delivery after A12 is accepted; keep the original v2 and current v5 entry paths and do not close from the corpse prefix."
+      "parkedReason": "Verified Force Bolt wand and inventory boxlock paths plus four independent C recordings; v5 healer now fully matches. Whole zap.c weffects remains incomplete: spell ray via ubuzz, bhito revive return, and monster-bars collision lack complete production evidence. Resume from these source branches."
     },
     {
       "id": "port-engrave-u-can-engrave-synthetic-v3-20260926",
