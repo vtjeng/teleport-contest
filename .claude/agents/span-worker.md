@@ -115,6 +115,14 @@ blocker. Submit before choosing the next task. If notification fails, the
 saved submission still stands. Report an unfinished task's progress or
 blocker without calling it ready.
 
+When source code is ready but an entry point cannot yet produce matching
+runtime evidence, keep the full planned function list in the task context.
+Omit each unverified function from `evidence.functions` and put it in
+`evidence.incompleteFunctions` with `name`, a source-based `reason`, and the
+path to a committed `blockedRecipe` under `recipes/<source-file>/`. The
+delivery needs at least one verified function. The orchestrator records only
+verified functions and parks the goal with the remaining entry points named.
+
 The orchestrator replies `QUEUED_FOR_MERGE`, then `ACCEPTED` after combined
 validation or `CHANGES_REQUIRED` with findings. Submission frees you to start
 independent work, but its reservations remain until acceptance or parking.
