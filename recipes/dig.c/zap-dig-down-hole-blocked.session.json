@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 9176069,
+      "datetime": "20350407124530",
+      "nethackrc": "OPTIONS=name:DigHole,role:Wizard,race:human,gender:male,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!acoustics\n",
+      "moves": "\u0017wand of digging\nzo>"
+    }
+  ],
+  "comment": "Blocked independent downward wand-of-digging reproduction for dig.c:zap_dig(): this reaches the source vertical dighole(FALSE, TRUE, NULL) caller. The JS branch now calls dighole in source order, but dig.c:digactualhole still stops at its HOLE aftermath before the C goto_level/spoteffects path can complete. This recipe has no matching recording and is not completion evidence."
+}
