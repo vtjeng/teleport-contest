@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent engrave.c blind polymorph-wand recipe. Seed, clock, name, Wizard role and input were selected for this run. It creates a short engraving, grants timed blindness with #wizintrinsic, then uses a wished polymorph wand while blind to exercise blengr and the existing engraving type/text path.",
+  "segments": [
+    {
+      "seed": 8629317,
+      "datetime": "20370509164217",
+      "nethackrc": "OPTIONS=name:BlindPolyWriter,role:Wizard,race:human,gender:male,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!debug_mongen\n",
+      "moves": "E- x\n#wizintrinsic\n50i\n \u0017wand of polymorph\nEo "
+    }
+  ]
+}

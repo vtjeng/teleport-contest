@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent engrave.c polymorph-wand recipe. Seed, clock, name, Wizard role and input were selected for this run. It first writes a one-character finger engraving, then uses a wished wand of polymorph to exercise random_engraving's text/pristine output contract on an existing engraving.",
+  "segments": [
+    {
+      "seed": 34277109,
+      "datetime": "20361114124931",
+      "nethackrc": "OPTIONS=name:PolyWriter,role:Wizard,race:human,gender:female,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!debug_mongen\n",
+      "moves": "E- x\n\u0017wand of polymorph\nEo "
+    }
+  ]
+}

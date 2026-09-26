@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent engrave.c occupation recipe. Seed, clock, name, Wizard role and inputs were selected for this run. A twelve-character finger engraving reaches the occupation callback's partial-write return and its later completion path through set_occupation(engrave).",
+  "segments": [
+    {
+      "seed": 7812039,
+      "datetime": "20380322121749",
+      "nethackrc": "OPTIONS=name:LongWriter,role:Wizard,race:human,gender:female,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!debug_mongen\n",
+      "moves": "E- ABCDEFGHIJKL\n.."
+    }
+  ]
+}

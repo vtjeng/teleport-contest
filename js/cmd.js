@@ -211,8 +211,8 @@ import {
     can_reach_floor,
     doengrave,
     read_engr_at,
-    UnsupportedEngraveError,
 } from './engrave.js';
+import { random_engraving } from './random_engraving.js';
 import {
     AUTOCOMPLETE,
     AUTOCOMP_ADJ,
@@ -357,6 +357,7 @@ import { UnsupportedItemIgnitionError } from './apply_catch_lit.js';
 import {
     acurr,
     exercise,
+    exercise_nonphysical,
     UnsupportedAbilityChangeError,
 } from './attrib.js';
 import { UnsupportedExperienceChangeError } from './exper.js';
@@ -2839,7 +2840,6 @@ export function failClosedCommandRefusals() {
         UnsupportedDirectionBoundaryError,
         UnsupportedEatError,
         UnsupportedApplyError,
-        UnsupportedEngraveError,
         UnsupportedHelpError,
         UnsupportedWhatisError,
         // lock.c pick_lock() stops inside doapply()'s lock-pick arm, one
@@ -3264,8 +3264,24 @@ async function runEngraveCommand(key, state) {
         redraw: newsym,
         setOccupation: set_occupation,
         random: { rn2, rnd },
+        // random_engraving() reaches getrumor(), whose C implementation
+        // exercises WIS.  The callback stays at the command caller so the
+        // synchronous helper receives doengrave's exact state and RNG.
+        randomEngraving: ({ state: engravingState, random }) =>
+            random_engraving({
+                state: engravingState,
+                random,
+                exercise: (attribute, increase) => exercise_nonphysical(
+                    attribute, increase, engravingState, random,
+                ),
+            }),
+        yesNo: yn_function,
+        monName: mon_nam,
+        inventoryHooks: { updateInventory: () => bot() },
         ECMD_CANCEL,
         ECMD_OK,
+        ECMD_FAIL,
+        ECMD_TIME,
     }));
 }
 
