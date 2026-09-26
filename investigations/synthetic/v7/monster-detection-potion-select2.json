@@ -1,0 +1,90 @@
+{
+  "session": "synthetic/v7/monster-detection-potion-select2",
+  "corpus": "synthetic",
+  "batch": "v7",
+  "caseId": "monster-detection-potion-select2",
+  "manifestPath": "challenges/manifests/v7.json",
+  "manifestSha256": "03a861a9d1bc9d813c80681312ee7a0e0f893dbad0536de40a974bd5ec344094",
+  "recordingSha256": "77c4b7716462754c10c93173b85b750e21ad92fc9fa323d5f6b4b8c0d0278dd0",
+  "evaluationPath": "challenges/evaluations/20260926122253-v7.json",
+  "evaluationCommit": "f7e48bd93d6827c557c9a40a255a55cbc5fc8fcf",
+  "remainingScreens": 1,
+  "recordedSteps": 53,
+  "status": "complete",
+  "commit": "47856c2b7f77bc60cb4480d3bff955be061daaef",
+  "mismatch": {
+    "corpus": "synthetic",
+    "batch": "v7",
+    "caseId": "monster-detection-potion-select2",
+    "session": "synthetic/v7/monster-detection-potion-select2",
+    "manifestPath": "challenges/manifests/v7.json",
+    "manifestSha256": "03a861a9d1bc9d813c80681312ee7a0e0f893dbad0536de40a974bd5ec344094",
+    "recording": "challenges/cases/v7/monster-detection-potion-select2.session.json",
+    "recordingPath": "challenges/cases/v7/monster-detection-potion-select2.session.json",
+    "recordingSha256": "77c4b7716462754c10c93173b85b750e21ad92fc9fa323d5f6b4b8c0d0278dd0",
+    "recipe": "challenges/cases/v7/monster-detection-potion-select2.recipe.session.json",
+    "recipeSha256": "1842723789573a15cb97066c02e69ba34833581490037e45ab107fbf0420bfa4",
+    "replayInputSha256": "ba09b30aa45883696a6c2cbbe647b7a100c06ae9b741e0bcdf70fec164041447",
+    "evaluationPath": "challenges/evaluations/20260926122253-v7.json",
+    "evaluationCommit": "f7e48bd93d6827c557c9a40a255a55cbc5fc8fcf",
+    "evaluationArtifact": "challenges/evaluations/20260926122253-v7.json",
+    "evaluationUtc": "2026-09-26T12:23:06.868Z",
+    "remainingScreens": 1,
+    "recordedSteps": 53,
+    "previousScreensMatched": null,
+    "regression": false,
+    "passed": false,
+    "error": null,
+    "metrics": {
+      "screens": {
+        "matched": 52,
+        "total": 53
+      },
+      "rng": {
+        "matched": 2776,
+        "total": 2776
+      },
+      "cursors": {
+        "matched": 52,
+        "total": 53
+      }
+    },
+    "firstMismatch": {
+      "kind": "stop",
+      "message": "unsupported hero command: an unported branch of this command: quaffing requires peffect_monster_detection()",
+      "step": 52
+    },
+    "step": 52,
+    "kind": "stop",
+    "sourceFile": "potion.c",
+    "function": "peffect_monster_detection",
+    "message": "unsupported hero command: an unported branch of this command: quaffing requires peffect_monster_detection()",
+    "cFile": "potion.c",
+    "luaFile": null,
+    "line": null
+  },
+  "summary": "Quaffing the uncursed monster-detection potion reaches the unported potion.c:peffect_monster_detection() branch. C scans the live monster list and, when monsters exist, maps them, reports their presence, allows map browsing, and returns 0; the caller then exercises Wisdom and continues through potion identification and consumption. JS still throws at peffects() dispatch, and its existing monster_detect() helper also rejects the non-null potion object this source path passes.",
+  "source": {
+    "file": "potion.c",
+    "branch": "POT_MONSTER_DETECTION or SPE_DETECT_MONSTERS. The full function first handles blessed objects by updating potion knowledge flags and HDetect_monsters timeout, clearing invisible glyphs and recalculating the map, then using persistent see_monsters() and returning 0 when not swallowed or underwater. Otherwise it calls monster_detect(otmp, 0): return 1 means no monster and is propagated to peffects() for an early return; return 0 means detection succeeded, so the function exercises Wisdom and returns 0. In this recording the potion is uncursed (mkobj.c:1074-1080 calls blessorcurse(otmp, 4); the recorded rn2(4)=3 does not bless or curse it), the hero is not swallowed or underwater, and a live hostile grid bug is present, so the object-specific detector path is reached.",
+    "functions": [
+      "peffect_monster_detection"
+    ],
+    "callers": [
+      "nethack-c/upstream/src/potion.c:1333-1370 peffects() dispatches POT_MONSTER_DETECTION/SPE_DETECT_MONSTERS; a nonzero effect result returns 1, while zero falls through to peffects() returning -1 at line 1424.",
+      "nethack-c/upstream/src/potion.c:618-640 dopotion() consumes peffects() result: a nonnegative result short-circuits the identification/useup tail; -1 proceeds through potion identification and useup(). dodrink() calls dopotion() at potion.c:614 after item selection.",
+      "JS production path is js/cmd.js:3363-3364 runQuaffCommand() -> js/potion.js:dodrink() -> dopotion() -> peffects(); js/potion.js:1175-1177 currently throws at this dispatch."
+    ],
+    "dependencies": [
+      "nethack-c/upstream/src/detect.c:797-861 monster_detect(otmp, 0): filters dead monsters and dungeon guardians not on the level; if none remain, optionally calls strange_feeling(otmp) and returns 1. With live monsters it maps them, optionally wakes helpless monsters when otmp is cursed, displays “You sense the presence of monsters.”, uses a persistent map window only for a blessed object on an unconstrained map (otherwise browse_map()), redisplays the map, then returns 0. Its inverted result is consumed directly by peffect_monster_detection(); JS js/detect.js:355-366 currently supports only otmp=null and throws for a potion object.",
+      "The other full-function branch uses gp.potion_nothing/gp.potion_unkn, Detect_monsters, HDetect_monsters, incr_itimeout(), rn1()/rn2(), unmap_object(), newsym(), see_monsters(), and exercise(A_WIS, TRUE); the blessed non-swallowed/underwater branch returns 0 after persistent detection without calling monster_detect()."
+    ]
+  },
+  "goalKind": "file-port",
+  "evidence": [
+    "The canonical queue entry and saved v7 evaluation challenges/evaluations/20260926122253-v7.json identify synthetic/v7/monster-detection-potion-select2 with 1 remaining screen and 53 recorded steps. The evaluation reports 52/53 screens and 52/53 cursors matched, all 2776/2776 RNG calls matched, and the queue’s first mismatch is a stop at step 52: JS refuses quaffing because peffect_monster_detection() is unported.",
+    "The C recording challenges/cases/v7/monster-detection-potion-select2.session.json records key o at segment 0 step 52 after q, ?, o selection. C displays “You sense the presence of monsters.” with the mapped grid bug and map-browser --More-- prompt; this step has no RNG calls. The recording ends at that prompt, so the subsequent detector return and potion tail are established by source control flow, not by a later captured input.",
+    "Upstream potion.c:914-951 is the complete peffect_monster_detection() body. It distinguishes blessed persistent detection from the ordinary detector path, handles swallowed/underwater fallthrough, propagates monster_detect()’s 1=none result, and exercises Wisdom only after successful detection. potion.c:1333-1370 and :1424 show how peffects() consumes the result; potion.c:618-640 shows dopotion() short-circuit versus potion identification/useup.",
+    "Upstream detect.c:797-861 establishes monster_detect()’s return contract and object-specific effects. The saved recipe challenges/cases/v7/monster-detection-potion-select2.recipe.session.json creates a hostile grid bug and wishes for a monster-detection potion; the recorded mkobj trace has rn2(4)=3 at mkobj.c:1846, so blessorcurse() leaves the potion uncursed. The same detector helper currently exists at js/detect.js:355-401 only for a null object and explicitly throws for non-null objects; js/potion.js:1175-1177 is the immediate stop site."
+  ]
+}

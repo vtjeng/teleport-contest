@@ -76,7 +76,7 @@
     ],
     "dependencies": [
       "The uncursed branch consumes exper.c pluslvl(FALSE), already implemented in js/exper.js; preserve its state, RNG, and messages.",
-      "The whole peffect_gain_level() also uses return-valued Can_rise_up(), get_level(), and rndexp() on cursed/blessed paths; audit and port missing consumed callees and goto_level() wiring before source completion.",
+      "The whole peffect_gain_level() also uses return-valued Can_rise_up() and rndexp() on cursed/blessed paths, plus get_level() output through its newlevel argument; audit those consumed results and goto_level() wiring before source completion.",
       "Preserve gp.potion_unkn on cursed path and the u.uexp adjustment on blessed path."
     ]
   },

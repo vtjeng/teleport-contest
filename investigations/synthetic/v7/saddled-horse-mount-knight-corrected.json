@@ -1,0 +1,94 @@
+{
+  "session": "synthetic/v7/saddled-horse-mount-knight-corrected",
+  "corpus": "synthetic",
+  "batch": "v7",
+  "caseId": "saddled-horse-mount-knight-corrected",
+  "manifestPath": "challenges/manifests/v7.json",
+  "manifestSha256": "03a861a9d1bc9d813c80681312ee7a0e0f893dbad0536de40a974bd5ec344094",
+  "recordingPath": "challenges/cases/v7/saddled-horse-mount-knight-corrected.session.json",
+  "recordingSha256": "51bc1d8c879266bcfabe97d5b1603122ed885c3f23cef4f2cd712ebdd1fc3f23",
+  "evaluationPath": "challenges/evaluations/20260926122253-v7.json",
+  "evaluationCommit": "f7e48bd93d6827c557c9a40a255a55cbc5fc8fcf",
+  "remainingScreens": 10,
+  "recordedSteps": 33,
+  "status": "complete",
+  "commit": "3543403d092a80dbeacd479a4fb0cb5c2d537413",
+  "mismatch": {
+    "corpus": "synthetic",
+    "batch": "v7",
+    "caseId": "saddled-horse-mount-knight-corrected",
+    "session": "synthetic/v7/saddled-horse-mount-knight-corrected",
+    "manifestPath": "challenges/manifests/v7.json",
+    "manifestSha256": "03a861a9d1bc9d813c80681312ee7a0e0f893dbad0536de40a974bd5ec344094",
+    "recording": "challenges/cases/v7/saddled-horse-mount-knight-corrected.session.json",
+    "recordingPath": "challenges/cases/v7/saddled-horse-mount-knight-corrected.session.json",
+    "recordingSha256": "51bc1d8c879266bcfabe97d5b1603122ed885c3f23cef4f2cd712ebdd1fc3f23",
+    "recipe": "challenges/cases/v7/saddled-horse-mount-knight-corrected.recipe.session.json",
+    "recipeSha256": "6b71ebf28f66bcc559245cae6c29eacd48dc8afcfc9d11f3e2cbdb5fe7273177",
+    "replayInputSha256": "ba09b30aa45883696a6c2cbbe647b7a100c06ae9b741e0bcdf70fec164041447",
+    "evaluationPath": "challenges/evaluations/20260926122253-v7.json",
+    "evaluationCommit": "f7e48bd93d6827c557c9a40a255a55cbc5fc8fcf",
+    "evaluationArtifact": "challenges/evaluations/20260926122253-v7.json",
+    "evaluationUtc": "2026-09-26T12:23:06.868Z",
+    "remainingScreens": 10,
+    "recordedSteps": 33,
+    "previousScreensMatched": null,
+    "regression": false,
+    "passed": false,
+    "error": null,
+    "metrics": {
+      "screens": {
+        "matched": 23,
+        "total": 33
+      },
+      "rng": {
+        "matched": 2994,
+        "total": 3022
+      },
+      "cursors": {
+        "matched": 23,
+        "total": 33
+      }
+    },
+    "firstMismatch": {
+      "kind": "stop",
+      "message": "unsupported hero command: an unported branch of this command: applying a tool requires doapply()'s arm for object type 235",
+      "step": 23
+    },
+    "step": 23,
+    "kind": "stop",
+    "sourceFile": "apply.c",
+    "function": "doapply",
+    "message": "unsupported hero command: an unported branch of this command: applying a tool requires doapply()'s arm for object type 235",
+    "cFile": "apply.c",
+    "luaFile": null,
+    "line": null
+  },
+  "summary": "The first stop is apply.c:doapply() receiving object type 235 (SADDLE): the C SADDLE arm calls steed.c:use_saddle() and stores its result, while js/apply.js lacks that arm and throws at its default. Port and wire this branch with the return-valued use_saddle() path. The recording then reaches a separate #ride -> doride() -> mount_steed() sequence; JavaScript contains that success path, with other mount conditions still explicitly refused, but the current evaluation cannot establish its parity because replay stops at the saddle selection.",
+  "source": {
+    "file": "apply.c",
+    "branch": "After the player uses the apply command with hands available and acceptable capacity, getobj() selects SADDLE (object type 235). The SADDLE switch arm calls use_saddle(obj), assigns its ECMD_* result to doapply() local res, then the common tail returns res. In the recorded case the Knight selects the saddle, points at an adjacent tame pony, and the saddle success roll passes.",
+    "functions": [
+      "doapply"
+    ],
+    "callers": [
+      "nethack-c/upstream/src/cmd.c:1677-1678 binds key a / command apply to doapply(); js/cmd.js:5640 dispatches the command through runApplyCommand(), which calls js/apply.js:doapply() at 3293-3294.",
+      "nethack-c/upstream/src/apply.c:4300-4302 is the SADDLE arm: res = use_saddle(obj). js/apply.js:2293 onward has the corresponding switch, but no SADDLE case, so object type 235 reaches the UnsupportedApplyError default at 2395-2396."
+    ],
+    "dependencies": [
+      "steed.c:use_saddle() at 36-139 is a required return-valued callee of doapply(); its ECMD_OK, ECMD_CANCEL, and ECMD_TIME results must be preserved and the implementation wired from js/apply.js.",
+      "use_saddle() calls steed.c:can_saddle() and put_saddle_on_mon(); their current JavaScript implementations are in js/dog.js:496 and :525-565, while maybewakesteed() is in js/steed.js:780-804. These helpers are already present but their source-file placement and reachable partial branches need to be accounted for when adding the steed.c path.",
+      "The later ride step is separate from doapply: steed.c:doride() calls mount_steed(); js/steed.js already implements doride() and the mount success path. Its other mount guards include unsupported wounded-leg, long-worm-tail, trapped-steed, and leash-release branches; the recorded forced mount of the awake, tame pony avoids those guards."
+    ]
+  },
+  "goalKind": "file-port",
+  "evidence": [
+    "The saved queue entry and challenges/evaluations/20260926122253-v7.json (evaluation commit f7e48bd93d6827c557c9a40a255a55cbc5fc8fcf) report 10 unmatched screens, 23/33 matched screens, and the first stop at segment 0 step 23: applying a tool requires doapply()'s arm for object type 235.",
+    "challenges/cases/v7/saddled-horse-mount-knight-corrected.session.json normalizes to one segment (seed 70727129; Knight, debug mode; tame pony and saddle created). Step 22 opens the apply selector; at step 23 input i selects the saddle. C then displays “In what direction?”; step 24 input u targets the adjacent pony, records rn2(100)=8 at use_saddle(steed.c:129), and displays “You put the saddle on the pony.” with burden removed. This makes the SADDLE arm reachable through the live apply command.",
+    "Upstream nethack-c/upstream/src/apply.c:4214-4425 defines doapply(); its SADDLE arm at 4300-4302 assigns use_saddle() to res, and the common tail returns res at 4419-4424. nethack-c/upstream/src/steed.c:36-139 defines use_saddle(): it selects a direction, validates the adjacent monster and saddleability, computes chance from dexterity, charisma, tame level, role, riding skill, impairment, equipment, and BUC, wakes the steed, rolls rn2(100), and on success removes the saddle from hero inventory and calls put_saddle_on_mon(). The recorded Knight succeeds on roll 8 and the command spends a turn.",
+    "The source state contract for the successful saddle path is steed.c:133-163: the saddle leaves hero inventory; put_saddle_on_mon() attaches it to the monster inventory, sets monster misc_worn_check and saddle owornmask to W_SADDLE, sets saddle.leashmon to monster m_id, and updates monster extrinsics. Existing JS analogues are js/dog.js:522-565. SADDLE is object type 235 in js/objects.js:310.",
+    "js/apply.js:2293-2397 confirms the first failure: its switch omits SADDLE and its default throws UnsupportedApplyError for the selected object type. js/steed.js has no use_saddle() implementation, so wiring only a dispatch label would still leave the selected C function absent; js/dog.js currently holds can_saddle() and put_saddle_on_mon() implementations originating from steed.c.",
+    "After the first blocker, the C recording reaches #ride: step 30 selects adjacent direction u, step 31 asks “Force the mount to succeed?”, and step 32 answers y; C then shows Ride in the status line and the pony under the hero. Upstream steed.c:176-193 routes doride() through mount_steed(), whose success path at 358-382 sets u.usteed, removes the monster from its square, moves the hero with teleds(), and marks disp.botl.",
+    "The corresponding JavaScript ride path is already wired: js/extcmdlist_data.js:111 maps ride to doride, js/cmd.js:5146-5148 dispatches it, and js/steed.js:839-860 implements doride() and :204-429 implements mount_steed(). mount_steed() still refuses other source branches at js/steed.js:229, :262, :296, :308, and :322; maybewakesteed() also stops when it must wake a frozen steed at :800. The recorded healthy Knight’s forced ride of an awake, tame pony does not enter those branches. The saved evaluation stops before this path, so the recorded C behavior is reachable evidence, not yet a JavaScript parity claim."
+  ]
+}
