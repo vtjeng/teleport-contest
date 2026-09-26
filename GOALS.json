@@ -83539,7 +83539,7 @@
     {
       "id": "port-apply-use-unicorn-horn-synthetic-v7-20260926",
       "kind": "file-port",
-      "status": "open",
+      "status": "closed",
       "summary": "Port apply.c use_unicorn_horn and wire doapply for unicorn horns",
       "cFile": "apply.c",
       "sessions": [
@@ -83553,15 +83553,18 @@
         "screens": 11405,
         "rng": 792838
       },
-      "closedAt": null,
-      "delivered": null,
+      "closedAt": "fa3aebd3eee0de7cb859e5efeaa4e7dda2b0e735",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
       "functions": [
         {
           "name": "use_unicorn_horn",
           "line": 2259,
           "endLine": 2397,
-          "declared": false,
-          "complete": false
+          "declared": true,
+          "complete": true
         }
       ],
       "range": {
@@ -83735,7 +83738,95 @@
             }
           }
         }
-      ]
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "use_unicorn_horn",
+            "implementation": "js/apply.js",
+            "symbol": "use_unicorn_horn",
+            "sourceReview": "Read all of apply.c:2258-2392. The cursed branch draws rn1(90,10), then rn2(13)/2, and executes the seven source cases in order. The sick case evaluates its conditional timeout/RNG and xname before the void make_sick call; cases 1, 2, 5 and 6 preserve their source arguments and use the existing make_blinded, make_confused, make_hallucinated and make_deaf helpers. The uncursed branch collects only TimedTrouble intrinsic properties, excludes ucreamed blindness and a swallowed blind engulfer as C does, draws d(2, blessed?4:2) then rn2, clamps the number of effects, and sets botl or prints the source message. attacktype_fordmg returns a consumed attack pointer and is ported in mondata.js. The remaining calls are void or explicitly discarded in C and are recorded as gaps: potion.c make_sick, potion.c make_stunned, potion.c make_vomiting, eat.c vomit, and rnd.c shuffle_int_array. The last helper mutates the local trouble array; multi-trouble uncursed selection remains an explicit gap because that void callee is skipped. No UnsupportedApplyError refusal remains on the UNICORN_HORN arm.",
+            "callers": [
+              {
+                "path": "js/apply.js",
+                "symbol": "doapply",
+                "source": "apply.c:4371 dispatches case UNICORN_HORN to use_unicorn_horn(&obj); the JS doapply case awaits use_unicorn_horn(obj,state,env) and returns the initial ECMD_TIME."
+              },
+              {
+                "path": "js/cmd.js",
+                "symbol": "runApplyCommand",
+                "source": "cmd.c:1677-1678 registers the 'a' apply command to doapply; runApplyCommand routes that command into js/apply.js doapply."
+              },
+              {
+                "path": "js/iactions.js",
+                "symbol": "itemactions_pushkeys",
+                "source": "iactions.c:155 queues doapply and the selected inventory letter for IA_APPLY_OBJ; the existing JS handler queues the same apply command and letter."
+              },
+              {
+                "path": "js/invent.js",
+                "symbol": "dispinv_with_action",
+                "source": "invent.c:2964-3002 routes a selected item from the inventory menu through itemactions(), which offers the unicorn-horn apply action."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/apply-unicorn-horn.test.mjs"
+            ],
+            "recordings": [
+              "recordings/apply.c/unicorn-horn-cursed-independent.session.json",
+              "recordings/apply.c/unicorn-horn-inventory-menu-independent.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v7",
+                "caseId": "unicorn-horn-blindness-corrected",
+                "segment": 0,
+                "fromStep": 56,
+                "throughStep": 56,
+                "source": "cmd.c apply command -> cmd.js runApplyCommand -> apply.c doapply UNICORN_HORN -> apply.c use_unicorn_horn uncursed BLINDED trouble -> potion.c make_blinded"
+              }
+            ],
+            "checkedAt": "fa3aebd3eee0de7cb859e5efeaa4e7dda2b0e735"
+          }
+        ],
+        "entryPointReview": "use_unicorn_horn has one direct source caller, apply.c:doapply's UNICORN_HORN arm. It is reached by the typed 'a' command (cmd.c:1677-1678) and by the inventory menu (invent.c:dispinv_with_action -> iactions.c:itemactions -> itemactions_pushkeys/IA_APPLY_OBJ queues doapply and the object letter); both existing JS paths remain wired through doapply. Calls that reapply the same object from apply.c use_whip/use_pole/use_grapple and dig.c use_pick_axe do not select a different unicorn horn and add no horn-specific route. The two matching independent recordings cover the cursed typed command and uncursed inventory-menu route; the admitted v7 range covers the uncursed typed command. Calls to the five named void helpers remain gaps and multi-trouble uncursed ordering is not claimed complete.",
+        "entryPoints": [
+          {
+            "name": "Typed apply command for a unicorn horn",
+            "functions": [
+              "use_unicorn_horn"
+            ],
+            "recordings": [
+              "recordings/apply.c/unicorn-horn-cursed-independent.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v7",
+                "caseId": "unicorn-horn-blindness-corrected",
+                "segment": 0,
+                "fromStep": 56,
+                "throughStep": 56,
+                "source": "cmd.c apply command -> apply.c doapply -> apply.c use_unicorn_horn, uncursed single-trouble blindness"
+              }
+            ]
+          },
+          {
+            "name": "Inventory menu applies a unicorn horn",
+            "functions": [
+              "use_unicorn_horn"
+            ],
+            "recordings": [
+              "recordings/apply.c/unicorn-horn-inventory-menu-independent.session.json"
+            ]
+          }
+        ]
+      },
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "fa3aebd3eee0de7cb859e5efeaa4e7dda2b0e735",
+        "screens": 11405,
+        "rng": 792838
+      }
     }
   ]
 }
