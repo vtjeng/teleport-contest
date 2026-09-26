@@ -1,0 +1,12 @@
+{
+  "_comment": "B10 C-first addendum retry; dismiss startup prompt, then exercise Rogue source behavior.",
+  "version": 5,
+  "segments": [
+    {
+      "seed": 60626208,
+      "datetime": "20260926123000",
+      "nethackrc": "OPTIONS=name:C8,role:Rogue,race:human,gender:male,align:neutral,playmode:debug,!legacy,!tutorial,!splash_screen,showexp,time\n",
+      "moves": " aeh"
+    }
+  ]
+}

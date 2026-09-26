@@ -1,0 +1,12 @@
+{
+  "_comment": "B10 C-first addendum retry from source-state isolation and generated map inspection.",
+  "version": 5,
+  "segments": [
+    {
+      "seed": 60626501,
+      "datetime": "20260926153000",
+      "nethackrc": "OPTIONS=name:E1,role:Archeologist,race:human,gender:male,align:neutral,playmode:debug,!legacy,!tutorial,!splash_screen,showexp,time\nOPTIONS=pettype:none,!acoustics\n",
+      "moves": " aah"
+    }
+  ]
+}

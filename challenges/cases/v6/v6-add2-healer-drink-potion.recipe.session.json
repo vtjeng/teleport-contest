@@ -1,0 +1,12 @@
+{
+  "_comment": "B10 C-first addendum retry; dismiss startup prompt, then exercise Healer source behavior.",
+  "version": 5,
+  "segments": [
+    {
+      "seed": 60626207,
+      "datetime": "20260926123000",
+      "nethackrc": "OPTIONS=name:C7,role:Healer,race:human,gender:male,align:neutral,playmode:debug,!legacy,!tutorial,!splash_screen,showexp,time\n",
+      "moves": " qd"
+    }
+  ]
+}
