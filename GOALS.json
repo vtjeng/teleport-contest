@@ -78531,7 +78531,7 @@
     {
       "id": "port-apply-trap-setting-synthetic-v6-20260926",
       "kind": "file-port",
-      "status": "open",
+      "status": "closed",
       "summary": "Port complete apply.c trap setup and occupation callback for applied traps",
       "cFile": "apply.c",
       "sessions": [
@@ -78545,22 +78545,25 @@
         "screens": 11405,
         "rng": 792838
       },
-      "closedAt": null,
-      "delivered": null,
+      "closedAt": "e0337a3a4ccf6c565622b7fb6eaad1207ecf278c",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
       "functions": [
         {
           "name": "use_trap",
           "line": 2821,
           "endLine": 2915,
-          "declared": false,
-          "complete": false
+          "declared": true,
+          "complete": true
         },
         {
           "name": "set_trap",
           "line": 2916,
           "endLine": 2954,
-          "declared": false,
-          "complete": false
+          "declared": true,
+          "complete": true
         }
       ],
       "range": {
@@ -78738,7 +78741,107 @@
             }
           }
         }
-      ]
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "use_trap",
+            "implementation": "js/apply.js",
+            "symbol": "use_trap",
+            "sourceReview": "Read the complete apply.c use_trap() body at 2821-2911 and checked every guard in source order: no hands, Stunned, swallowed/engulfed via digests, Underwater, levitation, pool, lava, stairs/ladder, furniture/obstruction/closed door/existing trap, then Air/Water plane terrain. Verified the trap type selection, same-object/same-square resume, DEX thresholds, blindness multiplier, bear-trap STR addition, mounted/unskilled rnl(10) threshold and branch order, refusal reset, begin message, and occupation installation. reset_trapset() clears only tobj and force_bungle while preserving tx/ty/time_needed. The return-valued shk_your() prefix chain is implemented in js/shk.js with shk_owns()/mon_owns() source branches, including corpse, shopkeeper, and monster owner cases; scripts/shk.test.mjs pins these names and prefixes. The C call use_unpaid_trapobj() is void and only has an active effect for unpaid traps; that branch is skipped with note_unported('shk.c use_unpaid_trapobj') rather than simulated. The existing doapply() LAND_MINE/BEARTRAP arm is wired to this function, and the selected admitted case plus both independent recordings execute it through the apply command caller.",
+            "callers": [
+              {
+                "path": "js/apply.js",
+                "symbol": "doapply",
+                "source": "apply.c:4388-4393 doapply() LAND_MINE/BEARTRAP switch arms call use_trap(obj)."
+              },
+              {
+                "path": "js/cmd.js",
+                "symbol": "runApplyCommand",
+                "source": "cmd.c:rhack()/command dispatch reaches doapply() from the a command or #apply; js/cmd.js runApplyCommand dispatches to js/apply.js doapply()."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/apply-trap.test.mjs",
+              "scripts/drop-command.test.mjs",
+              "scripts/shk.test.mjs"
+            ],
+            "recordings": [
+              "recordings/apply.c/beartrap-setting-independent.session.json",
+              "recordings/apply.c/landmine-setting-independent.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v6",
+                "caseId": "wizard-beartrap-sit-floor",
+                "segment": 0,
+                "fromStep": 12,
+                "throughStep": 13,
+                "source": "cmd.c command dispatch -> apply.c doapply() BEARTRAP arm -> apply.c use_trap(); selected admitted case now matches all 37 steps."
+              }
+            ],
+            "checkedAt": "e0337a3a4ccf6c565622b7fb6eaad1207ecf278c"
+          },
+          {
+            "name": "set_trap",
+            "implementation": "js/apply.js",
+            "symbol": "set_trap",
+            "sourceReview": "Read the complete apply.c set_trap() body at 2916-2952. Preserved the early interruption guard/reset and the pre-decrement continuation result (one while time_needed remains positive, zero when the occupation ends); then ported the maketrap result branch, madeby_u assignment, feeltrap call, shop check, completion message, cursed/Fumbling short-circuit rnl(10) order, useup, reset, and final zero return. Existing maketrap(), feeltrap(), in_rooms(), useup(), and rng.rnl() provide the consumed values/operations. The void shk.c add_damage() call in the shop branch is skipped with note_unported('shk.c add_damage'). C discards dotrap()'s integer return, so its conditional trap-trigger call is skipped with note_unported('trap.c dotrap') after preserving the source condition and random draw. Do not treat those two source effects as implemented. The separate shk.c ownership helpers called by use_trap() are fully traced and tested in scripts/shk.test.mjs; their source units remain outside this apply.c file-port evidence scope.",
+            "callers": [
+              {
+                "path": "js/apply.js",
+                "symbol": "use_trap",
+                "source": "apply.c:2864 and :2910 use_trap() installs set_trap() through set_occupation()."
+              },
+              {
+                "path": "js/allmain.js",
+                "symbol": "moveloop_core",
+                "source": "allmain.c:485-509 runs go.occupation once per occupation turn and clears it when set_trap() returns zero."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/apply-trap.test.mjs"
+            ],
+            "recordings": [
+              "recordings/apply.c/beartrap-setting-independent.session.json",
+              "recordings/apply.c/landmine-setting-independent.session.json"
+            ],
+            "checkedAt": "e0337a3a4ccf6c565622b7fb6eaad1207ecf278c"
+          }
+        ],
+        "entryPointReview": "The selected range is reached from the active apply command: cmd.c command dispatch -> js/cmd.js runApplyCommand -> apply.c doapply() LAND_MINE/BEARTRAP cases -> use_trap(). use_trap() installs set_trap() as the untimed occupation; js/allmain.js moveloop_core() invokes the callback on elapsed turns and clears it when it returns zero. The admitted v6 case exercises the bear-trap apply caller at segment 0 steps 12-13 and now matches through all 37 steps. Two independent C recordings exercise full completion for both bear traps and land mines. The trap state helper reset_trapset() is also corrected to preserve tx/ty/time_needed as C does; scripts/apply-trap.test.mjs and scripts/drop-command.test.mjs pin those reset semantics. The required return-valued naming chain shk.c shk_your()/shk_owns()/mon_owns() was included in B11's ledger scope, ported in js/shk.js, and source-tested for corpse, shop-owner, and monster-owner prefixes in scripts/shk.test.mjs; GOALS source evidence is file-scoped to apply.c, so those shk.c helpers are documented here as dependencies rather than misreported as apply.c source units. Remaining active source gaps are conditional: shk.c use_unpaid_trapobj() for unpaid traps; shk.c add_damage() when arming in a shop; and trap.c dotrap() when cursed/Fumbling or force_bungle causes a newly armed trap to trigger. Each skipped call is named with note_unported(), and the delivery does not claim those side effects. These functions/branches are not excluded by the C recorder build; no inactiveReason is asserted.",
+        "entryPoints": [
+          {
+            "name": "Apply a bear trap or land mine and run the setting occupation",
+            "functions": [
+              "use_trap",
+              "set_trap"
+            ],
+            "recordings": [
+              "recordings/apply.c/beartrap-setting-independent.session.json",
+              "recordings/apply.c/landmine-setting-independent.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v6",
+                "caseId": "wizard-beartrap-sit-floor",
+                "segment": 0,
+                "fromStep": 12,
+                "throughStep": 13,
+                "source": "apply.c doapply() BEARTRAP arm calls use_trap(); the independent recording separately verifies set_trap() through completion."
+              }
+            ]
+          }
+        ]
+      },
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "e0337a3a4ccf6c565622b7fb6eaad1207ecf278c",
+        "screens": 11405,
+        "rng": 792838
+      }
     }
   ]
 }
