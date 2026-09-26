@@ -8,7 +8,8 @@
 //        speed_up() (2918-2928),
 //        itimeout/itimeout_incr/set_itimeout/incr_itimeout (55-86),
 //        bottlename() (1487-1494), potionhit() (1624-1928),
-//        potionbreathe() (1931-2118), make_blinded() (261-331),
+//        potionbreathe() (1931-2118), make_stoned() (222-240),
+//        make_blinded() (261-331),
 //        make_hallucinated() (387-442), toggle_blindness() (336-364).
 //
 // dodrink() is the #quaff command entry point. Branches for underwater,
@@ -80,6 +81,7 @@ import {
     POTHIT_OTHER_THROW,
     SEE_INVIS,
     SLEEP_RES,
+    STONED,
     STRANGLED,
     TELEPAT,
     TIMEOUT,
@@ -129,6 +131,11 @@ import { is_boots, is_gloves } from './obj.js';
 import { discover_object } from './o_init.js';
 import { encumber_msg } from './pickup.js';
 import { body_part, float_vs_flight, polyself } from './polyself.js';
+import {
+    dealloc_killer,
+    delayed_killer,
+    find_delayed_killer,
+} from './end.js';
 import { d, rn1, rn2, rnd, rne, rnz } from './rng.js';
 import { canSpotMonster } from './startup_a11y.js';
 import { cloneu } from './mhitu.js';
@@ -390,6 +397,29 @@ export function set_itimeout(prop, val) {
 // C ref: potion.c incr_itimeout() (82-86). Increment the timeout field.
 export function incr_itimeout(prop, incr) {
     set_itimeout(prop, itimeout_incr(prop.intrinsic, incr));
+}
+
+// C ref: potion.c make_stoned() (222-240). Set or clear the STONED timeout,
+// update the condition line only on a transition, and retain the delayed
+// killer which timeout.c consults when petrification expires.
+export async function make_stoned(
+    xtime, msg, killedby, killername, state = game,
+) {
+    const prop = state.u?.uprops?.[STONED];
+    if (!prop)
+        throw new Error('make_stoned requires initialized STONED state');
+    const old = prop.intrinsic & TIMEOUT;
+    set_itimeout(prop, xtime);
+    if (Boolean(xtime) !== Boolean(old)) {
+        state.disp ??= {};
+        state.disp.botl = true;
+        if (msg) await ttyPline(msg, state);
+    }
+    if (!(prop.intrinsic & TIMEOUT)) {
+        dealloc_killer(find_delayed_killer(STONED, state), state);
+    } else if (!old) {
+        delayed_killer(STONED, killedby, killername, state);
+    }
 }
 
 // C ref: potion.c make_glib() (460-468). Set or clear "slippery fingers".

@@ -21,7 +21,8 @@
 //        select_off() (2694-2821), do_takeoff() W_SWAPWEP arm (2823-2843),
 //        reset_remarm() (3012-3018), remarm_swapwep() (3059-3087),
 //        inaccessible_equipment() (3338-3400), equip_ok() (3402-3447),
-//        wear_ok() (3463-3468) and takeoff_ok() (3470-3475).
+//        wear_ok() (3463-3468), takeoff_ok() (3470-3475), and glibr()
+//        (2528-2627).
 //
 // do_wear.c find_ac() was ported earlier and lives in
 // js/u_init_inventory_attrs.js, beside the startup code that first calls it.
@@ -141,9 +142,15 @@ import { newsym, see_monsters } from './display.js';
 import { obj_pmname } from './do_name.js';
 import { HCOLORS } from './random_text_data.js';
 import { has_ceiling, surface } from './dungeon.js';
-import { makeplural } from './fruit.js';
+import { makeplural, makesingular } from './fruit.js';
 import { acurr, uchangealign } from './attrib.js';
-import { cmdq_peek, cmdq_pop, paranoid_query, yn_function } from './cmd.js';
+import {
+    cmdq_clear,
+    cmdq_peek,
+    cmdq_pop,
+    paranoid_query,
+    yn_function,
+} from './cmd.js';
 import { artifact_light, set_artifact_intrinsic } from './artifacts.js';
 import { game } from './gstate.js';
 import { nomul, spoteffects, unmul } from './hack.js';
@@ -311,6 +318,7 @@ import {
     WHITE_DRAGON_SCALE_MAIL,
     YELLOW_DRAGON_SCALES,
     YELLOW_DRAGON_SCALE_MAIL,
+    AKLYS,
 } from './objects.js';
 import { discover_object, observe_object } from './o_init.js';
 import {
@@ -320,6 +328,7 @@ import {
     gloves_simple_name,
     helm_simple_name,
     obj_is_pname,
+    otense,
     suit_simple_name,
     the,
     thesimpleoname,
@@ -336,7 +345,14 @@ import { ttyPline } from './tty_message.js';
 import { find_ac } from './u_init_inventory_attrs.js';
 import { note_unported } from './unported.js';
 import { Glib, welded } from './wield.js';
-import { bimanual, setnotworn, setuswapwep, setworn } from './worn.js';
+import { weapon_descr } from './weapon.js';
+import {
+    bimanual,
+    setnotworn,
+    setuswapwep,
+    setuwep,
+    setworn,
+} from './worn.js';
 import { shk_your } from './shk.js';
 
 // The armor callbacks can run during a planning polymorph.  Keep the live
@@ -2753,6 +2769,109 @@ export function fingers_or_gloves(check_gloves, state) {
     return (check_gloves && state.uarmg)
         ? gloves_simple_name(state.uarmg, state) /* "gloves" or "gauntlets" */
         : makeplural(body_part(FINGER, state.youmonst)); /* "fingers" */
+}
+
+// C ref: do_wear.c glibr() (2528-2627), called once per elapsed turn from
+// allmain.c moveloop_core() when Glib is active. The injected drop hooks are
+// do.c dropx()'s production tail; canletgo()'s return controls whether C drops
+// each item after clearing its equipment slot.
+export async function glibr(state = game, env = {}) {
+    const message = env.message ?? ttyPline;
+    const canLetGo = env.canletgo;
+    const drop = env.dropx;
+    if (typeof canLetGo !== 'function' || typeof drop !== 'function') {
+        throw new TypeError('do_wear.c glibr() requires canletgo and dropx');
+    }
+
+    const lefty = state.u.uhandedness === LEFT_HANDED;
+    const leftFall = Boolean(state.uleft && !state.uleft.cursed
+        && (!state.uwep
+            || !(welded(state.uwep, state) && lefty)
+            || !bimanual(state.uwep, state)));
+    const rightFall = Boolean(state.uright && !state.uright.cursed
+        && (!state.uwep
+            || !(welded(state.uwep, state) && !lefty)
+            || !bimanual(state.uwep, state)));
+    let xfl = false;
+    let wastwoweap = false;
+    let otherwep = null;
+
+    if (!state.uarmg && (leftFall || rightFall)
+        && !nolimbs(state.youmonst.data)) {
+        const both = leftFall && rightFall;
+        await message(
+            `Your ${both ? 'rings slip' : 'ring slips'} off your `
+            + `${both ? fingers_or_gloves(false, state)
+                : body_part(FINGER, state.youmonst)}.`,
+            state,
+        );
+        xfl = true;
+        if (leftFall) {
+            const ring = state.uleft;
+            await Ring_off(ring, state);
+            await drop(ring);
+            cmdq_clear(CQ_CANNED, state);
+        }
+        if (rightFall) {
+            const ring = state.uright;
+            await Ring_off(ring, state);
+            await drop(ring);
+            cmdq_clear(CQ_CANNED, state);
+        }
+    }
+
+    let object = state.uswapwep;
+    if (state.u.twoweap && object) {
+        otherwep = is_sword(object, state)
+            ? c_sword : weapon_descr(object, state);
+        if (object.quan > 1) otherwep = makeplural(otherwep);
+        const hand = body_part(HAND, state.youmonst);
+        const which = !lefty ? 'left ' : 'right ';
+        await message(
+            `Your ${otherwep} ${xfl ? 'also ' : ''}`
+            + `${otense(object, 'slip')} from your ${which}${hand}.`,
+            state,
+        );
+        xfl = true;
+        wastwoweap = true;
+        setuswapwep(null, setwornEnv(state));
+        cmdq_clear(CQ_CANNED, state);
+        if (await canLetGo(object, '', state)) await drop(object);
+    }
+
+    object = state.uwep;
+    if (object && object.otyp !== AKLYS && !welded(object, state)) {
+        const savedQuantity = object.quan;
+        let thiswep = is_sword(object, state)
+            ? c_sword : weapon_descr(object, state);
+        if (otherwep && thiswep !== makesingular(otherwep))
+            otherwep = null;
+        if (object.quan > 1) {
+            if (thiswep === 'food') object.quan = 1;
+            else thiswep = makeplural(thiswep);
+        }
+        let hand = body_part(HAND, state.youmonst);
+        let which = '';
+        if (bimanual(object, state)) {
+            hand = makeplural(hand);
+        } else if (wastwoweap) {
+            which = !lefty ? 'right ' : 'left ';
+        }
+        try {
+            await message(
+                `${thiswep.startsWith('corpse') ? 'The' : 'Your'} `
+                + `${otherwep ? 'other ' : ''}${thiswep} `
+                + `${xfl ? 'also ' : ''}${otense(object, 'slip')} `
+                + `from your ${which}${hand}.`,
+                state,
+            );
+        } finally {
+            object.quan = savedQuantity;
+        }
+        setuwep(null, setwornEnv(state));
+        cmdq_clear(CQ_CANNED, state);
+        if (await canLetGo(object, '', state)) await drop(object);
+    }
 }
 
 // C ref: do_wear.c cursed() (1891-1917). Answers whether a worn item is
