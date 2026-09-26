@@ -136,10 +136,12 @@ Plan at least 12 new, independently designed C behavior candidates per batch
 before comparing their JavaScript results. For each candidate, name the source
 behavior, the state and action history needed to reach it, and the C
 observation that will show it was reached. Earlier admitted cases do not count
-toward this target. Draw candidates from current source-traced blockers and
-parked work, the roadmap's under-exercised functions, and earlier missions that missed their
-intended behavior. Prefer targets with a plausible C route and different source
-owners; reserve some missions for less directed exploration. A rare blocker is
+toward this target. A candidate overlapping the immediately preceding batch or
+an unresolved older case does not count either. Draw candidates from current
+source-traced blockers and parked work, the roadmap's under-exercised functions,
+and earlier missions that missed their intended behavior. Prefer targets with
+a plausible C route and different source owners; reserve some missions for less
+directed exploration. A rare blocker is
 one candidate, not a requirement to hold the whole batch open. Vary behavior
 families, action histories, and relevant character or state conditions;
 changing only seeds is insufficient. Follow
@@ -151,12 +153,14 @@ local mismatch and the C behavior responsible for its first mismatch is
 source-traced and distinct from the first mismatching behavior of every other
 counted session. Later mismatches in that session are allowed. Record the
 first mismatch step, source behavior, and owner for each counted session.
-Keep every valid, reproducible case, including cases that miss their intended
-behavior. A missed mission can count if its first mismatch meets the criterion
-above. Matching cases and cases with duplicate or unresolved first mismatch
-behaviors do not count toward the 12. Reject only invalid setup or recorder
-failures with recorded C evidence. Resolve recorder-environment differences
-before treating them as game defects.
+Keep every distinct, valid, reproducible case in the prepared manifest,
+including cases that miss their intended behavior or already match JavaScript.
+A missed mission can count if its first mismatch meets the criterion above.
+Matching cases and cases with duplicate or unresolved first mismatch behaviors
+do not count toward the 12. Retain valid overlap probes outside that manifest
+with their C evidence and the earlier case they duplicate. Reject invalid setup
+or recorder failures with recorded C evidence. Resolve recorder-environment
+differences before treating them as game defects.
 
 After two materially different C setups fail to reach a difficult target,
 defer it with the observed reason and try another; a cheap source-proven route
@@ -187,10 +191,20 @@ The worker submits case recipes and C recordings under
 outside `challenges/manifests/`, with an independent C replay result in each
 case's `reproducibility` field. The orchestrator checks the cases, merges the
 recipes and recordings into `main`, runs the combined checkpoint, and accepts
-the delivery. Keep those files and their hashes unchanged. Neither the worker
-nor the orchestrator omits a valid case because JavaScript passes it. Until
-admission, the cases do not enter synthetic scoring, the mismatch queue, or
-the dashboard.
+the delivery. Keep those files and their hashes unchanged. Compare each
+candidate's reached C behavior, relevant state, and action history with every
+case in the immediately preceding batch and every still-unresolved case in any
+earlier batch. For v7, compare with every v6 case and unresolved v1-v5 cases.
+Shared startup and command setup do not by themselves constitute overlap; the
+substantive behavior exercised must differ. Record the closest earlier cases
+and causal distinction for every included candidate, including candidates
+that already match JavaScript or miss their intended target. Keep valid
+overlapping C probes and independent replays as preparation provenance outside
+the prepared manifest. Do not omit a distinct valid case because JavaScript
+passes it. Recheck overlap against current saved evaluations before admission;
+require a corrected delivery if a submitted manifest includes an overlapping
+case. Until admission, the cases do not enter synthetic scoring, the mismatch
+queue, or the dashboard.
 
 Admit the oldest prepared batch when current, complete evaluations of every
 admitted batch show zero unmatched screens, or when the assignable task count
