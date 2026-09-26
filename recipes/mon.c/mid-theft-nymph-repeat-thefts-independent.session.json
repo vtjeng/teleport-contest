@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "BLOCKED after the second materially different valid C setup: repeated water-nymph encounters produce ordinary thefts of potions, gloves, and food, but no delayed armor-removal callback is active when a thief dies. This does not reach mon.c:m_detach() identity check -> steal.c:thiefdead() -> unstolenarm(). The current recipe contains no #wizkill command; preserve the observed repeated-theft miss without claiming callback coverage.",
+  "segments": [
+    {
+      "seed": 92310117,
+      "datetime": "20410209112743",
+      "nethackrc": "OPTIONS=name:Kestrel,role:Monk,race:human,gender:male,align:lawful\nOPTIONS=!legacy,!tutorial,!splash_screen,playmode:debug,pettype:none,!acoustics,!safe_wait\n",
+      "moves": " \u0017uncursed ring of adornment\n\u0007water nymph\nh m. \u0007water nymph\nh m. m. m. m. \u0007water nymph\nn m. m. m. m. m. m. m. m. m. m. m. m. m. m. m. m. m. m. m. m. m. m. m. m. m. m. m. m. m. i"
+    }
+  ]
+}

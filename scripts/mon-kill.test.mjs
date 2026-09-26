@@ -788,13 +788,15 @@ test('the theft and quest identities match by m_id, not by absence',
             await mondead(leader, game, killEnv());
             assert.equal(game.svq.quest_status.leader_is_dead, true);
 
-            // The thief's own id stops m_detach() at 2782.
+            // The thief's own id reaches steal.c thiefdead() at m_detach():2782,
+            // clearing the in-progress identity before ordinary detachment.
             const thief = spawn(PM_NEWT);
             thief.m_id = 5000;
-            await refusesAsync(
-                () => mondead(thief, game, killEnv()),
-                'the death of a monster in mid-theft',
-            );
+            await mondead(thief, game, killEnv());
+            assert.equal(game.gs.stealmid, 0,
+                'thiefdead clears the dead monster identity');
+            assert.ok(thief.mstate & MON_DETACH,
+                'the matching thief completes ordinary detachment');
         } finally {
             delete game.gs.stealmid;
             game.svq.quest_status.leader_m_id = 0;

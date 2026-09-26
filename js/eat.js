@@ -476,11 +476,17 @@ function sickResistance(state) {
         || defended(state.youmonst, AD_DISE, state));
 }
 
+// C ref: eat.c is_fainted() (3346-3350). Keep the hunger status predicate in
+// its source owner; youprop.h Unaware and steal.c unresponsive() both use it.
+export function is_fainted(state = game) {
+    return state.u?.uhs === FAINTED;
+}
+
 // C ref: youprop.h:399 Unaware. js/trap.js unconscious() carries the pending-
-// message half; eat.c is_fainted() (3346-3350) is the `u.uhs == FAINTED` half.
+// message half; eat.c is_fainted() carries the hunger-status half.
 function Unaware(state) {
     return Math.trunc(state.multi ?? 0) < 0
-        && (unconscious(state) || state.u?.uhs === FAINTED);
+        && (unconscious(state) || is_fainted(state));
 }
 
 function hungerStatus(nutrition) {
