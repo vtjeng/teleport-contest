@@ -74476,6 +74476,49 @@
         "screens": 11405,
         "rng": 792838
       }
+    },
+    {
+      "id": "port-worn-mon-break-armor-synthetic-v1-20260926",
+      "kind": "file-port",
+      "status": "queued",
+      "summary": "Port monster armor break and drop behavior after transformation",
+      "cFile": "worn.c",
+      "sessions": [
+        "synthetic/v1/monster-transformations"
+      ],
+      "selectionReason": "The refreshed v4 nymph theft and v2 Force Bolt mismatches are owned by C9 and B6. Both higher v3 camera cases depend on B6 reserved zap.c bhit. The next independent completed investigation is v1 monster-transformations with 5 unmatched screens at worn.c mon_break_armor; the v4 magic flute case has 4.",
+      "detail": "Port the whole worn.c mon_break_armor function from C, including its m_lose_armor support, armor destruction/drop, bypass and monster-wear state, messaging, saddle and riding tail, and production mon.c newcham and were.c new_were callers. Preserve return-valued can_saddle/can_ride and other source dependencies. See investigations/synthetic/v1/monster-transformations.json.",
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": null,
+      "delivered": null,
+      "functions": [
+        {
+          "name": "mon_break_armor",
+          "line": 1177,
+          "endLine": 1338,
+          "declared": false,
+          "complete": false
+        }
+      ],
+      "range": {
+        "from": 1177,
+        "to": 1338
+      },
+      "syntheticProvenance": {
+        "synthetic/v1/monster-transformations": {
+          "session": "synthetic/v1/monster-transformations",
+          "corpus": "synthetic",
+          "batch": "v1",
+          "caseId": "monster-transformations",
+          "manifestPath": "challenges/manifest.json",
+          "manifestSha256": "a1d989fa6b5159e0b0729150ba765c741a405ec910c1274ad763d29b0a7096fe",
+          "recordingPath": "challenges/cases/monster-transformations.session.json",
+          "recordingSha256": "5c7ff94dc1e63dcae559231dbea1843d5206c45d8fdb894d107beed35bff5f6b",
+          "evaluationPath": "challenges/evaluations/20260926011128-v1.json",
+          "evaluationCommit": "9afcb40d474b714f755d68a9bff96193af5f7e59"
+        }
+      }
     }
   ]
 }
