@@ -74067,7 +74067,7 @@
     {
       "id": "port-steal-nymph-armor-delay-synthetic-v4-20260925",
       "kind": "file-port",
-      "status": "queued",
+      "status": "open",
       "summary": "Port nymph armor theft and delayed removal through the complete steal.c source family",
       "cFile": "steal.c",
       "sessions": [
@@ -74075,8 +74075,12 @@
       ],
       "selectionReason": "The refreshed v4 Monk nymph theft case is the highest remaining investigated synthetic mismatch at 15 screens and is assigned to C9; A4 terrain and C8 fountain now match.",
       "detail": "Port steal.c unresponsive through steal in definition order, including remove_worn_item and worn_item_removal, with do_wear.c stop_donning and eat.c is_fainted return-valued dependencies. Preserve delayed stealarm state, production callers, and source-ordered inventory and armor effects. See investigations/synthetic/v4/monk-nymph-theft-recovery.json.",
-      "openedAt": null,
-      "openStanding": null,
+      "openedAt": "93589d85a07ddbe1acc490d76ef5c7944ca70b39",
+      "openStanding": {
+        "sha": "d6cf89ae93f57f6153a759eeb24058372448dd46",
+        "screens": 11405,
+        "rng": 792838
+      },
       "closedAt": null,
       "delivered": null,
       "functions": [
@@ -74137,10 +74141,201 @@
           "manifestSha256": "10777af4c82fc759abf58a870fdd232329bc5c1467c8cf94f46089d0401459a9",
           "recordingPath": "challenges/cases/v4/monk-nymph-theft-recovery.session.json",
           "recordingSha256": "12c7091ad75eb0fd4c1604b53961bd3bea6c9a0d555d5f0bd1c35564d82acf3f",
-          "evaluationPath": "challenges/evaluations/20260926003150-v4.json",
-          "evaluationCommit": "2d50156e1163b1b497818e5d02bd71131fab2149"
+          "evaluationPath": "challenges/evaluations/20260926021117-v4.json",
+          "evaluationCommit": "d6cf89ae93f57f6153a759eeb24058372448dd46"
         }
-      }
+      },
+      "activeStanding": {
+        "sha": "d6cf89ae93f57f6153a759eeb24058372448dd46",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v4",
+          "caseId": "monk-nymph-theft-recovery",
+          "session": "synthetic/v4/monk-nymph-theft-recovery",
+          "manifestPath": "challenges/manifests/v4.json",
+          "manifestSha256": "10777af4c82fc759abf58a870fdd232329bc5c1467c8cf94f46089d0401459a9",
+          "recording": "challenges/cases/v4/monk-nymph-theft-recovery.session.json",
+          "recordingPath": "challenges/cases/v4/monk-nymph-theft-recovery.session.json",
+          "recordingSha256": "12c7091ad75eb0fd4c1604b53961bd3bea6c9a0d555d5f0bd1c35564d82acf3f",
+          "recipe": "challenges/cases/v4/monk-nymph-theft-recovery.recipe.json",
+          "recipeSha256": "2cb16759cfcfbacab93d7adb3004afcdaf77235d49d20f8487c00adc20c8e3c1",
+          "replayInputSha256": "567ba90a355740eb324a2dbda01159beb0bdbe555d5cdf9bd68e5847e09e2487",
+          "evaluationPath": "challenges/evaluations/20260926021117-v4.json",
+          "evaluationCommit": "d6cf89ae93f57f6153a759eeb24058372448dd46",
+          "evaluationArtifact": "challenges/evaluations/20260926021117-v4.json",
+          "evaluationUtc": "2026-09-26T02:11:26.131Z",
+          "remainingScreens": 15,
+          "recordedSteps": 54,
+          "previousScreensMatched": 39,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 39,
+              "total": 54
+            },
+            "rng": {
+              "matched": 2947,
+              "total": 2997
+            },
+            "cursors": {
+              "matched": 39,
+              "total": 54
+            }
+          },
+          "firstMismatch": {
+            "kind": "stop",
+            "message": "steal reached an unported branch: nymph armor steal (delay=1)",
+            "step": 39
+          },
+          "step": 39,
+          "kind": "stop",
+          "sourceFile": null,
+          "function": null,
+          "message": "steal reached an unported branch: nymph armor steal (delay=1)",
+          "cFile": null,
+          "luaFile": null,
+          "line": null,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v4/monk-nymph-theft-recovery.json",
+            "result": {
+              "session": "synthetic/v4/monk-nymph-theft-recovery",
+              "corpus": "synthetic",
+              "batch": "v4",
+              "caseId": "monk-nymph-theft-recovery",
+              "manifestPath": "challenges/manifests/v4.json",
+              "manifestSha256": "10777af4c82fc759abf58a870fdd232329bc5c1467c8cf94f46089d0401459a9",
+              "recordingPath": "challenges/cases/v4/monk-nymph-theft-recovery.session.json",
+              "recordingSha256": "12c7091ad75eb0fd4c1604b53961bd3bea6c9a0d555d5f0bd1c35564d82acf3f",
+              "evaluationPath": "challenges/evaluations/20260926003150-v4.json",
+              "evaluationCommit": "2d50156e1163b1b497818e5d02bd71131fab2149",
+              "remainingScreens": 15,
+              "recordedSteps": 54,
+              "status": "complete",
+              "commit": "2d50156e1163b1b497818e5d02bd71131fab2149",
+              "mismatch": {
+                "corpus": "synthetic",
+                "batch": "v4",
+                "caseId": "monk-nymph-theft-recovery",
+                "session": "synthetic/v4/monk-nymph-theft-recovery",
+                "manifestPath": "challenges/manifests/v4.json",
+                "manifestSha256": "10777af4c82fc759abf58a870fdd232329bc5c1467c8cf94f46089d0401459a9",
+                "recording": "challenges/cases/v4/monk-nymph-theft-recovery.session.json",
+                "recordingPath": "challenges/cases/v4/monk-nymph-theft-recovery.session.json",
+                "recordingSha256": "12c7091ad75eb0fd4c1604b53961bd3bea6c9a0d555d5f0bd1c35564d82acf3f",
+                "recipe": "challenges/cases/v4/monk-nymph-theft-recovery.recipe.json",
+                "recipeSha256": "2cb16759cfcfbacab93d7adb3004afcdaf77235d49d20f8487c00adc20c8e3c1",
+                "replayInputSha256": "b6303c715ad9500bdef021348b3f0a6282ed4e21e651fa88228c4b8e3d64e5f4",
+                "evaluationPath": "challenges/evaluations/20260926003150-v4.json",
+                "evaluationCommit": "2d50156e1163b1b497818e5d02bd71131fab2149",
+                "evaluationArtifact": "challenges/evaluations/20260926003150-v4.json",
+                "evaluationUtc": "2026-09-26T00:32:00.071Z",
+                "remainingScreens": 15,
+                "recordedSteps": 54,
+                "previousScreensMatched": 39,
+                "regression": false,
+                "passed": false,
+                "error": null,
+                "metrics": {
+                  "screens": {
+                    "matched": 39,
+                    "total": 54
+                  },
+                  "rng": {
+                    "matched": 2947,
+                    "total": 2997
+                  },
+                  "cursors": {
+                    "matched": 39,
+                    "total": 54
+                  }
+                },
+                "firstMismatch": {
+                  "kind": "stop",
+                  "message": "steal reached an unported branch: nymph armor steal (delay=1)",
+                  "step": 39
+                },
+                "step": 39,
+                "kind": "stop",
+                "sourceFile": null,
+                "function": null,
+                "message": "steal reached an unported branch: nymph armor steal (delay=1)",
+                "cFile": null,
+                "luaFile": null,
+                "line": null
+              },
+              "summary": "The v4 Monk nymph case stops at segment 0 step 39 when steal.c:steal selects worn armor with a removal delay. JS refuses the responsive nymph branch. C consumes stop_donning()'s old delay, temporarily clears the curse, schedules stealarm() through the after-move callback, and removes the worn item. Port the complete steal.c unresponsive-through-steal family and the return-valued do_wear.c and eat.c dependencies.",
+              "source": {
+                "file": "steal.c",
+                "branch": "At step 39, a nearby responsive nymph selects worn ARMOR_CLASS equipment with oc_delay at least one. steal.c:steal() follows the charm/seduction branch, uses stop_donning()'s returned delay, sets negative multi, removes the armor, and schedules stealarm() when removal remains pending.",
+                "functions": [
+                  "unresponsive",
+                  "unstolenarm",
+                  "stealarm",
+                  "remove_worn_item",
+                  "worn_item_removal",
+                  "steal"
+                ],
+                "callers": [
+                  "The AD_SITM monster attack path calls steal(); js/steal.js:steal() reaches its nymph armor-delay refusal at the selected step.",
+                  "steal.c:steal() calls unresponsive(), worn_item_removal(), remove_worn_item(), and schedules stealarm(); stealarm() and unstolenarm() carry the delayed object and monster state."
+                ],
+                "dependencies": [
+                  "do_wear.c:stop_donning() returns the prior armor-removal delay and can call remove_worn_item() when interrupting donning; port its full source function and caller mapping.",
+                  "eat.c:is_fainted() returns whether u.uhs equals FAINTED; unresponsive() consumes this pure predicate.",
+                  "The delayed after-move callback must preserve gs.stealoid, monster identity, inventory state, mpickobj(), and relocation/flee effects; no session-specific branch is permitted."
+                ]
+              },
+              "evidence": [
+                "challenges/evaluations/20260926003150-v4.json at 2d50156e1163b1b497818e5d02bd71131fab2149 records 39/54 screens and the first stop at segment 0 step 39: nymph armor steal (delay=1).",
+                "nethack-c/upstream/src/steal.c:503-557 consumes stop_donning() result, computes armordelay, enters the responsive charm/seduction branch, calls remove_worn_item(), and schedules stealarm() by object id; js/steal.js currently refuses before those effects.",
+                "nethack-c/upstream/src/steal.c:133-334 defines unresponsive, unstolenarm, stealarm, remove_worn_item, and worn_item_removal in source order; these are the same-file dependencies of the selected steal() family.",
+                "nethack-c/upstream/src/do_wear.c:1686-1727 defines return-valued stop_donning(), including interrupted donning removal; nethack-c/upstream/src/eat.c:3346-3350 defines return-valued is_fainted() used by unresponsive()."
+              ],
+              "goalKind": "file-port",
+              "entryPointReview": {
+                "active": [
+                  "AD_SITM nymph armor theft in synthetic/v4/monk-nymph-theft-recovery segment 0 step 39 and its later delayed stealarm callback."
+                ],
+                "blocked": [
+                  "The current JS refusal prevents the responsive armor-removal effects; completion requires matching delayed callback and active caller evidence."
+                ]
+              },
+              "plannedWholeFunctionScope": {
+                "primary": {
+                  "file": "steal.c",
+                  "fromFunction": "unresponsive",
+                  "toFunction": "steal",
+                  "functions": [
+                    "unresponsive",
+                    "unstolenarm",
+                    "stealarm",
+                    "remove_worn_item",
+                    "worn_item_removal",
+                    "steal"
+                  ]
+                },
+                "supporting": [
+                  {
+                    "file": "do_wear.c",
+                    "function": "stop_donning"
+                  },
+                  {
+                    "file": "eat.c",
+                    "function": "is_fainted"
+                  }
+                ]
+              }
+            }
+          }
+        }
+      ]
     },
     {
       "id": "port-zap-weffects-force-bolt-synthetic-v2-20260926",
