@@ -1,0 +1,11 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 70727013,
+      "datetime": "20260928120000",
+      "nethackrc": "OPTIONS=name:DetectScroll,role=Wizard,race=human,gender=female,align=neutral,playmode=debug,!legacy,!tutorial,!splash_screen,showexp,time,pettype:none\n",
+      "moves": " \u0017scroll of monster detection\n\u0007hostile grid bug\n"
+    }
+  ]
+}

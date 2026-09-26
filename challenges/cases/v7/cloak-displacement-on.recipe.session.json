@@ -1,0 +1,11 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 70727011,
+      "datetime": "20260928110000",
+      "nethackrc": "OPTIONS=name:CloakCase,role=Wizard,race=human,gender=female,align=neutral,playmode=debug,!legacy,!tutorial,!splash_screen,showexp,time,pettype:none\n",
+      "moves": " \u0017uncursed cloak of displacement\nWn"
+    }
+  ]
+}

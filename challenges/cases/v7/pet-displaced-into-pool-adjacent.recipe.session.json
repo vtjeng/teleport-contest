@@ -1,0 +1,11 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 70726220,
+      "datetime": "20260927180000",
+      "nethackrc": "OPTIONS=name:PoolAdjacent,role=Wizard,race=human,gender=female,align=neutral,playmode=debug,!legacy,!tutorial,!splash_screen,showexp,time\n",
+      "moves": " \u0017pool\nh"
+    }
+  ]
+}
