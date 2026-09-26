@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent apply.c doapply BANANA arm witness: a debug Wizard enables blindness and hallucination through wiz_intrinsic, wishes for a banana, and applies it. Blindness hides a separate hallucinated monster-glyph mismatch so the recording reaches the banana branch. Seed 9032602 and clock 20360925103100 were chosen independently of the synthetic tourist case.",
+  "segments": [
+    {
+      "seed": 9032602,
+      "datetime": "20360925103100",
+      "nethackrc": "OPTIONS=name:BananaRinger,role:Wizard,race:human,gender:female,align:neutral,playmode:debug,!legacy,!tutorial,!splash_screen,showexp,time\n",
+      "moves": "#wizintrinsic\ni\n #wizintrinsic\nh\n \u0017banana\nap"
+    }
+  ]
+}

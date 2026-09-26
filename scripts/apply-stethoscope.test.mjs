@@ -78,6 +78,7 @@ import { extcmdlist } from '../js/extcmdlist_data.js';
 import { GameMap } from '../js/game.js';
 import { GameDisplay } from '../js/game_display.js';
 import { game } from '../js/gstate.js';
+import { addinv_nomerge } from '../js/invent.js';
 import {
     piousness,
     UnsupportedEnlightenmentError,
@@ -102,7 +103,13 @@ import {
     PM_SMALL_MIMIC,
 } from '../js/monsters.js';
 import { m_at, newMonster, place_monster } from '../js/monst.js';
-import { is_axe, mksobj_at, newObject, set_bknown } from '../js/obj.js';
+import {
+    is_axe,
+    mksobj,
+    mksobj_at,
+    newObject,
+    set_bknown,
+} from '../js/obj.js';
 import { objectGenerationEnv } from '../js/object_generation.js';
 import {
     ARMOR_CLASS,
@@ -119,6 +126,7 @@ import {
     CREAM_PIE,
     DWARVISH_MATTOCK,
     EUCALYPTUS_LEAF,
+    FOOD_RATION,
     FLINT,
     FOOD_CLASS,
     GEM_CLASS,
@@ -148,6 +156,7 @@ import {
     TIN_OPENER,
     TOOL_CLASS,
     TOUCHSTONE,
+    TRIPE_RATION,
     TWO_HANDED_SWORD,
     WAN_SLEEP,
     WAND_CLASS,
@@ -829,6 +838,50 @@ test('doapply reports that an ordinary carrot has no use without a turn',
     assert.equal((getRngLog() ?? []).length, drawsBefore);
     assert.equal(game.moves, movesBefore);
     assert.equal(game.context.move, turnBefore);
+});
+
+// C ref: apply.c:doapply()'s BANANA and default arms (4401-4417). Foods not
+// named by the switch reach the same unknown-use message after the three
+// weapon predicates are false; a hallucinating banana has its own message.
+test('doapply uses C default messages for ordinary foods and a hallucinated banana',
+    async () => {
+    const segment = loadApplyPromptRecipe().segments.find(
+        ({ nethackrc }) => nethackrc.includes('role:Knight'),
+    );
+    assert.ok(segment, 'the matrix carries a Knight segment');
+    const prepare = async (otyp, hallucinating = false) => {
+        await runSegment({ ...segment, moves: '.' });
+        const env = objectGenerationEnv({ state: game });
+        const obj = mksobj(otyp, false, false, env);
+        addinv_nomerge(obj, { state: game });
+        if (hallucinating) game.u.uprops[HALLUC].intrinsic = 1;
+        game.nhDisplay.pushKey(obj.invlet.charCodeAt(0));
+        return obj;
+    };
+    for (const otyp of [TRIPE_RATION, FOOD_RATION, BANANA]) {
+        const obj = await prepare(otyp);
+        const drawsBefore = (getRngLog() ?? []).length;
+        const turnsBefore = game.moves;
+        assert.equal(await doapply(game), ECMD_FAIL, `otyp ${obj.otyp}`);
+        assert.equal(
+            pendingTopLine(),
+            "Sorry, I don't know how to use that.",
+            `otyp ${obj.otyp}`,
+        );
+        assert.equal(game.moves, turnsBefore, `otyp ${obj.otyp}`);
+        assert.equal((getRngLog() ?? []).length, drawsBefore, `otyp ${obj.otyp}`);
+    }
+
+    // apply.c names LUMP_OF_ROYAL_JELLY before the default. It is not part of
+    // this fallback because its return-valued use_royal_jelly() is unported.
+    const jelly = await prepare(LUMP_OF_ROYAL_JELLY);
+    await assert.rejects(doapply(game), {
+        branch: `doapply()'s arm for object type ${LUMP_OF_ROYAL_JELLY}`,
+    });
+
+    await prepare(BANANA, true);
+    assert.equal(await doapply(game), ECMD_TIME);
+    assert.equal(pendingTopLine(), "It rings! ... But no-one answers.");
 });
 
 // The arms between the free-action write and confdir() that no key sequence

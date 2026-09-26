@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent apply.c doapply default witness: a debug Wizard wishes for a food ration and applies it. Seed 9032601, clock 20360925103000, and the object wish were chosen for this source branch rather than copied from an admitted case.",
+  "segments": [
+    {
+      "seed": 9032601,
+      "datetime": "20360925103000",
+      "nethackrc": "OPTIONS=name:FoodBranch,role:Wizard,race:human,gender:female,align:neutral,playmode:debug,!legacy,!tutorial,!splash_screen,showexp,time\n",
+      "moves": "\u0017food ration\nao"
+    }
+  ]
+}
