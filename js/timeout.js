@@ -97,7 +97,7 @@ import { newsym, see_monsters } from './display.js';
 import { hcolor, Monnam } from './do_name.js';
 import { toggle_displacement } from './do_wear.js';
 import { eating_dangerous_corpse } from './eat.js';
-import { find_delayed_killer } from './end.js';
+import { dealloc_killer, find_delayed_killer } from './end.js';
 import { rot_corpse, unportedRotCorpseReason } from './dig.js';
 import { heal_legs } from './do.js';
 import { makeplural } from './fruit.js';
@@ -639,7 +639,7 @@ async function decrement_property_timeouts(state, env) {
                 state.killer.format = NO_KILLER_PREFIX;
                 state.killer.name = 'killed by petrification';
             }
-            if (!env.planning) note_unported('end.c dealloc_killer');
+            dealloc_killer(killer, state);
             if (!env.planning) note_unported('timeout.c done_timeout');
             break;
         case SLIMED:
@@ -668,7 +668,7 @@ async function decrement_property_timeouts(state, env) {
                 state.killer.format = KILLED_BY_AN;
                 state.killer.name = '';
             }
-            if (!env.planning) note_unported('end.c dealloc_killer');
+            dealloc_killer(killer, state);
             {
                 const speciesIndex = name_to_mon(state.killer.name, { state });
                 if (speciesIndex >= LOW_PM) {

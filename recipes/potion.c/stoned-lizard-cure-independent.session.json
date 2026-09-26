@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent C recipe for potion.c:make_stoned delayed-killer insertion and cure. It selects the wished corpse from the slot C reports and reaches the lizard-corpse cure path.",
+  "segments": [
+    {
+      "seed": 55091732,
+      "datetime": "20260926110000",
+      "nethackrc": "OPTIONS=name:DelayedKiller,role=Valkyrie,race=human,gender=female,align=lawful,playmode=debug,!legacy,!tutorial,!splash_screen,showexp,time,pettype:none\n",
+      "moves": " #wizintrinsic\nb\n \u0017lizard corpse\nee "
+    }
+  ]
+}

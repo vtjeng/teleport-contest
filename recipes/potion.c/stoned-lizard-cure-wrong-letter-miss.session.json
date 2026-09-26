@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Valid setup miss for the potion.c:make_stoned cure path. The C wish placed the corpse in inventory slot e, but this trial selected o and observed 'You don't have that object.'; it does not reach eat.c:cpostfx() or delayed-killer removal.",
+  "segments": [
+    {
+      "seed": 55091731,
+      "datetime": "20260926110000",
+      "nethackrc": "OPTIONS=name:DelayedKiller,role=Valkyrie,race=human,gender=female,align=lawful,playmode=debug,!legacy,!tutorial,!splash_screen,showexp,time,pettype:none\n",
+      "moves": " #wizintrinsic\nb\n \u0017lizard corpse\neo "
+    }
+  ]
+}
