@@ -480,8 +480,8 @@ canvas {
 }
 
 .day-label {
-  width: 64px;
-  min-width: 64px;
+  width: 88px;
+  min-width: 88px;
   font-family: 'JetBrains Mono', monospace;
   font-size: 11px;
   color: var(--ink-secondary);
@@ -750,7 +750,7 @@ canvas {
 .time-axis {
   height: 20px;
   position: relative;
-  margin-left: 64px;
+  margin-left: 88px;
   border-bottom: 1px solid var(--baseline);
 }
 
@@ -1035,8 +1035,7 @@ document.getElementById('stats').innerHTML = [
     rows.forEach(row => {
       const values = [fmtN(row.initial), fmtN(row.current), fmtN(row.total),
         row.change == null ? '—' : fmtDelta(row.change)];
-      const status = row.complete ? 'Matched' : row.current == null ? 'Unmeasured'
-        : row.queue?.regression ? 'Regression' : 'Remaining';
+      const status = row.complete ? '✅ Matched' : '🔧 Remaining';
       const details = detail(row);
       const name = details
         ? '<details><summary>' + esc(row.name) + '</summary>' + details + '</details>'
@@ -1502,7 +1501,7 @@ document.getElementById('stats').innerHTML = [
   const captured = Date.parse(activity.capturedAt);
   const first = Math.max(dayStart(captured) - 6 * dayMs,
     dayStart(Math.min(...activity.segments.map(segment => Date.parse(segment.start)))));
-  const lanes = ['A', 'B', 'C', 'Integration'];
+  const lanes = ['A', 'B', 'C', 'Main'];
   const rows = [];
   for (let day = first; day <= dayStart(captured); day += dayMs) {
     for (const lane of lanes) rows.push({ day, lane, bars: [] });

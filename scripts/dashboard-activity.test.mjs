@@ -23,8 +23,8 @@ test('worker assignment overlaps another task waiting for integration', () => {
     '2026-09-25T10:40:00Z');
   assert.deepEqual(timeline.segments.filter(row => row.task === 'A1')
     .map(row => [row.phase, row.lane]), [
-    ['working', 'A'], ['queued', 'Integration'], ['integrating', 'Integration'],
-    ['acceptance', 'Integration'], ['publication', 'Integration'],
+    ['working', 'A'], ['queued', 'Main'], ['integrating', 'Main'],
+    ['acceptance', 'Main'], ['publication', 'Main'],
   ]);
   assert.deepEqual(timeline.segments.find(row => row.task === 'A2'),
     { task: 'A2', goal: 'second', worker: 'A', kind: 'implementation',
