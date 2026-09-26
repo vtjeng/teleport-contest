@@ -4,6 +4,7 @@ import test from 'node:test';
 import {
     ART_FIRE_BRAND,
     ART_FROST_BRAND,
+    ART_DEMONBANE,
     ART_GIANTSLAYER,
     ART_GRIMTOOTH,
     ART_ORCRIST,
@@ -381,18 +382,35 @@ test('obj.js hooks preserve generation order and finalize artifact weight', () =
     assert.equal(obj.corpsenm, NON_PM);
 });
 
-test('aligned gift branch fails before consuming existing-object RNG', () => {
-    const state = stateFor('Kni', 'lawful');
-    const script = scriptedRandom([]);
-    assert.throws(
-        () => mk_artifact(
-            bareWeapon(LONG_SWORD),
-            A_LAWFUL,
-            99,
-            true,
-            { state, random: script.random },
-        ),
-        /aligned mk_artifact gifts are not implemented/,
+test('aligned role gift selects its first choice in source RNG order', () => {
+    const state = stateFor('Pri', 'lawful');
+    // artifact.c mk_artifact() skips already-existing records, then makes a
+    // matching role artifact the sole candidate and breaks before either
+    // randomized alignment/skill filter. Demonbane is a lawful Priest gift;
+    // unlike NOGEN quest artifacts, it is eligible for random generation.
+    for (let index = 1; state.artilist[index].otyp; ++index) {
+        if (index !== ART_DEMONBANE)
+            state.artiexist[index].exists = 1;
+    }
+    const script = scriptedRandom([
+        ['rn2', 1, 0], // mk_artifact selects the only eligible artifact.
+        ['rnd', 2, 1], // mksobj()/next_ident() allocates the new object id.
+        ['rn2', 11, 1], // silver mace's ordinary weapon initialization.
+        ['rn2', 10, 1],
+        ['rn2', 10, 1], // blessorcurse() leaves the mace uncursed.
+    ]);
+    const artifact = mk_artifact(
+        null,
+        A_LAWFUL,
+        99,
+        true,
+        { state, random: script.random },
     );
     script.done();
+
+    assert.equal(artifact.otyp, SILVER_MACE);
+    assert.equal(artifact.oartifact, ART_DEMONBANE);
+    assert.equal(artifact.oextra.oname, 'Demonbane');
+    assert.equal(artifact.spe, 1);
+    assert.equal(state.artiexist[ART_DEMONBANE].exists, 1);
 });
