@@ -76354,6 +76354,37 @@
           "evaluationCommit": "20cdce925160276c93a252d01e644c9e61d9626e"
         }
       }
+    },
+    {
+      "id": "div-apply-doapply-food-default-synthetic-v3-20260926",
+      "kind": "divergence-fix",
+      "status": "queued",
+      "summary": "Match apply.c doapply food fallback and banana hallucination branch",
+      "cFile": "apply.c",
+      "sessions": [],
+      "selectionReason": "After B7 camera completion, synthetic/v3/tourist-camera-flash is the highest-ranked unreserved source-traced mismatch with six unmatched screens. investigations/synthetic/v3/tourist-camera-flash.json locates the first stop at segment 0 step 4 in apply.c doapply default when the Tourist selects TRIPE_RATION; C10 sink and A8 jump are already assigned.",
+      "detail": "v3 manifest digest 922fd19b46005c40283152102ac301035c7f84f82a8e5d7caf691f183a2b67; recording challenges/cases/v3/tourist-camera-flash.session.json digest 0a6a24c755d67609c0e8974a63df94e1127c6ef0e4fcc2c09de4787c0cbbcac1; saved evaluation challenges/evaluations/20260926030013-v3.json. C doapply default checks pole, pick, and axe before the unknown-use ECMD_FAIL; JS refuses ordinary non-special food. Preserve named arms and add the source BANANA hallucination message branch before generalized food fallback; trace all resulting steps and independently reproduce.",
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": null,
+      "delivered": null,
+      "function": "doapply",
+      "session": "synthetic/v3/tourist-camera-flash",
+      "step": 4,
+      "syntheticProvenance": {
+        "synthetic/v3/tourist-camera-flash": {
+          "session": "synthetic/v3/tourist-camera-flash",
+          "corpus": "synthetic",
+          "batch": "v3",
+          "caseId": "tourist-camera-flash",
+          "manifestPath": "challenges/manifests/v3.json",
+          "manifestSha256": "922fd19b46005c40283152102ac301035c7f84f82a8e5e9d7caf691f183a2b67",
+          "recordingPath": "challenges/cases/v3/tourist-camera-flash.session.json",
+          "recordingSha256": "0a6a24c755d67609c0e8974a63df94e1127c6ef0e4fcc2c09de4787c0cbbcac1",
+          "evaluationPath": "challenges/evaluations/20260926030013-v3.json",
+          "evaluationCommit": "74bd31c01631a92d835ba988cdb3a0ed892ec87b"
+        }
+      }
     }
   ]
 }
