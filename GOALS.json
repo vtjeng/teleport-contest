@@ -74188,7 +74188,7 @@
     {
       "id": "port-engrave-u-can-engrave-synthetic-v3-20260926",
       "kind": "file-port",
-      "status": "open",
+      "status": "closed",
       "summary": "Port engrave.c u_can_engrave and correct the doengrave entry call",
       "cFile": "engrave.c",
       "sessions": [
@@ -74202,15 +74202,18 @@
         "screens": 11405,
         "rng": 792838
       },
-      "closedAt": null,
-      "delivered": null,
+      "closedAt": "9afcb40d474b714f755d68a9bff96193af5f7e59",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
       "functions": [
         {
           "name": "u_can_engrave",
           "line": 503,
           "endLine": 544,
           "declared": true,
-          "complete": false
+          "complete": true
         }
       ],
       "range": {
@@ -74408,7 +74411,71 @@
             }
           }
         }
-      ]
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "u_can_engrave",
+            "implementation": "js/engrave.js",
+            "symbol": "u_can_engrave",
+            "sourceReview": "Read the complete engrave.c:503-541 body. The function computes SURFACE_AT first; the swallowed-animal refusal precedes the swallowed-whirly floor message, while amorphous engulfers bypass terrain checks. The non-swallowed order is lava, pool or fountain, air, then !ACCESSIBLE. It then checks cantwield before check_capacity and returns the boolean result. The JS port preserves that branch and callback order, exact messages, and uses surface_typ() for SURFACE_AT. Direct callees are the is_animal/is_whirly macros, is_lava(), is_pool(), surface(), IS_FOUNTAIN, IS_AIR, ACCESSIBLE, cant_reach_floor(), cantwield(), and check_capacity(); each is already ported and none is replaced with note_unported(). The source function can emit text and surface() can draw through hallucinated hliquid(), so it is impure. engrave.c:doengrave() checks the returned false and returns ECMD_FAIL; js/engrave.js now does the same before any prompt.",
+            "callers": [
+              {
+                "path": "js/engrave.js",
+                "symbol": "doengrave",
+                "source": "engrave.c:956-965 calls u_can_engrave() first and returns ECMD_FAIL when it is false."
+              },
+              {
+                "path": "js/cmd.js",
+                "symbol": "runEngraveCommand",
+                "source": "cmd.c:1714-1715 binds the E/engrave command to doengrave(); runEngraveCommand supplies the production cantwield, check_capacity, and tty message callbacks before rhack dispatches the command."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/engrave-command.test.mjs"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v3",
+                "caseId": "fingertip-engraving-return",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 23,
+                "source": "cmd.c command-table E/engrave -> doengrave() -> u_can_engrave(); the matched replay executes the terrain gate at step 14 through the production JS command dispatcher."
+              }
+            ],
+            "checkedAt": "9afcb40d474b714f755d68a9bff96193af5f7e59"
+          }
+        ],
+        "entryPointReview": "The selected function has one active source entry point: cmd.c's E/engrave command-table row calls doengrave(), which calls u_can_engrave(). The JS rhack dispatcher routes E through runEngraveCommand(); the extended command name uses the same wrapper. The admitted fingertip-engraving-return synthetic recording reaches E at segment 0 step 14 and now matches through segment 0 step 23, including the production caller path. No caller branch in the reference recorder build is excluded or blocked.",
+        "entryPoints": [
+          {
+            "name": "E/engrave",
+            "functions": [
+              "u_can_engrave"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v3",
+                "caseId": "fingertip-engraving-return",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 23,
+                "source": "cmd.c E/engrave -> engrave.c doengrave() -> u_can_engrave(); JS cmd.js runEngraveCommand() production route."
+              }
+            ]
+          }
+        ]
+      },
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "9afcb40d474b714f755d68a9bff96193af5f7e59",
+        "screens": 11405,
+        "rng": 792838
+      }
     }
   ]
 }
