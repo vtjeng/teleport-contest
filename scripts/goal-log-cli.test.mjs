@@ -383,6 +383,12 @@ test('synthetic source goals retain provenance through real CLI selection and ta
         '--development-scan', '.cache/fixed-scan.json'];
     f.refuses(/investigation is partial/u, ...args);
     queue.sessions[1].investigation = { status: 'complete' };
+    queue.sessions[1].sourceFile = queue.candidates[1].sourceFile = 'other.c';
+    queue.sessions[1].cFile = queue.candidates[1].cFile = 'other.c';
+    f.json('.cache/queue.json', queue);
+    f.refuses(/selectionReason/u, ...args);
+    queue.sessions[1].sourceFile = queue.candidates[1].sourceFile = 'widget.c';
+    queue.sessions[1].cFile = queue.candidates[1].cFile = 'widget.c';
     f.json('.cache/queue.json', queue);
     f.cli(...args);
     f.cli('open-goal', '--id', 'synthetic-port', '--development-scan', '.cache/fixed-scan.json');
@@ -401,8 +407,32 @@ test('synthetic source goals retain provenance through real CLI selection and ta
         relatedEntry.recordingSha256);
     const calls = readFileSync(join(f.root, '.cache/queue-requests.jsonl'), 'utf8')
         .trim().split('\n').map(line => JSON.parse(line));
-    assert.equal(calls.length, 4);
+    assert.equal(calls.length, 5);
     assert.ok(calls.every(call => JSON.stringify(call.scan) === JSON.stringify(scan)));
+});
+
+test('opening a grouped synthetic goal rechecks unresolved related investigations', t => {
+    const f = fixture(t);
+    const { session, entry, queue } = syntheticQueue(f);
+    const related = 'synthetic/v1/related-case';
+    const relatedEntry = { ...entry, session: related, caseId: 'related-case',
+        recordingSha256: '3'.repeat(64) };
+    queue.sessions.push(relatedEntry);
+    queue.candidates.push({ ...relatedEntry, sessions: [related] });
+    f.json('.cache/queue.json', queue);
+    f.cli('queue-goal', '--id', 'grouped-port', '--kind', 'file-port',
+        '--c-file', 'widget.c', '--sessions', `${session},${related}`,
+        '--summary', 'Port the related synthetic owner');
+    queue.sessions.shift();
+    queue.candidates.shift();
+    queue.sessions[0].investigation = { status: 'partial' };
+    f.json('.cache/queue.json', queue);
+    f.refuses(/investigation is partial/u, 'open-goal', '--id', 'grouped-port');
+    assert.equal(f.goals()[0].status, 'queued');
+    queue.sessions[0].investigation = { status: 'complete' };
+    f.json('.cache/queue.json', queue);
+    f.cli('open-goal', '--id', 'grouped-port');
+    assert.equal(f.goals()[0].status, 'open');
 });
 
 test('a queued synthetic goal can open after its selected case is resolved', t => {

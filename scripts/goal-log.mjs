@@ -771,6 +771,18 @@ async function checkSelection(goal, scan, { allowQueuedSynthetic = false } = {})
             throw new Error('synthetic evidence is incomplete, missing, stale, or invalid; '
                 + 'goal selection is blocked');
         }
+        for (const session of new Set([selectedSession, ...(goal.sessions ?? [])])) {
+            if (!session?.startsWith('synthetic/')) continue;
+            const entry = queue.sessions.find(item => item.session === session
+                && item.corpus === 'synthetic');
+            if (entry) {
+                // Resolved cases retain their recorded provenance; unresolved
+                // related cases still need a current trace before handoff.
+                assertGoalSelection(queue, { ...goal, session, sessions: [session] });
+            } else if (goal.syntheticProvenance?.[session]?.session !== session) {
+                throw new Error(`synthetic session has no recorded provenance: ${session}`);
+            }
+        }
         return queue;
     }
     const candidate = assertGoalSelection(queue, goal);

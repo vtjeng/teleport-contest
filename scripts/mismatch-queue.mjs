@@ -488,18 +488,25 @@ export function assertGoalSelection(queue, goal) {
         const synthetic = syntheticSessionParts(goal.session)
             || syntheticSessionParts(goal.sessions?.[0]);
         if (synthetic) {
+            const selectedSession = goal.session ?? goal.sessions?.[0];
             const entry = queue.sessions.find(candidate => candidate.session
-                === (goal.session ?? goal.sessions?.[0]));
+                === selectedSession);
             if (!entry || entry.corpus !== 'synthetic')
                 throw new Error('synthetic session is not an actionable work-queue entry');
-            if (entry.investigation?.status !== 'complete')
-                throw new Error(`synthetic investigation is ${entry.investigation?.status
-                ?? 'missing'}; complete it before selecting the goal`);
             assertRegressionChoice(queue, entry, goal);
-            const candidate = queue.candidates.find(item =>
-                item.sessions?.includes(entry.session));
-            if (!candidate) throw new Error('synthetic session is not a work-queue candidate');
-            assertSourceOwner(candidate, goal);
+            for (const session of new Set([selectedSession, ...(goal.sessions ?? [])])) {
+                if (!syntheticSessionParts(session)) continue;
+                const related = queue.sessions.find(item => item.session === session
+                    && item.corpus === 'synthetic');
+                if (!related) throw new Error(`synthetic session is not an actionable work-queue entry: ${session}`);
+                if (related.investigation?.status !== 'complete')
+                    throw new Error(`synthetic investigation is ${related.investigation?.status
+                        ?? 'missing'} for ${session}; complete it before selecting the goal`);
+                const candidate = queue.candidates.find(item =>
+                    item.sessions?.includes(session));
+                if (!candidate) throw new Error('synthetic session is not a work-queue candidate');
+                assertSourceOwner(candidate, goal);
+            }
             return entry;
         }
         // A source-port goal may omit --sessions when its traced owner has an
@@ -531,8 +538,11 @@ export function assertGoalSelection(queue, goal) {
     if (queue.sessions.length === 0) return;
     const sourceFile = goal.luaFile ?? goal.cFile;
     const sessions = new Set([goal.session, ...(goal.sessions ?? [])].filter(Boolean));
-    const candidate = queue.candidates.find((entry) => entry.sourceFile === sourceFile)
-        ?? queue.candidates.find((entry) => entry.sessions.some((session) => sessions.has(session)));
+    const namedCandidates = queue.candidates.filter(entry =>
+        entry.sessions.some(session => sessions.has(session)));
+    for (const entry of namedCandidates) assertSourceOwner(entry, goal);
+    const candidate = namedCandidates[0]
+        ?? queue.candidates.find((entry) => entry.sourceFile === sourceFile);
     if (!candidate) throw new Error('fixed-corpus mismatches remain; select a traced source '
         + 'or name the mismatching session whose source trace justifies this goal');
     assertSourceOwner(candidate, goal);

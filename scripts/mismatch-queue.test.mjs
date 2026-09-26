@@ -215,6 +215,13 @@ test('selection accepts any traced source while requiring a reason for a changed
         cFile: 'attrib.c', sessions: ['movement'],
         selectionReason: 'Tracing movement finds the earlier ability-state write in attrib.c.',
     }));
+    assert.throws(() => assertGoalSelection(queue, {
+        cFile: 'sp_lev.c', sessions: ['movement'],
+    }), /selectionReason/u);
+    assert.doesNotThrow(() => assertGoalSelection(queue, {
+        cFile: 'sp_lev.c', sessions: ['movement'],
+        selectionReason: 'The traced movement path needs load_special in sp_lev.c.',
+    }));
 });
 
 test('roadmap work is allowed only for a completely matching scan', () => {
@@ -351,6 +358,24 @@ test('synthetic selection permits a lower displayed rank with a traced owner', (
     assert.equal(assertGoalSelection(queue, {
         cFile: 'low.c', sessions: ['synthetic/v1/low'],
     }).session, 'synthetic/v1/low');
+});
+
+test('each grouped synthetic session needs its own source scope', () => {
+    const fixed = build([passing]);
+    const sessions = [
+        { corpus: 'synthetic', session: 'synthetic/v1/widget', batch: 'v1',
+            caseId: 'widget', sourceFile: 'widget.c', cFile: 'widget.c',
+            remainingScreens: 2, investigation: { status: 'complete' } },
+        { corpus: 'synthetic', session: 'synthetic/v1/other', batch: 'v1',
+            caseId: 'other', sourceFile: 'other.c', cFile: 'other.c',
+            remainingScreens: 1, investigation: { status: 'complete' } },
+    ];
+    const queue = buildWorkQueue(fixed, { sessions, blockers: [] });
+    const goal = { cFile: 'widget.c', sessions: sessions.map(entry => entry.session) };
+    assert.throws(() => assertGoalSelection(queue, goal), /selectionReason/u);
+    assert.equal(assertGoalSelection(queue, { ...goal,
+        selectionReason: 'The widget caller needs the other.c state transition.',
+    }).session, sessions[0].session);
 });
 
 test('a source dependency needs a reason while a regression remains', () => {
