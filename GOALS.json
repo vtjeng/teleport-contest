@@ -79382,7 +79382,7 @@
     {
       "id": "port-dothrow-fireassist-samurai-synthetic-v5-20260926",
       "kind": "file-port",
-      "status": "open",
+      "status": "closed",
       "summary": "Port complete fire command ammo selection, launcher retry, and quiver setup",
       "cFile": "dothrow.c",
       "sessions": [
@@ -79396,29 +79396,32 @@
         "screens": 11405,
         "rng": 792838
       },
-      "closedAt": null,
-      "delivered": null,
+      "closedAt": "ba790c74ab160dfbb08e5fc9a8bd2d9e74c92c15",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
       "functions": [
         {
           "name": "autoquiver",
           "line": 381,
           "endLine": 446,
-          "declared": false,
-          "complete": false
+          "declared": true,
+          "complete": true
         },
         {
           "name": "find_launcher",
           "line": 447,
           "endLine": 468,
           "declared": true,
-          "complete": false
+          "complete": true
         },
         {
           "name": "dofire",
           "line": 469,
           "endLine": 589,
           "declared": true,
-          "complete": false
+          "complete": true
         }
       ],
       "range": {
@@ -79596,7 +79599,154 @@
             }
           }
         }
-      ]
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "autoquiver",
+            "implementation": "js/dothrow.js",
+            "symbol": "autoquiver",
+            "sourceReview": "Reviewed complete dothrow.c:autoquiver() (381-441): preserve the linked inventory scan order; skip worn, artifact, and unknown items; distinguish sling rocks, known flint/glass, launch-matched ammo, missiles, and ordinary throwing weapons; retain last candidate per category; select categories in C priority order; and call setuqwep() only for the final choice. JS also uses the same-task throwing_weapon() predicate. The function mutates quiver state but makes no RNG call or output.",
+            "callers": [
+              {
+                "path": "js/dothrow.js",
+                "symbol": "dofire",
+                "source": "dothrow.c:dofire() calls autoquiver() when the quiver is empty and flags.autoquiver is enabled (530-542)."
+              }
+            ],
+            "pure": false,
+            "tests": [],
+            "recordings": [
+              "recordings/dothrow.c/dofire-autoquiver-ranger.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v5",
+                "caseId": "samurai-pet-ration-eating",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 32,
+                "source": "cmd.c fire dispatch -> dothrow.c:dofire -> autoquiver/find_launcher -> queued swap/wield/fire and throw_obj direction path"
+              }
+            ],
+            "checkedAt": "ba790c74ab160dfbb08e5fc9a8bd2d9e74c92c15"
+          },
+          {
+            "name": "find_launcher",
+            "implementation": "js/dothrow.js",
+            "symbol": "find_launcher",
+            "sourceReview": "Reviewed complete dothrow.c:find_launcher() (443-462): return null for no ammo; traverse hero inventory in linked order; skip known-cursed launchers; return the first known-BUC match immediately; otherwise retain only the first unknown-BUC match. C reads the inventory and returns a pointer without RNG, output, or state writes, so the JS function is pure. scripts/dothrow.test.mjs pins known/unknown curse priority, missing matches, sling mismatch, and null ammo.",
+            "callers": [
+              {
+                "path": "js/dothrow.js",
+                "symbol": "dofire",
+                "source": "dothrow.c:dofire() consumes find_launcher() after the wielded and swap-slot launcher tests (568-581)."
+              }
+            ],
+            "pure": true,
+            "tests": [
+              "scripts/dothrow.test.mjs"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v5",
+                "caseId": "samurai-pet-ration-eating",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 32,
+                "source": "cmd.c fire dispatch -> dothrow.c:dofire -> autoquiver/find_launcher -> queued swap/wield/fire and throw_obj direction path"
+              }
+            ],
+            "checkedAt": "ba790c74ab160dfbb08e5fc9a8bd2d9e74c92c15"
+          },
+          {
+            "name": "dofire",
+            "implementation": "js/dothrow.js",
+            "symbol": "dofire",
+            "sourceReview": "Reviewed complete dothrow.c:dofire() (468-586) and matched branch/evaluation order: ok_to_throw first; thrown-and-return weapon and Mjollnir strength gate; empty-quiver autoquiver-off pole/whip/secondary-polearm/failure arms; autoquiver selection and prinv; doquiver_core result handling; fireassist ammo checks; polearm autohit; held/swap launcher checks; find_launcher; source-ordered swap, wield, inventory-key, and fire queue; then throw_obj and result propagation. All result-valued calls in this path are implemented or reused as source-complete helpers, including same-task apply.c:use_pole/use_whip. No placeholder refusal remains in these arms.",
+            "callers": [
+              {
+                "path": "js/cmd.js",
+                "symbol": "rhack",
+                "source": "cmd.c command dispatch maps the fire command to dofire(); js/cmd.js:rhack() handles command === fire and awaits js/dothrow.js:dofire()."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/dothrow.test.mjs",
+              "scripts/fire-command.test.mjs",
+              "scripts/apply-pole-whip.test.mjs"
+            ],
+            "recordings": [
+              "recordings/dothrow.c/dofire-autoquiver-ranger.session.json",
+              "recordings/dothrow.c/dofire-wielded-whip-entry.session.json",
+              "recordings/dothrow.c/dofire-wielded-polearm-entry.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v5",
+                "caseId": "samurai-pet-ration-eating",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 32,
+                "source": "cmd.c fire dispatch -> dothrow.c:dofire -> autoquiver/find_launcher -> queued swap/wield/fire and throw_obj direction path"
+              }
+            ],
+            "checkedAt": "ba790c74ab160dfbb08e5fc9a8bd2d9e74c92c15"
+          }
+        ],
+        "entryPointReview": "The selected dothrow.c range has one active command entry point, #fire/dofire(), reached through cmd.c dispatch and js/cmd.js:rhack(). The three static helpers are reached from that command. Recorded independent paths cover the Samurai selected fire/launcher retry, Ranger autoquiver plus secondary bow and completed volley, a wielded bullwhip, and a secondary lance swapped into the hand then passed to use_pole(autohit=TRUE). The v5 selected recording now matches through step 32, including the completed fire command; later steps were also replayed through step 75 and matched but are not cited as dothrow evidence. Supporting apply.c work is supplemental to the formal task range: js/apply.js:doapply() dispatches both BULLWHIP to use_whip() and polearms to use_pole(); independent recordings cover direct bullwhip Snap and Knight target selection, and scripts/apply-pole-whip.test.mjs checks those states. use_whip() retains only explicit source-site note_unported gaps for discarded results of trap.c:fire_damage, steed.c:kick_steed, weapon.c:possibly_unwield, and trap.c:instapetrify. No caller is build-excluded.",
+        "entryPoints": [
+          {
+            "name": "fire command: autoquiver, launcher selection, and Samurai retry",
+            "functions": [
+              "autoquiver",
+              "find_launcher",
+              "dofire"
+            ],
+            "recordings": [
+              "recordings/dothrow.c/dofire-autoquiver-ranger.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v5",
+                "caseId": "samurai-pet-ration-eating",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 32,
+                "source": "cmd.c fire dispatch -> dothrow.c:dofire -> autoquiver/find_launcher -> queued swap/wield/fire and throw_obj direction path"
+              }
+            ]
+          },
+          {
+            "name": "fire command: wielded bullwhip fallback",
+            "functions": [
+              "dofire"
+            ],
+            "recordings": [
+              "recordings/dothrow.c/dofire-wielded-whip-entry.session.json"
+            ],
+            "synthetic": []
+          },
+          {
+            "name": "fire command: secondary polearm swap and autohit",
+            "functions": [
+              "dofire"
+            ],
+            "recordings": [
+              "recordings/dothrow.c/dofire-wielded-polearm-entry.session.json"
+            ],
+            "synthetic": []
+          }
+        ]
+      },
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "ba790c74ab160dfbb08e5fc9a8bd2d9e74c92c15",
+        "screens": 11405,
+        "rng": 792838
+      }
     },
     {
       "id": "port-zap-resist-lethal-synthetic-v5-20260926",
