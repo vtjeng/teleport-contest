@@ -80134,7 +80134,7 @@
     {
       "id": "port-apply-grease-synthetic-v6-20260926",
       "kind": "file-port",
-      "status": "open",
+      "status": "closed",
       "summary": "Port can-of-grease application, target filtering, and consumed equipment gate",
       "cFile": "apply.c",
       "sessions": [
@@ -80155,22 +80155,25 @@
         "screens": 11405,
         "rng": 792838
       },
-      "closedAt": null,
-      "delivered": null,
+      "closedAt": "8d99dfd6d6e715e092a805caacc2e79455a931f1",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
       "functions": [
         {
           "name": "grease_ok",
           "line": 2585,
           "endLine": 2603,
-          "declared": false,
-          "complete": false
+          "declared": true,
+          "complete": true
         },
         {
           "name": "use_grease",
           "line": 2604,
           "endLine": 2657,
-          "declared": false,
-          "complete": false
+          "declared": true,
+          "complete": true
         }
       ],
       "range": {
@@ -81087,7 +81090,722 @@
             "path": "investigations/synthetic/v6/wizard-greasy-write-glib.json"
           }
         }
-      ]
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "grease_ok",
+            "implementation": "js/apply.js",
+            "symbol": "grease_ok",
+            "sourceReview": "Read complete apply.c:grease_ok() (2585-2601). NULL (the hands sentinel) is GETOBJ_SUGGEST, coins are GETOBJ_EXCLUDE, inaccessible worn equipment is GETOBJ_EXCLUDE_INACCESS, and all remaining targets are GETOBJ_SUGGEST. The silent do_wear.c:inaccessible_equipment() call only reads the object and worn slots, so this callback has no RNG, output, or state mutation. scripts/apply-grease.test.mjs source-pins each source classification and checks the corresponding JS result.",
+            "callers": [
+              {
+                "path": "js/apply.js",
+                "symbol": "use_grease",
+                "source": "apply.c:use_grease() supplies grease_ok() to getobj(\"grease\", ..., GETOBJ_PROMPT) (2622-2623)."
+              }
+            ],
+            "pure": true,
+            "tests": [
+              "scripts/apply-grease.test.mjs"
+            ],
+            "recordings": [],
+            "synthetic": [],
+            "checkedAt": "8d99dfd6d6e715e092a805caacc2e79455a931f1"
+          },
+          {
+            "name": "use_grease",
+            "implementation": "js/apply.js",
+            "symbol": "use_grease",
+            "sourceReview": "Read complete apply.c:use_grease() (2604-2654). Preserved the initial Glib/drop arm; the cursed-or-Fumbling one-half charge slip and drop; target getobj/cancel handling; inaccessible target refusal before charge consumption; charge consumption and old Glib snapshot; distinct object and hands targets; cursed grease spill with rn1(6,10); hands coating with rn1(11,5); empty-can feedback; final update_inventory() and ECMD_* results. All source branches and RNG calls are in the same order. The doapply() CAN_OF_GREASE arm now calls this implementation.",
+            "callers": [
+              {
+                "path": "js/apply.js",
+                "symbol": "doapply",
+                "source": "apply.c:doapply() dispatches CAN_OF_GREASE to use_grease() (4282-4284); the JS switch returns use_grease(obj,state,env)."
+              },
+              {
+                "path": "js/cmd.js",
+                "symbol": "runApplyCommand",
+                "source": "cmd.c's 'a' command-table entry calls doapply() (1678); js/cmd.js:runApplyCommand() dispatches the apply command to doapply()."
+              }
+            ],
+            "pure": false,
+            "tests": [],
+            "recordings": [
+              "recordings/apply.c/grease-inaccessible-ring-independent.session.json"
+            ],
+            "synthetic": [],
+            "checkedAt": "8d99dfd6d6e715e092a805caacc2e79455a931f1"
+          }
+        ],
+        "entryPointReview": "The formal range has one active production entry point: the 'a' apply command dispatches through cmd.c/doapply() and js/cmd.js:runApplyCommand() to apply.c:doapply()'s CAN_OF_GREASE arm, then use_grease(). grease_ok() is reached as the getobj callback. The independent C recording reaches can selection, the pure target filter, ring-under-gloves exclusion, the post-selection inaccessible message, and ECMD_OK before charge use; it then exercises #dip's corresponding message path. C and JS match all 68 boundaries, RNG calls, screens, and cursors. No build-excluded caller exists for this range. The eight v6 recipe replays were checked separately but are not cited as completion evidence: their remaining first divergences are recorded in .cache/A11-case-replays.json, including the end-of-turn topl.c More/input-boundary behavior and paths that stop before use_grease. Supplemental do_wear.c and potion.c changes are recorded below without counting them as completed formal goal units.",
+        "entryPoints": [
+          {
+            "name": "Apply a can of grease and filter an inaccessible worn target",
+            "functions": [
+              "grease_ok",
+              "use_grease"
+            ],
+            "recordings": [
+              "recordings/apply.c/grease-inaccessible-ring-independent.session.json"
+            ],
+            "synthetic": []
+          }
+        ]
+      },
+      "closeMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v6",
+          "caseId": "wizard-greasy-write-glib-final",
+          "session": "synthetic/v6/wizard-greasy-write-glib-final",
+          "manifestPath": "challenges/manifests/v6.json",
+          "manifestSha256": "7523b91e823f4e3906c9acdc9a3d80f8469c27c2caab8fc8fbd6967dbfdcab5f",
+          "recording": "challenges/cases/v6/wizard-greasy-write-glib-final.session.json",
+          "recordingPath": "challenges/cases/v6/wizard-greasy-write-glib-final.session.json",
+          "recordingSha256": "20b60af8d804f9bd6ebd5b1217dae85a6cdad0afcae9d4f98bd6c57d6f3fb6e6",
+          "recipe": "challenges/cases/v6/wizard-greasy-write-glib-final.recipe.session.json",
+          "recipeSha256": "a55d0f776ecd5d8a91bc59a3fc708c55e632be4e125a69ffaac720babd87ebdc",
+          "replayInputSha256": "82fa1493fac470e1945a3e485a4ac54d687c468827d79473b0e20a74eb2da0d2",
+          "evaluationPath": "challenges/evaluations/20260926130636-v6.json",
+          "evaluationCommit": "8d99dfd6d6e715e092a805caacc2e79455a931f1",
+          "evaluationArtifact": "challenges/evaluations/20260926130636-v6.json",
+          "evaluationUtc": "2026-09-26T13:06:53.225Z",
+          "remainingScreens": 3,
+          "recordedSteps": 22,
+          "previousScreensMatched": 17,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 19,
+              "total": 22
+            },
+            "rng": {
+              "matched": 2968,
+              "total": 2978
+            },
+            "cursors": {
+              "matched": 20,
+              "total": 22
+            }
+          },
+          "firstMismatch": {
+            "screen": {
+              "index": 18,
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 18,
+                "key": "-"
+              },
+              "kind": "ch",
+              "row": 0,
+              "column": 34,
+              "cCell": {
+                "ch": "-",
+                "color": 8,
+                "attr": 0,
+                "decgfx": 0
+              },
+              "jsCell": {
+                "ch": " ",
+                "color": 8,
+                "attr": 0,
+                "decgfx": 0
+              }
+            },
+            "rng": null,
+            "cursor": {
+              "index": 18,
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 18,
+                "key": "-"
+              },
+              "cCursor": [
+                42,
+                0,
+                1
+              ],
+              "jsCursor": [
+                25,
+                9,
+                1
+              ]
+            }
+          },
+          "step": 18,
+          "kind": "screen",
+          "sourceFile": null,
+          "function": null,
+          "message": null,
+          "cFile": null,
+          "luaFile": null,
+          "line": null,
+          "investigation": {
+            "status": "stale",
+            "path": "investigations/synthetic/v6/wizard-greasy-write-glib-final.json",
+            "previousRemainingScreens": 5
+          }
+        },
+        {
+          "corpus": "synthetic",
+          "batch": "v6",
+          "caseId": "wizard-greasy-write-glib-retry",
+          "session": "synthetic/v6/wizard-greasy-write-glib-retry",
+          "manifestPath": "challenges/manifests/v6.json",
+          "manifestSha256": "7523b91e823f4e3906c9acdc9a3d80f8469c27c2caab8fc8fbd6967dbfdcab5f",
+          "recording": "challenges/cases/v6/wizard-greasy-write-glib-retry.session.json",
+          "recordingPath": "challenges/cases/v6/wizard-greasy-write-glib-retry.session.json",
+          "recordingSha256": "1f5fda2b5444e9bce7c2e066e976b60f62fd7c87ff871fc1ca349d47f8652212",
+          "recipe": "challenges/cases/v6/wizard-greasy-write-glib-retry.recipe.session.json",
+          "recipeSha256": "ecfcfece116d53defd9c10d348de88397df9dda9feafbb1680d8f9a8007ffa84",
+          "replayInputSha256": "82fa1493fac470e1945a3e485a4ac54d687c468827d79473b0e20a74eb2da0d2",
+          "evaluationPath": "challenges/evaluations/20260926130636-v6.json",
+          "evaluationCommit": "8d99dfd6d6e715e092a805caacc2e79455a931f1",
+          "evaluationArtifact": "challenges/evaluations/20260926130636-v6.json",
+          "evaluationUtc": "2026-09-26T13:06:53.225Z",
+          "remainingScreens": 3,
+          "recordedSteps": 22,
+          "previousScreensMatched": 17,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 19,
+              "total": 22
+            },
+            "rng": {
+              "matched": 2968,
+              "total": 3001
+            },
+            "cursors": {
+              "matched": 20,
+              "total": 22
+            }
+          },
+          "firstMismatch": {
+            "screen": {
+              "index": 18,
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 18,
+                "key": "-"
+              },
+              "kind": "ch",
+              "row": 0,
+              "column": 34,
+              "cCell": {
+                "ch": "-",
+                "color": 8,
+                "attr": 0,
+                "decgfx": 0
+              },
+              "jsCell": {
+                "ch": " ",
+                "color": 8,
+                "attr": 0,
+                "decgfx": 0
+              }
+            },
+            "rng": null,
+            "cursor": {
+              "index": 18,
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 18,
+                "key": "-"
+              },
+              "cCursor": [
+                42,
+                0,
+                1
+              ],
+              "jsCursor": [
+                25,
+                9,
+                1
+              ]
+            }
+          },
+          "step": 18,
+          "kind": "screen",
+          "sourceFile": null,
+          "function": null,
+          "message": null,
+          "cFile": null,
+          "luaFile": null,
+          "line": null,
+          "investigation": {
+            "status": "stale",
+            "path": "investigations/synthetic/v6/wizard-greasy-write-glib-retry.json",
+            "previousRemainingScreens": 5
+          }
+        },
+        {
+          "corpus": "synthetic",
+          "batch": "v6",
+          "caseId": "wizard-grease-write-target",
+          "session": "synthetic/v6/wizard-grease-write-target",
+          "manifestPath": "challenges/manifests/v6.json",
+          "manifestSha256": "7523b91e823f4e3906c9acdc9a3d80f8469c27c2caab8fc8fbd6967dbfdcab5f",
+          "recording": "challenges/cases/v6/wizard-grease-write-target.session.json",
+          "recordingPath": "challenges/cases/v6/wizard-grease-write-target.session.json",
+          "recordingSha256": "b9a3a0043a92450cff4bb8ff6317738832b167b771eb23f05ed9d294cf4be021",
+          "recipe": "challenges/cases/v6/wizard-grease-write-target.recipe.session.json",
+          "recipeSha256": "84dd3586496d495a643ffeab343c8464e170ba5d6ef6f2b92eb59bfa85f2956b",
+          "replayInputSha256": "82fa1493fac470e1945a3e485a4ac54d687c468827d79473b0e20a74eb2da0d2",
+          "evaluationPath": "challenges/evaluations/20260926130636-v6.json",
+          "evaluationCommit": "8d99dfd6d6e715e092a805caacc2e79455a931f1",
+          "evaluationArtifact": "challenges/evaluations/20260926130636-v6.json",
+          "evaluationUtc": "2026-09-26T13:06:53.225Z",
+          "remainingScreens": 3,
+          "recordedSteps": 35,
+          "previousScreensMatched": 31,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 32,
+              "total": 35
+            },
+            "rng": {
+              "matched": 2638,
+              "total": 2638
+            },
+            "cursors": {
+              "matched": 32,
+              "total": 35
+            }
+          },
+          "firstMismatch": {
+            "screen": {
+              "index": 32,
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 32,
+                "key": "-"
+              },
+              "kind": "ch",
+              "row": 0,
+              "column": 34,
+              "cCell": {
+                "ch": "-",
+                "color": 8,
+                "attr": 0,
+                "decgfx": 0
+              },
+              "jsCell": {
+                "ch": " ",
+                "color": 8,
+                "attr": 0,
+                "decgfx": 0
+              }
+            },
+            "rng": null,
+            "cursor": {
+              "index": 32,
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 32,
+                "key": "-"
+              },
+              "cCursor": [
+                42,
+                0,
+                1
+              ],
+              "jsCursor": [
+                7,
+                3,
+                1
+              ]
+            }
+          },
+          "step": 32,
+          "kind": "screen",
+          "sourceFile": null,
+          "function": null,
+          "message": null,
+          "cFile": null,
+          "luaFile": null,
+          "line": null,
+          "investigation": {
+            "status": "stale",
+            "path": "investigations/synthetic/v6/wizard-grease-write-target.json",
+            "previousRemainingScreens": 4
+          }
+        },
+        {
+          "corpus": "synthetic",
+          "batch": "v6",
+          "caseId": "wizard-grease-hands-good",
+          "session": "synthetic/v6/wizard-grease-hands-good",
+          "manifestPath": "challenges/manifests/v6.json",
+          "manifestSha256": "7523b91e823f4e3906c9acdc9a3d80f8469c27c2caab8fc8fbd6967dbfdcab5f",
+          "recording": "challenges/cases/v6/wizard-grease-hands-good.session.json",
+          "recordingPath": "challenges/cases/v6/wizard-grease-hands-good.session.json",
+          "recordingSha256": "528226e80ce3b4852b1606a834fd132448c6d19be05f9b3e387cc81e5ca9f192",
+          "recipe": "challenges/cases/v6/wizard-grease-hands-good.recipe.session.json",
+          "recipeSha256": "74b2bab42a87bae9bd7efe6394fcefc09dbafdc6a5bc9ecc91288387124fcee8",
+          "replayInputSha256": "82fa1493fac470e1945a3e485a4ac54d687c468827d79473b0e20a74eb2da0d2",
+          "evaluationPath": "challenges/evaluations/20260926130636-v6.json",
+          "evaluationCommit": "8d99dfd6d6e715e092a805caacc2e79455a931f1",
+          "evaluationArtifact": "challenges/evaluations/20260926130636-v6.json",
+          "evaluationUtc": "2026-09-26T13:06:53.225Z",
+          "remainingScreens": 2,
+          "recordedSteps": 19,
+          "previousScreensMatched": 17,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 17,
+              "total": 19
+            },
+            "rng": {
+              "matched": 2361,
+              "total": 2366
+            },
+            "cursors": {
+              "matched": 17,
+              "total": 19
+            }
+          },
+          "firstMismatch": {
+            "kind": "stop",
+            "message": "unsupported hero command: an unported branch of this command: applying a tool requires doapply()'s arm for object type 233",
+            "step": 17
+          },
+          "step": 17,
+          "kind": "stop",
+          "sourceFile": "apply.c",
+          "function": "doapply",
+          "message": "unsupported hero command: an unported branch of this command: applying a tool requires doapply()'s arm for object type 233",
+          "cFile": "apply.c",
+          "luaFile": null,
+          "line": null,
+          "investigation": {
+            "status": "missing",
+            "path": "investigations/synthetic/v6/wizard-grease-hands-good.json"
+          }
+        },
+        {
+          "corpus": "synthetic",
+          "batch": "v6",
+          "caseId": "wizard-grease-only",
+          "session": "synthetic/v6/wizard-grease-only",
+          "manifestPath": "challenges/manifests/v6.json",
+          "manifestSha256": "7523b91e823f4e3906c9acdc9a3d80f8469c27c2caab8fc8fbd6967dbfdcab5f",
+          "recording": "challenges/cases/v6/wizard-grease-only.session.json",
+          "recordingPath": "challenges/cases/v6/wizard-grease-only.session.json",
+          "recordingSha256": "9af4fef5d828c481509d962d1bf1160e66cc01ea5f2b15d516e2528ae3af0aa8",
+          "recipe": "challenges/cases/v6/wizard-grease-only.recipe.session.json",
+          "recipeSha256": "357fedf6f6442fa63ed6d40a8c86d12aa55425f0d8deb5928fa6edb4ccee4665",
+          "replayInputSha256": "82fa1493fac470e1945a3e485a4ac54d687c468827d79473b0e20a74eb2da0d2",
+          "evaluationPath": "challenges/evaluations/20260926130636-v6.json",
+          "evaluationCommit": "8d99dfd6d6e715e092a805caacc2e79455a931f1",
+          "evaluationArtifact": "challenges/evaluations/20260926130636-v6.json",
+          "evaluationUtc": "2026-09-26T13:06:53.225Z",
+          "remainingScreens": 2,
+          "recordedSteps": 19,
+          "previousScreensMatched": 17,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 17,
+              "total": 19
+            },
+            "rng": {
+              "matched": 5755,
+              "total": 5759
+            },
+            "cursors": {
+              "matched": 17,
+              "total": 19
+            }
+          },
+          "firstMismatch": {
+            "kind": "stop",
+            "message": "unsupported hero command: an unported branch of this command: applying a tool requires doapply()'s arm for object type 233",
+            "step": 17
+          },
+          "step": 17,
+          "kind": "stop",
+          "sourceFile": "apply.c",
+          "function": "doapply",
+          "message": "unsupported hero command: an unported branch of this command: applying a tool requires doapply()'s arm for object type 233",
+          "cFile": "apply.c",
+          "luaFile": null,
+          "line": null,
+          "investigation": {
+            "status": "missing",
+            "path": "investigations/synthetic/v6/wizard-grease-only.json"
+          }
+        },
+        {
+          "corpus": "synthetic",
+          "batch": "v6",
+          "caseId": "wizard-greasy-write-menu",
+          "session": "synthetic/v6/wizard-greasy-write-menu",
+          "manifestPath": "challenges/manifests/v6.json",
+          "manifestSha256": "7523b91e823f4e3906c9acdc9a3d80f8469c27c2caab8fc8fbd6967dbfdcab5f",
+          "recording": "challenges/cases/v6/wizard-greasy-write-menu.session.json",
+          "recordingPath": "challenges/cases/v6/wizard-greasy-write-menu.session.json",
+          "recordingSha256": "8c84d81c639a13c365d5d2a79e68d5cf92c9d25f9d82a474616930c2f582396e",
+          "recipe": "challenges/cases/v6/wizard-greasy-write-menu.recipe.session.json",
+          "recipeSha256": "2fe55dc432699f827a097f742847b77616f9306333a6f810fe53ca0b5e274980",
+          "replayInputSha256": "82fa1493fac470e1945a3e485a4ac54d687c468827d79473b0e20a74eb2da0d2",
+          "evaluationPath": "challenges/evaluations/20260926130636-v6.json",
+          "evaluationCommit": "8d99dfd6d6e715e092a805caacc2e79455a931f1",
+          "evaluationArtifact": "challenges/evaluations/20260926130636-v6.json",
+          "evaluationUtc": "2026-09-26T13:06:53.225Z",
+          "remainingScreens": 2,
+          "recordedSteps": 22,
+          "previousScreensMatched": 17,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 20,
+              "total": 22
+            },
+            "rng": {
+              "matched": 2968,
+              "total": 2968
+            },
+            "cursors": {
+              "matched": 21,
+              "total": 22
+            }
+          },
+          "firstMismatch": {
+            "screen": {
+              "index": 18,
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 18,
+                "key": "-"
+              },
+              "kind": "ch",
+              "row": 0,
+              "column": 34,
+              "cCell": {
+                "ch": "-",
+                "color": 8,
+                "attr": 0,
+                "decgfx": 0
+              },
+              "jsCell": {
+                "ch": " ",
+                "color": 8,
+                "attr": 0,
+                "decgfx": 0
+              }
+            },
+            "rng": null,
+            "cursor": {
+              "index": 18,
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 18,
+                "key": "-"
+              },
+              "cCursor": [
+                42,
+                0,
+                1
+              ],
+              "jsCursor": [
+                25,
+                9,
+                1
+              ]
+            }
+          },
+          "step": 18,
+          "kind": "screen",
+          "sourceFile": null,
+          "function": null,
+          "message": null,
+          "cFile": null,
+          "luaFile": null,
+          "line": null,
+          "investigation": {
+            "status": "stale",
+            "path": "investigations/synthetic/v6/wizard-greasy-write-menu.json",
+            "previousRemainingScreens": 5
+          }
+        },
+        {
+          "corpus": "synthetic",
+          "batch": "v6",
+          "caseId": "wizard-greasy-write-glib",
+          "session": "synthetic/v6/wizard-greasy-write-glib",
+          "manifestPath": "challenges/manifests/v6.json",
+          "manifestSha256": "7523b91e823f4e3906c9acdc9a3d80f8469c27c2caab8fc8fbd6967dbfdcab5f",
+          "recording": "challenges/cases/v6/wizard-greasy-write-glib.session.json",
+          "recordingPath": "challenges/cases/v6/wizard-greasy-write-glib.session.json",
+          "recordingSha256": "6f8be6114cd1a551dc75940ccc48608c51b6a978950a5f90e639dbbb09f03317",
+          "recipe": "challenges/cases/v6/wizard-greasy-write-glib.recipe.session.json",
+          "recipeSha256": "0ccf18d6ddfa6bd75ef0c57c46a0ae8bd6418b3fafc4a4e9641a518492818911",
+          "replayInputSha256": "82fa1493fac470e1945a3e485a4ac54d687c468827d79473b0e20a74eb2da0d2",
+          "evaluationPath": "challenges/evaluations/20260926130636-v6.json",
+          "evaluationCommit": "8d99dfd6d6e715e092a805caacc2e79455a931f1",
+          "evaluationArtifact": "challenges/evaluations/20260926130636-v6.json",
+          "evaluationUtc": "2026-09-26T13:06:53.225Z",
+          "remainingScreens": 2,
+          "recordedSteps": 22,
+          "previousScreensMatched": 20,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 20,
+              "total": 22
+            },
+            "rng": {
+              "matched": 2958,
+              "total": 2967
+            },
+            "cursors": {
+              "matched": 20,
+              "total": 22
+            }
+          },
+          "firstMismatch": {
+            "kind": "stop",
+            "message": "unsupported hero command: an unported branch of this command: applying a tool requires doapply()'s arm for object type 79",
+            "step": 20
+          },
+          "step": 20,
+          "kind": "stop",
+          "sourceFile": "apply.c",
+          "function": "doapply",
+          "message": "unsupported hero command: an unported branch of this command: applying a tool requires doapply()'s arm for object type 79",
+          "cFile": "apply.c",
+          "luaFile": null,
+          "line": null,
+          "investigation": {
+            "status": "missing",
+            "path": "investigations/synthetic/v6/wizard-greasy-write-glib.json"
+          }
+        },
+        {
+          "corpus": "synthetic",
+          "batch": "v6",
+          "caseId": "wizard-grease-hands-final",
+          "session": "synthetic/v6/wizard-grease-hands-final",
+          "manifestPath": "challenges/manifests/v6.json",
+          "manifestSha256": "7523b91e823f4e3906c9acdc9a3d80f8469c27c2caab8fc8fbd6967dbfdcab5f",
+          "recording": "challenges/cases/v6/wizard-grease-hands-final.session.json",
+          "recordingPath": "challenges/cases/v6/wizard-grease-hands-final.session.json",
+          "recordingSha256": "a22865ca6fd6510f9e8e02a91b816b7862d8257bcedde8f2995d4e702df4d012",
+          "recipe": "challenges/cases/v6/wizard-grease-hands-final.recipe.session.json",
+          "recipeSha256": "bac400fb9aa453e9dc8ef8318bd4e510d7d3fbb3706559a2a889d40c7513228d",
+          "replayInputSha256": "82fa1493fac470e1945a3e485a4ac54d687c468827d79473b0e20a74eb2da0d2",
+          "evaluationPath": "challenges/evaluations/20260926130636-v6.json",
+          "evaluationCommit": "8d99dfd6d6e715e092a805caacc2e79455a931f1",
+          "evaluationArtifact": "challenges/evaluations/20260926130636-v6.json",
+          "evaluationUtc": "2026-09-26T13:06:53.225Z",
+          "remainingScreens": 1,
+          "recordedSteps": 19,
+          "previousScreensMatched": 17,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 18,
+              "total": 19
+            },
+            "rng": {
+              "matched": 2365,
+              "total": 2365
+            },
+            "cursors": {
+              "matched": 18,
+              "total": 19
+            }
+          },
+          "firstMismatch": {
+            "screen": {
+              "index": 18,
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 18,
+                "key": "-"
+              },
+              "kind": "ch",
+              "row": 0,
+              "column": 34,
+              "cCell": {
+                "ch": "-",
+                "color": 8,
+                "attr": 0,
+                "decgfx": 0
+              },
+              "jsCell": {
+                "ch": " ",
+                "color": 8,
+                "attr": 0,
+                "decgfx": 0
+              }
+            },
+            "rng": {
+              "index": 2365,
+              "cCaller": null,
+              "jsEntry": "rn2(20)=13",
+              "stepIndex": null
+            },
+            "cursor": {
+              "index": 18,
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 18,
+                "key": "-"
+              },
+              "cCursor": [
+                42,
+                0,
+                1
+              ],
+              "jsCursor": [
+                64,
+                17,
+                1
+              ]
+            }
+          },
+          "step": 18,
+          "kind": "screen",
+          "sourceFile": null,
+          "function": null,
+          "message": null,
+          "cFile": null,
+          "luaFile": null,
+          "line": null,
+          "investigation": {
+            "status": "stale",
+            "path": "investigations/synthetic/v6/wizard-grease-hands-final.json",
+            "previousRemainingScreens": 2
+          }
+        }
+      ],
+      "closeStanding": {
+        "sha": "8d99dfd6d6e715e092a805caacc2e79455a931f1",
+        "screens": 11405,
+        "rng": 792838
+      }
     }
   ]
 }

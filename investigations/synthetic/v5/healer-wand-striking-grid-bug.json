@@ -5,14 +5,13 @@
   "caseId": "healer-wand-striking-grid-bug",
   "manifestPath": "challenges/manifests/v5.json",
   "manifestSha256": "5e4430fbd724fe91720f898c02e6f25f9d98e884fa31bd696ca1a63e87abf150",
-  "recordingPath": "challenges/cases/v5/healer-wand-striking-grid-bug.session.json",
   "recordingSha256": "97d372dd3a84252d6970271b4d335959cbf6d24c41318fa0b578c7a79446ec32",
-  "evaluationPath": "challenges/evaluations/20260926094126-v5.json",
-  "evaluationCommit": "50bbe620897c8fc2e634d14ec672d33a4e44db7e",
-  "remainingScreens": 8,
+  "evaluationPath": "challenges/evaluations/20260926115550-v5.json",
+  "evaluationCommit": "ba790c74ab160dfbb08e5fc9a8bd2d9e74c92c15",
+  "remainingScreens": 7,
   "recordedSteps": 48,
   "status": "complete",
-  "commit": "50bbe620897c8fc2e634d14ec672d33a4e44db7e",
+  "commit": "47856c2b7f77bc60cb4480d3bff955be061daaef",
   "mismatch": {
     "corpus": "synthetic",
     "batch": "v5",
@@ -25,66 +24,70 @@
     "recordingSha256": "97d372dd3a84252d6970271b4d335959cbf6d24c41318fa0b578c7a79446ec32",
     "recipe": "challenges/cases/v5/healer-wand-striking-grid-bug.recipe.session.json",
     "recipeSha256": "3a7de6608aa0b6a7b0b18d69aad15580d049445bd3ddc59b353966006f65a39d",
-    "replayInputSha256": "2bd21963cc9fcefed1046fb792ae304cc715fbe5dc32b52d679951cc718f7b18",
-    "evaluationPath": "challenges/evaluations/20260926094126-v5.json",
-    "evaluationCommit": "50bbe620897c8fc2e634d14ec672d33a4e44db7e",
-    "evaluationArtifact": "challenges/evaluations/20260926094126-v5.json",
-    "evaluationUtc": "2026-09-26T09:41:40.582Z",
-    "remainingScreens": 8,
+    "replayInputSha256": "087785dca2829a18f20c32ed5f9e5c3fbb9b346d913172976a2b9c27442cdbd0",
+    "evaluationPath": "challenges/evaluations/20260926115550-v5.json",
+    "evaluationCommit": "ba790c74ab160dfbb08e5fc9a8bd2d9e74c92c15",
+    "evaluationArtifact": "challenges/evaluations/20260926115550-v5.json",
+    "evaluationUtc": "2026-09-26T11:56:04.481Z",
+    "remainingScreens": 7,
     "recordedSteps": 48,
-    "previousScreensMatched": 0,
+    "previousScreensMatched": 41,
     "regression": false,
     "passed": false,
     "error": null,
     "metrics": {
       "screens": {
-        "matched": 40,
+        "matched": 41,
         "total": 48
       },
       "rng": {
-        "matched": 2681,
+        "matched": 2700,
         "total": 2743
       },
       "cursors": {
-        "matched": 40,
+        "matched": 41,
         "total": 48
       }
     },
     "firstMismatch": {
       "kind": "stop",
-      "message": "unsupported hero command: an unported branch of this command: zapping a wand requires resist() killing a monster via damage (m_using / killed path)",
-      "step": 40
+      "message": "unsupported hero command: an unported branch of this command: zapping a wand requires bhito() Force Bolt breakage return chain (hero_breaks/breaks, break_statue)",
+      "step": 41
     },
-    "step": 40,
+    "step": 41,
     "kind": "stop",
     "sourceFile": "zap.c",
-    "function": "resist",
-    "message": "unsupported hero command: an unported branch of this command: zapping a wand requires resist() killing a monster via damage (m_using / killed path)",
+    "function": "bhito",
+    "message": "unsupported hero command: an unported branch of this command: zapping a wand requires bhito() Force Bolt breakage return chain (hero_breaks/breaks, break_statue)",
     "cFile": "zap.c",
     "luaFile": null,
     "line": null
   },
-  "summary": "The v5 Healer wand-striking ray reaches zap.c:resist() at segment 0 step 40 after the bhitm hit-message fix. JS calculates resistance and lethal damage, then refuses before C calls killed() for the hero zap. Port the whole resist() function and exercise the tame kitten death path through its existing mon.c owner; preserve RNG, HP, resistance return, and death side effects.",
+  "summary": "The previous resist() stop at segment 0 step 40 is now crossed: C and JS match the wand hit that kills the Healer’s starting kitten. At step 41, Space dismisses its More prompt and resumes the same Force Bolt ray; bhito() receives the kitten corpse on the floor. C breaktest() draws rn2(100)=3, then rejects the corpse as unbreakable, so hero_breaks() returns 0 and bhito() returns 0. JS still refuses at bhito()’s Force Bolt/striking branch. This is within the existing parked zap.c weffects goal’s bhito object-break scope, so resume that goal rather than replace it; this case does not cover its separate statue and other listed branches.",
   "source": {
     "file": "zap.c",
-    "branch": "WAN_STRIKING bhitm calls resist(mtmp, WAND_CLASS, dmg, TELL); damage drops a tame kitten to zero HP while gm.m_using is false, so resist calls killed(mtmp), then returns its resisted boolean.",
+    "branch": "A horizontal WAN_STRIKING zap reaches a live monster and a floor pile on the same square. The Healer’s starting kitten is killed by the hit at step 40; after the More prompt, step 41 key Space resumes the ray and bhito() receives the resulting kitten corpse. Since svc.context.mon_moving is false, bhito() calls hero_breaks(obj, ox, oy, 0). breaktest() rolls ordinary-object resistance with nonbreakchance=1; the recorded rn2(100)=3 is not a resistance, but CORPSE is neither glass nor one of breaktest()’s breakable types, so breaktest() and hero_breaks() return 0. bhito() suppresses learning, leaves the corpse in place, sets res=0, and returns 0. The other Force Bolt branches (boulder, statue/break_statue, and monster-caused breaks()) are distinct and are not evidenced by this object.",
     "functions": [
-      "resist"
+      "bhito"
     ],
     "callers": [
-      "cmd.c z -> zap.c dozap -> weffects -> bhit -> bhitm; bhitm discards the resist return on this attack path.",
-      "Other zap.c callers consume resist() return; preserve its boolean and the already wired JS call contracts."
+      "nethack-c/upstream/src/cmd.c:2004-2005 dispatches z to zap.c:dozap(); zap.c:2673 calls weffects() after the wand is selected and aimed.",
+      "nethack-c/upstream/src/zap.c:3431-3451 routes this horizontal IMMEDIATE wand to bhit(..., ZAPPED_WAND, bhitm, bhito, ...). bhit() calls bhitm() first; its Force Bolt branch returns 0 after the kitten death, so the ray continues to bhitpile().",
+      "nethack-c/upstream/src/zap.c:2428-2505 calls bhito() for each floor object and adds its return to hitanything. zap.c:4045-4048 consumes bhitpile()’s result to decide whether to shorten the ray; weffects() discards bhit()’s monster-pointer return.",
+      "The corresponding JS path is js/cmd.js:3328-3329 runZapCommand() -> js/zap.js:dozap() -> weffects() -> bhit() -> bhitm()/bhitpile() -> bhito(). js/zap.js:2906-2910 is the immediate stop site; bhitpile() sums the callback result at :3131 and bhit() uses that sum at :3433-3434."
     ],
     "dependencies": [
-      "mon.c shieldeff_mon, killed, and monkilled are void callees; existing JS owners are partial. Exercise killed -> xkilled -> mondead/mondied for the tame kitten and reserve any source function whose incomplete branch blocks the witness.",
-      "mondata.c is_mplayer is a pure boolean dependency; muse.c gm.m_using governs killed versus monkilled, and the hero zap has it false."
+      "dothrow.c:hero_breaks() returns 0 when breaktest() says the object will not break; when it passes, breakmsg() precedes breakobj(), whose result is propagated. breaktest() at :2582-2609 calls zap.c:obj_resists() and then checks glass material and the explicit breakable-object cases. For this ordinary kitten corpse, obj_resists(obj, 1, 99) consumes the recorded rn2(100)=3 and returns false, but the material/type tests still make breaktest() false. breaks() is the alternative monster-caused entry and is not used because svc.context.mon_moving is false.",
+      "The separate STATUE arm in zap.c:bhito() consumes break_statue()’s boolean to decide whether to print the shatter message. break_statue() returns false when a statue trap activates and true after dropping contents, applying the historic-statue alignment effect if applicable, and fracturing the statue. This recording has a CORPSE, not a STATUE, so that return path remains unverified.",
+      "The previous step’s bhitm() Force Bolt result and bhito()’s object result are both consumed by zap.c:bhit(): a zero monster result keeps the ray moving and subtracts three from range; a zero bhitpile result does not subtract another range unit. The C result from resist() itself is discarded by bhitm(); its lethal side effects now match through step 40."
     ]
   },
   "goalKind": "file-port",
   "evidence": [
-    "Saved challenges/evaluations/20260926094126-v5.json at 50bbe620897c8fc2e634d14ec672d33a4e44db7e reports 40/48 screens and 2681/2743 RNG, with first refusal at segment 0 step 40: resist() killing a monster via damage.",
-    "Upstream nethack-c/upstream/src/zap.c:6100-6157 resist() computes attack/defense levels and rn2 resistance, halves resisted damage, subtracts HP, then calls monkilled for gm.m_using or killed otherwise; the return is resisted.",
-    "Current js/zap.js:resist mirrors level clamps and resistance RNG, then throws UnsupportedZapError when mhp < 1 before invoking the source death handler. This is missing behavior, not a change to the resistance roll.",
-    "The independent B12 nonlethal C recording matched 48/48 screens/cursors and 2968/2968 RNG through resist calculation; the admitted Healer case witnesses the lethal tail. Verify its tame and peaceful side effects and any corpse or experience changes through strict replay."
+    "The current .cache/v7-investigated-work-queue.json entry and challenges/evaluations/20260926115550-v5.json identify 7 remaining screens in 48 recorded steps. The saved evaluation at ba790c74ab160dfbb08e5fc9a8bd2d9e74c92c15 reports 41/48 screens, 41/48 cursors, and 2700/2743 RNG calls matched; the first stop is at segment 0 step 41 in bhito()’s Force Bolt breakage return chain.",
+    "In challenges/cases/v5/healer-wand-striking-grid-bug.session.json, step 40 key k shows the wand killing the Healer’s kitten and pauses at “You kill the poor kitten!--More--”. Step 41 key Space resumes the command; its C RNG begins with rn2(100)=3 @ obj_resists(zap.c:1469), followed by monster-turn and world RNG. The screen retains the corpse glyph on the square. This is the floor corpse created by the preceding lethal hit, not the hostile grid bug named by the case.",
+    "Upstream zap.c:2275-2312 implements the WAN_STRIKING/SPE_FORCE_BOLT bhito branch: ordinary objects call hero_breaks() for hero actions, use its result to suppress wand learning or force a square redraw, then return res=0; statues instead consume break_statue()’s result and retain the default res=1. dothrow.c:2417-2436, :2582-2609, and :2479 onward establish the breaktest -> breakmsg -> breakobj return chain; the corpse reaches breaktest’s false type result after the logged object-resistance roll.",
+    "JS currently throws from js/zap.js:2906-2910 before this C breakage decision. The prior saved investigation and challenges/evaluations/20260926094126-v5.json identified resist() at step 40 with 8 screens remaining. The newer evaluation now matches through the lethal kitten hit at step 40 and stops one boundary later at bhito(), preserving the resist/killed() finding as resolved counter-evidence rather than the current owner.",
+    "GOALS.json still contains parked goal port-zap-weffects-force-bolt-synthetic-v2-20260926. Its scope names bhito object-break and statue return chains, and its parkedReason also lists other independent ray blockers. This new mismatch is inside that existing zap.c scope, so resume that goal instead of superseding it; retain the remaining statue, door, ray, and caller coverage as open work."
   ]
 }
