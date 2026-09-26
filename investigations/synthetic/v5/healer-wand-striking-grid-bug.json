@@ -7,12 +7,12 @@
   "manifestSha256": "5e4430fbd724fe91720f898c02e6f25f9d98e884fa31bd696ca1a63e87abf150",
   "recordingPath": "challenges/cases/v5/healer-wand-striking-grid-bug.session.json",
   "recordingSha256": "97d372dd3a84252d6970271b4d335959cbf6d24c41318fa0b578c7a79446ec32",
-  "evaluationPath": "challenges/evaluations/20260926040211-v5.json",
-  "evaluationCommit": "d273b8936ba6746f4fa8287bf41668a9776c927c",
-  "remainingScreens": 48,
+  "evaluationPath": "challenges/evaluations/20260926094126-v5.json",
+  "evaluationCommit": "50bbe620897c8fc2e634d14ec672d33a4e44db7e",
+  "remainingScreens": 8,
   "recordedSteps": 48,
   "status": "complete",
-  "commit": "d273b8936ba6746f4fa8287bf41668a9776c927c",
+  "commit": "50bbe620897c8fc2e634d14ec672d33a4e44db7e",
   "mismatch": {
     "corpus": "synthetic",
     "batch": "v5",
@@ -25,66 +25,66 @@
     "recordingSha256": "97d372dd3a84252d6970271b4d335959cbf6d24c41318fa0b578c7a79446ec32",
     "recipe": "challenges/cases/v5/healer-wand-striking-grid-bug.recipe.session.json",
     "recipeSha256": "3a7de6608aa0b6a7b0b18d69aad15580d049445bd3ddc59b353966006f65a39d",
-    "replayInputSha256": "eec4ab1b95e3c6672a8e7a236bec8ba27ab458268a14ec32ddbc24161c098f73",
-    "evaluationPath": "challenges/evaluations/20260926040211-v5.json",
-    "evaluationCommit": "d273b8936ba6746f4fa8287bf41668a9776c927c",
-    "evaluationArtifact": "challenges/evaluations/20260926040211-v5.json",
-    "evaluationUtc": "2026-09-26T04:02:22.672Z",
-    "remainingScreens": 48,
+    "replayInputSha256": "2bd21963cc9fcefed1046fb792ae304cc715fbe5dc32b52d679951cc718f7b18",
+    "evaluationPath": "challenges/evaluations/20260926094126-v5.json",
+    "evaluationCommit": "50bbe620897c8fc2e634d14ec672d33a4e44db7e",
+    "evaluationArtifact": "challenges/evaluations/20260926094126-v5.json",
+    "evaluationUtc": "2026-09-26T09:41:40.582Z",
+    "remainingScreens": 8,
     "recordedSteps": 48,
-    "previousScreensMatched": null,
+    "previousScreensMatched": 0,
     "regression": false,
     "passed": false,
-    "error": "hit is not a function",
+    "error": null,
     "metrics": {
       "screens": {
-        "matched": 0,
+        "matched": 40,
         "total": 48
       },
       "rng": {
-        "matched": 0,
+        "matched": 2681,
         "total": 2743
       },
       "cursors": {
-        "matched": 0,
+        "matched": 40,
         "total": 48
       }
     },
     "firstMismatch": {
       "kind": "stop",
-      "message": "Replay error: hit is not a function",
-      "step": null
+      "message": "unsupported hero command: an unported branch of this command: zapping a wand requires resist() killing a monster via damage (m_using / killed path)",
+      "step": 40
     },
-    "step": null,
+    "step": 40,
     "kind": "stop",
-    "sourceFile": null,
-    "function": null,
-    "message": "Replay error: hit is not a function",
-    "cFile": null,
+    "sourceFile": "zap.c",
+    "function": "resist",
+    "message": "unsupported hero command: an unported branch of this command: zapping a wand requires resist() killing a monster via damage (m_using / killed path)",
+    "cFile": "zap.c",
     "luaFile": null,
     "line": null
   },
-  "summary": "The wand-of-striking hit path in zap.c:bhitm is wired, but js/zap.js:bhitm stores gb.bhitpos in a local named hit and then calls that coordinate as if it were zap.c:hit(). Rename the coordinate binding so the existing hit-message function runs; re-evaluate the later resist and kill path independently.",
+  "summary": "The v5 Healer wand-striking ray reaches zap.c:resist() at segment 0 step 40 after the bhitm hit-message fix. JS calculates resistance and lethal damage, then refuses before C calls killed() for the hero zap. Port the whole resist() function and exercise the tame kitten death path through its existing mon.c owner; preserve RNG, HP, resistance return, and death side effects.",
   "source": {
     "file": "zap.c",
-    "branch": "bhitm WAN_STRIKING / SPE_FORCE_BOLT when magical resistance fails and the attack roll hits a monster",
+    "branch": "WAN_STRIKING bhitm calls resist(mtmp, WAND_CLASS, dmg, TELL); damage drops a tame kitten to zero HP while gm.m_using is false, so resist calls killed(mtmp), then returns its resisted boolean.",
     "functions": [
-      "bhitm",
-      "hit"
+      "resist"
     ],
     "callers": [
-      "cmd.c z command -> zap.c dozap -> weffects -> bhit -> bhitm",
-      "js/cmd.js runZapCommand -> js/zap.js dozap -> weffects -> bhit -> bhitm"
+      "cmd.c z -> zap.c dozap -> weffects -> bhit -> bhitm; bhitm discards the resist return on this attack path.",
+      "Other zap.c callers consume resist() return; preserve its boolean and the already wired JS call contracts."
     ],
     "dependencies": [
-      "zap.c resist() is the next called function after hit() and may expose further unported behavior once the collision is fixed"
+      "mon.c shieldeff_mon, killed, and monkilled are void callees; existing JS owners are partial. Exercise killed -> xkilled -> mondead/mondied for the tame kitten and reserve any source function whose incomplete branch blocks the witness.",
+      "mondata.c is_mplayer is a pure boolean dependency; muse.c gm.m_using governs killed versus monkilled, and the hero zap has it false."
     ]
   },
-  "goalKind": "divergence-fix",
+  "goalKind": "file-port",
   "evidence": [
-    "The independently recorded v5/healer-wand-striking-grid-bug case reaches zap.c:bhitm through an immediate WAN_STRIKING ray and has 48 boundaries; the baseline evaluation at d273b893 reports 0/48 screens and Replay error: hit is not a function.",
-    "A direct JS run of this case throws TypeError at js/zap.js:2986 in bhitm; stack continues through bhit (3391), weffects (5308), and dozap (1197).",
-    "C zap.c:160-214 assigns gn.notonhead from gb.bhitpos and, in the successful WAN_STRIKING/SPE_FORCE_BOLT attack arm, calls hit(zap_type_text, mtmp, exclam(dmg)) before resist().",
-    "JS zap.js:2948 declares const hit = state.gb?.bhitpos (a coordinate), then zap.js:2986 awaits hit(...) in the same arm, shadowing the hit() function defined at zap.js:1680. The coordinate is also read for cansee and map_invisible later; rename that binding at all its uses without changing source order or random draws."
+    "Saved challenges/evaluations/20260926094126-v5.json at 50bbe620897c8fc2e634d14ec672d33a4e44db7e reports 40/48 screens and 2681/2743 RNG, with first refusal at segment 0 step 40: resist() killing a monster via damage.",
+    "Upstream nethack-c/upstream/src/zap.c:6100-6157 resist() computes attack/defense levels and rn2 resistance, halves resisted damage, subtracts HP, then calls monkilled for gm.m_using or killed otherwise; the return is resisted.",
+    "Current js/zap.js:resist mirrors level clamps and resistance RNG, then throws UnsupportedZapError when mhp < 1 before invoking the source death handler. This is missing behavior, not a change to the resistance roll.",
+    "The independent B12 nonlethal C recording matched 48/48 screens/cursors and 2968/2968 RNG through resist calculation; the admitted Healer case witnesses the lethal tail. Verify its tame and peaceful side effects and any corpse or experience changes through strict replay."
   ]
 }

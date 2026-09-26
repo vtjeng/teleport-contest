@@ -79435,6 +79435,49 @@
           "evaluationCommit": "50bbe620897c8fc2e634d14ec672d33a4e44db7e"
         }
       }
+    },
+    {
+      "id": "port-zap-resist-lethal-synthetic-v5-20260926",
+      "kind": "file-port",
+      "status": "queued",
+      "summary": "Port complete zap.c resist lethal monster damage and death dispatch",
+      "cFile": "zap.c",
+      "sessions": [
+        "synthetic/v5/healer-wand-striking-grid-bug"
+      ],
+      "selectionReason": "Continue B12 Healer wand-striking seed at 8 remaining screens and step 40; Samurai fire is owned by A10, and seed continuation takes precedence over the unassigned v6 engraving group. The refreshed investigation at investigations/synthetic/v5/healer-wand-striking-grid-bug.json traces the independent zap.c resist death path from saved v5 evaluation.",
+      "detail": "At segment 0 step 40, C zap.c resist calculates wand resistance, deducts lethal damage from a tame kitten, and calls killed because gm.m_using is false. JS mirrors the calculation then refuses before death dispatch. Port whole resist, preserve boolean return and RNG, exercise existing mon.c death owner, and add any consumed return dependencies if discovered. See the refreshed investigation.",
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": null,
+      "delivered": null,
+      "functions": [
+        {
+          "name": "resist",
+          "line": 6100,
+          "endLine": 6164,
+          "declared": true,
+          "complete": false
+        }
+      ],
+      "range": {
+        "from": 6100,
+        "to": 6164
+      },
+      "syntheticProvenance": {
+        "synthetic/v5/healer-wand-striking-grid-bug": {
+          "session": "synthetic/v5/healer-wand-striking-grid-bug",
+          "corpus": "synthetic",
+          "batch": "v5",
+          "caseId": "healer-wand-striking-grid-bug",
+          "manifestPath": "challenges/manifests/v5.json",
+          "manifestSha256": "5e4430fbd724fe91720f898c02e6f25f9d98e884fa31bd696ca1a63e87abf150",
+          "recordingPath": "challenges/cases/v5/healer-wand-striking-grid-bug.session.json",
+          "recordingSha256": "97d372dd3a84252d6970271b4d335959cbf6d24c41318fa0b578c7a79446ec32",
+          "evaluationPath": "challenges/evaluations/20260926094126-v5.json",
+          "evaluationCommit": "50bbe620897c8fc2e634d14ec672d33a4e44db7e"
+        }
+      }
     }
   ]
 }
