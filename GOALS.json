@@ -87064,6 +87064,71 @@
           "evaluationCommit": "7569737cbf0690c981232e6a48d59efadb0aa198"
         }
       }
+    },
+    {
+      "id": "div-apply-eyewear-default-synthetic-v6-20260926",
+      "kind": "divergence-fix",
+      "status": "queued",
+      "summary": "Port doapply eyewear selection and generic unsupported-item refusal from C",
+      "cFile": "apply.c",
+      "sessions": [
+        "synthetic/v6/wizard-grease-only",
+        "synthetic/v6/wizard-greasy-write-glib"
+      ],
+      "selectionReason": "C19 owns the higher-ranked healer armoroff case, B19 owns both dig cases and the trapdoor teleport dependency; these three v6 apply cases share doapply as the first unreserved source owner at steps 17 and 20. Group the two blindfold cases and adjacent generic default behavior in one source fix.",
+      "detail": "C apply.c:doapply BLINDFOLD/LENSES arm calls do_wear.c:Blindf_on or Blindf_off after getobj; JS rejects object type 233. The generic default checks pole, pick and axe, then prints Sorry, I do not know how to use that and returns ECMD_FAIL for object type 79; JS currently refuses. Port source branches and their sibling conditions, preserve existing apply matches, and verify independent C recordings.",
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": null,
+      "delivered": null,
+      "function": "doapply",
+      "session": "synthetic/v6/wizard-grease-hands-good",
+      "step": 17,
+      "syntheticProvenance": {
+        "synthetic/v6/wizard-grease-hands-good": {
+          "session": "synthetic/v6/wizard-grease-hands-good",
+          "corpus": "synthetic",
+          "batch": "v6",
+          "caseId": "wizard-grease-hands-good",
+          "manifestPath": "challenges/manifests/v6.json",
+          "manifestSha256": "7523b91e823f4e3906c9acdc9a3d80f8469c27c2caab8fc8fbd6967dbfdcab5f",
+          "recordingPath": "challenges/cases/v6/wizard-grease-hands-good.session.json",
+          "recordingSha256": "528226e80ce3b4852b1606a834fd132448c6d19be05f9b3e387cc81e5ca9f192",
+          "evaluationPath": "challenges/evaluations/20260926201323-v6.json",
+          "evaluationCommit": "580b107974301f1a5c70b1698fd8ccf169c69c57"
+        }
+      }
+    },
+    {
+      "id": "div-makemon-aligned-cleric-synthetic-v7-20260926",
+      "kind": "divergence-fix",
+      "status": "queued",
+      "summary": "Initialize aligned-cleric minion state before monster alignment",
+      "cFile": "makemon.c",
+      "sessions": [],
+      "selectionReason": "C19 and B19 own the higher-ranked armor and dig cases; trapdoor teleport is in B19 scope, and A15 owns the earlier apply.c doapply cases. This v7 priest case is the next independent source-traced two-screen candidate.",
+      "detail": "C makemon.c:makemon lines 1410-1426 initializes EMIN on aligned and high clerics without MM_EPRI/MM_EMIN, sets isminion and random min_align/renegade/peacefulness before set_malign. JS makemon_create.js lacks the arm. Trace full function siblings and preserve RNG order; validate the Ctrl-G production path and independent C recording.",
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": null,
+      "delivered": null,
+      "function": "makemon",
+      "session": "synthetic/v7/priest-outside-temple-chat",
+      "step": 27,
+      "syntheticProvenance": {
+        "synthetic/v7/priest-outside-temple-chat": {
+          "session": "synthetic/v7/priest-outside-temple-chat",
+          "corpus": "synthetic",
+          "batch": "v7",
+          "caseId": "priest-outside-temple-chat",
+          "manifestPath": "challenges/manifests/v7.json",
+          "manifestSha256": "03a861a9d1bc9d813c80681312ee7a0e0f893dbad0536de40a974bd5ec344094",
+          "recordingPath": "challenges/cases/v7/priest-outside-temple-chat.session.json",
+          "recordingSha256": "76f2f565d9ff27f51adb9638e2ee8b3eab7edbe6d8fe058d470d84e89bd861a0",
+          "evaluationPath": "challenges/evaluations/20260926201323-v7.json",
+          "evaluationCommit": "580b107974301f1a5c70b1698fd8ccf169c69c57"
+        }
+      }
     }
   ]
 }
