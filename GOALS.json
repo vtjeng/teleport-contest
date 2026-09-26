@@ -72926,7 +72926,7 @@
     {
       "id": "port-objnam-readobjnam-monster-carriers-synthetic-v2-20260925",
       "kind": "file-port",
-      "status": "parked",
+      "status": "superseded",
       "summary": "Port monster-carrier wishes through complete readobjnam source order",
       "cFile": "objnam.c",
       "sessions": [
@@ -73244,7 +73244,10 @@
         "screens": 11405,
         "rng": 792838
       },
-      "parkedReason": "The admitted wish path matches through step 31 and advances the first mismatch to pray.c:offer_corpse, but readobjnam still has unsupported qualifier/name and interactive glob-weight branches; files.c:proc_wizkit_line and nhlobj.c:Lua obj.new callers lack JS owners and runtime evidence. Preserve this partial source progress without marking the whole function complete."
+      "parkedReason": "The admitted wish path matches through step 31 and advances the first mismatch to pray.c:offer_corpse, but readobjnam still has unsupported qualifier/name and interactive glob-weight branches; files.c:proc_wizkit_line and nhlobj.c:Lua obj.new callers lack JS owners and runtime evidence. Preserve this partial source progress without marking the whole function complete.",
+      "supersededBy": "port-objnam-readobjnam-wish-retry-synthetic-v5-20260926",
+      "supersededReason": "The old v2 altar-rite-history wish path now matches and its remaining mismatch is pray.c offer_corpse, owned by C11. The new v5 Samurai failed-wish retry is the current highest source-traced readobjnam mismatch; the replacement keeps whole-function readobjnam scope and required makewish caller work while preserving the old goal evidence.",
+      "supersededAt": "edb033130378006e57bf0011cebaf56a9ced8315"
     },
     {
       "id": "port-fountain-drinkfountain-synthetic-v4-20260925",
@@ -77106,6 +77109,49 @@
           "recordingSha256": "2d5176b421d2ad6fb23e6e170bab9bb0f23db29af81cf80c4a7692c7983aa4c4",
           "evaluationPath": "challenges/evaluations/20260926034749-v4.json",
           "evaluationCommit": "c12df7b29cfff0e2b05b59d802a204008912d442"
+        }
+      }
+    },
+    {
+      "id": "port-objnam-readobjnam-wish-retry-synthetic-v5-20260926",
+      "kind": "file-port",
+      "status": "queued",
+      "summary": "Port complete objnam.c readobjnam wizard no-match behavior and wire wish retries",
+      "cFile": "objnam.c",
+      "sessions": [
+        "synthetic/v5/samurai-pet-ration-eating"
+      ],
+      "selectionReason": "synthetic/v5/samurai-pet-ration-eating has 63 unmatched screens in challenges/evaluations/20260926043048-v5.json, the highest current case. investigations/synthetic/v5/samurai-pet-ration-eating.json traces its first stop to objnam.c readobjnam returning NULL and zap.c makewish retrying. This new current-input goal replaces the parked v2 readobjnam plan, whose selected altar case now mismatches pray.c offer_corpse and is owned by C11.",
+      "detail": "C objnam.c readobjnam wizard unmatched-name tail returns NULL for meat ration after wizterrainwish and class/name fallbacks; JS throws. C zap.c makewish consumes NULL to print the failure and retry, while JS refuses that caller path. Port the whole readobjnam function, return-valued rnd_otyp_by_wpnskill callee, and production makewish result handling; retain independent source evidence for other entry points and blocked branches.",
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": null,
+      "delivered": null,
+      "functions": [
+        {
+          "name": "readobjnam",
+          "line": 4910,
+          "endLine": 5402,
+          "declared": true,
+          "complete": false
+        }
+      ],
+      "range": {
+        "from": 4910,
+        "to": 5402
+      },
+      "syntheticProvenance": {
+        "synthetic/v5/samurai-pet-ration-eating": {
+          "session": "synthetic/v5/samurai-pet-ration-eating",
+          "corpus": "synthetic",
+          "batch": "v5",
+          "caseId": "samurai-pet-ration-eating",
+          "manifestPath": "challenges/manifests/v5.json",
+          "manifestSha256": "5e4430fbd724fe91720f898c02e6f25f9d98e884fa31bd696ca1a63e87abf150",
+          "recordingPath": "challenges/cases/v5/samurai-pet-ration-eating.session.json",
+          "recordingSha256": "719edf6f87e6d47c9c59b0cbfd8a418269fb55e34f5dfbc93500b61dd472954c",
+          "evaluationPath": "challenges/evaluations/20260926043048-v5.json",
+          "evaluationCommit": "a4cca522bb1757073b5cea17ac1d8c2d7c82367f"
         }
       }
     }
