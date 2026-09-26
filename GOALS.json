@@ -76565,14 +76565,18 @@
     {
       "id": "div-apply-doapply-food-default-synthetic-v3-20260926",
       "kind": "divergence-fix",
-      "status": "queued",
+      "status": "open",
       "summary": "Match apply.c doapply food fallback and banana hallucination branch",
       "cFile": "apply.c",
       "sessions": [],
       "selectionReason": "After B7 camera completion, synthetic/v3/tourist-camera-flash is the highest-ranked unreserved source-traced mismatch with six unmatched screens. investigations/synthetic/v3/tourist-camera-flash.json locates the first stop at segment 0 step 4 in apply.c doapply default when the Tourist selects TRIPE_RATION; C10 sink and A8 jump are already assigned.",
       "detail": "v3 manifest digest 922fd19b46005c40283152102ac301035c7f84f82a8e5d7caf691f183a2b67; recording challenges/cases/v3/tourist-camera-flash.session.json digest 0a6a24c755d67609c0e8974a63df94e1127c6ef0e4fcc2c09de4787c0cbbcac1; saved evaluation challenges/evaluations/20260926030013-v3.json. C doapply default checks pole, pick, and axe before the unknown-use ECMD_FAIL; JS refuses ordinary non-special food. Preserve named arms and add the source BANANA hallucination message branch before generalized food fallback; trace all resulting steps and independently reproduce.",
-      "openedAt": null,
-      "openStanding": null,
+      "openedAt": "09fd6c4a27f210a31f3ae9077801aaa586a04fbf",
+      "openStanding": {
+        "sha": "23b58a6ff9c7aaf00e8c045f68bbcce4351150b3",
+        "screens": 11405,
+        "rng": 792838
+      },
       "closedAt": null,
       "delivered": null,
       "function": "doapply",
@@ -76588,10 +76592,182 @@
           "manifestSha256": "922fd19b46005c40283152102ac301035c7f84f82a8e5e9d7caf691f183a2b67",
           "recordingPath": "challenges/cases/v3/tourist-camera-flash.session.json",
           "recordingSha256": "0a6a24c755d67609c0e8974a63df94e1127c6ef0e4fcc2c09de4787c0cbbcac1",
-          "evaluationPath": "challenges/evaluations/20260926030013-v3.json",
-          "evaluationCommit": "74bd31c01631a92d835ba988cdb3a0ed892ec87b"
+          "evaluationPath": "challenges/evaluations/20260926034749-v3.json",
+          "evaluationCommit": "c12df7b29cfff0e2b05b59d802a204008912d442"
         }
-      }
+      },
+      "activeStanding": {
+        "sha": "23b58a6ff9c7aaf00e8c045f68bbcce4351150b3",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v3",
+          "caseId": "tourist-camera-flash",
+          "session": "synthetic/v3/tourist-camera-flash",
+          "manifestPath": "challenges/manifests/v3.json",
+          "manifestSha256": "922fd19b46005c40283152102ac301035c7f84f82a8e5e9d7caf691f183a2b67",
+          "recording": "challenges/cases/v3/tourist-camera-flash.session.json",
+          "recordingPath": "challenges/cases/v3/tourist-camera-flash.session.json",
+          "recordingSha256": "0a6a24c755d67609c0e8974a63df94e1127c6ef0e4fcc2c09de4787c0cbbcac1",
+          "recipe": "challenges/cases/v3/tourist-camera-flash.recipe.json",
+          "recipeSha256": "868687e19f9f42311fdf304fafcdfd53c55db155553e5ff9b49333d501f18912",
+          "replayInputSha256": "11ea8bcf4dd3189ccc27adcb45c04b0004d6b20552c20c2e83d65807d312a225",
+          "evaluationPath": "challenges/evaluations/20260926034749-v3.json",
+          "evaluationCommit": "c12df7b29cfff0e2b05b59d802a204008912d442",
+          "evaluationArtifact": "challenges/evaluations/20260926034749-v3.json",
+          "evaluationUtc": "2026-09-26T03:47:54.884Z",
+          "remainingScreens": 6,
+          "recordedSteps": 10,
+          "previousScreensMatched": 4,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 4,
+              "total": 10
+            },
+            "rng": {
+              "matched": 2413,
+              "total": 2473
+            },
+            "cursors": {
+              "matched": 4,
+              "total": 10
+            }
+          },
+          "firstMismatch": {
+            "kind": "stop",
+            "message": "unsupported hero command: an unported branch of this command: applying a tool requires doapply()'s arm for object type 264",
+            "step": 4
+          },
+          "step": 4,
+          "kind": "stop",
+          "sourceFile": "apply.c",
+          "function": "doapply",
+          "message": "unsupported hero command: an unported branch of this command: applying a tool requires doapply()'s arm for object type 264",
+          "cFile": "apply.c",
+          "luaFile": null,
+          "line": null,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v3/tourist-camera-flash.json",
+            "result": {
+              "session": "synthetic/v3/tourist-camera-flash",
+              "corpus": "synthetic",
+              "batch": "v3",
+              "caseId": "tourist-camera-flash",
+              "manifestPath": "challenges/manifests/v3.json",
+              "manifestSha256": "922fd19b46005c40283152102ac301035c7f84f82a8e5e9d7caf691f183a2b67",
+              "recordingPath": "challenges/cases/v3/tourist-camera-flash.session.json",
+              "recordingSha256": "0a6a24c755d67609c0e8974a63df94e1127c6ef0e4fcc2c09de4787c0cbbcac1",
+              "evaluationPath": "challenges/evaluations/20260925202640-v3.json",
+              "evaluationCommit": "df2fff47e89a1e74e3eeef4d20e8bac9982bf291",
+              "remainingScreens": 6,
+              "recordedSteps": 10,
+              "status": "complete",
+              "commit": "df2fff47e89a1e74e3eeef4d20e8bac9982bf291",
+              "mismatch": {
+                "corpus": "synthetic",
+                "batch": "v3",
+                "caseId": "tourist-camera-flash",
+                "session": "synthetic/v3/tourist-camera-flash",
+                "manifestPath": "challenges/manifests/v3.json",
+                "manifestSha256": "922fd19b46005c40283152102ac301035c7f84f82a8e5e9d7caf691f183a2b67",
+                "recording": "challenges/cases/v3/tourist-camera-flash.session.json",
+                "recordingPath": "challenges/cases/v3/tourist-camera-flash.session.json",
+                "recordingSha256": "0a6a24c755d67609c0e8974a63df94e1127c6ef0e4fcc2c09de4787c0cbbcac1",
+                "recipe": "challenges/cases/v3/tourist-camera-flash.recipe.json",
+                "recipeSha256": "868687e19f9f42311fdf304fafcdfd53c55db155553e5ff9b49333d501f18912",
+                "replayInputSha256": "408f8885513839043892531bfedc173e586b7954f96bea10b8b66bb16fc0a015",
+                "evaluationPath": "challenges/evaluations/20260925202640-v3.json",
+                "evaluationCommit": "df2fff47e89a1e74e3eeef4d20e8bac9982bf291",
+                "evaluationArtifact": "challenges/evaluations/20260925202640-v3.json",
+                "evaluationUtc": "2026-09-25T20:26:45.798Z",
+                "remainingScreens": 6,
+                "recordedSteps": 10,
+                "previousScreensMatched": 4,
+                "regression": false,
+                "passed": false,
+                "error": null,
+                "metrics": {
+                  "screens": {
+                    "matched": 4,
+                    "total": 10
+                  },
+                  "rng": {
+                    "matched": 2413,
+                    "total": 2473
+                  },
+                  "cursors": {
+                    "matched": 4,
+                    "total": 10
+                  }
+                },
+                "firstMismatch": {
+                  "kind": "stop",
+                  "message": "unsupported hero command: an unported branch of this command: applying a tool requires doapply()'s arm for object type 264",
+                  "step": 4
+                },
+                "step": 4,
+                "kind": "stop",
+                "sourceFile": "apply.c",
+                "function": "doapply",
+                "message": "unsupported hero command: an unported branch of this command: applying a tool requires doapply()'s arm for object type 264",
+                "cFile": "apply.c",
+                "luaFile": null,
+                "line": null
+              },
+              "summary": "The v3 case stops at step 4 when the Tourist applies inventory letter f, a tripe ration (object 264). C apply.c doapply() reaches its default arm: the ration is neither a pole weapon, pick, nor axe, so C prints “Sorry, I don’t know how to use that.” and returns ECMD_FAIL without a turn. JS already implements that result for carrots and ordinary armor but refuses this food object. Extend the source default decision across the safe object class, while preserving named arms and the banana hallucination branch.",
+              "source": {
+                "file": "apply.c",
+                "branch": "A sighted Tourist selects a carried tripe ration for the a/apply command on dungeon level 1. After selection, the object bypasses all named doapply() switch arms and reaches the default arm; is_pole, is_pick, and is_axe are false, so C prints the unknown-use message and returns ECMD_FAIL.",
+                "functions": [
+                  "doapply"
+                ],
+                "callers": [
+                  "cmd.c a/apply dispatch reaches apply.c doapply(); js/cmd.js runApplyCommand() calls js/apply.js doapply() through failClosedCommand()."
+                ],
+                "dependencies": [
+                  "C default at apply.c:4405-4417 redirects pole weapons to use_pole and picks or axes to use_pick_axe before the unknown-use message. Preserve those return-valued branches as refusals until their functions are ported.",
+                  "BANANA has a preceding named arm with a Hallucination-specific message and falls through to default only otherwise; preserve that source condition when extending the ordinary food result."
+                ]
+              },
+              "goalKind": "divergence-fix",
+              "evidence": [
+                "Saved challenges/evaluations/20260925200627-v3.json at 933a8a5b9fc4f2072aa8f0b0c3672bc9a3d9f4bc reports 4/10 screens and cursors, 2413/2473 RNG calls, with 6 remaining screens.",
+                "C recording challenges/cases/v3/tourist-camera-flash.session.json has step 3 key a asking which item to apply; step 4 key f prints “Sorry, I don’t know how to use that.” The recording’s planned camera action occurs later and is not the first mismatch.",
+                "js/objects.js maps TRIPE_RATION to object type 264. js/apply.js doapply() default near line 1530 handles CARROT and ordinary armor but throws UnsupportedApplyError for the ration.",
+                "nethack-c/upstream/src/apply.c:4405-4417 checks is_pole, is_pick, and is_axe before printing the unknown-use message and returning ECMD_FAIL. The tripe ration is not in any named switch arm."
+              ],
+              "entryPointReview": {
+                "active": [
+                  "Apply a carried tripe ration at synthetic/v3/tourist-camera-flash segment 0 steps 3-4."
+                ],
+                "blocked": [
+                  "The current JS default refuses object 264 at step 4, before the C unknown-use message. The later camera attempt belongs to apply.c use_camera and is separately diagnosed in synthetic/v3/tourist-camera-flash-complete."
+                ]
+              },
+              "plannedWholeFunctionScope": {
+                "primary": {
+                  "file": "apply.c",
+                  "functions": [
+                    "doapply"
+                  ],
+                  "kind": "divergence-fix"
+                },
+                "callerWiring": [
+                  "cmd.c a/apply through js/cmd.js runApplyCommand()"
+                ],
+                "limit": "Default unknown-use arm for non-pole, non-pick, non-axe food objects; keep named arms and return-valued redirects source-owned."
+              }
+            }
+          }
+        }
+      ]
     },
     {
       "id": "port-pray-offer-corpse-synthetic-v2-20260926",
