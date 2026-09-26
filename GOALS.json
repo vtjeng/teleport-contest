@@ -73616,7 +73616,7 @@
     {
       "id": "port-trap-water-damage-chain-synthetic-v1-20260925",
       "kind": "file-port",
-      "status": "queued",
+      "status": "open",
       "summary": "Port water damage chain across pool entry and item owners",
       "cFile": "trap.c",
       "sessions": [
@@ -73624,8 +73624,12 @@
       ],
       "selectionReason": "The refreshed investigation for v1 terrain-transitions is now complete at 49 remaining screens, the first unreserved case in per-session order. Worker A continues the same synthetic seed after A3; B5 owns v4 dig and C7 owns v2 altar. The queued fountain divergence remains lower-ranked.",
       "detail": "At segment 0 step 87, C trap.c:drown calls water_damage_chain(gi.invent,FALSE), producing six water_damage rn2(20) rolls; JS skips the chain and reaches the later rn2(8) crawl shuffle. Port the whole chain, wire active source callers, and preserve acid context, bhitpos, object order, RNG, messages, and return-discard semantics.",
-      "openedAt": null,
-      "openStanding": null,
+      "openedAt": "acd206894150287b877461794ca665d848c17259",
+      "openStanding": {
+        "sha": "413f6d2e8a3a48bcc14f0fdd904dd5fda4dbda8a",
+        "screens": 11405,
+        "rng": 792838
+      },
       "closedAt": null,
       "delivered": null,
       "functions": [
@@ -73651,10 +73655,280 @@
           "manifestSha256": "a1d989fa6b5159e0b0729150ba765c741a405ec910c1274ad763d29b0a7096fe",
           "recordingPath": "challenges/cases/terrain-transitions.session.json",
           "recordingSha256": "5491c8fb94f71fe5a5c56498e2c58b6d736e65b221cf0a39d1895abdd6759ec9",
-          "evaluationPath": "challenges/evaluations/20260925214017-v1.json",
-          "evaluationCommit": "017038c1e14957228ef42eeb319448e71159eb24"
+          "evaluationPath": "challenges/evaluations/20260926001847-v1.json",
+          "evaluationCommit": "413f6d2e8a3a48bcc14f0fdd904dd5fda4dbda8a"
         }
-      }
+      },
+      "activeStanding": {
+        "sha": "413f6d2e8a3a48bcc14f0fdd904dd5fda4dbda8a",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v1",
+          "caseId": "terrain-transitions",
+          "session": "synthetic/v1/terrain-transitions",
+          "manifestPath": "challenges/manifest.json",
+          "manifestSha256": "a1d989fa6b5159e0b0729150ba765c741a405ec910c1274ad763d29b0a7096fe",
+          "recording": "challenges/cases/terrain-transitions.session.json",
+          "recordingPath": "challenges/cases/terrain-transitions.session.json",
+          "recordingSha256": "5491c8fb94f71fe5a5c56498e2c58b6d736e65b221cf0a39d1895abdd6759ec9",
+          "recipe": "challenges/cases/terrain-transitions.recipe.json",
+          "recipeSha256": "a0952cee3b77d907ba080571678b0a1e5e1b82d4dc3b07981e6065806cf49663",
+          "replayInputSha256": "9fb231b592f015e9d6232b4b842e46dcc9b1b4e3231a6025da580aede2395e3d",
+          "evaluationPath": "challenges/evaluations/20260926001847-v1.json",
+          "evaluationCommit": "413f6d2e8a3a48bcc14f0fdd904dd5fda4dbda8a",
+          "evaluationArtifact": "challenges/evaluations/20260926001847-v1.json",
+          "evaluationUtc": "2026-09-26T00:18:47.612Z",
+          "remainingScreens": 49,
+          "recordedSteps": 137,
+          "previousScreensMatched": 88,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 88,
+              "total": 137
+            },
+            "rng": {
+              "matched": 3182,
+              "total": 3811
+            },
+            "cursors": {
+              "matched": 107,
+              "total": 137
+            }
+          },
+          "firstMismatch": {
+            "screen": {
+              "index": 88,
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 88,
+                "key": " "
+              },
+              "kind": "ch",
+              "row": 0,
+              "column": 3,
+              "cCell": {
+                "ch": "r",
+                "color": 8,
+                "attr": 0,
+                "decgfx": 0
+              },
+              "jsCell": {
+                "ch": " ",
+                "color": 8,
+                "attr": 0,
+                "decgfx": 0
+              }
+            },
+            "rng": {
+              "index": 3055,
+              "cEntry": "rn2(20)=12",
+              "cCaller": "water_damage(trap.c:4771)",
+              "jsEntry": "rn2(8)=4",
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 87,
+                "key": "h"
+              },
+              "stepIndex": 87
+            },
+            "cursor": {
+              "index": 88,
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 88,
+                "key": " "
+              },
+              "cCursor": [
+                77,
+                0,
+                1
+              ],
+              "jsCursor": [
+                30,
+                6,
+                1
+              ]
+            }
+          },
+          "step": 87,
+          "kind": "rng",
+          "sourceFile": "trap.c",
+          "function": "water_damage",
+          "message": null,
+          "cFile": "trap.c",
+          "luaFile": null,
+          "line": 4771,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v1/terrain-transitions.json",
+            "result": {
+              "session": "synthetic/v1/terrain-transitions",
+              "corpus": "synthetic",
+              "batch": "v1",
+              "caseId": "terrain-transitions",
+              "manifestPath": "challenges/manifest.json",
+              "manifestSha256": "a1d989fa6b5159e0b0729150ba765c741a405ec910c1274ad763d29b0a7096fe",
+              "recordingPath": "challenges/cases/terrain-transitions.session.json",
+              "recordingSha256": "5491c8fb94f71fe5a5c56498e2c58b6d736e65b221cf0a39d1895abdd6759ec9",
+              "evaluationPath": "challenges/evaluations/20260925214017-v1.json",
+              "evaluationCommit": "017038c1e14957228ef42eeb319448e71159eb24",
+              "remainingScreens": 49,
+              "recordedSteps": 137,
+              "status": "complete",
+              "commit": "bd56afabfe56abd342fd46ca726d53cd34cfa17b",
+              "mismatch": {
+                "corpus": "synthetic",
+                "batch": "v1",
+                "caseId": "terrain-transitions",
+                "session": "synthetic/v1/terrain-transitions",
+                "manifestPath": "challenges/manifest.json",
+                "manifestSha256": "a1d989fa6b5159e0b0729150ba765c741a405ec910c1274ad763d29b0a7096fe",
+                "recording": "challenges/cases/terrain-transitions.session.json",
+                "recordingPath": "challenges/cases/terrain-transitions.session.json",
+                "recordingSha256": "5491c8fb94f71fe5a5c56498e2c58b6d736e65b221cf0a39d1895abdd6759ec9",
+                "recipe": "challenges/cases/terrain-transitions.recipe.json",
+                "recipeSha256": "a0952cee3b77d907ba080571678b0a1e5e1b82d4dc3b07981e6065806cf49663",
+                "replayInputSha256": "92f778ad0f0088b85c7809ee82da8f7186afb94115b70dc562216d131de1dd3a",
+                "evaluationPath": "challenges/evaluations/20260925214017-v1.json",
+                "evaluationCommit": "017038c1e14957228ef42eeb319448e71159eb24",
+                "evaluationArtifact": "challenges/evaluations/20260925214017-v1.json",
+                "evaluationUtc": "2026-09-25T21:40:17.322Z",
+                "remainingScreens": 49,
+                "recordedSteps": 137,
+                "previousScreensMatched": 79,
+                "regression": false,
+                "passed": false,
+                "error": null,
+                "metrics": {
+                  "screens": {
+                    "matched": 88,
+                    "total": 137
+                  },
+                  "rng": {
+                    "matched": 3182,
+                    "total": 3811
+                  },
+                  "cursors": {
+                    "matched": 107,
+                    "total": 137
+                  }
+                },
+                "firstMismatch": {
+                  "screen": {
+                    "index": 88,
+                    "location": {
+                      "segmentIndex": 0,
+                      "stepIndex": 88,
+                      "key": " "
+                    },
+                    "kind": "ch",
+                    "row": 0,
+                    "column": 3,
+                    "cCell": {
+                      "ch": "r",
+                      "color": 8,
+                      "attr": 0,
+                      "decgfx": 0
+                    },
+                    "jsCell": {
+                      "ch": " ",
+                      "color": 8,
+                      "attr": 0,
+                      "decgfx": 0
+                    }
+                  },
+                  "rng": {
+                    "index": 3055,
+                    "cEntry": "rn2(20)=12",
+                    "cCaller": "water_damage(trap.c:4771)",
+                    "jsEntry": "rn2(8)=4",
+                    "location": {
+                      "segmentIndex": 0,
+                      "stepIndex": 87,
+                      "key": "h"
+                    },
+                    "stepIndex": 87
+                  },
+                  "cursor": {
+                    "index": 88,
+                    "location": {
+                      "segmentIndex": 0,
+                      "stepIndex": 88,
+                      "key": " "
+                    },
+                    "cCursor": [
+                      77,
+                      0,
+                      1
+                    ],
+                    "jsCursor": [
+                      30,
+                      6,
+                      1
+                    ]
+                  }
+                },
+                "step": 87,
+                "kind": "rng",
+                "sourceFile": "trap.c",
+                "function": "water_damage",
+                "message": null,
+                "cFile": "trap.c",
+                "luaFile": null,
+                "line": 4771
+              },
+              "summary": "After A3, v1 terrain-transitions matches 88/137 screens. The first RNG difference at segment 0 step 87 is C trap.c:water_damage() rn2(20) during inventory damage on pool entry versus JS rn2(8) in the later crawl shuffle. JS trap.c:drown skips water_damage_chain(), so six item-damage rolls and the resulting potion dilution messages are missing. Port trap.c:water_damage_chain() whole and wire its active callers in source order.",
+              "source": {
+                "file": "trap.c",
+                "branch": "At step 87, the hero moves into a pool. hack.c:pooleffects() calls trap.c:drown(); drown() calls water_damage_chain(gi.invent,FALSE) before its gremlin/iron-golem and escape branches. The chain visits inventory objects in nobj order and invokes already-ported water_damage(obj,NULL,FALSE); the C return value is discarded.",
+                "functions": [
+                  "water_damage_chain"
+                ],
+                "callers": [
+                  "Selected route: cmd.c movement -> hack.c:domove()/spoteffects()/pooleffects() -> trap.c:drown() -> water_damage_chain(gi.invent,FALSE). JS trap.js:drown() currently records note_unported at this exact call.",
+                  "Same-file trap.c:water_damage() recurses into water_damage_chain(obj->cobj,FALSE) when a container admits water; js/trap_water_damage.js damageContents() currently leaves that gap.",
+                  "Other C callers: fountain.c:gush; objnam.c:wizterrainwish; dig.c:liquid_flow; mon.c:minliquid. mcastu.c:mcast_geyser is #if 0 and excluded."
+                ],
+                "dependencies": [
+                  "water_damage() already uses rn2(20) in js/trap_water_damage.js and has return value ignored by the chain.",
+                  "Use one state.ga.acid_ctx and state.gb.bhitpos value, save and restore bhitpos, and preserve nobj versus nexthere traversal with next saved before mutation.",
+                  "get_obj_location(obj,CONTAINED_TOO) is implemented; check its return and visibility context before updating bhitpos."
+                ]
+              },
+              "goalKind": "file-port",
+              "evidence": [
+                "challenges/evaluations/20260925214017-v1.json at 017038c1e14957228ef42eeb319448e71159eb24 reports 88/137 matching screens, 3182/3811 RNG calls, 107/137 cursors, and 49 remaining screens for this case.",
+                "At segment 0 step 87, C draws rn2(20)=12 from trap.c:water_damage() at line 4771; JS first draws rn2(8)=4 in the later drown crawl shuffle. The first screen mismatch is step 88, including missing potion dilution effects.",
+                "nethack-c/upstream/src/trap.c:4855-4888 defines the whole water_damage_chain() function and trap.c:5086 calls it during drown(). js/trap.js:1067 currently skips it. js/trap_water_damage.js already implements the rn2(20) luck gate."
+              ],
+              "entryPointReview": {
+                "active": [
+                  "Pool entry through movement reaches hack.c:pooleffects -> trap.c:drown -> water_damage_chain in synthetic/v1/terrain-transitions segment 0 steps 87-88."
+                ],
+                "blocked": [
+                  "fountain.c:gush, objnam.c:wizterrainwish, dig.c:liquid_flow, and mon.c:minliquid callers require caller wiring and separate runtime evidence; a missing caller owner stays a named blocker until ported.",
+                  "mcastu.c:mcast_geyser chain call is under #if 0 and is excluded from this build."
+                ],
+                "buildExcluded": [
+                  "mcastu.c:mcast_geyser water_damage_chain call under #if 0"
+                ],
+                "exactReplayAttribution": "The saved A3 evaluation first diverges in RNG at step 87 on water_damage() because JS drown() omits the water_damage_chain call; the first screen divergence follows at step 88."
+              },
+              "plannedWholeFunctionScope": [
+                "Port trap.c:water_damage_chain() :4855-4888 as a whole: null exit, acid context reset/validity, bhitpos save/location/restore, nobj/nexthere iteration with next saved before mutation, and source-ordered water_damage(obj,NULL,FALSE) calls.",
+                "Wire trap.c:drown() and recursive trap.c:water_damage() to the new chain. Audit fountain.c:gush, objnam.c:wizterrainwish, dig.c:liquid_flow, and mon.c:minliquid active callers; record exact blockers and independent runtime evidence before source closure."
+              ]
+            }
+          }
+        }
+      ]
     }
   ]
 }
