@@ -71588,16 +71588,20 @@
     {
       "id": "port-trap-float-down-synthetic-v1-20260925",
       "kind": "file-port",
-      "status": "queued",
+      "status": "parked",
       "summary": "Port levitation landing and float_down source callers",
       "cFile": "trap.c",
       "sessions": [
         "synthetic/v1/terrain-transitions"
       ],
-      "selectionReason": "At the current A2 queue, terrain-transitions has 71 unmatched screens and its completed investigation identifies trap.c float_down at step 58; worker B reserves altar terrain wishes, so this is the highest ranked eligible unreserved source task.",
+      "selectionReason": "The refreshed v1 terrain-transitions investigation at investigations/synthetic/v1/terrain-transitions.json has 58 unmatched screens and remains the highest current synthetic case. A3 owns trap.c float_down and its selected ring-removal path, with independent landing recordings and named blocked callers.",
       "detail": "Port all of trap.c float_down (4024-4178), including state, messages, hazards, trap activation, pickup and return values, with return-valued drown() behavior where reached. Wire do_wear.c Ring_off_or_gone levitation removal and other active source callers. Preserve discarded-result gaps only where C discards the result. See investigations/synthetic/v1/terrain-transitions.json.",
-      "openedAt": null,
-      "openStanding": null,
+      "openedAt": "3627982848df09d8bc7e2afdaef0a84a287ce64a",
+      "openStanding": {
+        "sha": "c2796832d22615658a12aaba5095d18067dc4018",
+        "screens": 11405,
+        "rng": 792838
+      },
       "closedAt": null,
       "delivered": null,
       "functions": [
@@ -71606,7 +71610,7 @@
           "line": 4024,
           "endLine": 4182,
           "declared": true,
-          "complete": false
+          "complete": true
         }
       ],
       "range": {
@@ -71623,10 +71627,466 @@
           "manifestSha256": "a1d989fa6b5159e0b0729150ba765c741a405ec910c1274ad763d29b0a7096fe",
           "recordingPath": "challenges/cases/terrain-transitions.session.json",
           "recordingSha256": "5491c8fb94f71fe5a5c56498e2c58b6d736e65b221cf0a39d1895abdd6759ec9",
-          "evaluationPath": "challenges/evaluations/20260925185643-v1.json",
-          "evaluationCommit": "cb5a1d6236d100c62a31e5029cbfa55e55cdfb60"
+          "evaluationPath": "challenges/evaluations/20260925210102-v1.json",
+          "evaluationCommit": "4c94668a402c17dd41062fe2ec966453db17c551"
         }
-      }
+      },
+      "activeStanding": {
+        "sha": "c2796832d22615658a12aaba5095d18067dc4018",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v1",
+          "caseId": "terrain-transitions",
+          "session": "synthetic/v1/terrain-transitions",
+          "manifestPath": "challenges/manifest.json",
+          "manifestSha256": "a1d989fa6b5159e0b0729150ba765c741a405ec910c1274ad763d29b0a7096fe",
+          "recording": "challenges/cases/terrain-transitions.session.json",
+          "recordingPath": "challenges/cases/terrain-transitions.session.json",
+          "recordingSha256": "5491c8fb94f71fe5a5c56498e2c58b6d736e65b221cf0a39d1895abdd6759ec9",
+          "recipe": "challenges/cases/terrain-transitions.recipe.json",
+          "recipeSha256": "a0952cee3b77d907ba080571678b0a1e5e1b82d4dc3b07981e6065806cf49663",
+          "replayInputSha256": "ccc090d302617abc5fd555fa7b5b3786501f4568edd0e9603fd30260995e4acc",
+          "evaluationPath": "challenges/evaluations/20260925210102-v1.json",
+          "evaluationCommit": "4c94668a402c17dd41062fe2ec966453db17c551",
+          "evaluationArtifact": "challenges/evaluations/20260925210102-v1.json",
+          "evaluationUtc": "2026-09-25T21:01:02.206Z",
+          "remainingScreens": 58,
+          "recordedSteps": 137,
+          "previousScreensMatched": 79,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 79,
+              "total": 137
+            },
+            "rng": {
+              "matched": 3182,
+              "total": 3811
+            },
+            "cursors": {
+              "matched": 104,
+              "total": 137
+            }
+          },
+          "firstMismatch": {
+            "screen": {
+              "index": 58,
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 58,
+                "key": "q"
+              },
+              "kind": "ch",
+              "row": 0,
+              "column": 53,
+              "cCell": {
+                "ch": "-",
+                "color": 8,
+                "attr": 0,
+                "decgfx": 0
+              },
+              "jsCell": {
+                "ch": " ",
+                "color": 8,
+                "attr": 0,
+                "decgfx": 0
+              }
+            },
+            "rng": {
+              "index": 3055,
+              "cEntry": "rn2(20)=12",
+              "cCaller": "water_damage(trap.c:4771)",
+              "jsEntry": "rn2(8)=4",
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 87,
+                "key": "h"
+              },
+              "stepIndex": 87
+            },
+            "cursor": {
+              "index": 58,
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 58,
+                "key": "q"
+              },
+              "cCursor": [
+                61,
+                0,
+                1
+              ],
+              "jsCursor": [
+                31,
+                6,
+                1
+              ]
+            }
+          },
+          "step": 58,
+          "kind": "screen",
+          "sourceFile": null,
+          "function": null,
+          "message": null,
+          "cFile": null,
+          "luaFile": null,
+          "line": null,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v1/terrain-transitions.json",
+            "result": {
+              "session": "synthetic/v1/terrain-transitions",
+              "corpus": "synthetic",
+              "batch": "v1",
+              "caseId": "terrain-transitions",
+              "manifestPath": "challenges/manifest.json",
+              "manifestSha256": "a1d989fa6b5159e0b0729150ba765c741a405ec910c1274ad763d29b0a7096fe",
+              "recordingPath": "challenges/cases/terrain-transitions.session.json",
+              "recordingSha256": "5491c8fb94f71fe5a5c56498e2c58b6d736e65b221cf0a39d1895abdd6759ec9",
+              "evaluationPath": "challenges/evaluations/20260925210102-v1.json",
+              "evaluationCommit": "4c94668a402c17dd41062fe2ec966453db17c551",
+              "remainingScreens": 58,
+              "recordedSteps": 137,
+              "status": "complete",
+              "commit": "4c94668a402c17dd41062fe2ec966453db17c551",
+              "mismatch": {
+                "corpus": "synthetic",
+                "batch": "v1",
+                "caseId": "terrain-transitions",
+                "session": "synthetic/v1/terrain-transitions",
+                "manifestPath": "challenges/manifest.json",
+                "manifestSha256": "a1d989fa6b5159e0b0729150ba765c741a405ec910c1274ad763d29b0a7096fe",
+                "recording": "challenges/cases/terrain-transitions.session.json",
+                "recordingPath": "challenges/cases/terrain-transitions.session.json",
+                "recordingSha256": "5491c8fb94f71fe5a5c56498e2c58b6d736e65b221cf0a39d1895abdd6759ec9",
+                "recipe": "challenges/cases/terrain-transitions.recipe.json",
+                "recipeSha256": "a0952cee3b77d907ba080571678b0a1e5e1b82d4dc3b07981e6065806cf49663",
+                "replayInputSha256": "ccc090d302617abc5fd555fa7b5b3786501f4568edd0e9603fd30260995e4acc",
+                "evaluationPath": "challenges/evaluations/20260925210102-v1.json",
+                "evaluationCommit": "4c94668a402c17dd41062fe2ec966453db17c551",
+                "evaluationArtifact": "challenges/evaluations/20260925210102-v1.json",
+                "evaluationUtc": "2026-09-25T21:01:02.206Z",
+                "remainingScreens": 58,
+                "recordedSteps": 137,
+                "previousScreensMatched": 79,
+                "regression": false,
+                "passed": false,
+                "error": null,
+                "metrics": {
+                  "screens": {
+                    "matched": 79,
+                    "total": 137
+                  },
+                  "rng": {
+                    "matched": 3182,
+                    "total": 3811
+                  },
+                  "cursors": {
+                    "matched": 104,
+                    "total": 137
+                  }
+                },
+                "firstMismatch": {
+                  "screen": {
+                    "index": 58,
+                    "location": {
+                      "segmentIndex": 0,
+                      "stepIndex": 58,
+                      "key": "q"
+                    },
+                    "kind": "ch",
+                    "row": 0,
+                    "column": 53,
+                    "cCell": {
+                      "ch": "-",
+                      "color": 8,
+                      "attr": 0,
+                      "decgfx": 0
+                    },
+                    "jsCell": {
+                      "ch": " ",
+                      "color": 8,
+                      "attr": 0,
+                      "decgfx": 0
+                    }
+                  },
+                  "rng": {
+                    "index": 3055,
+                    "cEntry": "rn2(20)=12",
+                    "cCaller": "water_damage(trap.c:4771)",
+                    "jsEntry": "rn2(8)=4",
+                    "location": {
+                      "segmentIndex": 0,
+                      "stepIndex": 87,
+                      "key": "h"
+                    },
+                    "stepIndex": 87
+                  },
+                  "cursor": {
+                    "index": 58,
+                    "location": {
+                      "segmentIndex": 0,
+                      "stepIndex": 58,
+                      "key": "q"
+                    },
+                    "cCursor": [
+                      61,
+                      0,
+                      1
+                    ],
+                    "jsCursor": [
+                      31,
+                      6,
+                      1
+                    ]
+                  }
+                },
+                "step": 58,
+                "kind": "screen",
+                "sourceFile": null,
+                "function": null,
+                "message": null,
+                "cFile": null,
+                "luaFile": null,
+                "line": null
+              },
+              "summary": "The current v1 terrain case matches 79/137 screens, with the first screen and cursor difference still at step 58 when removing the levitation ring. C pages the ring-removal message as trap.c float_down(0,0) begins and then shows the landing message at step 59; JS records the float_down gap and omits those effects. Port the complete float_down() function and wire do_wear.c Ring_off_or_gone(), preserving its source-ordered masks, landing effects, hazards, trap handling, pickup, and return value.",
+              "source": {
+                "file": "trap.c",
+                "branch": "When Ring_off_or_gone() removes the final active levitation source with masks hmask=0 and emask=0, no other Levitation or BLevitation remains, and the hero is on the upstairs tile without flight, engulfing, a punishing ball, a pool/lava hazard, or a blocking trap, float_down() reaches its ordinary landing message. In the recorded case its surface() is “stairs”; the following You() call causes the prior ring message to be paged at step 58, then the landing message appears at step 59.",
+                "functions": [
+                  "float_down"
+                ],
+                "callers": [
+                  "Current reproducer: cmd.c key R dispatches do_wear.c doremring(); the selected ring flows through armor_or_accessory_off()/select_off() to Ring_off() and Ring_off_or_gone(); its RIN_LEVITATION arm calls float_down(0L,0L) at do_wear.c:1406-1414 and discards the return.",
+                  "Other direct C call sites to review when wiring this whole source function: do_wear.c Boots_off() :306; timeout.c LEVITATION timer arm :803; steed.c dismount_steed() :811; hack.c spoteffects() :3367; artifact.c arti_invoke() :2214; do.c drop() :771 and dodown() :1169.",
+                  "Current JS reproducer path: js/cmd.js R/remove dispatch → js/do_wear.js remove handler → armor_or_accessory_off()/select_off() → Ring_off_or_gone() :837-848. That arm currently calls note_unported('trap.c float_down') instead of invoking js/trap.js float_down()."
+                ],
+                "dependencies": [
+                  "js/trap.js float_down() :1538-1618 is partial: its reachable completed behavior is the dismount caller with emask W_SADDLE; it refuses the ordinary landing-message arm used here.",
+                  "C float_down() calls drown() and uses its return in no_msg at trap.c:4104-4105, so confirm the returned value and all reachable return-valued callees before closing a whole-function port. C discards lava_effects() at :4108 and pickup(1) at :4177; apply the repository note_unported rule to any still-unported discarded-result callee.",
+                  "The immediate case depends on existing levitation state, surface(), encumber_msg(), nomul(), trap lookup, and pickup ordering. Keep the return value ignored in Ring_off_or_gone(), as C does."
+                ]
+              },
+              "goalKind": "file-port",
+              "evidence": [
+                "Saved challenges/evaluations/20260925210102-v1.json at 4c94668a402c17dd41062fe2ec966453db17c551 reports terrain-transitions 79/137 matching screens, 3182/3811 RNG calls, and 104/137 cursors, with 58 screens remaining. Its first screen/cursor difference is still segment 0 step 58 on key q.",
+                "The immutable C recording challenges/cases/terrain-transitions.session.json shows step 57 key R asking what to remove, step 58 key q paging “You were wearing a ring of levitation (on left hand).”, and step 59 key space showing “You float gently to the stairs.”",
+                "nethack-c/upstream/src/do_wear.c:1406-1414 calls float_down(0L,0L) after removing the final RIN_LEVITATION source and discards its return. trap.c:4024-4178 defines the complete landing function; its ordinary message branch reaches surface() and then trap and pickup effects.",
+                "js/do_wear.js Ring_off_or_gone() records note_unported for trap.c float_down at the RIN_LEVITATION arm; js/trap.js float_down() remains partial before the integrated A3 delivery. The same source owner explains the unchanged step-58 first mismatch despite earlier downstream gains."
+              ],
+              "entryPointReview": {
+                "active": [
+                  "Removing a levitation ring through capital-R at synthetic/v1/terrain-transitions segment 0 steps 57-59 reaches do_wear.c Ring_off_or_gone() → trap.c float_down(0,0)."
+                ],
+                "blocked": [
+                  "js/do_wear.js Ring_off_or_gone() currently records note_unported('trap.c float_down') instead of applying its effects, so step 58 pager output and the step 59 “float gently to the stairs” message are missing.",
+                  "Other direct float_down() caller paths need separate reachable evidence or named blocked recipes before a whole-function source task can claim their completion: Boots_off, timed levitation expiry, dismount_steed, artifact invoke, drop/Ahriman handling, and spoteffects timeout handling."
+                ],
+                "buildExcluded": [],
+                "exactReplayAttribution": "The current saved v1 evaluation at 4c94668a402c17dd41062fe2ec966453db17c551 first differs at segment 0 step 58 on ring selection. The source trace through do_wear.c Ring_off_or_gone() to trap.c float_down() is unchanged; A3 contains the queued implementation and independently recorded timeout and dismount paths."
+              },
+              "plannedWholeFunctionScope": [
+                "Port trap.c float_down() :4024-4178 as a whole, preserving its intrinsic/extrinsic mask updates, all early returns, landing hazards/messages, encumbrance, trap activation, pickup, and return value.",
+                "Wire the existing Ring_off_or_gone() call instead of note_unported(); keep its float_down() result discarded, matching C.",
+                "Review and wire every active direct production call site listed under source.callers, assigning other source callers to explicit task scope or retaining named blockers.",
+                "Resolve return-valued callees used by float_down(), notably drown() -> no_msg, under the source return-value rule."
+              ]
+            }
+          }
+        }
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "float_down",
+            "implementation": "js/trap.js",
+            "symbol": "float_down",
+            "sourceReview": "Reviewed all of trap.c:float_down (4024-4182), including levitation-source mask clearing, residual Levitation and BLevitation early returns, flight and swallowing exits, punishment/ball movement, held-monster release, pool and lava ordering, drowned-message suppression, water/air landing messages, Sokoban fall damage, saddle message suppression, encumbrance, level-change detection, trap activation, pickup ordering, and the returned relocation boolean. Ported its return-valued drown() dependency and preserved source order. C discards lava_effects(), obj.c:movobj(), and polyself.c:selftouch() results/effects; the JS records note_unported() at those exact call sites and does not use the result of a gap. The trap activation arm still meets the named trap.c:dotrap blocker in the current production dispatcher. Removed the old float_down refusal on the supported paths. Supporting return-valued helpers drown(), emergency_disrobe(), rnd_nextto_goodpos(), crawl_destination(), and safe_teleds() were also ported under recorded scope expansions; their separate source, caller, purity/test, and blocked-runtime details are in .cache/A3-support-evidence.json. The assigned source goal remains formally limited to float_down.",
+            "callers": [
+              {
+                "path": "js/do_wear.js",
+                "symbol": "Ring_off_or_gone",
+                "source": "do_wear.c:Ring_off_or_gone calls float_down(0, 0) when the last levitation source is removed; cmd.c 'R' dispatches to doremring and Ring_off."
+              },
+              {
+                "path": "js/do_wear.js",
+                "symbol": "Boots_off",
+                "source": "do_wear.c:Boots_off calls float_down(0, 0) after levitation boots cease to provide levitation."
+              },
+              {
+                "path": "js/timeout.js",
+                "symbol": "decrement_property_timeouts",
+                "source": "timeout.c:timeout calls float_down(I_SPECIAL | TIMEOUT, 0) when levitation's timer expires."
+              },
+              {
+                "path": "js/hack.js",
+                "symbol": "spoteffects",
+                "source": "hack.c:spoteffects calls float_down(I_SPECIAL | TIMEOUT, 0) when its trap timeout decision selects the landing arm."
+              },
+              {
+                "path": "js/steed.js",
+                "symbol": "dismount_steed",
+                "source": "steed.c:dismount_steed calls float_down(0, W_SADDLE) after returning the hero to the surface."
+              },
+              {
+                "path": "js/artifacts.js",
+                "symbol": "arti_invoke",
+                "source": "artifact.c:arti_invoke calls float_down(I_SPECIAL | TIMEOUT, W_ARTI) when the invoked levitation artifact expires."
+              },
+              {
+                "path": "js/steal.js",
+                "symbol": "steal",
+                "source": "steal.c removes worn hero equipment through Ring_gone; the awaited caller preserves the possible levitation-ring landing effect."
+              },
+              {
+                "path": "js/zap_destroy_items.js",
+                "symbol": "destroy_items",
+                "source": "zap.c item destruction reaches the worn-item removal path and may call Ring_gone for a levitation ring."
+              },
+              {
+                "path": "js/zap.js",
+                "symbol": "zhitm",
+                "source": "zap.c:zhitm routes affected worn equipment through the asynchronous worn-item removal path."
+              },
+              {
+                "path": "js/eat.js",
+                "symbol": "eataccessory",
+                "source": "eat.c:eataccessory calls Ring_gone when an accessory is consumed; levitation-ring consumption is separately documented as unreachable because RIN_LEVITATION is GEMSTONE."
+              }
+            ],
+            "pure": false,
+            "tests": [],
+            "recordings": [
+              "recordings/trap.c/levitation-timeout-independent.session.json",
+              "recordings/trap.c/float-down-steed-dismount-independent.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v1",
+                "caseId": "terrain-transitions",
+                "segment": 0,
+                "fromStep": 57,
+                "throughStep": 59,
+                "source": "cmd.c 'R' -> do_wear.c:doremring -> Ring_off -> Ring_off_or_gone -> trap.c:float_down"
+              }
+            ],
+            "checkedAt": "017038c1e14957228ef42eeb319448e71159eb24"
+          }
+        ],
+        "entryPointReview": "The assigned source goal is trap.c:float_down. Its active paths are listed individually below: manual R/remove of a levitation ring matches the admitted v1 terrain-transitions replay through step 59; levitation timeout and steed dismount each have independent complete recordings. Blocked active float_down paths retain recipes and empty evidence arrays: Boots_off remains behind UnsupportedTakeOffError; hack.c:spoteffects timeout-before-trap is refused by the unported dotrap preflight; pool landing and the drown/rescue arm stop at the unsupported wizcmds.c:wiz_wish -> zap.c:makewish terrain setup; artifact invocation and do.c:dodown/do.c:drop controlled-artifact paths stop at the earlier artifact-wish mismatch; consuming a levitation ring is impossible because RIN_LEVITATION is GEMSTONE and eat.c:is_edible rejects it for a xorn. A strict scrolltele recording covers only read.c:seffects -> teleport.c:scrolltele controlled wizard behavior and does not execute safe_teleds; that helper gap and the supporting helper ports/tests are in .cache/A3-support-evidence.json. Active Ring_gone production callers in eataccessory, theft, and zap destruction now await the source-mapped removal path; the matching metal-ring eataccessory recording verifies that nonlevitating caller only. dothrow.c worn-object refusal is a separate upstream blocker and was not expanded into this task. C-discarded callees remain explicit note_unported() gaps in float_down; no gap result is used as data.",
+        "entryPoints": [
+          {
+            "name": "R/remove a worn levitation ring",
+            "functions": [
+              "float_down"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v1",
+                "caseId": "terrain-transitions",
+                "segment": 0,
+                "fromStep": 57,
+                "throughStep": 59,
+                "source": "cmd.c 'R' -> do_wear.c:doremring -> Ring_off -> Ring_off_or_gone -> trap.c:float_down"
+              }
+            ]
+          },
+          {
+            "name": "levitation timer expiry",
+            "functions": [
+              "float_down"
+            ],
+            "recordings": [
+              "recordings/trap.c/levitation-timeout-independent.session.json"
+            ],
+            "synthetic": []
+          },
+          {
+            "name": "steed dismount landing",
+            "functions": [
+              "float_down"
+            ],
+            "recordings": [
+              "recordings/trap.c/float-down-steed-dismount-independent.session.json"
+            ],
+            "synthetic": []
+          },
+          {
+            "name": "levitation boots removal",
+            "functions": [
+              "float_down"
+            ],
+            "recordings": [],
+            "synthetic": []
+          },
+          {
+            "name": "spoteffects timeout landing before a trap",
+            "functions": [
+              "float_down"
+            ],
+            "recordings": [],
+            "synthetic": []
+          },
+          {
+            "name": "pool landing, drown, and rescue relocation",
+            "functions": [
+              "float_down"
+            ],
+            "recordings": [],
+            "synthetic": []
+          },
+          {
+            "name": "artifact-controlled levitation expiry",
+            "functions": [
+              "float_down"
+            ],
+            "recordings": [],
+            "synthetic": []
+          },
+          {
+            "name": "do.c:dodown controlled-artifact levitation expiry",
+            "functions": [
+              "float_down"
+            ],
+            "recordings": [],
+            "synthetic": []
+          },
+          {
+            "name": "do.c:drop finesse_ahriman levitation cleanup",
+            "functions": [
+              "float_down"
+            ],
+            "recordings": [],
+            "synthetic": []
+          },
+          {
+            "name": "levitation ring consumed through eataccessory",
+            "functions": [
+              "float_down"
+            ],
+            "recordings": [],
+            "synthetic": []
+          }
+        ]
+      },
+      "progressBeforePark": {
+        "screens": 0,
+        "rng": 0
+      },
+      "parkedStanding": {
+        "sha": "017038c1e14957228ef42eeb319448e71159eb24",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "parkedReason": "float_down is source-verified; remaining entry-point recordings are blocked by Boots_off, spoteffects/dotrap, wish terrain setup, artifact wishes, and do.c callers; trap.c rescued_from_terrain remains an explicit void-callee gap"
     },
     {
       "id": "port-apply-use-lamp-synthetic-v1-20260925",
@@ -72215,6 +72675,499 @@
         "sha": "4c94668a402c17dd41062fe2ec966453db17c551",
         "screens": 11405,
         "rng": 792838
+      }
+    },
+    {
+      "id": "port-dig-use-pick-axe-synthetic-v4-20260925",
+      "kind": "file-port",
+      "status": "queued",
+      "summary": "Port complete pick-axe application and directional digging entry",
+      "cFile": "dig.c",
+      "sessions": [
+        "synthetic/v4/archeologist-dig-direction-prompt-miss"
+      ],
+      "selectionReason": "The larger v1 terrain-transitions case is owned by A3 float_down and its cached investigation is stale. The v4 Archeologist dig-direction case has 24 unmatched screens and the first completed valid unreserved source investigation at investigations/synthetic/v4/archeologist-dig-direction-prompt-miss.json; A3 confirms it has no js/dig.js edits and will not touch that file before submission.",
+      "detail": "Port dig.c use_pick_axe and use_pick_axe2 in source order, wire apply.c doapply PICK_AXE/DWARVISH_MATTOCK and active hack.c/do.c callers, and preserve return-valued wield_tool, direction, and digging occupation dependencies. See investigations/synthetic/v4/archeologist-dig-direction-prompt-miss.json.",
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": null,
+      "delivered": null,
+      "functions": [
+        {
+          "name": "use_pick_axe",
+          "line": 1092,
+          "endLine": 1161,
+          "declared": false,
+          "complete": false
+        },
+        {
+          "name": "use_pick_axe2",
+          "line": 1162,
+          "endLine": 1361,
+          "declared": false,
+          "complete": false
+        }
+      ],
+      "range": {
+        "from": 1092,
+        "to": 1361
+      },
+      "syntheticProvenance": {
+        "synthetic/v4/archeologist-dig-direction-prompt-miss": {
+          "session": "synthetic/v4/archeologist-dig-direction-prompt-miss",
+          "corpus": "synthetic",
+          "batch": "v4",
+          "caseId": "archeologist-dig-direction-prompt-miss",
+          "manifestPath": "challenges/manifests/v4.json",
+          "manifestSha256": "10777af4c82fc759abf58a870fdd232329bc5c1467c8cf94f46089d0401459a9",
+          "recordingPath": "challenges/cases/v4/archeologist-dig-direction-prompt-miss.session.json",
+          "recordingSha256": "aa672b5b1e26ffd83c332ee298baf2be516c6c332ef22de48c2bd6d4473668d3",
+          "evaluationPath": "challenges/evaluations/20260925210102-v4.json",
+          "evaluationCommit": "4c94668a402c17dd41062fe2ec966453db17c551"
+        }
+      }
+    },
+    {
+      "id": "port-objnam-readobjnam-monster-carriers-synthetic-v2-20260925",
+      "kind": "file-port",
+      "status": "parked",
+      "summary": "Port monster-carrier wishes through complete readobjnam source order",
+      "cFile": "objnam.c",
+      "sessions": [
+        "synthetic/v2/altar-rite-history"
+      ],
+      "selectionReason": "C7 was selected and assigned at the prior 19-screen altar-rite-history mismatch, before its integrated source commit. The current two-screen mismatch has moved to pray.c:offer_corpse; open the delivered task solely to preserve its partial source progress and park unverified caller paths, without claiming readobjnam completion.",
+      "detail": "At segment 0 step 31, a jackal corpse debug wish reaches objnam.c readobjnam object lookup, mksobj, and species assignment. Preserve postparse lookup and random order, remove the premature monster-carrier refusal only with source behavior ported, and cover whole-function branch/caller evidence. See investigations/synthetic/v2/altar-rite-history.json.",
+      "openedAt": "9df17907e4122a6809ade23228f0930b179bfba6",
+      "openStanding": {
+        "sha": "9df17907e4122a6809ade23228f0930b179bfba6",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "closedAt": null,
+      "delivered": null,
+      "functions": [
+        {
+          "name": "readobjnam",
+          "line": 4910,
+          "endLine": 5402,
+          "declared": true,
+          "complete": false
+        }
+      ],
+      "range": {
+        "from": 4910,
+        "to": 5402
+      },
+      "syntheticProvenance": {
+        "synthetic/v2/altar-rite-history": {
+          "session": "synthetic/v2/altar-rite-history",
+          "corpus": "synthetic",
+          "batch": "v2",
+          "caseId": "altar-rite-history",
+          "manifestPath": "challenges/manifests/v2.json",
+          "manifestSha256": "58739ea9ed6c26e5153c4860b2e5111d08d69792bdea5c39427cf45b8e72cc9c",
+          "recordingPath": "challenges/cases/v2/altar-rite-history.session.json",
+          "recordingSha256": "f3fbc209ee4d556822809c679e9cc73054b48fa85ba5d17864b764f30b4cf048",
+          "evaluationPath": "challenges/evaluations/20260925221225-v2.json",
+          "evaluationCommit": "9df17907e4122a6809ade23228f0930b179bfba6"
+        }
+      },
+      "activeStanding": {
+        "sha": "9df17907e4122a6809ade23228f0930b179bfba6",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v2",
+          "caseId": "altar-rite-history",
+          "session": "synthetic/v2/altar-rite-history",
+          "manifestPath": "challenges/manifests/v2.json",
+          "manifestSha256": "58739ea9ed6c26e5153c4860b2e5111d08d69792bdea5c39427cf45b8e72cc9c",
+          "recording": "challenges/cases/v2/altar-rite-history.session.json",
+          "recordingPath": "challenges/cases/v2/altar-rite-history.session.json",
+          "recordingSha256": "f3fbc209ee4d556822809c679e9cc73054b48fa85ba5d17864b764f30b4cf048",
+          "recipe": "challenges/cases/v2/altar-rite-history.recipe.json",
+          "recipeSha256": "b911dc353955f391a0e40bbf9c6c792bec55089eafbe11c9ce82d430b819391d",
+          "replayInputSha256": "b52a3fd3eb08f77b877df4359db7726758f1b8cd72a88960ecfe969147991e4c",
+          "evaluationPath": "challenges/evaluations/20260925221225-v2.json",
+          "evaluationCommit": "9df17907e4122a6809ade23228f0930b179bfba6",
+          "evaluationArtifact": "challenges/evaluations/20260925221225-v2.json",
+          "evaluationUtc": "2026-09-25T22:12:28.900Z",
+          "remainingScreens": 2,
+          "recordedSteps": 50,
+          "previousScreensMatched": 31,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 48,
+              "total": 50
+            },
+            "rng": {
+              "matched": 3153,
+              "total": 3169
+            },
+            "cursors": {
+              "matched": 49,
+              "total": 50
+            }
+          },
+          "firstMismatch": {
+            "screen": {
+              "index": 48,
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 48,
+                "key": "i"
+              },
+              "kind": "ch",
+              "row": 0,
+              "column": 0,
+              "cCell": {
+                "ch": "Y",
+                "color": 8,
+                "attr": 0,
+                "decgfx": 0
+              },
+              "jsCell": {
+                "ch": "W",
+                "color": 8,
+                "attr": 0,
+                "decgfx": 0
+              }
+            },
+            "rng": {
+              "index": 3143,
+              "cEntry": "rn2(19)=17",
+              "cCaller": "exercise(attrib.c:509)",
+              "jsEntry": "rn2(40)=9",
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 48,
+                "key": "i"
+              },
+              "stepIndex": 48
+            },
+            "cursor": {
+              "index": 48,
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 48,
+                "key": "i"
+              },
+              "cCursor": [
+                55,
+                0,
+                1
+              ],
+              "jsCursor": [
+                53,
+                12,
+                1
+              ]
+            }
+          },
+          "step": 48,
+          "kind": "rng",
+          "sourceFile": "attrib.c",
+          "function": "exercise",
+          "message": null,
+          "cFile": "attrib.c",
+          "luaFile": null,
+          "line": 509,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v2/altar-rite-history.json",
+            "result": {
+              "session": "synthetic/v2/altar-rite-history",
+              "corpus": "synthetic",
+              "batch": "v2",
+              "caseId": "altar-rite-history",
+              "manifestPath": "challenges/manifests/v2.json",
+              "manifestSha256": "58739ea9ed6c26e5153c4860b2e5111d08d69792bdea5c39427cf45b8e72cc9c",
+              "recordingPath": "challenges/cases/v2/altar-rite-history.session.json",
+              "recordingSha256": "f3fbc209ee4d556822809c679e9cc73054b48fa85ba5d17864b764f30b4cf048",
+              "evaluationPath": "challenges/evaluations/20260925221225-v2.json",
+              "evaluationCommit": "9df17907e4122a6809ade23228f0930b179bfba6",
+              "remainingScreens": 2,
+              "recordedSteps": 50,
+              "status": "complete",
+              "commit": "9df17907e4122a6809ade23228f0930b179bfba6",
+              "mismatch": {
+                "corpus": "synthetic",
+                "batch": "v2",
+                "caseId": "altar-rite-history",
+                "session": "synthetic/v2/altar-rite-history",
+                "manifestPath": "challenges/manifests/v2.json",
+                "manifestSha256": "58739ea9ed6c26e5153c4860b2e5111d08d69792bdea5c39427cf45b8e72cc9c",
+                "recording": "challenges/cases/v2/altar-rite-history.session.json",
+                "recordingPath": "challenges/cases/v2/altar-rite-history.session.json",
+                "recordingSha256": "f3fbc209ee4d556822809c679e9cc73054b48fa85ba5d17864b764f30b4cf048",
+                "recipe": "challenges/cases/v2/altar-rite-history.recipe.json",
+                "recipeSha256": "b911dc353955f391a0e40bbf9c6c792bec55089eafbe11c9ce82d430b819391d",
+                "replayInputSha256": "b52a3fd3eb08f77b877df4359db7726758f1b8cd72a88960ecfe969147991e4c",
+                "evaluationPath": "challenges/evaluations/20260925221225-v2.json",
+                "evaluationCommit": "9df17907e4122a6809ade23228f0930b179bfba6",
+                "evaluationArtifact": "challenges/evaluations/20260925221225-v2.json",
+                "evaluationUtc": "2026-09-25T22:12:28.900Z",
+                "remainingScreens": 2,
+                "recordedSteps": 50,
+                "previousScreensMatched": 31,
+                "regression": false,
+                "passed": false,
+                "error": null,
+                "metrics": {
+                  "screens": {
+                    "matched": 48,
+                    "total": 50
+                  },
+                  "rng": {
+                    "matched": 3153,
+                    "total": 3169
+                  },
+                  "cursors": {
+                    "matched": 49,
+                    "total": 50
+                  }
+                },
+                "firstMismatch": {
+                  "screen": {
+                    "index": 48,
+                    "location": {
+                      "segmentIndex": 0,
+                      "stepIndex": 48,
+                      "key": "i"
+                    },
+                    "kind": "ch",
+                    "row": 0,
+                    "column": 0,
+                    "cCell": {
+                      "ch": "Y",
+                      "color": 8,
+                      "attr": 0,
+                      "decgfx": 0
+                    },
+                    "jsCell": {
+                      "ch": "W",
+                      "color": 8,
+                      "attr": 0,
+                      "decgfx": 0
+                    }
+                  },
+                  "rng": {
+                    "index": 3143,
+                    "cEntry": "rn2(19)=17",
+                    "cCaller": "exercise(attrib.c:509)",
+                    "jsEntry": "rn2(40)=9",
+                    "location": {
+                      "segmentIndex": 0,
+                      "stepIndex": 48,
+                      "key": "i"
+                    },
+                    "stepIndex": 48
+                  },
+                  "cursor": {
+                    "index": 48,
+                    "location": {
+                      "segmentIndex": 0,
+                      "stepIndex": 48,
+                      "key": "i"
+                    },
+                    "cCursor": [
+                      55,
+                      0,
+                      1
+                    ],
+                    "jsCursor": [
+                      53,
+                      12,
+                      1
+                    ]
+                  }
+                },
+                "step": 48,
+                "kind": "rng",
+                "sourceFile": "attrib.c",
+                "function": "exercise",
+                "message": null,
+                "cFile": "attrib.c",
+                "luaFile": null,
+                "line": 509
+              },
+              "summary": "After the monster-carrier wish port, altar-rite-history matches 48/50 screens and the debug wish passes through step 31. The remaining divergence occurs after #offer selects the wished-for corpse: C proceeds through pray.c:offer_corpse() and later draws rn2(19) in exercise(), while JS dosacrifice() records an unported offer_corpse gap and advances to a different draw. Port the source offering function and its return-valued evaluation dependencies rather than adding an isolated exercise draw.",
+              "source": {
+                "file": "pray.c",
+                "branch": "The hero is on an altar and selects a CORPSE from floorfood for #offer. pray.c:dosacrifice() calls offer_corpse(otmp, highaltar, altaralign); JS returns after note_unported at that call. C evaluates the corpse and its sacrifice effects before the next command.",
+                "functions": [
+                  "offer_corpse"
+                ],
+                "callers": [
+                  "pray.c:dosacrifice() calls offer_corpse() for CORPSE; js/pray.js:dosacrifice() reaches the corresponding branch and currently calls note_unported instead.",
+                  "The selected admitted v2 case performs #offer after the now-matching jackal-corpse wish, with first post-offering RNG divergence at segment 0 step 48."
+                ],
+                "dependencies": [
+                  "offer_corpse() consumes eval_offering() and other return-valued helpers on its branches; trace and port these in the same task where needed.",
+                  "Its branches also call source-discarded ritual side effects and artifact-gift behavior; preserve ordering and record any unported void callees at exact sites."
+                ]
+              },
+              "goalKind": "file-port",
+              "evidence": [
+                "challenges/evaluations/20260925221225-v2.json at 9df17907e4122a6809ade23228f0930b179bfba6 reports altar-rite-history 48/50 screens, 3153/3169 RNG calls, and 49/50 cursors; two screens remain.",
+                "The admitted recording selects a corpse with #offer before step 48; C records rn2(19)=17 from attrib.c:exercise() at step 48, while JS reaches a later rn2(40)=9 after the offering gap.",
+                "nethack-c/upstream/src/pray.c:1854-1896 routes CORPSE to offer_corpse(); :1959-2125 defines its effects. js/pray.js:dosacrifice() at its corpse arm records note_unported('pray.c offer_corpse') and returns ECMD_TIME.",
+                "The selected earlier objnam.c readobjnam wish is now matched through step 31; its incomplete wizard-kit and Lua callers remain separate source-goal blockers."
+              ],
+              "entryPointReview": {
+                "active": [
+                  "#offer a corpse on an altar after a debug wish in synthetic/v2/altar-rite-history segment 0 steps 41-49."
+                ],
+                "blocked": [
+                  "js/pray.js:dosacrifice() currently skips pray.c offer_corpse(); return-valued offering helpers and later ritual effects need source tracing before closure."
+                ],
+                "buildExcluded": [],
+                "exactReplayAttribution": "The saved C7 evaluation passes the wish construction through step 31 and first diverges in post-offering RNG at segment 0 step 48."
+              },
+              "plannedWholeFunctionScope": [
+                "Port pray.c offer_corpse() as a whole with its return-valued helper dependencies and wire dosacrifice() at the C call site.",
+                "Validate the admitted altar history beyond the #offer confirmation and add independent recorded entry-point evidence where no matching synthetic range covers an impure branch."
+              ]
+            }
+          }
+        }
+      ],
+      "progressBeforePark": {
+        "screens": 0,
+        "rng": 0
+      },
+      "parkedStanding": {
+        "sha": "9df17907e4122a6809ade23228f0930b179bfba6",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "parkedReason": "The admitted wish path matches through step 31 and advances the first mismatch to pray.c:offer_corpse, but readobjnam still has unsupported qualifier/name and interactive glob-weight branches; files.c:proc_wizkit_line and nhlobj.c:Lua obj.new callers lack JS owners and runtime evidence. Preserve this partial source progress without marking the whole function complete."
+    },
+    {
+      "id": "port-fountain-drinkfountain-synthetic-v4-20260925",
+      "kind": "file-port",
+      "status": "superseded",
+      "summary": "Port fountain drinking and blessed fountain restoration",
+      "cFile": "fountain.c",
+      "sessions": [
+        "synthetic/v4/healer-magic-fountain-drink"
+      ],
+      "selectionReason": "Selected the first completed independent investigation in the refreshed per-session queue: v1 terrain-transitions (49) is stale after A3 and remains under background source investigation; v4 dig (24) belongs to B5; v2 altar (19) belongs to C7; v2 wizard spell (14) requires B5-reserved zap.c break_statue through bhito; v4 healer fountain (13) is source-traced and unreserved. Worker A will coordinate its objnam blessedftn caller with C7.",
+      "detail": "fountain.c drinkfountain() consumes the numeric blessedftn state set by objnam.c wizterrainwish(); port the complete source function and wire its potion.c caller, with an independently recorded fountain branch and admitted v4 replay evidence.",
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": null,
+      "delivered": null,
+      "functions": [
+        {
+          "name": "drinkfountain",
+          "line": 243,
+          "endLine": 393,
+          "declared": true,
+          "complete": true
+        }
+      ],
+      "range": {
+        "from": 243,
+        "to": 393
+      },
+      "syntheticProvenance": {
+        "synthetic/v4/healer-magic-fountain-drink": {
+          "session": "synthetic/v4/healer-magic-fountain-drink",
+          "corpus": "synthetic",
+          "batch": "v4",
+          "caseId": "healer-magic-fountain-drink",
+          "manifestPath": "challenges/manifests/v4.json",
+          "manifestSha256": "10777af4c82fc759abf58a870fdd232329bc5c1467c8cf94f46089d0401459a9",
+          "recordingPath": "challenges/cases/v4/healer-magic-fountain-drink.session.json",
+          "recordingSha256": "2775eb19d73cef073a73f80b3687dfa60c9298e61add4ab81027f7d5766678e9",
+          "evaluationPath": "challenges/evaluations/20260925214017-v4.json",
+          "evaluationCommit": "017038c1e14957228ef42eeb319448e71159eb24"
+        }
+      },
+      "supersededBy": "div-fountain-blessedftn-synthetic-v4-20260925",
+      "supersededReason": "The earlier drinkfountain source goal is closed with recorded completion; the current mismatch is a source-traced defect in its blessedftn state representation and branch dispatch, so the queued divergence fix replaces this duplicate file-port plan.",
+      "supersededAt": "bd56afabfe56abd342fd46ca726d53cd34cfa17b"
+    },
+    {
+      "id": "div-fountain-blessedftn-synthetic-v4-20260925",
+      "kind": "divergence-fix",
+      "status": "queued",
+      "summary": "Correct magic fountain state and drinking branch",
+      "cFile": "fountain.c",
+      "sessions": [],
+      "selectionReason": "Selected the first completed independent investigation: v1 terrain-transitions (49) is stale under background investigation; v4 dig (24) belongs to B5; v2 altar (19) belongs to C7; v2 wizard spell (14) consumes B5-reserved break_statue through bhito. This fountain case (13) is unreserved. The earlier drinkfountain source goal is closed, so repair its source-traced JS defect as a divergence fix.",
+      "detail": "Admitted synthetic/v4/healer-magic-fountain-drink segment 0 step 18: C fountain.c drinkfountain enters blessedftn restoration and draws rn2(A_MAX), while JS fountain.js takes the ordinary branch and draws rn2(20). objnam.c wizterrainwish writes numeric blessedftn=1; js/objnam_readobjnam.js stores a boolean alias. Correct the shared state and complete the source blessed branch with caller order, attribute changes, messages, exercise, and flag reset.",
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": null,
+      "delivered": null,
+      "function": "drinkfountain",
+      "session": "synthetic/v4/healer-magic-fountain-drink",
+      "step": 18,
+      "syntheticProvenance": {
+        "synthetic/v4/healer-magic-fountain-drink": {
+          "session": "synthetic/v4/healer-magic-fountain-drink",
+          "corpus": "synthetic",
+          "batch": "v4",
+          "caseId": "healer-magic-fountain-drink",
+          "manifestPath": "challenges/manifests/v4.json",
+          "manifestSha256": "10777af4c82fc759abf58a870fdd232329bc5c1467c8cf94f46089d0401459a9",
+          "recordingPath": "challenges/cases/v4/healer-magic-fountain-drink.session.json",
+          "recordingSha256": "2775eb19d73cef073a73f80b3687dfa60c9298e61add4ab81027f7d5766678e9",
+          "evaluationPath": "challenges/evaluations/20260925214017-v4.json",
+          "evaluationCommit": "017038c1e14957228ef42eeb319448e71159eb24"
+        }
+      }
+    },
+    {
+      "id": "port-trap-water-damage-chain-synthetic-v1-20260925",
+      "kind": "file-port",
+      "status": "queued",
+      "summary": "Port water damage chain across pool entry and item owners",
+      "cFile": "trap.c",
+      "sessions": [
+        "synthetic/v1/terrain-transitions"
+      ],
+      "selectionReason": "The refreshed investigation for v1 terrain-transitions is now complete at 49 remaining screens, the first unreserved case in per-session order. Worker A continues the same synthetic seed after A3; B5 owns v4 dig and C7 owns v2 altar. The queued fountain divergence remains lower-ranked.",
+      "detail": "At segment 0 step 87, C trap.c:drown calls water_damage_chain(gi.invent,FALSE), producing six water_damage rn2(20) rolls; JS skips the chain and reaches the later rn2(8) crawl shuffle. Port the whole chain, wire active source callers, and preserve acid context, bhitpos, object order, RNG, messages, and return-discard semantics.",
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": null,
+      "delivered": null,
+      "functions": [
+        {
+          "name": "water_damage_chain",
+          "line": 4855,
+          "endLine": 4896,
+          "declared": false,
+          "complete": false
+        }
+      ],
+      "range": {
+        "from": 4855,
+        "to": 4896
+      },
+      "syntheticProvenance": {
+        "synthetic/v1/terrain-transitions": {
+          "session": "synthetic/v1/terrain-transitions",
+          "corpus": "synthetic",
+          "batch": "v1",
+          "caseId": "terrain-transitions",
+          "manifestPath": "challenges/manifest.json",
+          "manifestSha256": "a1d989fa6b5159e0b0729150ba765c741a405ec910c1274ad763d29b0a7096fe",
+          "recordingPath": "challenges/cases/terrain-transitions.session.json",
+          "recordingSha256": "5491c8fb94f71fe5a5c56498e2c58b6d736e65b221cf0a39d1895abdd6759ec9",
+          "evaluationPath": "challenges/evaluations/20260925214017-v1.json",
+          "evaluationCommit": "017038c1e14957228ef42eeb319448e71159eb24"
+        }
       }
     }
   ]

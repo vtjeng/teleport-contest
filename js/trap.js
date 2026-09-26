@@ -1113,7 +1113,9 @@ export async function drown(state = game) {
     const teleports = activeHeroProperty(state, TELEPORT)
         || can_teleport(state.youmonst?.data);
     const teleportControl = activeHeroProperty(state, TELEPORT_CONTROL);
-    if (teleports && !unconscious(state)
+    const unaware = Math.trunc(state.multi ?? 0) < 0
+        && (unconscious(state) || u.uhs === FAINTED);
+    if (teleports && !unaware
         && (teleportControl || rn2(3) < (u.uluck ?? 0) + 2)) {
         await ttyPline('You attempt a teleport spell.', state);
         const { noteleport_level, tele } = await import('./teleport.js');
@@ -1182,7 +1184,9 @@ export async function drown(state = game) {
         await ttyPline("You're still drowning.", state);
     }
     if (u.uinwater) await set_uinwater(false, state);
-    await back_on_ground(true, state);
+    // C discards rescued_from_terrain()'s result. Its terrain-specific
+    // feedback and decoration updates remain an explicit unported gap.
+    note_unported('trap.c rescued_from_terrain');
     return true;
 }
 
@@ -1687,31 +1691,31 @@ export async function float_down(hmask, emask, state = game) {
         }
     }
 
-    if (!trap) trap = t_at(u.ux, u.uy, state);
-    if (Is_airlevel(u.uz) || Is_waterlevel(u.uz)) {
+    if (!trap) {
+        trap = t_at(u.ux, u.uy, state);
         if (Is_airlevel(u.uz))
             await ttyPline('You begin to tumble in place.', state);
-        else if (!noMsg)
+        else if (Is_waterlevel(u.uz) && !noMsg)
             await ttyPline('You feel heavier.', state);
-    }
-    if (!u.uinwater && !noMsg && !(emask & W_SADDLE)) {
-        if (In_sokoban(u.uz) && trap) {
-            if (Hallucination(state))
-                await ttyPline("Bummer!  You've crashed.", state);
-            else
-                await ttyPline('You fall over.', state);
-            await losehp(rnd(2), 'dangerous winds', KILLED_BY, state);
-            if (u.usteed) await dismount_steed(DISMOUNT_FELL, state);
-            note_unported('polyself.c selftouch');
-        } else if (u.usteed
-            && (is_floater(u.usteed.data) || is_flyer(u.usteed.data))) {
-            await ttyPline('You settle more firmly in the saddle.', state);
-        } else if (Hallucination(state)) {
-            const what = is_pool(u.ux, u.uy, state)
-                ? 'splashed down' : 'hit the ground';
-            await ttyPline(`Bummer!  You've ${what}.`, state);
-        } else {
-            await ttyPline(`You float gently to the ${surface(u.ux, u.uy, state)}.`, state);
+        else if (!u.uinwater && !noMsg && !(emask & W_SADDLE)) {
+            if (In_sokoban(u.uz) && trap) {
+                if (Hallucination(state))
+                    await ttyPline("Bummer!  You've crashed.", state);
+                else
+                    await ttyPline('You fall over.', state);
+                await losehp(rnd(2), 'dangerous winds', KILLED_BY, state);
+                if (u.usteed) await dismount_steed(DISMOUNT_FELL, state);
+                note_unported('polyself.c selftouch');
+            } else if (u.usteed
+                && (is_floater(u.usteed.data) || is_flyer(u.usteed.data))) {
+                await ttyPline('You settle more firmly in the saddle.', state);
+            } else if (Hallucination(state)) {
+                const what = is_pool(u.ux, u.uy, state)
+                    ? 'splashed down' : 'hit the ground';
+                await ttyPline(`Bummer!  You've ${what}.`, state);
+            } else {
+                await ttyPline(`You float gently to the ${surface(u.ux, u.uy, state)}.`, state);
+            }
         }
     }
 

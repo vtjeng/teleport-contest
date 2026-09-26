@@ -5,13 +5,14 @@
   "caseId": "terrain-transitions",
   "manifestPath": "challenges/manifest.json",
   "manifestSha256": "a1d989fa6b5159e0b0729150ba765c741a405ec910c1274ad763d29b0a7096fe",
+  "recordingPath": "challenges/cases/terrain-transitions.session.json",
   "recordingSha256": "5491c8fb94f71fe5a5c56498e2c58b6d736e65b221cf0a39d1895abdd6759ec9",
-  "evaluationPath": "challenges/evaluations/20260925185643-v1.json",
-  "evaluationCommit": "cb5a1d6236d100c62a31e5029cbfa55e55cdfb60",
-  "remainingScreens": 71,
+  "evaluationPath": "challenges/evaluations/20260925214017-v1.json",
+  "evaluationCommit": "017038c1e14957228ef42eeb319448e71159eb24",
+  "remainingScreens": 49,
   "recordedSteps": 137,
   "status": "complete",
-  "commit": "cb5a1d6236d100c62a31e5029cbfa55e55cdfb60",
+  "commit": "bd56afabfe56abd342fd46ca726d53cd34cfa17b",
   "mismatch": {
     "corpus": "synthetic",
     "batch": "v1",
@@ -24,111 +25,134 @@
     "recordingSha256": "5491c8fb94f71fe5a5c56498e2c58b6d736e65b221cf0a39d1895abdd6759ec9",
     "recipe": "challenges/cases/terrain-transitions.recipe.json",
     "recipeSha256": "a0952cee3b77d907ba080571678b0a1e5e1b82d4dc3b07981e6065806cf49663",
-    "replayInputSha256": "c9375e50321f8e7161d0a7a1b3a09da95a27b316a82444e14ed0a45eecf275ae",
-    "evaluationPath": "challenges/evaluations/20260925185643-v1.json",
-    "evaluationCommit": "cb5a1d6236d100c62a31e5029cbfa55e55cdfb60",
-    "evaluationArtifact": "challenges/evaluations/20260925185643-v1.json",
-    "evaluationUtc": "2026-09-25T18:56:43.136Z",
-    "diagnosticCommit": "cb5a1d6236d100c62a31e5029cbfa55e55cdfb60",
-    "diagnosticToolSha256": "227da8323e84aeb754ab1c0dbc9e728e2c613b2ce01027d501027587ddaecfdc",
-    "remainingScreens": 71,
+    "replayInputSha256": "92f778ad0f0088b85c7809ee82da8f7186afb94115b70dc562216d131de1dd3a",
+    "evaluationPath": "challenges/evaluations/20260925214017-v1.json",
+    "evaluationCommit": "017038c1e14957228ef42eeb319448e71159eb24",
+    "evaluationArtifact": "challenges/evaluations/20260925214017-v1.json",
+    "evaluationUtc": "2026-09-25T21:40:17.322Z",
+    "remainingScreens": 49,
     "recordedSteps": 137,
-    "previousScreensMatched": 58,
+    "previousScreensMatched": 79,
     "regression": false,
     "passed": false,
     "error": null,
     "metrics": {
       "screens": {
-        "matched": 66,
+        "matched": 88,
         "total": 137
       },
       "rng": {
-        "matched": 2848,
+        "matched": 3182,
         "total": 3811
       },
       "cursors": {
-        "matched": 71,
+        "matched": 107,
         "total": 137
       }
     },
     "firstMismatch": {
-      "kind": "screen",
-      "step": 58,
-      "key": "q",
-      "message": "First screen difference: row 0, column 53 is '-' in C and space in JS; first cursor difference is C [61,0,1] vs JS [31,6,1]."
+      "screen": {
+        "index": 88,
+        "location": {
+          "segmentIndex": 0,
+          "stepIndex": 88,
+          "key": " "
+        },
+        "kind": "ch",
+        "row": 0,
+        "column": 3,
+        "cCell": {
+          "ch": "r",
+          "color": 8,
+          "attr": 0,
+          "decgfx": 0
+        },
+        "jsCell": {
+          "ch": " ",
+          "color": 8,
+          "attr": 0,
+          "decgfx": 0
+        }
+      },
+      "rng": {
+        "index": 3055,
+        "cEntry": "rn2(20)=12",
+        "cCaller": "water_damage(trap.c:4771)",
+        "jsEntry": "rn2(8)=4",
+        "location": {
+          "segmentIndex": 0,
+          "stepIndex": 87,
+          "key": "h"
+        },
+        "stepIndex": 87
+      },
+      "cursor": {
+        "index": 88,
+        "location": {
+          "segmentIndex": 0,
+          "stepIndex": 88,
+          "key": " "
+        },
+        "cCursor": [
+          77,
+          0,
+          1
+        ],
+        "jsCursor": [
+          30,
+          6,
+          1
+        ]
+      }
     },
-    "step": 58,
-    "kind": "screen",
+    "step": 87,
+    "kind": "rng",
     "sourceFile": "trap.c",
-    "function": "float_down",
-    "message": "Removing the levitation ring reaches the skipped float_down(0,0) call; C begins paging the preceding ring-removal message at step 58 and displays the landing message at step 59, while JS records the gap and emits neither float_down effect.",
-    "cMessage": "You were wearing a ring of levitation (on left hand).--More--",
-    "cKey": "q",
-    "command": "remove (selected ring inventory letter q)",
-    "commandRefusal": false,
-    "keyCursor": "getobj selection",
+    "function": "water_damage",
+    "message": null,
     "cFile": "trap.c",
     "luaFile": null,
-    "line": 4144
+    "line": 4771
   },
-  "summary": "At candidate cb5a1d6236d100c62a31e5029cbfa55e55cdfb60, terrain-transitions matches 66/137 screens with 71 remaining. The A2 remove path now reaches levitation-ring removal. The first changed screen is step 58 on selection key q: C has the pager at the end of the ring-removal message, but JS has not called trap.c float_down(). C then shows “You float gently to the stairs.” at step 59. The direct source owner is trap.c float_down() (4024-4178), called with (0,0) by do_wear.c Ring_off_or_gone() for RIN_LEVITATION. Port the whole function and wire this call; C discards float_down’s return.",
+  "summary": "After A3, v1 terrain-transitions matches 88/137 screens. The first RNG difference at segment 0 step 87 is C trap.c:water_damage() rn2(20) during inventory damage on pool entry versus JS rn2(8) in the later crawl shuffle. JS trap.c:drown skips water_damage_chain(), so six item-damage rolls and the resulting potion dilution messages are missing. Port trap.c:water_damage_chain() whole and wire its active callers in source order.",
   "source": {
     "file": "trap.c",
-    "branch": "When Ring_off_or_gone() removes the final active levitation source with masks hmask=0 and emask=0, no other Levitation or BLevitation remains, and the hero is on the upstairs tile without flight, engulfing, a punishing ball, a pool/lava hazard, or a blocking trap, float_down() reaches its ordinary landing message. In the recorded case its surface() is “stairs”; the following You() call causes the prior ring message to be paged at step 58, then the landing message appears at step 59.",
+    "branch": "At step 87, the hero moves into a pool. hack.c:pooleffects() calls trap.c:drown(); drown() calls water_damage_chain(gi.invent,FALSE) before its gremlin/iron-golem and escape branches. The chain visits inventory objects in nobj order and invokes already-ported water_damage(obj,NULL,FALSE); the C return value is discarded.",
     "functions": [
-      "float_down"
+      "water_damage_chain"
     ],
     "callers": [
-      "Current reproducer: cmd.c key R dispatches do_wear.c doremring(); the selected ring flows through armor_or_accessory_off()/select_off() to Ring_off() and Ring_off_or_gone(); its RIN_LEVITATION arm calls float_down(0L,0L) at do_wear.c:1406-1414 and discards the return.",
-      "Other direct C call sites to review when wiring this whole source function: do_wear.c Boots_off() :306; timeout.c LEVITATION timer arm :803; steed.c dismount_steed() :811; hack.c spoteffects() :3367; artifact.c arti_invoke() :2214; do.c drop() :771 and dodown() :1169.",
-      "Current JS reproducer path: js/cmd.js R/remove dispatch → js/do_wear.js remove handler → armor_or_accessory_off()/select_off() → Ring_off_or_gone() :837-848. That arm currently calls note_unported('trap.c float_down') instead of invoking js/trap.js float_down()."
+      "Selected route: cmd.c movement -> hack.c:domove()/spoteffects()/pooleffects() -> trap.c:drown() -> water_damage_chain(gi.invent,FALSE). JS trap.js:drown() currently records note_unported at this exact call.",
+      "Same-file trap.c:water_damage() recurses into water_damage_chain(obj->cobj,FALSE) when a container admits water; js/trap_water_damage.js damageContents() currently leaves that gap.",
+      "Other C callers: fountain.c:gush; objnam.c:wizterrainwish; dig.c:liquid_flow; mon.c:minliquid. mcastu.c:mcast_geyser is #if 0 and excluded."
     ],
     "dependencies": [
-      "js/trap.js float_down() :1538-1618 is partial: its reachable completed behavior is the dismount caller with emask W_SADDLE; it refuses the ordinary landing-message arm used here.",
-      "C float_down() calls drown() and uses its return in no_msg at trap.c:4104-4105, so confirm the returned value and all reachable return-valued callees before closing a whole-function port. C discards lava_effects() at :4108 and pickup(1) at :4177; apply the repository note_unported rule to any still-unported discarded-result callee.",
-      "The immediate case depends on existing levitation state, surface(), encumber_msg(), nomul(), trap lookup, and pickup ordering. Keep the return value ignored in Ring_off_or_gone(), as C does."
+      "water_damage() already uses rn2(20) in js/trap_water_damage.js and has return value ignored by the chain.",
+      "Use one state.ga.acid_ctx and state.gb.bhitpos value, save and restore bhitpos, and preserve nobj versus nexthere traversal with next saved before mutation.",
+      "get_obj_location(obj,CONTAINED_TOO) is implemented; check its return and visibility context before updating bhitpos."
     ]
   },
   "goalKind": "file-port",
   "evidence": [
-    "Saved evaluation challenges/evaluations/20260925185643-v1.json has sha cb5a1d6236d100c62a31e5029cbfa55e55cdfb60 and reports terrain-transitions 66/137 screens, 2848/3811 RNG calls, and 71/137 cursors; 71 screens remain.",
-    "Current single-case diagnostic .cache/synthetic-scans/v1/terrain-transitions.json identifies replayCommit cb5a1d6236d100c62a31e5029cbfa55e55cdfb60 and first divergence at segment 0 step 58 key q: row 0 column 53 is C '-' versus JS space; cursors are C [61,0,1] and JS [31,6,1]. It emits 72 screens before a later unrelated unsupported wizwish at step 72; that later stop is not the first mismatch.",
-    "The immutable C recording challenges/cases/terrain-transitions.session.json shows step 57 key R opens “What do you want to remove? [pq or ?*]”; step 58 key q selects the levitation ring and shows “You were wearing a ring of levitation (on left hand).--More--”; step 59 key space shows “You float gently to the stairs.” This sequence supports the pager difference at step 58 and the missing float_down landing effect at step 59.",
-    "nethack-c/upstream/src/do_wear.c:1406-1414 calls (void) float_down(0L,0L) when RIN_LEVITATION is removed and then tests Levitation() before learning the ring. Ring_off() :1449-1452 calls Ring_off_or_gone() with gone=false; doremring() :1872-1889 is reached from cmd.c capital-R binding :1689-1690.",
-    "nethack-c/upstream/src/trap.c:4024-4178 defines float_down(); the ordinary non-flying landing-message branch reaches You(\"float gently to the %s.\", surface(u.ux,u.uy)) at :4144. It then runs encumber_msg(), trap handling, and pickup(1), and returns 1; do_wear.c explicitly discards that return.",
-    "js/do_wear.js:837-848 records note_unported('trap.c float_down') in the levitation-ring arm and continues to learnring(); it therefore omits float_down landing feedback. js/trap.js:1538-1618 still throws at ordinary landing messages, confirming the named source gap.",
-    "The stale prior investigation at step 57 named the R admission/doremring boundary. The current cb5a evaluation and same-commit diagnostic show that boundary is now crossed; the new first changed output is the downstream float_down effect at step 58."
+    "challenges/evaluations/20260925214017-v1.json at 017038c1e14957228ef42eeb319448e71159eb24 reports 88/137 matching screens, 3182/3811 RNG calls, 107/137 cursors, and 49 remaining screens for this case.",
+    "At segment 0 step 87, C draws rn2(20)=12 from trap.c:water_damage() at line 4771; JS first draws rn2(8)=4 in the later drown crawl shuffle. The first screen mismatch is step 88, including missing potion dilution effects.",
+    "nethack-c/upstream/src/trap.c:4855-4888 defines the whole water_damage_chain() function and trap.c:5086 calls it during drown(). js/trap.js:1067 currently skips it. js/trap_water_damage.js already implements the rn2(20) luck gate."
   ],
-  "evaluationUtc": "2026-09-25T18:56:43.136Z",
-  "metrics": {
-    "screens": {
-      "matched": 66,
-      "total": 137
-    },
-    "rng": {
-      "matched": 2848,
-      "total": 3811
-    },
-    "cursors": {
-      "matched": 71,
-      "total": 137
-    }
-  },
   "entryPointReview": {
     "active": [
-      "Removing a levitation ring through capital-R at synthetic/v1/terrain-transitions segment 0 steps 57-59 reaches do_wear.c Ring_off_or_gone() → trap.c float_down(0,0)."
+      "Pool entry through movement reaches hack.c:pooleffects -> trap.c:drown -> water_damage_chain in synthetic/v1/terrain-transitions segment 0 steps 87-88."
     ],
     "blocked": [
-      "js/do_wear.js Ring_off_or_gone() currently records note_unported('trap.c float_down') instead of applying its effects, so step 58 pager output and the step 59 “float gently to the stairs” message are missing.",
-      "Other direct float_down() caller paths need separate reachable evidence or named blocked recipes before a whole-function source task can claim their completion: Boots_off, timed levitation expiry, dismount_steed, artifact invoke, drop/Ahriman handling, and spoteffects timeout handling."
+      "fountain.c:gush, objnam.c:wizterrainwish, dig.c:liquid_flow, and mon.c:minliquid callers require caller wiring and separate runtime evidence; a missing caller owner stays a named blocker until ported.",
+      "mcastu.c:mcast_geyser chain call is under #if 0 and is excluded from this build."
     ],
-    "buildExcluded": [],
-    "exactReplayAttribution": "Verified at candidate cb5a1d6236d100c62a31e5029cbfa55e55cdfb60 by the saved v1 evaluation and current single-case diagnostic. The first screen/cursor divergence is segment 0 step 58 key q after the now-working R/remove path; C immediately owes the prior-message pager to the following float_down You() output and shows the landing message at step 59. The later unsupported wizwish at step 72 is a separate replay blocker."
+    "buildExcluded": [
+      "mcastu.c:mcast_geyser water_damage_chain call under #if 0"
+    ],
+    "exactReplayAttribution": "The saved A3 evaluation first diverges in RNG at step 87 on water_damage() because JS drown() omits the water_damage_chain call; the first screen divergence follows at step 88."
   },
   "plannedWholeFunctionScope": [
-    "Port trap.c float_down() :4024-4178 as a whole, preserving its intrinsic/extrinsic mask updates, all early returns, landing hazards/messages, encumbrance, trap activation, pickup, and return value.",
-    "Wire the existing Ring_off_or_gone() call instead of note_unported(); keep its float_down() result discarded, matching C.",
-    "Review and wire every active direct production call site listed under source.callers, assigning other source callers to explicit task scope or retaining named blockers.",
-    "Resolve return-valued callees used by float_down(), notably drown() -> no_msg, under the source return-value rule."
+    "Port trap.c:water_damage_chain() :4855-4888 as a whole: null exit, acid context reset/validity, bhitpos save/location/restore, nobj/nexthere iteration with next saved before mutation, and source-ordered water_damage(obj,NULL,FALSE) calls.",
+    "Wire trap.c:drown() and recursive trap.c:water_damage() to the new chain. Audit fountain.c:gush, objnam.c:wizterrainwish, dig.c:liquid_flow, and mon.c:minliquid active callers; record exact blockers and independent runtime evidence before source closure."
   ]
 }

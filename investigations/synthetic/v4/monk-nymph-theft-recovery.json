@@ -1,0 +1,91 @@
+{
+  "session": "synthetic/v4/monk-nymph-theft-recovery",
+  "corpus": "synthetic",
+  "batch": "v4",
+  "caseId": "monk-nymph-theft-recovery",
+  "manifestPath": "challenges/manifests/v4.json",
+  "manifestSha256": "10777af4c82fc759abf58a870fdd232329bc5c1467c8cf94f46089d0401459a9",
+  "recordingPath": "challenges/cases/v4/monk-nymph-theft-recovery.session.json",
+  "recordingSha256": "12c7091ad75eb0fd4c1604b53961bd3bea6c9a0d555d5f0bd1c35564d82acf3f",
+  "evaluationPath": "challenges/evaluations/20260925214017-v4.json",
+  "evaluationCommit": "017038c1e14957228ef42eeb319448e71159eb24",
+  "remainingScreens": 15,
+  "recordedSteps": 54,
+  "status": "partial",
+  "commit": "bd56afabfe56abd342fd46ca726d53cd34cfa17b",
+  "mismatch": {
+    "corpus": "synthetic",
+    "batch": "v4",
+    "caseId": "monk-nymph-theft-recovery",
+    "session": "synthetic/v4/monk-nymph-theft-recovery",
+    "manifestPath": "challenges/manifests/v4.json",
+    "manifestSha256": "10777af4c82fc759abf58a870fdd232329bc5c1467c8cf94f46089d0401459a9",
+    "recording": "challenges/cases/v4/monk-nymph-theft-recovery.session.json",
+    "recordingPath": "challenges/cases/v4/monk-nymph-theft-recovery.session.json",
+    "recordingSha256": "12c7091ad75eb0fd4c1604b53961bd3bea6c9a0d555d5f0bd1c35564d82acf3f",
+    "recipe": "challenges/cases/v4/monk-nymph-theft-recovery.recipe.json",
+    "recipeSha256": "2cb16759cfcfbacab93d7adb3004afcdaf77235d49d20f8487c00adc20c8e3c1",
+    "replayInputSha256": "128272bcc6cdac9a0f615e16d600009699c5603421346750ce5a71eb160ada60",
+    "evaluationPath": "challenges/evaluations/20260925214017-v4.json",
+    "evaluationCommit": "017038c1e14957228ef42eeb319448e71159eb24",
+    "evaluationArtifact": "challenges/evaluations/20260925214017-v4.json",
+    "evaluationUtc": "2026-09-25T21:40:26.167Z",
+    "remainingScreens": 15,
+    "recordedSteps": 54,
+    "previousScreensMatched": 39,
+    "regression": false,
+    "passed": false,
+    "error": null,
+    "metrics": {
+      "screens": {
+        "matched": 39,
+        "total": 54
+      },
+      "rng": {
+        "matched": 2947,
+        "total": 2997
+      },
+      "cursors": {
+        "matched": 39,
+        "total": 54
+      }
+    },
+    "firstMismatch": {
+      "kind": "stop",
+      "message": "steal reached an unported branch: nymph armor steal (delay=1)",
+      "step": 39
+    },
+    "step": 39,
+    "kind": "stop",
+    "sourceFile": null,
+    "function": null,
+    "message": "steal reached an unported branch: nymph armor steal (delay=1)",
+    "cFile": null,
+    "luaFile": null,
+    "line": null
+  },
+  "summary": "The v4 Monk nymph case stops at segment 0 step 39 when steal.c:steal selects worn armor with an armor removal delay. JS steal() deliberately refuses that branch. The C source uses a seduction or charm message, stop_donning() return value, nomul(), remove_worn_item(), and a later stealarm() callback. Confirm the callback and active do_wear.c dependency before selecting the complete source family.",
+  "source": {
+    "file": "steal.c",
+    "branch": "A nearby non-animal nymph chooses a worn armor item; the hero can respond, and objects[otyp].oc_delay is at least one. The C steal() ARMOR_CLASS arm clears the curse temporarily, prints the charm or seduction message, starts armor removal, schedules stealarm() when gm.multi remains negative, and returns 0.",
+    "functions": [
+      "steal",
+      "stealarm",
+      "unstolenarm",
+      "unresponsive"
+    ],
+    "callers": [
+      "A monster theft attack reaches steal() through the AD_SITM monster attack path; the selected JS path reaches js/steal.js:steal() and throws at its nymph armor-delay branch."
+    ],
+    "dependencies": [
+      "do_wear.c:stop_donning() supplies a return-valued old delay but has no JS port; determine its complete scope and caller mapping.",
+      "steal.c:stealarm() depends on the delayed after-move callback, monster identity, item inventory state, mpickobj(), and post-theft flee/relocation effects.",
+      "Inspect C source at steal.c:133-204 and :343-614, including stealarm()/unstolenarm() and the responsive versus animal armor routes."
+    ]
+  },
+  "evidence": [
+    "challenges/evaluations/20260925214017-v4.json reports this case stops at segment 0 step 39 with 15 screens remaining; the JS refusal is \"nymph armor steal (delay=1)\".",
+    "nethack-c/upstream/src/steal.c:503-557 defines the ARMOR_CLASS branch; js/steal.js:507-523 throws before the source charm/removal effects.",
+    "Next probe: trace the selected monster attack through its C caller, inspect do_wear.c:stop_donning() and delayed callback scheduling, then determine whether all return-valued dependencies can fit one source task."
+  ]
+}
