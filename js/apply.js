@@ -248,11 +248,13 @@ import {
 import {
     ARMOR_CLASS,
     BANANA,
+    BLINDFOLD,
     BRASS_LANTERN,
     BULLWHIP,
     COIN_CLASS,
     CORPSE,
     CREAM_PIE,
+    CRYSTAL_BALL,
     CREDIT_CARD,
     EUCALYPTUS_LEAF,
     FOOD_CLASS,
@@ -282,6 +284,8 @@ import {
     STATUE,
     STETHOSCOPE,
     TOOL_CLASS,
+    TINNING_KIT,
+    TOWEL,
     TOUCHSTONE,
     WAND_CLASS,
     WEAPON_CLASS,
@@ -303,6 +307,7 @@ import {
     WAX_CANDLE,
     LAND_MINE,
     BEARTRAP,
+    SADDLE,
 } from './objects.js';
 import {
     AD_BLND, AT_ENGL, AT_WEAP, MZ_TINY, PM_ARCHEOLOGIST, PM_HEALER,
@@ -353,7 +358,7 @@ import { begin_burn, end_burn } from './timeout.js';
 import { wield_tool } from './wield.js';
 import { acurr } from './attrib.js';
 import { known_spell, spe_Fresh, spelleffects } from './spell.js';
-import { stucksteed } from './steed.js';
+import { stucksteed, use_saddle } from './steed.js';
 import { enexto, teleds } from './teleport.js';
 import { fingers_or_gloves, inaccessible_equipment } from './do_wear.js';
 import { dropx, legs_in_no_shape, set_wounded_legs } from './do.js';
@@ -2473,10 +2478,35 @@ export async function doapply(state = game, env = {}) {
         throw new UnsupportedApplyError('flip_coin()');
 
     switch (obj.otyp) {
+    case BLINDFOLD:
+    case LENSES:
+        if (obj === state.ublindf) {
+            if (!obj.cursed)
+                note_unported('do_wear.c Blindf_off');
+        } else if (!state.ublindf) {
+            note_unported('do_wear.c Blindf_on');
+        } else {
+            const already = state.ublindf.otyp === TOWEL
+                ? 'covered by a towel'
+                : state.ublindf.otyp === BLINDFOLD
+                    ? 'wearing a blindfold' : 'wearing lenses';
+            await ttyPline(`You are already ${already}.`, state);
+        }
+        return ECMD_TIME;
+    case CRYSTAL_BALL:
+        // apply.c discards use_crystal_ball()'s result.
+        note_unported('detect.c use_crystal_ball');
+        return ECMD_TIME;
+    case TINNING_KIT:
+        // apply.c discards use_tinning_kit()'s result.
+        note_unported('apply.c use_tinning_kit');
+        return ECMD_TIME;
     case CREAM_PIE:
         return use_cream_pie(obj, state, env);
     case BULLWHIP:
         return use_whip(obj, state);
+    case SADDLE:
+        return use_saddle(obj, state, env);
     case CAN_OF_GREASE:
         return use_grease(obj, state, env);
     case STETHOSCOPE:
