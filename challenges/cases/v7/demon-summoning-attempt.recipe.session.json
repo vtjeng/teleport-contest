@@ -1,0 +1,11 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 70726175,
+      "datetime": "20260927093000",
+      "nethackrc": "OPTIONS=name:VelaSummoner,role=Wizard,race:human,gender=female,align=neutral,playmode=debug,!legacy,!tutorial,!splash_screen,showexp,time\n",
+      "moves": " \u0007hostile marilith\nm.m.m.m.m.m.m.m.m.m.m.m.m.m.m.m."
+    }
+  ]
+}

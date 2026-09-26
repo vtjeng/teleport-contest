@@ -1,0 +1,11 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 70726189,
+      "datetime": "20260927150000",
+      "nethackrc": "OPTIONS=name:KiyoShatter,role=Samurai,race=human,gender=male,align=lawful,playmode=debug,!legacy,!tutorial,!splash_screen,showexp,time\n",
+      "moves": " #levelchange\n20\n                   #enhance\nyj j \n\u0007hostile soldier\n\u0007hostile soldier\n\u0007hostile soldier\n\u0007hostile soldier\nFl Fl Fl Fl Fl Fl Fl Fl Fl Fl Fl Fl Fl Fl Fl Fl Fl Fl Fl Fl Fl Fl Fl Fl "
+    }
+  ]
+}

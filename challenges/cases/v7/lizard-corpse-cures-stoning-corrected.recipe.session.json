@@ -1,0 +1,11 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 70727003,
+      "datetime": "20260928102000",
+      "nethackrc": "OPTIONS=name:LimberMeal,role=Wizard,race=human,gender=female,align=neutral,playmode=debug,!legacy,!tutorial,!splash_screen,showexp,time,pettype:none\n",
+      "moves": " #wizintrinsic\nb\n \u0017lizard corpse\neo "
+    }
+  ]
+}

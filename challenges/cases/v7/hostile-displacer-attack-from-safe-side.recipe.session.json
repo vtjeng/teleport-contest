@@ -1,0 +1,11 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 70726222,
+      "datetime": "20260927180000",
+      "nethackrc": "OPTIONS=name:PoolBeast,role=Wizard,race=human,gender=female,align=neutral,playmode=debug,!legacy,!tutorial,!splash_screen,showexp,time,pettype:none\n",
+      "moves": " \u0017pool\n\u0007hostile displacer beast\njl"
+    }
+  ]
+}

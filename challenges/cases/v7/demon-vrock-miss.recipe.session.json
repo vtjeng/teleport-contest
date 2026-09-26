@@ -1,0 +1,11 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 70726176,
+      "datetime": "20260927094000",
+      "nethackrc": "OPTIONS=name:VelaSummoner,role=Wizard,race:human,gender:female,align=neutral,playmode=debug,!legacy,!tutorial,!splash_screen,showexp,time\n",
+      "moves": " \u0007hostile vrock\nm.m.m.m.m.m.m.m.m.m.m.m.m.m.m.m.m.m.m."
+    }
+  ]
+}

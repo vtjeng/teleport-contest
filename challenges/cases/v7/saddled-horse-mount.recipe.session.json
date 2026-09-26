@@ -1,0 +1,11 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 70727108,
+      "datetime": "20260929112000",
+      "nethackrc": "OPTIONS=name:MountOne,role=Wizard,race=human,gender=female,align=neutral,playmode=debug,!legacy,!tutorial,!splash_screen,showexp,time,pettype:none\n",
+      "moves": " \u0007tame pony\ny \u0017saddle\nao"
+    }
+  ]
+}

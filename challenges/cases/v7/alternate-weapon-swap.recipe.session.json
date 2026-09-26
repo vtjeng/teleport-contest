@@ -1,0 +1,11 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 70726131,
+      "datetime": "20260926224000",
+      "nethackrc": "OPTIONS=name:VelaSwap,role:Samurai,race:human,gender:female,align:lawful,playmode:debug,!legacy,!tutorial,!splash_screen,showexp,time,pushweapon\n",
+      "moves": " wb x "
+    }
+  ]
+}

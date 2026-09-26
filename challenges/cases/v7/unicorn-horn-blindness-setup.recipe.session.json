@@ -1,0 +1,11 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 70727130,
+      "datetime": "20260929123000",
+      "nethackrc": "OPTIONS=name:HornOkay2,role=Wizard,race=human,gender=female,align=neutral,playmode=debug,!legacy,!tutorial,!splash_screen,showexp,time,pettype:none\n",
+      "moves": " \u0017cursed potion of blindness\nq?"
+    }
+  ]
+}

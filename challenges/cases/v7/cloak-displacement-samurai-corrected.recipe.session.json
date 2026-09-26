@@ -1,0 +1,11 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 70727012,
+      "datetime": "20260928113000",
+      "nethackrc": "OPTIONS=name:CloakSam,role=Samurai,race=human,gender=female,align=lawful,playmode=debug,!legacy,!tutorial,!splash_screen,showexp,time,pettype:none\n",
+      "moves": " \u0017uncursed cloak of displacement\nWg"
+    }
+  ]
+}
