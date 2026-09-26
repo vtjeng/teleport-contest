@@ -77038,7 +77038,7 @@
     {
       "id": "port-pray-offer-corpse-synthetic-v2-20260926",
       "kind": "file-port",
-      "status": "open",
+      "status": "closed",
       "summary": "Port pray.c offer_corpse and wire the sacrifice corpse arm",
       "cFile": "pray.c",
       "sessions": [
@@ -77052,15 +77052,18 @@
         "screens": 11405,
         "rng": 792838
       },
-      "closedAt": null,
-      "delivered": null,
+      "closedAt": "7e18f426e5b6b4030afbc50c1720f1a79e82d57b",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
       "functions": [
         {
           "name": "offer_corpse",
           "line": 1959,
           "endLine": 2123,
-          "declared": false,
-          "complete": false
+          "declared": true,
+          "complete": true
         }
       ],
       "range": {
@@ -77346,7 +77349,67 @@
             }
           }
         }
-      ]
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "offer_corpse",
+            "implementation": "js/pray.js",
+            "symbol": "offer_corpse",
+            "sourceReview": "Read the complete pray.c offer_corpse definition at lines 1959-2120 and compared source branch order and state updates. The port preserves conduct marking, cockatrice handling and Rider revival, same-race and tame former-pet handling, corpse valuation, zero/negative value exits, high-altar desecration gate, cross-alignment handling, consume-before-reward ordering, anger/alignment/blessing-counter branches, artifact-bestow gate, luck cap arithmetic, and visible feedback. It ports return-valued eval_offering, bestow_artifact, get_mtraits, rider_corpse_revival and the consume_offering object lifecycle; the return-valued mk_artifact path used by bestow_artifact is implemented in js/artifacts.js. Pure pray.c sacrifice_value is source-pinned in scripts/pray-offering.test.mjs. The only source gaps remaining in this function are the void helpers whose C results are discarded: sacrifice_your_race, offer_negative_valued, desecrate_altar, and offer_different_alignment_altar; each is recorded with note_unported at its source call site. Supporting source units are implemented in js/pray.js, js/pickup.js, and js/artifacts.js, and source/caller evidence is summarized in entryPointReview.",
+            "callers": [
+              {
+                "path": "js/pray.js",
+                "symbol": "dosacrifice",
+                "source": "pray.c:1889-1890 calls offer_corpse(otmp, highaltar, altaralign) after the selected object is a corpse"
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/pray-offering.test.mjs",
+              "scripts/pray.test.mjs"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v2",
+                "caseId": "altar-rite-history",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 49,
+                "source": "cmd.c #offer extended command -> pray.c dosacrifice -> pray.c offer_corpse; selects a jackal corpse and reaches eval_offering, consume_offering, object cleanup, and the blessed-counter reward branch"
+              }
+            ],
+            "checkedAt": "7e18f426e5b6b4030afbc50c1720f1a79e82d57b"
+          }
+        ],
+        "entryPointReview": "The selected source unit offer_corpse has one command entry through dosacrifice: cmd.c registers the #offer extended command at lines 1775-1776 and also queues dosacrifice from the MCMD_OFFER menu action at lines 4828-4829; both reach pray.c dosacrifice, whose corpse arm calls offer_corpse at lines 1889-1890. The matching admitted synthetic range exercises the extended-command path through js/cmd.js command dispatch (dosacrifice at lines 5155-5158) and the direct source caller in js/pray.js. It reaches a neutral altar, selects a wished jackal corpse from inventory, and covers corpse valuation, consume/useup timer cleanup, and the u.ublesscnt > 0 reward arm. The selected case does not exercise the alternate MCMD_OFFER menu dispatch independently; that dispatcher queues the same dosacrifice handler and has no separate game-state branch. Supporting whole-source ports are pray.c dosacrifice (js/pray.js), consume_offering/bestow_artifact/sacrifice_value/eval_offering (js/pray.js), aligned mk_artifact (js/artifacts.js), Rider corpse revival (js/pickup.js), and the existing obj_stop_timers/remove_object hooks used by consume_offering. The lower anger, negative-alignment-record, zero blessing-counter/artifact gift, blind, hallucination, unicorn, tame corpse, same-race corpse, high-altar, and cross-alignment branches were source-reviewed but are not reached by this recorded range. Void helpers intentionally remain explicit gaps: pray.c sacrifice_your_race, offer_negative_valued, desecrate_altar, and offer_different_alignment_altar.",
+        "entryPoints": [
+          {
+            "name": "#offer a selected corpse on an altar",
+            "functions": [
+              "offer_corpse"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v2",
+                "caseId": "altar-rite-history",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 49,
+                "source": "cmd.c #offer -> pray.c dosacrifice -> pray.c offer_corpse"
+              }
+            ]
+          }
+        ]
+      },
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "7e18f426e5b6b4030afbc50c1720f1a79e82d57b",
+        "screens": 11405,
+        "rng": 792838
+      }
     },
     {
       "id": "div-lock-pick-chest-query-synthetic-v4-20260926",
