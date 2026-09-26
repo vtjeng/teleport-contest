@@ -84877,7 +84877,7 @@
     {
       "id": "port-detect-use-crystal-ball-synthetic-v7-20260926",
       "kind": "file-port",
-      "status": "open",
+      "status": "parked",
       "summary": "Port detect.c use_crystal_ball and its detector result paths",
       "cFile": "detect.c",
       "sessions": [
@@ -84898,8 +84898,8 @@
           "name": "use_crystal_ball",
           "line": 1206,
           "endLine": 1371,
-          "declared": false,
-          "complete": false
+          "declared": true,
+          "complete": true
         }
       ],
       "range": {
@@ -85121,7 +85121,134 @@
             }
           }
         }
-      ]
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "use_crystal_ball",
+            "implementation": "js/detect.js",
+            "symbol": "use_crystal_ball",
+            "sourceReview": "Compared the complete detect.c:use_crystal_ball() definition at 1206-1371. The implementation preserves Blind refusal, artifact/blessed comprehension thresholds, impairment RNG and all five source message/effect arms, hallucination text and charge handling, quitchars/ghost exception, nomul and multi state, makeknown before charge consumption, the ']' mimic alias, furniture/object/monster/boulder/trap/level dispatch order, consumed detector return values, random level selection, and the follow-up Wizard-vision chance. makeknown maps to discover_object(CRYSTAL_BALL, true, true, true), matching hack.h's Wisdom-exercise flag. Production callers are wired through apply.c:doapply and artifact.c:arti_invoke. Return-valued detector callees are implemented in source order; their discarded void display callees remain explicit note_unported gaps (detect.c:browse_map, detect.c:display_nhwindow, display.c:under_water, display.c:under_ground). No note_unported return is used as data. Matching records cover apply's monster-class, object-empty and no-trap paths and the regular-ball artifact-invoke level-clue path. Positive remote-object/trap and furniture-map paths remain blocked at detect.c:browse_map and have named recipes; the admitted v7 citation is only the matching shared charged-query prefix through the makeknown/Wisdom-exercise boundary.",
+            "callers": [
+              {
+                "path": "js/apply.js",
+                "symbol": "doapply",
+                "source": "apply.c:doapply() CRYSTAL_BALL arm calls use_crystal_ball(&obj) and discards its result."
+              },
+              {
+                "path": "js/artifacts.js",
+                "symbol": "arti_invoke",
+                "source": "artifact.c:arti_invoke() calls use_crystal_ball(&obj) for a regular crystal ball in its non-artifact/no-inv_prop arm, then returns ECMD_TIME."
+              }
+            ],
+            "pure": false,
+            "tests": [],
+            "recordings": [
+              "recordings/detect.c/crystal-ball-level-query.session.json",
+              "recordings/detect.c/crystal-ball-invoke-source.session.json",
+              "recordings/detect.c/crystal-ball-object-empty-source.session.json",
+              "recordings/detect.c/crystal-ball-trap-empty-source.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v7",
+                "caseId": "crystal-query-reached",
+                "segment": 0,
+                "fromStep": 17,
+                "throughStep": 19,
+                "source": "cmd.c apply dispatch -> apply.c:doapply() CRYSTAL_BALL arm -> detect.c:use_crystal_ball() through charged query selection and makeknown/Wisdom exercise"
+              }
+            ],
+            "checkedAt": "580b107974301f1a5c70b1698fd8ccf169c69c57"
+          }
+        ],
+        "entryPointReview": "Enumerated both active production callers: the 'a' apply command reaches apply.c:doapply() and its CRYSTAL_BALL arm; the #invoke command reaches artifact.c:doinvoke() -> arti_invoke(), whose regular-ball/no-inv_prop arm calls use_crystal_ball(). Independent complete records cover apply with a worm-tail monster query, an absent ring-class query, and a no-trap query; another complete record covers #invoke's unknown-symbol level clue and level_distance RNG. The admitted v7 case matches only the shared apply/charged-query prefix at segment 0 steps 17-19; it stops before a complete trap-result/browser interaction and is not used to claim that result branch. Active remote object-result, remote trap-map, and furniture-reveal routes were attempted with independent recipes but remain uncovered because C invokes the void detect.c:browse_map() farlook path, while the existing JS helper records that gap. Recipes crystal-ball-object-map-blocked, crystal-ball-trap-map-blocked, and crystal-ball-furniture-map-blocked preserve those source blockers. The blank evidence entries below are intentionally not completion claims. No source caller is build-excluded.",
+        "entryPoints": [
+          {
+            "name": "Apply charged crystal ball and query worm-tail monsters",
+            "functions": [
+              "use_crystal_ball"
+            ],
+            "recordings": [
+              "recordings/detect.c/crystal-ball-level-query.session.json"
+            ],
+            "synthetic": []
+          },
+          {
+            "name": "Invoke regular crystal ball and request a level clue",
+            "functions": [
+              "use_crystal_ball"
+            ],
+            "recordings": [
+              "recordings/detect.c/crystal-ball-invoke-source.session.json"
+            ],
+            "synthetic": []
+          },
+          {
+            "name": "Apply charged crystal ball and query an absent ring class",
+            "functions": [
+              "use_crystal_ball"
+            ],
+            "recordings": [
+              "recordings/detect.c/crystal-ball-object-empty-source.session.json"
+            ],
+            "synthetic": []
+          },
+          {
+            "name": "Apply charged crystal ball when trap detection finds no traps",
+            "functions": [
+              "use_crystal_ball"
+            ],
+            "recordings": [
+              "recordings/detect.c/crystal-ball-trap-empty-source.session.json"
+            ],
+            "synthetic": []
+          },
+          {
+            "name": "Apply charged crystal ball and enter the remote-trap query path",
+            "functions": [
+              "use_crystal_ball"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v7",
+                "caseId": "crystal-query-reached",
+                "segment": 0,
+                "fromStep": 17,
+                "throughStep": 19,
+                "source": "cmd.c apply dispatch -> apply.c:doapply() CRYSTAL_BALL arm -> detect.c:use_crystal_ball() charged query prefix"
+              }
+            ]
+          },
+          {
+            "name": "Apply charged crystal ball when detected objects require map browsing",
+            "functions": [
+              "use_crystal_ball"
+            ],
+            "recordings": [],
+            "synthetic": []
+          },
+          {
+            "name": "Apply charged crystal ball and reveal furniture locations",
+            "functions": [
+              "use_crystal_ball"
+            ],
+            "recordings": [],
+            "synthetic": []
+          }
+        ]
+      },
+      "progressBeforePark": {
+        "screens": 0,
+        "rng": 0
+      },
+      "parkedStanding": {
+        "sha": "580b107974301f1a5c70b1698fd8ccf169c69c57",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "parkedReason": "use_crystal_ball is source-reviewed and the v7 crystal case now matches completely, but positive remote object, trap, and furniture detections call detect.c:browse_map before the map can be fully replayed. Retain the three blocked independent recipes and resume after browse_map supports these map types; do not claim those entry points complete."
     },
     {
       "id": "port-do-wear-glibr-synthetic-v6-20260926",
