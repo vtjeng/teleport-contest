@@ -19,7 +19,9 @@ import {
     A_STR,
     A_WIS,
     ACID_RES,
+    ARTICLE_A,
     ARTICLE_THE,
+    ARTICLE_YOUR,
     BLINDED,
     CONFUSION,
     DEAF,
@@ -67,6 +69,7 @@ import {
     M_AP_FURNITURE,
     M_AP_MONSTER,
     M_AP_OBJECT,
+    M_AP_NOTHING,
     PROT_FROM_SHAPE_CHANGERS,
     SEE_INVIS,
     STRAT_WAITFORU,
@@ -115,7 +118,10 @@ import {
     y_monnam,
 } from './do_name.js';
 import { livelog_printf } from './pline.js';
-import { ttyPline } from './tty_message.js';
+import {
+    displayPendingTtyMessageWindow,
+    ttyPline,
+} from './tty_message.js';
 import { makeplural } from './fruit.js';
 import {
     glyph_at,
@@ -132,7 +138,7 @@ import {
 import { u_wipe_engr } from './engrave.js';
 import { game } from './gstate.js';
 import { doorless_door, test_move } from './hack.js';
-import { ing_suffix, s_suffix, sgn } from './hacklib.js';
+import { dist2, ing_suffix, s_suffix, sgn } from './hacklib.js';
 import { change_luck } from './moveloop_preamble.js';
 import { will_hurtle } from './dothrow.js';
 // js/mhitu.js imports mhitm_adtyping() and mhitm_knockback() from this file,
@@ -156,6 +162,9 @@ import {
     set_ustuck,
     unstuck,
     wakeup,
+    wake_nearto,
+    monkilled,
+    shieldeff_mon,
     xkilled,
 } from './mon.js';
 import {
@@ -186,6 +195,8 @@ import {
     noncorporeal,
     monster_resists_element,
     passes_rocks,
+    resists_blnd,
+    resists_blnd_by_arti,
     stagger,
     sticks,
     thick_skinned,
@@ -258,6 +269,7 @@ import {
     PM_BLACK_PUDDING,
     PM_BROWN_PUDDING,
     PM_ELF,
+    PM_GREMLIN,
     PM_HEALER,
     PM_KNIGHT,
     PM_MONK,
@@ -274,6 +286,7 @@ import {
     PM_SHRIEKER,
     PM_STONE_GOLEM,
     PM_STEAM_VORTEX,
+    S_LIGHT,
     S_BLOB,
     S_EEL,
     S_EYE,
@@ -333,6 +346,7 @@ import {
     EGG,
     ELVEN_ARROW,
     EXPENSIVE_CAMERA,
+    WAN_LIGHT,
     GAUNTLETS_OF_POWER,
     GEM_CLASS,
     HEAVY_IRON_BALL,
@@ -406,6 +420,7 @@ import { cansee, canseemon } from './vision.js';
 import { body_part, mbodypart, polymon } from './polyself.js';
 import { observe_object } from './o_init.js';
 import { obj_resists } from './bury.js';
+import { mhidden_description } from './pager.js';
 
 function intrinsicProperty(hero, index) {
     return Boolean(hero?.uprops?.[index]?.intrinsic);
@@ -431,6 +446,169 @@ function Hallucination(state) {
 function Deaf(state) {
     return propertyPresent(state?.u, DEAF)
         || Boolean(state?.u?.uroleplay?.deaf);
+}
+
+// C ref: uhitm.c flash_hits_mon(). The result is consumed by zap.c:bhitm()
+// for a broken WAN_LIGHT, while camera callers discard it. Keep the not-on-head
+// guard, mimic reveal, wake-up, blindness and artifact-resistance branches in
+// source order because each can change both the message and later RNG calls.
+export async function flash_hits_mon(
+    monster,
+    object,
+    state = game,
+    random = { d, rn2, rnd },
+    rawEnv = {},
+) {
+    if (state.gn?.notonhead) return 0;
+    const x = monster.mx;
+    const y = monster.my;
+    const location = state.level?.at(x, y);
+    const useeit = canseemon(monster, state);
+    let result = 0;
+
+    if (M_AP_TYPE(monster) !== M_AP_NOTHING) {
+        const oldGlyph = glyph_at(x, y, state);
+        const description = mhidden_description(monster, state, {
+            showAlternateMonster: true,
+        });
+        await wakeup(monster, false, { ...rawEnv, state, random });
+        if (glyph_at(x, y, state) !== oldGlyph) {
+            const article = monster.mtame ? ARTICLE_YOUR : ARTICLE_A;
+            const realName = x_monnam(
+                monster, article, null, 0, false, state, rawEnv,
+            );
+            await ttyPline(
+                `That ${description} is really ${realName}`
+                    + `${monster.mtame ? '.' : '!'}`,
+                state,
+                rawEnv,
+            );
+            result = 1;
+        }
+    }
+
+    if (monster.msleeping && haseyes(monster.data)) {
+        monster.msleeping = false;
+        if (useeit) {
+            await ttyPline(
+                `The flash awakens ${mon_nam(monster, state, rawEnv)}.`,
+                state,
+                rawEnv,
+            );
+            result = 1;
+        }
+    } else if (monster.data?.mlet !== S_LIGHT) {
+        if (!resists_blnd(monster, state)) {
+            const distance = dist2(object.ox, object.oy, x, y);
+            if (useeit) {
+                await ttyPline(
+                    `${Monnam(monster, state, rawEnv)} is blinded by the flash!`,
+                    state,
+                    rawEnv,
+                );
+                result = 1;
+            }
+            if (monster.data === state.mons?.[PM_GREMLIN]) {
+                // Rule #1: Keep them out of the light. Cameras and broken
+                // light wands share light_hits_gremlin() but use different
+                // source dice exactly as uhitm.c does.
+                const amount = object.otyp === WAN_LIGHT
+                    ? random.d(1 + object.spe, 4)
+                    : random.rnd(Math.min(monster.mhp, 4));
+                await light_hits_gremlin(
+                    monster, amount, state, { ...rawEnv, random },
+                );
+            }
+            if (monster.mhp >= 1) {
+                if (!state.context?.mon_moving)
+                    await setmangry(monster, true, { ...rawEnv, state });
+                if (distance < 9 && !monster.isshk && random.rn2(4)) {
+                    const fleeTime = random.rn2(4) ? random.rnd(100) : 0;
+                    await monflee(monster, fleeTime, false, true, {
+                        ...rawEnv,
+                        state,
+                        random,
+                        canSeeMonster: rawEnv.canSeeMonster
+                            ?? ((subject) => canSeeMonster(subject, state)),
+                        fleeMessage: rawEnv.fleeMessage ?? monfleeMessage,
+                    });
+                }
+                monster.mcansee = false;
+                monster.mblinded = distance < 3
+                    ? 0
+                    : random.rnd(1 + Math.trunc(50 / distance));
+            }
+        } else if (useeit) {
+            if (resists_blnd_by_arti(monster, state))
+                await shieldeff_mon(monster, { ...rawEnv, state });
+            if (state.flags?.verbose) {
+                if (location?.lit) {
+                    await ttyPline(
+                        `The flash of light shines on ${mon_nam(monster, state, rawEnv)}.`,
+                        state,
+                        rawEnv,
+                    );
+                } else {
+                    await ttyPline(
+                        `${Monnam(monster, state, rawEnv)} is illuminated.`,
+                        state,
+                        rawEnv,
+                    );
+                }
+                result = 2;
+            }
+        }
+    }
+
+    if (result) {
+        if (!location?.lit)
+            await displayPendingTtyMessageWindow(state);
+        result &= 1;
+    }
+    return result;
+}
+
+// C ref: uhitm.c light_hits_gremlin(). This is also used by read.c:litroom,
+// so its wake radius, moving-monster death owner and unseen-glyph repair stay
+// shared with camera and wand flashes.
+export async function light_hits_gremlin(
+    monster,
+    damage,
+    state = game,
+    rawEnv = {},
+) {
+    const random = rawEnv.random ?? { rn2, rnd };
+    const distance = dist2(state.u.ux, state.u.uy, monster.mx, monster.my);
+    if (!Deaf(state) && distance <= 90) {
+        await ttyPline(
+            `${Monnam(monster, state, rawEnv)} `
+                + `${damage > monster.mhp / 2 ? 'wails in agony' : 'cries out in pain'}!`,
+            state,
+            rawEnv,
+        );
+    } else if (canseemon(monster, state)) {
+        await ttyPline(
+            `${Monnam(monster, state, rawEnv)} recoils from the light!`,
+            state,
+            rawEnv,
+        );
+    }
+    monster.mhp -= damage;
+    await wake_nearto(monster.mx, monster.my, 30, {
+        ...rawEnv, state, random,
+    });
+    if (monster.mhp < 1) {
+        if (state.context?.mon_moving) {
+            await monkilled(monster, null, AD_BLND, state, {
+                ...rawEnv, random,
+            });
+        } else {
+            await killed(monster, state, { ...rawEnv, random });
+        }
+    } else if (cansee(monster.mx, monster.my, state)
+        && !canSpotMonster(monster, state)) {
+        map_invisible(monster.mx, monster.my, state);
+    }
 }
 
 // C ref: display.h is_safemon().

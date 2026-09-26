@@ -342,6 +342,7 @@ import {
     S_engroom,
     S_fountain,
     S_goodpos,
+    S_flashbeam,
     S_grave,
     S_hcdoor,
     S_hodoor,
@@ -9408,6 +9409,14 @@ test('cmap_to_glyph walks display.h\'s six arms in order', () => {
     // Past the last cmap index there is no glyph. S_sw_tl is the first
     // swallow symbol, which cmap_to_glyph() deliberately cannot name.
     assert.equal(cmap_to_glyph(S_goodpos + 1, state), NO_GLYPH);
+    // include/defsym.h:196 assigns S_flashbeam index 79; the generated name
+    // table and public cmap export must keep the beam tied to that source row.
+    assert.equal(S_flashbeam, 79);
+    assert.equal(S_flashbeam, SYMBOL_INDEX_BY_NAME.s_flashbeam);
+    assert.equal(
+        cmap_to_glyph(S_flashbeam, state),
+        (S_flashbeam - S_digbeam) + GLYPH_CMAP_C_OFF,
+    );
     // The one boundary whose answer is unusable either way. C's cmap B test
     // ends at S_arrow_trap + MAXTCHARS, which is S_vbeam, the first zap
     // symbol; the chain hands it to the cmap C arm instead, whose subtraction

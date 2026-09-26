@@ -12,6 +12,7 @@ import {
 } from './const.js';
 import { ART_DEMONBANE } from './artifacts.js';
 import { Amonnam, Monnam } from './do_name.js';
+import { flush_screen, map_invisible, newsym } from './display.js';
 import { game } from './gstate.js';
 import { sgn } from './hacklib.js';
 import { makemon_runtime } from './makemon_create.js';
@@ -27,16 +28,30 @@ import {
 } from './mondata.js';
 import * as M from './monsters.js';
 import { mon_aligntyp } from './priest.js';
+import { show_transient_light, transient_light_cleanup } from './light.js';
 import { d, rn1, rn2, rnd, rne, rnz } from './rng.js';
 import { canSeeMonster, canSpotMonster, heroIsBlind }
     from './startup_a11y.js';
+import { canseemon, vision_recalc } from './vision.js';
 import { ttyPline } from './tty_message.js';
-import { note_unported } from './unported.js';
 
 const defaultSelectorRandom = { rn1, rn2, rnd };
 
 function selectorRandom(raw = {}) {
     return { ...defaultSelectorRandom, ...raw };
+}
+
+function transientLightEnv(state) {
+    return {
+        visionRecalc: (control) => vision_recalc(control, {
+            state,
+            redraw: (x, y) => newsym(x, y, state),
+        }),
+        flushScreen: (mode) => flush_screen(mode),
+        canSeeMonster: (monster) => canseemon(monster, state),
+        canSpotMonster: (monster) => canSpotMonster(monster, state),
+        mapInvisible: (x, y) => map_invisible(x, y, state),
+    };
 }
 
 // C ref: minion.c monster_census() (40-57).  The census walks the live level
@@ -281,9 +296,13 @@ export async function msummon(mon = null, rawEnv = {}) {
             if (!env.planning && typeof env.showTransientLight === 'function') {
                 await env.showTransientLight(created.mx, created.my, state, env);
             } else if (!env.planning) {
-                // C discards this display helper's return value; the display
-                // animation itself remains an explicitly recorded gap.
-                note_unported('light.c show_transient_light');
+                await show_transient_light(
+                    null,
+                    created.mx,
+                    created.my,
+                    state,
+                    transientLightEnv(state),
+                );
             }
         }
         if (count === 0 && seeMonster(created, state)) {
@@ -296,6 +315,6 @@ export async function msummon(mon = null, rawEnv = {}) {
         }
     }
     if (hasTransientLight && !env.planning)
-        note_unported('light.c transient_light_cleanup');
+        await transient_light_cleanup(state, transientLightEnv(state));
     return result ? monster_census(false, { state }) - census : 0;
 }

@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 230919333,
+      "datetime": "20331013094500",
+      "nethackrc": "OPTIONS=name:Arden,role:Wizard,race:human,gender:male,align:neutral,playmode:debug,!legacy,!tutorial,!splash_screen,showexp,time\n",
+      "moves": "#wizgenesis\nhostile gremlin\n#wizwish\nwand of light\ni\u001baoy        "
+    }
+  ],
+  "comment": "Blocked WAN_LIGHT bhitm caller. C reaches apply.c doapply -> do_break_wand -> broken_wand_explode -> zap.c bhitm(WAN_LIGHT), but JS doapply still refuses do_break_wand() before the explosion. Keep this recipe until that separately scoped source family is ported."
+}
