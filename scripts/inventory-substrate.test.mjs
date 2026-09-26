@@ -42,7 +42,7 @@ import {
     OBJ_ONBILL,
     PIT,
     ROOM,
-    SINK,
+    FOUNTAIN,
     STAIRS,
     STONE_RES,
     WEB,
@@ -3474,7 +3474,7 @@ test('ordinary drop preflight atomically refuses every excluded do.c tail',
                 state.level.at(10, 5).typ = LAVAPOOL;
             }],
             ['other terrain', /non-ordinary/u, ({ state }) => {
-                state.level.at(10, 5).typ = SINK;
+                state.level.at(10, 5).typ = FOUNTAIN;
             }],
             ['nearby timed corpse impact', /buried corpse/u, ({ state }) => {
                 state.level.buriedobjlist = {
