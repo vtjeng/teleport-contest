@@ -86644,6 +86644,93 @@
         "rng": 792838
       },
       "parkedReason": "Verified direct doeat spinach opening and delayed opentin with v7 full match plus independent 29-step cursed-spinach C recording. Whole eat.c family remains incomplete: consume_tin meat effects still need cprefx/cpostfx, tin_details lacks matching known-tin xname entry evidence, and use_tin_opener lacks apply.c:doapply TIN_OPENER caller until A14 releases that source reservation. Separate v6 tin-making cases belong to apply.c:use_tinning_kit."
+    },
+    {
+      "id": "port-do-wear-armoroff-synthetic-v6-20260926",
+      "kind": "file-port",
+      "status": "queued",
+      "summary": "Port complete do_wear.c armoroff delayed armor removal and production callbacks",
+      "cFile": "do_wear.c",
+      "sessions": [
+        "synthetic/v6/v6-add2-healer-takeoff-gloves"
+      ],
+      "selectionReason": "The current v6 healer takeoff-gloves case has 2 unmatched screens and a complete investigation at investigations/synthetic/v6/v6-add2-healer-takeoff-gloves.json. The only higher-ranked v7 crystal query is reserved by A14. C18 glibr is accepted, releasing do_wear.js; this is the first eligible unreserved source owner in the per-session queue.",
+      "detail": "At segment 0 step 2, cmd.c dotakeoff reaches do_wear.c armoroff delayed glove category. Port whole armoroff including all armor categories, occupation delay, nomovemsg, and callback state; wire existing dotakeoff/doremring routes and validate an independent C recording for adjacent active categories. See the source-traced investigation.",
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": null,
+      "delivered": null,
+      "functions": [
+        {
+          "name": "armoroff",
+          "line": 1920,
+          "endLine": 2010,
+          "declared": true,
+          "complete": false
+        }
+      ],
+      "range": {
+        "from": 1920,
+        "to": 2010
+      },
+      "syntheticProvenance": {
+        "synthetic/v6/v6-add2-healer-takeoff-gloves": {
+          "session": "synthetic/v6/v6-add2-healer-takeoff-gloves",
+          "corpus": "synthetic",
+          "batch": "v6",
+          "caseId": "v6-add2-healer-takeoff-gloves",
+          "manifestPath": "challenges/manifests/v6.json",
+          "manifestSha256": "7523b91e823f4e3906c9acdc9a3d80f8469c27c2caab8fc8fbd6967dbfdcab5f",
+          "recordingPath": "challenges/cases/v6/v6-add2-healer-takeoff-gloves.session.json",
+          "recordingSha256": "4ae39f1c9f9635d40c237d69a00d8495c1511b0cfd0bc058720f417b03abc09b",
+          "evaluationPath": "challenges/evaluations/20260926193350-v6.json",
+          "evaluationCommit": "7569737cbf0690c981232e6a48d59efadb0aa198"
+        }
+      }
+    },
+    {
+      "id": "port-dig-occupation-synthetic-v6-20260926",
+      "kind": "file-port",
+      "status": "queued",
+      "summary": "Port dig.c dig occupation with stairs refusal and floor pit creation",
+      "cFile": "dig.c",
+      "sessions": [
+        "synthetic/v6/archeologist-down-dig-final",
+        "synthetic/v6/archeologist-down-dig-floor"
+      ],
+      "selectionReason": "The fresh queue has two related 2-screen Archeologist down-dig cases with complete investigations at investigations/synthetic/v6/archeologist-down-dig-final.json and investigations/synthetic/v6/archeologist-down-dig-floor.json. Higher-ranked crystal detection is reserved by A14; the preceding healer glove case is queued for C19. Both Archeologist cases share the same first missing dig.c dig occupation and are the next eligible independent source family.",
+      "detail": "C apply.c doapply -> dig.c use_pick_axe2 installs dig as an occupation; allmain.c invokes it. The stairs case consumes dig_check and emits digcheck_fail_message; floor digging consumes dighole return and reaches digactualhole pit state. Implement whole dig and required source callees, preserve call and RNG order, and record independent C entry evidence. Caller edits to apply.js and allmain.js require coordination with A14 or existing generic occupation wiring.",
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": null,
+      "delivered": null,
+      "functions": [
+        {
+          "name": "dig",
+          "line": 300,
+          "endLine": 570,
+          "declared": false,
+          "complete": false
+        }
+      ],
+      "range": {
+        "from": 300,
+        "to": 570
+      },
+      "syntheticProvenance": {
+        "synthetic/v6/archeologist-down-dig-final": {
+          "session": "synthetic/v6/archeologist-down-dig-final",
+          "corpus": "synthetic",
+          "batch": "v6",
+          "caseId": "archeologist-down-dig-final",
+          "manifestPath": "challenges/manifests/v6.json",
+          "manifestSha256": "7523b91e823f4e3906c9acdc9a3d80f8469c27c2caab8fc8fbd6967dbfdcab5f",
+          "recordingPath": "challenges/cases/v6/archeologist-down-dig-final.session.json",
+          "recordingSha256": "4534979fef17fa8fa9e66b98f1f3a2d6f5b15c94eb1fa38de3750d06c962b612",
+          "evaluationPath": "challenges/evaluations/20260926193350-v6.json",
+          "evaluationCommit": "7569737cbf0690c981232e6a48d59efadb0aa198"
+        }
+      }
     }
   ]
 }
