@@ -86981,7 +86981,7 @@
     {
       "id": "port-do-wear-armoroff-synthetic-v6-20260926",
       "kind": "file-port",
-      "status": "open",
+      "status": "closed",
       "summary": "Port complete do_wear.c armoroff delayed armor removal and production callbacks",
       "cFile": "do_wear.c",
       "sessions": [
@@ -86995,15 +86995,18 @@
         "screens": 11405,
         "rng": 792838
       },
-      "closedAt": null,
-      "delivered": null,
+      "closedAt": "5f40b6037988123b4df4343160550886a3e929c9",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
       "functions": [
         {
           "name": "armoroff",
           "line": 1920,
           "endLine": 2010,
           "declared": true,
-          "complete": false
+          "complete": true
         }
       ],
       "range": {
@@ -87178,7 +87181,88 @@
             }
           }
         }
-      ]
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "armoroff",
+            "implementation": "js/do_wear.js",
+            "symbol": "armoroff",
+            "sourceReview": "Read the complete do_wear.c:armoroff() at 1920-2008. The JS computes delay as the negated object delay, calls the existing return-valued cursed() guard first, and retains C category order for both delayed and immediate paths. Delayed removal calls nomul(), sets disrobing reason, selects the simple-name helper and callback for all seven armor categories, and sets the completion message only when a name exists. Immediate removal invokes the matching category callback and then off_msg(). Both paths clear takeoff.mask and takeoff.what together before returning success. All return-valued callees are existing ports: cursed() and the category simple-name helpers. C discards impossible() in the two default arms; JS records that void gap as note_unported('pline.c impossible') without using its result. The task adds no new source unit for callback implementations.",
+            "callers": [
+              {
+                "path": "js/do_wear.js",
+                "symbol": "armor_or_accessory_off",
+                "source": "do_wear.c:armor_or_accessory_off:1807-1808"
+              },
+              {
+                "path": "js/do_wear.js",
+                "symbol": "dotakeoff",
+                "source": "do_wear.c:dotakeoff:1833-1854 -> armor_or_accessory_off:1854"
+              },
+              {
+                "path": "js/do_wear.js",
+                "symbol": "doremring",
+                "source": "do_wear.c:doremring:1874-1888 -> armor_or_accessory_off:1888"
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/take-off-armor.test.mjs"
+            ],
+            "recordings": [
+              "recordings/do_wear.c/healer-remove-gloves-r-independent.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v6",
+                "caseId": "v6-add2-healer-takeoff-gloves",
+                "segment": 0,
+                "fromStep": 2,
+                "throughStep": 3,
+                "source": "cmd.c:rhack T dispatch -> do_wear.c:dotakeoff -> armor_or_accessory_off -> armoroff; delayed ARM_GLOVES schedules Gloves_off and the callback completes through hack.c:unmul"
+              }
+            ],
+            "checkedAt": "5f40b6037988123b4df4343160550886a3e929c9"
+          }
+        ],
+        "entryPointReview": "The common active source entry is do_wear.c:armor_or_accessory_off(), called by dotakeoff() for T and doremring() for R. JS wires those command handlers through cmd.js:runTakeOffCommand and runRemoveCommand into rhack() result handling; a negative multi count keeps reading keys suspended until allmain.c:moveloop_core() releases it through hack.c:unmul(), which emits nomovemsg, clears the callback slot, and invokes the selected off callback. The admitted v6 Healer case matches on its complete segment and exercises T through the delayed gloves branch (segment 0, steps 2-3). A separate independently chosen Healer recipe exercises R selecting starting leather gloves and has a fully matching C/JS recording. Unit tests pin all seven category mappings in both delayed and immediate switches; for source categories with stock oc_delay zero, they set only the test game object delay to reach that C arm. The upstream select_off() boot check remains outside this task and blocks a command-driven boots entry before armoroff(); direct source-pinned switch tests cover its armoroff category arm. Invalid category defaults remain C impossible() gaps, represented with note_unported as their result is discarded.",
+        "entryPoints": [
+          {
+            "name": "T takeoff command removes worn Healer gloves",
+            "functions": [
+              "armoroff"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v6",
+                "caseId": "v6-add2-healer-takeoff-gloves",
+                "segment": 0,
+                "fromStep": 2,
+                "throughStep": 3,
+                "source": "cmd.c:rhack -> do_wear.c:dotakeoff -> armor_or_accessory_off -> armoroff -> hack.c:unmul -> Gloves_off"
+              }
+            ]
+          },
+          {
+            "name": "R remove command selects and removes worn Healer gloves",
+            "functions": [
+              "armoroff"
+            ],
+            "recordings": [
+              "recordings/do_wear.c/healer-remove-gloves-r-independent.session.json"
+            ],
+            "synthetic": []
+          }
+        ]
+      },
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "5f40b6037988123b4df4343160550886a3e929c9",
+        "screens": 11405,
+        "rng": 792838
+      }
     },
     {
       "id": "port-dig-occupation-synthetic-v6-20260926",
