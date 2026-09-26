@@ -6,8 +6,8 @@
 // two guards, the object prompt, the charge, the direction prompt, the wand
 // that glows and fades when no direction is given, and the worn-out wand that
 // crumbles. One of its five effect arms still stops: backfire(). The fifth,
-// weffects(), runs, and takes an aimed ray wand as far as the fire damage
-// zhitu() does to the hero.
+// weffects(), dispatches immediate effects and aimed rays; the callback and
+// ray families record their own remaining source boundaries below.
 //
 // The shop usage fee stops the command earlier than any of them. check_unpaid()
 // runs between the object prompt and the charge, and js/shk.js raises
@@ -115,6 +115,8 @@ import {
     Is_rogue_level,
     Is_waterlevel,
     LAVAWALL,
+    M_AP_MONSTER,
+    M_AP_NOTHING,
     M_AP_OBJECT,
     M_AP_TYPE,
     M_SEEN_FIRE,
@@ -143,6 +145,7 @@ import {
     NO_MINVENT,
     NON_PM,
     NOTELL,
+    TELL,
     G_GENOD,
     has_mcorpsenm,
     REFLECTING,
@@ -357,6 +360,7 @@ import {
     G_UNIQ,
     NUMMONS,
     S_EEL,
+    S_MIMIC,
 } from './monsters.js';
 import { discover_object, observe_object } from './o_init.js';
 import { obj_resists } from './bury.js';
@@ -2817,9 +2821,10 @@ export async function stone_to_flesh_obj(obj, state = game,
     return result;
 }
 
-// C ref: zap.c bhito() (2118-2426), the WAN_POLYMORPH arm.  Other object
-// effects remain owned by their own zap.c spans and retain their established
-// fail-closed boundaries when reached by this callback.
+// C ref: zap.c bhito() (2118-2426), the polymorph and Stone to Flesh arms.
+// The striking/Force Bolt breakage result chain is still an explicit source
+// boundary; other unported effects fail closed here rather than entering the
+// polymorph arm.
 export async function bhito(obj, wand, state = game,
     random = { rn2, rnd }, rawEnv = {}) {
     if (obj === wand) return 0;
@@ -2830,9 +2835,9 @@ export async function bhito(obj, wand, state = game,
         // inventing user-visible output.
         obj.bypass = false;
     }
-    // bhitpile() adds this result to its hit count. Its only production
-    // caller here admits the implemented polymorph callback; unsupported
-    // immediate effects stop at weffects() before reaching this callback.
+    // bhitpile() adds this result to its hit count. Every immediate effect
+    // can reach this callback, so supported arms stay explicit and unported
+    // effects cannot fall through into polymorph.
     if (obj === state.uball || obj === state.u?.uball) return 0;
     if (obj === state.uchain || obj === state.u?.uchain) {
         if (wand.otyp === WAN_OPENING || wand.otyp === SPE_KNOCK) {
@@ -2841,6 +2846,16 @@ export async function bhito(obj, wand, state = game,
         }
         return 0;
     }
+    if (wand.otyp === WAN_STRIKING || wand.otyp === SPE_FORCE_BOLT)
+        throw new UnsupportedZapError(
+            'bhito() Force Bolt breakage return chain '
+            + '(hero_breaks/breaks, break_statue)',
+        );
+    if (wand.otyp !== WAN_POLYMORPH && wand.otyp !== SPE_POLYMORPH
+        && wand.otyp !== SPE_STONE_TO_FLESH)
+        throw new UnsupportedZapError(
+            `bhito() for immediate effect type ${wand.otyp}`,
+        );
     // zap.c permits Stone to Flesh to reach inventory objects as well as
     // floor objects; its return value is consumed by bhitpile(), so this
     // branch must precede the polymorph-only unpolyable guard.
@@ -2891,22 +2906,56 @@ export async function bhito(obj, wand, state = game,
     return 1;
 }
 
-// C ref: zap.c bhitm() (160-610).  The immediate polymorph callback uses the
+// C ref: zap.c bhitm() (160-610). The immediate polymorph callback uses the
 // same monster selector as mon.c and awaits its result because newcham may
-// prompt or run floor effects.  The other wand callbacks remain explicit
-// source boundaries until their own effect families land.
+// prompt or run floor effects. Force Bolt and striking have their own hit and
+// resistance path; remaining callback effects retain named refusals.
 export async function bhitm(monster, wand, state = game,
-    random = { rn2, rnd }, rawEnv = {}) {
-    // bhit() consumes the callback's return value while walking the ray. Its
-    // production caller admits only the implemented polymorph callback;
-    // unsupported immediate effects stop at weffects() first.
+    random = { d, rn2, rnd }, rawEnv = {}) {
+    // bhit() consumes the callback's return value while walking the ray.
     state.gn ??= {};
     const hit = state.gb?.bhitpos ?? { x: monster.mx, y: monster.my };
     state.gn.notonhead = monster.mx !== hit.x || monster.my !== hit.y;
     let learn_it = false;
+    let reveal_invis = false;
+    const otyp = wand.otyp;
+    const forceBolt = otyp === WAN_STRIKING || otyp === SPE_FORCE_BOLT;
+    const disguised_mimic = monster.data?.mlet === S_MIMIC
+        && M_AP_TYPE(monster) !== M_AP_NOTHING;
     // A long worm which this same zap just changed into must not be hit again
     // when its tail is traversed later in the ray.
-    if (monster.data === state.mons?.[PM_LONG_WORM]
+    if (!forceBolt && otyp !== WAN_POLYMORPH && otyp !== SPE_POLYMORPH) {
+        throw new UnsupportedZapError(
+            `bhitm() for immediate effect type ${otyp}`,
+        );
+    } else if (forceBolt) {
+        const zap_type_text = otyp === WAN_STRIKING ? 'wand' : 'spell';
+        reveal_invis = true;
+        learn_it = cansee(hit.x, hit.y, state);
+        if (resists_magm(monster, state)) {
+            if (disguised_mimic && M_AP_TYPE(monster) !== M_AP_MONSTER)
+                seemimic(monster, state);
+            await shieldeff_mon(monster, { state });
+            await ttyPline('Boing!', state, rawEnv);
+        } else if (state.u?.uswallow
+            || random.rnd(20) < 10 + find_mac(monster, state)) {
+            if (disguised_mimic) seemimic(monster, state);
+            let damage = random.d(2, 12);
+            if (state.urole?.mnum === PM_KNIGHT
+                && state.u?.uhave?.questart)
+                damage *= 2;
+            if (otyp === SPE_FORCE_BOLT)
+                damage = spell_damage_bonus(damage, state);
+            await hit(zap_type_text, monster, exclam(damage), state, rawEnv);
+            // zap.c discards resist()'s boolean result. The existing resist
+            // owner still refuses the unresolved death/killed() return path.
+            await resist(monster, wand.oclass, damage, TELL, state, random);
+        } else {
+            if (!disguised_mimic)
+                await miss(zap_type_text, monster, state, rawEnv);
+            learn_it = false;
+        }
+    } else if (monster.data === state.mons?.[PM_LONG_WORM]
         && has_mcorpsenm(monster)) {
         // C leaves the common wake/reveal/learn tail in place even for this
         // no-op guard; there is simply no effect to learn.
@@ -2980,6 +3029,10 @@ export async function bhitm(monster, wand, state = game,
         });
         await m_respond(monster, { ...rawEnv, state, random });
     }
+    if (reveal_invis && monster.mhp >= 1
+        && cansee(hit.x, hit.y, state)
+        && !canSpotMonster(monster, state))
+        map_invisible(hit.x, hit.y, state);
     if (learn_it) learnwand(wand, state);
     return 0;
 }
@@ -5146,12 +5199,15 @@ export async function zap_updown(obj, state = game,
 }
 
 // C ref: zap.c weffects() (3430-3476), "called for various wand and spell
-// effects - M. Stephenson". dozap()'s final else is its ported caller, so
-// `obj` is a wand the hero aimed or a wand with no direction at all.
+// effects - M. Stephenson". dozap() and spelleffects() are its production
+// callers. It dispatches steed, immediate, directionless, and ray effects;
+// individual callback families retain their own source boundaries.
 //
-// The ray arm at 3463-3465 and the secret-door-detection part of the NODIR arm
-// run. `disclose` turns a ray wand into "a wand of fire" after its effect has
-// been seen. zapnodir() owns the equivalent discovery tail for its wand.
+// The immediate arm at 3439-3451 calls bhitm/bhito through bhit for a
+// horizontal effect. The aimed-ray arm at 3463-3465 and the
+// secret-door-detection part of the NODIR arm also run. `disclose` turns a
+// ray wand into "a wand of fire" after its effect has been seen. zapnodir()
+// owns the equivalent discovery tail for its wand.
 //
 // hack.h:1477 BZ_OFS_WAN(otyp) is `abs(otyp - WAN_MAGIC_MISSILE) % 10` and
 // :1480 BZ_U_WAND(bztyp) is `0 + bztyp`, so the six ray wands become dobuzz()
@@ -5169,13 +5225,9 @@ export async function weffects(
         && state.u.dz > 0 && await zap_steed(obj, state, random)) {
         disclose = true;
     } else if (oc_dir === IMMEDIATE) {
-        // The immediate callback walk is source-complete for polymorph only.
-        // Keep the established weffects() boundary at the caller for all
-        // other object effects instead of fabricating a callback result.
-        if (otyp !== WAN_POLYMORPH && otyp !== SPE_POLYMORPH)
-            throw new UnsupportedZapError(
-                `bhit() for immediate object type ${otyp}`,
-            );
+        // zap.c:3439-3451 sends every immediate effect through the same
+        // callback walk. The callback owners decide which individual effects
+        // are available; the dispatch itself does not special-case them.
         zapsetup(state);
         if (state.u.uswallow) {
             await bhitm(state.u.ustuck, obj, state, random);
