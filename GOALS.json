@@ -74413,12 +74413,12 @@
           "manifestSha256": "5e4430fbd724fe91720f898c02e6f25f9d98e884fa31bd696ca1a63e87abf150",
           "recordingPath": "challenges/cases/v5/healer-wand-striking-grid-bug.session.json",
           "recordingSha256": "97d372dd3a84252d6970271b4d335959cbf6d24c41318fa0b578c7a79446ec32",
-          "evaluationPath": "challenges/evaluations/20260926144607-v5.json",
-          "evaluationCommit": "fa3aebd3eee0de7cb859e5efeaa4e7dda2b0e735"
+          "evaluationPath": "challenges/evaluations/20260926180549-v5.json",
+          "evaluationCommit": "27ef57edeff3c341b4c703e10bad99202c2bc7f2"
         }
       },
       "activeStanding": {
-        "sha": "fa3aebd3eee0de7cb859e5efeaa4e7dda2b0e735",
+        "sha": "27ef57edeff3c341b4c703e10bad99202c2bc7f2",
         "screens": 11405,
         "rng": 792838
       },
@@ -74604,11 +74604,11 @@
         "rng": 0
       },
       "parkedStanding": {
-        "sha": "fa3aebd3eee0de7cb859e5efeaa4e7dda2b0e735",
+        "sha": "ad2f3f5f793817d00d647fb176ace1cb303510ed",
         "screens": 11405,
         "rng": 792838
       },
-      "parkedReason": "The 41-screen v7 blessed-book-undead source goal A12 is ready for integration and has higher priority than this seven-screen v5 Healer wand continuation. B17 is independently implementing the Force Bolt breakage return chain; its bhito revive branch consumes makemon, whose source owner is A12. Park this goal during A12 integration, then resume for B17 delivery after A12 is accepted; keep the original v2 and current v5 entry paths and do not close from the corpse prefix."
+      "parkedReason": "Verified Force Bolt wand and inventory boxlock paths plus four independent C recordings; v5 healer now fully matches. Whole zap.c weffects remains incomplete: spell ray via ubuzz, bhito revive return, and monster-bars collision lack complete production evidence. Resume from these source branches."
     },
     {
       "id": "port-engrave-u-can-engrave-synthetic-v3-20260926",
@@ -84627,6 +84627,195 @@
           "recordingSha256": "6bf1416d9de4abf481689ec1d723ff6775badd518b9222d66c685b3157cc4149",
           "evaluationPath": "challenges/evaluations/20260926163920-v7.json",
           "evaluationCommit": "582db754e6ffe41e254f7673dea995dd124e4946"
+        }
+      }
+    },
+    {
+      "id": "port-detect-use-crystal-ball-synthetic-v7-20260926",
+      "kind": "file-port",
+      "status": "queued",
+      "summary": "Port detect.c use_crystal_ball and its detector result paths",
+      "cFile": "detect.c",
+      "sessions": [
+        "synthetic/v7/crystal-query-reached"
+      ],
+      "selectionReason": "synthetic/v7/crystal-query-reached has 3 remaining screens at investigations/synthetic/v7/crystal-query-reached.json; detect.c:use_crystal_ball is the first eligible unreserved source owner after B17 reserves the higher-ranked v5 zap.c failure.",
+      "detail": "C apply.c:doapply calls detect.c:use_crystal_ball for a charged crystal ball. The v7 case enters its symbol prompt and trap-detection query; port the whole function, consumed detector results, object charge and gaze state, and the doapply caller without case-specific behavior.",
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": null,
+      "delivered": null,
+      "functions": [
+        {
+          "name": "use_crystal_ball",
+          "line": 1206,
+          "endLine": 1371,
+          "declared": false,
+          "complete": false
+        }
+      ],
+      "range": {
+        "from": 1206,
+        "to": 1371
+      },
+      "syntheticProvenance": {
+        "synthetic/v7/crystal-query-reached": {
+          "session": "synthetic/v7/crystal-query-reached",
+          "corpus": "synthetic",
+          "batch": "v7",
+          "caseId": "crystal-query-reached",
+          "manifestPath": "challenges/manifests/v7.json",
+          "manifestSha256": "03a861a9d1bc9d813c80681312ee7a0e0f893dbad0536de40a974bd5ec344094",
+          "recordingPath": "challenges/cases/v7/crystal-query-reached.session.json",
+          "recordingSha256": "71317422866c0e8eda5ca1c8c0681982f3843bef8e8a3f1ebd98d01890da5b5f",
+          "evaluationPath": "challenges/evaluations/20260926180549-v7.json",
+          "evaluationCommit": "27ef57edeff3c341b4c703e10bad99202c2bc7f2"
+        }
+      }
+    },
+    {
+      "id": "port-do-wear-glibr-synthetic-v6-20260926",
+      "kind": "file-port",
+      "status": "queued",
+      "summary": "Port do_wear.c glibr and elapsed-turn caller for slippery equipment",
+      "cFile": "do_wear.c",
+      "sessions": [
+        "synthetic/v6/wizard-greasy-write-glib-final",
+        "synthetic/v6/wizard-greasy-write-glib-retry",
+        "synthetic/v6/wizard-grease-write-target",
+        "synthetic/v6/wizard-greasy-write-menu",
+        "synthetic/v6/wizard-grease-hands-final"
+      ],
+      "selectionReason": "synthetic/v6/wizard-greasy-write-glib-final has 3 remaining screens at investigations/synthetic/v6/wizard-greasy-write-glib-final.json. It is the first eligible unreserved case after B17 owns v5 zap.c, A14 owns v7 crystal detect.c, and C17 owns v7 lizard wizcmds.c. The five related v6 cases share do_wear.c:glibr as first source owner and total 12 remaining screens.",
+      "detail": "C allmain.c:moveloop_core calls do_wear.c:glibr after turn advancement and before nh_timeout when Glib is active. Port whole glibr including ring, offhand and primary-weapon branches; wire JS finishElapsedTurn in source order with planning/live state, and record independent C entry paths beyond the five admitted primary-weapon cases.",
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": null,
+      "delivered": null,
+      "functions": [
+        {
+          "name": "glibr",
+          "line": 2528,
+          "endLine": 2629,
+          "declared": false,
+          "complete": false
+        }
+      ],
+      "range": {
+        "from": 2528,
+        "to": 2629
+      },
+      "syntheticProvenance": {
+        "synthetic/v6/wizard-greasy-write-glib-final": {
+          "session": "synthetic/v6/wizard-greasy-write-glib-final",
+          "corpus": "synthetic",
+          "batch": "v6",
+          "caseId": "wizard-greasy-write-glib-final",
+          "manifestPath": "challenges/manifests/v6.json",
+          "manifestSha256": "7523b91e823f4e3906c9acdc9a3d80f8469c27c2caab8fc8fbd6967dbfdcab5f",
+          "recordingPath": "challenges/cases/v6/wizard-greasy-write-glib-final.session.json",
+          "recordingSha256": "20b60af8d804f9bd6ebd5b1217dae85a6cdad0afcae9d4f98bd6c57d6f3fb6e6",
+          "evaluationPath": "challenges/evaluations/20260926180549-v6.json",
+          "evaluationCommit": "27ef57edeff3c341b4c703e10bad99202c2bc7f2"
+        }
+      }
+    },
+    {
+      "id": "port-eat-tin-opening-synthetic-v7-20260926",
+      "kind": "file-port",
+      "status": "queued",
+      "summary": "Port eat.c tin-opening and consumption function family",
+      "cFile": "eat.c",
+      "sessions": [
+        "synthetic/v7/spinach-tin-hunger"
+      ],
+      "selectionReason": "synthetic/v7/spinach-tin-hunger has 3 remaining screens at investigations/synthetic/v7/spinach-tin-hunger.json; eat.c:start_tin is the first eligible unreserved source owner after B17 zap.c, A14 detect.c, C17 wizcmds.c, and C18 do_wear.c reservations.",
+      "detail": "C doeat and use_tin_opener call start_tin; blessed spinach opens immediately, then consume_tin prompts and updates conduct, strength, item and hunger. Port the source-ordered costly_tin through start_tin family, consumed returns and occupation callback, with independent C evidence for delayed and other tin paths. Preserve unrelated mismatches and name any blocked dependencies.",
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": null,
+      "delivered": null,
+      "functions": [
+        {
+          "name": "costly_tin",
+          "line": 1389,
+          "endLine": 1404,
+          "declared": false,
+          "complete": false
+        },
+        {
+          "name": "tin_variety_txt",
+          "line": 1405,
+          "endLine": 1427,
+          "declared": true,
+          "complete": false
+        },
+        {
+          "name": "tin_details",
+          "line": 1428,
+          "endLine": 1460,
+          "declared": true,
+          "complete": false
+        },
+        {
+          "name": "set_tin_variety",
+          "line": 1461,
+          "endLine": 1488,
+          "declared": true,
+          "complete": false
+        },
+        {
+          "name": "tin_variety",
+          "line": 1489,
+          "endLine": 1515,
+          "declared": true,
+          "complete": false
+        },
+        {
+          "name": "use_up_tin",
+          "line": 1516,
+          "endLine": 1527,
+          "declared": false,
+          "complete": false
+        },
+        {
+          "name": "consume_tin",
+          "line": 1528,
+          "endLine": 1702,
+          "declared": false,
+          "complete": false
+        },
+        {
+          "name": "opentin",
+          "line": 1703,
+          "endLine": 1722,
+          "declared": false,
+          "complete": false
+        },
+        {
+          "name": "start_tin",
+          "line": 1723,
+          "endLine": 1800,
+          "declared": false,
+          "complete": false
+        }
+      ],
+      "range": {
+        "from": 1389,
+        "to": 1800
+      },
+      "syntheticProvenance": {
+        "synthetic/v7/spinach-tin-hunger": {
+          "session": "synthetic/v7/spinach-tin-hunger",
+          "corpus": "synthetic",
+          "batch": "v7",
+          "caseId": "spinach-tin-hunger",
+          "manifestPath": "challenges/manifests/v7.json",
+          "manifestSha256": "03a861a9d1bc9d813c80681312ee7a0e0f893dbad0536de40a974bd5ec344094",
+          "recordingPath": "challenges/cases/v7/spinach-tin-hunger.session.json",
+          "recordingSha256": "6c072a1e716c748312d2ceb758626b200ccb4dc47eaae3884df08f23e8809e74",
+          "evaluationPath": "challenges/evaluations/20260926180549-v7.json",
+          "evaluationCommit": "27ef57edeff3c341b4c703e10bad99202c2bc7f2"
         }
       }
     }

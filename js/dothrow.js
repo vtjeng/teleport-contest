@@ -39,6 +39,10 @@ import {
     AUGMENT_IT,
     BACKTRACK,
     BOLT_LIM,
+    BRK_FROM_INV,
+    BRK_KNOWN2BREAK,
+    BRK_KNOWN2NOTBREAK,
+    BRK_KNOWN_OUTCOME,
     CONFUSION,
     CQ_CANNED,
     D_ISOPEN,
@@ -55,6 +59,7 @@ import {
     EF_VERBOSE,
     ERODE_CRACK,
     ER_DESTROYED,
+    EYE,
     FIRE_TRAP,
     FUMBLING,
     FOOT,
@@ -201,9 +206,11 @@ import {
     notake,
     throws_rocks,
     touch_petrifies,
+    breathless,
+    haseyes,
     your_race,
 } from './mondata.js';
-import { closed_door, monnear } from './monmove.js';
+import { closed_door, monnear, youHear } from './monmove.js';
 import { dogfood } from './dogfood.js';
 import { tamedog } from './dog.js';
 import {
@@ -226,6 +233,8 @@ import {
     PM_WIZARD,
     PM_PYROLISK,
     PM_APE,
+    PM_CYCLOPS,
+    PM_FLOATING_EYE,
     AT_ENGL,
     AD_DGST,
     PM_LICHEN,
@@ -271,6 +280,7 @@ import {
     COIN_CLASS,
     CORPSE,
     CREAM_PIE,
+    CRYSTAL_BALL,
     EGG,
     ELVEN_ARROW,
     ELVEN_BOW,
@@ -292,6 +302,7 @@ import {
     HEAVY_IRON_BALL,
     KELP_FROND,
     LEATHER_GLOVES,
+    LENSES,
     MELON,
     MIRROR,
     OILSKIN_SACK,
@@ -309,8 +320,10 @@ import {
     SPRIG_OF_WOLFSBANE,
     STRANGE_OBJECT,
     STATUE,
+    TOWEL,
     VENOM_CLASS,
     WEAPON_CLASS,
+    WAND_CLASS,
     PIERCE,
     WAR_HAMMER,
     YA,
@@ -318,6 +331,8 @@ import {
 } from './objects.js';
 import {
     an,
+    armor_simple_name,
+    Doname2,
     helm_simple_name,
     killer_xname,
     mshot_xname,
@@ -326,6 +341,7 @@ import {
     the,
     The,
     Tobjnam,
+    vtense,
     xnameFresh,
 } from './objnam.js';
 import {
@@ -370,11 +386,18 @@ import { setmangry, wake_nearto, wakeup } from './mon.js';
 import { mpickobj, remove_worn_item } from './steal.js';
 import { goodpos, rloc, tele_restrict } from './teleport.js';
 import { is_quest_artifact } from './questpgr.js';
+import { objectGenerationEnv } from './object_generation.js';
 import { align_gname } from './pray.js';
 import { canSpotMonster, heroIsBlind } from './startup_a11y.js';
 import { in_out_region } from './region.js';
 import { check_special_room, in_rooms } from './rooms.js';
-import { inside_shop } from './shk.js';
+import {
+    costly_spot,
+    inside_shop,
+    shop_keeper,
+    stolen_value,
+} from './shk.js';
+import { erode_obj } from './trap_erode_obj.js';
 import { dotrap } from './trap_effects.js';
 import { Punished } from './steed.js';
 import { move_bc, drag_ball } from './ball.js';
@@ -857,6 +880,95 @@ export function breaktest(obj, env = {}) {
     }
 }
 
+// C ref: dothrow.c breakmsg() (2612-2653). This runs only after breaktest()
+// succeeds; crackable armor leaves its message to trap.c erode_obj().
+async function breakmsg(obj, inView, rawEnv = {}) {
+    const state = rawEnv.state ?? game;
+    const message = rawEnv.message ?? ttyPline;
+    if (isCrackable(obj, state)) return;
+
+    let toPieces = '';
+    switch (obj.oclass === POTION_CLASS ? POT_WATER : obj.otyp) {
+    default:
+        if (obj.oclass !== WAND_CLASS)
+            note_unported('pline.c impossible');
+        // Glass or crystal wand.
+        toPieces = ' into a thousand pieces';
+        // fall through
+    case LENSES:
+    case MIRROR:
+    case CRYSTAL_BALL:
+    case EXPENSIVE_CAMERA:
+        toPieces = ' into a thousand pieces';
+        // fall through
+    case POT_WATER:
+        if (!inView) {
+            const heard = youHear('something shatter!', state);
+            if (heard) await message(heard, state, rawEnv);
+        } else {
+            const plural = (obj.quan ?? 1) === 1 ? 's' : '';
+            await message(
+                `${Doname2(obj, state)} shatter${plural}${toPieces}!`,
+                state,
+                rawEnv,
+            );
+        }
+        break;
+    case EGG:
+    case MELON:
+        await message('Splat!', state, rawEnv);
+        break;
+    case CREAM_PIE:
+        if (inView) await message('What a mess!', state, rawEnv);
+        break;
+    case ACID_VENOM:
+    case BLINDING_VENOM:
+        await message('Splash!', state, rawEnv);
+        break;
+    }
+}
+
+// C ref: dothrow.c hero_breaks() (2417-2441). The hero-visible message is
+// selected before breakobj(), and the known-outcome flags can bypass a second
+// resistance roll when a caller already made the decision.
+export async function hero_breaks(
+    obj,
+    x,
+    y,
+    breakFlags = 0,
+    rawEnv = {},
+) {
+    const state = rawEnv.state ?? game;
+    const fromInventory = Boolean(breakFlags & BRK_FROM_INV);
+    const inView = !heroIsBlind(state)
+        && (fromInventory || cansee(x, y, state));
+    let outcome = breakFlags & BRK_KNOWN_OUTCOME;
+    if (!outcome) {
+        outcome = breaktest(obj, { ...rawEnv, state })
+            ? BRK_KNOWN2BREAK : BRK_KNOWN2NOTBREAK;
+    }
+    if (outcome === BRK_KNOWN2NOTBREAK) return 0;
+    await breakmsg(obj, inView, { ...rawEnv, state });
+    return await breakobj(
+        obj,
+        x,
+        y,
+        true,
+        fromInventory,
+        { ...rawEnv, state },
+    );
+}
+
+// C ref: dothrow.c breaks() (2444-2454). This variant records a non-hero
+// cause and never bills a floor object to the hero as an inventory loss.
+export async function breaks(obj, x, y, rawEnv = {}) {
+    const state = rawEnv.state ?? game;
+    const inView = !heroIsBlind(state) && cansee(x, y, state);
+    if (!breaktest(obj, { ...rawEnv, state })) return 0;
+    await breakmsg(obj, inView, { ...rawEnv, state });
+    return await breakobj(obj, x, y, false, false, { ...rawEnv, state });
+}
+
 // C ref: dothrow.c breakobj() (2480-2578). The resistance check belongs to
 // breaktest(); this function performs the source's object disposition and
 // returns TRUE whenever the caller must stop its landing tail.  The C calls
@@ -874,25 +986,24 @@ export async function breakobj(
     const state = rawEnv.state ?? game;
     const message = rawEnv.message ?? ttyPline;
     const random = rawEnv.random ?? { rn2, rnd, d };
+    const objectEnv = objectGenerationEnv({
+        ...rawEnv,
+        state,
+        random,
+        message,
+    });
 
     if (!obj) return 0;
 
-    // Crackable armor delegates its erosion result to trap.c. Floor missiles
-    // are not carried, so the visible-object arm is an explicit dependency;
-    // callers still receive the C boolean when a caller supplies that owner.
+    // C consumes erode_obj()'s return value to distinguish a crack from
+    // destruction. The floor-object path uses gb.bhitpos for visibility.
     if (isCrackable(obj, state)) {
-        const erode = rawEnv.erodeObject;
-        if (typeof erode !== 'function') {
-            note_unported('trap.c erode_obj floor object');
-            delobj(obj, { ...rawEnv, state, force: true });
-            return 1;
-        }
-        const result = await erode(
+        const result = await erode_obj(
             obj,
-            null,
+            armor_simple_name(obj, state),
             ERODE_CRACK,
             EF_DESTROY | EF_VERBOSE,
-            { ...rawEnv, state, random },
+            objectEnv,
         );
         return result === ER_DESTROYED ? 1 : 0;
     }
@@ -905,20 +1016,39 @@ export async function breakobj(
         if (heroCaused) change_luck(-2, state);
         break;
     case POT_WATER:
-        obj.in_use = true;
+        obj.in_use = 1;
         if (obj.otyp === POT_OIL && obj.lamplit) {
             note_unported('potion.c explode_oil');
         } else if (next2u(x, y, state)) {
-            // potionbreathe() is a void call in C. Use the implemented owner
-            // when available and preserve its own unsupported vapour arms.
-            const breathe = rawEnv.potionbreathe;
-            if (typeof breathe === 'function') {
-                await breathe(obj, state, { ...rawEnv, random, message });
-            } else {
+            const species = state.youmonst?.data;
+            const canBreatheVapors = !breathless(species) || haseyes(species);
+            if (canBreatheVapors) {
+                const halfGasDamage = state.ublindf?.otyp === TOWEL
+                    && state.ublindf.spe > 0;
+                if (obj.otyp !== POT_WATER && !halfGasDamage) {
+                    if (!breathless(species)) {
+                        await message(
+                            'You smell a peculiar odor...', state, rawEnv,
+                        );
+                    } else {
+                        let eyes = body_part(EYE, state.youmonst);
+                        const eyeCount = !haseyes(species) ? 0
+                            : (species.pmidx === PM_CYCLOPS
+                                || species.pmidx === PM_FLOATING_EYE) ? 1 : 2;
+                        if (eyeCount !== 1) eyes = makeplural(eyes);
+                        await message(
+                            `Your ${eyes} ${vtense(eyes, 'water')}.`,
+                            state,
+                            rawEnv,
+                        );
+                    }
+                }
+                // potionbreathe() has a discarded void result here. Its
+                // side effects remain an explicit dependency until the source
+                // owner is assigned to this port.
                 note_unported('potion.c potionbreathe');
             }
         }
-        obj.in_use = false;
         break;
     case EXPENSIVE_CAMERA:
         note_unported('dothrow.c release_camera_demon');
@@ -941,9 +1071,31 @@ export async function breakobj(
         if (state.u?.ushops?.[0] || obj.unpaid)
             note_unported('dothrow.c check_shop_obj');
     } else if (heroCaused && !obj.no_charge) {
-        note_unported('shk.c costly_spot/stolen_value');
+        if (costly_spot(x, y, state)) {
+            const room = in_rooms(x, y, SHOPBASE, state)[0] ?? 0;
+            const keeper = shop_keeper(room, state);
+            if (keeper) {
+                const eshk = keeper.mextra.eshk;
+                const heroSeq = state.hero_seq ?? 0;
+                if (heroSeq !== eshk.break_seq)
+                    eshk.seq_peaceful = keeper.mpeaceful;
+                const value = await stolen_value(
+                    obj, x, y, eshk.seq_peaceful, false, state,
+                );
+                if (value > 0
+                    && (room !== state.u?.ushops?.[0]
+                        || !inside_shop(state.u?.ux, state.u?.uy, state))
+                    && heroSeq !== eshk.break_seq) {
+                    note_unported('shk.c make_angry_shk');
+                }
+                // C calls make_angry_shk() only on the first breakage of a
+                // hero move, then records this sequence even when no theft
+                // occurred.
+                eshk.break_seq = heroSeq;
+            }
+        }
     }
-    if (!fracture) delobj(obj, { ...rawEnv, state });
+    if (!fracture) delobj(obj, objectEnv);
     if (explosion) {
         const explode = rawEnv.explode;
         if (typeof explode === 'function') {
@@ -1994,7 +2146,11 @@ export async function throwit(obj, wep_mask, twoweap, oldslot, state = game) {
         await tmp_at(bx, by, state);
         await nh_delay_output(state);
         await tmp_at(DISP_END, 0, state);
-        note_unported('dothrow.c breakmsg');
+        await breakmsg(
+            obj,
+            cansee(bx, by, state),
+            { state, message: ttyPline },
+        );
         if (await breakobj(obj, bx, by, true, true, { state })) {
             throwit_return(true, state);
             return;

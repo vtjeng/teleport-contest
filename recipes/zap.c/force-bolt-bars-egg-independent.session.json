@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 8198311,
+      "datetime": "20390929123456",
+      "nethackrc": "OPTIONS=name:BarsEgg,role:Wizard,race:human,gender:female,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen,playmode:debug,pettype:none,!acoustics,!autopickup,time\n",
+      "moves": " \u0017iron bars\n\u0017egg\nhkktnn"
+    }
+  ],
+  "_comment": "Independent B17 bars collision witness: wish iron bars under the hero and an egg, step into the square beside them, then throw the egg diagonally at the bars. This exercises zap.c bhit -> mthrowu.c hits_bars/hit_bars -> dothrow.c hero_breaks/breaktest/breakmsg/breakobj."
+}

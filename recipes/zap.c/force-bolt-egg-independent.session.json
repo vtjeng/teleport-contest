@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 8198302,
+      "datetime": "20390927123456",
+      "nethackrc": "OPTIONS=name:EggTrial,role:Wizard,race:human,gender:female,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen,playmode:debug,pettype:none,!acoustics,!autopickup,time\n",
+      "moves": " \u0017wand of striking\n\u0017egg\ndplzoh"
+    }
+  ],
+  "_comment": "Independent B17 Force Bolt object-break witness: wish a wand of striking and egg, drop the egg, move one square east, and zap west. This reaches zap.c weffects through bhit/bhitpile/bhito, then dothrow.c hero_breaks/breaktest/breakmsg/breakobj."
+}
