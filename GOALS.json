@@ -77993,6 +77993,49 @@
           "evaluationCommit": "a4cca522bb1757073b5cea17ac1d8c2d7c82367f"
         }
       }
+    },
+    {
+      "id": "port-read-doread-cursed-teleport-synthetic-v5-20260926",
+      "kind": "file-port",
+      "status": "queued",
+      "summary": "Port read.c doread and required seffects dispatch for cursed teleport scrolls",
+      "cFile": "read.c",
+      "sessions": [
+        "synthetic/v5/ranger-level-teleport-return"
+      ],
+      "selectionReason": "C12 seed continuation after C11: synthetic/v5/ranger-level-teleport-return has 11 unmatched screens and complete investigation at investigations/synthetic/v5/ranger-level-teleport-return.json; higher-ranked Samurai 63 is reserved by A9 and Healer 48 overlaps A9 js/zap.js. First stop step 34 belongs to read.c doread; no read.c reservation exists. v5 manifest 5e4430fbd724fe91720f898c02e6f25f9d98e884fa31bd696ca1a63e87abf150, recording 5e5b09826e4e3dd2e5689e72dd4093ba492baeae7718ff040c43dec8ba14b5f3, evaluation challenges/evaluations/20260926052853-v5.json.",
+      "detail": "C read.c doread lines 330-646 admits sighted unconfused cursed teleport scroll; its return-valued seffects call requires porting the whole read.c seffects dispatch lines 2194-2290 in the same task. seffect_teleportation already routes cursed scrolls to level_tele. Wire source callers and retain independent entry evidence for all impure source paths.",
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": null,
+      "delivered": null,
+      "functions": [
+        {
+          "name": "doread",
+          "line": 330,
+          "endLine": 651,
+          "declared": true,
+          "complete": true
+        }
+      ],
+      "range": {
+        "from": 330,
+        "to": 651
+      },
+      "syntheticProvenance": {
+        "synthetic/v5/ranger-level-teleport-return": {
+          "session": "synthetic/v5/ranger-level-teleport-return",
+          "corpus": "synthetic",
+          "batch": "v5",
+          "caseId": "ranger-level-teleport-return",
+          "manifestPath": "challenges/manifests/v5.json",
+          "manifestSha256": "5e4430fbd724fe91720f898c02e6f25f9d98e884fa31bd696ca1a63e87abf150",
+          "recordingPath": "challenges/cases/v5/ranger-level-teleport-return.session.json",
+          "recordingSha256": "5e5b09826e4e3dd2e5689e72dd4093ba492baeae7718ff040c43dec8ba14b5f3",
+          "evaluationPath": "challenges/evaluations/20260926052853-v5.json",
+          "evaluationCommit": "7e18f426e5b6b4030afbc50c1720f1a79e82d57b"
+        }
+      }
     }
   ]
 }
