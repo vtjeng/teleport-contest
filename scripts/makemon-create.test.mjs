@@ -1,4 +1,5 @@
 import assert from 'node:assert/strict';
+import { readFileSync } from 'node:fs';
 import test from 'node:test';
 
 import {
@@ -262,6 +263,11 @@ import { extra_pref, update_mon_extrinsics } from '../js/worn.js';
 import { rawMonsterGenerationState } from './monster-test-state.mjs';
 import { scriptedRandom, step } from './monster-scripted-random.mjs';
 import { loadMonsterPickupRecipe } from './run-monster-pickup.mjs';
+
+const MAKEMON_C_SOURCE = readFileSync(
+    'nethack-c/upstream/src/makemon.c', 'utf8',
+);
+const MAKEMON_JS_SOURCE = readFileSync('js/makemon_create.js', 'utf8');
 
 const MON_X = 10;
 const MON_Y = 5;
@@ -4067,6 +4073,7 @@ test('ordinary ogres retain rn2(12) and the same generic continuation', () => {
     );
 });
 
+
 test('trolls preserve the outer no-weapon gate and all four polearm arms', () => {
     const cases = [
         { name: 'no weapon', outer: 1, selection: null, expected: null },
@@ -6407,4 +6414,55 @@ test('makemon sets mon_learns_traps and mwandexp on branch levels', () => {
         game.knox_level = saved.knox_level;
         game.astral_level = saved.astral_level;
     }
+});
+
+test('makemon.c cleric and Angel minion arms keep their source gate and order', () => {
+    const cStart = MAKEMON_C_SOURCE.indexOf(
+        'if ((mndx == PM_ALIGNED_CLERIC || mndx == PM_HIGH_CLERIC)',
+    );
+    const cEnd = MAKEMON_C_SOURCE.indexOf('set_malign(mtmp);', cStart);
+    const cBranch = MAKEMON_C_SOURCE.slice(cStart, cEnd);
+    const jsStart = MAKEMON_JS_SOURCE.indexOf('const defaultMinionData = (');
+    const jsEnd = MAKEMON_JS_SOURCE.indexOf(
+        'set_malign(monster, state);', jsStart,
+    );
+    const jsBranch = MAKEMON_JS_SOURCE.slice(jsStart, jsEnd);
+
+    assert.notEqual(cStart, -1);
+    assert.ok(cEnd > cStart);
+    assert.notEqual(jsStart, -1);
+    assert.ok(jsEnd > jsStart);
+    assert.match(
+        cBranch,
+        /if \(\(mndx == PM_ALIGNED_CLERIC \|\| mndx == PM_HIGH_CLERIC\)\s*\? !\(mmflags & \(MM_EPRI \| MM_EMIN\)\)\s*:\s*\(mndx == PM_ANGEL && !\(mmflags & MM_EMIN\) && !rn2\(3\)\)\)/u,
+    );
+    for (const [source, tokens] of [
+        [cBranch, [
+            'newemin(mtmp);',
+            'mtmp->isminion = 1;',
+            'eminp->min_align = rn2(3) - 1;',
+            'eminp->renegade = (boolean) ((mmflags & MM_ANGRY) ? 1 : !rn2(3));',
+            'mtmp->mpeaceful = (eminp->min_align == u.ualign.type)',
+        ]],
+        [jsBranch, [
+            'const defaultMinionData = (',
+            'mndx === PM_ANGEL',
+            '&& !random.rn2(3)',
+            'if (defaultMinionData)',
+            'newemin(monster);',
+            'monster.isminion = true;',
+            'emin.min_align = random.rn2(3) - 1;',
+            'emin.renegade =',
+            'monster.mpeaceful =',
+        ]],
+    ]) {
+        const positions = tokens.map((token) => source.indexOf(token));
+        assert.ok(positions.every((position) => position >= 0));
+        assert.ok(
+            positions.every((position, index) => index === 0
+                || position > positions[index - 1]),
+            `source order: ${tokens.join(' → ')}`,
+        );
+    }
+    assert.ok(jsEnd > jsStart, 'the source branch precedes set_malign()');
 });

@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "Independent C20 evidence for makemon.c:makemon's default aligned-cleric EMIN branch through cmd.c C('g'), wizcmds.c wiz_genesis(), read.c create_particular(), cant_revive(), and create_particular_creation(). The requested aligned cleric is temporarily replaced with a human zombie, then restored by the affirmative force answer. Inputs are independent of the admitted v7 recipe.",
+  "segments": [
+    {
+      "seed": 20594731,
+      "datetime": "20420917130600",
+      "nethackrc": "OPTIONS=name:MinionProof,role:Valkyrie,race:human,gender:female,align:lawful\nOPTIONS=!legacy,!tutorial,!splash_screen,playmode:debug\nOPTIONS=pettype:none,!acoustics,rest_on_space,!safe_wait\n",
+      "moves": " \u0007aligned cleric\ny"
+    }
+  ]
+}
