@@ -1,0 +1,10 @@
+{
+  "version": 5,
+  "comment": "Independent eat.c tin-opening witness: seed 2579018, date 20271104121530, female human Barbarian, and an independently chosen debug wish for a cursed spinach tin. It exercises doeat(), start_tin(), the cursed spinach description and prompt, conduct, strength, and nutrition path.",
+  "segments": [{
+    "seed": 2579018,
+    "datetime": "20271104121530",
+    "nethackrc": "OPTIONS=name:TinTrial,role:Barbarian,race:human,gender:female,align:chaotic\nOPTIONS=!legacy,!tutorial,!splash_screen\nOPTIONS=playmode:debug,pettype:none,!acoustics,!autopickup\n",
+    "moves": "\u0017cursed tin of spinach\nee  y"
+  }]
+}

@@ -1,0 +1,10 @@
+{
+  "version": 5,
+  "comment": "Blocked B18 meat-tin path: eat.c:consume_tin calls eat.c:cprefx and eat.c:cpostfx for a corpse tin. Those void helpers are not yet complete, so the JS branch records note_unported and this recipe has no matching recording.",
+  "segments": [{
+    "seed": 2846117,
+    "datetime": "20271105140722",
+    "nethackrc": "OPTIONS=name:TinMeatTrial,role:Barbarian,race:human,gender:female,align:chaotic\nOPTIONS=!legacy,!tutorial,!splash_screen\nOPTIONS=playmode:debug,pettype:none,!acoustics,!autopickup\n",
+    "moves": "\u0017tin of kobold meat\nee  y"
+  }]
+}
