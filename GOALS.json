@@ -84370,16 +84370,23 @@
     {
       "id": "fix-pager-do-look-hidden-map-accelerator-v6-20260926",
       "kind": "divergence-fix",
-      "status": "queued",
+      "status": "closed",
       "summary": "Match pager.c do_look hidden map accelerator in the whatis menu",
       "cFile": "pager.c",
       "sessions": [],
       "selectionReason": "Highest ranked unreserved complete mismatch after A13 doapply and B17 zap reservations: v6 getpos-help has 4 unmatched screens at pager.c do_look menu selection.",
       "detail": "At synthetic/v6/v6-add2-getpos-help segment 0 input step 3, key y selects the map item in C because pager.c:do_look adds a hidden y group accelerator when flags.lootabc is false. JS pager.js whatisMenuItems omits that selector and leaves the menu active, causing screen row 0 column 0 and cursor divergence before getpos help. Trace C pager.c:1714-1735 and 1811-1822; use existing tty_menu group selector behavior uniformly across inputs, then replay through the later getpos prompt. Do not special-case this recording.",
-      "openedAt": null,
-      "openStanding": null,
-      "closedAt": null,
-      "delivered": null,
+      "openedAt": "9f27e872ecb00ddc4d99d275da03b5832258ce8d",
+      "openStanding": {
+        "sha": "582db754e6ffe41e254f7673dea995dd124e4946",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "closedAt": "9f27e872ecb00ddc4d99d275da03b5832258ce8d",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
       "function": "do_look",
       "session": "synthetic/v6/v6-add2-getpos-help",
       "step": 3,
@@ -84396,6 +84403,18 @@
           "evaluationPath": "challenges/evaluations/20260926154456-v6.json",
           "evaluationCommit": "01f035d6eb4b7d39db01c8dbf18738ea9298e75b"
         }
+      },
+      "activeStanding": {
+        "sha": "582db754e6ffe41e254f7673dea995dd124e4946",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": [],
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "9f27e872ecb00ddc4d99d275da03b5832258ce8d",
+        "screens": 11405,
+        "rng": 792838
       }
     }
   ]
