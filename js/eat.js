@@ -258,7 +258,7 @@ import {
 import { change_luck } from './moveloop_preamble.js';
 import {
     dopotion, incr_itimeout, make_blinded, make_confused, make_deaf,
-    make_glib,
+    make_glib, make_stoned,
 } from './potion.js';
 import {
     carried,
@@ -2061,11 +2061,8 @@ async function cprefx(pm, state) {
         }
         break;
     case PM_LIZARD:
-        if (hungerProperty(state, STONED).intrinsic) {
-            // fix_petrification() calls make_stoned(0L, ...), and nothing
-            // ported makes the hero stoned in the first place.
-            throw new UnsupportedEatError('fix_petrification()');
-        }
+        if (hungerProperty(state, STONED).intrinsic)
+            await fix_petrification(state);
         break;
     case PM_DEATH:
     case PM_PESTILENCE:
@@ -2081,11 +2078,22 @@ async function cprefx(pm, state) {
         /* FALLTHROUGH */
     default:
         if (acidic(state.mons[pm])
-            && hungerProperty(state, STONED).intrinsic) {
-            throw new UnsupportedEatError('fix_petrification()');
-        }
+            && hungerProperty(state, STONED).intrinsic)
+            await fix_petrification(state);
         break;
     }
+}
+
+// C ref: eat.c fix_petrification() (867-877). The cure uses the same
+// make_stoned() state transition as the other petrification effects, which
+// clears the delayed killer along with the timeout.
+export async function fix_petrification(state = game) {
+    const message = Hallucination(state)
+        ? `What a pity--you just ruined a future piece of ${
+            acurr(state, A_CHA) > 15 ? 'fine ' : ''
+        }art!`
+        : 'You feel limber!';
+    await make_stoned(0, message, 0, null, state);
 }
 
 // C ref: eat.c intrinsic_possible() (888-953), "returns TRUE iff a monster can
