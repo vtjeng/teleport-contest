@@ -679,7 +679,6 @@ export async function pick_lock(pick, rx, ry, container, state = game) {
                 it = true;
             } else verb = 'pick';
 
-            otmp.lknown = 1;
             if (autounlock
                 && (state.flags?.autounlock & AUTOUNLOCK_UNTRAP) !== 0) {
                 throw new UnsupportedLockError(
@@ -699,6 +698,11 @@ export async function pick_lock(pick, rx, ry, container, state = game) {
                     'There is ', ` here; ${verb} ${it ? 'it' : 'its lock'}?`,
                     otmp, donameFresh, ansimpleoname, 'a box', state,
                 );
+                // lock.c:494-503 builds the prompt with safe_qbuf() first,
+                // then records that the lock is known before asking ynq().
+                // That order keeps an unknown locked chest named simply
+                // "chest" in this first query.
+                otmp.lknown = 1;
                 answer = await ynq(qbuf, state);
                 if (answer === 'q') return PICKLOCK_DID_NOTHING;
                 if (answer === 'n') continue;
