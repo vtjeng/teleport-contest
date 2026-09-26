@@ -6,7 +6,6 @@ import {
     ADMITTED_COMMANDS,
     cmdq_clear,
     cmdq_peek,
-    failClosedCommandRefusals,
 } from '../js/cmd.js';
 import {
     A_WIS,
@@ -51,7 +50,6 @@ import {
     doread,
     read_ok,
     seffect_punishment,
-    UnsupportedReadError,
 } from '../js/read.js';
 import { getobj } from '../js/invent.js';
 import { not_fully_identified } from '../js/objnam.js';
@@ -233,26 +231,23 @@ test('read ? returns the sole suggested object through the message menu',
     assert.equal(game.nhDisplay.toplin, 0);
 });
 
-test('read is admitted and selected objects stop before pickup_prev changes',
+test('read reports silly selectable objects after clearing pickup_prev',
     async () => {
     assert.ok(ADMITTED_COMMANDS.includes('read'));
-    assert.ok(failClosedCommandRefusals().includes(UnsupportedReadError));
 
-    // The opening wait reaches the running game's real inventory. A potion is
-    // a selectable but unsupported answer, so it still checks that doread()
-    // refuses before changing read state.
+    // read.c:doread() clears pickup_prev before rejecting non-scrolls and
+    // non-spellbooks with the ordinary silly-thing message.
     const segment = firstSegment();
     await runSegment({ ...segment, moves: WAIT });
     let selected = game.invent;
-    while (selected && selected.oclass !== POTION_CLASS) selected = selected.nobj;
+    while (selected && selected.oclass !== POTION_CLASS)
+        selected = selected.nobj;
     assert.ok(selected, 'the Wizard starts with a selectable potion');
     selected.pickup_prev = 1;
     game.nhDisplay.pushKey(selected.invlet.charCodeAt(0));
-    await assert.rejects(
-        () => doread(game),
-        /selected readable object/u,
-    );
-    assert.equal(selected.pickup_prev, 1);
+    assert.equal(await doread(game), ECMD_OK);
+    assert.equal(selected.pickup_prev, false);
+    assert.match(game._pending_message, /silly thing to read/u);
 });
 
 test('an invalid read letter retries and Escape cancels without taking time',
@@ -702,7 +697,7 @@ test('the command wrapper accepts a known healing refresh', async () => {
     assert.ok(replay.getRngLog().some((entry) => entry === 'rn2(20)=12'));
 });
 
-test('magic mapping fails closed on an unsupported special level', async () => {
+test('magic mapping uses the source path on a special level', async () => {
     const segment = {
         ...loadReadMagicMappingRecipe().segments[0], moves: MAP_READ_WAIT,
     };
@@ -711,25 +706,12 @@ test('magic mapping fails closed on an unsupported special level', async () => {
     while (scroll && scroll.otyp !== SCR_MAGIC_MAPPING) scroll = scroll.nobj;
     assert.ok(scroll, 'the fixed fixture carries its mapping scroll');
     game.specialLevels.push({ dlevel: { ...game.u.uz }, flags: {} });
-    const before = {
-        pickup_prev: scroll.pickup_prev,
-        in_use: scroll.in_use,
-        literate: game.u.uconduct.literate,
-    };
     game.nhDisplay.pushKey(MAP_READ_LETTER.charCodeAt(0));
-
-    await assert.rejects(
-        () => doread(game),
-        /selected readable object branch/u,
-    );
-    assert.deepEqual({
-        pickup_prev: scroll.pickup_prev,
-        in_use: scroll.in_use,
-        literate: game.u.uconduct.literate,
-    }, before);
+    assert.equal(await doread(game), ECMD_TIME);
+    assert.equal(scroll.in_use, false);
     assert.equal(
         inventorySnapshot().some((obj) => obj.otyp === SCR_MAGIC_MAPPING),
-        true,
+        false,
     );
 });
 

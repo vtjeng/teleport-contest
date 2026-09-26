@@ -1,24 +1,17 @@
 // read.js -- reading scrolls and spellbooks, plus monster-creation helpers.
-// C refs: src/read.c read_ok(), doread(), cant_revive(),
-// create_particular_parse(), create_particular_creation() and
-// create_particular(). doread() completes a known ordinary magic-mapping
-// scroll, the ordinary unknown identify-scroll path whose remaining pack is
-// fully identified, an ordinary positive enchant-weapon scroll, and declining
-// a fresh known healing-spell refresh. Light scrolls use seffect_light(),
-// including calm, cursed and confused branches. It also takes a calm ordinary
-// teleportation scroll through seffects() and
-// seffect_teleportation() into scrolltele(), which handles the uncontrolled
-// safe_teleds path; a blessed confused teleportation scroll goes through
-// level_tele(), which handles the confused random_levtport path through
-// random_teleport_level(); a cursed remove-curse scroll goes through
-// seffect_remove_curse(), which prints the You_feel/disintegrates messages
-// and skips the invent-traversal loop; other selected readable objects stop
-// before pickup_prev changes.
+// C refs: src/read.c text helpers, read_ok(), doread(), seffects(),
+// cant_revive(), create_particular_parse(), create_particular_creation(),
+// and create_particular(). doread() keeps the source-ordered readable-object
+// dispatch, literacy handling, spellbook early return, and scroll in_use /
+// effect / consumption sequence. Effect helpers still marked with
+// note_unported() are void callees; the command continues as C does while
+// recording their source gaps.
 // wizcmds.c wiz_genesis() calls the monster-creation helpers.
 
 import {
     A_WIS,
     BLINDED,
+    BY_COOKIE,
     COLNO,
     CONFUSION,
     ECMD_CANCEL,
@@ -57,28 +50,45 @@ import {
     ismnum,
     OBJ_AT,
     LL_CONDUCT,
+    MAX_ERODE,
 } from './const.js';
 import {
     NON_PM,
     PM_ALIGNED_CLERIC,
     PM_ANGEL,
     PM_DOPPELGANGER,
+    PM_BARBED_DEVIL,
+    PM_FIRE_ANT,
+    PM_FLESH_GOLEM,
+    PM_GIANT_BAT,
     PM_GUARD,
     PM_BLACK_LIGHT,
     PM_GREMLIN,
+    PM_HELL_HOUND,
     PM_HIGH_CLERIC,
     PM_HUMAN_ZOMBIE,
+    PM_IMP,
+    PM_LARGE_MIMIC,
+    PM_LEOCROTTA,
     PM_LONG_WORM,
     PM_LONG_WORM_TAIL,
+    PM_MARILITH,
+    PM_PIRANHA,
+    PM_PYROLISK,
+    PM_SCORPION,
     PM_SHOPKEEPER,
     PM_STALKER,
+    PM_TOURIST,
     PM_YELLOW_LIGHT,
+    PM_WATER_MOCCASIN,
+    PM_XAN,
     S_EEL,
     S_MIMIC,
     S_WORM_TAIL,
     S_invisible,
 } from './monsters.js';
-import { mungspaces, strstri } from './hacklib.js';
+import { makeplural } from './fruit.js';
+import { mungspaces, strstri, upwords } from './hacklib.js';
 import { game } from './gstate.js';
 import {
     check_capacity,
@@ -113,16 +123,40 @@ import { Monnam } from './do_name.js';
 import { flash_mon } from './mon.js';
 import { MAXMCLASSES } from './symbols.js';
 import {
-    BRASS_LANTERN,
+    ALCHEMY_SMOCK,
     BALL_CLASS,
+    BRASS_LANTERN,
     CHAIN_CLASS,
+    CAN_OF_GREASE,
+    CANDY_BAR,
+    COIN_CLASS,
+    CORNUTHAUM,
+    CREDIT_CARD,
+    DUNCE_CAP,
+    FORTUNE_COOKIE,
+    HAWAIIAN_SHIRT,
+    MAGIC_MARKER,
     MAGIC_LAMP,
     OIL_LAMP,
     RING_CLASS,
+    SCR_AMNESIA,
+    SCR_BLANK_PAPER,
+    SCR_CHARGING,
+    SCR_CONFUSE_MONSTER,
+    SCR_CREATE_MONSTER,
+    SCR_EARTH,
+    SCR_ENCHANT_ARMOR,
+    SCR_FIRE,
+    SCR_FOOD_DETECTION,
+    SCR_GENOCIDE,
+    SCR_GOLD_DETECTION,
+    SCR_MAIL,
+    SCR_SCARE_MONSTER,
+    SCR_STINKING_CLOUD,
+    SCR_TAMING,
     SCROLL_CLASS,
     SCR_DESTROY_ARMOR,
     SCR_ENCHANT_WEAPON,
-    SCR_BLANK_PAPER,
     TOOL_CLASS,
     WAND_CLASS,
     SCR_IDENTIFY,
@@ -131,13 +165,24 @@ import {
     SCR_PUNISHMENT,
     SCR_REMOVE_CURSE,
     SCR_TELEPORTATION,
+    SPE_CAUSE_FEAR,
     SPE_BLANK_PAPER,
     SPE_BOOK_OF_THE_DEAD,
+    SPE_CHARM_MONSTER,
+    SPE_CONFUSE_MONSTER,
+    SPE_DETECT_FOOD,
+    SPE_CREATE_MONSTER,
+    SPE_IDENTIFY,
+    SPE_MAGIC_MAPPING,
     SPE_NOVEL,
+    SPE_REMOVE_CURSE,
     SPBOOK_CLASS,
+    T_SHIRT,
     WEAPON_CLASS,
 } from './objects.js';
 import {
+    bcsign,
+    greatest_erosion,
     is_flammable,
     is_weptool,
     mkobj,
@@ -145,8 +190,8 @@ import {
     place_object,
 } from './obj.js';
 import { exercise } from './attrib.js';
+import { wipeout_text } from './engrave.js';
 import { do_mapping } from './detect.js';
-import { Is_special } from './dungeon.js';
 import { level_tele, scrolltele } from './teleport.js';
 import { lightdamage } from './zap.js';
 import { discover_object } from './o_init.js';
@@ -162,23 +207,190 @@ import {
 import { destroy_arm, some_armor, setwornEnv } from './do_wear.js';
 import { setworn } from './worn.js';
 import { chwepon } from './wield.js';
-import { ART_SUNSWORD, artifact_light } from './artifacts.js';
+import {
+    ART_ORB_OF_FATE,
+    ART_SUNSWORD,
+    artifact_light,
+    is_art,
+} from './artifacts.js';
 import { del_light_source } from './light.js';
 import { light_hits_gremlin } from './uhitm.js';
 import { do_clear_area, vision_recalc } from './vision.js';
 import { canSpotMonster } from './startup_a11y.js';
 import { m_at } from './monst.js';
 import { livelog_printf } from './pline.js';
+import {
+    an,
+    simpleonames,
+    singular,
+    suit_simple_name,
+    xnameFresh,
+} from './objnam.js';
+import { shk_your } from './shk.js';
+import { pmname } from './do_name.js';
+import { outrumor } from './random_text.js';
+import { note_unported } from './unported.js';
 
-// A selected scroll or spellbook enters doread()'s effect arms. Raising before
-// pickup_prev changes keeps every unsupported object and the turn retryable
-// while preserving the prompt screens already produced.
+// Retained for narrower effect-family branches that still fail closed. The
+// source-ordered doread() and seffects() dispatches use note_unported() for
+// whole void effect callees that have not been implemented yet.
 export class UnsupportedReadError extends Error {
     constructor(branch) {
         super(`reading requires ${branch}`);
         this.name = 'UnsupportedReadError';
         this.branch = branch;
     }
+}
+
+const SHIRT_MESSAGES = Object.freeze([
+    'I explored the Dungeons of Doom and all I got was this lousy T-shirt!',
+    'Is that Mjollnir in your pocket or are you just happy to see me?',
+    "It's not the size of your sword, it's how #enhance'd you are with it.",
+    "Madame Elvira's House O' Succubi Lifetime Customer",
+    "Madame Elvira's House O' Succubi Employee of the Month",
+    'Ludios Vault Guards Do It In Small, Dark Rooms',
+    'Yendor Military Soldiers Do It In Large Groups',
+    'I survived Yendor Military Boot Camp',
+    'Ludios Accounting School Intra-Mural Lacrosse Team',
+    'Oracle(TM) Fountains 10th Annual Wet T-Shirt Contest',
+    'Hey, black dragon!  Disintegrate THIS!',
+    "I'm With Stupid -->",
+    "Don't blame me, I voted for Izchak!",
+    "Don't Panic",
+    'Furinkan High School Athletic Dept.',
+    'Hel-LOOO, Nurse!',
+    '=^.^=',
+    '100% goblin hair - do not wash',
+    'Aberzombie and Fitch',
+    'cK -- Cockatrice touches the Kop',
+    "Don't ask me, I only adventure here",
+    'Down with pants!',
+    'd, your dog or a killer?',
+    'FREE PUG AND NEWT!',
+    'Go team ant!',
+    'Got newt?',
+    'Hello, my darlings!',
+    'Hey!  Nymphs!  Steal This T-Shirt!',
+    'I <3 Dungeon of Doom',
+    'I <3 Maud',
+    'I am a Valkyrie.  If you see me running, try to keep up.',
+    'I am not a pack rat - I am a collector',
+    'I bounced off a rubber tree',
+    'Plunder Island Brimstone Beach Club',
+    'If you can read this, I can hit you with my polearm',
+    "I'm confused!",
+    'I scored with the princess',
+    'I want to live forever or die in the attempt.',
+    'Lichen Park',
+    'LOST IN THOUGHT - please send search party',
+    'Meat is Mordor',
+    'Minetown Better Business Bureau',
+    'Minetown Watch',
+    "Ms. Palm's House of Negotiable Affection--A Very Reputable"
+        + ' House Of Disrepute',
+    'Protection Racketeer',
+    'Real men love Crom',
+    'Somebody stole my Mojo!',
+    'The Hellhound Gang',
+    'The Werewolves',
+    'They Might Be Storm Giants',
+    'Weapons don\'t kill people, I kill people',
+    'White Zombie',
+    "You're killing me!",
+    'Anhur State University - Home of the Fighting Fire Ants!',
+    'FREE HUGS',
+    'Serial Ascender',
+    'Real men are valkyries',
+    "Young Men's Cavedigging Association",
+    'Occupy Fort Ludios',
+    "I couldn't afford this T-shirt so I stole it!",
+    'Mind flayers suck',
+    "I'm not wearing any pants",
+    'Down with the living!',
+    'Pudding farmer',
+    'Vegetarian',
+    'Hello, I\'m War!',
+    'It is better to light a candle than to curse the darkness',
+    'It is easier to curse the darkness than to light a candle',
+    'rock--paper--scissors--lizard--Spock!',
+    '/Valar morghulis/ -- /Valar dohaeris/',
+]);
+
+const HAWAIIAN_MOTIFS = Object.freeze([
+    'flamingo', 'parrot', 'toucan', 'bird of paradise',
+    'sea turtle', 'tropical fish', 'jellyfish', 'giant eel',
+    'water nymph', 'plumeria', 'orchid', 'hibiscus flower',
+    'palm tree', 'hula dancer', 'sailboat', 'ukulele',
+]);
+
+const HAWAIIAN_BACKGROUNDS = Object.freeze([
+    'purple', 'yellow', 'red', 'blue', 'orange', 'black', 'green',
+    'abstract', 'geometric', 'patterned', 'naturalistic',
+]);
+
+const APRON_MESSAGES = Object.freeze([
+    'Kiss the cook',
+    "I'm making SCIENCE!",
+    "Don't mess with the chef",
+    "Don't make me poison you",
+    "Gehennom's Kitchen",
+    'Rat: The other white meat',
+    'If you can\'t stand the heat, get out of Gehennom!',
+    'If we weren\'t meant to eat animals, why are they made out of meat?',
+    "If you don't like the food, I'll stab you",
+    'I am an alchemist; if you see me running, try to catch up...',
+]);
+
+const CANDY_WRAPPERS = Object.freeze([
+    '', 'Apollo', 'Moon Crunchy', 'Snacky Cake', 'Chocolate Nuggie',
+    'The Small Bar', 'Crispy Yum Yum', 'Nilla Crunchie', 'Berry Bar',
+    'Choco Nummer', 'Om-nom', 'Fruity Oaty', 'Wonka Bar',
+]);
+
+// C refs: read.c erode_obj_text(), tshirt_text(), hawaiian_motif(),
+// hawaiian_design(), apron_text(), and candy_wrapper_text(). C fills caller
+// buffers; these functions return equivalent strings and keep source names.
+export function erode_obj_text(obj, text, state = game) {
+    const erosion = greatest_erosion(obj);
+    if (!erosion) return text;
+    const count = Math.trunc(text.length * erosion / (2 * MAX_ERODE));
+    const seed = (Math.trunc(obj.o_id ?? 0)
+        ^ (Math.trunc(state.ubirthday ?? 0) >>> 0)) >>> 0;
+    return wipeout_text(text, count, seed, { state });
+}
+
+export function tshirt_text(tshirt, state = game) {
+    const text = SHIRT_MESSAGES[
+        Math.trunc(tshirt.o_id ?? 0) % SHIRT_MESSAGES.length
+    ];
+    return erode_obj_text(tshirt, text, state);
+}
+
+export function hawaiian_motif(shirt, state = game) {
+    const seed = (Math.trunc(shirt.o_id ?? 0)
+        ^ (Math.trunc(state.ubirthday ?? 0) >>> 0)) >>> 0;
+    return HAWAIIAN_MOTIFS[seed % HAWAIIAN_MOTIFS.length];
+}
+
+export function hawaiian_design(shirt, state = game) {
+    const backgroundSeed = (Math.trunc(shirt.o_id ?? 0)
+        ^ ~Math.trunc(state.ubirthday ?? 0)) >>> 0;
+    const background = HAWAIIAN_BACKGROUNDS[
+        backgroundSeed % HAWAIIAN_BACKGROUNDS.length
+    ];
+    return `${makeplural(hawaiian_motif(shirt, state))} on ${an(background)} background`;
+}
+
+export function apron_text(apron, state = game) {
+    const text = APRON_MESSAGES[
+        Math.trunc(apron.o_id ?? 0) % APRON_MESSAGES.length
+    ];
+    return erode_obj_text(apron, text, state);
+}
+
+export function candy_wrapper_text(obj) {
+    const index = Math.trunc(obj.spe ?? 0) % CANDY_WRAPPERS.length;
+    return CANDY_WRAPPERS[index];
 }
 
 // C ref: read.c read_ok() (313-322). Scrolls and spellbooks appear as likely
@@ -220,10 +432,9 @@ function propertyActive(property, state) {
     return Boolean(value?.intrinsic || value?.extrinsic) && !value?.blocked;
 }
 
-// The queued slice admits only the ordinary, unknown destroy-armor scroll
-// fallback with exactly one worn, flammable armor object. The full
-// seffect_destroy_armor() family (cursed, blessed-selection, confused and
-// no-effective-armor branches) remains behind the selected-read boundary.
+// The existing destroy-armor helper covers only an ordinary, unknown scroll
+// with exactly one worn, flammable armor object. seffects() records a gap on
+// its other source arms until that effect family is ported whole.
 function oneWornFlammableArmor(state) {
     const worn = [
         state.uarm,
@@ -236,20 +447,6 @@ function oneWornFlammableArmor(state) {
     ].filter(Boolean);
     return worn.length === 1 && is_flammable(worn[0], state);
 }
-
-// C ref: read.c doread() (347-646), with the complete spellbook family routed
-// through spell.c study_book() after getobj() and literacy handling. The
-// scroll arms below retain their source-specific admission checks.
-// The selected scroll paths include the known uncursed magic-mapping scroll, an ordinary unknown identify scroll, an
-// ordinary positive
-// enchant-weapon scroll, the source-reachable solid-human punishment-scroll
-// arms. Every spellbook uses the whole source study path.
-// The other admitted paths are a sighted,
-// non-hallucinating wizard reading a blessed teleportation scroll while
-// confused, and the calm ordinary teleportation-scroll path. The former
-// proceeds through seffect_teleportation() into level_tele(), which handles
-// the confused random_levtport path; the latter reaches teleport.c:scrolltele().
-// Every other selected object stops before C's scroll->pickup_prev write.
 
 function solidPunishmentTarget(state) {
     const species = state.youmonst?.data;
@@ -343,6 +540,18 @@ export async function seffect_punishment(scroll, state = game) {
     await punish(scroll, state);
 }
 
+function recordLiteracy(state, description) {
+    state.u.uconduct ??= {};
+    if (!state.u.uconduct.literate)
+        livelog_printf(LL_CONDUCT, description, state);
+    state.u.uconduct.literate
+        = Math.trunc(state.u.uconduct.literate ?? 0) + 1;
+}
+
+// C ref: read.c doread() (330-646). Preserve the full readable-object
+// dispatch, spellbook early return, and scroll in_use / seffects / useup order.
+// Unsupported void effect callees are explicit gaps in seffects(); this
+// command does not refuse a selected readable object.
 export async function doread(state = game) {
     state.gk ??= {};
     state.gk.known = false;
@@ -350,121 +559,301 @@ export async function doread(state = game) {
 
     const scroll = await getobj('read', read_ok, GETOBJ_PROMPT, state);
     if (!scroll) return ECMD_CANCEL;
-    const confused = propertyActive(CONFUSION, state);
-    const ordinaryScroll = scroll.oclass === SCROLL_CLASS
-        && !scroll.blessed && !scroll.cursed && scroll.dknown
-        && !propertyActive(BLINDED, state) && !confused
-        && can_chant(state.youmonst, state);
-    const mapping = ordinaryScroll
-        && scroll.otyp === SCR_MAGIC_MAPPING
-        && objectType(scroll, state).oc_name_known
-        && !state.level?.flags?.nommap
-        && state.level?.flags?.hero_memory
-        && !Is_special(state.u?.uz, state)
-        && !state.u?.uinwater && !state.u?.uburied && !state.u?.uswallow;
-    const identify = ordinaryScroll
-        && scroll.otyp === SCR_IDENTIFY
-        && !objectType(scroll, state).oc_name_known
-        && scroll.quan === 1;
-    const destroyArmor = ordinaryScroll
-        && scroll.otyp === SCR_DESTROY_ARMOR
-        && !objectType(scroll, state).oc_name_known
-        && oneWornFlammableArmor(state);
-    // C doread() admits a visible light scroll while confused; ordinaryScroll
-    // intentionally excludes confusion because its other arms need calm
-    // preconditions. Keep this separate so seffect_light() reaches both
-    // source branches through the production caller.
-    const light = scroll.oclass === SCROLL_CLASS
-        && scroll.otyp === SCR_LIGHT
-        && !propertyActive(BLINDED, state)
-        && can_chant(state.youmonst, state);
-    const enchantWeapon = ordinaryScroll
-        && scroll.otyp === SCR_ENCHANT_WEAPON
-        && !propertyActive(HALLUC, state)
-        && state.uwep
-        && (state.uwep.oclass === WEAPON_CLASS
-            || is_weptool(state.uwep, state))
-        && !state.uwep.oartifact
-        && !state.uwep.oeroded && !state.uwep.oeroded2
-        && state.uwep.spe <= 5;
-    const spellbook = scroll.oclass === SPBOOK_CLASS;
-    const confusedTeleport = scroll.oclass === SCROLL_CLASS
-        && scroll.otyp === SCR_TELEPORTATION
-        && scroll.blessed && !scroll.cursed
-        && !propertyActive(BLINDED, state)
-        && confused && !propertyActive(HALLUC, state)
-        && can_chant(state.youmonst, state) && state.wizard;
-    const calmTeleport = ordinaryScroll
-        && scroll.otyp === SCR_TELEPORTATION;
-    const removeCurse = scroll.oclass === SCROLL_CLASS
-        && scroll.otyp === SCR_REMOVE_CURSE && scroll.cursed
-        && !propertyActive(BLINDED, state)
-        && can_chant(state.youmonst, state);
-    const punishment = punishmentReadAdmitted(scroll, confused, state);
-    if (!mapping && !identify && !destroyArmor && !light
-        && !spellbook
-        && !enchantWeapon
-        && !confusedTeleport && !calmTeleport && !removeCurse
-        && !punishment) {
-        throw new UnsupportedReadError('the selected readable object branch');
+    const otyp = scroll.otyp;
+    scroll.pickup_prev = false;
+
+    if (otyp === FORTUNE_COOKIE) {
+        if (state.flags?.verbose)
+            await ttyPline(
+                'You break up the cookie and throw away the pieces.', state,
+            );
+        await outrumor(bcsign(scroll), BY_COOKIE, state);
+        if (!propertyActive(BLINDED, state))
+            recordLiteracy(
+                state,
+                'became literate by reading a fortune cookie',
+            );
+        useup(scroll, { state, hooks: {} });
+        return ECMD_TIME;
     }
 
-    scroll.pickup_prev = false;
-    state.u.uconduct ??= {};
-    // C doread()'s generic readable-object arm (read.c:598-604) logs the
-    // first literacy conduct before incrementing it. The supported reader
-    // arms above all land here for an ordinary scroll or spellbook, while
-    // winning-game books and blank paper are excluded exactly as in C.
-    const countsLiteracy = scroll.otyp !== SPE_BOOK_OF_THE_DEAD
-        && scroll.otyp !== SPE_NOVEL
-        && scroll.otyp !== SPE_BLANK_PAPER
-        && scroll.otyp !== SCR_BLANK_PAPER;
-    if (countsLiteracy && !state.u.uconduct.literate) {
-        const readable = scroll.oclass === SPBOOK_CLASS ? 'a book'
-            : scroll.oclass === SCROLL_CLASS ? 'a scroll' : 'something';
-        livelog_printf(
-            LL_CONDUCT,
-            `became literate by reading ${readable}`,
+    if (otyp === T_SHIRT || otyp === ALCHEMY_SMOCK
+        || otyp === HAWAIIAN_SHIRT) {
+        if (propertyActive(BLINDED, state)) {
+            await ttyPline("You can't feel any Braille writing.", state);
+            return ECMD_OK;
+        }
+        if ((otyp === T_SHIRT || otyp === HAWAIIAN_SHIRT)
+            && state.uarm && scroll === state.uarmu) {
+            const owner = scroll.unpaid ? 'That' : 'Your';
+            await ttyPline(
+                owner + ' shirt is obscured by '
+                + shk_your(state.uarm, state)
+                + suit_simple_name(state.uarm, state) + '.',
+                state,
+            );
+            return ECMD_OK;
+        }
+        if (otyp === HAWAIIAN_SHIRT) {
+            await ttyPline(
+                (state.flags?.verbose ? 'The design' : 'It')
+                    + ' features ' + hawaiian_design(scroll, state) + '.',
+                state,
+            );
+            return ECMD_TIME;
+        }
+        recordLiteracy(
+            state,
+            'became literate by reading '
+                + (otyp === T_SHIRT ? 'a T-shirt' : 'an apron'),
+        );
+        const text = otyp === T_SHIRT
+            ? tshirt_text(scroll, state) : apron_text(scroll, state);
+        const endpunct = state.flags?.verbose && text
+            && !/[.!?]$/u.test(text) ? '.' : '';
+        if (state.flags?.verbose) await ttyPline('It reads:', state);
+        await ttyPline('"' + text + '"' + endpunct, state);
+        return ECMD_TIME;
+    }
+
+    if ((otyp === DUNCE_CAP || otyp === CORNUTHAUM)
+        && state.urole?.mnum === PM_TOURIST) {
+        const capText = otyp === DUNCE_CAP ? 'DUNCE' : 'WIZZARD';
+        if (Math.trunc(scroll.o_id ?? 0) % 3) {
+            await ttyPline(
+                "You can't find anything to read on this "
+                    + simpleonames(scroll, state) + '.',
+                state,
+            );
+            return ECMD_OK;
+        }
+        await ttyPline(
+            (propertyActive(BLINDED, state)
+                ? 'You feel lettering' : 'There is writing')
+                + ' on the ' + simpleonames(scroll, state)
+                + '.  It reads:  ' + capText + '.',
             state,
         );
+        recordLiteracy(
+            state,
+            'became literate by reading '
+                + (otyp === DUNCE_CAP ? 'a dunce cap' : 'a cornuthaum'),
+        );
+        await trycall(scroll, state);
+        return ECMD_TIME;
     }
-    state.u.uconduct.literate
-        = Math.trunc(state.u.uconduct.literate ?? 0) + 1;
-    if (spellbook) {
+
+    if (otyp === CREDIT_CARD) {
+        const blind = propertyActive(BLINDED, state);
+        if (blind) {
+            await ttyPline('You feel the embossed numbers:', state);
+        } else {
+            if (state.flags?.verbose) await ttyPline('It reads:', state);
+            const cardMessages = [
+                'Leprechaun Gold Tru$t - Shamrock Card',
+                'Magic Memory Vault Charge Card',
+                'Larn National Bank',
+                'First Bank of Omega',
+                'Bank of Zork - Frobozz Magic Card',
+                "Ankh-Morpork Merchant's Guild Barter Card",
+                "Ankh-Morpork Thieves' Guild Unlimited Transaction Card",
+                'Ransmannsby Moneylenders Association',
+                'Bank of Gehennom - 99% Interest Card',
+                'Yendorian Express - Copper Card',
+                'Yendorian Express - Silver Card',
+                'Yendorian Express - Gold Card',
+                'Yendorian Express - Mithril Card',
+                'Yendorian Express - Platinum Card',
+            ];
+            const cardIndex = Math.trunc(scroll.o_id ?? 0);
+            const card = scroll.oartifact
+                ? cardMessages.at(-1)
+                : cardMessages[cardIndex % (cardMessages.length - 1)];
+            await ttyPline('"' + card + '"', state);
+        }
+        const id = Math.trunc(scroll.o_id ?? 0);
+        const number = String(id % 89 + 10) + '0' + String(id % 4) + ' '
+            + String((id * 499) % 899999 + 100000) + String(id % 10) + '1 '
+            + '0' + String(Number(id % 3 === 0)) + String(id * 7 % 10) + '0'
+            + (state.flags?.verbose || blind ? '.' : '');
+        await ttyPline('"' + number + '"', state);
+        recordLiteracy(state, 'became literate by reading a credit card');
+        return ECMD_TIME;
+    }
+
+    if (otyp === CAN_OF_GREASE) {
+        await ttyPline(
+            'This ' + singular(scroll, xnameFresh, state) + ' has no label.',
+            state,
+        );
+        return ECMD_OK;
+    }
+
+    if (otyp === MAGIC_MARKER) {
+        if (propertyActive(BLINDED, state)) {
+            await ttyPline("You can't feel any Braille writing.", state);
+            return ECMD_OK;
+        }
+        if (state.flags?.verbose) await ttyPline('It reads:', state);
+        const redMonsters = [
+            PM_FIRE_ANT, PM_PYROLISK, PM_HELL_HOUND, PM_IMP,
+            PM_LARGE_MIMIC, PM_LEOCROTTA, PM_SCORPION, PM_XAN,
+            PM_GIANT_BAT, PM_WATER_MOCCASIN, PM_FLESH_GOLEM,
+            PM_BARBED_DEVIL, PM_MARILITH, PM_PIRANHA,
+        ];
+        const monsterIndex = Math.trunc(scroll.o_id ?? 0)
+            % redMonsters.length;
+        const species = state.mons[redMonsters[monsterIndex]];
+        await ttyPline(
+            '"Magic Marker(TM) ' + upwords(pmname(species, NEUTRAL))
+                + ' Red Ink Marker Pen.  Water Soluble."',
+            state,
+        );
+        recordLiteracy(state, 'became literate by reading a magic marker');
+        return ECMD_TIME;
+    }
+
+    if (scroll.oclass === COIN_CLASS) {
+        if (propertyActive(BLINDED, state))
+            await ttyPline('You feel the embossed words:', state);
+        else if (state.flags?.verbose)
+            await ttyPline('You read:', state);
+        await ttyPline('"1 Zorkmid.  857 GUE.  In Frobs We Trust."', state);
+        recordLiteracy(
+            state,
+            "became literate by reading a coin's engravings",
+        );
+        return ECMD_TIME;
+    }
+
+    if (is_art(scroll, ART_ORB_OF_FATE)) {
+        if (propertyActive(BLINDED, state))
+            await ttyPline('You feel the engraved signature:', state);
+        else
+            await ttyPline('It is signed:', state);
+        await ttyPline('"Odin."', state);
+        recordLiteracy(
+            state,
+            'became literate by reading the divine signature of Odin',
+        );
+        return ECMD_TIME;
+    }
+
+    if (otyp === CANDY_BAR) {
+        if (propertyActive(BLINDED, state)) {
+            await ttyPline("You can't feel any Braille writing.", state);
+            return ECMD_OK;
+        }
+        const wrapper = candy_wrapper_text(scroll);
+        if (!wrapper) {
+            await ttyPline("The candy bar's wrapper is blank.", state);
+            return ECMD_OK;
+        }
+        await ttyPline('The wrapper reads: "' + wrapper + '".', state);
+        recordLiteracy(state, 'became literate by reading a candy bar wrapper');
+        return ECMD_TIME;
+    }
+
+    if (scroll.oclass !== SCROLL_CLASS && scroll.oclass !== SPBOOK_CLASS) {
+        await ttyPline('That is a silly thing to read.', state);
+        return ECMD_OK;
+    }
+
+    if (propertyActive(BLINDED, state) && otyp !== SPE_BOOK_OF_THE_DEAD) {
+        let what = '';
+        if (otyp === SPE_NOVEL) {
+            // Unseen novels are already distinguishable from unseen books.
+            what = 'words';
+        } else if (scroll.oclass === SPBOOK_CLASS) {
+            what = 'mystic runes';
+        } else if (!scroll.dknown) {
+            what = 'formula on the scroll';
+        }
+        if (what) {
+            await ttyPline('Being blind, you cannot read the ' + what + '.', state);
+            return ECMD_OK;
+        }
+    }
+
+    let confused = propertyActive(CONFUSION, state);
+    if (otyp === SCR_MAIL) {
+        confused = false;
+        state.u.uconduct ??= {};
+        if (!state.u.uconduct.literate && !scroll.spe) {
+            const answer = await y_n(
+                'Reading mail will violate "illiterate" conduct.  Read anyway?',
+                state,
+            );
+            if (answer !== 'y' && answer !== 'y'.charCodeAt(0))
+                return ECMD_OK;
+        }
+    }
+
+    const countsLiteracy = otyp !== SPE_BOOK_OF_THE_DEAD
+        && otyp !== SPE_NOVEL
+        && otyp !== SPE_BLANK_PAPER
+        && otyp !== SCR_BLANK_PAPER;
+    if (countsLiteracy) {
+        const readable = scroll.oclass === SPBOOK_CLASS ? 'a book'
+            : scroll.oclass === SCROLL_CLASS ? 'a scroll' : 'something';
+        recordLiteracy(state, 'became literate by reading ' + readable);
+    }
+
+    if (scroll.oclass === SPBOOK_CLASS) {
         return await study_book(scroll, state, {
             message: ttyPline,
             prompt: y_n,
         }) ? ECMD_TIME : ECMD_OK;
     }
+
     scroll.in_use = true;
-    // C ref: read.c doread() (614-626). Some scroll effects describe
-    // something happening to the scroll itself, so avoid "it disappears"
-    // for those.
-    const nodisappear = scroll.otyp === SCR_REMOVE_CURSE && scroll.cursed;
-    await ttyPline(
-        nodisappear
-            ? 'You read the scroll.'
-            : 'As you read the scroll, it disappears.',
-        state,
-    );
-    if (confused) {
-        await ttyPline(
-            `Being confused, you ${can_chant(state.youmonst, state)
-                ? 'mispronounce' : 'misunderstand'} the magic words...`,
-            state,
-        );
+    const nodisappear = otyp === SCR_FIRE
+        || (otyp === SCR_REMOVE_CURSE && scroll.cursed);
+    const silently = !can_chant(state.youmonst, state);
+    if (otyp !== SCR_BLANK_PAPER) {
+        if (propertyActive(BLINDED, state)) {
+            await ttyPline(
+                nodisappear
+                    ? 'You ' + (silently ? 'cogitate' : 'pronounce')
+                        + ' the formula on the scroll.'
+                    : 'As you ' + (silently ? 'cogitate' : 'pronounce')
+                        + ' the formula on it, the scroll disappears.',
+                state,
+            );
+        } else {
+            await ttyPline(
+                nodisappear
+                    ? 'You read the scroll.'
+                    : 'As you read the scroll, it disappears.',
+                state,
+            );
+        }
+        if (confused) {
+            if (propertyActive(HALLUC, state)) {
+                await ttyPline('Being so trippy, you screw up...', state);
+            } else {
+                await ttyPline(
+                    'Being confused, you '
+                        + (silently ? 'misunderstand' : 'mispronounce')
+                        + ' the magic words...',
+                    state,
+                );
+            }
+        }
     }
+
     const consumedByEffect = await seffects(scroll, state);
     if (!consumedByEffect) {
         if (!objectType(scroll, state).oc_name_known) {
             if (state.gk.known) {
-                learnscrolltyp(scroll.otyp, state);
+                learnscroll(scroll, state);
             } else {
                 await trycall(scroll, state);
             }
         }
         scroll.in_use = false;
-        useup(scroll, { state, hooks: {} });
+        if (otyp !== SCR_BLANK_PAPER)
+            useup(scroll, { state, hooks: {} });
     }
     return ECMD_TIME;
 }
@@ -787,56 +1176,148 @@ export async function seffect_magic_mapping(scroll, state = game) {
     }
 }
 
-// C ref: read.c seffects() (2194-2290), restricted to SCR_IDENTIFY,
-// SCR_DESTROY_ARMOR, SCR_ENCHANT_WEAPON, SCR_MAGIC_MAPPING,
-// SCR_REMOVE_CURSE, SCR_TELEPORTATION and SCR_PUNISHMENT. C returns `sobj ? 0 : 1`:
-// 0 when the scroll still exists (caller handles useup), 1 when the effect
-// consumed it.  seffect_remove_curse(), seffect_teleportation(), and
-// seffect_magic_mapping() never consume the scroll, so those paths return 0.
+// C ref: read.c seffects() (2194-2290). Preserve the complete source switch,
+// its pre-dispatch Wisdom exercise, post-effect inventory refresh, and
+// `sobj ? 0 : 1` return. C's effect helpers are void and receive `&sobj`;
+// helpers not yet ported are explicit gaps rather than command refusals.
 export async function seffects(scroll, state = game) {
-    if (scroll.otyp !== SCR_MAGIC_MAPPING && scroll.otyp !== SCR_IDENTIFY
-        && scroll.otyp !== SCR_DESTROY_ARMOR
-        && scroll.otyp !== SCR_ENCHANT_WEAPON
-        && scroll.otyp !== SCR_REMOVE_CURSE
-        && scroll.otyp !== SCR_TELEPORTATION
-        && scroll.otyp !== SCR_PUNISHMENT
-        && scroll.otyp !== SCR_LIGHT) {
-        throw new UnsupportedReadError('the selected scroll effect');
-    }
     state.gk ??= {};
     if (objectType(scroll, state).oc_magic)
         await exercise(A_WIS, true, state, { rn2 });
-    if (scroll.otyp === SCR_IDENTIFY) {
+
+    const confused = propertyActive(CONFUSION, state);
+    switch (scroll.otyp) {
+    case SCR_MAIL:
+        note_unported('read.c seffect_mail');
+        break;
+    case SCR_ENCHANT_ARMOR:
+        note_unported('read.c seffect_enchant_armor');
+        break;
+    case SCR_DESTROY_ARMOR:
+        if (!scroll.blessed && !scroll.cursed
+            && !objectType(scroll, state).oc_name_known && !confused
+            && !propertyActive(BLINDED, state)
+            && can_chant(state.youmonst, state)
+            && oneWornFlammableArmor(state)) {
+            await seffect_destroy_armor(scroll, state);
+        } else {
+            note_unported('read.c seffect_destroy_armor');
+        }
+        break;
+    case SCR_CONFUSE_MONSTER:
+    case SPE_CONFUSE_MONSTER:
+        note_unported('read.c seffect_confuse_monster');
+        break;
+    case SCR_SCARE_MONSTER:
+    case SPE_CAUSE_FEAR:
+        note_unported('read.c seffect_scare_monster');
+        break;
+    case SCR_BLANK_PAPER:
+        if (propertyActive(BLINDED, state)) {
+            await ttyPline(
+                "You don't remember there being any magic words on this scroll.",
+                state,
+            );
+        } else {
+            await ttyPline('This scroll seems to be blank.', state);
+        }
+        state.gk.known = true;
+        break;
+    case SCR_REMOVE_CURSE:
+    case SPE_REMOVE_CURSE:
+        if (scroll.otyp === SCR_REMOVE_CURSE && scroll.cursed)
+            await seffect_remove_curse(scroll, state);
+        else
+            note_unported('read.c seffect_remove_curse');
+        break;
+    case SCR_CREATE_MONSTER:
+    case SPE_CREATE_MONSTER:
+        note_unported('read.c seffect_create_monster');
+        break;
+    case SCR_ENCHANT_WEAPON:
+        if (!scroll.blessed && !scroll.cursed && !confused
+            && !propertyActive(BLINDED, state)
+            && !propertyActive(HALLUC, state) && state.uwep
+            && (state.uwep.oclass === WEAPON_CLASS
+                || is_weptool(state.uwep, state))
+            && !state.uwep.oartifact && !state.uwep.oeroded
+            && !state.uwep.oeroded2 && state.uwep.spe <= 5
+            && can_chant(state.youmonst, state)) {
+            await seffect_enchant_weapon(scroll, state);
+        } else {
+            note_unported('read.c seffect_enchant_weapon');
+        }
+        break;
+    case SCR_TAMING:
+    case SPE_CHARM_MONSTER:
+        note_unported('read.c seffect_taming');
+        break;
+    case SCR_GENOCIDE:
+        note_unported('read.c seffect_genocide');
+        break;
+    case SCR_LIGHT:
+        await seffect_light(scroll, state);
+        break;
+    case SCR_TELEPORTATION:
+        await seffect_teleportation(scroll, state);
+        break;
+    case SCR_GOLD_DETECTION:
+        note_unported('read.c seffect_gold_detection');
+        break;
+    case SCR_FOOD_DETECTION:
+    case SPE_DETECT_FOOD:
+        note_unported('read.c seffect_food_detection');
+        break;
+    case SCR_IDENTIFY:
+    case SPE_IDENTIFY:
+        if (scroll.otyp === SCR_IDENTIFY && !scroll.blessed
+            && !scroll.cursed && !confused
+            && !objectType(scroll, state).oc_name_known
+            && scroll.quan === 1) {
         await seffect_identify(scroll, state);
         update_inventory({ state });
-        return 1;
+            scroll = null;
+        } else {
+            note_unported('read.c seffect_identify');
+        }
+        break;
+    case SCR_CHARGING:
+        note_unported('read.c seffect_charging');
+        break;
+    case SCR_MAGIC_MAPPING:
+    case SPE_MAGIC_MAPPING:
+        if (scroll.otyp === SCR_MAGIC_MAPPING && !scroll.blessed
+            && !scroll.cursed && !state.level?.flags?.nommap) {
+            await seffect_magic_mapping(scroll, state);
+        } else {
+            note_unported('read.c seffect_magic_mapping');
+        }
+        break;
+    case SCR_AMNESIA:
+        note_unported('read.c seffect_amnesia');
+        break;
+    case SCR_FIRE:
+        note_unported('read.c seffect_fire');
+        break;
+    case SCR_EARTH:
+        note_unported('read.c seffect_earth');
+        break;
+    case SCR_PUNISHMENT:
+        if (punishmentReadAdmitted(scroll, confused, state))
+            await seffect_punishment(scroll, state);
+        else
+            note_unported('read.c seffect_punishment');
+        break;
+    case SCR_STINKING_CLOUD:
+        note_unported('read.c seffect_stinking_cloud');
+        break;
+    default:
+        note_unported('read.c seffects default');
+        break;
     }
-    if (scroll.otyp === SCR_DESTROY_ARMOR) {
-        await seffect_destroy_armor(scroll, state);
-        return 0;
-    }
-    if (scroll.otyp === SCR_ENCHANT_WEAPON) {
-        await seffect_enchant_weapon(scroll, state);
-        return 0;
-    }
-    if (scroll.otyp === SCR_REMOVE_CURSE) {
-        await seffect_remove_curse(scroll, state);
-        return 0;
-    }
-    if (scroll.otyp === SCR_TELEPORTATION) {
-        await seffect_teleportation(scroll, state);
-        return 0;
-    }
-    if (scroll.otyp === SCR_PUNISHMENT) {
-        await seffect_punishment(scroll, state);
-        return 0;
-    }
-    if (scroll.otyp === SCR_LIGHT) {
-        await seffect_light(scroll, state);
-        return 0;
-    }
-    await seffect_magic_mapping(scroll, state);
-    return 0;
+
+    if (!scroll) update_inventory({ state });
+    return scroll ? 0 : 1;
 }
 
 // C ref: read.c seffect_enchant_weapon() (1627-1676), restricted to the
