@@ -1,0 +1,89 @@
+{
+  "session": "synthetic/v6/v6-add6-healer-stethoscope-floor-below",
+  "corpus": "synthetic",
+  "batch": "v6",
+  "caseId": "v6-add6-healer-stethoscope-floor-below",
+  "manifestPath": "challenges/manifests/v6.json",
+  "manifestSha256": "7523b91e823f4e3906c9acdc9a3d80f8469c27c2caab8fc8fbd6967dbfdcab5f",
+  "recordingPath": "challenges/cases/v6/v6-add6-healer-stethoscope-floor-below.session.json",
+  "recordingSha256": "a59c8d545be1daef5bbd75e215fcd585dd0e1718eb2f70b73ba13499db9c60ea",
+  "evaluationPath": "challenges/evaluations/20260926140428-v6.json",
+  "evaluationCommit": "c79e03cbb8b5e5509ef1f09c67f9c94405b25eae",
+  "remainingScreens": 1,
+  "recordedSteps": 5,
+  "status": "complete",
+  "commit": "c79e03cbb8b5e5509ef1f09c67f9c94405b25eae",
+  "mismatch": {
+    "corpus": "synthetic",
+    "batch": "v6",
+    "caseId": "v6-add6-healer-stethoscope-floor-below",
+    "session": "synthetic/v6/v6-add6-healer-stethoscope-floor-below",
+    "manifestPath": "challenges/manifests/v6.json",
+    "manifestSha256": "7523b91e823f4e3906c9acdc9a3d80f8469c27c2caab8fc8fbd6967dbfdcab5f",
+    "recording": "challenges/cases/v6/v6-add6-healer-stethoscope-floor-below.session.json",
+    "recordingPath": "challenges/cases/v6/v6-add6-healer-stethoscope-floor-below.session.json",
+    "recordingSha256": "a59c8d545be1daef5bbd75e215fcd585dd0e1718eb2f70b73ba13499db9c60ea",
+    "recipe": "challenges/cases/v6/v6-add6-healer-stethoscope-floor-below.recipe.session.json",
+    "recipeSha256": "4a62f8ac6eb1e3ede1fdefd4345ef335159adb3bfb040e30e06336c62104b2d3",
+    "replayInputSha256": "08ec9793c4e538aa193f8c9f2480a06224ca1163dff42a0fb1d317bf84e4587a",
+    "evaluationPath": "challenges/evaluations/20260926140428-v6.json",
+    "evaluationCommit": "c79e03cbb8b5e5509ef1f09c67f9c94405b25eae",
+    "evaluationArtifact": "challenges/evaluations/20260926140428-v6.json",
+    "evaluationUtc": "2026-09-26T14:04:45.786Z",
+    "remainingScreens": 1,
+    "recordedSteps": 5,
+    "previousScreensMatched": 4,
+    "regression": false,
+    "passed": false,
+    "error": null,
+    "metrics": {
+      "screens": {
+        "matched": 4,
+        "total": 5
+      },
+      "rng": {
+        "matched": 2432,
+        "total": 2432
+      },
+      "cursors": {
+        "matched": 4,
+        "total": 5
+      }
+    },
+    "firstMismatch": {
+      "kind": "stop",
+      "message": "unsupported hero command: an unported branch of this command: applying a tool requires listening to the floor or ceiling",
+      "step": 4
+    },
+    "step": 4,
+    "kind": "stop",
+    "sourceFile": null,
+    "function": null,
+    "message": "unsupported hero command: an unported branch of this command: applying a tool requires listening to the floor or ceiling",
+    "cFile": null,
+    "luaFile": null,
+    "line": null
+  },
+  "summary": "The Healer applies a stethoscope and answers the downward direction. JavaScript's apply.c use_stethoscope port throws as soon as getdir() sets u.dz, before its vertical floor/ceiling branch. C continues: this Healer can reach the floor, finds no corpse or statue on the hero's square, is not on a stronghold level, and reports the current surface (the stairs) as healthy enough. The missing owner is use_stethoscope()'s vertical-direction branch.",
+  "source": {
+    "file": "apply.c",
+    "branch": "In use_stethoscope(), getdir() accepts '>' and sets u.dz > 0; the hero is not swallowed, underwater, or riding, can_reach_floor(TRUE) succeeds, its_dead() finds no corpse or statue underfoot, and the level is not a stronghold. C then prints The <surface> seems healthy enough.",
+    "functions": [
+      "use_stethoscope"
+    ],
+    "callers": [
+      "apply.c:doapply() selects use_stethoscope() in its STETHOSCOPE case (around line 4328); js/apply.js:doapply() reaches js/apply.js:use_stethoscope() for the same item."
+    ],
+    "dependencies": [
+      "The vertical arm uses getdir()-written u.dz and preserves the ECMD_OK/ECMD_TIME result already computed from hero_seq and context.stethoscope_seq.",
+      "cant_reach_floor(), its_dead(), Is_stronghold(), and surface() select the other vertical responses; this recording reaches the surface() fallback."
+    ]
+  },
+  "goalKind": "file-port",
+  "evidence": [
+    "The saved evaluation challenges/evaluations/20260926140428-v6.json at c79e03cbb8b5e5509ef1f09c67f9c94405b25eae reports one remaining screen and a stop at segment 0 step 4 on key \">\": JavaScript refuses the unported branch \"applying a tool requires listening to the floor or ceiling\".",
+    "The recipe challenges/cases/v6/v6-add6-healer-stethoscope-floor-below.recipe.session.json sets seed 60626601, a neutral male human Healer, and moves \" ac>\". In the C recording, segment 0 steps 0–4 take startup, dismiss, apply, choose the stethoscope, and answer \">\"; step 4 prints \"The stairs seems healthy enough.\" with no RNG draw.",
+    "Upstream nethack-c/upstream/src/apply.c use_stethoscope() (318–470) handles u.dz after getdir(): it checks underwater and floor access, calls its_dead(), checks Is_stronghold(), then prints surface(u.ux,u.uy). The apply.c doapply() STETHOSCOPE case calls it.",
+    "At the evaluated implementation, js/apply.js use_stethoscope() calls getdir() and then throws UnsupportedApplyError for any u.dz (around line 1599); js/apply.js doapply() dispatches STETHOSCOPE to it (around line 2305). The failure is the omitted vertical branch, not a bad direction parse or floor message already printed by JavaScript."
+  ]
+}

@@ -7,12 +7,12 @@
   "manifestSha256": "7523b91e823f4e3906c9acdc9a3d80f8469c27c2caab8fc8fbd6967dbfdcab5f",
   "recordingPath": "challenges/cases/v6/wizard-greasy-write-glib-final.session.json",
   "recordingSha256": "20b60af8d804f9bd6ebd5b1217dae85a6cdad0afcae9d4f98bd6c57d6f3fb6e6",
-  "evaluationPath": "challenges/evaluations/20260926094126-v6.json",
-  "evaluationCommit": "50bbe620897c8fc2e634d14ec672d33a4e44db7e",
-  "remainingScreens": 5,
+  "evaluationPath": "challenges/evaluations/20260926132731-v6.json",
+  "evaluationCommit": "d0a8041f88dd37cbf631877464c06cf985998274",
+  "remainingScreens": 3,
   "recordedSteps": 22,
   "status": "complete",
-  "commit": "50bbe620897c8fc2e634d14ec672d33a4e44db7e",
+  "commit": "d0a8041f88dd37cbf631877464c06cf985998274",
   "mismatch": {
     "corpus": "synthetic",
     "batch": "v6",
@@ -25,66 +25,107 @@
     "recordingSha256": "20b60af8d804f9bd6ebd5b1217dae85a6cdad0afcae9d4f98bd6c57d6f3fb6e6",
     "recipe": "challenges/cases/v6/wizard-greasy-write-glib-final.recipe.session.json",
     "recipeSha256": "a55d0f776ecd5d8a91bc59a3fc708c55e632be4e125a69ffaac720babd87ebdc",
-    "replayInputSha256": "9671c8200bb4617314143efc03b8936dba1c08d5025986a5ef6f245a97c322f9",
-    "evaluationPath": "challenges/evaluations/20260926094126-v6.json",
-    "evaluationCommit": "50bbe620897c8fc2e634d14ec672d33a4e44db7e",
-    "evaluationArtifact": "challenges/evaluations/20260926094126-v6.json",
-    "evaluationUtc": "2026-09-26T09:41:43.460Z",
-    "remainingScreens": 5,
+    "replayInputSha256": "a3ac3b6872f8e89451d29bdbf73b5215af57c013d215edeaba8f740cc0c5fc4a",
+    "evaluationPath": "challenges/evaluations/20260926132731-v6.json",
+    "evaluationCommit": "d0a8041f88dd37cbf631877464c06cf985998274",
+    "evaluationArtifact": "challenges/evaluations/20260926132731-v6.json",
+    "evaluationUtc": "2026-09-26T13:27:48.505Z",
+    "remainingScreens": 3,
     "recordedSteps": 22,
-    "previousScreensMatched": 17,
+    "previousScreensMatched": 19,
     "regression": false,
     "passed": false,
     "error": null,
     "metrics": {
       "screens": {
-        "matched": 17,
+        "matched": 19,
         "total": 22
       },
       "rng": {
-        "matched": 2958,
+        "matched": 2968,
         "total": 2978
       },
       "cursors": {
-        "matched": 17,
+        "matched": 20,
         "total": 22
       }
     },
     "firstMismatch": {
-      "kind": "stop",
-      "message": "unsupported hero command: an unported branch of this command: applying a tool requires doapply()'s arm for object type 240",
-      "step": 17
+      "screen": {
+        "index": 18,
+        "location": {
+          "segmentIndex": 0,
+          "stepIndex": 18,
+          "key": "-"
+        },
+        "kind": "ch",
+        "row": 0,
+        "column": 34,
+        "cCell": {
+          "ch": "-",
+          "color": 8,
+          "attr": 0,
+          "decgfx": 0
+        },
+        "jsCell": {
+          "ch": " ",
+          "color": 8,
+          "attr": 0,
+          "decgfx": 0
+        }
+      },
+      "rng": null,
+      "cursor": {
+        "index": 18,
+        "location": {
+          "segmentIndex": 0,
+          "stepIndex": 18,
+          "key": "-"
+        },
+        "cCursor": [
+          42,
+          0,
+          1
+        ],
+        "jsCursor": [
+          25,
+          9,
+          1
+        ]
+      }
     },
-    "step": 17,
-    "kind": "stop",
-    "sourceFile": "apply.c",
-    "function": "doapply",
-    "message": "unsupported hero command: an unported branch of this command: applying a tool requires doapply()'s arm for object type 240",
-    "cFile": "apply.c",
+    "step": 18,
+    "kind": "screen",
+    "sourceFile": null,
+    "function": null,
+    "message": null,
+    "cFile": null,
     "luaFile": null,
     "line": null
   },
-  "summary": "The v6 wizard-greasy-write-glib-final case applies a can of grease at segment 0 step 17. C apply.c:use_grease() asks which object or hands to grease; js/apply.js:doapply() refuses CAN_OF_GREASE before this prompt. Group the unresolved grease and glib variants in one complete grease_ok/use_grease source task with doapply wiring, preserving charge, slipping, target selection, and Glib timing.",
+  "summary": "The earlier grease branch now succeeds. The first remaining divergence is the turn after greasing the hands: C allmain.c calls do_wear.c:glibr() while Glib is active, and glibr() reports the unwielded quarterstaff slipping, clears the wield slot, and drops it. That second message makes the TTY wait at step 18; js/allmain.js omits the elapsed-turn glibr call, so the grease message has no --More-- marker and the quarterstaff drop never occurs.",
   "source": {
-    "file": "apply.c",
-    "branch": "The hero applies CAN_OF_GREASE (object type 240) with positive charges and no initial Glib refusal; use_grease reaches getobj(\"grease\", grease_ok, GETOBJ_PROMPT) and C prints the target-selection prompt.",
+    "file": "do_wear.c",
+    "branch": "On the elapsed turn after apply.c:use_grease() grants Glib to the ungloved hands, do_wear.c:glibr() runs. With no slipping rings or offhand weapon, the active branch is the primary weapon arm: the Wizard is wielding a non-AKLYS, unwelded quarterstaff, so glibr() prints the slip message, clears uwep with setuwep(NULL), and drops the staff through dropx().",
     "functions": [
-      "grease_ok",
-      "use_grease"
+      "glibr"
     ],
     "callers": [
-      "cmd.c apply command -> apply.c doapply CAN_OF_GREASE arm at lines 4282-4283, which consumes use_grease return; js/cmd.js command dispatch -> js/apply.js doapply currently refuses that object type."
+      "C: allmain.c:moveloop_core calls do_wear.c:glibr() under if (Glib) immediately after advancing the turn and before nh_timeout(); wire the equivalent at the same source-order boundary in js/allmain.js:finishElapsedTurn, including its elapsed-turn planning/live state contract.",
+      "Upstream reachability: apply.c:doapply -> use_grease() -> potion.c:make_glib() activates Glib for the hands; the next paid turn reaches allmain.c:moveloop_core -> glibr()."
     ],
     "dependencies": [
-      "Return-valued getobj and inaccessible_equipment determine selection; grease_ok excludes coins and inaccessible equipment. Verify existing JavaScript implementations before marking source completion.",
-      "invent.c consume_obj_charge and object drop/greased state, make_glib and rn1 on hands or cursed targets, and inventory redraw must preserve C order."
+      "Preserve all glibr branches and shared equipment state: uarmg gates ring slipping; uleft/uright, uswapwep, u.twoweap, uwep, welded(), bimanual(), canletgo(), Ring_off(), setuswapwep(), and setuwep() determine which items fall and in what message order.",
+      "The reachable quarterstaff branch uses do_wear.c weapon naming and otense helpers, clears the wield slot before do.c:dropx(), then follows the ordinary floor-drop path. JavaScript equivalents exist in js/wield.js, js/objnam.js, and js/do.js; preserve their state and drop admission contracts.",
+      "Message sequencing is source-significant: topl.c:update_topl() invokes more() when glibr() prints the second message while the grease message occupies the line. Keep the turn caller in source order and let the existing TTY path receive both messages."
     ]
   },
   "goalKind": "file-port",
   "evidence": [
-    "Saved challenges/evaluations/20260926094126-v6.json at 50bbe620897c8fc2e634d14ec672d33a4e44db7e reports 5 remaining screen(s), first refusal at segment 0 step 17: unsupported hero command: an unported branch of this command: applying a tool requires doapply()'s arm for object type 240.",
-    "C challenges/cases/v6/wizard-greasy-write-glib-final.session.json at that step prints “What do you want to grease? [- ... or ?*]”, proving use_grease reached its getobj selection after the charged can passed its early branches.",
-    "Upstream nethack-c/upstream/src/apply.c:2586-2654 grease_ok/use_grease handles Glib slipping, cursed/fumbling mishap, charge, object or hand greasing, make_glib, and final inventory update. doapply at 4282-4283 consumes its ECMD_* return.",
-    "Current js/apply.js:doapply refuses CAN_OF_GREASE before use_grease; port the complete helper family and wire its caller. Later intended engraving inputs remain downstream and should not be special-cased."
+    "Saved challenges/evaluations/20260926132731-v6.json and .cache/B14-committed-work-queue.json identify 3 remaining screens out of 22; the first mismatch is segment 0, step 18, key \"-\": C has \"-\" at row 0 column 34 and cursor [42,0,1], while JS has a blank there and cursor [25,9,1]. The saved metrics are 19/22 screens, 2968/2978 RNG calls, and 20/22 cursors.",
+    "challenges/cases/v6/wizard-greasy-write-glib-final.session.json: at step 18, C prints \"You coat your fingers with grease.--More--\" with T:2; at the next key (space), still at T:2, C prints \"Your quarterstaff slips from your hands.\" This establishes a second, source-ordered message after successful grease application, rather than a missing grease result or RNG divergence.",
+    "nethack-c/upstream/src/apply.c:2633-2644 calls make_glib(oldglib + rn1(11, 5)) for the hands and then prints the coat message; nethack-c/upstream/src/potion.c:461-468 implements make_glib(). This confirms the active condition that reaches the next-turn slip handling.",
+    "nethack-c/upstream/src/allmain.c:271-273 calls glibr() when Glib is active after move advancement and before nh_timeout(). The whole source owner is nethack-c/upstream/src/do_wear.c:2528-2630; its primary weapon branch prints the slip message, calls setuwep(NULL), and then dropx() for a non-AKLYS, unwelded weapon.",
+    "The call is absent from js/allmain.js:finishElapsedTurn, which advances state.moves/state.hero_seq and proceeds to nh_timeout(); js/do_wear.js has no glibr implementation. C win/tty/topl.c:update_topl() waits when the second message cannot share the occupied line, explaining the exact --More-- cell at step 18; the existing message path is not the missing source behavior."
   ]
 }

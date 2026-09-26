@@ -1,0 +1,10 @@
+{
+  "version": 5,
+  "segments": [{
+    "seed": 6200830,
+    "datetime": "20330205111213",
+    "nethackrc": "OPTIONS=name:HornMenu,role:Rogue,race:human,gender:female,align:chaotic\nOPTIONS=!legacy,!tutorial,!splash_screen\nOPTIONS=playmode:debug,pettype:none,!acoustics,!autopickup,time,showexp\n",
+    "comment": "Independent inventory-menu path: wish for an uncursed unicorn horn, choose it from inventory actions, then select apply so C queues doapply from iactions.c.",
+    "moves": "\u0017unicorn horn\niga"
+  }]
+}

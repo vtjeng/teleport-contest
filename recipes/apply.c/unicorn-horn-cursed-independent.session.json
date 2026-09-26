@@ -1,0 +1,10 @@
+{
+  "version": 5,
+  "segments": [{
+    "seed": 6200829,
+    "datetime": "20330204111213",
+    "nethackrc": "OPTIONS=name:HornProbe,role:Rogue,race:human,gender:female,align:chaotic\nOPTIONS=!legacy,!tutorial,!splash_screen\nOPTIONS=playmode:debug,pettype:none,!acoustics,!autopickup,time,showexp\n",
+    "comment": "Independent cursed unicorn-horn variation: wish for a cursed horn and apply it to exercise apply.c:use_unicorn_horn's cursed RNG branch.",
+    "moves": "\u0017cursed unicorn horn\nag"
+  }]
+}
