@@ -78,7 +78,7 @@ import { cansee, couldsee, do_clear_area_async } from './vision.js';
 import { S_cloud } from './symbols.js';
 import { mintrap } from './trap_effects.js';
 import { t_at, delfloortrap } from './trap.js';
-import { water_damage } from './trap_water_damage.js';
+import { water_damage, water_damage_chain } from './trap_water_damage.js';
 import {
     displayPendingTtyMessageWindow, ttyPline,
 } from './tty_message.js';
@@ -297,11 +297,14 @@ async function gush(x, y, argument, state = game, env = {}) {
     set_levltyp(x, y, POOL, { state });
     state.level.at(x, y).flags = 0;
     del_engr_at(x, y, state);
-    // C ref: fountain.c:155. water_damage_chain() has a discarded
-    // result here. Keep the source-attributed gap while allowing the rest of
-    // this square's pool and monster effects to continue.
-    const floorObjects = state.level.objects?.[x]?.[y];
-    if (floorObjects) note_unported('trap.c water_damage_chain');
+    // C ref: fountain.c:155. The floor-object chain is linked by nexthere,
+    // and its discarded result must not affect the later monster effect.
+    await water_damage_chain(state.level.objects?.[x]?.[y], true, {
+        ...env,
+        state,
+        random,
+        message,
+    });
 
     // C ref: fountain.c:157-160. Drown monster or update display.
     const mtmp = m_at(x, y, state);

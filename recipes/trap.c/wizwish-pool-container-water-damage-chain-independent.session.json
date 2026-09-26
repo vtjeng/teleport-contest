@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "Independent container-recursion recipe for trap.c:water_damage_chain through objnam.c:wizterrainwish and trap.c:water_damage() -> cobj chain. This debug Wizard wishes an unlocked chest, puts one starting potion into it, and changes the hero's square to a pool; seed 9493315 and the 2036 timestamp are independent of the other wizard terrain and inventory recordings.",
+  "segments": [
+    {
+      "seed": 9493315,
+      "datetime": "20360304090000",
+      "nethackrc": "OPTIONS=name:ChainPilot,role:Wizard,race:human,gender:female,align:neutral\nOPTIONS=playmode:debug,menustyle:traditional,!legacy,!tutorial,!splash_screen,pettype:none,!acoustics\n",
+      "moves": "  s#wizwish\nempty unlocked chest\ndo#loot\ni!\ny nn\n\u0017pool\n#loot\no!\n"
+    }
+  ]
+}

@@ -2090,13 +2090,17 @@ async function liquidDamageInventory(monster, lava, env) {
     const operationName = lava ? 'fireDamageChain' : 'waterDamageChain';
     const sourceName = lava ? 'fire_damage_chain' : 'water_damage_chain';
     const operation = env[operationName];
-    // Both source damage-chain functions return immediately for a null chain.
-    // A nonempty chain is an explicit discarded-result gap in this span; name
-    // that source call and continue, as C does, rather than throwing after a
-    // valid minliquid branch has already changed the monster.
+    // C discards both chain results. The water chain is ported in trap.c;
+    // keep lava's still-unported chain named at its exact call site.
     if (typeof operation !== 'function') {
-        if (monster.minvent)
+        if (lava && monster.minvent) {
             note_unported('trap.c ' + sourceName);
+        } else if (!lava) {
+            const { water_damage_chain } = await import(
+                './trap_water_damage.js'
+            );
+            await water_damage_chain(monster.minvent, false, env);
+        }
         return;
     }
     if (lava) {
