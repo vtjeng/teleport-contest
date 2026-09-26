@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "capturedAt": "2026-09-26T23:12:44.003Z",
+  "capturedAt": "2026-09-26T23:44:51.856Z",
   "activity": {
     "runId": "loop-20260925",
     "events": [
@@ -3705,12 +3705,115 @@
         "at": "2026-09-26T23:00:12.264Z",
         "task": "B20",
         "delivery": "32ae9b596f2bbbdfd0eddc7c98ea2b8f88d9bb37"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "C21-feedback-review-20260926-01",
+        "type": "feedback",
+        "at": "2026-09-26T23:13:00.205Z",
+        "task": "C21",
+        "delivery": "ac6887e367f12689b0841b0a101e76582c035184"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "C21-resume-review-correction-20260926",
+        "type": "resume",
+        "at": "2026-09-26T23:14:11.574Z",
+        "task": "C21"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "B20-feedback-return-dependency-20260926-01",
+        "type": "feedback",
+        "at": "2026-09-26T23:17:30.776Z",
+        "task": "B20",
+        "delivery": "32ae9b596f2bbbdfd0eddc7c98ea2b8f88d9bb37"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "resume-B20-rider-return-20260926-01",
+        "type": "resume",
+        "at": "2026-09-26T23:17:45.142Z",
+        "task": "B20"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-b3fad8ac9a3f68b75dc6a1cf5f57b83366735647",
+        "type": "ready",
+        "at": "2026-09-26T23:20:02.007Z",
+        "task": "A16",
+        "delivery": "b3fad8ac9a3f68b75dc6a1cf5f57b83366735647"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-28cdffe9393bad3cf8f707415a7ca24c5afc7331",
+        "type": "ready",
+        "at": "2026-09-26T23:21:47.113Z",
+        "task": "B20",
+        "delivery": "28cdffe9393bad3cf8f707415a7ca24c5afc7331"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-e5dad55ec0d96536456d09f0884c60b62f8d9444",
+        "type": "ready",
+        "at": "2026-09-26T23:25:18.835Z",
+        "task": "C21",
+        "delivery": "e5dad55ec0d96536456d09f0884c60b62f8d9444"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "C21-correction-received-20260926-01",
+        "type": "received",
+        "at": "2026-09-26T23:26:02.482Z",
+        "task": "C21",
+        "delivery": "e5dad55ec0d96536456d09f0884c60b62f8d9444"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "C21-correction-integrating-20260926-01",
+        "type": "integrating",
+        "at": "2026-09-26T23:26:42.858Z",
+        "task": "C21",
+        "integration": "e15883c1613d84bf7f47fcd7c2f032e1a001fcd2"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "C21-correction-validated-20260926-01",
+        "type": "validated",
+        "at": "2026-09-26T23:33:09.465Z",
+        "task": "C21",
+        "passed": true
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "C21-correction-accepted-20260926-01",
+        "type": "accepted",
+        "at": "2026-09-26T23:38:07.432Z",
+        "task": "C21"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "C21-correction-published-20260926-01",
+        "type": "published",
+        "at": "2026-09-26T23:38:50.362Z",
+        "task": "C21",
+        "commit": "bc832b6919f60c87a0647e62e31cd7d5db654355"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "assign-A17-20260926-01",
+        "type": "assign",
+        "at": "2026-09-26T23:43:10.782Z",
+        "task": "A17",
+        "worker": "A",
+        "goal": "port-read-seffect-earth-synthetic-v6-20260926",
+        "kind": "implementation"
       }
     ]
   },
   "development": {
-    "executionCommit": "4cdc2f51ab9b9f64080c1e5060e01d1f48a5b095",
-    "measuredAt": "2026-09-26T23:06:13.408Z",
+    "executionCommit": "e15883c1613d84bf7f47fcd7c2f032e1a001fcd2",
+    "measuredAt": "2026-09-26T23:32:56.854Z",
     "sessions": [
       {
         "session": "holdout/seed0002-healer-reflection-drummer",
