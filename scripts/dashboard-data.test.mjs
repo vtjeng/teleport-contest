@@ -491,6 +491,9 @@ test('one sessions table includes both sets with exact scores and distinct misma
     showAll.listeners.change[0]();
     assert.match(table.innerHTML, /Synthetic matched/u);
     assert.match(table.innerHTML, /<td>matched<\/td><td>Development/u);
+    assert.match(table.innerHTML, /<td><span role="img" aria-label="Matched">✅<\/span><\/td>/u);
+    assert.match(table.innerHTML, /<td><span role="img" aria-label="Remaining">🔧<\/span><\/td>/u);
+    assert.doesNotMatch(table.innerHTML, /✅ Matched|🔧 Remaining/u);
 });
 
 function sourceFileRows(table) {

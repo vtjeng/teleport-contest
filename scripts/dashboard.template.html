@@ -831,7 +831,7 @@ canvas {
 
 <div class="section">
   <h3 class="section-title">Worker activity</h3>
-  <p class="subtitle">Observed task handoffs since the September 25 worker-ledger run. Worker bars show elapsed assignment time, not continuous coding. Earlier progress remains in the score history above. <span id="activitySnapshotTime"></span></p>
+  <p class="subtitle">Observed task handoffs since the September 25 worker-ledger run. Bars show elapsed task stages, not continuous active work. Earlier progress remains in the score history above. <span id="activitySnapshotTime"></span></p>
   <div class="legend" id="timelineLegend"></div>
   <div class="chart-wrap">
     <div id="timeline"></div>
@@ -1035,7 +1035,8 @@ document.getElementById('stats').innerHTML = [
     rows.forEach(row => {
       const values = [fmtN(row.initial), fmtN(row.current), fmtN(row.total),
         row.change == null ? '—' : fmtDelta(row.change)];
-      const status = row.complete ? '✅ Matched' : '🔧 Remaining';
+      const status = row.complete ? '<span role="img" aria-label="Matched">✅</span>'
+        : '<span role="img" aria-label="Remaining">🔧</span>';
       const details = detail(row);
       const name = details
         ? '<details><summary>' + esc(row.name) + '</summary>' + details + '</details>'
@@ -1550,7 +1551,7 @@ document.getElementById('stats').innerHTML = [
     const segment = activity.segments[Number(element.dataset.segment)];
     const task = taskById.get(segment.task);
     const minutes = Math.round((Date.parse(segment.end) - Date.parse(segment.start)) / 60000);
-    readout.textContent = segment.worker + ' · ' + (task?.label || segment.task) + (task?.goal ? ' · ' + task.goal : '')
+    readout.textContent = segment.lane + ' · ' + (task?.label || segment.task) + (task?.goal ? ' · ' + task.goal : '')
       + ' · ' + phaseNames[segment.phase] + ' · ' + stamp(segment.start)
       + ' – ' + stamp(segment.end) + ' · ' + fmt(minutes);
   };

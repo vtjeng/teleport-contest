@@ -11,7 +11,7 @@ export function activityTimeline(activity, capturedAt) {
     if (start && Date.parse(at) >= Date.parse(start)) {
       segments.push({ task: task.id, goal: task.goal, worker: task.worker,
         kind: task.kind, phase, start, end: at,
-        lane: phase === 'working' ? task.worker : 'Main' });
+        lane: ['working', 'queued'].includes(phase) ? task.worker : 'Main' });
     }
     task.starts[phase] = null;
   }
