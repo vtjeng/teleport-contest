@@ -1,0 +1,11 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 60626014,
+      "datetime": "20260925113000",
+      "nethackrc": "OPTIONS=name:Velatourist-fo,role:Tourist,race:human,gender:female,align:neutral,playmode:debug,!legacy,!tutorial,!splash_screen,showexp,time\n",
+      "moves": "\u0017fortune cookie\ne"
+    }
+  ]
+}

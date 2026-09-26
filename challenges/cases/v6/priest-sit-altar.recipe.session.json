@@ -1,0 +1,11 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 60626005,
+      "datetime": "20260925113000",
+      "nethackrc": "OPTIONS=name:Velapriest-sit,role:Priest,race:human,gender:male,align:lawful,playmode:debug,!legacy,!tutorial,!splash_screen,showexp,time\n",
+      "moves": "\u0017altar\n#sit\n"
+    }
+  ]
+}

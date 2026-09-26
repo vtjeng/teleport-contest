@@ -1,0 +1,11 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 60626056,
+      "datetime": "20260925113000",
+      "nethackrc": "OPTIONS=name:Vela,role:Wizard,race:human,gender:female,align:neutral,playmode:debug,!legacy,!tutorial,!splash_screen,showexp,time,pettype:none\n",
+      "moves": "h\u0017beartrap\naom.m.m.m.m.lh#sit\n #sit\n"
+    }
+  ]
+}

@@ -1,0 +1,11 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 60626042,
+      "datetime": "20260925113000",
+      "nethackrc": "OPTIONS=name:Velawizard-ti,role:Wizard,race:human,gender:female,align:neutral,playmode:debug,!legacy,!tutorial,!splash_screen,showexp,time\n",
+      "moves": "\u0017tinning kit\n\u0017corpse of newt\ndpaoy"
+    }
+  ]
+}

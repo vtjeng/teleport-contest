@@ -1,0 +1,11 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 60626017,
+      "datetime": "20260925113000",
+      "nethackrc": "OPTIONS=name:Velawizard-si,role:Wizard,race:human,gender:male,align:neutral,playmode:debug,!legacy,!tutorial,!splash_screen,showexp,time\n",
+      "moves": "\u0017grave\n#sit\n"
+    }
+  ]
+}
