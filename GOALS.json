@@ -79439,7 +79439,7 @@
     {
       "id": "port-zap-resist-lethal-synthetic-v5-20260926",
       "kind": "file-port",
-      "status": "open",
+      "status": "parked",
       "summary": "Port complete zap.c resist lethal monster damage and death dispatch",
       "cFile": "zap.c",
       "sessions": [
@@ -79461,7 +79461,7 @@
           "line": 6100,
           "endLine": 6164,
           "declared": true,
-          "complete": false
+          "complete": true
         }
       ],
       "range": {
@@ -79633,7 +79633,94 @@
             }
           }
         }
-      ]
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "resist",
+            "implementation": "js/zap.js",
+            "symbol": "resist",
+            "sourceReview": "Read and compared the complete zap.c resist() definition at lines 6100-6158. The fake-player Conflict early return precedes all draws; attack level follows the exact class switch; defense level is capped at 50 or floored to the player level only for a monster player and otherwise to 1; then one rn2(100 + alev - dlev) comparison decides resistance. A resisted hit calls shieldeff_mon only when tell is true and rounds positive damage upward with (damage + 1) / 2. Damage is then subtracted, and lethal damage dispatches to monkilled(mtmp, \"\", AD_RBRE) only while gm.m_using is true, otherwise killed(mtmp); both calls discard their void result. The JS port preserves this order, uses the caller's RNG/environment bundle for death side effects, removes the former UnsupportedZapError refusal, and returns the resistance result. Existing killed/monkilled owners are invoked; no return-valued callee is substituted or skipped.",
+            "callers": [
+              {
+                "path": "js/zap.js",
+                "symbol": "bhitm",
+                "source": "zap.c:160-212; successful hero wand/Force Bolt hit calls resist(mtmp, otmp->oclass, dmg, TELL) and discards the result."
+              },
+              {
+                "path": "js/zap.js",
+                "symbol": "zhitm",
+                "source": "zap.c:4238-4391; monster ray effects use resist() for their source resistance branches, including the final wand/spell damage save."
+              },
+              {
+                "path": "js/zap.js",
+                "symbol": "cancel_monst",
+                "source": "zap.c:3150-3160; cancellation tests monster resistance and consumes its boolean result."
+              },
+              {
+                "path": "js/muse.js",
+                "symbol": "mbhitm",
+                "source": "muse.c:1597-1704; monster wand striking calls resist() at 1640 and undead turning calls it at 1684, discarding the return. The JS caller now passes its complete RNG/environment bundle; this task does not claim whole mbhitm source completion."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/zap-resist.test.mjs",
+              "scripts/muse-bhitm-resist.test.mjs"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v5",
+                "caseId": "healer-wand-striking-grid-bug",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 40,
+                "source": "zap.c:bhitm, reached from the hero wand command through the ray callback after a successful striking hit; the range includes lethal resist() damage to the tame kitten."
+              }
+            ],
+            "checkedAt": "8f72bd4d234c80cda41bc806e647a3594b1d82a9"
+          }
+        ],
+        "entryPointReview": "The hero's wand-strike entry through zap.c:bhitm is matched by the admitted v5 prefix through segment 0 step 40; this range includes lethal resist() damage to the tame kitten. The earlier independent recipe named resist-tame-kitten-independent was removed because its 31-step recording ends with the wand missing the little dog and contains no resist(zap.c) RNG call. The newly wired monster-item route is use_offensive() -> muse.c:mbhitm -> resist(), with gm.m_using=true. scripts/muse-bhitm-resist.test.mjs verifies the JS production caller and lethal monkilled side effects, but no fully matching C/JS recording is available. The blocked recipe recipes/zap.c/resist-monster-wand-blocked.session.json reaches resist() in C (the diagnostic C recording is retained only under .cache). Its strict differential (run-TezEEs, exit 1) first diverges at segment 1 step 61/key y. read.c:create_particular_creation() correctly accepts y and keeps PM_SHOPKEEPER. C then follows makemon.c:makemon's by-hero enexto_core() placement path (lines 1179-1183), whose first missing call is rn2(8)=6 @ collect_coords(teleport.c:700); the screen says ‘A shopkeeper appears close by.’ and cursor is [33,6,1]. JavaScript emits no matching boundary: js/makemon_create.js:preflightCreation() marks createParticularCall as a runtime call, but assertSupportedSpecies() rejects PM_SHOPKEEPER, and its shopkeeperCall exception only admits mklev/MM_ESHK and revival shapes. Totals at the stop are C 3446 RNG calls/95 boundaries and JS 2856/60. This is a makemon.c:makemon creation/admission blocker, not a read.c prompt blocker. A second ordinary-monster cohort had source-driven wand initialization but no use_offensive()/mbhitm()/resist() call. This is an evidence blocker, not an inactive production caller; do not close the source goal until a matching replay covers the monster-item entry. The other existing resist callers remain source-wired through zap.c:zhitm and zap.c:cancel_monst; this task does not claim their whole source functions.",
+        "entryPoints": [
+          {
+            "name": "Hero wand strike causing lethal monster damage",
+            "functions": [
+              "resist"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v5",
+                "caseId": "healer-wand-striking-grid-bug",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 40,
+                "source": "zap.c:bhitm, through the successful wand-strike callback and lethal resist() damage."
+              }
+            ]
+          },
+          {
+            "name": "Monster offensive wand striking a monster",
+            "functions": [
+              "resist"
+            ],
+            "recordings": [],
+            "synthetic": []
+          }
+        ]
+      },
+      "progressBeforePark": {
+        "screens": 0,
+        "rng": 0
+      },
+      "parkedStanding": {
+        "sha": "8f72bd4d234c80cda41bc806e647a3594b1d82a9",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "parkedReason": "Hero lethal zap.c resist is source-verified by admitted v5 Healer segment 0 through step 40 and passes combined validation. Monster offensive-wand entry muse.c:mbhitm -> zap.c:resist remains without a fully matching C/JS recording. The independent C recipe reaches resist, but JS first refuses forced PM_SHOPKEEPER creation at makemon.c:makemon preflight after read.c accepts y. Resume after a source-traced makemon.c creation fix makes that recipe match through the monster wand strike; then verify all active entry points and close."
     }
   ]
 }
