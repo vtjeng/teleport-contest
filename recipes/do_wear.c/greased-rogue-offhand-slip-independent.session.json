@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "Independent C18 Rogue mission: activate the starting short sword and alternate dagger in two-weapon combat, then grease fingers so glibr() drops the offhand dagger and primary sword in source order.",
+  "segments": [
+    {
+      "seed": 260926284,
+      "datetime": "20260926191500",
+      "nethackrc": "OPTIONS=name:Werdra,role:Rogue,race:human,gender:female,align:chaotic,playmode:debug,!legacy,!tutorial,!splash_screen,pettype:none,!autopickup\n",
+      "moves": " i #twoweapon\n\u0017can of grease\nag-  "
+    }
+  ]
+}
