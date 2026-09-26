@@ -76284,7 +76284,7 @@
     {
       "id": "port-do-dosinkring-synthetic-v4-20260926",
       "kind": "file-port",
-      "status": "open",
+      "status": "closed",
       "summary": "Port do.c dosinkring and wire the sink-ring drop caller",
       "cFile": "do.c",
       "sessions": [
@@ -76298,15 +76298,18 @@
         "screens": 11405,
         "rng": 792838
       },
-      "closedAt": null,
-      "delivered": null,
+      "closedAt": "a4cca522bb1757073b5cea17ac1d8c2d7c82367f",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
       "functions": [
         {
           "name": "dosinkring",
           "line": 498,
           "endLine": 664,
-          "declared": false,
-          "complete": false
+          "declared": true,
+          "complete": true
         }
       ],
       "range": {
@@ -76504,7 +76507,76 @@
             }
           }
         }
-      ]
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "dosinkring",
+            "implementation": "js/do.js",
+            "symbol": "dosinkring",
+            "sourceReview": "Read the whole do.c:dosinkring() definition (498-661), including both ring-type switches, its early giveback return, the object-resistance loop, sensory gates, trycall/hearing branch, and the backup/bury/useup tail. Also read do.c:teleport_sink() (460-494), whose boolean result controls dosinkring()'s sink message and nosink state; its active source loop, candidate bounds, rejection predicates, terrain changes, looted transfer, redraw order, 200-attempt limit, and return values are ported in js/do.js and exercised by the teleporter recording. JS preserves the initial message before in_use, C's effect-switch order, the RIN_HUNGER otmp2 save before possible delobj(), its uball/uchain exclusions and obj_resists(1,99), the !Blind visual switch, trycall versus hearing, and the unconditional rn2(20) before testing nosink followed by rn2(5) on the other arm. C's discarded-void polymorph_sink() remains the explicit note_unported('do.c polymorph_sink') gap; no return value or substitute effects are used. Soundeffect() calls have no effect in the patched recorder's nosound configuration. The drop() sink caller passes its existing dropCommandEnv so RIN_HUNGER deletion reaches mkobj.c remove_object; preflight_dropx admits SINK for the source's giveback and backup landings.",
+            "callers": [
+              {
+                "path": "js/do.js",
+                "symbol": "drop",
+                "source": "do.c:drop() checks (obj->oclass == RING_CLASS || obj->otyp == MEAT_RING) and IS_SINK at 753-756 before calling dosinkring(obj) and returning ECMD_TIME. The JS drop() carries the same predicate and awaits dosinkring(). Its command caller is do.c:dodrop() at 29-42, reached from cmd.c's 'd' registration at 1708; js/cmd.js:runDropCommand -> dodrop -> getobj -> drop is the corresponding production route."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/drop-command.test.mjs"
+            ],
+            "recordings": [
+              "recordings/do.c/sink-ring-searching-giveback-independent.session.json",
+              "recordings/do.c/sink-meat-ring-independent.session.json",
+              "recordings/do.c/sink-ring-teleport-independent.session.json",
+              "recordings/do.c/sink-ring-hunger-drain-independent.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v4",
+                "caseId": "rogue-sink-ring-history",
+                "segment": 0,
+                "fromStep": 47,
+                "throughStep": 48,
+                "source": "cmd.c:'d' registration -> do.c:dodrop() -> do.c:drop() sink-ring arm -> do.c:dosinkring() RIN_LEVITATION branch; the replay shows the drain message followed by the quivering sink message."
+              }
+            ],
+            "checkedAt": "a4cca522bb1757073b5cea17ac1d8c2d7c82367f"
+          }
+        ],
+        "entryPointReview": "The only direct C caller of static dosinkring() is do.c:drop() at 753-756. The active player entry point is cmd.c's 'd' registration (1708), which calls do.c:dodrop(); dodrop obtains an inventory object and calls drop() at 34-35. JS mirrors that route through js/cmd.js:runDropCommand, js/do.js:dodrop, getobj, and drop. The selected admitted v4 case reaches the inventory ring branch and produces the levitation-sink effect at segment 0 steps 47-48. Four independent C recipes use new seeds, datetimes, names, and inputs: RIN_SEARCHING returns the ring through dropx and trycall; RIN_TELEPORTATION moves the sink and reaches the common object-disposition tail; RIN_HUNGER removes sink-floor objects in C list order and reaches that tail; MEAT_RING verifies drop()'s food-class exception. The matching hunger recording includes floor-object deletions and the naming prompt before the common tail. No other C caller of dosinkring() exists. RIN_POLYMORPH remains the one named callee gap because polymorph_sink() is void and not yet ported; all its caller-side flags and branch order are represented without inventing its effects.",
+        "entryPoints": [
+          {
+            "name": "Drop a ring or meat ring on the sink from inventory",
+            "functions": [
+              "dosinkring"
+            ],
+            "recordings": [
+              "recordings/do.c/sink-ring-searching-giveback-independent.session.json",
+              "recordings/do.c/sink-meat-ring-independent.session.json",
+              "recordings/do.c/sink-ring-teleport-independent.session.json",
+              "recordings/do.c/sink-ring-hunger-drain-independent.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v4",
+                "caseId": "rogue-sink-ring-history",
+                "segment": 0,
+                "fromStep": 47,
+                "throughStep": 48,
+                "source": "cmd.c:'d' registration -> do.c:dodrop() -> do.c:drop() -> do.c:dosinkring() RIN_LEVITATION branch."
+              }
+            ]
+          }
+        ]
+      },
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "a4cca522bb1757073b5cea17ac1d8c2d7c82367f",
+        "screens": 11405,
+        "rng": 792838
+      }
     },
     {
       "id": "div-getpos-jump-cursor-synthetic-v1-20260926",
