@@ -7,12 +7,12 @@
   "manifestSha256": "58739ea9ed6c26e5153c4860b2e5111d08d69792bdea5c39427cf45b8e72cc9c",
   "recordingPath": "challenges/cases/v2/altar-rite-history.session.json",
   "recordingSha256": "f3fbc209ee4d556822809c679e9cc73054b48fa85ba5d17864b764f30b4cf048",
-  "evaluationPath": "challenges/evaluations/20260925202640-v2.json",
-  "evaluationCommit": "df2fff47e89a1e74e3eeef4d20e8bac9982bf291",
-  "remainingScreens": 19,
+  "evaluationPath": "challenges/evaluations/20260925221225-v2.json",
+  "evaluationCommit": "9df17907e4122a6809ade23228f0930b179bfba6",
+  "remainingScreens": 2,
   "recordedSteps": 50,
   "status": "complete",
-  "commit": "df2fff47e89a1e74e3eeef4d20e8bac9982bf291",
+  "commit": "9df17907e4122a6809ade23228f0930b179bfba6",
   "mismatch": {
     "corpus": "synthetic",
     "batch": "v2",
@@ -25,90 +25,130 @@
     "recordingSha256": "f3fbc209ee4d556822809c679e9cc73054b48fa85ba5d17864b764f30b4cf048",
     "recipe": "challenges/cases/v2/altar-rite-history.recipe.json",
     "recipeSha256": "b911dc353955f391a0e40bbf9c6c792bec55089eafbe11c9ce82d430b819391d",
-    "replayInputSha256": "aa626232a8ca6085587b0c36d39ecd7a5f70ab75dfed1bcc8863e6076a88a0df",
-    "evaluationPath": "challenges/evaluations/20260925202640-v2.json",
-    "evaluationCommit": "df2fff47e89a1e74e3eeef4d20e8bac9982bf291",
-    "evaluationArtifact": "challenges/evaluations/20260925202640-v2.json",
-    "evaluationUtc": "2026-09-25T20:26:43.918Z",
-    "remainingScreens": 19,
+    "replayInputSha256": "b52a3fd3eb08f77b877df4359db7726758f1b8cd72a88960ecfe969147991e4c",
+    "evaluationPath": "challenges/evaluations/20260925221225-v2.json",
+    "evaluationCommit": "9df17907e4122a6809ade23228f0930b179bfba6",
+    "evaluationArtifact": "challenges/evaluations/20260925221225-v2.json",
+    "evaluationUtc": "2026-09-25T22:12:28.900Z",
+    "remainingScreens": 2,
     "recordedSteps": 50,
-    "previousScreensMatched": 16,
+    "previousScreensMatched": 31,
     "regression": false,
     "passed": false,
     "error": null,
     "metrics": {
       "screens": {
-        "matched": 31,
+        "matched": 48,
         "total": 50
       },
       "rng": {
-        "matched": 3111,
+        "matched": 3153,
         "total": 3169
       },
       "cursors": {
-        "matched": 31,
+        "matched": 49,
         "total": 50
       }
     },
     "firstMismatch": {
-      "kind": "stop",
-      "message": "unsupported hero command: an unported branch of this command: unsupported wish: a wish naming a monster type",
-      "step": 31
+      "screen": {
+        "index": 48,
+        "location": {
+          "segmentIndex": 0,
+          "stepIndex": 48,
+          "key": "i"
+        },
+        "kind": "ch",
+        "row": 0,
+        "column": 0,
+        "cCell": {
+          "ch": "Y",
+          "color": 8,
+          "attr": 0,
+          "decgfx": 0
+        },
+        "jsCell": {
+          "ch": "W",
+          "color": 8,
+          "attr": 0,
+          "decgfx": 0
+        }
+      },
+      "rng": {
+        "index": 3143,
+        "cEntry": "rn2(19)=17",
+        "cCaller": "exercise(attrib.c:509)",
+        "jsEntry": "rn2(40)=9",
+        "location": {
+          "segmentIndex": 0,
+          "stepIndex": 48,
+          "key": "i"
+        },
+        "stepIndex": 48
+      },
+      "cursor": {
+        "index": 48,
+        "location": {
+          "segmentIndex": 0,
+          "stepIndex": 48,
+          "key": "i"
+        },
+        "cCursor": [
+          55,
+          0,
+          1
+        ],
+        "jsCursor": [
+          53,
+          12,
+          1
+        ]
+      }
     },
-    "step": 31,
-    "kind": "stop",
-    "sourceFile": null,
-    "function": null,
-    "message": "unsupported hero command: an unported branch of this command: unsupported wish: a wish naming a monster type",
-    "cFile": null,
+    "step": 48,
+    "kind": "rng",
+    "sourceFile": "attrib.c",
+    "function": "exercise",
+    "message": null,
+    "cFile": "attrib.c",
     "luaFile": null,
-    "line": null
+    "line": 509
   },
-  "summary": "The v2 altar case now matches through the neutral altar wish. At segment 0 step 31 the next debug wish names a jackal corpse. C readobjnam() recognizes the monster prefix, creates a corpse, sets its monster type, and reports the object in inventory; JS refuses monster-carrying wishes before the C lookup draw. Port the source-ordered monster-carrier paths of readobjnam(), including corpse, tin, egg, figurine, and statue rules and their return-valued helpers, without widening the wish boundary by object name alone.",
+  "summary": "After the monster-carrier wish port, altar-rite-history matches 48/50 screens and the debug wish passes through step 31. The remaining divergence occurs after #offer selects the wished-for corpse: C proceeds through pray.c:offer_corpse() and later draws rn2(19) in exercise(), while JS dosacrifice() records an unported offer_corpse gap and advances to a different draw. Port the source offering function and its return-valued evaluation dependencies rather than adding an isolated exercise draw.",
   "source": {
-    "file": "objnam.c",
-    "branch": "Wizard mode on dungeon level 1 after a successful neutral altar terrain wish. The next wish string is \"jackal corpse\": readobjnam_preparse() identifies the jackal monster and the remainder is the CORPSE object name; postparse3 selects CORPSE and the typfnd tail constructs and assigns its species.",
+    "file": "pray.c",
+    "branch": "The hero is on an altar and selects a CORPSE from floorfood for #offer. pray.c:dosacrifice() calls offer_corpse(otmp, highaltar, altaralign); JS returns after note_unported at that call. C evaluates the corpse and its sacrifice effects before the next command.",
     "functions": [
-      "readobjnam"
+      "offer_corpse"
     ],
     "callers": [
-      "wizcmds.c wiz_wish() calls zap.c makewish(), which calls objnam.c readobjnam(); the v2 recording reaches the debug wish at segment 0 step 31.",
-      "js/objnam_readobjnam.js readobjnam() calls the postparse functions but refuses monster carriers before the lookup at lines 2121-2136; its later requireSimpleWishedObject() and corpsenm switch also refuse the C tail."
+      "pray.c:dosacrifice() calls offer_corpse() for CORPSE; js/pray.js:dosacrifice() reaches the corresponding branch and currently calls note_unported instead.",
+      "The selected admitted v2 case performs #offer after the now-matching jackal-corpse wish, with first post-offering RNG divergence at segment 0 step 48."
     ],
     "dependencies": [
-      "C objnam.c:5026-5030 changes pudding corpse wishes to globs before mksobj(); the admission guard currently excludes both the jackal path and other species and must preserve that source order.",
-      "C objnam.c:5147-5165 sets requested corpse/statue/figurine gender and can draw rn2(2); :5195-5245 handles long-worm tails, werecreatures, dead or unique species, tins, corpses, eggs, figurines, statues, and dragon scale mail. Port return-valued species helpers used on active paths and preserve mksobj() and timer draw order.",
-      "mkobj.c set_corpsenm() is already present in js/obj.js; verify its timer and weight effects for wished corpses. Named corpse creation must retain the C mksobj(CORPSE) draw before species assignment."
+      "offer_corpse() consumes eval_offering() and other return-valued helpers on its branches; trace and port these in the same task where needed.",
+      "Its branches also call source-discarded ritual side effects and artifact-gift behavior; preserve ordering and record any unported void callees at exact sites."
     ]
   },
   "goalKind": "file-port",
   "evidence": [
-    "Saved challenges/evaluations/20260925202640-v2.json at df2fff47e89a1e74e3eeef4d20e8bac9982bf291 reports 31/50 screens and cursors, with the first stop at step 31: unsupported wish naming a monster type. The earlier neutral altar branch now matches.",
-    "C recording challenges/cases/v2/altar-rite-history.session.json shows the wish text \"jackal corpse\" followed at step 31 by \"i - a jackal corpse.\"; later inputs begin the prayer sequence.",
-    "nethack-c/upstream/src/objnam.c:4910-4993 routes the wish through preprocessing, object lookup, and typfnd; :5037 creates the object, :5147-5165 adjusts gender, and :5195-5245 assigns monster identity.",
-    "js/objnam_readobjnam.js:2121-2136 throws before postparse3 can make the object-type lookup draw; :1992-2012 and :2348-2365 also reserve the monster-carrier tail. A general port of those source branches is required for the matching C behavior."
+    "challenges/evaluations/20260925221225-v2.json at 9df17907e4122a6809ade23228f0930b179bfba6 reports altar-rite-history 48/50 screens, 3153/3169 RNG calls, and 49/50 cursors; two screens remain.",
+    "The admitted recording selects a corpse with #offer before step 48; C records rn2(19)=17 from attrib.c:exercise() at step 48, while JS reaches a later rn2(40)=9 after the offering gap.",
+    "nethack-c/upstream/src/pray.c:1854-1896 routes CORPSE to offer_corpse(); :1959-2125 defines its effects. js/pray.js:dosacrifice() at its corpse arm records note_unported('pray.c offer_corpse') and returns ECMD_TIME.",
+    "The selected earlier objnam.c readobjnam wish is now matched through step 31; its incomplete wizard-kit and Lua callers remain separate source-goal blockers."
   ],
   "entryPointReview": {
     "active": [
-      "Wish for a jackal corpse in synthetic/v2/altar-rite-history, segment 0 steps 30-31."
+      "#offer a corpse on an altar after a debug wish in synthetic/v2/altar-rite-history segment 0 steps 41-49."
     ],
     "blocked": [
-      "The pre-lookup refusal stops step 31 before C corpse construction.",
-      "Other impure carrier and species branches need matching synthetic ranges or independent C recordings for source completion."
-    ]
-  },
-  "plannedWholeFunctionScope": {
-    "primary": {
-      "file": "objnam.c",
-      "functions": [
-        "readobjnam"
-      ]
-    },
-    "callerWiring": [
-      "Existing objnam.c readobjnam() debug-wish route through zap.c makewish()"
+      "js/pray.js:dosacrifice() currently skips pray.c offer_corpse(); return-valued offering helpers and later ritual effects need source tracing before closure."
     ],
-    "returnValuedDependencies": [
-      "Source species predicates and conversion helpers on reached corpse, tin, egg, figurine, and statue paths"
-    ]
-  }
+    "buildExcluded": [],
+    "exactReplayAttribution": "The saved C7 evaluation passes the wish construction through step 31 and first diverges in post-offering RNG at segment 0 step 48."
+  },
+  "plannedWholeFunctionScope": [
+    "Port pray.c offer_corpse() as a whole with its return-valued helper dependencies and wire dosacrifice() at the C call site.",
+    "Validate the admitted altar history beyond the #offer confirmation and add independent recorded entry-point evidence where no matching synthetic range covers an impure branch."
+  ]
 }
