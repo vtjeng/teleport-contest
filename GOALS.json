@@ -74676,7 +74676,7 @@
     {
       "id": "port-worn-mon-break-armor-synthetic-v1-20260926",
       "kind": "file-port",
-      "status": "open",
+      "status": "parked",
       "summary": "Port monster armor break and drop behavior after transformation",
       "cFile": "worn.c",
       "sessions": [
@@ -74955,7 +74955,17 @@
             }
           }
         }
-      ]
+      ],
+      "progressBeforePark": {
+        "screens": 0,
+        "rng": 0
+      },
+      "parkedStanding": {
+        "sha": "d6cf89ae93f57f6153a759eeb24058372448dd46",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "parkedReason": "Integrated source-ordered mon_break_armor and m_lose_armor with strict v1 monster-transformations and werecreature evidence; mounted steed fall tail still lacks matching runtime evidence and depends on trap.c instapetrify and steed.c dismount_steed(DISMOUNT_FELL)."
     },
     {
       "id": "port-apply-use-camera-synthetic-v3-20260926",
