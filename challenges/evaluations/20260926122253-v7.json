@@ -1,0 +1,713 @@
+{
+  "version": 1,
+  "batch": "v7",
+  "manifestPath": "challenges/manifests/v7.json",
+  "sha": "f7e48bd93d6827c557c9a40a255a55cbc5fc8fcf",
+  "utc": "2026-09-26T12:23:06.868Z",
+  "status": "complete",
+  "manifestSha256": "03a861a9d1bc9d813c80681312ee7a0e0f893dbad0536de40a974bd5ec344094",
+  "scorerSha256": "affaf6935cb627ba42f02c5689605a1dfa6c98ccc862118642c4f961471266d7",
+  "scorerFiles": {
+    "frozen/isaac64.js": "0e6f41b795f49e58f0d410785c8d14c8dd9d68ac9143ae68319bd555ea247d1e",
+    "frozen/playability_runner.mjs": "70fcf202cf555c9adec2b29f5b65ba906aaf15eb164a8e5bec9d9f62ba5743dd",
+    "frozen/ps_test_runner.mjs": "05057f3f4f9c99125ea21dd320804ec7dad3c68f4cc485d622fe4c14b0c5761e",
+    "frozen/screen-decode.mjs": "cb4a0fbfed3dda28c14736e6ae9c8b9eb8c87d75916c50d6df80f40eb0368cbe",
+    "frozen/session_loader.mjs": "fb382efa89c272dae8cb700b7dadd075b926ff039ab3eb17480d84ed65029ce6",
+    "frozen/storage.js": "38804e1048c8b2520d60c2dcbe90f86c47627a6d3094a832b85af8756a07fe6c",
+    "frozen/terminal.js": "10fa540ff6e476421327ecc2f683221cef603565f75e988130992ab8cfd25b76"
+  },
+  "inputsSha256": "ba09b30aa45883696a6c2cbbe647b7a100c06ae9b741e0bcdf70fec164041447",
+  "inputFiles": [
+    "challenges/cases/v7/alternate-weapon-swap.recipe.session.json",
+    "challenges/cases/v7/alternate-weapon-swap.session.json",
+    "challenges/cases/v7/blessed-book-undead.recipe.session.json",
+    "challenges/cases/v7/blessed-book-undead.session.json",
+    "challenges/cases/v7/boomerang-wall-stop.recipe.session.json",
+    "challenges/cases/v7/boomerang-wall-stop.session.json",
+    "challenges/cases/v7/cloak-displacement-samurai-corrected.recipe.session.json",
+    "challenges/cases/v7/cloak-displacement-samurai-corrected.session.json",
+    "challenges/cases/v7/crystal-query-reached.recipe.session.json",
+    "challenges/cases/v7/crystal-query-reached.session.json",
+    "challenges/cases/v7/cursed-wand-self-zap-corrected.recipe.session.json",
+    "challenges/cases/v7/cursed-wand-self-zap-corrected.session.json",
+    "challenges/cases/v7/hero-polymorph-form.recipe.session.json",
+    "challenges/cases/v7/hero-polymorph-form.session.json",
+    "challenges/cases/v7/kick-hostile-gridbug-north-corrected.recipe.session.json",
+    "challenges/cases/v7/kick-hostile-gridbug-north-corrected.session.json",
+    "challenges/cases/v7/lizard-corpse-cures-stoning-corrected.recipe.session.json",
+    "challenges/cases/v7/lizard-corpse-cures-stoning-corrected.session.json",
+    "challenges/cases/v7/magic-mapping-scroll-effect.recipe.session.json",
+    "challenges/cases/v7/magic-mapping-scroll-effect.session.json",
+    "challenges/cases/v7/monster-detection-potion-select2.recipe.session.json",
+    "challenges/cases/v7/monster-detection-potion-select2.session.json",
+    "challenges/cases/v7/pet-monster-combat.recipe.session.json",
+    "challenges/cases/v7/pet-monster-combat.session.json",
+    "challenges/cases/v7/potion-gain-level.recipe.session.json",
+    "challenges/cases/v7/potion-gain-level.session.json",
+    "challenges/cases/v7/potion-invisibility-corrected2.recipe.session.json",
+    "challenges/cases/v7/potion-invisibility-corrected2.session.json",
+    "challenges/cases/v7/priest-outside-temple-chat.recipe.session.json",
+    "challenges/cases/v7/priest-outside-temple-chat.session.json",
+    "challenges/cases/v7/saddled-horse-mount-knight-corrected.recipe.session.json",
+    "challenges/cases/v7/saddled-horse-mount-knight-corrected.session.json",
+    "challenges/cases/v7/spinach-tin-hunger.recipe.session.json",
+    "challenges/cases/v7/spinach-tin-hunger.session.json",
+    "challenges/cases/v7/throw-blindness-potion-hit-corrected.recipe.session.json",
+    "challenges/cases/v7/throw-blindness-potion-hit-corrected.session.json",
+    "challenges/cases/v7/trapdoor-pet-transit.recipe.session.json",
+    "challenges/cases/v7/trapdoor-pet-transit.session.json",
+    "challenges/cases/v7/unicorn-horn-blindness-corrected.recipe.session.json",
+    "challenges/cases/v7/unicorn-horn-blindness-corrected.session.json",
+    "challenges/manifests/v7.json",
+    "frozen/isaac64.js",
+    "frozen/play.sh",
+    "frozen/playability_runner.mjs",
+    "frozen/ps_test_runner.mjs",
+    "frozen/score.sh",
+    "frozen/screen-decode.mjs",
+    "frozen/session_loader.mjs",
+    "frozen/set-category.sh",
+    "frozen/storage.js",
+    "frozen/terminal.js",
+    "js/air_level_data.js",
+    "js/air_levels.js",
+    "js/allmain.js",
+    "js/apply_catch_lit.js",
+    "js/apply_next_to_u.js",
+    "js/apply_splash_lit.js",
+    "js/apply.js",
+    "js/artifacts.js",
+    "js/asmodeus_levels.js",
+    "js/attrib.js",
+    "js/baalz_levels.js",
+    "js/ball.js",
+    "js/bigrm.js",
+    "js/bones.js",
+    "js/bury.js",
+    "js/calendar.js",
+    "js/castle_levels.js",
+    "js/cfgfiles.js",
+    "js/cmd_autocomplete.js",
+    "js/cmd.js",
+    "js/color_data.js",
+    "js/coloratt.js",
+    "js/command_bindings.js",
+    "js/config_statement_data.js",
+    "js/const.js",
+    "js/corpstat.js",
+    "js/data_base_data.js",
+    "js/dbridge.js",
+    "js/detect.js",
+    "js/dig.js",
+    "js/display.js",
+    "js/do_name.js",
+    "js/do_wear.js",
+    "js/do.js",
+    "js/dog.js",
+    "js/dogfood.js",
+    "js/dogmove.js",
+    "js/dokick.js",
+    "js/dothrow.js",
+    "js/drawing.js",
+    "js/dungeon_data.js",
+    "js/dungeon.js",
+    "js/eat.js",
+    "js/end.js",
+    "js/engrave.js",
+    "js/exper.js",
+    "js/explode.js",
+    "js/extcmdlist_data.js",
+    "js/extralev.js",
+    "js/files.js",
+    "js/fire_level_data.js",
+    "js/fire_levels.js",
+    "js/fountain.js",
+    "js/fruit.js",
+    "js/game_display.js",
+    "js/game.js",
+    "js/getline.js",
+    "js/getpos.js",
+    "js/glyph_ids.js",
+    "js/glyph_offsets.js",
+    "js/glyphs.js",
+    "js/grave.js",
+    "js/gstate.js",
+    "js/hack.js",
+    "js/hacklib.js",
+    "js/hell_levels.js",
+    "js/help_data.js",
+    "js/iactions.js",
+    "js/input.js",
+    "js/insight.js",
+    "js/invent.js",
+    "js/isaac64.js",
+    "js/jsmain.js",
+    "js/juiblex_levels.js",
+    "js/kni_goal_level_data.js",
+    "js/legacy_startup.js",
+    "js/light.js",
+    "js/lock.js",
+    "js/makemon_create.js",
+    "js/makemon.js",
+    "js/mcastu.js",
+    "js/mdlib.js",
+    "js/medusa_levels.js",
+    "js/mhitm.js",
+    "js/mhitu.js",
+    "js/mineralize.js",
+    "js/mines_levels.js",
+    "js/minion.js",
+    "js/mklev.js",
+    "js/mkmaze.js",
+    "js/mkroom.js",
+    "js/mktrap.js",
+    "js/mon.js",
+    "js/moncarry.js",
+    "js/mondata.js",
+    "js/monmove.js",
+    "js/monst.js",
+    "js/monster_object.js",
+    "js/monsters.js",
+    "js/moveloop_preamble.js",
+    "js/mthrowu.js",
+    "js/muse.js",
+    "js/music.js",
+    "js/nasties_data.js",
+    "js/nethack.js",
+    "js/nhlua.js",
+    "js/o_init.js",
+    "js/obj.js",
+    "js/object_generation.js",
+    "js/objects.js",
+    "js/objnam_data.js",
+    "js/objnam_readobjnam.js",
+    "js/objnam.js",
+    "js/options_escapes.js",
+    "js/options.js",
+    "js/optlist_data.js",
+    "js/orcus_levels.js",
+    "js/pager.js",
+    "js/pickup.js",
+    "js/player_selection_tty.js",
+    "js/player_selection.js",
+    "js/pline.js",
+    "js/polyself.js",
+    "js/posixregex.js",
+    "js/potion.js",
+    "js/pray.js",
+    "js/priest.js",
+    "js/quest_levels.js",
+    "js/quest_text_data.js",
+    "js/quest.js",
+    "js/questpgr.js",
+    "js/random_engraving.js",
+    "js/random_text_data.js",
+    "js/random_text.js",
+    "js/read.js",
+    "js/rect.js",
+    "js/regen.js",
+    "js/region.js",
+    "js/restore.js",
+    "js/rng.js",
+    "js/role_init.js",
+    "js/role_skills.js",
+    "js/roles.js",
+    "js/room_coordinates.js",
+    "js/room_features.js",
+    "js/rooms.js",
+    "js/sanctum_level_data.js",
+    "js/sanctum_levels.js",
+    "js/save.js",
+    "js/sfbase.js",
+    "js/shk.js",
+    "js/shknam.js",
+    "js/shtypes_data.js",
+    "js/sit.js",
+    "js/sokoban_levels.js",
+    "js/sound_effects_data.js",
+    "js/sounds.js",
+    "js/sp_lev_object.js",
+    "js/spell.js",
+    "js/stairs.js",
+    "js/startup_a11y.js",
+    "js/startup_reroll.js",
+    "js/startup_skills.js",
+    "js/steal.js",
+    "js/steed.js",
+    "js/storage.js",
+    "js/symbol_data.js",
+    "js/symbols.js",
+    "js/teleport.js",
+    "js/terminal.js",
+    "js/terrain.js",
+    "js/themeroom_data.js",
+    "js/themeroom_fill.js",
+    "js/themerooms.js",
+    "js/timeout.js",
+    "js/topten.js",
+    "js/track.js",
+    "js/trap_effects.js",
+    "js/trap_erode_obj.js",
+    "js/trap_names_data.js",
+    "js/trap_water_damage.js",
+    "js/trap.js",
+    "js/tribute_data.js",
+    "js/tty_menu.js",
+    "js/tty_message.js",
+    "js/tty_rawprint.js",
+    "js/tty_startup.js",
+    "js/tutorial_level.js",
+    "js/tutorial_startup.js",
+    "js/u_init_inventory_attrs.js",
+    "js/u_init_inventory_data.js",
+    "js/u_init_inventory_use.js",
+    "js/u_init_inventory.js",
+    "js/u_init.js",
+    "js/uhitm.js",
+    "js/unported_monster_actions.js",
+    "js/unported.js",
+    "js/valley_levels.js",
+    "js/vault.js",
+    "js/version.js",
+    "js/vision.js",
+    "js/weapon.js",
+    "js/were.js",
+    "js/wield.js",
+    "js/windows.js",
+    "js/wintty.js",
+    "js/wizard.js",
+    "js/wizard1_levels.js",
+    "js/wizard2_levels.js",
+    "js/wizcmds.js",
+    "js/worm.js",
+    "js/worn.js",
+    "js/write.js",
+    "js/zap_destroy_items.js",
+    "js/zap.js",
+    "package-lock.json",
+    "package.json",
+    "scripts/challenge-results.mjs",
+    "scripts/score-challenges.mjs",
+    "scripts/scoring-workspace.mjs"
+  ],
+  "cases": [
+    {
+      "id": "blessed-book-undead",
+      "recordingSha256": "4a76c8a0c760a975400edb36b600bfa3566e81ca116805fa3c82156baf3bb90e",
+      "passed": false,
+      "metrics": {
+        "screens": {
+          "matched": 45,
+          "total": 86
+        },
+        "rng": {
+          "matched": 3019,
+          "total": 3572
+        },
+        "cursors": {
+          "matched": 81,
+          "total": 86
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "crystal-query-reached",
+      "recordingSha256": "71317422866c0e8eda5ca1c8c0681982f3843bef8e8a3f1ebd98d01890da5b5f",
+      "passed": false,
+      "metrics": {
+        "screens": {
+          "matched": 17,
+          "total": 20
+        },
+        "rng": {
+          "matched": 6293,
+          "total": 6296
+        },
+        "cursors": {
+          "matched": 17,
+          "total": 20
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "priest-outside-temple-chat",
+      "recordingSha256": "76f2f565d9ff27f51adb9638e2ee8b3eab7edbe6d8fe058d470d84e89bd861a0",
+      "passed": false,
+      "metrics": {
+        "screens": {
+          "matched": 33,
+          "total": 35
+        },
+        "rng": {
+          "matched": 2550,
+          "total": 2586
+        },
+        "cursors": {
+          "matched": 35,
+          "total": 35
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "spinach-tin-hunger",
+      "recordingSha256": "6c072a1e716c748312d2ceb758626b200ccb4dc47eaae3884df08f23e8809e74",
+      "passed": false,
+      "metrics": {
+        "screens": {
+          "matched": 27,
+          "total": 30
+        },
+        "rng": {
+          "matched": 2859,
+          "total": 2861
+        },
+        "cursors": {
+          "matched": 27,
+          "total": 30
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "trapdoor-pet-transit",
+      "recordingSha256": "995f464e33f2d53c6eb4f4e6149db8198273ed137fa0b5517ca62cd65d4e0328",
+      "passed": false,
+      "metrics": {
+        "screens": {
+          "matched": 15,
+          "total": 17
+        },
+        "rng": {
+          "matched": 2460,
+          "total": 4671
+        },
+        "cursors": {
+          "matched": 15,
+          "total": 17
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "lizard-corpse-cures-stoning-corrected",
+      "recordingSha256": "6bf1416d9de4abf481689ec1d723ff6775badd518b9222d66c685b3157cc4149",
+      "passed": false,
+      "metrics": {
+        "screens": {
+          "matched": 34,
+          "total": 37
+        },
+        "rng": {
+          "matched": 1919,
+          "total": 1951
+        },
+        "cursors": {
+          "matched": 34,
+          "total": 37
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "monster-detection-potion-select2",
+      "recordingSha256": "77c4b7716462754c10c93173b85b750e21ad92fc9fa323d5f6b4b8c0d0278dd0",
+      "passed": false,
+      "metrics": {
+        "screens": {
+          "matched": 52,
+          "total": 53
+        },
+        "rng": {
+          "matched": 2776,
+          "total": 2776
+        },
+        "cursors": {
+          "matched": 52,
+          "total": 53
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "potion-invisibility-corrected2",
+      "recordingSha256": "03bd2489424a53203f9918744cfe2a9829670fbfcea7df62fad06e7f15e9a22f",
+      "passed": false,
+      "metrics": {
+        "screens": {
+          "matched": 36,
+          "total": 37
+        },
+        "rng": {
+          "matched": 2711,
+          "total": 2719
+        },
+        "cursors": {
+          "matched": 36,
+          "total": 37
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "potion-gain-level",
+      "recordingSha256": "a4fc9853403ad27a0f5ea53a9ffe6f8fbf4b5b9adb87f29d08d011635c641374",
+      "passed": false,
+      "metrics": {
+        "screens": {
+          "matched": 34,
+          "total": 35
+        },
+        "rng": {
+          "matched": 2523,
+          "total": 2537
+        },
+        "cursors": {
+          "matched": 34,
+          "total": 35
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "saddled-horse-mount-knight-corrected",
+      "recordingSha256": "51bc1d8c879266bcfabe97d5b1603122ed885c3f23cef4f2cd712ebdd1fc3f23",
+      "passed": false,
+      "metrics": {
+        "screens": {
+          "matched": 23,
+          "total": 33
+        },
+        "rng": {
+          "matched": 2994,
+          "total": 3022
+        },
+        "cursors": {
+          "matched": 23,
+          "total": 33
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "throw-blindness-potion-hit-corrected",
+      "recordingSha256": "008cbc04259cc70ac9489e4657207db7f4aede6892fca9699a4fb934a46446f6",
+      "passed": false,
+      "metrics": {
+        "screens": {
+          "matched": 43,
+          "total": 44
+        },
+        "rng": {
+          "matched": 2547,
+          "total": 2549
+        },
+        "cursors": {
+          "matched": 43,
+          "total": 44
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "unicorn-horn-blindness-corrected",
+      "recordingSha256": "7c5dc1f16f6f74865041b570f15399c2d68812a5ba1a083b341f1ddbc90365f7",
+      "passed": false,
+      "metrics": {
+        "screens": {
+          "matched": 31,
+          "total": 57
+        },
+        "rng": {
+          "matched": 2807,
+          "total": 2826
+        },
+        "cursors": {
+          "matched": 31,
+          "total": 57
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "boomerang-wall-stop",
+      "recordingSha256": "d9fb3600fff589e8eded5e05e40c04471e857852a38bc564bf45e6022790ad45",
+      "passed": true,
+      "metrics": {
+        "screens": {
+          "matched": 18,
+          "total": 18
+        },
+        "rng": {
+          "matched": 2653,
+          "total": 2653
+        },
+        "cursors": {
+          "matched": 18,
+          "total": 18
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "hero-polymorph-form",
+      "recordingSha256": "52440e2f196c7e4337a518d923e98fb37138b88d8157e3523417c88cc730c8e2",
+      "passed": true,
+      "metrics": {
+        "screens": {
+          "matched": 25,
+          "total": 25
+        },
+        "rng": {
+          "matched": 2905,
+          "total": 2905
+        },
+        "cursors": {
+          "matched": 25,
+          "total": 25
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "alternate-weapon-swap",
+      "recordingSha256": "61433ef9abd32b3d8a57cfece451ed41e0decd0ea172f121fcd2d5cf3f4eccee",
+      "passed": true,
+      "metrics": {
+        "screens": {
+          "matched": 7,
+          "total": 7
+        },
+        "rng": {
+          "matched": 2866,
+          "total": 2866
+        },
+        "cursors": {
+          "matched": 7,
+          "total": 7
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "magic-mapping-scroll-effect",
+      "recordingSha256": "78a6e41b7fce87082440d0ba86d45b3d987f6bd047401833c70ce6097ca446b1",
+      "passed": true,
+      "metrics": {
+        "screens": {
+          "matched": 29,
+          "total": 29
+        },
+        "rng": {
+          "matched": 2294,
+          "total": 2294
+        },
+        "cursors": {
+          "matched": 29,
+          "total": 29
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "pet-monster-combat",
+      "recordingSha256": "661d56d90a5253f9ed38045cb56782ab902ba42d767204d44a6da6b2b47c9914",
+      "passed": true,
+      "metrics": {
+        "screens": {
+          "matched": 28,
+          "total": 28
+        },
+        "rng": {
+          "matched": 2708,
+          "total": 2708
+        },
+        "cursors": {
+          "matched": 28,
+          "total": 28
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "cloak-displacement-samurai-corrected",
+      "recordingSha256": "ccbdc4578c8c0517c47d886e2a094162bf6e1d06103cbebaf9bf46fcc9d19aaf",
+      "passed": true,
+      "metrics": {
+        "screens": {
+          "matched": 36,
+          "total": 36
+        },
+        "rng": {
+          "matched": 2629,
+          "total": 2629
+        },
+        "cursors": {
+          "matched": 36,
+          "total": 36
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "cursed-wand-self-zap-corrected",
+      "recordingSha256": "cb2b4725d0259c73710c4b1cc0ed2cf1404de1d0c35e9b6c60efd68faa9c0c8d",
+      "passed": true,
+      "metrics": {
+        "screens": {
+          "matched": 35,
+          "total": 35
+        },
+        "rng": {
+          "matched": 2580,
+          "total": 2580
+        },
+        "cursors": {
+          "matched": 35,
+          "total": 35
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "kick-hostile-gridbug-north-corrected",
+      "recordingSha256": "208d143724e3ef0132520c05ac117a116334a40ae3d3a3ef012cfd6b2fdb9c09",
+      "passed": true,
+      "metrics": {
+        "screens": {
+          "matched": 22,
+          "total": 22
+        },
+        "rng": {
+          "matched": 2639,
+          "total": 2639
+        },
+        "cursors": {
+          "matched": 22,
+          "total": 22
+        }
+      },
+      "error": null
+    }
+  ],
+  "totals": {
+    "sessions": {
+      "matched": 8,
+      "total": 20
+    },
+    "screens": {
+      "matched": 590,
+      "total": 684
+    },
+    "rng": {
+      "matched": 56732,
+      "total": 59640
+    },
+    "cursors": {
+      "matched": 628,
+      "total": 684
+    }
+  }
+}
