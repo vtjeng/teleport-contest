@@ -1,0 +1,11 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 81720419,
+      "datetime": "20260817094500",
+      "nethackrc": "OPTIONS=name:TinTester,role:Wizard,race:human,gender:male,align:neutral,playmode:debug,!legacy,!tutorial,!splash_screen,showexp,time\n",
+      "moves": "\u0017tinning kit\n\u0017corpse of lichen\nano"
+    }
+  ]
+}
