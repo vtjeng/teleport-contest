@@ -78332,6 +78332,87 @@
         "screens": 11405,
         "rng": 792838
       }
+    },
+    {
+      "id": "fix-cmd-call-admission-synthetic-v6-20260926",
+      "kind": "divergence-fix",
+      "status": "queued",
+      "summary": "Admit the source-bound call command through rhack dispatch and preserve naming menu behavior",
+      "cFile": "cmd.c",
+      "sessions": [],
+      "selectionReason": "synthetic/v6/v6-add6-rogue-call-potion-type has 12 unmatched screens and complete source trace in investigations/synthetic/v6/v6-add6-rogue-call-potion-type.json. Higher ranked v5 Samurai and v6 blank-scroll paths are owned by A9; v6 beartrap paths await B investigation and source reservation. This first completed unreserved investigation identifies cmd.c rhack command admission, independent of A9 and B.",
+      "detail": "At segment 0 step 2, input C reaches cmd.c rhack call row, which invokes do_name.c docallcmd and paints the naming menu. The v6 C recording has that screen with zero step RNG; JS js/cmd.js admitParsedCommand excludes call from ADMITTED_COMMANDS before its already wired docallcmd handler, causing a stop after 2/14 screens. Source-backed fix should admit the command generally and verify menu and subsequent input, preserving repeated-command handling.",
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": null,
+      "delivered": null,
+      "function": "rhack",
+      "session": "synthetic/v6/v6-add6-rogue-call-potion-type",
+      "step": 2,
+      "syntheticProvenance": {
+        "synthetic/v6/v6-add6-rogue-call-potion-type": {
+          "session": "synthetic/v6/v6-add6-rogue-call-potion-type",
+          "corpus": "synthetic",
+          "batch": "v6",
+          "caseId": "v6-add6-rogue-call-potion-type",
+          "manifestPath": "challenges/manifests/v6.json",
+          "manifestSha256": "7523b91e823f4e3906c9acdc9a3d80f8469c27c2caab8fc8fbd6967dbfdcab5f",
+          "recordingPath": "challenges/cases/v6/v6-add6-rogue-call-potion-type.session.json",
+          "recordingSha256": "19cb554df424e9e1c54c4832aa814ca6c9257b705e91c410e48ad05671862beb",
+          "evaluationPath": "challenges/evaluations/20260926071400-v6.json",
+          "evaluationCommit": "3b1e337022043d314860fa14efc520d2600bf194"
+        }
+      }
+    },
+    {
+      "id": "port-apply-trap-setting-synthetic-v6-20260926",
+      "kind": "file-port",
+      "status": "queued",
+      "summary": "Port complete apply.c trap setup and occupation callback for applied traps",
+      "cFile": "apply.c",
+      "sessions": [
+        "synthetic/v6/wizard-beartrap-sit-floor"
+      ],
+      "selectionReason": "synthetic/v6/wizard-beartrap-sit-floor has 24 unmatched screens and complete source trace in investigations/synthetic/v6/wizard-beartrap-sit-floor.json. Higher ranked v5 Samurai is owned by A9, while v6 wizard-write-marker-scroll is also in A9 readobjnam scope. This is the first completed unreserved investigation in per-session priority; source family apply.c use_trap/set_trap is independent of A9 and the separately queued cmd.c call admission.",
+      "detail": "At segment 0 step 13, applying the wished bear trap reaches C apply.c doapply BEARTRAP arm, which invokes use_trap and installs the return-valued set_trap occupation. JS js/apply.js doapply refuses object type 244. Port use_trap and set_trap in C definition order, wire doapply and trapinfo state/reset contracts; preserve matching prefix and evaluate later behavior. C starts and stops trap setup in this case, so the later sit on stairs does not establish a sit.c beartrap entry point.",
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": null,
+      "delivered": null,
+      "functions": [
+        {
+          "name": "use_trap",
+          "line": 2821,
+          "endLine": 2915,
+          "declared": false,
+          "complete": false
+        },
+        {
+          "name": "set_trap",
+          "line": 2916,
+          "endLine": 2954,
+          "declared": false,
+          "complete": false
+        }
+      ],
+      "range": {
+        "from": 2821,
+        "to": 2954
+      },
+      "syntheticProvenance": {
+        "synthetic/v6/wizard-beartrap-sit-floor": {
+          "session": "synthetic/v6/wizard-beartrap-sit-floor",
+          "corpus": "synthetic",
+          "batch": "v6",
+          "caseId": "wizard-beartrap-sit-floor",
+          "manifestPath": "challenges/manifests/v6.json",
+          "manifestSha256": "7523b91e823f4e3906c9acdc9a3d80f8469c27c2caab8fc8fbd6967dbfdcab5f",
+          "recordingPath": "challenges/cases/v6/wizard-beartrap-sit-floor.session.json",
+          "recordingSha256": "6ee59baa26322e58c754b794568e1e43c6deb9ef41524175e3db41f0794aa65c",
+          "evaluationPath": "challenges/evaluations/20260926071400-v6.json",
+          "evaluationCommit": "3b1e337022043d314860fa14efc520d2600bf194"
+        }
+      }
     }
   ]
 }
