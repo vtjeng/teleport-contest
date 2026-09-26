@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 9362119,
+      "datetime": "20380917094530",
+      "nethackrc": "OPTIONS=name:DigRoute,role:Archeologist,race:human,gender:male,align:neutral,!legacy,!tutorial,!splash_screen\n",
+      "moves": "ae  k"
+    }
+  ],
+  "comment": "Blocked independent valid-direction reproduction for dig.c use_pick_axe2(): the Archeologist applies inventory pick-axe e, clears wield feedback, then chooses k from the direction list. The immediate use_pick_axe2() branch prints “You start digging.”, but C invokes the return-valued dig.c dig() occupation callback during that same recorded input; JS intentionally leaves that callback open. Monster targets also reach return-valued uhitm.c do_attack(), whose existing port still has unsupported two-weapon-ending and leprechaun-dodge arms. Keep this input-only recipe as a named blocked case; it has no matching recording."
+}

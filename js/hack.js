@@ -204,7 +204,7 @@ import {
 } from './command_bindings.js';
 import { clear_kickedloc } from './dokick.js';
 import { drag_ball, move_bc } from './ball.js';
-import { dig_typ, watch_dig } from './dig.js';
+import { dig_typ, use_pick_axe2, watch_dig } from './dig.js';
 import {
     a_monnam,
     capitalizedAlwaysVisibleMonsterName,
@@ -2446,7 +2446,9 @@ export async function test_move(
         } else if (state.flags?.autodig && !run
             && !state.context?.nopick && state.uwep
             && is_pick(state.uwep, state)) {
-            if (mode === DO_MOVE) note_unported('dig.c use_pick_axe2');
+            // C discards use_pick_axe2()'s result; the immediate direction
+            // handling runs here, with dig.c dig() retained as its callback gap.
+            if (mode === DO_MOVE) await use_pick_axe2(state.uwep, state, env);
             return false;
         } else {
             if (mode === DO_MOVE) {
@@ -3656,10 +3658,9 @@ async function domove_fight_empty(x, y, state) {
         boulder = sobj_at(STATUE, x, y, state);
     }
     // 2267-2276. A hero who force-fights while wielding a digging tool starts
-    // digging instead, through dig.c use_pick_axe2(), but only when dig_typ()
-    // answers something other than DIGTYP_UNDIGGABLE. use_pick_axe2() is not
-    // ported, so a digging answer stops the command; an undiggable one falls
-    // through to the message arms below, where C swings and spends the turn.
+    // digging instead through dig.c use_pick_axe2() when the source's full
+    // target and glyph tests pass. C discards its result; dig.c dig() remains
+    // an occupation callback gap after the immediate direction handling.
     // An axe reaches that fall-through at every wall, rock, pool and furniture
     // square, and a pick at ROOM, CORR and a tree.
     //
@@ -3670,16 +3671,13 @@ async function domove_fight_empty(x, y, state) {
     // context.forcefight clear, and that is a path on which C skips the dig
     // block outright and swings.
     //
-    // C's two remaining conjuncts, !glyph_is_invisible(glyph) and
-    // !glyph_is_monster(glyph), are the "should we dig?" half and both make C
-    // swing rather than dig. Neither is ported, so this refusal is wider than
-    // C on a force-fought square whose map memory holds an unseen-monster
-    // marker or a monster that has since left it. It is fail-closed.
+    // The glyph tests are kept in C order: a remembered invisible marker or a
+    // monster glyph is swung at instead of handed to the digging routine.
     if (state.context.forcefight && state.uwep
-        && dig_typ(state.uwep, x, y, state) !== DIGTYP_UNDIGGABLE) {
-        throw new UnsupportedHeroMoveBoundaryError(
-            'force-fight that digs instead of swinging',
-        );
+        && dig_typ(state.uwep, x, y, state) !== DIGTYP_UNDIGGABLE
+        && !glyph_is_invisible(glyph) && !glyph_is_monster(glyph)) {
+        await use_pick_axe2(state.uwep, state);
+        return true;
     }
 
     // 2246-2247. `solid` is misleadingly named, as C's own comment at 2316
