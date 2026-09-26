@@ -1,0 +1,12 @@
+{
+  "_comment": "Independent Healer reproduction of pager.c:do_look's legacy map accelerator and subsequent getpos help path.",
+  "version": 5,
+  "segments": [
+    {
+      "seed": 71629026,
+      "datetime": "20310926170000",
+      "nethackrc": "OPTIONS=name:PagerC16,role:Healer,race:human,gender:female,align:neutral,!legacy,!tutorial,!splash_screen\n",
+      "moves": " /y? ."
+    }
+  ]
+}

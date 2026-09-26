@@ -327,7 +327,15 @@ function assertOrdinaryWhatisState(state) {
 export function whatisMenuItems(state = game) {
     assertOrdinaryWhatisState(state);
     return [
-        { value: '/', selector: '/', label: 'something on the map' },
+        {
+            value: '/',
+            selector: '/',
+            // C ref: pager.c do_look() passes '/' as the visible selector and
+            // 'y' as add_menu()'s group accelerator when lootabc is false.
+            // windows.c add_menu() names those arguments ch and gch.
+            groupSelector: state.flags?.lootabc ? undefined : 'y',
+            label: 'something on the map',
+        },
         { value: 'i', selector: 'i', label: "something you're carrying" },
         { value: '?', selector: '?', label: 'something else (by symbol or name)' },
         { value: 'm', selector: 'm', label: 'nearby monsters' },
