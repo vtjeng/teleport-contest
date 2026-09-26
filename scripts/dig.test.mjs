@@ -34,7 +34,9 @@ import {
     D_LOCKED,
     D_NODOOR,
     DRAWBRIDGE_DOWN,
+    FUMBLING,
     FLYING,
+    FORCETRAP,
     FOUNTAIN,
     IRONBARS,
     MAGIC_PORTAL,
@@ -117,6 +119,22 @@ function digCheckState() {
     state.water_level = { dnum: 0, dlevel: 10 };
     state.level.at(X, Y).typ = ROOM;
     state.level.flags.hardfloor = false;
+    return state;
+}
+
+function downDigState() {
+    const state = digCheckState();
+    state.u.ulevel = 10;
+    state.uwep = { ...tool(PICK_AXE, state), spe: 0 };
+    state.u.uprops[FUMBLING] = { intrinsic: 1 };
+    state.context = {
+        digging: {
+            down: true,
+            pos: { x: X, y: Y },
+            level: { ...state.u.uz },
+            effort: 0,
+        },
+    };
     return state;
 }
 
@@ -775,6 +793,57 @@ test("dig_check follows C's ordered terrain, trap, and actor tests", () => {
     state.level.objects[X][Y] = null;
     location.typ = POOL;
     assert.equal(dig_check(null, X, Y, state), DIGCHECK_FAIL_OBJ_POOL_OR_TRAP);
+});
+
+test('dig preserves the C fumbling gate and outcome-selection draw', async () => {
+    const cSource = readFileSync('nethack-c/upstream/src/dig.c', 'utf8');
+    assert.match(
+        cSource,
+        /if\s*\(Fumbling && !rn2\(3\)\)\s*\{\s*switch\s*\(rn2\(3\)\)/u,
+    );
+    const state = downDigState();
+    const draws = [];
+    const values = [1, 2]; // no stumble, then the ordinary effort roll
+    const result = await dig(state, {
+        random: {
+            rn2: (bound) => {
+                draws.push(bound);
+                return values.shift();
+            },
+        },
+    });
+
+    assert.equal(result, 1);
+    assert.deepEqual(draws, [3, 5]);
+    assert.ok(state.context.digging.effort > 0);
+});
+
+test('dig consumes both source fumbling draws before its unported outcome', async () => {
+    const state = downDigState();
+    const draws = [];
+    const values = [0, 2]; // stumble, then select a C switch arm
+    const result = await dig(state, {
+        random: {
+            rn2: (bound) => {
+                draws.push(bound);
+                return values.shift();
+            },
+        },
+    });
+
+    assert.equal(result, 0);
+    assert.deepEqual(draws, [3, 3]);
+    assert.equal(state.context.digging.effort, 0);
+});
+
+test('dig triggers a set trap with the C FORCETRAP flag', () => {
+    const cSource = readFileSync('nethack-c/upstream/src/dig.c', 'utf8');
+    const cHeader = readFileSync('nethack-c/upstream/include/hack.h', 'utf8');
+    const jsSource = readFileSync('js/dig.js', 'utf8');
+    assert.match(cSource, /dotrap\(ttmp,\s*FORCETRAP\);/u);
+    assert.match(cHeader, /#define\s+FORCETRAP\s+0x01U\b/u);
+    assert.match(jsSource, /await dotrap\(trap,\s*FORCETRAP,\s*state\);/u);
+    assert.equal(FORCETRAP, 0x01);
 });
 
 // C ref: dig.c is_digging() (195-201). C compares the occupation pointer with
