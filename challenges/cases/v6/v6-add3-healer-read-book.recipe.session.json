@@ -1,0 +1,12 @@
+{
+  "_comment": "B10 C-first addendum retry from the C prompt/source inventory order; Healer role inventory.",
+  "version": 5,
+  "segments": [
+    {
+      "seed": 60626302,
+      "datetime": "20260926133000",
+      "nethackrc": "OPTIONS=name:B2,role:Healer,race:human,gender:male,align:neutral,playmode:debug,!legacy,!tutorial,!splash_screen,showexp,time\n",
+      "moves": " rh"
+    }
+  ]
+}

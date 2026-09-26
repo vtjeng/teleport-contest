@@ -1,0 +1,12 @@
+{
+  "_comment": "B10 C-first addendum candidate; Healer starts with the source-relevant role inventory.",
+  "version": 5,
+  "segments": [
+    {
+      "seed": 60626102,
+      "datetime": "20260926113000",
+      "nethackrc": "OPTIONS=name:V6Add-healer-stetho,role:Healer,race:human,gender:male,align:neutral,playmode:debug,!legacy,!tutorial,!splash_screen,showexp,time\n",
+      "moves": "ach"
+    }
+  ]
+}

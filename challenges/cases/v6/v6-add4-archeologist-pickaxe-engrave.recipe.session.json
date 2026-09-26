@@ -1,0 +1,12 @@
+{
+  "_comment": "B10 C-first addendum retry using follow-up prompts observed in the independent C runs.",
+  "version": 5,
+  "segments": [
+    {
+      "seed": 60626401,
+      "datetime": "20260926143000",
+      "nethackrc": "OPTIONS=name:D1,role:Archeologist,race:human,gender:male,align:neutral,playmode:debug,!legacy,!tutorial,!splash_screen,showexp,time\n",
+      "moves": " Ee\nhello\n"
+    }
+  ]
+}
