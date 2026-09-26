@@ -75868,6 +75868,37 @@
           "evaluationCommit": "07377e0c0ad51853b62a4b850c639a10fdb02db1"
         }
       }
+    },
+    {
+      "id": "div-getpos-jump-cursor-synthetic-v1-20260926",
+      "kind": "divergence-fix",
+      "status": "queued",
+      "summary": "Restore source-ordered getpos highlight flush and cursor placement during physical jump",
+      "cFile": "getpos.c",
+      "sessions": [],
+      "selectionReason": "After assigned B7 camera and C10 sink-ring work, synthetic/v1/knight-jump-return is the highest-ranked independent ready mismatch with two unmatched screens. investigations/synthetic/v1/knight-jump-return.json traces its first cursor difference at segment 0 step 33 to getpos.c getpos and getpos_sethilite ordering. The fix is independent of camera and sink reservations; the v2 altar offering follows in queue order.",
+      "detail": "v1 manifest digest a1d989fa6b5159e0b0729150ba765c741a405ec910c1274ad763d29b0a7096fe; recording challenges/cases/knight-jump-return.session.json digest f9498fc22f1cfc696439daea0dcd28c8c411788982d9f942c1a1fc6c3de3500e; saved evaluation challenges/evaluations/20260926024310-v1.json. C apply.c jump installs getpos_sethilite before getpos tip and verbose message flush; JS forceGetposSelectionRedraw occurs after them and leaves the cursor at selected maximum. Preserve screen and RNG parity while restoring C cursor order.",
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": null,
+      "delivered": null,
+      "function": "getpos",
+      "session": "synthetic/v1/knight-jump-return",
+      "step": 33,
+      "syntheticProvenance": {
+        "synthetic/v1/knight-jump-return": {
+          "session": "synthetic/v1/knight-jump-return",
+          "corpus": "synthetic",
+          "batch": "v1",
+          "caseId": "knight-jump-return",
+          "manifestPath": "challenges/manifest.json",
+          "manifestSha256": "a1d989fa6b5159e0b0729150ba765c741a405ec910c1274ad763d29b0a7096fe",
+          "recordingPath": "challenges/cases/knight-jump-return.session.json",
+          "recordingSha256": "f9498fc22f1cfc696439daea0dcd28c8c411788982d9f942c1a1fc6c3de3500e",
+          "evaluationPath": "challenges/evaluations/20260926024310-v1.json",
+          "evaluationCommit": "20cdce925160276c93a252d01e644c9e61d9626e"
+        }
+      }
     }
   ]
 }
