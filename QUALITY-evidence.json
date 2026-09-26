@@ -17392,5 +17392,64 @@
       }
     },
     "recordedAt": "2026-09-26T16:50:48.026Z"
+  },
+  {
+    "kind": "review",
+    "head": "47ed6cb1adb1ea2e3593ca285cba76ea14bc9e79",
+    "auditedRange": "6e4c0560a9e97888044f42afd74a64082e25cb2b..47ed6cb1adb1ea2e3593ca285cba76ea14bc9e79",
+    "level": "full",
+    "areas": [],
+    "outcome": "changed",
+    "evidence": "Counts: 3 raw, 3 deduplicated, 3 confirmed, 3 applied, 0 deferred, 0 rejected, 0 unverified. Reviewed the source-selection workflow with four independent finders and one adjudicator; all three confirmed guard defects were corrected. No performance or concurrency finder was triggered because this synchronous queue tooling adds no hot-path workload or overlapping state lifecycle. Focused queue/CLI tests, lint, quality health, and full checkpoint passed.",
+    "auditMetrics": {
+      "wallTimeSeconds": 1800,
+      "counts": {
+        "raw": 3,
+        "deduplicated": 3,
+        "confirmed": 3,
+        "applied": 3,
+        "deferred": 0,
+        "rejected": 0,
+        "unverified": 0
+      },
+      "categories": {
+        "production": 3,
+        "tests": 0,
+        "clarity": 0,
+        "simplification": 0,
+        "other": 0
+      },
+      "productionDefects": [
+        {
+          "summary": "Grouped synthetic sessions could bypass source-scope justification for a secondary owner",
+          "foundBy": [
+            "tests"
+          ],
+          "resolution": "applied"
+        },
+        {
+          "summary": "Opening a queued grouped synthetic goal skipped current investigation checks for unresolved related sessions",
+          "foundBy": [
+            "variable-trace"
+          ],
+          "resolution": "applied"
+        },
+        {
+          "summary": "A fixed goal could name a session owned by another source without a selection reason",
+          "foundBy": [
+            "correctness"
+          ],
+          "resolution": "applied"
+        }
+      ],
+      "readiness": {
+        "boundary": "Reviewed scripts/mismatch-queue.mjs assertGoalSelection/assertSourceOwner, scripts/goal-log.mjs checkSelection and their documented queue-goal, open-goal, task-context paths. Focused 72 tests execute these paths; the committed full checkpoint passes.",
+        "sourceReview": "Compared selection and grouping behavior with AGENTS.md, .agents/selection.md, and .agents/loop.md. This tooling range ports no C or Lua functions and contains no note_unported calls or Unsupported*Error throws.",
+        "completeness": "Every confirmed selection-guard finding was fixed in the reviewed scripts and pinned by focused tests. This range has no C return-value dependencies or unported game calls."
+      },
+      "rejections": [],
+      "deferrals": []
+    },
+    "recordedAt": "2026-09-26T22:47:41.664Z"
   }
 ]
