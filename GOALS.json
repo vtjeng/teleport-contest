@@ -79439,16 +79439,20 @@
     {
       "id": "port-zap-resist-lethal-synthetic-v5-20260926",
       "kind": "file-port",
-      "status": "queued",
+      "status": "open",
       "summary": "Port complete zap.c resist lethal monster damage and death dispatch",
       "cFile": "zap.c",
       "sessions": [
         "synthetic/v5/healer-wand-striking-grid-bug"
       ],
-      "selectionReason": "Continue B12 Healer wand-striking seed at 8 remaining screens and step 40; Samurai fire is owned by A10, and seed continuation takes precedence over the unassigned v6 engraving group. The refreshed investigation at investigations/synthetic/v5/healer-wand-striking-grid-bug.json traces the independent zap.c resist death path from saved v5 evaluation.",
+      "selectionReason": "Admitted v5 healer wand striking stops at zap.c resist lethal damage; source-traced hero branch and monster-item caller are the selected unit.",
       "detail": "At segment 0 step 40, C zap.c resist calculates wand resistance, deducts lethal damage from a tame kitten, and calls killed because gm.m_using is false. JS mirrors the calculation then refuses before death dispatch. Port whole resist, preserve boolean return and RNG, exercise existing mon.c death owner, and add any consumed return dependencies if discovered. See the refreshed investigation.",
-      "openedAt": null,
-      "openStanding": null,
+      "openedAt": "505d961857564319fd3c151bd87cf93145a4b7f1",
+      "openStanding": {
+        "sha": "b055ce41370d97dedc1249f8673cef82545b31a5",
+        "screens": 11405,
+        "rng": 792838
+      },
       "closedAt": null,
       "delivered": null,
       "functions": [
@@ -79477,7 +79481,159 @@
           "evaluationPath": "challenges/evaluations/20260926094126-v5.json",
           "evaluationCommit": "50bbe620897c8fc2e634d14ec672d33a4e44db7e"
         }
-      }
+      },
+      "activeStanding": {
+        "sha": "b055ce41370d97dedc1249f8673cef82545b31a5",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v5",
+          "caseId": "healer-wand-striking-grid-bug",
+          "session": "synthetic/v5/healer-wand-striking-grid-bug",
+          "manifestPath": "challenges/manifests/v5.json",
+          "manifestSha256": "5e4430fbd724fe91720f898c02e6f25f9d98e884fa31bd696ca1a63e87abf150",
+          "recording": "challenges/cases/v5/healer-wand-striking-grid-bug.session.json",
+          "recordingPath": "challenges/cases/v5/healer-wand-striking-grid-bug.session.json",
+          "recordingSha256": "97d372dd3a84252d6970271b4d335959cbf6d24c41318fa0b578c7a79446ec32",
+          "recipe": "challenges/cases/v5/healer-wand-striking-grid-bug.recipe.session.json",
+          "recipeSha256": "3a7de6608aa0b6a7b0b18d69aad15580d049445bd3ddc59b353966006f65a39d",
+          "replayInputSha256": "2bd21963cc9fcefed1046fb792ae304cc715fbe5dc32b52d679951cc718f7b18",
+          "evaluationPath": "challenges/evaluations/20260926094126-v5.json",
+          "evaluationCommit": "50bbe620897c8fc2e634d14ec672d33a4e44db7e",
+          "evaluationArtifact": "challenges/evaluations/20260926094126-v5.json",
+          "evaluationUtc": "2026-09-26T09:41:40.582Z",
+          "remainingScreens": 8,
+          "recordedSteps": 48,
+          "previousScreensMatched": 0,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 40,
+              "total": 48
+            },
+            "rng": {
+              "matched": 2681,
+              "total": 2743
+            },
+            "cursors": {
+              "matched": 40,
+              "total": 48
+            }
+          },
+          "firstMismatch": {
+            "kind": "stop",
+            "message": "unsupported hero command: an unported branch of this command: zapping a wand requires resist() killing a monster via damage (m_using / killed path)",
+            "step": 40
+          },
+          "step": 40,
+          "kind": "stop",
+          "sourceFile": "zap.c",
+          "function": "resist",
+          "message": "unsupported hero command: an unported branch of this command: zapping a wand requires resist() killing a monster via damage (m_using / killed path)",
+          "cFile": "zap.c",
+          "luaFile": null,
+          "line": null,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v5/healer-wand-striking-grid-bug.json",
+            "result": {
+              "session": "synthetic/v5/healer-wand-striking-grid-bug",
+              "corpus": "synthetic",
+              "batch": "v5",
+              "caseId": "healer-wand-striking-grid-bug",
+              "manifestPath": "challenges/manifests/v5.json",
+              "manifestSha256": "5e4430fbd724fe91720f898c02e6f25f9d98e884fa31bd696ca1a63e87abf150",
+              "recordingPath": "challenges/cases/v5/healer-wand-striking-grid-bug.session.json",
+              "recordingSha256": "97d372dd3a84252d6970271b4d335959cbf6d24c41318fa0b578c7a79446ec32",
+              "evaluationPath": "challenges/evaluations/20260926094126-v5.json",
+              "evaluationCommit": "50bbe620897c8fc2e634d14ec672d33a4e44db7e",
+              "remainingScreens": 8,
+              "recordedSteps": 48,
+              "status": "complete",
+              "commit": "50bbe620897c8fc2e634d14ec672d33a4e44db7e",
+              "mismatch": {
+                "corpus": "synthetic",
+                "batch": "v5",
+                "caseId": "healer-wand-striking-grid-bug",
+                "session": "synthetic/v5/healer-wand-striking-grid-bug",
+                "manifestPath": "challenges/manifests/v5.json",
+                "manifestSha256": "5e4430fbd724fe91720f898c02e6f25f9d98e884fa31bd696ca1a63e87abf150",
+                "recording": "challenges/cases/v5/healer-wand-striking-grid-bug.session.json",
+                "recordingPath": "challenges/cases/v5/healer-wand-striking-grid-bug.session.json",
+                "recordingSha256": "97d372dd3a84252d6970271b4d335959cbf6d24c41318fa0b578c7a79446ec32",
+                "recipe": "challenges/cases/v5/healer-wand-striking-grid-bug.recipe.session.json",
+                "recipeSha256": "3a7de6608aa0b6a7b0b18d69aad15580d049445bd3ddc59b353966006f65a39d",
+                "replayInputSha256": "2bd21963cc9fcefed1046fb792ae304cc715fbe5dc32b52d679951cc718f7b18",
+                "evaluationPath": "challenges/evaluations/20260926094126-v5.json",
+                "evaluationCommit": "50bbe620897c8fc2e634d14ec672d33a4e44db7e",
+                "evaluationArtifact": "challenges/evaluations/20260926094126-v5.json",
+                "evaluationUtc": "2026-09-26T09:41:40.582Z",
+                "remainingScreens": 8,
+                "recordedSteps": 48,
+                "previousScreensMatched": 0,
+                "regression": false,
+                "passed": false,
+                "error": null,
+                "metrics": {
+                  "screens": {
+                    "matched": 40,
+                    "total": 48
+                  },
+                  "rng": {
+                    "matched": 2681,
+                    "total": 2743
+                  },
+                  "cursors": {
+                    "matched": 40,
+                    "total": 48
+                  }
+                },
+                "firstMismatch": {
+                  "kind": "stop",
+                  "message": "unsupported hero command: an unported branch of this command: zapping a wand requires resist() killing a monster via damage (m_using / killed path)",
+                  "step": 40
+                },
+                "step": 40,
+                "kind": "stop",
+                "sourceFile": "zap.c",
+                "function": "resist",
+                "message": "unsupported hero command: an unported branch of this command: zapping a wand requires resist() killing a monster via damage (m_using / killed path)",
+                "cFile": "zap.c",
+                "luaFile": null,
+                "line": null
+              },
+              "summary": "The v5 Healer wand-striking ray reaches zap.c:resist() at segment 0 step 40 after the bhitm hit-message fix. JS calculates resistance and lethal damage, then refuses before C calls killed() for the hero zap. Port the whole resist() function and exercise the tame kitten death path through its existing mon.c owner; preserve RNG, HP, resistance return, and death side effects.",
+              "source": {
+                "file": "zap.c",
+                "branch": "WAN_STRIKING bhitm calls resist(mtmp, WAND_CLASS, dmg, TELL); damage drops a tame kitten to zero HP while gm.m_using is false, so resist calls killed(mtmp), then returns its resisted boolean.",
+                "functions": [
+                  "resist"
+                ],
+                "callers": [
+                  "cmd.c z -> zap.c dozap -> weffects -> bhit -> bhitm; bhitm discards the resist return on this attack path.",
+                  "Other zap.c callers consume resist() return; preserve its boolean and the already wired JS call contracts."
+                ],
+                "dependencies": [
+                  "mon.c shieldeff_mon, killed, and monkilled are void callees; existing JS owners are partial. Exercise killed -> xkilled -> mondead/mondied for the tame kitten and reserve any source function whose incomplete branch blocks the witness.",
+                  "mondata.c is_mplayer is a pure boolean dependency; muse.c gm.m_using governs killed versus monkilled, and the hero zap has it false."
+                ]
+              },
+              "goalKind": "file-port",
+              "evidence": [
+                "Saved challenges/evaluations/20260926094126-v5.json at 50bbe620897c8fc2e634d14ec672d33a4e44db7e reports 40/48 screens and 2681/2743 RNG, with first refusal at segment 0 step 40: resist() killing a monster via damage.",
+                "Upstream nethack-c/upstream/src/zap.c:6100-6157 resist() computes attack/defense levels and rn2 resistance, halves resisted damage, subtracts HP, then calls monkilled for gm.m_using or killed otherwise; the return is resisted.",
+                "Current js/zap.js:resist mirrors level clamps and resistance RNG, then throws UnsupportedZapError when mhp < 1 before invoking the source death handler. This is missing behavior, not a change to the resistance roll.",
+                "The independent B12 nonlethal C recording matched 48/48 screens/cursors and 2968/2968 RNG through resist calculation; the admitted Healer case witnesses the lethal tail. Verify its tame and peaceful side effects and any corpse or experience changes through strict replay."
+              ]
+            }
+          }
+        }
+      ]
     }
   ]
 }
