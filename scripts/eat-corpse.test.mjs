@@ -21,14 +21,24 @@ import assert from 'node:assert/strict';
 import test from 'node:test';
 
 import {
+    A_CHA,
     ACID_RES,
     AGGRAVATE_MONSTER,
     FROMOUTSIDE,
+    HALLUC,
+    HALLUC_RES,
+    KILLED_BY,
     LUCKMIN,
     POISON_RES,
+    STONED,
     STONE_RES,
+    TIMEOUT,
 } from '../js/const.js';
-import { corpse_intrinsic, doeat, vegetarian } from '../js/eat.js';
+import { acurr } from '../js/attrib.js';
+import { find_delayed_killer } from '../js/end.js';
+import {
+    corpse_intrinsic, doeat, fix_petrification, vegetarian,
+} from '../js/eat.js';
 import { game } from '../js/gstate.js';
 import { runSegment } from '../js/jsmain.js';
 import {
@@ -50,11 +60,13 @@ import {
     PM_KILLER_BEE,
     PM_LICHEN,
     PM_LITTLE_DOG,
+    PM_LIZARD,
     PM_MONK,
     PM_NEWT,
 } from '../js/monsters.js';
 import { weight } from '../js/obj.js';
 import { CORPSE } from '../js/objects.js';
+import { make_stoned } from '../js/potion.js';
 import { CORPSE_CASES, loadEatCorpseRecipe } from './run-eat-corpse.mjs';
 
 // Two matrix cases, each replayed only as far as its pickup: the human
@@ -92,7 +104,7 @@ async function eatRetypedCorpse(label, prepare) {
         if (obj.otyp === CORPSE) corpse = obj;
     }
     assert.ok(corpse, 'the pickup left a corpse in inventory');
-    prepare(corpse);
+    await prepare(corpse);
     corpse.owt = weight(corpse, { state: game });
     const before = { uluck: game.u.uluck, uhp: game.u.uhp };
     const drawsBefore = replay.getRngLog().length;
@@ -117,6 +129,65 @@ async function eatRetypedCorpse(label, prepare) {
 
 // Retype the corpse and nothing else.
 const retype = (corpsenm) => (corpse) => { corpse.corpsenm = corpsenm; };
+
+async function stonedHero(cha, hallucinating) {
+    await runSegment(segmentUpToPickup(BARBARIAN));
+    game.u.acurr.a[A_CHA] = cha;
+    game.u.uprops[HALLUC] = {
+        intrinsic: hallucinating ? 30 : 0,
+        extrinsic: 0,
+    };
+    game.u.uprops[HALLUC_RES] = { intrinsic: 0, extrinsic: 0 };
+    await make_stoned(30, null, KILLED_BY, 'test petrification', game);
+    game.disp.botl = false;
+    game._pending_message = null;
+}
+
+test('fix_petrification clears the timeout and delayed killer', async () => {
+    await stonedHero(15, false);
+    assert.equal(game.u.uprops[STONED].intrinsic & TIMEOUT, 30);
+    assert.ok(find_delayed_killer(STONED, game));
+
+    await fix_petrification(game);
+
+    assert.equal(game.u.uprops[STONED].intrinsic & TIMEOUT, 0);
+    assert.equal(find_delayed_killer(STONED, game), null);
+    assert.equal(game._pending_message, 'You feel limber!');
+});
+
+test('fix_petrification uses CHA only for hallucinated art wording', async () => {
+    await stonedHero(15, true);
+    await fix_petrification(game);
+    assert.equal(
+        game._pending_message,
+        'What a pity--you just ruined a future piece of art!',
+    );
+
+    await stonedHero(16, true);
+    assert.equal(acurr(game, A_CHA), 16);
+
+    await fix_petrification(game);
+
+    assert.equal(
+        game._pending_message,
+        'What a pity--you just ruined a future piece of fine art!',
+    );
+    assert.equal(game.u.uprops[STONED].intrinsic & TIMEOUT, 0);
+});
+
+test('lizard corpse curing calls the stoning clear before the first bite',
+    async () => {
+        const { stopped } = await eatRetypedCorpse(BARBARIAN, async (corpse) => {
+            corpse.corpsenm = PM_LIZARD;
+            game.u.acurr.a[A_CHA] = 8;
+            game.u.uprops[HALLUC] = { intrinsic: 0, extrinsic: 0 };
+            game.u.uprops[HALLUC_RES] = { intrinsic: 0, extrinsic: 0 };
+            await make_stoned(30, null, KILLED_BY, 'test petrification', game);
+        });
+        assert.equal(stopped, null, `${stopped?.message}`);
+        assert.equal(game.u.uprops[STONED].intrinsic & TIMEOUT, 0);
+        assert.equal(find_delayed_killer(STONED, game), null);
+    });
 
 test('eating your own race costs luck and aggravates monsters', async () => {
     // eat.c:770-786. The hero is a human Barbarian, so CANNIBAL_ALLOWED() is

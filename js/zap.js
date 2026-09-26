@@ -255,7 +255,7 @@ import {
     rndmonnam,
 } from './do_name.js';
 import { get_mtraits } from './corpstat.js';
-import { eaten_stat, vegetarian } from './eat.js';
+import { eaten_stat, fix_petrification, vegetarian } from './eat.js';
 import { cvt_sdoor_to_door, findit } from './detect.js';
 import {
     adj_pit_checks, dighole, fillholetyp, is_moat, watch_dig,
@@ -1629,9 +1629,9 @@ export async function zapyourself(obj, ordinary, state = game) {
             learn_it = true;
             await polymon(PM_FLESH_GOLEM, state);
         }
-        if (state.u.uprops?.[STONED]?.intrinsic || state.u.stoned) {
+        if (state.u.uprops?.[STONED]?.intrinsic) {
             learn_it = true;
-            note_unported('eat.c fix_petrification');
+            await fix_petrification(state);
         }
         for (let item = state.invent; item;) {
             const next = item.nobj;
