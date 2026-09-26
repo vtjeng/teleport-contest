@@ -229,6 +229,7 @@ import {
 import { sgn, upstart } from './hacklib.js';
 import {
     stackobj, getobj, useup, useupall, consume_obj_charge, delete_contents,
+    nxtobj,
     delobj, obj_extract_self,
 } from './invent.js';
 import { get_obj_location } from './light.js';
@@ -276,7 +277,7 @@ import {
 import {
     ARROW, BEARTRAP, BOULDER, CAN_OF_GREASE, DART, IRON, LAND_MINE, LEASH,
     LOADSTONE, POTION_CLASS, POT_OIL, SCROLL_CLASS, SCR_FIRE, SPBOOK_CLASS,
-    SPE_BOOK_OF_THE_DEAD, SPE_FIREBALL, WOOD,
+    SPE_BOOK_OF_THE_DEAD, SPE_FIREBALL, STATUE, WOOD,
 } from './objects.js';
 import { encumber_msg, pickup } from './pickup.js';
 import { make_hallucinated, set_itimeout } from './potion.js';
@@ -3119,6 +3120,30 @@ function canspotmon(mon, state) {
 // explosions, poison gas, paralysis, etc. Called from disarm_box (trap.c)
 // and use_container/tipcontainer_checks (pickup.c). Returns true if the
 // chest is destroyed, false if it remains.
+// C ref: trap.c activate_statue_trap() (908-932). It removes the trap first,
+// tries statues in pile order only after the unique-monster retry, refreshes
+// the square, and returns the animated monster pointer (or null).
+export async function activate_statue_trap(
+    trap, x, y, shatter, rawEnv = {},
+) {
+    const state = rawEnv.state ?? game;
+    let monster = null;
+    let statue = sobj_at(STATUE, x, y, state);
+    const failReason = { value: AS_NO_MON };
+    deltrap(trap, state);
+    while (statue) {
+        monster = await animate_statue(
+            statue, x, y,
+            shatter ? ANIMATE_SHATTER : ANIMATE_NORMAL,
+            { ...rawEnv, state, failReason },
+        );
+        if (monster || failReason.value !== AS_MON_IS_UNIQUE) break;
+        statue = nxtobj(statue, STATUE, true);
+    }
+    feel_newsym(x, y, state);
+    return monster;
+}
+
 export async function chest_trap(obj, bodypart, disarm, state = game) {
     const u = state.u;
     const Luck = (u.uluck ?? 0) + (u.moreluck ?? 0);

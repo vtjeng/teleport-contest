@@ -1146,6 +1146,23 @@ export async function do_attack(monster, state = game, env = {}) {
     return true;
 }
 
+// C ref: uhitm.c force_attack() (432-448). Temporarily override the safe-pet
+// protection for hostiles and, when requested, pets, then return do_attack()'s
+// boolean result to callers such as apply.c:use_whip().
+export async function force_attack(monster, pets_too, state = game, env = {}) {
+    const previous = Boolean(state.context?.forcefight);
+    if (pets_too || !monster.mtame) {
+        state.context ??= {};
+        state.context.forcefight = true;
+    }
+    try {
+        return await do_attack(monster, state, env);
+    } finally {
+        if (state.context)
+            state.context.forcefight = previous;
+    }
+}
+
 // C ref: uhitm.c known_hitum() (585-646). Delivers one already-decided swing.
 // `mhit` carries the hit-or-miss decision in and back out, because the hit arm
 // can downgrade a hit to a miss; the miss arm never does. C returns whether

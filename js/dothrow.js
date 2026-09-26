@@ -25,9 +25,8 @@
 // Calls whose C result is explicitly discarded retain a named note_unported()
 // boundary; command functions outside this source span may still use the
 // UnsupportedThrowError refusal while their own ports are pending.
-// dowield(), autoquiver(), use_pole() and use_whip() stop for the same reason:
-// each is a command in its own right. doquiver_core() is wired below because
-// it is the source's own refill helper, not a separate command dispatch.
+// #fire shares the source's autoquiver, launcher-selection, polearm and whip
+// helpers. The command-queue tail remains owned by js/cmd.js.
 
 import {
     ARTICLE_A,
@@ -144,7 +143,7 @@ import {
 import { acurrstr, acurr, exercise } from './attrib.js';
 import { obj_resists } from './bury.js';
 import {
-    cmdq_add_ec, extcmdRow, getdir,
+    cmdq_add_ec, cmdq_add_key, extcmdRow, getdir,
 } from './cmd.js';
 import { change_luck } from './moveloop_preamble.js';
 import {
@@ -182,8 +181,8 @@ import {
     freeinv,
     fully_identify_obj,
     getobj,
-    isThrowingWeapon,
     obfree,
+    prinv,
     stackobj,
     update_inventory,
 } from './invent.js';
@@ -237,8 +236,11 @@ import {
     greatest_erosion,
     is_flammable,
     is_ammo,
+    is_blade,
     is_flimsy,
     is_missile,
+    is_spear,
+    is_sword,
     is_wet_towel,
     is_weptool,
     matching_launcher,
@@ -301,6 +303,7 @@ import {
     POT_OIL,
     RUBBER_HOSE,
     SACK,
+    ROCK,
     SCROLL_CLASS,
     SLING,
     SPRIG_OF_WOLFSBANE,
@@ -308,6 +311,8 @@ import {
     STATUE,
     VENOM_CLASS,
     WEAPON_CLASS,
+    PIERCE,
+    WAR_HAMMER,
     YA,
     YUMI,
 } from './objects.js';
@@ -354,6 +359,7 @@ import {
 import { ttyNorep, ttyPline } from './tty_message.js';
 import { cansee, canseemon, vision_recalc } from './vision.js';
 import { doquiver_core, welded } from './wield.js';
+import { could_pole_mon, use_pole, use_whip } from './apply.js';
 import {
     find_mac, is_pole, set_twoweap, setuqwep, setuswapwep, setuwep,
 } from './worn.js';
@@ -1056,6 +1062,60 @@ export async function dothrow(state = game) {
     return obj ? await throw_obj(obj, shotlimit, state) : ECMD_CANCEL;
 }
 
+// C ref: dothrow.c autoquiver() (381-441). Scan the linked inventory in its
+// existing order and let the last eligible item in each category replace the
+// prior candidate, then choose the source-priority category once at the end.
+export function autoquiver(state = game) {
+    if (state.uquiver) return;
+
+    let oammo = null;
+    let omissile = null;
+    let omisc = null;
+    let altammo = null;
+    for (let otmp = state.invent; otmp; otmp = otmp.nobj) {
+        if (otmp.owornmask || otmp.oartifact || !otmp.dknown) {
+            continue;
+        }
+
+        const type = objectType(otmp, state);
+        if (otmp.otyp === ROCK
+            || (otmp.otyp === FLINT && type.oc_name_known)
+            || (otmp.oclass === GEM_CLASS && type.oc_material === GLASS
+                && type.oc_name_known)) {
+            if (uslinging(state)) {
+                oammo = otmp;
+            } else if (ammo_and_launcher(otmp, state.uswapwep, state)) {
+                altammo = otmp;
+            } else if (!omisc) {
+                omisc = otmp;
+            }
+        } else if (otmp.oclass === GEM_CLASS) {
+            // Non-rock gems are ammo, but the player must select them.
+            continue;
+        } else if (is_ammo(otmp, state)) {
+            if (ammo_and_launcher(otmp, state.uwep, state)) {
+                oammo = otmp;
+            } else if (ammo_and_launcher(otmp, state.uswapwep, state)) {
+                altammo = otmp;
+            } else {
+                omisc = otmp;
+            }
+        } else if (is_missile(otmp, state)) {
+            omissile = otmp;
+        } else if (otmp.oclass === WEAPON_CLASS
+                   && throwing_weapon(otmp, state)) {
+            if (type.oc_skill === P_DAGGER && !omissile) {
+                omissile = otmp;
+            } else if (otmp.otyp !== AKLYS) {
+                omisc = otmp;
+            }
+        }
+    }
+
+    const selected = oammo || omissile || altammo || omisc;
+    if (selected) setuqwep(selected, setwornEnv(state));
+}
+
 // C ref: dothrow.c find_launcher() (443-462). "look through hero inventory
 // for launcher matching ammo, avoiding known cursed items."
 export function find_launcher(ammo, state = game) {
@@ -1075,6 +1135,19 @@ export function find_launcher(ammo, state = game) {
     return oX;
 }
 
+// C ref: dothrow.c throwing_weapon() (1430-1438). Ammo is excluded by the
+// source predicate; daggers and piercing knives remain throwers, while swords
+// and non-piercing blades do not.
+export function throwing_weapon(obj, state = game) {
+    const type = objectType(obj, state);
+    return is_missile(obj, state)
+        || is_spear(obj, state)
+        || (is_blade(obj, state) && !is_sword(obj, state)
+            && Boolean(type.oc_dir & PIERCE))
+        || obj.otyp === WAR_HAMMER
+        || obj.otyp === AKLYS;
+}
+
 // C ref: dothrow.c dofire() (468-586), "the #fire command -- throw from the
 // quiver or use wielded polearm".
 export async function dofire(state = game) {
@@ -1082,18 +1155,23 @@ export async function dofire(state = game) {
     if (!ok) return ECMD_OK;
 
     let obj = state.uquiver ?? null;
+    let res = ECMD_OK;
+    let skipFireassist = false;
 
     /* if wielding a throw-and-return weapon, throw it if quiver is empty
        or has ammo rather than missiles */
     if (state.uwep && autoReturns(state.uwep, state.uwep.owornmask, state)
-        && (!obj || is_ammo(obj, state))) {
-        throw new UnsupportedThrowError('firing a thrown-and-return weapon');
+        && (!obj || is_ammo(obj, state))
+        && (state.uwep.oartifact !== ART_MJOLLNIR
+            || acurr(state, A_STR) >= STR19(25))) {
+        obj = state.uwep;
+        skipFireassist = true;
     } else if (!obj) {
         if (!state.flags.autoquiver) {
             if (state.uwep && is_pole(state.uwep, state)) {
-                throw new UnsupportedThrowError('use_pole()');
+                return await use_pole(state.uwep, true, state);
             } else if (state.uwep && state.uwep.otyp === BULLWHIP) {
-                throw new UnsupportedThrowError('use_whip()');
+                return await use_whip(state.uwep, state);
             } else if (state.iflags.fireassist
                        && state.uswapwep && is_pole(state.uswapwep, state)
                        && !(state.uswapwep.cursed
@@ -1107,7 +1185,19 @@ export async function dofire(state = game) {
                 await ttyPline('You have no ammunition readied.', state);
             }
         } else {
-            throw new UnsupportedThrowError('autoquiver()');
+            autoquiver(state);
+            obj = state.uquiver ?? null;
+            if (obj) {
+                // dothrow.c temporarily removes W_QUIVER so prinv() does not
+                // include the convenience-slot marker in its feedback.
+                obj.owornmask &= ~W_QUIVER;
+                await prinv('You ready:', obj, 0, { state });
+                obj.owornmask |= W_QUIVER;
+            } else {
+                await ttyPline(
+                    'You have nothing appropriate for your quiver.', state,
+                );
+            }
         }
     }
 
@@ -1118,23 +1208,22 @@ export async function dofire(state = game) {
         state.in_doagain = 0;
 
         /* this gives its own feedback about populating the quiver slot */
-        const refillResult = await doquiver_core('fire', state);
-        if (refillResult !== ECMD_OK && refillResult !== ECMD_TIME)
-            return refillResult;
+        res = await doquiver_core('fire', state);
+        if (res !== ECMD_OK && res !== ECMD_TIME)
+            return res;
 
         obj = state.uquiver ?? null;
     }
 
-    /* C's fourth conjunct here is `!skip_fireassist`, which only the
-       thrown-and-return arm above sets, and that arm stops. */
+    /* C's `skip_fireassist` flag is set when a wielded returner is thrown. */
     if (state.uquiver && is_ammo(state.uquiver, state)
-        && state.iflags.fireassist) {
+        && state.iflags.fireassist && !skipFireassist) {
         if (state.uwep && is_pole(state.uwep, state)) {
-            /* C asks could_pole_mon() whether anything is in reach and falls
-               through to the launcher tests below when nothing is. Both
-               answers stop here: use_pole() is unported either way, and
-               could_pole_mon() prompts for a target of its own. */
-            throw new UnsupportedThrowError('use_pole()');
+            /* C asks could_pole_mon() whether anything is in reach. Only an
+               existing reachable target sends this automatic path to
+               use_pole(); otherwise dofire() continues to launcher search. */
+            if (await could_pole_mon(state))
+                return await use_pole(state.uwep, true, state);
         }
         /* Try to find a launcher */
         if (ammo_and_launcher(state.uquiver, state.uwep, state)) {
@@ -1144,17 +1233,22 @@ export async function dofire(state = game) {
             cmdq_add_ec(CQ_CANNED, extcmdRow('swap'), state);
             cmdq_add_ec(CQ_CANNED, extcmdRow('fire'), state);
             return ECMD_OK;
-        } else if (find_launcher(state.uquiver, state)) {
+        } else {
             /* wield launcher, retry fire */
-            throw new UnsupportedThrowError('dowield()');
+            const launcher = find_launcher(state.uquiver, state);
+            if (launcher) {
+                if (state.uwep && !state.flags.pushweapon)
+                    cmdq_add_ec(CQ_CANNED, extcmdRow('swap'), state);
+                cmdq_add_ec(CQ_CANNED, extcmdRow('wield'), state);
+                cmdq_add_key(CQ_CANNED, launcher.invlet, state);
+                cmdq_add_ec(CQ_CANNED, extcmdRow('fire'), state);
+                return res;
+            }
         }
     }
 
-    /* C's `return (res == ECMD_TIME) ? res : altres`, where `res` is
-       ECMD_TIME only when doquiver_core() spent a turn unwielding something
-       to fill the quiver. That is the one arm above that stops, so the throw's
-       own result is the whole answer here. */
-    return obj ? await throw_obj(obj, shotlimit, state) : ECMD_CANCEL;
+    const altres = obj ? await throw_obj(obj, shotlimit, state) : ECMD_CANCEL;
+    return res === ECMD_TIME ? res : altres;
 }
 
 // C ref: dothrow.c endmultishot() (590-601). If a multi-shot volley is in
@@ -1654,7 +1748,7 @@ export async function throwit(obj, wep_mask, twoweap, oldslot, state = game) {
         let slipok = true;
         if (ammo_and_launcher(obj, state.uwep, state)) {
             await ttyPline(`${Tobjnam(obj, 'misfire', state)}!`, state);
-        } else if (obj.greased || isThrowingWeapon(obj, state)) {
+        } else if (obj.greased || throwing_weapon(obj, state)) {
             await ttyPline(
                 `${Tobjnam(obj, 'slip', state)} as you throw it!`, state,
             );
@@ -2135,7 +2229,7 @@ export async function thitmonst(mon, obj, state = game, rawEnv = {}) {
             }
         } else {
             if (otyp === BOOMERANG) tmp += 4;
-            else if (isThrowingWeapon(obj, state)) tmp += 2;
+            else if (throwing_weapon(obj, state)) tmp += 2;
             else if (obj === thrownObject(state)) tmp -= 2;
             tmp += weapon_hit_bonus(obj, state);
         }

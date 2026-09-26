@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 730273,
+      "datetime": "20320417161500",
+      "nethackrc": "OPTIONS=name:FirePole,role:Knight,race:human,gender:male,align:lawful\nOPTIONS=!legacy,!tutorial,!splash_screen\nOPTIONS=pettype:none,!acoustics,!autopickup,time,!autoquiver\n",
+      "comment": "Independent C recording for dothrow.c:dofire's empty-quiver fireassist branch with a secondary lance. The Knight starts with the lance in the swap slot; `f` queues swap and fire, two spaces dismiss the wield feedback, then use_pole(uwep, TRUE) rejects the too-close self target.",
+      "moves": ".f  "
+    }
+  ]
+}

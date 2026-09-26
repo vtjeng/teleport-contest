@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 730261,
+      "datetime": "20320417094500",
+      "nethackrc": "OPTIONS=name:WhipRoute,role:Archeologist,race:human,gender:female,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen\nOPTIONS=pettype:none,!acoustics,!autopickup,time\n",
+      "comment": "Independent C recording for dothrow.c:dofire's wielded bullwhip fallback and apply.c:doapply's direct bullwhip arm. The opening space dismisses the Archeologist's startup welcome page; the role starts with a bullwhip, and `f` and `a` exercise distinct callers.",
+      "moves": " fhaah"
+    }
+  ]
+}

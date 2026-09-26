@@ -1,21 +1,20 @@
 // apply.js -- the `a` command: using a tool.
 // C refs: src/apply.c apply_ok(), doapply(), get_mleash(), use_cream_pie(),
-// use_stethoscope(), its_dead(), reset_trapset(), use_trap(), and set_trap().
+// use_whip(), the polearm helpers and use_pole(), use_stethoscope(), its_dead(),
+// reset_trapset(), use_trap(), and set_trap().
 //
-// doapply()'s switch has thirty-odd named arms. The live groups are CREAM_PIE,
-// STETHOSCOPE, OIL_LAMP/MAGIC_LAMP/BRASS_LANTERN through apply.c use_lamp(),
-// WAX_CANDLE/TALLOW_CANDLE through use_candle(), and the
-// LOCK_PICK/CREDIT_CARD/SKELETON_KEY arm that lock.c pick_lock() serves,
-// MAGIC_MARKER which delegates to write.c dowrite() in
-// js/write.js, the container arm (LARGE_BOX/CHEST/ICE_BOX/SACK/BAG_OF_HOLDING/
-// OILSKIN_SACK) which delegates to pickup.c use_container() in js/pickup.js,
-// BAG_OF_TRICKS which delegates to makemon.c bagotricks() in js/makemon.js,
-// musical instruments through music.c, LAND_MINE/BEARTRAP through
-// apply.c use_trap()/set_trap(), HORN_OF_PLENTY through mkobj.c,
-// and the ordinary food and armor unknown-use results. Every other named
-// arm, the default's weapon
-// redirects, and the wand, spellbook and coin shortcuts above the switch stop
-// at a refusal naming the C function they need.
+// doapply()'s switch has thirty-odd named arms. Its live groups include
+// BULLWHIP and polearms, CREAM_PIE, STETHOSCOPE, OIL_LAMP/MAGIC_LAMP/
+// BRASS_LANTERN through apply.c use_lamp(), WAX_CANDLE/TALLOW_CANDLE through
+// use_candle(), and the LOCK_PICK/CREDIT_CARD/SKELETON_KEY arm that lock.c
+// pick_lock() serves; MAGIC_MARKER delegates to write.c dowrite() in
+// js/write.js; containers delegate to pickup.c use_container() in js/pickup.js;
+// BAG_OF_TRICKS delegates to makemon.c bagotricks() in js/makemon.js; musical
+// instruments delegate to music.c; LAND_MINE/BEARTRAP use apply.c
+// use_trap()/set_trap(); and HORN_OF_PLENTY delegates to mkobj.c. Ordinary
+// food and armor return their source unknown-use result. Other named arms,
+// plus the wand, spellbook, and coin shortcuts above the switch, still stop at
+// a refusal naming the C function they need.
 // use_stethoscope() covers
 // the no-hands, Deaf and free-hand guards, the free-action rule, self and
 // off-map probes, the adjacent monster arm, both secret-terrain arms, an empty
@@ -32,8 +31,10 @@ import {
     BEAR_TRAP,
     BLINDED,
     COLNO,
+    ROWNO,
     CQ_CANNED,
     CORR,
+    CONFUSION,
     COST_SPLAT,
     DEAF,
     ECMD_CANCEL,
@@ -42,6 +43,7 @@ import {
     ECMD_TIME,
     FLASHED_LIGHT,
     FACE,
+    FOOT,
     FUMBLING,
     FORCETRAP,
     GLIB,
@@ -75,10 +77,16 @@ import {
     IS_FURNITURE,
     IS_OBSTRUCTED,
     IS_STWALL,
+    IS_WATERWALL,
+    LAVAWALL,
     LANDMINE,
     P_BASIC,
+    P_NONE,
+    P_SKILLED,
     P_RIDING,
     STOMACH,
+    STONE,
+    PROT_FROM_SHAPE_CHANGERS,
     STUNNED,
     JUMPING,
     LEG,
@@ -88,6 +96,7 @@ import {
     RIGHT_SIDE,
     SHOPBASE,
     TELEDS_NO_FLAGS,
+    TELEDS_ALLOW_DRAG,
     TOOKPLUNGE,
     CLOUD,
     TT_BEARTRAP,
@@ -98,6 +107,7 @@ import {
     TT_WEB,
     UNENCUMBERED,
     WOUNDED_LEGS,
+    NO_KILLER_PREFIX,
     Is_airlevel,
     Is_waterlevel,
     SCORR,
@@ -107,6 +117,7 @@ import {
     SUPPRESS_IT,
     TIMEOUT,
     Upolyd,
+    uhim,
     u_at,
 } from './const.js';
 import {
@@ -126,6 +137,12 @@ import {
     feel_newsym,
     flush_screen,
     glyph_at,
+    glyph_is_cmap,
+    glyph_is_invisible,
+    glyph_is_monster,
+    glyph_is_statue,
+    glyph_to_cmap,
+    glyph_to_obj,
     map_object,
     map_invisible,
     map_glyphinfo,
@@ -134,11 +151,11 @@ import {
     tmp_at,
     unmap_invisible,
 } from './display.js';
-import { Monnam, mon_nam, obj_pmname, pmname, x_monnam } from './do_name.js';
+import { Amonnam, Monnam, mon_nam, obj_pmname, pmname, x_monnam } from './do_name.js';
 import { can_reach_floor, freehand } from './engrave.js';
 import { game } from './gstate.js';
-import { check_capacity, losehp, near_capacity, nomul } from './hack.js';
-import { dist2, highc, s_suffix, strstri } from './hacklib.js';
+import { check_capacity, losehp, near_capacity, nomul, overexertion } from './hack.js';
+import { dist2, highc, isqrt, s_suffix, strstri } from './hacklib.js';
 import { mstatusline, ustatusline } from './insight.js';
 import {
     delobj,
@@ -152,10 +169,12 @@ import {
     update_inventory,
     useupall,
     useup,
+    hold_another_object,
+    stackobj,
 } from './invent.js';
 import { pick_lock } from './lock.js';
 import { bagotricks } from './makemon.js';
-import { seemimic, set_ustuck } from './mon.js';
+import { seemimic, set_ustuck, wakeup, wake_nearto } from './mon.js';
 import {
     can_blnd,
     gender,
@@ -168,8 +187,13 @@ import {
     slithy,
     throws_rocks,
     type_is_pname,
+    bigmonst,
+    touch_petrifies,
+    little_to_big,
+    big_to_little,
+    poly_when_stoned,
 } from './mondata.js';
-import { closed_door, youHear } from './monmove.js';
+import { accessible, closed_door, youHear } from './monmove.js';
 import { m_at } from './monst.js';
 import { do_play_instrument } from './music.js';
 import { get_mtraits } from './corpstat.js';
@@ -187,6 +211,9 @@ import {
     hasContents,
     newObject,
     objectType,
+    obj_no_longer_held,
+    place_object,
+    set_bknown,
     sobj_at,
     carried,
     splitobj,
@@ -195,6 +222,10 @@ import {
 import {
     simple_typename,
     simpleonames,
+    an,
+    cxname,
+    donameFresh,
+    singular,
     Tobjnam,
     the,
     The,
@@ -262,28 +293,32 @@ import {
     LAND_MINE,
     BEARTRAP,
 } from './objects.js';
-import { AT_WEAP, MZ_TINY, PM_HEALER } from './monsters.js';
-import { body_part, mbodypart } from './polyself.js';
+import {
+    AT_WEAP, MZ_TINY, PM_ARCHEOLOGIST, PM_HEALER, PM_HORSE,
+    PM_STONE_GOLEM,
+} from './monsters.js';
+import { body_part, mbodypart, polymon } from './polyself.js';
 import { djinni_from_bottle, make_blinded, make_glib } from './potion.js';
-import { canSpotMonster, heroIsBlind } from './startup_a11y.js';
+import { canSpotMonster, heroIsBlind, sensesMonster } from './startup_a11y.js';
 import { P_SKILL } from './startup_skills.js';
 import { CMAP_EXPLANATIONS } from './symbol_data.js';
 import { obj_has_timer } from './timeout.js';
 import {
-    deltrap, is_lava, is_pool, Levitation, maketrap, reset_utrap, t_at,
-    trapname,
+    activate_statue_trap, deltrap, is_lava, is_pool, is_pool_or_lava,
+    Levitation, maketrap, reset_utrap, t_at, trapname,
 } from './trap.js';
 import { dotrap, feeltrap } from './trap_effects.js';
 import { ttyPline } from './tty_message.js';
 import {
     cansee,
+    couldsee,
     recalc_block_point,
     unblock_point,
     vision_recalc,
 } from './vision.js';
-import { is_pole, setnotworn } from './worn.js';
+import { bimanual, is_pole, setnotworn } from './worn.js';
 import { dowrite } from './write.js';
-import { use_container } from './pickup.js';
+import { pickup_object, use_container } from './pickup.js';
 import { use_pick_axe } from './dig.js';
 import { genders } from './roles.js';
 import { d, rn1, rn2, rnd, rne, rnl, rnz } from './rng.js';
@@ -300,11 +335,11 @@ import { wield_tool } from './wield.js';
 import { acurr } from './attrib.js';
 import { known_spell, spe_Fresh, spelleffects } from './spell.js';
 import { stucksteed } from './steed.js';
-import { teleds } from './teleport.js';
+import { enexto, teleds } from './teleport.js';
 import { fingers_or_gloves } from './do_wear.js';
 import { dropx, legs_in_no_shape, set_wounded_legs } from './do.js';
 import { morehungry } from './eat.js';
-import { digests, hurtle_jump, walk_path } from './dothrow.js';
+import { digests, hurtle_jump, thitmonst, walk_path } from './dothrow.js';
 import { makeplural } from './fruit.js';
 import { getpos } from './getpos.js';
 import { SPE_JUMPING, BOULDER } from './objects.js';
@@ -312,11 +347,500 @@ import { S_goodpos } from './symbols.js';
 import { in_rooms } from './rooms.js';
 import { On_stairs, stairway_at } from './stairs.js';
 import { set_voice } from './sounds.js';
-import { flash_hits_mon } from './uhitm.js';
+import {
+    attack_checks,
+    check_caitiff,
+    flash_hits_mon,
+    force_attack,
+} from './uhitm.js';
 import { transient_light_cleanup } from './light.js';
 import { bhit, zapyourself } from './zap.js';
 import { verbalize } from './pline.js';
 import { note_unported } from './unported.js';
+import { dbon, setmnotwielded, uwep_skill_type } from './weapon.js';
+import { mwelded } from './wield.js';
+import { u_wipe_engr } from './engrave.js';
+import { ART_SNICKERSNEE, Stone_resistance } from './artifacts.js';
+
+function applyPropertyActive(property, state = game) {
+    const value = state.u?.uprops?.[property];
+    return Boolean((value?.intrinsic || value?.extrinsic) && !value?.blocked);
+}
+
+function applyIsConfused(state) {
+    return Boolean(state.u?.uprops?.[CONFUSION]?.intrinsic);
+}
+
+function applyIsStunned(state) {
+    return Boolean(state.u?.uprops?.[STUNNED]?.intrinsic);
+}
+
+function applyIsHallucinating(state) {
+    const hallu = state.u?.uprops?.[HALLUC];
+    const resist = state.u?.uprops?.[HALLUC_RES];
+    return Boolean((hallu?.intrinsic || hallu?.extrinsic) && !hallu?.blocked
+        && !(resist?.intrinsic || resist?.extrinsic));
+}
+
+function applyIsFumbling(state) {
+    return applyPropertyActive(FUMBLING, state);
+}
+
+function applyIsGlib(state) {
+    return applyPropertyActive(GLIB, state);
+}
+
+function polearmContext(state) {
+    state.context ??= {};
+    state.context.polearm ??= { hitmon: null };
+    return state.context.polearm;
+}
+
+// C ref: apply.c calc_pole_range() (3371-3385). `gp` keeps this range for the
+// duration of targeting, while context.polearm owns the remembered target.
+export function calc_pole_range(state = game) {
+    const type = uwep_skill_type(state);
+    const skill = type === P_NONE ? P_NONE : P_SKILL(type, state);
+    const minRange = 4;
+    const maxRange = type === P_NONE || skill <= P_BASIC
+        ? 4 : skill === P_SKILLED ? 5 : 8;
+    state.gp ??= {};
+    state.gp.polearm_range_min = minRange;
+    state.gp.polearm_range_max = maxRange;
+    return { minRange, maxRange };
+}
+
+function glyphIsPoleable(glyph) {
+    return glyph_is_monster(glyph) || glyph_is_invisible(glyph)
+        || glyph_is_statue(glyph);
+}
+
+// C ref: apply.c get_valid_polearm_position() (3321-3331).
+export function get_valid_polearm_position(x, y, state = game) {
+    const glyph = glyph_at(x, y, state);
+    const distance = dist2(x, y, state.u.ux, state.u.uy);
+    return isok(x, y) && distance >= state.gp?.polearm_range_min
+        && distance <= state.gp?.polearm_range_max
+        && (cansee(x, y, state)
+            || (couldsee(x, y, state) && glyphIsPoleable(glyph)));
+}
+
+// C ref: apply.c display_polearm_positions() (3334-3353).
+export async function display_polearm_positions(onOff, state = game) {
+    if (onOff) {
+        await tmp_at(DISP_BEAM, cmap_to_glyph(S_goodpos, state), state);
+        for (let dx = -3; dx <= 3; ++dx) {
+            for (let dy = -3; dy <= 3; ++dy) {
+                const x = state.u.ux + dx;
+                const y = state.u.uy + dy;
+                if (get_valid_polearm_position(x, y, state))
+                    await tmp_at(x, y, state);
+            }
+        }
+    } else {
+        await tmp_at(DISP_END, 0, state);
+    }
+}
+
+// C ref: apply.c find_poleable_mon() (3284-3318). Preserve its x-major then
+// y-major scan and the single-target-only result.
+export function find_poleable_mon(pos, state = game) {
+    const impaired = applyIsConfused(state) || applyIsStunned(state)
+        || applyIsHallucinating(state);
+    const rt = isqrt(state.gp.polearm_range_max);
+    const lowX = Math.max(state.u.ux - rt, 1);
+    const highX = Math.min(state.u.ux + rt, COLNO - 1);
+    const lowY = Math.max(state.u.uy - rt, 0);
+    const highY = Math.min(state.u.uy + rt, ROWNO - 1);
+    let candidate = null;
+    for (let x = lowX; x <= highX; ++x) {
+        for (let y = lowY; y <= highY; ++y) {
+            if (!get_valid_polearm_position(x, y, state)) continue;
+            const glyph = glyph_at(x, y, state);
+            const monster = !impaired && glyph_is_monster(glyph)
+                ? m_at(x, y, state) : null;
+            if (monster && (monster.mtame
+                || (monster.mpeaceful && state.flags.confirm)))
+                continue;
+            if (glyphIsPoleable(glyph)
+                && (!glyph_is_statue(glyph) || impaired)) {
+                if (candidate) return false;
+                candidate = { x, y };
+            }
+        }
+    }
+    if (!candidate) return false;
+    pos.x = candidate.x;
+    pos.y = candidate.y;
+    return true;
+}
+
+// C ref: apply.c could_pole_mon() (3388-3411).
+export function could_pole_mon(state = game) {
+    if (!state.uwep || !is_pole(state.uwep, state)) return false;
+    const { minRange, maxRange } = calc_pole_range(state);
+    const pos = { x: state.u.ux, y: state.u.uy };
+    if (find_poleable_mon(pos, state)) return true;
+    const hitmon = polearmContext(state).hitmon;
+    if (hitmon && hitmon.mhp > 0 && sensesMonster(hitmon, state)) {
+        const distance = dist2(hitmon.mx, hitmon.my, state.u.ux, state.u.uy);
+        if (distance <= maxRange && distance >= minRange) return true;
+    }
+    return false;
+}
+
+// C ref: apply.c snickersnee_used_dist_attk() (3414-3422).
+export function snickersnee_used_dist_attk(obj, state = game) {
+    return Boolean(obj && obj === state.uwep
+        && obj.oartifact === ART_SNICKERSNEE
+        && state.context?.snickersnee_turn === state.moves);
+}
+
+// C ref: apply.c use_whip() (2955-3279). The source's fire_damage(),
+// kick_steed(), possibly_unwield(), and instapetrify() results are discarded;
+// record those unported void boundaries without substituting a result.
+export async function use_whip(obj, state = game) {
+    let monster;
+    let rx;
+    let ry;
+    let proficient = 0;
+    const msgSlipsFree = 'The bullwhip slips free.';
+    const msgSnap = 'Snap!';
+    const u = state.u;
+
+    if (obj !== state.uwep) {
+        if (await wield_tool(obj, 'lash', state)) {
+            cmdq_add_ec(CQ_CANNED, extcmdRow('apply'), state);
+            cmdq_add_key(CQ_CANNED, obj.invlet, state);
+            return ECMD_TIME;
+        }
+        return ECMD_OK;
+    }
+    if (!await getdir(null, state)) return ECMD_OK | ECMD_CANCEL;
+
+    if (u.uswallow) {
+        monster = u.ustuck;
+        rx = monster.mx;
+        ry = monster.my;
+    } else {
+        confdir(false, state);
+        rx = u.ux + u.dx;
+        ry = u.uy + u.dy;
+        if (!isok(rx, ry)) {
+            await ttyPline('You miss.', state);
+            return ECMD_OK;
+        }
+        monster = m_at(rx, ry, state);
+    }
+
+    if (state.urole?.mnum === PM_ARCHEOLOGIST) ++proficient;
+    const dexterity = acurr(state, A_DEX);
+    if (dexterity < 6) --proficient;
+    else if (dexterity >= 14) proficient += dexterity - 14;
+    if (applyIsFumbling(state)) --proficient;
+    proficient = Math.max(0, Math.min(3, proficient));
+
+    if (u.uswallow) {
+        await ttyPline("There's not enough room to flick your bullwhip.", state);
+    } else if (u.uinwater) {
+        await ttyPline("There's too much resistance to flick your bullwhip.", state);
+    } else if (u.dz < 0) {
+        await ttyPline(`You flick a bug off of the ${ceiling(u.ux, u.uy, state)}.`, state);
+    } else if (!u.dz && (IS_WATERWALL(state.level.at(rx, ry).typ)
+        || state.level.at(rx, ry).typ === LAVAWALL)) {
+        await ttyPline('You cause a small splash.', state);
+        if (state.level.at(rx, ry).typ === LAVAWALL)
+            note_unported('trap.c fire_damage');
+        return ECMD_TIME;
+    } else if ((!u.dx && !u.dy) || u.dz > 0) {
+        if (u.usteed && !rn2(proficient + 2)) {
+            await ttyPline(`You whip ${mon_nam(u.usteed, state)}!`, state);
+            note_unported('steed.c kick_steed');
+            return ECMD_TIME;
+        }
+        if (is_pool_or_lava(u.ux, u.uy, state)
+            || IS_WATERWALL(state.level.at(rx, ry).typ)
+            || state.level.at(rx, ry).typ === LAVAWALL) {
+            await ttyPline('You cause a small splash.', state);
+            if (is_lava(u.ux, u.uy, state))
+                note_unported('trap.c fire_damage');
+            return ECMD_TIME;
+        }
+        if (Levitation(state) || u.usteed || applyPropertyActive(FLYING, state)) {
+            let object = state.level.objects?.[u.ux]?.[u.uy] ?? null;
+            if (object?.otyp === CORPSE
+                && [PM_HORSE, little_to_big(PM_HORSE), big_to_little(PM_HORSE)]
+                    .includes(object.corpsenm)) {
+                await ttyPline('Why beat a dead horse?', state);
+                return ECMD_TIME;
+            }
+            if (object && proficient) {
+                const name = an(singular(object, xnameFresh, state), state);
+                await ttyPline(
+                    `You wrap your bullwhip around ${name} on the ${surface(u.ux, u.uy, state)}.`,
+                    state,
+                );
+                if (rnl(6) || await pickup_object(object, 1, true, state) < 1)
+                    await ttyPline(msgSlipsFree, state);
+                return ECMD_TIME;
+            }
+        }
+        let damage = rnd(2) + dbon(state) + obj.spe;
+        if (damage <= 0) damage = 1;
+        await ttyPline(`You hit your ${body_part(FOOT, state.youmonst)} with your bullwhip.`, state);
+        const killer = `killed ${uhim(state)}self with ${state.flags.female ? 'her' : 'his'} bullwhip`;
+        await losehp(halfPhysicalDamage(damage, state), killer, NO_KILLER_PREFIX, state);
+        return ECMD_TIME;
+    } else if ((applyIsFumbling(state) || applyIsGlib(state)) && !rn2(5)) {
+        await ttyPline(`The bullwhip slips out of your ${body_part(HAND, state.youmonst)}.`, state);
+        await dropx(obj, { state });
+    } else if (u.utrap && u.utraptype === TT_PIT) {
+        const tile = state.level.at(rx, ry);
+        let wrappedWhat = sobj_at(BOULDER, rx, ry, state)
+            ? 'a boulder' : IS_FURNITURE(tile.typ) ? 'something' : null;
+        if (monster) {
+            if (bigmonst(monster.data) && canSpotMonster(monster, state))
+                wrappedWhat = mon_nam(monster, state);
+            if (!wrappedWhat) wrappedWhat = null;
+        }
+        if (wrappedWhat) {
+            const target = { x: rx, y: ry };
+            await ttyPline(`You wrap your bullwhip around ${wrappedWhat}.`, state);
+            if (proficient && rn2(proficient + 2)) {
+                const adjacent = monster
+                    ? enexto(rx, ry, state.youmonst.data, { state }) : target;
+                if (!monster || adjacent) {
+                    await ttyPline('You yank yourself out of the pit!', state);
+                    await reset_utrap(true, state);
+                    await teleds(adjacent.x, adjacent.y, TELEDS_ALLOW_DRAG, state);
+                    state.vision_full_recalc = 1;
+                }
+            } else {
+                await ttyPline(msgSlipsFree, state);
+            }
+            if (monster) await wakeup(monster, true, { state });
+        } else if (monster) {
+            return await whipattack(monster, rx, ry, proficient, state);
+        } else {
+            await ttyPline(msgSnap, state);
+        }
+    } else if (monster) {
+        return await whipattack(monster, rx, ry, proficient, state);
+    } else if (Is_airlevel(u.uz) || Is_waterlevel(u.uz)) {
+        await ttyPline('You snap your whip through thin air.', state);
+    } else {
+        await ttyPline(msgSnap, state);
+    }
+    return ECMD_TIME;
+}
+
+// C ref: apply.c use_whip()'s `whipattack:` label, shared by the pit case
+// when no boulder, furniture, or visible big monster can be used to escape.
+async function whipattack(monster, rx, ry, proficient, state) {
+        let object = null;
+        if (!canSpotMonster(monster, state)) {
+            monster.mundetected = 0;
+            const spotItNow = canSpotMonster(monster, state);
+            const rememberedGlyph = glyph_at(rx, ry, state);
+            if (spotItNow || !glyph_is_invisible(rememberedGlyph)) {
+                await ttyPline(
+                `${spotItNow ? Amonnam(monster, state) : 'A monster'} is there that you `
+                        + `${heroIsBlind(state) ? "hadn't noticed" : "couldn't see"}.`,
+                    state,
+                );
+                if (!spotItNow) map_invisible(rx, ry, state);
+                else newsym(rx, ry, state);
+            }
+        } else {
+            object = monster.mw ?? null;
+        }
+
+        if (object) {
+            const objectName = cxname(object, state);
+            const gotIt = proficient && (!applyIsFumbling(state) || !rn2(10));
+            let hand = gotIt ? mbodypart(monster, HAND) : null;
+            if (gotIt && bimanual(object, state)) hand = makeplural(hand);
+            await ttyPline(`You wrap your bullwhip around ${yname(object, state)}.`, state);
+            let pullFree = gotIt;
+            if (gotIt && mwelded(object, state)) {
+                await ttyPline(
+                    `${object.quan === 1 ? 'It is' : 'They are'} welded to ${s_suffix(mon_nam(monster, state))} ${hand}${object.bknown ? '.' : '!'}`,
+                    state,
+                );
+                set_bknown(object, true, { state });
+                pullFree = false;
+            }
+            if (pullFree) {
+                obj_extract_self(object, { state });
+                if (monster.mw === object) note_unported('weapon.c possibly_unwield');
+                await setmnotwielded(monster, object, { state });
+                switch (rn2(proficient + 1)) {
+                case 2:
+                    await ttyPline(`You yank ${yname(object, state)} to the ${surface(u.ux, u.uy, state)}!`, state);
+                    place_object(object, u.ux, u.uy, { state });
+                    stackobj(object, { state });
+                    break;
+                case 3: {
+                    await ttyPline(`You snatch ${yname(object, state)}!`, state);
+                    const species = state.mons?.[object.corpsenm];
+                    const petrifies = object.otyp === CORPSE
+                        && touch_petrifies(species) && !state.uarmg
+                        && !Stone_resistance(state);
+                    if (petrifies) {
+                        const canTransform = poly_when_stoned(state.youmonst.data, state);
+                        const saved = canTransform
+                            ? await polymon(PM_STONE_GOLEM, state) : false;
+                        if (!saved) {
+                            await ttyPline(`Snatching ${an(objectName, state)} is a fatal mistake.`, state);
+                            place_object(object, u.ux, u.uy, { state });
+                            note_unported('trap.c instapetrify');
+                            obj_extract_self(object, { state });
+                        }
+                    }
+                    await hold_another_object(
+                        object, 'You drop %s!', donameFresh(object, state),
+                        null, { state },
+                    );
+                    break;
+                }
+                default:
+                    await ttyPline(`You yank ${the(objectName, state)} from ${s_suffix(mon_nam(monster, state))} ${hand}!`, state);
+                    obj_no_longer_held(object, { state });
+                    place_object(object, monster.mx, monster.my, { state });
+                    stackobj(object, { state });
+                    break;
+                }
+            } else {
+                await ttyPline(msgSlipsFree, state);
+            }
+        } else {
+            let doSnap = true;
+            if (M_AP_TYPE(monster) && !applyPropertyActive(PROT_FROM_SHAPE_CHANGERS, state)
+                && !sensesMonster(monster, state)) {
+                await stumble_onto_mimic(monster, state);
+                doSnap = false;
+            } else {
+                await ttyPline(`You flick your bullwhip towards ${mon_nam(monster, state)}.`, state);
+            }
+            if (proficient && await force_attack(monster, false, state))
+                return ECMD_TIME;
+            if (doSnap) await ttyPline(msgSnap, state);
+        }
+        await wakeup(monster, true, { state });
+        return ECMD_TIME;
+}
+
+// C ref: apply.c use_pole() (3426-3557).
+export async function use_pole(obj, autohit, state = game) {
+    let res = ECMD_OK;
+    const pole = polearmContext(state);
+    const hitmon = pole.hitmon;
+    let freehit = false;
+    let glyph;
+    if (state.u.uswallow) {
+        await ttyPline("There's not enough room here to use that.", state);
+        return ECMD_OK;
+    }
+    if (obj !== state.uwep) {
+        if (await wield_tool(obj, 'swing', state)) {
+            cmdq_add_ec(CQ_CANNED, extcmdRow('apply'), state);
+            cmdq_add_key(CQ_CANNED, obj.invlet, state);
+            return ECMD_TIME;
+        }
+        return ECMD_OK;
+    }
+
+    const { minRange, maxRange } = calc_pole_range(state);
+    if (!autohit) await ttyPline('Where do you want to hit?', state);
+    const target = { x: state.u.ux, y: state.u.uy };
+    if (!find_poleable_mon(target, state) && hitmon && hitmon.mhp > 0
+        && sensesMonster(hitmon, state)) {
+        const distance = dist2(hitmon.mx, hitmon.my, state.u.ux, state.u.uy);
+        if (distance <= maxRange && distance >= minRange) {
+            target.x = hitmon.mx;
+            target.y = hitmon.my;
+        }
+    }
+    if (!autohit) {
+        state.getpos_hilitefunc = (onOff) => display_polearm_positions(onOff, state);
+        state.getpos_getvalid = (x, y) => get_valid_polearm_position(x, y, state);
+        try {
+            if (await getpos(target, true, 'the spot to hit', state) < 0)
+                return res | ECMD_CANCEL;
+        } finally {
+            state.getpos_hilitefunc = null;
+            state.getpos_getvalid = null;
+        }
+    }
+
+    glyph = glyph_at(target.x, target.y, state);
+    const distance = dist2(target.x, target.y, state.u.ux, state.u.uy);
+    if (distance > maxRange) {
+        await ttyPline('Too far!', state);
+        return ECMD_FAIL;
+    } else if (distance < minRange) {
+        await ttyPline(autohit && u_at(target.x, target.y, state)
+            ? "Don't know what to hit." : 'Too close!', state);
+        return ECMD_FAIL;
+    } else if (!cansee(target.x, target.y, state) && !glyphIsPoleable(glyph)) {
+        await ttyPline("That won't hit anything if you can't see that spot.", state);
+        return ECMD_FAIL;
+    } else if (!couldsee(target.x, target.y, state)) {
+        await ttyPline("You can't reach that spot from here.", state);
+        return ECMD_FAIL;
+    }
+
+    pole.hitmon = null;
+    state.gb.bhitpos = { x: target.x, y: target.y };
+    const monster = m_at(target.x, target.y, state);
+    if (monster) {
+        if (await attack_checks(monster, state.uwep, state))
+            return res | (state.context.move ? ECMD_TIME : ECMD_OK);
+        if (await overexertion(state)) return ECMD_TIME;
+        pole.hitmon = monster;
+        if (snickersnee_used_dist_attk(obj, state)) {
+            await ttyPline("The blade doesn't reach there!", state);
+            return ECMD_FAIL;
+        }
+        await check_caitiff(monster, state);
+        state.gn ??= {};
+        state.gn.notonhead = target.x !== monster.mx || target.y !== monster.my;
+        if (obj === state.uwep && obj.oartifact === ART_SNICKERSNEE) {
+            freehit = state.moves !== state.context.snickersnee_turn;
+            state.context.snickersnee_turn = state.moves;
+            if (freehit && !applyPropertyActive(DEAF, state))
+                await ttyPline('Shkinng!', state);
+        }
+        await thitmonst(monster, state.uwep, state);
+    } else if (glyph_is_statue(glyph) && sobj_at(STATUE, target.x, target.y, state)) {
+        const trap = t_at(target.x, target.y, state);
+        if (!(trap && trap.ttyp === STATUE_TRAP
+            && await activate_statue_trap(trap, trap.tx, trap.ty, false, { state }))) {
+            await ttyPline('Thump!  Your blow bounces harmlessly off the statue.', state);
+            await wake_nearto(target.x, target.y, 25, { state });
+        }
+    } else {
+        unmap_invisible(target.x, target.y, state);
+        if (glyph_to_obj(glyph) === BOULDER
+            && sobj_at(BOULDER, target.x, target.y, state)) {
+            await ttyPline('Thump!  Your blow bounces harmlessly off the boulder.', state);
+            await wake_nearto(target.x, target.y, 25, { state });
+        } else {
+            const tile = state.level.at(target.x, target.y);
+            if (!accessible(target.x, target.y, state) || IS_FURNITURE(tile.typ)) {
+                const what = tile.typ === STONE || tile.typ === SCORR ? 'stone'
+                    : glyph_is_cmap(glyph)
+                        ? `the ${CMAP_EXPLANATIONS[glyph_to_cmap(glyph)]}`
+                        : 'an unknown obstacle';
+                await ttyPline(`You uselessly attack ${what}.`, state);
+            } else {
+                await ttyPline('You miss; there is no one there to hit.', state);
+            }
+        }
+    }
+    u_wipe_engr(2, { state });
+    return freehit ? ECMD_OK : ECMD_TIME;
+}
 
 // C ref: apply.c get_mleash() (880-887). The leash belongs to the hero's
 // inventory, and its leashmon id names the monster; the monster's minvent is
@@ -1769,6 +2293,8 @@ export async function doapply(state = game, env = {}) {
     switch (obj.otyp) {
     case CREAM_PIE:
         return use_cream_pie(obj, state, env);
+    case BULLWHIP:
+        return use_whip(obj, state);
     case STETHOSCOPE:
         return use_stethoscope(obj, state);
     case EXPENSIVE_CAMERA:
@@ -1858,6 +2384,8 @@ export async function doapply(state = game, env = {}) {
             await ttyPline("Sorry, I don't know how to use that.", state);
             return ECMD_FAIL;
         }
+        if (is_pole(obj, state))
+            return use_pole(obj, false, state);
         if (is_pick(obj, state) || is_axe(obj, state))
             return use_pick_axe(obj, state, env);
         // Every named arm this port has not implemented, plus the default's
