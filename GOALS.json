@@ -74361,7 +74361,7 @@
     {
       "id": "port-zap-weffects-force-bolt-synthetic-v2-20260926",
       "kind": "file-port",
-      "status": "parked",
+      "status": "open",
       "summary": "Port complete zap.c weffects and source-ordered Force Bolt ray behavior",
       "cFile": "zap.c",
       "sessions": [
@@ -74413,12 +74413,12 @@
           "manifestSha256": "5e4430fbd724fe91720f898c02e6f25f9d98e884fa31bd696ca1a63e87abf150",
           "recordingPath": "challenges/cases/v5/healer-wand-striking-grid-bug.session.json",
           "recordingSha256": "97d372dd3a84252d6970271b4d335959cbf6d24c41318fa0b578c7a79446ec32",
-          "evaluationPath": "challenges/evaluations/20260926144607-v5.json",
-          "evaluationCommit": "fa3aebd3eee0de7cb859e5efeaa4e7dda2b0e735"
+          "evaluationPath": "challenges/evaluations/20260926180549-v5.json",
+          "evaluationCommit": "27ef57edeff3c341b4c703e10bad99202c2bc7f2"
         }
       },
       "activeStanding": {
-        "sha": "fa3aebd3eee0de7cb859e5efeaa4e7dda2b0e735",
+        "sha": "27ef57edeff3c341b4c703e10bad99202c2bc7f2",
         "screens": 11405,
         "rng": 792838
       },
