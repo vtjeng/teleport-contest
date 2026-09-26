@@ -1,0 +1,11 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 26092657,
+      "datetime": "20380926112731",
+      "nethackrc": "OPTIONS=name:SinkTrace,role:Valkyrie,race:human,gender:female,align:lawful,playmode:debug,!legacy,!tutorial,!splash_screen,!autopickup\n",
+      "moves": "      \u0017sink\n\u0017ring of teleportation\nde \n."
+    }
+  ]
+}
