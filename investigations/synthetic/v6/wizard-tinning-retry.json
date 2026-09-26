@@ -1,0 +1,89 @@
+{
+  "session": "synthetic/v6/wizard-tinning-retry",
+  "corpus": "synthetic",
+  "batch": "v6",
+  "caseId": "wizard-tinning-retry",
+  "manifestPath": "challenges/manifests/v6.json",
+  "manifestSha256": "7523b91e823f4e3906c9acdc9a3d80f8469c27c2caab8fc8fbd6967dbfdcab5f",
+  "recordingPath": "challenges/cases/v6/wizard-tinning-retry.session.json",
+  "recordingSha256": "137f2cb977a1d661abbc8bd9cdbaafce9b802a39f040ac9c4a1c266359028d85",
+  "evaluationPath": "challenges/evaluations/20260926094126-v6.json",
+  "evaluationCommit": "50bbe620897c8fc2e634d14ec672d33a4e44db7e",
+  "remainingScreens": 1,
+  "recordedSteps": 34,
+  "status": "complete",
+  "commit": "50bbe620897c8fc2e634d14ec672d33a4e44db7e",
+  "mismatch": {
+    "corpus": "synthetic",
+    "batch": "v6",
+    "caseId": "wizard-tinning-retry",
+    "session": "synthetic/v6/wizard-tinning-retry",
+    "manifestPath": "challenges/manifests/v6.json",
+    "manifestSha256": "7523b91e823f4e3906c9acdc9a3d80f8469c27c2caab8fc8fbd6967dbfdcab5f",
+    "recording": "challenges/cases/v6/wizard-tinning-retry.session.json",
+    "recordingPath": "challenges/cases/v6/wizard-tinning-retry.session.json",
+    "recordingSha256": "137f2cb977a1d661abbc8bd9cdbaafce9b802a39f040ac9c4a1c266359028d85",
+    "recipe": "challenges/cases/v6/wizard-tinning-retry.recipe.session.json",
+    "recipeSha256": "48cff0ab9083247197d58628b2add5fe71e4ffc1ff70eca53e0f0dc0ed39c5a5",
+    "replayInputSha256": "9671c8200bb4617314143efc03b8936dba1c08d5025986a5ef6f245a97c322f9",
+    "evaluationPath": "challenges/evaluations/20260926094126-v6.json",
+    "evaluationCommit": "50bbe620897c8fc2e634d14ec672d33a4e44db7e",
+    "evaluationArtifact": "challenges/evaluations/20260926094126-v6.json",
+    "evaluationUtc": "2026-09-26T09:41:43.460Z",
+    "remainingScreens": 1,
+    "recordedSteps": 34,
+    "previousScreensMatched": 33,
+    "regression": false,
+    "passed": false,
+    "error": null,
+    "metrics": {
+      "screens": {
+        "matched": 33,
+        "total": 34
+      },
+      "rng": {
+        "matched": 3003,
+        "total": 3003
+      },
+      "cursors": {
+        "matched": 33,
+        "total": 34
+      }
+    },
+    "firstMismatch": {
+      "kind": "stop",
+      "message": "unsupported hero command: an unported branch of this command: applying a tool requires doapply()'s arm for object type 238",
+      "step": 33
+    },
+    "step": 33,
+    "kind": "stop",
+    "sourceFile": "apply.c",
+    "function": "doapply",
+    "message": "unsupported hero command: an unported branch of this command: applying a tool requires doapply()'s arm for object type 238",
+    "cFile": "apply.c",
+    "luaFile": null,
+    "line": null
+  },
+  "summary": "The v6 wizard-tinning-retry case reaches apply.c:doapply() with a tinning kit at segment 0 step 33. JS refuses object type 238 before C calls use_tinning_kit(), so the source kit charge, corpse selection, and homemade-tin path remain unported. Group the three unresolved Wizard tinning variants with the already matching kit-newt case in one apply.c source task after current apply ownership clears.",
+  "source": {
+    "file": "apply.c",
+    "branch": "doapply TINNING_KIT arm calls use_tinning_kit; the kit has charge and a dropped newt corpse is available, so floorfood(\"tin\", 2) prompts for the corpse before tin creation or refusal.",
+    "functions": [
+      "use_tinning_kit"
+    ],
+    "callers": [
+      "cmd.c apply command reaches apply.c doapply TINNING_KIT case at lines 4294-4295; js/cmd.js command dispatch reaches js/apply.js doapply, which currently refuses object type 238."
+    ],
+    "dependencies": [
+      "eat.c floorfood is return-valued and has a partial JS port; verify its tin selection and corpsecheck branches.",
+      "mkobj.c mksobj(TIN), eat.c set_tin_variety, invent.c consume_obj_charge and hold_another_object, and corpse cleanup support the successful arm. Verify return-valued mksobj and the existing object/state owners."
+    ]
+  },
+  "goalKind": "file-port",
+  "evidence": [
+    "Saved challenges/evaluations/20260926094126-v6.json at 50bbe620897c8fc2e634d14ec672d33a4e44db7e reports 1 remaining screen(s), first refusal at segment 0 step 33: unsupported hero command: an unported branch of this command: applying a tool requires doapply()'s arm for object type 238.",
+    "C challenges/cases/v6/wizard-tinning-retry.session.json after the dropped newt corpse is selected, the C recording reaches the floorfood tin prompt at its final boundary (step 33 prompt); this is independent of the matching wizard-tinning-kit-newt witness.",
+    "Upstream nethack-c/upstream/src/apply.c:2177-2256 use_tinning_kit() selects a corpse through floorfood, consumes a charge, creates and labels a tin, removes the corpse, and holds or drops the tin. The doapply switch at 4294-4295 calls it.",
+    "Current js/apply.js:doapply refuses TINNING_KIT; add the source arm and complete use_tinning_kit, then verify all three variants and the existing matching kit-newt case without case-specific branching."
+  ]
+}

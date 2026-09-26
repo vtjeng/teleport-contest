@@ -1,0 +1,89 @@
+{
+  "session": "synthetic/v6/priest-sit-altar",
+  "corpus": "synthetic",
+  "batch": "v6",
+  "caseId": "priest-sit-altar",
+  "manifestPath": "challenges/manifests/v6.json",
+  "manifestSha256": "7523b91e823f4e3906c9acdc9a3d80f8469c27c2caab8fc8fbd6967dbfdcab5f",
+  "recordingPath": "challenges/cases/v6/priest-sit-altar.session.json",
+  "recordingSha256": "5d63bfff4f6be435a201c1406de9afe54a60eea43cfda97ace579be899e2df1b",
+  "evaluationPath": "challenges/evaluations/20260926094126-v6.json",
+  "evaluationCommit": "50bbe620897c8fc2e634d14ec672d33a4e44db7e",
+  "remainingScreens": 1,
+  "recordedSteps": 13,
+  "status": "complete",
+  "commit": "50bbe620897c8fc2e634d14ec672d33a4e44db7e",
+  "mismatch": {
+    "corpus": "synthetic",
+    "batch": "v6",
+    "caseId": "priest-sit-altar",
+    "session": "synthetic/v6/priest-sit-altar",
+    "manifestPath": "challenges/manifests/v6.json",
+    "manifestSha256": "7523b91e823f4e3906c9acdc9a3d80f8469c27c2caab8fc8fbd6967dbfdcab5f",
+    "recording": "challenges/cases/v6/priest-sit-altar.session.json",
+    "recordingPath": "challenges/cases/v6/priest-sit-altar.session.json",
+    "recordingSha256": "5d63bfff4f6be435a201c1406de9afe54a60eea43cfda97ace579be899e2df1b",
+    "recipe": "challenges/cases/v6/priest-sit-altar.recipe.session.json",
+    "recipeSha256": "e853d234cbcfa1c0dc048881bff1193605e15bab26fc6cec7396a3da0c0662be",
+    "replayInputSha256": "9671c8200bb4617314143efc03b8936dba1c08d5025986a5ef6f245a97c322f9",
+    "evaluationPath": "challenges/evaluations/20260926094126-v6.json",
+    "evaluationCommit": "50bbe620897c8fc2e634d14ec672d33a4e44db7e",
+    "evaluationArtifact": "challenges/evaluations/20260926094126-v6.json",
+    "evaluationUtc": "2026-09-26T09:41:43.460Z",
+    "remainingScreens": 1,
+    "recordedSteps": 13,
+    "previousScreensMatched": 12,
+    "regression": false,
+    "passed": false,
+    "error": null,
+    "metrics": {
+      "screens": {
+        "matched": 12,
+        "total": 13
+      },
+      "rng": {
+        "matched": 2840,
+        "total": 2842
+      },
+      "cursors": {
+        "matched": 12,
+        "total": 13
+      }
+    },
+    "firstMismatch": {
+      "kind": "stop",
+      "message": "unsupported hero command: an unported branch of this command: sitting reached an unported branch: dosit()'s altar arm",
+      "step": 12
+    },
+    "step": 12,
+    "kind": "stop",
+    "sourceFile": "sit.c",
+    "function": "dosit",
+    "message": "unsupported hero command: an unported branch of this command: sitting reached an unported branch: dosit()'s altar arm",
+    "cFile": "sit.c",
+    "luaFile": null,
+    "line": null
+  },
+  "summary": "The v6 priest-sit-altar case reaches sit.c:dosit()'s altar branch, while js/sit.js refuses that branch. Port the entire dosit() command and its source-called dependencies, using all five v6 sit recordings for distinct terrain and feature states; preserve branch order, messages, return/time behavior, RNG, and side effects.",
+  "source": {
+    "file": "sit.c",
+    "branch": "The hero issues #sit while IS_ALTAR(typ) is true after the object, trap, and water arms are false. C executes the altar branch and returns ECMD_TIME.",
+    "functions": [
+      "dosit"
+    ],
+    "callers": [
+      "cmd.c #sit command invokes sit.c dosit(); js/cmd.js command dispatch invokes js/sit.js dosit()."
+    ],
+    "dependencies": [
+      "Whole dosit() also calls altar_wrath, throne_sit_effect, dotrap, lay_an_egg, water_damage, losehp, and other state handlers on separate branches. Audit return-valued lay_an_egg and active feature side effects before claiming source completion.",
+      "Related unresolved v6 sit witnesses: archeologist-sit-ice, wizard-sit-sink, priest-sit-altar, wizard-sit-throne, wizard-sit-grave-room-retry."
+    ]
+  },
+  "goalKind": "file-port",
+  "evidence": [
+    "Saved challenges/evaluations/20260926094126-v6.json at 50bbe620897c8fc2e634d14ec672d33a4e44db7e reports one remaining screen, first stop at segment 0 step 12: unsupported hero command: an unported branch of this command: sitting reached an unported branch: dosit()'s altar arm.",
+    "challenges/cases/v6/priest-sit-altar.session.json: The C step 12 screen begins “You sit on the altar.” and continues through altar_wrath after the More prompt.",
+    "Upstream nethack-c/upstream/src/sit.c:529-531 uses IS_ALTAR(typ); current js/sit.js:dosit throws UnsupportedSitError for the altar arm instead of executing it.",
+    "The five sit cases are different terrain or level-feature branches of the same dosit() source function; one whole-function port should cover them together. A matching range in each recording is still required before closing the source task."
+  ]
+}

@@ -1,0 +1,89 @@
+{
+  "session": "synthetic/v6/wizard-sit-grave-room-retry",
+  "corpus": "synthetic",
+  "batch": "v6",
+  "caseId": "wizard-sit-grave-room-retry",
+  "manifestPath": "challenges/manifests/v6.json",
+  "manifestSha256": "7523b91e823f4e3906c9acdc9a3d80f8469c27c2caab8fc8fbd6967dbfdcab5f",
+  "recordingPath": "challenges/cases/v6/wizard-sit-grave-room-retry.session.json",
+  "recordingSha256": "81482fcc4c3b29336f154795c1a57b03231fae3962f28d6918f9161ed045e4a3",
+  "evaluationPath": "challenges/evaluations/20260926094126-v6.json",
+  "evaluationCommit": "50bbe620897c8fc2e634d14ec672d33a4e44db7e",
+  "remainingScreens": 1,
+  "recordedSteps": 16,
+  "status": "complete",
+  "commit": "50bbe620897c8fc2e634d14ec672d33a4e44db7e",
+  "mismatch": {
+    "corpus": "synthetic",
+    "batch": "v6",
+    "caseId": "wizard-sit-grave-room-retry",
+    "session": "synthetic/v6/wizard-sit-grave-room-retry",
+    "manifestPath": "challenges/manifests/v6.json",
+    "manifestSha256": "7523b91e823f4e3906c9acdc9a3d80f8469c27c2caab8fc8fbd6967dbfdcab5f",
+    "recording": "challenges/cases/v6/wizard-sit-grave-room-retry.session.json",
+    "recordingPath": "challenges/cases/v6/wizard-sit-grave-room-retry.session.json",
+    "recordingSha256": "81482fcc4c3b29336f154795c1a57b03231fae3962f28d6918f9161ed045e4a3",
+    "recipe": "challenges/cases/v6/wizard-sit-grave-room-retry.recipe.session.json",
+    "recipeSha256": "846ec12f834cc3eeb8eab397e1868d69321b05f6dc47664d9381ccb9b42d00c1",
+    "replayInputSha256": "9671c8200bb4617314143efc03b8936dba1c08d5025986a5ef6f245a97c322f9",
+    "evaluationPath": "challenges/evaluations/20260926094126-v6.json",
+    "evaluationCommit": "50bbe620897c8fc2e634d14ec672d33a4e44db7e",
+    "evaluationArtifact": "challenges/evaluations/20260926094126-v6.json",
+    "evaluationUtc": "2026-09-26T09:41:43.460Z",
+    "remainingScreens": 1,
+    "recordedSteps": 16,
+    "previousScreensMatched": 15,
+    "regression": false,
+    "passed": false,
+    "error": null,
+    "metrics": {
+      "screens": {
+        "matched": 15,
+        "total": 16
+      },
+      "rng": {
+        "matched": 2252,
+        "total": 2275
+      },
+      "cursors": {
+        "matched": 15,
+        "total": 16
+      }
+    },
+    "firstMismatch": {
+      "kind": "stop",
+      "message": "unsupported hero command: an unported branch of this command: sitting reached an unported branch: dosit()'s grave arm",
+      "step": 15
+    },
+    "step": 15,
+    "kind": "stop",
+    "sourceFile": "sit.c",
+    "function": "dosit",
+    "message": "unsupported hero command: an unported branch of this command: sitting reached an unported branch: dosit()'s grave arm",
+    "cFile": "sit.c",
+    "luaFile": null,
+    "line": null
+  },
+  "summary": "The v6 wizard-sit-grave-room-retry case reaches sit.c:dosit()'s grave branch, while js/sit.js refuses that branch. Port the entire dosit() command and its source-called dependencies, using all five v6 sit recordings for distinct terrain and feature states; preserve branch order, messages, return/time behavior, RNG, and side effects.",
+  "source": {
+    "file": "sit.c",
+    "branch": "The hero issues #sit while IS_GRAVE(typ) is true after the object, trap, and water arms are false. C executes the grave branch and returns ECMD_TIME.",
+    "functions": [
+      "dosit"
+    ],
+    "callers": [
+      "cmd.c #sit command invokes sit.c dosit(); js/cmd.js command dispatch invokes js/sit.js dosit()."
+    ],
+    "dependencies": [
+      "Whole dosit() also calls altar_wrath, throne_sit_effect, dotrap, lay_an_egg, water_damage, losehp, and other state handlers on separate branches. Audit return-valued lay_an_egg and active feature side effects before claiming source completion.",
+      "Related unresolved v6 sit witnesses: archeologist-sit-ice, wizard-sit-sink, priest-sit-altar, wizard-sit-throne, wizard-sit-grave-room-retry."
+    ]
+  },
+  "goalKind": "file-port",
+  "evidence": [
+    "Saved challenges/evaluations/20260926094126-v6.json at 50bbe620897c8fc2e634d14ec672d33a4e44db7e reports one remaining screen, first stop at segment 0 step 15: unsupported hero command: an unported branch of this command: sitting reached an unported branch: dosit()'s grave arm.",
+    "challenges/cases/v6/wizard-sit-grave-room-retry.session.json: The C step 15 screen says “You sit on the grave.” with no altar or throne side effect.",
+    "Upstream nethack-c/upstream/src/sit.c:532-534 uses IS_GRAVE(typ); current js/sit.js:dosit throws UnsupportedSitError for the grave arm instead of executing it.",
+    "The five sit cases are different terrain or level-feature branches of the same dosit() source function; one whole-function port should cover them together. A matching range in each recording is still required before closing the source task."
+  ]
+}

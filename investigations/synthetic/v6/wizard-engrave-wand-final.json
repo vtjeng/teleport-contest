@@ -1,0 +1,95 @@
+{
+  "session": "synthetic/v6/wizard-engrave-wand-final",
+  "corpus": "synthetic",
+  "batch": "v6",
+  "caseId": "wizard-engrave-wand-final",
+  "manifestPath": "challenges/manifests/v6.json",
+  "manifestSha256": "7523b91e823f4e3906c9acdc9a3d80f8469c27c2caab8fc8fbd6967dbfdcab5f",
+  "recordingPath": "challenges/cases/v6/wizard-engrave-wand-final.session.json",
+  "recordingSha256": "f779fd8a015a755db71ffd28d84fdd56723bb1d41bed5b105ff040849cfb36da",
+  "evaluationPath": "challenges/evaluations/20260926094126-v6.json",
+  "evaluationCommit": "50bbe620897c8fc2e634d14ec672d33a4e44db7e",
+  "remainingScreens": 8,
+  "recordedSteps": 24,
+  "status": "complete",
+  "commit": "50bbe620897c8fc2e634d14ec672d33a4e44db7e",
+  "mismatch": {
+    "corpus": "synthetic",
+    "batch": "v6",
+    "caseId": "wizard-engrave-wand-final",
+    "session": "synthetic/v6/wizard-engrave-wand-final",
+    "manifestPath": "challenges/manifests/v6.json",
+    "manifestSha256": "7523b91e823f4e3906c9acdc9a3d80f8469c27c2caab8fc8fbd6967dbfdcab5f",
+    "recording": "challenges/cases/v6/wizard-engrave-wand-final.session.json",
+    "recordingPath": "challenges/cases/v6/wizard-engrave-wand-final.session.json",
+    "recordingSha256": "f779fd8a015a755db71ffd28d84fdd56723bb1d41bed5b105ff040849cfb36da",
+    "recipe": "challenges/cases/v6/wizard-engrave-wand-final.recipe.session.json",
+    "recipeSha256": "4420dbec5ff0cfcd41c061cf327fb725d1bcfd1b683210b398b48b8893acf1ad",
+    "replayInputSha256": "9671c8200bb4617314143efc03b8936dba1c08d5025986a5ef6f245a97c322f9",
+    "evaluationPath": "challenges/evaluations/20260926094126-v6.json",
+    "evaluationCommit": "50bbe620897c8fc2e634d14ec672d33a4e44db7e",
+    "evaluationArtifact": "challenges/evaluations/20260926094126-v6.json",
+    "evaluationUtc": "2026-09-26T09:41:43.460Z",
+    "remainingScreens": 8,
+    "recordedSteps": 24,
+    "previousScreensMatched": 16,
+    "regression": false,
+    "passed": false,
+    "error": null,
+    "metrics": {
+      "screens": {
+        "matched": 16,
+        "total": 24
+      },
+      "rng": {
+        "matched": 2684,
+        "total": 2685
+      },
+      "cursors": {
+        "matched": 16,
+        "total": 24
+      }
+    },
+    "firstMismatch": {
+      "kind": "stop",
+      "message": "unsupported hero command: an unported branch of this command: engrave requires bare fingertips",
+      "step": 16
+    },
+    "step": 16,
+    "kind": "stop",
+    "sourceFile": null,
+    "function": null,
+    "message": "unsupported hero command: an unported branch of this command: engrave requires bare fingertips",
+    "cFile": null,
+    "luaFile": null,
+    "line": null
+  },
+  "summary": "The v6 wizard-engrave-wand-final case selects a non-hand engraving stylus at segment 0 step 16. C engrave.c:doengrave() accepts it and reaches WAND_CLASS wand of fire consumes a charge, becomes BURN, and identifies the wand; JS doengrave() refuses all non-hand styluses. Group this case with the other unresolved pick-axe, wand, potion, and marker engraving variants in one whole engrave.c source family, preserving setup, text, occupation, RNG, and object effects.",
+  "source": {
+    "file": "engrave.c",
+    "branch": "A sighted hero chooses This spiked wand is a wand of fire! at the doengrave stylus prompt. WAND_CLASS wand of fire consumes a charge, becomes BURN, and identifies the wand; doengrave then continues to text and occupation if the source arm permits.",
+    "functions": [
+      "doengrave_ctx_init",
+      "doengrave_sfx_item_WAN",
+      "doengrave_sfx_item",
+      "doengrave_ctx_verb",
+      "doengrave",
+      "engrave"
+    ],
+    "callers": [
+      "cmd.c binds E to doengrave(); js/cmd.js engraving command invokes js/engrave.js doengrave().",
+      "doengrave stores stylus, text, and type in engraving context and installs engrave() as the return-valued occupation callback."
+    ],
+    "dependencies": [
+      "Return-valued u_can_engrave, stylus_ok, freehand, can_reach_floor, zappable, getobj, and existing object naming/discovery branches must be verified across selected stylus classes.",
+      "The magic marker and wand variants mutate charge and identification; the pick-axe and potion variants preserve DUST. Occupation callback return controls continuation and needs matching recorded play."
+    ]
+  },
+  "goalKind": "file-port",
+  "evidence": [
+    "Saved challenges/evaluations/20260926094126-v6.json at 50bbe620897c8fc2e634d14ec672d33a4e44db7e reports 8 remaining screen(s), first stop at segment 0 step 16: engrave requires bare fingertips.",
+    "Independent C challenges/cases/v6/wizard-engrave-wand-final.session.json at that step displays “This spiked wand is a wand of fire!” as the accepted stylus or its identification message.",
+    "Upstream nethack-c/upstream/src/engrave.c:583-814 doengrave_sfx_item_WAN and doengrave_sfx_item; doengrave() at engrave.c:956-1264 calls the effect helper, prompts for text, and schedules engrave() at 1248-1254.",
+    "Current js/engrave.js:doengrave throws UnsupportedEngraveError for selected !== handsObject, before WAND_CLASS wand of fire consumes a charge, becomes BURN, and identifies the wand. Preserve matching hand engraving while replacing the refusal with complete source behavior."
+  ]
+}

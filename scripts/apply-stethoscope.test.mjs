@@ -724,19 +724,18 @@ test('doapply refuses every class and arm this slice does not port',
     // stopping. Her lock pick, slot `e`, is tested in
     // scripts/apply-lock-pick.test.mjs.
 
-    // C's default redirects a Knight's slot-b lance to use_pole(), which
-    // remains unported. The pick/axe default now enters use_pick_axe() and is
-    // covered by the dig.c command replay.
-    for (const [role, letter, otyp] of [['Knight', 'b', LANCE]]) {
-        const weaponSegment = loadApplyPromptRecipe().segments.find(
-            ({ nethackrc }) => nethackrc.includes(`role:${role}`),
-        );
-        assert.ok(weaponSegment, `the matrix carries a ${role} segment`);
-        const boundary = await boundaryFor(weaponSegment, `.a${letter}`);
-        assert.match(boundary?.message ?? '',
-            new RegExp(`doapply\\(\\)'s arm for object type ${otyp}`, 'u'),
-            role);
-    }
+    // apply.c's default sends a Knight's slot-b lance to use_pole(). The
+    // separate Knight recipe in apply-pole-whip.test.mjs reaches its target
+    // prompt and completes the selected square; this prefix ensures the
+    // command boundary no longer refuses that arm.
+    const knightSegment = loadApplyPromptRecipe().segments.find(
+        ({ nethackrc }) => nethackrc.includes('role:Knight'),
+    );
+    assert.ok(knightSegment, 'the matrix carries a Knight segment');
+    assert.equal(await boundaryFor(knightSegment, '.ab'), null);
+
+    // The pick/axe default enters use_pick_axe() and is covered by the dig.c
+    // command replay.
 
     // The one direction arm still above the port's reach: '>' names the floor,
     // which apply.c:363 answers before confdir() ever runs. 'j', the adjacent

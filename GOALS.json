@@ -79382,7 +79382,7 @@
     {
       "id": "port-dothrow-fireassist-samurai-synthetic-v5-20260926",
       "kind": "file-port",
-      "status": "queued",
+      "status": "open",
       "summary": "Port complete fire command ammo selection, launcher retry, and quiver setup",
       "cFile": "dothrow.c",
       "sessions": [
@@ -79390,8 +79390,12 @@
       ],
       "selectionReason": "Seed continuation: synthetic/v5/samurai-pet-ration-eating ranks first with 48 unmatched screens and step-28 fire stop in .cache/B12-work-queue.json. The refreshed complete investigation investigations/synthetic/v5/samurai-pet-ration-eating.json traces C dothrow.c:dofire as the caller that queues dowield; the queue annotation names that missing callee, but the whole fire command owns the source branch. B owns the separate Healer zap.c path and C prepares v7.",
       "detail": "At segment 0 step 28, C dothrow.c dofire selects Samurai ammo, find_launcher returns yumi, and the command queues doswapweapon/dowield/invlet/dofire in source order. JS dofire refuses the dowield queue. Port autoquiver, find_launcher, and dofire in C definition order. Verify existing doquiver_core and throw_obj return contracts; include complete return-valued apply.c use_whip and use_pole callees and active doapply callers in the same task, plus any further consumed return dependencies. Preserve the selected matching wish prefix and independent C entry recordings; see the refreshed investigation.",
-      "openedAt": null,
-      "openStanding": null,
+      "openedAt": "34d6dfc4f3435c57cc42d8ac7efe13bbe70031e7",
+      "openStanding": {
+        "sha": "8f72bd4d234c80cda41bc806e647a3594b1d82a9",
+        "screens": 11405,
+        "rng": 792838
+      },
       "closedAt": null,
       "delivered": null,
       "functions": [
@@ -79431,24 +79435,186 @@
           "manifestSha256": "5e4430fbd724fe91720f898c02e6f25f9d98e884fa31bd696ca1a63e87abf150",
           "recordingPath": "challenges/cases/v5/samurai-pet-ration-eating.session.json",
           "recordingSha256": "719edf6f87e6d47c9c59b0cbfd8a418269fb55e34f5dfbc93500b61dd472954c",
-          "evaluationPath": "challenges/evaluations/20260926094126-v5.json",
-          "evaluationCommit": "50bbe620897c8fc2e634d14ec672d33a4e44db7e"
+          "evaluationPath": "challenges/evaluations/20260926113516-v5.json",
+          "evaluationCommit": "8f72bd4d234c80cda41bc806e647a3594b1d82a9"
         }
-      }
+      },
+      "activeStanding": {
+        "sha": "8f72bd4d234c80cda41bc806e647a3594b1d82a9",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v5",
+          "caseId": "samurai-pet-ration-eating",
+          "session": "synthetic/v5/samurai-pet-ration-eating",
+          "manifestPath": "challenges/manifests/v5.json",
+          "manifestSha256": "5e4430fbd724fe91720f898c02e6f25f9d98e884fa31bd696ca1a63e87abf150",
+          "recording": "challenges/cases/v5/samurai-pet-ration-eating.session.json",
+          "recordingPath": "challenges/cases/v5/samurai-pet-ration-eating.session.json",
+          "recordingSha256": "719edf6f87e6d47c9c59b0cbfd8a418269fb55e34f5dfbc93500b61dd472954c",
+          "recipe": "challenges/cases/v5/samurai-pet-ration-eating.recipe.session.json",
+          "recipeSha256": "802b9c54f79a2a88166e3c87c3ea9f3debc686f204ae92537b5deaba48d3b431",
+          "replayInputSha256": "450244a793193987d9e9c2e706ebc251a4fdb9f7ac73fed626e806f7b14e9de8",
+          "evaluationPath": "challenges/evaluations/20260926113516-v5.json",
+          "evaluationCommit": "8f72bd4d234c80cda41bc806e647a3594b1d82a9",
+          "evaluationArtifact": "challenges/evaluations/20260926113516-v5.json",
+          "evaluationUtc": "2026-09-26T11:35:30.970Z",
+          "remainingScreens": 48,
+          "recordedSteps": 76,
+          "previousScreensMatched": 28,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 28,
+              "total": 76
+            },
+            "rng": {
+              "matched": 2703,
+              "total": 2926
+            },
+            "cursors": {
+              "matched": 28,
+              "total": 76
+            }
+          },
+          "firstMismatch": {
+            "kind": "stop",
+            "message": "unsupported hero command: an unported branch of this command: dothrow.c reached dowield()",
+            "step": 28
+          },
+          "step": 28,
+          "kind": "stop",
+          "sourceFile": "wield.c",
+          "function": "dowield",
+          "message": "unsupported hero command: an unported branch of this command: dothrow.c reached dowield()",
+          "cFile": "wield.c",
+          "luaFile": null,
+          "line": null,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v5/samurai-pet-ration-eating.json",
+            "result": {
+              "session": "synthetic/v5/samurai-pet-ration-eating",
+              "corpus": "synthetic",
+              "batch": "v5",
+              "caseId": "samurai-pet-ration-eating",
+              "manifestPath": "challenges/manifests/v5.json",
+              "manifestSha256": "5e4430fbd724fe91720f898c02e6f25f9d98e884fa31bd696ca1a63e87abf150",
+              "recordingPath": "challenges/cases/v5/samurai-pet-ration-eating.session.json",
+              "recordingSha256": "719edf6f87e6d47c9c59b0cbfd8a418269fb55e34f5dfbc93500b61dd472954c",
+              "evaluationPath": "challenges/evaluations/20260926094126-v5.json",
+              "evaluationCommit": "50bbe620897c8fc2e634d14ec672d33a4e44db7e",
+              "remainingScreens": 48,
+              "recordedSteps": 76,
+              "status": "complete",
+              "commit": "50bbe620897c8fc2e634d14ec672d33a4e44db7e",
+              "mismatch": {
+                "corpus": "synthetic",
+                "batch": "v5",
+                "caseId": "samurai-pet-ration-eating",
+                "session": "synthetic/v5/samurai-pet-ration-eating",
+                "manifestPath": "challenges/manifests/v5.json",
+                "manifestSha256": "5e4430fbd724fe91720f898c02e6f25f9d98e884fa31bd696ca1a63e87abf150",
+                "recording": "challenges/cases/v5/samurai-pet-ration-eating.session.json",
+                "recordingPath": "challenges/cases/v5/samurai-pet-ration-eating.session.json",
+                "recordingSha256": "719edf6f87e6d47c9c59b0cbfd8a418269fb55e34f5dfbc93500b61dd472954c",
+                "recipe": "challenges/cases/v5/samurai-pet-ration-eating.recipe.session.json",
+                "recipeSha256": "802b9c54f79a2a88166e3c87c3ea9f3debc686f204ae92537b5deaba48d3b431",
+                "replayInputSha256": "2bd21963cc9fcefed1046fb792ae304cc715fbe5dc32b52d679951cc718f7b18",
+                "evaluationPath": "challenges/evaluations/20260926094126-v5.json",
+                "evaluationCommit": "50bbe620897c8fc2e634d14ec672d33a4e44db7e",
+                "evaluationArtifact": "challenges/evaluations/20260926094126-v5.json",
+                "evaluationUtc": "2026-09-26T09:41:40.582Z",
+                "remainingScreens": 48,
+                "recordedSteps": 76,
+                "previousScreensMatched": 28,
+                "regression": false,
+                "passed": false,
+                "error": null,
+                "metrics": {
+                  "screens": {
+                    "matched": 28,
+                    "total": 76
+                  },
+                  "rng": {
+                    "matched": 2703,
+                    "total": 2926
+                  },
+                  "cursors": {
+                    "matched": 28,
+                    "total": 76
+                  }
+                },
+                "firstMismatch": {
+                  "kind": "stop",
+                  "message": "unsupported hero command: an unported branch of this command: dothrow.c reached dowield()",
+                  "step": 28
+                },
+                "step": 28,
+                "kind": "stop",
+                "sourceFile": "wield.c",
+                "function": "dowield",
+                "message": "unsupported hero command: an unported branch of this command: dothrow.c reached dowield()",
+                "cFile": "wield.c",
+                "luaFile": null,
+                "line": null
+              },
+              "summary": "After the matching wizard-wish retry, the Samurai reaches fire at step 28. C dothrow.c:dofire() selects ammo, finds the yumi launcher, queues the source-ordered swap/wield/inventory-key/fire retry, and returns without taking a turn. JS dofire() refuses the queued dowield() branch before throwing any projectile. Port the complete autoquiver/find_launcher/dofire family and required return-valued apply.c use_pole/use_whip dependencies; the later recorded Hachi feeding event remains downstream.",
+              "source": {
+                "file": "dothrow.c",
+                "functions": [
+                  "autoquiver",
+                  "find_launcher",
+                  "dofire"
+                ],
+                "branch": "At segment 0 step 28, a Samurai with unlaunched quivered ammunition invokes f. fireassist finds a yumi in inventory while neither wielded weapon matches the ammo. C queues doswapweapon when needed, dowield, the yumi inventory letter, then dofire, returning ECMD_OK without advancing time; JS throws at its unported dowield queue path.",
+                "callers": [
+                  "cmd.c:1724-1725 maps f to dofire(); js/cmd.js fire dispatch calls js/dothrow.js:dofire().",
+                  "dothrow.c:dofire() calls autoquiver() when quiver is empty and the option is on, consumes find_launcher() for launcher selection, and consumes doquiver_core() and throw_obj() results on other active branches.",
+                  "dothrow.c:dofire() directly returns apply.c:use_pole() and use_whip() results on reachable polearm and bullwhip arms; both require implementation in the same task and production doapply wiring."
+                ],
+                "dependencies": [
+                  "apply.c:use_pole() and use_whip() are active return-valued callees absent in JS; port their whole source bodies and their doapply callers, expanding for any further consumed returns.",
+                  "dothrow.c:autoquiver() mutates the quiver when selected; port its whole inventory priority order and setuqwep effect.",
+                  "wield.c:doquiver_core() and dothrow.c:throw_obj() already have JS implementations; verify the reached contracts and source order before reuse.",
+                  "The later C pet catch/eat at step 73 is beyond this first stop; preserve that target as a later source task rather than treating it as dofire evidence."
+                ]
+              },
+              "goalKind": "file-port",
+              "evidence": [
+                "Current saved v5 evaluation challenges/evaluations/20260926094126-v5.json at 50bbe620897c8fc2e634d14ec672d33a4e44db7e reports 28/76 matched screens, 2703/2926 RNG, and first stop at segment 0 step 28. The manifest and recording digests are pinned in this record.",
+                "An independent replay of the immutable v5 recipe after A9 matches the wish and inventory prefix, then stops at fire: C has 76 boundaries and 2926 RNG calls; JS emits 28 boundaries and 2703 RNG calls. The first missing C screen is boundary 29 on f; the next missing RNG comes from mon.c:mcalcmove after that input.",
+                "C cmd.c:1724-1725 dispatches fire to dothrow.c:dofire() at 469-582. In the selected state, dothrow.c:find_launcher() returns the yumi and dofire() queues doswapweapon as needed, dowield, the launcher invlet, and dofire. js/dothrow.js:dofire() throws UnsupportedThrowError for dowield at approximately line 1149 instead of following that queue.",
+                "C dothrow.c:381-466 defines autoquiver() and find_launcher() immediately before dofire(); the former changes quiver state and the latter returns a launcher. C dofire() also returns the results of apply.c:use_pole() and use_whip() on active branches; these unported return-valued dependencies prevent a narrow branch-only completion.",
+                "Earlier readobjnam/makewish diagnosis is superseded by A9 at dcc9c2c2b5761efb0d5649a38edad28a03115464; the C recording’s pet catch and eat at step 73 remains an intended downstream event, not the current first owner."
+              ]
+            }
+          }
+        }
+      ]
     },
     {
       "id": "port-zap-resist-lethal-synthetic-v5-20260926",
       "kind": "file-port",
-      "status": "queued",
+      "status": "parked",
       "summary": "Port complete zap.c resist lethal monster damage and death dispatch",
       "cFile": "zap.c",
       "sessions": [
         "synthetic/v5/healer-wand-striking-grid-bug"
       ],
-      "selectionReason": "Continue B12 Healer wand-striking seed at 8 remaining screens and step 40; Samurai fire is owned by A10, and seed continuation takes precedence over the unassigned v6 engraving group. The refreshed investigation at investigations/synthetic/v5/healer-wand-striking-grid-bug.json traces the independent zap.c resist death path from saved v5 evaluation.",
+      "selectionReason": "Admitted v5 healer wand striking stops at zap.c resist lethal damage; source-traced hero branch and monster-item caller are the selected unit.",
       "detail": "At segment 0 step 40, C zap.c resist calculates wand resistance, deducts lethal damage from a tame kitten, and calls killed because gm.m_using is false. JS mirrors the calculation then refuses before death dispatch. Port whole resist, preserve boolean return and RNG, exercise existing mon.c death owner, and add any consumed return dependencies if discovered. See the refreshed investigation.",
-      "openedAt": null,
-      "openStanding": null,
+      "openedAt": "505d961857564319fd3c151bd87cf93145a4b7f1",
+      "openStanding": {
+        "sha": "b055ce41370d97dedc1249f8673cef82545b31a5",
+        "screens": 11405,
+        "rng": 792838
+      },
       "closedAt": null,
       "delivered": null,
       "functions": [
@@ -79457,7 +79623,7 @@
           "line": 6100,
           "endLine": 6164,
           "declared": true,
-          "complete": false
+          "complete": true
         }
       ],
       "range": {
@@ -79477,7 +79643,246 @@
           "evaluationPath": "challenges/evaluations/20260926094126-v5.json",
           "evaluationCommit": "50bbe620897c8fc2e634d14ec672d33a4e44db7e"
         }
-      }
+      },
+      "activeStanding": {
+        "sha": "b055ce41370d97dedc1249f8673cef82545b31a5",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v5",
+          "caseId": "healer-wand-striking-grid-bug",
+          "session": "synthetic/v5/healer-wand-striking-grid-bug",
+          "manifestPath": "challenges/manifests/v5.json",
+          "manifestSha256": "5e4430fbd724fe91720f898c02e6f25f9d98e884fa31bd696ca1a63e87abf150",
+          "recording": "challenges/cases/v5/healer-wand-striking-grid-bug.session.json",
+          "recordingPath": "challenges/cases/v5/healer-wand-striking-grid-bug.session.json",
+          "recordingSha256": "97d372dd3a84252d6970271b4d335959cbf6d24c41318fa0b578c7a79446ec32",
+          "recipe": "challenges/cases/v5/healer-wand-striking-grid-bug.recipe.session.json",
+          "recipeSha256": "3a7de6608aa0b6a7b0b18d69aad15580d049445bd3ddc59b353966006f65a39d",
+          "replayInputSha256": "2bd21963cc9fcefed1046fb792ae304cc715fbe5dc32b52d679951cc718f7b18",
+          "evaluationPath": "challenges/evaluations/20260926094126-v5.json",
+          "evaluationCommit": "50bbe620897c8fc2e634d14ec672d33a4e44db7e",
+          "evaluationArtifact": "challenges/evaluations/20260926094126-v5.json",
+          "evaluationUtc": "2026-09-26T09:41:40.582Z",
+          "remainingScreens": 8,
+          "recordedSteps": 48,
+          "previousScreensMatched": 0,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 40,
+              "total": 48
+            },
+            "rng": {
+              "matched": 2681,
+              "total": 2743
+            },
+            "cursors": {
+              "matched": 40,
+              "total": 48
+            }
+          },
+          "firstMismatch": {
+            "kind": "stop",
+            "message": "unsupported hero command: an unported branch of this command: zapping a wand requires resist() killing a monster via damage (m_using / killed path)",
+            "step": 40
+          },
+          "step": 40,
+          "kind": "stop",
+          "sourceFile": "zap.c",
+          "function": "resist",
+          "message": "unsupported hero command: an unported branch of this command: zapping a wand requires resist() killing a monster via damage (m_using / killed path)",
+          "cFile": "zap.c",
+          "luaFile": null,
+          "line": null,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v5/healer-wand-striking-grid-bug.json",
+            "result": {
+              "session": "synthetic/v5/healer-wand-striking-grid-bug",
+              "corpus": "synthetic",
+              "batch": "v5",
+              "caseId": "healer-wand-striking-grid-bug",
+              "manifestPath": "challenges/manifests/v5.json",
+              "manifestSha256": "5e4430fbd724fe91720f898c02e6f25f9d98e884fa31bd696ca1a63e87abf150",
+              "recordingPath": "challenges/cases/v5/healer-wand-striking-grid-bug.session.json",
+              "recordingSha256": "97d372dd3a84252d6970271b4d335959cbf6d24c41318fa0b578c7a79446ec32",
+              "evaluationPath": "challenges/evaluations/20260926094126-v5.json",
+              "evaluationCommit": "50bbe620897c8fc2e634d14ec672d33a4e44db7e",
+              "remainingScreens": 8,
+              "recordedSteps": 48,
+              "status": "complete",
+              "commit": "50bbe620897c8fc2e634d14ec672d33a4e44db7e",
+              "mismatch": {
+                "corpus": "synthetic",
+                "batch": "v5",
+                "caseId": "healer-wand-striking-grid-bug",
+                "session": "synthetic/v5/healer-wand-striking-grid-bug",
+                "manifestPath": "challenges/manifests/v5.json",
+                "manifestSha256": "5e4430fbd724fe91720f898c02e6f25f9d98e884fa31bd696ca1a63e87abf150",
+                "recording": "challenges/cases/v5/healer-wand-striking-grid-bug.session.json",
+                "recordingPath": "challenges/cases/v5/healer-wand-striking-grid-bug.session.json",
+                "recordingSha256": "97d372dd3a84252d6970271b4d335959cbf6d24c41318fa0b578c7a79446ec32",
+                "recipe": "challenges/cases/v5/healer-wand-striking-grid-bug.recipe.session.json",
+                "recipeSha256": "3a7de6608aa0b6a7b0b18d69aad15580d049445bd3ddc59b353966006f65a39d",
+                "replayInputSha256": "2bd21963cc9fcefed1046fb792ae304cc715fbe5dc32b52d679951cc718f7b18",
+                "evaluationPath": "challenges/evaluations/20260926094126-v5.json",
+                "evaluationCommit": "50bbe620897c8fc2e634d14ec672d33a4e44db7e",
+                "evaluationArtifact": "challenges/evaluations/20260926094126-v5.json",
+                "evaluationUtc": "2026-09-26T09:41:40.582Z",
+                "remainingScreens": 8,
+                "recordedSteps": 48,
+                "previousScreensMatched": 0,
+                "regression": false,
+                "passed": false,
+                "error": null,
+                "metrics": {
+                  "screens": {
+                    "matched": 40,
+                    "total": 48
+                  },
+                  "rng": {
+                    "matched": 2681,
+                    "total": 2743
+                  },
+                  "cursors": {
+                    "matched": 40,
+                    "total": 48
+                  }
+                },
+                "firstMismatch": {
+                  "kind": "stop",
+                  "message": "unsupported hero command: an unported branch of this command: zapping a wand requires resist() killing a monster via damage (m_using / killed path)",
+                  "step": 40
+                },
+                "step": 40,
+                "kind": "stop",
+                "sourceFile": "zap.c",
+                "function": "resist",
+                "message": "unsupported hero command: an unported branch of this command: zapping a wand requires resist() killing a monster via damage (m_using / killed path)",
+                "cFile": "zap.c",
+                "luaFile": null,
+                "line": null
+              },
+              "summary": "The v5 Healer wand-striking ray reaches zap.c:resist() at segment 0 step 40 after the bhitm hit-message fix. JS calculates resistance and lethal damage, then refuses before C calls killed() for the hero zap. Port the whole resist() function and exercise the tame kitten death path through its existing mon.c owner; preserve RNG, HP, resistance return, and death side effects.",
+              "source": {
+                "file": "zap.c",
+                "branch": "WAN_STRIKING bhitm calls resist(mtmp, WAND_CLASS, dmg, TELL); damage drops a tame kitten to zero HP while gm.m_using is false, so resist calls killed(mtmp), then returns its resisted boolean.",
+                "functions": [
+                  "resist"
+                ],
+                "callers": [
+                  "cmd.c z -> zap.c dozap -> weffects -> bhit -> bhitm; bhitm discards the resist return on this attack path.",
+                  "Other zap.c callers consume resist() return; preserve its boolean and the already wired JS call contracts."
+                ],
+                "dependencies": [
+                  "mon.c shieldeff_mon, killed, and monkilled are void callees; existing JS owners are partial. Exercise killed -> xkilled -> mondead/mondied for the tame kitten and reserve any source function whose incomplete branch blocks the witness.",
+                  "mondata.c is_mplayer is a pure boolean dependency; muse.c gm.m_using governs killed versus monkilled, and the hero zap has it false."
+                ]
+              },
+              "goalKind": "file-port",
+              "evidence": [
+                "Saved challenges/evaluations/20260926094126-v5.json at 50bbe620897c8fc2e634d14ec672d33a4e44db7e reports 40/48 screens and 2681/2743 RNG, with first refusal at segment 0 step 40: resist() killing a monster via damage.",
+                "Upstream nethack-c/upstream/src/zap.c:6100-6157 resist() computes attack/defense levels and rn2 resistance, halves resisted damage, subtracts HP, then calls monkilled for gm.m_using or killed otherwise; the return is resisted.",
+                "Current js/zap.js:resist mirrors level clamps and resistance RNG, then throws UnsupportedZapError when mhp < 1 before invoking the source death handler. This is missing behavior, not a change to the resistance roll.",
+                "The independent B12 nonlethal C recording matched 48/48 screens/cursors and 2968/2968 RNG through resist calculation; the admitted Healer case witnesses the lethal tail. Verify its tame and peaceful side effects and any corpse or experience changes through strict replay."
+              ]
+            }
+          }
+        }
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "resist",
+            "implementation": "js/zap.js",
+            "symbol": "resist",
+            "sourceReview": "Read and compared the complete zap.c resist() definition at lines 6100-6158. The fake-player Conflict early return precedes all draws; attack level follows the exact class switch; defense level is capped at 50 or floored to the player level only for a monster player and otherwise to 1; then one rn2(100 + alev - dlev) comparison decides resistance. A resisted hit calls shieldeff_mon only when tell is true and rounds positive damage upward with (damage + 1) / 2. Damage is then subtracted, and lethal damage dispatches to monkilled(mtmp, \"\", AD_RBRE) only while gm.m_using is true, otherwise killed(mtmp); both calls discard their void result. The JS port preserves this order, uses the caller's RNG/environment bundle for death side effects, removes the former UnsupportedZapError refusal, and returns the resistance result. Existing killed/monkilled owners are invoked; no return-valued callee is substituted or skipped.",
+            "callers": [
+              {
+                "path": "js/zap.js",
+                "symbol": "bhitm",
+                "source": "zap.c:160-212; successful hero wand/Force Bolt hit calls resist(mtmp, otmp->oclass, dmg, TELL) and discards the result."
+              },
+              {
+                "path": "js/zap.js",
+                "symbol": "zhitm",
+                "source": "zap.c:4238-4391; monster ray effects use resist() for their source resistance branches, including the final wand/spell damage save."
+              },
+              {
+                "path": "js/zap.js",
+                "symbol": "cancel_monst",
+                "source": "zap.c:3150-3160; cancellation tests monster resistance and consumes its boolean result."
+              },
+              {
+                "path": "js/muse.js",
+                "symbol": "mbhitm",
+                "source": "muse.c:1597-1704; monster wand striking calls resist() at 1640 and undead turning calls it at 1684, discarding the return. The JS caller now passes its complete RNG/environment bundle; this task does not claim whole mbhitm source completion."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/zap-resist.test.mjs",
+              "scripts/muse-bhitm-resist.test.mjs"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v5",
+                "caseId": "healer-wand-striking-grid-bug",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 40,
+                "source": "zap.c:bhitm, reached from the hero wand command through the ray callback after a successful striking hit; the range includes lethal resist() damage to the tame kitten."
+              }
+            ],
+            "checkedAt": "8f72bd4d234c80cda41bc806e647a3594b1d82a9"
+          }
+        ],
+        "entryPointReview": "The hero's wand-strike entry through zap.c:bhitm is matched by the admitted v5 prefix through segment 0 step 40; this range includes lethal resist() damage to the tame kitten. The earlier independent recipe named resist-tame-kitten-independent was removed because its 31-step recording ends with the wand missing the little dog and contains no resist(zap.c) RNG call. The newly wired monster-item route is use_offensive() -> muse.c:mbhitm -> resist(), with gm.m_using=true. scripts/muse-bhitm-resist.test.mjs verifies the JS production caller and lethal monkilled side effects, but no fully matching C/JS recording is available. The blocked recipe recipes/zap.c/resist-monster-wand-blocked.session.json reaches resist() in C (the diagnostic C recording is retained only under .cache). Its strict differential (run-TezEEs, exit 1) first diverges at segment 1 step 61/key y. read.c:create_particular_creation() correctly accepts y and keeps PM_SHOPKEEPER. C then follows makemon.c:makemon's by-hero enexto_core() placement path (lines 1179-1183), whose first missing call is rn2(8)=6 @ collect_coords(teleport.c:700); the screen says ‘A shopkeeper appears close by.’ and cursor is [33,6,1]. JavaScript emits no matching boundary: js/makemon_create.js:preflightCreation() marks createParticularCall as a runtime call, but assertSupportedSpecies() rejects PM_SHOPKEEPER, and its shopkeeperCall exception only admits mklev/MM_ESHK and revival shapes. Totals at the stop are C 3446 RNG calls/95 boundaries and JS 2856/60. This is a makemon.c:makemon creation/admission blocker, not a read.c prompt blocker. A second ordinary-monster cohort had source-driven wand initialization but no use_offensive()/mbhitm()/resist() call. This is an evidence blocker, not an inactive production caller; do not close the source goal until a matching replay covers the monster-item entry. The other existing resist callers remain source-wired through zap.c:zhitm and zap.c:cancel_monst; this task does not claim their whole source functions.",
+        "entryPoints": [
+          {
+            "name": "Hero wand strike causing lethal monster damage",
+            "functions": [
+              "resist"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v5",
+                "caseId": "healer-wand-striking-grid-bug",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 40,
+                "source": "zap.c:bhitm, through the successful wand-strike callback and lethal resist() damage."
+              }
+            ]
+          },
+          {
+            "name": "Monster offensive wand striking a monster",
+            "functions": [
+              "resist"
+            ],
+            "recordings": [],
+            "synthetic": []
+          }
+        ]
+      },
+      "progressBeforePark": {
+        "screens": 0,
+        "rng": 0
+      },
+      "parkedStanding": {
+        "sha": "8f72bd4d234c80cda41bc806e647a3594b1d82a9",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "parkedReason": "Hero lethal zap.c resist is source-verified by admitted v5 Healer segment 0 through step 40 and passes combined validation. Monster offensive-wand entry muse.c:mbhitm -> zap.c:resist remains without a fully matching C/JS recording. The independent C recipe reaches resist, but JS first refuses forced PM_SHOPKEEPER creation at makemon.c:makemon preflight after read.c accepts y. Resume after a source-traced makemon.c creation fix makes that recipe match through the monster wand strike; then verify all active entry points and close."
     }
   ]
 }
