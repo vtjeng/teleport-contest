@@ -327,7 +327,8 @@ function verifyPublicationChanges(root, tested, published) {
         } else {
             check(!git(root, 'ls-tree', '-z', tested, '--', path), `challenge evaluations are immutable: ${path}`);
             validateEvaluation(report);
-            check(report.sha === tested, `challenge evaluation must identify the tested integration: ${path}`);
+            check(isAncestor(root, report.sha, tested),
+                `challenge evaluation must identify tested history: ${path}`);
             const batch = report.batch ?? 'v1';
             check(/^v[1-9][0-9]*$/u.test(batch), `invalid challenge batch: ${path}`);
             const manifestPath = batch === 'v1' ? 'challenges/manifest.json' : `challenges/manifests/${batch}.json`;
@@ -336,6 +337,12 @@ function verifyPublicationChanges(root, tested, published) {
             const manifest = json(root, tested, manifestPath);
             check(corpusDigest(manifest.cases) === report.manifestSha256,
                 `challenge evaluation membership differs from the tested manifest: ${path}`);
+            const inputs = ['js', 'frozen', 'package.json', 'package-lock.json',
+                'scripts/challenge-results.mjs', 'scripts/score-challenges.mjs',
+                'scripts/scoring-workspace.mjs', manifestPath,
+                ...manifest.cases.flatMap(entry => [entry.recipe, entry.recording])];
+            check(!git(root, 'diff', '--name-only', '--no-renames', report.sha, tested, '--', ...inputs),
+                `challenge evaluation inputs changed after measurement: ${path}`);
         }
     }
 }
@@ -369,7 +376,16 @@ export function verifyEvent(root, state, input) {
     }
     if (event.type === 'published') {
         check(delivery && isAncestor(root, delivery.integration, event.commit), 'published commit must contain accepted integration');
-        verifyPublicationChanges(root, delivery.integration, event.commit);
+        let tested = delivery.integration;
+        if (event.supplementalCheckpoint) {
+            const summary = JSON.parse(readFileSync(event.supplementalCheckpoint, 'utf8'));
+            check(summary.allPassed === true && summary.commit === summary.executionCommit,
+                'supplemental checkpoint must pass at its own commit');
+            check(isAncestor(root, tested, summary.commit) && isAncestor(root, summary.commit, event.commit),
+                'supplemental checkpoint must be between accepted integration and publication');
+            tested = summary.commit;
+        }
+        verifyPublicationChanges(root, tested, event.commit);
         check(resolveCommit(root, 'refs/heads/main') === event.commit, 'local main differs; run sync-main first');
         const remote = git(root, 'ls-remote', '--exit-code', 'origin', 'refs/heads/main').split(/\s/u)[0];
         check(remote === event.commit, 'remote main does not match; publish successfully before recording publication');

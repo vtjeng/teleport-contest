@@ -47,6 +47,7 @@ by this command, not the caller. Required fields by type:
   validated: task, passed (boolean), checkpoint (absolute summary file)
   accepted: task
   published: task, commit (published SHA, possibly a bookkeeping descendant)
+             optional supplementalCheckpoint (passing summary for a validated descendant)
   park: task, reason
   resume: task
 
@@ -124,7 +125,7 @@ const FIELDS = {
     validated: ['task', 'passed', 'checkpoint'],
     accepted: ['task'], published: ['task', 'commit'], park: ['task', 'reason'], resume: ['task'],
 };
-const OPTIONAL_FIELDS = { assign: ['kind', 'goal', 'span'] };
+const OPTIONAL_FIELDS = { assign: ['kind', 'goal', 'span'], published: ['supplementalCheckpoint'] };
 
 function check(condition, message) {
     if (!condition) throw new Error(message);
@@ -367,8 +368,10 @@ function applyEvent(state, event, at) {
         task.status = 'accepted';
     } else if (type === 'published') {
         requireStatus('accepted'); sha(event.commit, 'commit');
+        if (event.supplementalCheckpoint !== undefined) absolute(event.supplementalCheckpoint, 'supplementalCheckpoint');
         check(!delivery.publishedAt, 'delivery already published');
-        Object.assign(delivery, { publishedAt: at, publishedCommit: event.commit });
+        Object.assign(delivery, { publishedAt: at, publishedCommit: event.commit,
+            ...(event.supplementalCheckpoint ? { supplementalCheckpoint: event.supplementalCheckpoint } : {}) });
     } else if (type === 'park') {
         requireStatus('working', 'ready', 'validated', 'changes-required');
         string(event.reason, 'reason');

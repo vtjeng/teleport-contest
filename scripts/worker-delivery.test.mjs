@@ -529,6 +529,38 @@ test('publication accepts checked reports without changing the tested receipt or
     assert.notEqual(executionTree(f.root, f.tested), executionTree(f.root, 'HEAD'));
 });
 
+test('publication accepts a later passing checkpoint for changed inputs', t => {
+    const f = reportPublication(t);
+    f.save('scripts/sample.test.mjs', 'export const checked = true;\n');
+    f.git(f.root, 'commit', '-qm', 'validated tooling fixture');
+    const later = f.git(f.root, 'rev-parse', 'HEAD');
+    const supplementalCheckpoint = join(f.parent, 'later-pass.json');
+    writeFileSync(supplementalCheckpoint, JSON.stringify({ commit: later, executionCommit: later, allPassed: true }));
+    f.save('challenges/evaluations/after-checkpoint.json', f.evaluation);
+    f.save('SCORE.tsv', 'fixture closure bookkeeping\n');
+    f.git(f.root, 'commit', '-qm', 'post-checkpoint fixture');
+    const commit = f.git(f.root, 'rev-parse', 'HEAD');
+    f.git(f.root, 'push', '-q', 'origin', 'main');
+    assert.throws(() => f.event({ type: 'published', task: 'A-1', commit }), /unvalidated changes/i);
+    const state = f.event({ type: 'published', task: 'A-1', commit, supplementalCheckpoint });
+    assert.equal(state.deliveries[f.delivered].supplementalCheckpoint, supplementalCheckpoint);
+});
+
+test('publication rejects an earlier challenge result after game inputs change', t => {
+    const f = reportPublication(t);
+    f.save('js/sample.js', 'export const changed = true;\n');
+    f.git(f.root, 'commit', '-qm', 'new game input fixture');
+    const later = f.git(f.root, 'rev-parse', 'HEAD');
+    const supplementalCheckpoint = join(f.parent, 'later-pass.json');
+    writeFileSync(supplementalCheckpoint, JSON.stringify({ commit: later, executionCommit: later, allPassed: true }));
+    f.save('challenges/evaluations/after-checkpoint.json', f.evaluation);
+    f.git(f.root, 'commit', '-qm', 'post-checkpoint fixture');
+    const commit = f.git(f.root, 'rev-parse', 'HEAD');
+    f.git(f.root, 'push', '-q', 'origin', 'main');
+    assert.throws(() => f.event({ type: 'published', task: 'A-1', commit, supplementalCheckpoint }),
+        /challenge evaluation inputs changed/i);
+});
+
 test('publication permits refreshing an existing investigation while preserving old evaluations', (t) => {
     const f = reportPublication(t, true);
     f.save('investigations/fixed.json', { ...f.investigation, summary: 'Source probe now identifies the next branch.' });
@@ -606,7 +638,7 @@ test('publication rejects unsafe report changes and every other post-checkpoint 
             const child = f.git(f.root, 'commit-tree', `${f.tested}^{tree}`, '-p', f.tested, '-m', 'unaccepted source');
             f.save('investigations/fixed.json', { ...f.investigation, commit: child });
         }, /tested history/i],
-        ['wrong measured commit', f => f.save('challenges/evaluations/new.json', { ...f.evaluation, sha: f.base }), /tested|integration/i],
+        ['wrong measured commit', f => f.save('challenges/evaluations/new.json', { ...f.evaluation, sha: f.base }), /tested|integration|inputs changed/i],
         ['invalid totals', f => f.save('challenges/evaluations/new.json', { ...f.evaluation, totals: {} }), /totals/i],
         ['different challenge membership', f => f.save('challenges/evaluations/new.json', {
             ...f.evaluation, cases: [], manifestSha256: corpusDigest([]), totals: {
