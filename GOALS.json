@@ -74361,13 +74361,14 @@
     {
       "id": "port-zap-weffects-force-bolt-synthetic-v2-20260926",
       "kind": "file-port",
-      "status": "parked",
+      "status": "open",
       "summary": "Port complete zap.c weffects and source-ordered Force Bolt ray behavior",
       "cFile": "zap.c",
       "sessions": [
+        "synthetic/v5/healer-wand-striking-grid-bug",
         "synthetic/v2/wizard-spell-memory"
       ],
-      "selectionReason": "The higher-ranked v4 nymph theft is assigned to C9; the next complete unreserved investigation is v2 wizard spell memory with 14 unmatched screens at the Force Bolt weffects branch.",
+      "selectionReason": "Resume the parked whole zap.c:weffects ray family from synthetic/v5/healer-wand-striking-grid-bug, seven remaining screens at segment 0 step 41. The complete refreshed investigation names zap.c:bhito Force Bolt object breakage and consumed dothrow.c hero_breaks/breaktest/breakobj results; original synthetic/v2/wizard-spell-memory is already matched but remains a source entry path. Higher-ranked v7 blessed-book-undead is A12-owned. Preserve the original B6 scope rather than introduce a case-specific fix.",
       "detail": "At segment 0 step 40, a known Force Bolt cast east reaches zap.c weffects and the current JS refusal. Port whole weffects and its return-valued ray family bhit, bhitm, bhito, bhitpile, doorlock with obstructed and muse.c mbhit caller, and required statue/object-break callees including break_statue, activate_statue_trap, hero_breaks/breaks and their consumed dependencies. Preserve exact C ray, item, door, and monster order; park any unresolved source return path with explicit evidence rather than treating a prefix as whole-function completion. See investigations/synthetic/v2/wizard-spell-memory.json.",
       "openedAt": "989f86b9903372599cc99c78474d2d0bf9308ae1",
       "openStanding": {
@@ -74402,10 +74403,22 @@
           "recordingSha256": "4aa25c52bad9f85940224ad16785cacb6b286a4c326c1691e6db54ec260b73cd",
           "evaluationPath": "challenges/evaluations/20260926011128-v2.json",
           "evaluationCommit": "9afcb40d474b714f755d68a9bff96193af5f7e59"
+        },
+        "synthetic/v5/healer-wand-striking-grid-bug": {
+          "session": "synthetic/v5/healer-wand-striking-grid-bug",
+          "corpus": "synthetic",
+          "batch": "v5",
+          "caseId": "healer-wand-striking-grid-bug",
+          "manifestPath": "challenges/manifests/v5.json",
+          "manifestSha256": "5e4430fbd724fe91720f898c02e6f25f9d98e884fa31bd696ca1a63e87abf150",
+          "recordingPath": "challenges/cases/v5/healer-wand-striking-grid-bug.session.json",
+          "recordingSha256": "97d372dd3a84252d6970271b4d335959cbf6d24c41318fa0b578c7a79446ec32",
+          "evaluationPath": "challenges/evaluations/20260926144607-v5.json",
+          "evaluationCommit": "fa3aebd3eee0de7cb859e5efeaa4e7dda2b0e735"
         }
       },
       "activeStanding": {
-        "sha": "9afcb40d474b714f755d68a9bff96193af5f7e59",
+        "sha": "fa3aebd3eee0de7cb859e5efeaa4e7dda2b0e735",
         "screens": 11405,
         "rng": 792838
       },
