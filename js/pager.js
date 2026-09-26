@@ -333,19 +333,50 @@ export function whatisMenuItems(state = game) {
             // C ref: pager.c do_look() passes '/' as the visible selector and
             // 'y' as add_menu()'s group accelerator when lootabc is false.
             // windows.c add_menu() names those arguments ch and gch.
-            groupSelector: state.flags?.lootabc ? undefined : 'y',
+            groupSelector: 'y',
             label: 'something on the map',
         },
         { value: 'i', selector: 'i', label: "something you're carrying" },
-        { value: '?', selector: '?', label: 'something else (by symbol or name)' },
+        {
+            value: '?',
+            selector: '?',
+            // C ref: pager.c do_look() passes '?' as the visible selector and
+            // 'n' as its group accelerator when lootabc is false.
+            groupSelector: 'n',
+            label: 'something else (by symbol or name)',
+        },
         { value: 'm', selector: 'm', label: 'nearby monsters' },
         { value: 'M', selector: 'M', label: 'all monsters shown on map' },
         { value: 'o', selector: 'o', label: 'nearby objects' },
         { value: 'O', selector: 'O', label: 'all objects shown on map' },
-        { value: 't', selector: 't', label: 'nearby traps' },
-        { value: 'T', selector: 'T', label: 'all seen or remembered traps' },
-        { value: 'e', selector: 'e', label: 'nearby engravings' },
-        { value: 'E', selector: 'E', label: 'all seen or remembered engravings' },
+        {
+            value: 't',
+            selector: 't',
+            // C ref: pager.c do_look() uses '^' as gch for nearby traps.
+            groupSelector: '^',
+            label: 'nearby traps',
+        },
+        {
+            value: 'T',
+            selector: 'T',
+            // C ref: pager.c do_look() uses '"' as gch for all traps.
+            groupSelector: '"',
+            label: 'all seen or remembered traps',
+        },
+        {
+            value: 'e',
+            selector: 'e',
+            // C ref: pager.c do_look() uses '`' as gch for nearby engravings.
+            groupSelector: '`',
+            label: 'nearby engravings',
+        },
+        {
+            value: 'E',
+            selector: 'E',
+            // C ref: pager.c do_look() uses '|' as gch for remembered engravings.
+            groupSelector: '|',
+            label: 'all seen or remembered engravings',
+        },
     ];
 }
 
