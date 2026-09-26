@@ -72680,7 +72680,7 @@
     {
       "id": "port-dig-use-pick-axe-synthetic-v4-20260925",
       "kind": "file-port",
-      "status": "open",
+      "status": "parked",
       "summary": "Port complete pick-axe application and directional digging entry",
       "cFile": "dig.c",
       "sessions": [
@@ -72911,7 +72911,17 @@
             }
           }
         }
-      ]
+      ],
+      "progressBeforePark": {
+        "screens": 0,
+        "rng": 0
+      },
+      "parkedStanding": {
+        "sha": "ad84f98859168ba287d173245811d186d104b9de",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "parkedReason": "Immediate dig.c use_pick_axe/use_pick_axe2 direction handling and independent self-hit recording match, but complete source entry coverage remains blocked: dig.c dig occupation callback returns a value consumed by allmain.c moveloop_core and needs dig_check, terrain/trap/shop/object effects; uhitm.c do_attack still refuses two-weapon ending and leprechaun dodge. The valid-direction diagnostic recipe diverges when that callback runs. Preserve the matched v4 prompt cases and finish these source dependencies before closing."
     },
     {
       "id": "port-objnam-readobjnam-monster-carriers-synthetic-v2-20260925",
