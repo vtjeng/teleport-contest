@@ -132,12 +132,12 @@ the assignable task count falls below `implementationSlots + 1`; keep the one
 unaccepted preparation-task limit. This gives preparation a chance to finish
 before an implementation worker runs out of work.
 
-Plan 6–9 new, independently designed C behavior targets per batch before
-inspecting their JavaScript results. For each target, name the source behavior,
-the state and action history needed to reach it, and the C observation that
-will show it was reached. Earlier admitted cases do not count toward this
-target. Draw candidates from current source-traced blockers and parked work,
-the roadmap's under-exercised functions, and earlier missions that missed their
+Plan at least 12 new, independently designed C behavior candidates per batch
+before comparing their JavaScript results. For each candidate, name the source
+behavior, the state and action history needed to reach it, and the C
+observation that will show it was reached. Earlier admitted cases do not count
+toward this target. Draw candidates from current source-traced blockers and
+parked work, the roadmap's under-exercised functions, and earlier missions that missed their
 intended behavior. Prefer targets with a plausible C route and different source
 owners; reserve some missions for less directed exploration. A rare blocker is
 one candidate, not a requirement to hold the whole batch open. Vary behavior
@@ -145,25 +145,37 @@ families, action histories, and relevant character or state conditions;
 changing only seeds is insufficient. Follow
 `experiments/generalization/plan.md`, "Expanding challenges", and
 `.agents/validation.md` for C exploration and recording.
-Before handoff, count distinct targets actually reached in the C recordings
-and confirmed by independent C replay. A valid recording that missed its
-target stays in the batch but does not satisfy the 6–9 target. After two
-materially different C setups fail to reach a difficult target, defer it with
-the observed reason and try another; a cheap source-proven route can justify
-another attempt. Replace deferred targets with different reachable behaviors
-and keep trying to reach 6–9 distinct targets. Do not shrink a batch solely
-because one behavior is rare. If no plausible alternative reaches six, report
-the source or recorder blockers and park the preparation task with its valid
-recordings. The orchestrator may accept a smaller batch with a recorded reason
-or redirect the search. The target is not a cap on valid cases. Retain every
-valid, reproducible case, including missed missions and cases JavaScript already
-passes; reject only invalid setup
-or recorder failures with recorded C evidence.
-Resolve recorder-environment differences before treating them as game defects.
+After independent C replay, compare each case with the JavaScript port in the
+preparation worktree. Count a session toward the batch target when it has a
+local mismatch and the C behavior responsible for its first mismatch is
+source-traced and distinct from the first mismatching behavior of every other
+counted session. Later mismatches in that session are allowed. Record the
+first mismatch step, source behavior, and owner for each counted session.
+Keep every valid, reproducible case, including cases that miss their intended
+behavior. A missed mission can count if its first mismatch meets the criterion
+above. Matching cases and cases with duplicate or unresolved first mismatch
+behaviors do not count toward the 12. Reject only invalid setup or recorder
+failures with recorded C evidence. Resolve recorder-environment differences
+before treating them as game defects.
+
+After two materially different C setups fail to reach a difficult target,
+defer it with the observed reason and try another; a cheap source-proven route
+can justify another attempt. Replace deferred targets with different reachable
+behaviors and keep trying to find 12 qualifying sessions. Do not shrink a batch
+solely because one behavior is rare. If repeated, meaningfully different
+candidate behaviors find no new qualifying first mismatches, report the search
+attempts and source or recorder blockers, then park the preparation task with
+its valid recordings. The orchestrator may accept a smaller batch with a
+recorded reason or redirect the search. The target is not a cap on valid cases.
+Choose further candidate behaviors from the C source and coverage gaps; do not
+alter a recipe to exploit a JavaScript result. Local mismatch counts are
+provisional because main can advance during preparation. The orchestrator's
+first saved evaluation after admission is authoritative and may find fewer than
+12 remaining mismatching sessions.
 
 After a batch's first saved evaluation, fully matching cases remain in its
-manifest but do not count toward a runway of six to nine cases with a mismatch.
-If fewer than six cases in that batch have a mismatch, request preparation of
+manifest but do not count toward a runway of 12 cases with a mismatch.
+If fewer than 12 cases in that batch have a mismatch, request preparation of
 the next version from different under-exercised behavior, subject to the one
 unaccepted preparation-task limit. This runway is not an admission requirement.
 Continue to use independently assignable source tasks, not raw case counts,
@@ -176,7 +188,7 @@ outside `challenges/manifests/`, with an independent C replay result in each
 case's `reproducibility` field. The orchestrator checks the cases, merges the
 recipes and recordings into `main`, runs the combined checkpoint, and accepts
 the delivery. Keep those files and their hashes unchanged. Neither the worker
-nor the orchestrator selects cases by whether JavaScript passes them. Until
+nor the orchestrator omits a valid case because JavaScript passes it. Until
 admission, the cases do not enter synthetic scoring, the mismatch queue, or
 the dashboard.
 

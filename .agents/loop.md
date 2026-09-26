@@ -99,8 +99,9 @@ admit the oldest prepared batch after the required validation and evaluation
 gates. Continue assigning fixes from older batches by the normal priority
 rules; the new batch adds work without displacing those mismatches.
 The preparation worker does not monitor implementation assignments. If it
-reports that it cannot reach six distinct C targets after switching to
-other plausible behaviors, review its valid recordings and source-based
+reports that it cannot find 12 locally mismatching sessions with distinct
+source-traced first mismatch behaviors after switching to other plausible
+behaviors, review its valid recordings, search attempts, and source-based
 blockers. Decide whether to accept a smaller batch with that reason or direct
 the worker toward other targets. Keep missed and deferred targets in the
 handoff; the orchestrator owns the scheduling decision.

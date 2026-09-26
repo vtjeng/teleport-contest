@@ -11,11 +11,11 @@ starting. Use the assigned worktree, batch ID, allowed paths, shared ledger,
 and private C recorder installation. Check the worktree root and branch before
 editing. Claim `challenge-batch:<vN>` in the ledger before creating cases.
 
-Plan 6–9 new, independent C behavior targets before inspecting JavaScript
-results, as `.agents/selection.md` specifies. For each, identify its source
-function or branch, required state and actions, and the C observation that
-will establish reachability. Earlier admitted cases do not count toward this
-target. Prefer reachable gaps drawn from source-traced blockers, parked work,
+Plan at least 12 new, independent C behavior candidates before comparing
+JavaScript results, as `.agents/selection.md` specifies. For each, identify its
+source function or branch, required state and actions, and the C observation
+that will establish reachability. Earlier admitted cases do not count toward
+this target. Prefer reachable gaps drawn from source-traced blockers, parked work,
 the roadmap, and prior missed missions, while leaving room for exploratory
 cases. Choose different source owners where practical. Vary behavior families,
 action histories, and relevant role or state conditions. Changing only seeds
@@ -26,19 +26,31 @@ reached or JavaScript already matches. Reject only invalid setup or recorder
 failure, with the C evidence. Do not copy a fixed or admitted recording's
 seed and inputs, special-case a case, or edit prior batches.
 
-Before submitting, check the mission plan against the C recordings: count only
-distinct targets the C run reached and the independent replay confirmed. Name
-the recording and observed C step for each reached target in `missionPlan`.
-Retain valid misses without counting them. After two materially different C
-setups fail to reach a difficult target, record the reason and try another
-unless the source reveals a cheap route. Replace deferred targets with other
-reachable behaviors and keep trying for 6–9 distinct reached targets. Do not
-shrink the batch merely because one target is rare. If no plausible alternative
-reaches six, park the task and report the source or recorder blockers alongside
-the valid recordings already made. The orchestrator decides whether to accept
-a smaller batch or provide new targets. Do not inspect implementation-worker
-assignments or statuses. Keep reached, missed, and deferred targets and the
-remaining candidate list in `missionPlan` for that decision.
+After independent C replay, compare each recording with the JavaScript port in
+this worktree. In `missionPlan`, count a session when it has a local mismatch
+and the C behavior responsible for its first mismatch is source-traced and
+distinct from the first mismatching behavior of every other counted session.
+Later mismatches in the session are allowed. Name the recording, first mismatch
+step, source behavior, and owner for each counted session. Retain every valid
+case, including misses of the intended behavior. A missed mission can count
+when its first mismatch meets the criterion above. Matching cases and cases
+with duplicate or unresolved first mismatch behaviors do not count.
+
+After two materially different C setups fail to reach a difficult target,
+record the reason and try another unless the source reveals a cheap route.
+Replace deferred targets with other reachable behaviors and keep trying for 12
+qualifying sessions. Do not shrink the batch merely because one target is rare.
+If repeated, meaningfully different candidate behaviors find no new qualifying
+first mismatches, park the task and report the search attempts and source or
+recorder blockers alongside the valid recordings already made. The
+orchestrator decides whether to accept a smaller batch or provide new targets.
+Do not inspect implementation-worker assignments or statuses. Keep reached,
+missed, and deferred targets and the remaining candidate list in `missionPlan`
+for that decision.
+Choose further candidate behaviors from the C source and coverage gaps; do not
+alter recipes to exploit a JavaScript result. Keep local comparisons separate
+from the orchestrator's saved evaluation, which may find fewer mismatches after
+main advances.
 
 Commit only new case recipes and C recordings under
 `challenges/cases/<batch>/`. Put the prepared manifest and its case hashes in
