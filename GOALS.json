@@ -80037,7 +80037,7 @@
     {
       "id": "port-engrave-stylus-occupation-synthetic-v6-20260926",
       "kind": "file-port",
-      "status": "open",
+      "status": "closed",
       "summary": "Port engraving stylus selection, item effects, and occupation continuation",
       "cFile": "engrave.c",
       "sessions": [
@@ -80056,15 +80056,18 @@
         "screens": 11405,
         "rng": 792838
       },
-      "closedAt": null,
-      "delivered": null,
+      "closedAt": "d0a8041f88dd37cbf631877464c06cf985998274",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
       "functions": [
         {
           "name": "stylus_ok",
           "line": 481,
           "endLine": 502,
           "declared": true,
-          "complete": false
+          "complete": true
         },
         {
           "name": "u_can_engrave",
@@ -80077,43 +80080,43 @@
           "name": "doengrave_ctx_init",
           "line": 545,
           "endLine": 582,
-          "declared": false,
-          "complete": false
+          "declared": true,
+          "complete": true
         },
         {
           "name": "doengrave_sfx_item_WAN",
           "line": 583,
           "endLine": 741,
-          "declared": false,
-          "complete": false
+          "declared": true,
+          "complete": true
         },
         {
           "name": "doengrave_sfx_item",
           "line": 742,
           "endLine": 895,
-          "declared": false,
-          "complete": false
+          "declared": true,
+          "complete": true
         },
         {
           "name": "doengrave_ctx_verb",
           "line": 896,
           "endLine": 955,
-          "declared": false,
-          "complete": false
+          "declared": true,
+          "complete": true
         },
         {
           "name": "doengrave",
           "line": 956,
           "endLine": 1266,
           "declared": true,
-          "complete": false
+          "complete": true
         },
         {
           "name": "engrave",
           "line": 1267,
           "endLine": 1497,
           "declared": true,
-          "complete": false
+          "complete": true
         }
       ],
       "range": {
@@ -81040,7 +81043,501 @@
             }
           }
         }
-      ]
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "stylus_ok",
+            "implementation": "js/engrave.js",
+            "symbol": "stylus_ok",
+            "sourceReview": "Read the complete engrave.c:481-501 definition. Null returns GETOBJ_SUGGEST; weapons, wands, gems, rings, towels and magic markers return GETOBJ_SUGGEST; all other objects return GETOBJ_DOWNPLAY. The callback only ranks getobj suggestions and has no RNG, output, or game-state mutation; JS preserves the source classes and return values.",
+            "callers": [
+              {
+                "path": "js/engrave.js",
+                "symbol": "doengrave",
+                "source": "engrave.c:doengrave (956-1264) passes stylus_ok as the getobj callback for the 'write with' prompt."
+              }
+            ],
+            "pure": true,
+            "tests": [
+              "scripts/engraving.test.mjs"
+            ],
+            "recordings": [],
+            "checkedAt": "d0a8041f88dd37cbf631877464c06cf985998274"
+          },
+          {
+            "name": "doengrave_ctx_init",
+            "implementation": "js/engrave.js",
+            "symbol": "doengrave_ctx_init",
+            "sourceReview": "Read the complete engrave.c:545-581 initializer and compared every context field. It initializes the local result flags, ECMD_OK and DUST defaults, existing engraving/type, demon/vampire blood writing, swallowed amorphous-engulfer state, and frozen-surface state in source order. All writes target the local context; queried hero, monster and terrain state are unchanged. JS returns the matching context without RNG or output.",
+            "callers": [
+              {
+                "path": "js/engrave.js",
+                "symbol": "doengrave",
+                "source": "engrave.c:doengrave calls doengrave_ctx_init immediately after u_can_engrave succeeds and before resetting move/occupation state."
+              }
+            ],
+            "pure": true,
+            "tests": [
+              "scripts/engraving.test.mjs"
+            ],
+            "recordings": [],
+            "checkedAt": "d0a8041f88dd37cbf631877464c06cf985998274"
+          },
+          {
+            "name": "doengrave_sfx_item_WAN",
+            "implementation": "js/engrave.js",
+            "symbol": "doengrave_sfx_item_WAN",
+            "sourceReview": "Read the full engrave.c:583-740 wand switch. The port preserves each wand arm, Blind/Deaf checks, type and prompt flags, post-effect text, old-engraving deletion/teleport decisions and the WAN_COLD fallthrough into cancellation/make-invisible behavior. The void zapnodir() result is discarded by C, so JS records note_unported('zap.c zapnodir') and does not substitute a result. The visible WAN_POLYMORPH arm consumes random_engraving's returned text/pristine pair; the command caller supplies the same game state and RNG plus the getrumor WIS-exercise callback, preserving rumors.c:175 and attrib.c:509 ordering. The blind arm preserves oetype when present and xcrypts the string returned by the newly ported blengr(); its supplemental source evidence is in supplementalSources because blengr is outside the declared selected range.",
+            "callers": [
+              {
+                "path": "js/engrave.js",
+                "symbol": "doengrave_sfx_item",
+                "source": "engrave.c:doengrave_sfx_item calls doengrave_sfx_item_WAN after zappable() succeeds, unpaid handling and any cursed-wand backfire test."
+              }
+            ],
+            "pure": false,
+            "tests": [],
+            "recordings": [
+              "recordings/engrave.c/polymorph-existing-engraving-independent.session.json",
+              "recordings/engrave.c/blind-polymorph-existing-engraving-independent.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v6",
+                "caseId": "wizard-engrave-wand-finish",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 24,
+                "source": "cmd.c E command -> engrave.c:doengrave -> doengrave_sfx_item -> doengrave_sfx_item_WAN(WAN_FIRE)."
+              },
+              {
+                "batch": "v6",
+                "caseId": "v6-add4-archeologist-pickaxe-engrave",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 10,
+                "source": "cmd.c E command -> engrave.c:doengrave -> doengrave_sfx_item -> doengrave_sfx_item_WAN(WAN_FIRE)."
+              },
+              {
+                "batch": "v6",
+                "caseId": "wizard-engrave-wand-final",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 23,
+                "source": "cmd.c E command -> engrave.c:doengrave -> doengrave_sfx_item -> doengrave_sfx_item_WAN(WAN_FIRE)."
+              },
+              {
+                "batch": "v6",
+                "caseId": "v6-add3-archeologist-pickaxe-engrave",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 9,
+                "source": "cmd.c E command -> engrave.c:doengrave -> doengrave_sfx_item -> doengrave_sfx_item_WAN(WAN_FIRE)."
+              },
+              {
+                "batch": "v6",
+                "caseId": "wizard-engrave-wand-correct",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 23,
+                "source": "cmd.c E command -> engrave.c:doengrave -> doengrave_sfx_item -> doengrave_sfx_item_WAN(WAN_FIRE)."
+              },
+              {
+                "batch": "v6",
+                "caseId": "wizard-engrave-wand-retry2",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 18,
+                "source": "cmd.c E command -> engrave.c:doengrave -> doengrave_sfx_item -> doengrave_sfx_item_WAN(WAN_FIRE)."
+              }
+            ],
+            "checkedAt": "d0a8041f88dd37cbf631877464c06cf985998274"
+          },
+          {
+            "name": "doengrave_sfx_item",
+            "implementation": "js/engrave.js",
+            "symbol": "doengrave_sfx_item",
+            "sourceReview": "Read the full engrave.c:742-894 object-class switch and compared source fallthrough and return order. The JS handles hard gems/rings, boots versus oversized armor/balls/rocks, dirty/frosty food/books/scrolls, wand zappability and backfire, fire-branded/bladed weapons, blindfolds, markers, towels, venom and illegal objects. The boolean false branches for backfire and blindfold stop doengrave at the same point. C-discarded void calls remain named gaps: wand_explode, dry_a_towel and hack.c impossible; no gap result is used as data. zappable() is awaited and its return controls both branch selection and charge use.",
+            "callers": [
+              {
+                "path": "js/engrave.js",
+                "symbol": "doengrave",
+                "source": "engrave.c:doengrave calls doengrave_sfx_item and returns early when its boolean result is false."
+              }
+            ],
+            "pure": false,
+            "tests": [],
+            "recordings": [
+              "recordings/engrave.c/polymorph-existing-engraving-independent.session.json",
+              "recordings/engrave.c/blind-polymorph-existing-engraving-independent.session.json",
+              "recordings/engrave.c/extended-engrave-command-independent.session.json",
+              "recordings/engrave.c/multiturn-finger-occupation-independent.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v6",
+                "caseId": "wizard-engrave-wand-finish",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 24,
+                "source": "cmd.c E command -> engrave.c:doengrave -> doengrave_sfx_item."
+              },
+              {
+                "batch": "v6",
+                "caseId": "v6-add4-archeologist-pickaxe-engrave",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 10,
+                "source": "cmd.c E command -> engrave.c:doengrave -> doengrave_sfx_item."
+              },
+              {
+                "batch": "v6",
+                "caseId": "wizard-engrave-wand-final",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 23,
+                "source": "cmd.c E command -> engrave.c:doengrave -> doengrave_sfx_item."
+              },
+              {
+                "batch": "v6",
+                "caseId": "v6-add3-archeologist-pickaxe-engrave",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 9,
+                "source": "cmd.c E command -> engrave.c:doengrave -> doengrave_sfx_item."
+              },
+              {
+                "batch": "v6",
+                "caseId": "wizard-engrave-wand-correct",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 23,
+                "source": "cmd.c E command -> engrave.c:doengrave -> doengrave_sfx_item."
+              },
+              {
+                "batch": "v6",
+                "caseId": "wizard-engrave-wand-retry2",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 18,
+                "source": "cmd.c E command -> engrave.c:doengrave -> doengrave_sfx_item."
+              }
+            ],
+            "checkedAt": "d0a8041f88dd37cbf631877464c06cf985998274"
+          },
+          {
+            "name": "doengrave_ctx_verb",
+            "implementation": "js/engrave.js",
+            "symbol": "doengrave_ctx_verb",
+            "sourceReview": "Read the complete engrave.c:896-953 context switch. JS preserves default, DUST/frost, HEADSTONE, ENGRAVE, BURN, MARK and ENGR_BLOOD verbs, including append variants and frost-specific wording. It only writes the local context and is pure.",
+            "callers": [
+              {
+                "path": "js/engrave.js",
+                "symbol": "doengrave",
+                "source": "engrave.c:doengrave calls doengrave_ctx_verb after setting the surface and adding/overwrite state, immediately before the writer message and getlin prompt."
+              }
+            ],
+            "pure": true,
+            "tests": [
+              "scripts/engraving.test.mjs"
+            ],
+            "recordings": [],
+            "checkedAt": "d0a8041f88dd37cbf631877464c06cf985998274"
+          },
+          {
+            "name": "doengrave",
+            "implementation": "js/engrave.js",
+            "symbol": "doengrave",
+            "sourceReview": "Read the complete engrave.c:956-1264 implementation from terrain/capacity preflight through doengrave_exit. JS keeps the getobj stylus callback, freehand/jello/reach gates, altar/grave order, item-effects boolean, grave type coercion, identification, teleport/delete engraving effects, polymorph text creation, canceled-wand handling, prompt/overwrite rules, literacy and text-corruption RNG short circuits, occupation setup, post-effect messages and final redraw/return. Return-valued callees u_can_engrave and doengrave_sfx_item are fully implemented; `set_occupation(engrave, ...)` is wired as a callback whose integer return is consumed by the occupation runner. Void C calls that remain deliberately skipped use named note_unported gaps: pray.c altar_wrath, grave.c disturb_grave, engrave.c rloc_engr, zap.c wand_explode/zapnodir, apply.c dry_a_towel, and hack.c impossible. The visible polymorph caller injects random_engraving with state/RNG and WIS exercise to preserve getrumor side effects without introducing an import cycle.",
+            "callers": [
+              {
+                "path": "js/cmd.js",
+                "symbol": "runEngraveCommand",
+                "source": "cmd.c:1714-1715 registers E and the extended name 'engrave' to doengrave; js/cmd.js direct doengrave dispatch and extended-command spelling both call runEngraveCommand."
+              }
+            ],
+            "pure": false,
+            "tests": [],
+            "recordings": [
+              "recordings/engrave.c/polymorph-existing-engraving-independent.session.json",
+              "recordings/engrave.c/blind-polymorph-existing-engraving-independent.session.json",
+              "recordings/engrave.c/extended-engrave-command-independent.session.json",
+              "recordings/engrave.c/multiturn-finger-occupation-independent.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v6",
+                "caseId": "wizard-engrave-wand-finish",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 24,
+                "source": "cmd.c E command -> engrave.c:doengrave and source-selected item-effect family."
+              },
+              {
+                "batch": "v6",
+                "caseId": "v6-add4-archeologist-pickaxe-engrave",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 10,
+                "source": "cmd.c E command -> engrave.c:doengrave and source-selected item-effect family."
+              },
+              {
+                "batch": "v6",
+                "caseId": "wizard-engrave-wand-final",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 23,
+                "source": "cmd.c E command -> engrave.c:doengrave and source-selected item-effect family."
+              },
+              {
+                "batch": "v6",
+                "caseId": "v6-add3-archeologist-pickaxe-engrave",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 9,
+                "source": "cmd.c E command -> engrave.c:doengrave and source-selected item-effect family."
+              },
+              {
+                "batch": "v6",
+                "caseId": "wizard-engrave-wand-correct",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 23,
+                "source": "cmd.c E command -> engrave.c:doengrave and source-selected item-effect family."
+              },
+              {
+                "batch": "v6",
+                "caseId": "wizard-engrave-wand-retry2",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 18,
+                "source": "cmd.c E command -> engrave.c:doengrave and source-selected item-effect family."
+              }
+            ],
+            "checkedAt": "d0a8041f88dd37cbf631877464c06cf985998274"
+          },
+          {
+            "name": "engrave",
+            "implementation": "js/engrave.js",
+            "symbol": "engrave",
+            "sourceReview": "Read the complete engrave.c:1267-1493 occupation callback. JS preserves square/stylus invalidation, first-time/action counter, carving/marker rates, C UTF-8 byte-pointer accounting, split/dull and marker-charge state changes, finish-verb selection, BUFSZ truncation, make_engr_at timing, continuation return 1 and final return 0/context cleanup. The splitobj and hold_another_object return values are consumed; make_engr_at's pointer return and C nhUse(stylus) macro result are discarded/no-op respectively. Only C impossible diagnostics in source-guarded invariant branches remain named note_unported('pline.c impossible') calls; no return data is substituted.",
+            "callers": [
+              {
+                "path": "js/engrave.js",
+                "symbol": "doengrave",
+                "source": "engrave.c:doengrave calls set_occupation(engrave, 'engraving', 0) at line 1244. allmain.c:485-500 calls the callback and clears go.occupation only when its return is zero; JS installs the corresponding callback and returns its integer result."
+              }
+            ],
+            "pure": false,
+            "tests": [],
+            "recordings": [
+              "recordings/engrave.c/multiturn-finger-occupation-independent.session.json",
+              "recordings/engrave.c/extended-engrave-command-independent.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v6",
+                "caseId": "wizard-engrave-wand-finish",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 24,
+                "source": "engrave.c:doengrave installs the occupation and allmain.c occupation loop executes engrave()."
+              },
+              {
+                "batch": "v6",
+                "caseId": "v6-add4-archeologist-pickaxe-engrave",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 10,
+                "source": "engrave.c:doengrave installs the occupation and allmain.c occupation loop executes engrave()."
+              },
+              {
+                "batch": "v6",
+                "caseId": "wizard-engrave-wand-final",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 23,
+                "source": "engrave.c:doengrave installs the occupation and allmain.c occupation loop executes engrave()."
+              },
+              {
+                "batch": "v6",
+                "caseId": "v6-add3-archeologist-pickaxe-engrave",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 9,
+                "source": "engrave.c:doengrave installs the occupation and allmain.c occupation loop executes engrave()."
+              },
+              {
+                "batch": "v6",
+                "caseId": "wizard-engrave-wand-correct",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 23,
+                "source": "engrave.c:doengrave installs the occupation and allmain.c occupation loop executes engrave()."
+              },
+              {
+                "batch": "v6",
+                "caseId": "wizard-engrave-wand-retry2",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 18,
+                "source": "engrave.c:doengrave installs the occupation and allmain.c occupation loop executes engrave()."
+              }
+            ],
+            "checkedAt": "d0a8041f88dd37cbf631877464c06cf985998274"
+          }
+        ],
+        "entryPointReview": "The C command table at cmd.c:1714-1715 registers direct E and the extended name 'engrave' to the same doengrave handler. JS direct dispatch at cmd.js:5094 and extended dispatch at cmd.js:5626 both call runEngraveCommand, which injects the getobj, message, RNG, random_engraving, occupation, and inventory operations. The source then sets the engraving occupation at engrave.c:1244; allmain.c:485-500 invokes it and consumes its 0/1 continuation result. The admitted v6 wand-finish/final/correct/retry and add3/add4 cases exercise the direct E item-effects path; independent recordings separately exercise visible and blind polymorph wands, #engrave dispatch, and multi-action finger occupation. Discarded-result C calls remain explicit named note_unported gaps; none is treated as data. The separate blengr return-valued helper from engrave.c:1765-1768 is carried as supplementalSources because it is outside the declared selected range.",
+        "entryPoints": [
+          {
+            "name": "Direct E engraving command",
+            "functions": [
+              "stylus_ok",
+              "doengrave_ctx_init",
+              "doengrave_sfx_item_WAN",
+              "doengrave_sfx_item",
+              "doengrave_ctx_verb",
+              "doengrave",
+              "engrave"
+            ],
+            "recordings": [
+              "recordings/engrave.c/polymorph-existing-engraving-independent.session.json",
+              "recordings/engrave.c/blind-polymorph-existing-engraving-independent.session.json",
+              "recordings/engrave.c/multiturn-finger-occupation-independent.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v6",
+                "caseId": "wizard-engrave-wand-finish",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 24,
+                "source": "cmd.c E -> engrave.c:doengrave; the command installs and runs engrave occupation."
+              },
+              {
+                "batch": "v6",
+                "caseId": "v6-add4-archeologist-pickaxe-engrave",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 10,
+                "source": "cmd.c E -> engrave.c:doengrave; the command installs and runs engrave occupation."
+              },
+              {
+                "batch": "v6",
+                "caseId": "wizard-engrave-wand-final",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 23,
+                "source": "cmd.c E -> engrave.c:doengrave; the command installs and runs engrave occupation."
+              },
+              {
+                "batch": "v6",
+                "caseId": "v6-add3-archeologist-pickaxe-engrave",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 9,
+                "source": "cmd.c E -> engrave.c:doengrave; the command installs and runs engrave occupation."
+              },
+              {
+                "batch": "v6",
+                "caseId": "wizard-engrave-wand-correct",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 23,
+                "source": "cmd.c E -> engrave.c:doengrave; the command installs and runs engrave occupation."
+              },
+              {
+                "batch": "v6",
+                "caseId": "wizard-engrave-wand-retry2",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 18,
+                "source": "cmd.c E -> engrave.c:doengrave; the command installs and runs engrave occupation."
+              }
+            ]
+          },
+          {
+            "name": "Extended #engrave command",
+            "functions": [
+              "stylus_ok",
+              "doengrave_ctx_init",
+              "doengrave_sfx_item",
+              "doengrave_ctx_verb",
+              "doengrave",
+              "engrave"
+            ],
+            "recordings": [
+              "recordings/engrave.c/extended-engrave-command-independent.session.json"
+            ]
+          },
+          {
+            "name": "Engraving occupation continuation",
+            "functions": [
+              "engrave"
+            ],
+            "recordings": [
+              "recordings/engrave.c/multiturn-finger-occupation-independent.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v6",
+                "caseId": "wizard-engrave-wand-finish",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 24,
+                "source": "engrave.c:doengrave calls set_occupation(engrave); allmain.c:485-500 consumes its continuation return."
+              },
+              {
+                "batch": "v6",
+                "caseId": "v6-add4-archeologist-pickaxe-engrave",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 10,
+                "source": "engrave.c:doengrave calls set_occupation(engrave); allmain.c:485-500 consumes its continuation return."
+              },
+              {
+                "batch": "v6",
+                "caseId": "wizard-engrave-wand-final",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 23,
+                "source": "engrave.c:doengrave calls set_occupation(engrave); allmain.c:485-500 consumes its continuation return."
+              },
+              {
+                "batch": "v6",
+                "caseId": "v6-add3-archeologist-pickaxe-engrave",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 9,
+                "source": "engrave.c:doengrave calls set_occupation(engrave); allmain.c:485-500 consumes its continuation return."
+              },
+              {
+                "batch": "v6",
+                "caseId": "wizard-engrave-wand-correct",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 23,
+                "source": "engrave.c:doengrave calls set_occupation(engrave); allmain.c:485-500 consumes its continuation return."
+              },
+              {
+                "batch": "v6",
+                "caseId": "wizard-engrave-wand-retry2",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 18,
+                "source": "engrave.c:doengrave calls set_occupation(engrave); allmain.c:485-500 consumes its continuation return."
+              }
+            ]
+          }
+        ]
+      },
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "d0a8041f88dd37cbf631877464c06cf985998274",
+        "screens": 11405,
+        "rng": 792838
+      }
     },
     {
       "id": "port-apply-grease-synthetic-v6-20260926",
