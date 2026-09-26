@@ -87756,7 +87756,7 @@
     {
       "id": "div-apply-eyewear-default-synthetic-v6-20260926",
       "kind": "divergence-fix",
-      "status": "open",
+      "status": "closed",
       "summary": "Port doapply eyewear selection and generic unsupported-item refusal from C",
       "cFile": "apply.c",
       "sessions": [
@@ -87771,8 +87771,11 @@
         "screens": 11405,
         "rng": 792838
       },
-      "closedAt": null,
-      "delivered": null,
+      "closedAt": "382fb9f460e42198688105ebc81fd2788be20686",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
       "function": "doapply",
       "session": "synthetic/v6/wizard-grease-hands-good",
       "step": 17,
@@ -88275,7 +88278,13 @@
             }
           }
         }
-      ]
+      ],
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "382fb9f460e42198688105ebc81fd2788be20686",
+        "screens": 11405,
+        "rng": 792838
+      }
     },
     {
       "id": "div-makemon-aligned-cleric-synthetic-v7-20260926",
