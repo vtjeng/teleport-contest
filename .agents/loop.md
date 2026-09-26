@@ -220,6 +220,11 @@ separately from other goals.
    CI fails, finish an active checkpoint, then investigate and validate a
    correction before further publication. Report CI success only after the
    relevant runs finish successfully.
+   If a separately checkpointed descendant changes execution inputs between
+   the accepted integration and its report commit, include that passing
+   summary as `supplementalCheckpoint` in the publication event. The later
+   checkpoint must cover those inputs; subsequent changes may only be checked
+   reports.
 
 Before treating an old test failure as an ongoing blocker, check whether
 current main and saved results already establish the fix. If they do,

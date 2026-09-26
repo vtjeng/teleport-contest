@@ -1014,7 +1014,7 @@ test('maybewakesteed halves a frozen steed and ends its meal', async () => {
     steed.msleeping = 0;
     steed.mcanmove = 1;
     steed.meating = 5;
-    _steedInternals.maybewakesteed(steed);
+    await _steedInternals.maybewakesteed(steed, state);
     assert.equal(steed.meating, 0, 'finish_meating() ends the meal');
     assert.equal(steed.mfrozen, 0);
 
@@ -1022,16 +1022,17 @@ test('maybewakesteed halves a frozen steed and ends its meal', async () => {
     // left set here so that helpless() is false on both sides and the
     // "%s wakes up." refusal cannot fire whichever way the draw goes.
     steed.mfrozen = 9;
-    _steedInternals.maybewakesteed(steed);
+    await _steedInternals.maybewakesteed(steed, state);
     assert.ok(steed.mfrozen === 0 || steed.mfrozen === 5,
               `(9 + 1) / 2 is 5; got ${steed.mfrozen}`);
 
-    // A steed that was helpless and wakes prints "%s wakes up.", which this
-    // port refuses.
+    // A steed that was helpless and wakes prints "%s wakes up." after the
+    // frozen/immobility state changes.
+    quiet(state);
     steed.mfrozen = 0;
     steed.msleeping = 1;
-    assert.throws(() => _steedInternals.maybewakesteed(steed),
-                  UnsupportedSteedError);
+    await _steedInternals.maybewakesteed(steed, state);
+    assert.match(toplines(), /wakes up\.$/u);
     steed.msleeping = 0;
 });
 

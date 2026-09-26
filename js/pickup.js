@@ -1811,7 +1811,7 @@ async function do_loot_cont(cobj, cindex, ccount, state) {
 
 // C ref: pickup.c u_handsy() (2943-2953). Checks whether the hero has free
 // hands to manipulate a container.
-async function u_handsy(state) {
+export async function u_handsy(state) {
     if (nohands(state.youmonst.data)) {
         await ttyPline('You have no hands!', state);
         return false;
