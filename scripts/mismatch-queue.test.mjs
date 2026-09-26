@@ -194,15 +194,14 @@ test('incomplete output and unrecognized divergence stay unresolved', () => {
     }
 });
 
-test('selection defaults to the top candidate and records why it was bypassed', () => {
+test('selection accepts any traced source while requiring a reason for a changed owner', () => {
     const later = {
         ...screen, boundary: 'load_special() refused', screensEmitted: 7,
-        divergence: null, // An attributed lower-priority stop in a different file.
+        divergence: null, // An attributed stop in a different file.
     };
     const queue = build([stop, later]);
     assert.doesNotThrow(() => assertGoalSelection(queue, { cFile: 'hack.c' }));
-    assert.throws(() => assertGoalSelection(queue, { cFile: 'sp_lev.c' }),
-        /selectionReason/u);
+    assert.doesNotThrow(() => assertGoalSelection(queue, { cFile: 'sp_lev.c' }));
     assert.doesNotThrow(() => assertGoalSelection(queue, {
         cFile: 'sp_lev.c', selectionReason: 'The movement fix requires this source-traced callee.',
     }));
@@ -336,6 +335,39 @@ test('synthetic goal selection requires a current investigation', () => {
         session: 'synthetic/v1/alpha', sessions: ['synthetic/v1/alpha'],
         selectionReason: 'The selected synthetic trace identifies this source owner.',
     }).session, 'synthetic/v1/alpha');
+});
+
+test('synthetic selection permits a lower displayed rank with a traced owner', () => {
+    const fixed = build([passing]);
+    const sessions = [
+        { corpus: 'synthetic', session: 'synthetic/v1/high', batch: 'v1',
+            caseId: 'high', sourceFile: 'high.c', cFile: 'high.c',
+            remainingScreens: 9, investigation: { status: 'complete' } },
+        { corpus: 'synthetic', session: 'synthetic/v1/low', batch: 'v1',
+            caseId: 'low', sourceFile: 'low.c', cFile: 'low.c',
+            remainingScreens: 1, investigation: { status: 'complete' } },
+    ];
+    const queue = buildWorkQueue(fixed, { sessions, blockers: [] });
+    assert.equal(assertGoalSelection(queue, {
+        cFile: 'low.c', sessions: ['synthetic/v1/low'],
+    }).session, 'synthetic/v1/low');
+});
+
+test('a source dependency needs a reason while a regression remains', () => {
+    const fixed = build([stop]);
+    const session = 'synthetic/v1/dependency';
+    const queue = buildWorkQueue(fixed, { blockers: [], sessions: [{
+        corpus: 'synthetic', session, batch: 'v1', caseId: 'dependency',
+        sourceFile: 'dependency.c', cFile: 'dependency.c',
+        remainingScreens: 2, investigation: { status: 'complete' },
+    }] });
+    assert.throws(() => assertGoalSelection(queue, {
+        cFile: 'dependency.c', sessions: [session],
+    }), /outstanding regression/u);
+    assert.equal(assertGoalSelection(queue, {
+        cFile: 'dependency.c', sessions: [session],
+        selectionReason: 'The dependency supplies the return value needed to repair the regression.',
+    }).session, session);
 });
 
 test('combined work mode never enables roadmap fallback', () => {

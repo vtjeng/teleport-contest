@@ -476,8 +476,8 @@ export function buildWorkQueue(fixed, synthetic) {
 
 /**
  * Used by both queue-goal and open-goal. A declaration never clears a blocker.
- * Changing owner after tracing, or bypassing a higher-ranked candidate, needs
- * a recorded source-based reason. Unknown owners also need a named session.
+ * Changing owner after tracing needs a recorded source-based reason. Queue
+ * ordering is diagnostic; any actionable, investigated source may be selected.
  */
 export function assertGoalSelection(queue, goal) {
     if (queue?.mode === 'work' || queue?.corpus === 'combined') {
@@ -495,15 +495,16 @@ export function assertGoalSelection(queue, goal) {
             if (entry.investigation?.status !== 'complete')
                 throw new Error(`synthetic investigation is ${entry.investigation?.status
                 ?? 'missing'}; complete it before selecting the goal`);
+            assertRegressionChoice(queue, entry, goal);
             const candidate = queue.candidates.find(item =>
                 item.sessions?.includes(entry.session));
-            if (!candidate) throw new Error('synthetic session is not a ranked queue candidate');
-            assertRankedCandidate(candidate, queue.candidates[0], goal);
+            if (!candidate) throw new Error('synthetic session is not a work-queue candidate');
+            assertSourceOwner(candidate, goal);
             return entry;
         }
-        // A source-port goal may omit --sessions when its traced owner is the
-        // ranked synthetic entry. Preserve the fixed queue's source-selection
-        // rules when a fixed candidate owns that source instead.
+        // A source-port goal may omit --sessions when its traced owner has an
+        // actionable synthetic entry. Preserve the fixed queue's source rules
+        // when a fixed candidate owns that source instead.
         if (!goal.session && !(goal.sessions?.length)) {
             const sourceFile = goal.luaFile ?? goal.cFile;
             const entry = queue.sessions.find(candidate => candidate.corpus === 'synthetic'
@@ -512,10 +513,11 @@ export function assertGoalSelection(queue, goal) {
                 if (entry.investigation?.status !== 'complete')
                     throw new Error(`synthetic investigation is ${entry.investigation?.status
                     ?? 'missing'}; complete it before selecting the goal`);
+                assertRegressionChoice(queue, entry, goal);
                 const candidate = queue.candidates.find(item =>
                     item.sessions?.includes(entry.session));
-                if (!candidate) throw new Error('synthetic session is not a ranked queue candidate');
-                assertRankedCandidate(candidate, queue.candidates[0], goal);
+                if (!candidate) throw new Error('synthetic session is not a work-queue candidate');
+                assertSourceOwner(candidate, goal);
                 return entry;
             }
         }
@@ -531,20 +533,25 @@ export function assertGoalSelection(queue, goal) {
     const sessions = new Set([goal.session, ...(goal.sessions ?? [])].filter(Boolean));
     const candidate = queue.candidates.find((entry) => entry.sourceFile === sourceFile)
         ?? queue.candidates.find((entry) => entry.sessions.some((session) => sessions.has(session)));
-    if (!candidate) throw new Error('fixed-corpus mismatches remain; select a ranked source '
+    if (!candidate) throw new Error('fixed-corpus mismatches remain; select a traced source '
         + 'or name the mismatching session whose source trace justifies this goal');
-    assertRankedCandidate(candidate, queue.candidates[0], goal);
+    assertSourceOwner(candidate, goal);
     return candidate;
 }
 
-function assertRankedCandidate(candidate, first, goal) {
+function assertRegressionChoice(queue, entry, goal) {
+    if (!entry.regression && queue.sessions.some(item => item.regression)
+        && !goal.selectionReason?.trim())
+        throw new Error('selectionReason is required to explain the dependency '
+            + 'that precedes an outstanding regression');
+}
+
+function assertSourceOwner(candidate, goal) {
     const reason = typeof goal.selectionReason === 'string' ? goal.selectionReason.trim() : '';
     const sourceFile = goal.luaFile ?? goal.cFile;
     const sameSource = candidate.sourceFile != null && candidate.sourceFile === sourceFile;
     if (!sameSource && !reason) throw new Error('selectionReason is required to identify '
         + 'the source owner traced from the named mismatching session');
-    if (candidate !== first && !reason) throw new Error('selectionReason is required to '
-        + 'explain the dependency or blocker preventing the highest-ranked candidate');
 }
 
 function runScan() {

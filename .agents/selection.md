@@ -6,13 +6,17 @@ defines the goal kinds; `.agents/loop.md` describes their execution.
 ## Choosing a goal
 
 Repair regressions in the accepted fixed workload, regression recordings, or
-previously matching synthetic screens first. Otherwise select from unmatched synthetic local holdout
-cases in the latest valid saved evaluations, across every admitted batch.
+previously matching synthetic screens first. A source-traced dependency needed
+to repair a regression may precede it; record that dependency in the selection
+reason. Otherwise choose an independently assignable source task from unmatched
+synthetic local holdout cases in the latest valid saved evaluations, across
+every admitted batch.
 `.agents/scoring.md` defines evaluation freshness and comparison. Workers use
 the saved selected queue and the seed-continuation procedure below.
 
 The orchestrator runs `node scripts/mismatch-queue.mjs --work --json` and
-uses its ordered `sessions` array and investigation records for selection.
+uses its sessions and investigation records for selection. Queue order is a
+diagnostic display order, not an implementation requirement.
 Use `--fixed --json` for the separate fixed 44-session diagnostic queue.
 The combined queue retains corpus identity and reports missing, failed, or
 stale synthetic evidence as blockers; an empty fixed queue does not establish
@@ -21,27 +25,31 @@ functions, defects in existing code, screen and cursor mismatches, and
 unresolved source owners.
 A JavaScript declaration is inventory information, never completion evidence.
 
-Rank synthetic cases by measured unmatched screens (total minus matched)
-descending, then first mismatch step ascending (unknown last), then batch and
-case ID. Keep RNG, cursor, refusal, and runner failures visible; a failed or
-missing evaluation is not a measured zero. For fixed-workload regressions,
-retain `remainingScreensUpperBound` descending, first mismatch step ascending,
-and canonical session ID as the order.
-For a free implementation worker slot, select the first session with a
-completed, valid investigation whose source functions and shared-state contracts are not
-reserved by another worker or pending delivery. Apply the seed-continuation
-rule below before assigning a new session. Use this per-session order even
-when the command's grouped `candidates` order differs. Actual unmatched
-counts rank synthetic cases; first-mismatch upper bounds are only diagnostics.
-Neither predicts how many screens a source fix will recover.
+The queue displays measured unmatched screens, first mismatch steps, and
+source groups for diagnosis. Neither screen counts nor first mismatch steps
+predict how much source behavior a fix will complete. Keep RNG, cursor,
+refusal, and runner failures visible; a failed or missing evaluation is not a
+measured zero. For a free implementation worker slot, choose a session with a
+completed, valid investigation whose source functions and shared-state
+contracts are not reserved by another worker or pending delivery. Apply the
+seed-continuation rule below before assigning a new task.
 
-Start background investigations for the other uncached or invalidated sessions
-as `.agents/loop.md`, "Background investigations", specifies. Do not wait for a
-higher-ranked session's investigation while a completed, valid investigation
-is available. If none is available, wait for an investigator's completion,
-then select the first ready session in the same order without waiting for the
-rest. Keep an implementation task running until its normal handoff; reconsider
-selection between tasks.
+After choosing the source-traced task, inspect other outstanding sessions for
+related work in the same C function family or Lua program, caller path, or
+state contract.
+Where one coherent implementation can address those mismatches, include the
+additional source functions, callers, and session IDs in the task scope before
+assigning it, subject to worker reservations. Do not bundle unrelated work
+solely to increase the number of sessions covered. Define the complete scope
+before work starts and finish its source behavior even when only one session
+currently reaches it.
+
+Start background investigations for other uncached or invalidated sessions as
+`.agents/loop.md`, "Background investigations", specifies. Do not wait for
+another investigation while an independent, source-traced task is ready. If
+none is ready, investigate an outstanding case and select an assignable task
+when its source trace is complete. Keep an implementation task running until
+its normal handoff; reconsider availability between tasks.
 
 Use the selected investigation's source trace to choose the goal kind:
 
@@ -65,35 +73,32 @@ Always name the selected session with `--sessions` (or `--session` for a
 divergence fix). For a synthetic case, retain its batch, manifest digest,
 recording path and digest, and saved evaluation in the handoff and selection
 reason; use a batch-qualified identity throughout goals and investigations.
-When the selected goal differs from the command's highest grouped candidate
-or its annotated owner, supply `--selection-reason` with
-the selected session, remaining-screen count, cache path, and source-traced
-owner. Explain its eligibility under per-session order, seed continuation,
-and source reservations; identify higher-ranked sessions still awaiting
-investigation or owned by another worker when applicable. This policy
-authorizes that choice without user approval. A source-traced dependency or a
-condition blocking
-implementation can still justify a different choice; record that reason.
+List each related synthetic session included in a grouped task in `--sessions`
+so its own batch and recording provenance travels with the goal.
+Use `--selection-reason` to identify the selected session, investigation, and
+source-traced scope, including related sessions bundled into the task. When the
+goal's source differs from the queue's annotated owner, explain the source
+trace that establishes the actual owner. If a non-regression task precedes an
+outstanding regression, name the dependency that requires it. The selection
+guard checks source ownership and current evidence, not screen-count rank.
 
 Keep goal prose specific to the decision: `summary` names the behavior,
-`selectionReason` explains its priority, and `detail` holds the concise source
-trace required for a divergence fix. Reference `investigations/<session>.json`
+`selectionReason` explains its source scope, and `detail` holds the concise
+source trace required for a divergence fix. Reference `investigations/<session>.json`
 for the full diagnosis instead of copying its report into these fields.
 Keep worker activity and delivery progress in the runtime ledger. Preserve
 goal lifecycle, score boundaries, source-completion evidence, and
 remaining-work reasons.
 
 `queue-goal`, `open-goal`, and task-context creation still check selection
-against grouped candidates and the recorded reason.
-The orchestrator applies the completed-investigation priority described here.
-Reconsider priority between tasks. When an open goal no longer addresses the
-first eligible session under these scheduling rules, preserve its work with
-`park-goal --goal <id> --reason "<source-based reason>"` and select again.
-State the remaining source or coverage work and the condition for resuming
-in the existing reason. Name a blocking function or goal when one is known;
-if only closure records remain, say so. Reconsider these reasons at loop
-startup and when a named dependency lands. Resume with `open-goal --id <id>`
-when the condition is met and its priority permits.
+against actionable source-traced cases and current evidence. Do not park an
+open goal merely because another session has more unmatched screens. Park it
+when its source scope is blocked or the task cannot continue independently:
+`park-goal --goal <id> --reason "<source-based reason>"`. State the remaining
+source or coverage work and the condition for resuming. Name a blocking
+function or goal when one is known; if only closure records remain, say so.
+Reconsider these reasons at loop startup and when a named dependency lands.
+Resume with `open-goal --id <id>` when the condition is met.
 
 When source review shows that another goal replaces a queued or parked plan,
 retire the old plan with `supersede-goal --goal <old-id> --by <replacement-id>
@@ -259,9 +264,9 @@ empty fixed queue must not hide pending synthetic investigations.
 After a delivery, the persistent worker selects its next source-traced goal
 under the standing permission in `.agents/loop.md`. Prefer continuing the same
 seed when a focused replay of its immutable worker base identifies the next
-goal. If that scope is blocked or overlaps another worker, select the
-highest-ranked independent ready goal from the saved selected queue, with
-regression repairs taking priority over further synthetic gains.
+goal. If that scope is blocked or overlaps another worker, select another
+independent source-traced task from the saved queue, with regression repairs
+taking priority over other synthetic work.
 Seed continuity is a scheduling preference, not permission to special-case
 that seed or to skip whole-source completion.
 
@@ -279,8 +284,8 @@ need not conflict. If no independent goal is ready, investigate the next
 eligible candidate and report the blocker rather than waiting for an
 assignment. Respect the user's task bounds and stop requests throughout.
 
-Explain seed continuation or a reserved higher-ranked candidate in
-`--selection-reason`; do not describe it as globally highest priority.
+Explain seed continuation, related sessions, and source reservations in
+`--selection-reason`.
 A fresh worker-branch observation stays tied to that commit and does not
 replace main's investigation cache. Recheck selection and
 existing completion evidence before integrating each delivery; reconcile

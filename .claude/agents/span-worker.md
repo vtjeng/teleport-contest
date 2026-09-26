@@ -160,11 +160,24 @@ Pass every restriction in this document to each subagent you spawn.
   source calls it. Read existing implementations instead of assuming that
   their declarations establish completion. Remove their obsolete guards,
   injected substitutes, and swallowed refusals in the same task.
+- For every removed gap or refusal, search all `scripts/*.test.mjs` files for
+  its source marker, `note_unported`, `game.unported`, `Unsupported*Error`, and
+  assertions about its old prompt or callback. Include tests that reach the
+  behavior through indirect callers. Replace stale expectations with the C
+  behavior and run the affected focused tests before submission. If the newly
+  reached path reads another input, supply that input in the test fixture and
+  assert the resulting behavior rather than stopping at the former gap.
 - For a C or Lua source port, write `.cache/task-evidence.json` in the schema defined by
   `.agents/validation.md`, "Source completion evidence". Identify source
   coverage, production callers, pure-function tests, impure-function
   recordings or synthetic ranges, and the entry-point coverage plan. The
   orchestrator verifies and records it; do not edit `GOALS.json` yourself.
+- Before handoff, reconcile each source unit in `.cache/task-context.json`
+  against `evidence.functions` or `evidence.incompleteFunctions`, including
+  required callees and production callers. For each active impure entry point,
+  cite a matching admitted synthetic range or independent C recording. Name
+  the concrete source or recorder blocker for any entry point still lacking
+  matching runtime evidence; do not claim that function complete.
 - Focused tests and lint pass, and each cited synthetic case matches through
   its cited steps. Fresh C/JavaScript cases needed for coverage match completely
   and reach the claimed entries. State blockers honestly;

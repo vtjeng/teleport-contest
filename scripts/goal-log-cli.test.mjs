@@ -369,14 +369,26 @@ function syntheticQueue(f) {
 
 test('synthetic source goals retain provenance through real CLI selection and task context', t => {
     const f = fixture(t);
-    const { session, entry, scan } = syntheticQueue(f);
-    f.cli('queue-goal', '--id', 'synthetic-port', '--kind', 'file-port',
-        '--c-file', 'widget.c', '--sessions', session, '--summary', 'Port the synthetic owner',
-        '--development-scan', '.cache/fixed-scan.json');
+    const { session, entry, queue, scan } = syntheticQueue(f);
+    const related = 'synthetic/v1/related-case';
+    const relatedEntry = { ...entry, session: related, caseId: 'related-case',
+        remainingScreens: 1, recordingSha256: '3'.repeat(64) };
+    queue.sessions.push(relatedEntry);
+    queue.candidates.push({ ...relatedEntry, sessions: [related] });
+    queue.sessions[1].investigation = { status: 'partial' };
+    f.json('.cache/queue.json', queue);
+    const args = ['queue-goal', '--id', 'synthetic-port', '--kind', 'file-port',
+        '--c-file', 'widget.c', '--sessions', `${session},${related}`,
+        '--summary', 'Port the synthetic owner',
+        '--development-scan', '.cache/fixed-scan.json'];
+    f.refuses(/investigation is partial/u, ...args);
+    queue.sessions[1].investigation = { status: 'complete' };
+    f.json('.cache/queue.json', queue);
+    f.cli(...args);
     f.cli('open-goal', '--id', 'synthetic-port', '--development-scan', '.cache/fixed-scan.json');
     const context = JSON.parse(f.cli('task-context', '--goal', 'synthetic-port',
         '--development-scan', '.cache/fixed-scan.json'));
-    assert.deepEqual(context.sessions, [session]);
+    assert.deepEqual(context.sessions, [session, related]);
     const provenance = context.syntheticProvenance[0];
     assert.equal(provenance.session, session);
     assert.equal(provenance.manifestSha256, entry.manifestSha256);
@@ -384,9 +396,12 @@ test('synthetic source goals retain provenance through real CLI selection and ta
     assert.equal(provenance.recordingSha256, entry.recordingSha256);
     assert.equal(provenance.evaluationPath, entry.evaluationPath);
     assert.equal(provenance.evaluationCommit, entry.evaluationCommit);
+    assert.equal(context.syntheticProvenance[1].session, related);
+    assert.equal(context.syntheticProvenance[1].recordingSha256,
+        relatedEntry.recordingSha256);
     const calls = readFileSync(join(f.root, '.cache/queue-requests.jsonl'), 'utf8')
         .trim().split('\n').map(line => JSON.parse(line));
-    assert.equal(calls.length, 3);
+    assert.equal(calls.length, 4);
     assert.ok(calls.every(call => JSON.stringify(call.scan) === JSON.stringify(scan)));
 });
 
@@ -408,7 +423,7 @@ test('a queued synthetic goal can open after its selected case is resolved', t =
     assert.equal(f.goals()[0].syntheticProvenance[session].session, session);
 });
 
-test('fixed scan overrides cannot bypass synthetic evidence or ranked source selection', t => {
+test('fixed scan overrides cannot bypass synthetic evidence or regression priority', t => {
     const f = fixture(t);
     const { session, queue } = syntheticQueue(f);
     const args = ['queue-goal', '--id', 'synthetic-port', '--kind', 'file-port',
@@ -422,9 +437,12 @@ test('fixed scan overrides cannot bypass synthetic evidence or ranked source sel
     queue.candidates.unshift({ sourceFile: 'unrelated.c', sessions: ['fixture-unrelated.c'] });
     queue.fixed = { sessions: [{ session: 'fixture-unrelated.c', sourceFile: 'unrelated.c' }],
         candidates: [queue.candidates[0]] };
+    queue.sessions.unshift({ session: 'fixture-unrelated.c', corpus: 'fixed',
+        sourceFile: 'unrelated.c', regression: true });
     f.json('.cache/queue.json', queue);
-    f.refuses(/highest-ranked candidate/u, ...args);
+    f.refuses(/outstanding regression/u, ...args);
     queue.candidates.shift();
+    queue.sessions.shift();
     queue.fixed = { sessions: [], candidates: [] };
     queue.candidates[0].sourceFile = 'unrelated.c';
     f.json('.cache/queue.json', queue);

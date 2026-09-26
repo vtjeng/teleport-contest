@@ -519,7 +519,7 @@ const COMMAND_HELP = {
                   (--session accepts IDs or paths such as sessions/holdout/<name>.session.json.)
 
 Optional for all kinds:
-  --sessions <a,b,...>        Related fixed-workload IDs or paths (including holdout/<name>).
+  --sessions <a,b,...>        Related fixed or batch-qualified synthetic session IDs.
   --selection-reason <text>  Source-based reason for choosing this goal.
   --detail <text>            Supporting source and mismatch evidence.
   --development-scan <path>  Use a saved fixed-workload scan for selection.
@@ -778,16 +778,23 @@ async function checkSelection(goal, scan, { allowQueuedSynthetic = false } = {})
         const sessions = candidate.sessions ?? (candidate.session ? [candidate.session] : []);
         goal.sessions = [...sessions];
     }
-    if (candidate?.corpus === 'synthetic') {
+    for (const session of new Set([goal.session, ...(goal.sessions ?? [])].filter(Boolean))) {
+        if (!session.startsWith('synthetic/')) continue;
+        const entry = queue.sessions.find(item => item.session === session
+            && item.corpus === 'synthetic');
+        if (!entry) throw new Error(`synthetic session is not an actionable work-queue entry: ${session}`);
+        if (entry.investigation?.status !== 'complete')
+            throw new Error(`synthetic investigation is ${entry.investigation?.status
+                ?? 'missing'} for ${session}; complete it before selecting the goal`);
         goal.syntheticProvenance ??= {};
-        goal.syntheticProvenance[candidate.session] = {
-            session: candidate.session, corpus: 'synthetic', batch: candidate.batch,
-            caseId: candidate.caseId, manifestPath: candidate.manifestPath,
-            manifestSha256: candidate.manifestSha256,
-            recordingPath: candidate.recordingPath ?? candidate.recording ?? null,
-            recordingSha256: candidate.recordingSha256,
-            evaluationPath: candidate.evaluationPath ?? candidate.evaluationArtifact ?? null,
-            evaluationCommit: candidate.evaluationCommit ?? null,
+        goal.syntheticProvenance[session] = {
+            session, corpus: 'synthetic', batch: entry.batch,
+            caseId: entry.caseId, manifestPath: entry.manifestPath,
+            manifestSha256: entry.manifestSha256,
+            recordingPath: entry.recordingPath ?? entry.recording ?? null,
+            recordingSha256: entry.recordingSha256,
+            evaluationPath: entry.evaluationPath ?? entry.evaluationArtifact ?? null,
+            evaluationCommit: entry.evaluationCommit ?? null,
         };
     }
     return queue;

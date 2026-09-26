@@ -6,12 +6,12 @@ in `.claude/agents/span-worker.md`.
 
 ## Operating mode
 
-Climb the synthetic local holdout by fixing its source-traced mismatches while
+Complete source behavior exposed by synthetic local holdout mismatches while
 preserving accepted fixed-workload and regression-recording matches. Prepare a
 new versioned batch as assignable work runs low; admit and baseline the oldest
 prepared batch at screen parity or when implementation workers would otherwise
 run short of independent tasks. Follow
-`.agents/selection.md` for priority, batch generation, and required tooling
+`.agents/selection.md` for task choice, batch generation, and required tooling
 support; `.agents/scoring.md` owns measurement and historical comparisons.
 An empty fixed-workload queue does not mean there is no implementation work.
 
@@ -96,8 +96,8 @@ the number of implementation-capable workers, request the next batch from the
 preparation worker if no preparation is in progress. When the count falls
 below the implementation worker count and a batch is ready, integrate and
 admit the oldest prepared batch after the required validation and evaluation
-gates. Continue assigning fixes from older batches by the normal priority
-rules; the new batch adds work without displacing those mismatches.
+gates. Continue assigning source-traced fixes from older batches; the new batch
+adds work without displacing those mismatches.
 The preparation worker does not monitor implementation assignments. If it
 reports that it cannot find 12 locally mismatching sessions with distinct
 source-traced first mismatch behaviors after switching to other plausible
@@ -272,10 +272,11 @@ checks do not require a new scan.
 At loop entry and after refreshing either corpus's work queue, identify sessions
 whose investigation is missing, partial, invalid, or stale. You are
 responsible for scheduling their investigation and publishing the results.
-Use `.agents/selection.md` order, exclude sessions already owned by workers
-or pending deliveries, and keep one investigator per session. Reserve
-capacity for implementation and its helpers; fill remaining investigator
-slots and refill them as results arrive. Reuse partial findings and begin
+Use the queue's display order to start investigations, exclude sessions already
+owned by workers or pending deliveries, and keep one investigator per session.
+That order does not determine which investigated source task a worker must
+implement. Reserve capacity for implementation and its helpers; fill remaining
+investigator slots and refill them as results arrive. Reuse partial findings and begin
 eligible implementation without waiting for the whole batch.
 
 Give each investigator its session, remaining-screen count, examined commit,
