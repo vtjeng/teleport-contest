@@ -11,8 +11,8 @@
 // OILSKIN_SACK) which delegates to pickup.c use_container() in js/pickup.js,
 // BAG_OF_TRICKS which delegates to makemon.c bagotricks() in js/makemon.js,
 // musical instruments through music.c, HORN_OF_PLENTY through mkobj.c,
-// and the ordinary CARROT unknown-use result. Ordinary armor reaches the same
-// switch-default refusal. Every other named arm, the default's weapon
+// and the ordinary food and armor unknown-use results. Every other named
+// arm, the default's weapon
 // redirects, and the wand, spellbook and coin shortcuts above the switch stop
 // at a refusal naming the C function they need.
 // use_stethoscope() covers
@@ -27,6 +27,7 @@ import {
     ARTICLE_A,
     A_STR,
     BLINDED,
+    COLNO,
     CQ_CANNED,
     CORR,
     COST_SPLAT,
@@ -35,6 +36,7 @@ import {
     ECMD_FAIL,
     ECMD_OK,
     ECMD_TIME,
+    FLASHED_LIGHT,
     FACE,
     FORCETRAP,
     GLIB,
@@ -66,6 +68,7 @@ import {
     INTRINSIC,
     IS_DOOR,
     IS_STWALL,
+    STOMACH,
     JUMPING,
     LEG,
     LEVITATION,
@@ -102,9 +105,12 @@ import {
     getdir,
 } from './cmd.js';
 import { cvt_sdoor_to_door } from './detect.js';
+import { ceiling, surface } from './dungeon.js';
+import { see_monster_closeup } from './dog.js';
 import {
     cmap_to_glyph,
     feel_newsym,
+    flush_screen,
     glyph_at,
     map_object,
     map_invisible,
@@ -123,6 +129,7 @@ import { mstatusline, ustatusline } from './insight.js';
 import {
     delobj,
     carrying,
+    consume_obj_charge,
     getobj,
     nxtobj,
     obj_extract_self,
@@ -222,7 +229,6 @@ import {
     TOUCHSTONE,
     WAND_CLASS,
     WEAPON_CLASS,
-    CARROT,
     LARGE_BOX,
     CHEST,
     ICE_BOX,
@@ -231,6 +237,7 @@ import {
     BAG_OF_HOLDING,
     BAG_OF_TRICKS,
     OILSKIN_SACK,
+    EXPENSIVE_CAMERA,
     DWARVISH_MATTOCK,
     PICK_AXE,
     CANDELABRUM_OF_INVOCATION,
@@ -238,7 +245,7 @@ import {
     WAX_CANDLE,
 } from './objects.js';
 import { AT_WEAP, MZ_TINY, PM_HEALER } from './monsters.js';
-import { body_part } from './polyself.js';
+import { body_part, mbodypart } from './polyself.js';
 import { djinni_from_bottle, make_blinded, make_glib } from './potion.js';
 import { canSpotMonster, heroIsBlind } from './startup_a11y.js';
 import { CMAP_EXPLANATIONS } from './symbol_data.js';
@@ -246,7 +253,12 @@ import { obj_has_timer } from './timeout.js';
 import { deltrap, reset_utrap, t_at } from './trap.js';
 import { dotrap } from './trap_effects.js';
 import { ttyPline } from './tty_message.js';
-import { recalc_block_point, unblock_point } from './vision.js';
+import {
+    cansee,
+    recalc_block_point,
+    unblock_point,
+    vision_recalc,
+} from './vision.js';
 import { is_pole, setnotworn } from './worn.js';
 import { dowrite } from './write.js';
 import { use_container } from './pickup.js';
@@ -269,7 +281,6 @@ import { stucksteed } from './steed.js';
 import { teleds } from './teleport.js';
 import { fingers_or_gloves } from './do_wear.js';
 import { legs_in_no_shape, set_wounded_legs } from './do.js';
-import { cansee } from './vision.js';
 import { morehungry } from './eat.js';
 import { hurtle_jump, walk_path } from './dothrow.js';
 import { makeplural } from './fruit.js';
@@ -278,6 +289,9 @@ import { SPE_JUMPING, BOULDER } from './objects.js';
 import { S_goodpos } from './symbols.js';
 import { in_rooms } from './rooms.js';
 import { set_voice } from './sounds.js';
+import { flash_hits_mon } from './uhitm.js';
+import { transient_light_cleanup } from './light.js';
+import { bhit, zapyourself } from './zap.js';
 import { verbalize } from './pline.js';
 import { y_n } from './cmd.js';
 import { note_unported } from './unported.js';
@@ -300,6 +314,96 @@ export class UnsupportedApplyError extends Error {
         this.name = 'UnsupportedApplyError';
         this.branch = branch;
     }
+}
+
+function cameraTransientLightEnv(state) {
+    return {
+        visionRecalc: (control) => vision_recalc(control, {
+            state,
+            redraw: (x, y) => newsym(x, y, state),
+        }),
+        flushScreen: (mode) => flush_screen(mode),
+        canSpotMonster: (monster) => canSpotMonster(monster, state),
+        mapInvisible: (x, y) => map_invisible(x, y, state),
+    };
+}
+
+// C ref: apply.c do_blinding_ray() (61-76). zap.c:bhit() returns the first
+// visible monster but handles invisible monsters while continuing the beam;
+// both use the same FLASHED_LIGHT traversal and defer temporary-light cleanup
+// until after this caller has processed the returned target.
+export async function do_blinding_ray(
+    object,
+    state = game,
+    env = {},
+) {
+    const random = env.random ?? { d, rn2, rnd };
+    const monster = await bhit(
+        state.u.dx,
+        state.u.dy,
+        COLNO,
+        FLASHED_LIGHT,
+        null,
+        null,
+        { obj: object },
+        state,
+        random,
+        env,
+    );
+    object.ox = state.u.ux;
+    object.oy = state.u.uy;
+    if (monster) {
+        await flash_hits_mon(monster, object, state, random, env);
+        if (object.otyp === EXPENSIVE_CAMERA) {
+            await see_monster_closeup(monster, true, {
+                ...env,
+                state,
+                observedAt: state.gb.bhitpos,
+            });
+        }
+    }
+    await transient_light_cleanup(state, cameraTransientLightEnv(state));
+}
+
+// C ref: apply.c use_camera() (79-111). A charge is spent after direction
+// selection, before cursed backfire, and the swallowed, vertical, selfie and
+// aimed-ray outcomes are kept in the same source order.
+export async function use_camera(object, state = game, env = {}) {
+    if (state.u?.uinwater) {
+        await ttyPline(
+            'Using your camera underwater would void the warranty.', state,
+        );
+        return ECMD_OK;
+    }
+    if (!await getdir(null, state)) return ECMD_CANCEL;
+
+    if (object.spe <= 0) {
+        await ttyPline(nothing_happens, state);
+        return ECMD_TIME;
+    }
+    consume_obj_charge(object, true, { ...env, state });
+
+    const random = env.random ?? { d, rn2, rnd };
+    if (object.cursed && !random.rn2(2)) {
+        await zapyourself(object, true, state);
+    } else if (state.u.uswallow) {
+        const engulfer = state.u.ustuck;
+        await ttyPline(
+            `You take a picture of ${s_suffix(mon_nam(engulfer, state))} `
+                + `${mbodypart(engulfer, STOMACH)}.`,
+            state,
+        );
+    } else if (state.u.dz) {
+        const location = state.u.dz > 0
+            ? surface(state.u.ux, state.u.uy, state)
+            : ceiling(state.u.ux, state.u.uy, state);
+        await ttyPline(`You take a picture of the ${location}.`, state);
+    } else if (!state.u.dx && !state.u.dy) {
+        await zapyourself(object, true, state);
+    } else {
+        await do_blinding_ray(object, state, { ...env, random });
+    }
+    return ECMD_TIME;
 }
 
 // C ref: apply.c tinnable() (2167-2173). An uneaten corpse can be canned only
@@ -1477,6 +1581,8 @@ export async function doapply(state = game, env = {}) {
         return use_cream_pie(obj, state, env);
     case STETHOSCOPE:
         return use_stethoscope(obj, state);
+    case EXPENSIVE_CAMERA:
+        return use_camera(obj, state, env);
     case PICK_AXE:
     case DWARVISH_MATTOCK:
         return use_pick_axe(obj, state, env);
@@ -1529,17 +1635,29 @@ export async function doapply(state = game, env = {}) {
     case DRUM_OF_EARTHQUAKE:
         // apply.c:4372-4383. All musical instruments share this owner.
         return do_play_instrument(obj, state, env);
+    case BANANA:
+        // apply.c:4401-4403. Hallucinating heroes get the banana's ringing
+        // message and the source's initial ECMD_TIME result; otherwise C
+        // falls through to the generic default arm below.
+        if (heroHallucinating(state)) {
+            await ttyPline("It rings! ... But no-one answers.", state);
+            return ECMD_TIME;
+        }
+        // FALLTHROUGH to the same unknown-use result as the C default.
     default:
-        // apply.c:4407-4417. CARROT is not a named switch arm, and it cannot
-        // be a polearm, pick, or axe because those macros admit only
-        // WEAPON_CLASS and TOOL_CLASS. It therefore reaches C's exact
-        // unknown-use result without spending a turn or changing the object.
-        if (obj.otyp === CARROT) {
+        // apply.c:4407-4417. CARROT and other nonnamed foods use this arm;
+        // BANANA also falls through here when not hallucinating. Those food
+        // objects cannot be poles, picks, or axes because the source macros
+        // admit only WEAPON_CLASS and TOOL_CLASS.
+        // C names LUMP_OF_ROYAL_JELLY before its default, but that helper is
+        // still unported. CREAM_PIE also has an earlier named arm, which the
+        // switch above handles. Other FOOD_CLASS items, including CARROT,
+        // use the generic result.
+        if (obj.oclass === FOOD_CLASS && obj.otyp !== LUMP_OF_ROYAL_JELLY) {
             await ttyPline("Sorry, I don't know how to use that.", state);
             return ECMD_FAIL;
         }
-        // The same already-ported default result applies to ordinary armor;
-        // keep the class-wide behavior separate from this CARROT slice.
+        // The same already-ported default result applies to ordinary armor.
         if (obj.oclass === ARMOR_CLASS) {
             await ttyPline("Sorry, I don't know how to use that.", state);
             return ECMD_FAIL;

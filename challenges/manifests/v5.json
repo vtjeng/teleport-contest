@@ -1,0 +1,228 @@
+{
+  "version": 1,
+  "batch": "v5",
+  "cases": [
+    {
+      "id": "knight-steed-dismount-remount",
+      "title": "Knight pony mount, dismount, and slipped retry",
+      "mission": "Use #ride to mount and dismount the Knight starting pony, then try to remount after movement.",
+      "selectionRationale": "Selected from the C source and prior case corpus before C recording; designed to vary the source owner, state setup, role, and action history. steed.c:doride, mount_steed, dismount_steed.",
+      "sourcePointers": [
+        "nethack-c/upstream/src/steed.c:178 doride()",
+        "nethack-c/upstream/src/steed.c:197 mount_steed()",
+        "nethack-c/upstream/src/steed.c:576 dismount_steed()"
+      ],
+      "cOutcome": "C starts the Knight adjacent to the saddled pony; #ride mounts it at step 8, then #ride dismounts at step 14. After the recorded move/return history, a remount attempt slips at step 21. This valid outcome retains the missed successful retry.",
+      "outcome": "C starts the Knight adjacent to the saddled pony; #ride mounts it at step 8, then #ride dismounts at step 14. After the recorded move/return history, a remount attempt slips at step 21. This valid outcome retains the missed successful retry.",
+      "inputs": {
+        "seed": 90525071,
+        "datetime": "20370914090000",
+        "role": "Knight",
+        "race": "human",
+        "gender": "female",
+        "alignment": "lawful",
+        "playmode": "ordinary",
+        "keyCount": 30,
+        "boundaries": 31
+      },
+      "recipe": "challenges/cases/v5/knight-steed-dismount-remount.recipe.session.json",
+      "recipeSha256": "eeaf7ee2885471127f65866603fa2df7f24143007f90468f281a70e8ce00042b",
+      "recording": "challenges/cases/v5/knight-steed-dismount-remount.session.json",
+      "recordingSha256": "1e5db02acd869f3284c2e37c15dd5504c754464ac3030846ebf09deec73d97bf",
+      "reproducibility": "Independent C replay command: \"node\" \"scripts/record-session.mjs\" \"challenges/cases/v5/knight-steed-dismount-remount.recipe.session.json\" \".cache/C6-replays/knight-steed-dismount-remount.session.json\"; exit 0. The C rerecord is byte-identical to the saved recording (SHA-256 1e5db02acd869f3284c2e37c15dd5504c754464ac3030846ebf09deec73d97bf). Log: /tmp/teleport-loop-worker-c-20260925/.cache/C6-replays/knight-steed-dismount-remount.log."
+    },
+    {
+      "id": "wizard-scroll-identify-inventory",
+      "title": "Identify scroll reveals a carried potion",
+      "mission": "Read an identify scroll, identify an unknown carried potion, and inspect inventory again after another action.",
+      "selectionRationale": "Selected from the C source and prior case corpus before C recording; designed to vary the source owner, state setup, role, and action history. read.c:seffect_identify.",
+      "sourcePointers": [
+        "nethack-c/upstream/src/read.c:2055 seffect_identify()"
+      ],
+      "cOutcome": "C reports “This is an identify scroll.” at step 41, then changes the carried potion from a brilliant-blue potion to an uncursed potion of speed at step 42. The later inventory revisit still shows the identified name.",
+      "outcome": "C reports “This is an identify scroll.” at step 41, then changes the carried potion from a brilliant-blue potion to an uncursed potion of speed at step 42. The later inventory revisit still shows the identified name.",
+      "inputs": {
+        "seed": 90525072,
+        "datetime": "20371015121500",
+        "role": "Wizard",
+        "race": "human",
+        "gender": "male",
+        "alignment": "neutral",
+        "playmode": "debug",
+        "keyCount": 47,
+        "boundaries": 48
+      },
+      "recipe": "challenges/cases/v5/wizard-scroll-identify-inventory.recipe.session.json",
+      "recipeSha256": "37912b898b197c45cf2d92ab9e634b2470efac489f2ed8350ad331d6dab32a11",
+      "recording": "challenges/cases/v5/wizard-scroll-identify-inventory.session.json",
+      "recordingSha256": "95e4004d021fd928f81845589f8206e730bee0be54bbd702648aeb0e67bf1685",
+      "reproducibility": "Independent C replay command: \"node\" \"scripts/record-session.mjs\" \"challenges/cases/v5/wizard-scroll-identify-inventory.recipe.session.json\" \".cache/C6-replays/wizard-scroll-identify-inventory.session.json\"; exit 0. The C rerecord is byte-identical to the saved recording (SHA-256 95e4004d021fd928f81845589f8206e730bee0be54bbd702648aeb0e67bf1685). Log: /tmp/teleport-loop-worker-c-20260925/.cache/C6-replays/wizard-scroll-identify-inventory.log."
+    },
+    {
+      "id": "ranger-level-teleport-return",
+      "title": "Cursed scroll level transit and stair return",
+      "mission": "Read a cursed teleportation scroll to reach another level, then find a stair and return.",
+      "selectionRationale": "Selected from the C source and prior case corpus before C recording; designed to vary the source owner, state setup, role, and action history. read.c:seffect_teleportation -> teleport.c:level_tele.",
+      "sourcePointers": [
+        "nethack-c/upstream/src/read.c:2015 seffect_teleportation()",
+        "nethack-c/upstream/src/teleport.c:1165 level_tele()"
+      ],
+      "cOutcome": "The cursed scroll moves the Ranger from D:1 to D:2 with “You materialize on a different level!” at step 37. The recorded exploration finds an upstairs and returns to D:1 at step 43.",
+      "outcome": "The cursed scroll moves the Ranger from D:1 to D:2 with “You materialize on a different level!” at step 37. The recorded exploration finds an upstairs and returns to D:1 at step 43.",
+      "inputs": {
+        "seed": 90525073,
+        "datetime": "20371116123000",
+        "role": "Ranger",
+        "race": "human",
+        "gender": "male",
+        "alignment": "chaotic",
+        "playmode": "debug",
+        "keyCount": 44,
+        "boundaries": 45
+      },
+      "recipe": "challenges/cases/v5/ranger-level-teleport-return.recipe.session.json",
+      "recipeSha256": "fd03fdbf723176a81c357f3e735e7971148fdaaa46f90b3be4f095169a63bef7",
+      "recording": "challenges/cases/v5/ranger-level-teleport-return.session.json",
+      "recordingSha256": "5e5b09826e4e3dd2e5689e72dd4093ba492baeae7718ff040c43dec8ba14b5f3",
+      "reproducibility": "Independent C replay command: \"node\" \"scripts/record-session.mjs\" \"challenges/cases/v5/ranger-level-teleport-return.recipe.session.json\" \".cache/C6-replays/ranger-level-teleport-return.session.json\"; exit 0. The C rerecord is byte-identical to the saved recording (SHA-256 5e5b09826e4e3dd2e5689e72dd4093ba492baeae7718ff040c43dec8ba14b5f3). Log: /tmp/teleport-loop-worker-c-20260925/.cache/C6-replays/ranger-level-teleport-return.log."
+    },
+    {
+      "id": "samurai-pet-ration-eating",
+      "title": "Samurai tripe ration caught and eaten by pet",
+      "mission": "Offer food through a distinct Samurai inventory and action history, then revisit the pet after it eats.",
+      "selectionRationale": "Selected from the C source and prior case corpus before C recording; designed to vary the source owner, state setup, role, and action history. dogmove.c:dog_eat, reached through the thrown-food pet-catching path.",
+      "sourcePointers": [
+        "nethack-c/upstream/src/dogmove.c:218 dog_eat()",
+        "nethack-c/upstream/src/dogmove.c:435 pet object-selection caller"
+      ],
+      "cOutcome": "C rejects the first meat-ration wish; Hachi does not eat the starting gunyoki after it is dropped. The later wished tripe ration is dropped, picked up during incidental combat, and thrown north. At step 73 Hachi catches and eats it, reaching dog_eat through the thrown-food path.",
+      "outcome": "C rejects the first meat-ration wish; Hachi does not eat the starting gunyoki after it is dropped. The later wished tripe ration is dropped, picked up during incidental combat, and thrown north. At step 73 Hachi catches and eats it, reaching dog_eat through the thrown-food path.",
+      "inputs": {
+        "seed": 90525074,
+        "datetime": "20380118134500",
+        "role": "Samurai",
+        "race": "human",
+        "gender": "male",
+        "alignment": "lawful",
+        "playmode": "debug",
+        "keyCount": 75,
+        "boundaries": 76
+      },
+      "recipe": "challenges/cases/v5/samurai-pet-ration-eating.recipe.session.json",
+      "recipeSha256": "802b9c54f79a2a88166e3c87c3ea9f3debc686f204ae92537b5deaba48d3b431",
+      "recording": "challenges/cases/v5/samurai-pet-ration-eating.session.json",
+      "recordingSha256": "719edf6f87e6d47c9c59b0cbfd8a418269fb55e34f5dfbc93500b61dd472954c",
+      "reproducibility": "Independent C replay command: \"node\" \"scripts/record-session.mjs\" \"challenges/cases/v5/samurai-pet-ration-eating.recipe.session.json\" \".cache/C6-replays/samurai-pet-ration-eating.session.json\"; exit 0. The C rerecord is byte-identical to the saved recording (SHA-256 719edf6f87e6d47c9c59b0cbfd8a418269fb55e34f5dfbc93500b61dd472954c). Log: /tmp/teleport-loop-worker-c-20260925/.cache/C6-replays/samurai-pet-ration-eating.log."
+    },
+    {
+      "id": "valkyrie-kick-door",
+      "title": "Repeated kicks open a doorway",
+      "mission": "Kick a closed doorway repeatedly, traverse through it, and return to the original room.",
+      "selectionRationale": "Selected from the C source and prior case corpus before C recording; designed to vary the source owner, state setup, role, and action history. dokick.c:dokick closed-door handling.",
+      "sourcePointers": [
+        "nethack-c/upstream/src/dokick.c:1257 dokick()"
+      ],
+      "cOutcome": "Two kicks produce “Thwack!!”; the third crashes the closed door open at step 13. The Valkyrie steps through the newly open passage and returns at steps 14–15. Pet-versus-grid-bug actions during approach remain in the recording.",
+      "outcome": "Two kicks produce “Thwack!!”; the third crashes the closed door open at step 13. The Valkyrie steps through the newly open passage and returns at steps 14–15. Pet-versus-grid-bug actions during approach remain in the recording.",
+      "inputs": {
+        "seed": 90525075,
+        "datetime": "20390219101500",
+        "role": "Valkyrie",
+        "race": "human",
+        "gender": "female",
+        "alignment": "neutral",
+        "playmode": "ordinary",
+        "keyCount": 15,
+        "boundaries": 16
+      },
+      "recipe": "challenges/cases/v5/valkyrie-kick-door.recipe.session.json",
+      "recipeSha256": "c1300b8413696423f9e00c373382334726d0a96dd3f2aa29af512c0dbc1cbe0c",
+      "recording": "challenges/cases/v5/valkyrie-kick-door.session.json",
+      "recordingSha256": "72f4c4451d57efd55c9fc39e5f12a0396338d43d080829047e958e07288689c5",
+      "reproducibility": "Independent C replay command: \"node\" \"scripts/record-session.mjs\" \"challenges/cases/v5/valkyrie-kick-door.recipe.session.json\" \".cache/C6-replays/valkyrie-kick-door.session.json\"; exit 0. The C rerecord is byte-identical to the saved recording (SHA-256 72f4c4451d57efd55c9fc39e5f12a0396338d43d080829047e958e07288689c5). Log: /tmp/teleport-loop-worker-c-20260925/.cache/C6-replays/valkyrie-kick-door.log."
+    },
+    {
+      "id": "barbarian-fresh-corpse-eating",
+      "title": "Wished newt corpse takes rotten-food branch",
+      "mission": "Create a newt, fight it, and reach eatcorpse with a newt corpse; retain the C-produced corpse-age branch.",
+      "selectionRationale": "Selected from the C source and prior case corpus before C recording; designed to vary the source owner, state setup, role, and action history. eat.c:eatcorpse rotten-corpse branch.",
+      "sourcePointers": [
+        "nethack-c/upstream/src/eat.c:1855 eatcorpse()"
+      ],
+      "cOutcome": "C creates the newt and combat gives XP, but the later wished newt corpse is rotten. Eating it reaches eatcorpse at step 24 and produces the rotten-food and light-headed result, rather than the planned fresh-corpse nutrition result.",
+      "outcome": "C creates the newt and combat gives XP, but the later wished newt corpse is rotten. Eating it reaches eatcorpse at step 24 and produces the rotten-food and light-headed result, rather than the planned fresh-corpse nutrition result.",
+      "inputs": {
+        "seed": 90525076,
+        "datetime": "20400320163000",
+        "role": "Barbarian",
+        "race": "human",
+        "gender": "male",
+        "alignment": "chaotic",
+        "playmode": "debug",
+        "keyCount": 24,
+        "boundaries": 25
+      },
+      "recipe": "challenges/cases/v5/barbarian-fresh-corpse-eating.recipe.session.json",
+      "recipeSha256": "8bd4cb098e510a6ee6e9c32acbc6817ee0ccf013fc5abb587c03599ad4b6131b",
+      "recording": "challenges/cases/v5/barbarian-fresh-corpse-eating.session.json",
+      "recordingSha256": "3ca0033c010863d6df1afa6f5e0b88aa9fa06bdfb1a5ad3447f7e9a53e20040b",
+      "reproducibility": "Independent C replay command: \"node\" \"scripts/record-session.mjs\" \"challenges/cases/v5/barbarian-fresh-corpse-eating.recipe.session.json\" \".cache/C6-replays/barbarian-fresh-corpse-eating.session.json\"; exit 0. The C rerecord is byte-identical to the saved recording (SHA-256 3ca0033c010863d6df1afa6f5e0b88aa9fa06bdfb1a5ad3447f7e9a53e20040b). Log: /tmp/teleport-loop-worker-c-20260925/.cache/C6-replays/barbarian-fresh-corpse-eating.log."
+    },
+    {
+      "id": "tourist-cursed-speed-duration",
+      "title": "Cursed speed potion expires after sustained waiting",
+      "mission": "Drink a cursed speed potion and advance enough turns to observe the temporary speed effect end.",
+      "selectionRationale": "Selected from the C source and prior case corpus before C recording; designed to vary the source owner, state setup, role, and action history. potion.c:peffect_speed -> speed_up -> timeout.c:FAST expiration.",
+      "sourcePointers": [
+        "nethack-c/upstream/src/potion.c:1052 peffect_speed()",
+        "nethack-c/upstream/src/potion.c:2919 speed_up()",
+        "nethack-c/upstream/src/timeout.c:728 FAST timeout message"
+      ],
+      "cOutcome": "C accepts the cursed speed potion, reports sudden faster movement at step 26, and after the sustained waiting history reports “You feel yourself slow down.” at step 160 from the FAST timeout handler. The timeout does not take the noncursed intrinsic-speed branch.",
+      "outcome": "C accepts the cursed speed potion, reports sudden faster movement at step 26, and after the sustained waiting history reports “You feel yourself slow down.” at step 160 from the FAST timeout handler. The timeout does not take the noncursed intrinsic-speed branch.",
+      "inputs": {
+        "seed": 90525077,
+        "datetime": "20410425110500",
+        "role": "Tourist",
+        "race": "elf",
+        "gender": "female",
+        "alignment": "neutral",
+        "playmode": "debug",
+        "keyCount": 176,
+        "boundaries": 177
+      },
+      "recipe": "challenges/cases/v5/tourist-cursed-speed-duration.recipe.session.json",
+      "recipeSha256": "4d510fad31d73282848b22d030d52d07138757a9ad2dc5c5e458b91b01d270fe",
+      "recording": "challenges/cases/v5/tourist-cursed-speed-duration.session.json",
+      "recordingSha256": "87cf17dda08cb5936c31a9662e22022ffd02930336349607e7b85dae22be235a",
+      "reproducibility": "Independent C replay command: \"node\" \"scripts/record-session.mjs\" \"challenges/cases/v5/tourist-cursed-speed-duration.recipe.session.json\" \".cache/C6-replays/tourist-cursed-speed-duration.session.json\"; exit 0. The C rerecord is byte-identical to the saved recording (SHA-256 87cf17dda08cb5936c31a9662e22022ffd02930336349607e7b85dae22be235a). Log: /tmp/teleport-loop-worker-c-20260925/.cache/C6-replays/tourist-cursed-speed-duration.log."
+    },
+    {
+      "id": "healer-wand-striking-grid-bug",
+      "title": "Striking wand kills a grid bug after a directed retry",
+      "mission": "Create a hostile grid bug, zap a wished wand of striking, correct the direction, and observe the target hit.",
+      "selectionRationale": "Selected from the C source and prior case corpus before C recording; designed to vary the source owner, state setup, role, and action history. zap.c:weffects with wand of striking against a monster.",
+      "sourcePointers": [
+        "nethack-c/upstream/src/zap.c:3431 weffects()"
+      ],
+      "cOutcome": "The wished wand first fires north and hits the starting kitten, killing it at step 40. After correcting the direction west, an earlier zap produces no combat message while the grid bug survives; a second westward zap hits and kills the grid bug at step 47.",
+      "outcome": "The wished wand first fires north and hits the starting kitten, killing it at step 40. After correcting the direction west, an earlier zap produces no combat message while the grid bug survives; a second westward zap hits and kills the grid bug at step 47.",
+      "inputs": {
+        "seed": 90525078,
+        "datetime": "20420530143000",
+        "role": "Healer",
+        "race": "human",
+        "gender": "female",
+        "alignment": "neutral",
+        "playmode": "debug",
+        "keyCount": 47,
+        "boundaries": 48
+      },
+      "recipe": "challenges/cases/v5/healer-wand-striking-grid-bug.recipe.session.json",
+      "recipeSha256": "3a7de6608aa0b6a7b0b18d69aad15580d049445bd3ddc59b353966006f65a39d",
+      "recording": "challenges/cases/v5/healer-wand-striking-grid-bug.session.json",
+      "recordingSha256": "97d372dd3a84252d6970271b4d335959cbf6d24c41318fa0b578c7a79446ec32",
+      "reproducibility": "Independent C replay command: \"node\" \"scripts/record-session.mjs\" \"challenges/cases/v5/healer-wand-striking-grid-bug.recipe.session.json\" \".cache/C6-replays/healer-wand-striking-grid-bug.session.json\"; exit 0. The C rerecord is byte-identical to the saved recording (SHA-256 97d372dd3a84252d6970271b4d335959cbf6d24c41318fa0b578c7a79446ec32). Log: /tmp/teleport-loop-worker-c-20260925/.cache/C6-replays/healer-wand-striking-grid-bug.log."
+    }
+  ]
+}

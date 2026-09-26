@@ -211,9 +211,10 @@ async function forceGetposSelectionRedraw(state) {
         if (location) location.gnew = 1;
     }
 
-    // flush_glyph_buffer() visits rows first and columns second, unlike the
-    // selection construction loop above.  tty_print_glyph() advances one
-    // column after tty_curs(), hence x + 1 below when the cursor is restored.
+    // C flush_glyph_buffer() scans rows, then columns. The recorder's HUP
+    // window port leaves curs() as a no-op, so if no later pline flushes with
+    // cursor_on_u, the selection redraw leaves the terminal cursor after the
+    // last dirty glyph. tty_print_glyph() advances one column past that cell.
     let last = null;
     for (const position of selected) {
         if (!last || position.y > last.y
@@ -901,6 +902,11 @@ export async function getpos(ccp, force, goal, state = game) {
     const target = goal || 'desired location';
     let cx = ccp.x;
     let cy = ccp.y;
+    // C apply.c:jump() installs getpos_sethilite() before entering getpos();
+    // that callback installation marks changed valid squares dirty before
+    // getpos.c handles its tip and verbose pline. Let those messages consume
+    // the dirty selection in source order, with their cursor_on_u flush.
+    const forcedMapCursor = await forceGetposSelectionRedraw(state);
     let showGoalMessage = await handle_tip(TIP_GETPOS, state);
     let messageGiven = true;
     // getpos_sethilite() in C keeps a callback and a three-state mode. The
@@ -921,15 +927,14 @@ export async function getpos(ccp, force, goal, state = game) {
     state.gg ??= {};
     state.gg.getposx = cx;
     state.gg.getposy = cy;
-    const forcedMapCursor = await forceGetposSelectionRedraw(state);
     cursorAt(cx, cy, state);
     await flush_screen(0);
-    if (forcedMapCursor) {
-        // tty_print_glyph() leaves the map window one character past the
-        // glyph it just printed.  Route that advance through tty_curs() so
-        // offx/offy, clipping, and both tty cursor records stay source-shaped.
+    // A tip or verbose-help pline after the caller dirtied valid positions
+    // flushes with cursor_on_u and replaces the HUP port's cursor left by the
+    // map redraw. Without either message, retain that redraw's final glyph
+    // cursor, as C's no-op hup_curs() does.
+    if (forcedMapCursor && !showGoalMessage && !state.flags.verbose)
         cursorAt(forcedMapCursor.x + 1, forcedMapCursor.y, state);
-    }
 
     let result = LOOK_TRADITIONAL;
     try {

@@ -130,6 +130,7 @@ test('msummon uses the runtime creation contract and preserves census delta',
             isminion: false,
         };
         const calls = [];
+        const transientLights = [];
         const result = await msummon(summoner, {
             state,
             random: {
@@ -141,6 +142,9 @@ test('msummon uses the runtime creation contract and preserves census delta',
                 rnz: () => 1,
             },
             canSeeMonster: () => false,
+            showTransientLight: async (x, y) => {
+                transientLights.push([x, y]);
+            },
             makemon_runtime: async (ptr, x, y, flags, env) => {
                 calls.push({ ptr, x, y, flags, env });
                 const created = {
@@ -158,6 +162,7 @@ test('msummon uses the runtime creation contract and preserves census delta',
         });
         assert.equal(result, 1);
         assert.equal(calls.length, 1);
+        assert.deepEqual(transientLights, [[4, 5]]);
         assert.equal(calls[0].x, 4);
         assert.equal(calls[0].y, 5);
         assert.equal(calls[0].flags, MM_EMIN | MM_NOMSG);

@@ -345,6 +345,26 @@ test('monster light follows its owner and deletes by identity', () => {
     assert.equal(state.vision_full_recalc, 1);
 });
 
+test('camera flash owns the source-approved radius-zero null-object light', () => {
+    const state = darkRoomState();
+    const flash = { a_obj: null };
+    const source = new_light_source(10, 7, 0, LS_OBJECT, flash, state);
+
+    assert.equal(source.id, flash);
+    assert.equal(source.range, 0);
+    assert.deepEqual([source.x, source.y], [10, 7]);
+    assert.equal(state.vision_full_recalc, 1);
+
+    assert.throws(
+        () => new_light_source(10, 7, 0, LS_OBJECT, { camera: true }, state),
+        /illegal range/u,
+    );
+    assert.throws(
+        () => new_light_source(10, 7, 0, LS_MONSTER, { a_obj: null }, state),
+        /illegal range/u,
+    );
+});
+
 test('a blocking wall stops candle light along clear_path', () => {
     const state = darkRoomState();
     floorCandle(state, 9, 5);

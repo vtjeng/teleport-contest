@@ -191,8 +191,9 @@ replayed to locate source behavior. Preserve all admitted batches and evaluate
 them separately from the fixed checkpoint, as `.agents/scoring.md` requires.
 The fixed checkpoint alone does not establish synthetic non-regression. New
 batches follow `.agents/selection.md`, "Generating the next synthetic batch".
-The preparation worker records only C cases, checks recipe and recording
-hashes, and independently replays each C case before submitting. The
+The preparation worker records C cases, checks recipe and recording hashes,
+and independently replays each C case before submitting. It compares the
+replayed case with JavaScript locally as `.agents/selection.md` specifies. The
 orchestrator verifies those checks, then runs the combined checkpoint before
 accepting the case files. Prepared cases do not enter synthetic evaluations
 or dashboard totals until the orchestrator admits a manifest and saves its

@@ -1,0 +1,11 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 230919333,
+      "datetime": "20331013094500",
+      "nethackrc": "OPTIONS=name:Arden,role:Wizard,race:human,gender:male,align:neutral,playmode:debug,!legacy,!tutorial,!splash_screen,showexp,time\n",
+      "moves": "#wizgenesis\nhostile gremlin\n#wizwish\nscroll of light\ni\u001bro"
+    }
+  ]
+}
