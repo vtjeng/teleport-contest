@@ -76327,7 +76327,7 @@
     {
       "id": "div-getpos-jump-cursor-synthetic-v1-20260926",
       "kind": "divergence-fix",
-      "status": "open",
+      "status": "parked",
       "summary": "Restore source-ordered getpos highlight flush and cursor placement during physical jump",
       "cFile": "getpos.c",
       "sessions": [],
@@ -76550,7 +76550,17 @@
             }
           }
         }
-      ]
+      ],
+      "progressBeforePark": {
+        "screens": 0,
+        "rng": 0
+      },
+      "parkedStanding": {
+        "sha": "c12df7b29cfff0e2b05b59d802a204008912d442",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "parkedReason": "The getpos highlight and cursor defect is fixed: v1/knight-jump-return now matches 87/87 screens, cursors, and RNG, and the fixed Knight session remains matched. A separate step-79 animation-frame mismatch remains (C emits one frame, JS two) after apply.c jump -> dothrow.c hurtle_step/nh_delay_output -> teleport.c teleds; its exact source owner is unresolved. Resume only after a source-traced frame investigation identifies the responsible function and this goal is selected again, or supersede with that scoped divergence goal."
     },
     {
       "id": "div-apply-doapply-food-default-synthetic-v3-20260926",
