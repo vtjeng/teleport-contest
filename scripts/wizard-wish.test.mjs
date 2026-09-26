@@ -4,9 +4,8 @@
 // scripts/run-wizard-wish.mjs holds the strict differential evidence: eight
 // segments recorded against the C reference, covering both dispatch routes,
 // both refusals an ordinary hero meets, and four shapes of typed line. The
-// assertions here pin what those recordings cannot show -- the refusal class
-// the command seam has to convert, the branches of makewish() no ported caller
-// reaches, and the state a screen never carries.
+// assertions here pin what those recordings cannot show -- retry state,
+// caller branches no current recipe reaches, and values a screen never carries.
 
 import assert from 'node:assert/strict';
 import test from 'node:test';
@@ -27,10 +26,10 @@ import { roles } from '../js/roles.js';
 import { monst_globals_init } from '../js/monsters.js';
 import { init_objects } from '../js/o_init.js';
 import {
-    BOULDER, DAGGER, GEM_CLASS, HEAVY_IRON_BALL, SACK,
+    BOULDER, DAGGER, GEM_CLASS, HEAVY_IRON_BALL, SACK, SCR_BLANK_PAPER,
     objects_globals_init,
 } from '../js/objects.js';
-import { UnsupportedWishError, makewish } from '../js/zap.js';
+import { makewish } from '../js/zap.js';
 import {
     CASES as CONTAINER_CASES, loadWishedContainerRecipe,
 } from './run-wished-container.mjs';
@@ -69,7 +68,7 @@ function segmentFor(moves) {
 // The hero has no position, so vpline()'s `if (u.ux) flush_screen()` is
 // skipped and the top line is the only thing that paints. `reads` collects the
 // top line as each keystroke is about to be read.
-function wishState(keys, { verbose = false } = {}) {
+function wishState(keys, { verbose = false, cmdassist = false } = {}) {
     const state = resetGame();
     // initalign is role_init()'s index into aligns[]; 0 is the lawful row.
     // hack_artifacts() reads it, and the role, to fix up the quest artifacts.
@@ -77,7 +76,7 @@ function wishState(keys, { verbose = false } = {}) {
     // The --More-- the verbose announcement needs is dismissed with a space,
     // which xwaitforspace() accepts only once setftty() raised iflags.cbreak
     // inside tty_init_nhwindows(); every wish happens well after that.
-    state.iflags = { cbreak: true };
+    state.iflags = { cbreak: true, cmdassist };
     state.urole = { ...roles[0] };
     // readobjnam() reads the shuffled objects[] from its first block onward,
     // so even a line it refuses needs the catalog in place.  Zero choices
@@ -134,17 +133,6 @@ test('the wish matrix contains only source-selected inputs', () => {
         & WIZMODECMD,
         WIZMODECMD,
     );
-});
-
-test('the wish refusal converts at the command seam', () => {
-    // js/cmd.js runWishCommand() wraps wiz_wish() in failClosedCommand(), and
-    // js/jsmain.js breaks a segment only for the three boundary classes, so a
-    // class makewish() can raise that the wrapper does not list escapes as a
-    // hard failure and discards the segment's matching prefix instead of
-    // stopping on it. Every admitted wish reaches this one, on both dispatch
-    // routes, after getlin() has already echoed the whole typed line: dropping
-    // it from the list turns every one of those screens into a session error.
-    assert.ok(failClosedCommandRefusals().includes(UnsupportedWishError));
 });
 
 test('C(w) paints the wish prompt and no verbose line', async () => {
@@ -218,25 +206,54 @@ test('rhack() runs can_do_extcmd() for the key a command is bound to',
     assert.equal(state.context.move, 0);
 });
 
-test('makewish() hands readobjnam() the line mungspaces() collapsed',
+test('makewish() retries a munged no-match line and appends cmdassist help',
     async () => {
-    // zap.c:6345 runs mungspaces(buf) before the Escape test at 6346, so the
-    // buffer readobjnam() parses is already collapsed: hacklib.c mungspaces()
-    // folds tabs into spaces, squeezes each run to one, and drops the leading
-    // and trailing ones.  "blessed" and "+2" are qualifiers the parser now
-    // applies, so the refusal comes from "cry" matching no object name; either
-    // way the error carries the collapsed line, which is what this pins.
-    const { state } = wishState('  blessed   +2  cry\n');
+    // zap.c:6345 runs mungspaces() before readobjnam(). The first line is an
+    // invalid wish after the recognized qualifiers are removed; C prints its
+    // no-match line and retries with the cmdassist suffix because tries > 0.
+    const { state, reads } = wishState(
+        '  blessed   +2  cry\n nothing\n', { cmdassist: true },
+    );
     state.u = { uconduct: {} };
     state.context = { resume_wish: 7 }; /* a value zap.c:6323 has to clear */
-    await assert.rejects(
-        () => makewish(state),
-        (error) => error instanceof UnsupportedWishError
-            && error.buf === 'blessed +2 cry',
-    );
+    await makewish(state);
+    assert.ok(reads.includes('For what do you wish?'));
+    assert.ok(reads.includes(
+        "For what do you wish (enter 'help' for assistance)?",
+    ));
+    // The retry suffix is source-controlled by tries, and reaching the second
+    // line only after the unmatched input proves makewish() printed and
+    // retried rather than swallowing the first entry.
+    assert.equal(state.u.uconduct.wishes ?? 0, 0);
     // zap.c:6323, the first statement of the function: a wish that reaches the
     // prompt is not one a restore has to resume.
     assert.equal(state.context.resume_wish, 0);
+});
+
+test('makewish() retries help without counting it, then accepts a wish',
+    async () => {
+    const segment = segmentFor(`${WIZWISH_KEY}mud boo`);
+    const moves = `.${WIZWISH_KEY}help\nmagic lamp\n.`;
+    await runSegment({ ...segment, moves });
+
+    // The production command reached help, retried, then completed a real
+    // object wish. The helper's unported void result did not count as a failed
+    // wish or consume the next line.
+    assert.equal(game.u.uconduct.wishes, 1);
+    assert.ok(game.unported.has('zap.c wishcmdassist'));
+});
+
+test('makewish() turns an unlabeled scroll wish into blank paper', async () => {
+    const segment = loadWizardWishRecipe().segments[0];
+    const moves = `.${WIZWISH_KEY}unlabeled scroll\n.`;
+    await runSegment({ ...segment, moves });
+
+    assert.equal(game.u.uconduct.wishes, 1);
+    let newest = null;
+    for (let obj = game.invent; obj; obj = obj.nobj)
+        if (!newest || obj.o_id > newest.o_id) newest = obj;
+    assert.ok(newest);
+    assert.equal(newest.otyp, SCR_BLANK_PAPER);
 });
 
 test('makewish() announces the wish when flags.verbose is set', async () => {
@@ -245,24 +262,25 @@ test('makewish() announces the wish when flags.verbose is set', async () => {
     // sit.c:251 and zap.c:2583 leave it as the player set it. The line needs a
     // --More-- of its own, so the announcement costs a keystroke that the
     // silent path spends on the wish itself.
-    const loud = wishState(' a\n', { verbose: true });
+    const loud = wishState(' a\n nothing\n', { verbose: true });
     loud.state.u = { uconduct: {} };
-    await assert.rejects(() => makewish(loud.state), UnsupportedWishError);
-    assert.deepEqual(loud.reads, [
+    await makewish(loud.state);
+    assert.deepEqual(loud.reads.slice(0, 3), [
         'You may wish for an object.--More--',
         'For what do you wish?',
         'For what do you wish? a',
     ]);
+    assert.ok(loud.reads.includes('For what do you wish?'));
 
-    // With the flag clear the same three keys would overrun the prompt, so the
-    // quiet run gets only the two the wish needs.
-    const quiet = wishState('a\n');
+    // With the flag clear, retry leaves the same prompt without a suffix.
+    const quiet = wishState('a\n nothing\n');
     quiet.state.u = { uconduct: {} };
-    await assert.rejects(() => makewish(quiet.state), UnsupportedWishError);
-    assert.deepEqual(quiet.reads, [
+    await makewish(quiet.state);
+    assert.deepEqual(quiet.reads.slice(0, 2), [
         'For what do you wish?',
         'For what do you wish? a',
     ]);
+    assert.ok(quiet.reads.includes('For what do you wish?'));
 });
 
 test('a terminal that goes away at the prompt suspends the wish', async () => {

@@ -278,7 +278,7 @@ import {
 } from './objects.js';
 import {
     UnsupportedObjectOperationError,
-    curseFreeObject,
+    curse,
     clear_splitobjs,
     dealloc_obj,
     erosionMatters,
@@ -3223,7 +3223,7 @@ function freeinv_core(obj, env, facts) {
     }
 
     if (obj.otyp === LOADSTONE) {
-        curseFreeObject(obj);
+        curse(obj, env);
     } else if (obj.otyp === LUCKSTONE || obj.oartifact) {
         if (facts.confersLuck) {
             set_moreluck(env.state);

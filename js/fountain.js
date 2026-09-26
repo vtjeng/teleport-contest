@@ -68,7 +68,7 @@ import {
     PM_KNIGHT, PM_SEWER_RAT, PM_WATER_DEMON, PM_WATER_ELEMENTAL,
     PM_WATER_MOCCASIN, PM_WATER_NYMPH,
 } from './monsters.js';
-import { mkgold, mkobj, mkobj_at, mksobj_at, objectType, rnd_class, sobj_at } from './obj.js';
+import { curse, mkgold, mkobj, mkobj_at, mksobj_at, objectType, rnd_class, sobj_at } from './obj.js';
 import { observe_object } from './o_init.js';
 import { body_part, mbodypart } from './polyself.js';
 import { d, rn1, rn2, rnd, rne } from './rng.js';
@@ -876,11 +876,7 @@ export async function dipfountain(obj, state = game, env = {}) {
     switch (fate) {
     case 16: // Curse the item
         if (!is_hands && obj.oclass !== COIN_CLASS && !obj.cursed) {
-            obj.blessed = false;
-            obj.cursed = true;
-            // C ref: mkobj.c curse() has side effects for carried items
-            // (luck, equipment, timers). The full version is not ported;
-            // the flag flip matches the field-level effect.
+            await curse(obj, { ...env, state });
         }
         break;
     case 17:

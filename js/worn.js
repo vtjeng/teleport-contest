@@ -839,7 +839,7 @@ async function applyMonsterArmorRuntime(
     }
     monster.misc_worn_check = (monster.misc_worn_check ?? 0) | mask;
     best.owornmask |= mask;
-    if (autocurse) curse(best, { state });
+    if (autocurse) await curse(best, { ...env, state });
     if (artifact_light(best) && !best.lamplit) {
         begin_burn(best, false, { ...env, state });
         vision_recalc(1, {
@@ -928,8 +928,7 @@ function m_dowear_type(
     best.owornmask |= mask;
     if ((best.otyp === HELM_OF_OPPOSITE_ALIGNMENT || best.otyp === DUNCE_CAP)
         && !best.cursed) {
-        best.cursed = true;
-        best.blessed = false;
+        curse(best, { ...env, state: env.state });
     }
     if (artifact_light(best) && !best.lamplit) {
         begin_burn(best, false, { ...env, state: env.state });

@@ -1122,12 +1122,12 @@ test('the four cloaks Cloak_on cannot run are refused unwritten',
     }
 });
 
-test('the five helmets Helmet_on cannot run are refused unwritten',
+test('the four unported Helmet_on arms are refused, while DUNCE_CAP curses',
     async () => {
-    // do_wear.c:448-505. Seven of Helmet_on()'s twelve labels are carried: the
-    // fedora, which changes Luck, the five that fall to a bare break, and
-    // HELM_OF_OPPOSITE_ALIGNMENT which calls uchangealign() and falls through
-    // to the shared DUNCE_CAP curse path. The five below are refused, and the
+    // do_wear.c:448-505. Eight of Helmet_on()'s twelve labels are carried: the
+    // fedora, the four bare-break arms, HELM_OF_OPPOSITE_ALIGNMENT which calls
+    // uchangealign() and falls through to the shared DUNCE_CAP curse path, and
+    // DUNCE_CAP itself. The four below remain refused, and the
     // last of them is the one C's own switch also answers with a bare break:
     // the helm of telepathy needs no arm here because objects.h:485 gives it
     // TELEPAT as its oc_oprop, so setworn() raises the extrinsic that
@@ -1138,7 +1138,7 @@ test('the five helmets Helmet_on cannot run are refused unwritten',
     // reaches the slot and never spends its oc_delay.
     const segment = segmentFor(`${TAKEOFF_KEY}${WEAR_KEY}c`);
     for (const otyp of [HELM_OF_CAUTION, HELM_OF_BRILLIANCE, CORNUTHAUM,
-        DUNCE_CAP, HELM_OF_TELEPATHY]) {
+        HELM_OF_TELEPATHY]) {
         await setup(segment, OFF);
         const obj = armor(otyp, { dknown: 1, spe: 0 });
 
@@ -1168,6 +1168,19 @@ test('the five helmets Helmet_on cannot run are refused unwritten',
     assert.equal(await Helmet_on(game), 0);
     assert.equal(game.uarmh.known, true);
     game.uarmh = null;
+
+    // The focused test pins the state path. Suppress its two source messages
+    // so this direct callback test does not need a terminal dismissal key.
+    game._ttyMessageStopped = true;
+    game.uarmh = armor(DUNCE_CAP, {
+        dknown: 1, spe: 0, known: false, blessed: false, cursed: false,
+    });
+    assert.equal(await Helmet_on(game), 0);
+    assert.equal(game.uarmh.cursed, true,
+        'Helmet_on() called mkobj.c curse() before its status update');
+    assert.equal(game.uarmh.known, true);
+    game.uarmh = null;
+    game._ttyMessageStopped = false;
 
     // Of the six that go on, four carry an oc_delay of 1 and are the ones this
     // loop drives: each leaves Helmet_on() pending under nomul(-1) rather than

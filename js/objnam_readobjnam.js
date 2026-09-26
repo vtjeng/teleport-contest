@@ -9,7 +9,7 @@
 // -- is a separate group of functions and lives in js/objnam.js.
 
 import {
-    artifact_name, nartifact_exist, permapoisoned,
+    artifact_exists, artifact_name, nartifact_exist, permapoisoned,
 } from './artifacts.js';
 import {
     A_CHAOTIC, A_LAWFUL, A_NEUTRAL, A_NONE, Align2amask,
@@ -19,22 +19,28 @@ import {
     D_NODOOR, D_TRAPPED, DOOR, DRAWBRIDGE_DOWN, DRAWBRIDGE_UP, FEMALE,
     F_LOOTED, FOUNTAIN, GOLD_SYM, HALLUC_RES, HWALL, ICE, ICED_MOAT, ICED_POOL, IRONBARS,
     LADDER, LANDMINE, LAVAPOOL, LAVAWALL, LOW_PM, MAGIC_PORTAL, MALE,
-    MELT_ICE_AWAY, MOAT, NEUTRAL, NON_PM, NO_TRAP, ONAME_WISH, POOL, ROOM,
+    MELT_ICE_AWAY, MOAT, NEUTRAL, NON_PM, NO_TRAP, ONAME_WISH, P_HAMMER,
+    P_POLEARMS, POOL, ROOM,
     ROCKTRAP, SCORR, SDOOR, SINK, S_LDWASHER, S_LPUDDING, S_LRING, SPE_LIM,
-    ROWNO, STAIRS, T_LOOTED, THRONE, TIMER_OBJECT, TREE, TREE_LOOTED, TREE_SWARM, TRAPNUM,
+    HAND, ROWNO, STAIRS, T_LOOTED, THRONE, TIMER_OBJECT, TREE, TREE_LOOTED,
+    TREE_SWARM, TRAPNUM, WT_IRON_BALL_INCR, something,
     TT_LAVA, VWALL, WATER, WM_MASK, W_NONDIGGABLE, W_NONPASSWALL, ZOMBIFY_MON,
     IS_DOOR, IS_FOUNTAIN, IS_FURNITURE, IS_GRAVE, IS_SINK, IS_WALL,
     Has_contents, is_hole, isok, ismnum,
 } from './const.js';
-import { lookup_novel, oname } from './do_name.js';
+import { lookup_novel, oname, safe_oname } from './do_name.js';
 import { makeplural, makesingular } from './fruit.js';
 import { game } from './gstate.js';
 import {
     digit, fuzzymatch, lcase, lowc, mungspaces, str_start_is, strstri,
-    upstart,
+    strsubst, upstart,
 } from './hacklib.js';
-import { set_tin_variety, tin_variety_txt } from './eat.js';
-import { delete_contents, hands_obj } from './invent.js';
+import {
+    consume_oeaten, eaten_stat, obj_nutrition, set_tin_variety, tin_variety_txt,
+} from './eat.js';
+import {
+    delete_contents, hands_obj, obj_extract_self, obfree,
+} from './invent.js';
 import { def_char_to_objclass } from './drawing.js';
 import {
     can_be_hatched, dead_species, is_female, is_human, is_male, is_neuter,
@@ -49,8 +55,10 @@ import { counter_were, genus } from './mon.js';
 import { obj_to_any } from './hack.js';
 import { JAPANESE_ITEMS } from './objnam_data.js';
 import {
-    curseFreeObject, erosionMatters, mkobj, mksobj, objectType,
-    rnd_class, set_corpsenm, weight,
+    curse, erosionMatters, is_ammo, isBox, isCandle,
+    isCorrodeable, isCrackable, isDamageable, is_flammable, is_missile,
+    isMultigen, is_rottable, isRustprone, is_weptool, mkobj, mksobj, objectType,
+    place_object, rnd_class, set_corpsenm, weight,
 } from './obj.js';
 import { is_quest_artifact } from './questpgr.js';
 import { rn1, rn2, rnd } from './rng.js';
@@ -58,7 +66,9 @@ import {
     Flying, is_pool, is_lava, Levitation, maketrap, reset_utrap, trapname,
 } from './trap.js';
 import { note_unported } from './unported.js';
-import { start_timer } from './timeout.js';
+import { begin_burn, start_timer } from './timeout.js';
+import { body_part } from './polyself.js';
+import { ttyPline } from './tty_message.js';
 import {
     ACID_VENOM,
     AMULET_CLASS,
@@ -68,12 +78,16 @@ import {
     AMULET_VERSUS_POISON,
     ARMOR_CLASS,
     BAG_OF_TRICKS,
+    BELL,
     BEARTRAP,
     BELL_OF_OPENING,
     BLINDING_VENOM,
     BRASS_LANTERN,
     BULLWHIP,
+    CANDELABRUM_OF_INVOCATION,
     CHEST,
+    CRYSTAL_BALL,
+    CRYSKNIFE,
     CLOAK_OF_DISPLACEMENT,
     CORPSE,
     CREAM_PIE,
@@ -129,6 +143,7 @@ import {
     ORANGE,
     PICK_AXE,
     POTION_CLASS,
+    POT_OIL,
     POT_SLEEPING,
     POT_WATER,
     RING_CLASS,
@@ -152,6 +167,9 @@ import {
     SPE_NOVEL,
     STATUE,
     STRANGE_OBJECT,
+    SPE_BOOK_OF_THE_DEAD,
+    FIRST_GLASS_GEM,
+    NUM_GLASS_GEMS,
     TALLOW_CANDLE,
     TIN,
     TIN_OPENER,
@@ -163,6 +181,7 @@ import {
     T_SHIRT,
     VENOM_CLASS,
     WAND_CLASS,
+    WAN_WISHING,
     WAX_CANDLE,
     WEAPON_CLASS,
     YELLOW_DRAGON_SCALES,
@@ -410,18 +429,6 @@ export function wishymatch(u_str, o_str, retry_inverted) {
     return false;
 }
 
-// A wish this port cannot grant yet. Each refusal is placed where the needed
-// type or state first exists, preserving any C draw that precedes it.
-export class UnsupportedWishError extends Error {
-    constructor(reason, buf) {
-        super(`unsupported wish: ${reason}`);
-        this.name = 'UnsupportedWishError';
-        this.reason = reason;
-        // The line mungspaces() left, which readobjnam() reads.
-        this.buf = buf;
-    }
-}
-
 function wishEnv(env = {}) {
     const state = env.state ?? game;
     return { ...env, state, hooks: env.hooks ?? {} };
@@ -452,9 +459,8 @@ export function set_wallprop_from_str(bp, state = game) {
     }
 }
 
-// Keep readobjnam()'s no-match result synchronous: its ordinary object-wish
-// callers throw UnsupportedWishError before returning. C's trap-name probe
-// uses trapname(..., TRUE), which bypasses hallucination display RNG.
+// Keep readobjnam()'s ordinary no-match result synchronous. C's trap-name
+// probe uses trapname(..., TRUE), which bypasses hallucination display RNG.
 function wizterrainwishMatches(d, state) {
     for (let trap = NO_TRAP + 1; trap < TRAPNUM; ++trap) {
         if (str_start_is(d.bp, trapname(trap, true, state), true)) return true;
@@ -1057,6 +1063,38 @@ export function rnd_otyp_by_namedesc(name, oclass, xtra_prob, env = {}) {
     return STRANGE_OBJECT;
 }
 
+// C ref: objnam.c rnd_otyp_by_wpnskill() (3432-3459). The helper scans the
+// weapon-class slice in svb.bases order, draws once over matching skills, and
+// returns that ordinal match. C falls back to STRANGE_OBJECT without a draw
+// when the skill has no matching weapon.
+export function rnd_otyp_by_wpnskill(skill, env = {}) {
+    const { state } = wishEnv(env);
+    const random = wishRandom(env);
+    const objects = state.objects;
+    const bases = state.svb?.bases;
+    if (!Array.isArray(bases))
+        throw new Error('rnd_otyp_by_wpnskill requires init_objects()');
+
+    let count = 0;
+    let otyp = STRANGE_OBJECT;
+    for (let i = bases[WEAPON_CLASS]; i < NUM_OBJECTS
+         && objects[i].oc_class === WEAPON_CLASS; i++) {
+        if (objects[i].oc_skill === skill) {
+            count++;
+            otyp = i;
+        }
+    }
+    if (count > 0) {
+        let n = random.rn2(count);
+        for (let i = bases[WEAPON_CLASS]; i < NUM_OBJECTS
+             && objects[i].oc_class === WEAPON_CLASS; i++) {
+            if (objects[i].oc_skill === skill && --n < 0)
+                return i;
+        }
+    }
+    return otyp;
+}
+
 // C ref: objnam.c shiny_obj() (3531-3535).  This deliberately delegates to
 // the complete weighted name/description selector so object shuffling and
 // zero-probability handling stay identical to wishes.
@@ -1068,13 +1106,13 @@ export function shiny_obj(oclass, env = {}) {
 // every leading qualifier, answering 1 when the line held nothing but
 // qualifiers and 0 when anything else remains.
 //
-// Two arms stop instead of running.  "wet"/"moist" draws rn2(3) or rnd(2) for
-// a towel's wetness at 4025-4027, and the corpse/statue/figurine gender hack
-// at 4152-4174 is the only arm that sets save_bp -- with save_bp set, C
-// removes the gender word with strsubst(), which folds no case, so a
-// capitalized "Female " leaves l at 0 and the loop stops advancing.
-export function readobjnam_preparse(d, state) {
+// The corpse/statue/figurine gender phrase saves its prefix while parsing the
+// monster name, then restores the buffer position with the gender word
+// removed, matching C's strsubst() on the shared wish buffer.
+export function readobjnam_preparse(d, state, randomSource = null) {
     let res = 1;
+    let saveBp = null;
+    const random = randomSource ?? { rn2, rnd };
 
     for (;;) {
         let l;
@@ -1119,11 +1157,9 @@ export function readobjnam_preparse(d, state) {
             d.islit = 0;
 
         /* "wet" and "moist" are only applicable for towels */
-        } else if (matchPrefix(d.bp, 'moist ', 'wet ')) {
-            // objnam.c:4022-4027 draws rn2(3) for "wet" and rnd(2) for
-            // "moist"; refuse before the draw.
-            throw new UnsupportedWishError('a "wet" or "moist" wish',
-                                           origbp(d));
+        } else if ((l = matchPrefix(d.bp, 'moist ', 'wet '))) {
+            // objnam.c:4022-4027 rolls wetness before the later name lookup.
+            d.wetness = l === 4 ? 3 + random.rn2(3) : random.rnd(2);
 
         /* "unlabeled" and "blank" are synonymous */
         } else if ((l = matchPrefix(d.bp, 'unlabeled ', 'unlabelled ',
@@ -1211,10 +1247,25 @@ export function readobjnam_preparse(d, state) {
             d.real = 0;
         } else if ((l = matchPrefix(d.bp, 'female '))) {
             d.mgend = FEMALE;
+            if (saveBp) {
+                d.bp = strsubst(d.bp, 'female ', '');
+                saveBp.body = strsubst(saveBp.body, 'female ', '');
+                l = 0;
+            }
         } else if ((l = matchPrefix(d.bp, 'male '))) {
             d.mgend = MALE;
+            if (saveBp) {
+                d.bp = strsubst(d.bp, 'male ', '');
+                saveBp.body = strsubst(saveBp.body, 'male ', '');
+                l = 0;
+            }
         } else if ((l = matchPrefix(d.bp, 'neuter '))) {
             d.mgend = NEUTRAL;
+            if (saveBp) {
+                d.bp = strsubst(d.bp, 'neuter ', '');
+                saveBp.body = strsubst(saveBp.body, 'neuter ', '');
+                l = 0;
+            }
         } else if ((l = matchPrefix(d.bp, 'corpse ', 'statue ', 'figurine '))
                    && strncmpiIsPrefix(d.bp.slice(l), 'of ')) {
             /*
@@ -1222,14 +1273,30 @@ export function readobjnam_preparse(d, state) {
              * "statue of a female gnome ruler" for gnome queen we need
              * to recognize and skip over "statue of [a ]".
              */
-            throw new UnsupportedWishError(
-                'a "corpse/statue/figurine of" wish', origbp(d));
+            const articleStart = l + 3;
+            let articleLength = 0;
+            if (strncmpiIsPrefix(d.bp.slice(articleStart), 'a '))
+                articleLength = 2;
+            else if (strncmpiIsPrefix(d.bp.slice(articleStart), 'an '))
+                articleLength = 3;
+            else if (strncmpiIsPrefix(d.bp.slice(articleStart), 'the '))
+                articleLength = 4;
+            const prefixLength = articleStart + articleLength;
+            saveBp = {
+                prefix: d.bp.slice(0, prefixLength),
+                body: d.bp.slice(prefixLength),
+                consumed: d.consumed.slice(),
+            };
+            l = prefixLength;
         } else {
             break;
         }
         advance(d, l);
     }
-    /* C restores d->bp to save_bp here, which only the refused arm sets. */
+    if (saveBp) {
+        d.bp = saveBp.prefix + saveBp.body;
+        d.consumed = saveBp.consumed;
+    }
     return res;
 }
 
@@ -1640,6 +1707,7 @@ export function readobjnam_postparse1(d, env) {
 
 // C ref: objnam.c readobjnam_postparse2() (4665-4724).
 export function readobjnam_postparse2(d, env) {
+    const { state } = wishEnv(env);
     /* "grey stone" check must be before general "stone" */
     for (const row of o_ranges)
         if (strcmpiEqual(d.bp, row.name)) {
@@ -1657,11 +1725,26 @@ export function readobjnam_postparse2(d, env) {
     } else if (strcmpiEqual(d.bp, 'looking glass')) {
         /* avoid false hit on "* glass" */
     } else if (endsWithFold(d.bp, ' glass') || strcmpiEqual(d.bp, 'glass')) {
-        // objnam.c:4686-4714 treats "broken glass" as a non-existent item and
-        // draws rn2(NUM_GLASS_GEMS) for a bare "glass"; both are outside this
-        // port's boundary, and the canonical-form rewrite below them feeds
-        // only those two.
-        throw new UnsupportedWishError('a glass-gem wish', origbp(d));
+        let s = d.bp;
+
+        // objnam.c:4689-4693. `broken` can have been stripped as a prefix,
+        // while the substring check catches it when it is part of the name.
+        if (d.broken || strstri(s, 'broken') >= 0) {
+            d.otmp = null;
+            return 3; /* return otmp */
+        }
+        if (strncmpiIsPrefix(s, 'worthless ')) s = s.slice(10);
+        if (strncmpiIsPrefix(s, 'piece of ')) s = s.slice(9);
+        if (strncmpiIsPrefix(s, 'colored ')) s = s.slice(8);
+        else if (strncmpiIsPrefix(s, 'coloured ')) s = s.slice(9);
+        if (strcmpiEqual(s, 'glass')) {
+            d.typ = FIRST_GLASS_GEM + wishRandom(env).rn2(NUM_GLASS_GEMS);
+            if (state.objects[d.typ].oc_class === GEM_CLASS)
+                return 2; /*goto typfnd;*/
+            d.typ = 0;
+        } else {
+            d.bp = `worthless piece of ${s}`;
+        }
     }
 
     d.actualn = d.bp;
@@ -1861,140 +1944,41 @@ export function readobjnam_postparse3(d, env) {
     return 0;
 }
 
-// The fields readobjnam_preparse() and readobjnam_parse_charges() can set that
-// still feed fine-tuning code this port has not reached -- d.islit's light
-// source at objnam.c:5086-5091, and everything from the erosion block at 5271
-// through the partly-eaten one at 5383 -- with the value readobjnam_init()
-// gives each.  d.spe, d.spesgn, d.blessed, d.uncursed and d.iscursed are absent
-// because the typfnd: tail now applies all five.
-const UNSUPPORTED_WISH_FIELDS = Object.freeze({
-    rechrg: 0, islit: 0, erodeproof: 0,
-    eroded: 0, eroded2: 0, very: 0, unlabeled: 0, ispoisoned: 0,
-    trapped: 0, locked: 0, unlocked: 0, broken: 0,
-    open: 0, closed: 0, doorless: 0, looted: 0,
-    isgreased: 0, halfeaten: 0, isdiluted: 0,
-    real: 0, fake: 0, wetness: 0,
-});
-
-// The wish boundary for qualifiers that do not belong to the current port.
-// Chest lock/content words are admitted provisionally because the object type
-// is not known until readobjnam_postparse3() has made its lookup draw.  The
-// resolved type and exact combinations are checked immediately after that
-// lookup, before mksobj() can draw or mutate state.
-//
-// The count is not tested here.  readobjnam_postparse1()'s makesingular() block
-// raises d.cnt to 2 after this runs, so a count refused here would still let
-// "daggers" through.  readobjnam() tests it once postparse1 has settled it.
-function requireSimpleWishQualifiers(d) {
-    const chestSetupFields = new Set(['contents', 'locked', 'unlocked', 'closed']);
-    for (const [field, value] of Object.entries(UNSUPPORTED_WISH_FIELDS)) {
-        if (d[field] !== value && !chestSetupFields.has(field))
-            throw new UnsupportedWishError(`a wish that sets ${field}`,
-                                           origbp(d));
-    }
-}
-
-function requireSupportedChestSetup(d) {
-    if (d.typ !== CHEST) {
-        // Keep non-chest lock qualifiers on their original fail-closed paths.
-        // TIN_EMPTY and TIN_SPINACH are handled by the carrier tail.
-        for (const field of ['locked', 'unlocked', 'closed']) {
-            if (d[field] !== UNSUPPORTED_WISH_FIELDS[field])
-                throw new UnsupportedWishError(`a wish that sets ${field}`,
-                                               origbp(d));
-        }
-        return;
-    }
-    const lockedChest = d.typ === CHEST
-        && d.contents === TIN_UNDEFINED
-        && d.locked === 1
-        && d.unlocked === 0
-        && d.closed === 1;
-    const emptyUnlockedChest = d.typ === CHEST
-        && d.contents === TIN_EMPTY
-        && d.locked === 0
-        && d.unlocked === 1
-        && d.closed === 1;
-    const hasChestSetup = d.contents !== TIN_UNDEFINED
-        || d.locked !== 0 || d.unlocked !== 0 || d.closed !== 0;
-    if (hasChestSetup && !(lockedChest || emptyUnlockedChest))
-        throw new UnsupportedWishError('a chest setup qualifier', origbp(d));
-}
-
-// The wizard-only caller takes the same typfnd path for both named and
-// class-selected object types.
-// objnam.c:4999-5023 substitutes for five wizard-only types and refuses an
-// oc_nowish one; wiz_wish() is this port's only caller, so no wish reaches
-// either.  Both arms of objnam.c:5037 pass through here before they draw.
-function requireWizardWish(d, state) {
-    if (!state.wizard) {
-        throw new UnsupportedWishError('a wish outside wizard mode',
-                                       origbp(d));
-    }
-}
-
-// A named slime mold still needs its separate fruit-name behavior. Monster
-// carrier fine-tuning is ported in readobjnam_typfnd() below.
-function requireSimpleWishedObject(d) {
-    const refuse = (reason) => {
-        throw new UnsupportedWishError(reason, origbp(d));
-    };
-    switch (d.typ) {
-    // Named slime molds still need their separate fruit-name behavior.
-    case SLIME_MOLD:
-        refuse('a wish for a named slime mold');
-        break;
-    default:
-        break;
-    }
-    /* All seven container types need nothing this tail lacks.  Six of them
-       reach mkbox_cnts() through mkobj.c mksobj_init() (868-1175), whose arm
-       at 1010-1022 takes a chest and a large box after 1012-1014 has rolled
-       olocked, otrapped and tknown, and an ice box, a sack, an oilskin sack
-       and a bag of holding through the fallthrough under it.  A bag of tricks is not a mkbox_cnts() type at
-       all.  In the spe switch below, a chest and a large box take
-       objnam.c:5141-5146's bare `break;`, which leaves what mksobj() rolled
-       alone, and the other five take the `default:` arm, which is where C
-       sends them too.  objnam.c:5312's delete_contents() and 5324's lock
-       block need d.contents, d.locked, d.unlocked or d.broken, and
-       requireSimpleWishQualifiers() has already refused all four. */
-}
-
 // C ref: objnam.c readobjnam() (4909-5400).  `no_wish` is the caller's
 // sentinel object, answered for "nothing", "nil" and "none"; C compares its
 // address, so identity is what matters here too.
 export function readobjnam(bp, no_wish, env = {}) {
     const normalized = wishEnv(env);
     const { state } = normalized;
+    normalized.hooks = {
+        ...normalized.hooks,
+        // objnam.c finishes a partly-eaten wished food with weight(), whose
+        // eaten_stat callback is the direct return-valued eat.c dependency.
+        eatenStat: normalized.hooks.eatenStat
+            ?? ((base, obj, objectEnv) => eaten_stat(base, obj, objectEnv)),
+    };
     const random = wishRandom(normalized);
     const d = readobjnam_init(bp, state);
 
-    if (bp == null) {
-        // objnam.c:4913-4914 goes straight to `any:`, whose
-        // wrpsym[rn2(sizeof wrpsym)] grants a random object.
-        throw new UnsupportedWishError('a wish with no text', '');
-    }
-
-    /* first, remove extra whitespace they may have typed */
-    d.bp = mungspaces(bp);
-    /* allow wishing for "nothing" to preserve wishless conduct...
-       [now requires "wand of nothing" if that's what was really wanted] */
-    if (strcmpiEqual(d.bp, 'nothing') || strcmpiEqual(d.bp, 'nil')
-        || strcmpiEqual(d.bp, 'none'))
-        return no_wish;
-    /* save the [nearly] unmodified choice string */
-    d.fruitbuf = d.bp;
-
-    // C reaches the tail through two labels and they behave differently, so
-    // which one the parse jumped to has to survive the jump.  `goto typfnd`
-    // steps over `any:`; `goto any` runs it.
     let label = 'any';
-    // objnam.c:4924-4925.  readobjnam_preparse() answering 1 -- an empty line,
-    // which is what an Escape at the wish prompt leaves -- goes straight to
-    // `any:`, past the count default, the charge parse and the whole lookup
-    // chain below.
-    if (!readobjnam_preparse(d, state)) {
-        label = readobjnam_lookup(d, normalized);
+    if (bp != null) {
+        /* first, remove extra whitespace they may have typed */
+        d.bp = mungspaces(bp);
+        /* allow wishing for "nothing" to preserve wishless conduct...
+           [now requires "wand of nothing" if that's what was really wanted] */
+        if (strcmpiEqual(d.bp, 'nothing') || strcmpiEqual(d.bp, 'nil')
+            || strcmpiEqual(d.bp, 'none'))
+            return no_wish;
+        /* save the [nearly] unmodified choice string */
+        d.fruitbuf = d.bp;
+
+        // C reaches the tail through two labels and they behave differently,
+        // so which one the parse jumped to has to survive the jump. `goto
+        // typfnd` steps over `any:`; `goto any` runs it.
+        // objnam.c:4924-4925. An empty line goes straight to `any:`, past the
+        // count default, charge parse, and whole lookup chain.
+        if (!readobjnam_preparse(d, state, random))
+            label = readobjnam_lookup(d, normalized);
     }
 
     if (label === 'wiztrap') {
@@ -2004,11 +1988,16 @@ export function readobjnam(bp, no_wish, env = {}) {
             // wish parser before the polearm/hammer fallback and null return.
             const terrainWish = wizterrainwish(d, normalized);
             if (terrainWish) return terrainWish;
-            throw new UnsupportedWishError(
-                'a wish no lookup resolves', origbp(d),
-            );
         }
-        throw new UnsupportedWishError('a wish no lookup resolves', origbp(d));
+        if (!d.oclass && !d.typ) {
+            if (strncmpiIsPrefix(d.bp, 'polearm'))
+                d.typ = rnd_otyp_by_wpnskill(P_POLEARMS, normalized);
+            else if (strncmpiIsPrefix(d.bp, 'hammer'))
+                d.typ = rnd_otyp_by_wpnskill(P_HAMMER, normalized);
+            else
+                return null;
+        }
+        label = 'typfnd';
     }
 
     if (label === 'result')
@@ -2034,7 +2023,6 @@ function readobjnam_lookup(d, normalized) {
         d.cnt = 1; /* will be changed to 2 if makesingular() changes string */
 
     readobjnam_parse_charges(d);
-    requireSimpleWishQualifiers(d);
 
     let action = readobjnam_postparse1(d, normalized);
     if (action === 3)
@@ -2047,10 +2035,16 @@ function readobjnam_lookup(d, normalized) {
         /* retry: */
         if (action === 0) /* C breaks out of the switch into retry: */
             action = readobjnam_postparse2(d, normalized);
+        if (action === 2) return 'typfnd'; /* goto typfnd */
+        if (action === 3) return 'result'; /* return d.otmp */
+        if (action === 4) return 'any'; /* goto any */
         if (action === 5) return 'wiztrap'; /* goto wiztrap */
         /* srch: */
         if (action === 0 || action === 1) /* 1 is C's goto srch: */
             action = readobjnam_postparse3(d, normalized);
+        if (action === 2) return 'typfnd'; /* goto typfnd */
+        if (action === 3) return 'result'; /* return d.otmp */
+        if (action === 4) return 'any'; /* goto any */
         if (action === 5) return 'wiztrap'; /* goto wiztrap */
         if (action !== 6) break;
         // readobjnam_postparse3()'s ARMOR_CLASS arm has appended " mail" to
@@ -2077,10 +2071,8 @@ function readobjnam_lookup(d, normalized) {
         // Each of C's other codes is refused where its branch is raised: 3
         // returns d.otmp, 4 goes to `any:` and 5 to wiztrap:.  This is the
         // fail-closed backstop.
-        throw new UnsupportedWishError(`readobjnam action ${action}`,
-                                       origbp(d));
+        throw new Error(`readobjnam returned impossible action ${action}`);
     }
-    requireSupportedChestSetup(d);
     return 'typfnd';
 }
 
@@ -2093,14 +2085,31 @@ function readobjnam_typfnd(d, normalized) {
     if (d.typ)
         d.oclass = state.objects[d.typ].oc_class;
 
-    requireWizardWish(d, state);
-    // A named type enters mksobj() directly. A class-only wish lets mkobj()
-    // choose the type; the quantity check then reads the chosen object's
-    // oc_merge field. Both paths continue through the same carrier fine-tuning
-    // below once the type and any parsed monster name are known.
     const named = d.typ !== 0;
-    if (named) {
-        requireSimpleWishedObject(d);
+    if (named && !state.wizard) {
+        // objnam.c:4999-5023. Debug-only objects become their normal
+        // counterparts outside wizard mode; any remaining oc_nowish type
+        // returns NULL before mksobj() can draw or mutate state.
+        switch (d.typ) {
+        case AMULET_OF_YENDOR:
+            d.typ = FAKE_AMULET_OF_YENDOR;
+            break;
+        case CANDELABRUM_OF_INVOCATION:
+            d.typ = rnd_class(TALLOW_CANDLE, WAX_CANDLE, normalized);
+            break;
+        case BELL_OF_OPENING:
+            d.typ = BELL;
+            break;
+        case SPE_BOOK_OF_THE_DEAD:
+            d.typ = SPE_BLANK_PAPER;
+            break;
+        case MAGIC_LAMP:
+            d.typ = OIL_LAMP;
+            break;
+        default:
+            if (state.objects[d.typ].oc_nowish) return null;
+            break;
+        }
     }
 
     // objnam.c:5026-5030 replaces a requested pudding corpse with its glob
@@ -2123,9 +2132,7 @@ function readobjnam_typfnd(d, normalized) {
     /* if player specified a reasonable count, maybe honor it */
     if (d.otmp.globby) {
         // objnam.c:5042-5070. Globs always have quantity 1; the requested
-        // count changes their weight. `readobjnam()` is synchronous here, so
-        // the wizard's interactive override prompt remains a precise gap;
-        // its RN1 draw still occurs before that prompt as in C.
+        // count changes weight, after a possible wizard confirmation.
         d.otmp.quan = 1;
         d.otmp.owt = weight(d.otmp, normalized);
         if (d.gsize > 1)
@@ -2136,35 +2143,80 @@ function readobjnam_typfnd(d, normalized) {
                 rn1cnt = 6 - d.gsize;
             if (d.cnt > rn1cnt && state.wizard
                 && !state.program_state?.wizkit_wishing) {
-                throw new UnsupportedWishError(
-                    'the interactive glob weight override prompt', origbp(d),
-                );
-            }
-            if (d.cnt > rn1cnt)
+                const answer = typeof normalized.askYesNo === 'function'
+                    ? normalized.askYesNo(
+                        'Override glob weight limit?', state,
+                    )
+                    : import('./cmd.js').then(({ y_n }) => y_n(
+                        'Override glob weight limit?', state,
+                    ));
+                if (answer && typeof answer.then === 'function') {
+                    return answer.then((response) => {
+                        if (response !== 'y'.charCodeAt(0)) d.cnt = rn1cnt;
+                        d.otmp.owt *= d.cnt;
+                        d.cnt = 0;
+                        return readobjnam_typfnd_finish(d, normalized);
+                    });
+                }
+                if (answer !== 'y'.charCodeAt(0)) d.cnt = rn1cnt;
+            } else if (d.cnt > rn1cnt) {
                 d.cnt = rn1cnt;
+            }
             d.otmp.owt *= d.cnt;
         }
         d.cnt = 0;
     } else if (d.cnt > 0) {
         if (objectType(d.typ, state).oc_merge
-            /* quantity isn't restricted when debugging; the three
-               alternatives at objnam.c:5077-5083, one of which draws rnd(6),
-               belong to the non-wizard wish refused above */
-            && state.wizard)
+            && (state.wizard || d.cnt < random.rnd(6)
+                || (d.cnt <= 7 && isCandle(d.otmp))
+                || (d.cnt <= 20
+                    && (d.typ === ROCK || d.typ === FLINT
+                        || is_missile(d.otmp, state)
+                        || (d.oclass === WEAPON_CLASS
+                            && is_ammo(d.otmp, state)))))) {
             d.otmp.quan = d.cnt;
+        }
     }
 
-    // objnam.c:5086-5091 lights a wished-for light source; d.islit is 0, so it
-    // does not run.
+    return readobjnam_typfnd_finish(d, normalized);
+}
+
+function readobjnam_typfnd_finish(d, normalized) {
+    const { state } = normalized;
+    const random = wishRandom(normalized);
+
+    // objnam.c:5086-5091 lights a wished-for source while it is on the floor,
+    // then extracts it again for the caller.
+    if (d.islit && (d.typ === OIL_LAMP || d.typ === MAGIC_LAMP
+                    || d.typ === BRASS_LANTERN || isCandle(d.otmp)
+                    || d.typ === POT_OIL)) {
+        place_object(d.otmp, state.u.ux, state.u.uy, normalized);
+        begin_burn(d.otmp, false, normalized);
+        obj_extract_self(d.otmp, normalized);
+    }
 
     if (d.spesgn === 0) {
         /* spe not specified; retain the randomly assigned value */
         d.spe = d.otmp.spe;
+    } else if (state.wizard) {
+        /* objnam.c:5097-5098: wizard wishes have no further spe restriction. */
+    } else if (d.oclass === ARMOR_CLASS || d.oclass === WEAPON_CLASS
+               || is_weptool(d.otmp, state)
+               || (d.oclass === RING_CLASS
+                   && objectType(d.typ, state).oc_charged)) {
+        if (d.spe > random.rnd(5) && d.spe > d.otmp.spe)
+            d.spe = 0;
+        const luck = Number(state.u.uluck ?? 0)
+            + Number(state.u.moreluck ?? 0);
+        if (d.spe > 2 && luck < 0) d.spesgn = -1;
+    } else {
+        if (d.oclass === WAND_CLASS || d.typ === CRYSTAL_BALL) {
+            if (d.spe > 1 && d.spesgn === -1) d.spe = 1;
+        } else if (d.spe > 0 && d.spesgn === -1) {
+            d.spe = 0;
+        }
+        if (d.spe > d.otmp.spe) d.spe = d.otmp.spe;
     }
-    // objnam.c:5097-5098 leaves a wizard's requested enchantment alone, capped
-    // only by the SPE_LIM readobjnam_parse_charges() has already applied.  The
-    // 5099-5117 clamps against rnd(5), Luck and the rolled spe belong to the
-    // non-wizard hero requireWizardWish() refuses above, on both arms.
     if (d.spesgn === -1)
         d.spe = -d.spe;
 
@@ -2180,24 +2232,11 @@ function readobjnam_typfnd(d, normalized) {
         }
         break;
     case TOWEL:
-        // d.wetness is 0 for every wish this port admits, because
-        // readobjnam_preparse()'s "wet " and "moist " arms set it and
-        // UNSUPPORTED_WISH_FIELDS refuses them.  The arm is still needed: it is
-        // what stops a requested enchantment from reaching a towel, which C
-        // leaves at the 0 mksobj() rolled.
         if (d.wetness)
             d.otmp.spe = d.wetness;
         break;
     case SLIME_MOLD:
-        // mksobj() set the same fruit id readobjnam_init() copied into
-        // d.ftype, so on the wishes this port admits the assignment repeats
-        // what is already there.  objnam.c:4805-4870's fruit scan is ported,
-        // in readobjnam_postparse3() above, and it does set d.ftype to a
-        // matched fruit's fid; what keeps that out of here is
-        // requireSimpleWishedObject()'s SLIME_MOLD case, which refuses every
-        // named form before mksobj() runs.  So only a drawn slime mold
-        // arrives, still carrying svc.context.current_fruit.  Lift that
-        // refusal and this line is what applies the named fruit.
+        // The postparse fruit scan supplies d.ftype for a named slime mold.
         d.otmp.spe = d.ftype;
         /* FALLTHRU */
     case SKELETON_KEY:
@@ -2243,10 +2282,13 @@ function readobjnam_typfnd(d, normalized) {
     case BLINDING_VENOM:
         d.otmp.spe = 1;
         break;
+    case WAN_WISHING:
+        if (!state.wizard) {
+            d.otmp.spe = random.rn2(10) ? -1 : 0;
+            break;
+        }
+        // fall through
     default:
-        // WAN_WISHING falls through to here for a wizard, which is the only
-        // hero that reaches this code; objnam.c:5182-5185's `rn2(10) ? -1 : 0`
-        // is the non-wizard limb it skips.
         d.otmp.spe = d.spe;
         break;
     }
@@ -2325,44 +2367,79 @@ function readobjnam_typfnd(d, normalized) {
     /* set blessed/cursed -- setting the fields directly is safe
      * since weight() is called below and addinv() will take care
      * of luck */
+    let curseResult = null;
     if (d.iscursed) {
-        curseFreeObject(d.otmp, normalized);
+        curseResult = curse(d.otmp, normalized);
     } else if (d.uncursed) {
         d.otmp.blessed = false;
-        // C's second operand is `(Luck < 0 && !wizard)`, and the arm below
-        // reads `(Luck >= 0 || wizard)`.  Every wish this port admits is a
-        // wizard's, so `wizard` settles both without reading Luck -- which
-        // has no owner in the port yet.
-        d.otmp.cursed = false;
+        const luck = Number(state.u.uluck ?? 0)
+            + Number(state.u.moreluck ?? 0);
+        d.otmp.cursed = luck < 0 && !state.wizard;
     } else if (d.blessed) {
-        d.otmp.blessed = true;
-        d.otmp.cursed = false;
+        const luck = Number(state.u.uluck ?? 0)
+            + Number(state.u.moreluck ?? 0);
+        d.otmp.blessed = luck >= 0 || state.wizard;
+        d.otmp.cursed = luck < 0 && !state.wizard;
     } else if (d.spesgn < 0) {
-        curseFreeObject(d.otmp, normalized);
+        curseResult = curse(d.otmp, normalized);
     }
 
-    /* set eroded and erodeproof; js/obj.js owns objnam.c erosion_matters()
-       under the name erosionMatters(), where trap.c's erode_obj() found it
-       first */
+    // curse() is synchronous unless an already-lit artifact changes radius
+    // and needs maybe_adjust_light()'s ordered message. Continue the parser
+    // tail only after that source-side effect completes.
+    if (curseResult && typeof curseResult.then === 'function')
+        return curseResult.then(() => readobjnam_finish_after_buc(
+            d, normalized,
+        ));
+    return readobjnam_finish_after_buc(d, normalized);
+}
+
+function readobjnam_finish_after_buc(d, normalized) {
+    const { state } = normalized;
+    const random = wishRandom(normalized);
+    /* set eroded and erodeproof */
     if (erosionMatters(d.otmp, state)) {
         /* wished-for item shouldn't be eroded unless specified */
         d.otmp.oeroded = 0;
         d.otmp.oeroded2 = 0;
-        // d.eroded, d.eroded2 and d.erodeproof are 0, so the three arms at
-        // objnam.c:5269-5283 assign nothing.
+        if (d.eroded && (is_flammable(d.otmp, state)
+                         || isRustprone(d.otmp, state)
+                         || isCrackable(d.otmp, state))) {
+            d.otmp.oeroded = d.eroded;
+        }
+        if (d.eroded2 && (isCorrodeable(d.otmp, state)
+                          || is_rottable(d.otmp, state))) {
+            d.otmp.oeroded2 = d.eroded2;
+        }
+        const luck = Number(state.u.uluck ?? 0)
+            + Number(state.u.moreluck ?? 0);
+        if (d.erodeproof
+            && (isDamageable(d.otmp, state) || d.otmp.otyp === CRYSKNIFE)) {
+            d.otmp.oerodeproof = luck >= 0 || state.wizard;
+        }
     }
 
     /* set otmp->recharged */
     if (d.oclass === WAND_CLASS) {
-        /* prevent wishing abuse; the WAN_WISHING clamp at objnam.c:5287-5288
-           belongs to the non-wizard wish refused above */
+        /* prevent wishing abuse */
+        if (d.otmp.otyp === WAN_WISHING && !state.wizard)
+            d.rechrg = 1;
         d.otmp.recharged = d.rechrg;
     }
 
-    // objnam.c:5292-5341 still has unsupported poisoned, trapped, lock-state,
-    // greased and diluted qualifiers. Empty-container handling and tin
-    // variety are live below; chest setup is limited by
-    // requireSupportedChestSetup().
+    // C ref: objnam.c:5292-5310 applies poisoned and trapped state only to
+    // objects whose source predicates admit it.
+    if (d.ispoisoned) {
+        if (isMultigen(d.otmp, state) || permapoisoned(d.otmp)) {
+            const luck = Number(state.u.uluck ?? 0)
+                + Number(state.u.moreluck ?? 0);
+            d.otmp.opoisoned = luck >= 0;
+        } else if (d.oclass === FOOD_CLASS) {
+            d.otmp.age = 1;
+        }
+    }
+    if (d.trapped && (isBox(d.otmp) || d.typ === TIN))
+        d.otmp.otrapped = d.trapped === 1;
 
     // C ref: objnam.c:5312-5321. An empty bag of tricks or horn of plenty
     // loses its charges; other populated containers lose their contents and
@@ -2376,12 +2453,24 @@ function readobjnam_typfnd(d, normalized) {
             d.otmp.owt = weight(d.otmp, normalized);
         }
     }
-    // C ref: objnam.c:5324-5333. Non-chest lock qualifiers are still refused
-    // by requireSupportedChestSetup().
-    if (d.otmp.otyp === CHEST && d.unlocked) {
-        d.otmp.olocked = 0;
-        d.otmp.obroken = 0;
+    // C ref: objnam.c:5324-5333 applies these three states to boxes only.
+    if (isBox(d.otmp)) {
+        if (d.locked) {
+            d.otmp.olocked = 1;
+            d.otmp.obroken = 0;
+        } else if (d.unlocked) {
+            d.otmp.olocked = 0;
+            d.otmp.obroken = 0;
+        } else if (d.broken) {
+            d.otmp.olocked = 0;
+            d.otmp.obroken = 1;
+        }
+        if (d.otmp.obroken) d.otmp.otrapped = 0;
     }
+
+    if (d.isgreased) d.otmp.greased = 1;
+    if (d.isdiluted && d.otmp.oclass === POTION_CLASS)
+        d.otmp.odiluted = d.otmp.otyp !== POT_WATER;
 
     // C ref: objnam.c:5343 consumes the rn2 before reading wizard mode because
     // the disjunction is ordered that way in the source.
@@ -2432,13 +2521,28 @@ function readobjnam_typfnd(d, normalized) {
          || (d.otmp.oartifact && random.rn2(nartifact_exist(state)) > 1))
         && !state.wizard) {
         // objnam.c:5350-5356 destroys the object and answers hands_obj.
-        throw new UnsupportedWishError('an artifact denied to a non-wizard',
-                                       origbp(d));
+        artifact_exists(
+            d.otmp, safe_oname(d.otmp), false, 0, state,
+        );
+        obfree(d.otmp, null, normalized);
+        d.otmp = hands_obj;
+        const hands = makeplural(body_part(HAND, state.youmonst));
+        const message = `For a moment, you feel ${something} in your ${hands}, `
+            + 'but it disappears!';
+        const pline = normalized.pline ?? ttyPline;
+        return pline(message, state).then(() => d.otmp);
     }
 
-    // objnam.c:5359-5370's partly-eaten arm needs d.halfeaten.
+    if (d.halfeaten && d.otmp.oclass === FOOD_CLASS) {
+        const nutrition = obj_nutrition(d.otmp, state);
+        if (nutrition > 1) {
+            d.otmp.oeaten = nutrition;
+            consume_oeaten(d.otmp, 1, state);
+        }
+    }
     d.otmp.owt = weight(d.otmp, normalized);
-    // d.very is 0, so objnam.c:5372's HEAVY_IRON_BALL bonus does not apply.
+    if (d.very && d.otmp.otyp === HEAVY_IRON_BALL)
+        d.otmp.owt += WT_IRON_BALL_INCR;
 
     return d.otmp;
 }

@@ -101,6 +101,7 @@ import {
     NO_KILLER_PREFIX,
     NO_TRAP_FLAGS,
     TIMEOUT,
+    thats_enough_tries,
     PHYS_EXPL_TYPE,
     POLY_NOFLAGS,
     PLNMSG_ENVELOPED_IN_GAS,
@@ -224,7 +225,7 @@ import {
 } from './const.js';
 import { stop_occupation } from './allmain.js';
 import { acurr, exercise } from './attrib.js';
-import { dirtocoord, getdir, xytodir } from './cmd.js';
+import { dirtocoord, getdir, xytodir, y_n } from './cmd.js';
 import {
     bot,
     cmap_to_glyph,
@@ -540,7 +541,7 @@ import {
     yname,
     xnameFresh,
 } from './objnam.js';
-import { UnsupportedWishError, readobjnam } from './objnam_readobjnam.js';
+import { readobjnam } from './objnam_readobjnam.js';
 import { encumber_msg } from './pickup.js';
 import { cant_revive } from './read.js';
 import { is_quest_artifact } from './questpgr.js';
@@ -639,9 +640,6 @@ import { livelog_printf } from './pline.js';
 import { waterbody_name } from './pager.js';
 import { fix_wall_spines } from './mklev.js';
 import { picking_at, reset_pick } from './lock.js';
-
-// The wish parser raises every other refusal, so the class lives with it.
-export { UnsupportedWishError };
 
 // Thrown where zap.c reaches a wand effect this port has not ported.
 export class UnsupportedZapError extends Error {
@@ -1966,16 +1964,10 @@ export async function zhitm(
     return { damage: tmp, otmp };
 }
 
-// C ref: zap.c makewish() (6313-6422). The "help" arm at 6348-6352, the
-// MAXWISHTRY retry loop at 6360-6368 and the artifact arm still stop instead;
-// the wishes this port grants take readobjnam() and
-// hold_another_object(), with the wizard-terrain hands_obj return handled
-// between them and Escape at 6346-6347 included.
-//
-// `tries` is 0 on every pass this port reaches, because the MAXWISHTRY loop
-// that raises it starts past the throw. That settles two of the head's tests:
-// the `iflags.cmdassist && tries > 0` suffix at 6330 cannot be appended, and
-// the third operand of the 6334 test below holds.
+// C ref: zap.c makewish() (6313-6422). The help arm keeps its unported void
+// wishcmdassist() call explicit, then retries without counting a failed wish.
+// Object wishes pass through readobjnam() and hold_another_object(); artifact
+// bookkeeping and wizard-terrain hands_obj returns are handled in source order.
 export async function makewish(state = game) {
     state.u.uconduct ??= {};
     state.context ??= {};
@@ -1987,37 +1979,12 @@ export async function makewish(state = game) {
     if (state.flags?.verbose)
         await ttyPline('You may wish for an object.', state);
 
-    // `retry:`, the label the MAXWISHTRY loop jumps back to.
-    const promptbuf = 'For what do you wish?';
-
     // 6334's `iflags.menu_requested && wish_history[0] && (tries == 0)` picks
     // the history menu over getlin(). wish_history[] is written only by
     // wish_history_add(), which sits inside `#ifdef DEBUG` at zap.c:6229;
     // include/config.h defines only DEBUG_MIGRATING_MONS and no patch under
     // nethack-c/patches/ defines DEBUG, so wish_history[0] is permanently
     // NULL. The `m` prefix therefore reaches getlin() like every other wish.
-    const answer = await getlin(promptbuf, state);
-
-    if (state.iflags?.term_gone) {
-        // The terminal is gone, so C abandons the wish and marks it for a
-        // restore to resume. win/tty/getline.c:87 raises the flag for the one
-        // byte that reads back as EOF, which js/getline.js already models.
-        // C guards the assignment with `!iflags.debug_fuzzer`, and that flag
-        // is never set here.
-        state.context.resume_wish = 1;
-        return;
-    }
-
-    let buf = mungspaces(answer);
-    if (buf[0] === '\x1b') {
-        // zap.c:6346-6347 empties the buffer rather than declining the wish,
-        // so readobjnam("") falls through readobjnam_preparse()'s empty return
-        // to `any:` and is granted wrpsym[rn2(13)].
-        buf = '';
-    } else if (lcase(buf) === 'help') {
-        // 6348-6352 opens wishcmdassist()'s window and asks again.
-        throw new UnsupportedWishError('the wish prompt help text', buf);
-    }
     /*
      *  Note: if they wished for and got a non-object successfully,
      *  otmp == &hands_obj.  That includes an artifact which has been
@@ -2035,9 +2002,54 @@ export async function makewish(state = game) {
     // those arms are the ones every other mksobj() caller assembles, so this
     // wish path assembles them the same way rather than a subset of its own.
     const oldwisharti = Math.trunc(state.u.uconduct.wisharti ?? 0);
-    const otmp = await readobjnam(buf, nothing, objectGenerationEnv({ state }));
-    // A null readobjnam() answer enters the retry loop at 6360-6368, which
-    // remains an explicit unsupported wish boundary.
+    let tries = 0;
+    let buf;
+    let otmp;
+    for (;;) {
+        // `retry:`; C appends help text only after the first failed wish.
+        const promptbuf = 'For what do you wish'
+            + (state.iflags?.cmdassist && tries > 0
+                ? " (enter 'help' for assistance)" : '')
+            + '?';
+        const answer = await getlin(promptbuf, state);
+
+        if (state.iflags?.term_gone) {
+            // win/tty/getline.c:87 raises this flag for the EOF byte.
+            // C guards the assignment with !iflags.debug_fuzzer, which is
+            // never set in this port.
+            state.context.resume_wish = 1;
+            return;
+        }
+
+        buf = mungspaces(answer);
+        if (buf[0] === '\x1b') {
+            // zap.c:6346-6347 empties the line; readobjnam("") reaches any:
+            // and chooses the class with wrpsym[rn2(sizeof wrpsym)].
+            buf = '';
+        } else if (lcase(buf) === 'help') {
+            // 6348-6352 opens wishcmdassist() before retrying without
+            // incrementing `tries`. C discards wishcmdassist()'s return, so
+            // keep the unported void helper explicit and continue the retry.
+            note_unported('zap.c wishcmdassist');
+            continue;
+        }
+
+        otmp = await readobjnam(
+            buf, nothing, objectGenerationEnv({ state, askYesNo: y_n }),
+        );
+        if (otmp) break;
+
+        await ttyPline(
+            'Nothing fitting that description exists in the game.', state,
+        );
+        if (++tries < 5) continue;
+        await ttyPline(thats_enough_tries, state);
+        // zap.c:6367-6368 asks readobjnam() for a random class-only wish
+        // after the fifth failed line. Its result is expected to be non-null.
+        otmp = await readobjnam(null, null, objectGenerationEnv({ state }));
+        if (!otmp) return;
+        break;
+    }
     if (otmp === nothing) {
         /* explicitly wished for "nothing", presumably attempting
            to retain wishless conduct */

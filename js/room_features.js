@@ -17,7 +17,7 @@ import { add_to_buried } from './invent.js';
 import { occupied } from './mktrap.js';
 import { objectGenerationEnv } from './object_generation.js';
 import {
-    curseFreeObject,
+    curse,
     mkobj,
     mksobj,
     mksobj_at,
@@ -127,7 +127,7 @@ export function mkgrave(croom, rawEnv = {}) {
     for (let tryct = random.rn2(5); tryct; --tryct) {
         const object = mkobj(RANDOM_CLASS, true, env);
         if (!object) return;
-        curseFreeObject(object, env);
+        curse(object, env);
         object.ox = coordinate.x;
         object.oy = coordinate.y;
         add_to_buried(object, env);

@@ -125,6 +125,11 @@ import { confers_luck } from './artifacts.js';
 // exports only inside function bodies.
 import { set_moreluck } from './attrib.js';
 import { arti_light_radius, get_obj_location, obj_sheds_light } from './light.js';
+// curse() needs the same hero equipment predicates and takeoff reset used by
+// wielding and armor removal. These modules already form function-body-only
+// cycles with obj.js.
+import { reset_remarm } from './do_wear.js';
+import { bimanual } from './worn.js';
 import { rndmonnum } from './makemon.js';
 import {
     can_be_hatched,
@@ -1574,36 +1579,49 @@ export async function unbless(obj, env = {}) {
         await maybe_adjust_light(obj, old_light, env);
 }
 
-// C ref: mkobj.c curse(). The full runtime curse operation has additional
-// carried-object effects, while this primitive is the exact BUC mutation used
-// by level-generation objects after mksobj_at() places them on the floor.
+// C ref: mkobj.c curse() (1783-1820). Keep its state changes and special-item
+// effects in source order. Only the two still-unported void callees are
+// recorded at their source branches; the C function discards both results.
 export function curse(obj, env = {}) {
+    const state = env.state ?? game;
     if (obj.oclass === COIN_CLASS) return obj;
-    // mkobj.c curse() is also used after mksobj_at() places a level object on
-    // the floor.  No carried or worn side effect can apply to that object;
-    // retain the source BUC mutation and the bag weight adjustment here.
-    if (obj.where === OBJ_FLOOR) {
-        obj.blessed = false;
-        obj.cursed = true;
-        if (obj.otyp === BAG_OF_HOLDING)
-            obj.owt = weight(obj, env);
-        return obj;
-    }
-    // worn.c m_dowear_type() curses a helmet after it has been installed in
-    // a monster's inventory.  This narrowly admitted arm is an unlit,
-    // monster-owned armor object, so no bag, figurine, book, or artifact-light
-    // work is due here; other owned classes retain the existing boundary until
-    // their full curse side effects are available.
-    if (obj.where === OBJ_MINVENT
-        && obj.oclass === ARMOR_CLASS
-        && !obj.lamplit) {
-        obj.blessed = false;
-        obj.cursed = true;
-        return obj;
-    }
-    assertStartupBucObject(obj, 'curse outside object initialization');
+    let old_light = 0;
+    if (obj.lamplit)
+        old_light = arti_light_radius(obj, state);
+    const already_cursed = Boolean(obj.cursed);
     obj.blessed = false;
     obj.cursed = true;
+
+    // A welded two-handed weapon changes the delayed armor-removal context.
+    if (obj === state.uwep && bimanual(state.uwep, state))
+        reset_remarm(state);
+    // wield.c drop_uswapwep() is still outside this task; C's result is void.
+    if (obj === state.uswapwep && state.u?.twoweap)
+        note_unported('wield.c drop_uswapwep');
+
+    if (carried(obj) && confers_luck(obj, state)) {
+        set_moreluck(state);
+    } else if (obj.otyp === BAG_OF_HOLDING) {
+        obj.owt = weight(obj, env);
+    } else if (obj.otyp === FIGURINE) {
+        if (obj.corpsenm !== NON_PM
+            && !dead_species(obj.corpsenm, true, { ...env, state })
+            && (carried(obj) || obj.where === OBJ_MINVENT)) {
+            attach_fig_transform_timeout(obj, { ...env, state });
+        }
+    } else if (obj.oclass === SPBOOK_CLASS && !already_cursed) {
+        // spell.c book_cursed() returns void and has not been ported yet.
+        note_unported('spell.c book_cursed');
+    }
+
+    if (obj.lamplit) {
+        const new_light = arti_light_radius(obj, state);
+        // maybe_adjust_light() has no effects when the range is unchanged;
+        // preserve synchronous callers in that common case and return its
+        // Promise only when the source emits a brightness update.
+        if (new_light !== old_light)
+            return maybe_adjust_light(obj, old_light, env);
+    }
     return obj;
 }
 
@@ -1662,7 +1680,7 @@ export function blessorcurse(obj, chance, env = {}) {
     if (obj.blessed || obj.cursed) return obj;
     assertStartupBucObject(obj, 'blessorcurse outside object initialization');
     if (!random.rn2(chance)) {
-        if (!random.rn2(2)) curse(obj);
+        if (!random.rn2(2)) curse(obj, env);
         else bless(obj);
     }
     return obj;
@@ -2397,7 +2415,7 @@ function mksobj_init(obj, artif = false, env = {}) {
             obj.spe = random.rne(3);
             obj.blessed = Boolean(random.rn2(2));
         } else if (!random.rn2(10)) {
-            curse(obj);
+            curse(obj, normalized);
             obj.spe = -random.rne(3);
         } else {
             blessorcurse(obj, 10, normalized);
@@ -2450,7 +2468,7 @@ function mksobj_init(obj, artif = false, env = {}) {
     case GEM_CLASS:
         obj.corpsenm = 0;
         if (obj.otyp === LOADSTONE) {
-            curse(obj);
+            curse(obj, normalized);
         } else if (obj.otyp === ROCK) {
             obj.quan = random.rn1(6, 6);
         } else if (obj.otyp !== LUCKSTONE && !random.rn2(6)) {
@@ -2540,7 +2558,7 @@ function mksobj_init(obj, artif = false, env = {}) {
             && (obj.otyp === AMULET_OF_STRANGULATION
                 || obj.otyp === AMULET_OF_CHANGE
                 || obj.otyp === AMULET_OF_RESTFUL_SLEEP)) {
-            curse(obj);
+            curse(obj, normalized);
         } else {
             blessorcurse(obj, 10, normalized);
         }
@@ -2571,7 +2589,7 @@ function mksobj_init(obj, artif = false, env = {}) {
                 || obj.otyp === HELM_OF_OPPOSITE_ALIGNMENT
                 || obj.otyp === GAUNTLETS_OF_FUMBLING
                 || !random.rn2(11))) {
-            curse(obj);
+            curse(obj, normalized);
             obj.spe = -random.rne(3);
         } else if (!random.rn2(10)) {
             obj.blessed = Boolean(random.rn2(2));
@@ -2611,14 +2629,14 @@ function mksobj_init(obj, artif = false, env = {}) {
             if (!obj.spe)
                 obj.spe = random.rn2(4) - random.rn2(3);
             if (obj.spe < 0 && random.rn2(5))
-                curse(obj);
+                curse(obj, normalized);
         } else if (random.rn2(10)
                    && (obj.otyp === RIN_TELEPORTATION
                        || obj.otyp === RIN_POLYMORPH
                        || obj.otyp === RIN_AGGRAVATE_MONSTER
                        || obj.otyp === RIN_HUNGER
                        || !random.rn2(9))) {
-            curse(obj);
+            curse(obj, normalized);
         }
         break;
 

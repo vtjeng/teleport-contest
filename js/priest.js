@@ -72,7 +72,7 @@ import { PM_ALIGNED_CLERIC, PM_GHOST, PM_HIGH_CLERIC, S_EEL } from './monsters.j
 import { m_at, place_monster, remove_monster } from './monst.js';
 import { AMULET_OF_YENDOR } from './objects.js';
 import { just_an } from './objnam.js';
-import { mkobj, SPBOOK_NO_NOVEL } from './obj.js';
+import { curse, mkobj, SPBOOK_NO_NOVEL } from './obj.js';
 import { body_part } from './polyself.js';
 import { halu_gname } from './pray.js';
 import { is_ok_location } from './room_coordinates.js';
@@ -304,8 +304,7 @@ export function priestini(lvl, sroom, sx, sy, sanctum, env = {}) {
             if (p_coaligned(priest, state)) {
                 otmp.cursed = false;
             } else {
-                otmp.blessed = false;
-                otmp.cursed = true;
+                curse(otmp, { ...env, state });
             }
         }
     }

@@ -36,6 +36,7 @@ import {
     mkgold,
     mkobj_at,
     mksobj_at,
+    curse,
     objectType,
     remove_object,
     set_corpsenm,
@@ -220,10 +221,7 @@ function unblessSpecialObject(obj, env) {
 }
 
 function curseSpecialObject(obj, env) {
-    if (obj.oclass === COIN_CLASS) return;
-    obj.blessed = false;
-    obj.cursed = true;
-    bagWeight(obj, env);
+    return curse(obj, env);
 }
 
 function uncurseSpecialObject(obj, env) {

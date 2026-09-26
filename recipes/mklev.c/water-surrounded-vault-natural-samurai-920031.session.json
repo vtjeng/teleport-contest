@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 920031,
+      "datetime": "20260924101500",
+      "nethackrc": "OPTIONS=name:VaultSearchB,role:Samurai,race:human,gender:female,align:lawful\nOPTIONS=!legacy,!tutorial,!splash_screen\nOPTIONS=pettype:none,!acoustics\n",
+      "moves": " "
+    }
+  ],
+  "comment": "Naturally selected the Water-surrounded vault during level generation (room-selection collector ordinal 5); strict C recording reaches dat/themerms.lua:793 obj.new(name) -> nhlobj.c:l_obj_new_readobjnam() -> objnam.c:readobjnam(). Inputs were chosen independently; no THEMERM override."
+}

@@ -42,11 +42,13 @@ import { y_n } from './cmd.js';
 import { dmonsfree, makemon, mongone } from './makemon_create.js';
 import {
     is_unicorn,
+    is_undead,
     likes_gold, likes_gems, likes_objs, likes_magic, monsndx,
 } from './mondata.js';
 import { m_at } from './monst.js';
 import { GLYPH_UNEXPLORED_OFF } from './glyph_offsets.js';
 import { can_carry } from './moncarry.js';
+import { artifact_light } from './artifacts.js';
 import {
     next_ident,
     obj_attach_mid,
@@ -54,9 +56,10 @@ import {
     obj_no_longer_held,
     place_object,
     weight,
+    curse,
 } from './obj.js';
+import { end_burn } from './timeout.js';
 import {
-    COIN_CLASS,
     CORPSE,
     EGG,
     SLIME_MOLD,
@@ -256,7 +259,7 @@ function give_to_nearby_mon(otmp, x, y, state) {
 // usually cursing items. If mtmp is non-null, items go to that monster.
 // If cont is non-null, items go into that container. Otherwise items are
 // placed on the floor or given to nearby monsters.
-export function drop_upon_death(mtmp, cont, x, y, state) {
+export async function drop_upon_death(mtmp, cont, x, y, state) {
     // C: u.twoweap = FALSE (bypass set_twoweap)
     state.u.twoweap = false;
 
@@ -264,12 +267,12 @@ export function drop_upon_death(mtmp, cont, x, y, state) {
         const otmp = state.invent;
         obj_extract_self(otmp);
         // When not turning into a living monster, detach equipment effects
-        if (!mtmp) {
-            obj_no_longer_held(otmp);
-        }
+        if (!mtmp || is_undead(mtmp.data))
+            await obj_no_longer_held(otmp, { state });
         // C: if ((cont || artifact_light(otmp)) && obj_is_burning(otmp))
         //        end_burn(otmp, TRUE);
-        // Simplified: artifact_light items are rare; skipping for this path.
+        if ((cont || artifact_light(otmp)) && otmp.lamplit)
+            await end_burn(otmp, true, { state });
         otmp.owornmask = 0;
 
         if (otmp.otyp === SLIME_MOLD) goodfruit(otmp.spe, state);
@@ -277,12 +280,7 @@ export function drop_upon_death(mtmp, cont, x, y, state) {
         // C ref: bones.c:290-291 — rn2(5) then curse(otmp).
         // C's curse() (mkobj.c:1783) unconditionally sets blessed=0, cursed=1
         // for non-coins; it does not set heavycurse.
-        if (rn2(5)) {
-            if (otmp.oclass !== COIN_CLASS) {
-                otmp.blessed = false;
-                otmp.cursed = true;
-            }
-        }
+        if (rn2(5)) await curse(otmp, { state });
         if (mtmp) {
             add_to_minv(mtmp, otmp);
         } else if (cont) {
@@ -416,16 +414,16 @@ export async function savebones(how, when, corpse, state) {
     if (ismnum(state.u.ugrave_arise)) {
         // Hero rises as a specific monster -- not exercised in this session.
         // Simplified: fall through to the ghost path.
-        drop_upon_death(null, null, state.u.ux, state.u.uy, state);
+        await drop_upon_death(null, null, state.u.ux, state.u.uy, state);
         state.u.ugrave_arise = NON_PM;
         return;
     } else if (state.u.ugrave_arise === LEAVESTATUE) {
         // Hero becomes a statue -- not exercised.
-        drop_upon_death(null, null, state.u.ux, state.u.uy, state);
+        await drop_upon_death(null, null, state.u.ux, state.u.uy, state);
         return;
     } else {
         // u.ugrave_arise < LEAVESTATUE: drop everything, create a ghost.
-        drop_upon_death(null, null, state.u.ux, state.u.uy, state);
+        await drop_upon_death(null, null, state.u.ux, state.u.uy, state);
         state.in_mklev = true;
         mtmp = makemon(state.mons[PM_GHOST], state.u.ux, state.u.uy, MM_NONAME);
         state.in_mklev = false;

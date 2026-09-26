@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "Independent invent.c:freeinv_core() caller coverage: wizard debug wishes an uncursed loadstone, then drops it so the exact LOADSTONE arm calls mkobj.c:curse().",
+  "segments": [
+    {
+      "seed": 8562110,
+      "datetime": "20310203040509",
+      "nethackrc": "OPTIONS=name:InventoryCurse,role:Wizard,race:human,gender:male,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen\nOPTIONS=pettype:none,!acoustics,playmode:debug\n",
+      "moves": ".\u0017uncursed loadstone\n dm"
+    }
+  ]
+}

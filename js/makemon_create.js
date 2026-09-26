@@ -379,7 +379,7 @@ import {
 } from './monsters.js';
 import {
     ARM_BONUS,
-    curseFreeObject,
+    curse,
     mkobj,
     mkobj_at,
     mksobj,
@@ -1788,7 +1788,9 @@ function addFreshMonsterObject(monster, obj, normalized) {
 export function mongets(monster, otyp, normalized) {
     if (!otyp) return null;
     const obj = mksobj(otyp, true, false, normalized);
-    if (monster.data.mflags2 & M2_PRINCE) {
+    if (monster.data.mlet === S_DEMON) {
+        if (obj.blessed) curse(obj, normalized);
+    } else if (monster.data.mflags2 & M2_PRINCE) {
         if (obj.oclass === WEAPON_CLASS && obj.spe < 1) obj.spe = 1;
         else if (obj.oclass === ARMOR_CLASS && obj.spe < 0) obj.spe = 0;
     }
@@ -1922,7 +1924,7 @@ function m_initweap(monster, normalized) {
             // 50% cursed. Bypasses mongets to skip normal mksobj_init.
             const obj = mksobj(MACE, false, false, normalized);
             obj.spe = random.rnd(3);
-            if (!random.rn2(2)) curseFreeObject(obj, normalized);
+            if (!random.rn2(2)) curse(obj, normalized);
             addFreshMonsterObject(monster, obj, normalized);
         } else if (ptr.pmidx === PM_NINJA) {
             // C ref: makemon.c:270-272.
@@ -2508,7 +2510,7 @@ function m_initinv(monster, normalized) {
                 mongets(monster, TIN_WHISTLE, normalized);
         } else if (ptr.pmidx === PM_GUARD) {
             const whistle = mksobj(TIN_WHISTLE, true, false, normalized);
-            curseFreeObject(whistle, normalized);
+            curse(whistle, normalized);
             addFreshMonsterObject(monster, whistle, normalized);
         } else {
             if (!random.rn2(3)) mongets(monster, K_RATION, normalized);
@@ -2575,7 +2577,7 @@ function m_initinv(monster, normalized) {
             false,
             normalized,
         );
-        curseFreeObject(ring, normalized);
+        curse(ring, normalized);
         addFreshMonsterObject(monster, ring, normalized);
     } else if (ptr.mlet === S_LICH) {
         // C ref: makemon.c:759-771. Master liches rarely receive an athame
