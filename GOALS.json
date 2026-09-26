@@ -76592,6 +76592,83 @@
           "evaluationCommit": "74bd31c01631a92d835ba988cdb3a0ed892ec87b"
         }
       }
+    },
+    {
+      "id": "port-pray-offer-corpse-synthetic-v2-20260926",
+      "kind": "file-port",
+      "status": "queued",
+      "summary": "Port pray.c offer_corpse and wire the sacrifice corpse arm",
+      "cFile": "pray.c",
+      "sessions": [
+        "synthetic/v2/altar-rite-history"
+      ],
+      "selectionReason": "synthetic/v2/altar-rite-history has 2 unmatched screens in challenges/evaluations/20260926034749-v2.json; investigations/synthetic/v2/altar-rite-history.json traces them to pray.c offer_corpse. Higher-ranked v3 food and v4 sink cases are already owned by pending B8 and C10 deliveries. This is the first independent completed-investigation task for a free worker.",
+      "detail": "At segment 0 step 48 the C #offer path enters pray.c dosacrifice -> offer_corpse; JS misses the exercise draw after a wished jackal corpse. Port the whole function and required return-valued callees, including pray.c eval_offering, sacrifice_value, bestow_artifact, and aligned artifact.c mk_artifact where reached.",
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": null,
+      "delivered": null,
+      "functions": [
+        {
+          "name": "offer_corpse",
+          "line": 1959,
+          "endLine": 2123,
+          "declared": false,
+          "complete": false
+        }
+      ],
+      "range": {
+        "from": 1959,
+        "to": 2123
+      },
+      "syntheticProvenance": {
+        "synthetic/v2/altar-rite-history": {
+          "session": "synthetic/v2/altar-rite-history",
+          "corpus": "synthetic",
+          "batch": "v2",
+          "caseId": "altar-rite-history",
+          "manifestPath": "challenges/manifests/v2.json",
+          "manifestSha256": "58739ea9ed6c26e5153c4860b2e5111d08d69792bdea5c39427cf45b8e72cc9c",
+          "recordingPath": "challenges/cases/v2/altar-rite-history.session.json",
+          "recordingSha256": "f3fbc209ee4d556822809c679e9cc73054b48fa85ba5d17864b764f30b4cf048",
+          "evaluationPath": "challenges/evaluations/20260926034749-v2.json",
+          "evaluationCommit": "c12df7b29cfff0e2b05b59d802a204008912d442"
+        }
+      }
+    },
+    {
+      "id": "div-lock-pick-chest-query-synthetic-v4-20260926",
+      "kind": "divergence-fix",
+      "status": "queued",
+      "summary": "Match lock.c pick_lock chest prompt before setting lock knowledge",
+      "cFile": "lock.c",
+      "sessions": [
+        "synthetic/v4/valkyrie-lockpick-chest-open-menu",
+        "synthetic/v4/valkyrie-lockpick-chest-stash-return"
+      ],
+      "selectionReason": "Each v4 Valkyrie lockpick case has 1 unmatched screen in challenges/evaluations/20260926034749-v4.json; both complete investigations trace the same lock.c pick_lock query order. Higher-ranked v3 food and v4 sink cases are owned by pending B8 and C10 deliveries, and v2 altar by assigned C11. This is the first independent ready source defect for B.",
+      "detail": "lock.c pick_lock builds safe_qbuf from doname before setting otmp->lknown=1; js/lock.js sets lknown before formatting, inserting locked into the chest prompt and moving its cursor. Preserve source autounlock arms and set knowledge after query formatting before ynq.",
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": null,
+      "delivered": null,
+      "function": "pick_lock",
+      "session": "synthetic/v4/valkyrie-lockpick-chest-open-menu",
+      "step": 33,
+      "syntheticProvenance": {
+        "synthetic/v4/valkyrie-lockpick-chest-open-menu": {
+          "session": "synthetic/v4/valkyrie-lockpick-chest-open-menu",
+          "corpus": "synthetic",
+          "batch": "v4",
+          "caseId": "valkyrie-lockpick-chest-open-menu",
+          "manifestPath": "challenges/manifests/v4.json",
+          "manifestSha256": "10777af4c82fc759abf58a870fdd232329bc5c1467c8cf94f46089d0401459a9",
+          "recordingPath": "challenges/cases/v4/valkyrie-lockpick-chest-open-menu.session.json",
+          "recordingSha256": "2d5176b421d2ad6fb23e6e170bab9bb0f23db29af81cf80c4a7692c7983aa4c4",
+          "evaluationPath": "challenges/evaluations/20260926034749-v4.json",
+          "evaluationCommit": "c12df7b29cfff0e2b05b59d802a204008912d442"
+        }
+      }
     }
   ]
 }
