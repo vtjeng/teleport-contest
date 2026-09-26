@@ -11,8 +11,8 @@
 // OILSKIN_SACK) which delegates to pickup.c use_container() in js/pickup.js,
 // BAG_OF_TRICKS which delegates to makemon.c bagotricks() in js/makemon.js,
 // musical instruments through music.c, HORN_OF_PLENTY through mkobj.c,
-// and the ordinary CARROT unknown-use result. Ordinary armor reaches the same
-// switch-default refusal. Every other named arm, the default's weapon
+// and the ordinary food and armor unknown-use results. Every other named
+// arm, the default's weapon
 // redirects, and the wand, spellbook and coin shortcuts above the switch stop
 // at a refusal naming the C function they need.
 // use_stethoscope() covers
@@ -229,7 +229,6 @@ import {
     TOUCHSTONE,
     WAND_CLASS,
     WEAPON_CLASS,
-    CARROT,
     LARGE_BOX,
     CHEST,
     ICE_BOX,
@@ -1636,17 +1635,29 @@ export async function doapply(state = game, env = {}) {
     case DRUM_OF_EARTHQUAKE:
         // apply.c:4372-4383. All musical instruments share this owner.
         return do_play_instrument(obj, state, env);
+    case BANANA:
+        // apply.c:4401-4403. Hallucinating heroes get the banana's ringing
+        // message and the source's initial ECMD_TIME result; otherwise C
+        // falls through to the generic default arm below.
+        if (heroHallucinating(state)) {
+            await ttyPline("It rings! ... But no-one answers.", state);
+            return ECMD_TIME;
+        }
+        // FALLTHROUGH to the same unknown-use result as the C default.
     default:
-        // apply.c:4407-4417. CARROT is not a named switch arm, and it cannot
-        // be a polearm, pick, or axe because those macros admit only
-        // WEAPON_CLASS and TOOL_CLASS. It therefore reaches C's exact
-        // unknown-use result without spending a turn or changing the object.
-        if (obj.otyp === CARROT) {
+        // apply.c:4407-4417. CARROT and other nonnamed foods use this arm;
+        // BANANA also falls through here when not hallucinating. Those food
+        // objects cannot be poles, picks, or axes because the source macros
+        // admit only WEAPON_CLASS and TOOL_CLASS.
+        // C names LUMP_OF_ROYAL_JELLY before its default, but that helper is
+        // still unported. CREAM_PIE also has an earlier named arm, which the
+        // switch above handles. Other FOOD_CLASS items, including CARROT,
+        // use the generic result.
+        if (obj.oclass === FOOD_CLASS && obj.otyp !== LUMP_OF_ROYAL_JELLY) {
             await ttyPline("Sorry, I don't know how to use that.", state);
             return ECMD_FAIL;
         }
-        // The same already-ported default result applies to ordinary armor;
-        // keep the class-wide behavior separate from this CARROT slice.
+        // The same already-ported default result applies to ordinary armor.
         if (obj.oclass === ARMOR_CLASS) {
             await ttyPline("Sorry, I don't know how to use that.", state);
             return ECMD_FAIL;
