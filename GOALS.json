@@ -76565,7 +76565,7 @@
     {
       "id": "div-apply-doapply-food-default-synthetic-v3-20260926",
       "kind": "divergence-fix",
-      "status": "open",
+      "status": "closed",
       "summary": "Match apply.c doapply food fallback and banana hallucination branch",
       "cFile": "apply.c",
       "sessions": [],
@@ -76577,8 +76577,11 @@
         "screens": 11405,
         "rng": 792838
       },
-      "closedAt": null,
-      "delivered": null,
+      "closedAt": "b7b4c1990c6a7500d614a7609533c6ab407d75e3",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
       "function": "doapply",
       "session": "synthetic/v3/tourist-camera-flash",
       "step": 4,
@@ -76767,7 +76770,13 @@
             }
           }
         }
-      ]
+      ],
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "b7b4c1990c6a7500d614a7609533c6ab407d75e3",
+        "screens": 11405,
+        "rng": 792838
+      }
     },
     {
       "id": "port-pray-offer-corpse-synthetic-v2-20260926",
