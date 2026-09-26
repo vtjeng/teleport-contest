@@ -9,6 +9,7 @@ import {
     HALLUC,
     IN_SIGHT,
     I_SPECIAL,
+    IRONBARS,
     LAVAWALL,
     MFAST,
     MOAT,
@@ -18,6 +19,7 @@ import {
     NO_WEAPON_WANTED,
     OBJ_DELETED,
     OBJ_FLOOR,
+    BRK_BY_HERO,
     OBJ_FREE,
     ROOM,
     STONE,
@@ -65,7 +67,7 @@ import {
 import {
     blocking_terrain, breathwep_name, lined_up, linedup, linedup_callback, m_lined_up,
     m_has_launcher_and_ammo,
-    drop_throw, m_useup, monmulti, monshoot, m_throw, ohitmon, thitu, thrwmu,
+    drop_throw, hit_bars, hits_bars, m_useup, monmulti, monshoot, m_throw, ohitmon, thitu, thrwmu,
 } from '../js/mthrowu.js';
 import { potionhit } from '../js/potion.js';
 import { passive_obj } from '../js/uhitm.js';
@@ -88,6 +90,64 @@ async function hero() {
     });
     return game;
 }
+
+test('hit_bars consumes hero_breaks before deciding the projectile survives',
+    async () => {
+        const state = await hero();
+        const y = state.u.uy;
+        const objx = state.u.ux + 1;
+        const barsx = state.u.ux + 2;
+        clearRow(state, state.u.ux, barsx, y);
+        const egg = mksobj_at(EGG, objx, y, false, false, { state });
+        state.level.at(barsx, y).typ = IRONBARS;
+        state.level.at(barsx, y).wall_info = 0;
+        const objRef = { obj: egg };
+        const draws = [];
+
+        await hit_bars(objRef, objx, y, barsx, y, BRK_BY_HERO, state, {
+            rn2(bound) {
+                draws.push(bound);
+                return bound - 1;
+            },
+            rnd: (bound) => bound,
+            d: () => 1,
+        }, { message: async () => {} });
+
+        assert.equal(objRef.obj, null);
+        assert.equal(egg.where, OBJ_DELETED);
+        assert.deepEqual(draws, [100, 100]);
+    });
+
+test('hits_bars awaits the non-hero break result before returning', async () => {
+    const state = await hero();
+    const y = state.u.uy;
+    const objx = state.u.ux - 1;
+    const barsx = state.u.ux - 2;
+    clearRow(state, barsx, state.u.ux, y);
+    const egg = mksobj_at(EGG, objx, y, false, false, { state });
+    state.level.at(barsx, y).typ = IRONBARS;
+    state.level.at(barsx, y).wall_info = 0;
+    const objRef = { obj: egg };
+    const draws = [];
+
+    const hit = await hits_bars(
+        objRef, objx, y, barsx, y, 1, 0, state,
+        {
+            rn2(bound) {
+                draws.push(bound);
+                return bound - 1;
+            },
+            rnd: (bound) => bound,
+            d: () => 1,
+        },
+        { message: async () => {} },
+    );
+
+    assert.equal(hit, true);
+    assert.equal(objRef.obj, null);
+    assert.equal(egg.where, OBJ_DELETED);
+    assert.deepEqual(draws, [100, 100]);
+});
 
 async function impactCase({ visible = false, type = ORCISH_DAGGER,
     missRoll = false } = {}) {

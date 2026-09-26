@@ -1078,9 +1078,9 @@ test('every remaining zap refusal names an unported zap.c function',
         [
             // dozap()'s remaining backfire boundary.
             'backfire',
-            // The immediate callback families keep their unported source
-            // branches explicit instead of falling through into polymorph.
-            'bhito', 'bhito', 'bhitm',
+            // bhito() now handles the Force Bolt/striking object arm; its
+            // other unported effects and bhitm()'s branches still refuse.
+            'bhito', 'bhitm',
             // zhitu(): the still-unported hero damage branches.
             'zhitu', 'zhitu',
             // zapnodir() remains limited to its supported wand. weffects()

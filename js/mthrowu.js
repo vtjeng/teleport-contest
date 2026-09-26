@@ -100,6 +100,8 @@ import {
     multishot_class_bonus,
     omon_adj,
     should_mulch_missile,
+    breaks,
+    hero_breaks,
 } from './dothrow.js';
 import { m_carrying, mondied, seemimic, setmangry, xkilled } from './mon.js';
 import { m_at } from './monst.js';
@@ -939,9 +941,9 @@ export async function m_throw(monster, x, y, dx, dy, range, obj, rawEnv = {}) {
         || IS_OBSTRUCTED(state.level.at(nextX, nextY).typ)
         || closed_door(nextX, nextY, state)
         || (state.level.at(nextX, nextY).typ === IRONBARS
-            && hits_bars(singleobj_ref,
+            && await hits_bars(singleobj_ref,
                          state.gb.bhitpos.x, state.gb.bhitpos.y,
-                         nextX, nextY, 0, 0, state, random))) {
+                         nextX, nextY, 0, 0, state, random, env))) {
         if (singleobj_ref.obj) {
             await drop_throw(singleobj_ref.obj, 0,
                              state.gb.bhitpos.x, state.gb.bhitpos.y, env);
@@ -1157,10 +1159,10 @@ export async function m_throw(monster, x, y, dx, dy, range, obj, rawEnv = {}) {
                 if (IS_OBSTRUCTED(location.typ)
                     || closed_door(nextFlightX, nextFlightY, state)
                     || (location.typ === IRONBARS
-                        && hits_bars(singleobj_ref,
+                        && await hits_bars(singleobj_ref,
                                      state.gb.bhitpos.x, state.gb.bhitpos.y,
                                      nextFlightX, nextFlightY,
-                                     forcehit ? 1 : 0, 0, state, random))
+                                     forcehit ? 1 : 0, 0, state, random, env))
                     || IS_SINK(state.level.at(
                         state.gb.bhitpos.x,
                         state.gb.bhitpos.y,
@@ -2011,7 +2013,7 @@ export function m_has_launcher_and_ammo(mtmp, state = game) {
 // bars: it might break against the bars (dissolving them if acid), or bounce
 // off with a sound effect, or break the bars when the hero hammers them.
 // *objp is set to null if the object breaks.
-export function hit_bars(objRef, objx, objy, barsx, barsy, breakflags, state = game, random = { rn2 }) {
+export async function hit_bars(objRef, objx, objy, barsx, barsy, breakflags, state = game, random = { rn2 }, rawEnv = {}) {
     const otmp = objRef.obj;
     const obj_type = otmp.otyp;
     const location = state.level.at(barsx, barsy);
@@ -2020,15 +2022,13 @@ export function hit_bars(objRef, objx, objy, barsx, barsy, breakflags, state = g
     const melee_attk = (breakflags & BRK_MELEE) !== 0;
     let noise = 0;
 
-    // C: hero_breaks() and breaks() are not ported. They test whether the
-    // object shatters and produce breakage messages and effects. Both use the
-    // return value in a condition. Since neither is ported, the break path
-    // never fires and the object always survives to hit the bars.
-    const broke = false;
-    if (your_fault)
-        note_unported('dothrow.c hero_breaks');
-    else
-        note_unported('dothrow.c breaks');
+    // C consumes the complete break helper result before deciding whether
+    // the projectile disappears or acid dissolves the bars.
+    const broke = your_fault
+        ? await hero_breaks(otmp, objx, objy, breakflags, {
+            ...rawEnv, state, random,
+        })
+        : await breaks(otmp, objx, objy, { ...rawEnv, state, random });
 
     if (broke) {
         objRef.obj = null; /* object is now gone */
@@ -2092,10 +2092,10 @@ export function hit_bars(objRef, objx, objy, barsx, barsy, breakflags, state = g
 // C ref: mthrowu.c hits_bars() (1498-1559). TRUE iff a thrown/kicked/rolled
 // object doesn't pass through iron bars. When whodidit != -1 and the object
 // would hit, calls hit_bars() to resolve breakage and sound effects.
-export function hits_bars(obj_ref, x, y, barsx, barsy, always_hit, whodidit, state = game, random = { rn2 }) {
+export async function hits_bars(obj_ref, x, y, barsx, barsy, always_hit, whodidit, state = game, random = { rn2 }, rawEnv = {}) {
     const otmp = obj_ref.obj;
     const obj_type = otmp.otyp;
-    let hits = always_hit;
+    let hits = Boolean(always_hit);
 
     if (!hits) {
         switch (otmp.oclass) {
@@ -2142,8 +2142,9 @@ export function hits_bars(obj_ref, x, y, barsx, barsy, always_hit, whodidit, sta
     }
 
     if (hits && whodidit !== -1) {
-        hit_bars(obj_ref, x, y, barsx, barsy,
-                 (whodidit === 1) ? BRK_BY_HERO : 0, state, random);
+        await hit_bars(obj_ref, x, y, barsx, barsy,
+                       (whodidit === 1) ? BRK_BY_HERO : 0, state, random,
+                       rawEnv);
     }
 
     return hits;

@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 9300002,
+      "datetime": "20261005130000",
+      "nethackrc": "OPTIONS=name:BarsMissile,role:Valkyrie,race:human,gender:female,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen\nOPTIONS=playmode:debug\nOPTIONS=pettype:none,rest_on_space,!safe_wait\n",
+      "moves": " \u0007kobold\nllll \u0017iron bars\nllll"
+    }
+  ],
+  "_comment": "Blocked B17 entry-point attempt. C creates the missile-bearing Kobold, then the hero wishes iron bars and moves east. The recording never reaches mthrowu.c:thrwmu/m_throw/hits_bars; the source trace shows monmove.c:m_move pathing the Kobold around the bars and closing to melee first. This is setup evidence only, not a matching source witness."
+}

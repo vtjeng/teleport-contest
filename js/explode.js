@@ -163,7 +163,13 @@ import { Tobjnam } from './objnam.js';
 import { canSpotMonster } from './startup_a11y.js';
 import { cansee } from './vision.js';
 import { destroy_items } from './zap_destroy_items.js';
-import { resist, zap_over_floor } from './zap.js';
+import {
+    break_statue as zapBreakStatue,
+    fracture_rock,
+    resist,
+    zap_over_floor,
+} from './zap.js';
+import { breaks } from './dothrow.js';
 import { mon_pmname, Monnam, rndmonnam } from './do_name.js';
 import { done } from './end.js';
 import { encumber_msg } from './pickup.js';
@@ -884,9 +890,27 @@ export async function scatter(
         ));
     const stopOccupation = env.stopOccupation;
     const unpunish = env.unpunish;
-    const fractureRock = env.fractureRock;
-    const breakStatue = env.breakStatue;
-    const breakObject = env.breakObject;
+    const fractureRock = env.fractureRock
+        ?? ((object, operationEnv) => fracture_rock(
+            object,
+            state,
+            random,
+            { ...lifecycle, ...operationEnv, message },
+        ));
+    const breakStatue = env.breakStatue
+        ?? ((object, operationEnv) => zapBreakStatue(
+            object,
+            state,
+            random,
+            { ...lifecycle, ...operationEnv, message },
+        ));
+    const breakObject = env.breakObject
+        ?? ((object, x, y, operationEnv) => breaks(
+            object,
+            x,
+            y,
+            { ...lifecycle, ...operationEnv, message },
+        ));
     const redraw = env.newsym ?? ((x, y) => newsym(x, y));
     const reveal = env.maybeUnhideAt
         ?? ((x, y) => maybe_unhide_at(x, y, state, env));
@@ -946,10 +970,7 @@ export async function scatter(
                     );
                     await message('You hear stone breaking.', state, env);
                 }
-                if (typeof fractureRock === 'function')
-                    await fractureRock(scattered, env);
-                else
-                    note_unported('zap.c fracture_rock()');
+                await fractureRock(scattered, env);
                 await placeObject(scattered, sx, sy);
                 const otherBoulder = objectAt(BOULDER, sx, sy);
                 if (otherBoulder) {
@@ -971,10 +992,7 @@ export async function scatter(
                     );
                     await message('You hear stone crumbling.', state, env);
                 }
-                if (typeof breakStatue === 'function')
-                    await breakStatue(scattered, env);
-                else
-                    note_unported('zap.c break_statue()');
+                await breakStatue(scattered, env);
                 await placeObject(scattered, sx, sy);
             }
             await redraw(sx, sy, state);
@@ -985,12 +1003,6 @@ export async function scatter(
                 || (scattered.oclass != null
                     && (env.objectMaterial?.(scattered)
                         ?? objectType(scattered, state).oc_material) === GLASS))) {
-            if (typeof breakObject !== 'function') {
-                note_unported('dothrow.c breaks()');
-                throw new Error(
-                    'scatter requires the dothrow.c breaks() dependency',
-                );
-            }
             usedUp = Boolean(await breakObject(scattered, sx, sy, env));
         }
 

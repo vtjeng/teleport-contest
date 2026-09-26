@@ -66,7 +66,7 @@ import {
 import { m_at } from './monst.js';
 import { wake_nearby } from './mon.js';
 import { nohands, verysmall } from './mondata.js';
-import { PM_ROGUE } from './monsters.js';
+import { PM_ROGUE, PM_WIZARD } from './monsters.js';
 import { obj_resists } from './bury.js';
 import {
     costly_alteration,
@@ -86,6 +86,12 @@ import {
     LOCK_PICK,
     ROCK_CLASS,
     SKELETON_KEY,
+    SPE_KNOCK,
+    SPE_POLYMORPH,
+    SPE_WIZARD_LOCK,
+    WAN_LOCKING,
+    WAN_OPENING,
+    WAN_POLYMORPH,
     WEAPON_CLASS,
 } from './objects.js';
 import { closed_door } from './monmove.js';
@@ -169,6 +175,42 @@ export function reset_pick(state = game) {
     xlock.magic_key = false;
     xlock.door = null;
     xlock.box = null;
+}
+
+// C ref: lock.c boxlock() (1056-1101). A magic effect updates the box's
+// lock state and returns whether that state changed. Soundeffect() is a no-op
+// in the recorder's tty build; the source messages and lock knowledge remain.
+export async function boxlock(obj, effect, state = game) {
+    let result = 0;
+
+    switch (effect.otyp) {
+    case WAN_LOCKING:
+    case SPE_WIZARD_LOCK:
+        if (!obj.olocked) {
+            await ttyPline('Klunk!', state);
+            obj.olocked = 1;
+            obj.obroken = 0;
+            obj.lknown = state.urole?.mnum === PM_WIZARD ? 1 : 0;
+            result = 1;
+        }
+        break;
+    case WAN_OPENING:
+    case SPE_KNOCK:
+        if (obj.olocked) {
+            await ttyPline('Klick!', state);
+            obj.olocked = 0;
+            result = 1;
+            obj.lknown = state.urole?.mnum === PM_WIZARD ? 1 : 0;
+        } else {
+            obj.obroken = 0;
+        }
+        break;
+    case WAN_POLYMORPH:
+    case SPE_POLYMORPH:
+        if (state.xlock?.box === obj) reset_pick(state);
+        break;
+    }
+    return result;
 }
 
 // C ref: lock.c maybe_reset_pick() (268-285). obfree() passes the container

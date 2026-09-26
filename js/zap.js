@@ -135,6 +135,8 @@ import {
     CORPSTAT_FEMALE,
     CORPSTAT_GENDER,
     CORPSTAT_MALE,
+    CORPSTAT_HISTORIC,
+    STATUE_TRAP,
     CXN_PFX_THE,
     DEAF,
     MM_FEMALE,
@@ -224,7 +226,7 @@ import {
     ANIMATE_SPELL,
 } from './const.js';
 import { stop_occupation } from './allmain.js';
-import { acurr, exercise } from './attrib.js';
+import { acurr, adjalign, exercise } from './attrib.js';
 import { dirtocoord, getdir, xytodir, y_n } from './cmd.js';
 import {
     bot,
@@ -250,6 +252,7 @@ import {
     Monnam,
     mon_nam,
     monsterCommonName,
+    rndmonnam,
 } from './do_name.js';
 import { get_mtraits } from './corpstat.js';
 import { eaten_stat, vegetarian } from './eat.js';
@@ -364,6 +367,7 @@ import {
     PM_KNIGHT,
     PM_GREMLIN,
     PM_LONG_WORM,
+    PM_ARCHEOLOGIST,
     G_NOCORPSE,
     G_UNIQ,
     NUMMONS,
@@ -376,6 +380,7 @@ import { del_engr_at, engr_at, make_engr_at } from './engrave.js';
 import { random_engraving } from './random_engraving.js';
 import {
     carried,
+    dealloc_oextra,
     free_omid,
     free_omonst,
     erosionMatters,
@@ -583,6 +588,7 @@ import { mon_reflects, ureflects } from './muse.js';
 import { in_rooms } from './rooms.js';
 import {
     check_unpaid,
+    billable,
     contained_cost,
     costly_spot,
     inhishop,
@@ -590,7 +596,7 @@ import {
     shkcatch,
     shop_keeper,
 } from './shk.js';
-import { Shknam } from './shknam.js';
+import { Shknam, shkname } from './shknam.js';
 import { canSpotMonster, messageAt } from './startup_a11y.js';
 import { S_digbeam, S_flashbeam } from './symbols.js';
 import { closed_door, dissolve_bars, m_in_air, youHear } from './monmove.js';
@@ -602,6 +608,7 @@ import {
     is_pool_or_lava, maketrap, openholdingtrap, closeholdingtrap,
     openfallingtrap,
     animate_statue,
+    activate_statue_trap,
     reset_utrap, set_utrap, t_at,
 } from './trap.js';
 import { dotrap, mintrap } from './trap_effects.js';
@@ -640,7 +647,8 @@ import { note_unported } from './unported.js';
 import { livelog_printf } from './pline.js';
 import { waterbody_name } from './pager.js';
 import { fix_wall_spines } from './mklev.js';
-import { picking_at, reset_pick } from './lock.js';
+import { boxlock, picking_at, reset_pick } from './lock.js';
+import { breaks, breakobj, hero_breaks } from './dothrow.js';
 
 // Thrown where zap.c reaches a wand effect this port has not ported.
 export class UnsupportedZapError extends Error {
@@ -1217,16 +1225,16 @@ function heroResistsSleep(state) {
     return Boolean(resistance?.intrinsic || resistance?.extrinsic);
 }
 
-// C ref: zap.c boxlock_invent() (2687-2701).  zap.c's boxlock() result is
-// discarded here, so the still-unported lock transition is recorded at its
-// source boundary while the inventory refresh remains in source order.
+// C ref: zap.c boxlock_invent() (2687-2701). The boxlock() result is
+// discarded here; continue over the saved next link, then refresh inventory
+// once if the pack contained at least one box.
 async function boxlock_invent(obj, state = game) {
     let boxing = false;
     for (let item = state.invent; item;) {
         const next = item.nobj;
         if (isBox(item)) {
             boxing = true;
-            note_unported('lock.c boxlock');
+            await boxlock(item, obj, state);
         }
         item = next;
     }
@@ -2665,10 +2673,10 @@ export async function poly_obj(obj, id, state = game,
             if (!does_block(ox, oy, state.level?.at(ox, oy), state))
                 unblock_point(ox, oy, state);
         } else if (obj.otyp !== BOULDER && replacement.otyp === BOULDER) {
-            // fracture_rock() is void and remains outside this source span;
-            // preserve its source call as a named gap after the liquid test.
+            // The generated boulder cannot stay in liquid; preserve the
+            // source fracture and world-state updates before blocking the tile.
             if (is_pool_or_lava(ox, oy, state))
-                note_unported('zap.c fracture_rock');
+                await fracture_rock(replacement, state, random, rawEnv);
             if (does_block(ox, oy, state.level?.at(ox, oy), state))
                 block_point(ox, oy, state);
         }
@@ -2878,10 +2886,94 @@ export async function stone_to_flesh_obj(obj, state = game,
     return result;
 }
 
-// C ref: zap.c bhito() (2118-2426), the polymorph and Stone to Flesh arms.
-// The striking/Force Bolt breakage result chain is still an explicit source
-// boundary; other unported effects fail closed here rather than entering the
-// polymorph arm.
+// C ref: zap.c fracture_rock() (5537-5580), shared by striking, pick-axe,
+// vault-guard, and shopkeeper hits. Sokoban's guilt helper is still a named
+// void gap; shop billing and object conversion retain their source order.
+export async function fracture_rock(obj, state = game, random = { rn1 }, rawEnv = {}) {
+    const objectEnv = zapObjectEnv(state, random, rawEnv);
+    const byHero = !state.context?.mon_moving;
+    const location = get_obj_location(obj, 0, state);
+    if (byHero && location
+        && costly_spot(location.x, location.y, state)) {
+        const owner = { value: null };
+        const room = in_rooms(location.x, location.y, SHOPBASE, state)[0] ?? 0;
+        if (billable(owner, obj, room, false, state)) {
+            const message = rawEnv.message ?? ttyPline;
+            await message(
+                `You fracture ${s_suffix(shkname(owner.value, state))} `
+                    + `${xnameFresh(obj, state)}.`,
+                state,
+                rawEnv,
+            );
+            // C discards breakobj()'s return here; it still performs the
+            // shop charge before the boulder/statue becomes ordinary rock.
+            await breakobj(obj, location.x, location.y, true, false, {
+                ...rawEnv,
+                state,
+                random: { ...random, d: random.d ?? d, rn1: random.rn1 ?? rn1 },
+            });
+        }
+    }
+    if (byHero && obj.otyp === BOULDER)
+        note_unported('sokoban.c sokoban_guilt');
+
+    obj.otyp = ROCK;
+    obj.oclass = GEM_CLASS;
+    obj.quan = (random.rn1 ?? rn1)(60, 7);
+    obj.owt = weight(obj, { state });
+    obj.dknown = obj.bknown = obj.rknown = 0;
+    obj.known = state.objects?.[ROCK]?.oc_uses_known ? 0 : 1;
+    dealloc_oextra(obj);
+
+    if (obj.where === OBJ_FLOOR) {
+        const { ox, oy } = obj;
+        obj_extract_self(obj, objectEnv);
+        place_object(obj, ox, oy, objectEnv);
+        if (!does_block(ox, oy, null, state)) {
+            unblock_point(ox, oy, state);
+            // The ray may hit more objects after this square; make vision
+            // reflect the now-nonblocking rock immediately.
+            vision_recalc(0, objectEnv);
+        }
+        if (cansee(ox, oy, state)) newsym(ox, oy, state);
+    }
+}
+
+// C ref: zap.c break_statue() (5582-5607). The statue trap's return decides
+// whether the statue itself should fracture; historic archeologist statues
+// lose alignment before that conversion.
+export async function break_statue(obj, state = game, random = { rn1 }, rawEnv = {}) {
+    const message = rawEnv.message ?? ttyPline;
+    const objectEnv = zapObjectEnv(state, random, rawEnv);
+    const trap = t_at(obj.ox, obj.oy, state);
+    const byHero = !state.context?.mon_moving;
+    if (trap && trap.ttyp === STATUE_TRAP
+        && await activate_statue_trap(
+            trap, obj.ox, obj.oy, true, { ...rawEnv, state },
+        )) {
+        return false;
+    }
+    while (obj.cobj) {
+        const item = obj.cobj;
+        obj_extract_self(item, objectEnv);
+        place_object(item, obj.ox, obj.oy, objectEnv);
+    }
+    if (byHero
+        && state.urole?.mnum === PM_ARCHEOLOGIST
+        && (obj.spe & CORPSTAT_HISTORIC)) {
+        await message(
+            'You feel guilty about damaging such a historic statue.', state,
+            rawEnv,
+        );
+        adjalign(-1, state);
+    }
+    obj.spe = 0;
+    await fracture_rock(obj, state, random, rawEnv);
+    return true;
+}
+
+// C ref: zap.c bhito() (2118-2426). Other unported immediate effects remain
+// explicit source boundaries; Force Bolt/striking is a completed callback arm.
 export async function bhito(obj, wand, state = game,
     random = { rn2, rnd }, rawEnv = {}) {
     if (obj === wand) return 0;
@@ -2903,11 +2995,72 @@ export async function bhito(obj, wand, state = game,
         }
         return 0;
     }
-    if (wand.otyp === WAN_STRIKING || wand.otyp === SPE_FORCE_BOLT)
-        throw new UnsupportedZapError(
-            'bhito() Force Bolt breakage return chain '
-            + '(hero_breaks/breaks, break_statue)',
-        );
+    if (wand.otyp === WAN_STRIKING || wand.otyp === SPE_FORCE_BOLT) {
+        const message = rawEnv.message ?? ttyPline;
+        let res = 1;
+        let learn_it = false;
+        let maybeLearnit = cansee(obj.ox, obj.oy, state)
+            || !heroIsDeaf(state);
+        if (obj.otyp === BOULDER) {
+            if (cansee(obj.ox, obj.oy, state)) {
+                await message('The boulder falls apart.', state, rawEnv);
+            } else {
+                const heard = youHear('a crumbling sound.', state);
+                if (heard) await message(heard, state, rawEnv);
+            }
+            await fracture_rock(obj, state, random, rawEnv);
+        } else if (obj.otyp === STATUE) {
+            if (await break_statue(obj, state, random, rawEnv)) {
+                if (cansee(obj.ox, obj.oy, state)) {
+                    const message = Hallucination(state)
+                        ? `${The(rndmonnam({
+                            state,
+                            displayRandom: rawEnv.displayRandom,
+                        }), state)} shatters.`
+                        : 'The statue shatters.';
+                    await (rawEnv.message ?? ttyPline)(message, state, rawEnv);
+                } else {
+                    const heard = youHear('a crumbling sound.', state);
+                    if (heard) await (rawEnv.message ?? ttyPline)(
+                        heard, state, rawEnv,
+                    );
+                }
+            }
+        } else {
+            const ox = obj.ox;
+            const oy = obj.oy;
+            const breakEnv = {
+                ...rawEnv,
+                state,
+                random: {
+                    ...random,
+                    d: random.d ?? d,
+                    rn1: random.rn1 ?? rn1,
+                    rnd: random.rnd ?? rnd,
+                },
+            };
+            const broken = state.context?.mon_moving
+                ? await breaks(obj, ox, oy, breakEnv)
+                : await hero_breaks(obj, ox, oy, 0, breakEnv);
+            if (!broken) {
+                maybeLearnit = false;
+            } else {
+                // display.c newsym_force() has the same visible effect as
+                // newsym() in this full-frame terminal renderer.
+                newsym(ox, oy, state);
+            }
+            res = 0;
+        }
+        if (maybeLearnit) learn_it = true;
+        if (learn_it) learnwand(wand, state);
+        return res;
+    }
+    if (wand.otyp === WAN_OPENING || wand.otyp === SPE_KNOCK
+        || wand.otyp === WAN_LOCKING || wand.otyp === SPE_WIZARD_LOCK) {
+        const res = isBox(obj) ? await boxlock(obj, wand, state) : 0;
+        if (res) learnwand(wand, state);
+        return res;
+    }
     if (wand.otyp !== WAN_POLYMORPH && wand.otyp !== SPE_POLYMORPH
         && wand.otyp !== SPE_STONE_TO_FLESH)
         throw new UnsupportedZapError(
@@ -2931,7 +3084,7 @@ export async function bhito(obj, wand, state = game,
             state,
         );
     }
-    if (isBox(obj)) note_unported('lock.c boxlock');
+    if (isBox(obj)) await boxlock(obj, wand, state);
 
     let learn_it = false;
     if (obj_shudders(obj, state, random)) {
@@ -3291,9 +3444,9 @@ export async function bhit(
             );
         }
         if (physical && typ === IRONBARS
-            && hits_bars(pobj, x - ddx, y - ddy, x, y,
+            && await hits_bars(pobj, x - ddx, y - ddy, x, y,
                          point_blank ? 0 : !random.rn2(5) ? 1 : 0, 1,
-                         state, random)) {
+                         state, random, rawEnv)) {
             /* caveat: obj might now be null... */
             state.gb.bhitpos.x -= ddx;
             state.gb.bhitpos.y -= ddy;
