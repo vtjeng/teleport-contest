@@ -74063,6 +74063,170 @@
         "rng": 792838
       },
       "parkedReason": "The whole trap.c water_damage_chain function is source-verified; v1 terrain transitions and two independent wizard pool-wish recordings match. Active entry-point evidence remains absent for a nonempty fountain-gush floor chain and a qualifying monster entering water with nonempty inventory. dig.c liquid_flow still stops at the landmine-fill caller; its water-chain entry cannot be claimed until that function is ported. Preserve the matched cases and complete those caller recordings before source-goal closure."
+    },
+    {
+      "id": "port-steal-nymph-armor-delay-synthetic-v4-20260925",
+      "kind": "file-port",
+      "status": "queued",
+      "summary": "Port nymph armor theft and delayed removal through the complete steal.c source family",
+      "cFile": "steal.c",
+      "sessions": [
+        "synthetic/v4/monk-nymph-theft-recovery"
+      ],
+      "selectionReason": "The refreshed v4 Monk nymph theft case is the highest remaining investigated synthetic mismatch at 15 screens and is assigned to C9; A4 terrain and C8 fountain now match.",
+      "detail": "Port steal.c unresponsive through steal in definition order, including remove_worn_item and worn_item_removal, with do_wear.c stop_donning and eat.c is_fainted return-valued dependencies. Preserve delayed stealarm state, production callers, and source-ordered inventory and armor effects. See investigations/synthetic/v4/monk-nymph-theft-recovery.json.",
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": null,
+      "delivered": null,
+      "functions": [
+        {
+          "name": "unresponsive",
+          "line": 133,
+          "endLine": 146,
+          "declared": false,
+          "complete": false
+        },
+        {
+          "name": "unstolenarm",
+          "line": 147,
+          "endLine": 164,
+          "declared": false,
+          "complete": false
+        },
+        {
+          "name": "stealarm",
+          "line": 165,
+          "endLine": 212,
+          "declared": false,
+          "complete": false
+        },
+        {
+          "name": "remove_worn_item",
+          "line": 213,
+          "endLine": 293,
+          "declared": true,
+          "complete": false
+        },
+        {
+          "name": "worn_item_removal",
+          "line": 294,
+          "endLine": 342,
+          "declared": true,
+          "complete": false
+        },
+        {
+          "name": "steal",
+          "line": 343,
+          "endLine": 617,
+          "declared": true,
+          "complete": false
+        }
+      ],
+      "range": {
+        "from": 133,
+        "to": 617
+      },
+      "syntheticProvenance": {
+        "synthetic/v4/monk-nymph-theft-recovery": {
+          "session": "synthetic/v4/monk-nymph-theft-recovery",
+          "corpus": "synthetic",
+          "batch": "v4",
+          "caseId": "monk-nymph-theft-recovery",
+          "manifestPath": "challenges/manifests/v4.json",
+          "manifestSha256": "10777af4c82fc759abf58a870fdd232329bc5c1467c8cf94f46089d0401459a9",
+          "recordingPath": "challenges/cases/v4/monk-nymph-theft-recovery.session.json",
+          "recordingSha256": "12c7091ad75eb0fd4c1604b53961bd3bea6c9a0d555d5f0bd1c35564d82acf3f",
+          "evaluationPath": "challenges/evaluations/20260926003150-v4.json",
+          "evaluationCommit": "2d50156e1163b1b497818e5d02bd71131fab2149"
+        }
+      }
+    },
+    {
+      "id": "port-zap-weffects-force-bolt-synthetic-v2-20260926",
+      "kind": "file-port",
+      "status": "queued",
+      "summary": "Port complete zap.c weffects and source-ordered Force Bolt ray behavior",
+      "cFile": "zap.c",
+      "sessions": [
+        "synthetic/v2/wizard-spell-memory"
+      ],
+      "selectionReason": "The higher-ranked v4 nymph theft is assigned to C9; the next complete unreserved investigation is v2 wizard spell memory with 14 unmatched screens at the Force Bolt weffects branch.",
+      "detail": "At segment 0 step 40, a known Force Bolt cast east reaches zap.c weffects and the current JS refusal. Port whole weffects and its return-valued ray family bhit, bhitm, bhito, bhitpile, doorlock with obstructed and muse.c mbhit caller, and required statue/object-break callees including break_statue, activate_statue_trap, hero_breaks/breaks and their consumed dependencies. Preserve exact C ray, item, door, and monster order; park any unresolved source return path with explicit evidence rather than treating a prefix as whole-function completion. See investigations/synthetic/v2/wizard-spell-memory.json.",
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": null,
+      "delivered": null,
+      "functions": [
+        {
+          "name": "weffects",
+          "line": 3431,
+          "endLine": 3479,
+          "declared": true,
+          "complete": false
+        }
+      ],
+      "range": {
+        "from": 3431,
+        "to": 3479
+      },
+      "syntheticProvenance": {
+        "synthetic/v2/wizard-spell-memory": {
+          "session": "synthetic/v2/wizard-spell-memory",
+          "corpus": "synthetic",
+          "batch": "v2",
+          "caseId": "wizard-spell-memory",
+          "manifestPath": "challenges/manifests/v2.json",
+          "manifestSha256": "58739ea9ed6c26e5153c4860b2e5111d08d69792bdea5c39427cf45b8e72cc9c",
+          "recordingPath": "challenges/cases/v2/wizard-spell-memory.session.json",
+          "recordingSha256": "4aa25c52bad9f85940224ad16785cacb6b286a4c326c1691e6db54ec260b73cd",
+          "evaluationPath": "challenges/evaluations/20260926003150-v2.json",
+          "evaluationCommit": "2d50156e1163b1b497818e5d02bd71131fab2149"
+        }
+      }
+    },
+    {
+      "id": "port-engrave-u-can-engrave-synthetic-v3-20260926",
+      "kind": "file-port",
+      "status": "queued",
+      "summary": "Port engrave.c u_can_engrave and correct the doengrave entry call",
+      "cFile": "engrave.c",
+      "sessions": [
+        "synthetic/v3/fingertip-engraving-return"
+      ],
+      "selectionReason": "The higher-ranked v4 nymph theft and v2 wizard spell memory cases are assigned to C9 and B6; v3 fingertip engraving is the next complete independent investigation with 10 unmatched screens.",
+      "detail": "Port the whole u_can_engrave predicate from engrave.c and its doengrave caller using source terrain, swallowing, wield, and capacity tests in C order. Remove early JS floor reachability refusal and preserve the later doengrave stylus and floor checks. Diagnose any next repeat-engraving mismatch separately. See investigations/synthetic/v3/fingertip-engraving-return.json.",
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": null,
+      "delivered": null,
+      "functions": [
+        {
+          "name": "u_can_engrave",
+          "line": 503,
+          "endLine": 544,
+          "declared": true,
+          "complete": false
+        }
+      ],
+      "range": {
+        "from": 503,
+        "to": 544
+      },
+      "syntheticProvenance": {
+        "synthetic/v3/fingertip-engraving-return": {
+          "session": "synthetic/v3/fingertip-engraving-return",
+          "corpus": "synthetic",
+          "batch": "v3",
+          "caseId": "fingertip-engraving-return",
+          "manifestPath": "challenges/manifests/v3.json",
+          "manifestSha256": "922fd19b46005c40283152102ac301035c7f84f82a8e5e9d7caf691f183a2b67",
+          "recordingPath": "challenges/cases/v3/fingertip-engraving-return.session.json",
+          "recordingSha256": "30a6dc31f656961b980c8e9a66c4616d677ba8ac74dbceeac186f25f7b1dde12",
+          "evaluationPath": "challenges/evaluations/20260926003150-v3.json",
+          "evaluationCommit": "2d50156e1163b1b497818e5d02bd71131fab2149"
+        }
+      }
     }
   ]
 }
