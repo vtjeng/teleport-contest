@@ -78336,7 +78336,7 @@
     {
       "id": "fix-cmd-call-admission-synthetic-v6-20260926",
       "kind": "divergence-fix",
-      "status": "open",
+      "status": "closed",
       "summary": "Admit the source-bound call command through rhack dispatch and preserve naming menu behavior",
       "cFile": "cmd.c",
       "sessions": [],
@@ -78348,8 +78348,11 @@
         "screens": 11405,
         "rng": 792838
       },
-      "closedAt": null,
-      "delivered": null,
+      "closedAt": "cd03ef328d8cf2c6ecdbfb47f4f6bd21f85c6c37",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
       "function": "rhack",
       "session": "synthetic/v6/v6-add6-rogue-call-potion-type",
       "step": 2,
@@ -78517,7 +78520,13 @@
             }
           }
         }
-      ]
+      ],
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "cd03ef328d8cf2c6ecdbfb47f4f6bd21f85c6c37",
+        "screens": 11405,
+        "rng": 792838
+      }
     },
     {
       "id": "port-apply-trap-setting-synthetic-v6-20260926",

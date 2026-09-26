@@ -64,7 +64,7 @@
     "luaFile": null,
     "line": null
   },
-  "summary": "At step 2, the Rogue presses C for the #call menu. C cmd.c binds C to do_name.c:docallcmd(), which displays “What do you want to name?”. The JS command binding and docallcmd handler exist, but js/cmd.js omits call from ADMITTED_COMMANDS, so admitParsedCommand() throws before dispatch. Admit the source-bound call command through the shared command gate and verify its menu and follow-on input paths; this case has 12 screens left to compare.",
+  "summary": "At the saved v6 baseline, the Rogue presses C at step 2. C cmd.c binds C to do_name.c:docallcmd(), which displays “What do you want to name?”. JS had both the binding and menu handler but lacked command admission and the direct rhack() dispatch; admission alone would have fallen through to a later refusal. The source-aligned C13 fix supplies both paths, and the current saved evaluation matches this whole case.",
   "source": {
     "file": "cmd.c",
     "branch": "The parsed key is C with no count or movement prefix; cmd.c’s call command row invokes do_name.c:docallcmd(), which builds the naming menu and returns ECMD_OK after selection or dismissal.",
@@ -73,7 +73,7 @@
     ],
     "callers": [
       "cmd.c parse() returns C to rhack(), which resolves the call row and invokes do_name.c:docallcmd().",
-      "js/cmd.js parses C, resolves commandForKey() to call, rejects it in admitParsedCommand() before its existing docallcmd dispatch in executeCommandHandler(); js/do_name.js:docallcmd() owns the menu."
+      "At the baseline, js/cmd.js parsed C and resolved commandForKey() to call, but admitParsedCommand() rejected it. The existing executeCommandHandler() docallcmd arm served typed extended commands only; direct C and Meta-N also needed a rhack() branch. js/do_name.js:docallcmd() owns the menu."
     ],
     "dependencies": [
       "The same source command has the extended name alias; keep byte binding, repeated-command guard, and handler admission consistent. Later inventory selection and do_name.c:docall() must be evaluated after the first command boundary is opened."
@@ -84,6 +84,6 @@
     "Saved v6 evaluation challenges/evaluations/20260926071400-v6.json at 3b1e337022043d314860fa14efc520d2600bf194 reports 2/14 matching screens, all 2319/2319 RNG calls through the stop, and first mismatch step 2: unsupported hero command at the repeated-command admission boundary.",
     "The independent C recording challenges/cases/v6/v6-add6-rogue-call-potion-type.session.json has step 2 key C, zero RNG calls, and the “What do you want to name?” menu. Step 3 selects o and reaches the inventory-type call prompt.",
     "Upstream cmd.c command table binds C to do_name.c:docallcmd(); cmd.c:rhack invokes a recognized handler. Upstream do_name.c:docallcmd() constructs the same menu and selects its o arm for an inventory type.",
-    "js/extcmdlist_data.js already binds C and name to docallcmd; js/cmd.js executeCommandHandler() has a docallcmd arm. js/cmd.js ADMITTED_COMMANDS omits call, so admitParsedCommand() throws before either handler or menu can run. Add source-supported command admission and verify later input without tailoring behavior to this recording."
+    "js/extcmdlist_data.js binds C and Meta-N to call/name, but baseline js/cmd.js omitted both from ADMITTED_COMMANDS and lacked a direct rhack() dispatch. Its executeCommandHandler() docallcmd arm served only the extended-command route. C13 adds both missing source paths and preserves the ECMD_OK command reset; a direct-key menu test covers C, Meta-n, and Meta-N."
   ]
 }
