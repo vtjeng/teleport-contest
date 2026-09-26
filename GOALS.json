@@ -78842,6 +78842,36 @@
         "screens": 11405,
         "rng": 792838
       }
+    },
+    {
+      "id": "fix-zap-bhitm-hit-shadow-synthetic-v5-20260926",
+      "kind": "divergence-fix",
+      "status": "queued",
+      "summary": "Repair zap.c bhitm wand-striking hit dispatch",
+      "cFile": "zap.c",
+      "sessions": [],
+      "selectionReason": "After B11, synthetic/v5/samurai-pet-ration-eating remains higher ranked at 63 unmatched screens but A9 owns its readobjnam path. This 48-screen Healer case is the first completed, unreserved source-traced investigation in .cache/B11-work-queue.json; zap.c:bhitm is distinct from A9 zap.c:makewish despite sharing js/zap.js.",
+      "detail": "The saved v5 case has 0/48 matched screens and a fresh-process TypeError: hit is not a function before any scored boundary. C zap.c:bhitm WAN_STRIKING/SPE_FORCE_BOLT successful-hit arm calls hit() before resist(); js/zap.js:bhitm shadows that hit() function with a coordinate binding for gb.bhitpos, then calls the binding. Verify source order, rename/repair the general coordinate binding, and replay past this branch; subsequent resistance or kill behavior may require separate source work. See investigations/synthetic/v5/healer-wand-striking-grid-bug.json.",
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": null,
+      "delivered": null,
+      "function": "bhitm",
+      "session": "synthetic/v5/healer-wand-striking-grid-bug",
+      "syntheticProvenance": {
+        "synthetic/v5/healer-wand-striking-grid-bug": {
+          "session": "synthetic/v5/healer-wand-striking-grid-bug",
+          "corpus": "synthetic",
+          "batch": "v5",
+          "caseId": "healer-wand-striking-grid-bug",
+          "manifestPath": "challenges/manifests/v5.json",
+          "manifestSha256": "5e4430fbd724fe91720f898c02e6f25f9d98e884fa31bd696ca1a63e87abf150",
+          "recordingPath": "challenges/cases/v5/healer-wand-striking-grid-bug.session.json",
+          "recordingSha256": "97d372dd3a84252d6970271b4d335959cbf6d24c41318fa0b578c7a79446ec32",
+          "evaluationPath": "challenges/evaluations/20260926083803-v5.json",
+          "evaluationCommit": "e0337a3a4ccf6c565622b7fb6eaad1207ecf278c"
+        }
+      }
     }
   ]
 }
