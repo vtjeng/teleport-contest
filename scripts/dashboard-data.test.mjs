@@ -348,7 +348,6 @@ test('remaining challenge filter includes screen and trace mismatches', () => {
     ] };
     const rendered = renderDashboard(data, queue);
     assert.equal(rendered.get('queueMetrics').textContent, '2 of 3 challenge cases remaining');
-    assert.equal(rendered.get('challengeRemainingCount').textContent, '(2)');
     const filter = rendered.get('challengeRemainingOnly');
     assert.match(rendered.get('challengeTable').innerHTML, /Fixed[\s\S]*Screen mismatch[\s\S]*Trace mismatch/u);
     filter.checked = true;
@@ -449,7 +448,7 @@ test('synthetic batch histories and duplicate case IDs remain separate in the da
     }))];
     const rendered = renderDashboard(data);
     assert.match(rendered.get('challengeTable').innerHTML, /v1 · Shared title[\s\S]*v2 · Shared title/u);
-    assert.match(rendered.get('challengeBatches').innerHTML, /v1[\s\S]*stale[\s\S]*2\/3[\s\S]*v2[\s\S]*unmeasured/u);
+    assert.match(rendered.get('challengeBatches').innerHTML, /v1<\/strong> · stale[\s\S]*v2<\/strong> · unmeasured/u);
     assert.match(rendered.get('stats').innerHTML, /Earlier measurement; reassessment required/u);
     assert.match(rendered.get('challengeHistoryPlots').innerHTML, /v1[\s\S]*challengeChart[\s\S]*v2[\s\S]*challengeChart2/u);
     assert.ok(rendered.get('challengeChart').ops.length);
@@ -464,6 +463,22 @@ test('healthy batch measurements do not repeat above the challenge cases', () =>
         { batch: 'v2', status: 'measured', totals: { screens: { matched: 4, total: 5 } } },
     ];
     assert.equal(renderDashboard(data).get('challengeBatches').innerHTML, '');
+});
+
+test('batch notices group repeated errors without repeating them in the score card', () => {
+    const data = sourceDashboardData();
+    data.challenges.status = 'incomplete';
+    data.challenges.batches = ['v1', 'v2'].map(batch => ({
+        batch, status: 'stale', error: 'replay inputs changed since evaluation',
+    }));
+    data.challenges.error = data.challenges.batches.map(batch => batch.error).join('; ');
+    const grouped = renderDashboard(data);
+    assert.match(grouped.get('challengeBatches').innerHTML,
+        /<strong>v1, v2<\/strong> · stale · replay inputs changed since evaluation/u);
+    assert.equal((grouped.get('challengeBatches').innerHTML.match(/replay inputs changed/gu) || []).length, 1);
+    assert.doesNotMatch(grouped.get('stats').innerHTML, /replay inputs changed/u);
+    data.challenges.error = 'aggregate evaluation failed';
+    assert.match(renderDashboard(data).get('stats').innerHTML, /aggregate evaluation failed/u);
 });
 
 test('primary dashboard sections put the queue and challenges before historical detail', () => {

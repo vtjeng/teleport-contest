@@ -910,7 +910,7 @@ canvas {
   <h2 class="section-title" id="challengeTitle">Challenges</h2>
   <div class="chart-wrap" id="challengePanel">
     <div id="challengeBatches"></div>
-    <label class="challenge-filter" id="challengeFilter"><input type="checkbox" id="challengeRemainingOnly">Show remaining only <span id="challengeRemainingCount"></span></label>
+    <label class="challenge-filter" id="challengeFilter"><input type="checkbox" id="challengeRemainingOnly">Show remaining only</label>
     <div id="challengeCards"></div>
     <div class="goal-table-wrap" id="challengeTableWrap">
       <table class="goal-table" id="challengeTable"></table>
@@ -999,6 +999,10 @@ const scoreMetric = metric => metric
   : '<span class="score-breakdown-missing">—</span>';
 const challengeData = DATA.challenges;
 const challengeCases = challengeData.cases || [];
+const challengeAttentionBatches = (challengeData.batches || []).filter(batch => batch.status !== 'measured');
+const batchErrors = challengeAttentionBatches.map(batch => batch.error).filter(Boolean);
+const challengeErrorShownInBatches = batchErrors.length > 0
+  && challengeData.error === batchErrors.join('; ');
 const challengeCaseMatches = item => {
   const result = item.current;
   return result?.passed === true && !result.error
@@ -1028,7 +1032,8 @@ document.getElementById('stats').innerHTML = [
     + '<div class="score-breakdown">' + metrics + '</div>'
     + '<div class="score-source">' + escScoreText(age) + '</div>'
     + (score.status === 'stale' ? '<div class="score-source">Earlier measurement; reassessment required.</div>' : '')
-    + (score.error ? '<div class="score-source">' + escScoreText(score.error) + '</div>' : '')
+    + (score.error && (title !== 'Synthetic local holdout' || !challengeErrorShownInBatches)
+      ? '<div class="score-source">' + escScoreText(score.error) + '</div>' : '')
     + '</div>';
 }).join('');
 
@@ -1038,18 +1043,17 @@ document.getElementById('stats').innerHTML = [
   const cards = document.getElementById('challengeCards');
   const remainingOnly = document.getElementById('challengeRemainingOnly');
   document.getElementById('challengeFilter').hidden = challengeCases.length === 0;
-  document.getElementById('challengeRemainingCount').textContent = '(' + remainingChallengeCases.length + ')';
   const esc = text => String(text ?? '').replace(/&/g, '&amp;')
     .replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
-  // Healthy batch measurements already appear in the score cards, charts, and
-  // case table. Keep this space for batches that need attention.
-  document.getElementById('challengeBatches').innerHTML = (challengeData.batches || [])
-    .filter(batch => batch.status !== 'measured').map(batch => {
-    const screens = batch.totals?.screens;
-    return '<p class="table-note"><strong>' + esc(batch.batch) + '</strong> · '
-      + esc(batch.status) + (screens ? ' · ' + fmtN(screens.matched) + '/' + fmtN(screens.total) + ' screens' : '')
-      + (batch.error ? ' · ' + esc(batch.error) : '') + '</p>';
-  }).join('');
+  const notices = new Map();
+  challengeAttentionBatches.forEach(batch => {
+    const key = JSON.stringify([batch.status, batch.error ?? null]);
+    if (!notices.has(key)) notices.set(key, { status: batch.status, error: batch.error, batches: [] });
+    notices.get(key).batches.push(batch.batch);
+  });
+  document.getElementById('challengeBatches').innerHTML = [...notices.values()].map(notice =>
+    '<p class="table-note"><strong>' + notice.batches.map(esc).join(', ') + '</strong> · '
+      + esc(notice.status) + (notice.error ? ' · ' + esc(notice.error) : '') + '</p>').join('');
   const matchedText = result => result?.screens?.matched == null ? '—' : fmtN(result.screens.matched);
   const renderCases = () => {
     const cases = remainingOnly.checked ? remainingChallengeCases : challengeCases;
