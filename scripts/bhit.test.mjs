@@ -231,10 +231,14 @@ test('bhitm keeps its ray position separate from zap.c hit()', async () => {
     game.gb.bhitpos = { x, y };
     const wand = missile(game, WAN_STRIKING);
     const messages = [];
+    const draws = [];
     const random = {
-        rnd: () => 1,
-        d: () => 2,
-        rn2: (bound) => bound - 1,
+        rnd: (bound) => { draws.push(['rnd', bound]); return 1; },
+        d: (count, sides) => {
+            draws.push(['d', count, sides]);
+            return 2;
+        },
+        rn2: (bound) => { draws.push(['rn2', bound]); return bound - 1; },
     };
 
     assert.equal(
@@ -246,6 +250,7 @@ test('bhitm keeps its ray position separate from zap.c hit()', async () => {
     assert.ok(messages.some((line) => line.startsWith('The wand hits ')));
     assert.equal(game.gn.notonhead, false);
     assert.equal(monster.mhp, 28);
+    assert.deepEqual(draws, [['rnd', 20], ['d', 2, 12], ['rn2', 111]]);
 });
 
 test('weffects sends immediate effects through the source ray callback walk',
