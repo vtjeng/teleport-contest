@@ -221,6 +221,7 @@ import {
     PM_ABBOT,
     PM_ACOLYTE,
     PM_ALIGNED_CLERIC,
+    PM_ANGEL,
     PM_APPRENTICE,
     PM_ARCH_LICH,
     PM_ARCHEOLOGIST,
@@ -262,6 +263,7 @@ import {
     PM_GRAY_UNICORN,
     PM_GRID_BUG,
     PM_GUIDE,
+    PM_HIGH_CLERIC,
     PM_HOBBIT,
     PM_HORNED_DEVIL,
     PM_HOUSECAT,
@@ -3262,6 +3264,29 @@ export function makemon(ptr, x, y, mmflags = 0, env = {}) {
                 if (record && record.segments.length > 1)
                     place_worm_tail_randomly(monster, x, y, normalized);
             }
+        }
+        // C ref: makemon.c:1410-1428. Aligned/high clerics made without a
+        // priest or minion extension, and one third of Angels without an
+        // explicit minion extension, become roamer minions before set_malign.
+        // Keep the ternary's Angel-only gate draw in source order.
+        const defaultMinionData = (
+            mndx === PM_ALIGNED_CLERIC || mndx === PM_HIGH_CLERIC
+        )
+            ? !(mmflags & (MM_EPRI | MM_EMIN))
+            : mndx === PM_ANGEL
+                && !(mmflags & MM_EMIN)
+                && !random.rn2(3);
+        if (defaultMinionData) {
+            newemin(monster);
+            const emin = EMIN(monster);
+            monster.isminion = true;
+            emin.min_align = random.rn2(3) - 1;
+            emin.renegade = (mmflags & MM_ANGRY)
+                ? true
+                : !random.rn2(3);
+            monster.mpeaceful = emin.min_align === state.u.ualign.type
+                ? !emin.renegade
+                : emin.renegade;
         }
         set_malign(monster, state);
 
