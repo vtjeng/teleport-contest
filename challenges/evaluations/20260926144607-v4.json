@@ -1,0 +1,867 @@
+{
+  "version": 1,
+  "batch": "v4",
+  "manifestPath": "challenges/manifests/v4.json",
+  "sha": "fa3aebd3eee0de7cb859e5efeaa4e7dda2b0e735",
+  "utc": "2026-09-26T14:46:16.675Z",
+  "status": "complete",
+  "manifestSha256": "10777af4c82fc759abf58a870fdd232329bc5c1467c8cf94f46089d0401459a9",
+  "scorerSha256": "affaf6935cb627ba42f02c5689605a1dfa6c98ccc862118642c4f961471266d7",
+  "scorerFiles": {
+    "frozen/isaac64.js": "0e6f41b795f49e58f0d410785c8d14c8dd9d68ac9143ae68319bd555ea247d1e",
+    "frozen/playability_runner.mjs": "70fcf202cf555c9adec2b29f5b65ba906aaf15eb164a8e5bec9d9f62ba5743dd",
+    "frozen/ps_test_runner.mjs": "05057f3f4f9c99125ea21dd320804ec7dad3c68f4cc485d622fe4c14b0c5761e",
+    "frozen/screen-decode.mjs": "cb4a0fbfed3dda28c14736e6ae9c8b9eb8c87d75916c50d6df80f40eb0368cbe",
+    "frozen/session_loader.mjs": "fb382efa89c272dae8cb700b7dadd075b926ff039ab3eb17480d84ed65029ce6",
+    "frozen/storage.js": "38804e1048c8b2520d60c2dcbe90f86c47627a6d3094a832b85af8756a07fe6c",
+    "frozen/terminal.js": "10fa540ff6e476421327ecc2f683221cef603565f75e988130992ab8cfd25b76"
+  },
+  "inputsSha256": "2c47d629e25eab58768262ca76822c69abb7403e0248baee8b96237be87c7d93",
+  "inputFiles": [
+    "challenges/cases/v4/archeologist-dig-direction-prompt-miss.recipe.json",
+    "challenges/cases/v4/archeologist-dig-direction-prompt-miss.session.json",
+    "challenges/cases/v4/archeologist-dig-input-prompt-miss.recipe.json",
+    "challenges/cases/v4/archeologist-dig-input-prompt-miss.session.json",
+    "challenges/cases/v4/archeologist-dig-menu-confirmation-miss.recipe.json",
+    "challenges/cases/v4/archeologist-dig-menu-confirmation-miss.session.json",
+    "challenges/cases/v4/archeologist-dig-menu-miss.recipe.json",
+    "challenges/cases/v4/archeologist-dig-menu-miss.session.json",
+    "challenges/cases/v4/archeologist-dig-through-door.recipe.json",
+    "challenges/cases/v4/archeologist-dig-through-door.session.json",
+    "challenges/cases/v4/healer-magic-fountain-drink.recipe.json",
+    "challenges/cases/v4/healer-magic-fountain-drink.session.json",
+    "challenges/cases/v4/monk-nymph-pet-interference-miss.recipe.json",
+    "challenges/cases/v4/monk-nymph-pet-interference-miss.session.json",
+    "challenges/cases/v4/monk-nymph-safe-wait-miss.recipe.json",
+    "challenges/cases/v4/monk-nymph-safe-wait-miss.session.json",
+    "challenges/cases/v4/monk-nymph-theft-recovery.recipe.json",
+    "challenges/cases/v4/monk-nymph-theft-recovery.session.json",
+    "challenges/cases/v4/monk-nymph-wake-only-miss.recipe.json",
+    "challenges/cases/v4/monk-nymph-wake-only-miss.session.json",
+    "challenges/cases/v4/rogue-sink-ring-history.recipe.json",
+    "challenges/cases/v4/rogue-sink-ring-history.session.json",
+    "challenges/cases/v4/rogue-sink-ring-setup-inventory-miss.recipe.json",
+    "challenges/cases/v4/rogue-sink-ring-setup-inventory-miss.session.json",
+    "challenges/cases/v4/tourist-fountain-dip-history.recipe.json",
+    "challenges/cases/v4/tourist-fountain-dip-history.session.json",
+    "challenges/cases/v4/tourist-fountain-dip-setup-inventory-miss.recipe.json",
+    "challenges/cases/v4/tourist-fountain-dip-setup-inventory-miss.session.json",
+    "challenges/cases/v4/tourist-fountain-puton-command-miss.recipe.json",
+    "challenges/cases/v4/tourist-fountain-puton-command-miss.session.json",
+    "challenges/cases/v4/valkyrie-lockpick-chest-open-menu.recipe.json",
+    "challenges/cases/v4/valkyrie-lockpick-chest-open-menu.session.json",
+    "challenges/cases/v4/valkyrie-lockpick-chest-stash-return.recipe.json",
+    "challenges/cases/v4/valkyrie-lockpick-chest-stash-return.session.json",
+    "challenges/cases/v4/valkyrie-lockpick-command-spacing-miss.recipe.json",
+    "challenges/cases/v4/valkyrie-lockpick-command-spacing-miss.session.json",
+    "challenges/cases/v4/valkyrie-lockpick-drop-input-miss.recipe.json",
+    "challenges/cases/v4/valkyrie-lockpick-drop-input-miss.session.json",
+    "challenges/cases/v4/valkyrie-lockpick-initial-greeting-miss.recipe.json",
+    "challenges/cases/v4/valkyrie-lockpick-initial-greeting-miss.session.json",
+    "challenges/cases/v4/valkyrie-magic-flute-nymph-cycle.recipe.json",
+    "challenges/cases/v4/valkyrie-magic-flute-nymph-cycle.session.json",
+    "challenges/cases/v4/valkyrie-magic-flute-nymph-first-play.recipe.json",
+    "challenges/cases/v4/valkyrie-magic-flute-nymph-first-play.session.json",
+    "challenges/cases/v4/valkyrie-magic-flute-nymph-setup-miss.recipe.json",
+    "challenges/cases/v4/valkyrie-magic-flute-nymph-setup-miss.session.json",
+    "challenges/cases/v4/wizard-controlled-potion-transformation.recipe.json",
+    "challenges/cases/v4/wizard-controlled-potion-transformation.session.json",
+    "challenges/cases/v4/wizard-polymorph-control-setup-inventory-miss.recipe.json",
+    "challenges/cases/v4/wizard-polymorph-control-setup-inventory-miss.session.json",
+    "challenges/cases/v4/wizard-polymorph-prompt-miss.recipe.json",
+    "challenges/cases/v4/wizard-polymorph-prompt-miss.session.json",
+    "challenges/cases/v4/wizard-polymorph-quaff-cancel-miss.recipe.json",
+    "challenges/cases/v4/wizard-polymorph-quaff-cancel-miss.session.json",
+    "challenges/manifests/v4.json",
+    "frozen/isaac64.js",
+    "frozen/play.sh",
+    "frozen/playability_runner.mjs",
+    "frozen/ps_test_runner.mjs",
+    "frozen/score.sh",
+    "frozen/screen-decode.mjs",
+    "frozen/session_loader.mjs",
+    "frozen/set-category.sh",
+    "frozen/storage.js",
+    "frozen/terminal.js",
+    "js/air_level_data.js",
+    "js/air_levels.js",
+    "js/allmain.js",
+    "js/apply_catch_lit.js",
+    "js/apply_next_to_u.js",
+    "js/apply_splash_lit.js",
+    "js/apply.js",
+    "js/artifacts.js",
+    "js/asmodeus_levels.js",
+    "js/attrib.js",
+    "js/baalz_levels.js",
+    "js/ball.js",
+    "js/bigrm.js",
+    "js/bones.js",
+    "js/bury.js",
+    "js/calendar.js",
+    "js/castle_levels.js",
+    "js/cfgfiles.js",
+    "js/cmd_autocomplete.js",
+    "js/cmd.js",
+    "js/color_data.js",
+    "js/coloratt.js",
+    "js/command_bindings.js",
+    "js/config_statement_data.js",
+    "js/const.js",
+    "js/corpstat.js",
+    "js/data_base_data.js",
+    "js/dbridge.js",
+    "js/detect.js",
+    "js/dig.js",
+    "js/display.js",
+    "js/do_name.js",
+    "js/do_wear.js",
+    "js/do.js",
+    "js/dog.js",
+    "js/dogfood.js",
+    "js/dogmove.js",
+    "js/dokick.js",
+    "js/dothrow.js",
+    "js/drawing.js",
+    "js/dungeon_data.js",
+    "js/dungeon.js",
+    "js/eat.js",
+    "js/end.js",
+    "js/engrave.js",
+    "js/exper.js",
+    "js/explode.js",
+    "js/extcmdlist_data.js",
+    "js/extralev.js",
+    "js/files.js",
+    "js/fire_level_data.js",
+    "js/fire_levels.js",
+    "js/fountain.js",
+    "js/fruit.js",
+    "js/game_display.js",
+    "js/game.js",
+    "js/getline.js",
+    "js/getpos.js",
+    "js/glyph_ids.js",
+    "js/glyph_offsets.js",
+    "js/glyphs.js",
+    "js/grave.js",
+    "js/gstate.js",
+    "js/hack.js",
+    "js/hacklib.js",
+    "js/hell_levels.js",
+    "js/help_data.js",
+    "js/iactions.js",
+    "js/input.js",
+    "js/insight.js",
+    "js/invent.js",
+    "js/isaac64.js",
+    "js/jsmain.js",
+    "js/juiblex_levels.js",
+    "js/kni_goal_level_data.js",
+    "js/legacy_startup.js",
+    "js/light.js",
+    "js/lock.js",
+    "js/makemon_create.js",
+    "js/makemon.js",
+    "js/mcastu.js",
+    "js/mdlib.js",
+    "js/medusa_levels.js",
+    "js/mhitm.js",
+    "js/mhitu.js",
+    "js/mineralize.js",
+    "js/mines_levels.js",
+    "js/minion.js",
+    "js/mklev.js",
+    "js/mkmaze.js",
+    "js/mkroom.js",
+    "js/mktrap.js",
+    "js/mon.js",
+    "js/moncarry.js",
+    "js/mondata.js",
+    "js/monmove.js",
+    "js/monst.js",
+    "js/monster_object.js",
+    "js/monsters.js",
+    "js/moveloop_preamble.js",
+    "js/mthrowu.js",
+    "js/muse.js",
+    "js/music.js",
+    "js/nasties_data.js",
+    "js/nethack.js",
+    "js/nhlua.js",
+    "js/o_init.js",
+    "js/obj.js",
+    "js/object_generation.js",
+    "js/objects.js",
+    "js/objnam_data.js",
+    "js/objnam_readobjnam.js",
+    "js/objnam.js",
+    "js/options_escapes.js",
+    "js/options.js",
+    "js/optlist_data.js",
+    "js/orcus_levels.js",
+    "js/pager.js",
+    "js/pickup.js",
+    "js/player_selection_tty.js",
+    "js/player_selection.js",
+    "js/pline.js",
+    "js/polyself.js",
+    "js/posixregex.js",
+    "js/potion.js",
+    "js/pray.js",
+    "js/priest.js",
+    "js/quest_levels.js",
+    "js/quest_text_data.js",
+    "js/quest.js",
+    "js/questpgr.js",
+    "js/random_engraving.js",
+    "js/random_text_data.js",
+    "js/random_text.js",
+    "js/read.js",
+    "js/rect.js",
+    "js/regen.js",
+    "js/region.js",
+    "js/restore.js",
+    "js/rng.js",
+    "js/role_init.js",
+    "js/role_skills.js",
+    "js/roles.js",
+    "js/room_coordinates.js",
+    "js/room_features.js",
+    "js/rooms.js",
+    "js/sanctum_level_data.js",
+    "js/sanctum_levels.js",
+    "js/save.js",
+    "js/sfbase.js",
+    "js/shk.js",
+    "js/shknam.js",
+    "js/shtypes_data.js",
+    "js/sit.js",
+    "js/sokoban_levels.js",
+    "js/sound_effects_data.js",
+    "js/sounds.js",
+    "js/sp_lev_object.js",
+    "js/spell.js",
+    "js/stairs.js",
+    "js/startup_a11y.js",
+    "js/startup_reroll.js",
+    "js/startup_skills.js",
+    "js/steal.js",
+    "js/steed.js",
+    "js/storage.js",
+    "js/symbol_data.js",
+    "js/symbols.js",
+    "js/teleport.js",
+    "js/terminal.js",
+    "js/terrain.js",
+    "js/themeroom_data.js",
+    "js/themeroom_fill.js",
+    "js/themerooms.js",
+    "js/timeout.js",
+    "js/topten.js",
+    "js/track.js",
+    "js/trap_effects.js",
+    "js/trap_erode_obj.js",
+    "js/trap_names_data.js",
+    "js/trap_water_damage.js",
+    "js/trap.js",
+    "js/tribute_data.js",
+    "js/tty_menu.js",
+    "js/tty_message.js",
+    "js/tty_rawprint.js",
+    "js/tty_startup.js",
+    "js/tutorial_level.js",
+    "js/tutorial_startup.js",
+    "js/u_init_inventory_attrs.js",
+    "js/u_init_inventory_data.js",
+    "js/u_init_inventory_use.js",
+    "js/u_init_inventory.js",
+    "js/u_init.js",
+    "js/uhitm.js",
+    "js/unported_monster_actions.js",
+    "js/unported.js",
+    "js/valley_levels.js",
+    "js/vault.js",
+    "js/version.js",
+    "js/vision.js",
+    "js/weapon.js",
+    "js/were.js",
+    "js/wield.js",
+    "js/windows.js",
+    "js/wintty.js",
+    "js/wizard.js",
+    "js/wizard1_levels.js",
+    "js/wizard2_levels.js",
+    "js/wizcmds.js",
+    "js/worm.js",
+    "js/worn.js",
+    "js/write.js",
+    "js/zap_destroy_items.js",
+    "js/zap.js",
+    "package-lock.json",
+    "package.json",
+    "scripts/challenge-results.mjs",
+    "scripts/score-challenges.mjs",
+    "scripts/scoring-workspace.mjs"
+  ],
+  "cases": [
+    {
+      "id": "archeologist-dig-direction-prompt-miss",
+      "recordingSha256": "aa672b5b1e26ffd83c332ee298baf2be516c6c332ef22de48c2bd6d4473668d3",
+      "passed": true,
+      "metrics": {
+        "screens": {
+          "matched": 28,
+          "total": 28
+        },
+        "rng": {
+          "matched": 2471,
+          "total": 2471
+        },
+        "cursors": {
+          "matched": 28,
+          "total": 28
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "archeologist-dig-input-prompt-miss",
+      "recordingSha256": "459079ffb8a647b4165394194e1aa43aced34cb1fc07885c38afc4dbfb16a3e8",
+      "passed": true,
+      "metrics": {
+        "screens": {
+          "matched": 20,
+          "total": 20
+        },
+        "rng": {
+          "matched": 2335,
+          "total": 2335
+        },
+        "cursors": {
+          "matched": 20,
+          "total": 20
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "archeologist-dig-menu-confirmation-miss",
+      "recordingSha256": "ed6df38ba2980827dbdb1f986a3f599c5eff0d6760bc4b667e9be108ed60e7d2",
+      "passed": true,
+      "metrics": {
+        "screens": {
+          "matched": 19,
+          "total": 19
+        },
+        "rng": {
+          "matched": 4288,
+          "total": 4288
+        },
+        "cursors": {
+          "matched": 19,
+          "total": 19
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "archeologist-dig-menu-miss",
+      "recordingSha256": "9d98a58c2e5f7fd33213ebad5f27d92e1b0a7ef2af95faf92e184ea0c4480610",
+      "passed": true,
+      "metrics": {
+        "screens": {
+          "matched": 16,
+          "total": 16
+        },
+        "rng": {
+          "matched": 2509,
+          "total": 2509
+        },
+        "cursors": {
+          "matched": 16,
+          "total": 16
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "archeologist-dig-through-door",
+      "recordingSha256": "8ff5096ee8dc76bac145174e422fccb7a991ac20b8b3576a9a7872e08185456f",
+      "passed": true,
+      "metrics": {
+        "screens": {
+          "matched": 20,
+          "total": 20
+        },
+        "rng": {
+          "matched": 3079,
+          "total": 3079
+        },
+        "cursors": {
+          "matched": 20,
+          "total": 20
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "healer-magic-fountain-drink",
+      "recordingSha256": "2775eb19d73cef073a73f80b3687dfa60c9298e61add4ab81027f7d5766678e9",
+      "passed": true,
+      "metrics": {
+        "screens": {
+          "matched": 31,
+          "total": 31
+        },
+        "rng": {
+          "matched": 2845,
+          "total": 2845
+        },
+        "cursors": {
+          "matched": 31,
+          "total": 31
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "monk-nymph-pet-interference-miss",
+      "recordingSha256": "82c65bc6aa799dca5f4caab83333629bf0ece1b51cc3f74c99a9cd8fa643c48a",
+      "passed": true,
+      "metrics": {
+        "screens": {
+          "matched": 47,
+          "total": 47
+        },
+        "rng": {
+          "matched": 2957,
+          "total": 2957
+        },
+        "cursors": {
+          "matched": 47,
+          "total": 47
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "monk-nymph-safe-wait-miss",
+      "recordingSha256": "76c9e641f413632cd0a2c62ceffe76d03cf513ed73eaa11b083768a50c19268e",
+      "passed": true,
+      "metrics": {
+        "screens": {
+          "matched": 47,
+          "total": 47
+        },
+        "rng": {
+          "matched": 3022,
+          "total": 3022
+        },
+        "cursors": {
+          "matched": 47,
+          "total": 47
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "monk-nymph-theft-recovery",
+      "recordingSha256": "12c7091ad75eb0fd4c1604b53961bd3bea6c9a0d555d5f0bd1c35564d82acf3f",
+      "passed": true,
+      "metrics": {
+        "screens": {
+          "matched": 54,
+          "total": 54
+        },
+        "rng": {
+          "matched": 2997,
+          "total": 2997
+        },
+        "cursors": {
+          "matched": 54,
+          "total": 54
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "monk-nymph-wake-only-miss",
+      "recordingSha256": "30056757b6aa0a240ac02402693c7b945460ddc99f3e4888b4807223941931f9",
+      "passed": true,
+      "metrics": {
+        "screens": {
+          "matched": 50,
+          "total": 50
+        },
+        "rng": {
+          "matched": 2935,
+          "total": 2935
+        },
+        "cursors": {
+          "matched": 50,
+          "total": 50
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "rogue-sink-ring-history",
+      "recordingSha256": "dc0759b7d9dca777d85b82b5e0ee0473ca6ef4debbb2a9f2b2eb2acadf85c557",
+      "passed": true,
+      "metrics": {
+        "screens": {
+          "matched": 51,
+          "total": 51
+        },
+        "rng": {
+          "matched": 2076,
+          "total": 2076
+        },
+        "cursors": {
+          "matched": 51,
+          "total": 51
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "rogue-sink-ring-setup-inventory-miss",
+      "recordingSha256": "1f37398ff2f1d708a1693b6d52cc8e5f943502157f668f3de6438e21f61714e0",
+      "passed": true,
+      "metrics": {
+        "screens": {
+          "matched": 28,
+          "total": 28
+        },
+        "rng": {
+          "matched": 2071,
+          "total": 2071
+        },
+        "cursors": {
+          "matched": 28,
+          "total": 28
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "tourist-fountain-dip-history",
+      "recordingSha256": "97950e8b8bf913f1c60eede29de6893a97e9246b3fdfea211c0aa5e7165d0133",
+      "passed": true,
+      "metrics": {
+        "screens": {
+          "matched": 35,
+          "total": 35
+        },
+        "rng": {
+          "matched": 2611,
+          "total": 2611
+        },
+        "cursors": {
+          "matched": 35,
+          "total": 35
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "tourist-fountain-dip-setup-inventory-miss",
+      "recordingSha256": "75525f4caf9686050f333288d0c96a53e8203dc890c6e693495d708763acd6e4",
+      "passed": true,
+      "metrics": {
+        "screens": {
+          "matched": 29,
+          "total": 29
+        },
+        "rng": {
+          "matched": 3660,
+          "total": 3660
+        },
+        "cursors": {
+          "matched": 29,
+          "total": 29
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "tourist-fountain-puton-command-miss",
+      "recordingSha256": "868097d8f1a4a413e54072caa5555e9e97ac971069def6e4356df4117321998f",
+      "passed": true,
+      "metrics": {
+        "screens": {
+          "matched": 30,
+          "total": 30
+        },
+        "rng": {
+          "matched": 2609,
+          "total": 2609
+        },
+        "cursors": {
+          "matched": 30,
+          "total": 30
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "valkyrie-lockpick-chest-open-menu",
+      "recordingSha256": "2d5176b421d2ad6fb23e6e170bab9bb0f23db29af81cf80c4a7692c7983aa4c4",
+      "passed": true,
+      "metrics": {
+        "screens": {
+          "matched": 50,
+          "total": 50
+        },
+        "rng": {
+          "matched": 7838,
+          "total": 7838
+        },
+        "cursors": {
+          "matched": 50,
+          "total": 50
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "valkyrie-lockpick-chest-stash-return",
+      "recordingSha256": "5ef54776664d61652644cb1f11b6a5c166f3eb08ea0b53d4f9674e4d72cf72ca",
+      "passed": true,
+      "metrics": {
+        "screens": {
+          "matched": 52,
+          "total": 52
+        },
+        "rng": {
+          "matched": 7838,
+          "total": 7838
+        },
+        "cursors": {
+          "matched": 52,
+          "total": 52
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "valkyrie-lockpick-command-spacing-miss",
+      "recordingSha256": "b05954313fa1121b14a0e392f1417176339538ce05007131560e16f46c63d642",
+      "passed": true,
+      "metrics": {
+        "screens": {
+          "matched": 58,
+          "total": 58
+        },
+        "rng": {
+          "matched": 7608,
+          "total": 7608
+        },
+        "cursors": {
+          "matched": 58,
+          "total": 58
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "valkyrie-lockpick-drop-input-miss",
+      "recordingSha256": "b37fbd9dc8a95e52d270011c6643f2dbda84000e6b2b5610595dd1d7b9116a2a",
+      "passed": true,
+      "metrics": {
+        "screens": {
+          "matched": 52,
+          "total": 52
+        },
+        "rng": {
+          "matched": 7585,
+          "total": 7585
+        },
+        "cursors": {
+          "matched": 52,
+          "total": 52
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "valkyrie-lockpick-initial-greeting-miss",
+      "recordingSha256": "a14680ece9c843104c461083d15f33546036372d29e3f1505f0b78a6af15ac48",
+      "passed": true,
+      "metrics": {
+        "screens": {
+          "matched": 27,
+          "total": 27
+        },
+        "rng": {
+          "matched": 7499,
+          "total": 7499
+        },
+        "cursors": {
+          "matched": 27,
+          "total": 27
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "valkyrie-magic-flute-nymph-cycle",
+      "recordingSha256": "549c2a7276a47fc3c8bb2ac9f7f1d1d1c40277c76fe08f560fa17758a2eea204",
+      "passed": true,
+      "metrics": {
+        "screens": {
+          "matched": 44,
+          "total": 44
+        },
+        "rng": {
+          "matched": 2468,
+          "total": 2468
+        },
+        "cursors": {
+          "matched": 44,
+          "total": 44
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "valkyrie-magic-flute-nymph-first-play",
+      "recordingSha256": "c19aac0139bcc1a82d122ca126291e3fbf7b59935e569efdb01833fb4ace238f",
+      "passed": true,
+      "metrics": {
+        "screens": {
+          "matched": 40,
+          "total": 40
+        },
+        "rng": {
+          "matched": 2420,
+          "total": 2420
+        },
+        "cursors": {
+          "matched": 40,
+          "total": 40
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "valkyrie-magic-flute-nymph-setup-miss",
+      "recordingSha256": "545cbf21afb84bbdc609f3d122742e7b8987de1b24bae3dbc41fa08f8012dbf6",
+      "passed": true,
+      "metrics": {
+        "screens": {
+          "matched": 39,
+          "total": 39
+        },
+        "rng": {
+          "matched": 2353,
+          "total": 2353
+        },
+        "cursors": {
+          "matched": 39,
+          "total": 39
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "wizard-controlled-potion-transformation",
+      "recordingSha256": "ed0d1aa3d6329e705657641a30ab21f8c8da3f77080ed4e0d1badc3d143eaacb",
+      "passed": true,
+      "metrics": {
+        "screens": {
+          "matched": 81,
+          "total": 81
+        },
+        "rng": {
+          "matched": 2421,
+          "total": 2421
+        },
+        "cursors": {
+          "matched": 81,
+          "total": 81
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "wizard-polymorph-control-setup-inventory-miss",
+      "recordingSha256": "a8145fcfb18d6787c2b8dfd0804fa60514e0521d9ecb4cbde5e549e22ebe3e7c",
+      "passed": true,
+      "metrics": {
+        "screens": {
+          "matched": 50,
+          "total": 50
+        },
+        "rng": {
+          "matched": 2338,
+          "total": 2338
+        },
+        "cursors": {
+          "matched": 50,
+          "total": 50
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "wizard-polymorph-prompt-miss",
+      "recordingSha256": "127d3ac391d83713b8dc5101c7234e1ab60ff4e5c95eb673b66b32344a53ecac",
+      "passed": true,
+      "metrics": {
+        "screens": {
+          "matched": 61,
+          "total": 61
+        },
+        "rng": {
+          "matched": 2347,
+          "total": 2347
+        },
+        "cursors": {
+          "matched": 61,
+          "total": 61
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "wizard-polymorph-quaff-cancel-miss",
+      "recordingSha256": "7fc671792ca8fe67d54389647bf1edf9c377e0e167e64d02d0b0258b2e11e4ec",
+      "passed": true,
+      "metrics": {
+        "screens": {
+          "matched": 83,
+          "total": 83
+        },
+        "rng": {
+          "matched": 2365,
+          "total": 2365
+        },
+        "cursors": {
+          "matched": 83,
+          "total": 83
+        }
+      },
+      "error": null
+    }
+  ],
+  "totals": {
+    "sessions": {
+      "matched": 27,
+      "total": 27
+    },
+    "screens": {
+      "matched": 1142,
+      "total": 1142
+    },
+    "rng": {
+      "matched": 97545,
+      "total": 97545
+    },
+    "cursors": {
+      "matched": 1142,
+      "total": 1142
+    }
+  }
+}
