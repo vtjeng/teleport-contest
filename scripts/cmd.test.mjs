@@ -10,6 +10,7 @@ import {
 import {
     moveloop_core,
 } from '../js/allmain.js';
+import { is_digging } from '../js/dig.js';
 import {
     cmdq_add_ec,
     cmdq_add_key,
@@ -322,7 +323,7 @@ test('a raised drawbridge answers for itself rather than as a wall',
 // C ref: hack.c:1014-1045. Before its closing "It's solid stone." else, the
 // obstacle arm asks four questions about the hero. Passes_walls, Underwater,
 // and a tunneller follow their C branches; autodig calls dig.c use_pick_axe2()
-// and returns FALSE while its later dig() occupation remains open.
+// and returns FALSE after installing the dig() occupation.
 test('the obstacle arm handles special movement before ordinary refusal',
     async () => {
         // Interior coordinate and an eastward step, as in the wall case above:
@@ -442,7 +443,7 @@ test('the obstacle arm handles special movement before ordinary refusal',
             message: (line) => digLines.push(line),
         }), false);
         assert.deepEqual(digLines, ['You start digging.']);
-        assert.ok(game.unported.has('dig.c dig'));
+        assert.equal(is_digging(digger), true);
         assert.deepEqual(digger.context.digging.pos, { x: ux + 1, y: uy });
 
         // Each of the other three terms alone returns the arm to its ordinary

@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 9175223,
+      "datetime": "20350406124530",
+      "nethackrc": "OPTIONS=name:DigPit,role:Archeologist,race:human,gender:male,align:neutral,!legacy,!tutorial,!splash_screen\n",
+      "moves": "ae  >......"
+    }
+  ],
+  "comment": "Independent ordinary-game entry through apply.c:use_pick_axe() and use_pick_axe2(): apply the starting pick-axe, select downward direction, then let the dig occupation reach the floor pit decision. This exercises dig.c:dig() and dighole() without a wizard-created dungeon or fixed challenge coordinates."
+}
