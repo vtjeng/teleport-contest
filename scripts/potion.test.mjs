@@ -13,10 +13,12 @@ import test from 'node:test';
 import { failClosedCommandRefusals } from '../js/cmd.js';
 
 import {
-    A_CON, A_DEX, A_WIS, BLINDED, CONFUSION, DEAF, FAST, FREE_ACTION, FROMOUTSIDE, GLIB, HALLUC,
+    A_CON, A_DEX, A_WIS, BLINDED, CONFUSION, DEAF, FAST, FREE_ACTION,
+    FROMOUTSIDE, GLIB, HALLUC,
+    GETOBJ_DOWNPLAY, GETOBJ_EXCLUDE, GETOBJ_EXCLUDE_INACCESS, GETOBJ_SUGGEST,
     HALLUC_RES, INVIS, LEVITATION, NOT_HUNGRY, POTHIT_MONST_THROW, SEE_INVIS,
     SATIATED, SLEEP_RES, WEAK,
-    TELEPAT, TIMEOUT, WOUNDED_LEGS,
+    TELEPAT, TIMEOUT, WOUNDED_LEGS, W_RINGL,
 } from '../js/const.js';
 import { trycall } from '../js/do.js';
 import { docall } from '../js/do_name.js';
@@ -53,11 +55,14 @@ import {
     POT_SPEED,
     POT_WATER,
     TOWEL,
+    COIN_CLASS,
+    RING_CLASS,
 } from '../js/objects.js';
 import {
     UnsupportedPotionError,
     UnsupportedQuaffError,
     bottlename,
+    dip_ok,
     incr_itimeout,
     make_confused,
     make_blinded,
@@ -372,6 +377,32 @@ function potionSource() {
         'utf8',
     );
 }
+
+test('dip_ok matches potion.c classifications and silent accessibility filter', () => {
+    const source = potionSource();
+    const start = source.indexOf('dip_ok(struct obj *obj)');
+    const end = source.indexOf(
+        '/* getobj callback for object to be dipped when hero', start,
+    );
+    assert.ok(start > 0);
+    assert.ok(end > start);
+    const body = source.slice(start, end);
+    assert.match(body, /if \(!obj\)\s*return GETOBJ_DOWNPLAY;/u);
+    assert.match(body, /obj->oclass == COIN_CLASS\)\s*return GETOBJ_EXCLUDE;/u);
+    assert.match(body, /inaccessible_equipment\(obj, \(const char \*\) 0, FALSE\)/u);
+    assert.match(body, /return GETOBJ_EXCLUDE_INACCESS;/u);
+    assert.match(body, /return GETOBJ_SUGGEST;/u);
+
+    assert.equal(dip_ok(null), GETOBJ_DOWNPLAY);
+    assert.equal(dip_ok({ oclass: COIN_CLASS }), GETOBJ_EXCLUDE);
+    const gloves = { cursed: 0, bknown: 0 };
+    const ring = { oclass: RING_CLASS, owornmask: W_RINGL };
+    assert.equal(
+        dip_ok(ring, { uarmg: gloves, uleft: ring }),
+        GETOBJ_EXCLUDE_INACCESS,
+    );
+    assert.equal(dip_ok({ oclass: RING_CLASS }), GETOBJ_SUGGEST);
+});
 
 // The body of potionbreathe()'s switch, from the `switch (` line to the closing
 // brace before the `if (!already_in_use)` tail, split into the code the

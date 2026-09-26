@@ -51,6 +51,7 @@ import {
     I_SPECIAL,
     GETOBJ_DOWNPLAY,
     GETOBJ_EXCLUDE,
+    GETOBJ_EXCLUDE_INACCESS,
     GETOBJ_EXCLUDE_NONINVENT,
     GETOBJ_NOFLAGS,
     GETOBJ_PROMPT,
@@ -1800,11 +1801,9 @@ export async function dodip(state = game) {
         GETOBJ_PROMPT,
         state);
     if (!obj) return ECMD_CANCEL;
-    // C ref: potion.c:2282-2283. inaccessible_equipment(obj, "dip", FALSE)
-    // prints a message and returns true for covered items. The JS version
-    // of that function throws when verb is passed; use the silent form here
-    // since getobj's dip_ok callback already filters these out.
-    if (inaccessible_equipment(obj, null, false, state)) {
+    // C ref: potion.c:2282-2283. The getobj filter excludes inaccessible
+    // equipment from its suggested choices, but '*' can still select one.
+    if (await inaccessible_equipment(obj, 'dip', false, state)) {
         return ECMD_OK;
     }
 
@@ -1865,10 +1864,11 @@ export async function dodip(state = game) {
 }
 
 // C ref: potion.c dip_ok() (2214-2227). getobj callback for dipping.
-function dip_ok(obj) {
+export function dip_ok(obj, state = game) {
     if (!obj) return GETOBJ_DOWNPLAY;
     if (obj.oclass === COIN_CLASS) return GETOBJ_EXCLUDE;
-    // inaccessible_equipment is checked after getobj returns.
+    if (inaccessible_equipment(obj, null, false, state))
+        return GETOBJ_EXCLUDE_INACCESS;
     return GETOBJ_SUGGEST;
 }
 
@@ -1879,7 +1879,7 @@ function dip_hands_ok(state) {
         if (!obj && (Glib(state) && can_reach_floor(false, state))) {
             return GETOBJ_SUGGEST;
         }
-        return dip_ok(obj);
+        return dip_ok(obj, state);
     };
 }
 

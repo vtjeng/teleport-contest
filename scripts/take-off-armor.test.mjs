@@ -591,10 +591,13 @@ test('equip_ok hides a piece another piece covers', async () => {
         inaccessible_equipment({ owornmask: 0 }, null, false, game), false,
     );
     assert.equal(inaccessible_equipment(null, null, false, game), false);
-    // The dip and grease callers, which supply a verb, are unported.
-    assert.throws(
-        () => inaccessible_equipment(suit, 'dip', false, game),
-        /inaccessible_equipment\(\) messages/,
+    // do_wear.c:inaccessible_equipment() emits its source message and still
+    // returns true when a caller supplies a verb.
+    takePendingTopLine();
+    assert.equal(await inaccessible_equipment(suit, 'dip', false, game), true);
+    assert.match(
+        takePendingTopLine(),
+        /^You need to take off .+ to dip .+\.$/u,
     );
     game.uarm = null;
     game.uarmu = null;
