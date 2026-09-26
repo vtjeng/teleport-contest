@@ -1230,7 +1230,14 @@ export function preflight_projected_random_arrival_pickup(state) {
 // the same object a moment later and js/invent.js addinv_core1() already
 // carries it; and fix_ghostly_obj(), which needs an object read from a bones
 // file, and getbones() never loads one.
-async function pickup_object(obj, count, telekinesis, env, plan) {
+export async function pickup_object(
+    obj, count, telekinesis, rawEnv = {}, plan = null,
+) {
+    // apply.c:use_whip() calls pickup_object() directly with the same three
+    // source arguments; public command callers pass the prepared environment.
+    const env = rawEnv?.state
+        ? rawEnv
+        : objectGenerationEnv({ state: rawEnv?.u ? rawEnv : game });
     const state = env.state;
     if (obj.quan < count) {
         // C's impossible() reports and returns 0. Both callers pass the
