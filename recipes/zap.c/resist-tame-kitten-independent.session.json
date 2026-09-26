@@ -1,0 +1,11 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 90525079,
+      "datetime": "20420601121500",
+      "nethackrc": "OPTIONS=name:Scout,role:Healer,race:human,gender:female,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen\n",
+      "moves": "\u0017uncursed wand of striking\nzlk"
+    }
+  ]
+}

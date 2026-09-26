@@ -555,6 +555,7 @@ import {
 } from './potion.js';
 import { d, rn1, rn2, rnd, rne, rnl, rnz } from './rng.js';
 import {
+    killed,
     shieldeff_mon,
     monkilled,
     normal_shape,
@@ -1709,7 +1710,8 @@ export async function miss(str, mtmp, state = game, env = {}) {
 // monster's HP (halved if resisted) and kills the monster if HP drops to zero.
 // When `tell` is truthy (TELL = 1), shows a shield effect and "<monster>
 // resists!" message; when falsy (NOTELL = 0), silent.
-export async function resist(mtmp, oclass, damage, tell, state = game, random = { rn2 }) {
+export async function resist(mtmp, oclass, damage, tell, state = game,
+    random = { rn2 }, rawEnv = {}) {
     /* fake players always pass resistance test against Conflict */
     if (oclass === RING_CLASS && !damage && !tell && is_mplayer(mtmp.data))
         return 1;
@@ -1741,12 +1743,24 @@ export async function resist(mtmp, oclass, damage, tell, state = game, random = 
     if (damage) {
         mtmp.mhp -= damage;
         if (mtmp.mhp < 1) { /* DEADMONSTER */
-            // gm.m_using tracks "a monster is using an item", set by muse.c.
-            // No ported caller sets it, and the hero-zap path through dobuzz()
-            // does not reach it, so the else (killed()) is the reachable arm.
-            throw new UnsupportedZapError(
-                'resist() killing a monster via damage (m_using / killed path)',
-            );
+            // zap.c discards these void calls. gm.m_using is set around
+            // monster item actions in muse.c; hero attacks take killed().
+            const killEnv = {
+                ...rawEnv,
+                state,
+                random: {
+                    d, rn1, rn2, rnd, rne, rnz,
+                    ...random,
+                    ...(rawEnv.random ?? {}),
+                },
+                message: rawEnv.message ?? ttyPline,
+                unsupported: rawEnv.unsupported
+                    ?? ((reason) => note_unported(`mon.c ${reason}`)),
+            };
+            if (state.m_using)
+                await monkilled(mtmp, '', AD_RBRE, state, killEnv);
+            else
+                await killed(mtmp, state, killEnv);
         }
     }
     return resisted ? 1 : 0;
@@ -2996,9 +3010,9 @@ export async function bhitm(monster, wand, state = game,
             if (otyp === SPE_FORCE_BOLT)
                 damage = spell_damage_bonus(damage, state);
             await hit(zap_type_text, monster, exclam(damage), state, rawEnv);
-            // zap.c discards resist()'s boolean result. The existing resist
-            // owner still refuses the unresolved death/killed() return path.
-            await resist(monster, wand.oclass, damage, TELL, state, random);
+            // zap.c discards resist()'s boolean result; its damage and death
+            // side effects still run before the common wake/learn tail.
+            await resist(monster, wand.oclass, damage, TELL, state, random, rawEnv);
         } else {
             if (!disguised_mimic)
                 await miss(zap_type_text, monster, state, rawEnv);
