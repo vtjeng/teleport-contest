@@ -1,0 +1,90 @@
+{
+  "session": "synthetic/v6/wizard-grease-hands-final",
+  "corpus": "synthetic",
+  "batch": "v6",
+  "caseId": "wizard-grease-hands-final",
+  "manifestPath": "challenges/manifests/v6.json",
+  "manifestSha256": "7523b91e823f4e3906c9acdc9a3d80f8469c27c2caab8fc8fbd6967dbfdcab5f",
+  "recordingPath": "challenges/cases/v6/wizard-grease-hands-final.session.json",
+  "recordingSha256": "a22865ca6fd6510f9e8e02a91b816b7862d8257bcedde8f2995d4e702df4d012",
+  "evaluationPath": "challenges/evaluations/20260926094126-v6.json",
+  "evaluationCommit": "50bbe620897c8fc2e634d14ec672d33a4e44db7e",
+  "remainingScreens": 2,
+  "recordedSteps": 19,
+  "status": "complete",
+  "commit": "50bbe620897c8fc2e634d14ec672d33a4e44db7e",
+  "mismatch": {
+    "corpus": "synthetic",
+    "batch": "v6",
+    "caseId": "wizard-grease-hands-final",
+    "session": "synthetic/v6/wizard-grease-hands-final",
+    "manifestPath": "challenges/manifests/v6.json",
+    "manifestSha256": "7523b91e823f4e3906c9acdc9a3d80f8469c27c2caab8fc8fbd6967dbfdcab5f",
+    "recording": "challenges/cases/v6/wizard-grease-hands-final.session.json",
+    "recordingPath": "challenges/cases/v6/wizard-grease-hands-final.session.json",
+    "recordingSha256": "a22865ca6fd6510f9e8e02a91b816b7862d8257bcedde8f2995d4e702df4d012",
+    "recipe": "challenges/cases/v6/wizard-grease-hands-final.recipe.session.json",
+    "recipeSha256": "bac400fb9aa453e9dc8ef8318bd4e510d7d3fbb3706559a2a889d40c7513228d",
+    "replayInputSha256": "9671c8200bb4617314143efc03b8936dba1c08d5025986a5ef6f245a97c322f9",
+    "evaluationPath": "challenges/evaluations/20260926094126-v6.json",
+    "evaluationCommit": "50bbe620897c8fc2e634d14ec672d33a4e44db7e",
+    "evaluationArtifact": "challenges/evaluations/20260926094126-v6.json",
+    "evaluationUtc": "2026-09-26T09:41:43.460Z",
+    "remainingScreens": 2,
+    "recordedSteps": 19,
+    "previousScreensMatched": 17,
+    "regression": false,
+    "passed": false,
+    "error": null,
+    "metrics": {
+      "screens": {
+        "matched": 17,
+        "total": 19
+      },
+      "rng": {
+        "matched": 2361,
+        "total": 2365
+      },
+      "cursors": {
+        "matched": 17,
+        "total": 19
+      }
+    },
+    "firstMismatch": {
+      "kind": "stop",
+      "message": "unsupported hero command: an unported branch of this command: applying a tool requires doapply()'s arm for object type 240",
+      "step": 17
+    },
+    "step": 17,
+    "kind": "stop",
+    "sourceFile": "apply.c",
+    "function": "doapply",
+    "message": "unsupported hero command: an unported branch of this command: applying a tool requires doapply()'s arm for object type 240",
+    "cFile": "apply.c",
+    "luaFile": null,
+    "line": null
+  },
+  "summary": "The v6 wizard-grease-hands-final case applies a can of grease at segment 0 step 17. C apply.c:use_grease() asks which object or hands to grease; js/apply.js:doapply() refuses CAN_OF_GREASE before this prompt. Group the unresolved grease and glib variants in one complete grease_ok/use_grease source task with doapply wiring, preserving charge, slipping, target selection, and Glib timing.",
+  "source": {
+    "file": "apply.c",
+    "branch": "The hero applies CAN_OF_GREASE (object type 240) with positive charges and no initial Glib refusal; use_grease reaches getobj(\"grease\", grease_ok, GETOBJ_PROMPT) and C prints the target-selection prompt.",
+    "functions": [
+      "grease_ok",
+      "use_grease"
+    ],
+    "callers": [
+      "cmd.c apply command -> apply.c doapply CAN_OF_GREASE arm at lines 4282-4283, which consumes use_grease return; js/cmd.js command dispatch -> js/apply.js doapply currently refuses that object type."
+    ],
+    "dependencies": [
+      "Return-valued getobj and inaccessible_equipment determine selection; grease_ok excludes coins and inaccessible equipment. Verify existing JavaScript implementations before marking source completion.",
+      "invent.c consume_obj_charge and object drop/greased state, make_glib and rn1 on hands or cursed targets, and inventory redraw must preserve C order."
+    ]
+  },
+  "goalKind": "file-port",
+  "evidence": [
+    "Saved challenges/evaluations/20260926094126-v6.json at 50bbe620897c8fc2e634d14ec672d33a4e44db7e reports 2 remaining screen(s), first refusal at segment 0 step 17: unsupported hero command: an unported branch of this command: applying a tool requires doapply()'s arm for object type 240.",
+    "C challenges/cases/v6/wizard-grease-hands-final.session.json at that step prints “What do you want to grease? [- ... or ?*]”, proving use_grease reached its getobj selection after the charged can passed its early branches.",
+    "Upstream nethack-c/upstream/src/apply.c:2586-2654 grease_ok/use_grease handles Glib slipping, cursed/fumbling mishap, charge, object or hand greasing, make_glib, and final inventory update. doapply at 4282-4283 consumes its ECMD_* return.",
+    "Current js/apply.js:doapply refuses CAN_OF_GREASE before use_grease; port the complete helper family and wire its caller. Later intended engraving inputs remain downstream and should not be special-cased."
+  ]
+}
