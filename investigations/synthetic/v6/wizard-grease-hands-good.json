@@ -1,0 +1,90 @@
+{
+  "session": "synthetic/v6/wizard-grease-hands-good",
+  "corpus": "synthetic",
+  "batch": "v6",
+  "caseId": "wizard-grease-hands-good",
+  "manifestPath": "challenges/manifests/v6.json",
+  "manifestSha256": "7523b91e823f4e3906c9acdc9a3d80f8469c27c2caab8fc8fbd6967dbfdcab5f",
+  "recordingSha256": "528226e80ce3b4852b1606a834fd132448c6d19be05f9b3e387cc81e5ca9f192",
+  "evaluationPath": "challenges/evaluations/20260926132731-v6.json",
+  "evaluationCommit": "d0a8041f88dd37cbf631877464c06cf985998274",
+  "remainingScreens": 2,
+  "recordedSteps": 19,
+  "status": "complete",
+  "commit": "d0a8041f88dd37cbf631877464c06cf985998274",
+  "mismatch": {
+    "corpus": "synthetic",
+    "batch": "v6",
+    "caseId": "wizard-grease-hands-good",
+    "session": "synthetic/v6/wizard-grease-hands-good",
+    "manifestPath": "challenges/manifests/v6.json",
+    "manifestSha256": "7523b91e823f4e3906c9acdc9a3d80f8469c27c2caab8fc8fbd6967dbfdcab5f",
+    "recording": "challenges/cases/v6/wizard-grease-hands-good.session.json",
+    "recordingPath": "challenges/cases/v6/wizard-grease-hands-good.session.json",
+    "recordingSha256": "528226e80ce3b4852b1606a834fd132448c6d19be05f9b3e387cc81e5ca9f192",
+    "recipe": "challenges/cases/v6/wizard-grease-hands-good.recipe.session.json",
+    "recipeSha256": "74b2bab42a87bae9bd7efe6394fcefc09dbafdc6a5bc9ecc91288387124fcee8",
+    "replayInputSha256": "a3ac3b6872f8e89451d29bdbf73b5215af57c013d215edeaba8f740cc0c5fc4a",
+    "evaluationPath": "challenges/evaluations/20260926132731-v6.json",
+    "evaluationCommit": "d0a8041f88dd37cbf631877464c06cf985998274",
+    "evaluationArtifact": "challenges/evaluations/20260926132731-v6.json",
+    "evaluationUtc": "2026-09-26T13:27:48.505Z",
+    "remainingScreens": 2,
+    "recordedSteps": 19,
+    "previousScreensMatched": 17,
+    "regression": false,
+    "passed": false,
+    "error": null,
+    "metrics": {
+      "screens": {
+        "matched": 17,
+        "total": 19
+      },
+      "rng": {
+        "matched": 2361,
+        "total": 2366
+      },
+      "cursors": {
+        "matched": 17,
+        "total": 19
+      }
+    },
+    "firstMismatch": {
+      "kind": "stop",
+      "message": "unsupported hero command: an unported branch of this command: applying a tool requires doapply()'s arm for object type 233",
+      "step": 17
+    },
+    "step": 17,
+    "kind": "stop",
+    "sourceFile": "apply.c",
+    "function": "doapply",
+    "message": "unsupported hero command: an unported branch of this command: applying a tool requires doapply()'s arm for object type 233",
+    "cFile": "apply.c",
+    "luaFile": null,
+    "line": null
+  },
+  "summary": "Both recordings create a can of grease but do not apply it. After the apply command, key o selects BLINDFOLD (object type 233); the earlier inventory screen lists the can of grease at p. C therefore reaches apply.c doapply()’s BLINDFOLD/LENSES switch arm and calls Blindf_on(), while JS has no matching dispatch and stops in its default unsupported arm. This is the first stop at segment 0 step 17; the missing source owner is the eyewear arm in doapply(), not use_grease().",
+  "source": {
+    "file": "apply.c",
+    "branch": "After getobj() returns a BLINDFOLD or LENSES object that passed apply_ok(), if the selected object is not already ublindf and ublindf is empty, doapply() calls Blindf_on(obj). These recordings enter that branch with the initial blindfold unworn. If the selected item is already ublindf, C may call Blindf_off() unless cursed; if other eyewear is worn, C prints the already-covered message. Those sibling branches are not reached.",
+    "functions": [
+      "doapply"
+    ],
+    "callers": [
+      "C cmd.c command table binds key a to doapply(); doapply() calls getobj(\"use or apply\", apply_ok, GETOBJ_NOFLAGS) before its object-type switch.",
+      "JS cmd.js runApplyCommand() calls doapply(state) for the apply command. The stop is in js/apply.js doapply() after its switch lacks BLINDFOLD/LENSES cases."
+    ],
+    "dependencies": [
+      "C apply.c apply_ok() suggests TOOL_CLASS objects, and apply.c doapply() obtains the selected item through getobj(); the recorded item key o selects the blindfold, while the preceding screen identifies the can of grease as p.",
+      "C doapply() calls do_wear.c Blindf_on() for the unworn-eyewear branch. Blindf_on() removes a worn-item mask if needed, sets the object in W_TOOL (ublindf), calls on_msg(), and toggles blindness when the hero becomes blind; its void return is ignored and doapply() keeps its initial ECMD_TIME result.",
+      "The common C do_wear.c Blindf_on() path is already implemented in js/do_wear.js Blindf_on(); the current first stop is before that helper because js/apply.js doapply() has no BLINDFOLD/LENSES dispatch case."
+    ]
+  },
+  "goalKind": "divergence-fix",
+  "evidence": [
+    "The saved evaluation challenges/evaluations/20260926132731-v6.json reports 17/19 screens, 2361/2366 RNG calls, and 17/19 cursors matched. Its first stop is segment 0 step 17 on key o: JS reports the missing doapply() arm for object type 233.",
+    "The C recording challenges/cases/v6/wizard-grease-hands-good.session.json has seed 60626051 and moves Ctrl-W, can of grease, then ao-. At step 15 the C screen says “p - a can of grease.”; step 16 starts the apply prompt; key o at step 17 produces “You are now wearing a blindfold. You can't see any more.” and status Blind. This evidence rules out the can-of-grease arm as the first divergent branch.",
+    "C nethack-c/upstream/src/apply.c:4150-4212 defines apply_ok() and begins doapply(); apply_ok() suggests TOOL_CLASS objects for getobj(). The BLINDFOLD/LENSES branch at apply.c:4244-4257 calls Blindf_on(obj) when obj != ublindf and ublindf is empty. apply.c:4282 handles CAN_OF_GREASE separately, after the eyewear arm.",
+    "C nethack-c/upstream/src/do_wear.c:1461-1492 owns the common sighted-to-blind transition: Blindf_on() sets W_TOOL, calls on_msg(), detects the blindness transition, then calls toggle_blindness(). JS already implements this common path in js/do_wear.js:1042-1098; js/apply.js:2297-2403 lacks BLINDFOLD/LENSES cases, so execution reaches the unsupported default instead."
+  ]
+}

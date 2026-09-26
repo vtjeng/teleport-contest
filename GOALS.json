@@ -83218,7 +83218,7 @@
     {
       "id": "port-potion-peffect-blindness-synthetic-v7-20260926",
       "kind": "file-port",
-      "status": "open",
+      "status": "closed",
       "summary": "Port the blindness potion effect and wire peffects POT_BLINDNESS dispatch",
       "cFile": "potion.c",
       "sessions": [
@@ -83232,15 +83232,18 @@
         "screens": 11405,
         "rng": 792838
       },
-      "closedAt": null,
-      "delivered": null,
+      "closedAt": "c79e03cbb8b5e5509ef1f09c67f9c94405b25eae",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
       "functions": [
         {
           "name": "peffect_blindness",
           "line": 1073,
           "endLine": 1082,
-          "declared": false,
-          "complete": false
+          "declared": true,
+          "complete": true
         }
       ],
       "range": {
@@ -83415,7 +83418,123 @@
             }
           }
         }
-      ]
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "peffect_blindness",
+            "implementation": "js/potion.js",
+            "symbol": "peffect_blindness",
+            "sourceReview": "Read the complete potion.c:1072-1080 definition and checked its full caller chain. The port preserves the exact ineffective-effect condition (Blind || ((HBlinded || EBlinded) && BBlinded)), increments gp.potion_nothing only under that condition, then always draws rn1(200, 250 - 125 * bcsign(otmp)), adds it to BlindedTimeout with itimeout_incr, and calls make_blinded(duration, !Blind) in C order. make_blinded is an existing fully ported dependency; peffect_blindness has no other return-valued callees. Replaced the prior UnsupportedQuaffError arm and wired the POT_BLINDNESS case in peffects. The later apply.c:use_unicorn_horn mismatch is a separate downstream owner; potion.c:potionhit's thrown-potion behavior is outside this function and remains separate.",
+            "callers": [
+              {
+                "path": "js/potion.js",
+                "symbol": "peffects",
+                "source": "potion.c:peffects dispatches POT_BLINDNESS to peffect_blindness; the active source path is cmd.c q -> dodrink -> dopotion -> peffects -> peffect_blindness."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/potion.test.mjs"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v7",
+                "caseId": "unicorn-horn-blindness-corrected",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 33,
+                "source": "cmd.c q -> dodrink -> dopotion -> potion.c:peffects(POT_BLINDNESS) -> peffect_blindness -> make_blinded."
+              }
+            ],
+            "checkedAt": "c79e03cbb8b5e5509ef1f09c67f9c94405b25eae"
+          }
+        ],
+        "entryPointReview": "The active selected entry point is quaffing a potion of blindness: cmd.c registers q to dodrink, then dodrink calls dopotion and potion.c:peffects dispatches POT_BLINDNESS to peffect_blindness. JS preserves the same dispatcher path through runQuaffCommand, dodrink, dopotion and peffects. The admitted v7 range exercises this path through make_blinded and matches through the cited step. The later step 56 application of a unicorn horn is a distinct apply.c:use_unicorn_horn source owner and is outside this task; thrown-potion effects in potion.c:potionhit are also separate.",
+        "entryPoints": [
+          {
+            "name": "Quaff a blindness potion",
+            "functions": [
+              "peffect_blindness"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v7",
+                "caseId": "unicorn-horn-blindness-corrected",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 33,
+                "source": "cmd.c q -> dodrink -> dopotion -> potion.c:peffects(POT_BLINDNESS) -> peffect_blindness."
+              }
+            ]
+          }
+        ]
+      },
+      "closeMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v7",
+          "caseId": "unicorn-horn-blindness-corrected",
+          "session": "synthetic/v7/unicorn-horn-blindness-corrected",
+          "manifestPath": "challenges/manifests/v7.json",
+          "manifestSha256": "03a861a9d1bc9d813c80681312ee7a0e0f893dbad0536de40a974bd5ec344094",
+          "recording": "challenges/cases/v7/unicorn-horn-blindness-corrected.session.json",
+          "recordingPath": "challenges/cases/v7/unicorn-horn-blindness-corrected.session.json",
+          "recordingSha256": "7c5dc1f16f6f74865041b570f15399c2d68812a5ba1a083b341f1ddbc90365f7",
+          "recipe": "challenges/cases/v7/unicorn-horn-blindness-corrected.recipe.session.json",
+          "recipeSha256": "62026a1d2af49c192fe9900fa825aec3a8ecbfd10232807f7cec8b687b20a946",
+          "replayInputSha256": "871d8b58478dd70d1251ecc5e6ecbb9b2aea277484c1c6c75a03c8e1a300647e",
+          "evaluationPath": "challenges/evaluations/20260926140428-v7.json",
+          "evaluationCommit": "c79e03cbb8b5e5509ef1f09c67f9c94405b25eae",
+          "evaluationArtifact": "challenges/evaluations/20260926140428-v7.json",
+          "evaluationUtc": "2026-09-26T14:04:55.808Z",
+          "remainingScreens": 1,
+          "recordedSteps": 57,
+          "previousScreensMatched": 31,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 56,
+              "total": 57
+            },
+            "rng": {
+              "matched": 2817,
+              "total": 2826
+            },
+            "cursors": {
+              "matched": 56,
+              "total": 57
+            }
+          },
+          "firstMismatch": {
+            "kind": "stop",
+            "message": "unsupported hero command: an unported branch of this command: applying a tool requires doapply()'s arm for object type 261",
+            "step": 56
+          },
+          "step": 56,
+          "kind": "stop",
+          "sourceFile": "apply.c",
+          "function": "doapply",
+          "message": "unsupported hero command: an unported branch of this command: applying a tool requires doapply()'s arm for object type 261",
+          "cFile": "apply.c",
+          "luaFile": null,
+          "line": null,
+          "investigation": {
+            "status": "stale",
+            "path": "investigations/synthetic/v7/unicorn-horn-blindness-corrected.json",
+            "previousRemainingScreens": 26
+          }
+        }
+      ],
+      "closeStanding": {
+        "sha": "c79e03cbb8b5e5509ef1f09c67f9c94405b25eae",
+        "screens": 11405,
+        "rng": 792838
+      }
     }
   ]
 }

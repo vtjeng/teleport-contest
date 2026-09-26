@@ -1,0 +1,131 @@
+{
+  "session": "synthetic/v6/wizard-engrave-wand-retry",
+  "corpus": "synthetic",
+  "batch": "v6",
+  "caseId": "wizard-engrave-wand-retry",
+  "manifestPath": "challenges/manifests/v6.json",
+  "manifestSha256": "7523b91e823f4e3906c9acdc9a3d80f8469c27c2caab8fc8fbd6967dbfdcab5f",
+  "recordingPath": "challenges/cases/v6/wizard-engrave-wand-retry.session.json",
+  "recordingSha256": "f73a7b569933dd9cb8f7aa271288533e1fc30f05395b47010ad81078aacf0894",
+  "evaluationPath": "challenges/evaluations/20260926132731-v6.json",
+  "evaluationCommit": "d0a8041f88dd37cbf631877464c06cf985998274",
+  "remainingScreens": 1,
+  "recordedSteps": 18,
+  "status": "complete",
+  "commit": "d0a8041f88dd37cbf631877464c06cf985998274",
+  "mismatch": {
+    "corpus": "synthetic",
+    "batch": "v6",
+    "caseId": "wizard-engrave-wand-retry",
+    "session": "synthetic/v6/wizard-engrave-wand-retry",
+    "manifestPath": "challenges/manifests/v6.json",
+    "manifestSha256": "7523b91e823f4e3906c9acdc9a3d80f8469c27c2caab8fc8fbd6967dbfdcab5f",
+    "recording": "challenges/cases/v6/wizard-engrave-wand-retry.session.json",
+    "recordingPath": "challenges/cases/v6/wizard-engrave-wand-retry.session.json",
+    "recordingSha256": "f73a7b569933dd9cb8f7aa271288533e1fc30f05395b47010ad81078aacf0894",
+    "recipe": "challenges/cases/v6/wizard-engrave-wand-retry.recipe.session.json",
+    "recipeSha256": "7d517f80566efa008029d0e750d1c6bb8668dc59883d4c4cf3cfdff4b2f5dc39",
+    "replayInputSha256": "a3ac3b6872f8e89451d29bdbf73b5215af57c013d215edeaba8f740cc0c5fc4a",
+    "evaluationPath": "challenges/evaluations/20260926132731-v6.json",
+    "evaluationCommit": "d0a8041f88dd37cbf631877464c06cf985998274",
+    "evaluationArtifact": "challenges/evaluations/20260926132731-v6.json",
+    "evaluationUtc": "2026-09-26T13:27:48.505Z",
+    "remainingScreens": 1,
+    "recordedSteps": 18,
+    "previousScreensMatched": 17,
+    "regression": false,
+    "passed": false,
+    "error": null,
+    "metrics": {
+      "screens": {
+        "matched": 17,
+        "total": 18
+      },
+      "rng": {
+        "matched": 2397,
+        "total": 2397
+      },
+      "cursors": {
+        "matched": 17,
+        "total": 18
+      }
+    },
+    "firstMismatch": {
+      "screen": {
+        "index": 17,
+        "location": {
+          "segmentIndex": 0,
+          "stepIndex": 17,
+          "key": "?"
+        },
+        "kind": "ch",
+        "row": 0,
+        "column": 31,
+        "cCell": {
+          "ch": "M",
+          "color": 8,
+          "attr": 1,
+          "decgfx": 0
+        },
+        "jsCell": {
+          "ch": "-",
+          "color": 8,
+          "attr": 0,
+          "decgfx": 0
+        }
+      },
+      "rng": null,
+      "cursor": {
+        "index": 17,
+        "location": {
+          "segmentIndex": 0,
+          "stepIndex": 17,
+          "key": "?"
+        },
+        "cCursor": [
+          37,
+          12,
+          1
+        ],
+        "jsCursor": [
+          37,
+          11,
+          1
+        ]
+      }
+    },
+    "step": 17,
+    "kind": "screen",
+    "sourceFile": null,
+    "function": null,
+    "message": null,
+    "cFile": null,
+    "luaFile": null,
+    "line": null
+  },
+  "summary": "The retry case reaches the same ? stylus menu one step later because its input begins with a space. The first mismatch is again the omitted Miscellaneous heading before the fingertip extra choice in the sortpack menu; all RNG matches, so this is separate menu-layout debt in invent.c:display_pickinv(), not a retry or wand-use branch.",
+  "source": {
+    "file": "invent.c",
+    "branch": "In the E command, engrave.c:doengrave() calls getobj(\"write with\", stylus_ok, GETOBJ_PROMPT); stylus_ok(NULL) suggests hands, so getobj() handles ? by passing getobj_hands_txt() as display_pickinv() extra choice. With sortpack active, C invent.c:display_pickinv() inserts a \"Miscellaneous\" heading before the extra fingertip item. The current JS display_pickinv() usextra branch adds the item without that conditional heading, shifting the whole menu up one row.",
+    "functions": [
+      "display_pickinv"
+    ],
+    "callers": [
+      "C path: engrave.c:doengrave() -> invent.c:getobj() question-mark branch (1963-1981) -> invent.c:display_pickinv(); stylus_ok(NULL) admits hands and the C screen shows the inventory class headings.",
+      "JavaScript path: js/engrave.js:doengrave() -> js/invent.js:getobj() question-mark branch (1197-1221) -> js/invent.js:display_pickinv(); its usextra branch currently inserts only the fingertip item."
+    ],
+    "dependencies": [
+      "Preserve the flags.sortpack condition and menu item order: C adds the Miscellaneous heading before HANDS_SYM only when the hands/fingertip item is an extra choice, then continues with the existing inventory class headings.",
+      "The caller supplies xtra_choice through getobj_hands_txt() because stylus_ok(NULL) returns GETOBJ_SUGGEST; keep that separate from actual inventory objects and use the existing add_menu_heading()/select_menu path.",
+      "The missing heading changes screen row placement and the terminal cursor by one line; preserve the existing inventory contents, selectors, selection behavior, and RNG order."
+    ]
+  },
+  "goalKind": "divergence-fix",
+  "evidence": [
+    "Saved challenges/evaluations/20260926132731-v6.json and the current queue report 1 remaining screen out of 18; first mismatch at segment 0 step 17, key \"?\": row 0 column 31 is \"M\" in C and \"-\" in JS, cursor C [37,12,1], JS [37,11,1]. Before it, 17/18 screens, 2397/2397 RNG calls, and 17/18 cursors.",
+    "challenges/cases/v6/wizard-engrave-wand-retry.session.json: The final C screen also starts with the highlighted \"Miscellaneous\" heading followed by \"- - your fingertip\", before the remaining grouped inventory entries. The JS screen omits that first heading and its cursor is one row higher.",
+    "nethack-c/upstream/src/engrave.c:481-491 has stylus_ok(NULL) return GETOBJ_SUGGEST, and doengrave() calls getobj(\"write with\", stylus_ok, GETOBJ_PROMPT) at 977. nethack-c/upstream/src/invent.c:1963-1981 routes ? through getobj_hands_txt() to display_pickinv().",
+    "nethack-c/upstream/src/invent.c:3253-3260 explicitly adds the \"Miscellaneous\" menu heading before HANDS_SYM when flags.sortpack is set. The case screen’s following Weapons/Rings/Wands/Tools headers confirms that this sortpack menu branch is active.",
+    "js/invent.js:1197-1221 reaches display_pickinv() with the hands text; js/invent.js:2005-2007 adds the usextra hands row without the corresponding Miscellaneous header. This missing source branch explains both the one-cell content difference and the one-row cursor shift."
+  ]
+}

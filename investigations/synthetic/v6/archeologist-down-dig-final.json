@@ -1,0 +1,123 @@
+{
+  "session": "synthetic/v6/archeologist-down-dig-final",
+  "corpus": "synthetic",
+  "batch": "v6",
+  "caseId": "archeologist-down-dig-final",
+  "manifestPath": "challenges/manifests/v6.json",
+  "manifestSha256": "7523b91e823f4e3906c9acdc9a3d80f8469c27c2caab8fc8fbd6967dbfdcab5f",
+  "recordingSha256": "4534979fef17fa8fa9e66b98f1f3a2d6f5b15c94eb1fa38de3750d06c962b612",
+  "evaluationPath": "challenges/evaluations/20260926132731-v6.json",
+  "evaluationCommit": "d0a8041f88dd37cbf631877464c06cf985998274",
+  "remainingScreens": 2,
+  "recordedSteps": 7,
+  "status": "complete",
+  "commit": "d0a8041f88dd37cbf631877464c06cf985998274",
+  "mismatch": {
+    "corpus": "synthetic",
+    "batch": "v6",
+    "caseId": "archeologist-down-dig-final",
+    "session": "synthetic/v6/archeologist-down-dig-final",
+    "manifestPath": "challenges/manifests/v6.json",
+    "manifestSha256": "7523b91e823f4e3906c9acdc9a3d80f8469c27c2caab8fc8fbd6967dbfdcab5f",
+    "recording": "challenges/cases/v6/archeologist-down-dig-final.session.json",
+    "recordingPath": "challenges/cases/v6/archeologist-down-dig-final.session.json",
+    "recordingSha256": "4534979fef17fa8fa9e66b98f1f3a2d6f5b15c94eb1fa38de3750d06c962b612",
+    "recipe": "challenges/cases/v6/archeologist-down-dig-final.recipe.session.json",
+    "recipeSha256": "78e2e5f2ccddd501708083bc4baa93652332afa3bff0ff5284f83c0f78777720",
+    "replayInputSha256": "a3ac3b6872f8e89451d29bdbf73b5215af57c013d215edeaba8f740cc0c5fc4a",
+    "evaluationPath": "challenges/evaluations/20260926132731-v6.json",
+    "evaluationCommit": "d0a8041f88dd37cbf631877464c06cf985998274",
+    "evaluationArtifact": "challenges/evaluations/20260926132731-v6.json",
+    "evaluationUtc": "2026-09-26T13:27:48.505Z",
+    "remainingScreens": 2,
+    "recordedSteps": 7,
+    "previousScreensMatched": 5,
+    "regression": false,
+    "passed": false,
+    "error": null,
+    "metrics": {
+      "screens": {
+        "matched": 5,
+        "total": 7
+      },
+      "rng": {
+        "matched": 6000,
+        "total": 6014
+      },
+      "cursors": {
+        "matched": 7,
+        "total": 7
+      }
+    },
+    "firstMismatch": {
+      "screen": {
+        "index": 5,
+        "location": {
+          "segmentIndex": 0,
+          "stepIndex": 5,
+          "key": ">"
+        },
+        "kind": "ch",
+        "row": 0,
+        "column": 29,
+        "cCell": {
+          "ch": "T",
+          "color": 8,
+          "attr": 0,
+          "decgfx": 0
+        },
+        "jsCell": {
+          "ch": " ",
+          "color": 8,
+          "attr": 0,
+          "decgfx": 0
+        }
+      },
+      "rng": {
+        "index": 6000,
+        "cEntry": "rn2(5)=3",
+        "cCaller": "distfleeck(monmove.c:538)",
+        "location": {
+          "segmentIndex": 0,
+          "stepIndex": 6,
+          "key": "."
+        },
+        "stepIndex": 6
+      },
+      "cursor": null
+    },
+    "step": 5,
+    "kind": "screen",
+    "sourceFile": null,
+    "function": null,
+    "message": null,
+    "cFile": null,
+    "luaFile": null,
+    "line": null
+  },
+  "summary": "The first mismatch is the missing downward-dig occupation callback at `dig.c:dig()`. On stairs, `dig()` calls `dig_check()`, receives `DIGCHECK_FAIL_ONSTAIRS`, and prints the failure through `digcheck_fail_message()`; JS stops after the initial downward-start message because `use_pick_axe2()` records `note_unported('dig.c dig')` instead of installing/running the occupation.",
+  "source": {
+    "file": "dig.c",
+    "branch": "When `svc.context.digging.down` is set and the hero stands on stairs, `dig()` calls `dig_check(BY_YOU, u.ux, u.uy)`; the stairs branch returns `DIGCHECK_FAIL_ONSTAIRS`, the failure-message helper prints that stairs are too hard to dig in, and `dig()` returns 0 to end the occupation.",
+    "functions": [
+      "dig"
+    ],
+    "callers": [
+      "C `apply.c:doapply()` selects the pick-axe arm and calls `use_pick_axe()`; `dig.c:use_pick_axe2()` sets `dig()` as the occupation, which `allmain.c:moveloop_core()` invokes.",
+      "JS `cmd.js`'s apply-command dispatcher calls `apply.js:doapply()`; its pick-axe arm calls `dig.js:use_pick_axe()` and `use_pick_axe2()`, where the missing occupation is recorded as `note_unported('dig.c dig')`."
+    ],
+    "dependencies": [
+      "`dig_check()` returns a value consumed by `dig()`; its `On_stairs()` branch returns `DIGCHECK_FAIL_ONSTAIRS`.",
+      "`digcheck_fail_message()` is a void output callee of `dig()`; its `DIGCHECK_FAIL_ONSTAIRS` arm emits the missing message. Both helpers belong in the source task that ports `dig()` for this case.",
+      "C `use_pick_axe2()` installs `dig()` with `set_occupation()`, and `allmain.c` invokes the occupation and clears it when the callback returns 0."
+    ]
+  },
+  "goalKind": "divergence-fix",
+  "evidence": [
+    "The saved evaluation `challenges/evaluations/20260926132731-v6.json` reports 5/7 screens matched, 6000/6014 RNG calls matched, and 7/7 cursors matched. The queue's first mismatch is segment 0 step 5 (`>`), row 0 column 29: C has `T`, JS is blank; a later RNG mismatch is reported on step 6.",
+    "The recording `challenges/cases/v6/archeologist-down-dig-final.session.json` inputs are `ae  >.`. On step 5 C displays `You start digging downward. The stairs are too hard to dig in.`; the missing text begins at the queued `T` cell.",
+    "C `nethack-c/upstream/src/dig.c:317-322` calls `dig_check()` and the failure-message helper from the downward occupation; `dig.c:211-216,255-279` identifies stairs and emits `The stairs are too hard to dig in.`. The occupation returns 0 at that branch.",
+    "C `dig.c:1341-1357` sets the down-dig state and installs `dig()` as occupation; `allmain.c:485-500` executes it. JS `js/dig.js:553-575` records the same initial state and message but calls `note_unported('dig.c dig')`; `is_digging()` at `js/dig.js:185-191` confirms the occupation callback is absent.",
+    "The companion `archeologist-down-dig-floor` case reaches the same unported `dig()` occupation but its non-stair path goes on to pit creation, so both findings can be covered by one `dig()` source task with different dependent branches."
+  ]
+}
