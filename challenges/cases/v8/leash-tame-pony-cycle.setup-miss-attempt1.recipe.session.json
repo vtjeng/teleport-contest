@@ -1,0 +1,11 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 83015004,
+      "datetime": "20310101085004",
+      "nethackrc": "OPTIONS=name:V8Leash,role=Wizard,race=human,gender=female,align=neutral,playmode=debug,!legacy,!tutorial,!splash_screen,showexp,time,pettype:none\n",
+      "moves": " \u0007tame pony\ny \u0017leash\naol"
+    }
+  ]
+}

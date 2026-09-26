@@ -1,0 +1,11 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 83015007,
+      "datetime": "20310101085007",
+      "nethackrc": "OPTIONS=name:V8Tip,role=Wizard,race=human,gender=female,align=neutral,playmode=debug,!legacy,!tutorial,!splash_screen,showexp,time,pettype:none\n",
+      "moves": "  #wizwish\nlarge box\n#wizwish\nfood ration\ndo#tip\niq"
+    }
+  ]
+}

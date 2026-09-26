@@ -1,0 +1,11 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 83015106,
+      "datetime": "20310202095106",
+      "nethackrc": "OPTIONS=name:V8Prayer2,role=Wizard,race=human,gender=female,align=neutral,playmode=debug,!legacy,!tutorial,!splash_screen,showexp,time,pettype:none\n",
+      "moves": " #pray\ny n m.m.m.#pray\ny n"
+    }
+  ]
+}
