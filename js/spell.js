@@ -10,6 +10,7 @@ import {
     A_WIS,
     EYE,
     FACE,
+    ACH_INVK,
     ACH_NOVL,
     ANTIMAGIC,
     CMDQ_KEY,
@@ -26,6 +27,7 @@ import {
     MAX_SPELL_STUDY,
     NO_KILLER_PREFIX,
     NO_SPELL,
+    NO_MINVENT,
     P_ATTACK_SPELL,
     P_BASIC,
     P_CLERIC_SPELL,
@@ -41,6 +43,7 @@ import {
     PICK_ONE,
     POISON_RES,
     SLEEP_RES,
+    SPINE,
     STUNNED,
     TIMEOUT,
     uhim,
@@ -53,11 +56,23 @@ import { read_tribute } from './files.js';
 import { makeplural } from './fruit.js';
 import { freehand } from './engrave.js';
 import { game } from './gstate.js';
-import { check_capacity, losehp, nomul } from './hack.js';
-import { isqrt } from './hacklib.js';
+import { check_capacity, invocation_pos, losehp, nomul } from './hack.js';
+import { dist2, isqrt, sgn } from './hacklib.js';
 import { obfree, update_inventory, useup } from './invent.js';
-import { can_chant, haseyes } from './mondata.js';
-import { PM_CYCLOPS, PM_FLOATING_EYE, PM_KNIGHT, PM_WIZARD } from './monsters.js';
+import {
+    can_chant,
+    haseyes,
+    is_undead,
+    is_vampshifter,
+} from './mondata.js';
+import {
+    PM_CYCLOPS,
+    PM_FLOATING_EYE,
+    PM_KNIGHT,
+    PM_MASTER_LICH,
+    PM_NALFESHNEE,
+    PM_WIZARD,
+} from './monsters.js';
 import { isMetallic, mksobj, objectType, weight } from './obj.js';
 import { check_unpaid } from './shk.js';
 import {
@@ -86,6 +101,8 @@ import {
     SPE_HEALING,
     SPE_BOOK_OF_THE_DEAD,
     SPE_BLANK_PAPER,
+    BELL_OF_OPENING,
+    CANDELABRUM_OF_INVOCATION,
     SPE_INVISIBILITY,
     SPE_KNOCK,
     SPE_LEVITATION,
@@ -103,7 +120,7 @@ import {
     SPE_NOVEL,
     LENSES,
 } from './objects.js';
-import { rn1, rn2, rnd } from './rng.js';
+import { d, rn1, rn2, rnd, rne, rnz } from './rng.js';
 import { ttyPline } from './tty_message.js';
 import { livelog_printf } from './pline.js';
 import {
@@ -113,12 +130,19 @@ import {
     spell_skilltype,
 } from './startup_skills.js';
 import { make_blinded, make_confused, peffects } from './potion.js';
-import { discover_object } from './o_init.js';
+import { discover_object, observe_object } from './o_init.js';
 import { use_skill } from './weapon.js';
 import { zapyourself, weffects } from './zap.js';
 import { fall_asleep } from './timeout.js';
 import { erode_obj } from './trap_erode_obj.js';
 import { body_part } from './polyself.js';
+import { cansee, canseemon } from './vision.js';
+import { On_stairs } from './stairs.js';
+import { tamedog } from './dog.js';
+import { set_malign } from './makemon.js';
+import { makemon_runtime } from './makemon_create.js';
+import { iter_mons_async } from './mon.js';
+import { monflee, monfleeMessage, youHear } from './monmove.js';
 import { noveltitle } from './do_name.js';
 import { note_unported } from './unported.js';
 
@@ -199,7 +223,7 @@ function spellPropertyActive(property, state) {
 }
 
 function randomSource(env = {}) {
-    const random = env.random ?? { rn1, rn2, rnd };
+    const random = env.random ?? { d, rn1, rn2, rnd, rne, rnz };
     if (typeof random.rn1 !== 'function'
         || typeof random.rn2 !== 'function'
         || typeof random.rnd !== 'function') {
@@ -317,6 +341,199 @@ export async function confused_book(book, state = game, env = {}) {
     return false;
 }
 
+// C ref: spell.c deadbook_pacify_undead() (211-226). The async monster
+// owners preserve the callback's source order when it is run by iter_mons().
+async function deadbook_pacify_undead(monster, state, env) {
+    if (!(is_undead(monster.data) || is_vampshifter(monster))
+        || !cansee(monster.mx, monster.my, state)) {
+        return;
+    }
+
+    monster.mpeaceful = true;
+    if (sgn(monster.data.maligntyp) === sgn(state.u.ualign.type)
+        && dist2(monster.mx, monster.my, state.u.ux, state.u.uy) < 4) {
+        if (monster.mtame) {
+            if (monster.mtame < 20) monster.mtame++;
+        } else {
+            // C discards tamedog()'s result but its state and messages precede
+            // the next monster callback.
+            await tamedog(monster, null, true, { ...env, state });
+        }
+    } else {
+        await monflee(monster, 0, false, true, {
+            ...env,
+            state,
+            canSeeMonster: env.canSeeMonster
+                ?? ((target) => canseemon(target, state)),
+            fleeMessage: env.fleeMessage ?? monfleeMessage,
+            message: env.message ?? ttyPline,
+        });
+    }
+}
+
+// C ref: spell.c deadbook() (230-339). mkinvokearea(), unturn_dead(), and
+// mkundead() are void or explicitly discarded source calls; their missing
+// effects remain named at those call sites while the surrounding C behavior
+// continues in order.
+async function deadbook(book, state = game, env = {}) {
+    const random = randomSource(env);
+    const message = env.message ?? ttyPline;
+    await message('You turn the pages of the Book of the Dead...', state, env);
+    discover_object(
+        SPE_BOOK_OF_THE_DEAD,
+        true,
+        true,
+        true,
+        state,
+        { random },
+    );
+    observe_object(book, state);
+    book.known = true;
+
+    if (invocation_pos(state.u.ux, state.u.uy, state)
+        && !On_stairs(state.u.ux, state.u.uy, state)) {
+        if (book.cursed) {
+            await message(
+                spellPropertyActive(BLINDED, state)
+                    ? 'The Book seems to be ignoring you!'
+                    : "The runes appear scrambled.  You can't read them!",
+                state,
+                env,
+            );
+            return;
+        }
+
+        if (!state.u.uhave.bell || !state.u.uhave.menorah) {
+            await message(
+                `A chill runs down your ${body_part(SPINE, state.youmonst)}.`,
+                state,
+                env,
+            );
+            if (!state.u.uhave.bell) {
+                // Soundeffect() has no captured effect in the tty recorder.
+                const heard = youHear('a faint chime...', state);
+                if (heard) await message(heard, state, env);
+            }
+            if (!state.u.uhave.menorah)
+                await message("Vlad's doppelganger is amused.", state, env);
+            return;
+        }
+
+        let candelabrumPrimed = false;
+        let bellPrimed = false;
+        let relicCursed = false;
+        for (let object = state.invent; object; object = object.nobj) {
+            if (object.otyp === CANDELABRUM_OF_INVOCATION
+                && object.spe === 7 && object.lamplit) {
+                if (!object.cursed) candelabrumPrimed = true;
+                else relicCursed = true;
+            }
+            if (object.otyp === BELL_OF_OPENING
+                && state.moves - object.age < 5) {
+                if (!object.cursed) bellPrimed = true;
+                else relicCursed = true;
+            }
+        }
+
+        if (relicCursed) {
+            await message('The invocation fails!', state, env);
+            await message('At least one of your relics is cursed...', state, env);
+        } else if (candelabrumPrimed && bellPrimed) {
+            const soon = random.rnd(6) + random.rnd(6);
+            if (state === game) note_unported('mklev.c mkinvokearea');
+            state.u.uevent.invoked = true;
+            const { record_achievement } = await import('./insight.js');
+            record_achievement(ACH_INVK, state);
+            state.u.uevent.udemigod = true;
+            if (!state.u.udg_cnt || state.u.udg_cnt > soon)
+                state.u.udg_cnt = soon;
+        } else {
+            await message(
+                'You have a feeling that something is amiss...',
+                state,
+                env,
+            );
+            await raise_dead(state, { ...env, random, message });
+        }
+        return;
+    }
+
+    if (book.cursed) {
+        await raise_dead(state, { ...env, random, message });
+    } else if (book.blessed) {
+        await iter_mons_async(
+            (monster) => deadbook_pacify_undead(monster, state, {
+                ...env,
+                random,
+                message,
+            }),
+            state,
+        );
+    } else {
+        switch (random.rn2(3)) {
+        case 0:
+            await message('Your ancestors are annoyed with you!', state, env);
+            break;
+        case 1:
+            await message('The headstones in the cemetery begin to move!', state, env);
+            break;
+        default:
+            await message('Oh my! Your name appears in the book!', state, env);
+            break;
+        }
+    }
+}
+
+async function raise_dead(state, env) {
+    const { random, message } = env;
+    await message('You raised the dead!', state, env);
+    if (!random.rn2(3)) {
+        let monster = await makemon_runtime(
+            state.mons[PM_MASTER_LICH],
+            state.u.ux,
+            state.u.uy,
+            NO_MINVENT,
+            await deadbookMakemonEnv(state, random, env),
+        );
+        if (!monster) {
+            monster = await makemon_runtime(
+                state.mons[PM_NALFESHNEE],
+                state.u.ux,
+                state.u.uy,
+                NO_MINVENT,
+                await deadbookMakemonEnv(state, random, env),
+            );
+        }
+        if (monster) {
+            monster.mpeaceful = false;
+            set_malign(monster, state);
+        }
+    }
+    if (state === game) note_unported('zap.c unturn_dead');
+    if (state === game) note_unported('mkroom.c mkundead');
+}
+
+async function deadbookMakemonEnv(state, random, env) {
+    let stopOccupation = env.hooks?.stopOccupation;
+    if (state.go?.occupation && !stopOccupation) {
+        const { stop_occupation } = await import('./allmain.js');
+        stopOccupation = (_monster, hookEnv) => stop_occupation(
+            hookEnv.state,
+            hookEnv,
+        );
+    }
+    return {
+        ...env,
+        state,
+        random,
+        _deadbook: true,
+        hooks: {
+            ...(env.hooks ?? {}),
+            ...(stopOccupation ? { stopOccupation } : {}),
+        },
+    };
+}
+
 // C ref: spell.c learn() (356-463). `context.spbook` stores both the C book
 // pointer and saved object id across occupied turns; book-disappearance is
 // owned by the existing inventory lifetime handlers.
@@ -351,7 +568,7 @@ export async function learn(state = game, env = {}) {
     await exercise(A_WIS, true, state);
     let booktype = book.otyp;
     if (booktype === SPE_BOOK_OF_THE_DEAD) {
-        if (state === game) note_unported('spell.c deadbook');
+        await deadbook(book, state, { ...env, random });
         return 0;
     }
     const type = objectType(booktype, state);

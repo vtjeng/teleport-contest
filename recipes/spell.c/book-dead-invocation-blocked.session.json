@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 920130,
+      "datetime": "20310902122500",
+      "nethackrc": "OPTIONS=name:DeadbookInvokeProbe,role:Wizard,race:human,gender:male,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen\nOPTIONS=playmode:debug,pettype:none,!tips\n",
+      "moves": " \u0017blessed Book of the Dead\n\u001646\n       \u001648\n       #wizwhere\n   \u0014lllllllllllllllllllllllllljjjjjjjj.ri "
+    }
+  ],
+  "comment": "Blocked A12 entry attempt for spell.c:deadbook() invocation handling. The independently selected wizard route tries teleport.c:scrolltele() controlled targeting through getpos.c:getpos() to the vibration square reported by #wizwhere, then reads the Book of the Dead. The C/JS replay first loses JS screen and cursor boundaries at segment 0 step 99 (key \".\") before the deadbook invocation branch is reached; retain as blocked setup evidence, not a matching recording."
+}

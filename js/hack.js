@@ -5126,6 +5126,14 @@ export function u_locomotion(def, state = game) {
     return locomotion(state.youmonst.data, def);
 }
 
+// C ref: hack.c invocation_pos() (982-985). The invocation square belongs to
+// the level state; callers pass the coordinate pair they want to test.
+export function invocation_pos(x, y, state = game) {
+    return Invocation_lev(state.u.uz, state)
+        && x === state.inv_pos?.x
+        && y === state.inv_pos?.y;
+}
+
 // C ref: hack.c invocation_message() (3064-3085). invocation_pos() first
 // checks Invocation_lev(), so non-Invocation levels return without touching
 // movement or message state. The clue-producing Invocation-level branch stays

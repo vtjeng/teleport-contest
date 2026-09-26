@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 920104,
+      "datetime": "20310814131700",
+      "nethackrc": "OPTIONS=name:DeadbookUndead,role:Valkyrie,race:human,gender:female,align:lawful\nOPTIONS=!legacy,!tutorial,!splash_screen,!autopickup\nOPTIONS=playmode:debug,pettype:none\n",
+      "moves": " \u0017blessed Book of the Dead\n\u0007ghoul\nre "
+    }
+  ],
+  "comment": "Independent blessed Book of the Dead recipe creates a nearby ghoul with the recorder's debug monster command, then reaches spell.c:deadbook_pacify_undead() through normal reading."
+}

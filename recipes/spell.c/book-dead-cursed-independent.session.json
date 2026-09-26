@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 920115,
+      "datetime": "20310823122500",
+      "nethackrc": "OPTIONS=name:DeadbookCursed,role:Knight,race:human,gender:male,align:lawful\nOPTIONS=!legacy,!tutorial,!splash_screen\nOPTIONS=playmode:debug\n",
+      "moves": " \u0017cursed Book of the Dead\nri "
+    }
+  ],
+  "comment": "Independent cursed Book of the Dead read; strict C/JS match exercises spell.c:deadbook() raise_dead and the consumed makemon() result. unturn_dead() and mkundead() remain explicit C-discarded/void source gaps."
+}
