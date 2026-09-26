@@ -127,6 +127,13 @@ test('polyself uses the role monster and original form in production', async () 
     assert.match(game.nhDisplay.topMessage, /^You return to human form!/u);
 });
 
+test('polyman unlinks its delayed killer in the self-genocide branch', () => {
+    const cPolyman = /polyman\(const char \*fmt, const char \*arg\)[\s\S]*?find_delayed_killer\(POLYMORPH\)[\s\S]*?dealloc_killer\(kptr\);[\s\S]*?done\(GENOCIDED\);/u;
+    const jsPolyman = /async function polyman\([\s\S]*?find_delayed_killer\(POLYMORPH, state\)[\s\S]*?dealloc_killer\(kptr, state\);[\s\S]*?done\(GENOCIDED, state\);/u;
+    assert.match(C_SOURCE, cPolyman);
+    assert.match(JS_SOURCE, jsPolyman);
+});
+
 test('the seed4500 polymorph reaches break_armor and removes nohands gear',
     async () => {
     // The fixed-workload Knight witness reaches polyself.c:1248-1271 after a

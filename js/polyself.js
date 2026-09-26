@@ -286,7 +286,7 @@ import { getdir, y_n } from './cmd.js';
 import { ubuzz, ubreatheu } from './zap.js';
 import { newpw, rndexp } from './exper.js';
 import { newuhs } from './eat.js';
-import { done, find_delayed_killer } from './end.js';
+import { dealloc_killer, done, find_delayed_killer } from './end.js';
 import { losehp, nomul, rounddiv, spoteffects, unmul } from './hack.js';
 import { dist2, s_suffix, strstri, strsubst } from './hacklib.js';
 import { discover_object, observe_object } from './o_init.js';
@@ -1280,8 +1280,8 @@ export async function polymon(mntmp, state = game, rawEnv = {}) {
 // mimicked appearance, announce the change with `fmt` and `arg`, and die if
 // the hero genocided her own role or race while polymorphed.
 //
-// display.c set_mimic_blocking() and end.c dealloc_killer() are unported and
-// C discards both results, so each call records its gap and is skipped.
+// display.c set_mimic_blocking() remains unported and its discarded result is
+// recorded as a gap. The self-genocide arm uses end.c dealloc_killer().
 async function polyman(fmt, arg, state, rawEnv = {}) {
     const u = state.u;
     // C polyman() always uses urgent_pline() for the form-change line.  The
@@ -1339,7 +1339,7 @@ async function polyman(fmt, arg, state, rawEnv = {}) {
             state.killer.format = KILLED_BY;
             state.killer.name = 'self-genocide';
         }
-        note_unported('end.c dealloc_killer');
+        dealloc_killer(kptr, state);
         await done(GENOCIDED, state);
     }
 

@@ -1725,6 +1725,39 @@ export function find_delayed_killer(id, state = game) {
     return k;
 }
 
+// C ref: end.c delayed_killer() (1707-1723). The shared state.killer object
+// is the C svk.killer head; its next link owns delayed records. Reuse a record
+// with the same property id, prepend a new one otherwise, and clear the
+// immediate death name as C does before the delayed effect can expire.
+export function delayed_killer(id, format, killername, state = game) {
+    state.killer ??= { name: '', format: KILLED_BY_AN };
+    let killer = find_delayed_killer(id, state);
+    if (!killer) {
+        killer = {
+            id,
+            next: state.killer.next ?? null,
+        };
+        state.killer.next = killer;
+    }
+    killer.format = format;
+    killer.name = killername ?? '';
+    state.killer.name = '';
+}
+
+// C ref: end.c dealloc_killer() (1738-1762). Unlink the supplied record from
+// the delayed list; the C caller passes a pointer returned by
+// find_delayed_killer(), so a non-null record is present in this chain.
+export function dealloc_killer(killer, state = game) {
+    if (!killer || !state.killer) return;
+    let previous = state.killer;
+    let current = previous.next ?? null;
+    while (current && current !== killer) {
+        previous = current;
+        current = current.next ?? null;
+    }
+    if (current) previous.next = current.next ?? null;
+}
+
 // C ref: end.c container_contents() (1594-1670). Iterates `list` via nobj,
 // creating a NHW_MENU text window listing the contents of each container or
 // statue found. When `all_containers` is TRUE, iterates the full list and

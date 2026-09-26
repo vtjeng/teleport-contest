@@ -1,7 +1,7 @@
 // wizcmds.js -- the wizard-mode extended commands.
 // C refs: src/wizcmds.c wiz_map(), wiz_genesis(), wiz_level_change(),
-// wiz_level_tele(), wiz_wish(), wiz_identify() and wiz_polyself(), so far the
-// seven rows of that file cmd.c dispatches here.
+// wiz_level_tele(), wiz_wish(), wiz_identify(), wiz_polyself(), and
+// wiz_intrinsic(), among the rows of that file cmd.c dispatches here.
 
 import {
     ACID_RES,
@@ -37,6 +37,7 @@ import {
     INVIS,
     INVULNERABLE,
     JUMPING,
+    KILLED_BY,
     LEVITATION,
     LIFESAVED,
     MAGICAL_BREATHING,
@@ -55,6 +56,8 @@ import {
     SEE_INVIS,
     SICK,
     SICK_RES,
+    SICK_NONVOMITABLE,
+    SICK_VOMITABLE,
     SHOCK_RES,
     SLEEP_RES,
     SLEEPY,
@@ -79,13 +82,16 @@ import {
     WWALKING,
 } from './const.js';
 import { losexp, pluslvl } from './exper.js';
-import { polyself } from './polyself.js';
+import { float_vs_flight, polyself } from './polyself.js';
 import { create_particular } from './read.js';
 import { getlin, select_menu } from './windows.js';
 import { game } from './gstate.js';
 import { cmd_from_func } from './cmd.js';
 import { display_inventory } from './invent.js';
-import { notice_mon_off, notice_mon_on } from './hack.js';
+import {
+    notice_mon_off, notice_mon_on, pooleffects,
+} from './hack.js';
+import { rescham } from './mon.js';
 import { mungspaces } from './hacklib.js';
 import { encumber_msg } from './pickup.js';
 import { level_tele } from './teleport.js';
@@ -96,7 +102,11 @@ import { do_mapping } from './detect.js';
 import { print_dungeon } from './dungeon.js';
 import {
     incr_itimeout, make_blinded, make_deaf, make_glib, make_hallucinated,
+    make_stoned,
 } from './potion.js';
+import { rn2 } from './rng.js';
+import { PM_GRID_BUG } from './monsters.js';
+import { note_unported } from './unported.js';
 
 // C ref: wizcmds.c wiz_map() (176-198), the #wizmap command and its C('f')
 // binding. The temporary clearing of HConfusion and HHallucination keeps
@@ -341,9 +351,9 @@ function wizardIntrinsicMenuSpec(state) {
     };
 }
 
-// C ref: wizcmds.c wiz_intrinsic() (949-1098), covering the menu, ordinary
-// timeout increments, and the blindness/hallucination transitions used by the
-// current wizard session boundary.
+// C ref: wizcmds.c wiz_intrinsic() (949-1098). The property menu keeps
+// property_by_index() order, and each selected value follows its source arm;
+// potion.c make_stoned() owns the delayed-killer state for STONED.
 export async function wiz_intrinsic(state = game) {
     if (!state.wizard) {
         await ttyPline("Unavailable command 'wizintrinsic'.", state);
@@ -362,7 +372,12 @@ export async function wiz_intrinsic(state = game) {
         const oldTimeout = prop.intrinsic & TIMEOUT;
         const amount = entry.count === -1 ? 30 : entry.count;
         if (amount <= 0) continue;
-        const newTimeout = oldTimeout + amount;
+        let newTimeout = oldTimeout + amount;
+
+        if ([SICK, SLIMED, STONED].includes(property)
+            && oldTimeout > 0 && newTimeout > oldTimeout) {
+            newTimeout = oldTimeout;
+        }
 
         if (property === BLINDED) {
             // wizcmds.c:1020-1022 delegates this property to make_blinded()
@@ -384,6 +399,43 @@ export async function wiz_intrinsic(state = game) {
                 + `${amount}.`,
                 state,
             );
+        } else if (property === SICK) {
+            // C chooses the sickness kind before the void make_sick() call;
+            // preserve its RNG draw while naming the unported state owner.
+            const sicknessType = rn2(2) ? SICK_NONVOMITABLE : SICK_VOMITABLE;
+            void sicknessType;
+            if (state === game) note_unported('potion.c make_sick');
+        } else if (property === SLIMED) {
+            const message = `You are${oldTimeout ? ' still' : ''} `
+                + 'turning into slime.';
+            void message;
+            if (state === game) note_unported('potion.c make_slimed');
+        } else if (property === STONED) {
+            const message = `You are${oldTimeout ? ' still' : ''} `
+                + 'turning into stone.';
+            await make_stoned(
+                newTimeout, message, KILLED_BY, '#wizintrinsic', state,
+            );
+        } else if (property === STUNNED) {
+            if (state === game) note_unported('potion.c make_stunned');
+        } else if (property === VOMITING) {
+            const message = `You are${oldTimeout ? ' still' : ''} vomiting.`;
+            if (state === game) note_unported('potion.c make_vomiting');
+            await ttyPline(message, state);
+        } else if (property === WARN_OF_MON) {
+            if (!(prop.intrinsic || prop.extrinsic)) {
+                state.context ??= {};
+                state.context.warntype ??= {};
+                state.context.warntype.speciesidx = PM_GRID_BUG;
+                state.context.warntype.species = state.mons[PM_GRID_BUG];
+            }
+            incr_itimeout(prop, amount);
+            state.disp.botl = true;
+            await ttyPline(
+                `Timeout for ${name} ${oldTimeout ? 'increased by' : 'set to'} `
+                + `${amount}.`,
+                state,
+            );
         } else {
             // wizcmds.c's default arm: simple properties are timed directly
             // and announce through the status-line refresh.
@@ -394,6 +446,18 @@ export async function wiz_intrinsic(state = game) {
                 + `${amount}.`,
                 state,
             );
+        }
+
+        // wizcmds.c performs these after every selected property, and after
+        // incr_itimeout() so the helpers observe the new intrinsic value.
+        if (property === LEVITATION || property === FLYING) {
+            float_vs_flight(state);
+        } else if (property === PROT_FROM_SHAPE_CHANGERS) {
+            await rescham(state);
+        }
+        if ((property === WWALKING || property === LEVITATION
+            || property === FLYING) && state.u.uinwater) {
+            await pooleffects(false, state);
         }
     }
     await docrt();
