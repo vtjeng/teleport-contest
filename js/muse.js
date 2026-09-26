@@ -177,7 +177,7 @@ import { accessible, monflee, mon_would_take_item, monnear, onscary, youHear } f
 import { lined_up, linedup_callback, m_useup } from './mthrowu.js';
 import { encumber_msg } from './pickup.js';
 import { in_your_sanctuary } from './priest.js';
-import { d, rn1, rn2, rn2_on_display_rng, rnd } from './rng.js';
+import { d, rn1, rn2, rn2_on_display_rng, rnd, rne, rnz } from './rng.js';
 import { HCOLORS } from './random_text_data.js';
 import { in_rooms } from './rooms.js';
 import { inhishop } from './shk.js';
@@ -2142,7 +2142,10 @@ export function mon_likes_objpile_at(mtmp, x, y, rawEnv = {}) {
 async function mbhitm(mtmp, otmp, state, rawEnv = {}) {
     // mattacku() can be dry-run against a cloned PRNG.  Keep every draw made
     // by this callback on that stream; direct callers retain the live RNG.
-    const random = { d, rnd, ...(rawEnv.random ?? {}) };
+    const random = {
+        d, rn1, rn2, rnd, rne, rnz,
+        ...(rawEnv.random ?? {}),
+    };
     const discoveryEnv = { ...rawEnv, random };
     const message = rawEnv.message ?? ttyPline;
     let reveal_invis = false;
@@ -2207,8 +2210,8 @@ async function mbhitm(mtmp, otmp, state, rawEnv = {}) {
             learnit = true;
         } else if (random.rnd(20) < 10 + find_mac(mtmp, state)) {
             const tmp = random.d(2, 12);
-            await hit('wand', mtmp, exclam(tmp), state);
-            await resist(mtmp, otmp.oclass, tmp, TELL, state);
+            await hit('wand', mtmp, exclam(tmp), state, rawEnv);
+            await resist(mtmp, otmp.oclass, tmp, TELL, state, random, rawEnv);
             learnit = true;
         } else {
             await miss('wand', mtmp, state);
@@ -2261,7 +2264,8 @@ async function mbhitm(mtmp, otmp, state, rawEnv = {}) {
                    so that mbhito() will skip it instead of reviving it */
                 state.context ??= {};
                 state.context.bypasses = true;
-                await resist(mtmp, O.WAND_CLASS, random.rnd(8), NOTELL, state);
+                await resist(mtmp, O.WAND_CLASS, random.rnd(8), NOTELL,
+                             state, random, rawEnv);
             }
             if (wake) {
                 if (mtmp.mhp >= 1) /* !DEADMONSTER */

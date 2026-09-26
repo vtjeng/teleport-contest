@@ -197,10 +197,13 @@ separately from other goals.
    `.agents/validation.md` for new evidence when later commits change inputs
    to the checkpoint. After a challenge preparation task passes, leave its
    case files unadmitted and record no challenge score or mismatch-queue entry.
-   When the batch-admission gate in `.agents/selection.md` later passes, admit
-   the oldest prepared manifest with the next version number, commit it, and
-   save its first evaluation at that committed implementation before selecting
-   failures. Do not admit a batch merely because its worker has finished.
+   When the batch-admission gate in `.agents/selection.md` later passes, recheck
+   every included case against the immediately preceding batch and unresolved
+   older cases using current evaluations and the packet's C behavior, state,
+   and action-history comparisons. Require a corrected delivery for overlap.
+   Then admit the oldest prepared manifest with the next version number, commit
+   it, and save its first evaluation at that committed implementation before
+   selecting failures. Do not admit a batch merely because its worker has finished.
 6. Record acceptance and send `ACCEPTED` with the tested commit and checkpoint
    result. Run `worker-state.mjs sync-main --commit <accepted-commit>` to
    verify local main. Push accepted work to main without asking again, then
