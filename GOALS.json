@@ -87267,7 +87267,7 @@
     {
       "id": "port-dig-occupation-synthetic-v6-20260926",
       "kind": "file-port",
-      "status": "queued",
+      "status": "open",
       "summary": "Port dig.c dig occupation with stairs refusal and floor pit creation",
       "cFile": "dig.c",
       "sessions": [
@@ -87276,8 +87276,12 @@
       ],
       "selectionReason": "The fresh queue has two related 2-screen Archeologist down-dig cases with complete investigations at investigations/synthetic/v6/archeologist-down-dig-final.json and investigations/synthetic/v6/archeologist-down-dig-floor.json. Higher-ranked crystal detection is reserved by A14; the preceding healer glove case is queued for C19. Both Archeologist cases share the same first missing dig.c dig occupation and are the next eligible independent source family.",
       "detail": "C apply.c doapply -> dig.c use_pick_axe2 installs dig as an occupation; allmain.c invokes it. The stairs case consumes dig_check and emits digcheck_fail_message; floor digging consumes dighole return and reaches digactualhole pit state. Implement whole dig and required source callees, preserve call and RNG order, and record independent C entry evidence. Caller edits to apply.js and allmain.js require coordination with A14 or existing generic occupation wiring.",
-      "openedAt": null,
-      "openStanding": null,
+      "openedAt": "a2ef6a4021e6699946e035dd294393f1e6ba282d",
+      "openStanding": {
+        "sha": "5f40b6037988123b4df4343160550886a3e929c9",
+        "screens": 11405,
+        "rng": 792838
+      },
       "closedAt": null,
       "delivered": null,
       "functions": [
@@ -87306,7 +87310,438 @@
           "evaluationPath": "challenges/evaluations/20260926193350-v6.json",
           "evaluationCommit": "7569737cbf0690c981232e6a48d59efadb0aa198"
         }
-      }
+      },
+      "activeStanding": {
+        "sha": "5f40b6037988123b4df4343160550886a3e929c9",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v6",
+          "caseId": "archeologist-down-dig-final",
+          "session": "synthetic/v6/archeologist-down-dig-final",
+          "manifestPath": "challenges/manifests/v6.json",
+          "manifestSha256": "7523b91e823f4e3906c9acdc9a3d80f8469c27c2caab8fc8fbd6967dbfdcab5f",
+          "recording": "challenges/cases/v6/archeologist-down-dig-final.session.json",
+          "recordingPath": "challenges/cases/v6/archeologist-down-dig-final.session.json",
+          "recordingSha256": "4534979fef17fa8fa9e66b98f1f3a2d6f5b15c94eb1fa38de3750d06c962b612",
+          "recipe": "challenges/cases/v6/archeologist-down-dig-final.recipe.session.json",
+          "recipeSha256": "78e2e5f2ccddd501708083bc4baa93652332afa3bff0ff5284f83c0f78777720",
+          "replayInputSha256": "44ba67218c0db5c2d950077a199fd1198317a5673102d9a291ab65b8033f97e9",
+          "evaluationPath": "challenges/evaluations/20260926203335-v6.json",
+          "evaluationCommit": "5f40b6037988123b4df4343160550886a3e929c9",
+          "evaluationArtifact": "challenges/evaluations/20260926203335-v6.json",
+          "evaluationUtc": "2026-09-26T20:33:52.814Z",
+          "remainingScreens": 2,
+          "recordedSteps": 7,
+          "previousScreensMatched": 5,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 5,
+              "total": 7
+            },
+            "rng": {
+              "matched": 6000,
+              "total": 6014
+            },
+            "cursors": {
+              "matched": 7,
+              "total": 7
+            }
+          },
+          "firstMismatch": {
+            "screen": {
+              "index": 5,
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 5,
+                "key": ">"
+              },
+              "kind": "ch",
+              "row": 0,
+              "column": 29,
+              "cCell": {
+                "ch": "T",
+                "color": 8,
+                "attr": 0,
+                "decgfx": 0
+              },
+              "jsCell": {
+                "ch": " ",
+                "color": 8,
+                "attr": 0,
+                "decgfx": 0
+              }
+            },
+            "rng": {
+              "index": 6000,
+              "cEntry": "rn2(5)=3",
+              "cCaller": "distfleeck(monmove.c:538)",
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 6,
+                "key": "."
+              },
+              "stepIndex": 6
+            },
+            "cursor": null
+          },
+          "step": 5,
+          "kind": "screen",
+          "sourceFile": null,
+          "function": null,
+          "message": null,
+          "cFile": null,
+          "luaFile": null,
+          "line": null,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v6/archeologist-down-dig-final.json",
+            "result": {
+              "session": "synthetic/v6/archeologist-down-dig-final",
+              "corpus": "synthetic",
+              "batch": "v6",
+              "caseId": "archeologist-down-dig-final",
+              "manifestPath": "challenges/manifests/v6.json",
+              "manifestSha256": "7523b91e823f4e3906c9acdc9a3d80f8469c27c2caab8fc8fbd6967dbfdcab5f",
+              "recordingSha256": "4534979fef17fa8fa9e66b98f1f3a2d6f5b15c94eb1fa38de3750d06c962b612",
+              "evaluationPath": "challenges/evaluations/20260926132731-v6.json",
+              "evaluationCommit": "d0a8041f88dd37cbf631877464c06cf985998274",
+              "remainingScreens": 2,
+              "recordedSteps": 7,
+              "status": "complete",
+              "commit": "d0a8041f88dd37cbf631877464c06cf985998274",
+              "mismatch": {
+                "corpus": "synthetic",
+                "batch": "v6",
+                "caseId": "archeologist-down-dig-final",
+                "session": "synthetic/v6/archeologist-down-dig-final",
+                "manifestPath": "challenges/manifests/v6.json",
+                "manifestSha256": "7523b91e823f4e3906c9acdc9a3d80f8469c27c2caab8fc8fbd6967dbfdcab5f",
+                "recording": "challenges/cases/v6/archeologist-down-dig-final.session.json",
+                "recordingPath": "challenges/cases/v6/archeologist-down-dig-final.session.json",
+                "recordingSha256": "4534979fef17fa8fa9e66b98f1f3a2d6f5b15c94eb1fa38de3750d06c962b612",
+                "recipe": "challenges/cases/v6/archeologist-down-dig-final.recipe.session.json",
+                "recipeSha256": "78e2e5f2ccddd501708083bc4baa93652332afa3bff0ff5284f83c0f78777720",
+                "replayInputSha256": "a3ac3b6872f8e89451d29bdbf73b5215af57c013d215edeaba8f740cc0c5fc4a",
+                "evaluationPath": "challenges/evaluations/20260926132731-v6.json",
+                "evaluationCommit": "d0a8041f88dd37cbf631877464c06cf985998274",
+                "evaluationArtifact": "challenges/evaluations/20260926132731-v6.json",
+                "evaluationUtc": "2026-09-26T13:27:48.505Z",
+                "remainingScreens": 2,
+                "recordedSteps": 7,
+                "previousScreensMatched": 5,
+                "regression": false,
+                "passed": false,
+                "error": null,
+                "metrics": {
+                  "screens": {
+                    "matched": 5,
+                    "total": 7
+                  },
+                  "rng": {
+                    "matched": 6000,
+                    "total": 6014
+                  },
+                  "cursors": {
+                    "matched": 7,
+                    "total": 7
+                  }
+                },
+                "firstMismatch": {
+                  "screen": {
+                    "index": 5,
+                    "location": {
+                      "segmentIndex": 0,
+                      "stepIndex": 5,
+                      "key": ">"
+                    },
+                    "kind": "ch",
+                    "row": 0,
+                    "column": 29,
+                    "cCell": {
+                      "ch": "T",
+                      "color": 8,
+                      "attr": 0,
+                      "decgfx": 0
+                    },
+                    "jsCell": {
+                      "ch": " ",
+                      "color": 8,
+                      "attr": 0,
+                      "decgfx": 0
+                    }
+                  },
+                  "rng": {
+                    "index": 6000,
+                    "cEntry": "rn2(5)=3",
+                    "cCaller": "distfleeck(monmove.c:538)",
+                    "location": {
+                      "segmentIndex": 0,
+                      "stepIndex": 6,
+                      "key": "."
+                    },
+                    "stepIndex": 6
+                  },
+                  "cursor": null
+                },
+                "step": 5,
+                "kind": "screen",
+                "sourceFile": null,
+                "function": null,
+                "message": null,
+                "cFile": null,
+                "luaFile": null,
+                "line": null
+              },
+              "summary": "The first mismatch is the missing downward-dig occupation callback at `dig.c:dig()`. On stairs, `dig()` calls `dig_check()`, receives `DIGCHECK_FAIL_ONSTAIRS`, and prints the failure through `digcheck_fail_message()`; JS stops after the initial downward-start message because `use_pick_axe2()` records `note_unported('dig.c dig')` instead of installing/running the occupation.",
+              "source": {
+                "file": "dig.c",
+                "branch": "When `svc.context.digging.down` is set and the hero stands on stairs, `dig()` calls `dig_check(BY_YOU, u.ux, u.uy)`; the stairs branch returns `DIGCHECK_FAIL_ONSTAIRS`, the failure-message helper prints that stairs are too hard to dig in, and `dig()` returns 0 to end the occupation.",
+                "functions": [
+                  "dig"
+                ],
+                "callers": [
+                  "C `apply.c:doapply()` selects the pick-axe arm and calls `use_pick_axe()`; `dig.c:use_pick_axe2()` sets `dig()` as the occupation, which `allmain.c:moveloop_core()` invokes.",
+                  "JS `cmd.js`'s apply-command dispatcher calls `apply.js:doapply()`; its pick-axe arm calls `dig.js:use_pick_axe()` and `use_pick_axe2()`, where the missing occupation is recorded as `note_unported('dig.c dig')`."
+                ],
+                "dependencies": [
+                  "`dig_check()` returns a value consumed by `dig()`; its `On_stairs()` branch returns `DIGCHECK_FAIL_ONSTAIRS`.",
+                  "`digcheck_fail_message()` is a void output callee of `dig()`; its `DIGCHECK_FAIL_ONSTAIRS` arm emits the missing message. Both helpers belong in the source task that ports `dig()` for this case.",
+                  "C `use_pick_axe2()` installs `dig()` with `set_occupation()`, and `allmain.c` invokes the occupation and clears it when the callback returns 0."
+                ]
+              },
+              "goalKind": "divergence-fix",
+              "evidence": [
+                "The saved evaluation `challenges/evaluations/20260926132731-v6.json` reports 5/7 screens matched, 6000/6014 RNG calls matched, and 7/7 cursors matched. The queue's first mismatch is segment 0 step 5 (`>`), row 0 column 29: C has `T`, JS is blank; a later RNG mismatch is reported on step 6.",
+                "The recording `challenges/cases/v6/archeologist-down-dig-final.session.json` inputs are `ae  >.`. On step 5 C displays `You start digging downward. The stairs are too hard to dig in.`; the missing text begins at the queued `T` cell.",
+                "C `nethack-c/upstream/src/dig.c:317-322` calls `dig_check()` and the failure-message helper from the downward occupation; `dig.c:211-216,255-279` identifies stairs and emits `The stairs are too hard to dig in.`. The occupation returns 0 at that branch.",
+                "C `dig.c:1341-1357` sets the down-dig state and installs `dig()` as occupation; `allmain.c:485-500` executes it. JS `js/dig.js:553-575` records the same initial state and message but calls `note_unported('dig.c dig')`; `is_digging()` at `js/dig.js:185-191` confirms the occupation callback is absent.",
+                "The companion `archeologist-down-dig-floor` case reaches the same unported `dig()` occupation but its non-stair path goes on to pit creation, so both findings can be covered by one `dig()` source task with different dependent branches."
+              ]
+            }
+          }
+        },
+        {
+          "corpus": "synthetic",
+          "batch": "v6",
+          "caseId": "archeologist-down-dig-floor",
+          "session": "synthetic/v6/archeologist-down-dig-floor",
+          "manifestPath": "challenges/manifests/v6.json",
+          "manifestSha256": "7523b91e823f4e3906c9acdc9a3d80f8469c27c2caab8fc8fbd6967dbfdcab5f",
+          "recording": "challenges/cases/v6/archeologist-down-dig-floor.session.json",
+          "recordingPath": "challenges/cases/v6/archeologist-down-dig-floor.session.json",
+          "recordingSha256": "8ae44f290808dea580c783add4b5cc12e99a94f4c998441b329325406fa9e9a9",
+          "recipe": "challenges/cases/v6/archeologist-down-dig-floor.recipe.session.json",
+          "recipeSha256": "7a44624310a7907c493bc6e6dd893aaf141942878dc86db440ae6c2972c69742",
+          "replayInputSha256": "44ba67218c0db5c2d950077a199fd1198317a5673102d9a291ab65b8033f97e9",
+          "evaluationPath": "challenges/evaluations/20260926203335-v6.json",
+          "evaluationCommit": "5f40b6037988123b4df4343160550886a3e929c9",
+          "evaluationArtifact": "challenges/evaluations/20260926203335-v6.json",
+          "evaluationUtc": "2026-09-26T20:33:52.814Z",
+          "remainingScreens": 2,
+          "recordedSteps": 8,
+          "previousScreensMatched": 6,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 6,
+              "total": 8
+            },
+            "rng": {
+              "matched": 6030,
+              "total": 6188
+            },
+            "cursors": {
+              "matched": 8,
+              "total": 8
+            }
+          },
+          "firstMismatch": {
+            "screen": {
+              "index": 6,
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 6,
+                "key": ">"
+              },
+              "kind": "ch",
+              "row": 0,
+              "column": 29,
+              "cCell": {
+                "ch": "Y",
+                "color": 8,
+                "attr": 0,
+                "decgfx": 0
+              },
+              "jsCell": {
+                "ch": " ",
+                "color": 8,
+                "attr": 0,
+                "decgfx": 0
+              }
+            },
+            "rng": {
+              "index": 6027,
+              "cEntry": "rn2(5)=1",
+              "cCaller": "distfleeck(monmove.c:538)",
+              "jsEntry": "rn2(4)=1",
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 6,
+                "key": ">"
+              },
+              "stepIndex": 6
+            },
+            "cursor": null
+          },
+          "step": 6,
+          "kind": "rng",
+          "sourceFile": "monmove.c",
+          "function": "distfleeck",
+          "message": null,
+          "cFile": "monmove.c",
+          "luaFile": null,
+          "line": 538,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v6/archeologist-down-dig-floor.json",
+            "result": {
+              "session": "synthetic/v6/archeologist-down-dig-floor",
+              "corpus": "synthetic",
+              "batch": "v6",
+              "caseId": "archeologist-down-dig-floor",
+              "manifestPath": "challenges/manifests/v6.json",
+              "manifestSha256": "7523b91e823f4e3906c9acdc9a3d80f8469c27c2caab8fc8fbd6967dbfdcab5f",
+              "recordingSha256": "8ae44f290808dea580c783add4b5cc12e99a94f4c998441b329325406fa9e9a9",
+              "evaluationPath": "challenges/evaluations/20260926132731-v6.json",
+              "evaluationCommit": "d0a8041f88dd37cbf631877464c06cf985998274",
+              "remainingScreens": 2,
+              "recordedSteps": 8,
+              "status": "complete",
+              "commit": "d0a8041f88dd37cbf631877464c06cf985998274",
+              "mismatch": {
+                "corpus": "synthetic",
+                "batch": "v6",
+                "caseId": "archeologist-down-dig-floor",
+                "session": "synthetic/v6/archeologist-down-dig-floor",
+                "manifestPath": "challenges/manifests/v6.json",
+                "manifestSha256": "7523b91e823f4e3906c9acdc9a3d80f8469c27c2caab8fc8fbd6967dbfdcab5f",
+                "recording": "challenges/cases/v6/archeologist-down-dig-floor.session.json",
+                "recordingPath": "challenges/cases/v6/archeologist-down-dig-floor.session.json",
+                "recordingSha256": "8ae44f290808dea580c783add4b5cc12e99a94f4c998441b329325406fa9e9a9",
+                "recipe": "challenges/cases/v6/archeologist-down-dig-floor.recipe.session.json",
+                "recipeSha256": "7a44624310a7907c493bc6e6dd893aaf141942878dc86db440ae6c2972c69742",
+                "replayInputSha256": "a3ac3b6872f8e89451d29bdbf73b5215af57c013d215edeaba8f740cc0c5fc4a",
+                "evaluationPath": "challenges/evaluations/20260926132731-v6.json",
+                "evaluationCommit": "d0a8041f88dd37cbf631877464c06cf985998274",
+                "evaluationArtifact": "challenges/evaluations/20260926132731-v6.json",
+                "evaluationUtc": "2026-09-26T13:27:48.505Z",
+                "remainingScreens": 2,
+                "recordedSteps": 8,
+                "previousScreensMatched": 6,
+                "regression": false,
+                "passed": false,
+                "error": null,
+                "metrics": {
+                  "screens": {
+                    "matched": 6,
+                    "total": 8
+                  },
+                  "rng": {
+                    "matched": 6030,
+                    "total": 6188
+                  },
+                  "cursors": {
+                    "matched": 8,
+                    "total": 8
+                  }
+                },
+                "firstMismatch": {
+                  "screen": {
+                    "index": 6,
+                    "location": {
+                      "segmentIndex": 0,
+                      "stepIndex": 6,
+                      "key": ">"
+                    },
+                    "kind": "ch",
+                    "row": 0,
+                    "column": 29,
+                    "cCell": {
+                      "ch": "Y",
+                      "color": 8,
+                      "attr": 0,
+                      "decgfx": 0
+                    },
+                    "jsCell": {
+                      "ch": " ",
+                      "color": 8,
+                      "attr": 0,
+                      "decgfx": 0
+                    }
+                  },
+                  "rng": {
+                    "index": 6027,
+                    "cEntry": "rn2(5)=1",
+                    "cCaller": "distfleeck(monmove.c:538)",
+                    "jsEntry": "rn2(4)=1",
+                    "location": {
+                      "segmentIndex": 0,
+                      "stepIndex": 6,
+                      "key": ">"
+                    },
+                    "stepIndex": 6
+                  },
+                  "cursor": null
+                },
+                "step": 6,
+                "kind": "rng",
+                "sourceFile": "monmove.c",
+                "function": "distfleeck",
+                "message": null,
+                "cFile": "monmove.c",
+                "luaFile": null,
+                "line": 538
+              },
+              "summary": "The first mismatch is the same missing `dig.c:dig()` downward occupation callback as the companion case. On ordinary floor, the callback's effort branch reaches `dighole(TRUE, FALSE, NULL)`, which creates a pit through `digactualhole()`; JS records the gap instead of running that callback, so the pit and `You dig a pit in the floor.` output are absent.",
+              "source": {
+                "file": "dig.c",
+                "branch": "When downward digging starts on ordinary floor and the occupation's accumulated effort reaches the pit-only interval (over 50 and not over 250), `dig()` calls `dighole(TRUE, FALSE, NULL)`; it consumes that Boolean result to mark the digging level complete. `dighole()` reaches `digactualhole(..., PIT)`, which mutates the floor and emits the pit message.",
+                "functions": [
+                  "dig"
+                ],
+                "callers": [
+                  "C `apply.c:doapply()` selects the pick-axe arm and calls `use_pick_axe()`; `dig.c:use_pick_axe2()` sets `dig()` as the occupation, which `allmain.c:moveloop_core()` invokes.",
+                  "JS `cmd.js`'s apply-command dispatcher calls `apply.js:doapply()`; its pick-axe arm calls `dig.js:use_pick_axe()` and `use_pick_axe2()`, where the missing occupation is recorded as `note_unported('dig.c dig')`."
+                ],
+                "dependencies": [
+                  "The floor path shares the missing `dig()` occupation owner with `archeologist-down-dig-final`; a single source task can cover both case branches.",
+                  "`dig_check()`'s result is consumed by `dig()` to distinguish blocked, pit-only, and hole paths.",
+                  "`dighole()` returns a Boolean consumed by `dig()`; its pit-only path calls `digactualhole()` for the trap, terrain, screen, and post-trap effects. `fillholetyp()` is another consumed dependency of `dighole()` and already has a JS source counterpart.",
+                  "C `use_pick_axe2()` installs the occupation; `allmain.c` drives the repeated `dig()` callback. JS `use_pick_axe2()` currently records the unported callback and does not execute the occupation."
+                ]
+              },
+              "goalKind": "divergence-fix",
+              "evidence": [
+                "The saved evaluation `challenges/evaluations/20260926132731-v6.json` reports 6/8 screens matched, 6030/6188 RNG calls matched, and 8/8 cursors matched. The queue's first mismatch is segment 0 step 6 (`>`), row 0 column 29: C has `Y`, JS is blank; the queue also notes an RNG divergence during that same action at `monmove.c:distfleeck()`.",
+                "The recording `challenges/cases/v6/archeologist-down-dig-floor.session.json` inputs are `lae  >.`. At step 6, C displays `You start digging downward. You dig a pit in the floor.`; the queued `Y` cell begins the second sentence. Step 7 is the later `.` input.",
+                "C `nethack-c/upstream/src/dig.c:365-437` advances effort for the down-dig occupation and, in the recorded pit branch, calls `dighole(TRUE, FALSE, NULL)`; that call's result is consumed to end digging and mark the level sentinel.",
+                "C `dig.c:991-1023` sends the pit-only branch to `digactualhole(..., PIT)` and returns success; `digactualhole()` at `dig.c:701-707` emits `You dig a pit in the floor.` while creating the pit and updating the map.",
+                "C `dig.c:1341-1357` starts the occupation; `allmain.c:485-500` invokes it. JS `js/dig.js:553-575` initializes down-dig state but ends in `note_unported('dig.c dig')`, so neither the effort/pit branch nor its map change runs. The RNG mismatch reported in `monmove.c` is downstream of this missing occupation behavior, not the owner of the first screen difference.",
+                "The companion `archeologist-down-dig-final` case reaches the same missing callback but exits through the stairs failure branch; both cases share `dig()` as the source owner and can share a source task, while this case additionally requires the return-consuming `dighole()` path."
+              ]
+            }
+          }
+        }
+      ]
     },
     {
       "id": "div-apply-eyewear-default-synthetic-v6-20260926",
