@@ -16,7 +16,7 @@
 // the common path calls getobj() -> dopotion() -> peffects().
 //
 // peffects() dispatches 26 potion types; POT_BOOZE, POT_CONFUSION, POT_SICKNESS,
-// POT_SPEED (with spell alias SPE_HASTE_SELF), POT_HEALING,
+// POT_SPEED (with spell alias SPE_HASTE_SELF), POT_BLINDNESS, POT_HEALING,
 // POT_EXTRA_HEALING, POT_OIL, the POT_FRUIT_JUICE arm of
 // peffect_see_invisible(), the ordinary POT_PARALYSIS arm, and POT_POLYMORPH
 // are ported. Unported arms throw UnsupportedQuaffError.
@@ -797,6 +797,25 @@ async function peffect_speed(otmp, state = game) {
     }
 }
 
+// C ref: potion.c peffect_blindness() (1072-1080). A dose always draws and
+// extends HBlinded, even when current blindness or a blocker makes the
+// potion's result seem ineffective.
+async function peffect_blindness(otmp, state = game) {
+    const property = state.u.uprops[BLINDED];
+    const blind = heroIsBlind(state);
+
+    if (blind || ((property.intrinsic || property.extrinsic)
+        && property.blocked)) {
+        state.gp.potion_nothing++;
+    }
+
+    const duration = itimeout_incr(
+        property.intrinsic,
+        rn1(200, 250 - 125 * bcsign(otmp)),
+    );
+    await make_blinded(duration, !blind, state);
+}
+
 // ---------------------------------------------------------------------------
 // peffect_sickness
 // C ref: potion.c peffect_sickness() (964-1012).
@@ -1192,7 +1211,8 @@ export async function peffects(otmp, state = game) {
         await peffect_speed(otmp, state);
         break;
     case POT_BLINDNESS:
-        throw new UnsupportedQuaffError('peffect_blindness()');
+        await peffect_blindness(otmp, state);
+        break;
     case POT_GAIN_LEVEL:
         throw new UnsupportedQuaffError('peffect_gain_level()');
     case POT_HEALING:
