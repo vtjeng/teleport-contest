@@ -12,7 +12,9 @@
 // BAG_OF_TRICKS delegates to makemon.c bagotricks() in js/makemon.js; musical
 // instruments delegate to music.c; LAND_MINE/BEARTRAP use apply.c
 // use_trap()/set_trap(); and HORN_OF_PLENTY delegates to mkobj.c. Ordinary
-// food and armor return their source unknown-use result. Other named arms,
+// food and armor return their source unknown-use result. The unicorn-horn arm
+// calls apply.c use_unicorn_horn(); its unported void effect helpers remain
+// explicit note_unported gaps. Other named arms,
 // plus the wand, spellbook, and coin shortcuts above the switch, still stop at
 // a refusal naming the C function they need.
 // use_stethoscope() covers
@@ -25,6 +27,7 @@
 import {
     ACCESSIBLE,
     ARTICLE_A,
+    A_CON,
     A_DEX,
     A_STR,
     AIR,
@@ -66,6 +69,7 @@ import {
     M_AP_OBJECT,
     M_AP_TYPE,
     nothing_happens,
+    nothing_seems_to_happen,
     OBJ_INVENT,
     PRONOUN_NO_IT,
     REVIVE_MON,
@@ -97,6 +101,7 @@ import {
     PASSES_WALLS,
     RIGHT_SIDE,
     SHOPBASE,
+    SICK,
     TELEDS_NO_FLAGS,
     TELEDS_ALLOW_DRAG,
     TOOKPLUNGE,
@@ -109,6 +114,7 @@ import {
     TT_WEB,
     UNENCUMBERED,
     WOUNDED_LEGS,
+    VOMITING,
     NO_KILLER_PREFIX,
     Is_airlevel,
     Is_waterlevel,
@@ -293,16 +299,25 @@ import {
     CAN_OF_GREASE,
     CANDELABRUM_OF_INVOCATION,
     TALLOW_CANDLE,
+    UNICORN_HORN,
     WAX_CANDLE,
     LAND_MINE,
     BEARTRAP,
 } from './objects.js';
 import {
-    AT_WEAP, MZ_TINY, PM_ARCHEOLOGIST, PM_HEALER, PM_HORSE,
-    PM_STONE_GOLEM,
+    AD_BLND, AT_ENGL, AT_WEAP, MZ_TINY, PM_ARCHEOLOGIST, PM_HEALER,
+    PM_HORSE, PM_STONE_GOLEM,
 } from './monsters.js';
 import { body_part, mbodypart, polymon } from './polyself.js';
-import { djinni_from_bottle, make_blinded, make_glib } from './potion.js';
+import { attacktype_fordmg } from './mondata.js';
+import {
+    djinni_from_bottle,
+    make_blinded,
+    make_confused,
+    make_deaf,
+    make_glib,
+    make_hallucinated,
+} from './potion.js';
 import { canSpotMonster, heroIsBlind, sensesMonster } from './startup_a11y.js';
 import { P_SKILL } from './startup_skills.js';
 import { CMAP_EXPLANATIONS } from './symbol_data.js';
@@ -2254,6 +2269,169 @@ export async function use_candle(obj, state = game, env = {}) {
     update_inventory({ ...env, state });
 }
 
+// C ref: apply.c use_unicorn_horn() (2258-2392). attacktype_fordmg() returns
+// the consumed attack pointer; existing potion helpers own their state
+// transitions. Other missing effect helpers are void or explicitly discarded,
+// so their C call sites remain named gaps. Trouble state is stored in the
+// intrinsic timeout and property flags in u.uprops.
+async function use_unicorn_horn(obj, state = game, env = {}) {
+    const message = env.message ?? ttyPline;
+    const recordGap = (source) => {
+        if (state === game) note_unported(source);
+    };
+    const intrinsic = (property) => state.u?.uprops?.[property]?.intrinsic ?? 0;
+    const timedTrouble = (property) => {
+        const value = intrinsic(property);
+        return value && !(value & ~TIMEOUT) ? value & TIMEOUT : 0;
+    };
+    const hallucinating = () => Boolean(
+        intrinsic(HALLUC)
+        && !(state.u?.uprops?.[HALLUC_RES]?.intrinsic
+            || state.u?.uprops?.[HALLUC_RES]?.extrinsic),
+    );
+    const deaf = () => Boolean(
+        intrinsic(DEAF) || state.u?.uprops?.[DEAF]?.extrinsic
+        || state.u?.uroleplay?.deaf,
+    );
+
+    if (obj?.cursed) {
+        const lcount = rn1(90, 10);
+        switch (Math.trunc(rn2(13) / 2)) {
+        case 0: {
+            const sickTimeout = intrinsic(SICK) & TIMEOUT;
+            // C evaluates the timeout (and its conditional RNG) before xname,
+            // even though potion.c:make_sick() is still unported here.
+            const sicknessDuration = sickTimeout
+                ? Math.trunc(sickTimeout / 3) + 1
+                : rn1(acurr(A_CON, state), 20);
+            xnameFresh(obj, state);
+            recordGap('potion.c make_sick');
+            void sicknessDuration;
+            break;
+        }
+        case 1:
+            await make_blinded(
+                (intrinsic(BLINDED) & TIMEOUT) + lcount,
+                true,
+                state,
+                env,
+            );
+            break;
+        case 2:
+            if (!intrinsic(CONFUSION)) {
+                await message(
+                    `You suddenly feel ${hallucinating() ? 'trippy' : 'confused'}.`,
+                    state,
+                );
+            }
+            await make_confused(
+                (intrinsic(CONFUSION) & TIMEOUT) + lcount,
+                true,
+                state,
+                env,
+            );
+            break;
+        case 3:
+            // make_stunned() returns void; preserve the source call as a gap.
+            recordGap('potion.c make_stunned');
+            break;
+        case 4:
+            if (intrinsic(VOMITING))
+                recordGap('eat.c vomit');
+            else
+                recordGap('potion.c make_vomiting');
+            break;
+        case 5:
+            await make_hallucinated(
+                (intrinsic(HALLUC) & TIMEOUT) + lcount,
+                true,
+                0,
+                state,
+                env,
+            );
+            break;
+        case 6:
+            if (deaf()) await message(nothing_seems_to_happen, state);
+            await make_deaf(
+                (intrinsic(DEAF) & TIMEOUT) + lcount,
+                true,
+                state,
+                env,
+            );
+            break;
+        }
+        return;
+    }
+
+    const troubles = [];
+    if (timedTrouble(SICK)) troubles.push(SICK);
+    if (timedTrouble(BLINDED) > (state.u?.ucreamed ?? 0)
+        && !(state.u?.uswallow
+            && attacktype_fordmg(
+                state.u?.ustuck?.data,
+                AT_ENGL,
+                AD_BLND,
+            ))) {
+        troubles.push(BLINDED);
+    }
+    if (timedTrouble(HALLUC)) troubles.push(HALLUC);
+    if (timedTrouble(VOMITING)) troubles.push(VOMITING);
+    if (timedTrouble(CONFUSION)) troubles.push(CONFUSION);
+    if (timedTrouble(STUNNED)) troubles.push(STUNNED);
+    if (timedTrouble(DEAF)) troubles.push(DEAF);
+
+    if (!troubles.length) {
+        await message(nothing_happens, state);
+        return;
+    }
+    if (troubles.length > 1)
+        recordGap('rnd.c shuffle_int_array');
+
+    let valLimit = rn2(d(2, obj?.blessed ? 4 : 2));
+    if (valLimit > troubles.length) valLimit = troubles.length;
+
+    let didProp = 0;
+    for (let value = 0; value < valLimit; value++) {
+        switch (troubles[value]) {
+        case SICK:
+            recordGap('potion.c make_sick');
+            didProp++;
+            break;
+        case BLINDED:
+            await make_blinded(state.u?.ucreamed ?? 0, true, state, env);
+            didProp++;
+            break;
+        case HALLUC:
+            await make_hallucinated(0, true, 0, state, env);
+            didProp++;
+            break;
+        case VOMITING:
+            recordGap('potion.c make_vomiting');
+            didProp++;
+            break;
+        case CONFUSION:
+            await make_confused(0, true, state, env);
+            didProp++;
+            break;
+        case STUNNED:
+            recordGap('potion.c make_stunned');
+            didProp++;
+            break;
+        case DEAF:
+            await make_deaf(0, true, state, env);
+            didProp++;
+            break;
+        default:
+            break;
+        }
+    }
+
+    if (didProp)
+        state.disp.botl = true;
+    else
+        await message(nothing_seems_to_happen, state);
+}
+
 // C ref: apply.c doapply() (4213-4430), the `a` command.
 //
 // retouch_object(&obj, FALSE) sits between getobj() and the switch, and only
@@ -2340,6 +2518,11 @@ export async function doapply(state = game, env = {}) {
     case MAGIC_MARKER:
         // apply.c:4361-4362. dowrite() handles the full magic marker flow.
         return dowrite(obj, state);
+    case UNICORN_HORN:
+        // apply.c:4371. use_unicorn_horn() is void; retain doapply's initial
+        // ECMD_TIME while applying its property effects.
+        await use_unicorn_horn(obj, state, env);
+        return ECMD_TIME;
     case HORN_OF_PLENTY:
         // apply.c:4385-4387. Not a musical instrument.
         // C's res starts as ECMD_TIME; hornoplenty doesn't change it.
