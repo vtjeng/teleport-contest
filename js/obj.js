@@ -121,6 +121,9 @@ import {
     useupall,
 } from './invent.js';
 import { confers_luck } from './artifacts.js';
+// mkobj.c:curse() calls spell.c:book_cursed(). spell.js imports object helpers
+// from this module, so use this binding only inside curse(), after init.
+import { book_cursed } from './spell.js';
 // attrib.js imports objectType from this file; both sides use the other's
 // exports only inside function bodies.
 import { set_moreluck } from './attrib.js';
@@ -1610,8 +1613,20 @@ export function curse(obj, env = {}) {
             attach_fig_transform_timeout(obj, { ...env, state });
         }
     } else if (obj.oclass === SPBOOK_CLASS && !already_cursed) {
-        // spell.c book_cursed() returns void and has not been ported yet.
-        note_unported('spell.c book_cursed');
+        // The exact active-occupation guard lives in book_cursed(); its
+        // no-effect arms return synchronously, while an interrupted study
+        // preserves the C message, BUC-known, occupation-stop order.
+        const pending = book_cursed(obj, state, env);
+        if (pending) {
+            return pending.then(() => {
+                if (obj.lamplit) {
+                    const new_light = arti_light_radius(obj, state);
+                    if (new_light !== old_light)
+                        return maybe_adjust_light(obj, old_light, env);
+                }
+                return obj;
+            });
+        }
     }
 
     if (obj.lamplit) {

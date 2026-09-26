@@ -4,6 +4,7 @@ import test from 'node:test';
 import {
     A_WIS,
     NO_SPELL,
+    OBJ_INVENT,
     NUM_ATTRS,
     P_ATTACK_SPELL,
     P_BASIC,
@@ -33,13 +34,17 @@ import {
     SMALL_SHIELD,
     SPE_CURE_SICKNESS,
     SPE_EXTRA_HEALING,
+    SPE_BOOK_OF_THE_DEAD,
     SPE_HEALING,
     SPE_STONE_TO_FLESH,
 } from '../js/objects.js';
 import { roles } from '../js/roles.js';
+import { curse, newObject } from '../js/obj.js';
 import {
     age_spells,
+    book_cursed,
     dovspell,
+    learn,
     percent_success,
     spellet,
     spellretention,
@@ -74,6 +79,49 @@ test('age_spells decrements contiguous nonzero spell knowledge once', () => {
 test('age_spells accepts an empty initialized spellbook', () => {
     const state = { svs: { spl_book: [] } };
     assert.doesNotThrow(() => age_spells(state));
+});
+
+test('mkobj.c curse interrupts only the Book of the Dead being studied', async () => {
+    const state = spellState();
+    state.moves = 1; // set_bknown() does not refresh inventory during startup.
+    state.multi = 0;
+    state.objects[SPE_BOOK_OF_THE_DEAD].oc_name_known = true;
+    const book = newObject({
+        age: state.moves,
+        o_id: 17,
+        oclass: state.objects[SPE_BOOK_OF_THE_DEAD].oc_class,
+        otyp: SPE_BOOK_OF_THE_DEAD,
+        quan: 1,
+        where: OBJ_INVENT,
+    });
+    state.invent = book;
+    state.context = { spbook: { book } };
+    state.go = { occupation: learn, occtxt: 'studying', occtime: 0 };
+    const messages = [];
+
+    const pending = curse(book, {
+        state,
+        message: async (text) => messages.push(text),
+    });
+    assert.equal(typeof pending?.then, 'function');
+    await pending;
+
+    assert.equal(book.cursed, true);
+    assert.equal(book.bknown, 1);
+    assert.equal(state.go.occupation, null);
+    assert.deepEqual(messages, [
+        'The Book of the Dead slams shut!',
+        'You stop studying.',
+    ]);
+
+    const inactive = spellState();
+    const otherBook = newObject({
+        oclass: inactive.objects[SPE_BOOK_OF_THE_DEAD].oc_class,
+        otyp: SPE_BOOK_OF_THE_DEAD,
+        quan: 1,
+    });
+    assert.equal(curse(otherBook, { state: inactive }), otherBook);
+    assert.equal(book_cursed(otherBook, inactive), undefined);
 });
 
 function roleByFilecode(filecode) {
