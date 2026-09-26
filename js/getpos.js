@@ -199,7 +199,7 @@ export async function getpos_getvalids_selection(valid, state = game) {
 
 async function forceGetposSelectionRedraw(state) {
     const valid = state.getpos_getvalid;
-    if (typeof valid !== 'function' || !state.level?.at) return;
+    if (typeof valid !== 'function' || !state.level?.at) return null;
 
     const selected = await getpos_getvalids_selection(valid, state);
     for (const { x, y } of selected) {
@@ -210,6 +210,18 @@ async function forceGetposSelectionRedraw(state) {
         const location = state.level.at(x, y);
         if (location) location.gnew = 1;
     }
+
+    // C flush_glyph_buffer() scans rows, then columns. The recorder's HUP
+    // window port leaves curs() as a no-op, so if no later pline flushes with
+    // cursor_on_u, the selection redraw leaves the terminal cursor after the
+    // last dirty glyph. tty_print_glyph() advances one column past that cell.
+    let last = null;
+    for (const position of selected) {
+        if (!last || position.y > last.y
+            || (position.y === last.y && position.x > last.x))
+            last = position;
+    }
+    return last;
 }
 
 function sign(value) {
@@ -894,7 +906,7 @@ export async function getpos(ccp, force, goal, state = game) {
     // that callback installation marks changed valid squares dirty before
     // getpos.c handles its tip and verbose pline. Let those messages consume
     // the dirty selection in source order, with their cursor_on_u flush.
-    await forceGetposSelectionRedraw(state);
+    const forcedMapCursor = await forceGetposSelectionRedraw(state);
     let showGoalMessage = await handle_tip(TIP_GETPOS, state);
     let messageGiven = true;
     // getpos_sethilite() in C keeps a callback and a three-state mode. The
@@ -917,6 +929,12 @@ export async function getpos(ccp, force, goal, state = game) {
     state.gg.getposy = cy;
     cursorAt(cx, cy, state);
     await flush_screen(0);
+    // A tip or verbose-help pline after the caller dirtied valid positions
+    // flushes with cursor_on_u and replaces the HUP port's cursor left by the
+    // map redraw. Without either message, retain that redraw's final glyph
+    // cursor, as C's no-op hup_curs() does.
+    if (forcedMapCursor && !showGoalMessage && !state.flags.verbose)
+        cursorAt(forcedMapCursor.x + 1, forcedMapCursor.y, state);
 
     let result = LOOK_TRADITIONAL;
     try {
