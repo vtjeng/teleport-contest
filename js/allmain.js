@@ -719,12 +719,9 @@ function elapsedTurnMinLiquid(monster, env) {
                 }),
             },
         ),
-        // C discards both inventory-chain return values. The chain owners
-        // remain unported, so record their exact source calls and continue
-        // the minliquid branch rather than turning a valid monster effect
-        // into an elapsed-turn refusal.
+        // C discards the inventory-chain results. Water damage is wired by
+        // mon.c:minliquid_core(); the unported fire chain stays explicit.
         fireDamageChain: () => note_unported('trap.c fire_damage_chain'),
-        waterDamageChain: () => note_unported('trap.c water_damage_chain'),
         // C discards deal_with_overcrowding()'s result. Its remaining level
         // transition branches are outside this span, so name and skip that
         // discarded call after rloc() has returned false.

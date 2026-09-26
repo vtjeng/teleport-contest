@@ -1,5 +1,5 @@
 // Water damage for items.
-// C ref: trap.c water_damage() (4712-4852) and water_damage_chain().
+// C ref: trap.c water_damage() (4712-4852) and water_damage_chain() (4855-4896).
 //
 // water_damage_monster_equipment() handles the monster-equipment path
 // (rust traps and rust monster attacks). water_damage() handles the
@@ -252,10 +252,54 @@ async function blankNovel(obj, env) {
 
 async function damageContents(obj, env) {
     if (!obj.cobj) return;
-    if (typeof env.waterDamageChain === 'function') {
-        await env.waterDamageChain(obj.cobj, false, env);
-    } else {
-        note_unported('trap.c water_damage_chain');
+    const chain = env.waterDamageChain ?? water_damage_chain;
+    await chain(obj.cobj, false, env);
+}
+
+// C ref: trap.c water_damage_chain() (4855-4896). ga.acid_ctx is reset for
+// each chain; gb.bhitpos is temporarily pointed at the chain's location so
+// floor-item erosion feedback can test visibility, then restored afterward.
+export async function water_damage_chain(obj, here = false, env = {}) {
+    if (!obj) return;
+
+    const state = env.state ?? game;
+    state.ga ??= {};
+    const acidContext = state.ga.acid_ctx ??= {
+        dkn_boom: 0,
+        unk_boom: 0,
+        ctx_valid: false,
+    };
+    acidContext.dkn_boom = 0;
+    acidContext.unk_boom = 0;
+    acidContext.ctx_valid = true;
+
+    state.gb ??= {};
+    state.gb.bhitpos ??= { x: 0, y: 0 };
+    const savedBhitpos = {
+        x: state.gb.bhitpos.x,
+        y: state.gb.bhitpos.y,
+    };
+    const location = get_obj_location(obj, CONTAINED_TOO, state);
+    if (location) {
+        state.gb.bhitpos.x = location.x;
+        state.gb.bhitpos.y = location.y;
+    }
+
+    try {
+        for (let current = obj; current;) {
+            // Save the source-selected link before water_damage can unlink or
+            // transform the current object.
+            const next = here ? current.nexthere : current.nobj;
+            const damage = env.waterDamage ?? water_damage;
+            await damage(current, null, false, env);
+            current = next;
+        }
+    } finally {
+        acidContext.dkn_boom = 0;
+        acidContext.unk_boom = 0;
+        acidContext.ctx_valid = false;
+        state.gb.bhitpos.x = savedBhitpos.x;
+        state.gb.bhitpos.y = savedBhitpos.y;
     }
 }
 

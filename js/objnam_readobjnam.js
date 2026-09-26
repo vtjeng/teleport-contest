@@ -630,7 +630,14 @@ async function apply_wizterrainwish(d, rawEnv = {}) {
         } else {
             await dbterrainmesg('Moat', x, y, state, env);
         }
-        note_unported('trap.c water_damage_chain');
+        // C objnam.c:wizterrainwish wets this square's floor chain.
+        const { water_damage_chain } = await import('./trap_water_damage.js');
+        await water_damage_chain(state.level.objects[x][y], true, {
+            ...env,
+            state,
+            random,
+            message,
+        });
         return finishTerrainWish(true, false);
     } else if (endsWith('lava') || endsWith('wall of lava')) {
         const ltyp = endsWith('wall of lava') ? LAVAWALL : LAVAPOOL;
