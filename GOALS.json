@@ -77962,7 +77962,7 @@
     {
       "id": "port-objnam-readobjnam-wish-retry-synthetic-v5-20260926",
       "kind": "file-port",
-      "status": "open",
+      "status": "parked",
       "summary": "Port complete objnam.c readobjnam wizard no-match behavior and wire wish retries",
       "cFile": "objnam.c",
       "sessions": [
@@ -77984,7 +77984,7 @@
           "line": 4910,
           "endLine": 5402,
           "declared": true,
-          "complete": false
+          "complete": true
         }
       ],
       "range": {
@@ -78158,7 +78158,133 @@
             }
           }
         }
-      ]
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "readobjnam",
+            "implementation": "js/objnam_readobjnam.js",
+            "symbol": "readobjnam",
+            "sourceReview": "Reviewed the complete objnam.c:readobjnam() definition, lines 4910-5402, together with its static parser phases readobjnam_init (3933-3964), readobjnam_preparse (3966-4175), readobjnam_parse_charges (4178-4237), readobjnam_postparse1 (4240-4664), readobjnam_postparse2 (4666-4725), and readobjnam_postparse3 (4727-4899). Matched whitespace normalization, identity-only no-wish sentinel handling, parser label/goto ordering, fallback object class RNG, wizard terrain first refusal, weapon-skill choices, object initialization, BUC/quantity/enchantment/naming tails, and returned object/null/hands_obj distinctions. The selected function now has a whole source-backed implementation and uses its consumed results from wizterrainwish() and rnd_otyp_by_wpnskill(); it invokes curse() in source order. The task also wires the active makewish() command and the natural Water-vault Lua object callback. The only deliberately skipped makewish helper is wishcmdassist(), whose void result C discards; its blocked retry recipe names that gap. Supporting implementation detail is reported separately below, not as additional GOALS source units: the parser-phase helper implementations, rnd_otyp_by_wpnskill(), wizterrainwish(), zap.c:makewish(), and mkobj.c:curse().",
+            "callers": [
+              {
+                "path": "js/zap.js",
+                "symbol": "makewish",
+                "source": "cmd.c extcmd dispatch -> wizcmds.c:wiz_wish() and zap.c:makewish(); the whole C makewish() caller obtains wishes through readobjnam(buf,&nothing), retries NULL, then uses readobjnam(NULL,NULL) after MAXWISHTRY."
+              },
+              {
+                "path": "js/mklev.js",
+                "symbol": "new_water_vault_escape_object",
+                "source": "dat/themerms.lua Water-surrounded vault callback -> obj.new(name) -> nhlobj.c:l_obj_new_readobjnam() -> readobjnam(buf,NULL)."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/objnam-readobjnam.test.mjs",
+              "scripts/wizard-wish.test.mjs"
+            ],
+            "recordings": [
+              "recordings/objnam.c/readobjnam-wish-null-retry.session.json",
+              "recordings/objnam.c/readobjnam-cursed-lit-lantern.session.json",
+              "recordings/objnam.c/readobjnam-hammer-wish.session.json",
+              "recordings/objnam.c/readobjnam-polearm-wish.session.json",
+              "recordings/zap.c/makewish-null-retry-exhausted.session.json",
+              "recordings/objnam.c/wizard-terrain-fountain.session.json",
+              "recordings/objnam.c/wizard-terrain-trap.session.json",
+              "recordings/objnam.c/wizard-terrain-throne-extcmd.session.json",
+              "recordings/objnam.c/wizard-terrain-wallprop.session.json",
+              "recordings/mklev.c/water-surrounded-vault-natural-samurai-920031.session.json",
+              "recordings/mklev.c/water-surrounded-vault-natural-wizard-920051.session.json"
+            ],
+            "synthetic": [],
+            "checkedAt": "dcc9c2c2b5761efb0d5649a38edad28a03115464"
+          }
+        ],
+        "entryPointReview": "The A9 formal GOALS source unit is only objnam.c:readobjnam(). Direct active C callers are zap.c:makewish() and nhlobj.c:l_obj_new_readobjnam() through the Water-surrounded vault Lua callback; both have source-mapped JavaScript wiring and independent matching recordings. files.c:proc_wizkit_line() is a third active C reader caller but no JavaScript startup path reads wizard-kit config lines; it is explicitly blocked and not misclassified as build-excluded. The wizard wish command reaches readobjnam through #wizwish and zap.c:makewish(). Terrain trap/fountain/throne/wall-property branches and both natural Water-vault role variations match. The selected v5 Samurai candidate prefix and its later fire-command mismatch are supplemental fresh-differential provenance, not an admitted synthetic range at this task base. Supporting helper units and curse callsite coverage/gaps remain supplemental evidence for coordinator reconciliation; rare active curse callers are listed blocked when the matching source arm has not been proven by a recording.",
+        "entryPoints": [
+          {
+            "name": "ACTIVE: object wish parsing and NULL retry through #wizwish",
+            "functions": [
+              "readobjnam"
+            ],
+            "recordings": [
+              "recordings/objnam.c/readobjnam-wish-null-retry.session.json",
+              "recordings/zap.c/makewish-null-retry-exhausted.session.json",
+              "recordings/objnam.c/readobjnam-hammer-wish.session.json",
+              "recordings/objnam.c/readobjnam-polearm-wish.session.json"
+            ],
+            "synthetic": []
+          },
+          {
+            "name": "ACTIVE: wizard terrain trap/fountain/throne/wall-property wishes",
+            "functions": [
+              "readobjnam"
+            ],
+            "recordings": [
+              "recordings/objnam.c/wizard-terrain-fountain.session.json",
+              "recordings/objnam.c/wizard-terrain-trap.session.json",
+              "recordings/objnam.c/wizard-terrain-throne-extcmd.session.json",
+              "recordings/objnam.c/wizard-terrain-wallprop.session.json"
+            ],
+            "synthetic": []
+          },
+          {
+            "name": "ACTIVE: Water-surrounded vault Lua object creation",
+            "functions": [
+              "readobjnam"
+            ],
+            "recordings": [
+              "recordings/mklev.c/water-surrounded-vault-natural-samurai-920031.session.json",
+              "recordings/mklev.c/water-surrounded-vault-natural-wizard-920051.session.json"
+            ],
+            "synthetic": []
+          },
+          {
+            "name": "ACTIVE: curse wished lit lantern",
+            "functions": [
+              "readobjnam"
+            ],
+            "recordings": [
+              "recordings/objnam.c/readobjnam-cursed-lit-lantern.session.json"
+            ],
+            "synthetic": []
+          },
+          {
+            "name": "BLOCKED: files.c wizard-kit startup readobjnam path; no JS read_wizkit route",
+            "functions": [
+              "readobjnam"
+            ],
+            "recordings": [],
+            "synthetic": []
+          },
+          {
+            "name": "BLOCKED: wizard lava terrain with unported fire_damage_chain side effects",
+            "functions": [
+              "readobjnam"
+            ],
+            "recordings": [],
+            "synthetic": []
+          },
+          {
+            "name": "BLOCKED: melting ice terrain timeout side effect",
+            "functions": [
+              "readobjnam"
+            ],
+            "recordings": [],
+            "synthetic": []
+          }
+        ]
+      },
+      "progressBeforePark": {
+        "screens": 0,
+        "rng": 0
+      },
+      "parkedStanding": {
+        "sha": "dcc9c2c2b5761efb0d5649a38edad28a03115464",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "parkedReason": "The implemented readobjnam path and active wish/vault/curse recordings match, but active entry-point evidence remains incomplete for files.c proc_wizkit_line startup and objnam.c wizterrainwish lava fire_damage_chain and melting-ice timeout effects. Preserve the submitted blocked recipes and evidence; resume when these source dependencies are ported and matching recordings cover the entry points. The selected Samurai case now stops later at dothrow.c dofire/quiver dispatch. Supporting zap.c makewish and mkobj.c curse caller families need separate source-completion goals."
     },
     {
       "id": "port-read-doread-cursed-teleport-synthetic-v5-20260926",
