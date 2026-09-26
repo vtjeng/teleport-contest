@@ -1,6 +1,6 @@
 {
   "version": 5,
-  "_comment": "Blocked source-evidence recipe. C reaches muse.c:use_offensive -> muse.c:mbhitm -> zap.c:resist when a forced hostile shopkeeper's guaranteed wand of striking hits a tame kitten. Strict JS replay currently stops at the yes answer for read.c:create_particular()'s cant_revive(PM_SHOPKEEPER) force prompt; retain as a recipe only until that setup path is implemented and a complete C/JS replay matches.",
+  "_comment": "Blocked source-evidence recipe. C reaches muse.c:use_offensive -> muse.c:mbhitm -> zap.c:resist when a forced hostile shopkeeper's guaranteed wand of striking hits a tame kitten. read.c correctly accepts the yes answer and selects PM_SHOPKEEPER, then C reaches makemon.c:makemon's by-hero placement and teleport.c:collect_coords. Strict JS replay has no matching boundary because js/makemon_create.js preflightCreation/assertSupportedSpecies rejects this create-particular shopkeeper shape. Retain as a recipe only until that runtime creation path is implemented and a complete C/JS replay matches.",
   "segments": [
     {
       "seed": 90525082,
