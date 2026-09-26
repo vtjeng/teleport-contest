@@ -73616,7 +73616,7 @@
     {
       "id": "port-trap-water-damage-chain-synthetic-v1-20260925",
       "kind": "file-port",
-      "status": "open",
+      "status": "parked",
       "summary": "Port water damage chain across pool entry and item owners",
       "cFile": "trap.c",
       "sessions": [
@@ -73637,8 +73637,8 @@
           "name": "water_damage_chain",
           "line": 4855,
           "endLine": 4896,
-          "declared": false,
-          "complete": false
+          "declared": true,
+          "complete": true
         }
       ],
       "range": {
@@ -73928,7 +73928,141 @@
             }
           }
         }
-      ]
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "water_damage_chain",
+            "implementation": "js/trap_water_damage.js",
+            "symbol": "water_damage_chain",
+            "sourceReview": "Reviewed all of trap.c:water_damage_chain (4855-4896): null-list early return; reset and activation of ga.acid_ctx; save of gb.bhitpos; get_obj_location(..., CONTAINED_TOO) and conditional coordinate override; source-selected next-link read from nexthere or nobj before each water_damage call; and final acid-context reset and bhitpos restoration. The C loop discards water_damage's result; the complete existing JS water_damage implementation is awaited with the same null description and FALSE force arguments. Container recursion remains in water_damage() -> water_damage_chain(obj->cobj,FALSE), where C also discards the result. No placeholder was added for either call. The JS finally block restores the two shared state values if an awaited damage operation throws, while normal completion follows C source order.",
+            "callers": [
+              {
+                "path": "js/trap_water_damage.js",
+                "symbol": "damageContents",
+                "source": "trap.c:water_damage() calls water_damage_chain(obj->cobj,FALSE) for a non-waterproof container; damageContents is the corresponding recursive call and preserves the shared environment."
+              },
+              {
+                "path": "js/trap.js",
+                "symbol": "drown",
+                "source": "trap.c:drown() calls water_damage_chain(gi.invent,FALSE) after the hero enters water; drown awaits the corresponding hero-inventory chain."
+              },
+              {
+                "path": "js/fountain.js",
+                "symbol": "gush",
+                "source": "fountain.c:gush() calls water_damage_chain(level.objects[x][y],TRUE) after changing a square to a pool; gush awaits the corresponding floor chain."
+              },
+              {
+                "path": "js/objnam_readobjnam.js",
+                "symbol": "apply_wizterrainwish",
+                "source": "objnam.c:wizterrainwish() calls water_damage_chain(level.objects[x][y],TRUE) in its pool/moat/wall-of-water arm; apply_wizterrainwish lazily imports and awaits the corresponding floor chain."
+              },
+              {
+                "path": "js/mon.js",
+                "symbol": "liquidDamageInventory",
+                "source": "mon.c:minliquid_core() calls water_damage_chain(mtmp->minvent,FALSE) for its gremlin, iron-golem, and surviving monster-in-water arms; liquidDamageInventory imports and awaits the water chain while leaving the unported lava chain explicit."
+              },
+              {
+                "path": "js/trap_effects.js",
+                "symbol": "blow_up_landmine",
+                "source": "dig.c:liquid_flow() calls water_damage_chain(objchain,TRUE) for water-filled terrain. The corresponding landmine fill path still records note_unported('dig.c liquid_flow') and skips the chain; this is a named caller gap, not completed wiring."
+              }
+            ],
+            "pure": false,
+            "tests": [],
+            "recordings": [
+              "recordings/trap.c/wizwish-pool-water-damage-chain-independent.session.json",
+              "recordings/trap.c/wizwish-pool-container-water-damage-chain-independent.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v1",
+                "caseId": "terrain-transitions",
+                "segment": 0,
+                "fromStep": 87,
+                "throughStep": 90,
+                "source": "trap.c:float_down -> trap.c:drown -> trap.c:water_damage_chain -> trap.c:water_damage"
+              }
+            ],
+            "checkedAt": "2d50156e1163b1b497818e5d02bd71131fab2149"
+          }
+        ],
+        "entryPointReview": "Active paths: (1) hero drowning from the terrain transition, wired in js/trap.js and covered by synthetic/v1/terrain-transitions segment 0 steps 87-90; (2) wizard terrain wish converting the hero square to a pool, wired in js/objnam_readobjnam.js and covered by the independent spear and container recordings, the latter placing a potion in an unlocked chest before the pool wish; (3) recursive water damage of non-waterproof container contents, reached through trap.c:water_damage() -> water_damage_chain(obj->cobj,FALSE) in that same container recording; (4) fountain gush, wired in js/fountain.js and wired in js/fountain.js but the existing natural-gushing recording has no demonstrated nonempty floor chain, so no runtime evidence is claimed; (5) monster inventory water damage, wired in js/mon.js but still without a matching recording because the source branch requires a qualifying Gremlin or iron golem in a pool with nonempty minvent (mon.c:minliquid_core); and (6) dig.c:liquid_flow floor damage, still blocked at js/trap_effects.js:blow_up_landmine by note_unported('dig.c liquid_flow'). The monster and liquid_flow entry points are listed with empty evidence and cannot close until their blockers are resolved. mcastu.c:mcast_geyser contains a separate water_damage_chain call only inside #if 0, so it is build-excluded and has no active JS caller or entry-point requirement.",
+        "entryPoints": [
+          {
+            "name": "Hero drowns in a pool",
+            "functions": [
+              "water_damage_chain"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v1",
+                "caseId": "terrain-transitions",
+                "segment": 0,
+                "fromStep": 87,
+                "throughStep": 90,
+                "source": "trap.c:float_down -> trap.c:drown -> trap.c:water_damage_chain"
+              }
+            ]
+          },
+          {
+            "name": "Wizard terrain wish wets floor objects",
+            "functions": [
+              "water_damage_chain"
+            ],
+            "recordings": [
+              "recordings/trap.c/wizwish-pool-water-damage-chain-independent.session.json",
+              "recordings/trap.c/wizwish-pool-container-water-damage-chain-independent.session.json"
+            ],
+            "synthetic": []
+          },
+          {
+            "name": "Water damage recursively processes ordinary container contents",
+            "functions": [
+              "water_damage_chain"
+            ],
+            "recordings": [
+              "recordings/trap.c/wizwish-pool-container-water-damage-chain-independent.session.json"
+            ],
+            "synthetic": []
+          },
+          {
+            "name": "Fountain gush wets floor objects",
+            "functions": [
+              "water_damage_chain"
+            ],
+            "recordings": [],
+            "synthetic": []
+          },
+          {
+            "name": "Monster entering water damages its inventory",
+            "functions": [
+              "water_damage_chain"
+            ],
+            "recordings": [],
+            "synthetic": []
+          },
+          {
+            "name": "Landmine fill reaches liquid_flow water damage",
+            "functions": [
+              "water_damage_chain"
+            ],
+            "recordings": [],
+            "synthetic": []
+          }
+        ]
+      },
+      "progressBeforePark": {
+        "screens": 0,
+        "rng": 0
+      },
+      "parkedStanding": {
+        "sha": "2d50156e1163b1b497818e5d02bd71131fab2149",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "parkedReason": "The whole trap.c water_damage_chain function is source-verified; v1 terrain transitions and two independent wizard pool-wish recordings match. Active entry-point evidence remains absent for a nonempty fountain-gush floor chain and a qualifying monster entering water with nonempty inventory. dig.c liquid_flow still stops at the landmine-fill caller; its water-chain entry cannot be claimed until that function is ported. Preserve the matched cases and complete those caller recordings before source-goal closure."
     }
   ]
 }
