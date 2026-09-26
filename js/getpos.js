@@ -199,7 +199,7 @@ export async function getpos_getvalids_selection(valid, state = game) {
 
 async function forceGetposSelectionRedraw(state) {
     const valid = state.getpos_getvalid;
-    if (typeof valid !== 'function' || !state.level?.at) return null;
+    if (typeof valid !== 'function' || !state.level?.at) return;
 
     const selected = await getpos_getvalids_selection(valid, state);
     for (const { x, y } of selected) {
@@ -210,17 +210,6 @@ async function forceGetposSelectionRedraw(state) {
         const location = state.level.at(x, y);
         if (location) location.gnew = 1;
     }
-
-    // flush_glyph_buffer() visits rows first and columns second, unlike the
-    // selection construction loop above.  tty_print_glyph() advances one
-    // column after tty_curs(), hence x + 1 below when the cursor is restored.
-    let last = null;
-    for (const position of selected) {
-        if (!last || position.y > last.y
-            || (position.y === last.y && position.x > last.x))
-            last = position;
-    }
-    return last;
 }
 
 function sign(value) {
@@ -901,6 +890,11 @@ export async function getpos(ccp, force, goal, state = game) {
     const target = goal || 'desired location';
     let cx = ccp.x;
     let cy = ccp.y;
+    // C apply.c:jump() installs getpos_sethilite() before entering getpos();
+    // that callback installation marks changed valid squares dirty before
+    // getpos.c handles its tip and verbose pline. Let those messages consume
+    // the dirty selection in source order, with their cursor_on_u flush.
+    await forceGetposSelectionRedraw(state);
     let showGoalMessage = await handle_tip(TIP_GETPOS, state);
     let messageGiven = true;
     // getpos_sethilite() in C keeps a callback and a three-state mode. The
@@ -921,15 +915,8 @@ export async function getpos(ccp, force, goal, state = game) {
     state.gg ??= {};
     state.gg.getposx = cx;
     state.gg.getposy = cy;
-    const forcedMapCursor = await forceGetposSelectionRedraw(state);
     cursorAt(cx, cy, state);
     await flush_screen(0);
-    if (forcedMapCursor) {
-        // tty_print_glyph() leaves the map window one character past the
-        // glyph it just printed.  Route that advance through tty_curs() so
-        // offx/offy, clipping, and both tty cursor records stay source-shaped.
-        cursorAt(forcedMapCursor.x + 1, forcedMapCursor.y, state);
-    }
 
     let result = LOOK_TRADITIONAL;
     try {

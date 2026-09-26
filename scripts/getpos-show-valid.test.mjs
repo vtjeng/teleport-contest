@@ -9,6 +9,12 @@ import { runSegment } from '../js/jsmain.js';
 const C_SOURCE = readFileSync(
     new URL('../nethack-c/upstream/src/getpos.c', import.meta.url), 'utf8',
 );
+const APPLY_SOURCE = readFileSync(
+    new URL('../nethack-c/upstream/src/apply.c', import.meta.url), 'utf8',
+);
+const PLINE_SOURCE = readFileSync(
+    new URL('../nethack-c/upstream/src/pline.c', import.meta.url), 'utf8',
+);
 
 const PROBE = Object.freeze({
     seed: 613907,
@@ -55,6 +61,67 @@ test('getpos SHOWVALID retains the optional highlight callback', async () => {
         -1,
     );
     assert.deepEqual(calls, [true, false]);
+    assert.equal(game.nhDisplay.inputQueueLength, 0);
+});
+
+test('getpos consumes the caller-installed selection during its initial prompt flush', async () => {
+    await runSegment({
+        ...PROBE,
+        moves: ' \u0014  $.',
+    });
+    game.iflags.bgcolors = false;
+    game.flags.verbose = true;
+    const hero = { x: game.u.ux, y: game.u.uy };
+    game.getpos_getvalid = async (x, y) => x === hero.x + 2 && y === hero.y;
+    game.getpos_hilitefunc = async () => {};
+
+    const jumpStart = APPLY_SOURCE.indexOf(
+        '\njump(int magic) /* 0=Physical, otherwise skill level */',
+    );
+    const jumpBody = APPLY_SOURCE.slice(jumpStart, jumpStart + 12000);
+    const installSelection = jumpBody.indexOf('getpos_sethilite(');
+    const enterGetpos = jumpBody.indexOf('getpos(&cc, TRUE');
+    const getposStart = C_SOURCE.indexOf(
+        'getpos(coord *ccp, boolean force, const char *goal)',
+    );
+    const getposBody = C_SOURCE.slice(getposStart, getposStart + 24000);
+    const handleTip = getposBody.indexOf('handle_tip(TIP_GETPOS)');
+    const verboseMessage = getposBody.indexOf('if (flags.verbose)', handleTip);
+    const initialCursor = getposBody.indexOf('curs(WIN_MAP, cx, cy)', verboseMessage);
+    const initialFlush = getposBody.indexOf('flush_screen(0)', initialCursor);
+    const setHiliteStart = C_SOURCE.indexOf('\ngetpos_sethilite(\n');
+    const setHiliteEnd = C_SOURCE.indexOf('\n}', setHiliteStart);
+    const setHiliteBody = C_SOURCE.slice(setHiliteStart, setHiliteEnd);
+    assert.match(
+        PLINE_SOURCE,
+        /flush_screen\(\(gp\.pline_flags & NO_CURS_ON_U\) \? 0 : 1\)/u,
+    );
+    assert.ok(installSelection >= 0 && installSelection < enterGetpos);
+    assert.match(setHiliteBody, /selection_force_newsyms\(sel\)/u);
+    assert.ok(handleTip >= 0 && handleTip < verboseMessage);
+    assert.ok(verboseMessage < initialCursor && initialCursor < initialFlush);
+
+    let cursorAtFirstInput;
+    game._preNhgetchHook = async () => {
+        cursorAtFirstInput = [
+            game.nhDisplay.cursorCol,
+            game.nhDisplay.cursorRow,
+            game.nhDisplay.cursorVisible,
+        ];
+    };
+    game.nhDisplay.pushKey(0x1B);
+    try {
+        assert.equal(
+            await getpos({ x: hero.x, y: hero.y }, true, 'desired position', game),
+            -1,
+        );
+    } finally {
+        delete game._preNhgetchHook;
+        delete game.getpos_getvalid;
+        delete game.getpos_hilitefunc;
+    }
+
+    assert.deepEqual(cursorAtFirstInput, [hero.x - 1, hero.y + 1, 1]);
     assert.equal(game.nhDisplay.inputQueueLength, 0);
 });
 
