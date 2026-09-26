@@ -75226,7 +75226,7 @@
     {
       "id": "port-music-put-monsters-to-sleep-synthetic-v4-20260926",
       "kind": "file-port",
-      "status": "open",
+      "status": "closed",
       "summary": "Port music.c put_monsters_to_sleep and wire the charged magic flute caller",
       "cFile": "music.c",
       "sessions": [
@@ -75241,15 +75241,18 @@
         "screens": 11405,
         "rng": 792838
       },
-      "closedAt": null,
-      "delivered": null,
+      "closedAt": "20cdce925160276c93a252d01e644c9e61d9626e",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
       "functions": [
         {
           "name": "put_monsters_to_sleep",
           "line": 85,
           "endLine": 104,
-          "declared": false,
-          "complete": false
+          "declared": true,
+          "complete": true
         }
       ],
       "range": {
@@ -75732,7 +75735,96 @@
             }
           }
         }
-      ]
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "put_monsters_to_sleep",
+            "implementation": "js/music.js",
+            "symbol": "put_monsters_to_sleep",
+            "sourceReview": "Read the complete music.c:put_monsters_to_sleep() body (85-104) and its MAGIC_FLUTE call in do_improvisation() (589-598). The port traverses the live level.monlist chain in source order, skips mhp < 1 before any distance or random work, uses the strict squared-distance comparison mdistu(mon) < distance, draws d(10,10) only for an in-range monster, passes TOOL_CLASS and the roll to the existing mhitm.c:sleep_monst() owner, consumes its boolean, sets the separate msleeping field only on success, then awaits the existing mhitm.c:slept_monst() side effect before advancing. The MAGIC_FLUTE caller retains charge consumption and its music message before this helper, and exercise(A_DEX, TRUE) after it. Hero_playnotes() is an empty macro in the patched tty build, so its arguments are not evaluated and no JavaScript effect is fabricated. The existing sleep_monst() owner preserves its return and state behavior; its discarded display.c:shieldeff() call remains named with note_unported().",
+            "callers": [
+              {
+                "path": "js/music.js",
+                "symbol": "do_improvisation",
+                "source": "music.c:do_improvisation() MAGIC_FLUTE arm calls put_monsters_to_sleep(u.ulevel * 5) after the music feedback and Hero_playnotes() and before exercise(A_DEX, TRUE). The JavaScript branch awaits the same helper at that point."
+              },
+              {
+                "path": "js/music.js",
+                "symbol": "do_play_instrument",
+                "source": "music.c:do_play_instrument() sends an instrument to do_improvisation() unless the player declines improvisation; the JavaScript path preserves this caller and routes its MAGIC_FLUTE through the same branch."
+              },
+              {
+                "path": "js/apply.js",
+                "symbol": "doapply",
+                "source": "apply.c:doapply() MAGIC_FLUTE instrument arm calls do_play_instrument(obj); JavaScript apply dispatch calls do_play_instrument(obj, state, env), which reaches the selected caller through the normal apply command."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/music.test.mjs"
+            ],
+            "recordings": [
+              "recordings/music.c/magic-flute-sleep-monsters-independent.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v4",
+                "caseId": "valkyrie-magic-flute-nymph-cycle",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 43,
+                "source": "apply.c:doapply -> music.c:do_play_instrument -> music.c:do_improvisation MAGIC_FLUTE -> music.c:put_monsters_to_sleep -> mhitm.c:sleep_monst"
+              },
+              {
+                "batch": "v4",
+                "caseId": "valkyrie-magic-flute-nymph-first-play",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 39,
+                "source": "apply.c:doapply -> music.c:do_play_instrument -> music.c:do_improvisation MAGIC_FLUTE -> music.c:put_monsters_to_sleep -> mhitm.c:sleep_monst"
+              }
+            ],
+            "checkedAt": "20cdce925160276c93a252d01e644c9e61d9626e"
+          }
+        ],
+        "entryPointReview": "The source has one active production entry path: apply a charged MAGIC_FLUTE, accept improvisation, then affect monsters within the strict squared-distance limit. apply.c:doapply dispatches the instrument to music.c:do_play_instrument; its improvisation arm calls do_improvisation, whose MAGIC_FLUTE arm reaches put_monsters_to_sleep. The two admitted v4 recordings reach this path with a nearby nymph; the independent music.c recording reaches it with a nearby grid bug. The source-pinned test separately checks dead and out-of-range chain members and the successful sleep_monst return path through slept_monst. No other caller or build-excluded path exists for this static helper.",
+        "entryPoints": [
+          {
+            "name": "Apply and improvise with a charged magic flute while a monster is in range",
+            "functions": [
+              "put_monsters_to_sleep"
+            ],
+            "recordings": [
+              "recordings/music.c/magic-flute-sleep-monsters-independent.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v4",
+                "caseId": "valkyrie-magic-flute-nymph-cycle",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 43,
+                "source": "apply.c:doapply -> music.c:do_play_instrument -> music.c:do_improvisation MAGIC_FLUTE -> music.c:put_monsters_to_sleep"
+              },
+              {
+                "batch": "v4",
+                "caseId": "valkyrie-magic-flute-nymph-first-play",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 39,
+                "source": "apply.c:doapply -> music.c:do_play_instrument -> music.c:do_improvisation MAGIC_FLUTE -> music.c:put_monsters_to_sleep"
+              }
+            ]
+          }
+        ]
+      },
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "20cdce925160276c93a252d01e644c9e61d9626e",
+        "screens": 11405,
+        "rng": 792838
+      }
     },
     {
       "id": "port-do-dosinkring-synthetic-v4-20260926",
