@@ -2,13 +2,13 @@ import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import test from 'node:test';
 import { ACH_TUNE, A_WIS, DB_EAST, DB_NORTH, DB_SOUTH, DB_WEST, DBWALL, DEAF,
-    DOOR, DRAWBRIDGE_DOWN, DRAWBRIDGE_UP, ROOM, STRAT_WAITMASK,
+    DOOR, DRAWBRIDGE_DOWN, DRAWBRIDGE_UP, ROOM, SLEEP_RES, STRAT_WAITMASK,
     TIMEOUT, UNCHANGING, OBJ_INVENT } from '../js/const.js';
 import { find_drawbridge, is_db_wall, is_drawbridge_wall } from '../js/dbridge.js';
 import { game } from '../js/gstate.js';
 import { runSegment } from '../js/jsmain.js';
 import { awaken_monsters, awaken_scare, do_improvisation, do_play_instrument,
-    generic_lvl_desc, improvised_notes } from '../js/music.js';
+    generic_lvl_desc, improvised_notes, put_monsters_to_sleep } from '../js/music.js';
 import { PM_GRID_BUG, PM_LICHEN } from '../js/monsters.js';
 import { DRUM_OF_EARTHQUAKE, LEATHER_DRUM, TOOL_CLASS, WOODEN_FLUTE } from '../js/objects.js';
 
@@ -23,7 +23,7 @@ async function startedGame() {
 }
 function scripted(steps) {
     const pending = [...steps];
-    const random = Object.fromEntries(['rn2', 'rnd', 'rn1'].map(name => [name, (...args) => {
+    const random = Object.fromEntries(['d', 'rn2', 'rnd', 'rn1'].map(name => [name, (...args) => {
         const step = pending.shift();
         assert.ok(step, `unexpected ${name}(${args})`);
         assert.deepEqual([name, ...args], step.slice(0, -1));
@@ -118,6 +118,68 @@ test('awaken_monsters uses the live monster chain and strict squared ranges', as
     assert.equal(Boolean(wakeOnly.mflee), false);
     assert.equal(far.msleeping, true);
     assert.equal(dead.msleeping, true);
+});
+
+test('put_monsters_to_sleep skips dead and out-of-range monsters and consumes sleep_monst result', async () => {
+    const source = readFileSync(new URL('../nethack-c/upstream/src/music.c', import.meta.url), 'utf8');
+    assert.match(source, /mdistu\(mtmp\) < distance\s*&& sleep_monst\(mtmp, d\(10, 10\), TOOL_CLASS\)/u);
+
+    const state = await startedGame();
+    const dead = monster(state, { mhp: 0 });
+    const far = monster(state, { mx: state.u.ux + 3, mcanmove: true });
+    const grabber = monster(state, {
+        msleeping: false,
+        mcanmove: true,
+        mfrozen: 0,
+        meating: 0,
+    });
+    dead.nmon = far;
+    far.nmon = grabber;
+    state.level.monlist = dead;
+    state.u.ustuck = grabber;
+    state.u.uswallow = false;
+    // Only the live adjacent target is in range. It takes 25 turns of sleep,
+    // then slept_monst releases the hero from its now-helpless grip.
+    const draws = scripted([['d', 10, 10, 25], ['rn2', 109, 108]]);
+    const messages = [];
+
+    await put_monsters_to_sleep(5, state, {
+        random: draws.random,
+        message: line => messages.push(line),
+    });
+
+    draws.finished();
+    assert.deepEqual(
+        [grabber.mcanmove, grabber.mfrozen, grabber.msleeping],
+        [false, 25, true],
+    );
+    assert.equal(state.u.ustuck, null);
+    assert.equal(messages.length, 1);
+    assert.match(messages[0], /grip relaxes/u);
+});
+
+test('put_monsters_to_sleep leaves an in-range sleep-resistant monster unchanged', async () => {
+    const state = await startedGame();
+    const resistant = monster(state, {
+        data: {
+            ...state.mons[PM_GRID_BUG],
+            mresists: state.mons[PM_GRID_BUG].mresists
+                | (1 << (SLEEP_RES - 1)),
+        },
+        msleeping: false,
+        mcanmove: true,
+        mfrozen: 0,
+    });
+    state.level.monlist = resistant;
+    const draws = scripted([['d', 10, 10, 25]]);
+
+    await put_monsters_to_sleep(5, state, { random: draws.random });
+
+    draws.finished();
+    assert.deepEqual(
+        [resistant.mcanmove, resistant.mfrozen, resistant.msleeping],
+        [true, 0, false],
+    );
 });
 
 test('a leather drum draws its tune before deafness and wisdom exercise', async () => {

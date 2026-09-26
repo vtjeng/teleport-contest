@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent charged magic-flute sleep case. Seed 73295103 and the 20371022153600 date were selected for this source check without a seed search. A Barbarian starts without a tool, so the wished flute is available in inventory; debug monster creation supplies a nearby grid bug. The six-charge flute and distinct monster target vary the admitted Valkyrie/nymph cases while still reaching music.c:put_monsters_to_sleep.",
+  "segments": [
+    {
+      "seed": 73295103,
+      "datetime": "20371022153600",
+      "nethackrc": "OPTIONS=name:MusicProbe,role:Barbarian,race:human,gender:female,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup\n",
+      "moves": "\u0017uncursed magic flute (0:6)\n\u0007grid bug\naey"
+    }
+  ]
+}
