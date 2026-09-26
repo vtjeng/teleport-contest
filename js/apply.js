@@ -71,7 +71,6 @@ import {
     M_AP_TYPE,
     nothing_happens,
     nothing_seems_to_happen,
-    OBJ_FLOOR,
     OBJ_INVENT,
     PRONOUN_NO_IT,
     REVIVE_MON,
@@ -1013,9 +1012,9 @@ export function tinnable(corpse, state = game) {
 
 // C ref: apply.c use_tinning_kit() (2177-2258). apply.c:doapply() ignores
 // this helper's return and retains its initial ECMD_TIME result. The ordinary
-// floor/inventory tin path is ported here; Rider revival from an inventory
-// corpse is held at the exact do.c:revive_corpse() return-value boundary until
-// that helper's non-floor shapes are ported.
+// floor/inventory tin path is ported here. Rider revival always delegates to
+// do.c:revive_corpse() and lets its current non-floor refusal propagate until
+// that consumed Boolean path is ported.
 async function use_tinning_kit(obj, state = game, env = {}) {
     const message = env.message ?? ttyPline;
     if (obj.spe <= 0) {
@@ -1053,13 +1052,6 @@ async function use_tinning_kit(obj, state = game, env = {}) {
     }
 
     if (is_rider(species)) {
-        if (corpse.where !== OBJ_FLOOR) {
-            // The C caller consumes revive_corpse()'s Boolean result. Its JS
-            // port currently covers only the floor shape, so stop before
-            // reading a substitute value for an inventory Rider.
-            note_unported('do.c revive_corpse inventory return path');
-            return;
-        }
         if (await revive_corpse(corpse, state)) {
             await verbalize(
                 'Yes...  But War does not preserve its enemies...',
