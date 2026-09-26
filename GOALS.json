@@ -84920,7 +84920,7 @@
     {
       "id": "port-do-wear-glibr-synthetic-v6-20260926",
       "kind": "file-port",
-      "status": "queued",
+      "status": "open",
       "summary": "Port do_wear.c glibr and elapsed-turn caller for slippery equipment",
       "cFile": "do_wear.c",
       "sessions": [
@@ -84932,8 +84932,12 @@
       ],
       "selectionReason": "synthetic/v6/wizard-greasy-write-glib-final has 3 remaining screens at investigations/synthetic/v6/wizard-greasy-write-glib-final.json. It is the first eligible unreserved case after B17 owns v5 zap.c, A14 owns v7 crystal detect.c, and C17 owns v7 lizard wizcmds.c. The five related v6 cases share do_wear.c:glibr as first source owner and total 12 remaining screens.",
       "detail": "C allmain.c:moveloop_core calls do_wear.c:glibr after turn advancement and before nh_timeout when Glib is active. Port whole glibr including ring, offhand and primary-weapon branches; wire JS finishElapsedTurn in source order with planning/live state, and record independent C entry paths beyond the five admitted primary-weapon cases.",
-      "openedAt": null,
-      "openStanding": null,
+      "openedAt": "60891e5e096edfbeb20a11ef716162461f2d3e43",
+      "openStanding": {
+        "sha": "2c48911017c861e88a8cca846d32e92e6c044578",
+        "screens": 11405,
+        "rng": 792838
+      },
       "closedAt": null,
       "delivered": null,
       "functions": [
@@ -84962,7 +84966,1149 @@
           "evaluationPath": "challenges/evaluations/20260926180549-v6.json",
           "evaluationCommit": "27ef57edeff3c341b4c703e10bad99202c2bc7f2"
         }
-      }
+      },
+      "activeStanding": {
+        "sha": "2c48911017c861e88a8cca846d32e92e6c044578",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v6",
+          "caseId": "wizard-greasy-write-glib-final",
+          "session": "synthetic/v6/wizard-greasy-write-glib-final",
+          "manifestPath": "challenges/manifests/v6.json",
+          "manifestSha256": "7523b91e823f4e3906c9acdc9a3d80f8469c27c2caab8fc8fbd6967dbfdcab5f",
+          "recording": "challenges/cases/v6/wizard-greasy-write-glib-final.session.json",
+          "recordingPath": "challenges/cases/v6/wizard-greasy-write-glib-final.session.json",
+          "recordingSha256": "20b60af8d804f9bd6ebd5b1217dae85a6cdad0afcae9d4f98bd6c57d6f3fb6e6",
+          "recipe": "challenges/cases/v6/wizard-greasy-write-glib-final.recipe.session.json",
+          "recipeSha256": "a55d0f776ecd5d8a91bc59a3fc708c55e632be4e125a69ffaac720babd87ebdc",
+          "replayInputSha256": "ab473da1bef7e544051029738426be2447a7a2735565aad8fdbb5f3fd0142a2c",
+          "evaluationPath": "challenges/evaluations/20260926192025-v6.json",
+          "evaluationCommit": "2c48911017c861e88a8cca846d32e92e6c044578",
+          "evaluationArtifact": "challenges/evaluations/20260926192025-v6.json",
+          "evaluationUtc": "2026-09-26T19:20:46.424Z",
+          "remainingScreens": 3,
+          "recordedSteps": 22,
+          "previousScreensMatched": 19,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 19,
+              "total": 22
+            },
+            "rng": {
+              "matched": 2968,
+              "total": 2978
+            },
+            "cursors": {
+              "matched": 20,
+              "total": 22
+            }
+          },
+          "firstMismatch": {
+            "screen": {
+              "index": 18,
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 18,
+                "key": "-"
+              },
+              "kind": "ch",
+              "row": 0,
+              "column": 34,
+              "cCell": {
+                "ch": "-",
+                "color": 8,
+                "attr": 0,
+                "decgfx": 0
+              },
+              "jsCell": {
+                "ch": " ",
+                "color": 8,
+                "attr": 0,
+                "decgfx": 0
+              }
+            },
+            "rng": null,
+            "cursor": {
+              "index": 18,
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 18,
+                "key": "-"
+              },
+              "cCursor": [
+                42,
+                0,
+                1
+              ],
+              "jsCursor": [
+                25,
+                9,
+                1
+              ]
+            }
+          },
+          "step": 18,
+          "kind": "screen",
+          "sourceFile": null,
+          "function": null,
+          "message": null,
+          "cFile": null,
+          "luaFile": null,
+          "line": null,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v6/wizard-greasy-write-glib-final.json",
+            "result": {
+              "session": "synthetic/v6/wizard-greasy-write-glib-final",
+              "corpus": "synthetic",
+              "batch": "v6",
+              "caseId": "wizard-greasy-write-glib-final",
+              "manifestPath": "challenges/manifests/v6.json",
+              "manifestSha256": "7523b91e823f4e3906c9acdc9a3d80f8469c27c2caab8fc8fbd6967dbfdcab5f",
+              "recordingPath": "challenges/cases/v6/wizard-greasy-write-glib-final.session.json",
+              "recordingSha256": "20b60af8d804f9bd6ebd5b1217dae85a6cdad0afcae9d4f98bd6c57d6f3fb6e6",
+              "evaluationPath": "challenges/evaluations/20260926132731-v6.json",
+              "evaluationCommit": "d0a8041f88dd37cbf631877464c06cf985998274",
+              "remainingScreens": 3,
+              "recordedSteps": 22,
+              "status": "complete",
+              "commit": "d0a8041f88dd37cbf631877464c06cf985998274",
+              "mismatch": {
+                "corpus": "synthetic",
+                "batch": "v6",
+                "caseId": "wizard-greasy-write-glib-final",
+                "session": "synthetic/v6/wizard-greasy-write-glib-final",
+                "manifestPath": "challenges/manifests/v6.json",
+                "manifestSha256": "7523b91e823f4e3906c9acdc9a3d80f8469c27c2caab8fc8fbd6967dbfdcab5f",
+                "recording": "challenges/cases/v6/wizard-greasy-write-glib-final.session.json",
+                "recordingPath": "challenges/cases/v6/wizard-greasy-write-glib-final.session.json",
+                "recordingSha256": "20b60af8d804f9bd6ebd5b1217dae85a6cdad0afcae9d4f98bd6c57d6f3fb6e6",
+                "recipe": "challenges/cases/v6/wizard-greasy-write-glib-final.recipe.session.json",
+                "recipeSha256": "a55d0f776ecd5d8a91bc59a3fc708c55e632be4e125a69ffaac720babd87ebdc",
+                "replayInputSha256": "a3ac3b6872f8e89451d29bdbf73b5215af57c013d215edeaba8f740cc0c5fc4a",
+                "evaluationPath": "challenges/evaluations/20260926132731-v6.json",
+                "evaluationCommit": "d0a8041f88dd37cbf631877464c06cf985998274",
+                "evaluationArtifact": "challenges/evaluations/20260926132731-v6.json",
+                "evaluationUtc": "2026-09-26T13:27:48.505Z",
+                "remainingScreens": 3,
+                "recordedSteps": 22,
+                "previousScreensMatched": 19,
+                "regression": false,
+                "passed": false,
+                "error": null,
+                "metrics": {
+                  "screens": {
+                    "matched": 19,
+                    "total": 22
+                  },
+                  "rng": {
+                    "matched": 2968,
+                    "total": 2978
+                  },
+                  "cursors": {
+                    "matched": 20,
+                    "total": 22
+                  }
+                },
+                "firstMismatch": {
+                  "screen": {
+                    "index": 18,
+                    "location": {
+                      "segmentIndex": 0,
+                      "stepIndex": 18,
+                      "key": "-"
+                    },
+                    "kind": "ch",
+                    "row": 0,
+                    "column": 34,
+                    "cCell": {
+                      "ch": "-",
+                      "color": 8,
+                      "attr": 0,
+                      "decgfx": 0
+                    },
+                    "jsCell": {
+                      "ch": " ",
+                      "color": 8,
+                      "attr": 0,
+                      "decgfx": 0
+                    }
+                  },
+                  "rng": null,
+                  "cursor": {
+                    "index": 18,
+                    "location": {
+                      "segmentIndex": 0,
+                      "stepIndex": 18,
+                      "key": "-"
+                    },
+                    "cCursor": [
+                      42,
+                      0,
+                      1
+                    ],
+                    "jsCursor": [
+                      25,
+                      9,
+                      1
+                    ]
+                  }
+                },
+                "step": 18,
+                "kind": "screen",
+                "sourceFile": null,
+                "function": null,
+                "message": null,
+                "cFile": null,
+                "luaFile": null,
+                "line": null
+              },
+              "summary": "The earlier grease branch now succeeds. The first remaining divergence is the turn after greasing the hands: C allmain.c calls do_wear.c:glibr() while Glib is active, and glibr() reports the unwielded quarterstaff slipping, clears the wield slot, and drops it. That second message makes the TTY wait at step 18; js/allmain.js omits the elapsed-turn glibr call, so the grease message has no --More-- marker and the quarterstaff drop never occurs.",
+              "source": {
+                "file": "do_wear.c",
+                "branch": "On the elapsed turn after apply.c:use_grease() grants Glib to the ungloved hands, do_wear.c:glibr() runs. With no slipping rings or offhand weapon, the active branch is the primary weapon arm: the Wizard is wielding a non-AKLYS, unwelded quarterstaff, so glibr() prints the slip message, clears uwep with setuwep(NULL), and drops the staff through dropx().",
+                "functions": [
+                  "glibr"
+                ],
+                "callers": [
+                  "C: allmain.c:moveloop_core calls do_wear.c:glibr() under if (Glib) immediately after advancing the turn and before nh_timeout(); wire the equivalent at the same source-order boundary in js/allmain.js:finishElapsedTurn, including its elapsed-turn planning/live state contract.",
+                  "Upstream reachability: apply.c:doapply -> use_grease() -> potion.c:make_glib() activates Glib for the hands; the next paid turn reaches allmain.c:moveloop_core -> glibr()."
+                ],
+                "dependencies": [
+                  "Preserve all glibr branches and shared equipment state: uarmg gates ring slipping; uleft/uright, uswapwep, u.twoweap, uwep, welded(), bimanual(), canletgo(), Ring_off(), setuswapwep(), and setuwep() determine which items fall and in what message order.",
+                  "The reachable quarterstaff branch uses do_wear.c weapon naming and otense helpers, clears the wield slot before do.c:dropx(), then follows the ordinary floor-drop path. JavaScript equivalents exist in js/wield.js, js/objnam.js, and js/do.js; preserve their state and drop admission contracts.",
+                  "Message sequencing is source-significant: topl.c:update_topl() invokes more() when glibr() prints the second message while the grease message occupies the line. Keep the turn caller in source order and let the existing TTY path receive both messages."
+                ]
+              },
+              "goalKind": "file-port",
+              "evidence": [
+                "Saved challenges/evaluations/20260926132731-v6.json and .cache/B14-committed-work-queue.json identify 3 remaining screens out of 22; the first mismatch is segment 0, step 18, key \"-\": C has \"-\" at row 0 column 34 and cursor [42,0,1], while JS has a blank there and cursor [25,9,1]. The saved metrics are 19/22 screens, 2968/2978 RNG calls, and 20/22 cursors.",
+                "challenges/cases/v6/wizard-greasy-write-glib-final.session.json: at step 18, C prints \"You coat your fingers with grease.--More--\" with T:2; at the next key (space), still at T:2, C prints \"Your quarterstaff slips from your hands.\" This establishes a second, source-ordered message after successful grease application, rather than a missing grease result or RNG divergence.",
+                "nethack-c/upstream/src/apply.c:2633-2644 calls make_glib(oldglib + rn1(11, 5)) for the hands and then prints the coat message; nethack-c/upstream/src/potion.c:461-468 implements make_glib(). This confirms the active condition that reaches the next-turn slip handling.",
+                "nethack-c/upstream/src/allmain.c:271-273 calls glibr() when Glib is active after move advancement and before nh_timeout(). The whole source owner is nethack-c/upstream/src/do_wear.c:2528-2630; its primary weapon branch prints the slip message, calls setuwep(NULL), and then dropx() for a non-AKLYS, unwelded weapon.",
+                "The call is absent from js/allmain.js:finishElapsedTurn, which advances state.moves/state.hero_seq and proceeds to nh_timeout(); js/do_wear.js has no glibr implementation. C win/tty/topl.c:update_topl() waits when the second message cannot share the occupied line, explaining the exact --More-- cell at step 18; the existing message path is not the missing source behavior."
+              ]
+            }
+          }
+        },
+        {
+          "corpus": "synthetic",
+          "batch": "v6",
+          "caseId": "wizard-greasy-write-glib-retry",
+          "session": "synthetic/v6/wizard-greasy-write-glib-retry",
+          "manifestPath": "challenges/manifests/v6.json",
+          "manifestSha256": "7523b91e823f4e3906c9acdc9a3d80f8469c27c2caab8fc8fbd6967dbfdcab5f",
+          "recording": "challenges/cases/v6/wizard-greasy-write-glib-retry.session.json",
+          "recordingPath": "challenges/cases/v6/wizard-greasy-write-glib-retry.session.json",
+          "recordingSha256": "1f5fda2b5444e9bce7c2e066e976b60f62fd7c87ff871fc1ca349d47f8652212",
+          "recipe": "challenges/cases/v6/wizard-greasy-write-glib-retry.recipe.session.json",
+          "recipeSha256": "ecfcfece116d53defd9c10d348de88397df9dda9feafbb1680d8f9a8007ffa84",
+          "replayInputSha256": "ab473da1bef7e544051029738426be2447a7a2735565aad8fdbb5f3fd0142a2c",
+          "evaluationPath": "challenges/evaluations/20260926192025-v6.json",
+          "evaluationCommit": "2c48911017c861e88a8cca846d32e92e6c044578",
+          "evaluationArtifact": "challenges/evaluations/20260926192025-v6.json",
+          "evaluationUtc": "2026-09-26T19:20:46.424Z",
+          "remainingScreens": 3,
+          "recordedSteps": 22,
+          "previousScreensMatched": 19,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 19,
+              "total": 22
+            },
+            "rng": {
+              "matched": 2974,
+              "total": 3001
+            },
+            "cursors": {
+              "matched": 20,
+              "total": 22
+            }
+          },
+          "firstMismatch": {
+            "screen": {
+              "index": 18,
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 18,
+                "key": "-"
+              },
+              "kind": "ch",
+              "row": 0,
+              "column": 34,
+              "cCell": {
+                "ch": "-",
+                "color": 8,
+                "attr": 0,
+                "decgfx": 0
+              },
+              "jsCell": {
+                "ch": " ",
+                "color": 8,
+                "attr": 0,
+                "decgfx": 0
+              }
+            },
+            "rng": {
+              "index": 2972,
+              "cEntry": "rn2(100)=19",
+              "cCaller": "obj_resists(zap.c:1469)",
+              "jsEntry": "rn2(1)=0",
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 21,
+                "key": "n"
+              },
+              "stepIndex": 21
+            },
+            "cursor": {
+              "index": 18,
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 18,
+                "key": "-"
+              },
+              "cCursor": [
+                42,
+                0,
+                1
+              ],
+              "jsCursor": [
+                25,
+                9,
+                1
+              ]
+            }
+          },
+          "step": 18,
+          "kind": "screen",
+          "sourceFile": null,
+          "function": null,
+          "message": null,
+          "cFile": null,
+          "luaFile": null,
+          "line": null,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v6/wizard-greasy-write-glib-retry.json",
+            "result": {
+              "session": "synthetic/v6/wizard-greasy-write-glib-retry",
+              "corpus": "synthetic",
+              "batch": "v6",
+              "caseId": "wizard-greasy-write-glib-retry",
+              "manifestPath": "challenges/manifests/v6.json",
+              "manifestSha256": "7523b91e823f4e3906c9acdc9a3d80f8469c27c2caab8fc8fbd6967dbfdcab5f",
+              "recordingPath": "challenges/cases/v6/wizard-greasy-write-glib-retry.session.json",
+              "recordingSha256": "1f5fda2b5444e9bce7c2e066e976b60f62fd7c87ff871fc1ca349d47f8652212",
+              "evaluationPath": "challenges/evaluations/20260926132731-v6.json",
+              "evaluationCommit": "d0a8041f88dd37cbf631877464c06cf985998274",
+              "remainingScreens": 3,
+              "recordedSteps": 22,
+              "status": "complete",
+              "commit": "d0a8041f88dd37cbf631877464c06cf985998274",
+              "mismatch": {
+                "corpus": "synthetic",
+                "batch": "v6",
+                "caseId": "wizard-greasy-write-glib-retry",
+                "session": "synthetic/v6/wizard-greasy-write-glib-retry",
+                "manifestPath": "challenges/manifests/v6.json",
+                "manifestSha256": "7523b91e823f4e3906c9acdc9a3d80f8469c27c2caab8fc8fbd6967dbfdcab5f",
+                "recording": "challenges/cases/v6/wizard-greasy-write-glib-retry.session.json",
+                "recordingPath": "challenges/cases/v6/wizard-greasy-write-glib-retry.session.json",
+                "recordingSha256": "1f5fda2b5444e9bce7c2e066e976b60f62fd7c87ff871fc1ca349d47f8652212",
+                "recipe": "challenges/cases/v6/wizard-greasy-write-glib-retry.recipe.session.json",
+                "recipeSha256": "ecfcfece116d53defd9c10d348de88397df9dda9feafbb1680d8f9a8007ffa84",
+                "replayInputSha256": "a3ac3b6872f8e89451d29bdbf73b5215af57c013d215edeaba8f740cc0c5fc4a",
+                "evaluationPath": "challenges/evaluations/20260926132731-v6.json",
+                "evaluationCommit": "d0a8041f88dd37cbf631877464c06cf985998274",
+                "evaluationArtifact": "challenges/evaluations/20260926132731-v6.json",
+                "evaluationUtc": "2026-09-26T13:27:48.505Z",
+                "remainingScreens": 3,
+                "recordedSteps": 22,
+                "previousScreensMatched": 19,
+                "regression": false,
+                "passed": false,
+                "error": null,
+                "metrics": {
+                  "screens": {
+                    "matched": 19,
+                    "total": 22
+                  },
+                  "rng": {
+                    "matched": 2968,
+                    "total": 3001
+                  },
+                  "cursors": {
+                    "matched": 20,
+                    "total": 22
+                  }
+                },
+                "firstMismatch": {
+                  "screen": {
+                    "index": 18,
+                    "location": {
+                      "segmentIndex": 0,
+                      "stepIndex": 18,
+                      "key": "-"
+                    },
+                    "kind": "ch",
+                    "row": 0,
+                    "column": 34,
+                    "cCell": {
+                      "ch": "-",
+                      "color": 8,
+                      "attr": 0,
+                      "decgfx": 0
+                    },
+                    "jsCell": {
+                      "ch": " ",
+                      "color": 8,
+                      "attr": 0,
+                      "decgfx": 0
+                    }
+                  },
+                  "rng": null,
+                  "cursor": {
+                    "index": 18,
+                    "location": {
+                      "segmentIndex": 0,
+                      "stepIndex": 18,
+                      "key": "-"
+                    },
+                    "cCursor": [
+                      42,
+                      0,
+                      1
+                    ],
+                    "jsCursor": [
+                      25,
+                      9,
+                      1
+                    ]
+                  }
+                },
+                "step": 18,
+                "kind": "screen",
+                "sourceFile": null,
+                "function": null,
+                "message": null,
+                "cFile": null,
+                "luaFile": null,
+                "line": null
+              },
+              "summary": "The case now reaches grease application, then first diverges when C waits for the next turn message. Applying grease to bare hands activates Glib; allmain.c calls do_wear.c:glibr(), which drops the unwelded quarterstaff. That second message makes the C terminal show --More-- at segment 0 step 18; JavaScript omits glibr() from its elapsed-turn path.",
+              "source": {
+                "file": "do_wear.c",
+                "branch": "After apply.c:use_grease() activates Glib on bare hands, the paid turn reaches allmain.c:moveloop_core -> glibr(). With no gloves, slipping rings, or offhand weapon, glibr() takes its primary weapon branch for the non-AKLYS, unwelded quarterstaff, prints the slip message, clears uwep, and drops it.",
+                "functions": [
+                  "glibr"
+                ],
+                "callers": [
+                  "C: allmain.c:moveloop_core calls do_wear.c:glibr() under if (Glib) after turn advancement and before nh_timeout(); wire the equivalent at that source-order boundary in js/allmain.js:finishElapsedTurn.",
+                  "State setup: apply.c:doapply -> use_grease() -> potion.c:make_glib() activates hand Glib; the next paid turn reaches allmain.c:moveloop_core -> glibr()."
+                ],
+                "dependencies": [
+                  "Preserve glibr branch order and shared equipment state: uarmg, uleft/uright, u.twoweap, uswapwep, uwep, welded(), bimanual(), canletgo(), Ring_off(), setuswapwep(), and setuwep() determine which items fall.",
+                  "The active weapon arm uses do_wear.c naming and tense helpers, clears the wield slot, then calls do.c:dropx(); JavaScript equivalents are in js/wield.js, js/objnam.js, and js/do.js and must retain their state/drop contracts.",
+                  "Keep glibr before nh_timeout in elapsed-turn planning and live execution. Its second message must reach the existing TTY path before later upkeep."
+                ]
+              },
+              "goalKind": "file-port",
+              "evidence": [
+                "Saved challenges/evaluations/20260926132731-v6.json reports 3 remaining screens of 22; the first mismatch is segment 0 step 18, key \"-\", row 0 column 34 (C dash, JS blank), cursor C [42,0,1], JS [25,9,1]. Metrics before it are 19/22 screens, 2968/3001 RNG calls, and 20/22 cursors.",
+                "C recording challenges/cases/v6/wizard-greasy-write-glib-retry.session.json: step 18 shows \"You coat your fingers with grease.--More--\" after use_grease; the following space at step 19 reveals \"Your quarterstaff slips from your hands.\" at the same turn count. The grease result is present; the following Glib turn effect is absent in JS."
+              ]
+            }
+          }
+        },
+        {
+          "corpus": "synthetic",
+          "batch": "v6",
+          "caseId": "wizard-grease-write-target",
+          "session": "synthetic/v6/wizard-grease-write-target",
+          "manifestPath": "challenges/manifests/v6.json",
+          "manifestSha256": "7523b91e823f4e3906c9acdc9a3d80f8469c27c2caab8fc8fbd6967dbfdcab5f",
+          "recording": "challenges/cases/v6/wizard-grease-write-target.session.json",
+          "recordingPath": "challenges/cases/v6/wizard-grease-write-target.session.json",
+          "recordingSha256": "b9a3a0043a92450cff4bb8ff6317738832b167b771eb23f05ed9d294cf4be021",
+          "recipe": "challenges/cases/v6/wizard-grease-write-target.recipe.session.json",
+          "recipeSha256": "84dd3586496d495a643ffeab343c8464e170ba5d6ef6f2b92eb59bfa85f2956b",
+          "replayInputSha256": "ab473da1bef7e544051029738426be2447a7a2735565aad8fdbb5f3fd0142a2c",
+          "evaluationPath": "challenges/evaluations/20260926192025-v6.json",
+          "evaluationCommit": "2c48911017c861e88a8cca846d32e92e6c044578",
+          "evaluationArtifact": "challenges/evaluations/20260926192025-v6.json",
+          "evaluationUtc": "2026-09-26T19:20:46.424Z",
+          "remainingScreens": 3,
+          "recordedSteps": 35,
+          "previousScreensMatched": 32,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 32,
+              "total": 35
+            },
+            "rng": {
+              "matched": 2638,
+              "total": 2638
+            },
+            "cursors": {
+              "matched": 32,
+              "total": 35
+            }
+          },
+          "firstMismatch": {
+            "screen": {
+              "index": 32,
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 32,
+                "key": "-"
+              },
+              "kind": "ch",
+              "row": 0,
+              "column": 34,
+              "cCell": {
+                "ch": "-",
+                "color": 8,
+                "attr": 0,
+                "decgfx": 0
+              },
+              "jsCell": {
+                "ch": " ",
+                "color": 8,
+                "attr": 0,
+                "decgfx": 0
+              }
+            },
+            "rng": null,
+            "cursor": {
+              "index": 32,
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 32,
+                "key": "-"
+              },
+              "cCursor": [
+                42,
+                0,
+                1
+              ],
+              "jsCursor": [
+                7,
+                3,
+                1
+              ]
+            }
+          },
+          "step": 32,
+          "kind": "screen",
+          "sourceFile": null,
+          "function": null,
+          "message": null,
+          "cFile": null,
+          "luaFile": null,
+          "line": null,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v6/wizard-grease-write-target.json",
+            "result": {
+              "session": "synthetic/v6/wizard-grease-write-target",
+              "corpus": "synthetic",
+              "batch": "v6",
+              "caseId": "wizard-grease-write-target",
+              "manifestPath": "challenges/manifests/v6.json",
+              "manifestSha256": "7523b91e823f4e3906c9acdc9a3d80f8469c27c2caab8fc8fbd6967dbfdcab5f",
+              "recordingPath": "challenges/cases/v6/wizard-grease-write-target.session.json",
+              "recordingSha256": "b9a3a0043a92450cff4bb8ff6317738832b167b771eb23f05ed9d294cf4be021",
+              "evaluationPath": "challenges/evaluations/20260926132731-v6.json",
+              "evaluationCommit": "d0a8041f88dd37cbf631877464c06cf985998274",
+              "remainingScreens": 3,
+              "recordedSteps": 35,
+              "status": "complete",
+              "commit": "d0a8041f88dd37cbf631877464c06cf985998274",
+              "mismatch": {
+                "corpus": "synthetic",
+                "batch": "v6",
+                "caseId": "wizard-grease-write-target",
+                "session": "synthetic/v6/wizard-grease-write-target",
+                "manifestPath": "challenges/manifests/v6.json",
+                "manifestSha256": "7523b91e823f4e3906c9acdc9a3d80f8469c27c2caab8fc8fbd6967dbfdcab5f",
+                "recording": "challenges/cases/v6/wizard-grease-write-target.session.json",
+                "recordingPath": "challenges/cases/v6/wizard-grease-write-target.session.json",
+                "recordingSha256": "b9a3a0043a92450cff4bb8ff6317738832b167b771eb23f05ed9d294cf4be021",
+                "recipe": "challenges/cases/v6/wizard-grease-write-target.recipe.session.json",
+                "recipeSha256": "84dd3586496d495a643ffeab343c8464e170ba5d6ef6f2b92eb59bfa85f2956b",
+                "replayInputSha256": "a3ac3b6872f8e89451d29bdbf73b5215af57c013d215edeaba8f740cc0c5fc4a",
+                "evaluationPath": "challenges/evaluations/20260926132731-v6.json",
+                "evaluationCommit": "d0a8041f88dd37cbf631877464c06cf985998274",
+                "evaluationArtifact": "challenges/evaluations/20260926132731-v6.json",
+                "evaluationUtc": "2026-09-26T13:27:48.505Z",
+                "remainingScreens": 3,
+                "recordedSteps": 35,
+                "previousScreensMatched": 32,
+                "regression": false,
+                "passed": false,
+                "error": null,
+                "metrics": {
+                  "screens": {
+                    "matched": 32,
+                    "total": 35
+                  },
+                  "rng": {
+                    "matched": 2638,
+                    "total": 2638
+                  },
+                  "cursors": {
+                    "matched": 32,
+                    "total": 35
+                  }
+                },
+                "firstMismatch": {
+                  "screen": {
+                    "index": 32,
+                    "location": {
+                      "segmentIndex": 0,
+                      "stepIndex": 32,
+                      "key": "-"
+                    },
+                    "kind": "ch",
+                    "row": 0,
+                    "column": 34,
+                    "cCell": {
+                      "ch": "-",
+                      "color": 8,
+                      "attr": 0,
+                      "decgfx": 0
+                    },
+                    "jsCell": {
+                      "ch": " ",
+                      "color": 8,
+                      "attr": 0,
+                      "decgfx": 0
+                    }
+                  },
+                  "rng": null,
+                  "cursor": {
+                    "index": 32,
+                    "location": {
+                      "segmentIndex": 0,
+                      "stepIndex": 32,
+                      "key": "-"
+                    },
+                    "cCursor": [
+                      42,
+                      0,
+                      1
+                    ],
+                    "jsCursor": [
+                      7,
+                      3,
+                      1
+                    ]
+                  }
+                },
+                "step": 32,
+                "kind": "screen",
+                "sourceFile": null,
+                "function": null,
+                "message": null,
+                "cFile": null,
+                "luaFile": null,
+                "line": null
+              },
+              "summary": "The first loss is the More wait after greasing bare hands, before marker targeting. use_grease activates Glib and allmain.c calls do_wear.c:glibr() on that paid turn; the quarterstaff slip message makes C wait at segment 0 step 32. The later recorded a/p keys remain blocked at More, while JS omits glibr().",
+              "source": {
+                "file": "do_wear.c",
+                "branch": "After apply.c:use_grease() activates Glib on bare hands, the paid turn reaches allmain.c:moveloop_core -> glibr(). With no gloves, slipping rings, or offhand weapon, glibr() takes its primary weapon branch for the non-AKLYS, unwelded quarterstaff, prints the slip message, clears uwep, and drops it.",
+                "functions": [
+                  "glibr"
+                ],
+                "callers": [
+                  "C: allmain.c:moveloop_core calls do_wear.c:glibr() under if (Glib) after turn advancement and before nh_timeout(); wire the equivalent at that source-order boundary in js/allmain.js:finishElapsedTurn.",
+                  "State setup: apply.c:doapply -> use_grease() -> potion.c:make_glib() activates hand Glib; the next paid turn reaches allmain.c:moveloop_core -> glibr()."
+                ],
+                "dependencies": [
+                  "Preserve glibr branch order and shared equipment state: uarmg, uleft/uright, u.twoweap, uswapwep, uwep, welded(), bimanual(), canletgo(), Ring_off(), setuswapwep(), and setuwep() determine which items fall.",
+                  "The active weapon arm uses do_wear.c naming and tense helpers, clears the wield slot, then calls do.c:dropx(); JavaScript equivalents are in js/wield.js, js/objnam.js, and js/do.js and must retain their state/drop contracts.",
+                  "Keep glibr before nh_timeout in elapsed-turn planning and live execution. Its second message must reach the existing TTY path before later upkeep."
+                ]
+              },
+              "goalKind": "file-port",
+              "evidence": [
+                "The current evaluation reports 3 remaining screens of 35; first mismatch is segment 0 step 32, key \"-\", row 0 column 34 (C dash, JS blank), cursors C [42,0,1] and JS [7,3,1]. RNG matches 2638/2638 at this point.",
+                "C recording challenges/cases/v6/wizard-grease-write-target.session.json step 32 selects the hands and shows \"You coat your fingers with grease.--More--\". The recipe continues with a then p, with no space acknowledgment; C remains on that More prompt. This first loss blocks the later marker-target inputs."
+              ]
+            }
+          }
+        },
+        {
+          "corpus": "synthetic",
+          "batch": "v6",
+          "caseId": "wizard-greasy-write-menu",
+          "session": "synthetic/v6/wizard-greasy-write-menu",
+          "manifestPath": "challenges/manifests/v6.json",
+          "manifestSha256": "7523b91e823f4e3906c9acdc9a3d80f8469c27c2caab8fc8fbd6967dbfdcab5f",
+          "recording": "challenges/cases/v6/wizard-greasy-write-menu.session.json",
+          "recordingPath": "challenges/cases/v6/wizard-greasy-write-menu.session.json",
+          "recordingSha256": "8c84d81c639a13c365d5d2a79e68d5cf92c9d25f9d82a474616930c2f582396e",
+          "recipe": "challenges/cases/v6/wizard-greasy-write-menu.recipe.session.json",
+          "recipeSha256": "2fe55dc432699f827a097f742847b77616f9306333a6f810fe53ca0b5e274980",
+          "replayInputSha256": "ab473da1bef7e544051029738426be2447a7a2735565aad8fdbb5f3fd0142a2c",
+          "evaluationPath": "challenges/evaluations/20260926192025-v6.json",
+          "evaluationCommit": "2c48911017c861e88a8cca846d32e92e6c044578",
+          "evaluationArtifact": "challenges/evaluations/20260926192025-v6.json",
+          "evaluationUtc": "2026-09-26T19:20:46.424Z",
+          "remainingScreens": 2,
+          "recordedSteps": 22,
+          "previousScreensMatched": 20,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 20,
+              "total": 22
+            },
+            "rng": {
+              "matched": 2968,
+              "total": 2968
+            },
+            "cursors": {
+              "matched": 21,
+              "total": 22
+            }
+          },
+          "firstMismatch": {
+            "screen": {
+              "index": 18,
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 18,
+                "key": "-"
+              },
+              "kind": "ch",
+              "row": 0,
+              "column": 34,
+              "cCell": {
+                "ch": "-",
+                "color": 8,
+                "attr": 0,
+                "decgfx": 0
+              },
+              "jsCell": {
+                "ch": " ",
+                "color": 8,
+                "attr": 0,
+                "decgfx": 0
+              }
+            },
+            "rng": null,
+            "cursor": {
+              "index": 18,
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 18,
+                "key": "-"
+              },
+              "cCursor": [
+                42,
+                0,
+                1
+              ],
+              "jsCursor": [
+                25,
+                9,
+                1
+              ]
+            }
+          },
+          "step": 18,
+          "kind": "screen",
+          "sourceFile": null,
+          "function": null,
+          "message": null,
+          "cFile": null,
+          "luaFile": null,
+          "line": null,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v6/wizard-greasy-write-menu.json",
+            "result": {
+              "session": "synthetic/v6/wizard-greasy-write-menu",
+              "corpus": "synthetic",
+              "batch": "v6",
+              "caseId": "wizard-greasy-write-menu",
+              "manifestPath": "challenges/manifests/v6.json",
+              "manifestSha256": "7523b91e823f4e3906c9acdc9a3d80f8469c27c2caab8fc8fbd6967dbfdcab5f",
+              "recordingPath": "challenges/cases/v6/wizard-greasy-write-menu.session.json",
+              "recordingSha256": "8c84d81c639a13c365d5d2a79e68d5cf92c9d25f9d82a474616930c2f582396e",
+              "evaluationPath": "challenges/evaluations/20260926132731-v6.json",
+              "evaluationCommit": "d0a8041f88dd37cbf631877464c06cf985998274",
+              "remainingScreens": 2,
+              "recordedSteps": 22,
+              "status": "complete",
+              "commit": "d0a8041f88dd37cbf631877464c06cf985998274",
+              "mismatch": {
+                "corpus": "synthetic",
+                "batch": "v6",
+                "caseId": "wizard-greasy-write-menu",
+                "session": "synthetic/v6/wizard-greasy-write-menu",
+                "manifestPath": "challenges/manifests/v6.json",
+                "manifestSha256": "7523b91e823f4e3906c9acdc9a3d80f8469c27c2caab8fc8fbd6967dbfdcab5f",
+                "recording": "challenges/cases/v6/wizard-greasy-write-menu.session.json",
+                "recordingPath": "challenges/cases/v6/wizard-greasy-write-menu.session.json",
+                "recordingSha256": "8c84d81c639a13c365d5d2a79e68d5cf92c9d25f9d82a474616930c2f582396e",
+                "recipe": "challenges/cases/v6/wizard-greasy-write-menu.recipe.session.json",
+                "recipeSha256": "2fe55dc432699f827a097f742847b77616f9306333a6f810fe53ca0b5e274980",
+                "replayInputSha256": "a3ac3b6872f8e89451d29bdbf73b5215af57c013d215edeaba8f740cc0c5fc4a",
+                "evaluationPath": "challenges/evaluations/20260926132731-v6.json",
+                "evaluationCommit": "d0a8041f88dd37cbf631877464c06cf985998274",
+                "evaluationArtifact": "challenges/evaluations/20260926132731-v6.json",
+                "evaluationUtc": "2026-09-26T13:27:48.505Z",
+                "remainingScreens": 2,
+                "recordedSteps": 22,
+                "previousScreensMatched": 20,
+                "regression": false,
+                "passed": false,
+                "error": null,
+                "metrics": {
+                  "screens": {
+                    "matched": 20,
+                    "total": 22
+                  },
+                  "rng": {
+                    "matched": 2968,
+                    "total": 2968
+                  },
+                  "cursors": {
+                    "matched": 21,
+                    "total": 22
+                  }
+                },
+                "firstMismatch": {
+                  "screen": {
+                    "index": 18,
+                    "location": {
+                      "segmentIndex": 0,
+                      "stepIndex": 18,
+                      "key": "-"
+                    },
+                    "kind": "ch",
+                    "row": 0,
+                    "column": 34,
+                    "cCell": {
+                      "ch": "-",
+                      "color": 8,
+                      "attr": 0,
+                      "decgfx": 0
+                    },
+                    "jsCell": {
+                      "ch": " ",
+                      "color": 8,
+                      "attr": 0,
+                      "decgfx": 0
+                    }
+                  },
+                  "rng": null,
+                  "cursor": {
+                    "index": 18,
+                    "location": {
+                      "segmentIndex": 0,
+                      "stepIndex": 18,
+                      "key": "-"
+                    },
+                    "cCursor": [
+                      42,
+                      0,
+                      1
+                    ],
+                    "jsCursor": [
+                      25,
+                      9,
+                      1
+                    ]
+                  }
+                },
+                "step": 18,
+                "kind": "screen",
+                "sourceFile": null,
+                "function": null,
+                "message": null,
+                "cFile": null,
+                "luaFile": null,
+                "line": null
+              },
+              "summary": "C’s glibr() message about the quarterstaff follows the coat message and creates the More wait at step 18; the next space displays the slip message at step 19. JS omits glibr() from its elapsed-turn path, so the first mismatch is the missing More marker.",
+              "source": {
+                "file": "do_wear.c",
+                "branch": "After apply.c:use_grease() activates Glib on bare hands, the paid turn reaches allmain.c:moveloop_core -> glibr(). With no gloves, slipping rings, or offhand weapon, glibr() takes its primary weapon branch for the non-AKLYS, unwelded quarterstaff, prints the slip message, clears uwep, and drops it.",
+                "functions": [
+                  "glibr"
+                ],
+                "callers": [
+                  "C: allmain.c:moveloop_core calls do_wear.c:glibr() under if (Glib) after turn advancement and before nh_timeout(); wire the equivalent at that source-order boundary in js/allmain.js:finishElapsedTurn.",
+                  "State setup: apply.c:doapply -> use_grease() -> potion.c:make_glib() activates hand Glib; the next paid turn reaches allmain.c:moveloop_core -> glibr()."
+                ],
+                "dependencies": [
+                  "Preserve glibr branch order and shared equipment state: uarmg, uleft/uright, u.twoweap, uswapwep, uwep, welded(), bimanual(), canletgo(), Ring_off(), setuswapwep(), and setuwep() determine which items fall.",
+                  "The active weapon arm uses do_wear.c naming and tense helpers, clears the wield slot, then calls do.c:dropx(); JavaScript equivalents are in js/wield.js, js/objnam.js, and js/do.js and must retain their state/drop contracts.",
+                  "Keep glibr before nh_timeout in elapsed-turn planning and live execution. Its second message must reach the existing TTY path before later upkeep."
+                ]
+              },
+              "goalKind": "file-port",
+              "evidence": [
+                "The current evaluation reports 2 remaining screens of 22; first mismatch is segment 0 step 18, key \"-\", row 0 column 34 (C dash, JS blank), cursors C [42,0,1] and JS [25,9,1]. RNG matches 2968/2968.",
+                "C recording challenges/cases/v6/wizard-greasy-write-menu.session.json step 18 displays \"You coat your fingers with grease.--More--\". Step-19 space acknowledges More and reveals \"Your quarterstaff slips from your hands.\"; step 20 returns to the apply prompt. The first missing wait precedes later menu behavior."
+              ]
+            }
+          }
+        },
+        {
+          "corpus": "synthetic",
+          "batch": "v6",
+          "caseId": "wizard-grease-hands-final",
+          "session": "synthetic/v6/wizard-grease-hands-final",
+          "manifestPath": "challenges/manifests/v6.json",
+          "manifestSha256": "7523b91e823f4e3906c9acdc9a3d80f8469c27c2caab8fc8fbd6967dbfdcab5f",
+          "recording": "challenges/cases/v6/wizard-grease-hands-final.session.json",
+          "recordingPath": "challenges/cases/v6/wizard-grease-hands-final.session.json",
+          "recordingSha256": "a22865ca6fd6510f9e8e02a91b816b7862d8257bcedde8f2995d4e702df4d012",
+          "recipe": "challenges/cases/v6/wizard-grease-hands-final.recipe.session.json",
+          "recipeSha256": "bac400fb9aa453e9dc8ef8318bd4e510d7d3fbb3706559a2a889d40c7513228d",
+          "replayInputSha256": "ab473da1bef7e544051029738426be2447a7a2735565aad8fdbb5f3fd0142a2c",
+          "evaluationPath": "challenges/evaluations/20260926192025-v6.json",
+          "evaluationCommit": "2c48911017c861e88a8cca846d32e92e6c044578",
+          "evaluationArtifact": "challenges/evaluations/20260926192025-v6.json",
+          "evaluationUtc": "2026-09-26T19:20:46.424Z",
+          "remainingScreens": 1,
+          "recordedSteps": 19,
+          "previousScreensMatched": 18,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 18,
+              "total": 19
+            },
+            "rng": {
+              "matched": 2365,
+              "total": 2365
+            },
+            "cursors": {
+              "matched": 18,
+              "total": 19
+            }
+          },
+          "firstMismatch": {
+            "screen": {
+              "index": 18,
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 18,
+                "key": "-"
+              },
+              "kind": "ch",
+              "row": 0,
+              "column": 34,
+              "cCell": {
+                "ch": "-",
+                "color": 8,
+                "attr": 0,
+                "decgfx": 0
+              },
+              "jsCell": {
+                "ch": " ",
+                "color": 8,
+                "attr": 0,
+                "decgfx": 0
+              }
+            },
+            "rng": {
+              "index": 2365,
+              "cCaller": null,
+              "jsEntry": "rn2(20)=13",
+              "stepIndex": null
+            },
+            "cursor": {
+              "index": 18,
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 18,
+                "key": "-"
+              },
+              "cCursor": [
+                42,
+                0,
+                1
+              ],
+              "jsCursor": [
+                64,
+                17,
+                1
+              ]
+            }
+          },
+          "step": 18,
+          "kind": "screen",
+          "sourceFile": null,
+          "function": null,
+          "message": null,
+          "cFile": null,
+          "luaFile": null,
+          "line": null,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v6/wizard-grease-hands-final.json",
+            "result": {
+              "session": "synthetic/v6/wizard-grease-hands-final",
+              "corpus": "synthetic",
+              "batch": "v6",
+              "caseId": "wizard-grease-hands-final",
+              "manifestPath": "challenges/manifests/v6.json",
+              "manifestSha256": "7523b91e823f4e3906c9acdc9a3d80f8469c27c2caab8fc8fbd6967dbfdcab5f",
+              "recordingPath": "challenges/cases/v6/wizard-grease-hands-final.session.json",
+              "recordingSha256": "a22865ca6fd6510f9e8e02a91b816b7862d8257bcedde8f2995d4e702df4d012",
+              "evaluationPath": "challenges/evaluations/20260926132731-v6.json",
+              "evaluationCommit": "d0a8041f88dd37cbf631877464c06cf985998274",
+              "remainingScreens": 1,
+              "recordedSteps": 19,
+              "status": "complete",
+              "commit": "d0a8041f88dd37cbf631877464c06cf985998274",
+              "mismatch": {
+                "corpus": "synthetic",
+                "batch": "v6",
+                "caseId": "wizard-grease-hands-final",
+                "session": "synthetic/v6/wizard-grease-hands-final",
+                "manifestPath": "challenges/manifests/v6.json",
+                "manifestSha256": "7523b91e823f4e3906c9acdc9a3d80f8469c27c2caab8fc8fbd6967dbfdcab5f",
+                "recording": "challenges/cases/v6/wizard-grease-hands-final.session.json",
+                "recordingPath": "challenges/cases/v6/wizard-grease-hands-final.session.json",
+                "recordingSha256": "a22865ca6fd6510f9e8e02a91b816b7862d8257bcedde8f2995d4e702df4d012",
+                "recipe": "challenges/cases/v6/wizard-grease-hands-final.recipe.session.json",
+                "recipeSha256": "bac400fb9aa453e9dc8ef8318bd4e510d7d3fbb3706559a2a889d40c7513228d",
+                "replayInputSha256": "a3ac3b6872f8e89451d29bdbf73b5215af57c013d215edeaba8f740cc0c5fc4a",
+                "evaluationPath": "challenges/evaluations/20260926132731-v6.json",
+                "evaluationCommit": "d0a8041f88dd37cbf631877464c06cf985998274",
+                "evaluationArtifact": "challenges/evaluations/20260926132731-v6.json",
+                "evaluationUtc": "2026-09-26T13:27:48.505Z",
+                "remainingScreens": 1,
+                "recordedSteps": 19,
+                "previousScreensMatched": 18,
+                "regression": false,
+                "passed": false,
+                "error": null,
+                "metrics": {
+                  "screens": {
+                    "matched": 18,
+                    "total": 19
+                  },
+                  "rng": {
+                    "matched": 2365,
+                    "total": 2365
+                  },
+                  "cursors": {
+                    "matched": 18,
+                    "total": 19
+                  }
+                },
+                "firstMismatch": {
+                  "screen": {
+                    "index": 18,
+                    "location": {
+                      "segmentIndex": 0,
+                      "stepIndex": 18,
+                      "key": "-"
+                    },
+                    "kind": "ch",
+                    "row": 0,
+                    "column": 34,
+                    "cCell": {
+                      "ch": "-",
+                      "color": 8,
+                      "attr": 0,
+                      "decgfx": 0
+                    },
+                    "jsCell": {
+                      "ch": " ",
+                      "color": 8,
+                      "attr": 0,
+                      "decgfx": 0
+                    }
+                  },
+                  "rng": {
+                    "index": 2365,
+                    "cCaller": null,
+                    "jsEntry": "rn2(20)=13",
+                    "stepIndex": null
+                  },
+                  "cursor": {
+                    "index": 18,
+                    "location": {
+                      "segmentIndex": 0,
+                      "stepIndex": 18,
+                      "key": "-"
+                    },
+                    "cCursor": [
+                      42,
+                      0,
+                      1
+                    ],
+                    "jsCursor": [
+                      64,
+                      17,
+                      1
+                    ]
+                  }
+                },
+                "step": 18,
+                "kind": "screen",
+                "sourceFile": null,
+                "function": null,
+                "message": null,
+                "cFile": null,
+                "luaFile": null,
+                "line": null
+              },
+              "summary": "After grease is applied to bare hands, C’s allmain.c calls do_wear.c:glibr(), whose quarterstaff slip message triggers --More-- at step 18. JS has the coat message but no More boundary because its elapsed-turn path omits glibr(). The evaluation also reports a JS-only trailing rn2(20)=13 with no step index; keep that later RNG observation separate from this source-attributed first screen mismatch.",
+              "source": {
+                "file": "do_wear.c",
+                "branch": "After apply.c:use_grease() activates Glib on bare hands, the paid turn reaches allmain.c:moveloop_core -> glibr(). With no gloves, slipping rings, or offhand weapon, glibr() takes its primary weapon branch for the non-AKLYS, unwelded quarterstaff, prints the slip message, clears uwep, and drops it.",
+                "functions": [
+                  "glibr"
+                ],
+                "callers": [
+                  "C: allmain.c:moveloop_core calls do_wear.c:glibr() under if (Glib) after turn advancement and before nh_timeout(); wire the equivalent at that source-order boundary in js/allmain.js:finishElapsedTurn.",
+                  "State setup: apply.c:doapply -> use_grease() -> potion.c:make_glib() activates hand Glib; the next paid turn reaches allmain.c:moveloop_core -> glibr()."
+                ],
+                "dependencies": [
+                  "Preserve glibr branch order and shared equipment state: uarmg, uleft/uright, u.twoweap, uswapwep, uwep, welded(), bimanual(), canletgo(), Ring_off(), setuswapwep(), and setuwep() determine which items fall.",
+                  "The active weapon arm uses do_wear.c naming and tense helpers, clears the wield slot, then calls do.c:dropx(); JavaScript equivalents are in js/wield.js, js/objnam.js, and js/do.js and must retain their state/drop contracts.",
+                  "Keep glibr before nh_timeout in elapsed-turn planning and live execution. Its second message must reach the existing TTY path before later upkeep."
+                ]
+              },
+              "goalKind": "file-port",
+              "evidence": [
+                "The current evaluation reports 1 remaining screen of 19. At segment 0 step 18, key \"-\", the first mismatch is row 0 column 34 (C dash, JS blank), cursor C [42,0,1], JS [64,17,1]. Screens match 18/19 and RNG through 2365/2365; the report separately lists JS-only rn2(20)=13 at RNG index 2365 with no step index.",
+                "C recording challenges/cases/v6/wizard-grease-hands-final.session.json step 18 prints \"You coat your fingers with grease.--More--\"; its RNG includes rn2(11)=8 @ use_grease(apply.c:2643), confirming hand grease succeeded before the More wait.",
+                "Do not attribute the later unlocated RNG entry to glibr without separate evidence."
+              ]
+            }
+          }
+        }
+      ]
     },
     {
       "id": "port-eat-tin-opening-synthetic-v7-20260926",
