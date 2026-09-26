@@ -84967,7 +84967,7 @@
     {
       "id": "port-eat-tin-opening-synthetic-v7-20260926",
       "kind": "file-port",
-      "status": "open",
+      "status": "parked",
       "summary": "Port eat.c tin-opening and consumption function family",
       "cFile": "eat.c",
       "sessions": [
@@ -85222,7 +85222,17 @@
             }
           }
         }
-      ]
+      ],
+      "progressBeforePark": {
+        "screens": 0,
+        "rng": 0
+      },
+      "parkedStanding": {
+        "sha": "2c48911017c861e88a8cca846d32e92e6c044578",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "parkedReason": "Verified direct doeat spinach opening and delayed opentin with v7 full match plus independent 29-step cursed-spinach C recording. Whole eat.c family remains incomplete: consume_tin meat effects still need cprefx/cpostfx, tin_details lacks matching known-tin xname entry evidence, and use_tin_opener lacks apply.c:doapply TIN_OPENER caller until A14 releases that source reservation. Separate v6 tin-making cases belong to apply.c:use_tinning_kit."
     }
   ]
 }
