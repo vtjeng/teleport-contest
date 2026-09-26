@@ -1170,11 +1170,62 @@ export function bypass_obj(obj, state = game) {
 }
 
 // C ref: worn.c mon_break_armor() (1177-1338). Armor that a changed monster
-// cannot wear is destroyed or dropped in source order. The fall-specific
-// steed and petrification calls remain named gaps because their source owners
-// are not complete in this port.
-export async function mon_break_armor(monster, polyspot, rawEnv = {}) {
+// cannot wear is destroyed or dropped in source order. Keep its no-effect
+// paths synchronous: mon.c newcham() is called synchronously during level
+// construction, and the C helper does not suspend when no equipment changes.
+// The fall-specific steed and petrification calls remain named gaps because
+// their source owners are not complete in this port.
+export function mon_break_armor(monster, polyspot, rawEnv = {}) {
     const env = wornEnv(rawEnv);
+    if (!mon_break_armor_has_effect(monster, env.state)) return;
+    return mon_break_armor_effects(monster, polyspot, env);
+}
+
+// Read the same predicates and worn slots as mon_break_armor() without
+// changing state. can_saddle(), can_ride(), which_armor(), and is_flimsy() are
+// pure source predicates; checking them here lets the wrapper distinguish an
+// unchanged armor transition before selecting the async effectful path.
+function mon_break_armor_has_effect(monster, state) {
+    const data = monster.data;
+    let obj;
+
+    if (breakarm(data)) {
+        if (which_armor(monster, W_ARM, state)
+            || ((obj = which_armor(monster, W_ARMC, state))
+                && (obj.otyp !== MUMMY_WRAPPING || !WrappingAllowed(data)))
+            || which_armor(monster, W_ARMU, state)) return true;
+    } else if (sliparm(data)) {
+        if (which_armor(monster, W_ARM, state)
+            || ((obj = which_armor(monster, W_ARMC, state))
+                && (obj.otyp !== MUMMY_WRAPPING || !WrappingAllowed(data)))
+            || which_armor(monster, W_ARMU, state)) return true;
+    }
+
+    const handlessOrTiny = nohands(data) || verysmall(data);
+    if (handlessOrTiny
+        && (which_armor(monster, W_ARMG, state)
+            || which_armor(monster, W_ARMS, state))) return true;
+
+    if (handlessOrTiny || has_horns(data)) {
+        obj = which_armor(monster, W_ARMH, state);
+        if (obj && (handlessOrTiny || !is_flimsy(obj, state))) return true;
+    }
+
+    if ((handlessOrTiny || slithy(data) || data.mlet === S_CENTAUR)
+        && which_armor(monster, W_ARMF, state)) return true;
+
+    const canSaddle = can_saddle(monster);
+    if (!canSaddle) {
+        if (which_armor(monster, W_SADDLE, state)
+            || monster === state.u.usteed) return true;
+    } else if (monster === state.u.usteed && !can_ride(monster, state)) {
+        return true;
+    }
+
+    return false;
+}
+
+async function mon_break_armor_effects(monster, polyspot, env) {
     const { state } = env;
     const message = env.message ?? ttyPline;
     const random = { rnl, ...(env.random ?? {}) };
