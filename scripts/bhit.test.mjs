@@ -11,6 +11,7 @@ import {
     ENGRAVE,
     HEADSTONE,
     IRONBARS,
+    OBJ_DELETED,
     KICKED_WEAPON,
     LAVAWALL,
     M_AP_FURNITURE,
@@ -33,6 +34,7 @@ import {
     UnsupportedBhitError,
     bhit,
     bhitm,
+    bhito,
     zap_map,
     weffects,
 } from '../js/zap.js';
@@ -40,9 +42,10 @@ import { initialize_symbols_from_options } from '../js/symbols.js';
 import { PM_KOBOLD, PM_SHADE, monst_globals_init } from '../js/monsters.js';
 import { newMonster, place_monster } from '../js/monst.js';
 import { accessible } from '../js/monmove.js';
+import { block_point } from '../js/vision.js';
 import { game } from '../js/gstate.js';
 import { runSegment } from '../js/jsmain.js';
-import { newObject } from '../js/obj.js';
+import { newObject, place_object } from '../js/obj.js';
 import { init_objects } from '../js/o_init.js';
 import { objects_globals_init } from '../js/objects.js';
 import { enableRngLog, getRngLog, initRng } from '../js/rng.js';
@@ -52,9 +55,12 @@ import {
     HEAVY_IRON_BALL,
     OIL_LAMP,
     PICK_AXE,
+    BOULDER,
+    EGG,
     ROCK,
     WAR_HAMMER,
     IMMEDIATE,
+    SPE_FORCE_BOLT,
     WAN_POLYMORPH,
     WAN_STRIKING,
 } from '../js/objects.js';
@@ -251,6 +257,76 @@ test('bhitm keeps its ray position separate from zap.c hit()', async () => {
     assert.equal(game.gn.notonhead, false);
     assert.equal(monster.mhp, 28);
     assert.deepEqual(draws, [['rnd', 20], ['d', 2, 12], ['rn2', 111]]);
+});
+
+test('bhito fractures a boulder for Force Bolt and preserves its return',
+    async () => {
+        // zap.c:2291-2308 and fracture_rock():5537-5580. The ray callback
+        // reports the boulder as affected, replaces it with ordinary rock,
+        // and rolls exactly rn1(60, 7) before recomputing its weight.
+        await runSegment({
+            seed: 71592645,
+            datetime: '20390626104513',
+            nethackrc: 'OPTIONS=name:BoulderRay,role:Valkyrie,race:human,gender:female,align:neutral\n'
+                + 'OPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!acoustics\n',
+            moves: '',
+        }, {});
+        const state = game;
+        const [x, y] = [[1, 0], [-1, 0], [0, 1], [0, -1]]
+            .map(([dx, dy]) => [state.u.ux + dx, state.u.uy + dy])
+            .find(([bx, by]) => accessible(bx, by, state));
+        assert.ok(Number.isInteger(x) && Number.isInteger(y));
+        const boulder = missile(state, BOULDER);
+        place_object(boulder, x, y, {
+            state,
+            hooks: { blockPoint: (x, y, env) => block_point(x, y, env.state) },
+        });
+        const wand = missile(state, SPE_FORCE_BOLT);
+        const messages = [];
+        const draws = [];
+        const affected = await bhito(boulder, wand, state, {
+            rn1: (n, base) => { draws.push(['rn1', n, base]); return base + 1; },
+            rn2: (n) => { draws.push(['rn2', n]); return 0; },
+            rnd: (n) => { draws.push(['rnd', n]); return 1; },
+        }, { message: async (line) => messages.push(line) });
+
+        assert.equal(affected, 1);
+        assert.equal(boulder.otyp, ROCK);
+        assert.deepEqual(draws, [['rn1', 60, 7]]);
+        assert.deepEqual(messages, ['The boulder falls apart.']);
+        assert.equal(state.level.objects[x][y], boulder);
+    });
+
+test('bhito consumes the hero_breaks result for an egg hit', async () => {
+    // zap.c:2305-2309 consumes hero_breaks() and uses its result to choose
+    // the caller return and forced redraw. dothrow.c spends one resistance
+    // draw in breaktest() and another in delobj_core().
+    await runSegment({
+        seed: 71592646,
+        datetime: '20390626104514',
+        nethackrc: 'OPTIONS=name:EggRay,role:Valkyrie,race:human,gender:female,align:neutral\n'
+            + 'OPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!acoustics\n',
+        moves: '',
+    }, {});
+    const state = game;
+    const [x, y] = [[1, 0], [-1, 0], [0, 1], [0, -1]]
+        .map(([dx, dy]) => [state.u.ux + dx, state.u.uy + dy])
+        .find(([ox, oy]) => accessible(ox, oy, state));
+    const egg = missile(state, EGG);
+    place_object(egg, x, y, state);
+    const messages = [];
+    const draws = [];
+    const affected = await bhito(egg, missile(state, SPE_FORCE_BOLT), state, {
+        rn1: (n, base) => base + n,
+        rn2: (bound) => { draws.push(bound); return bound - 1; },
+        rnd: () => 1,
+    }, { message: async (line) => messages.push(line) });
+
+    assert.equal(affected, 0);
+    assert.equal(egg.where, OBJ_DELETED);
+    assert.equal(state.level.objects[x][y], null);
+    assert.deepEqual(draws, [100, 100]);
+    assert.deepEqual(messages, ['Splat!']);
 });
 
 test('weffects sends immediate effects through the source ray callback walk',

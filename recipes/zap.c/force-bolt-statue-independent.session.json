@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 8198303,
+      "datetime": "20390928123456",
+      "nethackrc": "OPTIONS=name:StatueTrial,role:Wizard,race:human,gender:female,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen,playmode:debug,pettype:none,!acoustics,!autopickup,time\n",
+      "moves": " \u0017wand of striking\n\u0017statue of newt\ndplzoh"
+    }
+  ],
+  "_comment": "Independent B17 Force Bolt statue witness: wish a wand of striking and a statue of a newt, drop the statue, move east, and zap west. This reaches zap.c weffects through bhit/bhitpile/bhito, then break_statue and fracture_rock."
+}
