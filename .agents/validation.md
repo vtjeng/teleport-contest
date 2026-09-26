@@ -177,6 +177,9 @@ requirements. When a function or its wiring changes, refresh its evidence
 in the same task.
 Existing declarations that lack evidence remain eligible for implementation
 or verification; do not reimplement correct code merely to change a count.
+If a new source trace proves that a closed goal's completion evidence covered
+only part of a function, use `goal-log.mjs invalidate-evidence` to retain that
+history while making the function eligible for a new whole-function task.
 
 For C-to-JavaScript and Lua-to-JavaScript translations, verify evaluation
 order explicitly. Lua numeric-for bounds are evaluated once before the loop.

@@ -29296,7 +29296,15 @@
         "sha": "b26545e0945804ea3bc6e777968095e46ec8d2bc",
         "screens": 7062,
         "rng": 519923
-      }
+      },
+      "invalidatedFunctions": [
+        {
+          "name": "doread",
+          "reason": "Historical sourceReview explicitly left other scroll, spellbook, and readable branches fail-closed; the admitted v5 Ranger cursed teleport scroll reaches read.c doread at step 34 and C admits it. Revisit the whole doread function and its return-valued seffects call.",
+          "followupGoal": "port-read-doread-cursed-teleport-synthetic-v5-20260926",
+          "at": "ab521be51689dd72fa428500b05241756e0f22c4"
+        }
+      ]
     },
     {
       "id": "port-wizcmds-wiz-map",
@@ -77038,25 +77046,32 @@
     {
       "id": "port-pray-offer-corpse-synthetic-v2-20260926",
       "kind": "file-port",
-      "status": "queued",
+      "status": "closed",
       "summary": "Port pray.c offer_corpse and wire the sacrifice corpse arm",
       "cFile": "pray.c",
       "sessions": [
         "synthetic/v2/altar-rite-history"
       ],
-      "selectionReason": "synthetic/v2/altar-rite-history has 2 unmatched screens in challenges/evaluations/20260926034749-v2.json; investigations/synthetic/v2/altar-rite-history.json traces them to pray.c offer_corpse. Higher-ranked v3 food and v4 sink cases are already owned by pending B8 and C10 deliveries. This is the first independent completed-investigation task for a free worker.",
+      "selectionReason": "Integrate exact ready C11 delivery for the previously selected v2 altar mismatch; Samurai wish retry is owned by A9, Healer wand shares A9 zap.js, and Ranger read.c is C12 seed continuation. Preserve source-traced priority and independent C evidence.",
       "detail": "At segment 0 step 48 the C #offer path enters pray.c dosacrifice -> offer_corpse; JS misses the exercise draw after a wished jackal corpse. Port the whole function and required return-valued callees, including pray.c eval_offering, sacrifice_value, bestow_artifact, and aligned artifact.c mk_artifact where reached.",
-      "openedAt": null,
-      "openStanding": null,
-      "closedAt": null,
-      "delivered": null,
+      "openedAt": "09cd75fde2607c3b003e6f8ceb20073f6d6e7fa0",
+      "openStanding": {
+        "sha": "2fac8449cb8c3bdb4c07996b069aa0f8526b2315",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "closedAt": "7e18f426e5b6b4030afbc50c1720f1a79e82d57b",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
       "functions": [
         {
           "name": "offer_corpse",
           "line": 1959,
           "endLine": 2123,
-          "declared": false,
-          "complete": false
+          "declared": true,
+          "complete": true
         }
       ],
       "range": {
@@ -77073,9 +77088,335 @@
           "manifestSha256": "58739ea9ed6c26e5153c4860b2e5111d08d69792bdea5c39427cf45b8e72cc9c",
           "recordingPath": "challenges/cases/v2/altar-rite-history.session.json",
           "recordingSha256": "f3fbc209ee4d556822809c679e9cc73054b48fa85ba5d17864b764f30b4cf048",
-          "evaluationPath": "challenges/evaluations/20260926034749-v2.json",
-          "evaluationCommit": "c12df7b29cfff0e2b05b59d802a204008912d442"
+          "evaluationPath": "challenges/evaluations/20260926045229-v2.json",
+          "evaluationCommit": "2fac8449cb8c3bdb4c07996b069aa0f8526b2315"
         }
+      },
+      "activeStanding": {
+        "sha": "2fac8449cb8c3bdb4c07996b069aa0f8526b2315",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v2",
+          "caseId": "altar-rite-history",
+          "session": "synthetic/v2/altar-rite-history",
+          "manifestPath": "challenges/manifests/v2.json",
+          "manifestSha256": "58739ea9ed6c26e5153c4860b2e5111d08d69792bdea5c39427cf45b8e72cc9c",
+          "recording": "challenges/cases/v2/altar-rite-history.session.json",
+          "recordingPath": "challenges/cases/v2/altar-rite-history.session.json",
+          "recordingSha256": "f3fbc209ee4d556822809c679e9cc73054b48fa85ba5d17864b764f30b4cf048",
+          "recipe": "challenges/cases/v2/altar-rite-history.recipe.json",
+          "recipeSha256": "b911dc353955f391a0e40bbf9c6c792bec55089eafbe11c9ce82d430b819391d",
+          "replayInputSha256": "f2be0f051d98ca177798a5d4e4e4dc3be5ad44bddda623ae931bcf0c6e0724ae",
+          "evaluationPath": "challenges/evaluations/20260926045229-v2.json",
+          "evaluationCommit": "2fac8449cb8c3bdb4c07996b069aa0f8526b2315",
+          "evaluationArtifact": "challenges/evaluations/20260926045229-v2.json",
+          "evaluationUtc": "2026-09-26T04:52:32.536Z",
+          "remainingScreens": 2,
+          "recordedSteps": 50,
+          "previousScreensMatched": 48,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 48,
+              "total": 50
+            },
+            "rng": {
+              "matched": 3153,
+              "total": 3169
+            },
+            "cursors": {
+              "matched": 49,
+              "total": 50
+            }
+          },
+          "firstMismatch": {
+            "screen": {
+              "index": 48,
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 48,
+                "key": "i"
+              },
+              "kind": "ch",
+              "row": 0,
+              "column": 0,
+              "cCell": {
+                "ch": "Y",
+                "color": 8,
+                "attr": 0,
+                "decgfx": 0
+              },
+              "jsCell": {
+                "ch": "W",
+                "color": 8,
+                "attr": 0,
+                "decgfx": 0
+              }
+            },
+            "rng": {
+              "index": 3143,
+              "cEntry": "rn2(19)=17",
+              "cCaller": "exercise(attrib.c:509)",
+              "jsEntry": "rn2(40)=9",
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 48,
+                "key": "i"
+              },
+              "stepIndex": 48
+            },
+            "cursor": {
+              "index": 48,
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 48,
+                "key": "i"
+              },
+              "cCursor": [
+                55,
+                0,
+                1
+              ],
+              "jsCursor": [
+                53,
+                12,
+                1
+              ]
+            }
+          },
+          "step": 48,
+          "kind": "rng",
+          "sourceFile": "attrib.c",
+          "function": "exercise",
+          "message": null,
+          "cFile": "attrib.c",
+          "luaFile": null,
+          "line": 509,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v2/altar-rite-history.json",
+            "result": {
+              "session": "synthetic/v2/altar-rite-history",
+              "corpus": "synthetic",
+              "batch": "v2",
+              "caseId": "altar-rite-history",
+              "manifestPath": "challenges/manifests/v2.json",
+              "manifestSha256": "58739ea9ed6c26e5153c4860b2e5111d08d69792bdea5c39427cf45b8e72cc9c",
+              "recordingPath": "challenges/cases/v2/altar-rite-history.session.json",
+              "recordingSha256": "f3fbc209ee4d556822809c679e9cc73054b48fa85ba5d17864b764f30b4cf048",
+              "evaluationPath": "challenges/evaluations/20260925221225-v2.json",
+              "evaluationCommit": "9df17907e4122a6809ade23228f0930b179bfba6",
+              "remainingScreens": 2,
+              "recordedSteps": 50,
+              "status": "complete",
+              "commit": "9df17907e4122a6809ade23228f0930b179bfba6",
+              "mismatch": {
+                "corpus": "synthetic",
+                "batch": "v2",
+                "caseId": "altar-rite-history",
+                "session": "synthetic/v2/altar-rite-history",
+                "manifestPath": "challenges/manifests/v2.json",
+                "manifestSha256": "58739ea9ed6c26e5153c4860b2e5111d08d69792bdea5c39427cf45b8e72cc9c",
+                "recording": "challenges/cases/v2/altar-rite-history.session.json",
+                "recordingPath": "challenges/cases/v2/altar-rite-history.session.json",
+                "recordingSha256": "f3fbc209ee4d556822809c679e9cc73054b48fa85ba5d17864b764f30b4cf048",
+                "recipe": "challenges/cases/v2/altar-rite-history.recipe.json",
+                "recipeSha256": "b911dc353955f391a0e40bbf9c6c792bec55089eafbe11c9ce82d430b819391d",
+                "replayInputSha256": "b52a3fd3eb08f77b877df4359db7726758f1b8cd72a88960ecfe969147991e4c",
+                "evaluationPath": "challenges/evaluations/20260925221225-v2.json",
+                "evaluationCommit": "9df17907e4122a6809ade23228f0930b179bfba6",
+                "evaluationArtifact": "challenges/evaluations/20260925221225-v2.json",
+                "evaluationUtc": "2026-09-25T22:12:28.900Z",
+                "remainingScreens": 2,
+                "recordedSteps": 50,
+                "previousScreensMatched": 31,
+                "regression": false,
+                "passed": false,
+                "error": null,
+                "metrics": {
+                  "screens": {
+                    "matched": 48,
+                    "total": 50
+                  },
+                  "rng": {
+                    "matched": 3153,
+                    "total": 3169
+                  },
+                  "cursors": {
+                    "matched": 49,
+                    "total": 50
+                  }
+                },
+                "firstMismatch": {
+                  "screen": {
+                    "index": 48,
+                    "location": {
+                      "segmentIndex": 0,
+                      "stepIndex": 48,
+                      "key": "i"
+                    },
+                    "kind": "ch",
+                    "row": 0,
+                    "column": 0,
+                    "cCell": {
+                      "ch": "Y",
+                      "color": 8,
+                      "attr": 0,
+                      "decgfx": 0
+                    },
+                    "jsCell": {
+                      "ch": "W",
+                      "color": 8,
+                      "attr": 0,
+                      "decgfx": 0
+                    }
+                  },
+                  "rng": {
+                    "index": 3143,
+                    "cEntry": "rn2(19)=17",
+                    "cCaller": "exercise(attrib.c:509)",
+                    "jsEntry": "rn2(40)=9",
+                    "location": {
+                      "segmentIndex": 0,
+                      "stepIndex": 48,
+                      "key": "i"
+                    },
+                    "stepIndex": 48
+                  },
+                  "cursor": {
+                    "index": 48,
+                    "location": {
+                      "segmentIndex": 0,
+                      "stepIndex": 48,
+                      "key": "i"
+                    },
+                    "cCursor": [
+                      55,
+                      0,
+                      1
+                    ],
+                    "jsCursor": [
+                      53,
+                      12,
+                      1
+                    ]
+                  }
+                },
+                "step": 48,
+                "kind": "rng",
+                "sourceFile": "attrib.c",
+                "function": "exercise",
+                "message": null,
+                "cFile": "attrib.c",
+                "luaFile": null,
+                "line": 509
+              },
+              "summary": "After the monster-carrier wish port, altar-rite-history matches 48/50 screens and the debug wish passes through step 31. The remaining divergence occurs after #offer selects the wished-for corpse: C proceeds through pray.c:offer_corpse() and later draws rn2(19) in exercise(), while JS dosacrifice() records an unported offer_corpse gap and advances to a different draw. Port the source offering function and its return-valued evaluation dependencies rather than adding an isolated exercise draw.",
+              "source": {
+                "file": "pray.c",
+                "branch": "The hero is on an altar and selects a CORPSE from floorfood for #offer. pray.c:dosacrifice() calls offer_corpse(otmp, highaltar, altaralign); JS returns after note_unported at that call. C evaluates the corpse and its sacrifice effects before the next command.",
+                "functions": [
+                  "offer_corpse"
+                ],
+                "callers": [
+                  "pray.c:dosacrifice() calls offer_corpse() for CORPSE; js/pray.js:dosacrifice() reaches the corresponding branch and currently calls note_unported instead.",
+                  "The selected admitted v2 case performs #offer after the now-matching jackal-corpse wish, with first post-offering RNG divergence at segment 0 step 48."
+                ],
+                "dependencies": [
+                  "offer_corpse() consumes eval_offering() and other return-valued helpers on its branches; trace and port these in the same task where needed.",
+                  "Its branches also call source-discarded ritual side effects and artifact-gift behavior; preserve ordering and record any unported void callees at exact sites."
+                ]
+              },
+              "goalKind": "file-port",
+              "evidence": [
+                "challenges/evaluations/20260925221225-v2.json at 9df17907e4122a6809ade23228f0930b179bfba6 reports altar-rite-history 48/50 screens, 3153/3169 RNG calls, and 49/50 cursors; two screens remain.",
+                "The admitted recording selects a corpse with #offer before step 48; C records rn2(19)=17 from attrib.c:exercise() at step 48, while JS reaches a later rn2(40)=9 after the offering gap.",
+                "nethack-c/upstream/src/pray.c:1854-1896 routes CORPSE to offer_corpse(); :1959-2125 defines its effects. js/pray.js:dosacrifice() at its corpse arm records note_unported('pray.c offer_corpse') and returns ECMD_TIME.",
+                "The selected earlier objnam.c readobjnam wish is now matched through step 31; its incomplete wizard-kit and Lua callers remain separate source-goal blockers."
+              ],
+              "entryPointReview": {
+                "active": [
+                  "#offer a corpse on an altar after a debug wish in synthetic/v2/altar-rite-history segment 0 steps 41-49."
+                ],
+                "blocked": [
+                  "js/pray.js:dosacrifice() currently skips pray.c offer_corpse(); return-valued offering helpers and later ritual effects need source tracing before closure."
+                ],
+                "buildExcluded": [],
+                "exactReplayAttribution": "The saved C7 evaluation passes the wish construction through step 31 and first diverges in post-offering RNG at segment 0 step 48."
+              },
+              "plannedWholeFunctionScope": [
+                "Port pray.c offer_corpse() as a whole with its return-valued helper dependencies and wire dosacrifice() at the C call site.",
+                "Validate the admitted altar history beyond the #offer confirmation and add independent recorded entry-point evidence where no matching synthetic range covers an impure branch."
+              ]
+            }
+          }
+        }
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "offer_corpse",
+            "implementation": "js/pray.js",
+            "symbol": "offer_corpse",
+            "sourceReview": "Read the complete pray.c offer_corpse definition at lines 1959-2120 and compared source branch order and state updates. The port preserves conduct marking, cockatrice handling and Rider revival, same-race and tame former-pet handling, corpse valuation, zero/negative value exits, high-altar desecration gate, cross-alignment handling, consume-before-reward ordering, anger/alignment/blessing-counter branches, artifact-bestow gate, luck cap arithmetic, and visible feedback. It ports return-valued eval_offering, bestow_artifact, get_mtraits, rider_corpse_revival and the consume_offering object lifecycle; the return-valued mk_artifact path used by bestow_artifact is implemented in js/artifacts.js. Pure pray.c sacrifice_value is source-pinned in scripts/pray-offering.test.mjs. The only source gaps remaining in this function are the void helpers whose C results are discarded: sacrifice_your_race, offer_negative_valued, desecrate_altar, and offer_different_alignment_altar; each is recorded with note_unported at its source call site. Supporting source units are implemented in js/pray.js, js/pickup.js, and js/artifacts.js, and source/caller evidence is summarized in entryPointReview.",
+            "callers": [
+              {
+                "path": "js/pray.js",
+                "symbol": "dosacrifice",
+                "source": "pray.c:1889-1890 calls offer_corpse(otmp, highaltar, altaralign) after the selected object is a corpse"
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/pray-offering.test.mjs",
+              "scripts/pray.test.mjs"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v2",
+                "caseId": "altar-rite-history",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 49,
+                "source": "cmd.c #offer extended command -> pray.c dosacrifice -> pray.c offer_corpse; selects a jackal corpse and reaches eval_offering, consume_offering, object cleanup, and the blessed-counter reward branch"
+              }
+            ],
+            "checkedAt": "7e18f426e5b6b4030afbc50c1720f1a79e82d57b"
+          }
+        ],
+        "entryPointReview": "The selected source unit offer_corpse has one command entry through dosacrifice: cmd.c registers the #offer extended command at lines 1775-1776 and also queues dosacrifice from the MCMD_OFFER menu action at lines 4828-4829; both reach pray.c dosacrifice, whose corpse arm calls offer_corpse at lines 1889-1890. The matching admitted synthetic range exercises the extended-command path through js/cmd.js command dispatch (dosacrifice at lines 5155-5158) and the direct source caller in js/pray.js. It reaches a neutral altar, selects a wished jackal corpse from inventory, and covers corpse valuation, consume/useup timer cleanup, and the u.ublesscnt > 0 reward arm. The selected case does not exercise the alternate MCMD_OFFER menu dispatch independently; that dispatcher queues the same dosacrifice handler and has no separate game-state branch. Supporting whole-source ports are pray.c dosacrifice (js/pray.js), consume_offering/bestow_artifact/sacrifice_value/eval_offering (js/pray.js), aligned mk_artifact (js/artifacts.js), Rider corpse revival (js/pickup.js), and the existing obj_stop_timers/remove_object hooks used by consume_offering. The lower anger, negative-alignment-record, zero blessing-counter/artifact gift, blind, hallucination, unicorn, tame corpse, same-race corpse, high-altar, and cross-alignment branches were source-reviewed but are not reached by this recorded range. Void helpers intentionally remain explicit gaps: pray.c sacrifice_your_race, offer_negative_valued, desecrate_altar, and offer_different_alignment_altar.",
+        "entryPoints": [
+          {
+            "name": "#offer a selected corpse on an altar",
+            "functions": [
+              "offer_corpse"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v2",
+                "caseId": "altar-rite-history",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 49,
+                "source": "cmd.c #offer -> pray.c dosacrifice -> pray.c offer_corpse"
+              }
+            ]
+          }
+        ]
+      },
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "7e18f426e5b6b4030afbc50c1720f1a79e82d57b",
+        "screens": 11405,
+        "rng": 792838
       }
     },
     {
@@ -77658,6 +77999,49 @@
           "recordingSha256": "719edf6f87e6d47c9c59b0cbfd8a418269fb55e34f5dfbc93500b61dd472954c",
           "evaluationPath": "challenges/evaluations/20260926043048-v5.json",
           "evaluationCommit": "a4cca522bb1757073b5cea17ac1d8c2d7c82367f"
+        }
+      }
+    },
+    {
+      "id": "port-read-doread-cursed-teleport-synthetic-v5-20260926",
+      "kind": "file-port",
+      "status": "queued",
+      "summary": "Port read.c doread and required seffects dispatch for cursed teleport scrolls",
+      "cFile": "read.c",
+      "sessions": [
+        "synthetic/v5/ranger-level-teleport-return"
+      ],
+      "selectionReason": "C12 seed continuation after C11: synthetic/v5/ranger-level-teleport-return has 11 unmatched screens and complete investigation at investigations/synthetic/v5/ranger-level-teleport-return.json; higher-ranked Samurai 63 is reserved by A9 and Healer 48 overlaps A9 js/zap.js. First stop step 34 belongs to read.c doread; no read.c reservation exists. v5 manifest 5e4430fbd724fe91720f898c02e6f25f9d98e884fa31bd696ca1a63e87abf150, recording 5e5b09826e4e3dd2e5689e72dd4093ba492baeae7718ff040c43dec8ba14b5f3, evaluation challenges/evaluations/20260926052853-v5.json.",
+      "detail": "C read.c doread lines 330-646 admits sighted unconfused cursed teleport scroll; its return-valued seffects call requires porting the whole read.c seffects dispatch lines 2194-2290 in the same task. seffect_teleportation already routes cursed scrolls to level_tele. Wire source callers and retain independent entry evidence for all impure source paths.",
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": null,
+      "delivered": null,
+      "functions": [
+        {
+          "name": "doread",
+          "line": 330,
+          "endLine": 651,
+          "declared": true,
+          "complete": false
+        }
+      ],
+      "range": {
+        "from": 330,
+        "to": 651
+      },
+      "syntheticProvenance": {
+        "synthetic/v5/ranger-level-teleport-return": {
+          "session": "synthetic/v5/ranger-level-teleport-return",
+          "corpus": "synthetic",
+          "batch": "v5",
+          "caseId": "ranger-level-teleport-return",
+          "manifestPath": "challenges/manifests/v5.json",
+          "manifestSha256": "5e4430fbd724fe91720f898c02e6f25f9d98e884fa31bd696ca1a63e87abf150",
+          "recordingPath": "challenges/cases/v5/ranger-level-teleport-return.session.json",
+          "recordingSha256": "5e5b09826e4e3dd2e5689e72dd4093ba492baeae7718ff040c43dec8ba14b5f3",
+          "evaluationPath": "challenges/evaluations/20260926052853-v5.json",
+          "evaluationCommit": "7e18f426e5b6b4030afbc50c1720f1a79e82d57b"
         }
       }
     }
