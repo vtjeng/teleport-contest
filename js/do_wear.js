@@ -321,6 +321,7 @@ import {
     obj_is_pname,
     suit_simple_name,
     the,
+    thesimpleoname,
     Tobjnam,
     xnameFresh,
 } from './objnam.js';
@@ -464,7 +465,7 @@ export async function remarm_swapwep(state = game) {
 // take-off occupation; the callback identity covers the immediate `T` path.
 // Keep this predicate in the do_wear owner because setworn() calls it through
 // cancel_doff() while polymorph can interrupt either kind of occupation.
-function doffing(obj, state) {
+export function doffing(obj, state = game) {
     const takeoff = takeoffContext(state);
     const what = takeoff.what;
     if (obj === state.uarm)
@@ -493,7 +494,7 @@ function doffing(obj, state) {
 
 // C ref: do_wear.c donning() (1571-1597).  The callback values are function
 // identities in C; JavaScript preserves that identity in state.afternmv.
-function donning(obj, state) {
+export function donning(obj, state = game) {
     if (doffing(obj, state)) return true;
     if (obj === state.uarm) return state.afternmv === Armor_on;
     if (obj === state.uarmu) return state.afternmv === Shirt_on;
@@ -508,7 +509,7 @@ function donning(obj, state) {
 // C ref: do_wear.c cancel_don() (1664-1684).  A polymorph can remove the
 // object while an armor callback is pending, so clear the callback and the
 // occupation state before its delayed owner gets another turn.
-function cancel_don(state) {
+export function cancel_don(state = game) {
     const callback = state.afternmv;
     const takeoff = takeoffContext(state);
     takeoff.cancelled_don = callback === Cloak_on
@@ -523,6 +524,43 @@ function cancel_don(state) {
     state.multi = 0;
     takeoff.delay = 0;
     takeoff.what = 0;
+}
+
+// C ref: do_wear.c stop_donning() (1686-1727). steal.c consumes the returned
+// interrupted delay before choosing the armor-removal duration. C clears the
+// pending callback before unmul(), so completion cannot run a donning/doffing
+// action that was canceled by the theft.
+export async function stop_donning(stolenobj, state = game) {
+    let otmp = null;
+    for (let obj = state.invent; obj; obj = obj.nobj) {
+        if ((obj.owornmask & W_ARMOR) && donning(obj, state)) {
+            otmp = obj;
+            break;
+        }
+    }
+    if (!otmp) return 0;
+
+    const puttingOn = !doffing(otmp, state);
+    cancel_don(state);
+    state.afternmv = null;
+
+    let message = '';
+    let result = 0;
+    if (puttingOn || otmp !== stolenobj) {
+        message = `You stop ${puttingOn ? 'putting on' : 'taking off'} `
+            + `${thesimpleoname(otmp, state)}.`;
+    } else {
+        // C evaluates -gm.multi after cancel_don(); preserve that source
+        // order even though cancel_don() has set it to zero.
+        result = -Math.trunc(state.multi ?? 0);
+    }
+    await unmul(message, state);
+
+    if (puttingOn) {
+        const { remove_worn_item } = await import('./steal.js');
+        await remove_worn_item(otmp, false, state);
+    }
+    return result;
 }
 
 // C ref: do_wear.c cancel_doff() (1642-1659). Worn-slot changes interrupt
@@ -1080,7 +1118,7 @@ async function Blindf_on(obj, state = game) {
 //   while removing a blindfold.
 // - The "losing sight" branch (Blind && !was_blind): applies only to the
 //   Eyes of the Overworld artifact; unreachable in the current port.
-async function Blindf_off(otmp, state = game) {
+export async function Blindf_off(otmp, state = game) {
     const was_blind = heroIsBlind(state);
     let changed = false;
     const nooffmsg = !otmp;
@@ -1329,7 +1367,7 @@ async function Armor_on(state, rawEnv = {}) {
 // The guard is checked before the item leaves its slot, so tripping it changes
 // nothing. C's `svc.context.takeoff.cancelled_don = FALSE` between the two is
 // left out; see takeoffContext() for why the field is not modelled.
-function Armor_off(state) {
+export function Armor_off(state = game) {
     const otmp = state.uarm;
 
     if (Is_dragon_armor(otmp)) {
@@ -1749,7 +1787,7 @@ async function Cloak_on(state, rawEnv = {}) {
 // the source order; only toggle_stealth() remains at its discarded-call
 // boundary, while displacement and self-redraw operations use the caller's
 // planning seams.
-async function Cloak_off(state, rawEnv = {}) {
+export async function Cloak_off(state = game, rawEnv = {}) {
     const env = wearOperationEnv(rawEnv);
     const { message, redraw } = env;
     const cloak = state.uarmc;
@@ -1971,7 +2009,7 @@ async function helmetOnCursePath(state) {
 // changes, HELM_OF_TELEPATHY's and HELM_OF_CAUTION's see_monsters(),
 // HELM_OF_BRILLIANCE's adj_abon(), and the plain break the four remaining
 // hard helms share with the dented pot.
-async function Helmet_off(state) {
+export async function Helmet_off(state = game) {
     const helmet = state.uarmh;
     if (!helmet) return 0;
     const otyp = helmet.otyp;
@@ -2115,7 +2153,7 @@ function Gloves_on(state) {
 // while carrying a slipping-fingers timeout and can immediately recalculate
 // encumbrance.  The cockatrice helper is a discarded void call; keep its
 // source boundary explicit when that rare wielded-corpse case is reached.
-async function Gloves_off(state) {
+export async function Gloves_off(state = game) {
     const gloves = state.uarmg;
     if (!gloves) return 0;
     const oldprop = (state.u?.uprops?.[objectType(gloves, state).oc_oprop]
@@ -2196,7 +2234,7 @@ function Shield_on(state) {
 // C ref: do_wear.c Shield_off() (732-756). No shield needs special handling
 // when taken off; C keeps a switch over all nine shield types so that a new
 // one would be noticed, and obj.h is_shield() answers for exactly those nine.
-function Shield_off(state) {
+export function Shield_off(state = game) {
     if (!is_shield(state.uarms, state)) {
         throw new UnsupportedTakeOffError(
             `Shield_off() for otyp ${state.uarms.otyp}`,
@@ -2234,7 +2272,7 @@ function Shirt_on(state) {
 // C ref: do_wear.c Shirt_off() (777-794). As with Shield_off(), C's switch
 // exists only to catch a shirt type nobody has taught it about; the two it
 // knows are the only two the game has.
-function Shirt_off(state) {
+export function Shirt_off(state = game) {
     const otyp = state.uarmu.otyp;
 
     if (otyp !== HAWAIIAN_SHIRT && otyp !== T_SHIRT)

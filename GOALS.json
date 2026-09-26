@@ -74067,7 +74067,7 @@
     {
       "id": "port-steal-nymph-armor-delay-synthetic-v4-20260925",
       "kind": "file-port",
-      "status": "queued",
+      "status": "parked",
       "summary": "Port nymph armor theft and delayed removal through the complete steal.c source family",
       "cFile": "steal.c",
       "sessions": [
@@ -74075,8 +74075,12 @@
       ],
       "selectionReason": "The refreshed v4 Monk nymph theft case is the highest remaining investigated synthetic mismatch at 15 screens and is assigned to C9; A4 terrain and C8 fountain now match.",
       "detail": "Port steal.c unresponsive through steal in definition order, including remove_worn_item and worn_item_removal, with do_wear.c stop_donning and eat.c is_fainted return-valued dependencies. Preserve delayed stealarm state, production callers, and source-ordered inventory and armor effects. See investigations/synthetic/v4/monk-nymph-theft-recovery.json.",
-      "openedAt": null,
-      "openStanding": null,
+      "openedAt": "93589d85a07ddbe1acc490d76ef5c7944ca70b39",
+      "openStanding": {
+        "sha": "d6cf89ae93f57f6153a759eeb24058372448dd46",
+        "screens": 11405,
+        "rng": 792838
+      },
       "closedAt": null,
       "delivered": null,
       "functions": [
@@ -74137,10 +74141,211 @@
           "manifestSha256": "10777af4c82fc759abf58a870fdd232329bc5c1467c8cf94f46089d0401459a9",
           "recordingPath": "challenges/cases/v4/monk-nymph-theft-recovery.session.json",
           "recordingSha256": "12c7091ad75eb0fd4c1604b53961bd3bea6c9a0d555d5f0bd1c35564d82acf3f",
-          "evaluationPath": "challenges/evaluations/20260926003150-v4.json",
-          "evaluationCommit": "2d50156e1163b1b497818e5d02bd71131fab2149"
+          "evaluationPath": "challenges/evaluations/20260926021117-v4.json",
+          "evaluationCommit": "d6cf89ae93f57f6153a759eeb24058372448dd46"
         }
-      }
+      },
+      "activeStanding": {
+        "sha": "d6cf89ae93f57f6153a759eeb24058372448dd46",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v4",
+          "caseId": "monk-nymph-theft-recovery",
+          "session": "synthetic/v4/monk-nymph-theft-recovery",
+          "manifestPath": "challenges/manifests/v4.json",
+          "manifestSha256": "10777af4c82fc759abf58a870fdd232329bc5c1467c8cf94f46089d0401459a9",
+          "recording": "challenges/cases/v4/monk-nymph-theft-recovery.session.json",
+          "recordingPath": "challenges/cases/v4/monk-nymph-theft-recovery.session.json",
+          "recordingSha256": "12c7091ad75eb0fd4c1604b53961bd3bea6c9a0d555d5f0bd1c35564d82acf3f",
+          "recipe": "challenges/cases/v4/monk-nymph-theft-recovery.recipe.json",
+          "recipeSha256": "2cb16759cfcfbacab93d7adb3004afcdaf77235d49d20f8487c00adc20c8e3c1",
+          "replayInputSha256": "567ba90a355740eb324a2dbda01159beb0bdbe555d5cdf9bd68e5847e09e2487",
+          "evaluationPath": "challenges/evaluations/20260926021117-v4.json",
+          "evaluationCommit": "d6cf89ae93f57f6153a759eeb24058372448dd46",
+          "evaluationArtifact": "challenges/evaluations/20260926021117-v4.json",
+          "evaluationUtc": "2026-09-26T02:11:26.131Z",
+          "remainingScreens": 15,
+          "recordedSteps": 54,
+          "previousScreensMatched": 39,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 39,
+              "total": 54
+            },
+            "rng": {
+              "matched": 2947,
+              "total": 2997
+            },
+            "cursors": {
+              "matched": 39,
+              "total": 54
+            }
+          },
+          "firstMismatch": {
+            "kind": "stop",
+            "message": "steal reached an unported branch: nymph armor steal (delay=1)",
+            "step": 39
+          },
+          "step": 39,
+          "kind": "stop",
+          "sourceFile": null,
+          "function": null,
+          "message": "steal reached an unported branch: nymph armor steal (delay=1)",
+          "cFile": null,
+          "luaFile": null,
+          "line": null,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v4/monk-nymph-theft-recovery.json",
+            "result": {
+              "session": "synthetic/v4/monk-nymph-theft-recovery",
+              "corpus": "synthetic",
+              "batch": "v4",
+              "caseId": "monk-nymph-theft-recovery",
+              "manifestPath": "challenges/manifests/v4.json",
+              "manifestSha256": "10777af4c82fc759abf58a870fdd232329bc5c1467c8cf94f46089d0401459a9",
+              "recordingPath": "challenges/cases/v4/monk-nymph-theft-recovery.session.json",
+              "recordingSha256": "12c7091ad75eb0fd4c1604b53961bd3bea6c9a0d555d5f0bd1c35564d82acf3f",
+              "evaluationPath": "challenges/evaluations/20260926003150-v4.json",
+              "evaluationCommit": "2d50156e1163b1b497818e5d02bd71131fab2149",
+              "remainingScreens": 15,
+              "recordedSteps": 54,
+              "status": "complete",
+              "commit": "2d50156e1163b1b497818e5d02bd71131fab2149",
+              "mismatch": {
+                "corpus": "synthetic",
+                "batch": "v4",
+                "caseId": "monk-nymph-theft-recovery",
+                "session": "synthetic/v4/monk-nymph-theft-recovery",
+                "manifestPath": "challenges/manifests/v4.json",
+                "manifestSha256": "10777af4c82fc759abf58a870fdd232329bc5c1467c8cf94f46089d0401459a9",
+                "recording": "challenges/cases/v4/monk-nymph-theft-recovery.session.json",
+                "recordingPath": "challenges/cases/v4/monk-nymph-theft-recovery.session.json",
+                "recordingSha256": "12c7091ad75eb0fd4c1604b53961bd3bea6c9a0d555d5f0bd1c35564d82acf3f",
+                "recipe": "challenges/cases/v4/monk-nymph-theft-recovery.recipe.json",
+                "recipeSha256": "2cb16759cfcfbacab93d7adb3004afcdaf77235d49d20f8487c00adc20c8e3c1",
+                "replayInputSha256": "b6303c715ad9500bdef021348b3f0a6282ed4e21e651fa88228c4b8e3d64e5f4",
+                "evaluationPath": "challenges/evaluations/20260926003150-v4.json",
+                "evaluationCommit": "2d50156e1163b1b497818e5d02bd71131fab2149",
+                "evaluationArtifact": "challenges/evaluations/20260926003150-v4.json",
+                "evaluationUtc": "2026-09-26T00:32:00.071Z",
+                "remainingScreens": 15,
+                "recordedSteps": 54,
+                "previousScreensMatched": 39,
+                "regression": false,
+                "passed": false,
+                "error": null,
+                "metrics": {
+                  "screens": {
+                    "matched": 39,
+                    "total": 54
+                  },
+                  "rng": {
+                    "matched": 2947,
+                    "total": 2997
+                  },
+                  "cursors": {
+                    "matched": 39,
+                    "total": 54
+                  }
+                },
+                "firstMismatch": {
+                  "kind": "stop",
+                  "message": "steal reached an unported branch: nymph armor steal (delay=1)",
+                  "step": 39
+                },
+                "step": 39,
+                "kind": "stop",
+                "sourceFile": null,
+                "function": null,
+                "message": "steal reached an unported branch: nymph armor steal (delay=1)",
+                "cFile": null,
+                "luaFile": null,
+                "line": null
+              },
+              "summary": "The v4 Monk nymph case stops at segment 0 step 39 when steal.c:steal selects worn armor with a removal delay. JS refuses the responsive nymph branch. C consumes stop_donning()'s old delay, temporarily clears the curse, schedules stealarm() through the after-move callback, and removes the worn item. Port the complete steal.c unresponsive-through-steal family and the return-valued do_wear.c and eat.c dependencies.",
+              "source": {
+                "file": "steal.c",
+                "branch": "At step 39, a nearby responsive nymph selects worn ARMOR_CLASS equipment with oc_delay at least one. steal.c:steal() follows the charm/seduction branch, uses stop_donning()'s returned delay, sets negative multi, removes the armor, and schedules stealarm() when removal remains pending.",
+                "functions": [
+                  "unresponsive",
+                  "unstolenarm",
+                  "stealarm",
+                  "remove_worn_item",
+                  "worn_item_removal",
+                  "steal"
+                ],
+                "callers": [
+                  "The AD_SITM monster attack path calls steal(); js/steal.js:steal() reaches its nymph armor-delay refusal at the selected step.",
+                  "steal.c:steal() calls unresponsive(), worn_item_removal(), remove_worn_item(), and schedules stealarm(); stealarm() and unstolenarm() carry the delayed object and monster state."
+                ],
+                "dependencies": [
+                  "do_wear.c:stop_donning() returns the prior armor-removal delay and can call remove_worn_item() when interrupting donning; port its full source function and caller mapping.",
+                  "eat.c:is_fainted() returns whether u.uhs equals FAINTED; unresponsive() consumes this pure predicate.",
+                  "The delayed after-move callback must preserve gs.stealoid, monster identity, inventory state, mpickobj(), and relocation/flee effects; no session-specific branch is permitted."
+                ]
+              },
+              "evidence": [
+                "challenges/evaluations/20260926003150-v4.json at 2d50156e1163b1b497818e5d02bd71131fab2149 records 39/54 screens and the first stop at segment 0 step 39: nymph armor steal (delay=1).",
+                "nethack-c/upstream/src/steal.c:503-557 consumes stop_donning() result, computes armordelay, enters the responsive charm/seduction branch, calls remove_worn_item(), and schedules stealarm() by object id; js/steal.js currently refuses before those effects.",
+                "nethack-c/upstream/src/steal.c:133-334 defines unresponsive, unstolenarm, stealarm, remove_worn_item, and worn_item_removal in source order; these are the same-file dependencies of the selected steal() family.",
+                "nethack-c/upstream/src/do_wear.c:1686-1727 defines return-valued stop_donning(), including interrupted donning removal; nethack-c/upstream/src/eat.c:3346-3350 defines return-valued is_fainted() used by unresponsive()."
+              ],
+              "goalKind": "file-port",
+              "entryPointReview": {
+                "active": [
+                  "AD_SITM nymph armor theft in synthetic/v4/monk-nymph-theft-recovery segment 0 step 39 and its later delayed stealarm callback."
+                ],
+                "blocked": [
+                  "The current JS refusal prevents the responsive armor-removal effects; completion requires matching delayed callback and active caller evidence."
+                ]
+              },
+              "plannedWholeFunctionScope": {
+                "primary": {
+                  "file": "steal.c",
+                  "fromFunction": "unresponsive",
+                  "toFunction": "steal",
+                  "functions": [
+                    "unresponsive",
+                    "unstolenarm",
+                    "stealarm",
+                    "remove_worn_item",
+                    "worn_item_removal",
+                    "steal"
+                  ]
+                },
+                "supporting": [
+                  {
+                    "file": "do_wear.c",
+                    "function": "stop_donning"
+                  },
+                  {
+                    "file": "eat.c",
+                    "function": "is_fainted"
+                  }
+                ]
+              }
+            }
+          }
+        }
+      ],
+      "progressBeforePark": {
+        "screens": 0,
+        "rng": 0
+      },
+      "parkedStanding": {
+        "sha": "07377e0c0ad51853b62a4b850c639a10fdb02db1",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "parkedReason": "Integrated source-ordered nymph delayed armor theft, ordinary worn-item removal, and dothrow singleton-worn caller; v4 nymph and v3 Ranger cases now match fully. Whole steal.c source-family completion remains blocked by the active thiefdead -> unstolenarm callback: two independent C setups did not reach mid-theft death, and no matching synthetic range or recording exercises unstolenarm. mon.c m_detach is wired only for the thief identity arm; its other active branches remain outside this task."
     },
     {
       "id": "port-zap-weffects-force-bolt-synthetic-v2-20260926",
@@ -75021,7 +75226,7 @@
     {
       "id": "port-music-put-monsters-to-sleep-synthetic-v4-20260926",
       "kind": "file-port",
-      "status": "queued",
+      "status": "closed",
       "summary": "Port music.c put_monsters_to_sleep and wire the charged magic flute caller",
       "cFile": "music.c",
       "sessions": [
@@ -75030,17 +75235,24 @@
       ],
       "selectionReason": "After assigned C9 nymph theft and Ranger throw and B7 camera cases, synthetic/v4/valkyrie-magic-flute-nymph-cycle has four unmatched screens; investigations/synthetic/v4/valkyrie-magic-flute-nymph-cycle.json traces the first RNG mismatch at step 39 to music.c put_monsters_to_sleep. Its first-play sibling has a matching screen prefix but the same RNG gap. This source is independent of the active steal.c and apply.c reservations.",
       "detail": "v4 manifest digest 10777af4c82fc759abf58a870fdd232329bc5c1467c8cf94f46089d0401459a9; cycle recording challenges/cases/v4/valkyrie-magic-flute-nymph-cycle.session.json digest 549c2a7276a47fc3c8bb2ac9f7f1d1d1c40277c76fe08f560fa17758a2eea204; first-play recording challenges/cases/v4/valkyrie-magic-flute-nymph-first-play.session.json digest c19aac0139bcc1a82d122ca126291e3fbf7b59935e569efdb01833fb4ace238f; saved evaluation challenges/evaluations/20260926021117-v4.json. Implement the complete music.c helper and its do_improvisation MAGIC_FLUTE call, including return-valued mhitm.c sleep_monst.",
-      "openedAt": null,
-      "openStanding": null,
-      "closedAt": null,
-      "delivered": null,
+      "openedAt": "970735605dc6a7af8951a2667c09f960928b15ad",
+      "openStanding": {
+        "sha": "07377e0c0ad51853b62a4b850c639a10fdb02db1",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "closedAt": "20cdce925160276c93a252d01e644c9e61d9626e",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
       "functions": [
         {
           "name": "put_monsters_to_sleep",
           "line": 85,
           "endLine": 104,
-          "declared": false,
-          "complete": false
+          "declared": true,
+          "complete": true
         }
       ],
       "range": {
@@ -75057,8 +75269,634 @@
           "manifestSha256": "10777af4c82fc759abf58a870fdd232329bc5c1467c8cf94f46089d0401459a9",
           "recordingPath": "challenges/cases/v4/valkyrie-magic-flute-nymph-cycle.session.json",
           "recordingSha256": "549c2a7276a47fc3c8bb2ac9f7f1d1d1c40277c76fe08f560fa17758a2eea204",
-          "evaluationPath": "challenges/evaluations/20260926021117-v4.json",
-          "evaluationCommit": "d6cf89ae93f57f6153a759eeb24058372448dd46"
+          "evaluationPath": "challenges/evaluations/20260926022427-v4.json",
+          "evaluationCommit": "07377e0c0ad51853b62a4b850c639a10fdb02db1"
+        }
+      },
+      "activeStanding": {
+        "sha": "07377e0c0ad51853b62a4b850c639a10fdb02db1",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v4",
+          "caseId": "valkyrie-magic-flute-nymph-cycle",
+          "session": "synthetic/v4/valkyrie-magic-flute-nymph-cycle",
+          "manifestPath": "challenges/manifests/v4.json",
+          "manifestSha256": "10777af4c82fc759abf58a870fdd232329bc5c1467c8cf94f46089d0401459a9",
+          "recording": "challenges/cases/v4/valkyrie-magic-flute-nymph-cycle.session.json",
+          "recordingPath": "challenges/cases/v4/valkyrie-magic-flute-nymph-cycle.session.json",
+          "recordingSha256": "549c2a7276a47fc3c8bb2ac9f7f1d1d1c40277c76fe08f560fa17758a2eea204",
+          "recipe": "challenges/cases/v4/valkyrie-magic-flute-nymph-cycle.recipe.json",
+          "recipeSha256": "74d57d5f53810f5c52b9a04973632fd0c6ee909d695c27c1d1563af597332416",
+          "replayInputSha256": "3483e03289fd59f6644742e147d1a2579aeb137c057d915aae3d079631bd2596",
+          "evaluationPath": "challenges/evaluations/20260926022427-v4.json",
+          "evaluationCommit": "07377e0c0ad51853b62a4b850c639a10fdb02db1",
+          "evaluationArtifact": "challenges/evaluations/20260926022427-v4.json",
+          "evaluationUtc": "2026-09-26T02:24:37.210Z",
+          "remainingScreens": 4,
+          "recordedSteps": 44,
+          "previousScreensMatched": 40,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 40,
+              "total": 44
+            },
+            "rng": {
+              "matched": 2358,
+              "total": 2468
+            },
+            "cursors": {
+              "matched": 43,
+              "total": 44
+            }
+          },
+          "firstMismatch": {
+            "screen": {
+              "index": 40,
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 40,
+                "key": "."
+              },
+              "kind": "ch",
+              "row": 0,
+              "column": 0,
+              "cCell": {
+                "ch": " ",
+                "color": 8,
+                "attr": 0,
+                "decgfx": 0
+              },
+              "jsCell": {
+                "ch": "A",
+                "color": 8,
+                "attr": 0,
+                "decgfx": 0
+              }
+            },
+            "rng": {
+              "index": 2358,
+              "cEntry": "d(10,10)=61",
+              "cCaller": "put_monsters_to_sleep(music.c:93)",
+              "jsEntry": "rn2(19)=0",
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 39,
+                "key": "y"
+              },
+              "stepIndex": 39
+            },
+            "cursor": {
+              "index": 43,
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 43,
+                "key": "y"
+              },
+              "cCursor": [
+                18,
+                16,
+                1
+              ],
+              "jsCursor": [
+                62,
+                0,
+                1
+              ]
+            }
+          },
+          "step": 39,
+          "kind": "rng",
+          "sourceFile": "music.c",
+          "function": "put_monsters_to_sleep",
+          "message": null,
+          "cFile": "music.c",
+          "luaFile": null,
+          "line": 93,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v4/valkyrie-magic-flute-nymph-cycle.json",
+            "result": {
+              "session": "synthetic/v4/valkyrie-magic-flute-nymph-cycle",
+              "corpus": "synthetic",
+              "batch": "v4",
+              "caseId": "valkyrie-magic-flute-nymph-cycle",
+              "manifestPath": "challenges/manifests/v4.json",
+              "manifestSha256": "10777af4c82fc759abf58a870fdd232329bc5c1467c8cf94f46089d0401459a9",
+              "recordingPath": "challenges/cases/v4/valkyrie-magic-flute-nymph-cycle.session.json",
+              "recordingSha256": "549c2a7276a47fc3c8bb2ac9f7f1d1d1c40277c76fe08f560fa17758a2eea204",
+              "evaluationPath": "challenges/evaluations/20260926012822-v4.json",
+              "evaluationCommit": "210cd14f1e59abac0764199293de428ee71828fd",
+              "remainingScreens": 4,
+              "recordedSteps": 44,
+              "status": "complete",
+              "commit": "bcbf6a4538e1f2047259951bf86663e2e5eb09fb",
+              "mismatch": {
+                "corpus": "synthetic",
+                "batch": "v4",
+                "caseId": "valkyrie-magic-flute-nymph-cycle",
+                "session": "synthetic/v4/valkyrie-magic-flute-nymph-cycle",
+                "manifestPath": "challenges/manifests/v4.json",
+                "manifestSha256": "10777af4c82fc759abf58a870fdd232329bc5c1467c8cf94f46089d0401459a9",
+                "recording": "challenges/cases/v4/valkyrie-magic-flute-nymph-cycle.session.json",
+                "recordingPath": "challenges/cases/v4/valkyrie-magic-flute-nymph-cycle.session.json",
+                "recordingSha256": "549c2a7276a47fc3c8bb2ac9f7f1d1d1c40277c76fe08f560fa17758a2eea204",
+                "recipe": "challenges/cases/v4/valkyrie-magic-flute-nymph-cycle.recipe.json",
+                "recipeSha256": "74d57d5f53810f5c52b9a04973632fd0c6ee909d695c27c1d1563af597332416",
+                "replayInputSha256": "4cbb2896db6568e3f5618c3215594197c778fa5e30d4aba0e6369d81b4061384",
+                "evaluationPath": "challenges/evaluations/20260926012822-v4.json",
+                "evaluationCommit": "210cd14f1e59abac0764199293de428ee71828fd",
+                "evaluationArtifact": "challenges/evaluations/20260926012822-v4.json",
+                "evaluationUtc": "2026-09-26T01:28:31.269Z",
+                "remainingScreens": 4,
+                "recordedSteps": 44,
+                "previousScreensMatched": 40,
+                "regression": false,
+                "passed": false,
+                "error": null,
+                "metrics": {
+                  "screens": {
+                    "matched": 40,
+                    "total": 44
+                  },
+                  "rng": {
+                    "matched": 2358,
+                    "total": 2468
+                  },
+                  "cursors": {
+                    "matched": 43,
+                    "total": 44
+                  }
+                },
+                "firstMismatch": {
+                  "screen": {
+                    "index": 40,
+                    "location": {
+                      "segmentIndex": 0,
+                      "stepIndex": 40,
+                      "key": "."
+                    },
+                    "kind": "ch",
+                    "row": 0,
+                    "column": 0,
+                    "cCell": {
+                      "ch": " ",
+                      "color": 8,
+                      "attr": 0,
+                      "decgfx": 0
+                    },
+                    "jsCell": {
+                      "ch": "A",
+                      "color": 8,
+                      "attr": 0,
+                      "decgfx": 0
+                    }
+                  },
+                  "rng": {
+                    "index": 2358,
+                    "cEntry": "d(10,10)=61",
+                    "cCaller": "put_monsters_to_sleep(music.c:93)",
+                    "jsEntry": "rn2(19)=0",
+                    "location": {
+                      "segmentIndex": 0,
+                      "stepIndex": 39,
+                      "key": "y"
+                    },
+                    "stepIndex": 39
+                  },
+                  "cursor": {
+                    "index": 43,
+                    "location": {
+                      "segmentIndex": 0,
+                      "stepIndex": 43,
+                      "key": "y"
+                    },
+                    "cCursor": [
+                      18,
+                      16,
+                      1
+                    ],
+                    "jsCursor": [
+                      62,
+                      0,
+                      1
+                    ]
+                  }
+                },
+                "step": 39,
+                "kind": "rng",
+                "sourceFile": "music.c",
+                "function": "put_monsters_to_sleep",
+                "message": null,
+                "cFile": "music.c",
+                "luaFile": null,
+                "line": 93
+              },
+              "summary": "The v4 magic-flute cycle has four unmatched screens after the first play. C music.c put_monsters_to_sleep draws 10d10 for the nearby nymph at step 39, marks a successful target asleep, and calls slept_monst. JS records that helper as unported, so RNG first diverges at the flute answer and subsequent monster turns drift.",
+              "source": {
+                "file": "music.c",
+                "functions": [
+                  "put_monsters_to_sleep"
+                ],
+                "branch": "MAGIC_FLUTE in music.c do_improvisation() consumes a charge, emits the music message, calls Hero_playnotes, then put_monsters_to_sleep(u.ulevel * 5) before exercise(A_DEX,TRUE). The helper traverses fmon in chain order, skips DEADMONSTER, tests mdistu < distance, draws d(10,10) only for in-range monsters, consumes sleep_monst boolean, then sets msleeping and calls slept_monst on success.",
+                "callers": [
+                  "music.c do_improvisation() at lines 589-598 calls put_monsters_to_sleep after Hero_playnotes; js/music.js do_improvisation() line 154 currently records note_unported at the same point.",
+                  "music.c do_play_instrument() reaches improvise() for the applied magic flute; js/music.js do_play_instrument() dispatches the same tool path through apply.c doapply()."
+                ],
+                "dependencies": [
+                  "mhitm.c sleep_monst() boolean and slept_monst() are existing JavaScript owners; preserve their return and mutation order.",
+                  "Use the canonical fmon chain, DEADMONSTER test, mdistu comparison, and d(10,10) RNG. The helper is void; no invented output or draw may replace an unported callee."
+                ]
+              },
+              "goalKind": "file-port",
+              "evidence": [
+                "Saved challenges/evaluations/20260926012822-v4.json at 210cd14f reports 40/44 screens and 2358/2468 RNG values for valkyrie-magic-flute-nymph-cycle.",
+                "Current diagnostic .cache/investigate-magic-flute-cycle.json at bcbf6a4538e1f2047259951bf86663e2e5eb09fb first differs at segment 0 step 39: C d(10,10)=61 from music.c put_monsters_to_sleep line 93, JS rn2(19)=0 after skipping the helper.",
+                "C source nethack-c/upstream/src/music.c lines 85-98 defines put_monsters_to_sleep and lines 589-598 place it between Hero_playnotes and exercise in the MAGIC_FLUTE arm.",
+                "JS js/music.js line 154 calls note_unported('music.c put_monsters_to_sleep') in that same arm; the admitted v4 recipe supplies a magic flute and a nearby nymph."
+              ],
+              "entryPointReview": {
+                "active": [
+                  "Apply and play a charged magic flute with a nearby nymph: synthetic/v4/valkyrie-magic-flute-nymph-cycle, segment 0 step 39."
+                ],
+                "blocked": [
+                  "The helper is absent at the production caller; match its RNG and sleep-state effects before source completion. Other nearby monster conditions need source-pinned tests or independent recordings."
+                ]
+              },
+              "plannedWholeFunctionScope": {
+                "primary": {
+                  "file": "music.c",
+                  "functions": [
+                    "put_monsters_to_sleep"
+                  ]
+                },
+                "callerWiring": [
+                  "music.c do_improvisation() MAGIC_FLUTE arm in js/music.js"
+                ],
+                "returnValuedDependencies": [
+                  "mhitm.c sleep_monst() boolean"
+                ]
+              }
+            }
+          }
+        },
+        {
+          "corpus": "synthetic",
+          "batch": "v4",
+          "caseId": "valkyrie-magic-flute-nymph-first-play",
+          "session": "synthetic/v4/valkyrie-magic-flute-nymph-first-play",
+          "manifestPath": "challenges/manifests/v4.json",
+          "manifestSha256": "10777af4c82fc759abf58a870fdd232329bc5c1467c8cf94f46089d0401459a9",
+          "recording": "challenges/cases/v4/valkyrie-magic-flute-nymph-first-play.session.json",
+          "recordingPath": "challenges/cases/v4/valkyrie-magic-flute-nymph-first-play.session.json",
+          "recordingSha256": "c19aac0139bcc1a82d122ca126291e3fbf7b59935e569efdb01833fb4ace238f",
+          "recipe": "challenges/cases/v4/valkyrie-magic-flute-nymph-first-play.recipe.json",
+          "recipeSha256": "eb18178be122ef38f5c0bfc0eac549e5382c466bd6248653607985d026f17b01",
+          "replayInputSha256": "3483e03289fd59f6644742e147d1a2579aeb137c057d915aae3d079631bd2596",
+          "evaluationPath": "challenges/evaluations/20260926022427-v4.json",
+          "evaluationCommit": "07377e0c0ad51853b62a4b850c639a10fdb02db1",
+          "evaluationArtifact": "challenges/evaluations/20260926022427-v4.json",
+          "evaluationUtc": "2026-09-26T02:24:37.210Z",
+          "remainingScreens": 0,
+          "recordedSteps": 40,
+          "previousScreensMatched": 40,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 40,
+              "total": 40
+            },
+            "rng": {
+              "matched": 2358,
+              "total": 2420
+            },
+            "cursors": {
+              "matched": 40,
+              "total": 40
+            }
+          },
+          "firstMismatch": {
+            "screen": null,
+            "rng": {
+              "index": 2358,
+              "cEntry": "d(10,10)=61",
+              "cCaller": "put_monsters_to_sleep(music.c:93)",
+              "jsEntry": "rn2(19)=0",
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 39,
+                "key": "y"
+              },
+              "stepIndex": 39
+            },
+            "cursor": null
+          },
+          "step": 39,
+          "kind": "rng",
+          "sourceFile": "music.c",
+          "function": "put_monsters_to_sleep",
+          "message": null,
+          "cFile": "music.c",
+          "luaFile": null,
+          "line": 93,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v4/valkyrie-magic-flute-nymph-first-play.json",
+            "result": {
+              "session": "synthetic/v4/valkyrie-magic-flute-nymph-first-play",
+              "corpus": "synthetic",
+              "batch": "v4",
+              "caseId": "valkyrie-magic-flute-nymph-first-play",
+              "manifestPath": "challenges/manifests/v4.json",
+              "manifestSha256": "10777af4c82fc759abf58a870fdd232329bc5c1467c8cf94f46089d0401459a9",
+              "recordingPath": "challenges/cases/v4/valkyrie-magic-flute-nymph-first-play.session.json",
+              "recordingSha256": "c19aac0139bcc1a82d122ca126291e3fbf7b59935e569efdb01833fb4ace238f",
+              "evaluationPath": "challenges/evaluations/20260926012822-v4.json",
+              "evaluationCommit": "210cd14f1e59abac0764199293de428ee71828fd",
+              "remainingScreens": 0,
+              "recordedSteps": 40,
+              "status": "complete",
+              "commit": "bcbf6a4538e1f2047259951bf86663e2e5eb09fb",
+              "mismatch": {
+                "corpus": "synthetic",
+                "batch": "v4",
+                "caseId": "valkyrie-magic-flute-nymph-first-play",
+                "session": "synthetic/v4/valkyrie-magic-flute-nymph-first-play",
+                "manifestPath": "challenges/manifests/v4.json",
+                "manifestSha256": "10777af4c82fc759abf58a870fdd232329bc5c1467c8cf94f46089d0401459a9",
+                "recording": "challenges/cases/v4/valkyrie-magic-flute-nymph-first-play.session.json",
+                "recordingPath": "challenges/cases/v4/valkyrie-magic-flute-nymph-first-play.session.json",
+                "recordingSha256": "c19aac0139bcc1a82d122ca126291e3fbf7b59935e569efdb01833fb4ace238f",
+                "recipe": "challenges/cases/v4/valkyrie-magic-flute-nymph-first-play.recipe.json",
+                "recipeSha256": "eb18178be122ef38f5c0bfc0eac549e5382c466bd6248653607985d026f17b01",
+                "replayInputSha256": "4cbb2896db6568e3f5618c3215594197c778fa5e30d4aba0e6369d81b4061384",
+                "evaluationPath": "challenges/evaluations/20260926012822-v4.json",
+                "evaluationCommit": "210cd14f1e59abac0764199293de428ee71828fd",
+                "evaluationArtifact": "challenges/evaluations/20260926012822-v4.json",
+                "evaluationUtc": "2026-09-26T01:28:31.269Z",
+                "remainingScreens": 0,
+                "recordedSteps": 40,
+                "previousScreensMatched": 40,
+                "regression": false,
+                "passed": false,
+                "error": null,
+                "metrics": {
+                  "screens": {
+                    "matched": 40,
+                    "total": 40
+                  },
+                  "rng": {
+                    "matched": 2358,
+                    "total": 2420
+                  },
+                  "cursors": {
+                    "matched": 40,
+                    "total": 40
+                  }
+                },
+                "firstMismatch": {
+                  "screen": null,
+                  "rng": {
+                    "index": 2358,
+                    "cEntry": "d(10,10)=61",
+                    "cCaller": "put_monsters_to_sleep(music.c:93)",
+                    "jsEntry": "rn2(19)=0",
+                    "location": {
+                      "segmentIndex": 0,
+                      "stepIndex": 39,
+                      "key": "y"
+                    },
+                    "stepIndex": 39
+                  },
+                  "cursor": null
+                },
+                "step": 39,
+                "kind": "rng",
+                "sourceFile": "music.c",
+                "function": "put_monsters_to_sleep",
+                "message": null,
+                "cFile": "music.c",
+                "luaFile": null,
+                "line": 93
+              },
+              "summary": "All 40 first-play screens match, but the RNG trace diverges at step 39: C music.c put_monsters_to_sleep draws 10d10 for the nearby nymph, while JS skips the helper and reaches a later rn2(19). The same missing source helper owns the later four-screen cycle mismatch.",
+              "source": {
+                "file": "music.c",
+                "functions": [
+                  "put_monsters_to_sleep"
+                ],
+                "branch": "MAGIC_FLUTE in music.c do_improvisation() consumes a charge, emits the music message, calls Hero_playnotes, then put_monsters_to_sleep(u.ulevel * 5) before exercise(A_DEX,TRUE). The helper traverses fmon in chain order, skips DEADMONSTER, tests mdistu < distance, draws d(10,10) only for in-range monsters, consumes sleep_monst boolean, then sets msleeping and calls slept_monst on success.",
+                "callers": [
+                  "music.c do_improvisation() at lines 589-598 calls put_monsters_to_sleep after Hero_playnotes; js/music.js do_improvisation() line 154 currently records note_unported at the same point.",
+                  "music.c do_play_instrument() reaches improvise() for the applied magic flute; js/music.js do_play_instrument() dispatches the same tool path through apply.c doapply()."
+                ],
+                "dependencies": [
+                  "mhitm.c sleep_monst() boolean and slept_monst() are existing JavaScript owners; preserve their return and mutation order.",
+                  "Use the canonical fmon chain, DEADMONSTER test, mdistu comparison, and d(10,10) RNG. The helper is void; no invented output or draw may replace an unported callee."
+                ]
+              },
+              "goalKind": "file-port",
+              "evidence": [
+                "Saved challenges/evaluations/20260926012822-v4.json at 210cd14f reports 40/40 screens and 2358/2420 RNG values for valkyrie-magic-flute-nymph-first-play.",
+                "Current diagnostic .cache/investigate-magic-flute-first-play.json at bcbf6a4538e1f2047259951bf86663e2e5eb09fb first differs at segment 0 step 39: C d(10,10)=61 from music.c put_monsters_to_sleep line 93, JS rn2(19)=0 after skipping the helper.",
+                "C source nethack-c/upstream/src/music.c lines 85-98 defines put_monsters_to_sleep and lines 589-598 place it between Hero_playnotes and exercise in the MAGIC_FLUTE arm.",
+                "JS js/music.js line 154 calls note_unported('music.c put_monsters_to_sleep') in that same arm; the admitted v4 recipe supplies a magic flute and a nearby nymph."
+              ],
+              "entryPointReview": {
+                "active": [
+                  "Apply and play a charged magic flute with a nearby nymph: synthetic/v4/valkyrie-magic-flute-nymph-first-play, segment 0 step 39."
+                ],
+                "blocked": [
+                  "The helper is absent at the production caller; match its RNG and sleep-state effects before source completion. Other nearby monster conditions need source-pinned tests or independent recordings."
+                ]
+              },
+              "plannedWholeFunctionScope": {
+                "primary": {
+                  "file": "music.c",
+                  "functions": [
+                    "put_monsters_to_sleep"
+                  ]
+                },
+                "callerWiring": [
+                  "music.c do_improvisation() MAGIC_FLUTE arm in js/music.js"
+                ],
+                "returnValuedDependencies": [
+                  "mhitm.c sleep_monst() boolean"
+                ]
+              }
+            }
+          }
+        }
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "put_monsters_to_sleep",
+            "implementation": "js/music.js",
+            "symbol": "put_monsters_to_sleep",
+            "sourceReview": "Read the complete music.c:put_monsters_to_sleep() body (85-104) and its MAGIC_FLUTE call in do_improvisation() (589-598). The port traverses the live level.monlist chain in source order, skips mhp < 1 before any distance or random work, uses the strict squared-distance comparison mdistu(mon) < distance, draws d(10,10) only for an in-range monster, passes TOOL_CLASS and the roll to the existing mhitm.c:sleep_monst() owner, consumes its boolean, sets the separate msleeping field only on success, then awaits the existing mhitm.c:slept_monst() side effect before advancing. The MAGIC_FLUTE caller retains charge consumption and its music message before this helper, and exercise(A_DEX, TRUE) after it. Hero_playnotes() is an empty macro in the patched tty build, so its arguments are not evaluated and no JavaScript effect is fabricated. The existing sleep_monst() owner preserves its return and state behavior; its discarded display.c:shieldeff() call remains named with note_unported().",
+            "callers": [
+              {
+                "path": "js/music.js",
+                "symbol": "do_improvisation",
+                "source": "music.c:do_improvisation() MAGIC_FLUTE arm calls put_monsters_to_sleep(u.ulevel * 5) after the music feedback and Hero_playnotes() and before exercise(A_DEX, TRUE). The JavaScript branch awaits the same helper at that point."
+              },
+              {
+                "path": "js/music.js",
+                "symbol": "do_play_instrument",
+                "source": "music.c:do_play_instrument() sends an instrument to do_improvisation() unless the player declines improvisation; the JavaScript path preserves this caller and routes its MAGIC_FLUTE through the same branch."
+              },
+              {
+                "path": "js/apply.js",
+                "symbol": "doapply",
+                "source": "apply.c:doapply() MAGIC_FLUTE instrument arm calls do_play_instrument(obj); JavaScript apply dispatch calls do_play_instrument(obj, state, env), which reaches the selected caller through the normal apply command."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/music.test.mjs"
+            ],
+            "recordings": [
+              "recordings/music.c/magic-flute-sleep-monsters-independent.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v4",
+                "caseId": "valkyrie-magic-flute-nymph-cycle",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 43,
+                "source": "apply.c:doapply -> music.c:do_play_instrument -> music.c:do_improvisation MAGIC_FLUTE -> music.c:put_monsters_to_sleep -> mhitm.c:sleep_monst"
+              },
+              {
+                "batch": "v4",
+                "caseId": "valkyrie-magic-flute-nymph-first-play",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 39,
+                "source": "apply.c:doapply -> music.c:do_play_instrument -> music.c:do_improvisation MAGIC_FLUTE -> music.c:put_monsters_to_sleep -> mhitm.c:sleep_monst"
+              }
+            ],
+            "checkedAt": "20cdce925160276c93a252d01e644c9e61d9626e"
+          }
+        ],
+        "entryPointReview": "The source has one active production entry path: apply a charged MAGIC_FLUTE, accept improvisation, then affect monsters within the strict squared-distance limit. apply.c:doapply dispatches the instrument to music.c:do_play_instrument; its improvisation arm calls do_improvisation, whose MAGIC_FLUTE arm reaches put_monsters_to_sleep. The two admitted v4 recordings reach this path with a nearby nymph; the independent music.c recording reaches it with a nearby grid bug. The source-pinned test separately checks dead and out-of-range chain members and the successful sleep_monst return path through slept_monst. No other caller or build-excluded path exists for this static helper.",
+        "entryPoints": [
+          {
+            "name": "Apply and improvise with a charged magic flute while a monster is in range",
+            "functions": [
+              "put_monsters_to_sleep"
+            ],
+            "recordings": [
+              "recordings/music.c/magic-flute-sleep-monsters-independent.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v4",
+                "caseId": "valkyrie-magic-flute-nymph-cycle",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 43,
+                "source": "apply.c:doapply -> music.c:do_play_instrument -> music.c:do_improvisation MAGIC_FLUTE -> music.c:put_monsters_to_sleep"
+              },
+              {
+                "batch": "v4",
+                "caseId": "valkyrie-magic-flute-nymph-first-play",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 39,
+                "source": "apply.c:doapply -> music.c:do_play_instrument -> music.c:do_improvisation MAGIC_FLUTE -> music.c:put_monsters_to_sleep"
+              }
+            ]
+          }
+        ]
+      },
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "20cdce925160276c93a252d01e644c9e61d9626e",
+        "screens": 11405,
+        "rng": 792838
+      }
+    },
+    {
+      "id": "port-do-dosinkring-synthetic-v4-20260926",
+      "kind": "file-port",
+      "status": "queued",
+      "summary": "Port do.c dosinkring and wire the sink-ring drop caller",
+      "cFile": "do.c",
+      "sessions": [
+        "synthetic/v4/rogue-sink-ring-history"
+      ],
+      "selectionReason": "After assigned B7 camera and A7 magic-flute cases, synthetic/v4/rogue-sink-ring-history has four unmatched screens; investigations/synthetic/v4/rogue-sink-ring-history.json traces the first stop at segment 0 step 47 to do.c dosinkring. The source owner is independent of their apply/light and music/mhitm reservations.",
+      "detail": "v4 manifest digest 10777af4c82fc759abf58a870fdd232329bc5c1467c8cf94f46089d0401459a9; recording challenges/cases/v4/rogue-sink-ring-history.session.json digest dc0759b7d9dca777d85b82b5e0ee0473ca6ef4debbb2a9f2b2eb2acadf85c557; saved evaluation challenges/evaluations/20260926022427-v4.json. Port all do.c:dosinkring branches in source order, do.c:drop sink-ring call, and consumed results of teleport_sink and obj_resists on active paths. The admitted recipe exercises levitation and searching rings; independently record other reached effects.",
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": null,
+      "delivered": null,
+      "functions": [
+        {
+          "name": "dosinkring",
+          "line": 498,
+          "endLine": 664,
+          "declared": false,
+          "complete": false
+        }
+      ],
+      "range": {
+        "from": 498,
+        "to": 664
+      },
+      "syntheticProvenance": {
+        "synthetic/v4/rogue-sink-ring-history": {
+          "session": "synthetic/v4/rogue-sink-ring-history",
+          "corpus": "synthetic",
+          "batch": "v4",
+          "caseId": "rogue-sink-ring-history",
+          "manifestPath": "challenges/manifests/v4.json",
+          "manifestSha256": "10777af4c82fc759abf58a870fdd232329bc5c1467c8cf94f46089d0401459a9",
+          "recordingPath": "challenges/cases/v4/rogue-sink-ring-history.session.json",
+          "recordingSha256": "dc0759b7d9dca777d85b82b5e0ee0473ca6ef4debbb2a9f2b2eb2acadf85c557",
+          "evaluationPath": "challenges/evaluations/20260926022427-v4.json",
+          "evaluationCommit": "07377e0c0ad51853b62a4b850c639a10fdb02db1"
+        }
+      }
+    },
+    {
+      "id": "div-getpos-jump-cursor-synthetic-v1-20260926",
+      "kind": "divergence-fix",
+      "status": "queued",
+      "summary": "Restore source-ordered getpos highlight flush and cursor placement during physical jump",
+      "cFile": "getpos.c",
+      "sessions": [],
+      "selectionReason": "After assigned B7 camera and C10 sink-ring work, synthetic/v1/knight-jump-return is the highest-ranked independent ready mismatch with two unmatched screens. investigations/synthetic/v1/knight-jump-return.json traces its first cursor difference at segment 0 step 33 to getpos.c getpos and getpos_sethilite ordering. The fix is independent of camera and sink reservations; the v2 altar offering follows in queue order.",
+      "detail": "v1 manifest digest a1d989fa6b5159e0b0729150ba765c741a405ec910c1274ad763d29b0a7096fe; recording challenges/cases/knight-jump-return.session.json digest f9498fc22f1cfc696439daea0dcd28c8c411788982d9f942c1a1fc6c3de3500e; saved evaluation challenges/evaluations/20260926024310-v1.json. C apply.c jump installs getpos_sethilite before getpos tip and verbose message flush; JS forceGetposSelectionRedraw occurs after them and leaves the cursor at selected maximum. Preserve screen and RNG parity while restoring C cursor order.",
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": null,
+      "delivered": null,
+      "function": "getpos",
+      "session": "synthetic/v1/knight-jump-return",
+      "step": 33,
+      "syntheticProvenance": {
+        "synthetic/v1/knight-jump-return": {
+          "session": "synthetic/v1/knight-jump-return",
+          "corpus": "synthetic",
+          "batch": "v1",
+          "caseId": "knight-jump-return",
+          "manifestPath": "challenges/manifest.json",
+          "manifestSha256": "a1d989fa6b5159e0b0729150ba765c741a405ec910c1274ad763d29b0a7096fe",
+          "recordingPath": "challenges/cases/knight-jump-return.session.json",
+          "recordingSha256": "f9498fc22f1cfc696439daea0dcd28c8c411788982d9f942c1a1fc6c3de3500e",
+          "evaluationPath": "challenges/evaluations/20260926024310-v1.json",
+          "evaluationCommit": "20cdce925160276c93a252d01e644c9e61d9626e"
         }
       }
     }

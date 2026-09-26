@@ -631,7 +631,7 @@ import {
     messageAt,
     sensesMonster,
 } from './startup_a11y.js';
-import { mpickobj, relobj } from './steal.js';
+import { mpickobj, relobj, thiefdead } from './steal.js';
 import { replshk, shkgone } from './shk.js';
 import {
     enexto,
@@ -4676,7 +4676,7 @@ export async function m_detach(
        m_id from svc.context.ident, which starts at 1, so the nonzero test
        keeps an unset stealmid from matching a monster with no identity. */
     if (state.gs?.stealmid && mtmp.m_id === state.gs.stealmid)
-        unsupported('the death of a monster in mid-theft');
+        thiefdead(state);
     if (mtmp.isshk) shkgone(mtmp, state);
     if (mtmp.wormno) wormgone(mtmp, state);
     if (In_endgame(state.u.uz)) unsupported('a monster death in the endgame');

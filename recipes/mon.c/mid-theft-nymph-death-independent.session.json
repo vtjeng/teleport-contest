@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "BLOCKED after one valid C setup: this conflict/minotaur attempt does not reach mon.c:m_detach() with mtmp->m_id == gs.stealmid. C resolves the minotaur conflict before a delayed nymph armor removal is active; later input does not execute thiefdead() or unstolenarm(). Retain as a valid setup miss, not as callback coverage.",
+  "segments": [
+    {
+      "seed": 92104631,
+      "datetime": "20390917140721",
+      "nethackrc": "OPTIONS=name:DetachProbe,role:Wizard,race:human,gender:male,align:lawful\nOPTIONS=!legacy,!tutorial,!splash_screen,playmode:debug,pettype:none,!acoustics,!safe_wait\n",
+      "moves": "n w-\u0017amulet of life saving\nWo\u0017ring of conflict\nPpl\u0007hostile water nymph\n\u0007peaceful minotaur\nbhm.m.m.m.m.m.m.m.m.i"
+    }
+  ]
+}
