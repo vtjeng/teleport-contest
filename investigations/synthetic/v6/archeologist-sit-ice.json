@@ -1,0 +1,89 @@
+{
+  "session": "synthetic/v6/archeologist-sit-ice",
+  "corpus": "synthetic",
+  "batch": "v6",
+  "caseId": "archeologist-sit-ice",
+  "manifestPath": "challenges/manifests/v6.json",
+  "manifestSha256": "7523b91e823f4e3906c9acdc9a3d80f8469c27c2caab8fc8fbd6967dbfdcab5f",
+  "recordingPath": "challenges/cases/v6/archeologist-sit-ice.session.json",
+  "recordingSha256": "9582ee5c2aa4664baa8e6009bd9c1a2174505d7cd21b85444c611140a55e66c8",
+  "evaluationPath": "challenges/evaluations/20260926094126-v6.json",
+  "evaluationCommit": "50bbe620897c8fc2e634d14ec672d33a4e44db7e",
+  "remainingScreens": 1,
+  "recordedSteps": 11,
+  "status": "complete",
+  "commit": "50bbe620897c8fc2e634d14ec672d33a4e44db7e",
+  "mismatch": {
+    "corpus": "synthetic",
+    "batch": "v6",
+    "caseId": "archeologist-sit-ice",
+    "session": "synthetic/v6/archeologist-sit-ice",
+    "manifestPath": "challenges/manifests/v6.json",
+    "manifestSha256": "7523b91e823f4e3906c9acdc9a3d80f8469c27c2caab8fc8fbd6967dbfdcab5f",
+    "recording": "challenges/cases/v6/archeologist-sit-ice.session.json",
+    "recordingPath": "challenges/cases/v6/archeologist-sit-ice.session.json",
+    "recordingSha256": "9582ee5c2aa4664baa8e6009bd9c1a2174505d7cd21b85444c611140a55e66c8",
+    "recipe": "challenges/cases/v6/archeologist-sit-ice.recipe.session.json",
+    "recipeSha256": "cc9b96b1b7d489fe18619295a33897dc90192885ea0d66ecb85067d825a17877",
+    "replayInputSha256": "9671c8200bb4617314143efc03b8936dba1c08d5025986a5ef6f245a97c322f9",
+    "evaluationPath": "challenges/evaluations/20260926094126-v6.json",
+    "evaluationCommit": "50bbe620897c8fc2e634d14ec672d33a4e44db7e",
+    "evaluationArtifact": "challenges/evaluations/20260926094126-v6.json",
+    "evaluationUtc": "2026-09-26T09:41:43.460Z",
+    "remainingScreens": 1,
+    "recordedSteps": 11,
+    "previousScreensMatched": 10,
+    "regression": false,
+    "passed": false,
+    "error": null,
+    "metrics": {
+      "screens": {
+        "matched": 10,
+        "total": 11
+      },
+      "rng": {
+        "matched": 2877,
+        "total": 2884
+      },
+      "cursors": {
+        "matched": 10,
+        "total": 11
+      }
+    },
+    "firstMismatch": {
+      "kind": "stop",
+      "message": "unsupported hero command: an unported branch of this command: sitting reached an unported branch: dosit()'s ice arm",
+      "step": 10
+    },
+    "step": 10,
+    "kind": "stop",
+    "sourceFile": "sit.c",
+    "function": "dosit",
+    "message": "unsupported hero command: an unported branch of this command: sitting reached an unported branch: dosit()'s ice arm",
+    "cFile": "sit.c",
+    "luaFile": null,
+    "line": null
+  },
+  "summary": "The v6 archeologist-sit-ice case reaches sit.c:dosit()'s ice branch, while js/sit.js refuses that branch. Port the entire dosit() command and its source-called dependencies, using all five v6 sit recordings for distinct terrain and feature states; preserve branch order, messages, return/time behavior, RNG, and side effects.",
+  "source": {
+    "file": "sit.c",
+    "branch": "The hero issues #sit while is_ice(u.ux,u.uy) is true after the object, trap, and water arms are false. C executes the ice branch and returns ECMD_TIME.",
+    "functions": [
+      "dosit"
+    ],
+    "callers": [
+      "cmd.c #sit command invokes sit.c dosit(); js/cmd.js command dispatch invokes js/sit.js dosit()."
+    ],
+    "dependencies": [
+      "Whole dosit() also calls altar_wrath, throne_sit_effect, dotrap, lay_an_egg, water_damage, losehp, and other state handlers on separate branches. Audit return-valued lay_an_egg and active feature side effects before claiming source completion.",
+      "Related unresolved v6 sit witnesses: archeologist-sit-ice, wizard-sit-sink, priest-sit-altar, wizard-sit-throne, wizard-sit-grave-room-retry."
+    ]
+  },
+  "goalKind": "file-port",
+  "evidence": [
+    "Saved challenges/evaluations/20260926094126-v6.json at 50bbe620897c8fc2e634d14ec672d33a4e44db7e reports one remaining screen, first stop at segment 0 step 10: unsupported hero command: an unported branch of this command: sitting reached an unported branch: dosit()'s ice arm.",
+    "challenges/cases/v6/archeologist-sit-ice.session.json: The C step 10 screen says “You sit on the ice.  The ice feels cold.”; the latter line requires absent Cold_resistance.",
+    "Upstream nethack-c/upstream/src/sit.c:548-551 uses is_ice(u.ux,u.uy); current js/sit.js:dosit throws UnsupportedSitError for the ice arm instead of executing it.",
+    "The five sit cases are different terrain or level-feature branches of the same dosit() source function; one whole-function port should cover them together. A matching range in each recording is still required before closing the source task."
+  ]
+}
