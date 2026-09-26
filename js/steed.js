@@ -4,6 +4,9 @@
 // doride().
 
 import {
+    A_CHA,
+    A_DEX,
+    A_WIS,
     ARTICLE_A,
     BLINDED,
     CONFUSION,
@@ -35,6 +38,11 @@ import {
     N_DIRS,
     NO_KILLER_PREFIX,
     P_RIDING,
+    P_BASIC,
+    P_EXPERT,
+    P_ISRESTRICTED,
+    P_SKILLED,
+    P_UNSKILLED,
     SLT_ENCUMBER,
     STEALTH,
     STONE_RES,
@@ -62,14 +70,16 @@ import { dirtocoord, getdir, xytodir, y_n } from './cmd.js';
 import { newsym } from './display.js';
 import { finish_meating } from './dogmove.js';
 import {
+    Monnam,
     YMonnam,
     capitalizedMonsterName,
     hliquid,
     monsterCommonName,
+    mon_nam,
     pmname,
     x_monnam,
 } from './do_name.js';
-import { can_saddle } from './dog.js';
+import { can_saddle, put_saddle_on_mon } from './dog.js';
 import { game } from './gstate.js';
 import {
     losehp,
@@ -89,22 +99,35 @@ import {
     slithy,
     throws_rocks,
     touch_petrifies,
+    poly_when_stoned,
     verysmall,
 } from './mondata.js';
 import { accessible } from './monmove.js';
 import { m_at, place_monster, remove_monster } from './monst.js';
-import { PM_KNIGHT, PM_LONG_WORM } from './monsters.js';
+import {
+    PM_AMOROUS_DEMON,
+    PM_KNIGHT,
+    PM_LONG_WORM,
+    PM_STONE_GOLEM,
+} from './monsters.js';
 import { greatest_erosion, isMetallic, sobj_at } from './obj.js';
 import { BOULDER } from './objects.js';
 import { an } from './objnam.js';
-import { encumber_msg } from './pickup.js';
-import { body_part, steed_vs_stealth } from './polyself.js';
+import { encumber_msg, u_handsy } from './pickup.js';
+import { body_part, polymon, steed_vs_stealth } from './polyself.js';
 import { rn1, rn2, rnd } from './rng.js';
 import { teleds } from './teleport.js';
 import { float_down, is_lava, is_pool, t_at } from './trap.js';
 import { ttyPline } from './tty_message.js';
 import { use_skill } from './weapon.js';
 import { is_pole, which_armor } from './worn.js';
+import { freeinv } from './invent.js';
+import { canSpotMonster } from './startup_a11y.js';
+import { remove_worn_item } from './steal.js';
+import { objdescr_is } from './o_init.js';
+import { P_SKILL } from './startup_skills.js';
+import { exercise } from './attrib.js';
+import { note_unported } from './unported.js';
 
 // A steed path this port has not reached yet.
 export class UnsupportedSteedError extends Error {
@@ -191,6 +214,112 @@ export function can_ride(mtmp, state = game) {
     return Boolean(mtmp.mtame) && humanoid(you)
         && !verysmall(you) && !bigmonst(you)
         && (!state.u.uinwater || is_swimmer(mtmp.data));
+}
+
+// C ref: steed.c use_saddle() (36-139). doapply() consumes ECMD_CANCEL,
+// ECMD_OK or ECMD_TIME, so preserve the direction prompts, chance roll, and
+// monster-inventory transfer in the order shown in that source function.
+export async function use_saddle(otmp, state = game, env = {}) {
+    if (!(await u_handsy(state)))
+        return ECMD_OK;
+
+    // Select an animal. These guards short-circuit before getdir() in C.
+    if (state.u?.uswallow || state.u?.uinwater || !(await getdir(null, state))) {
+        await ttyPline('Never mind.', state);
+        return ECMD_CANCEL;
+    }
+    if (!state.u.dx && !state.u.dy) {
+        await ttyPline('Saddle yourself?  Very funny...', state);
+        return ECMD_OK;
+    }
+
+    const x = state.u.ux + state.u.dx;
+    const y = state.u.uy + state.u.dy;
+    const mtmp = isok(x, y) ? m_at(x, y, state) : null;
+    if (!mtmp || !canSpotMonster(mtmp, state)) {
+        await ttyPline('I see nobody there.', state);
+        return ECMD_TIME;
+    }
+
+    if ((mtmp.misc_worn_check & W_SADDLE) || which_armor(mtmp, W_SADDLE, state)) {
+        await ttyPline(`${Monnam(mtmp, state)} doesn't need another one.`, state);
+        return ECMD_TIME;
+    }
+
+    const species = mtmp.data;
+    if (touch_petrifies(species) && !state.uarmg
+        && !propertyActive(state, STONE_RES)) {
+        await ttyPline(`You touch ${mon_nam(mtmp, state)}.`, state);
+        if (!(poly_when_stoned(state.youmonst.data, state)
+            && await polymon(PM_STONE_GOLEM, state))) {
+            // trap.c instapetrify() is a void death path and has no production
+            // port yet. Preserve the source call boundary without inventing
+            // its death state or messages.
+            note_unported('trap.c instapetrify');
+        }
+    }
+
+    if (species?.pmidx === PM_AMOROUS_DEMON) {
+        await ttyPline('Shame on you!', state);
+        await exercise(A_WIS, false, state);
+        return ECMD_TIME;
+    }
+    if (mtmp.isminion || mtmp.isshk || mtmp.ispriest || mtmp.isgd || mtmp.iswiz) {
+        await ttyPline(`I think ${mon_nam(mtmp, state)} would mind.`, state);
+        return ECMD_TIME;
+    }
+    if (!can_saddle(mtmp)) {
+        await ttyPline("You can't saddle such a creature.", state);
+        return ECMD_TIME;
+    }
+
+    let chance = (state.u.acurr?.a?.[A_DEX] ?? 0)
+        + Math.trunc((state.u.acurr?.a?.[A_CHA] ?? 0) / 2)
+        + 2 * (mtmp.mtame ?? 0);
+    chance += (state.u.ulevel ?? 0) * (mtmp.mtame ? 20 : 5);
+    if (!mtmp.mtame)
+        chance -= 10 * (mtmp.m_lev ?? 0);
+    if (state.urole?.mnum === PM_KNIGHT)
+        chance += 20;
+    switch (P_SKILL(P_RIDING, state)) {
+    case P_BASIC:
+        break;
+    case P_SKILLED:
+        chance += 15;
+        break;
+    case P_EXPERT:
+        chance += 30;
+        break;
+    case P_ISRESTRICTED:
+    case P_UNSKILLED:
+    default:
+        chance -= 20;
+        break;
+    }
+    if (propertyActive(state, CONFUSION)
+        || propertyActive(state, FUMBLING)
+        || propertyIntrinsic(state, GLIB)) {
+        chance -= 20;
+    } else if (state.uarmg && objdescr_is(state.uarmg, 'riding gloves', state)) {
+        chance += 10;
+    } else if (state.uarmf && objdescr_is(state.uarmf, 'riding boots', state)) {
+        chance += 10;
+    }
+    if (otmp.cursed)
+        chance -= 50;
+
+    await maybewakesteed(mtmp, state);
+
+    if (rn2(100) < chance) {
+        await ttyPline(`You put the saddle on ${mon_nam(mtmp, state)}.`, state);
+        if (otmp.owornmask)
+            await remove_worn_item(otmp, false, state, env);
+        freeinv(otmp, { ...env, state });
+        put_saddle_on_mon(otmp, mtmp, { ...env, state });
+    } else {
+        await ttyPline(`${Monnam(mtmp, state)} resists!`, state);
+    }
+    return ECMD_TIME;
 }
 
 // C ref: steed.c mount_steed() (197-383). Every guard down to the impairment
@@ -390,7 +519,7 @@ export async function mount_steed(mtmp, force, state = game) {
     }
 
     /* Success */
-    maybewakesteed(mtmp);
+    await maybewakesteed(mtmp, state);
     if (!force) {
         if (Levitation(state) && !is_floater(ptr) && !is_flyer(ptr)) {
             /* Must have Lev_at_will at this point: the guard above returns
@@ -777,7 +906,7 @@ export async function dismount_steed(reason, state = game) {
 // C ref: steed.c maybewakesteed() (825-848). Wakes a sleeping or frozen steed
 // when the hero saddles or mounts it. The rn2(frozen) draw is the only random
 // number the success path can make, and it fires only for a frozen steed.
-function maybewakesteed(steed) {
+async function maybewakesteed(steed, state = game) {
     let frozen = steed.mfrozen;
     const wasimmobile = helpless(steed);
 
@@ -793,12 +922,8 @@ function maybewakesteed(steed) {
             steed.mfrozen = frozen;
         }
     }
-    if (wasimmobile && !helpless(steed)) {
-        // pline("%s wakes up.", Monnam(steed)) is deferred with the rest of
-        // the sleeping-pet work: nothing this port admits leaves a starting
-        // pet asleep or frozen, so no recorded case can check the line.
-        throw new UnsupportedSteedError('maybewakesteed() waking the steed');
-    }
+    if (wasimmobile && !helpless(steed))
+        await ttyPline(`${Monnam(steed, state)} wakes up.`, state);
     /* regardless of waking, terminate any meal in progress */
     finish_meating(steed);
 }

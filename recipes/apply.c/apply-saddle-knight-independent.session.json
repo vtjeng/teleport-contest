@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 730913,
+      "datetime": "20351107102700",
+      "nethackrc": "OPTIONS=name:SteedProbe,role:Knight,race:human,gender:female,align:lawful\nOPTIONS=!legacy,!tutorial,!splash_screen\nOPTIONS=pettype:none,!acoustics,!autopickup,time,number_pad:1\n",
+      "comment": "Independent C entry path for apply.c doapply() -> steed.c use_saddle(): create an adjacent tame pony and wish for a saddle, apply it, then exercise the source's #ride caller.",
+      "moves": " \u0007tame pony\n\u0017saddle\n aiu#ride\nuy"
+    }
+  ]
+}

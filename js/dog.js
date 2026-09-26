@@ -52,7 +52,7 @@ import {
 } from './do_name.js';
 import { UnsupportedHeroMoveBoundaryError } from './hack.js';
 import { game } from './gstate.js';
-import { add_to_minv, update_inventory } from './invent.js';
+import { update_inventory } from './invent.js';
 import { discover_object, observe_object } from './o_init.js';
 import { set_malign } from './makemon.js';
 import { makemon_runtime } from './makemon_create.js';
@@ -109,7 +109,7 @@ import {
 import { an, donameFresh, the, Tobjnam, xnameFresh } from './objnam.js';
 import { genders } from './roles.js';
 import { picked_container, set_residency } from './shk.js';
-import { mksobj, place_object, unknow_object } from './obj.js';
+import { mksobj, place_object } from './obj.js';
 import {
     BOULDER,
     EXPENSIVE_CAMERA,
@@ -134,6 +134,7 @@ import { growl, yelp } from './sounds.js';
 import { ttyPline } from './tty_message.js';
 import { cansee, canseemon } from './vision.js';
 import { note_unported } from './unported.js';
+import { mpickobj } from './steal.js';
 
 export { christen_monst } from './do_name.js';
 
@@ -160,6 +161,19 @@ function propertyBlocked(hero, index) {
 function heroHallucinating(state) {
     return propertyActive(state.u, HALLUC)
         && !propertyActive(state.u, HALLUC_RES);
+}
+
+function canSeeStartingPet(monster, env) {
+    if (typeof env.canseemon === 'function')
+        return Boolean(env.canseemon(monster, env));
+    if (env.state.in_mklev) return false;
+    const hero = env.state.u;
+    const blind = propertyActive(hero, BLINDED)
+        && !propertyBlocked(hero, BLINDED);
+    // makedog() calls put_saddle_on_mon() before initedog(). The ordinary
+    // start path has an adjacent, undisguised pony; callers can inject
+    // canseemon() when invisibility or line of sight matters.
+    return !blind && !monster.minvis;
 }
 
 function carryingType(state, otyp) {
@@ -469,19 +483,6 @@ function fullyIdentifyObject(object, state, env) {
     return object;
 }
 
-function canSeeStartingPet(monster, env) {
-    if (typeof env.canseemon === 'function')
-        return Boolean(env.canseemon(monster, env));
-    if (env.state.in_mklev) return false;
-    const hero = env.state.u;
-    const blind = propertyActive(hero, BLINDED)
-        && !propertyBlocked(hero, BLINDED);
-    // The fallback is complete for makedog()'s adjacent, undisguised pony.
-    // Other callers can inject canseemon() when invisibility or line of sight
-    // matters.
-    return !blind && !monster.minvis;
-}
-
 const SADDLEABLE_CLASSES = new Set([
     S_QUADRUPED,
     S_UNICORN,
@@ -504,19 +505,6 @@ export function can_saddle(monster) {
         && species.mlet !== S_VORTEX
         && species.pmidx !== PM_AIR_ELEMENTAL
         && !(flags & M1_UNSOLID);
-}
-
-function pickUpStartingSaddle(monster, saddle, env) {
-    // C ref: steal.c mpickobj(). put_saddle_on_mon() runs before initedog(),
-    // so a blind hero cannot see the not-yet-tame pony acquire the saddle.
-    // unknow_object() clears only this object instance; fully_identify_obj()
-    // has already recorded the saddle's global discovery.
-    if (!monster.mtame) {
-        const canSeeMonster = canSeeStartingPet(monster, env);
-        if (!canSeeMonster && monster !== env.state.u?.ustuck)
-            unknow_object(saddle, env.state);
-    }
-    return add_to_minv(monster, saddle, env);
 }
 
 // C ref: steed.c put_saddle_on_mon(). Saddles have no extrinsic property, so
@@ -549,7 +537,12 @@ export function put_saddle_on_mon(saddle, monster, env = {}) {
         if (!saddle) return null;
         fullyIdentifyObject(saddle, normalized.state, normalized);
     }
-    if (pickUpStartingSaddle(monster, saddle, normalized))
+    // steed.c checks mpickobj()'s consumed merge result and panics if it
+    // freed the saddle instead of making it the monster's inventory item.
+    if (mpickobj(monster, saddle, {
+        ...normalized,
+        canSeeMonster: (subject) => canSeeStartingPet(subject, normalized),
+    }))
         throw new Error('put_saddle_on_mon: merged saddle');
     monster.misc_worn_check |= W_SADDLE;
     saddle.owornmask = W_SADDLE;
