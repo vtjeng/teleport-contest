@@ -752,12 +752,27 @@ function readDevelopmentScan(path) {
     return scan;
 }
 
-async function checkSelection(goal, scan) {
+async function checkSelection(goal, scan, { allowQueuedSynthetic = false } = {}) {
     const { assertGoalSelection, loadWorkQueue } =
         await import('./mismatch-queue.mjs');
     // A saved fixed scan is an input to the combined queue, not a way to opt
     // out of admitted synthetic evidence or its blockers.
     const queue = loadWorkQueue({ scan });
+    const selectedSession = goal.session ?? goal.sessions?.[0];
+    const selectedProvenance = goal.syntheticProvenance?.[selectedSession];
+    // queue-goal already checked and stored this exact synthetic selection.
+    // A worker can resolve its case before the orchestrator opens the goal at
+    // integration, so it need not still be an unmatched queue entry. Current
+    // synthetic evidence must nevertheless remain complete.
+    if (allowQueuedSynthetic && goal.status === 'queued'
+        && selectedProvenance?.session === selectedSession
+        && selectedProvenance.corpus === 'synthetic') {
+        if (queue.blockers?.length) {
+            throw new Error('synthetic evidence is incomplete, missing, stale, or invalid; '
+                + 'goal selection is blocked');
+        }
+        return queue;
+    }
     const candidate = assertGoalSelection(queue, goal);
     if (isSourcePort(goal) && !goal.sessions.length && candidate) {
         const sessions = candidate.sessions ?? (candidate.session ? [candidate.session] : []);
@@ -869,7 +884,7 @@ async function main(args) {
         if (options['selection-reason']) goal.selectionReason = options['selection-reason'];
         const scan = options['development-scan']
             ? readDevelopmentScan(options['development-scan']) : undefined;
-        const queue = await checkSelection(goal, scan);
+        const queue = await checkSelection(goal, scan, { allowQueuedSynthetic: true });
         const opening = currentDevelopmentStanding();
         if (goal.openedAt == null) goal.openedAt = repositoryHead();
         if (goal.openStanding == null) goal.openStanding = opening;
@@ -888,7 +903,7 @@ async function main(args) {
             throw new Error(`goal ${goal.id} is ${goal.status}, not queued or open`);
         const scan = options['development-scan']
             ? readDevelopmentScan(options['development-scan']) : undefined;
-        await checkSelection(goal, scan);
+        await checkSelection(goal, scan, { allowQueuedSynthetic: true });
         refreshCompletion(goal, null, store.goals);
         const context = taskContext(goal);
         writeGoals(store);
