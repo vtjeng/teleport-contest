@@ -1,0 +1,11 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 26092659,
+      "datetime": "20380926122300",
+      "nethackrc": "OPTIONS=name:SinkSearch,role:Valkyrie,race:human,gender:female,align:lawful,playmode:debug,!legacy,!tutorial,!splash_screen,!autopickup\n",
+      "moves": "      \u0017sink\n\u0017ring of searching\nde \n\n."
+    }
+  ]
+}

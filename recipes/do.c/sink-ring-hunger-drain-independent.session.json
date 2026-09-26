@@ -1,0 +1,11 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 26092658,
+      "datetime": "20380926114510",
+      "nethackrc": "OPTIONS=name:DrainTrace,role:Valkyrie,race:human,gender:female,align:lawful,playmode:debug,!legacy,!tutorial,!splash_screen,!autopickup\n",
+      "moves": "      \u0017sink\n\u0017ring of hunger\n\u0017scroll of identify\n\u0017potion of healing\n\u0017wand of striking\n\u0017ruby\ndfdgdhdide\u0020\u0020\u0020\u0020\u0020\n."
+    }
+  ]
+}

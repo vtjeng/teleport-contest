@@ -263,7 +263,9 @@ export function validatePortEvidence(goal, evidence, { root = PROJECT_ROOT, comm
  */
 export function completedFunctionNames(goal) {
     try {
-        return new Set(evidenceShape(goal, goal.evidence).evidence.functions.map((entry) => entry.name));
+        const invalidated = new Set((goal.invalidatedFunctions ?? []).map((entry) => entry.name));
+        return new Set(evidenceShape(goal, goal.evidence).evidence.functions
+            .map((entry) => entry.name).filter((name) => !invalidated.has(name)));
     } catch {
         return new Set();
     }
