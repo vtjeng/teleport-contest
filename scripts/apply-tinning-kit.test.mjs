@@ -6,7 +6,7 @@ import { doapply } from '../js/apply.js';
 import { ECMD_TIME, HOMEMADE_TIN, OBJ_INVENT } from '../js/const.js';
 import { game } from '../js/gstate.js';
 import { runSegment } from '../js/jsmain.js';
-import { PM_LICHEN, PM_NEWT } from '../js/monsters.js';
+import { PM_DEATH, PM_LICHEN, PM_NEWT } from '../js/monsters.js';
 import { CORPSE, TIN, TINNING_KIT } from '../js/objects.js';
 
 const recipe = JSON.parse(readFileSync(new URL(
@@ -79,4 +79,23 @@ test('doapply reports an exhausted tinning kit without selecting a corpse',
         assert.equal(await doapply(game), ECMD_TIME);
         assert.equal(game._pending_message, 'You seem to be out of tins.');
         assert.equal(kit.spe, 0);
+    });
+
+test('doapply propagates the existing inventory Rider revival refusal',
+    async () => {
+        const setup = recipe.segments[0];
+        await runSegment({ ...setup, moves: setup.moves.slice(0, -3) });
+
+        const kit = inventoryObject(TINNING_KIT);
+        const corpse = inventoryObject(CORPSE);
+        corpse.corpsenm = PM_DEATH;
+        game.nhDisplay.pushKey(' '.charCodeAt(0)); // dismiss wish message
+        game.nhDisplay.pushKey(kit.invlet.charCodeAt(0));
+        game.nhDisplay.pushKey(corpse.invlet.charCodeAt(0));
+
+        await assert.rejects(
+            doapply(game),
+            /revive_corpse\(\) outside its floor arm/u,
+        );
+        assert.equal(kit.spe, 52);
     });
