@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "capturedAt": "2026-09-27T00:56:10.871Z",
+  "capturedAt": "2026-09-27T01:44:43.513Z",
   "activity": {
     "runId": "loop-20260925",
     "events": [
@@ -3933,12 +3933,89 @@
         "type": "accepted",
         "at": "2026-09-27T00:56:05.756Z",
         "task": "A17"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "A17-published-7e423a39",
+        "type": "published",
+        "at": "2026-09-27T01:02:08.322Z",
+        "task": "A17",
+        "commit": "7e423a39c8307d8dbcc0bb9bc2f5d21c70d288d8"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "assign-B21-trap-fall-through-20260927-01",
+        "type": "assign",
+        "at": "2026-09-27T01:08:03.338Z",
+        "task": "B21",
+        "worker": "B",
+        "goal": "port-trap-fall-through-hero-synthetic-v7-20260926",
+        "kind": "implementation"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "assign-A18-20260927-01",
+        "type": "assign",
+        "at": "2026-09-27T01:09:47.342Z",
+        "task": "A18",
+        "worker": "A",
+        "goal": "port-eat-cpostfx-lizard-synthetic-v7-20260926",
+        "kind": "implementation"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "assign-C22-dowizcast-20260927",
+        "type": "assign",
+        "at": "2026-09-27T01:12:15.382Z",
+        "task": "C22",
+        "worker": "C",
+        "goal": "port-spell-dowizcast-stone-to-flesh-v7-20260926",
+        "kind": "implementation"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-9d218c2587abf65bcfba56c03a5a42c6e4e754a4",
+        "type": "ready",
+        "at": "2026-09-27T01:28:27.033Z",
+        "task": "C22",
+        "delivery": "9d218c2587abf65bcfba56c03a5a42c6e4e754a4"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "received-C22-20260927",
+        "type": "received",
+        "at": "2026-09-27T01:29:56.066Z",
+        "task": "C22",
+        "delivery": "9d218c2587abf65bcfba56c03a5a42c6e4e754a4"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "integrating-C22-20260927",
+        "type": "integrating",
+        "at": "2026-09-27T01:31:26.244Z",
+        "task": "C22",
+        "integration": "625aaf8b04ce55c414f8bd9ed8c037e1dcd95221"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "validated-C22-20260927",
+        "type": "validated",
+        "at": "2026-09-27T01:38:19.026Z",
+        "task": "C22",
+        "passed": true
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accepted-C22-20260927",
+        "type": "accepted",
+        "at": "2026-09-27T01:42:28.713Z",
+        "task": "C22"
       }
     ]
   },
   "development": {
-    "executionCommit": "12a35e71cf1d937cd08b75b196f3c8b54224f6cd",
-    "measuredAt": "2026-09-27T00:51:29.275Z",
+    "executionCommit": "625aaf8b04ce55c414f8bd9ed8c037e1dcd95221",
+    "measuredAt": "2026-09-27T01:38:00.186Z",
     "sessions": [
       {
         "session": "holdout/seed0002-healer-reflection-drummer",
