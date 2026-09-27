@@ -94684,7 +94684,7 @@
     {
       "id": "div-trap-chest-trap-message-flush-synthetic-v8-20260927",
       "kind": "divergence-fix",
-      "status": "open",
+      "status": "closed",
       "summary": "Restore source-ordered message-window flush in trapped chest activation",
       "cFile": "trap.c",
       "sessions": [],
@@ -94696,8 +94696,11 @@
         "screens": 11405,
         "rng": 792838
       },
-      "closedAt": null,
-      "delivered": null,
+      "closedAt": "043629bb13447062cadb766644b34c3490bb9bde",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
       "function": "chest_trap",
       "session": "synthetic/v8/tip-container-contents-trapped-box-probe",
       "step": 61,
@@ -94946,7 +94949,13 @@
             }
           }
         }
-      ]
+      ],
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "043629bb13447062cadb766644b34c3490bb9bde",
+        "screens": 11405,
+        "rng": 792838
+      }
     },
     {
       "id": "port-apply-use-mirror-synthetic-v8-20260927",
