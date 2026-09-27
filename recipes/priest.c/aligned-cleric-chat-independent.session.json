@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 84195563,
+      "datetime": "20010113093000",
+      "nethackrc": "OPTIONS=name:ElowenCanticle,role:Priest,race:human,gender:female,align:lawful,playmode:debug,!legacy,!tutorial,!splash_screen,pettype:none,showexp,time\n",
+      "moves": " \u0007peaceful aligned cleric\ny#chat\nj",
+      "comment": "Independent priest.c priest_talk witness: a lawful female human Priest uses debug mode to create a peaceful aligned cleric at the start, then talks to the adjacent southward cleric with #chat instead of following the admitted Wizard's exact character setup and seed."
+    }
+  ]
+}

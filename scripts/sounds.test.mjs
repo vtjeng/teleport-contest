@@ -1,4 +1,5 @@
 import assert from 'node:assert/strict';
+import { readFileSync } from 'node:fs';
 import test from 'node:test';
 
 import {
@@ -29,6 +30,15 @@ import { parseNethackrc } from '../js/options.js';
 import {
     dosounds,
 } from '../js/sounds.js';
+
+const C_SOUNDS_SOURCE = readFileSync(
+    new URL('../nethack-c/upstream/src/sounds.c', import.meta.url),
+    'utf8',
+);
+const JS_SOUNDS_SOURCE = readFileSync(
+    new URL('../js/sounds.js', import.meta.url),
+    'utf8',
+);
 
 function soundState() {
     const uprops = [];
@@ -653,4 +663,25 @@ test('dosounds returns after the shop gate even without a message', async () => 
     const result = await runSounds(state, [0]);
     result.script.assertBounds([200]);
     assert.deepEqual(result.messages, []);
+});
+
+test('#chat dispatches priest and peaceful demon conversations at their C sound arms', () => {
+    const cChat = C_SOUNDS_SOURCE.slice(
+        C_SOUNDS_SOURCE.indexOf('dochat(void)\n{'),
+        C_SOUNDS_SOURCE.indexOf('staticfn struct monst *\nresponsive_mon_at',
+            C_SOUNDS_SOURCE.indexOf('dochat(void)\n{')),
+    );
+    const jsNoise = JS_SOUNDS_SOURCE.slice(
+        JS_SOUNDS_SOURCE.indexOf('export async function domonnoise('),
+        JS_SOUNDS_SOURCE.indexOf('// C ref: sounds.c dochat()',
+            JS_SOUNDS_SOURCE.indexOf('export async function domonnoise(')),
+    );
+    assert.match(cChat, /return domonnoise\(mtmp\);/u);
+    assert.match(C_SOUNDS_SOURCE,
+        /case MS_PRIEST:\s*priest_talk\(mtmp\);/u);
+    assert.match(C_SOUNDS_SOURCE,
+        /case MS_BRIBE:\s*if \(mtmp->mpeaceful && !mtmp->mtame\)\s*\{\s*\(void\) demon_talk\(mtmp\);/u);
+    assert.match(jsNoise, /case MS_PRIEST:\s*await priest_talk\(mtmp, state\);/u);
+    assert.match(jsNoise,
+        /case MS_BRIBE:\s*if \(mtmp\.mpeaceful && !mtmp\.mtame\)\s*\{\s*\/\/ sounds\.c discards demon_talk\(\)'s int result\.\s*await demon_talk\(mtmp, state\);/u);
 });

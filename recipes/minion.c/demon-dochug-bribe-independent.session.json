@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 84011231,
+      "datetime": "20000111090000",
+      "nethackrc": "OPTIONS=name:BribeProbe,role:Wizard,race:human,gender:female,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen,playmode:debug,pettype:none\n",
+      "moves": "#wizwish\n10000 gold pieces\n#wizgenesis\npeaceful Geryon\nyssssssssssss\n\n10000\n",
+      "comment": "Independent direct caller witness: twelve search turns reach the peaceful Geryon branch in monmove.c:dochug at C step 64. Newlines dismiss the appearance and demand pagers; the entered full-gold offer completes minion.c:bribe at step 76. Strict C/JS replay matches after B23's forced-creature creation port."
+    }
+  ]
+}

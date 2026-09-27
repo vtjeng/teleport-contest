@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 84011231,
+      "datetime": "20000111090000",
+      "nethackrc": "OPTIONS=name:BribeProbe,role:Wizard,race:human,gender:female,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen,playmode:debug,pettype:none\n",
+      "moves": "#wizwish\n10000 gold pieces\n#wizgenesis\npeaceful Geryon\ny#chat\ny\n\n10000\n ",
+      "comment": "Independent sounds.c:domonnoise entry to minion.c:demon_talk and bribe: debug creates peaceful Geryon, answers the unique-monster force prompt, then #chat reaches the C-observed northwest invisible-prince tile and offers all gold. Geryon is MS_BRIBE; Orcus is excluded because its source sound is MS_ORC."
+    }
+  ]
+}
