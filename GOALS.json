@@ -91853,14 +91853,18 @@
     {
       "id": "div-vision-pit-sight-synthetic-v6-20260926",
       "kind": "divergence-fix",
-      "status": "queued",
+      "status": "open",
       "summary": "Restore source pit-limited sight after downward digging",
       "cFile": "vision.c",
       "sessions": [],
       "selectionReason": "The current v6 archeologist-down-dig-floor case matches its dig message and all RNG calls but still draws a pet beyond the 3×3 pit sight limit at step 6. C vision.c:vision_recalc selects the u.utrap && TT_PIT branch after digactualhole requests full recalculation; JS uses ordinary view_from. The prior dig.c diagnosis is stale, so select this source-traced vision branch.",
       "detail": "Port the pit branch of vision.c:vision_recalc in buffer and redraw order, using canonical u.utrap and u.utraptype state. Keep ordinary, blind and swallowed sight unchanged. Independently record a pit with a creature or feature beyond adjacent range using different seed/date/character conditions; verify the admitted v6 step 6 and preserve all existing matches.",
-      "openedAt": null,
-      "openStanding": null,
+      "openedAt": "c3972c48092cfb862070f98242b89d813bafad66",
+      "openStanding": {
+        "sha": "c3972c48092cfb862070f98242b89d813bafad66",
+        "screens": 11405,
+        "rng": 792838
+      },
       "closedAt": null,
       "delivered": null,
       "function": "vision_recalc",
@@ -91879,7 +91883,202 @@
           "evaluationPath": "challenges/evaluations/20260927005209-v6.json",
           "evaluationCommit": "12a35e71cf1d937cd08b75b196f3c8b54224f6cd"
         }
-      }
+      },
+      "activeStanding": {
+        "sha": "c3972c48092cfb862070f98242b89d813bafad66",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v6",
+          "caseId": "archeologist-down-dig-floor",
+          "session": "synthetic/v6/archeologist-down-dig-floor",
+          "manifestPath": "challenges/manifests/v6.json",
+          "manifestSha256": "7523b91e823f4e3906c9acdc9a3d80f8469c27c2caab8fc8fbd6967dbfdcab5f",
+          "recording": "challenges/cases/v6/archeologist-down-dig-floor.session.json",
+          "recordingPath": "challenges/cases/v6/archeologist-down-dig-floor.session.json",
+          "recordingSha256": "8ae44f290808dea580c783add4b5cc12e99a94f4c998441b329325406fa9e9a9",
+          "recipe": "challenges/cases/v6/archeologist-down-dig-floor.recipe.session.json",
+          "recipeSha256": "7a44624310a7907c493bc6e6dd893aaf141942878dc86db440ae6c2972c69742",
+          "replayInputSha256": "98a66dc6f7ed978e6177dc7f251579da4743d1a9d58da3a6a0b29dbb27b2498c",
+          "evaluationPath": "challenges/evaluations/20260927032154-v6.json",
+          "evaluationCommit": "6ff81e0c85937f98189ac25d5847d8fecdab4f8f",
+          "evaluationArtifact": "challenges/evaluations/20260927032154-v6.json",
+          "evaluationUtc": "2026-09-27T03:22:13.425Z",
+          "remainingScreens": 2,
+          "recordedSteps": 8,
+          "previousScreensMatched": 6,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 6,
+              "total": 8
+            },
+            "rng": {
+              "matched": 6188,
+              "total": 6188
+            },
+            "cursors": {
+              "matched": 8,
+              "total": 8
+            }
+          },
+          "firstMismatch": {
+            "screen": {
+              "index": 6,
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 6,
+                "key": ">"
+              },
+              "kind": "ch",
+              "row": 13,
+              "column": 10,
+              "cCell": {
+                "ch": ".",
+                "color": 8,
+                "attr": 0,
+                "decgfx": 0
+              },
+              "jsCell": {
+                "ch": "f",
+                "color": 15,
+                "attr": 0,
+                "decgfx": 0
+              }
+            },
+            "rng": null,
+            "cursor": null
+          },
+          "step": 6,
+          "kind": "screen",
+          "sourceFile": null,
+          "function": null,
+          "message": null,
+          "cFile": null,
+          "luaFile": null,
+          "line": null,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v6/archeologist-down-dig-floor.json",
+            "result": {
+              "session": "synthetic/v6/archeologist-down-dig-floor",
+              "corpus": "synthetic",
+              "batch": "v6",
+              "caseId": "archeologist-down-dig-floor",
+              "manifestPath": "challenges/manifests/v6.json",
+              "manifestSha256": "7523b91e823f4e3906c9acdc9a3d80f8469c27c2caab8fc8fbd6967dbfdcab5f",
+              "recordingPath": "challenges/cases/v6/archeologist-down-dig-floor.session.json",
+              "recordingSha256": "8ae44f290808dea580c783add4b5cc12e99a94f4c998441b329325406fa9e9a9",
+              "evaluationPath": "challenges/evaluations/20260927005209-v6.json",
+              "evaluationCommit": "12a35e71cf1d937cd08b75b196f3c8b54224f6cd",
+              "remainingScreens": 2,
+              "recordedSteps": 8,
+              "status": "complete",
+              "commit": "12a35e71cf1d937cd08b75b196f3c8b54224f6cd",
+              "mismatch": {
+                "corpus": "synthetic",
+                "batch": "v6",
+                "caseId": "archeologist-down-dig-floor",
+                "session": "synthetic/v6/archeologist-down-dig-floor",
+                "manifestPath": "challenges/manifests/v6.json",
+                "manifestSha256": "7523b91e823f4e3906c9acdc9a3d80f8469c27c2caab8fc8fbd6967dbfdcab5f",
+                "recording": "challenges/cases/v6/archeologist-down-dig-floor.session.json",
+                "recordingPath": "challenges/cases/v6/archeologist-down-dig-floor.session.json",
+                "recordingSha256": "8ae44f290808dea580c783add4b5cc12e99a94f4c998441b329325406fa9e9a9",
+                "recipe": "challenges/cases/v6/archeologist-down-dig-floor.recipe.session.json",
+                "recipeSha256": "7a44624310a7907c493bc6e6dd893aaf141942878dc86db440ae6c2972c69742",
+                "replayInputSha256": "f2c945d9e00dcf6d0bd4942e3af34ee5b9e10467fa9a2ab70e6c05cd35213374",
+                "evaluationPath": "challenges/evaluations/20260927005209-v6.json",
+                "evaluationCommit": "12a35e71cf1d937cd08b75b196f3c8b54224f6cd",
+                "evaluationArtifact": "challenges/evaluations/20260927005209-v6.json",
+                "evaluationUtc": "2026-09-27T00:52:27.629Z",
+                "remainingScreens": 2,
+                "recordedSteps": 8,
+                "previousScreensMatched": 6,
+                "regression": false,
+                "passed": false,
+                "error": null,
+                "metrics": {
+                  "screens": {
+                    "matched": 6,
+                    "total": 8
+                  },
+                  "rng": {
+                    "matched": 6188,
+                    "total": 6188
+                  },
+                  "cursors": {
+                    "matched": 8,
+                    "total": 8
+                  }
+                },
+                "firstMismatch": {
+                  "screen": {
+                    "index": 6,
+                    "location": {
+                      "segmentIndex": 0,
+                      "stepIndex": 6,
+                      "key": ">"
+                    },
+                    "kind": "ch",
+                    "row": 13,
+                    "column": 10,
+                    "cCell": {
+                      "ch": ".",
+                      "color": 8,
+                      "attr": 0,
+                      "decgfx": 0
+                    },
+                    "jsCell": {
+                      "ch": "f",
+                      "color": 15,
+                      "attr": 0,
+                      "decgfx": 0
+                    }
+                  },
+                  "rng": null,
+                  "cursor": null
+                },
+                "step": 6,
+                "kind": "screen",
+                "sourceFile": null,
+                "function": null,
+                "message": null,
+                "cFile": null,
+                "luaFile": null,
+                "line": null
+              },
+              "summary": "Downward digging now reaches the C pit message and all 6,188 RNG calls match. At segment 0 step 6, the hero is in a pit: C vision.c:vision_recalc limits sight to the immediate 3×3 area and hides the pet two rows away, while JS uses ordinary view_from sight and draws that pet. Step 7 retains the same stale visibility. The mismatch is the pit vision branch, not the previously missing dig occupation.",
+              "source": {
+                "file": "vision.c",
+                "branch": "After dig.c:digactualhole sets u.utrap to TT_PIT and requests a full vision recalculation, vision_recalc fills only cells adjacent to the hero when u.utrap && u.utraptype == TT_PIT. JS vision_recalc currently calls view_from for every non-swallowed hero and has no pit branch.",
+                "functions": [
+                  "vision_recalc"
+                ],
+                "callers": [
+                  "dig.c:digactualhole creates the hero pit and sets gv.vision_full_recalc; the move loop calls vision_recalc before display refresh.",
+                  "js/dig.js:digactualhole sets u.utrap and gv.vision_full_recalc, but js/vision.js:vision_recalc uses ordinary view_from sight and leaves the distant pet visible."
+                ],
+                "dependencies": [
+                  "Preserve vision buffer rmin/rmax, IN_SIGHT and COULD_SEE values and the existing light-source overlay in C order.",
+                  "The pet is outside the pit sight square; its movement and RNG already match through the step, so do not alter monster movement to remove the glyph."
+                ]
+              },
+              "goalKind": "divergence-fix",
+              "evidence": [
+                "Current evaluation challenges/evaluations/20260927005209-v6.json at 12a35e71cf1d937cd08b75b196f3c8b54224f6cd matches 6/8 screens, 8/8 cursors and 6188/6188 RNG calls. Its first screen difference at segment 0 step 6 is C floor (.) versus JS pet (f) at map row 13 column 10; both print “You start digging downward. You dig a pit in the floor.”",
+                "Local replay of the admitted recording shows the pet adjacent at step 5. At steps 6 and 7 C hides it after the hero enters the pit, while JS paints it farther away. C vision.c:vision_recalc lines 609-622 limits pit sight to u.ux±1/u.uy±1.",
+                "C dig.c:digactualhole sets TT_PIT and gv.vision_full_recalc when the hero falls into the pit; js/dig.js does the same. js/vision.js:vision_recalc currently has no pit-specific branch and unconditionally calls view_from for a non-swallowed hero. The old dig.c:dig source diagnosis is superseded by this current trace."
+              ]
+            }
+          }
+        }
+      ]
     },
     {
       "id": "port-write-dowrite-glib-synthetic-v6-20260926",
