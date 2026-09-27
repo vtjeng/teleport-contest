@@ -2,21 +2,33 @@
 // C ref: minion.c newemin().
 
 import {
+    A_CHA,
     A_CHAOTIC,
     A_LAWFUL,
     A_NONE,
     A_NEUTRAL,
+    ARTICLE_A,
+    DEAF,
+    EXACT_NAME,
     G_GONE,
+    LL_UMONST,
     MM_EMIN,
     MM_NOMSG,
+    RLOC_MSG,
+    STRAT_APPEARMSG,
 } from './const.js';
-import { ART_DEMONBANE } from './artifacts.js';
-import { Amonnam, Monnam } from './do_name.js';
+import { ART_DEMONBANE, ART_EXCALIBUR, is_art } from './artifacts.js';
+import { Amonnam, Monnam, mon_nam, x_monnam } from './do_name.js';
 import { flush_screen, map_invisible, newsym } from './display.js';
+import { In_hell } from './dungeon.js';
+import { is_fainted } from './eat.js';
 import { game } from './gstate.js';
 import { sgn } from './hacklib.js';
-import { makemon_runtime } from './makemon_create.js';
-import { mkclass, mkclass_aligned } from './makemon.js';
+import { nomul, unmul } from './hack.js';
+import { stop_occupation } from './allmain.js';
+import { money_cnt, currency } from './invent.js';
+import { makemon_runtime, mongone } from './makemon_create.js';
+import { mkclass, mkclass_aligned, set_malign } from './makemon.js';
 import {
     is_demon,
     is_dlord,
@@ -28,12 +40,18 @@ import {
 } from './mondata.js';
 import * as M from './monsters.js';
 import { mon_aligntyp } from './priest.js';
-import { show_transient_light, transient_light_cleanup } from './light.js';
+import { mon_has_amulet } from './wizard.js';
+import { acurr } from './attrib.js';
+import { getlin } from './windows.js';
 import { d, rn1, rn2, rnd, rne, rnz } from './rng.js';
+import { show_transient_light, transient_light_cleanup } from './light.js';
+import { rloc, tele_restrict } from './teleport.js';
 import { canSeeMonster, canSpotMonster, heroIsBlind }
     from './startup_a11y.js';
 import { canseemon, vision_recalc } from './vision.js';
+import { livelog_printf, verbalize } from './pline.js';
 import { ttyPline } from './tty_message.js';
+import { note_unported } from './unported.js';
 
 const defaultSelectorRandom = { rn1, rn2, rnd };
 
@@ -52,6 +70,163 @@ function transientLightEnv(state) {
         canSpotMonster: (monster) => canSpotMonster(monster, state),
         mapInvisible: (x, y) => map_invisible(x, y, state),
     };
+}
+
+function heroDeaf(state) {
+    const deaf = state.u?.uprops?.[DEAF];
+    return Boolean(deaf?.intrinsic || deaf?.extrinsic
+        || state.u?.uroleplay?.deaf);
+}
+
+// C ref: minion.c demon_talk() (263-359). sounds.c:1140 discards this
+// function's return, but demon_talk() consumes bribe()'s long result when it
+// decides whether the demon departs or attacks.
+export async function demon_talk(mtmp, state = game, env = {}) {
+    const random = { rn1, rn2, rnd, ...(env.random ?? {}) };
+    const message = env.message ?? ttyPline;
+    const speak = env.verbalize ?? verbalize;
+    const deaf = heroDeaf(state);
+
+    if (is_art(state.uwep, ART_EXCALIBUR)
+        || is_art(state.uwep, ART_DEMONBANE)) {
+        if (canseemon(mtmp, state))
+            await message(`${Amonnam(mtmp, state)} looks very angry.`, state);
+        else
+            await message('You feel tension building.', state);
+        mtmp.mpeaceful = 0;
+        mtmp.mtame = 0;
+        set_malign(mtmp, state);
+        newsym(mtmp.mx, mtmp.my, state);
+        return 0;
+    }
+
+    if (is_fainted(state)) {
+        // eat.c reset_faint()'s return is void, but its unmul() side effect
+        // wakes the hero when afternmv is unfaint. Preserve the missing source
+        // owner explicitly instead of fabricating that state transition.
+        note_unported('eat.c reset_faint');
+    } else {
+        await stop_occupation(state, { message });
+        if ((state.multi ?? 0) > 0) {
+            nomul(0, state);
+            await unmul(null, state);
+        }
+    }
+
+    if (is_dprince(mtmp.data) && mtmp.minvis) {
+        const wasUnseen = !canSpotMonster(mtmp, state);
+        mtmp.minvis = 0;
+        mtmp.perminvis = 0;
+        if (wasUnseen && canSpotMonster(mtmp, state)) {
+            await message(`${Amonnam(mtmp, state)} appears before you.`, state);
+            mtmp.mstrategy &= ~STRAT_APPEARMSG;
+        }
+        newsym(mtmp.mx, mtmp.my, state);
+    }
+
+    if (state.youmonst?.data?.mlet === M.S_DEMON) {
+        if (!deaf) {
+            await message(
+                `${Amonnam(mtmp, state)} says, "Good hunting, ${state.flags?.female ? 'Sister' : 'Brother'}."`,
+                state,
+            );
+        } else if (canseemon(mtmp, state)) {
+            await message(`${Amonnam(mtmp, state)} says something.`, state);
+        }
+        if (!await tele_restrict(mtmp, state))
+            rloc(mtmp, RLOC_MSG, { state });
+        return 1;
+    }
+
+    const cash = money_cnt(state.invent);
+    const atHome = In_hell(state.u.uz, state) && mtmp.cham === M.NON_PM;
+    const sameAlignment = sgn(state.u.ualign.type)
+        === sgn(mtmp.data.maligntyp);
+    let demand = Math.trunc(
+        (cash * (random.rnd(80) + 20 * Number(atHome)))
+        / (100 * (1 + Number(sameAlignment))),
+    );
+
+    if (!demand || (state.multi ?? 0) < 0) {
+        mtmp.mpeaceful = 0;
+        set_malign(mtmp, state);
+        return 0;
+    }
+
+    let offer = 0;
+    if (mon_has_amulet(mtmp) || deaf)
+        demand = cash + random.rn1(1000, 125);
+
+    if (!deaf) {
+        await message(
+            `${Amonnam(mtmp, state)} demands ${demand} ${currency(demand, state)} for safe passage.`,
+            state,
+        );
+        offer = await bribe(mtmp, 'How much will you offer?', state, env);
+    } else if (canseemon(mtmp, state)) {
+        await message(`${Amonnam(mtmp, state)} seems to be demanding something.`, state);
+    }
+
+    if (!deaf && offer >= demand) {
+        await message(
+            `${Amonnam(mtmp, state)} vanishes, laughing about cowardly mortals.`,
+            state,
+        );
+    } else if (offer > 0
+        && random.rnd(5 * acurr(A_CHA, state)) > demand - offer) {
+        await message(
+            `${Amonnam(mtmp, state)} scowls at you menacingly, then vanishes.`,
+            state,
+        );
+    } else {
+        await message(`${Amonnam(mtmp, state)} gets angry...`, state);
+        mtmp.mpeaceful = 0;
+        set_malign(mtmp, state);
+        return 0;
+    }
+
+    livelog_printf(
+        LL_UMONST,
+        `bribed ${x_monnam(mtmp, ARTICLE_A, null, EXACT_NAME, false, state)} with ${offer} ${offer === 1 ? 'zorkmid' : 'zorkmids'} for safe passage`,
+        state,
+    );
+    mongone(mtmp, { state });
+    return 1;
+}
+
+// C ref: minion.c bribe() (361-389). The terminal line is parsed as a signed
+// decimal long, payment is capped to the hero's inventory, and money2mon()
+// owns the object transfer while its C return is discarded here.
+export async function bribe(mtmp, prompt, state = game, env = {}) {
+    const message = env.message ?? ttyPline;
+    const input = await (env.getlin ?? getlin)(prompt, state);
+    const match = /^\s*([+-]?\d+)/u.exec(String(input ?? ''));
+    let offer = match ? Number.parseInt(match[1], 10) : 0;
+    const umoney = money_cnt(state.invent);
+
+    if (offer < 0) {
+        await message(`You try to shortchange ${mon_nam(mtmp, state)}, but fumble.`, state);
+        return 0;
+    }
+    if (offer === 0) {
+        await message('You refuse.', state);
+        return 0;
+    }
+    if (offer >= umoney) {
+        await message(`You give ${mon_nam(mtmp, state)} all your gold.`, state);
+        offer = umoney;
+    } else {
+        await message(
+            `You give ${mon_nam(mtmp, state)} ${offer} ${currency(offer, state)}.`,
+            state,
+        );
+    }
+
+    const { money2mon } = await import('./shk.js');
+    money2mon(mtmp, offer, state);
+    state.disp ??= {};
+    state.disp.botl = true;
+    return offer;
 }
 
 // C ref: minion.c monster_census() (40-57).  The census walks the live level

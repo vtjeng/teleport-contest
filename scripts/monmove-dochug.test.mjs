@@ -9,6 +9,7 @@ import {
     MMOVE_MOVED,
     MMOVE_NOMOVES,
     MMOVE_NOTHING,
+    MS_BRIBE,
     M_SEEN_SLEEP,
     NEED_HTH_WEAPON,
     NEED_WEAPON,
@@ -18,6 +19,8 @@ import {
     STRAT_WAITFORU,
 } from '../js/const.js';
 import { dochug } from '../js/monmove.js';
+import { monst_globals_init, PM_ASMODEUS, PM_HUMAN, PM_VROCK }
+    from '../js/monsters.js';
 import {
     AD_BLND,
     AD_RBRE,
@@ -143,6 +146,245 @@ test('dochug requires the castUndirectedSpell operation', async () => {
         /dochug requires a castUndirectedSpell operation/u,
     );
 });
+
+test('dochug consumes demon_talk result in the adjacent peaceful bribe branch',
+    async () => {
+        // C ref: monmove.c:802-825. This branch follows find_defensive() and
+        // find_misc(), then returns the source demon_talk() result only when
+        // the peaceful MS_BRIBE monster's apparent target is the hero.
+        const state = makeState();
+        monst_globals_init(state);
+        state.u.ux = 10;
+        state.u.uy = 10;
+        state.u.uswallow = false;
+        state.u.ualign = { type: 0 };
+        const events = [];
+        const monster = makeMonster({
+            data: state.mons[PM_ASMODEUS],
+            mpeaceful: true,
+            mtame: 0,
+            mx: 9,
+            my: 10,
+            mux: 10,
+            muy: 10,
+        });
+        assert.equal(monster.data.msound, MS_BRIBE);
+        const env = {
+            ...baseEnv(state, events),
+            distanceAndFear: () => {
+                events.push('range');
+                return { inrange: false, nearby: true, scared: false };
+            },
+            demonTalk: async (candidate, owner, context) => {
+                events.push('demon-talk');
+                assert.equal(candidate, monster);
+                assert.equal(owner, state);
+                assert.equal(context.state, state);
+                return 1;
+            },
+            moveMonster: () => {
+                events.push('move');
+                return MMOVE_NOTHING;
+            },
+        };
+
+        assert.equal(await dochug(monster, env), 1);
+        assert.deepEqual(events, [
+            'preflight', 'wipe', 'apparxy', 'apparxy', 'range', 'items',
+            'demon-talk',
+        ]);
+    });
+
+test('planned demon bribe reads an empty offer without consuming live keys',
+    async () => {
+        // moveloop_core() preflights on a clone that shares nhDisplay's input
+        // queue. The planning seam must model a refusal without calling the
+        // live getlin reader, while preserving dochug()'s consumed return.
+        const state = makeState();
+        monst_globals_init(state);
+        state.u.ux = 10;
+        state.u.uy = 10;
+        state.u.uswallow = false;
+        const events = [];
+        let keyReads = 0;
+        state.nhDisplay = {
+            readKey: async () => {
+                ++keyReads;
+                return 's'.charCodeAt(0);
+            },
+        };
+        const monster = makeMonster({
+            data: state.mons[PM_ASMODEUS],
+            mpeaceful: true,
+            mtame: 0,
+            mx: 9,
+            my: 10,
+            mux: 10,
+            muy: 10,
+        });
+        const env = {
+            ...baseEnv(state, events),
+            planning: true,
+            distanceAndFear: () => ({
+                inrange: false, nearby: true, scared: false,
+            }),
+            demonTalk: async (_candidate, _owner, context) => {
+                assert.equal(context.planning, true);
+                assert.equal(typeof context.getlin, 'function');
+                assert.equal(await context.getlin('How much?'), '');
+                return 1;
+            },
+        };
+
+        assert.equal(await dochug(monster, env), 1);
+        assert.equal(keyReads, 0);
+    });
+
+test('dochug direct demon_talk import handles the source zero-demand result',
+    async () => {
+        // C ref: monmove.c:823-824 -> minion.c:demon_talk(). This exercises
+        // the production dynamic import too: an empty purse makes demand zero,
+        // so the demon becomes hostile and the monster action continues.
+        const state = makeState();
+        monst_globals_init(state);
+        state.u.ux = 10;
+        state.u.uy = 10;
+        state.u.uswallow = false;
+        state.u.ualign = { type: 0 };
+        state.u.uz = { dnum: 0, dlevel: 1 };
+        state.dungeons = [{ flags: { hellish: false } }];
+        state.invent = null;
+        state.multi = 0;
+        state.go = {};
+        state.context = {};
+        state.youmonst = { data: state.mons[PM_HUMAN] };
+        const events = [];
+        const monster = makeMonster({
+            data: state.mons[PM_ASMODEUS],
+            mpeaceful: true,
+            mtame: 0,
+            mx: 9,
+            my: 10,
+            mux: 10,
+            muy: 10,
+            mspec_used: 1,
+        });
+        const env = {
+            ...baseEnv(state, events),
+            random: {
+                rn2: () => assert.fail('no branch RNG is expected'),
+                rnd: () => 1,
+            },
+            distanceAndFear: () => ({
+                inrange: false, nearby: true, scared: false,
+            }),
+            message: async () => {},
+            moveMonster: () => {
+                events.push('move');
+                return MMOVE_NOTHING;
+            },
+        };
+
+        assert.equal(await dochug(monster, env), 0);
+        assert.equal(monster.mpeaceful, 0);
+    });
+
+test('dochug angry thin-air response clears invisibility and maligns',
+    async () => {
+        // C ref: monmove.c:805-822. A peaceful bribe monster targeting a
+        // different square angers when the hero is not a demon; invisible
+        // state is cleared before the message and peaceful/malign state.
+        const state = makeState();
+        monst_globals_init(state);
+        state.u.ux = 10;
+        state.u.uy = 10;
+        state.u.ualign = { type: 0 };
+        state.youmonst = { data: state.mons[PM_HUMAN] };
+        const events = [];
+        const messages = [];
+        const monster = makeMonster({
+            data: state.mons[PM_ASMODEUS],
+            mpeaceful: true,
+            mtame: 0,
+            minvis: 1,
+            perminvis: 1,
+            mx: 9,
+            my: 10,
+            mux: 0,
+            muy: 0,
+        });
+        const env = {
+            ...baseEnv(state, events),
+            distanceAndFear: () => ({
+                inrange: false, nearby: true, scared: false,
+            }),
+            message: async (line) => { messages.push(line); },
+            moveMonster: () => MMOVE_NOTHING,
+            demonTalk: () => assert.fail(
+                'a thin-air target does not enter demon_talk',
+            ),
+        };
+
+        assert.equal(await dochug(monster, env), 0);
+        assert.equal(monster.minvis, 0);
+        assert.equal(monster.perminvis, 0);
+        assert.equal(monster.mpeaceful, 0);
+        assert.equal(monster.malign, Math.abs(monster.data.maligntyp));
+        assert.match(messages[0], /whispers at thin air/u);
+        assert.match(messages[1], /gets angry/u);
+    });
+
+test('dochug demon hero relocates a peaceful briber targeting thin air',
+    async () => {
+        // C ref: monmove.c:805-812. For a demon hero the target-mismatch
+        // branch keeps the monster peaceful and consults tele_restrict(); a
+        // permitted relocation uses RLOC_MSG and its result is discarded.
+        const state = makeState();
+        monst_globals_init(state);
+        state.u.ux = 10;
+        state.u.uy = 10;
+        state.youmonst = { data: state.mons[PM_VROCK] };
+        const events = [];
+        const messages = [];
+        const monster = makeMonster({
+            data: state.mons[PM_ASMODEUS],
+            mpeaceful: true,
+            mtame: 0,
+            mx: 9,
+            my: 10,
+            mux: 0,
+            muy: 0,
+            mspec_used: 1,
+        });
+        const env = {
+            ...baseEnv(state, events),
+            distanceAndFear: () => ({
+                inrange: false, nearby: true, scared: false,
+            }),
+            message: async (line) => { messages.push(line); },
+            teleRestrict: async (candidate, owner) => {
+                events.push('tele-restrict');
+                assert.equal(candidate, monster);
+                assert.equal(owner, state);
+                return false;
+            },
+            relocateRandomMonster: async (candidate, flags) => {
+                events.push('relocate');
+                assert.equal(candidate, monster);
+                assert.equal(flags, RLOC_MSG);
+                return false;
+            },
+            moveMonster: () => MMOVE_NOTHING,
+        };
+
+        assert.equal(await dochug(monster, env), 0);
+        assert.deepEqual(events.filter((event) => event !== 'preflight'
+            && event !== 'wipe' && event !== 'apparxy'), [
+            'items', 'tele-restrict', 'relocate',
+        ]);
+        assert.equal(monster.mpeaceful, true);
+        assert.match(messages[0], /whispers at thin air/u);
+    });
 
 test('dochug skips m_move() after a successful undirected spell', async () => {
     const events = [];

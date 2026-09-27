@@ -192,7 +192,14 @@ import { STATUE, WEAPON_CLASS } from './objects.js';
 import { halu_gname } from './pray.js';
 import { body_part, poly_gender } from './polyself.js';
 import { quest_chat } from './quest.js';
-import { inhistemple, mon_aligntyp, p_coaligned, temple_occupied } from './priest.js';
+import {
+    inhistemple,
+    mon_aligntyp,
+    p_coaligned,
+    priest_talk,
+    temple_occupied,
+} from './priest.js';
+import { demon_talk } from './minion.js';
 import { rn1, rn2 } from './rng.js';
 import { genders } from './roles.js';
 import { canSpotMonster } from './startup_a11y.js';
@@ -1019,7 +1026,7 @@ export async function domonnoise(mtmp, state = game) {
     case MS_ORACLE:
         throw new UnsupportedChatError('oracle consultation (doconsult())');
     case MS_PRIEST:
-        note_unported('priest.c priest_talk');
+        await priest_talk(mtmp, state);
         break;
     case MS_LEADER:
     case MS_NEMESIS:
@@ -1320,7 +1327,8 @@ export async function domonnoise(mtmp, state = game) {
         break;
     case MS_BRIBE:
         if (mtmp.mpeaceful && !mtmp.mtame) {
-            note_unported('minion.c demon_talk');
+            // sounds.c discards demon_talk()'s int result.
+            await demon_talk(mtmp, state);
             break;
         }
         // FALLTHROUGH: the non-bribable arm is cuss().

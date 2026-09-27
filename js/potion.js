@@ -13,9 +13,9 @@
 //        make_blinded() (261-331),
 //        make_hallucinated() (387-442), toggle_blindness() (336-364).
 //
-// dodrink() is the #quaff command entry point. Branches for underwater,
-// worn-potion, and milky/smoky potions are fail-closed;
-// the common path calls getobj() -> dopotion() -> peffects().
+// dodrink() is the #quaff command entry point. Its occupied milky-potion
+// branch still names the void ghost_from_bottle() gap; the common path calls
+// getobj() -> dopotion() -> peffects().
 //
 // peffects() dispatches 26 potion types; POT_ACID, POT_BOOZE, POT_CONFUSION,
 // POT_SICKNESS, POT_SPEED (with spell alias SPE_HASTE_SELF), POT_BLINDNESS,
@@ -72,6 +72,7 @@ import {
     KILLED_BY_AN,
     FIXED_ABIL,
     FREE_ACTION,
+    G_GONE,
     HEAD,
     LEG,
     MM_NOMSG,
@@ -120,9 +121,9 @@ import { clone_mon, set_malign } from './makemon.js';
 import { makemon_runtime, mongone } from './makemon_create.js';
 import { breathless, haseyes, likes_fire } from './mondata.js';
 import {
-    PM_CYCLOPS, PM_DJINNI, PM_FLOATING_EYE, PM_HEALER,
+    PM_CYCLOPS, PM_DJINNI, PM_FLOATING_EYE, PM_GHOST, PM_HEALER,
 } from './monsters.js';
-import { bcsign, objectType } from './obj.js';
+import { bcsign, objectType, splitobj } from './obj.js';
 import { s_suffix } from './hacklib.js';
 import {
     Tobjnam, donameFresh, is_plural, short_oname, thesimpleoname, vtense,
@@ -203,8 +204,7 @@ export class UnsupportedPotionError extends Error {
 }
 
 // Thrown where dodrink/dopotion/peffects reaches a branch this port has not
-// ported, including unported potion types and dodrink's underwater,
-// worn-potion, milky and smoky branches.
+// ported, such as an unported potion type.
 export class UnsupportedQuaffError extends Error {
     constructor(reason) {
         super(`quaffing requires ${reason}`);
@@ -294,8 +294,7 @@ export async function mongrantswish(monster, state = game, env = {}) {
 }
 
 // C ref: potion.c djinni_from_bottle() (2814-2868). This source-ordered
-// outcome family is shared by a rubbed magic lamp and a smoky potion. The
-// latter caller remains fail-closed in dodrink(); dorub() is the live owner.
+// outcome family is shared by a rubbed magic lamp and a smoky potion.
 export async function djinni_from_bottle(obj, state = game, env = {}) {
     const random = djinniRandom(env);
     const message = env.message ?? ttyPline;
@@ -1400,11 +1399,8 @@ export async function dopotion(otmp, state = game) {
 
 // C ref: potion.c dodrink() (526-615). The #quaff command entry point.
 //
-// Fail-closed branches:
-// - Underwater: drinking the water surrounding the hero.
-// - Worn-potion (owornmask): splitobj/remove_worn_item for worn potions.
-// - Milky potion: ghost_from_bottle().
-// - Smoky potion: djinni_from_bottle().
+// Source-ordered port of potion.c:dodrink(). The void ghost_from_bottle()
+// and remove_worn_item() dependencies remain named gaps when reached.
 export async function dodrink(state = game) {
     const hero = state.u;
 
@@ -1450,8 +1446,13 @@ export async function dodrink(state = game) {
         }
         // C ref: potion.c:562-564. Surrounded by water.
         if (hero.uinwater && !hero.uswallow) {
-            throw new UnsupportedQuaffError(
-                'the underwater prompt in dodrink()');
+            const { y_n } = await import('./cmd.js');
+            if (await y_n('Drink the water around you?', state)
+                === 'y'.charCodeAt(0)) {
+                await ttyPline('Do you know what lives in this water?', state);
+                return ECMD_TIME;
+            }
+            ++drink_ok_extra;
         }
     }
 
@@ -1466,27 +1467,43 @@ export async function dodrink(state = game) {
         return GETOBJ_EXCLUDE;
     }
 
-    const otmp = await getobj('drink', drink_ok, GETOBJ_NOFLAGS, state);
+    let otmp = await getobj('drink', drink_ok, GETOBJ_NOFLAGS, state);
     if (!otmp) return ECMD_CANCEL;
 
-    // C ref: potion.c:591-598. If the potion is worn (owornmask nonzero),
-    // split it off or remove it. Fail-closed because no ported path wears a
-    // potion.
+    // C ref: potion.c:591-598. Split a single potion off a worn stack so the
+    // rest stays worn; for one worn potion C calls the void
+    // steal.c:remove_worn_item() helper.
     if (otmp.owornmask) {
-        throw new UnsupportedQuaffError(
-            'the worn-potion splitobj/remove_worn_item branch in dodrink()');
+        if (otmp.quan > 1) {
+            otmp = splitobj(otmp, 1, { state });
+            otmp.owornmask = 0;
+        } else {
+            note_unported('steal.c remove_worn_item');
+        }
     }
     otmp.in_use = true; // you've opened the stopper
 
-    // C ref: potion.c:601-612. Milky and smoky potion occupant checks.
-    // objdescr_is(otmp, s) compares OBJ_DESCR(objects[otmp->otyp]) with s.
-    // Fail-closed: both call helpers this port has not reached.
+    // C ref: potion.c:601-612. objdescr_is(otmp, s) compares the object's
+    // description with s. POTION_OCCUPANT_CHANCE(n) is 13 + 2*n.
     const descr = OBJ_DESCR(objectType(otmp, state), state);
     if (descr === 'milky') {
-        throw new UnsupportedQuaffError('ghost_from_bottle()');
-    }
-    if (descr === 'smoky') {
-        throw new UnsupportedQuaffError('djinni_from_bottle()');
+        const ghostVital = state.mvitals[PM_GHOST];
+        if (!(ghostVital.mvflags & G_GONE)
+            && !rn2(13 + 2 * ghostVital.born)) {
+            note_unported('potion.c ghost_from_bottle');
+            useup(otmp, { state });
+            return ECMD_TIME;
+        }
+    } else if (descr === 'smoky') {
+        const djinniVital = state.mvitals[PM_DJINNI];
+        if (!(djinniVital.mvflags & G_GONE)
+            && !rn2(13 + 2 * djinniVital.born)) {
+            // C discards djinni_from_bottle()'s void result; preserve its
+            // awaited effects, then consume the bottle and return ECMD_TIME.
+            await djinni_from_bottle(otmp, state);
+            useup(otmp, { state });
+            return ECMD_TIME;
+        }
     }
 
     return await dopotion(otmp, state);
