@@ -1694,11 +1694,14 @@ test('dmgval subtracts erosion but never below one', () => {
     );
 });
 
-// The two arms of dmgval() this port stops at. Both sit after the base roll,
-// so each refusal happens with the die already spent.
-test('dmgval zeroes a shade hit unless the object can glare, and refuses an '
-    + 'artifact worth doubling', () => {
+// The source's artifact bonus threshold follows the ordinary bonuses. Each
+// example below has spent the base die before spec_dbon() is considered.
+test('dmgval zeroes shade damage and halves only an applicable artifact bonus', () => {
     const state = makeState();
+    state.flags = { initalign: 1 };
+    state.urole = { mnum: PM_VALKYRIE };
+    state.urace = { mnum: 0 };
+    init_artifacts(state);
 
     // weapon.c:306-307. An ordinary long sword passes harmlessly through a
     // shade: the die is still rolled, and the total is then thrown away.
@@ -1722,22 +1725,33 @@ test('dmgval zeroes a shade hit unless the object can glare, and refuses an '
     );
     assert.deepEqual(silverRoller.calls, ['rnd(8)', 'rnd(20)']);
 
-    // weapon.c:338-339 needs artifact.c spec_dbon(). C reaches it only for an
-    // artifact whose bonus already exceeds 1, so a lit Sunsword against a
-    // gremlin refuses once the light bonus rolls 2 rather than the 1 the test
-    // above scripted.
-    const artifactRoller = scriptedRandom([2, 2]);
-    assert.throws(
-        () => dmgval(
-            object(state, LONG_SWORD, {
-                oartifact: ART_SUNSWORD, lamplit: true,
-            }),
-            monster(state, PM_GREMLIN), state,
-            { random: artifactRoller.random, ...refuseUnsupported },
-        ),
-        /artifact damage doubling/u,
+    // weapon.c:338-339. A blessed Sunsword earns rnd(4)=2 against an undead
+    // target; spec_dbon() says this artifact doubles against undead, so C
+    // rounds the bonus up after halving it: base 2 + bonus 1.
+    const doubledRoller = scriptedRandom([2, 2]);
+    assert.equal(
+        dmgval(object(state, LONG_SWORD, {
+            oartifact: ART_SUNSWORD, blessed: 1,
+        }), monster(state, PM_WRAITH), state,
+        { random: doubledRoller.random, ...refuseUnsupported }),
+        3,
     );
-    assert.deepEqual(artifactRoller.calls, ['rnd(8)', 'rnd(8)']);
+    assert.equal(state.spec_dbon_applies, true);
+    assert.deepEqual(doubledRoller.calls, ['rnd(8)', 'rnd(4)']);
+
+    // The gate is not merely `bonus > 1 && artifact`: a lit Sunsword's light
+    // bonus against a gremlin remains unhalved because spec_dbon() does not
+    // apply to gremlins.
+    const inapplicableRoller = scriptedRandom([2, 2]);
+    assert.equal(
+        dmgval(object(state, LONG_SWORD, {
+            oartifact: ART_SUNSWORD, lamplit: true,
+        }), monster(state, PM_GREMLIN), state,
+        { random: inapplicableRoller.random, ...refuseUnsupported }),
+        4,
+    );
+    assert.equal(state.spec_dbon_applies, false);
+    assert.deepEqual(inapplicableRoller.calls, ['rnd(8)', 'rnd(8)']);
 
     // The same bonus of 2 on a weapon that is no artifact passes through.
     const plainRoller = scriptedRandom([3, 2]);

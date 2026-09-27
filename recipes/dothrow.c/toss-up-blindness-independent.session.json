@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "Independent Wizard recipe for dothrow.c:throwit -> toss_up -> potion.c:potionhit with an upward-thrown blindness potion. Inputs, clock, seed, and name were selected for this source path rather than copied from a prior session.",
+  "segments": [
+    {
+      "seed": 482631,
+      "datetime": "20381024101422",
+      "nethackrc": "OPTIONS=name:UpBlindness,role:Wizard,race:human,gender:male,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen\nOPTIONS=pettype:none,!acoustics,playmode:debug\n",
+      "moves": ".#wizwish\npotion of blindness\ntp<"
+    }
+  ]
+}
