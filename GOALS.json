@@ -93968,7 +93968,7 @@
     {
       "id": "port-pray-altar-wrath-synthetic-v6-20260927",
       "kind": "file-port",
-      "status": "open",
+      "status": "parked",
       "summary": "Port pray.c altar_wrath through sit, dig, engrave, kick, and vomit callers",
       "cFile": "pray.c",
       "sessions": [
@@ -94211,7 +94211,17 @@
             }
           }
         }
-      ]
+      ],
+      "progressBeforePark": {
+        "screens": 0,
+        "rng": 0
+      },
+      "parkedStanding": {
+        "sha": "ba1bf2134667bfee7b2b0482067bca5a5e7eb30b",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "parkedReason": "The pray.c:altar_wrath helper and sit, engrave, and kick callers strictly match independent C recordings, but its eat.c:vomit altar entry lacks production replay: eat.c:choke is still unsupported before it can reach spewed vomit on an altar. The dig.c:dig altar call is source-gated by dig_check(BY_YOU), which rejects altar digging. Resume after eat.c:choke is ported and record an independent altar vomiting path before source completion."
     },
     {
       "id": "port-apply-use-stethoscope-synthetic-v6-20260927",
