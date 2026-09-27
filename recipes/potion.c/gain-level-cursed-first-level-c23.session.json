@@ -6,7 +6,7 @@
       "seed": 260927231,
       "datetime": "20260927033000",
       "nethackrc": "OPTIONS=name:GainCursed,role:Healer,race:human,gender:female,align:neutral,playmode:debug,!legacy,!tutorial,!splash_screen,pettype:none\n",
-      "moves": " \u0017cursed potion of gain level\nqp       "
+      "moves": " \u0017cursed potion of gain level\nqk"
     }
   ]
 }

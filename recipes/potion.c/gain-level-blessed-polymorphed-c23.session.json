@@ -6,7 +6,7 @@
       "seed": 260927234,
       "datetime": "20260927041500",
       "nethackrc": "OPTIONS=name:GainPolymorphed,role:Valkyrie,race:human,gender:female,align:lawful,playmode:debug,!legacy,!tutorial,!splash_screen,pettype:none\n",
-      "moves": " \u0017blessed potion of gain level\n#polyself\nred dragon\nqp                    "
+      "moves": " \u0017blessed potion of gain level\n#polyself\nred dragon\n   qe"
     }
   ]
 }

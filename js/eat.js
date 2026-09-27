@@ -2377,12 +2377,7 @@ async function cpostfx(pm, state) {
 
     switch (pm) {
     case PM_WRAITH:
-        if (Upolyd(state.u)) {
-            // pluslvl()'s polymorphed monhp_per_lvl() branch is not ported.
-            note_unported('exper.c pluslvl polymorph');
-        } else {
-            await pluslvl(false, state, { message: ttyPline });
-        }
+        await pluslvl(false, state, { message: ttyPline });
         break;
     case PM_HUMAN_WERERAT:
         catch_lycanthropy = PM_WERERAT;

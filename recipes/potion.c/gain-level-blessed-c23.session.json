@@ -6,7 +6,7 @@
       "seed": 260927232,
       "datetime": "20260927034500",
       "nethackrc": "OPTIONS=name:GainBlessed,role:Wizard,race:human,gender:male,align:neutral,playmode:debug,!legacy,!tutorial,!splash_screen,pettype:none\n",
-      "moves": " \u0017blessed potion of gain level\nqp                    "
+      "moves": " \u0017blessed potion of gain level\nqn"
     }
   ]
 }
