@@ -13,6 +13,7 @@ import {
     PICK_NONE,
     GETOBJ_EXCLUDE,
     GETOBJ_SUGGEST,
+    HANDS_SYM,
     W_SADDLE,
     W_WEP,
 } from '../js/const.js';
@@ -188,6 +189,35 @@ test('display_pickinv supports loot sorting and display-only menus', async () =>
     assert.equal(shown.length, 1);
     assert.equal(shown[0].how, 0); // PICK_NONE is C's display-only mode.
     assert.equal(shown[0].items.some((item) => item.label?.includes('ration')), true);
+});
+
+test('display_pickinv groups the hands extra choice under Miscellaneous with sortpack', async () => {
+    const state = stateFixture();
+    state.invent = object(FOOD_RATION, state, { invlet: 'a' });
+    let items;
+    await display_pickinv(
+        null, 'your fingertip', null, true, true, state,
+        { menu: (rows) => { items = rows; return null; } },
+    );
+
+    assert.equal(items[0].text, 'Miscellaneous');
+    assert.equal(items[0].heading, true);
+    assert.equal(items[1].selector, HANDS_SYM);
+    assert.equal(items[1].label, 'your fingertip');
+});
+
+test('display_pickinv does not group the hands extra in an in-use-only menu', async () => {
+    const state = stateFixture();
+    state.flags.sortloot = 'i';
+    state.invent = object(FOOD_RATION, state, { invlet: 'a' });
+    let items;
+    await display_pickinv(
+        null, 'bare hands', null, true, true, state,
+        { menu: (rows) => { items = rows; return null; } },
+    );
+
+    assert.equal(items[0].selector, HANDS_SYM);
+    assert.equal(items.some((item) => item.text === 'Miscellaneous'), false);
 });
 
 test('display_inventory consumes a queued inventory key before opening a menu', async () => {
