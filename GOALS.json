@@ -94637,6 +94637,130 @@
         "rng": 792838
       },
       "parkedReason": "The potion.c:peffect_invisibility helper and ordinary potion and spell dispatches strictly match independent C recordings and the admitted v7 invisibility case. The cursed branch still reaches the source-defined wizard.c:aggravate void callee, which remains an explicit gap; its monster effects lack production replay. Resume after wizard.c:aggravate is ported and record an independent cursed invisibility path before source completion."
+    },
+    {
+      "id": "port-potion-potionhit-synthetic-v7-20260927",
+      "kind": "file-port",
+      "status": "queued",
+      "summary": "Port complete potion.c potionhit monster and hero effects through all active collision callers",
+      "cFile": "potion.c",
+      "sessions": [
+        "synthetic/v7/throw-blindness-potion-hit-corrected"
+      ],
+      "selectionReason": "The current v7 thrown-blindness case has one unmatched screen at impact; investigations/synthetic/v7/throw-blindness-potion-hit-corrected.json traces the skipped dothrow.c:thitmonst call to potion.c:potionhit. Port the whole source function and wire its active dothrow, uhitm, mthrowu, zap, and monster-item callers; record independent post-impact and other entry evidence. The other unresolved v7 detection case owns a different potion.c function and remains queued.",
+      "detail": "",
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": null,
+      "delivered": null,
+      "functions": [
+        {
+          "name": "potionhit",
+          "line": 1625,
+          "endLine": 1931,
+          "declared": true,
+          "complete": false
+        }
+      ],
+      "range": {
+        "from": 1625,
+        "to": 1931
+      },
+      "syntheticProvenance": {
+        "synthetic/v7/throw-blindness-potion-hit-corrected": {
+          "session": "synthetic/v7/throw-blindness-potion-hit-corrected",
+          "corpus": "synthetic",
+          "batch": "v7",
+          "caseId": "throw-blindness-potion-hit-corrected",
+          "manifestPath": "challenges/manifests/v7.json",
+          "manifestSha256": "03a861a9d1bc9d813c80681312ee7a0e0f893dbad0536de40a974bd5ec344094",
+          "recordingPath": "challenges/cases/v7/throw-blindness-potion-hit-corrected.session.json",
+          "recordingSha256": "008cbc04259cc70ac9489e4657207db7f4aede6892fca9699a4fb934a46446f6",
+          "evaluationPath": "challenges/evaluations/20260927083941-v7.json",
+          "evaluationCommit": "fdd63387e525409b26b7ea1acf1130160fa2f1c2"
+        }
+      }
+    },
+    {
+      "id": "div-trap-chest-trap-message-flush-synthetic-v8-20260927",
+      "kind": "divergence-fix",
+      "status": "queued",
+      "summary": "Restore source-ordered message-window flush in trapped chest activation",
+      "cFile": "trap.c",
+      "sessions": [],
+      "selectionReason": "The new v8 trapped-box case has four unmatched screens and a complete source investigation at investigations/synthetic/v8/tip-container-contents-trapped-box-probe.json. Repair the source-defined chest_trap message-window flush across loot, disarm, and tip callers without changing case identities.",
+      "detail": "Synthetic v8/tip-container-contents-trapped-box-probe segment 0 step 61, newline after #loot trigger message: C trap.c:chest_trap calls display_nhwindow(WIN_MESSAGE,FALSE) before evaluating Luck or drawing rn2(13+Luck); js/trap.js:chest_trap incorrectly treats ttyPline alone as that flush. The first divergence is screen/cursor, with later RNG shifted by the message boundary. Source precondition is a trapped chest activated through pickup.c:use_container; disarm_box and tipcontainer_checks also call chest_trap.",
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": null,
+      "delivered": null,
+      "function": "chest_trap",
+      "session": "synthetic/v8/tip-container-contents-trapped-box-probe",
+      "step": 61,
+      "syntheticProvenance": {
+        "synthetic/v8/tip-container-contents-trapped-box-probe": {
+          "session": "synthetic/v8/tip-container-contents-trapped-box-probe",
+          "corpus": "synthetic",
+          "batch": "v8",
+          "caseId": "tip-container-contents-trapped-box-probe",
+          "manifestPath": "challenges/manifests/v8.json",
+          "manifestSha256": "6a5159501af18a7f926f794d89e817375cd00a3589c4899fb97392ae04dbe8ba",
+          "recordingPath": "challenges/cases/v8/tip-container-contents.trapped-box-probe.session.json",
+          "recordingSha256": "e77de911cae8b931eb2dca6528a3cab3f3a03a084fe5eb094b156acbfdd94df8",
+          "evaluationPath": "challenges/evaluations/20260927085003-v8.json",
+          "evaluationCommit": "c4cdb74777cb0a0796befbb14724fecbe1fb54e6"
+        }
+      }
+    },
+    {
+      "id": "port-apply-use-mirror-synthetic-v8-20260927",
+      "kind": "file-port",
+      "status": "queued",
+      "summary": "Port complete mirror-use behavior and its doapply caller",
+      "cFile": "apply.c",
+      "sessions": [
+        "synthetic/v8/mirror-monster-reflection"
+      ],
+      "selectionReason": "The admitted v8 mirror-monster-reflection case has two unmatched screens; investigations/synthetic/v8/mirror-monster-reflection.json traces the first cause to apply.c:use_mirror after doapply refuses the mirror before direction input. Port beautiful and the whole use_mirror function in source order, wire doapply, and preserve all C branches and return-valued callees with independent entry evidence.",
+      "detail": "",
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": null,
+      "delivered": null,
+      "functions": [
+        {
+          "name": "beautiful",
+          "line": 997,
+          "endLine": 1017,
+          "declared": true,
+          "complete": false
+        },
+        {
+          "name": "use_mirror",
+          "line": 1018,
+          "endLine": 1201,
+          "declared": false,
+          "complete": false
+        }
+      ],
+      "range": {
+        "from": 997,
+        "to": 1201
+      },
+      "syntheticProvenance": {
+        "synthetic/v8/mirror-monster-reflection": {
+          "session": "synthetic/v8/mirror-monster-reflection",
+          "corpus": "synthetic",
+          "batch": "v8",
+          "caseId": "mirror-monster-reflection",
+          "manifestPath": "challenges/manifests/v8.json",
+          "manifestSha256": "6a5159501af18a7f926f794d89e817375cd00a3589c4899fb97392ae04dbe8ba",
+          "recordingPath": "challenges/cases/v8/mirror-monster-reflection.session.json",
+          "recordingSha256": "5a93e5e54a296bb99490629a4ae61cd5c907a463a6f5280d3437a9c4f2735d45",
+          "evaluationPath": "challenges/evaluations/20260927085003-v8.json",
+          "evaluationCommit": "c4cdb74777cb0a0796befbb14724fecbe1fb54e6"
+        }
+      }
     }
   ]
 }
