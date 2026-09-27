@@ -95672,7 +95672,7 @@
     {
       "id": "port-read-seffect-taming-synthetic-v8-20260927",
       "kind": "file-port",
-      "status": "queued",
+      "status": "parked",
       "summary": "Port read.c seffect_taming and its return-valued maybe_tame helper",
       "cFile": "read.c",
       "sessions": [
@@ -95680,8 +95680,12 @@
       ],
       "selectionReason": "Selected synthetic/v8/read-taming-scroll-hostile-monster from validated investigation at investigations/synthetic/v8/read-taming-scroll-hostile-monster.json; v8 manifest 6a5159501af18a7f926f794d89e817375cd00a3589c4899fb97392ae04dbe8ba, recording challenges/cases/v8/read-taming-scroll-hostile-monster.session.json digest aa43f40887854473146ba71400cfed8fe0bcb7ec20c6d33af61721651be4e6b8, evaluation challenges/evaluations/20260927093229-v8.json at 043629bb. The selected C range is only seffect_taming; its return-valued read.c maybe_tame dependency must be ported in the same task. zap.c resist is already ported and is the consumed RNG dependency. No other unresolved case shares this function family.",
       "detail": "At segment 0 step 40, seffects dispatch for SCR_TAMING still calls note_unported; C enters read.c:seffect_taming and consumes maybe_tame/resist results. Port complete seffect_taming and return-valued maybe_tame, wire both SCR_TAMING and SPE_CHARM_MONSTER callers. See source-traced investigation.",
-      "openedAt": null,
-      "openStanding": null,
+      "openedAt": "358dd6ad1294374a96a704a7f5a9b46c0ddc4a47",
+      "openStanding": {
+        "sha": "358dd6ad1294374a96a704a7f5a9b46c0ddc4a47",
+        "screens": 11405,
+        "rng": 792838
+      },
       "closedAt": null,
       "delivered": null,
       "functions": [
@@ -95710,7 +95714,23 @@
           "evaluationPath": "challenges/evaluations/20260927093229-v8.json",
           "evaluationCommit": "043629bb13447062cadb766644b34c3490bb9bde"
         }
-      }
+      },
+      "activeStanding": {
+        "sha": "358dd6ad1294374a96a704a7f5a9b46c0ddc4a47",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": [],
+      "progressBeforePark": {
+        "screens": 0,
+        "rng": 0
+      },
+      "parkedStanding": {
+        "sha": "358dd6ad1294374a96a704a7f5a9b46c0ddc4a47",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "parkedReason": "read.c seffect_taming and maybe_tame match scroll and wizard-cast evidence; ordinary spell.c docast charm entry remains blocked by insufficient Pw in the independent recipe before seffects, so source completion awaits a high-Pw matching docast recording"
     }
   ]
 }
