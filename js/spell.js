@@ -86,6 +86,7 @@ import {
     QUARTERSTAFF,
     ROBE,
     SMALL_SHIELD,
+    SPE_CAUSE_FEAR,
     SPE_CANCELLATION,
     SPE_CONE_OF_COLD,
     SPE_CURE_BLINDNESS,
@@ -149,7 +150,7 @@ import { iter_mons_async } from './mon.js';
 import { monflee, monfleeMessage, youHear } from './monmove.js';
 import { noveltitle } from './do_name.js';
 import { note_unported } from './unported.js';
-// C spell.c:spelleffects() passes SPE_CHARM_MONSTER's fake spellbook to
+// C spell.c:spelleffects() passes scroll-duplicate fake spellbooks to
 // read.c:seffects(). read.js imports study_book() from this module; both
 // bindings are used only inside function bodies, so the cycle is deferred
 // until gameplay.
@@ -1286,7 +1287,7 @@ function Maybe_Half_Phys(dmg, state) {
 // spell_otyp (an object type such as SPE_HEALING). The wand-duplicate and
 // potion-duplicate dispatch arms are open; scroll-duplicate spells (seffects)
 // and standalone spells (cure blindness, etc.) remain fail-closed except for
-// the source-wired SPE_CHARM_MONSTER taming effect.
+// the source-wired SPE_CHARM_MONSTER and SPE_CAUSE_FEAR effects.
 export async function spelleffects(spell_otyp, atme, force, state = game,
     env = {}) {
     const spell = force ? spell_otyp : spell_idx(spell_otyp, state);
@@ -1380,8 +1381,9 @@ export async function spelleffects(spell_otyp, atme, force, state = game,
         update_inventory({ state });
         break;
 
-    // spell.c routes charm monster through the scroll effect after granting
-    // the blessed-scroll equivalent at Skilled or Expert skill.
+    // spell.c routes cause fear and charm monster through the scroll effects
+    // after granting the blessed-scroll equivalent at Skilled or Expert skill.
+    case SPE_CAUSE_FEAR:
     case SPE_CHARM_MONSTER:
         if (role_skill >= P_SKILLED)
             pseudo.blessed = 1;

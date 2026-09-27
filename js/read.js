@@ -257,7 +257,10 @@ import {
 } from './artifacts.js';
 import { del_light_source } from './light.js';
 import { light_hits_gremlin } from './uhitm.js';
-import { cansee, do_clear_area, vision_recalc } from './vision.js';
+import {
+    block_point, cansee, do_clear_area, does_block, unblock_point,
+    vision_recalc,
+} from './vision.js';
 import { canSpotMonster } from './startup_a11y.js';
 import { m_at } from './monst.js';
 import { hard_helmet } from './do_wear.js';
@@ -266,7 +269,7 @@ import { objectGenerationEnv } from './object_generation.js';
 import { body_part, mbodypart } from './polyself.js';
 // read.js -> monmove.js -> muse.js -> read.js is a function-body-only cycle:
 // these imported helpers are first read during gameplay.
-import { closed_door, youHear } from './monmove.js';
+import { closed_door, monflee, youHear } from './monmove.js';
 import {
     avoid_ceiling, ceiling, has_ceiling, on_level,
 } from './dungeon.js';
@@ -290,7 +293,7 @@ import { outrumor } from './random_text.js';
 import { note_unported } from './unported.js';
 import { getpos } from './getpos.js';
 import { explode } from './explode.js';
-import { valid_cloud_pos } from './region.js';
+import { create_gas_cloud, valid_cloud_pos } from './region.js';
 
 // Retained for narrower effect-family branches that still fail closed. The
 // source-ordered doread() and seffects() dispatches use note_unported() for
@@ -491,6 +494,59 @@ export function charge_ok(obj) {
 function propertyActive(property, state) {
     const value = state.u?.uprops?.[property];
     return Boolean(value?.intrinsic || value?.extrinsic) && !value?.blocked;
+}
+
+// C ref: read.c seffect_scare_monster() (1454-1485). C's fmon chain is
+// represented by level.monlist; the effect silently asks zap.c:resist()
+// whether visible monsters flee, and emits sound feedback only for a scroll
+// or an empty non-pet count. Spell callers share this effect through seffects().
+export async function seffect_scare_monster(sobj, state = game) {
+    const confused = propertyActive(CONFUSION, state);
+    let count = 0;
+
+    for (let mtmp = state.level?.monlist ?? state.fmon;
+        mtmp; mtmp = mtmp.nmon) {
+        if (mtmp.mhp < 1) continue; /* DEADMONSTER() */
+        if (!cansee(mtmp.mx, mtmp.my, state)) continue;
+
+        if (confused || sobj.cursed) {
+            mtmp.mflee = 0;
+            mtmp.mfrozen = 0;
+            mtmp.msleeping = 0;
+            mtmp.mcanmove = 1;
+        } else if (!(await resist(
+            mtmp, sobj.oclass, 0, NOTELL, state,
+        ))) {
+            // C discards monflee()'s void result but still performs its full
+            // state and output effects. It can draw for a fleeing vrock.
+            await monflee(mtmp, 0, false, false, {
+                state,
+                createGasCloud: (x, y, size, damage, effectEnv) =>
+                    create_gas_cloud(x, y, size, damage, {
+                        ...effectEnv,
+                        blockPoint: (cx, cy) => block_point(cx, cy, state),
+                        unblockPoint: (cx, cy) =>
+                            unblock_point(cx, cy, state),
+                        doesBlock: (cx, cy, location) =>
+                            does_block(cx, cy, location, state),
+                        canSee: (cx, cy) => cansee(cx, cy, state),
+                        newsym: (cx, cy) => newsym(cx, cy, state),
+                        message: ttyPline,
+                    }),
+            });
+        }
+        if (!mtmp.mtame) count++;
+    }
+
+    if (sobj.otyp === SCR_SCARE_MONSTER || !count) {
+        // In the recorder build, sounds.h defines Soundeffect as a no-op;
+        // the source-visible feedback is You_hear below.
+        const sound = confused || sobj.cursed
+            ? 'sad wailing' : 'maniacal laughter';
+        const distance = !count ? 'in the distance' : 'close by';
+        const line = youHear(`${sound} ${distance}.`, state);
+        if (line) await ttyPline(line, state);
+    }
 }
 
 // The existing destroy-armor helper covers only an ordinary, unknown scroll
@@ -1705,7 +1761,7 @@ export async function seffects(scroll, state = game) {
         break;
     case SCR_SCARE_MONSTER:
     case SPE_CAUSE_FEAR:
-        note_unported('read.c seffect_scare_monster');
+        await seffect_scare_monster(scroll, state);
         break;
     case SCR_BLANK_PAPER:
         if (propertyActive(BLINDED, state)) {
