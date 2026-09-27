@@ -1,0 +1,11 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 94127021,
+      "datetime": "20420101092021",
+      "nethackrc": "OPTIONS=name:V9Dig,role:Archeologist,race:human,gender:female,align:lawful,playmode:debug,!legacy,!tutorial,!splash_screen,showexp,time,pettype:none\n",
+      "moves": " ae  j"
+    }
+  ]
+}

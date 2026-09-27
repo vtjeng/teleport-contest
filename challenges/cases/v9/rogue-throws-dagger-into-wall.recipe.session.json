@@ -1,0 +1,11 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 94127102,
+      "datetime": "20420303083102",
+      "nethackrc": "OPTIONS=name:V9ThrowWall,role:Rogue,race:human,gender:female,align:neutral,playmode:debug,!legacy,!tutorial,!splash_screen,showexp,time,pettype:none\n",
+      "moves": " \u0017rock\n 1tbh"
+    }
+  ]
+}

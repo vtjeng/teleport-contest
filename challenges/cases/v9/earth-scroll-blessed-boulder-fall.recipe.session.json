@@ -1,0 +1,11 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 94127001,
+      "datetime": "20420101090501",
+      "nethackrc": "OPTIONS=name:V9Earth,role=Wizard,race=human,gender=female,align=neutral,playmode=debug,!legacy,!tutorial,!splash_screen,showexp,time,pettype:none\n",
+      "moves": " \u0017blessed scroll of earth\nrp "
+    }
+  ]
+}

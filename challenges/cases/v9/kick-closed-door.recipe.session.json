@@ -1,0 +1,11 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 94127020,
+      "datetime": "20420101092020",
+      "nethackrc": "OPTIONS=name:V9Door,role:Wizard,race:human,gender:female,align:neutral,playmode:debug,!legacy,!tutorial,!splash_screen,showexp,time,pettype:none\n",
+      "moves": " hhhhh\u0004b"
+    }
+  ]
+}

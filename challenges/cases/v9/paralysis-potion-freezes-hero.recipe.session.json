@@ -1,0 +1,11 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 94127052,
+      "datetime": "20420303083002",
+      "nethackrc": "OPTIONS=name:V9Paralysis,role:Rogue,race:human,gender:female,align:chaotic,playmode:debug,!legacy,!tutorial,!splash_screen,showexp,time,pettype:none\n",
+      "moves": " \u0017uncursed potion of paralysis\nqg"
+    }
+  ]
+}

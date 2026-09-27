@@ -1,0 +1,11 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 94127013,
+      "datetime": "20420101090513",
+      "nethackrc": "OPTIONS=name:V9HealingP,role:Knight,race:human,gender:female,align:lawful,playmode:debug,!legacy,!tutorial,!splash_screen,showexp,time,pettype:none\n",
+      "moves": " \u0017potion of healing\nqi"
+    }
+  ]
+}

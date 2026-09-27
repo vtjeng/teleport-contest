@@ -1,0 +1,11 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 94127060,
+      "datetime": "20420303083010",
+      "nethackrc": "OPTIONS=name:V9Restore,role:Monk,race:human,gender:female,align:lawful,playmode:debug,!legacy,!tutorial,!splash_screen,showexp,time,pettype:none\n",
+      "moves": " \u0017uncursed potion of restore ability\nqj"
+    }
+  ]
+}

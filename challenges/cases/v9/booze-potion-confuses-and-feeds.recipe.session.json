@@ -1,0 +1,11 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 94127014,
+      "datetime": "20420101090514",
+      "nethackrc": "OPTIONS=name:V9BoozePot,role:Barbarian,race:human,gender:female,align:chaotic,playmode:debug,!legacy,!tutorial,!splash_screen,showexp,time,pettype:none\n",
+      "moves": " \u0017cursed potion of booze\nqf"
+    }
+  ]
+}

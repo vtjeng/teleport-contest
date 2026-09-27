@@ -1,0 +1,11 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 94127053,
+      "datetime": "20420303083003",
+      "nethackrc": "OPTIONS=name:V9Halluc,role:Wizard,race:human,gender:female,align:neutral,playmode:debug,!legacy,!tutorial,!splash_screen,showexp,time,pettype:none\n",
+      "moves": " \u0017uncursed potion of hallucination\nqp"
+    }
+  ]
+}

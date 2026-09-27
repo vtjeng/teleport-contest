@@ -1,0 +1,11 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 94127007,
+      "datetime": "20420101090507",
+      "nethackrc": "OPTIONS=name:V9CursedTe,role:Valkyrie,race:human,gender:female,align:lawful,playmode:debug,!legacy,!tutorial,!splash_screen,showexp,time,pettype:none\n",
+      "moves": " \u0017cursed scroll of teleportation\nre 2\n"
+    }
+  ]
+}
