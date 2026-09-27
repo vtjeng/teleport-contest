@@ -94685,7 +94685,7 @@
         }
       },
       "activeStanding": {
-        "sha": "f5248ce4f94176f35cd5b15dbe69457a41cd52f6",
+        "sha": "5f1efeed9e8e7684c046c1016785c10e720b1a60",
         "screens": 11405,
         "rng": 792838
       },
@@ -94943,11 +94943,11 @@
         "rng": 0
       },
       "parkedStanding": {
-        "sha": "cefd2337217c869731275ec059059414e18cc17f",
+        "sha": "5f1efeed9e8e7684c046c1016785c10e720b1a60",
         "screens": 11405,
         "rng": 792838
       },
-      "parkedReason": "potionhit source implementation and thrown-potion replay match; hero melee potion entry is blocked before play by worn.js cancelDoff, while steed hit, monster-to-monster hit, and dothrow.c toss_up still need independent matching entry evidence"
+      "parkedReason": "potion.c:potionhit and thrown-potion entry strictly match; hero melee potion entry is blocked before potionhit because uhitm.js:hmon_hitmon_potion calls setuwep(null) without the canonical do_wear.js:setwornEnv hooks, unlike C uhitm.c:hmon_hitmon_potion setuwep(NULL) before freeinv and potionhit. Steed hit, monster-to-monster hit, and dothrow.c:toss_up still need independent matching entry evidence. Resume after a source-traced uhitm caller-wiring fix and those recordings."
     },
     {
       "id": "div-trap-chest-trap-message-flush-synthetic-v8-20260927",
