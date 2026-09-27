@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 83026028,
+      "datetime": "20320927114501",
+      "nethackrc": "OPTIONS=name:QuestTouchFloorA27,role:Wizard,race:human,gender:female,align:neutral,playmode:debug,!legacy,!tutorial,!splash_screen,showexp,time,pettype:none\n",
+      "moves": "\n#wizwish\nThe Eye of the Aethiopica\n"
+    }
+  ],
+  "comment": "Blocked setup probe for a first-touch floor pickup. This wizard wish itself reaches invent.c:addinv_core1 -> quest.c:artitouch first and sets Qstat(touched_artifact); a later pickup.c:pick_obj would enter only artitouch's already-touched guard. A true first-touch floor recipe needs a quest-artifact floor provenance path instead of this wish route. This input-only file is not runtime evidence."
+}

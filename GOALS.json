@@ -94647,7 +94647,7 @@
       "sessions": [
         "synthetic/v7/throw-blindness-potion-hit-corrected"
       ],
-      "selectionReason": "Continue source completion after B27 repaired uhitm.c:hmon_hitmon_potion setuwep hooks and the shared potionhit default RNG; record independent melee evidence while keeping steed, monster-to-monster, and dothrow.c:toss_up entries open",
+      "selectionReason": "Continue the active potionhit entry coverage after B27: port the complete dothrow.c:toss_up caller, then record distinct upward-return, mounted downward-hit, and monster-to-monster impact witnesses without session-specific logic",
       "detail": "",
       "openedAt": "f5248ce4f94176f35cd5b15dbe69457a41cd52f6",
       "openStanding": {
@@ -94947,7 +94947,7 @@
         "screens": 11405,
         "rng": 792838
       },
-      "parkedReason": "B27 now strictly matches the uhitm.c:hmon_hitmon_potion melee entry and fixes the shared potion.c:potionhit default rnl import. The remaining active potionhit routes lack matching evidence: downward steed hit, monster-to-monster missile hit, and dothrow.c:toss_up upward-return path; port whole toss_up before claiming that route, then record independent C witnesses. Resume for those source-traced entry gaps.",
+      "parkedReason": "B28 is actively porting dothrow.c:toss_up and consumed weapon.c:dmgval behavior, then will record upward, steed, and monster-to-monster potionhit entries. Park this source goal interval while A27 quest.c:artitouch is integrated and validated; resume when B28 evidence is ready.",
       "evidence": {
         "functions": [
           {
@@ -96147,7 +96147,7 @@
     {
       "id": "port-quest-artitouch-synthetic-v8-20260927",
       "kind": "file-port",
-      "status": "queued",
+      "status": "parked",
       "summary": "Port quest artifact first-touch pager and inventory acquisition wiring",
       "cFile": "quest.c",
       "sessions": [
@@ -96155,8 +96155,12 @@
       ],
       "selectionReason": "Current v8 artifact-heart-invoke-cycle first diverges at segment 0 step 24: C quest.c:artitouch called from invent.c:addinv_core1 opens gotit quest text and initializes nhlib.lua, while JS note_unported skips that call. The queue RNG annotation names Lua shuffle as the observed downstream draw, but the source owner is quest.c:artitouch. Port the whole first-touch function, generated gotit text, pager skip guard, and async inventory caller order; verify independent quest artifact acquisition distinct from v8.",
       "detail": "",
-      "openedAt": null,
-      "openStanding": null,
+      "openedAt": "c54c2c13ca30ebad8411cbcd4b7dcd3e193fbddc",
+      "openStanding": {
+        "sha": "589eff0af34470081afdfe7bfea0cd282afa66c1",
+        "screens": 11405,
+        "rng": 792838
+      },
       "closedAt": null,
       "delivered": null,
       "functions": [
@@ -96164,8 +96168,8 @@
           "name": "artitouch",
           "line": 125,
           "endLine": 139,
-          "declared": false,
-          "complete": false
+          "declared": true,
+          "complete": true
         }
       ],
       "range": {
@@ -96185,7 +96189,184 @@
           "evaluationPath": "challenges/evaluations/20260927130815-v8.json",
           "evaluationCommit": "10c8f210d77aee548ae25b77cee6b3f9b736d413"
         }
-      }
+      },
+      "activeStanding": {
+        "sha": "589eff0af34470081afdfe7bfea0cd282afa66c1",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v8",
+          "caseId": "artifact-heart-invoke-cycle",
+          "session": "synthetic/v8/artifact-heart-invoke-cycle",
+          "manifestPath": "challenges/manifests/v8.json",
+          "manifestSha256": "6a5159501af18a7f926f794d89e817375cd00a3589c4899fb97392ae04dbe8ba",
+          "recording": "challenges/cases/v8/artifact-heart-invoke-cycle.session.json",
+          "recordingPath": "challenges/cases/v8/artifact-heart-invoke-cycle.session.json",
+          "recordingSha256": "816c8353f3fea197a0e99d8bd83f53f622a02d45fe61a59784dcfd479862cfd8",
+          "recipe": "challenges/cases/v8/artifact-heart-invoke-cycle.recipe.session.json",
+          "recipeSha256": "e7551b75ea4fa8cc5a1bf14c23baa6add3dda5f45782e78151d05ac920593963",
+          "replayInputSha256": "f12aaa199382908484612c7c8d311b333eb8a8d5cb1f2a5aba58e1ae8afc64b3",
+          "evaluationPath": "challenges/evaluations/20260927141254-v8.json",
+          "evaluationCommit": "589eff0af34470081afdfe7bfea0cd282afa66c1",
+          "evaluationArtifact": "challenges/evaluations/20260927141254-v8.json",
+          "evaluationUtc": "2026-09-27T14:13:27.463Z",
+          "remainingScreens": 1,
+          "recordedSteps": 44,
+          "previousScreensMatched": 42,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 43,
+              "total": 44
+            },
+            "rng": {
+              "matched": 2303,
+              "total": 2303
+            },
+            "cursors": {
+              "matched": 44,
+              "total": 44
+            }
+          },
+          "firstMismatch": {
+            "screen": {
+              "index": 25,
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 25,
+                "key": " "
+              },
+              "kind": "ch",
+              "row": 0,
+              "column": 23,
+              "cCell": {
+                "ch": "t",
+                "color": 8,
+                "attr": 0,
+                "decgfx": 0
+              },
+              "jsCell": {
+                "ch": "T",
+                "color": 8,
+                "attr": 0,
+                "decgfx": 0
+              }
+            },
+            "rng": null,
+            "cursor": null
+          },
+          "step": 25,
+          "kind": "screen",
+          "sourceFile": null,
+          "function": null,
+          "message": null,
+          "cFile": null,
+          "luaFile": null,
+          "line": null,
+          "investigation": {
+            "status": "stale",
+            "path": "investigations/synthetic/v8/artifact-heart-invoke-cycle.json",
+            "previousRemainingScreens": 2
+          }
+        }
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "artitouch",
+            "implementation": "js/quest.js",
+            "symbol": "artitouch",
+            "sourceReview": "Read the complete quest.c:artitouch() definition (125-139), including its already-touched early return and exact first-touch order: observe_object(obj), set Qstat(touched_artifact), qt_pager(\"gotit\"), then exercise(A_WIS, TRUE). C ignores qt_pager's boolean result. JavaScript awaits the already-async qt_pager before the later addinv_core1 intrinsic and inventory-insertion tail, preserving the source-visible effect order. Generated role-specific gotit text is extracted from dat/quest.lua by scripts/generate-quest-text.mjs. Supporting source behavior is kept with its C owner: questpgr.c:skip_pager() is checked before Lua initialization and consumes no shuffle draws while program_state.wizkit_wishing is set. invent.c:addinv_core1() is the sole direct C caller; zap.c:poly_obj() also re-enters addinv_core1 for replacements, but mkobj()/mksobj() create a replacement without copying oartifact, so that path cannot first-touch a quest artifact.",
+            "callers": [
+              {
+                "path": "js/invent.js",
+                "symbol": "addinv_core1",
+                "source": "invent.c:addinv_core1() calls artitouch(obj) after marking u.uhave.questart and before set_artifact_intrinsic(), addinv_core2(), or addinv_core0() inventory insertion."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/inventory-substrate.test.mjs",
+              "scripts/quest-artitouch.test.mjs"
+            ],
+            "recordings": [
+              "recordings/quest.c/artitouch-wizard-eye-independent-A27.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v8",
+                "caseId": "artifact-heart-invoke-cycle",
+                "segment": 0,
+                "fromStep": 24,
+                "throughStep": 24,
+                "source": "cmd.c wish dispatch -> zap.c:makewish -> invent.c:hold_another_object/addinv_core0/addinv_core1 -> quest.c:artitouch; the role gotit pager and post-pager Wisdom exercise execute before inventory insertion"
+              }
+            ],
+            "checkedAt": "c54c2c13ca30ebad8411cbcd4b7dcd3e193fbddc"
+          }
+        ],
+        "entryPointReview": "The sole direct C call is invent.c:addinv_core1(), and the active JavaScript acquisition boundaries were audited. First acquisition through a wish is verified by the admitted v8 case through zero-based step 24 and by a fresh strict Wizard/Eye-of-the-Aethiopica recording. C pickup.c:pick_obj() and pickup.c:out_container() both feed addinv_core1; their first-touch floor/container variants remain unverified. The committed blocked recipes explain the setup boundary: the only bounded way used here to materialize the qart is the wish itself, which sets Qstat(touched_artifact), so a later pickup/extraction only enters artitouch's already-touched return. A quest-artifact provenance placed on the floor or inside a container before first hero acquisition was not established. C files.c:read_wizkit()/wizkit_addinv() is a separate active startup edge through addinv_core1; its questpgr.c:skip_pager() branch is source-pinned, but the JavaScript runtime has no WIZKIT startup-file route, so that runtime entry remains unavailable and is named in a blocked recipe. The JavaScript pickup, out_container, wish, and in-place replacement paths consume the async addinv_core1 result in source order; the synchronous startup/throw-return/teleport/reimbursement addinv callers do not create a new qart in the active JS runtime. zap.c:poly_obj() replacement does not carry oartifact into its new object. The v8 replay's first post-citation difference is at step 26 in later inventory/artifact display casing (C 't', JS 'T'); it is unrelated to quest.c:artitouch and is not included in its citation.",
+        "entryPoints": [
+          {
+            "name": "first quest-artifact acquisition through the wish command",
+            "functions": [
+              "artitouch"
+            ],
+            "recordings": [
+              "recordings/quest.c/artitouch-wizard-eye-independent-A27.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v8",
+                "caseId": "artifact-heart-invoke-cycle",
+                "segment": 0,
+                "fromStep": 24,
+                "throughStep": 24,
+                "source": "cmd.c wish dispatch -> zap.c:makewish -> invent.c:addinv_core1 -> quest.c:artitouch"
+              }
+            ]
+          },
+          {
+            "name": "first quest-artifact acquisition through floor pickup (blocked setup)",
+            "functions": [
+              "artitouch"
+            ],
+            "recordings": [],
+            "synthetic": []
+          },
+          {
+            "name": "first quest-artifact acquisition through container extraction (blocked setup)",
+            "functions": [
+              "artitouch"
+            ],
+            "recordings": [],
+            "synthetic": []
+          },
+          {
+            "name": "WIZKIT startup inventory acquisition with pager suppression (no JavaScript startup route)",
+            "functions": [
+              "artitouch"
+            ],
+            "recordings": [],
+            "synthetic": []
+          }
+        ]
+      },
+      "progressBeforePark": {
+        "screens": 0,
+        "rng": 0
+      },
+      "parkedStanding": {
+        "sha": "589eff0af34470081afdfe7bfea0cd282afa66c1",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "parkedReason": "artitouch is source-reviewed and verified through independent wish acquisition and v8 step 24, but first-touch floor pickup and container extraction still lack a pre-acquisition quest-artifact provenance recipe; files.c wizkit_addinv startup and its skip_pager path also lack a JavaScript WIZKIT route. Resume after those entry points acquire matching runtime evidence or their blocking source paths are ported."
     }
   ]
 }

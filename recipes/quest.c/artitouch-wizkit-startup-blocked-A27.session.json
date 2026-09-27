@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 83026030,
+      "datetime": "20320927114503",
+      "nethackrc": "OPTIONS=name:QuestTouchWizkitA27,role:Wizard,race:human,gender:female,align:neutral,playmode:debug,!legacy,!tutorial,!splash_screen,showexp,time,pettype:none\n",
+      "moves": ""
+    }
+  ],
+  "comment": "Blocked startup entry recipe. C files.c:read_wizkit() sets program_state.wizkit_wishing and files.c:wizkit_addinv() reaches invent.c:addinv_core1 -> quest.c:artitouch, whose questpgr.c:skip_pager() guard suppresses Lua initialization and pager output. The JavaScript runtime has no wizkit startup-file route, so this input-only file cannot record that C entry and is not runtime evidence."
+}
