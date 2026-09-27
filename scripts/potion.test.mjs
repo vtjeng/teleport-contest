@@ -14,7 +14,7 @@ import { failClosedCommandRefusals } from '../js/cmd.js';
 import { setuhpmax } from '../js/attrib.js';
 
 import {
-    A_CON, A_DEX, A_WIS, ACID_RES, BLINDED, CONFUSION, DEAF,
+    A_CON, A_DEX, A_MAX, A_WIS, ACID_RES, BLINDED, CONFUSION, DEAF,
     DETECT_MONSTERS, FAST, FREE_ACTION,
     FROMOUTSIDE, GLIB, HALLUC,
     GETOBJ_DOWNPLAY, GETOBJ_EXCLUDE, GETOBJ_EXCLUDE_INACCESS, GETOBJ_SUGGEST,
@@ -478,11 +478,11 @@ function breatheSwitchBody() {
     return { code: body.replace(/\/\*[\s\S]*?\*\//gu, ''), comments };
 }
 
-async function startedGame(seed, name) {
+async function startedGame(seed, name, role = 'Healer') {
     await runSegment({
         seed,
         datetime: '20260724120000',
-        nethackrc: `OPTIONS=name:${name},role:Healer,race:human,`
+        nethackrc: `OPTIONS=name:${name},role:${role},race:human,`
             + 'gender:female,align:neutral,!legacy,!tutorial,!splash_screen',
         moves: ' ',
     });
@@ -1633,6 +1633,117 @@ test('sickness potion clears active hallucination before returning', async () =>
 
     assert.equal(game.u.uprops[HALLUC].intrinsic & TIMEOUT, 0);
     assert.equal(toplines(), 'You are shocked back to your senses!');
+});
+
+test('sickness effect uses the C attribute message and encumbrance operations',
+    async () => {
+        await startedGame(771031, 'SicknessAttributeEnvironment', 'Wizard');
+        game.moves = 1;
+        game.program_state ??= {};
+        game.program_state.in_moveloop = true;
+        const events = [];
+        const potion = vaporPotion(POT_SICKNESS);
+        potion.dknown = false;
+
+        await peffects(potion, game, {
+            random: {
+                rn2: (bound) => {
+                    events.push(['rn2', bound]);
+                    return bound === A_MAX ? A_CON : 0;
+                },
+                rn1: (bound, base) => {
+                    events.push(['rn1', bound, base]);
+                    return base;
+                },
+                rnd: (bound) => {
+                    events.push(['rnd', bound]);
+                    return 2;
+                },
+            },
+            message: async (line) => events.push(['message', line]),
+            encumberMessage: async () => events.push(['encumber']),
+        });
+
+        assert.ok(events.some(([kind, line]) => kind === 'message'
+            && line === 'You feel very sick.'),
+        'attrib.c:poisontell receives its message operation');
+        assert.equal(events.filter(([kind]) => kind === 'encumber').length, 2,
+            'adjattrib and exercise each reach encumber_msg for Constitution');
+        assert.deepEqual(events.filter(([kind]) => kind !== 'message'
+            && kind !== 'encumber'), [
+            ['rn2', A_MAX],
+            ['rn1', 4, 3],
+            ['rnd', 10],
+            ['rn2', 2],
+        ], 'the attribute, HP, and exercise draws stay in C order');
+    });
+
+test('peffect_sickness keeps each C branch and the selected helper order', () => {
+    const source = potionSource();
+    const signature = source.indexOf('peffect_sickness(struct obj *otmp)');
+    const start = source.lastIndexOf('staticfn void', signature);
+    const end = source.indexOf('\n}', signature);
+    assert.ok(start >= 0 && end > signature);
+    const cBody = source.slice(start, end).replace(/\s+/gu, ' ');
+    const order = [
+        'pline("Yecch! This stuff tastes like poison.")',
+        'if (otmp->blessed)',
+        'if (!Role_if(PM_HEALER))',
+        'losehp(1, "mildly contaminated potion", KILLED_BY_AN)',
+        'if (Poison_resistance)',
+        'if (Role_if(PM_HEALER))',
+        'int typ = rn2(A_MAX)',
+        'if (!Fixed_abil)',
+        'poisontell(typ, FALSE)',
+        '(void) adjattrib(typ, Poison_resistance ? -1 : -rn1(4, 3), 1)',
+        'if (!Poison_resistance)',
+        'losehp(rnd(10) + 5 * !!(otmp->cursed)',
+        '1 + rn2(2)',
+        'exercise(A_CON, FALSE)',
+        'if (Hallucination)',
+        'make_hallucinated(0L, FALSE, 0L)',
+    ];
+    let previous = -1;
+    for (const token of order) {
+        const next = cBody.indexOf(token);
+        assert.ok(next > previous, `C source order includes ${token}`);
+        previous = next;
+    }
+
+    assert.match(source,
+        /case POT_SICKNESS:\s*peffect_sickness\(otmp\);\s*break;/u,
+        'peffects dispatches the potion to this source unit');
+    assert.match(source,
+        /retval = peffects\(otmp\)/u,
+        'dopotion preserves the effect dispatcher return');
+    assert.match(source,
+        /return dopotion\(otmp\);/u,
+        'dodrink uses the ordinary quaff caller');
+
+    const fountain = readFileSync(
+        new URL('../nethack-c/upstream/src/fountain.c', import.meta.url),
+        'utf8',
+    );
+    assert.match(fountain,
+        /otmp->fromsink = 1;[^]*?\(void\) dopotion\(otmp\);/u,
+        'drinksink marks and dispatches its generated potion');
+
+    const js = readFileSync(new URL('../js/potion.js', import.meta.url), 'utf8');
+    const jsSignature = js.indexOf('async function peffect_sickness(');
+    const jsEnd = js.indexOf('\n}\n\n// ---------------------------------------------------------------------------\n// peffect_oil', jsSignature);
+    assert.ok(jsSignature > 0 && jsEnd > jsSignature);
+    const jsBody = js.slice(jsSignature, jsEnd);
+    assert.match(jsBody,
+        /poisontell\(typ, false, state, env\)[\s\S]*?adjattrib\([\s\S]*?state,\s*env,\s*\)[\s\S]*?losehp\([\s\S]*?exercise\(A_CON, false, state, random, \{ encumberMessage \}\)[\s\S]*?if \(Hallucination\(state\)\)[\s\S]*?make_hallucinated/u);
+    const jsDispatch = js.slice(js.indexOf('export async function peffects('));
+    assert.match(jsDispatch,
+        /case POT_SICKNESS:\s*await peffect_sickness\(otmp, state, potionEffectEnvironment\(env\)\);/u);
+    assert.match(js.slice(js.indexOf('export async function dopotion(')),
+        /const retval = await peffects\(otmp, state, env\);/u);
+    const fountainJs = readFileSync(
+        new URL('../js/fountain.js', import.meta.url), 'utf8');
+    assert.match(fountainJs,
+        /export async function drinksink\([\s\S]*?await dopotion\(potion, state\);/u);
 });
 
 // ---------------------------------------------------------------------------
