@@ -97096,6 +97096,49 @@
           "evaluationCommit": "a764f399d366f68d8cfd1ad305759ee6fef2a97a"
         }
       }
+    },
+    {
+      "id": "port-apply-use-towel-synthetic-v8-20260927",
+      "kind": "file-port",
+      "status": "queued",
+      "summary": "Port towel use across clean, slippery, and blinded states",
+      "cFile": "apply.c",
+      "sessions": [
+        "synthetic/v8/towel-clean-face"
+      ],
+      "selectionReason": "Current v8 towel-clean-face case stops at step 10 in doapply; source-traced investigation investigations/synthetic/v8/towel-clean-face.json identifies apply.c:use_towel as the whole owner, with doapply TOWEL dispatch and consumed mhitu.c:gulp_blnd_check dependency. The annotated doapply owner is only the dispatch site. Latest evidence is challenges/evaluations/20260927161400-v8.json and immutable recording challenges/cases/v8/towel-clean-face.session.json. Related apply.c touchstone work was completed by B29; this is a separate function family for the same persistent worker.",
+      "detail": "",
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": null,
+      "delivered": null,
+      "functions": [
+        {
+          "name": "use_towel",
+          "line": 112,
+          "endLine": 197,
+          "declared": false,
+          "complete": false
+        }
+      ],
+      "range": {
+        "from": 112,
+        "to": 197
+      },
+      "syntheticProvenance": {
+        "synthetic/v8/towel-clean-face": {
+          "session": "synthetic/v8/towel-clean-face",
+          "corpus": "synthetic",
+          "batch": "v8",
+          "caseId": "towel-clean-face",
+          "manifestPath": "challenges/manifests/v8.json",
+          "manifestSha256": "6a5159501af18a7f926f794d89e817375cd00a3589c4899fb97392ae04dbe8ba",
+          "recordingPath": "challenges/cases/v8/towel-clean-face.session.json",
+          "recordingSha256": "eb0047f4948ab5f5386eb0159bbbd02cf7346895152a1ad5dbc126fbd0f5960a",
+          "evaluationPath": "challenges/evaluations/20260927161400-v8.json",
+          "evaluationCommit": "5bf1150b63da82c6e02196da6a3d7047ef9b3938"
+        }
+      }
     }
   ]
 }
