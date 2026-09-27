@@ -203,6 +203,7 @@ import {
     thick_skinned,
     touch_petrifies,
     poly_when_stoned,
+    unsolid,
     type_is_pname,
 } from './mondata.js';
 import {
