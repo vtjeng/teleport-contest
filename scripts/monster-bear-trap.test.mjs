@@ -5,16 +5,34 @@ import {
     ARROW_TRAP,
     BEAR_TRAP,
     COULD_SEE,
+    DART_TRAP,
+    FIRE_TRAP,
     FORCETRAP,
+    FLYING,
+    HURTLING,
     HOLE,
     IN_SIGHT,
+    LANDMINE,
     MAGIC_TRAP,
     PIT,
+    POLY_TRAP,
+    ROCKTRAP,
+    ROLLING_BOULDER_TRAP,
+    RUST_TRAP,
+    SLP_GAS_TRAP,
+    SQKY_BOARD,
     SPIKED_PIT,
+    STATUE_TRAP,
+    TELEP_TRAP,
     Trap_Caught_Mon,
     Trap_Effect_Finished,
     Trap_Killed_Mon,
+    TRAPDOOR,
+    TOOKPLUNGE,
+    VIBRATING_SQUARE,
+    VIASITTING,
     WEB,
+    LEVITATION,
     W_ARMF,
 } from '../js/const.js';
 import { rhack } from '../js/cmd.js';
@@ -30,13 +48,17 @@ import {
 } from '../js/monst.js';
 import { trap_to_defsym } from '../js/symbols.js';
 import {
+    MZ_HUGE,
     MZ_SMALL,
     NON_PM,
+    PM_BAT,
     PM_BLUE_JELLY,
     PM_BUGBEAR,
     PM_DUST_VORTEX,
+    PM_FLOATING_EYE,
     PM_JACKAL,
     PM_OWLBEAR,
+    PM_PIT_FIEND,
     PM_PONY,
     PM_RUST_MONSTER,
     PM_WATER_ELEMENTAL,
@@ -45,7 +67,13 @@ import { mksobj } from '../js/obj.js';
 import { CORPSE, IRON_SHOES } from '../js/objects.js';
 import { canSeeMonster } from '../js/startup_a11y.js';
 import { t_at, trapname } from '../js/trap.js';
-import { mintrap, trapeffect_selector } from '../js/trap_effects.js';
+import {
+    floor_trigger,
+    check_in_air,
+    m_easy_escape_pit,
+    mintrap,
+    trapeffect_selector,
+} from '../js/trap_effects.js';
 import { cansee } from '../js/vision.js';
 import { loadMonsterBearTrapRecipe } from './run-monster-bear-trap.mjs';
 
@@ -66,6 +94,68 @@ async function hero() {
     game.level.traps = [];
     return game;
 }
+
+test('mintrap pure helpers match trap.c source cases', async () => {
+    await hero();
+
+    // trap.c:1061-1080 enumerates exactly these floor-trigger types.
+    const floorTriggers = [
+        ARROW_TRAP,
+        DART_TRAP,
+        ROCKTRAP,
+        SQKY_BOARD,
+        BEAR_TRAP,
+        LANDMINE,
+        ROLLING_BOULDER_TRAP,
+        SLP_GAS_TRAP,
+        RUST_TRAP,
+        FIRE_TRAP,
+        PIT,
+        SPIKED_PIT,
+        HOLE,
+        TRAPDOOR,
+    ];
+    for (const ttyp of floorTriggers)
+        assert.equal(floor_trigger(ttyp), true, `trap type ${ttyp}`);
+    for (const ttyp of [MAGIC_TRAP, POLY_TRAP, TELEP_TRAP, STATUE_TRAP,
+        VIBRATING_SQUARE, WEB])
+        assert.equal(floor_trigger(ttyp), false, `trap type ${ttyp}`);
+
+    // trap.c:1086-1095: HURTLING always counts as airborne. A hero's
+    // Levitation ignores plunge flags, while Flying does not.
+    assert.equal(check_in_air(game.youmonst, HURTLING, game), true);
+    assert.equal(check_in_air(game.youmonst, 0, game), false);
+    game.u.uprops[LEVITATION].intrinsic = 1;
+    assert.equal(check_in_air(game.youmonst, TOOKPLUNGE, game), true);
+    game.u.uprops[LEVITATION].intrinsic = 0;
+    game.u.uprops[FLYING].intrinsic = 1;
+    assert.equal(check_in_air(game.youmonst, 0, game), true);
+    assert.equal(check_in_air(game.youmonst, TOOKPLUNGE, game), false);
+    assert.equal(check_in_air(game.youmonst, VIASITTING, game), false);
+    game.u.uprops[FLYING].intrinsic = 0;
+
+    // The monster arm uses is_floater() and is_flyer(), with either plunge
+    // flag suppressing only the latter source term.
+    const mon = (pmidx) => ({ data: game.mons[pmidx] });
+    assert.equal(check_in_air(mon(PM_PONY), 0, game), false);
+    assert.equal(check_in_air(mon(PM_FLOATING_EYE), 0, game), true);
+    assert.equal(check_in_air(mon(PM_BAT), 0, game), true);
+    assert.equal(check_in_air(mon(PM_BAT), TOOKPLUNGE, game), false);
+    assert.equal(check_in_air(mon(PM_BAT), VIASITTING, game), false);
+    assert.equal(check_in_air(mon(PM_PONY), HURTLING, game), true);
+
+    // trap.c:3726-3729 returns true for the pit-fiend identity or MZ_HUGE+.
+    assert.equal(m_easy_escape_pit({
+        data: game.mons[PM_PIT_FIEND],
+    }, game), true);
+    assert.equal(m_easy_escape_pit({ data: game.mons[PM_PONY] }, game), false);
+    assert.equal(m_easy_escape_pit({
+        data: { ...game.mons[PM_PONY], msize: MZ_HUGE },
+    }, game), true);
+    assert.equal(m_easy_escape_pit({
+        data: { ...game.mons[PM_PONY], msize: MZ_HUGE - 1 },
+    }, game), false);
+});
 
 // A monster beside the hero, shaped the way makemon() leaves one and linked
 // onto the level chain so that m_detach() can find it, standing on a bear
@@ -761,87 +851,67 @@ test('a hole under a held monster is revealed like a bear trap', async () => {
     assert.equal(mon.mtrapped, true, 'and the hole still holds it');
 });
 
-// js/trap_effects.js refuses the escape of a held monster on a trap that is
-// neither a bear trap nor a web, because C:3767 calls set_msg_xy() and then
-// writes no line at all, and messageAt() cannot leave a cursor hint standing
-// for whatever prints next. The refusal sits inside the roll and the
-// visibility test, at C's own position, so it fires with work already done --
-// which is what this case pins.
-test('a silent escape is refused with the roll already spent', async () => {
+// C:3766-3773 sets the message coordinate, but only writes a line for pits,
+// bear traps, and webs. Other trap types still release the monster silently.
+test('a silent escape clears a held monster without writing a line', async () => {
     await hero();
 
     // The hole of the case above, one roll further on. This is the reachable
-    // silent type: is_pit() is refused ahead of seetrap(), and a bear trap and
-    // a web both have a line, so C:3766-3773's silent path needs a hole.
+    // silent type: a bear trap and web have their own line, so this reaches
+    // the no-message hole branch of C:3766-3773.
     const { mon, trap, x, y } = victimInBearTrap(PM_PONY, 13, {
         mtrapped: true,
     });
     trap.ttyp = HOLE;
     // rn2(40) of 0 is the only roll that frees a monster from a non-pit.
     const env = bearEnv([0]);
-    await assert.rejects(
-        mintrap(mon, 0, env),
-        (error) => error.message === 'a monster escaping a trap silently',
-    );
+    assert.equal(await mintrap(mon, 0, env), Trap_Effect_Finished);
     assert.deepEqual(env.bounds, ['rn2(40)'], 'the roll is already spent');
     assert.equal(trap.tseen, true, "and seetrap()'s write already stands");
     assert.deepEqual(env.redraws, [`${x},${y}`], 'as does its draw');
-    assert.equal(mon.mtrapped, true, 'C:3771 has not been reached');
+    assert.equal(mon.mtrapped, false, 'C:3775 clears the held flag');
     assert.deepEqual(env.lines, [], 'and nothing was written');
 
-    // A magic trap takes the same refusal, and shows the two gates apart:
-    // C:3742-3745 does not admit it, so tseen is still false when the refusal
-    // fires, while the roll above it has been spent either way. No C site
-    // writes mtrapped for a magic trap, so only the refusal's position is
-    // under test here.
+    // A magic trap also frees silently, but C:3742-3745 does not reveal it.
     const magic = victimInBearTrap(PM_PONY, 13, { mtrapped: true });
     magic.trap.ttyp = MAGIC_TRAP;
     const magicEnv = bearEnv([0]);
-    await assert.rejects(
-        mintrap(magic.mon, 0, magicEnv),
-        (error) => error.message === 'a monster escaping a trap silently',
-    );
+    assert.equal(await mintrap(magic.mon, 0, magicEnv), Trap_Effect_Finished);
     assert.deepEqual(magicEnv.bounds, ['rn2(40)']);
     assert.equal(magic.trap.tseen, false, 'C:3745 leaves a magic trap out');
     assert.deepEqual(magicEnv.redraws, [], 'so nothing was drawn');
+    assert.equal(magic.mon.mtrapped, false);
+    assert.deepEqual(magicEnv.lines, []);
 });
 
-// trap.c:3751-3758 and :3775-3787, the two blocks a bear trap never reaches.
-// Each is refused rather than ported, at C's own position: the pit refusal
-// leads the arm because is_pit() changes the escape condition itself, and the
-// metallivore refusal is the `else` of that escape, exactly where C puts it.
-test('the pit and metallivore blocks are refused, not ported', async () => {
+// trap.c:3751-3758 and :3775-3787 are unreachable for a bear trap, but a pit
+// and a metallivore on a bear trap reach those source branches.
+test('a held monster can escape a pit or eat its bear trap', async () => {
     await hero();
 
-    // is_pit() opens C's second escape disjunct, the boulder block and the
-    // "climbs out of the pit" line, all of which need m_easy_escape_pit() and
-    // fill_pit().
+    // The ordinary escape roll opens the pit branch and its source message.
     const pit = victimInBearTrap(PM_PONY, 13, { mtrapped: true });
     pit.trap.ttyp = PIT;
     const pitEnv = bearEnv([0]);
-    await assert.rejects(
-        mintrap(pit.mon, 0, pitEnv),
-        (error) => error.message === 'a monster escaping a pit',
-    );
-    assert.deepEqual(pitEnv.bounds, [], 'refused ahead of the escape roll');
-    assert.equal(pit.trap.tseen, false, 'and ahead of seetrap()');
-    assert.equal(pit.mon.mtrapped, true, 'nothing freed');
+    assert.equal(await mintrap(pit.mon, 0, pitEnv), Trap_Effect_Finished);
+    assert.deepEqual(pitEnv.bounds, ['rn2(40)']);
+    assert.equal(pit.mon.mtrapped, false);
+    assert.deepEqual(pitEnv.lines, ['The pony climbs out of the pit.']);
 
     // metallivorous(). monsters.h:2147-2154 gives the rust monster
     // M1_METALLIVORE, and C:3777-3782 has it eat the bear trap through
     // deltrap() and start meating. C reaches that branch only as the `else` of
-    // the escape, so the refusal follows the escape roll rather than leading
-    // it, and the trap is still on the level when it fires.
+    // the escape, so its branch follows the escape roll.
     const eater = victimInBearTrap(PM_RUST_MONSTER, 13, { mtrapped: true });
     eater.trap.tseen = true;
     const eaterEnv = bearEnv([1]);
-    await assert.rejects(
-        mintrap(eater.mon, 0, eaterEnv),
-        (error) => error.message === 'a monster eating a trap',
-    );
+    assert.equal(await mintrap(eater.mon, 0, eaterEnv), Trap_Effect_Finished);
     assert.deepEqual(eaterEnv.bounds, ['rn2(40)'], "C's own order");
-    assert.equal(game.level.traps.includes(eater.trap), true, 'not eaten');
-    assert.equal(eater.mon.mtrapped, true, 'and still held');
+    assert.equal(game.level.traps.includes(eater.trap), false, 'eaten');
+    assert.equal(eater.mon.mtrapped, false, 'no longer held');
+    assert.equal(eater.mon.meating, 5);
+    assert.deepEqual(eaterEnv.lines,
+        ['The rust monster eats a bear trap!']);
 
     // The other side of that order: the same metallivore on the roll that
     // frees it never reaches the branch, so it pulls free like anything else.

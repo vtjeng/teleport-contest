@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "Blocked independent A32 polymorph-trap entry attempt. The strict-matching C replay creates the polymorph trap and hostile giant rat, then the rat remains west of the trap; no `trap.c:mintrap()` selector call occurs. The ordinary `.` wait is refused by `do.c:donull()` through `cmd_safety_prevention()` while a monster is nearby, so the monster never gets a turn to enter the trap. This setup-only recording does not evidence trapeffect_poly_trap().",
+  "segments": [
+    {
+      "seed": 8344102,
+      "datetime": "20310917110322",
+      "nethackrc": "OPTIONS=name:PolyProbe,role:Valkyrie,race:human,gender:female,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen\nOPTIONS=pettype:none,playmode:debug\n",
+      "moves": " h#wizwish\npolymorph trap\n#wizgenesis\nhostile giant rat\nk.........."
+    }
+  ]
+}

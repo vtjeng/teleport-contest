@@ -26,7 +26,6 @@ import {
     FIRE_RES,
     FIRE_TRAP,
     FOUNTAIN,
-    DART_TRAP,
     GRAVE,
     HALLUC,
     HEADSTONE,
@@ -2618,7 +2617,7 @@ test('simple preflight preserves parked-guard source ordering', async () => {
     }
 });
 
-test('simple preflight rejects every selected excluded action atomically',
+test('simple preflight rejects each remaining excluded action atomically',
     async () => {
         const cases = [
             {
@@ -2655,46 +2654,6 @@ test('simple preflight rejects every selected excluded action atomically',
             // Rust-monster consumption is now handled in postmov(); its
             // former item-search refusal is covered by the live consumption
             // tests rather than this excluded-action matrix.
-            {
-                // An arrow trap, because trapeffect_selector() dispatches PIT
-                // to a ported arm now and only the types still listed in
-                // UNPORTED_TRAP_EFFECTS reach this reason.
-                name: 'trap activation',
-                reason: 'trap activation',
-                prepare: async () => {
-                    const target = await prepareSelectedAction();
-                    game.level.traps.push({
-                        tx: target.destinationX,
-                        ty: target.heroY,
-                        ttyp: ARROW_TRAP,
-                        tseen: false,
-                    });
-                    return target;
-                },
-            },
-            {
-                // trap.c:3827-3835. The pit is ported, so the refusal moves to
-                // mintrap()'s tail, which maybe_unhide_at() owns. Twenty hit
-                // points put the rat out of reach of trapeffect_pit()'s
-                // rnd(6), so the victim always survives to reach it, and
-                // mundetected is what mon.c maybe_unhide_at():4714 reads
-                // before it can call hideunder(): without that bit the block
-                // does nothing and the turn carries on.
-                name: 'a pit that spares a hiding victim',
-                reason: 'a monster trapped under an object',
-                prepare: async () => {
-                    const target = await prepareSelectedAction();
-                    target.monster.mhp = target.monster.mhpmax = 20;
-                    target.monster.mundetected = true;
-                    game.level.traps.push({
-                        tx: target.destinationX,
-                        ty: target.heroY,
-                        ttyp: PIT,
-                        tseen: false,
-                    });
-                    return target;
-                },
-            },
         ];
 
         for (const actionCase of cases) {
@@ -3563,26 +3522,6 @@ test('simple ordinary monster and starting pet can land in a corridor',
                 movementCase.name,
             );
         }
-    });
-
-test('simple preflight rejects a selected trap without live mutation',
-    async () => {
-        const target = await prepareSelectedAction();
-        game.level.traps.push({
-            tx: target.destinationX,
-            ty: target.heroY,
-            ttyp: ARROW_TRAP,
-            tseen: false,
-        });
-        const before = preflightSnapshot();
-
-        await assert.rejects(
-            preflightSimpleMonsterActions(game),
-            (error) => error instanceof UnsupportedSimpleMonsterActionError
-                && error.reason === 'trap activation',
-        );
-
-        assert.deepEqual(preflightSnapshot(), before);
     });
 
 test('a starting pony targets at range and later refusal stays retryable',
@@ -4680,9 +4619,8 @@ test('a planned pet pickup writes nothing to frozen live state',
         assert.equal(game.level.objlist, rock);
     });
 
-test('a planned dart trap writes nothing to frozen live state', async () => {
-    // The only admitted path that creates an object inside the dry run.
-    // trap.c trapeffect_dart_trap() writes the trap's `once` bit, mksobj()
+test('a planned arrow trap writes nothing to frozen live state', async () => {
+    // trap.c trapeffect_arrow_trap() writes the trap's `once` bit, mksobj()
     // reads and advances context.ident through next_ident(), and a missed
     // dart is linked into the floor grid and the level object list. None of
     // those is reached by the pickup cases above, which move objects that
@@ -4691,7 +4629,7 @@ test('a planned dart trap writes nothing to frozen live state', async () => {
     game.level.traps = [{
         tx: target.destinationX,
         ty: target.heroY,
-        ttyp: DART_TRAP,
+        ttyp: ARROW_TRAP,
         tseen: false,
         once: false,
         madeby_u: false,
