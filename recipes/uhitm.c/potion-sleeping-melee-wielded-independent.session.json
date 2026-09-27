@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "Independent B27 witness for uhitm.c:hmon_hitmon_potion calling potion.c:potionhit with a singleton wielded potion. This uses a different role, potion effect, seed, and target from B25's blocked blindness/grid-bug probe.",
+  "segments": [
+    {
+      "seed": 922711,
+      "datetime": "20390622081705",
+      "nethackrc": "OPTIONS=name:SleepMelee,role:Rogue,race:human,gender:male,align:chaotic\nOPTIONS=!legacy,!tutorial,!splash_screen\nOPTIONS=pettype:none,!acoustics,playmode:debug\n",
+      "moves": " .#wizwish\npotion of sleeping\ni wg\u0007newt\nk\r"
+    }
+  ]
+}

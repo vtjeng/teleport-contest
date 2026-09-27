@@ -12,6 +12,7 @@ import {
     shade_glare,
 } from './artifacts.js';
 import { adjalign, exercise } from './attrib.js';
+import { setwornEnv } from './do_wear.js';
 import {
     A_CON,
     A_DEX,
@@ -2001,8 +2002,17 @@ async function hmon_hitmon_misc_obj(hmd, mon, obj, state, env, random) {
 async function hmon_hitmon_potion(hmd, mon, obj, state, env) {
     if (obj.quan > 1)
         obj = splitobj(obj, 1, { ...env, state });
-    else
-        setuwep(null, { ...env, state });
+    else {
+        // C uhitm.c:1100 calls setuwep(NULL), whose worn.c setworn() path
+        // needs do_wear.c cancel_doff() and the other canonical worn hooks.
+        // Preserve caller-specific hooks such as artifact-light cleanup.
+        const worn = setwornEnv(state);
+        setuwep(null, {
+            ...env,
+            state,
+            hooks: { ...(env.hooks ?? {}), ...worn.hooks },
+        });
+    }
     // freeinv() is the source extraction before potionhit(), including the
     // stack and worn-slot bookkeeping owned by invent.c/worn.c.
     freeinv(obj, { ...env, state });

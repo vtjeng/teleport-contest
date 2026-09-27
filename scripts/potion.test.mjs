@@ -1269,6 +1269,49 @@ test('potionhit applies the monster blindness branch in source order', async () 
     assert.equal(monster.mcansee, false);
 });
 
+test('potionhit uses the C process RNG when a caller has no random seam',
+    async () => {
+        await startedGame(771031, 'PotionHitDefaultRandom');
+        discover_object(POT_FRUIT_JUICE, true, true, false, game);
+        const monster = {
+            data: game.mons[PM_GRID_BUG],
+            mx: game.u.ux + 3,
+            my: game.u.uy,
+            mhp: 5,
+            mhpmax: 5,
+            mblinded: 0,
+            mcansee: true,
+            mcanmove: true,
+            misc_worn_check: 0,
+            m_lev: 1,
+            msleeping: false,
+        };
+        const obj = vaporPotion(POT_FRUIT_JUICE);
+        const source = potionSource();
+        const signature = source.indexOf(
+            'potionhit(struct monst *mon, struct obj *obj, int how)',
+        );
+        const end = source.indexOf('\n}\n\n/* vapors are inhaled', signature);
+        assert.ok(signature > 0 && end > signature);
+        const body = source.slice(signature, end);
+        assert.match(body, /const char \*botlnam = bottlename\(\);/u,
+            'potionhit uses its process RNG through bottlename()');
+        const randomImports = readFileSync(
+            new URL('../js/potion.js', import.meta.url),
+            'utf8',
+        );
+        assert.match(randomImports,
+            /import \{[^}]*\brnl\b[^}]*\} from '\.\/rng\.js';/u,
+            'the shared default RNG bundle includes C potionhit rnl calls');
+
+        await assert.doesNotReject(() => potionhit(
+            monster,
+            obj,
+            POTHIT_HERO_THROW,
+            { state: game, message: async () => {} },
+        ));
+    });
+
 test('potionhit preserves the C polymorph message and squared vapor distance',
     () => {
     const source = potionSource();
