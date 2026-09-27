@@ -14,9 +14,9 @@ import { failClosedCommandRefusals } from '../js/cmd.js';
 import { setuhpmax } from '../js/attrib.js';
 
 import {
-    A_CON, A_DEX, A_MAX, A_WIS, ACID_RES, BLINDED, CONFUSION, DEAF,
+    A_CON, A_DEX, A_MAX, A_STR, A_WIS, ACID_RES, BLINDED, CONFUSION, DEAF,
     DETECT_MONSTERS, FAST, FREE_ACTION,
-    FROMOUTSIDE, GLIB, HALLUC,
+    FIXED_ABIL, FROMOUTSIDE, GLIB, HALLUC,
     GETOBJ_DOWNPLAY, GETOBJ_EXCLUDE, GETOBJ_EXCLUDE_INACCESS, GETOBJ_SUGGEST,
     HALLUC_RES, INVIS, LEVITATION, NOT_HUNGRY, POTHIT_HERO_THROW,
     POTHIT_MONST_THROW, SEE_INVIS,
@@ -487,6 +487,84 @@ async function startedGame(seed, name, role = 'Healer') {
         moves: ' ',
     });
 }
+
+test('unblessed gain-ability potion retries attributes in C RNG order',
+    async () => {
+        await startedGame(8460240, 'GainAbilityRetryOrder', 'Wizard');
+        const maximum = game.urace.attrmax;
+        game.u.acurr.a[A_STR] = maximum[A_STR];
+        game.u.amax.a[A_STR] = maximum[A_STR];
+        game.u.acurr.a[A_CON] = maximum[A_CON] - 1;
+        game.u.amax.a[A_CON] = maximum[A_CON] - 1;
+        game.u.aexe[A_CON] = 6;
+        game.u.uprops[FIXED_ABIL] ??= { intrinsic: 0, extrinsic: 0 };
+        game.u.uprops[FIXED_ABIL].extrinsic = 0;
+        game.program_state.in_moveloop = true;
+        game.gp.potion_nothing = 0;
+        game.gp.potion_unkn = 0;
+
+        const events = [];
+        const choices = [A_STR, A_CON];
+        const potion = vaporPotion(POT_GAIN_ABILITY);
+        assert.equal(await peffects(potion, game, {
+            random: {
+                rn2: (bound) => {
+                    events.push(['rn2', bound]);
+                    return choices.shift();
+                },
+            },
+            message: async (line) => events.push(['message', line]),
+            encumberMessage: async () => events.push(['encumber']),
+        }), -1);
+
+        assert.equal(game.u.acurr.a[A_STR], maximum[A_STR],
+            'the first capped attribute does not change');
+        assert.equal(game.u.acurr.a[A_CON], maximum[A_CON],
+            'the second attribute rises and ends the unblessed search');
+        assert.equal(game.u.aexe[A_CON], 0,
+            'successful adjattrib resets the same attribute exercise');
+        assert.deepEqual(events, [
+            ['rn2', A_MAX],
+            ['rn2', A_MAX],
+            ['message', 'You feel tough!'],
+            ['encumber'],
+        ], 'C draws before each attempt and adjattrib reports before encumber_msg');
+        assert.equal(choices.length, 0);
+        assert.equal(game.gp.potion_nothing, 0);
+        assert.equal(game.gp.potion_unkn, 0);
+    });
+
+test('cursed and Fixed_abil gain-ability branches update separate counters',
+    async () => {
+        await startedGame(8460241, 'GainAbilityShortBranches', 'Wizard');
+        const events = [];
+        const potion = vaporPotion(POT_GAIN_ABILITY);
+        game.gp.potion_nothing = 0;
+        game.gp.potion_unkn = 0;
+
+        potion.cursed = true;
+        assert.equal(await peffects(potion, game, {
+            random: { rn2: () => assert.fail('cursed branch draws no RNG') },
+            message: async (line) => events.push(line),
+        }), -1);
+        assert.deepEqual(events, ['Ulch!  That potion tasted foul!']);
+        assert.equal(game.gp.potion_unkn, 1);
+        assert.equal(game.gp.potion_nothing, 0);
+
+        potion.cursed = false;
+        game.u.uprops[FIXED_ABIL] ??= { intrinsic: 0, extrinsic: 0 };
+        game.u.uprops[FIXED_ABIL].extrinsic = 1;
+        game.gp.potion_nothing = 0;
+        game.gp.potion_unkn = 0;
+        events.length = 0;
+        assert.equal(await peffects(potion, game, {
+            random: { rn2: () => assert.fail('Fixed_abil branch draws no RNG') },
+            message: async (line) => events.push(line),
+        }), -1);
+        assert.deepEqual(events, []);
+        assert.equal(game.gp.potion_unkn, 0);
+        assert.equal(game.gp.potion_nothing, 1);
+    });
 
 test('cursed gain-level potion stays on D:1 without the Amulet', async () => {
     await startedGame(8460231, 'GainLevelCursedFirstLevel');

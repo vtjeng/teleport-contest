@@ -3,6 +3,7 @@
 //        dopotion() (618-641), peffects() (1333-1425),
 //        make_confused() (89-104), self_invis_message() (471-478),
 //        peffect_booze() (771-792), peffect_confusion() (1014-1027),
+//        peffect_gain_ability() (1030-1051),
 //        peffect_gain_level() (1083-1118),
 //        peffect_paralysis() (881-898),
 //        peffect_speed() (1052-1070), peffect_oil() (1259-1294),
@@ -18,7 +19,7 @@
 // getobj() -> dopotion() -> peffects().
 //
 // peffects() dispatches 26 potion types; POT_ACID, POT_BOOZE, POT_CONFUSION,
-// POT_SICKNESS, POT_SPEED (with spell alias SPE_HASTE_SELF), POT_BLINDNESS,
+// POT_GAIN_ABILITY, POT_SICKNESS, POT_SPEED (with spell alias SPE_HASTE_SELF), POT_BLINDNESS,
 // POT_GAIN_LEVEL, POT_HEALING, POT_EXTRA_HEALING, POT_OIL, the POT_FRUIT_JUICE arm of
 // peffect_see_invisible(), the ordinary POT_PARALYSIS arm, POT_POLYMORPH,
 // POT_INVISIBILITY (also SPE_INVISIBILITY),
@@ -815,6 +816,35 @@ async function peffect_confusion(otmp, state = game) {
 }
 
 // ---------------------------------------------------------------------------
+// peffect_gain_ability
+// C ref: potion.c peffect_gain_ability() (1030-1051).
+// ---------------------------------------------------------------------------
+
+// The unblessed potion stops at the first attribute adjattrib() can raise;
+// blessed potions walk all attributes in C's ascending index order.
+async function peffect_gain_ability(otmp, state = game, env = {}) {
+    const { message, random } = env;
+
+    if (otmp.cursed) {
+        await message('Ulch!  That potion tasted foul!', state);
+        state.gp.potion_unkn++;
+    } else if (fixedAbilities(state)) {
+        state.gp.potion_nothing++;
+    } else {
+        let index = -1;
+        for (let attempt = A_MAX; attempt > 0; --attempt) {
+            index = otmp.blessed ? index + 1 : random.rn2(A_MAX);
+            const messageMode = otmp.blessed || attempt === 1 ? 0 : -1;
+            if (await adjattrib(
+                index, 1, messageMode, state, env,
+            ) && !otmp.blessed) {
+                break;
+            }
+        }
+    }
+}
+
+// ---------------------------------------------------------------------------
 // speed_up / peffect_speed
 // C ref: potion.c speed_up() (2918-2928), peffect_speed() (1052-1070).
 // ---------------------------------------------------------------------------
@@ -1463,7 +1493,10 @@ export async function peffects(otmp, state = game, env = {}) {
         await peffect_confusion(otmp, state);
         break;
     case POT_GAIN_ABILITY:
-        throw new UnsupportedQuaffError('peffect_gain_ability()');
+        await peffect_gain_ability(
+            otmp, state, potionEffectEnvironment(env),
+        );
+        break;
     case POT_SPEED:
     case SPE_HASTE_SELF:
         await peffect_speed(otmp, state);

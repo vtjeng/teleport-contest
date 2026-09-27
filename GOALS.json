@@ -98477,6 +98477,937 @@
         "screens": 11405,
         "rng": 792838
       }
+    },
+    {
+      "id": "port-trap-mintrap-hurtling-return-synthetic-v9-20260927",
+      "kind": "file-port",
+      "status": "parked",
+      "summary": "Port trap.c mintrap and its consumed trap-result dependencies for monster hurtling",
+      "cFile": "trap.c",
+      "sessions": [
+        "synthetic/v9/kick-closed-door"
+      ],
+      "selectionReason": "The refreshed v9 kick-closed-door investigation traces step 3 through uhitm.c:mhitm_knockback to dothrow.c:mhurtle and its mhurtle_step callback. That callback consumes trap.c:mintrap(mon,HURTLING) Trap_*_Mon status to decide whether the monster keeps moving. Current js/trap_effects.js:mintrap and its selector are partial, so the whole mintrap return contract is a prerequisite before mhurtle can be completed; this source dependency precedes the dothrow goal.",
+      "detail": "Complete trap.c:mintrap across trapped and untrapped monster arms, its consumed m_easy_escape_pit and trapeffect_selector return paths, and missing reachable selector effects including poly, vibrating, arrow, and magic/fire chains. Reuse closed branches, preserve the parked historical magic-trap goal evidence, and provide independent trap recordings. Do not specialize to the v9 case or HURTLING alone.",
+      "openedAt": "35755719e0034381206d207019b8965c36ff2d48",
+      "openStanding": {
+        "sha": "2d9a4768ccd20aa7dae5330807381ebed65bc926",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "closedAt": null,
+      "delivered": null,
+      "functions": [
+        {
+          "name": "mintrap",
+          "line": 3733,
+          "endLine": 3843,
+          "declared": true,
+          "complete": false
+        }
+      ],
+      "range": {
+        "from": 3733,
+        "to": 3843
+      },
+      "syntheticProvenance": {
+        "synthetic/v9/kick-closed-door": {
+          "session": "synthetic/v9/kick-closed-door",
+          "corpus": "synthetic",
+          "batch": "v9",
+          "caseId": "kick-closed-door",
+          "manifestPath": "challenges/manifests/v9.json",
+          "manifestSha256": "00c148aac522e6343c8de0bd003db29771439f972a99cb18c772ebf2bc45a594",
+          "recordingPath": "challenges/cases/v9/kick-closed-door.session.json",
+          "recordingSha256": "cf1d058b874865447eb40db3e9d045ba6b5cf7518f90c1aeb31ee94e6f3ef742",
+          "evaluationPath": "challenges/evaluations/20260927191056-v9.json",
+          "evaluationCommit": "5b4486322ffa5eeb91cc37d01083ff20bbfe2ea7"
+        }
+      },
+      "activeStanding": {
+        "sha": "2d9a4768ccd20aa7dae5330807381ebed65bc926",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v9",
+          "caseId": "kick-closed-door",
+          "session": "synthetic/v9/kick-closed-door",
+          "manifestPath": "challenges/manifests/v9.json",
+          "manifestSha256": "00c148aac522e6343c8de0bd003db29771439f972a99cb18c772ebf2bc45a594",
+          "recording": "challenges/cases/v9/kick-closed-door.session.json",
+          "recordingPath": "challenges/cases/v9/kick-closed-door.session.json",
+          "recordingSha256": "cf1d058b874865447eb40db3e9d045ba6b5cf7518f90c1aeb31ee94e6f3ef742",
+          "recipe": "challenges/cases/v9/kick-closed-door.recipe.session.json",
+          "recipeSha256": "2af77171b46307c4ebb77baa0a708519039e73dee2d2c4ee14ebbab06df3db69",
+          "replayInputSha256": "99ba199a692102f5f50408e24e3015ddd7d23a1bc7ad8a71492ec4e78280fa83",
+          "evaluationPath": "challenges/evaluations/20260927205713-v9.json",
+          "evaluationCommit": "2d9a4768ccd20aa7dae5330807381ebed65bc926",
+          "evaluationArtifact": "challenges/evaluations/20260927205713-v9.json",
+          "evaluationUtc": "2026-09-27T20:57:51.461Z",
+          "remainingScreens": 6,
+          "recordedSteps": 9,
+          "previousScreensMatched": 3,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 3,
+              "total": 9
+            },
+            "rng": {
+              "matched": 2744,
+              "total": 2840
+            },
+            "cursors": {
+              "matched": 3,
+              "total": 9
+            }
+          },
+          "firstMismatch": {
+            "screen": {
+              "index": 3,
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 3,
+                "key": "h"
+              },
+              "kind": "ch",
+              "row": 0,
+              "column": 70,
+              "cCell": {
+                "ch": " ",
+                "color": 8,
+                "attr": 0,
+                "decgfx": 0
+              },
+              "jsCell": {
+                "ch": "-",
+                "color": 8,
+                "attr": 0,
+                "decgfx": 0
+              }
+            },
+            "rng": {
+              "index": 2744,
+              "cEntry": "rn2(5)=3",
+              "cCaller": "distfleeck(monmove.c:538)",
+              "jsEntry": "rnd(20)=4",
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 3,
+                "key": "h"
+              },
+              "stepIndex": 3
+            },
+            "cursor": {
+              "index": 3,
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 3,
+                "key": "h"
+              },
+              "cCursor": [
+                20,
+                5,
+                1
+              ],
+              "jsCursor": [
+                78,
+                0,
+                1
+              ]
+            }
+          },
+          "step": 3,
+          "kind": "rng",
+          "sourceFile": "monmove.c",
+          "function": "distfleeck",
+          "message": null,
+          "cFile": "monmove.c",
+          "luaFile": null,
+          "line": 538,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v9/kick-closed-door.json",
+            "result": {
+              "session": "synthetic/v9/kick-closed-door",
+              "corpus": "synthetic",
+              "batch": "v9",
+              "caseId": "kick-closed-door",
+              "manifestPath": "challenges/manifests/v9.json",
+              "manifestSha256": "00c148aac522e6343c8de0bd003db29771439f972a99cb18c772ebf2bc45a594",
+              "recordingSha256": "cf1d058b874865447eb40db3e9d045ba6b5cf7518f90c1aeb31ee94e6f3ef742",
+              "evaluationPath": "challenges/evaluations/20260927191056-v9.json",
+              "evaluationCommit": "5b4486322ffa5eeb91cc37d01083ff20bbfe2ea7",
+              "remainingScreens": 6,
+              "recordedSteps": 9,
+              "status": "complete",
+              "commit": "5b4486322ffa5eeb91cc37d01083ff20bbfe2ea7",
+              "mismatch": {
+                "corpus": "synthetic",
+                "batch": "v9",
+                "caseId": "kick-closed-door",
+                "session": "synthetic/v9/kick-closed-door",
+                "manifestPath": "challenges/manifests/v9.json",
+                "manifestSha256": "00c148aac522e6343c8de0bd003db29771439f972a99cb18c772ebf2bc45a594",
+                "recording": "challenges/cases/v9/kick-closed-door.session.json",
+                "recordingPath": "challenges/cases/v9/kick-closed-door.session.json",
+                "recordingSha256": "cf1d058b874865447eb40db3e9d045ba6b5cf7518f90c1aeb31ee94e6f3ef742",
+                "recipe": "challenges/cases/v9/kick-closed-door.recipe.session.json",
+                "recipeSha256": "2af77171b46307c4ebb77baa0a708519039e73dee2d2c4ee14ebbab06df3db69",
+                "replayInputSha256": "e8a7428d883fb33542b59d993324d6e14197b8486a45162a9f5b2efd3e9ebd60",
+                "evaluationPath": "challenges/evaluations/20260927191056-v9.json",
+                "evaluationCommit": "5b4486322ffa5eeb91cc37d01083ff20bbfe2ea7",
+                "evaluationArtifact": "challenges/evaluations/20260927191056-v9.json",
+                "evaluationUtc": "2026-09-27T19:11:49.445Z",
+                "remainingScreens": 6,
+                "recordedSteps": 9,
+                "previousScreensMatched": 0,
+                "regression": false,
+                "passed": false,
+                "error": null,
+                "metrics": {
+                  "screens": {
+                    "matched": 3,
+                    "total": 9
+                  },
+                  "rng": {
+                    "matched": 2744,
+                    "total": 2840
+                  },
+                  "cursors": {
+                    "matched": 3,
+                    "total": 9
+                  }
+                },
+                "firstMismatch": {
+                  "screen": {
+                    "index": 3,
+                    "location": {
+                      "segmentIndex": 0,
+                      "stepIndex": 3,
+                      "key": "h"
+                    },
+                    "kind": "ch",
+                    "row": 0,
+                    "column": 70,
+                    "cCell": {
+                      "ch": " ",
+                      "color": 8,
+                      "attr": 0,
+                      "decgfx": 0
+                    },
+                    "jsCell": {
+                      "ch": "-",
+                      "color": 8,
+                      "attr": 0,
+                      "decgfx": 0
+                    }
+                  },
+                  "rng": {
+                    "index": 2744,
+                    "cEntry": "rn2(5)=3",
+                    "cCaller": "distfleeck(monmove.c:538)",
+                    "jsEntry": "rnd(20)=4",
+                    "location": {
+                      "segmentIndex": 0,
+                      "stepIndex": 3,
+                      "key": "h"
+                    },
+                    "stepIndex": 3
+                  },
+                  "cursor": {
+                    "index": 3,
+                    "location": {
+                      "segmentIndex": 0,
+                      "stepIndex": 3,
+                      "key": "h"
+                    },
+                    "cCursor": [
+                      20,
+                      5,
+                      1
+                    ],
+                    "jsCursor": [
+                      78,
+                      0,
+                      1
+                    ]
+                  }
+                },
+                "step": 3,
+                "kind": "rng",
+                "sourceFile": "monmove.c",
+                "function": "distfleeck",
+                "message": null,
+                "cFile": "monmove.c",
+                "luaFile": null,
+                "line": 538
+              },
+              "summary": "A31 restored the source solidity predicate and removed the replay error; the case now matches through step 2. At step 3, C uhitm.c:mhitm_knockback calls dothrow.c:mhurtle, which wakes, stuns, and moves the defender along a source-tested path. JavaScript records that call as unported, leaving the monster in place; the changed state causes the next screen/cursor difference and a downstream monmove.c:distfleeck RNG difference. Port the complete monster hurtle function and its mhurtle_step path behavior, then remeasure the remaining door history.",
+              "source": {
+                "file": "dothrow.c",
+                "branch": "dothrow.c:mhurtle first wakes and stuns the monster, applies immobility and direction guards, then uses walk_path with static mhurtle_step. The step callback tests will_hurtle and region movement, updates monster or steed position, applies trap outcomes, and handles collisions and petrification. After the path, mhurtle checks a trap or liquid at the final square. The selected v9 step reaches the knockback call from uhitm.c and requires these state changes before later monmove RNG.",
+                "functions": [
+                  "mhurtle_step",
+                  "mhurtle"
+                ],
+                "callers": [
+                  "uhitm.c:mhitm_knockback calls mhurtle after a successful knockback (line 5400); js/uhitm.js currently notes dothrow.c mhurtle at that source site.",
+                  "uhitm.c:mhurtle_to_doom calls mhurtle after a forceful hero hit (line 1949); js/uhitm.js has a separate dothrow.c mhurtle gap.",
+                  "zap.c:bhitm calls mhurtle for a monster struck by a wand effect (line 408).",
+                  "wizcmds.c debug command calls mhurtle on a targeted monster (line 515)."
+                ],
+                "dependencies": [
+                  "mhurtle_step consumes will_hurtle, m_in_out_region, and mintrap return values; preserve their C return contracts and branch order. mhurtle uses walk_path to sequence steps.",
+                  "Retain existing source position and call ordering at each active caller; do not substitute movement, output, or RNG for an unported callee."
+                ]
+              },
+              "goalKind": "file-port",
+              "evidence": [
+                "Saved v9 baseline challenges/evaluations/20260927170744-v9.json records ReferenceError \"unsolid is not defined\" with 0/9 screens for the immutable C recording.",
+                "Fresh scan at combined main 2e0a01a106aa02ff3ae520093dd4712eabe6fb6d traces the throw from js/uhitm.js:mhitm_knockback through hmon_hitmon and ordinary movement attack, before the case reaches a door kick.",
+                "Upstream nethack-c/upstream/src/uhitm.c:mhitm_knockback around line 5327 calls unsolid(magr->data) to reject nonphysical attackers; js/uhitm.js uses unsolid in that function but its mondata.js import list omits the symbol.",
+                "A31 integrated 5b4486322ffa5eeb91cc37d01083ff20bbfe2ea7 passes the full checkpoint (44/44 fixed, 565/565 recordings); challenges/evaluations/20260927191056-v9.json measures this case at 3/9 screens and 2744/2840 RNG with no replay error, up from 0/9 and 0/2840.",
+                "Independent A31 selected-case scan locates the first remaining divergence at segment 0 step 3 key h: C row 0 column 70 is blank and JS retains a hyphen, with C cursor [20,5,1] and JS [78,0,1]. Its first RNG difference is downstream at monmove.c:distfleeck because the monster state differs.",
+                "Upstream dothrow.c lines 992-1073 define mhurtle_step and lines 1130-1178 define mhurtle; uhitm.c line 5400 calls it after knockback. js/uhitm.js leaves note_unported at the same call."
+              ]
+            }
+          }
+        }
+      ],
+      "progressBeforePark": {
+        "screens": 0,
+        "rng": 0
+      },
+      "parkedStanding": {
+        "sha": "31a2ed22a45f64162949a29f462c23cd51827978",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "parkedReason": "A32 implements mintrap held/unheld flow and strict pit, arrow, web, and magic paths, but no matching C/JS entry evidence reaches polymorph/vibrating selectors, held-pit boulder/metallivore, airborne/learned-trap, or no-trap reset paths. The v9 kick case still first stops in dothrow.c:mhurtle before mintrap. Resume when source-directed recordings cover these active branches and parked trap.c magic/fire return dependencies are reconciled."
+    },
+    {
+      "id": "port-potion-peffect-gain-ability-synthetic-v9-20260927",
+      "kind": "file-port",
+      "status": "closed",
+      "summary": "Port the complete gain-ability potion effect through quaff dispatch",
+      "cFile": "potion.c",
+      "sessions": [
+        "synthetic/v9/blessed-gain-ability-potion"
+      ],
+      "selectionReason": "Continue the source-traced v9 gain-ability mismatch: the blessed potion stops at potion.c:peffect_gain_ability after 35 matched screens. Port the whole effect and wire its peffects caller; attrib.c:adjattrib return controls the unblessed retry loop.",
+      "detail": "The complete investigation traces cursed, Fixed_abil, blessed sequential-all-attributes, and unblessed random-retry branches. Preserve potion status counters and pass the attribute helper message, RNG, and encumbrance environment.",
+      "openedAt": "92bc5bc43183004a51b00140221ceee2b4b779e7",
+      "openStanding": {
+        "sha": "5b4486322ffa5eeb91cc37d01083ff20bbfe2ea7",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "closedAt": "de87c577bce9e29db5aaf47eccac54a458f687a8",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
+      "functions": [
+        {
+          "name": "peffect_gain_ability",
+          "line": 1030,
+          "endLine": 1051,
+          "declared": true,
+          "complete": true
+        }
+      ],
+      "range": {
+        "from": 1030,
+        "to": 1051
+      },
+      "syntheticProvenance": {
+        "synthetic/v9/blessed-gain-ability-potion": {
+          "session": "synthetic/v9/blessed-gain-ability-potion",
+          "corpus": "synthetic",
+          "batch": "v9",
+          "caseId": "blessed-gain-ability-potion",
+          "manifestPath": "challenges/manifests/v9.json",
+          "manifestSha256": "00c148aac522e6343c8de0bd003db29771439f972a99cb18c772ebf2bc45a594",
+          "recordingPath": "challenges/cases/v9/blessed-gain-ability-potion.session.json",
+          "recordingSha256": "11d8bb37824e602a8ac346f034f0303419ebb66d53d7d57e7870c9f2961d92a6",
+          "evaluationPath": "challenges/evaluations/20260927191056-v9.json",
+          "evaluationCommit": "5b4486322ffa5eeb91cc37d01083ff20bbfe2ea7"
+        }
+      },
+      "activeStanding": {
+        "sha": "5b4486322ffa5eeb91cc37d01083ff20bbfe2ea7",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v9",
+          "caseId": "blessed-gain-ability-potion",
+          "session": "synthetic/v9/blessed-gain-ability-potion",
+          "manifestPath": "challenges/manifests/v9.json",
+          "manifestSha256": "00c148aac522e6343c8de0bd003db29771439f972a99cb18c772ebf2bc45a594",
+          "recording": "challenges/cases/v9/blessed-gain-ability-potion.session.json",
+          "recordingPath": "challenges/cases/v9/blessed-gain-ability-potion.session.json",
+          "recordingSha256": "11d8bb37824e602a8ac346f034f0303419ebb66d53d7d57e7870c9f2961d92a6",
+          "recipe": "challenges/cases/v9/blessed-gain-ability-potion.recipe.session.json",
+          "recipeSha256": "df8a993f0556df5d728064b0d38b732182669d2213586e583c8d5253079c8e8a",
+          "replayInputSha256": "e8a7428d883fb33542b59d993324d6e14197b8486a45162a9f5b2efd3e9ebd60",
+          "evaluationPath": "challenges/evaluations/20260927191056-v9.json",
+          "evaluationCommit": "5b4486322ffa5eeb91cc37d01083ff20bbfe2ea7",
+          "evaluationArtifact": "challenges/evaluations/20260927191056-v9.json",
+          "evaluationUtc": "2026-09-27T19:11:49.445Z",
+          "remainingScreens": 2,
+          "recordedSteps": 37,
+          "previousScreensMatched": 35,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 35,
+              "total": 37
+            },
+            "rng": {
+              "matched": 2776,
+              "total": 2776
+            },
+            "cursors": {
+              "matched": 35,
+              "total": 37
+            }
+          },
+          "firstMismatch": {
+            "kind": "stop",
+            "message": "unsupported hero command: an unported branch of this command: quaffing requires peffect_gain_ability()",
+            "step": 35
+          },
+          "step": 35,
+          "kind": "stop",
+          "sourceFile": "potion.c",
+          "function": "peffect_gain_ability",
+          "message": "unsupported hero command: an unported branch of this command: quaffing requires peffect_gain_ability()",
+          "cFile": "potion.c",
+          "luaFile": null,
+          "line": null,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v9/blessed-gain-ability-potion.json",
+            "result": {
+              "session": "synthetic/v9/blessed-gain-ability-potion",
+              "corpus": "synthetic",
+              "batch": "v9",
+              "caseId": "blessed-gain-ability-potion",
+              "manifestPath": "challenges/manifests/v9.json",
+              "manifestSha256": "00c148aac522e6343c8de0bd003db29771439f972a99cb18c772ebf2bc45a594",
+              "recordingSha256": "11d8bb37824e602a8ac346f034f0303419ebb66d53d7d57e7870c9f2961d92a6",
+              "evaluationPath": "challenges/evaluations/20260927175933-v9.json",
+              "evaluationCommit": "ed281da57eb1c879937da42b05f214e0640df9db",
+              "remainingScreens": 2,
+              "recordedSteps": 37,
+              "status": "complete",
+              "commit": "ed281da57eb1c879937da42b05f214e0640df9db",
+              "mismatch": {
+                "corpus": "synthetic",
+                "batch": "v9",
+                "caseId": "blessed-gain-ability-potion",
+                "session": "synthetic/v9/blessed-gain-ability-potion",
+                "manifestPath": "challenges/manifests/v9.json",
+                "manifestSha256": "00c148aac522e6343c8de0bd003db29771439f972a99cb18c772ebf2bc45a594",
+                "recording": "challenges/cases/v9/blessed-gain-ability-potion.session.json",
+                "recordingPath": "challenges/cases/v9/blessed-gain-ability-potion.session.json",
+                "recordingSha256": "11d8bb37824e602a8ac346f034f0303419ebb66d53d7d57e7870c9f2961d92a6",
+                "recipe": "challenges/cases/v9/blessed-gain-ability-potion.recipe.session.json",
+                "recipeSha256": "df8a993f0556df5d728064b0d38b732182669d2213586e583c8d5253079c8e8a",
+                "replayInputSha256": "025d6fc2229f1dc818bc43ea765daa9db58c9a915f1f9f33c75e970db2ae5256",
+                "evaluationPath": "challenges/evaluations/20260927175933-v9.json",
+                "evaluationCommit": "ed281da57eb1c879937da42b05f214e0640df9db",
+                "evaluationArtifact": "challenges/evaluations/20260927175933-v9.json",
+                "evaluationUtc": "2026-09-27T18:00:12.845Z",
+                "remainingScreens": 2,
+                "recordedSteps": 37,
+                "previousScreensMatched": 35,
+                "regression": false,
+                "passed": false,
+                "error": null,
+                "metrics": {
+                  "screens": {
+                    "matched": 35,
+                    "total": 37
+                  },
+                  "rng": {
+                    "matched": 2776,
+                    "total": 2776
+                  },
+                  "cursors": {
+                    "matched": 35,
+                    "total": 37
+                  }
+                },
+                "firstMismatch": {
+                  "kind": "stop",
+                  "message": "unsupported hero command: an unported branch of this command: quaffing requires peffect_gain_ability()",
+                  "step": 35
+                },
+                "step": 35,
+                "kind": "stop",
+                "sourceFile": "potion.c",
+                "function": "peffect_gain_ability",
+                "message": "unsupported hero command: an unported branch of this command: quaffing requires peffect_gain_ability()",
+                "cFile": "potion.c",
+                "luaFile": null,
+                "line": null
+              },
+              "summary": "Quaffing a blessed gain-ability potion reaches potion.c:peffect_gain_ability through peffects, but js/potion.js throws UnsupportedQuaffError at that effect arm. The C function increments each attribute in order through attrib.c:adjattrib; its cursed, Fixed_abil, and unblessed branches use different output and RNG behavior. Port the complete effect with the required attribute-caller environment.",
+              "source": {
+                "file": "potion.c",
+                "branch": "peffect_gain_ability first checks cursed and Fixed_abil. Otherwise it iterates A_MAX attributes, choosing each index sequentially for blessed potions or with rn2(A_MAX) for unblessed ones, and calls adjattrib(i,1,itmp). It breaks on a successful increment only for unblessed potions. The selected blessed Monk case attempts all six attributes in source order.",
+                "functions": [
+                  "peffect_gain_ability"
+                ],
+                "callers": [
+                  "potion.c:peffects dispatches POT_GAIN_ABILITY from dopotion and dodrink; js/potion.js:peffects currently throws UnsupportedQuaffError(peffect_gain_ability())."
+                ],
+                "dependencies": [
+                  "attrib.c:adjattrib is already implemented in js/attrib.js. Supply its required message and state operations and use the returned boolean for the unblessed break exactly as C does.",
+                  "The potion-effect status counters potion_unkn and potion_nothing are distinct C values; preserve their existing JS owner. The cursed and Fixed_abil branches make no adjattrib call."
+                ]
+              },
+              "goalKind": "file-port",
+              "evidence": [
+                "Current saved challenges/evaluations/20260927175933-v9.json reports a stop at segment 0 step 35 with 2 of 37 screens remaining after quaffing a blessed gain-ability potion.",
+                "Fresh scan at b6e28d15 reports the explicit UnsupportedQuaffError(peffect_gain_ability()) boundary. C has already produced multiple attribute messages while JavaScript refuses before completing the effect.",
+                "Upstream nethack-c/upstream/src/potion.c:peffect_gain_ability at 1030-1053 iterates attributes and uses adjattrib return for the unblessed break; potion.c:peffects dispatches POT_GAIN_ABILITY at 1382. js/potion.js:peffects refuses that arm at about 1450."
+              ]
+            }
+          }
+        }
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "peffect_gain_ability",
+            "implementation": "js/potion.js",
+            "symbol": "peffect_gain_ability",
+            "sourceReview": "Read the complete upstream potion.c:peffect_gain_ability() at 1030-1051 and its POT_GAIN_ABILITY peffects dispatch at 1382. Preserved branch order: cursed first (message then potion_unkn++), then Fixed_abil (potion_nothing++ with no RNG/message), then attribute attempts. Blessed starts i at -1, increments sequentially through A_MAX, uses msgflg 0 on every adjattrib call, and does not stop early. Unblessed draws rn2(A_MAX) before each attempt, uses msgflg -1 except 0 on the last attempt, and breaks only when adjattrib returns true. JS calls the already-ported attrib.c:adjattrib with potionEffectEnvironment so its message, random, and encumber_msg dependencies preserve the production operations; the helper Boolean controls the retry loop exactly as in C. The function itself has no RNG/output/state return value and its C return is void.",
+            "callers": [
+              {
+                "path": "js/potion.js",
+                "symbol": "peffects",
+                "source": "potion.c:peffects() case POT_GAIN_ABILITY dispatches to peffect_gain_ability(otmp); JS uses the same case and supplies the normalized effect environment."
+              },
+              {
+                "path": "js/potion.js",
+                "symbol": "dopotion",
+                "source": "potion.c:dopotion() resets potion flags then calls peffects(otmp); ordinary dodrink() quaff reaches this path."
+              },
+              {
+                "path": "js/potion.js",
+                "symbol": "dodrink",
+                "source": "potion.c:dodrink() is the #quaff production entry point and calls dopotion(otmp) after selection."
+              },
+              {
+                "path": "js/cmd.js",
+                "symbol": "runQuaffCommand",
+                "source": "cmd.c command-table dodrink entry dispatches to potion.c:dodrink(); js/cmd.js:runQuaffCommand dispatches the same production command to js/potion.js:dodrink()."
+              },
+              {
+                "path": "js/fountain.js",
+                "symbol": "drinksink",
+                "source": "fountain.c:drinksink() case 4 repeatedly creates a random non-water potion and calls dopotion(); the independent sink recording reaches POT_GAIN_ABILITY."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/potion.test.mjs"
+            ],
+            "recordings": [
+              "recordings/potion.c/gain-ability-uncursed-retry-independent.session.json",
+              "recordings/potion.c/gain-ability-cursed-independent.session.json",
+              "recordings/potion.c/gain-ability-sink-independent.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v9",
+                "caseId": "blessed-gain-ability-potion",
+                "segment": 0,
+                "fromStep": 35,
+                "throughStep": 36,
+                "source": "quaff command -> potion.c:dodrink -> dopotion -> peffects(POT_GAIN_ABILITY) -> peffect_gain_ability -> attrib.c:adjattrib"
+              }
+            ],
+            "checkedAt": "de87c577bce9e29db5aaf47eccac54a458f687a8"
+          }
+        ],
+        "entryPointReview": "Active entries reaching POT_GAIN_ABILITY are an ordinary quaff through cmd.c/potion.c:dodrink -> dopotion -> peffects and a sink-generated potion through fountain.c:drinksink case 4 -> dopotion -> peffects; both are covered by independent matching recordings, with cursed and unblessed branches on ordinary quaff, plus the blessed v9 source range. peffects is also called by spell.c:docast, but its potion-like spell list has SPE_HASTE_SELF, SPE_DETECT_TREASURE, SPE_DETECT_MONSTERS, SPE_LEVITATION, SPE_RESTORE_ABILITY, and SPE_INVISIBILITY only, so there is no gain-ability spell alias. end.c:fuzzer_savelife calls peffects only for water and restore-ability objects. eat.c:eatspecial contains a generic POTION_CLASS dopotion call, but the active eating selection first uses is_edible(), which rejects glass potion objects; recipes/eat.c/is-edible-potion-rejection-a28.session.json and its matching recording retain the source-pinned negative check. Monster/throw potionhit is a separate source function and does not dispatch to peffect_gain_ability. attrib.c:adjattrib is an existing whole-function port; this task consumes its Boolean return and message/RNG/encumbrance environment rather than changing that helper.",
+        "entryPoints": [
+          {
+            "name": "ordinary quaff of a gain-ability potion",
+            "functions": [
+              "peffect_gain_ability"
+            ],
+            "recordings": [
+              "recordings/potion.c/gain-ability-uncursed-retry-independent.session.json",
+              "recordings/potion.c/gain-ability-cursed-independent.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v9",
+                "caseId": "blessed-gain-ability-potion",
+                "segment": 0,
+                "fromStep": 35,
+                "throughStep": 36,
+                "source": "cmd.c quaff -> potion.c:dodrink -> dopotion -> peffects -> peffect_gain_ability -> adjattrib"
+              }
+            ]
+          },
+          {
+            "name": "sink-generated gain-ability potion",
+            "functions": [
+              "peffect_gain_ability"
+            ],
+            "recordings": [
+              "recordings/potion.c/gain-ability-sink-independent.session.json"
+            ],
+            "synthetic": []
+          }
+        ]
+      },
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "de87c577bce9e29db5aaf47eccac54a458f687a8",
+        "screens": 11405,
+        "rng": 792838
+      }
+    },
+    {
+      "id": "div-eat-start-tin-yobjnam-synthetic-v9-20260927",
+      "kind": "divergence-fix",
+      "status": "closed",
+      "summary": "Restore eat.c start_tin possessive opener naming",
+      "cFile": "eat.c",
+      "sessions": [
+        "synthetic/v9/valkyrie-opens-spinach-tin-with-tin-opener"
+      ],
+      "selectionReason": "The admitted v9 spinach-tin case matches through opener selection and all RNG, then diverges at eat.c:start_tin message: C uses yobjnam(uwep,NULL) and JavaScript uses xnameFresh, omitting your.",
+      "detail": "Change the existing source-aligned opener-weapon branch to use the already ported objnam.c:yobjnam across eligible opener objects; keep opening delay, occupation, tin consumption, and later spinach effects. Add source-pinned naming coverage and a distinct C recording if the admitted range does not cover an entry point.",
+      "openedAt": "61bf01dceec46f022af55adc21fb61ee75b69cdf",
+      "openStanding": {
+        "sha": "de87c577bce9e29db5aaf47eccac54a458f687a8",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "closedAt": "2d9a4768ccd20aa7dae5330807381ebed65bc926",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
+      "function": "start_tin",
+      "session": "synthetic/v9/valkyrie-opens-spinach-tin-with-tin-opener",
+      "step": 52,
+      "syntheticProvenance": {
+        "synthetic/v9/valkyrie-opens-spinach-tin-with-tin-opener": {
+          "session": "synthetic/v9/valkyrie-opens-spinach-tin-with-tin-opener",
+          "corpus": "synthetic",
+          "batch": "v9",
+          "caseId": "valkyrie-opens-spinach-tin-with-tin-opener",
+          "manifestPath": "challenges/manifests/v9.json",
+          "manifestSha256": "00c148aac522e6343c8de0bd003db29771439f972a99cb18c772ebf2bc45a594",
+          "recordingPath": "challenges/cases/v9/valkyrie-opens-spinach-tin-with-tin-opener.session.json",
+          "recordingSha256": "2ea0bb0a2276f5414486adf9d192304f18097e739d35f820f6e271332b9d6a34",
+          "evaluationPath": "challenges/evaluations/20260927201811-v9.json",
+          "evaluationCommit": "de87c577bce9e29db5aaf47eccac54a458f687a8"
+        }
+      },
+      "activeStanding": {
+        "sha": "de87c577bce9e29db5aaf47eccac54a458f687a8",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v9",
+          "caseId": "valkyrie-opens-spinach-tin-with-tin-opener",
+          "session": "synthetic/v9/valkyrie-opens-spinach-tin-with-tin-opener",
+          "manifestPath": "challenges/manifests/v9.json",
+          "manifestSha256": "00c148aac522e6343c8de0bd003db29771439f972a99cb18c772ebf2bc45a594",
+          "recording": "challenges/cases/v9/valkyrie-opens-spinach-tin-with-tin-opener.session.json",
+          "recordingPath": "challenges/cases/v9/valkyrie-opens-spinach-tin-with-tin-opener.session.json",
+          "recordingSha256": "2ea0bb0a2276f5414486adf9d192304f18097e739d35f820f6e271332b9d6a34",
+          "recipe": "challenges/cases/v9/valkyrie-opens-spinach-tin-with-tin-opener.recipe.session.json",
+          "recipeSha256": "333e9ca7c87bfaefdc508e5795e1659a0ef7e8c7f5bd5f73a3b9221d62c2e60d",
+          "replayInputSha256": "6a98f906c9ecd3b58e923c12d99a45af11359d09e1c1c38f02ff170b91100195",
+          "evaluationPath": "challenges/evaluations/20260927201811-v9.json",
+          "evaluationCommit": "de87c577bce9e29db5aaf47eccac54a458f687a8",
+          "evaluationArtifact": "challenges/evaluations/20260927201811-v9.json",
+          "evaluationUtc": "2026-09-27T20:19:04.634Z",
+          "remainingScreens": 1,
+          "recordedSteps": 56,
+          "previousScreensMatched": 55,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 55,
+              "total": 56
+            },
+            "rng": {
+              "matched": 2701,
+              "total": 2701
+            },
+            "cursors": {
+              "matched": 55,
+              "total": 56
+            }
+          },
+          "firstMismatch": {
+            "screen": {
+              "index": 52,
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 52,
+                "key": "f"
+              },
+              "kind": "ch",
+              "row": 0,
+              "column": 6,
+              "cCell": {
+                "ch": "y",
+                "color": 8,
+                "attr": 0,
+                "decgfx": 0
+              },
+              "jsCell": {
+                "ch": "t",
+                "color": 8,
+                "attr": 0,
+                "decgfx": 0
+              }
+            },
+            "rng": null,
+            "cursor": {
+              "index": 52,
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 52,
+                "key": "f"
+              },
+              "cCursor": [
+                54,
+                0,
+                1
+              ],
+              "jsCursor": [
+                49,
+                0,
+                1
+              ]
+            }
+          },
+          "step": 52,
+          "kind": "screen",
+          "sourceFile": null,
+          "function": null,
+          "message": null,
+          "cFile": null,
+          "luaFile": null,
+          "line": null,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v9/valkyrie-opens-spinach-tin-with-tin-opener.json",
+            "result": {
+              "session": "synthetic/v9/valkyrie-opens-spinach-tin-with-tin-opener",
+              "corpus": "synthetic",
+              "batch": "v9",
+              "caseId": "valkyrie-opens-spinach-tin-with-tin-opener",
+              "manifestPath": "challenges/manifests/v9.json",
+              "manifestSha256": "00c148aac522e6343c8de0bd003db29771439f972a99cb18c772ebf2bc45a594",
+              "recordingSha256": "2ea0bb0a2276f5414486adf9d192304f18097e739d35f820f6e271332b9d6a34",
+              "evaluationPath": "challenges/evaluations/20260927191056-v9.json",
+              "evaluationCommit": "5b4486322ffa5eeb91cc37d01083ff20bbfe2ea7",
+              "remainingScreens": 1,
+              "recordedSteps": 56,
+              "status": "complete",
+              "commit": "5b4486322ffa5eeb91cc37d01083ff20bbfe2ea7",
+              "mismatch": {
+                "corpus": "synthetic",
+                "batch": "v9",
+                "caseId": "valkyrie-opens-spinach-tin-with-tin-opener",
+                "session": "synthetic/v9/valkyrie-opens-spinach-tin-with-tin-opener",
+                "manifestPath": "challenges/manifests/v9.json",
+                "manifestSha256": "00c148aac522e6343c8de0bd003db29771439f972a99cb18c772ebf2bc45a594",
+                "recording": "challenges/cases/v9/valkyrie-opens-spinach-tin-with-tin-opener.session.json",
+                "recordingPath": "challenges/cases/v9/valkyrie-opens-spinach-tin-with-tin-opener.session.json",
+                "recordingSha256": "2ea0bb0a2276f5414486adf9d192304f18097e739d35f820f6e271332b9d6a34",
+                "recipe": "challenges/cases/v9/valkyrie-opens-spinach-tin-with-tin-opener.recipe.session.json",
+                "recipeSha256": "333e9ca7c87bfaefdc508e5795e1659a0ef7e8c7f5bd5f73a3b9221d62c2e60d",
+                "replayInputSha256": "e8a7428d883fb33542b59d993324d6e14197b8486a45162a9f5b2efd3e9ebd60",
+                "evaluationPath": "challenges/evaluations/20260927191056-v9.json",
+                "evaluationCommit": "5b4486322ffa5eeb91cc37d01083ff20bbfe2ea7",
+                "evaluationArtifact": "challenges/evaluations/20260927191056-v9.json",
+                "evaluationUtc": "2026-09-27T19:11:49.445Z",
+                "remainingScreens": 1,
+                "recordedSteps": 56,
+                "previousScreensMatched": 55,
+                "regression": false,
+                "passed": false,
+                "error": null,
+                "metrics": {
+                  "screens": {
+                    "matched": 55,
+                    "total": 56
+                  },
+                  "rng": {
+                    "matched": 2701,
+                    "total": 2701
+                  },
+                  "cursors": {
+                    "matched": 55,
+                    "total": 56
+                  }
+                },
+                "firstMismatch": {
+                  "screen": {
+                    "index": 52,
+                    "location": {
+                      "segmentIndex": 0,
+                      "stepIndex": 52,
+                      "key": "f"
+                    },
+                    "kind": "ch",
+                    "row": 0,
+                    "column": 6,
+                    "cCell": {
+                      "ch": "y",
+                      "color": 8,
+                      "attr": 0,
+                      "decgfx": 0
+                    },
+                    "jsCell": {
+                      "ch": "t",
+                      "color": 8,
+                      "attr": 0,
+                      "decgfx": 0
+                    }
+                  },
+                  "rng": null,
+                  "cursor": {
+                    "index": 52,
+                    "location": {
+                      "segmentIndex": 0,
+                      "stepIndex": 52,
+                      "key": "f"
+                    },
+                    "cCursor": [
+                      54,
+                      0,
+                      1
+                    ],
+                    "jsCursor": [
+                      49,
+                      0,
+                      1
+                    ]
+                  }
+                },
+                "step": 52,
+                "kind": "screen",
+                "sourceFile": null,
+                "function": null,
+                "message": null,
+                "cFile": null,
+                "luaFile": null,
+                "line": null
+              },
+              "summary": "The tin-opener recipe matches through wielding and selecting the spinach tin, then the opening message omits C’s possessive: C says “Using your tin opener you try to open the tin.” and JS says “Using tin opener you try to open the tin.” eat.c:start_tin calls objnam.c:yobjnam for this branch; the port calls xnameFresh. Use the existing yobjnam port for the full opener-weapon branch and preserve all opening delays and later spinach effects.",
+              "source": {
+                "file": "eat.c",
+                "branch": "eat.c:start_tin (1723-1800), unblessed tin with uwep->otyp == TIN_OPENER: set mesg to “You easily open the tin.”, draw rn2(2) for an uncursed opener, then print “Using %s you try to open the tin.” with yobjnam(uwep, NULL). The selected Valkyrie carries and wields the opener; yobjnam adds “your”.",
+                "functions": [
+                  "start_tin"
+                ],
+                "callers": [
+                  "eat.c:use_tin_opener selects the tin and calls start_tin; eat.c:doeat can also call start_tin for an ordinary tin. js/eat.js use_tin_opener and doeat both reach the ported start_tin."
+                ],
+                "dependencies": [
+                  "js/objnam.js already ports yobjnam; use it in the opener-weapon message and preserve name handling for daggers, picks, axes, and other eligible weapons.",
+                  "Keep the existing rn2-based opening duration and consume_tin/occupation flow; all recorded RNG calls already match."
+                ]
+              },
+              "goalKind": "divergence-fix",
+              "evidence": [
+                "Saved challenges/evaluations/20260927191056-v9.json reports 55/56 screens and 2701/2701 RNG calls. Focused scan locates the first screen and cursor difference at segment 0 step 52, input “f”.",
+                "Independent local replay of the admitted recording shows C “Using your tin opener you try to open the tin.--More--” and JS “Using tin opener you try to open the tin.--More--”; later spinach-consumption screens match independently in the same case.",
+                "Upstream nethack-c/upstream/src/eat.c line 1770 uses yobjnam(uwep, NULL); js/eat.js line 1313 uses xnameFresh(opener, state). js/objnam.js exports yobjnam."
+              ]
+            }
+          }
+        }
+      ],
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "2d9a4768ccd20aa7dae5330807381ebed65bc926",
+        "screens": 11405,
+        "rng": 792838
+      }
+    },
+    {
+      "id": "port-read-genocide-family-synthetic-v9-20260927",
+      "kind": "file-port",
+      "status": "queued",
+      "summary": "Port genocide class and species effects through scroll and throne callers",
+      "cFile": "read.c",
+      "sessions": [
+        "synthetic/v9/genocide-scroll-selects-species"
+      ],
+      "selectionReason": "v9/genocide-scroll-selects-species has 7 unmatched screens at segment 0 step 24; investigation traces the missing read.c:seffect_genocide wrapper to do_genocide and related do_class_genocide, with a separate sit.c throne caller. The two helpers are contiguous source functions; wire the wrapper and callers in this task. See investigations/synthetic/v9/genocide-scroll-selects-species.json.",
+      "detail": "",
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": null,
+      "delivered": null,
+      "functions": [
+        {
+          "name": "do_class_genocide",
+          "line": 2638,
+          "endLine": 2825,
+          "declared": false,
+          "complete": false
+        },
+        {
+          "name": "do_genocide",
+          "line": 2826,
+          "endLine": 3018,
+          "declared": false,
+          "complete": false
+        }
+      ],
+      "range": {
+        "from": 2638,
+        "to": 3018
+      },
+      "syntheticProvenance": {
+        "synthetic/v9/genocide-scroll-selects-species": {
+          "session": "synthetic/v9/genocide-scroll-selects-species",
+          "corpus": "synthetic",
+          "batch": "v9",
+          "caseId": "genocide-scroll-selects-species",
+          "manifestPath": "challenges/manifests/v9.json",
+          "manifestSha256": "00c148aac522e6343c8de0bd003db29771439f972a99cb18c772ebf2bc45a594",
+          "recordingPath": "challenges/cases/v9/genocide-scroll-selects-species.session.json",
+          "recordingSha256": "21687dcc3c3fadea446d1518d74ee03018f8370763bbd9ca9c801c40ff8fae07",
+          "evaluationPath": "challenges/evaluations/20260927205713-v9.json",
+          "evaluationCommit": "2d9a4768ccd20aa7dae5330807381ebed65bc926"
+        }
+      }
     }
   ]
 }

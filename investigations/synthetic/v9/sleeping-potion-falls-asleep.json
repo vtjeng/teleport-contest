@@ -1,0 +1,88 @@
+{
+  "session": "synthetic/v9/sleeping-potion-falls-asleep",
+  "corpus": "synthetic",
+  "batch": "v9",
+  "caseId": "sleeping-potion-falls-asleep",
+  "manifestPath": "challenges/manifests/v9.json",
+  "manifestSha256": "00c148aac522e6343c8de0bd003db29771439f972a99cb18c772ebf2bc45a594",
+  "recordingSha256": "f82a3636cfc6f7b926fe8da5ba3259b04aa8793e1eb729df1c8e8a5c0e63154f",
+  "evaluationPath": "challenges/evaluations/20260927191056-v9.json",
+  "evaluationCommit": "5b4486322ffa5eeb91cc37d01083ff20bbfe2ea7",
+  "remainingScreens": 1,
+  "recordedSteps": 33,
+  "status": "complete",
+  "commit": "5b4486322ffa5eeb91cc37d01083ff20bbfe2ea7",
+  "mismatch": {
+    "corpus": "synthetic",
+    "batch": "v9",
+    "caseId": "sleeping-potion-falls-asleep",
+    "session": "synthetic/v9/sleeping-potion-falls-asleep",
+    "manifestPath": "challenges/manifests/v9.json",
+    "manifestSha256": "00c148aac522e6343c8de0bd003db29771439f972a99cb18c772ebf2bc45a594",
+    "recording": "challenges/cases/v9/sleeping-potion-falls-asleep.session.json",
+    "recordingPath": "challenges/cases/v9/sleeping-potion-falls-asleep.session.json",
+    "recordingSha256": "f82a3636cfc6f7b926fe8da5ba3259b04aa8793e1eb729df1c8e8a5c0e63154f",
+    "recipe": "challenges/cases/v9/sleeping-potion-falls-asleep.recipe.session.json",
+    "recipeSha256": "e8394282df272b9338f9efa0ad2f56240ed8a81757582cb08962c73994d436fb",
+    "replayInputSha256": "e8a7428d883fb33542b59d993324d6e14197b8486a45162a9f5b2efd3e9ebd60",
+    "evaluationPath": "challenges/evaluations/20260927191056-v9.json",
+    "evaluationCommit": "5b4486322ffa5eeb91cc37d01083ff20bbfe2ea7",
+    "evaluationArtifact": "challenges/evaluations/20260927191056-v9.json",
+    "evaluationUtc": "2026-09-27T19:11:49.445Z",
+    "remainingScreens": 1,
+    "recordedSteps": 33,
+    "previousScreensMatched": 32,
+    "regression": false,
+    "passed": false,
+    "error": null,
+    "metrics": {
+      "screens": {
+        "matched": 32,
+        "total": 33
+      },
+      "rng": {
+        "matched": 1861,
+        "total": 1952
+      },
+      "cursors": {
+        "matched": 32,
+        "total": 33
+      }
+    },
+    "firstMismatch": {
+      "kind": "stop",
+      "message": "unsupported hero command: an unported branch of this command: quaffing requires peffect_sleeping()",
+      "step": 32
+    },
+    "step": 32,
+    "kind": "stop",
+    "sourceFile": "potion.c",
+    "function": "peffect_sleeping",
+    "message": "unsupported hero command: an unported branch of this command: quaffing requires peffect_sleeping()",
+    "cFile": "potion.c",
+    "luaFile": null,
+    "line": null
+  },
+  "summary": "Quaffing the sleeping potion reaches potion.c:peffect_sleeping, but the JavaScript POT_SLEEPING dispatch throws an unported refusal. Port both resistance/free-action yawn and nonresistant sleep arms from source; the latter draws rn1 with blessed/cursed duration and calls timeout.c:fall_asleep to set multi-turn sleep.",
+  "source": {
+    "file": "potion.c",
+    "branch": "potion.c:peffect_sleeping (901-912) tests Sleep_resistance or Free_action first, marks the monster sleep resistance seen and prints a yawn when true. Otherwise it prints sudden sleep, clears that seen flag, draws rn1(10,25-12*bcsign(otmp)), negates the duration, and calls fall_asleep with wakeup message true.",
+    "functions": [
+      "peffect_sleeping"
+    ],
+    "callers": [
+      "potion.c:peffects POT_SLEEPING dispatch invokes peffect_sleeping; js/potion.js currently throws UnsupportedQuaffError at the corresponding case.",
+      "potion.c:dodrink -> dopotion -> peffects reaches the effect for an ordinary quaff; fountain.c:drinksink can also call dopotion on a generated non-water potion."
+    ],
+    "dependencies": [
+      "timeout.c:fall_asleep is already ported in js/timeout.js; preserve its async state/output order and the bcsign duration formula.",
+      "mondata.c:monstseesu and monstunseesu are already ported; apply the selected flag update before or after the message exactly as C."
+    ]
+  },
+  "goalKind": "file-port",
+  "evidence": [
+    "Saved challenges/evaluations/20260927191056-v9.json at 5b4486322ffa5eeb91cc37d01083ff20bbfe2ea7 measures 32/33 screens and reports the first stop at step 32: “unsupported hero command: an unported branch of this command: quaffing requires peffect_sleeping()”.",
+    "Upstream nethack-c/upstream/src/potion.c lines 901-912 defines the whole effect; js/potion.js POT_SLEEPING dispatch at lines 1450-1451 throws the current refusal.",
+    "The selected v9 case reaches the sleeping arm, but the source also requires the resistance/free-action branch and sink-generated entry point coverage."
+  ]
+}

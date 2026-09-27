@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent potion.c:peffect_gain_ability recipe for a cursed dose. Seed 94270532, clock 20420808101113, and Wizard character were chosen independently; qn selects the wished potion from slot n and exercises the cursed message and potion identification counter.",
+  "segments": [
+    {
+      "seed": 94270532,
+      "datetime": "20420808101113",
+      "nethackrc": "OPTIONS=name:B32Cursed,role:Wizard,race:human,gender:female,align:lawful,playmode:debug,!legacy,!tutorial,!splash_screen,pettype:none\n",
+      "moves": " \u0017cursed potion of gain ability\nqn"
+    }
+  ]
+}
