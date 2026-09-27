@@ -196,6 +196,7 @@ import { newMonster } from '../js/monst.js';
 import { newObject } from '../js/obj.js';
 import { init_objects } from '../js/o_init.js';
 import {
+    ARROW,
     COIN_CLASS,
     WEAPON_CLASS,
     AKLYS,
@@ -798,27 +799,25 @@ test('postmov opens the door silently for verbose, Deaf and acoustics',
         }
     });
 
-// C ref: monmove.c:1509. mintrap() runs for every MMOVE_MOVED, including a
-// monster whose square did not change — dog_move() returns MMOVE_MOVED even
-// when the pet stays put, so the call reads the monster's live square rather
-// than a destination. ARROW_TRAP stands for every type whose monster arm is
-// still unported; trapeffect_selector() is what stops the scan.
-test('postmov refuses a move that ends on an unported trap type', async () => {
-    const { state } = makeState();
-    const monster = ordinaryMonster(state, { mx: 5, my: 4 });
-    // ARROW_TRAP. Chosen because floor_trigger() admits it and its monster arm
-    // is queued for a later slice, so the refusal has to come from the
-    // selector rather than from a destination check.
-    state.level.traps = [{ tx: 5, ty: 4, ttyp: ARROW_TRAP, tseen: false }];
-    const { env } = postmovEnv(state, {
-        random: trapRandom({ rnl: () => 0 }),
+// C ref: monmove.c:1509 into trap.c:3809-3835 and
+// trap.c:1190-1249. A moving monster reaches the arrow selector through the
+// production postmov() caller, spends the missile-generation draws, misses at
+// thitm(), and leaves the arrow on the floor.
+test('postmov fires an arrow trap and drops its missed missile', async () => {
+    const { state, monster } = arrowTrapState();
+    seeSquare(state, 5, 4);
+    const { env, messages } = postmovEnv(state, {
+        random: plainMissRandom(),
         unsupported: (refusal) => { throw new Error(refusal); },
     });
 
-    await assert.rejects(
-        postmov(monster, 5, 4, MMOVE_MOVED, 0, false, false, true, env),
-        (error) => error.message === 'trap activation',
-    );
+    await postmov(monster, 4, 4, MMOVE_MOVED, 0, false, false, true, env);
+
+    assert.deepEqual(messages,
+        ['The giant rat is almost hit by an arrow!']);
+    assert.equal(state.level.traps[0].once, true);
+    assert.equal(state.level.objects[5][4].otyp, ARROW);
+    assert.equal(state.level.objects[5][4].quan, 1);
 });
 
 // The eager proof itself, which no test pinned: every other fixture supplies
@@ -1078,6 +1077,10 @@ function dartTrapState(overrides = {}) {
     state.level.monlist = monster;
     state.level.monsters[5][4] = monster;
     return { locations, state, monster };
+}
+
+function arrowTrapState(overrides = {}) {
+    return dartTrapState({ ttyp: ARROW_TRAP, ...overrides });
 }
 
 function plainMissRandom(overrides = {}) {
