@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent potion.c:peffect_sickness witness. A debug Wizard wishes for an uncursed sickness potion and quaffs it through the ordinary command path, reaching the non-Healer attribute, hit-point, and exercise branches. The seed, clock, role, and identity were selected independently of the admitted v9 case.",
+  "segments": [
+    {
+      "seed": 927315041,
+      "datetime": "20370914182736",
+      "nethackrc": "OPTIONS=name:SickIndependent,role:Wizard,race:gnome,gender:male,align:neutral,playmode:debug,!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!debug_mongen\n",
+      "moves": " \u0017uncursed potion of sickness\nqp"
+    }
+  ]
+}
