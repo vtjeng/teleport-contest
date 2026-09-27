@@ -97552,6 +97552,49 @@
           "evaluationCommit": "63b63f85580e6a45a931debedbbd386779933d15"
         }
       }
+    },
+    {
+      "id": "port-potion-peffect-sickness-synthetic-v9-20260927",
+      "kind": "file-port",
+      "status": "queued",
+      "summary": "Port sickness potion effects and caller environment",
+      "cFile": "potion.c",
+      "sessions": [
+        "synthetic/v9/sickness-potion-poisons-hero"
+      ],
+      "selectionReason": "The current v9 sickness-potion-poisons-hero case fails in potion.c:peffect_sickness before recorded play because its JavaScript caller omits required attrib.c message operations. investigations/synthetic/v9/sickness-potion-poisons-hero.json traces the effect and peffects quaff dispatch; no active worker reserves potion.c:peffect_sickness.",
+      "detail": "",
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": null,
+      "delivered": null,
+      "functions": [
+        {
+          "name": "peffect_sickness",
+          "line": 964,
+          "endLine": 1013,
+          "declared": true,
+          "complete": false
+        }
+      ],
+      "range": {
+        "from": 964,
+        "to": 1013
+      },
+      "syntheticProvenance": {
+        "synthetic/v9/sickness-potion-poisons-hero": {
+          "session": "synthetic/v9/sickness-potion-poisons-hero",
+          "corpus": "synthetic",
+          "batch": "v9",
+          "caseId": "sickness-potion-poisons-hero",
+          "manifestPath": "challenges/manifests/v9.json",
+          "manifestSha256": "00c148aac522e6343c8de0bd003db29771439f972a99cb18c772ebf2bc45a594",
+          "recordingPath": "challenges/cases/v9/sickness-potion-poisons-hero.session.json",
+          "recordingSha256": "6e6163336cdb9ef55801c27e97bfe68f038be6334737394d663d1e0dad81b7fc",
+          "evaluationPath": "challenges/evaluations/20260927174037-v9.json",
+          "evaluationCommit": "eaaa1f72f98bbaddc775a4600e02f051895b9698"
+        }
+      }
     }
   ]
 }
