@@ -89799,7 +89799,7 @@
     {
       "id": "port-apply-use-tinning-kit-synthetic-v6-20260926",
       "kind": "file-port",
-      "status": "open",
+      "status": "parked",
       "summary": "Port whole tinning-kit use and its doapply caller across decline, confirm, and retry histories",
       "cFile": "apply.c",
       "sessions": [
@@ -90453,7 +90453,17 @@
             }
           }
         }
-      ]
+      ],
+      "progressBeforePark": {
+        "screens": 0,
+        "rng": 0
+      },
+      "parkedStanding": {
+        "sha": "718a9620c6b9fc833f801d8b6f20a6f44d6f5e74",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "parkedReason": "Ordinary inventory and floor corpse tinning plus the three admitted v6 histories match, but apply.c:use_tinning_kit remains incomplete at the Rider branch: C consumes do.c:revive_corpse for inventory corpses, while the current callee refuses non-floor corpses. An independent Rider recipe is blocked earlier by invent.c:hold_another_object wish-corpse setup. The discarded instapetrify effects are also source-named and lack matching entry evidence."
     },
     {
       "id": "port-read-seffect-earth-synthetic-v6-20260926",
