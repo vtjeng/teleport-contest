@@ -1,0 +1,1400 @@
+{
+  "version": 1,
+  "batch": "v9",
+  "priorComparisonSet": {
+    "path": ".cache/C27-final-overlap-crosswalk.json",
+    "sha256": "9deb042697248a3581922844264e84487a43e3a7bf093afcb6c70819adef82c3",
+    "count": 21,
+    "asOfEvaluationCommit": "e32dd8b5f6ed268811ce9a39ffd2571ce0e3462b",
+    "currentUnresolvedOlderCaseCount": 0
+  },
+  "countedDistinctFirstMismatchCount": 13,
+  "cases": [
+    {
+      "id": "earth-scroll-blessed-boulder-fall",
+      "title": "Blessed earth scroll fills a pit with a boulder",
+      "mission": "Source: nethack-c/upstream/src/read.c:seffect_earth. Setup: Wizard debug hero on an ordinary ceiling level, blessed scroll of earth; leave adjacent squares free. Action history: Wish the blessed scroll, read it, then dismiss its message. C observation: The ceiling rumbles around you!  The boulder fills a pit. The complete local C/JavaScript differential matches.",
+      "selectionRationale": "A blessed earth scroll drops boulders around a stationary hero; v8 fire scroll produces fire damage/explosion after reading. The source effect, terrain/object result, and causal action target differ. This case is compared individually with all 21 preceding v8 cases and every unresolved older case in .cache/C27-final-overlap-crosswalk.json.",
+      "sourcePointers": [
+        "nethack-c/upstream/src/read.c:seffect_earth"
+      ],
+      "cOutcome": "The ceiling rumbles around you!  The boulder fills a pit.",
+      "firstMismatch": null,
+      "countedTowardTwelve": false,
+      "closestPriorCases": [
+        "v8/read-fire-scroll-effect"
+      ],
+      "inputs": {
+        "seed": 94127001,
+        "datetime": "20420101090501",
+        "role": "Wizard",
+        "keyCount": 29,
+        "boundaries": 30
+      },
+      "recipe": "challenges/cases/v9/earth-scroll-blessed-boulder-fall.recipe.session.json",
+      "recipeSha256": "881463063b5e4fb9311067d49435513df45540f6f892dc9a2d5123bd8f79503f",
+      "recording": "challenges/cases/v9/earth-scroll-blessed-boulder-fall.session.json",
+      "recordingSha256": "91c8a067627112628457bc488ad3ff918516a38a51deda1f44ebc92591370604",
+      "reproducibility": "Independent C rerecord command: [\"node\",\"scripts/run-bounded.mjs\",\"focused\",\"--\",\"node\",\"scripts/record-session.mjs\",\"challenges/cases/v9/earth-scroll-blessed-boulder-fall.recipe.session.json\",\".cache/C27-rerecords/earth-scroll-blessed-boulder-fall.session.json\"]; exit 0; byte-identical SHA-256 91c8a067627112628457bc488ad3ff918516a38a51deda1f44ebc92591370604; 30 boundaries. Log: /tmp/teleport-loop-worker-c-20260925/.cache/C27-logs/earth-scroll-blessed-boulder-fall.rerecord.log.",
+      "localDifferential": {
+        "status": "match",
+        "firstMismatch": null,
+        "log": "/tmp/teleport-loop-worker-c-20260925/.cache/C27-logs/earth-scroll-blessed-boulder-fall.diff-fresh.log"
+      }
+    },
+    {
+      "id": "charging-scroll-recharges-wand",
+      "title": "Charging scroll recharges a polymorph wand",
+      "mission": "Source: nethack-c/upstream/src/read.c:seffect_charging -> recharge. Setup: Debug Wizard carries an uncursed scroll of charging and a wand of polymorph; record actual carried-letter selection from the C prompt. Action history: Read the scroll, dismiss its reveal message, select the wand at the charge prompt. C observation: Your wand of polymorph glows briefly. First JavaScript divergence: attrib.c:exercise at step 33 (attrib.c:exercise shared helper).",
+      "selectionRationale": "Both read scrolls, but C reaches seffect_charging’s useup-before-item-prompt and recharge of a selected wand; the prior case traverses carried curses and removes the loadstone curse. This case is compared individually with all 21 preceding v8 cases and every unresolved older case in .cache/C27-final-overlap-crosswalk.json.",
+      "sourcePointers": [
+        "nethack-c/upstream/src/read.c:seffect_charging"
+      ],
+      "cOutcome": "Your wand of polymorph glows briefly.",
+      "firstMismatch": {
+        "kind": "rng",
+        "step": 33,
+        "source": "attrib.c:exercise",
+        "bucket": "attrib.c:exercise shared helper",
+        "counted": true,
+        "log": "/tmp/teleport-loop-worker-c-20260925/.cache/C27-logs/charging-scroll-recharges-wizard-wand.diff-fresh.log"
+      },
+      "countedTowardTwelve": true,
+      "closestPriorCases": [
+        "v8/read-remove-curse-loadstone"
+      ],
+      "inputs": {
+        "seed": 94127026,
+        "datetime": "20420303083000",
+        "role": "Wizard",
+        "keyCount": 35,
+        "boundaries": 36
+      },
+      "recipe": "challenges/cases/v9/charging-scroll-recharges-wizard-wand.recipe.session.json",
+      "recipeSha256": "ddcd719f6eb75e23a4f2c85bc3f363b26ec52ab0e0b89baf940da5ee87eaaf67",
+      "recording": "challenges/cases/v9/charging-scroll-recharges-wizard-wand.session.json",
+      "recordingSha256": "7fd5daa16ea94909d338d09598f4c367cc62eef033928f2c82be9b4e935c1c77",
+      "reproducibility": "Independent C rerecord command: [\"node\",\"scripts/run-bounded.mjs\",\"focused\",\"--\",\"node\",\"scripts/record-session.mjs\",\"challenges/cases/v9/charging-scroll-recharges-wizard-wand.recipe.session.json\",\".cache/C27-rerecords/charging-scroll-recharges-wizard-wand.session.json\"]; exit 0; byte-identical SHA-256 7fd5daa16ea94909d338d09598f4c367cc62eef033928f2c82be9b4e935c1c77; 36 boundaries. Log: /tmp/teleport-loop-worker-c-20260925/.cache/C27-logs/charging-scroll-recharges-wizard-wand.rerecord2.log.",
+      "localDifferential": {
+        "status": "mismatch",
+        "firstMismatch": {
+          "kind": "rng",
+          "step": 33,
+          "source": "attrib.c:exercise",
+          "bucket": "attrib.c:exercise shared helper",
+          "counted": true,
+          "log": "/tmp/teleport-loop-worker-c-20260925/.cache/C27-logs/charging-scroll-recharges-wizard-wand.diff-fresh.log"
+        },
+        "log": "/tmp/teleport-loop-worker-c-20260925/.cache/C27-logs/charging-scroll-recharges-wizard-wand.diff-fresh.log"
+      }
+    },
+    {
+      "id": "genocide-scroll-selects-species",
+      "title": "Genocide scroll selects a species",
+      "mission": "Source: nethack-c/upstream/src/read.c:seffect_genocide -> do_genocide. Setup: Wizard debug hero has an uncursed genocide scroll; choose a nonessential species with no active instance. Action history: Read the scroll, select the species from the genocide prompt, and confirm. C observation: Wiped out all newts.  Wiped out all geckos.  Wiped out all iguanas. First JavaScript divergence: read.c:do_genocide species-selection/result branch at step 25 (read.c:do_genocide species result).",
+      "selectionRationale": "Both affect monster population, but genocide asks for a species and removes that class while create-monster attempts to add monsters in a cleared room. This case is compared individually with all 21 preceding v8 cases and every unresolved older case in .cache/C27-final-overlap-crosswalk.json.",
+      "sourcePointers": [
+        "nethack-c/upstream/src/read.c:seffect_genocide"
+      ],
+      "cOutcome": "Wiped out all newts.  Wiped out all geckos.  Wiped out all iguanas.",
+      "firstMismatch": {
+        "kind": "screen",
+        "step": 25,
+        "source": "read.c:do_genocide species-selection/result branch",
+        "bucket": "read.c:do_genocide species result",
+        "counted": true,
+        "log": "/tmp/teleport-loop-worker-c-20260925/.cache/C27-logs/genocide-scroll-selects-species.diff-fresh.log"
+      },
+      "countedTowardTwelve": true,
+      "closestPriorCases": [
+        "v8/read-create-monster-scroll-no-prior-monsters"
+      ],
+      "inputs": {
+        "seed": 94127003,
+        "datetime": "20420101090503",
+        "role": "Wizard",
+        "keyCount": 30,
+        "boundaries": 31
+      },
+      "recipe": "challenges/cases/v9/genocide-scroll-selects-species.recipe.session.json",
+      "recipeSha256": "24f4f0cf9d94274eb1584086ee3bc0275d3a586a8fef2b6e5d67921eab823fef",
+      "recording": "challenges/cases/v9/genocide-scroll-selects-species.session.json",
+      "recordingSha256": "21687dcc3c3fadea446d1518d74ee03018f8370763bbd9ca9c801c40ff8fae07",
+      "reproducibility": "Independent C rerecord command: [\"node\",\"scripts/run-bounded.mjs\",\"focused\",\"--\",\"node\",\"scripts/record-session.mjs\",\"challenges/cases/v9/genocide-scroll-selects-species.recipe.session.json\",\".cache/C27-rerecords/genocide-scroll-selects-species.session.json\"]; exit 0; byte-identical SHA-256 21687dcc3c3fadea446d1518d74ee03018f8370763bbd9ca9c801c40ff8fae07; 31 boundaries. Log: /tmp/teleport-loop-worker-c-20260925/.cache/C27-logs/genocide-scroll-selects-species.rerecord.log.",
+      "localDifferential": {
+        "status": "mismatch",
+        "firstMismatch": {
+          "kind": "screen",
+          "step": 25,
+          "source": "read.c:do_genocide species-selection/result branch",
+          "bucket": "read.c:do_genocide species result",
+          "counted": true,
+          "log": "/tmp/teleport-loop-worker-c-20260925/.cache/C27-logs/genocide-scroll-selects-species.diff-fresh.log"
+        },
+        "log": "/tmp/teleport-loop-worker-c-20260925/.cache/C27-logs/genocide-scroll-selects-species.diff-fresh.log"
+      }
+    },
+    {
+      "id": "light-scroll-illuminates-room",
+      "title": "Light scroll illuminates the room",
+      "mission": "Source: nethack-c/upstream/src/read.c:seffect_light -> litroom. Setup: Wizard debug hero carries an uncursed light scroll on a nonlit ordinary level and is neither confused nor blind. Action history: Read the scroll once and dismiss the effect message. C observation: A lit field surrounds you! The complete local C/JavaScript differential matches.",
+      "selectionRationale": "Both use a read command, but C reaches seffect_light’s room illumination/knowledge branch; v8 fire scroll produces the fire effect/explosion. State, source branch, and resulting level state differ. This case is compared individually with all 21 preceding v8 cases and every unresolved older case in .cache/C27-final-overlap-crosswalk.json.",
+      "sourcePointers": [
+        "nethack-c/upstream/src/read.c:seffect_light"
+      ],
+      "cOutcome": "A lit field surrounds you!",
+      "firstMismatch": null,
+      "countedTowardTwelve": false,
+      "closestPriorCases": [
+        "v8/read-fire-scroll-effect"
+      ],
+      "inputs": {
+        "seed": 94127004,
+        "datetime": "20420101090504",
+        "role": "Wizard",
+        "keyCount": 20,
+        "boundaries": 21
+      },
+      "recipe": "challenges/cases/v9/light-scroll-illuminates-room.recipe.session.json",
+      "recipeSha256": "c5a3905c6a9bc1f90c33c2f445903dc53ed3487442526d137ece2e69915f79a5",
+      "recording": "challenges/cases/v9/light-scroll-illuminates-room.session.json",
+      "recordingSha256": "b03d12dfd6f5df4adf00afa280fbf708151e4b522f3fe9c717d23847df7347b1",
+      "reproducibility": "Independent C rerecord command: [\"node\",\"scripts/run-bounded.mjs\",\"focused\",\"--\",\"node\",\"scripts/record-session.mjs\",\"challenges/cases/v9/light-scroll-illuminates-room.recipe.session.json\",\".cache/C27-rerecords/light-scroll-illuminates-room.session.json\"]; exit 0; byte-identical SHA-256 b03d12dfd6f5df4adf00afa280fbf708151e4b522f3fe9c717d23847df7347b1; 21 boundaries. Log: /tmp/teleport-loop-worker-c-20260925/.cache/C27-logs/light-scroll-illuminates-room.rerecord.log.",
+      "localDifferential": {
+        "status": "match",
+        "firstMismatch": null,
+        "log": "/tmp/teleport-loop-worker-c-20260925/.cache/C27-logs/light-scroll-illuminates-room.diff-fresh.log"
+      }
+    },
+    {
+      "id": "punishment-scroll-adds-ball-chain",
+      "title": "Punishment scroll adds a ball and chain",
+      "mission": "Source: nethack-c/upstream/src/read.c:seffect_punishment -> punish. Setup: Unconfused, unblessed Wizard debug hero with an uncursed punishment scroll and no punishment equipment. Action history: Read the scroll once. C observation: You are being punished for your misbehavior! The complete local C/JavaScript differential matches.",
+      "selectionRationale": "A read action invokes punishment equipment on a fresh unpunished hero; the earlier case invokes #pray and reaches prayer_done without altar. Their source owner, state mutation, and command history differ. This case is compared individually with all 21 preceding v8 cases and every unresolved older case in .cache/C27-final-overlap-crosswalk.json.",
+      "sourcePointers": [
+        "nethack-c/upstream/src/read.c:seffect_punishment"
+      ],
+      "cOutcome": "You are being punished for your misbehavior!",
+      "firstMismatch": null,
+      "countedTowardTwelve": false,
+      "closestPriorCases": [
+        "v8/prayer-cooldown-repeat"
+      ],
+      "inputs": {
+        "seed": 94127002,
+        "datetime": "20420101090502",
+        "role": "Wizard",
+        "keyCount": 26,
+        "boundaries": 27
+      },
+      "recipe": "challenges/cases/v9/punishment-scroll-adds-ball-chain.recipe.session.json",
+      "recipeSha256": "ecbf20cdec27e1671912008de06199ec447758ab58f213ca9f16f423cd44c75f",
+      "recording": "challenges/cases/v9/punishment-scroll-adds-ball-chain.session.json",
+      "recordingSha256": "37ff6aa871803dbd7846a458fec0763e03d0b72172486232917c03f08a4336bf",
+      "reproducibility": "Independent C rerecord command: [\"node\",\"scripts/run-bounded.mjs\",\"focused\",\"--\",\"node\",\"scripts/record-session.mjs\",\"challenges/cases/v9/punishment-scroll-adds-ball-chain.recipe.session.json\",\".cache/C27-rerecords/punishment-scroll-adds-ball-chain.session.json\"]; exit 0; byte-identical SHA-256 37ff6aa871803dbd7846a458fec0763e03d0b72172486232917c03f08a4336bf; 27 boundaries. Log: /tmp/teleport-loop-worker-c-20260925/.cache/C27-logs/punishment-scroll-adds-ball-chain.rerecord.log.",
+      "localDifferential": {
+        "status": "match",
+        "firstMismatch": null,
+        "log": "/tmp/teleport-loop-worker-c-20260925/.cache/C27-logs/punishment-scroll-adds-ball-chain.diff-fresh.log"
+      }
+    },
+    {
+      "id": "stinking-cloud-scroll-targets-floor",
+      "title": "Stinking cloud scroll targets the floor",
+      "mission": "Source: nethack-c/upstream/src/read.c:seffect_stinking_cloud -> do_stinking_cloud -> nethack-c/upstream/src/region.c:create_gas_cloud. Setup: Wizard debug hero with an uncursed stinking-cloud scroll on an ordinary level. Action history: Read the scroll, dismiss its identification and target prompts, then choose the current floor square in getpos. C observation: You are enveloped in a cloud of noxious gas!  Your eyes sting. First JavaScript divergence: read.c:seffect_stinking_cloud -> getpos -> region.c:create_gas_cloud at step 31 (stinking-cloud target prompt / cloud creation).",
+      "selectionRationale": "Both are read-area scrolls, but C selects a cloud center and creates a persistent cloud; v8 fire applies an explosion/damage branch. The target-selection and effect history differ. This case is compared individually with all 21 preceding v8 cases and every unresolved older case in .cache/C27-final-overlap-crosswalk.json.",
+      "sourcePointers": [
+        "nethack-c/upstream/src/read.c:seffect_stinking_cloud",
+        "nethack-c/upstream/src/region.c:create_gas_cloud"
+      ],
+      "cOutcome": "You are enveloped in a cloud of noxious gas!  Your eyes sting.",
+      "firstMismatch": {
+        "kind": "screen",
+        "step": 31,
+        "source": "read.c:seffect_stinking_cloud -> getpos -> region.c:create_gas_cloud",
+        "bucket": "stinking-cloud target prompt / cloud creation",
+        "counted": true,
+        "log": "/tmp/teleport-loop-worker-c-20260925/.cache/C27-logs/stinking-cloud-scroll-targets-floor.diff-fresh.log"
+      },
+      "countedTowardTwelve": true,
+      "closestPriorCases": [
+        "v8/read-fire-scroll-effect"
+      ],
+      "inputs": {
+        "seed": 94127006,
+        "datetime": "20420101090506",
+        "role": "Wizard",
+        "keyCount": 34,
+        "boundaries": 35
+      },
+      "recipe": "challenges/cases/v9/stinking-cloud-scroll-targets-floor.recipe.session.json",
+      "recipeSha256": "6a4dc2d619e853d5aee1fd2950976bc6a26f4a7f64ca369b5e56c060cbe484d6",
+      "recording": "challenges/cases/v9/stinking-cloud-scroll-targets-floor.session.json",
+      "recordingSha256": "30f21674ec8e7fe7965fdf526cb0933ae59855cee2b0d2ba83d659cc85bd1fbc",
+      "reproducibility": "Independent C rerecord command: [\"node\",\"scripts/run-bounded.mjs\",\"focused\",\"--\",\"node\",\"scripts/record-session.mjs\",\"challenges/cases/v9/stinking-cloud-scroll-targets-floor.recipe.session.json\",\".cache/C27-rerecords/stinking-cloud-scroll-targets-floor.session.json\"]; exit 0; byte-identical SHA-256 30f21674ec8e7fe7965fdf526cb0933ae59855cee2b0d2ba83d659cc85bd1fbc; 35 boundaries. Log: /tmp/teleport-loop-worker-c-20260925/.cache/C27-logs/stinking-cloud-scroll-targets-floor.rerecord.log.",
+      "localDifferential": {
+        "status": "mismatch",
+        "firstMismatch": {
+          "kind": "screen",
+          "step": 31,
+          "source": "read.c:seffect_stinking_cloud -> getpos -> region.c:create_gas_cloud",
+          "bucket": "stinking-cloud target prompt / cloud creation",
+          "counted": true,
+          "log": "/tmp/teleport-loop-worker-c-20260925/.cache/C27-logs/stinking-cloud-scroll-targets-floor.diff-fresh.log"
+        },
+        "log": "/tmp/teleport-loop-worker-c-20260925/.cache/C27-logs/stinking-cloud-scroll-targets-floor.diff-fresh.log"
+      }
+    },
+    {
+      "id": "cursed-teleport-scroll-level-teleport",
+      "title": "Cursed teleport scroll changes dungeon level",
+      "mission": "Source: nethack-c/upstream/src/read.c:seffect_teleportation -> nethack-c/upstream/src/dungeon.c:level_tele. Setup: Wizard debug hero on an ordinary dungeon level with a cursed teleportation scroll. Action history: Read the scroll and answer any level destination prompts from C. C observation: You materialize on a different level! The complete local C/JavaScript differential matches.",
+      "selectionRationale": "The cursed read calls level_tele from an ordinary level; the prior case moves onto a known pit and calls dotrap/fall_into_pit. No shared trap state or movement trigger. This case is compared individually with all 21 preceding v8 cases and every unresolved older case in .cache/C27-final-overlap-crosswalk.json.",
+      "sourcePointers": [
+        "nethack-c/upstream/src/read.c:seffect_teleportation",
+        "nethack-c/upstream/src/dungeon.c:level_tele"
+      ],
+      "cOutcome": "You materialize on a different level!",
+      "firstMismatch": null,
+      "countedTowardTwelve": false,
+      "closestPriorCases": [
+        "v8/pit-trap-trigger"
+      ],
+      "inputs": {
+        "seed": 94127007,
+        "datetime": "20420101090507",
+        "role": "Valkyrie",
+        "keyCount": 38,
+        "boundaries": 39
+      },
+      "recipe": "challenges/cases/v9/cursed-teleport-scroll-level-teleport.recipe.session.json",
+      "recipeSha256": "f4ae7331cf7e2c93e59227c8442d6c94e462ec9a58a34548a15756de8dd54426",
+      "recording": "challenges/cases/v9/cursed-teleport-scroll-level-teleport.session.json",
+      "recordingSha256": "23d0a7164b0e0fa8faf76e75af6ebbecd5681843253f8dd9cb874bd6b170d98b",
+      "reproducibility": "Independent C rerecord command: [\"node\",\"scripts/run-bounded.mjs\",\"focused\",\"--\",\"node\",\"scripts/record-session.mjs\",\"challenges/cases/v9/cursed-teleport-scroll-level-teleport.recipe.session.json\",\".cache/C27-rerecords/cursed-teleport-scroll-level-teleport.session.json\"]; exit 0; byte-identical SHA-256 23d0a7164b0e0fa8faf76e75af6ebbecd5681843253f8dd9cb874bd6b170d98b; 39 boundaries. Log: /tmp/teleport-loop-worker-c-20260925/.cache/C27-logs/cursed-teleport-scroll-level-teleport.rerecord.log.",
+      "localDifferential": {
+        "status": "match",
+        "firstMismatch": null,
+        "log": "/tmp/teleport-loop-worker-c-20260925/.cache/C27-logs/cursed-teleport-scroll-level-teleport.diff-fresh.log"
+      }
+    },
+    {
+      "id": "gold-detection-scroll-maps-floor-gold",
+      "title": "Gold detection scroll detects floor gold",
+      "mission": "Source: nethack-c/upstream/src/read.c:seffect_gold_detection -> nethack-c/upstream/src/detect.c:gold_detect. Setup: Debug Wizard reads an uncursed scroll of gold detection on a generated level with a visible floor-gold glyph. Action history: Wish only the scroll, read it, then dismiss the detection message/map result. C observation: You feel very greedy, and sense gold! First JavaScript divergence: attrib.c:exercise at step 31 (attrib.c:exercise shared helper).",
+      "selectionRationale": "This setup drops gold then reads a detection scroll to run gold_detect; the prior case reads remove curse and traverses cursed inventory. This case is compared individually with all 21 preceding v8 cases and every unresolved older case in .cache/C27-final-overlap-crosswalk.json.",
+      "sourcePointers": [
+        "nethack-c/upstream/src/read.c:seffect_gold_detection",
+        "nethack-c/upstream/src/detect.c:gold_detect"
+      ],
+      "cOutcome": "You feel very greedy, and sense gold!",
+      "firstMismatch": {
+        "kind": "rng",
+        "step": 31,
+        "source": "attrib.c:exercise",
+        "bucket": "attrib.c:exercise shared helper",
+        "counted": false,
+        "log": "/tmp/teleport-loop-worker-c-20260925/.cache/C27-logs/gold-detection-scroll-maps-floor-gold.diff-fresh.log"
+      },
+      "countedTowardTwelve": false,
+      "closestPriorCases": [
+        "v8/read-remove-curse-loadstone"
+      ],
+      "inputs": {
+        "seed": 94127031,
+        "datetime": "20420404091000",
+        "role": "Wizard",
+        "keyCount": 30,
+        "boundaries": 31
+      },
+      "recipe": "challenges/cases/v9/gold-detection-scroll-maps-floor-gold.recipe.session.json",
+      "recipeSha256": "8edacfadb4943e82eb8cf66258c7715fb9996cf5c9ab807dbf42f0e7bfbff0a7",
+      "recording": "challenges/cases/v9/gold-detection-scroll-maps-floor-gold.session.json",
+      "recordingSha256": "5056952a917d4eda93011951acd0b5e2eac09324deb385b0e8f89ca2bc911fad",
+      "reproducibility": "Independent C rerecord command: [\"node\",\"scripts/run-bounded.mjs\",\"focused\",\"--\",\"node\",\"scripts/record-session.mjs\",\"challenges/cases/v9/gold-detection-scroll-maps-floor-gold.recipe.session.json\",\".cache/C27-rerecords/gold-detection-scroll-maps-floor-gold.session.json\"]; exit 0; byte-identical SHA-256 5056952a917d4eda93011951acd0b5e2eac09324deb385b0e8f89ca2bc911fad; 31 boundaries. Log: /tmp/teleport-loop-worker-c-20260925/.cache/C27-logs/gold-detection-scroll-maps-floor-gold.rerecord.log.",
+      "localDifferential": {
+        "status": "mismatch",
+        "firstMismatch": {
+          "kind": "rng",
+          "step": 31,
+          "source": "attrib.c:exercise",
+          "bucket": "attrib.c:exercise shared helper",
+          "counted": false,
+          "log": "/tmp/teleport-loop-worker-c-20260925/.cache/C27-logs/gold-detection-scroll-maps-floor-gold.diff-fresh.log"
+        },
+        "log": "/tmp/teleport-loop-worker-c-20260925/.cache/C27-logs/gold-detection-scroll-maps-floor-gold.diff-fresh.log"
+      }
+    },
+    {
+      "id": "food-detection-scroll-smells-ration",
+      "title": "Food detection reaches its smell branch",
+      "mission": "Source: nethack-c/upstream/src/read.c:seffect_food_detection -> nethack-c/upstream/src/detect.c:food_detect (ctu smell branch; confirm source trace). Setup: Debug Wizard carries an uncursed food-detection scroll and moves over a wished ration before reading. Action history: Wish the scroll and ration, move to the ration tile, read the scroll, dismiss the message. C observation: Your nose starts to tingle and you smell food. First JavaScript divergence: detect.c:food_detect ctu/smell branch at step 46 (detect.c:food_detect smell-result screen boundary).",
+      "selectionRationale": "This setup drops food and reads a detection scroll to run food_detect; the prior case reads remove curse and changes carried curse state. This case is compared individually with all 21 preceding v8 cases and every unresolved older case in .cache/C27-final-overlap-crosswalk.json.",
+      "sourcePointers": [
+        "nethack-c/upstream/src/read.c:seffect_food_detection",
+        "nethack-c/upstream/src/detect.c:food_detect"
+      ],
+      "cOutcome": "Your nose starts to tingle and you smell food.",
+      "firstMismatch": {
+        "kind": "screen",
+        "step": 46,
+        "source": "detect.c:food_detect ctu/smell branch",
+        "bucket": "detect.c:food_detect smell-result screen boundary",
+        "counted": true,
+        "log": "/tmp/teleport-loop-worker-c-20260925/.cache/C27-logs/food-detection-scroll-smells-ration.diff-fresh.log"
+      },
+      "countedTowardTwelve": true,
+      "closestPriorCases": [
+        "v8/read-remove-curse-loadstone"
+      ],
+      "inputs": {
+        "seed": 94127033,
+        "datetime": "20420505094000",
+        "role": "Wizard",
+        "keyCount": 46,
+        "boundaries": 47
+      },
+      "recipe": "challenges/cases/v9/food-detection-scroll-maps-floor-ration.recipe.session.json",
+      "recipeSha256": "6ba20482e7c698150ee825b2407b0eec00ea1434238ec5c71350a6c170e588b3",
+      "recording": "challenges/cases/v9/food-detection-scroll-maps-floor-ration.session.json",
+      "recordingSha256": "51b904213bb51ac8bb79bbe9ed1ab8aff746ab6d6e6ec0be08efd46604e01d8e",
+      "reproducibility": "Independent C rerecord command: [\"node\",\"scripts/run-bounded.mjs\",\"focused\",\"--\",\"node\",\"scripts/record-session.mjs\",\"challenges/cases/v9/food-detection-scroll-maps-floor-ration.recipe.session.json\",\".cache/C27-rerecords/food-detection-scroll-smells-ration.session.json\"]; exit 0; byte-identical SHA-256 51b904213bb51ac8bb79bbe9ed1ab8aff746ab6d6e6ec0be08efd46604e01d8e; 47 boundaries. Log: /tmp/teleport-loop-worker-c-20260925/.cache/C27-logs/food-detection-scroll-smells-ration.rerecord.log.",
+      "localDifferential": {
+        "status": "mismatch",
+        "firstMismatch": {
+          "kind": "screen",
+          "step": 46,
+          "source": "detect.c:food_detect ctu/smell branch",
+          "bucket": "detect.c:food_detect smell-result screen boundary",
+          "counted": true,
+          "log": "/tmp/teleport-loop-worker-c-20260925/.cache/C27-logs/food-detection-scroll-smells-ration.diff-fresh.log"
+        },
+        "log": "/tmp/teleport-loop-worker-c-20260925/.cache/C27-logs/food-detection-scroll-smells-ration.diff-fresh.log"
+      }
+    },
+    {
+      "id": "blessed-identify-scroll-identifies-pack",
+      "title": "Blessed identify scroll identifies inventory",
+      "mission": "Source: nethack-c/upstream/src/read.c:seffect_identify. Setup: Barbarian debug hero carries a wished unidentified ring plus a blessed identify scroll. Action history: Wish an opal-appearing ring of conflict, then a blessed identify scroll; read the scroll. C observation: f - an uncursed ring of conflict. First JavaScript divergence: attrib.c:exercise at step 51 (attrib.c:exercise shared helper).",
+      "selectionRationale": "A blessed identify scroll consumes itself and runs identify_pack over inventory; the prior case applies a touchstone to a selected ruby. Read-command/global inventory pass differs from apply-command/single-object rub. This case is compared individually with all 21 preceding v8 cases and every unresolved older case in .cache/C27-final-overlap-crosswalk.json.",
+      "sourcePointers": [
+        "nethack-c/upstream/src/read.c:seffect_identify"
+      ],
+      "cOutcome": "f - an uncursed ring of conflict.",
+      "firstMismatch": {
+        "kind": "rng",
+        "step": 51,
+        "source": "attrib.c:exercise",
+        "bucket": "attrib.c:exercise shared helper",
+        "counted": false,
+        "log": "/tmp/teleport-loop-worker-c-20260925/.cache/C27-logs/blessed-identify-scroll-identifies-pack.diff-fresh.log"
+      },
+      "countedTowardTwelve": false,
+      "closestPriorCases": [
+        "v8/apply-blessed-touchstone-identifies-gem"
+      ],
+      "inputs": {
+        "seed": 94127010,
+        "datetime": "20420101090510",
+        "role": "Barbarian",
+        "keyCount": 51,
+        "boundaries": 52
+      },
+      "recipe": "challenges/cases/v9/blessed-identify-scroll-identifies-pack.recipe.session.json",
+      "recipeSha256": "e9bc808bf20aa788848418209aac39b8fb9efd304b07e67e317308a26d2e9e67",
+      "recording": "challenges/cases/v9/blessed-identify-scroll-identifies-pack.session.json",
+      "recordingSha256": "788c914acfafe8bed7dc652d24b797b03359f16945e878fc0013e3c88c2377c2",
+      "reproducibility": "Independent C rerecord command: [\"node\",\"scripts/run-bounded.mjs\",\"focused\",\"--\",\"node\",\"scripts/record-session.mjs\",\"challenges/cases/v9/blessed-identify-scroll-identifies-pack.recipe.session.json\",\".cache/C27-rerecords/blessed-identify-scroll-identifies-pack.session.json\"]; exit 0; byte-identical SHA-256 788c914acfafe8bed7dc652d24b797b03359f16945e878fc0013e3c88c2377c2; 52 boundaries. Log: /tmp/teleport-loop-worker-c-20260925/.cache/C27-logs/blessed-identify-scroll-identifies-pack.rerecord.log.",
+      "localDifferential": {
+        "status": "mismatch",
+        "firstMismatch": {
+          "kind": "rng",
+          "step": 51,
+          "source": "attrib.c:exercise",
+          "bucket": "attrib.c:exercise shared helper",
+          "counted": false,
+          "log": "/tmp/teleport-loop-worker-c-20260925/.cache/C27-logs/blessed-identify-scroll-identifies-pack.diff-fresh.log"
+        },
+        "log": "/tmp/teleport-loop-worker-c-20260925/.cache/C27-logs/blessed-identify-scroll-identifies-pack.diff-fresh.log"
+      }
+    },
+    {
+      "id": "blessed-gain-ability-potion",
+      "title": "Blessed gain ability potion raises attributes",
+      "mission": "Source: nethack-c/upstream/src/potion.c:peffect_gain_ability. Setup: Neutral human Wizard carries a blessed potion of gain ability with no fixed-ability condition. Action history: Quaff the potion. C observation: You feel strong!  You feel smart!  You feel wise!; after the next boundary, You feel tough! First JavaScript divergence: potion.c:peffect_gain_ability blessed attribute-result branch at step 36 (potion.c:peffect_gain_ability extra output boundary).",
+      "selectionRationale": "This is a quaffed blessed potion modifying hero attributes via peffect_gain_ability; the prior case is monster AI throwing an offensive potion at the hero (unresolved blindness target is also thrown, not quaffed). This case is compared individually with all 21 preceding v8 cases and every unresolved older case in .cache/C27-final-overlap-crosswalk.json.",
+      "sourcePointers": [
+        "nethack-c/upstream/src/potion.c:peffect_gain_ability"
+      ],
+      "cOutcome": "You feel strong!  You feel smart!  You feel wise!; after the next boundary, You feel tough!",
+      "firstMismatch": {
+        "kind": "screen",
+        "step": 36,
+        "source": "potion.c:peffect_gain_ability blessed attribute-result branch",
+        "bucket": "potion.c:peffect_gain_ability extra output boundary",
+        "counted": true,
+        "log": "/tmp/teleport-loop-worker-c-20260925/.cache/C27-logs/blessed-gain-ability-potion.diff-fresh.log"
+      },
+      "countedTowardTwelve": true,
+      "closestPriorCases": [
+        "v8/gnome-king-hurls-potion"
+      ],
+      "inputs": {
+        "seed": 94127011,
+        "datetime": "20420101090511",
+        "role": "Monk",
+        "keyCount": 36,
+        "boundaries": 37
+      },
+      "recipe": "challenges/cases/v9/blessed-gain-ability-potion.recipe.session.json",
+      "recipeSha256": "df8a993f0556df5d728064b0d38b732182669d2213586e583c8d5253079c8e8a",
+      "recording": "challenges/cases/v9/blessed-gain-ability-potion.session.json",
+      "recordingSha256": "11d8bb37824e602a8ac346f034f0303419ebb66d53d7d57e7870c9f2961d92a6",
+      "reproducibility": "Independent C rerecord command: [\"node\",\"scripts/run-bounded.mjs\",\"focused\",\"--\",\"node\",\"scripts/record-session.mjs\",\"challenges/cases/v9/blessed-gain-ability-potion.recipe.session.json\",\".cache/C27-rerecords/blessed-gain-ability-potion.session.json\"]; exit 0; byte-identical SHA-256 11d8bb37824e602a8ac346f034f0303419ebb66d53d7d57e7870c9f2961d92a6; 37 boundaries. Log: /tmp/teleport-loop-worker-c-20260925/.cache/C27-logs/blessed-gain-ability-potion.rerecord.log.",
+      "localDifferential": {
+        "status": "mismatch",
+        "firstMismatch": {
+          "kind": "screen",
+          "step": 36,
+          "source": "potion.c:peffect_gain_ability blessed attribute-result branch",
+          "bucket": "potion.c:peffect_gain_ability extra output boundary",
+          "counted": true,
+          "log": "/tmp/teleport-loop-worker-c-20260925/.cache/C27-logs/blessed-gain-ability-potion.diff-fresh.log"
+        },
+        "log": "/tmp/teleport-loop-worker-c-20260925/.cache/C27-logs/blessed-gain-ability-potion.diff-fresh.log"
+      }
+    },
+    {
+      "id": "speed-potion-grants-intrinsic",
+      "title": "Speed potion grants a speed intrinsic",
+      "mission": "Source: nethack-c/upstream/src/potion.c:peffect_speed. Setup: Unmounted hero carries an uncursed potion of speed and has no intrinsic speed or wounded legs. Action history: Quaff the potion. C observation: Your quickness feels very natural. The complete local C/JavaScript differential matches.",
+      "selectionRationale": "The hero quaffs a speed potion and updates speed intrinsic; v8’s monster throws a potion, and unresolved v7 potion paths are thrown blindness or quaffed monster detection, with different effect/state. This case is compared individually with all 21 preceding v8 cases and every unresolved older case in .cache/C27-final-overlap-crosswalk.json.",
+      "sourcePointers": [
+        "nethack-c/upstream/src/potion.c:peffect_speed"
+      ],
+      "cOutcome": "Your quickness feels very natural.",
+      "firstMismatch": null,
+      "countedTowardTwelve": false,
+      "closestPriorCases": [
+        "v8/gnome-king-hurls-potion"
+      ],
+      "inputs": {
+        "seed": 94127012,
+        "datetime": "20420101090512",
+        "role": "Rogue",
+        "keyCount": 21,
+        "boundaries": 22
+      },
+      "recipe": "challenges/cases/v9/speed-potion-grants-intrinsic.recipe.session.json",
+      "recipeSha256": "101b99c8a5aebdb3fafa6a49fa6552d594f3cffe83f500180048b6caf820f3b0",
+      "recording": "challenges/cases/v9/speed-potion-grants-intrinsic.session.json",
+      "recordingSha256": "a481afc87fe1d3198a6c41bbdb210b403a44154d2430202d0a9c9af1a3296b66",
+      "reproducibility": "Independent C rerecord command: [\"node\",\"scripts/run-bounded.mjs\",\"focused\",\"--\",\"node\",\"scripts/record-session.mjs\",\"challenges/cases/v9/speed-potion-grants-intrinsic.recipe.session.json\",\".cache/C27-rerecords/speed-potion-grants-intrinsic.session.json\"]; exit 0; byte-identical SHA-256 a481afc87fe1d3198a6c41bbdb210b403a44154d2430202d0a9c9af1a3296b66; 22 boundaries. Log: /tmp/teleport-loop-worker-c-20260925/.cache/C27-logs/speed-potion-grants-intrinsic.rerecord.log.",
+      "localDifferential": {
+        "status": "match",
+        "firstMismatch": null,
+        "log": "/tmp/teleport-loop-worker-c-20260925/.cache/C27-logs/speed-potion-grants-intrinsic.diff-fresh.log"
+      }
+    },
+    {
+      "id": "healing-potion-restores-hit-points",
+      "title": "Healing potion restores hit points",
+      "mission": "Source: nethack-c/upstream/src/potion.c:peffect_healing. Setup: Human Wizard carries an uncursed healing potion; the low-variance plan drinks it immediately, with current HP recorded from C before and after. Action history: Quaff the potion and dismiss the effect message. C observation: You feel better. The complete local C/JavaScript differential matches.",
+      "selectionRationale": "A hero-quaffed healing potion invokes healup and CON exercise; the prior case is a monster projectile and the unresolved v7 quaff branch detects monsters rather than restoring HP. This case is compared individually with all 21 preceding v8 cases and every unresolved older case in .cache/C27-final-overlap-crosswalk.json.",
+      "sourcePointers": [
+        "nethack-c/upstream/src/potion.c:peffect_healing"
+      ],
+      "cOutcome": "You feel better.",
+      "firstMismatch": null,
+      "countedTowardTwelve": false,
+      "closestPriorCases": [
+        "v8/gnome-king-hurls-potion"
+      ],
+      "inputs": {
+        "seed": 94127013,
+        "datetime": "20420101090513",
+        "role": "Knight",
+        "keyCount": 22,
+        "boundaries": 23
+      },
+      "recipe": "challenges/cases/v9/healing-potion-restores-hit-points.recipe.session.json",
+      "recipeSha256": "591223f0803dfa422257c0ffec1f757a895d90ff7f86ad8f6ef886f9cd0a1f12",
+      "recording": "challenges/cases/v9/healing-potion-restores-hit-points.session.json",
+      "recordingSha256": "d163c28ed6d1b8d8419dd7b48e57c9e6c01c1a54461a9dccf474efd004e91cc1",
+      "reproducibility": "Independent C rerecord command: [\"node\",\"scripts/run-bounded.mjs\",\"focused\",\"--\",\"node\",\"scripts/record-session.mjs\",\"challenges/cases/v9/healing-potion-restores-hit-points.recipe.session.json\",\".cache/C27-rerecords/healing-potion-restores-hit-points.session.json\"]; exit 0; byte-identical SHA-256 d163c28ed6d1b8d8419dd7b48e57c9e6c01c1a54461a9dccf474efd004e91cc1; 23 boundaries. Log: /tmp/teleport-loop-worker-c-20260925/.cache/C27-logs/healing-potion-restores-hit-points.rerecord.log.",
+      "localDifferential": {
+        "status": "match",
+        "firstMismatch": null,
+        "log": "/tmp/teleport-loop-worker-c-20260925/.cache/C27-logs/healing-potion-restores-hit-points.diff-fresh.log"
+      }
+    },
+    {
+      "id": "booze-potion-confuses-and-feeds",
+      "title": "Cursed booze potion confuses and feeds",
+      "mission": "Source: nethack-c/upstream/src/potion.c:peffect_booze. Setup: Hero carries a cursed, undiluted potion of booze. Action history: Quaff it and dismiss the consumption message. C observation: Ooph!  This tastes like liquid fire!  You pass out.--More-- The complete local C/JavaScript differential matches.",
+      "selectionRationale": "The hero directly quaffs cursed booze and passes out; v8 has an AI monster throwing an offensive potion, while the unresolved v7 cases are thrown blindness and a monster-detection quaff. The effect, state, and action history differ. This case is compared individually with all 21 preceding v8 cases and every unresolved older case in .cache/C27-final-overlap-crosswalk.json.",
+      "sourcePointers": [
+        "nethack-c/upstream/src/potion.c:peffect_booze"
+      ],
+      "cOutcome": "Ooph!  This tastes like liquid fire!  You pass out.--More--",
+      "firstMismatch": null,
+      "countedTowardTwelve": false,
+      "closestPriorCases": [
+        "v8/gnome-king-hurls-potion"
+      ],
+      "inputs": {
+        "seed": 94127014,
+        "datetime": "20420101090514",
+        "role": "Barbarian",
+        "keyCount": 27,
+        "boundaries": 28
+      },
+      "recipe": "challenges/cases/v9/booze-potion-confuses-and-feeds.recipe.session.json",
+      "recipeSha256": "dde800aaf0b6872529d44326dc9cbfc7ca6f4f874abaf1d6896cebe7421e39f8",
+      "recording": "challenges/cases/v9/booze-potion-confuses-and-feeds.session.json",
+      "recordingSha256": "90caa45cdcd7dd609bf2000eaa48e637d0dc348a5f0bd7a9fe490db97ab0fbdf",
+      "reproducibility": "Independent C rerecord command: [\"node\",\"scripts/run-bounded.mjs\",\"focused\",\"--\",\"node\",\"scripts/record-session.mjs\",\"challenges/cases/v9/booze-potion-confuses-and-feeds.recipe.session.json\",\".cache/C27-rerecords/booze-potion-confuses-and-feeds.session.json\"]; exit 0; byte-identical SHA-256 90caa45cdcd7dd609bf2000eaa48e637d0dc348a5f0bd7a9fe490db97ab0fbdf; 28 boundaries. Log: /tmp/teleport-loop-worker-c-20260925/.cache/C27-logs/booze-potion-confuses-and-feeds.rerecord.log.",
+      "localDifferential": {
+        "status": "match",
+        "firstMismatch": null,
+        "log": "/tmp/teleport-loop-worker-c-20260925/.cache/C27-logs/booze-potion-confuses-and-feeds.diff-fresh.log"
+      }
+    },
+    {
+      "id": "acid-potion-quaff-damages-hero",
+      "title": "Acid potion damages the hero when quaffed",
+      "mission": "Source: nethack-c/upstream/src/potion.c:peffect_acid. Setup: Hero without acid resistance carries an uncursed potion of acid and has safe excess HP. Action history: Quaff the potion. C observation: This burns like acid!--More-- The complete local C/JavaScript differential matches.",
+      "selectionRationale": "This is direct self-quaff of acid with acid-burn damage, distinct from potion projectile impact; unresolved blindness hit uses potionhit and monster-detection uses a different quaff effect. This case is compared individually with all 21 preceding v8 cases and every unresolved older case in .cache/C27-final-overlap-crosswalk.json.",
+      "sourcePointers": [
+        "nethack-c/upstream/src/potion.c:peffect_acid"
+      ],
+      "cOutcome": "This burns like acid!--More--",
+      "firstMismatch": null,
+      "countedTowardTwelve": false,
+      "closestPriorCases": [
+        "v8/gnome-king-hurls-potion"
+      ],
+      "inputs": {
+        "seed": 94127015,
+        "datetime": "20420101090515",
+        "role": "Valkyrie",
+        "keyCount": 28,
+        "boundaries": 29
+      },
+      "recipe": "challenges/cases/v9/acid-potion-quaff-damages-hero.recipe.session.json",
+      "recipeSha256": "46424c50780527b0aae81c1f1db46a60cb51b3babffb210453a016f68444298f",
+      "recording": "challenges/cases/v9/acid-potion-quaff-damages-hero.session.json",
+      "recordingSha256": "172af1fe72e3c7f0506154961c6656d27a2fe0d423bf076ff674b0a49d51fd86",
+      "reproducibility": "Independent C rerecord command: [\"node\",\"scripts/run-bounded.mjs\",\"focused\",\"--\",\"node\",\"scripts/record-session.mjs\",\"challenges/cases/v9/acid-potion-quaff-damages-hero.recipe.session.json\",\".cache/C27-rerecords/acid-potion-quaff-damages-hero.session.json\"]; exit 0; byte-identical SHA-256 172af1fe72e3c7f0506154961c6656d27a2fe0d423bf076ff674b0a49d51fd86; 29 boundaries. Log: /tmp/teleport-loop-worker-c-20260925/.cache/C27-logs/acid-potion-quaff-damages-hero.rerecord.log.",
+      "localDifferential": {
+        "status": "match",
+        "firstMismatch": null,
+        "log": "/tmp/teleport-loop-worker-c-20260925/.cache/C27-logs/acid-potion-quaff-damages-hero.diff-fresh.log"
+      }
+    },
+    {
+      "id": "blessed-water-potion-awe",
+      "title": "Blessed water potion affects a neutral hero",
+      "mission": "Source: nethack-c/upstream/src/potion.c:peffect_water. Setup: Neutral, living Wizard carries blessed water, is not lycanthropic, and has a low-cost recoverable illness condition if needed. Action history: Quaff the potion. C observation: You feel full of awe. First JavaScript divergence: attrib.c:exercise at step 29 (attrib.c:exercise shared helper).",
+      "selectionRationale": "This direct blessed-water quaff exercises the blessing/alignment branch; v8 potion usage is an AI projectile, and unresolved v7 potion effects are blindness impact or monster detection. This case is compared individually with all 21 preceding v8 cases and every unresolved older case in .cache/C27-final-overlap-crosswalk.json.",
+      "sourcePointers": [
+        "nethack-c/upstream/src/potion.c:peffect_water"
+      ],
+      "cOutcome": "You feel full of awe.",
+      "firstMismatch": {
+        "kind": "rng",
+        "step": 29,
+        "source": "attrib.c:exercise",
+        "bucket": "attrib.c:exercise shared helper",
+        "counted": false,
+        "log": "/tmp/teleport-loop-worker-c-20260925/.cache/C27-logs/blessed-water-potion-awe.diff-fresh.log"
+      },
+      "countedTowardTwelve": false,
+      "closestPriorCases": [
+        "v8/gnome-king-hurls-potion"
+      ],
+      "inputs": {
+        "seed": 94127016,
+        "datetime": "20420101090516",
+        "role": "Priest",
+        "keyCount": 28,
+        "boundaries": 29
+      },
+      "recipe": "challenges/cases/v9/blessed-water-potion-awe.recipe.session.json",
+      "recipeSha256": "04d95ba5a4bb1fbd516cd4eee6f37b9780846edc6f39226dc51aa8e23d40c7a7",
+      "recording": "challenges/cases/v9/blessed-water-potion-awe.session.json",
+      "recordingSha256": "a15e584bd6b124d04ecea3b33074ba3d02e22f7a94b9a27a6dd6c24d217395f8",
+      "reproducibility": "Independent C rerecord command: [\"node\",\"scripts/run-bounded.mjs\",\"focused\",\"--\",\"node\",\"scripts/record-session.mjs\",\"challenges/cases/v9/blessed-water-potion-awe.recipe.session.json\",\".cache/C27-rerecords/blessed-water-potion-awe.session.json\"]; exit 0; byte-identical SHA-256 a15e584bd6b124d04ecea3b33074ba3d02e22f7a94b9a27a6dd6c24d217395f8; 29 boundaries. Log: /tmp/teleport-loop-worker-c-20260925/.cache/C27-logs/blessed-water-potion-awe.rerecord.log.",
+      "localDifferential": {
+        "status": "mismatch",
+        "firstMismatch": {
+          "kind": "rng",
+          "step": 29,
+          "source": "attrib.c:exercise",
+          "bucket": "attrib.c:exercise shared helper",
+          "counted": false,
+          "log": "/tmp/teleport-loop-worker-c-20260925/.cache/C27-logs/blessed-water-potion-awe.diff-fresh.log"
+        },
+        "log": "/tmp/teleport-loop-worker-c-20260925/.cache/C27-logs/blessed-water-potion-awe.diff-fresh.log"
+      }
+    },
+    {
+      "id": "marker-engraves-custom-text",
+      "title": "Magic marker writes custom floor text",
+      "mission": "Source: nethack-c/upstream/src/engrave.c:doengrave. Setup: Debug Wizard wishes a magic marker and writes on the stairs where the generated starting hero is located. Action history: Dismiss the marker use message, then type the independent text “marker” and finish the line. C observation: You scribble on the stairs with a magic marker. The complete local C/JavaScript differential matches.",
+      "selectionRationale": "A command selects marker and writes new floor text; the prior apply action selects touchstone and rubs one inventory gem. C reaches doengrave/engrave with different tool, target, and state. This case is compared individually with all 21 preceding v8 cases and every unresolved older case in .cache/C27-final-overlap-crosswalk.json.",
+      "sourcePointers": [
+        "nethack-c/upstream/src/engrave.c:doengrave"
+      ],
+      "cOutcome": "You scribble on the stairs with a magic marker.",
+      "firstMismatch": null,
+      "countedTowardTwelve": false,
+      "closestPriorCases": [
+        "v8/apply-blessed-touchstone-identifies-gem"
+      ],
+      "inputs": {
+        "seed": 94127056,
+        "datetime": "20420303083006",
+        "role": "Wizard",
+        "keyCount": 28,
+        "boundaries": 29
+      },
+      "recipe": "challenges/cases/v9/marker-engraves-custom-text.recipe.session.json",
+      "recipeSha256": "494ccfbf2af5a6a96e697f144dd4c7012e176e8df56f8d4acc755753085f1489",
+      "recording": "challenges/cases/v9/marker-engraves-custom-text.session.json",
+      "recordingSha256": "140d64eebabe3b7bbe8ef274aa5bff359d0c87ea956c9f911b510f71e1f01fe6",
+      "reproducibility": "Independent C rerecord command: [\"node\",\"scripts/run-bounded.mjs\",\"focused\",\"--\",\"node\",\"scripts/record-session.mjs\",\"challenges/cases/v9/marker-engraves-custom-text.recipe.session.json\",\".cache/C27-rerecords/marker-engraves-custom-text.session.json\"]; exit 0; byte-identical SHA-256 140d64eebabe3b7bbe8ef274aa5bff359d0c87ea956c9f911b510f71e1f01fe6; 29 boundaries. Log: /tmp/teleport-loop-worker-c-20260925/.cache/C27-logs/marker-engraves-custom-text.rerecord2.log.",
+      "localDifferential": {
+        "status": "match",
+        "firstMismatch": null,
+        "log": "/tmp/teleport-loop-worker-c-20260925/.cache/C27-logs/marker-engraves-custom-text.diff-fresh.log"
+      }
+    },
+    {
+      "id": "oil-lamp-ignites",
+      "title": "Oil lamp starts burning",
+      "mission": "Source: nethack-c/upstream/src/apply.c:doapply -> use_lamp. Setup: Wizard debug hero carries an unlit oil lamp with oil remaining. Action history: Apply the lamp once and dismiss any light message. C observation: Your lamp is now on. The complete local C/JavaScript differential matches.",
+      "selectionRationale": "Both apply inventory devices, but use_lamp starts burning fuel and creates a light source without a monster target; camera flashes a targeted hostile monster. This case is compared individually with all 21 preceding v8 cases and every unresolved older case in .cache/C27-final-overlap-crosswalk.json.",
+      "sourcePointers": [
+        "nethack-c/upstream/src/apply.c:use_lamp",
+        "nethack-c/upstream/src/apply.c:doapply"
+      ],
+      "cOutcome": "Your lamp is now on.",
+      "firstMismatch": null,
+      "countedTowardTwelve": false,
+      "closestPriorCases": [
+        "v8/camera-directional-flash"
+      ],
+      "inputs": {
+        "seed": 94127022,
+        "datetime": "20420101092022",
+        "role": "Archeologist",
+        "keyCount": 13,
+        "boundaries": 14
+      },
+      "recipe": "challenges/cases/v9/oil-lamp-ignites.recipe.session.json",
+      "recipeSha256": "94b804f25d6427ac6cf9c8fabadc78d0545fbda695cfb5798ee73b956536652c",
+      "recording": "challenges/cases/v9/oil-lamp-ignites.session.json",
+      "recordingSha256": "171cba7e86429311e206998e9c0d045fde853f94093d7d5079d2403c5880e66e",
+      "reproducibility": "Independent C rerecord command: [\"node\",\"scripts/run-bounded.mjs\",\"focused\",\"--\",\"node\",\"scripts/record-session.mjs\",\"challenges/cases/v9/oil-lamp-ignites.recipe.session.json\",\".cache/C27-rerecords/oil-lamp-ignites.session.json\"]; exit 0; byte-identical SHA-256 171cba7e86429311e206998e9c0d045fde853f94093d7d5079d2403c5880e66e; 14 boundaries. Log: /tmp/teleport-loop-worker-c-20260925/.cache/C27-logs/oil-lamp-ignites.rerecord.log.",
+      "localDifferential": {
+        "status": "match",
+        "firstMismatch": null,
+        "log": "/tmp/teleport-loop-worker-c-20260925/.cache/C27-logs/oil-lamp-ignites.diff-fresh.log"
+      }
+    },
+    {
+      "id": "kick-closed-door",
+      "title": "Hero strikes a newt, then kicks a closed door",
+      "mission": "Source: nethack-c/upstream/src/dokick.c:dokick. Setup: Hero stands adjacent to a closed ordinary door with safe HP and no nearby shopkeeper consequence if possible. Action history: Kick the door once from the adjacent square. C observation: As you kick the door, it crashes open! First JavaScript divergence: uhitm.c:mhitm_knockback at step 3 (uhitm.c:mhitm_knockback hero-hit knockback).",
+      "selectionRationale": "The hero kicks a closed door from an adjacent tile; v8 uses #loot on a trapped chest and invokes chest_trap. Door terrain and kick command do not share container/trap state. This case is compared individually with all 21 preceding v8 cases and every unresolved older case in .cache/C27-final-overlap-crosswalk.json.",
+      "sourcePointers": [
+        "nethack-c/upstream/src/dokick.c:dokick"
+      ],
+      "cOutcome": "As you kick the door, it crashes open!",
+      "firstMismatch": {
+        "kind": "runtime-error",
+        "step": 3,
+        "source": "uhitm.c:mhitm_knockback",
+        "bucket": "uhitm.c:mhitm_knockback hero-hit knockback",
+        "counted": true,
+        "message": "ReferenceError: unsolid is not defined",
+        "log": ".cache/C27-logs/kick-closed-door.error-stack.txt"
+      },
+      "countedTowardTwelve": true,
+      "closestPriorCases": [
+        "v9/valkyrie-opens-spinach-tin-with-tin-opener",
+        "v8/gnome-king-hurls-potion"
+      ],
+      "inputs": {
+        "seed": 94127020,
+        "datetime": "20420101092020",
+        "role": "Wizard",
+        "keyCount": 8,
+        "boundaries": 9
+      },
+      "recipe": "challenges/cases/v9/kick-closed-door.recipe.session.json",
+      "recipeSha256": "2af77171b46307c4ebb77baa0a708519039e73dee2d2c4ee14ebbab06df3db69",
+      "recording": "challenges/cases/v9/kick-closed-door.session.json",
+      "recordingSha256": "cf1d058b874865447eb40db3e9d045ba6b5cf7518f90c1aeb31ee94e6f3ef742",
+      "reproducibility": "Independent C rerecord command: [\"node\",\"scripts/run-bounded.mjs\",\"focused\",\"--\",\"node\",\"scripts/record-session.mjs\",\"challenges/cases/v9/kick-closed-door.recipe.session.json\",\".cache/C27-rerecords/kick-closed-door.session.json\"]; exit 0; byte-identical SHA-256 cf1d058b874865447eb40db3e9d045ba6b5cf7518f90c1aeb31ee94e6f3ef742; 9 boundaries. Log: /tmp/teleport-loop-worker-c-20260925/.cache/C27-logs/kick-closed-door.rerecord.log.",
+      "localDifferential": {
+        "status": "error",
+        "firstMismatch": {
+          "kind": "runtime-error",
+          "step": 3,
+          "source": "uhitm.c:mhitm_knockback",
+          "bucket": "uhitm.c:mhitm_knockback hero-hit knockback",
+          "counted": true,
+          "message": "ReferenceError: unsolid is not defined",
+          "log": ".cache/C27-logs/kick-closed-door.error-stack.txt"
+        },
+        "log": "/tmp/teleport-loop-worker-c-20260925/.cache/C27-logs/kick-closed-door.diff-fresh.log"
+      }
+    },
+    {
+      "id": "eat-lichen-corpse-nutrition",
+      "title": "Hero finishes eating a lichen corpse",
+      "mission": "Source: nethack-c/upstream/src/eat.c:eatfood -> done_eating. Setup: Wizard debug hero carries a lichen corpse, excluding lizard and stone-cure species. Action history: Eat the corpse through completion and dismiss the consumption result. C observation: This lichen corpse tastes okay.  You finish eating the lichen corpse. The complete local C/JavaScript differential matches.",
+      "selectionRationale": "The hero spends turns eating a lichen corpse through done_eating/cpostfx and changes hunger/conduct; the prior reads a scroll and changes inventory curse state. This case is compared individually with all 21 preceding v8 cases and every unresolved older case in .cache/C27-final-overlap-crosswalk.json.",
+      "sourcePointers": [
+        "nethack-c/upstream/src/eat.c:eatfood"
+      ],
+      "cOutcome": "This lichen corpse tastes okay.  You finish eating the lichen corpse.",
+      "firstMismatch": null,
+      "countedTowardTwelve": false,
+      "closestPriorCases": [
+        "v8/read-remove-curse-loadstone"
+      ],
+      "inputs": {
+        "seed": 94127025,
+        "datetime": "20420101092025",
+        "role": "Archeologist",
+        "keyCount": 18,
+        "boundaries": 19
+      },
+      "recipe": "challenges/cases/v9/eat-lichen-corpse-nutrition.recipe.session.json",
+      "recipeSha256": "825895924b2c5e963bff6740c617093e307457c5454d067b8a651edbdfc52641",
+      "recording": "challenges/cases/v9/eat-lichen-corpse-nutrition.session.json",
+      "recordingSha256": "5d95479791a819dcde1badd229270660bddda8a69d71ebe0f33ab93d1bea8dac",
+      "reproducibility": "Independent C rerecord command: [\"node\",\"scripts/run-bounded.mjs\",\"focused\",\"--\",\"node\",\"scripts/record-session.mjs\",\"challenges/cases/v9/eat-lichen-corpse-nutrition.recipe.session.json\",\".cache/C27-rerecords/eat-lichen-corpse-nutrition.session.json\"]; exit 0; byte-identical SHA-256 5d95479791a819dcde1badd229270660bddda8a69d71ebe0f33ab93d1bea8dac; 19 boundaries. Log: /tmp/teleport-loop-worker-c-20260925/.cache/C27-logs/eat-lichen-corpse-nutrition.rerecord.log.",
+      "localDifferential": {
+        "status": "match",
+        "firstMismatch": null,
+        "log": "/tmp/teleport-loop-worker-c-20260925/.cache/C27-logs/eat-lichen-corpse-nutrition.diff-fresh.log"
+      }
+    },
+    {
+      "id": "archeologist-pickaxe-finds-hidden-door",
+      "title": "Archeologist pickaxe finds a hidden door",
+      "mission": "Source: nethack-c/upstream/src/dig.c:use_pick_axe -> use_pick_axe2. Setup: Archeologist carries the starting pick-axe and stands adjacent to the south wall containing a hidden door. Action history: Apply the pick-axe, allow its source-ordered auto-wield/queued-use turn, then choose south to dig. C observation: You start digging.  You find a hidden door.--More-- First JavaScript divergence: dig.c:use_pick_axe2 hidden-door discovery branch at step 7 (dig.c:use_pick_axe2 hidden-door discovery).",
+      "selectionRationale": "The hero applies a pick-axe against adjacent obstructing terrain and reaches dig; v8 creates a pit and later walks onto it to trigger dotrap. Digging terrain and triggering an existing pit are different source branches, states, and histories. This case is compared individually with all 21 preceding v8 cases and every unresolved older case in .cache/C27-final-overlap-crosswalk.json.",
+      "sourcePointers": [
+        "nethack-c/upstream/src/apply.c:doapply",
+        "nethack-c/upstream/src/dig.c:use_pick_axe"
+      ],
+      "cOutcome": "You start digging.  You find a hidden door.--More--",
+      "firstMismatch": {
+        "kind": "screen",
+        "step": 7,
+        "source": "dig.c:use_pick_axe2 hidden-door discovery branch",
+        "bucket": "dig.c:use_pick_axe2 hidden-door discovery",
+        "counted": true,
+        "log": "/tmp/teleport-loop-worker-c-20260925/.cache/C27-logs/archeologist-pickaxe-finds-hidden-door.diff-fresh.log"
+      },
+      "countedTowardTwelve": true,
+      "closestPriorCases": [
+        "v8/pit-trap-trigger"
+      ],
+      "inputs": {
+        "seed": 94127021,
+        "datetime": "20420101092021",
+        "role": "Archeologist",
+        "keyCount": 6,
+        "boundaries": 7
+      },
+      "recipe": "challenges/cases/v9/archeologist-pickaxe-finds-hidden-door.recipe.session.json",
+      "recipeSha256": "43e43429e6a583a171e8074c07046a144d48064b0301d4c07a3a6c70120124fc",
+      "recording": "challenges/cases/v9/archeologist-pickaxe-finds-hidden-door.session.json",
+      "recordingSha256": "7505e982c1063945de906b2b2d70b803848a41972c0694cc772b905062a8ced5",
+      "reproducibility": "Independent C rerecord command: [\"node\",\"scripts/run-bounded.mjs\",\"focused\",\"--\",\"node\",\"scripts/record-session.mjs\",\"challenges/cases/v9/archeologist-pickaxe-finds-hidden-door.recipe.session.json\",\".cache/C27-rerecords/archeologist-pickaxe-finds-hidden-door.session.json\"]; exit 0; byte-identical SHA-256 7505e982c1063945de906b2b2d70b803848a41972c0694cc772b905062a8ced5; 7 boundaries. Log: /tmp/teleport-loop-worker-c-20260925/.cache/C27-logs/archeologist-pickaxe-finds-hidden-door.rerecord.log.",
+      "localDifferential": {
+        "status": "mismatch",
+        "firstMismatch": {
+          "kind": "screen",
+          "step": 7,
+          "source": "dig.c:use_pick_axe2 hidden-door discovery branch",
+          "bucket": "dig.c:use_pick_axe2 hidden-door discovery",
+          "counted": true,
+          "log": "/tmp/teleport-loop-worker-c-20260925/.cache/C27-logs/archeologist-pickaxe-finds-hidden-door.diff-fresh.log"
+        },
+        "log": "/tmp/teleport-loop-worker-c-20260925/.cache/C27-logs/archeologist-pickaxe-finds-hidden-door.diff-fresh.log"
+      }
+    },
+    {
+      "id": "read-amnesia-forgets-known-spells",
+      "title": "Amnesia scroll forgets remembered spells",
+      "mission": "Source: nethack-c/upstream/src/read.c:seffect_amnesia -> forget. Setup: Debug Wizard has at least one remembered spell and reads an uncursed scroll of amnesia. Action history: Read the scroll and dismiss its message; preserve the C-selected `rn2(2)` phrase and resulting spell memory state. C observation: Thinking of Maud you forget everything else. First JavaScript divergence: read.c:seffect_amnesia -> forget at step 23 (read.c:forget rnd(3) phrase).",
+      "selectionRationale": "Same read command family, but the reached amnesia branch forgets spell memory with a two-way rn2 draw; confuse/scare apply monster status through distinct scroll effect branches. This case is compared individually with all 21 preceding v8 cases and every unresolved older case in .cache/C27-final-overlap-crosswalk.json.",
+      "sourcePointers": [
+        "nethack-c/upstream/src/read.c:seffect_amnesia"
+      ],
+      "cOutcome": "Thinking of Maud you forget everything else.",
+      "firstMismatch": {
+        "kind": "rng",
+        "step": 23,
+        "source": "read.c:seffect_amnesia -> forget",
+        "bucket": "read.c:forget rnd(3) phrase",
+        "counted": true,
+        "log": "/tmp/teleport-loop-worker-c-20260925/.cache/C27-logs/read-amnesia-forgets-known-spells.diff-fresh.log"
+      },
+      "countedTowardTwelve": true,
+      "closestPriorCases": [
+        "v8/read-confuse-monster-scroll",
+        "v8/read-scare-monster-scroll"
+      ],
+      "inputs": {
+        "seed": 94127050,
+        "datetime": "20420303083000",
+        "role": "Wizard",
+        "keyCount": 23,
+        "boundaries": 24
+      },
+      "recipe": "challenges/cases/v9/read-amnesia-forgets-known-spells.recipe.session.json",
+      "recipeSha256": "1158dda37a8223f534c7fc25886062202644163070813c17d573f0b2f538aebc",
+      "recording": "challenges/cases/v9/read-amnesia-forgets-known-spells.session.json",
+      "recordingSha256": "481f4e372c6513cf0f2e00e7b286c7a3c932884f9092ec9c0cee0293c76ac335",
+      "reproducibility": "Independent C rerecord command: [\"node\",\"scripts/run-bounded.mjs\",\"focused\",\"--\",\"node\",\"scripts/record-session.mjs\",\"challenges/cases/v9/read-amnesia-forgets-known-spells.recipe.session.json\",\".cache/C27-rerecords/read-amnesia-forgets-known-spells.session.json\"]; exit 0; byte-identical SHA-256 481f4e372c6513cf0f2e00e7b286c7a3c932884f9092ec9c0cee0293c76ac335; 24 boundaries. Log: /tmp/teleport-loop-worker-c-20260925/.cache/C27-logs/read-amnesia-forgets-known-spells.rerecord2.log.",
+      "localDifferential": {
+        "status": "mismatch",
+        "firstMismatch": {
+          "kind": "rng",
+          "step": 23,
+          "source": "read.c:seffect_amnesia -> forget",
+          "bucket": "read.c:forget rnd(3) phrase",
+          "counted": true,
+          "log": "/tmp/teleport-loop-worker-c-20260925/.cache/C27-logs/read-amnesia-forgets-known-spells.diff-fresh.log"
+        },
+        "log": "/tmp/teleport-loop-worker-c-20260925/.cache/C27-logs/read-amnesia-forgets-known-spells.diff-fresh.log"
+      }
+    },
+    {
+      "id": "gain-energy-potion-restores-energy",
+      "title": "Gain energy potion restores energy",
+      "mission": "Source: nethack-c/upstream/src/potion.c:peffect_gain_energy. Setup: Debug Wizard quaffs an uncursed potion of gain energy at the source starting energy level; this changes uenmax and clamps current uen to the new maximum. Action history: Wish one uncursed potion and quaff its C-confirmed inventory letter. C observation: Magical energies course through your body; d(2,6)=6. First JavaScript divergence: potion.c:peffect_gain_energy at step 36 (potion.c:peffect_gain_energy d(2,6)).",
+      "selectionRationale": "The prior scrolls change weapon enchantment or detect monsters; this is a quaffed potion that changes the separate energy maximum/current state through potion.c:peffect_gain_energy. This case is compared individually with all 21 preceding v8 cases and every unresolved older case in .cache/C27-final-overlap-crosswalk.json.",
+      "sourcePointers": [
+        "nethack-c/upstream/src/potion.c:peffect_gain_energy"
+      ],
+      "cOutcome": "Magical energies course through your body; d(2,6)=6.",
+      "firstMismatch": {
+        "kind": "rng",
+        "step": 36,
+        "source": "potion.c:peffect_gain_energy",
+        "bucket": "potion.c:peffect_gain_energy d(2,6)",
+        "counted": true,
+        "log": "/tmp/teleport-loop-worker-c-20260925/.cache/C27-logs/gain-energy-potion-restores-energy.diff-fresh.log"
+      },
+      "countedTowardTwelve": true,
+      "closestPriorCases": [
+        "v8/read-blessed-enchant-weapon",
+        "v7/monster-detection-potion-select2"
+      ],
+      "inputs": {
+        "seed": 94127051,
+        "datetime": "20420303083001",
+        "role": "Wizard",
+        "keyCount": 35,
+        "boundaries": 36
+      },
+      "recipe": "challenges/cases/v9/gain-energy-potion-restores-energy.recipe.session.json",
+      "recipeSha256": "a292fbd1f127da6f5e3e07bded60a833633bd9296eb7d4a349f5b7944776beaa",
+      "recording": "challenges/cases/v9/gain-energy-potion-restores-energy.session.json",
+      "recordingSha256": "b8b34f66e98b05d3691ad60ce73d294e9a678a96ad77bec6cb07df505c3fd8e8",
+      "reproducibility": "Independent C rerecord command: [\"node\",\"scripts/run-bounded.mjs\",\"focused\",\"--\",\"node\",\"scripts/record-session.mjs\",\"challenges/cases/v9/gain-energy-potion-restores-energy.recipe.session.json\",\".cache/C27-rerecords/gain-energy-potion-restores-energy.session.json\"]; exit 0; byte-identical SHA-256 b8b34f66e98b05d3691ad60ce73d294e9a678a96ad77bec6cb07df505c3fd8e8; 36 boundaries. Log: /tmp/teleport-loop-worker-c-20260925/.cache/C27-logs/gain-energy-potion-restores-energy.rerecord2.log.",
+      "localDifferential": {
+        "status": "mismatch",
+        "firstMismatch": {
+          "kind": "rng",
+          "step": 36,
+          "source": "potion.c:peffect_gain_energy",
+          "bucket": "potion.c:peffect_gain_energy d(2,6)",
+          "counted": true,
+          "log": "/tmp/teleport-loop-worker-c-20260925/.cache/C27-logs/gain-energy-potion-restores-energy.diff-fresh.log"
+        },
+        "log": "/tmp/teleport-loop-worker-c-20260925/.cache/C27-logs/gain-energy-potion-restores-energy.diff-fresh.log"
+      }
+    },
+    {
+      "id": "paralysis-potion-freezes-hero",
+      "title": "Paralysis potion freezes the hero",
+      "mission": "Source: nethack-c/upstream/src/potion.c:peffect_paralysis. Setup: Debug Rogue without free action quaffs an uncursed potion of paralysis on ordinary ground. Action history: Wish the potion, use its C-prompted inventory letter g, quaff, and retain the delayed frozen turns. C observation: Your feet are frozen to the stairs! The complete local C/JavaScript differential matches.",
+      "selectionRationale": "Both prior cases use inventory items, but this quaff branches through paralysis duration and multi-turn immobilization; towel and ring cases do not set nomul or consume a potion. This case is compared individually with all 21 preceding v8 cases and every unresolved older case in .cache/C27-final-overlap-crosswalk.json.",
+      "sourcePointers": [
+        "nethack-c/upstream/src/potion.c:peffect_paralysis"
+      ],
+      "cOutcome": "Your feet are frozen to the stairs!",
+      "firstMismatch": null,
+      "countedTowardTwelve": false,
+      "closestPriorCases": [
+        "v8/towel-clean-face",
+        "v8/wear-conflict-ring"
+      ],
+      "inputs": {
+        "seed": 94127052,
+        "datetime": "20420303083002",
+        "role": "Rogue",
+        "keyCount": 33,
+        "boundaries": 34
+      },
+      "recipe": "challenges/cases/v9/paralysis-potion-freezes-hero.recipe.session.json",
+      "recipeSha256": "2be154199ac55d9c3786029c820919371a0f5566e4d40a140b679dedbd9c11e2",
+      "recording": "challenges/cases/v9/paralysis-potion-freezes-hero.session.json",
+      "recordingSha256": "0e3dff08349dd46cc6f5e656cff5bf3c82c3da72cc4462de2426fab32eba241d",
+      "reproducibility": "Independent C rerecord command: [\"node\",\"scripts/run-bounded.mjs\",\"focused\",\"--\",\"node\",\"scripts/record-session.mjs\",\"challenges/cases/v9/paralysis-potion-freezes-hero.recipe.session.json\",\".cache/C27-rerecords/paralysis-potion-freezes-hero.session.json\"]; exit 0; byte-identical SHA-256 0e3dff08349dd46cc6f5e656cff5bf3c82c3da72cc4462de2426fab32eba241d; 34 boundaries. Log: /tmp/teleport-loop-worker-c-20260925/.cache/C27-logs/paralysis-potion-freezes-hero.rerecord2.log.",
+      "localDifferential": {
+        "status": "match",
+        "firstMismatch": null,
+        "log": "/tmp/teleport-loop-worker-c-20260925/.cache/C27-logs/paralysis-potion-freezes-hero.diff-fresh.log"
+      }
+    },
+    {
+      "id": "hallucination-potion-starts-hallucination",
+      "title": "Hallucination potion starts hallucination",
+      "mission": "Source: nethack-c/upstream/src/potion.c:peffect_hallucination -> make_hallucinated. Setup: Debug Wizard without hallucination resistance quaffs an uncursed hallucination potion while not already hallucinating. Action history: Wish the potion, use its C-prompted inventory letter p, quaff it and dismiss the initial hallucination pager. C observation: Oh wow! Everything looks so cosmic! First JavaScript divergence: potion.c:peffect_hallucination at step 38 (potion.c:peffect_hallucination rn2(200)).",
+      "selectionRationale": "The towel case acts on an existing face/vision state via apply; this case creates hallucination from a potion with a timeout RNG and possible enlightenment branch. This case is compared individually with all 21 preceding v8 cases and every unresolved older case in .cache/C27-final-overlap-crosswalk.json.",
+      "sourcePointers": [
+        "nethack-c/upstream/src/potion.c:peffect_hallucination"
+      ],
+      "cOutcome": "Oh wow! Everything looks so cosmic!",
+      "firstMismatch": {
+        "kind": "rng",
+        "step": 38,
+        "source": "potion.c:peffect_hallucination",
+        "bucket": "potion.c:peffect_hallucination rn2(200)",
+        "counted": true,
+        "log": "/tmp/teleport-loop-worker-c-20260925/.cache/C27-logs/hallucination-potion-starts-hallucination.diff-fresh.log"
+      },
+      "countedTowardTwelve": true,
+      "closestPriorCases": [
+        "v8/towel-clean-face",
+        "v8/read-fire-scroll-effect"
+      ],
+      "inputs": {
+        "seed": 94127053,
+        "datetime": "20420303083003",
+        "role": "Wizard",
+        "keyCount": 37,
+        "boundaries": 38
+      },
+      "recipe": "challenges/cases/v9/hallucination-potion-starts-hallucination.recipe.session.json",
+      "recipeSha256": "56f28ae232931e066dcfa62ec7a9878c3cabd37535cad41b7abb4f03fb9bec39",
+      "recording": "challenges/cases/v9/hallucination-potion-starts-hallucination.session.json",
+      "recordingSha256": "bf7537070332a4ee8a643904f156e48dd0d2848e613b7222eb72bcc43d788761",
+      "reproducibility": "Independent C rerecord command: [\"node\",\"scripts/run-bounded.mjs\",\"focused\",\"--\",\"node\",\"scripts/record-session.mjs\",\"challenges/cases/v9/hallucination-potion-starts-hallucination.recipe.session.json\",\".cache/C27-rerecords/hallucination-potion-starts-hallucination.session.json\"]; exit 0; byte-identical SHA-256 bf7537070332a4ee8a643904f156e48dd0d2848e613b7222eb72bcc43d788761; 38 boundaries. Log: /tmp/teleport-loop-worker-c-20260925/.cache/C27-logs/hallucination-potion-starts-hallucination.rerecord2.log.",
+      "localDifferential": {
+        "status": "mismatch",
+        "firstMismatch": {
+          "kind": "rng",
+          "step": 38,
+          "source": "potion.c:peffect_hallucination",
+          "bucket": "potion.c:peffect_hallucination rn2(200)",
+          "counted": true,
+          "log": "/tmp/teleport-loop-worker-c-20260925/.cache/C27-logs/hallucination-potion-starts-hallucination.diff-fresh.log"
+        },
+        "log": "/tmp/teleport-loop-worker-c-20260925/.cache/C27-logs/hallucination-potion-starts-hallucination.diff-fresh.log"
+      }
+    },
+    {
+      "id": "magic-mapping-scroll-reveals-map",
+      "title": "Magic mapping scroll reveals the map",
+      "mission": "Source: nethack-c/upstream/src/read.c:seffect_magic_mapping -> magic_map. Setup: Debug Wizard reads an uncursed scroll of magic mapping on an incompletely mapped level. Action history: Wish and read the scroll, then dismiss mapping output. C observation: “As you read the scroll, it disappears. A map coalesces in your mind!” The complete local C/JavaScript differential matches.",
+      "selectionRationale": "Although both prior cases read scrolls, fire invokes explosion/damage and create-monster alters nearby population; this branch reveals the map and changes remembered terrain. This case is compared individually with all 21 preceding v8 cases and every unresolved older case in .cache/C27-final-overlap-crosswalk.json.",
+      "sourcePointers": [
+        "nethack-c/upstream/src/read.c:seffect_magic_mapping"
+      ],
+      "cOutcome": "“As you read the scroll, it disappears. A map coalesces in your mind!”",
+      "firstMismatch": null,
+      "countedTowardTwelve": false,
+      "closestPriorCases": [
+        "v8/read-fire-scroll-effect",
+        "v8/read-create-monster-scroll-no-prior-monsters"
+      ],
+      "inputs": {
+        "seed": 94127054,
+        "datetime": "20420303083004",
+        "role": "Wizard",
+        "keyCount": 29,
+        "boundaries": 30
+      },
+      "recipe": "challenges/cases/v9/magic-mapping-scroll-reveals-map.recipe.session.json",
+      "recipeSha256": "2e86b0473540e76327be37ae09a300abad5662374d7885830a4c4670cf1d3dc0",
+      "recording": "challenges/cases/v9/magic-mapping-scroll-reveals-map.session.json",
+      "recordingSha256": "177d97f843eab910b5cad4d6cc035dbefaaabc40b61233d4f6ab99659f56eb61",
+      "reproducibility": "Independent C rerecord command: [\"node\",\"scripts/run-bounded.mjs\",\"focused\",\"--\",\"node\",\"scripts/record-session.mjs\",\"challenges/cases/v9/magic-mapping-scroll-reveals-map.recipe.session.json\",\".cache/C27-rerecords/magic-mapping-scroll-reveals-map.session.json\"]; exit 0; byte-identical SHA-256 177d97f843eab910b5cad4d6cc035dbefaaabc40b61233d4f6ab99659f56eb61; 30 boundaries. Log: /tmp/teleport-loop-worker-c-20260925/.cache/C27-logs/magic-mapping-scroll-reveals-map.rerecord.log.",
+      "localDifferential": {
+        "status": "match",
+        "firstMismatch": null,
+        "log": "/tmp/teleport-loop-worker-c-20260925/.cache/C27-logs/magic-mapping-scroll-reveals-map.diff-fresh.log"
+      }
+    },
+    {
+      "id": "blindness-potion-blinds-hero",
+      "title": "Blindness potion blinds the hero",
+      "mission": "Source: nethack-c/upstream/src/potion.c:peffect_blindness -> make_blinded. Setup: Debug Wizard without current blindness quaffs an uncursed potion of blindness. Action history: Wish the potion, use its C-prompted inventory letter o, quaff, and retain the resulting screen. C observation: A cloud of darkness falls upon you. The complete local C/JavaScript differential matches.",
+      "selectionRationale": "The towel applies a face-cleaning state transition; the fire scroll causes an explosion. This quaff reaches the distinct potion blindness timeout branch. This case is compared individually with all 21 preceding v8 cases and every unresolved older case in .cache/C27-final-overlap-crosswalk.json.",
+      "sourcePointers": [
+        "nethack-c/upstream/src/potion.c:peffect_blindness"
+      ],
+      "cOutcome": "A cloud of darkness falls upon you.",
+      "firstMismatch": null,
+      "countedTowardTwelve": false,
+      "closestPriorCases": [
+        "v8/towel-clean-face",
+        "v8/read-fire-scroll-effect"
+      ],
+      "inputs": {
+        "seed": 94127057,
+        "datetime": "20420303083007",
+        "role": "Wizard",
+        "keyCount": 33,
+        "boundaries": 34
+      },
+      "recipe": "challenges/cases/v9/blindness-potion-blinds-hero.recipe.session.json",
+      "recipeSha256": "35a9189ddc15692eceb5fc2c035c604a024c389ddd92fd0c0195bcbd6459674f",
+      "recording": "challenges/cases/v9/blindness-potion-blinds-hero.session.json",
+      "recordingSha256": "e23df0d0b8bc6131d90b9b413dfd21538b36b614e164b50ac57060389b0d85ae",
+      "reproducibility": "Independent C rerecord command: [\"node\",\"scripts/run-bounded.mjs\",\"focused\",\"--\",\"node\",\"scripts/record-session.mjs\",\"challenges/cases/v9/blindness-potion-blinds-hero.recipe.session.json\",\".cache/C27-rerecords/blindness-potion-blinds-hero.session.json\"]; exit 0; byte-identical SHA-256 e23df0d0b8bc6131d90b9b413dfd21538b36b614e164b50ac57060389b0d85ae; 34 boundaries. Log: /tmp/teleport-loop-worker-c-20260925/.cache/C27-logs/blindness-potion-blinds-hero.rerecord2.log.",
+      "localDifferential": {
+        "status": "match",
+        "firstMismatch": null,
+        "log": "/tmp/teleport-loop-worker-c-20260925/.cache/C27-logs/blindness-potion-blinds-hero.diff-fresh.log"
+      }
+    },
+    {
+      "id": "sleeping-potion-falls-asleep",
+      "title": "Sleeping potion puts the hero to sleep",
+      "mission": "Source: nethack-c/upstream/src/potion.c:peffect_sleeping -> fall_asleep. Setup: Debug Valkyrie without sleep resistance or free action quaffs an uncursed potion of sleeping on ordinary ground. Action history: Wish the potion, quaff its C-prompted inventory letter e, and record the source sleep duration. C observation: You suddenly fall asleep! First JavaScript divergence: potion.c:peffect_sleeping at step 33 (potion.c:peffect_sleeping rn2(10)).",
+      "selectionRationale": "The trap case triggers a terrain trap and the towel case applies to the hero face; this quaff produces the sleeping potion branch and a timed sleep occupation. This case is compared individually with all 21 preceding v8 cases and every unresolved older case in .cache/C27-final-overlap-crosswalk.json.",
+      "sourcePointers": [
+        "nethack-c/upstream/src/potion.c:peffect_sleeping"
+      ],
+      "cOutcome": "You suddenly fall asleep!",
+      "firstMismatch": {
+        "kind": "rng",
+        "step": 33,
+        "source": "potion.c:peffect_sleeping",
+        "bucket": "potion.c:peffect_sleeping rn2(10)",
+        "counted": true,
+        "log": "/tmp/teleport-loop-worker-c-20260925/.cache/C27-logs/sleeping-potion-falls-asleep.diff-fresh.log"
+      },
+      "countedTowardTwelve": true,
+      "closestPriorCases": [
+        "v8/towel-clean-face",
+        "v8/pit-trap-trigger"
+      ],
+      "inputs": {
+        "seed": 94127058,
+        "datetime": "20420303083008",
+        "role": "Valkyrie",
+        "keyCount": 32,
+        "boundaries": 33
+      },
+      "recipe": "challenges/cases/v9/sleeping-potion-falls-asleep.recipe.session.json",
+      "recipeSha256": "e8394282df272b9338f9efa0ad2f56240ed8a81757582cb08962c73994d436fb",
+      "recording": "challenges/cases/v9/sleeping-potion-falls-asleep.session.json",
+      "recordingSha256": "f82a3636cfc6f7b926fe8da5ba3259b04aa8793e1eb729df1c8e8a5c0e63154f",
+      "reproducibility": "Independent C rerecord command: [\"node\",\"scripts/run-bounded.mjs\",\"focused\",\"--\",\"node\",\"scripts/record-session.mjs\",\"challenges/cases/v9/sleeping-potion-falls-asleep.recipe.session.json\",\".cache/C27-rerecords/sleeping-potion-falls-asleep.session.json\"]; exit 0; byte-identical SHA-256 f82a3636cfc6f7b926fe8da5ba3259b04aa8793e1eb729df1c8e8a5c0e63154f; 33 boundaries. Log: /tmp/teleport-loop-worker-c-20260925/.cache/C27-logs/sleeping-potion-falls-asleep.rerecord2.log.",
+      "localDifferential": {
+        "status": "mismatch",
+        "firstMismatch": {
+          "kind": "rng",
+          "step": 33,
+          "source": "potion.c:peffect_sleeping",
+          "bucket": "potion.c:peffect_sleeping rn2(10)",
+          "counted": true,
+          "log": "/tmp/teleport-loop-worker-c-20260925/.cache/C27-logs/sleeping-potion-falls-asleep.diff-fresh.log"
+        },
+        "log": "/tmp/teleport-loop-worker-c-20260925/.cache/C27-logs/sleeping-potion-falls-asleep.diff-fresh.log"
+      }
+    },
+    {
+      "id": "sickness-potion-poisons-hero",
+      "title": "Sickness potion poisons the Ranger",
+      "mission": "Source: nethack-c/upstream/src/potion.c:peffect_sickness. Setup: Debug Ranger without poison resistance quaffs an uncursed potion of sickness. Action history: Wish potion, select C-prompted letter g, quaff, and retain poison attribute/HP effects. C observation: Yecch! This stuff tastes like poison. Your judgement is impaired. First JavaScript divergence: JS pre-game attrib.c message dependency at step 0 (pre-game attribute-upkeep message dependency).",
+      "selectionRationale": "The fire scroll explodes and the older detector potion maps monster state; sickness is a quaff that chooses a poison attribute and damages the hero. This case is compared individually with all 21 preceding v8 cases and every unresolved older case in .cache/C27-final-overlap-crosswalk.json.",
+      "sourcePointers": [
+        "nethack-c/upstream/src/potion.c:peffect_sickness"
+      ],
+      "cOutcome": "Yecch! This stuff tastes like poison. Your judgement is impaired.",
+      "firstMismatch": {
+        "kind": "runtime-error",
+        "step": 0,
+        "source": "JS pre-game attrib.c message dependency",
+        "bucket": "pre-game attribute-upkeep message dependency",
+        "counted": false,
+        "message": "attribute upkeep requires message"
+      },
+      "countedTowardTwelve": false,
+      "closestPriorCases": [
+        "v8/read-fire-scroll-effect",
+        "v7/monster-detection-potion-select2"
+      ],
+      "inputs": {
+        "seed": 94127059,
+        "datetime": "20420303083009",
+        "role": "Ranger",
+        "keyCount": 32,
+        "boundaries": 33
+      },
+      "recipe": "challenges/cases/v9/sickness-potion-poisons-hero.recipe.session.json",
+      "recipeSha256": "c023d008cb9a1f50702778c489d5292d4cc2e0d7c351d951860bdf4dc7605f16",
+      "recording": "challenges/cases/v9/sickness-potion-poisons-hero.session.json",
+      "recordingSha256": "6e6163336cdb9ef55801c27e97bfe68f038be6334737394d663d1e0dad81b7fc",
+      "reproducibility": "Independent C rerecord command: [\"node\",\"scripts/run-bounded.mjs\",\"focused\",\"--\",\"node\",\"scripts/record-session.mjs\",\"challenges/cases/v9/sickness-potion-poisons-hero.recipe.session.json\",\".cache/C27-rerecords/sickness-potion-poisons-hero.session.json\"]; exit 0; byte-identical SHA-256 6e6163336cdb9ef55801c27e97bfe68f038be6334737394d663d1e0dad81b7fc; 33 boundaries. Log: /tmp/teleport-loop-worker-c-20260925/.cache/C27-logs/sickness-potion-poisons-hero.rerecord2.log.",
+      "localDifferential": {
+        "status": "error",
+        "firstMismatch": {
+          "kind": "runtime-error",
+          "step": 0,
+          "source": "JS pre-game attrib.c message dependency",
+          "bucket": "pre-game attribute-upkeep message dependency",
+          "counted": false,
+          "message": "attribute upkeep requires message"
+        },
+        "log": "/tmp/teleport-loop-worker-c-20260925/.cache/C27-logs/sickness-potion-poisons-hero.diff-fresh.log"
+      }
+    },
+    {
+      "id": "restore-ability-potion-recovers-stats",
+      "title": "Restore ability potion restores an attribute",
+      "mission": "Source: nethack-c/upstream/src/potion.c:peffect_restore_ability. Setup: Debug Monk quaffs an uncursed potion of restore ability at source-default ability values. Action history: Wish the potion, use C-prompted letter j, quaff, and retain its randomized attribute scan. C observation: Wow! This makes you feel good! First JavaScript divergence: potion.c:peffect_restore_ability at step 40 (potion.c:peffect_restore_ability rn2(6)).",
+      "selectionRationale": "Enchant weapon changes an item and towel acts on the face; restore ability scans and changes the hero attribute state from potion.c. This case is compared individually with all 21 preceding v8 cases and every unresolved older case in .cache/C27-final-overlap-crosswalk.json.",
+      "sourcePointers": [
+        "nethack-c/upstream/src/potion.c:peffect_restore_ability"
+      ],
+      "cOutcome": "Wow! This makes you feel good!",
+      "firstMismatch": {
+        "kind": "rng",
+        "step": 40,
+        "source": "potion.c:peffect_restore_ability",
+        "bucket": "potion.c:peffect_restore_ability rn2(6)",
+        "counted": true,
+        "log": "/tmp/teleport-loop-worker-c-20260925/.cache/C27-logs/restore-ability-potion-recovers-stats.diff-fresh.log"
+      },
+      "countedTowardTwelve": true,
+      "closestPriorCases": [
+        "v8/read-blessed-enchant-weapon",
+        "v8/towel-clean-face"
+      ],
+      "inputs": {
+        "seed": 94127060,
+        "datetime": "20420303083010",
+        "role": "Monk",
+        "keyCount": 39,
+        "boundaries": 40
+      },
+      "recipe": "challenges/cases/v9/restore-ability-potion-recovers-stats.recipe.session.json",
+      "recipeSha256": "86e478e79e5c68dfcc77d45e96d7283761e1b099f676d0690fb30661f86bca59",
+      "recording": "challenges/cases/v9/restore-ability-potion-recovers-stats.session.json",
+      "recordingSha256": "15e358379aafa24a7c3f1a5e2bfa50ff7a45aec0331c8fb49580da59f6c869b4",
+      "reproducibility": "Independent C rerecord command: [\"node\",\"scripts/run-bounded.mjs\",\"focused\",\"--\",\"node\",\"scripts/record-session.mjs\",\"challenges/cases/v9/restore-ability-potion-recovers-stats.recipe.session.json\",\".cache/C27-rerecords/restore-ability-potion-recovers-stats.session.json\"]; exit 0; byte-identical SHA-256 15e358379aafa24a7c3f1a5e2bfa50ff7a45aec0331c8fb49580da59f6c869b4; 40 boundaries. Log: /tmp/teleport-loop-worker-c-20260925/.cache/C27-logs/restore-ability-potion-recovers-stats.rerecord2.log.",
+      "localDifferential": {
+        "status": "mismatch",
+        "firstMismatch": {
+          "kind": "rng",
+          "step": 40,
+          "source": "potion.c:peffect_restore_ability",
+          "bucket": "potion.c:peffect_restore_ability rn2(6)",
+          "counted": true,
+          "log": "/tmp/teleport-loop-worker-c-20260925/.cache/C27-logs/restore-ability-potion-recovers-stats.diff-fresh.log"
+        },
+        "log": "/tmp/teleport-loop-worker-c-20260925/.cache/C27-logs/restore-ability-potion-recovers-stats.diff-fresh.log"
+      }
+    },
+    {
+      "id": "zap-sleep-wand-at-hostile-newt",
+      "title": "Sleep wand hits a hostile newt",
+      "mission": "Source: nethack-c/upstream/src/zap.c:dozap -> weffects -> ubuzz -> dobuzz -> zhitm (ZT_SLEEP) -> sleep_monst. Setup: Debug Wizard wishes a wand of sleep, then creates a hostile adjacent newt with wizard genesis; C places the newt west of the hero. The wished wand is cursed in this recording. Action history: Wish the wand, create the hostile newt, then zap west once at the adjacent newt. C observation: The sleep ray hits the newt. The sleep ray bounces! C RNG includes dobuzz(zap.c:4823), zhitm(zap.c:4296), and resist(zap.c:6141). The complete local C/JavaScript differential matches.",
+      "selectionRationale": "Mirror reflection is an apply item targeting a monster without a projectile effect; the v8 gnome throws a potion. This is a wand ray that applies sleep to a selected monster. This case is compared individually with all 21 preceding v8 cases and every unresolved older case in .cache/C27-final-overlap-crosswalk.json.",
+      "sourcePointers": [
+        "nethack-c/upstream/src/zap.c:dozap"
+      ],
+      "cOutcome": "The sleep ray hits the newt. The sleep ray bounces! C RNG includes dobuzz(zap.c:4823), zhitm(zap.c:4296), and resist(zap.c:6141).",
+      "firstMismatch": null,
+      "countedTowardTwelve": false,
+      "closestPriorCases": [
+        "v8/mirror-monster-reflection",
+        "v8/gnome-king-hurls-potion"
+      ],
+      "inputs": {
+        "seed": 94127056,
+        "datetime": "20420101100512",
+        "role": "Wizard",
+        "keyCount": 33,
+        "boundaries": 34
+      },
+      "recipe": "challenges/cases/v9/zap-sleep-wand-at-hostile-newt.recipe.session.json",
+      "recipeSha256": "f5098133ea59529d734874ab9a12518aef0ae5bd12dcf206068a21b97246ef98",
+      "recording": "challenges/cases/v9/zap-sleep-wand-at-hostile-newt.session.json",
+      "recordingSha256": "6c4faa83a4d35856bdfa2a34d7397c1f87e9b0ecda3e56e0479f43cd5c95bdce",
+      "reproducibility": "Independent C rerecord command: [\"node\",\"scripts/run-bounded.mjs\",\"focused\",\"--\",\"node\",\"scripts/record-session.mjs\",\"challenges/cases/v9/zap-sleep-wand-at-hostile-newt.recipe.session.json\",\".cache/C27-rerecords/zap-sleep-wand-at-hostile-newt.session.json\"]; exit 0; byte-identical SHA-256 6c4faa83a4d35856bdfa2a34d7397c1f87e9b0ecda3e56e0479f43cd5c95bdce; 34 boundaries. Log: /tmp/teleport-loop-worker-c-20260925/.cache/C27-logs/zap-sleep-wand-at-hostile-newt.rerecord.log.",
+      "localDifferential": {
+        "status": "match",
+        "firstMismatch": null,
+        "log": "/tmp/teleport-loop-worker-c-20260925/.cache/C27-logs/zap-sleep-wand-at-hostile-newt.diff-fresh.log"
+      }
+    },
+    {
+      "id": "apply-blessed-horn-clears-timed-blindness",
+      "title": "Blessed unicorn horn cures timed blindness",
+      "mission": "Source: nethack-c/upstream/src/apply.c:doapply -> use_unicorn_horn (timed BLINDED trouble branch). Setup: Debug Healer starts without timed blindness, wishes an uncursed potion of blindness and a blessed unicorn horn. Action history: Quaff the blindness potion, dismiss its message, then apply the blessed horn. The matching potion effect only prepares timed BLINDED state; the final applied horn should enter use_unicorn_horn and clear that trouble. C observation: “You can see again.”; the final action uses the blessed horn after C-created timed blindness. The complete local C/JavaScript differential matches.",
+      "selectionRationale": "The v8 towel cleans the face and the v9 blindness potion creates timed blindness; this route applies a blessed unicorn horn afterward and reaches apply.c:use_unicorn_horn to cure it. The extra matching setup is not the target behavior. This case is compared individually with all 21 preceding v8 cases and every unresolved older case in .cache/C27-final-overlap-crosswalk.json.",
+      "sourcePointers": [
+        "nethack-c/upstream/src/apply.c:doapply"
+      ],
+      "cOutcome": "“You can see again.”; the final action uses the blessed horn after C-created timed blindness.",
+      "firstMismatch": null,
+      "countedTowardTwelve": false,
+      "closestPriorCases": [
+        "v8/towel-clean-face",
+        "v9/blindness-potion-blinds-hero"
+      ],
+      "inputs": {
+        "seed": 94127101,
+        "datetime": "20420303083101",
+        "role": "Healer",
+        "keyCount": 59,
+        "boundaries": 60
+      },
+      "recipe": "challenges/cases/v9/apply-blessed-horn-clears-timed-blindness.recipe.session.json",
+      "recipeSha256": "29677f528e6ed42f2fd1dd0227211b9a2fe2606beb012742057ded1e9360f0f5",
+      "recording": "challenges/cases/v9/apply-blessed-horn-clears-timed-blindness.session.json",
+      "recordingSha256": "5676ae9a0fc334b910095d65b6e60a0b26254819ab97309d387f2b252efab4ff",
+      "reproducibility": "Independent C rerecord command: [\"node\",\"scripts/run-bounded.mjs\",\"focused\",\"--\",\"node\",\"scripts/record-session.mjs\",\"challenges/cases/v9/apply-blessed-horn-clears-timed-blindness.recipe.session.json\",\".cache/C27-rerecords/apply-blessed-horn-clears-timed-blindness.session.json\"]; exit 0; byte-identical SHA-256 5676ae9a0fc334b910095d65b6e60a0b26254819ab97309d387f2b252efab4ff; 60 boundaries. Log: /tmp/teleport-loop-worker-c-20260925/.cache/C27-logs/apply-blessed-horn-clears-timed-blindness.rerecord.log.",
+      "localDifferential": {
+        "status": "match",
+        "firstMismatch": null,
+        "log": "/tmp/teleport-loop-worker-c-20260925/.cache/C27-logs/apply-blessed-horn-clears-timed-blindness.diff-fresh.log"
+      }
+    },
+    {
+      "id": "rogue-throws-dagger-into-wall",
+      "title": "Rogue throws a dagger into a wall",
+      "mission": "Source: nethack-c/upstream/src/dothrow.c:dothrow -> throw_obj -> bhit terrain obstruction/drop branch. Setup: Debug Rogue throws one starting dagger along a clear corridor toward an adjacent solid room wall, with no monster on the trajectory. Action history: Open the throw command, select the starting dagger, aim at the wall, and observe the source impact/drop response and resulting floor object. C observation: At step 12 C says “You throw 1 dagger.” and the dagger glyph is on the floor immediately inside the west wall; no monster lies on the ray. The complete local C/JavaScript differential matches.",
+      "selectionRationale": "The unresolved v8 case has a hostile monster throw a potion at the hero; this case is a player-issued Rogue weapon throw into terrain with no monster hit. The v9 wand case is a zap ray at a hostile newt, not an object throw. This case is compared individually with all 21 preceding v8 cases and every unresolved older case in .cache/C27-final-overlap-crosswalk.json.",
+      "sourcePointers": [
+        "nethack-c/upstream/src/dothrow.c:dothrow"
+      ],
+      "cOutcome": "At step 12 C says “You throw 1 dagger.” and the dagger glyph is on the floor immediately inside the west wall; no monster lies on the ray.",
+      "firstMismatch": null,
+      "countedTowardTwelve": false,
+      "closestPriorCases": [
+        "v8/gnome-king-hurls-potion",
+        "v9/zap-sleep-wand-at-hostile-newt"
+      ],
+      "inputs": {
+        "seed": 94127102,
+        "datetime": "20420303083102",
+        "role": "Rogue",
+        "keyCount": 12,
+        "boundaries": 13
+      },
+      "recipe": "challenges/cases/v9/rogue-throws-dagger-into-wall.recipe.session.json",
+      "recipeSha256": "cf92acb024fec5fb1ad55bd51df3b92fcda6fd12c94bab487bb2f2c55345a955",
+      "recording": "challenges/cases/v9/rogue-throws-dagger-into-wall.session.json",
+      "recordingSha256": "40034a839f50767619185e2599504db44ad49f4a86c073e5367c13fb14126dc1",
+      "reproducibility": "Independent C rerecord command: [\"node\",\"scripts/run-bounded.mjs\",\"focused\",\"--\",\"node\",\"scripts/record-session.mjs\",\"challenges/cases/v9/rogue-throws-dagger-into-wall.recipe.session.json\",\".cache/C27-rerecords/rogue-throws-dagger-into-wall.session.json\"]; exit 0; byte-identical SHA-256 40034a839f50767619185e2599504db44ad49f4a86c073e5367c13fb14126dc1; 13 boundaries. Log: /tmp/teleport-loop-worker-c-20260925/.cache/C27-logs/rogue-throws-dagger-into-wall.rerecord.log.",
+      "localDifferential": {
+        "status": "match",
+        "firstMismatch": null,
+        "log": "/tmp/teleport-loop-worker-c-20260925/.cache/C27-logs/rogue-throws-dagger-into-wall.diff-fresh.log"
+      }
+    },
+    {
+      "id": "valkyrie-opens-spinach-tin-with-tin-opener",
+      "title": "Valkyrie opens and eats a spinach tin",
+      "mission": "Source: nethack-c/upstream/src/eat.c:doeat -> start_tin -> opentin -> consume_tin (uncursed spinach branch). Setup: Debug Valkyrie wishes an uncursed tin opener and an uncursed tin of spinach; direct-select the wished opener in the wield prompt, and no monster interrupts the opening occupation. Action history: Use eat on the spinach tin, dismiss the opener message, then answer yes to the spinach confirmation. Preserve the C-selected start_tin delay and continue until the tin is consumed. C observation: The wielded opener starts with `rn2(2)=1 @ start_tin(eat.c:1750)`. C then reaches “You succeed in opening the tin. It contains spinach.”; after the yes response the final boundary prints “This makes you feel like Popeye!” and consume_tin performs `rnd(200)=82 @ consume_tin(eat.c:1688)`, consuming the spinach tin. First JavaScript divergence: eat.c:start_tin -> objnam.c:yobjnam at step 53 (eat.c:start_tin wielded-opener message).",
+      "selectionRationale": "The v8 towel case applies a towel to a clean face; the v9 lichen case eats a corpse through eatcorpse. This case wields a tin opener, opens an existing spinach tin through eat.c:start_tin and the delayed opentin occupation, then consumes spinach in consume_tin. The v6 wizard-tinning-kit-newt case uses apply.c:use_tinning_kit on a newt corpse to create a tin and records no completed meat-tin consumption; it does not repeat this opening/consumption path. This case is compared individually with all 21 preceding v8 cases and every unresolved older case in .cache/C27-final-overlap-crosswalk.json.",
+      "sourcePointers": [
+        "nethack-c/upstream/src/eat.c:start_tin",
+        "nethack-c/upstream/src/eat.c:doeat"
+      ],
+      "cOutcome": "The wielded opener starts with `rn2(2)=1 @ start_tin(eat.c:1750)`. C then reaches “You succeed in opening the tin. It contains spinach.”; after the yes response the final boundary prints “This makes you feel like Popeye!” and consume_tin performs `rnd(200)=82 @ consume_tin(eat.c:1688)`, consuming the spinach tin.",
+      "firstMismatch": {
+        "kind": "screen-and-cursor",
+        "step": 53,
+        "source": "eat.c:start_tin -> objnam.c:yobjnam",
+        "bucket": "eat.c:start_tin wielded-opener message",
+        "counted": true,
+        "log": "/tmp/teleport-loop-worker-c-20260925/.cache/C27-logs/valkyrie-opens-spinach-tin-with-tin-opener.diff-fresh.log"
+      },
+      "countedTowardTwelve": true,
+      "closestPriorCases": [
+        "v8/towel-clean-face",
+        "v9/eat-lichen-corpse-nutrition"
+      ],
+      "inputs": {
+        "seed": 94127103,
+        "datetime": "20420303083103",
+        "role": "Valkyrie",
+        "keyCount": 55,
+        "boundaries": 56
+      },
+      "recipe": "challenges/cases/v9/valkyrie-opens-spinach-tin-with-tin-opener.recipe.session.json",
+      "recipeSha256": "333e9ca7c87bfaefdc508e5795e1659a0ef7e8c7f5bd5f73a3b9221d62c2e60d",
+      "recording": "challenges/cases/v9/valkyrie-opens-spinach-tin-with-tin-opener.session.json",
+      "recordingSha256": "2ea0bb0a2276f5414486adf9d192304f18097e739d35f820f6e271332b9d6a34",
+      "reproducibility": "Independent C rerecord command: [\"node\",\"scripts/run-bounded.mjs\",\"focused\",\"--\",\"node\",\"scripts/record-session.mjs\",\"challenges/cases/v9/valkyrie-opens-spinach-tin-with-tin-opener.recipe.session.json\",\".cache/C27-rerecords/valkyrie-opens-spinach-tin-with-tin-opener.session.json\"]; exit 0; byte-identical SHA-256 2ea0bb0a2276f5414486adf9d192304f18097e739d35f820f6e271332b9d6a34; 56 boundaries. Log: /tmp/teleport-loop-worker-c-20260925/.cache/C27-logs/valkyrie-opens-spinach-tin-with-tin-opener.rerecord.log.",
+      "localDifferential": {
+        "status": "mismatch",
+        "firstMismatch": {
+          "kind": "screen-and-cursor",
+          "step": 53,
+          "source": "eat.c:start_tin -> objnam.c:yobjnam",
+          "bucket": "eat.c:start_tin wielded-opener message",
+          "counted": true,
+          "log": "/tmp/teleport-loop-worker-c-20260925/.cache/C27-logs/valkyrie-opens-spinach-tin-with-tin-opener.diff-fresh.log"
+        },
+        "log": "/tmp/teleport-loop-worker-c-20260925/.cache/C27-logs/valkyrie-opens-spinach-tin-with-tin-opener.diff-fresh.log"
+      }
+    },
+    {
+      "id": "fire-wand-self-zap-burns-hero",
+      "title": "Fire wand hits the hero and burns the cloak",
+      "mission": "Source: nethack-c/upstream/src/zap.c:dobuzz -> u_at -> zhitu(ZT_FIRE) -> nethack-c/upstream/src/trap.c:burnarmor. Setup: Debug Wizard wears the starting CLOAK_OF_MAGIC_RESISTANCE and wishes an uncursed wand of fire; no monster is created or allowed to act. The carried wand is used with self-target direction `.`. Action history: Dismiss the initial pager, wish the uncursed fire wand, then issue zap and select self as the direction. C observation: C says “You've set yourself afire!  Your cloak smoulders!” after the self-targeted fire ray reaches the hero; the strict replay matches 2,320 RNG calls and 19 screens/cursors. The complete local C/JavaScript differential matches.",
+      "selectionRationale": "The v8 fire-scroll cases enter read.c:seffect_fire and area/explosion effects, not a self-targeted wand beam. The v8 gnome king case uses monster-AI potion projectiles and mthrowu/potionhit, not a player wand ray. The v8 towel case applies a towel to a face, not fire to a worn hero cloak. The v9 sleep-wand case targets a monster through zhitm(ZT_SLEEP); this candidate targets the hero and enters dobuzz’s u_at arm then zhitu(ZT_FIRE), applying hero damage and burnarmor to worn equipment. Shared debug setup and wand command do not constitute the substantive behavior. This case is compared individually with all 21 preceding v8 cases and every unresolved older case in .cache/C27-final-overlap-crosswalk.json.",
+      "sourcePointers": [
+        "nethack-c/upstream/src/zap.c:dobuzz",
+        "nethack-c/upstream/src/trap.c:burnarmor"
+      ],
+      "cOutcome": "C says “You've set yourself afire!  Your cloak smoulders!” after the self-targeted fire ray reaches the hero; the strict replay matches 2,320 RNG calls and 19 screens/cursors.",
+      "firstMismatch": null,
+      "countedTowardTwelve": false,
+      "closestPriorCases": [
+        "v8/read-fire-scroll-effect",
+        "v8/read-fire-scroll-effect-setup-miss-attempt1",
+        "v8/gnome-king-hurls-potion",
+        "v8/towel-clean-face",
+        "v9/zap-sleep-wand-at-hostile-newt"
+      ],
+      "inputs": {
+        "seed": 94127167,
+        "datetime": "20420202070607",
+        "role": "Wizard",
+        "keyCount": 18,
+        "boundaries": 19
+      },
+      "recipe": "challenges/cases/v9/fire-wand-self-zap-burns-hero.recipe.session.json",
+      "recipeSha256": "9ac5e5885880327a3f8c02c185e6403d688cef8fd07c52cdb5e2341b757e5793",
+      "recording": "challenges/cases/v9/fire-wand-self-zap-burns-hero.session.json",
+      "recordingSha256": "21b51d2875813149cd92cf08c5ba4c726607a84b8eb404cea4154186b6025bdf",
+      "reproducibility": "Independent C rerecord command: [\"node\",\"scripts/run-bounded.mjs\",\"focused\",\"--\",\"node\",\"scripts/record-session.mjs\",\"challenges/cases/v9/fire-wand-self-zap-burns-hero.recipe.session.json\",\".cache/C27-rerecords/fire-wand-self-zap-burns-hero.session.json\"]; exit 0; byte-identical SHA-256 21b51d2875813149cd92cf08c5ba4c726607a84b8eb404cea4154186b6025bdf; 19 boundaries. Log: /tmp/teleport-loop-worker-c-20260925/.cache/C27-logs/fire-wand-self-zap-burns-hero.rerecord.log.",
+      "localDifferential": {
+        "status": "match",
+        "firstMismatch": null,
+        "log": "/tmp/teleport-loop-worker-c-20260925/.cache/C27-logs/fire-wand-self-zap-burns-hero.diff-fresh.log"
+      }
+    }
+  ]
+}
