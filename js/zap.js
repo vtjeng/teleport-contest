@@ -75,6 +75,7 @@ import {
     HWALL,
     ICE,
     INTRINSIC,
+    INVIS_BEAM,
     ICED_MOAT,
     ICED_POOL,
     IRONBARS,
@@ -311,6 +312,7 @@ import {
     dmgtype,
     dmgtype_fromattack,
     is_demon,
+    perceives,
     hides_under,
     is_whirly,
     mindless,
@@ -3369,12 +3371,13 @@ export async function bhit(
     const tetheredWeapon = weapon === THROWN_TETHERED_WEAPON && Boolean(obj);
     const zapped = weapon === ZAPPED_WAND;
     const flashed = weapon === FLASHED_LIGHT;
+    const invisBeam = weapon === INVIS_BEAM;
     const physical = weapon === THROWN_WEAPON || tetheredWeapon;
     // zap.c remembers whether this flight entered with an auto-returning
     // missile so a web or another early stop can cancel that return before
     // throwit() handles the landing tail.
     const wasReturning = state.iflags?.returning_missile === obj ? obj : null;
-    if (!physical && !zapped && !flashed) {
+    if (!physical && !zapped && !flashed && !invisBeam) {
         throw new UnsupportedBhitError(`call type ${weapon}`);
     }
     if (physical && (fhitm || fhito)) {
@@ -3402,7 +3405,7 @@ export async function bhit(
         // returns because C leaves tethered flights open at their boundary.
         await tmp_at(DISP_TETHER, obj_to_glyph(obj, state), state);
     }
-    else if (!zapped)
+    else if (!zapped && !invisBeam)
         await tmp_at(DISP_FLASH, obj_to_glyph(obj, state), state);
     let point_blank = true;
 
@@ -3568,6 +3571,14 @@ export async function bhit(
                     await tmp_at(DISP_END, 0, state);
                     return mtmp;
                 }
+            } else if (invisBeam) {
+                // C zap.c:4024-4032. This source-named invisible ray has no
+                // animation. It continues through invisible monsters unless
+                // they can perceive their own image, while preserving the
+                // hit position for apply.c:use_mirror's head check.
+                state.gn ??= {};
+                state.gn.notonhead = x !== mtmp.mx || y !== mtmp.my;
+                if (!mtmp.minvis || perceives(mtmp.data)) return mtmp;
             } else if (zapped) {
                 if (fhitm && await fhitm(mtmp, obj, state, random, rawEnv))
                     return mtmp;
@@ -3594,12 +3605,13 @@ export async function bhit(
             break;
         }
         /* 'I' present but no monster: erase; do this before tmp_at() */
-        if (!zapped && glyph_is_invisible(state.level.at(x, y).remembered_glyph?.glyph)
+        if (!zapped && !invisBeam
+            && glyph_is_invisible(state.level.at(x, y).remembered_glyph?.glyph)
             && cansee(x, y, state)) {
             unmap_object(x, y, state);
             newsym(x, y);
         }
-        if (!zapped) {
+        if (!zapped && !invisBeam) {
             await tmp_at(x, y, state);
             await nh_delay_output(state);
         }
@@ -3644,7 +3656,7 @@ export async function bhit(
         point_blank = false; /* affects passing through iron bars */
     }
 
-    if ((!zapped && !tetheredWeapon)
+    if ((!zapped && !invisBeam && !tetheredWeapon)
         || (wasReturning
             && wasReturning !== state.iflags?.returning_missile))
         await tmp_at(DISP_END, 0, state);
