@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "capturedAt": "2026-09-27T14:30:36.073Z",
+  "capturedAt": "2026-09-27T15:20:10.172Z",
   "activity": {
     "runId": "loop-20260925",
     "events": [
@@ -5269,12 +5269,69 @@
         "type": "accepted",
         "at": "2026-09-27T14:28:48.536Z",
         "task": "A27"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "A27-published-e4ec7a65",
+        "type": "published",
+        "at": "2026-09-27T14:31:37.491Z",
+        "task": "A27",
+        "commit": "e4ec7a65f01bfe03d069af6e7c8c223067ca6911"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "assign-A28-read-enchant-weapon-20260927",
+        "type": "assign",
+        "at": "2026-09-27T14:34:46.309Z",
+        "task": "A28",
+        "worker": "A",
+        "goal": "port-read-seffect-enchant-weapon-synthetic-v8-20260927",
+        "kind": "implementation"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-ec6a8bfe627d3fd14d3599f3b0b0baf754df7d0b",
+        "type": "ready",
+        "at": "2026-09-27T14:59:23.033Z",
+        "task": "B28",
+        "delivery": "ec6a8bfe627d3fd14d3599f3b0b0baf754df7d0b"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "B28-received-ec6a8bfe",
+        "type": "received",
+        "at": "2026-09-27T15:00:10.497Z",
+        "task": "B28",
+        "delivery": "ec6a8bfe627d3fd14d3599f3b0b0baf754df7d0b"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "B28-integrating-e32dd8b5",
+        "type": "integrating",
+        "at": "2026-09-27T15:05:03.057Z",
+        "task": "B28",
+        "integration": "e32dd8b5f6ed268811ce9a39ffd2571ce0e3462b"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "B28-validated-e32dd8b5",
+        "type": "validated",
+        "at": "2026-09-27T15:18:36.316Z",
+        "task": "B28",
+        "passed": true
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "B28-accepted-e32dd8b5",
+        "type": "accepted",
+        "at": "2026-09-27T15:19:02.256Z",
+        "task": "B28"
       }
     ]
   },
   "development": {
-    "executionCommit": "c54c2c13ca30ebad8411cbcd4b7dcd3e193fbddc",
-    "measuredAt": "2026-09-27T14:25:16.675Z",
+    "executionCommit": "e32dd8b5f6ed268811ce9a39ffd2571ce0e3462b",
+    "measuredAt": "2026-09-27T15:13:12.807Z",
     "sessions": [
       {
         "session": "holdout/seed0002-healer-reflection-drummer",
