@@ -98481,7 +98481,7 @@
     {
       "id": "port-trap-mintrap-hurtling-return-synthetic-v9-20260927",
       "kind": "file-port",
-      "status": "queued",
+      "status": "parked",
       "summary": "Port trap.c mintrap and its consumed trap-result dependencies for monster hurtling",
       "cFile": "trap.c",
       "sessions": [
@@ -98489,8 +98489,12 @@
       ],
       "selectionReason": "The refreshed v9 kick-closed-door investigation traces step 3 through uhitm.c:mhitm_knockback to dothrow.c:mhurtle and its mhurtle_step callback. That callback consumes trap.c:mintrap(mon,HURTLING) Trap_*_Mon status to decide whether the monster keeps moving. Current js/trap_effects.js:mintrap and its selector are partial, so the whole mintrap return contract is a prerequisite before mhurtle can be completed; this source dependency precedes the dothrow goal.",
       "detail": "Complete trap.c:mintrap across trapped and untrapped monster arms, its consumed m_easy_escape_pit and trapeffect_selector return paths, and missing reachable selector effects including poly, vibrating, arrow, and magic/fire chains. Reuse closed branches, preserve the parked historical magic-trap goal evidence, and provide independent trap recordings. Do not specialize to the v9 case or HURTLING alone.",
-      "openedAt": null,
-      "openStanding": null,
+      "openedAt": "35755719e0034381206d207019b8965c36ff2d48",
+      "openStanding": {
+        "sha": "2d9a4768ccd20aa7dae5330807381ebed65bc926",
+        "screens": 11405,
+        "rng": 792838
+      },
       "closedAt": null,
       "delivered": null,
       "functions": [
@@ -98519,7 +98523,273 @@
           "evaluationPath": "challenges/evaluations/20260927191056-v9.json",
           "evaluationCommit": "5b4486322ffa5eeb91cc37d01083ff20bbfe2ea7"
         }
-      }
+      },
+      "activeStanding": {
+        "sha": "2d9a4768ccd20aa7dae5330807381ebed65bc926",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v9",
+          "caseId": "kick-closed-door",
+          "session": "synthetic/v9/kick-closed-door",
+          "manifestPath": "challenges/manifests/v9.json",
+          "manifestSha256": "00c148aac522e6343c8de0bd003db29771439f972a99cb18c772ebf2bc45a594",
+          "recording": "challenges/cases/v9/kick-closed-door.session.json",
+          "recordingPath": "challenges/cases/v9/kick-closed-door.session.json",
+          "recordingSha256": "cf1d058b874865447eb40db3e9d045ba6b5cf7518f90c1aeb31ee94e6f3ef742",
+          "recipe": "challenges/cases/v9/kick-closed-door.recipe.session.json",
+          "recipeSha256": "2af77171b46307c4ebb77baa0a708519039e73dee2d2c4ee14ebbab06df3db69",
+          "replayInputSha256": "99ba199a692102f5f50408e24e3015ddd7d23a1bc7ad8a71492ec4e78280fa83",
+          "evaluationPath": "challenges/evaluations/20260927205713-v9.json",
+          "evaluationCommit": "2d9a4768ccd20aa7dae5330807381ebed65bc926",
+          "evaluationArtifact": "challenges/evaluations/20260927205713-v9.json",
+          "evaluationUtc": "2026-09-27T20:57:51.461Z",
+          "remainingScreens": 6,
+          "recordedSteps": 9,
+          "previousScreensMatched": 3,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 3,
+              "total": 9
+            },
+            "rng": {
+              "matched": 2744,
+              "total": 2840
+            },
+            "cursors": {
+              "matched": 3,
+              "total": 9
+            }
+          },
+          "firstMismatch": {
+            "screen": {
+              "index": 3,
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 3,
+                "key": "h"
+              },
+              "kind": "ch",
+              "row": 0,
+              "column": 70,
+              "cCell": {
+                "ch": " ",
+                "color": 8,
+                "attr": 0,
+                "decgfx": 0
+              },
+              "jsCell": {
+                "ch": "-",
+                "color": 8,
+                "attr": 0,
+                "decgfx": 0
+              }
+            },
+            "rng": {
+              "index": 2744,
+              "cEntry": "rn2(5)=3",
+              "cCaller": "distfleeck(monmove.c:538)",
+              "jsEntry": "rnd(20)=4",
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 3,
+                "key": "h"
+              },
+              "stepIndex": 3
+            },
+            "cursor": {
+              "index": 3,
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 3,
+                "key": "h"
+              },
+              "cCursor": [
+                20,
+                5,
+                1
+              ],
+              "jsCursor": [
+                78,
+                0,
+                1
+              ]
+            }
+          },
+          "step": 3,
+          "kind": "rng",
+          "sourceFile": "monmove.c",
+          "function": "distfleeck",
+          "message": null,
+          "cFile": "monmove.c",
+          "luaFile": null,
+          "line": 538,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v9/kick-closed-door.json",
+            "result": {
+              "session": "synthetic/v9/kick-closed-door",
+              "corpus": "synthetic",
+              "batch": "v9",
+              "caseId": "kick-closed-door",
+              "manifestPath": "challenges/manifests/v9.json",
+              "manifestSha256": "00c148aac522e6343c8de0bd003db29771439f972a99cb18c772ebf2bc45a594",
+              "recordingSha256": "cf1d058b874865447eb40db3e9d045ba6b5cf7518f90c1aeb31ee94e6f3ef742",
+              "evaluationPath": "challenges/evaluations/20260927191056-v9.json",
+              "evaluationCommit": "5b4486322ffa5eeb91cc37d01083ff20bbfe2ea7",
+              "remainingScreens": 6,
+              "recordedSteps": 9,
+              "status": "complete",
+              "commit": "5b4486322ffa5eeb91cc37d01083ff20bbfe2ea7",
+              "mismatch": {
+                "corpus": "synthetic",
+                "batch": "v9",
+                "caseId": "kick-closed-door",
+                "session": "synthetic/v9/kick-closed-door",
+                "manifestPath": "challenges/manifests/v9.json",
+                "manifestSha256": "00c148aac522e6343c8de0bd003db29771439f972a99cb18c772ebf2bc45a594",
+                "recording": "challenges/cases/v9/kick-closed-door.session.json",
+                "recordingPath": "challenges/cases/v9/kick-closed-door.session.json",
+                "recordingSha256": "cf1d058b874865447eb40db3e9d045ba6b5cf7518f90c1aeb31ee94e6f3ef742",
+                "recipe": "challenges/cases/v9/kick-closed-door.recipe.session.json",
+                "recipeSha256": "2af77171b46307c4ebb77baa0a708519039e73dee2d2c4ee14ebbab06df3db69",
+                "replayInputSha256": "e8a7428d883fb33542b59d993324d6e14197b8486a45162a9f5b2efd3e9ebd60",
+                "evaluationPath": "challenges/evaluations/20260927191056-v9.json",
+                "evaluationCommit": "5b4486322ffa5eeb91cc37d01083ff20bbfe2ea7",
+                "evaluationArtifact": "challenges/evaluations/20260927191056-v9.json",
+                "evaluationUtc": "2026-09-27T19:11:49.445Z",
+                "remainingScreens": 6,
+                "recordedSteps": 9,
+                "previousScreensMatched": 0,
+                "regression": false,
+                "passed": false,
+                "error": null,
+                "metrics": {
+                  "screens": {
+                    "matched": 3,
+                    "total": 9
+                  },
+                  "rng": {
+                    "matched": 2744,
+                    "total": 2840
+                  },
+                  "cursors": {
+                    "matched": 3,
+                    "total": 9
+                  }
+                },
+                "firstMismatch": {
+                  "screen": {
+                    "index": 3,
+                    "location": {
+                      "segmentIndex": 0,
+                      "stepIndex": 3,
+                      "key": "h"
+                    },
+                    "kind": "ch",
+                    "row": 0,
+                    "column": 70,
+                    "cCell": {
+                      "ch": " ",
+                      "color": 8,
+                      "attr": 0,
+                      "decgfx": 0
+                    },
+                    "jsCell": {
+                      "ch": "-",
+                      "color": 8,
+                      "attr": 0,
+                      "decgfx": 0
+                    }
+                  },
+                  "rng": {
+                    "index": 2744,
+                    "cEntry": "rn2(5)=3",
+                    "cCaller": "distfleeck(monmove.c:538)",
+                    "jsEntry": "rnd(20)=4",
+                    "location": {
+                      "segmentIndex": 0,
+                      "stepIndex": 3,
+                      "key": "h"
+                    },
+                    "stepIndex": 3
+                  },
+                  "cursor": {
+                    "index": 3,
+                    "location": {
+                      "segmentIndex": 0,
+                      "stepIndex": 3,
+                      "key": "h"
+                    },
+                    "cCursor": [
+                      20,
+                      5,
+                      1
+                    ],
+                    "jsCursor": [
+                      78,
+                      0,
+                      1
+                    ]
+                  }
+                },
+                "step": 3,
+                "kind": "rng",
+                "sourceFile": "monmove.c",
+                "function": "distfleeck",
+                "message": null,
+                "cFile": "monmove.c",
+                "luaFile": null,
+                "line": 538
+              },
+              "summary": "A31 restored the source solidity predicate and removed the replay error; the case now matches through step 2. At step 3, C uhitm.c:mhitm_knockback calls dothrow.c:mhurtle, which wakes, stuns, and moves the defender along a source-tested path. JavaScript records that call as unported, leaving the monster in place; the changed state causes the next screen/cursor difference and a downstream monmove.c:distfleeck RNG difference. Port the complete monster hurtle function and its mhurtle_step path behavior, then remeasure the remaining door history.",
+              "source": {
+                "file": "dothrow.c",
+                "branch": "dothrow.c:mhurtle first wakes and stuns the monster, applies immobility and direction guards, then uses walk_path with static mhurtle_step. The step callback tests will_hurtle and region movement, updates monster or steed position, applies trap outcomes, and handles collisions and petrification. After the path, mhurtle checks a trap or liquid at the final square. The selected v9 step reaches the knockback call from uhitm.c and requires these state changes before later monmove RNG.",
+                "functions": [
+                  "mhurtle_step",
+                  "mhurtle"
+                ],
+                "callers": [
+                  "uhitm.c:mhitm_knockback calls mhurtle after a successful knockback (line 5400); js/uhitm.js currently notes dothrow.c mhurtle at that source site.",
+                  "uhitm.c:mhurtle_to_doom calls mhurtle after a forceful hero hit (line 1949); js/uhitm.js has a separate dothrow.c mhurtle gap.",
+                  "zap.c:bhitm calls mhurtle for a monster struck by a wand effect (line 408).",
+                  "wizcmds.c debug command calls mhurtle on a targeted monster (line 515)."
+                ],
+                "dependencies": [
+                  "mhurtle_step consumes will_hurtle, m_in_out_region, and mintrap return values; preserve their C return contracts and branch order. mhurtle uses walk_path to sequence steps.",
+                  "Retain existing source position and call ordering at each active caller; do not substitute movement, output, or RNG for an unported callee."
+                ]
+              },
+              "goalKind": "file-port",
+              "evidence": [
+                "Saved v9 baseline challenges/evaluations/20260927170744-v9.json records ReferenceError \"unsolid is not defined\" with 0/9 screens for the immutable C recording.",
+                "Fresh scan at combined main 2e0a01a106aa02ff3ae520093dd4712eabe6fb6d traces the throw from js/uhitm.js:mhitm_knockback through hmon_hitmon and ordinary movement attack, before the case reaches a door kick.",
+                "Upstream nethack-c/upstream/src/uhitm.c:mhitm_knockback around line 5327 calls unsolid(magr->data) to reject nonphysical attackers; js/uhitm.js uses unsolid in that function but its mondata.js import list omits the symbol.",
+                "A31 integrated 5b4486322ffa5eeb91cc37d01083ff20bbfe2ea7 passes the full checkpoint (44/44 fixed, 565/565 recordings); challenges/evaluations/20260927191056-v9.json measures this case at 3/9 screens and 2744/2840 RNG with no replay error, up from 0/9 and 0/2840.",
+                "Independent A31 selected-case scan locates the first remaining divergence at segment 0 step 3 key h: C row 0 column 70 is blank and JS retains a hyphen, with C cursor [20,5,1] and JS [78,0,1]. Its first RNG difference is downstream at monmove.c:distfleeck because the monster state differs.",
+                "Upstream dothrow.c lines 992-1073 define mhurtle_step and lines 1130-1178 define mhurtle; uhitm.c line 5400 calls it after knockback. js/uhitm.js leaves note_unported at the same call."
+              ]
+            }
+          }
+        }
+      ],
+      "progressBeforePark": {
+        "screens": 0,
+        "rng": 0
+      },
+      "parkedStanding": {
+        "sha": "31a2ed22a45f64162949a29f462c23cd51827978",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "parkedReason": "A32 implements mintrap held/unheld flow and strict pit, arrow, web, and magic paths, but no matching C/JS entry evidence reaches polymorph/vibrating selectors, held-pit boulder/metallivore, airborne/learned-trap, or no-trap reset paths. The v9 kick case still first stops in dothrow.c:mhurtle before mintrap. Resume when source-directed recordings cover these active branches and parked trap.c magic/fire return dependencies are reconciled."
     },
     {
       "id": "port-potion-peffect-gain-ability-synthetic-v9-20260927",
@@ -99087,6 +99357,56 @@
         "sha": "2d9a4768ccd20aa7dae5330807381ebed65bc926",
         "screens": 11405,
         "rng": 792838
+      }
+    },
+    {
+      "id": "port-read-genocide-family-synthetic-v9-20260927",
+      "kind": "file-port",
+      "status": "queued",
+      "summary": "Port genocide class and species effects through scroll and throne callers",
+      "cFile": "read.c",
+      "sessions": [
+        "synthetic/v9/genocide-scroll-selects-species"
+      ],
+      "selectionReason": "v9/genocide-scroll-selects-species has 7 unmatched screens at segment 0 step 24; investigation traces the missing read.c:seffect_genocide wrapper to do_genocide and related do_class_genocide, with a separate sit.c throne caller. The two helpers are contiguous source functions; wire the wrapper and callers in this task. See investigations/synthetic/v9/genocide-scroll-selects-species.json.",
+      "detail": "",
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": null,
+      "delivered": null,
+      "functions": [
+        {
+          "name": "do_class_genocide",
+          "line": 2638,
+          "endLine": 2825,
+          "declared": false,
+          "complete": false
+        },
+        {
+          "name": "do_genocide",
+          "line": 2826,
+          "endLine": 3018,
+          "declared": false,
+          "complete": false
+        }
+      ],
+      "range": {
+        "from": 2638,
+        "to": 3018
+      },
+      "syntheticProvenance": {
+        "synthetic/v9/genocide-scroll-selects-species": {
+          "session": "synthetic/v9/genocide-scroll-selects-species",
+          "corpus": "synthetic",
+          "batch": "v9",
+          "caseId": "genocide-scroll-selects-species",
+          "manifestPath": "challenges/manifests/v9.json",
+          "manifestSha256": "00c148aac522e6343c8de0bd003db29771439f972a99cb18c772ebf2bc45a594",
+          "recordingPath": "challenges/cases/v9/genocide-scroll-selects-species.session.json",
+          "recordingSha256": "21687dcc3c3fadea446d1518d74ee03018f8370763bbd9ca9c801c40ff8fae07",
+          "evaluationPath": "challenges/evaluations/20260927205713-v9.json",
+          "evaluationCommit": "2d9a4768ccd20aa7dae5330807381ebed65bc926"
+        }
       }
     }
   ]
