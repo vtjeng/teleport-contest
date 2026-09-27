@@ -92362,16 +92362,20 @@
     {
       "id": "port-priest-talk-outside-temple-synthetic-v7-20260926",
       "kind": "file-port",
-      "status": "queued",
+      "status": "parked",
       "summary": "Port complete priest conversation through the chat command",
       "cFile": "priest.c",
       "sessions": [
         "synthetic/v7/priest-outside-temple-chat"
       ],
-      "selectionReason": "The current v7 priest-outside-temple-chat case reaches a source-defined priest reply at segment 0 step 34 after aligned-cleric creation now matches. C sounds.c:domonnoise calls priest.c:priest_talk, which draws rn2(3) and verbalizes a cranky outside-temple line; JS records that function as unported and emits nothing. Select the complete priest_talk function and production chat caller.",
+      "selectionReason": "The admitted v7 outside-temple priest chat is still unmatched at priest.c priest_talk. A separate source-traced makemon.c MS_BRIBE prince admission fix is required to record the return-valued demon_talk/bribe dependency through active production callers; B23 delivers that prerequisite before C24 conversation evidence can complete.",
       "detail": "Implement priest_talk in C order across outside-temple, helpless, shrine and donation branches; wire sounds.c:domonnoise MS_PRIEST without fabricated fallback, port consumed return-valued dependencies, and record independent priest conversations with varied temple and alignment state. Park entry points that cannot yet reach matching C evidence.",
-      "openedAt": null,
-      "openStanding": null,
+      "openedAt": "af2d02e92c05574653b7255adcf40d59dc955b7b",
+      "openStanding": {
+        "sha": "af2d02e92c05574653b7255adcf40d59dc955b7b",
+        "screens": 11405,
+        "rng": 792838
+      },
       "closedAt": null,
       "delivered": null,
       "functions": [
@@ -92400,7 +92404,233 @@
           "evaluationPath": "challenges/evaluations/20260927005209-v7.json",
           "evaluationCommit": "12a35e71cf1d937cd08b75b196f3c8b54224f6cd"
         }
-      }
+      },
+      "activeStanding": {
+        "sha": "af2d02e92c05574653b7255adcf40d59dc955b7b",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v7",
+          "caseId": "priest-outside-temple-chat",
+          "session": "synthetic/v7/priest-outside-temple-chat",
+          "manifestPath": "challenges/manifests/v7.json",
+          "manifestSha256": "03a861a9d1bc9d813c80681312ee7a0e0f893dbad0536de40a974bd5ec344094",
+          "recording": "challenges/cases/v7/priest-outside-temple-chat.session.json",
+          "recordingPath": "challenges/cases/v7/priest-outside-temple-chat.session.json",
+          "recordingSha256": "76f2f565d9ff27f51adb9638e2ee8b3eab7edbe6d8fe058d470d84e89bd861a0",
+          "recipe": "challenges/cases/v7/priest-outside-temple-chat.recipe.session.json",
+          "recipeSha256": "fef29a43a7857efd0935777eb584af573ec0096aed4e254d3f7deaff8010c4f8",
+          "replayInputSha256": "10fa725532b7eff36f61fdf5b09674aaa51ec14c5ea49256763af502626f4e54",
+          "evaluationPath": "challenges/evaluations/20260927053643-v7.json",
+          "evaluationCommit": "10d0c022d7772ea647ef0878bebd7abe0f75d08c",
+          "evaluationArtifact": "challenges/evaluations/20260927053643-v7.json",
+          "evaluationUtc": "2026-09-27T05:37:12.332Z",
+          "remainingScreens": 1,
+          "recordedSteps": 35,
+          "previousScreensMatched": 34,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 34,
+              "total": 35
+            },
+            "rng": {
+              "matched": 2579,
+              "total": 2586
+            },
+            "cursors": {
+              "matched": 35,
+              "total": 35
+            }
+          },
+          "firstMismatch": {
+            "screen": {
+              "index": 34,
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 34,
+                "key": "l"
+              },
+              "kind": "ch",
+              "row": 0,
+              "column": 0,
+              "cCell": {
+                "ch": "\"",
+                "color": 8,
+                "attr": 0,
+                "decgfx": 0
+              },
+              "jsCell": {
+                "ch": " ",
+                "color": 8,
+                "attr": 0,
+                "decgfx": 0
+              }
+            },
+            "rng": {
+              "index": 2572,
+              "cEntry": "rn2(3)=0",
+              "cCaller": "priest_talk(priest.c:599)",
+              "jsEntry": "rn2(12)=6",
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 34,
+                "key": "l"
+              },
+              "stepIndex": 34
+            },
+            "cursor": null
+          },
+          "step": 34,
+          "kind": "rng",
+          "sourceFile": "priest.c",
+          "function": "priest_talk",
+          "message": null,
+          "cFile": "priest.c",
+          "luaFile": null,
+          "line": 599,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v7/priest-outside-temple-chat.json",
+            "result": {
+              "session": "synthetic/v7/priest-outside-temple-chat",
+              "corpus": "synthetic",
+              "batch": "v7",
+              "caseId": "priest-outside-temple-chat",
+              "manifestPath": "challenges/manifests/v7.json",
+              "manifestSha256": "03a861a9d1bc9d813c80681312ee7a0e0f893dbad0536de40a974bd5ec344094",
+              "recordingPath": "challenges/cases/v7/priest-outside-temple-chat.session.json",
+              "recordingSha256": "76f2f565d9ff27f51adb9638e2ee8b3eab7edbe6d8fe058d470d84e89bd861a0",
+              "evaluationPath": "challenges/evaluations/20260927005209-v7.json",
+              "evaluationCommit": "12a35e71cf1d937cd08b75b196f3c8b54224f6cd",
+              "remainingScreens": 1,
+              "recordedSteps": 35,
+              "status": "complete",
+              "commit": "12a35e71cf1d937cd08b75b196f3c8b54224f6cd",
+              "mismatch": {
+                "corpus": "synthetic",
+                "batch": "v7",
+                "caseId": "priest-outside-temple-chat",
+                "session": "synthetic/v7/priest-outside-temple-chat",
+                "manifestPath": "challenges/manifests/v7.json",
+                "manifestSha256": "03a861a9d1bc9d813c80681312ee7a0e0f893dbad0536de40a974bd5ec344094",
+                "recording": "challenges/cases/v7/priest-outside-temple-chat.session.json",
+                "recordingPath": "challenges/cases/v7/priest-outside-temple-chat.session.json",
+                "recordingSha256": "76f2f565d9ff27f51adb9638e2ee8b3eab7edbe6d8fe058d470d84e89bd861a0",
+                "recipe": "challenges/cases/v7/priest-outside-temple-chat.recipe.session.json",
+                "recipeSha256": "fef29a43a7857efd0935777eb584af573ec0096aed4e254d3f7deaff8010c4f8",
+                "replayInputSha256": "11e632b69fa599ba6fda7506edb04a1b49adb0ec395e5ab0c6ee7afa1b14920a",
+                "evaluationPath": "challenges/evaluations/20260927005209-v7.json",
+                "evaluationCommit": "12a35e71cf1d937cd08b75b196f3c8b54224f6cd",
+                "evaluationArtifact": "challenges/evaluations/20260927005209-v7.json",
+                "evaluationUtc": "2026-09-27T00:52:38.364Z",
+                "remainingScreens": 1,
+                "recordedSteps": 35,
+                "previousScreensMatched": 34,
+                "regression": false,
+                "passed": false,
+                "error": null,
+                "metrics": {
+                  "screens": {
+                    "matched": 34,
+                    "total": 35
+                  },
+                  "rng": {
+                    "matched": 2579,
+                    "total": 2586
+                  },
+                  "cursors": {
+                    "matched": 35,
+                    "total": 35
+                  }
+                },
+                "firstMismatch": {
+                  "screen": {
+                    "index": 34,
+                    "location": {
+                      "segmentIndex": 0,
+                      "stepIndex": 34,
+                      "key": "l"
+                    },
+                    "kind": "ch",
+                    "row": 0,
+                    "column": 0,
+                    "cCell": {
+                      "ch": "\"",
+                      "color": 8,
+                      "attr": 0,
+                      "decgfx": 0
+                    },
+                    "jsCell": {
+                      "ch": " ",
+                      "color": 8,
+                      "attr": 0,
+                      "decgfx": 0
+                    }
+                  },
+                  "rng": {
+                    "index": 2572,
+                    "cEntry": "rn2(3)=0",
+                    "cCaller": "priest_talk(priest.c:599)",
+                    "jsEntry": "rn2(12)=6",
+                    "location": {
+                      "segmentIndex": 0,
+                      "stepIndex": 34,
+                      "key": "l"
+                    },
+                    "stepIndex": 34
+                  },
+                  "cursor": null
+                },
+                "step": 34,
+                "kind": "rng",
+                "sourceFile": "priest.c",
+                "function": "priest_talk",
+                "message": null,
+                "cFile": "priest.c",
+                "luaFile": null,
+                "line": 599
+              },
+              "summary": "Aligned-cleric creation now matches. At segment 0 step 34, the player chats with that priest outside a temple. C sounds.c:domonnoise calls priest.c:priest_talk, whose non-temple branch draws rn2(3) and speaks a cranky response; JS records priest_talk as unported and emits no reply. Port the whole priest conversation function and its active command caller.",
+              "source": {
+                "file": "priest.c",
+                "branch": "priest_talk runs after dochat/domonnoise for MS_PRIEST. A priest who is outside his temple, nonpeaceful or helpless enters the cranky branch: clear helpless state when needed, set mpeaceful=0, select cranky_msg[rn2(3)] and verbalize. The remaining donation and shrine branches are in the selected whole function.",
+                "functions": [
+                  "priest_talk"
+                ],
+                "callers": [
+                  "C cmd.c:dochat -> sounds.c:domonnoise calls priest_talk for MS_PRIEST; JS command dispatch reaches js/sounds.js:domonnoise, whose MS_PRIEST arm currently calls note_unported and breaks without a reply."
+                ],
+                "dependencies": [
+                  "js/priest.js already ports p_coaligned, inhistemple and has_shrine; verify their exact behavior against this caller.",
+                  "The donation path consumes bribe and money_cnt return values and changes alignment/intrinsics; port return-valued callees or keep whole-function completion blocked until source evidence exists."
+                ]
+              },
+              "goalKind": "file-port",
+              "evidence": [
+                "Saved challenges/evaluations/20260927005209-v7.json at 12a35e71cf1d937cd08b75b196f3c8b54224f6cd matches 34/35 screens and 35/35 cursors. At step 34 on key l, C first calls rn2(3)=0 in priest_talk, while JS follows a different later RNG call and has no priest reply.",
+                "C recording step 34 says “Thou wouldst have words, eh?  I'll give thee a word or two!”; local JS replay of the same inputs has a blank message line. The earlier forced aligned-cleric creation and its RNG now match, superseding the old makemon.c diagnosis.",
+                "C nethack-c/upstream/src/sounds.c:726 calls priest_talk; priest.c:558 onward contains the outside-temple cranky branch at lines 583-606 with rn2(3). js/sounds.js:MS_PRIEST currently records the call as unported and emits no source-equivalent message."
+              ]
+            }
+          }
+        }
+      ],
+      "progressBeforePark": {
+        "screens": 0,
+        "rng": 0
+      },
+      "parkedStanding": {
+        "sha": "362b416b04449cb22d3cbdd4dbb460ab04276e92",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "parkedReason": "B23 source-traced makemon.c admission prerequisite is integrated and strict-matching for Geryon and Asmodeus, but C24 priest_talk/minion.c bribe/demon_talk and monmove.c dochug delivery remains in its worker worktree. Independent C chat and monster-turn witnesses are cache-only pending replay against the accepted prerequisite; resume this goal when C24 evidence is ready."
     },
     {
       "id": "port-potion-gain-level-synthetic-v7-20260926",

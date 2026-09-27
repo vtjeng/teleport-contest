@@ -7,6 +7,7 @@
 // stateful checks: qualifiers, census bounds, and creation-side state.
 
 import assert from 'node:assert/strict';
+import { readFileSync } from 'node:fs';
 import test from 'node:test';
 
 import {
@@ -22,6 +23,7 @@ import {
     MONSTER_TEMPLATES,
     NON_PM,
     PM_ALIGNED_CLERIC,
+    PM_ASMODEUS,
     PM_ANGEL,
     PM_DOPPELGANGER,
     PM_GAS_SPORE,
@@ -47,6 +49,7 @@ import {
     create_particular_parse,
 } from '../js/read.js';
 import { monster_census } from '../js/minion.js';
+import { WAN_COLD, WAN_FIRE } from '../js/objects.js';
 import { roles } from '../js/roles.js';
 import { wiz_genesis } from '../js/wizcmds.js';
 import {
@@ -780,3 +783,28 @@ test('the mons[] rows the source rows name are the ones read.c names', () => {
     assert.equal(state.mons[PM_GNOME_LEADER].pmnames[FEMALE], 'gnome lady');
     assert.equal(NON_PM, -1);
 });
+
+
+test(
+    'forced Asmodeus creation applies the shared prince state and source inventory',
+    async () => {
+        const segment = JSON.parse(readFileSync(
+            'recipes/makemon.c/msbribe-asmodeus-independent-b23.session.json',
+            'utf8',
+        )).segments[0];
+        const { added } = await createdBy(segment, segment.moves);
+        const asmodeus = added.find(({ mnum }) => mnum === PM_ASMODEUS);
+
+        assert.ok(asmodeus, 'the production #wizgenesis path creates Asmodeus');
+        assert.equal(asmodeus.mpeaceful, true);
+        assert.equal(asmodeus.minvis, true);
+        assert.equal(asmodeus.perminvis, true);
+        assert.equal(asmodeus.mavenge, false);
+
+        const inventory = [];
+        for (let object = asmodeus.minvent; object; object = object.nobj)
+            inventory.push(object.otyp);
+        assert.ok(inventory.includes(WAN_COLD));
+        assert.ok(inventory.includes(WAN_FIRE));
+    },
+);
