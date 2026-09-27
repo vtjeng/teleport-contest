@@ -1,0 +1,11 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 94127058,
+      "datetime": "20420303083008",
+      "nethackrc": "OPTIONS=name:V9Sleep,role:Valkyrie,race:human,gender:female,align:lawful,playmode:debug,!legacy,!tutorial,!splash_screen,showexp,time,pettype:none\n",
+      "moves": " \u0017uncursed potion of sleeping\nqe"
+    }
+  ]
+}

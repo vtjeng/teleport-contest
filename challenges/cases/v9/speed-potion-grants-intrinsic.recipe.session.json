@@ -1,0 +1,11 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 94127012,
+      "datetime": "20420101090512",
+      "nethackrc": "OPTIONS=name:V9SpeedPot,role:Rogue,race:human,gender:female,align:chaotic,playmode:debug,!legacy,!tutorial,!splash_screen,showexp,time,pettype:none\n",
+      "moves": " \u0017potion of speed\nqg "
+    }
+  ]
+}

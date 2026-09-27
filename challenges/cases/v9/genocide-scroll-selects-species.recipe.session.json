@@ -1,0 +1,11 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 94127003,
+      "datetime": "20420101090503",
+      "nethackrc": "OPTIONS=name:V9Genocide,role:Wizard,race:human,gender:female,align:neutral,playmode:debug,!legacy,!tutorial,!splash_screen,showexp,time,pettype:none\n",
+      "moves": " \u0017scroll of genocide\nro  newt\n"
+    }
+  ]
+}

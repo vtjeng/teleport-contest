@@ -97344,6 +97344,49 @@
           "evaluationCommit": "5bf1150b63da82c6e02196da6a3d7047ef9b3938"
         }
       }
+    },
+    {
+      "id": "port-read-seffect-scare-monster-synthetic-v8-20260927",
+      "kind": "file-port",
+      "status": "queued",
+      "summary": "Port scare-monster scroll and cause-fear spell effect",
+      "cFile": "read.c",
+      "sessions": [
+        "synthetic/v8/read-scare-monster-scroll"
+      ],
+      "selectionReason": "Source-traced v8 scare-scroll mismatch at segment 0 step 47: read.c:seffect_scare_monster is absent in JS; zap.c:resist is its already-ported consumed callee. Saved evaluation challenges/evaluations/20260927163859-v8.json, v8 manifest 6a5159501af18a7f926f794d89e817375cd00a3589c4899fb97392ae04dbe8ba, recording challenges/cases/v8/read-scare-monster-scroll.session.json SHA-256 97225b67fb7098a550ce4b69696e06313a2c8635a3d550b4a1461cd49319f6ac.",
+      "detail": "Whole read.c:seffect_scare_monster at source lines 1454-1485, wired through read.c:seffects for SCR_SCARE_MONSTER and SPE_CAUSE_FEAR. C calls resist for each ordinary visible living monster, uses its return to conditionally monflee, then emits the appropriate heard message. Selected C draws rn2(108)=57 in resist at step 47 and prints maniacal laughter at step 48; JS currently note_unported skips the effect. Preserve source call order and both direct callers.",
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": null,
+      "delivered": null,
+      "functions": [
+        {
+          "name": "seffect_scare_monster",
+          "line": 1454,
+          "endLine": 1488,
+          "declared": false,
+          "complete": false
+        }
+      ],
+      "range": {
+        "from": 1454,
+        "to": 1488
+      },
+      "syntheticProvenance": {
+        "synthetic/v8/read-scare-monster-scroll": {
+          "session": "synthetic/v8/read-scare-monster-scroll",
+          "corpus": "synthetic",
+          "batch": "v8",
+          "caseId": "read-scare-monster-scroll",
+          "manifestPath": "challenges/manifests/v8.json",
+          "manifestSha256": "6a5159501af18a7f926f794d89e817375cd00a3589c4899fb97392ae04dbe8ba",
+          "recordingPath": "challenges/cases/v8/read-scare-monster-scroll.session.json",
+          "recordingSha256": "97225b67fb7098a550ce4b69696e06313a2c8635a3d550b4a1461cd49319f6ac",
+          "evaluationPath": "challenges/evaluations/20260927163859-v8.json",
+          "evaluationCommit": "63b63f85580e6a45a931debedbbd386779933d15"
+        }
+      }
     }
   ]
 }

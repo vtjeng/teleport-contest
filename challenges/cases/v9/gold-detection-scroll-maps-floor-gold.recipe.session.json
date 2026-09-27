@@ -1,0 +1,11 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 94127031,
+      "datetime": "20420404091000",
+      "nethackrc": "OPTIONS=name:V9GoldFloor,role=Wizard,race=human,gender=male,align=neutral,playmode=debug,!legacy,!tutorial,!splash_screen,showexp,time,pettype:none\n",
+      "moves": " \u0017scroll of gold detection\nrp "
+    }
+  ]
+}
