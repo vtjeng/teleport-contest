@@ -13,12 +13,21 @@ import {
 } from '../js/objects.js';
 import { spelleffects } from '../js/spell.js';
 
-async function replayGenocideRecipe(name) {
+async function replayGenocideRecipe(name, gender) {
     const recipe = JSON.parse(readFileSync(new URL(
         `../recipes/${name}.session.json`, import.meta.url,
     ), 'utf8'));
     assert.equal(recipe.segments.length, 1);
-    const session = await runSegment(recipe.segments[0]);
+    let segment = recipe.segments[0];
+    if (gender) {
+        const nethackrc = segment.nethackrc.replace(
+            /gender:(?:male|female)/u,
+            `gender:${gender}`,
+        );
+        assert.match(nethackrc, new RegExp(`gender:${gender}`, 'u'));
+        segment = { ...segment, nethackrc };
+    }
+    const session = await runSegment(segment);
     return { session, state: game };
 }
 
@@ -207,4 +216,37 @@ test('read.c genocide wrappers keep ordinary, class, throne, and cursed return p
         confused.state.svm.mvitals[PM_WIZARD].mvflags & (G_GENOD | G_NOCORPSE),
         G_GENOD | G_NOCORPSE,
     );
+});
+
+test('read.c first-genocide Chronicle uses uhis() for class and species paths', async () => {
+    const cases = [
+        {
+            recipe: 'read.c/genocide-class-blessed-independent-b34',
+            chronicle: (possessive) => new RegExp(
+                `^performed ${possessive} first genocide \\(class .\\)$`, 'u',
+            ),
+        },
+        {
+            recipe: 'read.c/genocide-scroll-species-independent-b34',
+            chronicle: (possessive) =>
+                `performed ${possessive} first genocide (newts)`,
+        },
+    ];
+
+    // read.c passes uhis() to livelog_printf() in both branches; you.h:316
+    // maps flags.female to the hero's gendered possessive.
+    for (const { recipe, chronicle } of cases) {
+        for (const [gender, possessive] of [
+            ['male', 'his'],
+            ['female', 'her'],
+        ]) {
+            const { state } = await replayGenocideRecipe(recipe, gender);
+            assert.equal(Boolean(state.flags.female), gender === 'female');
+            assert.ok(state.gamelog.some(({ text }) =>
+                typeof chronicle(possessive) === 'string'
+                    ? text === chronicle(possessive)
+                    : chronicle(possessive).test(text)),
+            `${recipe} should log ${possessive} in the Chronicle`);
+        }
+    }
 });
