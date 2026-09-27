@@ -96012,6 +96012,49 @@
         "screens": 11405,
         "rng": 792838
       }
+    },
+    {
+      "id": "port-quest-artitouch-synthetic-v8-20260927",
+      "kind": "file-port",
+      "status": "queued",
+      "summary": "Port quest artifact first-touch pager and inventory acquisition wiring",
+      "cFile": "quest.c",
+      "sessions": [
+        "synthetic/v8/artifact-heart-invoke-cycle"
+      ],
+      "selectionReason": "Current v8 artifact-heart-invoke-cycle first diverges at segment 0 step 24: C quest.c:artitouch called from invent.c:addinv_core1 opens gotit quest text and initializes nhlib.lua, while JS note_unported skips that call. The queue RNG annotation names Lua shuffle as the observed downstream draw, but the source owner is quest.c:artitouch. Port the whole first-touch function, generated gotit text, pager skip guard, and async inventory caller order; verify independent quest artifact acquisition distinct from v8.",
+      "detail": "",
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": null,
+      "delivered": null,
+      "functions": [
+        {
+          "name": "artitouch",
+          "line": 125,
+          "endLine": 139,
+          "declared": false,
+          "complete": false
+        }
+      ],
+      "range": {
+        "from": 125,
+        "to": 139
+      },
+      "syntheticProvenance": {
+        "synthetic/v8/artifact-heart-invoke-cycle": {
+          "session": "synthetic/v8/artifact-heart-invoke-cycle",
+          "corpus": "synthetic",
+          "batch": "v8",
+          "caseId": "artifact-heart-invoke-cycle",
+          "manifestPath": "challenges/manifests/v8.json",
+          "manifestSha256": "6a5159501af18a7f926f794d89e817375cd00a3589c4899fb97392ae04dbe8ba",
+          "recordingPath": "challenges/cases/v8/artifact-heart-invoke-cycle.session.json",
+          "recordingSha256": "816c8353f3fea197a0e99d8bd83f53f622a02d45fe61a59784dcfd479862cfd8",
+          "evaluationPath": "challenges/evaluations/20260927130815-v8.json",
+          "evaluationCommit": "10c8f210d77aee548ae25b77cee6b3f9b736d413"
+        }
+      }
     }
   ]
 }
