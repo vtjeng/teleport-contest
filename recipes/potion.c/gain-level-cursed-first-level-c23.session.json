@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent potion.c:peffect_gain_level C recipe. A debug Healer wishes a cursed gain-level potion and quaffs it on D:1 without the Amulet, reaching the source's no-rise uneasy-feeling branch.",
+  "segments": [
+    {
+      "seed": 260927231,
+      "datetime": "20260927033000",
+      "nethackrc": "OPTIONS=name:GainCursed,role:Healer,race:human,gender:female,align:neutral,playmode:debug,!legacy,!tutorial,!splash_screen,pettype:none\n",
+      "moves": " \u0017cursed potion of gain level\nqp       "
+    }
+  ]
+}

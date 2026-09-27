@@ -3,6 +3,7 @@
 //        dopotion() (618-641), peffects() (1333-1425),
 //        make_confused() (89-104), self_invis_message() (471-478),
 //        peffect_booze() (771-792), peffect_confusion() (1014-1027),
+//        peffect_gain_level() (1083-1118),
 //        peffect_paralysis() (881-898),
 //        peffect_speed() (1052-1070), peffect_oil() (1259-1294),
 //        speed_up() (2918-2928),
@@ -18,7 +19,7 @@
 //
 // peffects() dispatches 26 potion types; POT_ACID, POT_BOOZE, POT_CONFUSION,
 // POT_SICKNESS, POT_SPEED (with spell alias SPE_HASTE_SELF), POT_BLINDNESS,
-// POT_HEALING, POT_EXTRA_HEALING, POT_OIL, the POT_FRUIT_JUICE arm of
+// POT_GAIN_LEVEL, POT_HEALING, POT_EXTRA_HEALING, POT_OIL, the POT_FRUIT_JUICE arm of
 // peffect_see_invisible(), the ordinary POT_PARALYSIS arm, and POT_POLYMORPH
 // are ported. Unported arms throw UnsupportedQuaffError.
 //
@@ -106,7 +107,7 @@ import {
 import { tamedog } from './dog.js';
 import { can_reach_floor } from './engrave.js';
 import { drinkfountain, drinksink } from './fountain.js';
-import { more_experienced } from './exper.js';
+import { more_experienced, pluslvl, rndexp } from './exper.js';
 import { fruitname, makeplural } from './fruit.js';
 import { game } from './gstate.js';
 import {
@@ -142,7 +143,10 @@ import { canSpotMonster } from './startup_a11y.js';
 import { cloneu } from './mhitu.js';
 import { burn_away_slime } from './timeout.js';
 import { Levitation, float_up, unconscious } from './trap.js';
-import { ceiling, has_ceiling, surface } from './dungeon.js';
+import {
+    Can_rise_up, ceiling, depth, get_level, has_ceiling, ledger_no, on_level,
+    surface,
+} from './dungeon.js';
 import { stairway_at } from './stairs.js';
 import { cansee, vision_recalc } from './vision.js';
 import { Cold_resistance, Fire_resistance, makewish } from './zap.js';
@@ -1217,6 +1221,46 @@ async function peffect_acid(otmp, state = game) {
     state.gp.potion_unkn++;
 }
 
+// C ref: potion.c peffect_gain_level() (1083-1118). A cursed potion can
+// ascend through the ceiling when the dungeon topology permits it; an
+// uncursed potion delegates the ordinary advancement to exper.c pluslvl().
+async function peffect_gain_level(otmp, state = game) {
+    const { u } = state;
+    if (otmp.cursed) {
+        const onLevel1 = ledger_no(u.uz, state) === 1;
+        state.gp.potion_unkn++;
+        if (onLevel1 ? u.uhave.amulet
+            : Can_rise_up(u.ux, u.uy, u.uz, state)) {
+            let newlevel;
+            if (onLevel1) {
+                // C copies earth_level into a local d_level before goto_level;
+                // keep the same separation because goto_level may clamp it.
+                newlevel = { ...state.earth_level };
+            } else {
+                newlevel = { dnum: u.uz.dnum, dlevel: u.uz.dlevel };
+                get_level(newlevel, depth(u.uz, state) - 1, state);
+                if (on_level(newlevel, u.uz)) {
+                    await ttyPline('It tasted bad.', state);
+                    return;
+                }
+            }
+            await ttyPline(
+                `You rise up, through the ${ceiling(u.ux, u.uy, state)}!`,
+                state,
+            );
+            await goto_level(newlevel, false, false, false, state);
+        } else {
+            await ttyPline('You have an uneasy feeling.', state);
+        }
+        return;
+    }
+
+    await pluslvl(false, state, { message: ttyPline });
+    // Blessed potions randomize the new-level placement using the same
+    // source-ordered experience draw after pluslvl's HP and energy draws.
+    if (otmp.blessed) u.uexp = rndexp(true, state);
+}
+
 // C ref: potion.c peffects() (1333-1425). Dispatch the effect of a quaffed
 // potion or spell. Returns >=0 if the effect short-circuits dopotion()'s tail
 // (0 = no time, 1 = time), -1 to continue to the tail.
@@ -1269,7 +1313,8 @@ export async function peffects(otmp, state = game) {
         await peffect_blindness(otmp, state);
         break;
     case POT_GAIN_LEVEL:
-        throw new UnsupportedQuaffError('peffect_gain_level()');
+        await peffect_gain_level(otmp, state);
+        break;
     case POT_HEALING:
         await peffect_healing(otmp, state);
         break;

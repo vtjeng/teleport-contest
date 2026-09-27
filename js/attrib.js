@@ -711,11 +711,8 @@ export function minuhpmax(altmin, state = game) {
     return Math.max(state.u.ulevel, altmin);
 }
 
-// C ref: attrib.c setuhpmax(). It owns u.uhpmax, u.uhppeak and the u.uhp
-// ceiling together, so nothing else writes u.uhpmax once a level is gained.
-// The Upolyd arm, which redirects the same work at u.mhmax, has no owner:
-// js/u_init.js is this port's only writer of u.umonnum and sets it equal to
-// u.umonster, so Upolyd() is false for every hero the port can build.
+// C ref: attrib.c setuhpmax(). It updates the active human or polymorph HP
+// maximum and clamps that form's current HP in the same source operation.
 export function setuhpmax(newmax, even_when_polyd, state = game) {
     const u = state.u;
     if (!Upolyd(u) || even_when_polyd) {
@@ -729,9 +726,14 @@ export function setuhpmax(newmax, even_when_polyd, state = game) {
             state.disp.botl = true;
         }
     } else {
-        throw new UnsupportedAbilityChangeError(
-            'setuhpmax() updating u.mhmax while polymorphed',
-        );
+        if (newmax !== u.mhmax) {
+            u.mhmax = newmax;
+            state.disp.botl = true;
+        }
+        if (u.mh > u.mhmax) {
+            u.mh = u.mhmax;
+            state.disp.botl = true;
+        }
     }
 }
 

@@ -2906,8 +2906,9 @@ export function failClosedCommandRefusals() {
         UnsupportedArtifactDisplayError,
         UnsupportedDropError,
         UnsupportedLevelChangeError,
-        // Remaining experience/attribute refusals include polymorphed
-        // pluslvl() and setuhpmax(); ordinary level loss is implemented.
+        // Keep the experience/attribute refusal classes recognizable at this
+        // boundary. pluslvl() and setuhpmax() now handle their polymorphed
+        // branches, and ordinary level loss is implemented.
         UnsupportedExperienceChangeError,
         UnsupportedAbilityChangeError,
         // do.c goto_level()'s tail reaches all four from inside the `>`

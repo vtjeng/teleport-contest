@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent potion.c:peffect_gain_level C recipe for its D:1 Amulet arm. A debug Wizard wishes an Amulet of Yendor and a cursed gain-level potion, then quaffs the potion so the local destination copies earth_level before goto_level().",
+  "segments": [
+    {
+      "seed": 260927235,
+      "datetime": "20260927043000",
+      "nethackrc": "OPTIONS=name:GainEarth,role:Wizard,race:human,gender:male,align:neutral,playmode:debug,!legacy,!tutorial,!splash_screen,pettype:none\n",
+      "moves": " \u0017Amulet of Yendor\n \u0017cursed potion of gain level\nqb        "
+    }
+  ]
+}
