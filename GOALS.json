@@ -90995,6 +90995,37 @@
           "evaluationCommit": "12a35e71cf1d937cd08b75b196f3c8b54224f6cd"
         }
       }
+    },
+    {
+      "id": "div-vision-pit-sight-synthetic-v6-20260926",
+      "kind": "divergence-fix",
+      "status": "queued",
+      "summary": "Restore source pit-limited sight after downward digging",
+      "cFile": "vision.c",
+      "sessions": [],
+      "selectionReason": "The current v6 archeologist-down-dig-floor case matches its dig message and all RNG calls but still draws a pet beyond the 3×3 pit sight limit at step 6. C vision.c:vision_recalc selects the u.utrap && TT_PIT branch after digactualhole requests full recalculation; JS uses ordinary view_from. The prior dig.c diagnosis is stale, so select this source-traced vision branch.",
+      "detail": "Port the pit branch of vision.c:vision_recalc in buffer and redraw order, using canonical u.utrap and u.utraptype state. Keep ordinary, blind and swallowed sight unchanged. Independently record a pit with a creature or feature beyond adjacent range using different seed/date/character conditions; verify the admitted v6 step 6 and preserve all existing matches.",
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": null,
+      "delivered": null,
+      "function": "vision_recalc",
+      "session": "synthetic/v6/archeologist-down-dig-floor",
+      "step": 6,
+      "syntheticProvenance": {
+        "synthetic/v6/archeologist-down-dig-floor": {
+          "session": "synthetic/v6/archeologist-down-dig-floor",
+          "corpus": "synthetic",
+          "batch": "v6",
+          "caseId": "archeologist-down-dig-floor",
+          "manifestPath": "challenges/manifests/v6.json",
+          "manifestSha256": "7523b91e823f4e3906c9acdc9a3d80f8469c27c2caab8fc8fbd6967dbfdcab5f",
+          "recordingPath": "challenges/cases/v6/archeologist-down-dig-floor.session.json",
+          "recordingSha256": "8ae44f290808dea580c783add4b5cc12e99a94f4c998441b329325406fa9e9a9",
+          "evaluationPath": "challenges/evaluations/20260927005209-v6.json",
+          "evaluationCommit": "12a35e71cf1d937cd08b75b196f3c8b54224f6cd"
+        }
+      }
     }
   ]
 }
