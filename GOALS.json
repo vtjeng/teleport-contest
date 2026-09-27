@@ -94641,7 +94641,7 @@
     {
       "id": "port-potion-potionhit-synthetic-v7-20260927",
       "kind": "file-port",
-      "status": "open",
+      "status": "parked",
       "summary": "Port complete potion.c potionhit monster and hero effects through all active collision callers",
       "cFile": "potion.c",
       "sessions": [
@@ -94943,23 +94943,23 @@
         "rng": 0
       },
       "parkedStanding": {
-        "sha": "5a2f70be22fa1d0489238745e372f3ed5a8c26df",
+        "sha": "e32dd8b5f6ed268811ce9a39ffd2571ce0e3462b",
         "screens": 11405,
         "rng": 792838
       },
-      "parkedReason": "B28 is actively porting dothrow.c:toss_up and consumed weapon.c:dmgval behavior, then will record upward, steed, and monster-to-monster potionhit entries. Park this source goal interval while A27 quest.c:artitouch is integrated and validated; resume when B28 evidence is ready.",
+      "parkedReason": "B28 verifies upward and mounted-down potionhit routes with independent strict C recordings. Monster-to-monster mthrowu.c:ohitmon remains without matching runtime evidence; nearby monmove.c:m_move takes melee before the attempted intercept setup. The separate dothrow.c:hitfloor void callee remains a named source gap for nonbreaking upward impacts.",
       "evidence": {
         "functions": [
           {
             "name": "potionhit",
             "implementation": "js/potion.js",
             "symbol": "potionhit",
-            "sourceReview": "Compared the complete potion.c:potionhit() definition (1625-1928) against the port: target-is-hero and monster branches, direct saddle hit and water-on-saddle path, all potion type switches, resistance and polymorph guards, blindness duration draws and resistance ordering, anger/sleep cleanup, shop disposition, and final object consumption. Preserved evaluation and RNG order. For the hero POT_POLYMORPH arm, You_feel(\"a little %s\") precedes the Unchanging/Antimagic polyself guard exactly as C. For monster targets, potion.c obtains distance through distu(tx,ty), whose include/hack.h definition calls dist2 and whose hacklib.c body returns dx*dx+dy*dy; JS now uses that squared distance for the distance<3 vapor test. The return from H2Opotion_dip() is consumed in the saddle-water branch, so that whole helper was also ported and its Boolean is used. potion.c calls potionbreathe() as a void callee; the active partial helper arms remain enabled, while unsupported vapor types are source-named with note_unported('potion.c potionbreathe') and skipped so potionhit continues to its shop/object-release tail. The C calls to sounds.c:Soundeffect(), potion.c:explode_oil(), zap.c:bhitm() in the monster polymorph arm, and mon.c:mcureblindness() discard their results; JS records those exact source gaps and never treats the return as data. The separate upward toss path remains at dothrow.c:toss_up(), which JS still records as unported because throwit discards its Boolean. No case or seed condition was added. B27 additionally fixes the shared no-env.random runtime path at potionhit(): the C function uses process RNG calls including rnl(), so js/potion.js imports rnl into its default random bundle rather than requiring one caller to inject it. A focused no-random-seam call and the independent melee recording exercise that default.",
+            "sourceReview": "Compared the complete potion.c:potionhit() definition (1625-1928) against the port: target-is-hero and monster branches, direct saddle hit and water-on-saddle path, all potion type switches, resistance and polymorph guards, blindness duration draws and resistance ordering, anger/sleep cleanup, shop disposition, and final object consumption. Preserved evaluation and RNG order. For the hero POT_POLYMORPH arm, You_feel(\"a little %s\") precedes the Unchanging/Antimagic polyself guard exactly as C. For monster targets, potion.c obtains distance through distu(tx,ty), whose include/hack.h definition calls dist2 and whose hacklib.c body returns dx*dx+dy*dy; JS now uses that squared distance for the distance<3 vapor test. The return from H2Opotion_dip() is consumed in the saddle-water branch, so that whole helper was also ported and its Boolean is used. potion.c calls potionbreathe() as a void callee; the active partial helper arms remain enabled, while unsupported vapor types are source-named with note_unported('potion.c potionbreathe') and skipped so potionhit continues to its shop/object-release tail. The C calls to sounds.c:Soundeffect(), potion.c:explode_oil(), zap.c:bhitm() in the monster polymorph arm, and mon.c:mcureblindness() discard their results; JS records those exact source gaps and never treats the return as data. B28 ports the upward toss path at dothrow.c:toss_up(), which calls potionhit on the hero and discards the toss_up Boolean as C does. No case or seed condition was added. B27 additionally fixes the shared no-env.random runtime path at potionhit(): the C function uses process RNG calls including rnl(), so js/potion.js imports rnl into its default random bundle rather than requiring one caller to inject it. A focused no-random-seam call and the independent melee recording exercise that default.",
             "callers": [
               {
                 "path": "js/dothrow.js",
                 "symbol": "throwit",
-                "source": "dothrow.c:throwit() (1594) calls potionhit(u.usteed,obj,POTHIT_HERO_THROW) when a potion is thrown downward while riding and rn2(6) selects the hit arm. This branch is wired but has no matching recording in this packet."
+                "source": "dothrow.c:throwit() (1594) calls potionhit(u.usteed,obj,POTHIT_HERO_THROW) after rn2(6) selects the mounted downward hit arm; B28 independently records this entry."
               },
               {
                 "path": "js/dothrow.js",
@@ -94974,7 +94974,7 @@
               {
                 "path": "js/mthrowu.js",
                 "symbol": "ohitmon",
-                "source": "mthrowu.c:ohitmon() (367) calls potionhit(mtmp,otmp,POTHIT_OTHER_THROW) when a monster missile hits another monster. The caller is wired; no matching recording in this packet reaches this target branch."
+                "source": "mthrowu.c:ohitmon() (367) calls potionhit(mtmp,otmp,POTHIT_OTHER_THROW) when a monster missile hits another monster. The source branch is active, but B28 could not produce an independent recording; see the blocked monster-intercept recipe and entryPointReview."
               },
               {
                 "path": "js/mthrowu.js",
@@ -94997,7 +94997,9 @@
             "recordings": [
               "recordings/dothrow.c/potion-blindness-thrown-independent.session.json",
               "recordings/mthrowu.c/gnome-king-hurls-sleep-r2.session.json",
-              "recordings/uhitm.c/potion-sleeping-melee-wielded-independent.session.json"
+              "recordings/uhitm.c/potion-sleeping-melee-wielded-independent.session.json",
+              "recordings/dothrow.c/mounted-down-potion-independent.session.json",
+              "recordings/dothrow.c/toss-up-blindness-independent.session.json"
             ],
             "synthetic": [
               {
@@ -95009,10 +95011,10 @@
                 "source": "dothrow.c:throwit -> dothrow.c:thitmonst -> potion.c:potionhit(POT_BLINDNESS)"
               }
             ],
-            "checkedAt": "5a2f70be22fa1d0489238745e372f3ed5a8c26df"
+            "checkedAt": "e32dd8b5f6ed268811ce9a39ffd2571ce0e3462b"
           }
         ],
-        "entryPointReview": "The selected whole source unit is potion.c:potionhit(). Its active production callers include dothrow.c:thitmonst, dothrow.c:throwit (downward hit on the steed), uhitm.c:hmon_hitmon_potion, mthrowu.c:ohitmon, mthrowu.c:thitu, and mthrowu.c:m_throw. Matching evidence covers a hero-thrown blindness potion hitting a monster through thitmonst (independent recording and admitted v7 segment 0 steps 0-43), a monster-thrown potion hitting the hero through m_throw/thitu (the gnome-king recording), and B27’s independent Rogue sleeping-potion melee strike through uhitm.c:hmon_hitmon_potion. That B27 recording also verifies singleton setuwep(NULL) uses the canonical doffing hooks before freeinv/potionhit. The shared potionhit default RNG now imports rnl, so callers that do not supply env.random use the C process RNG bundle. Source review corrections restore the hero polymorph You_feel line before Unchanging/Antimagic and use dist2 for the distu vapor threshold. Unsupported potionbreathe arms are explicitly skipped by source name, not by catching UnsupportedPotionError, so potionhit still runs its tail. The steed-hit and monster-to-monster callers are wired but lack matching records here. C dothrow.c:toss_up() also calls potionhit internally, but JS retains note_unported('dothrow.c toss_up') at throwit because the complete toss_up path is outside this task. These remaining entry gaps keep the source goal open.",
+        "entryPointReview": "The selected whole source unit is potion.c:potionhit(). Its active production callers include dothrow.c:thitmonst, dothrow.c:throwit (downward hit on the steed), uhitm.c:hmon_hitmon_potion, mthrowu.c:ohitmon, mthrowu.c:thitu, and mthrowu.c:m_throw. Matching evidence covers a hero-thrown blindness potion hitting a monster through thitmonst (independent recording and admitted v7 segment 0 steps 0-43), a monster-thrown potion hitting the hero through m_throw/thitu (the gnome-king recording), and B27’s independent Rogue sleeping-potion melee strike through uhitm.c:hmon_hitmon_potion. That B27 recording also verifies singleton setuwep(NULL) uses the canonical doffing hooks before freeinv/potionhit. The shared potionhit default RNG now imports rnl, so callers that do not supply env.random use the C process RNG bundle. Source review corrections restore the hero polymorph You_feel line before Unchanging/Antimagic and use dist2 for the distu vapor threshold. Unsupported potionbreathe arms are explicitly skipped by source name, not by catching UnsupportedPotionError, so potionhit still runs its tail. The mounted downward throw and upward toss now have independent matching C recordings. The monster-to-monster caller remains unrecorded, so the source goal remains open. B28 adds independent strict evidence for the previously open vertical routes: the upward blindness potion recording reaches dothrow.c:throwit -> toss_up -> potion.c:potionhit, and the mounted-down healing potion recording reaches throwit -> potionhit(steed). The roof-breaking magic-marker recording exercises the source toss_up break arm. A non-breaking boulder recipe is blocked at dothrow.c:hitfloor after the C damage calculation; no floor effect is claimed. B28 also completes the source-ordered artifact doubling branch in weapon.c:dmgval and pins it in scripts/weapon.test.mjs; its existing artifact melee recording is cited. The remaining active potionhit route is mthrowu.c:ohitmon -> potionhit(POTHIT_OTHER_THROW): two C setups with gnome kings failed to reach the throw path because monmove.c:m_move() takes the nearby melee branch and suppresses find_offensive(); the blocked setup is recipes/mthrowu.c/monster-potion-intercept-blocked.session.json. B25 remains parked for that route.",
         "entryPoints": [
           {
             "name": "Hero throws potion that hits a monster",
@@ -95058,7 +95060,9 @@
             "functions": [
               "potionhit"
             ],
-            "recordings": [],
+            "recordings": [
+              "recordings/dothrow.c/mounted-down-potion-independent.session.json"
+            ],
             "synthetic": []
           },
           {
@@ -95074,7 +95078,9 @@
             "functions": [
               "potionhit"
             ],
-            "recordings": [],
+            "recordings": [
+              "recordings/dothrow.c/toss-up-blindness-independent.session.json"
+            ],
             "synthetic": []
           }
         ]
