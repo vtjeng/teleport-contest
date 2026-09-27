@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "capturedAt": "2026-09-27T12:46:15.664Z",
+  "capturedAt": "2026-09-27T13:14:04.342Z",
   "activity": {
     "runId": "loop-20260925",
     "events": [
@@ -5090,12 +5090,69 @@
         "type": "accepted",
         "at": "2026-09-27T12:45:50.807Z",
         "task": "B26"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "publish-B26-a99fe24a",
+        "type": "published",
+        "at": "2026-09-27T12:48:20.792Z",
+        "task": "B26",
+        "commit": "a99fe24ac5584565a9762021f7a10c01d8985611"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-6705f4d41fda36dea62a8937528629fd310dd1c6",
+        "type": "ready",
+        "at": "2026-09-27T12:51:21.359Z",
+        "task": "A26",
+        "delivery": "6705f4d41fda36dea62a8937528629fd310dd1c6"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "assign-B27-uhitm-potion-hooks-20260927",
+        "type": "assign",
+        "at": "2026-09-27T12:53:48.809Z",
+        "task": "B27",
+        "worker": "B",
+        "goal": "port-potion-potionhit-synthetic-v7-20260927",
+        "kind": "implementation"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "receive-A26-6705f4d4",
+        "type": "received",
+        "at": "2026-09-27T12:54:26.254Z",
+        "task": "A26",
+        "delivery": "6705f4d41fda36dea62a8937528629fd310dd1c6"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "integrate-A26-10c8f210",
+        "type": "integrating",
+        "at": "2026-09-27T12:54:49.816Z",
+        "task": "A26",
+        "integration": "10c8f210d77aee548ae25b77cee6b3f9b736d413"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "validate-A26-10c8f210",
+        "type": "validated",
+        "at": "2026-09-27T13:13:39.101Z",
+        "task": "A26",
+        "passed": true
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-A26-10c8f210",
+        "type": "accepted",
+        "at": "2026-09-27T13:13:46.288Z",
+        "task": "A26"
       }
     ]
   },
   "development": {
-    "executionCommit": "feabcd23201baa92c3e92b5de5046a98d6a0f14f",
-    "measuredAt": "2026-09-27T12:40:23.323Z",
+    "executionCommit": "10c8f210d77aee548ae25b77cee6b3f9b736d413",
+    "measuredAt": "2026-09-27T13:07:26.634Z",
     "sessions": [
       {
         "session": "holdout/seed0002-healer-reflection-drummer",

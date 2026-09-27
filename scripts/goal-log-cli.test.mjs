@@ -475,6 +475,13 @@ test('a parked synthetic goal can resume after its selected case is resolved', t
     f.cli('open-goal', '--id', 'entry-coverage');
     assert.equal(f.goals()[0].status, 'open');
     assert.equal(f.goals()[0].syntheticProvenance[session].session, session);
+    const context = JSON.parse(f.cli('task-context', '--goal', 'entry-coverage'));
+    assert.deepEqual(context.sessions, [session]);
+    assert.equal(context.syntheticProvenance[0].session, session);
+    queue.blockers = [{ batch: 'v1', reason: 'evaluation missing' }];
+    f.json('.cache/queue.json', queue);
+    f.refuses(/synthetic evidence.*blocked/u,
+        'task-context', '--goal', 'entry-coverage');
 });
 
 test('fixed scan overrides cannot bypass synthetic evidence or regression priority', t => {

@@ -94647,7 +94647,7 @@
       "sessions": [
         "synthetic/v7/throw-blindness-potion-hit-corrected"
       ],
-      "selectionReason": "The current v7 thrown-blindness case has one unmatched screen at impact; investigations/synthetic/v7/throw-blindness-potion-hit-corrected.json traces the skipped dothrow.c:thitmonst call to potion.c:potionhit. Port the whole source function and wire its active dothrow, uhitm, mthrowu, zap, and monster-item callers; record independent post-impact and other entry evidence. The other unresolved v7 detection case owns a different potion.c function and remains queued.",
+      "selectionReason": "Resume parked potionhit source completion to repair the source-traced uhitm.c:hmon_hitmon_potion setuwep caller hook blocker and obtain independent melee, steed, monster-to-monster, and ceiling-return entry evidence",
       "detail": "",
       "openedAt": "f5248ce4f94176f35cd5b15dbe69457a41cd52f6",
       "openStanding": {
@@ -94685,7 +94685,7 @@
         }
       },
       "activeStanding": {
-        "sha": "5f1efeed9e8e7684c046c1016785c10e720b1a60",
+        "sha": "feabcd23201baa92c3e92b5de5046a98d6a0f14f",
         "screens": 11405,
         "rng": 792838
       },
@@ -94943,11 +94943,11 @@
         "rng": 0
       },
       "parkedStanding": {
-        "sha": "5f1efeed9e8e7684c046c1016785c10e720b1a60",
+        "sha": "10c8f210d77aee548ae25b77cee6b3f9b736d413",
         "screens": 11405,
         "rng": 792838
       },
-      "parkedReason": "potion.c:potionhit and thrown-potion entry strictly match; hero melee potion entry is blocked before potionhit because uhitm.js:hmon_hitmon_potion calls setuwep(null) without the canonical do_wear.js:setwornEnv hooks, unlike C uhitm.c:hmon_hitmon_potion setuwep(NULL) before freeinv and potionhit. Steed hit, monster-to-monster hit, and dothrow.c:toss_up still need independent matching entry evidence. Resume after a source-traced uhitm caller-wiring fix and those recordings."
+      "parkedReason": "B27 is repairing uhitm.c:hmon_hitmon_potion caller hooks and recording a source-reached melee witness; potionhit closure still needs steed, monster-to-monster, and dothrow.c:toss_up evidence. Park this active interval while A26 validated fire-scroll evidence is recorded, then resume when B27 is ready for integration."
     },
     {
       "id": "div-trap-chest-trap-message-flush-synthetic-v8-20260927",
@@ -95735,25 +95735,32 @@
     {
       "id": "port-read-seffect-fire-synthetic-v8-20260927",
       "kind": "file-port",
-      "status": "queued",
+      "status": "closed",
       "summary": "Port complete read.c seffect_fire and its scroll caller",
       "cFile": "read.c",
       "sessions": [
         "synthetic/v8/read-fire-scroll-effect"
       ],
-      "selectionReason": "Selected synthetic/v8/read-fire-scroll-effect from source-traced investigation at investigations/synthetic/v8/read-fire-scroll-effect.json and current A25 challenge evaluation 20260927111723-v8.json; one screen remains at segment 0 step 19. C enters read.c:seffect_fire and first draws rn1(3,3); JS currently records an unported source gap. The related v8 setup-miss case is an additional replay check for the same function.",
+      "selectionReason": "Complete the source-traced fire-scroll function and ordinary/blessed read entry evidence after the selected v8 case reached parity; keep downstream item ignition as an explicit explode/trap/apply gap",
       "detail": "Port the whole read.c:seffect_fire body, including consumed RNG, scroll use and knowledge, confused and underwater branches, blessed target selection, hero flame and explosion ordering. Wire SCR_FIRE from read.c:seffects and port any return-valued missing callees in scope; validate independent C recordings and all admitted challenges without case-specific handling.",
-      "openedAt": null,
-      "openStanding": null,
-      "closedAt": null,
-      "delivered": null,
+      "openedAt": "10c8f210d77aee548ae25b77cee6b3f9b736d413",
+      "openStanding": {
+        "sha": "10c8f210d77aee548ae25b77cee6b3f9b736d413",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "closedAt": "10c8f210d77aee548ae25b77cee6b3f9b736d413",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
       "functions": [
         {
           "name": "seffect_fire",
           "line": 1850,
           "endLine": 1918,
-          "declared": false,
-          "complete": false
+          "declared": true,
+          "complete": true
         }
       ],
       "range": {
@@ -95773,6 +95780,94 @@
           "evaluationPath": "challenges/evaluations/20260927111723-v8.json",
           "evaluationCommit": "358dd6ad1294374a96a704a7f5a9b46c0ddc4a47"
         }
+      },
+      "activeStanding": {
+        "sha": "10c8f210d77aee548ae25b77cee6b3f9b736d413",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": [],
+      "evidence": {
+        "functions": [
+          {
+            "name": "seffect_fire",
+            "implementation": "js/read.js",
+            "symbol": "seffect_fire",
+            "sourceReview": "Ported all branches of read.c:seffect_fire() (1850-1917): capture object type/BUC/confusion/known state; compute dam with C integer truncation and one rn1 draw; consume the scroll and clear seffects()'s local pointer; call learnscrolltyp only when needed; preserve confused-underwater, confused-fire-resistance, and ordinary confused damage ordering; preserve ordinary underwater behavior; for blessed reading, print the identification message when unknown, multiply damage by five, install getpos highlight/valid callbacks, run getpos, and fall back to the hero when the selected coordinate is invalid; emit the tower-of-flame message and last_msg before the fire explosion. seffects() now routes SCR_FIRE here and sets its local scroll to null, matching the C pointer contract. Also source-ported read.c:can_center_cloud() and display_stinking_cloud_positions() as the consumed getpos callback helpers: can_center_cloud calls the existing valid_cloud_pos port in js/region.js, cansee(), then squared dist2 < 32; the display callback calls tmp_at(DISP_BEAM), scans dx outer/dy inner from -6 through +6, skips the hero square, and ends with tmp_at(DISP_END). The pure helper is source-pinned in scripts/read.test.mjs; the independent blessed-scroll recording executes the callback and the '$' highlight toggle. The existing explode.c:explode() helper needed its default RNG adapter to include rnl; that consumed wrapper is pinned in scripts/explode.test.mjs, and the selected v8 plus independent blessed recordings now match. Existing source gaps remain explicit: display.c:shieldeff and timeout.c:burn_away_slime are void calls skipped with note_unported(); js/region.js remains the implementation location of read.c:valid_cloud_pos rather than duplicating it. explode.c:explode() calls void trap.c:ignite_items(); the selected and independent recordings do not enter the unsupported hero-pack apply.c:catch_lit branch. recipes/read.c/read-fire-hero-oil-lamp-blocked.session.json retains that unrecorded source-named variation; it is not completion evidence. No result from note_unported() is used as data.",
+            "callers": [
+              {
+                "path": "js/cmd.js",
+                "symbol": "runReadCommand",
+                "source": "The active cmd.c command-table 'r' entry at cmd.c:1817 calls doread(); js/cmd.js:runReadCommand dispatches the command to js/read.js:doread()."
+              },
+              {
+                "path": "js/read.js",
+                "symbol": "doread",
+                "source": "read.c:doread() selects a readable object and calls seffects(&sobj); the SCR_FIRE switch arm in read.c:seffects() calls seffect_fire(&sobj)."
+              },
+              {
+                "path": "js/read.js",
+                "symbol": "seffects",
+                "source": "read.c:seffects() is the production dispatcher for SCR_FIRE and now awaits seffect_fire(scroll, state), then nulls its local scroll pointer as the C helper does."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/read.test.mjs",
+              "scripts/explode.test.mjs"
+            ],
+            "recordings": [
+              "recordings/read.c/read-fire-blessed-highlight.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v8",
+                "caseId": "read-fire-scroll-effect",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 19,
+                "source": "cmd.c read command -> read.c:doread -> read.c:seffects(SCR_FIRE) -> read.c:seffect_fire -> explode.c:explode"
+              }
+            ],
+            "checkedAt": "10c8f210d77aee548ae25b77cee6b3f9b736d413"
+          }
+        ],
+        "entryPointReview": "The active entry point is the r/read command through cmd.c's command table -> read.c:doread -> read.c:seffects(SCR_FIRE) -> read.c:seffect_fire. The admitted v8 read-fire-scroll-effect case matches through zero-based step 19, including the unblessed fire scroll and tower explosion. An independently chosen blessed scroll recording matches through step 33 and enters the getpos callback, uses the '$' highlight toggle, selects the hero square, and reaches the explosion. The source-pinned pure helper test checks can_center_cloud terrain, sight, and the strict squared-distance boundary; the recording verifies the display callback's on/off use. The related read-fire-scroll-effect.setup-miss-attempt1 recipe does not reach the selected source unit: C/JS first diverge at segment 1 step 21 in read.c:seffect_enchant_armor, so it is retained only as a separate investigation and is not cited. A separate hero-pack oil-lamp variation is retained as recipes/read.c/read-fire-hero-oil-lamp-blocked.session.json; it is not recorded and has no runtime evidence because the expected downstream route explode.c:explode -> trap.c:ignite_items -> apply.c:catch_lit is outside this task's scope and the existing JS helper refuses eligible OBJ_INVENT objects. No build-excluded caller was found.",
+        "entryPoints": [
+          {
+            "name": "read an unblessed scroll of fire",
+            "functions": [
+              "seffect_fire"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v8",
+                "caseId": "read-fire-scroll-effect",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 19,
+                "source": "cmd.c read command -> read.c:doread -> read.c:seffects(SCR_FIRE) -> read.c:seffect_fire -> explode.c:explode"
+              }
+            ]
+          },
+          {
+            "name": "read a blessed scroll of fire and select a highlighted explosion center",
+            "functions": [
+              "seffect_fire"
+            ],
+            "recordings": [
+              "recordings/read.c/read-fire-blessed-highlight.session.json"
+            ],
+            "synthetic": []
+          }
+        ]
+      },
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "10c8f210d77aee548ae25b77cee6b3f9b736d413",
+        "screens": 11405,
+        "rng": 792838
       }
     },
     {
@@ -95916,6 +96011,49 @@
         "sha": "feabcd23201baa92c3e92b5de5046a98d6a0f14f",
         "screens": 11405,
         "rng": 792838
+      }
+    },
+    {
+      "id": "port-quest-artitouch-synthetic-v8-20260927",
+      "kind": "file-port",
+      "status": "queued",
+      "summary": "Port quest artifact first-touch pager and inventory acquisition wiring",
+      "cFile": "quest.c",
+      "sessions": [
+        "synthetic/v8/artifact-heart-invoke-cycle"
+      ],
+      "selectionReason": "Current v8 artifact-heart-invoke-cycle first diverges at segment 0 step 24: C quest.c:artitouch called from invent.c:addinv_core1 opens gotit quest text and initializes nhlib.lua, while JS note_unported skips that call. The queue RNG annotation names Lua shuffle as the observed downstream draw, but the source owner is quest.c:artitouch. Port the whole first-touch function, generated gotit text, pager skip guard, and async inventory caller order; verify independent quest artifact acquisition distinct from v8.",
+      "detail": "",
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": null,
+      "delivered": null,
+      "functions": [
+        {
+          "name": "artitouch",
+          "line": 125,
+          "endLine": 139,
+          "declared": false,
+          "complete": false
+        }
+      ],
+      "range": {
+        "from": 125,
+        "to": 139
+      },
+      "syntheticProvenance": {
+        "synthetic/v8/artifact-heart-invoke-cycle": {
+          "session": "synthetic/v8/artifact-heart-invoke-cycle",
+          "corpus": "synthetic",
+          "batch": "v8",
+          "caseId": "artifact-heart-invoke-cycle",
+          "manifestPath": "challenges/manifests/v8.json",
+          "manifestSha256": "6a5159501af18a7f926f794d89e817375cd00a3589c4899fb97392ae04dbe8ba",
+          "recordingPath": "challenges/cases/v8/artifact-heart-invoke-cycle.session.json",
+          "recordingSha256": "816c8353f3fea197a0e99d8bd83f53f622a02d45fe61a59784dcfd479862cfd8",
+          "evaluationPath": "challenges/evaluations/20260927130815-v8.json",
+          "evaluationCommit": "10c8f210d77aee548ae25b77cee6b3f9b736d413"
+        }
       }
     }
   ]
