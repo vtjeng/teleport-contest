@@ -690,12 +690,11 @@ export async function object_detect(detector = null, objectClass = 0,
     return 0;
 }
 
-// C ref: detect.c monster_detect() (797-860), restricted to the fountain and
-// other ordinary no-object, all-monster call. Potion/object-specific waking,
-// monster-class filtering, constrained maps, and long-worm tails remain
-// fail-closed rather than silently changing the detection result. Like the C
-// helper, return 1 when nothing was detected and 0 after displaying monsters;
-// the inverted result is consumed by fountain.c's fate-selection branch.
+// C ref: detect.c monster_detect() (797-860). Handles potion/spell object
+// state, optional monster-class filtering, constrained maps, and the long-worm
+// tail class. The persistent blessed-map arm's display_nhwindow() is void in C
+// and remains a named gap; the return contract is still exact: 1 when nothing
+// was detected and 0 after displaying monsters.
 export async function monster_detect(
     otmp = null,
     mclass = 0,

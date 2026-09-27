@@ -316,6 +316,33 @@ test('monster_detect clears only I_SPECIAL, including when browsing suspends', a
     }
 });
 
+test('monster_detect wakes helpless monsters even outside the selected class',
+    async () => {
+        const { state, monster, env } = monsterDetectionFixture();
+        monster.msleeping = 1;
+        monster.mfrozen = 4;
+        monster.mcanmove = 0;
+        const mapped = [];
+        const messages = [];
+        env.mapMonster = subject => mapped.push(subject);
+        env.message = async line => messages.push(line);
+        env.browseMap = async () => {};
+
+        // detect.c:841-846 filters map_monst() by mclass but places cursed
+        // object waking outside that filter, so the remote monster still wakes.
+        assert.equal(await monster_detect(
+            { cursed: true, blessed: false }, 999, state, env,
+        ), 0);
+        assert.deepEqual(mapped, []);
+        assert.deepEqual(
+            [monster.msleeping, monster.mfrozen, monster.mcanmove], [0, 0, 1],
+        );
+        assert.deepEqual(messages, [
+            'You sense the presence of monsters.',
+            'Monsters sense the presence of you.',
+        ]);
+    });
+
 // The explicit search reads three things the automatic one never touches: the
 // monster grid behind m_at(), the region list behind visible_region_at(), and
 // each square's remembered glyph.
