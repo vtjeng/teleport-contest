@@ -93242,7 +93242,7 @@
     {
       "id": "div-invent-display-pickinv-synthetic-v6-20260927",
       "kind": "divergence-fix",
-      "status": "open",
+      "status": "closed",
       "summary": "Restore sortpack Miscellaneous heading before the extra hand choice in display_pickinv",
       "cFile": "invent.c",
       "sessions": [
@@ -93257,8 +93257,11 @@
         "screens": 11405,
         "rng": 792838
       },
-      "closedAt": null,
-      "delivered": null,
+      "closedAt": "fd7c4734a81712ec145e9d49a0c7034436692b57",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
       "function": "display_pickinv",
       "session": "synthetic/v6/wizard-engrave-wand-menu",
       "step": 16,
@@ -93744,7 +93747,13 @@
             }
           }
         }
-      ]
+      ],
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "fd7c4734a81712ec145e9d49a0c7034436692b57",
+        "screens": 11405,
+        "rng": 792838
+      }
     }
   ]
 }
