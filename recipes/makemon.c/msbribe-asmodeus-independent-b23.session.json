@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 42917032,
+      "datetime": "20260926124000",
+      "nethackrc": "OPTIONS=name:BribeB,role:Wizard,race:human,gender:female,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen,playmode:debug,pettype:none\n",
+      "moves": " #wizgenesis\nAsmodeus\ny",
+      "comment": "Independent Asmodeus variation for the source-defined MS_BRIBE demon-prince family. The opening space clears the intro More prompt. C follows the same makemon.c:makemon placement and peaceful/invisible state branch; the existing makemon.c:m_initinv() arm adds Asmodeus's wand of cold and wand of fire. The complete recording and strict replay match through the final creation turn. This recipe stops before C24's separately owned demon-conversation behavior."
+    }
+  ]
+}

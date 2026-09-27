@@ -1330,7 +1330,15 @@ function assertSupportedSpecies(species, env = {}) {
             // exercised by mcastu.c; it does not take the aligned/high-cleric
             // priest-minion initialization arm below.
             && (species.pmidx !== PM_GRAND_MASTER || !createParticular)
-            // makemon.c:1147-1509 has no species admission gate. The
+            // C makemon.c:1397-1403 accepts every demon prince whose sound is
+            // MS_BRIBE and gives it the shared peaceful/invisible state. The
+            // four source-defined princes can be named by read.c's explicit
+            // create_particular_creation() path; admit that family there, not
+            // only the Geryon recipe that exposed the preflight gap.
+            && !(createParticular
+                && is_dprince(species)
+                && species.msound === MS_BRIBE)
+            // makemon.c:1147-1512 has no species admission gate. The
             // minotaur's explicit m_initinv() arm is complete, so read.c's
             // create_particular_creation() and sp_lev.c's fill_empty_maze()
             // callers share this admission path.

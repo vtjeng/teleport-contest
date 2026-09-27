@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 42917031,
+      "datetime": "20260926123500",
+      "nethackrc": "OPTIONS=name:BribeA,role:Wizard,race:human,gender:male,align:chaotic\nOPTIONS=!legacy,!tutorial,!splash_screen,playmode:debug,pettype:none\n",
+      "moves": " #wizgenesis\nGeryon\ny",
+      "comment": "Independent explicit named creation of an MS_BRIBE demon prince. The opening space clears the intro More prompt so the C input reaches read.c:create_particular_creation. C accepts the force response and makemon.c:makemon places the prince, applies the shared demon-prince state, and runs ordinary inventory setup. This witnesses creation only, not a C24 chat/bribe path."
+    }
+  ]
+}

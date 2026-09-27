@@ -25,6 +25,7 @@ import {
     MM_NOMSG,
     MON_DETACH,
     MFAST,
+    MS_BRIBE,
     MS_NEMESIS,
     MSLOW,
     M_AP_FURNITURE,
@@ -71,7 +72,12 @@ import {
     startsPermanentlyInvisible,
     UnsupportedMonsterCreationError,
 } from '../js/makemon_create.js';
-import { is_giant, is_mercenary, is_ndemon } from '../js/mondata.js';
+import {
+    is_dprince,
+    is_giant,
+    is_mercenary,
+    is_ndemon,
+} from '../js/mondata.js';
 import { newMonster, place_monster } from '../js/monst.js';
 import { init_objects } from '../js/o_init.js';
 import { curse, mksobj, weight } from '../js/obj.js';
@@ -85,6 +91,7 @@ import {
     M2_LORD,
     M2_ORC,
     M2_PRINCE,
+    MONSTER_TEMPLATES,
     NON_PM,
     PM_ARCH_LICH,
     PM_AMOROUS_DEMON,
@@ -97,6 +104,10 @@ import {
     PM_CAVE_SPIDER,
     PM_CHAMELEON,
     PM_DOPPELGANGER,
+    PM_ASMODEUS,
+    PM_BAALZEBUB,
+    PM_DISPATER,
+    PM_GERYON,
     PM_DEMILICH,
     PM_FIRE_ELEMENTAL,
     PM_FIRE_GIANT,
@@ -268,6 +279,9 @@ const MAKEMON_C_SOURCE = readFileSync(
     'nethack-c/upstream/src/makemon.c', 'utf8',
 );
 const MAKEMON_JS_SOURCE = readFileSync('js/makemon_create.js', 'utf8');
+const MONSTERS_C_SOURCE = readFileSync(
+    'nethack-c/upstream/include/monsters.h', 'utf8',
+);
 
 const MON_X = 10;
 const MON_Y = 5;
@@ -6466,3 +6480,60 @@ test('makemon.c cleric and Angel minion arms keep their source gate and order', 
     }
     assert.ok(jsEnd > jsStart, 'the source branch precedes set_malign()');
 });
+
+
+test(
+    'makemon admits the source-defined MS_BRIBE demon-prince family for explicit creation',
+    () => {
+        const expected = [
+            PM_GERYON, PM_DISPATER, PM_BAALZEBUB, PM_ASMODEUS,
+        ].sort((a, b) => a - b);
+        const actual = MONSTER_TEMPLATES
+            .filter((species) => is_dprince(species)
+                && species.msound === MS_BRIBE)
+            .map(({ pmidx }) => pmidx)
+            .sort((a, b) => a - b);
+        assert.deepEqual(actual, expected);
+
+        for (const name of ['Geryon', 'Dispater', 'Baalzebub', 'Asmodeus']) {
+            const start = MONSTERS_C_SOURCE.indexOf('MON(NAM("' + name + '")');
+            assert.notEqual(start, -1, 'C monster definition for ' + name);
+            const end = MONSTERS_C_SOURCE.indexOf('MON(', start + 4);
+            const definition = MONSTERS_C_SOURCE.slice(
+                start,
+                end === -1 ? undefined : end,
+            );
+            assert.match(definition, /MS_BRIBE/u, name + ' uses MS_BRIBE');
+            assert.match(definition, /M2_PRINCE/u, name + ' is a prince');
+        }
+
+        const cStart = MAKEMON_C_SOURCE.indexOf(
+            'makemon(',
+            MAKEMON_C_SOURCE.indexOf('called with [x,y]'),
+        );
+        const cEnd = MAKEMON_C_SOURCE.indexOf('unmakemon(', cStart);
+        const cFunction = MAKEMON_C_SOURCE.slice(cStart, cEnd);
+        assert.ok(cStart >= 0 && cEnd > cStart);
+        assert.ok(cFunction.includes(
+            'if (is_dprince(ptr) && ptr->msound == MS_BRIBE)',
+        ));
+
+        const jsStart = MAKEMON_JS_SOURCE.indexOf(
+            'function assertSupportedSpecies(',
+        );
+        const jsEnd = MAKEMON_JS_SOURCE.indexOf(
+            'function preflightCreation(',
+            jsStart,
+        );
+        const jsAdmission = MAKEMON_JS_SOURCE.slice(jsStart, jsEnd);
+        const familyGate = [
+            '&& !(createParticular',
+            '&& is_dprince(species)',
+            '&& species.msound === MS_BRIBE',
+        ];
+        const positions = familyGate.map((token) => jsAdmission.indexOf(token));
+        assert.ok(positions.every((position) => position >= 0));
+        assert.ok(positions.every((position, index) => index === 0
+            || position > positions[index - 1]));
+    },
+);
