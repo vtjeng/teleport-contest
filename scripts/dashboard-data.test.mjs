@@ -13,6 +13,7 @@ import { fileURLToPath } from 'node:url';
 import { runInNewContext } from 'node:vm';
 import { COLUMNS } from './score-log.mjs';
 import { escapeJsonForScript, injectDashboardData } from './build-dashboard.mjs';
+import { activityTimeline } from './dashboard-activity.mjs';
 
 const PROJECT_ROOT = dirname(dirname(fileURLToPath(import.meta.url)));
 const DATA_SCRIPT = join(PROJECT_ROOT, 'scripts', 'dashboard-data.mjs');
@@ -494,6 +495,40 @@ test('one sessions table includes both sets with exact scores and distinct misma
     assert.match(table.innerHTML, /<td><span role="img" aria-label="Matched">✅<\/span><\/td>/u);
     assert.match(table.innerHTML, /<td><span role="img" aria-label="Remaining">🔧<\/span><\/td>/u);
     assert.doesNotMatch(table.innerHTML, /✅ Matched|🔧 Remaining/u);
+});
+
+test('activity view ranks handoff waits and explains concurrent assignments', () => {
+    const data = sourceDashboardData();
+    const at = time => `2026-09-25T${time}:00Z`;
+    const events = [
+        ['assign', '09:00', 'B1', 'B'], ['ready', '09:50', 'B1'],
+        ['assign', '10:00', 'A1', 'A'], ['ready', '10:10', 'A1'],
+        ['assign', '10:12', 'A2', 'A'], ['integrating', '10:15', 'B1'],
+        ['validated', '10:25', 'B1'], ['accepted', '10:26', 'B1'],
+        ['published', '10:27', 'B1'], ['integrating', '10:40', 'A1'],
+        ['validated', '11:00', 'A1'], ['accepted', '11:02', 'A1'],
+        ['published', '11:03', 'A1'], ['ready', '11:10', 'A2'],
+    ].map(([type, time, task, worker], index) => ({
+        id: String(index), type, at: at(time), task,
+        ...(worker ? { worker, goal: task } : {}),
+    }));
+    data.activity = activityTimeline({ runId: 'loop-20260925', events }, at('11:15'));
+    const rendered = renderDashboard(data);
+    assert.match(rendered.get('activityMetrics').innerHTML, /Ready → Main[\s\S]*30m[\s\S]*2 completed waits/u);
+    assert.match(rendered.get('activityWaitList').innerHTML, /A1[\s\S]*30m/u);
+    assert.match(rendered.get('timeline').innerHTML, /activity-row main/u);
+    assert.match(rendered.get('timelineReadout').innerHTML, /Another task was assigned to this worker for 28m/u);
+    assert.match(rendered.get('timelineReadout').innerHTML, /Recorded Main stages overlapped this wait/u);
+    const shortWindow = rendered.get('activityWindowLabel').textContent;
+    rendered.get('activity24h').listeners.click[0]();
+    assert.notEqual(rendered.get('activityWindowLabel').textContent, shortWindow);
+    const mainIndex = data.activity.segments.findIndex(row => row.task === 'B1'
+        && row.phase === 'integrating');
+    rendered.get('timeline').listeners.click[0]({
+        target: { classList: { contains: name => name === 'activity-bar' },
+            dataset: { segment: String(mainIndex) } },
+    });
+    assert.match(rendered.get('timelineReadout').innerHTML, /waiting delivery overlapped this stage/u);
 });
 
 function sourceFileRows(table) {

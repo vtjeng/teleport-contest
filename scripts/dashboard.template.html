@@ -471,17 +471,42 @@ canvas {
 .history-navigator { border-top: 1px solid var(--border); margin-top: 16px; padding-top: 12px; }
 .history-help { color: var(--ink-muted); font-size: 11px; margin-top: 8px; }
 
-/* --- Goal timeline: one row per local day --- */
-.day-row {
+/* --- Worker handoffs and coordinator stages --- */
+.activity-controls {
   display: flex;
   align-items: center;
-  height: 30px;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin: 0 0 12px;
+}
+.activity-controls .history-controls { margin-right: auto; }
+.activity-navigation { display: flex; align-items: center; gap: 8px; }
+.activity-navigation .chart-range { min-width: 165px; text-align: center; }
+.activity-metrics {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px;
+  margin-bottom: 18px;
+}
+.activity-metric {
+  padding: 10px 12px;
+  background: var(--surface-chart);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+}
+.activity-metric-label { font-size: 11px; color: var(--ink-secondary); }
+.activity-metric-value { display: block; margin: 5px 0 2px; font-size: 20px; font-weight: 600; font-variant-numeric: tabular-nums; }
+.activity-metric-detail { font-size: 11px; color: var(--ink-muted); }
+.activity-note { margin: 0 0 14px; font-size: 11px; color: var(--ink-muted); }
+.activity-row {
+  display: flex;
+  align-items: center;
   border-bottom: 1px solid var(--border);
 }
-
-.day-label {
-  width: 88px;
-  min-width: 88px;
+.activity-label {
+  width: 56px;
+  min-width: 56px;
   font-family: 'JetBrains Mono', monospace;
   font-size: 11px;
   color: var(--ink-secondary);
@@ -489,41 +514,86 @@ canvas {
   text-align: right;
   white-space: nowrap;
 }
-
-.day-bars {
+.activity-track {
   flex: 1;
   position: relative;
   height: 100%;
+  background: linear-gradient(to right, var(--gridline) 1px, transparent 1px) 0 0 / 25% 100%;
 }
-
-/* One bar per goal, coloured by kind; a goal of no recorded kind stays grey.
-   --bar is the kind's colour, and the legend swatches set it inline. A lighter
-   bar has an inferred open time, so it may include idle time before the goal. */
-.day-bar {
+.activity-row.main .activity-track { background-color: var(--surface-chart); }
+.activity-bar {
   position: absolute;
-  top: 7px;
-  height: 16px;
   min-width: 2px;
   border-radius: 2px;
   --bar: var(--ink-muted);
   background: var(--bar);
-  opacity: 0.85;
+  opacity: 0.9;
+  cursor: pointer;
 }
-.day-bar.phase-working { --bar: var(--goal-file-port); }
-.day-bar.phase-queued { --bar: var(--goal-boundary); }
-.day-bar.phase-integrating { --bar: var(--goal-divergence); }
-.day-bar.phase-acceptance { --bar: var(--goal-in-progress); }
-.day-bar.phase-publication { --bar: var(--ink-muted); }
-
-/* Two reserved lines under the rows name the bar under the pointer, so a
-   touch reader gets the detail a hover would. */
-.day-readout {
-  min-height: 34px;
-  margin-top: 8px;
+.activity-bar.phase-working { --bar: var(--goal-file-port); }
+.activity-bar.phase-queued { --bar: var(--goal-boundary); }
+.activity-bar.phase-integrating { --bar: var(--goal-divergence); }
+.activity-bar.phase-acceptance { --bar: var(--goal-in-progress); }
+.activity-bar.phase-publication { --bar: var(--ink-muted); }
+.activity-bar.selected, .activity-bar:focus-visible { outline: 2px solid var(--ink-primary); outline-offset: 2px; z-index: 1; }
+.activity-axis {
+  height: 24px;
+  position: relative;
+  margin-left: 56px;
+  border-bottom: 1px solid var(--baseline);
+}
+.activity-tick {
+  position: absolute;
+  top: 3px;
+  transform: translateX(-50%);
   font-family: 'JetBrains Mono', monospace;
   font-size: 11px;
-  line-height: 17px;
+  color: var(--ink-muted);
+  white-space: nowrap;
+}
+.activity-tick:first-child { transform: none; }
+.activity-tick:last-child { transform: translateX(-100%); }
+.activity-details {
+  display: grid;
+  grid-template-columns: minmax(0, 1.4fr) minmax(220px, 1fr);
+  gap: 24px;
+  margin-top: 20px;
+  border-top: 1px solid var(--border);
+  padding-top: 16px;
+}
+.activity-details h4 { margin: 0 0 9px; font-size: 12px; }
+.activity-inspection { font-size: 12px; line-height: 1.55; color: var(--ink-secondary); }
+.activity-inspection strong { color: var(--ink-primary); }
+.activity-inspection p { margin: 5px 0 8px; }
+.activity-inspection ul { margin: 4px 0 0; padding-left: 18px; }
+.activity-waits button {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  width: 100%;
+  gap: 12px;
+  padding: 7px 5px;
+  border: 0;
+  border-top: 1px solid var(--border);
+  background: transparent;
   color: var(--ink-secondary);
+  text-align: left;
+  font: inherit;
+  font-size: 12px;
+  cursor: pointer;
+}
+.activity-waits button:hover, .activity-waits button:focus-visible { background: var(--surface-chart); color: var(--ink-primary); }
+.activity-waits small { color: var(--ink-muted); }
+@media (max-width: 640px) {
+  .activity-metrics { grid-template-columns: 1fr; gap: 6px; }
+  .activity-details { grid-template-columns: 1fr; gap: 16px; }
+  .activity-controls .history-controls { width: 100%; }
+  .activity-controls .history-controls button { flex: 1; }
+  .activity-navigation { width: 100%; justify-content: space-between; }
+}
+@media (max-width: 480px) {
+  .activity-navigation { flex-wrap: wrap; }
+  .activity-navigation .chart-range { order: -1; width: 100%; }
 }
 
 /* A short line sample for a chart series, carrying its dash pattern. */
@@ -747,21 +817,6 @@ canvas {
 }
 
 /* --- Time axis --- */
-.time-axis {
-  height: 20px;
-  position: relative;
-  margin-left: 88px;
-  border-bottom: 1px solid var(--baseline);
-}
-
-.time-tick {
-  position: absolute;
-  font-family: 'JetBrains Mono', monospace;
-  font-size: 11px;
-  color: var(--ink-muted);
-  top: 4px;
-  transform: translateX(-50%);
-}
 </style>
 
 <div class="header">
@@ -832,10 +887,27 @@ canvas {
 <div class="section">
   <h3 class="section-title">Worker activity</h3>
   <p class="subtitle">Observed task handoffs since the September 25 worker-ledger run. Bars show elapsed task stages, not continuous active work. Earlier progress remains in the score history above. <span id="activitySnapshotTime"></span></p>
-  <div class="legend" id="timelineLegend"></div>
+  <div class="activity-controls">
+    <div class="history-controls" role="group" aria-label="Activity time range">
+      <button class="chart-reset" id="activity6h" type="button">6 hours</button>
+      <button class="chart-reset" id="activity24h" type="button">24 hours</button>
+      <button class="chart-reset" id="activity7d" type="button">7 days</button>
+    </div>
+    <div class="activity-navigation">
+      <button class="chart-reset" id="activityEarlier" type="button">← Earlier</button>
+      <span class="chart-range" id="activityWindowLabel"></span>
+      <button class="chart-reset" id="activityLater" type="button">Later →</button>
+    </div>
+  </div>
   <div class="chart-wrap">
+    <div class="activity-metrics" id="activityMetrics"></div>
+    <p class="activity-note">Integration includes review and checks; exact validation-slot occupancy is not recorded here.</p>
+    <div class="legend" id="timelineLegend"></div>
     <div id="timeline"></div>
-    <div class="day-readout" id="timelineReadout"></div>
+    <div class="activity-details">
+      <div class="activity-inspection" id="timelineReadout"></div>
+      <div class="activity-waits"><h4>Longest waits in view</h4><div id="activityWaitList"></div></div>
+    </div>
   </div>
 </div>
 
@@ -1481,10 +1553,20 @@ document.getElementById('stats').innerHTML = [
 (function() {
   const container = document.getElementById('timeline');
   const readout = document.getElementById('timelineReadout');
+  const metrics = document.getElementById('activityMetrics');
+  const waitList = document.getElementById('activityWaitList');
+  const windowLabel = document.getElementById('activityWindowLabel');
+  const earlier = document.getElementById('activityEarlier');
+  const later = document.getElementById('activityLater');
+  const rangeButtons = new Map([[6, 'activity6h'], [24, 'activity24h'], [168, 'activity7d']]
+    .map(([hours, id]) => [hours, document.getElementById(id)]));
   const activity = DATA.activity || { segments: [], tasks: [] };
+  const segments = activity.segments || [];
+  const esc = value => String(value ?? '').replace(/&/g, '&amp;').replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;').replace(/"/g, '&quot;');
   document.getElementById('activitySnapshotTime').textContent = activity.capturedAt
     ? 'Activity snapshot: ' + new Date(activity.capturedAt).toLocaleString() + '.' : '';
-  const taskById = new Map(activity.tasks.map(task => [task.id, task]));
+  const taskById = new Map((activity.tasks || []).map(task => [task.id, task]));
   const phaseNames = { working: 'Assigned task', queued: 'Waiting for integration',
     integrating: 'Integration and checks', acceptance: 'Acceptance',
     publication: 'Publication' };
@@ -1493,77 +1575,177 @@ document.getElementById('stats').innerHTML = [
       + '" style="background:var(' + ({ working: '--goal-file-port', queued: '--goal-boundary',
         integrating: '--goal-divergence', acceptance: '--goal-in-progress',
         publication: '--ink-muted' })[phase] + ')"></div>' + name + '</div>').join('');
-  if (!activity.segments.length) {
+  if (!segments.length) {
     container.textContent = 'No worker activity snapshot is available.';
     return;
   }
-  const dayMs = 86400000;
-  const dayStart = value => { const d = new Date(value); d.setHours(0, 0, 0, 0); return d.getTime(); };
+  const hourMs = 3600000;
   const captured = Date.parse(activity.capturedAt);
-  const first = Math.max(dayStart(captured) - 6 * dayMs,
-    dayStart(Math.min(...activity.segments.map(segment => Date.parse(segment.start)))));
+  const first = Math.min(...segments.map(segment => Date.parse(segment.start)));
+  const latest = Math.min(captured, Math.max(...segments.map(segment => Date.parse(segment.end))));
   const lanes = ['A', 'B', 'C', 'Main'];
-  const rows = [];
-  for (let day = first; day <= dayStart(captured); day += dayMs) {
-    for (const lane of lanes) rows.push({ day, lane, bars: [] });
-  }
-  activity.segments.forEach((segment, index) => {
-    const a = Date.parse(segment.start), b = Date.parse(segment.end);
-    if (!(b > a)) return;
-    for (let day = dayStart(a); day <= dayStart(b); day += dayMs) {
-      const row = rows.find(item => item.day === day && item.lane === segment.lane);
-      if (row) row.bars.push({ a: Math.max(a, day), b: Math.min(b, day + dayMs), index });
-    }
-  });
-  let html = '<div class="time-axis">';
-  for (let hour = 0; hour <= 24; hour += 6) html += '<div class="time-tick" style="left:'
-    + (hour / 24 * 100) + '%">' + String(hour).padStart(2, '0') + '</div>';
-  html += '</div>';
-  rows.forEach(row => {
-    const date = new Date(row.day);
-    const label = (date.getMonth() + 1) + '/' + date.getDate() + ' ' + row.lane;
-    const pct = value => (value - row.day) / dayMs * 100;
-    row.bars.sort((a, b) => a.a - b.a);
-    const laneEnds = [];
-    row.bars.forEach(bar => {
-      let slot = laneEnds.findIndex(end => end <= bar.a);
-      if (slot < 0) slot = laneEnds.length;
-      laneEnds[slot] = bar.b;
-      bar.slot = slot;
-    });
-    const rowHeight = Math.max(30, 10 + laneEnds.length * 6);
-    const barHeight = Math.max(4, (rowHeight - 12) / Math.max(1, laneEnds.length) - 2);
-    html += '<div class="day-row" style="height:' + rowHeight + 'px"><div class="day-label">' + label
-      + '</div><div class="day-bars">' + row.bars.map(bar => {
-        const segment = activity.segments[bar.index];
-        return '<div class="day-bar phase-' + segment.phase + '" data-segment="'
-          + bar.index + '" tabindex="0" role="button" aria-label="'
-          + phaseNames[segment.phase] + ' for ' + (taskById.get(segment.task)?.label || segment.task)
-          + '" style="left:' + pct(bar.a) + '%;width:' + (pct(bar.b) - pct(bar.a))
-          + '%;top:' + (5 + bar.slot * (barHeight + 2)) + 'px;height:'
-          + barHeight + 'px"></div>';
-      }).join('') + '</div></div>';
-  });
-  container.innerHTML = html;
+  let hours = 6;
+  let viewEnd = latest;
+  let selectedIndex = null;
   const stamp = value => new Date(value).toLocaleString('en-US',
     { month: 'numeric', day: 'numeric', hour: '2-digit', minute: '2-digit', hour12: false });
-  const describe = element => {
-    const segment = activity.segments[Number(element.dataset.segment)];
-    const task = taskById.get(segment.task);
-    const minutes = Math.round((Date.parse(segment.end) - Date.parse(segment.start)) / 60000);
-    readout.textContent = segment.lane + ' · ' + (task?.label || segment.task) + (task?.goal ? ' · ' + task.goal : '')
-      + ' · ' + phaseNames[segment.phase] + ' · ' + stamp(segment.start)
-      + ' – ' + stamp(segment.end) + ' · ' + fmt(minutes);
+  const shortStamp = value => new Date(value).toLocaleTimeString('en-US',
+    { hour: '2-digit', minute: '2-digit', hour12: false });
+  const duration = segment => (Date.parse(segment.end) - Date.parse(segment.start)) / 60000;
+  const overlap = (a, b) => Math.max(0, Math.min(Date.parse(a.end), Date.parse(b.end))
+    - Math.max(Date.parse(a.start), Date.parse(b.start))) / 60000;
+  const percentile = (values, fraction) => {
+    if (!values.length) return null;
+    const sorted = [...values].sort((a, b) => a - b);
+    return sorted[Math.ceil(fraction * sorted.length) - 1];
   };
-  container.addEventListener('pointerover', event => {
-    if (event.target.classList.contains('day-bar')) describe(event.target);
+  const ongoing = segment => segment.end === activity.capturedAt
+    && taskById.get(segment.task)?.status === (segment.phase === 'queued' ? 'ready' : 'integrating');
+  const metric = (label, value, detail) => '<div class="activity-metric"><div class="activity-metric-label">'
+    + label + '</div><strong class="activity-metric-value">' + value
+    + '</strong><div class="activity-metric-detail">' + detail + '</div></div>';
+  const name = segment => taskById.get(segment.task)?.label || segment.task;
+  function describe(index) {
+    const segment = segments[index];
+    if (!segment) return;
+    const task = taskById.get(segment.task);
+    let context = '';
+    if (segment.phase === 'queued') {
+      const main = segments.filter(row => row.lane === 'Main' && overlap(row, segment) > 0)
+        .sort((a, b) => overlap(b, segment) - overlap(a, segment));
+      const otherWork = segments.filter(row => row.phase === 'working'
+        && row.worker === segment.worker && row.task !== segment.task);
+      const assigned = otherWork.reduce((sum, row) => sum + overlap(row, segment), 0);
+      context = '<p>' + (main.length
+        ? 'Recorded Main stages overlapped this wait:'
+        : 'No Main stage is recorded during this wait; its cause is unknown.') + '</p>'
+        + (main.length ? '<ul>' + main.slice(0, 4).map(row => '<li>'
+          + esc(name(row)) + ' · ' + phaseNames[row.phase] + ' · '
+          + fmt(overlap(row, segment)) + '</li>').join('') + '</ul>' : '')
+        + '<p>' + (assigned ? 'Another task was assigned to this worker for '
+          + fmt(assigned) + ' of the wait.' : 'No other worker assignment is recorded during this wait.')
+        + ' Assignment does not measure active coding.</p>';
+    } else if (segment.lane === 'Main') {
+      const waiting = segments.filter(row => row.phase === 'queued' && overlap(row, segment) > 0);
+      const waitMinutes = waiting.reduce((sum, row) => sum + overlap(row, segment), 0);
+      context = '<p>' + waiting.length + ' waiting '
+        + (waiting.length === 1 ? 'delivery' : 'deliveries') + ' overlapped this stage'
+        + (waiting.length ? ', totaling ' + fmt(waitMinutes) + ' of delivery wait time' : '')
+        + '. Overlap alone does not establish why they waited.</p>';
+    }
+    readout.innerHTML = '<h4>Selected stage</h4><p><strong>' + esc(name(segment))
+      + '</strong> · ' + esc(segment.lane) + (task?.goal ? ' · ' + esc(task.goal) : '')
+      + '</p><p>' + phaseNames[segment.phase] + ' · ' + fmt(duration(segment))
+      + (ongoing(segment) ? ' · ongoing at snapshot' : '') + '<br>'
+      + stamp(segment.start) + ' – ' + stamp(segment.end) + '</p>' + context;
+  }
+  function render() {
+    const span = hours * hourMs;
+    const earliestEnd = Math.min(latest, first + span);
+    viewEnd = Math.min(latest, Math.max(earliestEnd, viewEnd));
+    const start = viewEnd - span;
+    const shown = segments.map((segment, index) => ({ segment, index }))
+      .filter(({ segment }) => Date.parse(segment.end) > start && Date.parse(segment.start) < viewEnd);
+    const completed = phase => shown.filter(({ segment }) => segment.phase === phase
+      && Date.parse(segment.end) > start && Date.parse(segment.end) <= viewEnd
+      && !ongoing(segment)).map(({ segment }) => duration(segment));
+    const waits = shown.filter(({ segment }) => segment.phase === 'queued'
+      && Date.parse(segment.end) > start && Date.parse(segment.end) <= viewEnd)
+      .sort((a, b) => duration(b.segment) - duration(a.segment));
+    const waitValues = completed('queued');
+    const integrationValues = completed('integrating');
+    metrics.innerHTML = metric('Ready → Main', fmt(percentile(waitValues, .5)),
+      fmt(percentile(waitValues, .9)) + ' p90 · ' + waitValues.length + ' completed waits')
+      + metric('Integration and checks', fmt(percentile(integrationValues, .5)),
+        fmt(percentile(integrationValues, .9)) + ' p90 · ' + integrationValues.length + ' completed stages')
+      + metric('Longest wait', waits.length ? fmt(duration(waits[0].segment)) : '—',
+        waits.length ? esc(name(waits[0].segment)) + ' · worker '
+          + esc(waits[0].segment.worker) + (ongoing(waits[0].segment) ? ' · ongoing' : '')
+          : 'No waits ended in this window');
+    windowLabel.textContent = stamp(start) + ' – ' + stamp(viewEnd);
+    earlier.disabled = viewEnd <= earliestEnd;
+    later.disabled = viewEnd >= latest;
+    for (const [value, button] of rangeButtons) button.setAttribute('aria-pressed', String(value === hours));
+    if (!shown.some(row => row.index === selectedIndex)) {
+      selectedIndex = waits[0]?.index ?? shown.find(row => row.segment.lane === 'Main')?.index
+        ?? shown[0]?.index ?? null;
+    }
+    const tickCount = 4;
+    let html = '<div class="activity-axis">';
+    for (let tick = 0; tick <= tickCount; tick++) {
+      const at = start + span * tick / tickCount;
+      const label = hours === 168 ? (new Date(at).getMonth() + 1) + '/'
+        + new Date(at).getDate() : shortStamp(at);
+      html += '<span class="activity-tick" style="left:' + (tick / tickCount * 100)
+        + '%">' + label + '</span>';
+    }
+    html += '</div>';
+    for (const lane of lanes) {
+      const bars = shown.filter(row => row.segment.lane === lane).map(row => ({
+        ...row, a: Math.max(Date.parse(row.segment.start), start),
+        b: Math.min(Date.parse(row.segment.end), viewEnd),
+      })).sort((a, b) => a.a - b.a);
+      const laneEnds = [];
+      for (const bar of bars) {
+        let slot = laneEnds.findIndex(end => end <= bar.a);
+        if (slot < 0) slot = laneEnds.length;
+        laneEnds[slot] = bar.b;
+        bar.slot = slot;
+      }
+      const rowHeight = Math.max(36, 14 + laneEnds.length * 14);
+      html += '<div class="activity-row' + (lane === 'Main' ? ' main' : '')
+        + '" style="height:' + rowHeight + 'px"><div class="activity-label">'
+        + lane + '</div><div class="activity-track">'
+        + bars.map(bar => '<div class="activity-bar phase-' + bar.segment.phase
+          + (bar.index === selectedIndex ? ' selected' : '') + '" data-segment="'
+          + bar.index + '" tabindex="0" role="button" aria-label="'
+          + esc(phaseNames[bar.segment.phase] + ' for ' + name(bar.segment)
+            + ', ' + fmt(duration(bar.segment))) + '" style="left:'
+          + ((bar.a - start) / span * 100) + '%;width:' + ((bar.b - bar.a) / span * 100)
+          + '%;top:' + (7 + bar.slot * 14) + 'px;height:10px"></div>').join('')
+        + '</div></div>';
+    }
+    container.innerHTML = html;
+    waitList.innerHTML = waits.length ? waits.slice(0, 5).map(({ segment, index }) =>
+      '<button type="button" data-segment="' + index + '"><span><strong>'
+      + esc(name(segment)) + '</strong> <small>Worker ' + esc(segment.worker)
+      + '</small></span><span>' + fmt(duration(segment))
+      + (ongoing(segment) ? ' · ongoing' : '') + '</span></button>').join('')
+      : '<p class="activity-note">No handoff wait ended in this window.</p>';
+    if (selectedIndex == null) readout.innerHTML = '<h4>Selected stage</h4><p>No recorded stage in this window.</p>';
+    else describe(selectedIndex);
+  }
+  for (const [value, button] of rangeButtons) button.addEventListener('click', () => {
+    hours = value;
+    render();
   });
-  container.addEventListener('click', event => {
-    if (event.target.classList.contains('day-bar')) describe(event.target);
+  earlier.addEventListener('click', () => { viewEnd -= hours * hourMs; render(); });
+  later.addEventListener('click', () => { viewEnd += hours * hourMs; render(); });
+  container.addEventListener('pointerover', event => {
+    if (event.target.classList.contains('activity-bar')) describe(Number(event.target.dataset.segment));
   });
   container.addEventListener('focusin', event => {
-    if (event.target.classList.contains('day-bar')) describe(event.target);
+    if (event.target.classList.contains('activity-bar')) describe(Number(event.target.dataset.segment));
   });
+  container.addEventListener('click', event => {
+    if (!event.target.classList.contains('activity-bar')) return;
+    selectedIndex = Number(event.target.dataset.segment);
+    render();
+  });
+  container.addEventListener('keydown', event => {
+    if (!event.target.classList.contains('activity-bar')
+        || !['Enter', ' '].includes(event.key)) return;
+    event.preventDefault();
+    selectedIndex = Number(event.target.dataset.segment);
+    render();
+  });
+  waitList.addEventListener('click', event => {
+    const button = event.target.closest('button[data-segment]');
+    if (!button) return;
+    selectedIndex = Number(button.dataset.segment);
+    render();
+  });
+  render();
 })();
 
 // --- Goal outcomes for the worker-ledger era ---
