@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 8300055,
+      "datetime": "20260927120055",
+      "nethackrc": "OPTIONS=name:WrathFountain,role:Wizard,race:human,gender:female,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,!autopickup,pettype:none,!acoustics\n",
+      "moves": "\n#wizwish\nfountain\nqy"
+    }
+  ],
+  "comment": "Independent B24 drinkfountain caller witness. Seed 8300055 came from the bounded source-branch sample for C's fountain.c:drinkfountain() rnd(30)=20 foul-water arm; the debug Wizard wishes a plain fountain and quaffs from it. This executes the source-ordered fountain.c:drinkfountain() -> eat.c:vomit() call."
+}

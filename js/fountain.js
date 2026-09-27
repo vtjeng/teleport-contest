@@ -688,7 +688,7 @@ export async function drinkfountain(state = game, env = {}) {
                     state,
                     hungerEnv,
                 );
-                vomit(state);
+                await vomit(state);
             }
             break;
         case 21: // Poisonous
@@ -1141,7 +1141,7 @@ export async function drinksink(state = game, env = {}) {
             endRunning: env.endRunning ?? endRunning,
             statusRefresh: env.statusRefresh ?? (() => bot()),
         });
-        vomit(state);
+        await vomit(state);
         break;
     }
     case 10:

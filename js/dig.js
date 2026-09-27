@@ -178,7 +178,7 @@ import { wield_tool } from './wield.js';
 import { Can_dig_down, ceiling, on_level, surface } from './dungeon.js';
 import { abon, dbon } from './weapon.js';
 import { yname, yobjnam, Yobjnam2 } from './objnam.js';
-import { altarmask_at } from './pray.js';
+import { altar_wrath, altarmask_at } from './pray.js';
 import { note_unported } from './unported.js';
 import { PM_DWARF } from './monsters.js';
 import { dogushforth, dryup, breaksink } from './fountain.js';
@@ -427,7 +427,7 @@ export async function dig(state = game, rawEnv = {}) {
     }
 
     if (IS_ALTAR(state.level.at(u.ux, u.uy).typ)) {
-        note_unported('pray.c altar_wrath');
+        await altar_wrath(u.ux, u.uy, state);
         note_unported('pray.c angry_priest');
     }
     if (await dighole(true, false, null, {
