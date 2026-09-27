@@ -453,6 +453,30 @@ test('a queued synthetic goal can open after its selected case is resolved', t =
     assert.equal(f.goals()[0].syntheticProvenance[session].session, session);
 });
 
+test('a parked synthetic goal can resume after its selected case is resolved', t => {
+    const f = fixture(t);
+    const { session, queue } = syntheticQueue(f);
+    f.cli('queue-goal', '--id', 'entry-coverage', '--kind', 'divergence-fix',
+        '--c-file', 'widget.c', '--function', 'helper', '--session', session,
+        '--summary', 'Finish source entry coverage');
+    f.cli('open-goal', '--id', 'entry-coverage');
+    f.cli('park-goal', '--goal', 'entry-coverage', '--reason',
+        'An active caller still needs matching recorded play');
+
+    queue.sessions = [];
+    queue.candidates = [];
+    queue.blockers = [{ batch: 'v1', reason: 'evaluation missing' }];
+    f.json('.cache/queue.json', queue);
+    f.refuses(/synthetic evidence.*blocked/u, 'open-goal', '--id', 'entry-coverage');
+    assert.equal(f.goals()[0].status, 'parked');
+
+    queue.blockers = [];
+    f.json('.cache/queue.json', queue);
+    f.cli('open-goal', '--id', 'entry-coverage');
+    assert.equal(f.goals()[0].status, 'open');
+    assert.equal(f.goals()[0].syntheticProvenance[session].session, session);
+});
+
 test('fixed scan overrides cannot bypass synthetic evidence or regression priority', t => {
     const f = fixture(t);
     const { session, queue } = syntheticQueue(f);

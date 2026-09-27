@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent potion.c:peffect_monster_detection blessed-potion variation. Seed 260927263 and the clock were chosen for this B26 witness; a debug Wizard wishes and quaffs the potion to exercise the potion-specific rn2(100)+100 timeout after the shared blessed map scan.",
+  "segments": [
+    {
+      "seed": 260927263,
+      "datetime": "20260927163500",
+      "nethackrc": "OPTIONS=name:DetectBlessedB26,role:Wizard,race:human,gender:male,align:neutral,playmode:debug,!legacy,!tutorial,!splash_screen,pettype:none\n",
+      "moves": " \u0017blessed potion of monster detection\nqn"
+    }
+  ]
+}

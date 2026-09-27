@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent B26 active blessed-spell entry: debug Wizard #enhance advances divination from unskilled through basic to skilled without practice, then #wizcast casts detect monsters. The source-defined skill menu key for divination is r; this makes spell.c:spelleffects set pseudo->blessed before potion.c:peffects and reaches peffect_monster_detection’s SPBOOK_CLASS rn1(40,21) early-return path.",
+  "segments": [
+    {
+      "seed": 260927266,
+      "datetime": "20260927174500",
+      "nethackrc": "OPTIONS=name:BlessedDetectSpellB26,role:Wizard,race:human,gender:male,align:neutral,playmode:debug,!legacy,!tutorial,!splash_screen,pettype:none\n",
+      "moves": " #enhance\nyr r \u001b#wizcast\nh"
+    }
+  ]
+}

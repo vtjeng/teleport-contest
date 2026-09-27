@@ -38,7 +38,9 @@ import {
     ARTICLE_THE,
     BLINDED,
     CONFUSION,
+    COLNO,
     DEAF,
+    DETECT_MONSTERS,
     GLIB,
     DISP_ALWAYS,
     DISP_END,
@@ -97,6 +99,7 @@ import {
     STRANGLED,
     TELEPAT,
     TIMEOUT,
+    ROWNO,
     SHOPBASE,
     SUPPRESS_IT,
     SUPPRESS_SADDLE,
@@ -222,7 +225,9 @@ import {
 } from './objects.js';
 import { ttyPline } from './tty_message.js';
 import { note_unported } from './unported.js';
-import { map_invisible, map_invisible_planning } from './display.js';
+import {
+    GLYPH_INVISIBLE, map_invisible, map_invisible_planning, unmap_object,
+} from './display.js';
 import {
     healmon, killed, monkilled, new_were, wake_nearto, wakeup,
 } from './mon.js';
@@ -232,6 +237,8 @@ import { in_rooms } from './rooms.js';
 import { shop_keeper, stolen_value, subfrombill, alter_cost } from './shk.js';
 import { water_damage } from './trap_water_damage.js';
 import { aobjnam, an } from './objnam.js';
+import { m_at } from './monst.js';
+import { monster_detect } from './detect.js';
 
 // Thrown where potion.c reaches a vapor effect this port has not ported.
 export class UnsupportedPotionError extends Error {
@@ -1344,6 +1351,58 @@ async function peffect_gain_level(otmp, state = game) {
     if (otmp.blessed) u.uexp = rndexp(true, state);
 }
 
+// C ref: potion.c peffect_monster_detection() (914-954). Blessed detection
+// first refreshes HDetect_monsters, removes remembered invisible glyphs, and
+// redraws the map; swallowed/underwater heroes then fall through to the
+// ordinary monster_detect() path exactly as in C.
+async function peffect_monster_detection(otmp, state = game) {
+    // potion.c's gp flags are static globals and start zeroed even when a
+    // spell calls peffects() directly, without dopotion()'s per-quaff reset.
+    state.gp.potion_nothing ??= 0;
+    state.gp.potion_unkn ??= 0;
+
+    if (otmp.blessed) {
+        const prop = state.u.uprops[DETECT_MONSTERS] ??= {
+            intrinsic: 0,
+            extrinsic: 0,
+        };
+        if (prop.intrinsic || prop.extrinsic)
+            state.gp.potion_nothing++;
+        state.gp.potion_unkn++;
+
+        const duration = (prop.intrinsic & TIMEOUT) >= 300
+            ? 1
+            : otmp.oclass === SPBOOK_CLASS
+                ? rn1(40, 21)
+                : rn2(100) + 100;
+        incr_itimeout(prop, duration);
+
+        for (let x = 1; x < COLNO; x++) {
+            for (let y = 0; y < ROWNO; y++) {
+                if (state.level.at(x, y).remembered_glyph?.glyph
+                    === GLYPH_INVISIBLE) {
+                    unmap_object(x, y, state);
+                    newsym(x, y);
+                }
+                if (m_at(x, y, state))
+                    state.gp.potion_unkn = 0;
+            }
+        }
+
+        // C falls through for swallowed or underwater heroes.
+        if (!state.u.uswallow && !state.u.uinwater) {
+            see_monsters(state);
+            if (state.gp.potion_unkn)
+                await ttyPline('You feel lonely.', state);
+            return 0;
+        }
+    }
+
+    if (await monster_detect(otmp, 0, state)) return 1;
+    await exercise(A_WIS, true, state);
+    return 0;
+}
+
 // C ref: potion.c peffects() (1333-1425). Dispatch the effect of a quaffed
 // potion or spell. Returns >=0 if the effect short-circuits dopotion()'s tail
 // (0 = no time, 1 = time), -1 to continue to the tail.
@@ -1377,7 +1436,8 @@ export async function peffects(otmp, state = game) {
         throw new UnsupportedQuaffError('peffect_sleeping()');
     case POT_MONSTER_DETECTION:
     case SPE_DETECT_MONSTERS:
-        throw new UnsupportedQuaffError('peffect_monster_detection()');
+        if (await peffect_monster_detection(otmp, state)) return 1;
+        break;
     case POT_OBJECT_DETECTION:
     case SPE_DETECT_TREASURE:
         throw new UnsupportedQuaffError('peffect_object_detection()');

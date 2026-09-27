@@ -14,7 +14,8 @@ import { failClosedCommandRefusals } from '../js/cmd.js';
 import { setuhpmax } from '../js/attrib.js';
 
 import {
-    A_CON, A_DEX, A_WIS, ACID_RES, BLINDED, CONFUSION, DEAF, FAST, FREE_ACTION,
+    A_CON, A_DEX, A_WIS, ACID_RES, BLINDED, CONFUSION, DEAF,
+    DETECT_MONSTERS, FAST, FREE_ACTION,
     FROMOUTSIDE, GLIB, HALLUC,
     GETOBJ_DOWNPLAY, GETOBJ_EXCLUDE, GETOBJ_EXCLUDE_INACCESS, GETOBJ_SUGGEST,
     HALLUC_RES, INVIS, LEVITATION, NOT_HUNGRY, POTHIT_HERO_THROW,
@@ -65,6 +66,7 @@ import {
     TOWEL,
     COIN_CLASS,
     RING_CLASS,
+    SPE_DETECT_MONSTERS,
 } from '../js/objects.js';
 import {
     UnsupportedPotionError,
@@ -2135,6 +2137,72 @@ test('peffect_invisibility follows source ordering for potion branches',
         assert.match(getRngLog()[0], /^d\(6,100\)=\d+$/u);
         assert.equal(property.intrinsic & TIMEOUT,
             Number(/=(\d+)$/u.exec(getRngLog()[0])[1]) + 100);
+    });
+
+// C ref: potion.c peffect_monster_detection() (914-954). This impure source
+// effect increments the shared detection timeout after checking the old
+// HDetect_monsters timeout; the blessed potion caller must still return
+// peffects()'s -1 so dopotion() consumes the potion through its ordinary tail.
+test('blessed monster detection uses the old timeout threshold', async () => {
+    await startedGame(260927262, 'BlessedMonsterDetection');
+    const property = game.u.uprops[DETECT_MONSTERS];
+    const potion = vaporPotion(POT_MONSTER_DETECTION);
+    potion.blessed = true;
+    game.gp.potion_nothing = 0;
+    game.gp.potion_unkn = 0;
+
+    property.intrinsic = 0;
+    property.extrinsic = 0;
+    enableRngLog();
+    assert.equal(await peffects(potion, game), -1);
+    const durationDraw = getRngLog();
+    assert.equal(durationDraw.length, 1);
+    const duration = Number(/^rn2\(100\)=(\d+)$/u
+        .exec(durationDraw[0])?.[1]) + 100;
+    assert.ok(duration >= 100 && duration <= 199);
+    assert.equal(property.intrinsic & TIMEOUT, duration);
+    assert.equal(game.gp.potion_nothing, 0);
+
+    // detect.c's existing intrinsic prevents a long repeated timeout: C tests
+    // the old value before incr_itimeout() and adds exactly one with no RNG.
+    property.intrinsic = 300;
+    property.extrinsic = 0;
+    game.gp.potion_nothing = 0;
+    game.gp.potion_unkn = 0;
+    enableRngLog();
+    assert.equal(await peffects(potion, game), -1);
+    assert.deepEqual(getRngLog(), []);
+    assert.equal(property.intrinsic & TIMEOUT, 301);
+    assert.equal(game.gp.potion_nothing, 1);
+});
+
+test('direct blessed detection spell starts with C-zeroed potion flags',
+    async () => {
+        await startedGame(260927264, 'BlessedDetectionSpell');
+        const property = game.u.uprops[DETECT_MONSTERS];
+        property.intrinsic = 0;
+        property.extrinsic = 0;
+        // spell.c calls peffects() directly, bypassing dopotion()'s per-quaff
+        // reset; decl.h's static gp counters still begin at zero in C.
+        delete game.gp.potion_nothing;
+        delete game.gp.potion_unkn;
+        const spell = {
+            otyp: SPE_DETECT_MONSTERS,
+            oclass: SPBOOK_CLASS,
+            blessed: 1,
+            cursed: 0,
+        };
+        enableRngLog();
+
+        assert.equal(await peffects(spell, game), -1);
+
+        const draw = getRngLog();
+        assert.equal(draw.length, 1);
+        const offset = Number(/^rn2\(40\)=(\d+)$/u.exec(draw[0])?.[1]);
+        assert.ok(offset >= 0 && offset <= 39);
+        assert.equal(property.intrinsic & TIMEOUT, offset + 21);
+        assert.equal(game.gp.potion_nothing, 0);
+        assert.ok(Number.isInteger(game.gp.potion_unkn));
     });
 
 test('peffect_invisibility blessed permanence uses C HInvis threshold',

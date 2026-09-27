@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent B26 spell.c:spelleffects(SPE_DETECT_MONSTERS) -> potion.c:peffects() -> peffect_monster_detection() entry. In a debug Wizard game, create a hostile grid bug, cast detect monsters from the #wizcast menu, and accept the map cursor to exercise the duplicate-potion spell caller. Seed, date, character and commands are independent of the admitted quaff case.",
+  "segments": [
+    {
+      "seed": 260927261,
+      "datetime": "20260927153000",
+      "nethackrc": "OPTIONS=name:DetectSpellB26,role:Wizard,race:human,gender:male,align:neutral,playmode:debug,!legacy,!tutorial,!splash_screen,pettype:none\n",
+      "moves": " \u0007hostile grid bug\n#wizcast\nh ."
+    }
+  ]
+}
