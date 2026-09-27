@@ -90956,7 +90956,7 @@
     {
       "id": "port-spell-dowizcast-stone-to-flesh-v7-20260926",
       "kind": "file-port",
-      "status": "queued",
+      "status": "open",
       "summary": "Port wizard spell-cast command and reach stone-to-flesh self cure through production input",
       "cFile": "spell.c",
       "sessions": [
@@ -90964,8 +90964,12 @@
       ],
       "selectionReason": "The v7 lizard case remains an actionable petrification-related mismatch at eat.c:cpostfx, owned separately by A18. Parked C21 cannot close its zap.c:zapyourself stone-to-flesh caller because its study_book setup diverges first. C spell.c:dowizcast is the source-defined wizard spell menu route into spelleffects and zapyourself without study_book, so this independent prerequisite enables the missing production evidence while A18 fixes the current first mismatch.",
       "detail": "C spell.c:dowizcast builds a PICK_ONE menu of spells, consumes the selected object type and returns spelleffects(otyp,FALSE,TRUE); cmd.c:doextcmd already names wizcast but JS does not dispatch dowizcast. Record a distinct debug game with timed STONED setup, #wizcast stone-to-flesh selection, and self direction, then verify the zap.c caller.",
-      "openedAt": null,
-      "openStanding": null,
+      "openedAt": "3f62882fb5cc6aee77909a248c4fa205c23bd68e",
+      "openStanding": {
+        "sha": "7e423a39c8307d8dbcc0bb9bc2f5d21c70d288d8",
+        "screens": 11405,
+        "rng": 792838
+      },
       "closedAt": null,
       "delivered": null,
       "functions": [
@@ -90994,7 +90998,160 @@
           "evaluationPath": "challenges/evaluations/20260927005209-v7.json",
           "evaluationCommit": "12a35e71cf1d937cd08b75b196f3c8b54224f6cd"
         }
-      }
+      },
+      "activeStanding": {
+        "sha": "7e423a39c8307d8dbcc0bb9bc2f5d21c70d288d8",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v7",
+          "caseId": "lizard-corpse-cures-stoning-corrected",
+          "session": "synthetic/v7/lizard-corpse-cures-stoning-corrected",
+          "manifestPath": "challenges/manifests/v7.json",
+          "manifestSha256": "03a861a9d1bc9d813c80681312ee7a0e0f893dbad0536de40a974bd5ec344094",
+          "recording": "challenges/cases/v7/lizard-corpse-cures-stoning-corrected.session.json",
+          "recordingPath": "challenges/cases/v7/lizard-corpse-cures-stoning-corrected.session.json",
+          "recordingSha256": "6bf1416d9de4abf481689ec1d723ff6775badd518b9222d66c685b3157cc4149",
+          "recipe": "challenges/cases/v7/lizard-corpse-cures-stoning-corrected.recipe.session.json",
+          "recipeSha256": "edca66fd45bb62acda508e3cea52f1ca972a918d4bbe4e3f7cb36692e26a50d2",
+          "replayInputSha256": "11e632b69fa599ba6fda7506edb04a1b49adb0ec395e5ab0c6ee7afa1b14920a",
+          "evaluationPath": "challenges/evaluations/20260927005209-v7.json",
+          "evaluationCommit": "12a35e71cf1d937cd08b75b196f3c8b54224f6cd",
+          "evaluationArtifact": "challenges/evaluations/20260927005209-v7.json",
+          "evaluationUtc": "2026-09-27T00:52:38.364Z",
+          "remainingScreens": 1,
+          "recordedSteps": 37,
+          "previousScreensMatched": 36,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 36,
+              "total": 37
+            },
+            "rng": {
+              "matched": 1948,
+              "total": 1951
+            },
+            "cursors": {
+              "matched": 36,
+              "total": 37
+            }
+          },
+          "firstMismatch": {
+            "kind": "stop",
+            "message": "an occupation reached eating requires cpostfx()'s lizard arm",
+            "step": 36
+          },
+          "step": 36,
+          "kind": "stop",
+          "sourceFile": "eat.c",
+          "function": "cpostfx",
+          "message": "an occupation reached eating requires cpostfx()'s lizard arm",
+          "cFile": "eat.c",
+          "luaFile": null,
+          "line": null,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v7/lizard-corpse-cures-stoning-corrected.json",
+            "result": {
+              "session": "synthetic/v7/lizard-corpse-cures-stoning-corrected",
+              "corpus": "synthetic",
+              "batch": "v7",
+              "caseId": "lizard-corpse-cures-stoning-corrected",
+              "manifestPath": "challenges/manifests/v7.json",
+              "manifestSha256": "03a861a9d1bc9d813c80681312ee7a0e0f893dbad0536de40a974bd5ec344094",
+              "recordingPath": "challenges/cases/v7/lizard-corpse-cures-stoning-corrected.session.json",
+              "recordingSha256": "6bf1416d9de4abf481689ec1d723ff6775badd518b9222d66c685b3157cc4149",
+              "evaluationPath": "challenges/evaluations/20260927005209-v7.json",
+              "evaluationCommit": "12a35e71cf1d937cd08b75b196f3c8b54224f6cd",
+              "remainingScreens": 1,
+              "recordedSteps": 37,
+              "status": "complete",
+              "commit": "12a35e71cf1d937cd08b75b196f3c8b54224f6cd",
+              "mismatch": {
+                "corpus": "synthetic",
+                "batch": "v7",
+                "caseId": "lizard-corpse-cures-stoning-corrected",
+                "session": "synthetic/v7/lizard-corpse-cures-stoning-corrected",
+                "manifestPath": "challenges/manifests/v7.json",
+                "manifestSha256": "03a861a9d1bc9d813c80681312ee7a0e0f893dbad0536de40a974bd5ec344094",
+                "recording": "challenges/cases/v7/lizard-corpse-cures-stoning-corrected.session.json",
+                "recordingPath": "challenges/cases/v7/lizard-corpse-cures-stoning-corrected.session.json",
+                "recordingSha256": "6bf1416d9de4abf481689ec1d723ff6775badd518b9222d66c685b3157cc4149",
+                "recipe": "challenges/cases/v7/lizard-corpse-cures-stoning-corrected.recipe.session.json",
+                "recipeSha256": "edca66fd45bb62acda508e3cea52f1ca972a918d4bbe4e3f7cb36692e26a50d2",
+                "replayInputSha256": "11e632b69fa599ba6fda7506edb04a1b49adb0ec395e5ab0c6ee7afa1b14920a",
+                "evaluationPath": "challenges/evaluations/20260927005209-v7.json",
+                "evaluationCommit": "12a35e71cf1d937cd08b75b196f3c8b54224f6cd",
+                "evaluationArtifact": "challenges/evaluations/20260927005209-v7.json",
+                "evaluationUtc": "2026-09-27T00:52:38.364Z",
+                "remainingScreens": 1,
+                "recordedSteps": 37,
+                "previousScreensMatched": 36,
+                "regression": false,
+                "passed": false,
+                "error": null,
+                "metrics": {
+                  "screens": {
+                    "matched": 36,
+                    "total": 37
+                  },
+                  "rng": {
+                    "matched": 1948,
+                    "total": 1951
+                  },
+                  "cursors": {
+                    "matched": 36,
+                    "total": 37
+                  }
+                },
+                "firstMismatch": {
+                  "kind": "stop",
+                  "message": "an occupation reached eating requires cpostfx()'s lizard arm",
+                  "step": 36
+                },
+                "step": 36,
+                "kind": "stop",
+                "sourceFile": "eat.c",
+                "function": "cpostfx",
+                "message": "an occupation reached eating requires cpostfx()'s lizard arm",
+                "cFile": "eat.c",
+                "luaFile": null,
+                "line": null
+              },
+              "summary": "The stoning cure and first eating turn now match. At segment 0 step 36, the eatfood occupation finishes the lizard corpse and reaches eat.c:done_eating -> cpostfx(PM_LIZARD). JavaScript refuses that post-effect before the C corpse-intrinsic RNG draws and temporary resistance effect. Port the whole post-effect and its consumed intrinsic helper path; keep other active callers and effects source-named until they have matching evidence.",
+              "source": {
+                "file": "eat.c",
+                "branch": "done_eating calls cpostfx after finishing the corpse; the PM_LIZARD arm caps stun and confusion timeouts, then runs corpse_intrinsic and givit. givit consumes temp_givit and should_givit decisions before any property or message change.",
+                "functions": [
+                  "cpostfx",
+                  "givit",
+                  "temp_givit"
+                ],
+                "callers": [
+                  "eat.c:done_eating calls cpostfx(piece->corpsenm) after newuhs and the finish message; js/eat.js eatfood occupation reaches done_eating.",
+                  "eat.c:start_tin/consume_tin and Finish_digestion also call cpostfx; their production JS paths require separate wiring or explicit blocked evidence."
+                ],
+                "dependencies": [
+                  "js/eat.js already defines intrinsic_possible, should_givit and corpse_intrinsic; verify their complete return behavior against C and preserve the C RNG order.",
+                  "potion.c:make_stunned and make_confused are void state helpers for timeout caps; inspect each active branch before claiming whole-function completion."
+                ]
+              },
+              "goalKind": "file-port",
+              "evidence": [
+                "Saved v7 evaluation challenges/evaluations/20260927005209-v7.json at 12a35e71cf1d937cd08b75b196f3c8b54224f6cd matches 36/37 screens, 36/37 cursors and 1948/1951 RNG calls; the first stop is segment 0 step 36 in cpostfx after the previously repaired petrification cure.",
+                "C eat.c:done_eating lines 544-573 calls cpostfx before corpse useup. The current recording next draws rn2(1) in corpse_intrinsic, rn2(15) in should_givit and rn2(6) in temp_givit; JS stops before these draws.",
+                "C eat.c:temp_givit lines 992-1000 returns a temporary-resistance chance, givit lines 1003 onward consumes that result, and cpostfx from line 1129 includes the lizard branch and other corpse effects. The independent recording should use a new seed/date and a different relevant state or role from the admitted v7 input."
+              ]
+            }
+          }
+        }
+      ]
     },
     {
       "id": "div-vision-pit-sight-synthetic-v6-20260926",
