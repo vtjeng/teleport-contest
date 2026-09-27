@@ -97305,7 +97305,7 @@
     {
       "id": "port-apply-use-towel-synthetic-v8-20260927",
       "kind": "file-port",
-      "status": "queued",
+      "status": "open",
       "summary": "Port towel use across clean, slippery, and blinded states",
       "cFile": "apply.c",
       "sessions": [
@@ -97313,8 +97313,12 @@
       ],
       "selectionReason": "Current v8 towel-clean-face case stops at step 10 in doapply; source-traced investigation investigations/synthetic/v8/towel-clean-face.json identifies apply.c:use_towel as the whole owner, with doapply TOWEL dispatch and consumed mhitu.c:gulp_blnd_check dependency. The annotated doapply owner is only the dispatch site. Latest evidence is challenges/evaluations/20260927161400-v8.json and immutable recording challenges/cases/v8/towel-clean-face.session.json. Related apply.c touchstone work was completed by B29; this is a separate function family for the same persistent worker.",
       "detail": "",
-      "openedAt": null,
-      "openStanding": null,
+      "openedAt": "f97ab5f4f7f8ac339f71596ac14a441fc2c85341",
+      "openStanding": {
+        "sha": "c49a113a15eedee5d91c6dde088d4c58dc89bfe6",
+        "screens": 11405,
+        "rng": 792838
+      },
       "closedAt": null,
       "delivered": null,
       "functions": [
@@ -97343,7 +97347,158 @@
           "evaluationPath": "challenges/evaluations/20260927161400-v8.json",
           "evaluationCommit": "5bf1150b63da82c6e02196da6a3d7047ef9b3938"
         }
-      }
+      },
+      "activeStanding": {
+        "sha": "c49a113a15eedee5d91c6dde088d4c58dc89bfe6",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v8",
+          "caseId": "towel-clean-face",
+          "session": "synthetic/v8/towel-clean-face",
+          "manifestPath": "challenges/manifests/v8.json",
+          "manifestSha256": "6a5159501af18a7f926f794d89e817375cd00a3589c4899fb97392ae04dbe8ba",
+          "recording": "challenges/cases/v8/towel-clean-face.session.json",
+          "recordingPath": "challenges/cases/v8/towel-clean-face.session.json",
+          "recordingSha256": "eb0047f4948ab5f5386eb0159bbbd02cf7346895152a1ad5dbc126fbd0f5960a",
+          "recipe": "challenges/cases/v8/towel-clean-face.recipe.session.json",
+          "recipeSha256": "04afc3d920c9979793c69d4e80ac1da0883b81bac8a5d36864f5daa968deefa4",
+          "replayInputSha256": "21debfba53e1094cab063f1496b939895f75f56e9a6881432cb92a46867b0e06",
+          "evaluationPath": "challenges/evaluations/20260927170744-v8.json",
+          "evaluationCommit": "c49a113a15eedee5d91c6dde088d4c58dc89bfe6",
+          "evaluationArtifact": "challenges/evaluations/20260927170744-v8.json",
+          "evaluationUtc": "2026-09-27T17:08:17.508Z",
+          "remainingScreens": 1,
+          "recordedSteps": 11,
+          "previousScreensMatched": 10,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 10,
+              "total": 11
+            },
+            "rng": {
+              "matched": 2675,
+              "total": 2675
+            },
+            "cursors": {
+              "matched": 10,
+              "total": 11
+            }
+          },
+          "firstMismatch": {
+            "kind": "stop",
+            "message": "unsupported hero command: an unported branch of this command: applying a tool requires doapply()'s arm for object type 234",
+            "step": 10
+          },
+          "step": 10,
+          "kind": "stop",
+          "sourceFile": "apply.c",
+          "function": "doapply",
+          "message": "unsupported hero command: an unported branch of this command: applying a tool requires doapply()'s arm for object type 234",
+          "cFile": "apply.c",
+          "luaFile": null,
+          "line": null,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v8/towel-clean-face.json",
+            "result": {
+              "session": "synthetic/v8/towel-clean-face",
+              "corpus": "synthetic",
+              "batch": "v8",
+              "caseId": "towel-clean-face",
+              "manifestPath": "challenges/manifests/v8.json",
+              "manifestSha256": "6a5159501af18a7f926f794d89e817375cd00a3589c4899fb97392ae04dbe8ba",
+              "recordingSha256": "eb0047f4948ab5f5386eb0159bbbd02cf7346895152a1ad5dbc126fbd0f5960a",
+              "evaluationPath": "challenges/evaluations/20260927142534-v8.json",
+              "evaluationCommit": "c54c2c13ca30ebad8411cbcd4b7dcd3e193fbddc",
+              "remainingScreens": 1,
+              "recordedSteps": 11,
+              "status": "complete",
+              "commit": "c54c2c13ca30ebad8411cbcd4b7dcd3e193fbddc",
+              "mismatch": {
+                "corpus": "synthetic",
+                "batch": "v8",
+                "caseId": "towel-clean-face",
+                "session": "synthetic/v8/towel-clean-face",
+                "manifestPath": "challenges/manifests/v8.json",
+                "manifestSha256": "6a5159501af18a7f926f794d89e817375cd00a3589c4899fb97392ae04dbe8ba",
+                "recording": "challenges/cases/v8/towel-clean-face.session.json",
+                "recordingPath": "challenges/cases/v8/towel-clean-face.session.json",
+                "recordingSha256": "eb0047f4948ab5f5386eb0159bbbd02cf7346895152a1ad5dbc126fbd0f5960a",
+                "recipe": "challenges/cases/v8/towel-clean-face.recipe.session.json",
+                "recipeSha256": "04afc3d920c9979793c69d4e80ac1da0883b81bac8a5d36864f5daa968deefa4",
+                "replayInputSha256": "f12aaa199382908484612c7c8d311b333eb8a8d5cb1f2a5aba58e1ae8afc64b3",
+                "evaluationPath": "challenges/evaluations/20260927142534-v8.json",
+                "evaluationCommit": "c54c2c13ca30ebad8411cbcd4b7dcd3e193fbddc",
+                "evaluationArtifact": "challenges/evaluations/20260927142534-v8.json",
+                "evaluationUtc": "2026-09-27T14:26:06.427Z",
+                "remainingScreens": 1,
+                "recordedSteps": 11,
+                "previousScreensMatched": 10,
+                "regression": false,
+                "passed": false,
+                "error": null,
+                "metrics": {
+                  "screens": {
+                    "matched": 10,
+                    "total": 11
+                  },
+                  "rng": {
+                    "matched": 2675,
+                    "total": 2675
+                  },
+                  "cursors": {
+                    "matched": 10,
+                    "total": 11
+                  }
+                },
+                "firstMismatch": {
+                  "kind": "stop",
+                  "message": "unsupported hero command: an unported branch of this command: applying a tool requires doapply()'s arm for object type 234",
+                  "step": 10
+                },
+                "step": 10,
+                "kind": "stop",
+                "sourceFile": "apply.c",
+                "function": "doapply",
+                "message": "unsupported hero command: an unported branch of this command: applying a tool requires doapply()'s arm for object type 234",
+                "cFile": "apply.c",
+                "luaFile": null,
+                "line": null
+              },
+              "summary": "Applying a towel with clean hands and face reaches apply.c:use_towel, which prints the clean-state message and returns ECMD_OK. JavaScript doapply has no TOWEL arm and refuses before the C result. Port the complete source function across free-hand, worn, cursed, slimy, creamed, and clean-state branches; preserve the source-owned towel-drying void gap where the helper is not yet ported.",
+              "source": {
+                "file": "apply.c",
+                "branch": "doapply selects TOWEL and calls use_towel. The recorded clean-state path passes freehand and worn/cursed checks, then sees neither Glib nor u.ucreamed and prints \"Your face and hands are already clean.\" without consuming a turn. Other branches mutate blindness, glibness, towel wetness, or worn face covering.",
+                "functions": [
+                  "use_towel"
+                ],
+                "callers": [
+                  "C apply.c:doapply TOWEL arm around line 4355 calls use_towel and uses its ECMD result; JS js/apply.js:doapply lacks this arm and raises UnsupportedApplyError."
+                ],
+                "dependencies": [
+                  "C engrave.c:freehand is a consumed boolean dependency and already has a JavaScript counterpart used by pickup and spell paths.",
+                  "C obj.h:is_wet_towel and mhitu.c:gulp_blnd_check have JavaScript counterparts; potion.c:make_glib/make_blinded and do_wear.c:Blindf_off are available in their source-owner modules.",
+                  "C apply.c:dry_a_towel is a discarded void call that remains unported; use_towel must name this gap where reached, without fabricating its drying state change."
+                ]
+              },
+              "goalKind": "file-port",
+              "evidence": [
+                "Current saved challenges/evaluations/20260927142534-v8.json leaves 1 of 11 screens unmatched. A fresh scan at f2d05fac73e9e9f9294c78d98ac3508ee1b846ba stops at segment 0 step 10 when JS doapply refuses object type 234, whereas C prints the clean-state result.",
+                "Independent C recording challenges/cases/v8/towel-clean-face.session.json shows step 10 after applying the wished towel: \"Your face and hands are already clean.\" with no use_towel RNG call and no new turn.",
+                "Upstream nethack-c/upstream/src/apply.c:use_towel around lines 112-194 owns every towel branch and its ECMD return. C doapply calls it at line 4356; js/apply.js doapply has no TOWEL arm.",
+                "This is a complete use_towel port task rather than a message inserted for the recorded clean towel; source branches for cursed, wet, worn, glib, and creamed towels remain in scope."
+              ]
+            }
+          }
+        }
+      ]
     },
     {
       "id": "port-read-seffect-scare-monster-synthetic-v8-20260927",
