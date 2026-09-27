@@ -1,0 +1,11 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 22374819,
+      "datetime": "20320914102736",
+      "nethackrc": "OPTIONS=name:CloudB35,role:Wizard,race:human,gender:male,align:lawful,playmode:debug,!legacy,!tutorial,!splash_screen,pettype:none\n",
+      "moves": " \u0017blessed scroll of stinking cloud\nrm    l."
+    }
+  ]
+}

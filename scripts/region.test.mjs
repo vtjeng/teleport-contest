@@ -12,8 +12,10 @@ import {
 } from '../js/const.js';
 import { GameMap } from '../js/game.js';
 import { newMonster, place_monster } from '../js/monst.js';
-import { M1_BREATHLESS, M2_UNDEAD, PM_FOG_CLOUD } from '../js/monsters.js';
-import { S_cloud } from '../js/symbols.js';
+import {
+    M1_BREATHLESS, M2_UNDEAD, PM_FOG_CLOUD, S_GOLEM,
+} from '../js/monsters.js';
+import { S_cloud, S_poisoncloud } from '../js/symbols.js';
 import {
     UnsupportedRegionCallbackError,
     UnsupportedRegionOperationError,
@@ -257,6 +259,39 @@ test('fresh fog vapor of size one draws only its rn1-expanded ttl call', async (
     assert.deepEqual(cloud.rects, [
         { lx: 10, ly: 10, hx: 10, hy: 10 },
     ]);
+});
+
+test('create_gas_cloud accepts damage and source-checks hero tolerance', async () => {
+    const state = regionState({ context: { mon_moving: false } });
+    state.u.ux = 2;
+    state.u.uy = 2;
+    state.level.at(2, 2).typ = ROOM;
+    state.youmonst = { data: { mlet: S_GOLEM } };
+    const bounds = [];
+    const messages = [];
+    const cloud = await create_gas_cloud(2, 2, 1, 4, {
+        state,
+        random: {
+            rn2(bound) {
+                bounds.push(bound);
+                assert.equal(bound, 3);
+                return 1;
+            },
+        },
+        blockPoint() {},
+        canSee() { return false; },
+        newsym() {},
+        async message(text) { messages.push(text); },
+    });
+
+    // region.c:create_gas_cloud() accepts its positive damage argument. Its
+    // size-one hero exception calls mon.c:m_poisongas_ok(); an immune hero
+    // keeps make_gas_cloud() from printing the initial enveloped message.
+    assert.deepEqual(bounds, [3]);
+    assert.equal(cloud.arg, 4);
+    assert.equal(cloud.glyph_cmap, S_poisoncloud);
+    assert.equal(cloud.hero_inside, true);
+    assert.deepEqual(messages, []);
 });
 
 test('BFS fourth-neighbor disruption draws after the complete shuffle', async () => {
