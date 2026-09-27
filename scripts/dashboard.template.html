@@ -1735,7 +1735,9 @@ document.getElementById('stats').innerHTML = [
   latestButton.addEventListener('click', () => { viewEnd = latest; render(); });
   container.addEventListener('pointerdown', event => {
     if (event.button !== 0) return;
-    panning = { x: event.clientX, end: viewEnd, moved: false };
+    panning = { x: event.clientX, end: viewEnd, moved: false,
+      segment: event.target.classList.contains('activity-bar')
+        ? Number(event.target.dataset.segment) : null };
     container.setPointerCapture(event.pointerId);
   });
   container.addEventListener('pointermove', event => {
@@ -1750,10 +1752,12 @@ document.getElementById('stats').innerHTML = [
   });
   function endPan(event) {
     if (!panning) return;
+    const tapped = !panning.moved && event.type !== 'pointercancel' ? panning.segment : null;
     if (panning.moved) suppressClickUntil = Date.now() + 250;
     panning = null;
     container.classList.remove('is-panning');
     if (container.hasPointerCapture(event.pointerId)) container.releasePointerCapture(event.pointerId);
+    if (tapped != null) { selectedIndex = tapped; render(); }
   }
   container.addEventListener('pointerup', endPan);
   container.addEventListener('pointercancel', endPan);

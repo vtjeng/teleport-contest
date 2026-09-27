@@ -119,7 +119,7 @@ function renderDashboard(data, queue = null) {
             hidden: false,
             style: {},
             listeners: {},
-            classList: { add() {}, remove() {} },
+            classList: { add() {}, remove() {}, contains() { return false; } },
             children: [],
             ops,
             parentElement: {
@@ -533,13 +533,13 @@ test('activity view ranks handoff waits and explains concurrent assignments', ()
     const mainIndex = data.activity.segments.findIndex(row => row.task === 'B1'
         && row.phase === 'integrating');
     const timeline = rendered.get('timeline');
-    timeline.listeners.click[0]({
+    timeline.listeners.pointerdown[0]({ button: 0, clientX: 100, pointerId: 2,
         target: { classList: { contains: name => name === 'activity-bar' },
-            dataset: { segment: String(mainIndex) } },
-    });
+            dataset: { segment: String(mainIndex) } } });
+    timeline.listeners.pointerup[0]({ type: 'pointerup', pointerId: 2, target: timeline });
     assert.match(rendered.get('timelineReadout').innerHTML, /waiting delivery overlapped this stage/u);
     const shortWindow = rendered.get('activityWindowLabel').textContent;
-    timeline.listeners.pointerdown[0]({ button: 0, clientX: 0, pointerId: 1 });
+    timeline.listeners.pointerdown[0]({ button: 0, clientX: 0, pointerId: 1, target: timeline });
     timeline.listeners.pointermove[0]({ clientX: 700, pointerId: 1 });
     timeline.listeners.pointerup[0]({ pointerId: 1 });
     assert.notEqual(rendered.get('activityWindowLabel').textContent, shortWindow);
