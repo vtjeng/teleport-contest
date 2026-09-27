@@ -97513,7 +97513,7 @@
     {
       "id": "port-read-seffect-scare-monster-synthetic-v8-20260927",
       "kind": "file-port",
-      "status": "open",
+      "status": "closed",
       "summary": "Port scare-monster scroll and cause-fear spell effect",
       "cFile": "read.c",
       "sessions": [
@@ -97527,15 +97527,18 @@
         "screens": 11405,
         "rng": 792838
       },
-      "closedAt": null,
-      "delivered": null,
+      "closedAt": "ed281da57eb1c879937da42b05f214e0640df9db",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
       "functions": [
         {
           "name": "seffect_scare_monster",
           "line": 1454,
           "endLine": 1488,
-          "declared": false,
-          "complete": false
+          "declared": true,
+          "complete": true
         }
       ],
       "range": {
@@ -97804,7 +97807,87 @@
             }
           }
         }
-      ]
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "seffect_scare_monster",
+            "implementation": "js/read.js",
+            "symbol": "seffect_scare_monster",
+            "sourceReview": "Read and compared the complete read.c:seffect_scare_monster() body, including the fmon linked-list traversal, DEADMONSTER and visibility guards, cursed/confused state-reset branch, return-discarded resist() condition, monflee() side effects, visible non-tame count, and exact sound/message condition and order. JavaScript traverses the C fmon-equivalent state.level.monlist, maps each C branch in source order, calls the existing zap.c resist port, and preserves monflee effects including its vrock cloud callback. spell.c passes a fake scroll object to the same read.c:seffects dispatch; both production paths are wired. In the recorder build Soundeffect is a no-op macro in include/sndprocs.h, while You_hear remains observable and is implemented. No call result is substituted or consumed where C discards it.",
+            "callers": [
+              {
+                "path": "js/read.js",
+                "symbol": "seffects",
+                "source": "read.c:seffects() SCR_SCARE_MONSTER and SPE_CAUSE_FEAR dispatch arms call seffect_scare_monster()."
+              },
+              {
+                "path": "js/spell.js",
+                "symbol": "spelleffects",
+                "source": "spell.c:spelleffects() duplicate-scroll spell arm routes SPE_CAUSE_FEAR through seffects() after its skilled-spell blessed adjustment."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/read.test.mjs"
+            ],
+            "recordings": [
+              "recordings/read.c/scare-scroll-no-monsters-a30-independent.session.json",
+              "recordings/read.c/scare-scroll-cursed-a30-independent.session.json",
+              "recordings/spell.c/cause-fear-wizcast-a30-independent.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v8",
+                "caseId": "read-scare-monster-scroll",
+                "segment": 0,
+                "fromStep": 47,
+                "throughStep": 48,
+                "source": "read.c:doread() -> read.c:seffects(SCR_SCARE_MONSTER) -> read.c:seffect_scare_monster() -> zap.c:resist()"
+              }
+            ],
+            "checkedAt": "ed281da57eb1c879937da42b05f214e0640df9db"
+          }
+        ],
+        "entryPointReview": "The two active entry points are the SCR_SCARE_MONSTER scroll path through read.c:doread()/seffects() and the SPE_CAUSE_FEAR spell path through spell.c:spelleffects()/read.c:seffects(). The selected admitted v8 range executes the scroll effect through the production read command; independent ordinary and cursed scroll recordings cover empty visible-monster scans and the cursed feedback branch. A separate #wizcast recording exercises Cause Fear through spell.c:spelleffects and the shared seffects path. The recorder-build Soundeffect macro is a no-op (include/sndprocs.h:272), so the source-visible You_hear output is the observable feedback and no separate sound effect implementation is required. No active entry point is left blocked.",
+        "entryPoints": [
+          {
+            "name": "SCR_SCARE_MONSTER through read.c:seffects",
+            "functions": [
+              "seffect_scare_monster"
+            ],
+            "recordings": [
+              "recordings/read.c/scare-scroll-no-monsters-a30-independent.session.json",
+              "recordings/read.c/scare-scroll-cursed-a30-independent.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v8",
+                "caseId": "read-scare-monster-scroll",
+                "segment": 0,
+                "fromStep": 47,
+                "throughStep": 48,
+                "source": "read.c:doread() -> read.c:seffects(SCR_SCARE_MONSTER) -> read.c:seffect_scare_monster() -> zap.c:resist()"
+              }
+            ]
+          },
+          {
+            "name": "SPE_CAUSE_FEAR through read.c:seffects",
+            "functions": [
+              "seffect_scare_monster"
+            ],
+            "recordings": [
+              "recordings/spell.c/cause-fear-wizcast-a30-independent.session.json"
+            ]
+          }
+        ]
+      },
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "ed281da57eb1c879937da42b05f214e0640df9db",
+        "screens": 11405,
+        "rng": 792838
+      }
     },
     {
       "id": "port-potion-peffect-sickness-synthetic-v9-20260927",

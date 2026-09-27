@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "capturedAt": "2026-09-27T17:47:07.784Z",
+  "capturedAt": "2026-09-27T18:04:33.978Z",
   "activity": {
     "runId": "loop-20260925",
     "events": [
@@ -5649,12 +5649,69 @@
         "type": "accepted",
         "at": "2026-09-27T17:46:08.448Z",
         "task": "B30"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "B30-published-b22f4652-20260927",
+        "type": "published",
+        "at": "2026-09-27T17:48:09.368Z",
+        "task": "B30",
+        "commit": "b22f465202a3ea70ffc6abe02df44da341ca9d70"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-1904344f51e238da47b9633b2a9c8938893aece8",
+        "type": "ready",
+        "at": "2026-09-27T17:49:22.378Z",
+        "task": "A30",
+        "delivery": "1904344f51e238da47b9633b2a9c8938893aece8"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "A30-received-1904344f-20260927",
+        "type": "received",
+        "at": "2026-09-27T17:50:23.469Z",
+        "task": "A30",
+        "delivery": "1904344f51e238da47b9633b2a9c8938893aece8"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "A30-integrating-ed281da5-20260927",
+        "type": "integrating",
+        "at": "2026-09-27T17:52:47.828Z",
+        "task": "A30",
+        "integration": "ed281da57eb1c879937da42b05f214e0640df9db"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "assign-B31-sickness-20260927",
+        "type": "assign",
+        "at": "2026-09-27T17:58:19.983Z",
+        "task": "B31",
+        "worker": "B",
+        "goal": "port-potion-peffect-sickness-synthetic-v9-20260927",
+        "kind": "implementation"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "A30-validated-ed281da5-20260927",
+        "type": "validated",
+        "at": "2026-09-27T18:04:07.693Z",
+        "task": "A30",
+        "passed": true
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "A30-accepted-ed281da5-20260927",
+        "type": "accepted",
+        "at": "2026-09-27T18:04:23.360Z",
+        "task": "A30"
       }
     ]
   },
   "development": {
-    "executionCommit": "eaaa1f72f98bbaddc775a4600e02f051895b9698",
-    "measuredAt": "2026-09-27T17:40:04.926Z",
+    "executionCommit": "ed281da57eb1c879937da42b05f214e0640df9db",
+    "measuredAt": "2026-09-27T17:59:00.176Z",
     "sessions": [
       {
         "session": "holdout/seed0002-healer-reflection-drummer",
