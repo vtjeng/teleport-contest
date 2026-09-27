@@ -51,6 +51,7 @@ import {
     coyotename,
     distant_monnam,
     x_monnam,
+    do_mgivenname,
 } from '../js/do_name.js';
 import { ART_EXCALIBUR, init_artifacts } from '../js/artifacts.js';
 import {
@@ -77,6 +78,7 @@ import {
     SUPPRESS_HALLUCINATION,
     SUPPRESS_INVISIBLE,
     SUPPRESS_IT,
+    TIP_GETPOS,
     W_SADDLE,
     has_oname,
 } from '../js/const.js';
@@ -109,6 +111,8 @@ import {
 } from '../js/monsters.js';
 import { xcrypt } from '../js/random_text.js';
 import { RANDOM_TEXT_FILES } from '../js/random_text_data.js';
+import { game } from '../js/gstate.js';
+import { runSegment } from '../js/jsmain.js';
 
 function titleDraw(result) {
     let draws = 0;
@@ -929,6 +933,29 @@ function namingState() {
     init_artifacts(state);
     return state;
 }
+
+test('do_mgivenname uses apply.c beautiful for the hero square', async () => {
+    // Stop at the welcome-message boundary, then select the hero's current
+    // square. This enters do_name.c:do_mgivenname()'s u_at() branch.
+    await runSegment({
+        seed: 424242,
+        datetime: '20320405060708',
+        nethackrc: 'OPTIONS=name:CallerTest,role:Wizard,race:human,gender:male,align:neutral\n'
+            + 'OPTIONS=!legacy,!tutorial,!splash_screen\n'
+            + 'OPTIONS=pettype:none,!acoustics,!autopickup,playmode:debug\n',
+        moves: '',
+    });
+    game.context ??= {};
+    game.context.tips = (game.context.tips ?? 0) | (1 << TIP_GETPOS);
+    game.nhDisplay.pushKey(' '.charCodeAt(0));
+    game.nhDisplay.pushKey('.'.charCodeAt(0));
+
+    await do_mgivenname(game);
+
+    // apply.c:beautiful() returns cute for the Wizard's starting CHA 11.
+    assert.equal(game._pending_message,
+        `This cute creature is called ${game.plname} and cannot be renamed.`);
+});
 
 test('oname names an object and converts a matching artifact', () => {
     const state = namingState();

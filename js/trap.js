@@ -3321,8 +3321,9 @@ export async function chest_trap(obj, bodypart, disarm, state = game) {
         disarm ? 'You set it off!' : 'You trigger a trap!',
         state,
     );
-    // C: display_nhwindow(WIN_MESSAGE, FALSE) -- message display flush.
-    // The ttyPline above handles the message.
+    // C: display_nhwindow(WIN_MESSAGE, FALSE) waits at a pending --More--
+    // boundary before chest_trap() evaluates Luck or draws outcome RNG.
+    await displayPendingTtyMessageWindow(state);
 
     if (Luck > -13 && rn2(13 + Luck) > 7) {
         // Saved by luck.
