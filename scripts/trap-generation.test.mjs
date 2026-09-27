@@ -1,4 +1,5 @@
 import assert from 'node:assert/strict';
+import { readFileSync } from 'node:fs';
 import test from 'node:test';
 
 import {
@@ -45,7 +46,7 @@ import { GameMap } from '../js/game.js';
 import { resetGame } from '../js/gstate.js';
 import { traptype_rnd } from '../js/mklev.js';
 import { timeout_globals_init } from '../js/timeout.js';
-import { count_traps, maketrap, t_at } from '../js/trap.js';
+import { count_traps, dng_bottom, maketrap, t_at } from '../js/trap.js';
 
 function initializedState(dlevel = 1) {
     const state = resetGame();
@@ -84,6 +85,46 @@ function scriptedRandom(script) {
         done: () => assert.deepEqual(remaining, []),
     };
 }
+
+test('dng_bottom follows the C quest and Gehennom cutoff values', () => {
+    const source = readFileSync(
+        new URL('../nethack-c/upstream/src/trap.c', import.meta.url),
+        'utf8',
+    );
+    assert.match(
+        source,
+        /dng_bottom\(d_level \*lev\)[\s\S]*?int bottom = dunlevs_in_dungeon\(lev\);[\s\S]*?dunlev_reached\(lev\) < qlocate_depth[\s\S]*?!u\.uevent\.invoked\)\s*bottom -= 1;/u,
+    );
+
+    const state = initializedState(4);
+    assert.equal(dng_bottom({ dnum: 0, dlevel: 4 }, state), 10);
+
+    state.quest_dnum = 1;
+    state.qlocate_level = { dnum: 1, dlevel: 5 };
+    state.dungeons.push({
+        depth_start: 11,
+        entry_lev: 1,
+        num_dunlevs: 10,
+        dunlev_ureached: 4,
+        flags: { hellish: false },
+    });
+    assert.equal(dng_bottom({ dnum: 1, dlevel: 4 }, state), 5);
+    state.dungeons[1].dunlev_ureached = 5;
+    assert.equal(dng_bottom({ dnum: 1, dlevel: 5 }, state), 10);
+
+    state.dungeons.push({
+        depth_start: 21,
+        entry_lev: 1,
+        num_dunlevs: 10,
+        dunlev_ureached: 7,
+        flags: { hellish: true },
+    });
+    state.quest_dnum = 1;
+    state.u.uevent.invoked = false;
+    assert.equal(dng_bottom({ dnum: 2, dlevel: 7 }, state), 9);
+    state.u.uevent.invoked = true;
+    assert.equal(dng_bottom({ dnum: 2, dlevel: 7 }, state), 10);
+});
 
 const D1_ALLOWED = new Set([
     ARROW_TRAP,
@@ -236,13 +277,14 @@ test('maketrap rejects non-map trap kinds and protected terrain', () => {
     assert.equal(t_at(11, 5, state), portal);
 });
 
-test('maketrap exposes later subsystem boundaries before linking a trap', () => {
+test('maketrap records the discarded statue call when its helper is unavailable', () => {
     const state = initializedState();
-    assert.throws(
-        () => maketrap(10, 5, STATUE_TRAP, { state }),
-        /statue-trap subsystem/,
-    );
-    assert.equal(state.level.traps.length, 0);
+    const statueTrap = maketrap(10, 5, STATUE_TRAP, { state });
+    assert.equal(statueTrap.ttyp, STATUE_TRAP);
+    assert.equal(state.level.traps[0], statueTrap);
+    assert.equal(state.unported.has('trap.c mk_trap_statue'), true);
+
+    state.level.traps = [];
 
     state.level.buriedobjlist = { ox: 10, oy: 5, nobj: null };
     state.level.at(10, 5).flags = 37;
@@ -255,7 +297,7 @@ test('maketrap exposes later subsystem boundaries before linking a trap', () => 
     assert.equal(state.level.traps.length, 0);
 });
 
-test('maketrap preflights seams before changing an existing trap', () => {
+test('maketrap preflights terrain seams before changing an existing trap', () => {
     const state = initializedState();
     const existing = maketrap(10, 5, ARROW_TRAP, { state });
     // Each nondefault value is a field resetTrap() would overwrite if a
@@ -268,11 +310,6 @@ test('maketrap preflights seams before changing an existing trap', () => {
     });
     const original = structuredClone(existing);
 
-    assert.throws(
-        () => maketrap(10, 5, STATUE_TRAP, { state }),
-        /statue-trap subsystem/,
-    );
-    assert.deepEqual(existing, original);
     state.level.buriedobjlist = { ox: 10, oy: 5, nobj: null };
     assert.throws(
         () => maketrap(10, 5, PIT, { state, unearthObjects: false }),

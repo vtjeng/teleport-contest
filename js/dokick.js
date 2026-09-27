@@ -69,11 +69,13 @@ import {
     P_MARTIAL_ARTS,
     P_NONE,
     RIGHT_SIDE,
+    ROOM,
     SCORR,
     SDOOR,
     SHOPBASE,
     SLT_ENCUMBER,
     STAIRS,
+    T_LOOTED,
     Upolyd,
     WOUNDED_LEGS,
     W_ARMF,
@@ -84,6 +86,7 @@ import {
     is_hole,
     ismnum,
     isok,
+    something,
 } from './const.js';
 import { feel_location, feel_newsym, map_invisible, newsym,
     unmap_invisible } from './display.js';
@@ -92,7 +95,7 @@ import {
     set_wounded_legs,
 } from './do.js';
 import { u_wipe_engr } from './engrave.js';
-import { Is_botlevel, on_level } from './dungeon.js';
+import { Is_botlevel, dunlev, dunlevs_in_dungeon, on_level } from './dungeon.js';
 import { breaktest } from './dothrow.js';
 import { game } from './gstate.js';
 import { upstart } from './hacklib.js';
@@ -116,21 +119,23 @@ import { m_at, place_monster, remove_monster } from './monst.js';
 import {
     AT_KICK, PM_SASQUATCH, PM_SHADE, S_EEL, S_LIZARD,
 } from './monsters.js';
-import { add_to_migration, objectType, sobj_at } from './obj.js';
 import {
-    BOULDER, COIN_CLASS, CORPSE, EGG, EXPENSIVE_CAMERA, GLASS,
-    KICKING_BOOTS, MIRROR,
+    add_to_migration, mkgold, mksobj_at, objectType, rnd_class, sobj_at,
+} from './obj.js';
+import {
+    BOULDER, COIN_CLASS, CORPSE, DILITHIUM_CRYSTAL, EGG,
+    EXPENSIVE_CAMERA, GLASS, KICKING_BOOTS, LUCKSTONE, MIRROR,
 } from './objects.js';
 import { corpse_xname, otense, Tobjnam } from './objnam.js';
 import { change_luck } from './moveloop_preamble.js';
 import { encumber_msg } from './pickup.js';
 import { ok_to_quest } from './quest.js';
-import { d, rn2, rnd, rnl } from './rng.js';
+import { d, rn1, rn2, rnd, rnl } from './rng.js';
 import { in_rooms } from './rooms.js';
 import { is_unpaid, picked_container } from './shk.js';
 import { stairway_at } from './stairs.js';
 import { remove_worn_item } from './steal.js';
-import { is_pool, t_at } from './trap.js';
+import { fall_through, is_pool, t_at } from './trap.js';
 import { m_in_out_region } from './region.js';
 import { mintrap } from './trap_effects.js';
 import {
@@ -229,7 +234,7 @@ function Fumbling(state) {
 
 function kickEnvironment(state) {
     state.context ??= {};
-    const random = { d, rn2, rnd, rnl };
+    const random = { d, rn1, rn2, rnd, rnl };
     return {
         state,
         random,
@@ -737,10 +742,56 @@ async function kick_nondoor(x, y, state) {
         );
     }
     if (IS_THRONE(maploc.typ)) {
-        throw new UnsupportedKickError(
-            "kick_nondoor()'s throne arm, which needs mkgold() and "
-            + 'fall_through()',
-        );
+        const luck = (state.u.uluck ?? 0) + (state.u.moreluck ?? 0);
+        const random = { d, rn1, rn2, rnd, rnl };
+        if (Levitation(state)) {
+            await kick_dumb(x, y, state);
+            return ECMD_TIME;
+        }
+        if ((luck < 0 || maploc.looted) && !rn2(3)) {
+            maploc.looted = 0;
+            maploc.typ = ROOM;
+            mkgold(rnd(200), x, y, { state, random });
+            if (Blind(state)) {
+                await ttyPline('CRASH!  You destroy it.', state);
+            } else {
+                await ttyPline('CRASH!  You destroy the throne.', state);
+                newsym(x, y, state);
+            }
+            await exercise(A_DEX, true, state, random);
+            return ECMD_TIME;
+        }
+        if (luck > 0 && !rn2(3) && !maploc.looted) {
+            mkgold(rn1(201, 300), x, y, { state, random });
+            const gems = Math.min(luck + 1, 6);
+            for (let i = gems; i > 0; --i) {
+                const gem = rnd_class(
+                    DILITHIUM_CRYSTAL,
+                    LUCKSTONE - 1,
+                    { state, random },
+                );
+                mksobj_at(gem, x, y, false, true, { state, random });
+            }
+            await ttyPline(
+                Blind(state)
+                    ? `You kick ${something} loose!`
+                    : 'You kick loose some ornamental coins and gems!',
+                state,
+            );
+            if (!Blind(state)) newsym(x, y, state);
+            maploc.looted = T_LOOTED;
+            return ECMD_TIME;
+        }
+        if (!rn2(4)) {
+            if (dunlev(state.u.uz) < dunlevs_in_dungeon(state.u.uz, state)) {
+                await fall_through(false, 0, state);
+                return ECMD_TIME;
+            }
+            await kick_ouch(x, y, '', state);
+            return ECMD_TIME;
+        }
+        await kick_ouch(x, y, '', state);
+        return ECMD_TIME;
     }
     if (IS_ALTAR(maploc.typ)) {
         throw new UnsupportedKickError(

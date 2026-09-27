@@ -56,6 +56,7 @@ import {
     Invocation_lev,
     ceiling,
     depth,
+    find_hell,
     endgamelevelname,
     br_string2,
     find_mapseen,
@@ -942,6 +943,18 @@ test('special-level chains, fixups, and source quirks are preserved', () => {
     const endgame = state.dungeons[7];
     assert.equal(endgame.entry_lev, endgame.num_dunlevs - 1);
     assert.equal(depth(state.earth_level, state), -1);
+});
+
+test('find_hell writes the valley gateway into its destination', () => {
+    const source = readFileSync(
+        new URL('../nethack-c/upstream/src/dungeon.c', import.meta.url),
+        'utf8',
+    );
+    assert.match(source, /find_hell\(d_level \*lev\)[\s\S]*?lev->dnum = valley_level\.dnum;\s*lev->dlevel = 1;/u);
+
+    const destination = { dnum: 6, dlevel: 9 };
+    find_hell(destination, { valley_level: { dnum: 3, dlevel: 5 } });
+    assert.deepEqual(destination, { dnum: 3, dlevel: 1 });
 });
 
 test('non-wizard chance checks and wizard bypass follow source control flow', () => {
