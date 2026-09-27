@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "capturedAt": "2026-09-27T05:40:52.503Z",
+  "capturedAt": "2026-09-27T06:10:12.679Z",
   "activity": {
     "runId": "loop-20260925",
     "events": [
@@ -4394,12 +4394,69 @@
         "type": "accepted",
         "at": "2026-09-27T05:40:19.048Z",
         "task": "A20"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "published-A20-9e1d6b8d",
+        "type": "published",
+        "at": "2026-09-27T05:47:42.517Z",
+        "task": "A20",
+        "commit": "9e1d6b8d438ec3eee3b107d6679047c7633bcd84"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-79970b2b03e5b7090c89bb817ce70f86d505052e",
+        "type": "ready",
+        "at": "2026-09-27T05:48:50.841Z",
+        "task": "A21",
+        "delivery": "79970b2b03e5b7090c89bb817ce70f86d505052e"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "received-A21-79970b2b",
+        "type": "received",
+        "at": "2026-09-27T05:51:55.275Z",
+        "task": "A21",
+        "delivery": "79970b2b03e5b7090c89bb817ce70f86d505052e"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "integrating-B23-362b416b",
+        "type": "integrating",
+        "at": "2026-09-27T05:59:49.136Z",
+        "task": "B23",
+        "integration": "362b416b04449cb22d3cbdd4dbb460ab04276e92"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "assign-A22-20260927",
+        "type": "assign",
+        "at": "2026-09-27T06:04:45.363Z",
+        "task": "A22",
+        "worker": "A",
+        "goal": "port-potion-dodrink-synthetic-v6-20260927",
+        "kind": "implementation"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "validated-B23-362b416b",
+        "type": "validated",
+        "at": "2026-09-27T06:06:54.370Z",
+        "task": "B23",
+        "passed": true
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accepted-B23-362b416b",
+        "type": "accepted",
+        "at": "2026-09-27T06:09:45.858Z",
+        "task": "B23"
       }
     ]
   },
   "development": {
-    "executionCommit": "10d0c022d7772ea647ef0878bebd7abe0f75d08c",
-    "measuredAt": "2026-09-27T05:36:06.025Z",
+    "executionCommit": "362b416b04449cb22d3cbdd4dbb460ab04276e92",
+    "measuredAt": "2026-09-27T06:06:35.405Z",
     "sessions": [
       {
         "session": "holdout/seed0002-healer-reflection-drummer",
