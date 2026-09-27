@@ -524,6 +524,10 @@ test('activity view ranks handoff waits and explains concurrent assignments', ()
     assert.match(rendered.get('activityWaitList').innerHTML, /A1[\s\S]*30m/u);
     assert.match(rendered.get('timeline').innerHTML, /activity-row main/u);
     assert.equal((rendered.get('timeline').innerHTML.match(/activity-row(?: main)?" style="height:48px"/gu) || []).length, 4);
+    const firstBarTop = lane => rendered.get('timeline').innerHTML.match(new RegExp(
+        `activity-label">${lane}<\\/div><div class="activity-track"><div class="activity-bar[^>]*top:([^;]+);`, 'u'))?.[1];
+    assert.equal(firstBarTop('A'), '6px');
+    assert.equal(firstBarTop('B'), '6px');
     assert.match(rendered.get('timelineReadout').innerHTML, /Another task was assigned to this worker for 28m/u);
     assert.match(rendered.get('timelineReadout').innerHTML, /Recorded Main stages overlapped this wait/u);
     const mainIndex = data.activity.segments.findIndex(row => row.task === 'B1'
@@ -565,7 +569,7 @@ test('activity wait list contains every wait in the window', () => {
     };
     const rendered = renderDashboard(data);
     assert.equal((rendered.get('activityWaitList').innerHTML.match(/<button /gu) || []).length, 7);
-    assert.equal(rendered.get('activityWaitHeading').textContent, 'Waits by length · 7');
+    assert.match(readFileSync(TEMPLATE, 'utf8'), /<h4>Waits by length<\/h4>/u);
 });
 
 function sourceFileRows(table) {

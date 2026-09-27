@@ -480,9 +480,9 @@ canvas {
   gap: 10px;
   margin: 0 0 12px;
 }
-.activity-window-select { font: inherit; font-size: 11px; color: var(--ink-secondary); background: var(--surface-card); border: 1px solid var(--border); border-radius: 4px; padding: 4px 6px; }
+.activity-window-select { margin-left: auto; font: inherit; font-size: 11px; color: var(--ink-secondary); background: var(--surface-card); border: 1px solid var(--border); border-radius: 4px; padding: 4px 6px; }
 .activity-navigation { display: flex; align-items: center; gap: 8px; }
-.activity-navigation .chart-range { min-width: 165px; text-align: center; }
+.activity-navigation .chart-range { min-width: 165px; text-align: left; }
 .activity-pan-hint { color: var(--ink-muted); font-size: 11px; }
 .activity-metrics {
   display: grid;
@@ -900,15 +900,15 @@ canvas {
   <h3 class="section-title">Worker activity</h3>
   <p class="subtitle">Observed task handoffs since the September 25 worker-ledger run. Bars show elapsed task stages, not continuous active work. Earlier progress remains in the score history above. <span id="activitySnapshotTime"></span></p>
   <div class="activity-controls">
+    <div class="activity-navigation">
+      <span class="chart-range" id="activityWindowLabel"></span>
+      <button class="chart-reset" id="activityLatest" type="button">Latest</button>
+    </div>
     <select class="activity-window-select" id="activityWindow" aria-label="Activity time range">
       <option value="6" selected>6 hours</option>
       <option value="24">24 hours</option>
       <option value="168">7 days</option>
     </select>
-    <div class="activity-navigation">
-      <span class="chart-range" id="activityWindowLabel"></span>
-      <button class="chart-reset" id="activityLatest" type="button">Latest</button>
-    </div>
   </div>
   <p class="activity-pan-hint">Drag the timeline to move through time. Arrow keys work when the timeline is focused.</p>
   <div class="chart-wrap">
@@ -918,7 +918,7 @@ canvas {
     <div class="activity-timeline" id="timeline" tabindex="0" aria-label="Worker and Main activity timeline. Drag horizontally or use left and right arrow keys to move through time."></div>
     <div class="activity-details">
       <div class="activity-inspection" id="timelineReadout" aria-live="polite"></div>
-      <div class="activity-waits"><h4 id="activityWaitHeading">Waits by length</h4><div id="activityWaitList"></div></div>
+      <div class="activity-waits"><h4>Waits by length</h4><div id="activityWaitList"></div></div>
     </div>
   </div>
 </div>
@@ -1567,7 +1567,6 @@ document.getElementById('stats').innerHTML = [
   const readout = document.getElementById('timelineReadout');
   const metrics = document.getElementById('activityMetrics');
   const waitList = document.getElementById('activityWaitList');
-  const waitHeading = document.getElementById('activityWaitHeading');
   const windowLabel = document.getElementById('activityWindowLabel');
   const windowSelect = document.getElementById('activityWindow');
   const latestButton = document.getElementById('activityLatest');
@@ -1715,12 +1714,11 @@ document.getElementById('stats').innerHTML = [
           + esc(phaseNames[bar.segment.phase] + ' for ' + name(bar.segment)
           + ', ' + fmt(duration(bar.segment))) + '" style="left:'
           + ((bar.a - start) / span * 100) + '%;width:' + ((bar.b - bar.a) / span * 100)
-          + '%;top:' + (6 + bar.slot * slotHeight + (slotHeight - barHeight) / 2)
+          + '%;top:' + (6 + bar.slot * slotHeight)
           + 'px;height:' + barHeight + 'px"></div>').join('')
         + '</div></div>';
     }
     container.innerHTML = html;
-    waitHeading.textContent = 'Waits by length · ' + waits.length;
     waitList.innerHTML = waits.length ? waits.map(({ segment, index }) =>
       '<button type="button" data-segment="' + index + '"><span><strong>'
       + esc(name(segment)) + '</strong> <small>Worker ' + esc(segment.worker)
