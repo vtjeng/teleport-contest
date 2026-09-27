@@ -90468,7 +90468,7 @@
     {
       "id": "port-read-seffect-earth-synthetic-v6-20260926",
       "kind": "file-port",
-      "status": "open",
+      "status": "parked",
       "summary": "Port scroll-of-earth effects and source boulder helpers through hero and monster callers",
       "cFile": "read.c",
       "sessions": [
@@ -90489,8 +90489,8 @@
           "name": "seffect_earth",
           "line": 1919,
           "endLine": 1975,
-          "declared": false,
-          "complete": false
+          "declared": true,
+          "complete": true
         }
       ],
       "range": {
@@ -90760,7 +90760,84 @@
             }
           }
         }
-      ]
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "seffect_earth",
+            "implementation": "js/read.js",
+            "symbol": "seffect_earth",
+            "sourceReview": "Compared the complete read.c:seffect_earth() source definition (1919-1975) in C order. The port snapshots blessed/cursed/confused state, preserves Rogue/endgame/ceiling/earth-level gates, selects the swallowed/ceiling/avalanche message, identifies the scroll, and names the discarded void trap.c:sokoban_guilt call with note_unported(). It preserves the x-major/y-minor 3x3 traversal, source terrain guards, cursed suppression, and consumes drop_boulder_on_monster()'s boolean in nboulders; it invokes the void drop_boulder_on_player() branch only for an uncursed scroll and retains the blessed/no-boulder message. Both boulder helpers were source-ported from read.c and wired in this task; avoid_ceiling() was source-ported from dungeon.c and source-pinned. The hero recording and v6 range execute seffect_earth() through the production read command. The separate muse.c MUSE_SCR_EARTH path is implemented in the supplemental A17 scope, but its independent setup did not reach find_offensive() or use_offensive(); it is named as blocked below and is not claimed as evidence for this function.",
+            "callers": [
+              {
+                "path": "js/read.js",
+                "symbol": "seffects",
+                "source": "read.c:seffects() selects SCR_EARTH and calls seffect_earth(&sobj); js/read.js:seffects() awaits seffect_earth(scroll, state) in the corresponding switch arm."
+              },
+              {
+                "path": "js/read.js",
+                "symbol": "doread",
+                "source": "read.c:doread() calls seffects(scroll) at line 635 after selecting a readable object; js/read.js:doread() forwards the selected scroll to seffects()."
+              },
+              {
+                "path": "js/cmd.js",
+                "symbol": "runReadCommand",
+                "source": "cmd.c's read command dispatches doread(); js/cmd.js:runReadCommand() is the production command caller and awaits js/read.js:doread()."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/read-earth.test.mjs"
+            ],
+            "recordings": [
+              "recordings/read.c/read-earth-priest-independent.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v6",
+                "caseId": "wizard-read-earth-reach",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 20,
+                "source": "cmd.c read command -> read.c:doread() -> read.c:seffects() -> read.c:seffect_earth()"
+              }
+            ],
+            "checkedAt": "12a35e71cf1d937cd08b75b196f3c8b54224f6cd"
+          }
+        ],
+        "entryPointReview": "The selected read.c range has an active scroll-reading entry through cmd.c read-command dispatch, read.c:doread(), read.c:seffects(), and read.c:seffect_earth(). The independent Priest recording strictly matches and reaches the cursed-scroll effect: segment 0 step 20 displays the ceiling rumble, step 21 shows the boulder hit, and steps 22-24 match the fatal-hit continuation. The admitted v6 wizard-read-earth-reach case was replayed at this checkout through segment 0 step 20, where the source effect executes and every screen, cursor, RNG call, and boundary matches. The separate active monster Earth-scroll caller is muse.c:find_offensive()/use_offensive(). Its corrected 65-step independent dwarf-king setup recording is retained only as raw diagnostic data at .cache/A17-monster-earth-scroll-dwarf-king-setup-only.json; the dwarf king never acquires the scroll, so no matching runtime range reaches either muse.c function. recipes/muse.c/monster-earth-scroll-dwarf-king-independent.session.json preserves this blocked setup with the exact inventory-selection prerequisite. This supplemental muse entry is not treated as evidence for seffect_earth or as a completed muse source unit. The C-discarded void trap.c:sokoban_guilt call is explicitly skipped with note_unported(); no result from note_unported() is used.",
+        "entryPoints": [
+          {
+            "name": "Read command: Scroll of Earth effect",
+            "functions": [
+              "seffect_earth"
+            ],
+            "recordings": [
+              "recordings/read.c/read-earth-priest-independent.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v6",
+                "caseId": "wizard-read-earth-reach",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 20,
+                "source": "cmd.c read command -> read.c:doread() -> read.c:seffects() -> read.c:seffect_earth()"
+              }
+            ]
+          }
+        ]
+      },
+      "progressBeforePark": {
+        "screens": 0,
+        "rng": 0
+      },
+      "parkedStanding": {
+        "sha": "12a35e71cf1d937cd08b75b196f3c8b54224f6cd",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "parkedReason": "The production read.c:seffect_earth hero entry is verified by the independent Priest recording and admitted v6 replay. The task also wired muse.c:find_offensive/use_offensive MUSE_SCR_EARTH, whose separate monster caller remains unverified: the independent dwarf-king setup did not acquire the scroll, so neither source branch ran. Resume when a C recipe reaches that monster inventory-selection and use path; retain the blocked recipe and raw diagnostic trace. The source-named void trap.c:sokoban_guilt effect remains unported."
     }
   ]
 }
