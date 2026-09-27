@@ -92362,7 +92362,7 @@
     {
       "id": "port-priest-talk-outside-temple-synthetic-v7-20260926",
       "kind": "file-port",
-      "status": "parked",
+      "status": "open",
       "summary": "Port complete priest conversation through the chat command",
       "cFile": "priest.c",
       "sessions": [
@@ -92401,12 +92401,12 @@
           "manifestSha256": "03a861a9d1bc9d813c80681312ee7a0e0f893dbad0536de40a974bd5ec344094",
           "recordingPath": "challenges/cases/v7/priest-outside-temple-chat.session.json",
           "recordingSha256": "76f2f565d9ff27f51adb9638e2ee8b3eab7edbe6d8fe058d470d84e89bd861a0",
-          "evaluationPath": "challenges/evaluations/20260927005209-v7.json",
-          "evaluationCommit": "12a35e71cf1d937cd08b75b196f3c8b54224f6cd"
+          "evaluationPath": "challenges/evaluations/20260927070025-v7.json",
+          "evaluationCommit": "89741e4795871d096228a0e47c2e7453a9112e0f"
         }
       },
       "activeStanding": {
-        "sha": "af2d02e92c05574653b7255adcf40d59dc955b7b",
+        "sha": "fd2870a3760b6a11473c6a90279ef26fe643ab15",
         "screens": 11405,
         "rng": 792838
       },
