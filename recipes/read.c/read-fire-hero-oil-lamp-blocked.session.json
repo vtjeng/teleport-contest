@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "Blocked A26 variation for the unported hero-pack ignition path: this independent wizard setup aims to wish an oil lamp and a blessed scroll of fire, read the scroll, dismiss its prompts, toggle getpos highlighting, and center the blast on the hero. The source target is explode.c:explode -> trap.c:ignite_items -> apply.c:catch_lit; the existing JS catch_item_light() still refuses eligible objects in OBJ_INVENT. The recipe has not yet been independently recorded, so it is retained as a source-named coverage blocker and is not matching completion evidence.",
+  "segments": [
+    {
+      "seed": 83015744,
+      "datetime": "20321115152231",
+      "nethackrc": "OPTIONS=name:A26OilLamp,role:Wizard,race:human,gender:female,align:neutral,playmode:debug,!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!debug_mongen\n",
+      "moves": " \u0017oil lamp\n\u0017blessed scroll of fire\nrp    $."
+    }
+  ]
+}

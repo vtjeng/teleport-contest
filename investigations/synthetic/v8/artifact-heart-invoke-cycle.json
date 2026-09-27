@@ -1,0 +1,148 @@
+{
+  "session": "synthetic/v8/artifact-heart-invoke-cycle",
+  "corpus": "synthetic",
+  "batch": "v8",
+  "caseId": "artifact-heart-invoke-cycle",
+  "manifestPath": "challenges/manifests/v8.json",
+  "manifestSha256": "6a5159501af18a7f926f794d89e817375cd00a3589c4899fb97392ae04dbe8ba",
+  "recordingSha256": "816c8353f3fea197a0e99d8bd83f53f622a02d45fe61a59784dcfd479862cfd8",
+  "evaluationPath": "challenges/evaluations/20260927130815-v8.json",
+  "evaluationCommit": "10c8f210d77aee548ae25b77cee6b3f9b736d413",
+  "remainingScreens": 2,
+  "recordedSteps": 44,
+  "status": "complete",
+  "commit": "10c8f210d77aee548ae25b77cee6b3f9b736d413",
+  "mismatch": {
+    "corpus": "synthetic",
+    "batch": "v8",
+    "caseId": "artifact-heart-invoke-cycle",
+    "session": "synthetic/v8/artifact-heart-invoke-cycle",
+    "manifestPath": "challenges/manifests/v8.json",
+    "manifestSha256": "6a5159501af18a7f926f794d89e817375cd00a3589c4899fb97392ae04dbe8ba",
+    "recording": "challenges/cases/v8/artifact-heart-invoke-cycle.session.json",
+    "recordingPath": "challenges/cases/v8/artifact-heart-invoke-cycle.session.json",
+    "recordingSha256": "816c8353f3fea197a0e99d8bd83f53f622a02d45fe61a59784dcfd479862cfd8",
+    "recipe": "challenges/cases/v8/artifact-heart-invoke-cycle.recipe.session.json",
+    "recipeSha256": "e7551b75ea4fa8cc5a1bf14c23baa6add3dda5f45782e78151d05ac920593963",
+    "replayInputSha256": "9319ee9b94ac33999b459f7ca8be37b8ff5d50948f06b5a735524d94fffe7433",
+    "evaluationPath": "challenges/evaluations/20260927130815-v8.json",
+    "evaluationCommit": "10c8f210d77aee548ae25b77cee6b3f9b736d413",
+    "evaluationArtifact": "challenges/evaluations/20260927130815-v8.json",
+    "evaluationUtc": "2026-09-27T13:08:48.082Z",
+    "remainingScreens": 2,
+    "recordedSteps": 44,
+    "previousScreensMatched": 42,
+    "regression": false,
+    "passed": false,
+    "error": null,
+    "metrics": {
+      "screens": {
+        "matched": 42,
+        "total": 44
+      },
+      "rng": {
+        "matched": 2277,
+        "total": 2303
+      },
+      "cursors": {
+        "matched": 43,
+        "total": 44
+      }
+    },
+    "firstMismatch": {
+      "screen": {
+        "index": 24,
+        "location": {
+          "segmentIndex": 0,
+          "stepIndex": 24,
+          "key": "\n"
+        },
+        "kind": "ch",
+        "row": 0,
+        "column": 0,
+        "cCell": {
+          "ch": "A",
+          "color": 8,
+          "attr": 0,
+          "decgfx": 0
+        },
+        "jsCell": {
+          "ch": "e",
+          "color": 8,
+          "attr": 0,
+          "decgfx": 0
+        }
+      },
+      "rng": {
+        "index": 2274,
+        "cEntry": "rn2(3)=1",
+        "cCaller": "random src=nhlib.lua:8 parent=shuffle(nhlib.lua:19)",
+        "jsEntry": "rn2(100)=84",
+        "location": {
+          "segmentIndex": 0,
+          "stepIndex": 24,
+          "key": "\n"
+        },
+        "stepIndex": 24
+      },
+      "cursor": {
+        "index": 24,
+        "location": {
+          "segmentIndex": 0,
+          "stepIndex": 24,
+          "key": "\n"
+        },
+        "cCursor": [
+          8,
+          23,
+          1
+        ],
+        "jsCursor": [
+          27,
+          14,
+          1
+        ]
+      }
+    },
+    "step": 24,
+    "kind": "rng",
+    "sourceFile": "nhlib.lua",
+    "function": "shuffle",
+    "message": null,
+    "cFile": null,
+    "luaFile": "nhlib.lua",
+    "line": 19,
+    "helper": {
+      "function": "random",
+      "luaFile": "nhlib.lua",
+      "line": 8
+    }
+  },
+  "summary": "The quest artifact wish reaches invent.c:addinv_core1, whose missing quest.c:artitouch call skips the first-touch quest pager. That pager initializes nhlib.lua and draws the two shuffle values seen before the reported RNG mismatch; the later artifact invocation is downstream of this missing pickup side effect.",
+  "source": {
+    "file": "quest.c",
+    "branch": "First acquisition of a role quest artifact when Qstat(touched_artifact) is false; invent.c:addinv_core1 calls artitouch before inventory insertion.",
+    "functions": [
+      "artitouch"
+    ],
+    "callers": [
+      "C zap.c:makewish -> invent.c:hold_another_object -> addinv_core0/addinv_core1 -> quest.c:artitouch; JS makewish -> hold_another_object -> addinvCore0Runtime/beginAddinv -> currently note_unported(quest.c artitouch).",
+      "C pickup.c:pick_obj and container take-out enter addinv_core1 on first acquisition; in-place zap.c:poly_obj also calls addinv_core1 but cannot create a fresh quest artifact through its mkobj/mksobj replacement."
+    ],
+    "dependencies": [
+      "questpgr.c:qt_pager(\"gotit\") is already async in js/questpgr.js and initializes a fresh Lua pager state, consuming the two shuffle draws.",
+      "invent.c:addinv_core1 must await the pager before inventory insertion on async runtime callers; audit synchronous addinv and replace_inventory_core boundaries.",
+      "questpgr.c:skip_pager during files.c:wizkit_addinv is a separate startup dependency; retain that source edge as a documented gap if no JS wizkit route exists.",
+      "The checked-in js/quest_text_data.js omits gotit messages because scripts/generate-quest-text.mjs NEEDED_MESSAGES excludes gotit; generate the full role-specific gotit table from source and validate it with the existing generated-data check.",
+      "C questpgr.c:com_pager_core calls skip_pager(TRUE) before Lua initialization; wizkit_wishing suppresses lookup and shuffle draws, so port/test that guard or explicitly document the unavailable startup route."
+    ]
+  },
+  "goalKind": "file-port",
+  "evidence": [
+    "At segment 0 step 24 in challenges/evaluations/20260927130815-v8.json, C calls rnd(2) at next_ident then rn2(3) and rn2(2) from nhlib.lua shuffle, while JS instead calls rn2(100) in zap.c:makewish. Earlier startup and wishing RNG match, so the missing pager side effect starts at artifact acquisition.",
+    "C invent.c:addinv_core1 at line 989 calls quest.c:artitouch for a quest artifact; js/invent.js:addinv_core1 currently records note_unported(quest.c artitouch). quest.c:artitouch at lines 125-137 observes the object, sets Qstat(touched_artifact), calls qt_pager(\"gotit\"), and exercises Wisdom in that order.",
+    "The sole direct C caller of artitouch is invent.c:addinv_core1, before addinv_core0 inserts the item. The v8 case is a wish-acquisition witness; a fresh independent role/artifact recipe should verify production wiring and pager order.",
+    "The first RNG annotation names nhlib.lua:shuffle, but the upstream owner of the missing call is quest.c:artitouch. Existing js/questpgr.js has the pager initialization; implement the source caller rather than adding an isolated shuffle draw.",
+    "The A27 caller audit found no generated gotit text in js/quest_text_data.js and no skip_pager in js/questpgr.js. These are source dependencies of the first-touch pager and must be resolved before runtime evidence can close the port."
+  ]
+}

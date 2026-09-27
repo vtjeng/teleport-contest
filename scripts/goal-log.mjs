@@ -762,10 +762,10 @@ async function checkSelection(goal, scan, { allowQueuedSynthetic = false } = {})
     const selectedProvenance = goal.syntheticProvenance?.[selectedSession];
     // queue-goal already checked and stored this exact synthetic selection.
     // A worker can resolve its case before integration, then the goal can be
-    // parked for an uncovered entry point. Neither opening nor resuming needs
-    // the selected case to remain unmatched. Current synthetic evidence must
-    // nevertheless remain complete.
-    if (allowQueuedSynthetic && ['queued', 'parked'].includes(goal.status)
+    // parked for an uncovered entry point. Opening, resuming, and preparing a
+    // handoff for that goal do not need the selected case to remain unmatched.
+    // Current synthetic evidence must nevertheless remain complete.
+    if (allowQueuedSynthetic && ['queued', 'open', 'parked'].includes(goal.status)
         && selectedProvenance?.session === selectedSession
         && selectedProvenance.corpus === 'synthetic') {
         if (queue.blockers?.length) {

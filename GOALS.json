@@ -94647,7 +94647,7 @@
       "sessions": [
         "synthetic/v7/throw-blindness-potion-hit-corrected"
       ],
-      "selectionReason": "The current v7 thrown-blindness case has one unmatched screen at impact; investigations/synthetic/v7/throw-blindness-potion-hit-corrected.json traces the skipped dothrow.c:thitmonst call to potion.c:potionhit. Port the whole source function and wire its active dothrow, uhitm, mthrowu, zap, and monster-item callers; record independent post-impact and other entry evidence. The other unresolved v7 detection case owns a different potion.c function and remains queued.",
+      "selectionReason": "Continue source completion after B27 repaired uhitm.c:hmon_hitmon_potion setuwep hooks and the shared potionhit default RNG; record independent melee evidence while keeping steed, monster-to-monster, and dothrow.c:toss_up entries open",
       "detail": "",
       "openedAt": "f5248ce4f94176f35cd5b15dbe69457a41cd52f6",
       "openStanding": {
@@ -94663,7 +94663,7 @@
           "line": 1625,
           "endLine": 1931,
           "declared": true,
-          "complete": false
+          "complete": true
         }
       ],
       "range": {
@@ -94685,7 +94685,7 @@
         }
       },
       "activeStanding": {
-        "sha": "5f1efeed9e8e7684c046c1016785c10e720b1a60",
+        "sha": "5a2f70be22fa1d0489238745e372f3ed5a8c26df",
         "screens": 11405,
         "rng": 792838
       },
@@ -94943,11 +94943,142 @@
         "rng": 0
       },
       "parkedStanding": {
-        "sha": "5f1efeed9e8e7684c046c1016785c10e720b1a60",
+        "sha": "5a2f70be22fa1d0489238745e372f3ed5a8c26df",
         "screens": 11405,
         "rng": 792838
       },
-      "parkedReason": "potion.c:potionhit and thrown-potion entry strictly match; hero melee potion entry is blocked before potionhit because uhitm.js:hmon_hitmon_potion calls setuwep(null) without the canonical do_wear.js:setwornEnv hooks, unlike C uhitm.c:hmon_hitmon_potion setuwep(NULL) before freeinv and potionhit. Steed hit, monster-to-monster hit, and dothrow.c:toss_up still need independent matching entry evidence. Resume after a source-traced uhitm caller-wiring fix and those recordings."
+      "parkedReason": "B27 now strictly matches the uhitm.c:hmon_hitmon_potion melee entry and fixes the shared potion.c:potionhit default rnl import. The remaining active potionhit routes lack matching evidence: downward steed hit, monster-to-monster missile hit, and dothrow.c:toss_up upward-return path; port whole toss_up before claiming that route, then record independent C witnesses. Resume for those source-traced entry gaps.",
+      "evidence": {
+        "functions": [
+          {
+            "name": "potionhit",
+            "implementation": "js/potion.js",
+            "symbol": "potionhit",
+            "sourceReview": "Compared the complete potion.c:potionhit() definition (1625-1928) against the port: target-is-hero and monster branches, direct saddle hit and water-on-saddle path, all potion type switches, resistance and polymorph guards, blindness duration draws and resistance ordering, anger/sleep cleanup, shop disposition, and final object consumption. Preserved evaluation and RNG order. For the hero POT_POLYMORPH arm, You_feel(\"a little %s\") precedes the Unchanging/Antimagic polyself guard exactly as C. For monster targets, potion.c obtains distance through distu(tx,ty), whose include/hack.h definition calls dist2 and whose hacklib.c body returns dx*dx+dy*dy; JS now uses that squared distance for the distance<3 vapor test. The return from H2Opotion_dip() is consumed in the saddle-water branch, so that whole helper was also ported and its Boolean is used. potion.c calls potionbreathe() as a void callee; the active partial helper arms remain enabled, while unsupported vapor types are source-named with note_unported('potion.c potionbreathe') and skipped so potionhit continues to its shop/object-release tail. The C calls to sounds.c:Soundeffect(), potion.c:explode_oil(), zap.c:bhitm() in the monster polymorph arm, and mon.c:mcureblindness() discard their results; JS records those exact source gaps and never treats the return as data. The separate upward toss path remains at dothrow.c:toss_up(), which JS still records as unported because throwit discards its Boolean. No case or seed condition was added. B27 additionally fixes the shared no-env.random runtime path at potionhit(): the C function uses process RNG calls including rnl(), so js/potion.js imports rnl into its default random bundle rather than requiring one caller to inject it. A focused no-random-seam call and the independent melee recording exercise that default.",
+            "callers": [
+              {
+                "path": "js/dothrow.js",
+                "symbol": "throwit",
+                "source": "dothrow.c:throwit() (1594) calls potionhit(u.usteed,obj,POTHIT_HERO_THROW) when a potion is thrown downward while riding and rn2(6) selects the hit arm. This branch is wired but has no matching recording in this packet."
+              },
+              {
+                "path": "js/dothrow.js",
+                "symbol": "thitmonst",
+                "source": "dothrow.c:thitmonst() (2264) calls potionhit(mon,obj,POTHIT_HERO_THROW) after the thrown potion hits a monster. The independent Wizard recording and admitted v7 range exercise this production call."
+              },
+              {
+                "path": "js/uhitm.js",
+                "symbol": "hmon_hitmon_potion",
+                "source": "uhitm.c:hmon_hitmon_potion() (1095-1117) calls setuwep(NULL) for a singleton before freeinv() and potionhit(). B27 wires canonical do_wear.c:cancel_doff and the remaining setworn hooks through setwornEnv(), then preserves C call order. The new sleeping-potion melee recording strictly reaches this caller and potionhit()."
+              },
+              {
+                "path": "js/mthrowu.js",
+                "symbol": "ohitmon",
+                "source": "mthrowu.c:ohitmon() (367) calls potionhit(mtmp,otmp,POTHIT_OTHER_THROW) when a monster missile hits another monster. The caller is wired; no matching recording in this packet reaches this target branch."
+              },
+              {
+                "path": "js/mthrowu.js",
+                "symbol": "thitu",
+                "source": "mthrowu.c:thitu() (137) calls potionhit(&gy.youmonst,obj,POTHIT_OTHER_THROW) when a monster missile potion hits the hero. The independent gnome-king potion recording reaches potionhit(potion.c:1638) through this caller."
+              },
+              {
+                "path": "js/mthrowu.js",
+                "symbol": "m_throw",
+                "source": "mthrowu.c:m_throw() (699) calls potionhit(&gy.youmonst,singleobj,POTHIT_MONST_THROW) when a monster-thrown potion reaches the hero. The independent gnome-king recording follows this flight path and enters thitu/potionhit."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/potion.test.mjs",
+              "scripts/dothrow-thitmonst.test.mjs",
+              "scripts/mthrowu.test.mjs",
+              "scripts/uhitm-hmon.test.mjs"
+            ],
+            "recordings": [
+              "recordings/dothrow.c/potion-blindness-thrown-independent.session.json",
+              "recordings/mthrowu.c/gnome-king-hurls-sleep-r2.session.json",
+              "recordings/uhitm.c/potion-sleeping-melee-wielded-independent.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v7",
+                "caseId": "throw-blindness-potion-hit-corrected",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 43,
+                "source": "dothrow.c:throwit -> dothrow.c:thitmonst -> potion.c:potionhit(POT_BLINDNESS)"
+              }
+            ],
+            "checkedAt": "5a2f70be22fa1d0489238745e372f3ed5a8c26df"
+          }
+        ],
+        "entryPointReview": "The selected whole source unit is potion.c:potionhit(). Its active production callers include dothrow.c:thitmonst, dothrow.c:throwit (downward hit on the steed), uhitm.c:hmon_hitmon_potion, mthrowu.c:ohitmon, mthrowu.c:thitu, and mthrowu.c:m_throw. Matching evidence covers a hero-thrown blindness potion hitting a monster through thitmonst (independent recording and admitted v7 segment 0 steps 0-43), a monster-thrown potion hitting the hero through m_throw/thitu (the gnome-king recording), and B27’s independent Rogue sleeping-potion melee strike through uhitm.c:hmon_hitmon_potion. That B27 recording also verifies singleton setuwep(NULL) uses the canonical doffing hooks before freeinv/potionhit. The shared potionhit default RNG now imports rnl, so callers that do not supply env.random use the C process RNG bundle. Source review corrections restore the hero polymorph You_feel line before Unchanging/Antimagic and use dist2 for the distu vapor threshold. Unsupported potionbreathe arms are explicitly skipped by source name, not by catching UnsupportedPotionError, so potionhit still runs its tail. The steed-hit and monster-to-monster callers are wired but lack matching records here. C dothrow.c:toss_up() also calls potionhit internally, but JS retains note_unported('dothrow.c toss_up') at throwit because the complete toss_up path is outside this task. These remaining entry gaps keep the source goal open.",
+        "entryPoints": [
+          {
+            "name": "Hero throws potion that hits a monster",
+            "functions": [
+              "potionhit"
+            ],
+            "recordings": [
+              "recordings/dothrow.c/potion-blindness-thrown-independent.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v7",
+                "caseId": "throw-blindness-potion-hit-corrected",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 43,
+                "source": "dothrow.c:throwit -> dothrow.c:thitmonst -> potion.c:potionhit(POT_BLINDNESS)"
+              }
+            ]
+          },
+          {
+            "name": "Monster throws potion that hits the hero",
+            "functions": [
+              "potionhit"
+            ],
+            "recordings": [
+              "recordings/mthrowu.c/gnome-king-hurls-sleep-r2.session.json"
+            ],
+            "synthetic": []
+          },
+          {
+            "name": "Hero melee strike with a wielded potion against a monster",
+            "functions": [
+              "potionhit"
+            ],
+            "recordings": [
+              "recordings/uhitm.c/potion-sleeping-melee-wielded-independent.session.json"
+            ],
+            "synthetic": []
+          },
+          {
+            "name": "Hero throws potion downward onto steed",
+            "functions": [
+              "potionhit"
+            ],
+            "recordings": [],
+            "synthetic": []
+          },
+          {
+            "name": "Monster missile potion hits another monster",
+            "functions": [
+              "potionhit"
+            ],
+            "recordings": [],
+            "synthetic": []
+          },
+          {
+            "name": "Upward potion toss reaches potionhit through toss_up",
+            "functions": [
+              "potionhit"
+            ],
+            "recordings": [],
+            "synthetic": []
+          }
+        ]
+      }
     },
     {
       "id": "div-trap-chest-trap-message-flush-synthetic-v8-20260927",
@@ -95735,25 +95866,32 @@
     {
       "id": "port-read-seffect-fire-synthetic-v8-20260927",
       "kind": "file-port",
-      "status": "queued",
+      "status": "closed",
       "summary": "Port complete read.c seffect_fire and its scroll caller",
       "cFile": "read.c",
       "sessions": [
         "synthetic/v8/read-fire-scroll-effect"
       ],
-      "selectionReason": "Selected synthetic/v8/read-fire-scroll-effect from source-traced investigation at investigations/synthetic/v8/read-fire-scroll-effect.json and current A25 challenge evaluation 20260927111723-v8.json; one screen remains at segment 0 step 19. C enters read.c:seffect_fire and first draws rn1(3,3); JS currently records an unported source gap. The related v8 setup-miss case is an additional replay check for the same function.",
+      "selectionReason": "Complete the source-traced fire-scroll function and ordinary/blessed read entry evidence after the selected v8 case reached parity; keep downstream item ignition as an explicit explode/trap/apply gap",
       "detail": "Port the whole read.c:seffect_fire body, including consumed RNG, scroll use and knowledge, confused and underwater branches, blessed target selection, hero flame and explosion ordering. Wire SCR_FIRE from read.c:seffects and port any return-valued missing callees in scope; validate independent C recordings and all admitted challenges without case-specific handling.",
-      "openedAt": null,
-      "openStanding": null,
-      "closedAt": null,
-      "delivered": null,
+      "openedAt": "10c8f210d77aee548ae25b77cee6b3f9b736d413",
+      "openStanding": {
+        "sha": "10c8f210d77aee548ae25b77cee6b3f9b736d413",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "closedAt": "10c8f210d77aee548ae25b77cee6b3f9b736d413",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
       "functions": [
         {
           "name": "seffect_fire",
           "line": 1850,
           "endLine": 1918,
-          "declared": false,
-          "complete": false
+          "declared": true,
+          "complete": true
         }
       ],
       "range": {
@@ -95773,6 +95911,94 @@
           "evaluationPath": "challenges/evaluations/20260927111723-v8.json",
           "evaluationCommit": "358dd6ad1294374a96a704a7f5a9b46c0ddc4a47"
         }
+      },
+      "activeStanding": {
+        "sha": "10c8f210d77aee548ae25b77cee6b3f9b736d413",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": [],
+      "evidence": {
+        "functions": [
+          {
+            "name": "seffect_fire",
+            "implementation": "js/read.js",
+            "symbol": "seffect_fire",
+            "sourceReview": "Ported all branches of read.c:seffect_fire() (1850-1917): capture object type/BUC/confusion/known state; compute dam with C integer truncation and one rn1 draw; consume the scroll and clear seffects()'s local pointer; call learnscrolltyp only when needed; preserve confused-underwater, confused-fire-resistance, and ordinary confused damage ordering; preserve ordinary underwater behavior; for blessed reading, print the identification message when unknown, multiply damage by five, install getpos highlight/valid callbacks, run getpos, and fall back to the hero when the selected coordinate is invalid; emit the tower-of-flame message and last_msg before the fire explosion. seffects() now routes SCR_FIRE here and sets its local scroll to null, matching the C pointer contract. Also source-ported read.c:can_center_cloud() and display_stinking_cloud_positions() as the consumed getpos callback helpers: can_center_cloud calls the existing valid_cloud_pos port in js/region.js, cansee(), then squared dist2 < 32; the display callback calls tmp_at(DISP_BEAM), scans dx outer/dy inner from -6 through +6, skips the hero square, and ends with tmp_at(DISP_END). The pure helper is source-pinned in scripts/read.test.mjs; the independent blessed-scroll recording executes the callback and the '$' highlight toggle. The existing explode.c:explode() helper needed its default RNG adapter to include rnl; that consumed wrapper is pinned in scripts/explode.test.mjs, and the selected v8 plus independent blessed recordings now match. Existing source gaps remain explicit: display.c:shieldeff and timeout.c:burn_away_slime are void calls skipped with note_unported(); js/region.js remains the implementation location of read.c:valid_cloud_pos rather than duplicating it. explode.c:explode() calls void trap.c:ignite_items(); the selected and independent recordings do not enter the unsupported hero-pack apply.c:catch_lit branch. recipes/read.c/read-fire-hero-oil-lamp-blocked.session.json retains that unrecorded source-named variation; it is not completion evidence. No result from note_unported() is used as data.",
+            "callers": [
+              {
+                "path": "js/cmd.js",
+                "symbol": "runReadCommand",
+                "source": "The active cmd.c command-table 'r' entry at cmd.c:1817 calls doread(); js/cmd.js:runReadCommand dispatches the command to js/read.js:doread()."
+              },
+              {
+                "path": "js/read.js",
+                "symbol": "doread",
+                "source": "read.c:doread() selects a readable object and calls seffects(&sobj); the SCR_FIRE switch arm in read.c:seffects() calls seffect_fire(&sobj)."
+              },
+              {
+                "path": "js/read.js",
+                "symbol": "seffects",
+                "source": "read.c:seffects() is the production dispatcher for SCR_FIRE and now awaits seffect_fire(scroll, state), then nulls its local scroll pointer as the C helper does."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/read.test.mjs",
+              "scripts/explode.test.mjs"
+            ],
+            "recordings": [
+              "recordings/read.c/read-fire-blessed-highlight.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v8",
+                "caseId": "read-fire-scroll-effect",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 19,
+                "source": "cmd.c read command -> read.c:doread -> read.c:seffects(SCR_FIRE) -> read.c:seffect_fire -> explode.c:explode"
+              }
+            ],
+            "checkedAt": "10c8f210d77aee548ae25b77cee6b3f9b736d413"
+          }
+        ],
+        "entryPointReview": "The active entry point is the r/read command through cmd.c's command table -> read.c:doread -> read.c:seffects(SCR_FIRE) -> read.c:seffect_fire. The admitted v8 read-fire-scroll-effect case matches through zero-based step 19, including the unblessed fire scroll and tower explosion. An independently chosen blessed scroll recording matches through step 33 and enters the getpos callback, uses the '$' highlight toggle, selects the hero square, and reaches the explosion. The source-pinned pure helper test checks can_center_cloud terrain, sight, and the strict squared-distance boundary; the recording verifies the display callback's on/off use. The related read-fire-scroll-effect.setup-miss-attempt1 recipe does not reach the selected source unit: C/JS first diverge at segment 1 step 21 in read.c:seffect_enchant_armor, so it is retained only as a separate investigation and is not cited. A separate hero-pack oil-lamp variation is retained as recipes/read.c/read-fire-hero-oil-lamp-blocked.session.json; it is not recorded and has no runtime evidence because the expected downstream route explode.c:explode -> trap.c:ignite_items -> apply.c:catch_lit is outside this task's scope and the existing JS helper refuses eligible OBJ_INVENT objects. No build-excluded caller was found.",
+        "entryPoints": [
+          {
+            "name": "read an unblessed scroll of fire",
+            "functions": [
+              "seffect_fire"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v8",
+                "caseId": "read-fire-scroll-effect",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 19,
+                "source": "cmd.c read command -> read.c:doread -> read.c:seffects(SCR_FIRE) -> read.c:seffect_fire -> explode.c:explode"
+              }
+            ]
+          },
+          {
+            "name": "read a blessed scroll of fire and select a highlighted explosion center",
+            "functions": [
+              "seffect_fire"
+            ],
+            "recordings": [
+              "recordings/read.c/read-fire-blessed-highlight.session.json"
+            ],
+            "synthetic": []
+          }
+        ]
+      },
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "10c8f210d77aee548ae25b77cee6b3f9b736d413",
+        "screens": 11405,
+        "rng": 792838
       }
     },
     {
@@ -95916,6 +96142,49 @@
         "sha": "feabcd23201baa92c3e92b5de5046a98d6a0f14f",
         "screens": 11405,
         "rng": 792838
+      }
+    },
+    {
+      "id": "port-quest-artitouch-synthetic-v8-20260927",
+      "kind": "file-port",
+      "status": "queued",
+      "summary": "Port quest artifact first-touch pager and inventory acquisition wiring",
+      "cFile": "quest.c",
+      "sessions": [
+        "synthetic/v8/artifact-heart-invoke-cycle"
+      ],
+      "selectionReason": "Current v8 artifact-heart-invoke-cycle first diverges at segment 0 step 24: C quest.c:artitouch called from invent.c:addinv_core1 opens gotit quest text and initializes nhlib.lua, while JS note_unported skips that call. The queue RNG annotation names Lua shuffle as the observed downstream draw, but the source owner is quest.c:artitouch. Port the whole first-touch function, generated gotit text, pager skip guard, and async inventory caller order; verify independent quest artifact acquisition distinct from v8.",
+      "detail": "",
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": null,
+      "delivered": null,
+      "functions": [
+        {
+          "name": "artitouch",
+          "line": 125,
+          "endLine": 139,
+          "declared": false,
+          "complete": false
+        }
+      ],
+      "range": {
+        "from": 125,
+        "to": 139
+      },
+      "syntheticProvenance": {
+        "synthetic/v8/artifact-heart-invoke-cycle": {
+          "session": "synthetic/v8/artifact-heart-invoke-cycle",
+          "corpus": "synthetic",
+          "batch": "v8",
+          "caseId": "artifact-heart-invoke-cycle",
+          "manifestPath": "challenges/manifests/v8.json",
+          "manifestSha256": "6a5159501af18a7f926f794d89e817375cd00a3589c4899fb97392ae04dbe8ba",
+          "recordingPath": "challenges/cases/v8/artifact-heart-invoke-cycle.session.json",
+          "recordingSha256": "816c8353f3fea197a0e99d8bd83f53f622a02d45fe61a59784dcfd479862cfd8",
+          "evaluationPath": "challenges/evaluations/20260927130815-v8.json",
+          "evaluationCommit": "10c8f210d77aee548ae25b77cee6b3f9b736d413"
+        }
       }
     }
   ]
