@@ -1,10 +1,10 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
 
-import { ECMD_TIME } from '../js/const.js';
+import { ECMD_TIME, IN_SIGHT, ROOM } from '../js/const.js';
 import { game } from '../js/gstate.js';
 import { runSegment } from '../js/jsmain.js';
-import { seffects } from '../js/read.js';
+import { can_center_cloud, seffects } from '../js/read.js';
 import { spelleffects } from '../js/spell.js';
 import { SCR_TAMING, SCROLL_CLASS, SPE_CHARM_MONSTER } from '../js/objects.js';
 
@@ -45,6 +45,38 @@ test('read.c seffect_taming handles an empty nearby-monster scan', async () => {
 
     assert.equal(game._pending_message, 'Nothing interesting happens.');
     assert.equal(game.gk.known, undefined);
+});
+
+test('read.c can_center_cloud pins valid terrain, sight, and distu boundary', async () => {
+    await runSegment({
+        seed: 8080053,
+        datetime: '20310908070606',
+        nethackrc: [
+            'OPTIONS=name:Firetest,role:Wizard,race:human,gender:male,align:neutral',
+            'OPTIONS=!legacy,!tutorial,!splash_screen,pettype:none',
+            '',
+        ].join('\n'),
+        moves: '.',
+    });
+
+    const { ux, uy } = game.u;
+    const markVisibleRoom = (x, y) => {
+        game.level.at(x, y).typ = ROOM;
+        game.viz_array[y][x] |= IN_SIGHT;
+    };
+    markVisibleRoom(ux, uy);
+    markVisibleRoom(ux + 3, uy + 3);
+    markVisibleRoom(ux + 4, uy + 4);
+    markVisibleRoom(ux + 1, uy);
+    game.viz_array[uy][ux + 1] &= ~IN_SIGHT;
+
+    // read.c:1080-1085 calls valid_cloud_pos first, then cansee(), then
+    // distu() < 32; hack.h:1531 defines distu as the squared distance.
+    assert.equal(can_center_cloud(ux, uy, game), true);
+    assert.equal(can_center_cloud(ux + 3, uy + 3, game), true);
+    assert.equal(can_center_cloud(ux + 4, uy + 4, game), false);
+    assert.equal(can_center_cloud(ux + 1, uy, game), false);
+    assert.equal(can_center_cloud(0, uy, game), false);
 });
 
 test('spell.c charm monster dispatches through read.c seffects', async () => {

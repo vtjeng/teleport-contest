@@ -14,16 +14,22 @@ import {
     BY_COOKIE,
     COLNO,
     CONFUSION,
+    DISP_BEAM,
+    DISP_END,
+    EXPL_FIERY,
     HALF_SPDAM,
+    HAND,
     HEAD,
     IS_AIR,
     IS_OBSTRUCTED,
     KILLED_BY_AN,
+    M_SEEN_FIRE,
     ECMD_CANCEL,
     ECMD_OK,
     ECMD_TIME,
     FEMALE,
     CORR,
+    PLNMSG_TOWER_OF_FLAME,
     GETOBJ_DOWNPLAY,
     GETOBJ_EXCLUDE,
     GETOBJ_EXCLUDE_SELECTABLE,
@@ -58,6 +64,7 @@ import {
     isok,
     ismnum,
     OBJ_AT,
+    u_at,
     LL_CONDUCT,
     MAX_ERODE,
 } from './const.js';
@@ -99,6 +106,7 @@ import {
 import { makeplural } from './fruit.js';
 import {
     mungspaces,
+    dist2,
     s_suffix,
     strstri,
     upstart,
@@ -130,6 +138,8 @@ import {
     passes_walls,
     unsolid,
     unique_corpstat,
+    monstseesu,
+    monstunseesu,
 } from './mondata.js';
 import {
     can_saddle,
@@ -140,11 +150,11 @@ import {
 import { makemon_runtime, newcham } from './makemon_create.js';
 import { mkclass, rndmonst, set_malign } from './makemon.js';
 import { monster_census } from './minion.js';
-import { Monnam, mon_nam } from './do_name.js';
+import { Monnam, hliquid, mon_nam } from './do_name.js';
 import {
     flash_mon, setmangry, wake_nearto, wakeup,
 } from './mon.js';
-import { MAXMCLASSES } from './symbols.js';
+import { MAXMCLASSES, S_goodpos } from './symbols.js';
 import {
     ALCHEMY_SMOCK,
     BALL_CLASS,
@@ -220,12 +230,14 @@ import { exercise } from './attrib.js';
 import { wipeout_text } from './engrave.js';
 import { do_mapping } from './detect.js';
 import { level_tele, scrolltele } from './teleport.js';
-import { lightdamage, resist } from './zap.js';
+import { Fire_resistance, lightdamage, resist } from './zap.js';
 import { discover_object } from './o_init.js';
 import { more_experienced } from './exper.js';
 import { rn1, rn2, rne, rnl, rnd } from './rng.js';
 import { ttyPline } from './tty_message.js';
-import { map_invisible, newsym } from './display.js';
+import {
+    cmap_to_glyph, map_invisible, newsym, tmp_at,
+} from './display.js';
 import { flooreffects, trycall } from './do.js';
 import { y_n } from './cmd.js';
 import {
@@ -271,6 +283,9 @@ import { shk_your } from './shk.js';
 import { pmname } from './do_name.js';
 import { outrumor } from './random_text.js';
 import { note_unported } from './unported.js';
+import { getpos } from './getpos.js';
+import { explode } from './explode.js';
+import { valid_cloud_pos } from './region.js';
 
 // Retained for narrower effect-family branches that still fail closed. The
 // source-ordered doread() and seffects() dispatches use note_unported() for
@@ -1521,6 +1536,136 @@ export async function seffect_earth(scroll, state = game) {
     }
 }
 
+// C ref: read.c can_center_cloud() (1080-1085). This is a pure target filter:
+// valid_cloud_pos(), cansee(), and hack.h distu() (the squared distance from
+// the hero, strictly less than 32) decide whether the square can center an
+// explosion. The existing read.c:valid_cloud_pos port remains in region.js;
+// keep this read.c caller here rather than duplicating that source unit.
+export function can_center_cloud(x, y, state = game) {
+    if (!valid_cloud_pos(x, y, state)) return false;
+    return cansee(x, y, state)
+        && dist2(x, y, state.u.ux, state.u.uy) < 32;
+}
+
+// C ref: read.c display_stinking_cloud_positions() (1087-1111). The callback
+// is also used by do_stinking_cloud(); that separate caller remains behind
+// seffect_stinking_cloud's recorded source gap.
+export async function display_stinking_cloud_positions(onOff, state = game) {
+    if (onOff) {
+        const dist = 6;
+        await tmp_at(DISP_BEAM, cmap_to_glyph(S_goodpos, state), state);
+        for (let dx = -dist; dx <= dist; ++dx) {
+            for (let dy = -dist; dy <= dist; ++dy) {
+                const x = state.u.ux + dx;
+                const y = state.u.uy + dy;
+                if (u_at(x, y, state)) continue;
+                if (can_center_cloud(x, y, state))
+                    await tmp_at(x, y, state);
+            }
+        }
+    } else {
+        await tmp_at(DISP_END, 0, state);
+    }
+}
+
+// C ref: read.c seffect_fire() (1850-1917). C passes the consumed scroll by
+// address, so seffects() sets its local pointer to null after this call.
+export async function seffect_fire(scroll, state = game) {
+    const otyp = scroll.otyp;
+    const sblessed = Boolean(scroll.blessed);
+    const confused = propertyActive(CONFUSION, state);
+    const alreadyKnown = scroll.oclass === SPBOOK_CLASS
+        || objectType(scroll, state).oc_name_known;
+    const cc = { x: state.u.ux, y: state.u.uy };
+    const cval = bcsign(scroll);
+    let dam = Math.trunc((2 * (rn1(3, 3) + 2 * cval) + 1) / 3);
+
+    useup(scroll, { state, hooks: {} });
+    if (!alreadyKnown) learnscrolltyp(SCR_FIRE, state);
+
+    if (confused) {
+        if (state.u?.uinwater) {
+            await ttyPline(
+                `A little ${hliquid('water', { state })} around you vaporizes.`,
+                state,
+            );
+        } else if (Fire_resistance(state)) {
+            // display.c shieldeff() returns void and is still a named gap.
+            note_unported('display.c shieldeff');
+            monstseesu(M_SEEN_FIRE, state);
+            const hands = makeplural(body_part(HAND, state.youmonst));
+            if (!propertyActive(BLINDED, state)) {
+                await ttyPline(
+                    `Oh, look, what a pretty fire in your ${hands}.`, state,
+                );
+            } else {
+                await ttyPline(`You feel a pleasant warmth in your ${hands}.`,
+                    state);
+            }
+        } else {
+            monstunseesu(M_SEEN_FIRE, state);
+            const hands = makeplural(body_part(HAND, state.youmonst));
+            await ttyPline(
+                `The scroll catches fire and you burn your ${hands}.`, state,
+            );
+            await losehp(1, 'scroll of fire', KILLED_BY_AN, state);
+        }
+        return;
+    }
+
+    if (state.u?.uinwater) {
+        await ttyPline(
+            `${The(hliquid('water', { state }), state)} around you vaporizes violently!`,
+            state,
+        );
+    } else {
+        if (sblessed) {
+            if (!alreadyKnown)
+                await ttyPline('This is a scroll of fire!', state);
+            dam *= 5;
+            await ttyPline('Where do you want to center the explosion?', state);
+
+            // getpos_sethilite() in getpos.c installs these callbacks for the
+            // duration of getpos(); JS stores the same callback contract on
+            // the owning game state. getpos() writes cc in source order.
+            state.getpos_hilitefunc = (onOff, callbackState = state) => (
+                display_stinking_cloud_positions(onOff, callbackState)
+            );
+            state.getpos_getvalid = (x, y, callbackState = state) => (
+                can_center_cloud(x, y, callbackState)
+            );
+            try {
+                await getpos(cc, true, 'the desired position', state);
+            } finally {
+                // C getpos() always finishes with getpos_sethilite(NULL,NULL).
+                state.getpos_hilitefunc = null;
+                state.getpos_getvalid = null;
+            }
+            if (!can_center_cloud(cc.x, cc.y, state)) {
+                // C's fire-scroll caller discards getpos()'s return code; an
+                // escape or out-of-range position falls back to the hero.
+                cc.x = state.u.ux;
+                cc.y = state.u.uy;
+            }
+        }
+        if (u_at(cc.x, cc.y, state)) {
+            await ttyPline('The scroll erupts in a tower of flame!', state);
+            state.iflags ??= {};
+            state.iflags.last_msg = PLNMSG_TOWER_OF_FLAME;
+            // timeout.c burn_away_slime() returns void and its JS port is
+            // incomplete for the active Slimed branch; retain the source gap.
+            note_unported('timeout.c burn_away_slime');
+        }
+    }
+
+    // read.c's local ZT_SPELL_O_FIRE is 11; explode.c derives AD_FIRE and
+    // the "tower of flame" description from that type plus SCROLL_CLASS.
+    const ZT_SPELL_O_FIRE = 11;
+    await explode(
+        cc.x, cc.y, ZT_SPELL_O_FIRE, dam, SCROLL_CLASS, EXPL_FIERY, state,
+    );
+}
+
 // C ref: read.c seffects() (2194-2290). Preserve the complete source switch,
 // its pre-dispatch Wisdom exercise, post-effect inventory refresh, and
 // `sobj ? 0 : 1` return. C's effect helpers are void and receive `&sobj`;
@@ -1642,7 +1787,8 @@ export async function seffects(scroll, state = game) {
         note_unported('read.c seffect_amnesia');
         break;
     case SCR_FIRE:
-        note_unported('read.c seffect_fire');
+        await seffect_fire(scroll, state);
+        scroll = null;
         break;
     case SCR_EARTH:
         await seffect_earth(scroll, state);

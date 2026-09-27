@@ -1,0 +1,11 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 83015700,
+      "datetime": "20321010101112",
+      "nethackrc": "OPTIONS=name:A26Glow,role:Wizard,race:human,gender:female,align:neutral,playmode:debug,!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!debug_mongen\n",
+      "moves": " \u0017blessed scroll of fire\nro    $."
+    }
+  ]
+}
