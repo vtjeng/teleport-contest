@@ -149,7 +149,7 @@ import {
     bless, bcsign, carried, costly_alteration, curse, objectType, splitobj,
     unbless, uncurse,
 } from './obj.js';
-import { distmin, s_suffix, upstart } from './hacklib.js';
+import { dist2, s_suffix, upstart } from './hacklib.js';
 import {
     Tobjnam, donameFresh, is_plural, short_oname, thesimpleoname, vtense,
     yname,
@@ -1798,7 +1798,7 @@ export async function potionhit(mon, obj, how, rawEnv = {}) {
     const env = { ...rawEnv, state, random, message };
     const botlnam = bottlename(state, random);
     const isyou = mon === state.youmonst;
-    const distance = isyou ? 0 : distmin(
+    const distance = isyou ? 0 : dist2(
         mon.mx, mon.my, state.u.ux, state.u.uy,
     );
     const tx = isyou ? state.u.ux : mon.mx;
@@ -1875,6 +1875,10 @@ export async function potionhit(mon, obj, how, rawEnv = {}) {
                 note_unported('potion.c explode_oil');
             break;
         case POT_POLYMORPH:
+            await message(
+                `You feel a little ${Hallucination(state) ? 'normal' : 'strange'}.`,
+                state,
+            );
             if (!(state.u.uprops[UNCHANGING]?.intrinsic
                 || state.u.uprops[UNCHANGING]?.extrinsic)
                 && !(state.u.uprops[ANTIMAGIC]?.intrinsic
@@ -2112,7 +2116,39 @@ export async function potionhit(mon, obj, how, rawEnv = {}) {
         && (!breathless(state.youmonst.data)
             || haseyes(state.youmonst.data));
     if (breathe) {
-        await potionbreathe(obj, state, env);
+        // potion.c calls the void potionbreathe() unconditionally here, but
+        // the JavaScript helper has only the arms listed below. Skip its
+        // unsupported arms by source name so potionhit() still reaches its
+        // shop and object-release tail; never swallow its refusal generally.
+        const vaporType = Half_gas_damage(state) ? TOWEL : obj.otyp;
+        let vaporArmPorted = true;
+        switch (vaporType) {
+        case POT_INVISIBILITY:
+        case POT_PARALYSIS:
+        case POT_BLINDNESS:
+        case POT_ACID:
+        case POT_POLYMORPH:
+        case POT_GAIN_LEVEL:
+        case POT_GAIN_ENERGY:
+        case POT_LEVITATION:
+        case POT_FRUIT_JUICE:
+        case POT_MONSTER_DETECTION:
+        case POT_OBJECT_DETECTION:
+        case POT_OIL:
+        case POT_SEE_INVISIBLE:
+        case POT_ENLIGHTENMENT:
+            break;
+        case POT_SLEEPING:
+            vaporArmPorted = !Free_action(state) && !Sleep_resistance(state);
+            break;
+        default:
+            vaporArmPorted = false;
+            break;
+        }
+        if (vaporArmPorted)
+            await potionbreathe(obj, state, env);
+        else
+            note_unported('potion.c potionbreathe');
     } else if (obj.dknown && cansee(tx, ty, state)) {
         await trycall(obj, state);
     }
