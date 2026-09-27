@@ -95731,6 +95731,49 @@
         "rng": 792838
       },
       "parkedReason": "read.c seffect_taming and maybe_tame match scroll and wizard-cast evidence; ordinary spell.c docast charm entry remains blocked by insufficient Pw in the independent recipe before seffects, so source completion awaits a high-Pw matching docast recording"
+    },
+    {
+      "id": "port-read-seffect-fire-synthetic-v8-20260927",
+      "kind": "file-port",
+      "status": "queued",
+      "summary": "Port complete read.c seffect_fire and its scroll caller",
+      "cFile": "read.c",
+      "sessions": [
+        "synthetic/v8/read-fire-scroll-effect"
+      ],
+      "selectionReason": "Selected synthetic/v8/read-fire-scroll-effect from source-traced investigation at investigations/synthetic/v8/read-fire-scroll-effect.json and current A25 challenge evaluation 20260927111723-v8.json; one screen remains at segment 0 step 19. C enters read.c:seffect_fire and first draws rn1(3,3); JS currently records an unported source gap. The related v8 setup-miss case is an additional replay check for the same function.",
+      "detail": "Port the whole read.c:seffect_fire body, including consumed RNG, scroll use and knowledge, confused and underwater branches, blessed target selection, hero flame and explosion ordering. Wire SCR_FIRE from read.c:seffects and port any return-valued missing callees in scope; validate independent C recordings and all admitted challenges without case-specific handling.",
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": null,
+      "delivered": null,
+      "functions": [
+        {
+          "name": "seffect_fire",
+          "line": 1850,
+          "endLine": 1918,
+          "declared": false,
+          "complete": false
+        }
+      ],
+      "range": {
+        "from": 1850,
+        "to": 1918
+      },
+      "syntheticProvenance": {
+        "synthetic/v8/read-fire-scroll-effect": {
+          "session": "synthetic/v8/read-fire-scroll-effect",
+          "corpus": "synthetic",
+          "batch": "v8",
+          "caseId": "read-fire-scroll-effect",
+          "manifestPath": "challenges/manifests/v8.json",
+          "manifestSha256": "6a5159501af18a7f926f794d89e817375cd00a3589c4899fb97392ae04dbe8ba",
+          "recordingPath": "challenges/cases/v8/read-fire-scroll-effect.session.json",
+          "recordingSha256": "9fc878b044ff61247bc0dee1bbc943b5f55ba78f17967641301bb1ccb26d47b7",
+          "evaluationPath": "challenges/evaluations/20260927111723-v8.json",
+          "evaluationCommit": "358dd6ad1294374a96a704a7f5a9b46c0ddc4a47"
+        }
+      }
     }
   ]
 }
