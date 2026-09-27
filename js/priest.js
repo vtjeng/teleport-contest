@@ -18,9 +18,12 @@ import {
     ARTICLE_NONE,
     ARTICLE_THE,
     ARTICLE_YOUR,
+    A_WIS,
+    CLAIRVOYANT,
     DEAF,
     DRY,
     EPRI,
+    FROMOUTSIDE,
     HALLUC,
     HALLUC_RES,
     helpless,
@@ -29,6 +32,8 @@ import {
     IS_ALTAR,
     IS_ROOM,
     Is_astralevel,
+    INTRINSIC,
+    LL_CONDUCT,
     MM_EPRI,
     MM_NOMSG,
     N_DIRS,
@@ -38,6 +43,7 @@ import {
     SOLID,
     SPINE,
     TEMPLE,
+    PROTECTION,
     u_at,
     W_ARMC,
     WET,
@@ -45,7 +51,13 @@ import {
     ydir,
 } from './const.js';
 import { newsym } from './display.js';
-import { bogon_is_pname, mon_pmname, rndmonnamDetails } from './do_name.js';
+import {
+    bogon_is_pname,
+    Monnam,
+    mon_nam,
+    mon_pmname,
+    rndmonnamDetails,
+} from './do_name.js';
 import { assign_level, find_mapseen, mapseen_room, on_level } from './dungeon.js';
 import { game } from './gstate.js';
 import { nomul } from './hack.js';
@@ -63,6 +75,7 @@ import {
     is_rider,
     is_swimmer,
     likes_fire,
+    mhis,
     mon_learns_traps,
     noncorporeal,
     passes_walls,
@@ -78,6 +91,10 @@ import { halu_gname } from './pray.js';
 import { is_ok_location } from './room_coordinates.js';
 import { in_rooms } from './rooms.js';
 import { d, rn1, rn2 } from './rng.js';
+import { exercise, adjalign } from './attrib.js';
+import { currency, money_cnt } from './invent.js';
+import { incr_itimeout } from './potion.js';
+import { livelog_printf, verbalize } from './pline.js';
 import { mpickobj } from './steal.js';
 import { ttyPline } from './tty_message.js';
 import { canseemon } from './vision.js';
@@ -727,6 +744,206 @@ export async function intemple(roomno, env = {}) {
             nomul(-3, state);
             state.multi_reason = 'being terrified of a ghost';
             state.nomovemsg = 'You regain your composure.';
+        }
+    }
+}
+
+// C ref: priest.c priest_talk() (558-723). The function's order matters:
+// it records the atheist conduct first, handles hostile/cranky priests before
+// shrine and donation logic, and only asks for a donation after the priest is
+// peaceful inside its own tended temple.
+export async function priest_talk(priest, state = game, env = {}) {
+    const random = env.random ?? { rn1, rn2 };
+    const message = env.message ?? ttyPline;
+    const speak = env.verbalize ?? verbalize;
+    const setVoice = env.setVoice
+        ?? (await import('./sounds.js')).set_voice;
+    const u = state.u;
+    const coaligned = p_coaligned(priest, state);
+    const strayed = u.ualign.record < 0;
+    const epri = priest.mextra?.epri ?? null;
+    const cheapskate = epri;
+
+    // C: `if (!u.uconduct.gnostic++) livelog_printf(...)`.
+    u.uconduct ??= {};
+    const gnostic = Math.trunc(u.uconduct.gnostic ?? 0);
+    u.uconduct.gnostic = gnostic + 1;
+    if (!gnostic) {
+        livelog_printf(
+            LL_CONDUCT,
+            `rejected atheism by consulting with ${mon_nam(priest, state)}`,
+            state,
+        );
+    }
+
+    if (priest.mflee || (!priest.ispriest && coaligned && strayed)) {
+        await message(`${Monnam(priest, state)} doesn't want anything to do with you!`, state);
+        priest.mpeaceful = 0;
+        return;
+    }
+
+    // C's order is `!inhistemple || !peaceful || helpless`.
+    if (!inhistemple(priest, state) || !priest.mpeaceful || helpless(priest)) {
+        const cranky = [
+            "Thou wouldst have words, eh?  I'll give thee a word or two!",
+            'Talk?  Here is what I have to say!',
+            'Pilgrim, I would speak no longer with thee.',
+        ];
+
+        if (helpless(priest)) {
+            await message(
+                `${Monnam(priest, state)} breaks out of ${mhis(priest)} reverie!`,
+                state,
+            );
+            priest.mfrozen = 0;
+            priest.msleeping = 0;
+            priest.mcanmove = 1;
+        }
+        priest.mpeaceful = 0;
+        setVoice(priest, 0, 80, 0, state);
+        await speak(cranky[random.rn2(3)], state);
+        return;
+    }
+
+    // C checks a temple room separately from has_shrine(), and this precedes
+    // the zero-gold blessing path.
+    if (priest.mpeaceful
+        && (in_rooms(priest.mx, priest.my, TEMPLE, state)[0] ?? 0)
+        && !has_shrine(priest, state)) {
+        setVoice(priest, 0, 80, 0, state);
+        await speak(
+            'Begone!  Thou desecratest this holy place with thy presence.',
+            state,
+        );
+        priest.mpeaceful = 0;
+        return;
+    }
+
+    if (!money_cnt(state.invent)) {
+        if (coaligned && !strayed) {
+            const pmoney = money_cnt(priest.minvent);
+            if (pmoney > 0) {
+                const bits = heroHallucinating(state)
+                    ? currency(pmoney, state)
+                    : pmoney === 1 ? 'bit' : 'bits';
+                await message(
+                    `${Monnam(priest, state)} gives you ${pmoney === 1 ? 'one ' : 'two '}${bits} for an ale.`,
+                    state,
+                );
+                const { money2u } = await import('./shk.js');
+                await money2u(priest, pmoney > 1 ? 2 : 1, state);
+            } else {
+                await message(
+                    `${Monnam(priest, state)} preaches the virtues of poverty.`,
+                    state,
+                );
+            }
+            await exercise(A_WIS, true, state, random);
+        } else {
+            await message(`${Monnam(priest, state)} is not interested.`, state);
+        }
+        return;
+    }
+
+    const suggested = (u.ulevelpeak || 1)
+        * random.rn1(101, 150 + (cheapskate
+            ? Math.trunc(cheapskate.cheapskate_count ?? 0) * 40 : 0));
+    let quan = Math.trunc(money_cnt(state.invent) / (suggested * 3));
+    if (quan < 1) quan = 1;
+    const prompt = `How much will you offer (suggested: ${suggested * quan}`
+        + ` or ${suggested * quan * 2})?`;
+
+    if (state.flags?.debug) {
+        await message(
+            `${Monnam(priest, state)} asks you for a contribution for the temple (base ${suggested}).`,
+            state,
+        );
+    } else {
+        await message(
+            `${Monnam(priest, state)} asks you for a contribution for the temple.`,
+            state,
+        );
+    }
+
+    const bribeFn = env.bribe ?? (await import('./minion.js')).bribe;
+    let offer = await bribeFn(priest, prompt, state, env);
+    if (offer === 0) {
+        setVoice(priest, 0, 80, 0, state);
+        await speak('Thou shalt regret thine action!', state);
+        if (coaligned) adjalign(-1, state);
+        if (cheapskate) {
+            cheapskate.cheapskate_count = Math.trunc(
+                cheapskate.cheapskate_count ?? 0,
+            ) + 1;
+        }
+    } else if (offer < suggested * quan) {
+        if (money_cnt(state.invent) > offer * 2) {
+            setVoice(priest, 0, 80, 0, state);
+            await speak('Cheapskate.', state);
+            if (cheapskate) {
+                cheapskate.cheapskate_count = Math.trunc(
+                    cheapskate.cheapskate_count ?? 0,
+                ) + 1;
+            }
+        } else {
+            setVoice(priest, 0, 80, 0, state);
+            await speak('I thank thee for thy contribution.', state);
+            await exercise(A_WIS, true, state, random);
+        }
+    } else if (offer < suggested * quan * 2) {
+        // priest.c's first reward tier covers [suggested*quan,
+        // 2*suggested*quan).  It can restore alignment for a sinned hero,
+        // then grants clairvoyance; protection belongs to the next tier.
+        setVoice(priest, 0, 80, 0, state);
+        await speak('Thou art indeed a pious individual.', state);
+        // priest.c defines ALGN_SINNED as -4 in this source file.
+        if (money_cnt(state.invent) < offer * 2
+            && coaligned && u.ualign.record <= -4) {
+            adjalign(1, state);
+        }
+        await speak('I bestow upon thee a blessing.', state);
+        if (u.uprops?.[CLAIRVOYANT]) {
+            const timeout = Math.trunc(500 * offer / suggested);
+            incr_itimeout(
+                u.uprops[CLAIRVOYANT],
+                random.rn1(timeout, timeout),
+            );
+        }
+    } else if (offer < suggested * quan * 3) {
+        // C's next tier restores/grows protection. Its loop intentionally
+        // compares against 2*suggested, not suggested*quan.
+        let origUblessed = Math.trunc(u.ublessed ?? 0);
+        u.uprops ??= [];
+        const protection = u.uprops[PROTECTION] ??= { intrinsic: 0 };
+        if (!(protection.intrinsic & INTRINSIC)) {
+            protection.intrinsic |= FROMOUTSIDE;
+            origUblessed = -1;
+        }
+
+        for (; offer >= 2 * suggested; offer -= 2 * suggested) {
+            if (!u.ublessed) u.ublessed = random.rn1(3, 2);
+            else if (u.ublessed < 20
+                && (u.ublessed < 9 || !random.rn2(u.ublessed))) {
+                u.ublessed++;
+            }
+        }
+        setVoice(priest, 0, 80, 0, state);
+        if (u.ublessed > origUblessed) {
+            await speak('Thou hast been rewarded for thy devotion.', state);
+        } else {
+            await speak('Thy selfless generosity is deeply appreciated.', state);
+        }
+    } else {
+        setVoice(priest, 0, 80, 0, state);
+        await speak('Thy selfless generosity is deeply appreciated.', state);
+        if (money_cnt(state.invent) < offer * 2 && coaligned) {
+            const moves = state.svm?.moves ?? state.moves;
+            if (strayed && (moves - (u.ucleansed ?? 0)) > 5000) {
+                u.ualign.record = 0;
+                u.ucleansed = moves;
+            } else {
+                adjalign(2, state);
+            }
         }
     }
 }

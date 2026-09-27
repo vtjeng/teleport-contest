@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "capturedAt": "2026-09-27T07:04:31.884Z",
+  "capturedAt": "2026-09-27T08:05:45.583Z",
   "activity": {
     "runId": "loop-20260925",
     "events": [
@@ -4555,12 +4555,134 @@
         "type": "accepted",
         "at": "2026-09-27T07:03:56.977Z",
         "task": "A22"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "A22-published-fd2870a3",
+        "type": "published",
+        "at": "2026-09-27T07:10:30.981Z",
+        "task": "A22",
+        "commit": "fd2870a3760b6a11473c6a90279ef26fe643ab15"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "assign-A23-stethoscope-20260927",
+        "type": "assign",
+        "at": "2026-09-27T07:13:36.193Z",
+        "task": "A23",
+        "worker": "A",
+        "goal": "port-apply-use-stethoscope-synthetic-v6-20260927",
+        "kind": "implementation"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "C24-integrating-94ade0ad",
+        "type": "integrating",
+        "at": "2026-09-27T07:15:26.823Z",
+        "task": "C24",
+        "integration": "94ade0add8b1d83746356239f3444c96f104230a"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "C24-validated-94ade0ad",
+        "type": "validated",
+        "at": "2026-09-27T07:26:07.536Z",
+        "task": "C24",
+        "passed": true
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "C24-accepted-94ade0ad",
+        "type": "accepted",
+        "at": "2026-09-27T07:26:22.575Z",
+        "task": "C24"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "C24-published-508678af",
+        "type": "published",
+        "at": "2026-09-27T07:33:24.637Z",
+        "task": "C24",
+        "commit": "508678afc8214bf6b651190fa3fc2c650b28f4b9"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "assign-C25-invisibility-20260927",
+        "type": "assign",
+        "at": "2026-09-27T07:38:22.819Z",
+        "task": "C25",
+        "worker": "C",
+        "goal": "port-potion-peffect-invisibility-synthetic-v7-20260927",
+        "kind": "implementation"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-eb571b494aa066395d96b8db2055cb1771a7bdc6",
+        "type": "ready",
+        "at": "2026-09-27T07:52:03.480Z",
+        "task": "A23",
+        "delivery": "eb571b494aa066395d96b8db2055cb1771a7bdc6"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "A23-received-eb571b49",
+        "type": "received",
+        "at": "2026-09-27T07:52:51.633Z",
+        "task": "A23",
+        "delivery": "eb571b494aa066395d96b8db2055cb1771a7bdc6"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-791a20a5e6c31f62d2e16be33755ae75cac48273",
+        "type": "ready",
+        "at": "2026-09-27T07:53:19.148Z",
+        "task": "B24",
+        "delivery": "791a20a5e6c31f62d2e16be33755ae75cac48273"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "A23-integrating-b697c315",
+        "type": "integrating",
+        "at": "2026-09-27T07:55:20.725Z",
+        "task": "A23",
+        "integration": "b697c3156f02e8ef8a43516505f4bd8b7e6bce76"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "B24-received-791a20a5",
+        "type": "received",
+        "at": "2026-09-27T07:55:51.287Z",
+        "task": "B24",
+        "delivery": "791a20a5e6c31f62d2e16be33755ae75cac48273"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-58c063b46064ccaea3d2eb77a63dfe9ed5bd5954",
+        "type": "ready",
+        "at": "2026-09-27T08:00:32.839Z",
+        "task": "C25",
+        "delivery": "58c063b46064ccaea3d2eb77a63dfe9ed5bd5954"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "A23-validated-b697c315",
+        "type": "validated",
+        "at": "2026-09-27T08:05:16.304Z",
+        "task": "A23",
+        "passed": true
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "A23-accepted-b697c315",
+        "type": "accepted",
+        "at": "2026-09-27T08:05:35.674Z",
+        "task": "A23"
       }
     ]
   },
   "development": {
-    "executionCommit": "89741e4795871d096228a0e47c2e7453a9112e0f",
-    "measuredAt": "2026-09-27T07:00:11.255Z",
+    "executionCommit": "b697c3156f02e8ef8a43516505f4bd8b7e6bce76",
+    "measuredAt": "2026-09-27T08:02:11.354Z",
     "sessions": [
       {
         "session": "holdout/seed0002-healer-reflection-drummer",
