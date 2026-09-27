@@ -94641,13 +94641,13 @@
     {
       "id": "port-potion-potionhit-synthetic-v7-20260927",
       "kind": "file-port",
-      "status": "parked",
+      "status": "open",
       "summary": "Port complete potion.c potionhit monster and hero effects through all active collision callers",
       "cFile": "potion.c",
       "sessions": [
         "synthetic/v7/throw-blindness-potion-hit-corrected"
       ],
-      "selectionReason": "The current v7 thrown-blindness case has one unmatched screen at impact; investigations/synthetic/v7/throw-blindness-potion-hit-corrected.json traces the skipped dothrow.c:thitmonst call to potion.c:potionhit. Port the whole source function and wire its active dothrow, uhitm, mthrowu, zap, and monster-item callers; record independent post-impact and other entry evidence. The other unresolved v7 detection case owns a different potion.c function and remains queued.",
+      "selectionReason": "Resume parked potionhit source completion to repair the source-traced uhitm.c:hmon_hitmon_potion setuwep caller hook blocker and obtain independent melee, steed, monster-to-monster, and ceiling-return entry evidence",
       "detail": "",
       "openedAt": "f5248ce4f94176f35cd5b15dbe69457a41cd52f6",
       "openStanding": {
@@ -94685,7 +94685,7 @@
         }
       },
       "activeStanding": {
-        "sha": "5f1efeed9e8e7684c046c1016785c10e720b1a60",
+        "sha": "feabcd23201baa92c3e92b5de5046a98d6a0f14f",
         "screens": 11405,
         "rng": 792838
       },
