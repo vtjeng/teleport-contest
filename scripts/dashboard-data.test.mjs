@@ -13,6 +13,7 @@ import { fileURLToPath } from 'node:url';
 import { runInNewContext } from 'node:vm';
 import { COLUMNS } from './score-log.mjs';
 import { escapeJsonForScript, injectDashboardData } from './build-dashboard.mjs';
+import { activityTimeline } from './dashboard-activity.mjs';
 
 const PROJECT_ROOT = dirname(dirname(fileURLToPath(import.meta.url)));
 const DATA_SCRIPT = join(PROJECT_ROOT, 'scripts', 'dashboard-data.mjs');
@@ -118,7 +119,7 @@ function renderDashboard(data, queue = null) {
             hidden: false,
             style: {},
             listeners: {},
-            classList: { add() {}, remove() {} },
+            classList: { add() {}, remove() {}, contains() { return false; } },
             children: [],
             ops,
             parentElement: {
@@ -133,6 +134,9 @@ function renderDashboard(data, queue = null) {
             getContext: () => context(ops),
             addEventListener(type, handler) { (this.listeners[type] ||= []).push(handler); },
             setAttribute() {},
+            setPointerCapture() { this.pointerCaptured = true; },
+            hasPointerCapture() { return Boolean(this.pointerCaptured); },
+            releasePointerCapture() { this.pointerCaptured = false; },
             appendChild(child) { this.children.push(child); return child; },
             replaceChildren(...nodes) { this.children = nodes; },
         };
@@ -494,6 +498,78 @@ test('one sessions table includes both sets with exact scores and distinct misma
     assert.match(table.innerHTML, /<td><span role="img" aria-label="Matched">✅<\/span><\/td>/u);
     assert.match(table.innerHTML, /<td><span role="img" aria-label="Remaining">🔧<\/span><\/td>/u);
     assert.doesNotMatch(table.innerHTML, /✅ Matched|🔧 Remaining/u);
+});
+
+test('activity view ranks handoff waits and explains concurrent assignments', () => {
+    const data = sourceDashboardData();
+    const at = time => `2026-09-25T${time}:00Z`;
+    const events = [
+        ['assign', '01:00', 'B0', 'B'], ['ready', '02:00', 'B0'],
+        ['integrating', '02:30', 'B0'], ['validated', '03:00', 'B0'],
+        ['accepted', '03:05', 'B0'], ['published', '03:06', 'B0'],
+        ['assign', '09:00', 'B1', 'B'], ['ready', '09:50', 'B1'],
+        ['assign', '10:00', 'A1', 'A'], ['ready', '10:10', 'A1'],
+        ['assign', '10:12', 'A2', 'A'], ['integrating', '10:15', 'B1'],
+        ['validated', '10:25', 'B1'], ['accepted', '10:26', 'B1'],
+        ['published', '10:27', 'B1'], ['integrating', '10:40', 'A1'],
+        ['validated', '11:00', 'A1'], ['accepted', '11:02', 'A1'],
+        ['published', '11:03', 'A1'], ['ready', '11:10', 'A2'],
+    ].map(([type, time, task, worker], index) => ({
+        id: String(index), type, at: at(time), task,
+        ...(worker ? { worker, goal: task } : {}),
+    }));
+    data.activity = activityTimeline({ runId: 'loop-20260925', events }, at('11:15'));
+    const rendered = renderDashboard(data);
+    assert.match(rendered.get('activityMetrics').innerHTML, /Ready → Main[\s\S]*30m[\s\S]*2 completed waits/u);
+    assert.match(rendered.get('activityWaitList').innerHTML, /A1[\s\S]*30m/u);
+    assert.match(rendered.get('timeline').innerHTML, /activity-row main/u);
+    assert.equal((rendered.get('timeline').innerHTML.match(/activity-row(?: main)?" style="height:48px"/gu) || []).length, 4);
+    const firstBarTop = lane => rendered.get('timeline').innerHTML.match(new RegExp(
+        `activity-label">${lane}<\\/div><div class="activity-track"><div class="activity-bar[^>]*top:([^;]+);`, 'u'))?.[1];
+    assert.equal(firstBarTop('A'), '6px');
+    assert.equal(firstBarTop('B'), '6px');
+    assert.match(rendered.get('timelineReadout').innerHTML, /Another task was assigned to this worker for 28m/u);
+    assert.match(rendered.get('timelineReadout').innerHTML, /Recorded Main stages overlapped this wait/u);
+    const mainIndex = data.activity.segments.findIndex(row => row.task === 'B1'
+        && row.phase === 'integrating');
+    const timeline = rendered.get('timeline');
+    timeline.listeners.pointerdown[0]({ button: 0, clientX: 100, pointerId: 2,
+        target: { classList: { contains: name => name === 'activity-bar' },
+            dataset: { segment: String(mainIndex) } } });
+    timeline.listeners.pointerup[0]({ type: 'pointerup', pointerId: 2, target: timeline });
+    assert.match(rendered.get('timelineReadout').innerHTML, /waiting delivery overlapped this stage/u);
+    const shortWindow = rendered.get('activityWindowLabel').textContent;
+    timeline.listeners.pointerdown[0]({ button: 0, clientX: 0, pointerId: 1, target: timeline });
+    timeline.listeners.pointermove[0]({ clientX: 700, pointerId: 1 });
+    timeline.listeners.pointerup[0]({ pointerId: 1 });
+    assert.notEqual(rendered.get('activityWindowLabel').textContent, shortWindow);
+    assert.match(rendered.get('activityWaitList').innerHTML, /B0/u);
+    assert.doesNotMatch(rendered.get('activityWaitList').innerHTML, /A1/u);
+    assert.equal((rendered.get('timeline').innerHTML.match(/activity-row(?: main)?" style="height:48px"/gu) || []).length, 4);
+    rendered.get('activityLatest').listeners.click[0]();
+    assert.equal(rendered.get('activityWindowLabel').textContent, shortWindow);
+    const select = rendered.get('activityWindow');
+    select.value = '24';
+    select.listeners.change[0]();
+    assert.notEqual(rendered.get('activityWindowLabel').textContent, shortWindow);
+});
+
+test('activity wait list contains every wait in the window', () => {
+    const data = sourceDashboardData();
+    data.activity = {
+        capturedAt: '2026-09-25T12:00:00Z',
+        tasks: Array.from({ length: 7 }, (_, index) => ({
+            id: `task-${index}`, label: `Task ${index}`, status: 'published',
+        })),
+        segments: Array.from({ length: 7 }, (_, index) => ({
+            task: `task-${index}`, worker: 'A', lane: 'A', phase: 'queued',
+            start: `2026-09-25T11:${String(index).padStart(2, '0')}:00Z`,
+            end: `2026-09-25T11:${String(index + 10).padStart(2, '0')}:00Z`,
+        })),
+    };
+    const rendered = renderDashboard(data);
+    assert.equal((rendered.get('activityWaitList').innerHTML.match(/<button /gu) || []).length, 7);
+    assert.match(readFileSync(TEMPLATE, 'utf8'), /<h4>Waits by length<\/h4>/u);
 });
 
 function sourceFileRows(table) {

@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "capturedAt": "2026-09-27T04:35:51.053Z",
+  "capturedAt": "2026-09-27T06:37:39.626Z",
   "activity": {
     "runId": "loop-20260925",
     "events": [
@@ -4301,12 +4301,193 @@
         "type": "accepted",
         "at": "2026-09-27T04:35:44.873Z",
         "task": "B22"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "assign-A20-throne-sit-effect-20260927",
+        "type": "assign",
+        "at": "2026-09-27T04:37:51.273Z",
+        "task": "A20",
+        "worker": "A",
+        "goal": "port-sit-throne-sit-effect-synthetic-v6-20260927",
+        "kind": "implementation"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "published-B22-7ca34864",
+        "type": "published",
+        "at": "2026-09-27T04:42:58.850Z",
+        "task": "B22",
+        "commit": "7ca34864876d622b03802ee04e6704aa878f4244"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "assign-B23-msbribe-family",
+        "type": "assign",
+        "at": "2026-09-27T05:00:45.549Z",
+        "task": "B23",
+        "worker": "B",
+        "goal": "div-makemon-bribe-prince-creation-c24-20260927",
+        "kind": "implementation"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-aa2d2cd890497ff4114d676642be5809e6356d25",
+        "type": "ready",
+        "at": "2026-09-27T05:23:45.747Z",
+        "task": "B23",
+        "delivery": "aa2d2cd890497ff4114d676642be5809e6356d25"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "received-B23-aa2d2cd8",
+        "type": "received",
+        "at": "2026-09-27T05:25:10.105Z",
+        "task": "B23",
+        "delivery": "aa2d2cd890497ff4114d676642be5809e6356d25"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-6b8fdb7b19e6950c7bbc29146804ec2bfa43581e",
+        "type": "ready",
+        "at": "2026-09-27T05:25:41.931Z",
+        "task": "A20",
+        "delivery": "6b8fdb7b19e6950c7bbc29146804ec2bfa43581e"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "received-A20-6b8fdb7b",
+        "type": "received",
+        "at": "2026-09-27T05:26:16.973Z",
+        "task": "A20",
+        "delivery": "6b8fdb7b19e6950c7bbc29146804ec2bfa43581e"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "integrating-A20-10d0c022",
+        "type": "integrating",
+        "at": "2026-09-27T05:29:22.411Z",
+        "task": "A20",
+        "integration": "10d0c022d7772ea647ef0878bebd7abe0f75d08c"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "validated-A20-10d0c022",
+        "type": "validated",
+        "at": "2026-09-27T05:36:27.181Z",
+        "task": "A20",
+        "passed": true
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "assign-A21-invent-display-pickinv-20260927",
+        "type": "assign",
+        "at": "2026-09-27T05:37:19.997Z",
+        "task": "A21",
+        "worker": "A",
+        "goal": "div-invent-display-pickinv-synthetic-v6-20260927",
+        "kind": "implementation"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accepted-A20-10d0c022",
+        "type": "accepted",
+        "at": "2026-09-27T05:40:19.048Z",
+        "task": "A20"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "published-A20-9e1d6b8d",
+        "type": "published",
+        "at": "2026-09-27T05:47:42.517Z",
+        "task": "A20",
+        "commit": "9e1d6b8d438ec3eee3b107d6679047c7633bcd84"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-79970b2b03e5b7090c89bb817ce70f86d505052e",
+        "type": "ready",
+        "at": "2026-09-27T05:48:50.841Z",
+        "task": "A21",
+        "delivery": "79970b2b03e5b7090c89bb817ce70f86d505052e"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "received-A21-79970b2b",
+        "type": "received",
+        "at": "2026-09-27T05:51:55.275Z",
+        "task": "A21",
+        "delivery": "79970b2b03e5b7090c89bb817ce70f86d505052e"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "integrating-B23-362b416b",
+        "type": "integrating",
+        "at": "2026-09-27T05:59:49.136Z",
+        "task": "B23",
+        "integration": "362b416b04449cb22d3cbdd4dbb460ab04276e92"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "assign-A22-20260927",
+        "type": "assign",
+        "at": "2026-09-27T06:04:45.363Z",
+        "task": "A22",
+        "worker": "A",
+        "goal": "port-potion-dodrink-synthetic-v6-20260927",
+        "kind": "implementation"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "validated-B23-362b416b",
+        "type": "validated",
+        "at": "2026-09-27T06:06:54.370Z",
+        "task": "B23",
+        "passed": true
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accepted-B23-362b416b",
+        "type": "accepted",
+        "at": "2026-09-27T06:09:45.858Z",
+        "task": "B23"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "published-B23-d9bb74b7",
+        "type": "published",
+        "at": "2026-09-27T06:17:30.589Z",
+        "task": "B23",
+        "commit": "d9bb74b76d3a2c9b53f0ef53c76f464a7b846800"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "integrating-A21-fd7c4734",
+        "type": "integrating",
+        "at": "2026-09-27T06:22:18.829Z",
+        "task": "A21",
+        "integration": "fd7c4734a81712ec145e9d49a0c7034436692b57"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "A21-validated-fd7c4734",
+        "type": "validated",
+        "at": "2026-09-27T06:36:28.205Z",
+        "task": "A21",
+        "passed": true
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "A21-accepted-fd7c4734",
+        "type": "accepted",
+        "at": "2026-09-27T06:36:40.510Z",
+        "task": "A21"
       }
     ]
   },
   "development": {
-    "executionCommit": "8b0b833213a40d0e36ca8a3fdc35a6bc9b37a779",
-    "measuredAt": "2026-09-27T04:28:49.510Z",
+    "executionCommit": "fd7c4734a81712ec145e9d49a0c7034436692b57",
+    "measuredAt": "2026-09-27T06:31:17.932Z",
     "sessions": [
       {
         "session": "holdout/seed0002-healer-reflection-drummer",

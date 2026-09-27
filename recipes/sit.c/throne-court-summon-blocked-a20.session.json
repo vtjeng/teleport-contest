@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 60627023,
+      "datetime": "20260927115500",
+      "nethackrc": "OPTIONS=name:Velathrone,role:Wizard,race:human,gender:male,align:neutral,playmode:debug,!legacy,!tutorial,!splash_screen,showexp,time\n",
+      "moves": " \u0017throne\n#sit\n 7\n",
+      "comment": "Blocked A20 court-summon probe. A bounded port-only seed prescreen selected a throne effect that reaches sit.c:throne_sit_effect case 7. The C loop evaluates mkroom.c:courtmon() and immediately calls makemon.c:makemon(); that void source function is still unported, so no matching recording is claimed for the court_summon path."
+    }
+  ]
+}
