@@ -2956,10 +2956,9 @@ export function failClosedCommandRefusals() {
         // nor already called something.
         UnsupportedItemDestructionError,
         UnsupportedPotionError,
-        // potion.c dodrink()/dopotion()/peffects() raises this for the
-        // unported potion effects and for the strangled, sink, underwater,
-        // worn-potion, milky and smoky branches of dodrink() that this port
-        // has not reached.
+        // potion.c dodrink()/dopotion()/peffects() still raises this for
+        // unported potion-effect arms. dodrink()'s unported void helpers use
+        // named note_unported gaps and continue in source order instead.
         UnsupportedQuaffError,
         // fountain.c drinkfountain(), dowaterdemon(), dipfountain(),
         // and dryup() raise this for the fountain-effect arms this port
