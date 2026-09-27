@@ -11,6 +11,7 @@ import {
     ENGRAVE,
     HEADSTONE,
     IRONBARS,
+    INVIS_BEAM,
     OBJ_DELETED,
     KICKED_WEAPON,
     LAVAWALL,
@@ -39,7 +40,9 @@ import {
     weffects,
 } from '../js/zap.js';
 import { initialize_symbols_from_options } from '../js/symbols.js';
-import { PM_KOBOLD, PM_SHADE, monst_globals_init } from '../js/monsters.js';
+import {
+    PM_KOBOLD, PM_SHADE, PM_STALKER, monst_globals_init,
+} from '../js/monsters.js';
 import { newMonster, place_monster } from '../js/monst.js';
 import { accessible } from '../js/monmove.js';
 import { block_point } from '../js/vision.js';
@@ -503,6 +506,55 @@ test('bhit() records whether the missile stopped away from the head',
         offRow.level.monsters[3][4] = { mx: 3, my: 3, data: offRow.mons[0] };
         await fireEast(offRow, 8, missile(offRow));
         assert.equal(offRow.gn.notonhead, true);
+    });
+
+test('INVIS_BEAM reaches visible or perceiving monsters without display work',
+    async () => {
+        // zap.c:4024-4032. Mirrors use this invisible traversal: a hidden
+        // monster that cannot perceive invisibility is passed over; the first
+        // visible or self-perceiving target is returned without tmp_at output.
+        const state = corridor(6);
+        const hidden = {
+            mx: 3,
+            my: 4,
+            data: state.mons[PM_KOBOLD],
+            minvis: 1,
+        };
+        const visible = { mx: 4, my: 4, data: state.mons[PM_KOBOLD] };
+        state.level.monsters[3][4] = hidden;
+        state.level.monsters[4][4] = visible;
+        const noRandom = {
+            rn2() { throw new Error('INVIS_BEAM does not draw rn2'); },
+            rnd() { throw new Error('INVIS_BEAM does not draw rnd'); },
+        };
+        assert.equal(await bhit(1, 0, 8, INVIS_BEAM, null, null,
+            { obj: missile(state) }, state, noRandom), visible);
+        assert.deepEqual(state.gb.bhitpos, { x: 4, y: 4 });
+        assert.equal(state.gn.notonhead, false);
+        assert.deepEqual(state.tmp_at_stack ?? [], []);
+
+        const perceiver = corridor(6);
+        const stalker = {
+            mx: 3,
+            my: 4,
+            data: perceiver.mons[PM_STALKER],
+            minvis: 1,
+        };
+        perceiver.level.monsters[3][4] = stalker;
+        assert.equal(await bhit(1, 0, 8, INVIS_BEAM, null, null,
+            { obj: missile(perceiver) }, perceiver, noRandom), stalker);
+        assert.equal(perceiver.gn.notonhead, false);
+
+        const tail = corridor(6);
+        const monster = {
+            mx: 2,
+            my: 4,
+            data: tail.mons[PM_KOBOLD],
+        };
+        tail.level.monsters[3][4] = monster;
+        assert.equal(await bhit(1, 0, 8, INVIS_BEAM, null, null,
+            { obj: missile(tail) }, tail, noRandom), monster);
+        assert.equal(tail.gn.notonhead, true);
     });
 
 test('bhit() maps a monster it stops at but cannot spot', async () => {

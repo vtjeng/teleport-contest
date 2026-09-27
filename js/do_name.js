@@ -4,7 +4,6 @@
 // sir_Terry_novels[], noveltitle(), and lookup_novel().
 
 import {
-    A_CHA,
     ARTICLE_A,
     ARTICLE_NONE,
     ARTICLE_THE,
@@ -156,8 +155,10 @@ import { note_unported } from './unported.js';
 import { displayPendingTtyMessageWindow, ttyPline } from './tty_message.js';
 import { livelog_printf, verbalize } from './pline.js';
 import { wipeout_text } from './engrave.js';
-import { acurr } from './attrib.js';
 import { hides_under } from './mondata.js';
+// C apply.c:beautiful() is shared with do_mgivenname(); apply.js already
+// imports naming helpers from this file, so this is a deferred-use module cycle.
+import { beautiful } from './apply.js';
 // display.h canspotmon() (129). js/startup_a11y.js owns it and imports
 // capitalizedMonsterName() from this file, so the two modules form a cycle.
 // Neither uses the other's binding while its module body evaluates, which is
@@ -508,20 +509,6 @@ export async function alreadynamed(monster, monnambuf, usrbuf, state = game) {
         return true;
     }
     return false;
-}
-
-function beautiful(state) {
-    const cha = acurr(state, A_CHA);
-    const feminine = poly_gender(state) === FEMALE;
-    if (cha >= 25) return 'sublime';
-    if (cha >= 19) return 'splendorous';
-    if (cha >= 16) return feminine ? 'beautiful' : 'handsome';
-    if (cha >= 14) return feminine ? 'winsome' : 'amiable';
-    if (cha >= 11) return 'cute';
-    if (cha >= 9) return 'plain';
-    if (cha >= 6) return 'homely';
-    if (cha >= 4) return 'ugly';
-    return 'hideous';
 }
 
 function see_with_infrared(monster, state) {
