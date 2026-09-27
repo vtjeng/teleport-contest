@@ -1,0 +1,11 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 94127025,
+      "datetime": "20420101092025",
+      "nethackrc": "OPTIONS=name:V9Lichen,role:Archeologist,race:human,gender:female,align:neutral,playmode:debug,!legacy,!tutorial,!splash_screen,showexp,time,pettype:none\n",
+      "moves": " \u0017lichen corpse\nei"
+    }
+  ]
+}

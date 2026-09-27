@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "capturedAt": "2026-09-27T16:21:41.717Z",
+  "capturedAt": "2026-09-27T17:47:07.784Z",
   "activity": {
     "runId": "loop-20260925",
     "events": [
@@ -5456,12 +5456,205 @@
         "type": "accepted",
         "at": "2026-09-27T16:20:35.350Z",
         "task": "B29"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "B29-published-dbbbbc7d",
+        "type": "published",
+        "at": "2026-09-27T16:22:57.553Z",
+        "task": "B29",
+        "commit": "dbbbbc7d2265a3f99d15c5e5cec85c76c6fcab94"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "assign-B30-towel-20260927",
+        "type": "assign",
+        "at": "2026-09-27T16:25:25.738Z",
+        "task": "B30",
+        "worker": "B",
+        "goal": "port-apply-use-towel-synthetic-v8-20260927",
+        "kind": "implementation"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "A29-received-8050de14",
+        "type": "received",
+        "at": "2026-09-27T16:26:56.659Z",
+        "task": "A29",
+        "delivery": "8050de14a1650f61db77053207ab05ee88bd97d0"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "A29-integrating-63b63f85",
+        "type": "integrating",
+        "at": "2026-09-27T16:28:22.844Z",
+        "task": "A29",
+        "integration": "63b63f85580e6a45a931debedbbd386779933d15"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "A29-validated-63b63f85",
+        "type": "validated",
+        "at": "2026-09-27T16:44:29.466Z",
+        "task": "A29",
+        "passed": true
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "A29-accepted-63b63f85",
+        "type": "accepted",
+        "at": "2026-09-27T16:44:47.297Z",
+        "task": "A29"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "A29-published-6f8ee3ab",
+        "type": "published",
+        "at": "2026-09-27T16:46:02.490Z",
+        "task": "A29",
+        "commit": "6f8ee3abbbfc55fea17d6ada2d763d92599989c4"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "C27-received-78f6458b",
+        "type": "received",
+        "at": "2026-09-27T16:47:33.436Z",
+        "task": "C27",
+        "delivery": "78f6458b14febcf1188bde6dd851eca7b2f19488"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "C27-integrating-877fb9bd",
+        "type": "integrating",
+        "at": "2026-09-27T16:48:51.625Z",
+        "task": "C27",
+        "integration": "877fb9bde1cc41336c86d287ab88e3b1f7254135"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "C27-validated-877fb9bd",
+        "type": "validated",
+        "at": "2026-09-27T16:56:18.883Z",
+        "task": "C27",
+        "passed": true
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "C27-accepted-877fb9bd",
+        "type": "accepted",
+        "at": "2026-09-27T16:56:34.155Z",
+        "task": "C27"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "C27-published-91aa0843",
+        "type": "published",
+        "at": "2026-09-27T16:58:34.789Z",
+        "task": "C27",
+        "commit": "91aa084300431ad062cb41e925672d07b64a6067"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "assign-A30-scare-monster-20260927",
+        "type": "assign",
+        "at": "2026-09-27T17:01:46.423Z",
+        "task": "A30",
+        "worker": "A",
+        "goal": "port-read-seffect-scare-monster-synthetic-v8-20260927",
+        "kind": "implementation"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "assign-C28-v10-prep-20260927",
+        "type": "assign",
+        "at": "2026-09-27T17:03:08.765Z",
+        "task": "C28",
+        "worker": "C",
+        "kind": "challenge-preparation"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-aad7e3e5b1cc7a31e9252c681fce6230638acfea",
+        "type": "ready",
+        "at": "2026-09-27T17:15:31.159Z",
+        "task": "B30",
+        "delivery": "aad7e3e5b1cc7a31e9252c681fce6230638acfea"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "B30-received-aad7e3e5",
+        "type": "received",
+        "at": "2026-09-27T17:20:28.276Z",
+        "task": "B30",
+        "delivery": "aad7e3e5b1cc7a31e9252c681fce6230638acfea"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "B30-integrating-2e0a01a1",
+        "type": "integrating",
+        "at": "2026-09-27T17:21:02.342Z",
+        "task": "B30",
+        "integration": "2e0a01a106aa02ff3ae520093dd4712eabe6fb6d"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "B30-feedback-blind-macro-20260927",
+        "type": "feedback",
+        "at": "2026-09-27T17:23:54.160Z",
+        "task": "B30",
+        "delivery": "aad7e3e5b1cc7a31e9252c681fce6230638acfea"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "B30-resume-blind-macro-correction-20260927",
+        "type": "resume",
+        "at": "2026-09-27T17:25:27.677Z",
+        "task": "B30"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-e227a1a32778c0b0ca507d71d376b52807074024",
+        "type": "ready",
+        "at": "2026-09-27T17:31:59.039Z",
+        "task": "B30",
+        "delivery": "e227a1a32778c0b0ca507d71d376b52807074024"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "B30-received-e227a1a3",
+        "type": "received",
+        "at": "2026-09-27T17:32:53.688Z",
+        "task": "B30",
+        "delivery": "e227a1a32778c0b0ca507d71d376b52807074024"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "B30-integrating-eaaa1f72",
+        "type": "integrating",
+        "at": "2026-09-27T17:33:31.372Z",
+        "task": "B30",
+        "integration": "eaaa1f72f98bbaddc775a4600e02f051895b9698"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "B30-validated-eaaa1f72-20260927",
+        "type": "validated",
+        "at": "2026-09-27T17:45:55.100Z",
+        "task": "B30",
+        "passed": true
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "B30-accepted-eaaa1f72-20260927",
+        "type": "accepted",
+        "at": "2026-09-27T17:46:08.448Z",
+        "task": "B30"
       }
     ]
   },
   "development": {
-    "executionCommit": "5bf1150b63da82c6e02196da6a3d7047ef9b3938",
-    "measuredAt": "2026-09-27T16:13:42.364Z",
+    "executionCommit": "eaaa1f72f98bbaddc775a4600e02f051895b9698",
+    "measuredAt": "2026-09-27T17:40:04.926Z",
     "sessions": [
       {
         "session": "holdout/seed0002-healer-reflection-drummer",

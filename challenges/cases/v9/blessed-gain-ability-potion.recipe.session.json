@@ -1,0 +1,11 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 94127011,
+      "datetime": "20420101090511",
+      "nethackrc": "OPTIONS=name:V9BlessedG,role:Monk,race:human,gender:female,align:lawful,playmode:debug,!legacy,!tutorial,!splash_screen,showexp,time,pettype:none\n",
+      "moves": " \u0017blessed potion of gain ability\nqk "
+    }
+  ]
+}

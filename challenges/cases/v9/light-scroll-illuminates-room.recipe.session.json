@@ -1,0 +1,11 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 94127004,
+      "datetime": "20420101090504",
+      "nethackrc": "OPTIONS=name:V9Confused,role:Wizard,race:human,gender:female,align:neutral,playmode:debug,!legacy,!tutorial,!splash_screen,showexp,time,pettype:none\n",
+      "moves": " \u0017scroll of light\nro"
+    }
+  ]
+}

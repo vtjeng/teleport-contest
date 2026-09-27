@@ -1,0 +1,11 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 94127101,
+      "datetime": "20420303083101",
+      "nethackrc": "OPTIONS=name:V9Horn,role:Healer,race:human,gender:female,align:neutral,playmode:debug,!legacy,!tutorial,!splash_screen,showexp,time,pettype:none\n",
+      "moves": " \u0017uncursed potion of blindness\n \u0017blessed unicorn horn\nql am"
+    }
+  ]
+}
