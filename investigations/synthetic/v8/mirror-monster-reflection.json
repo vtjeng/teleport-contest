@@ -1,0 +1,98 @@
+{
+  "session": "synthetic/v8/mirror-monster-reflection",
+  "corpus": "synthetic",
+  "batch": "v8",
+  "caseId": "mirror-monster-reflection",
+  "manifestPath": "challenges/manifests/v8.json",
+  "manifestSha256": "6a5159501af18a7f926f794d89e817375cd00a3589c4899fb97392ae04dbe8ba",
+  "recordingSha256": "5a93e5e54a296bb99490629a4ae61cd5c907a463a6f5280d3437a9c4f2735d45",
+  "evaluationPath": "challenges/evaluations/20260927085003-v8.json",
+  "evaluationCommit": "c4cdb74777cb0a0796befbb14724fecbe1fb54e6",
+  "remainingScreens": 2,
+  "recordedSteps": 31,
+  "status": "complete",
+  "commit": "c4cdb74777cb0a0796befbb14724fecbe1fb54e6",
+  "mismatch": {
+    "corpus": "synthetic",
+    "batch": "v8",
+    "caseId": "mirror-monster-reflection",
+    "session": "synthetic/v8/mirror-monster-reflection",
+    "manifestPath": "challenges/manifests/v8.json",
+    "manifestSha256": "6a5159501af18a7f926f794d89e817375cd00a3589c4899fb97392ae04dbe8ba",
+    "recording": "challenges/cases/v8/mirror-monster-reflection.session.json",
+    "recordingPath": "challenges/cases/v8/mirror-monster-reflection.session.json",
+    "recordingSha256": "5a93e5e54a296bb99490629a4ae61cd5c907a463a6f5280d3437a9c4f2735d45",
+    "recipe": "challenges/cases/v8/mirror-monster-reflection.recipe.session.json",
+    "recipeSha256": "f8eae6f78a642805aeb5003edce91031d423fe6fd027c8c6237d4860dfc9aa77",
+    "replayInputSha256": "479955d161d696fc31a37f5adc2d4642cd7e41b193a09c7dfb1f597d5de19b8f",
+    "evaluationPath": "challenges/evaluations/20260927085003-v8.json",
+    "evaluationCommit": "c4cdb74777cb0a0796befbb14724fecbe1fb54e6",
+    "evaluationArtifact": "challenges/evaluations/20260927085003-v8.json",
+    "evaluationUtc": "2026-09-27T08:50:17.067Z",
+    "remainingScreens": 2,
+    "recordedSteps": 31,
+    "previousScreensMatched": null,
+    "regression": false,
+    "passed": false,
+    "error": null,
+    "metrics": {
+      "screens": {
+        "matched": 29,
+        "total": 31
+      },
+      "rng": {
+        "matched": 3006,
+        "total": 3015
+      },
+      "cursors": {
+        "matched": 29,
+        "total": 31
+      }
+    },
+    "firstMismatch": {
+      "kind": "stop",
+      "message": "unsupported hero command: an unported branch of this command: applying a tool requires doapply()'s arm for object type 230",
+      "step": 29
+    },
+    "step": 29,
+    "kind": "stop",
+    "sourceFile": "apply.c",
+    "function": "doapply",
+    "message": "unsupported hero command: an unported branch of this command: applying a tool requires doapply()'s arm for object type 230",
+    "cFile": "apply.c",
+    "luaFile": null,
+    "line": null
+  },
+  "summary": "The first missing source branch is apply.c:doapply()’s MIRROR case. C consumes the selected mirror by prompting for a direction and calling the whole apply.c:use_mirror(); the JavaScript doapply() still refuses MIRROR as an unported named arm. In this recording, the selected direction targets an awake, visible hostile grid bug and C reaches use_mirror()’s ordinary monster-reflection response, frightening it. The actionable scope is the complete use_mirror() function, its existing doapply() case wiring/return propagation, and the pure apply.c:beautiful() helper needed by self-reflection branches.",
+  "source": {
+    "file": "apply.c",
+    "branch": "After command key a selects apply.c:doapply(), getobj() chooses MIRROR (object type 230) and the MIRROR switch arm assigns res = use_mirror(obj). C prompts for a direction; when it targets an awake, visible, non-cancelled hostile grid bug, use_mirror() reaches its ordinary non-unicorn/non-humanoid/non-demon reaction branch. The recipe selects h, and C prints “The grid bug is frightened by its reflection.”",
+    "functions": [
+      "beautiful",
+      "use_mirror",
+      "doapply"
+    ],
+    "callers": [
+      "cmd.c: commands[] binds the ordinary 'a' command to doapply() at 1677–1678.",
+      "apply.c:doapply() gets the selected tool, enters its MIRROR case at 4330–4332, consumes use_mirror()’s ECMD_* result in res, and returns res at 4424.",
+      "js/cmd.js:runApplyCommand() routes the production apply command through js/apply.js:doapply(); the normal command-handler dispatch selects doapply for this command."
+    ],
+    "dependencies": [
+      "cmd.c:getdir(): its boolean result controls ECMD_CANCEL; the existing JavaScript direction prompt is js/cmd.js:getdir().",
+      "zap.c:bhit(): its returned monster selects the target branch; the JavaScript helper is js/zap.js:bhit().",
+      "vision.c:howmonseen() and mondata.h:haseyes(): returned visibility flags/boolean select the reflection response; existing JavaScript helpers are js/vision.js and js/mondata.js.",
+      "muse.c:mon_reflects(): its boolean return is consumed in the Medusa branch; existing JavaScript helper is js/muse.js:mon_reflects().",
+      "monmove.c:monflee() and mhitm.c:paralyze_monst() change monster state in the ordinary-reflection and floating-eye branches; JavaScript helpers exist in js/monmove.js and js/mhitm.js.",
+      "teleport.c:tele_restrict(): its boolean return controls whether a mirror-stealing nymph relocates; teleport.c:rloc() and steal.c:mpickobj() have discarded results in that branch. Existing JavaScript helpers are in js/teleport.js and js/steal.js.",
+      "apply.c:beautiful() is pure and supplies the hero-face adjective in the self-direction branch. An equivalent private helper currently exists in js/do_name.js; preserve one implementation and source-pin its charisma/polygender thresholds if moved or newly exposed."
+    ]
+  },
+  "goalKind": "file-port",
+  "evidence": [
+    "The saved queue entry from /tmp/v8-baseline-workqueue.json ties this finding to synthetic/v8/mirror-monster-reflection, manifest SHA-256 6a5159501af18a7f926f794d89e817375cd00a3589c4899fb97392ae04dbe8ba, recording SHA-256 5a93e5e54a296bb99490629a4ae61cd5c907a463a6f5280d3437a9c4f2735d45, 2 remaining screens, and 31 recorded steps. Evaluation challenges/evaluations/20260927085003-v8.json is at commit c4cdb74777cb0a0796befbb14724fecbe1fb54e6; it matches 29/31 screens, 3006/3015 RNG values, and 29/31 cursors before JS stops at segment 0 step 29 with “applying a tool requires doapply()’s arm for object type 230”.",
+    "The C recording challenges/cases/v8/mirror-monster-reflection.session.json shows key a opening the apply menu, key o selecting the looking glass and producing “In what direction?”, then key h targeting the visible hostile grid bug. At zero-based step 30 C prints “The grid bug is frightened by its reflection.” and logs rn2(5)=4 at apply.c:1170 followed by d(2,4)=4 at apply.c:1184, proving the live ordinary monster-response branch rather than only menu entry.",
+    "nethack-c/upstream/src/apply.c:997–1013 defines pure beautiful(); :1017–1190 contains all of use_mirror(), including direction cancellation, self-reflection, swallowed/underwater/vertical targets, bhit() monster selection, Medusa reflection, floating-eye paralysis, Umber Hulk confusion, nymph mirror theft, and the ordinary monster response. :4330–4332 wires the MIRROR case and captures use_mirror()’s result; :4424 returns that result.",
+    "nethack-c/upstream/src/cmd.c:1677–1678 is the production key-a doapply() command registration. In current js/apply.js, MIRROR is still in DOAPPLY_UNPORTED_NAMED_ARMS (:2625–2644), and doapply() throws UnsupportedApplyError for the selected object at :2807–2810 before reading the direction. js/cmd.js:3302–3308 already dispatches the apply command through runApplyCommand() to doapply().",
+    "The complete source range needs the existing returned helper contracts for getdir(), bhit(), howmonseen(), haseyes(), mon_reflects(), and tele_restrict(); it also reaches stateful monflee()/paralyze_monst() and the mirror-theft helpers mpickobj()/rloc(). Their present JS implementations are named above so a source port can verify their coverage instead of replacing their return values or side effects."
+  ]
+}

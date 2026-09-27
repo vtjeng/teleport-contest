@@ -1,0 +1,131 @@
+{
+  "session": "synthetic/v8/tip-container-contents-trapped-box-probe",
+  "corpus": "synthetic",
+  "batch": "v8",
+  "caseId": "tip-container-contents-trapped-box-probe",
+  "manifestPath": "challenges/manifests/v8.json",
+  "manifestSha256": "6a5159501af18a7f926f794d89e817375cd00a3589c4899fb97392ae04dbe8ba",
+  "recordingPath": "challenges/cases/v8/tip-container-contents.trapped-box-probe.session.json",
+  "recordingSha256": "e77de911cae8b931eb2dca6528a3cab3f3a03a084fe5eb094b156acbfdd94df8",
+  "evaluationPath": "challenges/evaluations/20260927085003-v8.json",
+  "evaluationCommit": "c4cdb74777cb0a0796befbb14724fecbe1fb54e6",
+  "remainingScreens": 4,
+  "recordedSteps": 72,
+  "status": "complete",
+  "commit": "ca2bcce91c750ce93b74c6fe2b3d6fce1f0f2ab2",
+  "mismatch": {
+    "corpus": "synthetic",
+    "batch": "v8",
+    "caseId": "tip-container-contents-trapped-box-probe",
+    "session": "synthetic/v8/tip-container-contents-trapped-box-probe",
+    "manifestPath": "challenges/manifests/v8.json",
+    "manifestSha256": "6a5159501af18a7f926f794d89e817375cd00a3589c4899fb97392ae04dbe8ba",
+    "recording": "challenges/cases/v8/tip-container-contents.trapped-box-probe.session.json",
+    "recordingPath": "challenges/cases/v8/tip-container-contents.trapped-box-probe.session.json",
+    "recordingSha256": "e77de911cae8b931eb2dca6528a3cab3f3a03a084fe5eb094b156acbfdd94df8",
+    "recipe": "challenges/cases/v8/tip-container-contents.trapped-box-probe.recipe.session.json",
+    "recipeSha256": "b1d87d9164f1c571a3e46b17dc249f7d4a4f68c55b3c2f9da5ea96bce21c9dd5",
+    "replayInputSha256": "479955d161d696fc31a37f5adc2d4642cd7e41b193a09c7dfb1f597d5de19b8f",
+    "evaluationPath": "challenges/evaluations/20260927085003-v8.json",
+    "evaluationCommit": "c4cdb74777cb0a0796befbb14724fecbe1fb54e6",
+    "evaluationArtifact": "challenges/evaluations/20260927085003-v8.json",
+    "evaluationUtc": "2026-09-27T08:50:17.067Z",
+    "remainingScreens": 4,
+    "recordedSteps": 72,
+    "previousScreensMatched": null,
+    "regression": false,
+    "passed": false,
+    "error": null,
+    "metrics": {
+      "screens": {
+        "matched": 68,
+        "total": 72
+      },
+      "rng": {
+        "matched": 2787,
+        "total": 2787
+      },
+      "cursors": {
+        "matched": 69,
+        "total": 72
+      }
+    },
+    "firstMismatch": {
+      "screen": {
+        "index": 61,
+        "location": {
+          "segmentIndex": 0,
+          "stepIndex": 61,
+          "key": "\n"
+        },
+        "kind": "ch",
+        "row": 0,
+        "column": 19,
+        "cCell": {
+          "ch": "-",
+          "color": 8,
+          "attr": 0,
+          "decgfx": 0
+        },
+        "jsCell": {
+          "ch": " ",
+          "color": 8,
+          "attr": 0,
+          "decgfx": 0
+        }
+      },
+      "rng": null,
+      "cursor": {
+        "index": 61,
+        "location": {
+          "segmentIndex": 0,
+          "stepIndex": 61,
+          "key": "\n"
+        },
+        "cCursor": [
+          27,
+          0,
+          1
+        ],
+        "jsCursor": [
+          62,
+          0,
+          1
+        ]
+      }
+    },
+    "step": 61,
+    "kind": "screen",
+    "sourceFile": null,
+    "function": null,
+    "message": null,
+    "cFile": null,
+    "luaFile": null,
+    "line": null
+  },
+  "summary": "At segment 0 step 61, input newline reaches trap.c:chest_trap() through #loot on a trapped floor chest. C prints “You trigger a trap!” and explicitly displays WIN_MESSAGE before the first Luck/rn2 check, producing a --More-- boundary (cursor [27,0,1]); JavaScript writes the same message but omits the explicit message-window display, leaving the cursor at [62,0,1]. The first screen difference is the missing --More-- marker; RNG values match for the full recording. The source-aligned fix belongs immediately after ttyPline() in js/trap.js:chest_trap(), using its existing displayPendingTtyMessageWindow import before any chest-trap RNG.",
+  "source": {
+    "file": "trap.c",
+    "branch": "In chest_trap(), after clearing tknown/otrapped and printing the trigger/disarm line, C always calls display_nhwindow(WIN_MESSAGE, FALSE) before evaluating the Luck guard or drawing RNG. The selected active precondition is a trapped floor chest opened by #loot; the same display branch also applies to disarm_box() and #tip callers.",
+    "functions": [
+      "chest_trap"
+    ],
+    "callers": [
+      "C selected path: cmd.c extended-command dispatch for #loot -> pickup.c:doloot() -> pickup.c:doloot_core() -> pickup.c:do_loot_cont() (2088-2162) -> pickup.c:use_container() (2972-3226) -> trap.c:chest_trap() at pickup.c:3004. JS: js/cmd.js:runLootCommand() -> js/pickup.js:doloot()/doloot_core()/do_loot_cont() -> use_container() -> js/trap.js:chest_trap().",
+      "C active alternate: trap.c:untrap_box() -> trap.c:disarm_box() (5793-5817) -> trap.c:chest_trap() at trap.c:5803. JS: js/trap.js:untrap_box()/disarm_box() -> chest_trap() at js/trap.js:2581.",
+      "C active alternate: pickup.c:dotip() -> pickup.c:tipcontainer() -> pickup.c:tipcontainer_checks() -> trap.c:chest_trap() at pickup.c:3984. JS: js/pickup.js:dotip()/tipcontainer()/tipcontainer_checks() -> chest_trap() at js/pickup.js:3542."
+    ],
+    "dependencies": [
+      "C win/tty/wintty.c:tty_display_nhwindow(WIN_MESSAGE,FALSE) is represented by the already imported js/tty_message.js:displayPendingTtyMessageWindow(state). ttyPline() records the pending top line with TOPLINE_NEED_MORE; the explicit display call consumes that pending message boundary. In js/trap.js:chest_trap(), the existing comment incorrectly treats ttyPline() alone as equivalent.",
+      "chest_trap() returns whether the chest was destroyed, but all three C caller sites discard that result (including explicit (void) casts in pickup.c and trap.c). No return-valued C callee needs to be added for this display-boundary correction."
+    ]
+  },
+  "goalKind": "divergence-fix",
+  "evidence": [
+    "The exact queue entry from /tmp/v8-baseline-workqueue.json retains the admitted v8 manifest and recording provenance: one segment, 72 steps, 4 unmatched screens, first mismatch at segment 0 step 61 on newline. Evaluation challenges/evaluations/20260927085003-v8.json at c4cdb74777cb0a0796befbb14724fecbe1fb54e6 reports 68/72 screens, 2787/2787 RNG values, and 69/72 cursors matched; the first cursor difference is C [27,0,1] versus JS [62,0,1].",
+    "The saved C recording challenges/cases/v8/tip-container-contents.trapped-box-probe.session.json has SHA-256 e77de911cae8b931eb2dca6528a3cab3f3a03a084fe5eb094b156acbfdd94df8. Its selected recipe is challenges/cases/v8/tip-container-contents.trapped-box-probe.recipe.session.json, SHA-256 b1d87d9164f1c571a3e46b17dc249f7d4a4f68c55b3c2f9da5ea96bce21c9dd5. The v8 manifest mission reports that the C path reaches chest_trap() after #loot; the key sequence before the mismatch includes #loot and the chest trigger message.",
+    "Upstream nethack-c/upstream/src/trap.c:6307-6314 clears the one-shot trap, calls You(disarm ? \"set it off!\" : \"trigger a trap!\"), then display_nhwindow(WIN_MESSAGE,FALSE) at line 6311 before the first rn2(13+Luck) at line 6312. The message-window flush is therefore source-ordered before all trap outcome randomness.",
+    "Current js/trap.js:3317-3327 clears the same fields and awaits ttyPline(), but its comment at lines 3324-3325 incorrectly says ttyPline handles the explicit C display call. The next operation is the Luck/rn2 check, with no displayPendingTtyMessageWindow call between them. That helper is already imported by js/trap.js and implements the C WIN_MESSAGE boundary in js/tty_message.js:354-374; rememberPendingMessage() sets TOPLINE_NEED_MORE at tty_message.js:216-225.",
+    "The worker-C strict differential log /tmp/teleport-loop-worker-c-20260925/.cache/C15-logs/tip-container-contents.trapped-box-probe.current.diff.log records PRNG length 2787 for both sides with all values matching; first screen mismatch is boundary 62 (segment 0 step 61, newline), where C has the --More-- dash at row 0 column 19 and JS has a space, and the cursor differs [27,0,1] versus [62,0,1]. This isolates the omitted explicit display_nhwindow call from trap outcome RNG or caller-state behavior."
+  ]
+}
