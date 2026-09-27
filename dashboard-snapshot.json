@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "capturedAt": "2026-09-27T16:21:41.717Z",
+  "capturedAt": "2026-09-27T16:45:10.278Z",
   "activity": {
     "runId": "loop-20260925",
     "events": [
@@ -5456,12 +5456,61 @@
         "type": "accepted",
         "at": "2026-09-27T16:20:35.350Z",
         "task": "B29"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "B29-published-dbbbbc7d",
+        "type": "published",
+        "at": "2026-09-27T16:22:57.553Z",
+        "task": "B29",
+        "commit": "dbbbbc7d2265a3f99d15c5e5cec85c76c6fcab94"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "assign-B30-towel-20260927",
+        "type": "assign",
+        "at": "2026-09-27T16:25:25.738Z",
+        "task": "B30",
+        "worker": "B",
+        "goal": "port-apply-use-towel-synthetic-v8-20260927",
+        "kind": "implementation"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "A29-received-8050de14",
+        "type": "received",
+        "at": "2026-09-27T16:26:56.659Z",
+        "task": "A29",
+        "delivery": "8050de14a1650f61db77053207ab05ee88bd97d0"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "A29-integrating-63b63f85",
+        "type": "integrating",
+        "at": "2026-09-27T16:28:22.844Z",
+        "task": "A29",
+        "integration": "63b63f85580e6a45a931debedbbd386779933d15"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "A29-validated-63b63f85",
+        "type": "validated",
+        "at": "2026-09-27T16:44:29.466Z",
+        "task": "A29",
+        "passed": true
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "A29-accepted-63b63f85",
+        "type": "accepted",
+        "at": "2026-09-27T16:44:47.297Z",
+        "task": "A29"
       }
     ]
   },
   "development": {
-    "executionCommit": "5bf1150b63da82c6e02196da6a3d7047ef9b3938",
-    "measuredAt": "2026-09-27T16:13:42.364Z",
+    "executionCommit": "63b63f85580e6a45a931debedbbd386779933d15",
+    "measuredAt": "2026-09-27T16:37:17.257Z",
     "sessions": [
       {
         "session": "holdout/seed0002-healer-reflection-drummer",
