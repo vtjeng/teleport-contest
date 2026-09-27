@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent potion.c:peffect_gain_ability recipe for an unblessed dose. Seed 94270531, clock 20420808101112, and Wizard character were chosen independently; after dismissing the wish-identification pager, qg quaffs the created potion from slot g.",
+  "segments": [
+    {
+      "seed": 94270531,
+      "datetime": "20420808101112",
+      "nethackrc": "OPTIONS=name:B32Ability,role:Wizard,race:human,gender:male,align:neutral,playmode:debug,!legacy,!tutorial,!splash_screen,pettype:none\n",
+      "moves": " \u0017potion of gain ability\nqk qg"
+    }
+  ]
+}
