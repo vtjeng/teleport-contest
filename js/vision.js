@@ -751,10 +751,10 @@ export function vision_recalc(control = 0, env = {}) {
     );
     if (control !== 2 && !state.u?.uswallow) {
         if (pitSight) {
-            // vision.c:609-622. Being trapped in a pit limits both the
-            // could-see and in-sight buffers to the immediately adjacent
-            // 3-by-3 area. The C test follows underwater and Rogue-level
-            // precedence and follows the separate Blind arm above.
+            // vision.c:609-622. The pit branch starts ordinary sight with
+            // COULD_SEE and IN_SIGHT only in the adjacent 3-by-3 area. C can
+            // add IN_SIGHT farther away in its later x-ray overlay. C checks
+            // Blind, Rogue-level, and underwater vision before this branch.
             const minCol = Math.max(1, u.ux - 1);
             const maxCol = Math.min(COLNO - 1, u.ux + 1);
             for (let row = u.uy - 1; row <= u.uy + 1; ++row) {
