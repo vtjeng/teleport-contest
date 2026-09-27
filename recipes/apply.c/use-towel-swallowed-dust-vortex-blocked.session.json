@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 83015144,
+      "datetime": "20310507120000",
+      "nethackrc": "OPTIONS=name:B30Gulp,role:Rogue,race=human,gender=female,align=chaotic\nOPTIONS=!legacy,!tutorial,!splash_screen\nOPTIONS=playmode:debug,pettype:none,!acoustics,!autopickup,time,showexp\n",
+      "moves": " \u0017cursed towel\n\u0017towel\nag#wizgenesis\ndust vortex\n.m.ah"
+    }
+  ],
+  "comment": "Blocked runtime-evidence setup for the swallowed gulp_blnd_check true-return branch. The planned route creates cream with a cursed towel, creates an adjacent dust vortex, lets it engulf the hero, then applies a plain towel. C mhitu.c gulpmu()'s AD_BLND arm sets or maintains HBlinded before the next hero command, so apply.c use_towel()'s !Blinded guard skips gulp_blnd_check(); if a blindfold remains worn, mondata.c can_blnd() rejects AT_ENGL instead. This recipe is not matching evidence for the blocked branch."
+}

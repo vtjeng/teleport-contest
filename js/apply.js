@@ -180,6 +180,7 @@ import { game } from './gstate.js';
 import { check_capacity, losehp, near_capacity, nomul, overexertion } from './hack.js';
 import { dist2, highc, isqrt, s_suffix, strstri, upstart } from './hacklib.js';
 import { mstatusline, ustatusline } from './insight.js';
+import { gulp_blnd_check } from './mhitu.js';
 import {
     delobj,
     carrying,
@@ -257,6 +258,7 @@ import {
     place_object,
     set_bknown,
     sobj_at,
+    is_wet_towel,
     carried,
     splitobj,
     mksobj,
@@ -269,6 +271,7 @@ import {
     an,
     cxname,
     donameFresh,
+    gloves_simple_name,
     singular,
     Tobjnam,
     the,
@@ -376,11 +379,13 @@ import { body_part, mbodypart, poly_gender, polymon } from './polyself.js';
 import { attacktype_fordmg } from './mondata.js';
 import {
     djinni_from_bottle,
+    incr_itimeout,
     make_blinded,
     make_confused,
     make_deaf,
     make_glib,
     make_hallucinated,
+    set_itimeout,
 } from './potion.js';
 import { canSpotMonster, heroIsBlind, sensesMonster } from './startup_a11y.js';
 import { P_SKILL } from './startup_skills.js';
@@ -3125,6 +3130,121 @@ export async function use_mirror(obj, state = game, env = {}) {
     return ECMD_TIME;
 }
 
+// C ref: apply.c use_towel() (112-197). Towel wetness is stored in spe;
+// dry_a_towel() is a discarded void call whose implementation is not yet
+// ported, so each reached wet-towel site records and skips that call.
+export async function use_towel(obj, state = game, env = {}) {
+    const random = { rn1, rn2, ...(env.random ?? {}) };
+    const message = env.message ?? ttyPline;
+    const dryingFeedback = obj === state.uwep;
+    const u = state.u;
+
+    if (!freehand(state, env)) {
+        await message(
+            `You have no free ${body_part(HAND, state.youmonst)}!`, state,
+        );
+        return ECMD_OK;
+    } else if (obj === state.ublindf) {
+        await message("You cannot use it while you're wearing it!", state);
+        return ECMD_OK;
+    } else if (obj.cursed) {
+        let old;
+        switch (random.rn2(3)) {
+        case 2:
+            old = (u.uprops?.[GLIB]?.intrinsic ?? 0) & TIMEOUT;
+            make_glib(old + random.rn1(10, 3), state, env);
+            await message(
+                `Your ${makeplural(body_part(HAND, state.youmonst))} `
+                    + `${old ? 'are filthier than ever' : 'get slimy'}!`,
+                state,
+            );
+            if (is_wet_towel(obj))
+                note_unported('apply.c dry_a_towel');
+            return ECMD_TIME;
+        case 1:
+            if (!state.ublindf) {
+                old = u.ucreamed;
+                u.ucreamed += random.rn1(10, 3);
+                await message(
+                    `Yecch!  Your ${body_part(FACE, state.youmonst)} `
+                        + `${old ? 'has more' : 'now has'} gunk on it!`,
+                    state,
+                );
+                await make_blinded(
+                    ((u.uprops[BLINDED].intrinsic & TIMEOUT)
+                        + u.ucreamed - old),
+                    true,
+                    state,
+                    env,
+                );
+            } else {
+                const worn = state.ublindf;
+                const what = worn.otyp === LENSES
+                    ? 'lenses'
+                    : obj.otyp === worn.otyp ? 'other towel' : 'blindfold';
+                if (worn.cursed) {
+                    await message(
+                        `You push your ${what} `
+                            + `${random.rn2(2) ? 'cock-eyed' : 'crooked'}.`,
+                        state,
+                    );
+                } else {
+                    await message(`You push your ${what} off.`, state);
+                    await Blindf_off(worn, state);
+                    await dropx(worn, { ...env, state });
+                }
+            }
+            if (is_wet_towel(obj))
+                note_unported('apply.c dry_a_towel');
+            return ECMD_TIME;
+        case 0:
+            break;
+        }
+    }
+
+    if (u.uprops?.[GLIB]?.intrinsic) {
+        make_glib(0, state, env);
+        await message(
+            `You wipe off your ${!state.uarmg
+                ? makeplural(body_part(HAND, state.youmonst))
+                : gloves_simple_name(state.uarmg, state)}.`,
+            state,
+        );
+        if (is_wet_towel(obj))
+            note_unported('apply.c dry_a_towel');
+        return ECMD_TIME;
+    } else if (u.ucreamed) {
+        incr_itimeout(u.uprops[BLINDED], -1 * Math.trunc(u.ucreamed));
+        u.ucreamed = 0;
+        const blinded = Boolean(
+            u.uprops?.[BLINDED]?.intrinsic
+                && !u.uprops[BLINDED].blocked,
+        );
+        if (!blinded) {
+            await message("You've got the glop off.", state);
+            if (!gulp_blnd_check(state)) {
+                set_itimeout(u.uprops[BLINDED], 1);
+                await make_blinded(0, true, state, env);
+            }
+        } else {
+            await message(
+                `Your ${body_part(FACE, state.youmonst)} feels clean now.`,
+                state,
+            );
+        }
+        if (is_wet_towel(obj))
+            note_unported('apply.c dry_a_towel');
+        return ECMD_TIME;
+    }
+
+    await message(
+        `Your ${body_part(FACE, state.youmonst)} and `
+            + `${makeplural(body_part(HAND, state.youmonst))} are already clean.`,
+        state,
+    );
+    return ECMD_OK;
+}
+
 export async function doapply(state = game, env = {}) {
     if (nohands(state.youmonst.data)) {
         await ttyPline(
@@ -3186,6 +3306,8 @@ export async function doapply(state = game, env = {}) {
         return use_stethoscope(obj, state);
     case EXPENSIVE_CAMERA:
         return use_camera(obj, state, env);
+    case TOWEL:
+        return use_towel(obj, state, env);
     case MIRROR:
         return use_mirror(obj, state, env);
     case PICK_AXE:
