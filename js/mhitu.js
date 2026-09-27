@@ -134,6 +134,8 @@ import {
     thick_skinned,
     touch_petrifies,
     unsolid,
+    attacktype_fordmg,
+    can_blnd,
 } from './mondata.js';
 import { monnear } from './monmove.js';
 import * as M from './monsters.js';
@@ -2066,15 +2068,27 @@ async function passiveum(olduasmon, mtmp, mattk, state, env) {
 }
 
 // C ref: mhitu.c gulp_blnd_check() (1273-1285). Called when removing
-// a blindfold or lenses to check whether an engulfing monster immediately
-// blinds the hero. The condition requires u.uswallow (hero is engulfed),
-// which no ported path sets, so this always returns false.
+// eyewear or wiping cream to check whether a swallowing monster immediately
+// blinds the hero. C discards gulpmu()'s result; its still-unported effects
+// are recorded and skipped after the source-owned swallow timer increment.
 export function gulp_blnd_check(state = game) {
-    if (state.u.uswallow) {
-        // The hero is engulfed. The full branch calls
-        // attacktype_fordmg(), can_blnd(), and gulpmu(), none of which
-        // are ported.
-        throw new Error('gulp_blnd_check(): engulfed hero not ported');
+    const stuck = state.u?.ustuck;
+    const blinded = state.u?.uprops?.[BLINDED];
+    let mattk;
+    // C's `Blinded` is HBlinded && !BBlinded; its separate `Blind` macro
+    // includes EBlinded and must not be used for this guard.
+    if (!(blinded?.intrinsic && !blinded.blocked) && state.u?.uswallow
+        && (mattk = attacktype_fordmg(stuck.data, M.AT_ENGL, M.AD_BLND))
+        && can_blnd(
+            stuck,
+            state.youmonst,
+            mattk.aatyp,
+            null,
+            state,
+        )) {
+        ++state.u.uswldtim;
+        note_unported('mhitu.c gulpmu');
+        return true;
     }
     return false;
 }

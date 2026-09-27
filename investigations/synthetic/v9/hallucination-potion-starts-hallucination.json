@@ -1,0 +1,88 @@
+{
+  "session": "synthetic/v9/hallucination-potion-starts-hallucination",
+  "corpus": "synthetic",
+  "batch": "v9",
+  "caseId": "hallucination-potion-starts-hallucination",
+  "manifestPath": "challenges/manifests/v9.json",
+  "manifestSha256": "00c148aac522e6343c8de0bd003db29771439f972a99cb18c772ebf2bc45a594",
+  "recordingSha256": "bf7537070332a4ee8a643904f156e48dd0d2848e613b7222eb72bcc43d788761",
+  "evaluationPath": "challenges/evaluations/20260927191056-v9.json",
+  "evaluationCommit": "5b4486322ffa5eeb91cc37d01083ff20bbfe2ea7",
+  "remainingScreens": 1,
+  "recordedSteps": 38,
+  "status": "complete",
+  "commit": "5b4486322ffa5eeb91cc37d01083ff20bbfe2ea7",
+  "mismatch": {
+    "corpus": "synthetic",
+    "batch": "v9",
+    "caseId": "hallucination-potion-starts-hallucination",
+    "session": "synthetic/v9/hallucination-potion-starts-hallucination",
+    "manifestPath": "challenges/manifests/v9.json",
+    "manifestSha256": "00c148aac522e6343c8de0bd003db29771439f972a99cb18c772ebf2bc45a594",
+    "recording": "challenges/cases/v9/hallucination-potion-starts-hallucination.session.json",
+    "recordingPath": "challenges/cases/v9/hallucination-potion-starts-hallucination.session.json",
+    "recordingSha256": "bf7537070332a4ee8a643904f156e48dd0d2848e613b7222eb72bcc43d788761",
+    "recipe": "challenges/cases/v9/hallucination-potion-starts-hallucination.recipe.session.json",
+    "recipeSha256": "56f28ae232931e066dcfa62ec7a9878c3cabd37535cad41b7abb4f03fb9bec39",
+    "replayInputSha256": "e8a7428d883fb33542b59d993324d6e14197b8486a45162a9f5b2efd3e9ebd60",
+    "evaluationPath": "challenges/evaluations/20260927191056-v9.json",
+    "evaluationCommit": "5b4486322ffa5eeb91cc37d01083ff20bbfe2ea7",
+    "evaluationArtifact": "challenges/evaluations/20260927191056-v9.json",
+    "evaluationUtc": "2026-09-27T19:11:49.445Z",
+    "remainingScreens": 1,
+    "recordedSteps": 38,
+    "previousScreensMatched": 37,
+    "regression": false,
+    "passed": false,
+    "error": null,
+    "metrics": {
+      "screens": {
+        "matched": 37,
+        "total": 38
+      },
+      "rng": {
+        "matched": 2599,
+        "total": 2609
+      },
+      "cursors": {
+        "matched": 37,
+        "total": 38
+      }
+    },
+    "firstMismatch": {
+      "kind": "stop",
+      "message": "unsupported hero command: an unported branch of this command: quaffing requires peffect_hallucination()",
+      "step": 37
+    },
+    "step": 37,
+    "kind": "stop",
+    "sourceFile": "potion.c",
+    "function": "peffect_hallucination",
+    "message": "unsupported hero command: an unported branch of this command: quaffing requires peffect_hallucination()",
+    "cFile": "potion.c",
+    "luaFile": null,
+    "line": null
+  },
+  "summary": "Quaffing a hallucination potion reaches potion.c:peffect_hallucination, but JavaScript refuses the effect. C checks resistance and existing hallucination, draws a blessing-dependent timeout, updates the Hallucination state, and conditionally draws for a magic enlightenment sequence. Port the entire effect, including its short-circuit RNG order and the existing make_hallucinated/enlightenment callers.",
+  "source": {
+    "file": "potion.c",
+    "branch": "potion.c:peffect_hallucination (696-713) returns after Halluc_resistance while incrementing potion_nothing; an already hallucinating hero also increments potion_nothing but continues. It draws rn1(200,600-300*bcsign), increments HHallucination, and calls make_hallucinated. The optional message/window branch evaluates `(blessed && !rn2(3)) || (!cursed && !rn2(6))` left-to-right, then calls enlightenment(MAGICENLIGHTENMENT,ENL_GAMEINPROGRESS) and exercises wisdom.",
+    "functions": [
+      "peffect_hallucination"
+    ],
+    "callers": [
+      "potion.c:peffects POT_HALLUCINATION dispatch invokes peffect_hallucination; js/potion.js currently throws UnsupportedQuaffError in that arm.",
+      "potion.c:dodrink -> dopotion -> peffects reaches ordinary quaff, and fountain.c:drinksink can generate non-water potion effects."
+    ],
+    "dependencies": [
+      "potion.c:make_hallucinated and insight.c:enlightenment are already present in JS; preserve their message/window operations and required environment.",
+      "Keep separate potion_nothing and HHallucination state, and preserve conditional short-circuit draws for blessed, uncursed, and cursed potions."
+    ]
+  },
+  "goalKind": "file-port",
+  "evidence": [
+    "Saved challenges/evaluations/20260927191056-v9.json at 5b4486322ffa5eeb91cc37d01083ff20bbfe2ea7 reports 37/38 screens and first stops at step 37: “unsupported hero command: an unported branch of this command: quaffing requires peffect_hallucination()”.",
+    "Upstream nethack-c/upstream/src/potion.c lines 696-713 defines the complete effect; js/potion.js POT_HALLUCINATION branch throws the current refusal.",
+    "The selected v9 case reaches the initial effect, while the source also includes resistance, repeated hallucination, and optional enlightenment paths requiring general implementation."
+  ]
+}

@@ -39,6 +39,7 @@ import {
     W_ARMG,
     W_ARMC,
     W_ARMU,
+    W_TOOL,
     WOUNDED_LEGS,
     SEE_INVIS,
 } from '../js/const.js';
@@ -65,12 +66,14 @@ import {
     mtrapped_in_pit,
     ranged_attk_available,
     expels,
+    gulp_blnd_check,
 } from '../js/mhitu.js';
 import { sticks, thick_skinned } from '../js/mondata.js';
 import { newMonster, place_monster, remove_monster } from '../js/monst.js';
 import {
     monst_globals_init,
     AD_ACID,
+    AD_BLND,
     AD_COLD,
     AD_DISE,
     AD_ENCH,
@@ -3521,4 +3524,56 @@ test('mhitm_ad_cold zeros damage when magic cancellation negates the attack',
 
     assert.deepEqual(lines, ['The lich touches you!']);
     assert.equal(mhm.damage, 0, 'damage zeroed by cancellation');
+});
+
+test('mhitu.c gulp_blnd_check returns its source result and names discarded gulpmu',
+    async () => {
+    await runSegment({
+        seed: 83015139,
+        datetime: '20310304123501',
+        nethackrc: 'OPTIONS=name:B30Gulp,role=Wizard,race=human,gender=female,align=neutral,playmode=debug,!legacy,!tutorial,!splash_screen,showexp,time,pettype:none\n',
+        moves: '',
+    });
+    game.unported = new Set();
+    game.u.uswallow = true;
+    game.u.ucreamed = 0;
+    game.u.uswldtim = 17;
+    game.u.ustuck = {
+        data: { mattk: [{ aatyp: AT_ENGL, adtyp: AD_BLND }] },
+        mcan: 0,
+    };
+    assert.equal(gulp_blnd_check(game), true);
+    assert.equal(game.u.uswldtim, 18);
+    assert.equal(game.unported.has('mhitu.c gulpmu'), true);
+
+    const blinded = game.u.uprops[BLINDED];
+    game.unported.clear();
+    game.u.uswldtim = 17;
+    blinded.intrinsic = 3;
+    blinded.extrinsic = 0;
+    blinded.blocked = W_TOOL;
+    assert.equal(gulp_blnd_check(game), true,
+        'C Blinded is false when BBlinded blocks HBlinded');
+    assert.equal(game.u.uswldtim, 18);
+    assert.equal(game.unported.has('mhitu.c gulpmu'), true);
+
+    game.unported.clear();
+    game.u.uswldtim = 17;
+    blinded.intrinsic = 0;
+    blinded.extrinsic = W_TOOL;
+    blinded.blocked = 0;
+    assert.equal(gulp_blnd_check(game), false,
+        'AT_ENGL can_blnd rejects the extrinsic blindfold');
+    assert.equal(game.u.uswldtim, 17);
+    assert.equal(game.unported.has('mhitu.c gulpmu'), false);
+
+    game.unported.clear();
+    blinded.intrinsic = 0;
+    blinded.extrinsic = 0;
+    blinded.blocked = 0;
+    game.u.uswallow = false;
+    game.u.uswldtim = 17;
+    assert.equal(gulp_blnd_check(game), false);
+    assert.equal(game.u.uswldtim, 17);
+    assert.equal(game.unported.has('mhitu.c gulpmu'), false);
 });

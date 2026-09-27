@@ -1,0 +1,87 @@
+{
+  "session": "synthetic/v9/sickness-potion-poisons-hero",
+  "corpus": "synthetic",
+  "batch": "v9",
+  "caseId": "sickness-potion-poisons-hero",
+  "manifestPath": "challenges/manifests/v9.json",
+  "manifestSha256": "00c148aac522e6343c8de0bd003db29771439f972a99cb18c772ebf2bc45a594",
+  "recordingSha256": "6e6163336cdb9ef55801c27e97bfe68f038be6334737394d663d1e0dad81b7fc",
+  "evaluationPath": "challenges/evaluations/20260927170744-v9.json",
+  "evaluationCommit": "c49a113a15eedee5d91c6dde088d4c58dc89bfe6",
+  "remainingScreens": 33,
+  "recordedSteps": 33,
+  "status": "complete",
+  "commit": "c49a113a15eedee5d91c6dde088d4c58dc89bfe6",
+  "mismatch": {
+    "corpus": "synthetic",
+    "batch": "v9",
+    "caseId": "sickness-potion-poisons-hero",
+    "session": "synthetic/v9/sickness-potion-poisons-hero",
+    "manifestPath": "challenges/manifests/v9.json",
+    "manifestSha256": "00c148aac522e6343c8de0bd003db29771439f972a99cb18c772ebf2bc45a594",
+    "recording": "challenges/cases/v9/sickness-potion-poisons-hero.session.json",
+    "recordingPath": "challenges/cases/v9/sickness-potion-poisons-hero.session.json",
+    "recordingSha256": "6e6163336cdb9ef55801c27e97bfe68f038be6334737394d663d1e0dad81b7fc",
+    "recipe": "challenges/cases/v9/sickness-potion-poisons-hero.recipe.session.json",
+    "recipeSha256": "c023d008cb9a1f50702778c489d5292d4cc2e0d7c351d951860bdf4dc7605f16",
+    "replayInputSha256": "d9fc86a74332497794cc5861c1a17d14a1349d4e60e3ad350242e00a31ac3cd4",
+    "evaluationPath": "challenges/evaluations/20260927170744-v9.json",
+    "evaluationCommit": "c49a113a15eedee5d91c6dde088d4c58dc89bfe6",
+    "evaluationArtifact": "challenges/evaluations/20260927170744-v9.json",
+    "evaluationUtc": "2026-09-27T17:08:21.938Z",
+    "remainingScreens": 33,
+    "recordedSteps": 33,
+    "previousScreensMatched": null,
+    "regression": false,
+    "passed": false,
+    "error": "attribute upkeep requires message",
+    "metrics": {
+      "screens": {
+        "matched": 0,
+        "total": 33
+      },
+      "rng": {
+        "matched": 0,
+        "total": 2709
+      },
+      "cursors": {
+        "matched": 0,
+        "total": 33
+      }
+    },
+    "firstMismatch": {
+      "kind": "stop",
+      "message": "Replay error: attribute upkeep requires message",
+      "step": null
+    },
+    "step": null,
+    "kind": "stop",
+    "sourceFile": null,
+    "function": null,
+    "message": "Replay error: attribute upkeep requires message",
+    "cFile": null,
+    "luaFile": null,
+    "line": null
+  },
+  "summary": "Quaffing an uncursed sickness potion reaches potion.c:peffect_sickness. JavaScript throws before completing the effect because it calls the already-ported attrib.c:poisontell without its required message operation; the following adjattrib call also omits that operation. Port the whole sickness effect and pass the source-ordered caller environment so C messages, attribute loss, hit-point loss, RNG, and hallucination cleanup can complete.",
+  "source": {
+    "file": "potion.c",
+    "branch": "For a non-Healer quaffing an unblessed sickness potion without Fixed_abil, potion.c:peffect_sickness calls poisontell then adjattrib after rn2(A_MAX); poison resistance determines the attribute decrement and damage branch. The C function also covers blessed, Healer, Fixed_abil, sink, and hallucination paths.",
+    "functions": [
+      "peffect_sickness"
+    ],
+    "callers": [
+      "potion.c:peffects POT_SICKNESS dispatches peffect_sickness from dopotion/dodrink; js/potion.js:peffects calls its local peffect_sickness after the quaff command."
+    ],
+    "dependencies": [
+      "attrib.c:poisontell and adjattrib are already ported; provide their message and encumbrance operations instead of weakening their contracts.",
+      "The effect invokes losehp, exercise, and make_hallucinated in source order; inspect their current ported caller contracts and note only discarded void gaps."
+    ]
+  },
+  "goalKind": "file-port",
+  "evidence": [
+    "Saved v9 baseline challenges/evaluations/20260927170744-v9.json records error \"attribute upkeep requires message\" and 0/33 screens for the immutable C recording.",
+    "Fresh scan at combined main 2e0a01a106aa02ff3ae520093dd4712eabe6fb6d confirms TypeError from attrib.js:requiredOperation called by poisontell at js/potion.js:peffect_sickness, then potion quaff dispatch.",
+    "Upstream nethack-c/upstream/src/potion.c:peffect_sickness lines 964-1021 calls poisontell and adjattrib after selecting typ; js/potion.js currently invokes both without the required environment. The full function has additional resistance, role, blessed, sink, and hallucination branches."
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent spell.c:spelleffects(SPE_CAUSE_FEAR) -> read.c:seffects() entry. A debug Wizard creates a hostile newt and chooses the source menu's `s - cause fear` entry from #wizcast, exercising the spell caller with a different seed, clock, and target than the selected scroll case.",
+  "segments": [
+    {
+      "seed": 730092703,
+      "datetime": "20300927131417",
+      "nethackrc": "OPTIONS=name:FearCastA30,role:Wizard,race:human,gender:male,align:neutral,playmode:debug,!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!debug_mongen\n",
+      "moves": " \u0007hostile newt\n#wizcast\ns"
+    }
+  ]
+}

@@ -112,7 +112,7 @@
     "luaFile": null,
     "line": 6141
   },
-  "summary": "Reading a scare-monster scroll with a visible monster reaches read.c:seffect_scare_monster. JavaScript seffects records that whole effect as unported, so it omits the source-ordered zap.c:resist draw, possible monflee transition, and close-by laughter message. The queue annotates the C RNG callee resist, but the missing owner is read.c:seffect_scare_monster.",
+  "summary": "The scare-monster scroll now matches all 49 recorded screens and 2600 RNG calls after the full read.c:seffect_scare_monster port. Both the scroll path and the Cause Fear spell caller have independent matching C recordings; the source goal is closed.",
   "source": {
     "file": "read.c",
     "branch": "For each living monster visible to the hero, the effect either clears frozen/fleeing/sleeping state when the hero is confused or the scroll is cursed, or consumes resist and, on failure, calls monflee. It counts visible nonpets; a scroll always emits laughter or wailing through You_hear, while SPE_CAUSE_FEAR emits it only when no nonpet was counted.",
@@ -120,7 +120,7 @@
       "seffect_scare_monster"
     ],
     "callers": [
-      "C read.c:seffects dispatches SCR_SCARE_MONSTER and SPE_CAUSE_FEAR to seffect_scare_monster after doread or spellcasting; JS js/read.js:seffects has both arms but calls note_unported instead of the effect."
+      "C read.c:seffects dispatches SCR_SCARE_MONSTER and SPE_CAUSE_FEAR to seffect_scare_monster after doread or spellcasting; JS js/read.js:seffects now calls the source-owned effect for both arms, and js/spell.js:spelleffects routes SPE_CAUSE_FEAR through it."
     ],
     "dependencies": [
       "The consumed return from zap.c:resist is already ported as js/zap.js:resist; preserve its SCROLL_CLASS or spell-object attack level and exact per-monster RNG order.",
@@ -133,6 +133,7 @@
     "The current saved evaluation challenges/evaluations/20260927142534-v8.json reports 48/49 screens and the first C RNG draw absent in JS at segment 0 step 47: rn2(108)=57 from zap.c:resist. The independent C recording at step 48 prints \"You hear maniacal laughter close by.\"",
     "A fresh read-only scan at published 56955495745cc647070474dbb74a558d5dfc2a24 records js/read.js note_unported(read.c seffect_scare_monster) and the same C resist draw at step 47, followed by the screen mismatch at step 48.",
     "Upstream nethack-c/upstream/src/read.c:seffect_scare_monster around lines 1454-1485 loops living visible monsters, calls resist only for the ordinary uncursed/unconfused path, then monflee when that result is false; it emits the heard message based on otyp, confused/cursed state, and visible nonpet count. js/read.js seffects arms at about line 1700 skip the function entirely.",
-    "The C trace’s resist label is a consumed callee, not the source owner of the omission; js/zap.js:resist already implements its full magic-resistance draw and return."
+    "The C trace’s resist label is a consumed callee, not the source owner of the omission; js/zap.js:resist already implements its full magic-resistance draw and return.",
+    "At ed281da57eb1c879937da42b05f214e0640df9db, challenges/evaluations/20260927175933-v8.json matches all 49 screens and cursors and 2600 RNG calls for read-scare-monster-scroll. Independent ordinary and cursed scroll recordings plus a Cause Fear spell recording pass the full checkpoint; GOALS.json records both entry points."
   ]
 }

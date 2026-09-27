@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent potion.c:peffect_gain_ability sink-entry recipe. This Wizard sink-wish/drink sequence targets fountain.c:drinksink's random potion arm. Candidate seed 94271042 was selected with a local JavaScript reachability sweep and must be confirmed by an independent C recording before this counts as evidence.",
+  "segments": [
+    {
+      "seed": 94271042,
+      "datetime": "20420808101114",
+      "nethackrc": "OPTIONS=name:B32Sink,role:Wizard,race:human,gender:male,align:neutral,playmode:debug,!legacy,!tutorial,!splash_screen,pettype:none\n",
+      "moves": "\u0017sink\nqy"
+    }
+  ]
+}

@@ -3,6 +3,7 @@
 //        dopotion() (618-641), peffects() (1333-1425),
 //        make_confused() (89-104), self_invis_message() (471-478),
 //        peffect_booze() (771-792), peffect_confusion() (1014-1027),
+//        peffect_gain_ability() (1030-1051),
 //        peffect_gain_level() (1083-1118),
 //        peffect_paralysis() (881-898),
 //        peffect_speed() (1052-1070), peffect_oil() (1259-1294),
@@ -18,7 +19,7 @@
 // getobj() -> dopotion() -> peffects().
 //
 // peffects() dispatches 26 potion types; POT_ACID, POT_BOOZE, POT_CONFUSION,
-// POT_SICKNESS, POT_SPEED (with spell alias SPE_HASTE_SELF), POT_BLINDNESS,
+// POT_GAIN_ABILITY, POT_SICKNESS, POT_SPEED (with spell alias SPE_HASTE_SELF), POT_BLINDNESS,
 // POT_GAIN_LEVEL, POT_HEALING, POT_EXTRA_HEALING, POT_OIL, the POT_FRUIT_JUICE arm of
 // peffect_see_invisible(), the ordinary POT_PARALYSIS arm, POT_POLYMORPH,
 // POT_INVISIBILITY (also SPE_INVISIBILITY),
@@ -815,6 +816,35 @@ async function peffect_confusion(otmp, state = game) {
 }
 
 // ---------------------------------------------------------------------------
+// peffect_gain_ability
+// C ref: potion.c peffect_gain_ability() (1030-1051).
+// ---------------------------------------------------------------------------
+
+// The unblessed potion stops at the first attribute adjattrib() can raise;
+// blessed potions walk all attributes in C's ascending index order.
+async function peffect_gain_ability(otmp, state = game, env = {}) {
+    const { message, random } = env;
+
+    if (otmp.cursed) {
+        await message('Ulch!  That potion tasted foul!', state);
+        state.gp.potion_unkn++;
+    } else if (fixedAbilities(state)) {
+        state.gp.potion_nothing++;
+    } else {
+        let index = -1;
+        for (let attempt = A_MAX; attempt > 0; --attempt) {
+            index = otmp.blessed ? index + 1 : random.rn2(A_MAX);
+            const messageMode = otmp.blessed || attempt === 1 ? 0 : -1;
+            if (await adjattrib(
+                index, 1, messageMode, state, env,
+            ) && !otmp.blessed) {
+                break;
+            }
+        }
+    }
+}
+
+// ---------------------------------------------------------------------------
 // speed_up / peffect_speed
 // C ref: potion.c speed_up() (2918-2928), peffect_speed() (1052-1070).
 // ---------------------------------------------------------------------------
@@ -905,17 +935,29 @@ function fixedAbilities(state) {
     return Boolean(state.u?.uprops?.[FIXED_ABIL]?.extrinsic);
 }
 
-// C ref: potion.c peffect_sickness() (964-1012). This covers the ordinary
-// blessed and unblessed potion paths, including the source-ordered attribute
-// loss, hit-point loss, and constitution exercise. The healer immunity and
-// hallucination cleanup arms are retained here because the active divergence
-// is the blessed potion path; the cleanup call still stops if its separate
-// vision owner is reached.
-async function peffect_sickness(otmp, state = game) {
-    await ttyPline('Yecch!  This stuff tastes like poison.', state);
+// C callers use the same message, random, and encumbrance operations for the
+// potion effect and the attribute helpers it calls. In particular,
+// attrib.c:poisontell() requires the message operation, while adjattrib() and
+// exercise() can reach pickup.c:encumber_msg() during the active move loop.
+function potionEffectEnvironment(env = {}) {
+    return {
+        ...env,
+        message: env.message ?? ttyPline,
+        encumberMessage: env.encumberMessage ?? encumber_msg,
+        random: { rn1, rn2, rnd, ...env.random },
+    };
+}
+
+// C ref: potion.c peffect_sickness() (964-1011). Covers the complete blessed,
+// poison-resistance, Healer, Fixed_abil, sink-origin, attribute/damage,
+// constitution-exercise, and hallucination branches in source order.
+async function peffect_sickness(otmp, state = game, env = {}) {
+    const { message, random, encumberMessage } = env;
+
+    await message('Yecch!  This stuff tastes like poison.', state);
 
     if (otmp.blessed) {
-        await ttyPline(
+        await message(
             `(But in fact it was mildly stale ${fruitname(true, state)}.)`,
             state,
         );
@@ -930,51 +972,54 @@ async function peffect_sickness(otmp, state = game) {
     } else {
         const resistant = poisonResistance(state);
         if (resistant) {
-            await ttyPline(
+            await message(
                 `(But in fact it was biologically contaminated ${fruitname(
                     true, state)}.)`,
                 state,
             );
         }
         if (state.urole?.mnum === PM_HEALER) {
-            await ttyPline('Fortunately, you have been immunized.', state);
+            await message('Fortunately, you have been immunized.', state);
         } else {
-            const typ = rn2(A_MAX);
+            const typ = random.rn2(A_MAX);
             const contaminant = `${resistant ? 'mildly ' : ''}`
                 + (otmp.fromsink
                     ? 'contaminated tap water'
                     : 'contaminated potion');
             if (!fixedAbilities(state)) {
-                await poisontell(typ, false, state);
+                await poisontell(typ, false, state, env);
                 await adjattrib(
                     typ,
-                    resistant ? -1 : -rn1(4, 3),
+                    resistant ? -1 : -random.rn1(4, 3),
                     1,
                     state,
+                    env,
                 );
             }
             if (!resistant) {
                 await losehp(
-                    rnd(10) + 5 * Number(Boolean(otmp.cursed)),
+                    random.rnd(10) + 5 * Number(Boolean(otmp.cursed)),
                     contaminant,
                     otmp.fromsink ? KILLED_BY : KILLED_BY_AN,
                     state,
+                    env,
                 );
             } else {
                 await losehp(
-                    1 + rn2(2),
+                    1 + random.rn2(2),
                     contaminant,
                     otmp.fromsink ? KILLED_BY : KILLED_BY_AN,
                     state,
+                    env,
                 );
             }
-            await exercise(A_CON, false, state);
+            await exercise(A_CON, false, state, random, { encumberMessage });
         }
     }
 
     if (Hallucination(state)) {
-        await ttyPline('You are shocked back to your senses!', state);
-        await make_hallucinated(0, false, 0, state);
+        await message('You are shocked back to your senses!', state);
+        await make_hallucinated(0, false, 0, state, env);
     }
 }
 
@@ -1406,7 +1451,7 @@ async function peffect_monster_detection(otmp, state = game) {
 // C ref: potion.c peffects() (1333-1425). Dispatch the effect of a quaffed
 // potion or spell. Returns >=0 if the effect short-circuits dopotion()'s tail
 // (0 = no time, 1 = time), -1 to continue to the tail.
-export async function peffects(otmp, state = game) {
+export async function peffects(otmp, state = game, env = {}) {
     switch (otmp.otyp) {
     case POT_RESTORE_ABILITY:
     case SPE_RESTORE_ABILITY:
@@ -1442,13 +1487,16 @@ export async function peffects(otmp, state = game) {
     case SPE_DETECT_TREASURE:
         throw new UnsupportedQuaffError('peffect_object_detection()');
     case POT_SICKNESS:
-        await peffect_sickness(otmp, state);
+        await peffect_sickness(otmp, state, potionEffectEnvironment(env));
         break;
     case POT_CONFUSION:
         await peffect_confusion(otmp, state);
         break;
     case POT_GAIN_ABILITY:
-        throw new UnsupportedQuaffError('peffect_gain_ability()');
+        await peffect_gain_ability(
+            otmp, state, potionEffectEnvironment(env),
+        );
+        break;
     case POT_SPEED:
     case SPE_HASTE_SELF:
         await peffect_speed(otmp, state);
@@ -1514,12 +1562,12 @@ export async function strange_feeling(obj, txt, state = game) {
 
 // C ref: potion.c dopotion() (618-641). Called by dodrink() after the potion
 // has been selected and milky/smoky checks have passed.
-export async function dopotion(otmp, state = game) {
+export async function dopotion(otmp, state = game, env = {}) {
     otmp.in_use = true;
     state.gp.potion_nothing = 0;
     state.gp.potion_unkn = 0;
 
-    const retval = await peffects(otmp, state);
+    const retval = await peffects(otmp, state, env);
     if (retval >= 0) return retval ? ECMD_TIME : ECMD_OK;
 
     if (state.gp.potion_nothing) {

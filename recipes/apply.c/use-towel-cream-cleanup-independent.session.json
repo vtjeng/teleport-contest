@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 83015144,
+      "datetime": "20310506120000",
+      "nethackrc": "OPTIONS=name:B30Cream,role=Rogue,race=human,gender=female,align=chaotic\nOPTIONS=!legacy,!tutorial,!splash_screen\nOPTIONS=playmode:debug,pettype:none,!acoustics,!autopickup,time,showexp\n",
+      "moves": " \u0017cursed towel\n\u0017towel\nag ah"
+    }
+  ],
+  "comment": "Independent source variation: wish a cursed towel and a plain towel, use the cursed towel's source random arm to cream the hero's face, then use the plain towel to reach use_towel's u.ucreamed cleanup and gulp_blnd_check caller."
+}

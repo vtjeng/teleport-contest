@@ -97305,7 +97305,7 @@
     {
       "id": "port-apply-use-towel-synthetic-v8-20260927",
       "kind": "file-port",
-      "status": "queued",
+      "status": "parked",
       "summary": "Port towel use across clean, slippery, and blinded states",
       "cFile": "apply.c",
       "sessions": [
@@ -97313,8 +97313,12 @@
       ],
       "selectionReason": "Current v8 towel-clean-face case stops at step 10 in doapply; source-traced investigation investigations/synthetic/v8/towel-clean-face.json identifies apply.c:use_towel as the whole owner, with doapply TOWEL dispatch and consumed mhitu.c:gulp_blnd_check dependency. The annotated doapply owner is only the dispatch site. Latest evidence is challenges/evaluations/20260927161400-v8.json and immutable recording challenges/cases/v8/towel-clean-face.session.json. Related apply.c touchstone work was completed by B29; this is a separate function family for the same persistent worker.",
       "detail": "",
-      "openedAt": null,
-      "openStanding": null,
+      "openedAt": "f97ab5f4f7f8ac339f71596ac14a441fc2c85341",
+      "openStanding": {
+        "sha": "c49a113a15eedee5d91c6dde088d4c58dc89bfe6",
+        "screens": 11405,
+        "rng": 792838
+      },
       "closedAt": null,
       "delivered": null,
       "functions": [
@@ -97343,12 +97347,173 @@
           "evaluationPath": "challenges/evaluations/20260927161400-v8.json",
           "evaluationCommit": "5bf1150b63da82c6e02196da6a3d7047ef9b3938"
         }
-      }
+      },
+      "activeStanding": {
+        "sha": "c49a113a15eedee5d91c6dde088d4c58dc89bfe6",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v8",
+          "caseId": "towel-clean-face",
+          "session": "synthetic/v8/towel-clean-face",
+          "manifestPath": "challenges/manifests/v8.json",
+          "manifestSha256": "6a5159501af18a7f926f794d89e817375cd00a3589c4899fb97392ae04dbe8ba",
+          "recording": "challenges/cases/v8/towel-clean-face.session.json",
+          "recordingPath": "challenges/cases/v8/towel-clean-face.session.json",
+          "recordingSha256": "eb0047f4948ab5f5386eb0159bbbd02cf7346895152a1ad5dbc126fbd0f5960a",
+          "recipe": "challenges/cases/v8/towel-clean-face.recipe.session.json",
+          "recipeSha256": "04afc3d920c9979793c69d4e80ac1da0883b81bac8a5d36864f5daa968deefa4",
+          "replayInputSha256": "21debfba53e1094cab063f1496b939895f75f56e9a6881432cb92a46867b0e06",
+          "evaluationPath": "challenges/evaluations/20260927170744-v8.json",
+          "evaluationCommit": "c49a113a15eedee5d91c6dde088d4c58dc89bfe6",
+          "evaluationArtifact": "challenges/evaluations/20260927170744-v8.json",
+          "evaluationUtc": "2026-09-27T17:08:17.508Z",
+          "remainingScreens": 1,
+          "recordedSteps": 11,
+          "previousScreensMatched": 10,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 10,
+              "total": 11
+            },
+            "rng": {
+              "matched": 2675,
+              "total": 2675
+            },
+            "cursors": {
+              "matched": 10,
+              "total": 11
+            }
+          },
+          "firstMismatch": {
+            "kind": "stop",
+            "message": "unsupported hero command: an unported branch of this command: applying a tool requires doapply()'s arm for object type 234",
+            "step": 10
+          },
+          "step": 10,
+          "kind": "stop",
+          "sourceFile": "apply.c",
+          "function": "doapply",
+          "message": "unsupported hero command: an unported branch of this command: applying a tool requires doapply()'s arm for object type 234",
+          "cFile": "apply.c",
+          "luaFile": null,
+          "line": null,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v8/towel-clean-face.json",
+            "result": {
+              "session": "synthetic/v8/towel-clean-face",
+              "corpus": "synthetic",
+              "batch": "v8",
+              "caseId": "towel-clean-face",
+              "manifestPath": "challenges/manifests/v8.json",
+              "manifestSha256": "6a5159501af18a7f926f794d89e817375cd00a3589c4899fb97392ae04dbe8ba",
+              "recordingSha256": "eb0047f4948ab5f5386eb0159bbbd02cf7346895152a1ad5dbc126fbd0f5960a",
+              "evaluationPath": "challenges/evaluations/20260927142534-v8.json",
+              "evaluationCommit": "c54c2c13ca30ebad8411cbcd4b7dcd3e193fbddc",
+              "remainingScreens": 1,
+              "recordedSteps": 11,
+              "status": "complete",
+              "commit": "c54c2c13ca30ebad8411cbcd4b7dcd3e193fbddc",
+              "mismatch": {
+                "corpus": "synthetic",
+                "batch": "v8",
+                "caseId": "towel-clean-face",
+                "session": "synthetic/v8/towel-clean-face",
+                "manifestPath": "challenges/manifests/v8.json",
+                "manifestSha256": "6a5159501af18a7f926f794d89e817375cd00a3589c4899fb97392ae04dbe8ba",
+                "recording": "challenges/cases/v8/towel-clean-face.session.json",
+                "recordingPath": "challenges/cases/v8/towel-clean-face.session.json",
+                "recordingSha256": "eb0047f4948ab5f5386eb0159bbbd02cf7346895152a1ad5dbc126fbd0f5960a",
+                "recipe": "challenges/cases/v8/towel-clean-face.recipe.session.json",
+                "recipeSha256": "04afc3d920c9979793c69d4e80ac1da0883b81bac8a5d36864f5daa968deefa4",
+                "replayInputSha256": "f12aaa199382908484612c7c8d311b333eb8a8d5cb1f2a5aba58e1ae8afc64b3",
+                "evaluationPath": "challenges/evaluations/20260927142534-v8.json",
+                "evaluationCommit": "c54c2c13ca30ebad8411cbcd4b7dcd3e193fbddc",
+                "evaluationArtifact": "challenges/evaluations/20260927142534-v8.json",
+                "evaluationUtc": "2026-09-27T14:26:06.427Z",
+                "remainingScreens": 1,
+                "recordedSteps": 11,
+                "previousScreensMatched": 10,
+                "regression": false,
+                "passed": false,
+                "error": null,
+                "metrics": {
+                  "screens": {
+                    "matched": 10,
+                    "total": 11
+                  },
+                  "rng": {
+                    "matched": 2675,
+                    "total": 2675
+                  },
+                  "cursors": {
+                    "matched": 10,
+                    "total": 11
+                  }
+                },
+                "firstMismatch": {
+                  "kind": "stop",
+                  "message": "unsupported hero command: an unported branch of this command: applying a tool requires doapply()'s arm for object type 234",
+                  "step": 10
+                },
+                "step": 10,
+                "kind": "stop",
+                "sourceFile": "apply.c",
+                "function": "doapply",
+                "message": "unsupported hero command: an unported branch of this command: applying a tool requires doapply()'s arm for object type 234",
+                "cFile": "apply.c",
+                "luaFile": null,
+                "line": null
+              },
+              "summary": "Applying a towel with clean hands and face reaches apply.c:use_towel, which prints the clean-state message and returns ECMD_OK. JavaScript doapply has no TOWEL arm and refuses before the C result. Port the complete source function across free-hand, worn, cursed, slimy, creamed, and clean-state branches; preserve the source-owned towel-drying void gap where the helper is not yet ported.",
+              "source": {
+                "file": "apply.c",
+                "branch": "doapply selects TOWEL and calls use_towel. The recorded clean-state path passes freehand and worn/cursed checks, then sees neither Glib nor u.ucreamed and prints \"Your face and hands are already clean.\" without consuming a turn. Other branches mutate blindness, glibness, towel wetness, or worn face covering.",
+                "functions": [
+                  "use_towel"
+                ],
+                "callers": [
+                  "C apply.c:doapply TOWEL arm around line 4355 calls use_towel and uses its ECMD result; JS js/apply.js:doapply lacks this arm and raises UnsupportedApplyError."
+                ],
+                "dependencies": [
+                  "C engrave.c:freehand is a consumed boolean dependency and already has a JavaScript counterpart used by pickup and spell paths.",
+                  "C obj.h:is_wet_towel and mhitu.c:gulp_blnd_check have JavaScript counterparts; potion.c:make_glib/make_blinded and do_wear.c:Blindf_off are available in their source-owner modules.",
+                  "C apply.c:dry_a_towel is a discarded void call that remains unported; use_towel must name this gap where reached, without fabricating its drying state change."
+                ]
+              },
+              "goalKind": "file-port",
+              "evidence": [
+                "Current saved challenges/evaluations/20260927142534-v8.json leaves 1 of 11 screens unmatched. A fresh scan at f2d05fac73e9e9f9294c78d98ac3508ee1b846ba stops at segment 0 step 10 when JS doapply refuses object type 234, whereas C prints the clean-state result.",
+                "Independent C recording challenges/cases/v8/towel-clean-face.session.json shows step 10 after applying the wished towel: \"Your face and hands are already clean.\" with no use_towel RNG call and no new turn.",
+                "Upstream nethack-c/upstream/src/apply.c:use_towel around lines 112-194 owns every towel branch and its ECMD return. C doapply calls it at line 4356; js/apply.js doapply has no TOWEL arm.",
+                "This is a complete use_towel port task rather than a message inserted for the recorded clean towel; source branches for cursed, wet, worn, glib, and creamed towels remain in scope."
+              ]
+            }
+          }
+        }
+      ],
+      "progressBeforePark": {
+        "screens": 0,
+        "rng": 0
+      },
+      "parkedStanding": {
+        "sha": "eaaa1f72f98bbaddc775a4600e02f051895b9698",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "parkedReason": "The selected v8 towel path and independent cursed/cream recordings now match, but complete source evidence still requires a matching swallowed use_towel path for mhitu.c:gulp_blnd_check true return. The current Dust Vortex route is blocked because mhitu.c:gulpmu blinds the hero before the next towel command; apply.c:dry_a_towel remains an explicitly unported discarded-result state effect. Resume when an independent reachable swallowed path and wet-towel drying recording can verify the remaining branches."
     },
     {
       "id": "port-read-seffect-scare-monster-synthetic-v8-20260927",
       "kind": "file-port",
-      "status": "queued",
+      "status": "closed",
       "summary": "Port scare-monster scroll and cause-fear spell effect",
       "cFile": "read.c",
       "sessions": [
@@ -97356,17 +97521,24 @@
       ],
       "selectionReason": "Source-traced v8 scare-scroll mismatch at segment 0 step 47: read.c:seffect_scare_monster is absent in JS; zap.c:resist is its already-ported consumed callee. Saved evaluation challenges/evaluations/20260927163859-v8.json, v8 manifest 6a5159501af18a7f926f794d89e817375cd00a3589c4899fb97392ae04dbe8ba, recording challenges/cases/v8/read-scare-monster-scroll.session.json SHA-256 97225b67fb7098a550ce4b69696e06313a2c8635a3d550b4a1461cd49319f6ac.",
       "detail": "Whole read.c:seffect_scare_monster at source lines 1454-1485, wired through read.c:seffects for SCR_SCARE_MONSTER and SPE_CAUSE_FEAR. C calls resist for each ordinary visible living monster, uses its return to conditionally monflee, then emits the appropriate heard message. Selected C draws rn2(108)=57 in resist at step 47 and prints maniacal laughter at step 48; JS currently note_unported skips the effect. Preserve source call order and both direct callers.",
-      "openedAt": null,
-      "openStanding": null,
-      "closedAt": null,
-      "delivered": null,
+      "openedAt": "47a84bff0e203a8fe0351f49ef836848191fd61b",
+      "openStanding": {
+        "sha": "eaaa1f72f98bbaddc775a4600e02f051895b9698",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "closedAt": "ed281da57eb1c879937da42b05f214e0640df9db",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
       "functions": [
         {
           "name": "seffect_scare_monster",
           "line": 1454,
           "endLine": 1488,
-          "declared": false,
-          "complete": false
+          "declared": true,
+          "complete": true
         }
       ],
       "range": {
@@ -97386,6 +97558,1262 @@
           "evaluationPath": "challenges/evaluations/20260927163859-v8.json",
           "evaluationCommit": "63b63f85580e6a45a931debedbbd386779933d15"
         }
+      },
+      "activeStanding": {
+        "sha": "eaaa1f72f98bbaddc775a4600e02f051895b9698",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v8",
+          "caseId": "read-scare-monster-scroll",
+          "session": "synthetic/v8/read-scare-monster-scroll",
+          "manifestPath": "challenges/manifests/v8.json",
+          "manifestSha256": "6a5159501af18a7f926f794d89e817375cd00a3589c4899fb97392ae04dbe8ba",
+          "recording": "challenges/cases/v8/read-scare-monster-scroll.session.json",
+          "recordingPath": "challenges/cases/v8/read-scare-monster-scroll.session.json",
+          "recordingSha256": "97225b67fb7098a550ce4b69696e06313a2c8635a3d550b4a1461cd49319f6ac",
+          "recipe": "challenges/cases/v8/read-scare-monster-scroll.recipe.session.json",
+          "recipeSha256": "819c1495673134eb67628ad1192bf33b326f87a8bfe2a22b6b8e22bc90ea0380",
+          "replayInputSha256": "07285962219edc2b6938ed22ab2a6a5a22e80e1aad6ce5c4e87bfb0af5e11716",
+          "evaluationPath": "challenges/evaluations/20260927174037-v8.json",
+          "evaluationCommit": "eaaa1f72f98bbaddc775a4600e02f051895b9698",
+          "evaluationArtifact": "challenges/evaluations/20260927174037-v8.json",
+          "evaluationUtc": "2026-09-27T17:41:11.408Z",
+          "remainingScreens": 1,
+          "recordedSteps": 49,
+          "previousScreensMatched": 48,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 48,
+              "total": 49
+            },
+            "rng": {
+              "matched": 2599,
+              "total": 2600
+            },
+            "cursors": {
+              "matched": 48,
+              "total": 49
+            }
+          },
+          "firstMismatch": {
+            "screen": {
+              "index": 48,
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 48,
+                "key": " "
+              },
+              "kind": "ch",
+              "row": 0,
+              "column": 0,
+              "cCell": {
+                "ch": "Y",
+                "color": 8,
+                "attr": 0,
+                "decgfx": 0
+              },
+              "jsCell": {
+                "ch": "C",
+                "color": 8,
+                "attr": 0,
+                "decgfx": 0
+              }
+            },
+            "rng": {
+              "index": 2599,
+              "cEntry": "rn2(108)=57",
+              "cCaller": "resist(zap.c:6141)",
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 47,
+                "key": "p"
+              },
+              "stepIndex": 47
+            },
+            "cursor": {
+              "index": 48,
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 48,
+                "key": " "
+              },
+              "cCursor": [
+                44,
+                0,
+                1
+              ],
+              "jsCursor": [
+                42,
+                0,
+                1
+              ]
+            }
+          },
+          "step": 47,
+          "kind": "rng",
+          "sourceFile": "zap.c",
+          "function": "resist",
+          "message": null,
+          "cFile": "zap.c",
+          "luaFile": null,
+          "line": 6141,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v8/read-scare-monster-scroll.json",
+            "result": {
+              "session": "synthetic/v8/read-scare-monster-scroll",
+              "corpus": "synthetic",
+              "batch": "v8",
+              "caseId": "read-scare-monster-scroll",
+              "manifestPath": "challenges/manifests/v8.json",
+              "manifestSha256": "6a5159501af18a7f926f794d89e817375cd00a3589c4899fb97392ae04dbe8ba",
+              "recordingSha256": "97225b67fb7098a550ce4b69696e06313a2c8635a3d550b4a1461cd49319f6ac",
+              "evaluationPath": "challenges/evaluations/20260927142534-v8.json",
+              "evaluationCommit": "c54c2c13ca30ebad8411cbcd4b7dcd3e193fbddc",
+              "remainingScreens": 1,
+              "recordedSteps": 49,
+              "status": "complete",
+              "commit": "c54c2c13ca30ebad8411cbcd4b7dcd3e193fbddc",
+              "mismatch": {
+                "corpus": "synthetic",
+                "batch": "v8",
+                "caseId": "read-scare-monster-scroll",
+                "session": "synthetic/v8/read-scare-monster-scroll",
+                "manifestPath": "challenges/manifests/v8.json",
+                "manifestSha256": "6a5159501af18a7f926f794d89e817375cd00a3589c4899fb97392ae04dbe8ba",
+                "recording": "challenges/cases/v8/read-scare-monster-scroll.session.json",
+                "recordingPath": "challenges/cases/v8/read-scare-monster-scroll.session.json",
+                "recordingSha256": "97225b67fb7098a550ce4b69696e06313a2c8635a3d550b4a1461cd49319f6ac",
+                "recipe": "challenges/cases/v8/read-scare-monster-scroll.recipe.session.json",
+                "recipeSha256": "819c1495673134eb67628ad1192bf33b326f87a8bfe2a22b6b8e22bc90ea0380",
+                "replayInputSha256": "f12aaa199382908484612c7c8d311b333eb8a8d5cb1f2a5aba58e1ae8afc64b3",
+                "evaluationPath": "challenges/evaluations/20260927142534-v8.json",
+                "evaluationCommit": "c54c2c13ca30ebad8411cbcd4b7dcd3e193fbddc",
+                "evaluationArtifact": "challenges/evaluations/20260927142534-v8.json",
+                "evaluationUtc": "2026-09-27T14:26:06.427Z",
+                "remainingScreens": 1,
+                "recordedSteps": 49,
+                "previousScreensMatched": 48,
+                "regression": false,
+                "passed": false,
+                "error": null,
+                "metrics": {
+                  "screens": {
+                    "matched": 48,
+                    "total": 49
+                  },
+                  "rng": {
+                    "matched": 2599,
+                    "total": 2600
+                  },
+                  "cursors": {
+                    "matched": 48,
+                    "total": 49
+                  }
+                },
+                "firstMismatch": {
+                  "screen": {
+                    "index": 48,
+                    "location": {
+                      "segmentIndex": 0,
+                      "stepIndex": 48,
+                      "key": " "
+                    },
+                    "kind": "ch",
+                    "row": 0,
+                    "column": 0,
+                    "cCell": {
+                      "ch": "Y",
+                      "color": 8,
+                      "attr": 0,
+                      "decgfx": 0
+                    },
+                    "jsCell": {
+                      "ch": "C",
+                      "color": 8,
+                      "attr": 0,
+                      "decgfx": 0
+                    }
+                  },
+                  "rng": {
+                    "index": 2599,
+                    "cEntry": "rn2(108)=57",
+                    "cCaller": "resist(zap.c:6141)",
+                    "location": {
+                      "segmentIndex": 0,
+                      "stepIndex": 47,
+                      "key": "p"
+                    },
+                    "stepIndex": 47
+                  },
+                  "cursor": {
+                    "index": 48,
+                    "location": {
+                      "segmentIndex": 0,
+                      "stepIndex": 48,
+                      "key": " "
+                    },
+                    "cCursor": [
+                      44,
+                      0,
+                      1
+                    ],
+                    "jsCursor": [
+                      42,
+                      0,
+                      1
+                    ]
+                  }
+                },
+                "step": 47,
+                "kind": "rng",
+                "sourceFile": "zap.c",
+                "function": "resist",
+                "message": null,
+                "cFile": "zap.c",
+                "luaFile": null,
+                "line": 6141
+              },
+              "summary": "Reading a scare-monster scroll with a visible monster reaches read.c:seffect_scare_monster. JavaScript seffects records that whole effect as unported, so it omits the source-ordered zap.c:resist draw, possible monflee transition, and close-by laughter message. The queue annotates the C RNG callee resist, but the missing owner is read.c:seffect_scare_monster.",
+              "source": {
+                "file": "read.c",
+                "branch": "For each living monster visible to the hero, the effect either clears frozen/fleeing/sleeping state when the hero is confused or the scroll is cursed, or consumes resist and, on failure, calls monflee. It counts visible nonpets; a scroll always emits laughter or wailing through You_hear, while SPE_CAUSE_FEAR emits it only when no nonpet was counted.",
+                "functions": [
+                  "seffect_scare_monster"
+                ],
+                "callers": [
+                  "C read.c:seffects dispatches SCR_SCARE_MONSTER and SPE_CAUSE_FEAR to seffect_scare_monster after doread or spellcasting; JS js/read.js:seffects has both arms but calls note_unported instead of the effect."
+                ],
+                "dependencies": [
+                  "The consumed return from zap.c:resist is already ported as js/zap.js:resist; preserve its SCROLL_CLASS or spell-object attack level and exact per-monster RNG order.",
+                  "monmove.c:monflee is ported in js/monmove.js and must be awaited after a failed resistance check. vision.c:cansee is ported in js/vision.js.",
+                  "C Soundeffect uses the recorder nosound backend and has no output; pline.c:You_hear behavior is available as js/monmove.js:youHear, with deaf, acoustics, underwater, and unaware guards."
+                ]
+              },
+              "goalKind": "file-port",
+              "evidence": [
+                "The current saved evaluation challenges/evaluations/20260927142534-v8.json reports 48/49 screens and the first C RNG draw absent in JS at segment 0 step 47: rn2(108)=57 from zap.c:resist. The independent C recording at step 48 prints \"You hear maniacal laughter close by.\"",
+                "A fresh read-only scan at published 56955495745cc647070474dbb74a558d5dfc2a24 records js/read.js note_unported(read.c seffect_scare_monster) and the same C resist draw at step 47, followed by the screen mismatch at step 48.",
+                "Upstream nethack-c/upstream/src/read.c:seffect_scare_monster around lines 1454-1485 loops living visible monsters, calls resist only for the ordinary uncursed/unconfused path, then monflee when that result is false; it emits the heard message based on otyp, confused/cursed state, and visible nonpet count. js/read.js seffects arms at about line 1700 skip the function entirely.",
+                "The C trace’s resist label is a consumed callee, not the source owner of the omission; js/zap.js:resist already implements its full magic-resistance draw and return."
+              ]
+            }
+          }
+        }
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "seffect_scare_monster",
+            "implementation": "js/read.js",
+            "symbol": "seffect_scare_monster",
+            "sourceReview": "Read and compared the complete read.c:seffect_scare_monster() body, including the fmon linked-list traversal, DEADMONSTER and visibility guards, cursed/confused state-reset branch, return-discarded resist() condition, monflee() side effects, visible non-tame count, and exact sound/message condition and order. JavaScript traverses the C fmon-equivalent state.level.monlist, maps each C branch in source order, calls the existing zap.c resist port, and preserves monflee effects including its vrock cloud callback. spell.c passes a fake scroll object to the same read.c:seffects dispatch; both production paths are wired. In the recorder build Soundeffect is a no-op macro in include/sndprocs.h, while You_hear remains observable and is implemented. No call result is substituted or consumed where C discards it.",
+            "callers": [
+              {
+                "path": "js/read.js",
+                "symbol": "seffects",
+                "source": "read.c:seffects() SCR_SCARE_MONSTER and SPE_CAUSE_FEAR dispatch arms call seffect_scare_monster()."
+              },
+              {
+                "path": "js/spell.js",
+                "symbol": "spelleffects",
+                "source": "spell.c:spelleffects() duplicate-scroll spell arm routes SPE_CAUSE_FEAR through seffects() after its skilled-spell blessed adjustment."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/read.test.mjs"
+            ],
+            "recordings": [
+              "recordings/read.c/scare-scroll-no-monsters-a30-independent.session.json",
+              "recordings/read.c/scare-scroll-cursed-a30-independent.session.json",
+              "recordings/spell.c/cause-fear-wizcast-a30-independent.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v8",
+                "caseId": "read-scare-monster-scroll",
+                "segment": 0,
+                "fromStep": 47,
+                "throughStep": 48,
+                "source": "read.c:doread() -> read.c:seffects(SCR_SCARE_MONSTER) -> read.c:seffect_scare_monster() -> zap.c:resist()"
+              }
+            ],
+            "checkedAt": "ed281da57eb1c879937da42b05f214e0640df9db"
+          }
+        ],
+        "entryPointReview": "The two active entry points are the SCR_SCARE_MONSTER scroll path through read.c:doread()/seffects() and the SPE_CAUSE_FEAR spell path through spell.c:spelleffects()/read.c:seffects(). The selected admitted v8 range executes the scroll effect through the production read command; independent ordinary and cursed scroll recordings cover empty visible-monster scans and the cursed feedback branch. A separate #wizcast recording exercises Cause Fear through spell.c:spelleffects and the shared seffects path. The recorder-build Soundeffect macro is a no-op (include/sndprocs.h:272), so the source-visible You_hear output is the observable feedback and no separate sound effect implementation is required. No active entry point is left blocked.",
+        "entryPoints": [
+          {
+            "name": "SCR_SCARE_MONSTER through read.c:seffects",
+            "functions": [
+              "seffect_scare_monster"
+            ],
+            "recordings": [
+              "recordings/read.c/scare-scroll-no-monsters-a30-independent.session.json",
+              "recordings/read.c/scare-scroll-cursed-a30-independent.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v8",
+                "caseId": "read-scare-monster-scroll",
+                "segment": 0,
+                "fromStep": 47,
+                "throughStep": 48,
+                "source": "read.c:doread() -> read.c:seffects(SCR_SCARE_MONSTER) -> read.c:seffect_scare_monster() -> zap.c:resist()"
+              }
+            ]
+          },
+          {
+            "name": "SPE_CAUSE_FEAR through read.c:seffects",
+            "functions": [
+              "seffect_scare_monster"
+            ],
+            "recordings": [
+              "recordings/spell.c/cause-fear-wizcast-a30-independent.session.json"
+            ]
+          }
+        ]
+      },
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "ed281da57eb1c879937da42b05f214e0640df9db",
+        "screens": 11405,
+        "rng": 792838
+      }
+    },
+    {
+      "id": "port-potion-peffect-sickness-synthetic-v9-20260927",
+      "kind": "file-port",
+      "status": "closed",
+      "summary": "Port sickness potion effects and caller environment",
+      "cFile": "potion.c",
+      "sessions": [
+        "synthetic/v9/sickness-potion-poisons-hero"
+      ],
+      "selectionReason": "The current v9 sickness-potion-poisons-hero case fails in potion.c:peffect_sickness before recorded play because its JavaScript caller omits required attrib.c message operations. investigations/synthetic/v9/sickness-potion-poisons-hero.json traces the effect and peffects quaff dispatch; no active worker reserves potion.c:peffect_sickness.",
+      "detail": "",
+      "openedAt": "b6e28d15b7d9d4c545ba536e412b20a57392ecee",
+      "openStanding": {
+        "sha": "ed281da57eb1c879937da42b05f214e0640df9db",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "closedAt": "ac277fb2eb68caa10cb1277ca6595f6538ad4fbc",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
+      "functions": [
+        {
+          "name": "peffect_sickness",
+          "line": 964,
+          "endLine": 1013,
+          "declared": true,
+          "complete": true
+        }
+      ],
+      "range": {
+        "from": 964,
+        "to": 1013
+      },
+      "syntheticProvenance": {
+        "synthetic/v9/sickness-potion-poisons-hero": {
+          "session": "synthetic/v9/sickness-potion-poisons-hero",
+          "corpus": "synthetic",
+          "batch": "v9",
+          "caseId": "sickness-potion-poisons-hero",
+          "manifestPath": "challenges/manifests/v9.json",
+          "manifestSha256": "00c148aac522e6343c8de0bd003db29771439f972a99cb18c772ebf2bc45a594",
+          "recordingPath": "challenges/cases/v9/sickness-potion-poisons-hero.session.json",
+          "recordingSha256": "6e6163336cdb9ef55801c27e97bfe68f038be6334737394d663d1e0dad81b7fc",
+          "evaluationPath": "challenges/evaluations/20260927174037-v9.json",
+          "evaluationCommit": "eaaa1f72f98bbaddc775a4600e02f051895b9698"
+        }
+      },
+      "activeStanding": {
+        "sha": "ed281da57eb1c879937da42b05f214e0640df9db",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v9",
+          "caseId": "sickness-potion-poisons-hero",
+          "session": "synthetic/v9/sickness-potion-poisons-hero",
+          "manifestPath": "challenges/manifests/v9.json",
+          "manifestSha256": "00c148aac522e6343c8de0bd003db29771439f972a99cb18c772ebf2bc45a594",
+          "recording": "challenges/cases/v9/sickness-potion-poisons-hero.session.json",
+          "recordingPath": "challenges/cases/v9/sickness-potion-poisons-hero.session.json",
+          "recordingSha256": "6e6163336cdb9ef55801c27e97bfe68f038be6334737394d663d1e0dad81b7fc",
+          "recipe": "challenges/cases/v9/sickness-potion-poisons-hero.recipe.session.json",
+          "recipeSha256": "c023d008cb9a1f50702778c489d5292d4cc2e0d7c351d951860bdf4dc7605f16",
+          "replayInputSha256": "025d6fc2229f1dc818bc43ea765daa9db58c9a915f1f9f33c75e970db2ae5256",
+          "evaluationPath": "challenges/evaluations/20260927175933-v9.json",
+          "evaluationCommit": "ed281da57eb1c879937da42b05f214e0640df9db",
+          "evaluationArtifact": "challenges/evaluations/20260927175933-v9.json",
+          "evaluationUtc": "2026-09-27T18:00:12.845Z",
+          "remainingScreens": 33,
+          "recordedSteps": 33,
+          "previousScreensMatched": 0,
+          "regression": false,
+          "passed": false,
+          "error": "attribute upkeep requires message",
+          "metrics": {
+            "screens": {
+              "matched": 0,
+              "total": 33
+            },
+            "rng": {
+              "matched": 0,
+              "total": 2709
+            },
+            "cursors": {
+              "matched": 0,
+              "total": 33
+            }
+          },
+          "firstMismatch": {
+            "kind": "stop",
+            "message": "Replay error: attribute upkeep requires message",
+            "step": null
+          },
+          "step": null,
+          "kind": "stop",
+          "sourceFile": null,
+          "function": null,
+          "message": "Replay error: attribute upkeep requires message",
+          "cFile": null,
+          "luaFile": null,
+          "line": null,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v9/sickness-potion-poisons-hero.json",
+            "result": {
+              "session": "synthetic/v9/sickness-potion-poisons-hero",
+              "corpus": "synthetic",
+              "batch": "v9",
+              "caseId": "sickness-potion-poisons-hero",
+              "manifestPath": "challenges/manifests/v9.json",
+              "manifestSha256": "00c148aac522e6343c8de0bd003db29771439f972a99cb18c772ebf2bc45a594",
+              "recordingSha256": "6e6163336cdb9ef55801c27e97bfe68f038be6334737394d663d1e0dad81b7fc",
+              "evaluationPath": "challenges/evaluations/20260927170744-v9.json",
+              "evaluationCommit": "c49a113a15eedee5d91c6dde088d4c58dc89bfe6",
+              "remainingScreens": 33,
+              "recordedSteps": 33,
+              "status": "complete",
+              "commit": "c49a113a15eedee5d91c6dde088d4c58dc89bfe6",
+              "mismatch": {
+                "corpus": "synthetic",
+                "batch": "v9",
+                "caseId": "sickness-potion-poisons-hero",
+                "session": "synthetic/v9/sickness-potion-poisons-hero",
+                "manifestPath": "challenges/manifests/v9.json",
+                "manifestSha256": "00c148aac522e6343c8de0bd003db29771439f972a99cb18c772ebf2bc45a594",
+                "recording": "challenges/cases/v9/sickness-potion-poisons-hero.session.json",
+                "recordingPath": "challenges/cases/v9/sickness-potion-poisons-hero.session.json",
+                "recordingSha256": "6e6163336cdb9ef55801c27e97bfe68f038be6334737394d663d1e0dad81b7fc",
+                "recipe": "challenges/cases/v9/sickness-potion-poisons-hero.recipe.session.json",
+                "recipeSha256": "c023d008cb9a1f50702778c489d5292d4cc2e0d7c351d951860bdf4dc7605f16",
+                "replayInputSha256": "d9fc86a74332497794cc5861c1a17d14a1349d4e60e3ad350242e00a31ac3cd4",
+                "evaluationPath": "challenges/evaluations/20260927170744-v9.json",
+                "evaluationCommit": "c49a113a15eedee5d91c6dde088d4c58dc89bfe6",
+                "evaluationArtifact": "challenges/evaluations/20260927170744-v9.json",
+                "evaluationUtc": "2026-09-27T17:08:21.938Z",
+                "remainingScreens": 33,
+                "recordedSteps": 33,
+                "previousScreensMatched": null,
+                "regression": false,
+                "passed": false,
+                "error": "attribute upkeep requires message",
+                "metrics": {
+                  "screens": {
+                    "matched": 0,
+                    "total": 33
+                  },
+                  "rng": {
+                    "matched": 0,
+                    "total": 2709
+                  },
+                  "cursors": {
+                    "matched": 0,
+                    "total": 33
+                  }
+                },
+                "firstMismatch": {
+                  "kind": "stop",
+                  "message": "Replay error: attribute upkeep requires message",
+                  "step": null
+                },
+                "step": null,
+                "kind": "stop",
+                "sourceFile": null,
+                "function": null,
+                "message": "Replay error: attribute upkeep requires message",
+                "cFile": null,
+                "luaFile": null,
+                "line": null
+              },
+              "summary": "Quaffing an uncursed sickness potion reaches potion.c:peffect_sickness. JavaScript throws before completing the effect because it calls the already-ported attrib.c:poisontell without its required message operation; the following adjattrib call also omits that operation. Port the whole sickness effect and pass the source-ordered caller environment so C messages, attribute loss, hit-point loss, RNG, and hallucination cleanup can complete.",
+              "source": {
+                "file": "potion.c",
+                "branch": "For a non-Healer quaffing an unblessed sickness potion without Fixed_abil, potion.c:peffect_sickness calls poisontell then adjattrib after rn2(A_MAX); poison resistance determines the attribute decrement and damage branch. The C function also covers blessed, Healer, Fixed_abil, sink, and hallucination paths.",
+                "functions": [
+                  "peffect_sickness"
+                ],
+                "callers": [
+                  "potion.c:peffects POT_SICKNESS dispatches peffect_sickness from dopotion/dodrink; js/potion.js:peffects calls its local peffect_sickness after the quaff command."
+                ],
+                "dependencies": [
+                  "attrib.c:poisontell and adjattrib are already ported; provide their message and encumbrance operations instead of weakening their contracts.",
+                  "The effect invokes losehp, exercise, and make_hallucinated in source order; inspect their current ported caller contracts and note only discarded void gaps."
+                ]
+              },
+              "goalKind": "file-port",
+              "evidence": [
+                "Saved v9 baseline challenges/evaluations/20260927170744-v9.json records error \"attribute upkeep requires message\" and 0/33 screens for the immutable C recording.",
+                "Fresh scan at combined main 2e0a01a106aa02ff3ae520093dd4712eabe6fb6d confirms TypeError from attrib.js:requiredOperation called by poisontell at js/potion.js:peffect_sickness, then potion quaff dispatch.",
+                "Upstream nethack-c/upstream/src/potion.c:peffect_sickness lines 964-1021 calls poisontell and adjattrib after selecting typ; js/potion.js currently invokes both without the required environment. The full function has additional resistance, role, blessed, sink, and hallucination branches."
+              ]
+            }
+          }
+        }
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "peffect_sickness",
+            "implementation": "js/potion.js",
+            "symbol": "peffect_sickness",
+            "sourceReview": "Read potion.c:963-1011 and the POT_SICKNESS peffects dispatch at 1376-1378. Checked blessed versus unblessed order, Poison_resistance and PM_HEALER branches, Fixed_abil guard, typ rn2(A_MAX), contaminant/fromsink naming and killer format, adjattrib rn1 order, both losehp formulas, exercise(A_CON,FALSE), and the final Hallucination/make_hallucinated branch. The JS quaff environment now supplies message, RNG, and encumber_msg to the consumed attrib helpers; dopotion passes it to peffects and peffects normalizes it only for this effect. C discards adjattrib and make_hallucinated results; all other calls are void. No unported return-valued callee is substituted or exposed.",
+            "callers": [
+              {
+                "path": "js/potion.js",
+                "symbol": "peffects",
+                "source": "potion.c:peffects case POT_SICKNESS calls peffect_sickness(otmp)"
+              },
+              {
+                "path": "js/potion.js",
+                "symbol": "dopotion",
+                "source": "potion.c:dopotion initializes potion flags then calls peffects(otmp)"
+              },
+              {
+                "path": "js/potion.js",
+                "symbol": "dodrink",
+                "source": "potion.c:dodrink selects a potion and returns dopotion(otmp)"
+              },
+              {
+                "path": "js/fountain.js",
+                "symbol": "drinksink",
+                "source": "fountain.c:drinksink creates a non-water potion, marks fromsink, then calls dopotion(otmp)"
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/potion.test.mjs"
+            ],
+            "recordings": [
+              "recordings/potion.c/sickness-wizard-uncursed-independent-b31.session.json",
+              "recordings/potion.c/sickness-wizard-blessed-independent-b31.session.json",
+              "recordings/fountain.c/drinksink-potion.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v9",
+                "caseId": "sickness-potion-poisons-hero",
+                "segment": 0,
+                "fromStep": 32,
+                "throughStep": 32,
+                "source": "cmd.c quaff -> potion.c:dodrink -> dopotion -> peffects case POT_SICKNESS -> peffect_sickness"
+              }
+            ],
+            "checkedAt": "ac277fb2eb68caa10cb1277ca6595f6538ad4fbc"
+          }
+        ],
+        "entryPointReview": "The source unit's active runtime routes are ordinary potion quaff through dodrink/dopotion/peffects, and sink-created potion through fountain.c:drinksink/dopotion/peffects; both have matching recordings. The ordinary route has independent unblessed and blessed recordings, and the sink route reaches the Healer/fromsink arm. The selected v9 Ranger quaff also reaches peffect_sickness at segment 0 step 32 and is cited below. eat.c:finish_eating can call dopotion for a POTION_CLASS item, but its production edible check rejects potions because POTION_CLASS objects have glass material, outside is_organic; the recorded source-pinned negative case is recipes/eat.c/is-edible-potion-rejection-a28.session.json and recordings/eat.c/is-edible-potion-rejection-a28.session.json. spell.c:docast calls peffects only for the listed potion-duplicate spells; none maps to POT_SICKNESS. end.c calls peffects only for POT_WATER and POT_RESTORE_ABILITY. Neither excluded caller reaches this function.",
+        "entryPoints": [
+          {
+            "name": "ordinary potion quaff",
+            "functions": [
+              "peffect_sickness"
+            ],
+            "recordings": [
+              "recordings/potion.c/sickness-wizard-uncursed-independent-b31.session.json",
+              "recordings/potion.c/sickness-wizard-blessed-independent-b31.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v9",
+                "caseId": "sickness-potion-poisons-hero",
+                "segment": 0,
+                "fromStep": 32,
+                "throughStep": 32,
+                "source": "cmd.c quaff -> potion.c:dodrink -> dopotion -> peffects case POT_SICKNESS -> peffect_sickness"
+              }
+            ]
+          },
+          {
+            "name": "sink-generated potion",
+            "functions": [
+              "peffect_sickness"
+            ],
+            "recordings": [
+              "recordings/fountain.c/drinksink-potion.session.json"
+            ],
+            "synthetic": []
+          }
+        ]
+      },
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "ac277fb2eb68caa10cb1277ca6595f6538ad4fbc",
+        "screens": 11405,
+        "rng": 792838
+      }
+    },
+    {
+      "id": "div-uhitm-mhitm-knockback-unsolid-synthetic-v9-20260927",
+      "kind": "divergence-fix",
+      "status": "closed",
+      "summary": "Restore the solidity guard in monster knockback",
+      "cFile": "uhitm.c",
+      "sessions": [],
+      "selectionReason": "The current v9 kick-closed-door runner stops before any screen because js/uhitm.js:mhitm_knockback refers to unsolid without importing the already-ported mondata.c:unsolid helper. investigations/synthetic/v9/kick-closed-door.json traces the C guard and current production attack path; no active worker reserves uhitm.c:mhitm_knockback.",
+      "detail": "C uhitm.c:mhitm_knockback rejects nonphysical attackers with unsolid(magr->data). JS implements this branch but its missing import raises ReferenceError during an ordinary hero hit before the recipe reaches its intended door kick. Restore the source helper import and verify the existing C recording plus independent attack variation.",
+      "openedAt": "5ff689be55fd9804e34f3c86c9741e3b9bf66edb",
+      "openStanding": {
+        "sha": "ac277fb2eb68caa10cb1277ca6595f6538ad4fbc",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "closedAt": "5b4486322ffa5eeb91cc37d01083ff20bbfe2ea7",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
+      "function": "mhitm_knockback",
+      "session": "synthetic/v9/kick-closed-door",
+      "syntheticProvenance": {
+        "synthetic/v9/kick-closed-door": {
+          "session": "synthetic/v9/kick-closed-door",
+          "corpus": "synthetic",
+          "batch": "v9",
+          "caseId": "kick-closed-door",
+          "manifestPath": "challenges/manifests/v9.json",
+          "manifestSha256": "00c148aac522e6343c8de0bd003db29771439f972a99cb18c772ebf2bc45a594",
+          "recordingPath": "challenges/cases/v9/kick-closed-door.session.json",
+          "recordingSha256": "cf1d058b874865447eb40db3e9d045ba6b5cf7518f90c1aeb31ee94e6f3ef742",
+          "evaluationPath": "challenges/evaluations/20260927175933-v9.json",
+          "evaluationCommit": "ed281da57eb1c879937da42b05f214e0640df9db"
+        }
+      },
+      "activeStanding": {
+        "sha": "ac277fb2eb68caa10cb1277ca6595f6538ad4fbc",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v9",
+          "caseId": "kick-closed-door",
+          "session": "synthetic/v9/kick-closed-door",
+          "manifestPath": "challenges/manifests/v9.json",
+          "manifestSha256": "00c148aac522e6343c8de0bd003db29771439f972a99cb18c772ebf2bc45a594",
+          "recording": "challenges/cases/v9/kick-closed-door.session.json",
+          "recordingPath": "challenges/cases/v9/kick-closed-door.session.json",
+          "recordingSha256": "cf1d058b874865447eb40db3e9d045ba6b5cf7518f90c1aeb31ee94e6f3ef742",
+          "recipe": "challenges/cases/v9/kick-closed-door.recipe.session.json",
+          "recipeSha256": "2af77171b46307c4ebb77baa0a708519039e73dee2d2c4ee14ebbab06df3db69",
+          "replayInputSha256": "019ea6b8d5203b2b817f9d754a82fa0504cbd57485cdeff6333e776535591d75",
+          "evaluationPath": "challenges/evaluations/20260927185309-v9.json",
+          "evaluationCommit": "ac277fb2eb68caa10cb1277ca6595f6538ad4fbc",
+          "evaluationArtifact": "challenges/evaluations/20260927185309-v9.json",
+          "evaluationUtc": "2026-09-27T18:53:56.414Z",
+          "remainingScreens": 9,
+          "recordedSteps": 9,
+          "previousScreensMatched": 0,
+          "regression": false,
+          "passed": false,
+          "error": "unsolid is not defined",
+          "metrics": {
+            "screens": {
+              "matched": 0,
+              "total": 9
+            },
+            "rng": {
+              "matched": 0,
+              "total": 2840
+            },
+            "cursors": {
+              "matched": 0,
+              "total": 9
+            }
+          },
+          "firstMismatch": {
+            "kind": "stop",
+            "message": "Replay error: unsolid is not defined",
+            "step": null
+          },
+          "step": null,
+          "kind": "stop",
+          "sourceFile": null,
+          "function": null,
+          "message": "Replay error: unsolid is not defined",
+          "cFile": null,
+          "luaFile": null,
+          "line": null,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v9/kick-closed-door.json",
+            "result": {
+              "session": "synthetic/v9/kick-closed-door",
+              "corpus": "synthetic",
+              "batch": "v9",
+              "caseId": "kick-closed-door",
+              "manifestPath": "challenges/manifests/v9.json",
+              "manifestSha256": "00c148aac522e6343c8de0bd003db29771439f972a99cb18c772ebf2bc45a594",
+              "recordingSha256": "cf1d058b874865447eb40db3e9d045ba6b5cf7518f90c1aeb31ee94e6f3ef742",
+              "evaluationPath": "challenges/evaluations/20260927170744-v9.json",
+              "evaluationCommit": "c49a113a15eedee5d91c6dde088d4c58dc89bfe6",
+              "remainingScreens": 9,
+              "recordedSteps": 9,
+              "status": "complete",
+              "commit": "c49a113a15eedee5d91c6dde088d4c58dc89bfe6",
+              "mismatch": {
+                "corpus": "synthetic",
+                "batch": "v9",
+                "caseId": "kick-closed-door",
+                "session": "synthetic/v9/kick-closed-door",
+                "manifestPath": "challenges/manifests/v9.json",
+                "manifestSha256": "00c148aac522e6343c8de0bd003db29771439f972a99cb18c772ebf2bc45a594",
+                "recording": "challenges/cases/v9/kick-closed-door.session.json",
+                "recordingPath": "challenges/cases/v9/kick-closed-door.session.json",
+                "recordingSha256": "cf1d058b874865447eb40db3e9d045ba6b5cf7518f90c1aeb31ee94e6f3ef742",
+                "recipe": "challenges/cases/v9/kick-closed-door.recipe.session.json",
+                "recipeSha256": "2af77171b46307c4ebb77baa0a708519039e73dee2d2c4ee14ebbab06df3db69",
+                "replayInputSha256": "d9fc86a74332497794cc5861c1a17d14a1349d4e60e3ad350242e00a31ac3cd4",
+                "evaluationPath": "challenges/evaluations/20260927170744-v9.json",
+                "evaluationCommit": "c49a113a15eedee5d91c6dde088d4c58dc89bfe6",
+                "evaluationArtifact": "challenges/evaluations/20260927170744-v9.json",
+                "evaluationUtc": "2026-09-27T17:08:21.938Z",
+                "remainingScreens": 9,
+                "recordedSteps": 9,
+                "previousScreensMatched": null,
+                "regression": false,
+                "passed": false,
+                "error": "unsolid is not defined",
+                "metrics": {
+                  "screens": {
+                    "matched": 0,
+                    "total": 9
+                  },
+                  "rng": {
+                    "matched": 0,
+                    "total": 2840
+                  },
+                  "cursors": {
+                    "matched": 0,
+                    "total": 9
+                  }
+                },
+                "firstMismatch": {
+                  "kind": "stop",
+                  "message": "Replay error: unsolid is not defined",
+                  "step": null
+                },
+                "step": null,
+                "kind": "stop",
+                "sourceFile": null,
+                "function": null,
+                "message": "Replay error: unsolid is not defined",
+                "cFile": null,
+                "luaFile": null,
+                "line": null
+              },
+              "summary": "The case aims to kick a door, but its first JavaScript failure occurs earlier when ordinary movement attacks a monster. Ported uhitm.c:mhitm_knockback reaches its source unsolid(attacker) test and throws because js/uhitm.js omitted the existing mondata.js unsolid import. Restore that source predicate for every attack, then remeasure the case to find its next mismatch.",
+              "source": {
+                "file": "uhitm.c",
+                "branch": "mhitm_knockback checks attacker solidity after size, weapon, and living-monster guards, before testing hitflags or drawing knockback chance. The selected setup reaches this check during a hero attack before the intended door kick.",
+                "functions": [
+                  "mhitm_knockback"
+                ],
+                "callers": [
+                  "uhitm.c:hmon_hitmon calls mhitm_knockback after a hero hit; js/uhitm.js:hmon_hitmon already calls the ported helper."
+                ],
+                "dependencies": [
+                  "mondata.c:unsolid is already ported as js/mondata.js:unsolid; import and use it at the existing source-mapped call site.",
+                  "Re-evaluate the independent C recording after this general fix; its intended door action may reveal another source mismatch."
+                ]
+              },
+              "goalKind": "divergence-fix",
+              "evidence": [
+                "Saved v9 baseline challenges/evaluations/20260927170744-v9.json records ReferenceError \"unsolid is not defined\" with 0/9 screens for the immutable C recording.",
+                "Fresh scan at combined main 2e0a01a106aa02ff3ae520093dd4712eabe6fb6d traces the throw from js/uhitm.js:mhitm_knockback through hmon_hitmon and ordinary movement attack, before the case reaches a door kick.",
+                "Upstream nethack-c/upstream/src/uhitm.c:mhitm_knockback around line 5327 calls unsolid(magr->data) to reject nonphysical attackers; js/uhitm.js uses unsolid in that function but its mondata.js import list omits the symbol."
+              ]
+            }
+          }
+        }
+      ],
+      "closeMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v9",
+          "caseId": "kick-closed-door",
+          "session": "synthetic/v9/kick-closed-door",
+          "manifestPath": "challenges/manifests/v9.json",
+          "manifestSha256": "00c148aac522e6343c8de0bd003db29771439f972a99cb18c772ebf2bc45a594",
+          "recording": "challenges/cases/v9/kick-closed-door.session.json",
+          "recordingPath": "challenges/cases/v9/kick-closed-door.session.json",
+          "recordingSha256": "cf1d058b874865447eb40db3e9d045ba6b5cf7518f90c1aeb31ee94e6f3ef742",
+          "recipe": "challenges/cases/v9/kick-closed-door.recipe.session.json",
+          "recipeSha256": "2af77171b46307c4ebb77baa0a708519039e73dee2d2c4ee14ebbab06df3db69",
+          "replayInputSha256": "e8a7428d883fb33542b59d993324d6e14197b8486a45162a9f5b2efd3e9ebd60",
+          "evaluationPath": "challenges/evaluations/20260927191056-v9.json",
+          "evaluationCommit": "5b4486322ffa5eeb91cc37d01083ff20bbfe2ea7",
+          "evaluationArtifact": "challenges/evaluations/20260927191056-v9.json",
+          "evaluationUtc": "2026-09-27T19:11:49.445Z",
+          "remainingScreens": 6,
+          "recordedSteps": 9,
+          "previousScreensMatched": 0,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 3,
+              "total": 9
+            },
+            "rng": {
+              "matched": 2744,
+              "total": 2840
+            },
+            "cursors": {
+              "matched": 3,
+              "total": 9
+            }
+          },
+          "firstMismatch": {
+            "screen": {
+              "index": 3,
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 3,
+                "key": "h"
+              },
+              "kind": "ch",
+              "row": 0,
+              "column": 70,
+              "cCell": {
+                "ch": " ",
+                "color": 8,
+                "attr": 0,
+                "decgfx": 0
+              },
+              "jsCell": {
+                "ch": "-",
+                "color": 8,
+                "attr": 0,
+                "decgfx": 0
+              }
+            },
+            "rng": {
+              "index": 2744,
+              "cEntry": "rn2(5)=3",
+              "cCaller": "distfleeck(monmove.c:538)",
+              "jsEntry": "rnd(20)=4",
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 3,
+                "key": "h"
+              },
+              "stepIndex": 3
+            },
+            "cursor": {
+              "index": 3,
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 3,
+                "key": "h"
+              },
+              "cCursor": [
+                20,
+                5,
+                1
+              ],
+              "jsCursor": [
+                78,
+                0,
+                1
+              ]
+            }
+          },
+          "step": 3,
+          "kind": "rng",
+          "sourceFile": "monmove.c",
+          "function": "distfleeck",
+          "message": null,
+          "cFile": "monmove.c",
+          "luaFile": null,
+          "line": 538,
+          "investigation": {
+            "status": "stale",
+            "path": "investigations/synthetic/v9/kick-closed-door.json",
+            "previousRemainingScreens": 9
+          }
+        }
+      ],
+      "closeStanding": {
+        "sha": "5b4486322ffa5eeb91cc37d01083ff20bbfe2ea7",
+        "screens": 11405,
+        "rng": 792838
+      }
+    },
+    {
+      "id": "port-trap-mintrap-hurtling-return-synthetic-v9-20260927",
+      "kind": "file-port",
+      "status": "queued",
+      "summary": "Port trap.c mintrap and its consumed trap-result dependencies for monster hurtling",
+      "cFile": "trap.c",
+      "sessions": [
+        "synthetic/v9/kick-closed-door"
+      ],
+      "selectionReason": "The refreshed v9 kick-closed-door investigation traces step 3 through uhitm.c:mhitm_knockback to dothrow.c:mhurtle and its mhurtle_step callback. That callback consumes trap.c:mintrap(mon,HURTLING) Trap_*_Mon status to decide whether the monster keeps moving. Current js/trap_effects.js:mintrap and its selector are partial, so the whole mintrap return contract is a prerequisite before mhurtle can be completed; this source dependency precedes the dothrow goal.",
+      "detail": "Complete trap.c:mintrap across trapped and untrapped monster arms, its consumed m_easy_escape_pit and trapeffect_selector return paths, and missing reachable selector effects including poly, vibrating, arrow, and magic/fire chains. Reuse closed branches, preserve the parked historical magic-trap goal evidence, and provide independent trap recordings. Do not specialize to the v9 case or HURTLING alone.",
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": null,
+      "delivered": null,
+      "functions": [
+        {
+          "name": "mintrap",
+          "line": 3733,
+          "endLine": 3843,
+          "declared": true,
+          "complete": false
+        }
+      ],
+      "range": {
+        "from": 3733,
+        "to": 3843
+      },
+      "syntheticProvenance": {
+        "synthetic/v9/kick-closed-door": {
+          "session": "synthetic/v9/kick-closed-door",
+          "corpus": "synthetic",
+          "batch": "v9",
+          "caseId": "kick-closed-door",
+          "manifestPath": "challenges/manifests/v9.json",
+          "manifestSha256": "00c148aac522e6343c8de0bd003db29771439f972a99cb18c772ebf2bc45a594",
+          "recordingPath": "challenges/cases/v9/kick-closed-door.session.json",
+          "recordingSha256": "cf1d058b874865447eb40db3e9d045ba6b5cf7518f90c1aeb31ee94e6f3ef742",
+          "evaluationPath": "challenges/evaluations/20260927191056-v9.json",
+          "evaluationCommit": "5b4486322ffa5eeb91cc37d01083ff20bbfe2ea7"
+        }
+      }
+    },
+    {
+      "id": "port-potion-peffect-gain-ability-synthetic-v9-20260927",
+      "kind": "file-port",
+      "status": "closed",
+      "summary": "Port the complete gain-ability potion effect through quaff dispatch",
+      "cFile": "potion.c",
+      "sessions": [
+        "synthetic/v9/blessed-gain-ability-potion"
+      ],
+      "selectionReason": "Continue the source-traced v9 gain-ability mismatch: the blessed potion stops at potion.c:peffect_gain_ability after 35 matched screens. Port the whole effect and wire its peffects caller; attrib.c:adjattrib return controls the unblessed retry loop.",
+      "detail": "The complete investigation traces cursed, Fixed_abil, blessed sequential-all-attributes, and unblessed random-retry branches. Preserve potion status counters and pass the attribute helper message, RNG, and encumbrance environment.",
+      "openedAt": "92bc5bc43183004a51b00140221ceee2b4b779e7",
+      "openStanding": {
+        "sha": "5b4486322ffa5eeb91cc37d01083ff20bbfe2ea7",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "closedAt": "de87c577bce9e29db5aaf47eccac54a458f687a8",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
+      "functions": [
+        {
+          "name": "peffect_gain_ability",
+          "line": 1030,
+          "endLine": 1051,
+          "declared": true,
+          "complete": true
+        }
+      ],
+      "range": {
+        "from": 1030,
+        "to": 1051
+      },
+      "syntheticProvenance": {
+        "synthetic/v9/blessed-gain-ability-potion": {
+          "session": "synthetic/v9/blessed-gain-ability-potion",
+          "corpus": "synthetic",
+          "batch": "v9",
+          "caseId": "blessed-gain-ability-potion",
+          "manifestPath": "challenges/manifests/v9.json",
+          "manifestSha256": "00c148aac522e6343c8de0bd003db29771439f972a99cb18c772ebf2bc45a594",
+          "recordingPath": "challenges/cases/v9/blessed-gain-ability-potion.session.json",
+          "recordingSha256": "11d8bb37824e602a8ac346f034f0303419ebb66d53d7d57e7870c9f2961d92a6",
+          "evaluationPath": "challenges/evaluations/20260927191056-v9.json",
+          "evaluationCommit": "5b4486322ffa5eeb91cc37d01083ff20bbfe2ea7"
+        }
+      },
+      "activeStanding": {
+        "sha": "5b4486322ffa5eeb91cc37d01083ff20bbfe2ea7",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v9",
+          "caseId": "blessed-gain-ability-potion",
+          "session": "synthetic/v9/blessed-gain-ability-potion",
+          "manifestPath": "challenges/manifests/v9.json",
+          "manifestSha256": "00c148aac522e6343c8de0bd003db29771439f972a99cb18c772ebf2bc45a594",
+          "recording": "challenges/cases/v9/blessed-gain-ability-potion.session.json",
+          "recordingPath": "challenges/cases/v9/blessed-gain-ability-potion.session.json",
+          "recordingSha256": "11d8bb37824e602a8ac346f034f0303419ebb66d53d7d57e7870c9f2961d92a6",
+          "recipe": "challenges/cases/v9/blessed-gain-ability-potion.recipe.session.json",
+          "recipeSha256": "df8a993f0556df5d728064b0d38b732182669d2213586e583c8d5253079c8e8a",
+          "replayInputSha256": "e8a7428d883fb33542b59d993324d6e14197b8486a45162a9f5b2efd3e9ebd60",
+          "evaluationPath": "challenges/evaluations/20260927191056-v9.json",
+          "evaluationCommit": "5b4486322ffa5eeb91cc37d01083ff20bbfe2ea7",
+          "evaluationArtifact": "challenges/evaluations/20260927191056-v9.json",
+          "evaluationUtc": "2026-09-27T19:11:49.445Z",
+          "remainingScreens": 2,
+          "recordedSteps": 37,
+          "previousScreensMatched": 35,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 35,
+              "total": 37
+            },
+            "rng": {
+              "matched": 2776,
+              "total": 2776
+            },
+            "cursors": {
+              "matched": 35,
+              "total": 37
+            }
+          },
+          "firstMismatch": {
+            "kind": "stop",
+            "message": "unsupported hero command: an unported branch of this command: quaffing requires peffect_gain_ability()",
+            "step": 35
+          },
+          "step": 35,
+          "kind": "stop",
+          "sourceFile": "potion.c",
+          "function": "peffect_gain_ability",
+          "message": "unsupported hero command: an unported branch of this command: quaffing requires peffect_gain_ability()",
+          "cFile": "potion.c",
+          "luaFile": null,
+          "line": null,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v9/blessed-gain-ability-potion.json",
+            "result": {
+              "session": "synthetic/v9/blessed-gain-ability-potion",
+              "corpus": "synthetic",
+              "batch": "v9",
+              "caseId": "blessed-gain-ability-potion",
+              "manifestPath": "challenges/manifests/v9.json",
+              "manifestSha256": "00c148aac522e6343c8de0bd003db29771439f972a99cb18c772ebf2bc45a594",
+              "recordingSha256": "11d8bb37824e602a8ac346f034f0303419ebb66d53d7d57e7870c9f2961d92a6",
+              "evaluationPath": "challenges/evaluations/20260927175933-v9.json",
+              "evaluationCommit": "ed281da57eb1c879937da42b05f214e0640df9db",
+              "remainingScreens": 2,
+              "recordedSteps": 37,
+              "status": "complete",
+              "commit": "ed281da57eb1c879937da42b05f214e0640df9db",
+              "mismatch": {
+                "corpus": "synthetic",
+                "batch": "v9",
+                "caseId": "blessed-gain-ability-potion",
+                "session": "synthetic/v9/blessed-gain-ability-potion",
+                "manifestPath": "challenges/manifests/v9.json",
+                "manifestSha256": "00c148aac522e6343c8de0bd003db29771439f972a99cb18c772ebf2bc45a594",
+                "recording": "challenges/cases/v9/blessed-gain-ability-potion.session.json",
+                "recordingPath": "challenges/cases/v9/blessed-gain-ability-potion.session.json",
+                "recordingSha256": "11d8bb37824e602a8ac346f034f0303419ebb66d53d7d57e7870c9f2961d92a6",
+                "recipe": "challenges/cases/v9/blessed-gain-ability-potion.recipe.session.json",
+                "recipeSha256": "df8a993f0556df5d728064b0d38b732182669d2213586e583c8d5253079c8e8a",
+                "replayInputSha256": "025d6fc2229f1dc818bc43ea765daa9db58c9a915f1f9f33c75e970db2ae5256",
+                "evaluationPath": "challenges/evaluations/20260927175933-v9.json",
+                "evaluationCommit": "ed281da57eb1c879937da42b05f214e0640df9db",
+                "evaluationArtifact": "challenges/evaluations/20260927175933-v9.json",
+                "evaluationUtc": "2026-09-27T18:00:12.845Z",
+                "remainingScreens": 2,
+                "recordedSteps": 37,
+                "previousScreensMatched": 35,
+                "regression": false,
+                "passed": false,
+                "error": null,
+                "metrics": {
+                  "screens": {
+                    "matched": 35,
+                    "total": 37
+                  },
+                  "rng": {
+                    "matched": 2776,
+                    "total": 2776
+                  },
+                  "cursors": {
+                    "matched": 35,
+                    "total": 37
+                  }
+                },
+                "firstMismatch": {
+                  "kind": "stop",
+                  "message": "unsupported hero command: an unported branch of this command: quaffing requires peffect_gain_ability()",
+                  "step": 35
+                },
+                "step": 35,
+                "kind": "stop",
+                "sourceFile": "potion.c",
+                "function": "peffect_gain_ability",
+                "message": "unsupported hero command: an unported branch of this command: quaffing requires peffect_gain_ability()",
+                "cFile": "potion.c",
+                "luaFile": null,
+                "line": null
+              },
+              "summary": "Quaffing a blessed gain-ability potion reaches potion.c:peffect_gain_ability through peffects, but js/potion.js throws UnsupportedQuaffError at that effect arm. The C function increments each attribute in order through attrib.c:adjattrib; its cursed, Fixed_abil, and unblessed branches use different output and RNG behavior. Port the complete effect with the required attribute-caller environment.",
+              "source": {
+                "file": "potion.c",
+                "branch": "peffect_gain_ability first checks cursed and Fixed_abil. Otherwise it iterates A_MAX attributes, choosing each index sequentially for blessed potions or with rn2(A_MAX) for unblessed ones, and calls adjattrib(i,1,itmp). It breaks on a successful increment only for unblessed potions. The selected blessed Monk case attempts all six attributes in source order.",
+                "functions": [
+                  "peffect_gain_ability"
+                ],
+                "callers": [
+                  "potion.c:peffects dispatches POT_GAIN_ABILITY from dopotion and dodrink; js/potion.js:peffects currently throws UnsupportedQuaffError(peffect_gain_ability())."
+                ],
+                "dependencies": [
+                  "attrib.c:adjattrib is already implemented in js/attrib.js. Supply its required message and state operations and use the returned boolean for the unblessed break exactly as C does.",
+                  "The potion-effect status counters potion_unkn and potion_nothing are distinct C values; preserve their existing JS owner. The cursed and Fixed_abil branches make no adjattrib call."
+                ]
+              },
+              "goalKind": "file-port",
+              "evidence": [
+                "Current saved challenges/evaluations/20260927175933-v9.json reports a stop at segment 0 step 35 with 2 of 37 screens remaining after quaffing a blessed gain-ability potion.",
+                "Fresh scan at b6e28d15 reports the explicit UnsupportedQuaffError(peffect_gain_ability()) boundary. C has already produced multiple attribute messages while JavaScript refuses before completing the effect.",
+                "Upstream nethack-c/upstream/src/potion.c:peffect_gain_ability at 1030-1053 iterates attributes and uses adjattrib return for the unblessed break; potion.c:peffects dispatches POT_GAIN_ABILITY at 1382. js/potion.js:peffects refuses that arm at about 1450."
+              ]
+            }
+          }
+        }
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "peffect_gain_ability",
+            "implementation": "js/potion.js",
+            "symbol": "peffect_gain_ability",
+            "sourceReview": "Read the complete upstream potion.c:peffect_gain_ability() at 1030-1051 and its POT_GAIN_ABILITY peffects dispatch at 1382. Preserved branch order: cursed first (message then potion_unkn++), then Fixed_abil (potion_nothing++ with no RNG/message), then attribute attempts. Blessed starts i at -1, increments sequentially through A_MAX, uses msgflg 0 on every adjattrib call, and does not stop early. Unblessed draws rn2(A_MAX) before each attempt, uses msgflg -1 except 0 on the last attempt, and breaks only when adjattrib returns true. JS calls the already-ported attrib.c:adjattrib with potionEffectEnvironment so its message, random, and encumber_msg dependencies preserve the production operations; the helper Boolean controls the retry loop exactly as in C. The function itself has no RNG/output/state return value and its C return is void.",
+            "callers": [
+              {
+                "path": "js/potion.js",
+                "symbol": "peffects",
+                "source": "potion.c:peffects() case POT_GAIN_ABILITY dispatches to peffect_gain_ability(otmp); JS uses the same case and supplies the normalized effect environment."
+              },
+              {
+                "path": "js/potion.js",
+                "symbol": "dopotion",
+                "source": "potion.c:dopotion() resets potion flags then calls peffects(otmp); ordinary dodrink() quaff reaches this path."
+              },
+              {
+                "path": "js/potion.js",
+                "symbol": "dodrink",
+                "source": "potion.c:dodrink() is the #quaff production entry point and calls dopotion(otmp) after selection."
+              },
+              {
+                "path": "js/cmd.js",
+                "symbol": "runQuaffCommand",
+                "source": "cmd.c command-table dodrink entry dispatches to potion.c:dodrink(); js/cmd.js:runQuaffCommand dispatches the same production command to js/potion.js:dodrink()."
+              },
+              {
+                "path": "js/fountain.js",
+                "symbol": "drinksink",
+                "source": "fountain.c:drinksink() case 4 repeatedly creates a random non-water potion and calls dopotion(); the independent sink recording reaches POT_GAIN_ABILITY."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/potion.test.mjs"
+            ],
+            "recordings": [
+              "recordings/potion.c/gain-ability-uncursed-retry-independent.session.json",
+              "recordings/potion.c/gain-ability-cursed-independent.session.json",
+              "recordings/potion.c/gain-ability-sink-independent.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v9",
+                "caseId": "blessed-gain-ability-potion",
+                "segment": 0,
+                "fromStep": 35,
+                "throughStep": 36,
+                "source": "quaff command -> potion.c:dodrink -> dopotion -> peffects(POT_GAIN_ABILITY) -> peffect_gain_ability -> attrib.c:adjattrib"
+              }
+            ],
+            "checkedAt": "de87c577bce9e29db5aaf47eccac54a458f687a8"
+          }
+        ],
+        "entryPointReview": "Active entries reaching POT_GAIN_ABILITY are an ordinary quaff through cmd.c/potion.c:dodrink -> dopotion -> peffects and a sink-generated potion through fountain.c:drinksink case 4 -> dopotion -> peffects; both are covered by independent matching recordings, with cursed and unblessed branches on ordinary quaff, plus the blessed v9 source range. peffects is also called by spell.c:docast, but its potion-like spell list has SPE_HASTE_SELF, SPE_DETECT_TREASURE, SPE_DETECT_MONSTERS, SPE_LEVITATION, SPE_RESTORE_ABILITY, and SPE_INVISIBILITY only, so there is no gain-ability spell alias. end.c:fuzzer_savelife calls peffects only for water and restore-ability objects. eat.c:eatspecial contains a generic POTION_CLASS dopotion call, but the active eating selection first uses is_edible(), which rejects glass potion objects; recipes/eat.c/is-edible-potion-rejection-a28.session.json and its matching recording retain the source-pinned negative check. Monster/throw potionhit is a separate source function and does not dispatch to peffect_gain_ability. attrib.c:adjattrib is an existing whole-function port; this task consumes its Boolean return and message/RNG/encumbrance environment rather than changing that helper.",
+        "entryPoints": [
+          {
+            "name": "ordinary quaff of a gain-ability potion",
+            "functions": [
+              "peffect_gain_ability"
+            ],
+            "recordings": [
+              "recordings/potion.c/gain-ability-uncursed-retry-independent.session.json",
+              "recordings/potion.c/gain-ability-cursed-independent.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v9",
+                "caseId": "blessed-gain-ability-potion",
+                "segment": 0,
+                "fromStep": 35,
+                "throughStep": 36,
+                "source": "cmd.c quaff -> potion.c:dodrink -> dopotion -> peffects -> peffect_gain_ability -> adjattrib"
+              }
+            ]
+          },
+          {
+            "name": "sink-generated gain-ability potion",
+            "functions": [
+              "peffect_gain_ability"
+            ],
+            "recordings": [
+              "recordings/potion.c/gain-ability-sink-independent.session.json"
+            ],
+            "synthetic": []
+          }
+        ]
+      },
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "de87c577bce9e29db5aaf47eccac54a458f687a8",
+        "screens": 11405,
+        "rng": 792838
       }
     }
   ]

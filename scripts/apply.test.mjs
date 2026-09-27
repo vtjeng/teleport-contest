@@ -6,20 +6,29 @@ import test from 'node:test';
 
 import {
     A_CHA,
+    BLINDED,
+    ECMD_TIME,
     FEMALE,
     GETOBJ_DOWNPLAY,
     GETOBJ_EXCLUDE,
     GETOBJ_SUGGEST,
+    GLIB,
+    TIMEOUT,
+    W_TOOL,
 } from '../js/const.js';
-import { beautiful, touchstone_ok } from '../js/apply.js';
+import { beautiful, touchstone_ok, use_towel } from '../js/apply.js';
 import { c_obj_colors } from '../js/do_name.js';
-import { resetGame } from '../js/gstate.js';
+import { game, resetGame } from '../js/gstate.js';
 import { compareSessionOutputs, runJsSession } from './diff-fresh.mjs';
 import { M1_HUMANOID, NON_PM } from '../js/monsters.js';
+import { heroIsBlind } from '../js/startup_a11y.js';
+import { runSegment } from '../js/jsmain.js';
 import {
     COIN_CLASS,
+    BLINDFOLD,
     GEM_CLASS,
     RING_CLASS,
+    TOWEL,
     objects_globals_init,
     RUBY,
 } from '../js/objects.js';
@@ -107,3 +116,131 @@ test('apply.c dorub reaches use_stone through the independent #rub recording',
         const result = compareSessionOutputs(recording, js);
         assert.equal(result.passed, true, JSON.stringify(result));
     });
+
+test('apply.c use_towel matches the selected v8 caller replay', async () => {
+    const recording = JSON.parse(readFileSync(
+        new URL('../challenges/cases/v8/towel-clean-face.session.json',
+            import.meta.url),
+        'utf8',
+    ));
+    const js = await runJsSession(recording, process.cwd());
+    const result = compareSessionOutputs(recording, js);
+    assert.equal(result.passed, true, JSON.stringify(result));
+});
+
+test('apply.c use_towel preserves cursed glib RNG and timeout order', async () => {
+    await runSegment({
+        seed: 83015137,
+        datetime: '20310304123456',
+        nethackrc: 'OPTIONS=name:B30Towel,role=Wizard,race=human,gender=female,align=neutral,playmode=debug,!legacy,!tutorial,!splash_screen,showexp,time,pettype:none\n',
+        moves: '',
+    });
+    const towel = { otyp: TOWEL, cursed: 1, spe: 0 };
+    const calls = [];
+    const messages = [];
+    game.unported = new Set();
+    const result = await use_towel(towel, game, {
+        message: async (text) => { messages.push(text); },
+        random: {
+            rn2(bound) {
+                calls.push(`rn2(${bound})`);
+                return bound === 3 ? 2 : 5;
+            },
+            rn1(bound, base) {
+                calls.push(`rn1(${bound},${base})`);
+                return base + 5;
+            },
+        },
+    });
+    assert.deepEqual(calls, ['rn2(3)', 'rn1(10,3)']);
+    assert.deepEqual(messages, ['Your hands get slimy!']);
+    assert.equal(game.u.uprops[GLIB].intrinsic & TIMEOUT, 8);
+    assert.equal(result, ECMD_TIME);
+    assert.equal(game.unported.has('apply.c dry_a_towel'), false);
+});
+
+test('apply.c use_towel clears cream before its engulfing-blindness check',
+    async () => {
+    await runSegment({
+        seed: 83015144,
+        datetime: '20310506120000',
+        nethackrc: 'OPTIONS=name:B30Cream,role=Rogue,race=human,gender=female,align=chaotic,playmode=debug,!legacy,!tutorial,!splash_screen,pettype:none\n',
+        moves: '',
+    });
+    const messages = [];
+    game.unported = new Set();
+    game.u.ucreamed = 3;
+    game.u.uprops[BLINDED].intrinsic = 3;
+    game.u.uswallow = false;
+
+    const result = await use_towel({
+        otyp: TOWEL,
+        cursed: 0,
+        spe: 0,
+    }, game, {
+        message: async (text) => { messages.push(text); },
+    });
+
+    assert.equal(game.u.ucreamed, 0);
+    assert.equal(game.u.uprops[BLINDED].intrinsic & TIMEOUT, 0);
+    assert.deepEqual(messages, [
+        "You've got the glop off.",
+        'You can see again.',
+    ]);
+    assert.equal(game.unported.has('mhitu.c gulpmu'), false);
+    assert.equal(result, ECMD_TIME);
+});
+
+test('apply.c use_towel tests C Blinded, not the broader Blind macro',
+    async () => {
+    const cases = [
+        {
+            name: 'extrinsic blindfold',
+            seed: 83015145,
+            datetime: '20310507120000',
+            extrinsic: W_TOOL,
+            blocked: 0,
+            blindfold: { otyp: BLINDFOLD, owornmask: W_TOOL },
+            cBlind: true,
+        },
+        {
+            name: 'blocked intrinsic blindness',
+            seed: 83015146,
+            datetime: '20310508120000',
+            extrinsic: 0,
+            blocked: W_TOOL,
+            blindfold: null,
+            cBlind: false,
+        },
+    ];
+
+    for (const c of cases) {
+        await runSegment({
+            seed: c.seed,
+            datetime: c.datetime,
+            nethackrc: 'OPTIONS=name:B30Blind,role=Rogue,race=human,gender=female,align=chaotic,playmode=debug,!legacy,!tutorial,!splash_screen,pettype:none\n',
+            moves: '',
+        });
+        const prop = game.u.uprops[BLINDED];
+        prop.intrinsic = 3;
+        prop.extrinsic = c.extrinsic;
+        prop.blocked = c.blocked;
+        game.ublindf = c.blindfold;
+        game.u.ucreamed = 3;
+        game.u.uswallow = false;
+        game.unported = new Set();
+        assert.equal(heroIsBlind(game), c.cBlind, `${c.name}: broad Blind state`);
+
+        const messages = [];
+        const result = await use_towel({
+            otyp: TOWEL,
+            cursed: 0,
+            spe: 0,
+        }, game, { message: async (text) => { messages.push(text); } });
+
+        assert.equal(game.u.ucreamed, 0, c.name);
+        assert.equal(messages[0], "You've got the glop off.", c.name);
+        assert.equal(messages.includes('Your face feels clean now.'), false, c.name);
+        assert.equal(result, ECMD_TIME, c.name);
+    }
+});

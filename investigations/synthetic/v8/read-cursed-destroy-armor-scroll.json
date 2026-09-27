@@ -1,0 +1,100 @@
+{
+  "session": "synthetic/v8/read-cursed-destroy-armor-scroll",
+  "corpus": "synthetic",
+  "batch": "v8",
+  "caseId": "read-cursed-destroy-armor-scroll",
+  "manifestPath": "challenges/manifests/v8.json",
+  "manifestSha256": "6a5159501af18a7f926f794d89e817375cd00a3589c4899fb97392ae04dbe8ba",
+  "recordingSha256": "284496eb42e96abd55dc09a2f531660b33caeb09d61dd5fb1474e4eb1b052452",
+  "evaluationPath": "challenges/evaluations/20260927191056-v8.json",
+  "evaluationCommit": "5b4486322ffa5eeb91cc37d01083ff20bbfe2ea7",
+  "remainingScreens": 0,
+  "recordedSteps": 37,
+  "status": "complete",
+  "commit": "5b4486322ffa5eeb91cc37d01083ff20bbfe2ea7",
+  "mismatch": {
+    "corpus": "synthetic",
+    "batch": "v8",
+    "caseId": "read-cursed-destroy-armor-scroll",
+    "session": "synthetic/v8/read-cursed-destroy-armor-scroll",
+    "manifestPath": "challenges/manifests/v8.json",
+    "manifestSha256": "6a5159501af18a7f926f794d89e817375cd00a3589c4899fb97392ae04dbe8ba",
+    "recording": "challenges/cases/v8/read-cursed-destroy-armor-scroll.session.json",
+    "recordingPath": "challenges/cases/v8/read-cursed-destroy-armor-scroll.session.json",
+    "recordingSha256": "284496eb42e96abd55dc09a2f531660b33caeb09d61dd5fb1474e4eb1b052452",
+    "recipe": "challenges/cases/v8/read-cursed-destroy-armor-scroll.recipe.session.json",
+    "recipeSha256": "8ac2aa73f789a3b09edbb4fc0cad30dcb219c7e4fd9e09f2e82cc85288939888",
+    "replayInputSha256": "27f18d189b460e5d07fcbe8d4669298ca261f8e066dfb04e4481c65916a5d755",
+    "evaluationPath": "challenges/evaluations/20260927191056-v8.json",
+    "evaluationCommit": "5b4486322ffa5eeb91cc37d01083ff20bbfe2ea7",
+    "evaluationArtifact": "challenges/evaluations/20260927191056-v8.json",
+    "evaluationUtc": "2026-09-27T19:11:43.974Z",
+    "remainingScreens": 0,
+    "recordedSteps": 37,
+    "previousScreensMatched": 37,
+    "regression": false,
+    "passed": false,
+    "error": null,
+    "metrics": {
+      "screens": {
+        "matched": 37,
+        "total": 37
+      },
+      "rng": {
+        "matched": 3094,
+        "total": 3095
+      },
+      "cursors": {
+        "matched": 37,
+        "total": 37
+      }
+    },
+    "firstMismatch": {
+      "screen": null,
+      "rng": {
+        "index": 3094,
+        "cEntry": "rn2(100)=39",
+        "cCaller": "obj_resists(zap.c:1469)",
+        "location": {
+          "segmentIndex": 0,
+          "stepIndex": 36,
+          "key": "n"
+        },
+        "stepIndex": 36
+      },
+      "cursor": null
+    },
+    "step": 36,
+    "kind": "rng",
+    "sourceFile": "zap.c",
+    "function": "obj_resists",
+    "message": null,
+    "cFile": "zap.c",
+    "luaFile": null,
+    "line": 1469
+  },
+  "summary": "All recorded screens match, but the cursed destroy-armor scroll has one missing C RNG call: do_wear.c:maybe_destroy_armor invokes zap.c:obj_resists on the selected cloak at step 36. js/read.js only ports the ordinary uncursed fallback and refuses this cursed branch. Port the whole read.c destroy-armor effect and its return-valued disintegration helpers, preserving the resistance draw even when the final screen happens to match.",
+  "source": {
+    "file": "read.c",
+    "branch": "read.c:seffect_destroy_armor (1324-1396) selects armor before branching. Confused reads change erosion-proofing. Cursed reads either weaken cursed armor and stun or call do_wear.c:disintegrate_arm. Blessed reads can choose armor and invoke disintegrate_cursed_armor; ordinary reads fall back to destroy_arm. read.c:disintegrate_cursed_armor (1294-1322) selects a cursed worn item and consumes disintegrate_arm result. do_wear.c:disintegrate_arm consumes maybe_destroy_armor, which calls zap.c:obj_resists(armor,0,90) before any visible destruction.",
+    "functions": [
+      "disintegrate_cursed_armor",
+      "seffect_destroy_armor"
+    ],
+    "callers": [
+      "read.c:seffects SCR_DESTROY_ARMOR dispatches seffect_destroy_armor; js/read.js currently admits only an ordinary uncursed fallback.",
+      "read.c:doread reaches the dispatch; black dragon breath can also call do_wear.c:disintegrate_arm through its own source path."
+    ],
+    "dependencies": [
+      "do_wear.c:disintegrate_arm and maybe_destroy_armor are return-valued callees not yet ported; port them in the same task, including all armor slots and resistance outcomes.",
+      "zap.c:obj_resists is already ported in js/bury.js and must receive the source random owner; a zero visible difference does not excuse its rn2(100) call.",
+      "Preserve existing ordinary fallback behavior and all matching screens while adding the missing cursed, blessed, and confused branches."
+    ]
+  },
+  "goalKind": "file-port",
+  "evidence": [
+    "Saved challenges/evaluations/20260927191056-v8.json at 5b4486322ffa5eeb91cc37d01083ff20bbfe2ea7 measures 37/37 screens but 3094/3095 RNG calls; first C-only draw at segment 0 step 36 is rn2(100)=39 from obj_resists(zap.c:1469).",
+    "Upstream nethack-c/upstream/src/read.c lines 1294-1396 and do_wear.c lines 3190-3300 define the return-valued disintegration chain; js/read.js seffect_destroy_armor comment explicitly limits it to the uncursed fallback.",
+    "The case must remain in the unresolved queue despite 37/37 matching screens because the C RNG trace differs."
+  ]
+}

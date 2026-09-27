@@ -1,0 +1,88 @@
+{
+  "session": "synthetic/v9/blessed-water-potion-awe",
+  "corpus": "synthetic",
+  "batch": "v9",
+  "caseId": "blessed-water-potion-awe",
+  "manifestPath": "challenges/manifests/v9.json",
+  "manifestSha256": "00c148aac522e6343c8de0bd003db29771439f972a99cb18c772ebf2bc45a594",
+  "recordingSha256": "a15e584bd6b124d04ecea3b33074ba3d02e22f7a94b9a27a6dd6c24d217395f8",
+  "evaluationPath": "challenges/evaluations/20260927191056-v9.json",
+  "evaluationCommit": "5b4486322ffa5eeb91cc37d01083ff20bbfe2ea7",
+  "remainingScreens": 1,
+  "recordedSteps": 29,
+  "status": "complete",
+  "commit": "5b4486322ffa5eeb91cc37d01083ff20bbfe2ea7",
+  "mismatch": {
+    "corpus": "synthetic",
+    "batch": "v9",
+    "caseId": "blessed-water-potion-awe",
+    "session": "synthetic/v9/blessed-water-potion-awe",
+    "manifestPath": "challenges/manifests/v9.json",
+    "manifestSha256": "00c148aac522e6343c8de0bd003db29771439f972a99cb18c772ebf2bc45a594",
+    "recording": "challenges/cases/v9/blessed-water-potion-awe.session.json",
+    "recordingPath": "challenges/cases/v9/blessed-water-potion-awe.session.json",
+    "recordingSha256": "a15e584bd6b124d04ecea3b33074ba3d02e22f7a94b9a27a6dd6c24d217395f8",
+    "recipe": "challenges/cases/v9/blessed-water-potion-awe.recipe.session.json",
+    "recipeSha256": "04d95ba5a4bb1fbd516cd4eee6f37b9780846edc6f39226dc51aa8e23d40c7a7",
+    "replayInputSha256": "e8a7428d883fb33542b59d993324d6e14197b8486a45162a9f5b2efd3e9ebd60",
+    "evaluationPath": "challenges/evaluations/20260927191056-v9.json",
+    "evaluationCommit": "5b4486322ffa5eeb91cc37d01083ff20bbfe2ea7",
+    "evaluationArtifact": "challenges/evaluations/20260927191056-v9.json",
+    "evaluationUtc": "2026-09-27T19:11:49.445Z",
+    "remainingScreens": 1,
+    "recordedSteps": 29,
+    "previousScreensMatched": 28,
+    "regression": false,
+    "passed": false,
+    "error": null,
+    "metrics": {
+      "screens": {
+        "matched": 28,
+        "total": 29
+      },
+      "rng": {
+        "matched": 2695,
+        "total": 2705
+      },
+      "cursors": {
+        "matched": 28,
+        "total": 29
+      }
+    },
+    "firstMismatch": {
+      "kind": "stop",
+      "message": "unsupported hero command: an unported branch of this command: quaffing requires peffect_water()",
+      "step": 28
+    },
+    "step": 28,
+    "kind": "stop",
+    "sourceFile": "potion.c",
+    "function": "peffect_water",
+    "message": "unsupported hero command: an unported branch of this command: quaffing requires peffect_water()",
+    "cFile": "potion.c",
+    "luaFile": null,
+    "line": null
+  },
+  "summary": "The blessed water quaff reaches potion.c:peffect_water, but js/potion.js throws UnsupportedQuaffError. C’s non-chaotic, non-undead blessed arm says the hero feels full of awe, clears sickness, and exercises wisdom and constitution. Port the whole water effect, including neutral hunger, chaotic/undead, cursed, lycanthropy, and polymorph branches with source-ordered messages, RNG, and state changes.",
+  "source": {
+    "file": "potion.c",
+    "branch": "potion.c:peffect_water (717-767) first distinguishes neutral from blessed/cursed water. Neutral draws rnd(10) for hunger and calls newuhs. Blessed or cursed increments potion_unkn, then branches on mon_hates_blessings or chaotic alignment. Blessed ordinary hero says full of awe, clears sickness, and exercises attributes; opposite-alignment and lycanthropy arms can burn, heal, polymorph, or cure. Preserve d(2,6), Maybe_Half_Phys, and killer formatting where reached.",
+    "functions": [
+      "peffect_water"
+    ],
+    "callers": [
+      "potion.c:peffects POT_WATER dispatch calls peffect_water; js/potion.js currently throws UnsupportedQuaffError in that arm.",
+      "potion.c:dodrink -> dopotion -> peffects reaches the effect for an ordinary water quaff; sink and other potion creation paths can call dopotion."
+    ],
+    "dependencies": [
+      "Existing or newly completed mon_hates_blessings, make_sick, newuhs, healup, losehp, exercise, and lycanthropy helpers must be invoked in C order. If C consumes a missing helper return, port that callee in the same task.",
+      "Delete the UnsupportedQuaffError site when the whole effect is wired; do not special-case the blessed v9 recipe."
+    ]
+  },
+  "goalKind": "file-port",
+  "evidence": [
+    "Saved challenges/evaluations/20260927191056-v9.json at 5b4486322ffa5eeb91cc37d01083ff20bbfe2ea7 reports 28/29 screens; the first stop at step 28 is “unsupported hero command: an unported branch of this command: quaffing requires peffect_water()”.",
+    "Upstream nethack-c/upstream/src/potion.c lines 717-767 defines the whole effect; js/potion.js POT_WATER dispatch at lines 1431-1432 throws an unported refusal.",
+    "The selected v9 case reaches the ordinary blessed branch, but source review also identifies neutral, cursed, chaotic/undead, and lycanthropy state paths that require general implementation."
+  ]
+}
