@@ -1876,9 +1876,10 @@ export async function do_class_genocide(state = game) {
                         DEFAULT_PRIMARY_SYMBOLS[SYM_OFF_M + monsterClass],
                     );
                     if (!already) {
+                        const heroPossessive = state.flags?.female ? 'her' : 'his';
                         livelog_printf(
                             LL_CONDUCT | LL_GENOCIDE,
-                            `performed ${state.plname ?? 'you'}'s first genocide (class ${symbol})`,
+                            `performed ${heroPossessive} first genocide (class ${symbol})`,
                             state,
                         );
                     } else {
@@ -2072,9 +2073,10 @@ export async function do_genocide(how, state = game) {
     if (really) {
         const { num_genocides } = await import('./insight.js');
         if (!num_genocides(state)) {
+            const heroPossessive = state.flags?.female ? 'her' : 'his';
             livelog_printf(
                 LL_CONDUCT | LL_GENOCIDE,
-                `performed ${state.plname ?? 'you'}'s first genocide (${makeplural(realName)})`,
+                `performed ${heroPossessive} first genocide (${makeplural(realName)})`,
                 state,
             );
         } else {
