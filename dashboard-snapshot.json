@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "capturedAt": "2026-09-27T03:26:54.953Z",
+  "capturedAt": "2026-09-27T04:13:39.861Z",
   "activity": {
     "runId": "loop-20260925",
     "events": [
@@ -4205,12 +4205,69 @@
         "type": "accepted",
         "at": "2026-09-27T03:26:44.323Z",
         "task": "C23"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "published-C23-c3972c48",
+        "type": "published",
+        "at": "2026-09-27T03:33:02.618Z",
+        "task": "C23",
+        "commit": "c3972c48092cfb862070f98242b89d813bafad66"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "received-A19-e3313dff",
+        "type": "received",
+        "at": "2026-09-27T03:34:12.611Z",
+        "task": "A19",
+        "delivery": "e3313dff18dc5fea31d56886760684eb770d8cb3"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "integrating-A19-e457ea11",
+        "type": "integrating",
+        "at": "2026-09-27T03:36:22.519Z",
+        "task": "A19",
+        "integration": "e457ea110ede43c4f6e6d36132add320d3320206"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "assign-C24-priest-talk-20260927-1",
+        "type": "assign",
+        "at": "2026-09-27T03:47:10.717Z",
+        "task": "C24",
+        "worker": "C",
+        "goal": "port-priest-talk-outside-temple-synthetic-v7-20260926",
+        "kind": "implementation"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "integrating-A19-4fc824cf",
+        "type": "integrating",
+        "at": "2026-09-27T04:01:17.943Z",
+        "task": "A19",
+        "integration": "4fc824cfd5f5c170f9c0e01b5699c057438241e0"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "validated-A19-4fc824cf",
+        "type": "validated",
+        "at": "2026-09-27T04:11:50.878Z",
+        "task": "A19",
+        "passed": true
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accepted-A19-4fc824cf",
+        "type": "accepted",
+        "at": "2026-09-27T04:13:12.449Z",
+        "task": "A19"
       }
     ]
   },
   "development": {
-    "executionCommit": "6ff81e0c85937f98189ac25d5847d8fecdab4f8f",
-    "measuredAt": "2026-09-27T03:21:14.411Z",
+    "executionCommit": "4fc824cfd5f5c170f9c0e01b5699c057438241e0",
+    "measuredAt": "2026-09-27T04:08:40.854Z",
     "sessions": [
       {
         "session": "holdout/seed0002-healer-reflection-drummer",

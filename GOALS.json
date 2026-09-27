@@ -91853,7 +91853,7 @@
     {
       "id": "div-vision-pit-sight-synthetic-v6-20260926",
       "kind": "divergence-fix",
-      "status": "open",
+      "status": "closed",
       "summary": "Restore source pit-limited sight after downward digging",
       "cFile": "vision.c",
       "sessions": [],
@@ -91865,8 +91865,11 @@
         "screens": 11405,
         "rng": 792838
       },
-      "closedAt": null,
-      "delivered": null,
+      "closedAt": "4fc824cfd5f5c170f9c0e01b5699c057438241e0",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
       "function": "vision_recalc",
       "session": "synthetic/v6/archeologist-down-dig-floor",
       "step": 6,
@@ -92078,7 +92081,13 @@
             }
           }
         }
-      ]
+      ],
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "4fc824cfd5f5c170f9c0e01b5699c057438241e0",
+        "screens": 11405,
+        "rng": 792838
+      }
     },
     {
       "id": "port-write-dowrite-glib-synthetic-v6-20260926",

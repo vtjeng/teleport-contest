@@ -17504,5 +17504,49 @@
       }
     },
     "recordedAt": "2026-09-26T23:36:38.118Z"
+  },
+  {
+    "kind": "review",
+    "head": "4fc824cfd5f5c170f9c0e01b5699c057438241e0",
+    "auditedRange": "008898f068919c0b78ea592bb773280ede2a9a38..4fc824cfd5f5c170f9c0e01b5699c057438241e0",
+    "level": "full",
+    "areas": [
+      "world-effects"
+    ],
+    "outcome": "changed",
+    "evidence": "Counts: 4 raw, 4 deduplicated, 3 confirmed, 3 applied, 0 deferred, 1 rejected, 0 unverified. Reviewed the pit sight recalculation and main-loop flag consumer against NetHack 5.0 source. The bounded pit branch and independent recording match; the follow-up commit clarifies the ordinary-sight claim and pins the non-pit and blindness guards. Five finders covered behavior, readability risk, tests, variable flow, and concurrency. Performance was not triggered by the bounded branch. The existing x-ray overlay gap is outside this A19 production change.",
+    "auditMetrics": {
+      "wallTimeSeconds": 900,
+      "counts": {
+        "raw": 4,
+        "deduplicated": 4,
+        "confirmed": 3,
+        "applied": 3,
+        "deferred": 0,
+        "rejected": 1,
+        "unverified": 0
+      },
+      "categories": {
+        "production": 0,
+        "tests": 2,
+        "clarity": 1,
+        "simplification": 0,
+        "other": 0
+      },
+      "productionDefects": [],
+      "deferrals": [],
+      "rejections": [
+        {
+          "summary": "The A19 pit-vision change introduced a production regression by omitting x-ray sight beyond the adjacent area.",
+          "counterEvidence": "vision.c:vision_recalc applies an x-ray overlay after its pit branch, but the JavaScript x-ray overlay was already absent before A19. The reviewed change only restricts ordinary pit sight; the missing overlay has no new production regression in this diff. Reopen as a separate source-traced vision task when a reachable C x-ray activation path is selected."
+        }
+      ],
+      "readiness": {
+        "boundary": "Reviewed vision.c:vision_recalc, dig.c:digactualhole, and the allmain.c:moveloop_core flag consumer across 008898f0..e457ea11, with the audit-fix delta through 4fc824cf. The independent Archeologist pit recording matches eight screens and cursors, and admitted v6 archeologist-down-dig-floor matches through step 6 before this integration; source-pinned light-vision and dig tests cover branches and the flag.",
+        "sourceReview": "Traced each changed function and production caller against upstream C for state ownership, redraw, branch precedence, and PRNG order. The existing apply.c:use_wand BY_OBJECT caller and specialized vision branches are explicitly outside A19. No new note_unported call or Unsupported throw was added in the reviewed scope.",
+        "completeness": "No note_unported call in the reviewed functions supplies a value consumed by C. The flag is written to the flattened state consumed by the existing moveloop path; the separate apply.c wand entry remains a named future task."
+      }
+    },
+    "recordedAt": "2026-09-27T04:08:54.716Z"
   }
 ]
