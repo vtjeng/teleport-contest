@@ -90,6 +90,7 @@ import {
     SPE_CONE_OF_COLD,
     SPE_CURE_BLINDNESS,
     SPE_CURE_SICKNESS,
+    SPE_CHARM_MONSTER,
     SPE_DETECT_FOOD,
     SPE_DETECT_MONSTERS,
     SPE_DETECT_TREASURE,
@@ -148,6 +149,11 @@ import { iter_mons_async } from './mon.js';
 import { monflee, monfleeMessage, youHear } from './monmove.js';
 import { noveltitle } from './do_name.js';
 import { note_unported } from './unported.js';
+// C spell.c:spelleffects() passes SPE_CHARM_MONSTER's fake spellbook to
+// read.c:seffects(). read.js imports study_book() from this module; both
+// bindings are used only inside function bodies, so the cycle is deferred
+// until gameplay.
+import { seffects } from './read.js';
 
 // C ref: spell.c's spellmenu arguments. 0..MAXSPELL-1 double as svs.spl_book[]
 // indices while swapping two spells; SPELLMENU_DUMP (-3) belongs to
@@ -1279,7 +1285,8 @@ function Maybe_Half_Phys(dmg, state) {
 // C ref: spell.c spelleffects() (1385-1603). Casts the spell identified by
 // spell_otyp (an object type such as SPE_HEALING). The wand-duplicate and
 // potion-duplicate dispatch arms are open; scroll-duplicate spells (seffects)
-// and standalone spells (cure blindness, etc.) remain fail-closed.
+// and standalone spells (cure blindness, etc.) remain fail-closed except for
+// the source-wired SPE_CHARM_MONSTER taming effect.
 export async function spelleffects(spell_otyp, atme, force, state = game,
     env = {}) {
     const spell = force ? spell_otyp : spell_idx(spell_otyp, state);
@@ -1371,6 +1378,14 @@ export async function spelleffects(spell_otyp, atme, force, state = game,
             await weffects(pseudo, state);
         }
         update_inventory({ state });
+        break;
+
+    // spell.c routes charm monster through the scroll effect after granting
+    // the blessed-scroll equivalent at Skilled or Expert skill.
+    case SPE_CHARM_MONSTER:
+        if (role_skill >= P_SKILLED)
+            pseudo.blessed = 1;
+        await seffects(pseudo, state);
         break;
 
     // Potion-duplicate spells.

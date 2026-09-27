@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Blocked independent attempt to reach read.c:seffect_taming through ordinary spell.c:docast. This history studies a blessed charm-monster book, creates a hostile newt, and selects charm monster with Z. The matching C recording reaches spell.c:spelleffects_check, which refuses the spell for insufficient energy before spell.c:spelleffects calls seffects; it therefore does not enter seffect_taming. C recording retained only in task-local .cache evidence, not the regression corpus.",
+  "segments": [
+    {
+      "seed": 512072094,
+      "datetime": "20270818121500",
+      "nethackrc": "OPTIONS=name:CharmDocast,role:Wizard,race:human,gender:male,align:neutral,playmode:debug,!legacy,!tutorial,!splash_screen,pettype:none\n",
+      "moves": " #wizwish\nblessed spellbook of charm monster\nro. . . . . . . . . . . . #wizgenesis\nhostile newt\nZc"
+    }
+  ]
+}
