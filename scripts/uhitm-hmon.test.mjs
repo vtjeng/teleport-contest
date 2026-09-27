@@ -27,6 +27,7 @@ import {
     HMON_KICKED,
     OBJ_MINVENT,
     OBJ_DELETED,
+    W_WEP,
     LEVITATION,
     D_CLOSED,
     D_NODOOR,
@@ -92,8 +93,12 @@ import {
     SMALL_SHIELD,
     WORTHLESS_WHITE_GLASS,
     LOADSTONE,
+    POT_BLINDNESS,
 } from '../js/objects.js';
 import { mksobj } from '../js/obj.js';
+import { addinv } from '../js/invent.js';
+import { setuwep } from '../js/worn.js';
+import { setwornEnv } from '../js/do_wear.js';
 import { monsndx } from '../js/mondata.js';
 import { P_ADVANCE, skillSlot } from '../js/startup_skills.js';
 import { uwep_skill_type } from '../js/weapon.js';
@@ -219,6 +224,44 @@ test('hmon admits a thrown cream pie', async () => {
     assert.equal(mon.mblinded, 22);
     assert.equal(pie.where, OBJ_DELETED);
     assert.ok(env.lines.some((line) => line.includes('cream pie')));
+});
+
+// uhitm.c:1095-1117 calls setuwep(NULL) for a singleton potion before
+// freeinv() and potionhit(). That call crosses wield.c -> worn.c setworn(),
+// whose doffing interruption is do_wear.c cancel_doff().
+test('a singleton wielded potion uses the canonical unwield hooks', async () => {
+    await hero();
+    const potion = mksobj(POT_BLINDNESS, true, false, { state: game });
+    potion.dknown = false;
+    await addinv(potion, { state: game });
+    setuwep(potion, setwornEnv(game));
+    game.context ??= {};
+    game.context.takeoff = {
+        mask: W_WEP,
+        what: 0,
+        cancelled_don: false,
+    };
+
+    const mon = target(PM_NEWT, {
+        mhp: 30,
+        mhpmax: 30,
+        mcansee: 1,
+        mblinded: 0,
+    });
+    // The evaporate line makes the potion's appearance known, so C reaches
+    // trycall() after potionbreathe() and waits for a line of input.
+    for (const key of [' ', 'x', '\n'])
+        game.nhDisplay.pushKey(key.charCodeAt(0));
+    const env = hitEnv();
+    delete env.random;
+    assert.equal(await hmon(mon, potion, HMON_MELEE, 1, game, env), true);
+
+    assert.equal(game.uwep, null);
+    assert.equal(potion.owornmask & W_WEP, 0);
+    assert.equal(game.context.takeoff.mask & W_WEP, 0);
+    assert.equal(game.invent === potion || game.invent?.nobj === potion, false);
+    assert.equal(mon.mblinded > 0, true);
+    assert.ok(mon.mhp < 30);
 });
 
 // uhitm.c:826-833. A temple priest's god strikes back through ghod_hitsu(),
