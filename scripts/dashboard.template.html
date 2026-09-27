@@ -480,9 +480,10 @@ canvas {
   gap: 10px;
   margin: 0 0 12px;
 }
-.activity-controls .history-controls { margin-right: auto; }
+.activity-window-select { font: inherit; font-size: 11px; color: var(--ink-secondary); background: var(--surface-card); border: 1px solid var(--border); border-radius: 4px; padding: 4px 6px; }
 .activity-navigation { display: flex; align-items: center; gap: 8px; }
 .activity-navigation .chart-range { min-width: 165px; text-align: center; }
+.activity-pan-hint { color: var(--ink-muted); font-size: 11px; }
 .activity-metrics {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
@@ -499,6 +500,9 @@ canvas {
 .activity-metric-value { display: block; margin: 5px 0 2px; font-size: 20px; font-weight: 600; font-variant-numeric: tabular-nums; }
 .activity-metric-detail { font-size: 11px; color: var(--ink-muted); }
 .activity-note { margin: 0 0 14px; font-size: 11px; color: var(--ink-muted); }
+.activity-timeline { cursor: grab; touch-action: pan-y; user-select: none; }
+.activity-timeline.is-panning, .activity-timeline.is-panning .activity-bar { cursor: grabbing; }
+.activity-timeline:focus-visible { outline: 2px solid var(--ink-primary); outline-offset: 3px; }
 .activity-row {
   display: flex;
   align-items: center;
@@ -562,10 +566,19 @@ canvas {
   padding-top: 16px;
 }
 .activity-details h4 { margin: 0 0 9px; font-size: 12px; }
-.activity-inspection { font-size: 12px; line-height: 1.55; color: var(--ink-secondary); }
+.activity-inspection {
+  height: 210px;
+  overflow-y: auto;
+  scrollbar-gutter: stable;
+  font-size: 12px;
+  line-height: 1.55;
+  color: var(--ink-secondary);
+}
 .activity-inspection strong { color: var(--ink-primary); }
 .activity-inspection p { margin: 5px 0 8px; }
 .activity-inspection ul { margin: 4px 0 0; padding-left: 18px; }
+.activity-waits { height: 210px; min-height: 0; display: flex; flex-direction: column; }
+#activityWaitList { flex: 1; min-height: 0; overflow-y: auto; scrollbar-gutter: stable; }
 .activity-waits button {
   display: flex;
   align-items: baseline;
@@ -587,13 +600,12 @@ canvas {
 @media (max-width: 640px) {
   .activity-metrics { grid-template-columns: 1fr; gap: 6px; }
   .activity-details { grid-template-columns: 1fr; gap: 16px; }
-  .activity-controls .history-controls { width: 100%; }
-  .activity-controls .history-controls button { flex: 1; }
   .activity-navigation { width: 100%; justify-content: space-between; }
 }
 @media (max-width: 480px) {
   .activity-navigation { flex-wrap: wrap; }
   .activity-navigation .chart-range { order: -1; width: 100%; }
+  .activity-pan-hint { width: 100%; }
 }
 
 /* A short line sample for a chart series, carrying its dash pattern. */
@@ -888,25 +900,25 @@ canvas {
   <h3 class="section-title">Worker activity</h3>
   <p class="subtitle">Observed task handoffs since the September 25 worker-ledger run. Bars show elapsed task stages, not continuous active work. Earlier progress remains in the score history above. <span id="activitySnapshotTime"></span></p>
   <div class="activity-controls">
-    <div class="history-controls" role="group" aria-label="Activity time range">
-      <button class="chart-reset" id="activity6h" type="button">6 hours</button>
-      <button class="chart-reset" id="activity24h" type="button">24 hours</button>
-      <button class="chart-reset" id="activity7d" type="button">7 days</button>
-    </div>
+    <select class="activity-window-select" id="activityWindow" aria-label="Activity time range">
+      <option value="6" selected>6 hours</option>
+      <option value="24">24 hours</option>
+      <option value="168">7 days</option>
+    </select>
     <div class="activity-navigation">
-      <button class="chart-reset" id="activityEarlier" type="button">← Earlier</button>
       <span class="chart-range" id="activityWindowLabel"></span>
-      <button class="chart-reset" id="activityLater" type="button">Later →</button>
+      <button class="chart-reset" id="activityLatest" type="button">Latest</button>
     </div>
   </div>
+  <p class="activity-pan-hint">Drag the timeline to move through time. Arrow keys work when the timeline is focused.</p>
   <div class="chart-wrap">
     <div class="activity-metrics" id="activityMetrics"></div>
     <p class="activity-note">Integration includes review and checks; exact validation-slot occupancy is not recorded here.</p>
     <div class="legend" id="timelineLegend"></div>
-    <div id="timeline"></div>
+    <div class="activity-timeline" id="timeline" tabindex="0" aria-label="Worker and Main activity timeline. Drag horizontally or use left and right arrow keys to move through time."></div>
     <div class="activity-details">
-      <div class="activity-inspection" id="timelineReadout"></div>
-      <div class="activity-waits"><h4>Longest waits in view</h4><div id="activityWaitList"></div></div>
+      <div class="activity-inspection" id="timelineReadout" aria-live="polite"></div>
+      <div class="activity-waits"><h4 id="activityWaitHeading">Waits by length</h4><div id="activityWaitList"></div></div>
     </div>
   </div>
 </div>
@@ -1555,11 +1567,10 @@ document.getElementById('stats').innerHTML = [
   const readout = document.getElementById('timelineReadout');
   const metrics = document.getElementById('activityMetrics');
   const waitList = document.getElementById('activityWaitList');
+  const waitHeading = document.getElementById('activityWaitHeading');
   const windowLabel = document.getElementById('activityWindowLabel');
-  const earlier = document.getElementById('activityEarlier');
-  const later = document.getElementById('activityLater');
-  const rangeButtons = new Map([[6, 'activity6h'], [24, 'activity24h'], [168, 'activity7d']]
-    .map(([hours, id]) => [hours, document.getElementById(id)]));
+  const windowSelect = document.getElementById('activityWindow');
+  const latestButton = document.getElementById('activityLatest');
   const activity = DATA.activity || { segments: [], tasks: [] };
   const segments = activity.segments || [];
   const esc = value => String(value ?? '').replace(/&/g, '&amp;').replace(/</g, '&lt;')
@@ -1587,6 +1598,8 @@ document.getElementById('stats').innerHTML = [
   let hours = 6;
   let viewEnd = latest;
   let selectedIndex = null;
+  let panning = null;
+  let suppressClickUntil = 0;
   const stamp = value => new Date(value).toLocaleString('en-US',
     { month: 'numeric', day: 'numeric', hour: '2-digit', minute: '2-digit', hour12: false });
   const shortStamp = value => new Date(value).toLocaleTimeString('en-US',
@@ -1663,9 +1676,7 @@ document.getElementById('stats').innerHTML = [
           + esc(waits[0].segment.worker) + (ongoing(waits[0].segment) ? ' · ongoing' : '')
           : 'No waits ended in this window');
     windowLabel.textContent = stamp(start) + ' – ' + stamp(viewEnd);
-    earlier.disabled = viewEnd <= earliestEnd;
-    later.disabled = viewEnd >= latest;
-    for (const [value, button] of rangeButtons) button.setAttribute('aria-pressed', String(value === hours));
+    latestButton.disabled = viewEnd >= latest;
     if (!shown.some(row => row.index === selectedIndex)) {
       selectedIndex = waits[0]?.index ?? shown.find(row => row.segment.lane === 'Main')?.index
         ?? shown[0]?.index ?? null;
@@ -1706,7 +1717,8 @@ document.getElementById('stats').innerHTML = [
         + '</div></div>';
     }
     container.innerHTML = html;
-    waitList.innerHTML = waits.length ? waits.slice(0, 5).map(({ segment, index }) =>
+    waitHeading.textContent = 'Waits by length · ' + waits.length;
+    waitList.innerHTML = waits.length ? waits.map(({ segment, index }) =>
       '<button type="button" data-segment="' + index + '"><span><strong>'
       + esc(name(segment)) + '</strong> <small>Worker ' + esc(segment.worker)
       + '</small></span><span>' + fmt(duration(segment))
@@ -1715,12 +1727,35 @@ document.getElementById('stats').innerHTML = [
     if (selectedIndex == null) readout.innerHTML = '<h4>Selected stage</h4><p>No recorded stage in this window.</p>';
     else describe(selectedIndex);
   }
-  for (const [value, button] of rangeButtons) button.addEventListener('click', () => {
-    hours = value;
+  windowSelect.addEventListener('change', () => {
+    hours = Number(windowSelect.value);
     render();
   });
-  earlier.addEventListener('click', () => { viewEnd -= hours * hourMs; render(); });
-  later.addEventListener('click', () => { viewEnd += hours * hourMs; render(); });
+  latestButton.addEventListener('click', () => { viewEnd = latest; render(); });
+  container.addEventListener('pointerdown', event => {
+    if (event.button !== 0) return;
+    panning = { x: event.clientX, end: viewEnd, moved: false };
+    container.setPointerCapture(event.pointerId);
+  });
+  container.addEventListener('pointermove', event => {
+    if (!panning) return;
+    const dx = event.clientX - panning.x;
+    if (Math.abs(dx) > 5) panning.moved = true;
+    if (!panning.moved) return;
+    const width = Math.max(1, container.getBoundingClientRect().width - 56);
+    viewEnd = panning.end - dx / width * hours * hourMs;
+    container.classList.add('is-panning');
+    render();
+  });
+  function endPan(event) {
+    if (!panning) return;
+    if (panning.moved) suppressClickUntil = Date.now() + 250;
+    panning = null;
+    container.classList.remove('is-panning');
+    if (container.hasPointerCapture(event.pointerId)) container.releasePointerCapture(event.pointerId);
+  }
+  container.addEventListener('pointerup', endPan);
+  container.addEventListener('pointercancel', endPan);
   container.addEventListener('pointerover', event => {
     if (event.target.classList.contains('activity-bar')) describe(Number(event.target.dataset.segment));
   });
@@ -1728,11 +1763,20 @@ document.getElementById('stats').innerHTML = [
     if (event.target.classList.contains('activity-bar')) describe(Number(event.target.dataset.segment));
   });
   container.addEventListener('click', event => {
+    if (Date.now() < suppressClickUntil) return;
     if (!event.target.classList.contains('activity-bar')) return;
     selectedIndex = Number(event.target.dataset.segment);
     render();
   });
   container.addEventListener('keydown', event => {
+    if (['ArrowLeft', 'ArrowRight', 'Home', 'End'].includes(event.key)) {
+      event.preventDefault();
+      viewEnd = event.key === 'Home' ? first + hours * hourMs
+        : event.key === 'End' ? latest
+          : viewEnd + (event.key === 'ArrowLeft' ? -1 : 1) * hours * hourMs / 4;
+      render();
+      return;
+    }
     if (!event.target.classList.contains('activity-bar')
         || !['Enter', ' '].includes(event.key)) return;
     event.preventDefault();

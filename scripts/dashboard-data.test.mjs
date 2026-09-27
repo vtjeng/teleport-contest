@@ -134,6 +134,9 @@ function renderDashboard(data, queue = null) {
             getContext: () => context(ops),
             addEventListener(type, handler) { (this.listeners[type] ||= []).push(handler); },
             setAttribute() {},
+            setPointerCapture() { this.pointerCaptured = true; },
+            hasPointerCapture() { return Boolean(this.pointerCaptured); },
+            releasePointerCapture() { this.pointerCaptured = false; },
             appendChild(child) { this.children.push(child); return child; },
             replaceChildren(...nodes) { this.children = nodes; },
         };
@@ -501,6 +504,9 @@ test('activity view ranks handoff waits and explains concurrent assignments', ()
     const data = sourceDashboardData();
     const at = time => `2026-09-25T${time}:00Z`;
     const events = [
+        ['assign', '01:00', 'B0', 'B'], ['ready', '02:00', 'B0'],
+        ['integrating', '02:30', 'B0'], ['validated', '03:00', 'B0'],
+        ['accepted', '03:05', 'B0'], ['published', '03:06', 'B0'],
         ['assign', '09:00', 'B1', 'B'], ['ready', '09:50', 'B1'],
         ['assign', '10:00', 'A1', 'A'], ['ready', '10:10', 'A1'],
         ['assign', '10:12', 'A2', 'A'], ['integrating', '10:15', 'B1'],
@@ -519,16 +525,45 @@ test('activity view ranks handoff waits and explains concurrent assignments', ()
     assert.match(rendered.get('timeline').innerHTML, /activity-row main/u);
     assert.match(rendered.get('timelineReadout').innerHTML, /Another task was assigned to this worker for 28m/u);
     assert.match(rendered.get('timelineReadout').innerHTML, /Recorded Main stages overlapped this wait/u);
-    const shortWindow = rendered.get('activityWindowLabel').textContent;
-    rendered.get('activity24h').listeners.click[0]();
-    assert.notEqual(rendered.get('activityWindowLabel').textContent, shortWindow);
     const mainIndex = data.activity.segments.findIndex(row => row.task === 'B1'
         && row.phase === 'integrating');
-    rendered.get('timeline').listeners.click[0]({
+    const timeline = rendered.get('timeline');
+    timeline.listeners.click[0]({
         target: { classList: { contains: name => name === 'activity-bar' },
             dataset: { segment: String(mainIndex) } },
     });
     assert.match(rendered.get('timelineReadout').innerHTML, /waiting delivery overlapped this stage/u);
+    const shortWindow = rendered.get('activityWindowLabel').textContent;
+    timeline.listeners.pointerdown[0]({ button: 0, clientX: 0, pointerId: 1 });
+    timeline.listeners.pointermove[0]({ clientX: 700, pointerId: 1 });
+    timeline.listeners.pointerup[0]({ pointerId: 1 });
+    assert.notEqual(rendered.get('activityWindowLabel').textContent, shortWindow);
+    assert.match(rendered.get('activityWaitList').innerHTML, /B0/u);
+    assert.doesNotMatch(rendered.get('activityWaitList').innerHTML, /A1/u);
+    rendered.get('activityLatest').listeners.click[0]();
+    assert.equal(rendered.get('activityWindowLabel').textContent, shortWindow);
+    const select = rendered.get('activityWindow');
+    select.value = '24';
+    select.listeners.change[0]();
+    assert.notEqual(rendered.get('activityWindowLabel').textContent, shortWindow);
+});
+
+test('activity wait list contains every wait in the window', () => {
+    const data = sourceDashboardData();
+    data.activity = {
+        capturedAt: '2026-09-25T12:00:00Z',
+        tasks: Array.from({ length: 7 }, (_, index) => ({
+            id: `task-${index}`, label: `Task ${index}`, status: 'published',
+        })),
+        segments: Array.from({ length: 7 }, (_, index) => ({
+            task: `task-${index}`, worker: 'A', lane: 'A', phase: 'queued',
+            start: `2026-09-25T11:${String(index).padStart(2, '0')}:00Z`,
+            end: `2026-09-25T11:${String(index + 10).padStart(2, '0')}:00Z`,
+        })),
+    };
+    const rendered = renderDashboard(data);
+    assert.equal((rendered.get('activityWaitList').innerHTML.match(/<button /gu) || []).length, 7);
+    assert.equal(rendered.get('activityWaitHeading').textContent, 'Waits by length · 7');
 });
 
 function sourceFileRows(table) {
