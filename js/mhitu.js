@@ -2075,6 +2075,8 @@ export function gulp_blnd_check(state = game) {
     const stuck = state.u?.ustuck;
     const blinded = state.u?.uprops?.[BLINDED];
     let mattk;
+    // C's `Blinded` is HBlinded && !BBlinded; its separate `Blind` macro
+    // includes EBlinded and must not be used for this guard.
     if (!(blinded?.intrinsic && !blinded.blocked) && state.u?.uswallow
         && (mattk = attacktype_fordmg(stuck.data, M.AT_ENGL, M.AD_BLND))
         && can_blnd(

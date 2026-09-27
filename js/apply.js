@@ -3136,7 +3136,6 @@ export async function use_mirror(obj, state = game, env = {}) {
 export async function use_towel(obj, state = game, env = {}) {
     const random = { rn1, rn2, ...(env.random ?? {}) };
     const message = env.message ?? ttyPline;
-    const dryingFeedback = obj === state.uwep;
     const u = state.u;
 
     if (!freehand(state, env)) {
@@ -3216,6 +3215,8 @@ export async function use_towel(obj, state = game, env = {}) {
     } else if (u.ucreamed) {
         incr_itimeout(u.uprops[BLINDED], -1 * Math.trunc(u.ucreamed));
         u.ucreamed = 0;
+        // C tests its `Blinded` macro here: HBlinded && !BBlinded.
+        // The broader `Blind` macro also includes an extrinsic blindfold.
         const blinded = Boolean(
             u.uprops?.[BLINDED]?.intrinsic
                 && !u.uprops[BLINDED].blocked,

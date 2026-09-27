@@ -39,6 +39,7 @@ import {
     W_ARMG,
     W_ARMC,
     W_ARMU,
+    W_TOOL,
     WOUNDED_LEGS,
     SEE_INVIS,
 } from '../js/const.js';
@@ -3545,7 +3546,31 @@ test('mhitu.c gulp_blnd_check returns its source result and names discarded gulp
     assert.equal(game.u.uswldtim, 18);
     assert.equal(game.unported.has('mhitu.c gulpmu'), true);
 
+    const blinded = game.u.uprops[BLINDED];
     game.unported.clear();
+    game.u.uswldtim = 17;
+    blinded.intrinsic = 3;
+    blinded.extrinsic = 0;
+    blinded.blocked = W_TOOL;
+    assert.equal(gulp_blnd_check(game), true,
+        'C Blinded is false when BBlinded blocks HBlinded');
+    assert.equal(game.u.uswldtim, 18);
+    assert.equal(game.unported.has('mhitu.c gulpmu'), true);
+
+    game.unported.clear();
+    game.u.uswldtim = 17;
+    blinded.intrinsic = 0;
+    blinded.extrinsic = W_TOOL;
+    blinded.blocked = 0;
+    assert.equal(gulp_blnd_check(game), false,
+        'AT_ENGL can_blnd rejects the extrinsic blindfold');
+    assert.equal(game.u.uswldtim, 17);
+    assert.equal(game.unported.has('mhitu.c gulpmu'), false);
+
+    game.unported.clear();
+    blinded.intrinsic = 0;
+    blinded.extrinsic = 0;
+    blinded.blocked = 0;
     game.u.uswallow = false;
     game.u.uswldtim = 17;
     assert.equal(gulp_blnd_check(game), false);
