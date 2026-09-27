@@ -749,6 +749,16 @@ export function has_ceiling(level, state = game) {
     return true;
 }
 
+// C ref: dungeon.c avoid_ceiling(). Quest levels avoid describing the
+// ceiling because parts of them may be open to the sky; endgame levels with
+// no ceiling use the same alternate description. Keep topology state-scoped,
+// as has_ceiling() is.
+export function avoid_ceiling(level, state = game) {
+    const inQuest = level?.dnum != null
+        && level.dnum === state.quest_dnum;
+    return inQuest || !has_ceiling(level, state);
+}
+
 export function builds_up(level, state = game) {
     const dungeon = state.dungeons[level.dnum];
     if (dungeon.num_dunlevs > 1)
