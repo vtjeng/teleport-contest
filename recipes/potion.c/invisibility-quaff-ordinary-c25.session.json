@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent C25 potion.c:peffect_invisibility ordinary quaff route. The Wizard debug wish and item-letter selection were chosen before recording; a new seed and clock separate the potion caller witness from prior potion work.",
+  "segments": [
+    {
+      "seed": 260927251,
+      "datetime": "20260927141623",
+      "nethackrc": "OPTIONS=name:ShadeSip,role:Wizard,race:human,gender:female,align:neutral,playmode:debug,!legacy,!tutorial,!splash_screen,pettype:none\n",
+      "moves": " \u0017uncursed potion of invisibility\nqk"
+    }
+  ]
+}

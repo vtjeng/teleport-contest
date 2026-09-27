@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent C25 spell.c:spelleffects -> potion.c:peffect_invisibility route. A debug Wizard selects invisibility from the #wizcast spell menu; seed, clock and character were selected independently from the earlier stone-to-flesh self-cast recipe.",
+  "segments": [
+    {
+      "seed": 260927252,
+      "datetime": "20260927141731",
+      "nethackrc": "OPTIONS=name:ShadeCast,role:Wizard,race:human,gender:male,align:neutral,playmode:debug,!legacy,!tutorial,!splash_screen,pettype:none\n",
+      "moves": " #wizcast\n>g"
+    }
+  ]
+}

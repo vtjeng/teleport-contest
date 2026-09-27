@@ -56,6 +56,9 @@ import {
     POT_SLEEPING,
     POT_SPEED,
     POT_WATER,
+    MUMMY_WRAPPING,
+    SPBOOK_CLASS,
+    SPE_INVISIBILITY,
     TOWEL,
     COIN_CLASS,
     RING_CLASS,
@@ -78,7 +81,7 @@ import {
     speed_up,
     toggle_blindness,
 } from '../js/potion.js';
-import { enableRngLog, getRngLog } from '../js/rng.js';
+import { enableRngLog, getRngLog, initRng, rn2 } from '../js/rng.js';
 import {
     loadQuaffBoozeRecipes, loadQuaffHealingRecipes,
     verifyBoozeSegment, verifyHealingSegment,
@@ -1927,6 +1930,161 @@ test('peffects POT_OIL no longer throws UnsupportedQuaffError', async () => {
     clearTopline();
     await potionbreathe(obj, game);
     assert.equal(toplines(), '');
+});
+
+// C ref: potion.c peffect_invisibility() (811-840). This impure source
+// function owns BInvis's potion_nothing branch, blessed permanence's rn2
+// threshold, the ordinary d(6 - 3*bcsign(otmp),100)+100 timeout, and the
+// spell-only mummy-wrapping early return. The tests drive the real peffects
+// dispatcher, which is also the production caller used by spell.js.
+test('peffect_invisibility follows source ordering for potion branches',
+    async () => {
+        await startedGame(8470211, 'PotionInvisibilityBranches');
+        const property = game.u.uprops[INVIS];
+        property.intrinsic = 0;
+        property.extrinsic = 0;
+        property.blocked = 0;
+        game.gp.potion_nothing = 0;
+        const potion = vaporPotion(POT_INVISIBILITY);
+        clearTopline();
+        enableRngLog();
+
+        await peffects(potion, game);
+
+        const durationDraw = getRngLog();
+        assert.equal(durationDraw.length, 1);
+        const dice = Number(/^d\(6,100\)=(\d+)$/u
+            .exec(durationDraw[0])?.[1]);
+        assert.ok(dice >= 6 && dice <= 600);
+        assert.equal(property.intrinsic & TIMEOUT, dice + 100);
+        assert.equal(game.gp.potion_nothing, 0);
+        assert.equal(toplines(), "Gee!  All of a sudden, you can't see yourself.");
+
+        // Existing BInvis makes Invis false, but C's separate `|| BInvis`
+        // still suppresses the self-invisibility line and increments the
+        // potion_nothing counter before applying the ordinary timeout.
+        property.intrinsic = 0;
+        property.blocked = 1;
+        game.gp.potion_nothing = 0;
+        const blockedPotion = vaporPotion(POT_INVISIBILITY);
+        clearTopline();
+        enableRngLog();
+        await peffects(blockedPotion, game);
+        assert.equal(game.gp.potion_nothing, 1);
+        assert.equal(toplines(), '');
+        assert.match(getRngLog()[0], /^d\(6,100\)=\d+$/u);
+        assert.equal(property.intrinsic & TIMEOUT,
+            Number(/=(\d+)$/u.exec(getRngLog()[0])[1]) + 100);
+    });
+
+test('peffect_invisibility blessed permanence uses C HInvis threshold',
+    async () => {
+        const source = potionSource();
+        const start = source.indexOf('peffect_invisibility(struct obj *otmp)');
+        const end = source.indexOf('\nstaticfn void\npeffect_see_invisible', start);
+        assert.ok(start >= 0 && end > start);
+        const body = source.slice(start, end);
+        assert.match(body, /!rn2\(HInvis \? 15 : 30\)/u);
+        assert.match(body, /d\(6 - 3 \* bcsign\(otmp\), 100\) \+ 100/u);
+
+        await startedGame(8470212, 'BlessedPotionInvisibility');
+        const property = game.u.uprops[INVIS];
+        property.intrinsic = 0;
+        property.extrinsic = 0;
+        property.blocked = 0;
+        const potion = vaporPotion(POT_INVISIBILITY);
+        potion.blessed = true;
+
+        // Search a small explicit seed range only to select the C source's
+        // one-in-thirty permanence result; no game history is copied.
+        let selectedSeed;
+        for (let seed = 8471000; seed < 8471100; ++seed) {
+            initRng(seed);
+            if (rn2(30) === 0) {
+                selectedSeed = seed;
+                break;
+            }
+        }
+        assert.notEqual(selectedSeed, undefined,
+            'the preselected 100-seed range contains a zero draw');
+        initRng(selectedSeed);
+        enableRngLog();
+        clearTopline();
+
+        await peffects(potion, game);
+
+        assert.deepEqual(getRngLog(), ['rn2(30)=0']);
+        assert.ok(property.intrinsic & FROMOUTSIDE);
+        assert.equal(property.intrinsic & TIMEOUT, 0,
+            'permanent invisibility does not also add a timeout');
+
+        // HInvis is the full C intrinsic bitfield, so an existing permanent
+        // source selects rn2(15), even with no active TIMEOUT bits.
+        property.intrinsic = FROMOUTSIDE;
+        const alreadyInvisible = vaporPotion(POT_INVISIBILITY);
+        alreadyInvisible.blessed = true;
+        let timedSeed;
+        for (let seed = 8471100; seed < 8471200; ++seed) {
+            initRng(seed);
+            if (rn2(15) === 0) {
+                timedSeed = seed;
+                break;
+            }
+        }
+        assert.notEqual(timedSeed, undefined,
+            'the second preselected 100-seed range contains a zero draw');
+        initRng(timedSeed);
+        enableRngLog();
+        await peffects(alreadyInvisible, game);
+        assert.deepEqual(getRngLog(), ['rn2(15)=0']);
+        assert.equal(property.intrinsic, FROMOUTSIDE);
+    });
+
+test('SPE_INVISIBILITY spell cannot pass mummy wrapping', async () => {
+    await startedGame(8470213, 'SpellInvisibilityWrapping');
+    const property = game.u.uprops[INVIS];
+    property.intrinsic = 0;
+    property.extrinsic = 0;
+    property.blocked = 1;
+    game.uarmc = mksobj(MUMMY_WRAPPING, false, false, { state: game });
+    game.gp.potion_nothing = 0;
+    const spell = {
+        otyp: SPE_INVISIBILITY,
+        oclass: SPBOOK_CLASS,
+        blessed: 0,
+        cursed: 0,
+    };
+    clearTopline();
+    enableRngLog();
+
+    await peffects(spell, game);
+
+    assert.equal(toplines(), 'You feel rather itchy under the mummy wrapping.');
+    assert.deepEqual(getRngLog(), [], 'the source returns before any RNG');
+    assert.equal(property.intrinsic, 0);
+    assert.equal(game.gp.potion_nothing, 0);
+});
+
+test('cursed invisibility preserves its source-owned aggravate gap', async () => {
+    await startedGame(8470214, 'CursedPotionInvisibility');
+    const property = game.u.uprops[INVIS];
+    property.intrinsic = FROMOUTSIDE;
+    property.extrinsic = 0;
+    property.blocked = 0;
+    const potion = vaporPotion(POT_INVISIBILITY);
+    potion.cursed = true;
+    clearTopline();
+    enableRngLog();
+
+    await peffects(potion, game);
+
+    assert.match(getRngLog()[0], /^d\(9,100\)=\d+$/u,
+        'cursed bcsign changes the source dice count before aggravate');
+    assert.equal(property.intrinsic & FROMOUTSIDE, 0,
+        'the cursed tail removes permanent invisibility after the void gap');
+    assert.ok(game.unported.has('wizard.c aggravate'));
+    assert.ok(toplines().includes(
+        'For some reason, you feel your presence is known.'));
 });
 
 // ---------------------------------------------------------------------------

@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Blocked C25 cursed potion.c:peffect_invisibility branch. C reaches the later void wizard.c:aggravate call and performs unrelated monster awakening effects; JavaScript intentionally preserves this as note_unported('wizard.c aggravate'), so no C recording is admitted until that source family is ported.",
+  "segments": [
+    {
+      "seed": 260927253,
+      "datetime": "20260927141944",
+      "nethackrc": "OPTIONS=name:KnownPresence,role:Wizard,race:human,gender:female,align:neutral,playmode:debug,!legacy,!tutorial,!splash_screen,pettype:none\n",
+      "moves": " \u0017cursed potion of invisibility\nqk"
+    }
+  ]
+}
