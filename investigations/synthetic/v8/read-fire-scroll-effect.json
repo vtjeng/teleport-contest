@@ -1,0 +1,138 @@
+{
+  "session": "synthetic/v8/read-fire-scroll-effect",
+  "corpus": "synthetic",
+  "batch": "v8",
+  "caseId": "read-fire-scroll-effect",
+  "manifestPath": "challenges/manifests/v8.json",
+  "manifestSha256": "6a5159501af18a7f926f794d89e817375cd00a3589c4899fb97392ae04dbe8ba",
+  "recordingSha256": "9fc878b044ff61247bc0dee1bbc943b5f55ba78f17967641301bb1ccb26d47b7",
+  "evaluationPath": "challenges/evaluations/20260927085003-v8.json",
+  "evaluationCommit": "c4cdb74777cb0a0796befbb14724fecbe1fb54e6",
+  "remainingScreens": 1,
+  "recordedSteps": 20,
+  "status": "complete",
+  "commit": "83dd4590034a14dfd65348198a6b336959087cbf",
+  "mismatch": {
+    "corpus": "synthetic",
+    "batch": "v8",
+    "caseId": "read-fire-scroll-effect",
+    "session": "synthetic/v8/read-fire-scroll-effect",
+    "manifestPath": "challenges/manifests/v8.json",
+    "manifestSha256": "6a5159501af18a7f926f794d89e817375cd00a3589c4899fb97392ae04dbe8ba",
+    "recording": "challenges/cases/v8/read-fire-scroll-effect.session.json",
+    "recordingPath": "challenges/cases/v8/read-fire-scroll-effect.session.json",
+    "recordingSha256": "9fc878b044ff61247bc0dee1bbc943b5f55ba78f17967641301bb1ccb26d47b7",
+    "recipe": "challenges/cases/v8/read-fire-scroll-effect.recipe.session.json",
+    "recipeSha256": "3c1f2c56f4db26ef1a5426e481f2282b6d07d5dbcf7f72e90672877a8fec80bc",
+    "replayInputSha256": "479955d161d696fc31a37f5adc2d4642cd7e41b193a09c7dfb1f597d5de19b8f",
+    "evaluationPath": "challenges/evaluations/20260927085003-v8.json",
+    "evaluationCommit": "c4cdb74777cb0a0796befbb14724fecbe1fb54e6",
+    "evaluationArtifact": "challenges/evaluations/20260927085003-v8.json",
+    "evaluationUtc": "2026-09-27T08:50:17.067Z",
+    "remainingScreens": 1,
+    "recordedSteps": 20,
+    "previousScreensMatched": null,
+    "regression": false,
+    "passed": false,
+    "error": null,
+    "metrics": {
+      "screens": {
+        "matched": 19,
+        "total": 20
+      },
+      "rng": {
+        "matched": 2781,
+        "total": 2797
+      },
+      "cursors": {
+        "matched": 19,
+        "total": 20
+      }
+    },
+    "firstMismatch": {
+      "screen": {
+        "index": 19,
+        "location": {
+          "segmentIndex": 0,
+          "stepIndex": 19,
+          "key": "m"
+        },
+        "kind": "ch",
+        "row": 0,
+        "column": 20,
+        "cCell": {
+          "ch": " ",
+          "color": 8,
+          "attr": 0,
+          "decgfx": 0
+        },
+        "jsCell": {
+          "ch": "-",
+          "color": 8,
+          "attr": 0,
+          "decgfx": 0
+        }
+      },
+      "rng": {
+        "index": 2781,
+        "cEntry": "rn2(3)=2",
+        "cCaller": "seffect_fire(read.c:1864)",
+        "location": {
+          "segmentIndex": 0,
+          "stepIndex": 19,
+          "key": "m"
+        },
+        "stepIndex": 19
+      },
+      "cursor": {
+        "index": 19,
+        "location": {
+          "segmentIndex": 0,
+          "stepIndex": 19,
+          "key": "m"
+        },
+        "cCursor": [
+          53,
+          8,
+          1
+        ],
+        "jsCursor": [
+          28,
+          0,
+          1
+        ]
+      }
+    },
+    "step": 19,
+    "kind": "rng",
+    "sourceFile": "read.c",
+    "function": "seffect_fire",
+    "message": null,
+    "cFile": "read.c",
+    "luaFile": null,
+    "line": 1864
+  },
+  "summary": "At segment 0 step 19, selecting the uncursed scroll of fire reaches read.c:seffect_fire. C first draws rn1(3,3) for damage; JavaScript read.js:seffects records an unported seffect_fire gap and skips the entire function, shifting the screen, cursor, and RNG stream. Port the complete fire-scroll effect rather than the recorded draw alone.",
+  "source": {
+    "file": "read.c",
+    "branch": "The read command selects an uncursed SCR_FIRE while the Wizard is not confused, underwater, or fire resistant. read.c:seffects dispatches to seffect_fire(), whose first action is the rn1(3,3) damage draw before consuming the scroll and dispatching the ordinary explosion branch. Its confused, underwater, blessed target-selection, and hero-fire branches remain part of the whole source function.",
+    "functions": [
+      "seffect_fire"
+    ],
+    "callers": [
+      "C cmd.c read command -> read.c:doread() -> seffects() SCR_FIRE arm -> seffect_fire() at read.c:2271; JS cmd.c equivalent -> js/read.js:doread()/seffects() SCR_FIRE arm currently note_unported(read.c seffect_fire)."
+    ],
+    "dependencies": [
+      "read.c:learnscrolltyp is already ported in js/read.js; explode.c:explode exists in js/explode.js with SCROLL_CLASS handling and must be checked for the fire type and full effect.",
+      "Blessed seffect_fire uses getpos with can_center_cloud and display_stinking_cloud_positions to choose an explosion center; verify the existing getpos and targeting contracts before using a return-valued result or documenting a blocked branch.",
+      "The C function discards some helper results but their state and output order still matter: useup, shieldeff, monstseesu/monstunseesu, losehp, burn_away_slime, and explode."
+    ]
+  },
+  "goalKind": "file-port",
+  "evidence": [
+    "Current saved queue /tmp/v8-baseline-workqueue.json and challenges/evaluations/20260927085003-v8.json at c4cdb74777cb0a0796befbb14724fecbe1fb54e6 measure one remaining screen across 20 steps. At segment 0 step 19 (input m), screen index 19 differs at row 0 column 20, C cursor [53,8,1] versus JS [28,0,1], and the first RNG mismatch is C rn2(3)=2 at seffect_fire(read.c:1864).",
+    "Independent v8 C recipe challenges/cases/v8/read-fire-scroll-effect.recipe.session.json selects an uncursed scroll of fire with moves ending rm; the immutable recording at challenges/cases/v8/read-fire-scroll-effect.session.json establishes the C branch and random call.",
+    "Upstream nethack-c/upstream/src/read.c:1850-1918 defines the whole seffect_fire source function; its first damage expression uses rn1(3,3), and read.c:2271 dispatches SCR_FIRE to it. Current js/read.js:1557-1559 instead calls note_unported(read.c seffect_fire), so the missing source call causes the stream shift.",
+    "Existing js/explode.js:explode handles SCROLL_CLASS but this investigation does not claim every fire-scroll branch matches; the selected whole-source task must validate active entry paths and report any downstream gaps."
+  ]
+}
