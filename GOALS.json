@@ -97305,7 +97305,7 @@
     {
       "id": "port-apply-use-towel-synthetic-v8-20260927",
       "kind": "file-port",
-      "status": "open",
+      "status": "parked",
       "summary": "Port towel use across clean, slippery, and blinded states",
       "cFile": "apply.c",
       "sessions": [
@@ -97498,7 +97498,17 @@
             }
           }
         }
-      ]
+      ],
+      "progressBeforePark": {
+        "screens": 0,
+        "rng": 0
+      },
+      "parkedStanding": {
+        "sha": "eaaa1f72f98bbaddc775a4600e02f051895b9698",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "parkedReason": "The selected v8 towel path and independent cursed/cream recordings now match, but complete source evidence still requires a matching swallowed use_towel path for mhitu.c:gulp_blnd_check true return. The current Dust Vortex route is blocked because mhitu.c:gulpmu blinds the hero before the next towel command; apply.c:dry_a_towel remains an explicitly unported discarded-result state effect. Resume when an independent reachable swallowed path and wet-towel drying recording can verify the remaining branches."
     },
     {
       "id": "port-read-seffect-scare-monster-synthetic-v8-20260927",
