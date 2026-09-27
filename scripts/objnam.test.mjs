@@ -5,6 +5,7 @@ import {
     ART_EXCALIBUR,
     ART_GIANTSLAYER,
     ART_GRIMTOOTH,
+    ART_HEART_OF_AHRIMAN,
     ART_ORB_OF_DETECTION,
     ART_SUNSWORD,
     init_artifacts,
@@ -153,6 +154,7 @@ import {
     RIN_ADORNMENT,
     HEAVY_IRON_BALL,
     IRON_CHAIN,
+    LUCKSTONE,
 } from '../js/objects.js';
 import { roles } from '../js/roles.js';
 import { CASES, loadWornGloveNameRecipe } from './run-worn-glove-name.mjs';
@@ -1903,6 +1905,30 @@ test('artifact naming records discovery before choosing its article', () => {
     artifact.bknown = true;
     artifact.rknown = true;
     assert.equal(donameFresh(artifact, state), 'the +0 Giantslayer');
+});
+
+test('xname_flags lowercases The only in an artifact instance name', () => {
+    const state = namingState();
+    state.artiexist[ART_HEART_OF_AHRIMAN].exists = 1;
+    const heart = objectOf(state, LUCKSTONE, {
+        oartifact: ART_HEART_OF_AHRIMAN,
+        dknown: true,
+        oextra: { oname: 'The Heart of Ahriman' },
+    });
+
+    // objnam.c:xname_flags() appends the instance name, then lowercases its
+    // initial T when the object is an artifact. The class name stays intact.
+    assert.equal(
+        xnameFresh(heart, state), 'gray stone named the Heart of Ahriman',
+    );
+
+    const ordinary = objectOf(state, LUCKSTONE, {
+        dknown: true,
+        oextra: { oname: 'The Other Name' },
+    });
+    assert.equal(
+        xnameFresh(ordinary, state), 'gray stone named The Other Name',
+    );
 });
 
 // C ref: objnam.c obj_is_pname() (332-342), which withholds the personal name
