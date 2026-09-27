@@ -6,12 +6,12 @@
   "manifestPath": "challenges/manifests/v9.json",
   "manifestSha256": "00c148aac522e6343c8de0bd003db29771439f972a99cb18c772ebf2bc45a594",
   "recordingSha256": "cf1d058b874865447eb40db3e9d045ba6b5cf7518f90c1aeb31ee94e6f3ef742",
-  "evaluationPath": "challenges/evaluations/20260927170744-v9.json",
-  "evaluationCommit": "c49a113a15eedee5d91c6dde088d4c58dc89bfe6",
-  "remainingScreens": 9,
+  "evaluationPath": "challenges/evaluations/20260927191056-v9.json",
+  "evaluationCommit": "5b4486322ffa5eeb91cc37d01083ff20bbfe2ea7",
+  "remainingScreens": 6,
   "recordedSteps": 9,
   "status": "complete",
-  "commit": "c49a113a15eedee5d91c6dde088d4c58dc89bfe6",
+  "commit": "5b4486322ffa5eeb91cc37d01083ff20bbfe2ea7",
   "mismatch": {
     "corpus": "synthetic",
     "batch": "v9",
@@ -24,64 +24,121 @@
     "recordingSha256": "cf1d058b874865447eb40db3e9d045ba6b5cf7518f90c1aeb31ee94e6f3ef742",
     "recipe": "challenges/cases/v9/kick-closed-door.recipe.session.json",
     "recipeSha256": "2af77171b46307c4ebb77baa0a708519039e73dee2d2c4ee14ebbab06df3db69",
-    "replayInputSha256": "d9fc86a74332497794cc5861c1a17d14a1349d4e60e3ad350242e00a31ac3cd4",
-    "evaluationPath": "challenges/evaluations/20260927170744-v9.json",
-    "evaluationCommit": "c49a113a15eedee5d91c6dde088d4c58dc89bfe6",
-    "evaluationArtifact": "challenges/evaluations/20260927170744-v9.json",
-    "evaluationUtc": "2026-09-27T17:08:21.938Z",
-    "remainingScreens": 9,
+    "replayInputSha256": "e8a7428d883fb33542b59d993324d6e14197b8486a45162a9f5b2efd3e9ebd60",
+    "evaluationPath": "challenges/evaluations/20260927191056-v9.json",
+    "evaluationCommit": "5b4486322ffa5eeb91cc37d01083ff20bbfe2ea7",
+    "evaluationArtifact": "challenges/evaluations/20260927191056-v9.json",
+    "evaluationUtc": "2026-09-27T19:11:49.445Z",
+    "remainingScreens": 6,
     "recordedSteps": 9,
-    "previousScreensMatched": null,
+    "previousScreensMatched": 0,
     "regression": false,
     "passed": false,
-    "error": "unsolid is not defined",
+    "error": null,
     "metrics": {
       "screens": {
-        "matched": 0,
+        "matched": 3,
         "total": 9
       },
       "rng": {
-        "matched": 0,
+        "matched": 2744,
         "total": 2840
       },
       "cursors": {
-        "matched": 0,
+        "matched": 3,
         "total": 9
       }
     },
     "firstMismatch": {
-      "kind": "stop",
-      "message": "Replay error: unsolid is not defined",
-      "step": null
+      "screen": {
+        "index": 3,
+        "location": {
+          "segmentIndex": 0,
+          "stepIndex": 3,
+          "key": "h"
+        },
+        "kind": "ch",
+        "row": 0,
+        "column": 70,
+        "cCell": {
+          "ch": " ",
+          "color": 8,
+          "attr": 0,
+          "decgfx": 0
+        },
+        "jsCell": {
+          "ch": "-",
+          "color": 8,
+          "attr": 0,
+          "decgfx": 0
+        }
+      },
+      "rng": {
+        "index": 2744,
+        "cEntry": "rn2(5)=3",
+        "cCaller": "distfleeck(monmove.c:538)",
+        "jsEntry": "rnd(20)=4",
+        "location": {
+          "segmentIndex": 0,
+          "stepIndex": 3,
+          "key": "h"
+        },
+        "stepIndex": 3
+      },
+      "cursor": {
+        "index": 3,
+        "location": {
+          "segmentIndex": 0,
+          "stepIndex": 3,
+          "key": "h"
+        },
+        "cCursor": [
+          20,
+          5,
+          1
+        ],
+        "jsCursor": [
+          78,
+          0,
+          1
+        ]
+      }
     },
-    "step": null,
-    "kind": "stop",
-    "sourceFile": null,
-    "function": null,
-    "message": "Replay error: unsolid is not defined",
-    "cFile": null,
+    "step": 3,
+    "kind": "rng",
+    "sourceFile": "monmove.c",
+    "function": "distfleeck",
+    "message": null,
+    "cFile": "monmove.c",
     "luaFile": null,
-    "line": null
+    "line": 538
   },
-  "summary": "The case aims to kick a door, but its first JavaScript failure occurs earlier when ordinary movement attacks a monster. Ported uhitm.c:mhitm_knockback reaches its source unsolid(attacker) test and throws because js/uhitm.js omitted the existing mondata.js unsolid import. Restore that source predicate for every attack, then remeasure the case to find its next mismatch.",
+  "summary": "A31 restored the source solidity predicate and removed the replay error; the case now matches through step 2. At step 3, C uhitm.c:mhitm_knockback calls dothrow.c:mhurtle, which wakes, stuns, and moves the defender along a source-tested path. JavaScript records that call as unported, leaving the monster in place; the changed state causes the next screen/cursor difference and a downstream monmove.c:distfleeck RNG difference. Port the complete monster hurtle function and its mhurtle_step path behavior, then remeasure the remaining door history.",
   "source": {
-    "file": "uhitm.c",
-    "branch": "mhitm_knockback checks attacker solidity after size, weapon, and living-monster guards, before testing hitflags or drawing knockback chance. The selected setup reaches this check during a hero attack before the intended door kick.",
+    "file": "dothrow.c",
+    "branch": "dothrow.c:mhurtle first wakes and stuns the monster, applies immobility and direction guards, then uses walk_path with static mhurtle_step. The step callback tests will_hurtle and region movement, updates monster or steed position, applies trap outcomes, and handles collisions and petrification. After the path, mhurtle checks a trap or liquid at the final square. The selected v9 step reaches the knockback call from uhitm.c and requires these state changes before later monmove RNG.",
     "functions": [
-      "mhitm_knockback"
+      "mhurtle_step",
+      "mhurtle"
     ],
     "callers": [
-      "uhitm.c:hmon_hitmon calls mhitm_knockback after a hero hit; js/uhitm.js:hmon_hitmon already calls the ported helper."
+      "uhitm.c:mhitm_knockback calls mhurtle after a successful knockback (line 5400); js/uhitm.js currently notes dothrow.c mhurtle at that source site.",
+      "uhitm.c:mhurtle_to_doom calls mhurtle after a forceful hero hit (line 1949); js/uhitm.js has a separate dothrow.c mhurtle gap.",
+      "zap.c:bhitm calls mhurtle for a monster struck by a wand effect (line 408).",
+      "wizcmds.c debug command calls mhurtle on a targeted monster (line 515)."
     ],
     "dependencies": [
-      "mondata.c:unsolid is already ported as js/mondata.js:unsolid; import and use it at the existing source-mapped call site.",
-      "Re-evaluate the independent C recording after this general fix; its intended door action may reveal another source mismatch."
+      "mhurtle_step consumes will_hurtle, m_in_out_region, and mintrap return values; preserve their C return contracts and branch order. mhurtle uses walk_path to sequence steps.",
+      "Retain existing source position and call ordering at each active caller; do not substitute movement, output, or RNG for an unported callee."
     ]
   },
-  "goalKind": "divergence-fix",
+  "goalKind": "file-port",
   "evidence": [
     "Saved v9 baseline challenges/evaluations/20260927170744-v9.json records ReferenceError \"unsolid is not defined\" with 0/9 screens for the immutable C recording.",
     "Fresh scan at combined main 2e0a01a106aa02ff3ae520093dd4712eabe6fb6d traces the throw from js/uhitm.js:mhitm_knockback through hmon_hitmon and ordinary movement attack, before the case reaches a door kick.",
-    "Upstream nethack-c/upstream/src/uhitm.c:mhitm_knockback around line 5327 calls unsolid(magr->data) to reject nonphysical attackers; js/uhitm.js uses unsolid in that function but its mondata.js import list omits the symbol."
+    "Upstream nethack-c/upstream/src/uhitm.c:mhitm_knockback around line 5327 calls unsolid(magr->data) to reject nonphysical attackers; js/uhitm.js uses unsolid in that function but its mondata.js import list omits the symbol.",
+    "A31 integrated 5b4486322ffa5eeb91cc37d01083ff20bbfe2ea7 passes the full checkpoint (44/44 fixed, 565/565 recordings); challenges/evaluations/20260927191056-v9.json measures this case at 3/9 screens and 2744/2840 RNG with no replay error, up from 0/9 and 0/2840.",
+    "Independent A31 selected-case scan locates the first remaining divergence at segment 0 step 3 key h: C row 0 column 70 is blank and JS retains a hyphen, with C cursor [20,5,1] and JS [78,0,1]. Its first RNG difference is downstream at monmove.c:distfleeck because the monster state differs.",
+    "Upstream dothrow.c lines 992-1073 define mhurtle_step and lines 1130-1178 define mhurtle; uhitm.c line 5400 calls it after knockback. js/uhitm.js leaves note_unported at the same call."
   ]
 }

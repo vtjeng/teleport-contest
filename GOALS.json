@@ -98182,7 +98182,7 @@
     {
       "id": "div-uhitm-mhitm-knockback-unsolid-synthetic-v9-20260927",
       "kind": "divergence-fix",
-      "status": "open",
+      "status": "closed",
       "summary": "Restore the solidity guard in monster knockback",
       "cFile": "uhitm.c",
       "sessions": [],
@@ -98194,8 +98194,11 @@
         "screens": 11405,
         "rng": 792838
       },
-      "closedAt": null,
-      "delivered": null,
+      "closedAt": "5b4486322ffa5eeb91cc37d01083ff20bbfe2ea7",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
       "function": "mhitm_knockback",
       "session": "synthetic/v9/kick-closed-door",
       "syntheticProvenance": {
@@ -98360,7 +98363,120 @@
             }
           }
         }
-      ]
+      ],
+      "closeMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v9",
+          "caseId": "kick-closed-door",
+          "session": "synthetic/v9/kick-closed-door",
+          "manifestPath": "challenges/manifests/v9.json",
+          "manifestSha256": "00c148aac522e6343c8de0bd003db29771439f972a99cb18c772ebf2bc45a594",
+          "recording": "challenges/cases/v9/kick-closed-door.session.json",
+          "recordingPath": "challenges/cases/v9/kick-closed-door.session.json",
+          "recordingSha256": "cf1d058b874865447eb40db3e9d045ba6b5cf7518f90c1aeb31ee94e6f3ef742",
+          "recipe": "challenges/cases/v9/kick-closed-door.recipe.session.json",
+          "recipeSha256": "2af77171b46307c4ebb77baa0a708519039e73dee2d2c4ee14ebbab06df3db69",
+          "replayInputSha256": "e8a7428d883fb33542b59d993324d6e14197b8486a45162a9f5b2efd3e9ebd60",
+          "evaluationPath": "challenges/evaluations/20260927191056-v9.json",
+          "evaluationCommit": "5b4486322ffa5eeb91cc37d01083ff20bbfe2ea7",
+          "evaluationArtifact": "challenges/evaluations/20260927191056-v9.json",
+          "evaluationUtc": "2026-09-27T19:11:49.445Z",
+          "remainingScreens": 6,
+          "recordedSteps": 9,
+          "previousScreensMatched": 0,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 3,
+              "total": 9
+            },
+            "rng": {
+              "matched": 2744,
+              "total": 2840
+            },
+            "cursors": {
+              "matched": 3,
+              "total": 9
+            }
+          },
+          "firstMismatch": {
+            "screen": {
+              "index": 3,
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 3,
+                "key": "h"
+              },
+              "kind": "ch",
+              "row": 0,
+              "column": 70,
+              "cCell": {
+                "ch": " ",
+                "color": 8,
+                "attr": 0,
+                "decgfx": 0
+              },
+              "jsCell": {
+                "ch": "-",
+                "color": 8,
+                "attr": 0,
+                "decgfx": 0
+              }
+            },
+            "rng": {
+              "index": 2744,
+              "cEntry": "rn2(5)=3",
+              "cCaller": "distfleeck(monmove.c:538)",
+              "jsEntry": "rnd(20)=4",
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 3,
+                "key": "h"
+              },
+              "stepIndex": 3
+            },
+            "cursor": {
+              "index": 3,
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 3,
+                "key": "h"
+              },
+              "cCursor": [
+                20,
+                5,
+                1
+              ],
+              "jsCursor": [
+                78,
+                0,
+                1
+              ]
+            }
+          },
+          "step": 3,
+          "kind": "rng",
+          "sourceFile": "monmove.c",
+          "function": "distfleeck",
+          "message": null,
+          "cFile": "monmove.c",
+          "luaFile": null,
+          "line": 538,
+          "investigation": {
+            "status": "stale",
+            "path": "investigations/synthetic/v9/kick-closed-door.json",
+            "previousRemainingScreens": 9
+          }
+        }
+      ],
+      "closeStanding": {
+        "sha": "5b4486322ffa5eeb91cc37d01083ff20bbfe2ea7",
+        "screens": 11405,
+        "rng": 792838
+      }
     }
   ]
 }
