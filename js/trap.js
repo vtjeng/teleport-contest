@@ -146,6 +146,7 @@ import {
     TELEDS_TELEPORT,
     TEST_MOVE,
     TRAPDOOR,
+    TOOKPLUNGE,
     TRAPNUM,
     TRAPPED_CHEST,
     TRAPPED_DOOR,
@@ -162,6 +163,8 @@ import {
     TT_PIT,
     TT_WEB,
     UNENCUMBERED,
+    UTOTYPE_FALLING,
+    UTOTYPE_NONE,
     Upolyd,
     VIBRATING_SQUARE,
     WATER,
@@ -190,6 +193,7 @@ import {
     is_pit,
     is_xport,
     isok,
+    undestroyable_trap,
     xdir,
     ydir,
 } from './const.js';
@@ -208,11 +212,21 @@ import {
     has_ceiling,
     Can_fall_thru,
     assign_level,
+    depth,
+    dunlev,
+    dunlev_reached,
+    dunlevs_in_dungeon,
+    In_hell,
+    single_level_branch,
     on_level,
     level_difficulty,
     u_on_newpos,
+    ceiling,
     surface,
+    find_hell,
 } from './dungeon.js';
+import { schedule_goto } from './do.js';
+import { next_to_u } from './apply_next_to_u.js';
 import { done } from './end.js';
 import { feel_newsym, rank_of, map_invisible } from './display.js';
 import { can_reach_floor } from './engrave.js';
@@ -239,7 +253,7 @@ import { set_malign } from './makemon.js';
 import { killed, set_ustuck, wake_nearby, wakeup, seemimic } from './mon.js';
 import {
     amorphous, amphibious, attacktype, breathless, can_teleport, flaming,
-    is_clinger, is_floater,
+    ceiling_hider, is_clinger, is_floater,
     is_animal, is_flyer, is_whirly, nohands, resists_magm, unsolid, webmaker, sticks,
     bigmonst, is_swimmer, likes_lava, mindless, monster_resists_element,
     touch_petrifies, unique_corpstat, poly_when_stoned, is_golem,
@@ -249,6 +263,7 @@ import { stagger, monstseesu, monstunseesu } from './mondata.js';
 import {
     AD_ELEC, AD_FIRE, AT_BREA, AT_MAGC, S_HUMAN, PM_GELATINOUS_CUBE,
     MZ_SMALL, PM_FOG_CLOUD, PM_IRON_GOLEM, PM_STEAM_VORTEX,
+    MZ_HUGE,
     PM_STONE_GOLEM, PM_RANGER, PM_ROGUE, PM_WATER_ELEMENTAL,
     PM_DOPPELGANGER, PM_FLESH_GOLEM, PM_ARCHEOLOGIST, MS_GUARDIAN,
     PM_GREMLIN,
@@ -293,8 +308,10 @@ import { trap_to_defsym } from './symbols.js';
 import { halu_trapnames } from './trap_names_data.js';
 import { is_ice, set_levltyp } from './terrain.js';
 import { spot_stop_timers } from './timeout.js';
-import { dotrap, mintrap } from './trap_effects.js';
-import { ttyPline, ttyUrgentPline } from './tty_message.js';
+import { dotrap, feeltrap, mintrap } from './trap_effects.js';
+import {
+    displayPendingTtyMessageWindow, ttyPline, ttyUrgentPline,
+} from './tty_message.js';
 import { stumble_onto_mimic } from './uhitm.js';
 import { note_unported } from './unported.js';
 import {
@@ -494,6 +511,9 @@ const DEFAULT_CAPABILITIES = Object.freeze({
         spot_stop_timers(x, y, action, env.state);
     },
     unearthObjects: unearth_objs,
+    recalculateBlockPoint(x, y, env) {
+        recalc_block_point(x, y, env.state);
+    },
 });
 
 export function t_at(x, y, state = game) {
@@ -537,35 +557,156 @@ function choose_trapnote(current, env) {
         : env.random.rn2(12);
 }
 
-// C ref: trap.c dng_bottom() and hole_destination(). The quest and Gehennom
-// cutoffs matter outside the initial dungeon even though ordinary D:1 traps
-// only use the ordinary-dungeon branch.
+// C ref: trap.c dng_bottom() (418-437). The quest locate and pre-invocation
+// Gehennom limits are read from the supplied state, matching In_quest() and
+// In_hell() without depending on the singleton game object.
+export function dng_bottom(level, state = game) {
+    let bottom = dunlevs_in_dungeon(level, state);
+
+    if (level.dnum === state.quest_dnum) {
+        const qlocateDepth = state.qlocate_level?.dlevel ?? 0;
+        if (dunlev_reached(level, state) < qlocateDepth)
+            bottom = qlocateDepth;
+    } else if (In_hell(level, state) && !state.u?.uevent?.invoked) {
+        --bottom;
+    }
+    return bottom;
+}
+
+// C ref: trap.c hole_destination() (440-453). Each candidate depth advances
+// before rn2(4); a nonzero result stops at that depth.
 function hole_destination(destination, env) {
     const { state, random } = env;
     const current = state.u?.uz;
-    const dungeon = state.dungeons?.[current?.dnum];
-    if (!current || !dungeon)
+    if (!current || !state.dungeons?.[current.dnum])
         throw new Error('hole_destination requires initialized dungeon state');
 
-    let bottom = dungeon.num_dunlevs;
-    const questLocate = state.qlocate_level;
-    if (questLocate && current.dnum === questLocate.dnum) {
-        const deepestReached = Math.trunc(dungeon.dunlev_ureached ?? 0);
-        if (deepestReached < questLocate.dlevel)
-            bottom = questLocate.dlevel;
-    } else if (dungeon.flags?.hellish && !state.u?.uevent?.invoked) {
-        --bottom;
-    }
-
+    const bottom = dng_bottom(current, state);
     destination.dnum = current.dnum;
-    destination.dlevel = current.dlevel;
+    destination.dlevel = dunlev(current);
     while (destination.dlevel < bottom) {
         ++destination.dlevel;
         if (random.rn2(4)) break;
     }
 }
 
-function resetTrap(trap, typ) {
+// C ref: trap.c clamp_hole_destination() (627-633). Mutates and returns the
+// caller's level pair, limiting old-bones destinations to this branch's
+// current bottom.
+export function clamp_hole_destination(destination, state = game) {
+    destination.dlevel = Math.min(
+        destination.dlevel,
+        dng_bottom(destination, state),
+    );
+    return destination;
+}
+
+// C ref: trap.c fall_through() (636-725), shared by a hero entering a hole or
+// trap door and by dokick.c kick_nondoor() when a throne opens a shaft.
+export async function fall_through(td, ftflags, state = game) {
+    const u = state.u;
+    const plunged = Boolean(ftflags & TOOKPLUNGE);
+    let trap = null;
+    let dontFall = null;
+    let controlledFlight = false;
+
+    // Sokoban's special fall rule overrides levitation, but a blind,
+    // levitating hero elsewhere gets no message and no other side effect.
+    if (Blind(state) && Levitation(state) && !state.level?.flags?.sokoban_rules)
+        return;
+
+    const nextLevel = dunlev(u.uz) + 1;
+
+    if (td) {
+        trap = t_at(u.ux, u.uy, state);
+        await feeltrap(trap, { state, redraw: (x, y) => newsym(x, y) });
+        if (!state.level?.flags?.sokoban_rules && !plunged) {
+            await ttyPline(
+                trap.ttyp === TRAPDOOR
+                    ? 'A trap door opens up under you!'
+                    : "There's a gaping hole under you!",
+                state,
+            );
+        }
+    } else {
+        await ttyPline(`The ${surface(u.ux, u.uy, state)} opens up under you!`, state);
+    }
+
+    if (state.level?.flags?.sokoban_rules && Can_fall_thru(u.uz, state)) {
+        // Sokoban's holes cannot be escaped; proceed to the fall checks below.
+    } else if (Levitation(state) || u.ustuck
+        || (!Can_fall_thru(u.uz, state)
+            && !state.level.at(u.ux, u.uy).candig)
+        || ((Flying(state) || is_clinger(state.youmonst.data)
+            || (ceiling_hider(state.youmonst.data) && u.uundetected))
+            && !plunged)) {
+        dontFall = "don't fall in.";
+    } else if (state.youmonst.data.msize >= MZ_HUGE) {
+        dontFall = "don't fit through.";
+    } else if (!next_to_u(state)) {
+        dontFall = 'are jerked back by your pet!';
+    }
+
+    if (dontFall) {
+        await ttyPline(`You ${dontFall}`, state);
+        // C's impact_drop(NULL, ux, uy, 0) result is discarded. The helper is
+        // not ported, so preserve an explicit gap rather than inventing its
+        // object impacts.
+        note_unported('dokick.c impact_drop');
+        if (!td) {
+            await displayPendingTtyMessageWindow(state);
+            await ttyPline('The opening under you closes up.', state);
+        }
+        return;
+    }
+
+    if ((Flying(state) || is_clinger(state.youmonst.data))
+        && plunged && td && trap) {
+        if (Flying(state)) controlledFlight = true;
+        await ttyPline(
+            `You ${Flying(state) ? 'swoop' : 'deliberately drop'} down `
+                + (trap.ttyp === TRAPDOOR
+                    ? 'through the trap door!'
+                    : 'into the gaping hole!'),
+            state,
+        );
+    }
+
+    if (u.ushops) note_unported('shk.c shopdig');
+
+    const destination = { dnum: u.uz.dnum, dlevel: nextLevel };
+    if (state.stronghold_level
+        && on_level(u.uz, state.stronghold_level)) {
+        find_hell(destination, state);
+    } else {
+        if (trap) {
+            assign_level(destination, trap.dst);
+            clamp_hole_destination(destination, state);
+        }
+        const distance = depth(destination, state) - depth(u.uz, state);
+        if (distance > 1) {
+            await ttyPline(
+                `You ${controlledFlight ? 'fly' : 'fall'} down a `
+                    + `${distance > 3 ? 'very ' : ''}`
+                    + `${distance > 2 ? 'deep ' : ''}shaft!`,
+                state,
+            );
+        }
+    }
+
+    const postMessage = !td
+        ? `The hole in the ${ceiling(u.ux, u.uy, state)} above you closes up.`
+        : null;
+    schedule_goto(
+        destination,
+        Flying(state) ? UTOTYPE_NONE : UTOTYPE_FALLING,
+        null,
+        postMessage,
+        state,
+    );
+}
+
+function resetTrap(trap, typ, oldplace) {
     trap.vl = {};
     trap.launch = { x: -1, y: -1 };
     trap.dst = { dnum: -1, dlevel: -1 };
@@ -574,8 +715,11 @@ function resetTrap(trap, typ) {
     trap.once = false;
     trap.tseen = typ === HOLE;
     trap.ttyp = typ;
-    trap.tnote = 0;
-    trap.conjoined = 0;
+    // C's newtrap() memset supplies zero for a new record. Replacing an
+    // existing trap preserves tnote except when SQKY_BOARD chooses a note.
+    if (!oldplace) trap.tnote = 0;
+    if (!oldplace) trap.conjoined = 0;
+    // C's ntrap link is represented by level.traps' array order.
 }
 
 function buriedObjectAt(x, y, state) {
@@ -630,10 +774,6 @@ function preflightTrapCreation(x, y, typ, resetHero, env) {
         throw new Error('maketrap requires hero-trap reset support');
     }
     switch (typ) {
-    case STATUE_TRAP:
-        if (typeof capability(env, 'makeTrapStatue') !== 'function')
-            throw new Error('maketrap requires the statue-trap subsystem');
-        break;
     case ROLLING_BOULDER_TRAP:
         if (typeof capability(env, 'makeRollingBoulderLaunch')
             !== 'function') {
@@ -698,9 +838,10 @@ function pitTerrain(x, y, env) {
     capability(env, 'recalculateBlockPoint')?.(x, y, env);
 }
 
-// C ref: trap.c maketrap(). This owns the level trap list and implements the
-// core branches used by ordinary D:1 generation. Object and launch subsystems
-// which are not yet ported fail explicitly at their source boundary.
+// C ref: trap.c maketrap(). This owns the level trap list, field reset, terrain
+// conversion, hole destination, and trap-specific side effects. When a
+// discarded C callee is unavailable at this caller, keep its named gap in
+// game.unported and continue instead of inventing its side effects.
 export function maketrap(x, y, typ, rawEnv = {}) {
     const env = trapEnv(rawEnv);
     const { state } = env;
@@ -711,14 +852,14 @@ export function maketrap(x, y, typ, rawEnv = {}) {
     let trap = t_at(x, y, state);
     const oldplace = Boolean(trap);
     if (trap) {
-        if (trap.ttyp === MAGIC_PORTAL || trap.ttyp === VIBRATING_SQUARE)
-            return null;
-    } else if (location.typ === LADDER || location.typ === STAIRS
+        if (undestroyable_trap(trap.ttyp)) return null;
+    } else if ((!state.iflags?.debug_overwrite_stairs
+        && (location.typ === LADDER || location.typ === STAIRS))
         || isPoolAt(location, state) || isLavaAt(location)
         || (IS_FURNITURE(location.typ) && typ !== PIT && typ !== HOLE)
         || (location.typ === DRAWBRIDGE_UP && typ === MAGIC_PORTAL)
         || (IS_AIR(location.typ) && typ !== MAGIC_PORTAL)
-        || (typ === LEVEL_TELEP && on_level(state.u?.uz, state.knox_level))) {
+        || (typ === LEVEL_TELEP && single_level_branch(state.u?.uz, state))) {
         return null;
     } else {
         trap = { tx: x, ty: y };
@@ -727,13 +868,19 @@ export function maketrap(x, y, typ, rawEnv = {}) {
     const resetHero = oldplace && heroTrapNeedsReset(x, y, typ, env);
     preflightTrapCreation(x, y, typ, resetHero, env);
     if (resetHero) resetHeroTrap(env);
-    resetTrap(trap, typ);
+    resetTrap(trap, typ, oldplace);
     switch (typ) {
     case SQKY_BOARD:
         trap.tnote = choose_trapnote(trap, env);
         break;
     case STATUE_TRAP:
-        capability(env, 'makeTrapStatue')(x, y, env);
+        if (typeof capability(env, 'makeTrapStatue') === 'function') {
+            capability(env, 'makeTrapStatue')(x, y, env);
+        } else {
+            // C discards mk_trap_statue()'s return. Level generation supplies
+            // this helper; a caller without it keeps an explicit source gap.
+            note_unported('trap.c mk_trap_statue');
+        }
         break;
     case ROLLING_BOULDER_TRAP:
         capability(env, 'makeRollingBoulderLaunch')(trap, x, y, env);
@@ -746,6 +893,13 @@ export function maketrap(x, y, typ, rawEnv = {}) {
     case HOLE:
     case TRAPDOOR:
         hole_destination(trap.dst, env);
+        if (in_rooms(x, y, SHOPBASE, state).length
+            && (is_hole(typ) || IS_DOOR(location.typ)
+                || IS_WALL(location.typ))) {
+            // C discards add_damage()'s return; shop repair billing remains
+            // an explicit gap until shk.c:add_damage is ported.
+            note_unported('shk.c add_damage');
+        }
         pitTerrain(x, y, env);
         break;
     case TELEP_TRAP: {
@@ -760,7 +914,13 @@ export function maketrap(x, y, typ, rawEnv = {}) {
         break;
     }
 
-    if (!oldplace) state.level.traps.unshift(trap);
+    if (!oldplace) {
+        state.level.traps.unshift(trap);
+    } else if (state.level?.flags?.sokoban_rules) {
+        // C's maybe_finish_sokoban() result is discarded. Keep its prize and
+        // luck side effects visible as an unported source boundary.
+        note_unported('sokoban maybe_finish_sokoban');
+    }
     return trap;
 }
 

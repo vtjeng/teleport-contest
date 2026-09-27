@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "Independent hero trapdoor recipe for trap.c:fall_through via trap_effects.c:trapeffect_hole. Seed, clock, and role differ from the admitted v7 case. The wizard places a trapdoor on the hero's square, then the hero steps off and returns to activate it.",
+  "segments": [
+    {
+      "seed": 7721169,
+      "datetime": "20260519091600",
+      "nethackrc": "OPTIONS=name:VelaTest,role:Valkyrie,race:human,gender:female,align:lawful\nOPTIONS=!legacy,!tutorial,!splash_screen\nOPTIONS=pettype:none,playmode:debug\n",
+      "moves": " h#wizwish\ntrap door\nlh "
+    }
+  ]
+}

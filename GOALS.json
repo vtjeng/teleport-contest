@@ -90842,7 +90842,7 @@
     {
       "id": "port-trap-fall-through-hero-synthetic-v7-20260926",
       "kind": "file-port",
-      "status": "queued",
+      "status": "parked",
       "summary": "Port trapdoor destination and hero fall-through transition from C source",
       "cFile": "trap.c",
       "sessions": [
@@ -90850,8 +90850,12 @@
       ],
       "selectionReason": "The admitted v7 trapdoor-pet-transit case refuses at hero trap activation step 15. C trap.c:trapeffect_hole calls fall_through; its consumed clamp_hole_destination and dng_bottom dependency form the source family selected here, with hole_destination and maketrap in source order. The older parked trap.c goal is tied to a now-matching fixed session and cannot be resumed by the current selection guard; retain it for earlier burnarmor..mk_trap_statue source work while this distinct v7 task completes the fall family.",
       "detail": "Wire trap.c:trapeffect_hole hero HOLE/TRAPDOOR branch through fall_through, the production movement preflight, and dokick.c:kick_nondoor throne caller. Preserve next_to_u, level destination, schedule_goto and deferred arrival; reconcile historical monster-only trapeffect_hole evidence. Record an independent hero fall and a throne-kick caller or a source-named blocked recipe.",
-      "openedAt": null,
-      "openStanding": null,
+      "openedAt": "eaee8edb519d1a74fd64f17ac08d51ef827ebd34",
+      "openStanding": {
+        "sha": "eaee8edb519d1a74fd64f17ac08d51ef827ebd34",
+        "screens": 11405,
+        "rng": 792838
+      },
       "closedAt": null,
       "delivered": null,
       "functions": [
@@ -90859,15 +90863,15 @@
           "name": "dng_bottom",
           "line": 418,
           "endLine": 441,
-          "declared": false,
-          "complete": false
+          "declared": true,
+          "complete": true
         },
         {
           "name": "hole_destination",
           "line": 442,
           "endLine": 455,
           "declared": true,
-          "complete": false
+          "complete": true
         },
         {
           "name": "maketrap",
@@ -90880,14 +90884,14 @@
           "name": "clamp_hole_destination",
           "line": 593,
           "endLine": 601,
-          "declared": false,
-          "complete": false
+          "declared": true,
+          "complete": true
         },
         {
           "name": "fall_through",
           "line": 602,
           "endLine": 725,
-          "declared": false,
+          "declared": true,
           "complete": false
         }
       ],
@@ -90908,7 +90912,321 @@
           "evaluationPath": "challenges/evaluations/20260927005209-v7.json",
           "evaluationCommit": "12a35e71cf1d937cd08b75b196f3c8b54224f6cd"
         }
-      }
+      },
+      "activeStanding": {
+        "sha": "eaee8edb519d1a74fd64f17ac08d51ef827ebd34",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v7",
+          "caseId": "trapdoor-pet-transit",
+          "session": "synthetic/v7/trapdoor-pet-transit",
+          "manifestPath": "challenges/manifests/v7.json",
+          "manifestSha256": "03a861a9d1bc9d813c80681312ee7a0e0f893dbad0536de40a974bd5ec344094",
+          "recording": "challenges/cases/v7/trapdoor-pet-transit.session.json",
+          "recordingPath": "challenges/cases/v7/trapdoor-pet-transit.session.json",
+          "recordingSha256": "995f464e33f2d53c6eb4f4e6149db8198273ed137fa0b5517ca62cd65d4e0328",
+          "recipe": "challenges/cases/v7/trapdoor-pet-transit.recipe.session.json",
+          "recipeSha256": "21c6ff25a48a6bc63ca3d4811df3bdfe6cd2ffe12aabc2afd8973aabc546207e",
+          "replayInputSha256": "d84b8461f1bf1dd0827e6eb9bac11756a469fb7973b52214968a6a61966d5563",
+          "evaluationPath": "challenges/evaluations/20260927020535-v7.json",
+          "evaluationCommit": "b51083de9721160d58fee696e37eec1f21fcc954",
+          "evaluationArtifact": "challenges/evaluations/20260927020535-v7.json",
+          "evaluationUtc": "2026-09-27T02:06:02.886Z",
+          "remainingScreens": 2,
+          "recordedSteps": 17,
+          "previousScreensMatched": 15,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 15,
+              "total": 17
+            },
+            "rng": {
+              "matched": 2460,
+              "total": 4671
+            },
+            "cursors": {
+              "matched": 15,
+              "total": 17
+            }
+          },
+          "firstMismatch": {
+            "kind": "stop",
+            "message": "unsupported hero move: trap activation",
+            "step": 15
+          },
+          "step": 15,
+          "kind": "stop",
+          "sourceFile": null,
+          "function": null,
+          "message": "unsupported hero move: trap activation",
+          "cFile": null,
+          "luaFile": null,
+          "line": null,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v7/trapdoor-pet-transit.json",
+            "result": {
+              "session": "synthetic/v7/trapdoor-pet-transit",
+              "corpus": "synthetic",
+              "batch": "v7",
+              "caseId": "trapdoor-pet-transit",
+              "manifestPath": "challenges/manifests/v7.json",
+              "manifestSha256": "03a861a9d1bc9d813c80681312ee7a0e0f893dbad0536de40a974bd5ec344094",
+              "recordingSha256": "995f464e33f2d53c6eb4f4e6149db8198273ed137fa0b5517ca62cd65d4e0328",
+              "evaluationPath": "challenges/evaluations/20260926122253-v7.json",
+              "evaluationCommit": "f7e48bd93d6827c557c9a40a255a55cbc5fc8fcf",
+              "remainingScreens": 2,
+              "recordedSteps": 17,
+              "status": "complete",
+              "commit": "3543403d092a80dbeacd479a4fb0cb5c2d537413",
+              "mismatch": {
+                "corpus": "synthetic",
+                "batch": "v7",
+                "caseId": "trapdoor-pet-transit",
+                "session": "synthetic/v7/trapdoor-pet-transit",
+                "manifestPath": "challenges/manifests/v7.json",
+                "manifestSha256": "03a861a9d1bc9d813c80681312ee7a0e0f893dbad0536de40a974bd5ec344094",
+                "recording": "challenges/cases/v7/trapdoor-pet-transit.session.json",
+                "recordingPath": "challenges/cases/v7/trapdoor-pet-transit.session.json",
+                "recordingSha256": "995f464e33f2d53c6eb4f4e6149db8198273ed137fa0b5517ca62cd65d4e0328",
+                "recipe": "challenges/cases/v7/trapdoor-pet-transit.recipe.session.json",
+                "recipeSha256": "21c6ff25a48a6bc63ca3d4811df3bdfe6cd2ffe12aabc2afd8973aabc546207e",
+                "replayInputSha256": "ba09b30aa45883696a6c2cbbe647b7a100c06ae9b741e0bcdf70fec164041447",
+                "evaluationPath": "challenges/evaluations/20260926122253-v7.json",
+                "evaluationCommit": "f7e48bd93d6827c557c9a40a255a55cbc5fc8fcf",
+                "evaluationArtifact": "challenges/evaluations/20260926122253-v7.json",
+                "evaluationUtc": "2026-09-26T12:23:06.868Z",
+                "remainingScreens": 2,
+                "recordedSteps": 17,
+                "previousScreensMatched": null,
+                "regression": false,
+                "passed": false,
+                "error": null,
+                "metrics": {
+                  "screens": {
+                    "matched": 15,
+                    "total": 17
+                  },
+                  "rng": {
+                    "matched": 2460,
+                    "total": 4671
+                  },
+                  "cursors": {
+                    "matched": 15,
+                    "total": 17
+                  }
+                },
+                "firstMismatch": {
+                  "kind": "stop",
+                  "message": "unsupported hero move: trap activation",
+                  "step": 15
+                },
+                "step": 15,
+                "kind": "stop",
+                "sourceFile": null,
+                "function": null,
+                "message": "unsupported hero move: trap activation",
+                "cFile": null,
+                "luaFile": null,
+                "line": null
+              },
+              "summary": "Walking onto a wished trap door stops at JS hero movement preflight. C runs trap.c trapeffect_hole() and fall_through(), opens the door, and schedules descent; the next C step reaches goto_level(). Port fall_through and admit the HOLE/TRAPDOOR hero path with the same level-transition contract.",
+              "source": {
+                "file": "trap.c",
+                "branch": "A grounded hero enters a square containing an unseen TRAPDOOR on a level where Can_fall_thru is true. dotrap() reaches trapeffect_hole(); fall_through(TRUE, flags) reveals the trap, emits the opening message, resolves fall prevention including an adjacent pet, computes the destination, and calls schedule_goto().",
+                "functions": [
+                  "trapeffect_hole",
+                  "fall_through",
+                  "clamp_hole_destination"
+                ],
+                "callers": [
+                  "trap.c dotrap() calls trapeffect_selector(), which sends TRAPDOOR to trapeffect_hole() and then fall_through(TRUE,...).",
+                  "js/hack.js movement preflight calls js/trap_effects.js preflight_dotrap(), which currently rejects TRAPDOOR before dotrap() changes state; js/trap_effects.js trapeffect_hole() also refuses the hero fall_through() branch."
+                ],
+                "dependencies": [
+                  "Wire schedule_goto() and the ensuing do.c goto_level() transition, preserving pet movement and random-call order; the C recording reaches level generation after the trap door.",
+                  "The parked trap.c monster magic-trap goal includes a historical fall_through declaration, but source completion for the hero trapdoor branch is not established; reconcile that goal before opening a replacement."
+                ]
+              },
+              "goalKind": "file-port",
+              "evidence": [
+                "challenges/evaluations/20260926122253-v7.json at f7e48bd93d6827c557c9a40a255a55cbc5fc8fcf: synthetic/v7/trapdoor-pet-transit matches 15/17 screens, then stops on hero move at segment 0 step 15 with trap activation.",
+                "challenges/cases/v7/trapdoor-pet-transit.session.json: C step 15 after h says A trap door opens up under you!; C RNG then enters getbones() and makelevel(), and step 16 has goto_level() activity after the More prompt.",
+                "nethack-c/upstream/src/trap.c:602-699 fall_through() prints the trap-door line, applies next_to_u() pet retention, computes the destination, and calls schedule_goto(); trap.c:2013-2069 trapeffect_hole() invokes it for the hero.",
+                "js/trap_effects.js:3246-3254 preflight_dotrap() rejects HOLE/TRAPDOOR; js/trap_effects.js:1624-1643 trapeffect_hole() has only the monster arm live and refuses fall_through() for a hero."
+              ]
+            }
+          }
+        }
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "dng_bottom",
+            "implementation": "js/trap.js",
+            "symbol": "dng_bottom",
+            "sourceReview": "Compared the complete trap.c:dng_bottom definition (418-437): begin with dunlevs_in_dungeon; on the Quest, clamp to qlocate_level only while dunlev_reached is shallower; otherwise, in Gehennom, subtract one until invocation. The JS reads the supplied state and preserves this branch order. No RNG, messages, or game-state writes.",
+            "callers": [
+              {
+                "path": "js/trap.js",
+                "symbol": "hole_destination",
+                "source": "trap.c:hole_destination calls dng_bottom(&u.uz) before initializing the destination depth."
+              },
+              {
+                "path": "js/trap.js",
+                "symbol": "clamp_hole_destination",
+                "source": "trap.c:clamp_hole_destination calls dng_bottom(dlev) before clamping the destination."
+              }
+            ],
+            "pure": true,
+            "tests": [
+              "scripts/trap-generation.test.mjs"
+            ],
+            "recordings": [],
+            "checkedAt": "ad2cce2b4e37f1b53ac50d948678495ac7c15280"
+          },
+          {
+            "name": "hole_destination",
+            "implementation": "js/trap.js",
+            "symbol": "hole_destination",
+            "sourceReview": "Compared the complete trap.c:hole_destination definition (440-453). It initializes dnum and the current dungeon depth, increments before drawing rn2(4), and stops at the first nonzero draw or the dng_bottom limit. JS keeps the same draw count and order.",
+            "callers": [
+              {
+                "path": "js/trap.js",
+                "symbol": "maketrap",
+                "source": "trap.c:maketrap calls hole_destination for HOLE and TRAPDOOR."
+              }
+            ],
+            "pure": false,
+            "tests": [],
+            "recordings": [
+              "recordings/trap.c/fall-through-hero-independent.session.json",
+              "recordings/trap.c/fall-through-stronghold-independent.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v7",
+                "caseId": "trapdoor-pet-transit",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 16,
+                "source": "objnam.c:wizterrainwish -> trap.c:maketrap -> trap.c:hole_destination"
+              }
+            ],
+            "checkedAt": "ad2cce2b4e37f1b53ac50d948678495ac7c15280"
+          },
+          {
+            "name": "clamp_hole_destination",
+            "implementation": "js/trap.js",
+            "symbol": "clamp_hole_destination",
+            "sourceReview": "Compared the complete trap.c:clamp_hole_destination definition (593-599): compute dng_bottom for the destination dungeon, clamp only dlevel with min(), and return the same destination pointer. JS mutates the supplied level pair and returns it.",
+            "callers": [
+              {
+                "path": "js/trap.js",
+                "symbol": "fall_through",
+                "source": "trap.c:fall_through invokes (void) clamp_hole_destination(&dtmp) after assigning a trap's saved destination."
+              }
+            ],
+            "pure": false,
+            "tests": [],
+            "recordings": [
+              "recordings/trap.c/fall-through-hero-independent.session.json",
+              "recordings/trap.c/fall-through-stronghold-independent.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v7",
+                "caseId": "trapdoor-pet-transit",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 16,
+                "source": "trap.c:trapeffect_hole -> fall_through -> clamp_hole_destination"
+              }
+            ],
+            "checkedAt": "ad2cce2b4e37f1b53ac50d948678495ac7c15280"
+          }
+        ],
+        "entryPointReview": "B21's selected functions are the trap.c:dng_bottom..fall_through range. Active paths exercised here are a hero wishing and falling through a trapdoor, the Stronghold override to Valley, and kicking a throne to open a shaft. Production wiring is objnam.c:wizterrainwish -> maketrap -> hole_destination and trap.c:trapeffect_hole -> fall_through; the throne caller is dokick.c:kick_nondoor -> fall_through(FALSE, 0). The admitted v7 trapdoor-pet-transit case matches through all 17 boundaries and covers wizard wish creation, hero trap activation, and normal arrival. Independent recordings cover an ordinary hero trapdoor fall, the Stronghold fall reaching the Valley of the Dead, and the throne fall. A committed blocked leashed-pet recipe records the active next_to_u Boolean path that cannot yet be matched; it is not completion evidence. trap.c:trapeffect_hole also has an existing monster-only trapdoor migration recording; that evidence is retained for the unchanged monster branch and is not used to claim the new hero branch. maketrap has other production callers (level generation, digging, pit kits, monster pit/hole actions, portals, and webs); this task's runtime claims are limited to the source paths exercised above, while the function's full switch and call ordering were compared. C-discarded gaps are explicitly named at their call sites: dokick.c:impact_drop and shk.c:shopdig in fall_through; trap.c:mk_trap_statue, shk.c:add_damage, and Sokoban maybe_finish_sokoban in maketrap. The out-parameter helper dungeon.c:find_hell is ported and source-pinned as a supplemental dependency for the Stronghold branch. Orchestrator audit: maketrap remains unverified through dig.c:dig/digactualhole. The previous independent dig recording never reaches digging; the admitted v6 archeologist-down-dig-floor case first diverges at the pit-vision frame, so it cannot currently cite a matching range through maketrap. Preserve the completed helper evidence but do not claim maketrap complete until that entry replays.",
+        "entryPoints": [
+          {
+            "name": "Hero wizard-wish trapdoor creation and fall",
+            "functions": [
+              "dng_bottom",
+              "hole_destination",
+              "maketrap",
+              "clamp_hole_destination",
+              "fall_through"
+            ],
+            "recordings": [
+              "recordings/trap.c/fall-through-hero-independent.session.json",
+              "recordings/trap.c/fall-through-stronghold-independent.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v7",
+                "caseId": "trapdoor-pet-transit",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 16,
+                "source": "objnam.c:wizterrainwish -> trap.c:maketrap/hole_destination; trap.c:trapeffect_hole -> fall_through -> schedule_goto"
+              }
+            ]
+          },
+          {
+            "name": "Stronghold fall-through selects the Valley gateway",
+            "functions": [
+              "fall_through"
+            ],
+            "recordings": [
+              "recordings/trap.c/fall-through-stronghold-independent.session.json"
+            ],
+            "synthetic": []
+          },
+          {
+            "name": "Kick a throne to open and fall through a shaft",
+            "functions": [
+              "fall_through"
+            ],
+            "recordings": [
+              "recordings/dokick.c/throne-fall-through-independent.session.json"
+            ],
+            "synthetic": []
+          },
+          {
+            "name": "Fall-through pet/steed Boolean refusal",
+            "functions": [
+              "fall_through"
+            ],
+            "recordings": [],
+            "synthetic": []
+          },
+          {
+            "name": "Downward digging creates a pit or hole",
+            "functions": [
+              "maketrap"
+            ],
+            "recordings": [],
+            "synthetic": []
+          }
+        ]
+      },
+      "progressBeforePark": {
+        "screens": 0,
+        "rng": 0
+      },
+      "parkedStanding": {
+        "sha": "ad2cce2b4e37f1b53ac50d948678495ac7c15280",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "parkedReason": "Hero trapdoor, Stronghold, and throne fall paths match independent C recordings; v7 trapdoor-pet-transit matches through step 16. fall_through still consumes apply.c:next_to_u Boolean on leashed pet/steed paths, blocked by apply.c:doapply LEASH and mleashed_next2u. maketrap dig.c:dig entry lacks a matching range because v6 archeologist-down-dig-floor currently diverges in vision.c:vision_recalc at the pit frame; A19 owns that pit-vision blocker. Resume after those source paths and matching recordings are available."
     },
     {
       "id": "port-eat-cpostfx-lizard-synthetic-v7-20260926",
@@ -91652,7 +91970,7 @@
     {
       "id": "port-potion-gain-level-synthetic-v7-20260926",
       "kind": "file-port",
-      "status": "queued",
+      "status": "closed",
       "summary": "Port gain-level potion effect across cursed, uncursed and blessed paths",
       "cFile": "potion.c",
       "sessions": [
@@ -91660,17 +91978,24 @@
       ],
       "selectionReason": "The admitted v7 potion-gain-level case still stops at segment 0 step 34 when the quaff command dispatches POT_GAIN_LEVEL to missing potion.c:peffect_gain_level. The source investigation remains current at one unmatched screen and identifies the complete function and consumed dependencies.",
       "detail": "Port the whole peffect_gain_level function and wire peffects. Match cursed upstairs travel, ordinary pluslvl(FALSE), blessed rndexp adjustment, gp.potion_unkn and return-valued Can_rise_up/get_level behavior; record independent C examples with different potion blessings and entry states or explicitly blocked branches.",
-      "openedAt": null,
-      "openStanding": null,
-      "closedAt": null,
-      "delivered": null,
+      "openedAt": "3822ec2bd8105ebfab96b9b4022f8ecf7dcdea61",
+      "openStanding": {
+        "sha": "3822ec2bd8105ebfab96b9b4022f8ecf7dcdea61",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "closedAt": "6ff81e0c85937f98189ac25d5847d8fecdab4f8f",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
       "functions": [
         {
           "name": "peffect_gain_level",
           "line": 1083,
           "endLine": 1118,
-          "declared": false,
-          "complete": false
+          "declared": true,
+          "complete": true
         }
       ],
       "range": {
@@ -91690,6 +92015,225 @@
           "evaluationPath": "challenges/evaluations/20260927005209-v7.json",
           "evaluationCommit": "12a35e71cf1d937cd08b75b196f3c8b54224f6cd"
         }
+      },
+      "activeStanding": {
+        "sha": "3822ec2bd8105ebfab96b9b4022f8ecf7dcdea61",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v7",
+          "caseId": "potion-gain-level",
+          "session": "synthetic/v7/potion-gain-level",
+          "manifestPath": "challenges/manifests/v7.json",
+          "manifestSha256": "03a861a9d1bc9d813c80681312ee7a0e0f893dbad0536de40a974bd5ec344094",
+          "recording": "challenges/cases/v7/potion-gain-level.session.json",
+          "recordingPath": "challenges/cases/v7/potion-gain-level.session.json",
+          "recordingSha256": "a4fc9853403ad27a0f5ea53a9ffe6f8fbf4b5b9adb87f29d08d011635c641374",
+          "recipe": "challenges/cases/v7/potion-gain-level.recipe.session.json",
+          "recipeSha256": "d27c513188557e7a7f9c07c4361d3c29aff0aa6d48d5c6beaad475525463c7b4",
+          "replayInputSha256": "732beb79ffc71fe48dec589fc4d2600ce7e0c7cbb348386e81b707f221bf8eda",
+          "evaluationPath": "challenges/evaluations/20260927023459-v7.json",
+          "evaluationCommit": "ad2cce2b4e37f1b53ac50d948678495ac7c15280",
+          "evaluationArtifact": "challenges/evaluations/20260927023459-v7.json",
+          "evaluationUtc": "2026-09-27T02:35:29.282Z",
+          "remainingScreens": 1,
+          "recordedSteps": 35,
+          "previousScreensMatched": 34,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 34,
+              "total": 35
+            },
+            "rng": {
+              "matched": 2523,
+              "total": 2537
+            },
+            "cursors": {
+              "matched": 34,
+              "total": 35
+            }
+          },
+          "firstMismatch": {
+            "kind": "stop",
+            "message": "unsupported hero command: an unported branch of this command: quaffing requires peffect_gain_level()",
+            "step": 34
+          },
+          "step": 34,
+          "kind": "stop",
+          "sourceFile": "potion.c",
+          "function": "peffect_gain_level",
+          "message": "unsupported hero command: an unported branch of this command: quaffing requires peffect_gain_level()",
+          "cFile": "potion.c",
+          "luaFile": null,
+          "line": null,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v7/potion-gain-level.json",
+            "result": {
+              "session": "synthetic/v7/potion-gain-level",
+              "corpus": "synthetic",
+              "batch": "v7",
+              "caseId": "potion-gain-level",
+              "manifestPath": "challenges/manifests/v7.json",
+              "manifestSha256": "03a861a9d1bc9d813c80681312ee7a0e0f893dbad0536de40a974bd5ec344094",
+              "recordingSha256": "a4fc9853403ad27a0f5ea53a9ffe6f8fbf4b5b9adb87f29d08d011635c641374",
+              "evaluationPath": "challenges/evaluations/20260926122253-v7.json",
+              "evaluationCommit": "f7e48bd93d6827c557c9a40a255a55cbc5fc8fcf",
+              "remainingScreens": 1,
+              "recordedSteps": 35,
+              "status": "complete",
+              "commit": "3543403d092a80dbeacd479a4fb0cb5c2d537413",
+              "mismatch": {
+                "corpus": "synthetic",
+                "batch": "v7",
+                "caseId": "potion-gain-level",
+                "session": "synthetic/v7/potion-gain-level",
+                "manifestPath": "challenges/manifests/v7.json",
+                "manifestSha256": "03a861a9d1bc9d813c80681312ee7a0e0f893dbad0536de40a974bd5ec344094",
+                "recording": "challenges/cases/v7/potion-gain-level.session.json",
+                "recordingPath": "challenges/cases/v7/potion-gain-level.session.json",
+                "recordingSha256": "a4fc9853403ad27a0f5ea53a9ffe6f8fbf4b5b9adb87f29d08d011635c641374",
+                "recipe": "challenges/cases/v7/potion-gain-level.recipe.session.json",
+                "recipeSha256": "d27c513188557e7a7f9c07c4361d3c29aff0aa6d48d5c6beaad475525463c7b4",
+                "replayInputSha256": "ba09b30aa45883696a6c2cbbe647b7a100c06ae9b741e0bcdf70fec164041447",
+                "evaluationPath": "challenges/evaluations/20260926122253-v7.json",
+                "evaluationCommit": "f7e48bd93d6827c557c9a40a255a55cbc5fc8fcf",
+                "evaluationArtifact": "challenges/evaluations/20260926122253-v7.json",
+                "evaluationUtc": "2026-09-26T12:23:06.868Z",
+                "remainingScreens": 1,
+                "recordedSteps": 35,
+                "previousScreensMatched": null,
+                "regression": false,
+                "passed": false,
+                "error": null,
+                "metrics": {
+                  "screens": {
+                    "matched": 34,
+                    "total": 35
+                  },
+                  "rng": {
+                    "matched": 2523,
+                    "total": 2537
+                  },
+                  "cursors": {
+                    "matched": 34,
+                    "total": 35
+                  }
+                },
+                "firstMismatch": {
+                  "kind": "stop",
+                  "message": "unsupported hero command: an unported branch of this command: quaffing requires peffect_gain_level()",
+                  "step": 34
+                },
+                "step": 34,
+                "kind": "stop",
+                "sourceFile": "potion.c",
+                "function": "peffect_gain_level",
+                "message": "unsupported hero command: an unported branch of this command: quaffing requires peffect_gain_level()",
+                "cFile": "potion.c",
+                "luaFile": null,
+                "line": null
+              },
+              "summary": "Quaffing an uncursed gain-level potion stops at the missing potion.c peffect_gain_level() dispatch. C invokes pluslvl(FALSE) and prints the new experience level; the whole function also handles cursed upstairs travel and blessed experience adjustment.",
+              "source": {
+                "file": "potion.c",
+                "branch": "A Healer wishes for an uncursed POT_GAIN_LEVEL and quaffs it. peffects() enters peffect_gain_level(); because it is not cursed, C calls pluslvl(FALSE), raising level and emitting the experience message.",
+                "functions": [
+                  "peffect_gain_level"
+                ],
+                "callers": [
+                  "potion.c peffects() POT_GAIN_LEVEL arm at 1393 calls peffect_gain_level(otmp).",
+                  "js/potion.js peffects() currently throws UnsupportedQuaffError at the matching POT_GAIN_LEVEL arm; cmd.c quaff dispatch reaches js/potion.js dopotion() then peffects()."
+                ],
+                "dependencies": [
+                  "The uncursed branch consumes exper.c pluslvl(FALSE), already implemented in js/exper.js; preserve its state, RNG, and messages.",
+                  "The whole peffect_gain_level() also uses return-valued Can_rise_up() and rndexp() on cursed/blessed paths, plus get_level() output through its newlevel argument; audit those consumed results and goto_level() wiring before source completion.",
+                  "Preserve gp.potion_unkn on cursed path and the u.uexp adjustment on blessed path."
+                ]
+              },
+              "goalKind": "file-port",
+              "evidence": [
+                "challenges/evaluations/20260926122253-v7.json at f7e48bd93d6827c557c9a40a255a55cbc5fc8fcf: synthetic/v7/potion-gain-level matches 34/35 screens, then stops at segment 0 step 34 with quaffing requires peffect_gain_level().",
+                "challenges/cases/v7/potion-gain-level.session.json: C step 34 after selecting potion o prints You feel more experienced. Welcome to experience level 2.",
+                "nethack-c/upstream/src/potion.c:1083-1113 defines the full cursed, ordinary, and blessed paths; potion.c:1393 dispatches this object type; js/potion.js:1196 refuses before the source effect."
+              ]
+            }
+          }
+        }
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "peffect_gain_level",
+            "implementation": "js/potion.js",
+            "symbol": "peffect_gain_level",
+            "sourceReview": "Read the whole potion.c:peffect_gain_level definition at lines 1083–1118. The cursed branch first records potion_unkn and computes whether the hero is on ledger level 1; D:1 requires the Amulet and copies earth_level, while other levels call Can_rise_up, compute depth(u.uz)-1, call get_level, and return after the same-level ‘It tasted bad.’ case. On a successful rise it prints the ceiling message before calling goto_level; the C call's result is discarded. If no rise is possible it prints ‘You have an uneasy feeling.’ and returns. The non-cursed branch calls pluslvl(FALSE), then only a blessed potion calls rndexp(TRUE) and assigns u.uexp. js/potion.js preserves these branches and their update/message/RNG order. Supporting dependency review: exper.c:pluslvl (307–375) adds monster-form HP first when Upolyd using makemon.c:monhp_per_lvl, routes that pair through attrib.c:setuhpmax(..., FALSE), then performs normal HP, energy, level/experience and intrinsic updates in source order; the existing JS helper now has the corresponding polymorph branch. attrib.c:setuhpmax (1157–1176) updates and clamps only the active HP pair; scripts/potion.test.mjs pins the polymorph pair behavior. exper.c:rndexp (378–402) remains after pluslvl only for blessed gain-level potions. The supporting eat.c:cpostfx PM_WRAITH arm (1141–1143) now always calls pluslvl(FALSE), as C does, so WRAITH while Upolyd also uses the same polymorph branch. The D:1 Amulet branch reaches the source call to goto_level, but strict replay stops in the separate do.c:goto_level endgame-arrival path; this task does not claim that broader source family, and the result discarded by peffect_gain_level does not make it a required return-valued callee.",
+            "callers": [
+              {
+                "path": "js/potion.js",
+                "symbol": "peffects",
+                "source": "potion.c:peffects dispatches the POT_GAIN_LEVEL case directly to peffect_gain_level(otmp) (1333–1425)."
+              },
+              {
+                "path": "js/potion.js",
+                "symbol": "dopotion",
+                "source": "potion.c:dopotion calls peffects(otmp) and then handles its result and potion consumption (618–641)."
+              },
+              {
+                "path": "js/potion.js",
+                "symbol": "dodrink",
+                "source": "potion.c:dodrink selects a potion and calls dopotion(otmp) (526–615)."
+              },
+              {
+                "path": "js/cmd.js",
+                "symbol": "runQuaffCommand",
+                "source": "cmd.c's 'q'/'quaff' command row invokes dodrink (1810); the JS quaff command handler dispatches to potion.js:dodrink."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/potion.test.mjs"
+            ],
+            "recordings": [
+              "recordings/potion.c/gain-level-ordinary-c23.session.json",
+              "recordings/potion.c/gain-level-blessed-c23.session.json",
+              "recordings/potion.c/gain-level-blessed-polymorphed-c23.session.json",
+              "recordings/potion.c/gain-level-cursed-first-level-c23.session.json",
+              "recordings/potion.c/gain-level-cursed-ascent-c23.session.json"
+            ],
+            "synthetic": [],
+            "checkedAt": "6ff81e0c85937f98189ac25d5847d8fecdab4f8f"
+          }
+        ],
+        "entryPointReview": "The live potion entry point is cmd.c's q/quaff row -> potion.c:dodrink -> dopotion -> peffects(POT_GAIN_LEVEL) -> peffect_gain_level; JS follows cmd.js:runQuaffCommand -> potion.js:dodrink -> dopotion -> peffects. Matching independent C recordings cover the uncursed/unblessed D:1 path, blessed D:1 (including rndexp after pluslvl), blessed D:1 while polymorphed (monster HP before normal HP), cursed D:1 without the Amulet, and a cursed D:2 one-level ascent. The separate eat.c path is done_eating -> cpostfx(PM_WRAITH) -> pluslvl(FALSE); recordings/eat.c/cpostfx-wraith-pluslvl-c23.session.json covers normal-form WRAITH and recordings/eat.c/cpostfx-wraith-polymorph-pluslvl-c23.session.json covers Upolyd WRAITH, verifying the supporting caller and polymorph HP path. The D:1 Amulet-to-Earth recipe remains at recipes/potion.c/gain-level-cursed-amulet-earth-c23.session.json without a committed recording: C prints the rise message and enters the Earth transition, but strict C/JS replay first diverges later in do.c:goto_level endgame arrival (run-rQ87zu, missing C rn2(3) at segment 1 step 52 and one later C screen). Keep that branch as an explicit downstream blocker; the potion function's goto_level result is discarded, so no return-value dependency was skipped.",
+        "entryPoints": [
+          {
+            "name": "cmd.c q/quaff -> potion.c:peffect_gain_level",
+            "functions": [
+              "peffect_gain_level"
+            ],
+            "recordings": [
+              "recordings/potion.c/gain-level-ordinary-c23.session.json",
+              "recordings/potion.c/gain-level-blessed-c23.session.json",
+              "recordings/potion.c/gain-level-blessed-polymorphed-c23.session.json",
+              "recordings/potion.c/gain-level-cursed-first-level-c23.session.json",
+              "recordings/potion.c/gain-level-cursed-ascent-c23.session.json"
+            ],
+            "synthetic": []
+          }
+        ]
+      },
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "6ff81e0c85937f98189ac25d5847d8fecdab4f8f",
+        "screens": 11405,
+        "rng": 792838
       }
     }
   ]

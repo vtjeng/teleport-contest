@@ -2,8 +2,9 @@ import assert from 'node:assert/strict';
 import test from 'node:test';
 
 import {
-    A_STR, COULD_SEE, FORCETRAP, IN_SIGHT, MAX_NUM_WORMS, NOWEBMSG, TT_NONE, TT_WEB,
-    Trap_Caught_Mon, Trap_Effect_Finished, VIASITTING, WEB,
+    A_STR, COULD_SEE, FORCETRAP, HOLE, IN_SIGHT, MAX_NUM_WORMS, NOWEBMSG,
+    TRAPDOOR, TT_NONE, TT_WEB, Trap_Caught_Mon, Trap_Effect_Finished,
+    VIASITTING, WEB,
 } from '../js/const.js';
 import { game } from '../js/gstate.js';
 import { accessible } from '../js/monmove.js';
@@ -243,4 +244,13 @@ test('mounted web catch uses mintrap then transfers the hold to the hero', async
     assert.match(lines(env)[0], /You lead the poor pony into a spider web!/u);
     assert.match(lines(env)[1], /is caught in a spider web\./u);
     assert.deepEqual(env.draws, [['rnd', 2]]);
+});
+
+test('preflight admits hole traps so dotrap can apply its seen-trap rules', async () => {
+    await setup();
+    for (const ttyp of [HOLE, TRAPDOOR]) {
+        for (const tseen of [false, true]) {
+            assert.doesNotThrow(() => preflight_dotrap({ ttyp, tseen }, game));
+        }
+    }
 });

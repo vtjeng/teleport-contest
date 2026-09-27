@@ -304,6 +304,7 @@ import {
     Flying,
     Levitation,
     deltrap,
+    fall_through,
     fill_pit,
     conjoined_pits,
     adj_nonconjoined_pit,
@@ -1617,10 +1618,9 @@ async function domagictrap(env) {
 }
 
 // C ref: trap.c trapeffect_hole() (2013-2069), including both the hero and
-// monster arms. A hero cannot currently enter this arm: preflight_dotrap()
-// rejects HOLE and TRAPDOOR before dotrap() changes state. The monster arm is
-// live through postmov() and sends ordinary grounded creatures to the
-// level-teleport helper below.
+// monster arms. The hero arm delegates its level change to fall_through();
+// the monster arm sends ordinary grounded creatures to the level-teleport
+// helper below.
 async function trapeffect_hole(mtmp, trap, trflags, env) {
     const { state } = env;
     const unsupported = requireTrapOperation(env, 'unsupported');
@@ -1633,11 +1633,8 @@ async function trapeffect_hole(mtmp, trap, trflags, env) {
             seetrap(trap, env);
             return Trap_Effect_Finished;
         }
-        // fall_through() owns the level transition and its arrival screen;
-        // that source unit is not ported yet and this hero arm is unreachable
-        // through the current movement preflight.
-        unsupported('fall_through() from a hole or trap door');
-        return Trap_Effect_Finished; // unreachable
+        await fall_through(true, trflags & TOOKPLUNGE, state);
+        return Trap_Effect_Finished;
     }
 
     const tt = trap.ttyp;
@@ -3250,7 +3247,7 @@ export function preflight_dotrap(trap, state = game, trflags = 0) {
         && trap.ttyp !== RUST_TRAP && trap.ttyp !== TELEP_TRAP
         && trap.ttyp !== LANDMINE && !pitTrap
         && trap.ttyp !== WEB
-        && trap.ttyp !== ROLLING_BOULDER_TRAP)
+        && trap.ttyp !== ROLLING_BOULDER_TRAP && !is_hole(trap.ttyp))
         throw new UnsupportedHeroMoveBoundaryError('trap activation');
     if (trap.ttyp === TELEP_TRAP) {
         const antimagic = state.u?.uprops?.[ANTIMAGIC];
@@ -3270,7 +3267,7 @@ export function preflight_dotrap(trap, state = game, trflags = 0) {
         }
     }
     if (trap.tseen && trap.ttyp !== WEB && trap.ttyp !== LANDMINE
-        && !pitTrap) {
+        && !pitTrap && !is_hole(trap.ttyp)) {
         throw new UnsupportedHeroMoveBoundaryError(
             'a trap the hero has already seen',
         );
