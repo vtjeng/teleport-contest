@@ -98815,6 +98815,39 @@
         "screens": 11405,
         "rng": 792838
       }
+    },
+    {
+      "id": "div-eat-start-tin-yobjnam-synthetic-v9-20260927",
+      "kind": "divergence-fix",
+      "status": "queued",
+      "summary": "Restore eat.c start_tin possessive opener naming",
+      "cFile": "eat.c",
+      "sessions": [
+        "synthetic/v9/valkyrie-opens-spinach-tin-with-tin-opener"
+      ],
+      "selectionReason": "The admitted v9 spinach-tin case matches through opener selection and all RNG, then diverges at eat.c:start_tin message: C uses yobjnam(uwep,NULL) and JavaScript uses xnameFresh, omitting your.",
+      "detail": "Change the existing source-aligned opener-weapon branch to use the already ported objnam.c:yobjnam across eligible opener objects; keep opening delay, occupation, tin consumption, and later spinach effects. Add source-pinned naming coverage and a distinct C recording if the admitted range does not cover an entry point.",
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": null,
+      "delivered": null,
+      "function": "start_tin",
+      "session": "synthetic/v9/valkyrie-opens-spinach-tin-with-tin-opener",
+      "step": 52,
+      "syntheticProvenance": {
+        "synthetic/v9/valkyrie-opens-spinach-tin-with-tin-opener": {
+          "session": "synthetic/v9/valkyrie-opens-spinach-tin-with-tin-opener",
+          "corpus": "synthetic",
+          "batch": "v9",
+          "caseId": "valkyrie-opens-spinach-tin-with-tin-opener",
+          "manifestPath": "challenges/manifests/v9.json",
+          "manifestSha256": "00c148aac522e6343c8de0bd003db29771439f972a99cb18c772ebf2bc45a594",
+          "recordingPath": "challenges/cases/v9/valkyrie-opens-spinach-tin-with-tin-opener.session.json",
+          "recordingSha256": "2ea0bb0a2276f5414486adf9d192304f18097e739d35f820f6e271332b9d6a34",
+          "evaluationPath": "challenges/evaluations/20260927201811-v9.json",
+          "evaluationCommit": "de87c577bce9e29db5aaf47eccac54a458f687a8"
+        }
+      }
     }
   ]
 }
