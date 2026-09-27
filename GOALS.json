@@ -96416,6 +96416,56 @@
           "evaluationCommit": "c54c2c13ca30ebad8411cbcd4b7dcd3e193fbddc"
         }
       }
+    },
+    {
+      "id": "port-apply-touchstone-family-synthetic-v8-20260927",
+      "kind": "file-port",
+      "status": "queued",
+      "summary": "Port touchstone rubbing and gem identification through apply and rub commands",
+      "cFile": "apply.c",
+      "sessions": [
+        "synthetic/v8/apply-blessed-touchstone-identifies-gem"
+      ],
+      "selectionReason": "Current v8 touchstone case stops at step 39 in js/apply.js:doapply while C enters apply.c:use_stone. Source-traced investigation investigations/synthetic/v8/apply-blessed-touchstone-identifies-gem.json identifies touchstone_ok/use_stone as the whole responsible family, with doapply and dorub as production callers. The annotated doapply owner is only the dispatch site. The admitted recording and latest evaluation are challenges/cases/v8/apply-blessed-touchstone-identifies-gem.session.json and challenges/evaluations/20260927151340-v8.json.",
+      "detail": "",
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": null,
+      "delivered": null,
+      "functions": [
+        {
+          "name": "touchstone_ok",
+          "line": 2658,
+          "endLine": 2679,
+          "declared": false,
+          "complete": false
+        },
+        {
+          "name": "use_stone",
+          "line": 2680,
+          "endLine": 2812,
+          "declared": false,
+          "complete": false
+        }
+      ],
+      "range": {
+        "from": 2658,
+        "to": 2812
+      },
+      "syntheticProvenance": {
+        "synthetic/v8/apply-blessed-touchstone-identifies-gem": {
+          "session": "synthetic/v8/apply-blessed-touchstone-identifies-gem",
+          "corpus": "synthetic",
+          "batch": "v8",
+          "caseId": "apply-blessed-touchstone-identifies-gem",
+          "manifestPath": "challenges/manifests/v8.json",
+          "manifestSha256": "6a5159501af18a7f926f794d89e817375cd00a3589c4899fb97392ae04dbe8ba",
+          "recordingPath": "challenges/cases/v8/apply-blessed-touchstone-identifies-gem.session.json",
+          "recordingSha256": "c1ac831e5b8e20bf4777c016524fca8cec221b084adeb6eb14c7d9ca31a2071f",
+          "evaluationPath": "challenges/evaluations/20260927151340-v8.json",
+          "evaluationCommit": "e32dd8b5f6ed268811ce9a39ffd2571ce0e3462b"
+        }
+      }
     }
   ]
 }
