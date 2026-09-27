@@ -103,6 +103,7 @@ import {
     MMOVE_MOVED,
     MMOVE_NOMOVES,
     MMOVE_NOTHING,
+    MS_BRIBE,
     MOAT,
     MON_POLE_DIST,
     MTSZ,
@@ -202,7 +203,7 @@ import { game } from './gstate.js';
 import { dist2, distmin } from './hacklib.js';
 import { delobj, money_cnt, obj_extract_self } from './invent.js';
 import { picking_lock } from './lock.js';
-import { grow_up } from './makemon.js';
+import { grow_up, set_malign } from './makemon.js';
 import { mongone } from './makemon_create.js';
 import { healmon, mnearto, newcham_distress } from './mon.js';
 import { mattackm, mdisplacem } from './mhitm.js';
@@ -247,6 +248,7 @@ import {
     is_animal,
     is_clinger,
     is_covetous,
+    is_demon,
     is_floater,
     is_flyer,
     is_mind_flayer,
@@ -2379,7 +2381,9 @@ export async function wield_pre_move_weapon(monster, range, rawEnv = {}) {
 //   quest_stat_check(), quest_talk()      no quest monster is reachable
 //   is_covetous() tactics                  wired through wizard.js
 //   release_hero(), u.ustuck              wired; no hero-grabbing monster is reachable
-//   Demonic Blackmail                     the boundary rejects demons
+//   Demonic Blackmail                     branch is ported; runtime setup for
+//                                         unique MS_BRIBE creatures is blocked
+//                                         at read.c:create_particular_creation
 //   watch_on_duty()                       wired
 //   mind_blast()                          wired for mind flayers
 //   killer bee jelly, gelcube_digests()   wired; the boundary rejects both species
@@ -2584,6 +2588,64 @@ export async function dochug(monster, rawEnv = {}) {
     }
     let range = await distanceAndFear(monster, { ...env, monFlee });
     if (await usePreMoveItems(monster, env)) return 1;
+
+    // C ref: monmove.c:802-825, demonic blackmail. This follows the
+    // defensive/miscellaneous item checks and consumes demon_talk()'s return
+    // exactly where C ends the monster's turn after successful payment.
+    if (range.nearby
+        && monster.data?.msound === MS_BRIBE
+        && monster.mpeaceful
+        && !monster.mtame
+        && !state.u?.uswallow) {
+        if (monster.mux !== state.u?.ux || monster.muy !== state.u?.uy) {
+            const whisperer = cansee(monster.mux, monster.muy, state)
+                ? Monnam(monster, state, env)
+                : 'It';
+            await (rawEnv.message ?? ttyPline)(
+                `${whisperer} whispers at thin air.`, state, env,
+            );
+
+            if (is_demon(state.youmonst?.data)) {
+                const restrictTeleport = rawEnv.teleRestrict ?? tele_restrict;
+                if (!await restrictTeleport(monster, state, env)) {
+                    // C discards rloc()'s result in this direct caller.
+                    await relocateRandomMonster(monster, RLOC_MSG, env);
+                }
+            } else {
+                monster.minvis = 0;
+                monster.perminvis = 0;
+                const text = `${Amonnam(monster, { ...env, state })} gets angry!`;
+                const line = canseemon(monster, state)
+                    ? messageAt(text, monster.mx, monster.my, state)
+                    : text;
+                await (rawEnv.message ?? ttyPline)(line, state, env);
+                monster.mpeaceful = 0;
+                set_malign(monster, state);
+            }
+        } else {
+            const demonTalk = rawEnv.demonTalk
+                ?? (await import('./minion.js')).demon_talk;
+            const conversationMessage = rawEnv.planning
+                ? async () => {}
+                : (rawEnv.message ?? ttyPline);
+            // The elapsed-turn preflight shares the live TTY input queue
+            // through planningState(). A real bribe() -> getlin() here would
+            // dismiss pending messages and consume the player's next keys
+            // before moveloop_core() replays this monster action on live
+            // state. Model the planning-only offer as an empty line instead:
+            // that follows demon_talk()'s ordinary refusal/anger continuation
+            // without borrowing the live input queue. The live source path
+            // still reads the actual offer below.
+            const conversationInput = rawEnv.planning
+                ? async () => ''
+                : rawEnv.getlin;
+            if (await demonTalk(monster, state, {
+                ...env,
+                message: conversationMessage,
+                getlin: conversationInput,
+            })) return 1;
+        }
+    }
 
     // C ref: monmove.c:828-834. Watch and mind flayer special actions.
     if (is_watch(monster.data)) {
