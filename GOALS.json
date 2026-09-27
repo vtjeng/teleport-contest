@@ -93840,6 +93840,49 @@
           "evaluationCommit": "fd7c4734a81712ec145e9d49a0c7034436692b57"
         }
       }
+    },
+    {
+      "id": "port-apply-use-stethoscope-synthetic-v6-20260927",
+      "kind": "file-port",
+      "status": "queued",
+      "summary": "Port apply.c use_stethoscope across vertical and creature examinations",
+      "cFile": "apply.c",
+      "sessions": [
+        "synthetic/v6/v6-add6-healer-stethoscope-floor-below"
+      ],
+      "selectionReason": "The current v6 healer stethoscope floor-below case first differs in apply.c:use_stethoscope at the downward direction branch; no active worker owns that C function.",
+      "detail": "Port whole apply.c:use_stethoscope through its existing doapply return-valued caller, preserving whirly interference RNG, command sequence, vertical and creature branch order, and ECMD results. Name unported void cant_reach_floor and mstatusline gaps, keep independent blocked recipes for their unverified entries, and obtain an independent matching downward C recording.",
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": null,
+      "delivered": null,
+      "functions": [
+        {
+          "name": "use_stethoscope",
+          "line": 318,
+          "endLine": 475,
+          "declared": true,
+          "complete": false
+        }
+      ],
+      "range": {
+        "from": 318,
+        "to": 475
+      },
+      "syntheticProvenance": {
+        "synthetic/v6/v6-add6-healer-stethoscope-floor-below": {
+          "session": "synthetic/v6/v6-add6-healer-stethoscope-floor-below",
+          "corpus": "synthetic",
+          "batch": "v6",
+          "caseId": "v6-add6-healer-stethoscope-floor-below",
+          "manifestPath": "challenges/manifests/v6.json",
+          "manifestSha256": "7523b91e823f4e3906c9acdc9a3d80f8469c27c2caab8fc8fbd6967dbfdcab5f",
+          "recordingPath": "challenges/cases/v6/v6-add6-healer-stethoscope-floor-below.session.json",
+          "recordingSha256": "a59c8d545be1daef5bbd75e215fcd585dd0e1718eb2f70b73ba13499db9c60ea",
+          "evaluationPath": "challenges/evaluations/20260927063132-v6.json",
+          "evaluationCommit": "fd7c4734a81712ec145e9d49a0c7034436692b57"
+        }
+      }
     }
   ]
 }
