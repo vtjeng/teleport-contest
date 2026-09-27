@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Blocked independent monster-to-monster potion intercept attempt. Four hostile gnome kings are generated, then the hero moves west to try to place a second monster in the remembered target line. The C trace showed the nearby gnome kings closing and taking their adjacent melee attacks instead; monmove.c:m_move() suppresses find_offensive() on the nearby branch, so mthrowu.c:m_throw() -> ohitmon(POTION_CLASS) was never reached. Keep this recipe as a setup blocker, not matching evidence.",
+  "segments": [
+    {
+      "seed": 771113,
+      "datetime": "20381105122700",
+      "nethackrc": "OPTIONS=name:InterceptProbe2,role:Wizard,race:human,gender:male,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen\nOPTIONS=pettype:none,!acoustics,playmode:debug\n",
+      "moves": ".\u0007gnome king\n\u0007gnome king\n\u0007gnome king\n\u0007gnome king\nh.m.m.m.   "
+    }
+  ]
+}

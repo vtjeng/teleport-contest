@@ -1,0 +1,90 @@
+{
+  "session": "synthetic/v8/magic-whistle-recalls-tame-dog",
+  "corpus": "synthetic",
+  "batch": "v8",
+  "caseId": "magic-whistle-recalls-tame-dog",
+  "manifestPath": "challenges/manifests/v8.json",
+  "manifestSha256": "6a5159501af18a7f926f794d89e817375cd00a3589c4899fb97392ae04dbe8ba",
+  "recordingSha256": "cf957da92f219e57d15e2ee66f8a57ff0bb743f59cba9c7c9c2ca3b9b54c675a",
+  "evaluationPath": "challenges/evaluations/20260927142534-v8.json",
+  "evaluationCommit": "c54c2c13ca30ebad8411cbcd4b7dcd3e193fbddc",
+  "remainingScreens": 1,
+  "recordedSteps": 29,
+  "status": "complete",
+  "commit": "c54c2c13ca30ebad8411cbcd4b7dcd3e193fbddc",
+  "mismatch": {
+    "corpus": "synthetic",
+    "batch": "v8",
+    "caseId": "magic-whistle-recalls-tame-dog",
+    "session": "synthetic/v8/magic-whistle-recalls-tame-dog",
+    "manifestPath": "challenges/manifests/v8.json",
+    "manifestSha256": "6a5159501af18a7f926f794d89e817375cd00a3589c4899fb97392ae04dbe8ba",
+    "recording": "challenges/cases/v8/magic-whistle-recalls-tame-dog.session.json",
+    "recordingPath": "challenges/cases/v8/magic-whistle-recalls-tame-dog.session.json",
+    "recordingSha256": "cf957da92f219e57d15e2ee66f8a57ff0bb743f59cba9c7c9c2ca3b9b54c675a",
+    "recipe": "challenges/cases/v8/magic-whistle-recalls-tame-dog.recipe.session.json",
+    "recipeSha256": "d98f467f09db33d09f62c318cda76b6ed9c93a94249c3f1e1584ad7d7c671d4f",
+    "replayInputSha256": "f12aaa199382908484612c7c8d311b333eb8a8d5cb1f2a5aba58e1ae8afc64b3",
+    "evaluationPath": "challenges/evaluations/20260927142534-v8.json",
+    "evaluationCommit": "c54c2c13ca30ebad8411cbcd4b7dcd3e193fbddc",
+    "evaluationArtifact": "challenges/evaluations/20260927142534-v8.json",
+    "evaluationUtc": "2026-09-27T14:26:06.427Z",
+    "remainingScreens": 1,
+    "recordedSteps": 29,
+    "previousScreensMatched": 28,
+    "regression": false,
+    "passed": false,
+    "error": null,
+    "metrics": {
+      "screens": {
+        "matched": 28,
+        "total": 29
+      },
+      "rng": {
+        "matched": 2486,
+        "total": 2524
+      },
+      "cursors": {
+        "matched": 28,
+        "total": 29
+      }
+    },
+    "firstMismatch": {
+      "kind": "stop",
+      "message": "unsupported hero command: an unported branch of this command: applying a tool requires doapply()'s arm for object type 246",
+      "step": 28
+    },
+    "step": 28,
+    "kind": "stop",
+    "sourceFile": "apply.c",
+    "function": "doapply",
+    "message": "unsupported hero command: an unported branch of this command: applying a tool requires doapply()'s arm for object type 246",
+    "cFile": "apply.c",
+    "luaFile": null,
+    "line": null
+  },
+  "summary": "Applying a magic whistle with a tame dog reaches apply.c:use_magic_whistle and its magic_whistled pet-relocation loop. JavaScript doapply lacks the MAGIC_WHISTLE arm and refuses before the source-ordered teleport.c:collect_coords draws. Port the complete magic-whistle family and both doapply instrument paths; preserve the distinction between ordinary and cursed magic outcomes.",
+  "source": {
+    "file": "apply.c",
+    "branch": "doapply selects MAGIC_WHISTLE and calls use_magic_whistle. With a noncursed whistle and a hero who can blow, it prints the strange whistle line and calls magic_whistled; each live tame non-steed monster can be moved beside the hero through mnexto and observed or discovered depending on prior visibility. Cursed whistles can instead hum, wake nearby monsters, and conditionally teleport a pet.",
+    "functions": [
+      "use_magic_whistle",
+      "magic_whistled"
+    ],
+    "callers": [
+      "C apply.c:doapply MAGIC_WHISTLE arm calls use_magic_whistle; its blessed EUCALYPTUS_LEAF arm also calls that function before a possible blessing wear-off draw. JS js/apply.js:doapply currently lacks the MAGIC_WHISTLE arm and raises UnsupportedApplyError."
+    ],
+    "dependencies": [
+      "C muse.c:can_blow is a consumed boolean and JS counterpart exists; C teleport.c:noteleport_level and mon.c:mnexto/enexto/teleport.c:collect_coords are active on cursed and ordinary routes. JS mnexto currently has an ignored _rlocflags parameter, so verify its RLOC_MSG/RLOC_NONE behavior and relocation messages against the source.",
+      "The magic_whistled loop consumes trap.c:mintrap result after relocation; JS mintrap is present but may refuse unported trap effects. Keep its active return branches and luck/message ordering.",
+      "Soundeffect is silent under the recorder nosound backend. C discover_object via makeknown occurs only after visible pet relocation on a previously unknown whistle; preserve that state transition."
+    ]
+  },
+  "goalKind": "file-port",
+  "evidence": [
+    "Current saved challenges/evaluations/20260927142534-v8.json leaves one of 29 screens unmatched. A fresh scan at f2d05fac73e9e9f9294c78d98ac3508ee1b846ba stops at segment 0 step 28 with UnsupportedApplyError for doapply object type 246.",
+    "The independent C recording challenges/cases/v8/magic-whistle-recalls-tame-dog.session.json shows step 28 printing \"You produce a strange whistling sound.\" and consuming a collect_coords draw sequence from teleport.c while recalling the tame dog. JS never enters the whistle function.",
+    "Upstream nethack-c/upstream/src/apply.c:use_magic_whistle around lines 495-520 owns the cursed/ordinary decision, and magic_whistled around lines 523-689 owns tame-monster relocation, trap, discovery, and cumulative messages. doapply at line 4304 is the selected caller; JavaScript needs the whole family rather than a whistle line or injected RNG calls.",
+    "The first C RNG label collect_coords is downstream of apply.c:magic_whistled -> mon.c:mnexto, not the missing dispatcher owner. Source callers and relocation-state conditions distinguish this from earlier cases that happen to call collect_coords."
+  ]
+}

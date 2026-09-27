@@ -38,6 +38,7 @@ import {
     ARM,
     AUGMENT_IT,
     BACKTRACK,
+    BLINDED,
     BOLT_LIM,
     BRK_FROM_INV,
     BRK_KNOWN2BREAK,
@@ -60,6 +61,7 @@ import {
     ERODE_CRACK,
     ER_DESTROYED,
     EYE,
+    FACE,
     FIRE_TRAP,
     FUMBLING,
     FOOT,
@@ -81,7 +83,9 @@ import {
     Is_airlevel,
     Is_waterlevel,
     KILLED_BY,
+    KILLED_BY_AN,
     LARGEST_INT,
+    LOW_PM,
     MAGIC_PORTAL,
     MOAT,
     NO_TRAP_FLAGS,
@@ -99,11 +103,14 @@ import {
     W_ARMU,
     WWALKING,
     WT_TOOMUCH_DIAGONAL,
+    WT_TO_DMG,
+    TIMEOUT,
     SUPPRESS_SADDLE,
     is_hole,
     is_pit,
     has_mgivenname,
     isok,
+    ismnum,
     LOST_THROWN,
     P_CROSSBOW,
     POTHIT_HERO_THROW,
@@ -119,6 +126,7 @@ import {
     SLT_ENCUMBER,
     SHOPBASE,
     STONE_RES,
+    STONING,
     STRAT_WAITMASK,
     STR19,
     STUNNED,
@@ -163,8 +171,11 @@ import {
     tmp_at,
 } from './display.js';
 import { canletgo, dropy, flooreffects } from './do.js';
-import { setwornEnv } from './do_wear.js';
-import { ceiling, on_level, surface, u_on_newpos } from './dungeon.js';
+import { hard_helmet, setwornEnv } from './do_wear.js';
+import {
+    ceiling, has_ceiling, on_level, surface, u_on_newpos,
+} from './dungeon.js';
+import { done } from './end.js';
 import { u_wipe_engr } from './engrave.js';
 import { game } from './gstate.js';
 import {
@@ -209,6 +220,11 @@ import {
     touch_petrifies,
     breathless,
     haseyes,
+    can_blnd,
+    hates_silver,
+    mon_hates_blessings,
+    passes_rocks,
+    poly_when_stoned,
     your_race,
 } from './mondata.js';
 import { closed_door, monnear, youHear } from './monmove.js';
@@ -239,6 +255,9 @@ import {
     AT_ENGL,
     AD_DGST,
     PM_LICHEN,
+    PM_SHADE,
+    PM_STONE_GOLEM,
+    AT_WEAP,
     S_UNICORN,
 } from './monsters.js';
 import {
@@ -263,6 +282,7 @@ import {
     remove_object,
     sobj_at,
     splitobj,
+    stone_missile,
     uslinging,
     weight,
 } from './obj.js';
@@ -316,6 +336,7 @@ import {
     RUBBER_HOSE,
     SACK,
     ROCK,
+    SILVER,
     SCROLL_CLASS,
     SLING,
     SPRIG_OF_WOLFSBANE,
@@ -342,6 +363,7 @@ import {
     the,
     The,
     Tobjnam,
+    thesimpleoname,
     vtense,
     xnameFresh,
 } from './objnam.js';
@@ -355,11 +377,11 @@ import {
 import { genders } from './roles.js';
 import { encumber_msg } from './pickup.js';
 import { verbalize } from './pline.js';
-import { body_part } from './polyself.js';
+import { body_part, polymon } from './polyself.js';
 import { makeplural } from './fruit.js';
 import { d, rn1, rn2, rnl, rnd } from './rng.js';
 import {
-    autoreturn_weapon, hitval, skill_name, weapon_descr,
+    autoreturn_weapon, dmgval, hitval, skill_name, weapon_descr,
     weapon_hit_bonus,
 } from './weapon.js';
 import { ship_object } from './dokick.js';
@@ -380,7 +402,7 @@ import { could_pole_mon, use_pole, use_whip } from './apply.js';
 import {
     find_mac, is_pole, set_twoweap, setuqwep, setuswapwep, setuwep,
 } from './worn.js';
-import { bhit, boomhit, miss } from './zap.js';
+import { bhit, boomhit, hit, miss } from './zap.js';
 import { hmon } from './uhitm.js';
 import { m_at } from './monst.js';
 import { setmangry, wake_nearto, wakeup } from './mon.js';
@@ -403,7 +425,7 @@ import { dotrap } from './trap_effects.js';
 import { Punished } from './steed.js';
 import { move_bc, drag_ball } from './ball.js';
 import { note_unported } from './unported.js';
-import { potionhit } from './potion.js';
+import { make_blinded, potionhit } from './potion.js';
 import { unsplitobj } from './obj.js';
 
 // C refs: youprop.h Confusion (84), Stunned (81), Fumbling (129) and
@@ -787,6 +809,229 @@ export function should_mulch_missile(obj, state = game, env = {}) {
         broken = false;
     }
     return broken;
+}
+
+// C ref: dothrow.c toss_up() (1256-1431). A vertically thrown object either
+// breaks against the ceiling, hits the hero, or comes back down harmlessly.
+// C calls the void hitfloor() helper at several sites; it remains a named gap
+// while this caller preserves the source's thrown-object cleanup.
+export async function toss_up(obj, hitsroof, state = game, rawEnv = {}) {
+    const random = { d, rn1, rn2, rnd, ...(rawEnv.random ?? {}) };
+    const message = rawEnv.message ?? ttyPline;
+    const u = state.u;
+    state.gt ??= {};
+    const otyp = obj.otyp;
+    const objectData = objectType(obj, state);
+    const petrifier = (otyp === EGG || otyp === CORPSE)
+        && ismnum(obj.corpsenm)
+        && touch_petrifies(state.mons[obj.corpsenm]);
+
+    let action;
+    if (!has_ceiling(u.uz, state)) {
+        action = 'flies up into';
+    } else if (hitsroof) {
+        if (breaktest(obj, { ...rawEnv, state, random })) {
+            await message(
+                `${Doname2(obj, state)} hits the ${ceiling(u.ux, u.uy, state)}.`,
+                state,
+                rawEnv,
+            );
+            await breakmsg(obj, !heroIsBlind(state), { ...rawEnv, state });
+            // Crackable armor may pass breaktest() but survive breakobj().
+            if (!await breakobj(obj, u.ux, u.uy, true, true,
+                { ...rawEnv, state, random })) {
+                note_unported('dothrow.c hitfloor');
+                state.gt.thrownobj = null;
+                return true;
+            }
+            return false;
+        }
+        action = 'hits';
+    } else {
+        action = 'almost hits';
+    }
+
+    await message(
+        `${Doname2(obj, state)} ${action} the `
+            + `${ceiling(u.ux, u.uy, state)}, then falls back on top of your `
+            + `${body_part(HEAD, state.youmonst)}.`,
+        state,
+        rawEnv,
+    );
+
+    if (obj.oclass === POTION_CLASS) {
+        await potionhit(
+            state.youmonst, obj, POTHIT_HERO_THROW,
+            { ...rawEnv, state, random },
+        );
+    } else if (breaktest(obj, { ...rawEnv, state, random })) {
+        // Determine the blindness before breakobj() deletes the object.
+        const blindinc = ((otyp === CREAM_PIE || otyp === BLINDING_VENOM)
+            && can_blnd(state.youmonst, state.youmonst, AT_WEAP, obj, state))
+            ? random.rnd(25) : 0;
+        await breakmsg(obj, !heroIsBlind(state), { ...rawEnv, state });
+        if (await breakobj(obj, u.ux, u.uy, true, true,
+            { ...rawEnv, state, random }))
+            obj = null;
+
+        switch (otyp) {
+        case EGG:
+            if (petrifier && !propertyPresent(state, STONE_RES)
+                && !(poly_when_stoned(state.youmonst.data, state)
+                    && await polymon(PM_STONE_GOLEM, state))) {
+                // A visor may still save the hero from the egg's petrifying
+                // corpse, but a helm always receives this source message.
+                if (state.uarmh) {
+                    await message(
+                        `Your ${helm_simple_name(state.uarmh, state)} `
+                            + 'fails to protect you.',
+                        state,
+                        rawEnv,
+                    );
+                }
+                await toss_up_petrify(obj, state, rawEnv);
+                return Boolean(obj);
+            }
+            // C falls through from EGG into the face-splatter message.
+            await message(
+                `You've got it all over your ${body_part(FACE, state.youmonst)}!`,
+                state,
+                rawEnv,
+            );
+            break;
+        case CREAM_PIE:
+        case BLINDING_VENOM:
+            await message(
+                `You've got it all over your ${body_part(FACE, state.youmonst)}!`,
+                state,
+                rawEnv,
+            );
+            break;
+        default:
+            break;
+        }
+
+        if (blindinc) {
+            if (otyp === BLINDING_VENOM && !heroIsBlind(state))
+                await message('It blinds you!', state, rawEnv);
+            u.ucreamed = (u.ucreamed ?? 0) + blindinc;
+            const blindedTimeout = (u.uprops?.[BLINDED]?.intrinsic ?? 0)
+                & TIMEOUT;
+            await make_blinded(blindedTimeout + blindinc, false, state,
+                rawEnv);
+            if (!heroIsBlind(state))
+                await message('Your vision clears.', state, rawEnv);
+        }
+
+        if (!obj) return false;
+        note_unported('dothrow.c hitfloor');
+        state.gt.thrownobj = null;
+    } else if (harmless_missile(obj, state)) {
+        await message("It doesn't hurt.", state, rawEnv);
+        note_unported('dothrow.c hitfloor');
+        state.gt.thrownobj = null;
+    } else {
+        const material = objectData.oc_material;
+        const isSilver = material === SILVER;
+        const hateSilver = (u.ulycn >= LOW_PM)
+            || hates_silver(state.youmonst.data);
+        const lessDamage = hard_helmet(state.uarmh, state)
+            && (!isSilver || !hateSilver);
+        let harmless = stone_missile(obj, state)
+            && passes_rocks(state.youmonst.data);
+        let artiMsg = false;
+        let damage = dmgval(obj, state.youmonst, state, { ...rawEnv, random });
+
+        if (obj.oartifact && !harmless) {
+            const dmgptr = { value: damage };
+            // rn1(18, 2) avoids 1 and 20, as in dothrow.c:1354-1356.
+            artiMsg = await artifact_hit(
+                null, state.youmonst, obj, dmgptr, random.rn1(18, 2), state,
+            );
+            damage = dmgptr.value;
+        }
+
+        if (!damage) {
+            // Non-weapons did not get dmgval()'s silver or blessing bonuses.
+            damage = Math.trunc((obj.owt + WT_TO_DMG - 1) / WT_TO_DMG);
+            damage = damage <= 1 ? 1 : random.rnd(damage);
+            if (damage > 6) damage = 6;
+            if (state.youmonst.data === state.mons[PM_SHADE] && !isSilver)
+                damage = 0;
+            if (obj.blessed && mon_hates_blessings(state.youmonst))
+                damage += random.rnd(4);
+            if (isSilver && hateSilver)
+                damage += random.rnd(20);
+        }
+        if (damage > 1 && lessDamage) damage = 1;
+        if (damage > 0) damage += u.udaminc ?? 0;
+        if (damage < 0) damage = 0;
+        damage = heroHalfPhysicalDamage(damage, state);
+
+        if (state.uarmh) {
+            if ((lessDamage && damage < (Upolyd(u) ? u.mh : u.uhp))
+                || harmless) {
+                if (!artiMsg) {
+                    if (!harmless) {
+                        await message(
+                            'Fortunately, you are wearing a hard helmet.',
+                            state,
+                            rawEnv,
+                        );
+                    } else {
+                        await message(
+                            `Unfortunately, you are wearing `
+                                + `${an(helm_simple_name(state.uarmh, state), state)}.`,
+                            state,
+                            rawEnv,
+                        );
+                    }
+                }
+            } else if (!petrifier && state.flags?.verbose) {
+                await message(
+                    `Your ${helm_simple_name(state.uarmh, state)} `
+                        + 'does not protect you.',
+                    state,
+                    rawEnv,
+                );
+            }
+            // A thrown stone against a xorn's worn helmet is no longer
+            // harmless; the helmet has stopped it from passing through.
+            // (The petrifier case is explicitly not harmless in C.)
+            harmless = false;
+        } else if (petrifier && !propertyPresent(state, STONE_RES)
+            && !(poly_when_stoned(state.youmonst.data, state)
+                && await polymon(PM_STONE_GOLEM, state))) {
+            await toss_up_petrify(obj, state, rawEnv);
+            return true;
+        }
+
+        if (isSilver && hateSilver)
+            await message('The silver sears you!', state, rawEnv);
+        if (harmless) {
+            await hit(thesimpleoname(obj, state), state.youmonst,
+                " but doesn't hurt.", state, rawEnv);
+        }
+
+        note_unported('dothrow.c hitfloor');
+        state.gt.thrownobj = null;
+        if (!harmless)
+            await losehp(damage, 'falling object', KILLED_BY_AN, state,
+                rawEnv);
+    }
+    return true;
+}
+
+// The source's petrification label and killer path are shared by the egg and
+// hard-object arms of toss_up(). `done()` is called for its terminal effect.
+async function toss_up_petrify(obj, state, rawEnv) {
+    state.killer ??= {};
+    state.killer.format = KILLED_BY;
+    state.killer.name = 'elementary physics';
+    await (rawEnv.message ?? ttyPline)('You turn to stone.', state, rawEnv);
+    if (obj) await dropy(obj, state);
+    state.gt.thrownobj = null;
+    await done(STONING, state, rawEnv);
 }
 
 // C ref: dothrow.c:30-34 AutoReturn(). A weapon that comes back to the hand
@@ -1963,10 +2208,13 @@ export async function throwit(obj, wep_mask, twoweap, oldslot, state = game) {
                 obj, wep_mask, twoweap, oldslot, state,
             );
         } else if (u.dz < 0) {
-            // C discards toss_up()'s boolean. Keep its unported source call
-            // explicit and finish the throw's own transit state.
-            rn2(5); // the argument is evaluated before the discarded call
-            note_unported('dothrow.c toss_up');
+            // dothrow.c:1589 evaluates rn2(5) before checking Underwater;
+            // toss_up()'s boolean is discarded, but all of its effects run.
+            await toss_up(
+                obj,
+                Boolean(rn2(5) && !u.uinwater),
+                state,
+            );
         } else if (u.dz > 0 && u.usteed
             && obj.oclass === POTION_CLASS && rn2(6)) {
             await potionhit(u.usteed, obj, POTHIT_HERO_THROW, { state });

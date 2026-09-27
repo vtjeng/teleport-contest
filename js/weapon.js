@@ -8,6 +8,7 @@ import {
     artifact_light,
     shade_glare,
     spec_abon,
+    spec_dbon,
 } from './artifacts.js';
 import { acurr } from './attrib.js';
 import {
@@ -429,11 +430,9 @@ const SMALL_PLUS_D6 = Object.freeze([ACID_VENOM]);
 // adds. Unlike hitval() above it is not pure: the base die and several of the
 // bonuses are random-number calls, and C makes them in exactly this order.
 //
-// One arm stops: the artifact halving at 338-339 needs artifact.c spec_dbon(),
-// which is unported. C reaches it only for an artifact already carrying a bonus
-// above 1, and uhitm.c hmon_hitmon_weapon_melee():1013 -- the only caller here
-// -- refuses every artifact weapon a few lines later anyway, so the refusal is
-// wider than C's condition without widening what the game refuses.
+// The artifact bonus threshold is checked after the ordinary monster bonuses:
+// spec_dbon() reports whether this weapon doubles damage and leaves its source
+// flag for artifact_hit() to consume later.
 export function dmgval(otmp, mon, state = game, env = {}) {
     const random = env.random ?? { d, rn2, rnd };
     let tmp = 0;
@@ -494,11 +493,9 @@ export function dmgval(otmp, mon, state = game, env = {}) {
 
         /* if the weapon is going to get a double damage bonus, adjust
            this bonus so that effectively it's added after the doubling */
-        if (bonus > 1 && otmp.oartifact) {
-            requiredOperation(env, 'unsupported', 'dmgval')(
-                'artifact damage doubling',
-            );
-        }
+        if (bonus > 1 && otmp.oartifact
+            && spec_dbon(otmp, mon, 25, state) >= 25)
+            bonus = Math.trunc((bonus + 1) / 2);
 
         tmp += bonus;
     }
