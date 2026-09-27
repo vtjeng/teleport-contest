@@ -40,6 +40,7 @@ import {
     MM_NOEXCLAM,
     NO_MINVENT,
     NEUTRAL,
+    NOTELL,
     NO_MM_FLAGS,
     ROWNO,
     ROOMOFFSET,
@@ -140,7 +141,9 @@ import { makemon_runtime, newcham } from './makemon_create.js';
 import { mkclass, rndmonst, set_malign } from './makemon.js';
 import { monster_census } from './minion.js';
 import { Monnam, mon_nam } from './do_name.js';
-import { flash_mon, wake_nearto, wakeup } from './mon.js';
+import {
+    flash_mon, setmangry, wake_nearto, wakeup,
+} from './mon.js';
 import { MAXMCLASSES } from './symbols.js';
 import {
     ALCHEMY_SMOCK,
@@ -217,7 +220,7 @@ import { exercise } from './attrib.js';
 import { wipeout_text } from './engrave.js';
 import { do_mapping } from './detect.js';
 import { level_tele, scrolltele } from './teleport.js';
-import { lightdamage } from './zap.js';
+import { lightdamage, resist } from './zap.js';
 import { discover_object } from './o_init.js';
 import { more_experienced } from './exper.js';
 import { rn1, rn2, rne, rnl, rnd } from './rng.js';
@@ -260,6 +263,7 @@ import {
     suit_simple_name,
     Yname2,
     donameFresh,
+    The,
     vtense,
     xnameFresh,
 } from './objnam.js';
@@ -483,6 +487,89 @@ function oneWornFlammableArmor(state) {
         state.uarmu,
     ].filter(Boolean);
     return worn.length === 1 && is_flammable(worn[0], state);
+}
+
+// C ref: read.c maybe_tame() (1044-1063). Its signed result is consumed by
+// seffect_taming(): a cursed scroll can return -1 for a peaceful target that
+// became hostile, while ordinary taming returns 1 only when disposition or
+// tameness changed. C discards tamedog()'s pointer but still performs its
+// state and message effects.
+async function maybe_tame(monster, scroll, state) {
+    const wasTame = Boolean(monster.mtame);
+    const wasPeaceful = Boolean(monster.mpeaceful);
+
+    if (scroll.cursed) {
+        await setmangry(monster, false, { state });
+        if (wasPeaceful && !monster.mpeaceful) return -1;
+    } else {
+        // read.c passes the fake object's actual class; a shopkeeper still
+        // reaches tamedog() after resisting the ordinary magic check.
+        if (!(await resist(monster, scroll.oclass, 0, NOTELL, state))
+            || monster.isshk) {
+            await tamedog(monster, scroll, false, { state });
+        }
+
+        if ((!wasPeaceful && monster.mpeaceful)
+            || wasTame !== Boolean(monster.mtame)) {
+            return 1;
+        }
+    }
+    return 0;
+}
+
+// C ref: read.c seffect_taming() (1679-1721). The nested x-then-y traversal,
+// swallowed target, steed fallback, visible-result accumulation, and
+// knowledge update follow C order. Spell and artifact callers use this same
+// source-owned effect through seffects().
+export async function seffect_taming(scroll, state = game) {
+    state.gk ??= {};
+    const confused = propertyActive(CONFUSION, state);
+    let candidates;
+    let results;
+    let visResults;
+
+    if (state.u.uswallow) {
+        candidates = 1;
+        results = visResults = await maybe_tame(
+            state.u.ustuck, scroll, state,
+        );
+    } else {
+        const bound = confused ? 5 : 1;
+        candidates = 0;
+        results = 0;
+        visResults = 0;
+        for (let i = -bound; i <= bound; ++i) {
+            for (let j = -bound; j <= bound; ++j) {
+                const x = state.u.ux + i;
+                const y = state.u.uy + j;
+                if (!isok(x, y)) continue;
+
+                const monster = m_at(x, y, state)
+                    || (!i && !j ? state.u.usteed : null);
+                if (!monster) continue;
+
+                ++candidates;
+                const result = await maybe_tame(monster, scroll, state);
+                results += result;
+                if (canSpotMonster(monster, state))
+                    visResults += result;
+            }
+        }
+    }
+
+    if (!results) {
+        await ttyPline(
+            `Nothing interesting ${!candidates ? 'happens' : 'seems to happen'}.`,
+            state,
+        );
+    } else {
+        await ttyPline(
+            `${The('neighborhood', state)} ${visResults ? 'is' : 'seems'} `
+                + `${results < 0 ? 'un' : ''}friendlier.`,
+            state,
+        );
+        if (visResults > 0) state.gk.known = true;
+    }
 }
 
 function solidPunishmentTarget(state) {
@@ -1508,7 +1595,7 @@ export async function seffects(scroll, state = game) {
         break;
     case SCR_TAMING:
     case SPE_CHARM_MONSTER:
-        note_unported('read.c seffect_taming');
+        await seffect_taming(scroll, state);
         break;
     case SCR_GENOCIDE:
         note_unported('read.c seffect_genocide');
