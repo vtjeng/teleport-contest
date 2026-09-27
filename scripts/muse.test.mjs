@@ -1067,6 +1067,7 @@ const MUSE_POT_CONFUSION = 11;
 const MUSE_POT_ACID = 14;
 const MUSE_WAN_TELEPORTATION = 15;
 const MUSE_POT_SLEEPING = 16;
+const MUSE_SCR_EARTH = 17;
 const MUSE_WAN_UNDEAD_TURNING = 20;
 
 // One row per arm of find_offensive()'s inventory loop, in source order, each
@@ -1157,7 +1158,9 @@ const OFFENSIVE_ARMS = [
     { name: 'potion of acid against an acid-resistant hero', otyp: POT_ACID,
         monster: { seen_resistance: M_SEEN_ACID }, refuses: false },
     // muse.c:1548-1560
-    { name: 'scroll of earth', otyp: SCR_EARTH },
+    // muse.c:1548-1560; its last-resort !rn2(10) can select a solid reader.
+    { name: 'scroll of earth', otyp: SCR_EARTH,
+        selects: MUSE_SCR_EARTH, rn2: 0 },
     // muse.c:1561-1568
     { name: 'expensive camera', otyp: EXPENSIVE_CAMERA, spe: 1 },
     { name: 'spent expensive camera', otyp: EXPENSIVE_CAMERA, spe: 0,
@@ -1193,16 +1196,23 @@ test('find_offensive selects on the object type and its own conditions',
         });
         state.multi = arm.multi ?? 0;
         const refuses = arm.selects === undefined && (arm.refuses ?? true);
+        const armEnv = arm.rn2 === undefined ? env : {
+            ...env,
+            random: { rn2: (bound) => {
+                assert.equal(bound, 10, arm.name);
+                return arm.rn2;
+            } },
+        };
         if (arm.selects !== undefined) {
-            assert.equal(find_offensive(gnome, env), true, arm.name);
+            assert.equal(find_offensive(gnome, armEnv), true, arm.name);
             assert.equal(state.m_offense.has_offense, arm.selects, arm.name);
             assert.equal(state.m_offense.offensive, item, arm.name);
         } else if (refuses) {
-            assert.throws(() => find_offensive(gnome, env),
+            assert.throws(() => find_offensive(gnome, armEnv),
                 (error) => error.reason === 'monster offensive item use',
                 arm.name);
         } else {
-            assert.equal(find_offensive(gnome, env), false, arm.name);
+            assert.equal(find_offensive(gnome, armEnv), false, arm.name);
             assert.equal(state.m_offense, null, arm.name);
         }
         state.multi = 0;

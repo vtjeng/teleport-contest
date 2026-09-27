@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 83724109,
+      "datetime": "20320309074500",
+      "nethackrc": "OPTIONS=name:Rockfall,role:Wizard,race:human,gender:male,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen\nOPTIONS=playmode:debug,pettype:none,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": " #wizgenesis\ndwarf king\n \u0017scroll of earth\ndo hlljjkkhhjjllkkhhjj"
+    }
+  ],
+  "_comment": "Blocked independent muse.c MUSE_SCR_EARTH entry attempt: the dwarf king does not acquire the scroll during this 65-step setup, so the recorded run never reaches find_offensive() or use_offensive(). Raw C setup recording is retained under .cache/A17-monster-earth-scroll-dwarf-king-setup-only.json and is not runtime completion evidence. The intended source path remains blocked at muse.c find_offensive()'s monster-inventory selection prerequisite."
+}

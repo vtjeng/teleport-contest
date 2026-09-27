@@ -89799,7 +89799,7 @@
     {
       "id": "port-apply-use-tinning-kit-synthetic-v6-20260926",
       "kind": "file-port",
-      "status": "queued",
+      "status": "parked",
       "summary": "Port whole tinning-kit use and its doapply caller across decline, confirm, and retry histories",
       "cFile": "apply.c",
       "sessions": [
@@ -89809,8 +89809,12 @@
       ],
       "selectionReason": "Three unresolved v6 Wizard tinning histories share apply.c:use_tinning_kit and distinct answers to its floorfood corpse prompt; A15 has completed the doapply ownership handoff.",
       "detail": "Implement complete apply.c use_tinning_kit in C order and wire doapply TINNING_KIT. Verify charged kit, corpse selection, decline, create-tin, Rider revival and inventory/floor paths. Port consumed returns, preserve source-named void gaps, and record independent C evidence for uncovered entry paths. Preserve the matching wizard-tinning-kit-newt regression witness.",
-      "openedAt": null,
-      "openStanding": null,
+      "openedAt": "75957af46f1185baa5d73932ec7f2a40c819038a",
+      "openStanding": {
+        "sha": "75957af46f1185baa5d73932ec7f2a40c819038a",
+        "screens": 11405,
+        "rng": 792838
+      },
       "closedAt": null,
       "delivered": null,
       "functions": [
@@ -89839,21 +89843,645 @@
           "evaluationPath": "challenges/evaluations/20260926220443-v6.json",
           "evaluationCommit": "382fb9f460e42198688105ebc81fd2788be20686"
         }
-      }
+      },
+      "activeStanding": {
+        "sha": "75957af46f1185baa5d73932ec7f2a40c819038a",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v6",
+          "caseId": "wizard-tinning-confirm",
+          "session": "synthetic/v6/wizard-tinning-confirm",
+          "manifestPath": "challenges/manifests/v6.json",
+          "manifestSha256": "7523b91e823f4e3906c9acdc9a3d80f8469c27c2caab8fc8fbd6967dbfdcab5f",
+          "recording": "challenges/cases/v6/wizard-tinning-confirm.session.json",
+          "recordingPath": "challenges/cases/v6/wizard-tinning-confirm.session.json",
+          "recordingSha256": "5375360da74524cb290c791f0cee162af26f3e169f75d1c3a0715f3ce48e42dd",
+          "recipe": "challenges/cases/v6/wizard-tinning-confirm.recipe.session.json",
+          "recipeSha256": "b5b8ef79aa0125808f150311ca3d45e723f5aa8df0dec1418b061d63c8f52ab6",
+          "replayInputSha256": "3fe7d9f907249045cf366b2d8a8737e78f953ba99e899abdff5158b4168155c4",
+          "evaluationPath": "challenges/evaluations/20260927000600-v6.json",
+          "evaluationCommit": "a0e66292d0f4c45131344d7c764ddc164d4e362e",
+          "evaluationArtifact": "challenges/evaluations/20260927000600-v6.json",
+          "evaluationUtc": "2026-09-27T00:06:19.278Z",
+          "remainingScreens": 2,
+          "recordedSteps": 36,
+          "previousScreensMatched": 34,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 34,
+              "total": 36
+            },
+            "rng": {
+              "matched": 2645,
+              "total": 2645
+            },
+            "cursors": {
+              "matched": 35,
+              "total": 36
+            }
+          },
+          "firstMismatch": {
+            "screen": {
+              "index": 33,
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 33,
+                "key": "o"
+              },
+              "kind": "ch",
+              "row": 0,
+              "column": 0,
+              "cCell": {
+                "ch": "T",
+                "color": 8,
+                "attr": 0,
+                "decgfx": 0
+              },
+              "jsCell": {
+                "ch": "W",
+                "color": 8,
+                "attr": 0,
+                "decgfx": 0
+              }
+            },
+            "rng": null,
+            "cursor": {
+              "index": 33,
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 33,
+                "key": "o"
+              },
+              "cCursor": [
+                47,
+                0,
+                1
+              ],
+              "jsCursor": [
+                55,
+                15,
+                1
+              ]
+            }
+          },
+          "step": 33,
+          "kind": "screen",
+          "sourceFile": null,
+          "function": null,
+          "message": null,
+          "cFile": null,
+          "luaFile": null,
+          "line": null,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v6/wizard-tinning-confirm.json",
+            "result": {
+              "session": "synthetic/v6/wizard-tinning-confirm",
+              "corpus": "synthetic",
+              "batch": "v6",
+              "caseId": "wizard-tinning-confirm",
+              "manifestPath": "challenges/manifests/v6.json",
+              "manifestSha256": "7523b91e823f4e3906c9acdc9a3d80f8469c27c2caab8fc8fbd6967dbfdcab5f",
+              "recordingPath": "challenges/cases/v6/wizard-tinning-confirm.session.json",
+              "recordingSha256": "5375360da74524cb290c791f0cee162af26f3e169f75d1c3a0715f3ce48e42dd",
+              "evaluationPath": "challenges/evaluations/20260926220443-v6.json",
+              "evaluationCommit": "382fb9f460e42198688105ebc81fd2788be20686",
+              "remainingScreens": 2,
+              "recordedSteps": 36,
+              "status": "complete",
+              "commit": "382fb9f460e42198688105ebc81fd2788be20686",
+              "mismatch": {
+                "corpus": "synthetic",
+                "batch": "v6",
+                "caseId": "wizard-tinning-confirm",
+                "session": "synthetic/v6/wizard-tinning-confirm",
+                "manifestPath": "challenges/manifests/v6.json",
+                "manifestSha256": "7523b91e823f4e3906c9acdc9a3d80f8469c27c2caab8fc8fbd6967dbfdcab5f",
+                "recording": "challenges/cases/v6/wizard-tinning-confirm.session.json",
+                "recordingPath": "challenges/cases/v6/wizard-tinning-confirm.session.json",
+                "recordingSha256": "5375360da74524cb290c791f0cee162af26f3e169f75d1c3a0715f3ce48e42dd",
+                "recipe": "challenges/cases/v6/wizard-tinning-confirm.recipe.session.json",
+                "recipeSha256": "b5b8ef79aa0125808f150311ca3d45e723f5aa8df0dec1418b061d63c8f52ab6",
+                "replayInputSha256": "b4d18a2d3ba26cf0c27756dbe042bf09080763611749323a62591b736dea5f4a",
+                "evaluationPath": "challenges/evaluations/20260926220443-v6.json",
+                "evaluationCommit": "382fb9f460e42198688105ebc81fd2788be20686",
+                "evaluationArtifact": "challenges/evaluations/20260926220443-v6.json",
+                "evaluationUtc": "2026-09-26T22:05:02.911Z",
+                "remainingScreens": 2,
+                "recordedSteps": 36,
+                "previousScreensMatched": 34,
+                "regression": false,
+                "passed": false,
+                "error": null,
+                "metrics": {
+                  "screens": {
+                    "matched": 34,
+                    "total": 36
+                  },
+                  "rng": {
+                    "matched": 2645,
+                    "total": 2645
+                  },
+                  "cursors": {
+                    "matched": 35,
+                    "total": 36
+                  }
+                },
+                "firstMismatch": {
+                  "screen": {
+                    "index": 33,
+                    "location": {
+                      "segmentIndex": 0,
+                      "stepIndex": 33,
+                      "key": "o"
+                    },
+                    "kind": "ch",
+                    "row": 0,
+                    "column": 0,
+                    "cCell": {
+                      "ch": "T",
+                      "color": 8,
+                      "attr": 0,
+                      "decgfx": 0
+                    },
+                    "jsCell": {
+                      "ch": "W",
+                      "color": 8,
+                      "attr": 0,
+                      "decgfx": 0
+                    }
+                  },
+                  "rng": null,
+                  "cursor": {
+                    "index": 33,
+                    "location": {
+                      "segmentIndex": 0,
+                      "stepIndex": 33,
+                      "key": "o"
+                    },
+                    "cCursor": [
+                      47,
+                      0,
+                      1
+                    ],
+                    "jsCursor": [
+                      55,
+                      15,
+                      1
+                    ]
+                  }
+                },
+                "step": 33,
+                "kind": "screen",
+                "sourceFile": null,
+                "function": null,
+                "message": null,
+                "cFile": null,
+                "luaFile": null,
+                "line": null
+              },
+              "summary": "At segment 0 step 33, C apply.c:doapply calls use_tinning_kit() for the Wizard’s charged kit. The kit selects a dropped newt corpse through floorfood(\"tin\", 2); this variant answers no and continues, while JS currently records the unported kit call. The sibling yes and retry cases exercise different answers to the same source prompt.",
+              "source": {
+                "file": "apply.c",
+                "branch": "doapply TINNING_KIT dispatch invokes use_tinning_kit(), which checks the kit charge and selects a corpse through floorfood(\"tin\", 2) before charging, tinning, or cancellation. The confirm variant declines the offered corpse.",
+                "functions": [
+                  "use_tinning_kit"
+                ],
+                "callers": [
+                  "cmd.c apply command reaches apply.c:doapply TINNING_KIT at 4294-4295; js/apply.js:doapply currently records apply.c use_tinning_kit and returns ECMD_TIME."
+                ],
+                "dependencies": [
+                  "eat.c:floorfood() returns the selected corpse and is already partially ported; verify prompt and both decline/success paths.",
+                  "Successful tinning uses mkobj.c:mksobj(TIN), weight(), object charge and corpse cleanup; Rider corpse revival consumes do.c:revive_corpse() result and needs a separate source case."
+                ]
+              },
+              "goalKind": "file-port",
+              "evidence": [
+                "Current saved challenges/evaluations/20260926220443-v6.json at 382fb9f460e42198688105ebc81fd2788be20686 reports 2 remaining screens, with the first refusal at segment 0 step 33 in the kit application path.",
+                "C challenges/cases/v6/wizard-tinning-confirm.session.json reaches floorfood(\"tin\", 2), offers the dropped newt corpse, and records the no response before the later prompt. The yes and retry siblings supply separate answer histories.",
+                "nethack-c/upstream/src/apply.c:2177-2256 defines use_tinning_kit() and lines 4294-4295 invoke it from doapply. The helper owns charge, corpse selection, tin creation, and the Rider revival branch."
+              ]
+            }
+          }
+        },
+        {
+          "corpus": "synthetic",
+          "batch": "v6",
+          "caseId": "wizard-tinning-yes",
+          "session": "synthetic/v6/wizard-tinning-yes",
+          "manifestPath": "challenges/manifests/v6.json",
+          "manifestSha256": "7523b91e823f4e3906c9acdc9a3d80f8469c27c2caab8fc8fbd6967dbfdcab5f",
+          "recording": "challenges/cases/v6/wizard-tinning-yes.session.json",
+          "recordingPath": "challenges/cases/v6/wizard-tinning-yes.session.json",
+          "recordingSha256": "20507a35d6d3cb3d7e607038b48b58444b9480f40da0d2bb23e1eabf95f3b72e",
+          "recipe": "challenges/cases/v6/wizard-tinning-yes.recipe.session.json",
+          "recipeSha256": "83d13d8c336a2f9ea2abcc09d9d28d58ada76fab1645b022e3095cf9085cec6a",
+          "replayInputSha256": "3fe7d9f907249045cf366b2d8a8737e78f953ba99e899abdff5158b4168155c4",
+          "evaluationPath": "challenges/evaluations/20260927000600-v6.json",
+          "evaluationCommit": "a0e66292d0f4c45131344d7c764ddc164d4e362e",
+          "evaluationArtifact": "challenges/evaluations/20260927000600-v6.json",
+          "evaluationUtc": "2026-09-27T00:06:19.278Z",
+          "remainingScreens": 2,
+          "recordedSteps": 35,
+          "previousScreensMatched": 33,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 33,
+              "total": 35
+            },
+            "rng": {
+              "matched": 2715,
+              "total": 2726
+            },
+            "cursors": {
+              "matched": 34,
+              "total": 35
+            }
+          },
+          "firstMismatch": {
+            "screen": {
+              "index": 33,
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 33,
+                "key": "o"
+              },
+              "kind": "ch",
+              "row": 0,
+              "column": 0,
+              "cCell": {
+                "ch": "T",
+                "color": 8,
+                "attr": 0,
+                "decgfx": 0
+              },
+              "jsCell": {
+                "ch": "W",
+                "color": 8,
+                "attr": 0,
+                "decgfx": 0
+              }
+            },
+            "rng": {
+              "index": 2693,
+              "cEntry": "rnd(2)=1",
+              "cCaller": "next_ident(mkobj.c:521)",
+              "jsEntry": "rn2(5)=1",
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 34,
+                "key": "y"
+              },
+              "stepIndex": 34
+            },
+            "cursor": {
+              "index": 33,
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 33,
+                "key": "o"
+              },
+              "cCursor": [
+                47,
+                0,
+                1
+              ],
+              "jsCursor": [
+                4,
+                7,
+                1
+              ]
+            }
+          },
+          "step": 33,
+          "kind": "screen",
+          "sourceFile": null,
+          "function": null,
+          "message": null,
+          "cFile": null,
+          "luaFile": null,
+          "line": null,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v6/wizard-tinning-yes.json",
+            "result": {
+              "session": "synthetic/v6/wizard-tinning-yes",
+              "corpus": "synthetic",
+              "batch": "v6",
+              "caseId": "wizard-tinning-yes",
+              "manifestPath": "challenges/manifests/v6.json",
+              "manifestSha256": "7523b91e823f4e3906c9acdc9a3d80f8469c27c2caab8fc8fbd6967dbfdcab5f",
+              "recordingPath": "challenges/cases/v6/wizard-tinning-yes.session.json",
+              "recordingSha256": "20507a35d6d3cb3d7e607038b48b58444b9480f40da0d2bb23e1eabf95f3b72e",
+              "evaluationPath": "challenges/evaluations/20260926094126-v6.json",
+              "evaluationCommit": "50bbe620897c8fc2e634d14ec672d33a4e44db7e",
+              "remainingScreens": 2,
+              "recordedSteps": 35,
+              "status": "complete",
+              "commit": "50bbe620897c8fc2e634d14ec672d33a4e44db7e",
+              "mismatch": {
+                "corpus": "synthetic",
+                "batch": "v6",
+                "caseId": "wizard-tinning-yes",
+                "session": "synthetic/v6/wizard-tinning-yes",
+                "manifestPath": "challenges/manifests/v6.json",
+                "manifestSha256": "7523b91e823f4e3906c9acdc9a3d80f8469c27c2caab8fc8fbd6967dbfdcab5f",
+                "recording": "challenges/cases/v6/wizard-tinning-yes.session.json",
+                "recordingPath": "challenges/cases/v6/wizard-tinning-yes.session.json",
+                "recordingSha256": "20507a35d6d3cb3d7e607038b48b58444b9480f40da0d2bb23e1eabf95f3b72e",
+                "recipe": "challenges/cases/v6/wizard-tinning-yes.recipe.session.json",
+                "recipeSha256": "83d13d8c336a2f9ea2abcc09d9d28d58ada76fab1645b022e3095cf9085cec6a",
+                "replayInputSha256": "9671c8200bb4617314143efc03b8936dba1c08d5025986a5ef6f245a97c322f9",
+                "evaluationPath": "challenges/evaluations/20260926094126-v6.json",
+                "evaluationCommit": "50bbe620897c8fc2e634d14ec672d33a4e44db7e",
+                "evaluationArtifact": "challenges/evaluations/20260926094126-v6.json",
+                "evaluationUtc": "2026-09-26T09:41:43.460Z",
+                "remainingScreens": 2,
+                "recordedSteps": 35,
+                "previousScreensMatched": 33,
+                "regression": false,
+                "passed": false,
+                "error": null,
+                "metrics": {
+                  "screens": {
+                    "matched": 33,
+                    "total": 35
+                  },
+                  "rng": {
+                    "matched": 2693,
+                    "total": 2726
+                  },
+                  "cursors": {
+                    "matched": 33,
+                    "total": 35
+                  }
+                },
+                "firstMismatch": {
+                  "kind": "stop",
+                  "message": "unsupported hero command: an unported branch of this command: applying a tool requires doapply()'s arm for object type 238",
+                  "step": 33
+                },
+                "step": 33,
+                "kind": "stop",
+                "sourceFile": "apply.c",
+                "function": "doapply",
+                "message": "unsupported hero command: an unported branch of this command: applying a tool requires doapply()'s arm for object type 238",
+                "cFile": "apply.c",
+                "luaFile": null,
+                "line": null
+              },
+              "summary": "The v6 wizard-tinning-yes case reaches apply.c:doapply() with a tinning kit at segment 0 step 33. JS refuses object type 238 before C calls use_tinning_kit(), so the source kit charge, corpse selection, and homemade-tin path remain unported. Group the three unresolved Wizard tinning variants with the already matching kit-newt case in one apply.c source task after current apply ownership clears.",
+              "source": {
+                "file": "apply.c",
+                "branch": "doapply TINNING_KIT arm calls use_tinning_kit; the kit has charge and a dropped newt corpse is available, so floorfood(\"tin\", 2) prompts for the corpse before tin creation or refusal.",
+                "functions": [
+                  "use_tinning_kit"
+                ],
+                "callers": [
+                  "cmd.c apply command reaches apply.c doapply TINNING_KIT case at lines 4294-4295; js/cmd.js command dispatch reaches js/apply.js doapply, which currently refuses object type 238."
+                ],
+                "dependencies": [
+                  "eat.c floorfood is return-valued and has a partial JS port; verify its tin selection and corpsecheck branches.",
+                  "mkobj.c mksobj(TIN), eat.c set_tin_variety, invent.c consume_obj_charge and hold_another_object, and corpse cleanup support the successful arm. Verify return-valued mksobj and the existing object/state owners."
+                ]
+              },
+              "goalKind": "file-port",
+              "evidence": [
+                "Saved challenges/evaluations/20260926094126-v6.json at 50bbe620897c8fc2e634d14ec672d33a4e44db7e reports 2 remaining screen(s), first refusal at segment 0 step 33: unsupported hero command: an unported branch of this command: applying a tool requires doapply()'s arm for object type 238.",
+                "C challenges/cases/v6/wizard-tinning-yes.session.json after the dropped newt corpse is selected, the C recording reaches the floorfood tin prompt and creates a tin of newt meat (step 33 prompt and step 34 inventory); this is independent of the matching wizard-tinning-kit-newt witness.",
+                "Upstream nethack-c/upstream/src/apply.c:2177-2256 use_tinning_kit() selects a corpse through floorfood, consumes a charge, creates and labels a tin, removes the corpse, and holds or drops the tin. The doapply switch at 4294-4295 calls it.",
+                "Current js/apply.js:doapply refuses TINNING_KIT; add the source arm and complete use_tinning_kit, then verify all three variants and the existing matching kit-newt case without case-specific branching."
+              ]
+            }
+          }
+        },
+        {
+          "corpus": "synthetic",
+          "batch": "v6",
+          "caseId": "wizard-tinning-retry",
+          "session": "synthetic/v6/wizard-tinning-retry",
+          "manifestPath": "challenges/manifests/v6.json",
+          "manifestSha256": "7523b91e823f4e3906c9acdc9a3d80f8469c27c2caab8fc8fbd6967dbfdcab5f",
+          "recording": "challenges/cases/v6/wizard-tinning-retry.session.json",
+          "recordingPath": "challenges/cases/v6/wizard-tinning-retry.session.json",
+          "recordingSha256": "137f2cb977a1d661abbc8bd9cdbaafce9b802a39f040ac9c4a1c266359028d85",
+          "recipe": "challenges/cases/v6/wizard-tinning-retry.recipe.session.json",
+          "recipeSha256": "48cff0ab9083247197d58628b2add5fe71e4ffc1ff70eca53e0f0dc0ed39c5a5",
+          "replayInputSha256": "3fe7d9f907249045cf366b2d8a8737e78f953ba99e899abdff5158b4168155c4",
+          "evaluationPath": "challenges/evaluations/20260927000600-v6.json",
+          "evaluationCommit": "a0e66292d0f4c45131344d7c764ddc164d4e362e",
+          "evaluationArtifact": "challenges/evaluations/20260927000600-v6.json",
+          "evaluationUtc": "2026-09-27T00:06:19.278Z",
+          "remainingScreens": 1,
+          "recordedSteps": 34,
+          "previousScreensMatched": 33,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 33,
+              "total": 34
+            },
+            "rng": {
+              "matched": 3003,
+              "total": 3003
+            },
+            "cursors": {
+              "matched": 33,
+              "total": 34
+            }
+          },
+          "firstMismatch": {
+            "screen": {
+              "index": 33,
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 33,
+                "key": "o"
+              },
+              "kind": "ch",
+              "row": 0,
+              "column": 0,
+              "cCell": {
+                "ch": "T",
+                "color": 8,
+                "attr": 0,
+                "decgfx": 0
+              },
+              "jsCell": {
+                "ch": "W",
+                "color": 8,
+                "attr": 0,
+                "decgfx": 0
+              }
+            },
+            "rng": {
+              "index": 3003,
+              "cCaller": null,
+              "jsEntry": "rn2(5)=0",
+              "stepIndex": null
+            },
+            "cursor": {
+              "index": 33,
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 33,
+                "key": "o"
+              },
+              "cCursor": [
+                47,
+                0,
+                1
+              ],
+              "jsCursor": [
+                52,
+                4,
+                1
+              ]
+            }
+          },
+          "step": 33,
+          "kind": "screen",
+          "sourceFile": null,
+          "function": null,
+          "message": null,
+          "cFile": null,
+          "luaFile": null,
+          "line": null,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v6/wizard-tinning-retry.json",
+            "result": {
+              "session": "synthetic/v6/wizard-tinning-retry",
+              "corpus": "synthetic",
+              "batch": "v6",
+              "caseId": "wizard-tinning-retry",
+              "manifestPath": "challenges/manifests/v6.json",
+              "manifestSha256": "7523b91e823f4e3906c9acdc9a3d80f8469c27c2caab8fc8fbd6967dbfdcab5f",
+              "recordingPath": "challenges/cases/v6/wizard-tinning-retry.session.json",
+              "recordingSha256": "137f2cb977a1d661abbc8bd9cdbaafce9b802a39f040ac9c4a1c266359028d85",
+              "evaluationPath": "challenges/evaluations/20260926094126-v6.json",
+              "evaluationCommit": "50bbe620897c8fc2e634d14ec672d33a4e44db7e",
+              "remainingScreens": 1,
+              "recordedSteps": 34,
+              "status": "complete",
+              "commit": "50bbe620897c8fc2e634d14ec672d33a4e44db7e",
+              "mismatch": {
+                "corpus": "synthetic",
+                "batch": "v6",
+                "caseId": "wizard-tinning-retry",
+                "session": "synthetic/v6/wizard-tinning-retry",
+                "manifestPath": "challenges/manifests/v6.json",
+                "manifestSha256": "7523b91e823f4e3906c9acdc9a3d80f8469c27c2caab8fc8fbd6967dbfdcab5f",
+                "recording": "challenges/cases/v6/wizard-tinning-retry.session.json",
+                "recordingPath": "challenges/cases/v6/wizard-tinning-retry.session.json",
+                "recordingSha256": "137f2cb977a1d661abbc8bd9cdbaafce9b802a39f040ac9c4a1c266359028d85",
+                "recipe": "challenges/cases/v6/wizard-tinning-retry.recipe.session.json",
+                "recipeSha256": "48cff0ab9083247197d58628b2add5fe71e4ffc1ff70eca53e0f0dc0ed39c5a5",
+                "replayInputSha256": "9671c8200bb4617314143efc03b8936dba1c08d5025986a5ef6f245a97c322f9",
+                "evaluationPath": "challenges/evaluations/20260926094126-v6.json",
+                "evaluationCommit": "50bbe620897c8fc2e634d14ec672d33a4e44db7e",
+                "evaluationArtifact": "challenges/evaluations/20260926094126-v6.json",
+                "evaluationUtc": "2026-09-26T09:41:43.460Z",
+                "remainingScreens": 1,
+                "recordedSteps": 34,
+                "previousScreensMatched": 33,
+                "regression": false,
+                "passed": false,
+                "error": null,
+                "metrics": {
+                  "screens": {
+                    "matched": 33,
+                    "total": 34
+                  },
+                  "rng": {
+                    "matched": 3003,
+                    "total": 3003
+                  },
+                  "cursors": {
+                    "matched": 33,
+                    "total": 34
+                  }
+                },
+                "firstMismatch": {
+                  "kind": "stop",
+                  "message": "unsupported hero command: an unported branch of this command: applying a tool requires doapply()'s arm for object type 238",
+                  "step": 33
+                },
+                "step": 33,
+                "kind": "stop",
+                "sourceFile": "apply.c",
+                "function": "doapply",
+                "message": "unsupported hero command: an unported branch of this command: applying a tool requires doapply()'s arm for object type 238",
+                "cFile": "apply.c",
+                "luaFile": null,
+                "line": null
+              },
+              "summary": "The v6 wizard-tinning-retry case reaches apply.c:doapply() with a tinning kit at segment 0 step 33. JS refuses object type 238 before C calls use_tinning_kit(), so the source kit charge, corpse selection, and homemade-tin path remain unported. Group the three unresolved Wizard tinning variants with the already matching kit-newt case in one apply.c source task after current apply ownership clears.",
+              "source": {
+                "file": "apply.c",
+                "branch": "doapply TINNING_KIT arm calls use_tinning_kit; the kit has charge and a dropped newt corpse is available, so floorfood(\"tin\", 2) prompts for the corpse before tin creation or refusal.",
+                "functions": [
+                  "use_tinning_kit"
+                ],
+                "callers": [
+                  "cmd.c apply command reaches apply.c doapply TINNING_KIT case at lines 4294-4295; js/cmd.js command dispatch reaches js/apply.js doapply, which currently refuses object type 238."
+                ],
+                "dependencies": [
+                  "eat.c floorfood is return-valued and has a partial JS port; verify its tin selection and corpsecheck branches.",
+                  "mkobj.c mksobj(TIN), eat.c set_tin_variety, invent.c consume_obj_charge and hold_another_object, and corpse cleanup support the successful arm. Verify return-valued mksobj and the existing object/state owners."
+                ]
+              },
+              "goalKind": "file-port",
+              "evidence": [
+                "Saved challenges/evaluations/20260926094126-v6.json at 50bbe620897c8fc2e634d14ec672d33a4e44db7e reports 1 remaining screen(s), first refusal at segment 0 step 33: unsupported hero command: an unported branch of this command: applying a tool requires doapply()'s arm for object type 238.",
+                "C challenges/cases/v6/wizard-tinning-retry.session.json after the dropped newt corpse is selected, the C recording reaches the floorfood tin prompt at its final boundary (step 33 prompt); this is independent of the matching wizard-tinning-kit-newt witness.",
+                "Upstream nethack-c/upstream/src/apply.c:2177-2256 use_tinning_kit() selects a corpse through floorfood, consumes a charge, creates and labels a tin, removes the corpse, and holds or drops the tin. The doapply switch at 4294-4295 calls it.",
+                "Current js/apply.js:doapply refuses TINNING_KIT; add the source arm and complete use_tinning_kit, then verify all three variants and the existing matching kit-newt case without case-specific branching."
+              ]
+            }
+          }
+        }
+      ],
+      "progressBeforePark": {
+        "screens": 0,
+        "rng": 0
+      },
+      "parkedStanding": {
+        "sha": "718a9620c6b9fc833f801d8b6f20a6f44d6f5e74",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "parkedReason": "Ordinary inventory and floor corpse tinning plus the three admitted v6 histories match, but apply.c:use_tinning_kit remains incomplete at the Rider branch: C consumes do.c:revive_corpse for inventory corpses, while the current callee refuses non-floor corpses. An independent Rider recipe is blocked earlier by invent.c:hold_another_object wish-corpse setup. The discarded instapetrify effects are also source-named and lack matching entry evidence."
     },
     {
       "id": "port-read-seffect-earth-synthetic-v6-20260926",
       "kind": "file-port",
-      "status": "queued",
+      "status": "parked",
       "summary": "Port scroll-of-earth effects and source boulder helpers through hero and monster callers",
       "cFile": "read.c",
       "sessions": [
         "synthetic/v6/wizard-read-earth-reach"
       ],
-      "selectionReason": "synthetic/v6/wizard-read-earth-reach remains unmatched at segment 0 step 20 in the current v6 evaluation; investigations/synthetic/v6/wizard-read-earth-reach.json traces the missing effect to read.c:seffect_earth. No other unresolved earlier case shares this source family. The C-only mkobj.c:next_ident draws follow missing boulder creation.",
+      "selectionReason": "The admitted v6 wizard-read-earth-reach case diverges when read.c:seffects dispatches SCR_EARTH to seffect_earth; A17’s immutable delivery ports that source function and the consumed boulder helpers, while the active muse.c monster caller remains an independently recorded evidence gap.",
       "detail": "Port whole read.c:seffect_earth and its return-valued drop_boulder_on_monster and drop_boulder_on_player helpers, plus consumed dungeon.c:avoid_ceiling. Wire the read.c:seffects SCR_EARTH dispatch and the active muse.c:find_offensive/use_offensive MUSE_SCR_EARTH caller branches. Preserve source order, messages, object and damage state, and PRNG calls for blessed, cursed, confused, and ordinary scrolls. Obtain independent C recordings for hero and monster entry paths; leave trap.c:sokoban_guilt as a named void gap if unported. Do not claim completion for any caller lacking matching runtime evidence.",
-      "openedAt": null,
-      "openStanding": null,
+      "openedAt": "56fed9f3833b9a6c30cfb31697fbf350406a9e14",
+      "openStanding": {
+        "sha": "56fed9f3833b9a6c30cfb31697fbf350406a9e14",
+        "screens": 11405,
+        "rng": 792838
+      },
       "closedAt": null,
       "delivered": null,
       "functions": [
@@ -89861,8 +90489,8 @@
           "name": "seffect_earth",
           "line": 1919,
           "endLine": 1975,
-          "declared": false,
-          "complete": false
+          "declared": true,
+          "complete": true
         }
       ],
       "range": {
@@ -89881,6 +90509,404 @@
           "recordingSha256": "44d036a62da0fc62080b022f279326a1b309edcb8f4f6e8c3855a8c0555a1a8d",
           "evaluationPath": "challenges/evaluations/20260926233328-v6.json",
           "evaluationCommit": "e15883c1613d84bf7f47fcd7c2f032e1a001fcd2"
+        }
+      },
+      "activeStanding": {
+        "sha": "56fed9f3833b9a6c30cfb31697fbf350406a9e14",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v6",
+          "caseId": "wizard-read-earth-reach",
+          "session": "synthetic/v6/wizard-read-earth-reach",
+          "manifestPath": "challenges/manifests/v6.json",
+          "manifestSha256": "7523b91e823f4e3906c9acdc9a3d80f8469c27c2caab8fc8fbd6967dbfdcab5f",
+          "recording": "challenges/cases/v6/wizard-read-earth-reach.session.json",
+          "recordingPath": "challenges/cases/v6/wizard-read-earth-reach.session.json",
+          "recordingSha256": "44d036a62da0fc62080b022f279326a1b309edcb8f4f6e8c3855a8c0555a1a8d",
+          "recipe": "challenges/cases/v6/wizard-read-earth-reach.recipe.session.json",
+          "recipeSha256": "47ed050c8aa1166f9a2bc9be29b119b555f5f9ab523b8ee2521dccf0334c03d9",
+          "replayInputSha256": "c4dea39dfcde1753daa96a9f8dbe64e4f196bab14e526be93a0270dd6e40ad04",
+          "evaluationPath": "challenges/evaluations/20260927003345-v6.json",
+          "evaluationCommit": "718a9620c6b9fc833f801d8b6f20a6f44d6f5e74",
+          "evaluationArtifact": "challenges/evaluations/20260927003345-v6.json",
+          "evaluationUtc": "2026-09-27T00:34:05.363Z",
+          "remainingScreens": 1,
+          "recordedSteps": 21,
+          "previousScreensMatched": 20,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 20,
+              "total": 21
+            },
+            "rng": {
+              "matched": 2454,
+              "total": 2457
+            },
+            "cursors": {
+              "matched": 20,
+              "total": 21
+            }
+          },
+          "firstMismatch": {
+            "screen": {
+              "index": 20,
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 20,
+                "key": "p"
+              },
+              "kind": "ch",
+              "row": 0,
+              "column": 38,
+              "cCell": {
+                "ch": " ",
+                "color": 8,
+                "attr": 0,
+                "decgfx": 0
+              },
+              "jsCell": {
+                "ch": "-",
+                "color": 8,
+                "attr": 0,
+                "decgfx": 0
+              }
+            },
+            "rng": {
+              "index": 2454,
+              "cEntry": "rnd(2)=2",
+              "cCaller": "next_ident(mkobj.c:521)",
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 20,
+                "key": "p"
+              },
+              "stepIndex": 20
+            },
+            "cursor": {
+              "index": 20,
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 20,
+                "key": "p"
+              },
+              "cCursor": [
+                78,
+                0,
+                1
+              ],
+              "jsCursor": [
+                46,
+                0,
+                1
+              ]
+            }
+          },
+          "step": 20,
+          "kind": "rng",
+          "sourceFile": "mkobj.c",
+          "function": "next_ident",
+          "message": null,
+          "cFile": "mkobj.c",
+          "luaFile": null,
+          "line": 521,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v6/wizard-read-earth-reach.json",
+            "result": {
+              "session": "synthetic/v6/wizard-read-earth-reach",
+              "corpus": "synthetic",
+              "batch": "v6",
+              "caseId": "wizard-read-earth-reach",
+              "manifestPath": "challenges/manifests/v6.json",
+              "manifestSha256": "7523b91e823f4e3906c9acdc9a3d80f8469c27c2caab8fc8fbd6967dbfdcab5f",
+              "recordingPath": "challenges/cases/v6/wizard-read-earth-reach.session.json",
+              "recordingSha256": "44d036a62da0fc62080b022f279326a1b309edcb8f4f6e8c3855a8c0555a1a8d",
+              "evaluationPath": "challenges/evaluations/20260926140428-v6.json",
+              "evaluationCommit": "c79e03cbb8b5e5509ef1f09c67f9c94405b25eae",
+              "remainingScreens": 1,
+              "recordedSteps": 21,
+              "status": "complete",
+              "commit": "c79e03cbb8b5e5509ef1f09c67f9c94405b25eae",
+              "mismatch": {
+                "corpus": "synthetic",
+                "batch": "v6",
+                "caseId": "wizard-read-earth-reach",
+                "session": "synthetic/v6/wizard-read-earth-reach",
+                "manifestPath": "challenges/manifests/v6.json",
+                "manifestSha256": "7523b91e823f4e3906c9acdc9a3d80f8469c27c2caab8fc8fbd6967dbfdcab5f",
+                "recording": "challenges/cases/v6/wizard-read-earth-reach.session.json",
+                "recordingPath": "challenges/cases/v6/wizard-read-earth-reach.session.json",
+                "recordingSha256": "44d036a62da0fc62080b022f279326a1b309edcb8f4f6e8c3855a8c0555a1a8d",
+                "recipe": "challenges/cases/v6/wizard-read-earth-reach.recipe.session.json",
+                "recipeSha256": "47ed050c8aa1166f9a2bc9be29b119b555f5f9ab523b8ee2521dccf0334c03d9",
+                "replayInputSha256": "08ec9793c4e538aa193f8c9f2480a06224ca1163dff42a0fb1d317bf84e4587a",
+                "evaluationPath": "challenges/evaluations/20260926140428-v6.json",
+                "evaluationCommit": "c79e03cbb8b5e5509ef1f09c67f9c94405b25eae",
+                "evaluationArtifact": "challenges/evaluations/20260926140428-v6.json",
+                "evaluationUtc": "2026-09-26T14:04:45.786Z",
+                "remainingScreens": 1,
+                "recordedSteps": 21,
+                "previousScreensMatched": 20,
+                "regression": false,
+                "passed": false,
+                "error": null,
+                "metrics": {
+                  "screens": {
+                    "matched": 20,
+                    "total": 21
+                  },
+                  "rng": {
+                    "matched": 2454,
+                    "total": 2457
+                  },
+                  "cursors": {
+                    "matched": 20,
+                    "total": 21
+                  }
+                },
+                "firstMismatch": {
+                  "screen": {
+                    "index": 20,
+                    "location": {
+                      "segmentIndex": 0,
+                      "stepIndex": 20,
+                      "key": "p"
+                    },
+                    "kind": "ch",
+                    "row": 0,
+                    "column": 38,
+                    "cCell": {
+                      "ch": " ",
+                      "color": 8,
+                      "attr": 0,
+                      "decgfx": 0
+                    },
+                    "jsCell": {
+                      "ch": "-",
+                      "color": 8,
+                      "attr": 0,
+                      "decgfx": 0
+                    }
+                  },
+                  "rng": {
+                    "index": 2454,
+                    "cEntry": "rnd(2)=2",
+                    "cCaller": "next_ident(mkobj.c:521)",
+                    "location": {
+                      "segmentIndex": 0,
+                      "stepIndex": 20,
+                      "key": "p"
+                    },
+                    "stepIndex": 20
+                  },
+                  "cursor": {
+                    "index": 20,
+                    "location": {
+                      "segmentIndex": 0,
+                      "stepIndex": 20,
+                      "key": "p"
+                    },
+                    "cCursor": [
+                      78,
+                      0,
+                      1
+                    ],
+                    "jsCursor": [
+                      46,
+                      0,
+                      1
+                    ]
+                  }
+                },
+                "step": 20,
+                "kind": "rng",
+                "sourceFile": "mkobj.c",
+                "function": "next_ident",
+                "message": null,
+                "cFile": "mkobj.c",
+                "luaFile": null,
+                "line": 521
+              },
+              "summary": "The Wizard uses the debug wish command to obtain a scroll of earth, then reads it with 'r' and selects it with 'p'. C dispatches the ordinary, unblessed, uncursed, unconfused scroll to read.c:seffect_earth() on a level with a ceiling, prints the ceiling-rumbling message, marks the scroll known, and creates boulders. JavaScript's read.c seffects() switch currently calls note_unported('read.c seffect_earth'), so the effect message and boulder path are skipped. The three C-only rnd(2) draws reported under mkobj.c:next_ident are downstream object-identity draws from the missing effect, not its source owner.",
+              "source": {
+                "file": "read.c",
+                "branch": "seffect_earth() enters when the level is not a Rogue level, has a ceiling, and is outside the endgame (or is the Earth level). For this recording the scroll is unblessed, uncursed, and the hero is not confused or swallowed: C reports the ceiling rumbling above the hero, marks the effect known, drops boulders on eligible surrounding squares, and drops one on the player.",
+                "functions": [
+                  "seffect_earth"
+                ],
+                "callers": [
+                  "read.c:doread() calls seffects(), whose SCR_EARTH switch arm calls seffect_earth(); js/read.js:doread() calls js/read.js:seffects(), whose SCR_EARTH arm currently records the unported gap."
+                ],
+                "dependencies": [
+                  "read.c:drop_boulder_on_monster() returns a count that seffect_earth() adds to nboulders and tests for the blessed-scroll fallback; include this return-valued callee in the source family.",
+                  "read.c:drop_boulder_on_player() creates and places the unblessed player boulder. Its mksobj() object creation reaches mkobj.c:next_ident(), which accounts for the C-only RNG entries at this case’s first mismatch.",
+                  "Preserve the effect ordering through gk.known, sokoban_guilt(), object creation/placement, and doread() cleanup and scroll consumption."
+                ]
+              },
+              "goalKind": "file-port",
+              "evidence": [
+                "The saved evaluation challenges/evaluations/20260926140428-v6.json at c79e03cbb8b5e5509ef1f09c67f9c94405b25eae reports one remaining screen at segment 0 step 20 on key \"p\": row 0 column 38 is a space in C and the More-prompt dash in JavaScript; the C cursor is [78,0,1] versus JavaScript [46,0,1]. The C RNG entries at indices 2454–2456 are three rnd(2) calls from mkobj.c:next_ident().",
+                "The recipe challenges/cases/v6/wizard-read-earth-reach.recipe.session.json uses seed 60626037, a chaotic female human Wizard, and moves \" \\u0017scroll of earth\\nrp\". In the recording, the wizard-wish input creates the scroll, key \"r\" opens read selection, and key \"p\" selects it at segment 0 step 20. C prints \"As you read the scroll, it disappears.  The ceiling rumbles above you!--More--\"; the JavaScript gap lets its More prompt begin earlier.",
+                "Upstream nethack-c/upstream/src/read.c seffect_earth() (1919–1970) checks the ceiling and level gates, prints the rumble or avalanche message, sets gk.known, and loops over the eight surrounding squares to call drop_boulder_on_monster(); an unblessed scroll also calls drop_boulder_on_player(). The seffects() SCR_EARTH case dispatches to it (around line 2273).",
+                "At the evaluated implementation, js/read.js seffects() has an SCR_EARTH arm that calls note_unported(\"read.c seffect_earth\") (around line 1302); js/read.js doread() reaches seffects() after printing the read message (around line 845). The screen and next_ident RNG differences are consequences of this skipped C effect; mkobj.c:next_ident() is not the source owner."
+              ]
+            }
+          }
+        }
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "seffect_earth",
+            "implementation": "js/read.js",
+            "symbol": "seffect_earth",
+            "sourceReview": "Compared the complete read.c:seffect_earth() source definition (1919-1975) in C order. The port snapshots blessed/cursed/confused state, preserves Rogue/endgame/ceiling/earth-level gates, selects the swallowed/ceiling/avalanche message, identifies the scroll, and names the discarded void trap.c:sokoban_guilt call with note_unported(). It preserves the x-major/y-minor 3x3 traversal, source terrain guards, cursed suppression, and consumes drop_boulder_on_monster()'s boolean in nboulders; it invokes the void drop_boulder_on_player() branch only for an uncursed scroll and retains the blessed/no-boulder message. Both boulder helpers were source-ported from read.c and wired in this task; avoid_ceiling() was source-ported from dungeon.c and source-pinned. The hero recording and v6 range execute seffect_earth() through the production read command. The separate muse.c MUSE_SCR_EARTH path is implemented in the supplemental A17 scope, but its independent setup did not reach find_offensive() or use_offensive(); it is named as blocked below and is not claimed as evidence for this function.",
+            "callers": [
+              {
+                "path": "js/read.js",
+                "symbol": "seffects",
+                "source": "read.c:seffects() selects SCR_EARTH and calls seffect_earth(&sobj); js/read.js:seffects() awaits seffect_earth(scroll, state) in the corresponding switch arm."
+              },
+              {
+                "path": "js/read.js",
+                "symbol": "doread",
+                "source": "read.c:doread() calls seffects(scroll) at line 635 after selecting a readable object; js/read.js:doread() forwards the selected scroll to seffects()."
+              },
+              {
+                "path": "js/cmd.js",
+                "symbol": "runReadCommand",
+                "source": "cmd.c's read command dispatches doread(); js/cmd.js:runReadCommand() is the production command caller and awaits js/read.js:doread()."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/read-earth.test.mjs"
+            ],
+            "recordings": [
+              "recordings/read.c/read-earth-priest-independent.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v6",
+                "caseId": "wizard-read-earth-reach",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 20,
+                "source": "cmd.c read command -> read.c:doread() -> read.c:seffects() -> read.c:seffect_earth()"
+              }
+            ],
+            "checkedAt": "12a35e71cf1d937cd08b75b196f3c8b54224f6cd"
+          }
+        ],
+        "entryPointReview": "The selected read.c range has an active scroll-reading entry through cmd.c read-command dispatch, read.c:doread(), read.c:seffects(), and read.c:seffect_earth(). The independent Priest recording strictly matches and reaches the cursed-scroll effect: segment 0 step 20 displays the ceiling rumble, step 21 shows the boulder hit, and steps 22-24 match the fatal-hit continuation. The admitted v6 wizard-read-earth-reach case was replayed at this checkout through segment 0 step 20, where the source effect executes and every screen, cursor, RNG call, and boundary matches. The separate active monster Earth-scroll caller is muse.c:find_offensive()/use_offensive(). Its corrected 65-step independent dwarf-king setup recording is retained only as raw diagnostic data at .cache/A17-monster-earth-scroll-dwarf-king-setup-only.json; the dwarf king never acquires the scroll, so no matching runtime range reaches either muse.c function. recipes/muse.c/monster-earth-scroll-dwarf-king-independent.session.json preserves this blocked setup with the exact inventory-selection prerequisite. This supplemental muse entry is not treated as evidence for seffect_earth or as a completed muse source unit. The C-discarded void trap.c:sokoban_guilt call is explicitly skipped with note_unported(); no result from note_unported() is used.",
+        "entryPoints": [
+          {
+            "name": "Read command: Scroll of Earth effect",
+            "functions": [
+              "seffect_earth"
+            ],
+            "recordings": [
+              "recordings/read.c/read-earth-priest-independent.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v6",
+                "caseId": "wizard-read-earth-reach",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 20,
+                "source": "cmd.c read command -> read.c:doread() -> read.c:seffects() -> read.c:seffect_earth()"
+              }
+            ]
+          }
+        ]
+      },
+      "progressBeforePark": {
+        "screens": 0,
+        "rng": 0
+      },
+      "parkedStanding": {
+        "sha": "12a35e71cf1d937cd08b75b196f3c8b54224f6cd",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "parkedReason": "The production read.c:seffect_earth hero entry is verified by the independent Priest recording and admitted v6 replay. The task also wired muse.c:find_offensive/use_offensive MUSE_SCR_EARTH, whose separate monster caller remains unverified: the independent dwarf-king setup did not acquire the scroll, so neither source branch ran. Resume when a C recipe reaches that monster inventory-selection and use path; retain the blocked recipe and raw diagnostic trace. The source-named void trap.c:sokoban_guilt effect remains unported."
+    },
+    {
+      "id": "port-trap-fall-through-hero-synthetic-v7-20260926",
+      "kind": "file-port",
+      "status": "queued",
+      "summary": "Port trapdoor destination and hero fall-through transition from C source",
+      "cFile": "trap.c",
+      "sessions": [
+        "synthetic/v7/trapdoor-pet-transit"
+      ],
+      "selectionReason": "The admitted v7 trapdoor-pet-transit case refuses at hero trap activation step 15. C trap.c:trapeffect_hole calls fall_through; its consumed clamp_hole_destination and dng_bottom dependency form the source family selected here, with hole_destination and maketrap in source order. The older parked trap.c goal is tied to a now-matching fixed session and cannot be resumed by the current selection guard; retain it for earlier burnarmor..mk_trap_statue source work while this distinct v7 task completes the fall family.",
+      "detail": "Wire trap.c:trapeffect_hole hero HOLE/TRAPDOOR branch through fall_through, the production movement preflight, and dokick.c:kick_nondoor throne caller. Preserve next_to_u, level destination, schedule_goto and deferred arrival; reconcile historical monster-only trapeffect_hole evidence. Record an independent hero fall and a throne-kick caller or a source-named blocked recipe.",
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": null,
+      "delivered": null,
+      "functions": [
+        {
+          "name": "dng_bottom",
+          "line": 418,
+          "endLine": 441,
+          "declared": false,
+          "complete": false
+        },
+        {
+          "name": "hole_destination",
+          "line": 442,
+          "endLine": 455,
+          "declared": true,
+          "complete": false
+        },
+        {
+          "name": "maketrap",
+          "line": 456,
+          "endLine": 592,
+          "declared": true,
+          "complete": false
+        },
+        {
+          "name": "clamp_hole_destination",
+          "line": 593,
+          "endLine": 601,
+          "declared": false,
+          "complete": false
+        },
+        {
+          "name": "fall_through",
+          "line": 602,
+          "endLine": 725,
+          "declared": false,
+          "complete": false
+        }
+      ],
+      "range": {
+        "from": 418,
+        "to": 725
+      },
+      "syntheticProvenance": {
+        "synthetic/v7/trapdoor-pet-transit": {
+          "session": "synthetic/v7/trapdoor-pet-transit",
+          "corpus": "synthetic",
+          "batch": "v7",
+          "caseId": "trapdoor-pet-transit",
+          "manifestPath": "challenges/manifests/v7.json",
+          "manifestSha256": "03a861a9d1bc9d813c80681312ee7a0e0f893dbad0536de40a974bd5ec344094",
+          "recordingPath": "challenges/cases/v7/trapdoor-pet-transit.session.json",
+          "recordingSha256": "995f464e33f2d53c6eb4f4e6149db8198273ed137fa0b5517ca62cd65d4e0328",
+          "evaluationPath": "challenges/evaluations/20260927005209-v7.json",
+          "evaluationCommit": "12a35e71cf1d937cd08b75b196f3c8b54224f6cd"
         }
       }
     }

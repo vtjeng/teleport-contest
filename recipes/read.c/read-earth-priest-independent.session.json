@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 9281473,
+      "datetime": "20310415141500",
+      "nethackrc": "OPTIONS=name:EarthHelper,role:Priest,race:human,gender:female,align:lawful\nOPTIONS=!legacy,!tutorial,!splash_screen\nOPTIONS=playmode:debug,pettype:none,!autopickup,!debug_mongen\n",
+      "moves": " \u0017scroll of earth\nri    "
+    }
+  ],
+  "_comment": "Independent read.c:seffect_earth hero entry: a debug wish creates an Earth scroll, then the Priest reads it. Seed, date, role and player identity differ from the admitted Wizard case."
+}
