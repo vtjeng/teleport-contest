@@ -98819,7 +98819,7 @@
     {
       "id": "div-eat-start-tin-yobjnam-synthetic-v9-20260927",
       "kind": "divergence-fix",
-      "status": "queued",
+      "status": "closed",
       "summary": "Restore eat.c start_tin possessive opener naming",
       "cFile": "eat.c",
       "sessions": [
@@ -98827,10 +98827,17 @@
       ],
       "selectionReason": "The admitted v9 spinach-tin case matches through opener selection and all RNG, then diverges at eat.c:start_tin message: C uses yobjnam(uwep,NULL) and JavaScript uses xnameFresh, omitting your.",
       "detail": "Change the existing source-aligned opener-weapon branch to use the already ported objnam.c:yobjnam across eligible opener objects; keep opening delay, occupation, tin consumption, and later spinach effects. Add source-pinned naming coverage and a distinct C recording if the admitted range does not cover an entry point.",
-      "openedAt": null,
-      "openStanding": null,
-      "closedAt": null,
-      "delivered": null,
+      "openedAt": "61bf01dceec46f022af55adc21fb61ee75b69cdf",
+      "openStanding": {
+        "sha": "de87c577bce9e29db5aaf47eccac54a458f687a8",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "closedAt": "2d9a4768ccd20aa7dae5330807381ebed65bc926",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
       "function": "start_tin",
       "session": "synthetic/v9/valkyrie-opens-spinach-tin-with-tin-opener",
       "step": 52,
@@ -98847,6 +98854,239 @@
           "evaluationPath": "challenges/evaluations/20260927201811-v9.json",
           "evaluationCommit": "de87c577bce9e29db5aaf47eccac54a458f687a8"
         }
+      },
+      "activeStanding": {
+        "sha": "de87c577bce9e29db5aaf47eccac54a458f687a8",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v9",
+          "caseId": "valkyrie-opens-spinach-tin-with-tin-opener",
+          "session": "synthetic/v9/valkyrie-opens-spinach-tin-with-tin-opener",
+          "manifestPath": "challenges/manifests/v9.json",
+          "manifestSha256": "00c148aac522e6343c8de0bd003db29771439f972a99cb18c772ebf2bc45a594",
+          "recording": "challenges/cases/v9/valkyrie-opens-spinach-tin-with-tin-opener.session.json",
+          "recordingPath": "challenges/cases/v9/valkyrie-opens-spinach-tin-with-tin-opener.session.json",
+          "recordingSha256": "2ea0bb0a2276f5414486adf9d192304f18097e739d35f820f6e271332b9d6a34",
+          "recipe": "challenges/cases/v9/valkyrie-opens-spinach-tin-with-tin-opener.recipe.session.json",
+          "recipeSha256": "333e9ca7c87bfaefdc508e5795e1659a0ef7e8c7f5bd5f73a3b9221d62c2e60d",
+          "replayInputSha256": "6a98f906c9ecd3b58e923c12d99a45af11359d09e1c1c38f02ff170b91100195",
+          "evaluationPath": "challenges/evaluations/20260927201811-v9.json",
+          "evaluationCommit": "de87c577bce9e29db5aaf47eccac54a458f687a8",
+          "evaluationArtifact": "challenges/evaluations/20260927201811-v9.json",
+          "evaluationUtc": "2026-09-27T20:19:04.634Z",
+          "remainingScreens": 1,
+          "recordedSteps": 56,
+          "previousScreensMatched": 55,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 55,
+              "total": 56
+            },
+            "rng": {
+              "matched": 2701,
+              "total": 2701
+            },
+            "cursors": {
+              "matched": 55,
+              "total": 56
+            }
+          },
+          "firstMismatch": {
+            "screen": {
+              "index": 52,
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 52,
+                "key": "f"
+              },
+              "kind": "ch",
+              "row": 0,
+              "column": 6,
+              "cCell": {
+                "ch": "y",
+                "color": 8,
+                "attr": 0,
+                "decgfx": 0
+              },
+              "jsCell": {
+                "ch": "t",
+                "color": 8,
+                "attr": 0,
+                "decgfx": 0
+              }
+            },
+            "rng": null,
+            "cursor": {
+              "index": 52,
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 52,
+                "key": "f"
+              },
+              "cCursor": [
+                54,
+                0,
+                1
+              ],
+              "jsCursor": [
+                49,
+                0,
+                1
+              ]
+            }
+          },
+          "step": 52,
+          "kind": "screen",
+          "sourceFile": null,
+          "function": null,
+          "message": null,
+          "cFile": null,
+          "luaFile": null,
+          "line": null,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v9/valkyrie-opens-spinach-tin-with-tin-opener.json",
+            "result": {
+              "session": "synthetic/v9/valkyrie-opens-spinach-tin-with-tin-opener",
+              "corpus": "synthetic",
+              "batch": "v9",
+              "caseId": "valkyrie-opens-spinach-tin-with-tin-opener",
+              "manifestPath": "challenges/manifests/v9.json",
+              "manifestSha256": "00c148aac522e6343c8de0bd003db29771439f972a99cb18c772ebf2bc45a594",
+              "recordingSha256": "2ea0bb0a2276f5414486adf9d192304f18097e739d35f820f6e271332b9d6a34",
+              "evaluationPath": "challenges/evaluations/20260927191056-v9.json",
+              "evaluationCommit": "5b4486322ffa5eeb91cc37d01083ff20bbfe2ea7",
+              "remainingScreens": 1,
+              "recordedSteps": 56,
+              "status": "complete",
+              "commit": "5b4486322ffa5eeb91cc37d01083ff20bbfe2ea7",
+              "mismatch": {
+                "corpus": "synthetic",
+                "batch": "v9",
+                "caseId": "valkyrie-opens-spinach-tin-with-tin-opener",
+                "session": "synthetic/v9/valkyrie-opens-spinach-tin-with-tin-opener",
+                "manifestPath": "challenges/manifests/v9.json",
+                "manifestSha256": "00c148aac522e6343c8de0bd003db29771439f972a99cb18c772ebf2bc45a594",
+                "recording": "challenges/cases/v9/valkyrie-opens-spinach-tin-with-tin-opener.session.json",
+                "recordingPath": "challenges/cases/v9/valkyrie-opens-spinach-tin-with-tin-opener.session.json",
+                "recordingSha256": "2ea0bb0a2276f5414486adf9d192304f18097e739d35f820f6e271332b9d6a34",
+                "recipe": "challenges/cases/v9/valkyrie-opens-spinach-tin-with-tin-opener.recipe.session.json",
+                "recipeSha256": "333e9ca7c87bfaefdc508e5795e1659a0ef7e8c7f5bd5f73a3b9221d62c2e60d",
+                "replayInputSha256": "e8a7428d883fb33542b59d993324d6e14197b8486a45162a9f5b2efd3e9ebd60",
+                "evaluationPath": "challenges/evaluations/20260927191056-v9.json",
+                "evaluationCommit": "5b4486322ffa5eeb91cc37d01083ff20bbfe2ea7",
+                "evaluationArtifact": "challenges/evaluations/20260927191056-v9.json",
+                "evaluationUtc": "2026-09-27T19:11:49.445Z",
+                "remainingScreens": 1,
+                "recordedSteps": 56,
+                "previousScreensMatched": 55,
+                "regression": false,
+                "passed": false,
+                "error": null,
+                "metrics": {
+                  "screens": {
+                    "matched": 55,
+                    "total": 56
+                  },
+                  "rng": {
+                    "matched": 2701,
+                    "total": 2701
+                  },
+                  "cursors": {
+                    "matched": 55,
+                    "total": 56
+                  }
+                },
+                "firstMismatch": {
+                  "screen": {
+                    "index": 52,
+                    "location": {
+                      "segmentIndex": 0,
+                      "stepIndex": 52,
+                      "key": "f"
+                    },
+                    "kind": "ch",
+                    "row": 0,
+                    "column": 6,
+                    "cCell": {
+                      "ch": "y",
+                      "color": 8,
+                      "attr": 0,
+                      "decgfx": 0
+                    },
+                    "jsCell": {
+                      "ch": "t",
+                      "color": 8,
+                      "attr": 0,
+                      "decgfx": 0
+                    }
+                  },
+                  "rng": null,
+                  "cursor": {
+                    "index": 52,
+                    "location": {
+                      "segmentIndex": 0,
+                      "stepIndex": 52,
+                      "key": "f"
+                    },
+                    "cCursor": [
+                      54,
+                      0,
+                      1
+                    ],
+                    "jsCursor": [
+                      49,
+                      0,
+                      1
+                    ]
+                  }
+                },
+                "step": 52,
+                "kind": "screen",
+                "sourceFile": null,
+                "function": null,
+                "message": null,
+                "cFile": null,
+                "luaFile": null,
+                "line": null
+              },
+              "summary": "The tin-opener recipe matches through wielding and selecting the spinach tin, then the opening message omits C’s possessive: C says “Using your tin opener you try to open the tin.” and JS says “Using tin opener you try to open the tin.” eat.c:start_tin calls objnam.c:yobjnam for this branch; the port calls xnameFresh. Use the existing yobjnam port for the full opener-weapon branch and preserve all opening delays and later spinach effects.",
+              "source": {
+                "file": "eat.c",
+                "branch": "eat.c:start_tin (1723-1800), unblessed tin with uwep->otyp == TIN_OPENER: set mesg to “You easily open the tin.”, draw rn2(2) for an uncursed opener, then print “Using %s you try to open the tin.” with yobjnam(uwep, NULL). The selected Valkyrie carries and wields the opener; yobjnam adds “your”.",
+                "functions": [
+                  "start_tin"
+                ],
+                "callers": [
+                  "eat.c:use_tin_opener selects the tin and calls start_tin; eat.c:doeat can also call start_tin for an ordinary tin. js/eat.js use_tin_opener and doeat both reach the ported start_tin."
+                ],
+                "dependencies": [
+                  "js/objnam.js already ports yobjnam; use it in the opener-weapon message and preserve name handling for daggers, picks, axes, and other eligible weapons.",
+                  "Keep the existing rn2-based opening duration and consume_tin/occupation flow; all recorded RNG calls already match."
+                ]
+              },
+              "goalKind": "divergence-fix",
+              "evidence": [
+                "Saved challenges/evaluations/20260927191056-v9.json reports 55/56 screens and 2701/2701 RNG calls. Focused scan locates the first screen and cursor difference at segment 0 step 52, input “f”.",
+                "Independent local replay of the admitted recording shows C “Using your tin opener you try to open the tin.--More--” and JS “Using tin opener you try to open the tin.--More--”; later spinach-consumption screens match independently in the same case.",
+                "Upstream nethack-c/upstream/src/eat.c line 1770 uses yobjnam(uwep, NULL); js/eat.js line 1313 uses xnameFresh(opener, state). js/objnam.js exports yobjnam."
+              ]
+            }
+          }
+        }
+      ],
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "2d9a4768ccd20aa7dae5330807381ebed65bc926",
+        "screens": 11405,
+        "rng": 792838
       }
     }
   ]
