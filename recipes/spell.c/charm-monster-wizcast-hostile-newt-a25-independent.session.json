@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent A25 spell.c:spelleffects(SPE_CHARM_MONSTER) -> read.c:seffects() entry. A debug Wizard creates a hostile newt and selects charm monster from the #wizcast menu. The seed, date, and monster choice were selected independently from the admitted scroll-reading case.",
+  "segments": [
+    {
+      "seed": 512072091,
+      "datetime": "20270816120405",
+      "nethackrc": "OPTIONS=name:CharmTrace,role:Wizard,race:human,gender:male,align:neutral,playmode:debug,!legacy,!tutorial,!splash_screen,pettype:none\n",
+      "moves": " \u0007hostile newt\n#wizcast\n>a"
+    }
+  ]
+}
