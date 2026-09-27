@@ -1,28 +1,40 @@
-// C ref: sit.c lay_an_egg() (358-399) and dosit() (400-568). `#sit` owns
-// the complete guard and terrain chain here; source-discarded void effects
-// that remain unported are named at their call sites and skipped.
+// C refs: sit.c throne_sit_effect() (39-234), lay_an_egg() (358-399), and
+// dosit() (400-568). `#sit` owns the complete guard and terrain chain here;
+// source-discarded void effects that remain unported are named and skipped.
 
 import {
+    A_CON,
+    A_MAX,
     A_STR,
     A_WIS,
+    BLINDED,
     COLD_RES,
+    CONFUSION,
     DEAF,
     DRAWBRIDGE_DOWN,
     ECMD_OK,
     ECMD_TIME,
+    EYE,
     FOOT,
     FIRE_RES,
+    FROMOUTSIDE,
     FOUNTAIN,
     HALF_PHDAM,
     HALLUC,
     HALLUC_RES,
+    HEAD,
+    INTRINSIC,
     IS_ALTAR,
     IS_GRAVE,
     IS_SINK,
     IS_THRONE,
     KILLED_BY,
+    KILLED_BY_AN,
     LADDER,
     LEVITATION,
+    ROOM,
+    SEE_INVIS,
+    SHOCK_RES,
     SLIMED,
     SPIKED_PIT,
     STAIRS,
@@ -32,6 +44,7 @@ import {
     TT_LAVA,
     TT_PIT,
     TT_WEB,
+    TIMEOUT,
     Upolyd,
 } from './const.js';
 import { CMAP_EXPLANATIONS } from './symbol_data.js';
@@ -44,6 +57,8 @@ import {
     lays_eggs,
     likes_lava,
     mhis,
+    haseyes,
+    is_prince,
     slithy,
     sticks,
 } from './mondata.js';
@@ -51,13 +66,16 @@ import {
     PM_ELECTRIC_EEL,
     PM_GIANT_EEL,
     PM_GREMLIN,
+    PM_FLOATING_EYE,
+    PM_CYCLOPS,
     PM_TRAPPER,
     S_DRAGON,
 } from './monsters.js';
 import { isBox, mksobj, objectType, remove_object, set_corpsenm, weight } from './obj.js';
 import { objectGenerationEnv } from './object_generation.js';
 import { observe_object } from './o_init.js';
-import { The, the, xnameFresh } from './objnam.js';
+import { makeplural } from './fruit.js';
+import { The, the, vtense, xnameFresh } from './objnam.js';
 import {
     CLOTH,
     COIN_CLASS as OBJECT_COIN_CLASS,
@@ -73,7 +91,7 @@ import { S_altar, S_grave, S_ice, S_sink, S_throne } from './symbols.js';
 import { is_ice } from './terrain.js';
 import { Flying, is_lava, is_pool, t_at, uescaped_shaft, uteetering_at_seen_pit } from './trap.js';
 import { Monnam, hliquid, mon_nam } from './do_name.js';
-import { canSpotMonster } from './startup_a11y.js';
+import { canSpotMonster, heroIsBlind } from './startup_a11y.js';
 import { note_unported } from './unported.js';
 
 // youprop.h:120 Hallucination: intrinsic only, unless resisted.
@@ -134,11 +152,287 @@ function sit_water_random(rawEnv) {
 async function sit_exercise(index, state, random) {
     const { exercise } = await import('./attrib.js');
     const options = {};
-    if (index === A_STR && (state.moves ?? 0) > 0) {
+    if ((index === A_STR || index === A_CON) && (state.moves ?? 0) > 0) {
         const { encumber_msg } = await import('./pickup.js');
         options.encumberMessage = encumber_msg;
     }
     await exercise(index, false, state, random, options);
+}
+
+// C ref: sit.c throne_sit_effect() (39-234). C's calls to still-unported
+// void effects are named at their source positions; the courtmon() result is
+// retained because C evaluates it before discarding makemon()'s result.
+async function throne_sit_effect(state, rawEnv = {}) {
+    const u = state.u;
+    const random = sit_water_random(rawEnv);
+    const message = rawEnv.message
+        ?? (await import('./tty_message.js')).ttyPline;
+    const tx = u.ux;
+    const ty = u.uy;
+    const specialThrone = u.uz?.dnum === state.tower_dnum;
+
+    if (random.rnd(6) > 4) {
+        let effect = random.rnd(13);
+
+        if (state.wizard && !state.iflags?.debug_fuzzer) {
+            const { getlin } = await import('./windows.js');
+            const answer = await getlin(
+                'Throne sit effect (1..13) [0=random]', state,
+            );
+            if (answer?.[0] === '\x1b') {
+                await message('Never mind.', state);
+                return; // sit.c: the caller still consumes a turn.
+            }
+            const requested = Number.parseInt(answer ?? '', 10) || 0;
+            if (requested >= 1 && requested <= 13) effect = requested;
+        }
+
+        if (specialThrone) {
+            note_unported('sit.c special_throne_effect');
+            return;
+        }
+
+        switch (effect) {
+        case 1: {
+            const { adjattrib } = await import('./attrib.js');
+            await adjattrib(
+                random.rn2(A_MAX), -random.rn1(4, 3), 0, state,
+                { ...rawEnv, random, message },
+            );
+            const { losehp } = await import('./hack.js');
+            await losehp(random.rnd(10), 'cursed throne', KILLED_BY_AN,
+                state, rawEnv);
+            break;
+        }
+        case 2: {
+            const { adjattrib } = await import('./attrib.js');
+            await adjattrib(
+                random.rn2(A_MAX), 1, 0, state,
+                { ...rawEnv, random, message },
+            );
+            break;
+        }
+        case 3: {
+            const shock = u.uprops?.[SHOCK_RES];
+            const shockResistant = Boolean(shock?.intrinsic || shock?.extrinsic);
+            await message(
+                `A${shockResistant ? 'n' : ' massive'} electric shock shoots through your body!`,
+                state,
+            );
+            const { losehp } = await import('./hack.js');
+            await losehp(
+                random.rnd(shockResistant ? 6 : 30),
+                'electric chair', KILLED_BY_AN, state, rawEnv,
+            );
+            await sit_exercise(A_CON, state, random);
+            break;
+        }
+        case 4: {
+            await message('You feel much, much better!', state);
+            if (Upolyd(u)) {
+                if (u.mh >= u.mhmax - 5) u.mhmax += 4;
+                u.mh = u.mhmax;
+            }
+            if (u.uhp >= u.uhpmax - 5) {
+                u.uhpmax += 4;
+                if (u.uhpmax > u.uhppeak) u.uhppeak = u.uhpmax;
+            }
+            u.uhp = u.uhpmax;
+            u.ucreamed = 0;
+            const { make_blinded } = await import('./potion.js');
+            await make_blinded(0, true, state, { ...rawEnv, message });
+            note_unported('potion.c make_sick');
+            const { heal_legs } = await import('./do.js');
+            await heal_legs(state, { message });
+            state.disp ??= {};
+            state.disp.botl = true;
+            break;
+        }
+        case 5:
+            note_unported('sit.c take_gold');
+            break;
+        case 6: {
+            const luck = (u.uluck ?? 0) + (u.moreluck ?? 0);
+            if ((u.uluck ?? 0) + random.rn2(5) < 0) {
+                await message('You feel your luck is changing.', state);
+                const { change_luck } = await import('./moveloop_preamble.js');
+                change_luck(1, state);
+            } else {
+                const { makewish } = await import('./zap.js');
+                await makewish(state);
+            }
+            break;
+        }
+        case 7: {
+            let count = random.rnd(10);
+            await message('A voice echoes:', state);
+            note_unported('sit.c SetVoice');
+            const { verbalize } = await import('./pline.js');
+            await verbalize(
+                `Thine audience hath been summoned, ${state.flags?.female ? 'Dame' : 'Sire'}!`,
+                state,
+                { message },
+            );
+            const { courtmon } = await import('./mkroom.js');
+            while (count--) {
+                courtmon(state, random);
+                note_unported('makemon.c makemon');
+            }
+            break;
+        }
+        case 8:
+            await message('A voice echoes:', state);
+            note_unported('sit.c SetVoice');
+            {
+                const { verbalize } = await import('./pline.js');
+                await verbalize(
+                    `By thine Imperious order, ${state.flags?.female ? 'Dame' : 'Sire'}...`,
+                    state,
+                    { message },
+                );
+            }
+            note_unported('read.c do_genocide');
+            break;
+        case 9: {
+            await message('A voice echoes:', state);
+            note_unported('sit.c SetVoice');
+            const { verbalize } = await import('./pline.js');
+            await verbalize(
+                'A curse upon thee for sitting upon this most holy throne!',
+                state,
+                { message },
+            );
+            const luck = (u.uluck ?? 0) + (u.moreluck ?? 0);
+            if (luck > 0) {
+                const blind = u.uprops?.[BLINDED]?.intrinsic ?? 0;
+                const { make_blinded } = await import('./potion.js');
+                await make_blinded(
+                    (blind & TIMEOUT) + random.rn1(100, 250),
+                    true,
+                    state,
+                    { ...rawEnv, message },
+                );
+                const { change_luck } = await import('./moveloop_preamble.js');
+                change_luck(luck > 1 ? -random.rnd(2) : -1, state);
+            } else {
+                note_unported('sit.c rndcurse');
+            }
+            break;
+        }
+        case 10: {
+            const luck = (u.uluck ?? 0) + (u.moreluck ?? 0);
+            const seeInvisible = u.uprops?.[SEE_INVIS]?.intrinsic ?? 0;
+            if (luck < 0 || (seeInvisible & INTRINSIC)) {
+                if (state.level?.flags?.nommap) {
+                    await message('A terrible drone fills your head!', state);
+                    const confusion = u.uprops?.[CONFUSION]?.intrinsic ?? 0;
+                    const { make_confused } = await import('./potion.js');
+                    await make_confused(
+                        (confusion & TIMEOUT) + random.rnd(30),
+                        false,
+                        state,
+                        { ...rawEnv, message },
+                    );
+                } else {
+                    await message('An image forms in your mind.', state);
+                    note_unported('detect.c do_mapping');
+                }
+            } else {
+                if (!heroIsBlind(state)) {
+                    await message('Your vision becomes clear.', state);
+                } else {
+                    const species = state.youmonst?.data;
+                    const count = !haseyes(species) ? 0
+                        : (species.pmidx === PM_CYCLOPS
+                            || species.pmidx === PM_FLOATING_EYE) ? 1 : 2;
+                    let eye = body_part(EYE, state.youmonst);
+                    if (count === 0) {
+                        await message(
+                            `You have a very strange feeling in your ${body_part(HEAD, state.youmonst)}.`,
+                            state,
+                        );
+                    } else {
+                        if (count > 1) eye = makeplural(eye);
+                        await message(`Your ${eye} ${vtense(eye, 'tingle')}...`, state);
+                    }
+                }
+                const seeInvisibleProp = (u.uprops[SEE_INVIS] ??= {
+                    intrinsic: 0,
+                    extrinsic: 0,
+                });
+                seeInvisibleProp.intrinsic |= FROMOUTSIDE;
+                const { newsym } = await import('./display.js');
+                newsym(u.ux, u.uy);
+            }
+            break;
+        }
+        case 11: {
+            const luck = (u.uluck ?? 0) + (u.moreluck ?? 0);
+            if (luck < 0) {
+                await message('You feel threatened.', state);
+                note_unported('wizard.c aggravate');
+            } else {
+                await message('You feel a wrenching sensation.', state);
+                const { tele } = await import('./teleport.js');
+                await tele(state);
+            }
+            break;
+        }
+        case 12: {
+            await message('You are granted an insight!', state);
+            if (state.invent) {
+                const { identify_pack } = await import('./invent.js');
+                await identify_pack(random.rn2(5), false, state);
+            }
+            break;
+        }
+        case 13: {
+            await message('Your mind turns into a pretzel!', state);
+            const confusion = u.uprops?.[CONFUSION]?.intrinsic ?? 0;
+            const { make_confused } = await import('./potion.js');
+            await make_confused(
+                (confusion & TIMEOUT) + random.rn1(7, 16),
+                false,
+                state,
+                { ...rawEnv, message },
+            );
+            break;
+        }
+        default:
+            note_unported('pline.c impossible');
+            break;
+        }
+    } else if (is_prince(state.youmonst?.data)
+               || state.u?.uevent?.uhand_of_elbereth) {
+        await message('You feel very comfortable here.', state);
+    } else {
+        await message('You feel somehow out of place...', state);
+    }
+
+    if (!specialThrone && !random.rn2(3)) {
+        let removeThrone = !state.wizard;
+        if (state.wizard) {
+            const { tty_yn_function } = await import('./getline.js');
+            removeThrone = await tty_yn_function(
+                'Analyze throne?', 'yn', 'n', state,
+            ) === 'y';
+        }
+        if (removeThrone) {
+            const location = state.level?.at(tx, ty);
+            if (location) {
+                location.typ = ROOM;
+                location.flags = 0;
+            }
+            const { map_background, newsym } = await import('./display.js');
+            map_background(tx, ty, false, state);
+            newsym(tx, ty); // newsym_force() differs only in tty dirty bookkeeping.
+            const { cansee } = await import('./vision.js');
+            await message(
+                `The throne ${cansee(tx, ty, state) ? 'vanishes' : 'has vanished'} in a puff of logic.`,
+                state,
+            );
+        }
+    }
 }
 
 // sit.c:511-525, reached both by the label gotos above and by the ordinary
@@ -439,7 +733,7 @@ export async function dosit(state = game, rawEnv = {}) {
         await message(sit_message('drawbridge'), state);
     } else if (IS_THRONE(typ)) {
         await message(sit_message(CMAP_EXPLANATIONS[S_throne]), state);
-        note_unported('sit.c throne_sit_effect');
+        await throne_sit_effect(state, rawEnv);
     } else if (lays_eggs(species)) {
         return await lay_an_egg(state, rawEnv);
     } else {

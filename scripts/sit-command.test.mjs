@@ -4,6 +4,7 @@ import test from 'node:test';
 import { ART_EXCALIBUR } from '../js/artifacts.js';
 import {
     ALTAR,
+    BLINDED,
     DEAF,
     DRAWBRIDGE_DOWN,
     ECMD_OK,
@@ -242,7 +243,7 @@ test('the throne command menu queues dosit through rhack', async () => {
     await rhack(0, game);
 
     assert.equal(toplines(), 'You sit on the opulent throne.');
-    assert.ok(game.unported.has('sit.c throne_sit_effect'));
+    assert.ok(!game.unported.has('sit.c throne_sit_effect'));
     assert.equal(game.context.move, 1);
     assert.equal(game.moves, before);
 });
@@ -277,8 +278,64 @@ test('the terrain chain runs each selected arm in source order', async () => {
         if (typ === LAVAPOOL)
             assert.ok(game.unported.has('timeout.c burn_away_slime'));
         if (typ === THRONE)
-            assert.ok(game.unported.has('sit.c throne_sit_effect'));
+            assert.ok(!game.unported.has('sit.c throne_sit_effect'));
     }
+});
+
+test('throne_sit_effect keeps its source random-call order on the comfort arm',
+    async () => {
+    await standOnStairs();
+    heroSquare().typ = THRONE;
+    const calls = [];
+    const random = {
+        rnd(n) {
+            calls.push(`rnd(${n})`);
+            return 1;
+        },
+        rn2(n) {
+            calls.push(`rn2(${n})`);
+            return 2;
+        },
+    };
+
+    assert.equal(await dosit(game, { random }), ECMD_TIME);
+    assert.deepEqual(calls, ['rnd(6)', 'rn2(3)']);
+    assert.ok(toplines().includes('You feel somehow out of place...'));
+});
+
+test('throne curse effect keeps its voice message before blindness changes',
+    async () => {
+    await standOnStairs();
+    heroSquare().typ = THRONE;
+    game.wizard = false;
+    game.u.uluck = 1;
+    game.u.moreluck = 0;
+    game.u.uprops[BLINDED].intrinsic = 1;
+    const calls = [];
+    const random = {
+        rnd(n) {
+            calls.push(`rnd(${n})`);
+            return n === 6 ? 5 : 9;
+        },
+        rn2(n) {
+            calls.push(`rn2(${n})`);
+            return 2;
+        },
+        rn1(n, x) {
+            calls.push(`rn1(${n},${x})`);
+            return x;
+        },
+    };
+    const messages = [];
+
+    assert.equal(await dosit(game, {
+        random,
+        message: async (line) => messages.push(line),
+    }), ECMD_TIME);
+    assert.ok(messages.indexOf('A voice echoes:')
+        < messages.indexOf('"A curse upon thee for sitting upon this most holy throne!"'));
+    assert.deepEqual(calls, ['rnd(6)', 'rnd(13)', 'rn1(100,250)', 'rn2(3)']);
+    assert.equal(game.u.uluck, 0);
 });
 
 test('a water square follows the source goto into the shared in_water arm', async () => {
