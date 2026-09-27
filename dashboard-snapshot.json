@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "capturedAt": "2026-09-27T15:20:10.172Z",
+  "capturedAt": "2026-09-27T16:21:41.717Z",
   "activity": {
     "runId": "loop-20260925",
     "events": [
@@ -5326,12 +5326,142 @@
         "type": "accepted",
         "at": "2026-09-27T15:19:02.256Z",
         "task": "B28"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "B28-published-9fbd7467",
+        "type": "published",
+        "at": "2026-09-27T15:21:46.491Z",
+        "task": "B28",
+        "commit": "9fbd7467a1d6ffb566b7374f533a736acf3ca60d"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "assign-B29-touchstone-20260927",
+        "type": "assign",
+        "at": "2026-09-27T15:25:03.071Z",
+        "task": "B29",
+        "worker": "B",
+        "goal": "port-apply-touchstone-family-synthetic-v8-20260927",
+        "kind": "implementation"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-0dda72df5d3f65213d44b4a1b0a6eb0449d786da",
+        "type": "ready",
+        "at": "2026-09-27T15:37:12.356Z",
+        "task": "A28",
+        "delivery": "0dda72df5d3f65213d44b4a1b0a6eb0449d786da"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "A28-received-0dda72df",
+        "type": "received",
+        "at": "2026-09-27T15:38:38.079Z",
+        "task": "A28",
+        "delivery": "0dda72df5d3f65213d44b4a1b0a6eb0449d786da"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "A28-integrating-a764f399",
+        "type": "integrating",
+        "at": "2026-09-27T15:39:31.218Z",
+        "task": "A28",
+        "integration": "a764f399d366f68d8cfd1ad305759ee6fef2a97a"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "A28-validated-a764f399",
+        "type": "validated",
+        "at": "2026-09-27T15:55:13.575Z",
+        "task": "A28",
+        "passed": true
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "A28-accepted-a764f399",
+        "type": "accepted",
+        "at": "2026-09-27T15:55:28.106Z",
+        "task": "A28"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "A28-published-fde3b6d0",
+        "type": "published",
+        "at": "2026-09-27T15:57:16.512Z",
+        "task": "A28",
+        "commit": "fde3b6d073926a69dfb3672dd1e3a466967dc9d6"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "assign-A29-artifact-name-20260927",
+        "type": "assign",
+        "at": "2026-09-27T15:59:25.043Z",
+        "task": "A29",
+        "worker": "A",
+        "goal": "fix-objnam-artifact-named-article-synthetic-v8-20260927",
+        "kind": "implementation"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-5341444d54e8892c44daac25aa06358ae25290f5",
+        "type": "ready",
+        "at": "2026-09-27T16:02:53.090Z",
+        "task": "B29",
+        "delivery": "5341444d54e8892c44daac25aa06358ae25290f5"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "B29-received-5341444d",
+        "type": "received",
+        "at": "2026-09-27T16:05:05.800Z",
+        "task": "B29",
+        "delivery": "5341444d54e8892c44daac25aa06358ae25290f5"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "B29-integrating-5bf1150b",
+        "type": "integrating",
+        "at": "2026-09-27T16:05:45.647Z",
+        "task": "B29",
+        "integration": "5bf1150b63da82c6e02196da6a3d7047ef9b3938"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-8050de14a1650f61db77053207ab05ee88bd97d0",
+        "type": "ready",
+        "at": "2026-09-27T16:12:41.599Z",
+        "task": "A29",
+        "delivery": "8050de14a1650f61db77053207ab05ee88bd97d0"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-78f6458b14febcf1188bde6dd851eca7b2f19488",
+        "type": "ready",
+        "at": "2026-09-27T16:17:51.856Z",
+        "task": "C27",
+        "delivery": "78f6458b14febcf1188bde6dd851eca7b2f19488"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "B29-validated-5bf1150b",
+        "type": "validated",
+        "at": "2026-09-27T16:20:17.935Z",
+        "task": "B29",
+        "passed": true
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "B29-accepted-5bf1150b",
+        "type": "accepted",
+        "at": "2026-09-27T16:20:35.350Z",
+        "task": "B29"
       }
     ]
   },
   "development": {
-    "executionCommit": "e32dd8b5f6ed268811ce9a39ffd2571ce0e3462b",
-    "measuredAt": "2026-09-27T15:13:12.807Z",
+    "executionCommit": "5bf1150b63da82c6e02196da6a3d7047ef9b3938",
+    "measuredAt": "2026-09-27T16:13:42.364Z",
     "sessions": [
       {
         "session": "holdout/seed0002-healer-reflection-drummer",
