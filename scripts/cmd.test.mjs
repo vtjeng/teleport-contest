@@ -4816,9 +4816,9 @@ test('every class goto_level()\'s tail can raise converts at the command seam',
         assert.ok(converted.includes(UnsupportedMonsterCreationError));
     });
 
-// Level loss is implemented, but polymorphed pluslvl() and setuhpmax()
-// still use these classes. Preserve their command-boundary conversion.
-test('remaining experience and attribute refusals convert at the command seam',
+// Keep the refusal classes recognizable at the command seam. The polymorphed
+// pluslvl() and setuhpmax() branches and ordinary level loss are implemented.
+test('experience and attribute refusal classes remain registered at the command seam',
     async () => {
     const { UnsupportedExperienceChangeError } =
         await import('../js/exper.js');
