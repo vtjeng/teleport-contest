@@ -26,6 +26,7 @@ import {
     ACCESSIBLE,
     ARTICLE_A,
     A_CON,
+    A_CHA,
     A_DEX,
     A_STR,
     AIR,
@@ -43,6 +44,8 @@ import {
     ECMD_OK,
     ECMD_TIME,
     FLASHED_LIGHT,
+    FREE_ACTION,
+    FEMALE,
     FACE,
     FOOT,
     FUMBLING,
@@ -72,12 +75,15 @@ import {
     OBJ_INVENT,
     PRONOUN_NO_IT,
     REVIVE_MON,
+    RLOC_MSG,
     D_ISOPEN,
     DISP_BEAM,
     DISP_END,
     FLYING,
     HALF_PHDAM,
     INTRINSIC,
+    INVIS,
+    INVIS_BEAM,
     IS_DOOR,
     IS_FURNITURE,
     IS_OBSTRUCTED,
@@ -101,6 +107,10 @@ import {
     RIGHT_SIDE,
     SHOPBASE,
     SICK,
+    SEE_INVIS,
+    MONSEEN_INFRAVIS,
+    MONSEEN_NORMAL,
+    MONSEEN_SEEINVIS,
     TELEDS_NO_FLAGS,
     TELEDS_ALLOW_DRAG,
     TOOKPLUNGE,
@@ -112,6 +122,8 @@ import {
     TT_PIT,
     TT_WEB,
     UNENCUMBERED,
+    WEAK,
+    MAXULEV,
     WOUNDED_LEGS,
     VOMITING,
     NO_KILLER_PREFIX,
@@ -158,11 +170,14 @@ import {
     tmp_at,
     unmap_invisible,
 } from './display.js';
-import { Amonnam, Monnam, mon_nam, obj_pmname, pmname, x_monnam } from './do_name.js';
+import {
+    Amonnam, Monnam, hcolor, mon_nam, monverbself, obj_pmname,
+    pmname, x_monnam,
+} from './do_name.js';
 import { can_reach_floor, cant_reach_floor, freehand } from './engrave.js';
 import { game } from './gstate.js';
 import { check_capacity, losehp, near_capacity, nomul, overexertion } from './hack.js';
-import { dist2, highc, isqrt, s_suffix, strstri } from './hacklib.js';
+import { dist2, highc, isqrt, s_suffix, strstri, upstart } from './hacklib.js';
 import { mstatusline, ustatusline } from './insight.js';
 import {
     delobj,
@@ -190,6 +205,13 @@ import {
     humanoid,
     is_female,
     is_male,
+    is_demon,
+    is_unicorn,
+    is_vampire,
+    is_vampshifter,
+    perceives,
+    haseyes,
+    mhe,
     is_rider,
     is_whirly,
     nohands,
@@ -204,9 +226,13 @@ import {
     big_to_little,
     poly_when_stoned,
 } from './mondata.js';
-import { accessible, closed_door, youHear } from './monmove.js';
+import {
+    accessible, closed_door, monflee, onscary, set_apparxy, youHear,
+} from './monmove.js';
 import { m_at } from './monst.js';
+import { paralyze_monst } from './mhitm.js';
 import { do_play_instrument } from './music.js';
+import { mon_reflects } from './muse.js';
 import { get_mtraits } from './corpstat.js';
 import { discover_object } from './o_init.js';
 import {
@@ -325,10 +351,12 @@ import {
     TIN,
 } from './objects.js';
 import {
-    AD_BLND, AT_ENGL, AT_WEAP, MZ_TINY, PM_ARCHEOLOGIST, PM_HEALER,
-    PM_HORSE, PM_STONE_GOLEM,
+    AD_BLND, AT_ENGL, AT_WEAP, MZ_TINY, PM_AMOROUS_DEMON,
+    PM_ARCHEOLOGIST, PM_FLOATING_EYE, PM_HEALER, PM_MEDUSA,
+    PM_HORSE, PM_STONE_GOLEM, PM_UMBER_HULK, S_GHOST, S_NYMPH,
+    S_VAMPIRE,
 } from './monsters.js';
-import { body_part, mbodypart, polymon } from './polyself.js';
+import { body_part, mbodypart, poly_gender, polymon } from './polyself.js';
 import { attacktype_fordmg } from './mondata.js';
 import {
     djinni_from_bottle,
@@ -350,7 +378,9 @@ import { dotrap, feeltrap } from './trap_effects.js';
 import { ttyPline } from './tty_message.js';
 import {
     cansee,
+    canseemon,
     couldsee,
+    howmonseen,
     recalc_block_point,
     unblock_point,
     vision_recalc,
@@ -374,7 +404,8 @@ import { wield_tool } from './wield.js';
 import { acurr } from './attrib.js';
 import { known_spell, spe_Fresh, spelleffects } from './spell.js';
 import { stucksteed, use_saddle } from './steed.js';
-import { enexto, teleds } from './teleport.js';
+import { enexto, rloc, tele_restrict, teleds } from './teleport.js';
+import { mpickobj } from './steal.js';
 import {
     _doWearInternals,
     Blindf_off,
@@ -2629,7 +2660,6 @@ const DOAPPLY_UNPORTED_NAMED_ARMS = new Set([
     MAGIC_WHISTLE,
     TIN_WHISTLE,
     EUCALYPTUS_LEAF,
-    MIRROR,
     BELL,
     BELL_OF_OPENING,
     CANDELABRUM_OF_INVOCATION,
@@ -2642,6 +2672,258 @@ const DOAPPLY_UNPORTED_NAMED_ARMS = new Set([
     LOADSTONE,
     TOUCHSTONE,
 ]);
+
+// C ref: apply.c beautiful() (1000-1017). Pure charisma/form-gender
+// description shared by the mirror and the name-command source owner.
+export function beautiful(state = game) {
+    const cha = acurr(state, A_CHA);
+    return cha >= 25 ? 'sublime'
+        : cha >= 19 ? 'splendorous'
+            : cha >= 16 ? (poly_gender(state) === FEMALE
+                ? 'beautiful' : 'handsome')
+                : cha >= 14 ? (poly_gender(state) === FEMALE
+                    ? 'winsome' : 'amiable')
+                    : cha >= 11 ? 'cute'
+                        : cha >= 9 ? 'plain'
+                            : cha >= 6 ? 'homely'
+                                : cha >= 4 ? 'ugly' : 'hideous';
+}
+
+// C ref: apply.c use_mirror() (1021-1190). bhit() supplies the first
+// visible or self-perceiving monster along an INVIS_BEAM, without a beam
+// glyph or animation. Its returned monster and gn.notonhead are both used
+// here, so the zap.c callee is wired at this exact source call.
+export async function use_mirror(obj, state = game, env = {}) {
+    const random = { d, rn2, rnd, ...(env.random ?? {}) };
+    if (!await getdir(null, state)) return ECMD_CANCEL;
+
+    const invisMirror = applyPropertyActive(INVIS, state);
+    const useeit = !heroIsBlind(state)
+        && (!invisMirror || applyPropertyActive(SEE_INVIS, state));
+    const visage = beautiful(state);
+    const mirror = simpleonames(obj, state);
+    if (obj.cursed && random.rn2(2) === 0) {
+        if (!heroIsBlind(state))
+            await ttyPline(`The ${mirror} fogs up and doesn't reflect!`, state);
+        else
+            await ttyPline(nothing_seems_to_happen, state);
+        return ECMD_TIME;
+    }
+
+    const u = state.u;
+    if (!u.dx && !u.dy && !u.dz) {
+        if (!useeit) {
+            await ttyPline(
+                `You can't see your ${visage} ${body_part(FACE, state.youmonst)}.`,
+                state,
+            );
+        } else if (u.umonnum === PM_FLOATING_EYE) {
+            if (applyPropertyActive(FREE_ACTION, state)) {
+                await ttyPline('You stiffen momentarily under your gaze.', state);
+            } else {
+                const hallucinating = applyIsHallucinating(state);
+                await ttyPline(hallucinating
+                    ? `Yow!  The ${mirror} stares back!`
+                    : "Yikes!  You've frozen yourself!", state);
+                if (!hallucinating || random.rn2(4) === 0) {
+                    nomul(-random.rnd(MAXULEV + 6 - u.ulevel), state);
+                    state.multi_reason = 'gazing into a mirror';
+                }
+                state.gn ??= {};
+                state.gn.nomovemsg = 0;
+            }
+        } else if (is_vampire(state.youmonst.data)
+            || is_vampshifter(state.youmonst)) {
+            await ttyPline("You don't have a reflection.", state);
+        } else if (u.umonnum === PM_UMBER_HULK) {
+            await ttyPline("Huh?  That doesn't look like you!", state);
+            await make_confused(
+                (state.u.uprops[CONFUSION]?.intrinsic ?? 0)
+                    + random.d(3, 4),
+                false,
+                state,
+            );
+        } else if (applyIsHallucinating(state)) {
+            await ttyPline(`You look ${hcolor(null, state)}.`, state);
+        } else if (state.u.uprops[SICK]?.intrinsic) {
+            await ttyPline('You look peaked.', state);
+        } else if (u.uhs >= WEAK) {
+            await ttyPline('You look undernourished.', state);
+        } else if (Upolyd(u)) {
+            await ttyPline(
+                `You look like ${an(pmname(
+                    state.mons[u.umonnum], poly_gender(state),
+                ))}.`,
+                state,
+            );
+        } else {
+            await ttyPline(`You look as ${visage} as ever.`, state);
+        }
+        return ECMD_TIME;
+    }
+    if (u.uswallow) {
+        if (useeit)
+            await ttyPline(
+                `You reflect ${s_suffix(mon_nam(u.ustuck, state))} `
+                    + `${mbodypart(u.ustuck, STOMACH)}.`,
+                state,
+            );
+        return ECMD_TIME;
+    }
+    if (u.uinwater) {
+        if (useeit)
+            await ttyPline(applyIsHallucinating(state)
+                ? 'You give the fish a chance to fix their makeup.'
+                : 'You reflect the murky water.', state);
+        return ECMD_TIME;
+    }
+    if (u.dz) {
+        if (useeit) {
+            const reflected = u.dz > 0
+                ? surface(u.ux, u.uy, state)
+                : ceiling(u.ux, u.uy, state);
+            await ttyPline(`You reflect the ${reflected}.`, state);
+        }
+        return ECMD_TIME;
+    }
+
+    const mtmp = await bhit(
+        u.dx, u.dy, COLNO, INVIS_BEAM, null, null, { obj },
+        state, random, env,
+    );
+    state.gn ??= {};
+    if (!mtmp || !haseyes(mtmp.data) || state.gn.notonhead)
+        return ECMD_TIME;
+
+    const vis = canseemon(mtmp, state);
+    const howSeen = vis ? howmonseen(mtmp, state) : 0;
+    const monable = !mtmp.mcan
+        && (!mtmp.minvis || perceives(mtmp.data));
+    const mlet = mtmp.data.mlet;
+    if (mtmp.msleeping) {
+        if (vis)
+            await ttyPline(
+                `${Monnam(mtmp, state)} is too tired to look at your ${mirror}.`,
+                state,
+            );
+    } else if (!mtmp.mcansee) {
+        if (vis)
+            await ttyPline(`${Monnam(mtmp, state)} can't see anything right now.`, state);
+    } else if (invisMirror && !perceives(mtmp.data)) {
+        if (vis)
+            await ttyPline(`${Monnam(mtmp, state)} fails to notice your ${mirror}.`, state);
+    } else if ((howSeen & (MONSEEN_NORMAL | MONSEEN_SEEINVIS
+        | MONSEEN_INFRAVIS)) === MONSEEN_INFRAVIS) {
+        if (vis)
+            await ttyPline(
+                `${monverbself(mtmp, Monnam(mtmp, state), 'are',
+                    'too far away to see', state)} in the dark.`,
+                state,
+            );
+    } else if (mlet === S_VAMPIRE || mlet === S_GHOST
+        || is_vampshifter(mtmp)) {
+        if (vis)
+            await ttyPline(`${Monnam(mtmp, state)} doesn't have a reflection.`, state);
+    } else if (monable && mtmp.data === state.mons[PM_MEDUSA]) {
+        if (await mon_reflects(
+            mtmp, 'The gaze is reflected away by %s %s!', state, env,
+        )) return ECMD_TIME;
+        if (vis)
+            await ttyPline(`${Monnam(mtmp, state)} is turned to stone!`, state);
+        state.gs ??= {};
+        state.gs.stoned = true;
+        // mon.c:killed() is void in C but its xkilled() source family still
+        // has unrelated early branch refusals. Preserve the source gap
+        // instead of claiming a stone-kill side effect that cannot complete.
+        note_unported('mon.c killed');
+    } else if (monable && mtmp.data === state.mons[PM_FLOATING_EYE]) {
+        let amount = random.d(
+            Math.trunc(mtmp.m_lev),
+            Math.trunc(mtmp.data.mattk[0].damd),
+        );
+        if (random.rn2(4) === 0) amount = 120;
+        if (vis)
+            await ttyPline(`${Monnam(mtmp, state)} is frozen by its reflection.`, state);
+        else {
+            const heard = youHear('something stop moving.', state);
+            if (heard) await ttyPline(heard, state);
+        }
+        paralyze_monst(mtmp, mtmp.mfrozen + amount);
+    } else if (monable && mtmp.data === state.mons[PM_UMBER_HULK]) {
+        if (vis)
+            await ttyPline(`${Monnam(mtmp, state)} confuses itself!`, state);
+        mtmp.mconf = 1;
+    } else if (monable && (mlet === S_NYMPH
+        || mtmp.data === state.mons[PM_AMOROUS_DEMON])) {
+        if (vis) {
+            await ttyPline(
+                `${monverbself(mtmp, Monnam(mtmp, state), 'admire', null, state)} `
+                    + `in your ${mirror}.`,
+                state,
+            );
+            await ttyPline(`${upstart(mhe(mtmp, { state }))} takes it!`, state);
+        } else {
+            await ttyPline(`It steals your ${mirror}!`, state);
+        }
+        await setnotworn(obj, { ...env, state });
+        freeinv(obj, { ...env, state });
+        mpickobj(mtmp, obj, { ...env, state });
+        await monflee(mtmp, 0, false, false, { ...env, state, random });
+        if (!await tele_restrict(mtmp, state, env)) {
+            await rloc(mtmp, RLOC_MSG, {
+                ...env,
+                state,
+                random,
+                newsym: (x, y) => newsym(x, y, state),
+                onscary: (x, y, mon) => onscary(x, y, mon, state),
+                setApparxy: set_apparxy,
+            });
+        }
+    } else if (!is_unicorn(mtmp.data) && !humanoid(mtmp.data)
+        && !is_demon(mtmp.data)
+        && (!mtmp.minvis || perceives(mtmp.data))
+        && random.rn2(5) !== 0) {
+        let doReact = true;
+        if (mtmp.mfrozen) {
+            if (vis)
+                await ttyPline(
+                    `You discern no obvious reaction from ${mon_nam(mtmp, state)}.`,
+                    state,
+                );
+            else
+                await ttyPline(
+                    'You feel a bit silly gesturing the mirror in that direction.',
+                    state,
+                );
+            doReact = false;
+        }
+        if (doReact) {
+            if (vis)
+                await ttyPline(`${Monnam(mtmp, state)} is frightened by its reflection.`, state);
+            await monflee(mtmp, random.d(2, 4), false, false, {
+                ...env,
+                state,
+                random,
+            });
+        }
+    } else if (!heroIsBlind(state)) {
+        if (mtmp.minvis && !applyPropertyActive(SEE_INVIS, state)) {
+            // The hero cannot distinguish this from no reaction.
+        } else if ((mtmp.minvis && !perceives(mtmp.data))
+            || !haseyes(mtmp.data) || state.gn.notonhead || !mtmp.mcansee) {
+            await ttyPline(
+                `${Monnam(mtmp, state)} doesn't seem to notice ${mhis(mtmp, { state })} reflection.`,
+                state,
+            );
+        } else {
+            await ttyPline(
+                `${Monnam(mtmp, state)} ignores ${mhis(mtmp, { state })} reflection.`,
+                state,
+            );
+        }
+    }
+    return ECMD_TIME;
+}
 
 export async function doapply(state = game, env = {}) {
     if (nohands(state.youmonst.data)) {
@@ -2704,6 +2986,8 @@ export async function doapply(state = game, env = {}) {
         return use_stethoscope(obj, state);
     case EXPENSIVE_CAMERA:
         return use_camera(obj, state, env);
+    case MIRROR:
+        return use_mirror(obj, state, env);
     case PICK_AXE:
     case DWARVISH_MATTOCK:
         return use_pick_axe(obj, state, env);

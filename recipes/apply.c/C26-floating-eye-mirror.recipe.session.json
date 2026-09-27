@@ -1,0 +1,11 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 83110927,
+      "datetime": "20320404051213",
+      "nethackrc": "OPTIONS=name:C26MirrorA,role=Wizard,race=human,gender=male,align=neutral,playmode=debug,!legacy,!tutorial,!splash_screen,showexp,time,pettype:none\n",
+      "moves": " \u0007hostile floating eye\n\u0017mirror\naoh"
+    }
+  ]
+}
