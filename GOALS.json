@@ -97069,7 +97069,7 @@
     {
       "id": "fix-objnam-artifact-named-article-synthetic-v8-20260927",
       "kind": "divergence-fix",
-      "status": "open",
+      "status": "closed",
       "summary": "Match artifact named-suffix article casing in object names",
       "cFile": "objnam.c",
       "sessions": [],
@@ -97081,8 +97081,11 @@
         "screens": 11405,
         "rng": 792838
       },
-      "closedAt": null,
-      "delivered": null,
+      "closedAt": "63b63f85580e6a45a931debedbbd386779933d15",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
       "function": "xname_flags",
       "session": "synthetic/v8/artifact-heart-invoke-cycle",
       "step": 25,
@@ -97291,7 +97294,13 @@
             }
           }
         }
-      ]
+      ],
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "63b63f85580e6a45a931debedbbd386779933d15",
+        "screens": 11405,
+        "rng": 792838
+      }
     },
     {
       "id": "port-apply-use-towel-synthetic-v8-20260927",
