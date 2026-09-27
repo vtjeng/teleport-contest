@@ -96377,7 +96377,7 @@
     {
       "id": "port-read-seffect-enchant-weapon-synthetic-v8-20260927",
       "kind": "file-port",
-      "status": "open",
+      "status": "closed",
       "summary": "Port read.c seffect_enchant_weapon across blessed and other branches",
       "cFile": "read.c",
       "sessions": [
@@ -96391,15 +96391,18 @@
         "screens": 11405,
         "rng": 792838
       },
-      "closedAt": null,
-      "delivered": null,
+      "closedAt": "a764f399d366f68d8cfd1ad305759ee6fef2a97a",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
       "functions": [
         {
           "name": "seffect_enchant_weapon",
           "line": 1627,
           "endLine": 1678,
           "declared": true,
-          "complete": false
+          "complete": true
         }
       ],
       "range": {
@@ -96674,7 +96677,86 @@
             }
           }
         }
-      ]
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "seffect_enchant_weapon",
+            "implementation": "js/read.js",
+            "symbol": "seffect_enchant_weapon",
+            "sourceReview": "Read read.c:seffect_enchant_weapon() (1627-1678) as a whole. The confused rustproofing branch calls objnam.c:erosion_matters() before excluding armor, sets rknown and temporarily clears oerodeproof before its message, repairs both erosion counters only for new proof, restores the old proof before the cursed-shop COST_DEGRD query, then commits the new proof flag. Otherwise preserve the nested source ternary order: cursed -1, no weapon +1, spe>=9 rn2(spe), blessed rnd(3 - trunc(spe/3)), uncursed +1; pass the result to wield.c:chwepon(), clear the scroll pointer only when chwepon() returns 0, then clamp the still-wielded weapon to SPE_LIM. Removed the old blessed/cursed/confused/weapon guard and refusal. Ported the consumed return dependency as the whole wield.c:chwepon() body (918-1048), including its initial hcolor call, invalid-weapon strange_feeling/useup return, cursed tin-opener path, WORM_TOOTH/CRYSKNIFE conversions, restrict_name artifact refusal, soft-limit draw, normal enchant/de-enchant, uncurse/bill updates, Magicbane clue, and elven vibration RNG. Its void invent.c:useupall() call at the soft-limit destruction branch is skipped with note_unported('invent.c useupall'); sourceCostlyAlteration() skips billed shop accounting with note_unported('shk.c costly_alteration') and otherwise preserves the no-op fast path. Existing potion.c:strange_feeling, mkobj.c:uncurse, shk.c:alter_cost, pickup.c:encumber_msg, o_init.c:discover_object/makeknown, do_name.c:hcolor, and the wield.c helpers are used in source order. The return-valued pure objnam.c:erosion_matters() (1195-1215) is now kept in js/objnam.js, reused by confused enchantment and donameFresh, with js/obj.js retaining a compatibility adapter; scripts/objnam.test.mjs pins its class and is_weptool results to C. The read dispatch caller chain is js/cmd.js:runReadCommand -> js/read.js:doread -> js/read.js:seffects -> this function. Source obj.h:is_elven_weapon is a macro, not a C function: its predicate is represented inline in js/wield.js with the source object-type set; this avoids placing obj.h behavior in an unrelated JS module.",
+            "callers": [
+              {
+                "path": "js/cmd.js",
+                "symbol": "runReadCommand",
+                "source": "cmd.c dispatches the read command to read.c:doread(); JavaScript runReadCommand() forwards the active read command to doread()."
+              },
+              {
+                "path": "js/read.js",
+                "symbol": "doread",
+                "source": "read.c:doread() selects the scroll, calls seffects(), and uses the returned consumption state to finish the read; JavaScript doread() preserves this same caller boundary."
+              },
+              {
+                "path": "js/read.js",
+                "symbol": "seffects",
+                "source": "read.c:seffects() dispatches SCR_ENCHANT_WEAPON to seffect_enchant_weapon(&sobj); JavaScript seffects() now awaits the whole source effect and nulls its local scroll only when chwepon() reports consumption."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/objnam.test.mjs",
+              "scripts/wield.test.mjs",
+              "scripts/read.test.mjs",
+              "scripts/read-command.test.mjs",
+              "scripts/read-doread.test.mjs"
+            ],
+            "recordings": [
+              "recordings/read.c/read-enchant-weapon-blessed-A28-independent.session.json",
+              "recordings/read.c/read-enchant-weapon-fresh.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v8",
+                "caseId": "read-blessed-enchant-weapon",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 37,
+                "source": "cmd.c read dispatch -> read.c:doread -> read.c:seffects SCR_ENCHANT_WEAPON -> read.c:seffect_enchant_weapon -> wield.c:chwepon"
+              }
+            ],
+            "checkedAt": "a764f399d366f68d8cfd1ad305759ee6fef2a97a"
+          }
+        ],
+        "entryPointReview": "The selected range has one active production entry point: the player's read command on SCR_ENCHANT_WEAPON, dispatched cmd.c -> read.c:doread() -> seffects(). The v8 blessed-weapon case matches through zero-based step 37 and executes the blessed rnd(3) amount, consumed-result return, and cap_spe tail. The independent Wizard recipe uses a different seed, date, character presentation, and wished blessed scroll, strictly matches all 40 recorded steps, and reaches the same production caller. Existing recordings/read.c/read-enchant-weapon-fresh.session.json was also replayed with no divergence for its 41 steps, covering the ordinary uncursed positive branch. The pure erosion_matters dependency is pinned separately in scripts/objnam.test.mjs. Confused proofing and high-enchantment RNG are implemented from their C branches; their active read command is the same entry point. chwepon's only skipped source calls are the explicitly named void gaps: invent.c:useupall for a soft-limit weapon destruction and shk.c:costly_alteration when the object is billed. Those effects are not claimed by the matching blessed/ordinary recordings. No other active C read caller was found for this scroll effect. The recorder slot is released and no process remains active. The earlier failed diff-fresh invocation passed the already-recorded `.session.json` instead of the input-only `.recipe.session.json`; it exited validation with code 2 before running a C comparison. The corrected selected recipe and independent recipe both passed strict C/JavaScript comparisons.",
+        "entryPoints": [
+          {
+            "name": "read command on SCR_ENCHANT_WEAPON",
+            "functions": [
+              "seffect_enchant_weapon"
+            ],
+            "recordings": [
+              "recordings/read.c/read-enchant-weapon-blessed-A28-independent.session.json",
+              "recordings/read.c/read-enchant-weapon-fresh.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v8",
+                "caseId": "read-blessed-enchant-weapon",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 37,
+                "source": "cmd.c read dispatch -> read.c:doread -> read.c:seffects SCR_ENCHANT_WEAPON -> read.c:seffect_enchant_weapon -> wield.c:chwepon"
+              }
+            ]
+          }
+        ]
+      },
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "a764f399d366f68d8cfd1ad305759ee6fef2a97a",
+        "screens": 11405,
+        "rng": 792838
+      }
     },
     {
       "id": "port-apply-touchstone-family-synthetic-v8-20260927",
