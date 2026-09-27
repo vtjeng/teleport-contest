@@ -98524,7 +98524,7 @@
     {
       "id": "port-potion-peffect-gain-ability-synthetic-v9-20260927",
       "kind": "file-port",
-      "status": "queued",
+      "status": "open",
       "summary": "Port the complete gain-ability potion effect through quaff dispatch",
       "cFile": "potion.c",
       "sessions": [
@@ -98532,8 +98532,12 @@
       ],
       "selectionReason": "Continue the source-traced v9 gain-ability mismatch: the blessed potion stops at potion.c:peffect_gain_ability after 35 matched screens. Port the whole effect and wire its peffects caller; attrib.c:adjattrib return controls the unblessed retry loop.",
       "detail": "The complete investigation traces cursed, Fixed_abil, blessed sequential-all-attributes, and unblessed random-retry branches. Preserve potion status counters and pass the attribute helper message, RNG, and encumbrance environment.",
-      "openedAt": null,
-      "openStanding": null,
+      "openedAt": "92bc5bc43183004a51b00140221ceee2b4b779e7",
+      "openStanding": {
+        "sha": "5b4486322ffa5eeb91cc37d01083ff20bbfe2ea7",
+        "screens": 11405,
+        "rng": 792838
+      },
       "closedAt": null,
       "delivered": null,
       "functions": [
@@ -98562,7 +98566,156 @@
           "evaluationPath": "challenges/evaluations/20260927191056-v9.json",
           "evaluationCommit": "5b4486322ffa5eeb91cc37d01083ff20bbfe2ea7"
         }
-      }
+      },
+      "activeStanding": {
+        "sha": "5b4486322ffa5eeb91cc37d01083ff20bbfe2ea7",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v9",
+          "caseId": "blessed-gain-ability-potion",
+          "session": "synthetic/v9/blessed-gain-ability-potion",
+          "manifestPath": "challenges/manifests/v9.json",
+          "manifestSha256": "00c148aac522e6343c8de0bd003db29771439f972a99cb18c772ebf2bc45a594",
+          "recording": "challenges/cases/v9/blessed-gain-ability-potion.session.json",
+          "recordingPath": "challenges/cases/v9/blessed-gain-ability-potion.session.json",
+          "recordingSha256": "11d8bb37824e602a8ac346f034f0303419ebb66d53d7d57e7870c9f2961d92a6",
+          "recipe": "challenges/cases/v9/blessed-gain-ability-potion.recipe.session.json",
+          "recipeSha256": "df8a993f0556df5d728064b0d38b732182669d2213586e583c8d5253079c8e8a",
+          "replayInputSha256": "e8a7428d883fb33542b59d993324d6e14197b8486a45162a9f5b2efd3e9ebd60",
+          "evaluationPath": "challenges/evaluations/20260927191056-v9.json",
+          "evaluationCommit": "5b4486322ffa5eeb91cc37d01083ff20bbfe2ea7",
+          "evaluationArtifact": "challenges/evaluations/20260927191056-v9.json",
+          "evaluationUtc": "2026-09-27T19:11:49.445Z",
+          "remainingScreens": 2,
+          "recordedSteps": 37,
+          "previousScreensMatched": 35,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 35,
+              "total": 37
+            },
+            "rng": {
+              "matched": 2776,
+              "total": 2776
+            },
+            "cursors": {
+              "matched": 35,
+              "total": 37
+            }
+          },
+          "firstMismatch": {
+            "kind": "stop",
+            "message": "unsupported hero command: an unported branch of this command: quaffing requires peffect_gain_ability()",
+            "step": 35
+          },
+          "step": 35,
+          "kind": "stop",
+          "sourceFile": "potion.c",
+          "function": "peffect_gain_ability",
+          "message": "unsupported hero command: an unported branch of this command: quaffing requires peffect_gain_ability()",
+          "cFile": "potion.c",
+          "luaFile": null,
+          "line": null,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v9/blessed-gain-ability-potion.json",
+            "result": {
+              "session": "synthetic/v9/blessed-gain-ability-potion",
+              "corpus": "synthetic",
+              "batch": "v9",
+              "caseId": "blessed-gain-ability-potion",
+              "manifestPath": "challenges/manifests/v9.json",
+              "manifestSha256": "00c148aac522e6343c8de0bd003db29771439f972a99cb18c772ebf2bc45a594",
+              "recordingSha256": "11d8bb37824e602a8ac346f034f0303419ebb66d53d7d57e7870c9f2961d92a6",
+              "evaluationPath": "challenges/evaluations/20260927175933-v9.json",
+              "evaluationCommit": "ed281da57eb1c879937da42b05f214e0640df9db",
+              "remainingScreens": 2,
+              "recordedSteps": 37,
+              "status": "complete",
+              "commit": "ed281da57eb1c879937da42b05f214e0640df9db",
+              "mismatch": {
+                "corpus": "synthetic",
+                "batch": "v9",
+                "caseId": "blessed-gain-ability-potion",
+                "session": "synthetic/v9/blessed-gain-ability-potion",
+                "manifestPath": "challenges/manifests/v9.json",
+                "manifestSha256": "00c148aac522e6343c8de0bd003db29771439f972a99cb18c772ebf2bc45a594",
+                "recording": "challenges/cases/v9/blessed-gain-ability-potion.session.json",
+                "recordingPath": "challenges/cases/v9/blessed-gain-ability-potion.session.json",
+                "recordingSha256": "11d8bb37824e602a8ac346f034f0303419ebb66d53d7d57e7870c9f2961d92a6",
+                "recipe": "challenges/cases/v9/blessed-gain-ability-potion.recipe.session.json",
+                "recipeSha256": "df8a993f0556df5d728064b0d38b732182669d2213586e583c8d5253079c8e8a",
+                "replayInputSha256": "025d6fc2229f1dc818bc43ea765daa9db58c9a915f1f9f33c75e970db2ae5256",
+                "evaluationPath": "challenges/evaluations/20260927175933-v9.json",
+                "evaluationCommit": "ed281da57eb1c879937da42b05f214e0640df9db",
+                "evaluationArtifact": "challenges/evaluations/20260927175933-v9.json",
+                "evaluationUtc": "2026-09-27T18:00:12.845Z",
+                "remainingScreens": 2,
+                "recordedSteps": 37,
+                "previousScreensMatched": 35,
+                "regression": false,
+                "passed": false,
+                "error": null,
+                "metrics": {
+                  "screens": {
+                    "matched": 35,
+                    "total": 37
+                  },
+                  "rng": {
+                    "matched": 2776,
+                    "total": 2776
+                  },
+                  "cursors": {
+                    "matched": 35,
+                    "total": 37
+                  }
+                },
+                "firstMismatch": {
+                  "kind": "stop",
+                  "message": "unsupported hero command: an unported branch of this command: quaffing requires peffect_gain_ability()",
+                  "step": 35
+                },
+                "step": 35,
+                "kind": "stop",
+                "sourceFile": "potion.c",
+                "function": "peffect_gain_ability",
+                "message": "unsupported hero command: an unported branch of this command: quaffing requires peffect_gain_ability()",
+                "cFile": "potion.c",
+                "luaFile": null,
+                "line": null
+              },
+              "summary": "Quaffing a blessed gain-ability potion reaches potion.c:peffect_gain_ability through peffects, but js/potion.js throws UnsupportedQuaffError at that effect arm. The C function increments each attribute in order through attrib.c:adjattrib; its cursed, Fixed_abil, and unblessed branches use different output and RNG behavior. Port the complete effect with the required attribute-caller environment.",
+              "source": {
+                "file": "potion.c",
+                "branch": "peffect_gain_ability first checks cursed and Fixed_abil. Otherwise it iterates A_MAX attributes, choosing each index sequentially for blessed potions or with rn2(A_MAX) for unblessed ones, and calls adjattrib(i,1,itmp). It breaks on a successful increment only for unblessed potions. The selected blessed Monk case attempts all six attributes in source order.",
+                "functions": [
+                  "peffect_gain_ability"
+                ],
+                "callers": [
+                  "potion.c:peffects dispatches POT_GAIN_ABILITY from dopotion and dodrink; js/potion.js:peffects currently throws UnsupportedQuaffError(peffect_gain_ability())."
+                ],
+                "dependencies": [
+                  "attrib.c:adjattrib is already implemented in js/attrib.js. Supply its required message and state operations and use the returned boolean for the unblessed break exactly as C does.",
+                  "The potion-effect status counters potion_unkn and potion_nothing are distinct C values; preserve their existing JS owner. The cursed and Fixed_abil branches make no adjattrib call."
+                ]
+              },
+              "goalKind": "file-port",
+              "evidence": [
+                "Current saved challenges/evaluations/20260927175933-v9.json reports a stop at segment 0 step 35 with 2 of 37 screens remaining after quaffing a blessed gain-ability potion.",
+                "Fresh scan at b6e28d15 reports the explicit UnsupportedQuaffError(peffect_gain_ability()) boundary. C has already produced multiple attribute messages while JavaScript refuses before completing the effect.",
+                "Upstream nethack-c/upstream/src/potion.c:peffect_gain_ability at 1030-1053 iterates attributes and uses adjattrib return for the unblessed break; potion.c:peffects dispatches POT_GAIN_ABILITY at 1382. js/potion.js:peffects refuses that arm at about 1450."
+              ]
+            }
+          }
+        }
+      ]
     }
   ]
 }
