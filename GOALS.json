@@ -97069,14 +97069,18 @@
     {
       "id": "fix-objnam-artifact-named-article-synthetic-v8-20260927",
       "kind": "divergence-fix",
-      "status": "queued",
+      "status": "open",
       "summary": "Match artifact named-suffix article casing in object names",
       "cFile": "objnam.c",
       "sessions": [],
       "selectionReason": "Current v8 artifact-heart-invoke-cycle has one screen mismatch at segment 0 step 25 after A27 first-touch behavior matches. Source-traced investigation investigations/synthetic/v8/artifact-heart-invoke-cycle.json locates the general objnam.c:xname_flags named-suffix rule; js/objnam.js:xnameFresh leaves an initial The capitalized. The saved current evidence is challenges/evaluations/20260927155044-v8.json for recording challenges/cases/v8/artifact-heart-invoke-cycle.session.json, sha256 816c8353f3fea197a0e99d8bd83f53f622a02d45fe61a59784dcfd479862cfd8.",
       "detail": "At synthetic/v8/artifact-heart-invoke-cycle segment 0 step 25, the first mismatch is a screen cell in the inventory acquisition line: patched C says named the Heart of Ahriman; JS says named The Heart of Ahriman. Upstream objnam.c:xname_flags appends the artifact name and lowercases an initial The for all artifact instances under its named suffix branch. The suspected JavaScript owner is js/objnam.js:xnameFresh. Implement the source rule across artifact names, without session, seed, or Heart-specific branches.",
-      "openedAt": null,
-      "openStanding": null,
+      "openedAt": "c6878f87e8b366e2999737981ea9b3f12a9b682c",
+      "openStanding": {
+        "sha": "5bf1150b63da82c6e02196da6a3d7047ef9b3938",
+        "screens": 11405,
+        "rng": 792838
+      },
       "closedAt": null,
       "delivered": null,
       "function": "xname_flags",
@@ -97095,7 +97099,199 @@
           "evaluationPath": "challenges/evaluations/20260927155044-v8.json",
           "evaluationCommit": "a764f399d366f68d8cfd1ad305759ee6fef2a97a"
         }
-      }
+      },
+      "activeStanding": {
+        "sha": "5bf1150b63da82c6e02196da6a3d7047ef9b3938",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v8",
+          "caseId": "artifact-heart-invoke-cycle",
+          "session": "synthetic/v8/artifact-heart-invoke-cycle",
+          "manifestPath": "challenges/manifests/v8.json",
+          "manifestSha256": "6a5159501af18a7f926f794d89e817375cd00a3589c4899fb97392ae04dbe8ba",
+          "recording": "challenges/cases/v8/artifact-heart-invoke-cycle.session.json",
+          "recordingPath": "challenges/cases/v8/artifact-heart-invoke-cycle.session.json",
+          "recordingSha256": "816c8353f3fea197a0e99d8bd83f53f622a02d45fe61a59784dcfd479862cfd8",
+          "recipe": "challenges/cases/v8/artifact-heart-invoke-cycle.recipe.session.json",
+          "recipeSha256": "e7551b75ea4fa8cc5a1bf14c23baa6add3dda5f45782e78151d05ac920593963",
+          "replayInputSha256": "bf5c4ee61f672f5dc201440302fe841f6f9fa061d85f8d1ed10fb1189c211aa5",
+          "evaluationPath": "challenges/evaluations/20260927161400-v8.json",
+          "evaluationCommit": "5bf1150b63da82c6e02196da6a3d7047ef9b3938",
+          "evaluationArtifact": "challenges/evaluations/20260927161400-v8.json",
+          "evaluationUtc": "2026-09-27T16:14:50.295Z",
+          "remainingScreens": 1,
+          "recordedSteps": 44,
+          "previousScreensMatched": 43,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 43,
+              "total": 44
+            },
+            "rng": {
+              "matched": 2303,
+              "total": 2303
+            },
+            "cursors": {
+              "matched": 44,
+              "total": 44
+            }
+          },
+          "firstMismatch": {
+            "screen": {
+              "index": 25,
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 25,
+                "key": " "
+              },
+              "kind": "ch",
+              "row": 0,
+              "column": 23,
+              "cCell": {
+                "ch": "t",
+                "color": 8,
+                "attr": 0,
+                "decgfx": 0
+              },
+              "jsCell": {
+                "ch": "T",
+                "color": 8,
+                "attr": 0,
+                "decgfx": 0
+              }
+            },
+            "rng": null,
+            "cursor": null
+          },
+          "step": 25,
+          "kind": "screen",
+          "sourceFile": null,
+          "function": null,
+          "message": null,
+          "cFile": null,
+          "luaFile": null,
+          "line": null,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v8/artifact-heart-invoke-cycle.json",
+            "result": {
+              "session": "synthetic/v8/artifact-heart-invoke-cycle",
+              "corpus": "synthetic",
+              "batch": "v8",
+              "caseId": "artifact-heart-invoke-cycle",
+              "manifestPath": "challenges/manifests/v8.json",
+              "manifestSha256": "6a5159501af18a7f926f794d89e817375cd00a3589c4899fb97392ae04dbe8ba",
+              "recordingSha256": "816c8353f3fea197a0e99d8bd83f53f622a02d45fe61a59784dcfd479862cfd8",
+              "evaluationPath": "challenges/evaluations/20260927142534-v8.json",
+              "evaluationCommit": "c54c2c13ca30ebad8411cbcd4b7dcd3e193fbddc",
+              "remainingScreens": 1,
+              "recordedSteps": 44,
+              "status": "complete",
+              "commit": "c54c2c13ca30ebad8411cbcd4b7dcd3e193fbddc",
+              "mismatch": {
+                "corpus": "synthetic",
+                "batch": "v8",
+                "caseId": "artifact-heart-invoke-cycle",
+                "session": "synthetic/v8/artifact-heart-invoke-cycle",
+                "manifestPath": "challenges/manifests/v8.json",
+                "manifestSha256": "6a5159501af18a7f926f794d89e817375cd00a3589c4899fb97392ae04dbe8ba",
+                "recording": "challenges/cases/v8/artifact-heart-invoke-cycle.session.json",
+                "recordingPath": "challenges/cases/v8/artifact-heart-invoke-cycle.session.json",
+                "recordingSha256": "816c8353f3fea197a0e99d8bd83f53f622a02d45fe61a59784dcfd479862cfd8",
+                "recipe": "challenges/cases/v8/artifact-heart-invoke-cycle.recipe.session.json",
+                "recipeSha256": "e7551b75ea4fa8cc5a1bf14c23baa6add3dda5f45782e78151d05ac920593963",
+                "replayInputSha256": "f12aaa199382908484612c7c8d311b333eb8a8d5cb1f2a5aba58e1ae8afc64b3",
+                "evaluationPath": "challenges/evaluations/20260927142534-v8.json",
+                "evaluationCommit": "c54c2c13ca30ebad8411cbcd4b7dcd3e193fbddc",
+                "evaluationArtifact": "challenges/evaluations/20260927142534-v8.json",
+                "evaluationUtc": "2026-09-27T14:26:06.427Z",
+                "remainingScreens": 1,
+                "recordedSteps": 44,
+                "previousScreensMatched": 43,
+                "regression": false,
+                "passed": false,
+                "error": null,
+                "metrics": {
+                  "screens": {
+                    "matched": 43,
+                    "total": 44
+                  },
+                  "rng": {
+                    "matched": 2303,
+                    "total": 2303
+                  },
+                  "cursors": {
+                    "matched": 44,
+                    "total": 44
+                  }
+                },
+                "firstMismatch": {
+                  "screen": {
+                    "index": 25,
+                    "location": {
+                      "segmentIndex": 0,
+                      "stepIndex": 25,
+                      "key": " "
+                    },
+                    "kind": "ch",
+                    "row": 0,
+                    "column": 23,
+                    "cCell": {
+                      "ch": "t",
+                      "color": 8,
+                      "attr": 0,
+                      "decgfx": 0
+                    },
+                    "jsCell": {
+                      "ch": "T",
+                      "color": 8,
+                      "attr": 0,
+                      "decgfx": 0
+                    }
+                  },
+                  "rng": null,
+                  "cursor": null
+                },
+                "step": 25,
+                "kind": "screen",
+                "sourceFile": null,
+                "function": null,
+                "message": null,
+                "cFile": null,
+                "luaFile": null,
+                "line": null
+              },
+              "summary": "After the quest first-touch pager matches, the artifact wish differs only in the inventory pickup line: C prints \"named the Heart of Ahriman\" and JavaScript prints \"named The Heart of Ahriman\". Upstream objnam.c:xname_flags lowercases the initial \"The \" of any artifact instance name when appending its \" named \" suffix; js/objnam.js:xnameFresh omits that general rule.",
+              "source": {
+                "file": "objnam.c",
+                "branch": "An observed artifact has an instance name beginning exactly \"The \", and xname_flags appends that name after its ordinary object description. This includes but is not limited to quest artifacts.",
+                "functions": [
+                  "xname_flags"
+                ],
+                "callers": [
+                  "C zap.c:makewish -> invent.c:hold_another_object -> prinv -> xprname -> doname -> objnam.c:doname_base -> xname_flags; JavaScript follows hold_another_object -> prinv -> xprname -> donameFresh -> xnameFresh."
+                ],
+                "dependencies": [
+                  "Keep the source check after appending ONAME and before the leading \"the \" strip; do not alter ordinary named objects, nonartifact names, or object discovery. The existing obj.oartifact and obj.oextra.oname fields represent the C conditions."
+                ]
+              },
+              "goalKind": "divergence-fix",
+              "evidence": [
+                "At challenges/evaluations/20260927142534-v8.json, segment 0 step 25 is the sole remaining screen mismatch: C lowercase t versus JavaScript uppercase T at row 0 column 23; all 2303 RNG calls and all 44 cursors match. The C recording screen reads \"e - a gray stone named the Heart of Ahriman.\" after the first-touch pager.",
+                "Upstream nethack-c/upstream/src/objnam.c:xname_flags around lines 1002-1013 appends \" named \", then ONAME(obj), and explicitly lowers the T in an artifact name starting \"The \". The rule applies to every artifact with that initial name, not to this session or seed.",
+                "js/objnam.js:xnameFresh appends obj.oextra.oname after the ordinary base around lines 820-822 without that source check, producing the observed capital T. The upstream caller chain through invent.c:prinv and xprname uses doname and xname_flags for the pickup message."
+              ]
+            }
+          }
+        }
+      ]
     },
     {
       "id": "port-apply-use-towel-synthetic-v8-20260927",
