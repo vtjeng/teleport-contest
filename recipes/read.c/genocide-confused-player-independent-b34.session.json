@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "Independent confused read.c:seffect_genocide route. A debug Wizard wishes and quaffs a confusion potion from inventory letter o, then reads the uncursed genocide scroll from letter p; the C confused bit selects do_genocide(PLAYER|REALLY) and genocides the Wizard role monster.",
+  "segments": [
+    {
+      "seed": 39027015,
+      "datetime": "20390927131421",
+      "nethackrc": "OPTIONS=name:B34GenocideD,role:Wizard,race:human,gender:male,align:neutral,playmode:debug,!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!debug_mongen\n",
+      "moves": ".\u0017potion of confusion\nqo\u0017scroll of genocide\nrp  "
+    }
+  ]
+}
