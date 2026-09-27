@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 83026027,
+      "datetime": "20320927114500",
+      "nethackrc": "OPTIONS=name:QuestTouchA27,role:Wizard,race:human,gender:female,align:neutral,playmode:debug,!legacy,!tutorial,!splash_screen,showexp,time,pettype:none\n",
+      "moves": "\n#wizwish\nThe Eye of the Aethiopica\ni"
+    }
+  ],
+  "comment": "Independent A27 quest first-touch witness: debug Wizard wishes the Wizard quest artifact, then opens inventory. Seed and clock were selected independently of the v8 Barbarian Heart-of-Ahriman case. This should reach invent.c:addinv_core1 -> quest.c:artitouch and the role-specific gotit pager before inventory insertion."
+}

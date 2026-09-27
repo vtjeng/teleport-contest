@@ -3,9 +3,8 @@
 // Extract quest text messages from dat/quest.lua into a JavaScript module.
 // C ref: questpgr.c com_pager_core() loads quest.lua, looks up
 // questtext[<role>][<msgid>], and reads the .text, .output, and .synopsis
-// fields.  This script extracts those fields for messages used by
-// quest.c on_start(), on_locate(), and on_goal() so the JS port can display
-// them without a Lua runtime.
+// fields. This script extracts those fields for quest.c entry points and
+// messages used by the JavaScript quest pager without a Lua runtime.
 
 import { readFileSync, writeFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
@@ -16,14 +15,14 @@ const UPSTREAM_ROOT = join(PROJECT_ROOT, 'nethack-c', 'upstream');
 const SOURCE_PATH = join(UPSTREAM_ROOT, 'dat', 'quest.lua');
 const OUTPUT_PATH = join(PROJECT_ROOT, 'js', 'quest_text_data.js');
 
-// Messages used by on_start(), on_locate(), on_goal() and chat_with_leader().
-// `badalign` is chat_with_leader()'s Rule 5 refusal for an impure hero, given
-// before exercise(A_WIS) and expulsion(FALSE).
+// Messages used by on_start(), on_locate(), on_goal(), chat_with_leader(),
+// and artitouch(). `badalign` is chat_with_leader()'s Rule 5 refusal for an
+// impure hero, given before exercise(A_WIS) and expulsion(FALSE).
 const NEEDED_MESSAGES = [
     'firsttime', 'nexttime', 'othertime',
     'locate_first', 'locate_next',
     'goal_first', 'goal_next', 'goal_alt',
-    'leader_first', 'assignquest',
+    'leader_first', 'assignquest', 'gotit',
     'badalign',
 ];
 
@@ -259,15 +258,22 @@ const lines = [
     '// with multiple variants (arrays), com_pager_core() picks one at random',
     '// via rn2(nelems).',
     '',
-    '// eslint-disable-next-line no-unused-vars',
     `export const QUEST_TEXT = ${JSON.stringify(output, null, 4)};`,
     '',
     `export const QUEST_TEXT_FALLBACKS = ${JSON.stringify(output._fallbacks || {}, null, 4)};`,
     '',
 ];
 
-writeFileSync(OUTPUT_PATH, lines.join('\n'));
-console.log(`Wrote ${OUTPUT_PATH}`);
+const generated = lines.join('\n');
+if (process.argv.includes('--check')) {
+    const current = readFileSync(OUTPUT_PATH, 'utf8');
+    if (current !== generated)
+        throw new Error(`${OUTPUT_PATH} differs from generated quest text`);
+    console.log(`Checked ${OUTPUT_PATH}`);
+} else {
+    writeFileSync(OUTPUT_PATH, generated);
+    console.log(`Wrote ${OUTPUT_PATH}`);
+}
 console.log(`Sections: ${Object.keys(output).filter(k => k !== '_fallbacks').join(', ')}`);
 for (const [section, msgs] of Object.entries(output)) {
     if (section === '_fallbacks') continue;

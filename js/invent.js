@@ -325,6 +325,7 @@ import { mon_nam, noit_Monnam } from './do_name.js';
 import { in_rooms } from './rooms.js';
 import { ILLOBJ_CLASS, MAXOCLASSES } from './objects.js';
 import { is_quest_artifact } from './questpgr.js';
+import { artitouch } from './quest.js';
 import { note_unported } from './unported.js';
 import { record_achievement } from './insight.js';
 import {
@@ -4081,6 +4082,7 @@ function specialPrize(obj, state) {
 
 function addinv_core1(obj, env, facts) {
     const { state } = env;
+    let artifactTouch = null;
     if (obj.oclass === COIN_CLASS) {
         state.disp ??= {};
         state.disp.botl = true;
@@ -4109,21 +4111,33 @@ function addinv_core1(obj, env, facts) {
             if (state.u.uhave?.questart)
                 note_unported('pline.c impossible');
             state.u.uhave.questart = 1;
-            // quest.c artitouch() has no return value; its pager, discovery,
-            // quest-status, and exercise effects remain an explicit gap.
-            note_unported('quest.c artitouch');
+            // C calls artitouch() before set_artifact_intrinsic(). Its quest
+            // pager can wait for input in JavaScript, so propagate that effect
+            // and resume the remainder of addinv_core1() in source order.
+            artifactTouch = artitouch(obj, state, {
+                random: env.random,
+                output: env.questPagerOutput,
+            });
         }
-        set_artifact_intrinsic(obj, true, W_ART, state);
     }
 
-    // C ref: invent.c addinv_core1().  Special-level creation sets nomerge
-    // only until the tracked prize reaches the hero's inventory. The source
-    // calls record_achievement() directly before clearing the tracking id.
-    if (facts.prize) {
-        record_achievement(facts.prize.achievement, state);
-        state.context.achieveo[facts.prize.oidField] = 0;
-        obj.nomerge = false;
-    }
+    const finish = () => {
+        if (obj.oartifact)
+            set_artifact_intrinsic(obj, true, W_ART, state);
+
+        // C ref: invent.c addinv_core1(). Special-level creation sets nomerge
+        // only until the tracked prize reaches the hero's inventory. The
+        // source calls record_achievement() directly before clearing the id.
+        if (facts.prize) {
+            record_achievement(facts.prize.achievement, state);
+            state.context.achieveo[facts.prize.oidField] = 0;
+            obj.nomerge = false;
+        }
+    };
+
+    if (isThenable(artifactTouch))
+        return Promise.resolve(artifactTouch).then(finish);
+    finish();
 }
 
 function preflightAddinvCores(obj, env) {
@@ -4198,11 +4212,16 @@ export function replace_inventory_core(obj, replacement, env = {}) {
     const freeFacts = preflightFreeinvCore(obj, normalized);
     const addFacts = preflightAddinvCores(replacement, normalized);
     freeinv_core(obj, normalized, freeFacts);
-    addinv_core1(replacement, normalized, addFacts);
-    const effects = addinv_core2(replacement, normalized, addFacts);
-    if (isThenable(effects))
-        return Promise.resolve(effects).then(() => replacement);
-    return replacement;
+    const finish = () => {
+        const effects = addinv_core2(replacement, normalized, addFacts);
+        if (isThenable(effects))
+            return Promise.resolve(effects).then(() => replacement);
+        return replacement;
+    };
+    const core1Effects = addinv_core1(replacement, normalized, addFacts);
+    if (isThenable(core1Effects))
+        return Promise.resolve(core1Effects).then(finish);
+    return finish();
 }
 
 function runCarryObjEffects(obj, env, shouldAttachFigurineTimer) {
@@ -4452,14 +4471,17 @@ function beginAddinv(obj, env, prepared) {
         resetJustPicked(inventoryHead(state));
     }
 
-    addinv_core1(obj, normalized, addinvFacts);
-    return {
+    const context = {
         addinvFacts,
         carryEffects,
         normalized,
         state,
         willConsiderAutoquiver,
     };
+    const core1Effects = addinv_core1(obj, normalized, addinvFacts);
+    if (isThenable(core1Effects))
+        return Promise.resolve(core1Effects).then(() => context);
+    return context;
 }
 
 function insertInventoryObject(obj, previous, state) {
@@ -4522,6 +4544,14 @@ function addinv_core0(
 ) {
     const context = beginAddinv(obj, env, prepared);
     if (!context) return null;
+    if (isThenable(context))
+        return Promise.resolve(context).then((ready) =>
+            finishAddinvCore0(ready, obj, updatePermInvent, otherObj));
+    return finishAddinvCore0(context, obj, updatePermInvent, otherObj);
+}
+
+function finishAddinvCore0(context, initialObj, updatePermInvent, otherObj) {
+    let obj = initialObj;
     const { normalized, state } = context;
     let inserted = false;
     if (insertInventoryObjectBefore(obj, otherObj, state)) {
@@ -4579,7 +4609,9 @@ async function addinvCore0Runtime(
             message: env.hooks?.message ?? env.message ?? ttyPline,
         },
     };
-    const context = beginAddinv(obj, liveEnv, prepared);
+    const pendingContext = beginAddinv(obj, liveEnv, prepared);
+    const context = isThenable(pendingContext)
+        ? await pendingContext : pendingContext;
     if (!context) return null;
     const { normalized, state } = context;
     let inserted;
@@ -4623,10 +4655,18 @@ export async function addinv_runtime(obj, env = {}, prepared = null) {
 export function addinv_nomerge(obj, env = {}) {
     const previous = obj.nomerge;
     obj.nomerge = true;
+    let restoreAfterPromise = false;
     try {
-        return addinv(obj, env);
+        const result = addinv(obj, env);
+        if (isThenable(result)) {
+            restoreAfterPromise = true;
+            return Promise.resolve(result).finally(() => {
+                obj.nomerge = previous;
+            });
+        }
+        return result;
     } finally {
-        obj.nomerge = previous;
+        if (!restoreAfterPromise) obj.nomerge = previous;
     }
 }
 
