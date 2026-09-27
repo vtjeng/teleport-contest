@@ -59,6 +59,7 @@ import {
     GETOBJ_SUGGEST,
     HALLUC,
     HALLUC_RES,
+    HOMEMADE_TIN,
     HAND,
     KILLED_BY,
     has_mcorpsenm,
@@ -178,6 +179,7 @@ import {
     update_inventory,
     useupall,
     useup,
+    useupf,
     hold_another_object,
     stackobj,
 } from './invent.js';
@@ -190,6 +192,7 @@ import {
     humanoid,
     is_female,
     is_male,
+    is_rider,
     nohands,
     nolimbs,
     pronoun_gender,
@@ -226,6 +229,8 @@ import {
     sobj_at,
     carried,
     splitobj,
+    mksobj,
+    remove_object,
     weight,
 } from './obj.js';
 import {
@@ -318,6 +323,7 @@ import {
     LAND_MINE,
     BEARTRAP,
     SADDLE,
+    TIN,
 } from './objects.js';
 import {
     AD_BLND, AT_ENGL, AT_WEAP, MZ_TINY, PM_ARCHEOLOGIST, PM_HEALER,
@@ -336,7 +342,7 @@ import {
 import { canSpotMonster, heroIsBlind, sensesMonster } from './startup_a11y.js';
 import { P_SKILL } from './startup_skills.js';
 import { CMAP_EXPLANATIONS } from './symbol_data.js';
-import { obj_has_timer } from './timeout.js';
+import { obj_has_timer, obj_stop_timers } from './timeout.js';
 import {
     activate_statue_trap, deltrap, is_lava, is_pool, is_pool_or_lava,
     Levitation, maketrap, reset_utrap, t_at, trapname,
@@ -352,7 +358,7 @@ import {
 } from './vision.js';
 import { bimanual, is_pole, setnotworn } from './worn.js';
 import { dowrite } from './write.js';
-import { pickup_object, use_container } from './pickup.js';
+import { encumber_msg, pickup_object, use_container } from './pickup.js';
 import { use_pick_axe } from './dig.js';
 import { genders } from './roles.js';
 import { d, rn1, rn2, rnd, rne, rnl, rnz } from './rng.js';
@@ -376,8 +382,13 @@ import {
     fingers_or_gloves,
     inaccessible_equipment,
 } from './do_wear.js';
-import { dropx, legs_in_no_shape, set_wounded_legs } from './do.js';
-import { morehungry } from './eat.js';
+import {
+    dropx,
+    legs_in_no_shape,
+    revive_corpse,
+    set_wounded_legs,
+} from './do.js';
+import { floorfood, morehungry, set_tin_variety } from './eat.js';
 import { digests, hurtle_jump, thitmonst, walk_path } from './dothrow.js';
 import { makeplural } from './fruit.js';
 import { getpos } from './getpos.js';
@@ -997,6 +1008,129 @@ export async function use_camera(object, state = game, env = {}) {
 export function tinnable(corpse, state = game) {
     if (corpse?.oeaten) return false;
     return Boolean(state.mons?.[corpse?.corpsenm]?.cnutrit);
+}
+
+// C ref: apply.c use_tinning_kit() (2177-2258). apply.c:doapply() ignores
+// this helper's return and retains its initial ECMD_TIME result. The ordinary
+// floor/inventory tin path is ported here. Rider revival always delegates to
+// do.c:revive_corpse() and lets its current non-floor refusal propagate until
+// that consumed Boolean path is ported.
+async function use_tinning_kit(obj, state = game, env = {}) {
+    const message = env.message ?? ttyPline;
+    if (obj.spe <= 0) {
+        await message('You seem to be out of tins.', state);
+        return;
+    }
+
+    const corpse = await floorfood('tin', 2, state);
+    if (!corpse) return;
+    if (corpse.oeaten) {
+        await message('You cannot tin something which is partly eaten.', state);
+        return;
+    }
+
+    const species = state.mons?.[corpse.corpsenm];
+    if (!species)
+        throw new RangeError(`tinning kit: invalid corpse species ${corpse.corpsenm}`);
+
+    if (touch_petrifies(species) && !Stone_resistance(state) && !state.uarmg) {
+        const corpseName = an(cxname(corpse, state), state);
+        if (poly_when_stoned(state.youmonst.data)) {
+            await message(
+                `You tin ${corpseName} without wearing gloves.`,
+                state,
+            );
+        } else {
+            await message(
+                `Tinning ${corpseName} without wearing gloves is a fatal mistake...`,
+                state,
+            );
+        }
+        // apply.c discards instapetrify()'s result. Preserve the call-site gap
+        // without inventing its delayed-death or life-saving state changes.
+        note_unported('polyself.c instapetrify');
+    }
+
+    if (is_rider(species)) {
+        if (await revive_corpse(corpse, state)) {
+            await verbalize(
+                'Yes...  But War does not preserve its enemies...',
+                state,
+                { message },
+            );
+        } else {
+            await message('The corpse evades your grasp.', state);
+        }
+        return;
+    }
+    if (species.cnutrit === 0) {
+        await message("That's too insubstantial to tin.", state);
+        return;
+    }
+
+    consume_obj_charge(obj, true, { ...env, state });
+    const can = mksobj(TIN, false, false, { ...env, state });
+    if (!can) {
+        note_unported('pline.c impossible');
+        return;
+    }
+
+    can.corpsenm = corpse.corpsenm;
+    can.cursed = obj.cursed;
+    can.blessed = obj.blessed;
+    can.owt = weight(can, { ...env, state });
+    can.known = true;
+    set_tin_variety(can, HOMEMADE_TIN, { ...env, state });
+    const lifecycleEnv = {
+        ...env,
+        state,
+        hooks: {
+            ...env.hooks,
+            extractExternalObject:
+                env.hooks?.extractExternalObject ?? remove_object,
+            stopObjectTimers: env.hooks?.stopObjectTimers
+                ?? ((target, hookEnv) => obj_stop_timers(
+                    target,
+                    hookEnv.state ?? state,
+                    hookEnv,
+                )),
+            encumberMessage: env.hooks?.encumberMessage ?? encumber_msg,
+        },
+    };
+
+    if (carried(corpse)) {
+        if (corpse.unpaid) {
+            const room = in_rooms(state.u.ux, state.u.uy, SHOPBASE, state)[0]
+                ?? 0;
+            const shopkeeper = shop_keeper(room, state);
+            set_voice(shopkeeper, 0, 80, 0, state);
+            await verbalize('You tin it, you bought it!', state, { message });
+        }
+        useup(corpse, lifecycleEnv);
+    } else {
+        if (costly_spot(corpse.ox, corpse.oy, state) && !corpse.no_charge) {
+            const room = in_rooms(
+                corpse.ox,
+                corpse.oy,
+                SHOPBASE,
+                state,
+            )[0] ?? 0;
+            const shopkeeper = shop_keeper(room, state);
+            set_voice(shopkeeper, 0, 80, 0, state);
+            await verbalize('You tin it, you bought it!', state, { message });
+        }
+        await useupf(corpse, 1, lifecycleEnv);
+    }
+
+    await hold_another_object(
+        can,
+        'You make, but cannot pick up, %s.',
+        donameFresh(can, state),
+        null,
+        {
+            ...lifecycleEnv,
+        },
+    );
 }
 
 // C ref: youprop.h:120 Hallucination, which is the intrinsic timeout alone
@@ -2538,7 +2672,7 @@ export async function doapply(state = game, env = {}) {
         return ECMD_TIME;
     case TINNING_KIT:
         // apply.c discards use_tinning_kit()'s result.
-        note_unported('apply.c use_tinning_kit');
+        await use_tinning_kit(obj, state, env);
         return ECMD_TIME;
     case CREAM_PIE:
         return use_cream_pie(obj, state, env);

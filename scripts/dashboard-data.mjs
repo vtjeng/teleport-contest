@@ -9,6 +9,7 @@ import { join } from 'node:path';
 import { completedFunctionNames } from './port-evidence.mjs';
 import { readRows, standing } from './score-log.mjs';
 import { challengeDashboard } from './challenge-results.mjs';
+import { activityTimeline, syntheticGainByCommit } from './dashboard-activity.mjs';
 
 function run(cmd) {
   return execSync(cmd, { encoding: 'utf8', maxBuffer: 10 * 1024 * 1024 }).trim();
@@ -50,22 +51,6 @@ for (const c of commits) {
 }
 
 const headFullSha = run('git rev-parse HEAD');
-
-// Classify commits
-const openCommits = commits.filter(c => /^(Open|Register)\b/i.test(c.message));
-const queueCommits = commits.filter(c => /^Queue\b/i.test(c.message));
-const auditCommits = commits.filter(c =>
-  /audit|review/i.test(c.message) && !/^Open|^Queue/i.test(c.message)
-);
-
-// Some Open/Register commits also queue a slice — synthesize queue events
-for (const c of openCommits) {
-  if (/queue/i.test(c.message)
-    || (/^Register\b/i.test(c.message) && /\bslice\b/i.test(c.message))) {
-    queueCommits.push(c);
-  }
-}
-queueCommits.sort((a, b) => a.time - b.time);
 
 // --- Parse SCORE.tsv ---
 
@@ -260,6 +245,11 @@ if (challenges.batches?.length > 1) {
   challenges.commitAgeLabel = 'Oldest measured commit';
 }
 
+const snapshot = existsSync('dashboard-snapshot.json')
+  ? JSON.parse(readFileSync('dashboard-snapshot.json', 'utf8')) : null;
+const activity = activityTimeline(snapshot?.activity, snapshot?.capturedAt);
+const developmentSessions = snapshot?.development ?? null;
+
 // Extracts a label from a SCORE note for score-history points and the
 // pre-register timeline fallback.
 function goalNameFromNote(note) {
@@ -275,465 +265,14 @@ function goalNameFromNote(note) {
   return note.split(/[.;]/)[0].slice(0, 50);
 }
 
-// --- Goal records ---
-// GOALS.json is the authoritative lifecycle for current and recently closed
-// goals. SCORE.tsv remains the fallback for historical data written before the
-// register recorded openedAt and closedAt.
-
+// GOALS.json remains the source for scope and completion evidence. Worker
+// activity comes only from the published ledger snapshot.
 const goalRecords = new Map();
 if (existsSync('GOALS.json')) {
   for (const record of JSON.parse(readFileSync('GOALS.json', 'utf8')).goals) {
     goalRecords.set(record.id, record);
   }
 }
-
-const lifecycleRecords = [...goalRecords.values()]
-  .filter(record => ['closed', 'open', 'parked'].includes(record.status));
-const hasCompleteLifecycle = lifecycleRecords.some(record => record.status !== 'parked')
-  && lifecycleRecords.every(record => {
-    // Older parked records may lack a boundary. They still belong in history,
-    // with unknown timing, without discarding the other goals' lifecycle data.
-    if (record.status === 'parked') return true;
-    const opened = commitBySha.get(fullShaFor({ sha: record.openedAt }));
-    const closed = record.status === 'open'
-      || commitBySha.get(fullShaFor({ sha: record.closedAt }));
-    return Boolean(record.openedAt && opened && closed);
-  });
-
-// --- Build goal timeline from goal records, with a SCORE fallback ---
-
-const rawScoreGoals = scoreEvents.filter(e => e.event === 'goal' || e.event === 'divergence');
-const scoreGoals = rawScoreGoals.filter((sg, i) =>
-  i === rawScoreGoals.length - 1 || rawScoreGoals[i + 1].note !== sg.note);
-// `slice` rows predate 2026-09-05; `span` rows follow .agents/scoring.md since.
-const scoreSlices = scoreEvents.filter(e => e.event === 'slice' || e.event === 'span');
-
-const goals = [];
-const lifecycleGoals = [];
-
-if (hasCompleteLifecycle || lifecycleRecords.some(record => record.status === 'parked')) {
-  const records = lifecycleRecords
-    .filter(record => hasCompleteLifecycle || record.status === 'parked')
-    .map(record => {
-      const initialOpenCommit = commitBySha.get(fullShaFor({ sha: record.openedAt }));
-      const activeCommit = commitBySha.get(fullShaFor({ sha: record.activeStanding?.sha }));
-      // On resumption activeStanding advances past the original opening. On
-      // first parking it can still point to a score from before openedAt.
-      const resumed = Boolean(record.parkedStanding && activeCommit
-        && initialOpenCommit && activeCommit.time > initialOpenCommit.time);
-      const openCommit = resumed ? activeCommit : initialOpenCommit;
-      return {
-        record,
-        openCommit,
-        resumed,
-        closeCommit: record.status === 'closed'
-          ? commitBySha.get(fullShaFor({ sha: record.closedAt }))
-          : record.status === 'parked'
-            ? commitBySha.get(fullShaFor({ sha: record.parkedStanding?.sha }))
-            : null,
-      };
-    })
-    .sort((left, right) => (left.openCommit?.time ?? 0) - (right.openCommit?.time ?? 0));
-
-  function scoreForClose(closeCommit) {
-    if (!closeCommit) return null;
-    return scoreEvents
-      .filter(event => ['goal', 'divergence', 'span'].includes(event.event)
-        && fullShaFor(event) === closeCommit.sha)
-      .at(-1) ?? null;
-  }
-
-  function latestScoreBefore(closeTime) {
-    return scoreEvents
-      .filter(event => event.utc && event.utc <= closeTime
-        && event.screensTotal !== null)
-      .at(-1) ?? null;
-  }
-
-  function phaseDetails(openTime, closeTime) {
-    const now = new Date();
-    const endTime = closeTime ?? now;
-    const goalSliceEvents = scoreSlices.filter(event =>
-      event.utc && event.utc > openTime
-      && (!closeTime || event.utc <= closeTime)
-    );
-    const goalQueues = queueCommits.filter(queue =>
-      queue.time >= openTime && (!closeTime || queue.time <= closeTime)
-    );
-    const slices = [];
-    for (let qi = 0; qi < goalQueues.length; qi++) {
-      const queue = goalQueues[qi];
-      const nextQueue = goalQueues[qi + 1];
-      const sliceScore = goalSliceEvents.find(event =>
-        event.utc > queue.time && (!nextQueue || event.utc <= nextQueue.time)
-      );
-      const sliceCloseTime = sliceScore?.utc
-        ?? (closeTime && nextQueue ? new Date(nextQueue.time - 1) : endTime);
-      const closeTimeSource = sliceScore
-        ? (sliceScore.utcSource === 'commit' ? 'score-slice' : 'score-slice-fallback')
-        : closeTime && nextQueue
-          ? 'next-queue-inferred'
-          : closeTime
-            ? 'goal-close-inferred'
-            : 'current-time-inferred';
-      const sliceSelectionMin = qi > 0 && slices[qi - 1]?.closeTime
-        ? (queue.time - new Date(slices[qi - 1].closeTime)) / 60000
-        : null;
-      slices.push({
-        queueTime: queue.time.toISOString(),
-        closeTime: sliceCloseTime.toISOString(),
-        closeTimeSource,
-        durationMin: Math.round((sliceCloseTime - queue.time) / 60000 * 10) / 10,
-        sliceSelectionMin: sliceSelectionMin !== null
-          ? Math.round(sliceSelectionMin * 10) / 10 : null,
-        message: queue.message,
-      });
-    }
-    const firstSliceSelMin = goalQueues.length > 0
-      ? (goalQueues[0].time - openTime) / 60000 : null;
-    const totalSliceSelectionMin = (firstSliceSelMin || 0)
-      + slices.reduce((sum, slice) => sum + (slice.sliceSelectionMin || 0), 0);
-    const totalSliceDurationMin = slices
-      .reduce((sum, slice) => sum + (slice.durationMin || 0), 0);
-    return {
-      slices,
-      firstSliceSelMin,
-      totalSliceSelectionMin,
-      totalSliceDurationMin,
-    };
-  }
-
-  let previousCloseTime = null;
-  for (const { record, openCommit, resumed, closeCommit } of records) {
-    const openTime = openCommit?.time ?? null;
-    // A reused standing can predate opening; it cannot establish a worked
-    // interval for a parked goal.
-    const closeTime = record.status === 'parked' && openTime && closeCommit?.time < openTime
-      ? null : closeCommit?.time ?? null;
-    const score = scoreForClose(closeCommit);
-    const latestScore = closeTime || record.status === 'open'
-      ? latestScoreBefore(closeTime ?? new Date()) : null;
-    // A missing parking boundary is unknown, not an interval ending today.
-    const phases = openTime && (closeTime || record.status === 'open')
-      ? phaseDetails(openTime, closeTime)
-      : { slices: [], totalSliceSelectionMin: 0, totalSliceDurationMin: 0 };
-    const lastSlice = phases.slices.at(-1);
-    const lastSliceClose = lastSlice?.closeTimeSource === 'score-slice'
-      ? new Date(lastSlice.closeTime) : null;
-    const verificationMin = record.status === 'closed' && closeTime && lastSliceClose
-      ? (closeTime - lastSliceClose) / 60000 : null;
-    const goalSelectionMin = previousCloseTime && openTime && !resumed
-      ? (openTime - previousCloseTime) / 60000 : null;
-    const screens = record.status === 'closed'
-      ? record.closeStanding?.screens ?? score?.screensMatched ?? latestScore?.screensMatched ?? null
-      : record.status === 'parked' ? record.parkedStanding?.screens ?? null : null;
-    const rng = record.status === 'closed'
-      ? record.closeStanding?.rng ?? score?.rngMatched ?? latestScore?.rngMatched ?? null
-      : record.status === 'parked' ? record.parkedStanding?.rng ?? null : null;
-
-    lifecycleGoals.push({
-      name: record.id,
-      status: record.status === 'open' ? 'in-progress' : record.status,
-      openTime: openTime?.toISOString() ?? null,
-      openTimeSource: openTime ? 'goal-record' : 'unknown',
-      closeTime: closeTime?.toISOString() ?? null,
-      closeTimeSource: record.status === 'parked'
-        ? closeTime ? 'parked-standing' : 'unknown'
-        : closeTime ? 'goal-record' : 'current-time-inferred',
-      totalMin: openTime && closeTime
-        ? Math.round((closeTime - openTime) / 60000 * 10) / 10
-        : record.status === 'open'
-          ? Math.round((new Date() - openTime) / 60000 * 10) / 10 : null,
-      goalSelectionMin: goalSelectionMin !== null ? Math.round(goalSelectionMin * 10) / 10 : null,
-      sliceSelectionMin: Math.round(phases.totalSliceSelectionMin * 10) / 10,
-      implementationMin: Math.round(phases.totalSliceDurationMin * 10) / 10,
-      verificationMin: verificationMin !== null ? Math.round(verificationMin * 10) / 10 : null,
-      // Some spans were queued in Open commits whose titles omit "queue".
-      // Parked goals retain the completed spans in the register itself.
-      sliceCount: record.status === 'parked'
-        ? (record.spans ?? []).filter(span => span.status === 'closed').length
-        : phases.slices.length,
-      slices: phases.slices,
-      goalSelectionObserved: goalSelectionMin !== null,
-      sliceSelectionObserved: phases.slices.length > 0
-        && phases.slices.slice(0, -1).every(slice => slice.closeTimeSource === 'score-slice'),
-      implementationObserved: phases.slices.length > 0
-        && phases.slices.every(slice => slice.closeTimeSource === 'score-slice'),
-      verificationObserved: verificationMin !== null,
-      totalObserved: Boolean(openTime && closeTime),
-      timingObserved: Boolean(closeTime) && phases.slices.length > 0
-        && phases.slices.every(slice => slice.closeTimeSource === 'score-slice'),
-      eventType: score?.event ?? (record.kind === 'divergence-fix' ? 'divergence' : 'goal'),
-      audits: auditCommits.filter(commit =>
-        openTime && (closeTime || record.status === 'open')
-        && commit.time >= openTime && (!closeTime || commit.time <= closeTime)
-      ).map(commit => ({ time: commit.time.toISOString(), message: commit.message })),
-      screens,
-      screensTotal: score?.screensTotal ?? latestScore?.screensTotal ?? null,
-      rng,
-      rngTotal: score?.rngTotal ?? latestScore?.rngTotal ?? null,
-      sessions: score?.sessionsPassed ?? latestScore?.sessionsPassed ?? null,
-      sessionsTotal: score?.sessionsTotal ?? latestScore?.sessionsTotal ?? null,
-      // Parking records its own starting and ending standings. Keep those
-      // gains even when the preceding history row has no measured score.
-      ...(record.status === 'parked' ? {
-        screensDelta: screens !== null
-          && (record.activeStanding ?? record.openStanding)?.screens != null
-          ? screens - (record.activeStanding ?? record.openStanding).screens : null,
-      } : {}),
-    });
-    if (closeTime) previousCloseTime = closeTime;
-  }
-}
-if (!hasCompleteLifecycle) {
-for (let gi = 0; gi < scoreGoals.length; gi++) {
-  const sg = scoreGoals[gi];
-
-  const name = goalNameFromNote(sg.note);
-  if (['parked', 'superseded'].includes(goalRecords.get(name)?.status)) continue;
-
-  // Find close commit by SHA
-  const closeCommit = commitBySha.get(fullShaFor({ sha: sg.sha }));
-  const closeTime = sg.utc || closeCommit?.time;
-  if (!closeTime) continue;
-
-  // Previous goal's close time (for bounding the open search)
-  const prevCloseTime = gi > 0
-    ? (scoreGoals[gi - 1].utc
-      || commitBySha.get(fullShaFor({ sha: scoreGoals[gi - 1].sha }))?.time)
-    : null;
-
-  // Find the Open commit: most recent Open before this close, after previous close
-  const openCommit = openCommits.filter(c =>
-    c.time <= closeTime && (!prevCloseTime || c.time > prevCloseTime)
-  ).pop();
-
-  const openTime = openCommit?.time || prevCloseTime || closeTime;
-  const openTimeSource = openCommit
-    ? 'open-commit'
-    : prevCloseTime
-      ? 'previous-goal-close-inferred'
-      : 'goal-close-inferred';
-
-  // Goal selection: previous close → this open
-  const goalSelectionMin = (openCommit && prevCloseTime)
-    ? (openCommit.time - prevCloseTime) / 60000
-    : null;
-
-  // Find SCORE slice events within this goal's time range
-  const goalSliceEvents = scoreSlices.filter(e =>
-    e.utc && e.utc > openTime && e.utc <= closeTime
-  );
-
-  // Find Queue commits within this goal's time range
-  const goalQueues = queueCommits.filter(q =>
-    q.time >= openTime && q.time <= closeTime
-  );
-
-  // Build slice records: pair each Queue with the next SCORE slice event
-  const slices = [];
-  for (let qi = 0; qi < goalQueues.length; qi++) {
-    const queue = goalQueues[qi];
-    const nextQueue = goalQueues[qi + 1];
-
-    const sliceScore = goalSliceEvents.find(e =>
-      e.utc > queue.time &&
-      (!nextQueue || e.utc <= nextQueue.time)
-    );
-
-    const sliceCloseTime = sliceScore?.utc
-      ?? (nextQueue ? new Date(nextQueue.time - 1) : closeTime);
-    const closeTimeSource = sliceScore
-      ? (sliceScore.utcSource === 'commit'
-        ? 'score-slice'
-        : 'score-slice-fallback')
-      : nextQueue
-        ? 'next-queue-inferred'
-        : 'goal-close-inferred';
-
-    let sliceSelectionMin = null;
-    if (qi > 0 && slices[qi - 1]?.closeTime) {
-      sliceSelectionMin = (queue.time - new Date(slices[qi - 1].closeTime)) / 60000;
-    }
-
-    slices.push({
-      queueTime: queue.time.toISOString(),
-      closeTime: sliceCloseTime.toISOString(),
-      closeTimeSource,
-      durationMin: Math.round((sliceCloseTime - queue.time) / 60000 * 10) / 10,
-      sliceSelectionMin: sliceSelectionMin !== null ? Math.round(sliceSelectionMin * 10) / 10 : null,
-      message: queue.message,
-    });
-  }
-
-  // First slice selection: open → first queue
-  const firstSliceSelMin = (goalQueues.length > 0)
-    ? (goalQueues[0].time - openTime) / 60000
-    : null;
-
-  const totalSliceSelectionMin = (firstSliceSelMin || 0) + slices.reduce((sum, s) => sum + (s.sliceSelectionMin || 0), 0);
-  const totalSliceDurationMin = slices.reduce((sum, s) => sum + (s.durationMin || 0), 0);
-
-  // Verification: last slice close → goal close
-  const lastSlice = slices[slices.length - 1];
-  const lastSliceClose = lastSlice?.closeTimeSource === 'score-slice'
-    ? new Date(lastSlice.closeTime)
-    : null;
-  const verificationMin = lastSliceClose && sg.utcSource === 'commit'
-    ? (closeTime - lastSliceClose) / 60000
-    : null;
-
-  const totalMin = (closeTime - (prevCloseTime || openTime)) / 60000;
-
-  // Audit events within this goal
-  const goalAudits = auditCommits.filter(c =>
-    c.time >= openTime && c.time <= closeTime
-  ).map(c => ({
-    time: c.time.toISOString(),
-    message: c.message,
-  }));
-
-  goals.push({
-    name,
-    status: 'closed',
-    openTime: openTime.toISOString(),
-    openTimeSource,
-    closeTime: closeTime.toISOString(),
-    closeTimeSource: sg.utcSource,
-    totalMin: Math.round(totalMin * 10) / 10,
-    goalSelectionMin: goalSelectionMin !== null ? Math.round(goalSelectionMin * 10) / 10 : null,
-    sliceSelectionMin: Math.round(totalSliceSelectionMin * 10) / 10,
-    implementationMin: Math.round(totalSliceDurationMin * 10) / 10,
-    verificationMin: verificationMin !== null ? Math.round(verificationMin * 10) / 10 : null,
-    sliceCount: slices.length,
-    slices,
-    goalSelectionObserved: goalSelectionMin !== null
-      && scoreGoals[gi - 1]?.utcSource === 'commit',
-    sliceSelectionObserved: slices.length > 0
-      && openTimeSource === 'open-commit'
-      && slices.slice(0, -1).every(
-        (slice) => slice.closeTimeSource === 'score-slice',
-      ),
-    implementationObserved: slices.length > 0
-      && slices.every((slice) => slice.closeTimeSource === 'score-slice'),
-    verificationObserved: verificationMin !== null,
-    totalObserved: openTimeSource === 'open-commit'
-      && sg.utcSource === 'commit',
-    timingObserved: openTimeSource === 'open-commit'
-      && slices.length > 0
-      && slices.every((slice) => slice.closeTimeSource === 'score-slice')
-      && sg.utcSource === 'commit',
-    eventType: sg.event,
-    audits: goalAudits,
-    screens: sg.screensMatched,
-    screensTotal: sg.screensTotal,
-    rng: sg.rngMatched,
-    rngTotal: sg.rngTotal,
-    sessions: sg.sessionsPassed,
-    sessionsTotal: sg.sessionsTotal,
-  });
-}
-
-// --- Detect in-progress goals (opened after last closed goal) ---
-
-const lastCloseTime = goals.length > 0
-  ? new Date(goals[goals.length - 1].closeTime)
-  : new Date(0);
-
-const inProgressOpens = openCommits.filter(c => c.time > lastCloseTime);
-const lastClosedGoal = goals[goals.length - 1] ?? null;
-
-for (const open of inProgressOpens) {
-  let name = open.message;
-  const goalMatch = name.match(/^Open\s+(?:the\s+)?(.+?)(?:\s+goal)?$/i);
-  if (goalMatch) name = goalMatch[1];
-  name = name.replace(/\s*\(.*$/, '').replace(/,.*$/, '').trim();
-  if (['parked', 'superseded'].includes(goalRecords.get(name)?.status)) continue;
-
-  const now = new Date();
-  const openTime = open.time;
-  const goalSelectionMin = lastClosedGoal
-    ? (openTime - lastCloseTime) / 60000
-    : null;
-  const totalMin = (now - (lastClosedGoal ? lastCloseTime : openTime)) / 60000;
-
-  const goalQueues = queueCommits.filter(q => q.time >= openTime);
-  const slices = [];
-  for (let qi = 0; qi < goalQueues.length; qi++) {
-    const queue = goalQueues[qi];
-    const nextQueue = goalQueues[qi + 1];
-    const sliceScore = scoreSlices.find(e =>
-      e.utc && e.utc > queue.time && (!nextQueue || e.utc <= nextQueue.time)
-    );
-    const sliceCloseTime = sliceScore?.utc ?? now;
-    const closeTimeSource = sliceScore
-      ? (sliceScore.utcSource === 'commit'
-        ? 'score-slice'
-        : 'score-slice-fallback')
-      : 'current-time-inferred';
-    let sliceSelectionMin = null;
-    if (qi > 0 && slices[qi - 1]?.closeTime) {
-      sliceSelectionMin = (queue.time - new Date(slices[qi - 1].closeTime)) / 60000;
-    }
-    slices.push({
-      queueTime: queue.time.toISOString(),
-      closeTime: sliceCloseTime.toISOString(),
-      closeTimeSource,
-      durationMin: Math.round((sliceCloseTime - queue.time) / 60000 * 10) / 10,
-      sliceSelectionMin: sliceSelectionMin !== null ? Math.round(sliceSelectionMin * 10) / 10 : null,
-      message: queue.message,
-    });
-  }
-
-  const firstSliceSelMin = goalQueues.length > 0 ? (goalQueues[0].time - openTime) / 60000 : null;
-  const totalSliceSelectionMin = (firstSliceSelMin || 0) + slices.reduce((sum, s) => sum + (s.sliceSelectionMin || 0), 0);
-  const totalSliceDurationMin = slices.reduce((sum, s) => sum + (s.durationMin || 0), 0);
-
-  const goalAudits = auditCommits.filter(c => c.time >= openTime).map(c => ({
-    time: c.time.toISOString(),
-    message: c.message,
-  }));
-
-  goals.push({
-    name,
-    status: 'in-progress',
-    openTime: openTime.toISOString(),
-    openTimeSource: 'open-commit',
-    closeTime: null,
-    closeTimeSource: 'current-time-inferred',
-    totalMin: Math.round(totalMin * 10) / 10,
-    goalSelectionMin: goalSelectionMin !== null
-      ? Math.round(goalSelectionMin * 10) / 10
-      : null,
-    sliceSelectionMin: Math.round(totalSliceSelectionMin * 10) / 10,
-    implementationMin: Math.round(totalSliceDurationMin * 10) / 10,
-    verificationMin: null,
-    sliceCount: slices.length,
-    slices,
-    goalSelectionObserved: goalSelectionMin !== null
-      && lastClosedGoal?.closeTimeSource === 'commit',
-    sliceSelectionObserved: slices.length > 0
-      && slices.slice(0, -1).every(
-        (slice) => slice.closeTimeSource === 'score-slice',
-      ),
-    implementationObserved: slices.length > 0
-      && slices.every((slice) => slice.closeTimeSource === 'score-slice'),
-    verificationObserved: false,
-    totalObserved: false,
-    timingObserved: false,
-    audits: goalAudits,
-    screens: null,
-    screensTotal: null,
-    rng: null,
-    rngTotal: null,
-    sessions: null,
-    sessionsTotal: null,
-  });
-}
-}
-
-goals.push(...lifecycleGoals);
-goals.sort((left, right) => (Date.parse(left.openTime) || 0) - (Date.parse(right.openTime) || 0));
 
 function completionCounts(record) {
   const functions = record?.functions ?? [];
@@ -744,15 +283,6 @@ function completionCounts(record) {
     functionsTotal: functions.length,
     units: functions.map((entry) => ({ name: entry.name, verified: verified.has(entry.name) })),
   };
-}
-
-for (const goal of goals) {
-  const record = goalRecords.get(goal.name);
-  goal.kind = record?.kind
-    ?? (goal.eventType === 'divergence' ? 'divergence-fix' : 'boundary');
-  goal.cFile = record?.cFile ?? null;
-  goal.sourceFile = record?.luaFile ?? record?.cFile ?? null;
-  Object.assign(goal, completionCounts(record));
 }
 
 // Current work follows the register, independently of historical commit names.
@@ -768,16 +298,6 @@ const workGoals = [...goalRecords.values()]
     supersededReason: record.supersededReason ?? null,
     units: completionCounts(record).units,
   }));
-
-// --- Compute per-goal screen deltas ---
-let previousScreens = 0;
-for (const goal of goals) {
-  if (goal.screensDelta === undefined) {
-    goal.screensDelta = goal.screens !== null ? goal.screens - previousScreens : null;
-  }
-  // An older parked row without a score must not reset the next goal's baseline.
-  if (goal.screens !== null) previousScreens = goal.screens;
-}
 
 // --- Saved screen measurements, including spans and divergence fixes ---
 
@@ -900,61 +420,61 @@ const scoreHistory = [
     error: challenges.status === 'failed' ? challenges.error : null }]),
 ];
 
-// --- Standalone audit events (outside goals) ---
-
-const goalTimeRanges = goals
-  .filter(g => g.closeTime)
-  .map(g => [new Date(g.openTime), new Date(g.closeTime)]);
-const standaloneAudits = auditCommits
-  .filter(c => !goalTimeRanges.some(([o, cl]) => c.time >= o && c.time <= cl))
-  .map(c => ({ time: c.time.toISOString(), message: c.message }));
-
-// --- Summary ---
-
+// The historical chart retains its score measurements. Its timestamps are
+// measurement milestones, not worker activity intervals.
 const latest = progress[progress.length - 1];
-const closedGoals = goals.filter((goal) => goal.status === 'closed');
-const recentGoals = closedGoals.slice(-20);
-const recentObservedGoals = recentGoals.filter(
-  (goal) => goal.implementationObserved,
-);
-
-function median(arr) {
-  if (!arr.length) return null;
-  const sorted = [...arr].sort((a, b) => a - b);
-  const mid = Math.floor(sorted.length / 2);
-  return sorted.length % 2 ? sorted[mid] : (sorted[mid - 1] + sorted[mid]) / 2;
-}
-
-const recentWithGoalSel = recentGoals.filter(
-  g => g.goalSelectionObserved
-    && g.goalSelectionMin !== null
-    && g.goalSelectionMin < 120,
-);
-const recentWithVerif = recentGoals.filter(
-  g => g.verificationObserved && g.verificationMin !== null,
-);
-
 const summary = {
   dataset: 'development',
   generatedAt: new Date().toISOString(),
-  totalGoals: closedGoals.length,
-  inProgressGoals: goals.filter(goal => goal.status === 'in-progress').length,
+  totalGoals: [...goalRecords.values()].filter(goal => goal.status === 'closed').length,
   screens: latest?.screens,
   screensTotal: latest?.screensTotal,
-  screensPct: latest ? (latest.screens / latest.screensTotal * 100).toFixed(1) : null,
   rng: latest?.rng,
   rngTotal: latest?.rngTotal,
-  rngPct: latest ? (latest.rng / latest.rngTotal * 100).toFixed(1) : null,
   sessions: latest?.sessions,
   sessionsTotal: latest?.sessionsTotal,
-  medianGoalSelectionMin: median(recentWithGoalSel.map(g => g.goalSelectionMin)),
-  medianImplementationMin: median(recentObservedGoals.filter(g => g.sliceCount > 0 && g.implementationMin < 600).map(g => g.implementationMin)),
-  medianVerificationMin: median(recentWithVerif.map(g => g.verificationMin)),
-  medianTotalMin: median(recentGoals.filter(g => g.totalObserved && g.totalMin < 600).map(g => g.totalMin)),
 };
 
+const evaluationCache = new Map();
+const syntheticByCommit = syntheticGainByCommit(scoreRows, path => {
+  if (!path.startsWith('challenges/evaluations/') || !path.endsWith('.json')) return null;
+  if (!evaluationCache.has(path)) {
+    evaluationCache.set(path, existsSync(path)
+      ? JSON.parse(readFileSync(path, 'utf8')) : null);
+  }
+  return evaluationCache.get(path);
+});
+const activityGoals = new Map();
+for (const task of activity.tasks) {
+  if (!task.goal) continue;
+  const record = goalRecords.get(task.goal);
+  const row = activityGoals.get(task.goal) ?? {
+    id: task.goal, kind: record?.kind ?? null,
+    sourceFile: record?.luaFile ?? record?.cFile ?? null,
+    status: record?.status ?? task.status,
+    assignedAt: task.assignedAt, publishedAt: null, workers: [],
+    developmentDelta: record?.delivered?.screens
+      ?? record?.progressBeforePark?.screens ?? null,
+    syntheticGained: 0, syntheticLost: 0, syntheticMeasured: false,
+  };
+  if (!row.workers.includes(task.worker)) row.workers.push(task.worker);
+  if (task.assignedAt < row.assignedAt) row.assignedAt = task.assignedAt;
+  if (task.publishedAt && (!row.publishedAt || task.publishedAt > row.publishedAt)) {
+    row.publishedAt = task.publishedAt;
+  }
+  const gain = syntheticByCommit.get(task.integration);
+  if (gain && task.publishedAt) {
+    row.syntheticGained += gain.gained;
+    row.syntheticLost += gain.lost;
+    row.syntheticMeasured = true;
+  }
+  activityGoals.set(task.goal, row);
+}
+
 const output = {
-  goals, progress, scoreHistory, standaloneAudits, workGoals, summary, scores, challenges,
+  progress, scoreHistory, workGoals, summary, scores, challenges,
+  activity, activityGoals: [...activityGoals.values()],
+  developmentSessions,
 };
 
 process.stdout.write(JSON.stringify(output, null, 2));
