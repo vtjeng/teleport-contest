@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "Independent dog-pit witness using the documented run-monster-pit seed 6202761. The third search makes the pet fall into a generated pit; the surviving trapped pet reaches mintrap’s selector result and unhide tail. Later wait turns do not invoke the held escape roll for this dog. Strict C/JS comparison passes.",
+  "segments": [
+    {
+      "seed": 6202761,
+      "datetime": "20310203040506",
+      "nethackrc": "OPTIONS=name:PetPit,role:Valkyrie,race:human,gender:female,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen\nOPTIONS=pettype:dog\n",
+      "moves": "sss......."
+    }
+  ]
+}
