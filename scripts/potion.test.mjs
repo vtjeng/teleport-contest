@@ -381,6 +381,35 @@ function potionSource() {
     );
 }
 
+test('dodrink preserves the C occupant availability and chance order', () => {
+    const source = potionSource();
+    const signature = source.indexOf('dodrink(void)');
+    const start = source.lastIndexOf('int', signature);
+    const end = source.indexOf('\n}\n\nint\ndopotion', signature);
+    assert.ok(start >= 0 && signature > start && end > signature);
+    const cBody = source.slice(start, end).replace(/\s+/gu, ' ');
+    const hack = readFileSync(
+        new URL('../nethack-c/upstream/include/hack.h', import.meta.url),
+        'utf8',
+    );
+    assert.match(hack,
+        /#define POTION_OCCUPANT_CHANCE\(n\) \(13 \+ 2 \* \(n\)\)/u);
+    assert.match(cBody,
+        /objdescr_is\(otmp, "milky"\) && !\(svm\.mvitals\[PM_GHOST\]\.mvflags & G_GONE\) && !rn2\(POTION_OCCUPANT_CHANCE\(svm\.mvitals\[PM_GHOST\]\.born\)\)/u);
+    assert.match(cBody,
+        /else if \(objdescr_is\(otmp, "smoky"\) && !\(svm\.mvitals\[PM_DJINNI\]\.mvflags & G_GONE\) && !rn2\(POTION_OCCUPANT_CHANCE\(svm\.mvitals\[PM_DJINNI\]\.born\)\)\)/u);
+
+    const js = readFileSync(new URL('../js/potion.js', import.meta.url), 'utf8');
+    const jsSignature = js.indexOf('export async function dodrink(');
+    const jsEnd = js.indexOf('\n}\n\n// C ref: potion.c toggle_blindness', jsSignature);
+    assert.ok(jsSignature > 0 && jsEnd > jsSignature);
+    const jsBody = js.slice(jsSignature, jsEnd);
+    assert.match(jsBody,
+        /descr === 'milky'[\s\S]*?ghostVital\.mvflags & G_GONE[\s\S]*?!rn2\(13 \+ 2 \* ghostVital\.born\)/u);
+    assert.match(jsBody,
+        /else if \(descr === 'smoky'\)[\s\S]*?djinniVital\.mvflags & G_GONE[\s\S]*?!rn2\(13 \+ 2 \* djinniVital\.born\)[\s\S]*?await djinni_from_bottle\(otmp, state\)[\s\S]*?useup\(otmp, \{ state \}\)[\s\S]*?return ECMD_TIME/u);
+});
+
 test('peffect_blindness preserves the C condition, duration, and talk order',
     () => {
     const source = potionSource();

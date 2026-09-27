@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent potion.c:dodrink smoky-occupant recipe. Seed 69700064 and clock 20260927130000 were independently selected after a read-only initial-inventory prescreen; the recipe chooses the smoky potion in slot d and exercises quaff through the production command path.",
+  "segments": [
+    {
+      "seed": 69700064,
+      "datetime": "20260927130000",
+      "nethackrc": "OPTIONS=name:DrinkSurvey,role:Healer,race:human,gender:male,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!debug_mongen\n",
+      "moves": " qd"
+    }
+  ]
+}
