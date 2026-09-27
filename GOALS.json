@@ -88640,7 +88640,7 @@
     {
       "id": "port-sit-lay-an-egg-dosit-synthetic-v6-20260926",
       "kind": "file-port",
-      "status": "open",
+      "status": "parked",
       "summary": "Port sit.c egg laying and complete dosit command behavior across ice, sink, altar, throne, and grave",
       "cFile": "sit.c",
       "sessions": [
@@ -88665,15 +88665,15 @@
           "name": "lay_an_egg",
           "line": 358,
           "endLine": 399,
-          "declared": false,
-          "complete": false
+          "declared": true,
+          "complete": true
         },
         {
           "name": "dosit",
           "line": 400,
           "endLine": 568,
           "declared": true,
-          "complete": false
+          "complete": true
         }
       ],
       "range": {
@@ -89420,7 +89420,183 @@
             }
           }
         }
-      ]
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "lay_an_egg",
+            "implementation": "js/sit.js",
+            "symbol": "lay_an_egg",
+            "sourceReview": "Compared the complete sit.c:lay_an_egg() definition (358-399). It preserves the male, hunger, eggs-in-water, underwater/water-level, and eel refusals in C order; source object creation and parent-species selection; knowledge and message updates; dropy/stackobj ordering; and nutrition use. Its ECMD_OK/ECMD_TIME result is returned through dosit(). The function is impure and matching independent records exercise the production #sit path as a polymorphed red dragon. The two C-discarded sit.c void effects elsewhere in dosit() are documented at their source call sites and are not part of this helper.",
+            "callers": [
+              {
+                "path": "js/sit.js",
+                "symbol": "dosit",
+                "source": "sit.c:dosit() calls lay_an_egg() when lays_eggs(gy.youmonst.data) selects the final species branch and returns its ECMD result."
+              },
+              {
+                "path": "js/cmd.js",
+                "symbol": "doextcmd",
+                "source": "cmd.c's #sit extcmd row calls dosit(); the JS extended-command dispatch awaits its result."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/sit-command.test.mjs"
+            ],
+            "recordings": [
+              "recordings/sit.c/egg-laying-red-dragon-independent.session.json",
+              "recordings/sit.c/egg-laying-red-dragon-role-variation.session.json"
+            ],
+            "synthetic": [],
+            "checkedAt": "a0e66292d0f4c45131344d7c764ddc164d4e362e"
+          },
+          {
+            "name": "dosit",
+            "implementation": "js/sit.js",
+            "symbol": "dosit",
+            "sourceReview": "Compared the complete sit.c:dosit() definition (400-568). The JS follows the source guard order (steed, clearing u.uundetected, can_reach_floor, holder), the goto to in_water, the object pile and precipice checks, trapped-square handling, underwater message, and terrain/species chain through egg laying and the fallback. It preserves return values and source-ordered random/effect calls for the implemented branches. Calls whose C results are discarded but whose source functions remain unported are skipped and named at their exact site with note_unported(): pray.c:altar_wrath, sit.c:throne_sit_effect, trap.c:dotrap, and timeout.c:burn_away_slime. No note_unported() result is used as data. The command fail-closed refusal was removed. Active callers are the #sit extcmd, queued MCMD_SIT from command menus, and the throne mouse action; matching replay evidence covers the ordinary #sit ice, sink, and grave branches. Altar and throne effects, and menu/mouse entry after selection, remain blocked in source-named recipes because the skipped void callees affect RNG/output before the next boundary.",
+            "callers": [
+              {
+                "path": "js/cmd.js",
+                "symbol": "doextcmd",
+                "source": "cmd.c's extcmd table binds #sit to dosit(); doextcmd dispatches that function and forwards the ECMD result."
+              },
+              {
+                "path": "js/cmd.js",
+                "symbol": "act_on_act",
+                "source": "cmd.c:act_on_act() queues dosit() for MCMD_SIT selected by here_cmd_menu()/there_cmd_menu(); JS act_on_act queues the dosit extcmd entry and rhack() dispatches its function pointer through the source-aligned ECMD result path."
+              },
+              {
+                "path": "js/cmd.js",
+                "symbol": "domouseaction",
+                "source": "cmd.c:domouseaction() queues dosit() when travel-clicking the hero on a throne; JS domouseaction has the corresponding queued dosit handler."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/sit-command.test.mjs"
+            ],
+            "recordings": [
+              "recordings/sit.c/egg-laying-red-dragon-independent.session.json",
+              "recordings/sit.c/egg-laying-red-dragon-role-variation.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v6",
+                "caseId": "archeologist-sit-ice",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 10,
+                "source": "cmd.c #sit extcmd dispatch -> sit.c:dosit() ice branch"
+              },
+              {
+                "batch": "v6",
+                "caseId": "wizard-sit-sink",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 11,
+                "source": "cmd.c #sit extcmd dispatch -> sit.c:dosit() sink branch"
+              },
+              {
+                "batch": "v6",
+                "caseId": "wizard-sit-grave-room-retry",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 15,
+                "source": "cmd.c #sit extcmd dispatch -> sit.c:dosit() grave branch"
+              }
+            ],
+            "checkedAt": "a0e66292d0f4c45131344d7c764ddc164d4e362e"
+          }
+        ],
+        "entryPointReview": "Enumerated active source callers: #sit through the extcmd table and doextcmd; MCMD_SIT from here_cmd_menu()/there_cmd_menu() through act_on_act() and rhack()'s queued function-pointer dispatch; and domouseaction() clicking the hero while on a throne. The two independent egg recordings prove the #sit-to-dosit-to-lay_an_egg path. Admitted v6 ranges prove #sit on ice (archeologist-sit-ice, segment 0 steps 0-10), sink (wizard-sit-sink, segment 0 steps 0-11), and grave (wizard-sit-grave-room-retry, segment 0 steps 0-15). The altar case matches only through step 11 before its #sit command invokes the C-discarded pray.c:altar_wrath() at step 12; recipes/sit.c/dosit-altar-wrath-blocked.session.json preserves that blocker. The throne case reaches the message but diverges at step 13 when C enters sit.c:throne_sit_effect(); recipes/sit.c/dosit-throne-effect-blocked.session.json preserves the source gap. The here-menu recipe is independently recorded through display/selection setup but strict replay stops at the throne void effect after MCMD_SIT selection; its diagnostic C recording is kept under task-local .cache and is not claimed as matching evidence. The there-menu recipe names the same throne_sit_effect blocker. The mouse recipe is blocked because the clean recording input format has no mouse-position event; its production source and JS callers remain active. trap.c:dotrap and timeout.c:burn_away_slime are separately named discarded-void gaps; no matching recording currently proves those subbranches. None of the callers is build-excluded.",
+        "entryPoints": [
+          {
+            "name": "#sit through the extended-command dispatcher",
+            "functions": [
+              "dosit",
+              "lay_an_egg"
+            ],
+            "recordings": [
+              "recordings/sit.c/egg-laying-red-dragon-independent.session.json",
+              "recordings/sit.c/egg-laying-red-dragon-role-variation.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v6",
+                "caseId": "archeologist-sit-ice",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 10,
+                "source": "cmd.c #sit extcmd dispatch -> sit.c:dosit() ice branch"
+              },
+              {
+                "batch": "v6",
+                "caseId": "wizard-sit-sink",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 11,
+                "source": "cmd.c #sit extcmd dispatch -> sit.c:dosit() sink branch"
+              },
+              {
+                "batch": "v6",
+                "caseId": "wizard-sit-grave-room-retry",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 15,
+                "source": "cmd.c #sit extcmd dispatch -> sit.c:dosit() grave branch"
+              }
+            ]
+          },
+          {
+            "name": "Choose Sit on the throne in #herecmdmenu",
+            "functions": [
+              "dosit"
+            ],
+            "recordings": [],
+            "synthetic": []
+          },
+          {
+            "name": "Choose Sit on the throne in #therecmdmenu",
+            "functions": [
+              "dosit"
+            ],
+            "recordings": [],
+            "synthetic": []
+          },
+          {
+            "name": "Mouse-click the hero on a throne with travel enabled",
+            "functions": [
+              "dosit"
+            ],
+            "recordings": [],
+            "synthetic": []
+          },
+          {
+            "name": "#sit as an egg-laying polymorph",
+            "functions": [
+              "dosit",
+              "lay_an_egg"
+            ],
+            "recordings": [
+              "recordings/sit.c/egg-laying-red-dragon-independent.session.json",
+              "recordings/sit.c/egg-laying-red-dragon-role-variation.session.json"
+            ],
+            "synthetic": []
+          }
+        ]
+      },
+      "progressBeforePark": {
+        "screens": 0,
+        "rng": 0
+      },
+      "parkedStanding": {
+        "sha": "a0e66292d0f4c45131344d7c764ddc164d4e362e",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "parkedReason": "The #sit ice, sink, grave and polymorphed egg paths now match independent C evidence, but active altar and throne effects still call unported pray.c:altar_wrath and sit.c:throne_sit_effect; trap.c:dotrap and timeout.c:burn_away_slime remain void gaps, and menu/mouse sit entry points lack matching runtime evidence. Preserve blocked recipes and resume after source-traced dependencies and entry recordings."
     },
     {
       "id": "div-eat-fix-petrification-synthetic-v7-20260926",
