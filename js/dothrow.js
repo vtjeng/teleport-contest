@@ -106,6 +106,7 @@ import {
     isok,
     LOST_THROWN,
     P_CROSSBOW,
+    POTHIT_HERO_THROW,
     P_BOW,
     P_DART,
     P_DAGGER,
@@ -402,6 +403,7 @@ import { dotrap } from './trap_effects.js';
 import { Punished } from './steed.js';
 import { move_bc, drag_ball } from './ball.js';
 import { note_unported } from './unported.js';
+import { potionhit } from './potion.js';
 import { unsplitobj } from './obj.js';
 
 // C refs: youprop.h Confusion (84), Stunned (81), Fumbling (129) and
@@ -1967,7 +1969,7 @@ export async function throwit(obj, wep_mask, twoweap, oldslot, state = game) {
             note_unported('dothrow.c toss_up');
         } else if (u.dz > 0 && u.usteed
             && obj.oclass === POTION_CLASS && rn2(6)) {
-            note_unported('potion.c potionhit');
+            await potionhit(u.usteed, obj, POTHIT_HERO_THROW, { state });
         } else {
             note_unported('dothrow.c hitfloor');
         }
@@ -2450,10 +2452,9 @@ export async function thitmonst(mon, obj, state = game, rawEnv = {}) {
         return 1;
     } else if (obj.oclass === POTION_CLASS
                && (guaranteedHit || dex > random.rnd(25))) {
-        // C discards potionhit()'s return.  Its monster-target body remains
-        // unported, so do not run a partial owner merely to retain a draw;
-        // record the discarded source call and preserve this arm's return.
-        note_unported('potion.c potionhit');
+        // dothrow.c:2264 discards the result, but potionhit owns both target
+        // effects and the potion's object lifetime.
+        await potionhit(mon, obj, POTHIT_HERO_THROW, operationEnv);
         return 1;
     } else if (befriendWithObject(mon.data, obj, state)
                || (mon.mtame && dogfood(mon, obj, operationEnv) <= ACCFOOD)) {

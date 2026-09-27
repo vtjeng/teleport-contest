@@ -1953,10 +1953,11 @@ export async function thitu(tlev, dam, obj, name, state = game, env = {}) {
             state,
         );
     } else if (obj && obj.oclass === POTION_CLASS) {
-        // C ref: mthrowu.c:134-138. potionhit() is only partially ported for
-        // hero targets, so record the source gap and leave its consumed-object
-        // handoff to the caller that owns the potion flight.
-        note_unported('potion.c potionhit');
+        // C ref: mthrowu.c:134-138. potionhit() consumes this object itself,
+        // just as it does when a monster's own ranged throw reaches the hero.
+        await potionhit(state.youmonst, obj, POTHIT_OTHER_THROW, {
+            ...env, state, random, message,
+        });
     } else {
         // C ref: mthrowu.c:139-151. The generic hit path runs for ordinary
         // darts, arrows, rocks, and other non-special missiles.
