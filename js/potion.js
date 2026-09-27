@@ -20,7 +20,8 @@
 // peffects() dispatches 26 potion types; POT_ACID, POT_BOOZE, POT_CONFUSION,
 // POT_SICKNESS, POT_SPEED (with spell alias SPE_HASTE_SELF), POT_BLINDNESS,
 // POT_GAIN_LEVEL, POT_HEALING, POT_EXTRA_HEALING, POT_OIL, the POT_FRUIT_JUICE arm of
-// peffect_see_invisible(), the ordinary POT_PARALYSIS arm, and POT_POLYMORPH
+// peffect_see_invisible(), the ordinary POT_PARALYSIS arm, POT_POLYMORPH,
+// POT_INVISIBILITY (also SPE_INVISIBILITY),
 // are ported. Unported arms throw UnsupportedQuaffError.
 //
 // toggle_blindness() is called by Blindf_on() and Blindf_off() when blindness
@@ -127,6 +128,7 @@ import { bcsign, objectType, splitobj } from './obj.js';
 import { s_suffix } from './hacklib.js';
 import {
     Tobjnam, donameFresh, is_plural, short_oname, thesimpleoname, vtense,
+    yname,
 } from './objnam.js';
 import { hard_helmet, inaccessible_equipment } from './do_wear.js';
 import { is_boots, is_gloves } from './obj.js';
@@ -189,6 +191,8 @@ import {
     TOWEL,
     COIN_CLASS,
     LENSES,
+    MUMMY_WRAPPING,
+    SPBOOK_CLASS,
 } from './objects.js';
 import { heroIsBlind } from './startup_a11y.js';
 import { ttyPline } from './tty_message.js';
@@ -970,6 +974,51 @@ async function peffect_oil(otmp, state = game) {
     await exercise(A_WIS, good_for_you, state);
 }
 
+// C ref: potion.c peffect_invisibility() (811-840). HInvis is the complete
+// intrinsic field in u.uprops[INVIS], including FROMOUTSIDE. Spell objects
+// cannot bypass a blocking source when mummy wrapping is worn. The cursed
+// aggravate() result is void and its source family remains unported, so keep
+// that named gap without inventing its monster effects.
+async function peffect_invisibility(otmp, state = game) {
+    const isSpell = otmp.oclass === SPBOOK_CLASS;
+    const invisibility = state.u.uprops[INVIS];
+    const blocked = Boolean(invisibility?.blocked);
+
+    if (isSpell && blocked && state.uarmc?.otyp === MUMMY_WRAPPING) {
+        await ttyPline(
+            `You feel rather itchy under ${yname(state.uarmc, state)}.`,
+            state,
+        );
+        return;
+    }
+
+    if (Invis(state) || heroIsBlind(state) || blocked) {
+        state.gp.potion_nothing++;
+    } else {
+        await self_invis_message(state);
+    }
+
+    // C tests the whole HInvis intrinsic bitfield, not only its timeout;
+    // FROMOUTSIDE and racial/permanent sources select the shorter chance too.
+    const hInvis = invisibility?.intrinsic ?? 0;
+    if (otmp.blessed && !rn2(hInvis ? 15 : 30)) {
+        invisibility.intrinsic |= FROMOUTSIDE;
+    } else {
+        incr_itimeout(
+            invisibility,
+            d(6 - 3 * bcsign(otmp), 100) + 100,
+        );
+    }
+    newsym(state.u.ux, state.u.uy);
+
+    if (otmp.cursed) {
+        await ttyPline(
+            'For some reason, you feel your presence is known.', state);
+        note_unported('wizard.c aggravate');
+        invisibility.intrinsic &= ~FROMOUTSIDE;
+    }
+}
+
 // ---------------------------------------------------------------------------
 // peffect_see_invisible
 // C ref: potion.c peffect_see_invisible() (841-880).
@@ -1279,7 +1328,8 @@ export async function peffects(otmp, state = game) {
         throw new UnsupportedQuaffError('peffect_enlightenment()');
     case SPE_INVISIBILITY:
     case POT_INVISIBILITY:
-        throw new UnsupportedQuaffError('peffect_invisibility()');
+        await peffect_invisibility(otmp, state);
+        break;
     case POT_SEE_INVISIBLE:
         throw new UnsupportedQuaffError('peffect_see_invisible()');
     case POT_FRUIT_JUICE:
