@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent Wizard recipe for pray.c:altar_wrath through engrave.c:doengrave. Seed 8300042 and clock were chosen for this witness; #wizwish creates a neutral altar and a finger engraving reaches the altar arm.",
+  "segments": [
+    {
+      "seed": 8300042,
+      "datetime": "20260927091542",
+      "nethackrc": "OPTIONS=name:Etcher,role:Wizard,race:human,gender:female,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen\nOPTIONS=pettype:none,!acoustics,!autopickup,time,playmode:debug\n",
+      "moves": "\n#wizwish\naltar\n#engrave\n- x\n"
+    }
+  ]
+}

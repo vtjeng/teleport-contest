@@ -705,7 +705,8 @@ export async function dosit(state = game, rawEnv = {}) {
         );
     } else if (IS_ALTAR(typ)) {
         await message(sit_message(CMAP_EXPLANATIONS[S_altar]), state);
-        note_unported('pray.c altar_wrath');
+        const { altar_wrath } = await import('./pray.js');
+        await altar_wrath(u.ux, u.uy, state);
     } else if (IS_GRAVE(typ)) {
         await message(sit_message(CMAP_EXPLANATIONS[S_grave]), state);
     } else if (typ === STAIRS) {

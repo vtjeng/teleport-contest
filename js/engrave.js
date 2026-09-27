@@ -944,7 +944,8 @@ export async function doengrave(state = game, env = {}) {
     if (IS_ALTAR(currentTyp)) {
         if (!initialMsgGiven)
             await say(`You make a motion towards the altar with ${de.writer}.`);
-        note_unported('pray.c altar_wrath');
+        const { altar_wrath } = await import('./pray.js');
+        await altar_wrath(state.u.ux, state.u.uy, state);
         return de.ret;
     }
     if (IS_GRAVE(currentTyp)) {

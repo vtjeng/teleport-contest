@@ -794,9 +794,23 @@ async function kick_nondoor(x, y, state) {
         return ECMD_TIME;
     }
     if (IS_ALTAR(maploc.typ)) {
-        throw new UnsupportedKickError(
-            "kick_nondoor()'s altar arm, which needs altar_wrath()",
+        const random = { d, rn1, rn2, rnd, rnl };
+        if (Levitation(state)) {
+            await kick_dumb(x, y, state);
+            return ECMD_TIME;
+        }
+        await ttyPline(
+            `You kick ${Blind(state) ? something : 'the altar'}.`,
+            state,
         );
+        const { altar_wrath } = await import('./pray.js');
+        await altar_wrath(x, y, state);
+        if (!rn2(3)) {
+            await kick_ouch(x, y, '', state);
+            return ECMD_TIME;
+        }
+        await exercise(A_DEX, true, state, random);
+        return ECMD_TIME;
     }
     if (IS_FOUNTAIN(maploc.typ)) {
         throw new UnsupportedKickError(
