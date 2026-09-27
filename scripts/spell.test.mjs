@@ -3,6 +3,7 @@ import test from 'node:test';
 
 import {
     A_WIS,
+    ECMD_OK,
     NO_SPELL,
     OBJ_INVENT,
     NUM_ATTRS,
@@ -31,12 +32,15 @@ import {
     MAXSPELL,
     PLATE_MAIL,
     ROBE,
+    SPE_BLANK_PAPER,
+    SPE_DIG,
     SMALL_SHIELD,
     SPE_CURE_SICKNESS,
     SPE_EXTRA_HEALING,
     SPE_BOOK_OF_THE_DEAD,
     SPE_HEALING,
     SPE_STONE_TO_FLESH,
+    OBJ_NAME,
 } from '../js/objects.js';
 import { roles } from '../js/roles.js';
 import { curse, newObject } from '../js/obj.js';
@@ -44,6 +48,7 @@ import {
     age_spells,
     book_cursed,
     dovspell,
+    dowizcast,
     learn,
     percent_success,
     spellet,
@@ -282,6 +287,32 @@ function menuRecorder(choice = null) {
         },
     };
 }
+
+test('dowizcast offers the source spell-object range and returns OK on cancel',
+    async () => {
+        const state = spellState();
+        const recorder = menuRecorder();
+        assert.equal(
+            await dowizcast(state, { menu: recorder.menu }),
+            ECMD_OK,
+        );
+        assert.equal(recorder.calls.length, 1);
+        const { items, how, prompt } = recorder.calls[0];
+        assert.equal(how, PICK_ONE);
+        assert.equal(prompt, 'Cast which spell?');
+        assert.equal(SPE_DIG, 366);
+        assert.equal(SPE_BLANK_PAPER, 407);
+        const expected = Array.from(
+            { length: SPE_BLANK_PAPER - SPE_DIG },
+            (_, i) => SPE_DIG + i,
+        );
+        assert.deepEqual(items.map((item) => item.value), expected);
+        assert.deepEqual(
+            items.map((item) => item.label),
+            expected.map((otyp) => OBJ_NAME(state.objects[otyp], state)),
+        );
+        assert.ok(expected.includes(SPE_STONE_TO_FLESH));
+    });
 
 test('dovspell answers a hero who knows no spells without a menu', async () => {
     const state = spellState();

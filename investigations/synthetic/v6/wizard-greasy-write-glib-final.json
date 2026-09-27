@@ -7,12 +7,12 @@
   "manifestSha256": "7523b91e823f4e3906c9acdc9a3d80f8469c27c2caab8fc8fbd6967dbfdcab5f",
   "recordingPath": "challenges/cases/v6/wizard-greasy-write-glib-final.session.json",
   "recordingSha256": "20b60af8d804f9bd6ebd5b1217dae85a6cdad0afcae9d4f98bd6c57d6f3fb6e6",
-  "evaluationPath": "challenges/evaluations/20260926132731-v6.json",
-  "evaluationCommit": "d0a8041f88dd37cbf631877464c06cf985998274",
-  "remainingScreens": 3,
+  "evaluationPath": "challenges/evaluations/20260927005209-v6.json",
+  "evaluationCommit": "12a35e71cf1d937cd08b75b196f3c8b54224f6cd",
+  "remainingScreens": 1,
   "recordedSteps": 22,
   "status": "complete",
-  "commit": "d0a8041f88dd37cbf631877464c06cf985998274",
+  "commit": "12a35e71cf1d937cd08b75b196f3c8b54224f6cd",
   "mismatch": {
     "corpus": "synthetic",
     "batch": "v6",
@@ -25,20 +25,20 @@
     "recordingSha256": "20b60af8d804f9bd6ebd5b1217dae85a6cdad0afcae9d4f98bd6c57d6f3fb6e6",
     "recipe": "challenges/cases/v6/wizard-greasy-write-glib-final.recipe.session.json",
     "recipeSha256": "a55d0f776ecd5d8a91bc59a3fc708c55e632be4e125a69ffaac720babd87ebdc",
-    "replayInputSha256": "a3ac3b6872f8e89451d29bdbf73b5215af57c013d215edeaba8f740cc0c5fc4a",
-    "evaluationPath": "challenges/evaluations/20260926132731-v6.json",
-    "evaluationCommit": "d0a8041f88dd37cbf631877464c06cf985998274",
-    "evaluationArtifact": "challenges/evaluations/20260926132731-v6.json",
-    "evaluationUtc": "2026-09-26T13:27:48.505Z",
-    "remainingScreens": 3,
+    "replayInputSha256": "f2c945d9e00dcf6d0bd4942e3af34ee5b9e10467fa9a2ab70e6c05cd35213374",
+    "evaluationPath": "challenges/evaluations/20260927005209-v6.json",
+    "evaluationCommit": "12a35e71cf1d937cd08b75b196f3c8b54224f6cd",
+    "evaluationArtifact": "challenges/evaluations/20260927005209-v6.json",
+    "evaluationUtc": "2026-09-27T00:52:27.629Z",
+    "remainingScreens": 1,
     "recordedSteps": 22,
-    "previousScreensMatched": 19,
+    "previousScreensMatched": 21,
     "regression": false,
     "passed": false,
     "error": null,
     "metrics": {
       "screens": {
-        "matched": 19,
+        "matched": 21,
         "total": 22
       },
       "rng": {
@@ -46,86 +46,44 @@
         "total": 2978
       },
       "cursors": {
-        "matched": 20,
+        "matched": 21,
         "total": 22
       }
     },
     "firstMismatch": {
-      "screen": {
-        "index": 18,
-        "location": {
-          "segmentIndex": 0,
-          "stepIndex": 18,
-          "key": "-"
-        },
-        "kind": "ch",
-        "row": 0,
-        "column": 34,
-        "cCell": {
-          "ch": "-",
-          "color": 8,
-          "attr": 0,
-          "decgfx": 0
-        },
-        "jsCell": {
-          "ch": " ",
-          "color": 8,
-          "attr": 0,
-          "decgfx": 0
-        }
-      },
-      "rng": null,
-      "cursor": {
-        "index": 18,
-        "location": {
-          "segmentIndex": 0,
-          "stepIndex": 18,
-          "key": "-"
-        },
-        "cCursor": [
-          42,
-          0,
-          1
-        ],
-        "jsCursor": [
-          25,
-          9,
-          1
-        ]
-      }
+      "kind": "stop",
+      "message": "dowrite requires dropx() for a Glib pen",
+      "step": 21
     },
-    "step": 18,
-    "kind": "screen",
-    "sourceFile": null,
-    "function": null,
-    "message": null,
-    "cFile": null,
+    "step": 21,
+    "kind": "stop",
+    "sourceFile": "do.c",
+    "function": "dropx",
+    "message": "dowrite requires dropx() for a Glib pen",
+    "cFile": "do.c",
     "luaFile": null,
     "line": null
   },
-  "summary": "The earlier grease branch now succeeds. The first remaining divergence is the turn after greasing the hands: C allmain.c calls do_wear.c:glibr() while Glib is active, and glibr() reports the unwielded quarterstaff slipping, clears the wield slot, and drops it. That second message makes the TTY wait at step 18; js/allmain.js omits the elapsed-turn glibr call, so the grease message has no --More-- marker and the quarterstaff drop never occurs.",
+  "summary": "The grease application and next-turn quarterstaff slip now match. At segment 0 step 21, applying a magic marker with Glib hands reaches write.c:dowrite: C prints that the marker slips from the fingers and calls dropx, while JS explicitly refuses the Glib pen branch before the message. Port that branch from the whole dowrite source function and wire its object-drop dependency.",
   "source": {
-    "file": "do_wear.c",
-    "branch": "On the elapsed turn after apply.c:use_grease() grants Glib to the ungloved hands, do_wear.c:glibr() runs. With no slipping rings or offhand weapon, the active branch is the primary weapon arm: the Wizard is wielding a non-AKLYS, unwelded quarterstaff, so glibr() prints the slip message, clears uwep with setuwep(NULL), and drops the staff through dropx().",
+    "file": "write.c",
+    "branch": "dowrite first rejects a no-hands form; otherwise, when Glib is active, it prints Tobjnam(pen,\"slip\") from fingers_or_gloves(FALSE), calls dropx(pen), and returns ECMD_TIME before asking for paper.",
     "functions": [
-      "glibr"
+      "dowrite"
     ],
     "callers": [
-      "C: allmain.c:moveloop_core calls do_wear.c:glibr() under if (Glib) immediately after advancing the turn and before nh_timeout(); wire the equivalent at the same source-order boundary in js/allmain.js:finishElapsedTurn, including its elapsed-turn planning/live state contract.",
-      "Upstream reachability: apply.c:doapply -> use_grease() -> potion.c:make_glib() activates Glib for the hands; the next paid turn reaches allmain.c:moveloop_core -> glibr()."
+      "apply.c:doapply selects a magic marker and calls write.c:dowrite; js/apply.js does the same through js/write.js:dowrite."
     ],
     "dependencies": [
-      "Preserve all glibr branches and shared equipment state: uarmg gates ring slipping; uleft/uright, uswapwep, u.twoweap, uwep, welded(), bimanual(), canletgo(), Ring_off(), setuswapwep(), and setuwep() determine which items fall and in what message order.",
-      "The reachable quarterstaff branch uses do_wear.c weapon naming and otense helpers, clears the wield slot before do.c:dropx(), then follows the ordinary floor-drop path. JavaScript equivalents exist in js/wield.js, js/objnam.js, and js/do.js; preserve their state and drop admission contracts.",
-      "Message sequencing is source-significant: topl.c:update_topl() invokes more() when glibr() prints the second message while the grease message occupies the line. Keep the turn caller in source order and let the existing TTY path receive both messages."
+      "js/do.js exports dropx and preflight_dropx for ordinary carried objects; verify the production marker and square against their source-backed admission rather than suppressing a refusal.",
+      "js/objnam.js:Tobjnam and js/do_wear.js:fingers_or_gloves already implement the C message components.",
+      "The selected whole dowrite function has other active writing branches; keep unverified source paths explicitly incomplete rather than claiming a branch-only fix as whole-source completion."
     ]
   },
   "goalKind": "file-port",
   "evidence": [
-    "Saved challenges/evaluations/20260926132731-v6.json and .cache/B14-committed-work-queue.json identify 3 remaining screens out of 22; the first mismatch is segment 0, step 18, key \"-\": C has \"-\" at row 0 column 34 and cursor [42,0,1], while JS has a blank there and cursor [25,9,1]. The saved metrics are 19/22 screens, 2968/2978 RNG calls, and 20/22 cursors.",
-    "challenges/cases/v6/wizard-greasy-write-glib-final.session.json: at step 18, C prints \"You coat your fingers with grease.--More--\" with T:2; at the next key (space), still at T:2, C prints \"Your quarterstaff slips from your hands.\" This establishes a second, source-ordered message after successful grease application, rather than a missing grease result or RNG divergence.",
-    "nethack-c/upstream/src/apply.c:2633-2644 calls make_glib(oldglib + rn1(11, 5)) for the hands and then prints the coat message; nethack-c/upstream/src/potion.c:461-468 implements make_glib(). This confirms the active condition that reaches the next-turn slip handling.",
-    "nethack-c/upstream/src/allmain.c:271-273 calls glibr() when Glib is active after move advancement and before nh_timeout(). The whole source owner is nethack-c/upstream/src/do_wear.c:2528-2630; its primary weapon branch prints the slip message, calls setuwep(NULL), and then dropx() for a non-AKLYS, unwelded weapon.",
-    "The call is absent from js/allmain.js:finishElapsedTurn, which advances state.moves/state.hero_seq and proceeds to nh_timeout(); js/do_wear.js has no glibr implementation. C win/tty/topl.c:update_topl() waits when the second message cannot share the occupied line, explaining the exact --More-- cell at step 18; the existing message path is not the missing source behavior."
+    "Saved challenges/evaluations/20260927005209-v6.json at 12a35e71cf1d937cd08b75b196f3c8b54224f6cd matches 21/22 screens and cursors; first stop is segment 0 step 21: “dowrite requires dropx() for a Glib pen”.",
+    "The admitted C recording step 21, after applying a magic marker at step 20, prints “The magic marker slips from your fingers.--More--”. Earlier grease and quarterstaff slip steps 18-19 now match, so the previous do_wear.c:glibr diagnosis is superseded.",
+    "C nethack-c/upstream/src/write.c:74-95 implements the no-hands and Glib branches; the Glib branch prints the slip message, calls do.c:dropx with its void result discarded, and returns ECMD_TIME. js/write.js:dowrite at its Glib branch still throws UnsupportedWriteError before those effects."
   ]
 }

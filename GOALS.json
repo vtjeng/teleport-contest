@@ -90956,7 +90956,7 @@
     {
       "id": "port-spell-dowizcast-stone-to-flesh-v7-20260926",
       "kind": "file-port",
-      "status": "queued",
+      "status": "closed",
       "summary": "Port wizard spell-cast command and reach stone-to-flesh self cure through production input",
       "cFile": "spell.c",
       "sessions": [
@@ -90964,17 +90964,24 @@
       ],
       "selectionReason": "The v7 lizard case remains an actionable petrification-related mismatch at eat.c:cpostfx, owned separately by A18. Parked C21 cannot close its zap.c:zapyourself stone-to-flesh caller because its study_book setup diverges first. C spell.c:dowizcast is the source-defined wizard spell menu route into spelleffects and zapyourself without study_book, so this independent prerequisite enables the missing production evidence while A18 fixes the current first mismatch.",
       "detail": "C spell.c:dowizcast builds a PICK_ONE menu of spells, consumes the selected object type and returns spelleffects(otyp,FALSE,TRUE); cmd.c:doextcmd already names wizcast but JS does not dispatch dowizcast. Record a distinct debug game with timed STONED setup, #wizcast stone-to-flesh selection, and self direction, then verify the zap.c caller.",
-      "openedAt": null,
-      "openStanding": null,
-      "closedAt": null,
-      "delivered": null,
+      "openedAt": "3f62882fb5cc6aee77909a248c4fa205c23bd68e",
+      "openStanding": {
+        "sha": "7e423a39c8307d8dbcc0bb9bc2f5d21c70d288d8",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "closedAt": "625aaf8b04ce55c414f8bd9ed8c037e1dcd95221",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
       "functions": [
         {
           "name": "dowizcast",
           "line": 787,
           "endLine": 819,
-          "declared": false,
-          "complete": false
+          "declared": true,
+          "complete": true
         }
       ],
       "range": {
@@ -90991,6 +90998,528 @@
           "manifestSha256": "03a861a9d1bc9d813c80681312ee7a0e0f893dbad0536de40a974bd5ec344094",
           "recordingPath": "challenges/cases/v7/lizard-corpse-cures-stoning-corrected.session.json",
           "recordingSha256": "6bf1416d9de4abf481689ec1d723ff6775badd518b9222d66c685b3157cc4149",
+          "evaluationPath": "challenges/evaluations/20260927005209-v7.json",
+          "evaluationCommit": "12a35e71cf1d937cd08b75b196f3c8b54224f6cd"
+        }
+      },
+      "activeStanding": {
+        "sha": "7e423a39c8307d8dbcc0bb9bc2f5d21c70d288d8",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v7",
+          "caseId": "lizard-corpse-cures-stoning-corrected",
+          "session": "synthetic/v7/lizard-corpse-cures-stoning-corrected",
+          "manifestPath": "challenges/manifests/v7.json",
+          "manifestSha256": "03a861a9d1bc9d813c80681312ee7a0e0f893dbad0536de40a974bd5ec344094",
+          "recording": "challenges/cases/v7/lizard-corpse-cures-stoning-corrected.session.json",
+          "recordingPath": "challenges/cases/v7/lizard-corpse-cures-stoning-corrected.session.json",
+          "recordingSha256": "6bf1416d9de4abf481689ec1d723ff6775badd518b9222d66c685b3157cc4149",
+          "recipe": "challenges/cases/v7/lizard-corpse-cures-stoning-corrected.recipe.session.json",
+          "recipeSha256": "edca66fd45bb62acda508e3cea52f1ca972a918d4bbe4e3f7cb36692e26a50d2",
+          "replayInputSha256": "11e632b69fa599ba6fda7506edb04a1b49adb0ec395e5ab0c6ee7afa1b14920a",
+          "evaluationPath": "challenges/evaluations/20260927005209-v7.json",
+          "evaluationCommit": "12a35e71cf1d937cd08b75b196f3c8b54224f6cd",
+          "evaluationArtifact": "challenges/evaluations/20260927005209-v7.json",
+          "evaluationUtc": "2026-09-27T00:52:38.364Z",
+          "remainingScreens": 1,
+          "recordedSteps": 37,
+          "previousScreensMatched": 36,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 36,
+              "total": 37
+            },
+            "rng": {
+              "matched": 1948,
+              "total": 1951
+            },
+            "cursors": {
+              "matched": 36,
+              "total": 37
+            }
+          },
+          "firstMismatch": {
+            "kind": "stop",
+            "message": "an occupation reached eating requires cpostfx()'s lizard arm",
+            "step": 36
+          },
+          "step": 36,
+          "kind": "stop",
+          "sourceFile": "eat.c",
+          "function": "cpostfx",
+          "message": "an occupation reached eating requires cpostfx()'s lizard arm",
+          "cFile": "eat.c",
+          "luaFile": null,
+          "line": null,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v7/lizard-corpse-cures-stoning-corrected.json",
+            "result": {
+              "session": "synthetic/v7/lizard-corpse-cures-stoning-corrected",
+              "corpus": "synthetic",
+              "batch": "v7",
+              "caseId": "lizard-corpse-cures-stoning-corrected",
+              "manifestPath": "challenges/manifests/v7.json",
+              "manifestSha256": "03a861a9d1bc9d813c80681312ee7a0e0f893dbad0536de40a974bd5ec344094",
+              "recordingPath": "challenges/cases/v7/lizard-corpse-cures-stoning-corrected.session.json",
+              "recordingSha256": "6bf1416d9de4abf481689ec1d723ff6775badd518b9222d66c685b3157cc4149",
+              "evaluationPath": "challenges/evaluations/20260927005209-v7.json",
+              "evaluationCommit": "12a35e71cf1d937cd08b75b196f3c8b54224f6cd",
+              "remainingScreens": 1,
+              "recordedSteps": 37,
+              "status": "complete",
+              "commit": "12a35e71cf1d937cd08b75b196f3c8b54224f6cd",
+              "mismatch": {
+                "corpus": "synthetic",
+                "batch": "v7",
+                "caseId": "lizard-corpse-cures-stoning-corrected",
+                "session": "synthetic/v7/lizard-corpse-cures-stoning-corrected",
+                "manifestPath": "challenges/manifests/v7.json",
+                "manifestSha256": "03a861a9d1bc9d813c80681312ee7a0e0f893dbad0536de40a974bd5ec344094",
+                "recording": "challenges/cases/v7/lizard-corpse-cures-stoning-corrected.session.json",
+                "recordingPath": "challenges/cases/v7/lizard-corpse-cures-stoning-corrected.session.json",
+                "recordingSha256": "6bf1416d9de4abf481689ec1d723ff6775badd518b9222d66c685b3157cc4149",
+                "recipe": "challenges/cases/v7/lizard-corpse-cures-stoning-corrected.recipe.session.json",
+                "recipeSha256": "edca66fd45bb62acda508e3cea52f1ca972a918d4bbe4e3f7cb36692e26a50d2",
+                "replayInputSha256": "11e632b69fa599ba6fda7506edb04a1b49adb0ec395e5ab0c6ee7afa1b14920a",
+                "evaluationPath": "challenges/evaluations/20260927005209-v7.json",
+                "evaluationCommit": "12a35e71cf1d937cd08b75b196f3c8b54224f6cd",
+                "evaluationArtifact": "challenges/evaluations/20260927005209-v7.json",
+                "evaluationUtc": "2026-09-27T00:52:38.364Z",
+                "remainingScreens": 1,
+                "recordedSteps": 37,
+                "previousScreensMatched": 36,
+                "regression": false,
+                "passed": false,
+                "error": null,
+                "metrics": {
+                  "screens": {
+                    "matched": 36,
+                    "total": 37
+                  },
+                  "rng": {
+                    "matched": 1948,
+                    "total": 1951
+                  },
+                  "cursors": {
+                    "matched": 36,
+                    "total": 37
+                  }
+                },
+                "firstMismatch": {
+                  "kind": "stop",
+                  "message": "an occupation reached eating requires cpostfx()'s lizard arm",
+                  "step": 36
+                },
+                "step": 36,
+                "kind": "stop",
+                "sourceFile": "eat.c",
+                "function": "cpostfx",
+                "message": "an occupation reached eating requires cpostfx()'s lizard arm",
+                "cFile": "eat.c",
+                "luaFile": null,
+                "line": null
+              },
+              "summary": "The stoning cure and first eating turn now match. At segment 0 step 36, the eatfood occupation finishes the lizard corpse and reaches eat.c:done_eating -> cpostfx(PM_LIZARD). JavaScript refuses that post-effect before the C corpse-intrinsic RNG draws and temporary resistance effect. Port the whole post-effect and its consumed intrinsic helper path; keep other active callers and effects source-named until they have matching evidence.",
+              "source": {
+                "file": "eat.c",
+                "branch": "done_eating calls cpostfx after finishing the corpse; the PM_LIZARD arm caps stun and confusion timeouts, then runs corpse_intrinsic and givit. givit consumes temp_givit and should_givit decisions before any property or message change.",
+                "functions": [
+                  "cpostfx",
+                  "givit",
+                  "temp_givit"
+                ],
+                "callers": [
+                  "eat.c:done_eating calls cpostfx(piece->corpsenm) after newuhs and the finish message; js/eat.js eatfood occupation reaches done_eating.",
+                  "eat.c:start_tin/consume_tin and Finish_digestion also call cpostfx; their production JS paths require separate wiring or explicit blocked evidence."
+                ],
+                "dependencies": [
+                  "js/eat.js already defines intrinsic_possible, should_givit and corpse_intrinsic; verify their complete return behavior against C and preserve the C RNG order.",
+                  "potion.c:make_stunned and make_confused are void state helpers for timeout caps; inspect each active branch before claiming whole-function completion."
+                ]
+              },
+              "goalKind": "file-port",
+              "evidence": [
+                "Saved v7 evaluation challenges/evaluations/20260927005209-v7.json at 12a35e71cf1d937cd08b75b196f3c8b54224f6cd matches 36/37 screens, 36/37 cursors and 1948/1951 RNG calls; the first stop is segment 0 step 36 in cpostfx after the previously repaired petrification cure.",
+                "C eat.c:done_eating lines 544-573 calls cpostfx before corpse useup. The current recording next draws rn2(1) in corpse_intrinsic, rn2(15) in should_givit and rn2(6) in temp_givit; JS stops before these draws.",
+                "C eat.c:temp_givit lines 992-1000 returns a temporary-resistance chance, givit lines 1003 onward consumes that result, and cpostfx from line 1129 includes the lizard branch and other corpse effects. The independent recording should use a new seed/date and a different relevant state or role from the admitted v7 input."
+              ]
+            }
+          }
+        }
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "dowizcast",
+            "implementation": "js/spell.js",
+            "symbol": "dowizcast",
+            "sourceReview": "Read all of spell.c:dowizcast at lines 787–815, including the complete MAXSPELL loop, its stop before SPE_BLANK_PAPER, each menu row’s object-type value and OBJ_NAME label, PICK_ONE selection, selected[0].item.a_int, the call spelleffects(i, FALSE, TRUE), and ECMD_OK on cancel. The JS implementation preserves that range and passes the selected spell to the existing spelleffects implementation with forced casting enabled; the ordinary source caller consumes the returned ECMD result. No new unported callee or source-state contract remains.",
+            "callers": [
+              {
+                "path": "js/cmd.js",
+                "symbol": "doextcmd",
+                "source": "cmd.c extcmdlist registers wizcast as the dowizcast handler (lines 1949–1950); doextcmd dispatches the selected row function and returns its ECMD value (lines 493–525)."
+              },
+              {
+                "path": "js/cmd.js",
+                "symbol": "rhack",
+                "source": "cmd.c:rhack dispatches a bound nonzero-key command row through its function pointer; bind_key accepts the wizard row when the user configures BINDINGS=x:wizcast. The row is keyless by default, so this is an independently exercised custom-binding caller."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/spell.test.mjs",
+              "scripts/cmd.test.mjs"
+            ],
+            "recordings": [
+              "recordings/spell.c/wizcast-stone-to-flesh-self-cure-c22.session.json",
+              "recordings/spell.c/wizcast-stone-to-flesh-self-cure-bound-c22.session.json"
+            ],
+            "synthetic": [],
+            "checkedAt": "625aaf8b04ce55c414f8bd9ed8c037e1dcd95221"
+          }
+        ],
+        "entryPointReview": "The full active entry paths are the wizard-mode extended command #wizcast through cmd.c:doextcmd and the same command row reached by a configured direct key through cmd.c:rhack. The C extcmd row is WIZMODECMD; both recordings use a debug Wizard and reach spell.c:dowizcast. In the ordinary path, recording recordings/spell.c/wizcast-stone-to-flesh-self-cure-c22.session.json selects Stone to Flesh at zero-based step 29, aims at self at step 30, and step 30 reaches the verified call chain spell.c:dowizcast -> spell.c:spelleffects -> zap.c:zapyourself -> eat.c:fix_petrification, with the matching “You feel limber!” result. The bound-key recording recordings/spell.c/wizcast-stone-to-flesh-self-cure-bound-c22.session.json exercises cmd.c:rhack -> dowizcast, selects the same spell at step 21, and reaches the same cure at step 22. Both fresh C/JS recordings match completely. These recordings also provide the previously missing matching production entry evidence for C21’s stone-to-flesh zapyourself branch.",
+        "entryPoints": [
+          {
+            "name": "cmd.c:doextcmd -> spell.c:dowizcast (#wizcast)",
+            "functions": [
+              "dowizcast"
+            ],
+            "recordings": [
+              "recordings/spell.c/wizcast-stone-to-flesh-self-cure-c22.session.json"
+            ],
+            "synthetic": []
+          },
+          {
+            "name": "cmd.c:rhack -> spell.c:dowizcast (custom BINDINGS key)",
+            "functions": [
+              "dowizcast"
+            ],
+            "recordings": [
+              "recordings/spell.c/wizcast-stone-to-flesh-self-cure-bound-c22.session.json"
+            ],
+            "synthetic": []
+          }
+        ]
+      },
+      "closeMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v7",
+          "caseId": "lizard-corpse-cures-stoning-corrected",
+          "session": "synthetic/v7/lizard-corpse-cures-stoning-corrected",
+          "manifestPath": "challenges/manifests/v7.json",
+          "manifestSha256": "03a861a9d1bc9d813c80681312ee7a0e0f893dbad0536de40a974bd5ec344094",
+          "recording": "challenges/cases/v7/lizard-corpse-cures-stoning-corrected.session.json",
+          "recordingPath": "challenges/cases/v7/lizard-corpse-cures-stoning-corrected.session.json",
+          "recordingSha256": "6bf1416d9de4abf481689ec1d723ff6775badd518b9222d66c685b3157cc4149",
+          "recipe": "challenges/cases/v7/lizard-corpse-cures-stoning-corrected.recipe.session.json",
+          "recipeSha256": "edca66fd45bb62acda508e3cea52f1ca972a918d4bbe4e3f7cb36692e26a50d2",
+          "replayInputSha256": "d845f45523322ced32484234c4502efb7776dfa24d9a2c49c8c3f17ae4dd9054",
+          "evaluationPath": "challenges/evaluations/20260927013831-v7.json",
+          "evaluationCommit": "625aaf8b04ce55c414f8bd9ed8c037e1dcd95221",
+          "evaluationArtifact": "challenges/evaluations/20260927013831-v7.json",
+          "evaluationUtc": "2026-09-27T01:39:02.185Z",
+          "remainingScreens": 1,
+          "recordedSteps": 37,
+          "previousScreensMatched": 36,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 36,
+              "total": 37
+            },
+            "rng": {
+              "matched": 1948,
+              "total": 1951
+            },
+            "cursors": {
+              "matched": 36,
+              "total": 37
+            }
+          },
+          "firstMismatch": {
+            "kind": "stop",
+            "message": "an occupation reached eating requires cpostfx()'s lizard arm",
+            "step": 36
+          },
+          "step": 36,
+          "kind": "stop",
+          "sourceFile": "eat.c",
+          "function": "cpostfx",
+          "message": "an occupation reached eating requires cpostfx()'s lizard arm",
+          "cFile": "eat.c",
+          "luaFile": null,
+          "line": null,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v7/lizard-corpse-cures-stoning-corrected.json",
+            "result": {
+              "session": "synthetic/v7/lizard-corpse-cures-stoning-corrected",
+              "corpus": "synthetic",
+              "batch": "v7",
+              "caseId": "lizard-corpse-cures-stoning-corrected",
+              "manifestPath": "challenges/manifests/v7.json",
+              "manifestSha256": "03a861a9d1bc9d813c80681312ee7a0e0f893dbad0536de40a974bd5ec344094",
+              "recordingPath": "challenges/cases/v7/lizard-corpse-cures-stoning-corrected.session.json",
+              "recordingSha256": "6bf1416d9de4abf481689ec1d723ff6775badd518b9222d66c685b3157cc4149",
+              "evaluationPath": "challenges/evaluations/20260927005209-v7.json",
+              "evaluationCommit": "12a35e71cf1d937cd08b75b196f3c8b54224f6cd",
+              "remainingScreens": 1,
+              "recordedSteps": 37,
+              "status": "complete",
+              "commit": "12a35e71cf1d937cd08b75b196f3c8b54224f6cd",
+              "mismatch": {
+                "corpus": "synthetic",
+                "batch": "v7",
+                "caseId": "lizard-corpse-cures-stoning-corrected",
+                "session": "synthetic/v7/lizard-corpse-cures-stoning-corrected",
+                "manifestPath": "challenges/manifests/v7.json",
+                "manifestSha256": "03a861a9d1bc9d813c80681312ee7a0e0f893dbad0536de40a974bd5ec344094",
+                "recording": "challenges/cases/v7/lizard-corpse-cures-stoning-corrected.session.json",
+                "recordingPath": "challenges/cases/v7/lizard-corpse-cures-stoning-corrected.session.json",
+                "recordingSha256": "6bf1416d9de4abf481689ec1d723ff6775badd518b9222d66c685b3157cc4149",
+                "recipe": "challenges/cases/v7/lizard-corpse-cures-stoning-corrected.recipe.session.json",
+                "recipeSha256": "edca66fd45bb62acda508e3cea52f1ca972a918d4bbe4e3f7cb36692e26a50d2",
+                "replayInputSha256": "11e632b69fa599ba6fda7506edb04a1b49adb0ec395e5ab0c6ee7afa1b14920a",
+                "evaluationPath": "challenges/evaluations/20260927005209-v7.json",
+                "evaluationCommit": "12a35e71cf1d937cd08b75b196f3c8b54224f6cd",
+                "evaluationArtifact": "challenges/evaluations/20260927005209-v7.json",
+                "evaluationUtc": "2026-09-27T00:52:38.364Z",
+                "remainingScreens": 1,
+                "recordedSteps": 37,
+                "previousScreensMatched": 36,
+                "regression": false,
+                "passed": false,
+                "error": null,
+                "metrics": {
+                  "screens": {
+                    "matched": 36,
+                    "total": 37
+                  },
+                  "rng": {
+                    "matched": 1948,
+                    "total": 1951
+                  },
+                  "cursors": {
+                    "matched": 36,
+                    "total": 37
+                  }
+                },
+                "firstMismatch": {
+                  "kind": "stop",
+                  "message": "an occupation reached eating requires cpostfx()'s lizard arm",
+                  "step": 36
+                },
+                "step": 36,
+                "kind": "stop",
+                "sourceFile": "eat.c",
+                "function": "cpostfx",
+                "message": "an occupation reached eating requires cpostfx()'s lizard arm",
+                "cFile": "eat.c",
+                "luaFile": null,
+                "line": null
+              },
+              "summary": "The stoning cure and first eating turn now match. At segment 0 step 36, the eatfood occupation finishes the lizard corpse and reaches eat.c:done_eating -> cpostfx(PM_LIZARD). JavaScript refuses that post-effect before the C corpse-intrinsic RNG draws and temporary resistance effect. Port the whole post-effect and its consumed intrinsic helper path; keep other active callers and effects source-named until they have matching evidence.",
+              "source": {
+                "file": "eat.c",
+                "branch": "done_eating calls cpostfx after finishing the corpse; the PM_LIZARD arm caps stun and confusion timeouts, then runs corpse_intrinsic and givit. givit consumes temp_givit and should_givit decisions before any property or message change.",
+                "functions": [
+                  "cpostfx",
+                  "givit",
+                  "temp_givit"
+                ],
+                "callers": [
+                  "eat.c:done_eating calls cpostfx(piece->corpsenm) after newuhs and the finish message; js/eat.js eatfood occupation reaches done_eating.",
+                  "eat.c:start_tin/consume_tin and Finish_digestion also call cpostfx; their production JS paths require separate wiring or explicit blocked evidence."
+                ],
+                "dependencies": [
+                  "js/eat.js already defines intrinsic_possible, should_givit and corpse_intrinsic; verify their complete return behavior against C and preserve the C RNG order.",
+                  "potion.c:make_stunned and make_confused are void state helpers for timeout caps; inspect each active branch before claiming whole-function completion."
+                ]
+              },
+              "goalKind": "file-port",
+              "evidence": [
+                "Saved v7 evaluation challenges/evaluations/20260927005209-v7.json at 12a35e71cf1d937cd08b75b196f3c8b54224f6cd matches 36/37 screens, 36/37 cursors and 1948/1951 RNG calls; the first stop is segment 0 step 36 in cpostfx after the previously repaired petrification cure.",
+                "C eat.c:done_eating lines 544-573 calls cpostfx before corpse useup. The current recording next draws rn2(1) in corpse_intrinsic, rn2(15) in should_givit and rn2(6) in temp_givit; JS stops before these draws.",
+                "C eat.c:temp_givit lines 992-1000 returns a temporary-resistance chance, givit lines 1003 onward consumes that result, and cpostfx from line 1129 includes the lizard branch and other corpse effects. The independent recording should use a new seed/date and a different relevant state or role from the admitted v7 input."
+              ]
+            }
+          }
+        }
+      ],
+      "closeStanding": {
+        "sha": "625aaf8b04ce55c414f8bd9ed8c037e1dcd95221",
+        "screens": 11405,
+        "rng": 792838
+      }
+    },
+    {
+      "id": "div-vision-pit-sight-synthetic-v6-20260926",
+      "kind": "divergence-fix",
+      "status": "queued",
+      "summary": "Restore source pit-limited sight after downward digging",
+      "cFile": "vision.c",
+      "sessions": [],
+      "selectionReason": "The current v6 archeologist-down-dig-floor case matches its dig message and all RNG calls but still draws a pet beyond the 3×3 pit sight limit at step 6. C vision.c:vision_recalc selects the u.utrap && TT_PIT branch after digactualhole requests full recalculation; JS uses ordinary view_from. The prior dig.c diagnosis is stale, so select this source-traced vision branch.",
+      "detail": "Port the pit branch of vision.c:vision_recalc in buffer and redraw order, using canonical u.utrap and u.utraptype state. Keep ordinary, blind and swallowed sight unchanged. Independently record a pit with a creature or feature beyond adjacent range using different seed/date/character conditions; verify the admitted v6 step 6 and preserve all existing matches.",
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": null,
+      "delivered": null,
+      "function": "vision_recalc",
+      "session": "synthetic/v6/archeologist-down-dig-floor",
+      "step": 6,
+      "syntheticProvenance": {
+        "synthetic/v6/archeologist-down-dig-floor": {
+          "session": "synthetic/v6/archeologist-down-dig-floor",
+          "corpus": "synthetic",
+          "batch": "v6",
+          "caseId": "archeologist-down-dig-floor",
+          "manifestPath": "challenges/manifests/v6.json",
+          "manifestSha256": "7523b91e823f4e3906c9acdc9a3d80f8469c27c2caab8fc8fbd6967dbfdcab5f",
+          "recordingPath": "challenges/cases/v6/archeologist-down-dig-floor.session.json",
+          "recordingSha256": "8ae44f290808dea580c783add4b5cc12e99a94f4c998441b329325406fa9e9a9",
+          "evaluationPath": "challenges/evaluations/20260927005209-v6.json",
+          "evaluationCommit": "12a35e71cf1d937cd08b75b196f3c8b54224f6cd"
+        }
+      }
+    },
+    {
+      "id": "port-write-dowrite-glib-synthetic-v6-20260926",
+      "kind": "file-port",
+      "status": "queued",
+      "summary": "Port complete magic-marker writing and slippery-hand drop behavior",
+      "cFile": "write.c",
+      "sessions": [
+        "synthetic/v6/wizard-greasy-write-glib-final"
+      ],
+      "selectionReason": "The admitted v6 wizard-greasy-write-glib-final case now matches the grease and quarterstaff-slip history and stops at segment 0 step 21 in write.c:dowrite when a Glib magic marker should slip from the hero’s fingers. The JS branch refuses before the source message and dropx call; select whole dowrite, with the current C and JS owner established in the refreshed investigation.",
+      "detail": "Translate dowrite branches in source order and wire the doapply magic-marker caller. In the Glib path use the source Tobjnam/fingers_or_gloves message, carried-object dropx and ECMD_TIME return; retain independent C recordings and name any other active writing branch that lacks matching evidence.",
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": null,
+      "delivered": null,
+      "functions": [
+        {
+          "name": "dowrite",
+          "line": 74,
+          "endLine": 394,
+          "declared": true,
+          "complete": false
+        }
+      ],
+      "range": {
+        "from": 74,
+        "to": 394
+      },
+      "syntheticProvenance": {
+        "synthetic/v6/wizard-greasy-write-glib-final": {
+          "session": "synthetic/v6/wizard-greasy-write-glib-final",
+          "corpus": "synthetic",
+          "batch": "v6",
+          "caseId": "wizard-greasy-write-glib-final",
+          "manifestPath": "challenges/manifests/v6.json",
+          "manifestSha256": "7523b91e823f4e3906c9acdc9a3d80f8469c27c2caab8fc8fbd6967dbfdcab5f",
+          "recordingPath": "challenges/cases/v6/wizard-greasy-write-glib-final.session.json",
+          "recordingSha256": "20b60af8d804f9bd6ebd5b1217dae85a6cdad0afcae9d4f98bd6c57d6f3fb6e6",
+          "evaluationPath": "challenges/evaluations/20260927005209-v6.json",
+          "evaluationCommit": "12a35e71cf1d937cd08b75b196f3c8b54224f6cd"
+        }
+      }
+    },
+    {
+      "id": "port-priest-talk-outside-temple-synthetic-v7-20260926",
+      "kind": "file-port",
+      "status": "queued",
+      "summary": "Port complete priest conversation through the chat command",
+      "cFile": "priest.c",
+      "sessions": [
+        "synthetic/v7/priest-outside-temple-chat"
+      ],
+      "selectionReason": "The current v7 priest-outside-temple-chat case reaches a source-defined priest reply at segment 0 step 34 after aligned-cleric creation now matches. C sounds.c:domonnoise calls priest.c:priest_talk, which draws rn2(3) and verbalizes a cranky outside-temple line; JS records that function as unported and emits nothing. Select the complete priest_talk function and production chat caller.",
+      "detail": "Implement priest_talk in C order across outside-temple, helpless, shrine and donation branches; wire sounds.c:domonnoise MS_PRIEST without fabricated fallback, port consumed return-valued dependencies, and record independent priest conversations with varied temple and alignment state. Park entry points that cannot yet reach matching C evidence.",
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": null,
+      "delivered": null,
+      "functions": [
+        {
+          "name": "priest_talk",
+          "line": 558,
+          "endLine": 723,
+          "declared": false,
+          "complete": false
+        }
+      ],
+      "range": {
+        "from": 558,
+        "to": 723
+      },
+      "syntheticProvenance": {
+        "synthetic/v7/priest-outside-temple-chat": {
+          "session": "synthetic/v7/priest-outside-temple-chat",
+          "corpus": "synthetic",
+          "batch": "v7",
+          "caseId": "priest-outside-temple-chat",
+          "manifestPath": "challenges/manifests/v7.json",
+          "manifestSha256": "03a861a9d1bc9d813c80681312ee7a0e0f893dbad0536de40a974bd5ec344094",
+          "recordingPath": "challenges/cases/v7/priest-outside-temple-chat.session.json",
+          "recordingSha256": "76f2f565d9ff27f51adb9638e2ee8b3eab7edbe6d8fe058d470d84e89bd861a0",
+          "evaluationPath": "challenges/evaluations/20260927005209-v7.json",
+          "evaluationCommit": "12a35e71cf1d937cd08b75b196f3c8b54224f6cd"
+        }
+      }
+    },
+    {
+      "id": "port-potion-gain-level-synthetic-v7-20260926",
+      "kind": "file-port",
+      "status": "queued",
+      "summary": "Port gain-level potion effect across cursed, uncursed and blessed paths",
+      "cFile": "potion.c",
+      "sessions": [
+        "synthetic/v7/potion-gain-level"
+      ],
+      "selectionReason": "The admitted v7 potion-gain-level case still stops at segment 0 step 34 when the quaff command dispatches POT_GAIN_LEVEL to missing potion.c:peffect_gain_level. The source investigation remains current at one unmatched screen and identifies the complete function and consumed dependencies.",
+      "detail": "Port the whole peffect_gain_level function and wire peffects. Match cursed upstairs travel, ordinary pluslvl(FALSE), blessed rndexp adjustment, gp.potion_unkn and return-valued Can_rise_up/get_level behavior; record independent C examples with different potion blessings and entry states or explicitly blocked branches.",
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": null,
+      "delivered": null,
+      "functions": [
+        {
+          "name": "peffect_gain_level",
+          "line": 1083,
+          "endLine": 1118,
+          "declared": false,
+          "complete": false
+        }
+      ],
+      "range": {
+        "from": 1083,
+        "to": 1118
+      },
+      "syntheticProvenance": {
+        "synthetic/v7/potion-gain-level": {
+          "session": "synthetic/v7/potion-gain-level",
+          "corpus": "synthetic",
+          "batch": "v7",
+          "caseId": "potion-gain-level",
+          "manifestPath": "challenges/manifests/v7.json",
+          "manifestSha256": "03a861a9d1bc9d813c80681312ee7a0e0f893dbad0536de40a974bd5ec344094",
+          "recordingPath": "challenges/cases/v7/potion-gain-level.session.json",
+          "recordingSha256": "a4fc9853403ad27a0f5ea53a9ffe6f8fbf4b5b9adb87f29d08d011635c641374",
           "evaluationPath": "challenges/evaluations/20260927005209-v7.json",
           "evaluationCommit": "12a35e71cf1d937cd08b75b196f3c8b54224f6cd"
         }
