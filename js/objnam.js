@@ -821,8 +821,16 @@ export function xnameFresh(obj, state) {
     if (obj.oartifact && obj.dknown)
         find_artifact(obj, state);
     const personalName = obj_is_pname(obj, state);
+    const instanceName = obj.oextra?.oname;
+    // C ref: objnam.c xname_flags():1006-1008. When an artifact instance
+    // name starts with "The ", C lowercases only that initial T after it
+    // appends the name, whether the name is the whole result or a suffix.
+    const displayedInstanceName = obj.oartifact
+        && typeof instanceName === 'string'
+        && instanceName.startsWith('The ')
+        ? `t${instanceName.slice(1)}` : instanceName;
     let base = personalName
-        ? String(obj.oextra.oname)
+        ? String(displayedInstanceName)
         : xnameBase(obj, type, state, ident);
     if (!personalName && encodeUtf8ByteString(base).length > BUFSZ - PREFIX - 1)
         throw new RangeError('xname: buffer overflow before appending name.');
@@ -835,8 +843,8 @@ export function xnameFresh(obj, state) {
     }
     // C's personal-name branch also copies through Concat().
     if (personalName) base = truncateByteString(base, BUFSZ - PREFIX - 1);
-    if (!personalName && obj.oextra?.oname && ident.dknown)
-        base = truncateByteString(`${base} named ${obj.oextra.oname}`, BUFSZ - PREFIX - 1);
+    if (!personalName && instanceName && ident.dknown)
+        base = truncateByteString(`${base} named ${displayedInstanceName}`, BUFSZ - PREFIX - 1);
     return base.replace(/^the /iu, '');
 }
 
