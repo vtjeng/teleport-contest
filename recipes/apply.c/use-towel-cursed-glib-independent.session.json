@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 83015141,
+      "datetime": "20310505120000",
+      "nethackrc": "OPTIONS=name:B30Towel,role=Rogue,race=human,gender=female,align=chaotic\nOPTIONS=!legacy,!tutorial,!splash_screen\nOPTIONS=playmode:debug,pettype:none,!acoustics,!autopickup,time,showexp\n",
+      "moves": "\u0017cursed towel\nag"
+    }
+  ],
+  "comment": "Independent cursed-towel source variation: wish a cursed towel and apply it once to exercise one of use_towel's source-ordered random effects."
+}
