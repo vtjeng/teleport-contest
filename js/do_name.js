@@ -1088,7 +1088,7 @@ export function noname_monnam(monster, article, state = game, env = {}) {
 }
 
 // C ref: decl.c c_obj_colors[] (20-37). Color names indexed by CLR_* value.
-const c_obj_colors = Object.freeze([
+export const c_obj_colors = Object.freeze([
     'black',          /* CLR_BLACK   0 */
     'red',            /* CLR_RED     1 */
     'green',          /* CLR_GREEN   2 */

@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "Independent Knight recipe for dothrow.c:throwit's mounted downward potion arm into potion.c:potionhit. The Knight mounts the starting saddled pony, then throws an independently wished potion downward.",
+  "segments": [
+    {
+      "seed": 620489,
+      "datetime": "20381103113247",
+      "nethackrc": "OPTIONS=name:DownPotion,role:Knight,race:human,gender:male,align:lawful\nOPTIONS=!legacy,!splash_screen\nOPTIONS=!acoustics,playmode:debug\n",
+      "moves": "  n#ride\nny#wizwish\npotion of healing\nti>"
+    }
+  ]
+}

@@ -14,16 +14,23 @@ import {
     BY_COOKIE,
     COLNO,
     CONFUSION,
+    DISP_BEAM,
+    DISP_END,
+    EXPL_FIERY,
     HALF_SPDAM,
+    HAND,
     HEAD,
     IS_AIR,
     IS_OBSTRUCTED,
     KILLED_BY_AN,
+    M_SEEN_FIRE,
     ECMD_CANCEL,
     ECMD_OK,
     ECMD_TIME,
     FEMALE,
     CORR,
+    COST_DEGRD,
+    PLNMSG_TOWER_OF_FLAME,
     GETOBJ_DOWNPLAY,
     GETOBJ_EXCLUDE,
     GETOBJ_EXCLUDE_SELECTABLE,
@@ -40,6 +47,7 @@ import {
     MM_NOEXCLAM,
     NO_MINVENT,
     NEUTRAL,
+    NOTELL,
     NO_MM_FLAGS,
     ROWNO,
     ROOMOFFSET,
@@ -57,8 +65,10 @@ import {
     isok,
     ismnum,
     OBJ_AT,
+    u_at,
     LL_CONDUCT,
     MAX_ERODE,
+    OBJ_FREE,
 } from './const.js';
 import {
     NON_PM,
@@ -98,6 +108,7 @@ import {
 import { makeplural } from './fruit.js';
 import {
     mungspaces,
+    dist2,
     s_suffix,
     strstri,
     upstart,
@@ -129,6 +140,8 @@ import {
     passes_walls,
     unsolid,
     unique_corpstat,
+    monstseesu,
+    monstunseesu,
 } from './mondata.js';
 import {
     can_saddle,
@@ -139,11 +152,14 @@ import {
 import { makemon_runtime, newcham } from './makemon_create.js';
 import { mkclass, rndmonst, set_malign } from './makemon.js';
 import { monster_census } from './minion.js';
-import { Monnam, mon_nam } from './do_name.js';
-import { flash_mon, wake_nearto, wakeup } from './mon.js';
-import { MAXMCLASSES } from './symbols.js';
+import { Monnam, hcolor, hliquid, mon_nam } from './do_name.js';
+import {
+    flash_mon, setmangry, wake_nearto, wakeup,
+} from './mon.js';
+import { MAXMCLASSES, S_goodpos } from './symbols.js';
 import {
     ALCHEMY_SMOCK,
+    ARMOR_CLASS,
     BALL_CLASS,
     BOULDER,
     BRASS_LANTERN,
@@ -200,13 +216,13 @@ import {
     SPE_REMOVE_CURSE,
     SPBOOK_CLASS,
     T_SHIRT,
-    WEAPON_CLASS,
 } from './objects.js';
 import {
     bcsign,
     greatest_erosion,
     is_flammable,
     is_weptool,
+    costly_alteration,
     mkobj,
     mksobj,
     objectType,
@@ -217,12 +233,14 @@ import { exercise } from './attrib.js';
 import { wipeout_text } from './engrave.js';
 import { do_mapping } from './detect.js';
 import { level_tele, scrolltele } from './teleport.js';
-import { lightdamage } from './zap.js';
+import { Fire_resistance, lightdamage, resist } from './zap.js';
 import { discover_object } from './o_init.js';
 import { more_experienced } from './exper.js';
 import { rn1, rn2, rne, rnl, rnd } from './rng.js';
 import { ttyPline } from './tty_message.js';
-import { map_invisible, newsym } from './display.js';
+import {
+    cmap_to_glyph, map_invisible, newsym, tmp_at,
+} from './display.js';
 import { flooreffects, trycall } from './do.js';
 import { y_n } from './cmd.js';
 import {
@@ -260,13 +278,19 @@ import {
     suit_simple_name,
     Yname2,
     donameFresh,
+    The,
+    erosion_matters,
     vtense,
+    Yobjnam2,
     xnameFresh,
 } from './objnam.js';
 import { shk_your } from './shk.js';
 import { pmname } from './do_name.js';
 import { outrumor } from './random_text.js';
 import { note_unported } from './unported.js';
+import { getpos } from './getpos.js';
+import { explode } from './explode.js';
+import { valid_cloud_pos } from './region.js';
 
 // Retained for narrower effect-family branches that still fail closed. The
 // source-ordered doread() and seffects() dispatches use note_unported() for
@@ -483,6 +507,89 @@ function oneWornFlammableArmor(state) {
         state.uarmu,
     ].filter(Boolean);
     return worn.length === 1 && is_flammable(worn[0], state);
+}
+
+// C ref: read.c maybe_tame() (1044-1063). Its signed result is consumed by
+// seffect_taming(): a cursed scroll can return -1 for a peaceful target that
+// became hostile, while ordinary taming returns 1 only when disposition or
+// tameness changed. C discards tamedog()'s pointer but still performs its
+// state and message effects.
+async function maybe_tame(monster, scroll, state) {
+    const wasTame = Boolean(monster.mtame);
+    const wasPeaceful = Boolean(monster.mpeaceful);
+
+    if (scroll.cursed) {
+        await setmangry(monster, false, { state });
+        if (wasPeaceful && !monster.mpeaceful) return -1;
+    } else {
+        // read.c passes the fake object's actual class; a shopkeeper still
+        // reaches tamedog() after resisting the ordinary magic check.
+        if (!(await resist(monster, scroll.oclass, 0, NOTELL, state))
+            || monster.isshk) {
+            await tamedog(monster, scroll, false, { state });
+        }
+
+        if ((!wasPeaceful && monster.mpeaceful)
+            || wasTame !== Boolean(monster.mtame)) {
+            return 1;
+        }
+    }
+    return 0;
+}
+
+// C ref: read.c seffect_taming() (1679-1721). The nested x-then-y traversal,
+// swallowed target, steed fallback, visible-result accumulation, and
+// knowledge update follow C order. Spell and artifact callers use this same
+// source-owned effect through seffects().
+export async function seffect_taming(scroll, state = game) {
+    state.gk ??= {};
+    const confused = propertyActive(CONFUSION, state);
+    let candidates;
+    let results;
+    let visResults;
+
+    if (state.u.uswallow) {
+        candidates = 1;
+        results = visResults = await maybe_tame(
+            state.u.ustuck, scroll, state,
+        );
+    } else {
+        const bound = confused ? 5 : 1;
+        candidates = 0;
+        results = 0;
+        visResults = 0;
+        for (let i = -bound; i <= bound; ++i) {
+            for (let j = -bound; j <= bound; ++j) {
+                const x = state.u.ux + i;
+                const y = state.u.uy + j;
+                if (!isok(x, y)) continue;
+
+                const monster = m_at(x, y, state)
+                    || (!i && !j ? state.u.usteed : null);
+                if (!monster) continue;
+
+                ++candidates;
+                const result = await maybe_tame(monster, scroll, state);
+                results += result;
+                if (canSpotMonster(monster, state))
+                    visResults += result;
+            }
+        }
+    }
+
+    if (!results) {
+        await ttyPline(
+            `Nothing interesting ${!candidates ? 'happens' : 'seems to happen'}.`,
+            state,
+        );
+    } else {
+        await ttyPline(
+            `${The('neighborhood', state)} ${visResults ? 'is' : 'seems'} `
+                + `${results < 0 ? 'un' : ''}friendlier.`,
+            state,
+        );
+        if (visResults > 0) state.gk.known = true;
+    }
 }
 
 function solidPunishmentTarget(state) {
@@ -1434,6 +1541,136 @@ export async function seffect_earth(scroll, state = game) {
     }
 }
 
+// C ref: read.c can_center_cloud() (1080-1085). This is a pure target filter:
+// valid_cloud_pos(), cansee(), and hack.h distu() (the squared distance from
+// the hero, strictly less than 32) decide whether the square can center an
+// explosion. The existing read.c:valid_cloud_pos port remains in region.js;
+// keep this read.c caller here rather than duplicating that source unit.
+export function can_center_cloud(x, y, state = game) {
+    if (!valid_cloud_pos(x, y, state)) return false;
+    return cansee(x, y, state)
+        && dist2(x, y, state.u.ux, state.u.uy) < 32;
+}
+
+// C ref: read.c display_stinking_cloud_positions() (1087-1111). The callback
+// is also used by do_stinking_cloud(); that separate caller remains behind
+// seffect_stinking_cloud's recorded source gap.
+export async function display_stinking_cloud_positions(onOff, state = game) {
+    if (onOff) {
+        const dist = 6;
+        await tmp_at(DISP_BEAM, cmap_to_glyph(S_goodpos, state), state);
+        for (let dx = -dist; dx <= dist; ++dx) {
+            for (let dy = -dist; dy <= dist; ++dy) {
+                const x = state.u.ux + dx;
+                const y = state.u.uy + dy;
+                if (u_at(x, y, state)) continue;
+                if (can_center_cloud(x, y, state))
+                    await tmp_at(x, y, state);
+            }
+        }
+    } else {
+        await tmp_at(DISP_END, 0, state);
+    }
+}
+
+// C ref: read.c seffect_fire() (1850-1917). C passes the consumed scroll by
+// address, so seffects() sets its local pointer to null after this call.
+export async function seffect_fire(scroll, state = game) {
+    const otyp = scroll.otyp;
+    const sblessed = Boolean(scroll.blessed);
+    const confused = propertyActive(CONFUSION, state);
+    const alreadyKnown = scroll.oclass === SPBOOK_CLASS
+        || objectType(scroll, state).oc_name_known;
+    const cc = { x: state.u.ux, y: state.u.uy };
+    const cval = bcsign(scroll);
+    let dam = Math.trunc((2 * (rn1(3, 3) + 2 * cval) + 1) / 3);
+
+    useup(scroll, { state, hooks: {} });
+    if (!alreadyKnown) learnscrolltyp(SCR_FIRE, state);
+
+    if (confused) {
+        if (state.u?.uinwater) {
+            await ttyPline(
+                `A little ${hliquid('water', { state })} around you vaporizes.`,
+                state,
+            );
+        } else if (Fire_resistance(state)) {
+            // display.c shieldeff() returns void and is still a named gap.
+            note_unported('display.c shieldeff');
+            monstseesu(M_SEEN_FIRE, state);
+            const hands = makeplural(body_part(HAND, state.youmonst));
+            if (!propertyActive(BLINDED, state)) {
+                await ttyPline(
+                    `Oh, look, what a pretty fire in your ${hands}.`, state,
+                );
+            } else {
+                await ttyPline(`You feel a pleasant warmth in your ${hands}.`,
+                    state);
+            }
+        } else {
+            monstunseesu(M_SEEN_FIRE, state);
+            const hands = makeplural(body_part(HAND, state.youmonst));
+            await ttyPline(
+                `The scroll catches fire and you burn your ${hands}.`, state,
+            );
+            await losehp(1, 'scroll of fire', KILLED_BY_AN, state);
+        }
+        return;
+    }
+
+    if (state.u?.uinwater) {
+        await ttyPline(
+            `${The(hliquid('water', { state }), state)} around you vaporizes violently!`,
+            state,
+        );
+    } else {
+        if (sblessed) {
+            if (!alreadyKnown)
+                await ttyPline('This is a scroll of fire!', state);
+            dam *= 5;
+            await ttyPline('Where do you want to center the explosion?', state);
+
+            // getpos_sethilite() in getpos.c installs these callbacks for the
+            // duration of getpos(); JS stores the same callback contract on
+            // the owning game state. getpos() writes cc in source order.
+            state.getpos_hilitefunc = (onOff, callbackState = state) => (
+                display_stinking_cloud_positions(onOff, callbackState)
+            );
+            state.getpos_getvalid = (x, y, callbackState = state) => (
+                can_center_cloud(x, y, callbackState)
+            );
+            try {
+                await getpos(cc, true, 'the desired position', state);
+            } finally {
+                // C getpos() always finishes with getpos_sethilite(NULL,NULL).
+                state.getpos_hilitefunc = null;
+                state.getpos_getvalid = null;
+            }
+            if (!can_center_cloud(cc.x, cc.y, state)) {
+                // C's fire-scroll caller discards getpos()'s return code; an
+                // escape or out-of-range position falls back to the hero.
+                cc.x = state.u.ux;
+                cc.y = state.u.uy;
+            }
+        }
+        if (u_at(cc.x, cc.y, state)) {
+            await ttyPline('The scroll erupts in a tower of flame!', state);
+            state.iflags ??= {};
+            state.iflags.last_msg = PLNMSG_TOWER_OF_FLAME;
+            // timeout.c burn_away_slime() returns void and its JS port is
+            // incomplete for the active Slimed branch; retain the source gap.
+            note_unported('timeout.c burn_away_slime');
+        }
+    }
+
+    // read.c's local ZT_SPELL_O_FIRE is 11; explode.c derives AD_FIRE and
+    // the "tower of flame" description from that type plus SCROLL_CLASS.
+    const ZT_SPELL_O_FIRE = 11;
+    await explode(
+        cc.x, cc.y, ZT_SPELL_O_FIRE, dam, SCROLL_CLASS, EXPL_FIERY, state,
+    );
+}
+
 // C ref: read.c seffects() (2194-2290). Preserve the complete source switch,
 // its pre-dispatch Wisdom exercise, post-effect inventory refresh, and
 // `sobj ? 0 : 1` return. C's effect helpers are void and receive `&sobj`;
@@ -1493,22 +1730,11 @@ export async function seffects(scroll, state = game) {
         note_unported('read.c seffect_create_monster');
         break;
     case SCR_ENCHANT_WEAPON:
-        if (!scroll.blessed && !scroll.cursed && !confused
-            && !propertyActive(BLINDED, state)
-            && !propertyActive(HALLUC, state) && state.uwep
-            && (state.uwep.oclass === WEAPON_CLASS
-                || is_weptool(state.uwep, state))
-            && !state.uwep.oartifact && !state.uwep.oeroded
-            && !state.uwep.oeroded2 && state.uwep.spe <= 5
-            && can_chant(state.youmonst, state)) {
-            await seffect_enchant_weapon(scroll, state);
-        } else {
-            note_unported('read.c seffect_enchant_weapon');
-        }
+        if (await seffect_enchant_weapon(scroll, state)) scroll = null;
         break;
     case SCR_TAMING:
     case SPE_CHARM_MONSTER:
-        note_unported('read.c seffect_taming');
+        await seffect_taming(scroll, state);
         break;
     case SCR_GENOCIDE:
         note_unported('read.c seffect_genocide');
@@ -1555,7 +1781,8 @@ export async function seffects(scroll, state = game) {
         note_unported('read.c seffect_amnesia');
         break;
     case SCR_FIRE:
-        note_unported('read.c seffect_fire');
+        await seffect_fire(scroll, state);
+        scroll = null;
         break;
     case SCR_EARTH:
         await seffect_earth(scroll, state);
@@ -1578,30 +1805,74 @@ export async function seffects(scroll, state = game) {
     return scroll ? 0 : 1;
 }
 
-// C ref: read.c seffect_enchant_weapon() (1627-1676), restricted to the
-// ordinary uncursed positive branch. The source chooses `s = 1` below its
-// soft upper limit, passes that value to wield.c chwepon(), and leaves the
-// scroll for doread() to consume after the effect returns.
+// C ref: read.c seffect_enchant_weapon() (1627-1676). Return whether its
+// `struct obj **` output cleared the scroll pointer; seffects() uses that to
+// preserve the source's strange_feeling()/useup() contract.
 export async function seffect_enchant_weapon(scroll, state = game) {
+    const sobj = scroll;
+    const sblessed = Boolean(sobj.blessed);
+    const scursed = Boolean(sobj.cursed);
+    const confused = propertyActive(CONFUSION, state);
     const uwep = state.uwep;
-    if (scroll.otyp !== SCR_ENCHANT_WEAPON
-        || scroll.oclass !== SCROLL_CLASS
-        || scroll.blessed || scroll.cursed
-        || propertyActive(CONFUSION, state)
-        || propertyActive(BLINDED, state)
-        || propertyActive(HALLUC, state)
-        || !uwep
-        || (uwep.oclass !== WEAPON_CLASS && !is_weptool(uwep, state))
-        || uwep.oartifact || uwep.oeroded || uwep.oeroded2
-        || uwep.spe > 5
-        || !can_chant(state.youmonst, state)) {
-        throw new UnsupportedReadError(
-            'the selected ordinary enchant-weapon branch',
-        );
+
+    // Confusion turns a weapon enchantment into the source rustproofing
+    // operation, except for armor and objects objnam.c says do not erode.
+    if (confused && uwep && erosion_matters(uwep, state)
+        && uwep.oclass !== ARMOR_CLASS) {
+        const oldErodeproof = Boolean(uwep.oerodeproof);
+        const newErodeproof = !scursed;
+        const blind = propertyActive(BLINDED, state);
+        uwep.oerodeproof = 0;
+        if (blind) {
+            uwep.rknown = false;
+            await ttyPline('Your weapon feels warm for a moment.', state);
+        } else {
+            uwep.rknown = true;
+            await ttyPline(
+                `${Yobjnam2(uwep, 'are', state)} covered by a ${scursed ? 'mottled' : 'shimmering'} `
+                + `${hcolor(scursed ? 'purple' : 'golden', state)} ${scursed ? 'glow' : 'shield'}!`,
+                state,
+            );
+        }
+        if (newErodeproof && (uwep.oeroded || uwep.oeroded2)) {
+            uwep.oeroded = 0;
+            uwep.oeroded2 = 0;
+            await ttyPline(
+                `${Yobjnam2(uwep, blind ? 'feel' : 'look', state)} as good as new!`,
+                state,
+            );
+        }
+        if (oldErodeproof && !newErodeproof) {
+            // C restores the old flag before asking the shop subsystem to
+            // price the change, then applies the new false value below.
+            uwep.oerodeproof = 1;
+            sourceCostlyAlteration(uwep, COST_DEGRD, state);
+        }
+        uwep.oerodeproof = newErodeproof ? 1 : 0;
+        return false;
     }
-    await chwepon(scroll, 1, state);
+
+    // C evaluates the ternary in this order; in particular, the high-skill
+    // chance precedes the blessed amount and must draw rn2(spe) first.
+    const s = scursed ? -1
+        : !uwep ? 1
+            : uwep.spe >= 9 ? (rn2(uwep.spe) === 0 ? 1 : 0)
+                : sblessed ? rnd(3 - Math.trunc(uwep.spe / 3))
+                    : 1;
+    const consumed = !(await chwepon(sobj, s, state));
     if (state.uwep && Math.abs(state.uwep.spe) > SPE_LIM)
         state.uwep.spe = Math.sign(state.uwep.spe) * SPE_LIM;
+    return consumed;
+}
+
+// C ref: shk.c costly_alteration() is a void call here. Its JS port only owns
+// the source fast path for free/inventory objects without an unpaid bill.
+function sourceCostlyAlteration(obj, alterType, state) {
+    if ((obj.where === OBJ_FREE || obj.where === OBJ_INVENT) && !obj.unpaid) {
+        costly_alteration(obj, alterType, { state });
+    } else {
+        note_unported('shk.c costly_alteration');
+    }
 }
 
 // C ref: read.c cant_revive() (3111-3134).

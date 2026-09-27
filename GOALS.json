@@ -94641,16 +94641,20 @@
     {
       "id": "port-potion-potionhit-synthetic-v7-20260927",
       "kind": "file-port",
-      "status": "queued",
+      "status": "parked",
       "summary": "Port complete potion.c potionhit monster and hero effects through all active collision callers",
       "cFile": "potion.c",
       "sessions": [
         "synthetic/v7/throw-blindness-potion-hit-corrected"
       ],
-      "selectionReason": "The current v7 thrown-blindness case has one unmatched screen at impact; investigations/synthetic/v7/throw-blindness-potion-hit-corrected.json traces the skipped dothrow.c:thitmonst call to potion.c:potionhit. Port the whole source function and wire its active dothrow, uhitm, mthrowu, zap, and monster-item callers; record independent post-impact and other entry evidence. The other unresolved v7 detection case owns a different potion.c function and remains queued.",
+      "selectionReason": "Continue the active potionhit entry coverage after B27: port the complete dothrow.c:toss_up caller, then record distinct upward-return, mounted downward-hit, and monster-to-monster impact witnesses without session-specific logic",
       "detail": "",
-      "openedAt": null,
-      "openStanding": null,
+      "openedAt": "f5248ce4f94176f35cd5b15dbe69457a41cd52f6",
+      "openStanding": {
+        "sha": "f5248ce4f94176f35cd5b15dbe69457a41cd52f6",
+        "screens": 11405,
+        "rng": 792838
+      },
       "closedAt": null,
       "delivered": null,
       "functions": [
@@ -94659,7 +94663,7 @@
           "line": 1625,
           "endLine": 1931,
           "declared": true,
-          "complete": false
+          "complete": true
         }
       ],
       "range": {
@@ -94679,6 +94683,407 @@
           "evaluationPath": "challenges/evaluations/20260927083941-v7.json",
           "evaluationCommit": "fdd63387e525409b26b7ea1acf1130160fa2f1c2"
         }
+      },
+      "activeStanding": {
+        "sha": "c54c2c13ca30ebad8411cbcd4b7dcd3e193fbddc",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v7",
+          "caseId": "throw-blindness-potion-hit-corrected",
+          "session": "synthetic/v7/throw-blindness-potion-hit-corrected",
+          "manifestPath": "challenges/manifests/v7.json",
+          "manifestSha256": "03a861a9d1bc9d813c80681312ee7a0e0f893dbad0536de40a974bd5ec344094",
+          "recording": "challenges/cases/v7/throw-blindness-potion-hit-corrected.session.json",
+          "recordingPath": "challenges/cases/v7/throw-blindness-potion-hit-corrected.session.json",
+          "recordingSha256": "008cbc04259cc70ac9489e4657207db7f4aede6892fca9699a4fb934a46446f6",
+          "recipe": "challenges/cases/v7/throw-blindness-potion-hit-corrected.recipe.session.json",
+          "recipeSha256": "d42188165e9d1ead10fea1c1208dd6f93421f8f241372f0c5e3b7c574f033bd9",
+          "replayInputSha256": "c80a0efea4c60da3e60c5d1725bd6a406958946bb321af731ff84b9d9d90e4f1",
+          "evaluationPath": "challenges/evaluations/20260927101512-v7.json",
+          "evaluationCommit": "fda9517fb0aa0e2b8a176d0dce29df4b696b359c",
+          "evaluationArtifact": "challenges/evaluations/20260927101512-v7.json",
+          "evaluationUtc": "2026-09-27T10:15:46.182Z",
+          "remainingScreens": 1,
+          "recordedSteps": 44,
+          "previousScreensMatched": 43,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 43,
+              "total": 44
+            },
+            "rng": {
+              "matched": 2547,
+              "total": 2549
+            },
+            "cursors": {
+              "matched": 43,
+              "total": 44
+            }
+          },
+          "firstMismatch": {
+            "screen": {
+              "index": 43,
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 43,
+                "key": "u"
+              },
+              "kind": "ch",
+              "row": 0,
+              "column": 0,
+              "cCell": {
+                "ch": "T",
+                "color": 8,
+                "attr": 0,
+                "decgfx": 0
+              },
+              "jsCell": {
+                "ch": " ",
+                "color": 8,
+                "attr": 0,
+                "decgfx": 0
+              }
+            },
+            "rng": {
+              "index": 2547,
+              "cEntry": "rn2(7)=3",
+              "cCaller": "bottlename(potion.c:1493)",
+              "jsEntry": "rn2(12)=5",
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 43,
+                "key": "u"
+              },
+              "stepIndex": 43
+            },
+            "cursor": {
+              "index": 43,
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 43,
+                "key": "u"
+              },
+              "cCursor": [
+                73,
+                0,
+                1
+              ],
+              "jsCursor": [
+                10,
+                11,
+                1
+              ]
+            }
+          },
+          "step": 43,
+          "kind": "rng",
+          "sourceFile": "potion.c",
+          "function": "bottlename",
+          "message": null,
+          "cFile": "potion.c",
+          "luaFile": null,
+          "line": 1493,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v7/throw-blindness-potion-hit-corrected.json",
+            "result": {
+              "session": "synthetic/v7/throw-blindness-potion-hit-corrected",
+              "corpus": "synthetic",
+              "batch": "v7",
+              "caseId": "throw-blindness-potion-hit-corrected",
+              "manifestPath": "challenges/manifests/v7.json",
+              "manifestSha256": "03a861a9d1bc9d813c80681312ee7a0e0f893dbad0536de40a974bd5ec344094",
+              "recordingPath": "challenges/cases/v7/throw-blindness-potion-hit-corrected.session.json",
+              "recordingSha256": "008cbc04259cc70ac9489e4657207db7f4aede6892fca9699a4fb934a46446f6",
+              "evaluationPath": "challenges/evaluations/20260926122253-v7.json",
+              "evaluationCommit": "f7e48bd93d6827c557c9a40a255a55cbc5fc8fcf",
+              "remainingScreens": 1,
+              "recordedSteps": 44,
+              "status": "complete",
+              "commit": "772e1f2688e2540a1f8af8161290abce656d0db6",
+              "mismatch": {
+                "corpus": "synthetic",
+                "batch": "v7",
+                "caseId": "throw-blindness-potion-hit-corrected",
+                "session": "synthetic/v7/throw-blindness-potion-hit-corrected",
+                "manifestPath": "challenges/manifests/v7.json",
+                "manifestSha256": "03a861a9d1bc9d813c80681312ee7a0e0f893dbad0536de40a974bd5ec344094",
+                "recording": "challenges/cases/v7/throw-blindness-potion-hit-corrected.session.json",
+                "recordingPath": "challenges/cases/v7/throw-blindness-potion-hit-corrected.session.json",
+                "recordingSha256": "008cbc04259cc70ac9489e4657207db7f4aede6892fca9699a4fb934a46446f6",
+                "recipe": "challenges/cases/v7/throw-blindness-potion-hit-corrected.recipe.session.json",
+                "recipeSha256": "d42188165e9d1ead10fea1c1208dd6f93421f8f241372f0c5e3b7c574f033bd9",
+                "replayInputSha256": "ba09b30aa45883696a6c2cbbe647b7a100c06ae9b741e0bcdf70fec164041447",
+                "evaluationPath": "challenges/evaluations/20260926122253-v7.json",
+                "evaluationCommit": "f7e48bd93d6827c557c9a40a255a55cbc5fc8fcf",
+                "evaluationArtifact": "challenges/evaluations/20260926122253-v7.json",
+                "evaluationUtc": "2026-09-26T12:23:06.868Z",
+                "remainingScreens": 1,
+                "recordedSteps": 44,
+                "previousScreensMatched": null,
+                "regression": false,
+                "passed": false,
+                "error": null,
+                "metrics": {
+                  "screens": {
+                    "matched": 43,
+                    "total": 44
+                  },
+                  "rng": {
+                    "matched": 2547,
+                    "total": 2549
+                  },
+                  "cursors": {
+                    "matched": 43,
+                    "total": 44
+                  }
+                },
+                "firstMismatch": {
+                  "screen": {
+                    "index": 43,
+                    "location": {
+                      "segmentIndex": 0,
+                      "stepIndex": 43,
+                      "key": "u"
+                    },
+                    "kind": "ch",
+                    "row": 0,
+                    "column": 0,
+                    "cCell": {
+                      "ch": "T",
+                      "color": 8,
+                      "attr": 0,
+                      "decgfx": 0
+                    },
+                    "jsCell": {
+                      "ch": " ",
+                      "color": 8,
+                      "attr": 0,
+                      "decgfx": 0
+                    }
+                  },
+                  "rng": {
+                    "index": 2547,
+                    "cEntry": "rn2(7)=3",
+                    "cCaller": "bottlename(potion.c:1493)",
+                    "jsEntry": "rn2(12)=5",
+                    "location": {
+                      "segmentIndex": 0,
+                      "stepIndex": 43,
+                      "key": "u"
+                    },
+                    "stepIndex": 43
+                  },
+                  "cursor": {
+                    "index": 43,
+                    "location": {
+                      "segmentIndex": 0,
+                      "stepIndex": 43,
+                      "key": "u"
+                    },
+                    "cCursor": [
+                      73,
+                      0,
+                      1
+                    ],
+                    "jsCursor": [
+                      10,
+                      11,
+                      1
+                    ]
+                  }
+                },
+                "step": 43,
+                "kind": "rng",
+                "sourceFile": "potion.c",
+                "function": "bottlename",
+                "message": null,
+                "cFile": "potion.c",
+                "luaFile": null,
+                "line": 1493
+              },
+              "summary": "At segment 0 step 43, direction u hits the adjacent grid bug with the wished blindness potion. The first divergence is not an incorrect bottlename() implementation: C dothrow.c:thitmonst() calls potion.c:potionhit() on the monster, whose first operation draws bottlename() and then prints the carafe impact message. JavaScript thitmonst() takes the hit branch but records the potionhit gap and returns without invoking the partial monster-target potion handler.",
+              "source": {
+                "file": "potion.c",
+                "branch": "The recorded throw reaches the monster-target branch of potionhit(): dothrow.c:thitmonst() passes the hit monster, potion object, and POTHIT_HERO_THROW after the shared hit roll. potionhit() first calls bottlename(), then for a visible target determines whether the potion hit a saddle and formats the impact location from has_head(mon->data) and gn.notonhead; this case names the grid bug’s head. It next applies the rn2(5) monster damage check, runs the potion-type monster effect when its guards permit, and consumes the object. JavaScript has bottlename() and a partial potionhit(), but that function refuses monster targets; js/dothrow.js:thitmonst() currently skips the call entirely via note_unported().",
+                "functions": [
+                  "potionhit"
+                ],
+                "callers": [
+                  "C command dispatch: nethack-c/upstream/src/cmd.c:1901-1902 maps t to dothrow(); dothrow.c:throwit_mon_hit() sets gn.notonhead from the impact coordinate, then calls thitmonst(); dothrow.c:2262-2265 calls potionhit(mon, obj, POTHIT_HERO_THROW) on a hit potion and returns 1 to consume it.",
+                  "JS command dispatch: js/extcmdlist_data.js:137 maps t to dothrow and js/cmd.js:5917-5933 calls js/dothrow.js:dothrow(). js/dothrow.js:throwit_mon_hit() sets state.gn.notonhead and calls thitmonst(); at js/dothrow.js:2295-2301 its potion hit arm calls note_unported(\"potion.c potionhit\") and returns 1 instead of calling js/potion.js:potionhit()."
+                ],
+                "dependencies": [
+                  "potion.c:bottlename() is already ported as js/potion.js:bottlename() (1476-1479), with the source 7-name normal list and hallucination list. The recording has no hallucination state; C rn2(7)=3 selects list entry 3, “carafe”. The JS call is skipped by the caller gap, so this is not a wrong list/index implementation.",
+                  "The reachable monster-target state comes from dothrow.c:throwit_mon_hit(): the chosen impact square equals the grid bug coordinates, so gn.notonhead is false and the visible target has a head; there is no saddle hit. thitmonst() has already drawn rnd(20)=11 and passed the dexterity hit test with rnd(25)=10 before the missing call. potionhit() receives POTHIT_HERO_THROW, which sets your_fault for downstream monster effects, and returns no value; thitmonst() owns the consumed-object return, while throwit_mon_hit() clears the thrown-object state when that return indicates consumption.",
+                  "For the wished POT_BLINDNESS target effect, potion.c:potionhit() only changes monster blindness when haseyes(mon->data) and !mon_perma_blind(mon); its btmp update writes mon->mblinded (capped at 127) and clears mon->mcansee. Keep those target-state guards in scope when implementing the full monster branch. The saved recording establishes the impact message and rn2(5) check but does not provide a later screen proving the blindness state."
+                ]
+              },
+              "goalKind": "file-port",
+              "evidence": [
+                "The saved queue entry and challenges/evaluations/20260926122253-v7.json at evaluation commit f7e48bd93d6827c557c9a40a255a55cbc5fc8fcf report one unmatched screen (43/44 matched) at segment 0 step 43, input u. C row 0 column 0 is “T” while JS is a space; the cursors differ ([73,0,1] vs [10,11,1]). The first RNG mismatch is at the same step: C rn2(7)=3 @ bottlename(potion.c:1493), JS rn2(12)=5; the saved evaluation does not identify the JS callsite.",
+                "The immutable C recording challenges/cases/v7/throw-blindness-potion-hit-corrected.session.json has one segment. Step 41 selects throw, step 42 selects inventory object o, and step 43 submits direction u. C then displays “The carafe crashes on the grid bug’s head and breaks into shards.--More--” and logs rnd(20)=11 at thitmonst, rnd(25)=10 at thitmonst, rn2(7)=3 at bottlename, and rn2(5)=2 at potionhit.",
+                "The saved v7 manifest identifies the object as a wished potion of blindness and the target as an adjacent hostile grid bug. The RNG trace establishes the C collision route: the first two hit-test draws match before the first missing callee draw; C then selects “carafe” (normal bottle list entry 3) and runs potionhit’s monster damage check. This is evidence for the direct potion hit branch, not for a later blindness status screen.",
+                "Upstream nethack-c/upstream/src/dothrow.c:2262-2265 calls potionhit(mon, obj, POTHIT_HERO_THROW) when the potion-class hit test passes. Upstream nethack-c/upstream/src/potion.c:1623-1677 owns the bottle draw, visible impact message and monster damage check; lines 1727-1904 own the monster-side potion effects and wake state, with POT_BLINDNESS at 1821-1829; lines 1927-1928 consume the object. The caller state that controls the recorded message is set in dothrow.c:1491-1492: direct impact makes gn.notonhead false, so the target has a head rather than a body hit.",
+                "The evaluated/current JS source confirms the missing call: js/dothrow.js:2295-2301 enters the potion hit arm, records note_unported(\"potion.c potionhit\"), and returns 1; js/potion.js:1481-1505 documents that only the hero-target half is ported and refuses a monster target. js/potion.js:1476-1479 already ports bottlename() correctly. Therefore the C bottlename RNG mismatch is the first operation skipped because potionhit() was not called, while the reported JS rn2(12) has no matched semantic role and should be treated as shifted-stream fallout rather than a bottlename defect."
+              ]
+            }
+          }
+        }
+      ],
+      "progressBeforePark": {
+        "screens": 0,
+        "rng": 0
+      },
+      "parkedStanding": {
+        "sha": "e32dd8b5f6ed268811ce9a39ffd2571ce0e3462b",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "parkedReason": "B28 verifies upward and mounted-down potionhit routes with independent strict C recordings. Monster-to-monster mthrowu.c:ohitmon remains without matching runtime evidence; nearby monmove.c:m_move takes melee before the attempted intercept setup. The separate dothrow.c:hitfloor void callee remains a named source gap for nonbreaking upward impacts.",
+      "evidence": {
+        "functions": [
+          {
+            "name": "potionhit",
+            "implementation": "js/potion.js",
+            "symbol": "potionhit",
+            "sourceReview": "Compared the complete potion.c:potionhit() definition (1625-1928) against the port: target-is-hero and monster branches, direct saddle hit and water-on-saddle path, all potion type switches, resistance and polymorph guards, blindness duration draws and resistance ordering, anger/sleep cleanup, shop disposition, and final object consumption. Preserved evaluation and RNG order. For the hero POT_POLYMORPH arm, You_feel(\"a little %s\") precedes the Unchanging/Antimagic polyself guard exactly as C. For monster targets, potion.c obtains distance through distu(tx,ty), whose include/hack.h definition calls dist2 and whose hacklib.c body returns dx*dx+dy*dy; JS now uses that squared distance for the distance<3 vapor test. The return from H2Opotion_dip() is consumed in the saddle-water branch, so that whole helper was also ported and its Boolean is used. potion.c calls potionbreathe() as a void callee; the active partial helper arms remain enabled, while unsupported vapor types are source-named with note_unported('potion.c potionbreathe') and skipped so potionhit continues to its shop/object-release tail. The C calls to sounds.c:Soundeffect(), potion.c:explode_oil(), zap.c:bhitm() in the monster polymorph arm, and mon.c:mcureblindness() discard their results; JS records those exact source gaps and never treats the return as data. B28 ports the upward toss path at dothrow.c:toss_up(), which calls potionhit on the hero and discards the toss_up Boolean as C does. No case or seed condition was added. B27 additionally fixes the shared no-env.random runtime path at potionhit(): the C function uses process RNG calls including rnl(), so js/potion.js imports rnl into its default random bundle rather than requiring one caller to inject it. A focused no-random-seam call and the independent melee recording exercise that default.",
+            "callers": [
+              {
+                "path": "js/dothrow.js",
+                "symbol": "throwit",
+                "source": "dothrow.c:throwit() (1594) calls potionhit(u.usteed,obj,POTHIT_HERO_THROW) after rn2(6) selects the mounted downward hit arm; B28 independently records this entry."
+              },
+              {
+                "path": "js/dothrow.js",
+                "symbol": "thitmonst",
+                "source": "dothrow.c:thitmonst() (2264) calls potionhit(mon,obj,POTHIT_HERO_THROW) after the thrown potion hits a monster. The independent Wizard recording and admitted v7 range exercise this production call."
+              },
+              {
+                "path": "js/uhitm.js",
+                "symbol": "hmon_hitmon_potion",
+                "source": "uhitm.c:hmon_hitmon_potion() (1095-1117) calls setuwep(NULL) for a singleton before freeinv() and potionhit(). B27 wires canonical do_wear.c:cancel_doff and the remaining setworn hooks through setwornEnv(), then preserves C call order. The new sleeping-potion melee recording strictly reaches this caller and potionhit()."
+              },
+              {
+                "path": "js/mthrowu.js",
+                "symbol": "ohitmon",
+                "source": "mthrowu.c:ohitmon() (367) calls potionhit(mtmp,otmp,POTHIT_OTHER_THROW) when a monster missile hits another monster. The source branch is active, but B28 could not produce an independent recording; see the blocked monster-intercept recipe and entryPointReview."
+              },
+              {
+                "path": "js/mthrowu.js",
+                "symbol": "thitu",
+                "source": "mthrowu.c:thitu() (137) calls potionhit(&gy.youmonst,obj,POTHIT_OTHER_THROW) when a monster missile potion hits the hero. The independent gnome-king potion recording reaches potionhit(potion.c:1638) through this caller."
+              },
+              {
+                "path": "js/mthrowu.js",
+                "symbol": "m_throw",
+                "source": "mthrowu.c:m_throw() (699) calls potionhit(&gy.youmonst,singleobj,POTHIT_MONST_THROW) when a monster-thrown potion reaches the hero. The independent gnome-king recording follows this flight path and enters thitu/potionhit."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/potion.test.mjs",
+              "scripts/dothrow-thitmonst.test.mjs",
+              "scripts/mthrowu.test.mjs",
+              "scripts/uhitm-hmon.test.mjs"
+            ],
+            "recordings": [
+              "recordings/dothrow.c/potion-blindness-thrown-independent.session.json",
+              "recordings/mthrowu.c/gnome-king-hurls-sleep-r2.session.json",
+              "recordings/uhitm.c/potion-sleeping-melee-wielded-independent.session.json",
+              "recordings/dothrow.c/mounted-down-potion-independent.session.json",
+              "recordings/dothrow.c/toss-up-blindness-independent.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v7",
+                "caseId": "throw-blindness-potion-hit-corrected",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 43,
+                "source": "dothrow.c:throwit -> dothrow.c:thitmonst -> potion.c:potionhit(POT_BLINDNESS)"
+              }
+            ],
+            "checkedAt": "e32dd8b5f6ed268811ce9a39ffd2571ce0e3462b"
+          }
+        ],
+        "entryPointReview": "The selected whole source unit is potion.c:potionhit(). Its active production callers include dothrow.c:thitmonst, dothrow.c:throwit (downward hit on the steed), uhitm.c:hmon_hitmon_potion, mthrowu.c:ohitmon, mthrowu.c:thitu, and mthrowu.c:m_throw. Matching evidence covers a hero-thrown blindness potion hitting a monster through thitmonst (independent recording and admitted v7 segment 0 steps 0-43), a monster-thrown potion hitting the hero through m_throw/thitu (the gnome-king recording), and B27’s independent Rogue sleeping-potion melee strike through uhitm.c:hmon_hitmon_potion. That B27 recording also verifies singleton setuwep(NULL) uses the canonical doffing hooks before freeinv/potionhit. The shared potionhit default RNG now imports rnl, so callers that do not supply env.random use the C process RNG bundle. Source review corrections restore the hero polymorph You_feel line before Unchanging/Antimagic and use dist2 for the distu vapor threshold. Unsupported potionbreathe arms are explicitly skipped by source name, not by catching UnsupportedPotionError, so potionhit still runs its tail. The mounted downward throw and upward toss now have independent matching C recordings. The monster-to-monster caller remains unrecorded, so the source goal remains open. B28 adds independent strict evidence for the previously open vertical routes: the upward blindness potion recording reaches dothrow.c:throwit -> toss_up -> potion.c:potionhit, and the mounted-down healing potion recording reaches throwit -> potionhit(steed). The roof-breaking magic-marker recording exercises the source toss_up break arm. A non-breaking boulder recipe is blocked at dothrow.c:hitfloor after the C damage calculation; no floor effect is claimed. B28 also completes the source-ordered artifact doubling branch in weapon.c:dmgval and pins it in scripts/weapon.test.mjs; its existing artifact melee recording is cited. The remaining active potionhit route is mthrowu.c:ohitmon -> potionhit(POTHIT_OTHER_THROW): two C setups with gnome kings failed to reach the throw path because monmove.c:m_move() takes the nearby melee branch and suppresses find_offensive(); the blocked setup is recipes/mthrowu.c/monster-potion-intercept-blocked.session.json. B25 remains parked for that route.",
+        "entryPoints": [
+          {
+            "name": "Hero throws potion that hits a monster",
+            "functions": [
+              "potionhit"
+            ],
+            "recordings": [
+              "recordings/dothrow.c/potion-blindness-thrown-independent.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v7",
+                "caseId": "throw-blindness-potion-hit-corrected",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 43,
+                "source": "dothrow.c:throwit -> dothrow.c:thitmonst -> potion.c:potionhit(POT_BLINDNESS)"
+              }
+            ]
+          },
+          {
+            "name": "Monster throws potion that hits the hero",
+            "functions": [
+              "potionhit"
+            ],
+            "recordings": [
+              "recordings/mthrowu.c/gnome-king-hurls-sleep-r2.session.json"
+            ],
+            "synthetic": []
+          },
+          {
+            "name": "Hero melee strike with a wielded potion against a monster",
+            "functions": [
+              "potionhit"
+            ],
+            "recordings": [
+              "recordings/uhitm.c/potion-sleeping-melee-wielded-independent.session.json"
+            ],
+            "synthetic": []
+          },
+          {
+            "name": "Hero throws potion downward onto steed",
+            "functions": [
+              "potionhit"
+            ],
+            "recordings": [
+              "recordings/dothrow.c/mounted-down-potion-independent.session.json"
+            ],
+            "synthetic": []
+          },
+          {
+            "name": "Monster missile potion hits another monster",
+            "functions": [
+              "potionhit"
+            ],
+            "recordings": [],
+            "synthetic": []
+          },
+          {
+            "name": "Upward potion toss reaches potionhit through toss_up",
+            "functions": [
+              "potionhit"
+            ],
+            "recordings": [
+              "recordings/dothrow.c/toss-up-blindness-independent.session.json"
+            ],
+            "synthetic": []
+          }
+        ]
       }
     },
     {
@@ -94960,7 +95365,7 @@
     {
       "id": "port-apply-use-mirror-synthetic-v8-20260927",
       "kind": "file-port",
-      "status": "queued",
+      "status": "closed",
       "summary": "Port complete mirror-use behavior and its doapply caller",
       "cFile": "apply.c",
       "sessions": [
@@ -94968,24 +95373,31 @@
       ],
       "selectionReason": "The admitted v8 mirror-monster-reflection case has two unmatched screens; investigations/synthetic/v8/mirror-monster-reflection.json traces the first cause to apply.c:use_mirror after doapply refuses the mirror before direction input. Port beautiful and the whole use_mirror function in source order, wire doapply, and preserve all C branches and return-valued callees with independent entry evidence.",
       "detail": "",
-      "openedAt": null,
-      "openStanding": null,
-      "closedAt": null,
-      "delivered": null,
+      "openedAt": "8f387b612d23265af88f61a5448feb1a8e63be80",
+      "openStanding": {
+        "sha": "dd54030ef94ed896c6a26fd9c3ee282393d67baf",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "closedAt": "fda9517fb0aa0e2b8a176d0dce29df4b696b359c",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
       "functions": [
         {
           "name": "beautiful",
           "line": 997,
           "endLine": 1017,
           "declared": true,
-          "complete": false
+          "complete": true
         },
         {
           "name": "use_mirror",
           "line": 1018,
           "endLine": 1201,
-          "declared": false,
-          "complete": false
+          "declared": true,
+          "complete": true
         }
       ],
       "range": {
@@ -95005,6 +95417,263 @@
           "evaluationPath": "challenges/evaluations/20260927085003-v8.json",
           "evaluationCommit": "c4cdb74777cb0a0796befbb14724fecbe1fb54e6"
         }
+      },
+      "activeStanding": {
+        "sha": "dd54030ef94ed896c6a26fd9c3ee282393d67baf",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v8",
+          "caseId": "mirror-monster-reflection",
+          "session": "synthetic/v8/mirror-monster-reflection",
+          "manifestPath": "challenges/manifests/v8.json",
+          "manifestSha256": "6a5159501af18a7f926f794d89e817375cd00a3589c4899fb97392ae04dbe8ba",
+          "recording": "challenges/cases/v8/mirror-monster-reflection.session.json",
+          "recordingPath": "challenges/cases/v8/mirror-monster-reflection.session.json",
+          "recordingSha256": "5a93e5e54a296bb99490629a4ae61cd5c907a463a6f5280d3437a9c4f2735d45",
+          "recipe": "challenges/cases/v8/mirror-monster-reflection.recipe.session.json",
+          "recipeSha256": "f8eae6f78a642805aeb5003edce91031d423fe6fd027c8c6237d4860dfc9aa77",
+          "replayInputSha256": "0f02aefea58c7782bb1025c20c9b5ec4e8c0db346647c814c57da04540ffe62a",
+          "evaluationPath": "challenges/evaluations/20260927093229-v8.json",
+          "evaluationCommit": "043629bb13447062cadb766644b34c3490bb9bde",
+          "evaluationArtifact": "challenges/evaluations/20260927093229-v8.json",
+          "evaluationUtc": "2026-09-27T09:33:02.084Z",
+          "remainingScreens": 2,
+          "recordedSteps": 31,
+          "previousScreensMatched": 29,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 29,
+              "total": 31
+            },
+            "rng": {
+              "matched": 3006,
+              "total": 3015
+            },
+            "cursors": {
+              "matched": 29,
+              "total": 31
+            }
+          },
+          "firstMismatch": {
+            "kind": "stop",
+            "message": "unsupported hero command: an unported branch of this command: applying a tool requires doapply()'s arm for object type 230",
+            "step": 29
+          },
+          "step": 29,
+          "kind": "stop",
+          "sourceFile": "apply.c",
+          "function": "doapply",
+          "message": "unsupported hero command: an unported branch of this command: applying a tool requires doapply()'s arm for object type 230",
+          "cFile": "apply.c",
+          "luaFile": null,
+          "line": null,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v8/mirror-monster-reflection.json",
+            "result": {
+              "session": "synthetic/v8/mirror-monster-reflection",
+              "corpus": "synthetic",
+              "batch": "v8",
+              "caseId": "mirror-monster-reflection",
+              "manifestPath": "challenges/manifests/v8.json",
+              "manifestSha256": "6a5159501af18a7f926f794d89e817375cd00a3589c4899fb97392ae04dbe8ba",
+              "recordingSha256": "5a93e5e54a296bb99490629a4ae61cd5c907a463a6f5280d3437a9c4f2735d45",
+              "evaluationPath": "challenges/evaluations/20260927085003-v8.json",
+              "evaluationCommit": "c4cdb74777cb0a0796befbb14724fecbe1fb54e6",
+              "remainingScreens": 2,
+              "recordedSteps": 31,
+              "status": "complete",
+              "commit": "c4cdb74777cb0a0796befbb14724fecbe1fb54e6",
+              "mismatch": {
+                "corpus": "synthetic",
+                "batch": "v8",
+                "caseId": "mirror-monster-reflection",
+                "session": "synthetic/v8/mirror-monster-reflection",
+                "manifestPath": "challenges/manifests/v8.json",
+                "manifestSha256": "6a5159501af18a7f926f794d89e817375cd00a3589c4899fb97392ae04dbe8ba",
+                "recording": "challenges/cases/v8/mirror-monster-reflection.session.json",
+                "recordingPath": "challenges/cases/v8/mirror-monster-reflection.session.json",
+                "recordingSha256": "5a93e5e54a296bb99490629a4ae61cd5c907a463a6f5280d3437a9c4f2735d45",
+                "recipe": "challenges/cases/v8/mirror-monster-reflection.recipe.session.json",
+                "recipeSha256": "f8eae6f78a642805aeb5003edce91031d423fe6fd027c8c6237d4860dfc9aa77",
+                "replayInputSha256": "479955d161d696fc31a37f5adc2d4642cd7e41b193a09c7dfb1f597d5de19b8f",
+                "evaluationPath": "challenges/evaluations/20260927085003-v8.json",
+                "evaluationCommit": "c4cdb74777cb0a0796befbb14724fecbe1fb54e6",
+                "evaluationArtifact": "challenges/evaluations/20260927085003-v8.json",
+                "evaluationUtc": "2026-09-27T08:50:17.067Z",
+                "remainingScreens": 2,
+                "recordedSteps": 31,
+                "previousScreensMatched": null,
+                "regression": false,
+                "passed": false,
+                "error": null,
+                "metrics": {
+                  "screens": {
+                    "matched": 29,
+                    "total": 31
+                  },
+                  "rng": {
+                    "matched": 3006,
+                    "total": 3015
+                  },
+                  "cursors": {
+                    "matched": 29,
+                    "total": 31
+                  }
+                },
+                "firstMismatch": {
+                  "kind": "stop",
+                  "message": "unsupported hero command: an unported branch of this command: applying a tool requires doapply()'s arm for object type 230",
+                  "step": 29
+                },
+                "step": 29,
+                "kind": "stop",
+                "sourceFile": "apply.c",
+                "function": "doapply",
+                "message": "unsupported hero command: an unported branch of this command: applying a tool requires doapply()'s arm for object type 230",
+                "cFile": "apply.c",
+                "luaFile": null,
+                "line": null
+              },
+              "summary": "The first missing source branch is apply.c:doapply()’s MIRROR case. C consumes the selected mirror by prompting for a direction and calling the whole apply.c:use_mirror(); the JavaScript doapply() still refuses MIRROR as an unported named arm. In this recording, the selected direction targets an awake, visible hostile grid bug and C reaches use_mirror()’s ordinary monster-reflection response, frightening it. The actionable scope is the complete use_mirror() function, its existing doapply() case wiring/return propagation, and the pure apply.c:beautiful() helper needed by self-reflection branches.",
+              "source": {
+                "file": "apply.c",
+                "branch": "After command key a selects apply.c:doapply(), getobj() chooses MIRROR (object type 230) and the MIRROR switch arm assigns res = use_mirror(obj). C prompts for a direction; when it targets an awake, visible, non-cancelled hostile grid bug, use_mirror() reaches its ordinary non-unicorn/non-humanoid/non-demon reaction branch. The recipe selects h, and C prints “The grid bug is frightened by its reflection.”",
+                "functions": [
+                  "beautiful",
+                  "use_mirror",
+                  "doapply"
+                ],
+                "callers": [
+                  "cmd.c: commands[] binds the ordinary 'a' command to doapply() at 1677–1678.",
+                  "apply.c:doapply() gets the selected tool, enters its MIRROR case at 4330–4332, consumes use_mirror()’s ECMD_* result in res, and returns res at 4424.",
+                  "js/cmd.js:runApplyCommand() routes the production apply command through js/apply.js:doapply(); the normal command-handler dispatch selects doapply for this command."
+                ],
+                "dependencies": [
+                  "cmd.c:getdir(): its boolean result controls ECMD_CANCEL; the existing JavaScript direction prompt is js/cmd.js:getdir().",
+                  "zap.c:bhit(): its returned monster selects the target branch; the JavaScript helper is js/zap.js:bhit().",
+                  "vision.c:howmonseen() and mondata.h:haseyes(): returned visibility flags/boolean select the reflection response; existing JavaScript helpers are js/vision.js and js/mondata.js.",
+                  "muse.c:mon_reflects(): its boolean return is consumed in the Medusa branch; existing JavaScript helper is js/muse.js:mon_reflects().",
+                  "monmove.c:monflee() and mhitm.c:paralyze_monst() change monster state in the ordinary-reflection and floating-eye branches; JavaScript helpers exist in js/monmove.js and js/mhitm.js.",
+                  "teleport.c:tele_restrict(): its boolean return controls whether a mirror-stealing nymph relocates; teleport.c:rloc() and steal.c:mpickobj() have discarded results in that branch. Existing JavaScript helpers are in js/teleport.js and js/steal.js.",
+                  "apply.c:beautiful() is pure and supplies the hero-face adjective in the self-direction branch. An equivalent private helper currently exists in js/do_name.js; preserve one implementation and source-pin its charisma/polygender thresholds if moved or newly exposed."
+                ]
+              },
+              "goalKind": "file-port",
+              "evidence": [
+                "The saved queue entry from /tmp/v8-baseline-workqueue.json ties this finding to synthetic/v8/mirror-monster-reflection, manifest SHA-256 6a5159501af18a7f926f794d89e817375cd00a3589c4899fb97392ae04dbe8ba, recording SHA-256 5a93e5e54a296bb99490629a4ae61cd5c907a463a6f5280d3437a9c4f2735d45, 2 remaining screens, and 31 recorded steps. Evaluation challenges/evaluations/20260927085003-v8.json is at commit c4cdb74777cb0a0796befbb14724fecbe1fb54e6; it matches 29/31 screens, 3006/3015 RNG values, and 29/31 cursors before JS stops at segment 0 step 29 with “applying a tool requires doapply()’s arm for object type 230”.",
+                "The C recording challenges/cases/v8/mirror-monster-reflection.session.json shows key a opening the apply menu, key o selecting the looking glass and producing “In what direction?”, then key h targeting the visible hostile grid bug. At zero-based step 30 C prints “The grid bug is frightened by its reflection.” and logs rn2(5)=4 at apply.c:1170 followed by d(2,4)=4 at apply.c:1184, proving the live ordinary monster-response branch rather than only menu entry.",
+                "nethack-c/upstream/src/apply.c:997–1013 defines pure beautiful(); :1017–1190 contains all of use_mirror(), including direction cancellation, self-reflection, swallowed/underwater/vertical targets, bhit() monster selection, Medusa reflection, floating-eye paralysis, Umber Hulk confusion, nymph mirror theft, and the ordinary monster response. :4330–4332 wires the MIRROR case and captures use_mirror()’s result; :4424 returns that result.",
+                "nethack-c/upstream/src/cmd.c:1677–1678 is the production key-a doapply() command registration. In current js/apply.js, MIRROR is still in DOAPPLY_UNPORTED_NAMED_ARMS (:2625–2644), and doapply() throws UnsupportedApplyError for the selected object at :2807–2810 before reading the direction. js/cmd.js:3302–3308 already dispatches the apply command through runApplyCommand() to doapply().",
+                "The complete source range needs the existing returned helper contracts for getdir(), bhit(), howmonseen(), haseyes(), mon_reflects(), and tele_restrict(); it also reaches stateful monflee()/paralyze_monst() and the mirror-theft helpers mpickobj()/rloc(). Their present JS implementations are named above so a source port can verify their coverage instead of replacing their return values or side effects."
+              ]
+            }
+          }
+        }
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "beautiful",
+            "implementation": "js/apply.js",
+            "symbol": "beautiful",
+            "sourceReview": "Read the complete apply.c:beautiful() definition at lines 997–1017. The port follows ACURR(A_CHA)'s threshold order and calls poly_gender() only for the two gendered ranges (14–18 and 16–18); it has no RNG, output, or mutation. The shared helper now serves both apply.c:use_mirror() and do_name.c:do_mgivenname() instead of maintaining a duplicate in js/do_name.js. scripts/apply.test.mjs pins every C threshold and both gendered branches; scripts/do-name.test.mjs drives do_mgivenname() through its current-square caller path and checks the adjective in the C-form message.",
+            "callers": [
+              {
+                "path": "js/apply.js",
+                "symbol": "use_mirror",
+                "source": "apply.c:use_mirror() calls beautiful() before processing the mirror effect."
+              },
+              {
+                "path": "js/do_name.js",
+                "symbol": "do_mgivenname",
+                "source": "do_name.c:do_mgivenname() calls beautiful() when the selected square is the hero and there is no visible steed, then emits the cannot-be-renamed message."
+              }
+            ],
+            "pure": true,
+            "tests": [
+              "scripts/apply.test.mjs",
+              "scripts/do-name.test.mjs"
+            ],
+            "recordings": [],
+            "synthetic": [],
+            "checkedAt": "fda9517fb0aa0e2b8a176d0dce29df4b696b359c"
+          },
+          {
+            "name": "use_mirror",
+            "implementation": "js/apply.js",
+            "symbol": "use_mirror",
+            "sourceReview": "Read the whole apply.c:use_mirror() definition at lines 1021–1190 and the MIRROR case in doapply() at lines 4330–4331. The port preserves getdir() cancellation, invisibility and sight gates, beautiful/simple mirror description order, cursed fogging RNG, self/swallowed/underwater/surface branches, and the source order after bhit(INVIS_BEAM): no-target/head checks, visibility and monability gates, sleeping/cannot-see/invisible/infravision/vampire cases, Medusa reflection and stoning, floating-eye d(m_lev, damd) then rn2(4) and paralyze_monst, umber-hulk confusion, nymph/amorous-demon theft, generic fear rn2(5) then d(2,4), and final reflection messages. MIRROR is wired in doapply(), with cmd.js:runApplyCommand() dispatching the normal apply command. use_mirror consumes bhit()'s returned monster and gn.notonhead; js/zap.js implements the source INVIS_BEAM walk without animation and preserves that head flag. Only bhit's INVIS_BEAM call type is needed and implemented for this path; other zap.c:bhit call types remain explicit UnsupportedBhitError gaps and are not claimed complete. The source's void mon.c:killed() call in the Medusa branch is skipped with note_unported('mon.c killed') after the source stoned state update; that downstream death handling remains a named gap.",
+            "callers": [
+              {
+                "path": "js/apply.js",
+                "symbol": "doapply",
+                "source": "apply.c:doapply() selects case MIRROR and returns use_mirror(obj)."
+              },
+              {
+                "path": "js/cmd.js",
+                "symbol": "runApplyCommand",
+                "source": "cmd.c's 'a' apply command table row (cmd.c:1677–1678) dispatches to doapply(); the JavaScript runApplyCommand() enters apply.js:doapply()."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/apply.test.mjs",
+              "scripts/bhit.test.mjs"
+            ],
+            "recordings": [
+              "recordings/apply.c/C26-floating-eye-mirror.session.json",
+              "recordings/apply.c/C26-floating-eye-reflection.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v8",
+                "caseId": "mirror-monster-reflection",
+                "segment": 0,
+                "fromStep": 28,
+                "throughStep": 30,
+                "source": "cmd.c apply -> apply.c:doapply(MIRROR) -> apply.c:use_mirror() -> zap.c:bhit(INVIS_BEAM); source reaches the hostile grid-bug reflection branch"
+              }
+            ],
+            "checkedAt": "fda9517fb0aa0e2b8a176d0dce29df4b696b359c"
+          }
+        ],
+        "entryPointReview": "The active gameplay entry is cmd.c's apply command, which reaches apply.c:doapply() and its MIRROR case before use_mirror(); the two independent C recordings exercise mirror use on an empty ray and the floating-eye target/reflection path, and admitted v8 case mirror-monster-reflection segment 0 steps 28–30 exercises the hostile grid-bug reflection branch. do_name.c:do_mgivenname() is the second source caller of pure beautiful(); scripts/do-name.test.mjs reaches its hero-square branch and asserts the shared helper's message. use_mirror() requires zap.c:bhit() only with INVIS_BEAM, whose no-animation walk, target return, and gn.notonhead result are implemented and source-pinned in scripts/bhit.test.mjs. Other bhit call types remain outside this task and retain their existing explicit gaps. In the Medusa branch, C's void mon.c:killed() call remains unported and is explicitly skipped; broader death handling is not claimed. The implemented functions preserve all checked C/JS traces.",
+        "entryPoints": [
+          {
+            "name": "cmd.c apply command -> apply.c:doapply(MIRROR) -> use_mirror",
+            "functions": [
+              "use_mirror"
+            ],
+            "recordings": [
+              "recordings/apply.c/C26-floating-eye-mirror.session.json",
+              "recordings/apply.c/C26-floating-eye-reflection.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v8",
+                "caseId": "mirror-monster-reflection",
+                "segment": 0,
+                "fromStep": 28,
+                "throughStep": 30,
+                "source": "cmd.c apply -> apply.c:doapply(MIRROR) -> apply.c:use_mirror() -> zap.c:bhit(INVIS_BEAM)"
+              }
+            ]
+          }
+        ]
+      },
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "fda9517fb0aa0e2b8a176d0dce29df4b696b359c",
+        "screens": 11405,
+        "rng": 792838
       }
     },
     {
@@ -95140,7 +95809,7 @@
     {
       "id": "port-read-seffect-taming-synthetic-v8-20260927",
       "kind": "file-port",
-      "status": "queued",
+      "status": "parked",
       "summary": "Port read.c seffect_taming and its return-valued maybe_tame helper",
       "cFile": "read.c",
       "sessions": [
@@ -95148,8 +95817,12 @@
       ],
       "selectionReason": "Selected synthetic/v8/read-taming-scroll-hostile-monster from validated investigation at investigations/synthetic/v8/read-taming-scroll-hostile-monster.json; v8 manifest 6a5159501af18a7f926f794d89e817375cd00a3589c4899fb97392ae04dbe8ba, recording challenges/cases/v8/read-taming-scroll-hostile-monster.session.json digest aa43f40887854473146ba71400cfed8fe0bcb7ec20c6d33af61721651be4e6b8, evaluation challenges/evaluations/20260927093229-v8.json at 043629bb. The selected C range is only seffect_taming; its return-valued read.c maybe_tame dependency must be ported in the same task. zap.c resist is already ported and is the consumed RNG dependency. No other unresolved case shares this function family.",
       "detail": "At segment 0 step 40, seffects dispatch for SCR_TAMING still calls note_unported; C enters read.c:seffect_taming and consumes maybe_tame/resist results. Port complete seffect_taming and return-valued maybe_tame, wire both SCR_TAMING and SPE_CHARM_MONSTER callers. See source-traced investigation.",
-      "openedAt": null,
-      "openStanding": null,
+      "openedAt": "358dd6ad1294374a96a704a7f5a9b46c0ddc4a47",
+      "openStanding": {
+        "sha": "358dd6ad1294374a96a704a7f5a9b46c0ddc4a47",
+        "screens": 11405,
+        "rng": 792838
+      },
       "closedAt": null,
       "delivered": null,
       "functions": [
@@ -95177,6 +95850,1498 @@
           "recordingSha256": "aa43f40887854473146ba71400cfed8fe0bcb7ec20c6d33af61721651be4e6b8",
           "evaluationPath": "challenges/evaluations/20260927093229-v8.json",
           "evaluationCommit": "043629bb13447062cadb766644b34c3490bb9bde"
+        }
+      },
+      "activeStanding": {
+        "sha": "358dd6ad1294374a96a704a7f5a9b46c0ddc4a47",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": [],
+      "progressBeforePark": {
+        "screens": 0,
+        "rng": 0
+      },
+      "parkedStanding": {
+        "sha": "358dd6ad1294374a96a704a7f5a9b46c0ddc4a47",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "parkedReason": "read.c seffect_taming and maybe_tame match scroll and wizard-cast evidence; ordinary spell.c docast charm entry remains blocked by insufficient Pw in the independent recipe before seffects, so source completion awaits a high-Pw matching docast recording"
+    },
+    {
+      "id": "port-read-seffect-fire-synthetic-v8-20260927",
+      "kind": "file-port",
+      "status": "closed",
+      "summary": "Port complete read.c seffect_fire and its scroll caller",
+      "cFile": "read.c",
+      "sessions": [
+        "synthetic/v8/read-fire-scroll-effect"
+      ],
+      "selectionReason": "Complete the source-traced fire-scroll function and ordinary/blessed read entry evidence after the selected v8 case reached parity; keep downstream item ignition as an explicit explode/trap/apply gap",
+      "detail": "Port the whole read.c:seffect_fire body, including consumed RNG, scroll use and knowledge, confused and underwater branches, blessed target selection, hero flame and explosion ordering. Wire SCR_FIRE from read.c:seffects and port any return-valued missing callees in scope; validate independent C recordings and all admitted challenges without case-specific handling.",
+      "openedAt": "10c8f210d77aee548ae25b77cee6b3f9b736d413",
+      "openStanding": {
+        "sha": "10c8f210d77aee548ae25b77cee6b3f9b736d413",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "closedAt": "10c8f210d77aee548ae25b77cee6b3f9b736d413",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
+      "functions": [
+        {
+          "name": "seffect_fire",
+          "line": 1850,
+          "endLine": 1918,
+          "declared": true,
+          "complete": true
+        }
+      ],
+      "range": {
+        "from": 1850,
+        "to": 1918
+      },
+      "syntheticProvenance": {
+        "synthetic/v8/read-fire-scroll-effect": {
+          "session": "synthetic/v8/read-fire-scroll-effect",
+          "corpus": "synthetic",
+          "batch": "v8",
+          "caseId": "read-fire-scroll-effect",
+          "manifestPath": "challenges/manifests/v8.json",
+          "manifestSha256": "6a5159501af18a7f926f794d89e817375cd00a3589c4899fb97392ae04dbe8ba",
+          "recordingPath": "challenges/cases/v8/read-fire-scroll-effect.session.json",
+          "recordingSha256": "9fc878b044ff61247bc0dee1bbc943b5f55ba78f17967641301bb1ccb26d47b7",
+          "evaluationPath": "challenges/evaluations/20260927111723-v8.json",
+          "evaluationCommit": "358dd6ad1294374a96a704a7f5a9b46c0ddc4a47"
+        }
+      },
+      "activeStanding": {
+        "sha": "10c8f210d77aee548ae25b77cee6b3f9b736d413",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": [],
+      "evidence": {
+        "functions": [
+          {
+            "name": "seffect_fire",
+            "implementation": "js/read.js",
+            "symbol": "seffect_fire",
+            "sourceReview": "Ported all branches of read.c:seffect_fire() (1850-1917): capture object type/BUC/confusion/known state; compute dam with C integer truncation and one rn1 draw; consume the scroll and clear seffects()'s local pointer; call learnscrolltyp only when needed; preserve confused-underwater, confused-fire-resistance, and ordinary confused damage ordering; preserve ordinary underwater behavior; for blessed reading, print the identification message when unknown, multiply damage by five, install getpos highlight/valid callbacks, run getpos, and fall back to the hero when the selected coordinate is invalid; emit the tower-of-flame message and last_msg before the fire explosion. seffects() now routes SCR_FIRE here and sets its local scroll to null, matching the C pointer contract. Also source-ported read.c:can_center_cloud() and display_stinking_cloud_positions() as the consumed getpos callback helpers: can_center_cloud calls the existing valid_cloud_pos port in js/region.js, cansee(), then squared dist2 < 32; the display callback calls tmp_at(DISP_BEAM), scans dx outer/dy inner from -6 through +6, skips the hero square, and ends with tmp_at(DISP_END). The pure helper is source-pinned in scripts/read.test.mjs; the independent blessed-scroll recording executes the callback and the '$' highlight toggle. The existing explode.c:explode() helper needed its default RNG adapter to include rnl; that consumed wrapper is pinned in scripts/explode.test.mjs, and the selected v8 plus independent blessed recordings now match. Existing source gaps remain explicit: display.c:shieldeff and timeout.c:burn_away_slime are void calls skipped with note_unported(); js/region.js remains the implementation location of read.c:valid_cloud_pos rather than duplicating it. explode.c:explode() calls void trap.c:ignite_items(); the selected and independent recordings do not enter the unsupported hero-pack apply.c:catch_lit branch. recipes/read.c/read-fire-hero-oil-lamp-blocked.session.json retains that unrecorded source-named variation; it is not completion evidence. No result from note_unported() is used as data.",
+            "callers": [
+              {
+                "path": "js/cmd.js",
+                "symbol": "runReadCommand",
+                "source": "The active cmd.c command-table 'r' entry at cmd.c:1817 calls doread(); js/cmd.js:runReadCommand dispatches the command to js/read.js:doread()."
+              },
+              {
+                "path": "js/read.js",
+                "symbol": "doread",
+                "source": "read.c:doread() selects a readable object and calls seffects(&sobj); the SCR_FIRE switch arm in read.c:seffects() calls seffect_fire(&sobj)."
+              },
+              {
+                "path": "js/read.js",
+                "symbol": "seffects",
+                "source": "read.c:seffects() is the production dispatcher for SCR_FIRE and now awaits seffect_fire(scroll, state), then nulls its local scroll pointer as the C helper does."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/read.test.mjs",
+              "scripts/explode.test.mjs"
+            ],
+            "recordings": [
+              "recordings/read.c/read-fire-blessed-highlight.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v8",
+                "caseId": "read-fire-scroll-effect",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 19,
+                "source": "cmd.c read command -> read.c:doread -> read.c:seffects(SCR_FIRE) -> read.c:seffect_fire -> explode.c:explode"
+              }
+            ],
+            "checkedAt": "10c8f210d77aee548ae25b77cee6b3f9b736d413"
+          }
+        ],
+        "entryPointReview": "The active entry point is the r/read command through cmd.c's command table -> read.c:doread -> read.c:seffects(SCR_FIRE) -> read.c:seffect_fire. The admitted v8 read-fire-scroll-effect case matches through zero-based step 19, including the unblessed fire scroll and tower explosion. An independently chosen blessed scroll recording matches through step 33 and enters the getpos callback, uses the '$' highlight toggle, selects the hero square, and reaches the explosion. The source-pinned pure helper test checks can_center_cloud terrain, sight, and the strict squared-distance boundary; the recording verifies the display callback's on/off use. The related read-fire-scroll-effect.setup-miss-attempt1 recipe does not reach the selected source unit: C/JS first diverge at segment 1 step 21 in read.c:seffect_enchant_armor, so it is retained only as a separate investigation and is not cited. A separate hero-pack oil-lamp variation is retained as recipes/read.c/read-fire-hero-oil-lamp-blocked.session.json; it is not recorded and has no runtime evidence because the expected downstream route explode.c:explode -> trap.c:ignite_items -> apply.c:catch_lit is outside this task's scope and the existing JS helper refuses eligible OBJ_INVENT objects. No build-excluded caller was found.",
+        "entryPoints": [
+          {
+            "name": "read an unblessed scroll of fire",
+            "functions": [
+              "seffect_fire"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v8",
+                "caseId": "read-fire-scroll-effect",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 19,
+                "source": "cmd.c read command -> read.c:doread -> read.c:seffects(SCR_FIRE) -> read.c:seffect_fire -> explode.c:explode"
+              }
+            ]
+          },
+          {
+            "name": "read a blessed scroll of fire and select a highlighted explosion center",
+            "functions": [
+              "seffect_fire"
+            ],
+            "recordings": [
+              "recordings/read.c/read-fire-blessed-highlight.session.json"
+            ],
+            "synthetic": []
+          }
+        ]
+      },
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "10c8f210d77aee548ae25b77cee6b3f9b736d413",
+        "screens": 11405,
+        "rng": 792838
+      }
+    },
+    {
+      "id": "port-potion-peffect-monster-detection-synthetic-v7-20260927",
+      "kind": "file-port",
+      "status": "closed",
+      "summary": "Port complete potion.c peffect_monster_detection for potion and spell callers",
+      "cFile": "potion.c",
+      "sessions": [
+        "synthetic/v7/monster-detection-potion-select2"
+      ],
+      "selectionReason": "Complete B26 source port and independent entry-point evidence after selected v7 case reached parity",
+      "detail": "Implement the blessed intrinsic-duration and monster-map branches, swallowed or underwater fallthrough, consumed monster_detect return, exercise, and caller return handling in C order. Preserve gp potion flags and all source RNG. Add independent C evidence for active branches and leave downstream void source gaps named where not yet ported.",
+      "openedAt": "feabcd23201baa92c3e92b5de5046a98d6a0f14f",
+      "openStanding": {
+        "sha": "feabcd23201baa92c3e92b5de5046a98d6a0f14f",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "closedAt": "feabcd23201baa92c3e92b5de5046a98d6a0f14f",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
+      "functions": [
+        {
+          "name": "peffect_monster_detection",
+          "line": 914,
+          "endLine": 954,
+          "declared": true,
+          "complete": true
+        }
+      ],
+      "range": {
+        "from": 914,
+        "to": 954
+      },
+      "syntheticProvenance": {
+        "synthetic/v7/monster-detection-potion-select2": {
+          "session": "synthetic/v7/monster-detection-potion-select2",
+          "corpus": "synthetic",
+          "batch": "v7",
+          "caseId": "monster-detection-potion-select2",
+          "manifestPath": "challenges/manifests/v7.json",
+          "manifestSha256": "03a861a9d1bc9d813c80681312ee7a0e0f893dbad0536de40a974bd5ec344094",
+          "recordingPath": "challenges/cases/v7/monster-detection-potion-select2.session.json",
+          "recordingSha256": "77c4b7716462754c10c93173b85b750e21ad92fc9fa323d5f6b4b8c0d0278dd0",
+          "evaluationPath": "challenges/evaluations/20260927111723-v7.json",
+          "evaluationCommit": "358dd6ad1294374a96a704a7f5a9b46c0ddc4a47"
+        }
+      },
+      "activeStanding": {
+        "sha": "feabcd23201baa92c3e92b5de5046a98d6a0f14f",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": [],
+      "evidence": {
+        "functions": [
+          {
+            "name": "peffect_monster_detection",
+            "implementation": "js/potion.js",
+            "symbol": "peffect_monster_detection",
+            "sourceReview": "Read the complete potion.c:peffect_monster_detection() body (914-954). Preserved the blessed Detect_monsters/potion_nothing test before incrementing potion_unkn; the old HDetect_monsters timeout threshold before the class-dependent rn1(40,21) versus rn2(100)+100 draw; incr_itimeout; the x-major map scan and y-minor order; forgotten GLYPH_INVISIBLE memory via unmap_object()/newsym(); MON_AT clearing potion_unkn; the swallowed/Underwater fallthrough; see_monsters()/lonely feedback; and monster_detect()'s consumed 1/0 return followed by Wisdom exercise. peffects() returns 1 only when the source effect returns true and otherwise falls through to dopotion()'s naming/useup tail with -1. Existing void dependencies remain source-named only where C discards them; no note_unported() value supplies effect data. C initializes gp.potion_nothing and gp.potion_unkn as static zeroed fields; the JS effect initializes either missing counter to zero so spell.c’s direct peffects() path cannot increment undefined. The source-mapped spell.js caller routes SPE_DETECT_MONSTERS through peffects() with SPBOOK_CLASS and preserves the spell skill blessing rule; a separate debug Wizard recording advances divination to Skilled and exercises that blessed spelling-specific timeout.",
+            "callers": [
+              {
+                "path": "js/potion.js",
+                "symbol": "peffects",
+                "source": "potion.c:1365-1371 dispatches POT_MONSTER_DETECTION/SPE_DETECT_MONSTERS to peffect_monster_detection() and returns 1 only for its true result."
+              },
+              {
+                "path": "js/potion.js",
+                "symbol": "dopotion",
+                "source": "potion.c:618-641 consumes peffects()'s 1/0/-1 contract, returning immediately for 1 or 0 and consuming/identifying the potion on -1."
+              },
+              {
+                "path": "js/spell.js",
+                "symbol": "spelleffects",
+                "source": "spell.c:1536-1545 routes SPE_DETECT_MONSTERS through peffects(pseudo), after applying the Skilled-or-Expert blessed state."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/potion.test.mjs",
+              "scripts/detect.test.mjs"
+            ],
+            "recordings": [
+              "recordings/potion.c/monster-detection-blessed-independent-b26.session.json",
+              "recordings/spell.c/monster-detection-wizcast-b26-independent.session.json",
+              "recordings/spell.c/blessed-detect-monsters-wizcast-b26-independent.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v7",
+                "caseId": "monster-detection-potion-select2",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 52,
+                "source": "cmd.c #quaff -> potion.c dodrink()/dopotion()/peffects() -> potion.c peffect_monster_detection() -> detect.c monster_detect()"
+              }
+            ],
+            "checkedAt": "feabcd23201baa92c3e92b5de5046a98d6a0f14f"
+          }
+        ],
+        "entryPointReview": "The selected impure effect has two active production routes: #quaff through cmd.js do_quaff -> potion.js dodrink/dopotion/peffects, and the detect-monsters spell through spell.js spelleffects -> potion.js peffects. The admitted v7 potion case covers the quaff path; an independently seeded Wizard recording exercises that spell caller through its unblessed map-browse path. A second independent debug Wizard recording uses #enhance to bring divination to Skilled before #wizcast, exercising the C blessed SPBOOK_CLASS timeout and early-return path. A separate blessed-potion recording covers the potion-class timeout and post-effect turn path. C static gp counters begin at zero; lazy initialization in peffect_monster_detection preserves this on the direct spell caller. detect.c monster_detect is a required return-valued dependency and its potion object, monster-class, constrained-map, and cursed-waking branches are source-mapped; its discarded display_nhwindow() calls remain named void gaps through note_unported().",
+        "entryPoints": [
+          {
+            "name": "Quaff potion of monster detection",
+            "functions": [
+              "peffect_monster_detection"
+            ],
+            "recordings": [
+              "recordings/potion.c/monster-detection-blessed-independent-b26.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v7",
+                "caseId": "monster-detection-potion-select2",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 52,
+                "source": "cmd.c #quaff -> potion.c dodrink()/dopotion()/peffects() -> potion.c peffect_monster_detection() -> detect.c monster_detect()"
+              }
+            ]
+          },
+          {
+            "name": "Cast detect monsters",
+            "functions": [
+              "peffect_monster_detection"
+            ],
+            "recordings": [
+              "recordings/spell.c/monster-detection-wizcast-b26-independent.session.json",
+              "recordings/spell.c/blessed-detect-monsters-wizcast-b26-independent.session.json"
+            ],
+            "synthetic": []
+          }
+        ]
+      },
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "feabcd23201baa92c3e92b5de5046a98d6a0f14f",
+        "screens": 11405,
+        "rng": 792838
+      }
+    },
+    {
+      "id": "port-quest-artitouch-synthetic-v8-20260927",
+      "kind": "file-port",
+      "status": "parked",
+      "summary": "Port quest artifact first-touch pager and inventory acquisition wiring",
+      "cFile": "quest.c",
+      "sessions": [
+        "synthetic/v8/artifact-heart-invoke-cycle"
+      ],
+      "selectionReason": "Current v8 artifact-heart-invoke-cycle first diverges at segment 0 step 24: C quest.c:artitouch called from invent.c:addinv_core1 opens gotit quest text and initializes nhlib.lua, while JS note_unported skips that call. The queue RNG annotation names Lua shuffle as the observed downstream draw, but the source owner is quest.c:artitouch. Port the whole first-touch function, generated gotit text, pager skip guard, and async inventory caller order; verify independent quest artifact acquisition distinct from v8.",
+      "detail": "",
+      "openedAt": "c54c2c13ca30ebad8411cbcd4b7dcd3e193fbddc",
+      "openStanding": {
+        "sha": "589eff0af34470081afdfe7bfea0cd282afa66c1",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "closedAt": null,
+      "delivered": null,
+      "functions": [
+        {
+          "name": "artitouch",
+          "line": 125,
+          "endLine": 139,
+          "declared": true,
+          "complete": true
+        }
+      ],
+      "range": {
+        "from": 125,
+        "to": 139
+      },
+      "syntheticProvenance": {
+        "synthetic/v8/artifact-heart-invoke-cycle": {
+          "session": "synthetic/v8/artifact-heart-invoke-cycle",
+          "corpus": "synthetic",
+          "batch": "v8",
+          "caseId": "artifact-heart-invoke-cycle",
+          "manifestPath": "challenges/manifests/v8.json",
+          "manifestSha256": "6a5159501af18a7f926f794d89e817375cd00a3589c4899fb97392ae04dbe8ba",
+          "recordingPath": "challenges/cases/v8/artifact-heart-invoke-cycle.session.json",
+          "recordingSha256": "816c8353f3fea197a0e99d8bd83f53f622a02d45fe61a59784dcfd479862cfd8",
+          "evaluationPath": "challenges/evaluations/20260927130815-v8.json",
+          "evaluationCommit": "10c8f210d77aee548ae25b77cee6b3f9b736d413"
+        }
+      },
+      "activeStanding": {
+        "sha": "589eff0af34470081afdfe7bfea0cd282afa66c1",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v8",
+          "caseId": "artifact-heart-invoke-cycle",
+          "session": "synthetic/v8/artifact-heart-invoke-cycle",
+          "manifestPath": "challenges/manifests/v8.json",
+          "manifestSha256": "6a5159501af18a7f926f794d89e817375cd00a3589c4899fb97392ae04dbe8ba",
+          "recording": "challenges/cases/v8/artifact-heart-invoke-cycle.session.json",
+          "recordingPath": "challenges/cases/v8/artifact-heart-invoke-cycle.session.json",
+          "recordingSha256": "816c8353f3fea197a0e99d8bd83f53f622a02d45fe61a59784dcfd479862cfd8",
+          "recipe": "challenges/cases/v8/artifact-heart-invoke-cycle.recipe.session.json",
+          "recipeSha256": "e7551b75ea4fa8cc5a1bf14c23baa6add3dda5f45782e78151d05ac920593963",
+          "replayInputSha256": "f12aaa199382908484612c7c8d311b333eb8a8d5cb1f2a5aba58e1ae8afc64b3",
+          "evaluationPath": "challenges/evaluations/20260927141254-v8.json",
+          "evaluationCommit": "589eff0af34470081afdfe7bfea0cd282afa66c1",
+          "evaluationArtifact": "challenges/evaluations/20260927141254-v8.json",
+          "evaluationUtc": "2026-09-27T14:13:27.463Z",
+          "remainingScreens": 1,
+          "recordedSteps": 44,
+          "previousScreensMatched": 42,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 43,
+              "total": 44
+            },
+            "rng": {
+              "matched": 2303,
+              "total": 2303
+            },
+            "cursors": {
+              "matched": 44,
+              "total": 44
+            }
+          },
+          "firstMismatch": {
+            "screen": {
+              "index": 25,
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 25,
+                "key": " "
+              },
+              "kind": "ch",
+              "row": 0,
+              "column": 23,
+              "cCell": {
+                "ch": "t",
+                "color": 8,
+                "attr": 0,
+                "decgfx": 0
+              },
+              "jsCell": {
+                "ch": "T",
+                "color": 8,
+                "attr": 0,
+                "decgfx": 0
+              }
+            },
+            "rng": null,
+            "cursor": null
+          },
+          "step": 25,
+          "kind": "screen",
+          "sourceFile": null,
+          "function": null,
+          "message": null,
+          "cFile": null,
+          "luaFile": null,
+          "line": null,
+          "investigation": {
+            "status": "stale",
+            "path": "investigations/synthetic/v8/artifact-heart-invoke-cycle.json",
+            "previousRemainingScreens": 2
+          }
+        }
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "artitouch",
+            "implementation": "js/quest.js",
+            "symbol": "artitouch",
+            "sourceReview": "Read the complete quest.c:artitouch() definition (125-139), including its already-touched early return and exact first-touch order: observe_object(obj), set Qstat(touched_artifact), qt_pager(\"gotit\"), then exercise(A_WIS, TRUE). C ignores qt_pager's boolean result. JavaScript awaits the already-async qt_pager before the later addinv_core1 intrinsic and inventory-insertion tail, preserving the source-visible effect order. Generated role-specific gotit text is extracted from dat/quest.lua by scripts/generate-quest-text.mjs. Supporting source behavior is kept with its C owner: questpgr.c:skip_pager() is checked before Lua initialization and consumes no shuffle draws while program_state.wizkit_wishing is set. invent.c:addinv_core1() is the sole direct C caller; zap.c:poly_obj() also re-enters addinv_core1 for replacements, but mkobj()/mksobj() create a replacement without copying oartifact, so that path cannot first-touch a quest artifact.",
+            "callers": [
+              {
+                "path": "js/invent.js",
+                "symbol": "addinv_core1",
+                "source": "invent.c:addinv_core1() calls artitouch(obj) after marking u.uhave.questart and before set_artifact_intrinsic(), addinv_core2(), or addinv_core0() inventory insertion."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/inventory-substrate.test.mjs",
+              "scripts/quest-artitouch.test.mjs"
+            ],
+            "recordings": [
+              "recordings/quest.c/artitouch-wizard-eye-independent-A27.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v8",
+                "caseId": "artifact-heart-invoke-cycle",
+                "segment": 0,
+                "fromStep": 24,
+                "throughStep": 24,
+                "source": "cmd.c wish dispatch -> zap.c:makewish -> invent.c:hold_another_object/addinv_core0/addinv_core1 -> quest.c:artitouch; the role gotit pager and post-pager Wisdom exercise execute before inventory insertion"
+              }
+            ],
+            "checkedAt": "c54c2c13ca30ebad8411cbcd4b7dcd3e193fbddc"
+          }
+        ],
+        "entryPointReview": "The sole direct C call is invent.c:addinv_core1(), and the active JavaScript acquisition boundaries were audited. First acquisition through a wish is verified by the admitted v8 case through zero-based step 24 and by a fresh strict Wizard/Eye-of-the-Aethiopica recording. C pickup.c:pick_obj() and pickup.c:out_container() both feed addinv_core1; their first-touch floor/container variants remain unverified. The committed blocked recipes explain the setup boundary: the only bounded way used here to materialize the qart is the wish itself, which sets Qstat(touched_artifact), so a later pickup/extraction only enters artitouch's already-touched return. A quest-artifact provenance placed on the floor or inside a container before first hero acquisition was not established. C files.c:read_wizkit()/wizkit_addinv() is a separate active startup edge through addinv_core1; its questpgr.c:skip_pager() branch is source-pinned, but the JavaScript runtime has no WIZKIT startup-file route, so that runtime entry remains unavailable and is named in a blocked recipe. The JavaScript pickup, out_container, wish, and in-place replacement paths consume the async addinv_core1 result in source order; the synchronous startup/throw-return/teleport/reimbursement addinv callers do not create a new qart in the active JS runtime. zap.c:poly_obj() replacement does not carry oartifact into its new object. The v8 replay's first post-citation difference is at step 26 in later inventory/artifact display casing (C 't', JS 'T'); it is unrelated to quest.c:artitouch and is not included in its citation.",
+        "entryPoints": [
+          {
+            "name": "first quest-artifact acquisition through the wish command",
+            "functions": [
+              "artitouch"
+            ],
+            "recordings": [
+              "recordings/quest.c/artitouch-wizard-eye-independent-A27.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v8",
+                "caseId": "artifact-heart-invoke-cycle",
+                "segment": 0,
+                "fromStep": 24,
+                "throughStep": 24,
+                "source": "cmd.c wish dispatch -> zap.c:makewish -> invent.c:addinv_core1 -> quest.c:artitouch"
+              }
+            ]
+          },
+          {
+            "name": "first quest-artifact acquisition through floor pickup (blocked setup)",
+            "functions": [
+              "artitouch"
+            ],
+            "recordings": [],
+            "synthetic": []
+          },
+          {
+            "name": "first quest-artifact acquisition through container extraction (blocked setup)",
+            "functions": [
+              "artitouch"
+            ],
+            "recordings": [],
+            "synthetic": []
+          },
+          {
+            "name": "WIZKIT startup inventory acquisition with pager suppression (no JavaScript startup route)",
+            "functions": [
+              "artitouch"
+            ],
+            "recordings": [],
+            "synthetic": []
+          }
+        ]
+      },
+      "progressBeforePark": {
+        "screens": 0,
+        "rng": 0
+      },
+      "parkedStanding": {
+        "sha": "589eff0af34470081afdfe7bfea0cd282afa66c1",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "parkedReason": "artitouch is source-reviewed and verified through independent wish acquisition and v8 step 24, but first-touch floor pickup and container extraction still lack a pre-acquisition quest-artifact provenance recipe; files.c wizkit_addinv startup and its skip_pager path also lack a JavaScript WIZKIT route. Resume after those entry points acquire matching runtime evidence or their blocking source paths are ported."
+    },
+    {
+      "id": "port-read-seffect-enchant-weapon-synthetic-v8-20260927",
+      "kind": "file-port",
+      "status": "closed",
+      "summary": "Port read.c seffect_enchant_weapon across blessed and other branches",
+      "cFile": "read.c",
+      "sessions": [
+        "synthetic/v8/read-blessed-enchant-weapon"
+      ],
+      "selectionReason": "Current v8 read-blessed-enchant-weapon diverges at step 37: C read.c:seffect_enchant_weapon draws rnd(3), while JS skips its blessed branch. Port the complete effect and production seffects caller, including return-valued wield.c:chwepon and pure objnam.c:erosion_matters dependencies; verify independent C recordings for active branches and name blocked void callees.",
+      "detail": "",
+      "openedAt": "afdb7086292a83e6107a8ab2456e038bad44fd4b",
+      "openStanding": {
+        "sha": "e32dd8b5f6ed268811ce9a39ffd2571ce0e3462b",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "closedAt": "a764f399d366f68d8cfd1ad305759ee6fef2a97a",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
+      "functions": [
+        {
+          "name": "seffect_enchant_weapon",
+          "line": 1627,
+          "endLine": 1678,
+          "declared": true,
+          "complete": true
+        }
+      ],
+      "range": {
+        "from": 1627,
+        "to": 1678
+      },
+      "syntheticProvenance": {
+        "synthetic/v8/read-blessed-enchant-weapon": {
+          "session": "synthetic/v8/read-blessed-enchant-weapon",
+          "corpus": "synthetic",
+          "batch": "v8",
+          "caseId": "read-blessed-enchant-weapon",
+          "manifestPath": "challenges/manifests/v8.json",
+          "manifestSha256": "6a5159501af18a7f926f794d89e817375cd00a3589c4899fb97392ae04dbe8ba",
+          "recordingPath": "challenges/cases/v8/read-blessed-enchant-weapon.session.json",
+          "recordingSha256": "554a6afed2c716218943a4b42a5a9daefed78e77869fe346d286d19e7500666f",
+          "evaluationPath": "challenges/evaluations/20260927142534-v8.json",
+          "evaluationCommit": "c54c2c13ca30ebad8411cbcd4b7dcd3e193fbddc"
+        }
+      },
+      "activeStanding": {
+        "sha": "e32dd8b5f6ed268811ce9a39ffd2571ce0e3462b",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v8",
+          "caseId": "read-blessed-enchant-weapon",
+          "session": "synthetic/v8/read-blessed-enchant-weapon",
+          "manifestPath": "challenges/manifests/v8.json",
+          "manifestSha256": "6a5159501af18a7f926f794d89e817375cd00a3589c4899fb97392ae04dbe8ba",
+          "recording": "challenges/cases/v8/read-blessed-enchant-weapon.session.json",
+          "recordingPath": "challenges/cases/v8/read-blessed-enchant-weapon.session.json",
+          "recordingSha256": "554a6afed2c716218943a4b42a5a9daefed78e77869fe346d286d19e7500666f",
+          "recipe": "challenges/cases/v8/read-blessed-enchant-weapon.recipe.session.json",
+          "recipeSha256": "bf6cc7a65a346406dee977c71b2dfbfa232ad87e1862cda6a9acc764b62790ed",
+          "replayInputSha256": "9ed6be5dca7538f19cc27061a8c0d5dd7a20664213c9bb690a7f7da450f8d25c",
+          "evaluationPath": "challenges/evaluations/20260927151340-v8.json",
+          "evaluationCommit": "e32dd8b5f6ed268811ce9a39ffd2571ce0e3462b",
+          "evaluationArtifact": "challenges/evaluations/20260927151340-v8.json",
+          "evaluationUtc": "2026-09-27T15:14:30.193Z",
+          "remainingScreens": 1,
+          "recordedSteps": 38,
+          "previousScreensMatched": 37,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 37,
+              "total": 38
+            },
+            "rng": {
+              "matched": 2757,
+              "total": 2758
+            },
+            "cursors": {
+              "matched": 37,
+              "total": 38
+            }
+          },
+          "firstMismatch": {
+            "screen": {
+              "index": 37,
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 37,
+                "key": "o"
+              },
+              "kind": "ch",
+              "row": 0,
+              "column": 38,
+              "cCell": {
+                "ch": "-",
+                "color": 8,
+                "attr": 0,
+                "decgfx": 0
+              },
+              "jsCell": {
+                "ch": " ",
+                "color": 8,
+                "attr": 0,
+                "decgfx": 0
+              }
+            },
+            "rng": {
+              "index": 2757,
+              "cEntry": "rnd(3)=2",
+              "cCaller": "seffect_enchant_weapon(read.c:1670)",
+              "jsEntry": "rn2(12)=1",
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 37,
+                "key": "o"
+              },
+              "stepIndex": 37
+            },
+            "cursor": {
+              "index": 37,
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 37,
+                "key": "o"
+              },
+              "cCursor": [
+                46,
+                0,
+                1
+              ],
+              "jsCursor": [
+                29,
+                14,
+                1
+              ]
+            }
+          },
+          "step": 37,
+          "kind": "rng",
+          "sourceFile": "read.c",
+          "function": "seffect_enchant_weapon",
+          "message": null,
+          "cFile": "read.c",
+          "luaFile": null,
+          "line": 1670,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v8/read-blessed-enchant-weapon.json",
+            "result": {
+              "session": "synthetic/v8/read-blessed-enchant-weapon",
+              "corpus": "synthetic",
+              "batch": "v8",
+              "caseId": "read-blessed-enchant-weapon",
+              "manifestPath": "challenges/manifests/v8.json",
+              "manifestSha256": "6a5159501af18a7f926f794d89e817375cd00a3589c4899fb97392ae04dbe8ba",
+              "recordingSha256": "554a6afed2c716218943a4b42a5a9daefed78e77869fe346d286d19e7500666f",
+              "evaluationPath": "challenges/evaluations/20260927111723-v8.json",
+              "evaluationCommit": "358dd6ad1294374a96a704a7f5a9b46c0ddc4a47",
+              "remainingScreens": 1,
+              "recordedSteps": 38,
+              "status": "complete",
+              "commit": "358dd6ad1294374a96a704a7f5a9b46c0ddc4a47",
+              "mismatch": {
+                "corpus": "synthetic",
+                "batch": "v8",
+                "caseId": "read-blessed-enchant-weapon",
+                "session": "synthetic/v8/read-blessed-enchant-weapon",
+                "manifestPath": "challenges/manifests/v8.json",
+                "manifestSha256": "6a5159501af18a7f926f794d89e817375cd00a3589c4899fb97392ae04dbe8ba",
+                "recording": "challenges/cases/v8/read-blessed-enchant-weapon.session.json",
+                "recordingPath": "challenges/cases/v8/read-blessed-enchant-weapon.session.json",
+                "recordingSha256": "554a6afed2c716218943a4b42a5a9daefed78e77869fe346d286d19e7500666f",
+                "recipe": "challenges/cases/v8/read-blessed-enchant-weapon.recipe.session.json",
+                "recipeSha256": "bf6cc7a65a346406dee977c71b2dfbfa232ad87e1862cda6a9acc764b62790ed",
+                "replayInputSha256": "dac3f90ff702af2c54d80d8da3676a4054378ebbc23ed2be78223cf4db4d16ee",
+                "evaluationPath": "challenges/evaluations/20260927111723-v8.json",
+                "evaluationCommit": "358dd6ad1294374a96a704a7f5a9b46c0ddc4a47",
+                "evaluationArtifact": "challenges/evaluations/20260927111723-v8.json",
+                "evaluationUtc": "2026-09-27T11:17:55.744Z",
+                "remainingScreens": 1,
+                "recordedSteps": 38,
+                "previousScreensMatched": 37,
+                "regression": false,
+                "passed": false,
+                "error": null,
+                "metrics": {
+                  "screens": {
+                    "matched": 37,
+                    "total": 38
+                  },
+                  "rng": {
+                    "matched": 2757,
+                    "total": 2758
+                  },
+                  "cursors": {
+                    "matched": 37,
+                    "total": 38
+                  }
+                },
+                "firstMismatch": {
+                  "screen": {
+                    "index": 37,
+                    "location": {
+                      "segmentIndex": 0,
+                      "stepIndex": 37,
+                      "key": "o"
+                    },
+                    "kind": "ch",
+                    "row": 0,
+                    "column": 38,
+                    "cCell": {
+                      "ch": "-",
+                      "color": 8,
+                      "attr": 0,
+                      "decgfx": 0
+                    },
+                    "jsCell": {
+                      "ch": " ",
+                      "color": 8,
+                      "attr": 0,
+                      "decgfx": 0
+                    }
+                  },
+                  "rng": {
+                    "index": 2757,
+                    "cEntry": "rnd(3)=2",
+                    "cCaller": "seffect_enchant_weapon(read.c:1670)",
+                    "jsEntry": "rn2(12)=1",
+                    "location": {
+                      "segmentIndex": 0,
+                      "stepIndex": 37,
+                      "key": "o"
+                    },
+                    "stepIndex": 37
+                  },
+                  "cursor": {
+                    "index": 37,
+                    "location": {
+                      "segmentIndex": 0,
+                      "stepIndex": 37,
+                      "key": "o"
+                    },
+                    "cCursor": [
+                      46,
+                      0,
+                      1
+                    ],
+                    "jsCursor": [
+                      29,
+                      14,
+                      1
+                    ]
+                  }
+                },
+                "step": 37,
+                "kind": "rng",
+                "sourceFile": "read.c",
+                "function": "seffect_enchant_weapon",
+                "message": null,
+                "cFile": "read.c",
+                "luaFile": null,
+                "line": 1670
+              },
+              "summary": "At segment 0 step 37, selecting the blessed enchant-weapon scroll reaches read.c:seffect_enchant_weapon. C draws rnd(3)=2 at read.c:1670; JavaScript routes blessed scrolls to note_unported and skips the effect, so the aligned rn2(12)=1 is subsequent stream drift. Port the complete seffect_enchant_weapon function and its consumed-result wield.c:chwepon callee; chwepon’s integer result controls whether the scroll is consumed. Preserve the existing doread/seffects caller chain and source-ordered cap_spe behavior.",
+              "source": {
+                "file": "read.c",
+                "branch": "For the recorded path, doread selects a blessed SCR_ENCHANT_WEAPON with a wielded non-eroded quarterstaff while the hero is not confused. seffect_enchant_weapon reaches its blessed branch; because the weapon is below +9, C computes s with rnd(3) (the recorded draw) and passes the result to chwepon(), then caps the weapon enchantment. The full function also includes cursed, confused erosion-proofing, no-weapon, and high-enchantment branches.",
+                "functions": [
+                  "seffect_enchant_weapon"
+                ],
+                "callers": [
+                  "C: cmd.c command table at 1817 dispatches the read command to read.c:doread() (330); doread() calls seffects() at 635, whose SCR_ENCHANT_WEAPON arm at 2233-2234 calls seffect_enchant_weapon() at 1627-1676. The function consumes chwepon()’s result at 1672 to null the scroll pointer before seffects() returns the use-up decision to doread().",
+                  "JavaScript: js/cmd.js read handler (3410-3415) calls js/read.js:doread(); js/read.js:seffects() handles SCR_ENCHANT_WEAPON at 1582-1595, but its guard rejects blessed scrolls into note_unported. The existing js/read.js:seffect_enchant_weapon() at 1672-1692 is restricted to ordinary scrolls and calls js/wield.js:chwepon() with hard-coded amount 1."
+                ],
+                "dependencies": [
+                  "wield.c:chwepon() (918-1048) is the required return-valued dependency: read.c consumes its int result and treats zero as strange_feeling() having consumed the scroll. The current JS chwepon() at js/wield.js:319-353 only supports amount=1 on an ordinary positive branch; it refuses the blessed amount selected here and does not propagate a false result to seffects(). This is the only C chwepon() call site (read.c:1672).",
+                  "objnam.c:erosion_matters() (1195-1215) returns a boolean consumed by the confused branch at read.c:1640. It is pure by source inspection and its existing JS counterpart is obj.js:erosionMatters() at 1474-1480; verify that helper/test/source-file placement when completing the whole read.c function.",
+                  "read.c:cap_spe() (80-86) is a void state clamp called at read.c:1675. js/read.js currently mirrors the absolute SPE_LIM clamp inline after chwepon(); preserve that source order and bound.",
+                  "The complete chwepon() body also consumes existing helper or macro results including is_weptool, will_weld, has_oname, restrict_name, u_wield_art/is_art, weight, and is_elven_weapon. Existing JS counterparts cover the helpers/macros except is_elven_weapon, which can be expressed from obj.h:360-363 inside the wield.c port; its void side-effect callees must follow the source-gap rule."
+                ]
+              },
+              "goalKind": "file-port",
+              "evidence": [
+                "The saved A25 queue and evaluation challenges/evaluations/20260927111723-v8.json at 358dd6ad1294374a96a704a7f5a9b46c0ddc4a47 still show 1 remaining screen over 38 steps: 37/38 screens, 2757/2758 RNG entries, and 37/38 cursors match. At segment 0 step 37 (key o), the first RNG mismatch is index 2757: C rnd(3)=2 at seffect_enchant_weapon(read.c:1670), JS rn2(12)=1; screen index 37 differs at row 0 column 38, C '-' versus JS space, with cursors C [46,0,1] and JS [29,14,1].",
+                "The immutable C recording challenges/cases/v8/read-blessed-enchant-weapon.session.json records step 37 input o with rn2(19)=4 @ exercise(attrib.c:509), then rnd(3)=2 @ seffect_enchant_weapon(read.c:1670), and the screen begins “As you read the scroll, it disappears.--More--”. Its independently selected recipe is challenges/cases/v8/read-blessed-enchant-weapon.recipe.session.json (seed 83015418, Wizard, wished blessed scroll, then read).",
+                "Upstream read.c:1627-1676 shows the full effect. At 1667-1671, a blessed scroll with a wielded weapon below +9 selects rnd(3 - uwep->spe / 3); the recorded rnd(3) confirms this branch. At 1672, the chwepon() result controls *sobjp; at 1675, cap_spe() runs afterward.",
+                "Upstream read.c:2193-2234 dispatches SCR_ENCHANT_WEAPON to seffect_enchant_weapon(); read.c:doread() consumes seffects()’s result at 635-645. The missing JavaScript source branch is visible in js/read.js:1582-1595; the current effect at 1672-1692 explicitly rejects blessed scrolls. The C call graph has one chwepon() site, at read.c:1672.",
+                "Upstream wield.c:918-1048 defines the complete chwepon() function, including the integer return branches. The JavaScript implementation at js/wield.js:319-353 is only the ordinary amount=1 branch, confirming that the effect cannot be completed safely by changing only the blessed RNG formula.",
+                "The additional consumed helper objnam.c:erosion_matters() is pure: its source at 1195-1215 only inspects object class and calls is_weptool(). Its existing JS behavior is obj.js:1474-1480. The void cap_spe() helper’s absolute clamp is currently mirrored inline in js/read.js."
+              ]
+            }
+          }
+        }
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "seffect_enchant_weapon",
+            "implementation": "js/read.js",
+            "symbol": "seffect_enchant_weapon",
+            "sourceReview": "Read read.c:seffect_enchant_weapon() (1627-1678) as a whole. The confused rustproofing branch calls objnam.c:erosion_matters() before excluding armor, sets rknown and temporarily clears oerodeproof before its message, repairs both erosion counters only for new proof, restores the old proof before the cursed-shop COST_DEGRD query, then commits the new proof flag. Otherwise preserve the nested source ternary order: cursed -1, no weapon +1, spe>=9 rn2(spe), blessed rnd(3 - trunc(spe/3)), uncursed +1; pass the result to wield.c:chwepon(), clear the scroll pointer only when chwepon() returns 0, then clamp the still-wielded weapon to SPE_LIM. Removed the old blessed/cursed/confused/weapon guard and refusal. Ported the consumed return dependency as the whole wield.c:chwepon() body (918-1048), including its initial hcolor call, invalid-weapon strange_feeling/useup return, cursed tin-opener path, WORM_TOOTH/CRYSKNIFE conversions, restrict_name artifact refusal, soft-limit draw, normal enchant/de-enchant, uncurse/bill updates, Magicbane clue, and elven vibration RNG. Its void invent.c:useupall() call at the soft-limit destruction branch is skipped with note_unported('invent.c useupall'); sourceCostlyAlteration() skips billed shop accounting with note_unported('shk.c costly_alteration') and otherwise preserves the no-op fast path. Existing potion.c:strange_feeling, mkobj.c:uncurse, shk.c:alter_cost, pickup.c:encumber_msg, o_init.c:discover_object/makeknown, do_name.c:hcolor, and the wield.c helpers are used in source order. The return-valued pure objnam.c:erosion_matters() (1195-1215) is now kept in js/objnam.js, reused by confused enchantment and donameFresh, with js/obj.js retaining a compatibility adapter; scripts/objnam.test.mjs pins its class and is_weptool results to C. The read dispatch caller chain is js/cmd.js:runReadCommand -> js/read.js:doread -> js/read.js:seffects -> this function. Source obj.h:is_elven_weapon is a macro, not a C function: its predicate is represented inline in js/wield.js with the source object-type set; this avoids placing obj.h behavior in an unrelated JS module.",
+            "callers": [
+              {
+                "path": "js/cmd.js",
+                "symbol": "runReadCommand",
+                "source": "cmd.c dispatches the read command to read.c:doread(); JavaScript runReadCommand() forwards the active read command to doread()."
+              },
+              {
+                "path": "js/read.js",
+                "symbol": "doread",
+                "source": "read.c:doread() selects the scroll, calls seffects(), and uses the returned consumption state to finish the read; JavaScript doread() preserves this same caller boundary."
+              },
+              {
+                "path": "js/read.js",
+                "symbol": "seffects",
+                "source": "read.c:seffects() dispatches SCR_ENCHANT_WEAPON to seffect_enchant_weapon(&sobj); JavaScript seffects() now awaits the whole source effect and nulls its local scroll only when chwepon() reports consumption."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/objnam.test.mjs",
+              "scripts/wield.test.mjs",
+              "scripts/read.test.mjs",
+              "scripts/read-command.test.mjs",
+              "scripts/read-doread.test.mjs"
+            ],
+            "recordings": [
+              "recordings/read.c/read-enchant-weapon-blessed-A28-independent.session.json",
+              "recordings/read.c/read-enchant-weapon-fresh.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v8",
+                "caseId": "read-blessed-enchant-weapon",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 37,
+                "source": "cmd.c read dispatch -> read.c:doread -> read.c:seffects SCR_ENCHANT_WEAPON -> read.c:seffect_enchant_weapon -> wield.c:chwepon"
+              }
+            ],
+            "checkedAt": "a764f399d366f68d8cfd1ad305759ee6fef2a97a"
+          }
+        ],
+        "entryPointReview": "The selected range has one active production entry point: the player's read command on SCR_ENCHANT_WEAPON, dispatched cmd.c -> read.c:doread() -> seffects(). The v8 blessed-weapon case matches through zero-based step 37 and executes the blessed rnd(3) amount, consumed-result return, and cap_spe tail. The independent Wizard recipe uses a different seed, date, character presentation, and wished blessed scroll, strictly matches all 40 recorded steps, and reaches the same production caller. Existing recordings/read.c/read-enchant-weapon-fresh.session.json was also replayed with no divergence for its 41 steps, covering the ordinary uncursed positive branch. The pure erosion_matters dependency is pinned separately in scripts/objnam.test.mjs. Confused proofing and high-enchantment RNG are implemented from their C branches; their active read command is the same entry point. chwepon's only skipped source calls are the explicitly named void gaps: invent.c:useupall for a soft-limit weapon destruction and shk.c:costly_alteration when the object is billed. Those effects are not claimed by the matching blessed/ordinary recordings. No other active C read caller was found for this scroll effect. The recorder slot is released and no process remains active. The earlier failed diff-fresh invocation passed the already-recorded `.session.json` instead of the input-only `.recipe.session.json`; it exited validation with code 2 before running a C comparison. The corrected selected recipe and independent recipe both passed strict C/JavaScript comparisons.",
+        "entryPoints": [
+          {
+            "name": "read command on SCR_ENCHANT_WEAPON",
+            "functions": [
+              "seffect_enchant_weapon"
+            ],
+            "recordings": [
+              "recordings/read.c/read-enchant-weapon-blessed-A28-independent.session.json",
+              "recordings/read.c/read-enchant-weapon-fresh.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v8",
+                "caseId": "read-blessed-enchant-weapon",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 37,
+                "source": "cmd.c read dispatch -> read.c:doread -> read.c:seffects SCR_ENCHANT_WEAPON -> read.c:seffect_enchant_weapon -> wield.c:chwepon"
+              }
+            ]
+          }
+        ]
+      },
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "a764f399d366f68d8cfd1ad305759ee6fef2a97a",
+        "screens": 11405,
+        "rng": 792838
+      }
+    },
+    {
+      "id": "port-apply-touchstone-family-synthetic-v8-20260927",
+      "kind": "file-port",
+      "status": "closed",
+      "summary": "Port touchstone rubbing and gem identification through apply and rub commands",
+      "cFile": "apply.c",
+      "sessions": [
+        "synthetic/v8/apply-blessed-touchstone-identifies-gem"
+      ],
+      "selectionReason": "Current v8 touchstone case stops at step 39 in js/apply.js:doapply while C enters apply.c:use_stone. Source-traced investigation investigations/synthetic/v8/apply-blessed-touchstone-identifies-gem.json identifies touchstone_ok/use_stone as the whole responsible family, with doapply and dorub as production callers. The annotated doapply owner is only the dispatch site. The admitted recording and latest evaluation are challenges/cases/v8/apply-blessed-touchstone-identifies-gem.session.json and challenges/evaluations/20260927151340-v8.json.",
+      "detail": "",
+      "openedAt": "1b9aec8163c59054700d8d341690fd4cc7333df8",
+      "openStanding": {
+        "sha": "a764f399d366f68d8cfd1ad305759ee6fef2a97a",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "closedAt": "5bf1150b63da82c6e02196da6a3d7047ef9b3938",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
+      "functions": [
+        {
+          "name": "touchstone_ok",
+          "line": 2658,
+          "endLine": 2679,
+          "declared": true,
+          "complete": true
+        },
+        {
+          "name": "use_stone",
+          "line": 2680,
+          "endLine": 2812,
+          "declared": true,
+          "complete": true
+        }
+      ],
+      "range": {
+        "from": 2658,
+        "to": 2812
+      },
+      "syntheticProvenance": {
+        "synthetic/v8/apply-blessed-touchstone-identifies-gem": {
+          "session": "synthetic/v8/apply-blessed-touchstone-identifies-gem",
+          "corpus": "synthetic",
+          "batch": "v8",
+          "caseId": "apply-blessed-touchstone-identifies-gem",
+          "manifestPath": "challenges/manifests/v8.json",
+          "manifestSha256": "6a5159501af18a7f926f794d89e817375cd00a3589c4899fb97392ae04dbe8ba",
+          "recordingPath": "challenges/cases/v8/apply-blessed-touchstone-identifies-gem.session.json",
+          "recordingSha256": "c1ac831e5b8e20bf4777c016524fca8cec221b084adeb6eb14c7d9ca31a2071f",
+          "evaluationPath": "challenges/evaluations/20260927151340-v8.json",
+          "evaluationCommit": "e32dd8b5f6ed268811ce9a39ffd2571ce0e3462b"
+        }
+      },
+      "activeStanding": {
+        "sha": "a764f399d366f68d8cfd1ad305759ee6fef2a97a",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v8",
+          "caseId": "apply-blessed-touchstone-identifies-gem",
+          "session": "synthetic/v8/apply-blessed-touchstone-identifies-gem",
+          "manifestPath": "challenges/manifests/v8.json",
+          "manifestSha256": "6a5159501af18a7f926f794d89e817375cd00a3589c4899fb97392ae04dbe8ba",
+          "recording": "challenges/cases/v8/apply-blessed-touchstone-identifies-gem.session.json",
+          "recordingPath": "challenges/cases/v8/apply-blessed-touchstone-identifies-gem.session.json",
+          "recordingSha256": "c1ac831e5b8e20bf4777c016524fca8cec221b084adeb6eb14c7d9ca31a2071f",
+          "recipe": "challenges/cases/v8/apply-blessed-touchstone-identifies-gem.recipe.session.json",
+          "recipeSha256": "4eccdc30b91b8ae19a86827b33311a87d14665f0d1dccce55ce8083cfba61e25",
+          "replayInputSha256": "8c8aec3edbf78a51e587a07fd105c543adf079ed2c1cfbf1622330924c32509a",
+          "evaluationPath": "challenges/evaluations/20260927155044-v8.json",
+          "evaluationCommit": "a764f399d366f68d8cfd1ad305759ee6fef2a97a",
+          "evaluationArtifact": "challenges/evaluations/20260927155044-v8.json",
+          "evaluationUtc": "2026-09-27T15:51:20.922Z",
+          "remainingScreens": 2,
+          "recordedSteps": 41,
+          "previousScreensMatched": 39,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 39,
+              "total": 41
+            },
+            "rng": {
+              "matched": 6205,
+              "total": 6212
+            },
+            "cursors": {
+              "matched": 39,
+              "total": 41
+            }
+          },
+          "firstMismatch": {
+            "kind": "stop",
+            "message": "unsupported hero command: an unported branch of this command: applying a tool requires doapply()'s arm for object type 472",
+            "step": 39
+          },
+          "step": 39,
+          "kind": "stop",
+          "sourceFile": "apply.c",
+          "function": "doapply",
+          "message": "unsupported hero command: an unported branch of this command: applying a tool requires doapply()'s arm for object type 472",
+          "cFile": "apply.c",
+          "luaFile": null,
+          "line": null,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v8/apply-blessed-touchstone-identifies-gem.json",
+            "result": {
+              "session": "synthetic/v8/apply-blessed-touchstone-identifies-gem",
+              "corpus": "synthetic",
+              "batch": "v8",
+              "caseId": "apply-blessed-touchstone-identifies-gem",
+              "manifestPath": "challenges/manifests/v8.json",
+              "manifestSha256": "6a5159501af18a7f926f794d89e817375cd00a3589c4899fb97392ae04dbe8ba",
+              "recordingSha256": "c1ac831e5b8e20bf4777c016524fca8cec221b084adeb6eb14c7d9ca31a2071f",
+              "evaluationPath": "challenges/evaluations/20260927142534-v8.json",
+              "evaluationCommit": "c54c2c13ca30ebad8411cbcd4b7dcd3e193fbddc",
+              "remainingScreens": 2,
+              "recordedSteps": 41,
+              "status": "complete",
+              "commit": "c54c2c13ca30ebad8411cbcd4b7dcd3e193fbddc",
+              "mismatch": {
+                "corpus": "synthetic",
+                "batch": "v8",
+                "caseId": "apply-blessed-touchstone-identifies-gem",
+                "session": "synthetic/v8/apply-blessed-touchstone-identifies-gem",
+                "manifestPath": "challenges/manifests/v8.json",
+                "manifestSha256": "6a5159501af18a7f926f794d89e817375cd00a3589c4899fb97392ae04dbe8ba",
+                "recording": "challenges/cases/v8/apply-blessed-touchstone-identifies-gem.session.json",
+                "recordingPath": "challenges/cases/v8/apply-blessed-touchstone-identifies-gem.session.json",
+                "recordingSha256": "c1ac831e5b8e20bf4777c016524fca8cec221b084adeb6eb14c7d9ca31a2071f",
+                "recipe": "challenges/cases/v8/apply-blessed-touchstone-identifies-gem.recipe.session.json",
+                "recipeSha256": "4eccdc30b91b8ae19a86827b33311a87d14665f0d1dccce55ce8083cfba61e25",
+                "replayInputSha256": "f12aaa199382908484612c7c8d311b333eb8a8d5cb1f2a5aba58e1ae8afc64b3",
+                "evaluationPath": "challenges/evaluations/20260927142534-v8.json",
+                "evaluationCommit": "c54c2c13ca30ebad8411cbcd4b7dcd3e193fbddc",
+                "evaluationArtifact": "challenges/evaluations/20260927142534-v8.json",
+                "evaluationUtc": "2026-09-27T14:26:06.427Z",
+                "remainingScreens": 2,
+                "recordedSteps": 41,
+                "previousScreensMatched": 39,
+                "regression": false,
+                "passed": false,
+                "error": null,
+                "metrics": {
+                  "screens": {
+                    "matched": 39,
+                    "total": 41
+                  },
+                  "rng": {
+                    "matched": 6205,
+                    "total": 6212
+                  },
+                  "cursors": {
+                    "matched": 39,
+                    "total": 41
+                  }
+                },
+                "firstMismatch": {
+                  "kind": "stop",
+                  "message": "unsupported hero command: an unported branch of this command: applying a tool requires doapply()'s arm for object type 472",
+                  "step": 39
+                },
+                "step": 39,
+                "kind": "stop",
+                "sourceFile": "apply.c",
+                "function": "doapply",
+                "message": "unsupported hero command: an unported branch of this command: applying a tool requires doapply()'s arm for object type 472",
+                "cFile": "apply.c",
+                "luaFile": null,
+                "line": null
+              },
+              "summary": "Applying a blessed touchstone reaches apply.c:use_stone, which asks for a rubbing target and identifies an unknown gem. JavaScript doapply lacks the TOUCHSTONE/graystone arm and refuses at the selection prompt. Port complete use_stone and pure touchstone_ok through doapply and the graystone branch of dorub; the queue’s doapply label is the dispatcher, not the missing source function.",
+              "source": {
+                "file": "apply.c",
+                "branch": "A selected touchstone or other gray stone calls use_stone; a blessed touchstone rubbed with an unknown gem enters the identification branch, calls makeknown on stone and gem, and prints the renamed gem. The full function also handles known-target filtering, cursed shattering, self-rub, blind/hallucinating feedback, material streak/scratch effects, and command result timing.",
+                "functions": [
+                  "touchstone_ok",
+                  "use_stone"
+                ],
+                "callers": [
+                  "C apply.c:doapply dispatches FLINT, LUCKSTONE, LOADSTONE, and TOUCHSTONE to use_stone; JS js/apply.js:doapply refuses this arm.",
+                  "C apply.c:dorub enters use_stone for a selected gray stone; JS js/apply.js:dorub currently throws for the graystone branch."
+                ],
+                "dependencies": [
+                  "C use_stone consumes getobj callback touchstone_ok; it is pure and needs source-pinned tests. Existing js/apply.js getobj supports callback predicates.",
+                  "The cursed gem branch consumes bury.c:obj_resists, already present in js/bury.js; discovery uses hack.h makeknown (discover_object) and the final identified object line uses invent.c:prinv.",
+                  "Source material/class helpers is_graystone, is_flimsy, object type/material/color tables, and pline/You/You_see messaging must preserve branch and output order."
+                ]
+              },
+              "goalKind": "file-port",
+              "evidence": [
+                "Current saved challenges/evaluations/20260927142534-v8.json leaves 2 of 41 screens unmatched. Fresh scan at 56955495745cc647070474dbb74a558d5dfc2a24 stops at segment 0 step 39 after selecting the touchstone: JS raises UnsupportedApplyError for doapply object type 472; C waits for a second object.",
+                "Independent C recording challenges/cases/v8/apply-blessed-touchstone-identifies-gem.session.json reaches the use_stone prompt at step 39 and, after target p at step 40, prints \"p - a ruby.\" rather than the prior \"p - a red gem.\" No extra effect RNG is drawn at the identification step.",
+                "Upstream nethack-c/upstream/src/apply.c:use_stone around lines 2680-2808 calls getobj, then identifies a gem when a blessed touchstone is rubbed against it; doapply around line 4397 calls use_stone for four graystone types. dorub around line 1798 is its other active caller. js/apply.js:doapply has no matching arm, and dorub explicitly refuses gray stones.",
+                "The source family is apply.c touchstone_ok/use_stone, not a generic doapply change or a rule based on the recorded seed, object letter, or ruby name."
+              ]
+            }
+          }
+        }
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "touchstone_ok",
+            "implementation": "js/apply.js",
+            "symbol": "touchstone_ok",
+            "sourceReview": "Compared the full apply.c:touchstone_ok() definition (2658-2675). It excludes NULL, suggests coins, suggests gems unless both the object is known to the hero and the type name is globally identified, and downplays all remaining objects. The callback does not mutate state, print, or consume RNG. Its type-known check reads the same objects[otyp].oc_name_known value as C. Its sole production caller is use_stone()'s getobj callback.",
+            "callers": [
+              {
+                "path": "js/apply.js",
+                "symbol": "use_stone",
+                "source": "apply.c:use_stone() passes touchstone_ok as getobj's callback when a TOUCHSTONE is fully known (2693-2700)."
+              }
+            ],
+            "pure": true,
+            "tests": [
+              "scripts/apply.test.mjs"
+            ],
+            "recordings": [],
+            "synthetic": [],
+            "checkedAt": "5bf1150b63da82c6e02196da6a3d7047ef9b3938"
+          },
+          {
+            "name": "use_stone",
+            "implementation": "js/apply.js",
+            "symbol": "use_stone",
+            "sourceReview": "Compared the whole apply.c:use_stone() definition (2680-2809) in source order: conditional observe_object; the known-touchstone callback choice and secondary getobj prompt; cancellation and self-rub results; cursed touchstone gem resistance and shatter/useup path; blind and hallucination early returns; ring material normalization; gem/ring handling including GLASS; blessed or Archeologist/Gnome gem identification; all CLOTH, LIQUID, WAX, WOOD, GOLD, SILVER and default is_flimsy/material arms; final scratch, streak, or scritch message and ECMD result. RNG and state effects use the supplied C-compatible environment. The streak table is decl.c:c_obj_colors (20-37), exported from its existing single JS owner in do_name.js and source-pinned in scripts/apply.test.mjs. The identification branch calls C makeknown(), which reaches void shk.c:gem_learned(); JS passes a hook that records note_unported('shk.c gem_learned') and returns no data, then preserves discover_object's remaining C effects. The other caller, dorub(), still has its pre-existing source-named use_royal_jelly refusal outside this selected function family; its gray-stone path now reaches use_stone(). No case-specific logic was added.",
+            "callers": [
+              {
+                "path": "js/apply.js",
+                "symbol": "doapply",
+                "source": "cmd.c:commands['a'] dispatches to apply.c:doapply (cmd.c:1677-1678); apply.c:doapply() calls use_stone() for FLINT, LUCKSTONE, LOADSTONE and TOUCHSTONE (4397-4400)."
+              },
+              {
+                "path": "js/apply.js",
+                "symbol": "dorub",
+                "source": "cmd.c's extended-command table registers 'rub' with apply.c:dorub (cmd.c:1835-1836); apply.c:dorub() calls use_stone() for gray stones (1785-1799)."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/apply.test.mjs"
+            ],
+            "recordings": [
+              "recordings/apply.c/touchstone-rub-independent.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v8",
+                "caseId": "apply-blessed-touchstone-identifies-gem",
+                "segment": 0,
+                "fromStep": 38,
+                "throughStep": 40,
+                "source": "cmd.c:commands['a'] -> apply.c:doapply -> apply.c:use_stone; the blessed touchstone target prompt and gem identification execute the source family."
+              }
+            ],
+            "checkedAt": "5bf1150b63da82c6e02196da6a3d7047ef9b3938"
+          }
+        ],
+        "entryPointReview": "The selected source range is apply.c:touchstone_ok/use_stone. Its active production entries are ordinary apply (`cmd.c:commands['a'] -> doapply -> use_stone`) and extended #rub (`cmd.c extended-command 'rub' -> dorub -> use_stone`). The admitted v8 case matches through segment 0, steps 38-40 and exercises the apply entry, including the blessed-touchstone identification branch. The independent #rub recipe/recording strictly matches all 45 steps and exercises the separate dorub entry with its own blessed-touchstone and ruby setup. touchstone_ok is pure and has source-pinned rank/identification tests. The void shk.c:gem_learned callee is the only named unported effect; no return value is used, and it is not treated as data. The unrelated royal-jelly branch remains outside this source range and is still refused by its existing source-named use_royal_jelly placeholder; B29 makes no completion claim for it.",
+        "entryPoints": [
+          {
+            "name": "Apply a gray stone and rub it on an inventory object",
+            "functions": [
+              "touchstone_ok",
+              "use_stone"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v8",
+                "caseId": "apply-blessed-touchstone-identifies-gem",
+                "segment": 0,
+                "fromStep": 38,
+                "throughStep": 40,
+                "source": "cmd.c:commands['a'] -> apply.c:doapply -> apply.c:use_stone"
+              }
+            ]
+          },
+          {
+            "name": "Use #rub on a gray stone and inventory object",
+            "functions": [
+              "touchstone_ok",
+              "use_stone"
+            ],
+            "recordings": [
+              "recordings/apply.c/touchstone-rub-independent.session.json"
+            ],
+            "synthetic": []
+          }
+        ]
+      },
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "5bf1150b63da82c6e02196da6a3d7047ef9b3938",
+        "screens": 11405,
+        "rng": 792838
+      }
+    },
+    {
+      "id": "fix-objnam-artifact-named-article-synthetic-v8-20260927",
+      "kind": "divergence-fix",
+      "status": "closed",
+      "summary": "Match artifact named-suffix article casing in object names",
+      "cFile": "objnam.c",
+      "sessions": [],
+      "selectionReason": "Current v8 artifact-heart-invoke-cycle has one screen mismatch at segment 0 step 25 after A27 first-touch behavior matches. Source-traced investigation investigations/synthetic/v8/artifact-heart-invoke-cycle.json locates the general objnam.c:xname_flags named-suffix rule; js/objnam.js:xnameFresh leaves an initial The capitalized. The saved current evidence is challenges/evaluations/20260927155044-v8.json for recording challenges/cases/v8/artifact-heart-invoke-cycle.session.json, sha256 816c8353f3fea197a0e99d8bd83f53f622a02d45fe61a59784dcfd479862cfd8.",
+      "detail": "At synthetic/v8/artifact-heart-invoke-cycle segment 0 step 25, the first mismatch is a screen cell in the inventory acquisition line: patched C says named the Heart of Ahriman; JS says named The Heart of Ahriman. Upstream objnam.c:xname_flags appends the artifact name and lowercases an initial The for all artifact instances under its named suffix branch. The suspected JavaScript owner is js/objnam.js:xnameFresh. Implement the source rule across artifact names, without session, seed, or Heart-specific branches.",
+      "openedAt": "c6878f87e8b366e2999737981ea9b3f12a9b682c",
+      "openStanding": {
+        "sha": "5bf1150b63da82c6e02196da6a3d7047ef9b3938",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "closedAt": "63b63f85580e6a45a931debedbbd386779933d15",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
+      "function": "xname_flags",
+      "session": "synthetic/v8/artifact-heart-invoke-cycle",
+      "step": 25,
+      "syntheticProvenance": {
+        "synthetic/v8/artifact-heart-invoke-cycle": {
+          "session": "synthetic/v8/artifact-heart-invoke-cycle",
+          "corpus": "synthetic",
+          "batch": "v8",
+          "caseId": "artifact-heart-invoke-cycle",
+          "manifestPath": "challenges/manifests/v8.json",
+          "manifestSha256": "6a5159501af18a7f926f794d89e817375cd00a3589c4899fb97392ae04dbe8ba",
+          "recordingPath": "challenges/cases/v8/artifact-heart-invoke-cycle.session.json",
+          "recordingSha256": "816c8353f3fea197a0e99d8bd83f53f622a02d45fe61a59784dcfd479862cfd8",
+          "evaluationPath": "challenges/evaluations/20260927155044-v8.json",
+          "evaluationCommit": "a764f399d366f68d8cfd1ad305759ee6fef2a97a"
+        }
+      },
+      "activeStanding": {
+        "sha": "5bf1150b63da82c6e02196da6a3d7047ef9b3938",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v8",
+          "caseId": "artifact-heart-invoke-cycle",
+          "session": "synthetic/v8/artifact-heart-invoke-cycle",
+          "manifestPath": "challenges/manifests/v8.json",
+          "manifestSha256": "6a5159501af18a7f926f794d89e817375cd00a3589c4899fb97392ae04dbe8ba",
+          "recording": "challenges/cases/v8/artifact-heart-invoke-cycle.session.json",
+          "recordingPath": "challenges/cases/v8/artifact-heart-invoke-cycle.session.json",
+          "recordingSha256": "816c8353f3fea197a0e99d8bd83f53f622a02d45fe61a59784dcfd479862cfd8",
+          "recipe": "challenges/cases/v8/artifact-heart-invoke-cycle.recipe.session.json",
+          "recipeSha256": "e7551b75ea4fa8cc5a1bf14c23baa6add3dda5f45782e78151d05ac920593963",
+          "replayInputSha256": "bf5c4ee61f672f5dc201440302fe841f6f9fa061d85f8d1ed10fb1189c211aa5",
+          "evaluationPath": "challenges/evaluations/20260927161400-v8.json",
+          "evaluationCommit": "5bf1150b63da82c6e02196da6a3d7047ef9b3938",
+          "evaluationArtifact": "challenges/evaluations/20260927161400-v8.json",
+          "evaluationUtc": "2026-09-27T16:14:50.295Z",
+          "remainingScreens": 1,
+          "recordedSteps": 44,
+          "previousScreensMatched": 43,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 43,
+              "total": 44
+            },
+            "rng": {
+              "matched": 2303,
+              "total": 2303
+            },
+            "cursors": {
+              "matched": 44,
+              "total": 44
+            }
+          },
+          "firstMismatch": {
+            "screen": {
+              "index": 25,
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 25,
+                "key": " "
+              },
+              "kind": "ch",
+              "row": 0,
+              "column": 23,
+              "cCell": {
+                "ch": "t",
+                "color": 8,
+                "attr": 0,
+                "decgfx": 0
+              },
+              "jsCell": {
+                "ch": "T",
+                "color": 8,
+                "attr": 0,
+                "decgfx": 0
+              }
+            },
+            "rng": null,
+            "cursor": null
+          },
+          "step": 25,
+          "kind": "screen",
+          "sourceFile": null,
+          "function": null,
+          "message": null,
+          "cFile": null,
+          "luaFile": null,
+          "line": null,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v8/artifact-heart-invoke-cycle.json",
+            "result": {
+              "session": "synthetic/v8/artifact-heart-invoke-cycle",
+              "corpus": "synthetic",
+              "batch": "v8",
+              "caseId": "artifact-heart-invoke-cycle",
+              "manifestPath": "challenges/manifests/v8.json",
+              "manifestSha256": "6a5159501af18a7f926f794d89e817375cd00a3589c4899fb97392ae04dbe8ba",
+              "recordingSha256": "816c8353f3fea197a0e99d8bd83f53f622a02d45fe61a59784dcfd479862cfd8",
+              "evaluationPath": "challenges/evaluations/20260927142534-v8.json",
+              "evaluationCommit": "c54c2c13ca30ebad8411cbcd4b7dcd3e193fbddc",
+              "remainingScreens": 1,
+              "recordedSteps": 44,
+              "status": "complete",
+              "commit": "c54c2c13ca30ebad8411cbcd4b7dcd3e193fbddc",
+              "mismatch": {
+                "corpus": "synthetic",
+                "batch": "v8",
+                "caseId": "artifact-heart-invoke-cycle",
+                "session": "synthetic/v8/artifact-heart-invoke-cycle",
+                "manifestPath": "challenges/manifests/v8.json",
+                "manifestSha256": "6a5159501af18a7f926f794d89e817375cd00a3589c4899fb97392ae04dbe8ba",
+                "recording": "challenges/cases/v8/artifact-heart-invoke-cycle.session.json",
+                "recordingPath": "challenges/cases/v8/artifact-heart-invoke-cycle.session.json",
+                "recordingSha256": "816c8353f3fea197a0e99d8bd83f53f622a02d45fe61a59784dcfd479862cfd8",
+                "recipe": "challenges/cases/v8/artifact-heart-invoke-cycle.recipe.session.json",
+                "recipeSha256": "e7551b75ea4fa8cc5a1bf14c23baa6add3dda5f45782e78151d05ac920593963",
+                "replayInputSha256": "f12aaa199382908484612c7c8d311b333eb8a8d5cb1f2a5aba58e1ae8afc64b3",
+                "evaluationPath": "challenges/evaluations/20260927142534-v8.json",
+                "evaluationCommit": "c54c2c13ca30ebad8411cbcd4b7dcd3e193fbddc",
+                "evaluationArtifact": "challenges/evaluations/20260927142534-v8.json",
+                "evaluationUtc": "2026-09-27T14:26:06.427Z",
+                "remainingScreens": 1,
+                "recordedSteps": 44,
+                "previousScreensMatched": 43,
+                "regression": false,
+                "passed": false,
+                "error": null,
+                "metrics": {
+                  "screens": {
+                    "matched": 43,
+                    "total": 44
+                  },
+                  "rng": {
+                    "matched": 2303,
+                    "total": 2303
+                  },
+                  "cursors": {
+                    "matched": 44,
+                    "total": 44
+                  }
+                },
+                "firstMismatch": {
+                  "screen": {
+                    "index": 25,
+                    "location": {
+                      "segmentIndex": 0,
+                      "stepIndex": 25,
+                      "key": " "
+                    },
+                    "kind": "ch",
+                    "row": 0,
+                    "column": 23,
+                    "cCell": {
+                      "ch": "t",
+                      "color": 8,
+                      "attr": 0,
+                      "decgfx": 0
+                    },
+                    "jsCell": {
+                      "ch": "T",
+                      "color": 8,
+                      "attr": 0,
+                      "decgfx": 0
+                    }
+                  },
+                  "rng": null,
+                  "cursor": null
+                },
+                "step": 25,
+                "kind": "screen",
+                "sourceFile": null,
+                "function": null,
+                "message": null,
+                "cFile": null,
+                "luaFile": null,
+                "line": null
+              },
+              "summary": "After the quest first-touch pager matches, the artifact wish differs only in the inventory pickup line: C prints \"named the Heart of Ahriman\" and JavaScript prints \"named The Heart of Ahriman\". Upstream objnam.c:xname_flags lowercases the initial \"The \" of any artifact instance name when appending its \" named \" suffix; js/objnam.js:xnameFresh omits that general rule.",
+              "source": {
+                "file": "objnam.c",
+                "branch": "An observed artifact has an instance name beginning exactly \"The \", and xname_flags appends that name after its ordinary object description. This includes but is not limited to quest artifacts.",
+                "functions": [
+                  "xname_flags"
+                ],
+                "callers": [
+                  "C zap.c:makewish -> invent.c:hold_another_object -> prinv -> xprname -> doname -> objnam.c:doname_base -> xname_flags; JavaScript follows hold_another_object -> prinv -> xprname -> donameFresh -> xnameFresh."
+                ],
+                "dependencies": [
+                  "Keep the source check after appending ONAME and before the leading \"the \" strip; do not alter ordinary named objects, nonartifact names, or object discovery. The existing obj.oartifact and obj.oextra.oname fields represent the C conditions."
+                ]
+              },
+              "goalKind": "divergence-fix",
+              "evidence": [
+                "At challenges/evaluations/20260927142534-v8.json, segment 0 step 25 is the sole remaining screen mismatch: C lowercase t versus JavaScript uppercase T at row 0 column 23; all 2303 RNG calls and all 44 cursors match. The C recording screen reads \"e - a gray stone named the Heart of Ahriman.\" after the first-touch pager.",
+                "Upstream nethack-c/upstream/src/objnam.c:xname_flags around lines 1002-1013 appends \" named \", then ONAME(obj), and explicitly lowers the T in an artifact name starting \"The \". The rule applies to every artifact with that initial name, not to this session or seed.",
+                "js/objnam.js:xnameFresh appends obj.oextra.oname after the ordinary base around lines 820-822 without that source check, producing the observed capital T. The upstream caller chain through invent.c:prinv and xprname uses doname and xname_flags for the pickup message."
+              ]
+            }
+          }
+        }
+      ],
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "63b63f85580e6a45a931debedbbd386779933d15",
+        "screens": 11405,
+        "rng": 792838
+      }
+    },
+    {
+      "id": "port-apply-use-towel-synthetic-v8-20260927",
+      "kind": "file-port",
+      "status": "queued",
+      "summary": "Port towel use across clean, slippery, and blinded states",
+      "cFile": "apply.c",
+      "sessions": [
+        "synthetic/v8/towel-clean-face"
+      ],
+      "selectionReason": "Current v8 towel-clean-face case stops at step 10 in doapply; source-traced investigation investigations/synthetic/v8/towel-clean-face.json identifies apply.c:use_towel as the whole owner, with doapply TOWEL dispatch and consumed mhitu.c:gulp_blnd_check dependency. The annotated doapply owner is only the dispatch site. Latest evidence is challenges/evaluations/20260927161400-v8.json and immutable recording challenges/cases/v8/towel-clean-face.session.json. Related apply.c touchstone work was completed by B29; this is a separate function family for the same persistent worker.",
+      "detail": "",
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": null,
+      "delivered": null,
+      "functions": [
+        {
+          "name": "use_towel",
+          "line": 112,
+          "endLine": 197,
+          "declared": false,
+          "complete": false
+        }
+      ],
+      "range": {
+        "from": 112,
+        "to": 197
+      },
+      "syntheticProvenance": {
+        "synthetic/v8/towel-clean-face": {
+          "session": "synthetic/v8/towel-clean-face",
+          "corpus": "synthetic",
+          "batch": "v8",
+          "caseId": "towel-clean-face",
+          "manifestPath": "challenges/manifests/v8.json",
+          "manifestSha256": "6a5159501af18a7f926f794d89e817375cd00a3589c4899fb97392ae04dbe8ba",
+          "recordingPath": "challenges/cases/v8/towel-clean-face.session.json",
+          "recordingSha256": "eb0047f4948ab5f5386eb0159bbbd02cf7346895152a1ad5dbc126fbd0f5960a",
+          "evaluationPath": "challenges/evaluations/20260927161400-v8.json",
+          "evaluationCommit": "5bf1150b63da82c6e02196da6a3d7047ef9b3938"
         }
       }
     }

@@ -14,21 +14,25 @@ import { failClosedCommandRefusals } from '../js/cmd.js';
 import { setuhpmax } from '../js/attrib.js';
 
 import {
-    A_CON, A_DEX, A_WIS, ACID_RES, BLINDED, CONFUSION, DEAF, FAST, FREE_ACTION,
+    A_CON, A_DEX, A_WIS, ACID_RES, BLINDED, CONFUSION, DEAF,
+    DETECT_MONSTERS, FAST, FREE_ACTION,
     FROMOUTSIDE, GLIB, HALLUC,
     GETOBJ_DOWNPLAY, GETOBJ_EXCLUDE, GETOBJ_EXCLUDE_INACCESS, GETOBJ_SUGGEST,
-    HALLUC_RES, INVIS, LEVITATION, NOT_HUNGRY, POTHIT_MONST_THROW, SEE_INVIS,
+    HALLUC_RES, INVIS, LEVITATION, NOT_HUNGRY, POTHIT_HERO_THROW,
+    POTHIT_MONST_THROW, SEE_INVIS,
     SATIATED, SLEEP_RES, WEAK,
-    KILLED_BY, STONED, TELEPAT, TIMEOUT, WOUNDED_LEGS, W_RINGL,
+    KILLED_BY, STONED, TELEPAT, TIMEOUT, UNCHANGING, WOUNDED_LEGS, W_RINGL,
 } from '../js/const.js';
 import { find_delayed_killer } from '../js/end.js';
 import { trycall } from '../js/do.js';
 import { docall } from '../js/do_name.js';
 import { game } from '../js/gstate.js';
+import { PM_GRID_BUG } from '../js/monsters.js';
 import { runSegment } from '../js/jsmain.js';
 import { discover_object } from '../js/o_init.js';
 import { planningState } from '../js/unported_monster_actions.js';
 import { mksobj } from '../js/obj.js';
+import { dist2 } from '../js/hacklib.js';
 import {
     POT_ACID,
     POT_BLINDNESS,
@@ -62,6 +66,7 @@ import {
     TOWEL,
     COIN_CLASS,
     RING_CLASS,
+    SPE_DETECT_MONSTERS,
 } from '../js/objects.js';
 import {
     UnsupportedPotionError,
@@ -896,11 +901,11 @@ test('potion.c still labels the arms this port refuses and none it skips',
 });
 
 // The labels whose bodies this port runs. POT_INVISIBILITY came with the
-// quaffing work; the other three are the vapors a potion hurled at the hero
-// can raise, which muse.c use_offensive() now reaches.
+// quaffing work; these vapor arms are reached when a thrown potion breaks on
+// a hero or monster.
 const PORTED_LABELS = [
     'POT_INVISIBILITY', 'POT_PARALYSIS', 'POT_SLEEPING', 'POT_ACID',
-    'POT_POLYMORPH',
+    'POT_POLYMORPH', 'POT_BLINDNESS',
 ];
 
 test('the labelled arms this port has not reached stop by name', async () => {
@@ -1223,17 +1228,217 @@ test('an unpaid potion broken on a hero outside any shop skips the bill',
     assert.deepEqual(billed, [obj]);
 });
 
-test('potionhit refuses a target that is not the hero', async () => {
-    await startedGame(771021, 'PotionMonster');
-    const reasons = [];
-    await potionhit({}, vaporPotion(POT_ACID), POTHIT_MONST_THROW, {
+test('potionhit applies the monster blindness branch in source order', async () => {
+    await startedGame(771021, 'PotionMonsterBlindness');
+    game.u.uprops[BLINDED].intrinsic = FROMOUTSIDE;
+    const monster = {
+        data: game.mons[PM_GRID_BUG],
+        mx: game.u.ux + 3,
+        my: game.u.uy,
+        mhp: 5,
+        mhpmax: 5,
+        mblinded: 0,
+        mcansee: true,
+        mcanmove: true,
+        misc_worn_check: 0,
+        m_lev: 1,
+        msleeping: false,
+    };
+    const draws = [];
+    const scripted = [0, 0, 0, 31, 0];
+    const bounds = [7, 5, 32, 32, 105];
+    const random = {
+        rn2: (bound) => {
+            draws.push(bound);
+            assert.equal(bound, bounds[draws.length - 1]);
+            return scripted[draws.length - 1];
+        },
+        rnl: (bound) => assert.fail(`unexpected rnl(${bound})`),
+        rnd: (bound) => assert.fail(`unexpected rnd(${bound})`),
+        d: (n, bound) => assert.fail(`unexpected d(${n}, ${bound})`),
+    };
+    await potionhit(monster, vaporPotion(POT_BLINDNESS), POTHIT_HERO_THROW, {
         state: game,
-        random: { rn2: () => 0, rnd: () => 1, d: () => 1 },
+        random,
         message: async () => {},
-        unsupported: (reason) => { reasons.push(reason); },
     });
-    assert.deepEqual(reasons, ['a potion crashing on a monster']);
+    assert.deepEqual(draws, bounds,
+        'bottle, target HP, blindness, and resistance draws keep C order');
+    assert.equal(monster.mhp, 5);
+    assert.equal(monster.mblinded, 95);
+    assert.equal(monster.mcansee, false);
 });
+
+test('potionhit uses the C process RNG when a caller has no random seam',
+    async () => {
+        await startedGame(771031, 'PotionHitDefaultRandom');
+        discover_object(POT_FRUIT_JUICE, true, true, false, game);
+        const monster = {
+            data: game.mons[PM_GRID_BUG],
+            mx: game.u.ux + 3,
+            my: game.u.uy,
+            mhp: 5,
+            mhpmax: 5,
+            mblinded: 0,
+            mcansee: true,
+            mcanmove: true,
+            misc_worn_check: 0,
+            m_lev: 1,
+            msleeping: false,
+        };
+        const obj = vaporPotion(POT_FRUIT_JUICE);
+        const source = potionSource();
+        const signature = source.indexOf(
+            'potionhit(struct monst *mon, struct obj *obj, int how)',
+        );
+        const end = source.indexOf('\n}\n\n/* vapors are inhaled', signature);
+        assert.ok(signature > 0 && end > signature);
+        const body = source.slice(signature, end);
+        assert.match(body, /const char \*botlnam = bottlename\(\);/u,
+            'potionhit uses its process RNG through bottlename()');
+        const randomImports = readFileSync(
+            new URL('../js/potion.js', import.meta.url),
+            'utf8',
+        );
+        assert.match(randomImports,
+            /import \{[^}]*\brnl\b[^}]*\} from '\.\/rng\.js';/u,
+            'the shared default RNG bundle includes C potionhit rnl calls');
+
+        await assert.doesNotReject(() => potionhit(
+            monster,
+            obj,
+            POTHIT_HERO_THROW,
+            { state: game, message: async () => {} },
+        ));
+    });
+
+test('potionhit preserves the C polymorph message and squared vapor distance',
+    () => {
+    const source = potionSource();
+    const signature = source.indexOf('potionhit(struct monst *mon, struct obj *obj, int how)');
+    const end = source.indexOf('\n}\n\n/* vapors are inhaled', signature);
+    assert.ok(signature > 0 && end > signature);
+    const body = source.slice(signature, end).replace(/\s+/gu, ' ');
+    assert.match(body,
+        /case POT_POLYMORPH: You_feel\("a little %s\.", Hallucination \? "normal" : "strange"\); if \(!Unchanging && !Antimagic\) polyself\(POLY_NOFLAGS\);/u);
+    assert.match(body, /distance = distu\(tx, ty\);/u);
+
+    const hack = readFileSync(
+        new URL('../nethack-c/upstream/include/hack.h', import.meta.url),
+        'utf8',
+    );
+    assert.match(hack,
+        /#define distu\(xx, yy\) dist2\(\(coordxy\) \(xx\), \(coordxy\) \(yy\), u\.ux, u\.uy\)/u);
+    const hacklib = readFileSync(
+        new URL('../nethack-c/upstream/src/hacklib.c', import.meta.url),
+        'utf8',
+    );
+    const distSignature = hacklib.indexOf('dist2(coordxy x0, coordxy y0, coordxy x1, coordxy y1)');
+    const distEnd = hacklib.indexOf('\n}\n\n/* integer square root', distSignature);
+    assert.ok(distSignature > 0 && distEnd > distSignature);
+    assert.match(hacklib.slice(distSignature, distEnd),
+        /return dx \* dx \+ dy \* dy;/u);
+    assert.equal(dist2(12, 9, 10, 8), 5,
+        'dist2 keeps diagonal distance squared rather than Chebyshev distance');
+
+    const js = readFileSync(new URL('../js/potion.js', import.meta.url), 'utf8');
+    const jsSignature = js.indexOf('export async function potionhit(');
+    const jsEnd = js.indexOf('\n}\n\n// C ref: potion.c potionbreathe', jsSignature);
+    assert.ok(jsSignature > 0 && jsEnd > jsSignature);
+    const jsBody = js.slice(jsSignature, jsEnd);
+    assert.match(jsBody,
+        /distance = isyou \? 0 : dist2\(\s*mon\.mx, mon\.my, state\.u\.ux, state\.u\.uy,/u);
+    assert.match(jsBody,
+        /case POT_POLYMORPH:\s*await message\([\s\S]*?Hallucination\(state\)[\s\S]*?if \(!\(state\.u\.uprops\[UNCHANGING\]/u);
+});
+
+test('potionhit reports its source message before Unchanging suppresses polymorph',
+    async () => {
+        await startedGame(771028, 'PotionHeroPolymorphUnchanging');
+        game.u.uprops[UNCHANGING].intrinsic = FROMOUTSIDE;
+        discover_object(POT_POLYMORPH, true, true, false, game);
+        clearTopline();
+        game.u.uhp = 20;
+        game.u.uhpmax = 20;
+        const beforeForm = game.youmonst.data;
+        const messages = [];
+
+        await potionhit(game.youmonst, vaporPotion(POT_POLYMORPH),
+            POTHIT_MONST_THROW, {
+                state: game,
+                random: {
+                    rn2: () => 1,
+                    rnd: () => 1,
+                },
+                message: async (text) => { messages.push(text); },
+                encumberMessage: async () => {},
+            });
+
+        assert.equal(game.youmonst.data, beforeForm,
+            'C still refuses polyself when Unchanging is active');
+        assert.deepEqual(messages, [
+            'The phial crashes on your head and breaks into shards.',
+            'The potion of polymorph evaporates.',
+            'You feel a little strange.',
+        ]);
+    });
+
+test('potionhit uses distu squared range before deciding whether vapors reach the hero',
+    async () => {
+        await startedGame(771029, 'PotionSquaredVaporRange');
+        discover_object(POT_FRUIT_JUICE, true, true, false, game);
+        const monster = {
+            data: game.mons[PM_GRID_BUG],
+            mx: game.u.ux + 2,
+            my: game.u.uy + 1,
+            mhp: 5,
+            mhpmax: 5,
+            mblinded: 0,
+            mcansee: true,
+            mcanmove: true,
+            misc_worn_check: 0,
+            m_lev: 1,
+            msleeping: false,
+        };
+        const draws = [];
+        const obj = vaporPotion(POT_FRUIT_JUICE);
+        await potionhit(monster, obj, POTHIT_HERO_THROW, {
+            state: game,
+            random: {
+                rn2: (bound) => { draws.push(bound); return 1; },
+            },
+            message: async () => {},
+        });
+
+        assert.equal(dist2(monster.mx, monster.my, game.u.ux, game.u.uy), 5);
+        assert.equal(monster.mhp, 4);
+        assert.deepEqual(draws, [7, 5],
+            'no nearby-vapor rn2 is drawn for C distu() distance 5');
+    });
+
+test('potionhit skips an unported void vapor arm and continues through obfree',
+    async () => {
+        await startedGame(771030, 'PotionUnsupportedVaporTail');
+        clearTopline();
+        const obj = vaporPotion(POT_SICKNESS);
+        obj.unpaid = 1;
+        const freed = [];
+        await potionhit(game.youmonst, obj, POTHIT_MONST_THROW, {
+            state: game,
+            random: { rn2: () => 1, rnd: () => 1 },
+            message: async () => {},
+            hooks: {
+                obfreeShopBill: (freedObject) => {
+                    freed.push(freedObject);
+                    return 'unbilled';
+                },
+            },
+        });
+
+        assert.ok(game.unported.has('potion.c potionbreathe'));
+        assert.deepEqual(freed, [obj],
+            'the caller reaches its shop/object-release tail after skipping the void gap');
+    });
 
 test('the unlabelled types reach the naming tail and nothing else', async () => {
     await startedGame(771002, 'VaporNoop');
@@ -1975,6 +2180,72 @@ test('peffect_invisibility follows source ordering for potion branches',
         assert.match(getRngLog()[0], /^d\(6,100\)=\d+$/u);
         assert.equal(property.intrinsic & TIMEOUT,
             Number(/=(\d+)$/u.exec(getRngLog()[0])[1]) + 100);
+    });
+
+// C ref: potion.c peffect_monster_detection() (914-954). This impure source
+// effect increments the shared detection timeout after checking the old
+// HDetect_monsters timeout; the blessed potion caller must still return
+// peffects()'s -1 so dopotion() consumes the potion through its ordinary tail.
+test('blessed monster detection uses the old timeout threshold', async () => {
+    await startedGame(260927262, 'BlessedMonsterDetection');
+    const property = game.u.uprops[DETECT_MONSTERS];
+    const potion = vaporPotion(POT_MONSTER_DETECTION);
+    potion.blessed = true;
+    game.gp.potion_nothing = 0;
+    game.gp.potion_unkn = 0;
+
+    property.intrinsic = 0;
+    property.extrinsic = 0;
+    enableRngLog();
+    assert.equal(await peffects(potion, game), -1);
+    const durationDraw = getRngLog();
+    assert.equal(durationDraw.length, 1);
+    const duration = Number(/^rn2\(100\)=(\d+)$/u
+        .exec(durationDraw[0])?.[1]) + 100;
+    assert.ok(duration >= 100 && duration <= 199);
+    assert.equal(property.intrinsic & TIMEOUT, duration);
+    assert.equal(game.gp.potion_nothing, 0);
+
+    // detect.c's existing intrinsic prevents a long repeated timeout: C tests
+    // the old value before incr_itimeout() and adds exactly one with no RNG.
+    property.intrinsic = 300;
+    property.extrinsic = 0;
+    game.gp.potion_nothing = 0;
+    game.gp.potion_unkn = 0;
+    enableRngLog();
+    assert.equal(await peffects(potion, game), -1);
+    assert.deepEqual(getRngLog(), []);
+    assert.equal(property.intrinsic & TIMEOUT, 301);
+    assert.equal(game.gp.potion_nothing, 1);
+});
+
+test('direct blessed detection spell starts with C-zeroed potion flags',
+    async () => {
+        await startedGame(260927264, 'BlessedDetectionSpell');
+        const property = game.u.uprops[DETECT_MONSTERS];
+        property.intrinsic = 0;
+        property.extrinsic = 0;
+        // spell.c calls peffects() directly, bypassing dopotion()'s per-quaff
+        // reset; decl.h's static gp counters still begin at zero in C.
+        delete game.gp.potion_nothing;
+        delete game.gp.potion_unkn;
+        const spell = {
+            otyp: SPE_DETECT_MONSTERS,
+            oclass: SPBOOK_CLASS,
+            blessed: 1,
+            cursed: 0,
+        };
+        enableRngLog();
+
+        assert.equal(await peffects(spell, game), -1);
+
+        const draw = getRngLog();
+        assert.equal(draw.length, 1);
+        const offset = Number(/^rn2\(40\)=(\d+)$/u.exec(draw[0])?.[1]);
+        assert.ok(offset >= 0 && offset <= 39);
+        assert.equal(property.intrinsic & TIMEOUT, offset + 21);
+        assert.equal(game.gp.potion_nothing, 0);
+        assert.ok(Number.isInteger(game.gp.potion_unkn));
     });
 
 test('peffect_invisibility blessed permanence uses C HInvis threshold',

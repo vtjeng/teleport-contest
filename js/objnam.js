@@ -51,7 +51,7 @@ import { genders } from './roles.js';
 import { CapitalMon } from './random_text.js';
 import { observe_object } from './o_init.js';
 import {
-    carried, erosionMatters, hasContents, isBox, isCandle, isContainer,
+    carried, hasContents, isBox, isCandle, isContainer,
     isCorrodeable, isCrackable,
     isDamageable, is_flammable, isMultigen, is_rottable, isRustprone,
     is_ammo, is_missile, is_weptool, objectType,
@@ -89,6 +89,23 @@ import {
 // naming helpers from this file in turn; the cycle is safe because neither
 // side calls the other during module evaluation.
 import { Glib } from './wield.js';
+
+// C ref: objnam.c erosion_matters() (1197-1215). obj.js exports a
+// compatibility adapter for its existing callers; keep the source-owned
+// predicate here beside the rest of objnam.c.
+export function erosion_matters(obj, state = game) {
+    switch (obj.oclass) {
+    case TOOL_CLASS:
+        return is_weptool(obj, state);
+    case WEAPON_CLASS:
+    case ARMOR_CLASS:
+    case BALL_CLASS:
+    case CHAIN_CLASS:
+        return true;
+    default:
+        return false;
+    }
+}
 
 export class UnsupportedObjectNameError extends Error {
     constructor(branch, obj) {
@@ -804,8 +821,16 @@ export function xnameFresh(obj, state) {
     if (obj.oartifact && obj.dknown)
         find_artifact(obj, state);
     const personalName = obj_is_pname(obj, state);
+    const instanceName = obj.oextra?.oname;
+    // C ref: objnam.c xname_flags():1006-1008. When an artifact instance
+    // name starts with "The ", C lowercases only that initial T after it
+    // appends the name, whether the name is the whole result or a suffix.
+    const displayedInstanceName = obj.oartifact
+        && typeof instanceName === 'string'
+        && instanceName.startsWith('The ')
+        ? `t${instanceName.slice(1)}` : instanceName;
     let base = personalName
-        ? String(obj.oextra.oname)
+        ? String(displayedInstanceName)
         : xnameBase(obj, type, state, ident);
     if (!personalName && encodeUtf8ByteString(base).length > BUFSZ - PREFIX - 1)
         throw new RangeError('xname: buffer overflow before appending name.');
@@ -818,8 +843,8 @@ export function xnameFresh(obj, state) {
     }
     // C's personal-name branch also copies through Concat().
     if (personalName) base = truncateByteString(base, BUFSZ - PREFIX - 1);
-    if (!personalName && obj.oextra?.oname && ident.dknown)
-        base = truncateByteString(`${base} named ${obj.oextra.oname}`, BUFSZ - PREFIX - 1);
+    if (!personalName && instanceName && ident.dknown)
+        base = truncateByteString(`${base} named ${displayedInstanceName}`, BUFSZ - PREFIX - 1);
     return base.replace(/^the /iu, '');
 }
 
@@ -1650,7 +1675,7 @@ function donameFreshInternal(
         break;
     case BALL_CLASS:
     case CHAIN_CLASS:
-        if (erosionMatters(obj, state))
+        if (erosion_matters(obj, state))
             modifiers.push(...erosionWords(obj, state, ident.rknown));
         break;
     default:

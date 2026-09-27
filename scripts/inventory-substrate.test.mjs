@@ -2654,28 +2654,52 @@ test('taking an artifact into inventory grants its carried intrinsics', () => {
     }
 });
 
-// invent.c addinv_core1() (984-1000) raises the quest-artifact duplicate
-// diagnostic, sets u.uhave.questart, calls the void artitouch(), then applies
-// set_artifact_intrinsic(). The artitouch() effects remain an explicit gap,
-// while the source-owned state and artifact intrinsic update continue.
-test('a quest artifact updates addinv state before inventory insertion', () => {
+// invent.c addinv_core1() (984-1000) sets u.uhave.questart, awaits the
+// source-ordered quest.c:artitouch() effects, then applies the artifact
+// intrinsic before addinv_core0() inserts the object.
+test('quest artifact touch finishes before intrinsic and inventory insertion', async () => {
     // The Knight's questarti is 25 (js/roles.js:158), the Magic Mirror of
     // Merlin, whose base type is MIRROR (artilist.h:255-258).
     const state = artifactHolderState(A_LAWFUL, ART_MAGIC_MIRROR_OF_MERLIN);
+    state.urole.filecode = 'Kni';
+    state.svq = { quest_status: { touched_artifact: false } };
     const mirror = instance(MIRROR, state, {
         how_lost: LOST_THROWN,
         oartifact: ART_MAGIC_MIRROR_OF_MERLIN,
     });
     state.u.uhave = {};
     state.u.uachieved = [];
+    const randomCalls = [];
+    const questText = [];
+    let pagerSawPreInsertionState = false;
     assert.equal(preflight_addinv(mirror, { state }).object, mirror);
-    assert.throws(
-        () => addinv(mirror, { state }),
+    await assert.rejects(
+        addinv(mirror, {
+            state,
+            random: { rn2: (n) => (randomCalls.push(n), 0) },
+            questPagerOutput: {
+                pline: async () => {},
+                window: async (_state, lines) => {
+                    pagerSawPreInsertionState = mirror.dknown
+                        && state.svq.quest_status.touched_artifact
+                        && mirror.where === OBJ_FREE
+                        && state.invent === null;
+                    questText.push(...lines);
+                },
+            },
+        }),
         /artifact display requires/u,
     );
-    // addinv_core1() has already performed its source-order quest-artifact
-    // writes when the existing set_artifact_intrinsic() display gap stops.
+    // Source order is observable before the existing unrelated intrinsic
+    // display gap stops addinv_core1(): observe, set touched, load/shuffle the
+    // pager's Lua state, deliver gotit, exercise Wisdom, then set intrinsic.
     assert.equal(state.u.uhave.questart, 1);
+    assert.equal(state.svq.quest_status.touched_artifact, true);
+    assert.equal(mirror.dknown, true);
+    assert.equal(pagerSawPreInsertionState, true);
+    assert.deepEqual(randomCalls, [3, 2, 19]);
+    assert.match(questText.map((line) => line.text).join('\n'),
+        /pick up .*Magic Mirror of Merlin/u);
     assert.equal(mirror.how_lost, 0);
     assert.equal(mirror.where, OBJ_FREE);
     assert.equal(state.invent, null);

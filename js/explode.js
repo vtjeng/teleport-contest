@@ -174,7 +174,7 @@ import { mon_pmname, Monnam, rndmonnam } from './do_name.js';
 import { done } from './end.js';
 import { encumber_msg } from './pickup.js';
 import { ttyPline } from './tty_message.js';
-import { d, rn1, rn2, rnd, rne } from './rng.js';
+import { d, rn1, rn2, rnl, rnd, rne } from './rng.js';
 import { note_unported } from './unported.js';
 import { S_expl_tl } from './symbols.js';
 
@@ -395,7 +395,7 @@ export async function explode(
     rawEnv = {},
 ) {
     const env = { ...rawEnv, state };
-    const random = env.random ?? { d, rn1, rn2, rnd, rne };
+    const random = env.random ?? { d, rn1, rn2, rnl, rnd, rne };
     let damu = dam;
     let visible = false;
     let anyShield = false;

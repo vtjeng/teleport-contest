@@ -15,7 +15,7 @@ import {
     UTOTYPE_PORTAL,
 } from './const.js';
 import { yn_function } from './cmd.js';
-import { exercise } from './attrib.js';
+import { exercise, exercise_nonphysical } from './attrib.js';
 import { dungeon_branch, Is_special, on_level } from './dungeon.js';
 import { schedule_goto } from './do.js';
 import { game } from './gstate.js';
@@ -29,6 +29,7 @@ import { rn2 } from './rng.js';
 import { ttyPline } from './tty_message.js';
 import { noit_mon_nam } from './do_name.js';
 import { livelog_printf } from './pline.js';
+import { observe_object } from './o_init.js';
 
 // Everything a quest conversation needs from the world outside quest.c: the
 // pager's window-port calls, pline(), the wizard-mode prompt, the random
@@ -53,6 +54,27 @@ function questConversation(env = {}) {
             msgid, state, random.rn2, env.output ?? QUEST_PAGER_OUTPUT,
         ),
     };
+}
+
+// C ref: quest.c artitouch() (125-139). This is the one-time first-touch
+// transition from invent.c:addinv_core1(): observe the artifact before the
+// pager describes it, set the quest flag before output, then exercise Wisdom
+// only after the pager has finished. qt_pager() is async in the port, so the
+// first-touch path returns a Promise for addinv_core1() to consume.
+export function artitouch(obj, state = game, ops = {}) {
+    const qs = state.svq.quest_status;
+    if (qs.touched_artifact) return;
+
+    observe_object(obj, state);
+    qs.touched_artifact = true;
+
+    const random = ops.random ?? { rn2 };
+    const output = ops.output ?? QUEST_PAGER_OUTPUT;
+    return Promise.resolve(qt_pager(
+        'gotit', state, random.rn2, output,
+    )).then(() => {
+        exercise_nonphysical(A_WIS, true, state, random);
+    });
 }
 
 // C ref: quest.c not_capable() (146-150).
