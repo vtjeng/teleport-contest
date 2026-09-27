@@ -97,7 +97,7 @@ import { Sting_effects } from './artifacts.js';
 import {
     bot, newsym, see_monsters, see_objects, see_traps, swallowed, tmp_at,
 } from './display.js';
-import { heal_legs, trycall } from './do.js';
+import { goto_level, heal_legs, trycall } from './do.js';
 import {
     Amonnam,
     Monnam,
