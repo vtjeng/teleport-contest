@@ -24,10 +24,12 @@ import {
     CXN_PFX_THE,
     CXN_SINGULAR,
     DEAF,
+    DISPLACED,
     DISINT_RES,
     ECMD_CANCEL,
     ECMD_OK,
     ECMD_TIME,
+    FAST,
     FAINTED,
     FAINTING,
     FIRE_RES,
@@ -50,6 +52,7 @@ import {
     HALLUC,
     HALLUC_RES,
     INVIS,
+    INTRINSIC,
     Is_airlevel,
     Is_astralevel,
     Is_waterlevel,
@@ -58,6 +61,7 @@ import {
     LAST_PROP,
     LIGHT_HEADED,
     MAGICAL_BREATHING,
+    M_AP_OBJECT,
     NOT_HUNGRY,
     POISON_RES,
     PROTECTION,
@@ -76,6 +80,7 @@ import {
     SLT_ENCUMBER,
     SPINACH_TIN,
     STOMACH,
+    STUNNED,
     STONED,
     STONE_RES,
     STRANGLED,
@@ -108,6 +113,7 @@ import { ART_ORB_OF_DETECTION } from './artifacts.js';
 import { set_occupation, y_n, yn_function } from './cmd.js';
 import { tinnable } from './apply.js';
 import { on_level, surface } from './dungeon.js';
+import { pluslvl } from './exper.js';
 import { newsym, see_monsters } from './display.js';
 import { can_reach_floor } from './engrave.js';
 import { game } from './gstate.js';
@@ -115,7 +121,7 @@ import { note_unported } from './unported.js';
 import { livelog_printf } from './pline.js';
 import {
     check_capacity, endRunning, inv_cnt, losehp, nomul, rounddiv,
-    still_chewing,
+    still_chewing, curs_on_u,
     You_can_move_again,
 } from './hack.js';
 import { dist2, lcase } from './hacklib.js';
@@ -168,7 +174,7 @@ import {
     perceives,
 } from './mondata.js';
 import { AD_ACID, AD_DISE, AT_BREA } from './monsters.js';
-import { hcolor, rndmonnam } from './do_name.js';
+import { hcolor, Mgender, pmname, rndmonnam } from './do_name.js';
 import { monflee } from './monmove.js';
 import {
     AD_HALU,
@@ -245,6 +251,10 @@ import {
     PM_VALKYRIE,
     PM_VIOLET_FUNGUS,
     PM_WIZARD,
+    PM_WERERAT,
+    PM_WEREJACKAL,
+    PM_WEREWOLF,
+    S_MIMIC,
     S_BLOB,
     S_ELEMENTAL,
     S_FUNGUS,
@@ -258,7 +268,8 @@ import {
 import { change_luck } from './moveloop_preamble.js';
 import {
     dopotion, incr_itimeout, make_blinded, make_confused, make_deaf,
-    make_glib, make_stoned,
+    make_glib, make_hallucinated, make_stoned, self_invis_message,
+    set_itimeout,
 } from './potion.js';
 import {
     carried,
@@ -366,15 +377,19 @@ import {
     WAX,
     WOOD,
     WEAPON_CLASS,
+    GOLD_PIECE,
+    ORANGE,
 } from './objects.js';
 import { objectGenerationEnv } from './object_generation.js';
 import {
     discover_object, observe_object, objdescr_is,
 } from './o_init.js';
 import { encumber_msg } from './pickup.js';
-import { body_part, change_sex, rehumanize } from './polyself.js';
+import {
+    body_part, change_sex, rehumanize,
+} from './polyself.js';
 import { heroIsBlind } from './startup_a11y.js';
-import { fingers_or_gloves } from './do_wear.js';
+import { fingers_or_gloves, toggle_displacement } from './do_wear.js';
 import { d, rn1, rn2, rnd } from './rng.js';
 import { outrumor } from './random_text.js';
 import { obj_stop_timers } from './timeout.js';
@@ -1126,11 +1141,10 @@ async function consume_tin(mesg, state = game, env = {}) {
         observe_object(tin, state);
         tin.known = true;
         tin = context.tin = costly_tin(COST_OPEN, state);
-        // eat.c discards both void results. These existing same-file helpers
-        // remain partial for species-specific corpse effects, so do not expose
-        // their refusal placeholders from the new tin entry point.
+        // C discards these void results. cprefx() remains an explicit gap;
+        // cpostfx() is ported below and still runs only if the tin survived it.
         note_unported('eat.c cprefx');
-        if (context.tin) note_unported('eat.c cpostfx');
+        if (context.tin) await cpostfx(mnum, state);
         if (!context.tin) return;
 
         if (TIN_VARIETIES[variety].nutrition < 0) {
@@ -2182,6 +2196,149 @@ export function should_givit(type, ptr, random = { rn2 }) {
     return (ptr?.mlevel ?? 0) > random.rn2(chance);
 }
 
+// C ref: eat.c temp_givit() (992-996). Stone resistance lasts longer than
+// acid resistance; every other intrinsic has no temporary grant chance.
+function temp_givit(type, ptr, random = { rn2 }) {
+    const chance = type === STONE_RES ? 6 : type === ACID_RES ? 3 : 0;
+    return chance ? ptr.mlevel > random.rn2(chance) : false;
+}
+
+// C ref: eat.c givit() (1003-1097). `should_givit` and `temp_givit` are
+// tried in source order; the second draw happens only when the first chance
+// fails. This is an impure helper because both the chances and temporary
+// timeout use the game RNG.
+async function givit(type, ptr, state, env = {}) {
+    const random = { rn2, d, ...(env.random ?? {}) };
+    if (!should_givit(type, ptr, random)
+        && !temp_givit(type, ptr, random))
+        return;
+
+    const property = state.u.uprops[type] ??= {
+        intrinsic: 0,
+        extrinsic: 0,
+        blocked: 0,
+    };
+    const addOutside = () => {
+        property.intrinsic |= FROMOUTSIDE;
+    };
+
+    switch (type) {
+    case FIRE_RES:
+        if (!(property.intrinsic & FROMOUTSIDE)) {
+            await ttyPline(
+                Hallucination(state)
+                    ? "You be chillin'."
+                    : 'You feel a momentary chill.',
+                state,
+            );
+            addOutside();
+        }
+        break;
+    case SLEEP_RES:
+        if (!(property.intrinsic & FROMOUTSIDE)) {
+            await ttyPline('You feel wide awake.', state);
+            addOutside();
+        }
+        break;
+    case COLD_RES:
+        if (!(property.intrinsic & FROMOUTSIDE)) {
+            await ttyPline('You feel full of hot air.', state);
+            addOutside();
+        }
+        break;
+    case DISINT_RES:
+        if (!(property.intrinsic & FROMOUTSIDE)) {
+            await ttyPline(
+                Hallucination(state)
+                    ? 'You feel totally together, man.'
+                    : 'You feel very firm.',
+                state,
+            );
+            addOutside();
+        }
+        break;
+    case SHOCK_RES:
+        if (!(property.intrinsic & FROMOUTSIDE)) {
+            await ttyPline(
+                Hallucination(state)
+                    ? 'You feel grounded in reality.'
+                    : 'Your health currently feels amplified!',
+                state,
+            );
+            addOutside();
+        }
+        break;
+    case POISON_RES:
+        if (!(property.intrinsic & FROMOUTSIDE)) {
+            await ttyPline(
+                `You feel ${propertyActive(state, POISON_RES)
+                    ? 'especially healthy' : 'healthy'}.`,
+                state,
+            );
+            addOutside();
+        }
+        break;
+    case TELEPORT:
+        if (!(property.intrinsic & FROMOUTSIDE)) {
+            await ttyPline(
+                Hallucination(state)
+                    ? 'You feel diffuse.'
+                    : 'You feel very jumpy.',
+                state,
+            );
+            addOutside();
+        }
+        break;
+    case TELEPORT_CONTROL:
+        if (!(property.intrinsic & FROMOUTSIDE)) {
+            await ttyPline(
+                Hallucination(state)
+                    ? 'You feel centered in your personal space.'
+                    : 'You feel in control of yourself.',
+                state,
+            );
+            addOutside();
+        }
+        break;
+    case TELEPAT:
+        if (!(property.intrinsic & FROMOUTSIDE)) {
+            await ttyPline(
+                Hallucination(state)
+                    ? 'You feel in touch with the cosmos.'
+                    : 'You feel a strange mental acuity.',
+                state,
+            );
+            addOutside();
+            if (heroIsBlind(state)) await see_monsters(state);
+        }
+        break;
+    case ACID_RES:
+        if (!propertyActive(state, ACID_RES)) {
+            await ttyPline(
+                `You feel ${Hallucination(state)
+                    ? 'secure from flashbacks'
+                    : 'less concerned about being harmed by acid'}.`,
+                state,
+            );
+        }
+        incr_itimeout(property, random.d(3, 6));
+        break;
+    case STONE_RES:
+        if (!propertyActive(state, STONE_RES)) {
+            await ttyPline(
+                `You feel ${Hallucination(state)
+                    ? 'unusually limber'
+                    : 'less concerned about becoming petrified'}.`,
+                state,
+            );
+        }
+        incr_itimeout(property, random.d(3, 6));
+        break;
+    default:
+        break;
+    }
+}
+
 /*
  * C ref: eat.c eye_of_newt_buzz() (1103-1123).
  * Eating an eye of newt can give the player a small magical energy boost.
@@ -2207,72 +2364,205 @@ async function eye_of_newt_buzz(state) {
     }
 }
 
-// C ref: eat.c cpostfx() (1127-1319), "called after a corpse is eaten".
-//
-// The `default` arm and the intrinsic check that follows it are ported; every
-// species with an effect of its own stops, because each one changes hero state
-// C would not let the meal skip. ge.eatmbuf and its eatmdone() cleanup belong
-// to the mimic arm alone, so nothing reachable here can have left one behind.
+// C ref: eat.c cpostfx() (1127-1319), called after completely consuming a
+// corpse. `state.eatmbuf` is the JS representation of C's ge.eatmbuf.
 async function cpostfx(pm, state) {
+    let tmp = 0;
+    let catch_lycanthropy = NON_PM;
     let check_intrinsics = false;
+
+    // C calls eatmdone() and discards its integer result. That callback is
+    // still an explicit source gap; it owns the mimic-message cleanup.
+    if (state.eatmbuf) note_unported('eat.c eatmdone');
 
     switch (pm) {
     case PM_WRAITH:
-        throw new UnsupportedEatError('pluslvl() for a wraith corpse');
+        if (Upolyd(state.u)) {
+            // pluslvl()'s polymorphed monhp_per_lvl() branch is not ported.
+            note_unported('exper.c pluslvl polymorph');
+        } else {
+            await pluslvl(false, state, { message: ttyPline });
+        }
+        break;
     case PM_HUMAN_WERERAT:
+        catch_lycanthropy = PM_WERERAT;
+        break;
     case PM_HUMAN_WEREJACKAL:
+        catch_lycanthropy = PM_WEREJACKAL;
+        break;
     case PM_HUMAN_WEREWOLF:
-        // set_ulycn() and retouch_equipment(2) at the end of cpostfx().
-        throw new UnsupportedEatError('set_ulycn() for a were corpse');
+        catch_lycanthropy = PM_WEREWOLF;
+        break;
     case PM_NURSE:
-        // The full heal, make_blinded(0L, !u.ucreamed) and disp.botl.
-        throw new UnsupportedEatError("cpostfx()'s nurse arm");
-    case PM_STALKER:
-        // set_itimeout(&HInvis, rn1(100, 50)) and self_invis_message(), then
-        // the stun the bats share.
-        throw new UnsupportedEatError("cpostfx()'s stalker arm");
+        if (Upolyd(state.u)) state.u.mh = state.u.mhmax;
+        else state.u.uhp = state.u.uhpmax;
+        await make_blinded(0, !state.u.ucreamed, state);
+        state.disp ??= {};
+        state.disp.botl = true;
+        check_intrinsics = true; // might also convey poison resistance
+        break;
+    case PM_STALKER: {
+        const invis = state.u.uprops[INVIS];
+        const seeInvisible = state.u.uprops[SEE_INVIS];
+        const blocked = Boolean(invis.blocked);
+        const invisible = Boolean(
+            (invis.intrinsic || invis.extrinsic) && !blocked,
+        );
+        if (!invisible) {
+            set_itimeout(invis, rn1(100, 50));
+            if (!heroIsBlind(state) && !blocked)
+                await self_invis_message(state);
+        } else {
+            if (!(invis.intrinsic & INTRINSIC))
+                await ttyPline('You feel hidden!', state);
+            invis.intrinsic |= FROMOUTSIDE;
+            seeInvisible.intrinsic |= FROMOUTSIDE;
+        }
+        newsym(state.u.ux, state.u.uy);
+        // C falls through to the shared yellow-light/giant-bat stun arm.
+        note_unported('potion.c make_stunned');
+        note_unported('potion.c make_stunned');
+        break;
+    }
     case PM_YELLOW_LIGHT:
     case PM_GIANT_BAT:
+        // This call changes HStun before the second fallthrough call below.
+        note_unported('potion.c make_stunned');
+        // FALLTHROUGH
     case PM_BAT:
-        // make_stunned() twice for the first two and once for the bat.
-        throw new UnsupportedEatError('make_stunned() for a bat corpse');
+        note_unported('potion.c make_stunned');
+        break;
     case PM_GIANT_MIMIC:
+        tmp += 10;
+        // FALLTHROUGH
     case PM_LARGE_MIMIC:
+        tmp += 20;
+        // FALLTHROUGH
     case PM_SMALL_MIMIC:
-        // nomul() with an afternmv, the polyselfs conduct, and the object
-        // appearance that makes the hero look like a pile of gold.
-        throw new UnsupportedEatError("cpostfx()'s mimic arms");
-    case PM_QUANTUM_MECHANIC:
-        // The HFast toggle and its two messages.
-        throw new UnsupportedEatError("cpostfx()'s quantum mechanic arm");
-    case PM_LIZARD:
-        // make_stunned() and make_confused() cap the two timeouts at 2, and
-        // then the arm falls into the intrinsic check.
-        throw new UnsupportedEatError("cpostfx()'s lizard arm");
+        tmp += 20;
+        if (state.youmonst.data.mlet !== S_MIMIC
+            && !propertyActive(state, UNCHANGING)) {
+            const hallucinating = Hallucination(state);
+            const tempshape = hallucinating ? 'an orange' : 'a pile of gold';
+            state.u.uconduct ??= {};
+            const oldPolyselfs = Math.trunc(
+                state.u.uconduct.polyselfs ?? 0,
+            );
+            state.u.uconduct.polyselfs = oldPolyselfs + 1;
+            if (!oldPolyselfs) {
+                livelog_printf(
+                    LL_CONDUCT,
+                    `changed form for the first time by mimicking ${tempshape}`,
+                    state,
+                );
+            }
+            await ttyPline(
+                `You can't resist the temptation to mimic ${tempshape}.`,
+                state,
+            );
+            if (state.u.usteed)
+                note_unported('steed.c dismount_steed');
+            nomul(-tmp, state);
+            state.multi_reason = 'pretending to be a pile of gold';
+            const subject = an(
+                Upolyd(state.u)
+                    ? pmname(
+                        state.youmonst.data,
+                        Mgender(state.youmonst, state),
+                    )
+                    : state.urace.noun,
+            );
+            const ending = hallucinating
+                ? `You suddenly dread being peeled and mimic ${subject} again!`
+                : `You now prefer mimicking ${subject} again.`;
+            state.eatmbuf = ending;
+            state.nomovemsg = ending;
+            state.afternmv = () => note_unported('eat.c eatmdone');
+            state.youmonst.m_ap_type = M_AP_OBJECT;
+            state.youmonst.mappearance = hallucinating ? ORANGE : GOLD_PIECE;
+            newsym(state.u.ux, state.u.uy);
+            await curs_on_u(state);
+            note_unported('windows.c display_nhwindow');
+        }
+        break;
+    case PM_QUANTUM_MECHANIC: {
+        await ttyPline('Your velocity suddenly seems very uncertain!', state);
+        const fast = state.u.uprops[FAST];
+        if (fast.intrinsic & INTRINSIC) {
+            fast.intrinsic &= ~INTRINSIC;
+            await ttyPline('You seem slower.', state);
+        } else {
+            fast.intrinsic |= FROMOUTSIDE;
+            await ttyPline('You seem faster.', state);
+        }
+        break;
+    }
+    case PM_LIZARD: {
+        const stun = state.u.uprops[STUNNED];
+        const confusion = state.u.uprops[CONFUSION];
+        if ((stun.intrinsic & TIMEOUT) > 2)
+            note_unported('potion.c make_stunned');
+        if ((confusion.intrinsic & TIMEOUT) > 2)
+            await make_confused(2, false, state);
+        check_intrinsics = true; // might convey temporary stoning resistance
+        break;
+    }
     case PM_CHAMELEON:
     case PM_DOPPELGANGER:
-    case PM_SANDESTIN: /* moot--they don't leave corpses */
+    case PM_SANDESTIN: // moot--they do not leave corpses
     case PM_GENETIC_ENGINEER:
-        // polyself() or, for an Unchanging hero, "You feel momentarily
-        // different."
-        throw new UnsupportedEatError('polyself() for a shapechanger corpse');
-    case PM_DISPLACER_BEAST:
-        // toggle_displacement() and incr_itimeout(&HDisplaced, d(6, 6)).
-        throw new UnsupportedEatError("cpostfx()'s displacer beast arm");
+        if (propertyActive(state, UNCHANGING)) {
+            await ttyPline('You feel momentarily different.', state);
+        } else {
+            if (state.context.tin.tin) {
+                await use_up_tin(state.context.tin.tin, state);
+                await lesshungry(
+                    200 + (metallivorous(state.youmonst.data) ? 5 : 0),
+                    state,
+                    { message: ttyPline },
+                );
+            }
+            await ttyPline(
+                pm === PM_GENETIC_ENGINEER
+                    ? 'You undergo a freakish metamorphosis.'
+                    : 'You feel a change coming over you.',
+                state,
+            );
+            note_unported('polyself.c polyself');
+        }
+        break;
+    case PM_DISPLACER_BEAST: {
+        const displaced = state.u.uprops[DISPLACED];
+        if (!propertyActive(state, DISPLACED))
+            await toggle_displacement(null, 0, true, state);
+        incr_itimeout(displaced, d(6, 6));
+        break;
+    }
     case PM_DISENCHANTER:
-        // attrcurse() strips a random intrinsic.
-        throw new UnsupportedEatError('attrcurse()');
+        // C discards attrcurse()'s boolean; sit.c owns that still-unported
+        // intrinsic-removal operation.
+        note_unported('sit.c attrcurse');
+        break;
     case PM_DEATH:
     case PM_PESTILENCE:
     case PM_FAMINE:
-        // C confers nothing here because the hero was life-saved, but cprefx()
-        // stops a Rider corpse before the meal starts.
-        throw new UnsupportedEatError("cpostfx()'s Rider arm");
+        // The hero was life-saved; C does not confer intrinsics here.
+        break;
     case PM_MIND_FLAYER:
     case PM_MASTER_MIND_FLAYER:
-        // The rn2(2) that decides between adjattrib(A_INT, 1) and falling
-        // through to the intrinsic check.
-        throw new UnsupportedEatError("cpostfx()'s mind flayer arms");
+        if (state.u.acurr.a[A_INT] < state.urace.attrmax[A_INT]) {
+            if (!rn2(2)) {
+                await ttyPline('Yum!  That was real brain food!', state);
+                await adjattrib(A_INT, 1, false, state, {
+                    message: ttyPline,
+                    encumberMessage: (target) => encumber_msg(target),
+                });
+                break; // do not give telepathy too
+            }
+        } else {
+            await ttyPline('For some reason, that tasted bland.', state);
+        }
+        // FALLTHROUGH
     default:
         check_intrinsics = true;
         break;
@@ -2284,19 +2574,21 @@ async function cpostfx(pm, state) {
 
         if (dmgtype(ptr, AD_STUN) || dmgtype(ptr, AD_HALU)
             || pm === PM_VIOLET_FUNGUS) {
-            // "Oh wow!  Great stuff!" and make_hallucinated().
-            throw new UnsupportedEatError('make_hallucinated()');
+            await ttyPline('Oh wow!  Great stuff!', state);
+            const hallucination = state.u.uprops[HALLUC];
+            await make_hallucinated(
+                (hallucination.intrinsic & TIMEOUT) + 200,
+                false,
+                0,
+                state,
+            );
         }
 
         /* Eating magical monsters can give you some magical energy. */
-        if (attacktype(ptr, AT_MAGC) || pm === PM_NEWT) {
-            if (pm === PM_NEWT)
-                await eye_of_newt_buzz(state);
-            else
-                throw new UnsupportedEatError('eye_of_newt_buzz()');
-        }
+        if (attacktype(ptr, AT_MAGC) || pm === PM_NEWT)
+            await eye_of_newt_buzz(state);
 
-        const tmp = corpse_intrinsic(ptr);
+        tmp = corpse_intrinsic(ptr);
 
         /* if something was chosen, give it now (givit() might fail) */
         if (tmp === -1) {
@@ -2305,17 +2597,14 @@ async function cpostfx(pm, state) {
                 encumberMessage: (target) => encumber_msg(target),
             });
         } else if (tmp > 0) {
-            // givit() weighs the monster's level against a per-intrinsic
-            // chance in should_givit() and temp_givit(), and each intrinsic it
-            // grants has its own message and its own timeout.
-            throw new UnsupportedEatError(`givit() for intrinsic ${tmp}`);
+            await givit(tmp, ptr, state);
         }
     } /* check_intrinsics */
 
-    // C's `if (ismnum(catch_lycanthropy)) { set_ulycn(); retouch_equipment(2); }`
-    // tail belongs to the three were arms above, which are the only writers of
-    // that variable and all stop.
-    await Promise.resolve();
+    if (ismnum(catch_lycanthropy)) {
+        note_unported('were.c set_ulycn');
+        note_unported('artifact.c retouch_equipment');
+    }
 }
 
 // C ref: eat.c violated_vegetarian() (1375-1384). Both callers -- doeat()'s

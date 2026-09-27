@@ -718,10 +718,8 @@ function resetTrap(trap, typ, oldplace) {
     // C's newtrap() memset supplies zero for a new record. Replacing an
     // existing trap preserves tnote except when SQKY_BOARD chooses a note.
     if (!oldplace) trap.tnote = 0;
-    if (!oldplace) {
-        trap.conjoined = 0;
-        trap.ntrap = 0;
-    }
+    if (!oldplace) trap.conjoined = 0;
+    // C's ntrap link is represented by level.traps' array order.
 }
 
 function buriedObjectAt(x, y, state) {

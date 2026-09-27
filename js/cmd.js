@@ -322,6 +322,7 @@ import {
 } from './dokick.js';
 import {
     docast,
+    dowizcast,
     dovspell,
     known_spell,
     spe_Fresh,
@@ -1851,7 +1852,7 @@ export const ADMITTED_COMMANDS = Object.freeze([
     'takeoff', 'remove', 'wear',
     'puton', 'quaff', 'read', 'zap', 'cast', 'reqmenu', 'fight', 'rush', 'run', 'repeat',
     'options', 'autopickup',
-    'wizwish', 'wizidentify', 'wizlevelport', 'wizgenesis', 'wizintrinsic', 'wizmap', 'wizwhere', 'fire', 'throw',
+    'wizwish', 'wizidentify', 'wizlevelport', 'wizgenesis', 'wizintrinsic', 'wizmap', 'wizwhere', 'wizcast', 'fire', 'throw',
     'swap', 'kick',
     'save', 'wield', 'quiver', 'help', 'whatis', '#', 'loot', 'force', 'tip',
     'glance', 'showgold', 'seeweapon', 'seearmor', 'seerings', 'seeamulet',
@@ -3366,6 +3367,28 @@ async function runCastCommand(key, state) {
         // status-change messages and status-line redraws.
         statusRefresh: () => bot(),
         endRunning: (s) => end_running(true, s),
+    }));
+}
+
+// C ref: spell.c dowizcast(). The same source handler is reachable from the
+// extended-command row and from a user binding to that row.
+async function runWizCastCommand(key, state) {
+    return failClosedCommand(key, state, () => dowizcast(state, {
+        message: ttyPline,
+        menu: (items, how, prompt) => select_menu(state, {
+            items: items.map((item) => (item.heading
+                ? {
+                    ...item,
+                    attr: menuTitleStyle(state).titleAttr,
+                    color: menuTitleStyle(state).titleColor,
+                }
+                : item)),
+            how,
+            title: prompt,
+            ...menuTitleStyle(state),
+            cancelValue: null,
+            overlay: state.iflags?.menu_overlay !== false,
+        }),
     }));
 }
 
@@ -5132,6 +5155,8 @@ async function doextcmd(key, state) {
         return await runZapCommand(key, state);
     case 'docast':
         return await runCastCommand(key, state);
+    case 'dowizcast':
+        return await runWizCastCommand(key, state);
     case 'dodown':
         return await runDownCommand(key, state);
     case 'doup':
@@ -6124,6 +6149,17 @@ export async function rhack(key, state = game) {
             // the command row carries IFBURIED and WIZMODECMD only.
             await runIntrinsicCommand(key, state);
             resetCommandVars(state, state.multi < 0);
+            return;
+        }
+        if (command === 'wizcast') {
+            // cmd.c's wizcast row has a NUL default key but bind_key() can
+            // install it from OPTIONS BINDINGS; C then calls dowizcast()
+            // directly from rhack() and consumes its ECMD result here.
+            const res = await runWizCastCommand(key, state);
+            if (res & (ECMD_CANCEL | ECMD_FAIL)) resetCommandVars(state);
+            else if ((res & (ECMD_OK | ECMD_TIME)) === ECMD_OK)
+                resetCommandVars(state, state.multi < 0);
+            if (res & ECMD_TIME) commandTookTime(state);
             return;
         }
         if (command === 'teleport') {

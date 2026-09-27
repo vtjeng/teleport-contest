@@ -3137,6 +3137,40 @@ test('the direct #version command dispatches the portable text window',
         assert.equal(game.context.pendingCommand, undefined);
     });
 
+test('a user-bound wizcast row dispatches directly through rhack', async () => {
+    await runSegment({
+        seed: 22092624,
+        datetime: COMMAND_DATETIME,
+        nethackrc: 'OPTIONS=name:BoundWizardCast,role:Wizard,race:human,'
+            + 'gender:female,align:neutral,!legacy,!tutorial,!splash_screen,'
+            + 'pettype:none,playmode:debug\nBINDINGS=x:wizcast\n',
+        moves: ' ',
+    });
+    const state = game;
+    const key = commandKeyCode('x');
+    assert.equal(
+        commandForKey(createCommandBindingModel(state), key), 'wizcast',
+    );
+    const menusAtInput = [];
+    state._preNhgetchHook = async () => {
+        menusAtInput.push(state.nhDisplay.grid
+            .map((row) => row.map((cell) => cell.ch).join(''))
+            .join('\n'));
+    };
+    const movesBefore = state.moves;
+    state.nhDisplay.pushKey(key);
+    state.nhDisplay.pushKey(0x1B); // Cancel dowizcast's PICK_ONE menu.
+
+    await rhack(0, state);
+
+    assert.ok(
+        menusAtInput.some((screen) => screen.includes('Cast which spell?')),
+        'rhack dispatches the rebound wizcast handler before reading a choice',
+    );
+    assert.equal(state.moves, movesBefore, 'a canceled wizard menu spends no turn');
+    assert.equal(state.context.move, 0, 'ECMD_OK returns through rhack');
+});
+
 test('C and Meta-N direct bindings reach docallcmd from rhack', async () => {
     // cmd.c binds 'C' to "call" (1687-1688), M('n') to "name"
     // (1773-1774), and commands_init() also installs the M-N alias. All
