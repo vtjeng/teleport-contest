@@ -99842,6 +99842,49 @@
           "evaluationCommit": "31a2ed22a45f64162949a29f462c23cd51827978"
         }
       }
+    },
+    {
+      "id": "port-read-stinking-cloud-synthetic-v9-20260927",
+      "kind": "file-port",
+      "status": "queued",
+      "summary": "Port stinking-cloud targeting and effect through the scroll wrapper",
+      "cFile": "read.c",
+      "sessions": [
+        "synthetic/v9/stinking-cloud-scroll-targets-floor"
+      ],
+      "selectionReason": "Current v9 stinking-cloud-scroll-targets-floor first diverges when read.c:seffects skips seffect_stinking_cloud; C prompts through do_stinking_cloud and later draws region.c:create_gas_cloud RNG. The selected source function and wrapper form one coherent read.c effect and have no active reservation.",
+      "detail": "Port complete read.c:do_stinking_cloud, including prompt, getpos highlight and consumed return, cancellation, invalid center, Hallucination, scroll versus spell wording, and BUC-dependent gas size and duration; implement whole seffect_stinking_cloud wrapper and wire SCR_STINKING_CLOUD in seffects. Use existing can_center_cloud/getpos/create_gas_cloud contracts in C order, with independent C recordings for uncovered branches and named blockers. Investigation: investigations/synthetic/v9/stinking-cloud-scroll-targets-floor.json.",
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": null,
+      "delivered": null,
+      "functions": [
+        {
+          "name": "do_stinking_cloud",
+          "line": 3082,
+          "endLine": 3111,
+          "declared": false,
+          "complete": false
+        }
+      ],
+      "range": {
+        "from": 3082,
+        "to": 3111
+      },
+      "syntheticProvenance": {
+        "synthetic/v9/stinking-cloud-scroll-targets-floor": {
+          "session": "synthetic/v9/stinking-cloud-scroll-targets-floor",
+          "corpus": "synthetic",
+          "batch": "v9",
+          "caseId": "stinking-cloud-scroll-targets-floor",
+          "manifestPath": "challenges/manifests/v9.json",
+          "manifestSha256": "00c148aac522e6343c8de0bd003db29771439f972a99cb18c772ebf2bc45a594",
+          "recordingPath": "challenges/cases/v9/stinking-cloud-scroll-targets-floor.session.json",
+          "recordingSha256": "30f21674ec8e7fe7965fdf526cb0933ae59855cee2b0d2ba83d659cc85bd1fbc",
+          "evaluationPath": "challenges/evaluations/20260927230232-v9.json",
+          "evaluationCommit": "85e2d70dee8d90a18baf62ee852ba83e8102b18d"
+        }
+      }
     }
   ]
 }
