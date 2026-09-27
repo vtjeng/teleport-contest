@@ -97931,6 +97931,36 @@
           "evaluationCommit": "eaaa1f72f98bbaddc775a4600e02f051895b9698"
         }
       }
+    },
+    {
+      "id": "div-uhitm-mhitm-knockback-unsolid-synthetic-v9-20260927",
+      "kind": "divergence-fix",
+      "status": "queued",
+      "summary": "Restore the solidity guard in monster knockback",
+      "cFile": "uhitm.c",
+      "sessions": [],
+      "selectionReason": "The current v9 kick-closed-door runner stops before any screen because js/uhitm.js:mhitm_knockback refers to unsolid without importing the already-ported mondata.c:unsolid helper. investigations/synthetic/v9/kick-closed-door.json traces the C guard and current production attack path; no active worker reserves uhitm.c:mhitm_knockback.",
+      "detail": "C uhitm.c:mhitm_knockback rejects nonphysical attackers with unsolid(magr->data). JS implements this branch but its missing import raises ReferenceError during an ordinary hero hit before the recipe reaches its intended door kick. Restore the source helper import and verify the existing C recording plus independent attack variation.",
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": null,
+      "delivered": null,
+      "function": "mhitm_knockback",
+      "session": "synthetic/v9/kick-closed-door",
+      "syntheticProvenance": {
+        "synthetic/v9/kick-closed-door": {
+          "session": "synthetic/v9/kick-closed-door",
+          "corpus": "synthetic",
+          "batch": "v9",
+          "caseId": "kick-closed-door",
+          "manifestPath": "challenges/manifests/v9.json",
+          "manifestSha256": "00c148aac522e6343c8de0bd003db29771439f972a99cb18c772ebf2bc45a594",
+          "recordingPath": "challenges/cases/v9/kick-closed-door.session.json",
+          "recordingSha256": "cf1d058b874865447eb40db3e9d045ba6b5cf7518f90c1aeb31ee94e6f3ef742",
+          "evaluationPath": "challenges/evaluations/20260927175933-v9.json",
+          "evaluationCommit": "ed281da57eb1c879937da42b05f214e0640df9db"
+        }
+      }
     }
   ]
 }
