@@ -14,7 +14,7 @@ import { failClosedCommandRefusals } from '../js/cmd.js';
 import { setuhpmax } from '../js/attrib.js';
 
 import {
-    A_CON, A_DEX, A_WIS, ACID_RES, BLINDED, CONFUSION, DEAF,
+    A_CON, A_DEX, A_MAX, A_WIS, ACID_RES, BLINDED, CONFUSION, DEAF,
     DETECT_MONSTERS, FAST, FREE_ACTION,
     FROMOUTSIDE, GLIB, HALLUC,
     GETOBJ_DOWNPLAY, GETOBJ_EXCLUDE, GETOBJ_EXCLUDE_INACCESS, GETOBJ_SUGGEST,
@@ -478,11 +478,11 @@ function breatheSwitchBody() {
     return { code: body.replace(/\/\*[\s\S]*?\*\//gu, ''), comments };
 }
 
-async function startedGame(seed, name) {
+async function startedGame(seed, name, role = 'Healer') {
     await runSegment({
         seed,
         datetime: '20260724120000',
-        nethackrc: `OPTIONS=name:${name},role:Healer,race:human,`
+        nethackrc: `OPTIONS=name:${name},role:${role},race:human,`
             + 'gender:female,align:neutral,!legacy,!tutorial,!splash_screen',
         moves: ' ',
     });
@@ -1634,6 +1634,49 @@ test('sickness potion clears active hallucination before returning', async () =>
     assert.equal(game.u.uprops[HALLUC].intrinsic & TIMEOUT, 0);
     assert.equal(toplines(), 'You are shocked back to your senses!');
 });
+
+test('sickness effect uses the C attribute message and encumbrance operations',
+    async () => {
+        await startedGame(771031, 'SicknessAttributeEnvironment', 'Wizard');
+        game.moves = 1;
+        game.program_state ??= {};
+        game.program_state.in_moveloop = true;
+        const events = [];
+        const potion = vaporPotion(POT_SICKNESS);
+        potion.dknown = false;
+
+        await peffects(potion, game, {
+            random: {
+                rn2: (bound) => {
+                    events.push(['rn2', bound]);
+                    return bound === A_MAX ? A_CON : 0;
+                },
+                rn1: (bound, base) => {
+                    events.push(['rn1', bound, base]);
+                    return base;
+                },
+                rnd: (bound) => {
+                    events.push(['rnd', bound]);
+                    return 2;
+                },
+            },
+            message: async (line) => events.push(['message', line]),
+            encumberMessage: async () => events.push(['encumber']),
+        });
+
+        assert.ok(events.some(([kind, line]) => kind === 'message'
+            && line === 'You feel very sick.'),
+        'attrib.c:poisontell receives its message operation');
+        assert.equal(events.filter(([kind]) => kind === 'encumber').length, 2,
+            'adjattrib and exercise each reach encumber_msg for Constitution');
+        assert.deepEqual(events.filter(([kind]) => kind !== 'message'
+            && kind !== 'encumber'), [
+            ['rn2', A_MAX],
+            ['rn1', 4, 3],
+            ['rnd', 10],
+            ['rn2', 2],
+        ], 'the attribute, HP, and exercise draws stay in C order');
+    });
 
 // ---------------------------------------------------------------------------
 // Timeout utilities: set_itimeout and incr_itimeout
