@@ -98524,7 +98524,7 @@
     {
       "id": "port-potion-peffect-gain-ability-synthetic-v9-20260927",
       "kind": "file-port",
-      "status": "open",
+      "status": "closed",
       "summary": "Port the complete gain-ability potion effect through quaff dispatch",
       "cFile": "potion.c",
       "sessions": [
@@ -98538,15 +98538,18 @@
         "screens": 11405,
         "rng": 792838
       },
-      "closedAt": null,
-      "delivered": null,
+      "closedAt": "de87c577bce9e29db5aaf47eccac54a458f687a8",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
       "functions": [
         {
           "name": "peffect_gain_ability",
           "line": 1030,
           "endLine": 1051,
-          "declared": false,
-          "complete": false
+          "declared": true,
+          "complete": true
         }
       ],
       "range": {
@@ -98715,7 +98718,103 @@
             }
           }
         }
-      ]
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "peffect_gain_ability",
+            "implementation": "js/potion.js",
+            "symbol": "peffect_gain_ability",
+            "sourceReview": "Read the complete upstream potion.c:peffect_gain_ability() at 1030-1051 and its POT_GAIN_ABILITY peffects dispatch at 1382. Preserved branch order: cursed first (message then potion_unkn++), then Fixed_abil (potion_nothing++ with no RNG/message), then attribute attempts. Blessed starts i at -1, increments sequentially through A_MAX, uses msgflg 0 on every adjattrib call, and does not stop early. Unblessed draws rn2(A_MAX) before each attempt, uses msgflg -1 except 0 on the last attempt, and breaks only when adjattrib returns true. JS calls the already-ported attrib.c:adjattrib with potionEffectEnvironment so its message, random, and encumber_msg dependencies preserve the production operations; the helper Boolean controls the retry loop exactly as in C. The function itself has no RNG/output/state return value and its C return is void.",
+            "callers": [
+              {
+                "path": "js/potion.js",
+                "symbol": "peffects",
+                "source": "potion.c:peffects() case POT_GAIN_ABILITY dispatches to peffect_gain_ability(otmp); JS uses the same case and supplies the normalized effect environment."
+              },
+              {
+                "path": "js/potion.js",
+                "symbol": "dopotion",
+                "source": "potion.c:dopotion() resets potion flags then calls peffects(otmp); ordinary dodrink() quaff reaches this path."
+              },
+              {
+                "path": "js/potion.js",
+                "symbol": "dodrink",
+                "source": "potion.c:dodrink() is the #quaff production entry point and calls dopotion(otmp) after selection."
+              },
+              {
+                "path": "js/cmd.js",
+                "symbol": "runQuaffCommand",
+                "source": "cmd.c command-table dodrink entry dispatches to potion.c:dodrink(); js/cmd.js:runQuaffCommand dispatches the same production command to js/potion.js:dodrink()."
+              },
+              {
+                "path": "js/fountain.js",
+                "symbol": "drinksink",
+                "source": "fountain.c:drinksink() case 4 repeatedly creates a random non-water potion and calls dopotion(); the independent sink recording reaches POT_GAIN_ABILITY."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/potion.test.mjs"
+            ],
+            "recordings": [
+              "recordings/potion.c/gain-ability-uncursed-retry-independent.session.json",
+              "recordings/potion.c/gain-ability-cursed-independent.session.json",
+              "recordings/potion.c/gain-ability-sink-independent.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v9",
+                "caseId": "blessed-gain-ability-potion",
+                "segment": 0,
+                "fromStep": 35,
+                "throughStep": 36,
+                "source": "quaff command -> potion.c:dodrink -> dopotion -> peffects(POT_GAIN_ABILITY) -> peffect_gain_ability -> attrib.c:adjattrib"
+              }
+            ],
+            "checkedAt": "de87c577bce9e29db5aaf47eccac54a458f687a8"
+          }
+        ],
+        "entryPointReview": "Active entries reaching POT_GAIN_ABILITY are an ordinary quaff through cmd.c/potion.c:dodrink -> dopotion -> peffects and a sink-generated potion through fountain.c:drinksink case 4 -> dopotion -> peffects; both are covered by independent matching recordings, with cursed and unblessed branches on ordinary quaff, plus the blessed v9 source range. peffects is also called by spell.c:docast, but its potion-like spell list has SPE_HASTE_SELF, SPE_DETECT_TREASURE, SPE_DETECT_MONSTERS, SPE_LEVITATION, SPE_RESTORE_ABILITY, and SPE_INVISIBILITY only, so there is no gain-ability spell alias. end.c:fuzzer_savelife calls peffects only for water and restore-ability objects. eat.c:eatspecial contains a generic POTION_CLASS dopotion call, but the active eating selection first uses is_edible(), which rejects glass potion objects; recipes/eat.c/is-edible-potion-rejection-a28.session.json and its matching recording retain the source-pinned negative check. Monster/throw potionhit is a separate source function and does not dispatch to peffect_gain_ability. attrib.c:adjattrib is an existing whole-function port; this task consumes its Boolean return and message/RNG/encumbrance environment rather than changing that helper.",
+        "entryPoints": [
+          {
+            "name": "ordinary quaff of a gain-ability potion",
+            "functions": [
+              "peffect_gain_ability"
+            ],
+            "recordings": [
+              "recordings/potion.c/gain-ability-uncursed-retry-independent.session.json",
+              "recordings/potion.c/gain-ability-cursed-independent.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v9",
+                "caseId": "blessed-gain-ability-potion",
+                "segment": 0,
+                "fromStep": 35,
+                "throughStep": 36,
+                "source": "cmd.c quaff -> potion.c:dodrink -> dopotion -> peffects -> peffect_gain_ability -> adjattrib"
+              }
+            ]
+          },
+          {
+            "name": "sink-generated gain-ability potion",
+            "functions": [
+              "peffect_gain_ability"
+            ],
+            "recordings": [
+              "recordings/potion.c/gain-ability-sink-independent.session.json"
+            ],
+            "synthetic": []
+          }
+        ]
+      },
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "de87c577bce9e29db5aaf47eccac54a458f687a8",
+        "screens": 11405,
+        "rng": 792838
+      }
     }
   ]
 }
