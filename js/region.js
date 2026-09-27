@@ -13,6 +13,7 @@ import {
     IS_LAVA,
     IS_POOL,
     MAGICAL_BREATHING,
+    M_POISONGAS_OK,
     PLNMSG_ENVELOPED_IN_GAS,
     POISON_RES,
     ROWNO,
@@ -21,6 +22,7 @@ import {
 import { on_level } from './dungeon.js';
 import { game } from './gstate.js';
 import { breathless, nonliving } from './mondata.js';
+import { m_poisongas_ok } from './mon.js';
 import { PM_FOG_CLOUD } from './monsters.js';
 import { rn2 } from './rng.js';
 import { S_cloud, S_poisoncloud } from './symbols.js';
@@ -769,12 +771,6 @@ function heroInsideGasCloud(state) {
 function preflightGasCreation(env, damage) {
     if (!Number.isInteger(damage) || damage < 0)
         throw new RangeError(`invalid gas-cloud damage ${damage}`);
-    if (damage > 0 && !env.allowPositiveDamage) {
-        throw new UnsupportedRegionCallbackError(
-            INSIDE_GAS_CLOUD,
-            ' with positive damage',
-        );
-    }
     if (typeof env.random?.rn2 !== 'function')
         throw new TypeError('create_gas_cloud random injection requires rn2');
     if (!env.state.in_mklev) {
@@ -837,7 +833,9 @@ export async function create_gas_cloud(
         && env.state.u?.ux === x
         && env.state.u?.uy === y
         && cloudSize === 1
-        && damage === 0) {
+        && (!damage || m_poisongas_ok(
+            env.state.youmonst, env.state,
+        ) === M_POISONGAS_OK)) {
         insideCloud = true;
     }
     if (cloudSize > MAX_CLOUD_SIZE) cloudSize = MAX_CLOUD_SIZE;
