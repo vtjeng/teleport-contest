@@ -2003,6 +2003,11 @@ export async function display_pickinv(
             gotsomething = true;
         }
     } else if (usextra) {
+        // invent.c:display_pickinv() adds the extra hands choice to the
+        // Miscellaneous pack when sortpack is active. C temporarily clears
+        // flags.sortpack for in-use-only menus, so that case has no heading.
+        if (state.flags.sortpack && !inuseOnly)
+            items.push(add_menu_heading('Miscellaneous', state));
         items.push({ selector: HANDS_SYM, label: xtra_choice, value: HANDS_SYM });
         gotsomething = true;
     }
