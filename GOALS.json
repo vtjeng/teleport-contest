@@ -94641,7 +94641,7 @@
     {
       "id": "port-potion-potionhit-synthetic-v7-20260927",
       "kind": "file-port",
-      "status": "parked",
+      "status": "open",
       "summary": "Port complete potion.c potionhit monster and hero effects through all active collision callers",
       "cFile": "potion.c",
       "sessions": [
@@ -94685,7 +94685,7 @@
         }
       },
       "activeStanding": {
-        "sha": "5a2f70be22fa1d0489238745e372f3ed5a8c26df",
+        "sha": "c54c2c13ca30ebad8411cbcd4b7dcd3e193fbddc",
         "screens": 11405,
         "rng": 792838
       },
