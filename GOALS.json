@@ -94011,7 +94011,7 @@
     {
       "id": "port-apply-use-stethoscope-synthetic-v6-20260927",
       "kind": "file-port",
-      "status": "open",
+      "status": "parked",
       "summary": "Port apply.c use_stethoscope across vertical and creature examinations",
       "cFile": "apply.c",
       "sessions": [
@@ -94204,7 +94204,17 @@
             }
           }
         }
-      ]
+      ],
+      "progressBeforePark": {
+        "screens": 0,
+        "rng": 0
+      },
+      "parkedStanding": {
+        "sha": "b697c3156f02e8ef8a43516505f4bd8b7e6bce76",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "parkedReason": "The admitted downward stethoscope case and three independent horizontal/downward/cursed/pool-surface C recordings now match. Whole use_stethoscope entry evidence remains incomplete for upward, mounted, swallowed, and underwater states; the upward cant_reach_floor and mounted/swallowed mstatusline calls remain source-named void gaps. Preserve their blocked recipes and do not claim the entire source unit complete."
     },
     {
       "id": "port-potion-peffect-invisibility-synthetic-v7-20260927",
