@@ -92401,12 +92401,12 @@
           "manifestSha256": "03a861a9d1bc9d813c80681312ee7a0e0f893dbad0536de40a974bd5ec344094",
           "recordingPath": "challenges/cases/v7/priest-outside-temple-chat.session.json",
           "recordingSha256": "76f2f565d9ff27f51adb9638e2ee8b3eab7edbe6d8fe058d470d84e89bd861a0",
-          "evaluationPath": "challenges/evaluations/20260927005209-v7.json",
-          "evaluationCommit": "12a35e71cf1d937cd08b75b196f3c8b54224f6cd"
+          "evaluationPath": "challenges/evaluations/20260927070025-v7.json",
+          "evaluationCommit": "89741e4795871d096228a0e47c2e7453a9112e0f"
         }
       },
       "activeStanding": {
-        "sha": "af2d02e92c05574653b7255adcf40d59dc955b7b",
+        "sha": "fd2870a3760b6a11473c6a90279ef26fe643ab15",
         "screens": 11405,
         "rng": 792838
       },
@@ -92626,11 +92626,11 @@
         "rng": 0
       },
       "parkedStanding": {
-        "sha": "362b416b04449cb22d3cbdd4dbb460ab04276e92",
+        "sha": "94ade0add8b1d83746356239f3444c96f104230a",
         "screens": 11405,
         "rng": 792838
       },
-      "parkedReason": "B23 source-traced makemon.c admission prerequisite is integrated and strict-matching for Geryon and Asmodeus, but C24 priest_talk/minion.c bribe/demon_talk and monmove.c dochug delivery remains in its worker worktree. Independent C chat and monster-turn witnesses are cache-only pending replay against the accepted prerequisite; resume this goal when C24 evidence is ready."
+      "parkedReason": "The admitted outside-temple #chat case and independent Priest #chat, Geryon #chat, and peaceful Geryon monster-turn bribe recordings now match completely. Whole priest_talk completion still lacks matching temple donation, shrine, and helpless-entry recordings; minion.c:demon_talk retains the source-named void eat.c:reset_faint gap for a fainted hero. Preserve the gained v7 screen without claiming these uncovered source entries."
     },
     {
       "id": "port-potion-gain-level-synthetic-v7-20260926",
@@ -94048,6 +94048,49 @@
           "recordingSha256": "a59c8d545be1daef5bbd75e215fcd585dd0e1718eb2f70b73ba13499db9c60ea",
           "evaluationPath": "challenges/evaluations/20260927063132-v6.json",
           "evaluationCommit": "fd7c4734a81712ec145e9d49a0c7034436692b57"
+        }
+      }
+    },
+    {
+      "id": "port-potion-peffect-invisibility-synthetic-v7-20260927",
+      "kind": "file-port",
+      "status": "queued",
+      "summary": "Port potion.c peffect_invisibility through quaff and spell callers",
+      "cFile": "potion.c",
+      "sessions": [
+        "synthetic/v7/potion-invisibility-corrected2"
+      ],
+      "selectionReason": "After C24, the admitted v7 invisibility potion case remains unmatched at potion.c:peffect_invisibility, while A23 and B24 own independent apply.c and pray.c source units.",
+      "detail": "Port the whole potion.c:peffect_invisibility function for potion and spell-object inputs in source order: mummy wrapping guard, existing invisibility and blindness messaging, blessed permanent chance, timeout dice, redraw, and cursed message/permanent-bit removal. Wire potion.c:peffects and any production spell alias, name the void wizard.c:aggravate gap if still unported, and provide independent C branch recordings with blocked recipes for uncovered active entries.",
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": null,
+      "delivered": null,
+      "functions": [
+        {
+          "name": "peffect_invisibility",
+          "line": 811,
+          "endLine": 840,
+          "declared": false,
+          "complete": false
+        }
+      ],
+      "range": {
+        "from": 811,
+        "to": 840
+      },
+      "syntheticProvenance": {
+        "synthetic/v7/potion-invisibility-corrected2": {
+          "session": "synthetic/v7/potion-invisibility-corrected2",
+          "corpus": "synthetic",
+          "batch": "v7",
+          "caseId": "potion-invisibility-corrected2",
+          "manifestPath": "challenges/manifests/v7.json",
+          "manifestSha256": "03a861a9d1bc9d813c80681312ee7a0e0f893dbad0536de40a974bd5ec344094",
+          "recordingPath": "challenges/cases/v7/potion-invisibility-corrected2.session.json",
+          "recordingSha256": "03bd2489424a53203f9918744cfe2a9829670fbfcea7df62fad06e7f15e9a22f",
+          "evaluationPath": "challenges/evaluations/20260927072143-v7.json",
+          "evaluationCommit": "94ade0add8b1d83746356239f3444c96f104230a"
         }
       }
     }

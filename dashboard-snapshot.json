@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "capturedAt": "2026-09-27T07:04:31.884Z",
+  "capturedAt": "2026-09-27T07:27:12.277Z",
   "activity": {
     "runId": "loop-20260925",
     "events": [
@@ -4555,12 +4555,53 @@
         "type": "accepted",
         "at": "2026-09-27T07:03:56.977Z",
         "task": "A22"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "A22-published-fd2870a3",
+        "type": "published",
+        "at": "2026-09-27T07:10:30.981Z",
+        "task": "A22",
+        "commit": "fd2870a3760b6a11473c6a90279ef26fe643ab15"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "assign-A23-stethoscope-20260927",
+        "type": "assign",
+        "at": "2026-09-27T07:13:36.193Z",
+        "task": "A23",
+        "worker": "A",
+        "goal": "port-apply-use-stethoscope-synthetic-v6-20260927",
+        "kind": "implementation"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "C24-integrating-94ade0ad",
+        "type": "integrating",
+        "at": "2026-09-27T07:15:26.823Z",
+        "task": "C24",
+        "integration": "94ade0add8b1d83746356239f3444c96f104230a"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "C24-validated-94ade0ad",
+        "type": "validated",
+        "at": "2026-09-27T07:26:07.536Z",
+        "task": "C24",
+        "passed": true
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "C24-accepted-94ade0ad",
+        "type": "accepted",
+        "at": "2026-09-27T07:26:22.575Z",
+        "task": "C24"
       }
     ]
   },
   "development": {
-    "executionCommit": "89741e4795871d096228a0e47c2e7453a9112e0f",
-    "measuredAt": "2026-09-27T07:00:11.255Z",
+    "executionCommit": "94ade0add8b1d83746356239f3444c96f104230a",
+    "measuredAt": "2026-09-27T07:21:19.085Z",
     "sessions": [
       {
         "session": "holdout/seed0002-healer-reflection-drummer",
