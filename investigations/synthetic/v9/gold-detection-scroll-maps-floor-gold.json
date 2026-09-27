@@ -1,0 +1,137 @@
+{
+  "session": "synthetic/v9/gold-detection-scroll-maps-floor-gold",
+  "corpus": "synthetic",
+  "batch": "v9",
+  "caseId": "gold-detection-scroll-maps-floor-gold",
+  "manifestPath": "challenges/manifests/v9.json",
+  "manifestSha256": "00c148aac522e6343c8de0bd003db29771439f972a99cb18c772ebf2bc45a594",
+  "recordingSha256": "5056952a917d4eda93011951acd0b5e2eac09324deb385b0e8f89ca2bc911fad",
+  "evaluationPath": "challenges/evaluations/20260927191056-v9.json",
+  "evaluationCommit": "5b4486322ffa5eeb91cc37d01083ff20bbfe2ea7",
+  "remainingScreens": 1,
+  "recordedSteps": 31,
+  "status": "complete",
+  "commit": "5b4486322ffa5eeb91cc37d01083ff20bbfe2ea7",
+  "mismatch": {
+    "corpus": "synthetic",
+    "batch": "v9",
+    "caseId": "gold-detection-scroll-maps-floor-gold",
+    "session": "synthetic/v9/gold-detection-scroll-maps-floor-gold",
+    "manifestPath": "challenges/manifests/v9.json",
+    "manifestSha256": "00c148aac522e6343c8de0bd003db29771439f972a99cb18c772ebf2bc45a594",
+    "recording": "challenges/cases/v9/gold-detection-scroll-maps-floor-gold.session.json",
+    "recordingPath": "challenges/cases/v9/gold-detection-scroll-maps-floor-gold.session.json",
+    "recordingSha256": "5056952a917d4eda93011951acd0b5e2eac09324deb385b0e8f89ca2bc911fad",
+    "recipe": "challenges/cases/v9/gold-detection-scroll-maps-floor-gold.recipe.session.json",
+    "recipeSha256": "8edacfadb4943e82eb8cf66258c7715fb9996cf5c9ab807dbf42f0e7bfbff0a7",
+    "replayInputSha256": "e8a7428d883fb33542b59d993324d6e14197b8486a45162a9f5b2efd3e9ebd60",
+    "evaluationPath": "challenges/evaluations/20260927191056-v9.json",
+    "evaluationCommit": "5b4486322ffa5eeb91cc37d01083ff20bbfe2ea7",
+    "evaluationArtifact": "challenges/evaluations/20260927191056-v9.json",
+    "evaluationUtc": "2026-09-27T19:11:49.445Z",
+    "remainingScreens": 1,
+    "recordedSteps": 31,
+    "previousScreensMatched": 30,
+    "regression": false,
+    "passed": false,
+    "error": null,
+    "metrics": {
+      "screens": {
+        "matched": 30,
+        "total": 31
+      },
+      "rng": {
+        "matched": 2745,
+        "total": 2746
+      },
+      "cursors": {
+        "matched": 30,
+        "total": 31
+      }
+    },
+    "firstMismatch": {
+      "screen": {
+        "index": 30,
+        "location": {
+          "segmentIndex": 0,
+          "stepIndex": 30,
+          "key": " "
+        },
+        "kind": "ch",
+        "row": 0,
+        "column": 0,
+        "cCell": {
+          "ch": "Y",
+          "color": 8,
+          "attr": 0,
+          "decgfx": 0
+        },
+        "jsCell": {
+          "ch": "C",
+          "color": 8,
+          "attr": 0,
+          "decgfx": 0
+        }
+      },
+      "rng": {
+        "index": 2745,
+        "cEntry": "rn2(19)=17",
+        "cCaller": "exercise(attrib.c:509)",
+        "location": {
+          "segmentIndex": 0,
+          "stepIndex": 30,
+          "key": " "
+        },
+        "stepIndex": 30
+      },
+      "cursor": {
+        "index": 30,
+        "location": {
+          "segmentIndex": 0,
+          "stepIndex": 30,
+          "key": " "
+        },
+        "cCursor": [
+          45,
+          0,
+          1
+        ],
+        "jsCursor": [
+          31,
+          0,
+          1
+        ]
+      }
+    },
+    "step": 30,
+    "kind": "rng",
+    "sourceFile": "attrib.c",
+    "function": "exercise",
+    "message": null,
+    "cFile": "attrib.c",
+    "luaFile": null,
+    "line": 509
+  },
+  "summary": "Reading the gold-detection scroll reaches read.c:seffect_gold_detection, but JavaScript records an unported gap and falls through to the later call-name prompt. C calls detect.c:gold_detect, draws rn2(19) while exercising wisdom, displays a temporary map of floor and carried gold, and waits for a key. Port the whole gold-detection function and wire its consumed return through the read effect; retain cursed/confused trap detection and failure consumption.",
+  "source": {
+    "file": "read.c",
+    "branch": "read.c:seffect_gold_detection (2035-2043) routes confused or cursed scrolls to detect.c:trap_detect and ordinary scrolls to detect.c:gold_detect, consuming either return to clear the scroll pointer on strange_feeling failure. The selected ordinary case has visible floor gold; detect.c:gold_detect (335-469) builds the temporary gold map, says “You feel very greedy, and sense gold!”, exercises wisdom, browses the map, then restores it.",
+    "functions": [
+      "seffect_gold_detection"
+    ],
+    "callers": [
+      "read.c:seffects SCR_GOLD_DETECTION dispatches this effect after the scroll disappears; js/read.js currently calls note_unported and leaves the map/message path undone."
+    ],
+    "dependencies": [
+      "Port return-valued detect.c:gold_detect as a whole, including stale-map cleanup, floor and monster-carried gold, no-gold and underfoot outcomes, temporary map, wisdom exercise, browse_map, and map_redisplay.",
+      "detect.c:trap_detect already has a JavaScript implementation for the cursed/confused branch, but it is not exported or wired to read.c; preserve its consumed 1/0 result.",
+      "Preserve the scroll pointer clearing on strange_feeling failure and the later learnscroll/consumption behavior in read.c."
+    ]
+  },
+  "goalKind": "file-port",
+  "evidence": [
+    "Saved challenges/evaluations/20260927191056-v9.json reports 30/31 screens, 2745/2746 RNG calls, and 30/31 cursors. The focused scan at current HEAD locates segment 0 step 30; C has rn2(19)=17 from exercise(attrib.c:509), while JS has no corresponding draw.",
+    "Independent local replay of the admitted recording shows C step 30 top line “You feel very greedy, and sense gold!--More--” with mapped gold, while JS displays “Call a scroll labeled KO BATE:”.",
+    "Upstream nethack-c/upstream/src/read.c lines 2035-2043 and nethack-c/upstream/src/detect.c lines 335-469 define the consumed detection return and gold-map path; js/read.js SCR_GOLD_DETECTION arm at line 1804 records the gap."
+  ]
+}

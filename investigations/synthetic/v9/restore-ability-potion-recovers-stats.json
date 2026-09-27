@@ -1,0 +1,89 @@
+{
+  "session": "synthetic/v9/restore-ability-potion-recovers-stats",
+  "corpus": "synthetic",
+  "batch": "v9",
+  "caseId": "restore-ability-potion-recovers-stats",
+  "manifestPath": "challenges/manifests/v9.json",
+  "manifestSha256": "00c148aac522e6343c8de0bd003db29771439f972a99cb18c772ebf2bc45a594",
+  "recordingSha256": "15e358379aafa24a7c3f1a5e2bfa50ff7a45aec0331c8fb49580da59f6c869b4",
+  "evaluationPath": "challenges/evaluations/20260927191056-v9.json",
+  "evaluationCommit": "5b4486322ffa5eeb91cc37d01083ff20bbfe2ea7",
+  "remainingScreens": 1,
+  "recordedSteps": 40,
+  "status": "complete",
+  "commit": "5b4486322ffa5eeb91cc37d01083ff20bbfe2ea7",
+  "mismatch": {
+    "corpus": "synthetic",
+    "batch": "v9",
+    "caseId": "restore-ability-potion-recovers-stats",
+    "session": "synthetic/v9/restore-ability-potion-recovers-stats",
+    "manifestPath": "challenges/manifests/v9.json",
+    "manifestSha256": "00c148aac522e6343c8de0bd003db29771439f972a99cb18c772ebf2bc45a594",
+    "recording": "challenges/cases/v9/restore-ability-potion-recovers-stats.session.json",
+    "recordingPath": "challenges/cases/v9/restore-ability-potion-recovers-stats.session.json",
+    "recordingSha256": "15e358379aafa24a7c3f1a5e2bfa50ff7a45aec0331c8fb49580da59f6c869b4",
+    "recipe": "challenges/cases/v9/restore-ability-potion-recovers-stats.recipe.session.json",
+    "recipeSha256": "86e478e79e5c68dfcc77d45e96d7283761e1b099f676d0690fb30661f86bca59",
+    "replayInputSha256": "e8a7428d883fb33542b59d993324d6e14197b8486a45162a9f5b2efd3e9ebd60",
+    "evaluationPath": "challenges/evaluations/20260927191056-v9.json",
+    "evaluationCommit": "5b4486322ffa5eeb91cc37d01083ff20bbfe2ea7",
+    "evaluationArtifact": "challenges/evaluations/20260927191056-v9.json",
+    "evaluationUtc": "2026-09-27T19:11:49.445Z",
+    "remainingScreens": 1,
+    "recordedSteps": 40,
+    "previousScreensMatched": 39,
+    "regression": false,
+    "passed": false,
+    "error": null,
+    "metrics": {
+      "screens": {
+        "matched": 39,
+        "total": 40
+      },
+      "rng": {
+        "matched": 2429,
+        "total": 2430
+      },
+      "cursors": {
+        "matched": 39,
+        "total": 40
+      }
+    },
+    "firstMismatch": {
+      "kind": "stop",
+      "message": "unsupported hero command: an unported branch of this command: quaffing requires peffect_restore_ability()",
+      "step": 39
+    },
+    "step": 39,
+    "kind": "stop",
+    "sourceFile": "potion.c",
+    "function": "peffect_restore_ability",
+    "message": "unsupported hero command: an unported branch of this command: quaffing requires peffect_restore_ability()",
+    "cFile": "potion.c",
+    "luaFile": null,
+    "line": null
+  },
+  "summary": "The restore-ability potion reaches potion.c:peffect_restore_ability, but JavaScript refuses the quaff. C chooses cursed or restorative wording, starts at a random attribute, restores base attributes and abuse counters, and for a potion can restore lost experience levels. The blessed wording consumes apply.c:unfixable_trouble_count(FALSE), which is not yet ported; complete that pure helper in the same task.",
+  "source": {
+    "file": "potion.c",
+    "branch": "potion.c:peffect_restore_ability (646-692) increments potion_unkn, returns after cursed mediocre message, otherwise chooses good/better/great (blessed consumes unfixable_trouble_count), draws rn2(A_MAX), loops through attributes in wraparound order restoring ABASE up to AMAX and clamping negative AEXE, stopping after first repair if unblessed. A POT_RESTORE_ABILITY potion then calls exper.c:pluslvl until lost levels are restored, once or repeatedly when blessed.",
+    "functions": [
+      "peffect_restore_ability"
+    ],
+    "callers": [
+      "potion.c:peffects POT_RESTORE_ABILITY dispatch reaches peffect_restore_ability; js/potion.js currently refuses this effect.",
+      "potion.c:dodrink -> dopotion -> peffects reaches quaffed potions; spell.c healing-skill spell dispatch can call the same source effect with a temporary blessed spellbook; fountain.c:drinksink can also reach dopotion."
+    ],
+    "dependencies": [
+      "apply.c:unfixable_trouble_count(FALSE) is a pure return-valued helper not yet ported; implement and source-pin it in the same task.",
+      "exper.c:pluslvl is already ported; preserve its repeated call and messages for lost-level restoration.",
+      "Keep C ABASE, AMAX, AEXE, and potion-specific ulevel/ulevelmax in their existing state locations; cursed branch must not draw rn2(A_MAX)."
+    ]
+  },
+  "goalKind": "file-port",
+  "evidence": [
+    "Saved challenges/evaluations/20260927191056-v9.json at 5b4486322ffa5eeb91cc37d01083ff20bbfe2ea7 measures 39/40 screens and first stops at step 39: “unsupported hero command: an unported branch of this command: quaffing requires peffect_restore_ability()”.",
+    "Upstream nethack-c/upstream/src/potion.c lines 646-692 defines the effect and apply.c lines 4431-4471 defines its blessed-message return-valued helper.",
+    "js/potion.js refuses peffect_restore_ability; js/exper.js already implements pluslvl, so the task must wire the source caller and helper rather than substitute a case-specific stat change."
+  ]
+}

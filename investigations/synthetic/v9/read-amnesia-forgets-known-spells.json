@@ -1,0 +1,138 @@
+{
+  "session": "synthetic/v9/read-amnesia-forgets-known-spells",
+  "corpus": "synthetic",
+  "batch": "v9",
+  "caseId": "read-amnesia-forgets-known-spells",
+  "manifestPath": "challenges/manifests/v9.json",
+  "manifestSha256": "00c148aac522e6343c8de0bd003db29771439f972a99cb18c772ebf2bc45a594",
+  "recordingSha256": "481f4e372c6513cf0f2e00e7b286c7a3c932884f9092ec9c0cee0293c76ac335",
+  "evaluationPath": "challenges/evaluations/20260927191056-v9.json",
+  "evaluationCommit": "5b4486322ffa5eeb91cc37d01083ff20bbfe2ea7",
+  "remainingScreens": 1,
+  "recordedSteps": 24,
+  "status": "complete",
+  "commit": "5b4486322ffa5eeb91cc37d01083ff20bbfe2ea7",
+  "mismatch": {
+    "corpus": "synthetic",
+    "batch": "v9",
+    "caseId": "read-amnesia-forgets-known-spells",
+    "session": "synthetic/v9/read-amnesia-forgets-known-spells",
+    "manifestPath": "challenges/manifests/v9.json",
+    "manifestSha256": "00c148aac522e6343c8de0bd003db29771439f972a99cb18c772ebf2bc45a594",
+    "recording": "challenges/cases/v9/read-amnesia-forgets-known-spells.session.json",
+    "recordingPath": "challenges/cases/v9/read-amnesia-forgets-known-spells.session.json",
+    "recordingSha256": "481f4e372c6513cf0f2e00e7b286c7a3c932884f9092ec9c0cee0293c76ac335",
+    "recipe": "challenges/cases/v9/read-amnesia-forgets-known-spells.recipe.session.json",
+    "recipeSha256": "1158dda37a8223f534c7fc25886062202644163070813c17d573f0b2f538aebc",
+    "replayInputSha256": "e8a7428d883fb33542b59d993324d6e14197b8486a45162a9f5b2efd3e9ebd60",
+    "evaluationPath": "challenges/evaluations/20260927191056-v9.json",
+    "evaluationCommit": "5b4486322ffa5eeb91cc37d01083ff20bbfe2ea7",
+    "evaluationArtifact": "challenges/evaluations/20260927191056-v9.json",
+    "evaluationUtc": "2026-09-27T19:11:49.445Z",
+    "remainingScreens": 1,
+    "recordedSteps": 24,
+    "previousScreensMatched": 23,
+    "regression": false,
+    "passed": false,
+    "error": null,
+    "metrics": {
+      "screens": {
+        "matched": 23,
+        "total": 24
+      },
+      "rng": {
+        "matched": 3133,
+        "total": 3145
+      },
+      "cursors": {
+        "matched": 23,
+        "total": 24
+      }
+    },
+    "firstMismatch": {
+      "screen": {
+        "index": 23,
+        "location": {
+          "segmentIndex": 0,
+          "stepIndex": 23,
+          "key": " "
+        },
+        "kind": "ch",
+        "row": 0,
+        "column": 0,
+        "cCell": {
+          "ch": "T",
+          "color": 8,
+          "attr": 0,
+          "decgfx": 0
+        },
+        "jsCell": {
+          "ch": "C",
+          "color": 8,
+          "attr": 0,
+          "decgfx": 0
+        }
+      },
+      "rng": {
+        "index": 3133,
+        "cEntry": "rnd(3)=1",
+        "cCaller": "forget(read.c:1031)",
+        "location": {
+          "segmentIndex": 0,
+          "stepIndex": 22,
+          "key": "o"
+        },
+        "stepIndex": 22
+      },
+      "cursor": {
+        "index": 23,
+        "location": {
+          "segmentIndex": 0,
+          "stepIndex": 23,
+          "key": " "
+        },
+        "cCursor": [
+          8,
+          3,
+          1
+        ],
+        "jsCursor": [
+          39,
+          0,
+          1
+        ]
+      }
+    },
+    "step": 22,
+    "kind": "rng",
+    "sourceFile": "read.c",
+    "function": "forget",
+    "message": null,
+    "cFile": "read.c",
+    "luaFile": null,
+    "line": 1031
+  },
+  "summary": "Reading the amnesia scroll reaches read.c:seffect_amnesia, but JavaScript only records an unported gap. C first draws rnd(3) inside read.c:forget at step 22, then chooses the Maud message and exercises wisdom. The whole source path must also update spell memory, weapon skill training, seen-monster flags, and punished ball-and-chain memory; later status or action histories can expose those effects.",
+  "source": {
+    "file": "read.c",
+    "branch": "read.c:seffect_amnesia (1830-1847) sets known, calls forget with ALL_SPELLS unless blessed, chooses one of three messages under Hallucination/name/RNG conditions, and exercises wisdom. read.c:forget (1020-1043) clears punished ball-chain memory, conditionally calls losespells, draws rnd(howmuch?5:3) for drain_weapon_skill, and clears meverseen on current and migrating monsters except steed/stuck. Preserve the RNG before the Maud-message draw.",
+    "functions": [
+      "forget",
+      "seffect_amnesia"
+    ],
+    "callers": [
+      "read.c:seffects case SCR_AMNESIA calls seffect_amnesia(&sobj); js/read.js:seffects currently calls note_unported at that dispatch arm.",
+      "read.c:doread reaches seffects after ordinary scroll selection and consumption setup."
+    ],
+    "dependencies": [
+      "spell.c:losespells and weapon.c:drain_weapon_skill are not yet implemented in JS; C discards their return values, but their state changes matter for later inputs and should be included or explicitly noted as gaps.",
+      "attrib.c:exercise and message operations must follow C order; preserve the ALL_SPELLS flag and blessed distinction."
+    ]
+  },
+  "goalKind": "file-port",
+  "evidence": [
+    "Saved challenges/evaluations/20260927191056-v9.json at 5b4486322ffa5eeb91cc37d01083ff20bbfe2ea7 measures 23/24 screens and 3133/3145 RNG calls; first mismatch is C rnd(3)=1 at forget(read.c:1031) on segment 0 step 22.",
+    "Upstream nethack-c/upstream/src/read.c lines 1020-1043 and 1830-1847 define forget and seffect_amnesia; js/read.js SCR_AMNESIA dispatch at line 1837 records note_unported instead of executing the effect.",
+    "Current JS tree has no losespells or drain_weapon_skill implementation, so completion must account for these source state changes rather than merely matching the first message."
+  ]
+}
