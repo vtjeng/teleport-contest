@@ -207,21 +207,19 @@ test('a pit in sight catches its victim and reports the fall', async () => {
     assert.equal(trap.tseen, true, "seetrap()'s write");
     assert.deepEqual(env.redraws, [`${x},${y}`], "and seetrap()'s draw");
 
-    // trap.c:3827-3835 is a no-op for a victim that was not hiding, and the
-    // whole of what mon.c maybe_unhide_at():4714-4719 asks first is
-    // mtmp->mundetected. A hider caught by the same pit reaches hideunder()
-    // and stops. The jackal is not a hides_under() species, which makes this
-    // the mundetected bit on its own rather than the species behind it.
+    // trap.c:3827-3835 asks maybe_unhide_at() to reconsider a hidden victim.
+    // A jackal is not a hides_under() species, so its mundetected bit alone
+    // does not call hideunder(); the source arm finishes and leaves the bit.
     //
     // Five hit points less the same rnd(6) of 4 leave exactly one, which is
     // where monst.h:214 DEADMONSTER() draws its line: trap.c:3827 asks
     // !DEADMONSTER(), so a victim on its last hit point is still one the
     // block runs for.
     const hider = victimInPit(PM_JACKAL, 5, { mundetected: true });
-    await refusesAsync(
-        () => mintrap(hider.mon, 0, pitEnv([4])),
-        'a monster trapped under an object',
+    assert.equal(
+        await mintrap(hider.mon, 0, pitEnv([4])), Trap_Caught_Mon,
     );
+    assert.equal(hider.mon.mundetected, true);
 
     // The other side of that line: a hider the same pit empties is a
     // DEADMONSTER(), so trap.c:3827 skips the block and mintrap() reports the

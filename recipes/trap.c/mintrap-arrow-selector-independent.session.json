@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "Independent A32 arrow-trap selector witness. The strict-matching C replay reaches trap.c:mintrap() -> trapeffect_selector() -> trapeffect_arrow_trap(); its source trace includes the arrow almost hitting the hostile giant rat and the thitm() hit roll. Earlier search inputs after #wizgenesis were rejected by C without a turn and are not evidence.",
+  "segments": [
+    {
+      "seed": 8344101,
+      "datetime": "20310917110321",
+      "nethackrc": "OPTIONS=name:ArrProbe,role:Valkyrie,race:human,gender:female,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen\nOPTIONS=pettype:none,playmode:debug\n",
+      "moves": " h#wizwish\narrow trap\n#wizgenesis\nhostile giant rat\nk.........."
+    }
+  ]
+}
