@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 71180428,
+      "datetime": "20260927101500",
+      "nethackrc": "OPTIONS=name:TinConfusedA18,role:Wizard,race:elf,gender:female,align:neutral,playmode:debug,!legacy,!tutorial,!splash_screen,pettype:none\n",
+      "moves": " #wizintrinsic\ng\n \u0017tin of lizard meat\nee y"
+    }
+  ],
+  "comment": "Independent A18 consume_tin caller probe: distinct seed/date/name from the other A18 recipe, with a timed Confusion state before a tin of lizard meat is eaten. The expected source path is eat.c:consume_tin -> cprefx (recorded named gap) -> cpostfx; only retain a recording if the strict differential matches."
+}
