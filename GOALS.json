@@ -94960,7 +94960,7 @@
     {
       "id": "port-apply-use-mirror-synthetic-v8-20260927",
       "kind": "file-port",
-      "status": "open",
+      "status": "closed",
       "summary": "Port complete mirror-use behavior and its doapply caller",
       "cFile": "apply.c",
       "sessions": [
@@ -94974,22 +94974,25 @@
         "screens": 11405,
         "rng": 792838
       },
-      "closedAt": null,
-      "delivered": null,
+      "closedAt": "fda9517fb0aa0e2b8a176d0dce29df4b696b359c",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
       "functions": [
         {
           "name": "beautiful",
           "line": 997,
           "endLine": 1017,
           "declared": true,
-          "complete": false
+          "complete": true
         },
         {
           "name": "use_mirror",
           "line": 1018,
           "endLine": 1201,
-          "declared": false,
-          "complete": false
+          "declared": true,
+          "complete": true
         }
       ],
       "range": {
@@ -95169,7 +95172,104 @@
             }
           }
         }
-      ]
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "beautiful",
+            "implementation": "js/apply.js",
+            "symbol": "beautiful",
+            "sourceReview": "Read the complete apply.c:beautiful() definition at lines 997–1017. The port follows ACURR(A_CHA)'s threshold order and calls poly_gender() only for the two gendered ranges (14–18 and 16–18); it has no RNG, output, or mutation. The shared helper now serves both apply.c:use_mirror() and do_name.c:do_mgivenname() instead of maintaining a duplicate in js/do_name.js. scripts/apply.test.mjs pins every C threshold and both gendered branches; scripts/do-name.test.mjs drives do_mgivenname() through its current-square caller path and checks the adjective in the C-form message.",
+            "callers": [
+              {
+                "path": "js/apply.js",
+                "symbol": "use_mirror",
+                "source": "apply.c:use_mirror() calls beautiful() before processing the mirror effect."
+              },
+              {
+                "path": "js/do_name.js",
+                "symbol": "do_mgivenname",
+                "source": "do_name.c:do_mgivenname() calls beautiful() when the selected square is the hero and there is no visible steed, then emits the cannot-be-renamed message."
+              }
+            ],
+            "pure": true,
+            "tests": [
+              "scripts/apply.test.mjs",
+              "scripts/do-name.test.mjs"
+            ],
+            "recordings": [],
+            "synthetic": [],
+            "checkedAt": "fda9517fb0aa0e2b8a176d0dce29df4b696b359c"
+          },
+          {
+            "name": "use_mirror",
+            "implementation": "js/apply.js",
+            "symbol": "use_mirror",
+            "sourceReview": "Read the whole apply.c:use_mirror() definition at lines 1021–1190 and the MIRROR case in doapply() at lines 4330–4331. The port preserves getdir() cancellation, invisibility and sight gates, beautiful/simple mirror description order, cursed fogging RNG, self/swallowed/underwater/surface branches, and the source order after bhit(INVIS_BEAM): no-target/head checks, visibility and monability gates, sleeping/cannot-see/invisible/infravision/vampire cases, Medusa reflection and stoning, floating-eye d(m_lev, damd) then rn2(4) and paralyze_monst, umber-hulk confusion, nymph/amorous-demon theft, generic fear rn2(5) then d(2,4), and final reflection messages. MIRROR is wired in doapply(), with cmd.js:runApplyCommand() dispatching the normal apply command. use_mirror consumes bhit()'s returned monster and gn.notonhead; js/zap.js implements the source INVIS_BEAM walk without animation and preserves that head flag. Only bhit's INVIS_BEAM call type is needed and implemented for this path; other zap.c:bhit call types remain explicit UnsupportedBhitError gaps and are not claimed complete. The source's void mon.c:killed() call in the Medusa branch is skipped with note_unported('mon.c killed') after the source stoned state update; that downstream death handling remains a named gap.",
+            "callers": [
+              {
+                "path": "js/apply.js",
+                "symbol": "doapply",
+                "source": "apply.c:doapply() selects case MIRROR and returns use_mirror(obj)."
+              },
+              {
+                "path": "js/cmd.js",
+                "symbol": "runApplyCommand",
+                "source": "cmd.c's 'a' apply command table row (cmd.c:1677–1678) dispatches to doapply(); the JavaScript runApplyCommand() enters apply.js:doapply()."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/apply.test.mjs",
+              "scripts/bhit.test.mjs"
+            ],
+            "recordings": [
+              "recordings/apply.c/C26-floating-eye-mirror.session.json",
+              "recordings/apply.c/C26-floating-eye-reflection.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v8",
+                "caseId": "mirror-monster-reflection",
+                "segment": 0,
+                "fromStep": 28,
+                "throughStep": 30,
+                "source": "cmd.c apply -> apply.c:doapply(MIRROR) -> apply.c:use_mirror() -> zap.c:bhit(INVIS_BEAM); source reaches the hostile grid-bug reflection branch"
+              }
+            ],
+            "checkedAt": "fda9517fb0aa0e2b8a176d0dce29df4b696b359c"
+          }
+        ],
+        "entryPointReview": "The active gameplay entry is cmd.c's apply command, which reaches apply.c:doapply() and its MIRROR case before use_mirror(); the two independent C recordings exercise mirror use on an empty ray and the floating-eye target/reflection path, and admitted v8 case mirror-monster-reflection segment 0 steps 28–30 exercises the hostile grid-bug reflection branch. do_name.c:do_mgivenname() is the second source caller of pure beautiful(); scripts/do-name.test.mjs reaches its hero-square branch and asserts the shared helper's message. use_mirror() requires zap.c:bhit() only with INVIS_BEAM, whose no-animation walk, target return, and gn.notonhead result are implemented and source-pinned in scripts/bhit.test.mjs. Other bhit call types remain outside this task and retain their existing explicit gaps. In the Medusa branch, C's void mon.c:killed() call remains unported and is explicitly skipped; broader death handling is not claimed. The implemented functions preserve all checked C/JS traces.",
+        "entryPoints": [
+          {
+            "name": "cmd.c apply command -> apply.c:doapply(MIRROR) -> use_mirror",
+            "functions": [
+              "use_mirror"
+            ],
+            "recordings": [
+              "recordings/apply.c/C26-floating-eye-mirror.session.json",
+              "recordings/apply.c/C26-floating-eye-reflection.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v8",
+                "caseId": "mirror-monster-reflection",
+                "segment": 0,
+                "fromStep": 28,
+                "throughStep": 30,
+                "source": "cmd.c apply -> apply.c:doapply(MIRROR) -> apply.c:use_mirror() -> zap.c:bhit(INVIS_BEAM)"
+              }
+            ]
+          }
+        ]
+      },
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "fda9517fb0aa0e2b8a176d0dce29df4b696b359c",
+        "screens": 11405,
+        "rng": 792838
+      }
     },
     {
       "id": "port-read-taming-synthetic-v8-20260927",
