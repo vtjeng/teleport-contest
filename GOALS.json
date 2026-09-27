@@ -91970,7 +91970,7 @@
     {
       "id": "port-potion-gain-level-synthetic-v7-20260926",
       "kind": "file-port",
-      "status": "open",
+      "status": "closed",
       "summary": "Port gain-level potion effect across cursed, uncursed and blessed paths",
       "cFile": "potion.c",
       "sessions": [
@@ -91984,15 +91984,18 @@
         "screens": 11405,
         "rng": 792838
       },
-      "closedAt": null,
-      "delivered": null,
+      "closedAt": "6ff81e0c85937f98189ac25d5847d8fecdab4f8f",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
       "functions": [
         {
           "name": "peffect_gain_level",
           "line": 1083,
           "endLine": 1118,
-          "declared": false,
-          "complete": false
+          "declared": true,
+          "complete": true
         }
       ],
       "range": {
@@ -92163,7 +92166,75 @@
             }
           }
         }
-      ]
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "peffect_gain_level",
+            "implementation": "js/potion.js",
+            "symbol": "peffect_gain_level",
+            "sourceReview": "Read the whole potion.c:peffect_gain_level definition at lines 1083–1118. The cursed branch first records potion_unkn and computes whether the hero is on ledger level 1; D:1 requires the Amulet and copies earth_level, while other levels call Can_rise_up, compute depth(u.uz)-1, call get_level, and return after the same-level ‘It tasted bad.’ case. On a successful rise it prints the ceiling message before calling goto_level; the C call's result is discarded. If no rise is possible it prints ‘You have an uneasy feeling.’ and returns. The non-cursed branch calls pluslvl(FALSE), then only a blessed potion calls rndexp(TRUE) and assigns u.uexp. js/potion.js preserves these branches and their update/message/RNG order. Supporting dependency review: exper.c:pluslvl (307–375) adds monster-form HP first when Upolyd using makemon.c:monhp_per_lvl, routes that pair through attrib.c:setuhpmax(..., FALSE), then performs normal HP, energy, level/experience and intrinsic updates in source order; the existing JS helper now has the corresponding polymorph branch. attrib.c:setuhpmax (1157–1176) updates and clamps only the active HP pair; scripts/potion.test.mjs pins the polymorph pair behavior. exper.c:rndexp (378–402) remains after pluslvl only for blessed gain-level potions. The supporting eat.c:cpostfx PM_WRAITH arm (1141–1143) now always calls pluslvl(FALSE), as C does, so WRAITH while Upolyd also uses the same polymorph branch. The D:1 Amulet branch reaches the source call to goto_level, but strict replay stops in the separate do.c:goto_level endgame-arrival path; this task does not claim that broader source family, and the result discarded by peffect_gain_level does not make it a required return-valued callee.",
+            "callers": [
+              {
+                "path": "js/potion.js",
+                "symbol": "peffects",
+                "source": "potion.c:peffects dispatches the POT_GAIN_LEVEL case directly to peffect_gain_level(otmp) (1333–1425)."
+              },
+              {
+                "path": "js/potion.js",
+                "symbol": "dopotion",
+                "source": "potion.c:dopotion calls peffects(otmp) and then handles its result and potion consumption (618–641)."
+              },
+              {
+                "path": "js/potion.js",
+                "symbol": "dodrink",
+                "source": "potion.c:dodrink selects a potion and calls dopotion(otmp) (526–615)."
+              },
+              {
+                "path": "js/cmd.js",
+                "symbol": "runQuaffCommand",
+                "source": "cmd.c's 'q'/'quaff' command row invokes dodrink (1810); the JS quaff command handler dispatches to potion.js:dodrink."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/potion.test.mjs"
+            ],
+            "recordings": [
+              "recordings/potion.c/gain-level-ordinary-c23.session.json",
+              "recordings/potion.c/gain-level-blessed-c23.session.json",
+              "recordings/potion.c/gain-level-blessed-polymorphed-c23.session.json",
+              "recordings/potion.c/gain-level-cursed-first-level-c23.session.json",
+              "recordings/potion.c/gain-level-cursed-ascent-c23.session.json"
+            ],
+            "synthetic": [],
+            "checkedAt": "6ff81e0c85937f98189ac25d5847d8fecdab4f8f"
+          }
+        ],
+        "entryPointReview": "The live potion entry point is cmd.c's q/quaff row -> potion.c:dodrink -> dopotion -> peffects(POT_GAIN_LEVEL) -> peffect_gain_level; JS follows cmd.js:runQuaffCommand -> potion.js:dodrink -> dopotion -> peffects. Matching independent C recordings cover the uncursed/unblessed D:1 path, blessed D:1 (including rndexp after pluslvl), blessed D:1 while polymorphed (monster HP before normal HP), cursed D:1 without the Amulet, and a cursed D:2 one-level ascent. The separate eat.c path is done_eating -> cpostfx(PM_WRAITH) -> pluslvl(FALSE); recordings/eat.c/cpostfx-wraith-pluslvl-c23.session.json covers normal-form WRAITH and recordings/eat.c/cpostfx-wraith-polymorph-pluslvl-c23.session.json covers Upolyd WRAITH, verifying the supporting caller and polymorph HP path. The D:1 Amulet-to-Earth recipe remains at recipes/potion.c/gain-level-cursed-amulet-earth-c23.session.json without a committed recording: C prints the rise message and enters the Earth transition, but strict C/JS replay first diverges later in do.c:goto_level endgame arrival (run-rQ87zu, missing C rn2(3) at segment 1 step 52 and one later C screen). Keep that branch as an explicit downstream blocker; the potion function's goto_level result is discarded, so no return-value dependency was skipped.",
+        "entryPoints": [
+          {
+            "name": "cmd.c q/quaff -> potion.c:peffect_gain_level",
+            "functions": [
+              "peffect_gain_level"
+            ],
+            "recordings": [
+              "recordings/potion.c/gain-level-ordinary-c23.session.json",
+              "recordings/potion.c/gain-level-blessed-c23.session.json",
+              "recordings/potion.c/gain-level-blessed-polymorphed-c23.session.json",
+              "recordings/potion.c/gain-level-cursed-first-level-c23.session.json",
+              "recordings/potion.c/gain-level-cursed-ascent-c23.session.json"
+            ],
+            "synthetic": []
+          }
+        ]
+      },
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "6ff81e0c85937f98189ac25d5847d8fecdab4f8f",
+        "screens": 11405,
+        "rng": 792838
+      }
     }
   ]
 }
