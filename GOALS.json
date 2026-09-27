@@ -90913,7 +90913,7 @@
     {
       "id": "port-eat-cpostfx-lizard-synthetic-v7-20260926",
       "kind": "file-port",
-      "status": "open",
+      "status": "parked",
       "summary": "Port whole corpse post-effects and source intrinsic grant path after eating",
       "cFile": "eat.c",
       "sessions": [
@@ -91108,7 +91108,17 @@
             }
           }
         }
-      ]
+      ],
+      "progressBeforePark": {
+        "screens": 0,
+        "rng": 0
+      },
+      "parkedStanding": {
+        "sha": "b51083de9721160d58fee696e37eec1f21fcc954",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "parkedReason": "Ordinary corpse and tin cpostfx paths match independent C recordings, and v7 lizard matches through step 36. The active swallowed Finish_digestion caller remains blocked by uhitm.c:gulpum afternmv wiring; species branches with unported void callees, including mimic cleanup, stun, lycanthropy, and polymorph, lack complete entry evidence. Resume when those source owners and matching recordings are available."
     },
     {
       "id": "port-spell-dowizcast-stone-to-flesh-v7-20260926",
