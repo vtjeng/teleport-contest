@@ -1415,6 +1415,26 @@ export async function docast(state = game, env = {}) {
     return ECMD_FAIL;
 }
 
+// C ref: spell.c dowizcast(). The wizard command offers every usable spell
+// object type, even when the hero has not learned it, and returns the forced
+// cast's ECMD result to cmd.c's extended-command dispatcher.
+export async function dowizcast(state = game, env = {}) {
+    const items = [];
+    for (let i = 0; i < MAXSPELL; ++i) {
+        const spell_otyp = SPE_DIG + i;
+        if (spell_otyp >= SPE_BLANK_PAPER) break;
+        items.push({
+            label: OBJ_NAME(objectType(spell_otyp, state), state),
+            value: spell_otyp,
+        });
+    }
+
+    const selected = await env.menu(items, PICK_ONE, 'Cast which spell?', state);
+    if (selected !== null && selected !== undefined)
+        return spelleffects(selected, false, true, state, env);
+    return ECMD_OK;
+}
+
 // Thrown where spell.c reads a display branch this port has not reached.
 export class UnsupportedSpellDisplayError extends Error {
     constructor(branch) {

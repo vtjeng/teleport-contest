@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 22092623,
+      "datetime": "20260926101500",
+      "nethackrc": "OPTIONS=name:C22BoundCast,role:Wizard,race:human,gender:female,align:neutral,playmode:debug,!legacy,!tutorial,!splash_screen,pettype:none\nBINDINGS=x:wizcast\n",
+      "moves": " #wizintrinsic\nb\n x>s."
+    }
+  ],
+  "comment": "Configured direct-key variation of the wizard spell command: set timed Stoned, dismiss its message, invoke the user-bound x:wizcast row, choose stone-to-flesh, and aim at self; exercises cmd.c:rhack -> dowizcast in addition to the ordinary #wizcast path."
+}

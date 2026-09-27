@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 22092622,
+      "datetime": "20260926094500",
+      "nethackrc": "OPTIONS=name:C22StoneCast,role:Wizard,race:human,gender:female,align:neutral,playmode:debug,!legacy,!tutorial,!splash_screen,pettype:none\n",
+      "moves": " #wizintrinsic\nb\n #wizcast\n>s."
+    }
+  ],
+  "comment": "Independent wizard-mode route: set timed Stoned, dismiss its message, choose stone-to-flesh through #wizcast, and aim at self to reach spell.c:dowizcast -> spelleffects -> zap.c:zapyourself -> fix_petrification without study_book."
+}
