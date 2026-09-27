@@ -94434,7 +94434,7 @@
     {
       "id": "port-potion-peffect-invisibility-synthetic-v7-20260927",
       "kind": "file-port",
-      "status": "open",
+      "status": "parked",
       "summary": "Port potion.c peffect_invisibility through quaff and spell callers",
       "cFile": "potion.c",
       "sessions": [
@@ -94626,7 +94626,17 @@
             }
           }
         }
-      ]
+      ],
+      "progressBeforePark": {
+        "screens": 0,
+        "rng": 0
+      },
+      "parkedStanding": {
+        "sha": "fdd63387e525409b26b7ea1acf1130160fa2f1c2",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "parkedReason": "The potion.c:peffect_invisibility helper and ordinary potion and spell dispatches strictly match independent C recordings and the admitted v7 invisibility case. The cursed branch still reaches the source-defined wizard.c:aggravate void callee, which remains an explicit gap; its monster effects lack production replay. Resume after wizard.c:aggravate is ported and record an independent cursed invisibility path before source completion."
     }
   ]
 }
