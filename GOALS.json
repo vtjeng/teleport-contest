@@ -98819,7 +98819,7 @@
     {
       "id": "div-eat-start-tin-yobjnam-synthetic-v9-20260927",
       "kind": "divergence-fix",
-      "status": "open",
+      "status": "closed",
       "summary": "Restore eat.c start_tin possessive opener naming",
       "cFile": "eat.c",
       "sessions": [
@@ -98833,8 +98833,11 @@
         "screens": 11405,
         "rng": 792838
       },
-      "closedAt": null,
-      "delivered": null,
+      "closedAt": "2d9a4768ccd20aa7dae5330807381ebed65bc926",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
       "function": "start_tin",
       "session": "synthetic/v9/valkyrie-opens-spinach-tin-with-tin-opener",
       "step": 52,
@@ -99078,7 +99081,13 @@
             }
           }
         }
-      ]
+      ],
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "2d9a4768ccd20aa7dae5330807381ebed65bc926",
+        "screens": 11405,
+        "rng": 792838
+      }
     }
   ]
 }
