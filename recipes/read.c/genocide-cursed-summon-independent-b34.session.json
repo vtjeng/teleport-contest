@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "Independent cursed read.c:seffect_genocide route: a debug Wizard names newt, then do_genocide's cursed free-pass summons the source-selected small group at the hero square through makemon.",
+  "segments": [
+    {
+      "seed": 39027013,
+      "datetime": "20390927131419",
+      "nethackrc": "OPTIONS=name:B34GenocideC,role:Wizard,race:human,gender:male,align:neutral,playmode:debug,!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!debug_mongen\n",
+      "moves": " \u0017cursed scroll of genocide\nro  newt\n"
+    }
+  ]
+}

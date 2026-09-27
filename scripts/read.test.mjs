@@ -1,15 +1,35 @@
 import assert from 'node:assert/strict';
+import { readFileSync } from 'node:fs';
 import test from 'node:test';
 
-import { ECMD_TIME, IN_SIGHT, ROOM } from '../js/const.js';
+import { ECMD_TIME, G_GENOD, IN_SIGHT, ROOM } from '../js/const.js';
 import { game } from '../js/gstate.js';
 import { runSegment } from '../js/jsmain.js';
 import { can_center_cloud, seffects } from '../js/read.js';
-import { spelleffects } from '../js/spell.js';
+import { G_NOCORPSE, PM_NEWT, PM_WIZARD } from '../js/monsters.js';
 import {
     SCR_SCARE_MONSTER, SCR_TAMING, SCROLL_CLASS,
     SPE_CAUSE_FEAR, SPE_CHARM_MONSTER,
 } from '../js/objects.js';
+import { spelleffects } from '../js/spell.js';
+
+async function replayGenocideRecipe(name, gender) {
+    const recipe = JSON.parse(readFileSync(new URL(
+        `../recipes/${name}.session.json`, import.meta.url,
+    ), 'utf8'));
+    assert.equal(recipe.segments.length, 1);
+    let segment = recipe.segments[0];
+    if (gender) {
+        const nethackrc = segment.nethackrc.replace(
+            /gender:(?:male|female)/u,
+            `gender:${gender}`,
+        );
+        assert.match(nethackrc, new RegExp(`gender:${gender}`, 'u'));
+        segment = { ...segment, nethackrc };
+    }
+    const session = await runSegment(segment);
+    return { session, state: game };
+}
 
 async function emptyTamingWorld(seed) {
     await runSegment({
@@ -148,4 +168,85 @@ test('spell.c cause fear dispatches through read.c seffects', async () => {
         game._pending_message,
         'You hear maniacal laughter in the distance.',
     );
+});
+
+test('read.c genocide wrappers keep ordinary, class, throne, and cursed return paths', async () => {
+    for (const name of [
+        'read.c/genocide-scroll-species-independent-b34',
+        'read.c/genocide-class-blessed-independent-b34',
+        'read.c/genocide-cursed-summon-independent-b34',
+    ]) {
+        const { session, state } = await replayGenocideRecipe(name);
+        assert.equal(state.gk.known, true, name);
+        assert.match(session.getScreens().at(-1),
+            name.includes('cursed')
+                ? /Sent in some newts\./u : /Wiped out all newts\./u,
+            name,
+        );
+        const flags = state.svm.mvitals[PM_NEWT].mvflags;
+        if (name.includes('cursed')) {
+            assert.equal(flags & (G_GENOD | G_NOCORPSE), 0, name);
+            let created = 0;
+            for (let monster = state.level?.monlist ?? state.fmon;
+                monster; monster = monster.nmon) {
+                if (monster.data?.pmidx === PM_NEWT) ++created;
+            }
+            assert.ok(created > 0, name);
+        } else {
+            assert.equal(flags & (G_GENOD | G_NOCORPSE),
+                G_GENOD | G_NOCORPSE, name);
+        }
+    }
+
+    const { session, state } = await replayGenocideRecipe(
+        'sit.c/throne-genocide-selected-independent-b34',
+    );
+    assert.match(session.getScreens().join('\n'), /Imperious order/u);
+    assert.match(session.getScreens().at(-1), /Wiped out all newts\./u);
+    assert.equal(state.svm.mvitals[PM_NEWT].mvflags & (G_GENOD | G_NOCORPSE),
+        G_GENOD | G_NOCORPSE);
+
+    const confused = await replayGenocideRecipe(
+        'read.c/genocide-confused-player-independent-b34',
+    );
+    const deathScreens = confused.session.getScreens().join('\n');
+    assert.match(deathScreens, /Being confused, you mispronounce the magic words/u);
+    assert.match(deathScreens, /Wiped out all wizards\./u);
+    assert.equal(
+        confused.state.svm.mvitals[PM_WIZARD].mvflags & (G_GENOD | G_NOCORPSE),
+        G_GENOD | G_NOCORPSE,
+    );
+});
+
+test('read.c first-genocide Chronicle uses uhis() for class and species paths', async () => {
+    const cases = [
+        {
+            recipe: 'read.c/genocide-class-blessed-independent-b34',
+            chronicle: (possessive) => new RegExp(
+                `^performed ${possessive} first genocide \\(class .\\)$`, 'u',
+            ),
+        },
+        {
+            recipe: 'read.c/genocide-scroll-species-independent-b34',
+            chronicle: (possessive) =>
+                `performed ${possessive} first genocide (newts)`,
+        },
+    ];
+
+    // read.c passes uhis() to livelog_printf() in both branches; you.h:316
+    // maps flags.female to the hero's gendered possessive.
+    for (const { recipe, chronicle } of cases) {
+        for (const [gender, possessive] of [
+            ['male', 'his'],
+            ['female', 'her'],
+        ]) {
+            const { state } = await replayGenocideRecipe(recipe, gender);
+            assert.equal(Boolean(state.flags.female), gender === 'female');
+            assert.ok(state.gamelog.some(({ text }) =>
+                typeof chronicle(possessive) === 'string'
+                    ? text === chronicle(possessive)
+                    : chronicle(possessive).test(text)),
+            `${recipe} should log ${possessive} in the Chronicle`);
+        }
+    }
 });

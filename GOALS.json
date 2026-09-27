@@ -99362,7 +99362,7 @@
     {
       "id": "port-read-genocide-family-synthetic-v9-20260927",
       "kind": "file-port",
-      "status": "queued",
+      "status": "closed",
       "summary": "Port genocide class and species effects through scroll and throne callers",
       "cFile": "read.c",
       "sessions": [
@@ -99370,24 +99370,31 @@
       ],
       "selectionReason": "v9/genocide-scroll-selects-species has 7 unmatched screens at segment 0 step 24; investigation traces the missing read.c:seffect_genocide wrapper to do_genocide and related do_class_genocide, with a separate sit.c throne caller. The two helpers are contiguous source functions; wire the wrapper and callers in this task. See investigations/synthetic/v9/genocide-scroll-selects-species.json.",
       "detail": "",
-      "openedAt": null,
-      "openStanding": null,
-      "closedAt": null,
-      "delivered": null,
+      "openedAt": "12008e132c6470c0ac3b7cae1d65f281dcc4e429",
+      "openStanding": {
+        "sha": "31a2ed22a45f64162949a29f462c23cd51827978",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "closedAt": "85e2d70dee8d90a18baf62ee852ba83e8102b18d",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
       "functions": [
         {
           "name": "do_class_genocide",
           "line": 2638,
           "endLine": 2825,
-          "declared": false,
-          "complete": false
+          "declared": true,
+          "complete": true
         },
         {
           "name": "do_genocide",
           "line": 2826,
           "endLine": 3018,
-          "declared": false,
-          "complete": false
+          "declared": true,
+          "complete": true
         }
       ],
       "range": {
@@ -99406,6 +99413,433 @@
           "recordingSha256": "21687dcc3c3fadea446d1518d74ee03018f8370763bbd9ca9c801c40ff8fae07",
           "evaluationPath": "challenges/evaluations/20260927205713-v9.json",
           "evaluationCommit": "2d9a4768ccd20aa7dae5330807381ebed65bc926"
+        }
+      },
+      "activeStanding": {
+        "sha": "31a2ed22a45f64162949a29f462c23cd51827978",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v9",
+          "caseId": "genocide-scroll-selects-species",
+          "session": "synthetic/v9/genocide-scroll-selects-species",
+          "manifestPath": "challenges/manifests/v9.json",
+          "manifestSha256": "00c148aac522e6343c8de0bd003db29771439f972a99cb18c772ebf2bc45a594",
+          "recording": "challenges/cases/v9/genocide-scroll-selects-species.session.json",
+          "recordingPath": "challenges/cases/v9/genocide-scroll-selects-species.session.json",
+          "recordingSha256": "21687dcc3c3fadea446d1518d74ee03018f8370763bbd9ca9c801c40ff8fae07",
+          "recipe": "challenges/cases/v9/genocide-scroll-selects-species.recipe.session.json",
+          "recipeSha256": "24f4f0cf9d94274eb1584086ee3bc0275d3a586a8fef2b6e5d67921eab823fef",
+          "replayInputSha256": "43cdc2bcdb43a8a8b5b983b7029633c7376bfcf13769c89ba818946e78db4ac0",
+          "evaluationPath": "challenges/evaluations/20260927221853-v9.json",
+          "evaluationCommit": "31a2ed22a45f64162949a29f462c23cd51827978",
+          "evaluationArtifact": "challenges/evaluations/20260927221853-v9.json",
+          "evaluationUtc": "2026-09-27T22:19:34.746Z",
+          "remainingScreens": 7,
+          "recordedSteps": 31,
+          "previousScreensMatched": 24,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 24,
+              "total": 31
+            },
+            "rng": {
+              "matched": 3298,
+              "total": 3298
+            },
+            "cursors": {
+              "matched": 24,
+              "total": 31
+            }
+          },
+          "firstMismatch": {
+            "screen": {
+              "index": 24,
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 24,
+                "key": " "
+              },
+              "kind": "ch",
+              "row": 0,
+              "column": 0,
+              "cCell": {
+                "ch": "Y",
+                "color": 8,
+                "attr": 0,
+                "decgfx": 0
+              },
+              "jsCell": {
+                "ch": "C",
+                "color": 8,
+                "attr": 0,
+                "decgfx": 0
+              }
+            },
+            "rng": {
+              "index": 3298,
+              "cCaller": null,
+              "jsEntry": "rn2(12)=11",
+              "stepIndex": null
+            },
+            "cursor": {
+              "index": 24,
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 24,
+                "key": " "
+              },
+              "cCursor": [
+                44,
+                0,
+                1
+              ],
+              "jsCursor": [
+                35,
+                0,
+                1
+              ]
+            }
+          },
+          "step": 24,
+          "kind": "screen",
+          "sourceFile": null,
+          "function": null,
+          "message": null,
+          "cFile": null,
+          "luaFile": null,
+          "line": null,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v9/genocide-scroll-selects-species.json",
+            "result": {
+              "session": "synthetic/v9/genocide-scroll-selects-species",
+              "corpus": "synthetic",
+              "batch": "v9",
+              "caseId": "genocide-scroll-selects-species",
+              "manifestPath": "challenges/manifests/v9.json",
+              "manifestSha256": "00c148aac522e6343c8de0bd003db29771439f972a99cb18c772ebf2bc45a594",
+              "recordingSha256": "21687dcc3c3fadea446d1518d74ee03018f8370763bbd9ca9c801c40ff8fae07",
+              "evaluationPath": "challenges/evaluations/20260927175933-v9.json",
+              "evaluationCommit": "ed281da57eb1c879937da42b05f214e0640df9db",
+              "remainingScreens": 7,
+              "recordedSteps": 31,
+              "status": "complete",
+              "commit": "ed281da57eb1c879937da42b05f214e0640df9db",
+              "mismatch": {
+                "corpus": "synthetic",
+                "batch": "v9",
+                "caseId": "genocide-scroll-selects-species",
+                "session": "synthetic/v9/genocide-scroll-selects-species",
+                "manifestPath": "challenges/manifests/v9.json",
+                "manifestSha256": "00c148aac522e6343c8de0bd003db29771439f972a99cb18c772ebf2bc45a594",
+                "recording": "challenges/cases/v9/genocide-scroll-selects-species.session.json",
+                "recordingPath": "challenges/cases/v9/genocide-scroll-selects-species.session.json",
+                "recordingSha256": "21687dcc3c3fadea446d1518d74ee03018f8370763bbd9ca9c801c40ff8fae07",
+                "recipe": "challenges/cases/v9/genocide-scroll-selects-species.recipe.session.json",
+                "recipeSha256": "24f4f0cf9d94274eb1584086ee3bc0275d3a586a8fef2b6e5d67921eab823fef",
+                "replayInputSha256": "025d6fc2229f1dc818bc43ea765daa9db58c9a915f1f9f33c75e970db2ae5256",
+                "evaluationPath": "challenges/evaluations/20260927175933-v9.json",
+                "evaluationCommit": "ed281da57eb1c879937da42b05f214e0640df9db",
+                "evaluationArtifact": "challenges/evaluations/20260927175933-v9.json",
+                "evaluationUtc": "2026-09-27T18:00:12.845Z",
+                "remainingScreens": 7,
+                "recordedSteps": 31,
+                "previousScreensMatched": 24,
+                "regression": false,
+                "passed": false,
+                "error": null,
+                "metrics": {
+                  "screens": {
+                    "matched": 24,
+                    "total": 31
+                  },
+                  "rng": {
+                    "matched": 3298,
+                    "total": 3298
+                  },
+                  "cursors": {
+                    "matched": 24,
+                    "total": 31
+                  }
+                },
+                "firstMismatch": {
+                  "screen": {
+                    "index": 24,
+                    "location": {
+                      "segmentIndex": 0,
+                      "stepIndex": 24,
+                      "key": " "
+                    },
+                    "kind": "ch",
+                    "row": 0,
+                    "column": 0,
+                    "cCell": {
+                      "ch": "Y",
+                      "color": 8,
+                      "attr": 0,
+                      "decgfx": 0
+                    },
+                    "jsCell": {
+                      "ch": "C",
+                      "color": 8,
+                      "attr": 0,
+                      "decgfx": 0
+                    }
+                  },
+                  "rng": {
+                    "index": 3298,
+                    "cCaller": null,
+                    "jsEntry": "rn2(12)=11",
+                    "stepIndex": null
+                  },
+                  "cursor": {
+                    "index": 24,
+                    "location": {
+                      "segmentIndex": 0,
+                      "stepIndex": 24,
+                      "key": " "
+                    },
+                    "cCursor": [
+                      44,
+                      0,
+                      1
+                    ],
+                    "jsCursor": [
+                      35,
+                      0,
+                      1
+                    ]
+                  }
+                },
+                "step": 24,
+                "kind": "screen",
+                "sourceFile": null,
+                "function": null,
+                "message": null,
+                "cFile": null,
+                "luaFile": null,
+                "line": null
+              },
+              "summary": "An uncursed genocide scroll reaches read.c:seffect_genocide, but js/read.js:seffects only records an unported gap. C then enters read.c:do_genocide, prompts for a species, marks its vital flags, and reports the result. Port the complete genocide effect family and source-ordered prompt/state path; the scroll case currently diverges at its first message boundary.",
+              "source": {
+                "file": "read.c",
+                "branch": "read.c:seffect_genocide determines known scroll status, prints discovery feedback, then chooses do_class_genocide for blessed scrolls or do_genocide((!cursed) | (2 * Confusion)) otherwise. The selected uncursed, unconfused case passes REALLY=1 and answers newt. do_genocide accepts up to five names, handles refusal and forced player genocide, changes species flags, affects monsters and inventory, and can end the game. do_class_genocide handles the blessed path and has its own repeated class prompt.",
+                "functions": [
+                  "seffect_genocide",
+                  "do_class_genocide",
+                  "do_genocide"
+                ],
+                "callers": [
+                  "read.c:seffects SCR_GENOCIDE arm calls seffect_genocide after doread; js/read.js:seffects currently calls note_unported(read.c seffect_genocide).",
+                  "sit.c throne arm also calls do_genocide(5) and js/sit.js records that path as unported; this is a separate active caller to wire when do_genocide is ported."
+                ],
+                "dependencies": [
+                  "mondata.c:name_to_mon is already ported in js/mondata.js and is needed for selected species names. insight.c:num_genocides and list_genocided are available in js/insight.js for conduct and question-mark responses.",
+                  "mon.c:kill_genocided_monsters is currently a partial gap in js/do.js; C discards its result but its state effect must remain named as an unported gap until the full mon.c function is ported.",
+                  "Check read.c:getlin prompt, monster-vitals flags, object inventory update, polymorph, death, and cursed monster creation in source order. Do not infer those paths from the selected newt case."
+                ]
+              },
+              "goalKind": "file-port",
+              "evidence": [
+                "Current saved challenges/evaluations/20260927175933-v9.json leaves 7 of 31 screens unmatched, first at segment 0 step 24. A fresh scan at b6e28d15 reports note_unported(read.c seffect_genocide) and the same first screen mismatch; RNG totals alone do not prove the prompt and state path match.",
+                "The independently recorded C recipe challenges/cases/v9/genocide-scroll-selects-species.recipe.session.json wishes an uncursed genocide scroll, reads it, and answers newt. It is distinct from a hard-coded species fix; both blessed class genocide and cursed or confused branches remain part of the source family.",
+                "Upstream nethack-c/upstream/src/read.c:seffect_genocide at lines 1722-1738 calls do_class_genocide or do_genocide; do_class_genocide at 2638 and do_genocide at 2826 implement the prompts and effects. read.c:seffects calls the wrapper at 2240; sit.c also invokes do_genocide(5) from a throne."
+              ]
+            }
+          }
+        }
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "do_class_genocide",
+            "implementation": "js/read.js",
+            "symbol": "do_class_genocide",
+            "sourceReview": "Compared all of read.c:do_class_genocide() (2638-2820) with the port. Preserved the five-attempt loop and retry accounting; whitespace cleanup; empty, cancel/none, and ? handling; class-symbol/name parsing followed by monster-name fallback; class eligibility counts and role/race exception; the wizard '*' branch; genocided species iteration order; conduct logging; G_GENOD|G_NOCORPSE updates; inventory refresh; vampire-shifter reversion; polymorphed/racial/role self-genocide state, messages, killer assignment, and completion order. C discards the return from mon.c:mongone() in the wizard '*' branch and mon.c:kill_genocided_monsters() in the genocide branch; JS leaves those explicit source-named note_unported gaps and never uses the note result. C also discards polyself()/rehumanize()/done() results where called; their existing JS ports are invoked for the effects. This is impure and is reached through the blessed-scroll class-selection dispatcher. Its first-genocide Chronicle text now passes the C uhis() value (you.h:316): flags.female selects her and otherwise his; the production read.test replays this blessed class path for both genders.",
+            "callers": [
+              {
+                "path": "js/read.js",
+                "symbol": "seffect_genocide",
+                "source": "read.c:seffect_genocide() at 1722-1738 calls do_class_genocide() when the scroll or pseudo-spell is blessed; js/read.js:seffect_genocide() calls do_class_genocide(state) on the same branch."
+              },
+              {
+                "path": "js/read.js",
+                "symbol": "seffects",
+                "source": "read.c:seffects() dispatches SCR_GENOCIDE to seffect_genocide() at 2241; js/read.js:seffects() dispatches SCR_GENOCIDE to the ported wrapper. The production command path is doread/do_read."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/read.test.mjs"
+            ],
+            "recordings": [
+              "recordings/read.c/genocide-class-blessed-independent-b34.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v9",
+                "caseId": "genocide-scroll-selects-species",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 30,
+                "source": "read.c:seffects(SCR_GENOCIDE) -> seffect_genocide(blessed) -> do_class_genocide; this case exercises the class prompt and species-name fallback only"
+              }
+            ],
+            "checkedAt": "85e2d70dee8d90a18baf62ee852ba83e8102b18d"
+          },
+          {
+            "name": "do_genocide",
+            "implementation": "js/read.js",
+            "symbol": "do_genocide",
+            "sourceReview": "Compared all of read.c:do_genocide() (2826-3015) with the port. Preserved REALLY/PLAYER/ONTHRONE flag interpretation; forced-player name selection; five attempts; cursed rndmonst() free-pass on exhausted input or none; empty/cancel/none/? paths; name lookup and already-genocided rejection; vampire-shifter reversion; role/race self-targeting; human/demon alignment order; G_GENO refusal and deaf/verbose/deity response order; Unchanging; hallucinated naming and unique/pname prefix rules; conduct/vitals/messages; forced-player, throne, and deliberate-scroll killer variants; delayed polymorph death; rehumanization; inventory update; and cursed summon census/RNG order. The C return from rndmonst() and each cursed makemon() call is consumed; JS uses the existing source implementations, and its explicit makemon runtime admission is documented under supplementalSources as only the exact C call shape, not whole makemon completion. C discards mon.c:kill_genocided_monsters()'s void result; JS retains note_unported('mon.c kill_genocided_monsters') and does not use its return as data. This impure function is reached from the scroll wrapper and the throne's do_genocide(5) case. Its first-genocide Chronicle text now passes the C uhis() value (you.h:316): flags.female selects her and otherwise his; the production read.test replays this ordinary species path for both genders.",
+            "callers": [
+              {
+                "path": "js/read.js",
+                "symbol": "seffect_genocide",
+                "source": "read.c:seffect_genocide() calls do_genocide((!scursed) | (2 * !!Confusion)) for non-blessed scrolls at 1737; js/read.js computes the same source bitfield and calls do_genocide(how,state)."
+              },
+              {
+                "path": "js/read.js",
+                "symbol": "seffects",
+                "source": "read.c:seffects() dispatches SCR_GENOCIDE to seffect_genocide() at 2241; js/read.js:seffects() production switch invokes the wrapper after its normal pre-effect Wisdom exercise."
+              },
+              {
+                "path": "js/sit.js",
+                "symbol": "dosit",
+                "source": "sit.c:dosit() throne case 8 calls do_genocide(5) at 131; js/sit.js:dosit() case 8 dynamically imports and awaits do_genocide(5,state)."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/read.test.mjs"
+            ],
+            "recordings": [
+              "recordings/read.c/genocide-scroll-species-independent-b34.session.json",
+              "recordings/read.c/genocide-cursed-summon-independent-b34.session.json",
+              "recordings/read.c/genocide-confused-player-independent-b34.session.json",
+              "recordings/sit.c/throne-genocide-selected-independent-b34.session.json"
+            ],
+            "synthetic": [],
+            "checkedAt": "85e2d70dee8d90a18baf62ee852ba83e8102b18d"
+          }
+        ],
+        "entryPointReview": "The selected read.c functions are impure. Active production entry paths covered here are: blessed scroll -> seffects -> seffect_genocide -> do_class_genocide; uncursed and cursed scroll -> seffects -> seffect_genocide -> do_genocide; confused uncursed scroll -> do_genocide(PLAYER|REALLY); and throne sit case 8 -> do_genocide(5). Independent C recordings strictly match each path: blessed class, uncursed named species, cursed named-species summoning, confused forced-player genocide, and throne genocide. The admitted v9 case synthetic/v9/genocide-scroll-selects-species reaches only the blessed class prompt/species-name fallback path; its cited range is limited to segment 0 steps 0-30 and does not support the ordinary do_genocide claim. The source-named void gaps mon.c:mongone and mon.c:kill_genocided_monsters are skipped because C discards their results; the JS never substitutes note_unported() values. The separate source function makemon is not claimed complete: this task changes only its runtime admission for the exact C explicit-species, hero-square, NO_MINVENT|MM_NOMSG call shape whose return is consumed by do_genocide. Other makemon callers and branches remain outside this evidence. Source review also corrected both first-genocide Chronicle messages to use the gendered uhis() possessive; focused production replays verify male and female outputs for both class and species branches.",
+        "entryPoints": [
+          {
+            "name": "Blessed genocide scroll class prompt and genocide",
+            "functions": [
+              "do_class_genocide"
+            ],
+            "recordings": [
+              "recordings/read.c/genocide-class-blessed-independent-b34.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v9",
+                "caseId": "genocide-scroll-selects-species",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 30,
+                "source": "read.c:seffects -> seffect_genocide -> do_class_genocide; class prompt/species-name fallback only"
+              }
+            ]
+          },
+          {
+            "name": "Uncursed genocide scroll names a species",
+            "functions": [
+              "do_genocide"
+            ],
+            "recordings": [
+              "recordings/read.c/genocide-scroll-species-independent-b34.session.json"
+            ],
+            "synthetic": []
+          },
+          {
+            "name": "Cursed genocide scroll summons its selected species through makemon",
+            "functions": [
+              "do_genocide"
+            ],
+            "recordings": [
+              "recordings/read.c/genocide-cursed-summon-independent-b34.session.json"
+            ],
+            "synthetic": []
+          },
+          {
+            "name": "Confusion forces genocide of the hero's own species",
+            "functions": [
+              "do_genocide"
+            ],
+            "recordings": [
+              "recordings/read.c/genocide-confused-player-independent-b34.session.json"
+            ],
+            "synthetic": []
+          },
+          {
+            "name": "Throne case 8 invokes ordinary genocide with ONTHRONE",
+            "functions": [
+              "do_genocide"
+            ],
+            "recordings": [
+              "recordings/sit.c/throne-genocide-selected-independent-b34.session.json"
+            ],
+            "synthetic": []
+          }
+        ]
+      },
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "85e2d70dee8d90a18baf62ee852ba83e8102b18d",
+        "screens": 11405,
+        "rng": 792838
+      }
+    },
+    {
+      "id": "port-dothrow-mhurtle-synthetic-v9-20260927",
+      "kind": "file-port",
+      "status": "queued",
+      "summary": "Port monster hurtling and its source step callback through knockback and wand callers",
+      "cFile": "dothrow.c",
+      "sessions": [
+        "synthetic/v9/kick-closed-door"
+      ],
+      "selectionReason": "The current v9 kick-closed-door first mismatch is C uhitm.c:mhitm_knockback calling dothrow.c:mhurtle while JavaScript records a gap; monster position and stun then cause downstream screen, cursor, and monmove RNG differences. A32 supplied the consumed mintrap return path. Port the full monster hurtle function and its static mhurtle_step callback as one coherent task.",
+      "detail": "Implement all dothrow.c:mhurtle branches and complete static mhurtle_step, including walk_path sequencing, will_hurtle, m_in_out_region, steed and collision arms, petrification, mintrap result handling, and final trap/liquid check. Wire active uhitm.c:mhurtle_to_doom and mhitm_knockback, zap.c:bhitm, and wizard debug caller where production wiring exists. Preserve source-named gaps only for void callees whose results C discards. Use independent C recordings for uncovered entries. Investigation: investigations/synthetic/v9/kick-closed-door.json.",
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": null,
+      "delivered": null,
+      "functions": [
+        {
+          "name": "mhurtle",
+          "line": 1130,
+          "endLine": 1180,
+          "declared": false,
+          "complete": false
+        }
+      ],
+      "range": {
+        "from": 1130,
+        "to": 1180
+      },
+      "syntheticProvenance": {
+        "synthetic/v9/kick-closed-door": {
+          "session": "synthetic/v9/kick-closed-door",
+          "corpus": "synthetic",
+          "batch": "v9",
+          "caseId": "kick-closed-door",
+          "manifestPath": "challenges/manifests/v9.json",
+          "manifestSha256": "00c148aac522e6343c8de0bd003db29771439f972a99cb18c772ebf2bc45a594",
+          "recordingPath": "challenges/cases/v9/kick-closed-door.session.json",
+          "recordingSha256": "cf1d058b874865447eb40db3e9d045ba6b5cf7518f90c1aeb31ee94e6f3ef742",
+          "evaluationPath": "challenges/evaluations/20260927221853-v9.json",
+          "evaluationCommit": "31a2ed22a45f64162949a29f462c23cd51827978"
         }
       }
     }

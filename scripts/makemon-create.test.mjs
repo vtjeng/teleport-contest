@@ -2624,6 +2624,38 @@ test('explicit runtime red-dragon creation reaches makemon without a species '
     assert.ok(random.calls.length > 0);
 });
 
+test('makemon admits an explicit inventoryless hero-square species by source shape',
+    async () => {
+        const state = initialLevelState();
+        state.in_mklev = false;
+        state.u.ux = MON_X;
+        state.u.uy = MON_Y;
+        for (let dx = -1; dx <= 1; ++dx)
+            for (let dy = -1; dy <= 1; ++dy)
+                if (dx || dy)
+                    state.level.at(MON_X + dx, MON_Y + dy).typ = ROOM;
+        const random = recordingRandom();
+        const monster = await makemon_runtime(
+            state.mons[PM_FIRE_GIANT],
+            state.u.ux,
+            state.u.uy,
+            NO_MINVENT | MM_NOMSG,
+            {
+                state,
+                random: random.random,
+                message: async () => {},
+                norepMessage: async () => {},
+            },
+        );
+
+        assert.equal(monster.data, state.mons[PM_FIRE_GIANT]);
+        assert.equal(monster.mnum, PM_FIRE_GIANT);
+        assert.notDeepEqual([monster.mx, monster.my], [state.u.ux, state.u.uy]);
+        assert.equal(monster.minvent, null);
+        assert.equal(state.mvitals[PM_FIRE_GIANT].born, 1);
+        assert.equal(state.level.monsters[monster.mx][monster.my], monster);
+    });
+
 test('nasty runtime creation admits explicit species by the C pointer contract',
     async () => {
         // wizard.c nasty() passes a selected permonst directly to makemon()
