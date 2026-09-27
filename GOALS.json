@@ -93754,6 +93754,92 @@
         "screens": 11405,
         "rng": 792838
       }
+    },
+    {
+      "id": "port-potion-dodrink-synthetic-v6-20260927",
+      "kind": "file-port",
+      "status": "queued",
+      "summary": "Port potion.c dodrink smoky potion handling and quaff command behavior",
+      "cFile": "potion.c",
+      "sessions": [
+        "synthetic/v6/v6-add2-healer-drink-potion"
+      ],
+      "selectionReason": "The current v6 healer drink-potion case first differs at potion.c:dodrink; A22 owns the complete C function and independent smoky C recording.",
+      "detail": "Port the complete potion.c:dodrink function, preserving smoky-potion ghost chance, inventory/object handling, turn and RNG order, and production q/quaff caller. Verify admitted v6 range and independent C evidence; name skipped void callees.",
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": null,
+      "delivered": null,
+      "functions": [
+        {
+          "name": "dodrink",
+          "line": 526,
+          "endLine": 617,
+          "declared": true,
+          "complete": false
+        }
+      ],
+      "range": {
+        "from": 526,
+        "to": 617
+      },
+      "syntheticProvenance": {
+        "synthetic/v6/v6-add2-healer-drink-potion": {
+          "session": "synthetic/v6/v6-add2-healer-drink-potion",
+          "corpus": "synthetic",
+          "batch": "v6",
+          "caseId": "v6-add2-healer-drink-potion",
+          "manifestPath": "challenges/manifests/v6.json",
+          "manifestSha256": "7523b91e823f4e3906c9acdc9a3d80f8469c27c2caab8fc8fbd6967dbfdcab5f",
+          "recordingPath": "challenges/cases/v6/v6-add2-healer-drink-potion.session.json",
+          "recordingSha256": "b679b8751ebcd68682d345457262950cd7ef082e2fb05285b0f1fb290d63fd08",
+          "evaluationPath": "challenges/evaluations/20260927063132-v6.json",
+          "evaluationCommit": "fd7c4734a81712ec145e9d49a0c7034436692b57"
+        }
+      }
+    },
+    {
+      "id": "port-pray-altar-wrath-synthetic-v6-20260927",
+      "kind": "file-port",
+      "status": "queued",
+      "summary": "Port pray.c altar_wrath through sit, dig, engrave, kick, and vomit callers",
+      "cFile": "pray.c",
+      "sessions": [
+        "synthetic/v6/priest-sit-altar"
+      ],
+      "selectionReason": "The current v6 priest-sit-altar case reaches the source-named pray.c:altar_wrath gap in the already ported sit.c:dosit altar arm; no active worker owns pray.c.",
+      "detail": "Port whole pray.c:altar_wrath, preserving alignment and record gates, deity voice and attribute/luck effects, RNG order, and production void callers in sit.c, dig.c, engrave.c, dokick.c, and eat.c. Record independent C entry evidence, including named blockers for callers whose later source path still prevents complete replay.",
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": null,
+      "delivered": null,
+      "functions": [
+        {
+          "name": "altar_wrath",
+          "line": 2652,
+          "endLine": 2676,
+          "declared": false,
+          "complete": false
+        }
+      ],
+      "range": {
+        "from": 2652,
+        "to": 2676
+      },
+      "syntheticProvenance": {
+        "synthetic/v6/priest-sit-altar": {
+          "session": "synthetic/v6/priest-sit-altar",
+          "corpus": "synthetic",
+          "batch": "v6",
+          "caseId": "priest-sit-altar",
+          "manifestPath": "challenges/manifests/v6.json",
+          "manifestSha256": "7523b91e823f4e3906c9acdc9a3d80f8469c27c2caab8fc8fbd6967dbfdcab5f",
+          "recordingPath": "challenges/cases/v6/priest-sit-altar.session.json",
+          "recordingSha256": "5d63bfff4f6be435a201c1406de9afe54a60eea43cfda97ace579be899e2df1b",
+          "evaluationPath": "challenges/evaluations/20260927063132-v6.json",
+          "evaluationCommit": "fd7c4734a81712ec145e9d49a0c7034436692b57"
+        }
+      }
     }
   ]
 }
