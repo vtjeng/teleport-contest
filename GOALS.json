@@ -94434,7 +94434,7 @@
     {
       "id": "port-potion-peffect-invisibility-synthetic-v7-20260927",
       "kind": "file-port",
-      "status": "queued",
+      "status": "open",
       "summary": "Port potion.c peffect_invisibility through quaff and spell callers",
       "cFile": "potion.c",
       "sessions": [
@@ -94442,8 +94442,12 @@
       ],
       "selectionReason": "After C24, the admitted v7 invisibility potion case remains unmatched at potion.c:peffect_invisibility, while A23 and B24 own independent apply.c and pray.c source units.",
       "detail": "Port the whole potion.c:peffect_invisibility function for potion and spell-object inputs in source order: mummy wrapping guard, existing invisibility and blindness messaging, blessed permanent chance, timeout dice, redraw, and cursed message/permanent-bit removal. Wire potion.c:peffects and any production spell alias, name the void wizard.c:aggravate gap if still unported, and provide independent C branch recordings with blocked recipes for uncovered active entries.",
-      "openedAt": null,
-      "openStanding": null,
+      "openedAt": "1c48332d357ab9fefdf156e7774b49a33c6db3cf",
+      "openStanding": {
+        "sha": "1c48332d357ab9fefdf156e7774b49a33c6db3cf",
+        "screens": 11405,
+        "rng": 792838
+      },
       "closedAt": null,
       "delivered": null,
       "functions": [
@@ -94472,7 +94476,157 @@
           "evaluationPath": "challenges/evaluations/20260927072143-v7.json",
           "evaluationCommit": "94ade0add8b1d83746356239f3444c96f104230a"
         }
-      }
+      },
+      "activeStanding": {
+        "sha": "1c48332d357ab9fefdf156e7774b49a33c6db3cf",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v7",
+          "caseId": "potion-invisibility-corrected2",
+          "session": "synthetic/v7/potion-invisibility-corrected2",
+          "manifestPath": "challenges/manifests/v7.json",
+          "manifestSha256": "03a861a9d1bc9d813c80681312ee7a0e0f893dbad0536de40a974bd5ec344094",
+          "recording": "challenges/cases/v7/potion-invisibility-corrected2.session.json",
+          "recordingPath": "challenges/cases/v7/potion-invisibility-corrected2.session.json",
+          "recordingSha256": "03bd2489424a53203f9918744cfe2a9829670fbfcea7df62fad06e7f15e9a22f",
+          "recipe": "challenges/cases/v7/potion-invisibility-corrected2.recipe.session.json",
+          "recipeSha256": "f0cb63a1fe1223ca0814c81bc0f8f0018bd02561afb61a7da5fe61d92844fcf7",
+          "replayInputSha256": "e7fdc411ded85cfbb4bb2e7fc278610ebdbca28b232feb6ef18e978689fe1403",
+          "evaluationPath": "challenges/evaluations/20260927082235-v7.json",
+          "evaluationCommit": "ba1bf2134667bfee7b2b0482067bca5a5e7eb30b",
+          "evaluationArtifact": "challenges/evaluations/20260927082235-v7.json",
+          "evaluationUtc": "2026-09-27T08:23:03.123Z",
+          "remainingScreens": 1,
+          "recordedSteps": 37,
+          "previousScreensMatched": 36,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 36,
+              "total": 37
+            },
+            "rng": {
+              "matched": 2711,
+              "total": 2719
+            },
+            "cursors": {
+              "matched": 36,
+              "total": 37
+            }
+          },
+          "firstMismatch": {
+            "kind": "stop",
+            "message": "unsupported hero command: an unported branch of this command: quaffing requires peffect_invisibility()",
+            "step": 36
+          },
+          "step": 36,
+          "kind": "stop",
+          "sourceFile": "potion.c",
+          "function": "peffect_invisibility",
+          "message": "unsupported hero command: an unported branch of this command: quaffing requires peffect_invisibility()",
+          "cFile": "potion.c",
+          "luaFile": null,
+          "line": null,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v7/potion-invisibility-corrected2.json",
+            "result": {
+              "session": "synthetic/v7/potion-invisibility-corrected2",
+              "corpus": "synthetic",
+              "batch": "v7",
+              "caseId": "potion-invisibility-corrected2",
+              "manifestPath": "challenges/manifests/v7.json",
+              "manifestSha256": "03a861a9d1bc9d813c80681312ee7a0e0f893dbad0536de40a974bd5ec344094",
+              "recordingSha256": "03bd2489424a53203f9918744cfe2a9829670fbfcea7df62fad06e7f15e9a22f",
+              "evaluationPath": "challenges/evaluations/20260926122253-v7.json",
+              "evaluationCommit": "f7e48bd93d6827c557c9a40a255a55cbc5fc8fcf",
+              "remainingScreens": 1,
+              "recordedSteps": 37,
+              "status": "complete",
+              "commit": "3543403d092a80dbeacd479a4fb0cb5c2d537413",
+              "mismatch": {
+                "corpus": "synthetic",
+                "batch": "v7",
+                "caseId": "potion-invisibility-corrected2",
+                "session": "synthetic/v7/potion-invisibility-corrected2",
+                "manifestPath": "challenges/manifests/v7.json",
+                "manifestSha256": "03a861a9d1bc9d813c80681312ee7a0e0f893dbad0536de40a974bd5ec344094",
+                "recording": "challenges/cases/v7/potion-invisibility-corrected2.session.json",
+                "recordingPath": "challenges/cases/v7/potion-invisibility-corrected2.session.json",
+                "recordingSha256": "03bd2489424a53203f9918744cfe2a9829670fbfcea7df62fad06e7f15e9a22f",
+                "recipe": "challenges/cases/v7/potion-invisibility-corrected2.recipe.session.json",
+                "recipeSha256": "f0cb63a1fe1223ca0814c81bc0f8f0018bd02561afb61a7da5fe61d92844fcf7",
+                "replayInputSha256": "ba09b30aa45883696a6c2cbbe647b7a100c06ae9b741e0bcdf70fec164041447",
+                "evaluationPath": "challenges/evaluations/20260926122253-v7.json",
+                "evaluationCommit": "f7e48bd93d6827c557c9a40a255a55cbc5fc8fcf",
+                "evaluationArtifact": "challenges/evaluations/20260926122253-v7.json",
+                "evaluationUtc": "2026-09-26T12:23:06.868Z",
+                "remainingScreens": 1,
+                "recordedSteps": 37,
+                "previousScreensMatched": null,
+                "regression": false,
+                "passed": false,
+                "error": null,
+                "metrics": {
+                  "screens": {
+                    "matched": 36,
+                    "total": 37
+                  },
+                  "rng": {
+                    "matched": 2711,
+                    "total": 2719
+                  },
+                  "cursors": {
+                    "matched": 36,
+                    "total": 37
+                  }
+                },
+                "firstMismatch": {
+                  "kind": "stop",
+                  "message": "unsupported hero command: an unported branch of this command: quaffing requires peffect_invisibility()",
+                  "step": 36
+                },
+                "step": 36,
+                "kind": "stop",
+                "sourceFile": "potion.c",
+                "function": "peffect_invisibility",
+                "message": "unsupported hero command: an unported branch of this command: quaffing requires peffect_invisibility()",
+                "cFile": "potion.c",
+                "luaFile": null,
+                "line": null
+              },
+              "summary": "Quaffing an uncursed invisibility potion stops at potion.c peffect_invisibility(). C prints the self-invisibility message and updates the timed intrinsic; the whole function also covers spell versus potion, blessed permanent chance, blockers, and cursed aggravation.",
+              "source": {
+                "file": "potion.c",
+                "branch": "The hero selects an uncursed POT_INVISIBILITY while sighted and not already invisible or blocked. peffects() enters peffect_invisibility(), calls self_invis_message(), draws a duration with d(6,100), increments HInvis, and redraws the hero square.",
+                "functions": [
+                  "peffect_invisibility"
+                ],
+                "callers": [
+                  "potion.c peffects() POT_INVISIBILITY arm at 1354 calls peffect_invisibility(otmp).",
+                  "js/potion.js peffects() currently throws UnsupportedQuaffError at the corresponding arm; cmd.c quaff dispatch reaches dopotion() then peffects()."
+                ],
+                "dependencies": [
+                  "Use the existing js/potion.js self_invis_message() and incr_itimeout() contracts, preserving message and RNG order.",
+                  "The whole function also reads BInvis, spellbook class, mummy wrapping, HInvis and FROMOUTSIDE; its cursed branch calls aggravate() and clears permanent invisibility. Audit those state and effect callees before source completion."
+                ]
+              },
+              "goalKind": "file-port",
+              "evidence": [
+                "challenges/evaluations/20260926122253-v7.json at f7e48bd93d6827c557c9a40a255a55cbc5fc8fcf: synthetic/v7/potion-invisibility-corrected2 matches 36/37 screens, then stops at segment 0 step 36 with quaffing requires peffect_invisibility().",
+                "challenges/cases/v7/potion-invisibility-corrected2.session.json: C step 36 after quaffing inventory o says Gee! All of a sudden, you can’t see yourself.",
+                "nethack-c/upstream/src/potion.c:811-842 defines the full source function and :1354 dispatches it; js/potion.js:1164 is the explicit refusal."
+              ]
+            }
+          }
+        }
+      ]
     }
   ]
 }
