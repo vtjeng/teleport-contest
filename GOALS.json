@@ -90838,6 +90838,77 @@
         "rng": 792838
       },
       "parkedReason": "The production read.c:seffect_earth hero entry is verified by the independent Priest recording and admitted v6 replay. The task also wired muse.c:find_offensive/use_offensive MUSE_SCR_EARTH, whose separate monster caller remains unverified: the independent dwarf-king setup did not acquire the scroll, so neither source branch ran. Resume when a C recipe reaches that monster inventory-selection and use path; retain the blocked recipe and raw diagnostic trace. The source-named void trap.c:sokoban_guilt effect remains unported."
+    },
+    {
+      "id": "port-trap-fall-through-hero-synthetic-v7-20260926",
+      "kind": "file-port",
+      "status": "queued",
+      "summary": "Port trapdoor destination and hero fall-through transition from C source",
+      "cFile": "trap.c",
+      "sessions": [
+        "synthetic/v7/trapdoor-pet-transit"
+      ],
+      "selectionReason": "The admitted v7 trapdoor-pet-transit case refuses at hero trap activation step 15. C trap.c:trapeffect_hole calls fall_through; its consumed clamp_hole_destination and dng_bottom dependency form the source family selected here, with hole_destination and maketrap in source order. The older parked trap.c goal is tied to a now-matching fixed session and cannot be resumed by the current selection guard; retain it for earlier burnarmor..mk_trap_statue source work while this distinct v7 task completes the fall family.",
+      "detail": "Wire trap.c:trapeffect_hole hero HOLE/TRAPDOOR branch through fall_through, the production movement preflight, and dokick.c:kick_nondoor throne caller. Preserve next_to_u, level destination, schedule_goto and deferred arrival; reconcile historical monster-only trapeffect_hole evidence. Record an independent hero fall and a throne-kick caller or a source-named blocked recipe.",
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": null,
+      "delivered": null,
+      "functions": [
+        {
+          "name": "dng_bottom",
+          "line": 418,
+          "endLine": 441,
+          "declared": false,
+          "complete": false
+        },
+        {
+          "name": "hole_destination",
+          "line": 442,
+          "endLine": 455,
+          "declared": true,
+          "complete": false
+        },
+        {
+          "name": "maketrap",
+          "line": 456,
+          "endLine": 592,
+          "declared": true,
+          "complete": false
+        },
+        {
+          "name": "clamp_hole_destination",
+          "line": 593,
+          "endLine": 601,
+          "declared": false,
+          "complete": false
+        },
+        {
+          "name": "fall_through",
+          "line": 602,
+          "endLine": 725,
+          "declared": false,
+          "complete": false
+        }
+      ],
+      "range": {
+        "from": 418,
+        "to": 725
+      },
+      "syntheticProvenance": {
+        "synthetic/v7/trapdoor-pet-transit": {
+          "session": "synthetic/v7/trapdoor-pet-transit",
+          "corpus": "synthetic",
+          "batch": "v7",
+          "caseId": "trapdoor-pet-transit",
+          "manifestPath": "challenges/manifests/v7.json",
+          "manifestSha256": "03a861a9d1bc9d813c80681312ee7a0e0f893dbad0536de40a974bd5ec344094",
+          "recordingPath": "challenges/cases/v7/trapdoor-pet-transit.session.json",
+          "recordingSha256": "995f464e33f2d53c6eb4f4e6149db8198273ed137fa0b5517ca62cd65d4e0328",
+          "evaluationPath": "challenges/evaluations/20260927005209-v7.json",
+          "evaluationCommit": "12a35e71cf1d937cd08b75b196f3c8b54224f6cd"
+        }
+      }
     }
   ]
 }
