@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "Independent throne-fall recipe for dokick.c:kick_nondoor -> trap.c:fall_through(FALSE). Seed, clock, role, and inputs differ from admitted cases. The debug wish makes the hero's square a throne; after stepping west, the hero kicks east. This seed reaches the ordinary 1-in-4 fall-through arm.",
+  "segments": [
+    {
+      "seed": 7721173,
+      "datetime": "20260519091700",
+      "nethackrc": "OPTIONS=name:VelaTest,role:Valkyrie,race:human,gender:female,align:lawful\nOPTIONS=!legacy,!tutorial,!splash_screen\nOPTIONS=pettype:none,playmode:debug\n",
+      "moves": " #wizwish\nthrone\nh\u0004l "
+    }
+  ]
+}
