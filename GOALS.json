@@ -93968,7 +93968,7 @@
     {
       "id": "port-pray-altar-wrath-synthetic-v6-20260927",
       "kind": "file-port",
-      "status": "queued",
+      "status": "parked",
       "summary": "Port pray.c altar_wrath through sit, dig, engrave, kick, and vomit callers",
       "cFile": "pray.c",
       "sessions": [
@@ -93976,8 +93976,12 @@
       ],
       "selectionReason": "The current v6 priest-sit-altar case reaches the source-named pray.c:altar_wrath gap in the already ported sit.c:dosit altar arm; no active worker owns pray.c.",
       "detail": "Port whole pray.c:altar_wrath, preserving alignment and record gates, deity voice and attribute/luck effects, RNG order, and production void callers in sit.c, dig.c, engrave.c, dokick.c, and eat.c. Record independent C entry evidence, including named blockers for callers whose later source path still prevents complete replay.",
-      "openedAt": null,
-      "openStanding": null,
+      "openedAt": "eef1a62037b2a39899fe9c4d2498b111a56deb74",
+      "openStanding": {
+        "sha": "eef1a62037b2a39899fe9c4d2498b111a56deb74",
+        "screens": 11405,
+        "rng": 792838
+      },
       "closedAt": null,
       "delivered": null,
       "functions": [
@@ -94006,12 +94010,223 @@
           "evaluationPath": "challenges/evaluations/20260927063132-v6.json",
           "evaluationCommit": "fd7c4734a81712ec145e9d49a0c7034436692b57"
         }
-      }
+      },
+      "activeStanding": {
+        "sha": "eef1a62037b2a39899fe9c4d2498b111a56deb74",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v6",
+          "caseId": "priest-sit-altar",
+          "session": "synthetic/v6/priest-sit-altar",
+          "manifestPath": "challenges/manifests/v6.json",
+          "manifestSha256": "7523b91e823f4e3906c9acdc9a3d80f8469c27c2caab8fc8fbd6967dbfdcab5f",
+          "recording": "challenges/cases/v6/priest-sit-altar.session.json",
+          "recordingPath": "challenges/cases/v6/priest-sit-altar.session.json",
+          "recordingSha256": "5d63bfff4f6be435a201c1406de9afe54a60eea43cfda97ace579be899e2df1b",
+          "recipe": "challenges/cases/v6/priest-sit-altar.recipe.session.json",
+          "recipeSha256": "e853d234cbcfa1c0dc048881bff1193605e15bab26fc6cec7396a3da0c0662be",
+          "replayInputSha256": "56e6b15bd0e6cae20e5709619f1ffd83cec931130ae7656397bd6f14539c9d24",
+          "evaluationPath": "challenges/evaluations/20260927080229-v6.json",
+          "evaluationCommit": "b697c3156f02e8ef8a43516505f4bd8b7e6bce76",
+          "evaluationArtifact": "challenges/evaluations/20260927080229-v6.json",
+          "evaluationUtc": "2026-09-27T08:02:46.812Z",
+          "remainingScreens": 1,
+          "recordedSteps": 13,
+          "previousScreensMatched": 12,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 12,
+              "total": 13
+            },
+            "rng": {
+              "matched": 2840,
+              "total": 2842
+            },
+            "cursors": {
+              "matched": 12,
+              "total": 13
+            }
+          },
+          "firstMismatch": {
+            "screen": {
+              "index": 12,
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 12,
+                "key": "\n"
+              },
+              "kind": "ch",
+              "row": 0,
+              "column": 21,
+              "cCell": {
+                "ch": "-",
+                "color": 8,
+                "attr": 0,
+                "decgfx": 0
+              },
+              "jsCell": {
+                "ch": " ",
+                "color": 8,
+                "attr": 0,
+                "decgfx": 0
+              }
+            },
+            "rng": {
+              "index": 2840,
+              "cEntry": "rn2(4)=2",
+              "cCaller": "altar_wrath(pray.c:2656)",
+              "jsEntry": "rn2(12)=2",
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 12,
+                "key": "\n"
+              },
+              "stepIndex": 12
+            },
+            "cursor": {
+              "index": 12,
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 12,
+                "key": "\n"
+              },
+              "cCursor": [
+                29,
+                0,
+                1
+              ],
+              "jsCursor": [
+                7,
+                12,
+                1
+              ]
+            }
+          },
+          "step": 12,
+          "kind": "rng",
+          "sourceFile": "pray.c",
+          "function": "altar_wrath",
+          "message": null,
+          "cFile": "pray.c",
+          "luaFile": null,
+          "line": 2656,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v6/priest-sit-altar.json",
+            "result": {
+              "session": "synthetic/v6/priest-sit-altar",
+              "corpus": "synthetic",
+              "batch": "v6",
+              "caseId": "priest-sit-altar",
+              "manifestPath": "challenges/manifests/v6.json",
+              "manifestSha256": "7523b91e823f4e3906c9acdc9a3d80f8469c27c2caab8fc8fbd6967dbfdcab5f",
+              "recordingPath": "challenges/cases/v6/priest-sit-altar.session.json",
+              "recordingSha256": "5d63bfff4f6be435a201c1406de9afe54a60eea43cfda97ace579be899e2df1b",
+              "evaluationPath": "challenges/evaluations/20260926094126-v6.json",
+              "evaluationCommit": "50bbe620897c8fc2e634d14ec672d33a4e44db7e",
+              "remainingScreens": 1,
+              "recordedSteps": 13,
+              "status": "complete",
+              "commit": "50bbe620897c8fc2e634d14ec672d33a4e44db7e",
+              "mismatch": {
+                "corpus": "synthetic",
+                "batch": "v6",
+                "caseId": "priest-sit-altar",
+                "session": "synthetic/v6/priest-sit-altar",
+                "manifestPath": "challenges/manifests/v6.json",
+                "manifestSha256": "7523b91e823f4e3906c9acdc9a3d80f8469c27c2caab8fc8fbd6967dbfdcab5f",
+                "recording": "challenges/cases/v6/priest-sit-altar.session.json",
+                "recordingPath": "challenges/cases/v6/priest-sit-altar.session.json",
+                "recordingSha256": "5d63bfff4f6be435a201c1406de9afe54a60eea43cfda97ace579be899e2df1b",
+                "recipe": "challenges/cases/v6/priest-sit-altar.recipe.session.json",
+                "recipeSha256": "e853d234cbcfa1c0dc048881bff1193605e15bab26fc6cec7396a3da0c0662be",
+                "replayInputSha256": "9671c8200bb4617314143efc03b8936dba1c08d5025986a5ef6f245a97c322f9",
+                "evaluationPath": "challenges/evaluations/20260926094126-v6.json",
+                "evaluationCommit": "50bbe620897c8fc2e634d14ec672d33a4e44db7e",
+                "evaluationArtifact": "challenges/evaluations/20260926094126-v6.json",
+                "evaluationUtc": "2026-09-26T09:41:43.460Z",
+                "remainingScreens": 1,
+                "recordedSteps": 13,
+                "previousScreensMatched": 12,
+                "regression": false,
+                "passed": false,
+                "error": null,
+                "metrics": {
+                  "screens": {
+                    "matched": 12,
+                    "total": 13
+                  },
+                  "rng": {
+                    "matched": 2840,
+                    "total": 2842
+                  },
+                  "cursors": {
+                    "matched": 12,
+                    "total": 13
+                  }
+                },
+                "firstMismatch": {
+                  "kind": "stop",
+                  "message": "unsupported hero command: an unported branch of this command: sitting reached an unported branch: dosit()'s altar arm",
+                  "step": 12
+                },
+                "step": 12,
+                "kind": "stop",
+                "sourceFile": "sit.c",
+                "function": "dosit",
+                "message": "unsupported hero command: an unported branch of this command: sitting reached an unported branch: dosit()'s altar arm",
+                "cFile": "sit.c",
+                "luaFile": null,
+                "line": null
+              },
+              "summary": "The v6 priest-sit-altar case reaches sit.c:dosit()'s altar branch, while js/sit.js refuses that branch. Port the entire dosit() command and its source-called dependencies, using all five v6 sit recordings for distinct terrain and feature states; preserve branch order, messages, return/time behavior, RNG, and side effects.",
+              "source": {
+                "file": "sit.c",
+                "branch": "The hero issues #sit while IS_ALTAR(typ) is true after the object, trap, and water arms are false. C executes the altar branch and returns ECMD_TIME.",
+                "functions": [
+                  "dosit"
+                ],
+                "callers": [
+                  "cmd.c #sit command invokes sit.c dosit(); js/cmd.js command dispatch invokes js/sit.js dosit()."
+                ],
+                "dependencies": [
+                  "Whole dosit() also calls altar_wrath, throne_sit_effect, dotrap, lay_an_egg, water_damage, losehp, and other state handlers on separate branches. Audit return-valued lay_an_egg and active feature side effects before claiming source completion.",
+                  "Related unresolved v6 sit witnesses: archeologist-sit-ice, wizard-sit-sink, priest-sit-altar, wizard-sit-throne, wizard-sit-grave-room-retry."
+                ]
+              },
+              "goalKind": "file-port",
+              "evidence": [
+                "Saved challenges/evaluations/20260926094126-v6.json at 50bbe620897c8fc2e634d14ec672d33a4e44db7e reports one remaining screen, first stop at segment 0 step 12: unsupported hero command: an unported branch of this command: sitting reached an unported branch: dosit()'s altar arm.",
+                "challenges/cases/v6/priest-sit-altar.session.json: The C step 12 screen begins “You sit on the altar.” and continues through altar_wrath after the More prompt.",
+                "Upstream nethack-c/upstream/src/sit.c:529-531 uses IS_ALTAR(typ); current js/sit.js:dosit throws UnsupportedSitError for the altar arm instead of executing it.",
+                "The five sit cases are different terrain or level-feature branches of the same dosit() source function; one whole-function port should cover them together. A matching range in each recording is still required before closing the source task."
+              ]
+            }
+          }
+        }
+      ],
+      "progressBeforePark": {
+        "screens": 0,
+        "rng": 0
+      },
+      "parkedStanding": {
+        "sha": "ba1bf2134667bfee7b2b0482067bca5a5e7eb30b",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "parkedReason": "The pray.c:altar_wrath helper and sit, engrave, and kick callers strictly match independent C recordings, but its eat.c:vomit altar entry lacks production replay: eat.c:choke is still unsupported before it can reach spewed vomit on an altar. The dig.c:dig altar call is source-gated by dig_check(BY_YOU), which rejects altar digging. Resume after eat.c:choke is ported and record an independent altar vomiting path before source completion."
     },
     {
       "id": "port-apply-use-stethoscope-synthetic-v6-20260927",
       "kind": "file-port",
-      "status": "queued",
+      "status": "parked",
       "summary": "Port apply.c use_stethoscope across vertical and creature examinations",
       "cFile": "apply.c",
       "sessions": [
@@ -94019,8 +94234,12 @@
       ],
       "selectionReason": "The current v6 healer stethoscope floor-below case first differs in apply.c:use_stethoscope at the downward direction branch; no active worker owns that C function.",
       "detail": "Port whole apply.c:use_stethoscope through its existing doapply return-valued caller, preserving whirly interference RNG, command sequence, vertical and creature branch order, and ECMD results. Name unported void cant_reach_floor and mstatusline gaps, keep independent blocked recipes for their unverified entries, and obtain an independent matching downward C recording.",
-      "openedAt": null,
-      "openStanding": null,
+      "openedAt": "508678afc8214bf6b651190fa3fc2c650b28f4b9",
+      "openStanding": {
+        "sha": "508678afc8214bf6b651190fa3fc2c650b28f4b9",
+        "screens": 11405,
+        "rng": 792838
+      },
       "closedAt": null,
       "delivered": null,
       "functions": [
@@ -94049,12 +94268,173 @@
           "evaluationPath": "challenges/evaluations/20260927063132-v6.json",
           "evaluationCommit": "fd7c4734a81712ec145e9d49a0c7034436692b57"
         }
-      }
+      },
+      "activeStanding": {
+        "sha": "508678afc8214bf6b651190fa3fc2c650b28f4b9",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v6",
+          "caseId": "v6-add6-healer-stethoscope-floor-below",
+          "session": "synthetic/v6/v6-add6-healer-stethoscope-floor-below",
+          "manifestPath": "challenges/manifests/v6.json",
+          "manifestSha256": "7523b91e823f4e3906c9acdc9a3d80f8469c27c2caab8fc8fbd6967dbfdcab5f",
+          "recording": "challenges/cases/v6/v6-add6-healer-stethoscope-floor-below.session.json",
+          "recordingPath": "challenges/cases/v6/v6-add6-healer-stethoscope-floor-below.session.json",
+          "recordingSha256": "a59c8d545be1daef5bbd75e215fcd585dd0e1718eb2f70b73ba13499db9c60ea",
+          "recipe": "challenges/cases/v6/v6-add6-healer-stethoscope-floor-below.recipe.session.json",
+          "recipeSha256": "4a62f8ac6eb1e3ede1fdefd4345ef335159adb3bfb040e30e06336c62104b2d3",
+          "replayInputSha256": "ff84b934b0eaba52474b40f16712ab5996ddd113152bafcc23921399261436b1",
+          "evaluationPath": "challenges/evaluations/20260927072143-v6.json",
+          "evaluationCommit": "94ade0add8b1d83746356239f3444c96f104230a",
+          "evaluationArtifact": "challenges/evaluations/20260927072143-v6.json",
+          "evaluationUtc": "2026-09-27T07:22:00.961Z",
+          "remainingScreens": 1,
+          "recordedSteps": 5,
+          "previousScreensMatched": 4,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 4,
+              "total": 5
+            },
+            "rng": {
+              "matched": 2432,
+              "total": 2432
+            },
+            "cursors": {
+              "matched": 4,
+              "total": 5
+            }
+          },
+          "firstMismatch": {
+            "kind": "stop",
+            "message": "unsupported hero command: an unported branch of this command: applying a tool requires listening to the floor or ceiling",
+            "step": 4
+          },
+          "step": 4,
+          "kind": "stop",
+          "sourceFile": null,
+          "function": null,
+          "message": "unsupported hero command: an unported branch of this command: applying a tool requires listening to the floor or ceiling",
+          "cFile": null,
+          "luaFile": null,
+          "line": null,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v6/v6-add6-healer-stethoscope-floor-below.json",
+            "result": {
+              "session": "synthetic/v6/v6-add6-healer-stethoscope-floor-below",
+              "corpus": "synthetic",
+              "batch": "v6",
+              "caseId": "v6-add6-healer-stethoscope-floor-below",
+              "manifestPath": "challenges/manifests/v6.json",
+              "manifestSha256": "7523b91e823f4e3906c9acdc9a3d80f8469c27c2caab8fc8fbd6967dbfdcab5f",
+              "recordingPath": "challenges/cases/v6/v6-add6-healer-stethoscope-floor-below.session.json",
+              "recordingSha256": "a59c8d545be1daef5bbd75e215fcd585dd0e1718eb2f70b73ba13499db9c60ea",
+              "evaluationPath": "challenges/evaluations/20260926140428-v6.json",
+              "evaluationCommit": "c79e03cbb8b5e5509ef1f09c67f9c94405b25eae",
+              "remainingScreens": 1,
+              "recordedSteps": 5,
+              "status": "complete",
+              "commit": "c79e03cbb8b5e5509ef1f09c67f9c94405b25eae",
+              "mismatch": {
+                "corpus": "synthetic",
+                "batch": "v6",
+                "caseId": "v6-add6-healer-stethoscope-floor-below",
+                "session": "synthetic/v6/v6-add6-healer-stethoscope-floor-below",
+                "manifestPath": "challenges/manifests/v6.json",
+                "manifestSha256": "7523b91e823f4e3906c9acdc9a3d80f8469c27c2caab8fc8fbd6967dbfdcab5f",
+                "recording": "challenges/cases/v6/v6-add6-healer-stethoscope-floor-below.session.json",
+                "recordingPath": "challenges/cases/v6/v6-add6-healer-stethoscope-floor-below.session.json",
+                "recordingSha256": "a59c8d545be1daef5bbd75e215fcd585dd0e1718eb2f70b73ba13499db9c60ea",
+                "recipe": "challenges/cases/v6/v6-add6-healer-stethoscope-floor-below.recipe.session.json",
+                "recipeSha256": "4a62f8ac6eb1e3ede1fdefd4345ef335159adb3bfb040e30e06336c62104b2d3",
+                "replayInputSha256": "08ec9793c4e538aa193f8c9f2480a06224ca1163dff42a0fb1d317bf84e4587a",
+                "evaluationPath": "challenges/evaluations/20260926140428-v6.json",
+                "evaluationCommit": "c79e03cbb8b5e5509ef1f09c67f9c94405b25eae",
+                "evaluationArtifact": "challenges/evaluations/20260926140428-v6.json",
+                "evaluationUtc": "2026-09-26T14:04:45.786Z",
+                "remainingScreens": 1,
+                "recordedSteps": 5,
+                "previousScreensMatched": 4,
+                "regression": false,
+                "passed": false,
+                "error": null,
+                "metrics": {
+                  "screens": {
+                    "matched": 4,
+                    "total": 5
+                  },
+                  "rng": {
+                    "matched": 2432,
+                    "total": 2432
+                  },
+                  "cursors": {
+                    "matched": 4,
+                    "total": 5
+                  }
+                },
+                "firstMismatch": {
+                  "kind": "stop",
+                  "message": "unsupported hero command: an unported branch of this command: applying a tool requires listening to the floor or ceiling",
+                  "step": 4
+                },
+                "step": 4,
+                "kind": "stop",
+                "sourceFile": null,
+                "function": null,
+                "message": "unsupported hero command: an unported branch of this command: applying a tool requires listening to the floor or ceiling",
+                "cFile": null,
+                "luaFile": null,
+                "line": null
+              },
+              "summary": "The Healer applies a stethoscope and answers the downward direction. JavaScript's apply.c use_stethoscope port throws as soon as getdir() sets u.dz, before its vertical floor/ceiling branch. C continues: this Healer can reach the floor, finds no corpse or statue on the hero's square, is not on a stronghold level, and reports the current surface (the stairs) as healthy enough. The missing owner is use_stethoscope()'s vertical-direction branch.",
+              "source": {
+                "file": "apply.c",
+                "branch": "In use_stethoscope(), getdir() accepts '>' and sets u.dz > 0; the hero is not swallowed, underwater, or riding, can_reach_floor(TRUE) succeeds, its_dead() finds no corpse or statue underfoot, and the level is not a stronghold. C then prints The <surface> seems healthy enough.",
+                "functions": [
+                  "use_stethoscope"
+                ],
+                "callers": [
+                  "apply.c:doapply() selects use_stethoscope() in its STETHOSCOPE case (around line 4328); js/apply.js:doapply() reaches js/apply.js:use_stethoscope() for the same item."
+                ],
+                "dependencies": [
+                  "The vertical arm uses getdir()-written u.dz and preserves the ECMD_OK/ECMD_TIME result already computed from hero_seq and context.stethoscope_seq.",
+                  "cant_reach_floor(), its_dead(), Is_stronghold(), and surface() select the other vertical responses; this recording reaches the surface() fallback."
+                ]
+              },
+              "goalKind": "file-port",
+              "evidence": [
+                "The saved evaluation challenges/evaluations/20260926140428-v6.json at c79e03cbb8b5e5509ef1f09c67f9c94405b25eae reports one remaining screen and a stop at segment 0 step 4 on key \">\": JavaScript refuses the unported branch \"applying a tool requires listening to the floor or ceiling\".",
+                "The recipe challenges/cases/v6/v6-add6-healer-stethoscope-floor-below.recipe.session.json sets seed 60626601, a neutral male human Healer, and moves \" ac>\". In the C recording, segment 0 steps 0–4 take startup, dismiss, apply, choose the stethoscope, and answer \">\"; step 4 prints \"The stairs seems healthy enough.\" with no RNG draw.",
+                "Upstream nethack-c/upstream/src/apply.c use_stethoscope() (318–470) handles u.dz after getdir(): it checks underwater and floor access, calls its_dead(), checks Is_stronghold(), then prints surface(u.ux,u.uy). The apply.c doapply() STETHOSCOPE case calls it.",
+                "At the evaluated implementation, js/apply.js use_stethoscope() calls getdir() and then throws UnsupportedApplyError for any u.dz (around line 1599); js/apply.js doapply() dispatches STETHOSCOPE to it (around line 2305). The failure is the omitted vertical branch, not a bad direction parse or floor message already printed by JavaScript."
+              ]
+            }
+          }
+        }
+      ],
+      "progressBeforePark": {
+        "screens": 0,
+        "rng": 0
+      },
+      "parkedStanding": {
+        "sha": "b697c3156f02e8ef8a43516505f4bd8b7e6bce76",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "parkedReason": "The admitted downward stethoscope case and three independent horizontal/downward/cursed/pool-surface C recordings now match. Whole use_stethoscope entry evidence remains incomplete for upward, mounted, swallowed, and underwater states; the upward cant_reach_floor and mounted/swallowed mstatusline calls remain source-named void gaps. Preserve their blocked recipes and do not claim the entire source unit complete."
     },
     {
       "id": "port-potion-peffect-invisibility-synthetic-v7-20260927",
       "kind": "file-port",
-      "status": "queued",
+      "status": "parked",
       "summary": "Port potion.c peffect_invisibility through quaff and spell callers",
       "cFile": "potion.c",
       "sessions": [
@@ -94062,8 +94442,12 @@
       ],
       "selectionReason": "After C24, the admitted v7 invisibility potion case remains unmatched at potion.c:peffect_invisibility, while A23 and B24 own independent apply.c and pray.c source units.",
       "detail": "Port the whole potion.c:peffect_invisibility function for potion and spell-object inputs in source order: mummy wrapping guard, existing invisibility and blindness messaging, blessed permanent chance, timeout dice, redraw, and cursed message/permanent-bit removal. Wire potion.c:peffects and any production spell alias, name the void wizard.c:aggravate gap if still unported, and provide independent C branch recordings with blocked recipes for uncovered active entries.",
-      "openedAt": null,
-      "openStanding": null,
+      "openedAt": "1c48332d357ab9fefdf156e7774b49a33c6db3cf",
+      "openStanding": {
+        "sha": "1c48332d357ab9fefdf156e7774b49a33c6db3cf",
+        "screens": 11405,
+        "rng": 792838
+      },
       "closedAt": null,
       "delivered": null,
       "functions": [
@@ -94092,7 +94476,167 @@
           "evaluationPath": "challenges/evaluations/20260927072143-v7.json",
           "evaluationCommit": "94ade0add8b1d83746356239f3444c96f104230a"
         }
-      }
+      },
+      "activeStanding": {
+        "sha": "1c48332d357ab9fefdf156e7774b49a33c6db3cf",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v7",
+          "caseId": "potion-invisibility-corrected2",
+          "session": "synthetic/v7/potion-invisibility-corrected2",
+          "manifestPath": "challenges/manifests/v7.json",
+          "manifestSha256": "03a861a9d1bc9d813c80681312ee7a0e0f893dbad0536de40a974bd5ec344094",
+          "recording": "challenges/cases/v7/potion-invisibility-corrected2.session.json",
+          "recordingPath": "challenges/cases/v7/potion-invisibility-corrected2.session.json",
+          "recordingSha256": "03bd2489424a53203f9918744cfe2a9829670fbfcea7df62fad06e7f15e9a22f",
+          "recipe": "challenges/cases/v7/potion-invisibility-corrected2.recipe.session.json",
+          "recipeSha256": "f0cb63a1fe1223ca0814c81bc0f8f0018bd02561afb61a7da5fe61d92844fcf7",
+          "replayInputSha256": "e7fdc411ded85cfbb4bb2e7fc278610ebdbca28b232feb6ef18e978689fe1403",
+          "evaluationPath": "challenges/evaluations/20260927082235-v7.json",
+          "evaluationCommit": "ba1bf2134667bfee7b2b0482067bca5a5e7eb30b",
+          "evaluationArtifact": "challenges/evaluations/20260927082235-v7.json",
+          "evaluationUtc": "2026-09-27T08:23:03.123Z",
+          "remainingScreens": 1,
+          "recordedSteps": 37,
+          "previousScreensMatched": 36,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 36,
+              "total": 37
+            },
+            "rng": {
+              "matched": 2711,
+              "total": 2719
+            },
+            "cursors": {
+              "matched": 36,
+              "total": 37
+            }
+          },
+          "firstMismatch": {
+            "kind": "stop",
+            "message": "unsupported hero command: an unported branch of this command: quaffing requires peffect_invisibility()",
+            "step": 36
+          },
+          "step": 36,
+          "kind": "stop",
+          "sourceFile": "potion.c",
+          "function": "peffect_invisibility",
+          "message": "unsupported hero command: an unported branch of this command: quaffing requires peffect_invisibility()",
+          "cFile": "potion.c",
+          "luaFile": null,
+          "line": null,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v7/potion-invisibility-corrected2.json",
+            "result": {
+              "session": "synthetic/v7/potion-invisibility-corrected2",
+              "corpus": "synthetic",
+              "batch": "v7",
+              "caseId": "potion-invisibility-corrected2",
+              "manifestPath": "challenges/manifests/v7.json",
+              "manifestSha256": "03a861a9d1bc9d813c80681312ee7a0e0f893dbad0536de40a974bd5ec344094",
+              "recordingSha256": "03bd2489424a53203f9918744cfe2a9829670fbfcea7df62fad06e7f15e9a22f",
+              "evaluationPath": "challenges/evaluations/20260926122253-v7.json",
+              "evaluationCommit": "f7e48bd93d6827c557c9a40a255a55cbc5fc8fcf",
+              "remainingScreens": 1,
+              "recordedSteps": 37,
+              "status": "complete",
+              "commit": "3543403d092a80dbeacd479a4fb0cb5c2d537413",
+              "mismatch": {
+                "corpus": "synthetic",
+                "batch": "v7",
+                "caseId": "potion-invisibility-corrected2",
+                "session": "synthetic/v7/potion-invisibility-corrected2",
+                "manifestPath": "challenges/manifests/v7.json",
+                "manifestSha256": "03a861a9d1bc9d813c80681312ee7a0e0f893dbad0536de40a974bd5ec344094",
+                "recording": "challenges/cases/v7/potion-invisibility-corrected2.session.json",
+                "recordingPath": "challenges/cases/v7/potion-invisibility-corrected2.session.json",
+                "recordingSha256": "03bd2489424a53203f9918744cfe2a9829670fbfcea7df62fad06e7f15e9a22f",
+                "recipe": "challenges/cases/v7/potion-invisibility-corrected2.recipe.session.json",
+                "recipeSha256": "f0cb63a1fe1223ca0814c81bc0f8f0018bd02561afb61a7da5fe61d92844fcf7",
+                "replayInputSha256": "ba09b30aa45883696a6c2cbbe647b7a100c06ae9b741e0bcdf70fec164041447",
+                "evaluationPath": "challenges/evaluations/20260926122253-v7.json",
+                "evaluationCommit": "f7e48bd93d6827c557c9a40a255a55cbc5fc8fcf",
+                "evaluationArtifact": "challenges/evaluations/20260926122253-v7.json",
+                "evaluationUtc": "2026-09-26T12:23:06.868Z",
+                "remainingScreens": 1,
+                "recordedSteps": 37,
+                "previousScreensMatched": null,
+                "regression": false,
+                "passed": false,
+                "error": null,
+                "metrics": {
+                  "screens": {
+                    "matched": 36,
+                    "total": 37
+                  },
+                  "rng": {
+                    "matched": 2711,
+                    "total": 2719
+                  },
+                  "cursors": {
+                    "matched": 36,
+                    "total": 37
+                  }
+                },
+                "firstMismatch": {
+                  "kind": "stop",
+                  "message": "unsupported hero command: an unported branch of this command: quaffing requires peffect_invisibility()",
+                  "step": 36
+                },
+                "step": 36,
+                "kind": "stop",
+                "sourceFile": "potion.c",
+                "function": "peffect_invisibility",
+                "message": "unsupported hero command: an unported branch of this command: quaffing requires peffect_invisibility()",
+                "cFile": "potion.c",
+                "luaFile": null,
+                "line": null
+              },
+              "summary": "Quaffing an uncursed invisibility potion stops at potion.c peffect_invisibility(). C prints the self-invisibility message and updates the timed intrinsic; the whole function also covers spell versus potion, blessed permanent chance, blockers, and cursed aggravation.",
+              "source": {
+                "file": "potion.c",
+                "branch": "The hero selects an uncursed POT_INVISIBILITY while sighted and not already invisible or blocked. peffects() enters peffect_invisibility(), calls self_invis_message(), draws a duration with d(6,100), increments HInvis, and redraws the hero square.",
+                "functions": [
+                  "peffect_invisibility"
+                ],
+                "callers": [
+                  "potion.c peffects() POT_INVISIBILITY arm at 1354 calls peffect_invisibility(otmp).",
+                  "js/potion.js peffects() currently throws UnsupportedQuaffError at the corresponding arm; cmd.c quaff dispatch reaches dopotion() then peffects()."
+                ],
+                "dependencies": [
+                  "Use the existing js/potion.js self_invis_message() and incr_itimeout() contracts, preserving message and RNG order.",
+                  "The whole function also reads BInvis, spellbook class, mummy wrapping, HInvis and FROMOUTSIDE; its cursed branch calls aggravate() and clears permanent invisibility. Audit those state and effect callees before source completion."
+                ]
+              },
+              "goalKind": "file-port",
+              "evidence": [
+                "challenges/evaluations/20260926122253-v7.json at f7e48bd93d6827c557c9a40a255a55cbc5fc8fcf: synthetic/v7/potion-invisibility-corrected2 matches 36/37 screens, then stops at segment 0 step 36 with quaffing requires peffect_invisibility().",
+                "challenges/cases/v7/potion-invisibility-corrected2.session.json: C step 36 after quaffing inventory o says Gee! All of a sudden, you can’t see yourself.",
+                "nethack-c/upstream/src/potion.c:811-842 defines the full source function and :1354 dispatches it; js/potion.js:1164 is the explicit refusal."
+              ]
+            }
+          }
+        }
+      ],
+      "progressBeforePark": {
+        "screens": 0,
+        "rng": 0
+      },
+      "parkedStanding": {
+        "sha": "fdd63387e525409b26b7ea1acf1130160fa2f1c2",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "parkedReason": "The potion.c:peffect_invisibility helper and ordinary potion and spell dispatches strictly match independent C recordings and the admitted v7 invisibility case. The cursed branch still reaches the source-defined wizard.c:aggravate void callee, which remains an explicit gap; its monster effects lack production replay. Resume after wizard.c:aggravate is ported and record an independent cursed invisibility path before source completion."
     }
   ]
 }

@@ -11,6 +11,7 @@ import test from 'node:test';
 
 import {
     ALTAR,
+    Align2amask,
     A_DEX,
     A_MAX,
     COULD_SEE,
@@ -904,7 +905,7 @@ test('drinkfountain follows fountain.c unlooted find-gem fate 27', async () => {
     assert.equal(location.flags, 0);
 });
 
-test('vomit keeps special eat.c paths fail-closed', async () => {
+test('vomit keeps unrelated special eat.c paths fail-closed', async () => {
     await startedGame();
     const normal = game.youmonst.data;
 
@@ -945,7 +946,6 @@ test('vomit keeps special eat.c paths fail-closed', async () => {
         ['dry heave', stateFor(normal, { uhs: FAINTING })],
         ['existing multi-turn action', stateFor(normal, { multi: 1 })],
         ['acid breath', stateFor(game.mons[PM_YELLOW_DRAGON])],
-        ['altar', stateFor(normal, { altar: true })],
         ['acidic form', stateFor(game.mons[PM_ACID_BLOB])],
     ];
     for (const [name, state] of cases) {
@@ -954,7 +954,23 @@ test('vomit keeps special eat.c paths fail-closed', async () => {
         // baseline is captured before the call; an expectation derived from
         // the value under test would accept any write.
         const multiBefore = state.multi;
-        assert.throws(() => vomit(state), UnsupportedEatError, name);
+        await assert.rejects(() => vomit(state), UnsupportedEatError, name);
         assert.equal(state.multi, multiBefore, name);
     }
+});
+
+test('vomit reaches altar_wrath after installing its C delay', async () => {
+    await startedGame();
+    const altar = game.level.at(game.u.ux, game.u.uy);
+    altar.typ = ALTAR;
+    altar.altarmask = Align2amask(game.u.ualign.type);
+    game.u.ualign.record = 5;
+    game.nhDisplay.terminal._inputQueue.push(32, 32, 32);
+
+    await vomit(game);
+
+    assert.equal(game.multi, -2);
+    assert.equal(game.multi_reason, 'vomiting');
+    assert.equal(game.u.ualign.record, 4);
+    assert.ok(!game.unported.has('pray.c altar_wrath'));
 });

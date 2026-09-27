@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 8300044,
+      "datetime": "20260927091544",
+      "nethackrc": "OPTIONS=name:WrathDig,role:Archeologist,race:human,gender:male,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!acoustics\n",
+      "moves": "\nk#wizwish\naltar\nae  >..........",
+      "comment": "Blocked B24 caller attempt: an independently selected Archeologist uses the starting pick-axe to dig down on a wished altar. C rejects the altar first in dig.c:dig_check(BY_YOU,...) with DIGCHECK_FAIL_ALTAR, so digcheck_fail_message() returns before dig.c:dig’s later altar_wrath() call. Keep this input-only probe as a source-named blocker; it is not a matching altar_wrath witness."
+    }
+  ]
+}

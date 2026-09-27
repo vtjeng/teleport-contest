@@ -1868,10 +1868,10 @@ export async function morehungry(num, state, env) {
 // C ref: eat.c vomit() (3736-3785). This is the ordinary, unpolymorphed hero
 // continuation used by fountain.c's foul-water arm. The other arms are kept
 // explicit boundaries: their C callees (make_sick(), ubreatheu(),
-// altar_wrath(), and melt_ice()) are not ported, and dry-heaving has its own
-// body-part message. Preflight all of them before nomul() so an unsupported
-// form cannot leave a partial vomiting state behind.
-export function vomit(state = game) {
+// melt_ice(), and several other branches are not ported, and dry-heaving has
+// its own body-part message. Keep those branches explicit while allowing the
+// source-owned altar_wrath() call after nomul().
+export async function vomit(state = game) {
     const hero = state.u;
     const species = state.youmonst?.data;
 
@@ -1891,8 +1891,6 @@ export function vomit(state = game) {
         throw new UnsupportedEatError('vomit() while already multi-turn');
     if (attacktype_fordmg(species, AT_BREA, AD_ACID))
         throw new UnsupportedEatError('vomit() acid-breath arm');
-    if (IS_ALTAR(state.level?.at(hero.ux, hero.uy)?.typ))
-        throw new UnsupportedEatError('vomit() altar arm');
     if (acidic(species))
         throw new UnsupportedEatError('vomit() acidic-form arm');
 
@@ -1903,6 +1901,10 @@ export function vomit(state = game) {
     nomul(-2, state);
     state.multi_reason = 'vomiting';
     state.nomovemsg = You_can_move_again;
+    if (IS_ALTAR(state.level?.at(hero.ux, hero.uy)?.typ)) {
+        const { altar_wrath } = await import('./pray.js');
+        await altar_wrath(hero.ux, hero.uy, state);
+    }
 }
 
 // C ref: eat.c lesshungry() (3287-3334). Adds a bite's nutrition and lets

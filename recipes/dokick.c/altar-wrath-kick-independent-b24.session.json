@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent neutral Wizard recipe for pray.c:altar_wrath through dokick.c:kick_nondoor. Seed 8300043 and clock were chosen for this witness; a chaotic altar is wished, then the hero steps east and kicks west onto it.",
+  "segments": [
+    {
+      "seed": 8300043,
+      "datetime": "20260927091543",
+      "nethackrc": "OPTIONS=name:KickerProbe,role:Wizard,race:human,gender:female,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen\nOPTIONS=pettype:none,!acoustics,!autopickup,time,playmode:debug\n",
+      "moves": "\n#wizwish\nchaotic altar\nl#kick\nh"
+    }
+  ]
+}

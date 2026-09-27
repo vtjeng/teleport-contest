@@ -40,6 +40,7 @@ import {
     WEAK,
     WOUNDED_LEGS,
     W_SADDLE,
+    voice_deity,
     isok,
 } from '../js/const.js';
 import { UnsupportedTurnBoundaryError } from '../js/allmain.js';
@@ -100,6 +101,7 @@ import {
     TROUBLE_UNUSEABLE_HANDS,
     TROUBLE_WOUNDED_LEGS,
     UnsupportedPrayerError,
+    altar_wrath,
     angrygods,
     can_pray,
     critically_low_hp,
@@ -131,6 +133,33 @@ const SEED = 4410003;
 const PRAY_C = readFileSync(
     new URL('../nethack-c/upstream/src/pray.c', import.meta.url), 'utf8',
 );
+
+test('altar_wrath follows pray.c alignment, speech, and luck branches',
+    async () => {
+    assert.match(PRAY_C, /altar_wrath\(coordxy x, coordxy y\)/u);
+    assert.match(PRAY_C, /u\.ualign\.record > -rn2\(4\)/u);
+    assert.match(PRAY_C, /godvoice\(altaralign, "How darest thou desecrate my altar!"\)/u);
+    assert.match(PRAY_C, /SetVoice\(\(struct monst \*\) 0, 0, 80, voice_deity\)/u);
+    assert.match(PRAY_C, /Luck > -5 && rn2\(Luck \+ 6\)/u);
+
+    await startedGame();
+    const altar = game.level.at(game.u.ux, game.u.uy);
+    altar.typ = ALTAR;
+    altar.altarmask = Align2amask(game.u.ualign.type);
+    game.u.ualign.record = 5;
+    game.nhDisplay.terminal._inputQueue.push(32, 32, 32);
+    await altar_wrath(game.u.ux, game.u.uy, game);
+    assert.equal(game.u.ualign.record, 4);
+
+    clearTtyMessageWindow(game);
+    altar.altarmask = Align2amask(A_CHAOTIC);
+    game.u.uluck = -5;
+    game.u.moreluck = 0;
+    await altar_wrath(game.u.ux, game.u.uy, game);
+    assert.equal(game.gv.voice.moreinfo, voice_deity);
+    assert.match(game._ttyToplines, /A voice \(could it be/u);
+    assert.match(game._ttyToplines, /Thou shalt pay, infidel/u);
+});
 
 test('dosacrifice preserves source guard order and return values', async () => {
     // pray.c:1854-1871. The altar/swallow guard precedes Confusion/Stunned;

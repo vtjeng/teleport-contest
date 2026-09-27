@@ -270,11 +270,17 @@ test('the terrain chain runs each selected arm in source order', async () => {
             game.u.uhpmax = 1000;
             game.u.uhp = 1000;
         }
+        if (typ === ALTAR)
+            game.nhDisplay.terminal._inputQueue.push(32, 32, 32, 32);
         assert.equal(await dosit(game), ECMD_TIME, `typ ${typ}`);
-        assert.ok(toplines().includes(first), `typ ${typ}: ${toplines()}`);
+        if (typ === ALTAR) {
+            assert.ok(toplines().includes('Thou shalt pay, infidel'));
+        } else {
+            assert.ok(toplines().includes(first), `typ ${typ}: ${toplines()}`);
+        }
         if (second) assert.ok(toplines().includes(second), `typ ${typ}`);
         if (typ === ALTAR)
-            assert.ok(game.unported.has('pray.c altar_wrath'));
+            assert.ok(!game.unported.has('pray.c altar_wrath'));
         if (typ === LAVAPOOL)
             assert.ok(game.unported.has('timeout.c burn_away_slime'));
         if (typ === THRONE)

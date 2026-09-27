@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 92741026,
+      "datetime": "20340909142500",
+      "nethackrc": "OPTIONS=name:CeilingProbe,role:Healer,race:human,gender:female,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen\nOPTIONS=pettype:none,!acoustics,!autopickup,time\n",
+      "comment": "Blocked A23 entry recipe: applying the stethoscope upward calls the still-unported engrave.c:cant_reach_floor(up=true), whose ceiling() result and message are absent from the current JS helper. The caller records note_unported() and returns in source order.",
+      "moves": ".ac<"
+    }
+  ]
+}

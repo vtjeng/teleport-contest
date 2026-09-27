@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 8300045,
+      "datetime": "20260927091545",
+      "nethackrc": "OPTIONS=name:WrathEat,role:Wizard,race:human,gender:female,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,!autopickup,pettype:none,!acoustics\n",
+      "moves": ".\u0017altar\n\u0017food ration\n\u0017food ration\ne?",
+      "comment": "Blocked B24 production-entry probe for eat.c:vomit(): the Wizard wishes an altar and independent rations, then opens the eat selector to set up the source choke path. C reaches vomit() only from eat.c:choke() for this altar branch; js/eat.js choke() remains explicitly unsupported, so this input is not matching evidence."
+    }
+  ]
+}

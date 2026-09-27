@@ -88,6 +88,7 @@ import {
     WOUNDED_LEGS,
     W_SADDLE,
     EYE,
+    voice_deity,
     isok,
     ismnum,
     has_mcorpsenm,
@@ -121,7 +122,7 @@ import { In_hell } from './dungeon.js';
 import { freehand } from './engrave.js';
 import { game } from './gstate.js';
 import { near_capacity, nomul, You_can_move_again } from './hack.js';
-import { livelog_printf } from './pline.js';
+import { livelog_printf, verbalize } from './pline.js';
 import { dist2, upstart, s_suffix } from './hacklib.js';
 import { change_luck } from './moveloop_preamble.js';
 import {
@@ -203,6 +204,7 @@ import {
 } from './trap.js';
 import { safe_teleds } from './teleport.js';
 import { ttyPline } from './tty_message.js';
+import { set_voice } from './sounds.js';
 import { canseemon, couldsee } from './vision.js';
 import { heroIsBlind, messageAt } from './startup_a11y.js';
 import { Monnam } from './do_name.js';
@@ -224,7 +226,6 @@ import {
     an, ansimpleoname, bare_artifactname, corpse_xname,
     gloves_simple_name, otense, vtense, yname, Yobjnam2,
 } from './objnam.js';
-import { verbalize } from './pline.js';
 import { note_unported } from './unported.js';
 
 // Raised where pray.c reaches a branch this port has not translated.
@@ -1932,6 +1933,43 @@ async function godvoice(g_align, words, state) {
             + `${quote}${text}${quote}`,
         state,
     );
+}
+
+// C ref: pray.c altar_wrath() (2652-2676). The altar's alignment check owns
+// the first random draw; the deity quote or luck punishment follows only in
+// the opposing-alignment branch.
+export async function altar_wrath(x, y, state = game) {
+    const altaralign = a_align(x, y, state);
+    const { u } = state;
+
+    if (u.ualign.type === altaralign
+        && u.ualign.record > -rn2(4)) {
+        await godvoice(
+            altaralign,
+            'How darest thou desecrate my altar!',
+            state,
+        );
+        await adjattrib(A_WIS, -1, 0, state, { message: ttyPline });
+        u.ualign.record--;
+        return;
+    }
+
+    const deafness = u.uprops?.[DEAF];
+    const deaf = Boolean(deafness?.intrinsic || deafness?.extrinsic)
+        || Boolean(u.uroleplay?.deaf);
+    await ttyPline(
+        `${deaf
+            ? 'Despite your deafness, you seem to hear'
+            : 'A voice (could it be'} ${align_gname(altaralign, state)}`
+            + `${deaf ? ' say' : '?) whispers'}:`,
+        state,
+    );
+    set_voice(null, 0, 80, voice_deity, state);
+    await verbalize('Thou shalt pay, infidel!', state);
+
+    const Luck = (u.uluck ?? 0) + (u.moreluck ?? 0);
+    if (Luck > -5 && rn2(Luck + 6))
+        change_luck(rn2(20) ? -1 : -2, state);
 }
 
 export async function angrygods(resp_god, state = game) {
