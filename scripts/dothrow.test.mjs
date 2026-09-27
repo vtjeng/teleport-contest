@@ -729,8 +729,7 @@ test('throwit() draws rn2(7) only for a cursed or greased missile',
         }
         // With no direction to slip away from -- u.dx and u.dy both zero --
         // the second conjunct stops the draw. u.dz is what throwit() reads
-        // next; the vertical helper is a named discarded gap, so throwit()
-        // still retires its transit state.
+        // next; the down path retains its separate hitfloor() gap.
         const down = arena();
         down.u.dx = 0;
         down.u.dy = 0;
@@ -739,6 +738,28 @@ test('throwit() draws rn2(7) only for a cursed or greased missile',
         assert.equal(down.iflags.returning_missile, null);
         assert.equal(down.gt.thrownobj, null);
         assert.deepEqual(draws(), []);
+    });
+
+test('throwit runs the complete upward toss path before retiring the throw',
+    async () => {
+        // dothrow.c:1589-1594 passes `(rn2(5) && !Underwater)` to toss_up().
+        // Its Boolean is discarded, but its impact damage and source order
+        // remain observable before throwit_return() clears the transit object.
+        const state = arena();
+        state.u.dx = 0;
+        state.u.dy = 0;
+        state.u.dz = -1;
+        state._ttyToplines = '';
+        const thrown = item(state, DAGGER);
+        const hp = state.u.uhp;
+
+        await throwit(thrown, 0, false, null, state);
+
+        assert.ok(draws().includes('rn2(5)'));
+        assert.ok(draws().includes('rnd(4)'));
+        assert.ok(state.u.uhp < hp);
+        assert.match(state._ttyToplines, /falls back on top of your head/u);
+        assert.equal(state.gt.thrownobj, null);
     });
 
 test('throwit() handles weapons that return to the hand', async () => {

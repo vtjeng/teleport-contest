@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Blocked independent upward non-potion impact recipe for dothrow.c:toss_up() -> weapon.c:dmgval(). This hard boulder does not take the breaking-object or potion branch, so the source reaches dothrow.c:hitfloor(obj, TRUE) after calculating damage. JS intentionally records the discarded void callee with note_unported(\"dothrow.c hitfloor\") until that source function is ported; this recipe is not matching evidence.",
+  "segments": [
+    {
+      "seed": 482637,
+      "datetime": "20381107111500",
+      "nethackrc": "OPTIONS=name:UpBoulder,role:Wizard,race:human,gender:male,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen\nOPTIONS=pettype:none,!acoustics,playmode:debug\n",
+      "moves": ".#wizwish\nboulder\ntp< "
+    }
+  ]
+}
