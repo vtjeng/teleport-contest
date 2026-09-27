@@ -51,7 +51,7 @@ import { genders } from './roles.js';
 import { CapitalMon } from './random_text.js';
 import { observe_object } from './o_init.js';
 import {
-    carried, erosionMatters, hasContents, isBox, isCandle, isContainer,
+    carried, hasContents, isBox, isCandle, isContainer,
     isCorrodeable, isCrackable,
     isDamageable, is_flammable, isMultigen, is_rottable, isRustprone,
     is_ammo, is_missile, is_weptool, objectType,
@@ -89,6 +89,23 @@ import {
 // naming helpers from this file in turn; the cycle is safe because neither
 // side calls the other during module evaluation.
 import { Glib } from './wield.js';
+
+// C ref: objnam.c erosion_matters() (1197-1215). obj.js exports a
+// compatibility adapter for its existing callers; keep the source-owned
+// predicate here beside the rest of objnam.c.
+export function erosion_matters(obj, state = game) {
+    switch (obj.oclass) {
+    case TOOL_CLASS:
+        return is_weptool(obj, state);
+    case WEAPON_CLASS:
+    case ARMOR_CLASS:
+    case BALL_CLASS:
+    case CHAIN_CLASS:
+        return true;
+    default:
+        return false;
+    }
+}
 
 export class UnsupportedObjectNameError extends Error {
     constructor(branch, obj) {
@@ -1650,7 +1667,7 @@ function donameFreshInternal(
         break;
     case BALL_CLASS:
     case CHAIN_CLASS:
-        if (erosionMatters(obj, state))
+        if (erosion_matters(obj, state))
             modifiers.push(...erosionWords(obj, state, ident.rknown));
         break;
     default:

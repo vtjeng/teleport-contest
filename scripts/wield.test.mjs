@@ -24,11 +24,13 @@ import { newObject } from '../js/obj.js';
 import {
     BOW,
     DAGGER,
+    SCR_ENCHANT_WEAPON,
+    SCROLL_CLASS,
     objects_globals_init,
 } from '../js/objects.js';
 import { monst_globals_init, PM_SAMURAI } from '../js/monsters.js';
 import { roles } from '../js/roles.js';
-import { doquiver_core, wield_tool } from '../js/wield.js';
+import { chwepon, doquiver_core, wield_tool } from '../js/wield.js';
 import { scanSession } from './scan-sessions.mjs';
 
 function makeState() {
@@ -101,6 +103,20 @@ function pending(state) {
     delete state._pending_message;
     return message;
 }
+
+test('wield.c chwepon applies a positive weapon enchantment', async () => {
+    const state = makeState();
+    const dagger = item(state, DAGGER, { known: false, spe: 0 });
+    const scroll = item(state, SCR_ENCHANT_WEAPON, {
+        oclass: SCROLL_CLASS,
+        bknown: true,
+    });
+    state.uwep = dagger;
+
+    assert.equal(await chwepon(scroll, 1, state), 1);
+    assert.equal(dagger.spe, 1);
+    assert.equal(pending(state), 'Your dagger glows blue for a moment.');
+});
 
 test('wield_tool uses the You_cant wording for a worn item', async () => {
     const state = makeState();
