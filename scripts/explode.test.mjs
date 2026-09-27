@@ -4,6 +4,7 @@ import test from 'node:test';
 import { game } from '../js/gstate.js';
 import {
     adtyp_to_expltype,
+    explode,
     explosionmask,
     mon_explodes,
     scatter,
@@ -30,9 +31,12 @@ import {
     AD_PEST,
 } from '../js/monsters.js';
 import {
+    EXPL_FIERY,
     COLD_RES,
     FIRE_RES,
+    OBJ_INVENT,
     PHYS_EXPL_TYPE,
+    W_ARM,
 } from '../js/const.js';
 import { newMonster } from '../js/monst.js';
 import { mksobj, place_object } from '../js/obj.js';
@@ -41,8 +45,9 @@ import {
     NON_PM,
     PM_GAS_SPORE,
 } from '../js/monsters.js';
-import { ROCK } from '../js/objects.js';
+import { LEATHER_ARMOR, ROCK, SCROLL_CLASS } from '../js/objects.js';
 import { zap_over_floor } from '../js/zap.js';
+import { getRngLog } from '../js/rng.js';
 
 test('scatter flags preserve explode.c hack.h bit assignments', () => {
     assert.equal(SCATTER_VIS_EFFECTS, 0x01);
@@ -78,6 +83,47 @@ test('explosionmask reports only resisted targets', () => {
         minvent: null,
     };
     assert.equal(explosionmask(resistant, AD_COLD, -1, state), 1);
+});
+
+test('explode supplies rnl to blessed-armor fire damage', async () => {
+    await runSegment({
+        seed: 83015811,
+        datetime: '20321112131415',
+        nethackrc: [
+            'OPTIONS=name:FireErosion,role:Valkyrie,race:human,gender:female,align:neutral',
+            'OPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!acoustics,!autopickup',
+            '',
+        ].join('\n'),
+        moves: '                                                  ',
+    });
+
+    // explode.c:614 calls trap.c:burnarmor(); blessed gear then reaches
+    // trap.c:erode_obj() and consumes the same rnd.c rnl wrapper. Keep one
+    // vulnerable suit equipped so whichever armor slot is drawn, the loop
+    // eventually reaches the body-armor arm without injecting RNG.
+    const suit = mksobj(LEATHER_ARMOR, true, false, { state: game });
+    suit.blessed = true;
+    suit.owornmask = W_ARM;
+    suit.where = OBJ_INVENT;
+    suit.nobj = null;
+    game.invent = suit;
+    game.uarm = suit;
+    game.uarmc = null;
+    game.uarmh = null;
+    game.uarms = null;
+    game.uarmg = null;
+    game.uarmf = null;
+    game.uarmu = null;
+    const firstDraw = getRngLog().length;
+
+    await explode(
+        game.u.ux, game.u.uy, 11, 8, SCROLL_CLASS, EXPL_FIERY, game,
+    );
+
+    assert.ok(
+        getRngLog().slice(firstDraw).some((entry) => entry.startsWith('rnl(4)')),
+        'blessed armor erosion reaches the source rnl(4) call',
+    );
 });
 
 test('zap_over_floor ignores physical explosions before zap arms', async () => {
