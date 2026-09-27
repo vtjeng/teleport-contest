@@ -92674,7 +92674,7 @@
     {
       "id": "port-sit-throne-sit-effect-synthetic-v6-20260927",
       "kind": "file-port",
-      "status": "open",
+      "status": "parked",
       "summary": "Port sit.c throne_sit_effect and wire the throne sit caller",
       "cFile": "sit.c",
       "sessions": [
@@ -92695,8 +92695,8 @@
           "name": "throne_sit_effect",
           "line": 39,
           "endLine": 237,
-          "declared": false,
-          "complete": false
+          "declared": true,
+          "complete": true
         }
       ],
       "range": {
@@ -92917,7 +92917,97 @@
             }
           }
         }
-      ]
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "throne_sit_effect",
+            "implementation": "js/sit.js",
+            "symbol": "throne_sit_effect",
+            "sourceReview": "Read and ported the complete sit.c:throne_sit_effect() definition (39-234), preserving the outer rnd(6) gate, rnd(13) effect choice, wizard getlin selection, special-throne early return, all 13 effect arms, post-effect rn2(3) throne-removal tail, and C expression/RNG order. The source discards results from its void helpers, so unported branches are named with note_unported() and skipped at the source call: sit.c:special_throne_effect, sit.c:take_gold, read.c:do_genocide, sit.c:rndcurse, detect.c:do_mapping, wizard.c:aggravate, and makemon.c:makemon. The case-7 courtmon() result is evaluated in loop order before the makemon gap. Cases 4, 9, and 13 await their existing state helpers in source order; case 9 uses verbalize() after the A voice echoes line. The production refusal at sit.c:dosit()'s throne arm was removed and replaced by the awaited function call.",
+            "callers": [
+              {
+                "path": "js/sit.js",
+                "symbol": "dosit",
+                "source": "sit.c:dosit() checks IS_THRONE(typ), emits the sit message, then calls throne_sit_effect()."
+              },
+              {
+                "path": "js/cmd.js",
+                "symbol": "doextcmd",
+                "source": "cmd.c doextcmd() resolves the #sit extcmd to sit.c:dosit(), which reaches the throne arm."
+              },
+              {
+                "path": "js/cmd.js",
+                "symbol": "rhack",
+                "source": "cmd.c act_on_act() queues dosit() for MCMD_SIT and rhack() dispatches that function pointer."
+              },
+              {
+                "path": "js/cmd.js",
+                "symbol": "domouseaction",
+                "source": "cmd.c domouseaction() queues dosit() when a click targets the hero on a throne."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/sit-command.test.mjs"
+            ],
+            "recordings": [
+              "recordings/sit.c/throne-sit-independent-a20.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v6",
+                "caseId": "wizard-sit-throne",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 13,
+                "source": "cmd.c #sit extcmd dispatch -> sit.c:dosit() throne arm -> sit.c:throne_sit_effect() ordinary no-effect outcome and removal-tail check"
+              }
+            ],
+            "checkedAt": "10d0c022d7772ea647ef0878bebd7abe0f75d08c"
+          }
+        ],
+        "entryPointReview": "The active source entry is sit.c:dosit() on an IS_THRONE square, which calls throne_sit_effect(). The independent A20 recipe strictly matches the ordinary #sit throne outcome through completion of the function and its rn2(3) tail check. The admitted v6/wizard-sit-throne range is cited only through segment 0 step 13, the selected source boundary. The #sit command is dispatched by cmd.c doextcmd(); the existing command-menu MCMD_SIT route also queues dosit(), while cmd.c domouseaction() can queue it for a click on the hero on a throne. The fresh evidence in this delivery verifies the #sit route. The separate effect-7 court-summon recipe recipes/sit.c/throne-court-summon-blocked-a20.session.json is retained but blocked: throne_sit_effect evaluates mkroom.c:courtmon() and immediately passes that value to still-unported makemon.c:makemon() inside the same loop before another recorded input boundary, so no matching runtime completion for courtmon() is claimed. The remaining C-discarded void calls special_throne_effect, take_gold, read.c:do_genocide, sit.c:rndcurse, detect.c:do_mapping, and wizard.c:aggravate remain explicit named gaps and are not claimed as independently exercised. The mouse input event also has no recording representation.",
+        "entryPoints": [
+          {
+            "name": "#sit on an ordinary throne",
+            "functions": [
+              "throne_sit_effect"
+            ],
+            "recordings": [
+              "recordings/sit.c/throne-sit-independent-a20.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v6",
+                "caseId": "wizard-sit-throne",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 13,
+                "source": "cmd.c #sit -> sit.c:dosit() -> sit.c:throne_sit_effect()"
+              }
+            ]
+          },
+          {
+            "name": "#sit with wizard-forced throne court summons (effect 7)",
+            "functions": [
+              "throne_sit_effect"
+            ],
+            "recordings": [],
+            "synthetic": []
+          }
+        ]
+      },
+      "progressBeforePark": {
+        "screens": 0,
+        "rng": 0
+      },
+      "parkedStanding": {
+        "sha": "10d0c022d7772ea647ef0878bebd7abe0f75d08c",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "parkedReason": "The ordinary #sit throne entry and admitted v6 range match, but the wizard-forced court-summon entry is blocked: sit.c throne_sit_effect evaluates mkroom.c courtmon and passes its return into still-unported makemon.c makemon. The independent blocked recipe remains under recipes/sit.c; obtain a complete matching C recording after the makemon caller is ported."
     }
   ]
 }
