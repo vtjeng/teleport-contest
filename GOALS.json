@@ -96761,7 +96761,7 @@
     {
       "id": "port-apply-touchstone-family-synthetic-v8-20260927",
       "kind": "file-port",
-      "status": "open",
+      "status": "closed",
       "summary": "Port touchstone rubbing and gem identification through apply and rub commands",
       "cFile": "apply.c",
       "sessions": [
@@ -96775,22 +96775,25 @@
         "screens": 11405,
         "rng": 792838
       },
-      "closedAt": null,
-      "delivered": null,
+      "closedAt": "5bf1150b63da82c6e02196da6a3d7047ef9b3938",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
       "functions": [
         {
           "name": "touchstone_ok",
           "line": 2658,
           "endLine": 2679,
-          "declared": false,
-          "complete": false
+          "declared": true,
+          "complete": true
         },
         {
           "name": "use_stone",
           "line": 2680,
           "endLine": 2812,
-          "declared": false,
-          "complete": false
+          "declared": true,
+          "complete": true
         }
       ],
       "range": {
@@ -96963,7 +96966,105 @@
             }
           }
         }
-      ]
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "touchstone_ok",
+            "implementation": "js/apply.js",
+            "symbol": "touchstone_ok",
+            "sourceReview": "Compared the full apply.c:touchstone_ok() definition (2658-2675). It excludes NULL, suggests coins, suggests gems unless both the object is known to the hero and the type name is globally identified, and downplays all remaining objects. The callback does not mutate state, print, or consume RNG. Its type-known check reads the same objects[otyp].oc_name_known value as C. Its sole production caller is use_stone()'s getobj callback.",
+            "callers": [
+              {
+                "path": "js/apply.js",
+                "symbol": "use_stone",
+                "source": "apply.c:use_stone() passes touchstone_ok as getobj's callback when a TOUCHSTONE is fully known (2693-2700)."
+              }
+            ],
+            "pure": true,
+            "tests": [
+              "scripts/apply.test.mjs"
+            ],
+            "recordings": [],
+            "synthetic": [],
+            "checkedAt": "5bf1150b63da82c6e02196da6a3d7047ef9b3938"
+          },
+          {
+            "name": "use_stone",
+            "implementation": "js/apply.js",
+            "symbol": "use_stone",
+            "sourceReview": "Compared the whole apply.c:use_stone() definition (2680-2809) in source order: conditional observe_object; the known-touchstone callback choice and secondary getobj prompt; cancellation and self-rub results; cursed touchstone gem resistance and shatter/useup path; blind and hallucination early returns; ring material normalization; gem/ring handling including GLASS; blessed or Archeologist/Gnome gem identification; all CLOTH, LIQUID, WAX, WOOD, GOLD, SILVER and default is_flimsy/material arms; final scratch, streak, or scritch message and ECMD result. RNG and state effects use the supplied C-compatible environment. The streak table is decl.c:c_obj_colors (20-37), exported from its existing single JS owner in do_name.js and source-pinned in scripts/apply.test.mjs. The identification branch calls C makeknown(), which reaches void shk.c:gem_learned(); JS passes a hook that records note_unported('shk.c gem_learned') and returns no data, then preserves discover_object's remaining C effects. The other caller, dorub(), still has its pre-existing source-named use_royal_jelly refusal outside this selected function family; its gray-stone path now reaches use_stone(). No case-specific logic was added.",
+            "callers": [
+              {
+                "path": "js/apply.js",
+                "symbol": "doapply",
+                "source": "cmd.c:commands['a'] dispatches to apply.c:doapply (cmd.c:1677-1678); apply.c:doapply() calls use_stone() for FLINT, LUCKSTONE, LOADSTONE and TOUCHSTONE (4397-4400)."
+              },
+              {
+                "path": "js/apply.js",
+                "symbol": "dorub",
+                "source": "cmd.c's extended-command table registers 'rub' with apply.c:dorub (cmd.c:1835-1836); apply.c:dorub() calls use_stone() for gray stones (1785-1799)."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/apply.test.mjs"
+            ],
+            "recordings": [
+              "recordings/apply.c/touchstone-rub-independent.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v8",
+                "caseId": "apply-blessed-touchstone-identifies-gem",
+                "segment": 0,
+                "fromStep": 38,
+                "throughStep": 40,
+                "source": "cmd.c:commands['a'] -> apply.c:doapply -> apply.c:use_stone; the blessed touchstone target prompt and gem identification execute the source family."
+              }
+            ],
+            "checkedAt": "5bf1150b63da82c6e02196da6a3d7047ef9b3938"
+          }
+        ],
+        "entryPointReview": "The selected source range is apply.c:touchstone_ok/use_stone. Its active production entries are ordinary apply (`cmd.c:commands['a'] -> doapply -> use_stone`) and extended #rub (`cmd.c extended-command 'rub' -> dorub -> use_stone`). The admitted v8 case matches through segment 0, steps 38-40 and exercises the apply entry, including the blessed-touchstone identification branch. The independent #rub recipe/recording strictly matches all 45 steps and exercises the separate dorub entry with its own blessed-touchstone and ruby setup. touchstone_ok is pure and has source-pinned rank/identification tests. The void shk.c:gem_learned callee is the only named unported effect; no return value is used, and it is not treated as data. The unrelated royal-jelly branch remains outside this source range and is still refused by its existing source-named use_royal_jelly placeholder; B29 makes no completion claim for it.",
+        "entryPoints": [
+          {
+            "name": "Apply a gray stone and rub it on an inventory object",
+            "functions": [
+              "touchstone_ok",
+              "use_stone"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v8",
+                "caseId": "apply-blessed-touchstone-identifies-gem",
+                "segment": 0,
+                "fromStep": 38,
+                "throughStep": 40,
+                "source": "cmd.c:commands['a'] -> apply.c:doapply -> apply.c:use_stone"
+              }
+            ]
+          },
+          {
+            "name": "Use #rub on a gray stone and inventory object",
+            "functions": [
+              "touchstone_ok",
+              "use_stone"
+            ],
+            "recordings": [
+              "recordings/apply.c/touchstone-rub-independent.session.json"
+            ],
+            "synthetic": []
+          }
+        ]
+      },
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "5bf1150b63da82c6e02196da6a3d7047ef9b3938",
+        "screens": 11405,
+        "rng": 792838
+      }
     },
     {
       "id": "fix-objnam-artifact-named-article-synthetic-v8-20260927",
