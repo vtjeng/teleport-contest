@@ -91026,6 +91026,49 @@
           "evaluationCommit": "12a35e71cf1d937cd08b75b196f3c8b54224f6cd"
         }
       }
+    },
+    {
+      "id": "port-write-dowrite-glib-synthetic-v6-20260926",
+      "kind": "file-port",
+      "status": "queued",
+      "summary": "Port complete magic-marker writing and slippery-hand drop behavior",
+      "cFile": "write.c",
+      "sessions": [
+        "synthetic/v6/wizard-greasy-write-glib-final"
+      ],
+      "selectionReason": "The admitted v6 wizard-greasy-write-glib-final case now matches the grease and quarterstaff-slip history and stops at segment 0 step 21 in write.c:dowrite when a Glib magic marker should slip from the hero’s fingers. The JS branch refuses before the source message and dropx call; select whole dowrite, with the current C and JS owner established in the refreshed investigation.",
+      "detail": "Translate dowrite branches in source order and wire the doapply magic-marker caller. In the Glib path use the source Tobjnam/fingers_or_gloves message, carried-object dropx and ECMD_TIME return; retain independent C recordings and name any other active writing branch that lacks matching evidence.",
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": null,
+      "delivered": null,
+      "functions": [
+        {
+          "name": "dowrite",
+          "line": 74,
+          "endLine": 394,
+          "declared": true,
+          "complete": false
+        }
+      ],
+      "range": {
+        "from": 74,
+        "to": 394
+      },
+      "syntheticProvenance": {
+        "synthetic/v6/wizard-greasy-write-glib-final": {
+          "session": "synthetic/v6/wizard-greasy-write-glib-final",
+          "corpus": "synthetic",
+          "batch": "v6",
+          "caseId": "wizard-greasy-write-glib-final",
+          "manifestPath": "challenges/manifests/v6.json",
+          "manifestSha256": "7523b91e823f4e3906c9acdc9a3d80f8469c27c2caab8fc8fbd6967dbfdcab5f",
+          "recordingPath": "challenges/cases/v6/wizard-greasy-write-glib-final.session.json",
+          "recordingSha256": "20b60af8d804f9bd6ebd5b1217dae85a6cdad0afcae9d4f98bd6c57d6f3fb6e6",
+          "evaluationPath": "challenges/evaluations/20260927005209-v6.json",
+          "evaluationCommit": "12a35e71cf1d937cd08b75b196f3c8b54224f6cd"
+        }
+      }
     }
   ]
 }
