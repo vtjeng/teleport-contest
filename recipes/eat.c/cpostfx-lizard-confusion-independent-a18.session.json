@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 71180427,
+      "datetime": "20260927094500",
+      "nethackrc": "OPTIONS=name:ConfusedEaterA18,role:Wizard,race:elf,gender:female,align:neutral,playmode:debug,!legacy,!tutorial,!splash_screen,pettype:none\n",
+      "moves": " #wizintrinsic\ng\n \u0017lizard corpse\nep "
+    }
+  ],
+  "comment": "Independent A18 lizard meal: distinct seed, date, name, race, and gender from prior lizard recipes. The wizard intrinsic menu sets Confusion before wishing and eating a lizard corpse, exercising cpostfx's lizard timeout cap as well as its intrinsic-grant path."
+}

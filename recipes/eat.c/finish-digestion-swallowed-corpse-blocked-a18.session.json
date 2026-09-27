@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 71180429,
+      "datetime": "20260927113000",
+      "nethackrc": "OPTIONS=name:DigestA18,role:Wizard,race:human,gender:male,align:neutral,playmode:debug,!legacy,!tutorial,!splash_screen,pettype:none\n",
+      "moves": " #polyself\n"
+    }
+  ],
+  "comment": "Blocked A18 caller recipe for eat.c:Finish_digestion. C reaches it from uhitm.c gulpum() through ga.afternmv after a purple-worm-form hero digests a swallowed monster. The JavaScript uhitm.c gulpum()/Finish_digestion caller chain is not ported, so this setup cannot establish cpostfx reachability and must not be cited as a matching recording."
+}
