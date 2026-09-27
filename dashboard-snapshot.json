@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "capturedAt": "2026-09-27T11:21:24.316Z",
+  "capturedAt": "2026-09-27T12:46:15.664Z",
   "activity": {
     "runId": "loop-20260925",
     "events": [
@@ -5023,12 +5023,79 @@
         "type": "accepted",
         "at": "2026-09-27T11:21:00.890Z",
         "task": "A25"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "publish-A25-5f1efeed",
+        "type": "published",
+        "at": "2026-09-27T11:27:20.870Z",
+        "task": "A25",
+        "commit": "5f1efeed9e8e7684c046c1016785c10e720b1a60"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "assign-A26-read-fire-20260927",
+        "type": "assign",
+        "at": "2026-09-27T11:38:51.218Z",
+        "task": "A26",
+        "worker": "A",
+        "goal": "port-read-seffect-fire-synthetic-v8-20260927",
+        "kind": "implementation"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "assign-B26-monster-detection-20260927",
+        "type": "assign",
+        "at": "2026-09-27T11:42:08.232Z",
+        "task": "B26",
+        "worker": "B",
+        "goal": "port-potion-peffect-monster-detection-synthetic-v7-20260927",
+        "kind": "implementation"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-57c188fde05b415c753fd07f5e2262e7fab7bf2b",
+        "type": "ready",
+        "at": "2026-09-27T12:22:57.696Z",
+        "task": "B26",
+        "delivery": "57c188fde05b415c753fd07f5e2262e7fab7bf2b"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "receive-B26-57c188fd",
+        "type": "received",
+        "at": "2026-09-27T12:26:19.520Z",
+        "task": "B26",
+        "delivery": "57c188fde05b415c753fd07f5e2262e7fab7bf2b"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "integrate-B26-feabcd23",
+        "type": "integrating",
+        "at": "2026-09-27T12:26:28.220Z",
+        "task": "B26",
+        "integration": "feabcd23201baa92c3e92b5de5046a98d6a0f14f"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "validate-B26-feabcd23",
+        "type": "validated",
+        "at": "2026-09-27T12:45:45.684Z",
+        "task": "B26",
+        "passed": true
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-B26-feabcd23",
+        "type": "accepted",
+        "at": "2026-09-27T12:45:50.807Z",
+        "task": "B26"
       }
     ]
   },
   "development": {
-    "executionCommit": "358dd6ad1294374a96a704a7f5a9b46c0ddc4a47",
-    "measuredAt": "2026-09-27T11:17:09.956Z",
+    "executionCommit": "feabcd23201baa92c3e92b5de5046a98d6a0f14f",
+    "measuredAt": "2026-09-27T12:40:23.323Z",
     "sessions": [
       {
         "session": "holdout/seed0002-healer-reflection-drummer",
