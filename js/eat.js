@@ -291,7 +291,7 @@ import {
 import {
     an, ansimpleoname, corpse_xname, donameFresh, obj_is_pname,
     otense, safe_qbuf,
-    singular, the, the_unique_pm, xnameFresh,
+    singular, the, the_unique_pm, xnameFresh, yobjnam,
 } from './objnam.js';
 import {
     APPLE,
@@ -1310,7 +1310,7 @@ async function start_tin(otmp, state = game, env = {}) {
             );
         } else {
             await message(
-                `Using ${xnameFresh(opener, state)} you try to open the tin.`,
+                `Using ${yobjnam(opener, null, state)} you try to open the tin.`,
                 state,
             );
         }
