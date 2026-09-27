@@ -1,0 +1,11 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 94127056,
+      "datetime": "20420303083006",
+      "nethackrc": "OPTIONS=name:V9Marker,role:Wizard,race:human,gender:female,align:neutral,playmode:debug,!legacy,!tutorial,!splash_screen,showexp,time,pettype:none\n",
+      "moves": " \u0017magic marker\nEoC27 marker\n"
+    }
+  ]
+}

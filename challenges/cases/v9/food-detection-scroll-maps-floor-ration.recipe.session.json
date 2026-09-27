@@ -1,0 +1,11 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 94127033,
+      "datetime": "20420505094000",
+      "nethackrc": "OPTIONS=name:V9Food,role=Wizard,race=human,gender=female,align=neutral,playmode=debug,!legacy,!tutorial,!splash_screen,showexp,time,pettype:none\n",
+      "moves": " \u0017scroll of food detection\n\u0017food ration\ndphro "
+    }
+  ]
+}

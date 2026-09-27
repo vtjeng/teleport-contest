@@ -1,0 +1,11 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 94127056,
+      "datetime": "20420101100512",
+      "nethackrc": "OPTIONS=name:V9SleepWand,role:Wizard,race:human,gender:female,align:neutral,playmode:debug,!legacy,!tutorial,!splash_screen,showexp,time,pettype:none\n",
+      "moves": " \u0017wand of sleep\n\u0007hostile newt\nzoh"
+    }
+  ]
+}

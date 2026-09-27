@@ -1,0 +1,11 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 94127059,
+      "datetime": "20420303083009",
+      "nethackrc": "OPTIONS=name:V9Sick,role:Ranger,race:human,gender:female,align:neutral,playmode:debug,!legacy,!tutorial,!splash_screen,showexp,time,pettype:none\n",
+      "moves": " \u0017uncursed potion of sickness\nqg"
+    }
+  ]
+}

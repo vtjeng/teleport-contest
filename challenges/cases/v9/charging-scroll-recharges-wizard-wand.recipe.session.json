@@ -1,0 +1,11 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 94127026,
+      "datetime": "20420303083000",
+      "nethackrc": "OPTIONS=name:V9Charge,role=Wizard,race=human,gender=female,align=neutral,playmode=debug,!legacy,!tutorial,!splash_screen,showexp,time,pettype:none\n",
+      "moves": " \u0017blessed scroll of charging\n roc c"
+    }
+  ]
+}

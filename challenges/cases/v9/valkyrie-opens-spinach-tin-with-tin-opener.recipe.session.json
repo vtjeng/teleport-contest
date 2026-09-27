@@ -1,0 +1,11 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 94127103,
+      "datetime": "20420303083103",
+      "nethackrc": "OPTIONS=name:V9TinOpener,role:Valkyrie,race:human,gender:female,align:lawful,playmode:debug,!legacy,!tutorial,!splash_screen,showexp,time,pettype:none\n",
+      "moves": " \u0017uncursed tin opener\n \u0017uncursed tin of spinach\nweef  y"
+    }
+  ]
+}

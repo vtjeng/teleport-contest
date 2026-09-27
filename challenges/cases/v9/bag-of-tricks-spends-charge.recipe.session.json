@@ -1,0 +1,11 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 94127023,
+      "datetime": "20420101092023",
+      "nethackrc": "OPTIONS=name:V9Bag,role:Archeologist,race:human,gender:female,align:neutral,playmode:debug,!legacy,!tutorial,!splash_screen,showexp,time,pettype:none\n",
+      "moves": " \u0017bag of tricks\naj"
+    }
+  ]
+}

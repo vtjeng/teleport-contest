@@ -1,0 +1,11 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 94127167,
+      "datetime": "20420202070607",
+      "nethackrc": "OPTIONS=name:V9FireSelf,role:Wizard,race:human,gender:female,align:neutral,playmode:debug,!legacy,!tutorial,!splash_screen,showexp,time,pettype:none\n",
+      "moves": " \u0017wand of fire\nzn."
+    }
+  ]
+}

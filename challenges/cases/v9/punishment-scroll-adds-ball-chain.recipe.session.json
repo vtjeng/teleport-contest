@@ -1,0 +1,11 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 94127002,
+      "datetime": "20420101090502",
+      "nethackrc": "OPTIONS=name:V9Punishme,role:Wizard,race:human,gender:female,align:neutral,playmode:debug,!legacy,!tutorial,!splash_screen,showexp,time,pettype:none\n",
+      "moves": " \u0017scroll of punishment\nro "
+    }
+  ]
+}

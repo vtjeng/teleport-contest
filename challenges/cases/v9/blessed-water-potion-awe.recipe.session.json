@@ -1,0 +1,11 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 94127016,
+      "datetime": "20420101090516",
+      "nethackrc": "OPTIONS=name:V9BlessedW,role:Priest,race:human,gender:female,align:neutral,playmode:debug,!legacy,!tutorial,!splash_screen,showexp,time,pettype:none\n",
+      "moves": " \u0017blessed potion of water\nqd"
+    }
+  ]
+}
