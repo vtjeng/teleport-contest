@@ -94641,7 +94641,7 @@
     {
       "id": "port-potion-potionhit-synthetic-v7-20260927",
       "kind": "file-port",
-      "status": "open",
+      "status": "parked",
       "summary": "Port complete potion.c potionhit monster and hero effects through all active collision callers",
       "cFile": "potion.c",
       "sessions": [
@@ -94937,7 +94937,17 @@
             }
           }
         }
-      ]
+      ],
+      "progressBeforePark": {
+        "screens": 0,
+        "rng": 0
+      },
+      "parkedStanding": {
+        "sha": "cefd2337217c869731275ec059059414e18cc17f",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "parkedReason": "potionhit source implementation and thrown-potion replay match; hero melee potion entry is blocked before play by worn.js cancelDoff, while steed hit, monster-to-monster hit, and dothrow.c toss_up still need independent matching entry evidence"
     },
     {
       "id": "div-trap-chest-trap-message-flush-synthetic-v8-20260927",
