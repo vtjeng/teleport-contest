@@ -98477,6 +98477,49 @@
         "screens": 11405,
         "rng": 792838
       }
+    },
+    {
+      "id": "port-trap-mintrap-hurtling-return-synthetic-v9-20260927",
+      "kind": "file-port",
+      "status": "queued",
+      "summary": "Port trap.c mintrap and its consumed trap-result dependencies for monster hurtling",
+      "cFile": "trap.c",
+      "sessions": [
+        "synthetic/v9/kick-closed-door"
+      ],
+      "selectionReason": "The refreshed v9 kick-closed-door investigation traces step 3 through uhitm.c:mhitm_knockback to dothrow.c:mhurtle and its mhurtle_step callback. That callback consumes trap.c:mintrap(mon,HURTLING) Trap_*_Mon status to decide whether the monster keeps moving. Current js/trap_effects.js:mintrap and its selector are partial, so the whole mintrap return contract is a prerequisite before mhurtle can be completed; this source dependency precedes the dothrow goal.",
+      "detail": "Complete trap.c:mintrap across trapped and untrapped monster arms, its consumed m_easy_escape_pit and trapeffect_selector return paths, and missing reachable selector effects including poly, vibrating, arrow, and magic/fire chains. Reuse closed branches, preserve the parked historical magic-trap goal evidence, and provide independent trap recordings. Do not specialize to the v9 case or HURTLING alone.",
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": null,
+      "delivered": null,
+      "functions": [
+        {
+          "name": "mintrap",
+          "line": 3733,
+          "endLine": 3843,
+          "declared": true,
+          "complete": false
+        }
+      ],
+      "range": {
+        "from": 3733,
+        "to": 3843
+      },
+      "syntheticProvenance": {
+        "synthetic/v9/kick-closed-door": {
+          "session": "synthetic/v9/kick-closed-door",
+          "corpus": "synthetic",
+          "batch": "v9",
+          "caseId": "kick-closed-door",
+          "manifestPath": "challenges/manifests/v9.json",
+          "manifestSha256": "00c148aac522e6343c8de0bd003db29771439f972a99cb18c772ebf2bc45a594",
+          "recordingPath": "challenges/cases/v9/kick-closed-door.session.json",
+          "recordingSha256": "cf1d058b874865447eb40db3e9d045ba6b5cf7518f90c1aeb31ee94e6f3ef742",
+          "evaluationPath": "challenges/evaluations/20260927191056-v9.json",
+          "evaluationCommit": "5b4486322ffa5eeb91cc37d01083ff20bbfe2ea7"
+        }
+      }
     }
   ]
 }
