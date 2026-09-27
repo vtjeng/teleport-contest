@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent Valkyrie role variation: seed 8300010 was selected separately from the Wizard recipe; #polyself changes the hero to red dragon before #sit reaches lay_an_egg().",
+  "segments": [
+    {
+      "seed": 8300010,
+      "datetime": "20240517131415",
+      "nethackrc": "OPTIONS=name:EggProbe2,role:Valkyrie,race:human,gender:female,align:lawful\nOPTIONS=!legacy,!tutorial,!splash_screen\nOPTIONS=pettype:none,!acoustics,!autopickup,time,playmode:debug\n",
+      "moves": ".#polyself\nred dragon\n   l#sit\n."
+    }
+  ]
+}

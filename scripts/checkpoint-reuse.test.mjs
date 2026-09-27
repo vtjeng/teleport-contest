@@ -6,7 +6,7 @@ import { dirname, join } from 'node:path';
 import test from 'node:test';
 import { BOOKKEEPING_FILES, executionTree } from './checkpoint-reuse.mjs';
 
-test('only the four regular bookkeeping files are excluded from execution inputs', (t) => {
+test('only the five regular bookkeeping files are excluded from execution inputs', (t) => {
     const root = mkdtempSync(join(tmpdir(), 'checkpoint-inputs-test-'));
     t.after(() => rmSync(root, { recursive: true, force: true }));
     const git = (...args) => execFileSync('git', ['-c', 'core.hooksPath=/dev/null',

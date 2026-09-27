@@ -88640,7 +88640,7 @@
     {
       "id": "port-sit-lay-an-egg-dosit-synthetic-v6-20260926",
       "kind": "file-port",
-      "status": "queued",
+      "status": "parked",
       "summary": "Port sit.c egg laying and complete dosit command behavior across ice, sink, altar, throne, and grave",
       "cFile": "sit.c",
       "sessions": [
@@ -88652,8 +88652,12 @@
       ],
       "selectionReason": "Five unresolved v6 #sit cases share the same sit.c:dosit source owner and distinct level-feature state branches.",
       "detail": "Port lay_an_egg and dosit in C definition order. Preserve branch, message, RNG, turn and state behavior across ice, sink, altar, throne, grave, traps and egg laying; wire consumed return values and record independent C entry evidence. Keep any unported void effects source-named.",
-      "openedAt": null,
-      "openStanding": null,
+      "openedAt": "fc95389df3319fb5bcb8fdc9188fa2b7ef28ef25",
+      "openStanding": {
+        "sha": "fc95389df3319fb5bcb8fdc9188fa2b7ef28ef25",
+        "screens": 11405,
+        "rng": 792838
+      },
       "closedAt": null,
       "delivered": null,
       "functions": [
@@ -88661,15 +88665,15 @@
           "name": "lay_an_egg",
           "line": 358,
           "endLine": 399,
-          "declared": false,
-          "complete": false
+          "declared": true,
+          "complete": true
         },
         {
           "name": "dosit",
           "line": 400,
           "endLine": 568,
           "declared": true,
-          "complete": false
+          "complete": true
         }
       ],
       "range": {
@@ -88689,7 +88693,910 @@
           "evaluationPath": "challenges/evaluations/20260926212551-v6.json",
           "evaluationCommit": "ddc331f38f1f2b4e3a998f40005d0ac84f984442"
         }
-      }
+      },
+      "activeStanding": {
+        "sha": "fc95389df3319fb5bcb8fdc9188fa2b7ef28ef25",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v6",
+          "caseId": "archeologist-sit-ice",
+          "session": "synthetic/v6/archeologist-sit-ice",
+          "manifestPath": "challenges/manifests/v6.json",
+          "manifestSha256": "7523b91e823f4e3906c9acdc9a3d80f8469c27c2caab8fc8fbd6967dbfdcab5f",
+          "recording": "challenges/cases/v6/archeologist-sit-ice.session.json",
+          "recordingPath": "challenges/cases/v6/archeologist-sit-ice.session.json",
+          "recordingSha256": "9582ee5c2aa4664baa8e6009bd9c1a2174505d7cd21b85444c611140a55e66c8",
+          "recipe": "challenges/cases/v6/archeologist-sit-ice.recipe.session.json",
+          "recipeSha256": "cc9b96b1b7d489fe18619295a33897dc90192885ea0d66ecb85067d825a17877",
+          "replayInputSha256": "620c46fb8ce6b2dbd23dc4dcbf4a12f1dd6629868944695dd2ea39367e111568",
+          "evaluationPath": "challenges/evaluations/20260926233328-v6.json",
+          "evaluationCommit": "e15883c1613d84bf7f47fcd7c2f032e1a001fcd2",
+          "evaluationArtifact": "challenges/evaluations/20260926233328-v6.json",
+          "evaluationUtc": "2026-09-26T23:33:46.550Z",
+          "remainingScreens": 1,
+          "recordedSteps": 11,
+          "previousScreensMatched": 10,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 10,
+              "total": 11
+            },
+            "rng": {
+              "matched": 2877,
+              "total": 2884
+            },
+            "cursors": {
+              "matched": 10,
+              "total": 11
+            }
+          },
+          "firstMismatch": {
+            "kind": "stop",
+            "message": "unsupported hero command: an unported branch of this command: sitting reached an unported branch: dosit()'s ice arm",
+            "step": 10
+          },
+          "step": 10,
+          "kind": "stop",
+          "sourceFile": "sit.c",
+          "function": "dosit",
+          "message": "unsupported hero command: an unported branch of this command: sitting reached an unported branch: dosit()'s ice arm",
+          "cFile": "sit.c",
+          "luaFile": null,
+          "line": null,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v6/archeologist-sit-ice.json",
+            "result": {
+              "session": "synthetic/v6/archeologist-sit-ice",
+              "corpus": "synthetic",
+              "batch": "v6",
+              "caseId": "archeologist-sit-ice",
+              "manifestPath": "challenges/manifests/v6.json",
+              "manifestSha256": "7523b91e823f4e3906c9acdc9a3d80f8469c27c2caab8fc8fbd6967dbfdcab5f",
+              "recordingPath": "challenges/cases/v6/archeologist-sit-ice.session.json",
+              "recordingSha256": "9582ee5c2aa4664baa8e6009bd9c1a2174505d7cd21b85444c611140a55e66c8",
+              "evaluationPath": "challenges/evaluations/20260926094126-v6.json",
+              "evaluationCommit": "50bbe620897c8fc2e634d14ec672d33a4e44db7e",
+              "remainingScreens": 1,
+              "recordedSteps": 11,
+              "status": "complete",
+              "commit": "50bbe620897c8fc2e634d14ec672d33a4e44db7e",
+              "mismatch": {
+                "corpus": "synthetic",
+                "batch": "v6",
+                "caseId": "archeologist-sit-ice",
+                "session": "synthetic/v6/archeologist-sit-ice",
+                "manifestPath": "challenges/manifests/v6.json",
+                "manifestSha256": "7523b91e823f4e3906c9acdc9a3d80f8469c27c2caab8fc8fbd6967dbfdcab5f",
+                "recording": "challenges/cases/v6/archeologist-sit-ice.session.json",
+                "recordingPath": "challenges/cases/v6/archeologist-sit-ice.session.json",
+                "recordingSha256": "9582ee5c2aa4664baa8e6009bd9c1a2174505d7cd21b85444c611140a55e66c8",
+                "recipe": "challenges/cases/v6/archeologist-sit-ice.recipe.session.json",
+                "recipeSha256": "cc9b96b1b7d489fe18619295a33897dc90192885ea0d66ecb85067d825a17877",
+                "replayInputSha256": "9671c8200bb4617314143efc03b8936dba1c08d5025986a5ef6f245a97c322f9",
+                "evaluationPath": "challenges/evaluations/20260926094126-v6.json",
+                "evaluationCommit": "50bbe620897c8fc2e634d14ec672d33a4e44db7e",
+                "evaluationArtifact": "challenges/evaluations/20260926094126-v6.json",
+                "evaluationUtc": "2026-09-26T09:41:43.460Z",
+                "remainingScreens": 1,
+                "recordedSteps": 11,
+                "previousScreensMatched": 10,
+                "regression": false,
+                "passed": false,
+                "error": null,
+                "metrics": {
+                  "screens": {
+                    "matched": 10,
+                    "total": 11
+                  },
+                  "rng": {
+                    "matched": 2877,
+                    "total": 2884
+                  },
+                  "cursors": {
+                    "matched": 10,
+                    "total": 11
+                  }
+                },
+                "firstMismatch": {
+                  "kind": "stop",
+                  "message": "unsupported hero command: an unported branch of this command: sitting reached an unported branch: dosit()'s ice arm",
+                  "step": 10
+                },
+                "step": 10,
+                "kind": "stop",
+                "sourceFile": "sit.c",
+                "function": "dosit",
+                "message": "unsupported hero command: an unported branch of this command: sitting reached an unported branch: dosit()'s ice arm",
+                "cFile": "sit.c",
+                "luaFile": null,
+                "line": null
+              },
+              "summary": "The v6 archeologist-sit-ice case reaches sit.c:dosit()'s ice branch, while js/sit.js refuses that branch. Port the entire dosit() command and its source-called dependencies, using all five v6 sit recordings for distinct terrain and feature states; preserve branch order, messages, return/time behavior, RNG, and side effects.",
+              "source": {
+                "file": "sit.c",
+                "branch": "The hero issues #sit while is_ice(u.ux,u.uy) is true after the object, trap, and water arms are false. C executes the ice branch and returns ECMD_TIME.",
+                "functions": [
+                  "dosit"
+                ],
+                "callers": [
+                  "cmd.c #sit command invokes sit.c dosit(); js/cmd.js command dispatch invokes js/sit.js dosit()."
+                ],
+                "dependencies": [
+                  "Whole dosit() also calls altar_wrath, throne_sit_effect, dotrap, lay_an_egg, water_damage, losehp, and other state handlers on separate branches. Audit return-valued lay_an_egg and active feature side effects before claiming source completion.",
+                  "Related unresolved v6 sit witnesses: archeologist-sit-ice, wizard-sit-sink, priest-sit-altar, wizard-sit-throne, wizard-sit-grave-room-retry."
+                ]
+              },
+              "goalKind": "file-port",
+              "evidence": [
+                "Saved challenges/evaluations/20260926094126-v6.json at 50bbe620897c8fc2e634d14ec672d33a4e44db7e reports one remaining screen, first stop at segment 0 step 10: unsupported hero command: an unported branch of this command: sitting reached an unported branch: dosit()'s ice arm.",
+                "challenges/cases/v6/archeologist-sit-ice.session.json: The C step 10 screen says “You sit on the ice.  The ice feels cold.”; the latter line requires absent Cold_resistance.",
+                "Upstream nethack-c/upstream/src/sit.c:548-551 uses is_ice(u.ux,u.uy); current js/sit.js:dosit throws UnsupportedSitError for the ice arm instead of executing it.",
+                "The five sit cases are different terrain or level-feature branches of the same dosit() source function; one whole-function port should cover them together. A matching range in each recording is still required before closing the source task."
+              ]
+            }
+          }
+        },
+        {
+          "corpus": "synthetic",
+          "batch": "v6",
+          "caseId": "wizard-sit-sink",
+          "session": "synthetic/v6/wizard-sit-sink",
+          "manifestPath": "challenges/manifests/v6.json",
+          "manifestSha256": "7523b91e823f4e3906c9acdc9a3d80f8469c27c2caab8fc8fbd6967dbfdcab5f",
+          "recording": "challenges/cases/v6/wizard-sit-sink.session.json",
+          "recordingPath": "challenges/cases/v6/wizard-sit-sink.session.json",
+          "recordingSha256": "a6e6459af85b668dabeba88ca416c61ce16784fcc18a2cbf38722b0c7d5932b9",
+          "recipe": "challenges/cases/v6/wizard-sit-sink.recipe.session.json",
+          "recipeSha256": "5aed7d01c1801ed0098cff71fdef59b592306f40cc95dfc424dd8fab07ccbf6a",
+          "replayInputSha256": "620c46fb8ce6b2dbd23dc4dcbf4a12f1dd6629868944695dd2ea39367e111568",
+          "evaluationPath": "challenges/evaluations/20260926233328-v6.json",
+          "evaluationCommit": "e15883c1613d84bf7f47fcd7c2f032e1a001fcd2",
+          "evaluationArtifact": "challenges/evaluations/20260926233328-v6.json",
+          "evaluationUtc": "2026-09-26T23:33:46.550Z",
+          "remainingScreens": 1,
+          "recordedSteps": 12,
+          "previousScreensMatched": 11,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 11,
+              "total": 12
+            },
+            "rng": {
+              "matched": 2658,
+              "total": 2665
+            },
+            "cursors": {
+              "matched": 11,
+              "total": 12
+            }
+          },
+          "firstMismatch": {
+            "kind": "stop",
+            "message": "unsupported hero command: an unported branch of this command: sitting reached an unported branch: dosit()'s sink arm",
+            "step": 11
+          },
+          "step": 11,
+          "kind": "stop",
+          "sourceFile": "sit.c",
+          "function": "dosit",
+          "message": "unsupported hero command: an unported branch of this command: sitting reached an unported branch: dosit()'s sink arm",
+          "cFile": "sit.c",
+          "luaFile": null,
+          "line": null,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v6/wizard-sit-sink.json",
+            "result": {
+              "session": "synthetic/v6/wizard-sit-sink",
+              "corpus": "synthetic",
+              "batch": "v6",
+              "caseId": "wizard-sit-sink",
+              "manifestPath": "challenges/manifests/v6.json",
+              "manifestSha256": "7523b91e823f4e3906c9acdc9a3d80f8469c27c2caab8fc8fbd6967dbfdcab5f",
+              "recordingPath": "challenges/cases/v6/wizard-sit-sink.session.json",
+              "recordingSha256": "a6e6459af85b668dabeba88ca416c61ce16784fcc18a2cbf38722b0c7d5932b9",
+              "evaluationPath": "challenges/evaluations/20260926094126-v6.json",
+              "evaluationCommit": "50bbe620897c8fc2e634d14ec672d33a4e44db7e",
+              "remainingScreens": 1,
+              "recordedSteps": 12,
+              "status": "complete",
+              "commit": "50bbe620897c8fc2e634d14ec672d33a4e44db7e",
+              "mismatch": {
+                "corpus": "synthetic",
+                "batch": "v6",
+                "caseId": "wizard-sit-sink",
+                "session": "synthetic/v6/wizard-sit-sink",
+                "manifestPath": "challenges/manifests/v6.json",
+                "manifestSha256": "7523b91e823f4e3906c9acdc9a3d80f8469c27c2caab8fc8fbd6967dbfdcab5f",
+                "recording": "challenges/cases/v6/wizard-sit-sink.session.json",
+                "recordingPath": "challenges/cases/v6/wizard-sit-sink.session.json",
+                "recordingSha256": "a6e6459af85b668dabeba88ca416c61ce16784fcc18a2cbf38722b0c7d5932b9",
+                "recipe": "challenges/cases/v6/wizard-sit-sink.recipe.session.json",
+                "recipeSha256": "5aed7d01c1801ed0098cff71fdef59b592306f40cc95dfc424dd8fab07ccbf6a",
+                "replayInputSha256": "9671c8200bb4617314143efc03b8936dba1c08d5025986a5ef6f245a97c322f9",
+                "evaluationPath": "challenges/evaluations/20260926094126-v6.json",
+                "evaluationCommit": "50bbe620897c8fc2e634d14ec672d33a4e44db7e",
+                "evaluationArtifact": "challenges/evaluations/20260926094126-v6.json",
+                "evaluationUtc": "2026-09-26T09:41:43.460Z",
+                "remainingScreens": 1,
+                "recordedSteps": 12,
+                "previousScreensMatched": 11,
+                "regression": false,
+                "passed": false,
+                "error": null,
+                "metrics": {
+                  "screens": {
+                    "matched": 11,
+                    "total": 12
+                  },
+                  "rng": {
+                    "matched": 2658,
+                    "total": 2665
+                  },
+                  "cursors": {
+                    "matched": 11,
+                    "total": 12
+                  }
+                },
+                "firstMismatch": {
+                  "kind": "stop",
+                  "message": "unsupported hero command: an unported branch of this command: sitting reached an unported branch: dosit()'s sink arm",
+                  "step": 11
+                },
+                "step": 11,
+                "kind": "stop",
+                "sourceFile": "sit.c",
+                "function": "dosit",
+                "message": "unsupported hero command: an unported branch of this command: sitting reached an unported branch: dosit()'s sink arm",
+                "cFile": "sit.c",
+                "luaFile": null,
+                "line": null
+              },
+              "summary": "The v6 wizard-sit-sink case reaches sit.c:dosit()'s sink branch, while js/sit.js refuses that branch. Port the entire dosit() command and its source-called dependencies, using all five v6 sit recordings for distinct terrain and feature states; preserve branch order, messages, return/time behavior, RNG, and side effects.",
+              "source": {
+                "file": "sit.c",
+                "branch": "The hero issues #sit while IS_SINK(typ) is true after the object, trap, and water arms are false. C executes the sink branch and returns ECMD_TIME.",
+                "functions": [
+                  "dosit"
+                ],
+                "callers": [
+                  "cmd.c #sit command invokes sit.c dosit(); js/cmd.js command dispatch invokes js/sit.js dosit()."
+                ],
+                "dependencies": [
+                  "Whole dosit() also calls altar_wrath, throne_sit_effect, dotrap, lay_an_egg, water_damage, losehp, and other state handlers on separate branches. Audit return-valued lay_an_egg and active feature side effects before claiming source completion.",
+                  "Related unresolved v6 sit witnesses: archeologist-sit-ice, wizard-sit-sink, priest-sit-altar, wizard-sit-throne, wizard-sit-grave-room-retry."
+                ]
+              },
+              "goalKind": "file-port",
+              "evidence": [
+                "Saved challenges/evaluations/20260926094126-v6.json at 50bbe620897c8fc2e634d14ec672d33a4e44db7e reports one remaining screen, first stop at segment 0 step 11: unsupported hero command: an unported branch of this command: sitting reached an unported branch: dosit()'s sink arm.",
+                "challenges/cases/v6/wizard-sit-sink.session.json: The C step 11 screen says “You sit on the sink.  Your rump gets wet.”; humanoid form selects rump.",
+                "Upstream nethack-c/upstream/src/sit.c:525-528 uses IS_SINK(typ); current js/sit.js:dosit throws UnsupportedSitError for the sink arm instead of executing it.",
+                "The five sit cases are different terrain or level-feature branches of the same dosit() source function; one whole-function port should cover them together. A matching range in each recording is still required before closing the source task."
+              ]
+            }
+          }
+        },
+        {
+          "corpus": "synthetic",
+          "batch": "v6",
+          "caseId": "priest-sit-altar",
+          "session": "synthetic/v6/priest-sit-altar",
+          "manifestPath": "challenges/manifests/v6.json",
+          "manifestSha256": "7523b91e823f4e3906c9acdc9a3d80f8469c27c2caab8fc8fbd6967dbfdcab5f",
+          "recording": "challenges/cases/v6/priest-sit-altar.session.json",
+          "recordingPath": "challenges/cases/v6/priest-sit-altar.session.json",
+          "recordingSha256": "5d63bfff4f6be435a201c1406de9afe54a60eea43cfda97ace579be899e2df1b",
+          "recipe": "challenges/cases/v6/priest-sit-altar.recipe.session.json",
+          "recipeSha256": "e853d234cbcfa1c0dc048881bff1193605e15bab26fc6cec7396a3da0c0662be",
+          "replayInputSha256": "620c46fb8ce6b2dbd23dc4dcbf4a12f1dd6629868944695dd2ea39367e111568",
+          "evaluationPath": "challenges/evaluations/20260926233328-v6.json",
+          "evaluationCommit": "e15883c1613d84bf7f47fcd7c2f032e1a001fcd2",
+          "evaluationArtifact": "challenges/evaluations/20260926233328-v6.json",
+          "evaluationUtc": "2026-09-26T23:33:46.550Z",
+          "remainingScreens": 1,
+          "recordedSteps": 13,
+          "previousScreensMatched": 12,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 12,
+              "total": 13
+            },
+            "rng": {
+              "matched": 2840,
+              "total": 2842
+            },
+            "cursors": {
+              "matched": 12,
+              "total": 13
+            }
+          },
+          "firstMismatch": {
+            "kind": "stop",
+            "message": "unsupported hero command: an unported branch of this command: sitting reached an unported branch: dosit()'s altar arm",
+            "step": 12
+          },
+          "step": 12,
+          "kind": "stop",
+          "sourceFile": "sit.c",
+          "function": "dosit",
+          "message": "unsupported hero command: an unported branch of this command: sitting reached an unported branch: dosit()'s altar arm",
+          "cFile": "sit.c",
+          "luaFile": null,
+          "line": null,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v6/priest-sit-altar.json",
+            "result": {
+              "session": "synthetic/v6/priest-sit-altar",
+              "corpus": "synthetic",
+              "batch": "v6",
+              "caseId": "priest-sit-altar",
+              "manifestPath": "challenges/manifests/v6.json",
+              "manifestSha256": "7523b91e823f4e3906c9acdc9a3d80f8469c27c2caab8fc8fbd6967dbfdcab5f",
+              "recordingPath": "challenges/cases/v6/priest-sit-altar.session.json",
+              "recordingSha256": "5d63bfff4f6be435a201c1406de9afe54a60eea43cfda97ace579be899e2df1b",
+              "evaluationPath": "challenges/evaluations/20260926094126-v6.json",
+              "evaluationCommit": "50bbe620897c8fc2e634d14ec672d33a4e44db7e",
+              "remainingScreens": 1,
+              "recordedSteps": 13,
+              "status": "complete",
+              "commit": "50bbe620897c8fc2e634d14ec672d33a4e44db7e",
+              "mismatch": {
+                "corpus": "synthetic",
+                "batch": "v6",
+                "caseId": "priest-sit-altar",
+                "session": "synthetic/v6/priest-sit-altar",
+                "manifestPath": "challenges/manifests/v6.json",
+                "manifestSha256": "7523b91e823f4e3906c9acdc9a3d80f8469c27c2caab8fc8fbd6967dbfdcab5f",
+                "recording": "challenges/cases/v6/priest-sit-altar.session.json",
+                "recordingPath": "challenges/cases/v6/priest-sit-altar.session.json",
+                "recordingSha256": "5d63bfff4f6be435a201c1406de9afe54a60eea43cfda97ace579be899e2df1b",
+                "recipe": "challenges/cases/v6/priest-sit-altar.recipe.session.json",
+                "recipeSha256": "e853d234cbcfa1c0dc048881bff1193605e15bab26fc6cec7396a3da0c0662be",
+                "replayInputSha256": "9671c8200bb4617314143efc03b8936dba1c08d5025986a5ef6f245a97c322f9",
+                "evaluationPath": "challenges/evaluations/20260926094126-v6.json",
+                "evaluationCommit": "50bbe620897c8fc2e634d14ec672d33a4e44db7e",
+                "evaluationArtifact": "challenges/evaluations/20260926094126-v6.json",
+                "evaluationUtc": "2026-09-26T09:41:43.460Z",
+                "remainingScreens": 1,
+                "recordedSteps": 13,
+                "previousScreensMatched": 12,
+                "regression": false,
+                "passed": false,
+                "error": null,
+                "metrics": {
+                  "screens": {
+                    "matched": 12,
+                    "total": 13
+                  },
+                  "rng": {
+                    "matched": 2840,
+                    "total": 2842
+                  },
+                  "cursors": {
+                    "matched": 12,
+                    "total": 13
+                  }
+                },
+                "firstMismatch": {
+                  "kind": "stop",
+                  "message": "unsupported hero command: an unported branch of this command: sitting reached an unported branch: dosit()'s altar arm",
+                  "step": 12
+                },
+                "step": 12,
+                "kind": "stop",
+                "sourceFile": "sit.c",
+                "function": "dosit",
+                "message": "unsupported hero command: an unported branch of this command: sitting reached an unported branch: dosit()'s altar arm",
+                "cFile": "sit.c",
+                "luaFile": null,
+                "line": null
+              },
+              "summary": "The v6 priest-sit-altar case reaches sit.c:dosit()'s altar branch, while js/sit.js refuses that branch. Port the entire dosit() command and its source-called dependencies, using all five v6 sit recordings for distinct terrain and feature states; preserve branch order, messages, return/time behavior, RNG, and side effects.",
+              "source": {
+                "file": "sit.c",
+                "branch": "The hero issues #sit while IS_ALTAR(typ) is true after the object, trap, and water arms are false. C executes the altar branch and returns ECMD_TIME.",
+                "functions": [
+                  "dosit"
+                ],
+                "callers": [
+                  "cmd.c #sit command invokes sit.c dosit(); js/cmd.js command dispatch invokes js/sit.js dosit()."
+                ],
+                "dependencies": [
+                  "Whole dosit() also calls altar_wrath, throne_sit_effect, dotrap, lay_an_egg, water_damage, losehp, and other state handlers on separate branches. Audit return-valued lay_an_egg and active feature side effects before claiming source completion.",
+                  "Related unresolved v6 sit witnesses: archeologist-sit-ice, wizard-sit-sink, priest-sit-altar, wizard-sit-throne, wizard-sit-grave-room-retry."
+                ]
+              },
+              "goalKind": "file-port",
+              "evidence": [
+                "Saved challenges/evaluations/20260926094126-v6.json at 50bbe620897c8fc2e634d14ec672d33a4e44db7e reports one remaining screen, first stop at segment 0 step 12: unsupported hero command: an unported branch of this command: sitting reached an unported branch: dosit()'s altar arm.",
+                "challenges/cases/v6/priest-sit-altar.session.json: The C step 12 screen begins “You sit on the altar.” and continues through altar_wrath after the More prompt.",
+                "Upstream nethack-c/upstream/src/sit.c:529-531 uses IS_ALTAR(typ); current js/sit.js:dosit throws UnsupportedSitError for the altar arm instead of executing it.",
+                "The five sit cases are different terrain or level-feature branches of the same dosit() source function; one whole-function port should cover them together. A matching range in each recording is still required before closing the source task."
+              ]
+            }
+          }
+        },
+        {
+          "corpus": "synthetic",
+          "batch": "v6",
+          "caseId": "wizard-sit-throne",
+          "session": "synthetic/v6/wizard-sit-throne",
+          "manifestPath": "challenges/manifests/v6.json",
+          "manifestSha256": "7523b91e823f4e3906c9acdc9a3d80f8469c27c2caab8fc8fbd6967dbfdcab5f",
+          "recording": "challenges/cases/v6/wizard-sit-throne.session.json",
+          "recordingPath": "challenges/cases/v6/wizard-sit-throne.session.json",
+          "recordingSha256": "777f1c5173e1e534cd61383f67d808292deec16b1c30c142e84522218a3204c7",
+          "recipe": "challenges/cases/v6/wizard-sit-throne.recipe.session.json",
+          "recipeSha256": "cd87d693cadb26ae0e0dbcbcfaa1d1d7ab123b90dfdef959ebbe54a0deb657cb",
+          "replayInputSha256": "620c46fb8ce6b2dbd23dc4dcbf4a12f1dd6629868944695dd2ea39367e111568",
+          "evaluationPath": "challenges/evaluations/20260926233328-v6.json",
+          "evaluationCommit": "e15883c1613d84bf7f47fcd7c2f032e1a001fcd2",
+          "evaluationArtifact": "challenges/evaluations/20260926233328-v6.json",
+          "evaluationUtc": "2026-09-26T23:33:46.550Z",
+          "remainingScreens": 1,
+          "recordedSteps": 14,
+          "previousScreensMatched": 13,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 13,
+              "total": 14
+            },
+            "rng": {
+              "matched": 2729,
+              "total": 2731
+            },
+            "cursors": {
+              "matched": 13,
+              "total": 14
+            }
+          },
+          "firstMismatch": {
+            "kind": "stop",
+            "message": "unsupported hero command: an unported branch of this command: sitting reached an unported branch: dosit()'s throne arm",
+            "step": 13
+          },
+          "step": 13,
+          "kind": "stop",
+          "sourceFile": "sit.c",
+          "function": "dosit",
+          "message": "unsupported hero command: an unported branch of this command: sitting reached an unported branch: dosit()'s throne arm",
+          "cFile": "sit.c",
+          "luaFile": null,
+          "line": null,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v6/wizard-sit-throne.json",
+            "result": {
+              "session": "synthetic/v6/wizard-sit-throne",
+              "corpus": "synthetic",
+              "batch": "v6",
+              "caseId": "wizard-sit-throne",
+              "manifestPath": "challenges/manifests/v6.json",
+              "manifestSha256": "7523b91e823f4e3906c9acdc9a3d80f8469c27c2caab8fc8fbd6967dbfdcab5f",
+              "recordingPath": "challenges/cases/v6/wizard-sit-throne.session.json",
+              "recordingSha256": "777f1c5173e1e534cd61383f67d808292deec16b1c30c142e84522218a3204c7",
+              "evaluationPath": "challenges/evaluations/20260926094126-v6.json",
+              "evaluationCommit": "50bbe620897c8fc2e634d14ec672d33a4e44db7e",
+              "remainingScreens": 1,
+              "recordedSteps": 14,
+              "status": "complete",
+              "commit": "50bbe620897c8fc2e634d14ec672d33a4e44db7e",
+              "mismatch": {
+                "corpus": "synthetic",
+                "batch": "v6",
+                "caseId": "wizard-sit-throne",
+                "session": "synthetic/v6/wizard-sit-throne",
+                "manifestPath": "challenges/manifests/v6.json",
+                "manifestSha256": "7523b91e823f4e3906c9acdc9a3d80f8469c27c2caab8fc8fbd6967dbfdcab5f",
+                "recording": "challenges/cases/v6/wizard-sit-throne.session.json",
+                "recordingPath": "challenges/cases/v6/wizard-sit-throne.session.json",
+                "recordingSha256": "777f1c5173e1e534cd61383f67d808292deec16b1c30c142e84522218a3204c7",
+                "recipe": "challenges/cases/v6/wizard-sit-throne.recipe.session.json",
+                "recipeSha256": "cd87d693cadb26ae0e0dbcbcfaa1d1d7ab123b90dfdef959ebbe54a0deb657cb",
+                "replayInputSha256": "9671c8200bb4617314143efc03b8936dba1c08d5025986a5ef6f245a97c322f9",
+                "evaluationPath": "challenges/evaluations/20260926094126-v6.json",
+                "evaluationCommit": "50bbe620897c8fc2e634d14ec672d33a4e44db7e",
+                "evaluationArtifact": "challenges/evaluations/20260926094126-v6.json",
+                "evaluationUtc": "2026-09-26T09:41:43.460Z",
+                "remainingScreens": 1,
+                "recordedSteps": 14,
+                "previousScreensMatched": 13,
+                "regression": false,
+                "passed": false,
+                "error": null,
+                "metrics": {
+                  "screens": {
+                    "matched": 13,
+                    "total": 14
+                  },
+                  "rng": {
+                    "matched": 2729,
+                    "total": 2731
+                  },
+                  "cursors": {
+                    "matched": 13,
+                    "total": 14
+                  }
+                },
+                "firstMismatch": {
+                  "kind": "stop",
+                  "message": "unsupported hero command: an unported branch of this command: sitting reached an unported branch: dosit()'s throne arm",
+                  "step": 13
+                },
+                "step": 13,
+                "kind": "stop",
+                "sourceFile": "sit.c",
+                "function": "dosit",
+                "message": "unsupported hero command: an unported branch of this command: sitting reached an unported branch: dosit()'s throne arm",
+                "cFile": "sit.c",
+                "luaFile": null,
+                "line": null
+              },
+              "summary": "The v6 wizard-sit-throne case reaches sit.c:dosit()'s throne branch, while js/sit.js refuses that branch. Port the entire dosit() command and its source-called dependencies, using all five v6 sit recordings for distinct terrain and feature states; preserve branch order, messages, return/time behavior, RNG, and side effects.",
+              "source": {
+                "file": "sit.c",
+                "branch": "The hero issues #sit while IS_THRONE(typ) is true after the object, trap, and water arms are false. C executes the throne branch and returns ECMD_TIME.",
+                "functions": [
+                  "dosit"
+                ],
+                "callers": [
+                  "cmd.c #sit command invokes sit.c dosit(); js/cmd.js command dispatch invokes js/sit.js dosit()."
+                ],
+                "dependencies": [
+                  "Whole dosit() also calls altar_wrath, throne_sit_effect, dotrap, lay_an_egg, water_damage, losehp, and other state handlers on separate branches. Audit return-valued lay_an_egg and active feature side effects before claiming source completion.",
+                  "Related unresolved v6 sit witnesses: archeologist-sit-ice, wizard-sit-sink, priest-sit-altar, wizard-sit-throne, wizard-sit-grave-room-retry."
+                ]
+              },
+              "goalKind": "file-port",
+              "evidence": [
+                "Saved challenges/evaluations/20260926094126-v6.json at 50bbe620897c8fc2e634d14ec672d33a4e44db7e reports one remaining screen, first stop at segment 0 step 13: unsupported hero command: an unported branch of this command: sitting reached an unported branch: dosit()'s throne arm.",
+                "challenges/cases/v6/wizard-sit-throne.session.json: The C step 13 screen begins “You sit on the opulent throne.” and continues through throne_sit_effect after the More prompt.",
+                "Upstream nethack-c/upstream/src/sit.c:554-556 uses IS_THRONE(typ); current js/sit.js:dosit throws UnsupportedSitError for the throne arm instead of executing it.",
+                "The five sit cases are different terrain or level-feature branches of the same dosit() source function; one whole-function port should cover them together. A matching range in each recording is still required before closing the source task."
+              ]
+            }
+          }
+        },
+        {
+          "corpus": "synthetic",
+          "batch": "v6",
+          "caseId": "wizard-sit-grave-room-retry",
+          "session": "synthetic/v6/wizard-sit-grave-room-retry",
+          "manifestPath": "challenges/manifests/v6.json",
+          "manifestSha256": "7523b91e823f4e3906c9acdc9a3d80f8469c27c2caab8fc8fbd6967dbfdcab5f",
+          "recording": "challenges/cases/v6/wizard-sit-grave-room-retry.session.json",
+          "recordingPath": "challenges/cases/v6/wizard-sit-grave-room-retry.session.json",
+          "recordingSha256": "81482fcc4c3b29336f154795c1a57b03231fae3962f28d6918f9161ed045e4a3",
+          "recipe": "challenges/cases/v6/wizard-sit-grave-room-retry.recipe.session.json",
+          "recipeSha256": "846ec12f834cc3eeb8eab397e1868d69321b05f6dc47664d9381ccb9b42d00c1",
+          "replayInputSha256": "620c46fb8ce6b2dbd23dc4dcbf4a12f1dd6629868944695dd2ea39367e111568",
+          "evaluationPath": "challenges/evaluations/20260926233328-v6.json",
+          "evaluationCommit": "e15883c1613d84bf7f47fcd7c2f032e1a001fcd2",
+          "evaluationArtifact": "challenges/evaluations/20260926233328-v6.json",
+          "evaluationUtc": "2026-09-26T23:33:46.550Z",
+          "remainingScreens": 1,
+          "recordedSteps": 16,
+          "previousScreensMatched": 15,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 15,
+              "total": 16
+            },
+            "rng": {
+              "matched": 2252,
+              "total": 2275
+            },
+            "cursors": {
+              "matched": 15,
+              "total": 16
+            }
+          },
+          "firstMismatch": {
+            "kind": "stop",
+            "message": "unsupported hero command: an unported branch of this command: sitting reached an unported branch: dosit()'s grave arm",
+            "step": 15
+          },
+          "step": 15,
+          "kind": "stop",
+          "sourceFile": "sit.c",
+          "function": "dosit",
+          "message": "unsupported hero command: an unported branch of this command: sitting reached an unported branch: dosit()'s grave arm",
+          "cFile": "sit.c",
+          "luaFile": null,
+          "line": null,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v6/wizard-sit-grave-room-retry.json",
+            "result": {
+              "session": "synthetic/v6/wizard-sit-grave-room-retry",
+              "corpus": "synthetic",
+              "batch": "v6",
+              "caseId": "wizard-sit-grave-room-retry",
+              "manifestPath": "challenges/manifests/v6.json",
+              "manifestSha256": "7523b91e823f4e3906c9acdc9a3d80f8469c27c2caab8fc8fbd6967dbfdcab5f",
+              "recordingPath": "challenges/cases/v6/wizard-sit-grave-room-retry.session.json",
+              "recordingSha256": "81482fcc4c3b29336f154795c1a57b03231fae3962f28d6918f9161ed045e4a3",
+              "evaluationPath": "challenges/evaluations/20260926094126-v6.json",
+              "evaluationCommit": "50bbe620897c8fc2e634d14ec672d33a4e44db7e",
+              "remainingScreens": 1,
+              "recordedSteps": 16,
+              "status": "complete",
+              "commit": "50bbe620897c8fc2e634d14ec672d33a4e44db7e",
+              "mismatch": {
+                "corpus": "synthetic",
+                "batch": "v6",
+                "caseId": "wizard-sit-grave-room-retry",
+                "session": "synthetic/v6/wizard-sit-grave-room-retry",
+                "manifestPath": "challenges/manifests/v6.json",
+                "manifestSha256": "7523b91e823f4e3906c9acdc9a3d80f8469c27c2caab8fc8fbd6967dbfdcab5f",
+                "recording": "challenges/cases/v6/wizard-sit-grave-room-retry.session.json",
+                "recordingPath": "challenges/cases/v6/wizard-sit-grave-room-retry.session.json",
+                "recordingSha256": "81482fcc4c3b29336f154795c1a57b03231fae3962f28d6918f9161ed045e4a3",
+                "recipe": "challenges/cases/v6/wizard-sit-grave-room-retry.recipe.session.json",
+                "recipeSha256": "846ec12f834cc3eeb8eab397e1868d69321b05f6dc47664d9381ccb9b42d00c1",
+                "replayInputSha256": "9671c8200bb4617314143efc03b8936dba1c08d5025986a5ef6f245a97c322f9",
+                "evaluationPath": "challenges/evaluations/20260926094126-v6.json",
+                "evaluationCommit": "50bbe620897c8fc2e634d14ec672d33a4e44db7e",
+                "evaluationArtifact": "challenges/evaluations/20260926094126-v6.json",
+                "evaluationUtc": "2026-09-26T09:41:43.460Z",
+                "remainingScreens": 1,
+                "recordedSteps": 16,
+                "previousScreensMatched": 15,
+                "regression": false,
+                "passed": false,
+                "error": null,
+                "metrics": {
+                  "screens": {
+                    "matched": 15,
+                    "total": 16
+                  },
+                  "rng": {
+                    "matched": 2252,
+                    "total": 2275
+                  },
+                  "cursors": {
+                    "matched": 15,
+                    "total": 16
+                  }
+                },
+                "firstMismatch": {
+                  "kind": "stop",
+                  "message": "unsupported hero command: an unported branch of this command: sitting reached an unported branch: dosit()'s grave arm",
+                  "step": 15
+                },
+                "step": 15,
+                "kind": "stop",
+                "sourceFile": "sit.c",
+                "function": "dosit",
+                "message": "unsupported hero command: an unported branch of this command: sitting reached an unported branch: dosit()'s grave arm",
+                "cFile": "sit.c",
+                "luaFile": null,
+                "line": null
+              },
+              "summary": "The v6 wizard-sit-grave-room-retry case reaches sit.c:dosit()'s grave branch, while js/sit.js refuses that branch. Port the entire dosit() command and its source-called dependencies, using all five v6 sit recordings for distinct terrain and feature states; preserve branch order, messages, return/time behavior, RNG, and side effects.",
+              "source": {
+                "file": "sit.c",
+                "branch": "The hero issues #sit while IS_GRAVE(typ) is true after the object, trap, and water arms are false. C executes the grave branch and returns ECMD_TIME.",
+                "functions": [
+                  "dosit"
+                ],
+                "callers": [
+                  "cmd.c #sit command invokes sit.c dosit(); js/cmd.js command dispatch invokes js/sit.js dosit()."
+                ],
+                "dependencies": [
+                  "Whole dosit() also calls altar_wrath, throne_sit_effect, dotrap, lay_an_egg, water_damage, losehp, and other state handlers on separate branches. Audit return-valued lay_an_egg and active feature side effects before claiming source completion.",
+                  "Related unresolved v6 sit witnesses: archeologist-sit-ice, wizard-sit-sink, priest-sit-altar, wizard-sit-throne, wizard-sit-grave-room-retry."
+                ]
+              },
+              "goalKind": "file-port",
+              "evidence": [
+                "Saved challenges/evaluations/20260926094126-v6.json at 50bbe620897c8fc2e634d14ec672d33a4e44db7e reports one remaining screen, first stop at segment 0 step 15: unsupported hero command: an unported branch of this command: sitting reached an unported branch: dosit()'s grave arm.",
+                "challenges/cases/v6/wizard-sit-grave-room-retry.session.json: The C step 15 screen says “You sit on the grave.” with no altar or throne side effect.",
+                "Upstream nethack-c/upstream/src/sit.c:532-534 uses IS_GRAVE(typ); current js/sit.js:dosit throws UnsupportedSitError for the grave arm instead of executing it.",
+                "The five sit cases are different terrain or level-feature branches of the same dosit() source function; one whole-function port should cover them together. A matching range in each recording is still required before closing the source task."
+              ]
+            }
+          }
+        }
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "lay_an_egg",
+            "implementation": "js/sit.js",
+            "symbol": "lay_an_egg",
+            "sourceReview": "Compared the complete sit.c:lay_an_egg() definition (358-399). It preserves the male, hunger, eggs-in-water, underwater/water-level, and eel refusals in C order; source object creation and parent-species selection; knowledge and message updates; dropy/stackobj ordering; and nutrition use. Its ECMD_OK/ECMD_TIME result is returned through dosit(). The function is impure and matching independent records exercise the production #sit path as a polymorphed red dragon. The two C-discarded sit.c void effects elsewhere in dosit() are documented at their source call sites and are not part of this helper.",
+            "callers": [
+              {
+                "path": "js/sit.js",
+                "symbol": "dosit",
+                "source": "sit.c:dosit() calls lay_an_egg() when lays_eggs(gy.youmonst.data) selects the final species branch and returns its ECMD result."
+              },
+              {
+                "path": "js/cmd.js",
+                "symbol": "doextcmd",
+                "source": "cmd.c's #sit extcmd row calls dosit(); the JS extended-command dispatch awaits its result."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/sit-command.test.mjs"
+            ],
+            "recordings": [
+              "recordings/sit.c/egg-laying-red-dragon-independent.session.json",
+              "recordings/sit.c/egg-laying-red-dragon-role-variation.session.json"
+            ],
+            "synthetic": [],
+            "checkedAt": "a0e66292d0f4c45131344d7c764ddc164d4e362e"
+          },
+          {
+            "name": "dosit",
+            "implementation": "js/sit.js",
+            "symbol": "dosit",
+            "sourceReview": "Compared the complete sit.c:dosit() definition (400-568). The JS follows the source guard order (steed, clearing u.uundetected, can_reach_floor, holder), the goto to in_water, the object pile and precipice checks, trapped-square handling, underwater message, and terrain/species chain through egg laying and the fallback. It preserves return values and source-ordered random/effect calls for the implemented branches. Calls whose C results are discarded but whose source functions remain unported are skipped and named at their exact site with note_unported(): pray.c:altar_wrath, sit.c:throne_sit_effect, trap.c:dotrap, and timeout.c:burn_away_slime. No note_unported() result is used as data. The command fail-closed refusal was removed. Active callers are the #sit extcmd, queued MCMD_SIT from command menus, and the throne mouse action; matching replay evidence covers the ordinary #sit ice, sink, and grave branches. Altar and throne effects, and menu/mouse entry after selection, remain blocked in source-named recipes because the skipped void callees affect RNG/output before the next boundary.",
+            "callers": [
+              {
+                "path": "js/cmd.js",
+                "symbol": "doextcmd",
+                "source": "cmd.c's extcmd table binds #sit to dosit(); doextcmd dispatches that function and forwards the ECMD result."
+              },
+              {
+                "path": "js/cmd.js",
+                "symbol": "act_on_act",
+                "source": "cmd.c:act_on_act() queues dosit() for MCMD_SIT selected by here_cmd_menu()/there_cmd_menu(); JS act_on_act queues the dosit extcmd entry and rhack() dispatches its function pointer through the source-aligned ECMD result path."
+              },
+              {
+                "path": "js/cmd.js",
+                "symbol": "domouseaction",
+                "source": "cmd.c:domouseaction() queues dosit() when travel-clicking the hero on a throne; JS domouseaction has the corresponding queued dosit handler."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/sit-command.test.mjs"
+            ],
+            "recordings": [
+              "recordings/sit.c/egg-laying-red-dragon-independent.session.json",
+              "recordings/sit.c/egg-laying-red-dragon-role-variation.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v6",
+                "caseId": "archeologist-sit-ice",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 10,
+                "source": "cmd.c #sit extcmd dispatch -> sit.c:dosit() ice branch"
+              },
+              {
+                "batch": "v6",
+                "caseId": "wizard-sit-sink",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 11,
+                "source": "cmd.c #sit extcmd dispatch -> sit.c:dosit() sink branch"
+              },
+              {
+                "batch": "v6",
+                "caseId": "wizard-sit-grave-room-retry",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 15,
+                "source": "cmd.c #sit extcmd dispatch -> sit.c:dosit() grave branch"
+              }
+            ],
+            "checkedAt": "a0e66292d0f4c45131344d7c764ddc164d4e362e"
+          }
+        ],
+        "entryPointReview": "Enumerated active source callers: #sit through the extcmd table and doextcmd; MCMD_SIT from here_cmd_menu()/there_cmd_menu() through act_on_act() and rhack()'s queued function-pointer dispatch; and domouseaction() clicking the hero while on a throne. The two independent egg recordings prove the #sit-to-dosit-to-lay_an_egg path. Admitted v6 ranges prove #sit on ice (archeologist-sit-ice, segment 0 steps 0-10), sink (wizard-sit-sink, segment 0 steps 0-11), and grave (wizard-sit-grave-room-retry, segment 0 steps 0-15). The altar case matches only through step 11 before its #sit command invokes the C-discarded pray.c:altar_wrath() at step 12; recipes/sit.c/dosit-altar-wrath-blocked.session.json preserves that blocker. The throne case reaches the message but diverges at step 13 when C enters sit.c:throne_sit_effect(); recipes/sit.c/dosit-throne-effect-blocked.session.json preserves the source gap. The here-menu recipe is independently recorded through display/selection setup but strict replay stops at the throne void effect after MCMD_SIT selection; its diagnostic C recording is kept under task-local .cache and is not claimed as matching evidence. The there-menu recipe names the same throne_sit_effect blocker. The mouse recipe is blocked because the clean recording input format has no mouse-position event; its production source and JS callers remain active. trap.c:dotrap and timeout.c:burn_away_slime are separately named discarded-void gaps; no matching recording currently proves those subbranches. None of the callers is build-excluded.",
+        "entryPoints": [
+          {
+            "name": "#sit through the extended-command dispatcher",
+            "functions": [
+              "dosit",
+              "lay_an_egg"
+            ],
+            "recordings": [
+              "recordings/sit.c/egg-laying-red-dragon-independent.session.json",
+              "recordings/sit.c/egg-laying-red-dragon-role-variation.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v6",
+                "caseId": "archeologist-sit-ice",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 10,
+                "source": "cmd.c #sit extcmd dispatch -> sit.c:dosit() ice branch"
+              },
+              {
+                "batch": "v6",
+                "caseId": "wizard-sit-sink",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 11,
+                "source": "cmd.c #sit extcmd dispatch -> sit.c:dosit() sink branch"
+              },
+              {
+                "batch": "v6",
+                "caseId": "wizard-sit-grave-room-retry",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 15,
+                "source": "cmd.c #sit extcmd dispatch -> sit.c:dosit() grave branch"
+              }
+            ]
+          },
+          {
+            "name": "Choose Sit on the throne in #herecmdmenu",
+            "functions": [
+              "dosit"
+            ],
+            "recordings": [],
+            "synthetic": []
+          },
+          {
+            "name": "Choose Sit on the throne in #therecmdmenu",
+            "functions": [
+              "dosit"
+            ],
+            "recordings": [],
+            "synthetic": []
+          },
+          {
+            "name": "Mouse-click the hero on a throne with travel enabled",
+            "functions": [
+              "dosit"
+            ],
+            "recordings": [],
+            "synthetic": []
+          },
+          {
+            "name": "#sit as an egg-laying polymorph",
+            "functions": [
+              "dosit",
+              "lay_an_egg"
+            ],
+            "recordings": [
+              "recordings/sit.c/egg-laying-red-dragon-independent.session.json",
+              "recordings/sit.c/egg-laying-red-dragon-role-variation.session.json"
+            ],
+            "synthetic": []
+          }
+        ]
+      },
+      "progressBeforePark": {
+        "screens": 0,
+        "rng": 0
+      },
+      "parkedStanding": {
+        "sha": "a0e66292d0f4c45131344d7c764ddc164d4e362e",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "parkedReason": "The #sit ice, sink, grave and polymorphed egg paths now match independent C evidence, but active altar and throne effects still call unported pray.c:altar_wrath and sit.c:throne_sit_effect; trap.c:dotrap and timeout.c:burn_away_slime remain void gaps, and menu/mouse sit entry points lack matching runtime evidence. Preserve blocked recipes and resume after source-traced dependencies and entry recordings."
     },
     {
       "id": "div-eat-fix-petrification-synthetic-v7-20260926",
@@ -88931,6 +89838,49 @@
           "recordingSha256": "5375360da74524cb290c791f0cee162af26f3e169f75d1c3a0715f3ce48e42dd",
           "evaluationPath": "challenges/evaluations/20260926220443-v6.json",
           "evaluationCommit": "382fb9f460e42198688105ebc81fd2788be20686"
+        }
+      }
+    },
+    {
+      "id": "port-read-seffect-earth-synthetic-v6-20260926",
+      "kind": "file-port",
+      "status": "queued",
+      "summary": "Port scroll-of-earth effects and source boulder helpers through hero and monster callers",
+      "cFile": "read.c",
+      "sessions": [
+        "synthetic/v6/wizard-read-earth-reach"
+      ],
+      "selectionReason": "synthetic/v6/wizard-read-earth-reach remains unmatched at segment 0 step 20 in the current v6 evaluation; investigations/synthetic/v6/wizard-read-earth-reach.json traces the missing effect to read.c:seffect_earth. No other unresolved earlier case shares this source family. The C-only mkobj.c:next_ident draws follow missing boulder creation.",
+      "detail": "Port whole read.c:seffect_earth and its return-valued drop_boulder_on_monster and drop_boulder_on_player helpers, plus consumed dungeon.c:avoid_ceiling. Wire the read.c:seffects SCR_EARTH dispatch and the active muse.c:find_offensive/use_offensive MUSE_SCR_EARTH caller branches. Preserve source order, messages, object and damage state, and PRNG calls for blessed, cursed, confused, and ordinary scrolls. Obtain independent C recordings for hero and monster entry paths; leave trap.c:sokoban_guilt as a named void gap if unported. Do not claim completion for any caller lacking matching runtime evidence.",
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": null,
+      "delivered": null,
+      "functions": [
+        {
+          "name": "seffect_earth",
+          "line": 1919,
+          "endLine": 1975,
+          "declared": false,
+          "complete": false
+        }
+      ],
+      "range": {
+        "from": 1919,
+        "to": 1975
+      },
+      "syntheticProvenance": {
+        "synthetic/v6/wizard-read-earth-reach": {
+          "session": "synthetic/v6/wizard-read-earth-reach",
+          "corpus": "synthetic",
+          "batch": "v6",
+          "caseId": "wizard-read-earth-reach",
+          "manifestPath": "challenges/manifests/v6.json",
+          "manifestSha256": "7523b91e823f4e3906c9acdc9a3d80f8469c27c2caab8fc8fbd6967dbfdcab5f",
+          "recordingPath": "challenges/cases/v6/wizard-read-earth-reach.session.json",
+          "recordingSha256": "44d036a62da0fc62080b022f279326a1b309edcb8f4f6e8c3855a8c0555a1a8d",
+          "evaluationPath": "challenges/evaluations/20260926233328-v6.json",
+          "evaluationCommit": "e15883c1613d84bf7f47fcd7c2f032e1a001fcd2"
         }
       }
     }

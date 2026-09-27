@@ -27,7 +27,6 @@
   --goal-boundary: #e0762a;
   --goal-in-progress: #1baf7a;
   --goal-paused: #c99000;
-  --goal-parked-hatch: #ffffff;
 
   /* Matched screens use ink; totals use a quieter dashed line. Reserve
      colours for work kinds and states elsewhere on the page. */
@@ -251,6 +250,13 @@ h1 {
 }
 
 #challengeTable { min-width: 560px; }
+#challengeTable td:first-child { min-width: 190px; }
+#challengeTable td:first-child details summary { cursor: pointer; }
+.session-finding { max-width: 420px; white-space: normal; line-height: 1.4; color: var(--ink-secondary); }
+.session-finding p { margin: 6px 0; }
+#remainingWorkList details { border-top: 1px solid var(--border); padding: 9px 0; font-size: 12px; }
+#remainingWorkList summary { cursor: pointer; overflow-wrap: anywhere; }
+#remainingWorkList p { color: var(--ink-secondary); line-height: 1.5; }
 
 .challenge-outcome {
   white-space: normal;
@@ -272,9 +278,6 @@ h1 {
   letter-spacing: -0.01em;
 }
 
-.queue-summary-title { display: flex; align-items: baseline; gap: 12px; flex-wrap: wrap; }
-.queue-summary-meta { color: var(--ink-secondary); font-size: 12px; }
-.queue-summary-warning { color: var(--investigation-partial); font-size: 12px; }
 summary { cursor: pointer; }
 .diagnostics { border-top: 1px solid var(--border); padding-top: 16px; }
 .diagnostics > .section-title { font-size: 16px; margin-bottom: 24px; }
@@ -477,8 +480,8 @@ canvas {
 }
 
 .day-label {
-  width: 64px;
-  min-width: 64px;
+  width: 88px;
+  min-width: 88px;
   font-family: 'JetBrains Mono', monospace;
   font-size: 11px;
   color: var(--ink-secondary);
@@ -506,31 +509,11 @@ canvas {
   background: var(--bar);
   opacity: 0.85;
 }
-
-.day-bar.file-port, .day-bar.lua-port { --bar: var(--goal-file-port); }
-.day-bar.divergence-fix { --bar: var(--goal-divergence); }
-.day-bar.boundary { --bar: var(--goal-boundary); }
-.day-bar.inferred { opacity: 0.4; }
-
-/* The running goal keeps its kind colour under green hatching, the same
-   green as the tables' in-progress tab. */
-.day-bar.in-progress {
-  background: repeating-linear-gradient(135deg, var(--bar), var(--bar) 3px, var(--goal-in-progress) 3px, var(--goal-in-progress) 6px);
-}
-
-.day-bar.parked, .legend-swatch.parked {
-  background-image: repeating-linear-gradient(135deg,
-    var(--goal-parked-hatch) 0 2px, transparent 2px 8px);
-}
-.legend-swatch.parked { background-color: var(--ink-muted); }
-
-/* Goals that share time stack in lanes; the script sets each stacked bar's
-   top and height inline. The legend shows the stack in two greys so that it
-   names no kind. */
-.legend-swatch.stacked {
-  background: linear-gradient(to bottom,
-    var(--ink-secondary) 0 5px, transparent 5px 7px, var(--ink-muted) 7px 12px);
-}
+.day-bar.phase-working { --bar: var(--goal-file-port); }
+.day-bar.phase-queued { --bar: var(--goal-boundary); }
+.day-bar.phase-integrating { --bar: var(--goal-divergence); }
+.day-bar.phase-acceptance { --bar: var(--goal-in-progress); }
+.day-bar.phase-publication { --bar: var(--ink-muted); }
 
 /* Two reserved lines under the rows name the bar under the pointer, so a
    touch reader gets the detail a hover would. */
@@ -541,24 +524,6 @@ canvas {
   font-size: 11px;
   line-height: 17px;
   color: var(--ink-secondary);
-}
-
-.day-readout div {
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
-/* A kind's legend swatch: observed open time in the upper-left half, inferred
-   in the lower-right. */
-.legend-swatch.split {
-  background: linear-gradient(135deg,
-    color-mix(in srgb, var(--bar) 85%, transparent) 50%,
-    color-mix(in srgb, var(--bar) 40%, transparent) 50%);
-}
-
-.legend-swatch.hatched {
-  background: repeating-linear-gradient(135deg, var(--ink-muted), var(--ink-muted) 3px, var(--goal-in-progress) 3px, var(--goal-in-progress) 6px);
 }
 
 /* A short line sample for a chart series, carrying its dash pattern. */
@@ -770,66 +735,7 @@ canvas {
   border: 1px solid var(--audit-accent);
 }
 
-/* Parked work keeps its source stripe. Hatching and a text label distinguish
-   it from both completed work and the running goal's green tint. */
-.goal-table tr.parked td {
-  --parked-hatch: color-mix(in srgb, var(--goal-paused) 9%, transparent);
-  background-image: repeating-linear-gradient(135deg,
-    var(--parked-hatch) 0 2px, transparent 2px 8px);
-}
-.goal-table tr.parked:hover td {
-  --parked-hatch: color-mix(in srgb, var(--goal-paused) 16%, transparent);
-}
-.parked-label { color: var(--ink-secondary); font-weight: 600; }
-
-#queueDisclosure summary { cursor: pointer; overflow-wrap: anywhere; }
-#queueDisclosure summary:focus-visible {
-  outline: 2px solid var(--ink-secondary);
-  outline-offset: 2px;
-}
-#queueDisclosure > summary { min-height: 44px; padding: 12px 0; }
-#queueDisclosure > summary .section-title { display: inline-flex; margin-bottom: 0; }
 #sourceWorkDisclosure > summary .section-title { display: inline; }
-#queueDisclosure > .subtitle { margin: 8px 0 16px; }
-#queueEntries { overflow-wrap: anywhere; }
-.queue-entry + .queue-entry { border-top: 1px solid var(--border); }
-.queue-entry > summary { padding: 16px 0; font-size: 13px; }
-.queue-session { font-family: 'JetBrains Mono', monospace; font-weight: 600; }
-.queue-overview {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 4px 24px;
-  margin-top: 6px;
-  color: var(--ink-secondary);
-}
-.queue-remaining { font-variant-numeric: tabular-nums; }
-.investigation-status {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 1.25em;
-  height: 1.25em;
-  font-size: 1rem;
-  font-weight: 600;
-  line-height: 1;
-}
-.investigation-status.status-complete { color: var(--goal-in-progress); }
-.investigation-status.status-partial { color: var(--investigation-partial); }
-.investigation-status.status-stale { color: var(--goal-paused); }
-.investigation-status.status-invalid { color: var(--goal-divergence); }
-.investigation-status.status-missing { color: var(--ink-muted); }
-.queue-finding { max-width: 75ch; padding-bottom: 20px; font-size: 14px; }
-.investigation-summary { line-height: 1.65; }
-.investigation-source { margin-top: 8px; color: var(--ink-secondary); }
-.queue-mismatch {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 4px 24px;
-  margin-top: 12px;
-  color: var(--ink-secondary);
-}
-.queue-mismatch > div { display: flex; gap: 6px; }
-.queue-mismatch dt { font-weight: 600; }
 
 .goal-table tr.in-progress td {
   --tint: color-mix(in srgb, var(--goal-in-progress) 6%, transparent);
@@ -844,7 +750,7 @@ canvas {
 .time-axis {
   height: 20px;
   position: relative;
-  margin-left: 64px;
+  margin-left: 88px;
   border-bottom: 1px solid var(--baseline);
 }
 
@@ -897,21 +803,13 @@ canvas {
   </div>
 </section>
 
-<details class="section" id="queueDisclosure">
-  <summary><h2 class="section-title queue-summary-title" id="queueSummaryTitle">
-    <span id="queueHeadline">Known mismatches</span>
-    <span class="queue-summary-meta" id="queueMetrics"></span>
-    <span class="queue-summary-warning" id="queueSummaryWarning"></span>
-  </h2></summary>
-  <p class="subtitle">Repair regressions first, then synthetic cases by measured unmatched screens. Fixed-session counts are upper bounds. Work starts with the first eligible completed investigation.</p>
-  <div class="chart-wrap" id="queueEntries"></div>
-</details>
-
 <section class="section" aria-labelledby="challengeTitle">
-  <h2 class="section-title" id="challengeTitle">Challenges</h2>
+  <h2 class="section-title" id="challengeTitle">Sessions</h2>
   <div class="chart-wrap" id="challengePanel">
+    <p class="subtitle">Development starts at zero; each synthetic case starts at its first admitted evaluation.</p>
+    <p class="table-note" id="sessionSummary"></p>
     <div id="challengeBatches"></div>
-    <label class="challenge-filter" id="challengeFilter"><input type="checkbox" id="challengeRemainingOnly">Show remaining only</label>
+    <label class="challenge-filter" id="challengeFilter"><input type="checkbox" id="sessionShowAll">Show all sessions</label>
     <div id="challengeCards"></div>
     <div class="goal-table-wrap" id="challengeTableWrap">
       <table class="goal-table" id="challengeTable"></table>
@@ -932,8 +830,8 @@ canvas {
 </details>
 
 <div class="section">
-  <h3 class="section-title">Goal timeline</h3>
-  <p class="subtitle">Goal intervals from lifecycle records, commits, and score records. Pale bars have estimated start times. Parked bars stop at their last recorded work.</p>
+  <h3 class="section-title">Worker activity</h3>
+  <p class="subtitle">Observed task handoffs since the September 25 worker-ledger run. Bars show elapsed task stages, not continuous active work. Earlier progress remains in the score history above. <span id="activitySnapshotTime"></span></p>
   <div class="legend" id="timelineLegend"></div>
   <div class="chart-wrap">
     <div id="timeline"></div>
@@ -951,6 +849,13 @@ canvas {
     </div>
   </div>
 </div>
+
+<details class="section" id="remainingWorkDisclosure">
+  <summary><h3 class="section-title" id="remainingWorkTitle">Remaining source work</h3></summary>
+  <p class="subtitle">Unfinished scope deferred by the coordinator. This status does not mean a worker was interrupted; each record gives its remaining-work reason.</p>
+  <label class="challenge-filter">Filter <input type="search" id="remainingWorkFilter" placeholder="Goal or blocker"></label>
+  <div class="chart-wrap" id="remainingWorkList"></div>
+</details>
 
 </section>
 
@@ -1038,150 +943,118 @@ document.getElementById('stats').innerHTML = [
     + '</div>';
 }).join('');
 
-// --- Challenge detail ---
+// --- Unified development and synthetic sessions ---
 (function() {
   const table = document.getElementById('challengeTable');
   const cards = document.getElementById('challengeCards');
-  const remainingOnly = document.getElementById('challengeRemainingOnly');
-  document.getElementById('challengeFilter').hidden = challengeCases.length === 0;
-  const esc = text => String(text ?? '').replace(/&/g, '&amp;')
+  const showAll = document.getElementById('sessionShowAll');
+  const esc = value => String(value ?? '').replace(/&/g, '&amp;')
     .replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
-  const notices = new Map();
+  const queueRows = QUEUE?.sessions || [];
+  const queueById = new Map(queueRows.map(row => [row.session, row]));
+  const metricComplete = result => result?.passed === true && !result.error
+    && ['screens', 'rng', 'cursors'].every(key => Number.isFinite(result[key]?.matched)
+      && result[key].matched === result[key].total);
+  const development = (DATA.developmentSessions?.sessions || []).map(result => ({
+    id: result.session, name: result.session, set: 'Development',
+    initial: 0, current: result.metrics?.screens?.matched,
+    total: result.metrics?.screens?.total,
+    change: result.metrics?.screens?.matched ?? null,
+    complete: metricComplete({ ...result, ...result.metrics }) && !queueById.has(result.session),
+    queue: queueById.get(result.session), result,
+  }));
+  const synthetic = challengeCases.map(item => {
+    const batch = item.batch || 'unknown';
+    const id = 'synthetic/' + batch + '/' + item.id;
+    return { id, name: item.title || item.id, set: 'Synthetic · ' + batch,
+      initial: item.first?.screens?.matched ?? null,
+      current: item.current?.screens?.matched ?? null,
+      total: item.current?.screens?.total ?? item.first?.screens?.total ?? item.screenCount,
+      change: item.delta == null ? null : item.delta,
+      complete: metricComplete(item.current) && !queueById.has(id),
+      queue: queueById.get(id), result: item.current, outcome: item.outcome,
+    };
+  });
+  const sessions = [...development, ...synthetic];
+  const remainingDevelopment = development.filter(row => !row.complete).length;
+  const remainingSynthetic = synthetic.filter(row => !row.complete).length;
+  document.getElementById('sessionSummary').textContent = remainingDevelopment + ' of '
+    + development.length + ' development sessions remaining · '
+    + remainingSynthetic + ' of ' + synthetic.length + ' synthetic sessions remaining'
+    + (DATA.developmentSessions ? ' · development measured at '
+      + DATA.developmentSessions.executionCommit.slice(0, 8) : '');
+  const notices = [];
+  if (!DATA.developmentSessions) notices.push('Development per-session results are unavailable.');
+  else {
+    if (scores.fixedDevelopment.screens
+        && development.reduce((sum, row) => sum + (row.current ?? 0), 0)
+          !== scores.fixedDevelopment.screens.matched) {
+      notices.push('Development per-session results need a newer accepted checkpoint.');
+    }
+  }
+  const attention = new Map();
   challengeAttentionBatches.forEach(batch => {
     const key = JSON.stringify([batch.status, batch.error ?? null]);
-    if (!notices.has(key)) notices.set(key, { status: batch.status, error: batch.error, batches: [] });
-    notices.get(key).batches.push(batch.batch);
+    if (!attention.has(key)) attention.set(key, { status: batch.status,
+      error: batch.error, batches: [] });
+    attention.get(key).batches.push(batch.batch);
   });
-  document.getElementById('challengeBatches').innerHTML = [...notices.values()].map(notice =>
-    '<p class="table-note"><strong>' + notice.batches.map(esc).join(', ') + '</strong> · '
-      + esc(notice.status) + (notice.error ? ' · ' + esc(notice.error) : '') + '</p>').join('');
-  const matchedText = result => result?.screens?.matched == null ? '—' : fmtN(result.screens.matched);
-  const renderCases = () => {
-    const cases = remainingOnly.checked ? remainingChallengeCases : challengeCases;
-    if (!cases.length) {
-      const message = remainingOnly.checked ? 'No remaining challenge cases.' : 'No challenge cases recorded.';
+  attention.forEach(group => notices.push(group.batches.join(', ') + ': '
+    + group.status + (group.error ? ' · ' + group.error : '')));
+  (QUEUE?.blockers || []).forEach(blocker => notices.push('Queue blocker: '
+    + (typeof blocker === 'string' ? blocker : blocker.reason)));
+  if (!QUEUE) notices.push('Mismatch diagnostics are unavailable.');
+  document.getElementById('challengeBatches').innerHTML = notices.map(notice =>
+    '<p class="table-note">' + esc(notice) + '</p>').join('');
+
+  const detail = row => {
+    const q = row.queue;
+    if (!q) return row.outcome ? '<p>' + esc(row.outcome) + '</p>' : '';
+    const finding = q.investigation?.result?.summary;
+    const remaining = q.corpus === 'fixed'
+      ? 'At most ' + fmtN(q.remainingScreensUpperBound) + ' later screens may be affected.'
+      : fmtN(q.remainingScreens) + ' screens currently unmatched.';
+    return '<div class="session-finding"><p>First mismatch: '
+      + esc(q.kind) + (q.step == null ? '' : ' at step ' + q.step) + '. ' + remaining + '</p>'
+      + (finding ? '<p>' + esc(finding) + '</p>' : '') + '</div>';
+  };
+  const render = () => {
+    const rows = (showAll.checked ? sessions : sessions.filter(row => !row.complete))
+      .sort((a, b) => Number(a.complete) - Number(b.complete)
+        || Number(b.set === 'Development') - Number(a.set === 'Development')
+        || a.set.localeCompare(b.set) || a.name.localeCompare(b.name));
+    if (!rows.length) {
+      const message = sessions.length ? 'All sessions match.' : 'No session results available.';
       table.innerHTML = '<tbody><tr><td>' + message + '</td></tr></tbody>';
       cards.innerHTML = '<p class="table-note">' + message + '</p>';
       return;
     }
-    let html = '<thead><tr><th>Challenge</th><th>Initial</th><th>Current</th>'
-      + '<th>Total</th><th>Change</th></tr></thead><tbody>';
+    let html = '<thead><tr><th>Session</th><th>Set</th><th>Initial</th>'
+      + '<th>Current</th><th>Total</th><th>Change</th><th>Status</th></tr></thead><tbody>';
     let cardHtml = '';
-    cases.forEach(item => {
-      const title = (item.batch ? item.batch + ' · ' : '') + (item.title || item.id);
-      const outcome = item.outcome ? '<div class="challenge-outcome">' + esc(item.outcome) + '</div>' : '';
-      const initial = item.first?.screens?.matched;
-      const current = item.current?.screens?.matched;
-      const total = item.current?.screens?.total ?? item.first?.screens?.total ?? item.screenCount;
-      // A null delta marks measurements the evaluator found incomparable.
-      const change = item.delta == null || initial == null || current == null
-        ? '—' : fmtDelta(current - initial);
-      const fields = [
-        ['Initial', matchedText(item.first)],
-        ['Current', matchedText(item.current)],
-        ['Total', total == null ? '—' : fmtN(total)],
-        ['Change', change],
-      ];
-      html += '<tr><td title="' + esc(title) + '"><div>' + esc(title) + '</div>' + outcome + '</td>'
-        + fields.map(([, value]) => '<td>' + value + '</td>').join('') + '</tr>';
-      cardHtml += '<details><summary>' + esc(title) + '</summary>' + outcome
-        + '<dl>' + fields.map(([label, value]) => '<dt>' + label + '</dt><dd>' + value + '</dd>').join('')
-        + '</dl></details>';
+    rows.forEach(row => {
+      const values = [fmtN(row.initial), fmtN(row.current), fmtN(row.total),
+        row.change == null ? '—' : fmtDelta(row.change)];
+      const status = row.complete ? '<span role="img" aria-label="Matched">✅</span>'
+        : '<span role="img" aria-label="Remaining">🔧</span>';
+      const details = detail(row);
+      const name = details
+        ? '<details><summary>' + esc(row.name) + '</summary>' + details + '</details>'
+        : esc(row.name);
+      html += '<tr><td>' + name + '</td><td>' + esc(row.set) + '</td>'
+        + values.map(value => '<td>' + value + '</td>').join('')
+        + '<td>' + status + '</td></tr>';
+      cardHtml += '<details><summary>' + esc(row.name) + ' · ' + esc(row.set)
+        + ' · ' + status + '</summary><dl><dt>Initial</dt><dd>' + values[0]
+        + '</dd><dt>Current</dt><dd>' + values[1] + '</dd><dt>Total</dt><dd>'
+        + values[2] + '</dd><dt>Change</dt><dd>' + values[3]
+        + '</dd></dl>' + details + '</details>';
     });
-    cards.innerHTML = cardHtml;
     table.innerHTML = html + '</tbody>';
+    cards.innerHTML = cardHtml;
   };
-  remainingOnly.addEventListener('change', renderCases);
-  renderCases();
-})();
-// --- Mismatch queue ---
-(function() {
-  const headlineNode = document.getElementById('queueHeadline');
-  const metricsNode = document.getElementById('queueMetrics');
-  const warningNode = document.getElementById('queueSummaryWarning');
-  const entries = document.getElementById('queueEntries');
-  const esc = (text) => String(text).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/"/g, '&quot;');
-  const workQueue = QUEUE?.mode === 'work';
-  const blockers = (QUEUE?.blockers || []).map(item => typeof item === 'string' ? item
-    : (item.batch ? item.batch + ': ' : '') + item.reason);
-  const plural = (n, word) => n + ' ' + word + (n === 1 ? '' : 's');
-  let headline = QUEUE?.roadmapFallbackAllowed === true ? 'No known mismatches' : 'Queue unavailable';
-  let metrics = fmtN(remainingChallengeCases.length) + ' of ' + fmtN(challengeCases.length)
-    + ' challenge cases remaining in saved results';
-  if (!workQueue && QUEUE?.sessions?.length) {
-    headline = 'Known mismatches';
-  }
-  if (workQueue && Array.isArray(QUEUE.sessions)) {
-    const fixed = QUEUE.sessions.filter(entry => entry.corpus === 'fixed');
-    headline = blockers.length ? 'Queue incomplete' : QUEUE.sessions.length
-      ? 'Known mismatches' : QUEUE.generationReady ? 'No known mismatches' : 'Queue status unknown';
-    if (!blockers.length) metrics = fmtN(remainingChallengeCases.length) + ' of '
-      + fmtN(challengeCases.length) + ' challenge cases remaining';
-    if (fixed.length) metrics += ' · ' + plural(fixed.length, 'fixed-session regression');
-  }
-  headlineNode.textContent = headline;
-  metricsNode.textContent = metrics;
-  warningNode.textContent = blockers.length ? plural(blockers.length, 'blocker')
-    + '; ranked queue may be incomplete.' : '';
-  const warning = blockers.length ? '<p class="table-note">Selection blocked: '
-    + blockers.map(esc).join(' · ') + '</p>' : '';
-  if (!QUEUE || !QUEUE.sessions || QUEUE.sessions.length === 0) {
-    const message = workQueue ? (QUEUE.generationReady
-      ? 'All admitted synthetic screens match. Generate and baseline the next batch.'
-      : 'Current synthetic evidence is incomplete; completion is unknown.')
-      : QUEUE?.roadmapFallbackAllowed === true
-      ? 'Every development session matches.' : 'Mismatch queue unavailable; completion is unknown.';
-    entries.innerHTML = warning + '<p class="table-note">' + message + '</p>';
-    return;
-  }
-  let html = warning;
-  if (workQueue && QUEUE.generationReady) html += '<p class="table-note">All admitted synthetic screens match. '
-    + 'Generate the next batch; remaining RNG and cursor defects are listed below.</p>';
-  const stepOrder = step => step == null ? Infinity : step;
-  // Work queue order includes regression priority and exact synthetic counts.
-  const rows = workQueue ? QUEUE.sessions : [...QUEUE.sessions].sort((a, b) => b.remainingScreensUpperBound - a.remainingScreensUpperBound
-    || stepOrder(a.step) - stepOrder(b.step)
-    || a.session.localeCompare(b.session));
-  rows.forEach(entry => {
-    const investigation = entry.investigation;
-    const result = investigation?.result;
-    const investigationState = ({
-      complete: { symbol: '☑', label: 'Investigation complete', className: 'complete' },
-      partial: { symbol: '◐', label: 'Partial investigation', className: 'partial' },
-      stale: { symbol: '☐', label: entry.corpus === 'synthetic'
-        ? 'Needs investigation · count or recording provenance changed'
-        : 'Needs investigation · remaining-screen count changed', className: 'stale' },
-      invalid: { symbol: '⚠', label: 'Investigation file incomplete or unreadable', className: 'invalid' },
-    })[investigation?.status] || { symbol: '?', label: 'No investigation result', className: 'missing' };
-    const status = '<span class="investigation-status status-' + investigationState.className
-      + '" role="img" aria-label="' + esc(investigationState.label)
-      + '" title="' + esc(investigationState.label) + '">' + investigationState.symbol + '</span>';
-    const source = result?.source;
-    const findings = (result ? '<p class="investigation-summary">' + esc(result.summary) + '</p>' : '')
-      + (source ? '<div class="investigation-source">Source: ' + esc(source.file)
-        + (source.functions.length ? ' · ' + esc(source.functions.join(', ')) : '') + '</div>' : '');
-    const where = entry.sourceFile
-      ? esc((entry.function ? entry.function + '() in ' : '') + entry.sourceFile
-        + (entry.line ? ':' + entry.line : ''))
-      : 'unresolved' + (entry.message ? ' · ' + esc(entry.message) : '');
-    const exact = entry.corpus === 'synthetic';
-    const remaining = exact ? entry.remainingScreens : entry.remainingScreensUpperBound;
-    const measured = exact ? 'Exact unmatched screens in the saved evaluation.'
-      : 'Upper bound from the first known divergence; later screens may still match.';
-    html += '<details class="queue-entry"><summary>'
-      + '<span class="queue-session">' + esc(entry.session) + '</span>'
-      + '<span class="queue-overview"><span class="queue-remaining"'
-      + ' title="' + measured + '">'
-      + (exact ? '' : 'at most ') + fmtN(remaining) + ' of ' + fmtN(entry.recordedSteps)
-      + ' screens unmatched</span>'
-      + status + '</span></summary>'
-      + '<div class="queue-finding">' + findings
-      + (entry.regression ? '<p class="table-note">Regression: restore previously matched screens first.</p>' : '')
-      + '<dl class="queue-mismatch"><div><dt>First mismatch</dt><dd>step ' + (entry.step ?? 'unknown') + '</dd></div>'
-      + '<div><dt>Kind</dt><dd>' + esc(entry.kind) + '</dd></div></dl>'
-      + '<div class="investigation-source">Mismatch site: ' + where + '</div></div></details>';
-  });
-  entries.innerHTML = html;
+  showAll.addEventListener('change', render);
+  render();
 })();
 
 // --- Source file inventory ---
@@ -1216,7 +1089,7 @@ document.getElementById('stats').innerHTML = [
     || a.sourceFile.localeCompare(b.sourceFile));
   const states = [
     { key: 'active', label: 'In progress', symbol: '▶' },
-    { key: 'paused', label: 'Paused', symbol: '⏸️' },
+    { key: 'paused', label: 'Remaining', symbol: '◇' },
     { key: 'queued', label: 'Queued', symbol: '◇' },
     { key: 'goalsClosed', label: 'Closed', symbol: '✓' },
   ].filter(state => state.key !== 'queued' || sorted.some(file => file.queued));
@@ -1604,171 +1477,142 @@ document.getElementById('stats').innerHTML = [
   render();
 })();
 
-// --- Goal timeline: one row per local day ---
+// --- Observed worker and integration activity ---
 (function() {
   const container = document.getElementById('timeline');
   const readout = document.getElementById('timelineReadout');
-  const esc = (text) => String(text).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/"/g, '&quot;');
-  const DAYS = 7;
-  const dayMs = 86400000;
-  const observedOpenTime = goal => ['open-commit', 'goal-record'].includes(goal.openTimeSource);
-  // The strip shows the state at build time: the in-progress goal's bar ends
-  // there rather than at the viewing time.
-  const builtAt = new Date(DATA.summary.generatedAt).getTime();
-  const KINDS = [
-    { kind: 'file-port', cssVar: '--goal-file-port', label: 'source port (C or Lua)' },
-    { kind: 'divergence-fix', cssVar: '--goal-divergence', label: 'divergence fix' },
-    { kind: 'boundary', cssVar: '--goal-boundary', label: 'boundary stop' },
-  ];
-
-  document.getElementById('timelineLegend').innerHTML = KINDS.map(k =>
-    '<div class="legend-item"><div class="legend-swatch split" style="--bar:var(' + k.cssVar + ')"></div>' + k.label + '</div>'
-  ).join('')
-    + '<div class="legend-item"><div class="legend-swatch hatched"></div>in progress</div>'
-    + '<div class="legend-item"><div class="legend-swatch parked"></div>parked</div>'
-    + '<div class="legend-item"><div class="legend-swatch stacked"></div>goals overlapping, stacked</div>';
-
-  function dayStart(t) { const d = new Date(t); d.setHours(0, 0, 0, 0); return d.getTime(); }
-  function span(g) {
-    return {
-      open: Date.parse(g.openTime),
-      close: g.status === 'in-progress' ? builtAt : Date.parse(g.closeTime),
-    };
+  const activity = DATA.activity || { segments: [], tasks: [] };
+  document.getElementById('activitySnapshotTime').textContent = activity.capturedAt
+    ? 'Activity snapshot: ' + new Date(activity.capturedAt).toLocaleString() + '.' : '';
+  const taskById = new Map(activity.tasks.map(task => [task.id, task]));
+  const phaseNames = { working: 'Assigned task', queued: 'Waiting for integration',
+    integrating: 'Integration and checks', acceptance: 'Acceptance',
+    publication: 'Publication' };
+  document.getElementById('timelineLegend').innerHTML = Object.entries(phaseNames)
+    .map(([phase, name]) => '<div class="legend-item"><div class="legend-swatch phase-' + phase
+      + '" style="background:var(' + ({ working: '--goal-file-port', queued: '--goal-boundary',
+        integrating: '--goal-divergence', acceptance: '--goal-in-progress',
+        publication: '--ink-muted' })[phase] + ')"></div>' + name + '</div>').join('');
+  if (!activity.segments.length) {
+    container.textContent = 'No worker activity snapshot is available.';
+    return;
   }
-
-  const today = dayStart(builtAt);
+  const dayMs = 86400000;
+  const dayStart = value => { const d = new Date(value); d.setHours(0, 0, 0, 0); return d.getTime(); };
+  const captured = Date.parse(activity.capturedAt);
+  const first = Math.max(dayStart(captured) - 6 * dayMs,
+    dayStart(Math.min(...activity.segments.map(segment => Date.parse(segment.start)))));
+  const lanes = ['A', 'B', 'C', 'Main'];
   const rows = [];
-  for (let i = 0; i < DAYS; i++) rows.push({ start: today - i * dayMs, bars: [] });
-  DATA.goals.forEach((g, index) => {
-    const { open, close } = span(g);
-    if (!(close > open)) return;
-    // A goal that crosses midnight gets one bar in each day's row.
-    for (let d = dayStart(open); d <= close; d += dayMs) {
-      const row = rows.find(r => r.start === d);
-      if (row) row.bars.push({ a: Math.max(open, d), b: Math.min(close, d + dayMs), index });
+  for (let day = first; day <= dayStart(captured); day += dayMs) {
+    for (const lane of lanes) rows.push({ day, lane, bars: [] });
+  }
+  activity.segments.forEach((segment, index) => {
+    const a = Date.parse(segment.start), b = Date.parse(segment.end);
+    if (!(b > a)) return;
+    for (let day = dayStart(a); day <= dayStart(b); day += dayMs) {
+      const row = rows.find(item => item.day === day && item.lane === segment.lane);
+      if (row) row.bars.push({ a: Math.max(a, day), b: Math.min(b, day + dayMs), index });
     }
   });
-
-  let axisHtml = '';
-  for (let h = 0; h <= 24; h += 6) {
-    axisHtml += '<div class="time-tick" style="left:' + (h / 24 * 100) + '%">' + String(h).padStart(2, '0') + '</div>';
-  }
-  let html = '<div class="time-axis">' + axisHtml + '</div>';
-  for (const r of rows) {
-    const d = new Date(r.start);
-    const label = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'][d.getDay()] + ' ' + (d.getMonth() + 1) + '/' + d.getDate();
-    const pct = t => (t - r.start) / dayMs * 100;
-    // Bars that share time stack in lanes. A cluster of chained overlaps
-    // splits the bar height between its lanes; every other bar keeps it all.
-    r.bars.sort((x, y) => x.a - y.a);
-    let cluster = [];
-    let laneEnds = [];
-    let clusterEnd = -Infinity;
-    const closeCluster = () => {
-      for (const bar of cluster) bar.lanes = laneEnds.length;
-      cluster = [];
-      laneEnds = [];
-    };
-    for (const bar of r.bars) {
-      if (bar.a >= clusterEnd) closeCluster();
-      let lane = laneEnds.findIndex(end => end <= bar.a);
-      if (lane < 0) lane = laneEnds.length;
-      laneEnds[lane] = bar.b;
-      bar.lane = lane;
-      cluster.push(bar);
-      clusterEnd = Math.max(clusterEnd, bar.b);
-    }
-    closeCluster();
-    let bars = '';
-    for (const bar of r.bars) {
-      const g = DATA.goals[bar.index];
-      const cls = 'day-bar ' + g.kind
-        + (g.status === 'in-progress' ? ' in-progress' : '')
-        + (g.status === 'parked' ? ' parked' : '')
-        + (observedOpenTime(g) ? '' : ' inferred');
-      let box = 'left:' + pct(bar.a) + '%;width:' + (pct(bar.b) - pct(bar.a)) + '%';
-      if (bar.lanes > 1) {
-        const height = (16 - 2 * (bar.lanes - 1)) / bar.lanes;
-        box += ';top:' + (7 + bar.lane * (height + 2)) + 'px;height:' + height + 'px';
-      }
-      bars += '<div class="' + cls + '" data-goal="' + bar.index + '" style="' + box + '"></div>';
-    }
-    html += '<div class="day-row"><div class="day-label">' + label + '</div><div class="day-bars">' + bars + '</div></div>';
-  }
-  container.innerHTML = html;
-
-  // Name the bar under the pointer: hover with a mouse, tap on touch.
-  function stamp(t) {
-    const d = new Date(t);
-    return (d.getMonth() + 1) + '/' + d.getDate() + ' ' + d.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: false });
-  }
-  function describe(el) {
-    const g = DATA.goals[Number(el.dataset.goal)];
-    const { open, close } = span(g);
-    const inferred = !observedOpenTime(g);
-    const overlapping = DATA.goals.filter(other => {
-      if (other === g) return false;
-      const o = span(other);
-      return o.open < close && open < o.close;
+  let html = '<div class="time-axis">';
+  for (let hour = 0; hour <= 24; hour += 6) html += '<div class="time-tick" style="left:'
+    + (hour / 24 * 100) + '%">' + String(hour).padStart(2, '0') + '</div>';
+  html += '</div>';
+  rows.forEach(row => {
+    const date = new Date(row.day);
+    const label = (date.getMonth() + 1) + '/' + date.getDate() + ' ' + row.lane;
+    const pct = value => (value - row.day) / dayMs * 100;
+    row.bars.sort((a, b) => a.a - b.a);
+    const laneEnds = [];
+    row.bars.forEach(bar => {
+      let slot = laneEnds.findIndex(end => end <= bar.a);
+      if (slot < 0) slot = laneEnds.length;
+      laneEnds[slot] = bar.b;
+      bar.slot = slot;
     });
-    readout.innerHTML = '<div>' + (g.status === 'parked' ? 'Parked · ' : '') + esc(g.name) + '</div><div>'
-      + stamp(open) + (inferred ? '\u2020' : '') + ' \u2013 ' + (g.status === 'in-progress' ? 'in progress' : stamp(close))
-      + ' \u00b7 ' + fmt((close - open) / 60000)
-      + (g.screensDelta == null ? '' : ' \u00b7 ' + fmtDelta(g.screensDelta) + ' screens')
-      + (inferred ? ' \u00b7 \u2020 open time inferred' : '')
-      + (overlapping.length ? ' \u00b7 overlaps ' + esc(overlapping.map(other => other.name).join(', ')) : '') + '</div>';
-  }
-  for (const type of ['pointerover', 'pointerdown']) {
-    container.addEventListener(type, e => { if (e.target.classList.contains('day-bar')) describe(e.target); });
-  }
+    const rowHeight = Math.max(30, 10 + laneEnds.length * 6);
+    const barHeight = Math.max(4, (rowHeight - 12) / Math.max(1, laneEnds.length) - 2);
+    html += '<div class="day-row" style="height:' + rowHeight + 'px"><div class="day-label">' + label
+      + '</div><div class="day-bars">' + row.bars.map(bar => {
+        const segment = activity.segments[bar.index];
+        return '<div class="day-bar phase-' + segment.phase + '" data-segment="'
+          + bar.index + '" tabindex="0" role="button" aria-label="'
+          + phaseNames[segment.phase] + ' for ' + (taskById.get(segment.task)?.label || segment.task)
+          + '" style="left:' + pct(bar.a) + '%;width:' + (pct(bar.b) - pct(bar.a))
+          + '%;top:' + (5 + bar.slot * (barHeight + 2)) + 'px;height:'
+          + barHeight + 'px"></div>';
+      }).join('') + '</div></div>';
+  });
+  container.innerHTML = html;
+  const stamp = value => new Date(value).toLocaleString('en-US',
+    { month: 'numeric', day: 'numeric', hour: '2-digit', minute: '2-digit', hour12: false });
+  const describe = element => {
+    const segment = activity.segments[Number(element.dataset.segment)];
+    const task = taskById.get(segment.task);
+    const minutes = Math.round((Date.parse(segment.end) - Date.parse(segment.start)) / 60000);
+    readout.textContent = segment.lane + ' · ' + (task?.label || segment.task) + (task?.goal ? ' · ' + task.goal : '')
+      + ' · ' + phaseNames[segment.phase] + ' · ' + stamp(segment.start)
+      + ' – ' + stamp(segment.end) + ' · ' + fmt(minutes);
+  };
+  container.addEventListener('pointerover', event => {
+    if (event.target.classList.contains('day-bar')) describe(event.target);
+  });
+  container.addEventListener('click', event => {
+    if (event.target.classList.contains('day-bar')) describe(event.target);
+  });
+  container.addEventListener('focusin', event => {
+    if (event.target.classList.contains('day-bar')) describe(event.target);
+  });
 })();
 
-// --- Phase breakdown table ---
+// --- Goal outcomes for the worker-ledger era ---
 (function() {
-  document.getElementById('tableLegend').innerHTML = [
-    { cssVar: '--goal-file-port', label: 'source port (C or Lua)' },
-    { cssVar: '--goal-divergence', label: 'divergence fix' },
-    { cssVar: '--goal-boundary', label: 'boundary stop' },
-  ].map(k =>
-    '<div class="legend-item"><div class="legend-swatch stripe" style="background:var(' + k.cssVar + ')"></div>' + k.label + '</div>'
-  ).join('') + '<div class="legend-item"><div class="legend-swatch stripe" style="background:var(--goal-in-progress)"></div>in progress</div>'
-    + '<div class="legend-item"><span class="audit-badge">audit</span> code review during goal</div>';
-
+  const rows = [...(DATA.activityGoals || [])].sort((a, b) => b.assignedAt.localeCompare(a.assignedAt));
+  document.getElementById('tableLegend').innerHTML = '';
+  document.getElementById('tableSubtitle').textContent = rows.length
+    + ' goals with worker-ledger assignments. Earlier development gains remain in the score history.';
   const table = document.getElementById('goalTable');
-  const allGoals = [...DATA.goals].reverse();
-  const goals = allGoals.filter(g => ['in-progress', 'parked'].includes(g.status) || (g.totalMin > 0 && g.totalMin < 1440));
-  const hidden = allGoals.length - goals.length;
-  document.getElementById('tableSubtitle').textContent = goals.length + ' goals shown' + (hidden > 0 ? ' (' + hidden + ' milestones hidden)' : '') + '. Hatched rows are parked. † = inferred start time.';
+  const esc = value => String(value ?? '').replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+  const stamp = value => value ? new Date(value).toLocaleString('en-US',
+    { month: 'numeric', day: 'numeric', hour: '2-digit', minute: '2-digit', hour12: false }) : '—';
+  const synthetic = row => !row.syntheticMeasured ? '—'
+    : row.syntheticGained && row.syntheticLost
+      ? '+' + fmtN(row.syntheticGained) + ' / −' + fmtN(row.syntheticLost)
+      : fmtDelta(row.syntheticGained - row.syntheticLost);
+  table.innerHTML = '<thead><tr><th>Goal</th><th>Worker</th><th>Development Δ</th>'
+    + '<th>Synthetic Δ</th><th>Assigned</th><th>Published</th></tr></thead><tbody>'
+    + rows.map(row => '<tr><td title="' + esc(row.id) + '">' + esc(row.id)
+      + '</td><td>' + esc(row.workers.join(', ')) + '</td><td>'
+      + fmtDelta(row.developmentDelta) + '</td><td>' + synthetic(row)
+      + '</td><td>' + stamp(row.assignedAt) + '</td><td>'
+      + stamp(row.publishedAt) + '</td></tr>').join('') + '</tbody>';
+})();
 
-  const observedOpenTime = goal => ['open-commit', 'goal-record'].includes(goal.openTimeSource);
-
-  function fmtDate(iso) {
-    if (!iso) return '-';
-    const d = new Date(iso);
-    return (d.getMonth() + 1) + '/' + d.getDate() + ' ' + d.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: false });
+// --- Unfinished source scope, separate from worker activity ---
+(function() {
+  const goals = (DATA.workGoals || []).filter(goal => goal.status === 'parked');
+  const list = document.getElementById('remainingWorkList');
+  const filter = document.getElementById('remainingWorkFilter');
+  const esc = value => String(value ?? '').replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+  document.getElementById('remainingWorkTitle').textContent
+    = 'Remaining source work · ' + goals.length;
+  function render() {
+    const query = String(filter.value ?? '').toLowerCase().trim();
+    const rows = goals.filter(goal => !query || (goal.id + ' ' + goal.parkedReason)
+      .toLowerCase().includes(query));
+    list.innerHTML = rows.length ? rows.map(goal => {
+      const remaining = (goal.units || []).filter(unit => !unit.verified).map(unit => unit.name);
+      return '<details><summary>' + esc(goal.id) + '</summary><p>'
+        + esc(goal.parkedReason || 'No remaining-work reason recorded.') + '</p>'
+        + (remaining.length ? '<p>Unverified functions: ' + esc(remaining.join(', ')) + '</p>' : '')
+        + '</details>';
+    }).join('') : '<p class="table-note">No matching source goals.</p>';
   }
-
-  let html = '<thead><tr><th>Task</th><th>Δ</th><th>Start</th><th>Total</th></tr></thead><tbody>';
-
-  goals.forEach((g) => {
-    const auditBadge = g.audits.length > 0 ? ' <span class="audit-badge" title="' + g.audits.map(a => a.message).join('\\n').replace(/"/g, '&quot;') + '">audit</span>' : '';
-    // The stripe states the kind, so a name's kind prefix is redundant here.
-    const kind = g.kind === 'divergence-fix' || g.eventType === 'divergence' ? 'divergence-fix' : g.kind;
-    const shownName = kind === 'file-port' || kind === 'lua-port' ? g.name.replace(/^port-/, '')
-      : kind === 'divergence-fix' ? g.name.replace(/^div-/, '')
-        : g.name;
-
-    const deltaCell = fmtDelta(g.screensDelta);
-    const trClasses = [kind ? 'kind-' + kind : '', ['in-progress', 'parked'].includes(g.status) ? g.status : ''].filter(Boolean);
-    const trClass = trClasses.length ? ' class="' + trClasses.join(' ') + '"' : '';
-
-    const startCell = fmtDate(g.openTime) + (g.openTime && !observedOpenTime(g) ? ' †' : '');
-    const parkedLabel = g.status === 'parked' ? '<span class="parked-label">Parked · </span>' : '';
-    html += '<tr' + trClass + '><td title="' + g.name.replace(/"/g, '&quot;') + '">' + parkedLabel + shownName + auditBadge + '</td><td>' + deltaCell + '</td><td>' + startCell + '</td><td>' + fmtTiming(g.totalMin, g.totalObserved) + '</td></tr>';
-  });
-
-  html += '</tbody>';
-  table.innerHTML = html;
+  filter.addEventListener('input', render);
+  render();
 })();
 
 // --- Cut names expand on tap ---

@@ -208,7 +208,13 @@ separately from other goals.
    selecting failures. Do not admit a batch merely because its worker has finished.
 6. Record acceptance and send `ACCEPTED` with the tested commit and checkpoint
    result. Run `worker-state.mjs sync-main --commit <accepted-commit>` to
-   verify local main. Push accepted work to main without asking again, then
+   verify local main. Refresh `dashboard-snapshot.json` from the shared worker
+   ledger and the passing checkpoint summary with
+   `node scripts/dashboard-snapshot.mjs --ledger <shared-ledger> --checkpoint <summary> --output dashboard-snapshot.json`.
+   Stage that generated report by name and commit it with the other publication
+   records before the push. It captures worker activity through acceptance;
+   the publication event enters the next snapshot. Push accepted work to main
+   without asking again, then
    record `published` after the push succeeds. Discover relevant CI run IDs for
    the published commit and keep pending commits and run IDs in the untracked
    `.cache/loop-ci-pending.json`; a commit with no run yet stays pending for
