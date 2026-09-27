@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 83026029,
+      "datetime": "20320927114502",
+      "nethackrc": "OPTIONS=name:QuestTouchContainerA27,role:Wizard,race:human,gender:female,align:neutral,playmode:debug,!legacy,!tutorial,!splash_screen,showexp,time,pettype:none\n",
+      "moves": "\n#wizwish\nThe Eye of the Aethiopica\n"
+    }
+  ],
+  "comment": "Blocked setup probe for a first-touch container extraction. This wizard wish itself reaches invent.c:addinv_core1 -> quest.c:artitouch before the artifact could enter a container, setting Qstat(touched_artifact); a later pickup.c:out_container would enter only artitouch's already-touched guard. A true first-touch container recipe needs an untouched quest artifact placed inside a container before hero acquisition. This input-only file is not runtime evidence."
+}

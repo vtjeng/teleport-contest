@@ -53,6 +53,13 @@ export function initializeQuestPagerLua(random = rn2) {
     return align;
 }
 
+// C ref: questpgr.c skip_pager(boolean common UNUSED). The wizard-kit setup
+// flag suppresses the whole pager before nhl_init() loads nhlib.lua, so this
+// check must run before initializeQuestPagerLua() consumes its shuffle draws.
+export function skip_pager(state = game) {
+    return Boolean(state.program_state?.wizkit_wishing);
+}
+
 // C ref: questpgr.c ldrname().  Returns the leader's name, prefixed with
 // "the " when it is not a proper name.
 export function ldrname(state) {
@@ -327,6 +334,7 @@ const BUFSZ = 256;
 async function comPagerCore(
     section, msgid, showerror, state, random, output,
 ) {
+    if (skip_pager(state)) return false;
     initializeQuestPagerLua(random);
 
     const roleData = QUEST_TEXT[section];
