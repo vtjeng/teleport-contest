@@ -743,12 +743,9 @@ test('doapply refuses every class and arm this slice does not port',
     // The pick/axe default enters use_pick_axe() and is covered by the dig.c
     // command replay.
 
-    // The one direction arm still above the port's reach: '>' names the floor,
-    // which apply.c:363 answers before confdir() ever runs. 'j', the adjacent
-    // square beside it, now answers rather than stopping, and the test below
-    // covers where it stops instead.
-    assert.match(await refusal('.ac>'),
-        /applying a tool requires listening to the floor or ceiling/u);
+    // The vertical-down arm now reaches its source surface answer, while the
+    // upward cant_reach_floor() gap is checked through its named note below.
+    assert.equal(await boundaryFor(segment, '.ac>'), null);
 });
 
 test('doapply routes eyewear through its source helpers and keeps its turn result',
@@ -979,12 +976,11 @@ test('doapply uses C default messages for ordinary foods and a hallucinated bana
     assert.equal(pendingTopLine(), "It rings! ... But no-one answers.");
 });
 
-// The arms between the free-action write and confdir() that no key sequence
-// can reach, because the starting Healer is unmounted, unswallowed and
-// carries an uncursed tool. Each is set by hand and doapply() driven
-// directly. C's order is usteed, uswallow, u.dz, then cursed
-// (apply.c:345-377), and these pin the order as well as the arms.
-test('use_stethoscope stops for the states its own keys cannot reach',
+// The early arms between the free-action write and confdir() need controlled
+// state to exercise. Each is set up independently, then driven through the
+// production doapply() caller. C's order is usteed, uswallow, u.dz, then the
+// cursed heartbeat roll (apply.c:345-377).
+test('use_stethoscope follows the early source branches and names void gaps',
     async () => {
     const drive = async (setup, keys) => {
         await runSegment({ ...segmentFor('ac.'), moves: '.' });
@@ -996,11 +992,11 @@ test('use_stethoscope stops for the states its own keys cannot reach',
         );
     };
     // A steed is only consulted when the hero points down: apply.c:345 reads
-    // `u.usteed && u.dz > 0`. The stub carries no fields because every reader
-    // of u.usteed below this arm stops before it.
+    // `u.usteed && u.dz > 0`. Its void status-line helper is a named gap.
     const mounted = () => { game.u.usteed = { mx: game.u.ux, my: game.u.uy }; };
-    assert.equal((await drive(mounted, ['c', '>'])).error?.branch,
-        'mstatusline() for a steed');
+    const mountedDown = await drive(mounted, ['c', '>']);
+    assert.equal(mountedDown.error, undefined);
+    assert.ok(game.unported.has('insight.c mstatusline'));
     // The same steed with dz 0 falls past the arm to ustatusline(), which is
     // the `u.dz > 0` half of the conjunct. Under `>=` this would refuse.
     const selfListen = await drive(mounted, ['c', '.']);
@@ -1012,23 +1008,39 @@ test('use_stethoscope stops for the states its own keys cannot reach',
         'Status of Stetho (fervently neutral):  Level 1  HP 13(13)  AC 8.',
     );
 
-    // apply.c:352 and :356 both need mstatusline() for u.ustuck.
-    assert.equal(
-        (await drive(() => { game.u.uswallow = 1; }, ['c', '.'])).error?.branch,
-        'mstatusline() for an engulfer',
-    );
+    // apply.c:352 and :356 need mstatusline() for u.ustuck. A horizontal
+    // direction exercises the first swallowed arm before any adjacent probe.
+    const swallowed = () => {
+        game.u.uswallow = 1;
+        game.u.ustuck = { data: game.youmonst.data };
+    };
+    const swallowedDirectional = await drive(swallowed, ['c', 'h']);
+    assert.equal(swallowedDirectional.error, undefined);
+    assert.ok(game.unported.has('insight.c mstatusline'));
     // The same source arm wins when the swallowed hero points horizontally at
     // a corpse. Adjacent-path preflight must not reorder it below its_dead().
     const swallowedDead = () => {
-        game.u.uswallow = 1;
+        swallowed();
         floorCorpstat(CORPSE, { x: game.u.ux - 1, y: game.u.uy });
     };
-    assert.equal((await drive(swallowedDead, ['c', 'h'])).error?.branch,
-        'mstatusline() for an engulfer');
+    assert.equal((await drive(swallowedDead, ['c', 'h'])).error, undefined);
+    assert.ok(game.unported.has('insight.c mstatusline'));
 
-    // C's cursed arm is `obj->cursed && !rn2(2)`, so the port must stop on
-    // obj.cursed alone to keep that draw out of the stream. Refusing it must
-    // cost no random number at all.
+    // The downward floor arm reaches its source result instead of being
+    // rejected; this is the selected v6 branch. It runs its_dead() first and
+    // then names the surface.
+    const down = await drive(() => {}, ['c', '>']);
+    assert.equal(down.error, undefined);
+    assert.match(pendingTopLine(), /^The (?:floor|stairs) seems healthy enough\.$/);
+
+    // C's vertical order precedes the cursed heartbeat roll. The upward
+    // cant_reach_floor() call is void and remains a named source gap.
+    const up = await drive(() => {}, ['c', '<']);
+    assert.equal(up.error, undefined);
+    assert.ok(game.unported.has('engrave.c cant_reach_floor'));
+
+    // C's cursed arm is `obj->cursed && !rn2(2)`. It must make the one source
+    // draw and either hear a beat or fall through to the direction prompt.
     const cursed = () => {
         for (let obj = game.invent; obj; obj = obj.nobj)
             if (obj.otyp === STETHOSCOPE) obj.cursed = 1;
@@ -1037,23 +1049,28 @@ test('use_stethoscope stops for the states its own keys cannot reach',
     cursed();
     const drawsBefore = (getRngLog() ?? []).length;
     for (const key of ['c', '.']) game.nhDisplay.pushKey(key.charCodeAt(0));
-    await assert.rejects(doapply(game), { branch: 'a cursed stethoscope' });
-    assert.equal((getRngLog() ?? []).length, drawsBefore,
-        'the refused cursed arm draws no random number');
+    const cursedListen = await doapply(game);
+    assert.ok([ECMD_OK, ECMD_TIME].includes(cursedListen));
+    assert.equal((getRngLog() ?? []).length - drawsBefore, 1,
+        'the cursed arm draws exactly rn2(2)');
 
-    // The cursed arm also stays above an adjacent corpse. Preflight inspects
-    // only paths whose earlier use_stethoscope() arms are admitted.
+    // The cursed arm also precedes an adjacent corpse. C reaches its roll
+    // before reading that square.
     const cursedDead = () => {
         cursed();
         floorCorpstat(CORPSE, { x: game.u.ux - 1, y: game.u.uy });
     };
-    assert.equal((await drive(cursedDead, ['c', 'h'])).error?.branch,
-        'a cursed stethoscope');
+    assert.equal((await drive(cursedDead, ['c', 'h'])).error, undefined);
 
-    // The same cursed tool pointed down answers the u.dz arm instead, which
-    // is the order: C tests u.dz at 363 before cursed at 374.
-    assert.equal((await drive(cursed, ['c', '>'])).error?.branch,
-        'listening to the floor or ceiling');
+    // The same cursed tool pointed down answers the u.dz arm first, so its
+    // vertical source path adds no cursed-only rn2(2) draw.
+    await runSegment({ ...segmentFor('ac.'), moves: '.' });
+    cursed();
+    const verticalDrawsBefore = (getRngLog() ?? []).length;
+    for (const key of ['c', '>']) game.nhDisplay.pushKey(key.charCodeAt(0));
+    const cursedDown = await doapply(game);
+    assert.ok([ECMD_OK, ECMD_TIME].includes(cursedDown));
+    assert.equal((getRngLog() ?? []).length - verticalDrawsBefore, 0);
 });
 
 // C refs: apply.c use_stethoscope() (384-470) and its_dead() (196-309). The

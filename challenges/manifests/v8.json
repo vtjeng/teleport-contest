@@ -1,0 +1,885 @@
+{
+  "version": 1,
+  "batch": "v8",
+  "priorComparisonSet": {
+    "path": ".cache/C15-prior-current-v8-B16.json",
+    "count": 46,
+    "sha256": "d6c12e19eb315be6a345f7718e9b4a9691c0ab1411720ac4b81f7b35a92397b2",
+    "asOfPublishedMain": "9dd0c95d8c86140dd85352e749d51019e6db9323"
+  },
+  "countedDistinctFirstMismatchCount": 12,
+  "cases": [
+    {
+      "id": "artifact-heart-invoke-cycle",
+      "title": "Invoke the Heart of Ahriman for levitation",
+      "mission": "Source: nethack-c/upstream/src/artifact.c:arti_invoke. Setup: Wizard debug hero carries a wished Heart of Ahriman and begins grounded. Action history: Wish for the artifact and issue #invoke. C observation: C reaches arti_invoke and prints “You float gently to the stairs.” at step 43.",
+      "selectionRationale": "C reaches artifact.c:arti_invoke after wish setup. The nearest earlier item case is a unicorn horn cure; this action invokes an artifact and enables levitation. See the complete pairwise comparison against all 46 prior cases in .cache/C15-final-overlap-crosswalk.json.",
+      "sourcePointers": [
+        "nethack-c/upstream/src/artifact.c:arti_invoke"
+      ],
+      "cOutcome": "C reaches arti_invoke and prints “You float gently to the stairs.” at step 43.",
+      "firstMismatch": {
+        "kind": "rng",
+        "step": 25,
+        "source": "nhlib.lua:shuffle during artifact wish setup",
+        "bucket": "Lua shuffle setup",
+        "counted": false
+      },
+      "countedTowardTwelve": false,
+      "closestPriorCases": [
+        "v7/unicorn-horn-blindness-corrected"
+      ],
+      "inputs": {
+        "seed": 83015008,
+        "datetime": "20310101085008",
+        "role": "Barbarian",
+        "keyCount": 43,
+        "boundaries": 44
+      },
+      "recipe": "challenges/cases/v8/artifact-heart-invoke-cycle.recipe.session.json",
+      "recipeSha256": "e7551b75ea4fa8cc5a1bf14c23baa6add3dda5f45782e78151d05ac920593963",
+      "recording": "challenges/cases/v8/artifact-heart-invoke-cycle.session.json",
+      "recordingSha256": "816c8353f3fea197a0e99d8bd83f53f622a02d45fe61a59784dcfd479862cfd8",
+      "reproducibility": "Independent C replay: [\"node\",\"scripts/run-bounded.mjs\",\"focused\",\"--\",\"node\",\"scripts/record-session.mjs\",\"challenges/cases/v8/artifact-heart-invoke-cycle.recipe.session.json\",\".cache/C15-rerecords/artifact-heart-invoke-cycle.rerecord.session.json\"]; exit 0; byte-identical SHA-256 816c8353f3fea197a0e99d8bd83f53f622a02d45fe61a59784dcfd479862cfd8; 44 boundaries. Log: /tmp/teleport-loop-worker-c-20260925/.cache/C15-logs/artifact-heart-invoke-cycle.rerecord.log.",
+      "localDifferential": {
+        "status": "mismatch",
+        "firstMismatch": {
+          "kind": "rng",
+          "step": 25,
+          "source": "nhlib.lua:shuffle during artifact wish setup",
+          "bucket": "Lua shuffle setup",
+          "counted": false
+        },
+        "log": "/tmp/teleport-loop-worker-c-20260925/.cache/C15-logs/artifact-heart-invoke-cycle.current.diff.log"
+      }
+    },
+    {
+      "id": "camera-directional-flash",
+      "title": "Use a camera flash on a hostile grid bug",
+      "mission": "Source: nethack-c/upstream/src/apply.c:use_camera -> nethack-c/upstream/src/apply.c:do_blinding_ray. Setup: Wizard debug hero has an expensive camera and visible hostile grid bug. Action history: Apply the camera toward the grid bug once. C observation: C reports that the grid bug is blinded by the flash and turns to flee; the recording matches.",
+      "selectionRationale": "The prior crystal-ball case gazes for a map query; this applies a flash at a monster and changes blindness/flee state. See the complete pairwise comparison against all 46 prior cases in .cache/C15-final-overlap-crosswalk.json.",
+      "sourcePointers": [
+        "nethack-c/upstream/src/apply.c:use_camera",
+        "nethack-c/upstream/src/apply.c:do_blinding_ray"
+      ],
+      "cOutcome": "C reports that the grid bug is blinded by the flash and turns to flee; the recording matches.",
+      "firstMismatch": null,
+      "countedTowardTwelve": false,
+      "closestPriorCases": [
+        "v7/crystal-query-reached"
+      ],
+      "inputs": {
+        "seed": 83015103,
+        "datetime": "20310202095103",
+        "role": "Wizard",
+        "keyCount": 40,
+        "boundaries": 41
+      },
+      "recipe": "challenges/cases/v8/camera-directional-flash.recipe.session.json",
+      "recipeSha256": "611b03894b73778230838d468424dfb49422963310fb4a032dbe73b86ac53a19",
+      "recording": "challenges/cases/v8/camera-directional-flash.session.json",
+      "recordingSha256": "0f3aedb6abc5e40ce1ad20672d712813e139eb371dd7ce95160feb5d21960b23",
+      "reproducibility": "Independent C replay: [\"node\",\"scripts/run-bounded.mjs\",\"focused\",\"--\",\"node\",\"scripts/record-session.mjs\",\"challenges/cases/v8/camera-directional-flash.recipe.session.json\",\".cache/C15-rerecords/camera-directional-flash.rerecord.session.json\"]; exit 0; byte-identical SHA-256 0f3aedb6abc5e40ce1ad20672d712813e139eb371dd7ce95160feb5d21960b23; 41 boundaries. Log: /tmp/teleport-loop-worker-c-20260925/.cache/C15-logs/camera-directional-flash.rerecord.log.",
+      "localDifferential": {
+        "status": "match",
+        "firstMismatch": null,
+        "log": "/tmp/teleport-loop-worker-c-20260925/.cache/C15-logs/camera-directional-flash.current.diff.log"
+      }
+    },
+    {
+      "id": "mirror-monster-reflection",
+      "title": "Show a mirror to a hostile monster",
+      "mission": "Source: nethack-c/upstream/src/apply.c:use_mirror. Setup: Wizard debug hero has a mirror and a visible hostile grid bug. Action history: Apply the mirror toward the monster. C observation: C reaches use_mirror’s monster-response branch; first mismatch step 31 is rn2(5).",
+      "selectionRationale": "Prior apply cases query with a crystal ball or cure with a horn; this reaches the mirror’s monster-response branch. See the complete pairwise comparison against all 46 prior cases in .cache/C15-final-overlap-crosswalk.json.",
+      "sourcePointers": [
+        "nethack-c/upstream/src/apply.c:use_mirror"
+      ],
+      "cOutcome": "C reaches use_mirror’s monster-response branch; first mismatch step 31 is rn2(5).",
+      "firstMismatch": {
+        "kind": "rng",
+        "step": 31,
+        "source": "apply.c:use_mirror",
+        "bucket": "apply.c:use_mirror monster response",
+        "counted": true
+      },
+      "countedTowardTwelve": true,
+      "closestPriorCases": [
+        "v7/crystal-query-reached",
+        "v7/unicorn-horn-blindness-corrected"
+      ],
+      "inputs": {
+        "seed": 83015102,
+        "datetime": "20310202095102",
+        "role": "Wizard",
+        "keyCount": 30,
+        "boundaries": 31
+      },
+      "recipe": "challenges/cases/v8/mirror-monster-reflection.recipe.session.json",
+      "recipeSha256": "f8eae6f78a642805aeb5003edce91031d423fe6fd027c8c6237d4860dfc9aa77",
+      "recording": "challenges/cases/v8/mirror-monster-reflection.session.json",
+      "recordingSha256": "5a93e5e54a296bb99490629a4ae61cd5c907a463a6f5280d3437a9c4f2735d45",
+      "reproducibility": "Independent C replay: [\"node\",\"scripts/run-bounded.mjs\",\"focused\",\"--\",\"node\",\"scripts/record-session.mjs\",\"challenges/cases/v8/mirror-monster-reflection.recipe.session.json\",\".cache/C15-rerecords/mirror-monster-reflection.rerecord.session.json\"]; exit 0; byte-identical SHA-256 5a93e5e54a296bb99490629a4ae61cd5c907a463a6f5280d3437a9c4f2735d45; 31 boundaries. Log: /tmp/teleport-loop-worker-c-20260925/.cache/C15-logs/mirror-monster-reflection.rerecord.log.",
+      "localDifferential": {
+        "status": "mismatch",
+        "firstMismatch": {
+          "kind": "rng",
+          "step": 31,
+          "source": "apply.c:use_mirror",
+          "bucket": "apply.c:use_mirror monster response",
+          "counted": true
+        },
+        "log": "/tmp/teleport-loop-worker-c-20260925/.cache/C15-logs/mirror-monster-reflection.current.diff.log"
+      }
+    },
+    {
+      "id": "gnome-king-hurls-potion",
+      "title": "A gnome king hurls a potion at the hero",
+      "mission": "Source: nethack-c/upstream/src/muse.c:use_offensive -> nethack-c/upstream/src/mthrowu.c:m_throw. Setup: Wizard debug setup has a gnome king and newt in view; the monster has an offensive potion. Action history: Hold position through monster turns until the gnome king throws its potion. C observation: C repeatedly prints “The gnome king hurls a magenta potion!”; the recording matches.",
+      "selectionRationale": "The prior projectile is a hero-thrown blindness potion; here monster AI selects and throws its offensive potion. See the complete pairwise comparison against all 46 prior cases in .cache/C15-final-overlap-crosswalk.json.",
+      "sourcePointers": [
+        "nethack-c/upstream/src/muse.c:use_offensive",
+        "nethack-c/upstream/src/mthrowu.c:m_throw"
+      ],
+      "cOutcome": "C repeatedly prints “The gnome king hurls a magenta potion!”; the recording matches.",
+      "firstMismatch": null,
+      "countedTowardTwelve": false,
+      "closestPriorCases": [
+        "v7/throw-blindness-potion-hit-corrected"
+      ],
+      "inputs": {
+        "seed": 83015119,
+        "datetime": "20310202095119",
+        "role": "Ranger",
+        "keyCount": 32,
+        "boundaries": 33
+      },
+      "recipe": "challenges/cases/v8/gnome-king-hurls-potion.recipe.session.json",
+      "recipeSha256": "12914f996fcc1a83229e0c9ca6b7301cc64b06c4b2dc70520cf6880d3492f34d",
+      "recording": "challenges/cases/v8/gnome-king-hurls-potion.session.json",
+      "recordingSha256": "b1361889c6ce00bab22d1a2b86febc4bede198ca883dc92142531e21a75b76f0",
+      "reproducibility": "Independent C replay: [\"node\",\"scripts/run-bounded.mjs\",\"focused\",\"--\",\"node\",\"scripts/record-session.mjs\",\"challenges/cases/v8/gnome-king-hurls-potion.recipe.session.json\",\".cache/C15-rerecords/gnome-king-hurls-potion.rerecord.session.json\"]; exit 0; byte-identical SHA-256 b1361889c6ce00bab22d1a2b86febc4bede198ca883dc92142531e21a75b76f0; 33 boundaries. Log: /tmp/teleport-loop-worker-c-20260925/.cache/C15-logs/gnome-king-hurls-potion.rerecord.log.",
+      "localDifferential": {
+        "status": "match",
+        "firstMismatch": null,
+        "log": "/tmp/teleport-loop-worker-c-20260925/.cache/C15-logs/gnome-king-hurls-potion.diff.log"
+      }
+    },
+    {
+      "id": "stethoscope-monster-examination",
+      "title": "Examine an adjacent grid bug with a stethoscope",
+      "mission": "Source: nethack-c/upstream/src/apply.c:use_stethoscope. Setup: Wizard debug hero has a stethoscope and adjacent grid bug. Action history: Apply the stethoscope while facing the monster. C observation: C prints “You hear nothing special.” at step 35; the recording matches.",
+      "selectionRationale": "The closest older stethoscope case targets the floor below; this targets an adjacent monster. See the complete pairwise comparison against all 46 prior cases in .cache/C15-final-overlap-crosswalk.json.",
+      "sourcePointers": [
+        "nethack-c/upstream/src/apply.c:use_stethoscope"
+      ],
+      "cOutcome": "C prints “You hear nothing special.” at step 35; the recording matches.",
+      "firstMismatch": null,
+      "countedTowardTwelve": false,
+      "closestPriorCases": [
+        "v6/v6-add6-healer-stethoscope-floor-below"
+      ],
+      "inputs": {
+        "seed": 83015120,
+        "datetime": "20310202095120",
+        "role": "Wizard",
+        "keyCount": 35,
+        "boundaries": 36
+      },
+      "recipe": "challenges/cases/v8/stethoscope-monster-examination.recipe.session.json",
+      "recipeSha256": "80da78cad37ab7bce34f61769b364af42abdc83718cd0d6f5b1da14937048a47",
+      "recording": "challenges/cases/v8/stethoscope-monster-examination.session.json",
+      "recordingSha256": "e2b48cd3b6512afde2cfdffd939ee728d3d31391a91dd3c83bb19ba7e210fe95",
+      "reproducibility": "Independent C replay: [\"node\",\"scripts/run-bounded.mjs\",\"focused\",\"--\",\"node\",\"scripts/record-session.mjs\",\"challenges/cases/v8/stethoscope-monster-examination.recipe.session.json\",\".cache/C15-rerecords/stethoscope-monster-examination.rerecord.session.json\"]; exit 0; byte-identical SHA-256 e2b48cd3b6512afde2cfdffd939ee728d3d31391a91dd3c83bb19ba7e210fe95; 36 boundaries. Log: /tmp/teleport-loop-worker-c-20260925/.cache/C15-logs/stethoscope-monster-examination.rerecord.log.",
+      "localDifferential": {
+        "status": "match",
+        "firstMismatch": null,
+        "log": "/tmp/teleport-loop-worker-c-20260925/.cache/C15-logs/stethoscope-monster-examination.current.diff.log"
+      }
+    },
+    {
+      "id": "pit-trap-trigger",
+      "title": "Fall into a pit trap",
+      "mission": "Source: nethack-c/upstream/src/trap.c:dotrap -> nethack-c/upstream/src/trap.c:fall_into_pit. Setup: Wizard debug hero creates a pit and stands outside its square. Action history: Move off, then step back onto the pit. C observation: C prints “You fall into a pit!” at step 9; the recording matches.",
+      "selectionRationale": "The prior cases fall through a trapdoor or dig downward; this walks onto an existing PIT and falls in place. See the complete pairwise comparison against all 46 prior cases in .cache/C15-final-overlap-crosswalk.json.",
+      "sourcePointers": [
+        "nethack-c/upstream/src/trap.c:dotrap",
+        "nethack-c/upstream/src/trap.c:fall_into_pit"
+      ],
+      "cOutcome": "C prints “You fall into a pit!” at step 9; the recording matches.",
+      "firstMismatch": null,
+      "countedTowardTwelve": false,
+      "closestPriorCases": [
+        "v7/trapdoor-pet-transit",
+        "v6/archeologist-down-dig-floor"
+      ],
+      "inputs": {
+        "seed": 83015131,
+        "datetime": "20310202100131",
+        "role": "Wizard",
+        "keyCount": 9,
+        "boundaries": 10
+      },
+      "recipe": "challenges/cases/v8/pit-trap-trigger.recipe.session.json",
+      "recipeSha256": "454cebbbb87c30e8fff21704c242aa9905bca7cdc1393948e47c02029f78dcca",
+      "recording": "challenges/cases/v8/pit-trap-trigger.session.json",
+      "recordingSha256": "f7ad4b65dd95a6a1916cb838a14789224e511811702b474b96a0d92a5cf19959",
+      "reproducibility": "Independent C replay: [\"node\",\"scripts/run-bounded.mjs\",\"focused\",\"--\",\"node\",\"scripts/record-session.mjs\",\"challenges/cases/v8/pit-trap-trigger.recipe.session.json\",\".cache/C15-rerecords/pit-trap-trigger.rerecord.session.json\"]; exit 0; byte-identical SHA-256 f7ad4b65dd95a6a1916cb838a14789224e511811702b474b96a0d92a5cf19959; 10 boundaries. Log: /tmp/teleport-loop-worker-c-20260925/.cache/C15-logs/pit-trap-trigger.rerecord.log.",
+      "localDifferential": {
+        "status": "match",
+        "firstMismatch": null,
+        "log": "/tmp/teleport-loop-worker-c-20260925/.cache/C15-logs/pit-trap-trigger.current.diff.log"
+      }
+    },
+    {
+      "id": "prayer-cooldown-repeat",
+      "title": "Complete an ordinary prayer",
+      "mission": "Source: nethack-c/upstream/src/pray.c:dopray -> nethack-c/upstream/src/pray.c:prayer_done. Setup: Fresh Wizard debug hero without altar setup; prayer is not forced to succeed. Action history: Issue #pray and decline force-success. The immediate repeat is not reached. C observation: C completes one prayer and reports Thoth’s displeasure at step 26; this valid target miss matches JS.",
+      "selectionRationale": "Earlier priest cases sit on an altar or chat with a priest; this is the hero’s #pray command without altar manipulation. See the complete pairwise comparison against all 46 prior cases in .cache/C15-final-overlap-crosswalk.json.",
+      "sourcePointers": [
+        "nethack-c/upstream/src/pray.c:dopray",
+        "nethack-c/upstream/src/pray.c:prayer_done"
+      ],
+      "cOutcome": "C completes one prayer and reports Thoth’s displeasure at step 26; this valid target miss matches JS.",
+      "firstMismatch": null,
+      "countedTowardTwelve": false,
+      "closestPriorCases": [
+        "v6/priest-sit-altar",
+        "v7/priest-outside-temple-chat"
+      ],
+      "inputs": {
+        "seed": 83015106,
+        "datetime": "20310202095106",
+        "role": "Wizard",
+        "keyCount": 26,
+        "boundaries": 27
+      },
+      "recipe": "challenges/cases/v8/prayer-cooldown-repeat.recipe.session.json",
+      "recipeSha256": "6343bd49d2b06890f69868bc6c6f01b46056d963b38d1dd58dae634caf0938bb",
+      "recording": "challenges/cases/v8/prayer-cooldown-repeat.session.json",
+      "recordingSha256": "c5fbde6805d622bfcd51ae7e4fed004fbc262d2a39c78ae40b4ab1702a38032a",
+      "reproducibility": "Independent C replay: [\"node\",\"scripts/run-bounded.mjs\",\"focused\",\"--\",\"node\",\"scripts/record-session.mjs\",\"challenges/cases/v8/prayer-cooldown-repeat.recipe.session.json\",\".cache/C15-rerecords/prayer-cooldown-repeat.rerecord.session.json\"]; exit 0; byte-identical SHA-256 c5fbde6805d622bfcd51ae7e4fed004fbc262d2a39c78ae40b4ab1702a38032a; 27 boundaries. Log: /tmp/teleport-loop-worker-c-20260925/.cache/C15-logs/prayer-cooldown-repeat.rerecord.log.",
+      "localDifferential": {
+        "status": "match",
+        "firstMismatch": null,
+        "log": "/tmp/teleport-loop-worker-c-20260925/.cache/C15-logs/prayer-cooldown-repeat.diff.log"
+      }
+    },
+    {
+      "id": "towel-clean-face",
+      "title": "Apply a towel when face and hands are already clean",
+      "mission": "Source: nethack-c/upstream/src/apply.c:use_towel. Setup: Wizard debug hero has a towel and clean face/hands. Action history: Apply the towel to self once. C observation: C reaches use_towel’s clean branch; new screen/cursor boundary at step 11 says face and hands are already clean.",
+      "selectionRationale": "Prior item cases apply a horn or gaze with a crystal ball; this takes use_towel’s clean-face branch. See the complete pairwise comparison against all 46 prior cases in .cache/C15-final-overlap-crosswalk.json.",
+      "sourcePointers": [
+        "nethack-c/upstream/src/apply.c:use_towel"
+      ],
+      "cOutcome": "C reaches use_towel’s clean branch; new screen/cursor boundary at step 11 says face and hands are already clean.",
+      "firstMismatch": {
+        "kind": "screen",
+        "step": 11,
+        "source": "apply.c:use_towel clean branch",
+        "bucket": "apply.c:use_towel clean boundary",
+        "counted": true
+      },
+      "countedTowardTwelve": true,
+      "closestPriorCases": [
+        "v7/unicorn-horn-blindness-corrected",
+        "v7/crystal-query-reached"
+      ],
+      "inputs": {
+        "seed": 83015133,
+        "datetime": "20310202100133",
+        "role": "Wizard",
+        "keyCount": 10,
+        "boundaries": 11
+      },
+      "recipe": "challenges/cases/v8/towel-clean-face.recipe.session.json",
+      "recipeSha256": "04afc3d920c9979793c69d4e80ac1da0883b81bac8a5d36864f5daa968deefa4",
+      "recording": "challenges/cases/v8/towel-clean-face.session.json",
+      "recordingSha256": "eb0047f4948ab5f5386eb0159bbbd02cf7346895152a1ad5dbc126fbd0f5960a",
+      "reproducibility": "Independent C replay: [\"node\",\"scripts/run-bounded.mjs\",\"focused\",\"--\",\"node\",\"scripts/record-session.mjs\",\"challenges/cases/v8/towel-clean-face.recipe.session.json\",\".cache/C15-rerecords/towel-clean-face.rerecord.session.json\"]; exit 0; byte-identical SHA-256 eb0047f4948ab5f5386eb0159bbbd02cf7346895152a1ad5dbc126fbd0f5960a; 11 boundaries. Log: /tmp/teleport-loop-worker-c-20260925/.cache/C15-logs/towel-clean-face.rerecord.log.",
+      "localDifferential": {
+        "status": "mismatch",
+        "firstMismatch": {
+          "kind": "screen",
+          "step": 11,
+          "source": "apply.c:use_towel clean branch",
+          "bucket": "apply.c:use_towel clean boundary",
+          "counted": true
+        },
+        "log": "/tmp/teleport-loop-worker-c-20260925/.cache/C15-logs/towel-clean-face.current.diff.log"
+      }
+    },
+    {
+      "id": "wear-conflict-ring",
+      "title": "Wear a ring of conflict",
+      "mission": "Source: nethack-c/upstream/src/do_wear.c:Ring_on. Setup: Wizard debug hero has a wished ring of conflict and a visible monster pair. Action history: Put the ring on the right hand and allow the next monster action. C observation: C equips the steel-looking ring and the dog bites the grid bug; the recording matches.",
+      "selectionRationale": "The closest worn-property case equips a displacement cloak; this equips a ring and activates RIN_CONFLICT. See the complete pairwise comparison against all 46 prior cases in .cache/C15-final-overlap-crosswalk.json.",
+      "sourcePointers": [
+        "nethack-c/upstream/src/do_wear.c:Ring_on"
+      ],
+      "cOutcome": "C equips the steel-looking ring and the dog bites the grid bug; the recording matches.",
+      "firstMismatch": null,
+      "countedTowardTwelve": false,
+      "closestPriorCases": [
+        "v7/cloak-displacement-samurai-corrected"
+      ],
+      "inputs": {
+        "seed": 83015309,
+        "datetime": "20310303123009",
+        "role": "Wizard",
+        "keyCount": 52,
+        "boundaries": 53
+      },
+      "recipe": "challenges/cases/v8/wear-conflict-ring.recipe.session.json",
+      "recipeSha256": "27170deb6ab3900d0d0e9eaca76a3d09411d29917db7cc2b168f26025e045fbb",
+      "recording": "challenges/cases/v8/wear-conflict-ring.session.json",
+      "recordingSha256": "40f1c7f83b9f58e31622ea61ebb6d6d783f3edb01499ba03ff1a7917b93e0253",
+      "reproducibility": "Independent C replay: [\"node\",\"scripts/run-bounded.mjs\",\"focused\",\"--\",\"node\",\"scripts/record-session.mjs\",\"challenges/cases/v8/wear-conflict-ring.recipe.session.json\",\".cache/C15-rerecords/wear-conflict-ring.rerecord.session.json\"]; exit 0; byte-identical SHA-256 40f1c7f83b9f58e31622ea61ebb6d6d783f3edb01499ba03ff1a7917b93e0253; 53 boundaries. Log: /tmp/teleport-loop-worker-c-20260925/.cache/C15-logs/wear-conflict-ring.rerecord.log.",
+      "localDifferential": {
+        "status": "match",
+        "firstMismatch": null,
+        "log": "/tmp/teleport-loop-worker-c-20260925/.cache/C15-logs/wear-conflict-ring.current.diff.log"
+      }
+    },
+    {
+      "id": "tip-container-contents-trapped-box-probe",
+      "title": "Trigger a trapped chest while looting it",
+      "mission": "Source: nethack-c/upstream/src/pickup.c:do_loot_cont -> nethack-c/upstream/src/pickup.c:use_container -> nethack-c/upstream/src/trap.c:chest_trap. Setup: Wizard debug hero has an accessible trapped chest with contents. Action history: Use #loot on the chest and confirm the container menu. C observation: C reaches chest_trap, clears the trap, prints “You trigger a trap!”, then flushes the message window before RNG; first mismatch is step 62 screen boundary.",
+      "selectionRationale": "Prior traps are trapdoor travel or dig-created pit; this loots a container and triggers chest_trap’s message-window boundary. See the complete pairwise comparison against all 46 prior cases in .cache/C15-final-overlap-crosswalk.json.",
+      "sourcePointers": [
+        "nethack-c/upstream/src/pickup.c:do_loot_cont",
+        "nethack-c/upstream/src/pickup.c:use_container",
+        "nethack-c/upstream/src/trap.c:chest_trap"
+      ],
+      "cOutcome": "C reaches chest_trap, clears the trap, prints “You trigger a trap!”, then flushes the message window before RNG; first mismatch is step 62 screen boundary.",
+      "firstMismatch": {
+        "kind": "screen",
+        "step": 62,
+        "source": "trap.c:chest_trap display_nhwindow before trap RNG",
+        "bucket": "trap.c:chest_trap message boundary",
+        "counted": true
+      },
+      "countedTowardTwelve": true,
+      "closestPriorCases": [
+        "v7/trapdoor-pet-transit",
+        "v6/archeologist-down-dig-floor"
+      ],
+      "inputs": {
+        "seed": 83015107,
+        "datetime": "20310202095107",
+        "role": "Wizard",
+        "keyCount": 71,
+        "boundaries": 72
+      },
+      "recipe": "challenges/cases/v8/tip-container-contents.trapped-box-probe.recipe.session.json",
+      "recipeSha256": "b1d87d9164f1c571a3e46b17dc249f7d4a4f68c55b3c2f9da5ea96bce21c9dd5",
+      "recording": "challenges/cases/v8/tip-container-contents.trapped-box-probe.session.json",
+      "recordingSha256": "e77de911cae8b931eb2dca6528a3cab3f3a03a084fe5eb094b156acbfdd94df8",
+      "reproducibility": "Independent C replay: [\"node\",\"scripts/run-bounded.mjs\",\"focused\",\"--\",\"node\",\"scripts/record-session.mjs\",\"challenges/cases/v8/tip-container-contents.trapped-box-probe.recipe.session.json\",\".cache/C15-rerecords/tip-container-contents.trapped-box-probe.rerecord.session.json\"]; exit 0; byte-identical SHA-256 e77de911cae8b931eb2dca6528a3cab3f3a03a084fe5eb094b156acbfdd94df8; 72 boundaries. Log: /tmp/teleport-loop-worker-c-20260925/.cache/C15-logs/tip-container-contents.trapped-box-probe.rerecord.log.",
+      "localDifferential": {
+        "status": "mismatch",
+        "firstMismatch": {
+          "kind": "screen",
+          "step": 62,
+          "source": "trap.c:chest_trap display_nhwindow before trap RNG",
+          "bucket": "trap.c:chest_trap message boundary",
+          "counted": true
+        },
+        "log": "/tmp/teleport-loop-worker-c-20260925/.cache/C15-logs/tip-container-contents.trapped-box-probe.current.diff.log"
+      }
+    },
+    {
+      "id": "magic-whistle-recalls-tame-dog",
+      "title": "Use a magic whistle with a tame dog",
+      "mission": "Source: nethack-c/upstream/src/apply.c:use_magic_whistle -> nethack-c/upstream/src/teleport.c:magic_whistled -> nethack-c/upstream/src/teleport.c:collect_coords. Setup: Wizard debug hero has a tame dog and uncursed magic whistle. Action history: Apply the whistle after the dog moves away. C observation: C reaches collect_coords at step 29 and exercises same-level pet recall.",
+      "selectionRationale": "Earlier pet cases attack or change levels; this applies a magic whistle for same-level relocation. See the complete pairwise comparison against all 46 prior cases in .cache/C15-final-overlap-crosswalk.json.",
+      "sourcePointers": [
+        "nethack-c/upstream/src/apply.c:use_magic_whistle",
+        "nethack-c/upstream/src/teleport.c:magic_whistled",
+        "nethack-c/upstream/src/teleport.c:collect_coords"
+      ],
+      "cOutcome": "C reaches collect_coords at step 29 and exercises same-level pet recall.",
+      "firstMismatch": {
+        "kind": "rng",
+        "step": 29,
+        "source": "teleport.c:collect_coords",
+        "bucket": "teleport.c:collect_coords",
+        "counted": true
+      },
+      "countedTowardTwelve": true,
+      "closestPriorCases": [
+        "v7/pet-monster-combat",
+        "v7/trapdoor-pet-transit"
+      ],
+      "inputs": {
+        "seed": 83015304,
+        "datetime": "20310303123004",
+        "role": "Ranger",
+        "keyCount": 28,
+        "boundaries": 29
+      },
+      "recipe": "challenges/cases/v8/magic-whistle-recalls-tame-dog.recipe.session.json",
+      "recipeSha256": "d98f467f09db33d09f62c318cda76b6ed9c93a94249c3f1e1584ad7d7c671d4f",
+      "recording": "challenges/cases/v8/magic-whistle-recalls-tame-dog.session.json",
+      "recordingSha256": "cf957da92f219e57d15e2ee66f8a57ff0bb743f59cba9c7c9c2ca3b9b54c675a",
+      "reproducibility": "Independent C replay: [\"node\",\"scripts/run-bounded.mjs\",\"focused\",\"--\",\"node\",\"scripts/record-session.mjs\",\"challenges/cases/v8/magic-whistle-recalls-tame-dog.recipe.session.json\",\".cache/C15-rerecords/magic-whistle-recalls-tame-dog.rerecord.session.json\"]; exit 0; byte-identical SHA-256 cf957da92f219e57d15e2ee66f8a57ff0bb743f59cba9c7c9c2ca3b9b54c675a; 29 boundaries. Log: /tmp/teleport-loop-worker-c-20260925/.cache/C15-logs/magic-whistle-recalls-tame-dog.rerecord.log.",
+      "localDifferential": {
+        "status": "mismatch",
+        "firstMismatch": {
+          "kind": "rng",
+          "step": 29,
+          "source": "teleport.c:collect_coords",
+          "bucket": "teleport.c:collect_coords",
+          "counted": true
+        },
+        "log": "/tmp/teleport-loop-worker-c-20260925/.cache/C15-logs/magic-whistle-recalls-tame-dog.current.diff.log"
+      }
+    },
+    {
+      "id": "read-fire-scroll-effect",
+      "title": "Read a scroll of fire",
+      "mission": "Source: nethack-c/upstream/src/read.c:seffect_fire. Setup: Wizard debug hero has an uncursed scroll of fire and no fire resistance. Action history: Read the scroll once. C observation: C reaches seffect_fire; first mismatch at step 20 is rn2(3).",
+      "selectionRationale": "Earlier reads map terrain, read Earth, or use a dead-book; this executes the scroll-of-fire arm. See the complete pairwise comparison against all 46 prior cases in .cache/C15-final-overlap-crosswalk.json.",
+      "sourcePointers": [
+        "nethack-c/upstream/src/read.c:seffect_fire"
+      ],
+      "cOutcome": "C reaches seffect_fire; first mismatch at step 20 is rn2(3).",
+      "firstMismatch": {
+        "kind": "rng",
+        "step": 20,
+        "source": "read.c:seffect_fire",
+        "bucket": "read.c:seffect_fire",
+        "counted": true
+      },
+      "countedTowardTwelve": true,
+      "closestPriorCases": [
+        "v7/magic-mapping-scroll-effect",
+        "v6/wizard-read-earth-reach"
+      ],
+      "inputs": {
+        "seed": 83015308,
+        "datetime": "20310303123008",
+        "role": "Wizard",
+        "keyCount": 19,
+        "boundaries": 20
+      },
+      "recipe": "challenges/cases/v8/read-fire-scroll-effect.recipe.session.json",
+      "recipeSha256": "3c1f2c56f4db26ef1a5426e481f2282b6d07d5dbcf7f72e90672877a8fec80bc",
+      "recording": "challenges/cases/v8/read-fire-scroll-effect.session.json",
+      "recordingSha256": "9fc878b044ff61247bc0dee1bbc943b5f55ba78f17967641301bb1ccb26d47b7",
+      "reproducibility": "Independent C replay: [\"node\",\"scripts/run-bounded.mjs\",\"focused\",\"--\",\"node\",\"scripts/record-session.mjs\",\"challenges/cases/v8/read-fire-scroll-effect.recipe.session.json\",\".cache/C15-rerecords/read-fire-scroll-effect.rerecord.session.json\"]; exit 0; byte-identical SHA-256 9fc878b044ff61247bc0dee1bbc943b5f55ba78f17967641301bb1ccb26d47b7; 20 boundaries. Log: /tmp/teleport-loop-worker-c-20260925/.cache/C15-logs/read-fire-scroll-effect.rerecord.log.",
+      "localDifferential": {
+        "status": "mismatch",
+        "firstMismatch": {
+          "kind": "rng",
+          "step": 20,
+          "source": "read.c:seffect_fire",
+          "bucket": "read.c:seffect_fire",
+          "counted": true
+        },
+        "log": "/tmp/teleport-loop-worker-c-20260925/.cache/C15-logs/read-fire-scroll-effect.current.diff.log"
+      }
+    },
+    {
+      "id": "read-fire-scroll-effect-setup-miss-attempt1",
+      "title": "Read enchant armor selected during a fire-scroll setup",
+      "mission": "Source: nethack-c/upstream/src/read.c:seffect_enchant_armor. Setup: Wizard debug inventory places enchant-armor scroll at the selected letter. Action history: The recorded fire-scroll recipe selects the enchant-armor scroll; preserve actual C behavior. C observation: C enters seffect_enchant_armor at step 21; first mismatch is rnd(2) at read.c:1217.",
+      "selectionRationale": "This valid target miss reaches the enchant-armor switch arm, changing worn armor rather than mapping or reading Earth. See the complete pairwise comparison against all 46 prior cases in .cache/C15-final-overlap-crosswalk.json.",
+      "sourcePointers": [
+        "nethack-c/upstream/src/read.c:seffect_enchant_armor"
+      ],
+      "cOutcome": "C enters seffect_enchant_armor at step 21; first mismatch is rnd(2) at read.c:1217.",
+      "firstMismatch": {
+        "kind": "rng",
+        "step": 21,
+        "source": "read.c:seffect_enchant_armor",
+        "bucket": "read.c:seffect_enchant_armor",
+        "counted": true
+      },
+      "countedTowardTwelve": true,
+      "closestPriorCases": [
+        "v7/magic-mapping-scroll-effect",
+        "v6/wizard-read-earth-reach"
+      ],
+      "inputs": {
+        "seed": 83015308,
+        "datetime": "20310303123008",
+        "role": "Wizard",
+        "keyCount": 20,
+        "boundaries": 21
+      },
+      "recipe": "challenges/cases/v8/read-fire-scroll-effect.setup-miss-attempt1.recipe.session.json",
+      "recipeSha256": "4a41de4ad10a1f25fb22418e892475e34e74d36286721e48beefe2a351c3708d",
+      "recording": "challenges/cases/v8/read-fire-scroll-effect.setup-miss-attempt1.session.json",
+      "recordingSha256": "ee0e28cf295b60138d51379d06273fcbc5022484cc4e2cb4d05e3060ad17eb4d",
+      "reproducibility": "Independent C replay: [\"node\",\"scripts/run-bounded.mjs\",\"focused\",\"--\",\"node\",\"scripts/record-session.mjs\",\"challenges/cases/v8/read-fire-scroll-effect.setup-miss-attempt1.recipe.session.json\",\".cache/C15-rerecords/read-fire-scroll-effect.setup-miss-attempt1.rerecord.session.json\"]; exit 0; byte-identical SHA-256 ee0e28cf295b60138d51379d06273fcbc5022484cc4e2cb4d05e3060ad17eb4d; 21 boundaries. Log: /tmp/teleport-loop-worker-c-20260925/.cache/C15-logs/read-fire-scroll-effect.setup-miss-attempt1.rerecord.log.",
+      "localDifferential": {
+        "status": "mismatch",
+        "firstMismatch": {
+          "kind": "rng",
+          "step": 21,
+          "source": "read.c:seffect_enchant_armor",
+          "bucket": "read.c:seffect_enchant_armor",
+          "counted": true
+        },
+        "log": "/tmp/teleport-loop-worker-c-20260925/.cache/C15-logs/read-fire-scroll-effect.setup-miss-attempt1.current.diff.log"
+      }
+    },
+    {
+      "id": "read-confuse-monster-scroll",
+      "title": "Read a scroll of confuse monster",
+      "mission": "Source: nethack-c/upstream/src/read.c:seffect_confuse_monster. Setup: Human Wizard has a hostile adjacent grid bug, uncursed scroll, no existing confusion, and no antimagic. Action history: Read once and observe the hero’s monster-hit confusion state. C observation: C reaches the ordinary human, uncursed branch; first mismatch at step 50 is rnd(2).",
+      "selectionRationale": "Prior read/potion cases pacify undead or throw blindness; this read adds hero monster-hit confusion. See the complete pairwise comparison against all 46 prior cases in .cache/C15-final-overlap-crosswalk.json.",
+      "sourcePointers": [
+        "nethack-c/upstream/src/read.c:seffect_confuse_monster"
+      ],
+      "cOutcome": "C reaches the ordinary human, uncursed branch; first mismatch at step 50 is rnd(2).",
+      "firstMismatch": {
+        "kind": "rng",
+        "step": 50,
+        "source": "read.c:seffect_confuse_monster",
+        "bucket": "read.c:seffect_confuse_monster",
+        "counted": true
+      },
+      "countedTowardTwelve": true,
+      "closestPriorCases": [
+        "v7/blessed-book-undead",
+        "v7/throw-blindness-potion-hit-corrected",
+        "v6/wizard-read-earth-reach"
+      ],
+      "inputs": {
+        "seed": 83015401,
+        "datetime": "20310404115401",
+        "role": "Wizard",
+        "keyCount": 50,
+        "boundaries": 51
+      },
+      "recipe": "challenges/cases/v8/read-confuse-monster-scroll.recipe.session.json",
+      "recipeSha256": "76d0f4cb9e9e0201afe50bff5103ebc1e8a274fb51e373899fba75d37c9fa5e8",
+      "recording": "challenges/cases/v8/read-confuse-monster-scroll.session.json",
+      "recordingSha256": "69207cf1a491e36ac32f7f7de432ae70954b8e2d4c987c2c0d17676f3881c122",
+      "reproducibility": "Independent C replay: [\"node\",\"scripts/run-bounded.mjs\",\"focused\",\"--\",\"node\",\"scripts/record-session.mjs\",\"challenges/cases/v8/read-confuse-monster-scroll.recipe.session.json\",\".cache/C15-rerecords/read-confuse-monster-scroll.final-rerecord.session.json\"]; exit 0; byte-identical SHA-256 69207cf1a491e36ac32f7f7de432ae70954b8e2d4c987c2c0d17676f3881c122; 51 boundaries. Log: /tmp/teleport-loop-worker-c-20260925/.cache/C15-logs/read-confuse-monster-scroll.final-rerecord.log.",
+      "localDifferential": {
+        "status": "mismatch",
+        "firstMismatch": {
+          "kind": "rng",
+          "step": 50,
+          "source": "read.c:seffect_confuse_monster",
+          "bucket": "read.c:seffect_confuse_monster",
+          "counted": true
+        },
+        "log": "/tmp/teleport-loop-worker-c-20260925/.cache/C15-logs/read-confuse-monster-scroll.current.diff.log"
+      }
+    },
+    {
+      "id": "read-scare-monster-scroll",
+      "title": "Read a scroll of scare monster",
+      "mission": "Source: nethack-c/upstream/src/read.c:seffect_scare_monster -> nethack-c/upstream/src/zap.c:resist. Setup: Human Wizard has a visible hostile grid bug and uncursed scare-monster scroll. Action history: Read once; C checks resistance and monster response. C observation: C reaches the scare branch and prints nearby maniacal laughter at step 48; first mismatch is resist, shared with taming and not counted twice.",
+      "selectionRationale": "Prior cases throw blindness or pacify undead; this reads the scare effect on a living monster. See the complete pairwise comparison against all 46 prior cases in .cache/C15-final-overlap-crosswalk.json.",
+      "sourcePointers": [
+        "nethack-c/upstream/src/read.c:seffect_scare_monster",
+        "nethack-c/upstream/src/zap.c:resist"
+      ],
+      "cOutcome": "C reaches the scare branch and prints nearby maniacal laughter at step 48; first mismatch is resist, shared with taming and not counted twice.",
+      "firstMismatch": {
+        "kind": "rng",
+        "step": 48,
+        "source": "zap.c:resist via read.c:seffect_scare_monster",
+        "bucket": "zap.c:resist",
+        "counted": false
+      },
+      "countedTowardTwelve": false,
+      "closestPriorCases": [
+        "v7/throw-blindness-potion-hit-corrected",
+        "v7/blessed-book-undead"
+      ],
+      "inputs": {
+        "seed": 83015402,
+        "datetime": "20310404115402",
+        "role": "Wizard",
+        "keyCount": 48,
+        "boundaries": 49
+      },
+      "recipe": "challenges/cases/v8/read-scare-monster-scroll.recipe.session.json",
+      "recipeSha256": "819c1495673134eb67628ad1192bf33b326f87a8bfe2a22b6b8e22bc90ea0380",
+      "recording": "challenges/cases/v8/read-scare-monster-scroll.session.json",
+      "recordingSha256": "97225b67fb7098a550ce4b69696e06313a2c8635a3d550b4a1461cd49319f6ac",
+      "reproducibility": "Independent C replay: [\"node\",\"scripts/run-bounded.mjs\",\"focused\",\"--\",\"node\",\"scripts/record-session.mjs\",\"challenges/cases/v8/read-scare-monster-scroll.recipe.session.json\",\".cache/C15-rerecords/read-scare-monster-scroll.final-rerecord.session.json\"]; exit 0; byte-identical SHA-256 97225b67fb7098a550ce4b69696e06313a2c8635a3d550b4a1461cd49319f6ac; 49 boundaries. Log: /tmp/teleport-loop-worker-c-20260925/.cache/C15-logs/read-scare-monster-scroll.final-rerecord.log.",
+      "localDifferential": {
+        "status": "mismatch",
+        "firstMismatch": {
+          "kind": "rng",
+          "step": 48,
+          "source": "zap.c:resist via read.c:seffect_scare_monster",
+          "bucket": "zap.c:resist",
+          "counted": false
+        },
+        "log": "/tmp/teleport-loop-worker-c-20260925/.cache/C15-logs/read-scare-monster-scroll.current.diff.log"
+      }
+    },
+    {
+      "id": "read-taming-scroll-hostile-monster",
+      "title": "Read a scroll of taming against a hostile grid bug",
+      "mission": "Source: nethack-c/upstream/src/read.c:seffect_taming -> nethack-c/upstream/src/zap.c:resist. Setup: Wizard debug hero has hostile adjacent grid bug and uncursed scroll of taming. Action history: Read once and record disposition response. C observation: C reaches seffect_taming/resist at step 41; first mismatch is rn2(108).",
+      "selectionRationale": "Prior cases throw a potion or read a blessed undead book; this is the read.c taming arm against a hostile living monster. See the complete pairwise comparison against all 46 prior cases in .cache/C15-final-overlap-crosswalk.json.",
+      "sourcePointers": [
+        "nethack-c/upstream/src/read.c:seffect_taming",
+        "nethack-c/upstream/src/zap.c:resist"
+      ],
+      "cOutcome": "C reaches seffect_taming/resist at step 41; first mismatch is rn2(108).",
+      "firstMismatch": {
+        "kind": "rng",
+        "step": 41,
+        "source": "zap.c:resist via read.c:seffect_taming",
+        "bucket": "zap.c:resist",
+        "counted": true
+      },
+      "countedTowardTwelve": true,
+      "closestPriorCases": [
+        "v7/throw-blindness-potion-hit-corrected",
+        "v7/blessed-book-undead",
+        "v6/wizard-read-earth-reach"
+      ],
+      "inputs": {
+        "seed": 83015302,
+        "datetime": "20310303123002",
+        "role": "Wizard",
+        "keyCount": 41,
+        "boundaries": 42
+      },
+      "recipe": "challenges/cases/v8/read-taming-scroll-hostile-monster.recipe.session.json",
+      "recipeSha256": "3f6b50d6342f98081f5dd90ed095e2923fbf924569d09f8ffe829e32bdd309b9",
+      "recording": "challenges/cases/v8/read-taming-scroll-hostile-monster.session.json",
+      "recordingSha256": "aa43f40887854473146ba71400cfed8fe0bcb7ec20c6d33af61721651be4e6b8",
+      "reproducibility": "Independent C replay: [\"node\",\"scripts/run-bounded.mjs\",\"focused\",\"--\",\"node\",\"scripts/record-session.mjs\",\"challenges/cases/v8/read-taming-scroll-hostile-monster.recipe.session.json\",\".cache/C15-rerecords/read-taming-scroll-hostile-monster.rerecord.session.json\"]; exit 0; byte-identical SHA-256 aa43f40887854473146ba71400cfed8fe0bcb7ec20c6d33af61721651be4e6b8; 42 boundaries. Log: /tmp/teleport-loop-worker-c-20260925/.cache/C15-logs/read-taming-scroll-hostile-monster.rerecord.log.",
+      "localDifferential": {
+        "status": "mismatch",
+        "firstMismatch": {
+          "kind": "rng",
+          "step": 41,
+          "source": "zap.c:resist via read.c:seffect_taming",
+          "bucket": "zap.c:resist",
+          "counted": true
+        },
+        "log": "/tmp/teleport-loop-worker-c-20260925/.cache/C15-logs/read-taming-scroll-hostile-monster.current.diff.log"
+      }
+    },
+    {
+      "id": "read-create-monster-scroll-no-prior-monsters",
+      "title": "Read create monster with no prior monsters present",
+      "mission": "Source: nethack-c/upstream/src/read.c:seffect_create_monster. Setup: Wizard debug hero has an uncursed create-monster scroll in a cleared room. Action history: Read once before any monster/pet action. C observation: C reaches seffect_create_monster; first mismatch at step 31 is rn2(73).",
+      "selectionRationale": "Prior reads map, pacify, or invoke Earth; this creates monsters from an empty-room scroll action. See the complete pairwise comparison against all 46 prior cases in .cache/C15-final-overlap-crosswalk.json.",
+      "sourcePointers": [
+        "nethack-c/upstream/src/read.c:seffect_create_monster"
+      ],
+      "cOutcome": "C reaches seffect_create_monster; first mismatch at step 31 is rn2(73).",
+      "firstMismatch": {
+        "kind": "rng",
+        "step": 31,
+        "source": "read.c:seffect_create_monster",
+        "bucket": "read.c:seffect_create_monster",
+        "counted": true
+      },
+      "countedTowardTwelve": true,
+      "closestPriorCases": [
+        "v7/magic-mapping-scroll-effect",
+        "v7/blessed-book-undead",
+        "v6/wizard-read-earth-reach"
+      ],
+      "inputs": {
+        "seed": 83015417,
+        "datetime": "20320505121717",
+        "role": "Wizard",
+        "keyCount": 30,
+        "boundaries": 31
+      },
+      "recipe": "challenges/cases/v8/read-create-monster-scroll-no-prior-monsters.recipe.session.json",
+      "recipeSha256": "2ebfe64f4817de715a428c8dac99f16e7ddec0aebd7665e16b218cc1d8d4bca5",
+      "recording": "challenges/cases/v8/read-create-monster-scroll-no-prior-monsters.session.json",
+      "recordingSha256": "4b3f803e8ba3dc875766f2ca2a7a35f2e0423af8a5423bf51d0f69ac47f9a791",
+      "reproducibility": "Independent C replay: [\"node\",\"scripts/run-bounded.mjs\",\"focused\",\"--\",\"node\",\"scripts/record-session.mjs\",\"challenges/cases/v8/read-create-monster-scroll-no-prior-monsters.recipe.session.json\",\".cache/C15-rerecords/read-create-monster-scroll-no-prior-monsters.final-rerecord.session.json\"]; exit 0; byte-identical SHA-256 4b3f803e8ba3dc875766f2ca2a7a35f2e0423af8a5423bf51d0f69ac47f9a791; 31 boundaries. Log: /tmp/teleport-loop-worker-c-20260925/.cache/C15-logs/read-create-monster-scroll-no-prior-monsters.final-rerecord.log.",
+      "localDifferential": {
+        "status": "mismatch",
+        "firstMismatch": {
+          "kind": "rng",
+          "step": 31,
+          "source": "read.c:seffect_create_monster",
+          "bucket": "read.c:seffect_create_monster",
+          "counted": true
+        },
+        "log": "/tmp/teleport-loop-worker-c-20260925/.cache/C15-logs/read-create-monster-scroll-no-prior-monsters.current.diff.log"
+      }
+    },
+    {
+      "id": "read-blessed-enchant-weapon",
+      "title": "Read a blessed scroll of enchant weapon",
+      "mission": "Source: nethack-c/upstream/src/read.c:seffect_enchant_weapon. Setup: Wizard debug hero wields a non-eroded quarterstaff and carries a blessed enchant-weapon scroll. Action history: Read once and observe wielded weapon enchantment/proofing. C observation: C reaches seffect_enchant_weapon; first mismatch at step 38 is rnd(3).",
+      "selectionRationale": "Prior read cases map or use Earth; this applies a blessed scroll to a wielded weapon. See the complete pairwise comparison against all 46 prior cases in .cache/C15-final-overlap-crosswalk.json.",
+      "sourcePointers": [
+        "nethack-c/upstream/src/read.c:seffect_enchant_weapon"
+      ],
+      "cOutcome": "C reaches seffect_enchant_weapon; first mismatch at step 38 is rnd(3).",
+      "firstMismatch": {
+        "kind": "rng",
+        "step": 38,
+        "source": "read.c:seffect_enchant_weapon",
+        "bucket": "read.c:seffect_enchant_weapon",
+        "counted": true
+      },
+      "countedTowardTwelve": true,
+      "closestPriorCases": [
+        "v7/magic-mapping-scroll-effect",
+        "v6/wizard-read-earth-reach"
+      ],
+      "inputs": {
+        "seed": 83015418,
+        "datetime": "20320606121818",
+        "role": "Wizard",
+        "keyCount": 37,
+        "boundaries": 38
+      },
+      "recipe": "challenges/cases/v8/read-blessed-enchant-weapon.recipe.session.json",
+      "recipeSha256": "bf6cc7a65a346406dee977c71b2dfbfa232ad87e1862cda6a9acc764b62790ed",
+      "recording": "challenges/cases/v8/read-blessed-enchant-weapon.session.json",
+      "recordingSha256": "554a6afed2c716218943a4b42a5a9daefed78e77869fe346d286d19e7500666f",
+      "reproducibility": "Independent C replay: [\"node\",\"scripts/run-bounded.mjs\",\"focused\",\"--\",\"node\",\"scripts/record-session.mjs\",\"challenges/cases/v8/read-blessed-enchant-weapon.recipe.session.json\",\".cache/C15-rerecords/read-blessed-enchant-weapon.final-rerecord.session.json\"]; exit 0; byte-identical SHA-256 554a6afed2c716218943a4b42a5a9daefed78e77869fe346d286d19e7500666f; 38 boundaries. Log: /tmp/teleport-loop-worker-c-20260925/.cache/C15-logs/read-blessed-enchant-weapon.final-rerecord.log.",
+      "localDifferential": {
+        "status": "mismatch",
+        "firstMismatch": {
+          "kind": "rng",
+          "step": 38,
+          "source": "read.c:seffect_enchant_weapon",
+          "bucket": "read.c:seffect_enchant_weapon",
+          "counted": true
+        },
+        "log": "/tmp/teleport-loop-worker-c-20260925/.cache/C15-logs/read-blessed-enchant-weapon.current.diff.log"
+      }
+    },
+    {
+      "id": "read-remove-curse-loadstone",
+      "title": "Read remove curse with a cursed loadstone",
+      "mission": "Source: nethack-c/upstream/src/read.c:seffect_remove_curse. Setup: Wizard debug hero carries a naturally cursed loadstone and uncursed remove-curse scroll. Action history: Read once and let inventory traversal process the loadstone. C observation: C reaches seffect_remove_curse’s uncursed inventory branch; full recording matches JS.",
+      "selectionRationale": "Prior read cases map or invoke Earth; this traverses inventory to process a cursed loadstone. See the complete pairwise comparison against all 46 prior cases in .cache/C15-final-overlap-crosswalk.json.",
+      "sourcePointers": [
+        "nethack-c/upstream/src/read.c:seffect_remove_curse"
+      ],
+      "cOutcome": "C reaches seffect_remove_curse’s uncursed inventory branch; full recording matches JS.",
+      "firstMismatch": null,
+      "countedTowardTwelve": false,
+      "closestPriorCases": [
+        "v7/magic-mapping-scroll-effect",
+        "v6/wizard-read-earth-reach"
+      ],
+      "inputs": {
+        "seed": 83015419,
+        "datetime": "20320707121919",
+        "role": "Wizard",
+        "keyCount": 40,
+        "boundaries": 41
+      },
+      "recipe": "challenges/cases/v8/read-remove-curse-loadstone.recipe.session.json",
+      "recipeSha256": "7efcfc46931d8d94aa6e46f478378a62a358440b2140f888e6421562431a0816",
+      "recording": "challenges/cases/v8/read-remove-curse-loadstone.session.json",
+      "recordingSha256": "db97488b67db6ed8e8185250916a81b3a3969c5f014cdcd56031be625729bad5",
+      "reproducibility": "Independent C replay: [\"node\",\"scripts/run-bounded.mjs\",\"focused\",\"--\",\"node\",\"scripts/record-session.mjs\",\"challenges/cases/v8/read-remove-curse-loadstone.recipe.session.json\",\".cache/C15-rerecords/read-remove-curse-loadstone.final-rerecord.session.json\"]; exit 0; byte-identical SHA-256 db97488b67db6ed8e8185250916a81b3a3969c5f014cdcd56031be625729bad5; 41 boundaries. Log: /tmp/teleport-loop-worker-c-20260925/.cache/C15-logs/read-remove-curse-loadstone.final-rerecord.log.",
+      "localDifferential": {
+        "status": "match",
+        "firstMismatch": null,
+        "log": "/tmp/teleport-loop-worker-c-20260925/.cache/C15-logs/read-remove-curse-loadstone.current.diff.log"
+      }
+    },
+    {
+      "id": "read-cursed-destroy-armor-scroll",
+      "title": "Read a cursed destroy-armor scroll while wearing a cloak",
+      "mission": "Source: nethack-c/upstream/src/read.c:seffect_destroy_armor -> nethack-c/upstream/src/do_wear.c:disintegrate_arm -> nethack-c/upstream/src/zap.c:obj_resists. Setup: Wizard debug hero wears starting cloak and carries cursed destroy-armor scroll. Action history: Read once and let the cursed effect select worn armor. C observation: C reaches disintegrate_arm; first mismatch at step 37 is obj_resists(armor,0,90).",
+      "selectionRationale": "The v5 resistance case is a wand/hero-break path on a corpse with obj_resists(obj,1,99); this is read/destroy-armor -> disintegrate_arm on a worn cloak with (armor,0,90). Caller, target, args, and history differ. See the complete pairwise comparison against all 46 prior cases in .cache/C15-final-overlap-crosswalk.json.",
+      "sourcePointers": [
+        "nethack-c/upstream/src/read.c:seffect_destroy_armor",
+        "nethack-c/upstream/src/do_wear.c:disintegrate_arm",
+        "nethack-c/upstream/src/zap.c:obj_resists"
+      ],
+      "cOutcome": "C reaches disintegrate_arm; first mismatch at step 37 is obj_resists(armor,0,90).",
+      "firstMismatch": {
+        "kind": "rng",
+        "step": 37,
+        "source": "zap.c:obj_resists via read.c:seffect_destroy_armor -> do_wear.c:disintegrate_arm",
+        "bucket": "obj_resists worn-armor caller",
+        "counted": true
+      },
+      "countedTowardTwelve": true,
+      "closestPriorCases": [
+        "v5/healer-wand-striking-grid-bug",
+        "v7/cursed-wand-self-zap-corrected"
+      ],
+      "inputs": {
+        "seed": 83015421,
+        "datetime": "20320909122121",
+        "role": "Wizard",
+        "keyCount": 36,
+        "boundaries": 37
+      },
+      "recipe": "challenges/cases/v8/read-cursed-destroy-armor-scroll.recipe.session.json",
+      "recipeSha256": "8ac2aa73f789a3b09edbb4fc0cad30dcb219c7e4fd9e09f2e82cc85288939888",
+      "recording": "challenges/cases/v8/read-cursed-destroy-armor-scroll.session.json",
+      "recordingSha256": "284496eb42e96abd55dc09a2f531660b33caeb09d61dd5fb1474e4eb1b052452",
+      "reproducibility": "Independent C replay: [\"node\",\"scripts/run-bounded.mjs\",\"focused\",\"--\",\"node\",\"scripts/record-session.mjs\",\"challenges/cases/v8/read-cursed-destroy-armor-scroll.recipe.session.json\",\".cache/C15-rerecords/read-cursed-destroy-armor-scroll.final-rerecord.session.json\"]; exit 0; byte-identical SHA-256 284496eb42e96abd55dc09a2f531660b33caeb09d61dd5fb1474e4eb1b052452; 37 boundaries. Log: /tmp/teleport-loop-worker-c-20260925/.cache/C15-logs/read-cursed-destroy-armor-scroll.final-rerecord.log.",
+      "localDifferential": {
+        "status": "mismatch",
+        "firstMismatch": {
+          "kind": "rng",
+          "step": 37,
+          "source": "zap.c:obj_resists via read.c:seffect_destroy_armor -> do_wear.c:disintegrate_arm",
+          "bucket": "obj_resists worn-armor caller",
+          "counted": true
+        },
+        "log": "/tmp/teleport-loop-worker-c-20260925/.cache/C15-logs/read-cursed-destroy-armor-scroll.current.diff.log"
+      }
+    },
+    {
+      "id": "apply-blessed-touchstone-identifies-gem",
+      "title": "Rub a ruby on a blessed touchstone",
+      "mission": "Source: nethack-c/upstream/src/apply.c:doapply -> nethack-c/upstream/src/apply.c:use_stone. Setup: Wizard debug hero has blessed touchstone at inventory o and ruby at p after two wishes. Action history: Apply (a), choose touchstone (o), then ruby (p); two earlier menu attempts remain as setup-miss provenance. C observation: C enters use_stone and asks what to rub on the stone at step 39; the ruby is named at step 40. JS omits the boundary; next C RNG is exercise(attrib.c:509) at step 41.",
+      "selectionRationale": "The closest resistance/item target cases use a wand or thrown potion on a monster. C here applies a blessed touchstone to an inventory ruby; caller, state, target, and input sequence differ. See the complete pairwise comparison against all 46 prior cases in .cache/C15-final-overlap-crosswalk.json.",
+      "sourcePointers": [
+        "nethack-c/upstream/src/apply.c:doapply",
+        "nethack-c/upstream/src/apply.c:use_stone"
+      ],
+      "cOutcome": "C enters use_stone and asks what to rub on the stone at step 39; the ruby is named at step 40. JS omits the boundary; next C RNG is exercise(attrib.c:509) at step 41.",
+      "firstMismatch": {
+        "kind": "screen",
+        "step": 40,
+        "source": "apply.c:use_stone rub-target prompt",
+        "bucket": "apply.c:use_stone",
+        "counted": true
+      },
+      "countedTowardTwelve": true,
+      "closestPriorCases": [
+        "v5/healer-wand-striking-grid-bug",
+        "v7/throw-blindness-potion-hit-corrected"
+      ],
+      "inputs": {
+        "seed": 83015431,
+        "datetime": "20321010123145",
+        "role": "Wizard",
+        "keyCount": 40,
+        "boundaries": 41
+      },
+      "recipe": "challenges/cases/v8/apply-blessed-touchstone-identifies-gem.recipe.session.json",
+      "recipeSha256": "4eccdc30b91b8ae19a86827b33311a87d14665f0d1dccce55ce8083cfba61e25",
+      "recording": "challenges/cases/v8/apply-blessed-touchstone-identifies-gem.session.json",
+      "recordingSha256": "c1ac831e5b8e20bf4777c016524fca8cec221b084adeb6eb14c7d9ca31a2071f",
+      "reproducibility": "Independent C replay: [\"node\",\"scripts/run-bounded.mjs\",\"focused\",\"--\",\"node\",\"scripts/record-session.mjs\",\"challenges/cases/v8/apply-blessed-touchstone-identifies-gem.recipe.session.json\",\".cache/C15-rerecords/apply-blessed-touchstone-identifies-gem.final-rerecord.session.json\"]; exit 0; byte-identical SHA-256 c1ac831e5b8e20bf4777c016524fca8cec221b084adeb6eb14c7d9ca31a2071f; 41 boundaries. Log: /tmp/teleport-loop-worker-c-20260925/.cache/C15-logs/apply-blessed-touchstone-identifies-gem.final-rerecord.log.",
+      "localDifferential": {
+        "status": "mismatch",
+        "firstMismatch": {
+          "kind": "screen",
+          "step": 40,
+          "source": "apply.c:use_stone rub-target prompt",
+          "bucket": "apply.c:use_stone",
+          "counted": true
+        },
+        "log": "/tmp/teleport-loop-worker-c-20260925/.cache/C15-logs/apply-blessed-touchstone-identifies-gem.diff.log"
+      }
+    }
+  ]
+}

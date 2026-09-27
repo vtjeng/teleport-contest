@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 92741025,
+      "datetime": "20340909142500",
+      "nethackrc": "OPTIONS=name:Hearwell,role:Healer,race:human,gender:female,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen\nOPTIONS=pettype:none,!autopickup,time,playmode:debug\n",
+      "comment": "Independent A23 C witness for a cursed Healer stethoscope. Wizard wish supplies the branch input, then apply.c:use_stethoscope() handles the cursed heartbeat roll.",
+      "moves": " \u0017cursed stethoscope\nak."
+    }
+  ]
+}
