@@ -1,0 +1,143 @@
+{
+  "session": "synthetic/v8/read-taming-scroll-hostile-monster",
+  "corpus": "synthetic",
+  "batch": "v8",
+  "caseId": "read-taming-scroll-hostile-monster",
+  "manifestPath": "challenges/manifests/v8.json",
+  "manifestSha256": "6a5159501af18a7f926f794d89e817375cd00a3589c4899fb97392ae04dbe8ba",
+  "recordingSha256": "aa43f40887854473146ba71400cfed8fe0bcb7ec20c6d33af61721651be4e6b8",
+  "evaluationPath": "challenges/evaluations/20260927093229-v8.json",
+  "evaluationCommit": "043629bb13447062cadb766644b34c3490bb9bde",
+  "remainingScreens": 2,
+  "recordedSteps": 42,
+  "status": "complete",
+  "commit": "043629bb13447062cadb766644b34c3490bb9bde",
+  "mismatch": {
+    "corpus": "synthetic",
+    "batch": "v8",
+    "caseId": "read-taming-scroll-hostile-monster",
+    "session": "synthetic/v8/read-taming-scroll-hostile-monster",
+    "manifestPath": "challenges/manifests/v8.json",
+    "manifestSha256": "6a5159501af18a7f926f794d89e817375cd00a3589c4899fb97392ae04dbe8ba",
+    "recording": "challenges/cases/v8/read-taming-scroll-hostile-monster.session.json",
+    "recordingPath": "challenges/cases/v8/read-taming-scroll-hostile-monster.session.json",
+    "recordingSha256": "aa43f40887854473146ba71400cfed8fe0bcb7ec20c6d33af61721651be4e6b8",
+    "recipe": "challenges/cases/v8/read-taming-scroll-hostile-monster.recipe.session.json",
+    "recipeSha256": "3f6b50d6342f98081f5dd90ed095e2923fbf924569d09f8ffe829e32bdd309b9",
+    "replayInputSha256": "0f02aefea58c7782bb1025c20c9b5ec4e8c0db346647c814c57da04540ffe62a",
+    "evaluationPath": "challenges/evaluations/20260927093229-v8.json",
+    "evaluationCommit": "043629bb13447062cadb766644b34c3490bb9bde",
+    "evaluationArtifact": "challenges/evaluations/20260927093229-v8.json",
+    "evaluationUtc": "2026-09-27T09:33:02.084Z",
+    "remainingScreens": 2,
+    "recordedSteps": 42,
+    "previousScreensMatched": 40,
+    "regression": false,
+    "passed": false,
+    "error": null,
+    "metrics": {
+      "screens": {
+        "matched": 40,
+        "total": 42
+      },
+      "rng": {
+        "matched": 2546,
+        "total": 2552
+      },
+      "cursors": {
+        "matched": 41,
+        "total": 42
+      }
+    },
+    "firstMismatch": {
+      "screen": {
+        "index": 40,
+        "location": {
+          "segmentIndex": 0,
+          "stepIndex": 40,
+          "key": "h"
+        },
+        "kind": "ch",
+        "row": 0,
+        "column": 38,
+        "cCell": {
+          "ch": "-",
+          "color": 8,
+          "attr": 0,
+          "decgfx": 0
+        },
+        "jsCell": {
+          "ch": " ",
+          "color": 8,
+          "attr": 0,
+          "decgfx": 0
+        }
+      },
+      "rng": {
+        "index": 2545,
+        "cEntry": "rn2(108)=23",
+        "cCaller": "resist(zap.c:6141)",
+        "jsEntry": "rn2(12)=11",
+        "location": {
+          "segmentIndex": 0,
+          "stepIndex": 40,
+          "key": "h"
+        },
+        "stepIndex": 40
+      },
+      "cursor": {
+        "index": 40,
+        "location": {
+          "segmentIndex": 0,
+          "stepIndex": 40,
+          "key": "h"
+        },
+        "cCursor": [
+          46,
+          0,
+          1
+        ],
+        "jsCursor": [
+          43,
+          15,
+          1
+        ]
+      }
+    },
+    "step": 40,
+    "kind": "rng",
+    "sourceFile": "zap.c",
+    "function": "resist",
+    "message": null,
+    "cFile": "zap.c",
+    "luaFile": null,
+    "line": 6141
+  },
+  "summary": "At segment 0 step 40, the h input selects the wished scroll of taming. C enters read.c:seffect_taming() and maybe_tame() for the adjacent hostile grid bug; its first unmatched RNG draw is the consumed resistance check rn2(108)=23 in zap.c:resist(). JavaScript still has note_unported(\"read.c seffect_taming\") in its seffects() dispatch, so it skips the effect and reaches a different rn2(12)=11 draw at the aligned index. The active missing owner is read.c:maybe_tame/seffect_taming, not zap.c:resist; js/zap.js:resist and js/dog.js:tamedog already implement those dependencies. The remaining source task is the complete taming effect/helper port and replacement of the dispatch gap.",
+  "source": {
+    "file": "read.c",
+    "branch": "For SCR_TAMING or SPE_CHARM_MONSTER, seffects() calls seffect_taming(). In the selected case the wished scroll is not cursed, the hero is not confused or swallowed, and an adjacent hostile grid bug is in range. seffect_taming() calls maybe_tame(), which consumes resist()’s boolean before deciding whether to call tamedog(); it then aggregates changed/visible candidates and updates the scroll-known flag from the visible result.",
+    "functions": [
+      "maybe_tame",
+      "seffect_taming"
+    ],
+    "callers": [
+      "C: read.c:doread() invokes seffects(scroll) at read.c:635; seffects() dispatches SCR_TAMING and SPE_CHARM_MONSTER to seffect_taming(&sobj) at read.c:2236-2238. The selected command path is the recorded r/read action, followed by h selecting the wished scroll from inventory.",
+      "JavaScript: js/read.js:doread() calls seffects(scroll, state) at line 882; js/read.js:seffects() currently handles SCR_TAMING and SPE_CHARM_MONSTER with note_unported(\"read.c seffect_taming\") at lines 1509-1512."
+    ],
+    "dependencies": [
+      "read.c:maybe_tame() consumes zap.c:resist(mtmp, sobj->oclass, 0, NOTELL) at line 1056; the existing implementation is js/zap.js:resist(), whose SCROLL_CLASS attack level is 9 and whose rn2 bound is 100 + alev - dlev.",
+      "read.c:maybe_tame() discards dog.c:tamedog()’s return value at line 1057; the existing stateful implementation is js/dog.js:tamedog(). C still requires awaiting its messages and mutations when wiring the effect.",
+      "The cursed arm calls mon.c:setmangry() and consumes its resulting peacefulness change, while the effect uses monst.c:m_at(), display.h:canspotmon(), and the hero’s swallowed/steed state. Existing JS counterparts include js/mon.js:setmangry(), js/monst.js:m_at(), and js/startup_a11y.js:canSpotMonster()."
+    ]
+  },
+  "goalKind": "file-port",
+  "evidence": [
+    "The exact current queue entry in /tmp/A24-main-workqueue.json records 2 remaining screens and 42 recorded steps for synthetic/v8/read-taming-scroll-hostile-monster. It points to challenges/evaluations/20260927093229-v8.json evaluated at 043629bb13447062cadb766644b34c3490bb9bde; the case remains 40/42 screens, 2546/2552 RNG values, and 41/42 cursors matched, with first mismatch at segment 0 step 40 on h.",
+    "The first C-side unmatched draw is rng index 2545, rn2(108)=23, annotated resist(zap.c:6141); the same input’s JS aligned draw is rn2(12)=11. The source annotation names the callee whose return is consumed, while the missing caller branch is visible directly in js/read.js:1509-1512 as note_unported(\"read.c seffect_taming\").",
+    "Upstream nethack-c/upstream/src/read.c:1042-1063 defines maybe_tame(): cursed scrolls call setmangry(); otherwise C consumes resist()’s result and invokes tamedog() if unresisted or the target is a shopkeeper, then returns whether peaceful/tame state changed.",
+    "Upstream nethack-c/upstream/src/read.c:1678-1719 defines the whole seffect_taming() loop. It handles swallowed heroes separately; otherwise it scans a radius of one (five when confused), includes a steed at the hero square, counts candidates, aggregates maybe_tame() results and visible results, prints the appropriate neighborhood message, and sets gk.known only for positive visible results.",
+    "Upstream nethack-c/upstream/src/read.c:2191-2240 dispatches SCR_TAMING and SPE_CHARM_MONSTER to seffect_taming(). In JavaScript the source-order caller already exists as js/read.js:1441 and doread() calls it at line 882; only the two taming switch arms remain explicit gaps.",
+    "The source dependency behavior is already present at js/zap.js:1718-1746 (resist) and js/dog.js:229-250 (tamedog); the matching state/visibility helpers are in js/mon.js, js/monst.js, and js/startup_a11y.js. The missing call path therefore belongs in read.c’s taming helper/effect rather than a change to zap.c:resist."
+  ]
+}

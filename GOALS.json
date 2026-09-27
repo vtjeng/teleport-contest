@@ -95006,6 +95006,179 @@
           "evaluationCommit": "c4cdb74777cb0a0796befbb14724fecbe1fb54e6"
         }
       }
+    },
+    {
+      "id": "port-read-taming-synthetic-v8-20260927",
+      "kind": "file-port",
+      "status": "superseded",
+      "summary": "Port read.c taming scroll and charm-monster effect through maybe_tame and seffect_taming",
+      "cFile": "read.c",
+      "sessions": [
+        "synthetic/v8/read-taming-scroll-hostile-monster"
+      ],
+      "selectionReason": "Selected synthetic/v8/read-taming-scroll-hostile-monster from validated investigation at investigations/synthetic/v8/read-taming-scroll-hostile-monster.json; v8 manifest 6a5159501af18a7f926f794d89e817375cd00a3589c4899fb97392ae04dbe8ba, recording challenges/cases/v8/read-taming-scroll-hostile-monster.session.json digest aa43f40887854473146ba71400cfed8fe0bcb7ec20c6d33af61721651be4e6b8, evaluation challenges/evaluations/20260927093229-v8.json at 043629bb. The missing source owner is read.c maybe_tame/seffect_taming; zap.c resist is the consumed RNG dependency. No other unresolved case shares this function family.",
+      "detail": "At segment 0 step 40, seffects dispatch for SCR_TAMING still calls note_unported; C enters read.c:seffect_taming, scans nearby monster candidates and consumes maybe_tame/resist results. Port the complete selected C functions and wire both SCR_TAMING and SPE_CHARM_MONSTER callers. See source-traced investigation.",
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": null,
+      "delivered": null,
+      "functions": [
+        {
+          "name": "maybe_tame",
+          "line": 1044,
+          "endLine": 1068,
+          "declared": false,
+          "complete": false
+        },
+        {
+          "name": "valid_cloud_pos",
+          "line": 1069,
+          "endLine": 1079,
+          "declared": true,
+          "complete": false
+        },
+        {
+          "name": "can_center_cloud",
+          "line": 1080,
+          "endLine": 1087,
+          "declared": false,
+          "complete": false
+        },
+        {
+          "name": "display_stinking_cloud_positions",
+          "line": 1088,
+          "endLine": 1114,
+          "declared": false,
+          "complete": false
+        },
+        {
+          "name": "seffect_enchant_armor",
+          "line": 1115,
+          "endLine": 1293,
+          "declared": false,
+          "complete": false
+        },
+        {
+          "name": "disintegrate_cursed_armor",
+          "line": 1294,
+          "endLine": 1323,
+          "declared": false,
+          "complete": false
+        },
+        {
+          "name": "seffect_destroy_armor",
+          "line": 1324,
+          "endLine": 1398,
+          "declared": true,
+          "complete": false
+        },
+        {
+          "name": "seffect_confuse_monster",
+          "line": 1399,
+          "endLine": 1453,
+          "declared": false,
+          "complete": false
+        },
+        {
+          "name": "seffect_scare_monster",
+          "line": 1454,
+          "endLine": 1488,
+          "declared": false,
+          "complete": false
+        },
+        {
+          "name": "seffect_remove_curse",
+          "line": 1489,
+          "endLine": 1607,
+          "declared": true,
+          "complete": false
+        },
+        {
+          "name": "seffect_create_monster",
+          "line": 1608,
+          "endLine": 1626,
+          "declared": false,
+          "complete": false
+        },
+        {
+          "name": "seffect_enchant_weapon",
+          "line": 1627,
+          "endLine": 1678,
+          "declared": true,
+          "complete": false
+        },
+        {
+          "name": "seffect_taming",
+          "line": 1679,
+          "endLine": 1721,
+          "declared": false,
+          "complete": false
+        }
+      ],
+      "range": {
+        "from": 1044,
+        "to": 1721
+      },
+      "syntheticProvenance": {
+        "synthetic/v8/read-taming-scroll-hostile-monster": {
+          "session": "synthetic/v8/read-taming-scroll-hostile-monster",
+          "corpus": "synthetic",
+          "batch": "v8",
+          "caseId": "read-taming-scroll-hostile-monster",
+          "manifestPath": "challenges/manifests/v8.json",
+          "manifestSha256": "6a5159501af18a7f926f794d89e817375cd00a3589c4899fb97392ae04dbe8ba",
+          "recordingPath": "challenges/cases/v8/read-taming-scroll-hostile-monster.session.json",
+          "recordingSha256": "aa43f40887854473146ba71400cfed8fe0bcb7ec20c6d33af61721651be4e6b8",
+          "evaluationPath": "challenges/evaluations/20260927093229-v8.json",
+          "evaluationCommit": "043629bb13447062cadb766644b34c3490bb9bde"
+        }
+      },
+      "supersededBy": "port-read-seffect-taming-synthetic-v8-20260927",
+      "supersededReason": "The initial maybe_tame through seffect_taming C-order range would include 13 unrelated functions; the replacement selects only seffect_taming and explicitly includes its return-valued maybe_tame callee in the same task.",
+      "supersededAt": "dd54030ef94ed896c6a26fd9c3ee282393d67baf"
+    },
+    {
+      "id": "port-read-seffect-taming-synthetic-v8-20260927",
+      "kind": "file-port",
+      "status": "queued",
+      "summary": "Port read.c seffect_taming and its return-valued maybe_tame helper",
+      "cFile": "read.c",
+      "sessions": [
+        "synthetic/v8/read-taming-scroll-hostile-monster"
+      ],
+      "selectionReason": "Selected synthetic/v8/read-taming-scroll-hostile-monster from validated investigation at investigations/synthetic/v8/read-taming-scroll-hostile-monster.json; v8 manifest 6a5159501af18a7f926f794d89e817375cd00a3589c4899fb97392ae04dbe8ba, recording challenges/cases/v8/read-taming-scroll-hostile-monster.session.json digest aa43f40887854473146ba71400cfed8fe0bcb7ec20c6d33af61721651be4e6b8, evaluation challenges/evaluations/20260927093229-v8.json at 043629bb. The selected C range is only seffect_taming; its return-valued read.c maybe_tame dependency must be ported in the same task. zap.c resist is already ported and is the consumed RNG dependency. No other unresolved case shares this function family.",
+      "detail": "At segment 0 step 40, seffects dispatch for SCR_TAMING still calls note_unported; C enters read.c:seffect_taming and consumes maybe_tame/resist results. Port complete seffect_taming and return-valued maybe_tame, wire both SCR_TAMING and SPE_CHARM_MONSTER callers. See source-traced investigation.",
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": null,
+      "delivered": null,
+      "functions": [
+        {
+          "name": "seffect_taming",
+          "line": 1679,
+          "endLine": 1721,
+          "declared": false,
+          "complete": false
+        }
+      ],
+      "range": {
+        "from": 1679,
+        "to": 1721
+      },
+      "syntheticProvenance": {
+        "synthetic/v8/read-taming-scroll-hostile-monster": {
+          "session": "synthetic/v8/read-taming-scroll-hostile-monster",
+          "corpus": "synthetic",
+          "batch": "v8",
+          "caseId": "read-taming-scroll-hostile-monster",
+          "manifestPath": "challenges/manifests/v8.json",
+          "manifestSha256": "6a5159501af18a7f926f794d89e817375cd00a3589c4899fb97392ae04dbe8ba",
+          "recordingPath": "challenges/cases/v8/read-taming-scroll-hostile-monster.session.json",
+          "recordingSha256": "aa43f40887854473146ba71400cfed8fe0bcb7ec20c6d33af61721651be4e6b8",
+          "evaluationPath": "challenges/evaluations/20260927093229-v8.json",
+          "evaluationCommit": "043629bb13447062cadb766644b34c3490bb9bde"
+        }
+      }
     }
   ]
 }
