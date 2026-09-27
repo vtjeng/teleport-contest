@@ -17,12 +17,10 @@
 // explicit note_unported gaps. Other named arms,
 // plus the wand, spellbook, and coin shortcuts above the switch, still stop at
 // a refusal naming the C function they need.
-// use_stethoscope() covers
-// the no-hands, Deaf and free-hand guards, the free-action rule, self and
-// off-map probes, the adjacent monster arm, both secret-terrain arms, an empty
-// adjacent square, ordinary sighted and blind corpses and statues, and a
-// Healer's statue-trap report. Mounted, swallowed, vertical, and cursed uses
-// still stop.
+// use_stethoscope() covers the whole source function. Calls to the void
+// insight.c mstatusline() remain named gaps in mounted/swallowed arms, and the
+// upward engrave.c cant_reach_floor() call remains a named gap; the downward
+// reachability branch uses its already-ported helper.
 
 import {
     ACCESSIBLE,
@@ -161,7 +159,7 @@ import {
     unmap_invisible,
 } from './display.js';
 import { Amonnam, Monnam, mon_nam, obj_pmname, pmname, x_monnam } from './do_name.js';
-import { can_reach_floor, freehand } from './engrave.js';
+import { can_reach_floor, cant_reach_floor, freehand } from './engrave.js';
 import { game } from './gstate.js';
 import { check_capacity, losehp, near_capacity, nomul, overexertion } from './hack.js';
 import { dist2, highc, isqrt, s_suffix, strstri } from './hacklib.js';
@@ -193,6 +191,7 @@ import {
     is_female,
     is_male,
     is_rider,
+    is_whirly,
     nohands,
     nolimbs,
     pronoun_gender,
@@ -1683,44 +1682,22 @@ export async function its_dead(rx, ry, state = game, response = null) {
     return false;
 }
 
-// Fail-closed commands are retryable. Inspect the earlier adjacent paths that
-// still refuse before apply.c:340 changes the listen sequence and observation
-// globals. The complete its_dead() family no longer needs preflight.
-function preflightAdjacentStethoscope(obj, state) {
-    const u = state.u;
-    // These source arms precede confdir() and the adjacent-square body. Their
-    // existing refusals therefore win over anything at the pointed square.
-    if (u.uswallow) return;
-    if (u.dz) return;
-    if (obj.cursed) return;
-    if (!u.dx && !u.dy) return;
-
-    const rx = u.ux + u.dx;
-    const ry = u.uy + u.dy;
-    if (!isok(rx, ry)) return;
-    if (m_at(rx, ry, state)) return;
-
-    const lev = state.level.at(rx, ry);
-    if (lev.typ === SDOOR || lev.typ === SCORR) return;
-}
-
 // C ref: apply.c use_stethoscope() (317-470), with C's own comment above it at
 // 313-316 explaining the free action: one use per turn costs nothing, so a
 // second use in the same move is what makes a cursed stethoscope's wasted
 // listen cost anything.
 //
-// Four arms between the direction prompt and confdir() stop rather than run.
-// The u.usteed and the two u.uswallow arms need mstatusline(); u.dz needs
-// cant_reach_floor() and the Soundeffect() interface; and the cursed arm draws
-// an rn2(2) whose "You hear your heart beat." nothing has checked. Refusing
-// the cursed arm on obj.cursed alone keeps that draw out of the random-number
-// stream for the uncursed tools the ported path uses.
-//
-// Below confdir() the adjacent-square arm (384-470) runs through the off-map
-// answer, monster branch, both secret-terrain arms, and the complete
-// dead-object family.
+// Mounted and swallowed branches skip the void insight.c mstatusline() calls
+// with named gaps. The upward engrave.c cant_reach_floor() call is likewise a
+// named gap; its downward call is implemented in js/engrave.js. Soundeffect()
+// expands to an empty macro in this tty build, while You_hear() remains
+// visible through youHear().
 async function use_stethoscope(obj, state = game) {
     const u = state.u;
+    // apply.c:324-325. The source initializer draws before every guard when a
+    // swallowed hero is inside a whirly engulfer.
+    const interference = Boolean(u.uswallow && is_whirly(u.ustuck.data)
+        && !rn2(state.urole?.mnum === PM_HEALER ? 10 : 3));
 
     if (nohands(state.youmonst.data)) {
         await ttyPline('You have no hands!', state); /* not `body_part(HAND)' */
@@ -1737,8 +1714,6 @@ async function use_stethoscope(obj, state = game) {
     }
     if (!await getdir(null, state))
         return ECMD_CANCEL;
-
-    preflightAdjacentStethoscope(obj, state);
 
     const res = (state.hero_seq === state.context.stethoscope_seq)
         ? ECMD_TIME : ECMD_OK;
@@ -1758,14 +1733,57 @@ async function use_stethoscope(obj, state = game) {
     state.gn ??= {};
     state.gn.notonhead = Boolean(u.uswallow);
 
-    if (u.usteed && u.dz > 0)
-        throw new UnsupportedApplyError('mstatusline() for a steed');
-    if (u.uswallow)
-        throw new UnsupportedApplyError('mstatusline() for an engulfer');
-    if (u.dz)
-        throw new UnsupportedApplyError('listening to the floor or ceiling');
-    if (obj.cursed)
-        throw new UnsupportedApplyError('a cursed stethoscope');
+    if (u.usteed && u.dz > 0) {
+        if (interference) {
+            await ttyPline(`${Monnam(u.ustuck, state)} interferes.`, state);
+            note_unported('insight.c mstatusline');
+        } else {
+            note_unported('insight.c mstatusline');
+        }
+        return res;
+    } else if (u.uswallow && (u.dx || u.dy || u.dz)) {
+        note_unported('insight.c mstatusline');
+        return res;
+    } else if (u.uswallow && interference) {
+        await ttyPline(`${Monnam(u.ustuck, state)} interferes.`, state);
+        note_unported('insight.c mstatusline');
+        return res;
+    } else if (u.dz) {
+        if (u.uinwater) {
+            const heard = youHear('faint splashing.', state);
+            if (heard) await ttyPline(heard, state);
+        } else if (u.dz < 0) {
+            note_unported('engrave.c cant_reach_floor');
+        } else if (!can_reach_floor(true, state)) {
+            await cant_reach_floor(
+                u.ux, u.uy, false, true, false, state, { pline: ttyPline },
+            );
+        } else {
+            const response = { value: res };
+            if (!await its_dead(u.ux, u.uy, state, response)) {
+                const level = state.stronghold_level;
+                const inStronghold = Boolean(level
+                    && u.uz.dnum === level.dnum
+                    && u.uz.dlevel === level.dlevel);
+                if (inStronghold) {
+                    const heard = youHear('the crackling of hellfire.', state);
+                    if (heard) await ttyPline(heard, state);
+                } else {
+                    await ttyPline(
+                        `${The(surface(u.ux, u.uy, state), state)} `
+                            + 'seems healthy enough.',
+                        state,
+                    );
+                }
+            }
+            return response.value;
+        }
+        return res;
+    } else if (obj.cursed && !rn2(2)) {
+        const heard = youHear('your heart beat.', state);
+        if (heard) await ttyPline(heard, state);
+        return res;
+    }
 
     confdir(false, state);
     if (!u.dx && !u.dy) {

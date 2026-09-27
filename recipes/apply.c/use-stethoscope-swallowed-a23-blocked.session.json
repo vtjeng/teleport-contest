@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 92741027,
+      "datetime": "20340910142500",
+      "nethackrc": "OPTIONS=name:SwallowProbe,role:Healer,race:human,gender:female,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen\nOPTIONS=pettype:none,!acoustics,!autopickup,time\n",
+      "comment": "Blocked A23 entry recipe: an engulfer must first swallow the hero before applying the stethoscope. C reaches the still-unported void insight.c:mstatusline(u.ustuck); this delivery preserves the source position with note_unported() and cannot claim a matching swallowed entry. This ordinary Healer input is retained as a setup placeholder, not evidence.",
+      "moves": ".ac."
+    }
+  ]
+}
