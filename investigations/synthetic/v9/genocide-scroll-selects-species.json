@@ -107,18 +107,18 @@
     "luaFile": null,
     "line": null
   },
-  "summary": "An uncursed genocide scroll reaches read.c:seffect_genocide, but js/read.js:seffects only records an unported gap. C then enters read.c:do_genocide, prompts for a species, marks its vital flags, and reports the result. Port the complete genocide effect family and source-ordered prompt/state path; the scroll case currently diverges at its first message boundary.",
+  "summary": "The selected scroll is blessed. C enters read.c:seffect_genocide, then do_class_genocide; its class prompt accepts the answer newt through the monster-name fallback. The original JavaScript gap at seffects caused the step-24 mismatch. B34 ports the complete class and species genocide family with independent uncursed, cursed, confused, and throne recordings; the selected case now matches all 31 steps.",
   "source": {
     "file": "read.c",
-    "branch": "read.c:seffect_genocide determines known scroll status, prints discovery feedback, then chooses do_class_genocide for blessed scrolls or do_genocide((!cursed) | (2 * Confusion)) otherwise. The selected uncursed, unconfused case passes REALLY=1 and answers newt. do_genocide accepts up to five names, handles refusal and forced player genocide, changes species flags, affects monsters and inventory, and can end the game. do_class_genocide handles the blessed path and has its own repeated class prompt.",
+    "branch": "read.c:seffect_genocide determines known scroll status, prints discovery feedback, then chooses do_class_genocide for blessed scrolls or do_genocide((!cursed) | (2 * Confusion)) otherwise. The selected blessed case reaches do_class_genocide, and its answer newt is converted to a monster class through name_to_mon fallback. Independent B34 recordings exercise do_genocide through uncursed, cursed, confused, and throne callers.",
     "functions": [
       "seffect_genocide",
       "do_class_genocide",
       "do_genocide"
     ],
     "callers": [
-      "read.c:seffects SCR_GENOCIDE arm calls seffect_genocide after doread; js/read.js:seffects currently calls note_unported(read.c seffect_genocide).",
-      "sit.c throne arm also calls do_genocide(5) and js/sit.js records that path as unported; this is a separate active caller to wire when do_genocide is ported."
+      "read.c:seffects SCR_GENOCIDE arm calls seffect_genocide after doread; B34 wires js/read.js:seffects to the ported wrapper.",
+      "sit.c throne arm calls do_genocide(5); B34 wires js/sit.js:dosit to that active caller and verifies it with an independent recording."
     ],
     "dependencies": [
       "mondata.c:name_to_mon is already ported in js/mondata.js and is needed for selected species names. insight.c:num_genocides and list_genocided are available in js/insight.js for conduct and question-mark responses.",
@@ -129,7 +129,8 @@
   "goalKind": "file-port",
   "evidence": [
     "Current saved challenges/evaluations/20260927175933-v9.json leaves 7 of 31 screens unmatched, first at segment 0 step 24. A fresh scan at b6e28d15 reports note_unported(read.c seffect_genocide) and the same first screen mismatch; RNG totals alone do not prove the prompt and state path match.",
-    "The independently recorded C recipe challenges/cases/v9/genocide-scroll-selects-species.recipe.session.json wishes an uncursed genocide scroll, reads it, and answers newt. It is distinct from a hard-coded species fix; both blessed class genocide and cursed or confused branches remain part of the source family.",
-    "Upstream nethack-c/upstream/src/read.c:seffect_genocide at lines 1722-1738 calls do_class_genocide or do_genocide; do_class_genocide at 2638 and do_genocide at 2826 implement the prompts and effects. read.c:seffects calls the wrapper at 2240; sit.c also invokes do_genocide(5) from a throne."
+    "The independently recorded C recipe challenges/cases/v9/genocide-scroll-selects-species.recipe.session.json reaches a blessed genocide scroll and answers newt at the class prompt. B34 source tracing corrected the earlier ordinary-species attribution; this case alone does not exercise do_genocide.",
+    "Upstream nethack-c/upstream/src/read.c:seffect_genocide at lines 1722-1738 calls do_class_genocide or do_genocide; do_class_genocide at 2638 and do_genocide at 2826 implement the prompts and effects. read.c:seffects calls the wrapper at 2240; sit.c also invokes do_genocide(5) from a throne.",
+    "At combined commit 85e2d70dee8d90a18baf62ee852ba83e8102b18d, challenges/evaluations/20260927230232-v9.json measures the selected case at 31/31 screens and cursors, 3298/3298 RNG, with no replay error. Five independent B34 recordings cover blessed class, uncursed species, cursed summon, confused self-genocide, and throne genocide paths."
   ]
 }

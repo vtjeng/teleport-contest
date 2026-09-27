@@ -99362,7 +99362,7 @@
     {
       "id": "port-read-genocide-family-synthetic-v9-20260927",
       "kind": "file-port",
-      "status": "open",
+      "status": "closed",
       "summary": "Port genocide class and species effects through scroll and throne callers",
       "cFile": "read.c",
       "sessions": [
@@ -99376,22 +99376,25 @@
         "screens": 11405,
         "rng": 792838
       },
-      "closedAt": null,
-      "delivered": null,
+      "closedAt": "85e2d70dee8d90a18baf62ee852ba83e8102b18d",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
       "functions": [
         {
           "name": "do_class_genocide",
           "line": 2638,
           "endLine": 2825,
-          "declared": false,
-          "complete": false
+          "declared": true,
+          "complete": true
         },
         {
           "name": "do_genocide",
           "line": 2826,
           "endLine": 3018,
-          "declared": false,
-          "complete": false
+          "declared": true,
+          "complete": true
         }
       ],
       "range": {
@@ -99652,7 +99655,150 @@
             }
           }
         }
-      ]
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "do_class_genocide",
+            "implementation": "js/read.js",
+            "symbol": "do_class_genocide",
+            "sourceReview": "Compared all of read.c:do_class_genocide() (2638-2820) with the port. Preserved the five-attempt loop and retry accounting; whitespace cleanup; empty, cancel/none, and ? handling; class-symbol/name parsing followed by monster-name fallback; class eligibility counts and role/race exception; the wizard '*' branch; genocided species iteration order; conduct logging; G_GENOD|G_NOCORPSE updates; inventory refresh; vampire-shifter reversion; polymorphed/racial/role self-genocide state, messages, killer assignment, and completion order. C discards the return from mon.c:mongone() in the wizard '*' branch and mon.c:kill_genocided_monsters() in the genocide branch; JS leaves those explicit source-named note_unported gaps and never uses the note result. C also discards polyself()/rehumanize()/done() results where called; their existing JS ports are invoked for the effects. This is impure and is reached through the blessed-scroll class-selection dispatcher. Its first-genocide Chronicle text now passes the C uhis() value (you.h:316): flags.female selects her and otherwise his; the production read.test replays this blessed class path for both genders.",
+            "callers": [
+              {
+                "path": "js/read.js",
+                "symbol": "seffect_genocide",
+                "source": "read.c:seffect_genocide() at 1722-1738 calls do_class_genocide() when the scroll or pseudo-spell is blessed; js/read.js:seffect_genocide() calls do_class_genocide(state) on the same branch."
+              },
+              {
+                "path": "js/read.js",
+                "symbol": "seffects",
+                "source": "read.c:seffects() dispatches SCR_GENOCIDE to seffect_genocide() at 2241; js/read.js:seffects() dispatches SCR_GENOCIDE to the ported wrapper. The production command path is doread/do_read."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/read.test.mjs"
+            ],
+            "recordings": [
+              "recordings/read.c/genocide-class-blessed-independent-b34.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v9",
+                "caseId": "genocide-scroll-selects-species",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 30,
+                "source": "read.c:seffects(SCR_GENOCIDE) -> seffect_genocide(blessed) -> do_class_genocide; this case exercises the class prompt and species-name fallback only"
+              }
+            ],
+            "checkedAt": "85e2d70dee8d90a18baf62ee852ba83e8102b18d"
+          },
+          {
+            "name": "do_genocide",
+            "implementation": "js/read.js",
+            "symbol": "do_genocide",
+            "sourceReview": "Compared all of read.c:do_genocide() (2826-3015) with the port. Preserved REALLY/PLAYER/ONTHRONE flag interpretation; forced-player name selection; five attempts; cursed rndmonst() free-pass on exhausted input or none; empty/cancel/none/? paths; name lookup and already-genocided rejection; vampire-shifter reversion; role/race self-targeting; human/demon alignment order; G_GENO refusal and deaf/verbose/deity response order; Unchanging; hallucinated naming and unique/pname prefix rules; conduct/vitals/messages; forced-player, throne, and deliberate-scroll killer variants; delayed polymorph death; rehumanization; inventory update; and cursed summon census/RNG order. The C return from rndmonst() and each cursed makemon() call is consumed; JS uses the existing source implementations, and its explicit makemon runtime admission is documented under supplementalSources as only the exact C call shape, not whole makemon completion. C discards mon.c:kill_genocided_monsters()'s void result; JS retains note_unported('mon.c kill_genocided_monsters') and does not use its return as data. This impure function is reached from the scroll wrapper and the throne's do_genocide(5) case. Its first-genocide Chronicle text now passes the C uhis() value (you.h:316): flags.female selects her and otherwise his; the production read.test replays this ordinary species path for both genders.",
+            "callers": [
+              {
+                "path": "js/read.js",
+                "symbol": "seffect_genocide",
+                "source": "read.c:seffect_genocide() calls do_genocide((!scursed) | (2 * !!Confusion)) for non-blessed scrolls at 1737; js/read.js computes the same source bitfield and calls do_genocide(how,state)."
+              },
+              {
+                "path": "js/read.js",
+                "symbol": "seffects",
+                "source": "read.c:seffects() dispatches SCR_GENOCIDE to seffect_genocide() at 2241; js/read.js:seffects() production switch invokes the wrapper after its normal pre-effect Wisdom exercise."
+              },
+              {
+                "path": "js/sit.js",
+                "symbol": "dosit",
+                "source": "sit.c:dosit() throne case 8 calls do_genocide(5) at 131; js/sit.js:dosit() case 8 dynamically imports and awaits do_genocide(5,state)."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/read.test.mjs"
+            ],
+            "recordings": [
+              "recordings/read.c/genocide-scroll-species-independent-b34.session.json",
+              "recordings/read.c/genocide-cursed-summon-independent-b34.session.json",
+              "recordings/read.c/genocide-confused-player-independent-b34.session.json",
+              "recordings/sit.c/throne-genocide-selected-independent-b34.session.json"
+            ],
+            "synthetic": [],
+            "checkedAt": "85e2d70dee8d90a18baf62ee852ba83e8102b18d"
+          }
+        ],
+        "entryPointReview": "The selected read.c functions are impure. Active production entry paths covered here are: blessed scroll -> seffects -> seffect_genocide -> do_class_genocide; uncursed and cursed scroll -> seffects -> seffect_genocide -> do_genocide; confused uncursed scroll -> do_genocide(PLAYER|REALLY); and throne sit case 8 -> do_genocide(5). Independent C recordings strictly match each path: blessed class, uncursed named species, cursed named-species summoning, confused forced-player genocide, and throne genocide. The admitted v9 case synthetic/v9/genocide-scroll-selects-species reaches only the blessed class prompt/species-name fallback path; its cited range is limited to segment 0 steps 0-30 and does not support the ordinary do_genocide claim. The source-named void gaps mon.c:mongone and mon.c:kill_genocided_monsters are skipped because C discards their results; the JS never substitutes note_unported() values. The separate source function makemon is not claimed complete: this task changes only its runtime admission for the exact C explicit-species, hero-square, NO_MINVENT|MM_NOMSG call shape whose return is consumed by do_genocide. Other makemon callers and branches remain outside this evidence. Source review also corrected both first-genocide Chronicle messages to use the gendered uhis() possessive; focused production replays verify male and female outputs for both class and species branches.",
+        "entryPoints": [
+          {
+            "name": "Blessed genocide scroll class prompt and genocide",
+            "functions": [
+              "do_class_genocide"
+            ],
+            "recordings": [
+              "recordings/read.c/genocide-class-blessed-independent-b34.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v9",
+                "caseId": "genocide-scroll-selects-species",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 30,
+                "source": "read.c:seffects -> seffect_genocide -> do_class_genocide; class prompt/species-name fallback only"
+              }
+            ]
+          },
+          {
+            "name": "Uncursed genocide scroll names a species",
+            "functions": [
+              "do_genocide"
+            ],
+            "recordings": [
+              "recordings/read.c/genocide-scroll-species-independent-b34.session.json"
+            ],
+            "synthetic": []
+          },
+          {
+            "name": "Cursed genocide scroll summons its selected species through makemon",
+            "functions": [
+              "do_genocide"
+            ],
+            "recordings": [
+              "recordings/read.c/genocide-cursed-summon-independent-b34.session.json"
+            ],
+            "synthetic": []
+          },
+          {
+            "name": "Confusion forces genocide of the hero's own species",
+            "functions": [
+              "do_genocide"
+            ],
+            "recordings": [
+              "recordings/read.c/genocide-confused-player-independent-b34.session.json"
+            ],
+            "synthetic": []
+          },
+          {
+            "name": "Throne case 8 invokes ordinary genocide with ONTHRONE",
+            "functions": [
+              "do_genocide"
+            ],
+            "recordings": [
+              "recordings/sit.c/throne-genocide-selected-independent-b34.session.json"
+            ],
+            "synthetic": []
+          }
+        ]
+      },
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "85e2d70dee8d90a18baf62ee852ba83e8102b18d",
+        "screens": 11405,
+        "rng": 792838
+      }
     },
     {
       "id": "port-dothrow-mhurtle-synthetic-v9-20260927",
