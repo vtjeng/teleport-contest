@@ -523,6 +523,7 @@ test('activity view ranks handoff waits and explains concurrent assignments', ()
     assert.match(rendered.get('activityMetrics').innerHTML, /Ready → Main[\s\S]*30m[\s\S]*2 completed waits/u);
     assert.match(rendered.get('activityWaitList').innerHTML, /A1[\s\S]*30m/u);
     assert.match(rendered.get('timeline').innerHTML, /activity-row main/u);
+    assert.equal((rendered.get('timeline').innerHTML.match(/activity-row(?: main)?" style="height:48px"/gu) || []).length, 4);
     assert.match(rendered.get('timelineReadout').innerHTML, /Another task was assigned to this worker for 28m/u);
     assert.match(rendered.get('timelineReadout').innerHTML, /Recorded Main stages overlapped this wait/u);
     const mainIndex = data.activity.segments.findIndex(row => row.task === 'B1'
@@ -540,6 +541,7 @@ test('activity view ranks handoff waits and explains concurrent assignments', ()
     assert.notEqual(rendered.get('activityWindowLabel').textContent, shortWindow);
     assert.match(rendered.get('activityWaitList').innerHTML, /B0/u);
     assert.doesNotMatch(rendered.get('activityWaitList').innerHTML, /A1/u);
+    assert.equal((rendered.get('timeline').innerHTML.match(/activity-row(?: main)?" style="height:48px"/gu) || []).length, 4);
     rendered.get('activityLatest').listeners.click[0]();
     assert.equal(rendered.get('activityWindowLabel').textContent, shortWindow);
     const select = rendered.get('activityWindow');

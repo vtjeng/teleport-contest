@@ -1691,6 +1691,7 @@ document.getElementById('stats').innerHTML = [
         + '%">' + label + '</span>';
     }
     html += '</div>';
+    const laneHeight = 48;
     for (const lane of lanes) {
       const bars = shown.filter(row => row.segment.lane === lane).map(row => ({
         ...row, a: Math.max(Date.parse(row.segment.start), start),
@@ -1703,17 +1704,19 @@ document.getElementById('stats').innerHTML = [
         laneEnds[slot] = bar.b;
         bar.slot = slot;
       }
-      const rowHeight = Math.max(36, 14 + laneEnds.length * 14);
+      const slotHeight = (laneHeight - 12) / Math.max(1, laneEnds.length);
+      const barHeight = Math.min(12, Math.max(1, slotHeight - 2));
       html += '<div class="activity-row' + (lane === 'Main' ? ' main' : '')
-        + '" style="height:' + rowHeight + 'px"><div class="activity-label">'
+        + '" style="height:' + laneHeight + 'px"><div class="activity-label">'
         + lane + '</div><div class="activity-track">'
         + bars.map(bar => '<div class="activity-bar phase-' + bar.segment.phase
           + (bar.index === selectedIndex ? ' selected' : '') + '" data-segment="'
           + bar.index + '" tabindex="0" role="button" aria-label="'
           + esc(phaseNames[bar.segment.phase] + ' for ' + name(bar.segment)
-            + ', ' + fmt(duration(bar.segment))) + '" style="left:'
+          + ', ' + fmt(duration(bar.segment))) + '" style="left:'
           + ((bar.a - start) / span * 100) + '%;width:' + ((bar.b - bar.a) / span * 100)
-          + '%;top:' + (7 + bar.slot * 14) + 'px;height:10px"></div>').join('')
+          + '%;top:' + (6 + bar.slot * slotHeight + (slotHeight - barHeight) / 2)
+          + 'px;height:' + barHeight + 'px"></div>').join('')
         + '</div></div>';
     }
     container.innerHTML = html;
