@@ -93758,7 +93758,7 @@
     {
       "id": "port-potion-dodrink-synthetic-v6-20260927",
       "kind": "file-port",
-      "status": "open",
+      "status": "parked",
       "summary": "Port potion.c dodrink smoky potion handling and quaff command behavior",
       "cFile": "potion.c",
       "sessions": [
@@ -93953,7 +93953,17 @@
             }
           }
         }
-      ]
+      ],
+      "progressBeforePark": {
+        "screens": 0,
+        "rng": 0
+      },
+      "parkedStanding": {
+        "sha": "89741e4795871d096228a0e47c2e7453a9112e0f",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "parkedReason": "The q inventory and fountain/sink entries match, including the admitted smoky case and independent C recording. Whole dodrink entry evidence remains incomplete for underwater prompting and IA_QUAFF_OBJ; the occupied milky ghost_from_bottle and single worn remove_worn_item effects remain source-named void gaps. Keep this source task parked until independent C recipes and matching replay or documented blockers establish those paths."
     },
     {
       "id": "port-pray-altar-wrath-synthetic-v6-20260927",

@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "capturedAt": "2026-09-27T06:37:39.626Z",
+  "capturedAt": "2026-09-27T07:04:31.884Z",
   "activity": {
     "runId": "loop-20260925",
     "events": [
@@ -4482,12 +4482,85 @@
         "type": "accepted",
         "at": "2026-09-27T06:36:40.510Z",
         "task": "A21"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-4bfaa85abc913990d747ccfc018f5947ebced1e1",
+        "type": "ready",
+        "at": "2026-09-27T06:38:10.690Z",
+        "task": "A22",
+        "delivery": "4bfaa85abc913990d747ccfc018f5947ebced1e1"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "A21-published-1519109e",
+        "type": "published",
+        "at": "2026-09-27T06:44:11.327Z",
+        "task": "A21",
+        "commit": "1519109e9a57b5a0d11531e37b0acbeec583ec9d"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "A22-received-4bfaa85a",
+        "type": "received",
+        "at": "2026-09-27T06:45:08.865Z",
+        "task": "A22",
+        "delivery": "4bfaa85abc913990d747ccfc018f5947ebced1e1"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "A22-integrating-89741e47-corrected",
+        "type": "integrating",
+        "at": "2026-09-27T06:52:30.097Z",
+        "task": "A22",
+        "integration": "89741e4795871d096228a0e47c2e7453a9112e0f"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "assign-B24-pray-altar-wrath-20260927",
+        "type": "assign",
+        "at": "2026-09-27T06:53:11.468Z",
+        "task": "B24",
+        "worker": "B",
+        "goal": "port-pray-altar-wrath-synthetic-v6-20260927",
+        "kind": "implementation"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-949db98d168f54cbaf2670712e0f4dfcaab018e1",
+        "type": "ready",
+        "at": "2026-09-27T06:55:47.408Z",
+        "task": "C24",
+        "delivery": "949db98d168f54cbaf2670712e0f4dfcaab018e1"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "C24-received-949db98d",
+        "type": "received",
+        "at": "2026-09-27T06:56:34.984Z",
+        "task": "C24",
+        "delivery": "949db98d168f54cbaf2670712e0f4dfcaab018e1"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "A22-validated-89741e47",
+        "type": "validated",
+        "at": "2026-09-27T07:03:42.786Z",
+        "task": "A22",
+        "passed": true
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "A22-accepted-89741e47",
+        "type": "accepted",
+        "at": "2026-09-27T07:03:56.977Z",
+        "task": "A22"
       }
     ]
   },
   "development": {
-    "executionCommit": "fd7c4734a81712ec145e9d49a0c7034436692b57",
-    "measuredAt": "2026-09-27T06:31:17.932Z",
+    "executionCommit": "89741e4795871d096228a0e47c2e7453a9112e0f",
+    "measuredAt": "2026-09-27T07:00:11.255Z",
     "sessions": [
       {
         "session": "holdout/seed0002-healer-reflection-drummer",
