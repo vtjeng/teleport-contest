@@ -92092,7 +92092,7 @@
     {
       "id": "port-write-dowrite-glib-synthetic-v6-20260926",
       "kind": "file-port",
-      "status": "open",
+      "status": "closed",
       "summary": "Port complete magic-marker writing and slippery-hand drop behavior",
       "cFile": "write.c",
       "sessions": [
@@ -92106,15 +92106,18 @@
         "screens": 11405,
         "rng": 792838
       },
-      "closedAt": null,
-      "delivered": null,
+      "closedAt": "8b0b833213a40d0e36ca8a3fdc35a6bc9b37a779",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
       "functions": [
         {
           "name": "dowrite",
           "line": 74,
           "endLine": 394,
           "declared": true,
-          "complete": false
+          "complete": true
         }
       ],
       "range": {
@@ -92285,7 +92288,76 @@
             }
           }
         }
-      ]
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "dowrite",
+            "implementation": "js/write.js",
+            "symbol": "dowrite",
+            "sourceReview": "Read and compared all of write.c:dowrite() lines 74-385, including no-hands then Glib guard order, paper selection and blindness guards, name normalization and both lookup loops, novel/Book-of-the-Dead/unknown-book arms, conduct and marker-charge accounting, knowledge and blindness RNG gates, destruction/fade behavior, and final hold_another_object result handling. The former UnsupportedWriteError Glib refusal is removed. The Glib branch now emits C's Tobjnam(pen, 'slip') / fingers_or_gloves(FALSE) message, calls the existing do.c:dropx ordinary grounded-floor path, and returns ECMD_TIME in C order. doapply supplies the already ported fingers_or_gloves helper and drop hooks without creating an import cycle. dropx() is void in C, so its result is discarded; this task does not claim whole do.c:dropx source completion or expand its non-ordinary-floor branches.",
+            "callers": [
+              {
+                "path": "js/apply.js",
+                "symbol": "doapply",
+                "source": "apply.c:doapply() MAGIC_MARKER arm at 4361-4362 calls dowrite(obj); js/apply.js dispatches the selected marker to js/write.js:dowrite and supplies the source helper operations."
+              },
+              {
+                "path": "js/cmd.js",
+                "symbol": "runApplyCommand",
+                "source": "cmd.c command table at 1677 maps the apply key 'a' to doapply(); js/cmd.js:runApplyCommand dispatches the production command to js/apply.js:doapply."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/dowrite-glib.test.mjs",
+              "scripts/write.test.mjs"
+            ],
+            "recordings": [
+              "recordings/write.c/glib-marker-slip-independent.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v6",
+                "caseId": "wizard-greasy-write-glib-final",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 21,
+                "source": "cmd.c apply key -> apply.c:doapply(MAGIC_MARKER) -> write.c:dowrite Glib branch -> do.c:dropx ordinary floor path"
+              }
+            ],
+            "checkedAt": "8b0b833213a40d0e36ca8a3fdc35a6bc9b37a779"
+          }
+        ],
+        "entryPointReview": "The only production C caller of write.c:dowrite() is apply.c:doapply()'s MAGIC_MARKER arm (4361-4362), reached by cmd.c's apply-key command-table entry (1677). JavaScript follows cmd.js:runApplyCommand -> apply.js:doapply -> write.js:dowrite. The selected active behavior is the Glib guard after nohands: it reports the pen slipping, drops it on ordinary grounded floor, and returns ECMD_TIME. The independent Wizard-mode recording and the admitted v6 case exercise the production path. The do.c:dropx() callback is the existing ordinary-floor implementation; B22 makes no claim for its other unsupported terrain/context branches.",
+        "entryPoints": [
+          {
+            "name": "Apply a magic marker while Glib",
+            "functions": [
+              "dowrite"
+            ],
+            "recordings": [
+              "recordings/write.c/glib-marker-slip-independent.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v6",
+                "caseId": "wizard-greasy-write-glib-final",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 21,
+                "source": "cmd.c apply key -> apply.c:doapply(MAGIC_MARKER) -> write.c:dowrite Glib branch -> do.c:dropx ordinary floor path"
+              }
+            ]
+          }
+        ]
+      },
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "8b0b833213a40d0e36ca8a3fdc35a6bc9b37a779",
+        "screens": 11405,
+        "rng": 792838
+      }
     },
     {
       "id": "port-priest-talk-outside-temple-synthetic-v7-20260926",
