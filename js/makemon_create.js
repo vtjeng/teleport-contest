@@ -1375,7 +1375,17 @@ function preflightCreation(ptr, x, y, mmflags, normalized) {
         && !randomCoordinates
         && Boolean(ptr)
         && mmflags === MM_NOGRP;
-    if (tutorialLevel
+    // C makemon() accepts explicit, inventoryless creation at the hero's
+    // square on every runtime level. Its source-owned placement path first
+    // relocates to enexto_core(); admission is based only on those arguments
+    // and level state, not on which caller supplied them or which species is
+    // named.
+    const explicitInventorylessHeroCall = !state.in_mklev
+        && Boolean(ptr)
+        && x === state.u?.ux
+        && y === state.u?.uy
+        && mmflags === (NO_MINVENT | MM_NOMSG);
+    if (tutorialLevel && !explicitInventorylessHeroCall
         && (!state.in_mklev
             || randomCoordinates
             || !ptr
@@ -1506,7 +1516,8 @@ function preflightCreation(ptr, x, y, mmflags, normalized) {
         || fountainCreatureCall
         || runtimeRandomCall || runtimeGroupCall || createParticularCall
         || deadbookCall || vaultGuardCall || revivalCall || statueAnimationCall
-        || figurineAnimationCall || cloneuCall || minionSummonCall
+        || figurineAnimationCall || explicitInventorylessHeroCall
+        || cloneuCall || minionSummonCall
         || nastyCall;
     if (runtimeCall
         && (!normalized.runtimeContinuation
@@ -1544,7 +1555,8 @@ function preflightCreation(ptr, x, y, mmflags, normalized) {
             'shopkeeper extension outside shkinit',
         );
     }
-    if (ptr?.pmidx === PM_SHOPKEEPER && !shopkeeperCall) {
+    if (ptr?.pmidx === PM_SHOPKEEPER && !shopkeeperCall
+        && !explicitInventorylessHeroCall) {
         throw new UnsupportedMonsterCreationError(
             'shopkeeper creation outside shkinit',
         );
@@ -1562,7 +1574,8 @@ function preflightCreation(ptr, x, y, mmflags, normalized) {
     // monsters; level templates position eels on water and other species on
     // terrain the template chose.  Guards are placed at wall positions that
     // invault() converts to doors immediately after creation.
-    if (!state.in_mklev && !startingPetCall && !deadbookCall && !randomCoordinates
+    if (!state.in_mklev && !startingPetCall && !deadbookCall
+        && !explicitInventorylessHeroCall && !randomCoordinates
         && !vaultGuardCall
         && (!isok(x, y) || !ACCESSIBLE(state.level?.at(x, y)?.typ))) {
         throw new UnsupportedMonsterCreationError(
@@ -1583,6 +1596,7 @@ function preflightCreation(ptr, x, y, mmflags, normalized) {
     if (!state.u?.ualign || !state.urace)
         throw new Error('makemon requires initialized hero alignment and race');
     if (ptr?.pmidx === PM_CHAMELEON
+        && !explicitInventorylessHeroCall
         && !heroHasProperty(state, PROT_FROM_SHAPE_CHANGERS)) {
         if (isRogueLevel(state)) {
             throw new UnsupportedMonsterCreationError(
@@ -1614,6 +1628,7 @@ function preflightCreation(ptr, x, y, mmflags, normalized) {
             && !specialRoomCall
             && !cloneuCall
             && !deadbookCall
+            && !explicitInventorylessHeroCall
             && !nastyCall
             && (!state.in_mklev || (isMainDungeonLevel(state)
                 && !normalized._rndmonMklev))) {

@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "Independent throne_sit_effect case 8 entry: a debug Wizard wishes a throne and sits; the source-picked seed selects do_genocide(5), then the input chooses a non-unique newt instead of the hero.",
+  "segments": [
+    {
+      "seed": 39027010,
+      "datetime": "20390927131415",
+      "nethackrc": "OPTIONS=name:B34Throne,role:Wizard,race:human,gender:male,align:neutral,playmode:debug,!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!debug_mongen\n",
+      "moves": " \u0017throne\n#sit\n 8\n newt\n"
+    }
+  ]
+}

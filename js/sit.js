@@ -291,7 +291,10 @@ async function throne_sit_effect(state, rawEnv = {}) {
                     { message },
                 );
             }
-            note_unported('read.c do_genocide');
+            {
+                const { do_genocide } = await import('./read.js');
+                await do_genocide(5, state);
+            }
             break;
         case 9: {
             await message('A voice echoes:', state);
