@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 92741028,
+      "datetime": "20340911142500",
+      "nethackrc": "OPTIONS=name:SubmergedProbe,role:Healer,race:human,gender:female,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen\nOPTIONS=pettype:none,!autopickup,time,playmode:debug\n",
+      "comment": "Independent A23 down-listen recording on a wizard-created pool. The hero has not spent a turn and is not yet underwater; this verifies the ordinary vertical surface answer.",
+      "moves": " \u0017pool\nac>"
+    }
+  ]
+}

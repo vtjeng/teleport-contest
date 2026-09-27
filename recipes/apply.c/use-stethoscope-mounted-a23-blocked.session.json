@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 92741024,
+      "datetime": "20340908142500",
+      "nethackrc": "OPTIONS=name:MountProbe,role:Healer,race:human,gender:female,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen\nOPTIONS=pettype:none,!acoustics,!autopickup,time\n",
+      "comment": "Blocked A23 entry recipe: a mounted hero must be established before applying the stethoscope downward. Once reached, C calls the still-unported void insight.c:mstatusline(u.usteed), whose result-free status output this delivery skips with note_unported(). This ordinary Healer input is retained as a setup placeholder, not evidence.",
+      "moves": ".ac>."
+    }
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 92741028,
+      "datetime": "20340911142500",
+      "nethackrc": "OPTIONS=name:SubmergedProbe,role:Healer,race:human,gender:female,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen\nOPTIONS=pettype:none,!autopickup,time,playmode:debug\n",
+      "comment": "Blocked A23 underwater entry attempt: a wizard-created pool under the hero becomes underwater only after the next turn. That transition enters trap.c:water_damage(), which opens the drowning message before later stethoscope inputs can reach apply.c:use_stethoscope(). An independent pool-surface recording reaches only the ordinary vertical surface arm; this recipe is not underwater runtime completion evidence.",
+      "moves": " \u0017pool\n.ac>"
+    }
+  ]
+}
