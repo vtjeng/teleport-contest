@@ -90909,6 +90909,49 @@
           "evaluationCommit": "12a35e71cf1d937cd08b75b196f3c8b54224f6cd"
         }
       }
+    },
+    {
+      "id": "port-eat-cpostfx-lizard-synthetic-v7-20260926",
+      "kind": "file-port",
+      "status": "queued",
+      "summary": "Port whole corpse post-effects and source intrinsic grant path after eating",
+      "cFile": "eat.c",
+      "sessions": [
+        "synthetic/v7/lizard-corpse-cures-stoning-corrected"
+      ],
+      "selectionReason": "At the current v7 lizard-corpse-cures-stoning-corrected first mismatch, segment 0 step 36, the production eatfood occupation reaches eat.c:done_eating -> cpostfx(PM_LIZARD), then JavaScript refuses before C corpse-intrinsic and temporary-resistance draws. A18 selects the whole cpostfx function and its consumed helper path, separate from C22 spell command work.",
+      "detail": "Port cpostfx in C order, including the lizard stun/confusion caps, corpse_intrinsic decision, givit and return-valued temp_givit; wire done_eating, tin consumption and Finish_digestion production callers or preserve source-named blocked entry evidence. Record an independent lizard finish with distinct seed/date and a changed relevant state.",
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": null,
+      "delivered": null,
+      "functions": [
+        {
+          "name": "cpostfx",
+          "line": 1129,
+          "endLine": 1338,
+          "declared": true,
+          "complete": false
+        }
+      ],
+      "range": {
+        "from": 1129,
+        "to": 1338
+      },
+      "syntheticProvenance": {
+        "synthetic/v7/lizard-corpse-cures-stoning-corrected": {
+          "session": "synthetic/v7/lizard-corpse-cures-stoning-corrected",
+          "corpus": "synthetic",
+          "batch": "v7",
+          "caseId": "lizard-corpse-cures-stoning-corrected",
+          "manifestPath": "challenges/manifests/v7.json",
+          "manifestSha256": "03a861a9d1bc9d813c80681312ee7a0e0f893dbad0536de40a974bd5ec344094",
+          "recordingPath": "challenges/cases/v7/lizard-corpse-cures-stoning-corrected.session.json",
+          "recordingSha256": "6bf1416d9de4abf481689ec1d723ff6775badd518b9222d66c685b3157cc4149",
+          "evaluationPath": "challenges/evaluations/20260927005209-v7.json",
+          "evaluationCommit": "12a35e71cf1d937cd08b75b196f3c8b54224f6cd"
+        }
+      }
     }
   ]
 }
