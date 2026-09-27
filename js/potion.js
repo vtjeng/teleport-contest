@@ -168,7 +168,7 @@ import {
     find_delayed_killer,
 } from './end.js';
 import { fix_petrification } from './eat.js';
-import { d, rn1, rn2, rnd, rne, rnz } from './rng.js';
+import { d, rn1, rn2, rnl, rnd, rne, rnz } from './rng.js';
 import { canSpotMonster, heroIsBlind } from './startup_a11y.js';
 import { cloneu } from './mhitu.js';
 import { burn_away_slime } from './timeout.js';

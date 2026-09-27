@@ -94647,7 +94647,7 @@
       "sessions": [
         "synthetic/v7/throw-blindness-potion-hit-corrected"
       ],
-      "selectionReason": "Resume parked potionhit source completion to repair the source-traced uhitm.c:hmon_hitmon_potion setuwep caller hook blocker and obtain independent melee, steed, monster-to-monster, and ceiling-return entry evidence",
+      "selectionReason": "Continue the active potionhit entry coverage after B27: port the complete dothrow.c:toss_up caller, then record distinct upward-return, mounted downward-hit, and monster-to-monster impact witnesses without session-specific logic",
       "detail": "",
       "openedAt": "f5248ce4f94176f35cd5b15dbe69457a41cd52f6",
       "openStanding": {
@@ -94663,7 +94663,7 @@
           "line": 1625,
           "endLine": 1931,
           "declared": true,
-          "complete": false
+          "complete": true
         }
       ],
       "range": {
@@ -94685,7 +94685,7 @@
         }
       },
       "activeStanding": {
-        "sha": "feabcd23201baa92c3e92b5de5046a98d6a0f14f",
+        "sha": "5a2f70be22fa1d0489238745e372f3ed5a8c26df",
         "screens": 11405,
         "rng": 792838
       },
@@ -94943,11 +94943,142 @@
         "rng": 0
       },
       "parkedStanding": {
-        "sha": "10c8f210d77aee548ae25b77cee6b3f9b736d413",
+        "sha": "5a2f70be22fa1d0489238745e372f3ed5a8c26df",
         "screens": 11405,
         "rng": 792838
       },
-      "parkedReason": "B27 is repairing uhitm.c:hmon_hitmon_potion caller hooks and recording a source-reached melee witness; potionhit closure still needs steed, monster-to-monster, and dothrow.c:toss_up evidence. Park this active interval while A26 validated fire-scroll evidence is recorded, then resume when B27 is ready for integration."
+      "parkedReason": "B28 is actively porting dothrow.c:toss_up and consumed weapon.c:dmgval behavior, then will record upward, steed, and monster-to-monster potionhit entries. Park this source goal interval while A27 quest.c:artitouch is integrated and validated; resume when B28 evidence is ready.",
+      "evidence": {
+        "functions": [
+          {
+            "name": "potionhit",
+            "implementation": "js/potion.js",
+            "symbol": "potionhit",
+            "sourceReview": "Compared the complete potion.c:potionhit() definition (1625-1928) against the port: target-is-hero and monster branches, direct saddle hit and water-on-saddle path, all potion type switches, resistance and polymorph guards, blindness duration draws and resistance ordering, anger/sleep cleanup, shop disposition, and final object consumption. Preserved evaluation and RNG order. For the hero POT_POLYMORPH arm, You_feel(\"a little %s\") precedes the Unchanging/Antimagic polyself guard exactly as C. For monster targets, potion.c obtains distance through distu(tx,ty), whose include/hack.h definition calls dist2 and whose hacklib.c body returns dx*dx+dy*dy; JS now uses that squared distance for the distance<3 vapor test. The return from H2Opotion_dip() is consumed in the saddle-water branch, so that whole helper was also ported and its Boolean is used. potion.c calls potionbreathe() as a void callee; the active partial helper arms remain enabled, while unsupported vapor types are source-named with note_unported('potion.c potionbreathe') and skipped so potionhit continues to its shop/object-release tail. The C calls to sounds.c:Soundeffect(), potion.c:explode_oil(), zap.c:bhitm() in the monster polymorph arm, and mon.c:mcureblindness() discard their results; JS records those exact source gaps and never treats the return as data. The separate upward toss path remains at dothrow.c:toss_up(), which JS still records as unported because throwit discards its Boolean. No case or seed condition was added. B27 additionally fixes the shared no-env.random runtime path at potionhit(): the C function uses process RNG calls including rnl(), so js/potion.js imports rnl into its default random bundle rather than requiring one caller to inject it. A focused no-random-seam call and the independent melee recording exercise that default.",
+            "callers": [
+              {
+                "path": "js/dothrow.js",
+                "symbol": "throwit",
+                "source": "dothrow.c:throwit() (1594) calls potionhit(u.usteed,obj,POTHIT_HERO_THROW) when a potion is thrown downward while riding and rn2(6) selects the hit arm. This branch is wired but has no matching recording in this packet."
+              },
+              {
+                "path": "js/dothrow.js",
+                "symbol": "thitmonst",
+                "source": "dothrow.c:thitmonst() (2264) calls potionhit(mon,obj,POTHIT_HERO_THROW) after the thrown potion hits a monster. The independent Wizard recording and admitted v7 range exercise this production call."
+              },
+              {
+                "path": "js/uhitm.js",
+                "symbol": "hmon_hitmon_potion",
+                "source": "uhitm.c:hmon_hitmon_potion() (1095-1117) calls setuwep(NULL) for a singleton before freeinv() and potionhit(). B27 wires canonical do_wear.c:cancel_doff and the remaining setworn hooks through setwornEnv(), then preserves C call order. The new sleeping-potion melee recording strictly reaches this caller and potionhit()."
+              },
+              {
+                "path": "js/mthrowu.js",
+                "symbol": "ohitmon",
+                "source": "mthrowu.c:ohitmon() (367) calls potionhit(mtmp,otmp,POTHIT_OTHER_THROW) when a monster missile hits another monster. The caller is wired; no matching recording in this packet reaches this target branch."
+              },
+              {
+                "path": "js/mthrowu.js",
+                "symbol": "thitu",
+                "source": "mthrowu.c:thitu() (137) calls potionhit(&gy.youmonst,obj,POTHIT_OTHER_THROW) when a monster missile potion hits the hero. The independent gnome-king potion recording reaches potionhit(potion.c:1638) through this caller."
+              },
+              {
+                "path": "js/mthrowu.js",
+                "symbol": "m_throw",
+                "source": "mthrowu.c:m_throw() (699) calls potionhit(&gy.youmonst,singleobj,POTHIT_MONST_THROW) when a monster-thrown potion reaches the hero. The independent gnome-king recording follows this flight path and enters thitu/potionhit."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/potion.test.mjs",
+              "scripts/dothrow-thitmonst.test.mjs",
+              "scripts/mthrowu.test.mjs",
+              "scripts/uhitm-hmon.test.mjs"
+            ],
+            "recordings": [
+              "recordings/dothrow.c/potion-blindness-thrown-independent.session.json",
+              "recordings/mthrowu.c/gnome-king-hurls-sleep-r2.session.json",
+              "recordings/uhitm.c/potion-sleeping-melee-wielded-independent.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v7",
+                "caseId": "throw-blindness-potion-hit-corrected",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 43,
+                "source": "dothrow.c:throwit -> dothrow.c:thitmonst -> potion.c:potionhit(POT_BLINDNESS)"
+              }
+            ],
+            "checkedAt": "5a2f70be22fa1d0489238745e372f3ed5a8c26df"
+          }
+        ],
+        "entryPointReview": "The selected whole source unit is potion.c:potionhit(). Its active production callers include dothrow.c:thitmonst, dothrow.c:throwit (downward hit on the steed), uhitm.c:hmon_hitmon_potion, mthrowu.c:ohitmon, mthrowu.c:thitu, and mthrowu.c:m_throw. Matching evidence covers a hero-thrown blindness potion hitting a monster through thitmonst (independent recording and admitted v7 segment 0 steps 0-43), a monster-thrown potion hitting the hero through m_throw/thitu (the gnome-king recording), and B27’s independent Rogue sleeping-potion melee strike through uhitm.c:hmon_hitmon_potion. That B27 recording also verifies singleton setuwep(NULL) uses the canonical doffing hooks before freeinv/potionhit. The shared potionhit default RNG now imports rnl, so callers that do not supply env.random use the C process RNG bundle. Source review corrections restore the hero polymorph You_feel line before Unchanging/Antimagic and use dist2 for the distu vapor threshold. Unsupported potionbreathe arms are explicitly skipped by source name, not by catching UnsupportedPotionError, so potionhit still runs its tail. The steed-hit and monster-to-monster callers are wired but lack matching records here. C dothrow.c:toss_up() also calls potionhit internally, but JS retains note_unported('dothrow.c toss_up') at throwit because the complete toss_up path is outside this task. These remaining entry gaps keep the source goal open.",
+        "entryPoints": [
+          {
+            "name": "Hero throws potion that hits a monster",
+            "functions": [
+              "potionhit"
+            ],
+            "recordings": [
+              "recordings/dothrow.c/potion-blindness-thrown-independent.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v7",
+                "caseId": "throw-blindness-potion-hit-corrected",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 43,
+                "source": "dothrow.c:throwit -> dothrow.c:thitmonst -> potion.c:potionhit(POT_BLINDNESS)"
+              }
+            ]
+          },
+          {
+            "name": "Monster throws potion that hits the hero",
+            "functions": [
+              "potionhit"
+            ],
+            "recordings": [
+              "recordings/mthrowu.c/gnome-king-hurls-sleep-r2.session.json"
+            ],
+            "synthetic": []
+          },
+          {
+            "name": "Hero melee strike with a wielded potion against a monster",
+            "functions": [
+              "potionhit"
+            ],
+            "recordings": [
+              "recordings/uhitm.c/potion-sleeping-melee-wielded-independent.session.json"
+            ],
+            "synthetic": []
+          },
+          {
+            "name": "Hero throws potion downward onto steed",
+            "functions": [
+              "potionhit"
+            ],
+            "recordings": [],
+            "synthetic": []
+          },
+          {
+            "name": "Monster missile potion hits another monster",
+            "functions": [
+              "potionhit"
+            ],
+            "recordings": [],
+            "synthetic": []
+          },
+          {
+            "name": "Upward potion toss reaches potionhit through toss_up",
+            "functions": [
+              "potionhit"
+            ],
+            "recordings": [],
+            "synthetic": []
+          }
+        ]
+      }
     },
     {
       "id": "div-trap-chest-trap-message-flush-synthetic-v8-20260927",
@@ -96016,7 +96147,7 @@
     {
       "id": "port-quest-artitouch-synthetic-v8-20260927",
       "kind": "file-port",
-      "status": "queued",
+      "status": "parked",
       "summary": "Port quest artifact first-touch pager and inventory acquisition wiring",
       "cFile": "quest.c",
       "sessions": [
@@ -96024,8 +96155,12 @@
       ],
       "selectionReason": "Current v8 artifact-heart-invoke-cycle first diverges at segment 0 step 24: C quest.c:artitouch called from invent.c:addinv_core1 opens gotit quest text and initializes nhlib.lua, while JS note_unported skips that call. The queue RNG annotation names Lua shuffle as the observed downstream draw, but the source owner is quest.c:artitouch. Port the whole first-touch function, generated gotit text, pager skip guard, and async inventory caller order; verify independent quest artifact acquisition distinct from v8.",
       "detail": "",
-      "openedAt": null,
-      "openStanding": null,
+      "openedAt": "c54c2c13ca30ebad8411cbcd4b7dcd3e193fbddc",
+      "openStanding": {
+        "sha": "589eff0af34470081afdfe7bfea0cd282afa66c1",
+        "screens": 11405,
+        "rng": 792838
+      },
       "closedAt": null,
       "delivered": null,
       "functions": [
@@ -96033,8 +96168,8 @@
           "name": "artitouch",
           "line": 125,
           "endLine": 139,
-          "declared": false,
-          "complete": false
+          "declared": true,
+          "complete": true
         }
       ],
       "range": {
@@ -96054,7 +96189,184 @@
           "evaluationPath": "challenges/evaluations/20260927130815-v8.json",
           "evaluationCommit": "10c8f210d77aee548ae25b77cee6b3f9b736d413"
         }
-      }
+      },
+      "activeStanding": {
+        "sha": "589eff0af34470081afdfe7bfea0cd282afa66c1",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v8",
+          "caseId": "artifact-heart-invoke-cycle",
+          "session": "synthetic/v8/artifact-heart-invoke-cycle",
+          "manifestPath": "challenges/manifests/v8.json",
+          "manifestSha256": "6a5159501af18a7f926f794d89e817375cd00a3589c4899fb97392ae04dbe8ba",
+          "recording": "challenges/cases/v8/artifact-heart-invoke-cycle.session.json",
+          "recordingPath": "challenges/cases/v8/artifact-heart-invoke-cycle.session.json",
+          "recordingSha256": "816c8353f3fea197a0e99d8bd83f53f622a02d45fe61a59784dcfd479862cfd8",
+          "recipe": "challenges/cases/v8/artifact-heart-invoke-cycle.recipe.session.json",
+          "recipeSha256": "e7551b75ea4fa8cc5a1bf14c23baa6add3dda5f45782e78151d05ac920593963",
+          "replayInputSha256": "f12aaa199382908484612c7c8d311b333eb8a8d5cb1f2a5aba58e1ae8afc64b3",
+          "evaluationPath": "challenges/evaluations/20260927141254-v8.json",
+          "evaluationCommit": "589eff0af34470081afdfe7bfea0cd282afa66c1",
+          "evaluationArtifact": "challenges/evaluations/20260927141254-v8.json",
+          "evaluationUtc": "2026-09-27T14:13:27.463Z",
+          "remainingScreens": 1,
+          "recordedSteps": 44,
+          "previousScreensMatched": 42,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 43,
+              "total": 44
+            },
+            "rng": {
+              "matched": 2303,
+              "total": 2303
+            },
+            "cursors": {
+              "matched": 44,
+              "total": 44
+            }
+          },
+          "firstMismatch": {
+            "screen": {
+              "index": 25,
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 25,
+                "key": " "
+              },
+              "kind": "ch",
+              "row": 0,
+              "column": 23,
+              "cCell": {
+                "ch": "t",
+                "color": 8,
+                "attr": 0,
+                "decgfx": 0
+              },
+              "jsCell": {
+                "ch": "T",
+                "color": 8,
+                "attr": 0,
+                "decgfx": 0
+              }
+            },
+            "rng": null,
+            "cursor": null
+          },
+          "step": 25,
+          "kind": "screen",
+          "sourceFile": null,
+          "function": null,
+          "message": null,
+          "cFile": null,
+          "luaFile": null,
+          "line": null,
+          "investigation": {
+            "status": "stale",
+            "path": "investigations/synthetic/v8/artifact-heart-invoke-cycle.json",
+            "previousRemainingScreens": 2
+          }
+        }
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "artitouch",
+            "implementation": "js/quest.js",
+            "symbol": "artitouch",
+            "sourceReview": "Read the complete quest.c:artitouch() definition (125-139), including its already-touched early return and exact first-touch order: observe_object(obj), set Qstat(touched_artifact), qt_pager(\"gotit\"), then exercise(A_WIS, TRUE). C ignores qt_pager's boolean result. JavaScript awaits the already-async qt_pager before the later addinv_core1 intrinsic and inventory-insertion tail, preserving the source-visible effect order. Generated role-specific gotit text is extracted from dat/quest.lua by scripts/generate-quest-text.mjs. Supporting source behavior is kept with its C owner: questpgr.c:skip_pager() is checked before Lua initialization and consumes no shuffle draws while program_state.wizkit_wishing is set. invent.c:addinv_core1() is the sole direct C caller; zap.c:poly_obj() also re-enters addinv_core1 for replacements, but mkobj()/mksobj() create a replacement without copying oartifact, so that path cannot first-touch a quest artifact.",
+            "callers": [
+              {
+                "path": "js/invent.js",
+                "symbol": "addinv_core1",
+                "source": "invent.c:addinv_core1() calls artitouch(obj) after marking u.uhave.questart and before set_artifact_intrinsic(), addinv_core2(), or addinv_core0() inventory insertion."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/inventory-substrate.test.mjs",
+              "scripts/quest-artitouch.test.mjs"
+            ],
+            "recordings": [
+              "recordings/quest.c/artitouch-wizard-eye-independent-A27.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v8",
+                "caseId": "artifact-heart-invoke-cycle",
+                "segment": 0,
+                "fromStep": 24,
+                "throughStep": 24,
+                "source": "cmd.c wish dispatch -> zap.c:makewish -> invent.c:hold_another_object/addinv_core0/addinv_core1 -> quest.c:artitouch; the role gotit pager and post-pager Wisdom exercise execute before inventory insertion"
+              }
+            ],
+            "checkedAt": "c54c2c13ca30ebad8411cbcd4b7dcd3e193fbddc"
+          }
+        ],
+        "entryPointReview": "The sole direct C call is invent.c:addinv_core1(), and the active JavaScript acquisition boundaries were audited. First acquisition through a wish is verified by the admitted v8 case through zero-based step 24 and by a fresh strict Wizard/Eye-of-the-Aethiopica recording. C pickup.c:pick_obj() and pickup.c:out_container() both feed addinv_core1; their first-touch floor/container variants remain unverified. The committed blocked recipes explain the setup boundary: the only bounded way used here to materialize the qart is the wish itself, which sets Qstat(touched_artifact), so a later pickup/extraction only enters artitouch's already-touched return. A quest-artifact provenance placed on the floor or inside a container before first hero acquisition was not established. C files.c:read_wizkit()/wizkit_addinv() is a separate active startup edge through addinv_core1; its questpgr.c:skip_pager() branch is source-pinned, but the JavaScript runtime has no WIZKIT startup-file route, so that runtime entry remains unavailable and is named in a blocked recipe. The JavaScript pickup, out_container, wish, and in-place replacement paths consume the async addinv_core1 result in source order; the synchronous startup/throw-return/teleport/reimbursement addinv callers do not create a new qart in the active JS runtime. zap.c:poly_obj() replacement does not carry oartifact into its new object. The v8 replay's first post-citation difference is at step 26 in later inventory/artifact display casing (C 't', JS 'T'); it is unrelated to quest.c:artitouch and is not included in its citation.",
+        "entryPoints": [
+          {
+            "name": "first quest-artifact acquisition through the wish command",
+            "functions": [
+              "artitouch"
+            ],
+            "recordings": [
+              "recordings/quest.c/artitouch-wizard-eye-independent-A27.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v8",
+                "caseId": "artifact-heart-invoke-cycle",
+                "segment": 0,
+                "fromStep": 24,
+                "throughStep": 24,
+                "source": "cmd.c wish dispatch -> zap.c:makewish -> invent.c:addinv_core1 -> quest.c:artitouch"
+              }
+            ]
+          },
+          {
+            "name": "first quest-artifact acquisition through floor pickup (blocked setup)",
+            "functions": [
+              "artitouch"
+            ],
+            "recordings": [],
+            "synthetic": []
+          },
+          {
+            "name": "first quest-artifact acquisition through container extraction (blocked setup)",
+            "functions": [
+              "artitouch"
+            ],
+            "recordings": [],
+            "synthetic": []
+          },
+          {
+            "name": "WIZKIT startup inventory acquisition with pager suppression (no JavaScript startup route)",
+            "functions": [
+              "artitouch"
+            ],
+            "recordings": [],
+            "synthetic": []
+          }
+        ]
+      },
+      "progressBeforePark": {
+        "screens": 0,
+        "rng": 0
+      },
+      "parkedStanding": {
+        "sha": "589eff0af34470081afdfe7bfea0cd282afa66c1",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "parkedReason": "artitouch is source-reviewed and verified through independent wish acquisition and v8 step 24, but first-touch floor pickup and container extraction still lack a pre-acquisition quest-artifact provenance recipe; files.c wizkit_addinv startup and its skip_pager path also lack a JavaScript WIZKIT route. Resume after those entry points acquire matching runtime evidence or their blocking source paths are ported."
     }
   ]
 }
