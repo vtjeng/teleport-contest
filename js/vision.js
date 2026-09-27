@@ -1,5 +1,5 @@
 // vision.js — C ref: vision.c Algorithm C shadow-casting
-// Stripped-down port for the contest skeleton: no underwater or pit handling.
+// Stripped-down port for the contest skeleton: no underwater handling.
 // Contestants should port the full vision.c for complete parity.
 
 import { game } from './gstate.js';
@@ -21,7 +21,7 @@ import {
     MONSEEN_NORMAL, MONSEEN_SEEINVIS, MONSEEN_INFRAVIS,
     MONSEEN_TELEPAT, MONSEEN_XRAYVIS, MONSEEN_DETECT, MONSEEN_WARNMON,
     SV0, SV1, SV2, SV3, SV4, SV5, SV6, SV7, SVALL,
-    IS_WALL, TEMP_LIT,
+    IS_WALL, TEMP_LIT, TT_PIT,
 } from './const.js';
 import { newsym, tp_sensemon } from './display.js';
 import {
@@ -731,12 +731,43 @@ export function vision_recalc(control = 0, env = {}) {
         next_rmax[y] = 0;
     }
 
-    // vision.c:557-560. A swallowed hero has no line of sight; the fresh
+    // vision.c:557-622. A swallowed hero has no line of sight; the fresh
     // buffer remains empty until the swallowed display is drawn by the
     // caller. Keeping the guard here also makes couldsee() agree with the C
-    // bitmap while monster movement runs inside the engulfment.
+    // bitmap while monster movement runs inside the engulfment. C gives Blind
+    // and Rogue-level vision precedence over the water/pit arms; underwater
+    // vision in turn precedes pit vision. Those other specialized branches
+    // remain unported here, so leave their prior view_from behavior intact
+    // rather than letting the new pit arm take them over.
+    const rogueLevel = on_level(u.uz, state.rogue_level);
+    const underwaterOutsideWaterLevel = Boolean(
+        u.uinwater && !on_level(u.uz, state.water_level),
+    );
+    const pitSight = Boolean(
+        u.utrap && u.utraptype === TT_PIT
+        && !heroIsBlind(u)
+        && !rogueLevel
+        && !underwaterOutsideWaterLevel,
+    );
     if (control !== 2 && !state.u?.uswallow) {
-        view_from(u.uy, u.ux, next, next_rmin, next_rmax);
+        if (pitSight) {
+            // vision.c:609-622. The pit branch starts ordinary sight with
+            // COULD_SEE and IN_SIGHT only in the adjacent 3-by-3 area. C can
+            // add IN_SIGHT farther away in its later x-ray overlay. C checks
+            // Blind, Rogue-level, and underwater vision before this branch.
+            const minCol = Math.max(1, u.ux - 1);
+            const maxCol = Math.min(COLNO - 1, u.ux + 1);
+            for (let row = u.uy - 1; row <= u.uy + 1; ++row) {
+                if (row < 0) continue;
+                if (row >= ROWNO) break;
+                next_rmin[row] = minCol;
+                next_rmax[row] = maxCol;
+                for (let col = minCol; col <= maxCol; ++col)
+                    next[row][col] = IN_SIGHT | COULD_SEE;
+            }
+        } else {
+            view_from(u.uy, u.ux, next, next_rmin, next_rmax);
+        }
     }
 
     const level = state.level;

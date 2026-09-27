@@ -962,8 +962,9 @@ export async function digactualhole(
         await reset_utrap(true, state);
     } else {
         set_utrap(random.rn1(4, 2), TT_PIT, state);
-        state.gv ??= {};
-        state.gv.vision_full_recalc = 1;
+        // C's gv.vision_full_recalc is kept as state.vision_full_recalc in the
+        // flattened JS state consumed by allmain.js:moveloop_core().
+        state.vision_full_recalc = 1;
     }
 
     const newObjects = state.level.objects?.[x]?.[y] ?? null;

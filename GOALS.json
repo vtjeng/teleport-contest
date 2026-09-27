@@ -91853,16 +91853,23 @@
     {
       "id": "div-vision-pit-sight-synthetic-v6-20260926",
       "kind": "divergence-fix",
-      "status": "queued",
+      "status": "closed",
       "summary": "Restore source pit-limited sight after downward digging",
       "cFile": "vision.c",
       "sessions": [],
       "selectionReason": "The current v6 archeologist-down-dig-floor case matches its dig message and all RNG calls but still draws a pet beyond the 3×3 pit sight limit at step 6. C vision.c:vision_recalc selects the u.utrap && TT_PIT branch after digactualhole requests full recalculation; JS uses ordinary view_from. The prior dig.c diagnosis is stale, so select this source-traced vision branch.",
       "detail": "Port the pit branch of vision.c:vision_recalc in buffer and redraw order, using canonical u.utrap and u.utraptype state. Keep ordinary, blind and swallowed sight unchanged. Independently record a pit with a creature or feature beyond adjacent range using different seed/date/character conditions; verify the admitted v6 step 6 and preserve all existing matches.",
-      "openedAt": null,
-      "openStanding": null,
-      "closedAt": null,
-      "delivered": null,
+      "openedAt": "c3972c48092cfb862070f98242b89d813bafad66",
+      "openStanding": {
+        "sha": "c3972c48092cfb862070f98242b89d813bafad66",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "closedAt": "4fc824cfd5f5c170f9c0e01b5699c057438241e0",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
       "function": "vision_recalc",
       "session": "synthetic/v6/archeologist-down-dig-floor",
       "step": 6,
@@ -91879,30 +91886,238 @@
           "evaluationPath": "challenges/evaluations/20260927005209-v6.json",
           "evaluationCommit": "12a35e71cf1d937cd08b75b196f3c8b54224f6cd"
         }
+      },
+      "activeStanding": {
+        "sha": "c3972c48092cfb862070f98242b89d813bafad66",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v6",
+          "caseId": "archeologist-down-dig-floor",
+          "session": "synthetic/v6/archeologist-down-dig-floor",
+          "manifestPath": "challenges/manifests/v6.json",
+          "manifestSha256": "7523b91e823f4e3906c9acdc9a3d80f8469c27c2caab8fc8fbd6967dbfdcab5f",
+          "recording": "challenges/cases/v6/archeologist-down-dig-floor.session.json",
+          "recordingPath": "challenges/cases/v6/archeologist-down-dig-floor.session.json",
+          "recordingSha256": "8ae44f290808dea580c783add4b5cc12e99a94f4c998441b329325406fa9e9a9",
+          "recipe": "challenges/cases/v6/archeologist-down-dig-floor.recipe.session.json",
+          "recipeSha256": "7a44624310a7907c493bc6e6dd893aaf141942878dc86db440ae6c2972c69742",
+          "replayInputSha256": "98a66dc6f7ed978e6177dc7f251579da4743d1a9d58da3a6a0b29dbb27b2498c",
+          "evaluationPath": "challenges/evaluations/20260927032154-v6.json",
+          "evaluationCommit": "6ff81e0c85937f98189ac25d5847d8fecdab4f8f",
+          "evaluationArtifact": "challenges/evaluations/20260927032154-v6.json",
+          "evaluationUtc": "2026-09-27T03:22:13.425Z",
+          "remainingScreens": 2,
+          "recordedSteps": 8,
+          "previousScreensMatched": 6,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 6,
+              "total": 8
+            },
+            "rng": {
+              "matched": 6188,
+              "total": 6188
+            },
+            "cursors": {
+              "matched": 8,
+              "total": 8
+            }
+          },
+          "firstMismatch": {
+            "screen": {
+              "index": 6,
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 6,
+                "key": ">"
+              },
+              "kind": "ch",
+              "row": 13,
+              "column": 10,
+              "cCell": {
+                "ch": ".",
+                "color": 8,
+                "attr": 0,
+                "decgfx": 0
+              },
+              "jsCell": {
+                "ch": "f",
+                "color": 15,
+                "attr": 0,
+                "decgfx": 0
+              }
+            },
+            "rng": null,
+            "cursor": null
+          },
+          "step": 6,
+          "kind": "screen",
+          "sourceFile": null,
+          "function": null,
+          "message": null,
+          "cFile": null,
+          "luaFile": null,
+          "line": null,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v6/archeologist-down-dig-floor.json",
+            "result": {
+              "session": "synthetic/v6/archeologist-down-dig-floor",
+              "corpus": "synthetic",
+              "batch": "v6",
+              "caseId": "archeologist-down-dig-floor",
+              "manifestPath": "challenges/manifests/v6.json",
+              "manifestSha256": "7523b91e823f4e3906c9acdc9a3d80f8469c27c2caab8fc8fbd6967dbfdcab5f",
+              "recordingPath": "challenges/cases/v6/archeologist-down-dig-floor.session.json",
+              "recordingSha256": "8ae44f290808dea580c783add4b5cc12e99a94f4c998441b329325406fa9e9a9",
+              "evaluationPath": "challenges/evaluations/20260927005209-v6.json",
+              "evaluationCommit": "12a35e71cf1d937cd08b75b196f3c8b54224f6cd",
+              "remainingScreens": 2,
+              "recordedSteps": 8,
+              "status": "complete",
+              "commit": "12a35e71cf1d937cd08b75b196f3c8b54224f6cd",
+              "mismatch": {
+                "corpus": "synthetic",
+                "batch": "v6",
+                "caseId": "archeologist-down-dig-floor",
+                "session": "synthetic/v6/archeologist-down-dig-floor",
+                "manifestPath": "challenges/manifests/v6.json",
+                "manifestSha256": "7523b91e823f4e3906c9acdc9a3d80f8469c27c2caab8fc8fbd6967dbfdcab5f",
+                "recording": "challenges/cases/v6/archeologist-down-dig-floor.session.json",
+                "recordingPath": "challenges/cases/v6/archeologist-down-dig-floor.session.json",
+                "recordingSha256": "8ae44f290808dea580c783add4b5cc12e99a94f4c998441b329325406fa9e9a9",
+                "recipe": "challenges/cases/v6/archeologist-down-dig-floor.recipe.session.json",
+                "recipeSha256": "7a44624310a7907c493bc6e6dd893aaf141942878dc86db440ae6c2972c69742",
+                "replayInputSha256": "f2c945d9e00dcf6d0bd4942e3af34ee5b9e10467fa9a2ab70e6c05cd35213374",
+                "evaluationPath": "challenges/evaluations/20260927005209-v6.json",
+                "evaluationCommit": "12a35e71cf1d937cd08b75b196f3c8b54224f6cd",
+                "evaluationArtifact": "challenges/evaluations/20260927005209-v6.json",
+                "evaluationUtc": "2026-09-27T00:52:27.629Z",
+                "remainingScreens": 2,
+                "recordedSteps": 8,
+                "previousScreensMatched": 6,
+                "regression": false,
+                "passed": false,
+                "error": null,
+                "metrics": {
+                  "screens": {
+                    "matched": 6,
+                    "total": 8
+                  },
+                  "rng": {
+                    "matched": 6188,
+                    "total": 6188
+                  },
+                  "cursors": {
+                    "matched": 8,
+                    "total": 8
+                  }
+                },
+                "firstMismatch": {
+                  "screen": {
+                    "index": 6,
+                    "location": {
+                      "segmentIndex": 0,
+                      "stepIndex": 6,
+                      "key": ">"
+                    },
+                    "kind": "ch",
+                    "row": 13,
+                    "column": 10,
+                    "cCell": {
+                      "ch": ".",
+                      "color": 8,
+                      "attr": 0,
+                      "decgfx": 0
+                    },
+                    "jsCell": {
+                      "ch": "f",
+                      "color": 15,
+                      "attr": 0,
+                      "decgfx": 0
+                    }
+                  },
+                  "rng": null,
+                  "cursor": null
+                },
+                "step": 6,
+                "kind": "screen",
+                "sourceFile": null,
+                "function": null,
+                "message": null,
+                "cFile": null,
+                "luaFile": null,
+                "line": null
+              },
+              "summary": "Downward digging now reaches the C pit message and all 6,188 RNG calls match. At segment 0 step 6, the hero is in a pit: C vision.c:vision_recalc limits sight to the immediate 3×3 area and hides the pet two rows away, while JS uses ordinary view_from sight and draws that pet. Step 7 retains the same stale visibility. The mismatch is the pit vision branch, not the previously missing dig occupation.",
+              "source": {
+                "file": "vision.c",
+                "branch": "After dig.c:digactualhole sets u.utrap to TT_PIT and requests a full vision recalculation, vision_recalc fills only cells adjacent to the hero when u.utrap && u.utraptype == TT_PIT. JS vision_recalc currently calls view_from for every non-swallowed hero and has no pit branch.",
+                "functions": [
+                  "vision_recalc"
+                ],
+                "callers": [
+                  "dig.c:digactualhole creates the hero pit and sets gv.vision_full_recalc; the move loop calls vision_recalc before display refresh.",
+                  "js/dig.js:digactualhole sets u.utrap and gv.vision_full_recalc, but js/vision.js:vision_recalc uses ordinary view_from sight and leaves the distant pet visible."
+                ],
+                "dependencies": [
+                  "Preserve vision buffer rmin/rmax, IN_SIGHT and COULD_SEE values and the existing light-source overlay in C order.",
+                  "The pet is outside the pit sight square; its movement and RNG already match through the step, so do not alter monster movement to remove the glyph."
+                ]
+              },
+              "goalKind": "divergence-fix",
+              "evidence": [
+                "Current evaluation challenges/evaluations/20260927005209-v6.json at 12a35e71cf1d937cd08b75b196f3c8b54224f6cd matches 6/8 screens, 8/8 cursors and 6188/6188 RNG calls. Its first screen difference at segment 0 step 6 is C floor (.) versus JS pet (f) at map row 13 column 10; both print “You start digging downward. You dig a pit in the floor.”",
+                "Local replay of the admitted recording shows the pet adjacent at step 5. At steps 6 and 7 C hides it after the hero enters the pit, while JS paints it farther away. C vision.c:vision_recalc lines 609-622 limits pit sight to u.ux±1/u.uy±1.",
+                "C dig.c:digactualhole sets TT_PIT and gv.vision_full_recalc when the hero falls into the pit; js/dig.js does the same. js/vision.js:vision_recalc currently has no pit-specific branch and unconditionally calls view_from for a non-swallowed hero. The old dig.c:dig source diagnosis is superseded by this current trace."
+              ]
+            }
+          }
+        }
+      ],
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "4fc824cfd5f5c170f9c0e01b5699c057438241e0",
+        "screens": 11405,
+        "rng": 792838
       }
     },
     {
       "id": "port-write-dowrite-glib-synthetic-v6-20260926",
       "kind": "file-port",
-      "status": "queued",
+      "status": "closed",
       "summary": "Port complete magic-marker writing and slippery-hand drop behavior",
       "cFile": "write.c",
       "sessions": [
         "synthetic/v6/wizard-greasy-write-glib-final"
       ],
-      "selectionReason": "The admitted v6 wizard-greasy-write-glib-final case now matches the grease and quarterstaff-slip history and stops at segment 0 step 21 in write.c:dowrite when a Glib magic marker should slip from the hero’s fingers. The JS branch refuses before the source message and dropx call; select whole dowrite, with the current C and JS owner established in the refreshed investigation.",
+      "selectionReason": "Ready independent B22 delivery resolves the admitted v6 wizard-greasy-write-glib-final mismatch while the earlier unrelated candidates remain assigned or independently queued.",
       "detail": "Translate dowrite branches in source order and wire the doapply magic-marker caller. In the Glib path use the source Tobjnam/fingers_or_gloves message, carried-object dropx and ECMD_TIME return; retain independent C recordings and name any other active writing branch that lacks matching evidence.",
-      "openedAt": null,
-      "openStanding": null,
-      "closedAt": null,
-      "delivered": null,
+      "openedAt": "a43a762304d7aad623a1a5d4a703e1f121954e95",
+      "openStanding": {
+        "sha": "a43a762304d7aad623a1a5d4a703e1f121954e95",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "closedAt": "8b0b833213a40d0e36ca8a3fdc35a6bc9b37a779",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
       "functions": [
         {
           "name": "dowrite",
           "line": 74,
           "endLine": 394,
           "declared": true,
-          "complete": false
+          "complete": true
         }
       ],
       "range": {
@@ -91922,21 +92137,245 @@
           "evaluationPath": "challenges/evaluations/20260927005209-v6.json",
           "evaluationCommit": "12a35e71cf1d937cd08b75b196f3c8b54224f6cd"
         }
+      },
+      "activeStanding": {
+        "sha": "a43a762304d7aad623a1a5d4a703e1f121954e95",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v6",
+          "caseId": "wizard-greasy-write-glib-final",
+          "session": "synthetic/v6/wizard-greasy-write-glib-final",
+          "manifestPath": "challenges/manifests/v6.json",
+          "manifestSha256": "7523b91e823f4e3906c9acdc9a3d80f8469c27c2caab8fc8fbd6967dbfdcab5f",
+          "recording": "challenges/cases/v6/wizard-greasy-write-glib-final.session.json",
+          "recordingPath": "challenges/cases/v6/wizard-greasy-write-glib-final.session.json",
+          "recordingSha256": "20b60af8d804f9bd6ebd5b1217dae85a6cdad0afcae9d4f98bd6c57d6f3fb6e6",
+          "recipe": "challenges/cases/v6/wizard-greasy-write-glib-final.recipe.session.json",
+          "recipeSha256": "a55d0f776ecd5d8a91bc59a3fc708c55e632be4e125a69ffaac720babd87ebdc",
+          "replayInputSha256": "d0a0b109e225d419c3479950f6327fd10cc18b864d821651deffe432660588b2",
+          "evaluationPath": "challenges/evaluations/20260927040914-v6.json",
+          "evaluationCommit": "4fc824cfd5f5c170f9c0e01b5699c057438241e0",
+          "evaluationArtifact": "challenges/evaluations/20260927040914-v6.json",
+          "evaluationUtc": "2026-09-27T04:09:31.447Z",
+          "remainingScreens": 1,
+          "recordedSteps": 22,
+          "previousScreensMatched": 21,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 21,
+              "total": 22
+            },
+            "rng": {
+              "matched": 2968,
+              "total": 2978
+            },
+            "cursors": {
+              "matched": 21,
+              "total": 22
+            }
+          },
+          "firstMismatch": {
+            "kind": "stop",
+            "message": "dowrite requires dropx() for a Glib pen",
+            "step": 21
+          },
+          "step": 21,
+          "kind": "stop",
+          "sourceFile": "do.c",
+          "function": "dropx",
+          "message": "dowrite requires dropx() for a Glib pen",
+          "cFile": "do.c",
+          "luaFile": null,
+          "line": null,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v6/wizard-greasy-write-glib-final.json",
+            "result": {
+              "session": "synthetic/v6/wizard-greasy-write-glib-final",
+              "corpus": "synthetic",
+              "batch": "v6",
+              "caseId": "wizard-greasy-write-glib-final",
+              "manifestPath": "challenges/manifests/v6.json",
+              "manifestSha256": "7523b91e823f4e3906c9acdc9a3d80f8469c27c2caab8fc8fbd6967dbfdcab5f",
+              "recordingPath": "challenges/cases/v6/wizard-greasy-write-glib-final.session.json",
+              "recordingSha256": "20b60af8d804f9bd6ebd5b1217dae85a6cdad0afcae9d4f98bd6c57d6f3fb6e6",
+              "evaluationPath": "challenges/evaluations/20260927005209-v6.json",
+              "evaluationCommit": "12a35e71cf1d937cd08b75b196f3c8b54224f6cd",
+              "remainingScreens": 1,
+              "recordedSteps": 22,
+              "status": "complete",
+              "commit": "12a35e71cf1d937cd08b75b196f3c8b54224f6cd",
+              "mismatch": {
+                "corpus": "synthetic",
+                "batch": "v6",
+                "caseId": "wizard-greasy-write-glib-final",
+                "session": "synthetic/v6/wizard-greasy-write-glib-final",
+                "manifestPath": "challenges/manifests/v6.json",
+                "manifestSha256": "7523b91e823f4e3906c9acdc9a3d80f8469c27c2caab8fc8fbd6967dbfdcab5f",
+                "recording": "challenges/cases/v6/wizard-greasy-write-glib-final.session.json",
+                "recordingPath": "challenges/cases/v6/wizard-greasy-write-glib-final.session.json",
+                "recordingSha256": "20b60af8d804f9bd6ebd5b1217dae85a6cdad0afcae9d4f98bd6c57d6f3fb6e6",
+                "recipe": "challenges/cases/v6/wizard-greasy-write-glib-final.recipe.session.json",
+                "recipeSha256": "a55d0f776ecd5d8a91bc59a3fc708c55e632be4e125a69ffaac720babd87ebdc",
+                "replayInputSha256": "f2c945d9e00dcf6d0bd4942e3af34ee5b9e10467fa9a2ab70e6c05cd35213374",
+                "evaluationPath": "challenges/evaluations/20260927005209-v6.json",
+                "evaluationCommit": "12a35e71cf1d937cd08b75b196f3c8b54224f6cd",
+                "evaluationArtifact": "challenges/evaluations/20260927005209-v6.json",
+                "evaluationUtc": "2026-09-27T00:52:27.629Z",
+                "remainingScreens": 1,
+                "recordedSteps": 22,
+                "previousScreensMatched": 21,
+                "regression": false,
+                "passed": false,
+                "error": null,
+                "metrics": {
+                  "screens": {
+                    "matched": 21,
+                    "total": 22
+                  },
+                  "rng": {
+                    "matched": 2968,
+                    "total": 2978
+                  },
+                  "cursors": {
+                    "matched": 21,
+                    "total": 22
+                  }
+                },
+                "firstMismatch": {
+                  "kind": "stop",
+                  "message": "dowrite requires dropx() for a Glib pen",
+                  "step": 21
+                },
+                "step": 21,
+                "kind": "stop",
+                "sourceFile": "do.c",
+                "function": "dropx",
+                "message": "dowrite requires dropx() for a Glib pen",
+                "cFile": "do.c",
+                "luaFile": null,
+                "line": null
+              },
+              "summary": "The grease application and next-turn quarterstaff slip now match. At segment 0 step 21, applying a magic marker with Glib hands reaches write.c:dowrite: C prints that the marker slips from the fingers and calls dropx, while JS explicitly refuses the Glib pen branch before the message. Port that branch from the whole dowrite source function and wire its object-drop dependency.",
+              "source": {
+                "file": "write.c",
+                "branch": "dowrite first rejects a no-hands form; otherwise, when Glib is active, it prints Tobjnam(pen,\"slip\") from fingers_or_gloves(FALSE), calls dropx(pen), and returns ECMD_TIME before asking for paper.",
+                "functions": [
+                  "dowrite"
+                ],
+                "callers": [
+                  "apply.c:doapply selects a magic marker and calls write.c:dowrite; js/apply.js does the same through js/write.js:dowrite."
+                ],
+                "dependencies": [
+                  "js/do.js exports dropx and preflight_dropx for ordinary carried objects; verify the production marker and square against their source-backed admission rather than suppressing a refusal.",
+                  "js/objnam.js:Tobjnam and js/do_wear.js:fingers_or_gloves already implement the C message components.",
+                  "The selected whole dowrite function has other active writing branches; keep unverified source paths explicitly incomplete rather than claiming a branch-only fix as whole-source completion."
+                ]
+              },
+              "goalKind": "file-port",
+              "evidence": [
+                "Saved challenges/evaluations/20260927005209-v6.json at 12a35e71cf1d937cd08b75b196f3c8b54224f6cd matches 21/22 screens and cursors; first stop is segment 0 step 21: “dowrite requires dropx() for a Glib pen”.",
+                "The admitted C recording step 21, after applying a magic marker at step 20, prints “The magic marker slips from your fingers.--More--”. Earlier grease and quarterstaff slip steps 18-19 now match, so the previous do_wear.c:glibr diagnosis is superseded.",
+                "C nethack-c/upstream/src/write.c:74-95 implements the no-hands and Glib branches; the Glib branch prints the slip message, calls do.c:dropx with its void result discarded, and returns ECMD_TIME. js/write.js:dowrite at its Glib branch still throws UnsupportedWriteError before those effects."
+              ]
+            }
+          }
+        }
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "dowrite",
+            "implementation": "js/write.js",
+            "symbol": "dowrite",
+            "sourceReview": "Read and compared all of write.c:dowrite() lines 74-385, including no-hands then Glib guard order, paper selection and blindness guards, name normalization and both lookup loops, novel/Book-of-the-Dead/unknown-book arms, conduct and marker-charge accounting, knowledge and blindness RNG gates, destruction/fade behavior, and final hold_another_object result handling. The former UnsupportedWriteError Glib refusal is removed. The Glib branch now emits C's Tobjnam(pen, 'slip') / fingers_or_gloves(FALSE) message, calls the existing do.c:dropx ordinary grounded-floor path, and returns ECMD_TIME in C order. doapply supplies the already ported fingers_or_gloves helper and drop hooks without creating an import cycle. dropx() is void in C, so its result is discarded; this task does not claim whole do.c:dropx source completion or expand its non-ordinary-floor branches.",
+            "callers": [
+              {
+                "path": "js/apply.js",
+                "symbol": "doapply",
+                "source": "apply.c:doapply() MAGIC_MARKER arm at 4361-4362 calls dowrite(obj); js/apply.js dispatches the selected marker to js/write.js:dowrite and supplies the source helper operations."
+              },
+              {
+                "path": "js/cmd.js",
+                "symbol": "runApplyCommand",
+                "source": "cmd.c command table at 1677 maps the apply key 'a' to doapply(); js/cmd.js:runApplyCommand dispatches the production command to js/apply.js:doapply."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/dowrite-glib.test.mjs",
+              "scripts/write.test.mjs"
+            ],
+            "recordings": [
+              "recordings/write.c/glib-marker-slip-independent.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v6",
+                "caseId": "wizard-greasy-write-glib-final",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 21,
+                "source": "cmd.c apply key -> apply.c:doapply(MAGIC_MARKER) -> write.c:dowrite Glib branch -> do.c:dropx ordinary floor path"
+              }
+            ],
+            "checkedAt": "8b0b833213a40d0e36ca8a3fdc35a6bc9b37a779"
+          }
+        ],
+        "entryPointReview": "The only production C caller of write.c:dowrite() is apply.c:doapply()'s MAGIC_MARKER arm (4361-4362), reached by cmd.c's apply-key command-table entry (1677). JavaScript follows cmd.js:runApplyCommand -> apply.js:doapply -> write.js:dowrite. The selected active behavior is the Glib guard after nohands: it reports the pen slipping, drops it on ordinary grounded floor, and returns ECMD_TIME. The independent Wizard-mode recording and the admitted v6 case exercise the production path. The do.c:dropx() callback is the existing ordinary-floor implementation; B22 makes no claim for its other unsupported terrain/context branches.",
+        "entryPoints": [
+          {
+            "name": "Apply a magic marker while Glib",
+            "functions": [
+              "dowrite"
+            ],
+            "recordings": [
+              "recordings/write.c/glib-marker-slip-independent.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v6",
+                "caseId": "wizard-greasy-write-glib-final",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 21,
+                "source": "cmd.c apply key -> apply.c:doapply(MAGIC_MARKER) -> write.c:dowrite Glib branch -> do.c:dropx ordinary floor path"
+              }
+            ]
+          }
+        ]
+      },
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "8b0b833213a40d0e36ca8a3fdc35a6bc9b37a779",
+        "screens": 11405,
+        "rng": 792838
       }
     },
     {
       "id": "port-priest-talk-outside-temple-synthetic-v7-20260926",
       "kind": "file-port",
-      "status": "queued",
+      "status": "open",
       "summary": "Port complete priest conversation through the chat command",
       "cFile": "priest.c",
       "sessions": [
         "synthetic/v7/priest-outside-temple-chat"
       ],
-      "selectionReason": "The current v7 priest-outside-temple-chat case reaches a source-defined priest reply at segment 0 step 34 after aligned-cleric creation now matches. C sounds.c:domonnoise calls priest.c:priest_talk, which draws rn2(3) and verbalizes a cranky outside-temple line; JS records that function as unported and emits nothing. Select the complete priest_talk function and production chat caller.",
+      "selectionReason": "The admitted v7 outside-temple priest chat is still unmatched at priest.c priest_talk. A separate source-traced makemon.c MS_BRIBE prince admission fix is required to record the return-valued demon_talk/bribe dependency through active production callers; B23 delivers that prerequisite before C24 conversation evidence can complete.",
       "detail": "Implement priest_talk in C order across outside-temple, helpless, shrine and donation branches; wire sounds.c:domonnoise MS_PRIEST without fabricated fallback, port consumed return-valued dependencies, and record independent priest conversations with varied temple and alignment state. Park entry points that cannot yet reach matching C evidence.",
-      "openedAt": null,
-      "openStanding": null,
+      "openedAt": "af2d02e92c05574653b7255adcf40d59dc955b7b",
+      "openStanding": {
+        "sha": "af2d02e92c05574653b7255adcf40d59dc955b7b",
+        "screens": 11405,
+        "rng": 792838
+      },
       "closedAt": null,
       "delivered": null,
       "functions": [
@@ -91965,7 +92404,223 @@
           "evaluationPath": "challenges/evaluations/20260927005209-v7.json",
           "evaluationCommit": "12a35e71cf1d937cd08b75b196f3c8b54224f6cd"
         }
-      }
+      },
+      "activeStanding": {
+        "sha": "af2d02e92c05574653b7255adcf40d59dc955b7b",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v7",
+          "caseId": "priest-outside-temple-chat",
+          "session": "synthetic/v7/priest-outside-temple-chat",
+          "manifestPath": "challenges/manifests/v7.json",
+          "manifestSha256": "03a861a9d1bc9d813c80681312ee7a0e0f893dbad0536de40a974bd5ec344094",
+          "recording": "challenges/cases/v7/priest-outside-temple-chat.session.json",
+          "recordingPath": "challenges/cases/v7/priest-outside-temple-chat.session.json",
+          "recordingSha256": "76f2f565d9ff27f51adb9638e2ee8b3eab7edbe6d8fe058d470d84e89bd861a0",
+          "recipe": "challenges/cases/v7/priest-outside-temple-chat.recipe.session.json",
+          "recipeSha256": "fef29a43a7857efd0935777eb584af573ec0096aed4e254d3f7deaff8010c4f8",
+          "replayInputSha256": "10fa725532b7eff36f61fdf5b09674aaa51ec14c5ea49256763af502626f4e54",
+          "evaluationPath": "challenges/evaluations/20260927053643-v7.json",
+          "evaluationCommit": "10d0c022d7772ea647ef0878bebd7abe0f75d08c",
+          "evaluationArtifact": "challenges/evaluations/20260927053643-v7.json",
+          "evaluationUtc": "2026-09-27T05:37:12.332Z",
+          "remainingScreens": 1,
+          "recordedSteps": 35,
+          "previousScreensMatched": 34,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 34,
+              "total": 35
+            },
+            "rng": {
+              "matched": 2579,
+              "total": 2586
+            },
+            "cursors": {
+              "matched": 35,
+              "total": 35
+            }
+          },
+          "firstMismatch": {
+            "screen": {
+              "index": 34,
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 34,
+                "key": "l"
+              },
+              "kind": "ch",
+              "row": 0,
+              "column": 0,
+              "cCell": {
+                "ch": "\"",
+                "color": 8,
+                "attr": 0,
+                "decgfx": 0
+              },
+              "jsCell": {
+                "ch": " ",
+                "color": 8,
+                "attr": 0,
+                "decgfx": 0
+              }
+            },
+            "rng": {
+              "index": 2572,
+              "cEntry": "rn2(3)=0",
+              "cCaller": "priest_talk(priest.c:599)",
+              "jsEntry": "rn2(12)=6",
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 34,
+                "key": "l"
+              },
+              "stepIndex": 34
+            },
+            "cursor": null
+          },
+          "step": 34,
+          "kind": "rng",
+          "sourceFile": "priest.c",
+          "function": "priest_talk",
+          "message": null,
+          "cFile": "priest.c",
+          "luaFile": null,
+          "line": 599,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v7/priest-outside-temple-chat.json",
+            "result": {
+              "session": "synthetic/v7/priest-outside-temple-chat",
+              "corpus": "synthetic",
+              "batch": "v7",
+              "caseId": "priest-outside-temple-chat",
+              "manifestPath": "challenges/manifests/v7.json",
+              "manifestSha256": "03a861a9d1bc9d813c80681312ee7a0e0f893dbad0536de40a974bd5ec344094",
+              "recordingPath": "challenges/cases/v7/priest-outside-temple-chat.session.json",
+              "recordingSha256": "76f2f565d9ff27f51adb9638e2ee8b3eab7edbe6d8fe058d470d84e89bd861a0",
+              "evaluationPath": "challenges/evaluations/20260927005209-v7.json",
+              "evaluationCommit": "12a35e71cf1d937cd08b75b196f3c8b54224f6cd",
+              "remainingScreens": 1,
+              "recordedSteps": 35,
+              "status": "complete",
+              "commit": "12a35e71cf1d937cd08b75b196f3c8b54224f6cd",
+              "mismatch": {
+                "corpus": "synthetic",
+                "batch": "v7",
+                "caseId": "priest-outside-temple-chat",
+                "session": "synthetic/v7/priest-outside-temple-chat",
+                "manifestPath": "challenges/manifests/v7.json",
+                "manifestSha256": "03a861a9d1bc9d813c80681312ee7a0e0f893dbad0536de40a974bd5ec344094",
+                "recording": "challenges/cases/v7/priest-outside-temple-chat.session.json",
+                "recordingPath": "challenges/cases/v7/priest-outside-temple-chat.session.json",
+                "recordingSha256": "76f2f565d9ff27f51adb9638e2ee8b3eab7edbe6d8fe058d470d84e89bd861a0",
+                "recipe": "challenges/cases/v7/priest-outside-temple-chat.recipe.session.json",
+                "recipeSha256": "fef29a43a7857efd0935777eb584af573ec0096aed4e254d3f7deaff8010c4f8",
+                "replayInputSha256": "11e632b69fa599ba6fda7506edb04a1b49adb0ec395e5ab0c6ee7afa1b14920a",
+                "evaluationPath": "challenges/evaluations/20260927005209-v7.json",
+                "evaluationCommit": "12a35e71cf1d937cd08b75b196f3c8b54224f6cd",
+                "evaluationArtifact": "challenges/evaluations/20260927005209-v7.json",
+                "evaluationUtc": "2026-09-27T00:52:38.364Z",
+                "remainingScreens": 1,
+                "recordedSteps": 35,
+                "previousScreensMatched": 34,
+                "regression": false,
+                "passed": false,
+                "error": null,
+                "metrics": {
+                  "screens": {
+                    "matched": 34,
+                    "total": 35
+                  },
+                  "rng": {
+                    "matched": 2579,
+                    "total": 2586
+                  },
+                  "cursors": {
+                    "matched": 35,
+                    "total": 35
+                  }
+                },
+                "firstMismatch": {
+                  "screen": {
+                    "index": 34,
+                    "location": {
+                      "segmentIndex": 0,
+                      "stepIndex": 34,
+                      "key": "l"
+                    },
+                    "kind": "ch",
+                    "row": 0,
+                    "column": 0,
+                    "cCell": {
+                      "ch": "\"",
+                      "color": 8,
+                      "attr": 0,
+                      "decgfx": 0
+                    },
+                    "jsCell": {
+                      "ch": " ",
+                      "color": 8,
+                      "attr": 0,
+                      "decgfx": 0
+                    }
+                  },
+                  "rng": {
+                    "index": 2572,
+                    "cEntry": "rn2(3)=0",
+                    "cCaller": "priest_talk(priest.c:599)",
+                    "jsEntry": "rn2(12)=6",
+                    "location": {
+                      "segmentIndex": 0,
+                      "stepIndex": 34,
+                      "key": "l"
+                    },
+                    "stepIndex": 34
+                  },
+                  "cursor": null
+                },
+                "step": 34,
+                "kind": "rng",
+                "sourceFile": "priest.c",
+                "function": "priest_talk",
+                "message": null,
+                "cFile": "priest.c",
+                "luaFile": null,
+                "line": 599
+              },
+              "summary": "Aligned-cleric creation now matches. At segment 0 step 34, the player chats with that priest outside a temple. C sounds.c:domonnoise calls priest.c:priest_talk, whose non-temple branch draws rn2(3) and speaks a cranky response; JS records priest_talk as unported and emits no reply. Port the whole priest conversation function and its active command caller.",
+              "source": {
+                "file": "priest.c",
+                "branch": "priest_talk runs after dochat/domonnoise for MS_PRIEST. A priest who is outside his temple, nonpeaceful or helpless enters the cranky branch: clear helpless state when needed, set mpeaceful=0, select cranky_msg[rn2(3)] and verbalize. The remaining donation and shrine branches are in the selected whole function.",
+                "functions": [
+                  "priest_talk"
+                ],
+                "callers": [
+                  "C cmd.c:dochat -> sounds.c:domonnoise calls priest_talk for MS_PRIEST; JS command dispatch reaches js/sounds.js:domonnoise, whose MS_PRIEST arm currently calls note_unported and breaks without a reply."
+                ],
+                "dependencies": [
+                  "js/priest.js already ports p_coaligned, inhistemple and has_shrine; verify their exact behavior against this caller.",
+                  "The donation path consumes bribe and money_cnt return values and changes alignment/intrinsics; port return-valued callees or keep whole-function completion blocked until source evidence exists."
+                ]
+              },
+              "goalKind": "file-port",
+              "evidence": [
+                "Saved challenges/evaluations/20260927005209-v7.json at 12a35e71cf1d937cd08b75b196f3c8b54224f6cd matches 34/35 screens and 35/35 cursors. At step 34 on key l, C first calls rn2(3)=0 in priest_talk, while JS follows a different later RNG call and has no priest reply.",
+                "C recording step 34 says “Thou wouldst have words, eh?  I'll give thee a word or two!”; local JS replay of the same inputs has a blank message line. The earlier forced aligned-cleric creation and its RNG now match, superseding the old makemon.c diagnosis.",
+                "C nethack-c/upstream/src/sounds.c:726 calls priest_talk; priest.c:558 onward contains the outside-temple cranky branch at lines 583-606 with rn2(3). js/sounds.js:MS_PRIEST currently records the call as unported and emits no source-equivalent message."
+              ]
+            }
+          }
+        }
+      ]
     },
     {
       "id": "port-potion-gain-level-synthetic-v7-20260926",
@@ -92235,6 +92890,344 @@
         "screens": 11405,
         "rng": 792838
       }
+    },
+    {
+      "id": "port-sit-throne-sit-effect-synthetic-v6-20260927",
+      "kind": "file-port",
+      "status": "parked",
+      "summary": "Port sit.c throne_sit_effect and wire the throne sit caller",
+      "cFile": "sit.c",
+      "sessions": [
+        "synthetic/v6/wizard-sit-throne"
+      ],
+      "selectionReason": "The v6 wizard throne mismatch is the source-owned sit.c throne effect; related sit cases share dosit but this task owns the whole throne helper. The court summons branch still depends on makemon and retains a blocked recipe.",
+      "detail": "Source-trace sit.c throne_sit_effect including its dosit caller, all RNG and output order, and named void gaps. Independent C throne recording and admitted v6 range provide ordinary entry evidence; court summons remains blocked at makemon.c makemon.",
+      "openedAt": "7ca34864876d622b03802ee04e6704aa878f4244",
+      "openStanding": {
+        "sha": "7ca34864876d622b03802ee04e6704aa878f4244",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "closedAt": null,
+      "delivered": null,
+      "functions": [
+        {
+          "name": "throne_sit_effect",
+          "line": 39,
+          "endLine": 237,
+          "declared": true,
+          "complete": true
+        }
+      ],
+      "range": {
+        "from": 39,
+        "to": 237
+      },
+      "syntheticProvenance": {
+        "synthetic/v6/wizard-sit-throne": {
+          "session": "synthetic/v6/wizard-sit-throne",
+          "corpus": "synthetic",
+          "batch": "v6",
+          "caseId": "wizard-sit-throne",
+          "manifestPath": "challenges/manifests/v6.json",
+          "manifestSha256": "7523b91e823f4e3906c9acdc9a3d80f8469c27c2caab8fc8fbd6967dbfdcab5f",
+          "recordingPath": "challenges/cases/v6/wizard-sit-throne.session.json",
+          "recordingSha256": "777f1c5173e1e534cd61383f67d808292deec16b1c30c142e84522218a3204c7",
+          "evaluationPath": "challenges/evaluations/20260927043018-v6.json",
+          "evaluationCommit": "8b0b833213a40d0e36ca8a3fdc35a6bc9b37a779"
+        }
+      },
+      "activeStanding": {
+        "sha": "7ca34864876d622b03802ee04e6704aa878f4244",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v6",
+          "caseId": "wizard-sit-throne",
+          "session": "synthetic/v6/wizard-sit-throne",
+          "manifestPath": "challenges/manifests/v6.json",
+          "manifestSha256": "7523b91e823f4e3906c9acdc9a3d80f8469c27c2caab8fc8fbd6967dbfdcab5f",
+          "recording": "challenges/cases/v6/wizard-sit-throne.session.json",
+          "recordingPath": "challenges/cases/v6/wizard-sit-throne.session.json",
+          "recordingSha256": "777f1c5173e1e534cd61383f67d808292deec16b1c30c142e84522218a3204c7",
+          "recipe": "challenges/cases/v6/wizard-sit-throne.recipe.session.json",
+          "recipeSha256": "cd87d693cadb26ae0e0dbcbcfaa1d1d7ab123b90dfdef959ebbe54a0deb657cb",
+          "replayInputSha256": "3121f755a9bc61c4c3d8457ebedd4bc2fd394f9590d6e71da2e207ee9664bdfe",
+          "evaluationPath": "challenges/evaluations/20260927043018-v6.json",
+          "evaluationCommit": "8b0b833213a40d0e36ca8a3fdc35a6bc9b37a779",
+          "evaluationArtifact": "challenges/evaluations/20260927043018-v6.json",
+          "evaluationUtc": "2026-09-27T04:30:35.049Z",
+          "remainingScreens": 1,
+          "recordedSteps": 14,
+          "previousScreensMatched": 13,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 13,
+              "total": 14
+            },
+            "rng": {
+              "matched": 2729,
+              "total": 2731
+            },
+            "cursors": {
+              "matched": 13,
+              "total": 14
+            }
+          },
+          "firstMismatch": {
+            "screen": {
+              "index": 13,
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 13,
+                "key": "\n"
+              },
+              "kind": "ch",
+              "row": 0,
+              "column": 30,
+              "cCell": {
+                "ch": "-",
+                "color": 8,
+                "attr": 0,
+                "decgfx": 0
+              },
+              "jsCell": {
+                "ch": " ",
+                "color": 8,
+                "attr": 0,
+                "decgfx": 0
+              }
+            },
+            "rng": {
+              "index": 2729,
+              "cEntry": "rnd(6)=5",
+              "cCaller": "throne_sit_effect(sit.c:45)",
+              "jsEntry": "rn2(12)=10",
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 13,
+                "key": "\n"
+              },
+              "stepIndex": 13
+            },
+            "cursor": {
+              "index": 13,
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 13,
+                "key": "\n"
+              },
+              "cCursor": [
+                38,
+                0,
+                1
+              ],
+              "jsCursor": [
+                45,
+                17,
+                1
+              ]
+            }
+          },
+          "step": 13,
+          "kind": "rng",
+          "sourceFile": "sit.c",
+          "function": "throne_sit_effect",
+          "message": null,
+          "cFile": "sit.c",
+          "luaFile": null,
+          "line": 45,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v6/wizard-sit-throne.json",
+            "result": {
+              "session": "synthetic/v6/wizard-sit-throne",
+              "corpus": "synthetic",
+              "batch": "v6",
+              "caseId": "wizard-sit-throne",
+              "manifestPath": "challenges/manifests/v6.json",
+              "manifestSha256": "7523b91e823f4e3906c9acdc9a3d80f8469c27c2caab8fc8fbd6967dbfdcab5f",
+              "recordingPath": "challenges/cases/v6/wizard-sit-throne.session.json",
+              "recordingSha256": "777f1c5173e1e534cd61383f67d808292deec16b1c30c142e84522218a3204c7",
+              "evaluationPath": "challenges/evaluations/20260926094126-v6.json",
+              "evaluationCommit": "50bbe620897c8fc2e634d14ec672d33a4e44db7e",
+              "remainingScreens": 1,
+              "recordedSteps": 14,
+              "status": "complete",
+              "commit": "50bbe620897c8fc2e634d14ec672d33a4e44db7e",
+              "mismatch": {
+                "corpus": "synthetic",
+                "batch": "v6",
+                "caseId": "wizard-sit-throne",
+                "session": "synthetic/v6/wizard-sit-throne",
+                "manifestPath": "challenges/manifests/v6.json",
+                "manifestSha256": "7523b91e823f4e3906c9acdc9a3d80f8469c27c2caab8fc8fbd6967dbfdcab5f",
+                "recording": "challenges/cases/v6/wizard-sit-throne.session.json",
+                "recordingPath": "challenges/cases/v6/wizard-sit-throne.session.json",
+                "recordingSha256": "777f1c5173e1e534cd61383f67d808292deec16b1c30c142e84522218a3204c7",
+                "recipe": "challenges/cases/v6/wizard-sit-throne.recipe.session.json",
+                "recipeSha256": "cd87d693cadb26ae0e0dbcbcfaa1d1d7ab123b90dfdef959ebbe54a0deb657cb",
+                "replayInputSha256": "9671c8200bb4617314143efc03b8936dba1c08d5025986a5ef6f245a97c322f9",
+                "evaluationPath": "challenges/evaluations/20260926094126-v6.json",
+                "evaluationCommit": "50bbe620897c8fc2e634d14ec672d33a4e44db7e",
+                "evaluationArtifact": "challenges/evaluations/20260926094126-v6.json",
+                "evaluationUtc": "2026-09-26T09:41:43.460Z",
+                "remainingScreens": 1,
+                "recordedSteps": 14,
+                "previousScreensMatched": 13,
+                "regression": false,
+                "passed": false,
+                "error": null,
+                "metrics": {
+                  "screens": {
+                    "matched": 13,
+                    "total": 14
+                  },
+                  "rng": {
+                    "matched": 2729,
+                    "total": 2731
+                  },
+                  "cursors": {
+                    "matched": 13,
+                    "total": 14
+                  }
+                },
+                "firstMismatch": {
+                  "kind": "stop",
+                  "message": "unsupported hero command: an unported branch of this command: sitting reached an unported branch: dosit()'s throne arm",
+                  "step": 13
+                },
+                "step": 13,
+                "kind": "stop",
+                "sourceFile": "sit.c",
+                "function": "dosit",
+                "message": "unsupported hero command: an unported branch of this command: sitting reached an unported branch: dosit()'s throne arm",
+                "cFile": "sit.c",
+                "luaFile": null,
+                "line": null
+              },
+              "summary": "The v6 wizard-sit-throne case reaches sit.c:dosit()'s throne branch, while js/sit.js refuses that branch. Port the entire dosit() command and its source-called dependencies, using all five v6 sit recordings for distinct terrain and feature states; preserve branch order, messages, return/time behavior, RNG, and side effects.",
+              "source": {
+                "file": "sit.c",
+                "branch": "The hero issues #sit while IS_THRONE(typ) is true after the object, trap, and water arms are false. C executes the throne branch and returns ECMD_TIME.",
+                "functions": [
+                  "dosit"
+                ],
+                "callers": [
+                  "cmd.c #sit command invokes sit.c dosit(); js/cmd.js command dispatch invokes js/sit.js dosit()."
+                ],
+                "dependencies": [
+                  "Whole dosit() also calls altar_wrath, throne_sit_effect, dotrap, lay_an_egg, water_damage, losehp, and other state handlers on separate branches. Audit return-valued lay_an_egg and active feature side effects before claiming source completion.",
+                  "Related unresolved v6 sit witnesses: archeologist-sit-ice, wizard-sit-sink, priest-sit-altar, wizard-sit-throne, wizard-sit-grave-room-retry."
+                ]
+              },
+              "goalKind": "file-port",
+              "evidence": [
+                "Saved challenges/evaluations/20260926094126-v6.json at 50bbe620897c8fc2e634d14ec672d33a4e44db7e reports one remaining screen, first stop at segment 0 step 13: unsupported hero command: an unported branch of this command: sitting reached an unported branch: dosit()'s throne arm.",
+                "challenges/cases/v6/wizard-sit-throne.session.json: The C step 13 screen begins “You sit on the opulent throne.” and continues through throne_sit_effect after the More prompt.",
+                "Upstream nethack-c/upstream/src/sit.c:554-556 uses IS_THRONE(typ); current js/sit.js:dosit throws UnsupportedSitError for the throne arm instead of executing it.",
+                "The five sit cases are different terrain or level-feature branches of the same dosit() source function; one whole-function port should cover them together. A matching range in each recording is still required before closing the source task."
+              ]
+            }
+          }
+        }
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "throne_sit_effect",
+            "implementation": "js/sit.js",
+            "symbol": "throne_sit_effect",
+            "sourceReview": "Read and ported the complete sit.c:throne_sit_effect() definition (39-234), preserving the outer rnd(6) gate, rnd(13) effect choice, wizard getlin selection, special-throne early return, all 13 effect arms, post-effect rn2(3) throne-removal tail, and C expression/RNG order. The source discards results from its void helpers, so unported branches are named with note_unported() and skipped at the source call: sit.c:special_throne_effect, sit.c:take_gold, read.c:do_genocide, sit.c:rndcurse, detect.c:do_mapping, wizard.c:aggravate, and makemon.c:makemon. The case-7 courtmon() result is evaluated in loop order before the makemon gap. Cases 4, 9, and 13 await their existing state helpers in source order; case 9 uses verbalize() after the A voice echoes line. The production refusal at sit.c:dosit()'s throne arm was removed and replaced by the awaited function call.",
+            "callers": [
+              {
+                "path": "js/sit.js",
+                "symbol": "dosit",
+                "source": "sit.c:dosit() checks IS_THRONE(typ), emits the sit message, then calls throne_sit_effect()."
+              },
+              {
+                "path": "js/cmd.js",
+                "symbol": "doextcmd",
+                "source": "cmd.c doextcmd() resolves the #sit extcmd to sit.c:dosit(), which reaches the throne arm."
+              },
+              {
+                "path": "js/cmd.js",
+                "symbol": "rhack",
+                "source": "cmd.c act_on_act() queues dosit() for MCMD_SIT and rhack() dispatches that function pointer."
+              },
+              {
+                "path": "js/cmd.js",
+                "symbol": "domouseaction",
+                "source": "cmd.c domouseaction() queues dosit() when a click targets the hero on a throne."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/sit-command.test.mjs"
+            ],
+            "recordings": [
+              "recordings/sit.c/throne-sit-independent-a20.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v6",
+                "caseId": "wizard-sit-throne",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 13,
+                "source": "cmd.c #sit extcmd dispatch -> sit.c:dosit() throne arm -> sit.c:throne_sit_effect() ordinary no-effect outcome and removal-tail check"
+              }
+            ],
+            "checkedAt": "10d0c022d7772ea647ef0878bebd7abe0f75d08c"
+          }
+        ],
+        "entryPointReview": "The active source entry is sit.c:dosit() on an IS_THRONE square, which calls throne_sit_effect(). The independent A20 recipe strictly matches the ordinary #sit throne outcome through completion of the function and its rn2(3) tail check. The admitted v6/wizard-sit-throne range is cited only through segment 0 step 13, the selected source boundary. The #sit command is dispatched by cmd.c doextcmd(); the existing command-menu MCMD_SIT route also queues dosit(), while cmd.c domouseaction() can queue it for a click on the hero on a throne. The fresh evidence in this delivery verifies the #sit route. The separate effect-7 court-summon recipe recipes/sit.c/throne-court-summon-blocked-a20.session.json is retained but blocked: throne_sit_effect evaluates mkroom.c:courtmon() and immediately passes that value to still-unported makemon.c:makemon() inside the same loop before another recorded input boundary, so no matching runtime completion for courtmon() is claimed. The remaining C-discarded void calls special_throne_effect, take_gold, read.c:do_genocide, sit.c:rndcurse, detect.c:do_mapping, and wizard.c:aggravate remain explicit named gaps and are not claimed as independently exercised. The mouse input event also has no recording representation.",
+        "entryPoints": [
+          {
+            "name": "#sit on an ordinary throne",
+            "functions": [
+              "throne_sit_effect"
+            ],
+            "recordings": [
+              "recordings/sit.c/throne-sit-independent-a20.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v6",
+                "caseId": "wizard-sit-throne",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 13,
+                "source": "cmd.c #sit -> sit.c:dosit() -> sit.c:throne_sit_effect()"
+              }
+            ]
+          },
+          {
+            "name": "#sit with wizard-forced throne court summons (effect 7)",
+            "functions": [
+              "throne_sit_effect"
+            ],
+            "recordings": [],
+            "synthetic": []
+          }
+        ]
+      },
+      "progressBeforePark": {
+        "screens": 0,
+        "rng": 0
+      },
+      "parkedStanding": {
+        "sha": "10d0c022d7772ea647ef0878bebd7abe0f75d08c",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "parkedReason": "The ordinary #sit throne entry and admitted v6 range match, but the wizard-forced court-summon entry is blocked: sit.c throne_sit_effect evaluates mkroom.c courtmon and passes its return into still-unported makemon.c makemon. The independent blocked recipe remains under recipes/sit.c; obtain a complete matching C recording after the makemon caller is ported."
     }
   ]
 }

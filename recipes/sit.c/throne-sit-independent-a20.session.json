@@ -1,0 +1,11 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 60627020,
+      "datetime": "20260927114900",
+      "nethackrc": "OPTIONS=name:Velathrone,role:Wizard,race:human,gender:male,align:neutral,playmode:debug,!legacy,!tutorial,!splash_screen,showexp,time\n",
+      "moves": " \u0017throne\n#sit\n"
+    }
+  ]
+}
