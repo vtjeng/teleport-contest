@@ -99088,6 +99088,56 @@
         "screens": 11405,
         "rng": 792838
       }
+    },
+    {
+      "id": "port-read-genocide-family-synthetic-v9-20260927",
+      "kind": "file-port",
+      "status": "queued",
+      "summary": "Port genocide class and species effects through scroll and throne callers",
+      "cFile": "read.c",
+      "sessions": [
+        "synthetic/v9/genocide-scroll-selects-species"
+      ],
+      "selectionReason": "v9/genocide-scroll-selects-species has 7 unmatched screens at segment 0 step 24; investigation traces the missing read.c:seffect_genocide wrapper to do_genocide and related do_class_genocide, with a separate sit.c throne caller. The two helpers are contiguous source functions; wire the wrapper and callers in this task. See investigations/synthetic/v9/genocide-scroll-selects-species.json.",
+      "detail": "",
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": null,
+      "delivered": null,
+      "functions": [
+        {
+          "name": "do_class_genocide",
+          "line": 2638,
+          "endLine": 2825,
+          "declared": false,
+          "complete": false
+        },
+        {
+          "name": "do_genocide",
+          "line": 2826,
+          "endLine": 3018,
+          "declared": false,
+          "complete": false
+        }
+      ],
+      "range": {
+        "from": 2638,
+        "to": 3018
+      },
+      "syntheticProvenance": {
+        "synthetic/v9/genocide-scroll-selects-species": {
+          "session": "synthetic/v9/genocide-scroll-selects-species",
+          "corpus": "synthetic",
+          "batch": "v9",
+          "caseId": "genocide-scroll-selects-species",
+          "manifestPath": "challenges/manifests/v9.json",
+          "manifestSha256": "00c148aac522e6343c8de0bd003db29771439f972a99cb18c772ebf2bc45a594",
+          "recordingPath": "challenges/cases/v9/genocide-scroll-selects-species.session.json",
+          "recordingSha256": "21687dcc3c3fadea446d1518d74ee03018f8370763bbd9ca9c801c40ff8fae07",
+          "evaluationPath": "challenges/evaluations/20260927205713-v9.json",
+          "evaluationCommit": "2d9a4768ccd20aa7dae5330807381ebed65bc926"
+        }
+      }
     }
   ]
 }
