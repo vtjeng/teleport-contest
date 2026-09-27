@@ -32,7 +32,9 @@ import {
     HALLUC,
     HALLUC_RES,
     HOLE,
+    IS_AIR,
     IS_DOOR,
+    IS_OBSTRUCTED,
     In_endgame,
     IS_DRAWBRIDGE,
     IS_FURNITURE,
@@ -86,6 +88,7 @@ import {
     W_ACCESSORY,
     W_AMUL,
     W_ARM,
+    W_ARMH,
     W_ARMOR,
     W_ARMG,
     W_ARMS,
@@ -143,12 +146,14 @@ import {
     seemimic, wakeup, xkilled, is_Vlad, flash_mon,
 } from './mon.js';
 import {
-    acidic, attacktype, attacktype_fordmg, breathless, dmgtype, has_head, haseyes, is_animal,
+    acidic, amorphous, attacktype, attacktype_fordmg, breathless, dmgtype,
+    has_head, haseyes, is_animal,
     is_bat, is_floater, is_flyer, is_mercenary, is_undead, is_unicorn,
     is_vampshifter, locomotion, mhe, mhim, mindless, mon_hates_silver,
     mon_knows_traps, mon_learns_traps, monster_resists_element, monstseesu,
-    monstunseesu, needspick, nohands, nonliving, passes_walls, resists_magm,
-    same_race, slimeproof, throws_rocks, touch_petrifies, verysmall,
+    monstunseesu, needspick, nohands, noncorporeal, nonliving, passes_walls,
+    resists_magm, same_race, slimeproof, throws_rocks, touch_petrifies,
+    unsolid, verysmall,
     poly_when_stoned,
 } from './mondata.js';
 import * as M from './monsters.js';
@@ -201,6 +206,13 @@ import { note_unported } from './unported.js';
 import { cansee, canseemon, couldsee, recalc_block_point, unblock_point } from './vision.js';
 import { body_part } from './polyself.js';
 import { arti_reflects } from './artifacts.js';
+// read.c owns the boulder helpers used by both hero and monster earth scrolls.
+// The functions call back into this module only at runtime through shared
+// monster helpers; neither module reads the other's bindings during setup.
+import {
+    drop_boulder_on_monster,
+    drop_boulder_on_player,
+} from './read.js';
 import {
     extract_from_minvent, bimanual, find_mac, mon_adjust_speed,
     mon_set_minvis,
@@ -209,6 +221,7 @@ import { mwelded, welded } from './wield.js';
 import { mon_has_amulet, mon_has_special } from './wizard.js';
 import { dobuzz, exclam, hit, miss, resist, zhitm } from './zap.js';
 import { which_armor } from './worn.js';
+import { hard_helmet } from './do_wear.js';
 
 // The generated catalog stores these values but does not currently export
 // their source enum names. MS_SILENT moved to js/const.js when sounds.c
@@ -230,6 +243,8 @@ const MUSE_POT_PARALYSIS = 9;
 const MUSE_POT_BLINDNESS = 10;
 const MUSE_POT_CONFUSION = 11;
 const MUSE_POT_ACID = 14;
+const MUSE_SCR_EARTH = 17;
+const MUSE_CAMERA = 18;
 const MUSE_WAN_TELEPORTATION = 15;
 const MUSE_POT_SLEEPING = 16;
 const MUSE_WAN_STRIKING = 7;
@@ -2392,14 +2407,14 @@ async function buzz_force_miss(type, nd, sx, sy, dx, dy, state) {
 // C ref: muse.c find_offensive() (1420-1594). "Select an offensive
 // item/action for a monster. Returns TRUE iff one is found."
 //
-// Partial: the eight reflection-gated wand/horn arms, MUSE_SCR_EARTH, and
-// MUSE_CAMERA refuse because their use_offensive() cases are not ported.
+// Partial: the eight reflection-gated wand/horn arms and MUSE_CAMERA refuse
+// because their use_offensive() cases are not ported.
 // MUSE_WAN_STRIKING, MUSE_WAN_UNDEAD_TURNING, and MUSE_WAN_TELEPORTATION are
 // fully wired and can select. The five MUSE_POT_* arms select as before.
 //
-// MUSE_SCR_EARTH and MUSE_CAMERA each end in a draw -- !rn2(10) and !rn2(6)
-// -- that a refusing port must not spend. Refusing early stops a monster C
-// would have let past; it never lets one past that C stops.
+// MUSE_CAMERA ends in a draw (!rn2(6)) that a refusing port must not spend.
+// Refusing early stops a monster C would have let past; it never lets one past
+// that C stops.
 export function find_offensive(mtmp, rawEnv = {}) {
     const state = rawEnv.state ?? game;
     const unsupported = rawEnv.unsupported;
@@ -2407,6 +2422,14 @@ export function find_offensive(mtmp, rawEnv = {}) {
         throw new TypeError('find_offensive requires an unsupported operation');
     const species = mtmp.data;
     const u = state.u;
+    const level = u?.uz;
+    const rogueLevel = state.rogue_level;
+    const rogueLevelHere = Boolean(rogueLevel && level
+        && level.dnum === rogueLevel.dnum
+        && level.dlevel === rogueLevel.dlevel);
+    const inEndgame = Boolean(level && state.astral_level
+        && level.dnum === state.astral_level.dnum);
+    const earthLevelHere = on_level(level, state.earth_level);
     const seenres = (mask) => (mtmp.seen_resistance & mask) !== 0;
     const refuse = () => unsupported('monster offensive item use');
 
@@ -2427,8 +2450,8 @@ export function find_offensive(mtmp, rawEnv = {}) {
 
     const reflection_skip = seenres(M_SEEN_REFL) /* m_seenres() */
         || monnear(mtmp, mtmp.mux, mtmp.muy, state);
-    // C also reads which_armor(mtmp, W_ARMH) here. Its one consumer is the
-    // MUSE_SCR_EARTH arm's hard_helmet() test, which this refuses ahead of.
+    // C reads this once before inventory traversal for MUSE_SCR_EARTH.
+    const helmet = which_armor(mtmp, W_ARMH, state);
     let has_offense = 0;
     let offensive = null;
     const select = (choice, obj) => {
@@ -2504,10 +2527,25 @@ export function find_offensive(mtmp, rawEnv = {}) {
         if (has_offense === MUSE_POT_ACID) continue;
         if (otyp === O.POT_ACID && !seenres(M_SEEN_ACID))
             select(MUSE_POT_ACID, obj);
-        // C's nomore(MUSE_SCR_EARTH) and nomore(MUSE_CAMERA) sit here; neither
-        // value is reachable, because both arms refuse.
+        /* we can safely put this scroll here since the locations that are in
+         * a 1 square radius are a subset of the locations in wand or throwing
+         * range (in other words, always lined_up()). */
+        if (has_offense === MUSE_SCR_EARTH) continue;
+        const random = rawEnv.random ?? { rn2 };
         if (otyp === O.SCR_EARTH
-            || (otyp === O.EXPENSIVE_CAMERA && obj.spe > 0)) {
+            && (hard_helmet(helmet, state) || mtmp.mconf
+                || amorphous(species) || passes_walls(species)
+                || noncorporeal(species) || unsolid(species)
+                || !random.rn2(10))
+            && dist2(mtmp.mx, mtmp.my, mtmp.mux, mtmp.muy) <= 2
+            && mtmp.mcansee && haseyes(species)
+            && !rogueLevelHere
+            && (!inEndgame || earthLevelHere)) {
+            select(MUSE_SCR_EARTH, obj);
+        }
+        /* nomore(MUSE_CAMERA) */
+        if (has_offense === MUSE_CAMERA) continue;
+        if (otyp === O.EXPENSIVE_CAMERA && obj.spe > 0) {
             refuse();
         }
     }
@@ -2518,10 +2556,10 @@ export function find_offensive(mtmp, rawEnv = {}) {
 
 // C ref: muse.c use_offensive() (1824-2032). "Perform an offensive action for
 // a monster.  Must be called immediately after find_offensive()."
-// Ported arms: MUSE_WAN_TELEPORTATION, MUSE_WAN_UNDEAD_TURNING,
+// Ported arms: MUSE_SCR_EARTH, MUSE_WAN_TELEPORTATION, MUSE_WAN_UNDEAD_TURNING,
 // MUSE_WAN_STRIKING (via mbhit), and the five MUSE_POT_* throwable potions.
-// The eight reflection-gated wand/horn arms, MUSE_SCR_EARTH, and MUSE_CAMERA
-// still refuse in find_offensive().
+// The eight reflection-gated wand/horn arms and MUSE_CAMERA still refuse in
+// find_offensive().
 //
 // C's entry declares buzzfn and calls precheck(), but "offensive potions are
 // not drunk, they're thrown", so the potion case skips precheck() entirely.
@@ -2619,6 +2657,56 @@ export async function use_offensive(mtmp, rawEnv = {}) {
         if (selection.has_offense === MUSE_WAN_STRIKING)
             mtmp.mwandexp = true;
         return 2;
+    }
+    case MUSE_SCR_EARTH: {
+        // C snapshots these before mreadmsg or a boulder can kill the reader.
+        const confused = Boolean(mtmp.mconf);
+        const mmx = mtmp.mx;
+        const mmy = mtmp.my;
+        const isCursed = Boolean(otmp.cursed);
+        const isBlessed = Boolean(otmp.blessed);
+
+        await mreadmsg(mtmp, otmp, state);
+        if (canseemon(mtmp, state)) {
+            await ttyPline(
+                `The ${ceiling(mtmp.mx, mtmp.my, state)} rumbles `
+                    + `${isBlessed ? 'around' : 'above'} `
+                    + `${mon_nam(mtmp, state)}!`,
+                state,
+            );
+            if (oseen) discover_object(otmp.otyp, true, true, true, state);
+        } else if (cansee(mtmp.mx, mtmp.my, state)) {
+            await ttyPline(
+                `The ${ceiling(mtmp.mx, mtmp.my, state)} rumbles `
+                    + 'in the middle of nowhere!',
+                state,
+            );
+            if (mtmp.minvis)
+                map_invisible(mtmp.mx, mtmp.my, state);
+            if (oseen) discover_object(otmp.otyp, true, true, true, state);
+        }
+
+        // The scroll must leave inventory before a fatal boulder drops.
+        await m_useup(mtmp, otmp, { state });
+        for (let x = mmx - 1; x <= mmx + 1; ++x) {
+            for (let y = mmy - 1; y <= mmy + 1; ++y) {
+                if (!isok(x, y) || closed_door(x, y, state)) continue;
+                const typ = state.level.at(x, y)?.typ;
+                if (IS_OBSTRUCTED(typ) || IS_AIR(typ)) continue;
+                const center = x === mmx && y === mmy;
+                if (!(center ? !isBlessed : !isCursed)) continue;
+                if (x === state.u.ux && y === state.u.uy) continue;
+                await drop_boulder_on_monster(
+                    x, y, confused, false, { state },
+                );
+            }
+        }
+        if (distmin(mmx, mmy, state.u.ux, state.u.uy) === 1 && !isCursed) {
+            await drop_boulder_on_player(
+                confused, !isCursed, false, true, { state },
+            );
+        }
+        return mtmp.mhp < 1 ? 1 : 2;
     }
     default:
         return unsupported('monster offensive item use');

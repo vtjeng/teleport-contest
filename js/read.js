@@ -14,6 +14,11 @@ import {
     BY_COOKIE,
     COLNO,
     CONFUSION,
+    HALF_SPDAM,
+    HEAD,
+    IS_AIR,
+    IS_OBSTRUCTED,
+    KILLED_BY_AN,
     ECMD_CANCEL,
     ECMD_OK,
     ECMD_TIME,
@@ -41,11 +46,14 @@ import {
     LS_OBJECT,
     thats_enough_tries,
     SPE_LIM,
+    STOMACH,
     W_BALL,
     W_CHAIN,
+    W_ARMH,
     WT_IRON_BALL_INCR,
     Is_rogue_level,
     Is_waterlevel,
+    engulfing_u,
     isok,
     ismnum,
     OBJ_AT,
@@ -88,14 +96,23 @@ import {
     S_invisible,
 } from './monsters.js';
 import { makeplural } from './fruit.js';
-import { mungspaces, strstri, upwords } from './hacklib.js';
+import {
+    mungspaces,
+    s_suffix,
+    strstri,
+    upstart,
+    upwords,
+} from './hacklib.js';
 import { game } from './gstate.js';
 import {
     check_capacity,
+    losehp,
     notice_mon_off,
     notice_mon_on,
 } from './hack.js';
-import { getobj, identify_pack, update_inventory, useup } from './invent.js';
+import {
+    getobj, identify_pack, obfree, stackobj, update_inventory, useup,
+} from './invent.js';
 import { getlin } from './windows.js';
 import {
     is_female,
@@ -107,6 +124,9 @@ import {
     is_hider,
     name_to_monclass,
     name_to_monplus,
+    mhim,
+    noncorporeal,
+    passes_walls,
     unsolid,
     unique_corpstat,
 } from './mondata.js';
@@ -119,12 +139,13 @@ import {
 import { makemon_runtime, newcham } from './makemon_create.js';
 import { mkclass, rndmonst, set_malign } from './makemon.js';
 import { monster_census } from './minion.js';
-import { Monnam } from './do_name.js';
-import { flash_mon } from './mon.js';
+import { Monnam, mon_nam } from './do_name.js';
+import { flash_mon, wake_nearto, wakeup } from './mon.js';
 import { MAXMCLASSES } from './symbols.js';
 import {
     ALCHEMY_SMOCK,
     BALL_CLASS,
+    BOULDER,
     BRASS_LANTERN,
     CHAIN_CLASS,
     CAN_OF_GREASE,
@@ -154,6 +175,7 @@ import {
     SCR_SCARE_MONSTER,
     SCR_STINKING_CLOUD,
     SCR_TAMING,
+    ROCK,
     SCROLL_CLASS,
     SCR_DESTROY_ARMOR,
     SCR_ENCHANT_WEAPON,
@@ -186,8 +208,10 @@ import {
     is_flammable,
     is_weptool,
     mkobj,
+    mksobj,
     objectType,
     place_object,
+    weight,
 } from './obj.js';
 import { exercise } from './attrib.js';
 import { wipeout_text } from './engrave.js';
@@ -196,16 +220,16 @@ import { level_tele, scrolltele } from './teleport.js';
 import { lightdamage } from './zap.js';
 import { discover_object } from './o_init.js';
 import { more_experienced } from './exper.js';
-import { rn1, rn2, rnl, rnd } from './rng.js';
+import { rn1, rn2, rne, rnl, rnd } from './rng.js';
 import { ttyPline } from './tty_message.js';
-import { newsym } from './display.js';
+import { map_invisible, newsym } from './display.js';
 import { flooreffects, trycall } from './do.js';
 import { y_n } from './cmd.js';
 import {
     study_book,
 } from './spell.js';
 import { destroy_arm, some_armor, setwornEnv } from './do_wear.js';
-import { setworn } from './worn.js';
+import { setworn, which_armor } from './worn.js';
 import { chwepon } from './wield.js';
 import {
     ART_ORB_OF_FATE,
@@ -215,15 +239,28 @@ import {
 } from './artifacts.js';
 import { del_light_source } from './light.js';
 import { light_hits_gremlin } from './uhitm.js';
-import { do_clear_area, vision_recalc } from './vision.js';
+import { cansee, do_clear_area, vision_recalc } from './vision.js';
 import { canSpotMonster } from './startup_a11y.js';
 import { m_at } from './monst.js';
+import { hard_helmet } from './do_wear.js';
+import { dmgval } from './weapon.js';
+import { objectGenerationEnv } from './object_generation.js';
+import { body_part, mbodypart } from './polyself.js';
+// read.js -> monmove.js -> muse.js -> read.js is a function-body-only cycle:
+// these imported helpers are first read during gameplay.
+import { closed_door, youHear } from './monmove.js';
+import {
+    avoid_ceiling, ceiling, has_ceiling, on_level,
+} from './dungeon.js';
 import { livelog_printf } from './pline.js';
 import {
     an,
     simpleonames,
     singular,
     suit_simple_name,
+    Yname2,
+    donameFresh,
+    vtense,
     xnameFresh,
 } from './objnam.js';
 import { shk_your } from './shk.js';
@@ -1176,6 +1213,227 @@ export async function seffect_magic_mapping(scroll, state = game) {
     }
 }
 
+// C refs: read.c drop_boulder_on_player() (2294-2338) and
+// drop_boulder_on_monster() (2341-2414). The first helper may redirect a
+// swallowed-player hit to the monster helper; both use flooreffects()'s
+// consumed result before placing a surviving rock.
+export async function drop_boulder_on_player(
+    confused,
+    helmetProtects,
+    byu,
+    skipUswallow,
+    rawEnv = {},
+) {
+    const state = rawEnv.state ?? game;
+    const random = rawEnv.random ?? { rn1, rn2, rnd, rne };
+    const env = objectGenerationEnv({ ...rawEnv, state, random });
+
+    if (state.u?.uswallow && !skipUswallow) {
+        await drop_boulder_on_monster(
+            state.u.ux,
+            state.u.uy,
+            confused,
+            byu,
+            env,
+        );
+        return;
+    }
+
+    const rock = mksobj(confused ? ROCK : BOULDER, false, false, env);
+    if (!rock) return;
+    rock.quan = confused ? random.rn1(5, 2) : 1;
+    rock.owt = weight(rock, { state });
+
+    let damage = 0;
+    const species = state.youmonst?.data;
+    if (!amorphous(species) && !passes_walls(species)
+        && !noncorporeal(species) && !unsolid(species)) {
+        await ttyPline(`You are hit by ${donameFresh(rock, state)}!`, state);
+        damage = Math.trunc(dmgval(rock, state.youmonst, state, env)
+            * rock.quan);
+        if (state.uarmh && helmetProtects) {
+            if (hard_helmet(state.uarmh, state)) {
+                await ttyPline(
+                    'Fortunately, you are wearing a hard helmet.', state,
+                );
+                if (damage > 2) damage = 2;
+            } else if (state.flags?.verbose) {
+                await ttyPline(
+                    `${Yname2(state.uarmh, state)} does not protect you.`,
+                    state,
+                );
+            }
+        }
+    }
+
+    await wake_nearto(state.u.ux, state.u.uy, 4 * 4, { ...env, state });
+    // C performs floor effects before hp loss, preserving object and bhitpos
+    // order even when the boulder lands in a trap or pool.
+    if (!await flooreffects(rock, state.u.ux, state.u.uy, 'fall', env)) {
+        place_object(rock, state.u.ux, state.u.uy, env);
+        stackobj(rock, env);
+        newsym(state.u.ux, state.u.uy, state);
+    }
+    if (damage) {
+        const halfPhysical = state.u?.uprops?.[HALF_SPDAM];
+        const adjusted = halfPhysical?.intrinsic || halfPhysical?.extrinsic
+            ? Math.trunc((damage + 1) / 2) : damage;
+        await losehp(adjusted, 'scroll of earth', KILLED_BY_AN, state, env);
+    }
+}
+
+export async function drop_boulder_on_monster(
+    x,
+    y,
+    confused,
+    byu,
+    rawEnv = {},
+) {
+    const state = rawEnv.state ?? game;
+    const random = rawEnv.random ?? { rn1, rn2, rnd, rne };
+    const env = objectGenerationEnv({ ...rawEnv, state, random });
+    const rock = mksobj(confused ? ROCK : BOULDER, false, false, env);
+    if (!rock) return false;
+    rock.quan = confused ? random.rn1(5, 2) : 1;
+    rock.owt = weight(rock, { state });
+
+    const monster = m_at(x, y, state);
+    const species = monster?.data;
+    if (monster && !amorphous(species) && !passes_walls(species)
+        && !noncorporeal(species) && !unsolid(species)) {
+        const helmet = which_armor(monster, W_ARMH, state);
+        let damage;
+        if (cansee(x, y, state)) {
+            await ttyPline(
+                `${Monnam(monster, state)} is hit by `
+                    + `${donameFresh(rock, state)}!`,
+                state,
+            );
+            if (monster.minvis && !canSpotMonster(monster, state))
+                map_invisible(monster.mx, monster.my, state);
+        } else if (engulfing_u(monster, state)) {
+            const line = youHear(
+                `something hit ${s_suffix(mon_nam(monster, state))} `
+                    + `${mbodypart(monster, STOMACH)} over your `
+                    + `${body_part(HEAD, state.youmonst)}!`,
+                state,
+            );
+            if (line) await ttyPline(line, state);
+        }
+
+        damage = Math.trunc(dmgval(rock, monster, state, env) * rock.quan);
+        if (helmet) {
+            if (hard_helmet(helmet, state)) {
+                if (canSpotMonster(monster, state)) {
+                    await ttyPline(
+                        `Fortunately, ${mon_nam(monster, state)} is wearing `
+                            + 'a hard helmet.',
+                        state,
+                    );
+                } else {
+                    const line = youHear('a clanging sound.', state);
+                    if (line) await ttyPline(line, state);
+                }
+                if (damage > 2) damage = 2;
+            } else if (canSpotMonster(monster, state)) {
+                await ttyPline(
+                    `${Monnam(monster, state)}'s ${xnameFresh(helmet, state)} `
+                        + `does not protect ${mhim(monster, { state })}.`,
+                    state,
+                );
+            }
+        }
+        monster.mhp -= damage;
+        if (monster.mhp < 1) {
+            if (byu) {
+                note_unported('mon.c killed');
+            } else {
+                await ttyPline(`${Monnam(monster, state)} is killed.`, state);
+                note_unported('mon.c mondied');
+            }
+        } else {
+            await wakeup(monster, byu, { ...env, state });
+        }
+        await wake_nearto(x, y, 4 * 4, { ...env, state });
+    } else if (engulfing_u(monster, state)) {
+        obfree(rock, null, env);
+        // Source read.c redirects the rock to the swallowed player and
+        // returns true because the monster-square rock was freed.
+        await drop_boulder_on_player(confused, true, false, true, env);
+        return true;
+    }
+
+    if (!await flooreffects(rock, x, y, 'fall', env)) {
+        place_object(rock, x, y, env);
+        stackobj(rock, env);
+        newsym(x, y, state);
+    }
+    return true;
+}
+
+// C ref: read.c seffect_earth() (1919-1975). Snapshot the scroll state before
+// messages or rock creation. Its neighborhood traversal is x-major, then
+// y-major; the helper return values are accumulated exactly as C does.
+export async function seffect_earth(scroll, state = game) {
+    const blessed = Boolean(scroll?.blessed);
+    const cursed = Boolean(scroll?.cursed);
+    const confused = propertyActive(CONFUSION, state);
+    const level = state.u?.uz;
+    const inEndgame = level?.dnum != null
+        && level.dnum === state.astral_level?.dnum;
+    const earthLevel = on_level(level, state.earth_level);
+
+    if (Is_rogue_level(level)
+        || !has_ceiling(level, state)
+        || (inEndgame && !earthLevel)) return;
+
+    let boulderCount = 0;
+    if (state.u?.uswallow) {
+        const line = youHear('rumbling.', state);
+        if (line) await ttyPline(line, state);
+    } else if (!avoid_ceiling(level, state)) {
+        await ttyPline(
+            `The ${ceiling(state.u.ux, state.u.uy, state)} rumbles `
+                + `${blessed ? 'around' : 'above'} you!`,
+            state,
+        );
+    } else {
+        const material = blessed ? makeplural('avalanche') : an('avalanche');
+        await ttyPline(
+            `${upstart(material)} of boulders `
+                + `${vtense(material, 'materialize')} `
+                + `${blessed ? 'around' : 'above'} you!`,
+            state,
+        );
+    }
+    state.gk.known = true;
+    note_unported('trap.c sokoban_guilt');
+
+    if (!cursed) {
+        for (let x = state.u.ux - 1; x <= state.u.ux + 1; x++) {
+            for (let y = state.u.uy - 1; y <= state.u.uy + 1; y++) {
+                if (!isok(x, y)) continue;
+                if (closed_door(x, y, state)) continue;
+                const typ = state.level.at(x, y)?.typ;
+                if (IS_OBSTRUCTED(typ) || IS_AIR(typ)
+                    || (x === state.u.ux && y === state.u.uy)) continue;
+                boulderCount += Number(await drop_boulder_on_monster(
+                    x,
+                    y,
+                    confused,
+                    true,
+                    { state },
+                ));
+            }
+        }
+    }
+    if (!blessed) {
+        await drop_boulder_on_player(confused, !cursed, true, false, { state });
+    } else if (!boulderCount) {
+        await ttyPline('But nothing else happens.', state);
+    }
+}
+
 // C ref: read.c seffects() (2194-2290). Preserve the complete source switch,
 // its pre-dispatch Wisdom exercise, post-effect inventory refresh, and
 // `sobj ? 0 : 1` return. C's effect helpers are void and receive `&sobj`;
@@ -1300,7 +1558,7 @@ export async function seffects(scroll, state = game) {
         note_unported('read.c seffect_fire');
         break;
     case SCR_EARTH:
-        note_unported('read.c seffect_earth');
+        await seffect_earth(scroll, state);
         break;
     case SCR_PUNISHMENT:
         if (punishmentReadAdmitted(scroll, confused, state))
