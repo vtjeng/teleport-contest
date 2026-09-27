@@ -2720,7 +2720,28 @@ export async function doapply(state = game, env = {}) {
         return ECMD_TIME;
     case MAGIC_MARKER:
         // apply.c:4361-4362. dowrite() handles the full magic marker flow.
-        return dowrite(obj, state);
+        return dowrite(obj, state, {
+            ...env,
+            fingersOrGloves: fingers_or_gloves,
+            // write.c discards dropx()'s result. Use the existing ordinary
+            // floor-drop path with the same display and inventory hooks as
+            // other production drop callers.
+            dropx: (object) => dropx(object, {
+                ...env,
+                state,
+                hooks: {
+                    ...(env.hooks ?? {}),
+                    encumberMessage: env.hooks?.encumberMessage
+                        ?? ((targetState) => encumber_msg(targetState, {
+                            message: env.planning ? async () => {} : ttyPline,
+                        })),
+                    extractExternalObject:
+                        env.hooks?.extractExternalObject ?? remove_object,
+                    newsym: env.hooks?.newsym
+                        ?? (env.planning ? () => {} : (x, y) => newsym(x, y)),
+                },
+            }),
+        });
     case UNICORN_HORN:
         // apply.c:4371. use_unicorn_horn() is void; retain doapply's initial
         // ECMD_TIME while applying its property effects.
