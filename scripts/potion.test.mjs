@@ -17,7 +17,8 @@ import {
     A_CON, A_DEX, A_WIS, ACID_RES, BLINDED, CONFUSION, DEAF, FAST, FREE_ACTION,
     FROMOUTSIDE, GLIB, HALLUC,
     GETOBJ_DOWNPLAY, GETOBJ_EXCLUDE, GETOBJ_EXCLUDE_INACCESS, GETOBJ_SUGGEST,
-    HALLUC_RES, INVIS, LEVITATION, NOT_HUNGRY, POTHIT_MONST_THROW, SEE_INVIS,
+    HALLUC_RES, INVIS, LEVITATION, NOT_HUNGRY, POTHIT_HERO_THROW,
+    POTHIT_MONST_THROW, SEE_INVIS,
     SATIATED, SLEEP_RES, WEAK,
     KILLED_BY, STONED, TELEPAT, TIMEOUT, WOUNDED_LEGS, W_RINGL,
 } from '../js/const.js';
@@ -25,6 +26,7 @@ import { find_delayed_killer } from '../js/end.js';
 import { trycall } from '../js/do.js';
 import { docall } from '../js/do_name.js';
 import { game } from '../js/gstate.js';
+import { PM_GRID_BUG } from '../js/monsters.js';
 import { runSegment } from '../js/jsmain.js';
 import { discover_object } from '../js/o_init.js';
 import { planningState } from '../js/unported_monster_actions.js';
@@ -896,11 +898,11 @@ test('potion.c still labels the arms this port refuses and none it skips',
 });
 
 // The labels whose bodies this port runs. POT_INVISIBILITY came with the
-// quaffing work; the other three are the vapors a potion hurled at the hero
-// can raise, which muse.c use_offensive() now reaches.
+// quaffing work; these vapor arms are reached when a thrown potion breaks on
+// a hero or monster.
 const PORTED_LABELS = [
     'POT_INVISIBILITY', 'POT_PARALYSIS', 'POT_SLEEPING', 'POT_ACID',
-    'POT_POLYMORPH',
+    'POT_POLYMORPH', 'POT_BLINDNESS',
 ];
 
 test('the labelled arms this port has not reached stop by name', async () => {
@@ -1223,16 +1225,45 @@ test('an unpaid potion broken on a hero outside any shop skips the bill',
     assert.deepEqual(billed, [obj]);
 });
 
-test('potionhit refuses a target that is not the hero', async () => {
-    await startedGame(771021, 'PotionMonster');
-    const reasons = [];
-    await potionhit({}, vaporPotion(POT_ACID), POTHIT_MONST_THROW, {
+test('potionhit applies the monster blindness branch in source order', async () => {
+    await startedGame(771021, 'PotionMonsterBlindness');
+    game.u.uprops[BLINDED].intrinsic = FROMOUTSIDE;
+    const monster = {
+        data: game.mons[PM_GRID_BUG],
+        mx: game.u.ux + 3,
+        my: game.u.uy,
+        mhp: 5,
+        mhpmax: 5,
+        mblinded: 0,
+        mcansee: true,
+        mcanmove: true,
+        misc_worn_check: 0,
+        m_lev: 1,
+        msleeping: false,
+    };
+    const draws = [];
+    const scripted = [0, 0, 0, 31, 0];
+    const bounds = [7, 5, 32, 32, 105];
+    const random = {
+        rn2: (bound) => {
+            draws.push(bound);
+            assert.equal(bound, bounds[draws.length - 1]);
+            return scripted[draws.length - 1];
+        },
+        rnl: (bound) => assert.fail(`unexpected rnl(${bound})`),
+        rnd: (bound) => assert.fail(`unexpected rnd(${bound})`),
+        d: (n, bound) => assert.fail(`unexpected d(${n}, ${bound})`),
+    };
+    await potionhit(monster, vaporPotion(POT_BLINDNESS), POTHIT_HERO_THROW, {
         state: game,
-        random: { rn2: () => 0, rnd: () => 1, d: () => 1 },
+        random,
         message: async () => {},
-        unsupported: (reason) => { reasons.push(reason); },
     });
-    assert.deepEqual(reasons, ['a potion crashing on a monster']);
+    assert.deepEqual(draws, bounds,
+        'bottle, target HP, blindness, and resistance draws keep C order');
+    assert.equal(monster.mhp, 5);
+    assert.equal(monster.mblinded, 95);
+    assert.equal(monster.mcansee, false);
 });
 
 test('the unlabelled types reach the naming tail and nothing else', async () => {
