@@ -94685,7 +94685,7 @@
         }
       },
       "activeStanding": {
-        "sha": "f5248ce4f94176f35cd5b15dbe69457a41cd52f6",
+        "sha": "5f1efeed9e8e7684c046c1016785c10e720b1a60",
         "screens": 11405,
         "rng": 792838
       },
@@ -94943,11 +94943,11 @@
         "rng": 0
       },
       "parkedStanding": {
-        "sha": "cefd2337217c869731275ec059059414e18cc17f",
+        "sha": "5f1efeed9e8e7684c046c1016785c10e720b1a60",
         "screens": 11405,
         "rng": 792838
       },
-      "parkedReason": "potionhit source implementation and thrown-potion replay match; hero melee potion entry is blocked before play by worn.js cancelDoff, while steed hit, monster-to-monster hit, and dothrow.c toss_up still need independent matching entry evidence"
+      "parkedReason": "potion.c:potionhit and thrown-potion entry strictly match; hero melee potion entry is blocked before potionhit because uhitm.js:hmon_hitmon_potion calls setuwep(null) without the canonical do_wear.js:setwornEnv hooks, unlike C uhitm.c:hmon_hitmon_potion setuwep(NULL) before freeinv and potionhit. Steed hit, monster-to-monster hit, and dothrow.c:toss_up still need independent matching entry evidence. Resume after a source-traced uhitm caller-wiring fix and those recordings."
     },
     {
       "id": "div-trap-chest-trap-message-flush-synthetic-v8-20260927",
@@ -95778,25 +95778,32 @@
     {
       "id": "port-potion-peffect-monster-detection-synthetic-v7-20260927",
       "kind": "file-port",
-      "status": "queued",
+      "status": "closed",
       "summary": "Port complete potion.c peffect_monster_detection for potion and spell callers",
       "cFile": "potion.c",
       "sessions": [
         "synthetic/v7/monster-detection-potion-select2"
       ],
-      "selectionReason": "Selected the sole unresolved v7 case synthetic/v7/monster-detection-potion-select2 from investigations/synthetic/v7/monster-detection-potion-select2.json and evaluation 20260927111723-v7.json: C reaches potion.c:peffect_monster_detection after quaffing an uncursed potion with a live monster, while JS still refuses this source path after 52 matching screens. The current C return-valued detect.c:monster_detect path is already ported for this state; this goal covers the complete potion.c function and both potion and spell entry points.",
+      "selectionReason": "Complete B26 source port and independent entry-point evidence after selected v7 case reached parity",
       "detail": "Implement the blessed intrinsic-duration and monster-map branches, swallowed or underwater fallthrough, consumed monster_detect return, exercise, and caller return handling in C order. Preserve gp potion flags and all source RNG. Add independent C evidence for active branches and leave downstream void source gaps named where not yet ported.",
-      "openedAt": null,
-      "openStanding": null,
-      "closedAt": null,
-      "delivered": null,
+      "openedAt": "feabcd23201baa92c3e92b5de5046a98d6a0f14f",
+      "openStanding": {
+        "sha": "feabcd23201baa92c3e92b5de5046a98d6a0f14f",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "closedAt": "feabcd23201baa92c3e92b5de5046a98d6a0f14f",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
       "functions": [
         {
           "name": "peffect_monster_detection",
           "line": 914,
           "endLine": 954,
-          "declared": false,
-          "complete": false
+          "declared": true,
+          "complete": true
         }
       ],
       "range": {
@@ -95816,6 +95823,99 @@
           "evaluationPath": "challenges/evaluations/20260927111723-v7.json",
           "evaluationCommit": "358dd6ad1294374a96a704a7f5a9b46c0ddc4a47"
         }
+      },
+      "activeStanding": {
+        "sha": "feabcd23201baa92c3e92b5de5046a98d6a0f14f",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": [],
+      "evidence": {
+        "functions": [
+          {
+            "name": "peffect_monster_detection",
+            "implementation": "js/potion.js",
+            "symbol": "peffect_monster_detection",
+            "sourceReview": "Read the complete potion.c:peffect_monster_detection() body (914-954). Preserved the blessed Detect_monsters/potion_nothing test before incrementing potion_unkn; the old HDetect_monsters timeout threshold before the class-dependent rn1(40,21) versus rn2(100)+100 draw; incr_itimeout; the x-major map scan and y-minor order; forgotten GLYPH_INVISIBLE memory via unmap_object()/newsym(); MON_AT clearing potion_unkn; the swallowed/Underwater fallthrough; see_monsters()/lonely feedback; and monster_detect()'s consumed 1/0 return followed by Wisdom exercise. peffects() returns 1 only when the source effect returns true and otherwise falls through to dopotion()'s naming/useup tail with -1. Existing void dependencies remain source-named only where C discards them; no note_unported() value supplies effect data. C initializes gp.potion_nothing and gp.potion_unkn as static zeroed fields; the JS effect initializes either missing counter to zero so spell.c’s direct peffects() path cannot increment undefined. The source-mapped spell.js caller routes SPE_DETECT_MONSTERS through peffects() with SPBOOK_CLASS and preserves the spell skill blessing rule; a separate debug Wizard recording advances divination to Skilled and exercises that blessed spelling-specific timeout.",
+            "callers": [
+              {
+                "path": "js/potion.js",
+                "symbol": "peffects",
+                "source": "potion.c:1365-1371 dispatches POT_MONSTER_DETECTION/SPE_DETECT_MONSTERS to peffect_monster_detection() and returns 1 only for its true result."
+              },
+              {
+                "path": "js/potion.js",
+                "symbol": "dopotion",
+                "source": "potion.c:618-641 consumes peffects()'s 1/0/-1 contract, returning immediately for 1 or 0 and consuming/identifying the potion on -1."
+              },
+              {
+                "path": "js/spell.js",
+                "symbol": "spelleffects",
+                "source": "spell.c:1536-1545 routes SPE_DETECT_MONSTERS through peffects(pseudo), after applying the Skilled-or-Expert blessed state."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/potion.test.mjs",
+              "scripts/detect.test.mjs"
+            ],
+            "recordings": [
+              "recordings/potion.c/monster-detection-blessed-independent-b26.session.json",
+              "recordings/spell.c/monster-detection-wizcast-b26-independent.session.json",
+              "recordings/spell.c/blessed-detect-monsters-wizcast-b26-independent.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v7",
+                "caseId": "monster-detection-potion-select2",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 52,
+                "source": "cmd.c #quaff -> potion.c dodrink()/dopotion()/peffects() -> potion.c peffect_monster_detection() -> detect.c monster_detect()"
+              }
+            ],
+            "checkedAt": "feabcd23201baa92c3e92b5de5046a98d6a0f14f"
+          }
+        ],
+        "entryPointReview": "The selected impure effect has two active production routes: #quaff through cmd.js do_quaff -> potion.js dodrink/dopotion/peffects, and the detect-monsters spell through spell.js spelleffects -> potion.js peffects. The admitted v7 potion case covers the quaff path; an independently seeded Wizard recording exercises that spell caller through its unblessed map-browse path. A second independent debug Wizard recording uses #enhance to bring divination to Skilled before #wizcast, exercising the C blessed SPBOOK_CLASS timeout and early-return path. A separate blessed-potion recording covers the potion-class timeout and post-effect turn path. C static gp counters begin at zero; lazy initialization in peffect_monster_detection preserves this on the direct spell caller. detect.c monster_detect is a required return-valued dependency and its potion object, monster-class, constrained-map, and cursed-waking branches are source-mapped; its discarded display_nhwindow() calls remain named void gaps through note_unported().",
+        "entryPoints": [
+          {
+            "name": "Quaff potion of monster detection",
+            "functions": [
+              "peffect_monster_detection"
+            ],
+            "recordings": [
+              "recordings/potion.c/monster-detection-blessed-independent-b26.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v7",
+                "caseId": "monster-detection-potion-select2",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 52,
+                "source": "cmd.c #quaff -> potion.c dodrink()/dopotion()/peffects() -> potion.c peffect_monster_detection() -> detect.c monster_detect()"
+              }
+            ]
+          },
+          {
+            "name": "Cast detect monsters",
+            "functions": [
+              "peffect_monster_detection"
+            ],
+            "recordings": [
+              "recordings/spell.c/monster-detection-wizcast-b26-independent.session.json",
+              "recordings/spell.c/blessed-detect-monsters-wizcast-b26-independent.session.json"
+            ],
+            "synthetic": []
+          }
+        ]
+      },
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "feabcd23201baa92c3e92b5de5046a98d6a0f14f",
+        "screens": 11405,
+        "rng": 792838
       }
     }
   ]
