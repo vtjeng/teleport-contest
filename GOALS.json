@@ -87756,7 +87756,7 @@
     {
       "id": "div-apply-eyewear-default-synthetic-v6-20260926",
       "kind": "divergence-fix",
-      "status": "queued",
+      "status": "closed",
       "summary": "Port doapply eyewear selection and generic unsupported-item refusal from C",
       "cFile": "apply.c",
       "sessions": [
@@ -87765,10 +87765,17 @@
       ],
       "selectionReason": "C19 owns the higher-ranked healer armoroff case, B19 owns both dig cases and the trapdoor teleport dependency; these three v6 apply cases share doapply as the first unreserved source owner at steps 17 and 20. Group the two blindfold cases and adjacent generic default behavior in one source fix.",
       "detail": "C apply.c:doapply BLINDFOLD/LENSES arm calls do_wear.c:Blindf_on or Blindf_off after getobj; JS rejects object type 233. The generic default checks pole, pick and axe, then prints Sorry, I do not know how to use that and returns ECMD_FAIL for object type 79; JS currently refuses. Port source branches and their sibling conditions, preserve existing apply matches, and verify independent C recordings.",
-      "openedAt": null,
-      "openStanding": null,
-      "closedAt": null,
-      "delivered": null,
+      "openedAt": "d8f7aed6708771cf4f208e284d678da897c8fb5b",
+      "openStanding": {
+        "sha": "e0388bc15d52e074480a86fa725fce059147f671",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "closedAt": "382fb9f460e42198688105ebc81fd2788be20686",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
       "function": "doapply",
       "session": "synthetic/v6/wizard-grease-hands-good",
       "step": 17,
@@ -87785,6 +87792,498 @@
           "evaluationPath": "challenges/evaluations/20260926201323-v6.json",
           "evaluationCommit": "580b107974301f1a5c70b1698fd8ccf169c69c57"
         }
+      },
+      "activeStanding": {
+        "sha": "e0388bc15d52e074480a86fa725fce059147f671",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v6",
+          "caseId": "wizard-grease-hands-good",
+          "session": "synthetic/v6/wizard-grease-hands-good",
+          "manifestPath": "challenges/manifests/v6.json",
+          "manifestSha256": "7523b91e823f4e3906c9acdc9a3d80f8469c27c2caab8fc8fbd6967dbfdcab5f",
+          "recording": "challenges/cases/v6/wizard-grease-hands-good.session.json",
+          "recordingPath": "challenges/cases/v6/wizard-grease-hands-good.session.json",
+          "recordingSha256": "528226e80ce3b4852b1606a834fd132448c6d19be05f9b3e387cc81e5ca9f192",
+          "recipe": "challenges/cases/v6/wizard-grease-hands-good.recipe.session.json",
+          "recipeSha256": "74b2bab42a87bae9bd7efe6394fcefc09dbafdc6a5bc9ecc91288387124fcee8",
+          "replayInputSha256": "6660c2e31d6e20043aac57ddf46afd36a5e4e4fcb5c59e7a548fd3ab61c5137d",
+          "evaluationPath": "challenges/evaluations/20260926213954-v6.json",
+          "evaluationCommit": "5006247e43a2e93c85f944ecaac4f961cd237826",
+          "evaluationArtifact": "challenges/evaluations/20260926213954-v6.json",
+          "evaluationUtc": "2026-09-26T21:40:12.201Z",
+          "remainingScreens": 2,
+          "recordedSteps": 19,
+          "previousScreensMatched": 17,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 17,
+              "total": 19
+            },
+            "rng": {
+              "matched": 2366,
+              "total": 2366
+            },
+            "cursors": {
+              "matched": 19,
+              "total": 19
+            }
+          },
+          "firstMismatch": {
+            "screen": {
+              "index": 17,
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 17,
+                "key": "o"
+              },
+              "kind": "ch",
+              "row": 0,
+              "column": 0,
+              "cCell": {
+                "ch": "Y",
+                "color": 8,
+                "attr": 0,
+                "decgfx": 0
+              },
+              "jsCell": {
+                "ch": "W",
+                "color": 8,
+                "attr": 0,
+                "decgfx": 0
+              }
+            },
+            "rng": null,
+            "cursor": null
+          },
+          "step": 17,
+          "kind": "screen",
+          "sourceFile": null,
+          "function": null,
+          "message": null,
+          "cFile": null,
+          "luaFile": null,
+          "line": null,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v6/wizard-grease-hands-good.json",
+            "result": {
+              "session": "synthetic/v6/wizard-grease-hands-good",
+              "corpus": "synthetic",
+              "batch": "v6",
+              "caseId": "wizard-grease-hands-good",
+              "manifestPath": "challenges/manifests/v6.json",
+              "manifestSha256": "7523b91e823f4e3906c9acdc9a3d80f8469c27c2caab8fc8fbd6967dbfdcab5f",
+              "recordingSha256": "528226e80ce3b4852b1606a834fd132448c6d19be05f9b3e387cc81e5ca9f192",
+              "evaluationPath": "challenges/evaluations/20260926132731-v6.json",
+              "evaluationCommit": "d0a8041f88dd37cbf631877464c06cf985998274",
+              "remainingScreens": 2,
+              "recordedSteps": 19,
+              "status": "complete",
+              "commit": "d0a8041f88dd37cbf631877464c06cf985998274",
+              "mismatch": {
+                "corpus": "synthetic",
+                "batch": "v6",
+                "caseId": "wizard-grease-hands-good",
+                "session": "synthetic/v6/wizard-grease-hands-good",
+                "manifestPath": "challenges/manifests/v6.json",
+                "manifestSha256": "7523b91e823f4e3906c9acdc9a3d80f8469c27c2caab8fc8fbd6967dbfdcab5f",
+                "recording": "challenges/cases/v6/wizard-grease-hands-good.session.json",
+                "recordingPath": "challenges/cases/v6/wizard-grease-hands-good.session.json",
+                "recordingSha256": "528226e80ce3b4852b1606a834fd132448c6d19be05f9b3e387cc81e5ca9f192",
+                "recipe": "challenges/cases/v6/wizard-grease-hands-good.recipe.session.json",
+                "recipeSha256": "74b2bab42a87bae9bd7efe6394fcefc09dbafdc6a5bc9ecc91288387124fcee8",
+                "replayInputSha256": "a3ac3b6872f8e89451d29bdbf73b5215af57c013d215edeaba8f740cc0c5fc4a",
+                "evaluationPath": "challenges/evaluations/20260926132731-v6.json",
+                "evaluationCommit": "d0a8041f88dd37cbf631877464c06cf985998274",
+                "evaluationArtifact": "challenges/evaluations/20260926132731-v6.json",
+                "evaluationUtc": "2026-09-26T13:27:48.505Z",
+                "remainingScreens": 2,
+                "recordedSteps": 19,
+                "previousScreensMatched": 17,
+                "regression": false,
+                "passed": false,
+                "error": null,
+                "metrics": {
+                  "screens": {
+                    "matched": 17,
+                    "total": 19
+                  },
+                  "rng": {
+                    "matched": 2361,
+                    "total": 2366
+                  },
+                  "cursors": {
+                    "matched": 17,
+                    "total": 19
+                  }
+                },
+                "firstMismatch": {
+                  "kind": "stop",
+                  "message": "unsupported hero command: an unported branch of this command: applying a tool requires doapply()'s arm for object type 233",
+                  "step": 17
+                },
+                "step": 17,
+                "kind": "stop",
+                "sourceFile": "apply.c",
+                "function": "doapply",
+                "message": "unsupported hero command: an unported branch of this command: applying a tool requires doapply()'s arm for object type 233",
+                "cFile": "apply.c",
+                "luaFile": null,
+                "line": null
+              },
+              "summary": "Both recordings create a can of grease but do not apply it. After the apply command, key o selects BLINDFOLD (object type 233); the earlier inventory screen lists the can of grease at p. C therefore reaches apply.c doapply()’s BLINDFOLD/LENSES switch arm and calls Blindf_on(), while JS has no matching dispatch and stops in its default unsupported arm. This is the first stop at segment 0 step 17; the missing source owner is the eyewear arm in doapply(), not use_grease().",
+              "source": {
+                "file": "apply.c",
+                "branch": "After getobj() returns a BLINDFOLD or LENSES object that passed apply_ok(), if the selected object is not already ublindf and ublindf is empty, doapply() calls Blindf_on(obj). These recordings enter that branch with the initial blindfold unworn. If the selected item is already ublindf, C may call Blindf_off() unless cursed; if other eyewear is worn, C prints the already-covered message. Those sibling branches are not reached.",
+                "functions": [
+                  "doapply"
+                ],
+                "callers": [
+                  "C cmd.c command table binds key a to doapply(); doapply() calls getobj(\"use or apply\", apply_ok, GETOBJ_NOFLAGS) before its object-type switch.",
+                  "JS cmd.js runApplyCommand() calls doapply(state) for the apply command. The stop is in js/apply.js doapply() after its switch lacks BLINDFOLD/LENSES cases."
+                ],
+                "dependencies": [
+                  "C apply.c apply_ok() suggests TOOL_CLASS objects, and apply.c doapply() obtains the selected item through getobj(); the recorded item key o selects the blindfold, while the preceding screen identifies the can of grease as p.",
+                  "C doapply() calls do_wear.c Blindf_on() for the unworn-eyewear branch. Blindf_on() removes a worn-item mask if needed, sets the object in W_TOOL (ublindf), calls on_msg(), and toggles blindness when the hero becomes blind; its void return is ignored and doapply() keeps its initial ECMD_TIME result.",
+                  "The common C do_wear.c Blindf_on() path is already implemented in js/do_wear.js Blindf_on(); the current first stop is before that helper because js/apply.js doapply() has no BLINDFOLD/LENSES dispatch case."
+                ]
+              },
+              "goalKind": "divergence-fix",
+              "evidence": [
+                "The saved evaluation challenges/evaluations/20260926132731-v6.json reports 17/19 screens, 2361/2366 RNG calls, and 17/19 cursors matched. Its first stop is segment 0 step 17 on key o: JS reports the missing doapply() arm for object type 233.",
+                "The C recording challenges/cases/v6/wizard-grease-hands-good.session.json has seed 60626051 and moves Ctrl-W, can of grease, then ao-. At step 15 the C screen says “p - a can of grease.”; step 16 starts the apply prompt; key o at step 17 produces “You are now wearing a blindfold. You can't see any more.” and status Blind. This evidence rules out the can-of-grease arm as the first divergent branch.",
+                "C nethack-c/upstream/src/apply.c:4150-4212 defines apply_ok() and begins doapply(); apply_ok() suggests TOOL_CLASS objects for getobj(). The BLINDFOLD/LENSES branch at apply.c:4244-4257 calls Blindf_on(obj) when obj != ublindf and ublindf is empty. apply.c:4282 handles CAN_OF_GREASE separately, after the eyewear arm.",
+                "C nethack-c/upstream/src/do_wear.c:1461-1492 owns the common sighted-to-blind transition: Blindf_on() sets W_TOOL, calls on_msg(), detects the blindness transition, then calls toggle_blindness(). JS already implements this common path in js/do_wear.js:1042-1098; js/apply.js:2297-2403 lacks BLINDFOLD/LENSES cases, so execution reaches the unsupported default instead."
+              ]
+            }
+          }
+        },
+        {
+          "corpus": "synthetic",
+          "batch": "v6",
+          "caseId": "wizard-grease-only",
+          "session": "synthetic/v6/wizard-grease-only",
+          "manifestPath": "challenges/manifests/v6.json",
+          "manifestSha256": "7523b91e823f4e3906c9acdc9a3d80f8469c27c2caab8fc8fbd6967dbfdcab5f",
+          "recording": "challenges/cases/v6/wizard-grease-only.session.json",
+          "recordingPath": "challenges/cases/v6/wizard-grease-only.session.json",
+          "recordingSha256": "9af4fef5d828c481509d962d1bf1160e66cc01ea5f2b15d516e2528ae3af0aa8",
+          "recipe": "challenges/cases/v6/wizard-grease-only.recipe.session.json",
+          "recipeSha256": "357fedf6f6442fa63ed6d40a8c86d12aa55425f0d8deb5928fa6edb4ccee4665",
+          "replayInputSha256": "6660c2e31d6e20043aac57ddf46afd36a5e4e4fcb5c59e7a548fd3ab61c5137d",
+          "evaluationPath": "challenges/evaluations/20260926213954-v6.json",
+          "evaluationCommit": "5006247e43a2e93c85f944ecaac4f961cd237826",
+          "evaluationArtifact": "challenges/evaluations/20260926213954-v6.json",
+          "evaluationUtc": "2026-09-26T21:40:12.201Z",
+          "remainingScreens": 2,
+          "recordedSteps": 19,
+          "previousScreensMatched": 17,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 17,
+              "total": 19
+            },
+            "rng": {
+              "matched": 5759,
+              "total": 5759
+            },
+            "cursors": {
+              "matched": 19,
+              "total": 19
+            }
+          },
+          "firstMismatch": {
+            "screen": {
+              "index": 17,
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 17,
+                "key": "o"
+              },
+              "kind": "ch",
+              "row": 0,
+              "column": 0,
+              "cCell": {
+                "ch": "Y",
+                "color": 8,
+                "attr": 0,
+                "decgfx": 0
+              },
+              "jsCell": {
+                "ch": "W",
+                "color": 8,
+                "attr": 0,
+                "decgfx": 0
+              }
+            },
+            "rng": null,
+            "cursor": null
+          },
+          "step": 17,
+          "kind": "screen",
+          "sourceFile": null,
+          "function": null,
+          "message": null,
+          "cFile": null,
+          "luaFile": null,
+          "line": null,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v6/wizard-grease-only.json",
+            "result": {
+              "session": "synthetic/v6/wizard-grease-only",
+              "corpus": "synthetic",
+              "batch": "v6",
+              "caseId": "wizard-grease-only",
+              "manifestPath": "challenges/manifests/v6.json",
+              "manifestSha256": "7523b91e823f4e3906c9acdc9a3d80f8469c27c2caab8fc8fbd6967dbfdcab5f",
+              "recordingSha256": "9af4fef5d828c481509d962d1bf1160e66cc01ea5f2b15d516e2528ae3af0aa8",
+              "evaluationPath": "challenges/evaluations/20260926132731-v6.json",
+              "evaluationCommit": "d0a8041f88dd37cbf631877464c06cf985998274",
+              "remainingScreens": 2,
+              "recordedSteps": 19,
+              "status": "complete",
+              "commit": "d0a8041f88dd37cbf631877464c06cf985998274",
+              "mismatch": {
+                "corpus": "synthetic",
+                "batch": "v6",
+                "caseId": "wizard-grease-only",
+                "session": "synthetic/v6/wizard-grease-only",
+                "manifestPath": "challenges/manifests/v6.json",
+                "manifestSha256": "7523b91e823f4e3906c9acdc9a3d80f8469c27c2caab8fc8fbd6967dbfdcab5f",
+                "recording": "challenges/cases/v6/wizard-grease-only.session.json",
+                "recordingPath": "challenges/cases/v6/wizard-grease-only.session.json",
+                "recordingSha256": "9af4fef5d828c481509d962d1bf1160e66cc01ea5f2b15d516e2528ae3af0aa8",
+                "recipe": "challenges/cases/v6/wizard-grease-only.recipe.session.json",
+                "recipeSha256": "357fedf6f6442fa63ed6d40a8c86d12aa55425f0d8deb5928fa6edb4ccee4665",
+                "replayInputSha256": "a3ac3b6872f8e89451d29bdbf73b5215af57c013d215edeaba8f740cc0c5fc4a",
+                "evaluationPath": "challenges/evaluations/20260926132731-v6.json",
+                "evaluationCommit": "d0a8041f88dd37cbf631877464c06cf985998274",
+                "evaluationArtifact": "challenges/evaluations/20260926132731-v6.json",
+                "evaluationUtc": "2026-09-26T13:27:48.505Z",
+                "remainingScreens": 2,
+                "recordedSteps": 19,
+                "previousScreensMatched": 17,
+                "regression": false,
+                "passed": false,
+                "error": null,
+                "metrics": {
+                  "screens": {
+                    "matched": 17,
+                    "total": 19
+                  },
+                  "rng": {
+                    "matched": 5755,
+                    "total": 5759
+                  },
+                  "cursors": {
+                    "matched": 17,
+                    "total": 19
+                  }
+                },
+                "firstMismatch": {
+                  "kind": "stop",
+                  "message": "unsupported hero command: an unported branch of this command: applying a tool requires doapply()'s arm for object type 233",
+                  "step": 17
+                },
+                "step": 17,
+                "kind": "stop",
+                "sourceFile": "apply.c",
+                "function": "doapply",
+                "message": "unsupported hero command: an unported branch of this command: applying a tool requires doapply()'s arm for object type 233",
+                "cFile": "apply.c",
+                "luaFile": null,
+                "line": null
+              },
+              "summary": "Both recordings create a can of grease but do not apply it. After the apply command, key o selects BLINDFOLD (object type 233); the earlier inventory screen lists the can of grease at p. C therefore reaches apply.c doapply()’s BLINDFOLD/LENSES switch arm and calls Blindf_on(), while JS has no matching dispatch and stops in its default unsupported arm. This is the first stop at segment 0 step 17; the missing source owner is the eyewear arm in doapply(), not use_grease().",
+              "source": {
+                "file": "apply.c",
+                "branch": "After getobj() returns a BLINDFOLD or LENSES object that passed apply_ok(), if the selected object is not already ublindf and ublindf is empty, doapply() calls Blindf_on(obj). These recordings enter that branch with the initial blindfold unworn. If the selected item is already ublindf, C may call Blindf_off() unless cursed; if other eyewear is worn, C prints the already-covered message. Those sibling branches are not reached.",
+                "functions": [
+                  "doapply"
+                ],
+                "callers": [
+                  "C cmd.c command table binds key a to doapply(); doapply() calls getobj(\"use or apply\", apply_ok, GETOBJ_NOFLAGS) before its object-type switch.",
+                  "JS cmd.js runApplyCommand() calls doapply(state) for the apply command. The stop is in js/apply.js doapply() after its switch lacks BLINDFOLD/LENSES cases."
+                ],
+                "dependencies": [
+                  "C apply.c apply_ok() suggests TOOL_CLASS objects, and apply.c doapply() obtains the selected item through getobj(); the recorded item key o selects the blindfold, while the preceding screen identifies the can of grease as p.",
+                  "C doapply() calls do_wear.c Blindf_on() for the unworn-eyewear branch. Blindf_on() removes a worn-item mask if needed, sets the object in W_TOOL (ublindf), calls on_msg(), and toggles blindness when the hero becomes blind; its void return is ignored and doapply() keeps its initial ECMD_TIME result.",
+                  "The common C do_wear.c Blindf_on() path is already implemented in js/do_wear.js Blindf_on(); the current first stop is before that helper because js/apply.js doapply() has no BLINDFOLD/LENSES dispatch case."
+                ]
+              },
+              "goalKind": "divergence-fix",
+              "evidence": [
+                "The saved evaluation challenges/evaluations/20260926132731-v6.json reports 17/19 screens, 5755/5759 RNG calls, and 17/19 cursors matched. Its first stop is segment 0 step 17 on key o: JS reports the missing doapply() arm for object type 233.",
+                "The C recording challenges/cases/v6/wizard-grease-only.session.json has seed 60626038 and moves Ctrl-W, can of grease, then ao-. At step 15 the C screen says “p - a can of grease.”; step 16 starts the apply prompt; key o at step 17 produces “You are now wearing a blindfold. You can't see any more.” and status Blind. This evidence rules out the can-of-grease arm as the first divergent branch.",
+                "C nethack-c/upstream/src/apply.c:4150-4212 defines apply_ok() and begins doapply(); apply_ok() suggests TOOL_CLASS objects for getobj(). The BLINDFOLD/LENSES branch at apply.c:4244-4257 calls Blindf_on(obj) when obj != ublindf and ublindf is empty. apply.c:4282 handles CAN_OF_GREASE separately, after the eyewear arm.",
+                "C nethack-c/upstream/src/do_wear.c:1461-1492 owns the common sighted-to-blind transition: Blindf_on() sets W_TOOL, calls on_msg(), detects the blindness transition, then calls toggle_blindness(). JS already implements this common path in js/do_wear.js:1042-1098; js/apply.js:2297-2403 lacks BLINDFOLD/LENSES cases, so execution reaches the unsupported default instead."
+              ]
+            }
+          }
+        },
+        {
+          "corpus": "synthetic",
+          "batch": "v6",
+          "caseId": "wizard-greasy-write-glib",
+          "session": "synthetic/v6/wizard-greasy-write-glib",
+          "manifestPath": "challenges/manifests/v6.json",
+          "manifestSha256": "7523b91e823f4e3906c9acdc9a3d80f8469c27c2caab8fc8fbd6967dbfdcab5f",
+          "recording": "challenges/cases/v6/wizard-greasy-write-glib.session.json",
+          "recordingPath": "challenges/cases/v6/wizard-greasy-write-glib.session.json",
+          "recordingSha256": "6f8be6114cd1a551dc75940ccc48608c51b6a978950a5f90e639dbbb09f03317",
+          "recipe": "challenges/cases/v6/wizard-greasy-write-glib.recipe.session.json",
+          "recipeSha256": "0ccf18d6ddfa6bd75ef0c57c46a0ae8bd6418b3fafc4a4e9641a518492818911",
+          "replayInputSha256": "6660c2e31d6e20043aac57ddf46afd36a5e4e4fcb5c59e7a548fd3ab61c5137d",
+          "evaluationPath": "challenges/evaluations/20260926213954-v6.json",
+          "evaluationCommit": "5006247e43a2e93c85f944ecaac4f961cd237826",
+          "evaluationArtifact": "challenges/evaluations/20260926213954-v6.json",
+          "evaluationUtc": "2026-09-26T21:40:12.201Z",
+          "remainingScreens": 2,
+          "recordedSteps": 22,
+          "previousScreensMatched": 20,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 20,
+              "total": 22
+            },
+            "rng": {
+              "matched": 2958,
+              "total": 2967
+            },
+            "cursors": {
+              "matched": 20,
+              "total": 22
+            }
+          },
+          "firstMismatch": {
+            "kind": "stop",
+            "message": "unsupported hero command: an unported branch of this command: applying a tool requires doapply()'s arm for object type 79",
+            "step": 20
+          },
+          "step": 20,
+          "kind": "stop",
+          "sourceFile": "apply.c",
+          "function": "doapply",
+          "message": "unsupported hero command: an unported branch of this command: applying a tool requires doapply()'s arm for object type 79",
+          "cFile": "apply.c",
+          "luaFile": null,
+          "line": null,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v6/wizard-greasy-write-glib.json",
+            "result": {
+              "session": "synthetic/v6/wizard-greasy-write-glib",
+              "corpus": "synthetic",
+              "batch": "v6",
+              "caseId": "wizard-greasy-write-glib",
+              "manifestPath": "challenges/manifests/v6.json",
+              "manifestSha256": "7523b91e823f4e3906c9acdc9a3d80f8469c27c2caab8fc8fbd6967dbfdcab5f",
+              "recordingPath": "challenges/cases/v6/wizard-greasy-write-glib.session.json",
+              "recordingSha256": "6f8be6114cd1a551dc75940ccc48608c51b6a978950a5f90e639dbbb09f03317",
+              "evaluationPath": "challenges/evaluations/20260926132731-v6.json",
+              "evaluationCommit": "d0a8041f88dd37cbf631877464c06cf985998274",
+              "remainingScreens": 2,
+              "recordedSteps": 22,
+              "status": "complete",
+              "commit": "d0a8041f88dd37cbf631877464c06cf985998274",
+              "mismatch": {
+                "corpus": "synthetic",
+                "batch": "v6",
+                "caseId": "wizard-greasy-write-glib",
+                "session": "synthetic/v6/wizard-greasy-write-glib",
+                "manifestPath": "challenges/manifests/v6.json",
+                "manifestSha256": "7523b91e823f4e3906c9acdc9a3d80f8469c27c2caab8fc8fbd6967dbfdcab5f",
+                "recording": "challenges/cases/v6/wizard-greasy-write-glib.session.json",
+                "recordingPath": "challenges/cases/v6/wizard-greasy-write-glib.session.json",
+                "recordingSha256": "6f8be6114cd1a551dc75940ccc48608c51b6a978950a5f90e639dbbb09f03317",
+                "recipe": "challenges/cases/v6/wizard-greasy-write-glib.recipe.session.json",
+                "recipeSha256": "0ccf18d6ddfa6bd75ef0c57c46a0ae8bd6418b3fafc4a4e9641a518492818911",
+                "replayInputSha256": "a3ac3b6872f8e89451d29bdbf73b5215af57c013d215edeaba8f740cc0c5fc4a",
+                "evaluationPath": "challenges/evaluations/20260926132731-v6.json",
+                "evaluationCommit": "d0a8041f88dd37cbf631877464c06cf985998274",
+                "evaluationArtifact": "challenges/evaluations/20260926132731-v6.json",
+                "evaluationUtc": "2026-09-26T13:27:48.505Z",
+                "remainingScreens": 2,
+                "recordedSteps": 22,
+                "previousScreensMatched": 20,
+                "regression": false,
+                "passed": false,
+                "error": null,
+                "metrics": {
+                  "screens": {
+                    "matched": 20,
+                    "total": 22
+                  },
+                  "rng": {
+                    "matched": 2958,
+                    "total": 2967
+                  },
+                  "cursors": {
+                    "matched": 20,
+                    "total": 22
+                  }
+                },
+                "firstMismatch": {
+                  "kind": "stop",
+                  "message": "unsupported hero command: an unported branch of this command: applying a tool requires doapply()'s arm for object type 79",
+                  "step": 20
+                },
+                "step": 20,
+                "kind": "stop",
+                "sourceFile": "apply.c",
+                "function": "doapply",
+                "message": "unsupported hero command: an unported branch of this command: applying a tool requires doapply()'s arm for object type 79",
+                "cFile": "apply.c",
+                "luaFile": null,
+                "line": null
+              },
+              "summary": "This case does not reach hand greasing or Glib. After an invalid inventory choice produces a matched \"You don’t have that object\" More prompt, the later apply command reaches object type 79. C apply.c:doapply() falls through its generic default, prints \"Sorry, I don’t know how to use that.\", and returns ECMD_FAIL; JS refuses the branch and evaluation stops at step 20. This first owner is doapply(), not glibr().",
+              "source": {
+                "file": "apply.c",
+                "branch": "At segment 0 step 20, doapply() receives inventory object type 79. No named switch arm handles it; C checks is_pole(), is_pick(), and is_axe() in the generic default, finds none applicable, prints the generic refusal, and returns ECMD_FAIL. This session never selects the grease can’s hand target, so Glib is not activated and glibr() is not reached.",
+                "functions": [
+                  "doapply"
+                ],
+                "callers": [
+                  "C command table cmd.c:1678 maps the a command to apply.c:doapply(); JavaScript js/cmd.js:runApplyCommand dispatches to js/apply.js:doapply().",
+                  "Inside apply.c:doapply(), getobj() supplies the selected object to the switch; object type 79 reaches the generic default at lines 4407-4417 after the named cases."
+                ],
+                "dependencies": [
+                  "Preserve doapply() getobj and retouch ordering, switch dispatch, is_pole/is_pick/is_axe predicates, printed message, and ECMD_FAIL return without spending a turn.",
+                  "js/apply.js handles selected FOOD_CLASS and ARMOR_CLASS defaults and pole/pick/axe branches, but throws UnsupportedApplyError for this remaining object-type-79 path; do not classify it as grease or Glib behavior."
+                ]
+              },
+              "goalKind": "divergence-fix",
+              "evidence": [
+                "Saved challenges/evaluations/20260926132731-v6.json reports 2 remaining screens of 22 and first stop at segment 0 step 20: JS refuses apply.c:doapply() for object type 79. The previous 20 screens match; RNG is 2958/2967.",
+                "C recording challenges/cases/v6/wizard-greasy-write-glib.session.json: step 17 key p yields \"You don’t have that object.--More--\"; step 19 space returns to the apply prompt; step 20 key a produces \"Sorry, I don’t know how to use that.\" before the final n input. The case never chooses the grease can’s hand target.",
+                "nethack-c/upstream/src/apply.c:4407-4417 is the generic default after BANANA: it tries is_pole() and is_pick()/is_axe(), then prints the message and returns ECMD_FAIL. js/apply.js:2375-2403 mirrors some default classes but throws UnsupportedApplyError for object type 79.",
+                "C caller is the a-command table entry in nethack-c/upstream/src/cmd.c:1678; JavaScript caller is js/cmd.js:runApplyCommand -> js/apply.js:doapply(). This path, not do_wear.c:glibr(), owns the first divergence."
+              ]
+            }
+          }
+        }
+      ],
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "382fb9f460e42198688105ebc81fd2788be20686",
+        "screens": 11405,
+        "rng": 792838
       }
     },
     {
@@ -88195,14 +88694,18 @@
     {
       "id": "div-eat-fix-petrification-synthetic-v7-20260926",
       "kind": "divergence-fix",
-      "status": "queued",
+      "status": "parked",
       "summary": "Restore lizard-corpse petrification cure and source-ordered delayed-killer cleanup",
       "cFile": "eat.c",
       "sessions": [],
       "selectionReason": "The current v7 lizard case first stops in eat.c:cprefx after the stoning setup now matches; C calls fix_petrification before the first bite.",
       "detail": "At start_eating -> cprefx, PM_LIZARD while Stoned invokes eat.c fix_petrification. Port the whole cure helper and wire the lizard and acidic-flesh caller branches, preserving make_stoned state, message choice, RNG order, and delayed-killer cleanup. Audit C callers from potion.c peffect_acid and zap.c zapyourself, including consumed return paths and explicit blockers. Use independent C recipes with varied hallucination and charisma.",
-      "openedAt": null,
-      "openStanding": null,
+      "openedAt": "5f58620fe0b69bce173a096748bdcd3bbebaa2a4",
+      "openStanding": {
+        "sha": "47ed6cb1adb1ea2e3593ca285cba76ea14bc9e79",
+        "screens": 11405,
+        "rng": 792838
+      },
       "closedAt": null,
       "delivered": null,
       "function": "fix_petrification",
@@ -88220,6 +88723,214 @@
           "recordingSha256": "6bf1416d9de4abf481689ec1d723ff6775badd518b9222d66c685b3157cc4149",
           "evaluationPath": "challenges/evaluations/20260926213954-v7.json",
           "evaluationCommit": "5006247e43a2e93c85f944ecaac4f961cd237826"
+        }
+      },
+      "activeStanding": {
+        "sha": "47ed6cb1adb1ea2e3593ca285cba76ea14bc9e79",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v7",
+          "caseId": "lizard-corpse-cures-stoning-corrected",
+          "session": "synthetic/v7/lizard-corpse-cures-stoning-corrected",
+          "manifestPath": "challenges/manifests/v7.json",
+          "manifestSha256": "03a861a9d1bc9d813c80681312ee7a0e0f893dbad0536de40a974bd5ec344094",
+          "recording": "challenges/cases/v7/lizard-corpse-cures-stoning-corrected.session.json",
+          "recordingPath": "challenges/cases/v7/lizard-corpse-cures-stoning-corrected.session.json",
+          "recordingSha256": "6bf1416d9de4abf481689ec1d723ff6775badd518b9222d66c685b3157cc4149",
+          "recipe": "challenges/cases/v7/lizard-corpse-cures-stoning-corrected.recipe.session.json",
+          "recipeSha256": "edca66fd45bb62acda508e3cea52f1ca972a918d4bbe4e3f7cb36692e26a50d2",
+          "replayInputSha256": "404c092a94cae15b68530f09903564ff1b0b7b829320c2b4c051ad7c60753f70",
+          "evaluationPath": "challenges/evaluations/20260926220443-v7.json",
+          "evaluationCommit": "382fb9f460e42198688105ebc81fd2788be20686",
+          "evaluationArtifact": "challenges/evaluations/20260926220443-v7.json",
+          "evaluationUtc": "2026-09-26T22:05:18.983Z",
+          "remainingScreens": 2,
+          "recordedSteps": 37,
+          "previousScreensMatched": 35,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 35,
+              "total": 37
+            },
+            "rng": {
+              "matched": 1919,
+              "total": 1951
+            },
+            "cursors": {
+              "matched": 35,
+              "total": 37
+            }
+          },
+          "firstMismatch": {
+            "kind": "stop",
+            "message": "unsupported hero command: an unported branch of this command: eating requires fix_petrification()",
+            "step": 35
+          },
+          "step": 35,
+          "kind": "stop",
+          "sourceFile": "eat.c",
+          "function": "fix_petrification",
+          "message": "unsupported hero command: an unported branch of this command: eating requires fix_petrification()",
+          "cFile": "eat.c",
+          "luaFile": null,
+          "line": null,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v7/lizard-corpse-cures-stoning-corrected.json",
+            "result": {
+              "session": "synthetic/v7/lizard-corpse-cures-stoning-corrected",
+              "corpus": "synthetic",
+              "batch": "v7",
+              "caseId": "lizard-corpse-cures-stoning-corrected",
+              "manifestPath": "challenges/manifests/v7.json",
+              "manifestSha256": "03a861a9d1bc9d813c80681312ee7a0e0f893dbad0536de40a974bd5ec344094",
+              "recordingPath": "challenges/cases/v7/lizard-corpse-cures-stoning-corrected.session.json",
+              "recordingSha256": "6bf1416d9de4abf481689ec1d723ff6775badd518b9222d66c685b3157cc4149",
+              "evaluationPath": "challenges/evaluations/20260926213954-v7.json",
+              "evaluationCommit": "5006247e43a2e93c85f944ecaac4f961cd237826",
+              "remainingScreens": 2,
+              "recordedSteps": 37,
+              "status": "complete",
+              "commit": "5006247e43a2e93c85f944ecaac4f961cd237826",
+              "mismatch": {
+                "corpus": "synthetic",
+                "batch": "v7",
+                "caseId": "lizard-corpse-cures-stoning-corrected",
+                "session": "synthetic/v7/lizard-corpse-cures-stoning-corrected",
+                "manifestPath": "challenges/manifests/v7.json",
+                "manifestSha256": "03a861a9d1bc9d813c80681312ee7a0e0f893dbad0536de40a974bd5ec344094",
+                "recording": "challenges/cases/v7/lizard-corpse-cures-stoning-corrected.session.json",
+                "recordingPath": "challenges/cases/v7/lizard-corpse-cures-stoning-corrected.session.json",
+                "recordingSha256": "6bf1416d9de4abf481689ec1d723ff6775badd518b9222d66c685b3157cc4149",
+                "recipe": "challenges/cases/v7/lizard-corpse-cures-stoning-corrected.recipe.session.json",
+                "recipeSha256": "edca66fd45bb62acda508e3cea52f1ca972a918d4bbe4e3f7cb36692e26a50d2",
+                "replayInputSha256": "51424da722e0d7b4541f5b2b92ba2983a8c31266fb7974f0dd577365378728cc",
+                "evaluationPath": "challenges/evaluations/20260926213954-v7.json",
+                "evaluationCommit": "5006247e43a2e93c85f944ecaac4f961cd237826",
+                "evaluationArtifact": "challenges/evaluations/20260926213954-v7.json",
+                "evaluationUtc": "2026-09-26T21:40:23.260Z",
+                "remainingScreens": 2,
+                "recordedSteps": 37,
+                "previousScreensMatched": 35,
+                "regression": false,
+                "passed": false,
+                "error": null,
+                "metrics": {
+                  "screens": {
+                    "matched": 35,
+                    "total": 37
+                  },
+                  "rng": {
+                    "matched": 1919,
+                    "total": 1951
+                  },
+                  "cursors": {
+                    "matched": 35,
+                    "total": 37
+                  }
+                },
+                "firstMismatch": {
+                  "kind": "stop",
+                  "message": "unsupported hero command: an unported branch of this command: eating requires fix_petrification()",
+                  "step": 35
+                },
+                "step": 35,
+                "kind": "stop",
+                "sourceFile": "eat.c",
+                "function": "fix_petrification",
+                "message": "unsupported hero command: an unported branch of this command: eating requires fix_petrification()",
+                "cFile": "eat.c",
+                "luaFile": null,
+                "line": null
+              },
+              "summary": "The STONED setup now matches. At segment 0 step 35, eating the wished lizard corpse reaches eat.c:start_eating() -> cprefx(PM_LIZARD). C calls fix_petrification() before the first bite; JS refuses that branch. The remaining two screens belong to the cure and subsequent eating, while the later acidic-flesh and potion/zap callers need source-ordered wiring.",
+              "source": {
+                "file": "eat.c",
+                "branch": "In cprefx(), PM_LIZARD calls fix_petrification() only when Stoned. The default acidic-flesh branch has the same Stoned guard. fix_petrification() chooses the Hallucination message, adding “fine ” when ACURR(A_CHA)>15, then calls make_stoned(0L, buf, 0, NULL) to clear the timeout, status, and delayed killer. start_eating() runs cprefx() before bite().",
+                "functions": [
+                  "fix_petrification",
+                  "cprefx"
+                ],
+                "callers": [
+                  "eat.c:start_eating() calls cprefx(corpsenm) for a corpse or glob before bite(); js/eat.js:start_eating() reaches its cprefx().",
+                  "potion.c:peffect_acid() and zap.c:zapyourself() also call fix_petrification(); their JS paths still refuse or skip the cure and require caller audit."
+                ],
+                "dependencies": [
+                  "potion.c:make_stoned() is ported in js/potion.js and owns STONED timeout, status, message and delayed-killer cleanup. The cure helper uses its void result.",
+                  "The Hallucination/Charisma message branch reads ACURR(A_CHA); no core RNG draw occurs in fix_petrification()."
+                ]
+              },
+              "goalKind": "divergence-fix",
+              "evidence": [
+                "Current saved v7 evaluation challenges/evaluations/20260926213954-v7.json at 5006247e43a2e93c85f944ecaac4f961cd237826 matches 35/37 screens and reports the first stop at segment 0 step 35: eating requires fix_petrification(). The previous step-17 wiz_intrinsic mismatch was resolved by the earlier source port; retain that history in Git rather than attributing it to the current stop.",
+                "nethack-c/upstream/src/eat.c:2020-2044 calls cprefx() before bite(); lines 827-830 guard the PM_LIZARD cure with Stoned, lines 858-860 apply the same cure to acidic flesh, and lines 867-877 format the hallucination/Charisma message and call make_stoned(0L,...).",
+                "js/eat.js:cprefx() currently throws UnsupportedEatError for the PM_LIZARD and acidic-flesh cure branches. C17 already ported potion.c:make_stoned(), so the required state owner and delayed-killer cleanup are available for a source-based repair.",
+                "The C recording has 37 steps; the wizard wishes for the corpse before step 35 and the C cure runs as eating starts. Independent new seed and Hallucination/Charisma variations should verify the runtime path without reusing this challenge input."
+              ]
+            }
+          }
+        }
+      ],
+      "progressBeforePark": {
+        "screens": 0,
+        "rng": 0
+      },
+      "parkedStanding": {
+        "sha": "e15883c1613d84bf7f47fcd7c2f032e1a001fcd2",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "parkedReason": "Lizard and acidic corpse and potion cure paths are source-ported and independently recorded; the zap.c:zapyourself stone-to-flesh production entry remains without matching runtime evidence because spell.c:study_book diverges before it. Resume after a source-traced spell.c:dowizcast command port supplies an independent matching C recording."
+    },
+    {
+      "id": "port-apply-use-tinning-kit-synthetic-v6-20260926",
+      "kind": "file-port",
+      "status": "queued",
+      "summary": "Port whole tinning-kit use and its doapply caller across decline, confirm, and retry histories",
+      "cFile": "apply.c",
+      "sessions": [
+        "synthetic/v6/wizard-tinning-confirm",
+        "synthetic/v6/wizard-tinning-yes",
+        "synthetic/v6/wizard-tinning-retry"
+      ],
+      "selectionReason": "Three unresolved v6 Wizard tinning histories share apply.c:use_tinning_kit and distinct answers to its floorfood corpse prompt; A15 has completed the doapply ownership handoff.",
+      "detail": "Implement complete apply.c use_tinning_kit in C order and wire doapply TINNING_KIT. Verify charged kit, corpse selection, decline, create-tin, Rider revival and inventory/floor paths. Port consumed returns, preserve source-named void gaps, and record independent C evidence for uncovered entry paths. Preserve the matching wizard-tinning-kit-newt regression witness.",
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": null,
+      "delivered": null,
+      "functions": [
+        {
+          "name": "use_tinning_kit",
+          "line": 2177,
+          "endLine": 2258,
+          "declared": false,
+          "complete": false
+        }
+      ],
+      "range": {
+        "from": 2177,
+        "to": 2258
+      },
+      "syntheticProvenance": {
+        "synthetic/v6/wizard-tinning-confirm": {
+          "session": "synthetic/v6/wizard-tinning-confirm",
+          "corpus": "synthetic",
+          "batch": "v6",
+          "caseId": "wizard-tinning-confirm",
+          "manifestPath": "challenges/manifests/v6.json",
+          "manifestSha256": "7523b91e823f4e3906c9acdc9a3d80f8469c27c2caab8fc8fbd6967dbfdcab5f",
+          "recordingPath": "challenges/cases/v6/wizard-tinning-confirm.session.json",
+          "recordingSha256": "5375360da74524cb290c791f0cee162af26f3e169f75d1c3a0715f3ce48e42dd",
+          "evaluationPath": "challenges/evaluations/20260926220443-v6.json",
+          "evaluationCommit": "382fb9f460e42198688105ebc81fd2788be20686"
         }
       }
     }

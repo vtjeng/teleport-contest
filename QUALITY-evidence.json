@@ -17392,5 +17392,117 @@
       }
     },
     "recordedAt": "2026-09-26T16:50:48.026Z"
+  },
+  {
+    "kind": "review",
+    "head": "47ed6cb1adb1ea2e3593ca285cba76ea14bc9e79",
+    "auditedRange": "6e4c0560a9e97888044f42afd74a64082e25cb2b..47ed6cb1adb1ea2e3593ca285cba76ea14bc9e79",
+    "level": "full",
+    "areas": [],
+    "outcome": "changed",
+    "evidence": "Counts: 3 raw, 3 deduplicated, 3 confirmed, 3 applied, 0 deferred, 0 rejected, 0 unverified. Reviewed the source-selection workflow with four independent finders and one adjudicator; all three confirmed guard defects were corrected. No performance or concurrency finder was triggered because this synchronous queue tooling adds no hot-path workload or overlapping state lifecycle. Focused queue/CLI tests, lint, quality health, and full checkpoint passed.",
+    "auditMetrics": {
+      "wallTimeSeconds": 1800,
+      "counts": {
+        "raw": 3,
+        "deduplicated": 3,
+        "confirmed": 3,
+        "applied": 3,
+        "deferred": 0,
+        "rejected": 0,
+        "unverified": 0
+      },
+      "categories": {
+        "production": 3,
+        "tests": 0,
+        "clarity": 0,
+        "simplification": 0,
+        "other": 0
+      },
+      "productionDefects": [
+        {
+          "summary": "Grouped synthetic sessions could bypass source-scope justification for a secondary owner",
+          "foundBy": [
+            "tests"
+          ],
+          "resolution": "applied"
+        },
+        {
+          "summary": "Opening a queued grouped synthetic goal skipped current investigation checks for unresolved related sessions",
+          "foundBy": [
+            "variable-trace"
+          ],
+          "resolution": "applied"
+        },
+        {
+          "summary": "A fixed goal could name a session owned by another source without a selection reason",
+          "foundBy": [
+            "correctness"
+          ],
+          "resolution": "applied"
+        }
+      ],
+      "readiness": {
+        "boundary": "Reviewed scripts/mismatch-queue.mjs assertGoalSelection/assertSourceOwner, scripts/goal-log.mjs checkSelection and their documented queue-goal, open-goal, task-context paths. Focused 72 tests execute these paths; the committed full checkpoint passes.",
+        "sourceReview": "Compared selection and grouping behavior with AGENTS.md, .agents/selection.md, and .agents/loop.md. This tooling range ports no C or Lua functions and contains no note_unported calls or Unsupported*Error throws.",
+        "completeness": "Every confirmed selection-guard finding was fixed in the reviewed scripts and pinned by focused tests. This range has no C return-value dependencies or unported game calls."
+      },
+      "rejections": [],
+      "deferrals": []
+    },
+    "recordedAt": "2026-09-26T22:47:41.664Z"
+  },
+  {
+    "kind": "review",
+    "head": "e15883c1613d84bf7f47fcd7c2f032e1a001fcd2",
+    "auditedRange": "da7aec764fd3791421b3b74b8f63b9ca1cd49d1f..e15883c1613d84bf7f47fcd7c2f032e1a001fcd2",
+    "level": "full",
+    "areas": [
+      "objects"
+    ],
+    "outcome": "changed",
+    "evidence": "Counts: 5 raw, 5 deduplicated, 3 confirmed, 2 applied, 1 deferred, 2 rejected, 0 unverified. Reviewed the petrification cure and its production callers against NetHack 5.0 source. The acid-blob recording and stronger resistance assertions address the in-scope findings; the stone-to-flesh spell entry awaits a separate dowizcast task. Concurrency finder ran because the async cure crosses a message wait; performance finder was not triggered.",
+    "auditMetrics": {
+      "wallTimeSeconds": 1320,
+      "counts": {
+        "raw": 5,
+        "deduplicated": 5,
+        "confirmed": 3,
+        "applied": 2,
+        "deferred": 1,
+        "rejected": 2,
+        "unverified": 0
+      },
+      "categories": {
+        "production": 0,
+        "tests": 2,
+        "clarity": 0,
+        "simplification": 0,
+        "other": 1
+      },
+      "productionDefects": [],
+      "deferrals": [
+        {
+          "summary": "The zap.c:zapyourself stone-to-flesh production spell entry lacks matching runtime evidence: its C recipe diverges earlier in spell.c:study_book. Keep this entry open for a separate spell.c:dowizcast command port and independently matching recording.",
+          "category": "other"
+        }
+      ],
+      "rejections": [
+        {
+          "summary": "A raw state.u.stoned scalar alone should be tested as an alternate trigger for zap.c:zapyourself petrification cure.",
+          "counterEvidence": "C Stoned reads u.uprops[STONED].intrinsic, and the JavaScript production path uses that property. The raw scalar has no source writer or independent state counterpart. Reopen if a valid C source path assigns it as a separate value."
+        },
+        {
+          "summary": "potion.c:make_stoned must treat non-timeout STONED intrinsic flags as a reachable cure state.",
+          "counterEvidence": "Although the C macro reads the raw intrinsic word, the reported FROMOUTSIDE-only state was manually fabricated; no valid upstream writer for non-timeout STONED bits was found. Reopen if a source writer or valid recorded input establishes that state."
+        }
+      ],
+      "readiness": {
+        "boundary": "Reviewed eat.c:fix_petrification and cprefx callers, potion.c:peffect_acid and make_stoned interaction, and zap.c:zapyourself at committed 4cdc2f51. Independent lizard and acid-potion C recordings and the v7 lizard prefix exercise the first paths; direct tests exercise zap, while its production spell entry has no matching recording.",
+        "sourceReview": "Each changed function and caller was traced to upstream C for state, PRNG, messages and operation order. The fix removes the named fix_petrification and peffect_acid placeholders; no new note_unported or Unsupported throw remains in this changed scope.",
+        "completeness": "No note_unported call in the reviewed functions supplies a value consumed by C. The unresolved zap entry is an upstream spell command path requiring a separate source task, and is recorded as deferred evidence rather than claimed complete."
+      }
+    },
+    "recordedAt": "2026-09-26T23:36:38.118Z"
   }
 ]

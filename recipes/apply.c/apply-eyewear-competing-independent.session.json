@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 8304801,
+      "datetime": "20310407121500",
+      "nethackrc": "OPTIONS=name:Vision,role:Wizard,race:human,gender:male,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen\nOPTIONS=pettype:none,!acoustics,!autopickup,time,showexp,playmode:debug\n",
+      "moves": " \u0017lenses\nao ap ao ap ap"
+    }
+  ],
+  "comment": "Independent Wizard seed selected by a JavaScript prescreen for its natural starting blindfold. A debug wish adds lenses so the recording reaches the competing-eyewear message, then applies/removes both BLINDFOLD and LENSES through apply.c:doapply and its do_wear.c:Blindf_on/Blindf_off helpers."
+}

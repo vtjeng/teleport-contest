@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 8304700,
+      "datetime": "20310405101500",
+      "nethackrc": "OPTIONS=name:Glasses,role:Wizard,race:human,gender:male,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen\nOPTIONS=pettype:none,!acoustics,!autopickup,time,showexp\n",
+      "moves": ".an an"
+    }
+  ],
+  "comment": "Independent Wizard inventory seed selected by a JavaScript prescreen for the natural starting BLINDFOLD; the input applies it once and then applies the same uncursed item again to exercise apply.c:doapply -> do_wear.c:Blindf_on and Blindf_off through the production command."
+}
