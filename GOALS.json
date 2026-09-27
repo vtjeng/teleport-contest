@@ -90952,6 +90952,49 @@
           "evaluationCommit": "12a35e71cf1d937cd08b75b196f3c8b54224f6cd"
         }
       }
+    },
+    {
+      "id": "port-spell-dowizcast-stone-to-flesh-v7-20260926",
+      "kind": "file-port",
+      "status": "queued",
+      "summary": "Port wizard spell-cast command and reach stone-to-flesh self cure through production input",
+      "cFile": "spell.c",
+      "sessions": [
+        "synthetic/v7/lizard-corpse-cures-stoning-corrected"
+      ],
+      "selectionReason": "The v7 lizard case remains an actionable petrification-related mismatch at eat.c:cpostfx, owned separately by A18. Parked C21 cannot close its zap.c:zapyourself stone-to-flesh caller because its study_book setup diverges first. C spell.c:dowizcast is the source-defined wizard spell menu route into spelleffects and zapyourself without study_book, so this independent prerequisite enables the missing production evidence while A18 fixes the current first mismatch.",
+      "detail": "C spell.c:dowizcast builds a PICK_ONE menu of spells, consumes the selected object type and returns spelleffects(otyp,FALSE,TRUE); cmd.c:doextcmd already names wizcast but JS does not dispatch dowizcast. Record a distinct debug game with timed STONED setup, #wizcast stone-to-flesh selection, and self direction, then verify the zap.c caller.",
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": null,
+      "delivered": null,
+      "functions": [
+        {
+          "name": "dowizcast",
+          "line": 787,
+          "endLine": 819,
+          "declared": false,
+          "complete": false
+        }
+      ],
+      "range": {
+        "from": 787,
+        "to": 819
+      },
+      "syntheticProvenance": {
+        "synthetic/v7/lizard-corpse-cures-stoning-corrected": {
+          "session": "synthetic/v7/lizard-corpse-cures-stoning-corrected",
+          "corpus": "synthetic",
+          "batch": "v7",
+          "caseId": "lizard-corpse-cures-stoning-corrected",
+          "manifestPath": "challenges/manifests/v7.json",
+          "manifestSha256": "03a861a9d1bc9d813c80681312ee7a0e0f893dbad0536de40a974bd5ec344094",
+          "recordingPath": "challenges/cases/v7/lizard-corpse-cures-stoning-corrected.session.json",
+          "recordingSha256": "6bf1416d9de4abf481689ec1d723ff6775badd518b9222d66c685b3157cc4149",
+          "evaluationPath": "challenges/evaluations/20260927005209-v7.json",
+          "evaluationCommit": "12a35e71cf1d937cd08b75b196f3c8b54224f6cd"
+        }
+      }
     }
   ]
 }
