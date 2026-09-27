@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 260927236,
+      "datetime": "20260927053000",
+      "nethackrc": "OPTIONS=name:WraithEaterC23,role:Wizard,race:gnome,gender:male,align:neutral,playmode:debug,!legacy,!tutorial,!splash_screen,pettype:none\n",
+      "moves": " \u0017wraith corpse\nep "
+    }
+  ],
+  "comment": "Independent eat.c:cpostfx WRAITH recipe for C23. A debug gnome Wizard wishes and eats a wraith corpse, exercising the production corpse-consumption caller into exper.c:pluslvl(FALSE). The polymorphed pluslvl branch is separately covered by the gain-level potion recipe."
+}

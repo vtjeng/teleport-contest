@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent eat.c:cpostfx C recipe for the PM_WRAITH branch while Upolyd. A debug gnome Wizard wishes a wraith corpse, polymorphs into a red dragon, then eats the corpse; this reaches cpostfx(PM_WRAITH) -> exper.c:pluslvl(FALSE)'s polymorph HP arm.",
+  "segments": [
+    {
+      "seed": 260927240,
+      "datetime": "20260927061500",
+      "nethackrc": "OPTIONS=name:WraithEaterPolyC23,role:Wizard,race:gnome,gender:male,align:neutral,playmode:debug,!legacy,!tutorial,!splash_screen,pettype:none\n",
+      "moves": " \u0017wraith corpse\n#polyself\nred dragon\n   ep"
+    }
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent potion.c:peffect_gain_level C recipe. The debug Healer uses #wizlevelport to reach D:2, wishes a cursed gain-level potion, and quaffs it so Can_rise_up/get_level select a one-level ascent.",
+  "segments": [
+    {
+      "seed": 260927237,
+      "datetime": "20260927040001",
+      "nethackrc": "OPTIONS=name:GainAscent,role:Healer,race:human,gender:female,align:lawful,playmode:debug,!legacy,!tutorial,!splash_screen,pettype:none\n",
+      "moves": " \u00162\n \u0017cursed potion of gain level\nqk"
+    }
+  ]
+}

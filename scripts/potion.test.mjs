@@ -11,6 +11,7 @@ import { readFileSync } from 'node:fs';
 import test from 'node:test';
 
 import { failClosedCommandRefusals } from '../js/cmd.js';
+import { setuhpmax } from '../js/attrib.js';
 
 import {
     A_CON, A_DEX, A_WIS, ACID_RES, BLINDED, CONFUSION, DEAF, FAST, FREE_ACTION,
@@ -449,6 +450,52 @@ async function startedGame(seed, name) {
         moves: ' ',
     });
 }
+
+test('cursed gain-level potion stays on D:1 without the Amulet', async () => {
+    await startedGame(8460231, 'GainLevelCursedFirstLevel');
+    const potion = vaporPotion(POT_GAIN_LEVEL);
+    potion.cursed = true;
+    game.u.uhave.amulet = false;
+    game.gp.potion_unkn = 0;
+    clearTopline();
+    enableRngLog();
+
+    await peffects(potion, game);
+
+    assert.equal(toplines(), 'You have an uneasy feeling.');
+    assert.equal(game.gp.potion_unkn, 1,
+        'the cursed branch keeps the potion unidentified');
+    assert.equal(game.u.uz.dnum, 0);
+    assert.equal(game.u.uz.dlevel, 1);
+    assert.deepEqual(getRngLog(), [],
+        'the D:1/no-Amulet test uses neither Can_rise_up nor a random draw');
+});
+
+test('setuhpmax updates and clamps the polymorph HP pair together', () => {
+    // C attrib.c setuhpmax() routes to u.mhmax/u.mh when Upolyd and
+    // even_when_polyd is false; normal-form HP remains an independent pair.
+    const state = {
+        u: {
+            umonnum: 2,
+            umonster: 1,
+            mhmax: 12,
+            mh: 15,
+            uhpmax: 38,
+            uhp: 34,
+            uhppeak: 41,
+        },
+        disp: { botl: false },
+    };
+
+    setuhpmax(10, false, state);
+
+    assert.equal(state.u.mhmax, 10);
+    assert.equal(state.u.mh, 10);
+    assert.equal(state.u.uhpmax, 38);
+    assert.equal(state.u.uhp, 34);
+    assert.equal(state.u.uhppeak, 41);
+    assert.equal(state.disp.botl, true);
+});
 
 function toplines() {
     return game._ttyToplines ?? '';

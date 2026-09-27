@@ -91853,16 +91853,23 @@
     {
       "id": "div-vision-pit-sight-synthetic-v6-20260926",
       "kind": "divergence-fix",
-      "status": "queued",
+      "status": "closed",
       "summary": "Restore source pit-limited sight after downward digging",
       "cFile": "vision.c",
       "sessions": [],
       "selectionReason": "The current v6 archeologist-down-dig-floor case matches its dig message and all RNG calls but still draws a pet beyond the 3×3 pit sight limit at step 6. C vision.c:vision_recalc selects the u.utrap && TT_PIT branch after digactualhole requests full recalculation; JS uses ordinary view_from. The prior dig.c diagnosis is stale, so select this source-traced vision branch.",
       "detail": "Port the pit branch of vision.c:vision_recalc in buffer and redraw order, using canonical u.utrap and u.utraptype state. Keep ordinary, blind and swallowed sight unchanged. Independently record a pit with a creature or feature beyond adjacent range using different seed/date/character conditions; verify the admitted v6 step 6 and preserve all existing matches.",
-      "openedAt": null,
-      "openStanding": null,
-      "closedAt": null,
-      "delivered": null,
+      "openedAt": "c3972c48092cfb862070f98242b89d813bafad66",
+      "openStanding": {
+        "sha": "c3972c48092cfb862070f98242b89d813bafad66",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "closedAt": "4fc824cfd5f5c170f9c0e01b5699c057438241e0",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
       "function": "vision_recalc",
       "session": "synthetic/v6/archeologist-down-dig-floor",
       "step": 6,
@@ -91879,30 +91886,238 @@
           "evaluationPath": "challenges/evaluations/20260927005209-v6.json",
           "evaluationCommit": "12a35e71cf1d937cd08b75b196f3c8b54224f6cd"
         }
+      },
+      "activeStanding": {
+        "sha": "c3972c48092cfb862070f98242b89d813bafad66",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v6",
+          "caseId": "archeologist-down-dig-floor",
+          "session": "synthetic/v6/archeologist-down-dig-floor",
+          "manifestPath": "challenges/manifests/v6.json",
+          "manifestSha256": "7523b91e823f4e3906c9acdc9a3d80f8469c27c2caab8fc8fbd6967dbfdcab5f",
+          "recording": "challenges/cases/v6/archeologist-down-dig-floor.session.json",
+          "recordingPath": "challenges/cases/v6/archeologist-down-dig-floor.session.json",
+          "recordingSha256": "8ae44f290808dea580c783add4b5cc12e99a94f4c998441b329325406fa9e9a9",
+          "recipe": "challenges/cases/v6/archeologist-down-dig-floor.recipe.session.json",
+          "recipeSha256": "7a44624310a7907c493bc6e6dd893aaf141942878dc86db440ae6c2972c69742",
+          "replayInputSha256": "98a66dc6f7ed978e6177dc7f251579da4743d1a9d58da3a6a0b29dbb27b2498c",
+          "evaluationPath": "challenges/evaluations/20260927032154-v6.json",
+          "evaluationCommit": "6ff81e0c85937f98189ac25d5847d8fecdab4f8f",
+          "evaluationArtifact": "challenges/evaluations/20260927032154-v6.json",
+          "evaluationUtc": "2026-09-27T03:22:13.425Z",
+          "remainingScreens": 2,
+          "recordedSteps": 8,
+          "previousScreensMatched": 6,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 6,
+              "total": 8
+            },
+            "rng": {
+              "matched": 6188,
+              "total": 6188
+            },
+            "cursors": {
+              "matched": 8,
+              "total": 8
+            }
+          },
+          "firstMismatch": {
+            "screen": {
+              "index": 6,
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 6,
+                "key": ">"
+              },
+              "kind": "ch",
+              "row": 13,
+              "column": 10,
+              "cCell": {
+                "ch": ".",
+                "color": 8,
+                "attr": 0,
+                "decgfx": 0
+              },
+              "jsCell": {
+                "ch": "f",
+                "color": 15,
+                "attr": 0,
+                "decgfx": 0
+              }
+            },
+            "rng": null,
+            "cursor": null
+          },
+          "step": 6,
+          "kind": "screen",
+          "sourceFile": null,
+          "function": null,
+          "message": null,
+          "cFile": null,
+          "luaFile": null,
+          "line": null,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v6/archeologist-down-dig-floor.json",
+            "result": {
+              "session": "synthetic/v6/archeologist-down-dig-floor",
+              "corpus": "synthetic",
+              "batch": "v6",
+              "caseId": "archeologist-down-dig-floor",
+              "manifestPath": "challenges/manifests/v6.json",
+              "manifestSha256": "7523b91e823f4e3906c9acdc9a3d80f8469c27c2caab8fc8fbd6967dbfdcab5f",
+              "recordingPath": "challenges/cases/v6/archeologist-down-dig-floor.session.json",
+              "recordingSha256": "8ae44f290808dea580c783add4b5cc12e99a94f4c998441b329325406fa9e9a9",
+              "evaluationPath": "challenges/evaluations/20260927005209-v6.json",
+              "evaluationCommit": "12a35e71cf1d937cd08b75b196f3c8b54224f6cd",
+              "remainingScreens": 2,
+              "recordedSteps": 8,
+              "status": "complete",
+              "commit": "12a35e71cf1d937cd08b75b196f3c8b54224f6cd",
+              "mismatch": {
+                "corpus": "synthetic",
+                "batch": "v6",
+                "caseId": "archeologist-down-dig-floor",
+                "session": "synthetic/v6/archeologist-down-dig-floor",
+                "manifestPath": "challenges/manifests/v6.json",
+                "manifestSha256": "7523b91e823f4e3906c9acdc9a3d80f8469c27c2caab8fc8fbd6967dbfdcab5f",
+                "recording": "challenges/cases/v6/archeologist-down-dig-floor.session.json",
+                "recordingPath": "challenges/cases/v6/archeologist-down-dig-floor.session.json",
+                "recordingSha256": "8ae44f290808dea580c783add4b5cc12e99a94f4c998441b329325406fa9e9a9",
+                "recipe": "challenges/cases/v6/archeologist-down-dig-floor.recipe.session.json",
+                "recipeSha256": "7a44624310a7907c493bc6e6dd893aaf141942878dc86db440ae6c2972c69742",
+                "replayInputSha256": "f2c945d9e00dcf6d0bd4942e3af34ee5b9e10467fa9a2ab70e6c05cd35213374",
+                "evaluationPath": "challenges/evaluations/20260927005209-v6.json",
+                "evaluationCommit": "12a35e71cf1d937cd08b75b196f3c8b54224f6cd",
+                "evaluationArtifact": "challenges/evaluations/20260927005209-v6.json",
+                "evaluationUtc": "2026-09-27T00:52:27.629Z",
+                "remainingScreens": 2,
+                "recordedSteps": 8,
+                "previousScreensMatched": 6,
+                "regression": false,
+                "passed": false,
+                "error": null,
+                "metrics": {
+                  "screens": {
+                    "matched": 6,
+                    "total": 8
+                  },
+                  "rng": {
+                    "matched": 6188,
+                    "total": 6188
+                  },
+                  "cursors": {
+                    "matched": 8,
+                    "total": 8
+                  }
+                },
+                "firstMismatch": {
+                  "screen": {
+                    "index": 6,
+                    "location": {
+                      "segmentIndex": 0,
+                      "stepIndex": 6,
+                      "key": ">"
+                    },
+                    "kind": "ch",
+                    "row": 13,
+                    "column": 10,
+                    "cCell": {
+                      "ch": ".",
+                      "color": 8,
+                      "attr": 0,
+                      "decgfx": 0
+                    },
+                    "jsCell": {
+                      "ch": "f",
+                      "color": 15,
+                      "attr": 0,
+                      "decgfx": 0
+                    }
+                  },
+                  "rng": null,
+                  "cursor": null
+                },
+                "step": 6,
+                "kind": "screen",
+                "sourceFile": null,
+                "function": null,
+                "message": null,
+                "cFile": null,
+                "luaFile": null,
+                "line": null
+              },
+              "summary": "Downward digging now reaches the C pit message and all 6,188 RNG calls match. At segment 0 step 6, the hero is in a pit: C vision.c:vision_recalc limits sight to the immediate 3×3 area and hides the pet two rows away, while JS uses ordinary view_from sight and draws that pet. Step 7 retains the same stale visibility. The mismatch is the pit vision branch, not the previously missing dig occupation.",
+              "source": {
+                "file": "vision.c",
+                "branch": "After dig.c:digactualhole sets u.utrap to TT_PIT and requests a full vision recalculation, vision_recalc fills only cells adjacent to the hero when u.utrap && u.utraptype == TT_PIT. JS vision_recalc currently calls view_from for every non-swallowed hero and has no pit branch.",
+                "functions": [
+                  "vision_recalc"
+                ],
+                "callers": [
+                  "dig.c:digactualhole creates the hero pit and sets gv.vision_full_recalc; the move loop calls vision_recalc before display refresh.",
+                  "js/dig.js:digactualhole sets u.utrap and gv.vision_full_recalc, but js/vision.js:vision_recalc uses ordinary view_from sight and leaves the distant pet visible."
+                ],
+                "dependencies": [
+                  "Preserve vision buffer rmin/rmax, IN_SIGHT and COULD_SEE values and the existing light-source overlay in C order.",
+                  "The pet is outside the pit sight square; its movement and RNG already match through the step, so do not alter monster movement to remove the glyph."
+                ]
+              },
+              "goalKind": "divergence-fix",
+              "evidence": [
+                "Current evaluation challenges/evaluations/20260927005209-v6.json at 12a35e71cf1d937cd08b75b196f3c8b54224f6cd matches 6/8 screens, 8/8 cursors and 6188/6188 RNG calls. Its first screen difference at segment 0 step 6 is C floor (.) versus JS pet (f) at map row 13 column 10; both print “You start digging downward. You dig a pit in the floor.”",
+                "Local replay of the admitted recording shows the pet adjacent at step 5. At steps 6 and 7 C hides it after the hero enters the pit, while JS paints it farther away. C vision.c:vision_recalc lines 609-622 limits pit sight to u.ux±1/u.uy±1.",
+                "C dig.c:digactualhole sets TT_PIT and gv.vision_full_recalc when the hero falls into the pit; js/dig.js does the same. js/vision.js:vision_recalc currently has no pit-specific branch and unconditionally calls view_from for a non-swallowed hero. The old dig.c:dig source diagnosis is superseded by this current trace."
+              ]
+            }
+          }
+        }
+      ],
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "4fc824cfd5f5c170f9c0e01b5699c057438241e0",
+        "screens": 11405,
+        "rng": 792838
       }
     },
     {
       "id": "port-write-dowrite-glib-synthetic-v6-20260926",
       "kind": "file-port",
-      "status": "queued",
+      "status": "closed",
       "summary": "Port complete magic-marker writing and slippery-hand drop behavior",
       "cFile": "write.c",
       "sessions": [
         "synthetic/v6/wizard-greasy-write-glib-final"
       ],
-      "selectionReason": "The admitted v6 wizard-greasy-write-glib-final case now matches the grease and quarterstaff-slip history and stops at segment 0 step 21 in write.c:dowrite when a Glib magic marker should slip from the hero’s fingers. The JS branch refuses before the source message and dropx call; select whole dowrite, with the current C and JS owner established in the refreshed investigation.",
+      "selectionReason": "Ready independent B22 delivery resolves the admitted v6 wizard-greasy-write-glib-final mismatch while the earlier unrelated candidates remain assigned or independently queued.",
       "detail": "Translate dowrite branches in source order and wire the doapply magic-marker caller. In the Glib path use the source Tobjnam/fingers_or_gloves message, carried-object dropx and ECMD_TIME return; retain independent C recordings and name any other active writing branch that lacks matching evidence.",
-      "openedAt": null,
-      "openStanding": null,
-      "closedAt": null,
-      "delivered": null,
+      "openedAt": "a43a762304d7aad623a1a5d4a703e1f121954e95",
+      "openStanding": {
+        "sha": "a43a762304d7aad623a1a5d4a703e1f121954e95",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "closedAt": "8b0b833213a40d0e36ca8a3fdc35a6bc9b37a779",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
       "functions": [
         {
           "name": "dowrite",
           "line": 74,
           "endLine": 394,
           "declared": true,
-          "complete": false
+          "complete": true
         }
       ],
       "range": {
@@ -91922,6 +92137,226 @@
           "evaluationPath": "challenges/evaluations/20260927005209-v6.json",
           "evaluationCommit": "12a35e71cf1d937cd08b75b196f3c8b54224f6cd"
         }
+      },
+      "activeStanding": {
+        "sha": "a43a762304d7aad623a1a5d4a703e1f121954e95",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v6",
+          "caseId": "wizard-greasy-write-glib-final",
+          "session": "synthetic/v6/wizard-greasy-write-glib-final",
+          "manifestPath": "challenges/manifests/v6.json",
+          "manifestSha256": "7523b91e823f4e3906c9acdc9a3d80f8469c27c2caab8fc8fbd6967dbfdcab5f",
+          "recording": "challenges/cases/v6/wizard-greasy-write-glib-final.session.json",
+          "recordingPath": "challenges/cases/v6/wizard-greasy-write-glib-final.session.json",
+          "recordingSha256": "20b60af8d804f9bd6ebd5b1217dae85a6cdad0afcae9d4f98bd6c57d6f3fb6e6",
+          "recipe": "challenges/cases/v6/wizard-greasy-write-glib-final.recipe.session.json",
+          "recipeSha256": "a55d0f776ecd5d8a91bc59a3fc708c55e632be4e125a69ffaac720babd87ebdc",
+          "replayInputSha256": "d0a0b109e225d419c3479950f6327fd10cc18b864d821651deffe432660588b2",
+          "evaluationPath": "challenges/evaluations/20260927040914-v6.json",
+          "evaluationCommit": "4fc824cfd5f5c170f9c0e01b5699c057438241e0",
+          "evaluationArtifact": "challenges/evaluations/20260927040914-v6.json",
+          "evaluationUtc": "2026-09-27T04:09:31.447Z",
+          "remainingScreens": 1,
+          "recordedSteps": 22,
+          "previousScreensMatched": 21,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 21,
+              "total": 22
+            },
+            "rng": {
+              "matched": 2968,
+              "total": 2978
+            },
+            "cursors": {
+              "matched": 21,
+              "total": 22
+            }
+          },
+          "firstMismatch": {
+            "kind": "stop",
+            "message": "dowrite requires dropx() for a Glib pen",
+            "step": 21
+          },
+          "step": 21,
+          "kind": "stop",
+          "sourceFile": "do.c",
+          "function": "dropx",
+          "message": "dowrite requires dropx() for a Glib pen",
+          "cFile": "do.c",
+          "luaFile": null,
+          "line": null,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v6/wizard-greasy-write-glib-final.json",
+            "result": {
+              "session": "synthetic/v6/wizard-greasy-write-glib-final",
+              "corpus": "synthetic",
+              "batch": "v6",
+              "caseId": "wizard-greasy-write-glib-final",
+              "manifestPath": "challenges/manifests/v6.json",
+              "manifestSha256": "7523b91e823f4e3906c9acdc9a3d80f8469c27c2caab8fc8fbd6967dbfdcab5f",
+              "recordingPath": "challenges/cases/v6/wizard-greasy-write-glib-final.session.json",
+              "recordingSha256": "20b60af8d804f9bd6ebd5b1217dae85a6cdad0afcae9d4f98bd6c57d6f3fb6e6",
+              "evaluationPath": "challenges/evaluations/20260927005209-v6.json",
+              "evaluationCommit": "12a35e71cf1d937cd08b75b196f3c8b54224f6cd",
+              "remainingScreens": 1,
+              "recordedSteps": 22,
+              "status": "complete",
+              "commit": "12a35e71cf1d937cd08b75b196f3c8b54224f6cd",
+              "mismatch": {
+                "corpus": "synthetic",
+                "batch": "v6",
+                "caseId": "wizard-greasy-write-glib-final",
+                "session": "synthetic/v6/wizard-greasy-write-glib-final",
+                "manifestPath": "challenges/manifests/v6.json",
+                "manifestSha256": "7523b91e823f4e3906c9acdc9a3d80f8469c27c2caab8fc8fbd6967dbfdcab5f",
+                "recording": "challenges/cases/v6/wizard-greasy-write-glib-final.session.json",
+                "recordingPath": "challenges/cases/v6/wizard-greasy-write-glib-final.session.json",
+                "recordingSha256": "20b60af8d804f9bd6ebd5b1217dae85a6cdad0afcae9d4f98bd6c57d6f3fb6e6",
+                "recipe": "challenges/cases/v6/wizard-greasy-write-glib-final.recipe.session.json",
+                "recipeSha256": "a55d0f776ecd5d8a91bc59a3fc708c55e632be4e125a69ffaac720babd87ebdc",
+                "replayInputSha256": "f2c945d9e00dcf6d0bd4942e3af34ee5b9e10467fa9a2ab70e6c05cd35213374",
+                "evaluationPath": "challenges/evaluations/20260927005209-v6.json",
+                "evaluationCommit": "12a35e71cf1d937cd08b75b196f3c8b54224f6cd",
+                "evaluationArtifact": "challenges/evaluations/20260927005209-v6.json",
+                "evaluationUtc": "2026-09-27T00:52:27.629Z",
+                "remainingScreens": 1,
+                "recordedSteps": 22,
+                "previousScreensMatched": 21,
+                "regression": false,
+                "passed": false,
+                "error": null,
+                "metrics": {
+                  "screens": {
+                    "matched": 21,
+                    "total": 22
+                  },
+                  "rng": {
+                    "matched": 2968,
+                    "total": 2978
+                  },
+                  "cursors": {
+                    "matched": 21,
+                    "total": 22
+                  }
+                },
+                "firstMismatch": {
+                  "kind": "stop",
+                  "message": "dowrite requires dropx() for a Glib pen",
+                  "step": 21
+                },
+                "step": 21,
+                "kind": "stop",
+                "sourceFile": "do.c",
+                "function": "dropx",
+                "message": "dowrite requires dropx() for a Glib pen",
+                "cFile": "do.c",
+                "luaFile": null,
+                "line": null
+              },
+              "summary": "The grease application and next-turn quarterstaff slip now match. At segment 0 step 21, applying a magic marker with Glib hands reaches write.c:dowrite: C prints that the marker slips from the fingers and calls dropx, while JS explicitly refuses the Glib pen branch before the message. Port that branch from the whole dowrite source function and wire its object-drop dependency.",
+              "source": {
+                "file": "write.c",
+                "branch": "dowrite first rejects a no-hands form; otherwise, when Glib is active, it prints Tobjnam(pen,\"slip\") from fingers_or_gloves(FALSE), calls dropx(pen), and returns ECMD_TIME before asking for paper.",
+                "functions": [
+                  "dowrite"
+                ],
+                "callers": [
+                  "apply.c:doapply selects a magic marker and calls write.c:dowrite; js/apply.js does the same through js/write.js:dowrite."
+                ],
+                "dependencies": [
+                  "js/do.js exports dropx and preflight_dropx for ordinary carried objects; verify the production marker and square against their source-backed admission rather than suppressing a refusal.",
+                  "js/objnam.js:Tobjnam and js/do_wear.js:fingers_or_gloves already implement the C message components.",
+                  "The selected whole dowrite function has other active writing branches; keep unverified source paths explicitly incomplete rather than claiming a branch-only fix as whole-source completion."
+                ]
+              },
+              "goalKind": "file-port",
+              "evidence": [
+                "Saved challenges/evaluations/20260927005209-v6.json at 12a35e71cf1d937cd08b75b196f3c8b54224f6cd matches 21/22 screens and cursors; first stop is segment 0 step 21: “dowrite requires dropx() for a Glib pen”.",
+                "The admitted C recording step 21, after applying a magic marker at step 20, prints “The magic marker slips from your fingers.--More--”. Earlier grease and quarterstaff slip steps 18-19 now match, so the previous do_wear.c:glibr diagnosis is superseded.",
+                "C nethack-c/upstream/src/write.c:74-95 implements the no-hands and Glib branches; the Glib branch prints the slip message, calls do.c:dropx with its void result discarded, and returns ECMD_TIME. js/write.js:dowrite at its Glib branch still throws UnsupportedWriteError before those effects."
+              ]
+            }
+          }
+        }
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "dowrite",
+            "implementation": "js/write.js",
+            "symbol": "dowrite",
+            "sourceReview": "Read and compared all of write.c:dowrite() lines 74-385, including no-hands then Glib guard order, paper selection and blindness guards, name normalization and both lookup loops, novel/Book-of-the-Dead/unknown-book arms, conduct and marker-charge accounting, knowledge and blindness RNG gates, destruction/fade behavior, and final hold_another_object result handling. The former UnsupportedWriteError Glib refusal is removed. The Glib branch now emits C's Tobjnam(pen, 'slip') / fingers_or_gloves(FALSE) message, calls the existing do.c:dropx ordinary grounded-floor path, and returns ECMD_TIME in C order. doapply supplies the already ported fingers_or_gloves helper and drop hooks without creating an import cycle. dropx() is void in C, so its result is discarded; this task does not claim whole do.c:dropx source completion or expand its non-ordinary-floor branches.",
+            "callers": [
+              {
+                "path": "js/apply.js",
+                "symbol": "doapply",
+                "source": "apply.c:doapply() MAGIC_MARKER arm at 4361-4362 calls dowrite(obj); js/apply.js dispatches the selected marker to js/write.js:dowrite and supplies the source helper operations."
+              },
+              {
+                "path": "js/cmd.js",
+                "symbol": "runApplyCommand",
+                "source": "cmd.c command table at 1677 maps the apply key 'a' to doapply(); js/cmd.js:runApplyCommand dispatches the production command to js/apply.js:doapply."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/dowrite-glib.test.mjs",
+              "scripts/write.test.mjs"
+            ],
+            "recordings": [
+              "recordings/write.c/glib-marker-slip-independent.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v6",
+                "caseId": "wizard-greasy-write-glib-final",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 21,
+                "source": "cmd.c apply key -> apply.c:doapply(MAGIC_MARKER) -> write.c:dowrite Glib branch -> do.c:dropx ordinary floor path"
+              }
+            ],
+            "checkedAt": "8b0b833213a40d0e36ca8a3fdc35a6bc9b37a779"
+          }
+        ],
+        "entryPointReview": "The only production C caller of write.c:dowrite() is apply.c:doapply()'s MAGIC_MARKER arm (4361-4362), reached by cmd.c's apply-key command-table entry (1677). JavaScript follows cmd.js:runApplyCommand -> apply.js:doapply -> write.js:dowrite. The selected active behavior is the Glib guard after nohands: it reports the pen slipping, drops it on ordinary grounded floor, and returns ECMD_TIME. The independent Wizard-mode recording and the admitted v6 case exercise the production path. The do.c:dropx() callback is the existing ordinary-floor implementation; B22 makes no claim for its other unsupported terrain/context branches.",
+        "entryPoints": [
+          {
+            "name": "Apply a magic marker while Glib",
+            "functions": [
+              "dowrite"
+            ],
+            "recordings": [
+              "recordings/write.c/glib-marker-slip-independent.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v6",
+                "caseId": "wizard-greasy-write-glib-final",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 21,
+                "source": "cmd.c apply key -> apply.c:doapply(MAGIC_MARKER) -> write.c:dowrite Glib branch -> do.c:dropx ordinary floor path"
+              }
+            ]
+          }
+        ]
+      },
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "8b0b833213a40d0e36ca8a3fdc35a6bc9b37a779",
+        "screens": 11405,
+        "rng": 792838
       }
     },
     {
@@ -91970,7 +92405,7 @@
     {
       "id": "port-potion-gain-level-synthetic-v7-20260926",
       "kind": "file-port",
-      "status": "queued",
+      "status": "closed",
       "summary": "Port gain-level potion effect across cursed, uncursed and blessed paths",
       "cFile": "potion.c",
       "sessions": [
@@ -91978,17 +92413,24 @@
       ],
       "selectionReason": "The admitted v7 potion-gain-level case still stops at segment 0 step 34 when the quaff command dispatches POT_GAIN_LEVEL to missing potion.c:peffect_gain_level. The source investigation remains current at one unmatched screen and identifies the complete function and consumed dependencies.",
       "detail": "Port the whole peffect_gain_level function and wire peffects. Match cursed upstairs travel, ordinary pluslvl(FALSE), blessed rndexp adjustment, gp.potion_unkn and return-valued Can_rise_up/get_level behavior; record independent C examples with different potion blessings and entry states or explicitly blocked branches.",
-      "openedAt": null,
-      "openStanding": null,
-      "closedAt": null,
-      "delivered": null,
+      "openedAt": "3822ec2bd8105ebfab96b9b4022f8ecf7dcdea61",
+      "openStanding": {
+        "sha": "3822ec2bd8105ebfab96b9b4022f8ecf7dcdea61",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "closedAt": "6ff81e0c85937f98189ac25d5847d8fecdab4f8f",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
       "functions": [
         {
           "name": "peffect_gain_level",
           "line": 1083,
           "endLine": 1118,
-          "declared": false,
-          "complete": false
+          "declared": true,
+          "complete": true
         }
       ],
       "range": {
@@ -92008,6 +92450,225 @@
           "evaluationPath": "challenges/evaluations/20260927005209-v7.json",
           "evaluationCommit": "12a35e71cf1d937cd08b75b196f3c8b54224f6cd"
         }
+      },
+      "activeStanding": {
+        "sha": "3822ec2bd8105ebfab96b9b4022f8ecf7dcdea61",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v7",
+          "caseId": "potion-gain-level",
+          "session": "synthetic/v7/potion-gain-level",
+          "manifestPath": "challenges/manifests/v7.json",
+          "manifestSha256": "03a861a9d1bc9d813c80681312ee7a0e0f893dbad0536de40a974bd5ec344094",
+          "recording": "challenges/cases/v7/potion-gain-level.session.json",
+          "recordingPath": "challenges/cases/v7/potion-gain-level.session.json",
+          "recordingSha256": "a4fc9853403ad27a0f5ea53a9ffe6f8fbf4b5b9adb87f29d08d011635c641374",
+          "recipe": "challenges/cases/v7/potion-gain-level.recipe.session.json",
+          "recipeSha256": "d27c513188557e7a7f9c07c4361d3c29aff0aa6d48d5c6beaad475525463c7b4",
+          "replayInputSha256": "732beb79ffc71fe48dec589fc4d2600ce7e0c7cbb348386e81b707f221bf8eda",
+          "evaluationPath": "challenges/evaluations/20260927023459-v7.json",
+          "evaluationCommit": "ad2cce2b4e37f1b53ac50d948678495ac7c15280",
+          "evaluationArtifact": "challenges/evaluations/20260927023459-v7.json",
+          "evaluationUtc": "2026-09-27T02:35:29.282Z",
+          "remainingScreens": 1,
+          "recordedSteps": 35,
+          "previousScreensMatched": 34,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 34,
+              "total": 35
+            },
+            "rng": {
+              "matched": 2523,
+              "total": 2537
+            },
+            "cursors": {
+              "matched": 34,
+              "total": 35
+            }
+          },
+          "firstMismatch": {
+            "kind": "stop",
+            "message": "unsupported hero command: an unported branch of this command: quaffing requires peffect_gain_level()",
+            "step": 34
+          },
+          "step": 34,
+          "kind": "stop",
+          "sourceFile": "potion.c",
+          "function": "peffect_gain_level",
+          "message": "unsupported hero command: an unported branch of this command: quaffing requires peffect_gain_level()",
+          "cFile": "potion.c",
+          "luaFile": null,
+          "line": null,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v7/potion-gain-level.json",
+            "result": {
+              "session": "synthetic/v7/potion-gain-level",
+              "corpus": "synthetic",
+              "batch": "v7",
+              "caseId": "potion-gain-level",
+              "manifestPath": "challenges/manifests/v7.json",
+              "manifestSha256": "03a861a9d1bc9d813c80681312ee7a0e0f893dbad0536de40a974bd5ec344094",
+              "recordingSha256": "a4fc9853403ad27a0f5ea53a9ffe6f8fbf4b5b9adb87f29d08d011635c641374",
+              "evaluationPath": "challenges/evaluations/20260926122253-v7.json",
+              "evaluationCommit": "f7e48bd93d6827c557c9a40a255a55cbc5fc8fcf",
+              "remainingScreens": 1,
+              "recordedSteps": 35,
+              "status": "complete",
+              "commit": "3543403d092a80dbeacd479a4fb0cb5c2d537413",
+              "mismatch": {
+                "corpus": "synthetic",
+                "batch": "v7",
+                "caseId": "potion-gain-level",
+                "session": "synthetic/v7/potion-gain-level",
+                "manifestPath": "challenges/manifests/v7.json",
+                "manifestSha256": "03a861a9d1bc9d813c80681312ee7a0e0f893dbad0536de40a974bd5ec344094",
+                "recording": "challenges/cases/v7/potion-gain-level.session.json",
+                "recordingPath": "challenges/cases/v7/potion-gain-level.session.json",
+                "recordingSha256": "a4fc9853403ad27a0f5ea53a9ffe6f8fbf4b5b9adb87f29d08d011635c641374",
+                "recipe": "challenges/cases/v7/potion-gain-level.recipe.session.json",
+                "recipeSha256": "d27c513188557e7a7f9c07c4361d3c29aff0aa6d48d5c6beaad475525463c7b4",
+                "replayInputSha256": "ba09b30aa45883696a6c2cbbe647b7a100c06ae9b741e0bcdf70fec164041447",
+                "evaluationPath": "challenges/evaluations/20260926122253-v7.json",
+                "evaluationCommit": "f7e48bd93d6827c557c9a40a255a55cbc5fc8fcf",
+                "evaluationArtifact": "challenges/evaluations/20260926122253-v7.json",
+                "evaluationUtc": "2026-09-26T12:23:06.868Z",
+                "remainingScreens": 1,
+                "recordedSteps": 35,
+                "previousScreensMatched": null,
+                "regression": false,
+                "passed": false,
+                "error": null,
+                "metrics": {
+                  "screens": {
+                    "matched": 34,
+                    "total": 35
+                  },
+                  "rng": {
+                    "matched": 2523,
+                    "total": 2537
+                  },
+                  "cursors": {
+                    "matched": 34,
+                    "total": 35
+                  }
+                },
+                "firstMismatch": {
+                  "kind": "stop",
+                  "message": "unsupported hero command: an unported branch of this command: quaffing requires peffect_gain_level()",
+                  "step": 34
+                },
+                "step": 34,
+                "kind": "stop",
+                "sourceFile": "potion.c",
+                "function": "peffect_gain_level",
+                "message": "unsupported hero command: an unported branch of this command: quaffing requires peffect_gain_level()",
+                "cFile": "potion.c",
+                "luaFile": null,
+                "line": null
+              },
+              "summary": "Quaffing an uncursed gain-level potion stops at the missing potion.c peffect_gain_level() dispatch. C invokes pluslvl(FALSE) and prints the new experience level; the whole function also handles cursed upstairs travel and blessed experience adjustment.",
+              "source": {
+                "file": "potion.c",
+                "branch": "A Healer wishes for an uncursed POT_GAIN_LEVEL and quaffs it. peffects() enters peffect_gain_level(); because it is not cursed, C calls pluslvl(FALSE), raising level and emitting the experience message.",
+                "functions": [
+                  "peffect_gain_level"
+                ],
+                "callers": [
+                  "potion.c peffects() POT_GAIN_LEVEL arm at 1393 calls peffect_gain_level(otmp).",
+                  "js/potion.js peffects() currently throws UnsupportedQuaffError at the matching POT_GAIN_LEVEL arm; cmd.c quaff dispatch reaches js/potion.js dopotion() then peffects()."
+                ],
+                "dependencies": [
+                  "The uncursed branch consumes exper.c pluslvl(FALSE), already implemented in js/exper.js; preserve its state, RNG, and messages.",
+                  "The whole peffect_gain_level() also uses return-valued Can_rise_up() and rndexp() on cursed/blessed paths, plus get_level() output through its newlevel argument; audit those consumed results and goto_level() wiring before source completion.",
+                  "Preserve gp.potion_unkn on cursed path and the u.uexp adjustment on blessed path."
+                ]
+              },
+              "goalKind": "file-port",
+              "evidence": [
+                "challenges/evaluations/20260926122253-v7.json at f7e48bd93d6827c557c9a40a255a55cbc5fc8fcf: synthetic/v7/potion-gain-level matches 34/35 screens, then stops at segment 0 step 34 with quaffing requires peffect_gain_level().",
+                "challenges/cases/v7/potion-gain-level.session.json: C step 34 after selecting potion o prints You feel more experienced. Welcome to experience level 2.",
+                "nethack-c/upstream/src/potion.c:1083-1113 defines the full cursed, ordinary, and blessed paths; potion.c:1393 dispatches this object type; js/potion.js:1196 refuses before the source effect."
+              ]
+            }
+          }
+        }
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "peffect_gain_level",
+            "implementation": "js/potion.js",
+            "symbol": "peffect_gain_level",
+            "sourceReview": "Read the whole potion.c:peffect_gain_level definition at lines 1083–1118. The cursed branch first records potion_unkn and computes whether the hero is on ledger level 1; D:1 requires the Amulet and copies earth_level, while other levels call Can_rise_up, compute depth(u.uz)-1, call get_level, and return after the same-level ‘It tasted bad.’ case. On a successful rise it prints the ceiling message before calling goto_level; the C call's result is discarded. If no rise is possible it prints ‘You have an uneasy feeling.’ and returns. The non-cursed branch calls pluslvl(FALSE), then only a blessed potion calls rndexp(TRUE) and assigns u.uexp. js/potion.js preserves these branches and their update/message/RNG order. Supporting dependency review: exper.c:pluslvl (307–375) adds monster-form HP first when Upolyd using makemon.c:monhp_per_lvl, routes that pair through attrib.c:setuhpmax(..., FALSE), then performs normal HP, energy, level/experience and intrinsic updates in source order; the existing JS helper now has the corresponding polymorph branch. attrib.c:setuhpmax (1157–1176) updates and clamps only the active HP pair; scripts/potion.test.mjs pins the polymorph pair behavior. exper.c:rndexp (378–402) remains after pluslvl only for blessed gain-level potions. The supporting eat.c:cpostfx PM_WRAITH arm (1141–1143) now always calls pluslvl(FALSE), as C does, so WRAITH while Upolyd also uses the same polymorph branch. The D:1 Amulet branch reaches the source call to goto_level, but strict replay stops in the separate do.c:goto_level endgame-arrival path; this task does not claim that broader source family, and the result discarded by peffect_gain_level does not make it a required return-valued callee.",
+            "callers": [
+              {
+                "path": "js/potion.js",
+                "symbol": "peffects",
+                "source": "potion.c:peffects dispatches the POT_GAIN_LEVEL case directly to peffect_gain_level(otmp) (1333–1425)."
+              },
+              {
+                "path": "js/potion.js",
+                "symbol": "dopotion",
+                "source": "potion.c:dopotion calls peffects(otmp) and then handles its result and potion consumption (618–641)."
+              },
+              {
+                "path": "js/potion.js",
+                "symbol": "dodrink",
+                "source": "potion.c:dodrink selects a potion and calls dopotion(otmp) (526–615)."
+              },
+              {
+                "path": "js/cmd.js",
+                "symbol": "runQuaffCommand",
+                "source": "cmd.c's 'q'/'quaff' command row invokes dodrink (1810); the JS quaff command handler dispatches to potion.js:dodrink."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/potion.test.mjs"
+            ],
+            "recordings": [
+              "recordings/potion.c/gain-level-ordinary-c23.session.json",
+              "recordings/potion.c/gain-level-blessed-c23.session.json",
+              "recordings/potion.c/gain-level-blessed-polymorphed-c23.session.json",
+              "recordings/potion.c/gain-level-cursed-first-level-c23.session.json",
+              "recordings/potion.c/gain-level-cursed-ascent-c23.session.json"
+            ],
+            "synthetic": [],
+            "checkedAt": "6ff81e0c85937f98189ac25d5847d8fecdab4f8f"
+          }
+        ],
+        "entryPointReview": "The live potion entry point is cmd.c's q/quaff row -> potion.c:dodrink -> dopotion -> peffects(POT_GAIN_LEVEL) -> peffect_gain_level; JS follows cmd.js:runQuaffCommand -> potion.js:dodrink -> dopotion -> peffects. Matching independent C recordings cover the uncursed/unblessed D:1 path, blessed D:1 (including rndexp after pluslvl), blessed D:1 while polymorphed (monster HP before normal HP), cursed D:1 without the Amulet, and a cursed D:2 one-level ascent. The separate eat.c path is done_eating -> cpostfx(PM_WRAITH) -> pluslvl(FALSE); recordings/eat.c/cpostfx-wraith-pluslvl-c23.session.json covers normal-form WRAITH and recordings/eat.c/cpostfx-wraith-polymorph-pluslvl-c23.session.json covers Upolyd WRAITH, verifying the supporting caller and polymorph HP path. The D:1 Amulet-to-Earth recipe remains at recipes/potion.c/gain-level-cursed-amulet-earth-c23.session.json without a committed recording: C prints the rise message and enters the Earth transition, but strict C/JS replay first diverges later in do.c:goto_level endgame arrival (run-rQ87zu, missing C rn2(3) at segment 1 step 52 and one later C screen). Keep that branch as an explicit downstream blocker; the potion function's goto_level result is discarded, so no return-value dependency was skipped.",
+        "entryPoints": [
+          {
+            "name": "cmd.c q/quaff -> potion.c:peffect_gain_level",
+            "functions": [
+              "peffect_gain_level"
+            ],
+            "recordings": [
+              "recordings/potion.c/gain-level-ordinary-c23.session.json",
+              "recordings/potion.c/gain-level-blessed-c23.session.json",
+              "recordings/potion.c/gain-level-blessed-polymorphed-c23.session.json",
+              "recordings/potion.c/gain-level-cursed-first-level-c23.session.json",
+              "recordings/potion.c/gain-level-cursed-ascent-c23.session.json"
+            ],
+            "synthetic": []
+          }
+        ]
+      },
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "6ff81e0c85937f98189ac25d5847d8fecdab4f8f",
+        "screens": 11405,
+        "rng": 792838
       }
     }
   ]
