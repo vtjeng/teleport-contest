@@ -63,7 +63,7 @@
     "luaFile": null,
     "line": null
   },
-  "summary": "Applying a towel with clean hands and face reaches apply.c:use_towel, which prints the clean-state message and returns ECMD_OK. JavaScript doapply has no TOWEL arm and refuses before the C result. Port the complete source function across free-hand, worn, cursed, slimy, creamed, and clean-state branches; preserve the source-owned towel-drying void gap where the helper is not yet ported.",
+  "summary": "The selected clean-face towel path now matches C through the last recorded step after apply.c:use_towel and its doapply dispatch were ported. Independent cursed-glib and cream-cleanup recordings also match. Whole-source completion remains parked pending a matching swallowed path for mhitu.c:gulp_blnd_check's true return and wet-towel drying behavior in apply.c:dry_a_towel.",
   "source": {
     "file": "apply.c",
     "branch": "doapply selects TOWEL and calls use_towel. The recorded clean-state path passes freehand and worn/cursed checks, then sees neither Glib nor u.ucreamed and prints \"Your face and hands are already clean.\" without consuming a turn. Other branches mutate blindness, glibness, towel wetness, or worn face covering.",
@@ -84,6 +84,7 @@
     "Current saved challenges/evaluations/20260927142534-v8.json leaves 1 of 11 screens unmatched. A fresh scan at f2d05fac73e9e9f9294c78d98ac3508ee1b846ba stops at segment 0 step 10 when JS doapply refuses object type 234, whereas C prints the clean-state result.",
     "Independent C recording challenges/cases/v8/towel-clean-face.session.json shows step 10 after applying the wished towel: \"Your face and hands are already clean.\" with no use_towel RNG call and no new turn.",
     "Upstream nethack-c/upstream/src/apply.c:use_towel around lines 112-194 owns every towel branch and its ECMD return. C doapply calls it at line 4356; js/apply.js doapply has no TOWEL arm.",
-    "This is a complete use_towel port task rather than a message inserted for the recorded clean towel; source branches for cursed, wet, worn, glib, and creamed towels remain in scope."
+    "This is a complete use_towel port task rather than a message inserted for the recorded clean towel; source branches for cursed, wet, worn, glib, and creamed towels remain in scope.",
+    "At eaaa1f72, the saved 20260927174037-v8 evaluation matches all 11 towel-clean-face screens and cursors with all 2675 RNG calls. Separate C recordings for cursed-glib and cream-cleanup towel use pass the full checkpoint. A swallowed true-return recording remains blocked by mhitu.c:gulpmu blinding before the next towel command; dry_a_towel remains an explicit discarded-result gap."
   ]
 }
