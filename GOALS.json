@@ -98520,6 +98520,49 @@
           "evaluationCommit": "5b4486322ffa5eeb91cc37d01083ff20bbfe2ea7"
         }
       }
+    },
+    {
+      "id": "port-potion-peffect-gain-ability-synthetic-v9-20260927",
+      "kind": "file-port",
+      "status": "queued",
+      "summary": "Port the complete gain-ability potion effect through quaff dispatch",
+      "cFile": "potion.c",
+      "sessions": [
+        "synthetic/v9/blessed-gain-ability-potion"
+      ],
+      "selectionReason": "Continue the source-traced v9 gain-ability mismatch: the blessed potion stops at potion.c:peffect_gain_ability after 35 matched screens. Port the whole effect and wire its peffects caller; attrib.c:adjattrib return controls the unblessed retry loop.",
+      "detail": "The complete investigation traces cursed, Fixed_abil, blessed sequential-all-attributes, and unblessed random-retry branches. Preserve potion status counters and pass the attribute helper message, RNG, and encumbrance environment.",
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": null,
+      "delivered": null,
+      "functions": [
+        {
+          "name": "peffect_gain_ability",
+          "line": 1030,
+          "endLine": 1051,
+          "declared": false,
+          "complete": false
+        }
+      ],
+      "range": {
+        "from": 1030,
+        "to": 1051
+      },
+      "syntheticProvenance": {
+        "synthetic/v9/blessed-gain-ability-potion": {
+          "session": "synthetic/v9/blessed-gain-ability-potion",
+          "corpus": "synthetic",
+          "batch": "v9",
+          "caseId": "blessed-gain-ability-potion",
+          "manifestPath": "challenges/manifests/v9.json",
+          "manifestSha256": "00c148aac522e6343c8de0bd003db29771439f972a99cb18c772ebf2bc45a594",
+          "recordingPath": "challenges/cases/v9/blessed-gain-ability-potion.session.json",
+          "recordingSha256": "11d8bb37824e602a8ac346f034f0303419ebb66d53d7d57e7870c9f2961d92a6",
+          "evaluationPath": "challenges/evaluations/20260927191056-v9.json",
+          "evaluationCommit": "5b4486322ffa5eeb91cc37d01083ff20bbfe2ea7"
+        }
+      }
     }
   ]
 }
