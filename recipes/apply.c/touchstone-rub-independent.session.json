@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 90270927,
+      "datetime": "20260927121500",
+      "nethackrc": "OPTIONS=name:B29StoneRub,role:Wizard,race:human,gender:male,align:neutral,playmode:debug,!legacy,!tutorial,!splash_screen,showexp,time,pettype:none,!acoustics,!autopickup\n",
+      "comment": "Independent apply.c:dorub -> use_stone recording. Wish for a blessed touchstone and an uncursed ruby, then select both through #rub to exercise the separate production caller and blessed gem-identification branch.",
+      "moves": " \u0017blessed touchstone\n \u0017uncursed ruby\n#rub\nop"
+    }
+  ]
+}
