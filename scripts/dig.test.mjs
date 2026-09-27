@@ -38,6 +38,8 @@ import {
     FLYING,
     FORCETRAP,
     FOUNTAIN,
+    COULD_SEE,
+    IN_SIGHT,
     IRONBARS,
     MAGIC_PORTAL,
     IS_WALL,
@@ -844,6 +846,39 @@ test('dig triggers a set trap with the C FORCETRAP flag', () => {
     assert.match(cHeader, /#define\s+FORCETRAP\s+0x01U\b/u);
     assert.match(jsSource, /await dotrap\(trap,\s*FORCETRAP,\s*state\);/u);
     assert.equal(FORCETRAP, 0x01);
+});
+
+test('digging into a pit schedules the flattened vision recalculation', async () => {
+    const cSource = readFileSync('nethack-c/upstream/src/dig.c', 'utf8');
+    const mainSource = readFileSync('js/allmain.js', 'utf8');
+    assert.match(
+        cSource,
+        /set_utrap\(rn1\(4, 2\), TT_PIT\);\s*gv\.vision_full_recalc = 1;/u,
+    );
+    assert.match(mainSource, /if \(g\.vision_full_recalc\) vision_recalc\(0\);/u);
+
+    const recipe = JSON.parse(readFileSync(
+        'recipes/vision.c/pit-sight-archeologist-independent-a19.session.json',
+        'utf8',
+    ));
+    await runSegment(recipe.segments[0]);
+
+    const { ux, uy, utrap, utraptype } = game.u;
+    assert.equal(utraptype, TT_PIT);
+    assert.ok(utrap > 0);
+    assert.equal(game.vision_full_recalc, 0,
+        'allmain consumed the pit recalculation request');
+    assert.equal(game.gv.vision_full_recalc, undefined,
+        'the C gv flag is represented by the flattened JS state field');
+
+    for (let y = uy - 1; y <= uy + 1; ++y) {
+        for (let x = ux - 1; x <= ux + 1; ++x) {
+            assert.equal(game.viz_array[y][x] & (IN_SIGHT | COULD_SEE),
+                IN_SIGHT | COULD_SEE);
+        }
+    }
+    assert.equal(game.viz_array[uy + 2][ux + 1] & COULD_SEE, 0,
+        'the recalculated pit view excludes the next row');
 });
 
 // C ref: dig.c is_digging() (195-201). C compares the occupation pointer with

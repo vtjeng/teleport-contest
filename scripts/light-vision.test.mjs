@@ -28,6 +28,7 @@ import {
     SEE_INVIS,
     SVALL,
     TEMP_LIT,
+    TT_PIT,
     WATER,
 } from '../js/const.js';
 import { GameMap } from '../js/game.js';
@@ -155,6 +156,71 @@ test('vision_recalc marks the hero square seen from every direction', () => {
     vision_recalc(0);
 
     assert.equal(heroLocation.seenv, SVALL);
+});
+
+test('vision_recalc limits pit sight to the adjacent 3-by-3 area', () => {
+    const state = darkRoomState();
+    state.u.utrap = 2;
+    state.u.utraptype = TT_PIT;
+
+    vision_reset();
+    vision_recalc(0);
+
+    for (let y = state.u.uy - 1; y <= state.u.uy + 1; ++y) {
+        for (let x = state.u.ux - 1; x <= state.u.ux + 1; ++x) {
+            assert.equal(couldsee(x, y, state), true, `${x},${y} could-see`);
+            assert.equal(cansee(x, y, state), true, `${x},${y} in-sight`);
+        }
+    }
+    assert.equal(couldsee(state.u.ux + 2, state.u.uy, state), false);
+    assert.equal(cansee(state.u.ux + 2, state.u.uy, state), false);
+});
+
+test('pit sight leaves Blind, Rogue-level, and underwater paths in precedence', () => {
+    const cases = [
+        ['Blind', (state) => {
+            state.u.uprops = { [BLINDED]: { intrinsic: true } };
+        }],
+        ['Rogue level', (state) => {
+            state.u.uz = { dnum: 0, dlevel: 1 };
+            state.rogue_level = { ...state.u.uz };
+        }],
+        ['underwater away from the water level', (state) => {
+            state.u.uz = { dnum: 0, dlevel: 1 };
+            state.u.uinwater = true;
+            state.water_level = { dnum: 0, dlevel: 2 };
+        }],
+    ];
+
+    for (const [name, setPrecedence] of cases) {
+        const state = darkRoomState();
+        state.u.utrap = 2;
+        state.u.utraptype = TT_PIT;
+        setPrecedence(state);
+
+        vision_reset();
+        vision_recalc(0);
+
+        assert.equal(
+            couldsee(state.u.ux + 4, state.u.uy, state),
+            true,
+            `${name} keeps its preexisting view_from path`,
+        );
+        if (name === 'Blind')
+            assert.equal(cansee(state.u.ux + 4, state.u.uy, state), false);
+    }
+
+    // C checks underwater vision before pit vision, except on the water level.
+    // On that level the pit arm remains reachable.
+    const waterLevel = darkRoomState();
+    waterLevel.u.utrap = 2;
+    waterLevel.u.utraptype = TT_PIT;
+    waterLevel.u.uz = { dnum: 0, dlevel: 2 };
+    waterLevel.u.uinwater = true;
+    waterLevel.water_level = { ...waterLevel.u.uz };
+    vision_reset();
+    vision_recalc(0);
+    assert.equal(couldsee(waterLevel.u.ux + 2, waterLevel.u.uy, waterLevel), false);
 });
 
 // vision_recalc()'s env names three of the things C reads through globals. A
