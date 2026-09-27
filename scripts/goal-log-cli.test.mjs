@@ -453,6 +453,41 @@ test('a queued synthetic goal can open after its selected case is resolved', t =
     assert.equal(f.goals()[0].syntheticProvenance[session].session, session);
 });
 
+test('a queued source goal can open when its first mismatch moved to later behavior', t => {
+    const f = fixture(t);
+    const { session, queue } = syntheticQueue(f);
+    f.cli('queue-goal', '--id', 'advanced-port', '--kind', 'file-port',
+        '--c-file', 'widget.c', '--sessions', session,
+        '--summary', 'Port the selected source behavior');
+    const entry = queue.sessions[0];
+    entry.investigation = { status: 'stale' };
+    entry.sourceFile = entry.cFile = 'later.c';
+    entry.previousScreensMatched = 6;
+    entry.metrics = { screens: { matched: 7, total: 10 } };
+    queue.candidates[0] = { ...entry, sessions: [session] };
+    f.json('.cache/queue.json', queue);
+    f.cli('open-goal', '--id', 'advanced-port');
+    assert.equal(f.goals()[0].status, 'open');
+});
+
+test('a stale unresolved source case needs measured progress and stable recording identity', t => {
+    const f = fixture(t);
+    const { session, queue } = syntheticQueue(f);
+    f.cli('queue-goal', '--id', 'unadvanced-port', '--kind', 'file-port',
+        '--c-file', 'widget.c', '--sessions', session,
+        '--summary', 'Port the selected source behavior');
+    const entry = queue.sessions[0];
+    entry.investigation = { status: 'stale' };
+    entry.previousScreensMatched = 6;
+    entry.metrics = { screens: { matched: 6, total: 10 } };
+    f.json('.cache/queue.json', queue);
+    f.refuses(/investigation is stale/u, 'open-goal', '--id', 'unadvanced-port');
+    entry.metrics.screens.matched = 7;
+    entry.recordingSha256 = '4'.repeat(64);
+    f.json('.cache/queue.json', queue);
+    f.refuses(/investigation is stale/u, 'open-goal', '--id', 'unadvanced-port');
+});
+
 test('a parked synthetic goal can resume after its selected case is resolved', t => {
     const f = fixture(t);
     const { session, queue } = syntheticQueue(f);

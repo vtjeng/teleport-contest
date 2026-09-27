@@ -777,9 +777,22 @@ async function checkSelection(goal, scan, { allowQueuedSynthetic = false } = {})
             const entry = queue.sessions.find(item => item.session === session
                 && item.corpus === 'synthetic');
             if (entry) {
-                // Resolved cases retain their recorded provenance; unresolved
-                // related cases still need a current trace before handoff.
-                assertGoalSelection(queue, { ...goal, session, sessions: [session] });
+                // A source port can fix the selected first mismatch while the
+                // same recording still differs later. The earlier complete
+                // investigation then becomes stale, but the queued source
+                // selection and recording identity remain valid. Entry-point
+                // evidence must still verify the repaired prefix separately.
+                const provenance = goal.syntheticProvenance?.[session];
+                const advanced = isSourcePort(goal)
+                    && entry.investigation?.status === 'stale'
+                    && entry.regression !== true
+                    && !queue.sessions.some(item => item.regression)
+                    && entry.manifestSha256 === provenance?.manifestSha256
+                    && entry.recordingSha256 === provenance?.recordingSha256
+                    && Number.isInteger(entry.previousScreensMatched)
+                    && entry.metrics?.screens?.matched > entry.previousScreensMatched;
+                if (!advanced)
+                    assertGoalSelection(queue, { ...goal, session, sessions: [session] });
             } else if (goal.syntheticProvenance?.[session]?.session !== session) {
                 throw new Error(`synthetic session has no recorded provenance: ${session}`);
             }
