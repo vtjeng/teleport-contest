@@ -95774,6 +95774,49 @@
           "evaluationCommit": "358dd6ad1294374a96a704a7f5a9b46c0ddc4a47"
         }
       }
+    },
+    {
+      "id": "port-potion-peffect-monster-detection-synthetic-v7-20260927",
+      "kind": "file-port",
+      "status": "queued",
+      "summary": "Port complete potion.c peffect_monster_detection for potion and spell callers",
+      "cFile": "potion.c",
+      "sessions": [
+        "synthetic/v7/monster-detection-potion-select2"
+      ],
+      "selectionReason": "Selected the sole unresolved v7 case synthetic/v7/monster-detection-potion-select2 from investigations/synthetic/v7/monster-detection-potion-select2.json and evaluation 20260927111723-v7.json: C reaches potion.c:peffect_monster_detection after quaffing an uncursed potion with a live monster, while JS still refuses this source path after 52 matching screens. The current C return-valued detect.c:monster_detect path is already ported for this state; this goal covers the complete potion.c function and both potion and spell entry points.",
+      "detail": "Implement the blessed intrinsic-duration and monster-map branches, swallowed or underwater fallthrough, consumed monster_detect return, exercise, and caller return handling in C order. Preserve gp potion flags and all source RNG. Add independent C evidence for active branches and leave downstream void source gaps named where not yet ported.",
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": null,
+      "delivered": null,
+      "functions": [
+        {
+          "name": "peffect_monster_detection",
+          "line": 914,
+          "endLine": 954,
+          "declared": false,
+          "complete": false
+        }
+      ],
+      "range": {
+        "from": 914,
+        "to": 954
+      },
+      "syntheticProvenance": {
+        "synthetic/v7/monster-detection-potion-select2": {
+          "session": "synthetic/v7/monster-detection-potion-select2",
+          "corpus": "synthetic",
+          "batch": "v7",
+          "caseId": "monster-detection-potion-select2",
+          "manifestPath": "challenges/manifests/v7.json",
+          "manifestSha256": "03a861a9d1bc9d813c80681312ee7a0e0f893dbad0536de40a974bd5ec344094",
+          "recordingPath": "challenges/cases/v7/monster-detection-potion-select2.session.json",
+          "recordingSha256": "77c4b7716462754c10c93173b85b750e21ad92fc9fa323d5f6b4b8c0d0278dd0",
+          "evaluationPath": "challenges/evaluations/20260927111723-v7.json",
+          "evaluationCommit": "358dd6ad1294374a96a704a7f5a9b46c0ddc4a47"
+        }
+      }
     }
   ]
 }
