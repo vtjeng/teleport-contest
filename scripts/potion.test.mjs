@@ -20,7 +20,7 @@ import {
     HALLUC_RES, INVIS, LEVITATION, NOT_HUNGRY, POTHIT_HERO_THROW,
     POTHIT_MONST_THROW, SEE_INVIS,
     SATIATED, SLEEP_RES, WEAK,
-    KILLED_BY, STONED, TELEPAT, TIMEOUT, WOUNDED_LEGS, W_RINGL,
+    KILLED_BY, STONED, TELEPAT, TIMEOUT, UNCHANGING, WOUNDED_LEGS, W_RINGL,
 } from '../js/const.js';
 import { find_delayed_killer } from '../js/end.js';
 import { trycall } from '../js/do.js';
@@ -31,6 +31,7 @@ import { runSegment } from '../js/jsmain.js';
 import { discover_object } from '../js/o_init.js';
 import { planningState } from '../js/unported_monster_actions.js';
 import { mksobj } from '../js/obj.js';
+import { dist2 } from '../js/hacklib.js';
 import {
     POT_ACID,
     POT_BLINDNESS,
@@ -1265,6 +1266,134 @@ test('potionhit applies the monster blindness branch in source order', async () 
     assert.equal(monster.mblinded, 95);
     assert.equal(monster.mcansee, false);
 });
+
+test('potionhit preserves the C polymorph message and squared vapor distance',
+    () => {
+    const source = potionSource();
+    const signature = source.indexOf('potionhit(struct monst *mon, struct obj *obj, int how)');
+    const end = source.indexOf('\n}\n\n/* vapors are inhaled', signature);
+    assert.ok(signature > 0 && end > signature);
+    const body = source.slice(signature, end).replace(/\s+/gu, ' ');
+    assert.match(body,
+        /case POT_POLYMORPH: You_feel\("a little %s\.", Hallucination \? "normal" : "strange"\); if \(!Unchanging && !Antimagic\) polyself\(POLY_NOFLAGS\);/u);
+    assert.match(body, /distance = distu\(tx, ty\);/u);
+
+    const hack = readFileSync(
+        new URL('../nethack-c/upstream/include/hack.h', import.meta.url),
+        'utf8',
+    );
+    assert.match(hack,
+        /#define distu\(xx, yy\) dist2\(\(coordxy\) \(xx\), \(coordxy\) \(yy\), u\.ux, u\.uy\)/u);
+    const hacklib = readFileSync(
+        new URL('../nethack-c/upstream/src/hacklib.c', import.meta.url),
+        'utf8',
+    );
+    const distSignature = hacklib.indexOf('dist2(coordxy x0, coordxy y0, coordxy x1, coordxy y1)');
+    const distEnd = hacklib.indexOf('\n}\n\n/* integer square root', distSignature);
+    assert.ok(distSignature > 0 && distEnd > distSignature);
+    assert.match(hacklib.slice(distSignature, distEnd),
+        /return dx \* dx \+ dy \* dy;/u);
+    assert.equal(dist2(12, 9, 10, 8), 5,
+        'dist2 keeps diagonal distance squared rather than Chebyshev distance');
+
+    const js = readFileSync(new URL('../js/potion.js', import.meta.url), 'utf8');
+    const jsSignature = js.indexOf('export async function potionhit(');
+    const jsEnd = js.indexOf('\n}\n\n// C ref: potion.c potionbreathe', jsSignature);
+    assert.ok(jsSignature > 0 && jsEnd > jsSignature);
+    const jsBody = js.slice(jsSignature, jsEnd);
+    assert.match(jsBody,
+        /distance = isyou \? 0 : dist2\(\s*mon\.mx, mon\.my, state\.u\.ux, state\.u\.uy,/u);
+    assert.match(jsBody,
+        /case POT_POLYMORPH:\s*await message\([\s\S]*?Hallucination\(state\)[\s\S]*?if \(!\(state\.u\.uprops\[UNCHANGING\]/u);
+});
+
+test('potionhit reports its source message before Unchanging suppresses polymorph',
+    async () => {
+        await startedGame(771028, 'PotionHeroPolymorphUnchanging');
+        game.u.uprops[UNCHANGING].intrinsic = FROMOUTSIDE;
+        discover_object(POT_POLYMORPH, true, true, false, game);
+        clearTopline();
+        game.u.uhp = 20;
+        game.u.uhpmax = 20;
+        const beforeForm = game.youmonst.data;
+        const messages = [];
+
+        await potionhit(game.youmonst, vaporPotion(POT_POLYMORPH),
+            POTHIT_MONST_THROW, {
+                state: game,
+                random: {
+                    rn2: () => 1,
+                    rnd: () => 1,
+                },
+                message: async (text) => { messages.push(text); },
+                encumberMessage: async () => {},
+            });
+
+        assert.equal(game.youmonst.data, beforeForm,
+            'C still refuses polyself when Unchanging is active');
+        assert.deepEqual(messages, [
+            'The phial crashes on your head and breaks into shards.',
+            'The potion of polymorph evaporates.',
+            'You feel a little strange.',
+        ]);
+    });
+
+test('potionhit uses distu squared range before deciding whether vapors reach the hero',
+    async () => {
+        await startedGame(771029, 'PotionSquaredVaporRange');
+        discover_object(POT_FRUIT_JUICE, true, true, false, game);
+        const monster = {
+            data: game.mons[PM_GRID_BUG],
+            mx: game.u.ux + 2,
+            my: game.u.uy + 1,
+            mhp: 5,
+            mhpmax: 5,
+            mblinded: 0,
+            mcansee: true,
+            mcanmove: true,
+            misc_worn_check: 0,
+            m_lev: 1,
+            msleeping: false,
+        };
+        const draws = [];
+        const obj = vaporPotion(POT_FRUIT_JUICE);
+        await potionhit(monster, obj, POTHIT_HERO_THROW, {
+            state: game,
+            random: {
+                rn2: (bound) => { draws.push(bound); return 1; },
+            },
+            message: async () => {},
+        });
+
+        assert.equal(dist2(monster.mx, monster.my, game.u.ux, game.u.uy), 5);
+        assert.equal(monster.mhp, 4);
+        assert.deepEqual(draws, [7, 5],
+            'no nearby-vapor rn2 is drawn for C distu() distance 5');
+    });
+
+test('potionhit skips an unported void vapor arm and continues through obfree',
+    async () => {
+        await startedGame(771030, 'PotionUnsupportedVaporTail');
+        clearTopline();
+        const obj = vaporPotion(POT_SICKNESS);
+        obj.unpaid = 1;
+        const freed = [];
+        await potionhit(game.youmonst, obj, POTHIT_MONST_THROW, {
+            state: game,
+            random: { rn2: () => 1, rnd: () => 1 },
+            message: async () => {},
+            hooks: {
+                obfreeShopBill: (freedObject) => {
+                    freed.push(freedObject);
+                    return 'unbilled';
+                },
+            },
+        });
+
+        assert.ok(game.unported.has('potion.c potionbreathe'));
+        assert.deepEqual(freed, [obj],
+            'the caller reaches its shop/object-release tail after skipping the void gap');
+    });
 
 test('the unlabelled types reach the naming tail and nothing else', async () => {
     await startedGame(771002, 'VaporNoop');
