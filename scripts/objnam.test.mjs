@@ -75,6 +75,7 @@ import {
     suit_simple_name,
     UnsupportedObjectNameError,
     donameFresh,
+    erosion_matters,
     vtense,
     xnameFresh,
     yname,
@@ -1655,6 +1656,20 @@ test('BUC, poison, erosion, and enchantment prefixes retain source order', () =>
         donameFresh(damaged, state),
         'a poisoned rusty corroded +2 dart',
     );
+});
+
+test('objnam.c erosion_matters recognizes source object classes', () => {
+    const state = namingState();
+
+    // objnam.c:1197-1215 returns true for weapons, armor, balls and chains;
+    // tools depend on is_weptool(), while every other class is false.
+    assert.equal(erosion_matters(objectOf(state, DART), state), true);
+    assert.equal(erosion_matters(objectOf(state, ELVEN_LEATHER_HELM), state), true);
+    assert.equal(erosion_matters(objectOf(state, HEAVY_IRON_BALL), state), true);
+    assert.equal(erosion_matters(objectOf(state, IRON_CHAIN), state), true);
+    assert.equal(erosion_matters(objectOf(state, AKLYS), state), true);
+    assert.equal(erosion_matters(objectOf(state, BLINDFOLD), state), false);
+    assert.equal(erosion_matters(objectOf(state, POT_HEALING), state), false);
 });
 
 // obj.h is_poisonable() (264-268) admits an object on either of two terms, and

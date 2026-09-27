@@ -29,6 +29,7 @@ import {
     ECMD_TIME,
     FEMALE,
     CORR,
+    COST_DEGRD,
     PLNMSG_TOWER_OF_FLAME,
     GETOBJ_DOWNPLAY,
     GETOBJ_EXCLUDE,
@@ -67,6 +68,7 @@ import {
     u_at,
     LL_CONDUCT,
     MAX_ERODE,
+    OBJ_FREE,
 } from './const.js';
 import {
     NON_PM,
@@ -150,13 +152,14 @@ import {
 import { makemon_runtime, newcham } from './makemon_create.js';
 import { mkclass, rndmonst, set_malign } from './makemon.js';
 import { monster_census } from './minion.js';
-import { Monnam, hliquid, mon_nam } from './do_name.js';
+import { Monnam, hcolor, hliquid, mon_nam } from './do_name.js';
 import {
     flash_mon, setmangry, wake_nearto, wakeup,
 } from './mon.js';
 import { MAXMCLASSES, S_goodpos } from './symbols.js';
 import {
     ALCHEMY_SMOCK,
+    ARMOR_CLASS,
     BALL_CLASS,
     BOULDER,
     BRASS_LANTERN,
@@ -213,13 +216,13 @@ import {
     SPE_REMOVE_CURSE,
     SPBOOK_CLASS,
     T_SHIRT,
-    WEAPON_CLASS,
 } from './objects.js';
 import {
     bcsign,
     greatest_erosion,
     is_flammable,
     is_weptool,
+    costly_alteration,
     mkobj,
     mksobj,
     objectType,
@@ -276,7 +279,9 @@ import {
     Yname2,
     donameFresh,
     The,
+    erosion_matters,
     vtense,
+    Yobjnam2,
     xnameFresh,
 } from './objnam.js';
 import { shk_your } from './shk.js';
@@ -1725,18 +1730,7 @@ export async function seffects(scroll, state = game) {
         note_unported('read.c seffect_create_monster');
         break;
     case SCR_ENCHANT_WEAPON:
-        if (!scroll.blessed && !scroll.cursed && !confused
-            && !propertyActive(BLINDED, state)
-            && !propertyActive(HALLUC, state) && state.uwep
-            && (state.uwep.oclass === WEAPON_CLASS
-                || is_weptool(state.uwep, state))
-            && !state.uwep.oartifact && !state.uwep.oeroded
-            && !state.uwep.oeroded2 && state.uwep.spe <= 5
-            && can_chant(state.youmonst, state)) {
-            await seffect_enchant_weapon(scroll, state);
-        } else {
-            note_unported('read.c seffect_enchant_weapon');
-        }
+        if (await seffect_enchant_weapon(scroll, state)) scroll = null;
         break;
     case SCR_TAMING:
     case SPE_CHARM_MONSTER:
@@ -1811,30 +1805,74 @@ export async function seffects(scroll, state = game) {
     return scroll ? 0 : 1;
 }
 
-// C ref: read.c seffect_enchant_weapon() (1627-1676), restricted to the
-// ordinary uncursed positive branch. The source chooses `s = 1` below its
-// soft upper limit, passes that value to wield.c chwepon(), and leaves the
-// scroll for doread() to consume after the effect returns.
+// C ref: read.c seffect_enchant_weapon() (1627-1676). Return whether its
+// `struct obj **` output cleared the scroll pointer; seffects() uses that to
+// preserve the source's strange_feeling()/useup() contract.
 export async function seffect_enchant_weapon(scroll, state = game) {
+    const sobj = scroll;
+    const sblessed = Boolean(sobj.blessed);
+    const scursed = Boolean(sobj.cursed);
+    const confused = propertyActive(CONFUSION, state);
     const uwep = state.uwep;
-    if (scroll.otyp !== SCR_ENCHANT_WEAPON
-        || scroll.oclass !== SCROLL_CLASS
-        || scroll.blessed || scroll.cursed
-        || propertyActive(CONFUSION, state)
-        || propertyActive(BLINDED, state)
-        || propertyActive(HALLUC, state)
-        || !uwep
-        || (uwep.oclass !== WEAPON_CLASS && !is_weptool(uwep, state))
-        || uwep.oartifact || uwep.oeroded || uwep.oeroded2
-        || uwep.spe > 5
-        || !can_chant(state.youmonst, state)) {
-        throw new UnsupportedReadError(
-            'the selected ordinary enchant-weapon branch',
-        );
+
+    // Confusion turns a weapon enchantment into the source rustproofing
+    // operation, except for armor and objects objnam.c says do not erode.
+    if (confused && uwep && erosion_matters(uwep, state)
+        && uwep.oclass !== ARMOR_CLASS) {
+        const oldErodeproof = Boolean(uwep.oerodeproof);
+        const newErodeproof = !scursed;
+        const blind = propertyActive(BLINDED, state);
+        uwep.oerodeproof = 0;
+        if (blind) {
+            uwep.rknown = false;
+            await ttyPline('Your weapon feels warm for a moment.', state);
+        } else {
+            uwep.rknown = true;
+            await ttyPline(
+                `${Yobjnam2(uwep, 'are', state)} covered by a ${scursed ? 'mottled' : 'shimmering'} `
+                + `${hcolor(scursed ? 'purple' : 'golden', state)} ${scursed ? 'glow' : 'shield'}!`,
+                state,
+            );
+        }
+        if (newErodeproof && (uwep.oeroded || uwep.oeroded2)) {
+            uwep.oeroded = 0;
+            uwep.oeroded2 = 0;
+            await ttyPline(
+                `${Yobjnam2(uwep, blind ? 'feel' : 'look', state)} as good as new!`,
+                state,
+            );
+        }
+        if (oldErodeproof && !newErodeproof) {
+            // C restores the old flag before asking the shop subsystem to
+            // price the change, then applies the new false value below.
+            uwep.oerodeproof = 1;
+            sourceCostlyAlteration(uwep, COST_DEGRD, state);
+        }
+        uwep.oerodeproof = newErodeproof ? 1 : 0;
+        return false;
     }
-    await chwepon(scroll, 1, state);
+
+    // C evaluates the ternary in this order; in particular, the high-skill
+    // chance precedes the blessed amount and must draw rn2(spe) first.
+    const s = scursed ? -1
+        : !uwep ? 1
+            : uwep.spe >= 9 ? (rn2(uwep.spe) === 0 ? 1 : 0)
+                : sblessed ? rnd(3 - Math.trunc(uwep.spe / 3))
+                    : 1;
+    const consumed = !(await chwepon(sobj, s, state));
     if (state.uwep && Math.abs(state.uwep.spe) > SPE_LIM)
         state.uwep.spe = Math.sign(state.uwep.spe) * SPE_LIM;
+    return consumed;
+}
+
+// C ref: shk.c costly_alteration() is a void call here. Its JS port only owns
+// the source fast path for free/inventory objects without an unpaid bill.
+function sourceCostlyAlteration(obj, alterType, state) {
+    if ((obj.where === OBJ_FREE || obj.where === OBJ_INVENT) && !obj.unpaid) {
+        costly_alteration(obj, alterType, { state });
+    } else {
+        note_unported('shk.c costly_alteration');
+    }
 }
 
 // C ref: read.c cant_revive() (3111-3134).

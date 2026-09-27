@@ -161,7 +161,13 @@ import { youHear, youSee } from './monmove.js';
 // shrink_glob() and maybe_adjust_light() use naming functions from objnam.js.
 // objnam.js imports from this file; both sides use the other's exports only
 // inside function bodies.
-import { The, Yname2, aobjnam, donameFresh, obj_typename, otense, vtense } from './objnam.js';
+// objnam.c owns erosion_matters(); this adapter preserves the established
+// obj.js API for existing callers. The function-body-only module cycle is
+// safe because naming code uses this predicate only after initialization.
+import {
+    The, Yname2, aobjnam, donameFresh, erosion_matters, obj_typename,
+    otense, vtense,
+} from './objnam.js';
 import {
     pushRngLogEntry,
     rn1 as coreRn1,
@@ -1472,11 +1478,7 @@ export function isMultigen(obj, state = game) {
 }
 
 export function erosionMatters(obj, state = game) {
-    return obj.oclass === WEAPON_CLASS
-        || obj.oclass === ARMOR_CLASS
-        || obj.oclass === BALL_CLASS
-        || obj.oclass === CHAIN_CLASS
-        || (obj.oclass === TOOL_CLASS && is_weptool(obj, state));
+    return erosion_matters(obj, state);
 }
 
 export function is_flammable(obj, state = game) {

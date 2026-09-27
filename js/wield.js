@@ -10,6 +10,11 @@
 
 import {
     A_DEX,
+    COST_DECHNT,
+    COST_DEGRD,
+    HALLUC_RES,
+    OBJ_FREE,
+    OBJ_INVENT,
     BLINDED,
     ECMD_CANCEL,
     ECMD_FAIL,
@@ -23,6 +28,7 @@ import {
     GLIB,
     HAND,
     HALLUC,
+    has_oname,
     plur,
     Upolyd,
     W_ACCESSORY,
@@ -31,16 +37,20 @@ import {
     W_WEP,
 } from './const.js';
 import {
+    ART_MAGICBANE,
     artifact_light,
     arti_speak,
+    is_art,
+    restrict_name,
     retouch_object,
 } from './artifacts.js';
 import { reset_remarm, setwornEnv } from './do_wear.js';
-import { acurr } from './attrib.js';
+import { acurr, exercise } from './attrib.js';
 import { makeplural } from './fruit.js';
 import { game } from './gstate.js';
 import { inv_cnt } from './hack.js';
 import { strstri } from './hacklib.js';
+import { hcolor } from './do_name.js';
 import {
     addinv_nomerge,
     freeinv,
@@ -49,6 +59,7 @@ import {
     prinv,
     update_inventory,
 } from './invent.js';
+import { encumber_msg } from './pickup.js';
 import {
     could_twoweap,
     humanoid,
@@ -66,15 +77,20 @@ import {
     is_missile,
     is_wet_towel,
     is_weptool,
+    costly_alteration,
     set_bknown,
     splitobj,
+    uncurse,
     unsplitobj,
+    weight,
 } from './obj.js';
 import {
+    an,
     donameFresh,
     is_plural,
     otense,
     simpleonames,
+    Yobjnam2,
     vtense,
     xnameFresh,
     yname,
@@ -84,18 +100,30 @@ import {
     AKLYS,
     COIN_CLASS,
     CORPSE,
+    CRYSKNIFE,
+    ELVEN_ARROW,
+    ELVEN_BOW,
+    ELVEN_BROADSWORD,
+    ELVEN_DAGGER,
+    ELVEN_SHORT_SWORD,
+    ELVEN_SPEAR,
     HEAVY_IRON_BALL,
     IRON_CHAIN,
     LENSES,
     LOADSTONE,
     SCROLL_CLASS,
     TIN_OPENER,
+    STRANGE_OBJECT,
     WEAPON_CLASS,
+    WORM_TOOTH,
 } from './objects.js';
 import { discover_object } from './o_init.js';
+import { alter_cost } from './shk.js';
 import { body_part } from './polyself.js';
+import { strange_feeling } from './potion.js';
 import { rn2, rnd } from './rng.js';
 import { ttyPline } from './tty_message.js';
+import { note_unported } from './unported.js';
 import {
     bimanual,
     set_twoweap,
@@ -312,44 +340,163 @@ export class UnsupportedWieldError extends Error {
     }
 }
 
-// C ref: wield.c chwepon() (916-1048). This span owns the ordinary,
-// uncursed, positive-enchantment branch reached by read.c's
-// seffect_enchant_weapon(). The refusal arms remain behind the command's
-// fail-closed boundary until their source dependencies are ported.
+// C ref: wield.c chwepon() (916-1048). The caller consumes this return value:
+// zero means strange_feeling() consumed the scroll; all other source arms
+// leave it for read.c:doread() to consume after seffects().
 export async function chwepon(otmp, amount, state = game) {
+    const color = hcolor(amount < 0 ? 'black' : 'blue', state);
     const uwep = state.uwep;
-    if (amount !== 1 || !uwep
-        || (uwep.oclass !== WEAPON_CLASS && !is_weptool(uwep, state))
-        || uwep.oartifact || uwep.spe > 5
-        || uwep.oeroded || uwep.oeroded2
-        || propertyActiveForWield(state, BLINDED)
-        || propertyActiveForWield(state, HALLUC)) {
-        throw new UnsupportedWieldError(
-            'chwepon() outside the ordinary positive branch',
+    let otyp = STRANGE_OBJECT;
+
+    if (!uwep || (uwep.oclass !== WEAPON_CLASS
+        && !is_weptool(uwep, state))) {
+        let text;
+        if (amount >= 0 && uwep && will_weld(uwep, state)) {
+            if (!propertyActiveForWield(state, BLINDED)) {
+                text = `${Yobjnam2(uwep, 'glow', state)} with `
+                    + `${an(hcolor('amber', state))} aura.`;
+                // wield.c deliberately bypasses set_bknown() here.
+                uwep.bknown = !hallucinationActiveForWield(state);
+            } else {
+                // C says this tin opener is in the right hand.
+                text = `Your right ${body_part(HAND, state.youmonst)} tingles.`;
+            }
+            await uncurse(uwep, { state });
+            update_inventory({ state });
+        } else {
+            text = `Your ${makeplural(body_part(HAND, state.youmonst))} `
+                + `${amount >= 0 ? 'twitch' : 'itch'}.`;
+        }
+        await strange_feeling(otmp, text, state);
+        await exercise(A_DEX, amount >= 0, state, { rn2 });
+        return 0;
+    }
+
+    if (otmp?.oclass === SCROLL_CLASS) otyp = otmp.otyp;
+
+    if (uwep.otyp === WORM_TOOTH && amount >= 0) {
+        const multiple = uwep.quan > 1;
+        await ttyPline(
+            `Your ${simpleonames(uwep, state)} `
+                + `${multiple ? 'fuse, and become' : 'is'} much sharper now.`,
+            state,
+        );
+        uwep.otyp = CRYSKNIFE;
+        uwep.oerodeproof = 0;
+        if (multiple) {
+            uwep.quan = 1;
+            uwep.owt = weight(uwep, { state });
+        }
+        if (uwep.cursed) await uncurse(uwep, { state });
+        if (uwep.unpaid) alter_cost(uwep, 0, state);
+        if (otyp !== STRANGE_OBJECT)
+            discover_object(otyp, true, true, true, state, { random: { rn2 } });
+        if (multiple) await encumber_msg(state);
+        return 1;
+    } else if (uwep.otyp === CRYSKNIFE && amount < 0) {
+        const multiple = uwep.quan > 1;
+        await ttyPline(
+            `Your ${simpleonames(uwep, state)} `
+                + `${multiple ? 'fuse, and become' : 'is'} much duller now.`,
+            state,
+        );
+        sourceCostlyAlteration(uwep, COST_DEGRD, state);
+        uwep.otyp = WORM_TOOTH;
+        uwep.oerodeproof = 0;
+        if (multiple) {
+            uwep.quan = 1;
+            uwep.owt = weight(uwep, { state });
+        }
+        if (otyp !== STRANGE_OBJECT && otmp.bknown)
+            discover_object(otyp, true, true, true, state, { random: { rn2 } });
+        if (multiple) await encumber_msg(state);
+        return 1;
+    }
+
+    const wepname = has_oname(uwep) ? uwep.oextra.oname : '';
+    if (amount < 0 && uwep.oartifact
+        && restrict_name(uwep, wepname, state)) {
+        if (!propertyActiveForWield(state, BLINDED)) {
+            await ttyPline(
+                `${Yobjnam2(uwep, 'faintly glow', state)} ${color}.`, state,
+            );
+        }
+        return 1;
+    }
+
+    // C's soft upper and lower limit can destroy the whole wielded stack.
+    if (((uwep.spe > 5 && amount >= 0)
+        || (uwep.spe < -5 && amount < 0)) && rn2(3)) {
+        if (!propertyActiveForWield(state, BLINDED)) {
+            await ttyPline(
+                `${Yobjnam2(uwep, 'violently glow', state)} ${color} for a while and then `
+                    + `${otense(uwep, 'evaporate')}.`,
+                state,
+            );
+        } else {
+            await ttyPline(`${Yobjnam2(uwep, 'evaporate', state)}.`, state);
+        }
+        // useupall() is a void C call. Its inventory/worn-slot lifecycle is
+        // not complete in this port, so keep the precise gap rather than
+        // inventing a partial weapon-removal transition.
+        note_unported('invent.c useupall');
+        return 1;
+    }
+
+    if (!propertyActiveForWield(state, BLINDED)) {
+        const xtime = amount * amount === 1 ? 'moment' : 'while';
+        await ttyPline(
+            `${Yobjnam2(uwep, amount === 0 ? 'violently glow' : 'glow', state)} `
+                + `${color} for a ${xtime}.`,
+            state,
+        );
+        if (otyp !== STRANGE_OBJECT && uwep.known
+            && (amount > 0 || (amount < 0 && otmp.bknown))) {
+            discover_object(otyp, true, true, true, state, { random: { rn2 } });
+        }
+    }
+
+    if (amount < 0) sourceCostlyAlteration(uwep, COST_DECHNT, state);
+    uwep.spe += amount;
+    if (amount > 0) {
+        if (uwep.cursed) await uncurse(uwep, { state });
+        if (uwep.unpaid) alter_cost(uwep, 0, state);
+    }
+
+    if (is_art(uwep, ART_MAGICBANE) && uwep.spe >= 0) {
+        const verb = amount > 1 && uwep.spe > 1 ? 'flinches' : 'itches';
+        await ttyPline(
+            `Your right ${body_part(HAND, state.youmonst)} ${verb}!`, state,
         );
     }
 
-    const otyp = otmp?.oclass === SCROLL_CLASS ? otmp.otyp : null;
-    // C's hcolor(NH_BLUE) is the plain blue name while hallucination is
-    // absent; Yobjnam2() capitalizes yname() and otense() agrees with the
-    // weapon's quantity.
-    const xtime = amount * amount === 1 ? 'moment' : 'while';
-    await ttyPline(
-        `${Yname2(uwep, state)} ${otense(uwep, 'glow')} blue for a ${xtime}.`,
-        state,
-    );
-    if (otyp !== null && uwep.known && amount > 0) {
-        // makeknown(otyp) credits the hero and exercises Wisdom in C. The
-        // discovery helper supplies the same source random draw when the
-        // exercise limit has not already been reached.
-        discover_object(otyp, true, true, true, state, {
-            random: { rn2 },
-            hooks: {},
-        });
+    if (uwep.spe > 5 && (ELVEN_WEAPON_TYPES.has(uwep.otyp)
+        || uwep.oartifact || !rn2(7))) {
+        await ttyPline(
+            `${Yobjnam2(uwep, 'suddenly vibrate', state)} unexpectedly.`, state,
+        );
     }
-    uwep.spe += amount;
-    if (amount > 0 && uwep.cursed) uwep.cursed = false;
     return 1;
+}
+
+const ELVEN_WEAPON_TYPES = new Set([
+    ELVEN_ARROW, ELVEN_SPEAR, ELVEN_DAGGER,
+    ELVEN_SHORT_SWORD, ELVEN_BROADSWORD, ELVEN_BOW,
+]);
+
+function hallucinationActiveForWield(state) {
+    const hallucination = state.u?.uprops?.[HALLUC];
+    const resistance = state.u?.uprops?.[HALLUC_RES];
+    return Boolean(hallucination?.intrinsic)
+        && !(resistance?.intrinsic || resistance?.extrinsic);
+}
+
+function sourceCostlyAlteration(obj, alterType, state) {
+    if ((obj.where === OBJ_FREE || obj.where === OBJ_INVENT) && !obj.unpaid) {
+        costly_alteration(obj, alterType, { state });
+    } else {
+        note_unported('shk.c costly_alteration');
+    }
 }
 
 function propertyActiveForWield(state, property) {
