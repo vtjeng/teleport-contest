@@ -58,6 +58,7 @@ import {
     GETOBJ_NOFLAGS,
     GETOBJ_PROMPT,
     GETOBJ_SUGGEST,
+    plur,
     HALLUC,
     HALLUC_RES,
     HOMEMADE_TIN,
@@ -171,7 +172,7 @@ import {
     unmap_invisible,
 } from './display.js';
 import {
-    Amonnam, Monnam, hcolor, mon_nam, monverbself, obj_pmname,
+    Amonnam, Monnam, c_obj_colors, hcolor, mon_nam, monverbself, obj_pmname,
     pmname, x_monnam,
 } from './do_name.js';
 import { can_reach_floor, cant_reach_floor, freehand } from './engrave.js';
@@ -184,6 +185,7 @@ import {
     carrying,
     consume_obj_charge,
     getobj,
+    any_obj_ok,
     hands_obj,
     nxtobj,
     obj_extract_self,
@@ -193,6 +195,7 @@ import {
     useupall,
     useup,
     useupf,
+    prinv,
     hold_another_object,
     stackobj,
 } from './invent.js';
@@ -234,7 +237,8 @@ import { paralyze_monst } from './mhitm.js';
 import { do_play_instrument } from './music.js';
 import { mon_reflects } from './muse.js';
 import { get_mtraits } from './corpstat.js';
-import { discover_object } from './o_init.js';
+import { discover_object, observe_object } from './o_init.js';
+import { obj_resists } from './bury.js';
 import {
     costly_alteration,
     bill_dummy_object,
@@ -244,6 +248,7 @@ import {
     is_boots,
     is_gloves,
     is_graystone,
+    is_flimsy,
     is_pick,
     hasContents,
     newObject,
@@ -336,6 +341,17 @@ import {
     CANDELABRUM_OF_INVOCATION,
     FIGURINE,
     FLINT,
+    RING_CLASS,
+    RANDOM_CLASS,
+    GEMSTONE,
+    MINERAL,
+    GLASS,
+    CLOTH,
+    LIQUID,
+    WAX,
+    WOOD,
+    GOLD,
+    SILVER,
     LUCKSTONE,
     LOADSTONE,
     MAGIC_WHISTLE,
@@ -354,7 +370,7 @@ import {
     AD_BLND, AT_ENGL, AT_WEAP, MZ_TINY, PM_AMOROUS_DEMON,
     PM_ARCHEOLOGIST, PM_FLOATING_EYE, PM_HEALER, PM_MEDUSA,
     PM_HORSE, PM_STONE_GOLEM, PM_UMBER_HULK, S_GHOST, S_NYMPH,
-    S_VAMPIRE,
+    S_VAMPIRE, PM_GNOME,
 } from './monsters.js';
 import { body_part, mbodypart, poly_gender, polymon } from './polyself.js';
 import { attacktype_fordmg } from './mondata.js';
@@ -1523,9 +1539,188 @@ export function rub_ok(obj) {
     return GETOBJ_EXCLUDE;
 }
 
-// C ref: apply.c dorub() (1785-1838), through the sighted, charged magic
-// lamp outcomes at 1817-1835. Gray stones, royal jelly, empty lamps, blind
-// smoke, and every other already-wielded lamp remain outside this port.
+// C ref: apply.c touchstone_ok() (2658-2675), getobj's secondary-object
+// ranking for a known touchstone. Identified gems are selectable but not
+// suggested; every other ordinary inventory object is downplayed.
+export function touchstone_ok(obj, state = game) {
+    if (!obj)
+        return GETOBJ_EXCLUDE;
+
+    if (obj.oclass === COIN_CLASS)
+        return GETOBJ_SUGGEST;
+
+    if (obj.oclass === GEM_CLASS
+        && !(obj.dknown && objectType(obj, state).oc_name_known))
+        return GETOBJ_SUGGEST;
+
+    return GETOBJ_DOWNPLAY;
+}
+
+// C ref: apply.c use_stone() (2680-2810). Preserve the callback choice and
+// C's observation, resistance, discovery, and message order for both `a` and
+// `#rub` callers.
+export async function use_stone(tstone, state = game, env = {}) {
+    const scritch = '"scritch, scritch"';
+    if (!heroIsBlind(state))
+        observe_object(tstone, state);
+
+    const known = tstone.otyp === TOUCHSTONE
+        && tstone.dknown
+        && objectType(TOUCHSTONE, state).oc_name_known;
+    let obj = await getobj(
+        `rub on the stone${plur(tstone.quan)}`,
+        known ? (candidate) => touchstone_ok(candidate, state) : any_obj_ok,
+        GETOBJ_PROMPT,
+        state,
+    );
+    if (!obj)
+        return ECMD_CANCEL;
+
+    if (obj === tstone && obj.quan === 1) {
+        await ttyPline(
+            `You can't rub ${the(xnameFresh(obj, state), state)} on itself.`,
+            state,
+        );
+        return ECMD_OK;
+    }
+
+    if (tstone.otyp === TOUCHSTONE && tstone.cursed
+        && obj.oclass === GEM_CLASS && !is_graystone(obj)
+        && !obj_resists(obj, 80, 100, { ...env, state })) {
+        if (heroIsBlind(state)) {
+            await ttyPline('You feel something shatter.', state);
+        } else if (heroHallucinating(state)) {
+            await ttyPline('Oh, wow, look at the pretty shards.', state);
+        } else {
+            await ttyPline(
+                `A sharp crack shatters ${obj.quan > 1 ? 'one of ' : ''}`
+                    + `${the(xnameFresh(obj, state), state)}.`,
+                state,
+            );
+        }
+        useup(obj, { ...env, state });
+        return ECMD_TIME;
+    }
+
+    if (heroIsBlind(state)) {
+        await ttyPline(scritch, state);
+        return ECMD_TIME;
+    } else if (heroHallucinating(state)) {
+        await ttyPline('Oh wow, man: Fractals!', state);
+        return ECMD_TIME;
+    }
+
+    let doScratch = false;
+    let streakColor = null;
+    let oclass = obj.oclass;
+    const objType = objectType(obj, state);
+
+    // apply.c treats non-gemstone/non-mineral rings as ordinary objects for
+    // the material branch below.
+    if (oclass === RING_CLASS
+        && objType.oc_material !== GEMSTONE
+        && objType.oc_material !== MINERAL)
+        oclass = RANDOM_CLASS;
+
+    switch (oclass) {
+    case GEM_CLASS:
+    case RING_CLASS:
+        if (tstone.otyp !== TOUCHSTONE) {
+            doScratch = true;
+        } else if (obj.oclass === GEM_CLASS
+            && (tstone.blessed
+                || (!tstone.cursed
+                    && (state.urole?.mnum === PM_ARCHEOLOGIST
+                        || state.urace?.mnum === PM_GNOME)))) {
+            const random = env.random ?? { d, rn1, rn2, rnd, rne, rnl, rnz };
+            const knowledgeEnv = {
+                ...env,
+                random,
+                gemLearned: env.gemLearned ?? env.hooks?.gemLearned
+                    ?? (() => note_unported('shk.c gem_learned')),
+            };
+            discover_object(TOUCHSTONE, true, true, true, state, {
+                ...knowledgeEnv,
+            });
+            discover_object(obj.otyp, true, true, true, state, {
+                ...knowledgeEnv,
+            });
+            await prinv(null, obj, 0, { ...env, state });
+            return ECMD_TIME;
+        } else if (objType.oc_material === GLASS) {
+            doScratch = true;
+            break;
+        }
+        streakColor = c_obj_colors[objType.oc_color];
+        break;
+
+    default:
+        switch (objType.oc_material) {
+        case CLOTH:
+            await ttyPline(
+                `${Tobjnam(tstone, 'look', state)} a little more polished now.`,
+                state,
+            );
+            return ECMD_TIME;
+        case LIQUID:
+            if (!obj.known) {
+                await ttyPline(
+                    'You must think this is a wetstone, do you?',
+                    state,
+                );
+            } else {
+                await ttyPline(
+                    `${Tobjnam(tstone, 'are', state)} a little wetter now.`,
+                    state,
+                );
+            }
+            return ECMD_TIME;
+        case WAX:
+            streakColor = 'waxy';
+            break;
+        case WOOD:
+            streakColor = 'wooden';
+            break;
+        case GOLD:
+            doScratch = true;
+            streakColor = 'golden';
+            break;
+        case SILVER:
+            doScratch = true;
+            streakColor = 'silvery';
+            break;
+        default:
+            if (is_flimsy(obj, state))
+                streakColor = c_obj_colors[objType.oc_color];
+            else
+                doScratch = tstone.otyp !== TOUCHSTONE;
+            break;
+        }
+        break;
+    }
+
+    const stoneName = `stone${plur(tstone.quan)}`;
+    if (doScratch) {
+        const color = streakColor ? `${streakColor} ` : '';
+        await ttyPline(
+            `You make ${color}scratch marks on the ${stoneName}.`,
+            state,
+        );
+    } else if (streakColor) {
+        await ttyPline(
+            `You see ${streakColor} streaks on the ${stoneName}.`,
+            state,
+        );
+    } else {
+        await ttyPline(scritch, state);
+    }
+    return ECMD_TIME;
+}
+
+// C ref: apply.c dorub() (1785-1838), with gray stones delegated to
+// use_stone() and the sighted, charged magic-lamp outcomes at 1817-1835.
+// Royal jelly, empty lamps, blind smoke, and other already-wielded lamps
+// remain outside this partial caller port.
 export async function dorub(state = game, env = {}) {
     if (nohands(state.youmonst.data)) {
         await ttyPline(
@@ -1539,9 +1734,14 @@ export async function dorub(state = game, env = {}) {
         return ECMD_CANCEL;
 
     if (obj.oclass === GEM_CLASS || obj.oclass === FOOD_CLASS) {
-        throw new UnsupportedApplyError(
-            'dorub() with a gray stone or royal jelly',
-        );
+        if (is_graystone(obj))
+            return use_stone(obj, state, env);
+        if (obj.otyp === LUMP_OF_ROYAL_JELLY)
+            throw new UnsupportedApplyError(
+                'apply.c use_royal_jelly() return path',
+            );
+        await ttyPline("Sorry, I don't know how to use that.", state);
+        return ECMD_OK;
     }
     if (obj !== state.uwep) {
         if (await wield_tool(obj, 'rub', state)) {
@@ -3060,6 +3260,12 @@ export async function doapply(state = game, env = {}) {
         // initial ECMD_TIME result while it schedules the occupation.
         await use_trap(obj, state, env);
         return ECMD_TIME;
+    case FLINT:
+    case LUCKSTONE:
+    case LOADSTONE:
+    case TOUCHSTONE:
+        // apply.c:4397-4400. use_stone() returns doapply's command result.
+        return use_stone(obj, state, env);
     case WOODEN_FLUTE:
     case MAGIC_FLUTE:
     case TOOLED_HORN:
