@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "Blocked B25 active caller evidence: this independent Wizard setup reaches the adjacent grid bug and C enters uhitm.c:hmon_hitmon_potion -> potion.c:potionhit after wielding the inventory-confirmed ruby potion. Strict JS replay cannot start because wielding that potion throws \"worn requires cancelDoff for otyp 300\" before segment initialization; this is a pre-source js/worn.js setup gap, not a potion-hit mismatch. The C-only trace is retained in task-local .cache/B25-melee-try4.recording.json, not in recordings/.",
+  "segments": [
+    {
+      "seed": 7910052,
+      "datetime": "20381022150744",
+      "nethackrc": "OPTIONS=name:BlindMelee2,role:Wizard,race:human,gender:male,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen\nOPTIONS=pettype:none,!acoustics,playmode:debug\n",
+      "moves": ".#wizwish\npotion of blindness\ni wo\u0007grid bug\nl\r"
+    }
+  ]
+}

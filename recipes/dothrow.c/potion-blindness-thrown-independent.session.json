@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "Independent B25 debug recipe for dothrow.c thitmonst() -> potion.c potionhit() with a thrown blindness potion. Seed 7910044, date/time 20381022143752, Wizard identity, grid-bug target and throw direction were chosen for this source behavior rather than copied from an admitted session.",
+  "segments": [
+    {
+      "seed": 7910044,
+      "datetime": "20381022143752",
+      "nethackrc": "OPTIONS=name:BlindHit,role:Wizard,race:human,gender:male,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen\nOPTIONS=pettype:none,!acoustics,playmode:debug\n",
+      "moves": ".#wizwish\npotion of blindness\n\u0007grid bug\ntnh  \r"
+    }
+  ]
+}
