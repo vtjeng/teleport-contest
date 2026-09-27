@@ -90842,7 +90842,7 @@
     {
       "id": "port-trap-fall-through-hero-synthetic-v7-20260926",
       "kind": "file-port",
-      "status": "open",
+      "status": "parked",
       "summary": "Port trapdoor destination and hero fall-through transition from C source",
       "cFile": "trap.c",
       "sessions": [
@@ -90863,15 +90863,15 @@
           "name": "dng_bottom",
           "line": 418,
           "endLine": 441,
-          "declared": false,
-          "complete": false
+          "declared": true,
+          "complete": true
         },
         {
           "name": "hole_destination",
           "line": 442,
           "endLine": 455,
           "declared": true,
-          "complete": false
+          "complete": true
         },
         {
           "name": "maketrap",
@@ -90884,14 +90884,14 @@
           "name": "clamp_hole_destination",
           "line": 593,
           "endLine": 601,
-          "declared": false,
-          "complete": false
+          "declared": true,
+          "complete": true
         },
         {
           "name": "fall_through",
           "line": 602,
           "endLine": 725,
-          "declared": false,
+          "declared": true,
           "complete": false
         }
       ],
@@ -91065,7 +91065,168 @@
             }
           }
         }
-      ]
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "dng_bottom",
+            "implementation": "js/trap.js",
+            "symbol": "dng_bottom",
+            "sourceReview": "Compared the complete trap.c:dng_bottom definition (418-437): begin with dunlevs_in_dungeon; on the Quest, clamp to qlocate_level only while dunlev_reached is shallower; otherwise, in Gehennom, subtract one until invocation. The JS reads the supplied state and preserves this branch order. No RNG, messages, or game-state writes.",
+            "callers": [
+              {
+                "path": "js/trap.js",
+                "symbol": "hole_destination",
+                "source": "trap.c:hole_destination calls dng_bottom(&u.uz) before initializing the destination depth."
+              },
+              {
+                "path": "js/trap.js",
+                "symbol": "clamp_hole_destination",
+                "source": "trap.c:clamp_hole_destination calls dng_bottom(dlev) before clamping the destination."
+              }
+            ],
+            "pure": true,
+            "tests": [
+              "scripts/trap-generation.test.mjs"
+            ],
+            "recordings": [],
+            "checkedAt": "ad2cce2b4e37f1b53ac50d948678495ac7c15280"
+          },
+          {
+            "name": "hole_destination",
+            "implementation": "js/trap.js",
+            "symbol": "hole_destination",
+            "sourceReview": "Compared the complete trap.c:hole_destination definition (440-453). It initializes dnum and the current dungeon depth, increments before drawing rn2(4), and stops at the first nonzero draw or the dng_bottom limit. JS keeps the same draw count and order.",
+            "callers": [
+              {
+                "path": "js/trap.js",
+                "symbol": "maketrap",
+                "source": "trap.c:maketrap calls hole_destination for HOLE and TRAPDOOR."
+              }
+            ],
+            "pure": false,
+            "tests": [],
+            "recordings": [
+              "recordings/trap.c/fall-through-hero-independent.session.json",
+              "recordings/trap.c/fall-through-stronghold-independent.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v7",
+                "caseId": "trapdoor-pet-transit",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 16,
+                "source": "objnam.c:wizterrainwish -> trap.c:maketrap -> trap.c:hole_destination"
+              }
+            ],
+            "checkedAt": "ad2cce2b4e37f1b53ac50d948678495ac7c15280"
+          },
+          {
+            "name": "clamp_hole_destination",
+            "implementation": "js/trap.js",
+            "symbol": "clamp_hole_destination",
+            "sourceReview": "Compared the complete trap.c:clamp_hole_destination definition (593-599): compute dng_bottom for the destination dungeon, clamp only dlevel with min(), and return the same destination pointer. JS mutates the supplied level pair and returns it.",
+            "callers": [
+              {
+                "path": "js/trap.js",
+                "symbol": "fall_through",
+                "source": "trap.c:fall_through invokes (void) clamp_hole_destination(&dtmp) after assigning a trap's saved destination."
+              }
+            ],
+            "pure": false,
+            "tests": [],
+            "recordings": [
+              "recordings/trap.c/fall-through-hero-independent.session.json",
+              "recordings/trap.c/fall-through-stronghold-independent.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v7",
+                "caseId": "trapdoor-pet-transit",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 16,
+                "source": "trap.c:trapeffect_hole -> fall_through -> clamp_hole_destination"
+              }
+            ],
+            "checkedAt": "ad2cce2b4e37f1b53ac50d948678495ac7c15280"
+          }
+        ],
+        "entryPointReview": "B21's selected functions are the trap.c:dng_bottom..fall_through range. Active paths exercised here are a hero wishing and falling through a trapdoor, the Stronghold override to Valley, and kicking a throne to open a shaft. Production wiring is objnam.c:wizterrainwish -> maketrap -> hole_destination and trap.c:trapeffect_hole -> fall_through; the throne caller is dokick.c:kick_nondoor -> fall_through(FALSE, 0). The admitted v7 trapdoor-pet-transit case matches through all 17 boundaries and covers wizard wish creation, hero trap activation, and normal arrival. Independent recordings cover an ordinary hero trapdoor fall, the Stronghold fall reaching the Valley of the Dead, and the throne fall. A committed blocked leashed-pet recipe records the active next_to_u Boolean path that cannot yet be matched; it is not completion evidence. trap.c:trapeffect_hole also has an existing monster-only trapdoor migration recording; that evidence is retained for the unchanged monster branch and is not used to claim the new hero branch. maketrap has other production callers (level generation, digging, pit kits, monster pit/hole actions, portals, and webs); this task's runtime claims are limited to the source paths exercised above, while the function's full switch and call ordering were compared. C-discarded gaps are explicitly named at their call sites: dokick.c:impact_drop and shk.c:shopdig in fall_through; trap.c:mk_trap_statue, shk.c:add_damage, and Sokoban maybe_finish_sokoban in maketrap. The out-parameter helper dungeon.c:find_hell is ported and source-pinned as a supplemental dependency for the Stronghold branch. Orchestrator audit: maketrap remains unverified through dig.c:dig/digactualhole. The previous independent dig recording never reaches digging; the admitted v6 archeologist-down-dig-floor case first diverges at the pit-vision frame, so it cannot currently cite a matching range through maketrap. Preserve the completed helper evidence but do not claim maketrap complete until that entry replays.",
+        "entryPoints": [
+          {
+            "name": "Hero wizard-wish trapdoor creation and fall",
+            "functions": [
+              "dng_bottom",
+              "hole_destination",
+              "maketrap",
+              "clamp_hole_destination",
+              "fall_through"
+            ],
+            "recordings": [
+              "recordings/trap.c/fall-through-hero-independent.session.json",
+              "recordings/trap.c/fall-through-stronghold-independent.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v7",
+                "caseId": "trapdoor-pet-transit",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 16,
+                "source": "objnam.c:wizterrainwish -> trap.c:maketrap/hole_destination; trap.c:trapeffect_hole -> fall_through -> schedule_goto"
+              }
+            ]
+          },
+          {
+            "name": "Stronghold fall-through selects the Valley gateway",
+            "functions": [
+              "fall_through"
+            ],
+            "recordings": [
+              "recordings/trap.c/fall-through-stronghold-independent.session.json"
+            ],
+            "synthetic": []
+          },
+          {
+            "name": "Kick a throne to open and fall through a shaft",
+            "functions": [
+              "fall_through"
+            ],
+            "recordings": [
+              "recordings/dokick.c/throne-fall-through-independent.session.json"
+            ],
+            "synthetic": []
+          },
+          {
+            "name": "Fall-through pet/steed Boolean refusal",
+            "functions": [
+              "fall_through"
+            ],
+            "recordings": [],
+            "synthetic": []
+          },
+          {
+            "name": "Downward digging creates a pit or hole",
+            "functions": [
+              "maketrap"
+            ],
+            "recordings": [],
+            "synthetic": []
+          }
+        ]
+      },
+      "progressBeforePark": {
+        "screens": 0,
+        "rng": 0
+      },
+      "parkedStanding": {
+        "sha": "ad2cce2b4e37f1b53ac50d948678495ac7c15280",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "parkedReason": "Hero trapdoor, Stronghold, and throne fall paths match independent C recordings; v7 trapdoor-pet-transit matches through step 16. fall_through still consumes apply.c:next_to_u Boolean on leashed pet/steed paths, blocked by apply.c:doapply LEASH and mleashed_next2u. maketrap dig.c:dig entry lacks a matching range because v6 archeologist-down-dig-floor currently diverges in vision.c:vision_recalc at the pit frame; A19 owns that pit-vision blocker. Resume after those source paths and matching recordings are available."
     },
     {
       "id": "port-eat-cpostfx-lizard-synthetic-v7-20260926",

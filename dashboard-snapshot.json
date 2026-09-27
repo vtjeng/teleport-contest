@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "capturedAt": "2026-09-27T02:09:39.889Z",
+  "capturedAt": "2026-09-27T02:40:03.028Z",
   "activity": {
     "runId": "loop-20260925",
     "events": [
@@ -4083,12 +4083,61 @@
         "type": "accepted",
         "at": "2026-09-27T02:09:18.271Z",
         "task": "A18"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "published-A18-20260927",
+        "type": "published",
+        "at": "2026-09-27T02:16:20.504Z",
+        "task": "A18",
+        "commit": "eaee8edb519d1a74fd64f17ac08d51ef827ebd34"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "integrating-B21-20260927",
+        "type": "integrating",
+        "at": "2026-09-27T02:18:20.864Z",
+        "task": "B21",
+        "integration": "baa6be19ae7f6b0a58f41593a69cc8637042aaed"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "assign-A19-vision-pit-20260927",
+        "type": "assign",
+        "at": "2026-09-27T02:23:05.384Z",
+        "task": "A19",
+        "worker": "A",
+        "goal": "div-vision-pit-sight-synthetic-v6-20260926",
+        "kind": "implementation"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "integrating-B21-corrected-20260927",
+        "type": "integrating",
+        "at": "2026-09-27T02:28:33.999Z",
+        "task": "B21",
+        "integration": "ad2cce2b4e37f1b53ac50d948678495ac7c15280"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "validated-B21-corrected-20260927",
+        "type": "validated",
+        "at": "2026-09-27T02:34:46.071Z",
+        "task": "B21",
+        "passed": true
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accepted-B21-20260927",
+        "type": "accepted",
+        "at": "2026-09-27T02:39:42.832Z",
+        "task": "B21"
       }
     ]
   },
   "development": {
-    "executionCommit": "b51083de9721160d58fee696e37eec1f21fcc954",
-    "measuredAt": "2026-09-27T02:04:59.791Z",
+    "executionCommit": "ad2cce2b4e37f1b53ac50d948678495ac7c15280",
+    "measuredAt": "2026-09-27T02:34:15.762Z",
     "sessions": [
       {
         "session": "holdout/seed0002-healer-reflection-drummer",
