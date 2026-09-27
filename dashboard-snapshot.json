@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "capturedAt": "2026-09-27T13:14:04.342Z",
+  "capturedAt": "2026-09-27T13:39:03.196Z",
   "activity": {
     "runId": "loop-20260925",
     "events": [
@@ -5147,12 +5147,69 @@
         "type": "accepted",
         "at": "2026-09-27T13:13:46.288Z",
         "task": "A26"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "publish-A26-10e9cede",
+        "type": "published",
+        "at": "2026-09-27T13:16:56.413Z",
+        "task": "A26",
+        "commit": "10e9cede1cf66cb5e182014f49f30af612d70013"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "assign-A27-quest-artitouch-20260927",
+        "type": "assign",
+        "at": "2026-09-27T13:22:49.635Z",
+        "task": "A27",
+        "worker": "A",
+        "goal": "port-quest-artitouch-synthetic-v8-20260927",
+        "kind": "implementation"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-b9d7354a44dce4bb4147184316c15a7b460407c5",
+        "type": "ready",
+        "at": "2026-09-27T13:25:48.370Z",
+        "task": "B27",
+        "delivery": "b9d7354a44dce4bb4147184316c15a7b460407c5"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "receive-B27-b9d7354a",
+        "type": "received",
+        "at": "2026-09-27T13:26:34.920Z",
+        "task": "B27",
+        "delivery": "b9d7354a44dce4bb4147184316c15a7b460407c5"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "integrate-B27-5a2f70be",
+        "type": "integrating",
+        "at": "2026-09-27T13:27:06.515Z",
+        "task": "B27",
+        "integration": "5a2f70be22fa1d0489238745e372f3ed5a8c26df"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "validate-B27-5a2f70be",
+        "type": "validated",
+        "at": "2026-09-27T13:38:45.158Z",
+        "task": "B27",
+        "passed": true
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-B27-5a2f70be",
+        "type": "accepted",
+        "at": "2026-09-27T13:38:52.776Z",
+        "task": "B27"
       }
     ]
   },
   "development": {
-    "executionCommit": "10c8f210d77aee548ae25b77cee6b3f9b736d413",
-    "measuredAt": "2026-09-27T13:07:26.634Z",
+    "executionCommit": "5a2f70be22fa1d0489238745e372f3ed5a8c26df",
+    "measuredAt": "2026-09-27T13:34:00.788Z",
     "sessions": [
       {
         "session": "holdout/seed0002-healer-reflection-drummer",
