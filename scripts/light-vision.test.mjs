@@ -28,6 +28,7 @@ import {
     SEE_INVIS,
     SVALL,
     TEMP_LIT,
+    TT_BEARTRAP,
     TT_PIT,
     WATER,
 } from '../js/const.js';
@@ -158,10 +159,11 @@ test('vision_recalc marks the hero square seen from every direction', () => {
     assert.equal(heroLocation.seenv, SVALL);
 });
 
-test('vision_recalc limits pit sight to the adjacent 3-by-3 area', () => {
+test('vision_recalc starts ordinary pit sight in the adjacent 3-by-3 area', () => {
     const state = darkRoomState();
     state.u.utrap = 2;
     state.u.utraptype = TT_PIT;
+    state.u.xray_range = 0;
 
     vision_reset();
     vision_recalc(0);
@@ -176,10 +178,24 @@ test('vision_recalc limits pit sight to the adjacent 3-by-3 area', () => {
     assert.equal(cansee(state.u.ux + 2, state.u.uy, state), false);
 });
 
+test('a non-pit trap does not limit ordinary sight', () => {
+    const state = darkRoomState();
+    state.u.utrap = 2;
+    state.u.utraptype = TT_BEARTRAP;
+
+    vision_reset();
+    vision_recalc(0);
+
+    assert.equal(couldsee(state.u.ux + 4, state.u.uy, state), true);
+});
+
 test('pit sight leaves Blind, Rogue-level, and underwater paths in precedence', () => {
     const cases = [
-        ['Blind', (state) => {
+        ['Blind (intrinsic)', (state) => {
             state.u.uprops = { [BLINDED]: { intrinsic: true } };
+        }],
+        ['Blind (extrinsic)', (state) => {
+            state.u.uprops = { [BLINDED]: { extrinsic: true } };
         }],
         ['Rogue level', (state) => {
             state.u.uz = { dnum: 0, dlevel: 1 };
@@ -206,9 +222,19 @@ test('pit sight leaves Blind, Rogue-level, and underwater paths in precedence', 
             true,
             `${name} keeps its preexisting view_from path`,
         );
-        if (name === 'Blind')
+        if (name.startsWith('Blind'))
             assert.equal(cansee(state.u.ux + 4, state.u.uy, state), false);
     }
+
+    // A blocked Blind property is not active, so the pit branch applies.
+    const blockedBlind = darkRoomState();
+    blockedBlind.u.utrap = 2;
+    blockedBlind.u.utraptype = TT_PIT;
+    blockedBlind.u.uprops = { [BLINDED]: { extrinsic: true, blocked: true } };
+    vision_reset();
+    vision_recalc(0);
+    assert.equal(couldsee(blockedBlind.u.ux + 2, blockedBlind.u.uy, blockedBlind), false);
+    assert.equal(cansee(blockedBlind.u.ux, blockedBlind.u.uy, blockedBlind), true);
 
     // C checks underwater vision before pit vision, except on the water level.
     // On that level the pit arm remains reachable.

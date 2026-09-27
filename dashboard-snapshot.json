@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "capturedAt": "2026-09-27T02:09:39.889Z",
+  "capturedAt": "2026-09-27T04:13:39.861Z",
   "activity": {
     "runId": "loop-20260925",
     "events": [
@@ -4083,12 +4083,191 @@
         "type": "accepted",
         "at": "2026-09-27T02:09:18.271Z",
         "task": "A18"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "published-A18-20260927",
+        "type": "published",
+        "at": "2026-09-27T02:16:20.504Z",
+        "task": "A18",
+        "commit": "eaee8edb519d1a74fd64f17ac08d51ef827ebd34"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "integrating-B21-20260927",
+        "type": "integrating",
+        "at": "2026-09-27T02:18:20.864Z",
+        "task": "B21",
+        "integration": "baa6be19ae7f6b0a58f41593a69cc8637042aaed"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "assign-A19-vision-pit-20260927",
+        "type": "assign",
+        "at": "2026-09-27T02:23:05.384Z",
+        "task": "A19",
+        "worker": "A",
+        "goal": "div-vision-pit-sight-synthetic-v6-20260926",
+        "kind": "implementation"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "integrating-B21-corrected-20260927",
+        "type": "integrating",
+        "at": "2026-09-27T02:28:33.999Z",
+        "task": "B21",
+        "integration": "ad2cce2b4e37f1b53ac50d948678495ac7c15280"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "validated-B21-corrected-20260927",
+        "type": "validated",
+        "at": "2026-09-27T02:34:46.071Z",
+        "task": "B21",
+        "passed": true
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accepted-B21-20260927",
+        "type": "accepted",
+        "at": "2026-09-27T02:39:42.832Z",
+        "task": "B21"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "published-B21-20260927",
+        "type": "published",
+        "at": "2026-09-27T02:46:53.894Z",
+        "task": "B21",
+        "commit": "3822ec2bd8105ebfab96b9b4022f8ecf7dcdea61"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "assign-B22-write-dowrite-glib-20260927",
+        "type": "assign",
+        "at": "2026-09-27T02:54:36.648Z",
+        "task": "B22",
+        "worker": "B",
+        "goal": "port-write-dowrite-glib-synthetic-v6-20260926",
+        "kind": "implementation"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-16375891206600eb361c571806d93364d5057d4f",
+        "type": "ready",
+        "at": "2026-09-27T03:12:15.988Z",
+        "task": "C23",
+        "delivery": "16375891206600eb361c571806d93364d5057d4f"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "received-C23-16375891",
+        "type": "received",
+        "at": "2026-09-27T03:12:53.445Z",
+        "task": "C23",
+        "delivery": "16375891206600eb361c571806d93364d5057d4f"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "integrating-C23-6ff81e0c8593",
+        "type": "integrating",
+        "at": "2026-09-27T03:14:39.786Z",
+        "task": "C23",
+        "integration": "6ff81e0c85937f98189ac25d5847d8fecdab4f8f"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-054408032c1ee2907dc400f973cbc70cea9f19bc",
+        "type": "ready",
+        "at": "2026-09-27T03:15:08.006Z",
+        "task": "B22",
+        "delivery": "054408032c1ee2907dc400f973cbc70cea9f19bc"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-e3313dff18dc5fea31d56886760684eb770d8cb3",
+        "type": "ready",
+        "at": "2026-09-27T03:15:38.932Z",
+        "task": "A19",
+        "delivery": "e3313dff18dc5fea31d56886760684eb770d8cb3"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "validated-C23-6ff81e0c",
+        "type": "validated",
+        "at": "2026-09-27T03:21:38.814Z",
+        "task": "C23",
+        "passed": true
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accepted-C23-6ff81e0c",
+        "type": "accepted",
+        "at": "2026-09-27T03:26:44.323Z",
+        "task": "C23"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "published-C23-c3972c48",
+        "type": "published",
+        "at": "2026-09-27T03:33:02.618Z",
+        "task": "C23",
+        "commit": "c3972c48092cfb862070f98242b89d813bafad66"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "received-A19-e3313dff",
+        "type": "received",
+        "at": "2026-09-27T03:34:12.611Z",
+        "task": "A19",
+        "delivery": "e3313dff18dc5fea31d56886760684eb770d8cb3"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "integrating-A19-e457ea11",
+        "type": "integrating",
+        "at": "2026-09-27T03:36:22.519Z",
+        "task": "A19",
+        "integration": "e457ea110ede43c4f6e6d36132add320d3320206"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "assign-C24-priest-talk-20260927-1",
+        "type": "assign",
+        "at": "2026-09-27T03:47:10.717Z",
+        "task": "C24",
+        "worker": "C",
+        "goal": "port-priest-talk-outside-temple-synthetic-v7-20260926",
+        "kind": "implementation"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "integrating-A19-4fc824cf",
+        "type": "integrating",
+        "at": "2026-09-27T04:01:17.943Z",
+        "task": "A19",
+        "integration": "4fc824cfd5f5c170f9c0e01b5699c057438241e0"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "validated-A19-4fc824cf",
+        "type": "validated",
+        "at": "2026-09-27T04:11:50.878Z",
+        "task": "A19",
+        "passed": true
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accepted-A19-4fc824cf",
+        "type": "accepted",
+        "at": "2026-09-27T04:13:12.449Z",
+        "task": "A19"
       }
     ]
   },
   "development": {
-    "executionCommit": "b51083de9721160d58fee696e37eec1f21fcc954",
-    "measuredAt": "2026-09-27T02:04:59.791Z",
+    "executionCommit": "4fc824cfd5f5c170f9c0e01b5699c057438241e0",
+    "measuredAt": "2026-09-27T04:08:40.854Z",
     "sessions": [
       {
         "session": "holdout/seed0002-healer-reflection-drummer",

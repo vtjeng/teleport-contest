@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent potion.c:peffect_gain_level C recipe for the ordinary uncursed, unblessed pluslvl(FALSE) branch. A debug Healer wishes the potion and quaffs it on D:1; unlike the blessed recipe, this must not call rndexp(TRUE) afterward.",
+  "segments": [
+    {
+      "seed": 260927239,
+      "datetime": "20260927060001",
+      "nethackrc": "OPTIONS=name:GainOrdinary,role:Healer,race:human,gender:female,align:neutral,playmode:debug,!legacy,!tutorial,!splash_screen,pettype:none\n",
+      "moves": " \u0017potion of gain level\nqk"
+    }
+  ]
+}

@@ -600,6 +600,13 @@ export function In_hell(level, state = game) {
     return Boolean(state.dungeons[level.dnum].flags.hellish);
 }
 
+// C ref: dungeon.c find_hell() (1949-1953). Assigns the gateway level at the
+// top of Gehennom into the caller's existing level pair.
+export function find_hell(level, state = game) {
+    level.dnum = state.valley_level.dnum;
+    level.dlevel = 1;
+}
+
 // C ref: dungeon.c On_W_tower_level() (1913-1920) and In_W_tower()
 // (1922-1940). The first asks whether the level holds the Wizard's tower, the
 // second whether a square is inside it.

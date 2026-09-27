@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "Independent Stronghold fall recipe for trap.c:fall_through -> dungeon.c:find_hell. The wizard level-ports to the Castle, wishes a trapdoor on a walkable floor square, then steps off and returns; this exercises the Stronghold destination override without copying an admitted case.",
+  "segments": [
+    {
+      "seed": 7721197,
+      "datetime": "20260519092300",
+      "nethackrc": "OPTIONS=name:VelaTest,role:Wizard,race:human,gender:female,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen\nOPTIONS=pettype:none,playmode:debug\n",
+      "moves": " #wizlevelport\ncastle\nj#wizwish\ntrap door\nkj "
+    }
+  ]
+}

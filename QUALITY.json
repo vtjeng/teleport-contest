@@ -3151,6 +3151,17 @@
       ],
       "outcome": "changed",
       "recordedAt": "2026-09-26T23:36:38.118Z"
+    },
+    {
+      "kind": "review",
+      "head": "4fc824cfd5f5c170f9c0e01b5699c057438241e0",
+      "auditedRange": "008898f068919c0b78ea592bb773280ede2a9a38..4fc824cfd5f5c170f9c0e01b5699c057438241e0",
+      "level": "full",
+      "areas": [
+        "world-effects"
+      ],
+      "outcome": "changed",
+      "recordedAt": "2026-09-27T04:08:54.716Z"
     }
   ]
 }

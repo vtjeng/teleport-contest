@@ -348,10 +348,9 @@ export async function newexplevel(state = game, env = {}) {
 // before update_topl() can block on --More-- (pline.c:274), so a screen
 // recorded at that prompt can show a level the top line has not announced yet.
 //
-// The Upolyd block, which adds monhp_per_lvl() to u.mh, cannot run because
-// js/u_init.js is this port's only writer of u.umonnum and sets it equal to
-// u.umonster. livelog_printf() writes an external file this port cannot
-// write, while its in-memory chronicle event is retained by pline.js.
+// The Upolyd block adds monhp_per_lvl() to u.mh before advancing normal HP.
+// livelog_printf() writes an external file this port cannot write, while its
+// in-memory chronicle event is retained by pline.js.
 export async function pluslvl(incr, state = game, env = {}) {
     const message = env.message;
     if (typeof message !== 'function')
@@ -365,9 +364,13 @@ export async function pluslvl(incr, state = game, env = {}) {
     /* increase hit points (when polymorphed, C does monster form first
        in order to retain normal human/whatever increase for later) */
     if (Upolyd(u)) {
-        throw new UnsupportedExperienceChangeError(
-            'pluslvl() adding monhp_per_lvl() while polymorphed',
-        );
+        const hpinc = monhp_per_lvl(state.youmonst, {
+            state,
+            random: { rn1: random.rn1 ?? rn1, rn2: random.rn2 ?? rn2,
+                rnd: random.rnd ?? rnd },
+        });
+        u.mh += hpinc;
+        setuhpmax(u.mhmax, false, state);
     }
     const hpinc = newhp(state, random);
     u.uhp += hpinc;

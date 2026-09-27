@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "Blocked independent leashed-pet fall recipe for trap.c:fall_through -> apply.c:next_to_u -> mleashed_next2u. C can create a pet and use the leash before wishing a trap door underfoot, but the JS production path currently stops earlier at apply.c:doapply for LEASH object type 236; if that caller lands, js/apply_next_to_u.js still refuses the consumed leashed-companion result because apply.c:mleashed_next2u is incomplete. Neither blocker may be bypassed by treating note_unported() as the Boolean. This recipe remains setup evidence only, not a matching recording.",
+  "segments": [
+    {
+      "seed": 7721189,
+      "datetime": "20260519092000",
+      "nethackrc": "OPTIONS=name:VelaTest,role:Barbarian,race:human,gender:female,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen\nOPTIONS=pettype:dog,playmode:debug\n",
+      "moves": " #wizwish\ncursed leash\na j j n#wizwish\ntrap door\nlh "
+    }
+  ]
+}
