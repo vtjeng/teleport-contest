@@ -91112,6 +91112,49 @@
           "evaluationCommit": "12a35e71cf1d937cd08b75b196f3c8b54224f6cd"
         }
       }
+    },
+    {
+      "id": "port-potion-gain-level-synthetic-v7-20260926",
+      "kind": "file-port",
+      "status": "queued",
+      "summary": "Port gain-level potion effect across cursed, uncursed and blessed paths",
+      "cFile": "potion.c",
+      "sessions": [
+        "synthetic/v7/potion-gain-level"
+      ],
+      "selectionReason": "The admitted v7 potion-gain-level case still stops at segment 0 step 34 when the quaff command dispatches POT_GAIN_LEVEL to missing potion.c:peffect_gain_level. The source investigation remains current at one unmatched screen and identifies the complete function and consumed dependencies.",
+      "detail": "Port the whole peffect_gain_level function and wire peffects. Match cursed upstairs travel, ordinary pluslvl(FALSE), blessed rndexp adjustment, gp.potion_unkn and return-valued Can_rise_up/get_level behavior; record independent C examples with different potion blessings and entry states or explicitly blocked branches.",
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": null,
+      "delivered": null,
+      "functions": [
+        {
+          "name": "peffect_gain_level",
+          "line": 1083,
+          "endLine": 1118,
+          "declared": false,
+          "complete": false
+        }
+      ],
+      "range": {
+        "from": 1083,
+        "to": 1118
+      },
+      "syntheticProvenance": {
+        "synthetic/v7/potion-gain-level": {
+          "session": "synthetic/v7/potion-gain-level",
+          "corpus": "synthetic",
+          "batch": "v7",
+          "caseId": "potion-gain-level",
+          "manifestPath": "challenges/manifests/v7.json",
+          "manifestSha256": "03a861a9d1bc9d813c80681312ee7a0e0f893dbad0536de40a974bd5ec344094",
+          "recordingPath": "challenges/cases/v7/potion-gain-level.session.json",
+          "recordingSha256": "a4fc9853403ad27a0f5ea53a9ffe6f8fbf4b5b9adb87f29d08d011635c641374",
+          "evaluationPath": "challenges/evaluations/20260927005209-v7.json",
+          "evaluationCommit": "12a35e71cf1d937cd08b75b196f3c8b54224f6cd"
+        }
+      }
     }
   ]
 }
