@@ -96367,6 +96367,49 @@
         "rng": 792838
       },
       "parkedReason": "artitouch is source-reviewed and verified through independent wish acquisition and v8 step 24, but first-touch floor pickup and container extraction still lack a pre-acquisition quest-artifact provenance recipe; files.c wizkit_addinv startup and its skip_pager path also lack a JavaScript WIZKIT route. Resume after those entry points acquire matching runtime evidence or their blocking source paths are ported."
+    },
+    {
+      "id": "port-read-seffect-enchant-weapon-synthetic-v8-20260927",
+      "kind": "file-port",
+      "status": "queued",
+      "summary": "Port read.c seffect_enchant_weapon across blessed and other branches",
+      "cFile": "read.c",
+      "sessions": [
+        "synthetic/v8/read-blessed-enchant-weapon"
+      ],
+      "selectionReason": "Current v8 read-blessed-enchant-weapon diverges at step 37: C read.c:seffect_enchant_weapon draws rnd(3), while JS skips its blessed branch. Port the complete effect and production seffects caller, including return-valued wield.c:chwepon and pure objnam.c:erosion_matters dependencies; verify independent C recordings for active branches and name blocked void callees.",
+      "detail": "",
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": null,
+      "delivered": null,
+      "functions": [
+        {
+          "name": "seffect_enchant_weapon",
+          "line": 1627,
+          "endLine": 1678,
+          "declared": true,
+          "complete": false
+        }
+      ],
+      "range": {
+        "from": 1627,
+        "to": 1678
+      },
+      "syntheticProvenance": {
+        "synthetic/v8/read-blessed-enchant-weapon": {
+          "session": "synthetic/v8/read-blessed-enchant-weapon",
+          "corpus": "synthetic",
+          "batch": "v8",
+          "caseId": "read-blessed-enchant-weapon",
+          "manifestPath": "challenges/manifests/v8.json",
+          "manifestSha256": "6a5159501af18a7f926f794d89e817375cd00a3589c4899fb97392ae04dbe8ba",
+          "recordingPath": "challenges/cases/v8/read-blessed-enchant-weapon.session.json",
+          "recordingSha256": "554a6afed2c716218943a4b42a5a9daefed78e77869fe346d286d19e7500666f",
+          "evaluationPath": "challenges/evaluations/20260927142534-v8.json",
+          "evaluationCommit": "c54c2c13ca30ebad8411cbcd4b7dcd3e193fbddc"
+        }
+      }
     }
   ]
 }

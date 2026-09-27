@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "capturedAt": "2026-09-27T14:30:36.073Z",
+  "capturedAt": "2026-09-27T14:39:09.887Z",
   "activity": {
     "runId": "loop-20260925",
     "events": [
@@ -5269,6 +5269,24 @@
         "type": "accepted",
         "at": "2026-09-27T14:28:48.536Z",
         "task": "A27"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "A27-published-e4ec7a65",
+        "type": "published",
+        "at": "2026-09-27T14:31:37.491Z",
+        "task": "A27",
+        "commit": "e4ec7a65f01bfe03d069af6e7c8c223067ca6911"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "assign-A28-read-enchant-weapon-20260927",
+        "type": "assign",
+        "at": "2026-09-27T14:34:46.309Z",
+        "task": "A28",
+        "worker": "A",
+        "goal": "port-read-seffect-enchant-weapon-synthetic-v8-20260927",
+        "kind": "implementation"
       }
     ]
   },
