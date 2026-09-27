@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "Independent write.c dowrite() Glib entry: a debug Rogue gets a one-turn GLIB intrinsic, dismisses its message, wishes for a magic marker, and applies it through the real apply command.",
+  "segments": [
+    {
+      "seed": 63827149,
+      "datetime": "20370927112210",
+      "nethackrc": "OPTIONS=name:GlibMarker,role:Rogue,race:human,gender:female,align:chaotic,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!debug_mongen\n",
+      "moves": "#wizintrinsic\n1l\n \u0017magic marker\na?h"
+    }
+  ]
+}

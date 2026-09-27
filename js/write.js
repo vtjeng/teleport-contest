@@ -24,7 +24,7 @@ import { update_inventory } from './invent.js';
 import { nohands } from './mondata.js';
 import { PM_WIZARD } from './monsters.js';
 import { bcsign, mksobj, objectType } from './obj.js';
-import { an, aobjnam, The, yname } from './objnam.js';
+import { an, aobjnam, The, Tobjnam, yname } from './objnam.js';
 import { discover_object, observe_object } from './o_init.js';
 import {
     OBJ_DESCR,
@@ -72,15 +72,6 @@ import { ttyPline } from './tty_message.js';
 import { livelog_printf } from './pline.js';
 import { getlin } from './windows.js';
 import { Glib } from './wield.js';
-
-// Thrown where write.c reaches a branch this port has not ported.
-export class UnsupportedWriteError extends Error {
-    constructor(branch) {
-        super(`dowrite requires ${branch}`);
-        this.name = 'UnsupportedWriteError';
-        this.branch = branch;
-    }
-}
 
 // C ref: write.c cost() (12-57). Returns the base ink cost for a scroll or
 // spellbook type. The table values are copied verbatim from the C source.
@@ -143,17 +134,28 @@ export function write_ok(obj) {
 
 // C ref: write.c dowrite() (74-385). Applying a magic marker to write on a
 // scroll or spellbook. The `pen` argument is the magic marker object.
-export async function dowrite(pen, state = game) {
+export async function dowrite(pen, state = game, env = {}) {
     if (nohands(state.youmonst.data)) {
         await ttyPline('You need hands to be able to write!', state);
         return ECMD_OK;
     } else if (Glib(state)) {
-        // C: Tobjnam(pen, "slip"), fingers_or_gloves(FALSE), dropx(pen).
-        // dropx() needs newsym, encumberMessage, and extractExternalObject
-        // hooks that this file does not wire. The Glib branch requires the
-        // hero to have greasy hands, which no session exercises through
-        // dowrite.
-        throw new UnsupportedWriteError('dropx() for a Glib pen');
+        // C: pline("%s from your %s.", Tobjnam(pen, "slip"),
+        // fingers_or_gloves(FALSE)); dropx(pen); return ECMD_TIME.
+        // apply.c supplies the do_wear.c and do.c operations here to avoid a
+        // write.js -> do_wear.js -> do.js -> apply.js import cycle.
+        if (typeof env.fingersOrGloves !== 'function'
+            || typeof env.dropx !== 'function') {
+            throw new TypeError(
+                'write.c dowrite() requires fingersOrGloves and dropx',
+            );
+        }
+        await ttyPline(
+            `${Tobjnam(pen, 'slip', state)} from your `
+            + `${env.fingersOrGloves(false, state)}.`,
+            state,
+        );
+        await env.dropx(pen);
+        return ECMD_TIME;
     }
 
     /* get paper to write on */
