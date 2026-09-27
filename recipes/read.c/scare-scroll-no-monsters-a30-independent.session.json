@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent ordinary read.c:seffect_scare_monster entry: a fresh debug Wizard reads an uncursed scare scroll with no spawned monsters, covering the scroll's distant-laughter arm without borrowing the admitted case's seed or monster state.",
+  "segments": [
+    {
+      "seed": 730092701,
+      "datetime": "20300927131415",
+      "nethackrc": "OPTIONS=name:ScareA30,role:Wizard,race:human,gender:female,align:neutral,playmode:debug,!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!debug_mongen\n",
+      "moves": " \u0017uncursed scroll of scare monster\n rn."
+    }
+  ]
+}

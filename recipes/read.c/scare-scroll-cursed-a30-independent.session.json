@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent cursed read.c:seffect_scare_monster variation. The debug Wizard reads a cursed scare scroll in an empty monster field, exercising the source branch that does not call resist() or monflee().",
+  "segments": [
+    {
+      "seed": 730092702,
+      "datetime": "20300927131416",
+      "nethackrc": "OPTIONS=name:ScareA30,role:Wizard,race:human,gender:female,align:neutral,playmode:debug,!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!debug_mongen\n",
+      "moves": " \u0017cursed scroll of scare monster\n rm."
+    }
+  ]
+}
