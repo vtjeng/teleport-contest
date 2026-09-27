@@ -99408,6 +99408,49 @@
           "evaluationCommit": "2d9a4768ccd20aa7dae5330807381ebed65bc926"
         }
       }
+    },
+    {
+      "id": "port-dothrow-mhurtle-synthetic-v9-20260927",
+      "kind": "file-port",
+      "status": "queued",
+      "summary": "Port monster hurtling and its source step callback through knockback and wand callers",
+      "cFile": "dothrow.c",
+      "sessions": [
+        "synthetic/v9/kick-closed-door"
+      ],
+      "selectionReason": "The current v9 kick-closed-door first mismatch is C uhitm.c:mhitm_knockback calling dothrow.c:mhurtle while JavaScript records a gap; monster position and stun then cause downstream screen, cursor, and monmove RNG differences. A32 supplied the consumed mintrap return path. Port the full monster hurtle function and its static mhurtle_step callback as one coherent task.",
+      "detail": "Implement all dothrow.c:mhurtle branches and complete static mhurtle_step, including walk_path sequencing, will_hurtle, m_in_out_region, steed and collision arms, petrification, mintrap result handling, and final trap/liquid check. Wire active uhitm.c:mhurtle_to_doom and mhitm_knockback, zap.c:bhitm, and wizard debug caller where production wiring exists. Preserve source-named gaps only for void callees whose results C discards. Use independent C recordings for uncovered entries. Investigation: investigations/synthetic/v9/kick-closed-door.json.",
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": null,
+      "delivered": null,
+      "functions": [
+        {
+          "name": "mhurtle",
+          "line": 1130,
+          "endLine": 1180,
+          "declared": false,
+          "complete": false
+        }
+      ],
+      "range": {
+        "from": 1130,
+        "to": 1180
+      },
+      "syntheticProvenance": {
+        "synthetic/v9/kick-closed-door": {
+          "session": "synthetic/v9/kick-closed-door",
+          "corpus": "synthetic",
+          "batch": "v9",
+          "caseId": "kick-closed-door",
+          "manifestPath": "challenges/manifests/v9.json",
+          "manifestSha256": "00c148aac522e6343c8de0bd003db29771439f972a99cb18c772ebf2bc45a594",
+          "recordingPath": "challenges/cases/v9/kick-closed-door.session.json",
+          "recordingSha256": "cf1d058b874865447eb40db3e9d045ba6b5cf7518f90c1aeb31ee94e6f3ef742",
+          "evaluationPath": "challenges/evaluations/20260927221853-v9.json",
+          "evaluationCommit": "31a2ed22a45f64162949a29f462c23cd51827978"
+        }
+      }
     }
   ]
 }
