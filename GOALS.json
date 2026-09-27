@@ -96377,7 +96377,7 @@
     {
       "id": "port-read-seffect-enchant-weapon-synthetic-v8-20260927",
       "kind": "file-port",
-      "status": "queued",
+      "status": "closed",
       "summary": "Port read.c seffect_enchant_weapon across blessed and other branches",
       "cFile": "read.c",
       "sessions": [
@@ -96385,17 +96385,24 @@
       ],
       "selectionReason": "Current v8 read-blessed-enchant-weapon diverges at step 37: C read.c:seffect_enchant_weapon draws rnd(3), while JS skips its blessed branch. Port the complete effect and production seffects caller, including return-valued wield.c:chwepon and pure objnam.c:erosion_matters dependencies; verify independent C recordings for active branches and name blocked void callees.",
       "detail": "",
-      "openedAt": null,
-      "openStanding": null,
-      "closedAt": null,
-      "delivered": null,
+      "openedAt": "afdb7086292a83e6107a8ab2456e038bad44fd4b",
+      "openStanding": {
+        "sha": "e32dd8b5f6ed268811ce9a39ffd2571ce0e3462b",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "closedAt": "a764f399d366f68d8cfd1ad305759ee6fef2a97a",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
       "functions": [
         {
           "name": "seffect_enchant_weapon",
           "line": 1627,
           "endLine": 1678,
           "declared": true,
-          "complete": false
+          "complete": true
         }
       ],
       "range": {
@@ -96414,6 +96421,421 @@
           "recordingSha256": "554a6afed2c716218943a4b42a5a9daefed78e77869fe346d286d19e7500666f",
           "evaluationPath": "challenges/evaluations/20260927142534-v8.json",
           "evaluationCommit": "c54c2c13ca30ebad8411cbcd4b7dcd3e193fbddc"
+        }
+      },
+      "activeStanding": {
+        "sha": "e32dd8b5f6ed268811ce9a39ffd2571ce0e3462b",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v8",
+          "caseId": "read-blessed-enchant-weapon",
+          "session": "synthetic/v8/read-blessed-enchant-weapon",
+          "manifestPath": "challenges/manifests/v8.json",
+          "manifestSha256": "6a5159501af18a7f926f794d89e817375cd00a3589c4899fb97392ae04dbe8ba",
+          "recording": "challenges/cases/v8/read-blessed-enchant-weapon.session.json",
+          "recordingPath": "challenges/cases/v8/read-blessed-enchant-weapon.session.json",
+          "recordingSha256": "554a6afed2c716218943a4b42a5a9daefed78e77869fe346d286d19e7500666f",
+          "recipe": "challenges/cases/v8/read-blessed-enchant-weapon.recipe.session.json",
+          "recipeSha256": "bf6cc7a65a346406dee977c71b2dfbfa232ad87e1862cda6a9acc764b62790ed",
+          "replayInputSha256": "9ed6be5dca7538f19cc27061a8c0d5dd7a20664213c9bb690a7f7da450f8d25c",
+          "evaluationPath": "challenges/evaluations/20260927151340-v8.json",
+          "evaluationCommit": "e32dd8b5f6ed268811ce9a39ffd2571ce0e3462b",
+          "evaluationArtifact": "challenges/evaluations/20260927151340-v8.json",
+          "evaluationUtc": "2026-09-27T15:14:30.193Z",
+          "remainingScreens": 1,
+          "recordedSteps": 38,
+          "previousScreensMatched": 37,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 37,
+              "total": 38
+            },
+            "rng": {
+              "matched": 2757,
+              "total": 2758
+            },
+            "cursors": {
+              "matched": 37,
+              "total": 38
+            }
+          },
+          "firstMismatch": {
+            "screen": {
+              "index": 37,
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 37,
+                "key": "o"
+              },
+              "kind": "ch",
+              "row": 0,
+              "column": 38,
+              "cCell": {
+                "ch": "-",
+                "color": 8,
+                "attr": 0,
+                "decgfx": 0
+              },
+              "jsCell": {
+                "ch": " ",
+                "color": 8,
+                "attr": 0,
+                "decgfx": 0
+              }
+            },
+            "rng": {
+              "index": 2757,
+              "cEntry": "rnd(3)=2",
+              "cCaller": "seffect_enchant_weapon(read.c:1670)",
+              "jsEntry": "rn2(12)=1",
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 37,
+                "key": "o"
+              },
+              "stepIndex": 37
+            },
+            "cursor": {
+              "index": 37,
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 37,
+                "key": "o"
+              },
+              "cCursor": [
+                46,
+                0,
+                1
+              ],
+              "jsCursor": [
+                29,
+                14,
+                1
+              ]
+            }
+          },
+          "step": 37,
+          "kind": "rng",
+          "sourceFile": "read.c",
+          "function": "seffect_enchant_weapon",
+          "message": null,
+          "cFile": "read.c",
+          "luaFile": null,
+          "line": 1670,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v8/read-blessed-enchant-weapon.json",
+            "result": {
+              "session": "synthetic/v8/read-blessed-enchant-weapon",
+              "corpus": "synthetic",
+              "batch": "v8",
+              "caseId": "read-blessed-enchant-weapon",
+              "manifestPath": "challenges/manifests/v8.json",
+              "manifestSha256": "6a5159501af18a7f926f794d89e817375cd00a3589c4899fb97392ae04dbe8ba",
+              "recordingSha256": "554a6afed2c716218943a4b42a5a9daefed78e77869fe346d286d19e7500666f",
+              "evaluationPath": "challenges/evaluations/20260927111723-v8.json",
+              "evaluationCommit": "358dd6ad1294374a96a704a7f5a9b46c0ddc4a47",
+              "remainingScreens": 1,
+              "recordedSteps": 38,
+              "status": "complete",
+              "commit": "358dd6ad1294374a96a704a7f5a9b46c0ddc4a47",
+              "mismatch": {
+                "corpus": "synthetic",
+                "batch": "v8",
+                "caseId": "read-blessed-enchant-weapon",
+                "session": "synthetic/v8/read-blessed-enchant-weapon",
+                "manifestPath": "challenges/manifests/v8.json",
+                "manifestSha256": "6a5159501af18a7f926f794d89e817375cd00a3589c4899fb97392ae04dbe8ba",
+                "recording": "challenges/cases/v8/read-blessed-enchant-weapon.session.json",
+                "recordingPath": "challenges/cases/v8/read-blessed-enchant-weapon.session.json",
+                "recordingSha256": "554a6afed2c716218943a4b42a5a9daefed78e77869fe346d286d19e7500666f",
+                "recipe": "challenges/cases/v8/read-blessed-enchant-weapon.recipe.session.json",
+                "recipeSha256": "bf6cc7a65a346406dee977c71b2dfbfa232ad87e1862cda6a9acc764b62790ed",
+                "replayInputSha256": "dac3f90ff702af2c54d80d8da3676a4054378ebbc23ed2be78223cf4db4d16ee",
+                "evaluationPath": "challenges/evaluations/20260927111723-v8.json",
+                "evaluationCommit": "358dd6ad1294374a96a704a7f5a9b46c0ddc4a47",
+                "evaluationArtifact": "challenges/evaluations/20260927111723-v8.json",
+                "evaluationUtc": "2026-09-27T11:17:55.744Z",
+                "remainingScreens": 1,
+                "recordedSteps": 38,
+                "previousScreensMatched": 37,
+                "regression": false,
+                "passed": false,
+                "error": null,
+                "metrics": {
+                  "screens": {
+                    "matched": 37,
+                    "total": 38
+                  },
+                  "rng": {
+                    "matched": 2757,
+                    "total": 2758
+                  },
+                  "cursors": {
+                    "matched": 37,
+                    "total": 38
+                  }
+                },
+                "firstMismatch": {
+                  "screen": {
+                    "index": 37,
+                    "location": {
+                      "segmentIndex": 0,
+                      "stepIndex": 37,
+                      "key": "o"
+                    },
+                    "kind": "ch",
+                    "row": 0,
+                    "column": 38,
+                    "cCell": {
+                      "ch": "-",
+                      "color": 8,
+                      "attr": 0,
+                      "decgfx": 0
+                    },
+                    "jsCell": {
+                      "ch": " ",
+                      "color": 8,
+                      "attr": 0,
+                      "decgfx": 0
+                    }
+                  },
+                  "rng": {
+                    "index": 2757,
+                    "cEntry": "rnd(3)=2",
+                    "cCaller": "seffect_enchant_weapon(read.c:1670)",
+                    "jsEntry": "rn2(12)=1",
+                    "location": {
+                      "segmentIndex": 0,
+                      "stepIndex": 37,
+                      "key": "o"
+                    },
+                    "stepIndex": 37
+                  },
+                  "cursor": {
+                    "index": 37,
+                    "location": {
+                      "segmentIndex": 0,
+                      "stepIndex": 37,
+                      "key": "o"
+                    },
+                    "cCursor": [
+                      46,
+                      0,
+                      1
+                    ],
+                    "jsCursor": [
+                      29,
+                      14,
+                      1
+                    ]
+                  }
+                },
+                "step": 37,
+                "kind": "rng",
+                "sourceFile": "read.c",
+                "function": "seffect_enchant_weapon",
+                "message": null,
+                "cFile": "read.c",
+                "luaFile": null,
+                "line": 1670
+              },
+              "summary": "At segment 0 step 37, selecting the blessed enchant-weapon scroll reaches read.c:seffect_enchant_weapon. C draws rnd(3)=2 at read.c:1670; JavaScript routes blessed scrolls to note_unported and skips the effect, so the aligned rn2(12)=1 is subsequent stream drift. Port the complete seffect_enchant_weapon function and its consumed-result wield.c:chwepon callee; chwepon’s integer result controls whether the scroll is consumed. Preserve the existing doread/seffects caller chain and source-ordered cap_spe behavior.",
+              "source": {
+                "file": "read.c",
+                "branch": "For the recorded path, doread selects a blessed SCR_ENCHANT_WEAPON with a wielded non-eroded quarterstaff while the hero is not confused. seffect_enchant_weapon reaches its blessed branch; because the weapon is below +9, C computes s with rnd(3) (the recorded draw) and passes the result to chwepon(), then caps the weapon enchantment. The full function also includes cursed, confused erosion-proofing, no-weapon, and high-enchantment branches.",
+                "functions": [
+                  "seffect_enchant_weapon"
+                ],
+                "callers": [
+                  "C: cmd.c command table at 1817 dispatches the read command to read.c:doread() (330); doread() calls seffects() at 635, whose SCR_ENCHANT_WEAPON arm at 2233-2234 calls seffect_enchant_weapon() at 1627-1676. The function consumes chwepon()’s result at 1672 to null the scroll pointer before seffects() returns the use-up decision to doread().",
+                  "JavaScript: js/cmd.js read handler (3410-3415) calls js/read.js:doread(); js/read.js:seffects() handles SCR_ENCHANT_WEAPON at 1582-1595, but its guard rejects blessed scrolls into note_unported. The existing js/read.js:seffect_enchant_weapon() at 1672-1692 is restricted to ordinary scrolls and calls js/wield.js:chwepon() with hard-coded amount 1."
+                ],
+                "dependencies": [
+                  "wield.c:chwepon() (918-1048) is the required return-valued dependency: read.c consumes its int result and treats zero as strange_feeling() having consumed the scroll. The current JS chwepon() at js/wield.js:319-353 only supports amount=1 on an ordinary positive branch; it refuses the blessed amount selected here and does not propagate a false result to seffects(). This is the only C chwepon() call site (read.c:1672).",
+                  "objnam.c:erosion_matters() (1195-1215) returns a boolean consumed by the confused branch at read.c:1640. It is pure by source inspection and its existing JS counterpart is obj.js:erosionMatters() at 1474-1480; verify that helper/test/source-file placement when completing the whole read.c function.",
+                  "read.c:cap_spe() (80-86) is a void state clamp called at read.c:1675. js/read.js currently mirrors the absolute SPE_LIM clamp inline after chwepon(); preserve that source order and bound.",
+                  "The complete chwepon() body also consumes existing helper or macro results including is_weptool, will_weld, has_oname, restrict_name, u_wield_art/is_art, weight, and is_elven_weapon. Existing JS counterparts cover the helpers/macros except is_elven_weapon, which can be expressed from obj.h:360-363 inside the wield.c port; its void side-effect callees must follow the source-gap rule."
+                ]
+              },
+              "goalKind": "file-port",
+              "evidence": [
+                "The saved A25 queue and evaluation challenges/evaluations/20260927111723-v8.json at 358dd6ad1294374a96a704a7f5a9b46c0ddc4a47 still show 1 remaining screen over 38 steps: 37/38 screens, 2757/2758 RNG entries, and 37/38 cursors match. At segment 0 step 37 (key o), the first RNG mismatch is index 2757: C rnd(3)=2 at seffect_enchant_weapon(read.c:1670), JS rn2(12)=1; screen index 37 differs at row 0 column 38, C '-' versus JS space, with cursors C [46,0,1] and JS [29,14,1].",
+                "The immutable C recording challenges/cases/v8/read-blessed-enchant-weapon.session.json records step 37 input o with rn2(19)=4 @ exercise(attrib.c:509), then rnd(3)=2 @ seffect_enchant_weapon(read.c:1670), and the screen begins “As you read the scroll, it disappears.--More--”. Its independently selected recipe is challenges/cases/v8/read-blessed-enchant-weapon.recipe.session.json (seed 83015418, Wizard, wished blessed scroll, then read).",
+                "Upstream read.c:1627-1676 shows the full effect. At 1667-1671, a blessed scroll with a wielded weapon below +9 selects rnd(3 - uwep->spe / 3); the recorded rnd(3) confirms this branch. At 1672, the chwepon() result controls *sobjp; at 1675, cap_spe() runs afterward.",
+                "Upstream read.c:2193-2234 dispatches SCR_ENCHANT_WEAPON to seffect_enchant_weapon(); read.c:doread() consumes seffects()’s result at 635-645. The missing JavaScript source branch is visible in js/read.js:1582-1595; the current effect at 1672-1692 explicitly rejects blessed scrolls. The C call graph has one chwepon() site, at read.c:1672.",
+                "Upstream wield.c:918-1048 defines the complete chwepon() function, including the integer return branches. The JavaScript implementation at js/wield.js:319-353 is only the ordinary amount=1 branch, confirming that the effect cannot be completed safely by changing only the blessed RNG formula.",
+                "The additional consumed helper objnam.c:erosion_matters() is pure: its source at 1195-1215 only inspects object class and calls is_weptool(). Its existing JS behavior is obj.js:1474-1480. The void cap_spe() helper’s absolute clamp is currently mirrored inline in js/read.js."
+              ]
+            }
+          }
+        }
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "seffect_enchant_weapon",
+            "implementation": "js/read.js",
+            "symbol": "seffect_enchant_weapon",
+            "sourceReview": "Read read.c:seffect_enchant_weapon() (1627-1678) as a whole. The confused rustproofing branch calls objnam.c:erosion_matters() before excluding armor, sets rknown and temporarily clears oerodeproof before its message, repairs both erosion counters only for new proof, restores the old proof before the cursed-shop COST_DEGRD query, then commits the new proof flag. Otherwise preserve the nested source ternary order: cursed -1, no weapon +1, spe>=9 rn2(spe), blessed rnd(3 - trunc(spe/3)), uncursed +1; pass the result to wield.c:chwepon(), clear the scroll pointer only when chwepon() returns 0, then clamp the still-wielded weapon to SPE_LIM. Removed the old blessed/cursed/confused/weapon guard and refusal. Ported the consumed return dependency as the whole wield.c:chwepon() body (918-1048), including its initial hcolor call, invalid-weapon strange_feeling/useup return, cursed tin-opener path, WORM_TOOTH/CRYSKNIFE conversions, restrict_name artifact refusal, soft-limit draw, normal enchant/de-enchant, uncurse/bill updates, Magicbane clue, and elven vibration RNG. Its void invent.c:useupall() call at the soft-limit destruction branch is skipped with note_unported('invent.c useupall'); sourceCostlyAlteration() skips billed shop accounting with note_unported('shk.c costly_alteration') and otherwise preserves the no-op fast path. Existing potion.c:strange_feeling, mkobj.c:uncurse, shk.c:alter_cost, pickup.c:encumber_msg, o_init.c:discover_object/makeknown, do_name.c:hcolor, and the wield.c helpers are used in source order. The return-valued pure objnam.c:erosion_matters() (1195-1215) is now kept in js/objnam.js, reused by confused enchantment and donameFresh, with js/obj.js retaining a compatibility adapter; scripts/objnam.test.mjs pins its class and is_weptool results to C. The read dispatch caller chain is js/cmd.js:runReadCommand -> js/read.js:doread -> js/read.js:seffects -> this function. Source obj.h:is_elven_weapon is a macro, not a C function: its predicate is represented inline in js/wield.js with the source object-type set; this avoids placing obj.h behavior in an unrelated JS module.",
+            "callers": [
+              {
+                "path": "js/cmd.js",
+                "symbol": "runReadCommand",
+                "source": "cmd.c dispatches the read command to read.c:doread(); JavaScript runReadCommand() forwards the active read command to doread()."
+              },
+              {
+                "path": "js/read.js",
+                "symbol": "doread",
+                "source": "read.c:doread() selects the scroll, calls seffects(), and uses the returned consumption state to finish the read; JavaScript doread() preserves this same caller boundary."
+              },
+              {
+                "path": "js/read.js",
+                "symbol": "seffects",
+                "source": "read.c:seffects() dispatches SCR_ENCHANT_WEAPON to seffect_enchant_weapon(&sobj); JavaScript seffects() now awaits the whole source effect and nulls its local scroll only when chwepon() reports consumption."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/objnam.test.mjs",
+              "scripts/wield.test.mjs",
+              "scripts/read.test.mjs",
+              "scripts/read-command.test.mjs",
+              "scripts/read-doread.test.mjs"
+            ],
+            "recordings": [
+              "recordings/read.c/read-enchant-weapon-blessed-A28-independent.session.json",
+              "recordings/read.c/read-enchant-weapon-fresh.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v8",
+                "caseId": "read-blessed-enchant-weapon",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 37,
+                "source": "cmd.c read dispatch -> read.c:doread -> read.c:seffects SCR_ENCHANT_WEAPON -> read.c:seffect_enchant_weapon -> wield.c:chwepon"
+              }
+            ],
+            "checkedAt": "a764f399d366f68d8cfd1ad305759ee6fef2a97a"
+          }
+        ],
+        "entryPointReview": "The selected range has one active production entry point: the player's read command on SCR_ENCHANT_WEAPON, dispatched cmd.c -> read.c:doread() -> seffects(). The v8 blessed-weapon case matches through zero-based step 37 and executes the blessed rnd(3) amount, consumed-result return, and cap_spe tail. The independent Wizard recipe uses a different seed, date, character presentation, and wished blessed scroll, strictly matches all 40 recorded steps, and reaches the same production caller. Existing recordings/read.c/read-enchant-weapon-fresh.session.json was also replayed with no divergence for its 41 steps, covering the ordinary uncursed positive branch. The pure erosion_matters dependency is pinned separately in scripts/objnam.test.mjs. Confused proofing and high-enchantment RNG are implemented from their C branches; their active read command is the same entry point. chwepon's only skipped source calls are the explicitly named void gaps: invent.c:useupall for a soft-limit weapon destruction and shk.c:costly_alteration when the object is billed. Those effects are not claimed by the matching blessed/ordinary recordings. No other active C read caller was found for this scroll effect. The recorder slot is released and no process remains active. The earlier failed diff-fresh invocation passed the already-recorded `.session.json` instead of the input-only `.recipe.session.json`; it exited validation with code 2 before running a C comparison. The corrected selected recipe and independent recipe both passed strict C/JavaScript comparisons.",
+        "entryPoints": [
+          {
+            "name": "read command on SCR_ENCHANT_WEAPON",
+            "functions": [
+              "seffect_enchant_weapon"
+            ],
+            "recordings": [
+              "recordings/read.c/read-enchant-weapon-blessed-A28-independent.session.json",
+              "recordings/read.c/read-enchant-weapon-fresh.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v8",
+                "caseId": "read-blessed-enchant-weapon",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 37,
+                "source": "cmd.c read dispatch -> read.c:doread -> read.c:seffects SCR_ENCHANT_WEAPON -> read.c:seffect_enchant_weapon -> wield.c:chwepon"
+              }
+            ]
+          }
+        ]
+      },
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "a764f399d366f68d8cfd1ad305759ee6fef2a97a",
+        "screens": 11405,
+        "rng": 792838
+      }
+    },
+    {
+      "id": "port-apply-touchstone-family-synthetic-v8-20260927",
+      "kind": "file-port",
+      "status": "queued",
+      "summary": "Port touchstone rubbing and gem identification through apply and rub commands",
+      "cFile": "apply.c",
+      "sessions": [
+        "synthetic/v8/apply-blessed-touchstone-identifies-gem"
+      ],
+      "selectionReason": "Current v8 touchstone case stops at step 39 in js/apply.js:doapply while C enters apply.c:use_stone. Source-traced investigation investigations/synthetic/v8/apply-blessed-touchstone-identifies-gem.json identifies touchstone_ok/use_stone as the whole responsible family, with doapply and dorub as production callers. The annotated doapply owner is only the dispatch site. The admitted recording and latest evaluation are challenges/cases/v8/apply-blessed-touchstone-identifies-gem.session.json and challenges/evaluations/20260927151340-v8.json.",
+      "detail": "",
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": null,
+      "delivered": null,
+      "functions": [
+        {
+          "name": "touchstone_ok",
+          "line": 2658,
+          "endLine": 2679,
+          "declared": false,
+          "complete": false
+        },
+        {
+          "name": "use_stone",
+          "line": 2680,
+          "endLine": 2812,
+          "declared": false,
+          "complete": false
+        }
+      ],
+      "range": {
+        "from": 2658,
+        "to": 2812
+      },
+      "syntheticProvenance": {
+        "synthetic/v8/apply-blessed-touchstone-identifies-gem": {
+          "session": "synthetic/v8/apply-blessed-touchstone-identifies-gem",
+          "corpus": "synthetic",
+          "batch": "v8",
+          "caseId": "apply-blessed-touchstone-identifies-gem",
+          "manifestPath": "challenges/manifests/v8.json",
+          "manifestSha256": "6a5159501af18a7f926f794d89e817375cd00a3589c4899fb97392ae04dbe8ba",
+          "recordingPath": "challenges/cases/v8/apply-blessed-touchstone-identifies-gem.session.json",
+          "recordingSha256": "c1ac831e5b8e20bf4777c016524fca8cec221b084adeb6eb14c7d9ca31a2071f",
+          "evaluationPath": "challenges/evaluations/20260927151340-v8.json",
+          "evaluationCommit": "e32dd8b5f6ed268811ce9a39ffd2571ce0e3462b"
+        }
+      }
+    },
+    {
+      "id": "fix-objnam-artifact-named-article-synthetic-v8-20260927",
+      "kind": "divergence-fix",
+      "status": "queued",
+      "summary": "Match artifact named-suffix article casing in object names",
+      "cFile": "objnam.c",
+      "sessions": [],
+      "selectionReason": "Current v8 artifact-heart-invoke-cycle has one screen mismatch at segment 0 step 25 after A27 first-touch behavior matches. Source-traced investigation investigations/synthetic/v8/artifact-heart-invoke-cycle.json locates the general objnam.c:xname_flags named-suffix rule; js/objnam.js:xnameFresh leaves an initial The capitalized. The saved current evidence is challenges/evaluations/20260927155044-v8.json for recording challenges/cases/v8/artifact-heart-invoke-cycle.session.json, sha256 816c8353f3fea197a0e99d8bd83f53f622a02d45fe61a59784dcfd479862cfd8.",
+      "detail": "At synthetic/v8/artifact-heart-invoke-cycle segment 0 step 25, the first mismatch is a screen cell in the inventory acquisition line: patched C says named the Heart of Ahriman; JS says named The Heart of Ahriman. Upstream objnam.c:xname_flags appends the artifact name and lowercases an initial The for all artifact instances under its named suffix branch. The suspected JavaScript owner is js/objnam.js:xnameFresh. Implement the source rule across artifact names, without session, seed, or Heart-specific branches.",
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": null,
+      "delivered": null,
+      "function": "xname_flags",
+      "session": "synthetic/v8/artifact-heart-invoke-cycle",
+      "step": 25,
+      "syntheticProvenance": {
+        "synthetic/v8/artifact-heart-invoke-cycle": {
+          "session": "synthetic/v8/artifact-heart-invoke-cycle",
+          "corpus": "synthetic",
+          "batch": "v8",
+          "caseId": "artifact-heart-invoke-cycle",
+          "manifestPath": "challenges/manifests/v8.json",
+          "manifestSha256": "6a5159501af18a7f926f794d89e817375cd00a3589c4899fb97392ae04dbe8ba",
+          "recordingPath": "challenges/cases/v8/artifact-heart-invoke-cycle.session.json",
+          "recordingSha256": "816c8353f3fea197a0e99d8bd83f53f622a02d45fe61a59784dcfd479862cfd8",
+          "evaluationPath": "challenges/evaluations/20260927155044-v8.json",
+          "evaluationCommit": "a764f399d366f68d8cfd1ad305759ee6fef2a97a"
         }
       }
     }
