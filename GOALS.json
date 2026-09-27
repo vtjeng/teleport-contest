@@ -97892,7 +97892,7 @@
     {
       "id": "port-potion-peffect-sickness-synthetic-v9-20260927",
       "kind": "file-port",
-      "status": "open",
+      "status": "closed",
       "summary": "Port sickness potion effects and caller environment",
       "cFile": "potion.c",
       "sessions": [
@@ -97906,15 +97906,18 @@
         "screens": 11405,
         "rng": 792838
       },
-      "closedAt": null,
-      "delivered": null,
+      "closedAt": "ac277fb2eb68caa10cb1277ca6595f6538ad4fbc",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
       "functions": [
         {
           "name": "peffect_sickness",
           "line": 964,
           "endLine": 1013,
           "declared": true,
-          "complete": false
+          "complete": true
         }
       ],
       "range": {
@@ -98083,7 +98086,98 @@
             }
           }
         }
-      ]
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "peffect_sickness",
+            "implementation": "js/potion.js",
+            "symbol": "peffect_sickness",
+            "sourceReview": "Read potion.c:963-1011 and the POT_SICKNESS peffects dispatch at 1376-1378. Checked blessed versus unblessed order, Poison_resistance and PM_HEALER branches, Fixed_abil guard, typ rn2(A_MAX), contaminant/fromsink naming and killer format, adjattrib rn1 order, both losehp formulas, exercise(A_CON,FALSE), and the final Hallucination/make_hallucinated branch. The JS quaff environment now supplies message, RNG, and encumber_msg to the consumed attrib helpers; dopotion passes it to peffects and peffects normalizes it only for this effect. C discards adjattrib and make_hallucinated results; all other calls are void. No unported return-valued callee is substituted or exposed.",
+            "callers": [
+              {
+                "path": "js/potion.js",
+                "symbol": "peffects",
+                "source": "potion.c:peffects case POT_SICKNESS calls peffect_sickness(otmp)"
+              },
+              {
+                "path": "js/potion.js",
+                "symbol": "dopotion",
+                "source": "potion.c:dopotion initializes potion flags then calls peffects(otmp)"
+              },
+              {
+                "path": "js/potion.js",
+                "symbol": "dodrink",
+                "source": "potion.c:dodrink selects a potion and returns dopotion(otmp)"
+              },
+              {
+                "path": "js/fountain.js",
+                "symbol": "drinksink",
+                "source": "fountain.c:drinksink creates a non-water potion, marks fromsink, then calls dopotion(otmp)"
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/potion.test.mjs"
+            ],
+            "recordings": [
+              "recordings/potion.c/sickness-wizard-uncursed-independent-b31.session.json",
+              "recordings/potion.c/sickness-wizard-blessed-independent-b31.session.json",
+              "recordings/fountain.c/drinksink-potion.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v9",
+                "caseId": "sickness-potion-poisons-hero",
+                "segment": 0,
+                "fromStep": 32,
+                "throughStep": 32,
+                "source": "cmd.c quaff -> potion.c:dodrink -> dopotion -> peffects case POT_SICKNESS -> peffect_sickness"
+              }
+            ],
+            "checkedAt": "ac277fb2eb68caa10cb1277ca6595f6538ad4fbc"
+          }
+        ],
+        "entryPointReview": "The source unit's active runtime routes are ordinary potion quaff through dodrink/dopotion/peffects, and sink-created potion through fountain.c:drinksink/dopotion/peffects; both have matching recordings. The ordinary route has independent unblessed and blessed recordings, and the sink route reaches the Healer/fromsink arm. The selected v9 Ranger quaff also reaches peffect_sickness at segment 0 step 32 and is cited below. eat.c:finish_eating can call dopotion for a POTION_CLASS item, but its production edible check rejects potions because POTION_CLASS objects have glass material, outside is_organic; the recorded source-pinned negative case is recipes/eat.c/is-edible-potion-rejection-a28.session.json and recordings/eat.c/is-edible-potion-rejection-a28.session.json. spell.c:docast calls peffects only for the listed potion-duplicate spells; none maps to POT_SICKNESS. end.c calls peffects only for POT_WATER and POT_RESTORE_ABILITY. Neither excluded caller reaches this function.",
+        "entryPoints": [
+          {
+            "name": "ordinary potion quaff",
+            "functions": [
+              "peffect_sickness"
+            ],
+            "recordings": [
+              "recordings/potion.c/sickness-wizard-uncursed-independent-b31.session.json",
+              "recordings/potion.c/sickness-wizard-blessed-independent-b31.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v9",
+                "caseId": "sickness-potion-poisons-hero",
+                "segment": 0,
+                "fromStep": 32,
+                "throughStep": 32,
+                "source": "cmd.c quaff -> potion.c:dodrink -> dopotion -> peffects case POT_SICKNESS -> peffect_sickness"
+              }
+            ]
+          },
+          {
+            "name": "sink-generated potion",
+            "functions": [
+              "peffect_sickness"
+            ],
+            "recordings": [
+              "recordings/fountain.c/drinksink-potion.session.json"
+            ],
+            "synthetic": []
+          }
+        ]
+      },
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "ac277fb2eb68caa10cb1277ca6595f6538ad4fbc",
+        "screens": 11405,
+        "rng": 792838
+      }
     },
     {
       "id": "div-uhitm-mhitm-knockback-unsolid-synthetic-v9-20260927",

@@ -1,0 +1,138 @@
+{
+  "session": "synthetic/v9/food-detection-scroll-smells-ration",
+  "corpus": "synthetic",
+  "batch": "v9",
+  "caseId": "food-detection-scroll-smells-ration",
+  "manifestPath": "challenges/manifests/v9.json",
+  "manifestSha256": "00c148aac522e6343c8de0bd003db29771439f972a99cb18c772ebf2bc45a594",
+  "recordingSha256": "51b904213bb51ac8bb79bbe9ed1ab8aff746ab6d6e6ec0be08efd46604e01d8e",
+  "evaluationPath": "challenges/evaluations/20260927175933-v9.json",
+  "evaluationCommit": "ed281da57eb1c879937da42b05f214e0640df9db",
+  "remainingScreens": 2,
+  "recordedSteps": 47,
+  "status": "complete",
+  "commit": "ed281da57eb1c879937da42b05f214e0640df9db",
+  "mismatch": {
+    "corpus": "synthetic",
+    "batch": "v9",
+    "caseId": "food-detection-scroll-smells-ration",
+    "session": "synthetic/v9/food-detection-scroll-smells-ration",
+    "manifestPath": "challenges/manifests/v9.json",
+    "manifestSha256": "00c148aac522e6343c8de0bd003db29771439f972a99cb18c772ebf2bc45a594",
+    "recording": "challenges/cases/v9/food-detection-scroll-maps-floor-ration.session.json",
+    "recordingPath": "challenges/cases/v9/food-detection-scroll-maps-floor-ration.session.json",
+    "recordingSha256": "51b904213bb51ac8bb79bbe9ed1ab8aff746ab6d6e6ec0be08efd46604e01d8e",
+    "recipe": "challenges/cases/v9/food-detection-scroll-maps-floor-ration.recipe.session.json",
+    "recipeSha256": "6ba20482e7c698150ee825b2407b0eec00ea1434238ec5c71350a6c170e588b3",
+    "replayInputSha256": "025d6fc2229f1dc818bc43ea765daa9db58c9a915f1f9f33c75e970db2ae5256",
+    "evaluationPath": "challenges/evaluations/20260927175933-v9.json",
+    "evaluationCommit": "ed281da57eb1c879937da42b05f214e0640df9db",
+    "evaluationArtifact": "challenges/evaluations/20260927175933-v9.json",
+    "evaluationUtc": "2026-09-27T18:00:12.845Z",
+    "remainingScreens": 2,
+    "recordedSteps": 47,
+    "previousScreensMatched": 45,
+    "regression": false,
+    "passed": false,
+    "error": null,
+    "metrics": {
+      "screens": {
+        "matched": 45,
+        "total": 47
+      },
+      "rng": {
+        "matched": 2926,
+        "total": 2927
+      },
+      "cursors": {
+        "matched": 45,
+        "total": 47
+      }
+    },
+    "firstMismatch": {
+      "screen": {
+        "index": 45,
+        "location": {
+          "segmentIndex": 0,
+          "stepIndex": 45,
+          "key": "o"
+        },
+        "kind": "ch",
+        "row": 0,
+        "column": 38,
+        "cCell": {
+          "ch": "-",
+          "color": 8,
+          "attr": 0,
+          "decgfx": 0
+        },
+        "jsCell": {
+          "ch": " ",
+          "color": 8,
+          "attr": 0,
+          "decgfx": 0
+        }
+      },
+      "rng": {
+        "index": 2926,
+        "cEntry": "rn2(19)=3",
+        "cCaller": "exercise(attrib.c:509)",
+        "jsEntry": "rn2(5)=0",
+        "location": {
+          "segmentIndex": 0,
+          "stepIndex": 46,
+          "key": " "
+        },
+        "stepIndex": 46
+      },
+      "cursor": {
+        "index": 45,
+        "location": {
+          "segmentIndex": 0,
+          "stepIndex": 45,
+          "key": "o"
+        },
+        "cCursor": [
+          46,
+          0,
+          1
+        ],
+        "jsCursor": [
+          12,
+          9,
+          1
+        ]
+      }
+    },
+    "step": 45,
+    "kind": "screen",
+    "sourceFile": null,
+    "function": null,
+    "message": null,
+    "cFile": null,
+    "luaFile": null,
+    "line": null
+  },
+  "summary": "The food-detection scroll enters read.c:seffect_food_detection, whose consumed return depends on detect.c:food_detect. JavaScript records the read effect as unported and has no food_detect implementation, so the C food scent/map path and its input boundary diverge. Port the whole detect.c function and wire the scroll caller from source, including no-food, nearby-only, and map-display outcomes.",
+  "source": {
+    "file": "detect.c",
+    "branch": "food_detect chooses food or potion class from Confusion/cursed state, clears stale object marks, scans floor objects and monster inventories at and away from the hero, then either invokes strange_feeling, reports a nearby smell, or displays the detected map. It returns one only for nothing detected without stale map data. read.c:seffect_food_detection consumes that return and clears its scroll pointer so the caller does not use the already consumed object.",
+    "functions": [
+      "food_detect"
+    ],
+    "callers": [
+      "read.c:seffect_food_detection calls detect.c:food_detect and consumes its integer return; read.c:seffects SCR_FOOD_DETECTION and SPE_DETECT_FOOD dispatch reach that wrapper from doread or spell.c:spelleffects. js/read.js:seffects currently records note_unported(read.c seffect_food_detection)."
+    ],
+    "dependencies": [
+      "detect.c:o_in, clear_stale_map, browse_map, map_redisplay, and object-detection presentation helpers have existing counterparts in js/detect.js; food_detect is absent.",
+      "The empty-result path uses strange_feeling and scroll consumption, while the map path changes screen state and waits for input; preserve the return contract across js/read.js seeffects.",
+      "The source scan includes floor and monster inventory objects; do not reduce the port to the selected floor-ration path."
+    ]
+  },
+  "goalKind": "file-port",
+  "evidence": [
+    "Current saved challenges/evaluations/20260927175933-v9.json leaves 2 of 47 screens unmatched, first at segment 0 step 45 after reading a food-detection scroll. The later exercise RNG difference is downstream of the missing effect.",
+    "Fresh scan at b6e28d15 reports note_unported(read.c seffect_food_detection), while C read.c:seffect_food_detection calls detect.c:food_detect. The selected recipe wishes a food-detection scroll and a ration, drops the ration, moves away, then reads.",
+    "Upstream nethack-c/upstream/src/detect.c:food_detect lines 479-589 owns the scan, messages, map display, and return; read.c:seffect_food_detection lines 2046-2052 consumes its return. js/detect.js lacks food_detect but contains several required helpers."
+  ]
+}
