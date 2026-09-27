@@ -96807,6 +96807,37 @@
           "evaluationCommit": "e32dd8b5f6ed268811ce9a39ffd2571ce0e3462b"
         }
       }
+    },
+    {
+      "id": "fix-objnam-artifact-named-article-synthetic-v8-20260927",
+      "kind": "divergence-fix",
+      "status": "queued",
+      "summary": "Match artifact named-suffix article casing in object names",
+      "cFile": "objnam.c",
+      "sessions": [],
+      "selectionReason": "Current v8 artifact-heart-invoke-cycle has one screen mismatch at segment 0 step 25 after A27 first-touch behavior matches. Source-traced investigation investigations/synthetic/v8/artifact-heart-invoke-cycle.json locates the general objnam.c:xname_flags named-suffix rule; js/objnam.js:xnameFresh leaves an initial The capitalized. The saved current evidence is challenges/evaluations/20260927155044-v8.json for recording challenges/cases/v8/artifact-heart-invoke-cycle.session.json, sha256 816c8353f3fea197a0e99d8bd83f53f622a02d45fe61a59784dcfd479862cfd8.",
+      "detail": "At synthetic/v8/artifact-heart-invoke-cycle segment 0 step 25, the first mismatch is a screen cell in the inventory acquisition line: patched C says named the Heart of Ahriman; JS says named The Heart of Ahriman. Upstream objnam.c:xname_flags appends the artifact name and lowercases an initial The for all artifact instances under its named suffix branch. The suspected JavaScript owner is js/objnam.js:xnameFresh. Implement the source rule across artifact names, without session, seed, or Heart-specific branches.",
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": null,
+      "delivered": null,
+      "function": "xname_flags",
+      "session": "synthetic/v8/artifact-heart-invoke-cycle",
+      "step": 25,
+      "syntheticProvenance": {
+        "synthetic/v8/artifact-heart-invoke-cycle": {
+          "session": "synthetic/v8/artifact-heart-invoke-cycle",
+          "corpus": "synthetic",
+          "batch": "v8",
+          "caseId": "artifact-heart-invoke-cycle",
+          "manifestPath": "challenges/manifests/v8.json",
+          "manifestSha256": "6a5159501af18a7f926f794d89e817375cd00a3589c4899fb97392ae04dbe8ba",
+          "recordingPath": "challenges/cases/v8/artifact-heart-invoke-cycle.session.json",
+          "recordingSha256": "816c8353f3fea197a0e99d8bd83f53f622a02d45fe61a59784dcfd479862cfd8",
+          "evaluationPath": "challenges/evaluations/20260927155044-v8.json",
+          "evaluationCommit": "a764f399d366f68d8cfd1ad305759ee6fef2a97a"
+        }
+      }
     }
   ]
 }
