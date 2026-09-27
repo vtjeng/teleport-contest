@@ -46,6 +46,11 @@ import { game } from '../js/gstate.js';
 import { runSegment } from '../js/jsmain.js';
 import { newMonster } from '../js/monst.js';
 import {
+    AD_PHYS,
+    AT_CLAW,
+    AT_ENGL,
+    AT_HUGS,
+    M1_UNSOLID,
     PM_BABY_GRAY_DRAGON,
     PM_BLACK_PUDDING,
     PM_BROWN_PUDDING,
@@ -99,10 +104,15 @@ import { mksobj } from '../js/obj.js';
 import { addinv } from '../js/invent.js';
 import { setuwep } from '../js/worn.js';
 import { setwornEnv } from '../js/do_wear.js';
-import { monsndx } from '../js/mondata.js';
+import { attacktype, monsndx, sticks } from '../js/mondata.js';
 import { P_ADVANCE, skillSlot } from '../js/startup_skills.js';
 import { uwep_skill_type } from '../js/weapon.js';
-import { hmon, known_hitum, m_is_steadfast } from '../js/uhitm.js';
+import {
+    hmon,
+    known_hitum,
+    mhitm_knockback,
+    m_is_steadfast,
+} from '../js/uhitm.js';
 import { will_hurtle } from '../js/dothrow.js';
 
 const UHITM_SOURCE = readFileSync(
@@ -491,6 +501,51 @@ test('mhitm_knockback returns its source hitflags contract',
                 true,
             );
         }
+    });
+
+// uhitm.c:5333-5334 calls mondata.c:unsolid() after the chance, attack,
+// geometry, size, and weapon guards. A ghost is a human-sized M1_UNSOLID
+// attacker; a grid bug is tiny enough to pass the preceding size test.
+test('mhitm_knockback rejects an unsolid attacker after its two source draws',
+    async () => {
+        await hero();
+        const attacker = newMonster({
+            mx: game.u.ux,
+            my: game.u.uy,
+            mhp: 99,
+            mhpmax: 99,
+            data: game.mons[PM_GHOST],
+        });
+        const defender = target(PM_GRID_BUG);
+        const env = hitEnv({ rolls: [0, 0] });
+
+        // Pin the source guard's preconditions so this cannot pass at an
+        // earlier attack, size, or solidity check.
+        assert.ok(attacker.data.mflags1 & M1_UNSOLID);
+        assert.ok(attacker.data.msize > defender.data.msize + 1);
+        assert.equal(attacktype(attacker.data, AT_ENGL), false);
+        assert.equal(attacktype(attacker.data, AT_HUGS), false);
+        assert.equal(sticks(attacker.data), false);
+
+        assert.equal(
+            await mhitm_knockback(
+                attacker,
+                defender,
+                { adtyp: AD_PHYS, aatyp: AT_CLAW },
+                { value: 1 },
+                false,
+                game,
+                env,
+                env.random,
+            ),
+            false,
+        );
+        assert.deepEqual(env.bounds, ['rn2(3)', 'rn2(6)']);
+        assert.deepEqual(env.lines, []);
+        assert.match(
+            UHITM_SOURCE,
+            /if \(unsolid\(magr->data\)\)\s+return FALSE;/,
+        );
     });
 
 // uhitm.c:5297-5301, the isok() half of the doorway rule. A target standing
