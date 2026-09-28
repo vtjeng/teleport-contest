@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 30270929,
+      "datetime": "20420927101700",
+      "nethackrc": "OPTIONS=name:IdentifyCastC30,role:Wizard,race:human,gender:female,align:neutral,playmode:debug,!legacy,!tutorial,!splash_screen,pettype:none\n",
+      "moves": "\u0017blessed spellbook of identify\n\u0017uncursed potion of gain level\nqp ro #enhance\nyr r \u001bZc"
+    }
+  ],
+  "comment": "Independent learned-spell entry correction for C30: in debug mode, wish a blessed identify spellbook and an uncursed gain-level potion, use the potion to raise spell power, read the book from inventory slot o, dismiss the study-start pager, advance turns until Identify is learned, raise divination to Skilled, then use Z and select Identify. Verify spell.c:docast -> spelleffects(SPE_IDENTIFY) -> read.c:seffect_identify; this exercises learned #cast, distinct from the #wizcast recipe."
+}

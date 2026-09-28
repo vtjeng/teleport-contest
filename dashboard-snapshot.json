@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "capturedAt": "2026-09-28T03:52:44.021Z",
+  "capturedAt": "2026-09-28T04:11:29.657Z",
   "activity": {
     "runId": "loop-20260925",
     "events": [
@@ -6691,12 +6691,51 @@
         "type": "accepted",
         "at": "2026-09-28T03:52:35.274Z",
         "task": "B37"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "B37-published-202609280353",
+        "type": "published",
+        "at": "2026-09-28T03:54:47.104Z",
+        "task": "B37",
+        "commit": "572ec87519aad01cc4f79a2858c94fed4211f2da"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "C30-correction-received-202609280355",
+        "type": "received",
+        "at": "2026-09-28T03:56:19.926Z",
+        "task": "C30",
+        "delivery": "def1a4e3625df3e4686b7215508ea2f3f5cdd370"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "C30-integrating-202609280357",
+        "type": "integrating",
+        "at": "2026-09-28T03:58:12.702Z",
+        "task": "C30",
+        "integration": "8a92f8faba9bf438288fc394e610c10c2884c84a"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "validate-C30-8a92f8-20260928",
+        "type": "validated",
+        "at": "2026-09-28T04:11:05.632Z",
+        "task": "C30",
+        "passed": true
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-C30-8a92f8-20260928",
+        "type": "accepted",
+        "at": "2026-09-28T04:11:19.323Z",
+        "task": "C30"
       }
     ]
   },
   "development": {
-    "executionCommit": "8dc5bff9d70c51ede13a0acbd66cb5d702e9671e",
-    "measuredAt": "2026-09-28T03:46:38.337Z",
+    "executionCommit": "8a92f8faba9bf438288fc394e610c10c2884c84a",
+    "measuredAt": "2026-09-28T04:04:20.341Z",
     "sessions": [
       {
         "session": "holdout/seed0002-healer-reflection-drummer",
