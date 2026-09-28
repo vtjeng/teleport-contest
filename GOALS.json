@@ -42757,7 +42757,15 @@
         "sha": "9fe6cb6aef11f733e2b24c17f4c1ed895b2d99ef",
         "screens": 8718,
         "rng": 640345
-      }
+      },
+      "invalidatedFunctions": [
+        {
+          "name": "peffect_see_invisible",
+          "reason": "The prior goal recorded only potion.c:peffect_see_invisible POT_FRUIT_JUICE early return while its detail explicitly left the shared POT_SEE_INVISIBLE continuation separate. Current v10/quaff-see-invisible-potion stops at the peffects refusal at step 28; the source continuation at potion.c:841-880 is not implemented or runtime-evidenced. Retire whole-function completion until the new goal ports and verifies both arms and caller wiring.",
+          "followupGoal": "port-potion-see-invisible-synthetic-v10-20260928",
+          "at": "a289c9da454a94377d554909071dee743753ea5b"
+        }
+      ]
     },
     {
       "id": "port-potion-paralysis-seed0002",
@@ -105426,6 +105434,92 @@
           "recordingSha256": "12aa5fd51946be86d83d5020e30cb999009ba86c18593743f429ff8f09f4e56e",
           "evaluationPath": "challenges/evaluations/20260928101733-v10.json",
           "evaluationCommit": "8115539ecb3dbe59a8accf08d9a80235d523b63f"
+        }
+      }
+    },
+    {
+      "id": "port-apply-flip-through-book-synthetic-v10-20260928",
+      "kind": "file-port",
+      "status": "queued",
+      "summary": "Port spellbook page-flipping and apply dispatch from source",
+      "cFile": "apply.c",
+      "sessions": [
+        "synthetic/v10/apply-flips-through-blank-spellbook"
+      ],
+      "selectionReason": "v10/apply-flips-through-blank-spellbook remains unmatched at step 29 in current saved evaluation challenges/evaluations/20260928113626-v10.json; investigations/synthetic/v10/apply-flips-through-blank-spellbook.json traces the refusal to apply.c:flip_through_book and doapply SPBOOK_CLASS. This independent source family does not overlap assigned invent/altar or potion work.",
+      "detail": "Implement all apply.c:flip_through_book branches and wire doapply SPBOOK_CLASS. Preserve underwater, Blind, Deaf, Hallucination, Book of the Dead, blank, novel, and faded-book behavior, discovery, messages, and source order; create an independently recorded C witness.",
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": null,
+      "delivered": null,
+      "functions": [
+        {
+          "name": "flip_through_book",
+          "line": 4473,
+          "endLine": 4526,
+          "declared": false,
+          "complete": false
+        }
+      ],
+      "range": {
+        "from": 4473,
+        "to": 4526
+      },
+      "syntheticProvenance": {
+        "synthetic/v10/apply-flips-through-blank-spellbook": {
+          "session": "synthetic/v10/apply-flips-through-blank-spellbook",
+          "corpus": "synthetic",
+          "batch": "v10",
+          "caseId": "apply-flips-through-blank-spellbook",
+          "manifestPath": "challenges/manifests/v10.json",
+          "manifestSha256": "79c7c030ef380f5d24f6bcdbae0a59cce143306a35f7edee4355a3e01964cb57",
+          "recordingPath": "challenges/cases/v10/apply-flips-through-blank-spellbook.session.json",
+          "recordingSha256": "68b46a5606e5efc2de2fb61fae7a9f17d82b23f1aafaf1e2fa93124b9ba119f9",
+          "evaluationPath": "challenges/evaluations/20260928113626-v10.json",
+          "evaluationCommit": "39b000fbed439e22068eae3411407a63033d43e6"
+        }
+      }
+    },
+    {
+      "id": "port-potion-see-invisible-synthetic-v10-20260928",
+      "kind": "file-port",
+      "status": "queued",
+      "summary": "Complete see-invisible and fruit-juice potion effect from source",
+      "cFile": "potion.c",
+      "sessions": [
+        "synthetic/v10/quaff-see-invisible-potion"
+      ],
+      "selectionReason": "v10/quaff-see-invisible-potion remains unmatched at step 28 in current challenges/evaluations/20260928113626-v10.json; investigations/synthetic/v10/quaff-see-invisible-potion.json traces the refusal to potion.c:peffect_see_invisible and peffects POT_SEE_INVISIBLE dispatch. This source and see-invisible state contract are independent of assigned invent/altar and spellbook work.",
+      "detail": "Complete shared fruit-juice and see-invisible branches of potion.c:peffect_see_invisible, preserving taste, identification, blindness clearing, intrinsic HSee_invisible permanent chance, timed effect, redraw, and messages. Wire peffects POT_SEE_INVISIBLE caller; trace ordinary quaff and debug fuzzer paths and record independent C variations.",
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": null,
+      "delivered": null,
+      "functions": [
+        {
+          "name": "peffect_see_invisible",
+          "line": 841,
+          "endLine": 880,
+          "declared": true,
+          "complete": false
+        }
+      ],
+      "range": {
+        "from": 841,
+        "to": 880
+      },
+      "syntheticProvenance": {
+        "synthetic/v10/quaff-see-invisible-potion": {
+          "session": "synthetic/v10/quaff-see-invisible-potion",
+          "corpus": "synthetic",
+          "batch": "v10",
+          "caseId": "quaff-see-invisible-potion",
+          "manifestPath": "challenges/manifests/v10.json",
+          "manifestSha256": "79c7c030ef380f5d24f6bcdbae0a59cce143306a35f7edee4355a3e01964cb57",
+          "recordingPath": "challenges/cases/v10/quaff-see-invisible-potion.session.json",
+          "recordingSha256": "eacfe31e01e600179b3ae1ea7948c1eef0ccefecd6461730020136fe6b3b86c3",
+          "evaluationPath": "challenges/evaluations/20260928113626-v10.json",
+          "evaluationCommit": "39b000fbed439e22068eae3411407a63033d43e6"
         }
       }
     }
