@@ -102331,6 +102331,63 @@
           "evaluationCommit": "8a92f8faba9bf438288fc394e610c10c2884c84a"
         }
       }
+    },
+    {
+      "id": "port-apply-whistle-family-synthetic-v8-20260928",
+      "kind": "file-port",
+      "status": "queued",
+      "summary": "Port ordinary and magic whistle application with tame-pet relocation",
+      "cFile": "apply.c",
+      "sessions": [
+        "synthetic/v8/magic-whistle-recalls-tame-dog"
+      ],
+      "selectionReason": "The current admitted v8 magic-whistle case stops in apply.c:doapply at the missing MAGIC_WHISTLE arm, as traced in investigations/synthetic/v8/magic-whistle-recalls-tame-dog.json. Its source call reaches apply.c:use_magic_whistle then magic_whistled; the adjacent TIN_WHISTLE and EUCALYPTUS_LEAF arms share use_whistle/use_magic_whistle and belong in the same coherent source family. B reserves potion.c and C reserves read.c/recharge, so this apply.c scope is independent.",
+      "detail": "Port complete apply.c:use_whistle, use_magic_whistle, and magic_whistled in source order, with doapply arms for MAGIC_WHISTLE, TIN_WHISTLE, and EUCALYPTUS_LEAF. Preserve cursed and ordinary paths, pet movement and trap/luck/discovery effects, RNG order, messages, and caller state. Trace consumed helper returns to source, and record independent C variations without copying the selected case.",
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": null,
+      "delivered": null,
+      "functions": [
+        {
+          "name": "use_whistle",
+          "line": 476,
+          "endLine": 494,
+          "declared": false,
+          "complete": false
+        },
+        {
+          "name": "use_magic_whistle",
+          "line": 495,
+          "endLine": 517,
+          "declared": false,
+          "complete": false
+        },
+        {
+          "name": "magic_whistled",
+          "line": 518,
+          "endLine": 691,
+          "declared": false,
+          "complete": false
+        }
+      ],
+      "range": {
+        "from": 476,
+        "to": 691
+      },
+      "syntheticProvenance": {
+        "synthetic/v8/magic-whistle-recalls-tame-dog": {
+          "session": "synthetic/v8/magic-whistle-recalls-tame-dog",
+          "corpus": "synthetic",
+          "batch": "v8",
+          "caseId": "magic-whistle-recalls-tame-dog",
+          "manifestPath": "challenges/manifests/v8.json",
+          "manifestSha256": "6a5159501af18a7f926f794d89e817375cd00a3589c4899fb97392ae04dbe8ba",
+          "recordingPath": "challenges/cases/v8/magic-whistle-recalls-tame-dog.session.json",
+          "recordingSha256": "cf957da92f219e57d15e2ee66f8a57ff0bb743f59cba9c7c9c2ca3b9b54c675a",
+          "evaluationPath": "challenges/evaluations/20260928053730-v8.json",
+          "evaluationCommit": "0ad1813eb7d516bad03ecf020442a374ae6e8d11"
+        }
+      }
     }
   ]
 }
