@@ -100132,6 +100132,69 @@
           "evaluationCommit": "60d5bb5c1707444e58f1d1a9062147e290db19ab"
         }
       }
+    },
+    {
+      "id": "port-detect-gold-food-synthetic-v9-20260927",
+      "kind": "file-port",
+      "status": "queued",
+      "summary": "Port gold and food detection source functions through scroll effects",
+      "cFile": "detect.c",
+      "sessions": [
+        "synthetic/v9/gold-detection-scroll-maps-floor-gold",
+        "synthetic/v9/food-detection-scroll-smells-ration"
+      ],
+      "selectionReason": "The accepted v9 evaluation still has first source-traced mismatches in read.c:seffect_gold_detection -> detect.c:gold_detect and read.c:seffect_food_detection -> detect.c:food_detect; investigations for both cases are complete. These adjacent C functions share the detect.c map, stale-mark, and consumed-return contracts and can be assigned to one worker.",
+      "detail": "Implement complete detect.c:gold_detect and food_detect in C definition order, not just the selected floor-object paths: floor and monster inventories, stale map marks, no-detection and underfoot results, cursed/confused variants, temporary map presentation and restore, messages, Wisdom exercise, RNG, and input waits. Port complete read.c:seffect_gold_detection and seffect_food_detection wrappers and their seffects dispatch arms, preserving the consumed return that clears the scroll pointer; include spell alias when active. Reuse already ported trap_detect and other helpers only where source behavior matches. Verify the two admitted v9 cases and independent C recipes for uncovered entry branches.",
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": null,
+      "delivered": null,
+      "functions": [
+        {
+          "name": "gold_detect",
+          "line": 335,
+          "endLine": 478,
+          "declared": false,
+          "complete": false
+        },
+        {
+          "name": "food_detect",
+          "line": 479,
+          "endLine": 602,
+          "declared": false,
+          "complete": false
+        }
+      ],
+      "range": {
+        "from": 335,
+        "to": 602
+      },
+      "syntheticProvenance": {
+        "synthetic/v9/gold-detection-scroll-maps-floor-gold": {
+          "session": "synthetic/v9/gold-detection-scroll-maps-floor-gold",
+          "corpus": "synthetic",
+          "batch": "v9",
+          "caseId": "gold-detection-scroll-maps-floor-gold",
+          "manifestPath": "challenges/manifests/v9.json",
+          "manifestSha256": "00c148aac522e6343c8de0bd003db29771439f972a99cb18c772ebf2bc45a594",
+          "recordingPath": "challenges/cases/v9/gold-detection-scroll-maps-floor-gold.session.json",
+          "recordingSha256": "5056952a917d4eda93011951acd0b5e2eac09324deb385b0e8f89ca2bc911fad",
+          "evaluationPath": "challenges/evaluations/20260928002536-v9.json",
+          "evaluationCommit": "60d5bb5c1707444e58f1d1a9062147e290db19ab"
+        },
+        "synthetic/v9/food-detection-scroll-smells-ration": {
+          "session": "synthetic/v9/food-detection-scroll-smells-ration",
+          "corpus": "synthetic",
+          "batch": "v9",
+          "caseId": "food-detection-scroll-smells-ration",
+          "manifestPath": "challenges/manifests/v9.json",
+          "manifestSha256": "00c148aac522e6343c8de0bd003db29771439f972a99cb18c772ebf2bc45a594",
+          "recordingPath": "challenges/cases/v9/food-detection-scroll-maps-floor-ration.session.json",
+          "recordingSha256": "51b904213bb51ac8bb79bbe9ed1ab8aff746ab6d6e6ec0be08efd46604e01d8e",
+          "evaluationPath": "challenges/evaluations/20260928002536-v9.json",
+          "evaluationCommit": "60d5bb5c1707444e58f1d1a9062147e290db19ab"
+        }
+      }
     }
   ]
 }
