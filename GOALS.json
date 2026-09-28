@@ -41243,7 +41243,15 @@
         "screens": 8612,
         "rng": 630101
       },
-      "parkedReason": "The refreshed queue now selects holdout/seed4500-knight-coverage step 772 (1042 remaining) with a valid investigation identifying do.c goto_level()'s punished ball-and-chain transit branch. goto_level() is already a completed source unit, so this mismatch must be selected as a bounded divergence fix; preserve the queued invent.c range for later resumption."
+      "parkedReason": "The refreshed queue now selects holdout/seed4500-knight-coverage step 772 (1042 remaining) with a valid investigation identifying do.c goto_level()'s punished ball-and-chain transit branch. goto_level() is already a completed source unit, so this mismatch must be selected as a bounded divergence fix; preserve the queued invent.c range for later resumption.",
+      "invalidatedFunctions": [
+        {
+          "name": "hold_another_object",
+          "reason": "The historical source review marked hold_another_object complete while explicitly retaining artifact, Fumbling, fatal-corpse, drop, and autoquiver boundaries. The admitted v10 wished human-corpse cases reach its refused fatal-corpse and drop arms through zap.c:makewish; C continues through dropx and doaltarobj on an altar. A41 must port the whole invent.c function and source-ordered caller.",
+          "followupGoal": "port-invent-hold-another-object-synthetic-v10-20260928",
+          "at": "b0e2fee83a41f3a190dc54e6cd2bb7828203bca7"
+        }
+      ]
     },
     {
       "id": "div-do-goto-level-punished-seed4500",
@@ -104793,6 +104801,105 @@
           "recordingSha256": "7fcb7db8710fb95f447188fbb1bba2d7a8e6621b32a1d147e38d085e17feffa7",
           "evaluationPath": "challenges/evaluations/20260928083103-v10.json",
           "evaluationCommit": "d739756c29e8e3afb6e2bf95c325f019693b4160"
+        }
+      }
+    },
+    {
+      "id": "port-sit-take-gold-synthetic-v10-20260928",
+      "kind": "file-port",
+      "status": "queued",
+      "summary": "Port throne take_gold with source-ordered inventory deletion and messages",
+      "cFile": "sit.c",
+      "sessions": [
+        "synthetic/v10/wizard-throne-effect-five-take-gold"
+      ],
+      "selectionReason": "Current v10 wizard-throne-effect-five-take-gold remains 30/31 matched. Its complete investigation at investigations/synthetic/v10/wizard-throne-effect-five-take-gold.json traces the missing sit.c:take_gold called by throne_sit_effect case 5; C advances to obj_resists rn2(100) while JS skips to throne rn2(3). v10 manifest 79c7c030ef380f5d24f6bcdbae0a59cce143306a35f7edee4355a3e01964cb57, recording 104c9d2525500bd1a6df5ae10067c1a0886574b02fb832f4272dbab623b0f793, latest evaluation challenges/evaluations/20260928101733-v10.json. Independent of A40 xkilled and C33 uhitm reservations.",
+      "detail": "",
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": null,
+      "delivered": null,
+      "functions": [
+        {
+          "name": "take_gold",
+          "line": 14,
+          "endLine": 38,
+          "declared": false,
+          "complete": false
+        }
+      ],
+      "range": {
+        "from": 14,
+        "to": 38
+      },
+      "syntheticProvenance": {
+        "synthetic/v10/wizard-throne-effect-five-take-gold": {
+          "session": "synthetic/v10/wizard-throne-effect-five-take-gold",
+          "corpus": "synthetic",
+          "batch": "v10",
+          "caseId": "wizard-throne-effect-five-take-gold",
+          "manifestPath": "challenges/manifests/v10.json",
+          "manifestSha256": "79c7c030ef380f5d24f6bcdbae0a59cce143306a35f7edee4355a3e01964cb57",
+          "recordingPath": "challenges/cases/v10/wizard-throne-effect-five-take-gold.session.json",
+          "recordingSha256": "104c9d2525500bd1a6df5ae10067c1a0886574b02fb832f4272dbab623b0f793",
+          "evaluationPath": "challenges/evaluations/20260928101733-v10.json",
+          "evaluationCommit": "8115539ecb3dbe59a8accf08d9a80235d523b63f"
+        }
+      }
+    },
+    {
+      "id": "port-invent-hold-another-object-synthetic-v10-20260928",
+      "kind": "file-port",
+      "status": "queued",
+      "summary": "Port hold_another_object and wished-object drop admission across source branches",
+      "cFile": "invent.c",
+      "sessions": [
+        "synthetic/v10/offer-human-corpse-own-race",
+        "synthetic/v10/eat-same-race-human-corpse"
+      ],
+      "selectionReason": "Current v10 offer-human-corpse-own-race and eat-same-race-human-corpse remain source-traced failures sharing invent.c:hold_another_object after zap.c:makewish. Complete investigations under investigations/synthetic/v10/ identify the existing held-object drop refusal and source-ordered fatal-corpse versus ordinary inventory/drop arms; the later eat/offer effects are separate. Their current remaining screens are 11 and 4. v10 manifest 79c7c030ef380f5d24f6bcdbae0a59cce143306a35f7edee4355a3e01964cb57; recordings 33e678286303574408531a137d5ba4d404e85bab0912dbd35c1aa3a2c93fe296 and 12aa5fd51946be86d83d5020e30cb999009ba86c18593743f429ff8f09f4e56e; latest evaluation challenges/evaluations/20260928101733-v10.json. Independent of B41 sit.c and C33 uhitm.c reservations.",
+      "detail": "",
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": null,
+      "delivered": null,
+      "functions": [
+        {
+          "name": "hold_another_object",
+          "line": 1208,
+          "endLine": 1311,
+          "declared": true,
+          "complete": false
+        }
+      ],
+      "range": {
+        "from": 1208,
+        "to": 1311
+      },
+      "syntheticProvenance": {
+        "synthetic/v10/offer-human-corpse-own-race": {
+          "session": "synthetic/v10/offer-human-corpse-own-race",
+          "corpus": "synthetic",
+          "batch": "v10",
+          "caseId": "offer-human-corpse-own-race",
+          "manifestPath": "challenges/manifests/v10.json",
+          "manifestSha256": "79c7c030ef380f5d24f6bcdbae0a59cce143306a35f7edee4355a3e01964cb57",
+          "recordingPath": "challenges/cases/v10/offer-human-corpse-own-race.session.json",
+          "recordingSha256": "33e678286303574408531a137d5ba4d404e85bab0912dbd35c1aa3a2c93fe296",
+          "evaluationPath": "challenges/evaluations/20260928101733-v10.json",
+          "evaluationCommit": "8115539ecb3dbe59a8accf08d9a80235d523b63f"
+        },
+        "synthetic/v10/eat-same-race-human-corpse": {
+          "session": "synthetic/v10/eat-same-race-human-corpse",
+          "corpus": "synthetic",
+          "batch": "v10",
+          "caseId": "eat-same-race-human-corpse",
+          "manifestPath": "challenges/manifests/v10.json",
+          "manifestSha256": "79c7c030ef380f5d24f6bcdbae0a59cce143306a35f7edee4355a3e01964cb57",
+          "recordingPath": "challenges/cases/v10/eat-same-race-human-corpse.session.json",
+          "recordingSha256": "12aa5fd51946be86d83d5020e30cb999009ba86c18593743f429ff8f09f4e56e",
+          "evaluationPath": "challenges/evaluations/20260928101733-v10.json",
+          "evaluationCommit": "8115539ecb3dbe59a8accf08d9a80235d523b63f"
         }
       }
     }
