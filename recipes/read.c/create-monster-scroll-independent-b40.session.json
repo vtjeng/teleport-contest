@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 64092803,
+      "datetime": "20300928121730",
+      "nethackrc": "OPTIONS=name:B40Scroll,role=Wizard,race=human,gender=male,align=neutral,playmode:debug,!legacy,!tutorial,!splash_screen,pettype:none,!autopickup\n",
+      "moves": " \u0017scroll of create monster\nro \u001b"
+    }
+  ],
+  "comment": "Independent read.c:seffect_create_monster caller witness. The Wizard wishes for a create-monster scroll, selects its observed inventory letter, dismisses the effect message, then escapes the optional create-particular prompt so create_critters continues into ordinary random creation."
+}

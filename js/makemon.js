@@ -43,7 +43,12 @@ import { level_difficulty, on_level } from './dungeon.js';
 import { sgn } from './hacklib.js';
 import { game } from './gstate.js';
 import { new_light_source } from './light.js';
-import { discard_minvent, makemon, mongone } from './makemon_create.js';
+import {
+    discard_minvent,
+    makemon,
+    makemon_runtime,
+    mongone,
+} from './makemon_create.js';
 import { newemin } from './minion.js';
 import {
     always_hostile,
@@ -645,9 +650,17 @@ export function mbirth_limit(mndx) {
 // position; used by wand/scroll/spell of create monster. Returns true when the
 // hero saw at least one monster appear. Async because the wizard-mode
 // create_particular() path is async.
-export async function create_critters(cnt, mptr, neverask, state = game) {
+export async function create_critters(cnt, mptr, neverask, state = game,
+    env = {}) {
     let known = false;
     let ask = state.wizard && !neverask;
+    // makemon.c:makemon() completes an asynchronous runtime tail after its
+    // constructor. Keep a complete wrapper bundle for that consumed pointer
+    // result while allowing source callers to inject the effect's RNG.
+    const random = {
+        d, rn1, rn2, rnd, rne,
+        ...(env.random ?? {}),
+    };
 
     while (cnt-- > 0) {
         if (ask) {
@@ -663,11 +676,19 @@ export async function create_critters(cnt, mptr, neverask, state = game) {
         /* if in water, try to encourage an aquatic monster
            by finding and then specifying another wet location */
         if (!mptr && state.u.uinwater) {
-            const c = enexto(x, y, state.mons[PM_GIANT_EEL], { state });
+            const c = enexto(x, y, state.mons[PM_GIANT_EEL], {
+                ...env,
+                state,
+                random,
+            });
             if (c) { x = c.x; y = c.y; }
         }
 
-        const mon = makemon(mptr, x, y, NO_MM_FLAGS, { state });
+        const mon = await makemon_runtime(mptr, x, y, NO_MM_FLAGS, {
+            ...env,
+            state,
+            random,
+        });
         if (!mon) continue; /* try again */
 
         if ((canseemon(mon, state)

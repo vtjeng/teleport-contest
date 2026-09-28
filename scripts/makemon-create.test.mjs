@@ -32,6 +32,7 @@ import {
     M_AP_OBJECT,
     MAXNROFROOMS,
     NO_MINVENT,
+    NO_MM_FLAGS,
     OBJ_MINVENT,
     OROOM,
     P_POLEARMS,
@@ -83,6 +84,7 @@ import { init_objects } from '../js/o_init.js';
 import { curse, mksobj, weight } from '../js/obj.js';
 import {
     G_FREQ,
+    G_SGROUP,
     G_HELL,
     G_NOGEN,
     G_UNIQ,
@@ -166,6 +168,7 @@ import {
     PM_STALKER,
     PM_STONE_GIANT,
     PM_FROST_GIANT,
+    PM_STORM_GIANT,
     PM_ETTIN,
     PM_TROLL,
     PM_UMBER_HULK,
@@ -2656,6 +2659,94 @@ test('makemon admits an explicit inventoryless hero-square species by source sha
         assert.equal(monster.minvent, null);
         assert.equal(state.mvitals[PM_FIRE_GIANT].born, 1);
         assert.equal(state.level.monsters[monster.mx][monster.my], monster);
+    });
+
+test('makemon.c create_critters hero-square null-species call is admitted',
+    async () => {
+        const state = initialLevelState();
+        state.in_mklev = false;
+        state.u.ux = MON_X;
+        state.u.uy = MON_Y;
+        state.u.umonster = PM_HUMAN;
+        state.iflags = { debug_mongen: true };
+        const random = recordingRandom();
+        const monster = await makemon_runtime(
+            null, state.u.ux, state.u.uy, NO_MM_FLAGS, {
+                state,
+                random: random.random,
+                message: async () => {},
+                norepMessage: async () => {},
+            },
+        );
+
+        // makemon.c accepts this exact pointer/coordinate/flag shape, then the
+        // source debug_mongen early return yields null before selection. This
+        // pins call admission without claiming unsupported random species.
+        assert.equal(monster, null);
+        assert.deepEqual(random.calls, []);
+    });
+
+test('create_critters runtime random selection accepts a branch-level C group',
+    async () => {
+        const state = initialLevelState();
+        state.in_mklev = false;
+        state.u.ux = MON_X;
+        state.u.uy = MON_Y;
+        state.u.umonster = PM_HUMAN;
+        state.dungeons[2] = {
+            ...state.dungeons[0],
+            depth_start: 1,
+        };
+        state.u.uz.dnum = 2;
+        state.u.uz.dlevel = 20;
+        state.u.ulevel = 30;
+        state.u.ualign.type = 1;
+        // Give enexto() and the recursive group member source-valid floor
+        // squares; isolate a deep, generated group species outside the
+        // historical finite allowlist.
+        for (let x = 1; x < COLNO; ++x)
+            for (let y = 0; y < ROWNO; ++y)
+                state.level.at(x, y).typ = ROOM;
+        leaveOnlyRandomSpecies(state, [PM_STORM_GIANT]);
+        const stormGiant = state.mons[PM_STORM_GIANT];
+        assert.ok(stormGiant.geno & G_SGROUP);
+        assert.ok(stormGiant.difficulty > 9);
+
+        const random = recordingRandom();
+        const monster = await makemon_runtime(
+            null, state.u.ux, state.u.uy, NO_MM_FLAGS, {
+                state,
+                random: random.random,
+                message: async () => {},
+                norepMessage: async () => {},
+            },
+        );
+
+        assert.equal(monster.data, stormGiant);
+        assert.equal(state.mvitals[PM_STORM_GIANT].born, 2);
+        assert.equal(state.level.monsters[monster.mx][monster.my], monster);
+        const groupMember = state.level.monlist;
+        assert.notEqual(groupMember, monster,
+            'C m_initgrp prepends its recursive member');
+        assert.equal(groupMember.data, stormGiant);
+        assert.equal(groupMember.nmon, monster);
+        assert.ok(random.calls.length > 0);
+
+        const createCrittersStart = MAKEMON_C_SOURCE.indexOf(
+            'create_critters(',
+        );
+        const createCrittersEnd = MAKEMON_C_SOURCE.indexOf(
+            '\nstaticfn boolean\nuncommon(', createCrittersStart,
+        );
+        const sourceCall = MAKEMON_C_SOURCE.slice(
+            createCrittersStart,
+            createCrittersEnd,
+        );
+        assert.ok(createCrittersStart >= 0 && createCrittersEnd > 0);
+        assert.match(sourceCall, /makemon\(mptr, x, y, NO_MM_FLAGS\)/u);
+        assert.match(sourceCall, /if \(\(mon = makemon/u);
+        assert.match(MAKEMON_C_SOURCE,
+            /makemon\(mtmp->data, mm\.x, mm\.y, \(mmflags \| MM_NOGRP\)\)/u);
     });
 
 test('makemon accepts the generic explicit-coordinate MM_NOMSG runtime shape',

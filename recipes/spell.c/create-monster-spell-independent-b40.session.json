@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 64092802,
+      "datetime": "20300928121630",
+      "nethackrc": "OPTIONS=name:B40Spell,role:Wizard,race:human,gender:female,align:neutral,playmode:debug,!legacy,!tutorial,!splash_screen,pettype:none,!autopickup\n",
+      "moves": " #wizcast\nq\u001b"
+    }
+  ],
+  "comment": "C-first #wizcast create-monster spell entry. Select q from the source spell menu and escape the optional Wizard create-particular prompt so the ordinary random-monster creation path runs."
+}
