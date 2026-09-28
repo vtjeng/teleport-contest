@@ -61,6 +61,7 @@ import {
     ECMD_CANCEL,
     ECMD_OK,
     ECMD_TIME,
+    ENL_GAMEINPROGRESS,
     FIRE_RES,
     FUMBLING,
     GETOBJ_EXCLUDE,
@@ -99,11 +100,13 @@ import {
     LL_ARTIFACT,
     LL_CONDUCT,
     LL_WISH,
+    MAGICENLIGHTENMENT,
     NO_KILLER_PREFIX,
     NO_TRAP_FLAGS,
     TIMEOUT,
     thats_enough_tries,
     PHYS_EXPL_TYPE,
+    PICK_NONE,
     POLY_NOFLAGS,
     PLNMSG_ENVELOPED_IN_GAS,
     POOL,
@@ -450,6 +453,7 @@ import {
     SPE_HEALING,
     SPE_KNOCK,
     SPE_MAGIC_MISSILE,
+    SPE_LIGHT,
     SPE_DRAIN_LIFE,
     SPE_CANCELLATION,
     SPE_SLOW_MONSTER,
@@ -470,6 +474,8 @@ import {
     WAN_DIGGING,
     WAN_LIGHTNING,
     WAN_LIGHT,
+    WAN_STASIS,
+    WAN_ENLIGHTENMENT,
     WAN_MAKE_INVISIBLE,
     WAN_SLOW_MONSTER,
     WAN_SPEED_MONSTER,
@@ -555,7 +561,7 @@ import {
 } from './objnam.js';
 import { readobjnam } from './objnam_readobjnam.js';
 import { encumber_msg } from './pickup.js';
-import { cant_revive } from './read.js';
+import { cant_revive, litroom } from './read.js';
 import { is_quest_artifact } from './questpgr.js';
 import { ustatusline } from './insight.js';
 import {
@@ -645,7 +651,12 @@ import {
     burn_away_slime, fall_asleep, obj_stop_timers, spot_stop_timers,
     spot_time_left,
 } from './timeout.js';
-import { ttyNorep, ttyPline, ttyUrgentPline } from './tty_message.js';
+import {
+    displayPendingTtyMessageWindow,
+    ttyNorep,
+    ttyPline,
+    ttyUrgentPline,
+} from './tty_message.js';
 import { burn_floor_objects, destroy_items } from './zap_destroy_items.js';
 import { create_gas_cloud } from './region.js';
 import { ignite_items } from './apply_catch_lit.js';
@@ -5175,13 +5186,64 @@ export async function ubreatheu(
         state.u.ux, state.u.uy, state, random);
 }
 
-// C ref: zap.c zapnodir() (2539-2596), covering create-monster and
-// secret-door-detection wands. create_critters()' visibility result controls
-// discovery; findit() remains observable even when no door is found.
+// C ref: zap.c do_enlightenment_effect() (2525-2535). C pauses the message
+// window before building and displaying the MAGICENLIGHTENMENT menu, then
+// prints the trailing line before exercising Wisdom.
+export async function do_enlightenment_effect(
+    state = game,
+    random = { rn2 },
+) {
+    await ttyPline('You feel self-knowledgeable...', state);
+    await displayPendingTtyMessageWindow(state);
+    if (Upolyd(state.u)) {
+        // C discards enlightenment()'s result. Its current JS port refuses
+        // polymorphed heroes, so record that callee gap and preserve the
+        // caller's remaining message/exercise order.
+        note_unported('insight.c enlightenment');
+    } else {
+        const { enlightenment } = await import('./insight.js');
+        const { select_menu } = await import('./windows.js');
+        const lines = await enlightenment(
+            MAGICENLIGHTENMENT,
+            ENL_GAMEINPROGRESS,
+            state,
+        );
+        await select_menu(state, {
+            lines,
+            how: PICK_NONE,
+            cancelValue: null,
+            overlay: state.iflags?.menu_overlay !== false,
+        });
+    }
+    await ttyPline('The feeling subsides.', state);
+    await exercise(A_WIS, true, state, random);
+}
+
+// C ref: zap.c zapnodir() (2539-2604). Each case retains its source order;
+// only observable wand effects enter the shared discovery tail. The spell
+// versions of light and unseen detection call this same function from
+// spell.c:spelleffects through weffects().
 export async function zapnodir(obj, state = game,
     random = { rn1, rn2 }) {
     let known = false;
     switch (obj.otyp) {
+    case WAN_LIGHT:
+    case SPE_LIGHT:
+        known = Boolean(obj.dknown && !heroIsBlind(state));
+        await litroom(true, obj, state);
+        await lightdamage(obj, true, 5, state);
+        break;
+    case WAN_SECRET_DOOR_DETECTION:
+    case SPE_DETECT_UNSEEN:
+        known = Boolean(obj.dknown);
+        await findit(state);
+        break;
+    case WAN_STASIS: {
+        const until = state.moves + random.rn1(21, 10);
+        if (until > state.level.flags.stasis_until)
+            state.level.flags.stasis_until = until;
+        break;
+    }
     case WAN_CREATE_MONSTER:
         if (await create_critters(
             random.rn2(23) ? 1 : random.rn1(7, 2),
@@ -5190,14 +5252,22 @@ export async function zapnodir(obj, state = game,
             known = Boolean(obj.dknown);
         }
         break;
-    case WAN_SECRET_DOOR_DETECTION:
+    case WAN_WISHING:
+        if ((state.u.uluck ?? 0) + (state.u.moreluck ?? 0)
+            + random.rn2(5) < 0) {
+            await ttyPline('Unfortunately, nothing happens.', state);
+            known = false;
+        } else {
+            known = Boolean(obj.dknown);
+            await makewish(state);
+        }
+        break;
+    case WAN_ENLIGHTENMENT:
         known = Boolean(obj.dknown);
-        await findit(state);
+        await do_enlightenment_effect(state, random);
         break;
     default:
-        throw new UnsupportedZapError(
-            'zapnodir() for a directionless wand',
-        );
+        break;
     }
 
     if (known) {

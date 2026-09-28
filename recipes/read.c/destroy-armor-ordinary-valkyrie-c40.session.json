@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "Independent ordinary-scroll route; the Valkyrie's small shield is the only worn armor and the uncursed effect reaches destroy_arm().",
+  "segments": [
+    {
+      "seed": 8822512,
+      "datetime": "20321011141516",
+      "nethackrc": "OPTIONS=name:Shield,role:Valkyrie,race:human,gender:female,align:lawful\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,playmode:debug\n",
+      "moves": " \u0017uncursed scroll of destroy armor\n re"
+    }
+  ]
+}

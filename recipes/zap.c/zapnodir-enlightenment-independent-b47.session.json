@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent debug Wizard #zap route to zap.c:do_enlightenment_effect via WAN_ENLIGHTENMENT. Two post-zap spaces dismiss the C message and status windows so the full helper reaches its trailing message and Wisdom exercise.",
+  "segments": [
+    {
+      "seed": 83047215,
+      "datetime": "20330118120516",
+      "nethackrc": "OPTIONS=name:B47Enlight,role:Wizard,race:human,gender:female,align:neutral,playmode:debug,!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics\n",
+      "moves": " \u0017wand of enlightenment\nzp  "
+    }
+  ]
+}

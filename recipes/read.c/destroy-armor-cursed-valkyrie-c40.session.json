@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "Independent C40 cursed-scroll route using the Valkyrie's worn shield rather than the selected case's Wizard cloak.",
+  "segments": [
+    {
+      "seed": 8822511,
+      "datetime": "20321010131415",
+      "nethackrc": "OPTIONS=name:Shield,role:Valkyrie,race:human,gender:female,align:lawful\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,playmode:debug\n",
+      "moves": " \u0017cursed scroll of destroy armor\n re"
+    }
+  ]
+}

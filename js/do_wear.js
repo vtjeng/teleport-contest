@@ -152,6 +152,7 @@ import {
     yn_function,
 } from './cmd.js';
 import { artifact_light, set_artifact_intrinsic } from './artifacts.js';
+import { obj_resists } from './bury.js';
 import { game } from './gstate.js';
 import { nomul, spoteffects, unmul } from './hack.js';
 import { rescham, restartcham } from './mon.js';
@@ -160,6 +161,7 @@ import {
     getobj,
     prinv,
     update_inventory,
+    useup,
 } from './invent.js';
 import { racial_exception } from './makemon_create.js';
 import {
@@ -183,7 +185,6 @@ import { change_luck } from './moveloop_preamble.js';
 import { gulp_blnd_check } from './mhitu.js';
 import { Levitation, float_down, float_up, unconscious } from './trap.js';
 import {
-    Is_dragon_armor,
     WrappingAllowed,
     is_boots,
     is_cloak,
@@ -339,6 +340,7 @@ import {
     thesimpleoname,
     Tobjnam,
     xnameFresh,
+    vtense,
     yname,
 } from './objnam.js';
 import { encumber_msg, u_safe_from_fatal_corpse } from './pickup.js';
@@ -346,7 +348,7 @@ import { body_part, float_vs_flight } from './polyself.js';
 import { incr_itimeout, make_hallucinated, toggle_blindness } from './potion.js';
 import { rn2, rn2_on_display_rng, rnl, rnd } from './rng.js';
 import { heroIsBlind } from './startup_a11y.js';
-import { ttyPline } from './tty_message.js';
+import { ttyPline, ttyUrgentPline } from './tty_message.js';
 import { find_ac } from './u_init_inventory_attrs.js';
 import { note_unported } from './unported.js';
 import { Glib, welded } from './wield.js';
@@ -1391,16 +1393,29 @@ async function Armor_on(state, rawEnv = {}) {
 // The guard is checked before the item leaves its slot, so tripping it changes
 // nothing. C's `svc.context.takeoff.cancelled_don = FALSE` between the two is
 // left out; see takeoffContext() for why the field is not modelled.
-export function Armor_off(state = game) {
+export async function Armor_off(state = game, rawEnv = {}) {
     const otmp = state.uarm;
+    const env = wearOperationEnv(rawEnv);
+    const wasArtiLight = Boolean(otmp?.lamplit && artifact_light(otmp));
+    const takeoff = takeoffContext(state);
 
-    if (Is_dragon_armor(otmp)) {
-        throw new UnsupportedTakeOffError(
-            `Armor_off() for otyp ${otmp.otyp}`,
-        );
-    }
-    takeoffContext(state).mask &= ~W_ARM;
+    takeoff.mask &= ~W_ARM;
     setworn(null, W_ARM, setwornEnv(state));
+    takeoff.cancelled_don = false;
+
+    // C handles gold dragon artifact light before dragon_armor_handling(),
+    // then runs the complete dragon armor off callback in source order.
+    if (wasArtiLight && !artifact_light(otmp)) {
+        const { end_burn } = await import('./timeout.js');
+        const { objectGenerationEnv } = await import('./object_generation.js');
+        end_burn(otmp, false, objectGenerationEnv({ ...env, state }));
+        if (!heroIsBlind(state)) {
+            await env.message(
+                `${Tobjnam(otmp, 'stop', state)} shining.`, state, env,
+            );
+        }
+    }
+    await dragon_armor_handling(otmp, false, true, state, env);
     return 0;
 }
 
@@ -3161,7 +3176,7 @@ export async function armoroff(otmp, state = game) {
         /* no delay so no '(*afternmv)()' or 'nomovemsg' */
         switch (objectType(otmp, state).oc_subtyp) {
         case ARM_SUIT:
-            Armor_off(state);
+            await Armor_off(state);
             break;
         case ARM_SHIELD:
             Shield_off(state);
@@ -3700,6 +3715,180 @@ export function some_armor(victim, state = game, random = { rn2 }) {
         if (armor && (!selected || !random.rn2(4))) selected = armor;
     }
     return selected;
+}
+
+// C ref: do_wear.c count_worn_armor() (3489-3501). Keep its seven-slot
+// count separate from some_armor(), whose selector consumes random values.
+export function count_worn_armor(state = game) {
+    let count = 0;
+    for (const armor of [
+        state.uarm,
+        state.uarmc,
+        state.uarmh,
+        state.uarms,
+        state.uarmg,
+        state.uarmf,
+        state.uarmu,
+    ]) {
+        if (armor) count++;
+    }
+    return count;
+}
+
+// C ref: do_wear.c any_worn_armor_ok() (3480-3486), the getobj callback for
+// the blessed destroy-armor choice. Covered armor remains selectable.
+export function any_worn_armor_ok(obj) {
+    return obj && (obj.owornmask & W_ARMOR)
+        ? GETOBJ_SUGGEST : GETOBJ_EXCLUDE;
+}
+
+// C ref: do_wear.c maybe_destroy_armor() (3189-3198). `resisted.value` is the
+// JavaScript out-parameter corresponding to C's `boolean *resisted`; C leaves
+// it untouched when armor is absent or the selected target differs.
+function maybe_destroy_armor(
+    armor,
+    selected,
+    resisted,
+    state = game,
+    random = { rn2 },
+) {
+    if (armor && (!selected || selected === armor)) {
+        const didResist = obj_resists(armor, 0, 90, { state, random });
+        resisted.value = didResist;
+        if (!didResist) {
+            armor.in_use = true;
+            return armor;
+        }
+    }
+    return null;
+}
+
+// C ref: do_wear.c wornarm_destroyed() (3144-3187). The armor off callback
+// runs before the inventory scan because floor effects can consume the item;
+// retain both pointer identity and o_id as C does before useup().
+async function wornarm_destroyed(wornarm, state = game) {
+    const wornId = wornarm.o_id;
+
+    if (donning(wornarm, state))
+        cancel_don(state);
+
+    if (wornarm === state.uarmc)
+        await Cloak_off(state);
+    else if (wornarm === state.uarm)
+        await Armor_off(state);
+    else if (wornarm === state.uarmu)
+        Shirt_off(state);
+    else if (wornarm === state.uarmh)
+        await Helmet_off(state);
+    else if (wornarm === state.uarmg)
+        await Gloves_off(state);
+    else if (wornarm === state.uarmf)
+        await Boots_off(state);
+    else if (wornarm === state.uarms)
+        Shield_off(state);
+
+    for (let invobj = state.invent; invobj;) {
+        const nextobj = invobj.nobj;
+        if (invobj === wornarm && invobj.o_id === wornId) {
+            useup(wornarm, { state });
+            break;
+        }
+        invobj = nextobj;
+    }
+}
+
+// C ref: do_wear.c disintegrate_arm() (3201-3255). The short-circuit order
+// protects the shirt beneath any cloak/suit that resisted and checks every
+// outer slot in source order before consuming the armor through
+// wornarm_destroyed().
+export async function disintegrate_arm(
+    selected = null,
+    rawEnv = {},
+) {
+    const state = rawEnv.state ?? game;
+    const random = rawEnv.random ?? { rn2 };
+    let losingGloves = false;
+    const resistedCloak = { value: false };
+    const resistedSuit = { value: false };
+    const resistedShirt = { value: false };
+    let armor = maybe_destroy_armor(
+        state.uarmc, selected, resistedCloak, state, random,
+    );
+
+    if (armor) {
+        await ttyUrgentPline(
+            `Your ${cloak_simple_name(armor, state)} crumbles and turns to dust!`,
+            state,
+        );
+    } else if (!resistedCloak.value
+        && (armor = maybe_destroy_armor(
+            state.uarm, selected, resistedSuit, state, random,
+        ))) {
+        const suit = suit_simple_name(armor, state);
+        if (armor.lamplit) {
+            const { end_burn } = await import('./timeout.js');
+            const { objectGenerationEnv } = await import('./object_generation.js');
+            end_burn(
+                armor, false,
+                objectGenerationEnv({ state }),
+            );
+        }
+        await ttyUrgentPline(
+            `Your ${suit} ${vtense(suit, 'turn')} to dust and `
+            + `${vtense(suit, 'fall')} to the ${surface(
+                state.u.ux, state.u.uy, state,
+            )}!`,
+            state,
+        );
+    } else if (!resistedCloak.value && !resistedSuit.value
+        && (armor = maybe_destroy_armor(
+            state.uarmu, selected, resistedShirt, state, random,
+        ))) {
+        await ttyUrgentPline(
+            `Your ${shirt_simple_name(armor, state)} crumbles into tiny `
+            + 'threads and falls apart!',
+            state,
+        );
+    } else if ((armor = maybe_destroy_armor(
+        state.uarmh, selected, { value: false }, state, random,
+    ))) {
+        await ttyUrgentPline(
+            `Your ${helm_simple_name(armor, state)} turns to dust and is `
+            + 'blown away!',
+            state,
+        );
+    } else if ((armor = maybe_destroy_armor(
+        state.uarmg, selected, { value: false }, state, random,
+    ))) {
+        await ttyUrgentPline(
+            `Your ${gloves_simple_name(armor, state)} vanish!`,
+            state,
+        );
+        losingGloves = true;
+    } else if ((armor = maybe_destroy_armor(
+        state.uarmf, selected, { value: false }, state, random,
+    ))) {
+        await ttyUrgentPline(
+            `Your ${boots_simple_name(armor, state)} disintegrate!`,
+            state,
+        );
+    } else if ((armor = maybe_destroy_armor(
+        state.uarms, selected, { value: false }, state, random,
+    ))) {
+        await ttyUrgentPline(
+            `Your ${shield_simple_name(armor, state)} crumbles away!`,
+            state,
+        );
+    } else {
+        return 0;
+    }
+
+    await wornarm_destroyed(armor, state);
+    if (losingGloves)
+        note_unported('trap.c selftouch');
+    const { stop_occupation } = await import('./allmain.js');
+    await stop_occupation(state, { message: ttyPline });
+    return 1;
 }
 
 // C ref: do_wear.c obj_erode_type() (3258-3273). The order is observable for

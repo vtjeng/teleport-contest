@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent zap.c:zapnodir(WAN_STASIS) witness. A fresh debug Wizard wishes for a stasis wand and zaps it without a direction.",
+  "segments": [
+    {
+      "seed": 83047103,
+      "datetime": "20321116113640",
+      "nethackrc": "OPTIONS=name:B47StasisWand,role:Wizard,race:human,gender:female,align:neutral,playmode:debug,!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics\n",
+      "moves": " \u0017wand of stasis\nzp"
+    }
+  ]
+}

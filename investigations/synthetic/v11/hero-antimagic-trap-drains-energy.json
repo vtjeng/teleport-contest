@@ -84,6 +84,7 @@
   "evidence": [
     "Saved challenges/evaluations/20260928203412-v11.json at be69548a77c6899056b335ffae17d07aa1994ea7 matches 22/25 screens, 2252/2269 RNG calls, and stops at zero-based step 22 with unsupported hero move: trap activation. Immutable C recording SHA-256 c15351f9039084462fcd5d1fb074716d9586421e52b2499c3cd8951c2ab242cd.",
     "Upstream nethack-c/upstream/src/trap.c:2323-2400 and 5202-5243 define the missing hero anti-magic trap and energy-drain behavior; js/trap_effects.js:2052-2060 refuses the hero arm and preflight_dotrap omits ANTI_MAGIC from its admitted types.",
-    "The prepared v11 batch crosswalk checked this trap state and action history against unresolved v6-v10 sessions before admission."
+    "The prepared v11 batch crosswalk checked this trap state and action history against unresolved v6-v10 sessions before admission.",
+    "Current result: challenges/evaluations/20260928215916-v11.json at 9028001f08de9c754d4f7bff31e498baa7828c22 matches all 25 screens and cursors and 2269/2269 RNG calls. The independent Valkyrie recording matches 24 screens/cursors and 2261 RNG calls and reaches trap.c:trapeffect_anti_magic -> drain_en at step 22. Both hero and monster anti-magic entry points have matching runtime recordings; the source goal is closed."
   ]
 }
