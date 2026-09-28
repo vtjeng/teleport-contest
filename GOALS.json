@@ -103478,7 +103478,7 @@
     {
       "id": "port-read-forget-amnesia-synthetic-v9-20260928",
       "kind": "file-port",
-      "status": "open",
+      "status": "closed",
       "summary": "Port amnesia forgetting and its scroll effect",
       "cFile": "read.c",
       "sessions": [
@@ -103492,15 +103492,18 @@
         "screens": 11405,
         "rng": 792838
       },
-      "closedAt": null,
-      "delivered": null,
+      "closedAt": "13d2f95ed43bfcd93ca6f797a74684bdef879ba4",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
       "functions": [
         {
           "name": "forget",
           "line": 1020,
           "endLine": 1043,
-          "declared": false,
-          "complete": false
+          "declared": true,
+          "complete": true
         }
       ],
       "range": {
@@ -103769,7 +103772,124 @@
             }
           }
         }
-      ]
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "forget",
+            "implementation": "js/read.js",
+            "symbol": "forget",
+            "sourceReview": "Compared all of read.c:1020-1040. Preserves the Punished ball/chain-memory clear, conditional losespells call before skill loss, rnd(howmuch ? 5 : 3) bound, current-level monster-recognition clearing with steed/ustuck exclusions, and migrating-monster clearing. Supporting source functions seffect_amnesia, spell.c:losespells, and weapon.c:drain_weapon_skill are implemented and described in supplementalSources.",
+            "callers": [
+              {
+                "path": "js/read.js",
+                "symbol": "seffect_amnesia",
+                "source": "read.c:seffect_amnesia:1836"
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/read.test.mjs"
+            ],
+            "recordings": [
+              "recordings/read.c/amnesia-blessed-healer-independent-c32.session.json",
+              "recordings/read.c/amnesia-known-spellbook-independent-c32.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v9",
+                "caseId": "read-amnesia-forgets-known-spells",
+                "segment": 0,
+                "fromStep": 22,
+                "throughStep": 23,
+                "source": "read.c:doread -> seffects(SCR_AMNESIA) -> seffect_amnesia -> forget"
+              }
+            ],
+            "checkedAt": "13d2f95ed43bfcd93ca6f797a74684bdef879ba4"
+          }
+        ],
+        "entryPointReview": "The selected production entry is the SCR_AMNESIA read effect: doread selects a scroll, seffects applies its existing pre-dispatch Wisdom exercise and dispatches SCR_AMNESIA to seffect_amnesia; seffect_amnesia marks it known, calls forget, emits source-ordered feedback, and performs the final Wisdom exercise. Blessed reads retain spell knowledge while still clearing Punished ball memory if present, draining weapon skill, clearing eligible monster recognition, and emitting feedback. Unblessed reads additionally call spell.c:losespells. The selected v9 case reaches the chain at segment 0 steps 22-23; the independent Healer recording covers blessed retention and skill drain, and the independent Wizard recording first learns a spell then covers actual spell loss, Luck/confusion selection, and skill drain. These are the only production amnesia entry-point branches. The supplemental sources are complete for the calls used by read.c:forget. C also calls losespells and drain_weapon_skill from uhitm.c:mhitm_ad_drin; that separate monster-attack source caller remains explicitly unported as js/uhitm.js AD_DRIN: unported('mhitm_ad_drin'), and C32 does not claim that entry. No pure source function is in this task.",
+        "entryPoints": [
+          {
+            "name": "Read an unblessed amnesia scroll with a learned spell",
+            "functions": [
+              "forget"
+            ],
+            "recordings": [
+              "recordings/read.c/amnesia-known-spellbook-independent-c32.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v9",
+                "caseId": "read-amnesia-forgets-known-spells",
+                "segment": 0,
+                "fromStep": 22,
+                "throughStep": 23,
+                "source": "read.c:doread -> seffects -> seffect_amnesia -> forget; supporting losespells and drain_weapon_skill also execute"
+              }
+            ]
+          },
+          {
+            "name": "Read a blessed amnesia scroll while retaining spell knowledge",
+            "functions": [
+              "forget"
+            ],
+            "recordings": [
+              "recordings/read.c/amnesia-blessed-healer-independent-c32.session.json"
+            ],
+            "synthetic": []
+          }
+        ]
+      },
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "13d2f95ed43bfcd93ca6f797a74684bdef879ba4",
+        "screens": 11405,
+        "rng": 792838
+      }
+    },
+    {
+      "id": "port-read-create-monster-synthetic-v8-20260928",
+      "kind": "file-port",
+      "status": "queued",
+      "summary": "Port create-monster scroll and spell effects with runtime monster creation",
+      "cFile": "read.c",
+      "sessions": [
+        "synthetic/v8/read-create-monster-scroll-no-prior-monsters"
+      ],
+      "selectionReason": "The v8 create-monster recording first diverges at read.c:seffect_create_monster rn2(73) in investigations/synthetic/v8/read-create-monster-scroll-no-prior-monsters.json. Port the whole effect and SCR/SPE seffects dispatch, including its consumed makemon.c:create_critters Boolean and runtime makemon continuation. C32 released read.c:seffects on acceptance.",
+      "detail": "",
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": null,
+      "delivered": null,
+      "functions": [
+        {
+          "name": "seffect_create_monster",
+          "line": 1608,
+          "endLine": 1626,
+          "declared": false,
+          "complete": false
+        }
+      ],
+      "range": {
+        "from": 1608,
+        "to": 1626
+      },
+      "syntheticProvenance": {
+        "synthetic/v8/read-create-monster-scroll-no-prior-monsters": {
+          "session": "synthetic/v8/read-create-monster-scroll-no-prior-monsters",
+          "corpus": "synthetic",
+          "batch": "v8",
+          "caseId": "read-create-monster-scroll-no-prior-monsters",
+          "manifestPath": "challenges/manifests/v8.json",
+          "manifestSha256": "6a5159501af18a7f926f794d89e817375cd00a3589c4899fb97392ae04dbe8ba",
+          "recordingPath": "challenges/cases/v8/read-create-monster-scroll-no-prior-monsters.session.json",
+          "recordingSha256": "4b3f803e8ba3dc875766f2ca2a7a35f2e0423af8a5423bf51d0f69ac47f9a791",
+          "evaluationPath": "challenges/evaluations/20260928075052-v8.json",
+          "evaluationCommit": "61db2f29db823f3a5d87886797e12fa604d89a2e"
+        }
+      }
     }
   ]
 }
