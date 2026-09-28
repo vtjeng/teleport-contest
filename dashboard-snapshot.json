@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "capturedAt": "2026-09-28T00:34:17.482Z",
+  "capturedAt": "2026-09-28T00:48:46.593Z",
   "activity": {
     "runId": "loop-20260925",
     "events": [
@@ -6285,12 +6285,53 @@
         "type": "accepted",
         "at": "2026-09-28T00:33:56.193Z",
         "task": "B35"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "published-B35-d93e3027-20260927",
+        "type": "published",
+        "at": "2026-09-28T00:37:11.849Z",
+        "task": "B35",
+        "commit": "d93e3027e960d75d2ac79a9e919afca4a913b8b6"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "integrating-C28-53cc6b92-20260927",
+        "type": "integrating",
+        "at": "2026-09-28T00:41:22.023Z",
+        "task": "C28",
+        "integration": "53cc6b92add1297a9b69eb64121a2858312f81a2"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "assign-B36-region-inside-gas-cloud-20260928",
+        "type": "assign",
+        "at": "2026-09-28T00:43:45.272Z",
+        "task": "B36",
+        "worker": "B",
+        "goal": "port-region-inside-gas-cloud-synthetic-v9-20260927",
+        "kind": "implementation"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "validated-C28-53cc6b92-20260927",
+        "type": "validated",
+        "at": "2026-09-28T00:48:19.218Z",
+        "task": "C28",
+        "passed": true
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accepted-C28-53cc6b92-20260927",
+        "type": "accepted",
+        "at": "2026-09-28T00:48:38.759Z",
+        "task": "C28"
       }
     ]
   },
   "development": {
-    "executionCommit": "60d5bb5c1707444e58f1d1a9062147e290db19ab",
-    "measuredAt": "2026-09-28T00:25:15.954Z",
+    "executionCommit": "53cc6b92add1297a9b69eb64121a2858312f81a2",
+    "measuredAt": "2026-09-28T00:47:58.925Z",
     "sessions": [
       {
         "session": "holdout/seed0002-healer-reflection-drummer",
