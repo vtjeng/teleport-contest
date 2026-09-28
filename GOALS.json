@@ -109021,7 +109021,7 @@
     {
       "id": "port-trap-antimagic-hero-synthetic-v11-20260928",
       "kind": "file-port",
-      "status": "open",
+      "status": "closed",
       "summary": "Port hero anti-magic trap effect and source energy drain",
       "cFile": "trap.c",
       "sessions": [
@@ -109035,15 +109035,18 @@
         "screens": 11405,
         "rng": 792838
       },
-      "closedAt": null,
-      "delivered": null,
+      "closedAt": "9028001f08de9c754d4f7bff31e498baa7828c22",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
       "functions": [
         {
           "name": "trapeffect_anti_magic",
           "line": 2323,
           "endLine": 2452,
           "declared": true,
-          "complete": false
+          "complete": true
         }
       ],
       "range": {
@@ -109214,7 +109217,81 @@
             }
           }
         }
-      ]
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "trapeffect_anti_magic",
+            "implementation": "js/trap_effects.js",
+            "symbol": "trapeffect_anti_magic",
+            "sourceReview": "Read the complete trap.c:trapeffect_anti_magic() definition (2323-2452) and preserved its shared enchanted-iron-shoes test, then the hero and monster arms in source order. For the hero, the positive-shoe early return reveals the trap only inside that branch; otherwise seetrap runs after the shoe check. The antimagic damage path preserves the rnd(4), optional single Half_physical_damage/Half_spell_damage draw, Magicbane draw, carried non-quest MR artifact scan/draw, Passes_walls quartering, You_feel threshold, and losehp ordering. The energy path then performs d(2,6), rnd(drain/2), maximum-energy reduction when uenmax exceeds drain, and drain_en. The monster arm retains the spell-attack energy-use and resistance-damage branches, visibility, death, redraw, and Trap_* return ordering. The only skipped C callee is costly_alteration(), whose void result is discarded; it remains an explicit note_unported gap at the shoe branch. No session data is special-cased.",
+            "callers": [
+              {
+                "path": "js/trap_effects.js",
+                "symbol": "trapeffect_selector",
+                "source": "trap.c:trapeffect_selector dispatches ANTI_MAGIC to trapeffect_anti_magic(mtmp, trap, trflags); dotrap supplies the hero and mintrap supplies a monster."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/hero-antimagic-trap.test.mjs"
+            ],
+            "recordings": [
+              "recordings/trap.c/hero-anti-magic-field-valkyrie-c39.session.json",
+              "recordings/trap.c/monster-anti-magic-trap.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v11",
+                "caseId": "hero-antimagic-trap-drains-energy",
+                "segment": 0,
+                "fromStep": 22,
+                "throughStep": 22,
+                "source": "hack.c:spoteffects -> trap.c:dotrap -> trap.c:trapeffect_selector -> trap.c:trapeffect_anti_magic -> trap.c:drain_en"
+              }
+            ],
+            "checkedAt": "9028001f08de9c754d4f7bff31e498baa7828c22"
+          }
+        ],
+        "entryPointReview": "The active hero entry is a completed movement onto an anti-magic trap: hack.c:spoteffects calls trap.c:dotrap, which dispatches through trapeffect_selector to trapeffect_anti_magic; the hero arm calls drain_en. The independent C39 Valkyrie recording reaches the field after moving off the stair and exercises trapeffect_anti_magic at step 22; the admitted v11 case also reaches the hero energy drain at segment 0 step 22. The active monster entry is monmove.c:postmov -> trap.c:mintrap -> trapeffect_selector -> trapeffect_anti_magic; the existing monster-anti-magic-trap recording documents a non-resistant grid bug crossing the trap and is retained as runtime coverage for the preserved monster arm. The source helper drain_en also has separate callers mhitu.c:gulpmm and uhitm.c:mhitm_ad_dren, but those parent actions remain outside this delivery (no JS gulpmm, and js/uhitm.js still has an explicit unported AD_DREN arm), so this evidence does not claim those caller paths. In the positive enchanted-iron-shoes sub-branch C calls costly_alteration and discards its return; JS records that void gap with note_unported('mkobj.c costly_alteration').",
+        "entryPoints": [
+          {
+            "name": "hero steps onto an anti-magic trap",
+            "functions": [
+              "trapeffect_anti_magic"
+            ],
+            "recordings": [
+              "recordings/trap.c/hero-anti-magic-field-valkyrie-c39.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v11",
+                "caseId": "hero-antimagic-trap-drains-energy",
+                "segment": 0,
+                "fromStep": 22,
+                "throughStep": 22,
+                "source": "hack.c:spoteffects -> trap.c:dotrap -> trap.c:trapeffect_selector -> trap.c:trapeffect_anti_magic -> trap.c:drain_en"
+              }
+            ]
+          },
+          {
+            "name": "monster crosses an anti-magic trap",
+            "functions": [
+              "trapeffect_anti_magic"
+            ],
+            "recordings": [
+              "recordings/trap.c/monster-anti-magic-trap.session.json"
+            ],
+            "synthetic": []
+          }
+        ]
+      },
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "9028001f08de9c754d4f7bff31e498baa7828c22",
+        "screens": 11405,
+        "rng": 792838
+      }
     },
     {
       "id": "port-zap-zapnodir-synthetic-v11-20260928",
