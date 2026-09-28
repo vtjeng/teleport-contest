@@ -152,7 +152,7 @@ import {
 import { clear_bypasses } from '../js/worn.js';
 import {
     create_region,
-    UnsupportedRegionCallbackError,
+    inside_region,
 } from '../js/region.js';
 import { canSeeMonster } from '../js/startup_a11y.js';
 import {
@@ -1366,35 +1366,43 @@ test('callback-free harmless gas transitions follow region.c for entries and exi
         }
     });
 
-test('harmful postmove gas remains fail-closed after harmless vapor exit',
-    async () => {
-        const target = await prepareSelectedAction({ pmidx: PM_HEZROU });
-        target.monster.movement = NORMAL_SPEED;
-        const vapor = create_region([{
-            lx: target.monsterX,
-            ly: target.heroY,
-            hx: target.monsterX,
-            hy: target.heroY,
-        }]);
-        Object.assign(vapor, {
-            arg: 0,
-            inside_f: 'inside_gas_cloud',
-            monsters: [target.monster.m_id],
-            visible: true,
-        });
-        game.level.regions = [vapor];
-        const before = completeSecondTurnSnapshot(game, target.replay);
-
-        await assert.rejects(
-            preflightSimpleMonsterActions(game),
-            (error) => error instanceof UnsupportedRegionCallbackError
-                && error.callback === 'inside_gas_cloud',
-        );
-        assert.deepEqual(
-            completeSecondTurnSnapshot(game, target.replay),
-            before,
-        );
+test('Hezrou postmove gas creates a region at its pre-move square', async () => {
+    const target = await prepareSelectedAction({ pmidx: PM_HEZROU });
+    target.monster.movement = NORMAL_SPEED;
+    const vapor = create_region([{
+        lx: target.monsterX,
+        ly: target.heroY,
+        hx: target.monsterX,
+        hy: target.heroY,
+    }]);
+    Object.assign(vapor, {
+        arg: 0,
+        inside_f: 'inside_gas_cloud',
+        monsters: [target.monster.m_id],
+        visible: true,
     });
+    game.level.regions = [vapor];
+    const before = completeSecondTurnSnapshot(game, target.replay);
+
+    // The planning clone must execute monmove.c:m_postmove_effect()'s
+    // create_gas_cloud call with clone-safe vision hooks, then discard it.
+    await preflightSimpleMonsterActions(game);
+    assert.deepEqual(
+        completeSecondTurnSnapshot(game, target.replay),
+        before,
+        'postmove gas planning leaves live turn state untouched',
+    );
+
+    await runSimpleMonsterAction(target.monster, { state: game });
+    const stench = game.level.regions.find((region) => region.arg === 8
+        && inside_region(region, target.monsterX, target.heroY));
+    assert.ok(stench, 'the live Hezrou action creates its C-sized stench');
+    assert.equal(
+        stench.monsters.includes(target.monster.m_id),
+        true,
+        'add_region caches the monster present at cloud creation',
+    );
+});
 
 test('fog movement still refuses harmful gas transitions', async () => {
     for (const enters of [true, false]) {
