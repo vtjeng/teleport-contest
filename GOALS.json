@@ -104795,6 +104795,49 @@
           "evaluationCommit": "d739756c29e8e3afb6e2bf95c325f019693b4160"
         }
       }
+    },
+    {
+      "id": "port-sit-take-gold-synthetic-v10-20260928",
+      "kind": "file-port",
+      "status": "queued",
+      "summary": "Port throne take_gold with source-ordered inventory deletion and messages",
+      "cFile": "sit.c",
+      "sessions": [
+        "synthetic/v10/wizard-throne-effect-five-take-gold"
+      ],
+      "selectionReason": "Current v10 wizard-throne-effect-five-take-gold remains 30/31 matched. Its complete investigation at investigations/synthetic/v10/wizard-throne-effect-five-take-gold.json traces the missing sit.c:take_gold called by throne_sit_effect case 5; C advances to obj_resists rn2(100) while JS skips to throne rn2(3). v10 manifest 79c7c030ef380f5d24f6bcdbae0a59cce143306a35f7edee4355a3e01964cb57, recording 104c9d2525500bd1a6df5ae10067c1a0886574b02fb832f4272dbab623b0f793, latest evaluation challenges/evaluations/20260928101733-v10.json. Independent of A40 xkilled and C33 uhitm reservations.",
+      "detail": "",
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": null,
+      "delivered": null,
+      "functions": [
+        {
+          "name": "take_gold",
+          "line": 14,
+          "endLine": 38,
+          "declared": false,
+          "complete": false
+        }
+      ],
+      "range": {
+        "from": 14,
+        "to": 38
+      },
+      "syntheticProvenance": {
+        "synthetic/v10/wizard-throne-effect-five-take-gold": {
+          "session": "synthetic/v10/wizard-throne-effect-five-take-gold",
+          "corpus": "synthetic",
+          "batch": "v10",
+          "caseId": "wizard-throne-effect-five-take-gold",
+          "manifestPath": "challenges/manifests/v10.json",
+          "manifestSha256": "79c7c030ef380f5d24f6bcdbae0a59cce143306a35f7edee4355a3e01964cb57",
+          "recordingPath": "challenges/cases/v10/wizard-throne-effect-five-take-gold.session.json",
+          "recordingSha256": "104c9d2525500bd1a6df5ae10067c1a0886574b02fb832f4272dbab623b0f793",
+          "evaluationPath": "challenges/evaluations/20260928101733-v10.json",
+          "evaluationCommit": "8115539ecb3dbe59a8accf08d9a80235d523b63f"
+        }
+      }
     }
   ]
 }
