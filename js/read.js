@@ -85,6 +85,8 @@ import {
     W_CHAIN,
     W_ARMH,
     W_ARM,
+    STUNNED,
+    TIMEOUT,
     W_SADDLE,
     TT_BURIEDBALL,
     WT_IRON_BALL_INCR,
@@ -318,7 +320,6 @@ import {
     bcsign,
     greatest_erosion,
     Is_dragon_scales,
-    is_flammable,
     is_shield,
     is_weptool,
     bless,
@@ -362,6 +363,9 @@ import {
     Ring_off,
     Ring_on,
     adj_abon,
+    any_worn_armor_ok,
+    count_worn_armor,
+    disintegrate_arm,
     destroy_arm,
     some_armor,
     setwornEnv,
@@ -408,6 +412,7 @@ import {
     vtense,
     Yobjnam2,
     xnameFresh,
+    actualoname,
 } from './objnam.js';
 import { alter_cost, shk_your } from './shk.js';
 import { pmname } from './do_name.js';
@@ -1118,22 +1123,6 @@ export async function seffect_scare_monster(sobj, state = game) {
     }
 }
 
-// The existing destroy-armor helper covers only an ordinary, unknown scroll
-// with exactly one worn, flammable armor object. seffects() records a gap on
-// its other source arms until that effect family is ported whole.
-function oneWornFlammableArmor(state) {
-    const worn = [
-        state.uarm,
-        state.uarmc,
-        state.uarmh,
-        state.uarms,
-        state.uarmg,
-        state.uarmf,
-        state.uarmu,
-    ].filter(Boolean);
-    return worn.length === 1 && is_flammable(worn[0], state);
-}
-
 // C ref: read.c maybe_tame() (1044-1063). Its signed result is consumed by
 // seffect_taming(): a cursed scroll can return -1 for a peaceful target that
 // became hostile, while ordinary taming returns 1 only when disposition or
@@ -1812,34 +1801,116 @@ export async function seffect_enchant_armor(scroll, state = game, env = {}) {
     return false;
 }
 
-// C ref: read.c seffect_destroy_armor() (1324-1396). Covers the ordinary,
-// uncursed and unblessed fallback that calls do_wear.c destroy_arm().
-// some_armor() is deliberately called before destroy_arm(), as in C; the
-// single worn suit in this slice means that selection has no random draw.
-export async function seffect_destroy_armor(scroll, state = game) {
-    if (scroll.otyp !== SCR_DESTROY_ARMOR
-        || scroll.oclass !== SCROLL_CLASS
-        || scroll.blessed || scroll.cursed
-        || objectType(scroll, state).oc_name_known
-        || propertyActive(CONFUSION, state)
-        || propertyActive(BLINDED, state)
-        || !can_chant(state.youmonst, state)
-        || !oneWornFlammableArmor(state)) {
-        throw new UnsupportedReadError(
-            'the selected destroy-armor fallback branch',
-        );
+// C ref: read.c disintegrate_cursed_armor() (1294-1322). Preserve the
+// source's cursed-slot array order before selecting exactly one target.
+async function disintegrate_cursed_armor(state = game, random = { rn2 }) {
+    const armors = [
+        state.uarm,
+        state.uarmc,
+        state.uarmh,
+        state.uarms,
+        state.uarmg,
+        state.uarmf,
+        state.uarmu,
+    ].filter((armor) => armor?.cursed);
+    if (!armors.length) return false;
+    return Boolean(await disintegrate_arm(
+        armors[random.rn2(armors.length)],
+        { state, random },
+    ));
+}
+
+// C ref: read.c seffect_destroy_armor() (1324-1396). The some_armor() draw
+// comes before the confused/cursed/blessed branches; the returned boolean is
+// C's `sobjp` consumption channel for strange_feeling().
+export async function seffect_destroy_armor(
+    scroll,
+    state = game,
+    rawEnv = {},
+) {
+    if (scroll?.otyp !== SCR_DESTROY_ARMOR || scroll.oclass !== SCROLL_CLASS)
+        throw new UnsupportedReadError('the selected destroy-armor branch');
+
+    state.gk ??= {};
+    const random = rawEnv.random ?? { rn1, rn2, rnd, rnl };
+    const otmp = some_armor(state.youmonst, state, random);
+    const scursed = Boolean(scroll.cursed);
+    const confused = propertyActive(CONFUSION, state);
+
+    if (confused) {
+        if (!otmp) {
+            await strange_feeling(scroll, 'Your bones itch.', state);
+            await exercise(A_STR, false, state, random);
+            await exercise(A_CON, false, state, random);
+            return true;
+        }
+        const oldErodeproof = Boolean(otmp.oerodeproof);
+        const newErodeproof = scursed;
+        otmp.oerodeproof = false;
+        await p_glow2(otmp, 'purple', state);
+        if (oldErodeproof && !newErodeproof) {
+            // Restore before shop billing, in source order.
+            otmp.oerodeproof = true;
+            sourceCostlyAlteration(otmp, COST_DEGRD, state);
+        }
+        otmp.oerodeproof = newErodeproof;
+        return false;
     }
-    if (!some_armor(state.youmonst, state, { rn2 })) {
-        throw new UnsupportedReadError(
-            'destroy-armor with no selected armor',
+
+    if (scursed) {
+        if (otmp?.cursed) {
+            await ttyPline(`${Yobjnam2(otmp, 'vibrate', state)}.`, state);
+            if (otmp.spe >= -6) {
+                otmp.spe--;
+                adj_abon(otmp, -1, state, { random });
+            }
+            const stun = (state.u.uprops[STUNNED]?.intrinsic ?? 0) & TIMEOUT;
+            const duration = stun + random.rn1(10, 10);
+            note_unported('timeout.c make_stunned');
+            // `duration` is evaluated before the discarded make_stunned()
+            // call, even while timeout.c itself remains outside this task.
+            void duration;
+        } else if (await disintegrate_arm(otmp, { state, random })) {
+            state.gk.known = true;
+            return false;
+        }
+    } else {
+        const getsChoice = Boolean(
+            otmp && scroll.blessed && count_worn_armor(state) > 1,
         );
+
+        if (getsChoice) {
+            if (!objectType(scroll, state).oc_name_known)
+                await ttyPline(
+                    `This is ${an(actualoname(scroll, state), state)}!`, state,
+                );
+            state.gk.known = true;
+            const armor = await getobj(
+                'destroy', any_worn_armor_ok, GETOBJ_PROMPT, state,
+            );
+            // C keeps the previously selected armor for a canceled or invalid
+            // choice, and accepts any valid worn armor, including covered gear.
+            const selected = any_worn_armor_ok(armor) === GETOBJ_SUGGEST
+                ? armor : otmp;
+            await disintegrate_arm(selected, { state, random });
+            return false;
+        }
+
+        if (scroll.blessed
+            && await disintegrate_cursed_armor(state, random)) {
+            state.gk.known = true;
+            return false;
+        }
+
+        if (!await destroy_arm(state, random)) {
+            await strange_feeling(scroll, 'Your skin itches.', state);
+            await exercise(A_STR, false, state, random);
+            await exercise(A_CON, false, state, random);
+            return true;
+        }
+        state.gk.known = true;
     }
-    if (!await destroy_arm(state, { rn2, rnl })) {
-        throw new UnsupportedReadError(
-            'destroy-armor with no effective erosion',
-        );
-    }
-    state.gk.known = true;
+    return false;
 }
 
 // C ref: read.c seffect_remove_curse() (1489-1605). Inventory traversal saves
@@ -3188,15 +3259,9 @@ export async function seffects(scroll, state = game, env = {}) {
             scroll = null;
         break;
     case SCR_DESTROY_ARMOR:
-        if (!scroll.blessed && !scroll.cursed
-            && !objectType(scroll, state).oc_name_known && !confused
-            && !propertyActive(BLINDED, state)
-            && can_chant(state.youmonst, state)
-            && oneWornFlammableArmor(state)) {
-            await seffect_destroy_armor(scroll, state);
-        } else {
-            note_unported('read.c seffect_destroy_armor');
-        }
+        if (await seffect_destroy_armor(
+            scroll, state, { ...env, random },
+        )) scroll = null;
         break;
     case SCR_CONFUSE_MONSTER:
     case SPE_CONFUSE_MONSTER:

@@ -1366,31 +1366,27 @@ test('cloak removal stays immediate and glove removal runs its delayed callback'
     game.uarmf = null;
 });
 
-test('the type guards inside the ported <X>_off arms hold', async () => {
+test('Armor_off awaits the source dragon-armor removal path', async () => {
     const segment = segmentFor(TAKEOFF_KEY);
     await runSegment({ ...segment, moves: WAIT });
     const cloak = game.uarmc;
     const originalOtyp = cloak.otyp;
 
-    // Armor_off(): every suit is removed except dragon scales and dragon
-    // scale mail, whose removal runs dragon_armor_handling(). js/obj.js
-    // Is_dragon_armor() answers for a single range over otyp, so the two ends
-    // of it are what the guard turns on, and the suit one past the top end
-    // must still come off. The test below pins that range against the two
-    // obj.h spells.
+    // do_wear.c Armor_off() always clears the slot before applying the
+    // dragon_armor_handling() effects. The async adapter must finish that
+    // source callback before its caller consumes the armor.
     for (const otyp of [GRAY_DRAGON_SCALE_MAIL, YELLOW_DRAGON_SCALES]) {
         game.uarm = { oclass: ARMOR_CLASS, otyp, owornmask: W_ARM };
-        assert.throws(
-            () => Armor_off(game),
-            new RegExp(`Armor_off\\(\\) for otyp ${otyp}`),
-            `otyp ${otyp}`,
-        );
+        const pending = Armor_off(game);
+        assert.ok(pending instanceof Promise, `otyp ${otyp} is async`);
+        assert.equal(await pending, 0, `otyp ${otyp}`);
+        assert.equal(game.uarm, null, `otyp ${otyp} is removed`);
     }
     // PLATE_MAIL sits at YELLOW_DRAGON_SCALES + 1 in objects.h.
     game.uarm = {
         oclass: ARMOR_CLASS, otyp: PLATE_MAIL, owornmask: W_ARM,
     };
-    assert.equal(Armor_off(game), 0);
+    assert.equal(await Armor_off(game), 0);
     assert.equal(game.uarm, null, 'the plate mail comes off');
 
     // Cloak_off(): the displacement arm is fully ported and clears both the
