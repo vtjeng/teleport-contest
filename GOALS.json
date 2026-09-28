@@ -102841,6 +102841,49 @@
           "evaluationCommit": "0ad1813eb7d516bad03ecf020442a374ae6e8d11"
         }
       }
+    },
+    {
+      "id": "port-potion-restore-ability-synthetic-v9-20260928",
+      "kind": "file-port",
+      "status": "queued",
+      "summary": "Port restore-ability potion and spell effects from source",
+      "cFile": "potion.c",
+      "sessions": [
+        "synthetic/v9/restore-ability-potion-recovers-stats"
+      ],
+      "selectionReason": "The current admitted v9 restore-ability case stops at potion.c:peffect_restore_ability in the quaff dispatcher, as traced in investigations/synthetic/v9/restore-ability-potion-recovers-stats.json. Its potion.c function and required pure apply.c:unfixable_trouble_count return-value helper are unreserved; A39 owns earlier apply.c whistle/doapply lines and C31 owns read.c/recharge, so the helper must be edited only in its distinct end-of-file source region.",
+      "detail": "Port the complete potion.c:peffect_restore_ability function, POT_RESTORE_ABILITY and SPE_RESTORE_ABILITY dispatch, and source-required pure apply.c:unfixable_trouble_count. Preserve cursed early return, blessed wording and trouble status conditions, random attribute loop, base/max/abuse changes, and potion-only lost-level restoration through exper.c:pluslvl. Add source-pinned pure helper tests and independent C recordings for potion and spell entry points without copying the selected v9 case.",
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": null,
+      "delivered": null,
+      "functions": [
+        {
+          "name": "peffect_restore_ability",
+          "line": 646,
+          "endLine": 695,
+          "declared": false,
+          "complete": false
+        }
+      ],
+      "range": {
+        "from": 646,
+        "to": 695
+      },
+      "syntheticProvenance": {
+        "synthetic/v9/restore-ability-potion-recovers-stats": {
+          "session": "synthetic/v9/restore-ability-potion-recovers-stats",
+          "corpus": "synthetic",
+          "batch": "v9",
+          "caseId": "restore-ability-potion-recovers-stats",
+          "manifestPath": "challenges/manifests/v9.json",
+          "manifestSha256": "00c148aac522e6343c8de0bd003db29771439f972a99cb18c772ebf2bc45a594",
+          "recordingPath": "challenges/cases/v9/restore-ability-potion-recovers-stats.session.json",
+          "recordingSha256": "15e358379aafa24a7c3f1a5e2bfa50ff7a45aec0331c8fb49580da59f6c869b4",
+          "evaluationPath": "challenges/evaluations/20260928061245-v9.json",
+          "evaluationCommit": "533d144713ebda5784bfbde54c648abde78b7883"
+        }
+      }
     }
   ]
 }
