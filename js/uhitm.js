@@ -408,7 +408,7 @@ import { acurr } from './attrib.js';
 import { set_wounded_legs } from './do.js';
 import { encumber_msg } from './pickup.js';
 import { make_blinded, potionhit } from './potion.js';
-import { d, rn1, rn2, rnl, rnd } from './rng.js';
+import { d, rn1, rn2, rne, rnl, rnd } from './rng.js';
 import {
     canSeeMonster,
     canSpotMonster,
@@ -1064,7 +1064,7 @@ export async function find_roll_to_hit(
 // C ref: uhitm.c do_attack() (448-583). A step into a monster's square either
 // declines so hack.c can displace, or consumes the attempted attack.
 export async function do_attack(monster, state = game, env = {}) {
-    const random = env.random ?? { d, rn1, rn2, rnd };
+    const random = env.random ?? { d, rn1, rn2, rne, rnd };
     if (typeof random.rn2 !== 'function')
         throw new TypeError('do_attack random injection requires rn2');
     const message = env.message ?? ttyPline;
