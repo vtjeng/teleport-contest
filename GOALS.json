@@ -108619,7 +108619,7 @@
     {
       "id": "port-dothrow-hitfloor-synthetic-v10-20260928",
       "kind": "file-port",
-      "status": "open",
+      "status": "parked",
       "summary": "Port dothrow.c hitfloor and unreachable-floor drop caller",
       "cFile": "dothrow.c",
       "sessions": [
@@ -108813,7 +108813,17 @@
             }
           }
         }
-      ]
+      ],
+      "progressBeforePark": {
+        "screens": 0,
+        "rng": 0
+      },
+      "parkedStanding": {
+        "sha": "759b985c4bdf4978863b5d44a45a63bd0db7e61d",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "parkedReason": "A43 matches do.c:drop -> dothrow.c:hitfloor in the selected v10 case and independent levitating-drop recording, but active callers dothrow.c:toss_up/throwit, invent.c:hold_another_object, artifact.c:untouchable, mkobj.c:hornoplenty, ball.c:litter/drag_down, and pickup.c:use_container/tipcontainer lack matching runtime witnesses. The upward-boulder toss recipe stops earlier at zap.c:makewish on missing rn2(100). Supporting do.c:dropz still names void impact/swallow gaps; preserve the blocked recipe and resume after those caller witnesses or source blockers are repaired."
     },
     {
       "id": "div-apply-doapply-artifact-retouch-v10-20260928",
@@ -109048,6 +109058,95 @@
           "recordingSha256": "c15351f9039084462fcd5d1fb074716d9586421e52b2499c3cd8951c2ab242cd",
           "evaluationPath": "challenges/evaluations/20260928205149-v11.json",
           "evaluationCommit": "1c5cff7f2fc9176aaf4b8105b1fd9b4e25232186"
+        }
+      }
+    },
+    {
+      "id": "port-zap-zapnodir-synthetic-v11-20260928",
+      "kind": "file-port",
+      "status": "queued",
+      "summary": "Port directionless wand effects and enlightenment helper from zap.c",
+      "cFile": "zap.c",
+      "sessions": [
+        "synthetic/v11/wand-wishing-makes-wish",
+        "synthetic/v11/wand-light-room",
+        "synthetic/v11/wand-stasis-freezes-level",
+        "synthetic/v11/wand-enlightenment-reports-status"
+      ],
+      "selectionReason": "Select synthetic/v11/wand-wishing-makes-wish at challenges/evaluations/20260928211543-v11.json (759b985c4bdf4978863b5d44a45a63bd0db7e61d), immutable recording SHA-256 fe9ecc7ad6c5594b63750b92be8bd751b854443651f2d011a96636051d758474, manifest SHA-256 7b80a66ca2659fab5f6012dfef09f8f1b46fe94a80716d5a8637af3b9e638347. Group the three related v11 light, stasis, and enlightenment cases because all first stop in zap.c:zapnodir; their investigation records preserve separate C branch, state, and action history.",
+      "detail": "Implement zap.c:do_enlightenment_effect and whole zapnodir switch in C definition order, including light, detection, stasis, creation, wishing, enlightenment, and shared wand discovery. Wire charged NODIR callers and preserve all existing create-monster and secret-door matches. The wishing branch may expose a separately traced zap.c:makewish finalization defect; source-trace and record it rather than special-casing the case.",
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": null,
+      "delivered": null,
+      "functions": [
+        {
+          "name": "do_enlightenment_effect",
+          "line": 2525,
+          "endLine": 2538,
+          "declared": false,
+          "complete": false
+        },
+        {
+          "name": "zapnodir",
+          "line": 2539,
+          "endLine": 2604,
+          "declared": true,
+          "complete": false
+        }
+      ],
+      "range": {
+        "from": 2525,
+        "to": 2604
+      },
+      "syntheticProvenance": {
+        "synthetic/v11/wand-wishing-makes-wish": {
+          "session": "synthetic/v11/wand-wishing-makes-wish",
+          "corpus": "synthetic",
+          "batch": "v11",
+          "caseId": "wand-wishing-makes-wish",
+          "manifestPath": "challenges/manifests/v11.json",
+          "manifestSha256": "7b80a66ca2659fab5f6012dfef09f8f1b46fe94a80716d5a8637af3b9e638347",
+          "recordingPath": "challenges/cases/v11/wand-wishing-makes-wish.session.json",
+          "recordingSha256": "fe9ecc7ad6c5594b63750b92be8bd751b854443651f2d011a96636051d758474",
+          "evaluationPath": "challenges/evaluations/20260928211543-v11.json",
+          "evaluationCommit": "759b985c4bdf4978863b5d44a45a63bd0db7e61d"
+        },
+        "synthetic/v11/wand-light-room": {
+          "session": "synthetic/v11/wand-light-room",
+          "corpus": "synthetic",
+          "batch": "v11",
+          "caseId": "wand-light-room",
+          "manifestPath": "challenges/manifests/v11.json",
+          "manifestSha256": "7b80a66ca2659fab5f6012dfef09f8f1b46fe94a80716d5a8637af3b9e638347",
+          "recordingPath": "challenges/cases/v11/wand-light-room.session.json",
+          "recordingSha256": "94ced9f04ccf374c3e5d6eeb6212a2e95527c728f793ef2122e2f15da8712b1a",
+          "evaluationPath": "challenges/evaluations/20260928211543-v11.json",
+          "evaluationCommit": "759b985c4bdf4978863b5d44a45a63bd0db7e61d"
+        },
+        "synthetic/v11/wand-stasis-freezes-level": {
+          "session": "synthetic/v11/wand-stasis-freezes-level",
+          "corpus": "synthetic",
+          "batch": "v11",
+          "caseId": "wand-stasis-freezes-level",
+          "manifestPath": "challenges/manifests/v11.json",
+          "manifestSha256": "7b80a66ca2659fab5f6012dfef09f8f1b46fe94a80716d5a8637af3b9e638347",
+          "recordingPath": "challenges/cases/v11/wand-stasis-freezes-level.session.json",
+          "recordingSha256": "99fd172dd3ce7b4338525776ef1d196f4d9747563cc21fc17f946be34e638eb2",
+          "evaluationPath": "challenges/evaluations/20260928211543-v11.json",
+          "evaluationCommit": "759b985c4bdf4978863b5d44a45a63bd0db7e61d"
+        },
+        "synthetic/v11/wand-enlightenment-reports-status": {
+          "session": "synthetic/v11/wand-enlightenment-reports-status",
+          "corpus": "synthetic",
+          "batch": "v11",
+          "caseId": "wand-enlightenment-reports-status",
+          "manifestPath": "challenges/manifests/v11.json",
+          "manifestSha256": "7b80a66ca2659fab5f6012dfef09f8f1b46fe94a80716d5a8637af3b9e638347",
+          "recordingPath": "challenges/cases/v11/wand-enlightenment-reports-status.session.json",
+          "recordingSha256": "0825f81f6eed93f36a6b1d76dd2dde00fddd8b48fe2cfc5f14ac08b8dc919419",
+          "evaluationPath": "challenges/evaluations/20260928211543-v11.json",
+          "evaluationCommit": "759b985c4bdf4978863b5d44a45a63bd0db7e61d"
         }
       }
     }
