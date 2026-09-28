@@ -105042,7 +105042,7 @@
     {
       "id": "port-sit-take-gold-synthetic-v10-20260928",
       "kind": "file-port",
-      "status": "queued",
+      "status": "open",
       "summary": "Port throne take_gold with source-ordered inventory deletion and messages",
       "cFile": "sit.c",
       "sessions": [
@@ -105050,8 +105050,12 @@
       ],
       "selectionReason": "Current v10 wizard-throne-effect-five-take-gold remains 30/31 matched. Its complete investigation at investigations/synthetic/v10/wizard-throne-effect-five-take-gold.json traces the missing sit.c:take_gold called by throne_sit_effect case 5; C advances to obj_resists rn2(100) while JS skips to throne rn2(3). v10 manifest 79c7c030ef380f5d24f6bcdbae0a59cce143306a35f7edee4355a3e01964cb57, recording 104c9d2525500bd1a6df5ae10067c1a0886574b02fb832f4272dbab623b0f793, latest evaluation challenges/evaluations/20260928101733-v10.json. Independent of A40 xkilled and C33 uhitm reservations.",
       "detail": "",
-      "openedAt": null,
-      "openStanding": null,
+      "openedAt": "5fb7e7e520459886e4689af81d6b1e2acfca4311",
+      "openStanding": {
+        "sha": "640fa277f4712d38f9f9dd8199ce25d495f5a3b5",
+        "screens": 11405,
+        "rng": 792838
+      },
       "closedAt": null,
       "delivered": null,
       "functions": [
@@ -105080,7 +105084,223 @@
           "evaluationPath": "challenges/evaluations/20260928101733-v10.json",
           "evaluationCommit": "8115539ecb3dbe59a8accf08d9a80235d523b63f"
         }
-      }
+      },
+      "activeStanding": {
+        "sha": "640fa277f4712d38f9f9dd8199ce25d495f5a3b5",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v10",
+          "caseId": "wizard-throne-effect-five-take-gold",
+          "session": "synthetic/v10/wizard-throne-effect-five-take-gold",
+          "manifestPath": "challenges/manifests/v10.json",
+          "manifestSha256": "79c7c030ef380f5d24f6bcdbae0a59cce143306a35f7edee4355a3e01964cb57",
+          "recording": "challenges/cases/v10/wizard-throne-effect-five-take-gold.session.json",
+          "recordingPath": "challenges/cases/v10/wizard-throne-effect-five-take-gold.session.json",
+          "recordingSha256": "104c9d2525500bd1a6df5ae10067c1a0886574b02fb832f4272dbab623b0f793",
+          "recipe": "challenges/cases/v10/wizard-throne-effect-five-take-gold.recipe.session.json",
+          "recipeSha256": "859d0c6d52764080f6fb01fb23f10d7534d24f5cf2b76491e49f9e4e4faf03f1",
+          "replayInputSha256": "056d75fe12def57f01a1a795dbbae99e4b178612ffa8f47f027c451ee46746b0",
+          "evaluationPath": "challenges/evaluations/20260928111611-v10.json",
+          "evaluationCommit": "640fa277f4712d38f9f9dd8199ce25d495f5a3b5",
+          "evaluationArtifact": "challenges/evaluations/20260928111611-v10.json",
+          "evaluationUtc": "2026-09-28T11:16:15.322Z",
+          "remainingScreens": 1,
+          "recordedSteps": 31,
+          "previousScreensMatched": 30,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 30,
+              "total": 31
+            },
+            "rng": {
+              "matched": 2991,
+              "total": 2998
+            },
+            "cursors": {
+              "matched": 31,
+              "total": 31
+            }
+          },
+          "firstMismatch": {
+            "screen": {
+              "index": 30,
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 30,
+                "key": "\n"
+              },
+              "kind": "ch",
+              "row": 0,
+              "column": 0,
+              "cCell": {
+                "ch": "Y",
+                "color": 8,
+                "attr": 0,
+                "decgfx": 0
+              },
+              "jsCell": {
+                "ch": " ",
+                "color": 8,
+                "attr": 0,
+                "decgfx": 0
+              }
+            },
+            "rng": {
+              "index": 2991,
+              "cEntry": "rn2(100)=26",
+              "cCaller": "obj_resists(zap.c:1469)",
+              "jsEntry": "rn2(3)=1",
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 30,
+                "key": "\n"
+              },
+              "stepIndex": 30
+            },
+            "cursor": null
+          },
+          "step": 30,
+          "kind": "rng",
+          "sourceFile": "zap.c",
+          "function": "obj_resists",
+          "message": null,
+          "cFile": "zap.c",
+          "luaFile": null,
+          "line": 1469,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v10/wizard-throne-effect-five-take-gold.json",
+            "result": {
+              "session": "synthetic/v10/wizard-throne-effect-five-take-gold",
+              "corpus": "synthetic",
+              "batch": "v10",
+              "caseId": "wizard-throne-effect-five-take-gold",
+              "manifestPath": "challenges/manifests/v10.json",
+              "manifestSha256": "79c7c030ef380f5d24f6bcdbae0a59cce143306a35f7edee4355a3e01964cb57",
+              "recordingSha256": "104c9d2525500bd1a6df5ae10067c1a0886574b02fb832f4272dbab623b0f793",
+              "evaluationPath": "challenges/evaluations/20260928083103-v10.json",
+              "evaluationCommit": "d739756c29e8e3afb6e2bf95c325f019693b4160",
+              "remainingScreens": 1,
+              "recordedSteps": 31,
+              "status": "complete",
+              "commit": "40fbeba4dfd7e57992b8fbb5f914cb6b442483a8",
+              "mismatch": {
+                "corpus": "synthetic",
+                "batch": "v10",
+                "caseId": "wizard-throne-effect-five-take-gold",
+                "session": "synthetic/v10/wizard-throne-effect-five-take-gold",
+                "manifestPath": "challenges/manifests/v10.json",
+                "manifestSha256": "79c7c030ef380f5d24f6bcdbae0a59cce143306a35f7edee4355a3e01964cb57",
+                "recording": "challenges/cases/v10/wizard-throne-effect-five-take-gold.session.json",
+                "recordingPath": "challenges/cases/v10/wizard-throne-effect-five-take-gold.session.json",
+                "recordingSha256": "104c9d2525500bd1a6df5ae10067c1a0886574b02fb832f4272dbab623b0f793",
+                "recipe": "challenges/cases/v10/wizard-throne-effect-five-take-gold.recipe.session.json",
+                "recipeSha256": "859d0c6d52764080f6fb01fb23f10d7534d24f5cf2b76491e49f9e4e4faf03f1",
+                "replayInputSha256": "4a5336fbd6fd717e38ac925cbd3401e34863ec5cb30b5a74b5086d5267748022",
+                "evaluationPath": "challenges/evaluations/20260928083103-v10.json",
+                "evaluationCommit": "d739756c29e8e3afb6e2bf95c325f019693b4160",
+                "evaluationArtifact": "challenges/evaluations/20260928083103-v10.json",
+                "evaluationUtc": "2026-09-28T08:31:23.355Z",
+                "remainingScreens": 1,
+                "recordedSteps": 31,
+                "previousScreensMatched": null,
+                "regression": false,
+                "passed": false,
+                "error": null,
+                "metrics": {
+                  "screens": {
+                    "matched": 30,
+                    "total": 31
+                  },
+                  "rng": {
+                    "matched": 2991,
+                    "total": 2998
+                  },
+                  "cursors": {
+                    "matched": 31,
+                    "total": 31
+                  }
+                },
+                "firstMismatch": {
+                  "screen": {
+                    "index": 30,
+                    "location": {
+                      "segmentIndex": 0,
+                      "stepIndex": 30,
+                      "key": "\n"
+                    },
+                    "kind": "ch",
+                    "row": 0,
+                    "column": 0,
+                    "cCell": {
+                      "ch": "Y",
+                      "color": 8,
+                      "attr": 0,
+                      "decgfx": 0
+                    },
+                    "jsCell": {
+                      "ch": " ",
+                      "color": 8,
+                      "attr": 0,
+                      "decgfx": 0
+                    }
+                  },
+                  "rng": {
+                    "index": 2991,
+                    "cEntry": "rn2(100)=26",
+                    "cCaller": "obj_resists(zap.c:1469)",
+                    "jsEntry": "rn2(3)=1",
+                    "location": {
+                      "segmentIndex": 0,
+                      "stepIndex": 30,
+                      "key": "\n"
+                    },
+                    "stepIndex": 30
+                  },
+                  "cursor": null
+                },
+                "step": 30,
+                "kind": "rng",
+                "sourceFile": "zap.c",
+                "function": "obj_resists",
+                "message": null,
+                "cFile": "zap.c",
+                "luaFile": null,
+                "line": 1469
+              },
+              "summary": "The Wizard-selected throne effect 5 reaches sit.c:take_gold, but JavaScript only records an unported gap. C walks the hero inventory, removes each coin stack through remove_worn_item and delobj, prints the no-gold or gold-lost message, and refreshes the status. The missing deletion also skips delobj_core’s obj_resists rn2(100), which is why the saved RNG first diverges before the throne’s later rn2(3). The owner is the whole take_gold function and its throne caller.",
+              "source": {
+                "file": "sit.c",
+                "branch": "On a normal throne when the effect roll leads to Wizard selection of effect 5, throne_sit_effect calls take_gold. take_gold saves each next inventory link before deleting COIN_CLASS objects, calls remove_worn_item then delobj for each, and reports either a strange sensation (none found) or no gold with disp.botl set. The throne then continues to its possible disappearance roll.",
+                "functions": [
+                  "take_gold"
+                ],
+                "callers": [
+                  "sit.c:throne_sit_effect case 5 at lines 102-104 calls take_gold; js/sit.js:throne_sit_effect case 5 currently only calls note_unported."
+                ],
+                "dependencies": [
+                  "steal.c:remove_worn_item is called even for unworn coins; preserve the ordinary no-worn behavior.",
+                  "invent.c:delobj and delobj_core are already ported and consume zap.c:obj_resists(obj,0,0), including rn2(100) for ordinary coins; pass the runtime environment and preserve the inventory next pointer.",
+                  "The final no-gold status refresh uses disp.botl and source messages, and throne_sit_effect continues its post-effect rn2(3) only after take_gold returns."
+                ]
+              },
+              "goalKind": "file-port",
+              "evidence": [
+                "Saved v10 evaluation challenges/evaluations/20260928083103-v10.json matches 30/31 screens but at step 30 C calls rn2(100)=26 in obj_resists(zap.c:1469) while JavaScript instead calls rn2(3)=1. Recording SHA-256 is 104c9d2525500bd1a6df5ae10067c1a0886574b02fb832f4272dbab623b0f793.",
+                "Upstream nethack-c/upstream/src/sit.c:14-35 defines take_gold, and sit.c:102-104 invokes it for throne effect 5. Upstream invent.c:1435-1462 delobj_core calls obj_resists; zap.c:1458-1475 draws rn2(100) for ordinary objects.",
+                "js/sit.js:250-253 skips case 5 with note_unported; js/invent.js:3400 and :3426 already export delobj and its source object-resistance call. The independent recipe wishes two gold pieces, sits on a normal throne, and selects effect 5."
+              ]
+            }
+          }
+        }
+      ]
     },
     {
       "id": "port-invent-hold-another-object-synthetic-v10-20260928",
