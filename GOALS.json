@@ -107721,7 +107721,7 @@
     {
       "id": "port-read-enchant-armor-synthetic-v8-20260928",
       "kind": "file-port",
-      "status": "queued",
+      "status": "open",
       "summary": "Port enchant-armor scroll effect from source",
       "cFile": "read.c",
       "sessions": [
@@ -107729,8 +107729,12 @@
       ],
       "selectionReason": "The selected v8 case has a historical fire-scroll name but C reaches read.c:seffect_enchant_armor and rnd(2) at step 20; js/read.js leaves SCR_ENCHANT_ARMOR unported. Investigation investigations/synthetic/v8/read-fire-scroll-effect-setup-miss-attempt1.json traces the true source owner. C37 owns the whole effect and dispatch, with do_wear.c:adj_abon caller support; the other unresolved v8 destroy-armor case instead follows do_wear.c:maybe_destroy_armor and zap.c:obj_resists and remains separate.",
       "detail": "Port complete read.c:seffect_enchant_armor in source order, including no-armor scroll consumption, confused erosion-proofing, over-enchantment loss, dragon-scale conversion, BUC, shop-cost and messages; wire SCR_ENCHANT_ARMOR in seffects and existing doread caller. Export and verify already implemented do_wear.c:adj_abon for its armor bonus update. Preserve return-valued helpers, pointer consumption, RNG order, every prior match, and independent C variations.",
-      "openedAt": null,
-      "openStanding": null,
+      "openedAt": "76369bd3745aab82611375d47d8d67d709f4a24a",
+      "openStanding": {
+        "sha": "22052f52aabe0e04fb194d8f1f243d996c0603d2",
+        "screens": 11405,
+        "rng": 792838
+      },
       "closedAt": null,
       "delivered": null,
       "functions": [
@@ -107759,7 +107763,257 @@
           "evaluationPath": "challenges/evaluations/20260928162841-v8.json",
           "evaluationCommit": "22052f52aabe0e04fb194d8f1f243d996c0603d2"
         }
-      }
+      },
+      "activeStanding": {
+        "sha": "22052f52aabe0e04fb194d8f1f243d996c0603d2",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v8",
+          "caseId": "read-fire-scroll-effect-setup-miss-attempt1",
+          "session": "synthetic/v8/read-fire-scroll-effect-setup-miss-attempt1",
+          "manifestPath": "challenges/manifests/v8.json",
+          "manifestSha256": "6a5159501af18a7f926f794d89e817375cd00a3589c4899fb97392ae04dbe8ba",
+          "recording": "challenges/cases/v8/read-fire-scroll-effect.setup-miss-attempt1.session.json",
+          "recordingPath": "challenges/cases/v8/read-fire-scroll-effect.setup-miss-attempt1.session.json",
+          "recordingSha256": "ee0e28cf295b60138d51379d06273fcbc5022484cc4e2cb4d05e3060ad17eb4d",
+          "recipe": "challenges/cases/v8/read-fire-scroll-effect.setup-miss-attempt1.recipe.session.json",
+          "recipeSha256": "4a41de4ad10a1f25fb22418e892475e34e74d36286721e48beefe2a351c3708d",
+          "replayInputSha256": "7b83dc5a577aa3af26efa902120047513501ffcc6b054008b0ed2026177a1829",
+          "evaluationPath": "challenges/evaluations/20260928162841-v8.json",
+          "evaluationCommit": "22052f52aabe0e04fb194d8f1f243d996c0603d2",
+          "evaluationArtifact": "challenges/evaluations/20260928162841-v8.json",
+          "evaluationUtc": "2026-09-28T16:29:19.736Z",
+          "remainingScreens": 1,
+          "recordedSteps": 21,
+          "previousScreensMatched": 20,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 20,
+              "total": 21
+            },
+            "rng": {
+              "matched": 2781,
+              "total": 2782
+            },
+            "cursors": {
+              "matched": 20,
+              "total": 21
+            }
+          },
+          "firstMismatch": {
+            "screen": {
+              "index": 20,
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 20,
+                "key": "h"
+              },
+              "kind": "ch",
+              "row": 0,
+              "column": 38,
+              "cCell": {
+                "ch": "-",
+                "color": 8,
+                "attr": 0,
+                "decgfx": 0
+              },
+              "jsCell": {
+                "ch": " ",
+                "color": 8,
+                "attr": 0,
+                "decgfx": 0
+              }
+            },
+            "rng": {
+              "index": 2781,
+              "cEntry": "rnd(2)=1",
+              "cCaller": "seffect_enchant_armor(read.c:1217)",
+              "jsEntry": "rn2(12)=8",
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 20,
+                "key": "h"
+              },
+              "stepIndex": 20
+            },
+            "cursor": {
+              "index": 20,
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 20,
+                "key": "h"
+              },
+              "cCursor": [
+                46,
+                0,
+                1
+              ],
+              "jsCursor": [
+                53,
+                8,
+                1
+              ]
+            }
+          },
+          "step": 20,
+          "kind": "rng",
+          "sourceFile": "read.c",
+          "function": "seffect_enchant_armor",
+          "message": null,
+          "cFile": "read.c",
+          "luaFile": null,
+          "line": 1217,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v8/read-fire-scroll-effect-setup-miss-attempt1.json",
+            "result": {
+              "session": "synthetic/v8/read-fire-scroll-effect-setup-miss-attempt1",
+              "corpus": "synthetic",
+              "batch": "v8",
+              "caseId": "read-fire-scroll-effect-setup-miss-attempt1",
+              "manifestPath": "challenges/manifests/v8.json",
+              "manifestSha256": "6a5159501af18a7f926f794d89e817375cd00a3589c4899fb97392ae04dbe8ba",
+              "recordingSha256": "ee0e28cf295b60138d51379d06273fcbc5022484cc4e2cb4d05e3060ad17eb4d",
+              "evaluationPath": "challenges/evaluations/20260927191056-v8.json",
+              "evaluationCommit": "5b4486322ffa5eeb91cc37d01083ff20bbfe2ea7",
+              "remainingScreens": 1,
+              "recordedSteps": 21,
+              "status": "complete",
+              "commit": "5b4486322ffa5eeb91cc37d01083ff20bbfe2ea7",
+              "mismatch": {
+                "corpus": "synthetic",
+                "batch": "v8",
+                "caseId": "read-fire-scroll-effect-setup-miss-attempt1",
+                "session": "synthetic/v8/read-fire-scroll-effect-setup-miss-attempt1",
+                "manifestPath": "challenges/manifests/v8.json",
+                "manifestSha256": "6a5159501af18a7f926f794d89e817375cd00a3589c4899fb97392ae04dbe8ba",
+                "recording": "challenges/cases/v8/read-fire-scroll-effect.setup-miss-attempt1.session.json",
+                "recordingPath": "challenges/cases/v8/read-fire-scroll-effect.setup-miss-attempt1.session.json",
+                "recordingSha256": "ee0e28cf295b60138d51379d06273fcbc5022484cc4e2cb4d05e3060ad17eb4d",
+                "recipe": "challenges/cases/v8/read-fire-scroll-effect.setup-miss-attempt1.recipe.session.json",
+                "recipeSha256": "4a41de4ad10a1f25fb22418e892475e34e74d36286721e48beefe2a351c3708d",
+                "replayInputSha256": "27f18d189b460e5d07fcbe8d4669298ca261f8e066dfb04e4481c65916a5d755",
+                "evaluationPath": "challenges/evaluations/20260927191056-v8.json",
+                "evaluationCommit": "5b4486322ffa5eeb91cc37d01083ff20bbfe2ea7",
+                "evaluationArtifact": "challenges/evaluations/20260927191056-v8.json",
+                "evaluationUtc": "2026-09-27T19:11:43.974Z",
+                "remainingScreens": 1,
+                "recordedSteps": 21,
+                "previousScreensMatched": 20,
+                "regression": false,
+                "passed": false,
+                "error": null,
+                "metrics": {
+                  "screens": {
+                    "matched": 20,
+                    "total": 21
+                  },
+                  "rng": {
+                    "matched": 2781,
+                    "total": 2782
+                  },
+                  "cursors": {
+                    "matched": 20,
+                    "total": 21
+                  }
+                },
+                "firstMismatch": {
+                  "screen": {
+                    "index": 20,
+                    "location": {
+                      "segmentIndex": 0,
+                      "stepIndex": 20,
+                      "key": "h"
+                    },
+                    "kind": "ch",
+                    "row": 0,
+                    "column": 38,
+                    "cCell": {
+                      "ch": "-",
+                      "color": 8,
+                      "attr": 0,
+                      "decgfx": 0
+                    },
+                    "jsCell": {
+                      "ch": " ",
+                      "color": 8,
+                      "attr": 0,
+                      "decgfx": 0
+                    }
+                  },
+                  "rng": {
+                    "index": 2781,
+                    "cEntry": "rnd(2)=1",
+                    "cCaller": "seffect_enchant_armor(read.c:1217)",
+                    "jsEntry": "rn2(12)=8",
+                    "location": {
+                      "segmentIndex": 0,
+                      "stepIndex": 20,
+                      "key": "h"
+                    },
+                    "stepIndex": 20
+                  },
+                  "cursor": {
+                    "index": 20,
+                    "location": {
+                      "segmentIndex": 0,
+                      "stepIndex": 20,
+                      "key": "h"
+                    },
+                    "cCursor": [
+                      46,
+                      0,
+                      1
+                    ],
+                    "jsCursor": [
+                      53,
+                      8,
+                      1
+                    ]
+                  }
+                },
+                "step": 20,
+                "kind": "rng",
+                "sourceFile": "read.c",
+                "function": "seffect_enchant_armor",
+                "message": null,
+                "cFile": "read.c",
+                "luaFile": null,
+                "line": 1217
+              },
+              "summary": "Despite its historical “fire” case name, the C recording actually reads enchant armor. C reaches read.c:seffect_enchant_armor and draws rnd(2) for ordinary armor; js/read.js records an unported gap, then diverges at the next monster draw. Port the whole armor-enchantment effect, including no-armor, confused erosion-proofing, over-enchantment destruction, dragon-scale conversion, curse/bless, shop-cost, and warning-message branches.",
+              "source": {
+                "file": "read.c",
+                "branch": "read.c:seffect_enchant_armor (1115-1292) selects worn armor with do_wear.c:some_armor, handles no armor and confused erosion-proof changes, computes special armor/color and over-enchantment destruction, derives enchantment power from old spe/material/blessing, draws rnd(s) or rn2, may convert dragon scales to mail, otherwise adjusts spe, armor bonus, shop cost, and warning output. The selected C route reaches the ordinary enchantment rnd(2) at line 1217; the case name does not define source behavior.",
+                "functions": [
+                  "seffect_enchant_armor"
+                ],
+                "callers": [
+                  "read.c:seffects SCR_ENCHANT_ARMOR dispatches seffect_enchant_armor; js/read.js currently records note_unported in that arm.",
+                  "read.c:doread reaches the dispatch after a scroll selection; the selected v8 recording follows this path."
+                ],
+                "dependencies": [
+                  "do_wear.c:some_armor is already ported and returns the selected armor; preserve its RNG and return value.",
+                  "Inspect return-valued helpers for protection, cost, and dragon scales; port missing consumed callees in the same source task. Preserve source evaluation order and delete the unported gap."
+                ]
+              },
+              "goalKind": "file-port",
+              "evidence": [
+                "Saved challenges/evaluations/20260927191056-v8.json at 5b4486322ffa5eeb91cc37d01083ff20bbfe2ea7 measures 20/21 screens and 2781/2782 RNG calls; first C RNG mismatch at step 20 is rnd(2)=1 from seffect_enchant_armor(read.c:1217).",
+                "Upstream nethack-c/upstream/src/read.c lines 1115-1292 defines seffect_enchant_armor; js/read.js case SCR_ENCHANT_ARMOR records note_unported.",
+                "The recorded case reads armor enchantment even though its name mentions fire; source behavior, not filename, identifies the work."
+              ]
+            }
+          }
+        }
+      ]
     },
     {
       "id": "port-apply-break-wand-synthetic-v10-20260928",

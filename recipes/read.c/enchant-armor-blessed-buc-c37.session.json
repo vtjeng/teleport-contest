@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "Independent blessed-scroll C37 recipe: the Valkyrie starts with an unblessed worn small shield, wishes a blessed enchant-armor scroll, reads it, then inspects inventory to expose the blessing result.",
+  "segments": [
+    {
+      "seed": 9385119,
+      "datetime": "20430916093100",
+      "nethackrc": "OPTIONS=name:Vola,role:Valkyrie,race:human,gender:female,align:lawful\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,playmode:debug\n",
+      "moves": " \u0017blessed scroll of enchant armor\nrf i"
+    }
+  ]
+}
