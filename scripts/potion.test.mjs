@@ -939,6 +939,87 @@ test('paralysis preserves its Free_action, levitation, and steed messages',
     game.u.usteed = null;
 });
 
+test('peffect_sleeping follows the C branch and call order', () => {
+    const source = potionSource();
+    const start = source.indexOf('peffect_sleeping(struct obj *otmp)');
+    const end = source.indexOf('\n}\n\nstaticfn int\npeffect_monster_detection',
+        start);
+    assert.ok(start > 0 && end > start);
+    const cBody = source.slice(start, end).replace(/\s+/gu, ' ');
+    assert.match(cBody,
+        /if \(Sleep_resistance \|\| Free_action\) \{ monstseesu\(M_SEEN_SLEEP\); You\("yawn\."\); \} else \{ You\("suddenly fall asleep!"\); monstunseesu\(M_SEEN_SLEEP\); fall_asleep\(-rn1\(10, 25 - 12 \* bcsign\(otmp\)\), TRUE\); \}/u);
+
+    const js = readFileSync(new URL('../js/potion.js', import.meta.url), 'utf8');
+    const dispatchStart = js.indexOf('export async function peffects(');
+    const dispatchEnd = js.indexOf('\n}\n\n// C ref:', dispatchStart);
+    assert.ok(dispatchStart > 0 && dispatchEnd > dispatchStart);
+    const armStart = js.indexOf('case POT_SLEEPING:', dispatchStart);
+    const armEnd = js.indexOf('case POT_MONSTER_DETECTION:', armStart);
+    assert.ok(armStart > dispatchStart && armEnd > armStart);
+    assert.match(js.slice(armStart, armEnd),
+        /await peffect_sleeping\(otmp, state, env\);\s*break;/u);
+});
+
+test('sleeping potion uses the C BUC-scaled duration and timeout state',
+    async () => {
+        await startedGame(260927361, 'SleepingPotionDuration', 'Wizard');
+        const potion = vaporPotion(POT_SLEEPING);
+        potion.blessed = true;
+        game.u.uprops[FREE_ACTION].intrinsic = 0;
+        game.u.uprops[FREE_ACTION].extrinsic = 0;
+        game.u.uprops[SLEEP_RES].intrinsic = 0;
+        game.u.uprops[SLEEP_RES].extrinsic = 0;
+        game.gp.potion_nothing = 0;
+        game.gp.potion_unkn = 0;
+        clearTopline();
+        enableRngLog();
+
+        assert.equal(await peffects(potion, game), -1);
+
+        const draws = getRngLog();
+        assert.equal(draws.length, 1);
+        const roll = Number(/^rn2\(10\)=(\d+)$/u.exec(draws[0])?.[1]);
+        assert.ok(Number.isInteger(roll));
+        assert.equal(toplines(), 'You suddenly fall asleep!');
+        assert.equal(game.multi, -(13 + roll));
+        assert.equal(game.multi_reason, 'sleeping');
+        assert.equal(game.nomovemsg, 'You wake up.');
+        assert.equal(game.u.usleep, game.moves);
+    });
+
+for (const [name, property, seed] of [
+    ['Free_action', FREE_ACTION, 260927362],
+    ['Sleep_resistance', SLEEP_RES, 260927363],
+]) {
+    test(`sleeping potion yawn honors ${name} without a timeout draw`,
+        async () => {
+            await startedGame(seed, `SleepingPotion${name}`, 'Wizard');
+            const potion = vaporPotion(POT_SLEEPING);
+            game.u.uprops[FREE_ACTION].intrinsic = 0;
+            game.u.uprops[FREE_ACTION].extrinsic = 0;
+            game.u.uprops[SLEEP_RES].intrinsic = 0;
+            game.u.uprops[SLEEP_RES].extrinsic = 0;
+            game.u.uprops[property].intrinsic = FROMOUTSIDE;
+            const previous = {
+                multi: game.multi ?? 0,
+                reason: game.multi_reason,
+                nomovemsg: game.nomovemsg,
+                usleep: game.u.usleep,
+            };
+            clearTopline();
+            enableRngLog();
+
+            assert.equal(await peffects(potion, game), -1);
+
+            assert.equal(toplines(), 'You yawn.');
+            assert.deepEqual(getRngLog(), []);
+            assert.equal(game.multi ?? 0, previous.multi);
+            assert.equal(game.multi_reason, previous.reason);
+            assert.equal(game.nomovemsg, previous.nomovemsg);
+            assert.equal(game.u.usleep, previous.usleep);
+        });
+}
+
 test('potion.c still labels the arms this port refuses and none it skips',
     () => {
     const { code, comments } = breatheSwitchBody();

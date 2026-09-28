@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent A36 potion.c:peffect_sleeping resistance-arm witness. Seed 936271002 and clock 20340512142231 were selected independently. Wizard mode gives exactly one turn of SLEEP_RES with #wizintrinsic before a wished sleeping potion is quaffed through the production command path.",
+  "segments": [
+    {
+      "seed": 936271002,
+      "datetime": "20340512142231",
+      "nethackrc": "OPTIONS=name:SleepResistA36,role:Wizard,race:human,gender:female,align:neutral,playmode:debug,!legacy,!tutorial,!splash_screen,pettype:none\n",
+      "moves": " #wizintrinsic\n1E\n\n\u0017uncursed potion of sleeping\nqn"
+    }
+  ]
+}
