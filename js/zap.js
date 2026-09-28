@@ -587,6 +587,7 @@ import {
     wake_nearto,
     wakeup,
     xkilled,
+    check_gear_next_turn,
     set_ustuck,
     unstuck,
 } from './mon.js';
@@ -637,6 +638,7 @@ import {
     bimanual,
     bypass_obj,
     find_mac,
+    mon_adjust_speed,
     set_twoweap,
     setuqwep,
     setuswapwep,
@@ -3151,6 +3153,8 @@ export async function bhitm(monster, wand, state = game,
     let ret = 0;
     const otyp = wand.otyp;
     const forceBolt = otyp === WAN_STRIKING || otyp === SPE_FORCE_BOLT;
+    const slowMonster = otyp === WAN_SLOW_MONSTER
+        || otyp === SPE_SLOW_MONSTER;
     const disguised_mimic = monster.data?.mlet === S_MIMIC
         && M_AP_TYPE(monster) !== M_AP_NOTHING;
     // A long worm which this same zap just changed into must not be hit again
@@ -3161,7 +3165,8 @@ export async function bhitm(monster, wand, state = game,
             reveal_invis = true;
         }
     } else if (!forceBolt && otyp !== WAN_POLYMORPH
-        && otyp !== SPE_POLYMORPH && otyp !== SPE_KNOCK) {
+        && otyp !== SPE_POLYMORPH && otyp !== SPE_KNOCK
+        && !slowMonster) {
         throw new UnsupportedZapError(
             `bhitm() for immediate effect type ${otyp}`,
         );
@@ -3191,6 +3196,32 @@ export async function bhitm(monster, wand, state = game,
             if (!disguised_mimic)
                 await miss(zap_type_text, monster, state, rawEnv);
             learn_it = false;
+        }
+    } else if (slowMonster) {
+        // zap.c:bhitm() slow-monster arm. The resistance result controls both
+        // the speed change and the gear-reassessment flag; wake/reveal/learn
+        // handling remains in the common tail below.
+        if (!await resist(monster, wand.oclass, 0, NOTELL,
+            state, random, rawEnv)) {
+            if (disguised_mimic) seemimic(monster, state);
+            await mon_adjust_speed(monster, -1, wand, state, {
+                ...rawEnv,
+                random,
+            });
+            check_gear_next_turn(monster);
+
+            if (engulfing_u(monster, state) && is_whirly(monster.data)) {
+                await ttyPline(
+                    `You disrupt ${mon_nam(monster, state, rawEnv)}!`,
+                    state,
+                    rawEnv,
+                );
+                await ttyPline('A huge hole opens up...', state, rawEnv);
+                // zap.c ignores expels()'s return. Its TRUE expulsion-message
+                // arm is not yet ported, so preserve the source boundary and
+                // continue through bhitm()'s common tail.
+                note_unported('mhitu.c expels TRUE');
+            }
         }
     } else if (otyp === SPE_KNOCK) {
         const appearanceType = M_AP_TYPE(monster);
