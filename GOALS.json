@@ -107080,7 +107080,7 @@
     {
       "id": "port-apply-flip-coin-synthetic-v10-20260928",
       "kind": "file-port",
-      "status": "queued",
+      "status": "closed",
       "summary": "Port coin-flipping apply behavior from source",
       "cFile": "apply.c",
       "sessions": [
@@ -107088,17 +107088,24 @@
       ],
       "selectionReason": "The saved v10 coin case matches selection and stops at step 16 because apply.c:doapply COIN_CLASS has no flip_coin behavior in JavaScript. The complete apply.c:flip_coin handles dry heads/tails, hallucination, underwater, glib/fumbling, Dexterity and dropped stacked coins. No other unresolved flip_coin case is queued; related apply.c wand and artifact cases execute different source functions and action histories. Investigation: investigations/synthetic/v10/flip-coin-normal-outcome.json; current evaluation challenges/evaluations/20260928145605-v10.json.",
       "detail": "Port whole apply.c:flip_coin in source order, including message construction, per-branch RNG, quantity splitobj and dropx calls, and coin-class dispatch in doapply. Remove the stale COIN_CLASS refusal and update its focused test. Provide independent C recordings for normal and source-reached drop/hallucination states, preserving existing matches.",
-      "openedAt": null,
-      "openStanding": null,
-      "closedAt": null,
-      "delivered": null,
+      "openedAt": "6be58f64e66f16eb890da5fa65a334d1a77ba000",
+      "openStanding": {
+        "sha": "58639035d0e7ada6a49be353c938613f4266f393",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "closedAt": "aef4649706699044364b3fcf0884ba94f5622cd3",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
       "functions": [
         {
           "name": "flip_coin",
           "line": 4527,
           "endLine": 4559,
-          "declared": false,
-          "complete": false
+          "declared": true,
+          "complete": true
         }
       ],
       "range": {
@@ -107118,12 +107125,234 @@
           "evaluationPath": "challenges/evaluations/20260928145605-v10.json",
           "evaluationCommit": "58639035d0e7ada6a49be353c938613f4266f393"
         }
+      },
+      "activeStanding": {
+        "sha": "58639035d0e7ada6a49be353c938613f4266f393",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v10",
+          "caseId": "flip-coin-normal-outcome",
+          "session": "synthetic/v10/flip-coin-normal-outcome",
+          "manifestPath": "challenges/manifests/v10.json",
+          "manifestSha256": "79c7c030ef380f5d24f6bcdbae0a59cce143306a35f7edee4355a3e01964cb57",
+          "recording": "challenges/cases/v10/flip-coin-normal-outcome.session.json",
+          "recordingPath": "challenges/cases/v10/flip-coin-normal-outcome.session.json",
+          "recordingSha256": "74a817f2bb295a3ec4019a480f358a4444124cac5e19e3d735a97f21fdf207e0",
+          "recipe": "challenges/cases/v10/flip-coin-normal-outcome.recipe.session.json",
+          "recipeSha256": "5793516f2bfe49d6a1a4c95ee58503fb8929c2db724aae27659871e930b8ecf0",
+          "replayInputSha256": "0fd8b2977a9c4f584dee6e8f9b94a514b18192d284d9ba0dc1d551acc5317e3d",
+          "evaluationPath": "challenges/evaluations/20260928145605-v10.json",
+          "evaluationCommit": "58639035d0e7ada6a49be353c938613f4266f393",
+          "evaluationArtifact": "challenges/evaluations/20260928145605-v10.json",
+          "evaluationUtc": "2026-09-28T14:56:08.825Z",
+          "remainingScreens": 1,
+          "recordedSteps": 17,
+          "previousScreensMatched": 16,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 16,
+              "total": 17
+            },
+            "rng": {
+              "matched": 2992,
+              "total": 3001
+            },
+            "cursors": {
+              "matched": 16,
+              "total": 17
+            }
+          },
+          "firstMismatch": {
+            "kind": "stop",
+            "message": "unsupported hero command: an unported branch of this command: applying a tool requires flip_coin()",
+            "step": 16
+          },
+          "step": 16,
+          "kind": "stop",
+          "sourceFile": "apply.c",
+          "function": "flip_coin",
+          "message": "unsupported hero command: an unported branch of this command: applying a tool requires flip_coin()",
+          "cFile": "apply.c",
+          "luaFile": null,
+          "line": null,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v10/flip-coin-normal-outcome.json",
+            "result": {
+              "session": "synthetic/v10/flip-coin-normal-outcome",
+              "corpus": "synthetic",
+              "batch": "v10",
+              "caseId": "flip-coin-normal-outcome",
+              "manifestPath": "challenges/manifests/v10.json",
+              "manifestSha256": "79c7c030ef380f5d24f6bcdbae0a59cce143306a35f7edee4355a3e01964cb57",
+              "recordingSha256": "74a817f2bb295a3ec4019a480f358a4444124cac5e19e3d735a97f21fdf207e0",
+              "evaluationPath": "challenges/evaluations/20260928083103-v10.json",
+              "evaluationCommit": "d739756c29e8e3afb6e2bf95c325f019693b4160",
+              "remainingScreens": 1,
+              "recordedSteps": 17,
+              "status": "complete",
+              "commit": "40fbeba4dfd7e57992b8fbb5f914cb6b442483a8",
+              "mismatch": {
+                "corpus": "synthetic",
+                "batch": "v10",
+                "caseId": "flip-coin-normal-outcome",
+                "session": "synthetic/v10/flip-coin-normal-outcome",
+                "manifestPath": "challenges/manifests/v10.json",
+                "manifestSha256": "79c7c030ef380f5d24f6bcdbae0a59cce143306a35f7edee4355a3e01964cb57",
+                "recording": "challenges/cases/v10/flip-coin-normal-outcome.session.json",
+                "recordingPath": "challenges/cases/v10/flip-coin-normal-outcome.session.json",
+                "recordingSha256": "74a817f2bb295a3ec4019a480f358a4444124cac5e19e3d735a97f21fdf207e0",
+                "recipe": "challenges/cases/v10/flip-coin-normal-outcome.recipe.session.json",
+                "recipeSha256": "5793516f2bfe49d6a1a4c95ee58503fb8929c2db724aae27659871e930b8ecf0",
+                "replayInputSha256": "4a5336fbd6fd717e38ac925cbd3401e34863ec5cb30b5a74b5086d5267748022",
+                "evaluationPath": "challenges/evaluations/20260928083103-v10.json",
+                "evaluationCommit": "d739756c29e8e3afb6e2bf95c325f019693b4160",
+                "evaluationArtifact": "challenges/evaluations/20260928083103-v10.json",
+                "evaluationUtc": "2026-09-28T08:31:23.355Z",
+                "remainingScreens": 1,
+                "recordedSteps": 17,
+                "previousScreensMatched": null,
+                "regression": false,
+                "passed": false,
+                "error": null,
+                "metrics": {
+                  "screens": {
+                    "matched": 16,
+                    "total": 17
+                  },
+                  "rng": {
+                    "matched": 2992,
+                    "total": 3001
+                  },
+                  "cursors": {
+                    "matched": 16,
+                    "total": 17
+                  }
+                },
+                "firstMismatch": {
+                  "kind": "stop",
+                  "message": "unsupported hero command: an unported branch of this command: applying a tool requires flip_coin()",
+                  "step": 16
+                },
+                "step": 16,
+                "kind": "stop",
+                "sourceFile": "apply.c",
+                "function": "flip_coin",
+                "message": "unsupported hero command: an unported branch of this command: applying a tool requires flip_coin()",
+                "cFile": "apply.c",
+                "luaFile": null,
+                "line": null
+              },
+              "summary": "Applying a gold piece matches C through item selection, then JavaScript refuses apply.c:flip_coin. C describes the coin, drops one if underwater or fingers are slippery (or a low-Dexterity draw fails), otherwise draws rn2(100) when hallucinating or rn2(2) for normal heads/tails. The whole function and doapply coin-class dispatch are missing; dropped-coin branches must preserve splitobj and dropx behavior.",
+              "source": {
+                "file": "apply.c",
+                "branch": "For a dry, neither glib nor fumbling, nonhallucinating Wizard with normal Dexterity applying a gold piece, doapply dispatches COIN_CLASS to flip_coin; after the flip message it draws rn2(2) and prints heads or tails. Underwater, Glib/Fumbling and low Dexterity may instead split one coin from a stack and drop it, while hallucination uses a separate rn2(100) branch.",
+                "functions": [
+                  "flip_coin"
+                ],
+                "callers": [
+                  "apply.c:doapply dispatches COIN_CLASS to flip_coin at 4240-4241; js/apply.js:doapply currently throws UnsupportedApplyError for COIN_CLASS."
+                ],
+                "dependencies": [
+                  "invent.c:splitobj returns a separate coin when the stack has quantity above one; do.c:dropx then drops it. Preserve stack and floor state through those consumed and void calls.",
+                  "fingers_or_gloves and objnam.c:singular/xname determine messages; Glib, Fumbling, Hallucination and ACURR(A_DEX) control C branch/RNG order."
+                ]
+              },
+              "goalKind": "file-port",
+              "evidence": [
+                "Saved v10 evaluation challenges/evaluations/20260928083103-v10.json matches 16/17 screens then stops at step 16 on flip_coin refusal, with 2992/3001 RNG calls matched. The C recording SHA-256 is 74a817f2bb295a3ec4019a480f358a4444124cac5e19e3d735a97f21fdf207e0.",
+                "Upstream nethack-c/upstream/src/apply.c:4528-4564 defines the full flip_coin function and the normal rn2(2) branch; apply.c:4240-4241 wires the coin class.",
+                "js/apply.js:3471-3472 refuses COIN_CLASS; the independent recipe wishes a gold piece and applies it."
+              ]
+            }
+          }
+        }
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "flip_coin",
+            "implementation": "js/apply.js",
+            "symbol": "flip_coin",
+            "sourceReview": "Compared the complete apply.c:flip_coin definition at 4526-4556 and its doapply caller at 4214-4241. Preserved the initial flip message, Underwater-first branch, short-circuit Glib/Fumbling/low-Dexterity test and its conditional rn2(ACURR(A_DEX)) draw, stack split only when quan > 1, then the separate Hallucination rn2(100) or normal rn2(2) outcome. The production apply.js:doapply COIN_CLASS arm returns this helper's ECMD_TIME result. splitobj()'s returned object is consumed and already ported in js/obj.js. C discards dropx()'s result; the ordinary floor-drop path is wired through do.c:dropx, while its underwater and visible-Hallucination floor/display side effects remain explicit note_unported('do.c dropx underwater') and note_unported('do.c dropx hallucinated display') gaps. No other substitute RNG or state change was added.",
+            "callers": [
+              {
+                "path": "js/apply.js",
+                "symbol": "doapply",
+                "source": "apply.c:doapply, after getobj and retouch_object, checks COIN_CLASS and returns flip_coin(obj) at 4240-4241. The JS COIN_CLASS arm returns await flip_coin(obj, state, env)."
+              },
+              {
+                "path": "js/cmd.js",
+                "symbol": "runApplyCommand",
+                "source": "cmd.c command table binds the 'a' apply command to doapply at 1677-1678; js/cmd.js routes the production doapply command through runApplyCommand at 5148-5149, which calls apply.js:doapply."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/apply-flip-coin.test.mjs",
+              "scripts/apply-stethoscope.test.mjs"
+            ],
+            "recordings": [
+              "recordings/apply.c/flip-coin-normal-independent-c36.session.json",
+              "recordings/apply.c/flip-coin-glib-drop-independent-c36.session.json",
+              "recordings/apply.c/flip-coin-hallucination-blinded-independent-c36.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v10",
+                "caseId": "flip-coin-normal-outcome",
+                "segment": 0,
+                "fromStep": 16,
+                "throughStep": 16,
+                "source": "cmd.c apply command -> apply.c:doapply COIN_CLASS -> apply.c:flip_coin normal rn2(2) outcome"
+              }
+            ],
+            "checkedAt": "aef4649706699044364b3fcf0884ba94f5622cd3"
+          }
+        ],
+        "entryPointReview": "The active production entry is the 'a' command: cmd.c's command table dispatches it to doapply, whose COIN_CLASS branch calls flip_coin; js/cmd.js's production command route calls apply.js:doapply, which now selects the same helper. The selected v10 normal-outcome case reaches flip_coin at segment 0, step 16. Independent normal, GLIB stack-drop, and blinded-Hallucination recordings fully match C and exercise the regular result, splitobj plus ordinary dropx, and rn2(100) paths respectively. A visible-Hallucination attempt reaches C flip_coin, but its strict JS comparison diverges before the apply command while allmain.c:moveloop_core refreshes the hallucinated map through display.c:see_objects/map_object; its blocked recipe remains under recipes/apply.c and its cache-only C trace is excluded from recordings. Underwater is another active loss branch, but the dropped-floor effects of its void do.c:dropx call remain explicitly unported. These are named downstream evidence/behavior gaps, not claims that the corresponding dropx effects are complete.",
+        "entryPoints": [
+          {
+            "name": "Apply a coin with the production apply command",
+            "functions": [
+              "flip_coin"
+            ],
+            "recordings": [
+              "recordings/apply.c/flip-coin-normal-independent-c36.session.json",
+              "recordings/apply.c/flip-coin-glib-drop-independent-c36.session.json",
+              "recordings/apply.c/flip-coin-hallucination-blinded-independent-c36.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v10",
+                "caseId": "flip-coin-normal-outcome",
+                "segment": 0,
+                "fromStep": 16,
+                "throughStep": 16,
+                "source": "cmd.c apply command -> apply.c:doapply COIN_CLASS -> apply.c:flip_coin"
+              }
+            ]
+          }
+        ]
+      },
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "aef4649706699044364b3fcf0884ba94f5622cd3",
+        "screens": 11405,
+        "rng": 792838
       }
     },
     {
       "id": "port-pray-sacrifice-your-race-synthetic-v10-20260928",
       "kind": "file-port",
-      "status": "queued",
+      "status": "closed",
       "summary": "Port own-race corpse sacrifice from source",
       "cFile": "pray.c",
       "sessions": [
@@ -107131,17 +107360,24 @@
       ],
       "selectionReason": "Current v10 case offer-human-corpse-own-race stops at step 39 when pray.c:offer_corpse skips sacrifice_your_race; C calls dlord after altar branching. Investigation investigations/synthetic/v10/offer-human-corpse-own-race.json corrects the saved queue stale minion.c owner; B44 owns whole sacrifice_your_race and offer_corpse wiring, with no C36 apply overlap.",
       "detail": "Port pray.c:sacrifice_your_race in source order through altar transformation, dlord and return-valued makemon summon, alignment/luck consequences, corpse consumption. Review makemon.c:makemon runtime admission for the returned demon path and expand source-based scope if required. Existing void desecrate_altar and angry_priest gaps may remain named where their results are discarded. Preserve every admitted match.",
-      "openedAt": null,
-      "openStanding": null,
-      "closedAt": null,
-      "delivered": null,
+      "openedAt": "84c0ff63e4343fbf4be0abbe85b9fb46635815c9",
+      "openStanding": {
+        "sha": "aef4649706699044364b3fcf0884ba94f5622cd3",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "closedAt": "22052f52aabe0e04fb194d8f1f243d996c0603d2",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
       "functions": [
         {
           "name": "sacrifice_your_race",
           "line": 1698,
           "endLine": 1780,
-          "declared": false,
-          "complete": false
+          "declared": true,
+          "complete": true
         }
       ],
       "range": {
@@ -107160,6 +107396,368 @@
           "recordingSha256": "33e678286303574408531a137d5ba4d404e85bab0912dbd35c1aa3a2c93fe296",
           "evaluationPath": "challenges/evaluations/20260928145605-v10.json",
           "evaluationCommit": "58639035d0e7ada6a49be353c938613f4266f393"
+        }
+      },
+      "activeStanding": {
+        "sha": "aef4649706699044364b3fcf0884ba94f5622cd3",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v10",
+          "caseId": "offer-human-corpse-own-race",
+          "session": "synthetic/v10/offer-human-corpse-own-race",
+          "manifestPath": "challenges/manifests/v10.json",
+          "manifestSha256": "79c7c030ef380f5d24f6bcdbae0a59cce143306a35f7edee4355a3e01964cb57",
+          "recording": "challenges/cases/v10/offer-human-corpse-own-race.session.json",
+          "recordingPath": "challenges/cases/v10/offer-human-corpse-own-race.session.json",
+          "recordingSha256": "33e678286303574408531a137d5ba4d404e85bab0912dbd35c1aa3a2c93fe296",
+          "recipe": "challenges/cases/v10/offer-human-corpse-own-race.recipe.session.json",
+          "recipeSha256": "df6b7617306434df386dadb419e53cb4fbefde54e156b6e812e1eca75c088ec0",
+          "replayInputSha256": "a6c13b98941115caa8501ba34f63daa5375dff55b84b167bf3de9e391feaec5b",
+          "evaluationPath": "challenges/evaluations/20260928160625-v10.json",
+          "evaluationCommit": "aef4649706699044364b3fcf0884ba94f5622cd3",
+          "evaluationArtifact": "challenges/evaluations/20260928160625-v10.json",
+          "evaluationUtc": "2026-09-28T16:06:29.383Z",
+          "remainingScreens": 2,
+          "recordedSteps": 41,
+          "previousScreensMatched": 39,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 39,
+              "total": 41
+            },
+            "rng": {
+              "matched": 2316,
+              "total": 2471
+            },
+            "cursors": {
+              "matched": 39,
+              "total": 41
+            }
+          },
+          "firstMismatch": {
+            "screen": {
+              "index": 39,
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 39,
+                "key": "y"
+              },
+              "kind": "ch",
+              "row": 0,
+              "column": 3,
+              "cCell": {
+                "ch": " ",
+                "color": 8,
+                "attr": 0,
+                "decgfx": 0
+              },
+              "jsCell": {
+                "ch": "r",
+                "color": 8,
+                "attr": 0,
+                "decgfx": 0
+              }
+            },
+            "rng": {
+              "index": 2316,
+              "cEntry": "rn2(2)=1",
+              "cCaller": "dlord(minion.c:410)",
+              "jsEntry": "rn2(12)=1",
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 39,
+                "key": "y"
+              },
+              "stepIndex": 39
+            },
+            "cursor": {
+              "index": 39,
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 39,
+                "key": "y"
+              },
+              "cCursor": [
+                64,
+                0,
+                1
+              ],
+              "jsCursor": [
+                5,
+                6,
+                1
+              ]
+            }
+          },
+          "step": 39,
+          "kind": "rng",
+          "sourceFile": "minion.c",
+          "function": "dlord",
+          "message": null,
+          "cFile": "minion.c",
+          "luaFile": null,
+          "line": 410,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v10/offer-human-corpse-own-race.json",
+            "result": {
+              "session": "synthetic/v10/offer-human-corpse-own-race",
+              "corpus": "synthetic",
+              "batch": "v10",
+              "caseId": "offer-human-corpse-own-race",
+              "manifestPath": "challenges/manifests/v10.json",
+              "manifestSha256": "79c7c030ef380f5d24f6bcdbae0a59cce143306a35f7edee4355a3e01964cb57",
+              "recordingSha256": "33e678286303574408531a137d5ba4d404e85bab0912dbd35c1aa3a2c93fe296",
+              "evaluationPath": "challenges/evaluations/20260928130935-v10.json",
+              "evaluationCommit": "502dd4bc9e1bdc245fc0d223217696088126a592",
+              "remainingScreens": 2,
+              "recordedSteps": 41,
+              "status": "complete",
+              "commit": "502dd4bc9e1bdc245fc0d223217696088126a592",
+              "mismatch": {
+                "corpus": "synthetic",
+                "batch": "v10",
+                "caseId": "offer-human-corpse-own-race",
+                "session": "synthetic/v10/offer-human-corpse-own-race",
+                "manifestPath": "challenges/manifests/v10.json",
+                "manifestSha256": "79c7c030ef380f5d24f6bcdbae0a59cce143306a35f7edee4355a3e01964cb57",
+                "recording": "challenges/cases/v10/offer-human-corpse-own-race.session.json",
+                "recordingPath": "challenges/cases/v10/offer-human-corpse-own-race.session.json",
+                "recordingSha256": "33e678286303574408531a137d5ba4d404e85bab0912dbd35c1aa3a2c93fe296",
+                "recipe": "challenges/cases/v10/offer-human-corpse-own-race.recipe.session.json",
+                "recipeSha256": "df6b7617306434df386dadb419e53cb4fbefde54e156b6e812e1eca75c088ec0",
+                "replayInputSha256": "24e068511f16e4cd8dca714851523783d922f6c3d4a8fa7a51fcca5dd4c86dde",
+                "evaluationPath": "challenges/evaluations/20260928130935-v10.json",
+                "evaluationCommit": "502dd4bc9e1bdc245fc0d223217696088126a592",
+                "evaluationArtifact": "challenges/evaluations/20260928130935-v10.json",
+                "evaluationUtc": "2026-09-28T13:09:38.613Z",
+                "remainingScreens": 2,
+                "recordedSteps": 41,
+                "previousScreensMatched": 39,
+                "regression": false,
+                "passed": false,
+                "error": null,
+                "metrics": {
+                  "screens": {
+                    "matched": 39,
+                    "total": 41
+                  },
+                  "rng": {
+                    "matched": 2316,
+                    "total": 2471
+                  },
+                  "cursors": {
+                    "matched": 39,
+                    "total": 41
+                  }
+                },
+                "firstMismatch": {
+                  "screen": {
+                    "index": 39,
+                    "location": {
+                      "segmentIndex": 0,
+                      "stepIndex": 39,
+                      "key": "y"
+                    },
+                    "kind": "ch",
+                    "row": 0,
+                    "column": 3,
+                    "cCell": {
+                      "ch": " ",
+                      "color": 8,
+                      "attr": 0,
+                      "decgfx": 0
+                    },
+                    "jsCell": {
+                      "ch": "r",
+                      "color": 8,
+                      "attr": 0,
+                      "decgfx": 0
+                    }
+                  },
+                  "rng": {
+                    "index": 2316,
+                    "cEntry": "rn2(2)=1",
+                    "cCaller": "dlord(minion.c:410)",
+                    "jsEntry": "rn2(12)=1",
+                    "location": {
+                      "segmentIndex": 0,
+                      "stepIndex": 39,
+                      "key": "y"
+                    },
+                    "stepIndex": 39
+                  },
+                  "cursor": {
+                    "index": 39,
+                    "location": {
+                      "segmentIndex": 0,
+                      "stepIndex": 39,
+                      "key": "y"
+                    },
+                    "cCursor": [
+                      64,
+                      0,
+                      1
+                    ],
+                    "jsCursor": [
+                      5,
+                      6,
+                      1
+                    ]
+                  }
+                },
+                "step": 39,
+                "kind": "rng",
+                "sourceFile": "minion.c",
+                "function": "dlord",
+                "message": null,
+                "cFile": "minion.c",
+                "luaFile": null,
+                "line": 410
+              },
+              "summary": "The wished human corpse now reaches pray.c:sacrifice_your_race. JavaScript stops that source call with note_unported after the own-race check, while C proceeds through its altar branch and calls minion.c:dlord; the first remaining mismatch is step 39. The source task is the whole sacrifice_your_race function and its offer_corpse caller, including altar transformation, demon summoning, alignment and luck consequences, and corpse consumption. minion.c:dlord is already ported; its first rn1 draw is missing only because the prayer call is skipped.",
+              "source": {
+                "file": "pray.c",
+                "branch": "offer_corpse calls sacrifice_your_race when your_race(ptr) is true. For a nonchaotic human offering a human corpse, sacrifice_your_race first reports the offense and Wisdom exercise, then chooses the high/lawful-neutral/chaotic-unaligned altar branch; the latter calls dlord(altaralign), may create a demon, applies fear, alignment, anger and luck changes, then consumes the offered corpse. Preserve all other species/alignment/altar branches of the whole function.",
+                "functions": [
+                  "sacrifice_your_race"
+                ],
+                "callers": [
+                  "pray.c:offer_corpse at 1994 calls sacrifice_your_race after your_race; js/pray.js:offer_corpse at 551-553 currently calls note_unported and returns. #offer reaches offer_corpse through the existing altar path."
+                ],
+                "dependencies": [
+                  "minion.c:dlord returns a monster type and is already ported in js/minion.js; preserve its rn1/ndemon behavior when called from the altar branch.",
+                  "makemon.c:makemon return controls whether demon-summoning feedback and paralysis happen; use the existing runtime port and port any missing return-valued callee it needs.",
+                  "Void source calls to desecrate_altar and angry_priest may remain recorded gaps only where the C discards their results; do not invent their effects."
+                ]
+              },
+              "goalKind": "file-port",
+              "evidence": [
+                "Current saved challenges/evaluations/20260928130935-v10.json at 502dd4bc9e1bdc245fc0d223217696088126a592 matches 39/41 screens and first differs at segment 0 step 39. C next calls rn2(2) from dlord(minion.c:410) while JS next has rn2(12). The immutable recording SHA-256 is 33e678286303574408531a137d5ba4d404e85bab0912dbd35c1aa3a2c93fe296.",
+                "Upstream nethack-c/upstream/src/pray.c:1698-1784 defines sacrifice_your_race and pray.c:1994 calls it for own-race corpses. The chaotic/unaligned altar branch invokes dlord at 1744 and consumes the corpse at the end.",
+                "js/pray.js:551-553 returns after note_unported(pray.c sacrifice_your_race); js/minion.js:282-300 implements dlord, so the missing first source action is the prayer branch rather than the selector itself.",
+                "Earlier investigation at commit 395a168f identified a wished-corpse holding refusal at step 30, now resolved by A41. Its shared eat-same-race case passes; preserve that gain while repairing the altar path."
+              ]
+            }
+          }
+        }
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "sacrifice_your_race",
+            "implementation": "js/pray.js",
+            "symbol": "sacrifice_your_race",
+            "sourceReview": "Read pray.c:sacrifice_your_race() 1698-1778 in full. Preserved demon-hero versus non-chaotic offense feedback and Wisdom exercise; the high-altar early return; lawful/neutral altar staining and newsym order; human sacrifice on chaotic or unaligned altars; black-cloud altar destruction; Luck adjustment before dlord(); dlord's PM return and makemon(&mons[pm], u.ux, u.uy, MM_NOMSG)'s pointer return; naming that returned monster, clearing STRAT_APPEARMSG, peacefulness, terror and nomul state; alignment/anger/attribute/luck tail; and carried versus floor corpse consumption. Existing makemon_runtime() is invoked with the source explicit-species, explicit-hero-coordinate, MM_NOMSG call shape, and its returned monster pointer drives the C conditional and subsequent effects. This is evidence for that call shape only, not a whole makemon.c:makemon port. At C void calls whose result is discarded, the JS records and skips pray.c:desecrate_altar, priest.c:angry_priest, and pray.c:angrygods. The independently matched recording exercises the unaligned human offering branch; the admitted v10 case exercises the chaotic human branch.",
+            "callers": [
+              {
+                "path": "js/pray.js",
+                "symbol": "offer_corpse",
+                "source": "pray.c:offer_corpse() checks your_race(ptr) and calls sacrifice_your_race(otmp, highaltar, altaralign)"
+              },
+              {
+                "path": "js/pray.js",
+                "symbol": "dosacrifice",
+                "source": "pray.c:dosacrifice() selects a sacrifice with floorfood() and sends a corpse to offer_corpse()"
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/pray.test.mjs"
+            ],
+            "recordings": [
+              "recordings/pray.c/sacrifice-your-race-unaligned-independent.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v10",
+                "caseId": "offer-human-corpse-own-race",
+                "segment": 0,
+                "fromStep": 39,
+                "throughStep": 40,
+                "source": "cmd.c #offer -> pray.c:dosacrifice -> pray.c:offer_corpse own-race branch -> pray.c:sacrifice_your_race; dlord() and makemon() return-valued calls"
+              }
+            ],
+            "checkedAt": "22052f52aabe0e04fb194d8f1f243d996c0603d2"
+          }
+        ],
+        "entryPointReview": "The active production entry point is the hero's #offer command: cmd.c's extended-command row dispatches dosacrifice(), which selects a corpse and calls offer_corpse(), whose own-race branch calls sacrifice_your_race(). The admitted v10 offer-human-corpse-own-race recording matches the entire 41-step segment; steps 39-40 reach the helper, dlord(), makemon(), summoning output, and terror state. The independent recipe/recording at recordings/pray.c/sacrifice-your-race-unaligned-independent.session.json also executes this command and strict-matches its full 43-step segment; C step 41 reaches dlord(minion.c:410) and makemon(makemon.c:1447), and step 42 shows the terror result. The high-altar early return still skips void pray.c:desecrate_altar; lawful/neutral altar staining and the black-cloud branch still skip void priest.c:angry_priest; non-chaotic tail effects still skip void pray.c:angrygods. These are source-named gaps at calls whose results C discards, not claims that their effects were ported. recipes/pray.c/sacrifice-your-race-nonchaotic-blocked.session.json preserves a source-blocked non-chaotic branch. The supplemental makemon observation covers only the explicit coordinate/MM_NOMSG call shape and consumed returned pointer used here, not whole makemon.c completion.",
+        "entryPoints": [
+          {
+            "name": "Hero offers an own-race corpse with #offer",
+            "functions": [
+              "sacrifice_your_race"
+            ],
+            "recordings": [
+              "recordings/pray.c/sacrifice-your-race-unaligned-independent.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v10",
+                "caseId": "offer-human-corpse-own-race",
+                "segment": 0,
+                "fromStep": 39,
+                "throughStep": 40,
+                "source": "cmd.c #offer -> pray.c:dosacrifice -> pray.c:offer_corpse -> pray.c:sacrifice_your_race"
+              }
+            ]
+          }
+        ]
+      },
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "22052f52aabe0e04fb194d8f1f243d996c0603d2",
+        "screens": 11405,
+        "rng": 792838
+      }
+    },
+    {
+      "id": "port-read-enchant-armor-synthetic-v8-20260928",
+      "kind": "file-port",
+      "status": "queued",
+      "summary": "Port enchant-armor scroll effect from source",
+      "cFile": "read.c",
+      "sessions": [
+        "synthetic/v8/read-fire-scroll-effect-setup-miss-attempt1"
+      ],
+      "selectionReason": "The selected v8 case has a historical fire-scroll name but C reaches read.c:seffect_enchant_armor and rnd(2) at step 20; js/read.js leaves SCR_ENCHANT_ARMOR unported. Investigation investigations/synthetic/v8/read-fire-scroll-effect-setup-miss-attempt1.json traces the true source owner. C37 owns the whole effect and dispatch, with do_wear.c:adj_abon caller support; the other unresolved v8 destroy-armor case instead follows do_wear.c:maybe_destroy_armor and zap.c:obj_resists and remains separate.",
+      "detail": "Port complete read.c:seffect_enchant_armor in source order, including no-armor scroll consumption, confused erosion-proofing, over-enchantment loss, dragon-scale conversion, BUC, shop-cost and messages; wire SCR_ENCHANT_ARMOR in seffects and existing doread caller. Export and verify already implemented do_wear.c:adj_abon for its armor bonus update. Preserve return-valued helpers, pointer consumption, RNG order, every prior match, and independent C variations.",
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": null,
+      "delivered": null,
+      "functions": [
+        {
+          "name": "seffect_enchant_armor",
+          "line": 1115,
+          "endLine": 1293,
+          "declared": false,
+          "complete": false
+        }
+      ],
+      "range": {
+        "from": 1115,
+        "to": 1293
+      },
+      "syntheticProvenance": {
+        "synthetic/v8/read-fire-scroll-effect-setup-miss-attempt1": {
+          "session": "synthetic/v8/read-fire-scroll-effect-setup-miss-attempt1",
+          "corpus": "synthetic",
+          "batch": "v8",
+          "caseId": "read-fire-scroll-effect-setup-miss-attempt1",
+          "manifestPath": "challenges/manifests/v8.json",
+          "manifestSha256": "6a5159501af18a7f926f794d89e817375cd00a3589c4899fb97392ae04dbe8ba",
+          "recordingPath": "challenges/cases/v8/read-fire-scroll-effect.setup-miss-attempt1.session.json",
+          "recordingSha256": "ee0e28cf295b60138d51379d06273fcbc5022484cc4e2cb4d05e3060ad17eb4d",
+          "evaluationPath": "challenges/evaluations/20260928162841-v8.json",
+          "evaluationCommit": "22052f52aabe0e04fb194d8f1f243d996c0603d2"
         }
       }
     }
