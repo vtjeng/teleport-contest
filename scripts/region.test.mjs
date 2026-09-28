@@ -11,6 +11,7 @@ import {
     ROOM,
 } from '../js/const.js';
 import { GameMap } from '../js/game.js';
+import { game } from '../js/gstate.js';
 import { newMonster, place_monster } from '../js/monst.js';
 import {
     M1_BREATHLESS, M2_UNDEAD, PM_FOG_CLOUD, S_GOLEM,
@@ -410,14 +411,54 @@ test('run_regions ages then runs harmless hero and monster callbacks in ID order
     });
 });
 
-test('inside_gas_cloud treats the null callback subject as the hero monster', () => {
+test('inside_gas_cloud treats the null callback subject as the hero monster', async () => {
     const state = regionState({
         youmonst: newMonster({ mnum: PM_FOG_CLOUD, mhp: 5 }),
     });
     const cloud = pointRegion(2, 2, { arg: 0, ttl: -1 });
 
-    assert.equal(inside_gas_cloud(cloud, null, { state }), false);
+    assert.equal(await inside_gas_cloud(cloud, null, { state }), false);
     assert.equal(cloud.ttl, 4);
+});
+
+test('inside_gas_cloud records a void monkilled gap with injected state', async () => {
+    const state = regionState();
+    const monster = newMonster({
+        data: { mflags1: 0, mflags2: 0, mresists: 0, msound: 0 },
+        m_id: 31,
+        mhp: 1,
+        mcansee: false,
+        mx: 9,
+        my: 9,
+        wormno: 1,
+    });
+    const cloud = pointRegion(5, 5, {
+        arg: 1,
+        heros_fault: false,
+    });
+    const previousUnported = game.unported;
+    game.unported = new Set();
+
+    try {
+        await assert.rejects(
+            inside_gas_cloud(cloud, monster, {
+                state,
+                random: { rnd: () => 1 },
+                async message() {},
+                canSee: () => false,
+                unsupported(reason) {
+                    throw new Error(`blocked at ${reason}`);
+                },
+            }),
+            /blocked at a long worm's death by another monster/,
+        );
+        assert.ok(game.unported.has(
+            "mon.c a long worm's death by another monster",
+        ));
+    } finally {
+        if (previousUnported === undefined) delete game.unported;
+        else game.unported = previousUnported;
+    }
 });
 
 test('run_regions expires backward before aging and inside callbacks', async () => {
@@ -519,8 +560,13 @@ test('run_regions performs harmless gas dissipation, redraw, then aggregate mess
     assert.equal(state.gg.gas_cloud_diss_seen, 0);
 });
 
-test('run_regions rejects harmful gas atomically before ttl and counters change', async () => {
+test('run_regions executes positive-damage fog callback before aging completes', async () => {
     const state = regionState({
+        youmonst: newMonster({
+            data: { mflags1: M1_BREATHLESS },
+            mnum: PM_FOG_CLOUD,
+            mhp: 5,
+        }),
         gg: {
             gas_cloud_diss_seen: 17,
             gas_cloud_diss_within: true,
@@ -535,15 +581,11 @@ test('run_regions rejects harmful gas atomically before ttl and counters change'
     });
     state.level.regions = [cloud];
 
-    await assert.rejects(
-        run_regions({ state }),
-        (error) => error instanceof UnsupportedRegionCallbackError
-            && error.callback === 'inside_gas_cloud',
-    );
-    assert.equal(cloud.ttl, 2);
+    await run_regions({ state });
+    assert.equal(cloud.ttl, 6);
     assert.deepEqual(state.gg, {
-        gas_cloud_diss_seen: 17,
-        gas_cloud_diss_within: true,
+        gas_cloud_diss_seen: 0,
+        gas_cloud_diss_within: false,
     });
 });
 

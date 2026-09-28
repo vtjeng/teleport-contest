@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "Independent peaceful-monster witness for region.c:inside_gas_cloud: a poison-resistant Orc Wizard creates a peaceful troll and clouds the hero square, exercising the C heros_fault/setmangry path and troll gas damage without lethal hero damage.",
+  "segments": [
+    {
+      "seed": 93657220,
+      "datetime": "20430907143218",
+      "nethackrc": "OPTIONS=name:CloudPeacefulB36,role:Wizard,race:orc,gender:female,align:neutral,playmode:debug,!legacy,!tutorial,!splash_screen,pettype:none\n",
+      "moves": " #wizgenesis\npeaceful troll\n\u0017scroll of stinking cloud\nro    .          ."
+    }
+  ]
+}
