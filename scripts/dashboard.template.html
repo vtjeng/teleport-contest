@@ -878,7 +878,7 @@ canvas {
     <div class="history-navigator">
       <canvas id="progressMinimap" tabindex="0" aria-label="Full history for the development set and synthetic local holdout. Drag the window or its edges. Arrow keys move the window; plus and minus zoom; Home and End jump to the oldest and newest dates."></canvas>
     </div>
-    <p class="history-help">Tap a chart to pin scores. Drag to pan; Ctrl/⌘ + scroll to zoom. Synthetic axes start near the lowest recorded match; selected batches share a percent scale.</p>
+    <p class="history-help">Tap a chart to pin scores. Drag to pan; Ctrl/⌘ + scroll to zoom. Each synthetic axis starts near that batch's lowest recorded match.</p>
   </div>
 </section>
 
@@ -1362,10 +1362,9 @@ document.getElementById('stats').innerHTML = [
     }
     ctx.fill();
   }
-  function yMinimum(entry, shown) {
+  function yMinimum(entry) {
     if (entry === series[0]) return 0;
-    const compared = mode === 'percent' ? shown.slice(1) : [entry];
-    const values = compared.flatMap(item => item.points.filter(measured).map(point => valueOf(point)))
+    const values = entry.points.filter(measured).map(point => valueOf(point))
       .filter(Number.isFinite);
     if (!values.length) return 0;
     const maximum = yMax(entry), smallest = Math.min(...values);
@@ -1374,10 +1373,10 @@ document.getElementById('stats').innerHTML = [
       : Math.max(1, (maximum - smallest) * 0.08);
     return Math.max(0, Math.min(maximum - 1, Math.floor(smallest - margin)));
   }
-  function drawChart(entry, shown) {
+  function drawChart(entry) {
     const height = entry.canvas.getBoundingClientRect().width < 500 ? 128 : 150;
     const { ctx, width } = prepare(entry.canvas, height), ink = palette();
-    const maximum = yMax(entry), minimum = yMinimum(entry, shown);
+    const maximum = yMax(entry), minimum = yMinimum(entry);
     const x = time => scaleX(time, width, view);
     const y = value => pad.top + (1 - (value - minimum) / (maximum - minimum)) * (height - pad.top - pad.bottom);
     ctx.font = '10px "JetBrains Mono", monospace';
@@ -1494,7 +1493,7 @@ document.getElementById('stats').innerHTML = [
     const preset = [1, 7, 30].find(days => view.t1 === domain.t1 && Math.abs(view.t1 - view.t0 - days * DAY) < 1);
     windowSelect.value = fullRange ? 'all' : preset ? String(preset) : 'custom';
     modes.forEach((button, index) => button.setAttribute('aria-pressed', String(mode === (index ? 'percent' : 'screens'))));
-    shown.forEach(entry => drawChart(entry, shown)); drawMinimap(shown); showReadout(shown);
+    shown.forEach(drawChart); drawMinimap(shown); showReadout(shown);
   }
   function zoom(factor, anchor = (view.t0 + view.t1) / 2) {
     const fraction = (anchor - view.t0) / (view.t1 - view.t0);

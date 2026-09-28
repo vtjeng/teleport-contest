@@ -421,7 +421,7 @@ test('synthetic batch histories and duplicate case IDs remain separate in the da
     assert.equal(rendered.get('progressMinimap').style.height, '152px');
 });
 
-test('batch picker defaults to unresolved cases and fits the visible percent axis', () => {
+test('batch picker defaults to unresolved cases and fits each percent axis', () => {
     const data = sourceDashboardData();
     const result = (matched, total) => ({ passed: true, screens: { matched, total },
         rng: { matched: total, total }, cursors: { matched: total, total } });
@@ -453,9 +453,12 @@ test('batch picker defaults to unresolved cases and fits the visible percent axi
     assert.equal(rendered.get('progressMinimap').style.height, '152px');
     assert.match(rendered.get('progressReadout').innerHTML, /· v1/u);
     rendered.get('progressMode-percent').listeners.click[0]();
-    const labels = rendered.get('challengeChart').ops.filter(([op]) => op === 'fillText')
+    const v1Labels = rendered.get('challengeChart').ops.filter(([op]) => op === 'fillText')
         .map(([, value]) => value);
-    assert.ok(labels.includes('35%'), 'both selected batches share the lower percent tick');
+    const v2Labels = rendered.get('challengeChart2').ops.filter(([op]) => op === 'fillText')
+        .map(([, value]) => value);
+    assert.ok(v1Labels.includes('78%'), 'the first batch keeps its own admission range');
+    assert.ok(v2Labels.includes('35%'), 'the second batch keeps its own admission range');
 });
 
 test('healthy batch measurements do not repeat above the challenge cases', () => {
