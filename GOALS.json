@@ -27516,7 +27516,15 @@
         "sha": "ee9597acda2480513d59c51e1ba2dd2e9f2eb019",
         "screens": 6902,
         "rng": 508247
-      }
+      },
+      "invalidatedFunctions": [
+        {
+          "name": "trapeffect_anti_magic",
+          "reason": "The earlier source evidence explicitly covered only the monster arm and left the hero arm behind preflight_dotrap. The independently recorded v11 anti-magic trap reaches the omitted hero arm, which must be ported with drain_en and runtime evidence before the whole C function can count complete.",
+          "followupGoal": "port-trap-antimagic-hero-synthetic-v11-20260928",
+          "at": "4a4ee7c470cb255f5c4837409366c3649875d151"
+        }
+      ]
     },
     {
       "id": "port-dokick-kick-nondoor-wall",
@@ -108865,7 +108873,7 @@
           "line": 2323,
           "endLine": 2452,
           "declared": true,
-          "complete": true
+          "complete": false
         }
       ],
       "range": {
