@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 73901285,
+      "datetime": "20360929113800",
+      "nethackrc": "OPTIONS=name:VibrationTrial,role=Wizard,race=human,gender=male,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen\nOPTIONS=playmode:debug,pettype:dog,!autopickup,!acoustics\n",
+      "moves": "\u0017cursed magic whistle\nao"
+    }
+  ],
+  "comment": "Independent single-seed attempt to reach apply.c:use_magic_whistle's cursed vibration branch and teleport.c:tele_to_rnd_pet. Keep as blocked provenance if the source-ordered C branch does not select vibration."
+}

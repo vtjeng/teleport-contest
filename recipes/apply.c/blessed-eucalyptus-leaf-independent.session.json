@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 73901284,
+      "datetime": "20360929113700",
+      "nethackrc": "OPTIONS=name:GumProbe,role=Wizard,race=human,gender=female,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen\nOPTIONS=playmode:debug,pettype:dog,!autopickup,!acoustics\n",
+      "moves": "\u0017blessed eucalyptus leaf\nan"
+    }
+  ],
+  "comment": "Independent blessed eucalyptus-leaf doapply witness with a new seed, clock, and character: applies the leaf through apply.c:doapply(EUCALYPTUS_LEAF), then exercises the shared magic-whistle path and post-effect blessing roll."
+}

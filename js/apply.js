@@ -1,7 +1,8 @@
 // apply.js -- the `a` command: using a tool.
 // C refs: src/apply.c apply_ok(), doapply(), get_mleash(), use_cream_pie(),
-// use_whip(), the polearm helpers and use_pole(), use_stethoscope(), its_dead(),
-// reset_trapset(), use_trap(), and set_trap().
+// use_whistle(), use_magic_whistle(), magic_whistled(), use_whip(), the
+// polearm helpers and use_pole(), use_stethoscope(), its_dead(), reset_trapset(),
+// use_trap(), and set_trap().
 //
 // doapply()'s switch has thirty-odd named arms. Its live groups include
 // BULLWHIP and polearms, CREAM_PIE, STETHOSCOPE, OIL_LAMP/MAGIC_LAMP/
@@ -10,7 +11,8 @@
 // pick_lock() serves; MAGIC_MARKER delegates to write.c dowrite() in
 // js/write.js; containers delegate to pickup.c use_container() in js/pickup.js;
 // BAG_OF_TRICKS delegates to makemon.c bagotricks() in js/makemon.js; musical
-// instruments delegate to music.c; LAND_MINE/BEARTRAP use apply.c
+// instruments delegate to music.c; the MAGIC_WHISTLE/TIN_WHISTLE/EUCALYPTUS_LEAF
+// arms call their apply.c whistle helpers; LAND_MINE/BEARTRAP use apply.c
 // use_trap()/set_trap(); and HORN_OF_PLENTY delegates to mkobj.c. Ordinary
 // food and armor return their source unknown-use result. The unicorn-horn arm
 // calls apply.c use_unicorn_horn(); its unported void effect helpers remain
@@ -115,6 +117,10 @@ import {
     MONSEEN_INFRAVIS,
     MONSEEN_NORMAL,
     MONSEEN_SEEINVIS,
+    NOSE,
+    NO_TRAP_FLAGS,
+    PLNMSG_enum,
+    RLOC_NONE,
     TELEDS_NO_FLAGS,
     TELEDS_ALLOW_DRAG,
     TOOKPLUNGE,
@@ -125,6 +131,7 @@ import {
     TT_LAVA,
     TT_PIT,
     TT_WEB,
+    Trap_Killed_Mon,
     UNENCUMBERED,
     WEAK,
     MAXULEV,
@@ -176,12 +183,12 @@ import {
 } from './display.js';
 import {
     Amonnam, Monnam, c_obj_colors, hcolor, mon_nam, monverbself, obj_pmname,
-    pmname, x_monnam,
+    pmname, x_monnam, y_monnam,
 } from './do_name.js';
 import { can_reach_floor, cant_reach_floor, freehand } from './engrave.js';
 import { game } from './gstate.js';
 import { check_capacity, losehp, near_capacity, nomul, overexertion } from './hack.js';
-import { dist2, highc, isqrt, s_suffix, strstri, upstart } from './hacklib.js';
+import { dist2, highc, isqrt, s_suffix, strstri, truncateByteString, upstart } from './hacklib.js';
 import { mstatusline, ustatusline } from './insight.js';
 import { gulp_blnd_check } from './mhitu.js';
 import {
@@ -205,8 +212,9 @@ import {
 } from './invent.js';
 import { pick_lock } from './lock.js';
 import { bagotricks } from './makemon.js';
-import { seemimic, set_ustuck, wakeup, wake_nearto } from './mon.js';
+import { seemimic, set_ustuck, wakeup, wake_nearby, wake_nearto } from './mon.js';
 import {
+    can_blow,
     can_blnd,
     gender,
     humanoid,
@@ -234,7 +242,7 @@ import {
     poly_when_stoned,
 } from './mondata.js';
 import {
-    accessible, closed_door, monflee, onscary, set_apparxy, youHear,
+    accessible, closed_door, m_in_air, monflee, onscary, set_apparxy, youHear,
 } from './monmove.js';
 import { m_at } from './monst.js';
 import { paralyze_monst } from './mhitm.js';
@@ -260,6 +268,7 @@ import {
     obj_no_longer_held,
     place_object,
     set_bknown,
+    unbless,
     sobj_at,
     is_wet_towel,
     carried,
@@ -279,6 +288,7 @@ import {
     Tobjnam,
     the,
     The,
+    Yobjnam2,
     Yname2,
     otense,
     safe_qbuf,
@@ -398,7 +408,7 @@ import {
     activate_statue_trap, deltrap, is_lava, is_pool, is_pool_or_lava,
     Levitation, maketrap, reset_utrap, t_at, trapname,
 } from './trap.js';
-import { dotrap, feeltrap } from './trap_effects.js';
+import { dotrap, feeltrap, mintrap } from './trap_effects.js';
 import { ttyPline } from './tty_message.js';
 import {
     cansee,
@@ -428,7 +438,7 @@ import { wield_tool } from './wield.js';
 import { acurr } from './attrib.js';
 import { known_spell, spe_Fresh, spelleffects } from './spell.js';
 import { stucksteed, use_saddle } from './steed.js';
-import { enexto, rloc, tele_restrict, teleds } from './teleport.js';
+import { enexto, mnexto, rloc, tele_restrict, tele_to_rnd_pet, teleds } from './teleport.js';
 import { mpickobj } from './steal.js';
 import {
     _doWearInternals,
@@ -445,6 +455,7 @@ import {
 import { floorfood, morehungry, set_tin_variety } from './eat.js';
 import { digests, hurtle_jump, thitmonst, walk_path } from './dothrow.js';
 import { makeplural } from './fruit.js';
+import { change_luck } from './moveloop_preamble.js';
 import { getpos } from './getpos.js';
 import { SPE_JUMPING, BOULDER } from './objects.js';
 import { S_goodpos } from './symbols.js';
@@ -2865,9 +2876,6 @@ const DOAPPLY_UNPORTED_NAMED_ARMS = new Set([
     LUMP_OF_ROYAL_JELLY,
     GRAPPLING_HOOK,
     LEASH,
-    MAGIC_WHISTLE,
-    TIN_WHISTLE,
-    EUCALYPTUS_LEAF,
     BELL,
     BELL_OF_OPENING,
     CANDELABRUM_OF_INVOCATION,
@@ -3249,6 +3257,195 @@ export async function use_towel(obj, state = game, env = {}) {
     return ECMD_OK;
 }
 
+const whistleRandom = { d, rn1, rn2, rnd, rne, rnl, rnz };
+
+function whistleHowMany(count) {
+    return count === 2 ? 'two'
+        : count === 3 ? 'three'
+            : count === 4 ? 'four'
+                : count <= 7 ? 'several' : 'many';
+}
+
+// C refs: apply.c use_whistle() (476-491), use_magic_whistle() (493-516),
+// and magic_whistled() (518-691). The C Soundeffect calls in these paths are
+// empty in the reference TTY build, so their arguments have no observable
+// effect and are intentionally not evaluated.
+export async function use_whistle(obj, state = game, env = {}) {
+    const message = env.message ?? ttyPline;
+    const deaf = heroDeaf(state);
+    if (!can_blow(state.youmonst, state)) {
+        await message('You are incapable of using the whistle.', state);
+        return;
+    }
+    if (state.u?.uinwater) {
+        await message(`You blow bubbles through ${yname(obj, state)}.`, state);
+        return;
+    }
+    if (deaf) {
+        await message(
+            `You feel rushing air tickle your ${body_part(NOSE, state.youmonst)}.`,
+            state,
+        );
+    } else {
+        await message(
+            `You produce a ${obj.cursed ? 'shrill' : 'high'} whistling sound.`,
+            state,
+        );
+    }
+    await (env.wakeNearby ?? wake_nearby)(true, {
+        ...env, state, random: env.random ?? whistleRandom,
+    });
+    if (obj.cursed) note_unported('vault.c vault_summon_gd');
+}
+
+export async function use_magic_whistle(obj, state = game, env = {}) {
+    const message = env.message ?? ttyPline;
+    const random = { ...whistleRandom, ...(env.random ?? {}) };
+    const deaf = heroDeaf(state);
+    if (!can_blow(state.youmonst, state)) {
+        await message('You are incapable of using the whistle.', state);
+    } else if (obj.cursed && !random.rn2(2)) {
+        await message(
+            `You produce a ${state.u?.uinwater ? 'very ' : ''}high-${deaf
+                ? 'frequency vibration' : 'pitched humming noise'}.`,
+            state,
+        );
+        await (env.wakeNearby ?? wake_nearby)(true, { ...env, state, random });
+        if (!random.rn2(2) && !noteleport_level(state.youmonst, state))
+            await (env.teleToRndPet ?? tele_to_rnd_pet)(state, {
+                ...env, random, message,
+            });
+    } else {
+        const descriptor = heroHallucinating(state) ? 'normal'
+            : state.u?.uinwater && !deaf ? 'strange, high-pitched' : 'strange';
+        await message(
+            `You produce a ${descriptor}${deaf
+                ? ', sharp vibration.' : ' whistling sound.'}`,
+            state,
+        );
+        await magic_whistled(obj, state, { ...env, random, message });
+    }
+}
+
+// C ref: apply.c magic_whistled() (518-691). Trapped-pet and active-trap
+// consequences retain explicit source boundaries: fill_pit() is a discarded
+// void call, while mintrap()'s consumed result is wired through its existing
+// implementation. That implementation currently refuses trap effects it has
+// not ported, so matching evidence must keep pets on trap-free destinations.
+export async function magic_whistled(obj, state = game, env = {}) {
+    const random = { ...whistleRandom, ...(env.random ?? {}) };
+    const message = env.message ?? ttyPline;
+    const alreadyDiscovered = Boolean(
+        state.objects?.[obj.otyp]?.oc_name_known,
+    );
+    if ((state.level?.flags?.stasis_until ?? 0) >= (state.moves ?? 0))
+        return;
+
+    let shift = 0;
+    let appear = 0;
+    let disappear = 0;
+    let trapped = 0;
+    let shiftName = '';
+    let appearName = '';
+    let disappearName = '';
+    for (let monster = state.level?.monlist ?? null;
+        monster;) {
+        const nextmon = monster.nmon;
+        if (monster.mhp >= 1 && monster.mtame && monster !== state.u?.usteed) {
+            if (monster.mtrapped) {
+                monster.mtrapped = false;
+                note_unported('trap.c fill_pit');
+            }
+
+            const oldSeen = canSpotMonster(monster, state);
+            let monsterName = oldSeen ? y_monnam(monster, state, env) : '';
+            if (M_AP_TYPE(monster)) seemimic(monster, state, env);
+            const oldX = monster.mx;
+            const oldY = monster.my;
+            await mnexto(monster, alreadyDiscovered ? RLOC_NONE : RLOC_MSG, {
+                ...env, state, random, message,
+            });
+
+            if (monster.mx !== oldX || monster.my !== oldY) {
+                if (monster.mundetected) {
+                    monster.mundetected = false;
+                    newsym(monster.mx, monster.my);
+                }
+                state.iflags.last_msg = PLNMSG_enum;
+                const result = await mintrap(monster, NO_TRAP_FLAGS, {
+                    ...env,
+                    state,
+                    random,
+                    message,
+                    redraw: (x, y) => newsym(x, y),
+                    mInAir: subject => m_in_air(subject, state),
+                    heroDeaf: () => heroDeaf(state),
+                    youHear,
+                    unsupported: name => {
+                        note_unported(`trap.c ${name}`);
+                        throw new Error(`magic_whistled needs trap.c ${name}`);
+                    },
+                });
+                if (result === Trap_Killed_Mon) change_luck(-1, state);
+                if (state.iflags.last_msg !== PLNMSG_enum) {
+                    trapped++;
+                    monster = nextmon;
+                    continue;
+                }
+                const newSeen = monster.mhp < 1
+                    ? false : canSpotMonster(monster, state);
+                if (newSeen) {
+                    monsterName = y_monnam(monster, state, env);
+                    if (oldSeen) {
+                        if (++shift === 1)
+                            shiftName = `${monsterName} shifts location`;
+                    } else if (++appear === 1) {
+                        appearName = `${monsterName} appears`;
+                    }
+                } else if (oldSeen && ++disappear === 1) {
+                    disappearName = `${monsterName} disappears`;
+                }
+            }
+        }
+        monster = nextmon;
+    }
+
+    let text = '';
+    if (!alreadyDiscovered) {
+        if (shift + appear + trapped > 0)
+            discover_object(obj.otyp, true, true, true, state, { random });
+        return;
+    }
+
+    if (shift > 1) shiftName = `${whistleHowMany(shift)} creatures shift locations`;
+    if (shift > 0) text = truncateByteString(upstart(shiftName), 255);
+    if (appear > 1) {
+        appearName = `${whistleHowMany(appear)} ${shift === 0
+            ? 'creatures' : shift === 1 ? 'other creatures' : 'others'} appear`;
+    }
+    if (appear > 0) {
+        if (shift === 0) text = truncateByteString(upstart(appearName), 255);
+        else text = truncateByteString(
+            `${text}${disappear ? ',' : ' and'} ${appearName}`,
+            255,
+        );
+    }
+    if (disappear > 1) {
+        disappearName = `${whistleHowMany(disappear)} ${shift === 0 && appear === 0
+            ? 'creatures'
+            : shift < 2 && appear < 2 ? 'other creatures' : 'others'} disappear`;
+    }
+    if (disappear > 0) {
+        if (shift + appear === 0)
+            text = truncateByteString(upstart(disappearName), 255);
+        else text = truncateByteString(
+            `${text}${shift && appear ? ',' : ''} and ${disappearName}`,
+            255,
+        );
+    }
+    if (text) await message(`${text}.`, state);
+}
+
 export async function doapply(state = game, env = {}) {
     if (nohands(state.youmonst.data)) {
         await ttyPline(
@@ -3304,6 +3501,29 @@ export async function doapply(state = game, env = {}) {
         return use_whip(obj, state);
     case SADDLE:
         return use_saddle(obj, state, env);
+    case MAGIC_WHISTLE:
+        await use_magic_whistle(obj, state, env);
+        return ECMD_TIME;
+    case TIN_WHISTLE:
+        await use_whistle(obj, state, env);
+        return ECMD_TIME;
+    case EUCALYPTUS_LEAF:
+        if (obj.blessed) {
+            await use_magic_whistle(obj, state, env);
+            if (!(env.random?.rn2 ?? rn2)(49)) {
+                if (!heroIsBlind(state)) {
+                    await ttyPline(
+                        `${Yobjnam2(obj, 'glow', state)} ${hcolor('brown')}.`,
+                        state,
+                    );
+                    set_bknown(obj, true, { ...env, state });
+                }
+                await unbless(obj, { ...env, state });
+            }
+        } else {
+            await use_whistle(obj, state, env);
+        }
+        return ECMD_TIME;
     case CAN_OF_GREASE:
         return use_grease(obj, state, env);
     case STETHOSCOPE:

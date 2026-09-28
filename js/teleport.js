@@ -163,6 +163,7 @@ import {
 import {
     deal_with_overcrowding,
     maybe_unhide_at,
+    mon_offmap,
     set_ustuck,
 } from './mon.js';
 import { carried, mksobj, sobj_at } from './obj.js';
@@ -1371,6 +1372,35 @@ export function mnexto(monster, _rlocflags = 0, env = {}) {
     }
     return rloc_to_flag(monster, coordinate.x, coordinate.y, _rlocflags,
         normalized);
+}
+
+// C ref: teleport.c tele_to_rnd_pet() (814-838). Select a living, tame,
+// on-map monster by reservoir sampling, then move the hero to one random
+// adjacent square only when the pet is outside m_next2u()'s squared-distance
+// radius. The pet list is mon.c's live fmon chain (`level.monlist`).
+export async function tele_to_rnd_pet(state = game, env = {}) {
+    const random = { rn2, ...(env.random ?? {}) };
+    if (noteleport_level(state.youmonst, state)) {
+        note_unported('pline.c impossible');
+        return;
+    }
+
+    let pet = null;
+    let count = 0;
+    for (let monster = state.level?.monlist ?? null;
+        monster;
+        monster = monster.nmon) {
+        if (monster.mhp < 1 || !monster.mtame || mon_offmap(monster))
+            continue;
+        count++;
+        if (!random.rn2(count)) pet = monster;
+    }
+    if (pet && dist2(pet.mx, pet.my, state.u.ux, state.u.uy) > 2) {
+        const tx = pet.mx + random.rn2(3) - 1;
+        const ty = pet.my + random.rn2(3) - 1;
+        if (isok(tx, ty) && await teleok(tx, ty, false, state))
+            await teleds(tx, ty, TELEDS_TELEPORT, state);
+    }
 }
 
 // ── Hero within-level teleport (C ref: teleport.c teleok/scrolltele/tele) ──
