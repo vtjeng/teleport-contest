@@ -1,0 +1,5 @@
+{
+  "version": 5,
+  "_comment": "BLOCKED A40 source coverage note, not a matching recording. Two xkilled() tails remain incomplete. The engulfed-monster branch copies the dead monster and calls hack.c:spoteffects(TRUE); js/mon.js currently records that void call with note_unported and does not expel the hero. The buried-corpse branch at mon.c:3625-3628 needs the object returned by make_corpse() to decide whether to print the buried-corpse line; js/mon.js make_corpse() still refuses CORPSTAT_BURIED, and xkilled() does not consume that return. No runtime evidence is claimed for either branch. The matching v10 fire-scroll and gas-spore recordings cover ordinary explosion and monster-attack deaths only.",
+  "segments": []
+}
