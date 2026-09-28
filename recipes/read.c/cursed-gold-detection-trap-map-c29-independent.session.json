@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "Independent C29 read.c:seffect_gold_detection -> detect.c:trap_detect -> display_trap_map route. A cursed gold-detection scroll discovers a wished arrow trap one square away; the cursed display uses fake gold object/monster RNG, browses the TER_DETECT|TER_OBJ map, and returns through the consumed-scroll contract.",
+  "segments": [
+    {
+      "seed": 8729301,
+      "datetime": "20420606091100",
+      "nethackrc": "OPTIONS=name:C29Trap,role:Wizard,race:human,gender:female,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,playmode:debug\n",
+      "moves": " \u0017cursed scroll of gold detection\nl#wizwish\narrow trap\nhrp."
+    }
+  ]
+}

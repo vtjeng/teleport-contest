@@ -51,7 +51,9 @@ import {
     cvt_sdoor_to_door,
     dosearch,
     dosearch0,
+    food_detect,
     findit,
+    gold_detect,
     monster_detect,
     o_in,
     o_material,
@@ -93,6 +95,9 @@ import {
     LARGE_BOX,
     LENSES,
     TOOL_CLASS,
+    SCR_FOOD_DETECTION,
+    SCR_GOLD_DETECTION,
+    SCROLL_CLASS,
 } from '../js/objects.js';
 import { DEFAULT_PRIMARY_SYMBOLS } from '../js/symbol_data.js';
 import {
@@ -2252,4 +2257,60 @@ test('dosearch answers ECMD_TIME and counts prevented searches', async () => {
     });
     assert.equal(game.already_found_flag, 3);
     assert.equal(game.moves, 1);
+});
+
+async function emptyDetectionLevel(seed) {
+    await runSegment({
+        seed,
+        datetime: '20310908070605',
+        nethackrc: 'OPTIONS=name:Detect,role:Wizard,race:human,'
+            + 'gender:male,align:neutral\n'
+            + 'OPTIONS=!legacy,!tutorial,!splash_screen,pettype:none\n',
+        moves: '.',
+    });
+    game.level.objlist = null;
+    game.level.buriedobjlist = null;
+    game.level.monlist = null;
+    game.level.traps = [];
+    game.fmon = null;
+    game.invent = null;
+    game.flags.beginner = false;
+    clearTtyMessageWindow(game);
+    game._pending_message = '';
+}
+
+test('detect.c gold_detect preserves the strange-feeling no-gold result', async () => {
+    await emptyDetectionLevel(9876501);
+    const scroll = {
+        otyp: SCR_GOLD_DETECTION,
+        oclass: SCROLL_CLASS,
+        blessed: false,
+        cursed: false,
+        dknown: false,
+        quan: 20,
+        spe: 0,
+    };
+
+    assert.equal(await gold_detect(scroll, game), 1);
+    assert.equal(scroll.quan, 19);
+    assert.equal(game.gk.known, false);
+    assert.equal(game._pending_message, 'You feel materially poor.');
+});
+
+test('detect.c food_detect consumes its no-food strange-feeling scroll', async () => {
+    await emptyDetectionLevel(9876503);
+    const scroll = {
+        otyp: SCR_FOOD_DETECTION,
+        oclass: SCROLL_CLASS,
+        blessed: false,
+        cursed: false,
+        dknown: false,
+        quan: 20,
+        spe: 0,
+    };
+
+    assert.equal(await food_detect(scroll, game), 1);
+    assert.equal(scroll.quan, 19);
+    assert.equal(game.gk.known, false);
+    assert.equal(game._pending_message, 'Your nose twitches.');
 });
