@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "capturedAt": "2026-09-28T22:46:47.804Z",
+  "capturedAt": "2026-09-28T23:36:43.855Z",
   "activity": {
     "runId": "loop-20260925",
     "events": [
@@ -8187,12 +8187,85 @@
         "type": "accepted",
         "at": "2026-09-28T22:46:43.075Z",
         "task": "B47"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "B47-published-20260928",
+        "type": "published",
+        "at": "2026-09-28T22:48:47.548Z",
+        "task": "B47",
+        "commit": "eb44ff33930f6f58670d556d6665d9d5e8d52d1e"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "assign-B48-bhitm-20260928",
+        "type": "assign",
+        "at": "2026-09-28T22:51:10.704Z",
+        "task": "B48",
+        "worker": "B",
+        "goal": "div-zap-bhitm-slow-monster-synthetic-v11-20260928",
+        "kind": "implementation"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-109020c199d34a50f62653a06912e38b15537a4b",
+        "type": "ready",
+        "at": "2026-09-28T23:19:27.624Z",
+        "task": "C40",
+        "delivery": "109020c199d34a50f62653a06912e38b15537a4b"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "C40-received-20260928",
+        "type": "received",
+        "at": "2026-09-28T23:20:20.519Z",
+        "task": "C40",
+        "delivery": "109020c199d34a50f62653a06912e38b15537a4b"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-aa5f11b70f936a6fe384f4daa9572fd7dee4f4da",
+        "type": "ready",
+        "at": "2026-09-28T23:21:11.149Z",
+        "task": "B48",
+        "delivery": "aa5f11b70f936a6fe384f4daa9572fd7dee4f4da"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "C40-integrating-20260928",
+        "type": "integrating",
+        "at": "2026-09-28T23:22:16.518Z",
+        "task": "C40",
+        "integration": "eb06c695ed24e22015df3976043fecbe353a8744"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "B48-received-20260928",
+        "type": "received",
+        "at": "2026-09-28T23:23:14.189Z",
+        "task": "B48",
+        "delivery": "aa5f11b70f936a6fe384f4daa9572fd7dee4f4da"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "C40-validated-20260928",
+        "type": "validated",
+        "at": "2026-09-28T23:36:17.947Z",
+        "task": "C40",
+        "passed": true
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "C40-accepted-20260928",
+        "type": "accepted",
+        "at": "2026-09-28T23:36:36.520Z",
+        "task": "C40"
       }
     ]
   },
   "development": {
-    "executionCommit": "e95715168651db79aeea73854d9120ca5c69c55d",
-    "measuredAt": "2026-09-28T22:40:21.853Z",
+    "executionCommit": "eb06c695ed24e22015df3976043fecbe353a8744",
+    "measuredAt": "2026-09-28T23:30:01.116Z",
     "sessions": [
       {
         "session": "holdout/seed0002-healer-reflection-drummer",
