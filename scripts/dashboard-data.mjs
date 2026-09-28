@@ -413,10 +413,12 @@ if (fixedDevelopmentHistory.length === 0 && fixedDevelopmentScore.screens
 
 const scoreHistory = [
   { id: 'developmentSet', title: 'Development set', points: fixedDevelopmentHistory },
-  ...(challenges.batches?.length ? challenges.batches.map(batch => ({
-    id: `syntheticHoldout-${batch.batch}`, title: `Synthetic local holdout · ${batch.batch}`,
-    points: batch.history, error: batch.status === 'failed' ? batch.error : null,
-  })) : [{ id: 'syntheticHoldout', title: 'Synthetic local holdout', points: challenges.history,
+  ...(challenges.batches?.length ? [...challenges.batches]
+    .sort((a, b) => Number(a.batch.slice(1)) - Number(b.batch.slice(1)))
+    .map(batch => ({
+      id: `syntheticHoldout-${batch.batch}`, title: `Synthetic local holdout · ${batch.batch}`,
+      points: batch.history, error: batch.status === 'failed' ? batch.error : null,
+    })) : [{ id: 'syntheticHoldout', title: 'Synthetic local holdout', points: challenges.history,
     error: challenges.status === 'failed' ? challenges.error : null }]),
 ];
 
