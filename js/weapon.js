@@ -1352,6 +1352,55 @@ function slots_required(skill, state) {
     return Math.trunc((tmp + 1) / 2);
 }
 
+// C ref: weapon.c drain_weapon_skill(). Skills removed from the history are
+// reported once, after all random selection and training adjustment is done.
+export async function drain_weapon_skill(
+    n,
+    state = game,
+    { random = { rn2 }, message = ttyPline } = {},
+) {
+    if (typeof random.rn2 !== 'function')
+        throw new TypeError('drain_weapon_skill requires rn2');
+
+    state.u.skill_record ??= [];
+    state.u.skills_advanced ??= 0;
+    const drained = new Array(P_NUM_SKILLS).fill(false);
+    for (let remaining = Math.trunc(n); --remaining >= 0;) {
+        if (!state.u.skills_advanced) continue;
+
+        let index = random.rn2(state.u.skills_advanced);
+        const skill = state.u.skill_record[index];
+        drained[skill] = true;
+        for (; index < state.u.skills_advanced - 1; ++index)
+            state.u.skill_record[index] = state.u.skill_record[index + 1];
+        --state.u.skills_advanced;
+
+        if (P_SKILL(skill, state) <= P_UNSKILLED)
+            throw new Error(`drain_weapon_skill (${skill})`);
+        skillSlot(skill, state).skill--;
+        state.u.weapon_slots += slots_required(skill, state);
+
+        const currentAdvance = practice_needed_to_advance(P_SKILL(skill, state));
+        const previousAdvance = practice_needed_to_advance(
+            P_SKILL(skill, state) - 1,
+        );
+        if (P_ADVANCE(skill, state) >= currentAdvance) {
+            skillSlot(skill, state).advance = previousAdvance
+                + random.rn2(currentAdvance - previousAdvance);
+        }
+    }
+
+    for (let skill = 0; skill < P_NUM_SKILLS; ++skill) {
+        if (drained[skill]) {
+            await message(
+                `You forget ${P_SKILL(skill, state) >= P_BASIC
+                    ? 'some of ' : ''}your training in ${P_NAME(skill, state)}.`,
+                state,
+            );
+        }
+    }
+}
+
 // C ref: weapon.c can_advance(). C answers FALSE for a restricted, maxed, or
 // limit-reached skill before it consults `speedy`; the wizard shortcut then
 // bypasses both practice and slot checks.
