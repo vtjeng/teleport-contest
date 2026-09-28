@@ -100089,6 +100089,49 @@
         "screens": 11405,
         "rng": 792838
       }
+    },
+    {
+      "id": "port-region-inside-gas-cloud-synthetic-v9-20260927",
+      "kind": "file-port",
+      "status": "queued",
+      "summary": "Port poisonous gas-cloud inside callback for hero and monsters",
+      "cFile": "region.c",
+      "sessions": [
+        "synthetic/v9/stinking-cloud-scroll-targets-floor"
+      ],
+      "selectionReason": "At the accepted B35 evaluation, v9/stinking-cloud-scroll-targets-floor matches through step 33 and stops at step 34 on region.c:inside_gas_cloud positive damage; investigation investigations/synthetic/v9/stinking-cloud-scroll-targets-floor.json traces the callback and its consumed return.",
+      "detail": "Implement the complete region.c:inside_gas_cloud callback in source order, including fog-cloud TTL, zero-damage early return, hero poison tolerance, eye and lung effects, blindness, wakeup, damage and status, plus monster cough, anger, eye blindness, poison resistance, death and lifesaving. Wire region.c:run_regions callback preflight and consumed monster-death return through js/region.js. Preserve RNG and message order; port return-valued callees the C consumes and name skipped void gaps. Provide independent strict C recordings for active hero and monster entries. The selected v9 case has one remaining screen after B35.",
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": null,
+      "delivered": null,
+      "functions": [
+        {
+          "name": "inside_gas_cloud",
+          "line": 1091,
+          "endLine": 1167,
+          "declared": true,
+          "complete": false
+        }
+      ],
+      "range": {
+        "from": 1091,
+        "to": 1167
+      },
+      "syntheticProvenance": {
+        "synthetic/v9/stinking-cloud-scroll-targets-floor": {
+          "session": "synthetic/v9/stinking-cloud-scroll-targets-floor",
+          "corpus": "synthetic",
+          "batch": "v9",
+          "caseId": "stinking-cloud-scroll-targets-floor",
+          "manifestPath": "challenges/manifests/v9.json",
+          "manifestSha256": "00c148aac522e6343c8de0bd003db29771439f972a99cb18c772ebf2bc45a594",
+          "recordingPath": "challenges/cases/v9/stinking-cloud-scroll-targets-floor.session.json",
+          "recordingSha256": "30f21674ec8e7fe7965fdf526cb0933ae59855cee2b0d2ba83d659cc85bd1fbc",
+          "evaluationPath": "challenges/evaluations/20260928002536-v9.json",
+          "evaluationCommit": "60d5bb5c1707444e58f1d1a9062147e290db19ab"
+        }
+      }
     }
   ]
 }
