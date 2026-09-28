@@ -72,7 +72,7 @@ import {
     PM_TRAPPER,
     S_DRAGON,
 } from './monsters.js';
-import { isBox, mksobj, objectType, remove_object, set_corpsenm, weight } from './obj.js';
+import { isBox, mksobj, newObject, objectType, remove_object, set_corpsenm, weight } from './obj.js';
 import { objectGenerationEnv } from './object_generation.js';
 import { observe_object } from './o_init.js';
 import { makeplural } from './fruit.js';
@@ -85,6 +85,8 @@ import {
     EGG,
     TOWEL as OBJECT_TOWEL,
     WATER_WALKING_BOOTS,
+    SPE_REMOVE_CURSE,
+    SPBOOK_CLASS,
 } from './objects.js';
 import { body_part } from './polyself.js';
 import { d, rn1, rn2, rne, rnd } from './rng.js';
@@ -191,6 +193,38 @@ async function sit_exercise(index, state, random) {
     await exercise(index, false, state, random, options);
 }
 
+// C ref: sit.c special_throne_effect() case 10. Vlad's Tower's special
+// throne applies seffect_remove_curse() to a blessed fake spellbook while
+// HConfusion is temporarily forced on.
+async function special_throne_effect(effect, state, rawEnv = {}) {
+    if (effect !== 10) {
+        note_unported('sit.c special_throne_effect');
+        return;
+    }
+
+    const u = state.u;
+    const confusion = u.uprops?.[CONFUSION];
+    const savedConfusion = confusion?.intrinsic ?? 0;
+    const confusionProperty = (u.uprops ??= {})[CONFUSION]
+        ??= { intrinsic: 0, extrinsic: 0 };
+    const fakeSpellbook = newObject({
+        otyp: SPE_REMOVE_CURSE,
+        oclass: SPBOOK_CLASS,
+        blessed: true,
+    });
+    confusionProperty.intrinsic = 1;
+    try {
+        const { seffects } = await import('./read.js');
+        await seffects(fakeSpellbook, state, {
+            ...rawEnv,
+            state,
+            random: sit_water_random(rawEnv),
+        });
+    } finally {
+        confusionProperty.intrinsic = savedConfusion;
+    }
+}
+
 // C ref: sit.c throne_sit_effect() (39-234). C's calls to still-unported
 // void effects are named at their source positions; the courtmon() result is
 // retained because C evaluates it before discarding makemon()'s result.
@@ -220,7 +254,11 @@ async function throne_sit_effect(state, rawEnv = {}) {
         }
 
         if (specialThrone) {
-            note_unported('sit.c special_throne_effect');
+            await special_throne_effect(effect, state, {
+                ...rawEnv,
+                random,
+                message,
+            });
             return;
         }
 

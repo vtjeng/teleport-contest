@@ -3,6 +3,7 @@ import test from 'node:test';
 
 import {
     BLINDED,
+    CONFUSION,
     FAINTED,
     FROMOUTSIDE,
     HALLUC,
@@ -460,14 +461,20 @@ test('trapeffect_magic_trap: fate 19 refuses (tame monsters)', async () => {
     );
 });
 
-test('trapeffect_magic_trap: fate 20 refuses (uncurse)', async () => {
+test('trapeffect_magic_trap: fate 20 calls remove-curse with confusion cleared', async () => {
     const state = await initState();
+    state.u.uprops[CONFUSION] ??= { intrinsic: 0, extrinsic: 0 };
+    state.u.uprops[CONFUSION].intrinsic = 7;
     const trap = makeTrap(state);
     const env = heroEnv(state, 1, 20);
-    await assert.rejects(
-        () => trapeffect_selector(state.youmonst, trap, 0, env),
-        (error) => error.reason === 'magic trap uncurse',
-    );
+    const result = await trapeffect_selector(state.youmonst, trap, 0, env);
+    assert.equal(result, Trap_Effect_Finished);
+    assert.equal(state.u.uprops[CONFUSION].intrinsic, 7,
+        'domagictrap restores the original HConfusion value');
+    assert.deepEqual(env.randomCalls.slice(0, 3), [
+        'rn2(30)', 'rnd(20)', 'rn2(19)',
+    ], 'the pseudo spellbook exercises Wisdom before its effect');
+    assert.equal(env.rndCalled, true);
 });
 
 // ── fate 15 prodigal-son branch (on quest start level) ──
