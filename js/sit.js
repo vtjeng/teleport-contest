@@ -1,6 +1,7 @@
-// C refs: sit.c throne_sit_effect() (39-234), lay_an_egg() (358-399), and
-// dosit() (400-568). `#sit` owns the complete guard and terrain chain here;
-// source-discarded void effects that remain unported are named and skipped.
+// C refs: sit.c take_gold() (14-35), throne_sit_effect() (39-234),
+// lay_an_egg() (358-399), and dosit() (400-568). `#sit` owns the complete
+// guard and terrain chain; source-discarded void effects that remain
+// unported are named and skipped.
 
 import {
     A_CON,
@@ -149,6 +150,37 @@ function sit_water_random(rawEnv) {
     return rawEnv.random ?? { d, rn1, rn2, rne, rnd };
 }
 
+// C ref: sit.c take_gold() (14-35). Save the next inventory link before
+// delobj() frees a coin stack; invent.c delobj_core() still consumes the
+// zap.c obj_resists() draw before removing ordinary coins.
+async function take_gold(state, rawEnv = {}) {
+    const random = sit_water_random(rawEnv);
+    const message = rawEnv.message
+        ?? (await import('./tty_message.js')).ttyPline;
+    const env = { ...rawEnv, state, random, message };
+    let lostMoney = false;
+
+    for (let otmp = state.invent; otmp;) {
+        const nobj = otmp.nobj;
+        if (otmp.oclass === OBJECT_COIN_CLASS) {
+            lostMoney = true;
+            const { remove_worn_item } = await import('./steal.js');
+            await remove_worn_item(otmp, false, state, env);
+            const { delobj } = await import('./invent.js');
+            delobj(otmp, env);
+        }
+        otmp = nobj;
+    }
+
+    if (!lostMoney) {
+        await message('You feel a strange sensation.', state);
+    } else {
+        await message('You notice you have no gold!', state);
+        state.disp ??= {};
+        state.disp.botl = true;
+    }
+}
+
 async function sit_exercise(index, state, random) {
     const { exercise } = await import('./attrib.js');
     const options = {};
@@ -249,7 +281,7 @@ async function throne_sit_effect(state, rawEnv = {}) {
             break;
         }
         case 5:
-            note_unported('sit.c take_gold');
+            await take_gold(state, { ...rawEnv, random, message });
             break;
         case 6: {
             const luck = (u.uluck ?? 0) + (u.moreluck ?? 0);
