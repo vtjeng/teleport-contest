@@ -106393,7 +106393,7 @@
     {
       "id": "port-music-awaken-soldiers-synthetic-v10-20260928",
       "kind": "file-port",
-      "status": "open",
+      "status": "parked",
       "summary": "Port bugle awakening across hero and monster callers",
       "cFile": "music.c",
       "sessions": [
@@ -106662,7 +106662,17 @@
             }
           }
         }
-      ]
+      ],
+      "progressBeforePark": {
+        "screens": 0,
+        "rng": 0
+      },
+      "parkedStanding": {
+        "sha": "58639035d0e7ada6a49be353c938613f4266f393",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "parkedReason": "The hero BUGLE entry matches the admitted v10 case through step 39, and music.c:awaken_soldiers plus the muse.c:use_defensive caller are implemented. The active monster MUSE_BUGLE entry remains unverified: monmove.c:1925-1928 calls find_defensive(mtmp, TRUE) only when mfndpos() yields no legal moves. B43 C attempts reached wand combat but not that gate. Resume when an independent C recipe with a bugle-carrying mercenary and zero legal moves reaches use_defensive(MUSE_BUGLE) and its recording strictly matches. Blocked setup recipe: recipes/muse.c/muse-bugle-no-moves-entry-unverified.session.json."
     },
     {
       "id": "port-read-confuse-monster-synthetic-v8-20260928",
