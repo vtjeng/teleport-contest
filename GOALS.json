@@ -109296,7 +109296,7 @@
     {
       "id": "port-zap-zapnodir-synthetic-v11-20260928",
       "kind": "file-port",
-      "status": "queued",
+      "status": "closed",
       "summary": "Port directionless wand effects and enlightenment helper from zap.c",
       "cFile": "zap.c",
       "sessions": [
@@ -109307,24 +109307,31 @@
       ],
       "selectionReason": "Select synthetic/v11/wand-wishing-makes-wish at challenges/evaluations/20260928211543-v11.json (759b985c4bdf4978863b5d44a45a63bd0db7e61d), immutable recording SHA-256 fe9ecc7ad6c5594b63750b92be8bd751b854443651f2d011a96636051d758474, manifest SHA-256 7b80a66ca2659fab5f6012dfef09f8f1b46fe94a80716d5a8637af3b9e638347. Group the three related v11 light, stasis, and enlightenment cases because all first stop in zap.c:zapnodir; their investigation records preserve separate C branch, state, and action history.",
       "detail": "Implement zap.c:do_enlightenment_effect and whole zapnodir switch in C definition order, including light, detection, stasis, creation, wishing, enlightenment, and shared wand discovery. Wire charged NODIR callers and preserve all existing create-monster and secret-door matches. The wishing branch may expose a separately traced zap.c:makewish finalization defect; source-trace and record it rather than special-casing the case.",
-      "openedAt": null,
-      "openStanding": null,
-      "closedAt": null,
-      "delivered": null,
+      "openedAt": "e786723c7098b3cbd6da26b276b2d86a727263c1",
+      "openStanding": {
+        "sha": "9028001f08de9c754d4f7bff31e498baa7828c22",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "closedAt": "e95715168651db79aeea73854d9120ca5c69c55d",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
       "functions": [
         {
           "name": "do_enlightenment_effect",
           "line": 2525,
           "endLine": 2538,
-          "declared": false,
-          "complete": false
+          "declared": true,
+          "complete": true
         },
         {
           "name": "zapnodir",
           "line": 2539,
           "endLine": 2604,
           "declared": true,
-          "complete": false
+          "complete": true
         }
       ],
       "range": {
@@ -109380,12 +109387,765 @@
           "evaluationPath": "challenges/evaluations/20260928211543-v11.json",
           "evaluationCommit": "759b985c4bdf4978863b5d44a45a63bd0db7e61d"
         }
+      },
+      "activeStanding": {
+        "sha": "9028001f08de9c754d4f7bff31e498baa7828c22",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v11",
+          "caseId": "wand-wishing-makes-wish",
+          "session": "synthetic/v11/wand-wishing-makes-wish",
+          "manifestPath": "challenges/manifests/v11.json",
+          "manifestSha256": "7b80a66ca2659fab5f6012dfef09f8f1b46fe94a80716d5a8637af3b9e638347",
+          "recording": "challenges/cases/v11/wand-wishing-makes-wish.session.json",
+          "recordingPath": "challenges/cases/v11/wand-wishing-makes-wish.session.json",
+          "recordingSha256": "fe9ecc7ad6c5594b63750b92be8bd751b854443651f2d011a96636051d758474",
+          "recipe": "challenges/cases/v11/wand-wishing-makes-wish.recipe.session.json",
+          "recipeSha256": "70d0f12c6e5026b726c1dd51b604775bda52629b2082514d440e5028e560cbfd",
+          "replayInputSha256": "83137c4605fcfb8091574091501761cf6fbe56da91d1dabc7166fbba220b5bae",
+          "evaluationPath": "challenges/evaluations/20260928215916-v11.json",
+          "evaluationCommit": "9028001f08de9c754d4f7bff31e498baa7828c22",
+          "evaluationArtifact": "challenges/evaluations/20260928215916-v11.json",
+          "evaluationUtc": "2026-09-28T21:59:27.077Z",
+          "remainingScreens": 14,
+          "recordedSteps": 35,
+          "previousScreensMatched": 21,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 21,
+              "total": 35
+            },
+            "rng": {
+              "matched": 2502,
+              "total": 2511
+            },
+            "cursors": {
+              "matched": 21,
+              "total": 35
+            }
+          },
+          "firstMismatch": {
+            "kind": "stop",
+            "message": "unsupported hero command: an unported branch of this command: zapping a wand requires zapnodir() for a directionless wand",
+            "step": 21
+          },
+          "step": 21,
+          "kind": "stop",
+          "sourceFile": "zap.c",
+          "function": "zapnodir",
+          "message": "unsupported hero command: an unported branch of this command: zapping a wand requires zapnodir() for a directionless wand",
+          "cFile": "zap.c",
+          "luaFile": null,
+          "line": null,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v11/wand-wishing-makes-wish.json",
+            "result": {
+              "session": "synthetic/v11/wand-wishing-makes-wish",
+              "corpus": "synthetic",
+              "batch": "v11",
+              "caseId": "wand-wishing-makes-wish",
+              "manifestPath": "challenges/manifests/v11.json",
+              "manifestSha256": "7b80a66ca2659fab5f6012dfef09f8f1b46fe94a80716d5a8637af3b9e638347",
+              "recordingSha256": "fe9ecc7ad6c5594b63750b92be8bd751b854443651f2d011a96636051d758474",
+              "evaluationPath": "challenges/evaluations/20260928193155-v11.json",
+              "evaluationCommit": "25d85b45c96aa0f05ae7e9dcc1dc6ea286fa13de",
+              "remainingScreens": 14,
+              "recordedSteps": 35,
+              "status": "complete",
+              "commit": "25d85b45c96aa0f05ae7e9dcc1dc6ea286fa13de",
+              "mismatch": {
+                "corpus": "synthetic",
+                "batch": "v11",
+                "caseId": "wand-wishing-makes-wish",
+                "session": "synthetic/v11/wand-wishing-makes-wish",
+                "manifestPath": "challenges/manifests/v11.json",
+                "manifestSha256": "7b80a66ca2659fab5f6012dfef09f8f1b46fe94a80716d5a8637af3b9e638347",
+                "recording": "challenges/cases/v11/wand-wishing-makes-wish.session.json",
+                "recordingPath": "challenges/cases/v11/wand-wishing-makes-wish.session.json",
+                "recordingSha256": "fe9ecc7ad6c5594b63750b92be8bd751b854443651f2d011a96636051d758474",
+                "recipe": "challenges/cases/v11/wand-wishing-makes-wish.recipe.session.json",
+                "recipeSha256": "70d0f12c6e5026b726c1dd51b604775bda52629b2082514d440e5028e560cbfd",
+                "replayInputSha256": "2e33ace5cff6a02a8c669dbcb3ad29e8998091f6f849401f4980d1c4eae6dd6b",
+                "evaluationPath": "challenges/evaluations/20260928193155-v11.json",
+                "evaluationCommit": "25d85b45c96aa0f05ae7e9dcc1dc6ea286fa13de",
+                "evaluationArtifact": "challenges/evaluations/20260928193155-v11.json",
+                "evaluationUtc": "2026-09-28T19:32:13.573Z",
+                "remainingScreens": 14,
+                "recordedSteps": 35,
+                "previousScreensMatched": 21,
+                "regression": false,
+                "passed": false,
+                "error": null,
+                "metrics": {
+                  "screens": {
+                    "matched": 21,
+                    "total": 35
+                  },
+                  "rng": {
+                    "matched": 2502,
+                    "total": 2511
+                  },
+                  "cursors": {
+                    "matched": 21,
+                    "total": 35
+                  }
+                },
+                "firstMismatch": {
+                  "kind": "stop",
+                  "message": "unsupported hero command: an unported branch of this command: zapping a wand requires zapnodir() for a directionless wand",
+                  "step": 21
+                },
+                "step": 21,
+                "kind": "stop",
+                "sourceFile": "zap.c",
+                "function": "zapnodir",
+                "message": "unsupported hero command: an unported branch of this command: zapping a wand requires zapnodir() for a directionless wand",
+                "cFile": "zap.c",
+                "luaFile": null,
+                "line": null
+              },
+              "summary": "Zapping a wand of wishing reaches zap.c:zapnodir WAN_WISHING, but JavaScript refuses before the rn2(5) Luck gate and makewish prompt. The C case wishes an ordinary food object after zapping; it does not exercise the older Grimtooth artifact-touch behavior. Port the whole zapnodir family and preserve the shared discovery tail and makewish input timing.",
+              "source": {
+                "file": "zap.c",
+                "branch": "zap.c:zapnodir WAN_WISHING draws rn2(5), compares it with Luck, either prints the unlucky failure or calls makewish(), then follows the common discovery tail.",
+                "functions": [
+                  "zapnodir"
+                ],
+                "callers": [
+                  "zap.c:dozap sends a charged NODIR wand through zap.c:weffects to zap.c:zapnodir; js/zap.js:zapnodir currently supports only WAN_CREATE_MONSTER and WAN_SECRET_DOOR_DETECTION."
+                ],
+                "dependencies": [
+                  "zap.c:makewish has a JavaScript production path, but a separate upward-boulder C probe reaches zap.c:makewish and diverges at the wish-finalization newline: C consumes rn2(100) where JS has no corresponding draw or screen. The v11 WAN_WISHING path may expose that later source defect after zapnodir is implemented.",
+                  "The C case has a later 14-screen tail; once the initial refusal is removed, re-evaluate the entire session for additional source defects."
+                ]
+              },
+              "goalKind": "file-port",
+              "evidence": [
+                "Current saved v11 evaluation challenges/evaluations/20260928193155-v11.json at 25d85b45c96aa0f05ae7e9dcc1dc6ea286fa13de matches 21/35 screens and stops at zero-based step 21: unsupported hero command: an unported branch of this command: zapping a wand requires zapnodir() for a directionless wand. Immutable C recording SHA-256 fe9ecc7ad6c5594b63750b92be8bd751b854443651f2d011a96636051d758474.",
+                "Upstream nethack-c/upstream/src/zap.c:2524-2600 defines do_enlightenment_effect and the complete zapnodir switch; js/zap.js:5181-5206 refuses the selected directionless wand before its source effect.",
+                "The v11 prepared manifest records an independent patched-C rerecord and compares this source branch, state and action history with all v10 cases and unresolved older cases.",
+                "The independent upward-boulder setup probe for A43 first diverged at zap.c:makewish before dothrow.c:hitfloor, so makewish cannot be assumed fully matched merely because it exists in js/zap.js."
+              ]
+            }
+          }
+        },
+        {
+          "corpus": "synthetic",
+          "batch": "v11",
+          "caseId": "wand-light-room",
+          "session": "synthetic/v11/wand-light-room",
+          "manifestPath": "challenges/manifests/v11.json",
+          "manifestSha256": "7b80a66ca2659fab5f6012dfef09f8f1b46fe94a80716d5a8637af3b9e638347",
+          "recording": "challenges/cases/v11/wand-light-room.session.json",
+          "recordingPath": "challenges/cases/v11/wand-light-room.session.json",
+          "recordingSha256": "94ced9f04ccf374c3e5d6eeb6212a2e95527c728f793ef2122e2f15da8712b1a",
+          "recipe": "challenges/cases/v11/wand-light-room.recipe.session.json",
+          "recipeSha256": "26c0e5275851edcf9a92492656d0da8da03c8fe5a7bdc3cfdd627ed3232ef202",
+          "replayInputSha256": "83137c4605fcfb8091574091501761cf6fbe56da91d1dabc7166fbba220b5bae",
+          "evaluationPath": "challenges/evaluations/20260928215916-v11.json",
+          "evaluationCommit": "9028001f08de9c754d4f7bff31e498baa7828c22",
+          "evaluationArtifact": "challenges/evaluations/20260928215916-v11.json",
+          "evaluationUtc": "2026-09-28T21:59:27.077Z",
+          "remainingScreens": 1,
+          "recordedSteps": 19,
+          "previousScreensMatched": 18,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 18,
+              "total": 19
+            },
+            "rng": {
+              "matched": 2266,
+              "total": 2273
+            },
+            "cursors": {
+              "matched": 18,
+              "total": 19
+            }
+          },
+          "firstMismatch": {
+            "kind": "stop",
+            "message": "unsupported hero command: an unported branch of this command: zapping a wand requires zapnodir() for a directionless wand",
+            "step": 18
+          },
+          "step": 18,
+          "kind": "stop",
+          "sourceFile": "zap.c",
+          "function": "zapnodir",
+          "message": "unsupported hero command: an unported branch of this command: zapping a wand requires zapnodir() for a directionless wand",
+          "cFile": "zap.c",
+          "luaFile": null,
+          "line": null,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v11/wand-light-room.json",
+            "result": {
+              "session": "synthetic/v11/wand-light-room",
+              "corpus": "synthetic",
+              "batch": "v11",
+              "caseId": "wand-light-room",
+              "manifestPath": "challenges/manifests/v11.json",
+              "manifestSha256": "7b80a66ca2659fab5f6012dfef09f8f1b46fe94a80716d5a8637af3b9e638347",
+              "recordingSha256": "94ced9f04ccf374c3e5d6eeb6212a2e95527c728f793ef2122e2f15da8712b1a",
+              "evaluationPath": "challenges/evaluations/20260928193155-v11.json",
+              "evaluationCommit": "25d85b45c96aa0f05ae7e9dcc1dc6ea286fa13de",
+              "remainingScreens": 1,
+              "recordedSteps": 19,
+              "status": "complete",
+              "commit": "25d85b45c96aa0f05ae7e9dcc1dc6ea286fa13de",
+              "mismatch": {
+                "corpus": "synthetic",
+                "batch": "v11",
+                "caseId": "wand-light-room",
+                "session": "synthetic/v11/wand-light-room",
+                "manifestPath": "challenges/manifests/v11.json",
+                "manifestSha256": "7b80a66ca2659fab5f6012dfef09f8f1b46fe94a80716d5a8637af3b9e638347",
+                "recording": "challenges/cases/v11/wand-light-room.session.json",
+                "recordingPath": "challenges/cases/v11/wand-light-room.session.json",
+                "recordingSha256": "94ced9f04ccf374c3e5d6eeb6212a2e95527c728f793ef2122e2f15da8712b1a",
+                "recipe": "challenges/cases/v11/wand-light-room.recipe.session.json",
+                "recipeSha256": "26c0e5275851edcf9a92492656d0da8da03c8fe5a7bdc3cfdd627ed3232ef202",
+                "replayInputSha256": "2e33ace5cff6a02a8c669dbcb3ad29e8998091f6f849401f4980d1c4eae6dd6b",
+                "evaluationPath": "challenges/evaluations/20260928193155-v11.json",
+                "evaluationCommit": "25d85b45c96aa0f05ae7e9dcc1dc6ea286fa13de",
+                "evaluationArtifact": "challenges/evaluations/20260928193155-v11.json",
+                "evaluationUtc": "2026-09-28T19:32:13.573Z",
+                "remainingScreens": 1,
+                "recordedSteps": 19,
+                "previousScreensMatched": 18,
+                "regression": false,
+                "passed": false,
+                "error": null,
+                "metrics": {
+                  "screens": {
+                    "matched": 18,
+                    "total": 19
+                  },
+                  "rng": {
+                    "matched": 2266,
+                    "total": 2273
+                  },
+                  "cursors": {
+                    "matched": 18,
+                    "total": 19
+                  }
+                },
+                "firstMismatch": {
+                  "kind": "stop",
+                  "message": "unsupported hero command: an unported branch of this command: zapping a wand requires zapnodir() for a directionless wand",
+                  "step": 18
+                },
+                "step": 18,
+                "kind": "stop",
+                "sourceFile": "zap.c",
+                "function": "zapnodir",
+                "message": "unsupported hero command: an unported branch of this command: zapping a wand requires zapnodir() for a directionless wand",
+                "cFile": "zap.c",
+                "luaFile": null,
+                "line": null
+              },
+              "summary": "Zapping a wand of light reaches zap.c:zapnodir WAN_LIGHT, but JavaScript supports only create-monster and secret-door-detection directionless wands and refuses before litroom and lightdamage. The C recording then differs in source-ordered light effects and later RNG. Port the whole zapnodir family and wire existing source helpers; this is distinct from breaking a wand of light in apply.c.",
+              "source": {
+                "file": "zap.c",
+                "branch": "zap.c:zapnodir WAN_LIGHT sets known from dknown and Blind, calls read.c:litroom(TRUE,obj), then zap.c:lightdamage(obj,TRUE,5), and follows the common discovery tail.",
+                "functions": [
+                  "zapnodir"
+                ],
+                "callers": [
+                  "zap.c:dozap sends a charged NODIR wand through zap.c:weffects to zap.c:zapnodir; js/zap.js:zapnodir currently supports only WAN_CREATE_MONSTER and WAN_SECRET_DOOR_DETECTION."
+                ],
+                "dependencies": [
+                  "read.c:litroom and zap.c:lightdamage already have JavaScript implementations; preserve their await order and the discarded lightdamage result.",
+                  "zap.c:zapnodir common known/discovery tail uses more_experienced and learnwand, already present in JavaScript."
+                ]
+              },
+              "goalKind": "file-port",
+              "evidence": [
+                "Current saved v11 evaluation challenges/evaluations/20260928193155-v11.json at 25d85b45c96aa0f05ae7e9dcc1dc6ea286fa13de matches 18/19 screens and stops at zero-based step 18: unsupported hero command: an unported branch of this command: zapping a wand requires zapnodir() for a directionless wand. Immutable C recording SHA-256 94ced9f04ccf374c3e5d6eeb6212a2e95527c728f793ef2122e2f15da8712b1a.",
+                "Upstream nethack-c/upstream/src/zap.c:2524-2600 defines do_enlightenment_effect and the complete zapnodir switch; js/zap.js:5181-5206 refuses the selected directionless wand before its source effect.",
+                "The v11 prepared manifest records an independent patched-C rerecord and compares this source branch, state and action history with all v10 cases and unresolved older cases."
+              ]
+            }
+          }
+        },
+        {
+          "corpus": "synthetic",
+          "batch": "v11",
+          "caseId": "wand-stasis-freezes-level",
+          "session": "synthetic/v11/wand-stasis-freezes-level",
+          "manifestPath": "challenges/manifests/v11.json",
+          "manifestSha256": "7b80a66ca2659fab5f6012dfef09f8f1b46fe94a80716d5a8637af3b9e638347",
+          "recording": "challenges/cases/v11/wand-stasis-freezes-level.session.json",
+          "recordingPath": "challenges/cases/v11/wand-stasis-freezes-level.session.json",
+          "recordingSha256": "99fd172dd3ce7b4338525776ef1d196f4d9747563cc21fc17f946be34e638eb2",
+          "recipe": "challenges/cases/v11/wand-stasis-freezes-level.recipe.session.json",
+          "recipeSha256": "9522ef9bb0594e12ec8e2e645007ee367407cab66fb2864ce6525669393baf39",
+          "replayInputSha256": "83137c4605fcfb8091574091501761cf6fbe56da91d1dabc7166fbba220b5bae",
+          "evaluationPath": "challenges/evaluations/20260928215916-v11.json",
+          "evaluationCommit": "9028001f08de9c754d4f7bff31e498baa7828c22",
+          "evaluationArtifact": "challenges/evaluations/20260928215916-v11.json",
+          "evaluationUtc": "2026-09-28T21:59:27.077Z",
+          "remainingScreens": 1,
+          "recordedSteps": 20,
+          "previousScreensMatched": 19,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 19,
+              "total": 20
+            },
+            "rng": {
+              "matched": 2790,
+              "total": 2796
+            },
+            "cursors": {
+              "matched": 19,
+              "total": 20
+            }
+          },
+          "firstMismatch": {
+            "kind": "stop",
+            "message": "unsupported hero command: an unported branch of this command: zapping a wand requires zapnodir() for a directionless wand",
+            "step": 19
+          },
+          "step": 19,
+          "kind": "stop",
+          "sourceFile": "zap.c",
+          "function": "zapnodir",
+          "message": "unsupported hero command: an unported branch of this command: zapping a wand requires zapnodir() for a directionless wand",
+          "cFile": "zap.c",
+          "luaFile": null,
+          "line": null,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v11/wand-stasis-freezes-level.json",
+            "result": {
+              "session": "synthetic/v11/wand-stasis-freezes-level",
+              "corpus": "synthetic",
+              "batch": "v11",
+              "caseId": "wand-stasis-freezes-level",
+              "manifestPath": "challenges/manifests/v11.json",
+              "manifestSha256": "7b80a66ca2659fab5f6012dfef09f8f1b46fe94a80716d5a8637af3b9e638347",
+              "recordingSha256": "99fd172dd3ce7b4338525776ef1d196f4d9747563cc21fc17f946be34e638eb2",
+              "evaluationPath": "challenges/evaluations/20260928193155-v11.json",
+              "evaluationCommit": "25d85b45c96aa0f05ae7e9dcc1dc6ea286fa13de",
+              "remainingScreens": 1,
+              "recordedSteps": 20,
+              "status": "complete",
+              "commit": "25d85b45c96aa0f05ae7e9dcc1dc6ea286fa13de",
+              "mismatch": {
+                "corpus": "synthetic",
+                "batch": "v11",
+                "caseId": "wand-stasis-freezes-level",
+                "session": "synthetic/v11/wand-stasis-freezes-level",
+                "manifestPath": "challenges/manifests/v11.json",
+                "manifestSha256": "7b80a66ca2659fab5f6012dfef09f8f1b46fe94a80716d5a8637af3b9e638347",
+                "recording": "challenges/cases/v11/wand-stasis-freezes-level.session.json",
+                "recordingPath": "challenges/cases/v11/wand-stasis-freezes-level.session.json",
+                "recordingSha256": "99fd172dd3ce7b4338525776ef1d196f4d9747563cc21fc17f946be34e638eb2",
+                "recipe": "challenges/cases/v11/wand-stasis-freezes-level.recipe.session.json",
+                "recipeSha256": "9522ef9bb0594e12ec8e2e645007ee367407cab66fb2864ce6525669393baf39",
+                "replayInputSha256": "2e33ace5cff6a02a8c669dbcb3ad29e8998091f6f849401f4980d1c4eae6dd6b",
+                "evaluationPath": "challenges/evaluations/20260928193155-v11.json",
+                "evaluationCommit": "25d85b45c96aa0f05ae7e9dcc1dc6ea286fa13de",
+                "evaluationArtifact": "challenges/evaluations/20260928193155-v11.json",
+                "evaluationUtc": "2026-09-28T19:32:13.573Z",
+                "remainingScreens": 1,
+                "recordedSteps": 20,
+                "previousScreensMatched": 19,
+                "regression": false,
+                "passed": false,
+                "error": null,
+                "metrics": {
+                  "screens": {
+                    "matched": 19,
+                    "total": 20
+                  },
+                  "rng": {
+                    "matched": 2790,
+                    "total": 2796
+                  },
+                  "cursors": {
+                    "matched": 19,
+                    "total": 20
+                  }
+                },
+                "firstMismatch": {
+                  "kind": "stop",
+                  "message": "unsupported hero command: an unported branch of this command: zapping a wand requires zapnodir() for a directionless wand",
+                  "step": 19
+                },
+                "step": 19,
+                "kind": "stop",
+                "sourceFile": "zap.c",
+                "function": "zapnodir",
+                "message": "unsupported hero command: an unported branch of this command: zapping a wand requires zapnodir() for a directionless wand",
+                "cFile": "zap.c",
+                "luaFile": null,
+                "line": null
+              },
+              "summary": "Zapping a wand of stasis reaches zap.c:zapnodir WAN_STASIS, which JavaScript currently refuses. C draws rn1(21,10), extends level.flags.stasis_until and leaves the effect visually quiet. Port the whole zapnodir family with the existing single level flag state; keep duration and discovery order source exact.",
+              "source": {
+                "file": "zap.c",
+                "branch": "zap.c:zapnodir WAN_STASIS computes moves+rn1(21,10) and retains the larger value in level.flags.stasis_until, then follows the common discovery tail without an effect message.",
+                "functions": [
+                  "zapnodir"
+                ],
+                "callers": [
+                  "zap.c:dozap sends a charged NODIR wand through zap.c:weffects to zap.c:zapnodir; js/zap.js:zapnodir currently supports only WAN_CREATE_MONSTER and WAN_SECRET_DOOR_DETECTION."
+                ],
+                "dependencies": [
+                  "js/mklev.js initializes level.flags.stasis_until; js/teleport.js and js/apply.js already read this field. Update that one state home as C does."
+                ]
+              },
+              "goalKind": "file-port",
+              "evidence": [
+                "Current saved v11 evaluation challenges/evaluations/20260928193155-v11.json at 25d85b45c96aa0f05ae7e9dcc1dc6ea286fa13de matches 19/20 screens and stops at zero-based step 19: unsupported hero command: an unported branch of this command: zapping a wand requires zapnodir() for a directionless wand. Immutable C recording SHA-256 99fd172dd3ce7b4338525776ef1d196f4d9747563cc21fc17f946be34e638eb2.",
+                "Upstream nethack-c/upstream/src/zap.c:2524-2600 defines do_enlightenment_effect and the complete zapnodir switch; js/zap.js:5181-5206 refuses the selected directionless wand before its source effect.",
+                "The v11 prepared manifest records an independent patched-C rerecord and compares this source branch, state and action history with all v10 cases and unresolved older cases."
+              ]
+            }
+          }
+        },
+        {
+          "corpus": "synthetic",
+          "batch": "v11",
+          "caseId": "wand-enlightenment-reports-status",
+          "session": "synthetic/v11/wand-enlightenment-reports-status",
+          "manifestPath": "challenges/manifests/v11.json",
+          "manifestSha256": "7b80a66ca2659fab5f6012dfef09f8f1b46fe94a80716d5a8637af3b9e638347",
+          "recording": "challenges/cases/v11/wand-enlightenment-reports-status.session.json",
+          "recordingPath": "challenges/cases/v11/wand-enlightenment-reports-status.session.json",
+          "recordingSha256": "0825f81f6eed93f36a6b1d76dd2dde00fddd8b48fe2cfc5f14ac08b8dc919419",
+          "recipe": "challenges/cases/v11/wand-enlightenment-reports-status.recipe.session.json",
+          "recipeSha256": "269727f2bd9f76e12ea8cc8483d667c2e1862a8e82956097b1a222bb8e0800a4",
+          "replayInputSha256": "83137c4605fcfb8091574091501761cf6fbe56da91d1dabc7166fbba220b5bae",
+          "evaluationPath": "challenges/evaluations/20260928215916-v11.json",
+          "evaluationCommit": "9028001f08de9c754d4f7bff31e498baa7828c22",
+          "evaluationArtifact": "challenges/evaluations/20260928215916-v11.json",
+          "evaluationUtc": "2026-09-28T21:59:27.077Z",
+          "remainingScreens": 1,
+          "recordedSteps": 27,
+          "previousScreensMatched": 26,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 26,
+              "total": 27
+            },
+            "rng": {
+              "matched": 2258,
+              "total": 2258
+            },
+            "cursors": {
+              "matched": 26,
+              "total": 27
+            }
+          },
+          "firstMismatch": {
+            "kind": "stop",
+            "message": "unsupported hero command: an unported branch of this command: zapping a wand requires zapnodir() for a directionless wand",
+            "step": 26
+          },
+          "step": 26,
+          "kind": "stop",
+          "sourceFile": "zap.c",
+          "function": "zapnodir",
+          "message": "unsupported hero command: an unported branch of this command: zapping a wand requires zapnodir() for a directionless wand",
+          "cFile": "zap.c",
+          "luaFile": null,
+          "line": null,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v11/wand-enlightenment-reports-status.json",
+            "result": {
+              "session": "synthetic/v11/wand-enlightenment-reports-status",
+              "corpus": "synthetic",
+              "batch": "v11",
+              "caseId": "wand-enlightenment-reports-status",
+              "manifestPath": "challenges/manifests/v11.json",
+              "manifestSha256": "7b80a66ca2659fab5f6012dfef09f8f1b46fe94a80716d5a8637af3b9e638347",
+              "recordingSha256": "0825f81f6eed93f36a6b1d76dd2dde00fddd8b48fe2cfc5f14ac08b8dc919419",
+              "evaluationPath": "challenges/evaluations/20260928193155-v11.json",
+              "evaluationCommit": "25d85b45c96aa0f05ae7e9dcc1dc6ea286fa13de",
+              "remainingScreens": 1,
+              "recordedSteps": 27,
+              "status": "complete",
+              "commit": "25d85b45c96aa0f05ae7e9dcc1dc6ea286fa13de",
+              "mismatch": {
+                "corpus": "synthetic",
+                "batch": "v11",
+                "caseId": "wand-enlightenment-reports-status",
+                "session": "synthetic/v11/wand-enlightenment-reports-status",
+                "manifestPath": "challenges/manifests/v11.json",
+                "manifestSha256": "7b80a66ca2659fab5f6012dfef09f8f1b46fe94a80716d5a8637af3b9e638347",
+                "recording": "challenges/cases/v11/wand-enlightenment-reports-status.session.json",
+                "recordingPath": "challenges/cases/v11/wand-enlightenment-reports-status.session.json",
+                "recordingSha256": "0825f81f6eed93f36a6b1d76dd2dde00fddd8b48fe2cfc5f14ac08b8dc919419",
+                "recipe": "challenges/cases/v11/wand-enlightenment-reports-status.recipe.session.json",
+                "recipeSha256": "269727f2bd9f76e12ea8cc8483d667c2e1862a8e82956097b1a222bb8e0800a4",
+                "replayInputSha256": "2e33ace5cff6a02a8c669dbcb3ad29e8998091f6f849401f4980d1c4eae6dd6b",
+                "evaluationPath": "challenges/evaluations/20260928193155-v11.json",
+                "evaluationCommit": "25d85b45c96aa0f05ae7e9dcc1dc6ea286fa13de",
+                "evaluationArtifact": "challenges/evaluations/20260928193155-v11.json",
+                "evaluationUtc": "2026-09-28T19:32:13.573Z",
+                "remainingScreens": 1,
+                "recordedSteps": 27,
+                "previousScreensMatched": 26,
+                "regression": false,
+                "passed": false,
+                "error": null,
+                "metrics": {
+                  "screens": {
+                    "matched": 26,
+                    "total": 27
+                  },
+                  "rng": {
+                    "matched": 2258,
+                    "total": 2258
+                  },
+                  "cursors": {
+                    "matched": 26,
+                    "total": 27
+                  }
+                },
+                "firstMismatch": {
+                  "kind": "stop",
+                  "message": "unsupported hero command: an unported branch of this command: zapping a wand requires zapnodir() for a directionless wand",
+                  "step": 26
+                },
+                "step": 26,
+                "kind": "stop",
+                "sourceFile": "zap.c",
+                "function": "zapnodir",
+                "message": "unsupported hero command: an unported branch of this command: zapping a wand requires zapnodir() for a directionless wand",
+                "cFile": "zap.c",
+                "luaFile": null,
+                "line": null
+              },
+              "summary": "Zapping a wand of enlightenment reaches zap.c:zapnodir WAN_ENLIGHTENMENT, but JavaScript refuses before the self-knowledge window. Port do_enlightenment_effect with the complete zapnodir dispatch, message/window order, existing insight caller, Wisdom exercise and discovery tail.",
+              "source": {
+                "file": "zap.c",
+                "branch": "zap.c:zapnodir WAN_ENLIGHTENMENT sets known from dknown and calls do_enlightenment_effect(), which prints the feeling, displays messages, invokes insight.c:enlightenment(MAGICENLIGHTENMENT,ENL_GAMEINPROGRESS), prints the subsiding feeling, and exercises Wisdom.",
+                "functions": [
+                  "do_enlightenment_effect",
+                  "zapnodir"
+                ],
+                "callers": [
+                  "zap.c:dozap sends a charged NODIR wand through zap.c:weffects to zap.c:zapnodir; js/zap.js:zapnodir currently supports only WAN_CREATE_MONSTER and WAN_SECRET_DOOR_DETECTION."
+                ],
+                "dependencies": [
+                  "insight.c:enlightenment is exported in js/insight.js; verify its MAGICENLIGHTENMENT mode in this production call.",
+                  "attrib.c:exercise is already implemented; call it after the subsiding message as C does."
+                ]
+              },
+              "goalKind": "file-port",
+              "evidence": [
+                "Current saved v11 evaluation challenges/evaluations/20260928193155-v11.json at 25d85b45c96aa0f05ae7e9dcc1dc6ea286fa13de matches 26/27 screens and stops at zero-based step 26: unsupported hero command: an unported branch of this command: zapping a wand requires zapnodir() for a directionless wand. Immutable C recording SHA-256 0825f81f6eed93f36a6b1d76dd2dde00fddd8b48fe2cfc5f14ac08b8dc919419.",
+                "Upstream nethack-c/upstream/src/zap.c:2524-2600 defines do_enlightenment_effect and the complete zapnodir switch; js/zap.js:5181-5206 refuses the selected directionless wand before its source effect.",
+                "The v11 prepared manifest records an independent patched-C rerecord and compares this source branch, state and action history with all v10 cases and unresolved older cases."
+              ]
+            }
+          }
+        }
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "do_enlightenment_effect",
+            "implementation": "js/zap.js",
+            "symbol": "do_enlightenment_effect",
+            "sourceReview": "Read zap.c:do_enlightenment_effect() (2525-2535) in full. Preserve the self-knowledge message, WIN_MESSAGE dismissal, MAGICENLIGHTENMENT/ENL_GAMEINPROGRESS status menu, trailing feeling-subsides message, and Wisdom exercise order. The call to insight.c:enlightenment() is void in C. For the C-defined polymorphed-hero condition, JS records note_unported('insight.c enlightenment') and skips that currently unsupported helper path, then continues the remaining caller tail. The ordinary-hero helper and complete caller tail strictly match an independent C run.",
+            "callers": [
+              {
+                "path": "js/zap.js",
+                "symbol": "zapnodir",
+                "source": "zap.c:zapnodir() sets known from obj->dknown and calls do_enlightenment_effect() in its WAN_ENLIGHTMENT arm"
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/zap-command.test.mjs"
+            ],
+            "recordings": [
+              "recordings/zap.c/zapnodir-enlightenment-independent-b47.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v11",
+                "caseId": "wand-enlightenment-reports-status",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 26,
+                "source": "cmd.c:dozap -> zap.c:weffects -> zap.c:zapnodir(WAN_ENLIGHTENMENT) -> zap.c:do_enlightenment_effect; this range reaches the initial message/pager"
+              }
+            ],
+            "checkedAt": "e95715168651db79aeea73854d9120ca5c69c55d"
+          },
+          {
+            "name": "zapnodir",
+            "implementation": "js/zap.js",
+            "symbol": "zapnodir",
+            "sourceReview": "Read zap.c:zapnodir() (2539-2604) in full. Ported each explicit arm and the discovery tail in source order: light/spell light checks dknown and blindness before litroom and discarded lightdamage; secret-door detection/spell detect unseen uses dknown and discarded findit; stasis draws rn1(21,10) and retains the later deadline; create-monster uses rn2(23) with the fallback rn1(7,2) and consumes create_critters() visibility for discovery; wishing draws Luck+rn2(5), preserves its no-effect versus makewish paths; enlightenment calls the helper before the shared tail. The default arm is a C no-op. The recorded WAN_NOTHING case reaches it because C init_objects(o_init.c:234) drew rn2(2)=1, making that wand NODIR.",
+            "callers": [
+              {
+                "path": "js/zap.js",
+                "symbol": "weffects",
+                "source": "zap.c:weffects() calls zapnodir(obj) when objects[obj->otyp].oc_dir == NODIR"
+              },
+              {
+                "path": "js/zap.js",
+                "symbol": "dozap",
+                "source": "zap.c:dozap() calls weffects(obj) after charge and direction handling; the NODIR wand path reaches zapnodir through that dispatcher"
+              },
+              {
+                "path": "js/spell.js",
+                "symbol": "spelleffects",
+                "source": "spell.c:spelleffects() calls weffects(pseudo) for light and detect-unseen directionless spell objects"
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/zap-command.test.mjs",
+              "scripts/zapnodir.test.mjs"
+            ],
+            "recordings": [
+              "recordings/zap.c/zapnodir-enlightenment-independent-b47.session.json",
+              "recordings/zap.c/zapnodir-light-wand-independent-b47.session.json",
+              "recordings/zap.c/zapnodir-secret-door-wand-independent-b47.session.json",
+              "recordings/zap.c/zapnodir-spell-detect-unseen-independent-b47.session.json",
+              "recordings/zap.c/zapnodir-spell-light-independent-b47.session.json",
+              "recordings/zap.c/zapnodir-stasis-independent-b47.session.json",
+              "recordings/zap.c/zapnodir-nothing-default-independent-b47.session.json",
+              "recordings/zap.c/create-monster-wand-independent-b40.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v11",
+                "caseId": "wand-wishing-makes-wish",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 34,
+                "source": "cmd.c:dozap -> zap.c:weffects -> zap.c:zapnodir(WAN_WISHING)"
+              },
+              {
+                "batch": "v11",
+                "caseId": "wand-light-room",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 18,
+                "source": "cmd.c:dozap -> zap.c:weffects -> zap.c:zapnodir(WAN_LIGHT) -> read.c:litroom"
+              },
+              {
+                "batch": "v11",
+                "caseId": "wand-stasis-freezes-level",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 19,
+                "source": "cmd.c:dozap -> zap.c:weffects -> zap.c:zapnodir(WAN_STASIS)"
+              },
+              {
+                "batch": "v11",
+                "caseId": "wand-enlightenment-reports-status",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 26,
+                "source": "cmd.c:dozap -> zap.c:weffects -> zap.c:zapnodir(WAN_ENLIGHTENMENT) -> zap.c:do_enlightenment_effect"
+              }
+            ],
+            "checkedAt": "e95715168651db79aeea73854d9120ca5c69c55d"
+          }
+        ],
+        "entryPointReview": "zap.c:dozap() and spell.c:spelleffects() are the only production callers of zap.c:weffects(). A NODIR wand therefore reaches zapnodir through the hero #zap command, and directionless spells reach it through the spell-cast dispatcher. Source-reaching strict recordings cover light wand and SPE_LIGHT, secret-door wand and SPE_DETECT_UNSEEN, stasis, and the WAN_NOTHING default no-op. The existing B40 create-monster wand recording covers the create_critters return path. The admitted v11 cases cover wishing, light, stasis, and enlightenment through their real command dispatchers; enlightenment's selected range ends at the initial message boundary, so the independent 29-screen enlightenment recording verifies the menu, trailing line, and Wisdom exercise. The polymorphed WAN_ENLIGHTENMENT variant reaches a void insight.c:enlightenment call whose current JS helper refuses polymorphed heroes; zap.js records that exact dependency with note_unported and continues the source-ordered trailing message/exercise. That variant is not claimed as a strict C match.",
+        "entryPoints": [
+          {
+            "name": "Hero uses a directionless wand through the #zap command",
+            "functions": [
+              "zapnodir",
+              "do_enlightenment_effect"
+            ],
+            "recordings": [
+              "recordings/zap.c/zapnodir-enlightenment-independent-b47.session.json",
+              "recordings/zap.c/zapnodir-light-wand-independent-b47.session.json",
+              "recordings/zap.c/zapnodir-secret-door-wand-independent-b47.session.json",
+              "recordings/zap.c/zapnodir-stasis-independent-b47.session.json",
+              "recordings/zap.c/zapnodir-nothing-default-independent-b47.session.json",
+              "recordings/zap.c/create-monster-wand-independent-b40.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v11",
+                "caseId": "wand-wishing-makes-wish",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 34,
+                "source": "cmd.c:dozap -> zap.c:weffects -> zap.c:zapnodir(WAN_WISHING)"
+              },
+              {
+                "batch": "v11",
+                "caseId": "wand-light-room",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 18,
+                "source": "cmd.c:dozap -> zap.c:weffects -> zap.c:zapnodir(WAN_LIGHT)"
+              },
+              {
+                "batch": "v11",
+                "caseId": "wand-stasis-freezes-level",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 19,
+                "source": "cmd.c:dozap -> zap.c:weffects -> zap.c:zapnodir(WAN_STASIS)"
+              },
+              {
+                "batch": "v11",
+                "caseId": "wand-enlightenment-reports-status",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 26,
+                "source": "cmd.c:dozap -> zap.c:weffects -> zap.c:zapnodir(WAN_ENLIGHTENMENT)"
+              }
+            ]
+          },
+          {
+            "name": "Hero casts a directionless spell through spelleffects",
+            "functions": [
+              "zapnodir"
+            ],
+            "recordings": [
+              "recordings/zap.c/zapnodir-spell-light-independent-b47.session.json",
+              "recordings/zap.c/zapnodir-spell-detect-unseen-independent-b47.session.json"
+            ],
+            "synthetic": []
+          }
+        ]
+      },
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "e95715168651db79aeea73854d9120ca5c69c55d",
+        "screens": 11405,
+        "rng": 792838
       }
     },
     {
       "id": "port-read-destroy-armor-synthetic-v8-20260928",
       "kind": "file-port",
-      "status": "queued",
+      "status": "closed",
       "summary": "Port destroy-armor scroll effects and return-valued disintegration chain",
       "cFile": "read.c",
       "sessions": [
@@ -109393,24 +110153,31 @@
       ],
       "selectionReason": "The sole unresolved v8 case has exact screens but is missing C obj_resists rn2(100) at step 36. Source trace in investigations/synthetic/v8/read-cursed-destroy-armor-scroll.json selects read.c:disintegrate_cursed_armor..seffect_destroy_armor and its do_wear.c:maybe_destroy_armor/disintegrate_arm return-valued callees; preserve all already matching screens and RNG.",
       "detail": "",
-      "openedAt": null,
-      "openStanding": null,
-      "closedAt": null,
-      "delivered": null,
+      "openedAt": "eb06c695ed24e22015df3976043fecbe353a8744",
+      "openStanding": {
+        "sha": "eb06c695ed24e22015df3976043fecbe353a8744",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "closedAt": "eb06c695ed24e22015df3976043fecbe353a8744",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
       "functions": [
         {
           "name": "disintegrate_cursed_armor",
           "line": 1294,
           "endLine": 1323,
-          "declared": false,
-          "complete": false
+          "declared": true,
+          "complete": true
         },
         {
           "name": "seffect_destroy_armor",
           "line": 1324,
           "endLine": 1398,
           "declared": true,
-          "complete": false
+          "complete": true
         }
       ],
       "range": {
@@ -109430,6 +110197,110 @@
           "evaluationPath": "challenges/evaluations/20260928211543-v8.json",
           "evaluationCommit": "759b985c4bdf4978863b5d44a45a63bd0db7e61d"
         }
+      },
+      "activeStanding": {
+        "sha": "eb06c695ed24e22015df3976043fecbe353a8744",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": [],
+      "evidence": {
+        "functions": [
+          {
+            "name": "disintegrate_cursed_armor",
+            "implementation": "js/read.js",
+            "symbol": "disintegrate_cursed_armor",
+            "sourceReview": "Read read.c:1294-1321 in full. The port builds the candidate array in C's uarm, uarmc, uarmh, uarms, uarmg, uarmf, uarmu order, returns without RNG when empty, consumes rn2(idx) once when populated, and propagates the return from do_wear.c:disintegrate_arm. That consumed callee and its do_wear.c:maybe_destroy_armor, wornarm_destroyed, Armor_off, count_worn_armor, and any_worn_armor_ok dependencies are implemented in js/do_wear.js; the two pure predicates are source-pinned in scripts/destroy-armor.test.mjs. do_wear.c:Armor_off is exercised when the selected armor is destroyed. C discards trap.c:selftouch after glove loss, so JS records note_unported('trap.c selftouch') and does not use its result. The function's selected caller is read.c:seffect_destroy_armor.",
+            "callers": [
+              {
+                "path": "js/read.js",
+                "symbol": "seffect_destroy_armor",
+                "source": "read.c:seffect_destroy_armor calls disintegrate_cursed_armor only for a blessed scroll when cursed worn armor is available; it consumes the helper's boolean result to select the branch and scroll-known state."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/destroy-armor.test.mjs",
+              "scripts/read-destroy-armor.test.mjs"
+            ],
+            "recordings": [
+              "recordings/read.c/destroy-armor-blessed-cursed-slot-valkyrie-c40.session.json"
+            ],
+            "checkedAt": "eb06c695ed24e22015df3976043fecbe353a8744"
+          },
+          {
+            "name": "seffect_destroy_armor",
+            "implementation": "js/read.js",
+            "symbol": "seffect_destroy_armor",
+            "sourceReview": "Read the complete read.c:1324-1396 function and read.c:seffects dispatch. The port keeps some_armor's RNG before branch selection; the confused erodeproof/glow/shop path; cursed already-cursed armor vibration, spe decrement, armor bonus, and rn1(10,10) evaluation; cursed disintegration; blessed getobj selection with actualoname and the getobj callback; blessed no-choice disintegrate_cursed_armor; and ordinary destroy_arm/failure handling. It propagates C's struct obj ** consumption result back through SCR_DESTROY_ARMOR so doread only consumes a still-live scroll. The consumed do_wear.c:disintegrate_arm chain is source ordered, including resistance draws, outer armor precedence, burning light cleanup, worn-slot removal and inventory identity scan. objnam.c:actualoname is ported through its temporary override_ID state, with a direct focused test and the blessed-choice recording. C discards timeout.c:make_stunned after evaluating rn1(10,10), so that state effect remains an explicit note_unported gap; C also discards trap.c:selftouch after glove loss, likewise named and skipped. No result from either gap is used as data.",
+            "callers": [
+              {
+                "path": "js/read.js",
+                "symbol": "seffects",
+                "source": "read.c:doread dispatches the selected scroll to read.c:seffects; the SCR_DESTROY_ARMOR arm calls seffect_destroy_armor(&sobj), then preserves its consumed-scroll pointer result for doread's later useup step. js/cmd.js:runReadCommand wires the production r command to doread."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/destroy-armor.test.mjs",
+              "scripts/read-destroy-armor.test.mjs",
+              "scripts/read.test.mjs",
+              "scripts/take-off-armor.test.mjs",
+              "scripts/wear-armor.test.mjs"
+            ],
+            "recordings": [
+              "recordings/read.c/destroy-armor-cursed-valkyrie-c40.session.json",
+              "recordings/read.c/destroy-armor-ordinary-valkyrie-c40.session.json",
+              "recordings/read.c/destroy-armor-blessed-choice-knight-c40.session.json",
+              "recordings/read.c/destroy-armor-confused-valkyrie-c40.session.json",
+              "recordings/read.c/destroy-armor-blessed-cursed-slot-valkyrie-c40.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v8",
+                "caseId": "read-cursed-destroy-armor-scroll",
+                "segment": 0,
+                "fromStep": 35,
+                "throughStep": 36,
+                "source": "read.c:doread -> read.c:seffects -> read.c:seffect_destroy_armor -> do_wear.c:disintegrate_arm -> do_wear.c:maybe_destroy_armor -> zap.c:obj_resists"
+              }
+            ],
+            "checkedAt": "eb06c695ed24e22015df3976043fecbe353a8744"
+          }
+        ],
+        "entryPointReview": "The active entry is the production r command: js/cmd.js:runReadCommand calls js/read.js:doread, which dispatches the selected scroll through seffects; C read.c:doread -> read.c:seffects invokes seffect_destroy_armor for SCR_DESTROY_ARMOR. There is no spell entry for this scroll effect. The cursed and ordinary records exercise direct disintegrate_arm/fallback behavior; the blessed multi-armor record reaches actualoname, any_worn_armor_ok/getobj, and disintegrate_arm; the confused record reaches the purple glow path; and the blessed single-cursed-slot record reaches disintegrate_cursed_armor, consumes rn2(1), then reaches disintegrate_arm and obj_resists. The selected admitted v8 case now strictly matches through step 36, including the formerly missing obj_resists draw. The only retained runtime gaps are the discarded-result timeout.c:make_stunned and trap.c:selftouch calls; no effect is claimed for those helpers.",
+        "entryPoints": [
+          {
+            "name": "Read a destroy-armor scroll through the production read command",
+            "functions": [
+              "disintegrate_cursed_armor",
+              "seffect_destroy_armor"
+            ],
+            "recordings": [
+              "recordings/read.c/destroy-armor-cursed-valkyrie-c40.session.json",
+              "recordings/read.c/destroy-armor-ordinary-valkyrie-c40.session.json",
+              "recordings/read.c/destroy-armor-blessed-choice-knight-c40.session.json",
+              "recordings/read.c/destroy-armor-confused-valkyrie-c40.session.json",
+              "recordings/read.c/destroy-armor-blessed-cursed-slot-valkyrie-c40.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v8",
+                "caseId": "read-cursed-destroy-armor-scroll",
+                "segment": 0,
+                "fromStep": 35,
+                "throughStep": 36,
+                "source": "read.c:doread -> read.c:seffects -> read.c:seffect_destroy_armor -> do_wear.c:disintegrate_arm -> do_wear.c:maybe_destroy_armor -> zap.c:obj_resists"
+              }
+            ]
+          }
+        ]
+      },
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "eb06c695ed24e22015df3976043fecbe353a8744",
+        "screens": 11405,
+        "rng": 792838
       }
     },
     {

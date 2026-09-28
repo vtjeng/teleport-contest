@@ -95,6 +95,7 @@
   "evidence": [
     "Saved challenges/evaluations/20260927191056-v8.json at 5b4486322ffa5eeb91cc37d01083ff20bbfe2ea7 measures 37/37 screens but 3094/3095 RNG calls; first C-only draw at segment 0 step 36 is rn2(100)=39 from obj_resists(zap.c:1469).",
     "Upstream nethack-c/upstream/src/read.c lines 1294-1396 and do_wear.c lines 3190-3300 define the return-valued disintegration chain; js/read.js seffect_destroy_armor comment explicitly limits it to the uncursed fallback.",
-    "The case must remain in the unresolved queue despite 37/37 matching screens because the C RNG trace differs."
+    "The case must remain in the unresolved queue despite 37/37 matching screens because the C RNG trace differs.",
+    "Current result: challenges/evaluations/20260928233022-v8.json at eb06c695ed24e22015df3976043fecbe353a8744 matches all 37 screens and cursors and 3095/3095 RNG calls. Source goal port-read-destroy-armor-synthetic-v8-20260928 is closed with five independent strict armor recordings, including the blessed cursed-slot path."
   ]
 }

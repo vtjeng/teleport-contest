@@ -81,6 +81,7 @@
   "evidence": [
     "Current saved v11 evaluation challenges/evaluations/20260928193155-v11.json at 25d85b45c96aa0f05ae7e9dcc1dc6ea286fa13de matches 19/20 screens and stops at zero-based step 19: unsupported hero command: an unported branch of this command: zapping a wand requires zapnodir() for a directionless wand. Immutable C recording SHA-256 99fd172dd3ce7b4338525776ef1d196f4d9747563cc21fc17f946be34e638eb2.",
     "Upstream nethack-c/upstream/src/zap.c:2524-2600 defines do_enlightenment_effect and the complete zapnodir switch; js/zap.js:5181-5206 refuses the selected directionless wand before its source effect.",
-    "The v11 prepared manifest records an independent patched-C rerecord and compares this source branch, state and action history with all v10 cases and unresolved older cases."
+    "The v11 prepared manifest records an independent patched-C rerecord and compares this source branch, state and action history with all v10 cases and unresolved older cases.",
+    "Current result: challenges/evaluations/20260928224052-v11.json at e95715168651db79aeea73854d9120ca5c69c55d matches all 20 screens and cursors and 2796/2796 RNG calls. Source goal port-zap-zapnodir-synthetic-v11-20260928 is closed with independent directionless-wand and spell recordings."
   ]
 }
