@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "capturedAt": "2026-09-28T08:50:28.458Z",
+  "capturedAt": "2026-09-28T09:04:45.571Z",
   "activity": {
     "runId": "loop-20260925",
     "events": [
@@ -7080,6 +7080,26 @@
         "at": "2026-09-28T08:24:26.028Z",
         "task": "A39",
         "commit": "1555af1bb95b60ce1cfbb302fbeb60527efb6489"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "assign-A40-mon-xkilled-20260928",
+        "type": "assign",
+        "at": "2026-09-28T08:58:17.914Z",
+        "task": "A40",
+        "worker": "A",
+        "goal": "port-mon-xkilled-synthetic-v10-20260928",
+        "kind": "implementation"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "assign-C33-uhitm-do-attack-20260928",
+        "type": "assign",
+        "at": "2026-09-28T08:58:54.401Z",
+        "task": "C33",
+        "worker": "C",
+        "goal": "port-uhitm-force-do-attack-synthetic-v10-20260928",
+        "kind": "implementation"
       }
     ]
   },
