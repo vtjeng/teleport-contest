@@ -108654,14 +108654,18 @@
     {
       "id": "div-apply-doapply-artifact-retouch-v10-20260928",
       "kind": "divergence-fix",
-      "status": "queued",
+      "status": "open",
       "summary": "Wire doapply artifact retouch preflight and consumed return",
       "cFile": "apply.c",
       "sessions": [],
-      "selectionReason": "After B45 resolved the wand case, v10 Grimtooth remains source-traced at doapply artifact preflight; the same worker can repair the shared apply caller without overlapping A43 or C38.",
+      "selectionReason": "Integrate assigned B46 source-traced v10 doapply artifact retouch divergence fix",
       "detail": "C doapply calls retouch_object(&obj,FALSE) for every selected object before class dispatch and consumes both its Boolean and possibly updated pointer. JavaScript refuses artifacts before that call. Reuse the existing source-ported artifact helper across all artifact objects, preserving blast RNG and source order.",
-      "openedAt": null,
-      "openStanding": null,
+      "openedAt": "7295e6d59c4f7f1f7250087be75297b9ce058e2f",
+      "openStanding": {
+        "sha": "be69548a77c6899056b335ffae17d07aa1994ea7",
+        "screens": 11405,
+        "rng": 792838
+      },
       "closedAt": null,
       "delivered": null,
       "function": "doapply",
@@ -108680,7 +108684,156 @@
           "evaluationPath": "challenges/evaluations/20260928193155-v10.json",
           "evaluationCommit": "25d85b45c96aa0f05ae7e9dcc1dc6ea286fa13de"
         }
-      }
+      },
+      "activeStanding": {
+        "sha": "be69548a77c6899056b335ffae17d07aa1994ea7",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v10",
+          "caseId": "apply-neutral-grimtooth-touches-artifact",
+          "session": "synthetic/v10/apply-neutral-grimtooth-touches-artifact",
+          "manifestPath": "challenges/manifests/v10.json",
+          "manifestSha256": "79c7c030ef380f5d24f6bcdbae0a59cce143306a35f7edee4355a3e01964cb57",
+          "recording": "challenges/cases/v10/apply-neutral-grimtooth-touches-artifact.session.json",
+          "recordingPath": "challenges/cases/v10/apply-neutral-grimtooth-touches-artifact.session.json",
+          "recordingSha256": "9856f04cbc5c27a13ac0ca83cdcf1920101252ff1ef0ee6524a965777ad09aa3",
+          "recipe": "challenges/cases/v10/apply-neutral-grimtooth-touches-artifact.recipe.session.json",
+          "recipeSha256": "e0d47ae954ca33dca1a1f9af37a651d6c6105a2d6e41f1038b594d9f68db7c90",
+          "replayInputSha256": "b25a7deaa35a64de3fd90c71bc386d396450afa7288d8925e6d3e8ff2e0f716a",
+          "evaluationPath": "challenges/evaluations/20260928203412-v10.json",
+          "evaluationCommit": "be69548a77c6899056b335ffae17d07aa1994ea7",
+          "evaluationArtifact": "challenges/evaluations/20260928203412-v10.json",
+          "evaluationUtc": "2026-09-28T20:34:16.444Z",
+          "remainingScreens": 1,
+          "recordedSteps": 16,
+          "previousScreensMatched": 15,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 15,
+              "total": 16
+            },
+            "rng": {
+              "matched": 2624,
+              "total": 2625
+            },
+            "cursors": {
+              "matched": 15,
+              "total": 16
+            }
+          },
+          "firstMismatch": {
+            "kind": "stop",
+            "message": "unsupported hero command: an unported branch of this command: applying a tool requires retouch_object() for an artifact",
+            "step": 15
+          },
+          "step": 15,
+          "kind": "stop",
+          "sourceFile": "artifact.c",
+          "function": "retouch_object",
+          "message": "unsupported hero command: an unported branch of this command: applying a tool requires retouch_object() for an artifact",
+          "cFile": "artifact.c",
+          "luaFile": null,
+          "line": null,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v10/apply-neutral-grimtooth-touches-artifact.json",
+            "result": {
+              "session": "synthetic/v10/apply-neutral-grimtooth-touches-artifact",
+              "corpus": "synthetic",
+              "batch": "v10",
+              "caseId": "apply-neutral-grimtooth-touches-artifact",
+              "manifestPath": "challenges/manifests/v10.json",
+              "manifestSha256": "79c7c030ef380f5d24f6bcdbae0a59cce143306a35f7edee4355a3e01964cb57",
+              "recordingSha256": "9856f04cbc5c27a13ac0ca83cdcf1920101252ff1ef0ee6524a965777ad09aa3",
+              "evaluationPath": "challenges/evaluations/20260928083103-v10.json",
+              "evaluationCommit": "d739756c29e8e3afb6e2bf95c325f019693b4160",
+              "remainingScreens": 1,
+              "recordedSteps": 16,
+              "status": "complete",
+              "commit": "40fbeba4dfd7e57992b8fbb5f914cb6b442483a8",
+              "mismatch": {
+                "corpus": "synthetic",
+                "batch": "v10",
+                "caseId": "apply-neutral-grimtooth-touches-artifact",
+                "session": "synthetic/v10/apply-neutral-grimtooth-touches-artifact",
+                "manifestPath": "challenges/manifests/v10.json",
+                "manifestSha256": "79c7c030ef380f5d24f6bcdbae0a59cce143306a35f7edee4355a3e01964cb57",
+                "recording": "challenges/cases/v10/apply-neutral-grimtooth-touches-artifact.session.json",
+                "recordingPath": "challenges/cases/v10/apply-neutral-grimtooth-touches-artifact.session.json",
+                "recordingSha256": "9856f04cbc5c27a13ac0ca83cdcf1920101252ff1ef0ee6524a965777ad09aa3",
+                "recipe": "challenges/cases/v10/apply-neutral-grimtooth-touches-artifact.recipe.session.json",
+                "recipeSha256": "e0d47ae954ca33dca1a1f9af37a651d6c6105a2d6e41f1038b594d9f68db7c90",
+                "replayInputSha256": "4a5336fbd6fd717e38ac925cbd3401e34863ec5cb30b5a74b5086d5267748022",
+                "evaluationPath": "challenges/evaluations/20260928083103-v10.json",
+                "evaluationCommit": "d739756c29e8e3afb6e2bf95c325f019693b4160",
+                "evaluationArtifact": "challenges/evaluations/20260928083103-v10.json",
+                "evaluationUtc": "2026-09-28T08:31:23.355Z",
+                "remainingScreens": 1,
+                "recordedSteps": 16,
+                "previousScreensMatched": null,
+                "regression": false,
+                "passed": false,
+                "error": null,
+                "metrics": {
+                  "screens": {
+                    "matched": 15,
+                    "total": 16
+                  },
+                  "rng": {
+                    "matched": 2624,
+                    "total": 2625
+                  },
+                  "cursors": {
+                    "matched": 15,
+                    "total": 16
+                  }
+                },
+                "firstMismatch": {
+                  "kind": "stop",
+                  "message": "unsupported hero command: an unported branch of this command: applying a tool requires retouch_object() for an artifact",
+                  "step": 15
+                },
+                "step": 15,
+                "kind": "stop",
+                "sourceFile": "artifact.c",
+                "function": "retouch_object",
+                "message": "unsupported hero command: an unported branch of this command: applying a tool requires retouch_object() for an artifact",
+                "cFile": "artifact.c",
+                "luaFile": null,
+                "line": null
+              },
+              "summary": "After object selection, js/apply.js refuses Grimtooth before apply.c:doapply’s unconditional retouch_object(&obj,FALSE) preflight. The artifact helpers already exist; the source defect is the missing production call and consumed Boolean/object-pointer flow before all doapply class dispatch. The neutral Wizard case then reaches touch_artifact’s alignment blast RNG. Repair this shared preflight for every selected artifact without claiming the other partial doapply arms are complete.",
+              "source": {
+                "file": "apply.c",
+                "branch": "After getobj returns a selected artifact, doapply calls retouch_object(&obj,FALSE) before testing WAND_CLASS, SPBOOK_CLASS, COIN_CLASS or the type switch. If touch_artifact rejects it, doapply returns ECMD_TIME; otherwise it continues with the possibly updated object. For a neutral Wizard using chaotic Grimtooth, artifact.c:touch_artifact checks bad alignment and may blast the hero before doapply resumes.",
+                "functions": [
+                  "doapply"
+                ],
+                "callers": [
+                  "cmd.c command a dispatches apply.c:doapply; js/apply.js:doapply stops on obj.oartifact rather than calling the existing js/artifacts.js:retouch_object."
+                ],
+                "dependencies": [
+                  "artifact.c:retouch_object and touch_artifact already have JavaScript implementations; verify the consumed Boolean, possible object replacement, alignment blast, damage and RNG order against source.",
+                  "doapply remains a partially ported whole function; this divergence fix changes its common artifact preflight before existing class/type dispatch, leaving unrelated named source gaps intact."
+                ]
+              },
+              "goalKind": "divergence-fix",
+              "evidence": [
+                "Saved v10 evaluation challenges/evaluations/20260928193155-v10.json at 25d85b45c96aa0f05ae7e9dcc1dc6ea286fa13de still stops at step 15 before artifact retouch; recording SHA-256 9856f04cbc5c27a13ac0ca83cdcf1920101252ff1ef0ee6524a965777ad09aa3.",
+                "Upstream apply.c:4224-4235 calls retouch_object(&obj,FALSE) for every chosen object before class dispatch and consumes its Boolean return. artifact.c:2508-2591 and 908-976 define the existing callee and touch behavior.",
+                "js/apply.js refuses artifacts before this source call; js/artifacts.js already exports retouch_object and touch_artifact. The independent recipe wishes Grimtooth then applies it as a neutral Wizard."
+              ]
+            }
+          }
+        }
+      ]
     }
   ]
 }
