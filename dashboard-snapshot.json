@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "capturedAt": "2026-09-28T04:11:29.657Z",
+  "capturedAt": "2026-09-28T06:18:09.078Z",
   "activity": {
     "runId": "loop-20260925",
     "events": [
@@ -6730,12 +6730,136 @@
         "type": "accepted",
         "at": "2026-09-28T04:11:19.323Z",
         "task": "C30"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "publish-C30-4a631568-20260928",
+        "type": "published",
+        "at": "2026-09-28T04:13:16.660Z",
+        "task": "C30",
+        "commit": "4a6315680dc0ebd276f1c57e97241fce8ee89aef"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "assign-C31-charging-20260928",
+        "type": "assign",
+        "at": "2026-09-28T04:19:12.896Z",
+        "task": "C31",
+        "worker": "C",
+        "goal": "port-read-charging-synthetic-v9-20260928",
+        "kind": "implementation"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "assign-B38-potion-effects-20260928",
+        "type": "assign",
+        "at": "2026-09-28T04:19:32.839Z",
+        "task": "B38",
+        "worker": "B",
+        "goal": "port-potion-hallucination-water-synthetic-v9-20260928",
+        "kind": "implementation"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-60ecaaae8ef2ff4ac37a2f8755ea80514427972a",
+        "type": "ready",
+        "at": "2026-09-28T05:25:34.445Z",
+        "task": "A38",
+        "delivery": "60ecaaae8ef2ff4ac37a2f8755ea80514427972a"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "received-A38-60ecaaae-20260928",
+        "type": "received",
+        "at": "2026-09-28T05:26:14.828Z",
+        "task": "A38",
+        "delivery": "60ecaaae8ef2ff4ac37a2f8755ea80514427972a"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "integrating-A38-0ad1813e-20260928",
+        "type": "integrating",
+        "at": "2026-09-28T05:28:45.386Z",
+        "task": "A38",
+        "integration": "0ad1813eb7d516bad03ecf020442a374ae6e8d11"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "A38-validated-0ad1813",
+        "type": "validated",
+        "at": "2026-09-28T05:42:38.366Z",
+        "task": "A38",
+        "passed": true
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "A38-accepted-0ad1813",
+        "type": "accepted",
+        "at": "2026-09-28T05:42:43.017Z",
+        "task": "A38"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "A38-published-961ce5b2",
+        "type": "published",
+        "at": "2026-09-28T05:46:13.024Z",
+        "task": "A38",
+        "commit": "961ce5b2ed3a130cd9155f353939560c759dc916"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "A39-assign-6f27f85f",
+        "type": "assign",
+        "at": "2026-09-28T05:53:00.192Z",
+        "task": "A39",
+        "worker": "A",
+        "goal": "port-apply-whistle-family-synthetic-v8-20260928",
+        "kind": "implementation"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-a119722c2b166b898919f59bf2210971ac9de26c",
+        "type": "ready",
+        "at": "2026-09-28T06:00:51.572Z",
+        "task": "B38",
+        "delivery": "a119722c2b166b898919f59bf2210971ac9de26c"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "B38-received-a119722c",
+        "type": "received",
+        "at": "2026-09-28T06:01:57.742Z",
+        "task": "B38",
+        "delivery": "a119722c2b166b898919f59bf2210971ac9de26c"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "B38-integrating-533d1447",
+        "type": "integrating",
+        "at": "2026-09-28T06:03:41.630Z",
+        "task": "B38",
+        "integration": "533d144713ebda5784bfbde54c648abde78b7883"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "B38-validated-533d1447",
+        "type": "validated",
+        "at": "2026-09-28T06:17:56.795Z",
+        "task": "B38",
+        "passed": true
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "B38-accepted-533d1447",
+        "type": "accepted",
+        "at": "2026-09-28T06:17:57.224Z",
+        "task": "B38"
       }
     ]
   },
   "development": {
-    "executionCommit": "8a92f8faba9bf438288fc394e610c10c2884c84a",
-    "measuredAt": "2026-09-28T04:04:20.341Z",
+    "executionCommit": "533d144713ebda5784bfbde54c648abde78b7883",
+    "measuredAt": "2026-09-28T06:11:58.805Z",
     "sessions": [
       {
         "session": "holdout/seed0002-healer-reflection-drummer",

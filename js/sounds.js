@@ -126,6 +126,7 @@ import { night, midnight } from './calendar.js';
 import { on_level } from './dungeon.js';
 import { game } from './gstate.js';
 import { nomul } from './hack.js';
+import { youHear } from './pline.js';
 import {
     decodeUtf8ByteString,
     encodeUtf8ByteString,
@@ -440,7 +441,8 @@ async function barracksMonSound(state, hallu, { random, pline }) {
 }
 
 async function hear(message, state, pline) {
-    await pline(`You hear ${message}`, state);
+    const line = youHear(message, state);
+    if (line) await pline(line, state);
 }
 
 const TEMPLE_MESSAGES = Object.freeze([

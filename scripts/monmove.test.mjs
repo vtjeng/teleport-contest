@@ -827,7 +827,7 @@ test('postmov fires an arrow trap and drops its missed missile', async () => {
 // rnl(5) gates can draw.
 //
 // Only the random half is reachable from here. postmov() supplies message,
-// redraw, heroDeaf, mInAir and youHear itself (js/monmove.js:2392-2398), so
+// redraw, heroDeaf, mInAir and youHear itself (js/pline.js), so
 // mintrap()'s owner loop answers to a direct caller rather than to this path;
 // scripts/monster-dart-trap.test.mjs owns that half.
 test('postmov proves a trap\'s random set before the first write or draw',
