@@ -101155,6 +101155,49 @@
           "evaluationCommit": "83eadf8bad622d06795bd8bcaa965a569607654f"
         }
       }
+    },
+    {
+      "id": "port-potion-gain-energy-synthetic-v9-20260927",
+      "kind": "file-port",
+      "status": "queued",
+      "summary": "Port the complete gain-energy potion effect and quaff dispatch",
+      "cFile": "potion.c",
+      "sessions": [
+        "synthetic/v9/gain-energy-potion-restores-energy"
+      ],
+      "selectionReason": "The v9 gain-energy potion case is an independently assignable source-traced mismatch at the POT_GAIN_ENERGY dispatch; read.c identify and dig.c occupations are reserved by other workers. Investigation: investigations/synthetic/v9/gain-energy-potion-restores-energy.json.",
+      "detail": "Translate potion.c:peffect_gain_energy and its peffects dispatch in C order across blessed, ordinary, and cursed rolls, max/current/peak energy state, status refresh, and wisdom exercise. Cover active quaff entry paths with independent C recordings.",
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": null,
+      "delivered": null,
+      "functions": [
+        {
+          "name": "peffect_gain_energy",
+          "line": 1224,
+          "endLine": 1259,
+          "declared": false,
+          "complete": false
+        }
+      ],
+      "range": {
+        "from": 1224,
+        "to": 1259
+      },
+      "syntheticProvenance": {
+        "synthetic/v9/gain-energy-potion-restores-energy": {
+          "session": "synthetic/v9/gain-energy-potion-restores-energy",
+          "corpus": "synthetic",
+          "batch": "v9",
+          "caseId": "gain-energy-potion-restores-energy",
+          "manifestPath": "challenges/manifests/v9.json",
+          "manifestSha256": "00c148aac522e6343c8de0bd003db29771439f972a99cb18c772ebf2bc45a594",
+          "recordingPath": "challenges/cases/v9/gain-energy-potion-restores-energy.session.json",
+          "recordingSha256": "b8b34f66e98b05d3691ad60ce73d294e9a678a96ad77bec6cb07df505c3fd8e8",
+          "evaluationPath": "challenges/evaluations/20260928023415-v9.json",
+          "evaluationCommit": "18c2156b8bca0c7f7d09dee7e054416b96da162b"
+        }
+      }
     }
   ]
 }
