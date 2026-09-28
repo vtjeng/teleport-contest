@@ -1,6 +1,6 @@
 {
   "version": 5,
-  "_comment": "Blocked independent detect.c trap-map recipe. This reaches detect.c:display_trap_map, whose C source calls the unported void detect.c:browse_map; strict C/JS comparison diverges when C opens farlook browsing after the trap map.",
+  "_comment": "Independent detect.c trap-map recipe. C29's source-aligned browse_map support now lets this route reach trap_detect() -> display_trap_map() -> sense_trap() and complete the farlook browse; its matching C recording is crystal-ball-trap-map-c29-independent.session.json.",
   "segments": [
     {
       "seed": 81140267,

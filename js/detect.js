@@ -23,6 +23,8 @@ import {
     D_TRAPPED,
     ECMD_OK,
     ECMD_TIME,
+    FOOT,
+    NOSE,
     GPCOORDS_COMFULL,
     GPCOORDS_COMPASS,
     GPCOORDS_MAP,
@@ -52,10 +54,15 @@ import {
     STATUE_TRAP,
     TER_MAP,
     TER_MON,
+    TER_OBJ,
+    TER_TRP,
     TER_DETECT,
     TRAPPED_CHEST,
     TRAPPED_DOOR,
     TOE,
+    ARTICLE_THE,
+    ARTICLE_YOUR,
+    SUPPRESS_SADDLE,
     Never_mind,
     quitchars,
     Has_contents,
@@ -124,6 +131,7 @@ import { losehp, nomul } from './hack.js';
 import { hides_under, is_hider, resists_blnd } from './mondata.js';
 import {
     NUMMONS,
+    PM_GOLD_GOLEM,
     PM_LONG_WORM,
     PM_TENGU,
     S_EEL,
@@ -135,7 +143,7 @@ import { m_at } from './monst.js';
 // seemimic() is the mon.c owner; display.c supplies only the glyph/display
 // helpers it calls.
 import { seemimic as monSeemimic } from './mon.js';
-import { a_monnam, hcolor, y_monnam } from './do_name.js';
+import { a_monnam, hcolor, x_monnam, y_monnam } from './do_name.js';
 import { xnameFresh, Tobjnam, the } from './objnam.js';
 import { discover_object, observe_object } from './o_init.js';
 import {
@@ -147,20 +155,23 @@ import {
 import { poly_gender } from './polyself.js';
 import { body_part } from './polyself.js';
 import { is_quest_artifact } from './questpgr.js';
-import { consume_obj_charge, useup } from './invent.js';
+import { consume_obj_charge, currency, money_cnt, useup } from './invent.js';
 import { findgold } from './steal.js';
 import { makeplural } from './fruit.js';
 import { note_unported } from './unported.js';
-import { isBox, sobj_at } from './obj.js';
+import { isBox, objectType, sobj_at } from './obj.js';
 import {
     CHEST,
     COIN_CLASS,
     CRYSTAL_BALL,
+    FIRST_OBJECT,
+    FOOD_CLASS,
     GOLD,
     GOLD_PIECE,
     LARGE_BOX,
     LENSES,
     MAXOCLASSES,
+    NUM_OBJECTS,
     POTION_CLASS,
     ROCK_CLASS,
     SCROLL_CLASS,
@@ -168,6 +179,8 @@ import {
 } from './objects.js';
 import { visible_region_at } from './region.js';
 import { rn2, rnd, rnl } from './rng.js';
+import { hidden_gold } from './vault.js';
+import { s_suffix } from './hacklib.js';
 import {
     MAXMCLASSES,
     SYM_OFF_M,
@@ -363,8 +376,6 @@ export function reveal_terrain_getglyph(
 export async function browse_map(
     terTyp, terExplain, state = game,
 ) {
-    if (terTyp !== TER_MAP && terTyp !== (TER_DETECT | TER_MON))
-        throw new UnsupportedSearchError('terrain browse subset');
     if (state !== game)
         throw new TypeError('browse_map() redraws the global game');
 
@@ -492,6 +503,298 @@ function clear_stale_map(oclass, material, state = game) {
         }
     }
     return changeMade;
+}
+
+// C ref: detect.c gold_detect() (335-477). Detection state is the global
+// gk.known flag and the displayed object glyphs; the temporary gold stack
+// represents a monster's carried gold exactly as C's local `gold` does.
+export async function gold_detect(scroll, state = game) {
+    const floorObjects = state.level?.objlist ?? null;
+    const monsters = state.level?.monlist ?? null;
+    const stale = clear_stale_map(
+        COIN_CLASS, scroll.blessed ? GOLD : 0, state,
+    );
+    state.gk ??= {};
+    state.gk.known = stale;
+    let goldUnderHero = false;
+    let steedGold = false;
+    let showMap = false;
+
+    // C scans monster inventories first and exits as soon as gold away from
+    // the steed is found. A steed carrying gold is remembered for the later
+    // "interested in your financial situation" feedback instead.
+    for (let monster = monsters; monster; monster = monster.nmon) {
+        if (monster.mhp < 1 || (monster.isgd && !monster.mx)) continue;
+        const carriesGold = findgold(monster.minvent)
+            || monster.data?.pmidx === PM_GOLD_GOLEM;
+        if (carriesGold) {
+            if (monster === state.u.usteed) {
+                steedGold = true;
+            } else {
+                state.gk.known = true;
+                showMap = true;
+                break;
+            }
+        } else {
+            for (let obj = monster.minvent; obj; obj = obj.nobj) {
+                if ((scroll.blessed && o_material(obj, GOLD, state))
+                    || o_in(obj, COIN_CLASS, state)) {
+                    if (monster === state.u.usteed) {
+                        steedGold = true;
+                    } else {
+                        state.gk.known = true;
+                        showMap = true;
+                        break;
+                    }
+                }
+            }
+            if (showMap) break;
+        }
+    }
+
+    // C's two conditions assign `temp` on each object: a blessed gold
+    // material match takes priority, otherwise the first contained coin does.
+    if (!showMap) {
+        for (let obj = floorObjects; obj; obj = obj.nobj) {
+            if (scroll.blessed && o_material(obj, GOLD, state)) {
+                state.gk.known = true;
+                if (obj.ox !== state.u.ux || obj.oy !== state.u.uy) {
+                    showMap = true;
+                    break;
+                }
+            } else if (o_in(obj, COIN_CLASS, state)) {
+                state.gk.known = true;
+                if (obj.ox !== state.u.ux || obj.oy !== state.u.uy) {
+                    showMap = true;
+                    break;
+                }
+            }
+        }
+    }
+
+    if (!state.gk.known) {
+        let feeling;
+        if (state.youmonst?.data?.pmidx === PM_GOLD_GOLEM) {
+            feeling = `You feel like a million ${currency(2, state)}!`;
+        } else if (money_cnt(state.invent) || hidden_gold(true, state)) {
+            feeling = 'You feel worried about your future financial situation.';
+        } else if (steedGold) {
+            const article = state.u.usteed.mtame ? ARTICLE_YOUR : ARTICLE_THE;
+            const steedName = x_monnam(
+                state.u.usteed, article, null, SUPPRESS_SADDLE, false, state,
+            );
+            feeling = `You feel interested in ${s_suffix(steedName)} financial situation.`;
+        } else {
+            feeling = 'You feel materially poor.';
+        }
+        await strange_feeling(scroll, feeling, state);
+        return 1;
+    }
+
+    // This path is reached only when C did not branch to its full map: all
+    // current gold is at the hero/steed square, or only stale map data existed.
+    if (!showMap) {
+        if (stale) await docrt();
+        await ttyPline(
+            `You notice some gold between your ${makeplural(body_part(FOOT, state.youmonst))}.`,
+            state,
+        );
+        return 0;
+    }
+
+    await cls();
+    unconstrain_map(state);
+    for (let obj = floorObjects; obj; obj = obj.nobj) {
+        let temp = scroll.blessed ? o_material(obj, GOLD, state) : null;
+        if (temp) {
+            if (temp !== obj) {
+                temp.ox = obj.ox;
+                temp.oy = obj.oy;
+            }
+            map_object(temp, 1, state);
+        } else {
+            temp = o_in(obj, COIN_CLASS, state);
+            if (temp) {
+                if (temp !== obj) {
+                    temp.ox = obj.ox;
+                    temp.oy = obj.oy;
+                }
+                map_object(temp, 1, state);
+            }
+        }
+        if (temp && u_at(temp.ox, temp.oy, state)) goldUnderHero = true;
+    }
+
+    for (let monster = monsters; monster; monster = monster.nmon) {
+        if (monster.mhp < 1 || (monster.isgd && !monster.mx)) continue;
+        let temp = null;
+        if (findgold(monster.minvent)
+            || monster.data?.pmidx === PM_GOLD_GOLEM) {
+            temp = {
+                ...state.zeroobj,
+                otyp: GOLD_PIECE,
+                quan: rnd(10),
+                ox: monster.mx,
+                oy: monster.my,
+            };
+            map_object(temp, 1, state);
+        } else {
+            for (let obj = monster.minvent; obj; obj = obj.nobj) {
+                temp = scroll.blessed ? o_material(obj, GOLD, state) : null;
+                if (temp) {
+                    temp.ox = monster.mx;
+                    temp.oy = monster.my;
+                    map_object(temp, 1, state);
+                    break;
+                }
+                temp = o_in(obj, COIN_CLASS, state);
+                if (temp) {
+                    temp.ox = monster.mx;
+                    temp.oy = monster.my;
+                    map_object(temp, 1, state);
+                    break;
+                }
+            }
+        }
+        if (temp && u_at(temp.ox, temp.oy, state)) goldUnderHero = true;
+    }
+    let terrainType = TER_DETECT | TER_OBJ;
+    if (!goldUnderHero) {
+        newsym(state.u.ux, state.u.uy);
+        terrainType |= TER_MON;
+    }
+    await ttyPline('You feel very greedy, and sense gold!', state);
+    exercise(A_WIS, true, state, { rn2 });
+    await browse_map(terrainType, 'gold', state);
+    await map_redisplay(state);
+    return 0;
+}
+
+// C ref: detect.c food_detect() (479-601). A map-class scan counts objects,
+// not quantity; ctu distinguishes results at the hero/steed square so the
+// source can choose the no-map, underfoot feedback.
+export async function food_detect(scroll, state = game) {
+    const confused = propertyActiveUnblocked(state.u, CONFUSION)
+        || Boolean(scroll?.cursed);
+    const objectClass = confused ? POTION_CLASS : FOOD_CLASS;
+    const description = confused ? 'something' : 'food';
+    const stale = clear_stale_map(objectClass, 0, state);
+    if (state.u.usteed) {
+        state.u.usteed.mx = state.u.ux;
+        state.u.usteed.my = state.u.uy;
+    }
+
+    let countAway = 0;
+    let countHere = 0;
+    for (let obj = state.level?.objlist ?? null; obj; obj = obj.nobj) {
+        if (!o_in(obj, objectClass, state)) continue;
+        if (u_at(obj.ox, obj.oy, state)) ++countHere;
+        else ++countAway;
+    }
+    for (let monster = state.level?.monlist ?? null;
+        monster && (!countAway || !countHere);
+        monster = monster.nmon) {
+        if (monster.mhp < 1 || (monster.isgd && !monster.mx)) continue;
+        for (let obj = monster.minvent; obj; obj = obj.nobj) {
+            if (!o_in(obj, objectClass, state)) continue;
+            if (u_at(monster.mx, monster.my, state)) ++countHere;
+            else ++countAway;
+            break;
+        }
+    }
+
+    state.gk ??= {};
+    if (!countAway && !countHere) {
+        state.gk.known = stale && !confused;
+        if (stale) {
+            await docrt();
+            await ttyPline(`You sense a lack of ${description} nearby.`, state);
+            if (scroll?.blessed) {
+                if (!state.u.uedibility)
+                    await ttyPline(`Your ${body_part(NOSE, state.youmonst)} starts to tingle.`, state);
+                state.u.uedibility = 1;
+            }
+        } else if (scroll) {
+            const tingles = Boolean(scroll.blessed && !state.u.uedibility);
+            const message = `Your ${body_part(NOSE, state.youmonst)} twitches${tingles ? ' then starts to tingle' : ''}.`;
+            // spelleffects() passes a temporary free spellbook-shaped object;
+            // C's useup() can decrement that local pseudo-object, whereas
+            // JS useup() only extracts actual inventory objects. The caller
+            // frees the pseudo-object after seffects() returns either way.
+            const consumable = scroll.oclass === SPBOOK_CLASS ? null : scroll;
+            if (tingles) {
+                const savedBeginner = state.flags?.beginner;
+                if (state.flags) state.flags.beginner = false;
+                try {
+                    await strange_feeling(consumable, message, state);
+                } finally {
+                    if (state.flags) state.flags.beginner = savedBeginner;
+                }
+                state.u.uedibility = 1;
+            } else {
+                await strange_feeling(consumable, message, state);
+            }
+        }
+        return stale ? 0 : 1;
+    }
+
+    state.gk.known = true;
+    if (!countAway) {
+        await ttyPline(`You ${scroll ? 'smell' : 'sense'} ${description} nearby.`, state);
+        if (scroll?.blessed) {
+            if (!state.u.uedibility)
+                await ttyPline(`Your ${body_part(NOSE, state.youmonst)} starts to tingle.`, state);
+            state.u.uedibility = 1;
+        }
+        return 0;
+    }
+
+    await cls();
+    unconstrain_map(state);
+    for (let obj = state.level?.objlist ?? null; obj; obj = obj.nobj) {
+        const temp = o_in(obj, objectClass, state);
+        if (!temp) continue;
+        if (temp !== obj) {
+            temp.ox = obj.ox;
+            temp.oy = obj.oy;
+        }
+        map_object(temp, 1, state);
+    }
+    for (let monster = state.level?.monlist ?? null;
+        monster; monster = monster.nmon) {
+        if (monster.mhp < 1 || (monster.isgd && !monster.mx)) continue;
+        for (let obj = monster.minvent; obj; obj = obj.nobj) {
+            const temp = o_in(obj, objectClass, state);
+            if (!temp) continue;
+            temp.ox = monster.mx;
+            temp.oy = monster.my;
+            map_object(temp, 1, state);
+            break;
+        }
+    }
+
+    let terrainType = TER_DETECT | TER_OBJ;
+    if (!countHere) {
+        newsym(state.u.ux, state.u.uy);
+        terrainType |= TER_MON;
+    }
+    if (scroll) {
+        if (scroll.blessed) {
+            await ttyPline(
+                `Your ${body_part(NOSE, state.youmonst)} ${state.u.uedibility ? 'continues' : 'starts'} to tingle and you smell ${description}.`,
+                state,
+            );
+            state.u.uedibility = 1;
+        } else {
+            await ttyPline(`Your ${body_part(NOSE, state.youmonst)} tingles and you smell ${description}.`, state);
+        }
+    } else {
+        await ttyPline(`You sense ${description}.`, state);
+    }
+    exercise(A_WIS, true, state, { rn2 });
+    await browse_map(terrainType, 'food', state);
+    await map_redisplay(state);
+    return 0;
 }
 
 // C ref: detect.c observe_recursively() (249-259).
@@ -766,11 +1069,27 @@ const OTRAP_HERE = 1;
 const OTRAP_THERE = 2;
 
 // C refs: detect.c sense_trap()/detect_obj_traps()/display_trap_map()
-// (865-1008). Crystal-ball detection reaches the ordinary, sighted, un-cursed
-// map arm. Hallucinated/cursed fake-object feedback and findone()'s optional
-// collection callback are kept explicit boundaries until their source helpers
-// are included in a task that has matching entry evidence.
+// (865-1008). findone()'s optional collection callback remains an explicit
+// void gap; source-directed map display and fake-object RNG are ported here.
 function sense_trap(trap, x, y, srcCursed, state = game) {
+    if (heroHallucinating(state) || srcCursed) {
+        // display.h random_object(rn2) and random_monster(rn2) are macros;
+        // preserve their draw order around the quantity roll from objects[].
+        const otyp = !heroHallucinating(state)
+            ? GOLD_PIECE
+            : FIRST_OBJECT + rn2(NUM_OBJECTS - FIRST_OBJECT);
+        const obj = {
+            ...state.zeroobj,
+            ox: trap ? trap.tx : x,
+            oy: trap ? trap.ty : y,
+            otyp,
+            quan: otyp === GOLD_PIECE ? rnd(10)
+                : objectType(otyp, state).oc_merge ? rnd(2) : 1,
+            corpsenm: rn2(NUMMONS),
+        };
+        map_object(obj, 1, state);
+        return;
+    }
     if (trap) {
         map_trap(trap, 1, state);
         trap.tseen = true;
@@ -781,12 +1100,6 @@ function sense_trap(trap, x, y, srcCursed, state = game) {
 }
 
 function show_sense_trap(trap, x, y, srcCursed, state = game) {
-    if (heroHallucinating(state) || srcCursed) {
-        // This call is void in C; do not invent the random_object()/
-        // random_monster() result that the fake object requires.
-        note_unported('detect.c sense_trap');
-        return;
-    }
     sense_trap(trap, x, y, srcCursed, state);
 }
 
@@ -852,19 +1165,23 @@ async function display_trap_map(cursedSource, state = game) {
     }
 
     const currentGlyph = glyph_at(state.u.ux, state.u.uy, state);
+    let terrainType = TER_DETECT | (cursedSource ? TER_OBJ : TER_TRP);
     if (!glyph_is_trap(currentGlyph) && !glyph_is_object(currentGlyph)) {
         newsym(state.u.ux, state.u.uy);
+        terrainType |= TER_MON;
     }
     await ttyPline(cursedSource ? 'You feel very greedy.' : 'You feel entrapped.', state);
-    // C browses all detector map types here. The existing browse_map port is
-    // intentionally narrower, and its result is void at this source site.
-    note_unported('detect.c browse_map');
+    await browse_map(
+        terrainType,
+        cursedSource ? 'gold' : 'trap of interest',
+        state,
+    );
     await map_redisplay(state);
 }
 
 // C ref: detect.c trap_detect() (1011-1086); its 1/0 result is consumed by
 // use_crystal_ball().
-async function trap_detect(sobj = null, state = game) {
+export async function trap_detect(sobj = null, state = game) {
     let found = false;
     const traps = state.level?.traps ?? [];
     const cursedSource = Boolean(sobj?.cursed);
@@ -914,7 +1231,7 @@ async function trap_detect(sobj = null, state = game) {
     }
     if (!found) {
         const message = `Your ${makeplural(body_part(TOE, state.youmonst))} stop itching.`;
-        await strange_feeling(null, message, state);
+        await strange_feeling(sobj, message, state);
         return 1;
     }
     await ttyPline(

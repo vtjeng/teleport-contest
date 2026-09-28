@@ -1385,6 +1385,7 @@ export async function spelleffects(spell_otyp, atme, force, state = game,
     // after granting the blessed-scroll equivalent at Skilled or Expert skill.
     case SPE_CAUSE_FEAR:
     case SPE_CHARM_MONSTER:
+    case SPE_DETECT_FOOD:
         if (role_skill >= P_SKILLED)
             pseudo.blessed = 1;
         await seffects(pseudo, state);
