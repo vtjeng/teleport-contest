@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 9175225,
+      "datetime": "20350407130530",
+      "nethackrc": "OPTIONS=name:DigPit3,role:Archeologist,race:human,gender:male,align:neutral,!legacy,!tutorial,!splash_screen\n",
+      "moves": " h ae  >......"
+    }
+  ],
+  "comment": "Independent ordinary-game B37 down-dig witness: dismiss the welcome pager, move one tile west off the visible descent tile, apply the starting pick-axe, clear the wield/auto-apply messages, select down, and let the occupation reach the pit. The strict C/JavaScript replay reaches dig.c:dig and dig.c:dighole."
+}
