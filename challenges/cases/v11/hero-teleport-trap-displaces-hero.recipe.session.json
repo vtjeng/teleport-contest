@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent C-first v11 hero teleportation-trap case. A Wizard leaves the upstairs square, wishes a teleportation trap on ordinary floor, steps onto it, and records the trap activation and relocation.",
+  "segments": [
+    {
+      "seed": 71844021,
+      "datetime": "20421104091508",
+      "nethackrc": "OPTIONS=name:V11TeleTrap,role:Wizard,race=human,gender=female,align=neutral,playmode=debug,!legacy,!tutorial,!splash_screen,showexp,time,pettype:none,!autopickup,!acoustics\n",
+      "moves": " h\u0017teleportation trap\nlh."
+    }
+  ]
+}

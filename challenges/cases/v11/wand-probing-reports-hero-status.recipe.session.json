@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent C-first v11 WAN_PROBING self-target case. The Wizard wishes a wand of probing, zaps it, and targets self to exercise probe_monster’s hero-status report branch; C reports the Wizard’s current status.",
+  "segments": [
+    {
+      "seed": 71844022,
+      "datetime": "20421105091508",
+      "nethackrc": "OPTIONS=name:V11Probe,role:Wizard,race=human,gender=female,align=neutral,playmode=debug,!legacy,!tutorial,!splash_screen,showexp,time,pettype:none,!autopickup,!acoustics\n",
+      "moves": " \u0017wand of probing\nzp."
+    }
+  ]
+}

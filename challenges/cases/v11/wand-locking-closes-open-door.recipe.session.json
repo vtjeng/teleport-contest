@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent C-first v11 wand-locking door mission. A Wizard creates an open door on a wall tile, steps away from it, wishes a wand of locking, and zaps back at the door to observe the WAN_LOCKING door branch.",
+  "segments": [
+    {
+      "seed": 71844023,
+      "datetime": "20421106091508",
+      "nethackrc": "OPTIONS=name:V11DoorLock,role:Wizard,race=human,gender=female,align=neutral,playmode=debug,!legacy,!tutorial,!splash_screen,showexp,time,pettype:none,!autopickup,!acoustics\n",
+      "moves": " h\u0017wall\n \u0017open door\nl \u0017wand of locking\nzoh"
+    }
+  ]
+}
