@@ -7,9 +7,9 @@ import { ACH_TUNE, A_WIS, DB_EAST, DB_NORTH, DB_SOUTH, DB_WEST, DBWALL, DEAF,
 import { find_drawbridge, is_db_wall, is_drawbridge_wall } from '../js/dbridge.js';
 import { game } from '../js/gstate.js';
 import { runSegment } from '../js/jsmain.js';
-import { awaken_monsters, awaken_scare, do_improvisation, do_play_instrument,
+import { awaken_monsters, awaken_scare, awaken_soldiers, do_improvisation, do_play_instrument,
     generic_lvl_desc, improvised_notes, put_monsters_to_sleep } from '../js/music.js';
-import { PM_GRID_BUG, PM_LICHEN } from '../js/monsters.js';
+import { PM_GUARD, PM_GRID_BUG, PM_LICHEN, PM_SOLDIER } from '../js/monsters.js';
 import { DRUM_OF_EARTHQUAKE, LEATHER_DRUM, TOOL_CLASS, WOODEN_FLUTE } from '../js/objects.js';
 
 // Fixed fixture seed, selected before inspection; these source-pinned tests
@@ -118,6 +118,109 @@ test('awaken_monsters uses the live monster chain and strict squared ranges', as
     assert.equal(Boolean(wakeOnly.mflee), false);
     assert.equal(far.msleeping, true);
     assert.equal(dead.msleeping, true);
+});
+
+test('awaken_soldiers wakes every non-guard mercenary and uses strict squared range for others', async () => {
+    const state = await startedGame();
+    state.u.ulevel = 1;
+    const soldier = monster(state, {
+        data: state.mons[PM_SOLDIER],
+        mx: state.u.ux + 20,
+        mpeaceful: true,
+        mtame: 0,
+        msleeping: true,
+        mfrozen: 8,
+        mcanmove: false,
+        mstrategy: STRAT_WAITMASK | 0x100,
+    });
+    const guard = monster(state, {
+        data: state.mons[PM_GUARD],
+        mx: state.u.ux + 5,
+        msleeping: true,
+        mfrozen: 8,
+        mcanmove: false,
+        mstrategy: STRAT_WAITMASK | 0x200,
+    });
+    const nearby = monster(state, {
+        mx: state.u.ux + 4,
+        msleeping: true,
+        mfrozen: 8,
+        mcanmove: false,
+    });
+    const outside = monster(state, {
+        mx: state.u.ux + 6,
+        msleeping: true,
+        mfrozen: 8,
+        mcanmove: false,
+    });
+    const dead = monster(state, {
+        data: state.mons[PM_SOLDIER],
+        mhp: 0,
+        msleeping: true,
+        mfrozen: 8,
+        mcanmove: false,
+    });
+    soldier.nmon = guard;
+    guard.nmon = nearby;
+    nearby.nmon = outside;
+    outside.nmon = dead;
+    state.level.monlist = soldier;
+    const messages = [];
+    const noDraws = scripted([]);
+
+    await awaken_soldiers(state.youmonst, state, {
+        random: noDraws.random,
+        canSeeMonster: subject => subject === soldier,
+        message: line => messages.push(line),
+        norep: line => messages.push(`NOREP:${line}`),
+    });
+
+    noDraws.finished();
+    assert.equal(messages.length, 1);
+    assert.match(messages[0], /is now ready for battle!$/u);
+    assert.deepEqual(
+        [soldier.mpeaceful, soldier.msleeping, soldier.mfrozen,
+            soldier.mcanmove, soldier.mstrategy],
+        [false, 0, 0, 1, 0x100],
+    );
+    assert.deepEqual(
+        [guard.msleeping, guard.mfrozen, guard.mcanmove, guard.mstrategy],
+        [0, 0, 1, 0x200],
+    );
+    assert.deepEqual([nearby.msleeping, nearby.mfrozen, nearby.mcanmove], [0, 0, 1]);
+    assert.deepEqual([outside.msleeping, outside.mfrozen, outside.mcanmove], [true, 8, false]);
+    assert.deepEqual([dead.msleeping, dead.mfrozen, dead.mcanmove], [true, 8, false]);
+});
+
+test('awaken_soldiers uses deaf-aware no-repeat feedback for unseen mercenaries', async () => {
+    const state = await startedGame();
+    const soldier = monster(state, {
+        data: state.mons[PM_SOLDIER],
+        mpeaceful: true,
+        mtame: 0,
+        msleeping: true,
+        mfrozen: 4,
+        mcanmove: false,
+    });
+    state.level.monlist = soldier;
+    const heard = [];
+    await awaken_soldiers(state.youmonst, state, {
+        canSeeMonster: () => false,
+        message: line => heard.push(line),
+        norep: line => heard.push(line),
+    });
+    assert.deepEqual(heard, ['You hear the rattle of battle gear being readied.']);
+    assert.deepEqual([soldier.mpeaceful, soldier.msleeping, soldier.mfrozen, soldier.mcanmove],
+        [false, 0, 0, 1]);
+
+    state.u.uprops[DEAF].intrinsic = 1;
+    heard.length = 0;
+    await awaken_soldiers(state.youmonst, state, {
+        canSeeMonster: () => false,
+        message: line => heard.push(line),
+        norep: line => heard.push(line),
+    });
+    assert.deepEqual(heard, []);
 });
 
 test('put_monsters_to_sleep skips dead and out-of-range monsters and consumes sleep_monst result', async () => {
