@@ -108088,7 +108088,7 @@
     {
       "id": "port-apply-break-wand-synthetic-v10-20260928",
       "kind": "file-port",
-      "status": "open",
+      "status": "parked",
       "summary": "Port wand-breaking apply behavior from source",
       "cFile": "apply.c",
       "sessions": [
@@ -108109,29 +108109,29 @@
           "name": "discard_broken_wand",
           "line": 3876,
           "endLine": 3887,
-          "declared": false,
-          "complete": false
+          "declared": true,
+          "complete": true
         },
         {
           "name": "broken_wand_explode",
           "line": 3888,
           "endLine": 3896,
-          "declared": false,
-          "complete": false
+          "declared": true,
+          "complete": true
         },
         {
           "name": "maybe_dunk_boulders",
           "line": 3897,
           "endLine": 3908,
-          "declared": false,
+          "declared": true,
           "complete": false
         },
         {
           "name": "do_break_wand",
           "line": 3909,
           "endLine": 4150,
-          "declared": false,
-          "complete": false
+          "declared": true,
+          "complete": true
         }
       ],
       "range": {
@@ -108301,7 +108301,141 @@
             }
           }
         }
-      ]
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "discard_broken_wand",
+            "implementation": "js/apply.js",
+            "symbol": "discard_broken_wand",
+            "sourceReview": "Read apply.c:discard_broken_wand() (3880-3890) in full. Clear gc.current_wand, delete that object from inventory, and clear multi-turn state in C order. The JS current_wand field is the single home for C gc.current_wand.",
+            "callers": [
+              {
+                "path": "js/apply.js",
+                "symbol": "do_break_wand",
+                "source": "apply.c:do_break_wand() calls discard_broken_wand() at no-charge/no-effect exits, after WAN_OPENING release, and after the shared explosion tail"
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/apply-break-wand.test.mjs"
+            ],
+            "recordings": [
+              "recordings/apply.c/broken-charged-wand-of-nothing-independent-b45.session.json",
+              "recordings/apply.c/broken-light-wand-independent-b45.session.json"
+            ],
+            "checkedAt": "25d85b45c96aa0f05ae7e9dcc1dc6ea286fa13de"
+          },
+          {
+            "name": "broken_wand_explode",
+            "implementation": "js/apply.js",
+            "symbol": "broken_wand_explode",
+            "sourceReview": "Read apply.c:broken_wand_explode() (3892-3900) in full. It calls explode() with the hero square, negative wand type, damage, WAND_CLASS, and the source explosion type; then discovers the wand and discards it. The WAN_LIGHT recording checks the magical explosion and post-explosion callback order.",
+            "callers": [
+              {
+                "path": "js/apply.js",
+                "symbol": "do_break_wand",
+                "source": "apply.c:do_break_wand() calls broken_wand_explode() for WAN_DEATH, WAN_LIGHTNING, WAN_FIRE, WAN_COLD, and WAN_MAGIC_MISSILE"
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/apply-break-wand.test.mjs"
+            ],
+            "recordings": [
+              "recordings/apply.c/broken-light-wand-independent-b45.session.json"
+            ],
+            "checkedAt": "25d85b45c96aa0f05ae7e9dcc1dc6ea286fa13de"
+          },
+          {
+            "name": "do_break_wand",
+            "implementation": "js/apply.js",
+            "symbol": "do_break_wand",
+            "sourceReview": "Read apply.c:do_break_wand() (3913-4147) in full. Preserve the hand/strength/confirmation gates, object removal and current_wand lifecycle, zappable() return handling and charge restoration, type switch and fallthrough, the eight-neighbor-plus-hero order, explosion and target effects, zapwrapup(), shop handling, litroom(TRUE,obj), and final discard. WAN_LIGHT now calls the accepted C37 port read.c:litroom(true,obj,state) after zapwrapup and shop handling. C-discarded void gaps remain source-named: dig.c:liquid_flow, dig.c:digactualhole, shk.c:pay_for_damage, plus mhitu.c:expels(TRUE) through the existing zap.c:release_hold swallowed branch. The WAN_DIGGING active route remains unverified because strict JS replay stops at dig.c:digactualhole before the helper tail.",
+            "callers": [
+              {
+                "path": "js/apply.js",
+                "symbol": "doapply",
+                "source": "apply.c:doapply() dispatches WAND_CLASS objects to do_break_wand()"
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/apply-break-wand.test.mjs",
+              "scripts/apply.test.mjs"
+            ],
+            "recordings": [
+              "recordings/apply.c/broken-charged-wand-of-nothing-independent-b45.session.json",
+              "recordings/apply.c/broken-light-wand-independent-b45.session.json"
+            ],
+            "checkedAt": "25d85b45c96aa0f05ae7e9dcc1dc6ea286fa13de"
+          }
+        ],
+        "entryPointReview": "The main active production entry is the hero #apply command: apply.c:doapply() dispatches a WAND_CLASS object to apply.c:do_break_wand(). Strict independent records cover a charged WAN_NOTHING and WAN_LIGHT through the command and their source callbacks; the light record also covers broken_wand_explode(), explode(), the corrected shield glyph mapping, and the C37 litroom() call. Other wand type arms are source-ordered in do_break_wand(), but their individual branches are not claimed by those two recordings. A second active caller is trap.c:trapeffect_landmine() -> trap.c:blow_up_landmine() -> apply.c:maybe_dunk_boulders(); the existing hero and monster landmine recordings exercise its ordinary pit/ROOM path. The active WAN_DIGGING route is not replay-verified: its C trace reaches the wand loop while JS skips the unported void dig.c:digactualhole(), so recipes/apply.c/broken-wand-of-digging-maybe-dunk-independent-b45.session.json is blocked. The positive boulder/pool branch is likewise not passing evidence: its cache-only C trace reaches boulder_hits_pool(), but JS diverges earlier in zap.c:makewish() while wishing the pool; the attempt is kept only in .cache/B45-attempts. The bounded liquid landmine C setup only produced a dropped boulder and a pool, never a mine; its cache-only trace is not evidence. If that route is reached, trap.c:blow_up_landmine() calls the unported void dig.c:liquid_flow() before maybe_dunk_boulders(). The B45 doapply caller still has a separate artifact preflight gap: apply.c:doapply() calls retouch_object() before WAND_CLASS dispatch, and the Grimtooth artifact route can stop there. Do not claim that artifact route as B45 behavior. zap.c:release_hold() is used for WAN_OPENING; its swallowed expels(TRUE) void gap remains source-named. No blocked or cache-only setup is counted as a passing recording.",
+        "entryPoints": [
+          {
+            "name": "Hero applies a charged WAN_NOTHING through doapply WAND_CLASS dispatch",
+            "functions": [
+              "do_break_wand",
+              "discard_broken_wand"
+            ],
+            "recordings": [
+              "recordings/apply.c/broken-charged-wand-of-nothing-independent-b45.session.json"
+            ],
+            "synthetic": []
+          },
+          {
+            "name": "Hero breaks WAN_LIGHT through doapply WAND_CLASS dispatch and lights the room",
+            "functions": [
+              "do_break_wand",
+              "broken_wand_explode",
+              "discard_broken_wand"
+            ],
+            "recordings": [
+              "recordings/apply.c/broken-light-wand-independent-b45.session.json"
+            ],
+            "synthetic": []
+          },
+          {
+            "name": "Hero or monster triggers a landmine on ordinary pit/ROOM terrain",
+            "functions": [
+              "maybe_dunk_boulders"
+            ],
+            "recordings": [
+              "recordings/trap.c/landmine-hero-fresh.session.json",
+              "recordings/trap.c/landmine-monster-fresh.session.json"
+            ],
+            "synthetic": []
+          },
+          {
+            "name": "Hero breaks WAN_DIGGING through the maybe_dunk_boulders tail",
+            "functions": [
+              "do_break_wand",
+              "maybe_dunk_boulders"
+            ],
+            "recordings": [],
+            "synthetic": []
+          },
+          {
+            "name": "Hero or monster triggers a landmine whose resulting liquid pit contains a boulder",
+            "functions": [
+              "maybe_dunk_boulders"
+            ],
+            "recordings": [],
+            "synthetic": []
+          }
+        ]
+      },
+      "progressBeforePark": {
+        "screens": 0,
+        "rng": 0
+      },
+      "parkedStanding": {
+        "sha": "25d85b45c96aa0f05ae7e9dcc1dc6ea286fa13de",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "parkedReason": "Three of four selected apply.c functions have verified caller evidence; maybe_dunk_boulders still lacks a strict positive liquid-and-boulder recording. WAN_DIGGING reaches the named dig.c:digactualhole void gap before its helper tail; a pool setup diverges earlier in zap.c:makewish, and liquid landmine setup has not reached a mine (dig.c:liquid_flow remains a void gap). Keep the blocked recipes and return when those source routes are reachable."
     },
     {
       "id": "port-read-remove-curse-synthetic-v10-20260928",

@@ -63,7 +63,7 @@
     "luaFile": null,
     "line": null
   },
-  "summary": "Applying a worn-out wand of nothing reaches the explicit js/apply.js refusal for do_break_wand after 26 matching screens. C apply.c:do_break_wand checks hands, strength and confirmation, removes the wand, then calls zap.c:zappable. For a zero-charge wand, zappable may wrest a final charge; this recording reaches that positive arm and then WAN_NOTHING prints the harmless break result. The missing owner is the whole apply.c:do_break_wand and its doapply dispatch, including its other wand effects and source-ordered consumed dependencies.",
+  "summary": "The former zero-charge wand-of-nothing refusal is resolved: the saved v10 evaluation at 25d85b45 matches all 28 screens, 2682 RNG calls, and 28 cursors. apply.c:do_break_wand and its doapply WAND_CLASS caller now follow the source. The wider source goal remains parked because maybe_dunk_boulders lacks strict positive liquid-and-boulder entry evidence; WAN_DIGGING first encounters the named dig.c:digactualhole gap.",
   "source": {
     "file": "apply.c",
     "branch": "When a Barbarian applies a zero-charge WAN_NOTHING, doapply calls do_break_wand; with hands, a free hand, strength at least ten for the nonfragile wand, and affirmative confirmation, the function removes the wand, calls zappable, restores a successful spent charge, grants rnd(3) if a last wrest returned it to zero, then the WAN_NOTHING switch arm prints that nothing else happens and discards the broken wand. The full function also covers unsuccessful zappable, fragile wand, other wand types, explosions, adjacent targets, objects, hero effects and shop consequences.",
@@ -71,7 +71,7 @@
       "do_break_wand"
     ],
     "callers": [
-      "apply.c:doapply dispatches WAND_CLASS to do_break_wand (4235); js/apply.js:doapply at the WAND_CLASS branch currently throws UnsupportedApplyError."
+      "apply.c:doapply dispatches WAND_CLASS to do_break_wand (4235); js/apply.js:doapply now consumes that source path and the selected WAN_NOTHING case matches exactly."
     ],
     "dependencies": [
       "zap.c:zappable is already ported and its Boolean result and RNG call order must be consumed; the queue annotation names zappable only because the selected C path reaches it.",
@@ -81,8 +81,8 @@
   },
   "goalKind": "file-port",
   "evidence": [
-    "Saved v10 evaluation challenges/evaluations/20260928083103-v10.json matches 26/28 screens and stops at step 26 on the explicit do_break_wand refusal; the immutable C recording challenges/cases/v10/apply-breaks-exhausted-wand-of-nothing.session.json has SHA-256 5333827da7e18b744dabf86bcadaa08e8788fff608c5c33a4e49ab3e12551e90.",
-    "Upstream nethack-c/upstream/src/apply.c:3909-4147 defines the complete do_break_wand function; 3954-3988 calls zappable and handles WAN_NOTHING after restoring the charge. nethack-c/upstream/src/zap.c:2514-2528 defines zappable, already present in js/zap.js:1113.",
-    "js/apply.js:3467-3469 currently refuses every WAND_CLASS application before entering the source function, so a source port must wire that caller. The recipe independently wishes a zero-charge wand of nothing, applies it, and confirms the break."
+    "Original diagnosis: v10 evaluation challenges/evaluations/20260928083103-v10.json matched 26/28 screens and stopped at step 26 on the explicit do_break_wand refusal; C recording SHA-256 5333827da7e18b744dabf86bcadaa08e8788fff608c5c33a4e49ab3e12551e90.",
+    "Current result: challenges/evaluations/20260928193155-v10.json at 25d85b45c96aa0f05ae7e9dcc1dc6ea286fa13de matches the case completely: 28/28 screens and cursors, 2682/2682 RNG calls. Independent WAN_NOTHING and WAN_LIGHT recordings under recordings/apply.c/ match exactly.",
+    "Upstream apply.c:3876-4150 defines the broken-wand family and doapply dispatches WAND_CLASS to it. The source-completion evidence in GOALS.json verifies discard_broken_wand, broken_wand_explode and do_break_wand; maybe_dunk_boulders remains unverified on its positive liquid-and-boulder route. Its WAN_DIGGING recipe is blocked at dig.c:digactualhole, and the pool setup diverges earlier at zap.c:makewish."
   ]
 }
