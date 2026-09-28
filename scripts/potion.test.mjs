@@ -2775,3 +2775,58 @@ test('fruit juice lets newuhs report a hunger-status transition', async () => {
         'This tastes like slime mold juice.  You only feel hungry now.',
     );
 });
+
+test('cursed hallucination potion preserves the timeout RNG and skips enlightenment',
+    async () => {
+        await startedGame(92838001, 'CursedHallucinationB38', 'Wizard');
+        game.u.uprops[HALLUC].intrinsic = 0;
+        game.u.uprops[HALLUC_RES].intrinsic = 0;
+        game.u.uprops[HALLUC_RES].extrinsic = 0;
+        const potion = vaporPotion(POT_HALLUCINATION);
+        potion.cursed = true;
+        clearTopline();
+        enableRngLog();
+
+        assert.equal(await peffects(potion, game), -1);
+        const draws = getRngLog();
+        // rn1(x,y) is recorded through its source definition as rn2(x)+y.
+        assert.match(draws[0], /^rn2\(200\)=\d+$/u);
+        assert.equal(draws.length, 1,
+            'the cursed || arm short-circuits both optional-message draws');
+        assert.ok(game.u.uprops[HALLUC].intrinsic > 0);
+    });
+
+test('neutral water adds the source rnd(10) nutrition before newuhs',
+    async () => {
+        await startedGame(92838002, 'NeutralWaterB38');
+        game.u.uhunger = 900;
+        game.u.uhs = NOT_HUNGRY;
+        const potion = vaporPotion(POT_WATER);
+        clearTopline();
+        enableRngLog();
+
+        assert.equal(await peffects(potion, game), -1);
+        assert.match(toplines(), /^This tastes like water\./u);
+        assert.deepEqual(getRngLog().map((entry) => entry.match(/^([^=]+)/u)?.[1]),
+            ['rnd(10)']);
+        assert.ok(game.u.uhunger > 900 && game.u.uhunger <= 910);
+        assert.equal(game.u.uhs, NOT_HUNGRY);
+    });
+
+test('blessed ordinary water selects awe and preserves the BUC counter',
+    async () => {
+        await startedGame(92838003, 'BlessedWaterB38');
+        game.u.ualign.type = 1;
+        game.youmonst.data = game.mons[game.u.umonnum];
+        game.gp.potion_unkn = 0;
+        const potion = vaporPotion(POT_WATER);
+        potion.blessed = true;
+        clearTopline();
+        enableRngLog();
+
+        assert.equal(await peffects(potion, game), -1);
+        assert.match(toplines(), /^You feel full of awe\./u);
+        assert.equal(game.gp.potion_unkn, 1);
+        assert.ok(getRngLog().every((entry) => /^rn2\(19\)=/u.test(entry)),
+            'only exercise() attribute checks draw on this ordinary branch');
+    });

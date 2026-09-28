@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent B38 cursed-water witness. A debug Wizard wishes for a cursed potion of water and quaffs it through #quaff to exercise the cursed ordinary-alignment dread and Constitution exercise branch.",
+  "segments": [
+    {
+      "seed": 92838103,
+      "datetime": "20260928120633",
+      "nethackrc": "OPTIONS=name:WaterCursedB38,role:Wizard,race:human,gender:male,align:neutral,playmode:debug,!legacy,!tutorial,!splash_screen,pettype:none\n",
+      "moves": " \u0017cursed potion of water\nqo"
+    }
+  ]
+}

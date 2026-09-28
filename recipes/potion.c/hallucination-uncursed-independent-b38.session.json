@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent B38 uncursed hallucination potion witness. A debug Wizard wishes for an uncursed potion of hallucination and quaffs it through #quaff to exercise the timeout and optional enlightenment predicate outside the selected case.",
+  "segments": [
+    {
+      "seed": 92838101,
+      "datetime": "20260928120631",
+      "nethackrc": "OPTIONS=name:HallucinationB38,role:Wizard,race:human,gender:male,align:neutral,playmode:debug,!legacy,!tutorial,!splash_screen,pettype:none\n",
+      "moves": " \u0017uncursed potion of hallucination\nqo"
+    }
+  ]
+}
