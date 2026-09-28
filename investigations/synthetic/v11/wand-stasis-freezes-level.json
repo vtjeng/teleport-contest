@@ -1,0 +1,86 @@
+{
+  "session": "synthetic/v11/wand-stasis-freezes-level",
+  "corpus": "synthetic",
+  "batch": "v11",
+  "caseId": "wand-stasis-freezes-level",
+  "manifestPath": "challenges/manifests/v11.json",
+  "manifestSha256": "7b80a66ca2659fab5f6012dfef09f8f1b46fe94a80716d5a8637af3b9e638347",
+  "recordingSha256": "99fd172dd3ce7b4338525776ef1d196f4d9747563cc21fc17f946be34e638eb2",
+  "evaluationPath": "challenges/evaluations/20260928193155-v11.json",
+  "evaluationCommit": "25d85b45c96aa0f05ae7e9dcc1dc6ea286fa13de",
+  "remainingScreens": 1,
+  "recordedSteps": 20,
+  "status": "complete",
+  "commit": "25d85b45c96aa0f05ae7e9dcc1dc6ea286fa13de",
+  "mismatch": {
+    "corpus": "synthetic",
+    "batch": "v11",
+    "caseId": "wand-stasis-freezes-level",
+    "session": "synthetic/v11/wand-stasis-freezes-level",
+    "manifestPath": "challenges/manifests/v11.json",
+    "manifestSha256": "7b80a66ca2659fab5f6012dfef09f8f1b46fe94a80716d5a8637af3b9e638347",
+    "recording": "challenges/cases/v11/wand-stasis-freezes-level.session.json",
+    "recordingPath": "challenges/cases/v11/wand-stasis-freezes-level.session.json",
+    "recordingSha256": "99fd172dd3ce7b4338525776ef1d196f4d9747563cc21fc17f946be34e638eb2",
+    "recipe": "challenges/cases/v11/wand-stasis-freezes-level.recipe.session.json",
+    "recipeSha256": "9522ef9bb0594e12ec8e2e645007ee367407cab66fb2864ce6525669393baf39",
+    "replayInputSha256": "2e33ace5cff6a02a8c669dbcb3ad29e8998091f6f849401f4980d1c4eae6dd6b",
+    "evaluationPath": "challenges/evaluations/20260928193155-v11.json",
+    "evaluationCommit": "25d85b45c96aa0f05ae7e9dcc1dc6ea286fa13de",
+    "evaluationArtifact": "challenges/evaluations/20260928193155-v11.json",
+    "evaluationUtc": "2026-09-28T19:32:13.573Z",
+    "remainingScreens": 1,
+    "recordedSteps": 20,
+    "previousScreensMatched": 19,
+    "regression": false,
+    "passed": false,
+    "error": null,
+    "metrics": {
+      "screens": {
+        "matched": 19,
+        "total": 20
+      },
+      "rng": {
+        "matched": 2790,
+        "total": 2796
+      },
+      "cursors": {
+        "matched": 19,
+        "total": 20
+      }
+    },
+    "firstMismatch": {
+      "kind": "stop",
+      "message": "unsupported hero command: an unported branch of this command: zapping a wand requires zapnodir() for a directionless wand",
+      "step": 19
+    },
+    "step": 19,
+    "kind": "stop",
+    "sourceFile": "zap.c",
+    "function": "zapnodir",
+    "message": "unsupported hero command: an unported branch of this command: zapping a wand requires zapnodir() for a directionless wand",
+    "cFile": "zap.c",
+    "luaFile": null,
+    "line": null
+  },
+  "summary": "Zapping a wand of stasis reaches zap.c:zapnodir WAN_STASIS, which JavaScript currently refuses. C draws rn1(21,10), extends level.flags.stasis_until and leaves the effect visually quiet. Port the whole zapnodir family with the existing single level flag state; keep duration and discovery order source exact.",
+  "source": {
+    "file": "zap.c",
+    "branch": "zap.c:zapnodir WAN_STASIS computes moves+rn1(21,10) and retains the larger value in level.flags.stasis_until, then follows the common discovery tail without an effect message.",
+    "functions": [
+      "zapnodir"
+    ],
+    "callers": [
+      "zap.c:dozap sends a charged NODIR wand through zap.c:weffects to zap.c:zapnodir; js/zap.js:zapnodir currently supports only WAN_CREATE_MONSTER and WAN_SECRET_DOOR_DETECTION."
+    ],
+    "dependencies": [
+      "js/mklev.js initializes level.flags.stasis_until; js/teleport.js and js/apply.js already read this field. Update that one state home as C does."
+    ]
+  },
+  "goalKind": "file-port",
+  "evidence": [
+    "Current saved v11 evaluation challenges/evaluations/20260928193155-v11.json at 25d85b45c96aa0f05ae7e9dcc1dc6ea286fa13de matches 19/20 screens and stops at zero-based step 19: unsupported hero command: an unported branch of this command: zapping a wand requires zapnodir() for a directionless wand. Immutable C recording SHA-256 99fd172dd3ce7b4338525776ef1d196f4d9747563cc21fc17f946be34e638eb2.",
+    "Upstream nethack-c/upstream/src/zap.c:2524-2600 defines do_enlightenment_effect and the complete zapnodir switch; js/zap.js:5181-5206 refuses the selected directionless wand before its source effect.",
+    "The v11 prepared manifest records an independent patched-C rerecord and compares this source branch, state and action history with all v10 cases and unresolved older cases."
+  ]
+}

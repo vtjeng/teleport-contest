@@ -1,0 +1,87 @@
+{
+  "session": "synthetic/v11/wand-wishing-makes-wish",
+  "corpus": "synthetic",
+  "batch": "v11",
+  "caseId": "wand-wishing-makes-wish",
+  "manifestPath": "challenges/manifests/v11.json",
+  "manifestSha256": "7b80a66ca2659fab5f6012dfef09f8f1b46fe94a80716d5a8637af3b9e638347",
+  "recordingSha256": "fe9ecc7ad6c5594b63750b92be8bd751b854443651f2d011a96636051d758474",
+  "evaluationPath": "challenges/evaluations/20260928193155-v11.json",
+  "evaluationCommit": "25d85b45c96aa0f05ae7e9dcc1dc6ea286fa13de",
+  "remainingScreens": 14,
+  "recordedSteps": 35,
+  "status": "complete",
+  "commit": "25d85b45c96aa0f05ae7e9dcc1dc6ea286fa13de",
+  "mismatch": {
+    "corpus": "synthetic",
+    "batch": "v11",
+    "caseId": "wand-wishing-makes-wish",
+    "session": "synthetic/v11/wand-wishing-makes-wish",
+    "manifestPath": "challenges/manifests/v11.json",
+    "manifestSha256": "7b80a66ca2659fab5f6012dfef09f8f1b46fe94a80716d5a8637af3b9e638347",
+    "recording": "challenges/cases/v11/wand-wishing-makes-wish.session.json",
+    "recordingPath": "challenges/cases/v11/wand-wishing-makes-wish.session.json",
+    "recordingSha256": "fe9ecc7ad6c5594b63750b92be8bd751b854443651f2d011a96636051d758474",
+    "recipe": "challenges/cases/v11/wand-wishing-makes-wish.recipe.session.json",
+    "recipeSha256": "70d0f12c6e5026b726c1dd51b604775bda52629b2082514d440e5028e560cbfd",
+    "replayInputSha256": "2e33ace5cff6a02a8c669dbcb3ad29e8998091f6f849401f4980d1c4eae6dd6b",
+    "evaluationPath": "challenges/evaluations/20260928193155-v11.json",
+    "evaluationCommit": "25d85b45c96aa0f05ae7e9dcc1dc6ea286fa13de",
+    "evaluationArtifact": "challenges/evaluations/20260928193155-v11.json",
+    "evaluationUtc": "2026-09-28T19:32:13.573Z",
+    "remainingScreens": 14,
+    "recordedSteps": 35,
+    "previousScreensMatched": 21,
+    "regression": false,
+    "passed": false,
+    "error": null,
+    "metrics": {
+      "screens": {
+        "matched": 21,
+        "total": 35
+      },
+      "rng": {
+        "matched": 2502,
+        "total": 2511
+      },
+      "cursors": {
+        "matched": 21,
+        "total": 35
+      }
+    },
+    "firstMismatch": {
+      "kind": "stop",
+      "message": "unsupported hero command: an unported branch of this command: zapping a wand requires zapnodir() for a directionless wand",
+      "step": 21
+    },
+    "step": 21,
+    "kind": "stop",
+    "sourceFile": "zap.c",
+    "function": "zapnodir",
+    "message": "unsupported hero command: an unported branch of this command: zapping a wand requires zapnodir() for a directionless wand",
+    "cFile": "zap.c",
+    "luaFile": null,
+    "line": null
+  },
+  "summary": "Zapping a wand of wishing reaches zap.c:zapnodir WAN_WISHING, but JavaScript refuses before the rn2(5) Luck gate and makewish prompt. The C case wishes an ordinary food object after zapping; it does not exercise the older Grimtooth artifact-touch behavior. Port the whole zapnodir family and preserve the shared discovery tail and makewish input timing.",
+  "source": {
+    "file": "zap.c",
+    "branch": "zap.c:zapnodir WAN_WISHING draws rn2(5), compares it with Luck, either prints the unlucky failure or calls makewish(), then follows the common discovery tail.",
+    "functions": [
+      "zapnodir"
+    ],
+    "callers": [
+      "zap.c:dozap sends a charged NODIR wand through zap.c:weffects to zap.c:zapnodir; js/zap.js:zapnodir currently supports only WAN_CREATE_MONSTER and WAN_SECRET_DOOR_DETECTION."
+    ],
+    "dependencies": [
+      "zap.c:makewish already exists in js/zap.js; use its production path only after the source Luck gate.",
+      "The C case has a later 14-screen tail; once the initial refusal is removed, re-evaluate the entire session for additional source defects."
+    ]
+  },
+  "goalKind": "file-port",
+  "evidence": [
+    "Current saved v11 evaluation challenges/evaluations/20260928193155-v11.json at 25d85b45c96aa0f05ae7e9dcc1dc6ea286fa13de matches 21/35 screens and stops at zero-based step 21: unsupported hero command: an unported branch of this command: zapping a wand requires zapnodir() for a directionless wand. Immutable C recording SHA-256 fe9ecc7ad6c5594b63750b92be8bd751b854443651f2d011a96636051d758474.",
+    "Upstream nethack-c/upstream/src/zap.c:2524-2600 defines do_enlightenment_effect and the complete zapnodir switch; js/zap.js:5181-5206 refuses the selected directionless wand before its source effect.",
+    "The v11 prepared manifest records an independent patched-C rerecord and compares this source branch, state and action history with all v10 cases and unresolved older cases."
+  ]
+}
