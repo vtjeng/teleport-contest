@@ -470,13 +470,16 @@ test('a carried object lands on the square with its message', async () => {
 test('a grounded blind hero uses the ordinary drop tail', async () => {
     // do.c dropz():836 has a special map_object() call only for the conjunction
     // Blind && Levitation. Grounded blindness reaches place_object(), stackobj()
-    // and newsym() exactly like sighted play; Hallucination and unreachable
-    // floor behavior remain outside that admitted display path.
+    // and newsym() exactly like sighted play; Hallucination remains outside
+    // that admitted display path. An unreachable floor uses hitfloor() and the
+    // impact-drop tail.
     const state = await startedGame();
     let ration = state.invent;
     while (ration && ration.invlet !== 'd') ration = ration.nobj;
     assert.ok(ration, 'the pack has no food ration');
     state.u.uprops[BLINDED].intrinsic = 1;
+    for (let index = 0; index < 8; ++index)
+        state.nhDisplay.pushKey(32);
     assert.equal(await _dropInternals.drop(ration, state), ECMD_TIME);
     assert.equal(pileAt(state, state.u.ux, state.u.uy)[0], ration);
 
@@ -496,9 +499,14 @@ test('a grounded blind hero uses the ordinary drop tail', async () => {
         floatingRation = floatingRation.nobj;
     floating.u.uprops[BLINDED].intrinsic = 1;
     floating.u.uprops[LEVITATION].intrinsic = 1;
-    await assert.rejects(
-        () => _dropInternals.drop(floatingRation, floating),
-        /hitfloor/u,
+    for (let index = 0; index < 8; ++index)
+        floating.nhDisplay.pushKey(32);
+    assert.equal(
+        await _dropInternals.drop(floatingRation, floating), ECMD_TIME,
+    );
+    assert.equal(floatingRation.where, OBJ_FLOOR);
+    assert.equal(
+        pileAt(floating, floating.u.ux, floating.u.uy)[0], floatingRation,
     );
 });
 
@@ -585,7 +593,7 @@ test('a meat ring away from a sink reaches the ordinary drop', async () => {
 
 // C ref: do.c drop() (752-773), dosinkring() (497-661), dropx()/dropz(). A
 // sink intercepts rings but lets ordinary objects reach their normal landing
-// path. The unreachable-floor branch remains a distinct refusal.
+// path. A seen pit exercises the distinct hitfloor()/impact-drop path.
 test('drop runs sink-ring effects and permits ordinary sink-floor drops', async () => {
     // A real started game, so can_reach_floor() has the hero form it needs
     // and levl[][] is the map the port generated.
@@ -611,6 +619,8 @@ test('drop runs sink-ring effects and permits ordinary sink-floor drops', async 
     // do.c:753's two halves: the class, and the one FOOD_CLASS type that is
     // still a ring.
     state.level.at(ux, uy).typ = SINK;
+    for (let index = 0; index < 16; ++index)
+        state.nhDisplay.pushKey(32);
     const ringKnown = state.objects[RIN_SEARCHING].oc_name_known;
     const previousEmptyQueue = state.nhDisplay.onEmptyQueue;
     state.objects[RIN_SEARCHING].oc_name_known = true;
@@ -645,10 +655,9 @@ test('drop runs sink-ring effects and permits ordinary sink-floor drops', async 
     // can_reach_floor()'s checkPit argument changes.
     state.level.at(ux, uy).typ = ROOM;
     state.level.traps.push({ tx: ux, ty: uy, ttyp: PIT, tseen: true });
-    await assert.rejects(
-        () => _dropInternals.drop(plain, state),
-        /hitfloor/u,
-    );
+    assert.equal(await _dropInternals.drop(plain, state), ECMD_TIME);
+    assert.equal(plain.where, OBJ_FLOOR);
+    assert.ok(pileAt(state, ux, uy).includes(plain));
 });
 
 // C ref: invent.c stackobj() (4366-4375) through merged() (814-948). The

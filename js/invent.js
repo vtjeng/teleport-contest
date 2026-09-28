@@ -4894,7 +4894,8 @@ async function gotoDrop(obj, drop_fmt, drop_arg, normalized) {
     } else {
         freeinv(obj, normalized);
         // invent.c:1302 calls dothrow.c:hitfloor() and discards its void result.
-        note_unported('dothrow.c hitfloor');
+        const { hitfloor } = await import('./dothrow.js');
+        await hitfloor(obj, false, normalized.state, normalized);
     }
 }
 

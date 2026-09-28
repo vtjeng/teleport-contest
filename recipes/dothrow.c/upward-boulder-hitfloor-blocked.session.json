@@ -1,6 +1,6 @@
 {
   "version": 5,
-  "comment": "Blocked independent upward non-potion impact recipe for dothrow.c:toss_up() -> weapon.c:dmgval(). This hard boulder does not take the breaking-object or potion branch, so the source reaches dothrow.c:hitfloor(obj, TRUE) after calculating damage. JS intentionally records the discarded void callee with note_unported(\"dothrow.c hitfloor\") until that source function is ported; this recipe is not matching evidence.",
+  "comment": "Blocked dothrow.c:toss_up() -> hitfloor() caller witness. The hard boulder setup reaches C's throw path, but strict replay stops before toss_up/hitfloor at segment 1 step 19: C consumes rn2(100) in zap.c:makewish() on the wish-finalization newline while JavaScript emits no matching draw or screen. This recipe does not establish hitfloor runtime evidence.",
   "segments": [
     {
       "seed": 482637,
