@@ -4,19 +4,24 @@ import test from 'node:test';
 import {
     A_CON,
     A_STR,
+    ARROW_TRAP,
     DART_TRAP,
     KILLED_BY_AN,
     POISON_RES,
+    ROOM,
+    Trap_Is_Gone,
 } from '../js/const.js';
 import { game } from '../js/gstate.js';
 import { runSegment } from '../js/jsmain.js';
 import { thitu } from '../js/mthrowu.js';
 import { DART, WEAPON_CLASS } from '../js/objects.js';
 import { rn2, rnd } from '../js/rng.js';
-import { t_at } from '../js/trap.js';
+import { maketrap, t_at } from '../js/trap.js';
 import {
     preflight_dotrap,
+    trapeffect_selector,
 } from '../js/trap_effects.js';
+import { loadHeroBearTrapRecipe } from './run-hero-bear-trap.mjs';
 
 // Seed 4 with the same datetime as the witness session seed0004-feeding-pony.
 // The hero walks onto an unseen dart trap at step 234-235. The segment
@@ -64,6 +69,73 @@ async function heroState() {
     await runSegment({ seed: SEED, datetime: DATETIME, nethackrc: RC, moves: '' });
     return game;
 }
+
+async function wornOutMissileTrap(ttyp, expectedMessage) {
+    // The empty seed-4 test fixture above has hero role data but has not
+    // entered the dungeon. Use a real generated level for deltrap/newsym.
+    const segment = loadHeroBearTrapRecipe().segments[1];
+    await runSegment({ ...segment, moves: '' });
+    const state = game;
+    state.flags.acoustics = true;
+    let x = -1;
+    let y = -1;
+    for (let row = 0; row < 21 && x < 0; row++) {
+        for (let column = 0; column < 80; column++) {
+            if (state.level.at(column, row)?.typ === ROOM
+                && !state.level.traps.some(
+                    (placed) => placed.tx === column && placed.ty === row,
+                )) {
+                x = column;
+                y = row;
+                break;
+            }
+        }
+    }
+    assert.notEqual(x, -1, 'the generated level has an open room square');
+    const trap = maketrap(x, y, ttyp, { state });
+    assert.ok(trap, 'the test places a trap on an open room square');
+    trap.tseen = true;
+    trap.once = true;
+
+    const draws = [];
+    const observed = [];
+    const result = await trapeffect_selector(
+        state.youmonst,
+        trap,
+        0,
+        {
+            state,
+            random: {
+                rn2: (bound) => {
+                    draws.push(bound);
+                    return 0;
+                },
+            },
+            message: async (line) => observed.push({
+                line,
+                trapStillPresent: t_at(trap.tx, trap.ty, state) === trap,
+            }),
+            redraw: () => {},
+        },
+    );
+
+    assert.equal(result, Trap_Is_Gone);
+    assert.deepEqual(draws, [15], 'C rolls rn2(15) before the message');
+    assert.deepEqual(observed, [{
+        line: expectedMessage,
+        trapStillPresent: true,
+    }], 'You_hear prints before deltrap/newsym');
+    assert.equal(t_at(trap.tx, trap.ty, state), null,
+        'the source branch removes the worn trap after the message');
+}
+
+test('arrow trap wear-out routes its loud click through You_hear', async () => {
+    await wornOutMissileTrap(ARROW_TRAP, 'You hear a loud click!');
+});
+
+test('dart trap wear-out routes its soft click through You_hear', async () => {
+    await wornOutMissileTrap(DART_TRAP, 'You hear a soft click.');
+});
 
 // Collects messages and exercises.
 function thituEnv(rolls) {

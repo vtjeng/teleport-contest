@@ -3,6 +3,7 @@ import test from 'node:test';
 
 import {
     BLINDED,
+    FAINTED,
     FROMOUTSIDE,
     HALLUC,
     HALLUC_RES,
@@ -221,6 +222,46 @@ test('trapeffect_magic_trap: fate 14 howling (hallucination)', async () => {
     assert.equal(env.messages.length, 1);
     assert.equal(env.messages[0], 'You hear the moon howling at you.');
 });
+
+test('trapeffect_magic_trap: fate 14 uses You_hear prefix precedence',
+    async () => {
+        const state = await initState();
+        state.flags.acoustics = true;
+        state.u.uroleplay ??= {};
+        state.u.uprops ??= {};
+        state.u.uprops[HALLUC] = { intrinsic: 0 };
+
+        const runHowling = async () => {
+            const env = heroEnv(state, 1, 14);
+            await trapeffect_selector(
+                state.youmonst, makeTrap(state), 0, env,
+            );
+            return env.messages;
+        };
+
+        state.u.uinwater = true;
+        assert.deepEqual(await runHowling(), [
+            'You barely hear distant howling.',
+        ]);
+
+        state.u.uinwater = false;
+        state.u.uroleplay.deaf = true;
+        assert.deepEqual(await runHowling(), [],
+            'Deaf suppresses the call when the hero is aware');
+
+        state.u.uroleplay.deaf = false;
+        state.flags.acoustics = false;
+        assert.deepEqual(await runHowling(), [],
+            'disabled acoustics suppress the call');
+
+        state.flags.acoustics = true;
+        state.multi = -1;
+        state.u.uhs = FAINTED;
+        state.u.uroleplay.deaf = true;
+        assert.deepEqual(await runHowling(), [
+            'You dream that you hear distant howling.',
+        ], 'Unaware overrides Deaf as in pline.c:You_hear');
+    });
 
 test('trapeffect_magic_trap: fate 15 distant homeland', async () => {
     // On dungeon level 1 (not the quest start, not in the quest), without

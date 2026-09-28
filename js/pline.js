@@ -1,4 +1,4 @@
-// pline.js -- the in-memory chronicle owned by pline.c.
+// pline.js -- message-prefix and chronicle functions owned by pline.c.
 //
 // C refs: pline.c gamelog_add() (495-512) and livelog_printf() (515-528).
 // The browser port has no external live-log sink, but the chronicle linked
@@ -7,8 +7,35 @@
 import { game } from './gstate.js';
 import { livelog_add } from './files.js';
 import { truncateByteString } from './hacklib.js';
-import { BUFSZ, PLINE_VERBALIZE } from './const.js';
+import { BUFSZ, DEAF, PLINE_VERBALIZE } from './const.js';
+import { is_fainted } from './eat.js';
+import { unconscious } from './trap.js';
 import { ttyPline } from './tty_message.js';
+
+// C refs: pline.c You_hear() (436-451), youprop.h Deaf/Unaware, and
+// trap.c unconscious(). C's Deaf macro includes timeout, worn and roleplay
+// deafness; Unaware requires both negative multi and an insensible state.
+export function heroDeaf(state = game) {
+    const deaf = state.u?.uprops?.[DEAF];
+    return Boolean(deaf?.intrinsic || deaf?.extrinsic
+        || state.u?.uroleplay?.deaf);
+}
+
+export function heroUnaware(state = game) {
+    return Math.trunc(state.multi ?? 0) < 0
+        && (unconscious(state) || is_fainted(state));
+}
+
+// C builds the prefix before vpline() formats the caller's variadic suffix.
+// JS callers pass the already-formatted suffix and deliver the resulting line
+// through their ordinary pline callback, preserving its wait/boundary order.
+export function youHear(line, state = game) {
+    if ((heroDeaf(state) && !heroUnaware(state)) || !state.flags?.acoustics)
+        return null;
+    if (state.u?.uinwater) return `You barely hear ${line}`;
+    if (heroUnaware(state)) return `You dream that you hear ${line}`;
+    return `You hear ${line}`;
+}
 
 // C ref: pline.c verbalize() (476-490). This helper is already used by
 // random-text, prayer, and shop callers; keep it beside the other pline.c

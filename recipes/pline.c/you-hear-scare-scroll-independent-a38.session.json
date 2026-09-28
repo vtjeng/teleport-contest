@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent pline.c:You_hear witness through read.c:seffect_scare_monster. The final space dismisses the read message's pager so C reaches the scroll effect.",
+  "segments": [
+    {
+      "seed": 33072112,
+      "datetime": "20510618124531",
+      "nethackrc": "OPTIONS=name:A38Hear,role:Wizard,race:human,gender:male,align:neutral,playmode:debug,!legacy,!tutorial,!splash_screen,pettype:none,acoustics\n",
+      "moves": " \u0017cursed scroll of scare monster\n ro "
+    }
+  ]
+}

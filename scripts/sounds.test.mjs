@@ -168,6 +168,21 @@ test('dosounds preserves fountain and sink gate and selection order', async () =
     ]);
 });
 
+test('ambient sounds use You_hear prefixes for an unaware hero', async () => {
+    const state = soundState();
+    state.level.flags.nfountains = 1;
+    state.multi = -1;
+    state.u.usleep = 1;
+
+    // The sound.c gate and selection draws stay unchanged. You_hear() then
+    // applies the Unaware prefix at the actual message boundary.
+    const { script, messages } = await runSounds(state, [0, 1]);
+    script.assertBounds([400, 3]);
+    assert.deepEqual(messages, [
+        'You dream that you hear water falling on coins.',
+    ]);
+});
+
 test('dosounds awaits each message before drawing for the next branch', async () => {
     const state = soundState();
     state.level.flags.nfountains = 1;

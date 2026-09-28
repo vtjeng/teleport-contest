@@ -381,7 +381,7 @@ test('done_eating leaves gn.nomovemsg in a shape its reader accepts',
     async () => {
         // C's `gn.nomovemsg = 0` assigns NULL to a `const char *`, and its
         // readers test it rather than calling a string method on it. This
-        // port's other reader, js/monmove.js heroUnaware(), resolves the field
+        // port's other reader, js/pline.js heroUnaware(), resolves the field
         // with `??` and then calls String.prototype.startsWith, which the
         // number 0 does not answer.
         await runSegment(segmentFor(5820011, 'ed '));
